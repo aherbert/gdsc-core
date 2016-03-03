@@ -84,6 +84,7 @@ public class ImageJAnalyticsTracker
 
 	private static ClientParameters clientParameters = null;
 	private static JGoogleAnalyticsTracker tracker = null;
+	private static boolean loggedPreferrences = false;
 
 	/**
 	 * Flag indicating that the user has opted in/out of analytics
@@ -462,7 +463,7 @@ public class ImageJAnalyticsTracker
 		// @formatter:on
 		gd.hideCancelButton();
 		gd.showDialog();
-		
+
 		if (!gd.wasCanceled())
 		{
 			// This will happen if the user clicks OK. 
@@ -482,5 +483,23 @@ public class ImageJAnalyticsTracker
 		// Anonymize first to respect the user choice if they still have tracking on
 		setAnonymized(anonymize);
 		setDisabled(disabled);
+	}
+
+	/**
+	 * Write the current user preferences for analytics to the ImageJ log. This log message is written once only unless
+	 * the force flag is used.
+	 * 
+	 * @param force
+	 *            Force the preferences to be logged
+	 */
+	public static void logPreferences(boolean force)
+	{
+		if (loggedPreferrences && !force)
+			return;
+		loggedPreferrences = true;
+		// Get the preferences
+		IJ.log(String.format("%s - Google Analytics settings: Disabled=%b; Anonymise IP=%b", APPLICATION_NAME,
+				isDisabled(), isAnonymized()));
+		IJ.log("You can change these at any time by running the Usage Tracker plugin");
 	}
 }
