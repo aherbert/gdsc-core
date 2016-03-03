@@ -26,10 +26,14 @@ package gdsc.core.analytics;
  */
 
 /**
- * Store the version of the code
+ * Store the version of the code. The major/minor release number will be updated
+ * when significant functionality has changed. Otherwise release the version
+ * will be incremented.
+ * <p>
+ * Note that this is the version of the gdsc.core.analytics package. It may be
+ * different from the Maven version for the gdsc-core artifact.
  */
-public class Version
-{
+public class Version {
 	/**
 	 * The major version
 	 */
@@ -56,22 +60,21 @@ public class Version
 	 */
 	public static final String VERSION_X_X_X;
 
-	static
-	{
+	static {
 		VERSION_X = getVersion(1);
 		VERSION_X_X = getVersion(2);
 		VERSION_X_X_X = getVersion(3);
 	}
 
 	/**
-	 * Get the version as a string. The string is built as major.minor.release using the specified number of levels.
+	 * Get the version as a string. The string is built as major.minor.release
+	 * using the specified number of levels.
 	 * 
 	 * @param levels
 	 *            The number of levels (1-3).
 	 * @return The version
 	 */
-	public static String getVersion(int levels)
-	{
+	public static String getVersion(int levels) {
 		String version = Integer.toString(MAJOR);
 		if (levels > 1)
 			version += '.' + Integer.toString(MINOR);
