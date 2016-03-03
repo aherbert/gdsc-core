@@ -34,19 +34,60 @@ import ij.gui.GenericDialog;
  */
 public class ImageJAnalyticsTracker
 {
+	/**
+	 * Google Analytics (GA) tracking Id.
+	 * <p>
+	 * This is the GA property which is used to track all the user activity for
+	 * the GDSC ImageJ plugins.
+	 * <p>
+	 * <b>If you copy this code then please use your own tracking Id!</b>
+	 */
+	private static final String GA_TRACKING_ID = "UA-74666243-1";
+	/**
+	 * Google Analytics (GA) application name.
+	 * <p>
+	 * This is the application name for GA. It doesn't really matter what the value is but it is a required field within
+	 * GA.
+	 */
+	private static final String APPLICATION_NAME = "GDSC ImageJ Plugins";
+
+	// The following constants are used to store user preferences for Google Analytics tracking
+
+	/**
+	 * Store the user's client Id. This allows tracking repeat sessions.
+	 */
 	private static final String PROPERTY_GA_CLIENT_ID = "gdsc.ga.clientId";
+	/**
+	 * Store the user's opt in/out state. This prevents asking each time they start a new session.
+	 */
 	private static final String PROPERTY_GA_STATE = "gdsc.ga.state";
+	/**
+	 * Store the version of the code when the opt in/out state decision was made. This allows us to re-ask the question
+	 * if the code has had significant changes.
+	 */
 	private static final String PROPERTY_GA_LAST_VERSION = "gdsc.ga.lastVersion";
+	/**
+	 * Store the user's decision to use an anonymous IP address.
+	 */
 	private static final String PROPERTY_GA_ANONYMIZE = "gdsc.ga.anonymize";
+	/**
+	 * Disabled state flag
+	 */
 	private static final int DISABLED = -1;
+	/**
+	 * Flag to use when the state is unknown
+	 */
 	private static final int UNKNOWN = 0;
+	/**
+	 * Enabled state flag
+	 */
 	private static final int ENABLED = 1;
 
 	private static ClientParameters clientParameters = null;
 	private static JGoogleAnalyticsTracker tracker = null;
 
 	/**
-	 * Flag indicating that the user has opted out of analytics
+	 * Flag indicating that the user has opted in/out of analytics
 	 */
 	private static int state = (int) Prefs.get(PROPERTY_GA_STATE, UNKNOWN);
 	/**
@@ -85,7 +126,7 @@ public class ImageJAnalyticsTracker
 
 				// Get the client parameters
 				final String clientId = Prefs.get(PROPERTY_GA_CLIENT_ID, null);
-				clientParameters = new ClientParameters("UA-74107394-1", clientId, "GDSC ImageJ Plugins");
+				clientParameters = new ClientParameters(GA_TRACKING_ID, clientId, APPLICATION_NAME);
 
 				ClientParametersManager.populate(clientParameters);
 
@@ -95,7 +136,7 @@ public class ImageJAnalyticsTracker
 				// Record the version of analytics we are using
 				clientParameters.setApplicationVersion(gdsc.core.analytics.Version.VERSION_X_X_X);
 
-				// Use custom dimensions to record client data. These should be registered 
+				// Use custom dimensions to record client data. These should be registered
 				// in the analytics account for the given tracking ID
 
 				// Record the ImageJ information.
@@ -153,7 +194,7 @@ public class ImageJAnalyticsTracker
 	}
 
 	/**
-	 * Create the tracker
+	 * Create the tracker. Call this before sending any requests to Google Analytics.
 	 */
 	private static void initialiseTracker()
 	{
@@ -161,10 +202,11 @@ public class ImageJAnalyticsTracker
 		{
 			synchronized (ImageJAnalyticsTracker.class)
 			{
-				// Check again since this may be a second thread that was waiting  
+				// Check again since this may be a second thread that was waiting
 				if (tracker != null)
 					return;
 
+				// Make sure we have created a client
 				initialise();
 
 				tracker = new JGoogleAnalyticsTracker(clientParameters, MeasurementProtocolVersion.V_1,
@@ -172,7 +214,7 @@ public class ImageJAnalyticsTracker
 
 				tracker.setAnonymised(isAnonymized());
 
-				// XXX - Disable in production code 
+				// XXX - Disable in production code
 				// DEBUG: Enable logging
 				tracker.setLogger(new ConsoleLogger());
 			}
@@ -214,7 +256,7 @@ public class ImageJAnalyticsTracker
 		}
 		catch (IOException e)
 		{
-			// Ignore 
+			// Ignore
 		}
 		finally
 		{
@@ -387,32 +429,31 @@ public class ImageJAnalyticsTracker
 	 * @param title
 	 *            The dialog title
 	 * @param autoMessage
-	 *            Set to true to display the message about automatically showing when the status is unknown
+	 *            Set to true to display the message about automatically showing
+	 *            when the status is unknown
 	 */
 	public static void showDialog(String title, boolean autoMessage)
 	{
 		GenericDialog gd = new GenericDialog(title);
 		// @formatter:off
-		gd.addMessage("GDSC ImageJ Plugins\n \n" +
-				"The use of these plugins is free and unconstrained.\n" +
-				"The code uses Google Analytics to help us understand\n" +
-				"how users are using the plugins.\n \n" +
-				"Privacy Policy\n \n" +
-				"No personal information or data within ImageJ is recorded.\n \n" +
-				"We record the plugin name and the software running ImageJ.\n" +
-				"This happens in the background when nothing else is active so will\n" +
-				"not slow down ImageJ. IP anonymization will truncate your IP\n" +
-				"address to a region, usually a country. For more details click\n" +
-				"the Help button.\n \n" + 
-				"Click here to opt-out from Google Analytics");
+		gd.addMessage(APPLICATION_NAME + "\n \n" 
+				+ "The use of these plugins is free and unconstrained.\n"
+				+ "The code uses Google Analytics to help us understand\n" 
+				+ "how users are using the plugins.\n \n"
+				+ "Privacy Policy\n \n" 
+				+ "No personal information or data within ImageJ is recorded.\n \n"
+				+ "We record the plugin name and the software running ImageJ.\n"
+				+ "This happens in the background when nothing else is active so will\n"
+				+ "not slow down ImageJ. IP anonymization will truncate your IP\n"
+				+ "address to a region, usually a country. For more details click\n" 
+				+ "the Help button.\n \n"
+				+ "Click here to opt-out from Google Analytics");
 		gd.addHelp("http://www.sussex.ac.uk/gdsc/intranet/microscopy/imagej/tracking");
 		gd.addCheckbox("Disabled", isDisabled());
 		gd.addCheckbox("Anonymise IP", isAnonymized());
-		if (autoMessage)
-		{
-		gd.addMessage(
-				"Note: This dialog is automatically shown if your preferences\n" +
-				"are not known, or after a release that changes the tracking data.");
+		if (autoMessage) {
+			gd.addMessage("Note: This dialog is automatically shown if your preferences\n"
+					+ "are not known, or after a release that changes the tracking data.");
 		}
 		// @formatter:on
 		gd.hideCancelButton();
@@ -421,7 +462,7 @@ public class ImageJAnalyticsTracker
 			return;
 		final boolean disabled = gd.getNextBoolean();
 		final boolean anonymize = gd.getNextBoolean();
-		
+
 		// Anonymize first to respect the user choice if they still have tracking on
 		setAnonymized(anonymize);
 		setDisabled(disabled);
