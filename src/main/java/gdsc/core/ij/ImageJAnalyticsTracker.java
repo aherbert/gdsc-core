@@ -20,7 +20,6 @@ import java.util.HashMap;
 
 import gdsc.core.analytics.ClientParameters;
 import gdsc.core.analytics.ClientParametersManager;
-import gdsc.core.analytics.ConsoleLogger;
 import gdsc.core.analytics.JGoogleAnalyticsTracker;
 import gdsc.core.analytics.JGoogleAnalyticsTracker.DispatchMode;
 import gdsc.core.analytics.JGoogleAnalyticsTracker.MeasurementProtocolVersion;
@@ -216,7 +215,7 @@ public class ImageJAnalyticsTracker
 
 				// XXX - Disable in production code
 				// DEBUG: Enable logging
-				tracker.setLogger(new ConsoleLogger());
+				//tracker.setLogger(new gdsc.core.analytics.ConsoleLogger());
 			}
 		}
 	}
