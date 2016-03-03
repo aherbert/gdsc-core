@@ -448,8 +448,13 @@ public class ImageJAnalyticsTracker
 				+ "the Help button.\n \n"
 				+ "Click here to opt-out from Google Analytics");
 		gd.addHelp("http://www.sussex.ac.uk/gdsc/intranet/microscopy/imagej/tracking");
-		gd.addCheckbox("Disabled", isDisabled());
-		gd.addCheckbox("Anonymise IP", isAnonymized());
+		
+		// Get the preferences
+		boolean disabled = isDisabled();
+		boolean anonymize = isAnonymized();
+		
+		gd.addCheckbox("Disabled", disabled);
+		gd.addCheckbox("Anonymise IP", anonymize);
 		if (autoMessage) {
 			gd.addMessage("Note: This dialog is automatically shown if your preferences\n"
 					+ "are not known, or after a release that changes the tracking data.");
@@ -457,10 +462,22 @@ public class ImageJAnalyticsTracker
 		// @formatter:on
 		gd.hideCancelButton();
 		gd.showDialog();
-		if (gd.wasCanceled())
-			return;
-		final boolean disabled = gd.getNextBoolean();
-		final boolean anonymize = gd.getNextBoolean();
+		
+		if (!gd.wasCanceled())
+		{
+			// This will happen if the user clicks OK. 
+			disabled = gd.getNextBoolean();
+			anonymize = gd.getNextBoolean();
+		}
+		else
+		{
+			// We have hidden the cancel button. 
+			// This code will run if:
+			// - The user closes the dialog by other means (clicks escape/close window).
+			// In this case assume they are happy with the current settings and store 
+			// them. This should prevent the dialog being shown again for any code 
+			// using the unknownStatus() method.
+		}
 
 		// Anonymize first to respect the user choice if they still have tracking on
 		setAnonymized(anonymize);
