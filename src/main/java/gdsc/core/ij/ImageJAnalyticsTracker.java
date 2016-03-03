@@ -30,10 +30,7 @@ import ij.Prefs;
 import ij.gui.GenericDialog;
 
 /**
- * Provide a global reference to JGoogleAnalyticsTracker
- * <p>
- * This class exists in both the codebase for the GDSC ImageJ Plugins and GDSC SMLM ImageJ Plugins simply to allow
- * tracking of both applications together with the same client Id and session in one instance of ImageJ.
+ * Provide a global reference to JGoogleAnalyticsTracker for tracking GDSC ImageJ plugins
  */
 public class ImageJAnalyticsTracker
 {

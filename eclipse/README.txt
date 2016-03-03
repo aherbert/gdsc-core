@@ -1,4 +1,4 @@
-The GDSC-SMLM code was developed using the Eclipse IDE:
+The GDSC Core code was developed using the Eclipse IDE:
 https://eclipse.org/
 
 The code can be built using Maven. See the README.md for details. However using 
@@ -32,28 +32,5 @@ Click 'Import...' to load the provided rules.
 Running the code
 ----------------
 
-Build the project.
-
-Create a symbolic link on the filesystem to set-up the folders that are expected by ImageJ.
-
-Windows:
-
-    GDSC>mklink /D plugins target\classes
-    symbolic link created for plugins <<===>> target\classes
-    
-    GDSC>mklink /D macros target\classes\gdsc\macros
-    symbolic link created for macros <<===>> target\classes\gdsc\macros
-
-Linux:
-
-    [GDSC] % ln -s target/classes plugins
-    [GDSC] % ln -s target/classes/gdsc/macros
-
-Create a new Run configuration.
-
-Select ij.ImageJ as the main class.
-Add -Dabout-install=true to the VM arguments.
-
-Run the code.
-
-The same target can be used to debug the code.
+This code is a library to be used by other projects. There is no need to run the
+code from Eclipse.
