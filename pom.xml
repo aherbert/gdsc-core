@@ -111,10 +111,6 @@
 			<artifactId>ij</artifactId>
 			<version>1.48a</version>
 		</dependency>
-		<dependency>
-			<groupId>gdsc</groupId>
-			<artifactId>gdsc-core</artifactId>
-		</dependency>
 	</dependencies>
 
 	<repositories>
