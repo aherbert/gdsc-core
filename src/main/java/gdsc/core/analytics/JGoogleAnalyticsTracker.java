@@ -371,9 +371,10 @@ public class JGoogleAnalyticsTracker
 	}
 
 	/**
-	 * Makes a custom tracking request based from the given data.
+	 * Makes a custom tracking request based on the given data.
 	 * 
 	 * @param requestParameters
+	 *            The request parameters
 	 * @throws NullPointerException
 	 *             if requestData is null
 	 */
@@ -383,7 +384,7 @@ public class JGoogleAnalyticsTracker
 	}
 
 	/**
-	 * Makes a custom tracking request based from the given data.
+	 * Makes a custom tracking request based on the given data.
 	 * 
 	 * @param requestParameters
 	 *            The request parameters
