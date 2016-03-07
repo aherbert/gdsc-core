@@ -475,7 +475,11 @@ public class JGoogleAnalyticsTracker
 		{
 			String parameters = builder.buildURL(clientParameters, requestParameters, timestamp);
 			final URL url = new URL("http://www.google-analytics.com/collect");
-			connection = (HttpURLConnection) url.openConnection(proxy);
+			if (proxy == Proxy.NO_PROXY)
+				// Use the system default mechanism for connecting
+				connection = (HttpURLConnection) url.openConnection();
+			else
+				connection = (HttpURLConnection) url.openConnection(proxy);
 			connection.setRequestMethod("POST");
 			connection.setDoOutput(true);
 			connection.setUseCaches(false);
