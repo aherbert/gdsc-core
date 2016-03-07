@@ -40,7 +40,9 @@ public class URIEncoder
 
 	/**
 	 * Encode the string
-	 * @param string The string
+	 * 
+	 * @param string
+	 *            The string
 	 * @return The encoded string
 	 */
 	public static String encodeURI(String string)

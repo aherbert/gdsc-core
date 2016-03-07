@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Random;
 
 import gdsc.core.analytics.Parameters.CustomDimension;
+import gdsc.core.analytics.Parameters.CustomMetric;
 
 /**
  * Build the parameters used by Google Analytics Measurement Protocol.
@@ -64,10 +65,10 @@ public class AnalyticsMeasurementProtocolURLBuilder implements IAnalyticsMeasure
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see gdsc.analytics.IAnalyticsMeasurementProtocolURLBuilder#buildURL(gdsc.analytics.ClientParameters,
-	 * gdsc.analytics.RequestParameters)
+	 * @see gdsc.core.analytics.IAnalyticsMeasurementProtocolURLBuilder#buildURL(gdsc.core.analytics.ClientParameters,
+	 * gdsc.core.analytics.RequestParameters, long)
 	 */
-	public String buildURL(ClientParameters clientParameters, RequestParameters requestParameters)
+	public String buildURL(ClientParameters clientParameters, RequestParameters requestParameters, long timestamp)
 	{
 		// Details of how to build a URL are given here:
 		// https://developers.google.com/analytics/devguides/collection/protocol/v1/devguide#commonhits
@@ -82,7 +83,7 @@ public class AnalyticsMeasurementProtocolURLBuilder implements IAnalyticsMeasure
 			sb.append("&sc=start");
 
 		// Build the client data
-		String url = clientParameters.getUrl(); 
+		String url = clientParameters.getUrl();
 		if (url == null)
 			url = buildClientURL(clientParameters);
 		sb.append(url);
@@ -94,6 +95,7 @@ public class AnalyticsMeasurementProtocolURLBuilder implements IAnalyticsMeasure
 
 		// Check for more custom dimensions
 		buildCustomDimensionsURL(sb, requestParameters.getCustomDimensions());
+		buildCustomMetricsURL(sb, requestParameters.getCustomMetrics());
 
 		switch (requestParameters.getHitTypeEnum())
 		{
@@ -113,12 +115,29 @@ public class AnalyticsMeasurementProtocolURLBuilder implements IAnalyticsMeasure
 				throw new IllegalArgumentException("Unsupported hit type: " + requestParameters.getHitType());
 		}
 
+		// Queue time
+		// Used to collect offline / latent hits. The value represents the time delta (in milliseconds) 
+		// between when the hit being reported occurred and the time the hit was sent. The value must be 
+		// greater than or equal to 0. Values greater than four hours may lead to hits not being processed.
+		add(sb, "qt", System.currentTimeMillis() - timestamp);
+
+		return sb.toString();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * gdsc.core.analytics.IAnalyticsMeasurementProtocolURLBuilder#buildGetURL(gdsc.core.analytics.ClientParameters,
+	 * gdsc.core.analytics.RequestParameters, long)
+	 */
+	public String buildGetURL(ClientParameters clientParameters, RequestParameters requestParameters, long timestamp)
+	{
 		// Cache buster.  
 		// Used to send a random number in GET requests to ensure browsers and proxies don't cache hits. 
 		// It should be sent as the final parameter of the request
-		sb.append("&z=").append(random.nextInt());
-
-		return sb.toString();
+		// https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters#z
+		return buildURL(clientParameters, requestParameters, timestamp) + "&z=" + random.nextInt();
 	}
 
 	/**
@@ -141,6 +160,18 @@ public class AnalyticsMeasurementProtocolURLBuilder implements IAnalyticsMeasure
 	 * @param value
 	 */
 	private void add(StringBuilder sb, String key, int value)
+	{
+		sb.append('&').append(key).append('=').append(value);
+	}
+
+	/**
+	 * Add the key value pair
+	 * 
+	 * @param sb
+	 * @param key
+	 * @param value
+	 */
+	private void add(StringBuilder sb, String key, long value)
 	{
 		sb.append('&').append(key).append('=').append(value);
 	}
@@ -200,6 +231,7 @@ public class AnalyticsMeasurementProtocolURLBuilder implements IAnalyticsMeasure
 		sb.append("&je=1"); // java enabled
 
 		buildCustomDimensionsURL(sb, client.getCustomDimensions());
+		buildCustomMetricsURL(sb, client.getCustomMetrics());
 
 		final String url = sb.toString();
 		client.setUrl(url);
@@ -210,7 +242,15 @@ public class AnalyticsMeasurementProtocolURLBuilder implements IAnalyticsMeasure
 	{
 		if (customDimensions == null)
 			return;
-		for (CustomDimension d : customDimensions)
-			add(sb, "cd" + d.index, d.value);
+		for (CustomDimension cd : customDimensions)
+			add(sb, "cd" + cd.index, cd.value);
+	}
+
+	private void buildCustomMetricsURL(StringBuilder sb, List<CustomMetric> customMetrics)
+	{
+		if (customMetrics == null)
+			return;
+		for (CustomMetric cm : customMetrics)
+			add(sb, "cm" + cm.index, cm.value);
 	}
 }

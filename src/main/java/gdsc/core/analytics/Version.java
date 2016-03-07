@@ -33,7 +33,8 @@ package gdsc.core.analytics;
  * Note that this is the version of the gdsc.core.analytics package. It may be
  * different from the Maven version for the gdsc-core artifact.
  */
-public class Version {
+public class Version
+{
 	/**
 	 * The major version
 	 */
@@ -60,7 +61,8 @@ public class Version {
 	 */
 	public static final String VERSION_X_X_X;
 
-	static {
+	static
+	{
 		VERSION_X = getVersion(1);
 		VERSION_X_X = getVersion(2);
 		VERSION_X_X_X = getVersion(3);
@@ -74,7 +76,8 @@ public class Version {
 	 *            The number of levels (1-3).
 	 * @return The version
 	 */
-	public static String getVersion(int levels) {
+	public static String getVersion(int levels)
+	{
 		String version = Integer.toString(MAJOR);
 		if (levels > 1)
 			version += '.' + Integer.toString(MINOR);

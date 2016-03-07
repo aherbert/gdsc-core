@@ -64,11 +64,11 @@ public class ClientParametersManager
 			// This performs a lookup of the name service as well
 			// e.g. host.domain.com
 			hostName = iAddress.getCanonicalHostName();
-			
+
 			// This only retrieves the bare hostname
 			// e.g. host
 			// hostName = iAddress.getHostName();
-			
+
 			// This retrieves the IP address as a string
 			// e.g. 192.168.0.1 
 			//hostName = iAddress.getHostAddress();
@@ -81,25 +81,26 @@ public class ClientParametersManager
 
 		final Dimension d = getScreenSize();
 		data.setScreenResolution(d.width + "x" + d.height);
-		
+
 		// The browser and operating system are taken from the User-Agent property.
-		
+
 		//data.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"); // To simulate Chrome
-		
+
 		// The Java URLConnection User-Agent property will default to 'Java/1.6.0.19' where the 
 		// last part is the JRE version. Add the operating system to this, e.g. Java/1.6.0.19 (Windows 7 6.1)
-		
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("Java/").append(System.getProperty("java.version"));
-		sb.append(" (").append(System.getProperty("os.name")).append(" ").append(System.getProperty("os.version")).append(")");
+		sb.append(" (").append(System.getProperty("os.name")).append(" ").append(System.getProperty("os.version"))
+				.append(")");
 		data.setUserAgent(sb.toString());
-		
+
 		// Note: Adding the OS does not currently work within Google Analytics.
 		//
 		// https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters#ua
 		// "The User Agent of the browser. Note that Google has libraries to identify real user agents. 
 		// Hand crafting your own agent could break at any time."
-		
+
 		// A better option is to pass in custom dimension so this data can be used in reports.
 	}
 

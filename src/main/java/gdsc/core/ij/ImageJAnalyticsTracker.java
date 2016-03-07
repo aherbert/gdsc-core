@@ -12,15 +12,21 @@
  *---------------------------------------------------------------------------*/
 package gdsc.core.ij;
 
+import java.awt.Checkbox;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Vector;
 
 import gdsc.core.analytics.ClientParameters;
 import gdsc.core.analytics.ClientParametersManager;
+import gdsc.core.analytics.HitType;
 import gdsc.core.analytics.JGoogleAnalyticsTracker;
+import gdsc.core.analytics.RequestParameters;
 import gdsc.core.analytics.JGoogleAnalyticsTracker.DispatchMode;
 import gdsc.core.analytics.JGoogleAnalyticsTracker.MeasurementProtocolVersion;
 import ij.IJ;
@@ -108,7 +114,14 @@ public class ImageJAnalyticsTracker
 		initialiseTracker();
 		if (isDisabled())
 			return;
-		tracker.pageview(pageUrl, pageTitle);
+		// Get the timestamp. This allows asynchronous hits to be recorded at the correct time 
+		final long timestamp = System.currentTimeMillis();
+		RequestParameters data = new RequestParameters(HitType.PAGEVIEW);
+		data.setDocumentPath(pageUrl);
+		data.setDocumentTitle(pageTitle);
+		// Add custom dimensions for ImageJ state
+		data.addCustomMetric(1, (IJ.isMacro()) ? 1 : 0);
+		tracker.makeCustomRequest(data, timestamp);
 	}
 
 	/**
@@ -437,17 +450,8 @@ public class ImageJAnalyticsTracker
 		GenericDialog gd = new GenericDialog(title);
 		// @formatter:off
 		gd.addMessage(APPLICATION_NAME + "\n \n" 
-				+ "The use of these plugins is free and unconstrained.\n"
-				+ "The code uses Google Analytics to help us understand\n" 
-				+ "how users are using the plugins.\n \n"
-				+ "Privacy Policy\n \n" 
-				+ "No personal information or data within ImageJ is recorded.\n \n"
-				+ "We record the plugin name and the software running ImageJ.\n"
-				+ "This happens in the background when nothing else is active so will\n"
-				+ "not slow down ImageJ. IP anonymization will truncate your IP\n"
-				+ "address to a region, usually a country. For more details click\n" 
-				+ "the Help button.\n \n"
-				+ "Click here to opt-out from Google Analytics");
+				+ "We use tracking code to make our plugins better.\n \n"
+				+ "Click 'Help' to find out more."); 
 		gd.addHelp("http://www.sussex.ac.uk/gdsc/intranet/microscopy/imagej/tracking");
 		
 		// Get the preferences
@@ -457,11 +461,26 @@ public class ImageJAnalyticsTracker
 		gd.addCheckbox("Disabled", disabled);
 		gd.addCheckbox("Anonymise IP", anonymize);
 		if (autoMessage) {
-			gd.addMessage("Note: This dialog is automatically shown if your preferences\n"
-					+ "are not known, or after a release that changes the tracking data.");
+			gd.addMessage("Note: This message is shown when we don't know\n" +
+					"your preferences\n");
 		}
 		// @formatter:on
 		gd.hideCancelButton();
+
+		// Add event listener to disable anonymous checkbox when the user opts out
+		@SuppressWarnings("rawtypes")
+		Vector checkboxes = gd.getCheckboxes();
+		final Checkbox cb1 = (Checkbox) checkboxes.get(0);
+		final Checkbox cb2 = (Checkbox) checkboxes.get(1);
+		cb2.setEnabled(disabled);
+		cb1.addItemListener(new ItemListener()
+		{
+			public void itemStateChanged(ItemEvent e)
+			{
+				cb2.setEnabled(cb2.getState());
+			}
+		});
+
 		gd.showDialog();
 
 		if (!gd.wasCanceled())

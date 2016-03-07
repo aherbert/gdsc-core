@@ -30,9 +30,9 @@ import java.util.List;
 
 /**
  * Base class for parameters to allow storing custom dimensions and metrics.
-	 * Note that custom dimensions have to be created for your site before they can be used in analytics reports.
-	 * 
-	 * @see https://support.google.com/analytics/answer/2709829
+ * Note that custom dimensions have to be created for your site before they can be used in analytics reports.
+ * 
+ * @see https://support.google.com/analytics/answer/2709829
  * 
  * @see https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters
  */
@@ -52,6 +52,7 @@ public class Parameters
 			this.value = value;
 		}
 	}
+
 	/**
 	 * Stores a custom metric
 	 */
@@ -84,8 +85,10 @@ public class Parameters
 	 * 
 	 * @see https://support.google.com/analytics/answer/2709829
 	 * 
-	 * @param index The dimension index (1-20 or 1-200 for premium accounts)
-	 * @param value The dimension value (must not be null)
+	 * @param index
+	 *            The dimension index (1-20 or 1-200 for premium accounts)
+	 * @param value
+	 *            The dimension value (must not be null)
 	 */
 	public void addCustomDimension(int index, String value)
 	{
@@ -113,7 +116,7 @@ public class Parameters
 	{
 		return (customDimensions == null) ? 0 : customDimensions.size();
 	}
-	
+
 	/**
 	 * @return True if there are custom dimensions
 	 */
@@ -129,8 +132,10 @@ public class Parameters
 	 * 
 	 * @see https://support.google.com/analytics/answer/2709829
 	 * 
-	 * @param index The dimension index (1-20 or 1-200 for premium accounts)
-	 * @param value The metric value
+	 * @param index
+	 *            The dimension index (1-20 or 1-200 for premium accounts)
+	 * @param value
+	 *            The metric value
 	 */
 	public void addCustomMetric(int index, int value)
 	{
@@ -156,7 +161,7 @@ public class Parameters
 	{
 		return (customMetrics == null) ? 0 : customMetrics.size();
 	}
-	
+
 	/**
 	 * @return True if there are custom metrics
 	 */

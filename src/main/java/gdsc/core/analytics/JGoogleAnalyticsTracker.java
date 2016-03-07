@@ -110,12 +110,14 @@ public class JGoogleAnalyticsTracker
 	 */
 	private class RequestData
 	{
-		final String url;
+		final RequestParameters requestParameters;
+		final long timestamp;
 		final JGoogleAnalyticsTracker tracker;
 
-		RequestData(String url, JGoogleAnalyticsTracker tracker)
+		RequestData(RequestParameters requestParameters, long timestamp, JGoogleAnalyticsTracker tracker)
 		{
-			this.url = url;
+			this.requestParameters = requestParameters;
+			this.timestamp = timestamp;
 			this.tracker = tracker;
 		}
 	}
@@ -377,6 +379,21 @@ public class JGoogleAnalyticsTracker
 	 */
 	public void makeCustomRequest(RequestParameters requestParameters)
 	{
+		makeCustomRequest(requestParameters, System.currentTimeMillis());
+	}
+
+	/**
+	 * Makes a custom tracking request based from the given data.
+	 * 
+	 * @param requestParameters
+	 *            The request parameters
+	 * @throws NullPointerException
+	 *             if requestData is null
+	 * @param timestamp
+	 *            The timestamp when the hit was reported (in milliseconds)
+	 */
+	public void makeCustomRequest(final RequestParameters requestParameters, final long timestamp)
+	{
 		if (!enabled)
 		{
 			logger.debug("Ignoring tracking request, enabled is false");
@@ -386,7 +403,6 @@ public class JGoogleAnalyticsTracker
 		{
 			throw new NullPointerException("Data cannot be null");
 		}
-		final String url = builder.buildURL(clientParameters, requestParameters);
 
 		switch (mode)
 		{
@@ -401,7 +417,7 @@ public class JGoogleAnalyticsTracker
 						}
 						try
 						{
-							dispatchRequest(url, logger);
+							dispatchRequest(builder, clientParameters, requestParameters, timestamp, logger);
 						}
 						finally
 						{
@@ -417,14 +433,14 @@ public class JGoogleAnalyticsTracker
 				break;
 
 			case SYNCHRONOUS:
-				dispatchRequest(url, logger);
+				dispatchRequest(builder, clientParameters, requestParameters, timestamp, logger);
 				break;
 
 			case SINGLE_THREAD:
 			default: // in case it's null, we default to the single-thread
 				synchronized (fifo)
 				{
-					fifo.add(new RequestData(url, this));
+					fifo.add(new RequestData(requestParameters, timestamp, this));
 					fifo.notify();
 				}
 				if (!backgroundThreadMayRun)
@@ -439,16 +455,24 @@ public class JGoogleAnalyticsTracker
 	/**
 	 * Send the parameters to Google Analytics using the Measurement Protocol. This uses the HTTP POST method.
 	 * 
-	 * @param parameters
-	 *            The POST parameters (assumed to use UTF-8 encoding)
+	 * @param builder
+	 *            The URL builder for Google Analytics Measurement Protocol
+	 * @param clientParameters
+	 *            The client parameter data
+	 * @param requestParameters
+	 *            The request parameter data
+	 * @param timestamp
+	 *            The timestamp when the hit was reported (in milliseconds)
 	 * @param logger
 	 *            The logger used for status messages
 	 */
-	private static void dispatchRequest(String parameters, Logger logger)
+	private static void dispatchRequest(IAnalyticsMeasurementProtocolURLBuilder builder,
+			ClientParameters clientParameters, RequestParameters requestParameters, long timestamp, Logger logger)
 	{
 		HttpURLConnection connection = null;
 		try
 		{
+			String parameters = builder.buildURL(clientParameters, requestParameters, timestamp);
 			final URL url = new URL("http://www.google-analytics.com/collect");
 			connection = (HttpURLConnection) url.openConnection(proxy);
 			connection.setRequestMethod("POST");
@@ -545,7 +569,8 @@ public class JGoogleAnalyticsTracker
 							{
 								try
 								{
-									dispatchRequest(data.url, data.tracker.getLogger());
+									dispatchRequest(data.tracker.builder, data.tracker.clientParameters,
+											data.requestParameters, data.timestamp, data.tracker.logger);
 								}
 								finally
 								{

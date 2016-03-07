@@ -60,6 +60,8 @@ public class Session
 	/**
 	 * Check if the session is new (i.e. has not been initialised, has timed out, or been reset).
 	 * Calling this refreshes the current session to prevent timeout.
+	 * 
+	 * @return True if the session is new
 	 */
 	public boolean isNew()
 	{
@@ -88,7 +90,8 @@ public class Session
 	}
 
 	/**
-	 * @param timeout the timeout to set
+	 * @param timeout
+	 *            the timeout to set
 	 */
 	public void setTimeout(long timeout)
 	{

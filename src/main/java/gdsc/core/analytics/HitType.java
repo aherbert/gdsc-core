@@ -31,7 +31,7 @@ package gdsc.core.analytics;
 public enum HitType
 {
 	PAGEVIEW, SCREENVIEW, EVENT, TRANSACTION, ITEM, SOCIAL, EXCEPTION, TIMING;
-	
+
 	private final String name;
 
 	private HitType()

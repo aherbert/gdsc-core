@@ -101,6 +101,8 @@ public class ClientParameters extends Parameters
 
 	/**
 	 * Check if this is a new session
+	 * 
+	 * @return True if the session is new
 	 */
 	public boolean isNewSession()
 	{
