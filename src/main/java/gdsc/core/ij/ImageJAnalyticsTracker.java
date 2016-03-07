@@ -229,7 +229,7 @@ public class ImageJAnalyticsTracker
 
 				// XXX - Disable in production code
 				// DEBUG: Enable logging
-				//tracker.setLogger(new gdsc.core.analytics.ConsoleLogger());
+				tracker.setLogger(new gdsc.core.analytics.ConsoleLogger());
 			}
 		}
 	}
@@ -472,12 +472,12 @@ public class ImageJAnalyticsTracker
 		Vector checkboxes = gd.getCheckboxes();
 		final Checkbox cb1 = (Checkbox) checkboxes.get(0);
 		final Checkbox cb2 = (Checkbox) checkboxes.get(1);
-		cb2.setEnabled(disabled);
+		cb2.setEnabled(!disabled);
 		cb1.addItemListener(new ItemListener()
 		{
 			public void itemStateChanged(ItemEvent e)
 			{
-				cb2.setEnabled(cb2.getState());
+				cb2.setEnabled(!cb1.getState());
 			}
 		});
 
