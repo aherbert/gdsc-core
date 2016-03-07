@@ -124,7 +124,7 @@ public class JGoogleAnalyticsTracker
 
 	private static final ThreadGroup asyncThreadGroup = new ThreadGroup("Async Google Analytics Threads");
 	private static long asyncThreadsRunning = 0;
-	private static Proxy proxy = Proxy.NO_PROXY;
+	private static Proxy proxy = null;
 	private static Queue<RequestData> fifo = new LinkedList<RequestData>();
 	private static Thread backgroundThread = null; // the thread used in 'queued' mode.
 	private static boolean backgroundThreadMayRun = false;
@@ -271,7 +271,8 @@ public class JGoogleAnalyticsTracker
 	}
 
 	/**
-	 * Define the proxy to use for all GA tracking requests.
+	 * Define the proxy to use for all GA tracking requests. You can pass Proxy.NO_PROXY to explicit use no proxy. Pass
+	 * null to revert to the system default mechanism for connecting.
 	 * <p>
 	 * Call this static method early (before creating any tracking requests).
 	 * 
@@ -280,7 +281,7 @@ public class JGoogleAnalyticsTracker
 	 */
 	public static void setProxy(Proxy proxy)
 	{
-		JGoogleAnalyticsTracker.proxy = (proxy != null) ? proxy : Proxy.NO_PROXY;
+		JGoogleAnalyticsTracker.proxy = proxy;
 	}
 
 	/**
@@ -324,6 +325,10 @@ public class JGoogleAnalyticsTracker
 			{
 				SocketAddress sa = new InetSocketAddress(proxyAddr, proxyPort);
 				setProxy(new Proxy(Type.HTTP, sa));
+			}
+			else
+			{
+				setProxy((Proxy) null);
 			}
 		}
 	}
@@ -475,7 +480,7 @@ public class JGoogleAnalyticsTracker
 		{
 			String parameters = builder.buildURL(clientParameters, requestParameters, timestamp);
 			final URL url = new URL("http://www.google-analytics.com/collect");
-			if (proxy == Proxy.NO_PROXY)
+			if (proxy == null)
 				// Use the system default mechanism for connecting
 				connection = (HttpURLConnection) url.openConnection();
 			else
