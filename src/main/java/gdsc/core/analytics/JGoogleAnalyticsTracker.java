@@ -505,19 +505,6 @@ public class JGoogleAnalyticsTracker
 			{
 				logger.debug("JGoogleAnalyticsTracker: Tracking success for url '%s'", parameters);
 			}
-
-			// I do not think we need to get the reply
-			//			InputStream is = connection.getInputStream();
-			//			BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-			//			String line;
-			//			StringBuffer response = new StringBuffer();
-			//			while ((line = rd.readLine()) != null)
-			//			{
-			//				response.append(line);
-			//				response.append('\r');
-			//			}
-			//			rd.close();
-			//			logger.debug("Reponse %s", response.toString());
 		}
 		catch (Exception e)
 		{
