@@ -230,7 +230,8 @@ public class ImageJAnalyticsTracker
 
 				// XXX - Disable in production code
 				// DEBUG: Enable logging
-				//tracker.setLogger(new gdsc.core.analytics.ConsoleLogger());
+				if (Boolean.parseBoolean(System.getProperty("gdsc-analytics-logger", "false")))
+					tracker.setLogger(new gdsc.core.analytics.ConsoleLogger());
 			}
 		}
 	}
