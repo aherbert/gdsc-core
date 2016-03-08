@@ -119,8 +119,9 @@ public class ImageJAnalyticsTracker
 		RequestParameters data = new RequestParameters(HitType.PAGEVIEW);
 		data.setDocumentPath(pageUrl);
 		data.setDocumentTitle(pageTitle);
-		// Add custom dimensions for ImageJ state
+		// Add custom dimensions for ImageJ state.
 		data.addCustomMetric(1, (IJ.isMacro()) ? 1 : 0);
+		data.addCustomDimension(8, Boolean.toString(IJ.isMacro()));
 		tracker.makeCustomRequest(data, timestamp);
 	}
 

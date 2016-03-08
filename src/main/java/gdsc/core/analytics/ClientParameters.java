@@ -262,10 +262,10 @@ public class ClientParameters extends Parameters
 		this.anonymized = anonymized;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Add a session level custom dimension. These will only be sent at the start of the session.
 	 * 
-	 * @see gdsc.analytics.Parameters#addCustomDimension(int, java.lang.String)
+	 * @see gdsc.core.analytics.Parameters#addCustomDimension(int, java.lang.String)
 	 */
 	@Override
 	public void addCustomDimension(int index, String value)
@@ -274,8 +274,8 @@ public class ClientParameters extends Parameters
 		super.addCustomDimension(index, value);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Add a session level custom metric. These will only be sent at the start of the session.
 	 * 
 	 * @see gdsc.analytics.Parameters#addCustomMetric(int, int)
 	 */
