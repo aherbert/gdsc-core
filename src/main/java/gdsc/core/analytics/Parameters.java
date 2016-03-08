@@ -82,6 +82,7 @@ public class Parameters
 	 * Add a custom dimension
 	 * <p>
 	 * Note that custom dimensions have to be created for your site before they can be used in analytics reports.
+	 * Dimensions should be used for segregation of data into categories.
 	 * 
 	 * @see https://support.google.com/analytics/answer/2709829
 	 * 
@@ -120,7 +121,7 @@ public class Parameters
 	/**
 	 * @return True if there are custom dimensions
 	 */
-	public boolean hasCustomeDimensions()
+	public boolean hasCustomDimensions()
 	{
 		return customDimensions != null;
 	}
@@ -129,6 +130,7 @@ public class Parameters
 	 * Add a custom metric
 	 * <p>
 	 * Note that custom metrics have to be created for your site before they can be used in analytics reports.
+	 * Metrics should be used for numbers that you want to accumulate.
 	 * 
 	 * @see https://support.google.com/analytics/answer/2709829
 	 * 
@@ -165,7 +167,7 @@ public class Parameters
 	/**
 	 * @return True if there are custom metrics
 	 */
-	public boolean hasCustomeMetrics()
+	public boolean hasCustomMetrics()
 	{
 		return customMetrics != null;
 	}

@@ -164,4 +164,26 @@ public class RequestParameters extends Parameters
 	{
 		this.value = value;
 	}
+
+	/**
+	 * Add a hit level custom dimension
+	 * 
+	 * @see gdsc.core.analytics.Parameters#addCustomDimension(int, java.lang.String)
+	 */
+	@Override
+	public void addCustomDimension(int index, String value)
+	{
+		super.addCustomDimension(index, value);
+	}
+
+	/**
+	 * Add a hit level custom metric
+	 * 
+	 * @see gdsc.core.analytics.Parameters#addCustomMetric(int, int)
+	 */
+	@Override
+	public void addCustomMetric(int index, int value)
+	{
+		super.addCustomMetric(index, value);
+	}
 }

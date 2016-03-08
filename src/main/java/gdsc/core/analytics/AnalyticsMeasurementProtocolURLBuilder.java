@@ -80,9 +80,18 @@ public class AnalyticsMeasurementProtocolURLBuilder implements IAnalyticsMeasure
 
 		// Check if this is a new session
 		if (clientParameters.isNewSession())
+		{
 			sb.append("&sc=start");
+			
+			// Add the client custom dimensions and metrics at the session level
+			buildCustomDimensionsURL(sb, clientParameters.getCustomDimensions());
+			buildCustomMetricsURL(sb, clientParameters.getCustomMetrics());
+		}
 
-		// Build the client data
+		// Build the client data.
+		// Note it is unclear if this can be sent only once at the session level or 
+		// it should be sent with each hit (which is more expensive). At the moment
+		// just send it with every hit.
 		String url = clientParameters.getUrl();
 		if (url == null)
 			url = buildClientURL(clientParameters);
@@ -177,6 +186,30 @@ public class AnalyticsMeasurementProtocolURLBuilder implements IAnalyticsMeasure
 	}
 
 	/**
+	 * Add a custom dimension
+	 * 
+	 * @param sb
+	 * @param index
+	 * @param value
+	 */
+	private void addDimension(StringBuilder sb, int index, String value)
+	{
+		sb.append("&cd").append(index).append('=').append(URIEncoder.encodeURI(value));
+	}
+
+	/**
+	 * Add a custom metric
+	 * 
+	 * @param sb
+	 * @param index
+	 * @param value
+	 */
+	private void addMetric(StringBuilder sb, int index, int value)
+	{
+		sb.append("&cm").append(index).append('=').append(value);
+	}
+	
+	/**
 	 * Add the key value pair if the value is not null
 	 * 
 	 * @param sb
@@ -230,9 +263,6 @@ public class AnalyticsMeasurementProtocolURLBuilder implements IAnalyticsMeasure
 
 		sb.append("&je=1"); // java enabled
 
-		buildCustomDimensionsURL(sb, client.getCustomDimensions());
-		buildCustomMetricsURL(sb, client.getCustomMetrics());
-
 		final String url = sb.toString();
 		client.setUrl(url);
 		return url;
@@ -243,7 +273,7 @@ public class AnalyticsMeasurementProtocolURLBuilder implements IAnalyticsMeasure
 		if (customDimensions == null)
 			return;
 		for (CustomDimension cd : customDimensions)
-			add(sb, "cd" + cd.index, cd.value);
+			addDimension(sb, cd.index, cd.value);
 	}
 
 	private void buildCustomMetricsURL(StringBuilder sb, List<CustomMetric> customMetrics)
@@ -251,6 +281,6 @@ public class AnalyticsMeasurementProtocolURLBuilder implements IAnalyticsMeasure
 		if (customMetrics == null)
 			return;
 		for (CustomMetric cm : customMetrics)
-			add(sb, "cm" + cm.index, cm.value);
+			addMetric(sb, cm.index, cm.value);
 	}
 }
