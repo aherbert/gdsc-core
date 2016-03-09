@@ -455,10 +455,14 @@ public class ImageJAnalyticsTracker
 	{
 		GenericDialog gd = new GenericDialog(title);
 		// @formatter:off
-		gd.addMessage(APPLICATION_NAME + "\n \nWe use tracking code to make our plugins better.");
+		gd.addMessage(
+				APPLICATION_NAME + 
+				"\n \n" +
+				"We use tracking code to make our plugins better.");
 
 		// With ImageJ 1.48a hiding the cancel button means the dialog is disposed when pressing 'Help'.
-		// To work around this we add an empty string and our own listener to show the help.
+		// To work around this we add an empty string and our own listener to show the help. ImageJ 
+		// should then notify listeners due to the empty help URL.
 		final String helpLabel = "More details...";
 		gd.setHelpLabel(helpLabel);
 		gd.addHelp("");
@@ -471,7 +475,10 @@ public class ImageJAnalyticsTracker
 					Button button = (Button) (e.getSource());
 					if (button.getLabel().equals(helpLabel))
 					{
-						String macro = "run('URL...', 'url=http://www.sussex.ac.uk/gdsc/intranet/microscopy/imagej/tracking');";
+						String macro = "run('URL...', 'url=" +
+								// This page describe the usage tracking in more detail
+								"http://www.sussex.ac.uk/gdsc/intranet/microscopy/imagej/tracking" +
+								"');";
 						new MacroRunner(macro);
 					}
 				}
@@ -487,7 +494,9 @@ public class ImageJAnalyticsTracker
 		gd.addCheckbox("Anonymise IP", anonymize);
 		if (autoMessage)
 		{
-			gd.addMessage("Note: This message is shown when we don't know\n" + "your preferences\n");
+			gd.addMessage(
+					"Note: This message is shown when we don't know\n" + 
+					"your preferences\n");
 		}
 		// @formatter:on
 		gd.hideCancelButton();
