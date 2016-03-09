@@ -133,6 +133,7 @@ public class ClientParametersManager
 			if (lc_os_name.contains("98"))            return "Windows 98";
 			if (lc_os_name.contains("95"))            return "Windows 95";
 			if (lc_os_name.contains("ce"))            return "Windows CE";
+			                                          return "Windows NT 6.1"; // Default to Windows 7
 			//@formatter:on
 		}
 		
