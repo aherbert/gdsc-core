@@ -107,6 +107,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>gdsc</groupId>
+			<artifactId>gdsc-analytics</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
 			<version>1.48a</version>

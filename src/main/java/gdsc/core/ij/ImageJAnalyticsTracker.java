@@ -22,13 +22,13 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Vector;
 
-import gdsc.core.analytics.ClientParameters;
-import gdsc.core.analytics.ClientParametersManager;
-import gdsc.core.analytics.HitType;
-import gdsc.core.analytics.JGoogleAnalyticsTracker;
-import gdsc.core.analytics.RequestParameters;
-import gdsc.core.analytics.JGoogleAnalyticsTracker.DispatchMode;
-import gdsc.core.analytics.JGoogleAnalyticsTracker.MeasurementProtocolVersion;
+import gdsc.analytics.ClientParameters;
+import gdsc.analytics.ClientParametersManager;
+import gdsc.analytics.HitType;
+import gdsc.analytics.JGoogleAnalyticsTracker;
+import gdsc.analytics.RequestParameters;
+import gdsc.analytics.JGoogleAnalyticsTracker.DispatchMode;
+import gdsc.analytics.JGoogleAnalyticsTracker.MeasurementProtocolVersion;
 import ij.IJ;
 import ij.ImageJ;
 import ij.Prefs;
@@ -148,7 +148,7 @@ public class ImageJAnalyticsTracker
 				Prefs.set(PROPERTY_GA_CLIENT_ID, clientParameters.getClientId());
 
 				// Record the version of analytics we are using
-				clientParameters.setApplicationVersion(gdsc.core.analytics.Version.VERSION_X_X_X);
+				clientParameters.setApplicationVersion(gdsc.analytics.Version.VERSION_X_X_X);
 
 				// Use custom dimensions to record client data. These should be registered
 				// in the analytics account for the given tracking ID
@@ -231,7 +231,7 @@ public class ImageJAnalyticsTracker
 				// XXX - Disable in production code
 				// DEBUG: Enable logging
 				if (Boolean.parseBoolean(System.getProperty("gdsc-analytics-logger", "false")))
-					tracker.setLogger(new gdsc.core.analytics.ConsoleLogger());
+					tracker.setLogger(new gdsc.analytics.ConsoleLogger());
 			}
 		}
 	}
@@ -425,7 +425,7 @@ public class ImageJAnalyticsTracker
 	 */
 	private static String getVersion()
 	{
-		return gdsc.core.analytics.Version.VERSION_X_X;
+		return gdsc.analytics.Version.VERSION_X_X;
 	}
 
 	/**
