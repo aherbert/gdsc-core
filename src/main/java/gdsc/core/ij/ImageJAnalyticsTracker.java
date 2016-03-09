@@ -12,6 +12,8 @@
  *---------------------------------------------------------------------------*/
 package gdsc.core.ij;
 
+import java.awt.AWTEvent;
+import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -32,7 +34,9 @@ import gdsc.analytics.JGoogleAnalyticsTracker.MeasurementProtocolVersion;
 import ij.IJ;
 import ij.ImageJ;
 import ij.Prefs;
+import ij.gui.DialogListener;
 import ij.gui.GenericDialog;
+import ij.macro.MacroRunner;
 
 /**
  * Provide a global reference to JGoogleAnalyticsTracker for tracking GDSC ImageJ plugins
@@ -451,20 +455,39 @@ public class ImageJAnalyticsTracker
 	{
 		GenericDialog gd = new GenericDialog(title);
 		// @formatter:off
-		gd.addMessage(APPLICATION_NAME + "\n \n" 
-				+ "We use tracking code to make our plugins better.\n \n"
-				+ "Click 'Help' to find out more."); 
-		gd.addHelp("http://www.sussex.ac.uk/gdsc/intranet/microscopy/imagej/tracking");
-		
+		gd.addMessage(APPLICATION_NAME + "\n \nWe use tracking code to make our plugins better.");
+
+		// With ImageJ 1.48a hiding the cancel button means the dialog is disposed when pressing 'Help'.
+		// To work around this we add an empty string and our own listener to show the help.
+		final String helpLabel = "More details...";
+		gd.setHelpLabel(helpLabel);
+		gd.addHelp("");
+		gd.addDialogListener(new DialogListener()
+		{
+			public boolean dialogItemChanged(GenericDialog gd, AWTEvent e)
+			{
+				if (e != null && e.getSource() instanceof Button)
+				{
+					Button button = (Button) (e.getSource());
+					if (button.getLabel().equals(helpLabel))
+					{
+						String macro = "run('URL...', 'url=http://www.sussex.ac.uk/gdsc/intranet/microscopy/imagej/tracking');";
+						new MacroRunner(macro);
+					}
+				}
+				return true;
+			}
+		});
+
 		// Get the preferences
 		boolean disabled = isDisabled();
 		boolean anonymize = isAnonymized();
-		
+
 		gd.addCheckbox("Disabled", disabled);
 		gd.addCheckbox("Anonymise IP", anonymize);
-		if (autoMessage) {
-			gd.addMessage("Note: This message is shown when we don't know\n" +
-					"your preferences\n");
+		if (autoMessage)
+		{
+			gd.addMessage("Note: This message is shown when we don't know\n" + "your preferences\n");
 		}
 		// @formatter:on
 		gd.hideCancelButton();
