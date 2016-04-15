@@ -24,8 +24,8 @@ your local Maven repository before building:
         mvn install
         cd ..
 
-This will produce a gdsc-analytics-[VERSION].jar file in the local Maven repository. 
-You can now build this package.
+	This will produce a gdsc-analytics-[VERSION].jar file in the local Maven
+	repository. You can now build this package.
  
 3. Clone the GDSC-Core repository
 
@@ -36,8 +36,9 @@ You can now build this package.
         cd GDSC-Core
         mvn install
 
-This will produce a gdsc-core-[VERSION].jar file in the local Maven repository. 
-You can now build the other GDSC packages that depend on this code.
+	This will produce a gdsc-core-[VERSION].jar file in the local Maven
+	repository. You can now build the other GDSC packages that depend on this
+	code.
 
 
 Legal
