@@ -167,6 +167,9 @@ public class ImageJAnalyticsTracker
 				clientParameters.addCustomDimension(3, System.getProperty("os.name"));
 				clientParameters.addCustomDimension(4, System.getProperty("os.version"));
 				clientParameters.addCustomDimension(5, System.getProperty("os.arch"));
+				
+				// Versions
+				clientParameters.addCustomDimension(9, gdsc.core.Version.getVersion());
 			}
 		}
 	}
