@@ -20,7 +20,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Show the version information contained in the gdsc/core/Version.txt file
+ * Show the version information contained in the gdsc/core/Version.txt file.
+ * <p>
+ * Uses Semantic Versioning.
+ * 
+ * @see http://semver.org/
  */
 public class Version
 {
@@ -62,11 +66,21 @@ public class Version
 		System.out.print(msg.toString());
 	}
 	
+	/**
+	 * Get the GDSC Core version
+	 * 
+	 * @return The gdsc.core package version
+	 */
 	public static String getVersion()
 	{
 		return version;
 	}
 	
+	/**
+	 * Get the GDSC Core package build date
+	 * 
+	 * @return The gdsc.core package build date
+	 */
 	public static String getBuildDate()
 	{
 		return buildDate;
@@ -101,11 +115,11 @@ public class Version
 	}
 
 	/**
-	 * Get the release version
+	 * Get the patch version
 	 * 
-	 * @return The release version (or 0 if unknown)
+	 * @return The patch version (or 0 if unknown)
 	 */
-	public static int getReleaseVersion()
+	public static int getPatchVersion()
 	{
 		Pattern p = Pattern.compile("^\\d+\\.\\d+\\.(\\d+)");
 		Matcher m = p.matcher(version);
@@ -115,11 +129,11 @@ public class Version
 	}
 	
 	/**
-	 * Get a string with the major, minor and release versions
+	 * Get a string with the major, minor and patch versions
 	 * 
-	 * @return Major.Minor.Release
+	 * @return Major.Minor.Patch
 	 */
-	public static String getMajorMinorRelease()
+	public static String getMajorMinorPatch()
 	{
 		Pattern p = Pattern.compile("^\\d+\\.\\d+\\.\\d+");
 		Matcher m = p.matcher(version);
