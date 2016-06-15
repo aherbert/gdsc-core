@@ -88,10 +88,14 @@ public class MatchCalculator
 	public static MatchResult analyseResults2D(Coordinate[] actualPoints, Coordinate[] predictedPoints,
 			double dThreshold, List<Coordinate> TP, List<Coordinate> FP, List<Coordinate> FN, List<PointPair> matches)
 	{
-		dThreshold *= dThreshold; // We will use the squared distance
-
 		final int predictedPointsLength = (predictedPoints != null) ? predictedPoints.length : 0;
 		final int actualPointsLength = (actualPoints != null) ? actualPoints.length : 0;
+
+		// If the number of possible pairs is small then use a one pass algorithm
+		if (predictedPointsLength * actualPointsLength < 100000)
+			return analyseResults2DSinglePass(actualPoints, predictedPoints, dThreshold, TP, FP, FN, matches);
+
+		dThreshold *= dThreshold; // We will use the squared distance
 
 		int tp = 0; // true positives (actual with matched predicted point)
 		int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
@@ -108,9 +112,9 @@ public class MatchCalculator
 		}
 
 		// loop over the two arrays assigning the closest unassigned pair
-		boolean[] resultAssignment = new boolean[predictedPointsLength];
-		boolean[] roiAssignment = new boolean[fn];
-		ArrayList<Assignment> assignments = new ArrayList<Assignment>(predictedPointsLength);
+		final boolean[] resultAssignment = new boolean[predictedPointsLength];
+		final boolean[] roiAssignment = new boolean[fn];
+		final ArrayList<Assignment> assignments = new ArrayList<Assignment>(predictedPointsLength);
 
 		int[] falsePositives = null, falseNegatives = null;
 		if (FP != null)
@@ -120,23 +124,6 @@ public class MatchCalculator
 		if (FN != null)
 		{
 			falseNegatives = ascendingArray(actualPointsLength);
-		}
-
-		// Pre-calculate all-vs-all distance matrix if it can fit in memory
-		int size = predictedPointsLength * actualPointsLength;
-		float[][] dMatrix = null;
-		if (size < 200 * 200)
-		{
-			dMatrix = new float[predictedPointsLength][actualPointsLength];
-			for (int predictedId = predictedPointsLength; predictedId-- > 0;)
-			{
-				final float x = predictedPoints[predictedId].getX();
-				final float y = predictedPoints[predictedId].getY();
-				for (int actualId = actualPointsLength; actualId-- > 0;)
-				{
-					dMatrix[predictedId][actualId] = (float) actualPoints[actualId].distance2(x, y);
-				}
-			}
 		}
 
 		do
@@ -160,33 +147,22 @@ public class MatchCalculator
 					if (roiAssignment[actualId])
 						continue; // Already assigned
 
-					if (dMatrix != null)
-					{
-						if (dMatrix[predictedId][actualId] <= d2Min)
-						{
-							d2Min = dMatrix[predictedId][actualId];
-							targetId = actualId;
-						}
-					}
-					else
-					{
-						Coordinate actualPoint = actualPoints[actualId];
+					Coordinate actualPoint = actualPoints[actualId];
 
-						// Calculate in steps for increased speed (allows early exit)
-						float dx = actualPoint.getX() - x;
-						dx *= dx;
-						if (dx <= d2Min)
+					// Calculate in steps for increased speed (allows early exit)
+					float dx = actualPoint.getX() - x;
+					dx *= dx;
+					if (dx <= d2Min)
+					{
+						float dy = actualPoint.getY() - y;
+						dy *= dy;
+						if (dy <= d2Min)
 						{
-							float dy = actualPoint.getY() - y;
-							dy *= dy;
-							if (dy <= d2Min)
+							final float d2 = dx + dy;
+							if (d2 <= d2Min)
 							{
-								final float d2 = dx + dy;
-								if (d2 <= d2Min)
-								{
-									d2Min = d2;
-									targetId = actualId;
-								}
+								d2Min = d2;
+								targetId = actualId;
 							}
 						}
 					}
@@ -237,8 +213,8 @@ public class MatchCalculator
 							falseNegatives[closest.getTargetId()] = -1;
 						}
 						if (matches != null)
-							matches.add(new PointPair(actualPoints[closest.getTargetId()], predictedPoints[closest
-									.getPredictedId()]));
+							matches.add(new PointPair(actualPoints[closest.getTargetId()],
+									predictedPoints[closest.getPredictedId()]));
 					}
 					else
 					{
@@ -264,6 +240,114 @@ public class MatchCalculator
 			for (int i = 0; i < actualPointsLength; i++)
 			{
 				if (falseNegatives[i] >= 0)
+					FN.add(actualPoints[i]);
+			}
+		}
+
+		if (tp > 0)
+			rmsd = Math.sqrt(rmsd / tp);
+		return new MatchResult(tp, fp, fn, rmsd);
+	}
+
+	/**
+	 * Calculate the match results for the given actual and predicted points.
+	 * Points that are within the distance threshold are identified as a match.
+	 * The number of true positives, false positives and false negatives are calculated.
+	 * <p>
+	 * Use a single pass algorithm suitable if the total number of possible pairs is small (<100000)
+	 * 
+	 * @param actualPoints
+	 * @param predictedPoints
+	 * @param dThreshold
+	 *            The distance threshold
+	 * @param TP
+	 *            True Positives
+	 * @param FP
+	 *            False Positives
+	 * @param FN
+	 *            False Negatives
+	 * @param matches
+	 *            The matched true positives (point1 = actual, point2 = predicted)
+	 * @return The match results
+	 */
+	public static MatchResult analyseResults2DSinglePass(Coordinate[] actualPoints, Coordinate[] predictedPoints,
+			double dThreshold, List<Coordinate> TP, List<Coordinate> FP, List<Coordinate> FN, List<PointPair> matches)
+	{
+		dThreshold *= dThreshold; // We will use the squared distance
+
+		final int predictedPointsLength = (predictedPoints != null) ? predictedPoints.length : 0;
+		final int actualPointsLength = (actualPoints != null) ? actualPoints.length : 0;
+
+		int tp = 0; // true positives (actual with matched predicted point)
+		int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
+		int fn = actualPointsLength; // false negatives (predicted point with no actual point)
+		double rmsd = 0;
+
+		if (predictedPointsLength == 0 || actualPointsLength == 0)
+		{
+			if (FP != null)
+				FP.addAll(asList(predictedPoints));
+			if (FN != null)
+				FN.addAll(asList(actualPoints));
+			return new MatchResult(tp, fp, fn, rmsd);
+		}
+
+		// loop over the two arrays assigning the closest unassigned pair
+		final ArrayList<Assignment> assignments = new ArrayList<Assignment>(predictedPointsLength);
+
+		for (int predictedId = predictedPointsLength; predictedId-- > 0;)
+		{
+			final float x = predictedPoints[predictedId].getX();
+			final float y = predictedPoints[predictedId].getY();
+			for (int actualId = actualPointsLength; actualId-- > 0;)
+			{
+				final double d2 = actualPoints[actualId].distance2(x, y);
+				if (d2 < dThreshold)
+				{
+					assignments.add(new Assignment(actualId, predictedId, d2));
+				}
+			}
+		}
+
+		Collections.sort(assignments);
+
+		final boolean[] predictedAssignment = new boolean[predictedPointsLength];
+		final boolean[] actualAssignment = new boolean[actualPointsLength];
+
+		for (Assignment a : assignments)
+		{
+			if (!actualAssignment[a.getTargetId()])
+			{
+				if (!predictedAssignment[a.getPredictedId()])
+				{
+					actualAssignment[a.getTargetId()] = true;
+					predictedAssignment[a.getPredictedId()] = true;
+					tp++;
+					fn--;
+					fp--;
+					rmsd += a.getDistance(); // Already a squared distance
+					if (matches != null)
+						matches.add(new PointPair(actualPoints[a.getTargetId()], predictedPoints[a.getPredictedId()]));
+					if (TP != null)
+						TP.add(predictedPoints[a.getPredictedId()]);
+				}
+			}
+		}
+
+		// Add to lists
+		if (FP != null)
+		{
+			for (int i = 0; i < predictedPointsLength; i++)
+			{
+				if (!predictedAssignment[i])
+					FP.add(predictedPoints[i]);
+			}
+		}
+		if (FN != null)
+		{
+			for (int i = 0; i < actualPointsLength; i++)
+			{
+				if (!actualAssignment[i])
 					FN.add(actualPoints[i]);
 			}
 		}
@@ -342,10 +426,14 @@ public class MatchCalculator
 	public static MatchResult analyseResults3D(Coordinate[] actualPoints, Coordinate[] predictedPoints,
 			double dThreshold, List<Coordinate> TP, List<Coordinate> FP, List<Coordinate> FN, List<PointPair> matches)
 	{
-		dThreshold *= dThreshold; // We will use the squared distance
-
 		final int predictedPointsLength = (predictedPoints != null) ? predictedPoints.length : 0;
 		final int actualPointsLength = (actualPoints != null) ? actualPoints.length : 0;
+
+		// If the number of possible pairs is small then use a one pass algorithm
+		if (predictedPointsLength * actualPointsLength < 100000)
+			return analyseResults3DSinglePass(actualPoints, predictedPoints, dThreshold, TP, FP, FN, matches);
+
+		dThreshold *= dThreshold; // We will use the squared distance
 
 		int tp = 0; // true positives (actual with matched predicted point)
 		int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
@@ -362,9 +450,9 @@ public class MatchCalculator
 		}
 
 		// loop over the two arrays assigning the closest unassigned pair
-		boolean[] resultAssignment = new boolean[predictedPointsLength];
-		boolean[] roiAssignment = new boolean[fn];
-		ArrayList<Assignment> assignments = new ArrayList<Assignment>(predictedPointsLength);
+		final boolean[] resultAssignment = new boolean[predictedPointsLength];
+		final boolean[] roiAssignment = new boolean[fn];
+		final ArrayList<Assignment> assignments = new ArrayList<Assignment>(predictedPointsLength);
 
 		int[] falsePositives = null, falseNegatives = null;
 		if (FP != null)
@@ -374,25 +462,6 @@ public class MatchCalculator
 		if (FN != null)
 		{
 			falseNegatives = ascendingArray(actualPointsLength);
-		}
-
-		// Pre-calculate all-vs-all distance matrix if it can fit in memory
-		int size = predictedPointsLength * actualPointsLength;
-		float[][] dMatrix = null;
-		if (size < 200 * 200)
-		{
-			dMatrix = new float[predictedPointsLength][actualPointsLength];
-			for (int predictedId = predictedPointsLength; predictedId-- > 0;)
-			{
-				float x = predictedPoints[predictedId].getX();
-				float y = predictedPoints[predictedId].getY();
-				float z = predictedPoints[predictedId].getZ();
-				for (int actualId = actualPointsLength; actualId-- > 0;)
-				{
-					double d2 = actualPoints[actualId].distance2(x, y, z);
-					dMatrix[predictedId][actualId] = (float) d2;
-				}
-			}
 		}
 
 		do
@@ -417,37 +486,26 @@ public class MatchCalculator
 					if (roiAssignment[actualId])
 						continue; // Already assigned
 
-					if (dMatrix != null)
-					{
-						if (dMatrix[predictedId][actualId] <= d2Min)
-						{
-							d2Min = dMatrix[predictedId][actualId];
-							targetId = actualId;
-						}
-					}
-					else
-					{
-						Coordinate actualPoint = actualPoints[actualId];
+					Coordinate actualPoint = actualPoints[actualId];
 
-						// Calculate in steps for increased speed (allows early exit)
-						float dx = actualPoint.getX() - x;
-						dx *= dx;
-						if (dx <= d2Min)
+					// Calculate in steps for increased speed (allows early exit)
+					float dx = actualPoint.getX() - x;
+					dx *= dx;
+					if (dx <= d2Min)
+					{
+						float dy = actualPoint.getY() - y;
+						dy *= dy;
+						if (dy <= d2Min)
 						{
-							float dy = actualPoint.getY() - y;
-							dy *= dy;
-							if (dy <= d2Min)
+							float dz = actualPoint.getZ() - z;
+							dz *= dz;
+							if (dz <= d2Min)
 							{
-								float dz = actualPoint.getZ() - z;
-								dz *= dz;
-								if (dz <= d2Min)
+								final float d2 = dx + dy + dz;
+								if (d2 <= d2Min)
 								{
-									final float d2 = dx + dy + dz;
-									if (d2 <= d2Min)
-									{
-										d2Min = d2;
-										targetId = actualId;
-									}
+									d2Min = d2;
+									targetId = actualId;
 								}
 							}
 						}
@@ -500,8 +558,8 @@ public class MatchCalculator
 							falseNegatives[closest.getTargetId()] = -1;
 						}
 						if (matches != null)
-							matches.add(new PointPair(actualPoints[closest.getTargetId()], predictedPoints[closest
-									.getPredictedId()]));
+							matches.add(new PointPair(actualPoints[closest.getTargetId()],
+									predictedPoints[closest.getPredictedId()]));
 					}
 					else
 					{
@@ -527,6 +585,115 @@ public class MatchCalculator
 			for (int i = 0; i < actualPointsLength; i++)
 			{
 				if (falseNegatives[i] >= 0)
+					FN.add(actualPoints[i]);
+			}
+		}
+
+		if (tp > 0)
+			rmsd = Math.sqrt(rmsd / tp);
+		return new MatchResult(tp, fp, fn, rmsd);
+	}
+
+	/**
+	 * Calculate the match results for the given actual and predicted points.
+	 * Points that are within the distance threshold are identified as a match.
+	 * The number of true positives, false positives and false negatives are calculated.
+	 * <p>
+	 * Use a single pass algorithm suitable if the total number of possible pairs is small (<100000)
+	 * 
+	 * @param actualPoints
+	 * @param predictedPoints
+	 * @param dThreshold
+	 *            The distance threshold
+	 * @param TP
+	 *            True Positives
+	 * @param FP
+	 *            False Positives
+	 * @param FN
+	 *            False Negatives
+	 * @param matches
+	 *            The matched true positives (point1 = actual, point2 = predicted)
+	 * @return The match results
+	 */
+	public static MatchResult analyseResults3DSinglePass(Coordinate[] actualPoints, Coordinate[] predictedPoints,
+			double dThreshold, List<Coordinate> TP, List<Coordinate> FP, List<Coordinate> FN, List<PointPair> matches)
+	{
+		dThreshold *= dThreshold; // We will use the squared distance
+
+		final int predictedPointsLength = (predictedPoints != null) ? predictedPoints.length : 0;
+		final int actualPointsLength = (actualPoints != null) ? actualPoints.length : 0;
+
+		int tp = 0; // true positives (actual with matched predicted point)
+		int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
+		int fn = actualPointsLength; // false negatives (predicted point with no actual point)
+		double rmsd = 0;
+
+		if (predictedPointsLength == 0 || actualPointsLength == 0)
+		{
+			if (FP != null)
+				FP.addAll(asList(predictedPoints));
+			if (FN != null)
+				FN.addAll(asList(actualPoints));
+			return new MatchResult(tp, fp, fn, rmsd);
+		}
+
+		// loop over the two arrays assigning the closest unassigned pair
+		final ArrayList<Assignment> assignments = new ArrayList<Assignment>(predictedPointsLength);
+
+		for (int predictedId = predictedPointsLength; predictedId-- > 0;)
+		{
+			final float x = predictedPoints[predictedId].getX();
+			final float y = predictedPoints[predictedId].getY();
+			final float z = predictedPoints[predictedId].getZ();
+			for (int actualId = actualPointsLength; actualId-- > 0;)
+			{
+				final double d2 = actualPoints[actualId].distance2(x, y, z);
+				if (d2 < dThreshold)
+				{
+					assignments.add(new Assignment(actualId, predictedId, d2));
+				}
+			}
+		}
+
+		Collections.sort(assignments);
+
+		final boolean[] predictedAssignment = new boolean[predictedPointsLength];
+		final boolean[] actualAssignment = new boolean[actualPointsLength];
+
+		for (Assignment a : assignments)
+		{
+			if (!actualAssignment[a.getTargetId()])
+			{
+				if (!predictedAssignment[a.getPredictedId()])
+				{
+					actualAssignment[a.getTargetId()] = true;
+					predictedAssignment[a.getPredictedId()] = true;
+					tp++;
+					fn--;
+					fp--;
+					rmsd += a.getDistance(); // Already a squared distance
+					if (matches != null)
+						matches.add(new PointPair(actualPoints[a.getTargetId()], predictedPoints[a.getPredictedId()]));
+					if (TP != null)
+						TP.add(predictedPoints[a.getPredictedId()]);
+				}
+			}
+		}
+
+		// Add to lists
+		if (FP != null)
+		{
+			for (int i = 0; i < predictedPointsLength; i++)
+			{
+				if (!predictedAssignment[i])
+					FP.add(predictedPoints[i]);
+			}
+		}
+		if (FN != null)
+		{
+			for (int i = 0; i < actualPointsLength; i++)
+			{
+				if (!actualAssignment[i])
 					FN.add(actualPoints[i]);
 			}
 		}
@@ -735,8 +902,8 @@ public class MatchCalculator
 						falseNegatives[closest.getTargetId()] = -1;
 					}
 					if (matches != null)
-						matches.add(new PointPair(actualPoints[closest.getTargetId()], predictedPoints[closest
-								.getPredictedId()]));
+						matches.add(new PointPair(actualPoints[closest.getTargetId()],
+								predictedPoints[closest.getPredictedId()]));
 				}
 			}
 
