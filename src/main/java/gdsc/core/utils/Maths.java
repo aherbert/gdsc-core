@@ -407,11 +407,12 @@ public class Maths
 	 * @param p
 	 *            The number of fitted parameters
 	 * @return The Information Criterion
+	 * @see <a href="https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares">https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares</a>
 	 */
 	public static double getInformationCriterion(double sumOfSquaredResiduals, int n, int p)
 	{
-		final double logLikelihood = 0.5 * (-n * (Math.log(2 * Math.PI) + 1 - Math.log(n) + Math
-				.log(sumOfSquaredResiduals)));
+		final double logLikelihood = 0.5 *
+				(-n * (Math.log(2 * Math.PI) + Math.log(sumOfSquaredResiduals) + 1));
 		return getInformationCriterionFromLL(logLikelihood, n, p);
 	}
 
@@ -423,6 +424,7 @@ public class Maths
 	 * @param p
 	 *            The number of fitted parameters
 	 * @return The Information Criterion
+	 * @see <a href="http://en.wikipedia.org/wiki/Akaike_information_criterion#AICc">http://en.wikipedia.org/wiki/Akaike_information_criterion#AICc</a>
 	 */
 	public static double getInformationCriterionFromLL(double logLikelihood, int n, int p)
 	{
