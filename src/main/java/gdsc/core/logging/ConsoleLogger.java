@@ -14,12 +14,13 @@ package gdsc.core.logging;
  *---------------------------------------------------------------------------*/
 
 /**
- * Logs messages to the Java console 
+ * Logs messages to the Java console
  */
 public class ConsoleLogger implements Logger
 {
 	/**
 	 * Log the message to the Java console. Appends a new line to the message.
+	 * 
 	 * @param message
 	 */
 	public void info(String message)
@@ -28,14 +29,17 @@ public class ConsoleLogger implements Logger
 	}
 
 	/**
-	 * Log the arguments using the given format to the Java console. Appends a new line to the message.
+	 * Log the arguments using the given format to the Java console. Appends a new line to the console if the format is
+	 * missing the \n character.
+	 * 
 	 * @param format
 	 * @param args
 	 */
 	public void info(String format, Object... args)
 	{
 		System.out.printf(format, args);
-		System.out.printf("\n");
+		if (!format.endsWith("\n"))
+			System.out.println();
 	}
 
 	public void debug(String message)
