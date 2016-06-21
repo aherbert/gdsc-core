@@ -103,17 +103,17 @@ public class Pulse extends BasePoint implements Comparable<Pulse>
 	/**
 	 * Calculate the number of overlapping frames using the start and end times
 	 * 
-	 * @param other
+	 * @param that The other pulse
 	 * @return the number of frames
 	 */
-	public int calculateOverlap(final Pulse other)
+	public int calculateOverlap(final Pulse that)
 	{
 		// --------------
 		//                ===========
 		// or
 		// ============
 		//               ------------
-		if (end < other.start || other.end < start)
+		if (this.end < that.start || that.end < this.start)
 			return 0;
 
 		// ---------------------
@@ -127,8 +127,8 @@ public class Pulse extends BasePoint implements Comparable<Pulse>
 		// or
 		//         ---------------------
 		// ==================
-		final int s = (start < other.start) ? other.start : start;
-		final int e = (end < other.end) ? end : other.end;
+		final int s = (this.start < that.start) ? that.start : this.start;
+		final int e = (this.end < that.end) ? this.end : that.end;
 		// TODO - remove this
 		if (e - s < 0)
 			throw new RuntimeException("overlap error");
