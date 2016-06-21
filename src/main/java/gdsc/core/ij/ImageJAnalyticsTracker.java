@@ -179,7 +179,7 @@ public class ImageJAnalyticsTracker
 	 */
 	private static String getImageJInfo()
 	{
-		// Avoid ImageJ throw a HeadlessException
+		// Avoid ImageJ throwing a HeadlessException
 		if (java.awt.GraphicsEnvironment.isHeadless())
 			return "Headless"; //+ ImageJ.VERSION+ImageJ.BUILD;
 		
