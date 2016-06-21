@@ -413,7 +413,9 @@ public class Maths
 	public static double getInformationCriterion(double sumOfSquaredResiduals, int n, int p)
 	{
 		//final double logLikelihood = 0.5 * (-n * (Math.log(2 * Math.PI) + 1 - Math.log(n) + Math.log(sumOfSquaredResiduals)));
-		final double logLikelihood = 0.5 * (-n * (Math.log(2 * Math.PI) + Math.log(sumOfSquaredResiduals / n) + 1));
+		//final double logLikelihood = 0.5 * (-n * (Math.log(2 * Math.PI) + Math.log(sumOfSquaredResiduals / n) + 1));
+		// Math.log(2 * Math.PI) = 1.837877066
+		final double logLikelihood = 0.5 * (-n * (1.837877066 + Math.log(sumOfSquaredResiduals / n) + 1));
 		return getInformationCriterionFromLL(logLikelihood, n, p);
 	}
 
