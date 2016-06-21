@@ -1,5 +1,18 @@
 package ij.plugin;
 
+/*----------------------------------------------------------------------------- 
+ * GDSC Software
+ * 
+ * Copyright (C) 2016 Alex Herbert
+ * Genome Damage and Stability Centre
+ * University of Sussex, UK
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *---------------------------------------------------------------------------*/
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -7,14 +20,53 @@ import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 
 import java.awt.Dimension;
+import java.util.Arrays;
 
 /**
  * Extend the standard ImageJ window organiser plugin and make the methods public
+ * <p>
+ * Adds stateful methods to the instance so it can layout any windows added to it.
  */
 public class WindowOrganiser extends ij.plugin.WindowOrganizer
 {
 	private static final int XSTART = 4, YSTART = 80, XOFFSET = 8, YOFFSET = 24, MAXSTEP = 200, GAP = 2;
 	private int titlebarHeight = IJ.isMacintosh() ? 40 : 20;
+
+	private int[] list = new int[10];
+	private int count = 0;
+
+	/**
+	 * Adds the window ID to the instance
+	 *
+	 * @param id
+	 *            the window id
+	 */
+	public void add(int id)
+	{
+		if (list.length == count)
+			list = Arrays.copyOf(list, (int) (count * 1.5));
+		list[count++] = id;
+	}
+
+	/**
+	 * Tile all the windows added to this instance
+	 */
+	public void tile()
+	{
+		if (count == 0)
+			return;
+		tileWindows(Arrays.copyOf(list, count));
+	}
+
+	/**
+	 * Cascade all the windows added to this instance
+	 */
+	public void cascade()
+	{
+		if (count == 0)
+			return;
+		cascadeWindows(Arrays.copyOf(list, count));
+	}
 
 	@Override
 	public void tileWindows(int[] wList)
