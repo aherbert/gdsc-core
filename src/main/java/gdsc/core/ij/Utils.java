@@ -708,18 +708,55 @@ public class Utils
 			int removeOutliers, int bins, boolean barChart, String label)
 	{
 		double[] values = stats.getValues();
+		// If we have +/- Infinity in here it will break
 		if (values == null || values.length < 2)
 			return 0;
 		double[] limits = Maths.limits(values);
 		double yMin = limits[0];
 		double yMax = limits[1];
+		double width;
+		double lower = Double.NaN;
+		double upper = Double.NaN;
+
+		if (bins <= 0)
+		{
+			// Auto
+			switch (defaultMethod)
+			{
+				case SCOTT:
+					width = getBinWidthScottsRule(stats.getStandardDeviation(), stats.getN());
+					bins = (int) Math.ceil((limits[1] - limits[0]) / width);
+					if (bins != Integer.MAX_VALUE)
+						break;
+
+				case FD:
+					lower = stats.getStatistics().getPercentile(25);
+					upper = stats.getStatistics().getPercentile(75);
+					width = getBinWidthFreedmanDiaconisRule(upper, lower, stats.getN());
+					bins = (int) Math.ceil((limits[1] - limits[0]) / width);
+					if (bins != Integer.MAX_VALUE)
+						break;
+
+				case STURGES:
+					bins = getBinsSturges(stats.getN());
+					break;
+
+				case SQRT:
+				default:
+					bins = getBinsSqrt(stats.getN());
+			}
+		}
+		//System.out.printf("Bins = %d\n", bins);
 
 		switch (removeOutliers)
 		{
 			case 1:
 				// Get the inter quartile range
-				double lower = stats.getStatistics().getPercentile(25);
-				double upper = stats.getStatistics().getPercentile(75);
+				if (Double.isNaN(lower))
+				{
+					lower = stats.getStatistics().getPercentile(25);
+					upper = stats.getStatistics().getPercentile(75);
+				}
 				double iqr = 1.5 * (upper - lower);
 				yMin = FastMath.max(lower - iqr, yMin);
 				yMax = FastMath.min(upper + iqr, yMax);
@@ -755,7 +792,7 @@ public class Utils
 		//			}
 		//			
 		//			// Set the number of bins as the most needed to separate the data points. 
-		//			// This prevents gaps xin the histogram
+		//			// This prevents gaps in the histogram
 		//			if (resolution != Double.POSITIVE_INFINITY)
 		//			{
 		//				int numBins = 1 + (int)((yMax - yMin) / resolution);
@@ -812,6 +849,78 @@ public class Utils
 			plot.addLabel(0, 0, label);
 		PlotWindow window = Utils.display(title, plot);
 		return window.getImagePlus().getID();
+	}
+
+	/**
+	 * The method to select the number of histogram bins
+	 */
+	public enum BinMethod
+	{
+		SCOTT, FD, STURGES, SQRT
+	}
+
+	/** The default method to select the histogram bins. Used if the input number of bins is zero. */
+	public static BinMethod defaultMethod = BinMethod.SCOTT;
+
+	/**
+	 * Gets the bins.
+	 * <p>
+	 * Based on the MatLab methods.
+	 * 
+	 * @see http://uk.mathworks.com/help/matlab/ref/histogram.html : BinMethod
+	 *
+	 * @param n
+	 *            the number of observations
+	 * @param method
+	 *            the method
+	 * @return the bins
+	 */
+	public static int getBins(StoredDataStatistics stats, BinMethod method)
+	{
+		double width;
+		double[] limits;
+		switch (method)
+		{
+			case SCOTT:
+				width = getBinWidthScottsRule(stats.getStandardDeviation(), stats.getN());
+				limits = Maths.limits(stats.getValues());
+				return (int) Math.ceil((limits[1] - limits[0]) / width);
+
+			case FD:
+				double lower = stats.getStatistics().getPercentile(25);
+				double upper = stats.getStatistics().getPercentile(75);
+				width = getBinWidthFreedmanDiaconisRule(upper, lower, stats.getN());
+				limits = Maths.limits(stats.getValues());
+				return (int) Math.ceil((limits[1] - limits[0]) / width);
+
+			case STURGES:
+				return getBinsSturges(stats.getN());
+
+			case SQRT:
+			default:
+				return getBinsSqrt(stats.getN());
+		}
+	}
+
+	public static double getBinWidthScottsRule(double sd, int n)
+	{
+		return 3.5 * sd * Math.pow(n, -0.3333333333);
+	}
+
+	public static double getBinWidthFreedmanDiaconisRule(double upper, double lower, int n)
+	{
+		double iqr = upper - lower;
+		return 2 * iqr * Math.pow(n, -0.3333333333);
+	}
+
+	public static int getBinsSturges(int n)
+	{
+		return (int) Math.ceil(1 + Math.log(n) / 0.69314718);
+	}
+
+	private static int getBinsSqrt(int n)
+	{
+		return (int) Math.ceil(Math.sqrt(n));
 	}
 
 	// Provide direct access to the last histogram plotted
