@@ -199,6 +199,17 @@ public class StoredDataStatistics extends Statistics
 	{
 		return Arrays.copyOf(values, n);
 	}
+	
+	/**
+	 * Gets the value.
+	 *
+	 * @param i the index
+	 * @return the value
+	 */
+	public double getValue(int i)
+	{
+		return values[i];
+	}
 
 	/**
 	 * @return A copy of the values added
