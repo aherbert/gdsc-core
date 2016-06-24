@@ -102,6 +102,7 @@ public class MatchCalculator
 		int fn = actualPointsLength; // false negatives (predicted point with no actual point)
 		double rmsd = 0;
 
+		clear(TP, FP, FN, matches);
 		if (predictedPointsLength == 0 || actualPointsLength == 0)
 		{
 			if (FP != null)
@@ -249,6 +250,20 @@ public class MatchCalculator
 		return new MatchResult(tp, fp, fn, rmsd);
 	}
 
+	private static <T, U, V> void clear(List<T> TP, List<T> FP, List<U> FN, List<V> matches)
+	{
+		clear(TP);
+		clear(FP);
+		clear(FN);
+		clear(matches);
+	}
+	
+	private static <T> void clear(List<T> list)
+	{
+		if (list != null)
+			list.clear();
+	}
+
 	/**
 	 * Calculate the match results for the given actual and predicted points.
 	 * Points that are within the distance threshold are identified as a match.
@@ -283,6 +298,7 @@ public class MatchCalculator
 		int fn = actualPointsLength; // false negatives (predicted point with no actual point)
 		double rmsd = 0;
 
+		clear(TP, FP, FN, matches);
 		if (predictedPointsLength == 0 || actualPointsLength == 0)
 		{
 			if (FP != null)
@@ -440,6 +456,7 @@ public class MatchCalculator
 		int fn = actualPointsLength; // false negatives (predicted point with no actual point)
 		double rmsd = 0;
 
+		clear(TP, FP, FN, matches);
 		if (predictedPointsLength == 0 || actualPointsLength == 0)
 		{
 			if (FP != null)
@@ -628,6 +645,7 @@ public class MatchCalculator
 		int fn = actualPointsLength; // false negatives (predicted point with no actual point)
 		double rmsd = 0;
 
+		clear(TP, FP, FN, matches);
 		if (predictedPointsLength == 0 || actualPointsLength == 0)
 		{
 			if (FP != null)
@@ -749,6 +767,7 @@ public class MatchCalculator
 		int fn = actualPointsLength; // false negatives (predicted point with no actual point)
 		double score = 0;
 
+		clear(TP, FP, FN, matches);
 		if (predictedPointsLength == 0 || actualPointsLength == 0)
 		{
 			if (FP != null)
