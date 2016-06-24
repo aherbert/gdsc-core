@@ -400,37 +400,57 @@ public class Maths
 	}
 
 	/**
+	 * Get the bias-corrected Akaike Information Criterion (AICc)
+	 * 
 	 * @param sumOfSquaredResiduals
 	 *            the sum of squared residuals from the nonlinear least-squares fit
 	 * @param n
 	 *            The number of data points
 	 * @param p
 	 *            The number of fitted parameters
-	 * @return The Information Criterion
+	 * @return The corrected Akaike Information Criterion
 	 * @see <a href="https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares">https://
 	 *      en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares</a>
 	 */
-	public static double getInformationCriterion(double sumOfSquaredResiduals, int n, int p)
+	public static double getAkaikeInformationCriterionFromResiduals(double sumOfSquaredResiduals, int n, int p)
+	{
+		return getAkaikeInformationCriterion(getLogLikelihood(sumOfSquaredResiduals, n), n, p);
+	}
+
+	/**
+	 * Gets the log likelihood for a least squares estimate
+	 *
+	 * @param sumOfSquaredResiduals
+	 *            the sum of squared residuals from the nonlinear least-squares fit
+	 * @param n
+	 *            The number of data points
+	 * @return the log likelihood
+	 * @see <a href="https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares">https://
+	 *      en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares</a> 
+	 */
+	public static double getLogLikelihood(double sumOfSquaredResiduals, int n)
 	{
 		//final double logLikelihood = 0.5 * (-n * (Math.log(2 * Math.PI) + 1 - Math.log(n) + Math.log(sumOfSquaredResiduals)));
 		//final double logLikelihood = 0.5 * (-n * (Math.log(2 * Math.PI) + Math.log(sumOfSquaredResiduals / n) + 1));
 		// Math.log(2 * Math.PI) = 1.837877066
 		final double logLikelihood = 0.5 * (-n * (1.837877066 + Math.log(sumOfSquaredResiduals / n) + 1));
-		return getInformationCriterionFromLL(logLikelihood, n, p);
+		return logLikelihood;
 	}
 
 	/**
+	 * Get the bias-corrected Akaike Information Criterion (AICc)
+	 * 
 	 * @param logLikelihood
 	 *            the log-likelihood of the fit (from Maximum likelihood estimation)
 	 * @param n
 	 *            The number of data points
 	 * @param p
 	 *            The number of fitted parameters
-	 * @return The Information Criterion
+	 * @return The corrected Akaike Information Criterion
 	 * @see <a href="http://en.wikipedia.org/wiki/Akaike_information_criterion#AICc">http://en.wikipedia.org/wiki/
 	 *      Akaike_information_criterion#AICc</a>
 	 */
-	public static double getInformationCriterionFromLL(double logLikelihood, int n, int p)
+	public static double getAkaikeInformationCriterion(double logLikelihood, int n, int p)
 	{
 		// Note: The true bias corrected AIC is derived from the 2nd, 3rd and 4th derivatives of the 
 		// negative log-likelihood function. This is complex and so is not implemented.
@@ -451,11 +471,47 @@ public class Maths
 
 		// Optimised 
 		final double ic = 2.0 * (p - logLikelihood) + (2.0 * p * (p + 1)) / (n - p - 1);
+		return ic;
+	}
 
+	/**
+	 * Get the Bayesian Information Criterion (BIC), which gives a higher penalty on the number of parameters that the
+	 * AICc
+	 * 
+	 * @param sumOfSquaredResiduals
+	 *            the sum of squared residuals from the nonlinear least-squares fit
+	 * @param n
+	 *            The number of data points
+	 * @param p
+	 *            The number of fitted parameters
+	 * @return The Bayesian Information Criterion
+	 * @see <a href="http://en.wikipedia.org/wiki/Bayesian_information_criterion">http://en.wikipedia.org/wiki/
+	 *      Bayesian_information_criterion</a>
+	 */
+	public static double getBayesianInformationCriterionFromResiduals(double sumOfSquaredResiduals, int n, int p)
+	{
+		return getBayesianInformationCriterion(getLogLikelihood(sumOfSquaredResiduals, n), n, p);
+	}
+
+	/**
+	 * Get the Bayesian Information Criterion (BIC), which gives a higher penalty on the number of parameters that the
+	 * AICc
+	 * 
+	 * @param logLikelihood
+	 *            the log-likelihood of the fit (from Maximum likelihood estimation)
+	 * @param n
+	 *            The number of data points
+	 * @param p
+	 *            The number of fitted parameters
+	 * @return The Bayesian Information Criterion
+	 * @see <a href="http://en.wikipedia.org/wiki/Bayesian_information_criterion">http://en.wikipedia.org/wiki/
+	 *      Bayesian_information_criterion</a>
+	 */
+	public static double getBayesianInformationCriterion(double logLikelihood, int n, int p)
+	{
 		// Bayesian Information Criterion (BIC), which gives a higher penalty on the number of parameters
 		// http://en.wikipedia.org/wiki/Bayesian_information_criterion
-		//final double ic = p * Math.log(n) - 2.0 * logLikelihood;
-
+		final double ic = p * Math.log(n) - 2.0 * logLikelihood;
 		return ic;
 	}
 
