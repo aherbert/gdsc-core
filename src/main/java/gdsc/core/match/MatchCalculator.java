@@ -318,7 +318,7 @@ public class MatchCalculator
 			for (int actualId = actualPointsLength; actualId-- > 0;)
 			{
 				final double d2 = actualPoints[actualId].distance2(x, y);
-				if (d2 < dThreshold)
+				if (d2 <= dThreshold)
 				{
 					assignments.add(new Assignment(actualId, predictedId, d2));
 				}
@@ -666,7 +666,7 @@ public class MatchCalculator
 			for (int actualId = actualPointsLength; actualId-- > 0;)
 			{
 				final double d2 = actualPoints[actualId].distance2(x, y, z);
-				if (d2 < dThreshold)
+				if (d2 <= dThreshold)
 				{
 					assignments.add(new Assignment(actualId, predictedId, d2));
 				}
