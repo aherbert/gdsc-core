@@ -115,7 +115,7 @@ public class Utils
 	{
 		return rounded(d, 4);
 	}
-
+	
 	/**
 	 * Show the image. Replace a currently open image with the specified title or else create a new image.
 	 * 
