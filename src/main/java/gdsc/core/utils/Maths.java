@@ -601,4 +601,34 @@ public class Maths
 	{
 		return rounded(d, 4);
 	}
+
+	/**
+	 * Round the double to the specified significant digits
+	 * 
+	 * @param d
+	 *            The double
+	 * @param significantDigits
+	 *            The number of significant digits
+	 * @return The rounded double
+	 */
+	public static double round(double d, int significantDigits)
+	{
+		if (Double.isInfinite(d) || Double.isNaN(d))
+			return d;
+		BigDecimal bd = new BigDecimal(d);
+		bd = bd.round(new MathContext(significantDigits));
+		return bd.doubleValue();
+	}
+
+	/**
+	 * Round the double to 4 significant digits
+	 * 
+	 * @param d
+	 *            The double
+	 * @return The rounded double
+	 */
+	public static double round(double d)
+	{
+		return round(d, 4);
+	}
 }
