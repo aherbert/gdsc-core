@@ -1030,7 +1030,8 @@ public class Utils
 		if (filename != null)
 		{
 			int index = filename.lastIndexOf('.');
-			if (index > 0)
+			int index2 = filename.lastIndexOf(File.separatorChar);
+			if (index > index2)
 			{
 				filename = filename.substring(0, index);
 			}
