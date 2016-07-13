@@ -1,16 +1,14 @@
 package gdsc.core.utils;
 
 import java.util.Arrays;
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
  * 
- * Copyright (C) 2013 Alex Herbert
+ * Copyright (C) 2016 Alex Herbert
  * Genome Damage and Stability Centre
  * University of Sussex, UK
  * 
