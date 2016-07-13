@@ -331,5 +331,10 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 			//cursor = i + 1;
 			//return elementData[i];
 		}
+		
+		public void remove()
+		{
+	        throw new UnsupportedOperationException("remove");
+		}
 	}
 }
