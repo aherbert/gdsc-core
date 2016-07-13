@@ -1,6 +1,9 @@
 package gdsc.core.utils;
 
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
@@ -20,7 +23,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 /**
  * Calculate the mean and standard deviation of data. Stores the data for later retrieval.
  */
-public class StoredDataStatistics extends Statistics
+public class StoredDataStatistics extends Statistics implements Iterable<Double>
 {
 	private double[] values = new double[0];
 	private DescriptiveStatistics stats = null;
@@ -199,11 +202,12 @@ public class StoredDataStatistics extends Statistics
 	{
 		return Arrays.copyOf(values, n);
 	}
-	
+
 	/**
 	 * Gets the value.
 	 *
-	 * @param i the index
+	 * @param i
+	 *            the index
 	 * @return the value
 	 */
 	public double getValue(int i)
@@ -288,5 +292,46 @@ public class StoredDataStatistics extends Statistics
 		// This does not work when the array contains negative data due to the 
 		// implementation of the library using partially sorted data
 		return getStatistics().getPercentile(50);
+	}
+
+	/**
+	 * Returns a list iterator over the elements in this list (in proper
+	 * sequence).
+	 *
+	 * @return a list iterator over the elements in this list (in proper
+	 *         sequence)
+	 */
+	public Iterator<Double> iterator()
+	{
+		return new Itr();
+	}
+
+	/**
+	 * Copied from ArrayList and removed unrequired code
+	 */
+	private class Itr implements Iterator<Double>
+	{
+		int cursor; // index of next element to return
+
+		public boolean hasNext()
+		{
+			return cursor != n;
+		}
+
+		public Double next()
+		{
+			// Simple implementation. Will throw index-out-of-bounds eventually
+			return StoredDataStatistics.this.values[cursor++];
+			
+			// Copied from ArrayList and removed unrequired code
+			//int i = cursor;
+			//if (i >= n)
+			//	throw new NoSuchElementException();
+			//final double[] elementData = StoredDataStatistics.this.values;
+			//if (i >= elementData.length)
+			//	throw new ConcurrentModificationException();
+			//cursor = i + 1;
+			//return elementData[i];
+		}
 	}
 }
