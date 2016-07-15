@@ -256,4 +256,21 @@ public class LUTHelper
 			blues[i] = (byte) ((1.0 - fraction) * (b[i1] & 255) + fraction * (b[i2] & 255));
 		}
 	}
+
+	/**
+	 * Get a colour from the LUT. The LUT is assumed to have a 256 colours in the table.
+	 * 
+	 * @param lut
+	 * @param i
+	 *            The position in the LUT (from 0-255)
+	 * @return a colour
+	 */
+	public static Color getColour(LUT lut, int i)
+	{
+		if (i < 0)
+			i = 0;
+		if (i > 255)
+			i = 255;
+		return new Color(lut.getRGB(i));
+	}
 }
