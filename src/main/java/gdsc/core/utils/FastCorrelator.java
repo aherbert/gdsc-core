@@ -55,6 +55,33 @@ public class FastCorrelator
 	}
 
 	/**
+	 * Add a pair of data points
+	 * 
+	 * @param v1
+	 * @param v2
+	 */
+	public void add(final long v1, final long v2)
+	{
+		addData(v1, v2);
+	}
+
+	/**
+	 * Add a pair of data polongs to the sums
+	 * 
+	 * @param v1
+	 * @param v2
+	 */
+	private void addData(final long v1, final long v2)
+	{
+		sumX += v1;
+		sumXY += (v1 * v2);
+		sumXX += (v1 * v1);
+		sumYY += (v2 * v2);
+		sumY += v2;
+		n++;
+	}
+
+	/**
 	 * Add a set of paired data points
 	 * 
 	 * @param v1
