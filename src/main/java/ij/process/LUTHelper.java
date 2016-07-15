@@ -22,16 +22,72 @@ import ij.process.LUT;
  */
 public class LUTHelper
 {
-	public static final String[] luts = new String[] { "Red-Hot", "Ice", "Rainbow", "Fire", "Red-Yellow", "Red",
-			"Green", "Blue", "Cyan", "Magenta", "Yellow" };
+	public enum LutColour
+	{
+		//@formatter:off
+		RED_HOT("Red-Hot"), 
+		ICE("Ice"), 
+		RAINBOW("Rainbow"), 
+		FIRE_LIGHT("FireLight"), 
+		RED_YELLOW("Red-Yellow"), 
+		RED("Red"),
+		GREEN("Green"), 
+		BLUE("Blue"), 
+		CYAN("Cyan"), 
+		MAGENTA("Magenta"), 
+		YELLOW("Yellow");
+		//@formatter:on
+
+		private String name;
+
+		private LutColour(String name)
+		{
+			this.name = name;
+		}
+
+		@Override
+		public String toString()
+		{
+			return name;
+		}
+
+	}
+
+	/**
+	 * List of the LUT names
+	 */
+	public static final String[] luts;
+
+	static
+	{
+		LutColour[] l = LutColour.values();
+		luts = new String[l.length];
+		for (int i = 0; i < l.length; i++)
+			luts[i] = l[i].name;
+	}
 
 	/**
 	 * Build a custom LUT
 	 * 
-	 * @param lut The LUT to create
+	 * @param lut
+	 *            The LUT to create
 	 * @return the LUT
 	 */
 	public static LUT createLUT(int lut)
+	{
+		if (lut >= 0 && lut < luts.length)
+			return createLUT(LutColour.values()[lut]);
+		return null;
+	}
+
+	/**
+	 * Build a custom LUT
+	 * 
+	 * @param lut
+	 *            The LUT to create
+	 * @return the LUT
+	 */
+	public static LUT createLUT(LutColour lut)
 	{
 		byte[] reds = new byte[256];
 		byte[] greens = new byte[256];
@@ -39,38 +95,38 @@ public class LUTHelper
 		int nColors;
 		switch (lut)
 		{
-			case 0: // red-hot
+			case RED_HOT: // red-hot
 			default:
 				nColors = setColours(reds, greens, blues, Color.red, Color.yellow, Color.WHITE);
 				break;
-			case 1:
+			case ICE:
 				nColors = ice(reds, greens, blues);
 				break;
-			case 2:
+			case RAINBOW:
 				nColors = rainbow(reds, greens, blues);
 				break;
-			case 3:
+			case FIRE_LIGHT:
 				nColors = firelight(reds, greens, blues);
 				break;
-			case 4: // red-yellow
+			case RED_YELLOW: // red-yellow
 				nColors = setColours(reds, greens, blues, Color.red, Color.yellow);
 				break;
-			case 5:
+			case RED:
 				nColors = setColours(reds, greens, blues, Color.red);
 				break;
-			case 6:
+			case GREEN:
 				nColors = setColours(reds, greens, blues, Color.green);
 				break;
-			case 7:
+			case BLUE:
 				nColors = setColours(reds, greens, blues, Color.blue);
 				break;
-			case 8:
+			case CYAN:
 				nColors = setColours(reds, greens, blues, Color.cyan);
 				break;
-			case 9:
+			case MAGENTA:
 				nColors = setColours(reds, greens, blues, Color.magenta);
 				break;
-			case 10:
+			case YELLOW:
 				nColors = setColours(reds, greens, blues, Color.yellow);
 				break;
 		}
