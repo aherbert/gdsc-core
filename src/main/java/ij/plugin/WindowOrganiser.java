@@ -18,6 +18,7 @@ import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
+import ij.gui.PlotWindow;
 
 import java.awt.Dimension;
 import java.util.Arrays;
@@ -46,6 +47,28 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 		if (list.length == count)
 			list = Arrays.copyOf(list, (int) (count * 1.5));
 		list[count++] = id;
+	}
+	
+	/**
+	 * Adds the window ID to the instance
+	 *
+	 * @param imp
+	 *            the image
+	 */
+	public void add(ImagePlus imp)
+	{
+		add(imp.getID());		
+	}
+	
+	/**
+	 * Adds the window ID to the instance
+	 *
+	 * @param pw
+	 *            the plot window
+	 */
+	public void add(PlotWindow pw)
+	{
+		add(pw.getImagePlus());		
 	}
 
 	/**
