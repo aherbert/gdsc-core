@@ -273,4 +273,24 @@ public class LUTHelper
 			i = 255;
 		return new Color(lut.getRGB(i));
 	}
+
+	/**
+	 * Get a colour from the LUT
+	 * 
+	 * @param lut
+	 * @param n
+	 *            The position in the series (zero-based)
+	 * @param total
+	 *            The total in the series
+	 * @return a colour
+	 */
+	public static Color getColour(LUT lut, int n, int total)
+	{
+		if (n < 0)
+			n = 0;
+		if (n >= total)
+			n = total - 1;
+		final double scale = (double) lut.getMapSize() / total;
+		return getColour(lut, (int) (n * scale));
+	}
 }
