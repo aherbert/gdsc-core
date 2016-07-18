@@ -35,7 +35,9 @@ public class LUTHelper
 		BLUE("Blue"), 
 		CYAN("Cyan"), 
 		MAGENTA("Magenta"), 
-		YELLOW("Yellow");
+		YELLOW("Yellow"),
+		RED_BLUE("Red-Blue"), 
+		RED_CYAN("Red-Cyan");
 		//@formatter:on
 
 		private String name;
@@ -95,7 +97,7 @@ public class LUTHelper
 		int nColors;
 		switch (lut)
 		{
-			case RED_HOT: // red-hot
+			case RED_HOT:
 			default:
 				nColors = setColours(reds, greens, blues, Color.red, Color.yellow, Color.WHITE);
 				break;
@@ -108,8 +110,14 @@ public class LUTHelper
 			case FIRE_LIGHT:
 				nColors = firelight(reds, greens, blues);
 				break;
-			case RED_YELLOW: // red-yellow
+			case RED_YELLOW:
 				nColors = setColours(reds, greens, blues, Color.red, Color.yellow);
+				break;
+			case RED_BLUE:
+				nColors = setColours(reds, greens, blues, Color.red, Color.blue);
+				break;
+			case RED_CYAN:
+				nColors = setColours(reds, greens, blues, Color.red, Color.cyan);
 				break;
 			case RED:
 				nColors = setColours(reds, greens, blues, Color.red);
