@@ -115,7 +115,7 @@ public class Utils
 	{
 		return rounded(d, 4);
 	}
-	
+
 	/**
 	 * Show the image. Replace a currently open image with the specified title or else create a new image.
 	 * 
@@ -1527,5 +1527,19 @@ public class Utils
 		if (directory.length() > 0 && !(directory.endsWith("/") || directory.endsWith("\\")))
 			directory += Prefs.separator;
 		return directory;
+	}
+
+	/**
+	 * True if the generic dialog will be shown. This will return false if headless or if there are macro options for the
+	 * dialog (i.e. a macro is running and the dialog will not present to the user)
+	 *
+	 * @return true, if the GenericDialog can and will be shown
+	 */
+	public static boolean isShowGenericDialog()
+	{
+		if (java.awt.GraphicsEnvironment.isHeadless())
+			return false;
+
+		return Macro.getOptions() == null;
 	}
 }
