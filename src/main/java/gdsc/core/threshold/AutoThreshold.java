@@ -1,8 +1,22 @@
 package gdsc.core.threshold;
 
+/*----------------------------------------------------------------------------- 
+ * GDSC Plugins for ImageJ
+ * 
+ * Copyright (C) 2016 Alex Herbert
+ * Genome Damage and Stability Centre
+ * University of Sussex, UK
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *---------------------------------------------------------------------------*/
+
 import gdsc.core.ij.Utils;
 import ij.IJ;
 
+// History of the Auto_ThresholdImageJ plugin of G. Landini:
 // Autothreshold segmentation 
 // Following the guidelines at http://pacific.mpi-cbg.de/wiki/index.php/PlugIn_Design_Guidelines
 // ImageJ plugin by G. Landini at bham. ac. uk
