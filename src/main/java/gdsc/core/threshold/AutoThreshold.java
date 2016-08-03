@@ -96,12 +96,12 @@ public class AutoThreshold
 				methods2[i - 1] = m[i].name;
 		}
 	}
-	
+
 	public static String[] getMethods()
 	{
 		return methods.clone();
 	}
-	
+
 	public static String[] getMethods(boolean ignoreNone)
 	{
 		if (ignoreNone)
@@ -1524,17 +1524,22 @@ public class AutoThreshold
 
 		// bracket the histogram to the range that holds data to make it quicker
 		int minbin = 0;
-		int maxbin = 0;
-		for (int i = 0; i < data.length; i++)
-		{
-			if (data[i] > 0)
-				maxbin = i;
-		}
-		for (int i = data.length - 1; i >= 0; i--)
-		{
-			if (data[i] > 0)
-				minbin = i;
-		}
+		int maxbin = data.length - 1;
+		//		for (int i = 0; i < data.length; i++)
+		//		{
+		//			if (data[i] > 0)
+		//				maxbin = i;
+		//		}
+		//		for (int i = data.length - 1; i >= 0; i--)
+		//		{
+		//			if (data[i] > 0)
+		//				minbin = i;
+		//		}
+		while ((data[minbin] == 0) && (minbin < maxbin))
+			minbin++;
+		while ((data[maxbin] == 0) && (maxbin > minbin))
+			maxbin--;
+
 		final int[] data2 = new int[(maxbin - minbin) + 1];
 		for (int i = minbin; i <= maxbin; i++)
 		{
