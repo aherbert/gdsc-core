@@ -82,6 +82,7 @@ public class Histogram implements Cloneable
 	public static Histogram buildHistogram(int[] data)
 	{
 		int[] limits = Maths.limits(data);
+		// Limits will be [0,0] if data is null or empty so the rest of the code is OK
 		final int min = limits[0];
 		final int max = limits[1];
 		final int size = max - min + 1;

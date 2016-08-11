@@ -73,6 +73,10 @@ public class FloatHistogram extends Histogram
 	 */
 	public static FloatHistogram buildHistogram(float[] data, boolean doSort)
 	{
+		if (data == null || data.length == 0)
+			// Empty histogram
+			return new FloatHistogram(new float[1], new int[1]);
+		
 		if (doSort)
 			Arrays.sort(data);
 
