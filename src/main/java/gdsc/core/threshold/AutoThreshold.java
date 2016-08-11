@@ -1540,10 +1540,19 @@ public class AutoThreshold
 		while ((data[maxbin] == 0) && (maxbin > minbin))
 			maxbin--;
 
-		final int[] data2 = new int[(maxbin - minbin) + 1];
-		for (int i = minbin; i <= maxbin; i++)
+		final int size = (maxbin - minbin) + 1;
+		final int[] data2;
+		if (size < data.length)
 		{
-			data2[i - minbin] = data[i];
+			data2 = new int[size];
+			for (int i = minbin, j = 0; i <= maxbin; i++, j++)
+			{
+				data2[j] = data[i];
+			}
+		}
+		else
+		{
+			data2 = data;
 		}
 
 		// Apply the selected algorithm
