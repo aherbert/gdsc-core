@@ -1,6 +1,7 @@
 package gdsc.core.threshold;
 
 import gdsc.core.threshold.AutoThreshold.Method;
+import gdsc.core.utils.Maths;
 
 // TODO: Auto-generated Javadoc
 /*----------------------------------------------------------------------------- 
@@ -72,6 +73,27 @@ public class Histogram implements Cloneable
 	}
 
 	/**
+	 * Build a histogram using the input data values.
+	 *
+	 * @param data
+	 *            The data
+	 * @return The histogram
+	 */
+	public static Histogram buildHistogram(int[] data)
+	{
+		int[] limits = Maths.limits(data);
+		final int min = limits[0];
+		final int max = limits[1];
+		final int size = max - min + 1;
+		final int[] h = new int[size];
+		for (int i : data)
+		{
+			h[i - min]++;
+		}
+		return new IntHistogram(h, min);
+	}
+
+	/**
 	 * Compact the histogram to the specified number of bins. This is a method to be overridden by sub-classes.
 	 * <p>
 	 * Compaction is not supported in this class since the histogram is an integer histogram.
@@ -130,13 +152,14 @@ public class Histogram implements Cloneable
 	 */
 	protected final float getAutoThreshold(Method method)
 	{
-		int[] statsHistogram;
+		final int[] statsHistogram;
 
-		// Truncate
-		if (minBin != 0 || maxBin < h.length - 1)
+		// Truncate if possible
+		final int size = maxBin - minBin + 1;
+		if (size < h.length)
 		{
-			statsHistogram = new int[maxBin - minBin + 1];
-			System.arraycopy(h, minBin, statsHistogram, 0, statsHistogram.length);
+			statsHistogram = new int[size];
+			System.arraycopy(h, minBin, statsHistogram, 0, size);
 		}
 		else
 		{
