@@ -145,13 +145,13 @@ public class Histogram implements Cloneable
 	}
 
 	/**
-	 * Gets the threshold.
+	 * Gets the threshold. Assumes the histogram bin widths are equal.
 	 *
 	 * @param method
 	 *            the method
 	 * @return the threshold
 	 */
-	protected final float getAutoThreshold(Method method)
+	public final float getAutoThreshold(Method method)
 	{
 		final int[] statsHistogram;
 
