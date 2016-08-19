@@ -14,7 +14,6 @@ package gdsc.core.threshold;
  *---------------------------------------------------------------------------*/
 
 import gdsc.core.ij.Utils;
-import ij.IJ;
 
 // History of the Auto_ThresholdImageJ plugin of G. Landini:
 // Autothreshold segmentation 
@@ -81,6 +80,16 @@ public class AutoThreshold
 		}
 	}
 
+	/**
+	 * Flag to allow extra logging information to be output from thresholding methods
+	 */
+	public static boolean isDebug = false;
+	
+	/**
+	 * Flag to log information from the thresholding methods
+	 */
+	public static boolean isLogging = false;
+	
 	private final static String[] methods;
 	private final static String[] methods2;
 
@@ -265,7 +274,7 @@ public class AutoThreshold
 			if (iter > 10000)
 			{
 				threshold = -1;
-				IJ.log("Intermodes Threshold not found after 10000 iterations.");
+				log("Intermodes Threshold not found after 10000 iterations.");
 				return threshold;
 			}
 		}
@@ -277,7 +286,7 @@ public class AutoThreshold
 			if (iHisto[i - 1] < iHisto[i] && iHisto[i + 1] < iHisto[i])
 			{
 				tt += i;
-				//IJ.log("mode:" +i);
+				//log("mode:" +i);
 			}
 		}
 		threshold = (int) Math.floor(tt / 2.0);
@@ -347,7 +356,7 @@ public class AutoThreshold
 			g++;
 			if (g > data.length - 2)
 			{
-				IJ.log("IsoData Threshold not found.");
+				log("IsoData Threshold not found.");
 				return -1;
 			}
 		}
@@ -529,7 +538,7 @@ public class AutoThreshold
 			/* Total entropy */
 			tot_ent = ent_back + ent_obj;
 
-			// IJ.log(""+max_ent+"  "+tot_ent);
+			// log(""+max_ent+"  "+tot_ent);
 			if (max_ent < tot_ent)
 			{
 				max_ent = tot_ent;
@@ -678,7 +687,7 @@ public class AutoThreshold
 			sqterm = (w1 * w1) - w0 * w2;
 			if (sqterm < 0)
 			{
-				IJ.log("MinError(I): not converging. Try \'Ignore black/white\' options");
+				log("MinError(I): not converging. Try \'Ignore black/white\' options");
 				return threshold;
 			}
 
@@ -688,12 +697,12 @@ public class AutoThreshold
 
 			if (Double.isNaN(temp))
 			{
-				IJ.log("MinError(I): NaN, not converging. Try \'Ignore black/white\' options");
+				log("MinError(I): NaN, not converging. Try \'Ignore black/white\' options");
 				threshold = Tprev;
 			}
 			else
 				threshold = (int) Math.floor(temp);
-			//IJ.log("Iter: "+ counter+++"  t:"+threshold);
+			//log("Iter: "+ counter+++"  t:"+threshold);
 		}
 		return threshold;
 	}
@@ -761,14 +770,14 @@ public class AutoThreshold
 			if (iter > 10000)
 			{
 				threshold = -1;
-				IJ.log("Minimum Threshold not found after 10000 iterations.");
+				log("Minimum Threshold not found after 10000 iterations.");
 				return threshold;
 			}
 		}
 		// The threshold is the minimum between the two peaks. modified for 16 bits
 		for (int i = 1; i < max; i++)
 		{
-			//IJ.log(" "+i+"  "+iHisto[i]);
+			//log(" "+i+"  "+iHisto[i]);
 			if (iHisto[i - 1] > iHisto[i] && iHisto[i + 1] >= iHisto[i])
 				threshold = i;
 		}
@@ -905,13 +914,13 @@ public class AutoThreshold
 
 		if (kStar_count > 1)
 		{
-			if (IJ.debugMode)
-				IJ.log("Otsu method has multiple optimal thresholds");
+			if (isDebug)
+				log("Otsu method has multiple optimal thresholds");
 			kStar /= kStar_count;
 		}
 
 		// Output the measure of separability. Requires BCVmax / BCVglobal
-		if (IJ.debugMode && N > 0)
+		if (isDebug && N > 0)
 		{
 			// Calculate global variance
 			double sx = S;
@@ -921,8 +930,8 @@ public class AutoThreshold
 			BCV = (ssx - sx * sx / N) / N;
 
 			// Removed use of minbin to allow thread safe execution
-			//IJ.log(String.format("Otsu separability @ %d: %f", kStar + minbin, (BCVmax / BCV)));			
-			IJ.log(String.format("Otsu separability @ %d: %f", kStar, (BCVmax / BCV)));
+			//log(String.format("Otsu separability @ %d: %f", kStar + minbin, (BCVmax / BCV)));			
+			log(String.format("Otsu separability @ %d: %f", kStar, (BCVmax / BCV)));
 		}
 
 		// kStar += 1;	// Use QTI convention that intensity -> 1 if intensity >= k
@@ -951,7 +960,7 @@ public class AutoThreshold
 		for (int i = 0; i < data.length; i++)
 		{
 			avec[i] = Math.abs((partialSum(data, i) / total) - ptile);
-			//IJ.log("Ptile["+i+"]:"+ avec[i]);
+			//log("Ptile["+i+"]:"+ avec[i]);
 			if (avec[i] < temp)
 			{
 				temp = avec[i];
@@ -1069,7 +1078,7 @@ public class AutoThreshold
 			/* Total entropy */
 			tot_ent = ent_back + ent_obj;
 
-			// IJ.log(""+max_ent+"  "+tot_ent);
+			// log(""+max_ent+"  "+tot_ent);
 
 			if (max_ent < tot_ent)
 			{
@@ -1187,7 +1196,7 @@ public class AutoThreshold
 				beta3 = 1;
 			}
 		}
-		//IJ.log(""+t_star1+" "+t_star2+" "+t_star3);
+		//log(""+t_star1+" "+t_star2+" "+t_star3);
 		/* Determine the optimal threshold value */
 		omega = P1[t_star3] - P1[t_star1];
 		opt_threshold = (int) (t_star1 * (P1[t_star1] + 0.25 * omega * beta1) + 0.25 * t_star2 * omega * beta2 +
@@ -1334,12 +1343,12 @@ public class AutoThreshold
 			}
 		}
 		// find which is the furthest side
-		//IJ.log(""+min+" "+max+" "+min2);
+		//log(""+min+" "+max+" "+min2);
 		boolean inverted = false;
 		if ((max - min) < (min2 - max))
 		{
 			// reverse the histogram
-			//IJ.log("Reversing histogram.");
+			//log("Reversing histogram.");
 			inverted = true;
 			int left = 0; // index of leftmost element
 			int right = data.length - 1; // index of rightmost element
@@ -1359,7 +1368,7 @@ public class AutoThreshold
 
 		if (min == max)
 		{
-			//IJ.log("Triangle:  min == max.");
+			//log("Triangle:  min == max.");
 			return min;
 		}
 
@@ -1597,5 +1606,12 @@ public class AutoThreshold
 			default: return -1;
 			//@formatter:on
 		}
+	}
+
+	private static void log(String string)
+	{
+		if (isLogging)
+			// This could be changed to output somewhere else, e.g. a utils.logging.Logger instance
+			System.out.println(string);
 	}
 }
