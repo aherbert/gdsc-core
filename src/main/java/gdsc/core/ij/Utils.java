@@ -135,7 +135,11 @@ public class Utils
 		}
 		else
 		{
+			final boolean resized = imp.getWidth() != ip.getWidth() || imp.getHeight() != ip.getHeight();
 			imp.setProcessor(ip);
+			if (resized)
+				// Assume overlay is no longer valid
+				imp.setOverlay(null);
 			imp.getWindow().setVisible(true);
 			imp.getWindow().toFront();
 		}
@@ -162,7 +166,11 @@ public class Utils
 		else
 		{
 			slices.setColorModel(imp.getProcessor().getColorModel());
+			final boolean resized = imp.getWidth() != slices.getWidth() || imp.getHeight() != slices.getHeight();
 			imp.setStack(slices);
+			if (resized)
+				// Assume overlay is no longer valid
+				imp.setOverlay(null);
 			imp.getWindow().setVisible(true);
 			imp.getWindow().toFront();
 		}
@@ -1530,7 +1538,8 @@ public class Utils
 	}
 
 	/**
-	 * True if the generic dialog will be shown. This will return false if headless or if there are macro options for the
+	 * True if the generic dialog will be shown. This will return false if headless or if there are macro options for
+	 * the
 	 * dialog (i.e. a macro is running and the dialog will not present to the user)
 	 *
 	 * @return true, if the GenericDialog can and will be shown
