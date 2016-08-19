@@ -84,12 +84,12 @@ public class AutoThreshold
 	 * Flag to allow extra logging information to be output from thresholding methods
 	 */
 	public static boolean isDebug = false;
-	
+
 	/**
 	 * Flag to log information from the thresholding methods
 	 */
 	public static boolean isLogging = false;
-	
+
 	private final static String[] methods;
 	private final static String[] methods2;
 
@@ -666,17 +666,42 @@ public class AutoThreshold
 		int threshold = Mean(data); //Initial estimate for the threshold is found with the MEAN algorithm.
 		int Tprev = -2;
 		double mu, nu, p, q, sigma2, tau2, w0, w1, w2, sqterm, temp;
+
+		// Pre-compute
+		double[] A = new double[data.length];
+		double[] B = new double[data.length];
+		double[] C = new double[data.length];
+		double a = 0, b = 0, c = 0;
+		for (int i = 0; i < data.length; i++)
+		{
+			a += data[i];
+			A[i] = a;
+			b += i * data[i];
+			B[i] = b;
+			c += i * i * data[i];
+			C[i] = c;
+		}
+
 		//int counter=1;
+		final int end = data.length - 1;
 		while (threshold != Tprev)
 		{
 			//Calculate some statistics.
-			mu = B(data, threshold) / A(data, threshold);
-			nu = (B(data, data.length - 1) - B(data, threshold)) / (A(data, data.length - 1) - A(data, threshold));
-			p = A(data, threshold) / A(data, data.length - 1);
-			q = (A(data, data.length - 1) - A(data, threshold)) / A(data, data.length - 1);
-			sigma2 = C(data, threshold) / A(data, threshold) - (mu * mu);
-			tau2 = (C(data, data.length - 1) - C(data, threshold)) / (A(data, data.length - 1) - A(data, threshold)) -
-					(nu * nu);
+			//			mu = B(data, threshold) / A(data, threshold);
+			//			nu = (B(data, end) - B(data, threshold)) / (A(data, end) - A(data, threshold));
+			//			p = A(data, threshold) / A(data, end);
+			//			q = (A(data, end) - A(data, threshold)) / A(data, end);
+			//			sigma2 = C(data, threshold) / A(data, threshold) - (mu * mu);
+			//			tau2 = (C(data, end) - C(data, threshold)) / (A(data, end) - A(data, threshold)) -
+			//					(nu * nu);
+
+			// With precomputed values
+			mu = B[threshold] / A[threshold];
+			nu = (B[end] - B[threshold]) / (A[end] - A[threshold]);
+			p = A[threshold] / A[end];
+			q = (A[end] - A[threshold]) / A[end];
+			sigma2 = C[threshold] / A[threshold] - (mu * mu);
+			tau2 = (C[end] - C[threshold]) / (A[end] - A[threshold]) - (nu * nu);
 
 			//The terms of the quadratic equation to be solved.
 			w0 = 1.0 / sigma2 - 1.0 / tau2;
