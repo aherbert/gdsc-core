@@ -66,7 +66,7 @@ public class FastCorrelator
 	}
 
 	/**
-	 * Add a pair of data polongs to the sums
+	 * Add a pair of data points to the sums
 	 * 
 	 * @param v1
 	 * @param v2
