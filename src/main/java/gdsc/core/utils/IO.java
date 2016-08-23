@@ -89,4 +89,136 @@ public class IO
 	{
 		return save(null, data, filename);
 	}
+	
+	/**
+	 * Save an array to file
+	 * 
+	 * @param header
+	 *            The header
+	 * @param data
+	 *            The data
+	 * @param filename
+	 *            The filename
+	 * @return true if all OK, false if an error occurred
+	 */
+	public static boolean save(String header, int[] data, String filename)
+	{
+		boolean ok = true;
+		BufferedWriter file = null;
+		try
+		{
+			file = new BufferedWriter(new FileWriter(filename));
+			if (!Utils.isNullOrEmpty(header))
+			{
+				file.write(header);
+				file.newLine();
+			}
+			if (data != null)
+			{
+				for (int d : data)
+				{
+					file.write(Integer.toString(d));
+					file.newLine();
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			ok = false;
+		}
+		finally
+		{
+			if (file != null)
+			{
+				try
+				{
+					file.close();
+				}
+				catch (IOException e)
+				{
+				}
+			}
+		}
+		return ok;
+	}
+
+	/**
+	 * Save an array to file
+	 * 
+	 * @param data
+	 *            The data
+	 * @param filename
+	 *            The filename
+	 * @return true if all OK, false if an error occurred
+	 */
+	public static boolean save(int[] data, String filename)
+	{
+		return save(null, data, filename);
+	}
+	
+	/**
+	 * Save an array to file
+	 * 
+	 * @param header
+	 *            The header
+	 * @param data
+	 *            The data
+	 * @param filename
+	 *            The filename
+	 * @return true if all OK, false if an error occurred
+	 */
+	public static boolean save(String header, float[] data, String filename)
+	{
+		boolean ok = true;
+		BufferedWriter file = null;
+		try
+		{
+			file = new BufferedWriter(new FileWriter(filename));
+			if (!Utils.isNullOrEmpty(header))
+			{
+				file.write(header);
+				file.newLine();
+			}
+			if (data != null)
+			{
+				for (float d : data)
+				{
+					file.write(Float.toString(d));
+					file.newLine();
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			ok = false;
+		}
+		finally
+		{
+			if (file != null)
+			{
+				try
+				{
+					file.close();
+				}
+				catch (IOException e)
+				{
+				}
+			}
+		}
+		return ok;
+	}
+
+	/**
+	 * Save an array to file
+	 * 
+	 * @param data
+	 *            The data
+	 * @param filename
+	 *            The filename
+	 * @return true if all OK, false if an error occurred
+	 */
+	public static boolean save(float[] data, String filename)
+	{
+		return save(null, data, filename);
+	}	
 }
