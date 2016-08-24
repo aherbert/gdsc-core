@@ -23,6 +23,8 @@ import ij.gui.PlotWindow;
 import java.awt.Dimension;
 import java.util.Arrays;
 
+import gdsc.core.ij.Utils;
+
 /**
  * Extend the standard ImageJ window organiser plugin and make the methods public
  * <p>
@@ -48,7 +50,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 			list = Arrays.copyOf(list, (int) (count * 1.5));
 		list[count++] = id;
 	}
-	
+
 	/**
 	 * Adds the window ID to the instance
 	 *
@@ -57,9 +59,9 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	 */
 	public void add(ImagePlus imp)
 	{
-		add(imp.getID());		
+		add(imp.getID());
 	}
-	
+
 	/**
 	 * Adds the window ID to the instance
 	 *
@@ -68,7 +70,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	 */
 	public void add(PlotWindow pw)
 	{
-		add(pw.getImagePlus());		
+		add(pw.getImagePlus());
 	}
 
 	/**
@@ -96,9 +98,20 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	{
 		try
 		{
+			// In newer versions of ImageJ any PlotWindow cannot be tiled unless is is frozen.
+			// This is not a command available in the version of ImageJ this code is built for.
+			// The super method will call IJ.error(...) so we can check if this was called and 
+			// and fall back to the classic implementation
+			IJ.getErrorMessage(); // Call once to set the error message to null
 			super.tileWindows(wList);
+			if (Utils.isNullOrEmpty(IJ.getErrorMessage()))
+				return;
 		}
 		catch (Throwable t)
+		{
+			// Ignore
+		}
+		finally
 		{
 			// Some versions of ImageJ / Java do not allow this so call the duplicated function
 			copyOfTileWindows(wList);
@@ -110,9 +123,20 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	{
 		try
 		{
+			// In newer versions of ImageJ any PlotWindow cannot be tiled unless is is frozen.
+			// This is not a command available in the version of ImageJ this code is built for.
+			// The super method will call IJ.error(...) so we can check if this was called and 
+			// and fall back to the classic implementation
+			IJ.getErrorMessage(); // Call once to set the error message to null
 			super.cascadeWindows(wList);
+			if (Utils.isNullOrEmpty(IJ.getErrorMessage()))
+				return;
 		}
-		catch (Exception e)
+		catch (Throwable t)
+		{
+			// Ignore
+		}
+		finally
 		{
 			// Some versions of ImageJ / Java do not allow this so call the duplicated function
 			copyOfCascadeWindows(wList);
