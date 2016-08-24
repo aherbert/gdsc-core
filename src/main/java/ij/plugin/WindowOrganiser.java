@@ -94,41 +94,29 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	@Override
 	public void tileWindows(int[] wList)
 	{
+		// As of ImageJ 1.50 plot windows must be frozen to allow tiling.
+		// This is because they are dynamically resized.
+		final boolean[] unfreeze = freezePlotWindows(wList);
 		try
 		{
-			final boolean[] unfreeze = freezePlotWindows(wList);
 			super.tileWindows(wList);
-			unfreezePlotWindows(wList, unfreeze);
 		}
 		catch (Throwable t)
 		{
 			// Some versions of ImageJ / Java do not allow this so call the duplicated function
 			copyOfTileWindows(wList);
 		}
-	}
-
-	@Override
-	public void cascadeWindows(int[] wList)
-	{
-		try
+		finally
 		{
-			final boolean[] unfreeze = freezePlotWindows(wList);
-			super.cascadeWindows(wList);
 			unfreezePlotWindows(wList, unfreeze);
-		}
-		catch (Throwable t)
-		{
-			// Some versions of ImageJ / Java do not allow this so call the duplicated function
-			copyOfCascadeWindows(wList);
 		}
 	}
 
 	/**
-	 * In newer versions of ImageJ any PlotWindow cannot be tiled unless is is frozen.
-	 * This is not a command available in the version of ImageJ this code is built for so we try to call it with
-	 * reflection.
+	 * Freeze any plot windows to allow them to be tiled
 	 * 
 	 * @param wList
+	 * @return The windows that should be unfrozen
 	 */
 	private boolean[] freezePlotWindows(int[] wList)
 	{
@@ -151,6 +139,13 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 		return unfreeze;
 	}
 
+	/**
+	 * Unfreeze any marked plot windows
+	 * 
+	 * @param wList
+	 * @param unfreeze
+	 *            The windows that should be unfrozen
+	 */
 	private void unfreezePlotWindows(int[] wList, boolean[] unfreeze)
 	{
 		for (int i = 0; i < wList.length; i++)
@@ -167,7 +162,21 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 			}
 		}
 	}
-	
+
+	@Override
+	public void cascadeWindows(int[] wList)
+	{
+		try
+		{
+			super.cascadeWindows(wList);
+		}
+		catch (Throwable t)
+		{
+			// Some versions of ImageJ / Java do not allow this so call the duplicated function
+			copyOfCascadeWindows(wList);
+		}
+	}
+
 	void copyOfTileWindows(int[] wList)
 	{
 		Dimension screen = IJ.getScreenSize();
@@ -180,6 +189,11 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 			ImageWindow win = getWindow(wList[i]);
 			if (win == null)
 				continue;
+			if (win instanceof PlotWindow && !((PlotWindow) win).getPlot().isFrozen())
+			{
+				IJ.error("Tile", "Unfrozen plot windows cannot be tiled.");
+				return;
+			}
 			Dimension d = win.getSize();
 			int w = d.width;
 			int h = d.height + titlebarHeight;

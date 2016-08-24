@@ -1,5 +1,9 @@
 package ij.gui;
 
+import java.awt.Color;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
@@ -7,11 +11,6 @@ import ij.WindowManager;
 import ij.macro.Interpreter;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
-import ij.util.Tools;
-
-import java.awt.Color;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 /**
  * Extension of the ij.gui.Plot class to add functionality
@@ -59,121 +58,53 @@ public class Plot2 extends Plot
 	}
 
 	/**
-	 * Adds a set of points to the plot, adds a curve if shape is set to LINE or bars if the shape is BAR
+	 * Adds a set of points to the plot or adds a curve if shape is set to LINE.
+	 * <p>
+	 * Support Bar plots by adding an extra point to draw a horizontal line and vertical line between points
 	 * 
-	 * @param x
-	 *            the x-coodinates
-	 * @param y
-	 *            the y-coodinates
+	 * @param xValues
+	 *            the x coordinates, or null. If null, integers starting at 0 will be used for x.
+	 * @param yValues
+	 *            the y coordinates (must not be null)
+	 * @param yErrorBars
+	 *            error bars in y, may be null
 	 * @param shape
-	 *            CIRCLE, X, BOX, TRIANGLE, CROSS, DOT, LINE or BAR
+	 *            CIRCLE, X, BOX, TRIANGLE, CROSS, DOT, LINE, CONNECTED_CIRCLES, or BAR
+	 * @param label
+	 *            Label for this curve or set of points, used for a legend and for listing the plots
 	 */
 	@Override
-	public void addPoints(float[] x, float[] y, int shape)
+	public void addPoints(float[] xValues, float[] yValues, float[] yErrorBars, int shape, String label)
 	{
-		// Override to allow a Bar plot. If this fails due to an exception then a line plot will be used.
-		if (failedOverride)
-		{
-			if (shape == Plot2.BAR)
-				shape = Plot.LINE;
-			super.addPoints(x, y, shape);
-			return;
-		}
-
-		// Set the limits if this is the first set of data. The limits are usually set in the constructor
-		// but we may want to not pass in the values to the constructor and then immediately call 
-		// addPoints(x, y, Plot2.BAR)
-		boolean setLimits = false;
-		try
-		{
-			// Check for any values
-			Field f = Plot.class.getDeclaredField("xValues");
-			f.setAccessible(true);
-			Object value = f.get(this);
-			setLimits = (value == null);
-		}
-		catch (Throwable e)
-		{
-			// Ignore
-		}
-		if (setLimits)
-		{
-			try
-			{
-				double[] a = Tools.getMinMax(x);
-				setFieldValue("xMin", a[0]);
-				setFieldValue("xMax", a[1]);
-				a = Tools.getMinMax(y);
-				setFieldValue("yMin", a[0]);
-				setFieldValue("yMax", a[1]);
-			}
-			catch (Exception e)
-			{
-				// Ignore
-			}
-		}
-
 		// This only works if the addPoints super method ignores the BAR option but still store the values
 		try
 		{
-			Method m = Plot.class.getDeclaredMethod("setup");
-			m.setAccessible(true);
-			m.invoke(this);
-
-			switch (shape)
+			if (shape == BAR)
 			{
-				case BAR:
-					ImageProcessor ip = getProcessor();
-					int flags = 0;
-					try
-					{
-						Field f = Plot.class.getDeclaredField("flags");
-						f.setAccessible(true);
-						flags = f.getInt(this);
-					}
-					catch (Throwable e)
-					{
-						// Ignore
-					}
-					float[] xValues = createHistogramAxis(x);
-					float[] yValues = createHistogramValues(y);
+				shape = Plot.LINE;
+				
+				if (xValues == null || xValues.length == 0)
+				{
+					xValues = new float[yValues.length];
+					for (int i = 0; i < yValues.length; i++)
+						xValues[i] = i;
+				}
 
-					m = Plot.class.getDeclaredMethod("drawFloatPolyline", ImageProcessor.class, float[].class,
-							float[].class, int.class);
-					m.setAccessible(true);
-
-					if ((flags & X_LOG_NUMBERS) != 0)
-						xValues = arrayToLog(xValues);
-					if ((flags & Y_LOG_NUMBERS) != 0)
-						yValues = arrayToLog(yValues);
-
-					m.invoke(this, ip, xValues, yValues, xValues.length);
-					break;
+				float[] x = createHistogramAxis(xValues);
+				float[] y = createHistogramValues(yValues);
+				
+				// No errors
+				xValues = x;
+				yValues = y;
 			}
 		}
 		catch (Throwable e)
 		{
-			// Revert to drawing a line
-			failedOverride = true;
-			shape = Plot.LINE;
 		}
-
-		super.addPoints(x, y, shape);
-	}
-
-	private void setFieldValue(String name, Object value) throws Exception
-	{
-		Field f = Plot.class.getDeclaredField(name);
-		f.setAccessible(true);
-		f.set(this, value);
-	}
-
-	private float[] arrayToLog(float[] val)
-	{
-		float[] newVal = new float[val.length];
-		for (int i = 0; i < newVal.length; i++)
-			newVal[i] = (float) (Math.log10(val[i]));
-		return newVal;
+		finally
+		{
+			super.addPoints(xValues, yValues, yErrorBars, shape, label);
+		}
 	}
 
 	/**
@@ -262,8 +193,8 @@ public class Plot2 extends Plot
 				}
 				ImagePlus imp = new ImagePlus(title, ip);
 				WindowManager.setTempCurrentImage(imp);
-				imp.setProperty("XValues", xValues); //Allows values to be retrieved by 
-				imp.setProperty("YValues", yValues); // by Plot.getValues() macro function
+				imp.setProperty("XValues", getXValues()); //Allows values to be retrieved by 
+				imp.setProperty("YValues", getYValues()); // by Plot.getValues() macro function
 				Interpreter.addBatchModeImage(imp);
 				return null;
 			}

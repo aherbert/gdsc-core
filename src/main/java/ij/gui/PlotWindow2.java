@@ -18,12 +18,11 @@ public class PlotWindow2 extends PlotWindow
 		scientific = (measurements & Measurements.SCIENTIFIC_NOTATION) != 0;
 	}
 	private static boolean update = false;
-	private static long time = 0;
-	private static boolean lock = false;
 
 	/**
 	 * Construct a plot window.
 	 * This method throws an IllegalAccessError on some platforms since the super constructor is package private.
+	 * 
 	 * @param plot
 	 */
 	PlotWindow2(Plot plot)
@@ -43,107 +42,69 @@ public class PlotWindow2 extends PlotWindow
 		super(title, xLabel, yLabel, xValues, yValues);
 	}
 
-	private boolean askForPrecision;
+	private int currentPrecision;
+	private boolean currentScientific;
+	private boolean reset;
 
 	@Override
 	public void saveAsText()
 	{
-		requireNewPrecision();
+		askForPrecision();
 		super.saveAsText();
+		reset();
 	}
 
 	@Override
 	public void showList()
 	{
-		requireNewPrecision();
+		askForPrecision();
 		super.showList();
+		reset();
 	}
 
 	@Override
-	public void copyToClipboard()
+	public void copyToClipboard(boolean writeAllColumns)
 	{
-		requireNewPrecision();
-		super.copyToClipboard();
+		askForPrecision();
+		super.copyToClipboard(writeAllColumns);
+		reset();
 	}
 
-	/**
-	 * Set a flag to show a dialog to ask for the precision if one second has elapsed since the last time
-	 */
-	private void requireNewPrecision()
+	private synchronized void askForPrecision()
 	{
-		askForPrecision = System.currentTimeMillis() > time + 1000;
-	}
+		currentPrecision = Analyzer.getPrecision();
+		int measurements = Analyzer.getMeasurements();
+		currentScientific = (measurements & Measurements.SCIENTIFIC_NOTATION) != 0;
 
-	/**
-	 * Override the getPrecision function to allow the user to select the precision for the numbers
-	 * 
-	 * @param values
-	 * @return
-	 */
-	@Override
-	public int getPrecision(float[] values)
-	{
-		// Use a simple lock to ensure no two threads ask at the same time
-		if (askForPrecision && lock())
+		GenericDialog gd = new GenericDialog("Plot precision");
+		gd.addSlider("Plot_precision", 0, 9, precision);
+		gd.addCheckbox("Scientific_notation", scientific);
+		gd.addCheckbox("Update_preferences", update);
+		gd.showDialog();
+		if (!gd.wasCanceled())
 		{
-			GenericDialog gd = new GenericDialog("Plot precision");
-			gd.addSlider("Plot_precision", 0, 9, precision);
-			gd.addCheckbox("Scientific_notation", scientific);
-			gd.addCheckbox("Update_preferences", update);
-			gd.showDialog();
-			if (!gd.wasCanceled())
+			int p = (int) gd.getNextNumber();
+			scientific = gd.getNextBoolean();
+			update = gd.getNextBoolean();
+			if (!gd.invalidNumber())
 			{
-				int p = (int) gd.getNextNumber();
-				scientific = gd.getNextBoolean();
-				update = gd.getNextBoolean();
-				if (!gd.invalidNumber())
-				{
-					precision = Math.max(0, Math.min(p, 9));
+				precision = Math.max(0, Math.min(p, 9));
 
-					if (update)
-					{
-						Analyzer.setPrecision(p);
-						Analyzer.setMeasurement(Analyzer.SCIENTIFIC_NOTATION, scientific);
-					}
-				}
-			}
-			time = System.currentTimeMillis();
-			askForPrecision = false;
-			lock = false;
-		}
+				Analyzer.setPrecision(p);
+				Analyzer.setMeasurement(Analyzer.SCIENTIFIC_NOTATION, scientific);
 
-		int setDigits = precision;
-		boolean scientificNotation = scientific;
-		int minDecimalPlaces = 4;
-		if (scientificNotation)
-		{
-			if (setDigits < minDecimalPlaces)
-				setDigits = minDecimalPlaces;
-			return -setDigits;
-		}
-		int digits = minDecimalPlaces;
-		if (setDigits > digits)
-			digits = setDigits;
-		boolean realValues = false;
-		for (int i = 0; i < values.length; i++)
-		{
-			if ((int) values[i] != values[i])
-			{
-				realValues = true;
-				break;
+				// Reset the global settings if an update was not requested
+				reset = !update;
 			}
 		}
-		if (!realValues)
-			digits = 0;
-		return digits;
 	}
 
-	private synchronized boolean lock()
+	private void reset()
 	{
-		if (!lock)
+		if (reset)
 		{
-			return lock = true;
+			Analyzer.setPrecision(currentPrecision);
+			Analyzer.setMeasurement(Analyzer.SCIENTIFIC_NOTATION, currentScientific);
 		}
-		return false;
 	}
 }
