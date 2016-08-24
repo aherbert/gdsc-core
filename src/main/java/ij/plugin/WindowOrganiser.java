@@ -1,5 +1,8 @@
 package ij.plugin;
 
+import java.awt.Dimension;
+import java.util.Arrays;
+
 /*----------------------------------------------------------------------------- 
  * GDSC Software
  * 
@@ -19,11 +22,6 @@ import ij.WindowManager;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.PlotWindow;
-
-import java.awt.Dimension;
-import java.util.Arrays;
-
-import gdsc.core.ij.Utils;
 
 /**
  * Extend the standard ImageJ window organiser plugin and make the methods public
@@ -98,20 +96,11 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	{
 		try
 		{
-			// In newer versions of ImageJ any PlotWindow cannot be tiled unless is is frozen.
-			// This is not a command available in the version of ImageJ this code is built for.
-			// The super method will call IJ.error(...) so we can check if this was called and 
-			// and fall back to the classic implementation
-			IJ.getErrorMessage(); // Call once to set the error message to null
+			final boolean[] unfreeze = freezePlotWindows(wList);
 			super.tileWindows(wList);
-			if (Utils.isNullOrEmpty(IJ.getErrorMessage()))
-				return;
+			unfreezePlotWindows(wList, unfreeze);
 		}
 		catch (Throwable t)
-		{
-			// Ignore
-		}
-		finally
 		{
 			// Some versions of ImageJ / Java do not allow this so call the duplicated function
 			copyOfTileWindows(wList);
@@ -123,26 +112,62 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	{
 		try
 		{
-			// In newer versions of ImageJ any PlotWindow cannot be tiled unless is is frozen.
-			// This is not a command available in the version of ImageJ this code is built for.
-			// The super method will call IJ.error(...) so we can check if this was called and 
-			// and fall back to the classic implementation
-			IJ.getErrorMessage(); // Call once to set the error message to null
+			final boolean[] unfreeze = freezePlotWindows(wList);
 			super.cascadeWindows(wList);
-			if (Utils.isNullOrEmpty(IJ.getErrorMessage()))
-				return;
+			unfreezePlotWindows(wList, unfreeze);
 		}
 		catch (Throwable t)
-		{
-			// Ignore
-		}
-		finally
 		{
 			// Some versions of ImageJ / Java do not allow this so call the duplicated function
 			copyOfCascadeWindows(wList);
 		}
 	}
 
+	/**
+	 * In newer versions of ImageJ any PlotWindow cannot be tiled unless is is frozen.
+	 * This is not a command available in the version of ImageJ this code is built for so we try to call it with
+	 * reflection.
+	 * 
+	 * @param wList
+	 */
+	private boolean[] freezePlotWindows(int[] wList)
+	{
+		boolean[] unfreeze = new boolean[wList.length];
+		for (int i = 0; i < wList.length; i++)
+		{
+			ImageWindow win = getWindow(wList[i]);
+			if (win == null)
+				continue;
+			if (win instanceof PlotWindow)
+			{
+				PlotWindow pw = (PlotWindow) win;
+				if (!pw.getPlot().isFrozen())
+				{
+					unfreeze[i] = true;
+					pw.getPlot().setFrozen(true);
+				}
+			}
+		}
+		return unfreeze;
+	}
+
+	private void unfreezePlotWindows(int[] wList, boolean[] unfreeze)
+	{
+		for (int i = 0; i < wList.length; i++)
+		{
+			if (!unfreeze[i])
+				continue;
+			ImageWindow win = getWindow(wList[i]);
+			if (win == null)
+				continue;
+			if (win instanceof PlotWindow)
+			{
+				PlotWindow pw = (PlotWindow) win;
+				pw.getPlot().setFrozen(false);
+			}
+		}
+	}
+	
 	void copyOfTileWindows(int[] wList)
 	{
 		Dimension screen = IJ.getScreenSize();
