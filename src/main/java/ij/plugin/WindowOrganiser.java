@@ -96,6 +96,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	{
 		// As of ImageJ 1.50 plot windows must be frozen to allow tiling.
 		// This is because they are dynamically resized.
+		@SuppressWarnings("unused")
 		final boolean[] unfreeze = freezePlotWindows(wList);
 		try
 		{
@@ -108,7 +109,10 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 		}
 		finally
 		{
-			unfreezePlotWindows(wList, unfreeze);
+			// TODO - Determine how to deal with freeze and unfreeze
+			// Since you can unfreeze a plot within the plot window (using the More>> menu) 
+			// for now it is left to the user to unfreeze plots for dynamic resizing
+			//unfreezePlotWindows(wList, unfreeze);
 		}
 	}
 
@@ -146,6 +150,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	 * @param unfreeze
 	 *            The windows that should be unfrozen
 	 */
+	@SuppressWarnings("unused")
 	private void unfreezePlotWindows(int[] wList, boolean[] unfreeze)
 	{
 		for (int i = 0; i < wList.length; i++)
