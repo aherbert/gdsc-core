@@ -13,15 +13,15 @@
 	<licenses>
 		<license>
 			<name>GNU General Public License (GPL) version 3.0</name>
-    		<url>http://www.gnu.org/licenses/gpl.txt</url>
+			<url>http://www.gnu.org/licenses/gpl.txt</url>
 			<distribution>manual</distribution>
 		</license>
 	</licenses>
-	
+
 	<scm>
 		<url>https://github.com/aherbert/GDSC-Core</url>
 	</scm>
-	
+
 	<developers>
 		<developer>
 			<id>aherbert</id>
@@ -77,6 +77,13 @@
 						<descriptorRefs>
 							<descriptorRef>jar-with-dependencies</descriptorRef>
 						</descriptorRefs>
+						<archive>
+							<manifest>
+								<addClasspath>true</addClasspath>
+								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              					<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+							</manifest>
+						</archive>
 					</configuration>
 				</plugin>
 			</plugins>
