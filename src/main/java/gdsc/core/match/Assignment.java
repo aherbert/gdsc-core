@@ -18,9 +18,9 @@ package gdsc.core.match;
  */
 public class Assignment implements Comparable<Assignment>
 {
-	private int targetId;
-	private int predictedId;
-	private double distance;
+	int targetId;
+	int predictedId;
+	double distance;
 
 	public Assignment(int targetId, int predictedId, double distance)
 	{
