@@ -15,8 +15,7 @@ package gdsc.core.match;
 
 /**
  * <p>
- * Stores a 2D/3D point.
- * 
+ * Stores a 2D/3D point. 
  * <p>
  * Overrides equals and hashCode methods using x,y,z, coordinates for equivalence. Derived classes can optionally
  * override this.
@@ -26,9 +25,9 @@ package gdsc.core.match;
  */
 public class BasePoint implements Coordinate
 {
-	protected float x = 0;
-	protected float y = 0;
-	protected float z = 0;
+	protected final float x;
+	protected final float y;
+	protected final float z;
 
 	public BasePoint(float x, float y, float z)
 	{
@@ -39,8 +38,7 @@ public class BasePoint implements Coordinate
 
 	public BasePoint(float x, float y)
 	{
-		this.x = x;
-		this.y = y;
+		this(x, y, 0);
 	}
 
 	/*
