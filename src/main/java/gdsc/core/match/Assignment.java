@@ -3,7 +3,7 @@ package gdsc.core.match;
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
  * 
- * Copyright (C) 2013 Alex Herbert
+ * Copyright (C) 2016 Alex Herbert
  * Genome Damage and Stability Centre
  * University of Sussex, UK
  * 
@@ -18,9 +18,9 @@ package gdsc.core.match;
  */
 public class Assignment implements Comparable<Assignment>
 {
-	int targetId;
-	int predictedId;
-	double distance;
+	final public int targetId;
+	final public int predictedId;
+	final public double distance;
 
 	public Assignment(int targetId, int predictedId, double distance)
 	{

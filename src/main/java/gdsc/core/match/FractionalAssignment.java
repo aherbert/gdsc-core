@@ -3,7 +3,7 @@ package gdsc.core.match;
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
  * 
- * Copyright (C) 2013 Alex Herbert
+ * Copyright (C) 2016 Alex Herbert
  * Genome Damage and Stability Centre
  * University of Sussex, UK
  * 
@@ -27,7 +27,7 @@ public class FractionalAssignment extends Assignment
 	 * distance thresholds at the same time. When using partial matching the distance for sorting assignments is set to
 	 * 1-score.
 	 */
-	final double score;
+	final public double score;
 
 	/**
 	 * Instantiates a new fractional assignment.
