@@ -97,7 +97,7 @@ public class RankedScoreCalculator
 					actualAssignment[a.targetId] = true;
 					tp += a.score;
 					predictedAssignment[a.predictedId] += a.score;
-					if (nA == 0)
+					if (--nA == 0)
 						break;
 				}
 			}
@@ -133,9 +133,7 @@ public class RankedScoreCalculator
 						actualAssignment[a.targetId] = true;
 						predictedAssignment[a.predictedId] = true;
 						tp += a.score;
-						nP--;
-						nA--;
-						if (nP == 0 || nA == 0)
+						if (--nA == 0 || --nP == 0)
 							break;
 					}
 				}
