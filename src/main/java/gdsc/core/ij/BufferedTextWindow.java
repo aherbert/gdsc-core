@@ -72,4 +72,9 @@ public class BufferedTextWindow
 	{
 		this.increment = increment;
 	}
+
+	public boolean isVisible()
+	{
+		return textWindow.isVisible();
+	}
 }
