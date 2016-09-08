@@ -25,7 +25,6 @@ import java.util.Arrays;
 public class RankedScoreCalculator
 {
 	private final FractionalAssignment[] assignments;
-	public final int nActual;
 	private final int maxA, maxP, totalA, totalP;
 
 	/**
@@ -33,14 +32,11 @@ public class RankedScoreCalculator
 	 * 
 	 * @param assignments
 	 *            The assignments
-	 * @param nActual
-	 *            The number of actual results (used to determine FN as [nActual - TP])
 	 */
-	public RankedScoreCalculator(FractionalAssignment[] assignments, int nActual)
+	public RankedScoreCalculator(FractionalAssignment[] assignments)
 	{
 		this.assignments = assignments;
 		Arrays.sort(assignments);
-		this.nActual = nActual;
 		// Count unique actual and predicted
 		int maxA = 0, maxP = 0;
 		for (FractionalAssignment a : assignments)
@@ -177,13 +173,15 @@ public class RankedScoreCalculator
 	/**
 	 * Convert the score from {@link #score(int, boolean)} to a classification result
 	 * <p>
-	 * no checks are made that the input array is valid.
+	 * No checks are made that the input array is valid.
 	 *
 	 * @param score
 	 *            the score
+	 * @param nActual
+	 *            The number of actual results (used to determine FN as [nActual - TP])
 	 * @return the fraction classification result
 	 */
-	public FractionClassificationResult convert(double[] score)
+	public static FractionClassificationResult convert(double[] score, int nActual)
 	{
 		return new FractionClassificationResult(score[0], score[1], 0, nActual - score[0]);
 	}
