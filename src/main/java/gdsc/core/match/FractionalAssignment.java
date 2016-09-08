@@ -37,11 +37,11 @@ public class FractionalAssignment extends Assignment
 	 * @param predictedId
 	 *            the predicted id
 	 * @param distance
-	 *            the distance
+	 *            the distance (zero is perfect match)
 	 * @param score
 	 *            The true positive score (must be 0-1)
 	 */
-	private FractionalAssignment(int targetId, int predictedId, double distance, double score)
+	public FractionalAssignment(int targetId, int predictedId, double distance, double score)
 	{
 		super(targetId, predictedId, distance);
 		this.score = score;
@@ -49,7 +49,7 @@ public class FractionalAssignment extends Assignment
 
 	/**
 	 * Instantiates a new fractional assignment using the given distance between the pair. Assignments are sorted using
-	 * the distance for use in computing nearest-neighbour matching. The for a match is 1.
+	 * the distance. The score for a match is 1.
 	 *
 	 * @param targetId
 	 *            the target id
