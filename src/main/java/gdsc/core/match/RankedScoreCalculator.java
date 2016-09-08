@@ -46,10 +46,8 @@ public class RankedScoreCalculator
 			if (maxP < a.predictedId)
 				maxP = a.predictedId;
 		}
-		maxA++;
-		maxP++;
-		boolean[] obsA = new boolean[maxA];
-		boolean[] obsP = new boolean[maxP];
+		boolean[] obsA = new boolean[maxA + 1];
+		boolean[] obsP = new boolean[maxP + 1];
 		for (FractionalAssignment a : assignments)
 		{
 			obsA[a.targetId] = true;
@@ -85,6 +83,25 @@ public class RankedScoreCalculator
 	 */
 	public FractionalAssignment[] getAssignments(int nPredicted)
 	{
+		if (maxP <= nPredicted)
+			return getAssignments();
+		final FractionalAssignment[] assignments2 = new FractionalAssignment[assignments.length];
+		int count = 0;
+		for (FractionalAssignment a : assignments)
+			if (a.predictedId < nPredicted)
+				assignments2[count++] = a;
+		return Arrays.copyOf(assignments2, count);
+	}
+
+	/**
+	 * @param nPredicted
+	 *            the first N predictions
+	 * @return All the assignments up the first N predictions
+	 */
+	private FractionalAssignment[] getAssignmentsInternal(int nPredicted)
+	{
+		if (maxP <= nPredicted)
+			return assignments;
 		final FractionalAssignment[] assignments2 = new FractionalAssignment[assignments.length];
 		int count = 0;
 		for (FractionalAssignment a : assignments)
@@ -106,19 +123,20 @@ public class RankedScoreCalculator
 	 */
 	public double[] score(int nPredicted, boolean multipleMatches)
 	{
-		FractionalAssignment[] assignments = getAssignments(nPredicted);
+		final FractionalAssignment[] assignments = getAssignmentsInternal(nPredicted);
 
 		// Assign matches
 		if (multipleMatches)
 		{
-			final boolean[] actualAssignment = new boolean[maxP];
-			final double[] predictedAssignment = new double[maxA];
+			final boolean[] actualAssignment = new boolean[maxP + 1];
+			final double[] predictedAssignment = new double[maxA + 1];
 
 			double tp = 0;
 			int nA = totalA;
 
-			for (FractionalAssignment a : assignments)
+			for (int i = 0; i < assignments.length; i++)
 			{
+				final FractionalAssignment a = assignments[i];
 				if (!actualAssignment[a.targetId])
 				{
 					actualAssignment[a.targetId] = true;
@@ -144,15 +162,16 @@ public class RankedScoreCalculator
 		}
 		else
 		{
-			final boolean[] actualAssignment = new boolean[maxA];
-			final boolean[] predictedAssignment = new boolean[maxP];
+			final boolean[] actualAssignment = new boolean[maxA + 1];
+			final boolean[] predictedAssignment = new boolean[maxP + 1];
 
 			double tp = 0;
 			int nP = totalP;
 			int nA = totalA;
 
-			for (FractionalAssignment a : assignments)
+			for (int i = 0; i < assignments.length; i++)
 			{
+				final FractionalAssignment a = assignments[i];
 				if (!actualAssignment[a.targetId])
 				{
 					if (!predictedAssignment[a.predictedId])
