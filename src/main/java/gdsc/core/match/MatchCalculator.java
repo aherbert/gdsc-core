@@ -115,7 +115,7 @@ public class MatchCalculator
 		// loop over the two arrays assigning the closest unassigned pair
 		final boolean[] resultAssignment = new boolean[predictedPointsLength];
 		final boolean[] roiAssignment = new boolean[fn];
-		final ArrayList<Assignment> assignments = new ArrayList<Assignment>(predictedPointsLength);
+		final ArrayList<ImmutableAssignment> assignments = new ArrayList<ImmutableAssignment>(predictedPointsLength);
 
 		int[] falsePositives = null, falseNegatives = null;
 		if (FP != null)
@@ -172,7 +172,7 @@ public class MatchCalculator
 				// Store closest ROI point
 				if (targetId > -1)
 				{
-					assignments.add(new Assignment(targetId, predictedId, d2Min));
+					assignments.add(new ImmutableAssignment(targetId, predictedId, d2Min));
 				}
 			}
 
@@ -180,10 +180,10 @@ public class MatchCalculator
 			if (!assignments.isEmpty())
 			{
 				// Pick the closest pair to be assigned
-				Collections.sort(assignments);
+				AssignmentComparator.sort(assignments);
 
 				// Process in order
-				for (Assignment closest : assignments)
+				for (ImmutableAssignment closest : assignments)
 				{
 					// Skip those that have already been assigned since this will be a lower score.
 					// Note at least one assignment should be processed as potential assignments are made 
@@ -309,7 +309,7 @@ public class MatchCalculator
 		}
 
 		// loop over the two arrays assigning the closest unassigned pair
-		final ArrayList<Assignment> assignments = new ArrayList<Assignment>(predictedPointsLength);
+		final ArrayList<ImmutableAssignment> assignments = new ArrayList<ImmutableAssignment>(predictedPointsLength);
 
 		for (int predictedId = predictedPointsLength; predictedId-- > 0;)
 		{
@@ -320,17 +320,17 @@ public class MatchCalculator
 				final double d2 = actualPoints[actualId].distance2(x, y);
 				if (d2 <= dThreshold)
 				{
-					assignments.add(new Assignment(actualId, predictedId, d2));
+					assignments.add(new ImmutableAssignment(actualId, predictedId, d2));
 				}
 			}
 		}
 
-		Collections.sort(assignments);
+		AssignmentComparator.sort(assignments);
 
 		final boolean[] predictedAssignment = new boolean[predictedPointsLength];
 		final boolean[] actualAssignment = new boolean[actualPointsLength];
 
-		for (Assignment a : assignments)
+		for (ImmutableAssignment a : assignments)
 		{
 			if (!actualAssignment[a.getTargetId()])
 			{
@@ -469,7 +469,7 @@ public class MatchCalculator
 		// loop over the two arrays assigning the closest unassigned pair
 		final boolean[] resultAssignment = new boolean[predictedPointsLength];
 		final boolean[] roiAssignment = new boolean[fn];
-		final ArrayList<Assignment> assignments = new ArrayList<Assignment>(predictedPointsLength);
+		final ArrayList<ImmutableAssignment> assignments = new ArrayList<ImmutableAssignment>(predictedPointsLength);
 
 		int[] falsePositives = null, falseNegatives = null;
 		if (FP != null)
@@ -532,7 +532,7 @@ public class MatchCalculator
 				// Store closest ROI point
 				if (targetId > -1)
 				{
-					assignments.add(new Assignment(targetId, predictedId, d2Min));
+					assignments.add(new ImmutableAssignment(targetId, predictedId, d2Min));
 				}
 			}
 
@@ -540,10 +540,10 @@ public class MatchCalculator
 			if (!assignments.isEmpty())
 			{
 				// Pick the closest pair to be assigned
-				Collections.sort(assignments);
+				AssignmentComparator.sort(assignments);
 
 				// Process in order
-				for (Assignment closest : assignments)
+				for (ImmutableAssignment closest : assignments)
 				{
 					// Skip those that have already been assigned since this will be a lower score.
 					// Note at least one assignment should be processed as potential assignments are made 
@@ -656,7 +656,7 @@ public class MatchCalculator
 		}
 
 		// loop over the two arrays assigning the closest unassigned pair
-		final ArrayList<Assignment> assignments = new ArrayList<Assignment>(predictedPointsLength);
+		final ArrayList<ImmutableAssignment> assignments = new ArrayList<ImmutableAssignment>(predictedPointsLength);
 
 		for (int predictedId = predictedPointsLength; predictedId-- > 0;)
 		{
@@ -668,17 +668,17 @@ public class MatchCalculator
 				final double d2 = actualPoints[actualId].distance2(x, y, z);
 				if (d2 <= dThreshold)
 				{
-					assignments.add(new Assignment(actualId, predictedId, d2));
+					assignments.add(new ImmutableAssignment(actualId, predictedId, d2));
 				}
 			}
 		}
 
-		Collections.sort(assignments);
+		AssignmentComparator.sort(assignments);
 
 		final boolean[] predictedAssignment = new boolean[predictedPointsLength];
 		final boolean[] actualAssignment = new boolean[actualPointsLength];
 
-		for (Assignment a : assignments)
+		for (ImmutableAssignment a : assignments)
 		{
 			if (!actualAssignment[a.getTargetId()])
 			{
@@ -780,7 +780,7 @@ public class MatchCalculator
 		// loop over the two arrays assigning the closest unassigned pair
 		boolean[] resultAssignment = new boolean[predictedPointsLength];
 		boolean[] roiAssignment = new boolean[fn];
-		ArrayList<Assignment> assignments = new ArrayList<Assignment>(predictedPointsLength);
+		ArrayList<ImmutableAssignment> assignments = new ArrayList<ImmutableAssignment>(predictedPointsLength);
 
 		int[] falsePositives = null, falseNegatives = null;
 		if (FP != null)
@@ -880,7 +880,7 @@ public class MatchCalculator
 				// Store highest scoring point
 				if (targetId > -1)
 				{
-					assignments.add(new Assignment(targetId, predictedId, scoreMax));
+					assignments.add(new ImmutableAssignment(targetId, predictedId, scoreMax));
 				}
 			}
 
@@ -888,11 +888,11 @@ public class MatchCalculator
 			if (!assignments.isEmpty())
 			{
 				// Process highest scoring first
-				Collections.sort(assignments);
+				AssignmentComparator.sort(assignments);
 				Collections.reverse(assignments);
 
 				// Process in order of score
-				for (Assignment closest : assignments)
+				for (ImmutableAssignment closest : assignments)
 				{
 					// Skip those that have already been assigned since this will be a lower score.
 					// Note at least one assignment should be processed as potential assignments are made 

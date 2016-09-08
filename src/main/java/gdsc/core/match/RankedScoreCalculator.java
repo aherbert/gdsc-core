@@ -41,17 +41,17 @@ public class RankedScoreCalculator
 		int maxA = 0, maxP = 0;
 		for (FractionalAssignment a : assignments)
 		{
-			if (maxA < a.targetId)
-				maxA = a.targetId;
-			if (maxP < a.predictedId)
-				maxP = a.predictedId;
+			if (maxA < a.getTargetId())
+				maxA = a.getTargetId();
+			if (maxP < a.getPredictedId())
+				maxP = a.getPredictedId();
 		}
 		final boolean[] obsA = new boolean[maxA + 1];
 		final boolean[] obsP = new boolean[maxP + 1];
 		for (FractionalAssignment a : assignments)
 		{
-			obsA[a.targetId] = true;
-			obsP[a.predictedId] = true;
+			obsA[a.getTargetId()] = true;
+			obsP[a.getPredictedId()] = true;
 		}
 		this.maxA = maxA;
 		this.maxP = maxP;
@@ -105,7 +105,7 @@ public class RankedScoreCalculator
 		final FractionalAssignment[] assignments2 = new FractionalAssignment[assignments.length];
 		int count = 0;
 		for (FractionalAssignment a : assignments)
-			if (a.predictedId < nPredicted)
+			if (a.getPredictedId() < nPredicted)
 				assignments2[count++] = a;
 		return Arrays.copyOf(assignments2, count);
 	}
@@ -138,11 +138,11 @@ public class RankedScoreCalculator
 			for (int i = 0; i < assignments.length; i++)
 			{
 				final FractionalAssignment a = assignments[i];
-				if (!actualAssignment[a.targetId])
+				if (!actualAssignment[a.getTargetId()])
 				{
-					actualAssignment[a.targetId] = true;
-					tp += a.score;
-					predictedAssignment[a.predictedId] += a.score;
+					actualAssignment[a.getTargetId()] = true;
+					tp += a.getScore();
+					predictedAssignment[a.getPredictedId()] += a.getScore();
 					if (--nA == 0)
 						break;
 				}
@@ -177,13 +177,13 @@ public class RankedScoreCalculator
 			for (int i = 0; i < assignments.length; i++)
 			{
 				final FractionalAssignment a = assignments[i];
-				if (!actualAssignment[a.targetId])
+				if (!actualAssignment[a.getTargetId()])
 				{
-					if (!predictedAssignment[a.predictedId])
+					if (!predictedAssignment[a.getPredictedId()])
 					{
-						actualAssignment[a.targetId] = true;
-						predictedAssignment[a.predictedId] = true;
-						tp += a.score;
+						actualAssignment[a.getTargetId()] = true;
+						predictedAssignment[a.getPredictedId()] = true;
+						tp += a.getScore();
 						if (--nP == 0 || --nA == 0)
 							break;
 					}

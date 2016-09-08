@@ -16,54 +16,34 @@ package gdsc.core.match;
 /**
  * Stores an assignment between two identified points and the distance between them
  */
-public class Assignment implements Comparable<Assignment>
+public interface Assignment
 {
-	final public int targetId;
-	final public int predictedId;
-	final public double distance;
-
-	public Assignment(int targetId, int predictedId, double distance)
-	{
-		this.targetId = targetId;
-		this.predictedId = predictedId;
-		this.distance = distance;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	/**
+	 * @return the target Id
 	 */
-	public int compareTo(Assignment o)
-	{
-		if (this.distance < o.distance)
-			return -1;
-		if (this.distance > o.distance)
-			return 1;
-		return 0;
-	}
+	public int getTargetId();
 
 	/**
-	 * @return the targetId
+	 * @return the predicted Id
 	 */
-	public int getTargetId()
-	{
-		return targetId;
-	}
-
-	/**
-	 * @return the predictedId
-	 */
-	public int getPredictedId()
-	{
-		return predictedId;
-	}
+	public int getPredictedId();
 
 	/**
 	 * @return the distance
 	 */
-	public double getDistance()
-	{
-		return distance;
-	}
+	public double getDistance();
+
+	// For Java 1.8
+	///**
+	// * @param o
+	// * @return
+	// */
+	//default public int compareTo(Assignment o)
+	//{
+	//	if (getDistance() < o.getDistance())
+	//		return -1;
+	//	if (getDistance() > o.getDistance())
+	//		return 1;
+	//	return 0;
+	//}
 }

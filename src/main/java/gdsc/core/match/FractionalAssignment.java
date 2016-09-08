@@ -16,7 +16,7 @@ package gdsc.core.match;
 /**
  * Stores an assignment between two identified points and the distance between them
  */
-public class FractionalAssignment extends Assignment
+public interface FractionalAssignment extends Assignment
 {
 	/**
 	 * The true-positive score (TP) (must be 0-1). The remaining score is assumed to be false positive.
@@ -24,68 +24,7 @@ public class FractionalAssignment extends Assignment
 	 * To use this for classic binary scoring set the score to 1 for all assignments.
 	 * <p>
 	 * A score less than 1 allows partial matches to be computed. This is similar to computing scoring at multiple
-	 * distance thresholds at the same time. When using partial matching the distance for sorting assignments is set to
-	 * 1-score.
+	 * distance thresholds at the same time.
 	 */
-	final public double score;
-
-	/**
-	 * Instantiates a new fractional assignment.
-	 *
-	 * @param targetId
-	 *            the target id
-	 * @param predictedId
-	 *            the predicted id
-	 * @param distance
-	 *            the distance (zero is perfect match)
-	 * @param score
-	 *            The true positive score (must be 0-1)
-	 */
-	public FractionalAssignment(int targetId, int predictedId, double distance, double score)
-	{
-		super(targetId, predictedId, distance);
-		this.score = score;
-	}
-
-	/**
-	 * Instantiates a new fractional assignment using the given distance between the pair. Assignments are sorted using
-	 * the distance. The score for a match is 1.
-	 *
-	 * @param targetId
-	 *            the target id
-	 * @param predictedId
-	 *            the predicted id
-	 * @param distance
-	 *            the distance
-	 */
-	public FractionalAssignment(int targetId, int predictedId, double distance)
-	{
-		this(targetId, predictedId, distance, 1);
-	}
-
-	/**
-	 * Creates a new fractional assignment.
-	 * <p>
-	 * To use this for classic binary scoring set the score to the distance between matches. A match will be scored 1.
-	 * <p>
-	 * To use this for fractional matching provide a score between 0 and 1 for the quality of the match. When using
-	 * partial matching the distance for sorting assignments is set to 1-score.
-	 *
-	 * @param targetId
-	 *            the target id
-	 * @param predictedId
-	 *            the predicted id
-	 * @param score
-	 *            the score
-	 * @param scoreIsFractionTP
-	 *            the score is fraction match (ie a TP score from 0-1)
-	 * @return the fractional assignment
-	 */
-	public static FractionalAssignment create(int targetId, int predictedId, double score, boolean scoreIsFractionTP)
-	{
-		if (scoreIsFractionTP)
-			return new FractionalAssignment(targetId, predictedId, 1 - score, score);
-		else
-			return new FractionalAssignment(targetId, predictedId, score);
-	}
+	public double getScore();
 }
