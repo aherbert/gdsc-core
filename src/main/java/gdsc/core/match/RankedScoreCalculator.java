@@ -46,8 +46,8 @@ public class RankedScoreCalculator
 			if (maxP < a.predictedId)
 				maxP = a.predictedId;
 		}
-		boolean[] obsA = new boolean[maxA + 1];
-		boolean[] obsP = new boolean[maxP + 1];
+		final boolean[] obsA = new boolean[maxA + 1];
+		final boolean[] obsP = new boolean[maxP + 1];
 		for (FractionalAssignment a : assignments)
 		{
 			obsA[a.targetId] = true;
@@ -85,12 +85,7 @@ public class RankedScoreCalculator
 	{
 		if (maxP <= nPredicted)
 			return getAssignments();
-		final FractionalAssignment[] assignments2 = new FractionalAssignment[assignments.length];
-		int count = 0;
-		for (FractionalAssignment a : assignments)
-			if (a.predictedId < nPredicted)
-				assignments2[count++] = a;
-		return Arrays.copyOf(assignments2, count);
+		return getSubset(nPredicted);
 	}
 
 	/**
@@ -101,7 +96,12 @@ public class RankedScoreCalculator
 	private FractionalAssignment[] getAssignmentsInternal(int nPredicted)
 	{
 		if (maxP <= nPredicted)
-			return assignments;
+			return assignments; // No need to clone
+		return getSubset(nPredicted);
+	}
+
+	private FractionalAssignment[] getSubset(int nPredicted)
+	{
 		final FractionalAssignment[] assignments2 = new FractionalAssignment[assignments.length];
 		int count = 0;
 		for (FractionalAssignment a : assignments)
@@ -111,7 +111,8 @@ public class RankedScoreCalculator
 	}
 
 	/**
-	 * Returns the fractional tp and fp scores using only the first N predicted points.
+	 * Returns the fractional tp and fp scores using only the first N predicted points. Also returns the integer count
+	 * of the number of true positives and false positives.
 	 * <p>
 	 * When performing multiple matching the best scoring
 	 *
@@ -119,7 +120,7 @@ public class RankedScoreCalculator
 	 *            the n predicted
 	 * @param multipleMatches
 	 *            True if allowing multiple matches between a predicted point and multiple actual points
-	 * @return The tp and fp scores
+	 * @return The tp and fp scores, plus integer true positives and false positives [tp, fp, itp, ifp]
 	 */
 	public double[] score(int nPredicted, boolean multipleMatches)
 	{
@@ -128,8 +129,8 @@ public class RankedScoreCalculator
 		// Assign matches
 		if (multipleMatches)
 		{
-			final boolean[] actualAssignment = new boolean[maxP + 1];
-			final double[] predictedAssignment = new double[maxA + 1];
+			final boolean[] actualAssignment = new boolean[maxA + 1];
+			final double[] predictedAssignment = new double[maxP + 1];
 
 			double tp = 0;
 			int nA = totalA;
@@ -151,14 +152,18 @@ public class RankedScoreCalculator
 			// Although a predicted point can accumulate more than 1 for TP matches (due 
 			// to multiple matching), no predicted point can score less than 1.
 			double fp = nPredicted;
-			for (int i = 0; i < predictedAssignment[i]; i++)
+			int p = 0;
+			for (int i = 0; i < predictedAssignment.length; i++)
 			{
+				if (predictedAssignment[i] == 0)
+					continue;
+				p++;
 				if (predictedAssignment[i] > 1)
 					predictedAssignment[i] = 1;
 				fp -= predictedAssignment[i];
 			}
 
-			return new double[] { tp, fp };
+			return new double[] { tp, fp, p, nPredicted - p };
 		}
 		else
 		{
@@ -179,18 +184,19 @@ public class RankedScoreCalculator
 						actualAssignment[a.targetId] = true;
 						predictedAssignment[a.predictedId] = true;
 						tp += a.score;
-						if (--nA == 0 || --nP == 0)
+						if (--nP == 0 || --nA == 0)
 							break;
 					}
 				}
 			}
 
-			return new double[] { tp, nPredicted - tp };
+			final int p = totalP - nP;
+			return new double[] { tp, nPredicted - tp, p, nPredicted - p };
 		}
 	}
 
 	/**
-	 * Convert the score from {@link #score(int, boolean)} to a classification result
+	 * Convert the score from {@link #score(int, boolean)} to a fraction classification result using the fractional scoring totals
 	 * <p>
 	 * No checks are made that the input array is valid.
 	 *
@@ -200,8 +206,28 @@ public class RankedScoreCalculator
 	 *            The number of actual results (used to determine FN as [nActual - TP])
 	 * @return the fraction classification result
 	 */
-	public static FractionClassificationResult convert(double[] score, int nActual)
+	public static FractionClassificationResult toFractiontoClassificationResult(double[] score, int nActual)
 	{
-		return new FractionClassificationResult(score[0], score[1], 0, nActual - score[0]);
+		final double tp = score[0];
+		final double fp = score[1];
+		return new FractionClassificationResult(tp, fp, 0, nActual - tp);
+	}
+
+	/**
+	 * Convert the score from {@link #score(int, boolean)} to a classification result using the integer scoring totals
+	 * <p>
+	 * No checks are made that the input array is valid.
+	 *
+	 * @param score
+	 *            the score
+	 * @param nActual
+	 *            The number of actual results (used to determine FN as [nActual - TP])
+	 * @return the fraction classification result
+	 */
+	public static ClassificationResult toClassificationResult(double[] score, int nActual)
+	{
+		final int tp = (int) score[2];
+		final int fp = (int) score[3];
+		return new ClassificationResult(tp, fp, 0, nActual - tp);
 	}
 }
