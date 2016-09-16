@@ -16,7 +16,7 @@ package gdsc.core.utils;
 /**
  * Provide a score function that ramps smoothly between the configured limits
  */
-public class RampedScore
+public class RampedScore implements Cloneable
 {
 	public final double lower, upper;
 	private final double range;
@@ -102,5 +102,23 @@ public class RampedScore
 	public static float flatten(float score, int steps)
 	{
 		return (Math.round(score * steps)) / (float) steps;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public RampedScore clone()
+	{
+		try
+		{
+			return (RampedScore) super.clone();
+		}
+		catch (CloneNotSupportedException e)
+		{
+			return new RampedScore(lower, upper);
+		}
 	}
 }
