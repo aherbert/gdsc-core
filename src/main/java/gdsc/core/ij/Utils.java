@@ -927,7 +927,7 @@ public class Utils
 		return (int) Math.ceil(1 + Math.log(n) / 0.69314718);
 	}
 
-	private static int getBinsSqrt(int n)
+	public static int getBinsSqrt(int n)
 	{
 		return (int) Math.ceil(Math.sqrt(n));
 	}
