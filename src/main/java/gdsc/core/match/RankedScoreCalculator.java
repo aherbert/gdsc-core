@@ -36,7 +36,7 @@ public class RankedScoreCalculator
 	public RankedScoreCalculator(FractionalAssignment[] assignments)
 	{
 		this.assignments = assignments;
-		Arrays.sort(assignments);
+		AssignmentComparator.sort(assignments);
 		// Count unique actual and predicted
 		int maxA = 0, maxP = 0;
 		for (FractionalAssignment a : assignments)
