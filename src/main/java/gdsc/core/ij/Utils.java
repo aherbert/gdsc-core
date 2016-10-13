@@ -260,6 +260,7 @@ public class Utils
 			plotWindow.setVisible(true);
 			p = (PlotWindow) plotWindow;
 			p.drawPlot(plot);
+			plot.setLimitsToDefaults(true);
 			p.toFront();
 		}
 		return p;
