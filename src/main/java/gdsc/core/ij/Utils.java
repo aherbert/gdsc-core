@@ -1440,7 +1440,7 @@ public class Utils
 	 * 
 	 * <pre>
 	 * final int interval = Utils.getProgressInterval(total);
-	 * for (int i = 1; i &lt;= total; i++)
+	 * for (int i = 0; i &lt; total; i++)
 	 * {
 	 * 	if (i % interval == 0)
 	 * 	{
@@ -1454,7 +1454,7 @@ public class Utils
 	 */
 	public static int getProgressInterval(int total)
 	{
-		return (total > 400) ? total / 200 : 2;
+		return (total > 200) ? total / 100 : 1;
 	}
 
 	/**
