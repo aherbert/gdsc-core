@@ -27,6 +27,8 @@ public class RankedScoreCalculator
 	private final FractionalAssignment[] assignments;
 	private final int maxA, maxP, totalA, totalP;
 
+	private FractionalAssignment[] scoredAssignments;
+
 	/**
 	 * Construct the calculator
 	 * 
@@ -114,7 +116,8 @@ public class RankedScoreCalculator
 	 * Returns the fractional tp and fp scores using only the first N predicted points. Also returns the integer count
 	 * of the number of true positives and false positives.
 	 * <p>
-	 * When performing multiple matching the best scoring
+	 * When performing multiple matching the predicted points can match more than one actual point. In this case the
+	 * match score is the combination of all the individual match scores.
 	 *
 	 * @param nPredicted
 	 *            the n predicted
@@ -124,7 +127,29 @@ public class RankedScoreCalculator
 	 */
 	public double[] score(int nPredicted, boolean multipleMatches)
 	{
+		return score(nPredicted, multipleMatches, false);
+	}
+
+	/**
+	 * Returns the fractional tp and fp scores using only the first N predicted points. Also returns the integer count
+	 * of the number of true positives and false positives.
+	 * <p>
+	 * When performing multiple matching the predicted points can match more than one actual point. In this case the
+	 * match score is the combination of all the individual match scores.
+	 *
+	 * @param nPredicted
+	 *            the n predicted
+	 * @param multipleMatches
+	 *            True if allowing multiple matches between a predicted point and multiple actual points
+	 * @param save
+	 *            Save the assignments that were selected (accessed using {@link #getScoredAssignments()})
+	 * @return The tp and fp scores, plus integer true positives and false positives [tp, fp, itp, ifp]
+	 */
+	public double[] score(int nPredicted, boolean multipleMatches, boolean save)
+	{
 		final FractionalAssignment[] assignments = getAssignmentsInternal(nPredicted);
+		int scored = 0;
+		scoredAssignments = (save) ? new FractionalAssignment[totalA] : null;
 
 		// Assign matches
 		if (multipleMatches)
@@ -143,6 +168,8 @@ public class RankedScoreCalculator
 					actualAssignment[a.getTargetId()] = true;
 					tp += a.getScore();
 					predictedAssignment[a.getPredictedId()] += a.getScore();
+					if (save)
+						scoredAssignments[scored++] = a;
 					if (--nA == 0)
 						break;
 				}
@@ -162,6 +189,9 @@ public class RankedScoreCalculator
 					predictedAssignment[i] = 1;
 				fp -= predictedAssignment[i];
 			}
+
+			if (save)
+				scoredAssignments = Arrays.copyOf(scoredAssignments, scored);
 
 			return new double[] { tp, fp, p, nPredicted - p };
 		}
@@ -184,11 +214,16 @@ public class RankedScoreCalculator
 						actualAssignment[a.getTargetId()] = true;
 						predictedAssignment[a.getPredictedId()] = true;
 						tp += a.getScore();
+						if (save)
+							scoredAssignments[scored++] = a;
 						if (--nP == 0 || --nA == 0)
 							break;
 					}
 				}
 			}
+
+			if (save)
+				scoredAssignments = Arrays.copyOf(scoredAssignments, scored);
 
 			final int p = totalP - nP;
 			return new double[] { tp, nPredicted - tp, p, nPredicted - p };
@@ -196,7 +231,18 @@ public class RankedScoreCalculator
 	}
 
 	/**
-	 * Convert the score from {@link #score(int, boolean)} to a fraction classification result using the fractional scoring totals
+	 * Gets the scored assignments from the last call to {@link #score(int, boolean, boolean)}
+	 *
+	 * @return the scored assignments
+	 */
+	public FractionalAssignment[] getScoredAssignments()
+	{
+		return scoredAssignments;
+	}
+
+	/**
+	 * Convert the score from {@link #score(int, boolean)} to a fraction classification result using the fractional
+	 * scoring totals
 	 * <p>
 	 * No checks are made that the input array is valid.
 	 *
