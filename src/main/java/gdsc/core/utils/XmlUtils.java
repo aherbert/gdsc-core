@@ -38,7 +38,7 @@ import org.xml.sax.InputSource;
 public class XmlUtils
 {
 	private static XmlFormatter formatter = new XmlFormatter(2, 80);
-	
+
 	/**
 	 * Pretty print format XML. Assumes XML is valid.
 	 * 
@@ -263,5 +263,20 @@ public class XmlUtils
 			//e.printStackTrace();
 		}
 		return "";
+	}
+
+	/**
+	 * Convert double quotes to single quotes.
+	 * <p>
+	 * This method is a simple replace function call. It does not check if the xml contains a mixture of single and
+	 * double quotes. In that instance the returned XML will break.
+	 *
+	 * @param xml
+	 *            the xml
+	 * @return the converted xml
+	 */
+	public static String convertQuotes(String xml)
+	{
+		return xml.replace('"', '\'');
 	}
 }
