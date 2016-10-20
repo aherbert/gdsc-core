@@ -61,6 +61,34 @@ public class RankedScoreCalculator
 		totalP = count(obsP);
 	}
 
+	/**
+	 * Construct the calculator
+	 * 
+	 * @param assignments
+	 *            The assignments
+	 * @param maxA
+	 *            The maximum actual ID in the assignments
+	 * @param maxP
+	 *            The maximum predicted ID in the assignments
+	 */
+	public RankedScoreCalculator(FractionalAssignment[] assignments, int maxA, int maxP)
+	{
+		this.assignments = assignments;
+		AssignmentComparator.sort(assignments);
+		// Count unique actual and predicted
+		final boolean[] obsA = new boolean[maxA + 1];
+		final boolean[] obsP = new boolean[maxP + 1];
+		for (FractionalAssignment a : assignments)
+		{
+			obsA[a.getTargetId()] = true;
+			obsP[a.getPredictedId()] = true;
+		}
+		this.maxA = maxA;
+		this.maxP = maxP;
+		totalA = count(obsA);
+		totalP = count(obsP);
+	}
+
 	private static int count(boolean[] data)
 	{
 		int c = 0;
