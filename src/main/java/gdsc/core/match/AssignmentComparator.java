@@ -50,11 +50,21 @@ public class AssignmentComparator implements Comparator<Assignment>
 	}
 
 	/**
-	 * Sort the assignments using the native object comparator
+	 * Sort the assignments using the fastest sort
 	 * 
 	 * @param assignments
 	 */
 	public static void sort(Assignment[] assignments)
+	{
+		sort3(assignments);
+	}
+
+	/**
+	 * Sort the assignments using the native object comparator
+	 * 
+	 * @param assignments
+	 */
+	public static void sort1(Assignment[] assignments)
 	{
 		Arrays.sort(assignments, instance);
 	}
