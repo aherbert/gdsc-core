@@ -426,7 +426,7 @@ public class Maths
 	 *            The number of data points
 	 * @return the log likelihood
 	 * @see <a href="https://en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares">https://
-	 *      en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares</a> 
+	 *      en.wikipedia.org/wiki/Akaike_information_criterion#Comparison_with_least_squares</a>
 	 */
 	public static double getLogLikelihood(double sumOfSquaredResiduals, int n)
 	{
@@ -630,5 +630,19 @@ public class Maths
 	public static double round(double d)
 	{
 		return round(d, 4);
+	}
+
+	/**
+	 * Round to the nearest factor.
+	 *
+	 * @param value
+	 *            the value
+	 * @param factor
+	 *            the factor
+	 * @return the rounded value
+	 */
+	public static double round(double value, double factor)
+	{
+		return Math.round(value / factor) * factor;
 	}
 }
