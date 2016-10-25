@@ -645,4 +645,32 @@ public class Maths
 	{
 		return Math.round(value / factor) * factor;
 	}
+
+	/**
+	 * Round down to the nearest factor.
+	 *
+	 * @param value
+	 *            the value
+	 * @param factor
+	 *            the factor
+	 * @return the rounded value
+	 */
+	public static double floor(double value, double factor)
+	{
+		return Math.floor(value / factor) * factor;
+	}
+
+	/**
+	 * Round up to the nearest factor.
+	 *
+	 * @param value
+	 *            the value
+	 * @param factor
+	 *            the factor
+	 * @return the rounded value
+	 */
+	public static double ceil(double value, double factor)
+	{
+		return Math.ceil(value / factor) * factor;
+	}
 }
