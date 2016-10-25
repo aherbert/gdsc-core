@@ -74,9 +74,10 @@ public class RankedScoreCalculator
 	public RankedScoreCalculator(FractionalAssignment[] assignments, int maxA, int maxP)
 	{
 		this.assignments = assignments;
-		//AssignmentComparator.sort(assignments);
+		AssignmentComparator.sort(assignments);
+		//AssignmentComparator.sort1(assignments);
 		//AssignmentComparator.sort2(assignments);
-		AssignmentComparator.sort3(assignments);
+		//AssignmentComparator.sort3(assignments);
 		//AssignmentComparator.sort4(assignments);
 		// Count unique actual and predicted
 		final boolean[] obsA = new boolean[maxA + 1];
