@@ -56,7 +56,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 	 */
 	public static void sort(Assignment[] assignments)
 	{
-		sort3(assignments);
+		sort1(assignments);
 	}
 
 	/**
