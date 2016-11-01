@@ -60,8 +60,9 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		if (data == null)
 			return;
 		checkCapacity(data.length);
-		for (final float value : data)
+		for (int i = 0; i < data.length; i++)
 		{
+			final double value = data[i];
 			values[n++] = value;
 			s += value;
 			ss += value * value;
@@ -102,8 +103,9 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		if (data == null)
 			return;
 		checkCapacity(data.length);
-		for (final double value : data)
+		for (int i = 0; i < data.length; i++)
 		{
+			final double value = data[i];
 			values[n++] = value;
 			s += value;
 			ss += value * value;
@@ -120,8 +122,9 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		if (data == null)
 			return;
 		checkCapacity(data.length);
-		for (final int value : data)
+		for (int i = 0; i < data.length; i++)
 		{
+			final double value = data[i];
 			values[n++] = value;
 			s += value;
 			ss += value * value;
@@ -152,8 +155,9 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		if (data == null)
 			return;
 		checkCapacity(data.length);
-		for (final float value : data)
+		for (int i = 0; i < data.length; i++)
 		{
+			final double value = data[i];
 			values[n++] = value;
 			s += value;
 			ss += value * value;
@@ -171,8 +175,9 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		if (data == null)
 			return;
 		checkCapacity(data.length);
-		for (final double value : data)
+		for (int i = 0; i < data.length; i++)
 		{
+			final double value = data[i];
 			values[n++] = value;
 			s += value;
 			ss += value * value;
@@ -320,7 +325,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		{
 			// Simple implementation. Will throw index-out-of-bounds eventually
 			return StoredDataStatistics.this.values[cursor++];
-			
+
 			// Copied from ArrayList and removed unrequired code
 			//int i = cursor;
 			//if (i >= n)
@@ -331,10 +336,10 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 			//cursor = i + 1;
 			//return elementData[i];
 		}
-		
+
 		public void remove()
 		{
-	        throw new UnsupportedOperationException("remove");
+			throw new UnsupportedOperationException("remove");
 		}
 	}
 }

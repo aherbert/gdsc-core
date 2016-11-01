@@ -49,8 +49,9 @@ public class Statistics
 	{
 		if (data == null)
 			return;
-		for (final float value : data)
+		for (int i = 0; i < data.length; i++)
 		{
+			final double value = data[i];
 			n++;
 			s += value;
 			ss += value * value;
@@ -66,8 +67,9 @@ public class Statistics
 	{
 		if (data == null)
 			return;
-		for (final double value : data)
+		for (int i = 0; i < data.length; i++)
 		{
+			final double value = data[i];
 			n++;
 			s += value;
 			ss += value * value;
@@ -83,8 +85,9 @@ public class Statistics
 	{
 		if (data == null)
 			return;
-		for (final double value : data)
+		for (int i = 0; i < data.length; i++)
 		{
+			final double value = data[i];
 			n++;
 			s += value;
 			ss += value * value;
@@ -112,8 +115,9 @@ public class Statistics
 	{
 		if (data == null)
 			return;
-		for (final float value : data)
+		for (int i = 0; i < data.length; i++)
 		{
+			final double value = data[i];
 			n++;
 			s += value;
 			ss += value * value;
@@ -129,8 +133,9 @@ public class Statistics
 	{
 		if (data == null)
 			return;
-		for (final double value : data)
+		for (int i = 0; i < data.length; i++)
 		{
+			final double value = data[i];
 			n++;
 			s += value;
 			ss += value * value;
