@@ -107,6 +107,21 @@ public class Statistics
 	}
 
 	/**
+	 * Add the value n times
+	 * 
+	 * @param n
+	 *            The number of times
+	 * @param value
+	 *            The value
+	 */
+	public void add(int n, double value)
+	{
+		this.n += n;
+		s += n * value;
+		ss += n * value * value;
+	}
+
+	/**
 	 * Add the data. Synchronized for thread safety.
 	 * 
 	 * @param data

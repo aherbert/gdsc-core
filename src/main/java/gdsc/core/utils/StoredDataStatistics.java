@@ -145,6 +145,23 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	}
 
 	/**
+	 * Add the value n times
+	 * 
+	 * @param n
+	 *            The number of times
+	 * @param value
+	 *            The value
+	 */
+	public void add(int n, double value)
+	{
+		checkCapacity(n);
+		for (int i = 0; i < n; i++)
+			values[this.n++] = value;
+		s += n * value;
+		ss += n * value * value;
+	}
+
+	/**
 	 * Add the data. Synchronized for thread safety. (Multiple threads must all use the same safeAdd method to ensure
 	 * thread safety.)
 	 * 
