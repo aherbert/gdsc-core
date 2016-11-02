@@ -76,7 +76,7 @@ public class FloatHistogram extends Histogram
 		if (data == null || data.length == 0)
 			// Empty histogram
 			return new FloatHistogram(new float[1], new int[1]);
-		
+
 		if (doSort)
 			Arrays.sort(data);
 
@@ -133,7 +133,7 @@ public class FloatHistogram extends Histogram
 		final float min = getValue(minBin);
 		final float max = getValue(maxBin);
 
-		if ((int) min == min && (int) max == max && (max - min) < size)
+		if ((int) min == min && (int) max == max && (max - min) <= size)
 		{
 			// Check if we can convert to integer histogram
 			if (integerData())
@@ -182,23 +182,25 @@ public class FloatHistogram extends Histogram
 	 */
 	private Histogram integerHistogram(int size)
 	{
-		final float min = getValue(minBin);
-		int offset = 0;
-		if (min < 0)
+		final int min = (int) getValue(minBin);
+		final int max = (int) getValue(maxBin);
+		if (min >= 0 && max < size)
 		{
-			// build with offset
-			offset = (int) min;
+			// Pure integer histogram. Do a direct conversion.
+			int[] h = new int[size];
+			for (int i = minBin; i <= maxBin; i++)
+				h[(int) value[i]] += this.h[i];
+			return new Histogram(h);
 		}
 
+		// Build with offset
+		
 		// No need to check size since this has been done already
 		int[] h = new int[size];
 		for (int i = 0; i < value.length; i++)
-			h[(int) value[i] - offset] += this.h[i];
+			h[(int) value[i] - min] += this.h[i];
 
-		if (offset != 0)
-			return new IntHistogram(h, offset);
-
-		return new Histogram(h);
+		return new IntHistogram(h, min);
 	}
 
 	/*
