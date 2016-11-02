@@ -993,21 +993,50 @@ public class AutoThreshold
 
 		int threshold = -1;
 		double ptile = 0.5; // default fraction of foreground pixels
-		double[] avec = new double[data.length];
 
-		for (int i = 0; i < data.length; i++)
-			avec[i] = 0.0;
+		//double[] avec = new double[data.length];
+		//for (int i = 0; i < data.length; i++)
+		//	avec[i] = 0.0;
 
 		double total = partialSum(data, data.length - 1);
 		double temp = 1.0;
+		double sum = 0;
 		for (int i = 0; i < data.length; i++)
 		{
-			avec[i] = Math.abs((partialSum(data, i) / total) - ptile);
-			//log("Ptile["+i+"]:"+ avec[i]);
-			if (avec[i] < temp)
+			//avec[i] = Math.abs((partialSum(data, i) / total) - ptile);
+			//avec[i] = Math.abs((partialSum(data, i) / total) - ptile);
+			//log("Ptile[" + i + "]:" + avec[i]);
+			//
+			//if (avec[i] < temp)
+			//{
+			//	temp = avec[i];
+			//	threshold = i;
+			//}
+
+			sum += data[i];
+			// Fraction of the data
+			double f = sum / total;
+			
+			// Get closest fraction to the target fraction			
+			if (f < ptile)
 			{
-				temp = avec[i];
-				threshold = i;
+				double distance = ptile - f;
+				if (distance < temp)
+				{
+					temp = distance;
+					threshold = i;
+				}
+			}
+			else
+			{
+				double distance = f - ptile;
+				if (distance < temp)
+				{
+					temp = distance;
+					threshold = i;
+				}
+				// No point continuing as this is just moving away from the target 
+				break;
 			}
 		}
 		return threshold;
