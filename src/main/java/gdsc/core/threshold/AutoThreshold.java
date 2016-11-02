@@ -118,6 +118,22 @@ public class AutoThreshold
 		return methods.clone();
 	}
 
+	public static Method getMethod(String name)
+	{
+		for (int i = 0; i < methods.length; i++)
+			if (methods[i].equals(name))
+				return Method.values()[i];
+		return Method.NONE;
+	}
+
+	public static Method getMethod(int i)
+	{
+		Method[] m = Method.values();
+		if (i >= 0 && i < m.length)
+			return m[i];
+		return Method.NONE;
+	}
+
 	public static int IJDefault(int[] data)
 	{
 		// Original IJ implementation for compatibility.
