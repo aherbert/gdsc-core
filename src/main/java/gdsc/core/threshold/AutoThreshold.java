@@ -126,9 +126,11 @@ public class AutoThreshold
 		return Method.NONE;
 	}
 
-	public static Method getMethod(int i)
+	public static Method getMethod(int i, boolean ignoreNone)
 	{
 		Method[] m = Method.values();
+		if (ignoreNone)
+			i++;
 		if (i >= 0 && i < m.length)
 			return m[i];
 		return Method.NONE;
