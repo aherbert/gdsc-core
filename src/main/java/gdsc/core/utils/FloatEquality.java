@@ -177,10 +177,13 @@ public class FloatEquality
 	 */
 	public static float relativeError(float A, float B)
 	{
+		final float diff = A - B;
+		if (diff == 0)
+			return 0;
 		if (Math.abs(B) > Math.abs(A))
-			return Math.abs((A - B) / B);
+			return Math.abs(diff / B);
 		else
-			return Math.abs((A - B) / A);
+			return Math.abs(diff / A);
 	}
 
 	/**

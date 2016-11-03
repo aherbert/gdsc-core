@@ -177,10 +177,13 @@ public class DoubleEquality
 	 */
 	public static double relativeError(double A, double B)
 	{
+		final double diff = A - B;
+		if (diff == 0)
+			return 0;
 		if (Math.abs(B) > Math.abs(A))
-			return Math.abs((A - B) / B);
+			return Math.abs(diff / B);
 		else
-			return Math.abs((A - B) / A);
+			return Math.abs(diff / A);
 	}
 
 	/**
