@@ -26,6 +26,26 @@ public class TimingService
 	private ArrayList<TimingResult> results = new ArrayList<TimingResult>();
 
 	/**
+	 * @return The number of timing results
+	 */
+	public int getSize()
+	{
+		return results.size();
+	}
+
+	/**
+	 * Get the timing result
+	 * 
+	 * @param index
+	 *            The index
+	 * @return the timing result
+	 */
+	public TimingResult get(int index)
+	{
+		return results.get(index);
+	}
+
+	/**
 	 * Instantiates a new timing service.
 	 */
 	public TimingService()
