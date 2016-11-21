@@ -203,6 +203,8 @@ public class XmlUtils
 	 */
 	public static String prettyPrintXml(String xml)
 	{
+		System.out.println("prettyPrintXml:"+xml);
+		
 		try
 		{
 			final InputSource src = new InputSource(new StringReader(xml));
