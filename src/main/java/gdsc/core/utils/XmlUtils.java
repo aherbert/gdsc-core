@@ -203,7 +203,7 @@ public class XmlUtils
 	 */
 	public static String prettyPrintXml(String xml)
 	{
-		System.out.println("prettyPrintXml:"+xml);
+		System.err.println("prettyPrintXml:"+xml);
 		
 		try
 		{
