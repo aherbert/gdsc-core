@@ -673,4 +673,55 @@ public class Maths
 	{
 		return Math.ceil(value / factor) * factor;
 	}
+
+	/**
+	 * Interpolate between the two points. Create a straight line and then look up the y-value for x. x may be outside
+	 * the bounds.
+	 *
+	 * @param x1
+	 *            the x 1
+	 * @param y1
+	 *            the y 1
+	 * @param x2
+	 *            the x 2
+	 * @param y2
+	 *            the y 2
+	 * @param x
+	 *            the x
+	 * @return the y value
+	 */
+	public static double interpolateY(double x1, double y1, double x2, double y2, double x)
+	{
+		// y = mx + c
+		final double m = (y2 - y1) / (x2 - x1);
+		// c = y - mx
+		final double c = y1 - m * x1;
+		return m * x + c;
+	}
+
+	/**
+	 * Interpolate between the two points. Create a straight line and then look up the x-value for y. y may be outside
+	 * the bounds.
+	 *
+	 * @param x1
+	 *            the x 1
+	 * @param y1
+	 *            the y 1
+	 * @param x2
+	 *            the x 2
+	 * @param y2
+	 *            the y 2
+	 * @param y
+	 *            the y
+	 * @return the x value
+	 */
+	public static double interpolateX(double x1, double y1, double x2, double y2, double y)
+	{
+		// y = mx + c
+		final double m = (y2 - y1) / (x2 - x1);
+		// c = y - mx
+		final double c = y1 - m * x1;
+		// x = (y-c) / m
+		return (y - c) / m;
+	}
 }
