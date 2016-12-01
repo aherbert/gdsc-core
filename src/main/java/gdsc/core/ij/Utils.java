@@ -15,6 +15,7 @@ package gdsc.core.ij;
 
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.io.File;
@@ -252,7 +253,7 @@ public class Utils
 				}
 			}
 		}
-		PlotWindow p;
+		PlotWindow p = null;
 		if (plotWindow == null)
 		{
 			p = plot.show();
@@ -260,11 +261,41 @@ public class Utils
 		}
 		else
 		{
-			plotWindow.setVisible(true);
-			p = (PlotWindow) plotWindow;
-			p.drawPlot(plot);
-			plot.setLimitsToDefaults(true);
-			p.toFront();
+			// Since the new IJ 1.50 plot functionality to have scalable plots this can sometimes error
+			try
+			{
+				plotWindow.setVisible(true);
+				p = (PlotWindow) plotWindow;
+				p.drawPlot(plot);
+				plot.setLimitsToDefaults(true);
+				p.toFront();
+			}
+			catch (Throwable t)
+			{
+				// Allow debugging
+				t.printStackTrace();
+
+				// Get the location and close the error window
+				Point location = null;
+				if (p != null)
+				{
+					location = p.getLocation();
+					try
+					{
+						p.close();
+					}
+					catch (Throwable tt)
+					{
+						// Ignore
+					}
+				}
+
+				// Show a new window
+				p = plot.show();
+				if (location != null)
+					p.setLocation(location);
+				newWindow = true;
+			}
 		}
 		return p;
 	}
