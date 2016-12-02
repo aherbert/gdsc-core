@@ -38,38 +38,47 @@ public class AlignImagesFFT
 {
 	public enum WindowMethod
 	{
-		NONE("None"), HANNING("Hanning"), COSINE("Cosine"), TUKEY("Tukey");
-
-		private String name;
-
-		private WindowMethod(String name)
-		{
-			this.name = name;
-		}
-
+		//@formatter:off
+		NONE{ public String getName() { return "None"; }}, 
+		HANNING{ public String getName() { return "Hanning"; }}, 
+		COSINE{ public String getName() { return "Cosine"; }}, 
+		TUKEY{ public String getName() { return "Tukey"; }};
+		//@formatter:on
+		
 		@Override
 		public String toString()
 		{
-			return name;
+			return getName();
 		}
+
+		/**
+		 * Gets the name.
+		 *
+		 * @return the name
+		 */
+		abstract public String getName();
 	}
 
 	public enum SubPixelMethod
 	{
-		NONE("None"), CUBIC("Cubic"), GAUSSIAN("Gaussian");
-
-		private String name;
-
-		private SubPixelMethod(String name)
-		{
-			this.name = name;
-		}
-
+		//@formatter:off
+		NONE{ public String getName() { return "None"; }}, 
+		CUBIC{ public String getName() { return "Cubic"; }}, 
+		GAUSSIAN{ public String getName() { return "Gaussian"; }};
+		//@formatter:on
+		
 		@Override
 		public String toString()
 		{
-			return name;
+			return getName();
 		}
+
+		/**
+		 * Gets the name.
+		 *
+		 * @return the name
+		 */
+		abstract public String getName();
 	}
 
 	private double lastXOffset = 0;

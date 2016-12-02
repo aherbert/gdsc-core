@@ -29,51 +29,53 @@ public class NoiseEstimator
 {
 	public enum Method
 	{
+		//@fomatter:off
 		/**
 		 * Use all pixels
 		 */
-		ALL_PIXELS("All pixels"),
+		ALL_PIXELS{ public String getName() { return "All pixels";}},
 		/**
 		 * Use a range around the lowest pixel in the image
 		 */
-		LOWEST_PIXELS("Lowest pixels"),
+		LOWEST_PIXELS{ public String getName() { return "Lowest pixels";}},
 		/**
 		 * Use the psuedo-residuals and calculate the least median of squares
 		 */
-		RESIDUALS_LEAST_MEDIAN_OF_SQUARES("Residuals least-median-of-squares"),
+		RESIDUALS_LEAST_MEDIAN_OF_SQUARES{ public String getName() { return "Residuals least-median-of-squares";}},
 		/**
 		 * Use the psuedo-residuals and calculate the least trimmed of squares
 		 */
-		RESIDUALS_LEAST_TRIMMED_OF_SQUARES("Residuals least-trimmed-of-squares"),
+		RESIDUALS_LEAST_TRIMMED_OF_SQUARES{ public String getName() { return "Residuals least-trimmed-of-squares";}},
 		/**
 		 * Use the psuedo-residuals and calculate the least mean of squares
 		 */
-		RESIDUALS_LEAST_MEAN_OF_SQUARES("Residuals least-mean-of-squares"),
+		RESIDUALS_LEAST_MEAN_OF_SQUARES{ public String getName() { return "Residuals least-mean-of-squares";}},
 		/**
 		 * Use the psuedo-residuals ignoring image border and calculate the least median of squares
 		 */
-		QUICK_RESIDUALS_LEAST_MEDIAN_OF_SQUARES("Quick residuals least-median-of-squares"),
+		QUICK_RESIDUALS_LEAST_MEDIAN_OF_SQUARES{ public String getName() { return "Quick residuals least-median-of-squares";}},
 		/**
 		 * Use the psuedo-residuals ignoring image border and calculate the least trimmed of squares
 		 */
-		QUICK_RESIDUALS_LEAST_TRIMMED_OF_SQUARES("Quick residuals least-trimmed-of-squares"),
+		QUICK_RESIDUALS_LEAST_TRIMMED_OF_SQUARES{ public String getName() { return "Quick residuals least-trimmed-of-squares";}},
 		/**
 		 * Use the psuedo-residuals ignoring image border and calculate the least mean of squares
 		 */
-		QUICK_RESIDUALS_LEAST_MEAN_OF_SQUARES("Quick residuals least-mean-of-squares");
-
-		private String name;
-
-		private Method(String name)
-		{
-			this.name = name;
-		}
-
+		QUICK_RESIDUALS_LEAST_MEAN_OF_SQUARES{ public String getName() { return "Quick residuals least-mean-of-squares";}};
+		//@formatter:on
+		
 		@Override
 		public String toString()
 		{
-			return name;
+			return getName();
 		}
+
+		/**
+		 * Gets the name.
+		 *
+		 * @return the name
+		 */
+		abstract public String getName();
 	}
 
 	private float[] data;

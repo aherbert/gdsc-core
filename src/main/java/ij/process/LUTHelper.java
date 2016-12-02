@@ -25,34 +25,33 @@ public class LUTHelper
 	public enum LutColour
 	{
 		//@formatter:off
-		RED_HOT("Red-Hot"), 
-		ICE("Ice"), 
-		RAINBOW("Rainbow"), 
-		FIRE_LIGHT("FireLight"), 
-		RED_YELLOW("Red-Yellow"), 
-		RED("Red"),
-		GREEN("Green"), 
-		BLUE("Blue"), 
-		CYAN("Cyan"), 
-		MAGENTA("Magenta"), 
-		YELLOW("Yellow"),
-		RED_BLUE("Red-Blue"), 
-		RED_CYAN("Red-Cyan");
+		RED_HOT{ public String getName() { return "Red-Hot"; }}, 
+		ICE{ public String getName() { return "Ice";}}, 
+		RAINBOW{ public String getName() { return "Rainbow"; }}, 
+		FIRE_LIGHT{ public String getName() { return "FireLight"; }}, 
+		RED_YELLOW{ public String getName() { return "Red-Yellow"; }}, 
+		RED{ public String getName() { return "Red"; }},
+		GREEN{ public String getName() { return "Green"; }}, 
+		BLUE{ public String getName() { return "Blue"; }}, 
+		CYAN{ public String getName() { return "Cyan"; }}, 
+		MAGENTA{ public String getName() { return "Magenta"; }}, 
+		YELLOW{ public String getName() { return "Yellow"; }},
+		RED_BLUE{ public String getName() { return "Red-Blue"; }}, 
+		RED_CYAN{ public String getName() { return "Red-Cyan"; }};
 		//@formatter:on
-
-		private String name;
-
-		private LutColour(String name)
-		{
-			this.name = name;
-		}
 
 		@Override
 		public String toString()
 		{
-			return name;
+			return getName();
 		}
 
+		/**
+		 * Gets the name.
+		 *
+		 * @return the name
+		 */
+		abstract public String getName();
 	}
 
 	/**
@@ -65,7 +64,7 @@ public class LUTHelper
 		LutColour[] l = LutColour.values();
 		luts = new String[l.length];
 		for (int i = 0; i < l.length; i++)
-			luts[i] = l[i].name;
+			luts[i] = l[i].getName();
 	}
 
 	/**
