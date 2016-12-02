@@ -724,4 +724,21 @@ public class Maths
 		// x = (y-c) / m
 		return (y - c) / m;
 	}
+
+	/**
+	 * Returns {@code true} if the argument is a finite floating-point
+	 * value; returns {@code false} otherwise (for NaN and infinity
+	 * arguments).
+	 * <p>
+	 * Taken from Double in the standard java implementation. This method was added in 1.8.
+	 *
+	 * @param d
+	 *            the {@code double} value to be tested
+	 * @return {@code true} if the argument is a finite
+	 *         floating-point value, {@code false} otherwise.
+	 */
+	public static boolean isFinite(double d)
+	{
+		return Math.abs(d) <= java.lang.Double.MAX_VALUE;
+	}
 }
