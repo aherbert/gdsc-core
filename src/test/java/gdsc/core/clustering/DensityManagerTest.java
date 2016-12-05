@@ -5,7 +5,6 @@ import java.awt.Rectangle;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.clustering.DensityManager.OPTICSResult;
 import gdsc.core.utils.Random;
 
 public class DensityManagerTest
@@ -251,7 +250,24 @@ public class DensityManagerTest
 			for (float radius : radii)
 			{
 				int minPts = n / 200;
-				OPTICSResult[] results = dm.optics(radius, minPts);
+				dm.optics(radius, minPts);
+				// Histogram the results
+				System.out.printf("OPTICS %d @ %.1f,%d\n", n, radius, minPts);
+			}
+		}
+	}
+
+	@Test
+	public void canPerformOPTICSWithTinyRadius()
+	{
+		for (int n : N)
+		{
+			DensityManager dm = createDensityManager(size, n);
+
+			for (float radius : new float[] { 0.01f })
+			{
+				int minPts = n / 200;
+				dm.optics(radius, minPts);
 				// Histogram the results
 				System.out.printf("OPTICS %d @ %.1f,%d\n", n, radius, minPts);
 			}
