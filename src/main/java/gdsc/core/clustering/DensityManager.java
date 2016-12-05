@@ -93,16 +93,19 @@ public class DensityManager
 				minYCoord = ycoord[i];
 		}
 
-		// Round down and shift to origin
-		minXCoord = (int) Math.floor(minXCoord);
-		minYCoord = (int) Math.floor(minYCoord);
+		// Round down and shift to origin (so all coords are >=0 for efficient grid allocation)
+		final float shiftx = (float) Math.floor(minXCoord);
+		final float shifty = (float) Math.floor(minYCoord);
+
 		// Get max bounds
+		minXCoord -= shiftx;
+		minYCoord -= shifty;
 		maxXCoord = 0;
 		maxYCoord = 0;
 		for (int i = 0; i < xcoord.length; i++)
 		{
-			xcoord[i] -= minXCoord;
-			ycoord[i] -= minYCoord;
+			xcoord[i] -= shiftx;
+			ycoord[i] -= shifty;
 			if (maxXCoord < xcoord[i])
 				maxXCoord = xcoord[i];
 			if (maxYCoord < ycoord[i])
@@ -309,6 +312,249 @@ public class DensityManager
 		//				// Ignore
 		//			}
 		//		}
+
+		return density;
+	}
+
+	/**
+	 * Calculate the local density for the results using square blocks of the specified radius. The returned array is
+	 * equal in size to the number of blocks. The score is the number of molecules within the 3x3 region surrounding
+	 * each block.
+	 *
+	 * @param radius
+	 *            the radius
+	 * @return the block density array
+	 */
+	public int[] calculateBlockDensity(final float radius)
+	{
+		if (radius < 0)
+			throw new IllegalArgumentException("Radius must be positive");
+
+		// Note: We do not subtract min from the value for speed:
+		// final int maxx = (int) ((maxXCoord-minXCoord) / radius) + 1;
+		// minXCoord will be in the range 0-1 after initialisation.		
+
+		final int maxx = (int) (maxXCoord / radius) + 1;
+		final int maxy = (int) (maxYCoord / radius) + 1;
+
+		// Allocate counts to the cells
+		final int[] data = new int[maxx * maxy];
+		for (int i = 0; i < xcoord.length; i++)
+		{
+			final int x = (int) (xcoord[i] / radius);
+			final int y = (int) (ycoord[i] / radius);
+			data[y * maxx + x]++;
+		}
+
+		// Create rolling sum table. Re-use the storage
+		// First row
+		int cs_ = 0; // Column sum
+		for (int i = 0; i < maxx; i++)
+		{
+			cs_ += data[i];
+			data[i] = cs_;
+		}
+
+		// Remaining rows:
+		// sum = rolling sum of row + sum of row above
+		for (int y = 1; y < maxy; y++)
+		{
+			int i = y * maxx;
+			cs_ = 0;
+
+			// Remaining columns
+			for (int x = 0; x < maxx; x++, i++)
+			{
+				cs_ += data[i];
+				data[i] = data[i - maxx] + cs_;
+			}
+		}
+
+		// Pre-compute U bounds
+		final int[] minU = new int[maxx];
+		final int[] maxU = new int[maxx];
+		final boolean[] minUOK = new boolean[maxx];
+		for (int u = maxx; u-- > 0;)
+		{
+			minU[u] = u - 2;
+			maxU[u] = FastMath.min(u + 1, maxx - 1);
+			minUOK[u] = u >= 2;
+		}
+
+		// For each block, compute the sum of counts within a 3x3 box radius
+		int[] density = new int[data.length];
+		for (int v = maxy; v-- > 0;)
+		{
+			final int minV = v - 2;
+			final int maxV = FastMath.min(v + 1, maxy - 1);
+			final boolean minVOK = (minV >= 0);
+			final int lowerIndex = minV * maxx;
+
+			for (int u = maxx; u-- > 0;)
+			{
+				// Compute sum from rolling sum using:
+				// sum(u,v) = 
+				// + s(maxU,maxV) 
+				// - s(minU,maxV)
+				// - s(maxU,minV)
+				// + s(minU,minV)
+				// Note: 
+				// s(u,v) = 0 when either u,v < 0
+				// s(u,v) = s(umax,v) when u>umax
+				// s(u,v) = s(u,vmax) when v>vmax
+				// s(u,v) = s(umax,vmax) when u>umax,v>vmax
+
+				// + s(maxU,maxV) 
+				final int upperIndex = maxV * maxx;
+				int sum = data[upperIndex + maxU[u]];
+
+				if (minUOK[u])
+				{
+					// - s(minU,maxV)
+					sum -= data[upperIndex + minU[u]];
+				}
+				if (minVOK)
+				{
+					// - s(maxU,minV)
+					sum -= data[lowerIndex + maxU[u]];
+
+					if (minUOK[u])
+					{
+						// + s(minU,minV)
+						sum += data[lowerIndex + minU[u]];
+					}
+				}
+
+				density[v * maxx + u] = sum;
+			}
+		}
+
+		return density;
+	}
+
+	/**
+	 * Calculate the local density for the results using square blocks of the specified radius. The returned array is
+	 * equal in size to the number of blocks. The score is the number of molecules within the 3x3 region surrounding
+	 * each block.
+	 *
+	 * @param radius
+	 *            the radius
+	 * @return the block density array
+	 */
+	public int[] calculateBlockDensity2(final float radius)
+	{
+		final float maxx = maxXCoord;
+		final float maxy = maxYCoord;
+
+		// Assign to a grid
+		final float binWidth = radius;
+		final int nXBins = 1 + (int) ((maxx) / binWidth);
+		final int nYBins = 1 + (int) ((maxy) / binWidth);
+		int[][] grid = new int[nXBins][nYBins];
+		for (int i = 0; i < xcoord.length; i++)
+		{
+			final int xBin = (int) ((xcoord[i]) / binWidth);
+			final int yBin = (int) ((ycoord[i]) / binWidth);
+			grid[xBin][yBin]++;
+		}
+
+		int[] density = new int[nXBins * nYBins];
+		boolean withinY = false;
+		for (int yBin = nYBins; yBin-- > 0; withinY = true)
+		{
+			boolean withinX = false;
+			for (int xBin = nXBins; xBin-- > 0; withinX = true)
+			{
+				int i = yBin * nXBins + xBin;
+				final int iCount = grid[xBin][yBin];
+				density[i] += iCount;
+
+				// Compare up to a maximum of 4 neighbours
+				//      | 0,0  |  1,0
+				// ------------+-----
+				// -1,1 | 0,1  |  1,1
+
+				if (withinY)
+				{
+					add(density, grid, nXBins, i, iCount, xBin, yBin + 1);
+					if (xBin > 0)
+						add(density, grid, nXBins, i, iCount, xBin - 1, yBin + 1);
+
+					if (withinX)
+					{
+						add(density, grid, nXBins, i, iCount, xBin + 1, yBin);
+						add(density, grid, nXBins, i, iCount, xBin + 1, yBin + 1);
+					}
+				}
+				else
+				{
+					if (withinX)
+					{
+						add(density, grid, nXBins, i, iCount, xBin + 1, yBin);
+					}
+				}
+			}
+		}
+
+		return density;
+	}
+
+	private static void add(final int[] density, final int[][] grid, final int nXBins, final int i, final int iCount,
+			final int xBin, final int yBin)
+	{
+		density[i] += grid[xBin][yBin];
+		density[yBin * nXBins + xBin] += iCount;
+	}
+
+	/**
+	 * Calculate the local density for the results using square blocks of the specified radius. The returned array is
+	 * equal in size to the number of blocks. The score is the number of molecules within the 3x3 region surrounding
+	 * each block.
+	 *
+	 * @param radius
+	 *            the radius
+	 * @return the block density array
+	 */
+	public int[] calculateBlockDensity3(final float radius)
+	{
+		final float maxx = maxXCoord;
+		final float maxy = maxYCoord;
+
+		// Assign to a grid
+		final float binWidth = radius;
+		final int nXBins = 1 + (int) ((maxx) / binWidth);
+		final int nYBins = 1 + (int) ((maxy) / binWidth);
+		int[][] grid = new int[nXBins][nYBins];
+		for (int i = 0; i < xcoord.length; i++)
+		{
+			final int xBin = (int) ((xcoord[i]) / binWidth);
+			final int yBin = (int) ((ycoord[i]) / binWidth);
+			grid[xBin][yBin]++;
+		}
+
+		// Simple sweep
+		int[] density = new int[nXBins * nYBins];
+		for (int yBin = 0; yBin < nYBins; yBin++)
+		{
+			for (int xBin = 0; xBin < nXBins; xBin++)
+			{
+				int sum = 0;
+				for (int y = -1; y <= 1; y++)
+				{
+					int yBin2 = yBin + y;
+					if (yBin2 < 0 || yBin2 >= nYBins)
+						continue;
+					for (int x = -1; x <= 1; x++)
+					{
+						int xBin2 = xBin + x;
+						if (xBin2 < 0 || xBin2 >= nYBins)
+							continue;
+						sum += grid[xBin2][yBin2];
+					}
+				}
+				density[yBin * nXBins + xBin] = sum;
+			}
+		}
 
 		return density;
 	}
@@ -551,22 +797,10 @@ public class DensityManager
 	{
 		int[] density = new int[xcoord.length];
 
-		float minx = xcoord[0];
-		float miny = ycoord[0];
-		float maxx = minx, maxy = miny;
-		for (int i = 0; i < xcoord.length; i++)
-		{
-			final float x = xcoord[i];
-			final float y = ycoord[i];
-			if (minx > x)
-				minx = x;
-			else if (maxx < x)
-				maxx = x;
-			if (miny > y)
-				miny = y;
-			else if (maxy < y)
-				maxy = y;
-		}
+		final float minx = minXCoord;
+		final float miny = minYCoord;
+		final float maxx = maxXCoord;
+		final float maxy = maxYCoord;
 
 		// Assign to a grid
 		final float binWidth = radius * 1.01f;
@@ -596,8 +830,8 @@ public class DensityManager
 					// ------------+-----
 					// -1,1 | 0,1  |  1,1
 
-					int count = 0;
-					neighbours[count++] = m1.next;
+					int count = 1;
+					neighbours[0] = m1.next;
 
 					if (yBin < nYBins - 1)
 					{
@@ -774,22 +1008,10 @@ public class DensityManager
 	{
 		int sum = 0;
 
-		float minx = xcoord[0];
-		float miny = ycoord[0];
-		float maxx = minx, maxy = miny;
-		for (int i = 0; i < xcoord.length; i++)
-		{
-			final float x = xcoord[i];
-			final float y = ycoord[i];
-			if (minx > x)
-				minx = x;
-			else if (maxx < x)
-				maxx = x;
-			if (miny > y)
-				miny = y;
-			else if (maxy < y)
-				maxy = y;
-		}
+		final float minx = minXCoord;
+		final float miny = minYCoord;
+		final float maxx = maxXCoord;
+		final float maxy = maxYCoord;
 
 		// Assign to a grid
 		final float binWidth = radius * 1.01f;
@@ -819,8 +1041,8 @@ public class DensityManager
 					// ------------+-----
 					// -1,1 | 0,1  |  1,1
 
-					int count = 0;
-					neighbours[count++] = m1.next;
+					int count = 1;
+					neighbours[0] = m1.next;
 
 					if (yBin < nYBins - 1)
 					{
