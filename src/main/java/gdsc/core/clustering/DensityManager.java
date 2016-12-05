@@ -14,6 +14,9 @@ package gdsc.core.clustering;
  *---------------------------------------------------------------------------*/
 
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 import org.apache.commons.math3.util.FastMath;
 
@@ -24,6 +27,47 @@ import gdsc.core.logging.TrackProgress;
  */
 public class DensityManager
 {
+	/**
+	 * Contains the result of the OPTICS algorithm
+	 */
+	public class OPTICSResult implements Comparable<OPTICSResult>
+	{
+		final int order;
+		final double coreDistance;
+		final double reachabilityDistance;
+
+		// TODO - Add anything requires for the DBSCAN method. E.g. should we store 
+		// the original point index for use in seeding clusters with the lowest core
+		// distance?
+
+		/**
+		 * Instantiates a new OPTICS result.
+		 *
+		 * @param order
+		 *            the order
+		 * @param coreDistance
+		 *            the core distance
+		 * @param reachabilityDistance
+		 *            the reachability distance
+		 */
+		public OPTICSResult(int order, double coreDistance, double reachabilityDistance)
+		{
+			this.order = order;
+			this.coreDistance = coreDistance;
+			this.reachabilityDistance = reachabilityDistance;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Comparable#compareTo(java.lang.Object)
+		 */
+		public int compareTo(OPTICSResult o)
+		{
+			return order - o.order;
+		}
+	}
+
 	public class Molecule
 	{
 		int id;
@@ -52,6 +96,61 @@ public class DensityManager
 			final float dx = x - other.x;
 			final float dy = y - other.y;
 			return dx * dx + dy * dy;
+		}
+	}
+
+	private class OPTICSMolecule extends Molecule implements Comparable<OPTICSMolecule>
+	{
+		private int processed = 0;
+		private float c;
+		private float r;
+
+		private final int xBin, yBin;
+		// Used to construct a linked list of neighbours
+		private OPTICSMolecule nextObject = null;
+		/**
+		 * Working distance to current centre object
+		 */
+		private float d;
+
+		public OPTICSMolecule(int id, float x, float y, int xBin, int yBin, Molecule next, float undefined)
+		{
+			super(id, x, y, next);
+			this.xBin = xBin;
+			this.yBin = yBin;
+			c = r = undefined;
+		}
+
+		public double getReachabilityDistance()
+		{
+			return Math.sqrt(r);
+		}
+
+		public double getCoreDistance()
+		{
+			return Math.sqrt(c);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Comparable#compareTo(java.lang.Object)
+		 */
+		public int compareTo(OPTICSMolecule o)
+		{
+			// Sort by reachability distance
+			if (r < o.r)
+				return -1;
+			if (r > o.r)
+				return 1;
+			return 0;
+		}
+
+		public OPTICSResult toResult(float undefined, double maxDistance)
+		{
+			double coreDistance = (r == undefined) ? maxDistance : getCoreDistance();
+			double reachabilityDistance = (r == undefined) ? maxDistance : getReachabilityDistance();
+			return new OPTICSResult(processed, coreDistance, reachabilityDistance);
 		}
 	}
 
@@ -1141,5 +1240,264 @@ public class DensityManager
 	{
 		double k = ripleysKFunction(density, radius);
 		return Math.sqrt(k / Math.PI);
+	}
+
+	/**
+	 * Compute the threshold radius for each point to have n closest neighbours.
+	 * <p>
+	 * This is an implementation of the OPTICS method. Mihael Ankerst, Markus M Breunig, Hans-Peter Kriegel, and Jorg
+	 * Sander. Optics: ordering points to identify the clustering structure. In ACM Sigmod Record, volume 28, pages
+	 * 49–60. ACM, 1999.
+	 * <p>
+	 * For each point find the radius where there are n closest neighbours.
+	 *
+	 * @param generatingDistanceE
+	 *            the generating distance E
+	 * @param minPts
+	 *            the min points for a core object
+	 * @return the results
+	 */
+	public OPTICSResult[] optics(float generatingDistanceE, int minPts)
+	{
+		final float minx = minXCoord;
+		final float miny = minYCoord;
+		final float maxx = maxXCoord;
+		final float maxy = maxYCoord;
+
+		final float e = generatingDistanceE * generatingDistanceE;
+		final float undefined = (float) (1.01 * e);
+
+		// TODO - Speed this up with a higher resolution grid as per calculateSquareDensity
+
+		// Assign to a grid
+		final float binWidth = generatingDistanceE;
+		final int nXBins = 1 + (int) ((maxx - minx) / binWidth);
+		final int nYBins = 1 + (int) ((maxy - miny) / binWidth);
+		OPTICSMolecule[][] grid = new OPTICSMolecule[nXBins][nYBins];
+		OPTICSMolecule[] setOfObjects = new OPTICSMolecule[xcoord.length];
+		for (int i = 0; i < xcoord.length; i++)
+		{
+			final float x = xcoord[i];
+			final float y = ycoord[i];
+			final int xBin = (int) ((x - minx) / binWidth);
+			final int yBin = (int) ((y - miny) / binWidth);
+			// Build a single linked list
+			OPTICSMolecule m = new OPTICSMolecule(i, x, y, xBin, yBin, grid[xBin][yBin], undefined);
+			setOfObjects[i] = m;
+			grid[xBin][yBin] = m;
+		}
+
+		// TODO - Add progress tracker to this based on each time the order is incremented.
+		
+		// TODO - use a custom object for this
+		ArrayList<OPTICSMolecule> orderSeeds = new ArrayList<OPTICSMolecule>(xcoord.length);
+		int order = 0;
+		for (int i = 0; i < setOfObjects.length; i++)
+		{
+			if (setOfObjects[i].processed == 0)
+				order = expandClusterOrder(grid, setOfObjects, setOfObjects[i], e, minPts, undefined, orderSeeds, order);
+		}
+
+		final double maxDistance = generatingDistanceE * 1.01;
+		OPTICSResult[] results = new OPTICSResult[setOfObjects.length];
+		for (int i = 0; i < setOfObjects.length; i++)
+			results[i] = setOfObjects[i].toResult(undefined, maxDistance);
+
+		// Change to the cluster-order
+		Arrays.sort(results);
+
+		return results;
+	}
+
+	private int expandClusterOrder(OPTICSMolecule[][] grid, OPTICSMolecule[] setOfObjects, OPTICSMolecule object,
+			float e, int minPts, float undefined, ArrayList<OPTICSMolecule> orderSeeds, int order)
+	{
+		// TODO: Re-write the algorithm so that each connected cluster is generated
+		// in order of reachability distance
+
+		// Note: The original paper just processes the next unprocessed object in an undefined order.
+		// However once started the remaining neighbours are processed
+		// in order of the reachability distance, which is equal to or larger
+		// than the most recent core distance. But the subsequent objects visited may
+		// have a lower core distance than the first (due to the arbitrary start point),
+		// i.e. they are in a region of higher density. This also means that: 
+		// 1. Points that have already been processed may have been reachable from a closer
+		// point (i.e. from another direction) and so should have a lower reachability 
+		// distance.
+		// 2. Points which are ignored since they have been processed may have a lower reachability
+		// distance.
+		// This means that the output reachability distance is only indicative of the walk the algorithm
+		// took through the data. It should not be used to perform actual clustering (e.g. using 
+		// the pseudocode ExtractDBSCAN-Clustering from the original paper). The authors even note 
+		// this in their paper: 
+		// "The clustering created from a cluster-ordered data set by Ex-
+		// tractDBSCAN-Clustering is nearly indistinguishable from a
+		// clustering created by DBSCAN. Only some border objects may
+		// be missed when extracted by the algorithm ExtractDBSCAN-
+		// Clustering if they were processed by the algorithm OPTICS be-
+		// fore a core object of the corresponding cluster had been found."
+
+		// To overcome this we can switch the point at which points are ignored. 
+		// The orderSeeds contains all the reachable points within the current connected cluster.
+		// We ensure that the reachable distance is updated even if the point has been processed.
+		// We just do not repeat process the neighbours of a point that has been processed.
+
+		OPTICSMolecule[] neighbours = findNeighbours(grid, object, e);
+		object.processed = ++order;
+
+		if (neighbours.length < minPts)
+			return order;
+
+		// Set the core distance
+		float[] d = new float[neighbours.length];
+		for (int i = 0; i < d.length; i++)
+			d[i] = neighbours[i].d;
+		Arrays.sort(d);
+		object.c = d[minPts - 1];
+
+		// Create seed-list for further expansion.
+		// The next counter is used to ensure we sort only the remaining entries in the seed list.
+		int next = 0;
+		orderSeeds.clear();
+		update(orderSeeds, neighbours, object, undefined, next);
+
+		while (next < orderSeeds.size())
+		{
+			OPTICSMolecule currentObject = orderSeeds.get(next++);
+			if (currentObject.processed != 0)
+			{
+				// Note: the neighbours includes the current object which has been processed 
+				//System.out.println("Error");
+				continue;
+			}
+			neighbours = findNeighbours(grid, currentObject, e);
+			currentObject.processed = ++order;
+			if (neighbours.length < minPts)
+				continue;
+
+			// Set the core distance
+			d = new float[neighbours.length];
+			for (int i = 0; i < d.length; i++)
+				d[i] = neighbours[i].d;
+			Arrays.sort(d);
+			object.c = d[minPts - 1];
+
+			update(orderSeeds, neighbours, currentObject, undefined, next);
+		}
+
+		return order;
+	}
+
+	/**
+	 * Find neighbours. Note that the OPTICS paper appears to include the actual point in the list of neighbours (where
+	 * the distance would be 0).
+	 *
+	 * @param grid
+	 *            the grid
+	 * @param object
+	 *            the object
+	 * @param e
+	 *            the generating distance
+	 * @return the list of OPTICS molecule neighbours
+	 */
+	private OPTICSMolecule[] findNeighbours(OPTICSMolecule[][] grid, OPTICSMolecule object, float e)
+	{
+		final int xBin = object.xBin;
+		final int yBin = object.yBin;
+
+		OPTICSMolecule list = null;
+
+		int count = 0;
+		for (int y = -1; y <= 1; y++)
+		{
+			int yBin2 = yBin + y;
+			if (yBin2 < 0 || yBin2 >= grid[0].length)
+				continue;
+			for (int x = -1; x <= 1; x++)
+			{
+				int xBin2 = xBin + x;
+				if (xBin2 < 0 || xBin2 >= grid.length)
+					continue;
+
+				for (Molecule other = grid[xBin2][yBin2]; other != null; other = other.next)
+				{
+					final float d = object.distance2(other);
+					if (d <= e)
+					{
+						// Build a single linked list of all the neighbours and their working distance
+						OPTICSMolecule otherObject = (OPTICSMolecule) other;
+						otherObject.d = d;
+						otherObject.nextObject = list;
+						list = otherObject;
+						count++;
+					}
+				}
+			}
+		}
+
+		// Convert to an array
+		OPTICSMolecule[] neighbours = new OPTICSMolecule[count];
+		while (list != null)
+		{
+			neighbours[--count] = list;
+			list = list.nextObject;
+		}
+
+		return neighbours;
+	}
+
+	/**
+	 * Update the ordered seeds with the neighbours of the current object. Set the reachability distance and reorder.
+	 *
+	 * @param orderSeeds
+	 *            the order seeds
+	 * @param neighbours
+	 *            the neighbours
+	 * @param centreObject
+	 *            the object
+	 * @param undefined
+	 * @param next
+	 */
+	private void update(ArrayList<OPTICSMolecule> orderSeeds, OPTICSMolecule[] neighbours, OPTICSMolecule centreObject,
+			float undefined, int next)
+	{
+		final float c_dist = centreObject.c;
+		for (int i = 0; i < neighbours.length; i++)
+		{
+			final OPTICSMolecule object = neighbours[i];
+			if (object.processed == 0)
+			{
+				final float new_r_dist = Math.max(c_dist, object.d);
+				if (object.r == undefined)
+				{
+					object.r = new_r_dist;
+					orderSeeds.add(object);
+				}
+				else
+				{
+					if (new_r_dist < object.r)
+						object.r = new_r_dist;
+				}
+			}
+			//			// Q. What if it has been processed but the reachability distance is lower?
+			//			else if (Math.max(c_dist, object.d) < object.r)
+			//			{
+			//				// This is a flaw with the original algorithm. 
+			//				// This may be acceptable as the shape of the cluster-order plot has minima 
+			//				// representing the centres of clusters.
+			//			}
+		}
+
+		// TODO - Make this faster with a custom orderSeeds object.
+		// We should call a capacity() method before add() and do not checks in add.
+		// We can also reuse the object.
+		
+		// Order by reachability distance
+		OPTICSMolecule[] tmp = orderSeeds.toArray(new OPTICSMolecule[orderSeeds.size()]);
+		Arrays.sort(tmp, next, tmp.length);
+		orderSeeds.clear();
+		orderSeeds.addAll(Arrays.asList(tmp));
+
+		//Collections.sort(orderSeeds.subList(next, orderSeeds.size()));
 	}
 }

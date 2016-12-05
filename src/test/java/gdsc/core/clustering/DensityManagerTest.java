@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.core.clustering.DensityManager.OPTICSResult;
 import gdsc.core.utils.Random;
 
 public class DensityManagerTest
@@ -182,7 +183,6 @@ public class DensityManagerTest
 			}
 		}
 	}
-	
 
 	// This is not always true. The two are comparable in speed.
 	//@Test
@@ -205,14 +205,14 @@ public class DensityManagerTest
 					dm.calculateBlockDensity2(radius);
 				long t2 = System.nanoTime() - start;
 
-				String msg = String.format("calculateBlockDensity2 vs calculateBlockDensity. N=%d, R=%f : %fx faster", n, radius,
-						(double) t1 / t2);
+				String msg = String.format("calculateBlockDensity2 vs calculateBlockDensity. N=%d, R=%f : %fx faster",
+						n, radius, (double) t1 / t2);
 				System.out.println(msg);
 				Assert.assertTrue(msg, t2 < t1);
 			}
 		}
 	}
-	
+
 	@Test
 	public void blockDensity2FasterThanBlockDensity3()
 	{
@@ -233,10 +233,27 @@ public class DensityManagerTest
 					dm.calculateBlockDensity2(radius);
 				long t2 = System.nanoTime() - start;
 
-				String msg = String.format("calculateBlockDensity2 vs calculateBlockDensity3. N=%d, R=%f : %fx faster", n, radius,
-						(double) t1 / t2);
+				String msg = String.format("calculateBlockDensity2 vs calculateBlockDensity3. N=%d, R=%f : %fx faster",
+						n, radius, (double) t1 / t2);
 				System.out.println(msg);
 				Assert.assertTrue(msg, t2 < t1);
+			}
+		}
+	}
+
+	@Test
+	public void canPerformOPTICS()
+	{
+		for (int n : N)
+		{
+			DensityManager dm = createDensityManager(size, n);
+
+			for (float radius : radii)
+			{
+				int minPts = n / 200;
+				OPTICSResult[] results = dm.optics(radius, minPts);
+				// Histogram the results
+				System.out.printf("OPTICS %d @ %.1f,%d\n", n, radius, minPts);
 			}
 		}
 	}
