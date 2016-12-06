@@ -19,6 +19,7 @@ import java.util.Comparator;
 
 import org.apache.commons.math3.util.FastMath;
 
+import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.Maths;
 
@@ -38,7 +39,21 @@ public class DensityManager
 	 */
 	public class OPTICSResult
 	{
+		/**
+		 * The parent object used when generating this result
+		 */
+		final int parent;
+		/**
+		 * The cluster identifier
+		 */
+		int clusterId;
+		/**
+		 * The core distance
+		 */
 		final double coreDistance;
+		/**
+		 * The reachability distance
+		 */
 		final double reachabilityDistance;
 
 		// TODO - Add anything requires for the DBSCAN method. E.g. should we store 
@@ -48,13 +63,17 @@ public class DensityManager
 		/**
 		 * Instantiates a new OPTICS result.
 		 *
+		 * @param clusterId
+		 *            the cluster id
 		 * @param coreDistance
 		 *            the core distance
 		 * @param reachabilityDistance
 		 *            the reachability distance
 		 */
-		public OPTICSResult(double coreDistance, double reachabilityDistance)
+		public OPTICSResult(int parent, int clusterId, double coreDistance, double reachabilityDistance)
 		{
+			this.parent = parent;
+			this.clusterId = clusterId;
 			this.coreDistance = coreDistance;
 			this.reachabilityDistance = reachabilityDistance;
 		}
@@ -127,12 +146,12 @@ public class DensityManager
 			return Math.sqrt(coreDistance);
 		}
 
-		public OPTICSResult toResult(double maxDistance)
+		public OPTICSResult toResult(double maxDistance, int clusterId)
 		{
 			double actualCoreDistance = (coreDistance == UNDEFINED) ? maxDistance : getCoreDistance();
 			double actualReachabilityDistance = (reachabilityDistance == UNDEFINED) ? maxDistance
 					: getReachabilityDistance();
-			return new OPTICSResult(actualCoreDistance, actualReachabilityDistance);
+			return new OPTICSResult(id, clusterId, actualCoreDistance, actualReachabilityDistance);
 		}
 	}
 
@@ -359,16 +378,24 @@ public class DensityManager
 			this.maxDistance = maxDistance;
 		}
 
-		void add(OPTICSMolecule m)
+		/**
+		 * Adds the molecule to the results. Send progress to the tracker and checks for a shutdown signal.
+		 *
+		 * @param m
+		 *            the m
+		 * @param clusterId
+		 *            the cluster id
+		 * @return true, if a shutdown signal has been received
+		 */
+		boolean add(OPTICSMolecule m, int clusterId)
 		{
-			list[size++] = m.toResult(maxDistance);
+			list[size++] = m.toResult(maxDistance, clusterId);
 			if (tracker != null)
+			{
 				tracker.progress(size, list.length);
-		}
-
-		void clear()
-		{
-			size = 0;
+				return tracker.isEnded();
+			}
+			return false;
 		}
 	}
 
@@ -1466,6 +1493,8 @@ public class DensityManager
 	 * This is an implementation of the OPTICS method. Mihael Ankerst, Markus M Breunig, Hans-Peter Kriegel, and Jorg
 	 * Sander. Optics: ordering points to identify the clustering structure. In ACM Sigmod Record, volume 28, pages
 	 * 49–60. ACM, 1999.
+	 * <p>
+	 * The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
 	 *
 	 * @param generatingDistanceE
 	 *            the generating distance E
@@ -1487,7 +1516,7 @@ public class DensityManager
 	 * 49–60. ACM, 1999.
 	 * <p>
 	 * This creates a large memory structure. It can be held in memory for re-use when using a different number of min
-	 * points.
+	 * points. The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
 	 *
 	 * @param generatingDistanceE
 	 *            the generating distance E
@@ -1495,7 +1524,7 @@ public class DensityManager
 	 *            the min points for a core object
 	 * @param clearMemory
 	 *            Set to true to clear the memory structure
-	 * @return the results
+	 * @return the results (or null if the algorithm was stopped using the tracker)
 	 */
 	public OPTICSResult[] optics(float generatingDistanceE, int minPts, boolean clearMemory)
 	{
@@ -1520,26 +1549,40 @@ public class DensityManager
 		final float e = generatingDistanceE * generatingDistanceE;
 
 		final int size = xcoord.length;
+		// Ensure the UNDEFINED distance is above the generating distance
+		double maxDistance = generatingDistanceE * 1.01;
+		OPTICSResultList results = new OPTICSResultList(size, maxDistance);
+		int cluster = 0;
 		for (int i = 0; i < size; i++)
 		{
 			if (!grid.setOfObjects[i].processed)
-				expandClusterOrder(grid.setOfObjects[i], e, minPts);
+			{
+				if (expandClusterOrder(grid.setOfObjects[i], e, minPts, ++cluster, results))
+					break;
+			}
 		}
 
+		boolean stopped = false;
 		if (tracker != null)
+		{
+			stopped = tracker.isEnded();
 			tracker.progress(1.0);
 
-		final OPTICSResult[] opticsResults = results.list;
+			if (stopped)
+				tracker.log("Aborted OPTICS");
+			else
+				tracker.log("Finished OPTICS: " + Utils.pleural(cluster, "Cluster"));
+		}
+
 		if (clearMemory)
 			clearOptics();
 
-		return opticsResults;
+		return (stopped) ? null : results.list;
 	}
 
 	private OPTICSMoleculeGrid grid;
 	private OPTICSMoleculeList orderSeeds;
 	private OPTICSMoleculeList neighbours;
-	private OPTICSResultList results;
 	private float[] floatArray;
 
 	/**
@@ -1562,10 +1605,6 @@ public class DensityManager
 			final int size = xcoord.length;
 			orderSeeds = new OPTICSMoleculeList(size);
 			neighbours = new OPTICSMoleculeList(size);
-			// Ensure the UNDEFINED distance is above the generating distance
-			double maxDistance = grid.generatingDistanceE * 1.01;
-			results = new OPTICSResultList(size, maxDistance);
-
 			floatArray = new float[size];
 		}
 		else
@@ -1573,7 +1612,6 @@ public class DensityManager
 			grid.reset();
 			orderSeeds.clear();
 			neighbours.clear();
-			results.clear();
 		}
 	}
 
@@ -1598,6 +1636,16 @@ public class DensityManager
 	}
 
 	/**
+	 * Checks for optics results.
+	 *
+	 * @return true, if successful
+	 */
+	public boolean hasOpticsResults()
+	{
+		return grid != null;
+	}
+
+	/**
 	 * Clear memory used by the OPTICS algorithm
 	 */
 	public void clearOptics()
@@ -1605,11 +1653,26 @@ public class DensityManager
 		grid = null;
 		orderSeeds = null;
 		neighbours = null;
-		results = null;
 		floatArray = null;
 	}
 
-	private void expandClusterOrder(OPTICSMolecule object, float e, int minPts)
+	/**
+	 * Expand cluster order.
+	 *
+	 * @param object
+	 *            the object
+	 * @param e
+	 *            the generating distance (squared)
+	 * @param minPts
+	 *            the min points for a core object
+	 * @param clusterId
+	 *            the cluster id
+	 * @param orderedFile
+	 *            the results
+	 * @return true, if the algorithm has received a shutdown signal
+	 */
+	private boolean expandClusterOrder(OPTICSMolecule object, float e, int minPts, int clusterId,
+			OPTICSResultList orderedFile)
 	{
 		// TODO: Re-write the algorithm so that each connected cluster is generated
 		// in order of reachability distance
@@ -1644,7 +1707,8 @@ public class DensityManager
 		findNeighbours(object, e);
 		object.processed = true;
 		setCoreDistance(minPts, neighbours, object);
-		results.add(object);
+		if (orderedFile.add(object, clusterId))
+			return true;
 		if (object.coreDistance != UNDEFINED)
 		{
 			// Create seed-list for further expansion.
@@ -1664,12 +1728,14 @@ public class DensityManager
 				findNeighbours(currentObject, e);
 				currentObject.processed = true;
 				setCoreDistance(minPts, neighbours, currentObject);
-				results.add(currentObject);
+				if (orderedFile.add(currentObject, clusterId))
+					return true;
 
 				if (object.coreDistance != UNDEFINED)
 					update(orderSeeds, neighbours, currentObject, UNDEFINED, next);
 			}
 		}
+		return false;
 	}
 
 	private void setCoreDistance(int minPts, OPTICSMoleculeList neighbours, OPTICSMolecule currentObject)
@@ -1775,5 +1841,16 @@ public class DensityManager
 
 		// Order by reachability distance
 		orderSeeds.sort(next);
+	}
+
+	/**
+	 * Extract DBSCAN clustering from the cluster ordered objects returned from {@link #optics(float, int, boolean)}.
+	 *
+	 * @param clusterOrderedObjects
+	 *            the cluster ordered objects
+	 */
+	public void extractDBSCANClustering(OPTICSResult[] clusterOrderedObjects)
+	{
+
 	}
 }
