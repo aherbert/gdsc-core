@@ -264,11 +264,10 @@ public class DensityManagerTest
 			DensityManager dm = createDensityManager(size, n);
 			dm.setTracker(tracker);
 
-			for (float radius : radii)
+			for (int minPts : new int[]{10,20})
 			{
-				int minPts = n / 200;
 				//OPTICSResult[] r1 = 
-				dm.optics(radius, minPts);
+				dm.optics(0, minPts);
 				//// Histogram the results
 				//double[] x = new double[r1.length];
 				//double[] y = new double[r1.length];
@@ -286,14 +285,30 @@ public class DensityManagerTest
 	}
 
 	@Test
+	public void canComputeGeneratingDistance()
+	{
+		int[] points = new int[] { 1, 2, 3, 5, 10, 20, 50, 100 };
+		double area = size * size;
+		for (int n : N)
+		{
+			for (int minPts : points)
+			{
+				//float d = 
+				DensityManager.computeGeneratingDistance(minPts, area, n);
+				//System.out.printf("k=%d, volumeDS=%.1f, N=%d, d=%f\n", minPts, area, n, d);
+			}
+		}
+	}
+
+	@Test
 	public void canRepeatOPTICS()
 	{
 		int n = N[0];
 		DensityManager dm = createDensityManager(size, n);
 
-		float radius = radii[radii.length - 1];
+		float radius = 0;
 
-		int minPts = n / 200;
+		int minPts = 10;
 		Assert.assertFalse(dm.hasOpticsResults());
 		OPTICSResult[] r1 = dm.optics(radius, minPts, false);
 		Assert.assertTrue(dm.hasOpticsResults());
@@ -312,13 +327,13 @@ public class DensityManagerTest
 	@Test
 	public void canPerformOPTICSWithTinyRadius()
 	{
+		int minPts = 10;
 		for (int n : N)
 		{
 			DensityManager dm = createDensityManager(size, n);
 
 			for (float radius : new float[] { 0.01f })
 			{
-				int minPts = n / 200;
 				dm.optics(radius, minPts);
 				//System.out.printf("OPTICS %d @ %.1f,%d\n", n, radius, minPts);
 			}
@@ -337,7 +352,7 @@ public class DensityManagerTest
 				// Should be 1 cluster
 				Assert.assertEquals(1, r1[0].clusterId);
 			}
-		
+
 		OPTICSResult[] r1 = dm.optics(1, 2, false);
 		// Should be 0 clusters as the min size is too high
 		Assert.assertEquals(0, r1[0].clusterId);
@@ -365,7 +380,7 @@ public class DensityManagerTest
 
 		float radius = radii[radii.length - 1];
 
-		int minPts = n / 200;
+		int minPts = 10;
 		OPTICSResult[] r1 = dm.optics(radius, minPts, false);
 		// Store for later and reset
 		int[] clusterId = new int[r1.length];
