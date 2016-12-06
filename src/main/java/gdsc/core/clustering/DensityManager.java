@@ -33,6 +33,10 @@ public class DensityManager
 	 * when debugging.
 	 */
 	private static final float UNDEFINED = -1;
+	/**
+	 * A result not part of any cluster
+	 */
+	private static final int NOISE = 0;
 
 	/**
 	 * Contains the result of the OPTICS algorithm
@@ -146,12 +150,12 @@ public class DensityManager
 			return Math.sqrt(coreDistance);
 		}
 
-		public OPTICSResult toResult(double maxDistance, int clusterId)
+		public OPTICSResult toResult(double maxDistance)
 		{
 			double actualCoreDistance = (coreDistance == UNDEFINED) ? maxDistance : getCoreDistance();
 			double actualReachabilityDistance = (reachabilityDistance == UNDEFINED) ? maxDistance
 					: getReachabilityDistance();
-			return new OPTICSResult(id, clusterId, actualCoreDistance, actualReachabilityDistance);
+			return new OPTICSResult(id, NOISE, actualCoreDistance, actualReachabilityDistance);
 		}
 	}
 
@@ -224,57 +228,65 @@ public class DensityManager
 			final float xrange = maxXCoord - minXCoord;
 			final float yrange = maxYCoord - minYCoord;
 
-			// Use a higher resolution grid to avoid too many distance comparisons
-			resolution = determineResolution(xrange, yrange);
-
-			if (resolution == 0)
+			if (xrange == 0 && yrange == 0)
 			{
-				// Handle a resolution of zero. This will happen when the generating distance is very small.
-				// In this instance we can use a resolution of 1 but change the bin width to something larger.
 				resolution = 1;
-				binWidth = determineBinWidth(xrange, yrange);
+				binWidth = 1;
 			}
 			else
 			{
-				// Do not increase the resolution so high we have thousands of blocks
-				// and not many expected points.		
-				// Determine the number of molecules we would expect in a square block if they are uniform.
-				double blockArea = 4 * generatingDistanceE;
-				double expected = xcoord.length * blockArea / (xrange * yrange);
+				// Use a higher resolution grid to avoid too many distance comparisons
+				resolution = determineResolution(xrange, yrange);
 
-				// It is OK if 25-50% of the blocks are full
-				int newResolution = 1;
-
-				double target = expected / 0.25;
-
-				// Closest
-				//				double minDelta = Math.abs(getNeighbourBlocks(newResolution) - target);
-				//				while (newResolution < resolution)
-				//				{
-				//					double delta = Math.abs(getNeighbourBlocks(newResolution + 1) - target);
-				//					if (delta < minDelta)
-				//					{
-				//						minDelta = delta;
-				//						newResolution++;
-				//					}
-				//					else
-				//						break;
-				//				}
-
-				// Next size up
-				while (newResolution < resolution)
+				if (resolution == 0)
 				{
-					if (getNeighbourBlocks(newResolution) < target)
-						newResolution++;
-					else
-						break;
+					// Handle a resolution of zero. This will happen when the generating distance is very small.
+					// In this instance we can use a resolution of 1 but change the bin width to something larger.
+					resolution = 1;
+					binWidth = determineBinWidth(xrange, yrange);
 				}
+				else
+				{
+					// Do not increase the resolution so high we have thousands of blocks
+					// and not many expected points.		
+					// Determine the number of molecules we would expect in a square block if they are uniform.
+					double blockArea = 4 * generatingDistanceE;
+					double expected = xcoord.length * blockArea / (xrange * yrange);
 
-				resolution = newResolution;
+					// It is OK if 25-50% of the blocks are full
+					int newResolution = 1;
 
-				//System.out.printf("Expected %.2f [%d]\n", expected, (2 * resolution + 1) * (2 * resolution + 1));
+					double target = expected / 0.25;
 
-				binWidth = generatingDistanceE / resolution;
+					// Closest
+					//				double minDelta = Math.abs(getNeighbourBlocks(newResolution) - target);
+					//				while (newResolution < resolution)
+					//				{
+					//					double delta = Math.abs(getNeighbourBlocks(newResolution + 1) - target);
+					//					if (delta < minDelta)
+					//					{
+					//						minDelta = delta;
+					//						newResolution++;
+					//					}
+					//					else
+					//						break;
+					//				}
+
+					// Next size up
+					while (newResolution < resolution)
+					{
+						if (getNeighbourBlocks(newResolution) < target)
+							newResolution++;
+						else
+							break;
+					}
+
+					resolution = newResolution;
+
+					//System.out.printf("Expected %.2f [%d]\n", expected, (2 * resolution + 1) * (2 * resolution + 1));
+
+					binWidth = generatingDistanceE / resolution;
+				}
 			}
 
 			// Assign to a grid
@@ -387,9 +399,9 @@ public class DensityManager
 		 *            the cluster id
 		 * @return true, if a shutdown signal has been received
 		 */
-		boolean add(OPTICSMolecule m, int clusterId)
+		boolean add(OPTICSMolecule m)
 		{
-			list[size++] = m.toResult(maxDistance, clusterId);
+			list[size++] = m.toResult(maxDistance);
 			if (tracker != null)
 			{
 				tracker.progress(size, list.length);
@@ -1494,6 +1506,12 @@ public class DensityManager
 	 * Sander. Optics: ordering points to identify the clustering structure. In ACM Sigmod Record, volume 28, pages
 	 * 49–60. ACM, 1999.
 	 * <p>
+	 * The returned results are the output of {@link #extractDBSCANClustering(OPTICSResult[], float)} with the
+	 * configured generating distance. Note that the generating distance may have been modified if invalid (e.g. it is
+	 * not strictly positive or it is larger than the data range allows). In this case it is set to the maximum distance
+	 * that can be computed for the data range. If the data are colocated the distance is set to 1. The distance used
+	 * can be obtained using {@link #getGeneratingDistance()}.
+	 * <p>
 	 * The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
 	 *
 	 * @param generatingDistanceE
@@ -1515,6 +1533,12 @@ public class DensityManager
 	 * Sander. Optics: ordering points to identify the clustering structure. In ACM Sigmod Record, volume 28, pages
 	 * 49–60. ACM, 1999.
 	 * <p>
+	 * The returned results are the output of {@link #extractDBSCANClustering(OPTICSResult[], float)} with the
+	 * configured generating distance. Note that the generating distance may have been modified if invalid (e.g. it is
+	 * not strictly positive or it is larger than the data range allows). In this case it is set to the maximum distance
+	 * that can be computed for the data range. If the data are colocated the distance is set to 1. The distance used
+	 * can be obtained using {@link #getGeneratingDistance()}.
+	 * <p>
 	 * This creates a large memory structure. It can be held in memory for re-use when using a different number of min
 	 * points. The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
 	 *
@@ -1533,7 +1557,8 @@ public class DensityManager
 
 		initialiseOPTICS(generatingDistanceE);
 
-		generatingDistanceE = grid.generatingDistanceE;
+		// The distance may be updated
+		generatingDistanceE = getGeneratingDistance();
 
 		if (tracker != null)
 		{
@@ -1552,12 +1577,11 @@ public class DensityManager
 		// Ensure the UNDEFINED distance is above the generating distance
 		double maxDistance = generatingDistanceE * 1.01;
 		OPTICSResultList results = new OPTICSResultList(size, maxDistance);
-		int cluster = 0;
 		for (int i = 0; i < size; i++)
 		{
 			if (!grid.setOfObjects[i].processed)
 			{
-				if (expandClusterOrder(grid.setOfObjects[i], e, minPts, ++cluster, results))
+				if (expandClusterOrder(grid.setOfObjects[i], e, minPts, results))
 					break;
 			}
 		}
@@ -1570,8 +1594,15 @@ public class DensityManager
 
 			if (stopped)
 				tracker.log("Aborted OPTICS");
-			else
-				tracker.log("Finished OPTICS: " + Utils.pleural(cluster, "Cluster"));
+		}
+
+		if (!stopped)
+		{
+			final int nClusters = extractDBSCANClustering(results.list, generatingDistanceE);
+			if (tracker != null)
+			{
+				tracker.log("Finished OPTICS: " + Utils.pleural(nClusters, "Cluster"));
+			}
 		}
 
 		if (clearMemory)
@@ -1580,6 +1611,17 @@ public class DensityManager
 		return (stopped) ? null : results.list;
 	}
 
+	/**
+	 * Gets the generating distance last used by the OPTICS algorithm.
+	 *
+	 * @return the generating distance
+	 */
+	public float getGeneratingDistance()
+	{
+		return lastGeneratingDistance;
+	}
+
+	private float lastGeneratingDistance;
 	private OPTICSMoleculeGrid grid;
 	private OPTICSMoleculeList orderSeeds;
 	private OPTICSMoleculeList neighbours;
@@ -1594,13 +1636,17 @@ public class DensityManager
 	 */
 	private void initialiseOPTICS(float generatingDistanceE)
 	{
+		// Ensure the distance is valid
 		generatingDistanceE = getWorkingGeneratingDistance(generatingDistanceE);
+
+		// Compare to the existing grid
 		if (grid == null || grid.generatingDistanceE != generatingDistanceE)
 		{
 			if (tracker != null)
 				tracker.log("Initialising OPTICS ...");
 
 			grid = new OPTICSMoleculeGrid(generatingDistanceE);
+			lastGeneratingDistance = grid.generatingDistanceE;
 
 			final int size = xcoord.length;
 			orderSeeds = new OPTICSMoleculeList(size);
@@ -1609,6 +1655,7 @@ public class DensityManager
 		}
 		else
 		{
+			// This is the same distance so the objects can be reused
 			grid.reset();
 			orderSeeds.clear();
 			neighbours.clear();
@@ -1627,6 +1674,10 @@ public class DensityManager
 	{
 		final float xrange = maxXCoord - minXCoord;
 		final float yrange = maxYCoord - minYCoord;
+
+		if (xrange == 0 && yrange == 0)
+			// Occurs when only 1 point or colocated data. A distance of zero is invalid so set to 1.
+			return 1;
 
 		double maxDistance = Math.sqrt(xrange * xrange + yrange * yrange);
 		if (!Maths.isFinite(generatingDistanceE) || generatingDistanceE <= 0 || generatingDistanceE > maxDistance)
@@ -1671,8 +1722,7 @@ public class DensityManager
 	 *            the results
 	 * @return true, if the algorithm has received a shutdown signal
 	 */
-	private boolean expandClusterOrder(OPTICSMolecule object, float e, int minPts, int clusterId,
-			OPTICSResultList orderedFile)
+	private boolean expandClusterOrder(OPTICSMolecule object, float e, int minPts, OPTICSResultList orderedFile)
 	{
 		// TODO: Re-write the algorithm so that each connected cluster is generated
 		// in order of reachability distance
@@ -1707,7 +1757,7 @@ public class DensityManager
 		findNeighbours(object, e);
 		object.processed = true;
 		setCoreDistance(minPts, neighbours, object);
-		if (orderedFile.add(object, clusterId))
+		if (orderedFile.add(object))
 			return true;
 		if (object.coreDistance != UNDEFINED)
 		{
@@ -1728,7 +1778,7 @@ public class DensityManager
 				findNeighbours(currentObject, e);
 				currentObject.processed = true;
 				setCoreDistance(minPts, neighbours, currentObject);
-				if (orderedFile.add(currentObject, clusterId))
+				if (orderedFile.add(currentObject))
 					return true;
 
 				if (object.coreDistance != UNDEFINED)
@@ -1845,12 +1895,40 @@ public class DensityManager
 
 	/**
 	 * Extract DBSCAN clustering from the cluster ordered objects returned from {@link #optics(float, int, boolean)}.
+	 * <p>
+	 * The generating distance E must be less than or equal to the generating distance used during OPTICS.
 	 *
 	 * @param clusterOrderedObjects
 	 *            the cluster ordered objects
+	 * @param generatingDistanceE
+	 *            the generating distance E
+	 * @return the number of clusters
 	 */
-	public void extractDBSCANClustering(OPTICSResult[] clusterOrderedObjects)
+	public int extractDBSCANClustering(OPTICSResult[] clusterOrderedObjects, float generatingDistanceE)
 	{
-
+		// Reset cluster Id
+		int clusterId = NOISE;
+		for (int i = 0; i < clusterOrderedObjects.length; i++)
+		{
+			final OPTICSResult object = clusterOrderedObjects[i];
+			if (object.reachabilityDistance > generatingDistanceE)
+			{
+				// This is a point not connected to the previous one.
+				// Note that the reachability-distance of the first object in
+				// the cluster-ordering is always UNDEFINED and that we as-
+				// sume UNDEFINED to be greater than any defined distance
+				if (object.coreDistance <= generatingDistanceE)
+				{
+					// new cluster
+					clusterId++;
+					object.clusterId = clusterId;
+				}
+				else
+					object.clusterId = NOISE;
+			}
+			else
+				object.clusterId = clusterId;
+		}
+		return clusterId;
 	}
 }

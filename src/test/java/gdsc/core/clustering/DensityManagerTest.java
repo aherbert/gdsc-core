@@ -244,7 +244,7 @@ public class DensityManagerTest
 		}
 	}
 
-	private class SimpleTrackProgress extends NullTrackProgress
+	class SimpleTrackProgress extends NullTrackProgress
 	{
 		ConsoleLogger l = new ConsoleLogger();
 
@@ -258,7 +258,7 @@ public class DensityManagerTest
 	@Test
 	public void canPerformOPTICS()
 	{
-		TrackProgress tracker = new SimpleTrackProgress();
+		TrackProgress tracker = null; //new SimpleTrackProgress();
 		for (int n : N)
 		{
 			DensityManager dm = createDensityManager(size, n);
@@ -320,9 +320,75 @@ public class DensityManagerTest
 			{
 				int minPts = n / 200;
 				dm.optics(radius, minPts);
-				// Histogram the results
-				System.out.printf("OPTICS %d @ %.1f,%d\n", n, radius, minPts);
+				//System.out.printf("OPTICS %d @ %.1f,%d\n", n, radius, minPts);
 			}
+		}
+	}
+
+	@Test
+	public void canPerformOPTICSWith1Point()
+	{
+		DensityManager dm = createDensityManager(size, 1);
+
+		for (float radius : new float[] { -1, 0, 0.01f, 1f })
+			for (int minPts : new int[] { -1, 0, 1 })
+			{
+				OPTICSResult[] r1 = dm.optics(radius, minPts, false);
+				// Should be 1 cluster
+				Assert.assertEquals(1, r1[0].clusterId);
+			}
+		
+		OPTICSResult[] r1 = dm.optics(1, 2, false);
+		// Should be 0 clusters as the min size is too high
+		Assert.assertEquals(0, r1[0].clusterId);
+	}
+
+	@Test
+	public void canPerformOPTICSWithColocatedData()
+	{
+		DensityManager dm = new DensityManager(new float[10], new float[10], new Rectangle(size, size));
+
+		for (float radius : new float[] { -1, 0, 0.01f, 1f })
+			for (int minPts : new int[] { -1, 0, 1, 10 })
+			{
+				OPTICSResult[] r1 = dm.optics(radius, minPts, false);
+				// All should be in the same cluster
+				Assert.assertEquals(1, r1[0].clusterId);
+			}
+	}
+
+	@Test
+	public void canConvertOPTICSToDBSCAN()
+	{
+		int n = N[0];
+		DensityManager dm = createDensityManager(size, n);
+
+		float radius = radii[radii.length - 1];
+
+		int minPts = n / 200;
+		OPTICSResult[] r1 = dm.optics(radius, minPts, false);
+		// Store for later and reset
+		int[] clusterId = new int[r1.length];
+		for (int i = r1.length; i-- > 0;)
+		{
+			clusterId[i] = r1[i].clusterId;
+			r1[i].clusterId = -1;
+		}
+		// Smaller distance
+		int nClusters = dm.extractDBSCANClustering(r1, radius * 0.8f);
+		int max = 0;
+		for (int i = r1.length; i-- > 0;)
+		{
+			if (max < r1[i].clusterId)
+				max = r1[i].clusterId;
+			Assert.assertNotEquals(r1[i].clusterId, -1);
+		}
+		Assert.assertEquals(nClusters, max);
+		// Same distance
+		nClusters = dm.extractDBSCANClustering(r1, radius);
+		for (int i = r1.length; i-- > 0;)
+		{
+			Assert.assertEquals(r1[i].clusterId, clusterId[i]);
 		}
 	}
 
