@@ -3,7 +3,7 @@ package gdsc.core.clustering;
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
  * 
- * Copyright (C) 2013 Alex Herbert
+ * Copyright (C) 2016 Alex Herbert
  * Genome Damage and Stability Centre
  * University of Sussex, UK
  * 
@@ -28,11 +28,16 @@ import gdsc.core.utils.Maths;
 public class DensityManager
 {
 	/**
+	 * The UNDEFINED distance in the OPTICS algorithm. This is actually arbitrary. Use a simple value so we can spot it
+	 * when debugging.
+	 */
+	private static final float UNDEFINED = -1;
+
+	/**
 	 * Contains the result of the OPTICS algorithm
 	 */
-	public class OPTICSResult implements Comparable<OPTICSResult>
+	public class OPTICSResult
 	{
-		final int order;
 		final double coreDistance;
 		final double reachabilityDistance;
 
@@ -43,28 +48,15 @@ public class DensityManager
 		/**
 		 * Instantiates a new OPTICS result.
 		 *
-		 * @param order
-		 *            the order
 		 * @param coreDistance
 		 *            the core distance
 		 * @param reachabilityDistance
 		 *            the reachability distance
 		 */
-		public OPTICSResult(int order, double coreDistance, double reachabilityDistance)
+		public OPTICSResult(double coreDistance, double reachabilityDistance)
 		{
-			this.order = order;
 			this.coreDistance = coreDistance;
 			this.reachabilityDistance = reachabilityDistance;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Comparable#compareTo(java.lang.Object)
-		 */
-		public int compareTo(OPTICSResult o)
-		{
-			return order - o.order;
 		}
 	}
 
@@ -101,9 +93,9 @@ public class DensityManager
 
 	private class OPTICSMolecule extends Molecule
 	{
-		private int processed = 0;
-		private float c;
-		private float r;
+		private boolean processed;
+		private float coreDistance;
+		private float reachabilityDistance;
 
 		private final int xBin, yBin;
 		/**
@@ -111,29 +103,36 @@ public class DensityManager
 		 */
 		private float d;
 
-		public OPTICSMolecule(int id, float x, float y, int xBin, int yBin, Molecule next, float undefined)
+		public OPTICSMolecule(int id, float x, float y, int xBin, int yBin, Molecule next)
 		{
 			super(id, x, y, next);
 			this.xBin = xBin;
 			this.yBin = yBin;
-			c = r = undefined;
+			reset();
+		}
+
+		void reset()
+		{
+			processed = false;
+			coreDistance = reachabilityDistance = UNDEFINED;
 		}
 
 		public double getReachabilityDistance()
 		{
-			return Math.sqrt(r);
+			return Math.sqrt(reachabilityDistance);
 		}
 
 		public double getCoreDistance()
 		{
-			return Math.sqrt(c);
+			return Math.sqrt(coreDistance);
 		}
 
-		public OPTICSResult toResult(float undefined, double maxDistance)
+		public OPTICSResult toResult(double maxDistance)
 		{
-			double coreDistance = (r == undefined) ? maxDistance : getCoreDistance();
-			double reachabilityDistance = (r == undefined) ? maxDistance : getReachabilityDistance();
-			return new OPTICSResult(processed, coreDistance, reachabilityDistance);
+			double actualCoreDistance = (coreDistance == UNDEFINED) ? maxDistance : getCoreDistance();
+			double actualReachabilityDistance = (reachabilityDistance == UNDEFINED) ? maxDistance
+					: getReachabilityDistance();
+			return new OPTICSResult(actualCoreDistance, actualReachabilityDistance);
 		}
 	}
 
@@ -142,9 +141,9 @@ public class DensityManager
 		public int compare(OPTICSMolecule o1, OPTICSMolecule o2)
 		{
 			// Sort by reachability distance
-			if (o1.r < o2.r)
+			if (o1.reachabilityDistance < o2.reachabilityDistance)
 				return -1;
-			if (o1.r > o2.r)
+			if (o1.reachabilityDistance > o2.reachabilityDistance)
 				return 1;
 			return 0;
 		}
@@ -157,7 +156,7 @@ public class DensityManager
 	 */
 	private class OPTICSMoleculeList
 	{
-		OPTICSMolecule[] list;
+		final OPTICSMolecule[] list;
 		int size = 0;
 
 		OPTICSMoleculeList(int capacity)
@@ -180,21 +179,203 @@ public class DensityManager
 			Arrays.sort(list, next, size, opticsComparator);
 		}
 
-		int size()
-		{
-			return size;
-		}
-
 		OPTICSMolecule get(int i)
 		{
 			return list[i];
 		}
 	}
 
+	/**
+	 * Used in the OPTICS algorithm
+	 */
+	private class OPTICSMoleculeGrid
+	{
+		int resolution;
+		final float generatingDistanceE;
+		final float binWidth;
+		final OPTICSMolecule[][][] grid;
+		final OPTICSMolecule[] setOfObjects;
+		final int xBins;
+		final int yBins;
+
+		OPTICSMoleculeGrid(float generatingDistanceE)
+		{
+			this.generatingDistanceE = generatingDistanceE;
+
+			final float xrange = maxXCoord - minXCoord;
+			final float yrange = maxYCoord - minYCoord;
+
+			// Use a higher resolution grid to avoid too many distance comparisons
+			resolution = determineResolution(xrange, yrange);
+
+			if (resolution == 0)
+			{
+				// Handle a resolution of zero. This will happen when the generating distance is very small.
+				// In this instance we can use a resolution of 1 but change the bin width to something larger.
+				resolution = 1;
+				binWidth = determineBinWidth(xrange, yrange);
+			}
+			else
+			{
+				// Do not increase the resolution so high we have thousands of blocks
+				// and not many expected points.		
+				// Determine the number of molecules we would expect in a square block if they are uniform.
+				double blockArea = 4 * generatingDistanceE;
+				double expected = xcoord.length * blockArea / (xrange * yrange);
+
+				// It is OK if 25-50% of the blocks are full
+				int newResolution = 1;
+
+				double target = expected / 0.25;
+
+				// Closest
+				//				double minDelta = Math.abs(getNeighbourBlocks(newResolution) - target);
+				//				while (newResolution < resolution)
+				//				{
+				//					double delta = Math.abs(getNeighbourBlocks(newResolution + 1) - target);
+				//					if (delta < minDelta)
+				//					{
+				//						minDelta = delta;
+				//						newResolution++;
+				//					}
+				//					else
+				//						break;
+				//				}
+
+				// Next size up
+				while (newResolution < resolution)
+				{
+					if (getNeighbourBlocks(newResolution) < target)
+						newResolution++;
+					else
+						break;
+				}
+
+				resolution = newResolution;
+
+				//System.out.printf("Expected %.2f [%d]\n", expected, (2 * resolution + 1) * (2 * resolution + 1));
+
+				binWidth = generatingDistanceE / resolution;
+			}
+
+			// Assign to a grid
+			xBins = 1 + (int) (xrange / binWidth);
+			yBins = 1 + (int) (yrange / binWidth);
+
+			OPTICSMolecule[][] linkedListGrid = new OPTICSMolecule[xBins][yBins];
+			setOfObjects = new OPTICSMolecule[xcoord.length];
+			for (int i = 0; i < xcoord.length; i++)
+			{
+				final float x = xcoord[i];
+				final float y = ycoord[i];
+				final int xBin = (int) ((x - minXCoord) / binWidth);
+				final int yBin = (int) ((y - minYCoord) / binWidth);
+				// Build a single linked list
+				final OPTICSMolecule m = new OPTICSMolecule(i, x, y, xBin, yBin, linkedListGrid[xBin][yBin]);
+				setOfObjects[i] = m;
+				linkedListGrid[xBin][yBin] = m;
+			}
+
+			// Convert grid to arrays ...
+			grid = new OPTICSMolecule[xBins][yBins][];
+			for (int xBin = xBins; xBin-- > 0;)
+			{
+				for (int yBin = yBins; yBin-- > 0;)
+				{
+					if (linkedListGrid[xBin][yBin] == null)
+						continue;
+					int count = 0;
+					for (Molecule m = linkedListGrid[xBin][yBin]; m != null; m = m.next)
+						count++;
+					final OPTICSMolecule[] list = new OPTICSMolecule[count];
+					for (Molecule m = linkedListGrid[xBin][yBin]; m != null; m = m.next)
+						list[--count] = (OPTICSMolecule) m;
+					grid[xBin][yBin] = list;
+				}
+			}
+		}
+
+		private int determineResolution(float xrange, float yrange)
+		{
+			int resolution = 0;
+			// What is a good maximum limit for the memory allocation?
+			while (getBins(xrange, yrange, generatingDistanceE, resolution + 1) < 100000)
+			{
+				resolution++;
+			}
+			//System.out.printf("d=%.3f  [%d]\n", generatingDistanceE, resolution);
+			// We handle a resolution of zero in the calling function
+			return resolution;
+		}
+
+		private float determineBinWidth(float xrange, float yrange)
+		{
+			float binWidth = generatingDistanceE;
+			while (getBins(xrange, yrange, binWidth, 1) > 100000)
+			{
+				// Dumb implementation that doubles the bin width. A better solution
+				// would be to conduct a search for the value with a number of bins close 
+				// to the target.
+				binWidth *= 2;
+			}
+			return binWidth;
+		}
+
+		private int getBins(float xrange, float yrange, float distance, int resolution)
+		{
+			final float binWidth = distance / resolution;
+			final int nXBins = 1 + (int) (xrange / binWidth);
+			final int nYBins = 1 + (int) (yrange / binWidth);
+			final int nBins = nXBins * nYBins;
+			//System.out.printf("d=%.3f  %d => %d\n", generatingDistanceE, resolution, nBins);
+			return nBins;
+		}
+
+		private int getNeighbourBlocks(int resolution)
+		{
+			int size = 2 * resolution + 1;
+			return size * size;
+		}
+
+		void reset()
+		{
+			for (int i = setOfObjects.length; i-- > 0;)
+				setOfObjects[i].reset();
+		}
+	}
+
+	/**
+	 * Used in the OPTICS algorithm to store the output results
+	 */
+	private class OPTICSResultList
+	{
+		final OPTICSResult[] list;
+		int size = 0;
+		final double maxDistance;
+
+		OPTICSResultList(int capacity, double maxDistance)
+		{
+			list = new OPTICSResult[capacity];
+			this.maxDistance = maxDistance;
+		}
+
+		void add(OPTICSMolecule m)
+		{
+			list[size++] = m.toResult(maxDistance);
+			if (tracker != null)
+				tracker.progress(size, list.length);
+		}
+
+		void clear()
+		{
+			size = 0;
+		}
+	}
+
 	private TrackProgress tracker = null;
-	private float[] xcoord, ycoord;
-	private float minXCoord, minYCoord, maxXCoord, maxYCoord;
-	private int area;
+	private final float[] xcoord, ycoord;
+	private final float minXCoord, minYCoord, maxXCoord, maxYCoord;
+	private final int area;
 
 	/**
 	 * Input arrays are modified
@@ -207,11 +388,6 @@ public class DensityManager
 	 */
 	public DensityManager(float[] xcoord, float[] ycoord, Rectangle bounds)
 	{
-		initialise(xcoord, ycoord, bounds);
-	}
-
-	private void initialise(float[] xcoord, float[] ycoord, Rectangle bounds)
-	{
 		if (xcoord == null || ycoord == null || xcoord.length == 0 || xcoord.length != ycoord.length)
 			throw new IllegalArgumentException("Results are null or empty or mismatched in length");
 
@@ -219,8 +395,8 @@ public class DensityManager
 		this.ycoord = ycoord;
 
 		// Assign localisations & get min bounds
-		minXCoord = Float.POSITIVE_INFINITY;
-		minYCoord = Float.POSITIVE_INFINITY;
+		float minXCoord = Float.POSITIVE_INFINITY;
+		float minYCoord = Float.POSITIVE_INFINITY;
 		for (int i = 0; i < xcoord.length; i++)
 		{
 			if (minXCoord > xcoord[i])
@@ -236,8 +412,8 @@ public class DensityManager
 		// Get max bounds
 		minXCoord -= shiftx;
 		minYCoord -= shifty;
-		maxXCoord = 0;
-		maxYCoord = 0;
+		float maxXCoord = 0;
+		float maxYCoord = 0;
 		for (int i = 0; i < xcoord.length; i++)
 		{
 			xcoord[i] -= shiftx;
@@ -248,6 +424,10 @@ public class DensityManager
 				maxYCoord = ycoord[i];
 		}
 
+		this.minXCoord = minXCoord;
+		this.minYCoord = minYCoord;
+		this.maxXCoord = maxXCoord;
+		this.maxYCoord = maxYCoord;
 		// Store the area of the input results
 		area = bounds.width * bounds.height;
 	}
@@ -1280,13 +1460,12 @@ public class DensityManager
 	}
 
 	/**
-	 * Compute the threshold radius for each point to have n closest neighbours.
+	 * Compute the core radius for each point to have n closest neighbours and the minimum reachability distance of a
+	 * point from another core point.
 	 * <p>
 	 * This is an implementation of the OPTICS method. Mihael Ankerst, Markus M Breunig, Hans-Peter Kriegel, and Jorg
 	 * Sander. Optics: ordering points to identify the clustering structure. In ACM Sigmod Record, volume 28, pages
 	 * 49–60. ACM, 1999.
-	 * <p>
-	 * For each point find the radius where there are n closest neighbours.
 	 *
 	 * @param generatingDistanceE
 	 *            the generating distance E
@@ -1296,66 +1475,36 @@ public class DensityManager
 	 */
 	public OPTICSResult[] optics(float generatingDistanceE, int minPts)
 	{
+		return optics(generatingDistanceE, minPts, true);
+	}
+
+	/**
+	 * Compute the core radius for each point to have n closest neighbours and the minimum reachability distance of a
+	 * point from another core point.
+	 * <p>
+	 * This is an implementation of the OPTICS method. Mihael Ankerst, Markus M Breunig, Hans-Peter Kriegel, and Jorg
+	 * Sander. Optics: ordering points to identify the clustering structure. In ACM Sigmod Record, volume 28, pages
+	 * 49–60. ACM, 1999.
+	 * <p>
+	 * This creates a large memory structure. It can be held in memory for re-use when using a different number of min
+	 * points.
+	 *
+	 * @param generatingDistanceE
+	 *            the generating distance E
+	 * @param minPts
+	 *            the min points for a core object
+	 * @param clearMemory
+	 *            Set to true to clear the memory structure
+	 * @return the results
+	 */
+	public OPTICSResult[] optics(float generatingDistanceE, int minPts, boolean clearMemory)
+	{
 		if (minPts < 1)
 			minPts = 1;
-		if (tracker != null)
-			tracker.log("Initialising OPTICS ...");
 
-		final float minx = minXCoord;
-		final float miny = minYCoord;
-		final float maxx = maxXCoord;
-		final float maxy = maxYCoord;
-		final float xrange = maxx - minx;
-		final float yrange = maxy - miny;
+		initialiseOPTICS(generatingDistanceE);
 
-		// Ensure the generating distance is not too high. Also set it the max value if it is not valid.
-		double maxDistance = Math.sqrt(xrange * xrange + yrange * yrange);
-		if (!Maths.isFinite(generatingDistanceE) || generatingDistanceE <= 0 || generatingDistanceE > maxDistance)
-			generatingDistanceE = (float) maxDistance;
-
-		// Note: The method and variable names used in this function are designed to match 
-		// the pseudocode implementation from the 1999 OPTICS paper.
-		// The generating distance (E) used in the paper is the maximum distance at which cluster
-		// centres will be formed. This implementation uses the squared distance to avoid sqrt() 
-		// function calls.
-
-		final float e = generatingDistanceE * generatingDistanceE;
-		// This is actually arbitrary. Use a simple value so we can spot it when debugging.
-		final float undefined = -1; // (float) (1.01 * e);
-
-		// Speed this up with a higher resolution grid
-		int resolution = determineResolution(xrange, yrange, generatingDistanceE);
-
-		final float binWidth;
-		if (resolution == 0)
-		{
-			// Handle a resolution of zero. This will happen when the generating distance is very small.
-			// In this instance we can use a resolution of 1 but change the bin width to something larger.
-			resolution = 1;
-			binWidth = determineBinWidth(xrange, yrange, generatingDistanceE);
-		}
-		else
-		{
-			binWidth = generatingDistanceE / resolution;
-		}
-
-		// Assign to a grid
-		final int nXBins = 1 + (int) (xrange / binWidth);
-		final int nYBins = 1 + (int) (yrange / binWidth);
-
-		OPTICSMolecule[][] grid = new OPTICSMolecule[nXBins][nYBins];
-		OPTICSMolecule[] setOfObjects = new OPTICSMolecule[xcoord.length];
-		for (int i = 0; i < xcoord.length; i++)
-		{
-			final float x = xcoord[i];
-			final float y = ycoord[i];
-			final int xBin = (int) ((x - minx) / binWidth);
-			final int yBin = (int) ((y - miny) / binWidth);
-			// Build a single linked list
-			OPTICSMolecule m = new OPTICSMolecule(i, x, y, xBin, yBin, grid[xBin][yBin], undefined);
-			setOfObjects[i] = m;
-			grid[xBin][yBin] = m;
-		}
+		generatingDistanceE = grid.generatingDistanceE;
 
 		if (tracker != null)
 		{
@@ -1363,77 +1512,109 @@ public class DensityManager
 			tracker.progress(0, xcoord.length);
 		}
 
-		OPTICSMoleculeList orderSeeds = new OPTICSMoleculeList(xcoord.length);
-		OPTICSMoleculeList neighbours = new OPTICSMoleculeList(xcoord.length);
-		int order = 0;
-		for (int i = 0; i < setOfObjects.length; i++)
+		// Note: The method and variable names used in this function are designed to match 
+		// the pseudocode implementation from the 1999 OPTICS paper.
+		// The generating distance (E) used in the paper is the maximum distance at which cluster
+		// centres will be formed. This implementation uses the squared distance to avoid sqrt() 
+		// function calls.
+		final float e = generatingDistanceE * generatingDistanceE;
+
+		final int size = xcoord.length;
+		for (int i = 0; i < size; i++)
 		{
-			if (setOfObjects[i].processed == 0)
-				order = expandClusterOrder(grid, resolution, setOfObjects, setOfObjects[i], e, minPts, undefined,
-						orderSeeds, order, neighbours);
+			if (!grid.setOfObjects[i].processed)
+				expandClusterOrder(grid.setOfObjects[i], e, minPts);
 		}
 
 		if (tracker != null)
-		{
-			tracker.log("Finalising OPTICS ...");
 			tracker.progress(1.0);
-		}
 
-		// Ensure the undefined distance is above the generating distance
-		maxDistance = generatingDistanceE * 1.01;
-		OPTICSResult[] results = new OPTICSResult[setOfObjects.length];
-		for (int i = 0; i < setOfObjects.length; i++)
-			results[i] = setOfObjects[i].toResult(undefined, maxDistance);
+		final OPTICSResult[] opticsResults = results.list;
+		if (clearMemory)
+			clearOptics();
 
-		// Change to the cluster-order
-		Arrays.sort(results);
-
-		return results;
+		return opticsResults;
 	}
 
-	private int determineResolution(float xrange, float yrange, float generatingDistanceE)
+	private OPTICSMoleculeGrid grid;
+	private OPTICSMoleculeList orderSeeds;
+	private OPTICSMoleculeList neighbours;
+	private OPTICSResultList results;
+	private float[] floatArray;
+
+	/**
+	 * Initialise the memory structure for the OPTICS algorithm. This can be cached if the generatingDistanceE does not
+	 * change.
+	 *
+	 * @param generatingDistanceE
+	 *            the generating distance E
+	 */
+	private void initialiseOPTICS(float generatingDistanceE)
 	{
-		int resolution = 0;
-		// What is a good maximum limit for the memory allocation?
-		while (getBins(xrange, yrange, generatingDistanceE, resolution + 1) < 100000)
+		generatingDistanceE = getWorkingGeneratingDistance(generatingDistanceE);
+		if (grid == null || grid.generatingDistanceE != generatingDistanceE)
 		{
-			resolution++;
-		}
-		//System.out.printf("d=%.3f  [%d]\n", generatingDistanceE, resolution);
-		// We handle a resolution of zero in the calling function
-		return resolution;
-	}
+			if (tracker != null)
+				tracker.log("Initialising OPTICS ...");
 
-	private float determineBinWidth(float xrange, float yrange, float binWidth)
-	{
-		while (getBins(xrange, yrange, binWidth, 1) > 100000)
+			grid = new OPTICSMoleculeGrid(generatingDistanceE);
+
+			final int size = xcoord.length;
+			orderSeeds = new OPTICSMoleculeList(size);
+			neighbours = new OPTICSMoleculeList(size);
+			// Ensure the UNDEFINED distance is above the generating distance
+			double maxDistance = grid.generatingDistanceE * 1.01;
+			results = new OPTICSResultList(size, maxDistance);
+
+			floatArray = new float[size];
+		}
+		else
 		{
-			// Dumb implementation that doubles the bin width. A better solution
-			// would be to conduct a search for the value with a number of bins close 
-			// to the target.
-			binWidth *= 2;
+			grid.reset();
+			orderSeeds.clear();
+			neighbours.clear();
+			results.clear();
 		}
-		return binWidth;
 	}
 
-	private int getBins(float xrange, float yrange, float generatingDistanceE, int resolution)
+	/**
+	 * Gets the working generating distance. Ensure the generating distance is not too high for the data range. Also set
+	 * it the max value if the generating distance is not valid.
+	 *
+	 * @param generatingDistanceE
+	 *            the generating distance E
+	 * @return the working generating distance
+	 */
+	private float getWorkingGeneratingDistance(float generatingDistanceE)
 	{
-		final float binWidth = generatingDistanceE / resolution;
-		final int nXBins = 1 + (int) (xrange / binWidth);
-		final int nYBins = 1 + (int) (yrange / binWidth);
-		final int nBins = nXBins * nYBins;
-		//System.out.printf("d=%.3f  %d => %d\n", generatingDistanceE, resolution, nBins);
-		return nBins;
+		final float xrange = maxXCoord - minXCoord;
+		final float yrange = maxYCoord - minYCoord;
+
+		double maxDistance = Math.sqrt(xrange * xrange + yrange * yrange);
+		if (!Maths.isFinite(generatingDistanceE) || generatingDistanceE <= 0 || generatingDistanceE > maxDistance)
+			return (float) maxDistance;
+
+		return generatingDistanceE;
 	}
 
-	private int expandClusterOrder(OPTICSMolecule[][] grid, int resolution, OPTICSMolecule[] setOfObjects,
-			OPTICSMolecule object, float e, int minPts, float undefined, OPTICSMoleculeList orderSeeds, int order,
-			OPTICSMoleculeList neighbours)
+	/**
+	 * Clear memory used by the OPTICS algorithm
+	 */
+	public void clearOptics()
+	{
+		grid = null;
+		orderSeeds = null;
+		neighbours = null;
+		results = null;
+		floatArray = null;
+	}
+
+	private void expandClusterOrder(OPTICSMolecule object, float e, int minPts)
 	{
 		// TODO: Re-write the algorithm so that each connected cluster is generated
 		// in order of reachability distance
 
-		// Note: The original paper just processes the next unprocessed object in an undefined order.
+		// Note: The original paper just processes the next unprocessed object in an UNDEFINED order.
 		// However once started the remaining neighbours are processed
 		// in order of the reachability distance, which is equal to or larger
 		// than the most recent core distance. But the subsequent objects visited may
@@ -1460,117 +1641,90 @@ public class DensityManager
 		// We ensure that the reachable distance is updated even if the point has been processed.
 		// We just do not repeat process the neighbours of a point that has been processed.
 
-		// For tracking progress
-		final long total = orderSeeds.list.length;
-
-		findNeighbours(grid, resolution, object, e, neighbours);
-		object.processed = ++order;
-		if (tracker != null)
-			tracker.progress(order, total);
-
-		if (neighbours.size < minPts)
-			return order;
-
-		float[] d = new float[neighbours.size];
-		d = setCoreDistance(d, minPts, neighbours, object);
-
-		// Create seed-list for further expansion.
-		// The next counter is used to ensure we sort only the remaining entries in the seed list.
-		int next = 0;
-		orderSeeds.clear();
-		update(orderSeeds, neighbours, object, undefined, next);
-
-		while (next < orderSeeds.size())
+		findNeighbours(object, e);
+		object.processed = true;
+		setCoreDistance(minPts, neighbours, object);
+		results.add(object);
+		if (object.coreDistance != UNDEFINED)
 		{
-			OPTICSMolecule currentObject = orderSeeds.get(next++);
-			//			if (currentObject.processed != 0)
-			//			{
-			//				System.out.println("Error");
-			//				continue;
-			//			}
-			findNeighbours(grid, resolution, currentObject, e, neighbours);
-			currentObject.processed = ++order;
-			if (tracker != null)
-				tracker.progress(order, total);
+			// Create seed-list for further expansion.
+			// The next counter is used to ensure we sort only the remaining entries in the seed list.
+			int next = 0;
+			orderSeeds.clear();
+			update(orderSeeds, neighbours, object, UNDEFINED, next);
 
-			if (neighbours.size() < minPts)
-				continue;
+			while (next < orderSeeds.size)
+			{
+				final OPTICSMolecule currentObject = orderSeeds.get(next++);
+				//			if (currentObject.processed)
+				//			{
+				//				System.out.println("Error");
+				//				continue;
+				//			}
+				findNeighbours(currentObject, e);
+				currentObject.processed = true;
+				setCoreDistance(minPts, neighbours, currentObject);
+				results.add(currentObject);
 
-			d = setCoreDistance(d, minPts, neighbours, currentObject);
-
-			update(orderSeeds, neighbours, currentObject, undefined, next);
+				if (object.coreDistance != UNDEFINED)
+					update(orderSeeds, neighbours, currentObject, UNDEFINED, next);
+			}
 		}
-
-		return order;
 	}
 
-	private float[] setCoreDistance(float[] d, int minPts, OPTICSMoleculeList neighbours, OPTICSMolecule currentObject)
+	private void setCoreDistance(int minPts, OPTICSMoleculeList neighbours, OPTICSMolecule currentObject)
 	{
-		final int size = neighbours.size();
-		if (d.length < size)
-			d = new float[size];
-		OPTICSMolecule[] list = neighbours.list;
+		final int size = neighbours.size;
+		if (size < minPts)
+			return;
+		final OPTICSMolecule[] list = neighbours.list;
 		for (int i = size; i-- > 0;)
-			d[i] = list[i].d;
-		Arrays.sort(d, 0, size);
-		currentObject.c = d[minPts - 1];
-		return d;
+			floatArray[i] = list[i].d;
+		Arrays.sort(floatArray, 0, size);
+		currentObject.coreDistance = floatArray[minPts - 1];
 	}
 
 	/**
 	 * Find neighbours. Note that the OPTICS paper appears to include the actual point in the list of neighbours (where
 	 * the distance would be 0).
 	 *
-	 * @param grid
-	 *            the grid
-	 * @param resolution
 	 * @param object
 	 *            the object
 	 * @param e
 	 *            the generating distance
-	 * @param neighbours
-	 *            The working list of neighbours
 	 */
-	private void findNeighbours(OPTICSMolecule[][] grid, int resolution, OPTICSMolecule object, float e,
-			OPTICSMoleculeList neighbours)
+	private void findNeighbours(OPTICSMolecule object, float e)
 	{
 		final int xBin = object.xBin;
 		final int yBin = object.yBin;
 
 		neighbours.clear();
 
-		// Pre-compute x-bins
-		final int[] xBins = new int[2 * resolution + 1];
-		int nBins = 0;
-		for (int x = -resolution; x <= resolution; x++)
-		{
-			final int xBin2 = xBin + x;
-			if (xBin2 < 0)
-				continue;
-			if (xBin2 >= grid.length)
-				break;
-			xBins[nBins++] = xBin2;
-		}
+		// Pre-compute range
+		final int resolution = grid.resolution;
+		final int minx = Math.max(xBin - resolution, 0);
+		final int maxx = Math.min(xBin + resolution + 1, grid.xBins);
+		final int miny = Math.max(yBin - resolution, 0);
+		final int maxy = Math.min(yBin + resolution + 1, grid.yBins);
 
-		for (int y = -resolution; y <= resolution; y++)
+		for (int x = minx; x < maxx; x++)
 		{
-			final int yBin2 = yBin + y;
-			if (yBin2 < 0)
-				continue;
-			if (yBin2 >= grid[0].length)
-				break;
-
-			for (int bin = nBins; bin-- > 0;)
+			final OPTICSMolecule[][] column = grid.grid[x];
+			for (int y = miny; y < maxy; y++)
 			{
-				for (Molecule other = grid[xBins[bin]][yBin2]; other != null; other = other.next)
+				final OPTICSMolecule[] list = column[y];
+				if (list != null)
 				{
-					final float d = object.distance2(other);
-					if (d <= e)
+					for (int i = list.length; i-- > 0;)
 					{
-						// Build a list of all the neighbours and their working distance
-						OPTICSMolecule otherObject = (OPTICSMolecule) other;
-						otherObject.d = d;
-						neighbours.add(otherObject);
+						final float d = object.distance2(list[i]);
+						if (d <= e)
+						{
+							// Build a list of all the neighbours and their working distance
+							final OPTICSMolecule otherObject = list[i];
+							otherObject.d = d;
+							neighbours.add(otherObject);
+						}
 					}
 				}
 			}
@@ -1586,28 +1740,28 @@ public class DensityManager
 	 *            the neighbours
 	 * @param centreObject
 	 *            the object
-	 * @param undefined
+	 * @param UNDEFINED
 	 * @param next
 	 */
 	private void update(OPTICSMoleculeList orderSeeds, OPTICSMoleculeList neighbours, OPTICSMolecule centreObject,
-			float undefined, int next)
+			float UNDEFINED, int next)
 	{
-		final float c_dist = centreObject.c;
-		for (int i = neighbours.size(); i-- > 0;)
+		final float c_dist = centreObject.coreDistance;
+		for (int i = neighbours.size; i-- > 0;)
 		{
 			final OPTICSMolecule object = neighbours.get(i);
-			if (object.processed == 0)
+			if (!object.processed)
 			{
 				final float new_r_dist = Math.max(c_dist, object.d);
-				if (object.r == undefined)
+				if (object.reachabilityDistance == UNDEFINED)
 				{
-					object.r = new_r_dist;
+					object.reachabilityDistance = new_r_dist;
 					orderSeeds.add(object);
 				}
 				else // This is already in the list
 				{
-					if (new_r_dist < object.r)
-						object.r = new_r_dist;
+					if (new_r_dist < object.reachabilityDistance)
+						object.reachabilityDistance = new_r_dist;
 				}
 			}
 			//			// Q. What if it has been processed but the reachability distance is lower?
