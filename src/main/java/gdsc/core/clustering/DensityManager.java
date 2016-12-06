@@ -14,6 +14,7 @@ package gdsc.core.clustering;
  *---------------------------------------------------------------------------*/
 
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -39,7 +40,7 @@ public class DensityManager
 	private static final int NOISE = 0;
 
 	/**
-	 * Contains the result of the OPTICS algorithm
+	 * Contains the ordered result of the OPTICS algorithm
 	 */
 	public class OPTICSResult
 	{
@@ -80,6 +81,55 @@ public class DensityManager
 			this.clusterId = clusterId;
 			this.coreDistance = coreDistance;
 			this.reachabilityDistance = reachabilityDistance;
+		}
+	}
+
+	/**
+	 * Contains the result of the OPTICS algorithm
+	 */
+	public class Optics
+	{
+		public final int minPts;
+		public final float generatingDistance;
+		private final OPTICSResult[] opticsResults;
+
+		/**
+		 * Instantiates a new optics.
+		 *
+		 * @param minPts
+		 *            the min points
+		 * @param generatingDistance
+		 *            the generating distance
+		 * @param opticsResults
+		 *            the optics results
+		 */
+		private Optics(int minPts, float generatingDistance, OPTICSResult[] opticsResults)
+		{
+			this.minPts = minPts;
+			this.generatingDistance = generatingDistance;
+			this.opticsResults = opticsResults;
+		}
+
+		/**
+		 * Get the number of results
+		 *
+		 * @return the number of results
+		 */
+		public int size()
+		{
+			return opticsResults.length;
+		}
+
+		/**
+		 * Get the result.
+		 *
+		 * @param index
+		 *            the index
+		 * @return the OPTICS result
+		 */
+		public OPTICSResult get(int index)
+		{
+			return opticsResults[index];
 		}
 	}
 
@@ -1508,8 +1558,7 @@ public class DensityManager
 	 * <p>
 	 * The returned results are the output of {@link #extractDBSCANClustering(OPTICSResult[], float)} with the
 	 * configured generating distance. Note that the generating distance is set using
-	 * {@link #computeGeneratingDistance(int)}. The distance used can be obtained using
-	 * {@link #getGeneratingDistance()}.
+	 * {@link #computeGeneratingDistance(int)}. The distance is stored in the results.
 	 * <p>
 	 * The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
 	 *
@@ -1517,7 +1566,7 @@ public class DensityManager
 	 *            the min points for a core object (recommended range 10-20)
 	 * @return the results
 	 */
-	public OPTICSResult[] optics(int minPts)
+	public Optics optics(int minPts)
 	{
 		return optics(0, minPts, true);
 	}
@@ -1534,7 +1583,7 @@ public class DensityManager
 	 * configured generating distance. Note that the generating distance may have been modified if invalid. If it is
 	 * not strictly positive or not finite then it is set using {@link #computeGeneratingDistance(int)}. If it is larger
 	 * than the data range allows it is set to the maximum distance that can be computed for the data range. If the data
-	 * are colocated the distance is set to 1. The distance used can be obtained using {@link #getGeneratingDistance()}.
+	 * are colocated the distance is set to 1. The distance is stored in the results.
 	 * <p>
 	 * The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
 	 *
@@ -1544,7 +1593,7 @@ public class DensityManager
 	 *            the min points for a core object (recommended range 10-20)
 	 * @return the results
 	 */
-	public OPTICSResult[] optics(float generatingDistanceE, int minPts)
+	public Optics optics(float generatingDistanceE, int minPts)
 	{
 		return optics(generatingDistanceE, minPts, true);
 	}
@@ -1561,7 +1610,7 @@ public class DensityManager
 	 * configured generating distance. Note that the generating distance may have been modified if invalid. If it is
 	 * not strictly positive or not finite then it is set using {@link #computeGeneratingDistance(int)}. If it is larger
 	 * than the data range allows it is set to the maximum distance that can be computed for the data range. If the data
-	 * are colocated the distance is set to 1. The distance used can be obtained using {@link #getGeneratingDistance()}.
+	 * are colocated the distance is set to 1. The distance is stored in the results.
 	 * <p>
 	 * This creates a large memory structure. It can be held in memory for re-use when using a different number of min
 	 * points. The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
@@ -1574,7 +1623,7 @@ public class DensityManager
 	 *            Set to true to clear the memory structure
 	 * @return the results (or null if the algorithm was stopped using the tracker)
 	 */
-	public OPTICSResult[] optics(float generatingDistanceE, int minPts, boolean clearMemory)
+	public Optics optics(float generatingDistanceE, int minPts, boolean clearMemory)
 	{
 		if (minPts < 1)
 			minPts = 1;
@@ -1582,7 +1631,7 @@ public class DensityManager
 		initialiseOPTICS(generatingDistanceE, minPts);
 
 		// The distance may be updated
-		generatingDistanceE = getGeneratingDistance();
+		generatingDistanceE = grid.generatingDistanceE;
 
 		if (tracker != null)
 		{
@@ -1620,9 +1669,11 @@ public class DensityManager
 				tracker.log("Aborted OPTICS");
 		}
 
+		Optics optics = null;
 		if (!stopped)
 		{
-			final int nClusters = extractDBSCANClustering(results.list, generatingDistanceE);
+			optics = new Optics(minPts, generatingDistanceE, results.list);
+			final int nClusters = extractDBSCANClustering(optics, generatingDistanceE);
 			if (tracker != null)
 			{
 				tracker.log("Finished OPTICS: " + Utils.pleural(nClusters, "Cluster"));
@@ -1630,26 +1681,15 @@ public class DensityManager
 		}
 
 		if (clearMemory)
-			clearOptics();
+			clearOpticsMemory();
 
-		return (stopped) ? null : results.list;
+		return optics;
 	}
 
-	private float lastGeneratingDistance;
 	private OPTICSMoleculeGrid grid;
 	private OPTICSMoleculeList orderSeeds;
 	private OPTICSMoleculeList neighbours;
 	private float[] floatArray;
-
-	/**
-	 * Gets the generating distance last used by the OPTICS algorithm.
-	 *
-	 * @return the generating distance
-	 */
-	public float getGeneratingDistance()
-	{
-		return lastGeneratingDistance;
-	}
 
 	/**
 	 * Initialise the memory structure for the OPTICS algorithm. This can be cached if the generatingDistanceE does not
@@ -1672,7 +1712,6 @@ public class DensityManager
 				tracker.log("Initialising OPTICS ...");
 
 			grid = new OPTICSMoleculeGrid(generatingDistanceE);
-			lastGeneratingDistance = grid.generatingDistanceE;
 
 			final int size = xcoord.length;
 			orderSeeds = new OPTICSMoleculeList(size);
@@ -1720,11 +1759,11 @@ public class DensityManager
 	}
 
 	/**
-	 * Checks for optics results.
+	 * Checks for optics memory structures stored in memory.
 	 *
 	 * @return true, if successful
 	 */
-	public boolean hasOpticsResults()
+	public boolean hasOpticsMemory()
 	{
 		return grid != null;
 	}
@@ -1732,7 +1771,7 @@ public class DensityManager
 	/**
 	 * Clear memory used by the OPTICS algorithm
 	 */
-	public void clearOptics()
+	public void clearOpticsMemory()
 	{
 		grid = null;
 		orderSeeds = null;
@@ -1929,8 +1968,7 @@ public class DensityManager
 	/**
 	 * Extract DBSCAN clustering from the cluster ordered objects returned from {@link #optics(float, int, boolean)}.
 	 * <p>
-	 * The generating distance E must be less than or equal to the generating distance used during OPTICS, see
-	 * {@link #getGeneratingDistance()}.
+	 * The generating distance E must be less than or equal to the generating distance used during OPTICS.
 	 *
 	 * @param clusterOrderedObjects
 	 *            the cluster ordered objects
@@ -1938,10 +1976,15 @@ public class DensityManager
 	 *            the generating distance E
 	 * @return the number of clusters
 	 */
-	public int extractDBSCANClustering(OPTICSResult[] clusterOrderedObjects, float generatingDistanceE)
+	public int extractDBSCANClustering(Optics optics, float generatingDistanceE)
 	{
+		if (generatingDistanceE > optics.generatingDistance)
+			throw new IllegalArgumentException(
+					"The generating distance must not be above the distance used during OPTICS");
+
 		// Reset cluster Id
 		int clusterId = NOISE;
+		final OPTICSResult[] clusterOrderedObjects = optics.opticsResults;
 		for (int i = 0; i < clusterOrderedObjects.length; i++)
 		{
 			final OPTICSResult object = clusterOrderedObjects[i];
@@ -2011,27 +2054,53 @@ public class DensityManager
 	}
 
 	/**
+	 * Represent a Steep Down Area (SDA). This is used in the OPTICS algorithm to extract clusters.
+	 */
+	private class SDA
+	{
+		int s, e;
+		float maximum, mib;
+
+		SDA(int s, int e, float maximum)
+		{
+			this.s = s;
+			this.e = e;
+			this.maximum = maximum;
+			mib = 0;
+		}
+	}
+
+	/**
+	 * Represents a cluster from the OPTICS algorithm
+	 */
+	private class Cluster
+	{
+
+	}
+
+	/**
 	 * Extract clusters from the reachability distance profile.
 	 * <p>
-	 * The min points should be equal to the min points used during OPTICS. The epsilon parameter can be used to control
+	 * The min points should be equal to the min points used during OPTICS. The xi parameter can be used to control
 	 * the steepness of the points a cluster starts with and ends with. Higher ξ-values can be used to
 	 * find only the most significant clusters, lower ξ-values to find less significant clusters.
 	 *
-	 * @param clusterOrderedObjects
-	 *            the cluster ordered objects
-	 * @param minPts
-	 *            the min pts
-	 * @param epsilon
-	 *            the clustering parameter (epsilon).
+	 * @param optics
+	 *            the optics result
+	 * @param xi
+	 *            the clustering parameter (xi).
 	 */
-	public void extractClusters(OPTICSResult[] clusterOrderedObjects, int minPts, double epsilon)
+	public void extractClusters(Optics optics, double xi)
 	{
-		// This code is based on the original paper and an R-implementation available here:
+		// This code is based on the original OPTICS paper and an R-implementation available here:
 		// https://cran.r-project.org/web/packages/dbscan/ 
 
+		ArrayList<SDA> setOfSteepDownAreas = new ArrayList<SDA>();
+		ArrayList<Cluster> setOfClusters = new ArrayList<Cluster>();
 		int index = 0;
 		double mib = 0;
-		final int n = clusterOrderedObjects.length;
+		final int n = optics.size();
+		final double ixi = 1 - xi;
 		while (index < n)
 		{
 			// TODO - implement this ...
@@ -2041,7 +2110,7 @@ public class DensityManager
 	// TODO - Provide method to compute the hull of a set of clusters
 	public void hull()
 	{
-		
+
 	}
 
 	/**

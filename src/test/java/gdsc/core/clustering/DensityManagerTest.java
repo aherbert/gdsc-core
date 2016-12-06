@@ -5,7 +5,7 @@ import java.awt.Rectangle;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.clustering.DensityManager.OPTICSResult;
+import gdsc.core.clustering.DensityManager.Optics;
 import gdsc.core.logging.ConsoleLogger;
 import gdsc.core.logging.NullTrackProgress;
 import gdsc.core.logging.TrackProgress;
@@ -264,20 +264,20 @@ public class DensityManagerTest
 			DensityManager dm = createDensityManager(size, n);
 			dm.setTracker(tracker);
 
-			for (int minPts : new int[]{10,20})
+			for (int minPts : new int[] { 10, 20 })
 			{
-				//OPTICSResult[] r1 = 
+				//Optics r1 = 
 				dm.optics(0, minPts);
 				//// Histogram the results
-				//double[] x = new double[r1.length];
-				//double[] y = new double[r1.length];
-				//for (int i = 0; i < r1.length; i++)
+				//double[] x = new double[r1.size()];
+				//double[] y = new double[r1.size()];
+				//for (int i = 0; i < r1.size(); i++)
 				//{
 				//	x[i] = i + 1;
-				//	y[i] = r1[i].reachabilityDistance;
+				//	y[i] = r1.get(i).reachabilityDistance;
 				//}
 				//Plot plot = new Plot("OPTICS", "Order", "R_dist");
-				//plot.setLimits(1, r1.length + 1, 0, radius);
+				//plot.setLimits(1, r1.size() + 1, 0, radius);
 				//plot.addPoints(x, y, Plot.LINE);
 				//Utils.display("OPTICS", plot);
 			}
@@ -309,18 +309,18 @@ public class DensityManagerTest
 		float radius = 0;
 
 		int minPts = 10;
-		Assert.assertFalse(dm.hasOpticsResults());
-		OPTICSResult[] r1 = dm.optics(radius, minPts, false);
-		Assert.assertTrue(dm.hasOpticsResults());
-		OPTICSResult[] r2 = dm.optics(radius, minPts, true);
-		Assert.assertFalse(dm.hasOpticsResults());
-		Assert.assertEquals(r1.length, r2.length);
-		for (int i = r1.length; i-- > 0;)
+		Assert.assertFalse(dm.hasOpticsMemory());
+		Optics r1 = dm.optics(radius, minPts, false);
+		Assert.assertTrue(dm.hasOpticsMemory());
+		Optics r2 = dm.optics(radius, minPts, true);
+		Assert.assertFalse(dm.hasOpticsMemory());
+		Assert.assertEquals(r1.size(), r2.size());
+		for (int i = r1.size(); i-- > 0;)
 		{
-			Assert.assertEquals(r1[i].parent, r2[i].parent);
-			Assert.assertEquals(r1[i].clusterId, r2[i].clusterId);
-			Assert.assertEquals(r1[i].coreDistance, r2[i].coreDistance, 0);
-			Assert.assertEquals(r1[i].reachabilityDistance, r2[i].reachabilityDistance, 0);
+			Assert.assertEquals(r1.get(i).parent, r2.get(i).parent);
+			Assert.assertEquals(r1.get(i).clusterId, r2.get(i).clusterId);
+			Assert.assertEquals(r1.get(i).coreDistance, r2.get(i).coreDistance, 0);
+			Assert.assertEquals(r1.get(i).reachabilityDistance, r2.get(i).reachabilityDistance, 0);
 		}
 	}
 
@@ -348,14 +348,14 @@ public class DensityManagerTest
 		for (float radius : new float[] { -1, 0, 0.01f, 1f })
 			for (int minPts : new int[] { -1, 0, 1 })
 			{
-				OPTICSResult[] r1 = dm.optics(radius, minPts, false);
+				Optics r1 = dm.optics(radius, minPts, false);
 				// Should be 1 cluster
-				Assert.assertEquals(1, r1[0].clusterId);
+				Assert.assertEquals(1, r1.get(0).clusterId);
 			}
 
-		OPTICSResult[] r1 = dm.optics(1, 2, false);
+		Optics r1 = dm.optics(1, 2, false);
 		// Should be 0 clusters as the min size is too high
-		Assert.assertEquals(0, r1[0].clusterId);
+		Assert.assertEquals(0, r1.get(0).clusterId);
 	}
 
 	@Test
@@ -366,9 +366,9 @@ public class DensityManagerTest
 		for (float radius : new float[] { -1, 0, 0.01f, 1f })
 			for (int minPts : new int[] { -1, 0, 1, 10 })
 			{
-				OPTICSResult[] r1 = dm.optics(radius, minPts, false);
+				Optics r1 = dm.optics(radius, minPts, false);
 				// All should be in the same cluster
-				Assert.assertEquals(1, r1[0].clusterId);
+				Assert.assertEquals(1, r1.get(0).clusterId);
 			}
 	}
 
@@ -381,29 +381,29 @@ public class DensityManagerTest
 		float radius = radii[radii.length - 1];
 
 		int minPts = 10;
-		OPTICSResult[] r1 = dm.optics(radius, minPts, false);
+		Optics r1 = dm.optics(radius, minPts, false);
 		// Store for later and reset
-		int[] clusterId = new int[r1.length];
-		for (int i = r1.length; i-- > 0;)
+		int[] clusterId = new int[r1.size()];
+		for (int i = r1.size(); i-- > 0;)
 		{
-			clusterId[i] = r1[i].clusterId;
-			r1[i].clusterId = -1;
+			clusterId[i] = r1.get(i).clusterId;
+			r1.get(i).clusterId = -1;
 		}
 		// Smaller distance
 		int nClusters = dm.extractDBSCANClustering(r1, radius * 0.8f);
 		int max = 0;
-		for (int i = r1.length; i-- > 0;)
+		for (int i = r1.size(); i-- > 0;)
 		{
-			if (max < r1[i].clusterId)
-				max = r1[i].clusterId;
-			Assert.assertNotEquals(r1[i].clusterId, -1);
+			if (max < r1.get(i).clusterId)
+				max = r1.get(i).clusterId;
+			Assert.assertNotEquals(r1.get(i).clusterId, -1);
 		}
 		Assert.assertEquals(nClusters, max);
 		// Same distance
 		nClusters = dm.extractDBSCANClustering(r1, radius);
-		for (int i = r1.length; i-- > 0;)
+		for (int i = r1.size(); i-- > 0;)
 		{
-			Assert.assertEquals(r1[i].clusterId, clusterId[i]);
+			Assert.assertEquals(r1.get(i).clusterId, clusterId[i]);
 		}
 	}
 
