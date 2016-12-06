@@ -1507,17 +1507,41 @@ public class DensityManager
 	 * 49–60. ACM, 1999.
 	 * <p>
 	 * The returned results are the output of {@link #extractDBSCANClustering(OPTICSResult[], float)} with the
-	 * configured generating distance. Note that the generating distance may have been modified if invalid (e.g. it is
-	 * not strictly positive or it is larger than the data range allows). In this case it is set to the maximum distance
-	 * that can be computed for the data range. If the data are colocated the distance is set to 1. The distance used
-	 * can be obtained using {@link #getGeneratingDistance()}.
+	 * configured generating distance. Note that the generating distance is set using
+	 * {@link #computeGeneratingDistance(int)}. The distance used can be obtained using
+	 * {@link #getGeneratingDistance()}.
+	 * <p>
+	 * The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
+	 *
+	 * @param minPts
+	 *            the min points for a core object (recommended range 10-20)
+	 * @return the results
+	 */
+	public OPTICSResult[] optics(int minPts)
+	{
+		return optics(0, minPts, true);
+	}
+
+	/**
+	 * Compute the core radius for each point to have n closest neighbours and the minimum reachability distance of a
+	 * point from another core point.
+	 * <p>
+	 * This is an implementation of the OPTICS method. Mihael Ankerst, Markus M Breunig, Hans-Peter Kriegel, and Jorg
+	 * Sander. Optics: ordering points to identify the clustering structure. In ACM Sigmod Record, volume 28, pages
+	 * 49–60. ACM, 1999.
+	 * <p>
+	 * The returned results are the output of {@link #extractDBSCANClustering(OPTICSResult[], float)} with the
+	 * configured generating distance. Note that the generating distance may have been modified if invalid. If it is
+	 * not strictly positive or not finite then it is set using {@link #computeGeneratingDistance(int)}. If it is larger
+	 * than the data range allows it is set to the maximum distance that can be computed for the data range. If the data
+	 * are colocated the distance is set to 1. The distance used can be obtained using {@link #getGeneratingDistance()}.
 	 * <p>
 	 * The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
 	 *
 	 * @param generatingDistanceE
-	 *            the generating distance E
+	 *            the generating distance E (set to zero to auto calibrate)
 	 * @param minPts
-	 *            the min points for a core object
+	 *            the min points for a core object (recommended range 10-20)
 	 * @return the results
 	 */
 	public OPTICSResult[] optics(float generatingDistanceE, int minPts)
@@ -1534,18 +1558,18 @@ public class DensityManager
 	 * 49–60. ACM, 1999.
 	 * <p>
 	 * The returned results are the output of {@link #extractDBSCANClustering(OPTICSResult[], float)} with the
-	 * configured generating distance. Note that the generating distance may have been modified if invalid (e.g. it is
-	 * not strictly positive or it is larger than the data range allows). In this case it is set to the maximum distance
-	 * that can be computed for the data range. If the data are colocated the distance is set to 1. The distance used
-	 * can be obtained using {@link #getGeneratingDistance()}.
+	 * configured generating distance. Note that the generating distance may have been modified if invalid. If it is
+	 * not strictly positive or not finite then it is set using {@link #computeGeneratingDistance(int)}. If it is larger
+	 * than the data range allows it is set to the maximum distance that can be computed for the data range. If the data
+	 * are colocated the distance is set to 1. The distance used can be obtained using {@link #getGeneratingDistance()}.
 	 * <p>
 	 * This creates a large memory structure. It can be held in memory for re-use when using a different number of min
 	 * points. The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
 	 *
 	 * @param generatingDistanceE
-	 *            the generating distance E
+	 *            the generating distance E (set to zero to auto calibrate)
 	 * @param minPts
-	 *            the min points for a core object
+	 *            the min points for a core object (recommended range 10-20)
 	 * @param clearMemory
 	 *            Set to true to clear the memory structure
 	 * @return the results (or null if the algorithm was stopped using the tracker)
@@ -1555,7 +1579,7 @@ public class DensityManager
 		if (minPts < 1)
 			minPts = 1;
 
-		initialiseOPTICS(generatingDistanceE);
+		initialiseOPTICS(generatingDistanceE, minPts);
 
 		// The distance may be updated
 		generatingDistanceE = getGeneratingDistance();
@@ -1611,6 +1635,12 @@ public class DensityManager
 		return (stopped) ? null : results.list;
 	}
 
+	private float lastGeneratingDistance;
+	private OPTICSMoleculeGrid grid;
+	private OPTICSMoleculeList orderSeeds;
+	private OPTICSMoleculeList neighbours;
+	private float[] floatArray;
+
 	/**
 	 * Gets the generating distance last used by the OPTICS algorithm.
 	 *
@@ -1621,23 +1651,19 @@ public class DensityManager
 		return lastGeneratingDistance;
 	}
 
-	private float lastGeneratingDistance;
-	private OPTICSMoleculeGrid grid;
-	private OPTICSMoleculeList orderSeeds;
-	private OPTICSMoleculeList neighbours;
-	private float[] floatArray;
-
 	/**
 	 * Initialise the memory structure for the OPTICS algorithm. This can be cached if the generatingDistanceE does not
 	 * change.
 	 *
 	 * @param generatingDistanceE
 	 *            the generating distance E
+	 * @param minPts
+	 *            the min points for a core object
 	 */
-	private void initialiseOPTICS(float generatingDistanceE)
+	private void initialiseOPTICS(float generatingDistanceE, int minPts)
 	{
 		// Ensure the distance is valid
-		generatingDistanceE = getWorkingGeneratingDistance(generatingDistanceE);
+		generatingDistanceE = getWorkingGeneratingDistance(generatingDistanceE, minPts);
 
 		// Compare to the existing grid
 		if (grid == null || grid.generatingDistanceE != generatingDistanceE)
@@ -1664,25 +1690,32 @@ public class DensityManager
 
 	/**
 	 * Gets the working generating distance. Ensure the generating distance is not too high for the data range. Also set
-	 * it the max value if the generating distance is not valid.
+	 * it to the max value if the generating distance is not valid.
 	 *
 	 * @param generatingDistanceE
 	 *            the generating distance E
+	 * @param minPts
+	 *            the min points for a core object
 	 * @return the working generating distance
 	 */
-	private float getWorkingGeneratingDistance(float generatingDistanceE)
+	private float getWorkingGeneratingDistance(float generatingDistanceE, int minPts)
 	{
 		final float xrange = maxXCoord - minXCoord;
 		final float yrange = maxYCoord - minYCoord;
-
 		if (xrange == 0 && yrange == 0)
 			// Occurs when only 1 point or colocated data. A distance of zero is invalid so set to 1.
 			return 1;
 
+		// If not set then compute the generating distance
+		if (!Maths.isFinite(generatingDistanceE) || generatingDistanceE <= 0)
+			return computeGeneratingDistance(minPts);
+
+		// Compute the upper distance we can expect
 		double maxDistance = Math.sqrt(xrange * xrange + yrange * yrange);
-		if (!Maths.isFinite(generatingDistanceE) || generatingDistanceE <= 0 || generatingDistanceE > maxDistance)
+		if (generatingDistanceE > maxDistance)
 			return (float) maxDistance;
 
+		// Stick to the user input
 		return generatingDistanceE;
 	}
 
@@ -1896,7 +1929,8 @@ public class DensityManager
 	/**
 	 * Extract DBSCAN clustering from the cluster ordered objects returned from {@link #optics(float, int, boolean)}.
 	 * <p>
-	 * The generating distance E must be less than or equal to the generating distance used during OPTICS.
+	 * The generating distance E must be less than or equal to the generating distance used during OPTICS, see
+	 * {@link #getGeneratingDistance()}.
 	 *
 	 * @param clusterOrderedObjects
 	 *            the cluster ordered objects
@@ -1931,4 +1965,182 @@ public class DensityManager
 		}
 		return clusterId;
 	}
+
+	/**
+	 * Compute the OPTICS generating distance assuming a uniform distribution in the data space.
+	 *
+	 * @param minPts
+	 *            the min points for a core object
+	 * @return the generating distance
+	 */
+	public float computeGeneratingDistance(int minPts)
+	{
+		return computeGeneratingDistance(minPts, area, xcoord.length);
+	}
+
+	/**
+	 * Compute the OPTICS generating distance assuming a uniform distribution in the data space.
+	 *
+	 * @param minPts
+	 *            the min points for a core object
+	 * @param area
+	 *            the area of the data space
+	 * @param N
+	 *            the number of points in the data space
+	 * @return the generating distance
+	 */
+	public static float computeGeneratingDistance(int minPts, double area, int N)
+	{
+		// Taken from section 4.1 of the OPTICS paper.
+
+		// Number of dimensions
+		// d = 2;
+		// Volume of the data space (DS)
+		double volumeDS = area;
+		// Expected k-nearest-neighbours
+		int k = minPts;
+
+		// Compute the volume of the hypersphere required to contain k neighbours,
+		// assuming a uniform spread.
+		// VolumeS = (VolumeDS/N) x k
+
+		double volumeS = (volumeDS / N) * k;
+
+		// Note Volume S(r) for a 2D hypersphere = pi * r^2
+		return (float) Math.sqrt(volumeS / Math.PI);
+	}
+
+	/**
+	 * Extract clusters from the reachability distance profile.
+	 * <p>
+	 * The min points should be equal to the min points used during OPTICS. The epsilon parameter can be used to control
+	 * the steepness of the points a cluster starts with and ends with. Higher ξ-values can be used to
+	 * find only the most significant clusters, lower ξ-values to find less significant clusters.
+	 *
+	 * @param clusterOrderedObjects
+	 *            the cluster ordered objects
+	 * @param minPts
+	 *            the min pts
+	 * @param epsilon
+	 *            the clustering parameter (epsilon).
+	 */
+	public void extractClusters(OPTICSResult[] clusterOrderedObjects, int minPts, double epsilon)
+	{
+		// This code is based on the original paper and an R-implementation available here:
+		// https://cran.r-project.org/web/packages/dbscan/ 
+
+		int index = 0;
+		double mib = 0;
+		final int n = clusterOrderedObjects.length;
+		while (index < n)
+		{
+			// TODO - implement this ...
+		}
+	}
+
+	// TODO - Provide method to compute the hull of a set of clusters
+	public void hull()
+	{
+		
+	}
+
+	/**
+	 * Contains a set of paired coordinates representing the convex hull of a set of points.
+	 */
+	public class Hull
+	{
+		final float[] x, y;
+
+		public Hull(float[] x, float[] y)
+		{
+			this.x = x;
+			this.y = y;
+		}
+	}
+
+	/**
+	 * Uses the gift wrap algorithm to find the convex hull and returns it as a Polygon.
+	 * <p>
+	 * Taken from ij.gui.PolygonRoi and adapted for float coordinates.
+	 */
+	public Hull getConvexHull(float[] xCoordinates, float[] yCoordinates)
+	{
+		int n = xCoordinates.length;
+		float xbase = xCoordinates[0];
+		float ybase = yCoordinates[0];
+		for (int i = 1; i < n; i++)
+		{
+			if (xbase > xCoordinates[i])
+				xbase = xCoordinates[i];
+			if (ybase > yCoordinates[i])
+				ybase = yCoordinates[i];
+		}
+		float[] xx = new float[n];
+		float[] yy = new float[n];
+		int n2 = 0;
+		float smallestY = ybase;
+		float x, y;
+		float smallestX = Float.MAX_VALUE;
+		int p1 = 0;
+		for (int i = 0; i < n; i++)
+		{
+			x = xCoordinates[i];
+			y = yCoordinates[i];
+			if (y == smallestY && x < smallestX)
+			{
+				smallestX = x;
+				p1 = i;
+			}
+		}
+		int pstart = p1;
+		float x1, y1, x2, y2, x3, y3;
+		int p2, p3;
+		float determinate;
+		int count = 0;
+		do
+		{
+			x1 = xCoordinates[p1];
+			y1 = yCoordinates[p1];
+			p2 = p1 + 1;
+			if (p2 == n)
+				p2 = 0;
+			x2 = xCoordinates[p2];
+			y2 = yCoordinates[p2];
+			p3 = p2 + 1;
+			if (p3 == n)
+				p3 = 0;
+			do
+			{
+				x3 = xCoordinates[p3];
+				y3 = yCoordinates[p3];
+				determinate = x1 * (y2 - y3) - y1 * (x2 - x3) + (y3 * x2 - y2 * x3);
+				if (determinate > 0)
+				{
+					x2 = x3;
+					y2 = y3;
+					p2 = p3;
+				}
+				p3 += 1;
+				if (p3 == n)
+					p3 = 0;
+			} while (p3 != p1);
+			if (n2 < n)
+			{
+				xx[n2] = xbase + x1;
+				yy[n2] = ybase + y1;
+				n2++;
+			}
+			else
+			{
+				count++;
+				if (count > 10)
+					return null;
+			}
+			p1 = p2;
+		} while (p1 != pstart);
+		xx = Arrays.copyOf(xx, n2);
+		yy = Arrays.copyOf(yy, n2);
+		return new Hull(xx, yy);
+	}
+
 }
