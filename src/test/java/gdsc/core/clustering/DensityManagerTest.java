@@ -6,6 +6,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.core.clustering.DensityManager.OPTICSResult;
+import gdsc.core.logging.ConsoleLogger;
+import gdsc.core.logging.NullTrackProgress;
+import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.Random;
 
 public class DensityManagerTest
@@ -241,19 +244,43 @@ public class DensityManagerTest
 		}
 	}
 
+	private class SimpleTrackProgress extends NullTrackProgress
+	{
+		ConsoleLogger l = new ConsoleLogger();
+
+		@Override
+		public void log(String format, Object... args)
+		{
+			l.info(format, args);
+		}
+	}
+
 	@Test
 	public void canPerformOPTICS()
 	{
+		TrackProgress tracker = new SimpleTrackProgress();
 		for (int n : N)
 		{
 			DensityManager dm = createDensityManager(size, n);
+			dm.setTracker(tracker);
 
 			for (float radius : radii)
 			{
 				int minPts = n / 200;
+				//OPTICSResult[] r1 = 
 				dm.optics(radius, minPts);
-				// Histogram the results
-				System.out.printf("OPTICS %d @ %.1f,%d\n", n, radius, minPts);
+				//// Histogram the results
+				//double[] x = new double[r1.length];
+				//double[] y = new double[r1.length];
+				//for (int i = 0; i < r1.length; i++)
+				//{
+				//	x[i] = i + 1;
+				//	y[i] = r1[i].reachabilityDistance;
+				//}
+				//Plot plot = new Plot("OPTICS", "Order", "R_dist");
+				//plot.setLimits(1, r1.length + 1, 0, radius);
+				//plot.addPoints(x, y, Plot.LINE);
+				//Utils.display("OPTICS", plot);
 			}
 		}
 	}
@@ -275,6 +302,8 @@ public class DensityManagerTest
 		Assert.assertEquals(r1.length, r2.length);
 		for (int i = r1.length; i-- > 0;)
 		{
+			Assert.assertEquals(r1[i].parent, r2[i].parent);
+			Assert.assertEquals(r1[i].clusterId, r2[i].clusterId);
 			Assert.assertEquals(r1[i].coreDistance, r2[i].coreDistance, 0);
 			Assert.assertEquals(r1[i].reachabilityDistance, r2[i].reachabilityDistance, 0);
 		}
