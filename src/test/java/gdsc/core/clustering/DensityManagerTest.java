@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.core.clustering.DensityManager.OPTICSResult;
 import gdsc.core.utils.Random;
 
 public class DensityManagerTest
@@ -254,6 +255,28 @@ public class DensityManagerTest
 				// Histogram the results
 				System.out.printf("OPTICS %d @ %.1f,%d\n", n, radius, minPts);
 			}
+		}
+	}
+
+	@Test
+	public void canRepeatOPTICS()
+	{
+		int n = N[0];
+		DensityManager dm = createDensityManager(size, n);
+
+		float radius = radii[radii.length - 1];
+
+		int minPts = n / 200;
+		Assert.assertFalse(dm.hasOpticsResults());
+		OPTICSResult[] r1 = dm.optics(radius, minPts, false);
+		Assert.assertTrue(dm.hasOpticsResults());
+		OPTICSResult[] r2 = dm.optics(radius, minPts, true);
+		Assert.assertFalse(dm.hasOpticsResults());
+		Assert.assertEquals(r1.length, r2.length);
+		for (int i = r1.length; i-- > 0;)
+		{
+			Assert.assertEquals(r1[i].coreDistance, r2[i].coreDistance, 0);
+			Assert.assertEquals(r1[i].reachabilityDistance, r2[i].reachabilityDistance, 0);
 		}
 	}
 
