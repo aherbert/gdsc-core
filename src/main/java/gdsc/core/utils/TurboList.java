@@ -1,4 +1,17 @@
-package java.util;
+package gdsc.core.utils;
+
+import java.util.AbstractList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.RandomAccess;
 
 /*----------------------------------------------------------------------------- 
  * GDSC Plugins for ImageJ
@@ -878,9 +891,26 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
             return result;
         }
 
-        protected void removeRange(int fromIndex, int toIndex) {
-            parent.removeRange(parentOffset + fromIndex,
+        @SuppressWarnings("rawtypes")
+		protected void removeRange(int fromIndex, int toIndex) {
+        	if (parent instanceof TurboList)
+        	{
+        		((TurboList)parent)
+        		  .removeRange(parentOffset + fromIndex,
                                parentOffset + toIndex);
+        	}
+        	else if (parent instanceof TurboList.SubList)
+        	{
+        		((TurboList.SubList)parent)
+        		  .removeRange(parentOffset + fromIndex,
+                               parentOffset + toIndex);
+        	}
+        	else
+        	{
+        		// This should not happen since this is a private class
+      		  	super.removeRange(parentOffset + fromIndex,
+      		  				      parentOffset + toIndex);
+        	}
             this.size -= toIndex - fromIndex;
         }
 
