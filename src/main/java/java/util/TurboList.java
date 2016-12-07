@@ -215,13 +215,12 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      */
     public Object clone() {
         try {
-            @SuppressWarnings("unchecked")
-                TurboList<E> v = (TurboList<E>) super.clone();
+            TurboList<?> v = (TurboList<?>) super.clone();
             v.elementData = Arrays.copyOf(elementData, size);
             return v;
         } catch (CloneNotSupportedException e) {
             // this shouldn't happen, since we are Cloneable
-            throw new InternalError();
+            throw new InternalError(e);
         }
     }
 
@@ -297,6 +296,17 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
 
         return elementData(index);
     }
+    
+    /**
+     * Fast returns the element at the specified position in this list.
+     *
+     * @param  index index of the element to return
+     * @return the element at the specified position in this list
+     * @throws IndexOutOfBoundsException {@inheritDoc}
+     */
+    public E getf(int index) {
+        return elementData(index);
+    }
 
     /**
      * Replaces the element at the specified position in this list with
@@ -315,6 +325,18 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         return oldValue;
     }
 
+    /**
+     * Fast replaces the element at the specified position in this list with
+     * the specified element.
+     *
+     * @param index index of the element to replace
+     * @param element element to be stored at the specified position
+     * @throws IndexOutOfBoundsException {@inheritDoc}
+     */
+    public void setf(int index, E element) {
+        elementData[index] = element;
+    }
+    
     /**
      * Appends the specified element to the end of this list.
      *
@@ -497,10 +519,12 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         System.arraycopy(elementData, toIndex, elementData, fromIndex,
                          numMoved);
 
-        // Let gc do its work
+        // clear to let GC do its work
         int newSize = size - (toIndex-fromIndex);
-        while (size != newSize)
-            elementData[--size] = null;
+        for (int i = newSize; i < size; i++) {
+            elementData[i] = null;
+        }
+        size = newSize;
     }
 
     /**
@@ -547,6 +571,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @see Collection#contains(Object)
      */
     public boolean removeAll(Collection<?> c) {
+        Objects.requireNonNull(c);
         return batchRemove(c, false);
     }
 
@@ -567,6 +592,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @see Collection#contains(Object)
      */
     public boolean retainAll(Collection<?> c) {
+        Objects.requireNonNull(c);
         return batchRemove(c, true);
     }
 
@@ -588,8 +614,10 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
                 w += size - r;
             }
             if (w != size) {
+            	// clear to let GC do its work
                 for (int i = w; i < size; i++)
                     elementData[i] = null;
+                modCount += size - w;
                 size = w;
                 modified = true;
             }
@@ -644,8 +672,6 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * An initial call to {@link ListIterator#previous previous} would
      * return the element with the specified index minus one.
      *
-     * <p>The returned list iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
-     *
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public ListIterator<E> listIterator(int index) {
@@ -658,8 +684,6 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * Returns a list iterator over the elements in this list (in proper
      * sequence).
      *
-     * <p>The returned list iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
-     *
      * @see #listIterator(int)
      */
     public ListIterator<E> listIterator() {
@@ -668,8 +692,6 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
 
     /**
      * Returns an iterator over the elements in this list in proper sequence.
-     *
-     * <p>The returned iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
      *
      * @return an iterator over the elements in this list in proper sequence
      */
@@ -982,6 +1004,61 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         private String outOfBoundsMsg(int index) {
             return "Index: "+index+", Size: "+this.size;
         }
+    }
+    
+    /**
+     * Represents a predicate (boolean-valued function) of one argument.
+     * <p>
+     * This functionality was added in Java 1.8 so for backward compatibility 
+     * to Java 1.5 the required methods from the java.util.function.Predicate 
+     * interface have been duplicated here. 
+     * 
+     *  param <T> the type of the input to the predicate
+     */
+    public interface SimplePredicate<T> {
+
+        /**
+         * Evaluates this predicate on the given argument.
+         *
+         * @param t the input argument
+         * @return {@code true} if the input argument matches the predicate,
+         * otherwise {@code false}
+         */
+        boolean test(T t);
+    }
+    
+    public boolean removeIf(SimplePredicate<? super E> filter) {
+        Objects.requireNonNull(filter);
+        // figure out which elements are to be removed
+        // any exception thrown from the filter predicate at this stage
+        // will leave the collection unmodified
+        int removeCount = 0;
+        final BitSet removeSet = new BitSet(size);
+        final int size = this.size;
+        for (int i=0; i < size; i++) {
+            @SuppressWarnings("unchecked")
+            final E element = (E) elementData[i];
+            if (filter.test(element)) {
+                removeSet.set(i);
+                removeCount++;
+            }
+        }
+
+        // shift surviving elements left over the spaces left by removed elements
+        final boolean anyToRemove = removeCount > 0;
+        if (anyToRemove) {
+            final int newSize = size - removeCount;
+            for (int i=0, j=0; (i < size) && (j < newSize); i++, j++) {
+                i = removeSet.nextClearBit(i);
+                elementData[j] = elementData[i];
+            }
+            for (int k=newSize; k < size; k++) {
+                elementData[k] = null;  // Let gc do its work
+            }
+            this.size = newSize;
+        }
+
+        return anyToRemove;
     }
 }
 //@formatter:on
