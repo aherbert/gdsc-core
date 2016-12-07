@@ -81,7 +81,7 @@
 							<manifest>
 								<addClasspath>true</addClasspath>
 								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-              					<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+								<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 							</manifest>
 						</archive>
 					</configuration>
@@ -144,6 +144,13 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
 			<version>3.4.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/de.lmu.ifi.dbs.elki/elki -->
+		<!-- Used to test the DBSCAN and OPTICS algorithms -->
+		<dependency>
+			<groupId>de.lmu.ifi.dbs.elki</groupId>
+			<artifactId>elki</artifactId>
+			<version>0.7.1</version>
 		</dependency>
 	</dependencies>
 
