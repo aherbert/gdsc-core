@@ -1,14 +1,41 @@
 package gdsc.core.clustering;
 
 import java.awt.Rectangle;
+import java.util.Arrays;
 
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.lmu.ifi.dbs.elki.algorithm.clustering.optics.ClusterOrder;
+import de.lmu.ifi.dbs.elki.algorithm.clustering.optics.FastOPTICS;
+import de.lmu.ifi.dbs.elki.data.DoubleVector;
+import de.lmu.ifi.dbs.elki.data.type.TypeUtil;
+import de.lmu.ifi.dbs.elki.database.AbstractDatabase;
+import de.lmu.ifi.dbs.elki.database.Database;
+import de.lmu.ifi.dbs.elki.database.StaticArrayDatabase;
+import de.lmu.ifi.dbs.elki.database.datastore.DataStoreFactory;
+import de.lmu.ifi.dbs.elki.database.datastore.DataStoreUtil;
+import de.lmu.ifi.dbs.elki.database.datastore.DoubleDataStore;
+import de.lmu.ifi.dbs.elki.database.datastore.WritableDoubleDataStore;
+import de.lmu.ifi.dbs.elki.database.ids.DBIDIter;
+import de.lmu.ifi.dbs.elki.database.ids.DBIDRef;
+import de.lmu.ifi.dbs.elki.database.ids.DBIDUtil;
+import de.lmu.ifi.dbs.elki.database.ids.DBIDVar;
+import de.lmu.ifi.dbs.elki.database.ids.DBIDs;
+import de.lmu.ifi.dbs.elki.database.relation.Relation;
+import de.lmu.ifi.dbs.elki.datasource.ArrayAdapterDatabaseConnection;
+import de.lmu.ifi.dbs.elki.datasource.DatabaseConnection;
+import de.lmu.ifi.dbs.elki.index.preprocessed.fastoptics.RandomProjectedNeighborsAndDensities;
+import de.lmu.ifi.dbs.elki.math.random.RandomFactory;
+import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
+import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 import gdsc.core.clustering.DensityManager.Optics;
 import gdsc.core.logging.ConsoleLogger;
 import gdsc.core.logging.NullTrackProgress;
 import gdsc.core.logging.TrackProgress;
+import gdsc.core.utils.Maths;
 import gdsc.core.utils.Random;
 
 public class DensityManagerTest
@@ -255,8 +282,139 @@ public class DensityManagerTest
 		}
 	}
 
+	/**
+	 * To overcome the 'issue' with the ELKI algorithm using fast-approximations we return the actual values required.
+	 * We can do this because the dataset is small.
+	 */
+	private class CheatingRandomProjectedNeighborsAndDensities
+			extends RandomProjectedNeighborsAndDensities<DoubleVector>
+	{
+		// All-vs-all distance matrix
+		double[][] d;
+		Relation<DoubleVector> points;
+		int minPts;
+
+		public CheatingRandomProjectedNeighborsAndDensities(double[][] d, int minPts)
+		{
+			super(RandomFactory.get(30051977l));
+			this.d = d;
+			this.minPts = minPts;
+		}
+
+		// TODO - override the methods used by optics 
+		@Override
+		public void computeSetsBounds(Relation<DoubleVector> points, int minSplitSize, DBIDs ptList)
+		{
+			// Store the points
+			this.points = points;
+
+			// What is this doing? Just call it anyway. 
+			super.computeSetsBounds(points, minSplitSize, ptList);
+		}
+
+		@Override
+		public DoubleDataStore computeAverageDistInSet()
+		{
+			// Here we do not use an approximation of the density but actually compute it.
+			WritableDoubleDataStore davg = DataStoreUtil.makeDoubleStorage(points.getDBIDs(),
+					DataStoreFactory.HINT_HOT);
+			for (DBIDIter it = points.getDBIDs().iter(); it.valid(); it.advance())
+			{
+				double[] dd = d[asInteger(it)].clone();
+				Arrays.sort(dd);
+				davg.put(it, dd[minPts - 1]);
+			}
+			return davg;
+		}
+	}
+
+	/**
+	 * Test the results of OPTICS using the ELKI framework
+	 */
 	@Test
-	public void canPerformOPTICS()
+	public void canComputeOPTICS()
+	{
+		TrackProgress tracker = null; //new SimpleTrackProgress();
+		for (int n : new int[] { 100, 500 })
+		{
+			DensityManager dm = createDensityManager(size, n);
+			dm.setTracker(tracker);
+
+			// Compute the all-vs-all distance for checking the answer
+			double[][] data = dm.getDoubleData();
+			double[][] d = new double[n][n];
+			for (int i = 0; i < n; i++)
+				for (int j = i + 1; j < n; j++)
+					d[i][j] = d[j][i] = Maths.distance(data[0][i], data[1][i], data[0][j], data[1][j]);
+
+			// Use ELKI to provide the expected results
+			RealMatrix rm = new Array2DRowRealMatrix(data).transpose();
+
+			for (int minPts : new int[] { 5, 10 })
+			{
+				// Reset starting Id to 1
+				DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(rm.getData(), null, 1);
+				ListParameterization params = new ListParameterization();
+				params.addParameter(AbstractDatabase.Parameterizer.DATABASE_CONNECTION_ID, dbc);
+				Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
+				db.initialize();
+				Relation<?> rel = db.getRelation(TypeUtil.ANY);
+				Assert.assertEquals("Database size does not match.", n, rel.size());
+
+				// Debug: Print the core distance for each point
+				//for (int i = 0; i < n; i++)
+				//{
+				//	double[] dd = d[i].clone();
+				//	Arrays.sort(dd);
+				//	System.out.printf("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
+				//}
+
+				// Use max range
+				Optics r1 = dm.optics(size, minPts);
+
+				// Test verses the ELKI frame work
+				RandomProjectedNeighborsAndDensities<DoubleVector> index = new CheatingRandomProjectedNeighborsAndDensities(
+						d, minPts);
+				FastOPTICS<DoubleVector> fo = new FastOPTICS<DoubleVector>(minPts, index);
+				ClusterOrder order = fo.run(db);
+
+				// Check 
+				int i = 0;
+				DBIDVar pre = DBIDUtil.newVar();
+				for (DBIDIter it = order.iter(); it.valid(); it.advance(), i++)
+				{
+					if (i == 0)
+						// No predecessor or reachability distance
+						continue;
+
+					int expId = asInteger(it);
+					int obsId = r1.get(i).parent;
+
+					order.getPredecessor(it, pre);
+					int expPre = asInteger(pre);
+					int obsPre = r1.get(i).predecessor;
+
+					double expR = order.getReachability(it);
+					double obsR = r1.get(i).reachabilityDistance;
+
+					//System.out.printf("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
+					//		r1.get(i).coreDistance, expPre, obsPre);
+
+					Assert.assertEquals(expId, obsId);
+					Assert.assertEquals(expPre, obsPre);
+					Assert.assertEquals(expR, obsR, expR * 1e-5);
+				}
+			}
+		}
+	}
+
+	private static int asInteger(DBIDRef id)
+	{
+		return DBIDUtil.asInteger(id) - 1;
+	}
+
+	@Test
+	public void canPerformOPTICSWithLargeData()
 	{
 		TrackProgress tracker = null; //new SimpleTrackProgress();
 		for (int n : N)
@@ -266,20 +424,7 @@ public class DensityManagerTest
 
 			for (int minPts : new int[] { 10, 20 })
 			{
-				//Optics r1 = 
 				dm.optics(0, minPts);
-				//// Histogram the results
-				//double[] x = new double[r1.size()];
-				//double[] y = new double[r1.size()];
-				//for (int i = 0; i < r1.size(); i++)
-				//{
-				//	x[i] = i + 1;
-				//	y[i] = r1.get(i).reachabilityDistance;
-				//}
-				//Plot plot = new Plot("OPTICS", "Order", "R_dist");
-				//plot.setLimits(1, r1.size() + 1, 0, radius);
-				//plot.addPoints(x, y, Plot.LINE);
-				//Utils.display("OPTICS", plot);
 			}
 		}
 	}

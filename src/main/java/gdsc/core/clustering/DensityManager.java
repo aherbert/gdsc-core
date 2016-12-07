@@ -18,14 +18,14 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.TurboList;
-import java.util.TurboList.SimplePredicate;
 
 import org.apache.commons.math3.util.FastMath;
 
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.Maths;
+import gdsc.core.utils.TurboList;
+import gdsc.core.utils.TurboList.SimplePredicate;
 
 /**
  * Calculate the density of localisations around a given position using a square block of specified width
@@ -318,7 +318,12 @@ public class DensityManager
 				return -1;
 			if (o1.reachabilityDistance > o2.reachabilityDistance)
 				return 1;
-			return 0;
+			// The ELKI code de.lmu.ifi.dbs.elki.algorithm.clustering.optics.OPTICSHeapEntry
+			// Returns the opposite of an id comparison:
+			// return -DBIDUtil.compare(objectID, o.objectID);
+			// I do not know why this is but I have added it so the functionality 
+			// is identical in order to pass the JUnit tests
+			return o2.id - o1.id;
 		}
 	}
 
@@ -617,6 +622,33 @@ public class DensityManager
 		this.maxYCoord = maxYCoord;
 		// Store the area of the input results
 		area = bounds.width * bounds.height;
+	}
+
+	/**
+	 * Gets the data in float format.
+	 *
+	 * @return the data
+	 */
+	public float[][] getData()
+	{
+		return new float[][] { xcoord.clone(), ycoord.clone() };
+	}
+
+	/**
+	 * Gets the data in double format.
+	 *
+	 * @return the data
+	 */
+	public double[][] getDoubleData()
+	{
+		double[] x = new double[xcoord.length];
+		double[] y = new double[xcoord.length];
+		for (int i = x.length; i-- > 0;)
+		{
+			x[i] = xcoord[i];
+			y[i] = ycoord[i];
+		}
+		return new double[][] { x, y };
 	}
 
 	/**
