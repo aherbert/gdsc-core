@@ -741,4 +741,24 @@ public class Maths
 	{
 		return Math.abs(d) <= java.lang.Double.MAX_VALUE;
 	}
+
+	/**
+	 * Compute the euclidian distance between two 2D points.
+	 *
+	 * @param x1
+	 *            the x 1
+	 * @param y1
+	 *            the y 1
+	 * @param x2
+	 *            the x 2
+	 * @param y2
+	 *            the y 2
+	 * @return the distance
+	 */
+	public static double distance(double x1, double y1, double x2, double y2)
+	{
+		final double dx = x1 - x2;
+		final double dy = y1 - y2;
+		return Math.sqrt(dx * dx + dy * dy);
+	}
 }
