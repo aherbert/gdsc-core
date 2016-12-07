@@ -14,10 +14,12 @@ package gdsc.core.clustering;
  *---------------------------------------------------------------------------*/
 
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.math3.util.FastMath;
 
@@ -105,9 +107,9 @@ public class DensityManager
 		public final float generatingDistance;
 		private final OPTICSResult[] opticsResults;
 		/**
-		 * Cluster hierarchy assigned by .
+		 * Cluster hierarchy assigned by extractClustering(...).
 		 */
-		public OPTICSCluster[] clustering;
+		public ArrayList<OPTICSCluster> clustering;
 
 		/**
 		 * Instantiates a new optics.
@@ -224,6 +226,45 @@ public class DensityManager
 		{
 			for (int i = size(); i-- > 0;)
 				opticsResults[i].clusterId = NOISE;
+		}
+
+		/**
+		 * Gets the cluster Id for each cluster in the hierarchy.
+		 *
+		 * @return the clusters
+		 */
+		public int[] getClusters()
+		{
+			int[] clusters = new int[size()];
+			addClusters(clustering, 0, clusters);
+			return clusters;
+		}
+
+		private int addClusters(List<OPTICSCluster> clusterList, int clusterId, int[] clusters)
+		{
+			if (clusterList == null)
+				return clusterId;
+
+			for (OPTICSCluster c : clusterList)
+			{
+				// Descend the hierarchy
+				clusterId = addClusters(c.children, clusterId, clusters);
+
+				// Next cluster
+				clusterId++;
+
+				// Only claim those not in the children
+				for (int i = c.start; i < c.end; i++)
+				{
+					int id = opticsResults[i].parent;
+					if (clusters[id] == 0)
+						clusters[id] = clusterId;
+				}
+				
+				System.out.printf("> %d-%d\n", c.start, c.end);
+			}
+
+			return clusterId;
 		}
 	}
 
@@ -2345,7 +2386,7 @@ public class DensityManager
 					}
 				}
 				SteepDownArea sda = new SteepDownArea(startSteep, endSteep, startValue);
-				System.out.println("New steep down area:" + sda);
+				//System.out.println("New steep down area:" + sda);
 				setOfSteepDownAreas.add(sda);
 				continue;
 			}
@@ -2388,7 +2429,7 @@ public class DensityManager
 						index++;
 					}
 					sua = new SteepArea(startSteep, endSteep, eSuccessor);
-					System.out.println("New steep up area:" + sua);
+					//System.out.println("New steep up area:" + sua);
 				}
 				final double threshold = mib * ixi;
 				for (int i = setOfSteepDownAreas.size(); i-- > 0;)
@@ -2490,7 +2531,7 @@ public class DensityManager
 		}
 
 		// Finalise
-		optics.clustering = setOfClusters.toArray(new OPTICSCluster[setOfClusters.size()]);
+		optics.clustering = new ArrayList<OPTICSCluster>(setOfClusters);
 	}
 
 	/**

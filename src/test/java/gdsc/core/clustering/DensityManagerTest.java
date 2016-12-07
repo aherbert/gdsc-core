@@ -2,6 +2,7 @@ package gdsc.core.clustering;
 
 import java.awt.Rectangle;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -10,7 +11,10 @@ import org.junit.Test;
 
 import de.lmu.ifi.dbs.elki.algorithm.clustering.optics.ClusterOrder;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.optics.FastOPTICS;
+import de.lmu.ifi.dbs.elki.algorithm.clustering.optics.OPTICSXi;
+import de.lmu.ifi.dbs.elki.data.Clustering;
 import de.lmu.ifi.dbs.elki.data.DoubleVector;
+import de.lmu.ifi.dbs.elki.data.model.OPTICSModel;
 import de.lmu.ifi.dbs.elki.data.type.TypeUtil;
 import de.lmu.ifi.dbs.elki.database.AbstractDatabase;
 import de.lmu.ifi.dbs.elki.database.Database;
@@ -353,7 +357,7 @@ public class DensityManagerTest
 			for (int minPts : new int[] { 5, 10 })
 			{
 				// Reset starting Id to 1
-				DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(rm.getData(), null, 1);
+				DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(rm.getData(), null, 0);
 				ListParameterization params = new ListParameterization();
 				params.addParameter(AbstractDatabase.Parameterizer.DATABASE_CONNECTION_ID, dbc);
 				Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
@@ -410,7 +414,109 @@ public class DensityManagerTest
 
 	private static int asInteger(DBIDRef id)
 	{
-		return DBIDUtil.asInteger(id) - 1;
+		return DBIDUtil.asInteger(id);
+	}
+
+	/**
+	 * Test the results of OPTICS using the ELKI framework
+	 */
+	@Test
+	public void canComputeOPTICSXi()
+	{
+		TrackProgress tracker = null; //new SimpleTrackProgress();
+		for (int n : new int[] { 100, 500 })
+		{
+			DensityManager dm = createDensityManager(size, n);
+			dm.setTracker(tracker);
+
+			// Compute the all-vs-all distance for checking the answer
+			double[][] data = dm.getDoubleData();
+			double[][] d = new double[n][n];
+			for (int i = 0; i < n; i++)
+				for (int j = i + 1; j < n; j++)
+					d[i][j] = d[j][i] = Maths.distance(data[0][i], data[1][i], data[0][j], data[1][j]);
+
+			// Use ELKI to provide the expected results
+			RealMatrix rm = new Array2DRowRealMatrix(data).transpose();
+
+			for (int minPts : new int[] { 5, 10 })
+			{
+				// Reset starting Id to 1
+				DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(rm.getData(), null, 0);
+				ListParameterization params = new ListParameterization();
+				params.addParameter(AbstractDatabase.Parameterizer.DATABASE_CONNECTION_ID, dbc);
+				Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
+				db.initialize();
+				Relation<?> rel = db.getRelation(TypeUtil.ANY);
+				Assert.assertEquals("Database size does not match.", n, rel.size());
+
+				// Debug: Print the core distance for each point
+				//for (int i = 0; i < n; i++)
+				//{
+				//	double[] dd = d[i].clone();
+				//	Arrays.sort(dd);
+				//	System.out.printf("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
+				//}
+
+				// Use max range
+				Optics r1 = dm.optics(size, minPts);
+
+				// Test verses the ELKI frame work
+				RandomProjectedNeighborsAndDensities<DoubleVector> index = new CheatingRandomProjectedNeighborsAndDensities(
+						d, minPts);
+				FastOPTICS<DoubleVector> fo = new FastOPTICS<DoubleVector>(minPts, index);
+
+				double xi = 0.03;
+
+				OPTICSXi opticsXi = new OPTICSXi(fo, xi, false, false);
+				Clustering<OPTICSModel> clustering = opticsXi.run(db);
+
+				// Check by building the clusters into an array 
+				int[] expClusters = new int[n];
+				List<de.lmu.ifi.dbs.elki.data.Cluster<OPTICSModel>> allClusters = clustering.getAllClusters();
+				int clusterId = 0;
+				for (de.lmu.ifi.dbs.elki.data.Cluster<OPTICSModel> c : allClusters)
+				{
+					System.out.printf("%d-%d\n", c.getModel().getStartIndex(), c.getModel().getEndIndex());
+
+					// Add the cluster Id to the expClusters
+					clusterId++;
+					for (DBIDIter it = c.getIDs().iter(); it.valid(); it.advance())
+					{
+						expClusters[asInteger(it)] = clusterId;
+					}
+				}
+
+				// TODO - check the clusters match
+				dm.extractClusters(r1, xi, false, false);
+				int[] obsClusters = r1.getClusters();
+				for (int i = 0; i < n; i++)
+				{
+					System.out.printf("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
+				}
+
+				return;
+				
+				// I will have to allow the Ids to be different. So change the Ids using first occurrence mapping...
+
+				// TODO - try at a lower distance threshold
+
+				//System.out.printf("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
+				//		r1.get(i).coreDistance, expPre, obsPre);
+
+				//Assert.assertEquals(expId, obsId);
+				//Assert.assertEquals(expPre, obsPre);
+				//Assert.assertEquals(expR, obsR, expR * 1e-5);
+
+			}
+		}
+	}
+
+	//@Test
+	public void canComputeOPTICSFaster()
+	{
+		// TODO - Check our implementation is faster than ELKI. This should be true given that it is 2D grid data.
+		// If not then hope it is not much slower.		
 	}
 
 	@Test
