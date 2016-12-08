@@ -38,6 +38,7 @@ public class RankedScoreCalculator
 	public RankedScoreCalculator(FractionalAssignment[] assignments)
 	{
 		this.assignments = assignments;
+		// TODO - update the scoring algorithm to not require a sorted list
 		AssignmentComparator.sort(assignments);
 		// Count unique actual and predicted
 		int maxA = 0, maxP = 0;
@@ -74,6 +75,7 @@ public class RankedScoreCalculator
 	public RankedScoreCalculator(FractionalAssignment[] assignments, int maxA, int maxP)
 	{
 		this.assignments = assignments;
+		// TODO - update the scoring algorithm to not require a sorted list
 		AssignmentComparator.sort(assignments);
 		//AssignmentComparator.sort1(assignments);
 		//AssignmentComparator.sort2(assignments);
@@ -183,6 +185,18 @@ public class RankedScoreCalculator
 		int scored = 0;
 		scoredAssignments = (save) ? new FractionalAssignment[totalA] : null;
 
+		// TODO - update the scoring algorithm to not require a sorted list.
+		// This would mean a creating a different method since this current method may be 
+		// called repeatedly with different nPredicted values. So store the assignments as a raw list 
+		// and then if necessary sort them for this method.
+		
+		// All we need to do is find the smallest value in the assignment list.
+		// We could hold an array containing the next index to check from the current index.
+		// As assignments are made we can update the next index to allow assignments
+		// to be skipped over as we scan the array for the next smallest value.
+
+		// Compare the speed of the two versions...
+		
 		// Assign matches
 		if (multipleMatches)
 		{
