@@ -352,12 +352,12 @@ public class DensityManagerTest
 					d[i][j] = d[j][i] = Maths.distance(data[0][i], data[1][i], data[0][j], data[1][j]);
 
 			// Use ELKI to provide the expected results
-			RealMatrix rm = new Array2DRowRealMatrix(data).transpose();
+			data = new Array2DRowRealMatrix(data).transpose().getData();
 
 			for (int minPts : new int[] { 5, 10 })
 			{
 				// Reset starting Id to 1
-				DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(rm.getData(), null, 0);
+				DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data, null, 0);
 				ListParameterization params = new ListParameterization();
 				params.addParameter(AbstractDatabase.Parameterizer.DATABASE_CONNECTION_ID, dbc);
 				Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);

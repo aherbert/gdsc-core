@@ -260,7 +260,7 @@ public class DensityManager
 					if (clusters[id] == 0)
 						clusters[id] = clusterId;
 				}
-				
+
 				System.out.printf("> %d-%d\n", c.start, c.end);
 			}
 
@@ -315,7 +315,12 @@ public class DensityManager
 		 * The Id of the point that set the current min reachability distance. A value of -1 has no predecessor (and so
 		 * was the first point chosen by the algorithm).
 		 */
-		public int predecessor = -1;
+		private int predecessor = -1;
+
+		/**
+		 * Working index in the queue
+		 */
+		private int queueIndex;
 
 		public OPTICSMolecule(int id, float x, float y, int xBin, int yBin, Molecule next)
 		{
@@ -373,19 +378,14 @@ public class DensityManager
 	/**
 	 * Used in the OPTICS algorithm
 	 */
-	private class OPTICSMoleculeList
+	private abstract class OPTICSMoleculeArray
 	{
 		final OPTICSMolecule[] list;
 		int size = 0;
 
-		OPTICSMoleculeList(int capacity)
+		OPTICSMoleculeArray(int capacity)
 		{
 			list = new OPTICSMolecule[capacity];
-		}
-
-		void add(OPTICSMolecule m)
-		{
-			list[size++] = m;
 		}
 
 		void clear()
@@ -393,14 +393,90 @@ public class DensityManager
 			size = 0;
 		}
 
-		void sort(int next)
-		{
-			Arrays.sort(list, next, size, opticsComparator);
-		}
-
 		OPTICSMolecule get(int i)
 		{
 			return list[i];
+		}
+	}
+
+	/**
+	 * Used in the OPTICS algorithm
+	 */
+	private class OPTICSMoleculeList extends OPTICSMoleculeArray
+	{
+		OPTICSMoleculeList(int capacity)
+		{
+			super(capacity);
+		}
+
+		void add(OPTICSMolecule m)
+		{
+			list[size++] = m;
+		}
+	}
+
+	/**
+	 * Used in the OPTICS algorithm
+	 */
+	private class OPTICSMoleculeQueue extends OPTICSMoleculeArray
+	{
+		int next = 0;
+
+		OPTICSMoleculeQueue(int capacity)
+		{
+			super(capacity);
+		}
+
+		void push(OPTICSMolecule m)
+		{
+			set(m, size++);
+			moveUp(m);
+		}
+
+		void set(OPTICSMolecule m, int index)
+		{
+			list[index] = m;
+			m.queueIndex = index;
+		}
+
+		void clear()
+		{
+			size = next = 0;
+		}
+
+		boolean hasNext()
+		{
+			return next < size;
+		}
+
+		public OPTICSMolecule next()
+		{
+			OPTICSMolecule m = list[next++];
+			if (hasNext())
+			{
+				// Find the next lowest molecule
+				int lowest = next;
+				for (int i = next + 1; i < size; i++)
+				{
+					if (opticsComparator.compare(list[i], list[lowest]) < 0)
+						lowest = i;
+				}
+				swap(next, lowest);
+			}
+			return m;
+		}
+
+		private void swap(int i, int j)
+		{
+			OPTICSMolecule m = list[i];
+			set(list[j], i);
+			set(m, j);
+		}
+
+		public void moveUp(OPTICSMolecule object)
+		{
+			if (opticsComparator.compare(object, list[next]) < 0)
+				swap(next, object.queueIndex);
 		}
 	}
 
@@ -1858,7 +1934,7 @@ public class DensityManager
 	}
 
 	private OPTICSMoleculeGrid grid;
-	private OPTICSMoleculeList orderSeeds;
+	private OPTICSMoleculeQueue orderSeeds;
 	private OPTICSMoleculeList neighbours;
 	private float[] floatArray;
 
@@ -1885,9 +1961,9 @@ public class DensityManager
 			grid = new OPTICSMoleculeGrid(generatingDistanceE);
 
 			final int size = xcoord.length;
-			orderSeeds = new OPTICSMoleculeList(size);
+			orderSeeds = new OPTICSMoleculeQueue(size);
 			neighbours = new OPTICSMoleculeList(size);
-			floatArray = new float[size];
+			floatArray = new float[minPts];
 		}
 		else
 		{
@@ -1997,7 +2073,7 @@ public class DensityManager
 		// We ensure that the reachable distance is updated even if the point has been processed.
 		// We just do not repeat process the neighbours of a point that has been processed.
 
-		findNeighbours(object, e);
+		findNeighbours(minPts, object, e);
 		object.processed = true;
 		setCoreDistance(minPts, neighbours, object);
 		if (orderedFile.add(object))
@@ -2006,26 +2082,20 @@ public class DensityManager
 		{
 			// Create seed-list for further expansion.
 			// The next counter is used to ensure we sort only the remaining entries in the seed list.
-			int next = 0;
 			orderSeeds.clear();
-			update(orderSeeds, neighbours, object, UNDEFINED, next);
+			update(orderSeeds, neighbours, object);
 
-			while (next < orderSeeds.size)
+			while (orderSeeds.hasNext())
 			{
-				final OPTICSMolecule currentObject = orderSeeds.get(next++);
-				//			if (currentObject.processed)
-				//			{
-				//				System.out.println("Error");
-				//				continue;
-				//			}
-				findNeighbours(currentObject, e);
+				final OPTICSMolecule currentObject = orderSeeds.next();
+				findNeighbours(minPts, currentObject, e);
 				currentObject.processed = true;
 				setCoreDistance(minPts, neighbours, currentObject);
 				if (orderedFile.add(currentObject))
 					return true;
 
 				if (object.coreDistance != UNDEFINED)
-					update(orderSeeds, neighbours, currentObject, UNDEFINED, next);
+					update(orderSeeds, neighbours, currentObject);
 			}
 		}
 		return false;
@@ -2037,22 +2107,60 @@ public class DensityManager
 		if (size < minPts)
 			return;
 		final OPTICSMolecule[] list = neighbours.list;
-		for (int i = size; i-- > 0;)
+
+		// Avoid a full sort using a priority queue structure.
+		// We retain a pointer to the current highest value in the set. 
+		int max = 0;
+		floatArray[0] = list[0].d;
+
+		// Fill 
+		int i = 1;
+		while (i < minPts)
+		{
 			floatArray[i] = list[i].d;
-		Arrays.sort(floatArray, 0, size);
-		currentObject.coreDistance = floatArray[minPts - 1];
+			if (floatArray[max] < floatArray[i])
+				max = i;
+			i++;
+		}
+
+		// Scan
+		while (i < size)
+		{
+			// Replace if lower
+			if (floatArray[max] > list[i].d)
+			{
+				floatArray[max] = list[i].d;
+				// Find new max
+				for (int j = minPts; j-- > 0;)
+				{
+					if (floatArray[max] < floatArray[j])
+						max = j;
+				}
+			}
+			i++;
+		}
+
+		currentObject.coreDistance = floatArray[max];
+
+		// Full sort 
+		//		for (int i = size; i-- > 0;)
+		//			floatArray[i] = list[i].d;
+		//		Arrays.sort(floatArray, 0, size);
+		//		currentObject.coreDistance = floatArray[minPts - 1];
 	}
 
 	/**
 	 * Find neighbours. Note that the OPTICS paper appears to include the actual point in the list of neighbours (where
 	 * the distance would be 0).
+	 * 
+	 * @param minPts
 	 *
 	 * @param object
 	 *            the object
 	 * @param e
 	 *            the generating distance
 	 */
-	private void findNeighbours(OPTICSMolecule object, float e)
+	private void findNeighbours(int minPts, OPTICSMolecule object, float e)
 	{
 		final int xBin = object.xBin;
 		final int yBin = object.yBin;
@@ -2066,6 +2174,31 @@ public class DensityManager
 		final int miny = Math.max(yBin - resolution, 0);
 		final int maxy = Math.min(yBin + resolution + 1, grid.yBins);
 
+		// Count if there are enough neighbours
+		int count = minPts;
+		counting: for (int x = minx; x < maxx; x++)
+		{
+			final OPTICSMolecule[][] column = grid.grid[x];
+			for (int y = miny; y < maxy; y++)
+			{
+				final OPTICSMolecule[] list = column[y];
+				if (list != null)
+				{
+					count -= list.length;
+					if (count <= 0)
+						break counting;
+				}
+			}
+		}
+
+		if (count > 0)
+		{
+			// Not a core point so do not compute distances
+			//System.out.println("Skipping distance computation (not a core point)");
+			return;
+		}
+
+		// Compute distances
 		for (int x = minx; x < maxx; x++)
 		{
 			final OPTICSMolecule[][] column = grid.grid[x];
@@ -2099,11 +2232,9 @@ public class DensityManager
 	 *            the neighbours
 	 * @param centreObject
 	 *            the object
-	 * @param UNDEFINED
 	 * @param next
 	 */
-	private void update(OPTICSMoleculeList orderSeeds, OPTICSMoleculeList neighbours, OPTICSMolecule centreObject,
-			float UNDEFINED, int next)
+	private void update(OPTICSMoleculeQueue orderSeeds, OPTICSMoleculeList neighbours, OPTICSMolecule centreObject)
 	{
 		final float c_dist = centreObject.coreDistance;
 		for (int i = neighbours.size; i-- > 0;)
@@ -2116,9 +2247,7 @@ public class DensityManager
 				{
 					object.reachabilityDistance = new_r_dist;
 					object.predecessor = centreObject.id;
-
-					// TODO - Insert in the seeds at the correct position to avoid the full sort
-					orderSeeds.add(object);
+					orderSeeds.push(object);
 				}
 				else // This is already in the list
 				{
@@ -2126,24 +2255,11 @@ public class DensityManager
 					{
 						object.reachabilityDistance = new_r_dist;
 						object.predecessor = centreObject.id;
-
-						// TODO - Move up the order to the correct position to avoid the full sort
+						orderSeeds.moveUp(object);
 					}
 				}
 			}
-			//			// Q. What if it has been processed but the reachability distance is lower?
-			//			else if (Math.max(c_dist, object.d) < object.r)
-			//			{
-			//				// This is a 'feature' of the original algorithm. 
-			//				// This may be acceptable as the shape of the cluster-order plot has minima 
-			//				// representing the centres of clusters.
-			//			}
 		}
-
-		// Order by reachability distance
-		// Note the original algorithm uses an ordered queue. 
-		// Here we just sort the list which is slower (but works).
-		orderSeeds.sort(next);
 	}
 
 	/**
