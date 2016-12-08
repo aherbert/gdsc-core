@@ -24,8 +24,17 @@ public class TopN
 	 * The number N to select
 	 */
 	final int n;
+	/**
+	 * Working storage
+	 */
 	private final double[] queue;
 
+	/**
+	 * Create a new TopN selector
+	 * 
+	 * @param n
+	 *            The number N to select
+	 */
 	public TopN(int n)
 	{
 		if (n < 1)
