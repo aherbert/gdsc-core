@@ -49,8 +49,8 @@ public class DensityManager
 	public class OPTICSResult
 	{
 		/**
-		 * The parent object used when generating this result. Can be used to identify the coordinates from the original
-		 * input data.
+		 * The Id of the parent point object used when generating this result. Can be used to identify the coordinates
+		 * from the original input data.
 		 */
 		final int parent;
 		/**
@@ -108,7 +108,7 @@ public class DensityManager
 		/**
 		 * Cluster hierarchy assigned by extractClustering(...).
 		 */
-		public ArrayList<OPTICSCluster> clustering;
+		private ArrayList<OPTICSCluster> clustering;
 
 		/**
 		 * Instantiates a new optics.
@@ -227,43 +227,67 @@ public class DensityManager
 				opticsResults[i].clusterId = NOISE;
 		}
 
+		private void setClustering(ArrayList<OPTICSCluster> clustering)
+		{
+			this.clustering = clustering;
+		}
+
 		/**
-		 * Gets the cluster Id for each cluster in the hierarchy.
+		 * Gets the clustering hierarchy.
+		 *
+		 * @return the clustering hierarchy
+		 */
+		public ArrayList<OPTICSCluster> getClusteringHierarchy()
+		{
+			return clustering;
+		}
+
+		/**
+		 * Gets the all clusters in a single list.
+		 *
+		 * @return the clusters list
+		 */
+		public ArrayList<OPTICSCluster> getAllClusters()
+		{
+			ArrayList<OPTICSCluster> list = new ArrayList<OPTICSCluster>();
+			addClusters(clustering, list);
+			return list;
+		}
+
+		/**
+		 * Descend the hierachy and add the clusters to the list.
+		 *
+		 * @param hierarchy
+		 *            the hierarchy
+		 * @param list
+		 *            the list
+		 */
+		private void addClusters(List<OPTICSCluster> hierarchy, ArrayList<OPTICSCluster> list)
+		{
+			if (hierarchy == null)
+				return;
+
+			for (OPTICSCluster c : hierarchy)
+			{
+				addClusters(c.children, list);
+				list.add(c);
+			}
+		}
+
+		/**
+		 * Gets the cluster Id for each parent object.
 		 *
 		 * @return the clusters
 		 */
 		public int[] getClusters()
 		{
 			int[] clusters = new int[size()];
-			addClusters(clustering, 0, clusters);
-			return clusters;
-		}
-
-		private int addClusters(List<OPTICSCluster> clusterList, int clusterId, int[] clusters)
-		{
-			if (clusterList == null)
-				return clusterId;
-
-			for (OPTICSCluster c : clusterList)
+			for (int i = size(); i-- > 0;)
 			{
-				// Descend the hierarchy
-				clusterId = addClusters(c.children, clusterId, clusters);
-
-				// Next cluster
-				clusterId++;
-
-				// Only claim those not in the children
-				for (int i = c.start; i < c.end; i++)
-				{
-					int id = opticsResults[i].parent;
-					if (clusters[id] == 0)
-						clusters[id] = clusterId;
-				}
-
-				System.out.printf("> %d-%d\n", c.start, c.end);
+				int id = opticsResults[i].parent;
+				clusters[id] = opticsResults[i].clusterId;
 			}
-
-			return clusterId;
+			return clusters;
 		}
 	}
 
@@ -1962,7 +1986,6 @@ public class DensityManager
 			final int size = xcoord.length;
 			orderSeeds = new OPTICSMoleculeQueue(size);
 			neighbours = new OPTICSMoleculeList(size);
-			floatArray = new float[minPts];
 		}
 		else
 		{
@@ -1971,6 +1994,9 @@ public class DensityManager
 			orderSeeds.clear();
 			neighbours.clear();
 		}
+
+		if (floatArray == null || floatArray.length < minPts)
+			floatArray = new float[minPts];
 	}
 
 	/**
@@ -2352,7 +2378,7 @@ public class DensityManager
 	/**
 	 * Represent a Steep Area. This is used in the OPTICS algorithm to extract clusters.
 	 */
-	private class SteepArea
+	private abstract class SteepArea
 	{
 		int s, e;
 		double maximum;
@@ -2362,12 +2388,6 @@ public class DensityManager
 			this.s = s;
 			this.e = e;
 			this.maximum = maximum;
-		}
-
-		@Override
-		public String toString()
-		{
-			return String.format("s=%d, e=%d, max=%f", s, e, maximum);
 		}
 	}
 
@@ -2392,14 +2412,31 @@ public class DensityManager
 	}
 
 	/**
+	 * Represent a Steep Down Area. This is used in the OPTICS algorithm to extract clusters.
+	 */
+	private class SteepUpArea extends SteepArea
+	{
+		SteepUpArea(int s, int e, double maximum)
+		{
+			super(s, e, maximum);
+		}
+
+		@Override
+		public String toString()
+		{
+			return String.format("s=%d, e=%d, max=%f, mib=%f", s, e, maximum);
+		}
+	}
+
+	/**
 	 * Represents a cluster from the OPTICS algorithm
 	 */
 	public class OPTICSCluster
 	{
-		/** The start of the cluster. */
+		/** The start of the cluster (inclusive). */
 		final int start;
 
-		/** The end of the cluster. */
+		/** The end of the cluster (inclusive). */
 		final int end;
 
 		/** The cluster id. */
@@ -2407,6 +2444,9 @@ public class DensityManager
 
 		/** The children. */
 		private LinkedList<OPTICSCluster> children = null;
+
+		/** The level in the hierarchy */
+		private int level;
 
 		/**
 		 * Instantiates a new cluster.
@@ -2429,11 +2469,32 @@ public class DensityManager
 			if (children == null)
 				children = new LinkedList<OPTICSCluster>();
 			children.add(child);
+			child.increaseLevel();
+		}
+
+		private void increaseLevel()
+		{
+			level++;
+			if (children == null)
+				return;
+			for (OPTICSCluster child : children)
+				child.increaseLevel();
 		}
 
 		public int nChildren()
 		{
 			return (children == null) ? 0 : children.size();
+		}
+
+		public int getLevel()
+		{
+			return level;
+		}
+
+		@Override
+		public String toString()
+		{
+			return String.format("s=%d, e=%d, level=%d", start, end, level);
 		}
 	}
 
@@ -2473,9 +2534,10 @@ public class DensityManager
 		final double[] r = optics.getReachabilityDistanceProfile(false);
 		int clusterId = 0;
 		optics.resetClusterIds();
-		while (index < size)
+		while (valid(index, size))
 		{
 			mib = Math.max(mib, r[index]);
+			// The last point cannot be the start of a steep area so end.
 			if (!valid(index + 1, size))
 				break;
 			// Test if this is a steep down area 
@@ -2487,14 +2549,15 @@ public class DensityManager
 				mib = 0;
 				int startSteep = index;
 				int endSteep = index + 1;
-				while (valid(index + 1, size))
+				for (index++; valid(index, size); index++)
 				{
-					index++;
+					// Continue down the steep area
 					if (steepDown(index, r, ixi))
 					{
 						endSteep = index + 1;
 						continue;
 					}
+					// Stop looking if not going downward or after minPts of non steep area
 					if (!steepDown(index, r, 1) || index - endSteep > minPts)
 					{
 						break;
@@ -2509,22 +2572,21 @@ public class DensityManager
 			{
 				// Update mib values with current mib and filter
 				updateFilterSDASet(mib, setOfSteepDownAreas, ixi);
-				SteepArea sua;
+				SteepUpArea sua;
 				{
 					int startSteep = index;
 					int endSteep = index + 1;
 					mib = r[index];
-					double eSuccessor = (!valid(index + 1, size)) ? Double.POSITIVE_INFINITY : r[index + 1];
+					double eSuccessor = getNextReachability(index, size, r);
 					if (eSuccessor != Double.POSITIVE_INFINITY)
 					{
-						while (valid(index + 1, size))
+						for (index++; valid(index, size); index++)
 						{
-							index++;
 							if (steepUp(index, r, ixi))
 							{
 								endSteep = index + 1;
 								mib = r[index];
-								eSuccessor = (!valid(index + 1, size)) ? Double.POSITIVE_INFINITY : r[index + 1];
+								eSuccessor = getNextReachability(index, size, r);
 								if (eSuccessor == Double.POSITIVE_INFINITY)
 								{
 									endSteep--;
@@ -2532,6 +2594,7 @@ public class DensityManager
 								}
 								continue;
 							}
+							// Stop looking if not going upward or after minPts of non steep area
 							if (!steepUp(index, r, 1) || index - endSteep > minPts)
 							{
 								break;
@@ -2543,16 +2606,17 @@ public class DensityManager
 						endSteep--;
 						index++;
 					}
-					sua = new SteepArea(startSteep, endSteep, eSuccessor);
+					sua = new SteepUpArea(startSteep, endSteep, eSuccessor);
 					//System.out.println("New steep up area:" + sua);
 				}
-				final double threshold = mib * ixi;
+				//final double threshold = mib * ixi;
 				for (int i = setOfSteepDownAreas.size(); i-- > 0;)
 				{
 					final SteepDownArea sda = setOfSteepDownAreas.getf(i);
 
-					// Condition 3B 
-					if (threshold < sda.mib)
+					// Condition 3B:  end-of-steep-up > maximum-in-between lower
+					//if (threshold < sda.mib)
+					if (mib * ixi < sda.mib)
 						continue;
 
 					// Default values 
@@ -2560,6 +2624,8 @@ public class DensityManager
 					int cend = sua.e;
 
 					// Credit to ELKI
+					// NOT in original OPTICS article: never include infinity-reachable 
+					// points at the end of the cluster.
 					if (!noCorrect)
 					{
 						while (cend > cstart && r[cend] == Double.POSITIVE_INFINITY)
@@ -2582,6 +2648,7 @@ public class DensityManager
 							while (cend > cstart && r[cend - 1] > sda.maximum)
 								cend--;
 						}
+						// Case a is the default
 					}
 
 					// This NOT in the original article - credit to ELKI for finding this.
@@ -2590,11 +2657,14 @@ public class DensityManager
 					// removes common artifacts from the Xi method.
 					if (!noCorrect)
 					{
-						while (cend > cstart)
+						simplify: while (cend > cstart)
 						{
-							int tmp2 = optics.get(cend).predecessor;
-							if (tmp2 >= cstart && tmp2 < cend)
-								break;
+							int predecessor = optics.get(cend).predecessor;
+							for (int c = cstart; c < cend; c++)
+							{
+								if (predecessor == optics.get(c).parent)
+									break simplify;
+							}
 							// Not found.
 							cend--;
 						}
@@ -2636,6 +2706,7 @@ public class DensityManager
 						}
 					}
 					setOfClusters.add(cluster);
+					//System.out.printf("> %s\n", cluster); // Level not correct
 				}
 			}
 			else
@@ -2646,7 +2717,10 @@ public class DensityManager
 		}
 
 		// Finalise
-		optics.clustering = new ArrayList<OPTICSCluster>(setOfClusters);
+		optics.setClustering(new ArrayList<OPTICSCluster>(setOfClusters));
+
+		//for (OPTICSCluster cluster : optics.getAllClusters())
+		//	System.out.printf("> %s\n", cluster);
 	}
 
 	/**
@@ -2659,9 +2733,9 @@ public class DensityManager
 	 * @param ixi
 	 *            the ixi
 	 */
-	private void updateFilterSDASet(double mib, TurboList<SteepDownArea> setOfSteepDownAreas, double ixi)
+	private void updateFilterSDASet(final double mib, TurboList<SteepDownArea> setOfSteepDownAreas, final double ixi)
 	{
-		final double threshold = mib / ixi;
+		//final double threshold = mib / ixi;
 		setOfSteepDownAreas.removeIf(new SimplePredicate<SteepArea>()
 		{
 			/*
@@ -2674,13 +2748,13 @@ public class DensityManager
 				// Return true to remove.
 				// "we filter all steep down areas from SDASet whose start multiplied by (1-ξ)
 				// is smaller than the global mib -value"
-				//return sda.maximum*ixi < mib;
-				return sda.maximum < threshold;
+				return sda.maximum * ixi <= mib;
+				//return sda.maximum < threshold;
 			}
 		});
 		// Update mib-values
 		for (int i = setOfSteepDownAreas.size(); i-- > 0;)
-			if (setOfSteepDownAreas.getf(i).mib < mib)
+			if (mib > setOfSteepDownAreas.getf(i).mib)
 				setOfSteepDownAreas.getf(i).mib = mib;
 	}
 
@@ -2698,7 +2772,9 @@ public class DensityManager
 	 */
 	private boolean steepUp(int i, double[] r, double ixi)
 	{
-		if (i + 1 == r.length)
+		if (r[i] == Double.POSITIVE_INFINITY)
+			return false;
+		if (!valid(i + 1, r.length))
 			return true;
 		return (r[i] <= r[i + 1] * ixi);
 	}
@@ -2717,6 +2793,8 @@ public class DensityManager
 	 */
 	private boolean steepDown(int i, double[] r, double ixi)
 	{
+		if (r[i + 1] == Double.POSITIVE_INFINITY)
+			return false;
 		return (r[i] * ixi >= r[i + 1]);
 	}
 
@@ -2732,6 +2810,22 @@ public class DensityManager
 	private boolean valid(int index, int size)
 	{
 		return index < size;
+	}
+
+	/**
+	 * Gets the next reachability (or positive infinity).
+	 *
+	 * @param index
+	 *            the index
+	 * @param size
+	 *            the size
+	 * @param r
+	 *            the r
+	 * @return the next reachability
+	 */
+	private double getNextReachability(int index, final int size, final double[] r)
+	{
+		return (valid(index + 1, size)) ? r[index + 1] : Double.POSITIVE_INFINITY;
 	}
 
 	// TODO - Provide method to compute the hull of a set of clusters

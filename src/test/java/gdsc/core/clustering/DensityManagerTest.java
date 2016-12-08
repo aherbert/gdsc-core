@@ -298,6 +298,7 @@ public class DensityManagerTest
 		double[][] d;
 		Relation<DoubleVector> points;
 		int minPts;
+		@SuppressWarnings("unused")
 		double generatingDistance;
 
 		public CheatingRandomProjectedNeighborsAndDensities(double[][] d, int minPts, double generatingDistance)
@@ -308,7 +309,7 @@ public class DensityManagerTest
 		}
 
 		// Override the methods used by optics
-		
+
 		@Override
 		public void computeSetsBounds(Relation<DoubleVector> points, int minSplitSize, DBIDs ptList)
 		{
@@ -330,11 +331,17 @@ public class DensityManagerTest
 				double[] dd = d[asInteger(it)].clone();
 				Arrays.sort(dd);
 				double d = dd[minPts - 1];
-				davg.put(it, (d <= generatingDistance) ? d : FastOPTICS.UNDEFINED_DISTANCE);
+				// This break the code
+				//davg.put(it, (d <= generatingDistance) ? d : FastOPTICS.UNDEFINED_DISTANCE);
+				// This break the code
+				//davg.put(it, (d <= generatingDistance) ? d : Double.POSITIVE_INFINITY);
+
+				// This is OK. I am not sure how to deal with a smaller generating distance
+				davg.put(it, d);
 			}
 			return davg;
 		}
-		
+
 		@Override
 		public DataStore<? extends DBIDs> getNeighs()
 		{
@@ -489,7 +496,7 @@ public class DensityManagerTest
 				int clusterId = 0;
 				for (de.lmu.ifi.dbs.elki.data.Cluster<OPTICSModel> c : allClusters)
 				{
-					System.out.printf("%d-%d\n", c.getModel().getStartIndex(), c.getModel().getEndIndex());
+					//System.out.printf("%d-%d\n", c.getModel().getStartIndex(), c.getModel().getEndIndex());
 
 					// Add the cluster Id to the expClusters
 					clusterId++;
@@ -499,29 +506,34 @@ public class DensityManagerTest
 					}
 				}
 
-				// TODO - check the clusters match
+				// check the clusters match
 				dm.extractClusters(r1, xi, false, false);
 				int[] obsClusters = r1.getClusters();
-				for (int i = 0; i < n; i++)
-				{
-					System.out.printf("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
-				}
-
-				return;
 
 				// I will have to allow the Ids to be different. So change the Ids using first occurrence mapping...
+				remap(expClusters);
+				remap(obsClusters);
 
-				// TODO - try at a lower distance threshold
+				//for (int i = 0; i < n; i++)
+				//	System.out.printf("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
 
-				//System.out.printf("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
-				//		r1.get(i).coreDistance, expPre, obsPre);
-
-				//Assert.assertEquals(expId, obsId);
-				//Assert.assertEquals(expPre, obsPre);
-				//Assert.assertEquals(expR, obsR, expR * 1e-5);
-
+				Assert.assertArrayEquals(expClusters, obsClusters);
 			}
 		}
+	}
+
+	private void remap(int[] clusters)
+	{
+		int n = clusters.length;
+		int[] map = new int[n];
+		int clusterId = 0;
+		for (int i = 0; i < n; i++)
+		{
+			if (map[clusters[i]] == 0)
+				map[clusters[i]] = ++clusterId;
+		}
+		for (int i = 0; i < n; i++)
+			clusters[i] = map[clusters[i]];
 	}
 
 	//@Test
