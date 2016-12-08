@@ -28,7 +28,7 @@ public class OPTICSOrder
 	 */
 	public final int predecessor;
 	/**
-	 * The cluster identifier. This may be modified if
+	 * The cluster identifier. This may be modified if clustering is re-performed by OPTICS.
 	 */
 	int clusterId;	
 	/**

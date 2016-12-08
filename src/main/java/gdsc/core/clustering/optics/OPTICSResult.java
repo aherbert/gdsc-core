@@ -113,12 +113,12 @@ public class OPTICSResult
 	}
 
 	/**
-	 * Gets the core distance profile. Points with no reachability distance (stored as infinity) can be
+	 * Gets the core distance profile. Points with no core distance (stored as infinity) can be
 	 * converted to the generating distance.
 	 *
 	 * @param convert
-	 *            convert non-core spots to have a reachability distance of the generating distance
-	 * @return the reachability distance profile
+	 *            convert non-core spots to have a core distance of the generating distance
+	 * @return the core distance profile
 	 */
 	public double[] getCoreDistanceProfile(boolean convert)
 	{

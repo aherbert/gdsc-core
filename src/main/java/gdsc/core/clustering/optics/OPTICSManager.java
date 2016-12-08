@@ -16,6 +16,7 @@ package gdsc.core.clustering.optics;
 import java.awt.Rectangle;
 import java.util.Comparator;
 
+import de.lmu.ifi.dbs.elki.datasource.filter.transform.PerturbationFilter.NoiseDistribution;
 import gdsc.core.clustering.CoordinateStore;
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
@@ -23,7 +24,7 @@ import gdsc.core.utils.Maths;
 
 /**
  * Compute clustering using OPTICS.
- * <p> 
+ * <p>
  * This is an implementation of the OPTICS method. Mihael Ankerst, Markus M Breunig, Hans-Peter Kriegel, and Jorg
  * Sander. Optics: ordering points to identify the clustering structure. In ACM Sigmod Record, volume 28, pages
  * 49–60. ACM, 1999.
@@ -45,7 +46,7 @@ public class OPTICSManager extends CoordinateStore
 		float x, y;
 		// Used to construct a single linked list of molecules
 		public OPTICSMolecule next = null;
-		
+
 		private boolean processed;
 		private float coreDistance;
 		private float reachabilityDistance;
@@ -77,18 +78,18 @@ public class OPTICSManager extends CoordinateStore
 			this.yBin = yBin;
 			reset();
 		}
-		
+
 		float distance2(OPTICSMolecule other)
 		{
 			final float dx = x - other.x;
 			final float dy = y - other.y;
 			return dx * dx + dy * dy;
 		}
-		
 
 		void reset()
 		{
 			processed = false;
+			queueIndex = -1;
 			coreDistance = reachabilityDistance = UNDEFINED;
 		}
 
@@ -108,6 +109,12 @@ public class OPTICSManager extends CoordinateStore
 			double actualReachabilityDistance = (reachabilityDistance == UNDEFINED) ? Double.POSITIVE_INFINITY
 					: getReachabilityDistance();
 			return new OPTICSOrder(id, predecessor, actualCoreDistance, actualReachabilityDistance);
+		}
+
+		public DBSCANOrder toDBSCANResult(int clusterId)
+		{
+			// We store the number of points in the queue index
+			return new DBSCANOrder(id, clusterId, queueIndex);
 		}
 	}
 
@@ -411,7 +418,7 @@ public class OPTICSManager extends CoordinateStore
 		final OPTICSOrder[] list;
 		int size = 0;
 
-		OPTICSResultList(int capacity, double maxDistance)
+		OPTICSResultList(int capacity)
 		{
 			list = new OPTICSOrder[capacity];
 		}
@@ -428,6 +435,39 @@ public class OPTICSManager extends CoordinateStore
 		boolean add(OPTICSMolecule m)
 		{
 			list[size++] = m.toResult();
+			if (tracker != null)
+			{
+				tracker.progress(size, list.length);
+				return tracker.isEnded();
+			}
+			return false;
+		}
+	}
+
+	/**
+	 * Used in the DBSCAN algorithm to store the output results
+	 */
+	private class DBSCANResultList
+	{
+		final DBSCANOrder[] list;
+		int size = 0;
+		int clusterId = 0;
+
+		DBSCANResultList(int capacity)
+		{
+			list = new DBSCANOrder[capacity];
+		}
+
+		/**
+		 * Adds the molecule to the results. Send progress to the tracker and checks for a shutdown signal.
+		 *
+		 * @param mresult
+		 *            the m
+		 * @return true, if a shutdown signal has been received
+		 */
+		boolean add(DBSCANOrder result)
+		{
+			list[size++] = result;
 			if (tracker != null)
 			{
 				tracker.progress(size, list.length);
@@ -550,9 +590,7 @@ public class OPTICSManager extends CoordinateStore
 		final float e = generatingDistanceE * generatingDistanceE;
 
 		final int size = xcoord.length;
-		// Ensure the UNDEFINED distance is above the generating distance
-		double maxDistance = generatingDistanceE * 1.01;
-		OPTICSResultList results = new OPTICSResultList(size, maxDistance);
+		OPTICSResultList results = new OPTICSResultList(size);
 		for (int i = 0; i < size; i++)
 		{
 			if (!grid.setOfObjects[i].processed)
@@ -584,7 +622,7 @@ public class OPTICSManager extends CoordinateStore
 		}
 
 		if (clearMemory)
-			clearOpticsMemory();
+			clearMemory();
 
 		return optics;
 	}
@@ -664,19 +702,19 @@ public class OPTICSManager extends CoordinateStore
 	}
 
 	/**
-	 * Checks for optics memory structures stored in memory.
+	 * Checks for search algorithm structures stored in memory.
 	 *
 	 * @return true, if successful
 	 */
-	public boolean hasOpticsMemory()
+	public boolean hasMemory()
 	{
 		return grid != null;
 	}
 
 	/**
-	 * Clear memory used by the OPTICS algorithm
+	 * Clear memory used by the search algorithm
 	 */
-	public void clearOpticsMemory()
+	public void clearMemory()
 	{
 		grid = null;
 		orderSeeds = null;
@@ -962,5 +1000,183 @@ public class OPTICSManager extends CoordinateStore
 
 		// Note Volume S(r) for a 2D hypersphere = pi * r^2
 		return (float) Math.sqrt(volumeS / Math.PI);
+	}
+
+	/**
+	 * Compute the core points as any that have more than min points within the distance. All points within the radius
+	 * are reachable points that are processed in turn. Any new core points expand the search space.
+	 * <p>
+	 * This is an implementation of the DBSCAN method. Ester, Martin; Kriegel, Hans-Peter; Sander, Jörg; Xu, Xiaowei
+	 * (1996). Simoudis, Evangelos; Han, Jiawei; Fayyad, Usama M., eds. A density-based algorithm for discovering
+	 * clusters in large spatial databases with noise. Proceedings of the Second International Conference on Knowledge
+	 * Discovery and Data Mining (KDD-96). AAAI Press. pp. 226–231.
+	 * <p>
+	 * Note that the generating distance may have been modified if invalid. If it is not strictly positive or not finite
+	 * then it is set using {@link #computeGeneratingDistance(int)}. If it is larger than the data range allows it is
+	 * set to the maximum distance that can be computed for the data range. If the data are colocated the distance is
+	 * set to 1. The distance is stored in the results.
+	 * <p>
+	 * The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
+	 *
+	 * @param generatingDistanceE
+	 *            the generating distance E (set to zero to auto calibrate)
+	 * @param minPts
+	 *            the min points for a core object
+	 * @return the results (or null if the algorithm was stopped using the tracker)
+	 */
+	public DBSCANResult dbscan(float generatingDistanceE, int minPts)
+	{
+		return dbscan(generatingDistanceE, minPts, true);
+	}
+
+	/**
+	 * Compute the core points as any that have more than min points within the distance. All points within the radius
+	 * are reachable points that are processed in turn. Any new core points expand the search space.
+	 * <p>
+	 * This is an implementation of the DBSCAN method. Ester, Martin; Kriegel, Hans-Peter; Sander, Jörg; Xu, Xiaowei
+	 * (1996). Simoudis, Evangelos; Han, Jiawei; Fayyad, Usama M., eds. A density-based algorithm for discovering
+	 * clusters in large spatial databases with noise. Proceedings of the Second International Conference on Knowledge
+	 * Discovery and Data Mining (KDD-96). AAAI Press. pp. 226–231.
+	 * <p>
+	 * Note that the generating distance may have been modified if invalid. If it is not strictly positive or not finite
+	 * then it is set using {@link #computeGeneratingDistance(int)}. If it is larger than the data range allows it is
+	 * set to the maximum distance that can be computed for the data range. If the data are colocated the distance is
+	 * set to 1. The distance is stored in the results.
+	 * <p>
+	 * This creates a large memory structure. It can be held in memory for re-use when using a different number of min
+	 * points. The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
+	 *
+	 * @param generatingDistanceE
+	 *            the generating distance E (set to zero to auto calibrate)
+	 * @param minPts
+	 *            the min points for a core object
+	 * @param clearMemory
+	 *            Set to true to clear the memory structure
+	 * @return the results (or null if the algorithm was stopped using the tracker)
+	 */
+	public DBSCANResult dbscan(float generatingDistanceE, int minPts, boolean clearMemory)
+	{
+		if (minPts < 1)
+			minPts = 1;
+
+		initialiseOPTICS(generatingDistanceE, minPts);
+
+		// The distance may be updated
+		generatingDistanceE = grid.generatingDistanceE;
+
+		if (tracker != null)
+		{
+			tracker.log("Running DBSCAN ...");
+			tracker.progress(0, xcoord.length);
+		}
+
+		// The generating distance (E) used in the paper is the maximum distance at which cluster
+		// centres will be formed. This implementation uses the squared distance to avoid sqrt() 
+		// function calls.
+		final float e = generatingDistanceE * generatingDistanceE;
+
+		final int size = xcoord.length;
+		DBSCANResultList results = new DBSCANResultList(size);
+		OPTICSMoleculeList allNeighbours = new OPTICSMoleculeList(size);
+		for (int i = 0; i < size; i++)
+		{
+			// Use a single index to represent:
+			// -1 = processed
+			//  0 = noise
+			// >0 = cluster Id
+			// Note that we may visit a border point first which is marked as noise.
+			// This point could later be found to be included in a core point neighbourhood.
+			// So we can add noise points to a cluster but we do not process them again.
+			
+			if (notProcessed(grid.setOfObjects[i]))
+			{
+				if (expandCluster(grid.setOfObjects[i], e, minPts, results, allNeighbours))
+					break;
+			}
+		}
+
+		boolean stopped = false;
+		if (tracker != null)
+		{
+			stopped = tracker.isEnded();
+			tracker.progress(1.0);
+
+			if (stopped)
+				tracker.log("Aborted OPTICS");
+		}
+
+		DBSCANResult optics = null;
+		if (!stopped)
+		{
+			optics = new DBSCANResult(minPts, generatingDistanceE, results.list);
+			int nClusters = results.clusterId;
+			if (tracker != null)
+			{
+				tracker.log("Finished DBSCAN: " + Utils.pleural(nClusters, "Cluster"));
+			}
+		}
+
+		if (clearMemory)
+			clearMemory();
+
+		return optics;
+	}
+
+	private boolean notProcessed(OPTICSMolecule object)
+	{
+		return object.queueIndex == -1;
+	}
+	
+	private boolean notClustered(OPTICSMolecule object)
+	{
+		return object.queueIndex <= 0;
+	}
+
+	private boolean expandCluster(OPTICSMolecule object, float e, int minPts, DBSCANResultList results,
+			OPTICSMoleculeList allNeighbours)
+	{
+		// TODO - Complete this
+		
+		
+		findNeighbours(minPts, object, e);
+		object.processed = true;
+		int nPts = neighbours.size;
+		if (nPts < minPts)
+			// NOISE
+			return results.add(new DBSCANOrder(object.id, 0, nPts));
+
+		int clusterId = ++results.clusterId;
+
+		allNeighbours.clear();
+		update(allNeighbours, neighbours);
+
+		for (int i = 0; i < allNeighbours.size; i++)
+		{
+			final OPTICSMolecule currentObject = allNeighbours.get(i);
+			findNeighbours(minPts, currentObject, e);
+			currentObject.processed = true;
+			nPts = neighbours.size;
+			
+			
+			if (results.add(new DBSCANOrder(object.id, clusterId, nPts)))
+				return true;
+
+			if (nPts >= minPts)
+				update(allNeighbours, neighbours);
+		}
+
+		return false;
+	}
+
+	private void update(OPTICSMoleculeList allNeighbours, OPTICSMoleculeList neighbours)
+	{
+		for (int i = neighbours.size; i-- > 0;)
+		{
+			final OPTICSMolecule object = neighbours.get(i);
+			if (notProcessed(object))
+			{
+				
+			}
+		}
 	}
 }
