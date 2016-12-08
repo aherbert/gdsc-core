@@ -233,7 +233,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
             return v;
         } catch (CloneNotSupportedException e) {
             // this shouldn't happen, since we are Cloneable
-            throw new InternalError(e);
+            throw new InternalError();
         }
     }
 
