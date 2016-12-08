@@ -19,6 +19,7 @@ import de.lmu.ifi.dbs.elki.data.type.TypeUtil;
 import de.lmu.ifi.dbs.elki.database.AbstractDatabase;
 import de.lmu.ifi.dbs.elki.database.Database;
 import de.lmu.ifi.dbs.elki.database.StaticArrayDatabase;
+import de.lmu.ifi.dbs.elki.database.datastore.DataStore;
 import de.lmu.ifi.dbs.elki.database.datastore.DataStoreFactory;
 import de.lmu.ifi.dbs.elki.database.datastore.DataStoreUtil;
 import de.lmu.ifi.dbs.elki.database.datastore.DoubleDataStore;
@@ -297,15 +298,17 @@ public class DensityManagerTest
 		double[][] d;
 		Relation<DoubleVector> points;
 		int minPts;
+		double generatingDistance;
 
-		public CheatingRandomProjectedNeighborsAndDensities(double[][] d, int minPts)
+		public CheatingRandomProjectedNeighborsAndDensities(double[][] d, int minPts, double generatingDistance)
 		{
 			super(RandomFactory.get(30051977l));
 			this.d = d;
 			this.minPts = minPts;
 		}
 
-		// TODO - override the methods used by optics 
+		// Override the methods used by optics
+		
 		@Override
 		public void computeSetsBounds(Relation<DoubleVector> points, int minSplitSize, DBIDs ptList)
 		{
@@ -326,9 +329,18 @@ public class DensityManagerTest
 			{
 				double[] dd = d[asInteger(it)].clone();
 				Arrays.sort(dd);
-				davg.put(it, dd[minPts - 1]);
+				double d = dd[minPts - 1];
+				davg.put(it, (d <= generatingDistance) ? d : FastOPTICS.UNDEFINED_DISTANCE);
 			}
 			return davg;
+		}
+		
+		@Override
+		public DataStore<? extends DBIDs> getNeighs()
+		{
+			// Not modifying this method appears to work. 
+			// We could find all Ids below the generating distance fro each point
+			return super.getNeighs();
 		}
 	}
 
@@ -378,7 +390,7 @@ public class DensityManagerTest
 
 				// Test verses the ELKI frame work
 				RandomProjectedNeighborsAndDensities<DoubleVector> index = new CheatingRandomProjectedNeighborsAndDensities(
-						d, minPts);
+						d, minPts, size);
 				FastOPTICS<DoubleVector> fo = new FastOPTICS<DoubleVector>(minPts, index);
 				ClusterOrder order = fo.run(db);
 
@@ -463,7 +475,7 @@ public class DensityManagerTest
 
 				// Test verses the ELKI frame work
 				RandomProjectedNeighborsAndDensities<DoubleVector> index = new CheatingRandomProjectedNeighborsAndDensities(
-						d, minPts);
+						d, minPts, size);
 				FastOPTICS<DoubleVector> fo = new FastOPTICS<DoubleVector>(minPts, index);
 
 				double xi = 0.03;
@@ -496,7 +508,7 @@ public class DensityManagerTest
 				}
 
 				return;
-				
+
 				// I will have to allow the Ids to be different. So change the Ids using first occurrence mapping...
 
 				// TODO - try at a lower distance threshold
