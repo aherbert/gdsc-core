@@ -88,4 +88,50 @@ public class DBSCANResult
 			data[results[i].parent] = i + 1;
 		return data;
 	}
+
+	/**
+	 * Gets the cluster Id for each parent object. This can be set by {@link #extractDBSCANClustering(float)} or
+	 * {@link #extractClusters(double, boolean, boolean)}.
+	 *
+	 * @return the clusters
+	 */
+	public int[] getClusters()
+	{
+		return getClusters(false);
+	}
+
+	/**
+	 * Gets the cluster Id for each parent object. This can be set by {@link #extractDBSCANClustering(float)} or
+	 * {@link #extractClusters(double, boolean, boolean)}.
+	 *
+	 * @param core
+	 *            Set to true to get the clusters using only the core points
+	 * @return the clusters
+	 */
+	public int[] getClusters(boolean core)
+	{
+		int[] clusters = new int[size()];
+		if (core)
+		{
+			for (int i = size(); i-- > 0;)
+			{
+				if (results[i].nPts >= minPts)
+				{
+					int id = results[i].parent;
+					clusters[id] = results[i].clusterId;
+				}
+			}
+
+		}
+		else
+		{
+			for (int i = size(); i-- > 0;)
+			{
+				int id = results[i].parent;
+				clusters[id] = results[i].clusterId;
+			}
+		}
+		return clusters;
+	}
+
 }

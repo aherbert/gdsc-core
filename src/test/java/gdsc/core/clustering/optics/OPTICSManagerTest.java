@@ -15,7 +15,6 @@ package gdsc.core.clustering.optics;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -54,6 +53,7 @@ import gdsc.core.logging.ConsoleLogger;
 import gdsc.core.logging.NullTrackProgress;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.Maths;
+import gdsc.core.utils.PartialSort;
 import gdsc.core.utils.Random;
 
 public class OPTICSManagerTest
@@ -117,9 +117,17 @@ public class OPTICSManagerTest
 					DataStoreFactory.HINT_HOT);
 			for (DBIDIter it = points.getDBIDs().iter(); it.valid(); it.advance())
 			{
-				double[] dd = d[asInteger(it)].clone();
-				Arrays.sort(dd);
-				double d = dd[minPts - 1];
+				double d;
+				double[] data = this.d[asInteger(it)];
+
+				// Simple sort
+				//double[] dd = data.clone();
+				//Arrays.sort(dd);
+				//d = dd[minPts - 1];
+
+				// Partial sort
+				d = PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, data, minPts)[0];
+
 				// This break the code
 				//davg.put(it, (d <= generatingDistance) ? d : FastOPTICS.UNDEFINED_DISTANCE);
 				// This break the code
@@ -408,11 +416,11 @@ public class OPTICSManagerTest
 		float radius = 0;
 
 		int minPts = 10;
-		Assert.assertFalse(om.hasOpticsMemory());
+		Assert.assertFalse(om.hasMemory());
 		OPTICSResult r1 = om.optics(radius, minPts, false);
-		Assert.assertTrue(om.hasOpticsMemory());
+		Assert.assertTrue(om.hasMemory());
 		OPTICSResult r2 = om.optics(radius, minPts, true);
-		Assert.assertFalse(om.hasOpticsMemory());
+		Assert.assertFalse(om.hasMemory());
 		Assert.assertEquals(r1.size(), r2.size());
 		for (int i = r1.size(); i-- > 0;)
 		{
@@ -504,6 +512,61 @@ public class OPTICSManagerTest
 		{
 			Assert.assertEquals(r1.get(i).clusterId, clusterId[i]);
 		}
+	}
+
+	/**
+	 * Test the results of DBSCAN using OPTICS
+	 */
+	@Test
+	public void canComputeDBSCAN()
+	{
+		for (int n : new int[] { 100, 500 })
+		{
+			OPTICSManager om = createOPTICSManager(size, n);
+
+			for (int minPts : new int[] { 5, 10 })
+			{
+				// Use default range and keep items in memory for speed during the test
+				OPTICSResult r1 = om.optics(0, minPts, false);
+				DBSCANResult r2 = om.dbscan(0, minPts);
+
+				areSameClusters(r1, r2);
+			}
+		}
+	}
+
+	private void areSameClusters(OPTICSResult r1, DBSCANResult r2)
+	{
+		// Check. Remove non-core points as OPTICS and DBSCAN differ in the 
+		// processing order within a cluster.
+		int[] c1 = r1.getClusters(true);
+		int[] c2 = r2.getClusters(true);
+
+		Assert.assertArrayEquals(c1, c2);
+	}
+
+	@Test
+	public void dBSCANIsFasterThanOPTICS()
+	{
+		OPTICSManager om = createOPTICSManager(size, 5000);
+
+		long t1 = System.nanoTime();
+		OPTICSResult r1 = om.optics(0, 10);
+		long t2 = System.nanoTime();
+		DBSCANResult r2 = om.dbscan(0, 10);
+		long t3 = System.nanoTime();
+
+		areSameClusters(r1, r2);
+
+		t3 = t3 - t2;
+		t2 = t2 - t1;
+
+		Assert.assertTrue(t3 < t2);
+		
+		// Note: The OPTICS paper reports that it should be about 1.6x slower than DBSCAN 
+		// This test shows a smaller difference probably due to unrealistic data. 
+
+		//System.out.printf("%d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
 	}
 
 	private OPTICSManager createOPTICSManager(int size, int n)

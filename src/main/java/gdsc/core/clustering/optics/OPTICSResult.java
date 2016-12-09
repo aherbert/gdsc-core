@@ -224,11 +224,38 @@ public class OPTICSResult
 	 */
 	public int[] getClusters()
 	{
+		return getClusters(false);
+	}
+
+	/**
+	 * Gets the cluster Id for each parent object. This can be set by {@link #extractDBSCANClustering(float)} or
+	 * {@link #extractClusters(double, boolean, boolean)}.
+	 *
+	 * @param core
+	 *            Set to true to get the clusters using only the core points
+	 * @return the clusters
+	 */
+	public int[] getClusters(boolean core)
+	{
 		int[] clusters = new int[size()];
-		for (int i = size(); i-- > 0;)
+		if (core)
 		{
-			int id = opticsResults[i].parent;
-			clusters[id] = opticsResults[i].clusterId;
+			for (int i = size(); i-- > 0;)
+			{
+				if (opticsResults[i].isCorePoint())
+				{
+					int id = opticsResults[i].parent;
+					clusters[id] = opticsResults[i].clusterId;
+				}
+			}
+		}
+		else
+		{
+			for (int i = size(); i-- > 0;)
+			{
+				int id = opticsResults[i].parent;
+				clusters[id] = opticsResults[i].clusterId;
+			}
 		}
 		return clusters;
 	}

@@ -68,4 +68,14 @@ public class OPTICSOrder
 		this.coreDistance = coreDistance;
 		this.reachabilityDistance = reachabilityDistance;
 	}
+
+	/**
+	 * Checks if is core point.
+	 *
+	 * @return true, if is core point
+	 */
+	public boolean isCorePoint()
+	{
+		return coreDistance != Double.POSITIVE_INFINITY;
+	}
 }
