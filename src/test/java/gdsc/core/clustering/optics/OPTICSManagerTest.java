@@ -370,6 +370,89 @@ public class OPTICSManagerTest
 		}
 	}
 
+	@Test
+	public void canComputeOPTICSWithHighResolutionRadial()
+	{
+		for (int n : new int[] { 100, 500 })
+		{
+			OPTICSManager om1 = createOPTICSManager(size, n);
+			OPTICSManager om2 = (OPTICSManager) om1.clone();
+			om2.setOption(Option.HIGH_RESOLUTION);
+			om2.setOption(Option.RADIAL_PROCESSING);
+
+			for (int minPts : new int[] { 5, 10 })
+			{
+				// Use max range
+				OPTICSResult r1 = om1.optics(0, minPts);
+				OPTICSResult r2 = om2.optics(0, minPts);
+
+				// Check 
+				for (int i = 0; i < r1.size(); i++)
+				{
+					if (i == 0)
+						// No predecessor or reachability distance
+						continue;
+
+					int expId = r1.get(i).parent;
+					int obsId = r2.get(i).parent;
+
+					int expPre = r1.get(i).predecessor;
+					int obsPre = r2.get(i).predecessor;
+
+					double expR = r1.get(i).reachabilityDistance;
+					double obsR = r2.get(i).reachabilityDistance;
+
+					//System.out.printf("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
+					//		r1.get(i).coreDistance, expPre, obsPre);
+
+					Assert.assertEquals(expId, obsId);
+					Assert.assertEquals(expPre, obsPre);
+					Assert.assertEquals(expR, obsR, expR * 1e-5);
+				}
+			}
+		}
+	}
+
+	@Test
+	public void canComputeDBSCANWithHighResolutionRadial()
+	{
+		for (int n : new int[] { 100, 500 })
+		{
+			OPTICSManager om1 = createOPTICSManager(size, n);
+			OPTICSManager om2 = (OPTICSManager) om1.clone();
+			om2.setOption(Option.HIGH_RESOLUTION);
+			om2.setOption(Option.RADIAL_PROCESSING);
+
+			for (int minPts : new int[] { 5, 10 })
+			{
+				// Use max range
+				DBSCANResult r1 = om1.dbscan(0, minPts);
+				DBSCANResult r2 = om2.dbscan(0, minPts);
+
+				// Check 
+				for (int i = 0; i < r1.size(); i++)
+				{
+					if (i == 0)
+						// No predecessor or reachability distance
+						continue;
+
+					int expId = r1.get(i).parent;
+					int obsId = r2.get(i).parent;
+
+					int expCId = r1.get(i).clusterId;
+					int obsCId = r2.get(i).clusterId;
+
+					int expPts = r1.get(i).nPts;
+					int obsPts = r2.get(i).nPts;
+
+					Assert.assertEquals(expId, obsId);
+					Assert.assertEquals(expCId, obsCId);
+					Assert.assertEquals(expPts, obsPts);
+				}
+			}
+		}
+	}
+
 	//@Test
 	public void canComputeOPTICSFaster()
 	{
@@ -421,15 +504,15 @@ public class OPTICSManagerTest
 		Assert.assertFalse(om.hasMemory());
 
 		EnumSet<Option> opt = om.getOptions();
-		
+
 		opt.add(OPTICSManager.Option.CACHE);
 		OPTICSResult r1 = om.optics(radius, minPts);
 		Assert.assertTrue(om.hasMemory());
-		
+
 		opt.remove(OPTICSManager.Option.CACHE);
 		OPTICSResult r2 = om.optics(radius, minPts);
 		Assert.assertFalse(om.hasMemory());
-		
+
 		Assert.assertEquals(r1.size(), r2.size());
 		for (int i = r1.size(); i-- > 0;)
 		{
@@ -573,7 +656,7 @@ public class OPTICSManagerTest
 		t2 = t2 - t1;
 
 		Assert.assertTrue(t3 < t2);
-		
+
 		// Note: The OPTICS paper reports that it should be about 1.6x slower than DBSCAN 
 		// This test shows a smaller difference probably due to unrealistic data. 
 

@@ -46,7 +46,17 @@ public class OPTICSManager extends CoordinateStore
 		 * Flag to indicate that memory structures should be cached. Set this when it is intended to call multiple
 		 * clustering methods.
 		 */
-		CACHE;
+		CACHE,
+		/**
+		 * Flag to indicate that a high resolution 2D grid should be used. This has performance benefits when the number
+		 * of molecules is high since unnecessary distance computations can be avoided. This required more memory.
+		 */
+		HIGH_RESOLUTION,
+		/**
+		 * Flag to indicate that radial processing should be used on the 2D grid should be used. This has performance
+		 * benefits when the resolution is high since some distance computations can be assumed.
+		 */
+		RADIAL_PROCESSING;
 	}
 
 	private EnumSet<Option> options = EnumSet.noneOf(Option.class);
@@ -144,6 +154,9 @@ public class OPTICSManager extends CoordinateStore
 			return dx * dx + dy * dy;
 		}
 
+		/**
+		 * Reset for fresh processing.
+		 */
 		void reset()
 		{
 			processed = false;
@@ -501,8 +514,16 @@ public class OPTICSManager extends CoordinateStore
 			setOfObjects = generate();
 		}
 
+		/**
+		 * Generate the molecule space. Return the list of molecules that will be processed.
+		 *
+		 * @return the molecule list
+		 */
 		abstract Molecule[] generate();
 
+		/**
+		 * Reset all the molecules for fresh processing.
+		 */
 		void reset()
 		{
 			for (int i = setOfObjects.length; i-- > 0;)
@@ -549,7 +570,7 @@ public class OPTICSManager extends CoordinateStore
 	}
 
 	/**
-	 * Used in the OPTICS algorithm
+	 * Store molecules in a 2D grid
 	 */
 	private class GridMoleculeSpace extends MoleculeSpace
 	{
@@ -557,7 +578,7 @@ public class OPTICSManager extends CoordinateStore
 		float binWidth;
 		int xBins;
 		int yBins;
-		Molecule[][][] grid;
+		Molecule[][] grid;
 
 		GridMoleculeSpace(float generatingDistanceE)
 		{
@@ -588,44 +609,7 @@ public class OPTICSManager extends CoordinateStore
 				}
 				else
 				{
-					// Do not increase the resolution so high we have thousands of blocks
-					// and not many expected points.		
-					// Determine the number of molecules we would expect in a square block if they are uniform.
-					double blockArea = 4 * generatingDistanceE;
-					double expected = xcoord.length * blockArea / (xrange * yrange);
-
-					// It is OK if 25-50% of the blocks are full
-					int newResolution = 1;
-
-					double target = expected / 0.25;
-
-					// Closest
-					//				double minDelta = Math.abs(getNeighbourBlocks(newResolution) - target);
-					//				while (newResolution < resolution)
-					//				{
-					//					double delta = Math.abs(getNeighbourBlocks(newResolution + 1) - target);
-					//					if (delta < minDelta)
-					//					{
-					//						minDelta = delta;
-					//						newResolution++;
-					//					}
-					//					else
-					//						break;
-					//				}
-
-					// Next size up
-					while (newResolution < resolution)
-					{
-						if (getNeighbourBlocks(newResolution) < target)
-							newResolution++;
-						else
-							break;
-					}
-
-					resolution = newResolution;
-
-					//System.out.printf("Expected %.2f [%d]\n", expected, (2 * resolution + 1) * (2 * resolution + 1));
-
+					adjustResolution(xrange, yrange);
 					binWidth = generatingDistanceE / resolution;
 				}
 			}
@@ -649,10 +633,10 @@ public class OPTICSManager extends CoordinateStore
 			}
 
 			// Convert grid to arrays ...
-			grid = new Molecule[xBins][yBins][];
-			for (int xBin = xBins; xBin-- > 0;)
+			grid = new Molecule[xBins * yBins][];
+			for (int yBin = yBins, index = 0; yBin-- > 0;)
 			{
-				for (int yBin = yBins; yBin-- > 0;)
+				for (int xBin = xBins; xBin-- > 0; index++)
 				{
 					if (linkedListGrid[xBin][yBin] == null)
 						continue;
@@ -662,14 +646,14 @@ public class OPTICSManager extends CoordinateStore
 					final Molecule[] list = new Molecule[count];
 					for (Molecule m = linkedListGrid[xBin][yBin]; m != null; m = m.next)
 						list[--count] = m;
-					grid[xBin][yBin] = list;
+					grid[index] = list;
 				}
 			}
 
 			return setOfObjects;
 		}
 
-		private int determineResolution(float xrange, float yrange)
+		int determineResolution(float xrange, float yrange)
 		{
 			int resolution = 0;
 			// What is a good maximum limit for the memory allocation?
@@ -680,6 +664,50 @@ public class OPTICSManager extends CoordinateStore
 			//System.out.printf("d=%.3f  [%d]\n", generatingDistanceE, resolution);
 			// We handle a resolution of zero in the calling function
 			return resolution;
+		}
+
+		void adjustResolution(final float xrange, final float yrange)
+		{
+			if (options.contains(Option.HIGH_RESOLUTION))
+				return;
+
+			// Do not increase the resolution so high we have thousands of blocks
+			// and not many expected points.		
+			// Determine the number of molecules we would expect in a square block if they are uniform.
+			double blockArea = 4 * generatingDistanceE;
+			double expected = xcoord.length * blockArea / (xrange * yrange);
+
+			// It is OK if 25-50% of the blocks are full
+			int newResolution = 1;
+
+			double target = expected / 0.25;
+
+			// Closest
+			//				double minDelta = Math.abs(getNeighbourBlocks(newResolution) - target);
+			//				while (newResolution < resolution)
+			//				{
+			//					double delta = Math.abs(getNeighbourBlocks(newResolution + 1) - target);
+			//					if (delta < minDelta)
+			//					{
+			//						minDelta = delta;
+			//						newResolution++;
+			//					}
+			//					else
+			//						break;
+			//				}
+
+			// Next size up
+			while (newResolution < resolution)
+			{
+				if (getNeighbourBlocks(newResolution) < target)
+					newResolution++;
+				else
+					break;
+			}
+
+			resolution = newResolution;
+
+			//System.out.printf("Expected %.2f [%d]\n", expected, (2 * resolution + 1) * (2 * resolution + 1));
 		}
 
 		private float determineBinWidth(float xrange, float yrange)
@@ -711,30 +739,17 @@ public class OPTICSManager extends CoordinateStore
 			return size * size;
 		}
 
-		void reset()
-		{
-			for (int i = setOfObjects.length; i-- > 0;)
-				setOfObjects[i].reset();
-		}
-
-		/**
-		 * Find neighbours closer than the generating distance. The neighbours are written to the working memory store.
-		 * <p>
-		 * If the number of points is definitely below the minimum number of points then no distances are computed (to
-		 * save
-		 * time).
-		 * <p>
-		 * The neighbours includes the actual point in the list of neighbours (where the distance would be 0).
-		 *
-		 * @param minPts
-		 *            the min pts
-		 * @param object
-		 *            the object
-		 * @param e
-		 *            the generating distance
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
+		 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 		 */
 		void findNeighbours(int minPts, Molecule object, float e)
 		{
+			// Match findNeighboursAndDistances(minPts, object, e);
+			// But do not store the distances
+
 			final int xBin = object.xBin;
 			final int yBin = object.yBin;
 
@@ -748,15 +763,13 @@ public class OPTICSManager extends CoordinateStore
 
 			// Count if there are enough neighbours
 			int count = minPts;
-			counting: for (int x = minx; x < maxx; x++)
+			counting: for (int y = miny; y < maxy; y++)
 			{
-				final Molecule[][] column = grid[x];
-				for (int y = miny; y < maxy; y++)
+				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
 				{
-					final Molecule[] list = column[y];
-					if (list != null)
+					if (grid[index] != null)
 					{
-						count -= list.length;
+						count -= grid[index].length;
 						if (count <= 0)
 							break counting;
 					}
@@ -771,18 +784,16 @@ public class OPTICSManager extends CoordinateStore
 			}
 
 			// Compute distances
-			for (int x = minx; x < maxx; x++)
+			for (int y = miny; y < maxy; y++)
 			{
-				final Molecule[][] column = grid[x];
-				for (int y = miny; y < maxy; y++)
+				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
 				{
-					final Molecule[] list = column[y];
-					if (list != null)
+					if (grid[index] != null)
 					{
+						final Molecule[] list = grid[index];
 						for (int i = list.length; i-- > 0;)
 						{
-							final float d = object.distance2(list[i]);
-							if (d <= e)
+							if (object.distance2(list[i]) <= e)
 							{
 								// Build a list of all the neighbours
 								neighbours.add(list[i]);
@@ -793,23 +804,11 @@ public class OPTICSManager extends CoordinateStore
 			}
 		}
 
-		/**
-		 * Find neighbours closer than the generating distance. The neighbours are written to the working memory store.
-		 * The
-		 * distances are stored in the objects encountered.
-		 * <p>
-		 * If the number of points is definitely below the minimum number of points then no distances are computed (to
-		 * save
-		 * time).
-		 * <p>
-		 * The neighbours includes the actual point in the list of neighbours (where the distance would be 0).
-		 *
-		 * @param minPts
-		 *            the min pts
-		 * @param object
-		 *            the object
-		 * @param e
-		 *            the generating distance
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
+		 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 		 */
 		void findNeighboursAndDistances(int minPts, Molecule object, float e)
 		{
@@ -826,15 +825,13 @@ public class OPTICSManager extends CoordinateStore
 
 			// Count if there are enough neighbours
 			int count = minPts;
-			counting: for (int x = minx; x < maxx; x++)
+			counting: for (int y = miny; y < maxy; y++)
 			{
-				final Molecule[][] column = grid[x];
-				for (int y = miny; y < maxy; y++)
+				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
 				{
-					final Molecule[] list = column[y];
-					if (list != null)
+					if (grid[index] != null)
 					{
-						count -= list.length;
+						count -= grid[index].length;
 						if (count <= 0)
 							break counting;
 					}
@@ -849,14 +846,13 @@ public class OPTICSManager extends CoordinateStore
 			}
 
 			// Compute distances
-			for (int x = minx; x < maxx; x++)
+			for (int y = miny; y < maxy; y++)
 			{
-				final Molecule[][] column = grid[x];
-				for (int y = miny; y < maxy; y++)
+				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
 				{
-					final Molecule[] list = column[y];
-					if (list != null)
+					if (grid[index] != null)
 					{
+						final Molecule[] list = grid[index];
 						for (int i = list.length; i-- > 0;)
 						{
 							final float d = object.distance2(list[i]);
@@ -874,11 +870,114 @@ public class OPTICSManager extends CoordinateStore
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private class RadialMoleculeSpace
+	/**
+	 * Store molecules in a high resolution 2D grid and perform distance computation
+	 */
+	private class RadialMoleculeSpace extends GridMoleculeSpace
 	{
-		// TODO - Build a search space that can use a circular mask to only search over the required 
-		// points in the 2D grid
+		RadialMoleculeSpace(float generatingDistanceE)
+		{
+			super(generatingDistanceE);
+		}
+
+		Molecule[] generate()
+		{
+			// Generate the grid
+			Molecule[] m = super.generate();
+
+			// TODO - Build a search space that can use a circular mask to only search over the required 
+			// points in the 2D grid
+
+			return m;
+		}
+
+		@Override
+		int determineResolution(float xrange, float yrange)
+		{
+			// TODO - determine a good resolution for the given generating distance
+
+			return super.determineResolution(xrange, yrange);
+		}
+
+		@Override
+		void adjustResolution(float xrange, float yrange)
+		{
+			// TODO - prevent the resolution from being reduced too small 
+
+			super.adjustResolution(xrange, yrange);
+		}
+
+		void findNeighbours(int minPts, Molecule object, float e)
+		{
+			final int xBin = object.xBin;
+			final int yBin = object.yBin;
+
+			neighbours.clear();
+
+			// TODO - Use a circle mask over the grid to enumerate the correct cells
+			// Only compute distances at the edge of the mask 
+			
+			// Pre-compute range
+			final int minx = Math.max(xBin - resolution, 0);
+			final int maxx = Math.min(xBin + resolution + 1, xBins);
+			final int miny = Math.max(yBin - resolution, 0);
+			final int maxy = Math.min(yBin + resolution + 1, yBins);
+
+			// Count if there are enough neighbours
+			int count = minPts;
+			counting: for (int y = miny; y < maxy; y++)
+			{
+				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+				{
+					if (grid[index] != null)
+					{
+						count -= grid[index].length;
+						if (count <= 0)
+							break counting;
+					}
+				}
+			}
+
+			if (count > 0)
+			{
+				// Not a core point so do not compute distances
+				//System.out.println("Skipping distance computation (not a core point)");
+				return;
+			}
+
+			// Compute distances
+			for (int y = miny; y < maxy; y++)
+			{
+				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+				{
+					if (grid[index] != null)
+					{
+						final Molecule[] list = grid[index];
+						for (int i = list.length; i-- > 0;)
+						{
+							if (object.distance2(list[i]) <= e)
+							{
+								// Build a list of all the neighbours
+								neighbours.add(list[i]);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		void findNeighboursAndDistances(int minPts, Molecule object, float e)
+		{
+			// TODO - could this be implemented to use concentric rings around the current pixel
+			// We would need to pre-compute all the bounds for each concentric ring.
+			// then process from the central point outward. When the min points is achieved 
+			// we then compute the core distance using the molecules in the most recent ring. 
+			// For all remaining points outside the core distance
+			// we only need to compute the reachability distance if it is currently UNDEFINED
+			// or it is greater than the core distance.
+
+			super.findNeighboursAndDistances(minPts, object, e);
+		}
 	}
 
 	/**
@@ -1041,8 +1140,11 @@ public class OPTICSManager extends CoordinateStore
 			if (tracker != null)
 				tracker.log("Initialising OPTICS ...");
 
-			// TODO - options to control the type of space we use to store the data
-			grid = new GridMoleculeSpace(generatingDistanceE);
+			// Control the type of space we use to store the data
+			if (options.contains(Option.RADIAL_PROCESSING))
+				grid = new RadialMoleculeSpace(generatingDistanceE);
+			else
+				grid = new GridMoleculeSpace(generatingDistanceE);
 		}
 		else
 		{
