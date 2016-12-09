@@ -371,85 +371,127 @@ public class OPTICSManagerTest
 	}
 
 	@Test
+	public void canComputeOPTICSWithHighResolution()
+	{
+		canComputeOPTICSWithOptions(Option.HIGH_RESOLUTION);		
+	}
+
+	@Test
 	public void canComputeOPTICSWithHighResolutionRadial()
+	{
+		canComputeOPTICSWithOptions(Option.HIGH_RESOLUTION, Option.RADIAL_PROCESSING);		
+	}
+
+	public void canComputeOPTICSWithOptions(Option... options)
 	{
 		for (int n : new int[] { 100, 500 })
 		{
 			OPTICSManager om1 = createOPTICSManager(size, n);
-			OPTICSManager om2 = (OPTICSManager) om1.clone();
-			om2.setOption(Option.HIGH_RESOLUTION);
-			om2.setOption(Option.RADIAL_PROCESSING);
+			OPTICSManager om2 = om1.clone();
+			om2.setOptions(options);
 
 			for (int minPts : new int[] { 5, 10 })
 			{
 				// Use max range
 				OPTICSResult r1 = om1.optics(0, minPts);
+				OPTICSResult r1b = om1.optics(0, minPts);
 				OPTICSResult r2 = om2.optics(0, minPts);
 
-				// Check 
-				for (int i = 0; i < r1.size(); i++)
-				{
-					if (i == 0)
-						// No predecessor or reachability distance
-						continue;
-
-					int expId = r1.get(i).parent;
-					int obsId = r2.get(i).parent;
-
-					int expPre = r1.get(i).predecessor;
-					int obsPre = r2.get(i).predecessor;
-
-					double expR = r1.get(i).reachabilityDistance;
-					double obsR = r2.get(i).reachabilityDistance;
-
-					//System.out.printf("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
-					//		r1.get(i).coreDistance, expPre, obsPre);
-
-					Assert.assertEquals(expId, obsId);
-					Assert.assertEquals(expPre, obsPre);
-					Assert.assertEquals(expR, obsR, expR * 1e-5);
-				}
+				areEqual("repeat", r1, r1b);
+				areEqual("new", r1, r2);
 			}
 		}
+	}
+	
+	private void areEqual(String title, OPTICSResult r1, OPTICSResult r2)
+	{
+		for (int i = 0; i < r1.size(); i++)
+		{
+			double expC = r1.get(i).coreDistance;
+			double obsC = r2.get(i).coreDistance;
+			
+			Assert.assertEquals(title + " C " + i, expC, obsC, expC * 1e-5);
+
+			// Edge-points are random so ignore them. Only do core points.
+			if (!r1.get(i).isCorePoint())
+				continue;
+			
+			int expId = r1.get(i).parent;
+			int obsId = r2.get(i).parent;
+
+			int expPre = r1.get(i).predecessor;
+			int obsPre = r2.get(i).predecessor;
+
+			double expR = r1.get(i).reachabilityDistance;
+			double obsR = r2.get(i).reachabilityDistance;
+
+			//System.out.printf("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
+			//		r1.get(i).coreDistance, expPre, obsPre);
+
+			Assert.assertEquals(title + " Id " + i, expId, obsId);
+			Assert.assertEquals(title + " Pre " + i, expPre, obsPre);
+			Assert.assertEquals(title + " R " + i, expR, obsR, expR * 1e-5);
+		}
+	}
+
+	@Test
+	public void canComputeDBSCANWithRadial()
+	{
+		canComputeDBSCANWithOptions(Option.RADIAL_PROCESSING);
+	}
+
+	@Test
+	public void canComputeDBSCANWithHighResolution()
+	{
+		canComputeDBSCANWithOptions(Option.HIGH_RESOLUTION);
 	}
 
 	@Test
 	public void canComputeDBSCANWithHighResolutionRadial()
 	{
-		for (int n : new int[] { 100, 500 })
+		canComputeDBSCANWithOptions(Option.HIGH_RESOLUTION, Option.RADIAL_PROCESSING);
+	}
+
+	private void canComputeDBSCANWithOptions(Option... options)
+	{
+		for (int n : new int[] { 100, 500, 5000 })
 		{
 			OPTICSManager om1 = createOPTICSManager(size, n);
-			OPTICSManager om2 = (OPTICSManager) om1.clone();
-			om2.setOption(Option.HIGH_RESOLUTION);
-			om2.setOption(Option.RADIAL_PROCESSING);
+			OPTICSManager om2 = om1.clone();
+			om2.setOptions(options);
 
 			for (int minPts : new int[] { 5, 10 })
 			{
-				// Use max range
 				DBSCANResult r1 = om1.dbscan(0, minPts);
+				DBSCANResult r1b = om1.dbscan(0, minPts);
 				DBSCANResult r2 = om2.dbscan(0, minPts);
 
-				// Check 
-				for (int i = 0; i < r1.size(); i++)
-				{
-					if (i == 0)
-						// No predecessor or reachability distance
-						continue;
-
-					int expId = r1.get(i).parent;
-					int obsId = r2.get(i).parent;
-
-					int expCId = r1.get(i).clusterId;
-					int obsCId = r2.get(i).clusterId;
-
-					int expPts = r1.get(i).nPts;
-					int obsPts = r2.get(i).nPts;
-
-					Assert.assertEquals(expId, obsId);
-					Assert.assertEquals(expCId, obsCId);
-					Assert.assertEquals(expPts, obsPts);
-				}
+				areEqual("repeat", r1, r1b, minPts);
+				areEqual("new", r1, r2, minPts);
 			}
+		}
+	}
+	
+	private void areEqual(String title, DBSCANResult r1, DBSCANResult r2, int minPts)
+	{
+		for (int i = 0; i < r1.size(); i++)
+		{
+			int expPts = r1.get(i).nPts;
+			int obsPts = r2.get(i).nPts;
+			Assert.assertEquals(title +" Pts " + i, expPts, obsPts);
+			
+			// Edge-points are random so ignore them. Only do core points.
+			if (expPts < minPts)
+				continue;
+			
+			int expId = r1.get(i).parent;
+			int obsId = r2.get(i).parent;
+
+			int expCId = r1.get(i).clusterId;
+			int obsCId = r2.get(i).clusterId;
+			
+			Assert.assertEquals(title +" Id " + i, expId, obsId);
+			Assert.assertEquals(title +" CId " + i, expCId, obsCId);
 		}
 	}
 
@@ -642,12 +684,13 @@ public class OPTICSManagerTest
 	@Test
 	public void dBSCANIsFasterThanOPTICS()
 	{
-		OPTICSManager om = createOPTICSManager(size, 5000);
+		OPTICSManager om1 = createOPTICSManager(size, 5000);
+		OPTICSManager om2 = om1.clone();
 
 		long t1 = System.nanoTime();
-		OPTICSResult r1 = om.optics(0, 10);
+		OPTICSResult r1 = om1.optics(0, 10);
 		long t2 = System.nanoTime();
-		DBSCANResult r2 = om.dbscan(0, 10);
+		DBSCANResult r2 = om2.dbscan(0, 10);
 		long t3 = System.nanoTime();
 
 		areSameClusters(r1, r2);
@@ -661,6 +704,35 @@ public class OPTICSManagerTest
 		// This test shows a smaller difference probably due to unrealistic data. 
 
 		//System.out.printf("%d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
+	}
+
+	@Test
+	public void dBSCANHighResolutionRadialIsFaster()
+	{
+		OPTICSManager om1 = createOPTICSManager(size, 5000);
+		OPTICSManager om2 = om1.clone();
+		om2.setOption(Option.HIGH_RESOLUTION);
+		om2.setOption(Option.RADIAL_PROCESSING);
+
+		int minPts = 20;
+		
+		long t1 = System.nanoTime();
+		DBSCANResult r1 = om1.dbscan(0, minPts);
+		long t2 = System.nanoTime();
+		DBSCANResult r2 = om2.dbscan(0, minPts);
+		long t3 = System.nanoTime();
+
+		DBSCANResult r1b = om1.dbscan(0, minPts);
+		
+		areEqual("repeat", r1, r1b, minPts);
+		areEqual("new", r1, r2, minPts);
+
+		t3 = t3 - t2;
+		t2 = t2 - t1;
+
+		System.out.printf("dBSCANHighResolutionRadialIsFaster %d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
+
+		//Assert.assertTrue(t3 < t2);
 	}
 
 	private OPTICSManager createOPTICSManager(int size, int n)

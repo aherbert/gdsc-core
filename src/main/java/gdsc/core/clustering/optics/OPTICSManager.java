@@ -78,6 +78,18 @@ public class OPTICSManager extends CoordinateStore
 	 * @param options
 	 *            the new options
 	 */
+	public void setOptions(Option... options)
+	{
+		for (Option option : options)
+			this.options.add(option);
+	}
+	
+	/**
+	 * Sets the options.
+	 *
+	 * @param options
+	 *            the new options
+	 */
 	public void setOptions(EnumSet<Option> options)
 	{
 		if (options == null)
@@ -585,10 +597,21 @@ public class OPTICSManager extends CoordinateStore
 		int xBins;
 		int yBins;
 		Molecule[][] grid;
+		final int[] fastForward;
 
 		GridMoleculeSpace(float generatingDistanceE)
 		{
 			super(generatingDistanceE);
+
+			// Traverse the grid and store the index to the next position that contains data
+			int index = grid.length;
+			fastForward = new int[index];
+			for (int i = index; i-- > 0;)
+			{
+				fastForward[i] = index;
+				if (grid[i] != null)
+					index = i;
+			}
 		}
 
 		Molecule[] generate()
@@ -753,6 +776,8 @@ public class OPTICSManager extends CoordinateStore
 		 */
 		void findNeighbours(int minPts, Molecule object, float e)
 		{
+			boolean noFF = true;
+
 			// Match findNeighboursAndDistances(minPts, object, e);
 			// But do not store the distances
 
@@ -771,13 +796,31 @@ public class OPTICSManager extends CoordinateStore
 			int count = minPts;
 			counting: for (int y = miny; y < maxy; y++)
 			{
-				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+				if (noFF)
 				{
-					if (grid[index] != null)
+					for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+					{
+						if (grid[index] != null)
+						{
+							count -= grid[index].length;
+							if (count <= 0)
+								break counting;
+						}
+					}
+				}
+				else
+				{
+					// Use fast-forward to skip to the next position with data
+					int index = getIndex(minx, y);
+					if (grid[index] == null)
+						index = fastForward[index];
+					int endIndex = getIndex(maxx, y);
+					while (index < endIndex)
 					{
 						count -= grid[index].length;
 						if (count <= 0)
 							break counting;
+						index = fastForward[index];
 					}
 				}
 			}
@@ -792,9 +835,32 @@ public class OPTICSManager extends CoordinateStore
 			// Compute distances
 			for (int y = miny; y < maxy; y++)
 			{
-				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+				if (noFF)
 				{
-					if (grid[index] != null)
+					for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+					{
+						if (grid[index] != null)
+						{
+							final Molecule[] list = grid[index];
+							for (int i = list.length; i-- > 0;)
+							{
+								if (object.distance2(list[i]) <= e)
+								{
+									// Build a list of all the neighbours
+									neighbours.add(list[i]);
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					// Use fast-forward to skip to the next position with data
+					int index = getIndex(minx, y);
+					if (grid[index] == null)
+						index = fastForward[index];
+					int endIndex = getIndex(maxx, y);
+					while (index < endIndex)
 					{
 						final Molecule[] list = grid[index];
 						for (int i = list.length; i-- > 0;)
@@ -805,9 +871,15 @@ public class OPTICSManager extends CoordinateStore
 								neighbours.add(list[i]);
 							}
 						}
+						index = fastForward[index];
 					}
 				}
 			}
+		}
+
+		int getIndex(final int x, final int y)
+		{
+			return y * xBins + x;
 		}
 
 		/*
@@ -818,6 +890,8 @@ public class OPTICSManager extends CoordinateStore
 		 */
 		void findNeighboursAndDistances(int minPts, Molecule object, float e)
 		{
+			boolean noFF = true;
+
 			final int xBin = object.xBin;
 			final int yBin = object.yBin;
 
@@ -833,13 +907,31 @@ public class OPTICSManager extends CoordinateStore
 			int count = minPts;
 			counting: for (int y = miny; y < maxy; y++)
 			{
-				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+				if (noFF)
 				{
-					if (grid[index] != null)
+					for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+					{
+						if (grid[index] != null)
+						{
+							count -= grid[index].length;
+							if (count <= 0)
+								break counting;
+						}
+					}
+				}
+				else
+				{
+					// Use fast-forward to skip to the next position with data
+					int index = getIndex(minx, y);
+					if (grid[index] == null)
+						index = fastForward[index];
+					int endIndex = getIndex(maxx, y);
+					while (index < endIndex)
 					{
 						count -= grid[index].length;
 						if (count <= 0)
 							break counting;
+						index = fastForward[index];
 					}
 				}
 			}
@@ -854,9 +946,35 @@ public class OPTICSManager extends CoordinateStore
 			// Compute distances
 			for (int y = miny; y < maxy; y++)
 			{
-				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+				if (noFF)
 				{
-					if (grid[index] != null)
+					for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+					{
+						if (grid[index] != null)
+						{
+							final Molecule[] list = grid[index];
+							for (int i = list.length; i-- > 0;)
+							{
+								final float d = object.distance2(list[i]);
+								if (d <= e)
+								{
+									// Build a list of all the neighbours and their working distance
+									final Molecule otherObject = list[i];
+									otherObject.d = d;
+									neighbours.add(otherObject);
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					// Use fast-forward to skip to the next position with data
+					int index = getIndex(minx, y);
+					if (grid[index] == null)
+						index = fastForward[index];
+					int endIndex = getIndex(maxx, y);
+					while (index < endIndex)
 					{
 						final Molecule[] list = grid[index];
 						for (int i = list.length; i-- > 0;)
@@ -870,6 +988,7 @@ public class OPTICSManager extends CoordinateStore
 								neighbours.add(otherObject);
 							}
 						}
+						index = fastForward[index];
 					}
 				}
 			}
@@ -916,10 +1035,6 @@ public class OPTICSManager extends CoordinateStore
 			// points in the 2D grid
 			int size = 2 * resolution + 1;
 			offset = new Offset[size];
-			for (int i = 0; i < size; i++)
-			{
-				offset[i] = new Offset(-resolution, 0, 0, resolution + 1);
-			}
 
 			// TODO find the internal start and end:
 			// Any edge point that is only 8-connected to the row below creates 
@@ -931,9 +1046,19 @@ public class OPTICSManager extends CoordinateStore
 			// ....Xx
 			// .....X     x are extra internal points
 
-			for (int i = 0; i < size; i++)
+			for (int i = 0; i < resolution; i++)
 			{
 				offset[i] = new Offset(-resolution, 0, 0, resolution + 1);
+			}
+
+			// The central row cannot have more than 1 pixel internal 
+			offset[resolution] = new Offset(-resolution, 0, 0, resolution + 1);
+			//offset[resolution] = new Offset(-resolution, -resolution + 1, resolution, resolution + 1);
+
+			// Mirror
+			for (int i = 0, j = offset.length - 1; i < resolution; i++, j--)
+			{
+				offset[j] = offset[i];
 			}
 
 			return m;
@@ -957,6 +1082,12 @@ public class OPTICSManager extends CoordinateStore
 
 		void findNeighbours(int minPts, Molecule object, float e)
 		{
+			if (true)
+			{
+				super.findNeighbours(minPts, object, e);
+				return;
+			}
+
 			final int xBin = object.xBin;
 			final int yBin = object.yBin;
 
@@ -975,17 +1106,20 @@ public class OPTICSManager extends CoordinateStore
 			counting: for (int y = miny, row = startRow; y < maxy; y++, row++)
 			{
 				// Dynamically compute the search strip 
-				final int minx = Math.max(xBin - offset[row].start, 0);
+				final int minx = Math.max(xBin + offset[row].start, 0);
 				final int maxx = Math.min(xBin + offset[row].end, xBins);
 
-				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+				// Use fast-forward to skip to the next position with data
+				int index = getIndex(minx, y);
+				if (grid[index] == null)
+					index = fastForward[index];
+				int endIndex = getIndex(maxx, y);
+				while (index < endIndex)
 				{
-					if (grid[index] != null)
-					{
-						count -= grid[index].length;
-						if (count <= 0)
-							break counting;
-					}
+					count -= grid[index].length;
+					if (count <= 0)
+						break counting;
+					index = fastForward[index];
 				}
 			}
 
@@ -1000,38 +1134,45 @@ public class OPTICSManager extends CoordinateStore
 			for (int y = miny, row = startRow; y < maxy; y++, row++)
 			{
 				// Dynamically compute the search strip 
-				final int minx = Math.max(xBin - offset[row].start, 0);
+				final int minx = Math.max(xBin + offset[row].start, 0);
 				final int maxx = Math.min(xBin + offset[row].end, xBins);
 
-				int col = Math.max(resolution - minx, 0);
+				final int columnShift = getIndex(xBin - resolution, y);
 
-				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++, col++)
+				// Use fast-forward to skip to the next position with data
+				int index = getIndex(minx, y);
+				if (grid[index] == null)
+					index = fastForward[index];
+				int endIndex = getIndex(maxx, y);
+				while (index < endIndex)
 				{
-					if (grid[index] != null)
+					final Molecule[] list = grid[index];
+
+					// Build a list of all the neighbours
+
+					// Find the column in the circular mask
+					final int col = index - columnShift;
+
+					// TODO - Can this be made more efficient with an internal flag (i.e. 1 comparison per loop)?
+
+					//					// If internal just add all the points
+					//					if (col >= offset[row].startInternal && col < offset[row].endInternal)
+					//					{
+					//						neighbours.add(list);
+					//					}
+					//					else
+					//					{
+					// If at the edge then compute distances
+					for (int i = list.length; i-- > 0;)
 					{
-						final Molecule[] list = grid[index];
-
-						// Build a list of all the neighbours
-
-						// TODO - Can this be made more efficient with an internal flag (i.e. 1 comparison per loop)?
-
-						// If internal just add all the points
-						if (col >= offset[row].startInternal && col < offset[row].endInternal)
+						if (object.distance2(list[i]) <= e)
 						{
-							neighbours.add(list);
-						}
-						else
-						{
-							// If at the edge then compute distances
-							for (int i = list.length; i-- > 0;)
-							{
-								if (object.distance2(list[i]) <= e)
-								{
-									neighbours.add(list[i]);
-								}
-							}
+							neighbours.add(list[i]);
 						}
 					}
+					//					}
+
+					index = fastForward[index];
 				}
 			}
 		}
@@ -1208,7 +1349,7 @@ public class OPTICSManager extends CoordinateStore
 		if (grid == null || grid.generatingDistanceE != generatingDistanceE)
 		{
 			if (tracker != null)
-				tracker.log("Initialising OPTICS ...");
+				tracker.log("Initialising ...");
 
 			// Control the type of space we use to store the data
 			if (options.contains(Option.RADIAL_PROCESSING))
@@ -1576,5 +1717,14 @@ public class OPTICSManager extends CoordinateStore
 					pointsToSearch.push(object);
 			}
 		}
+	}
+
+	@Override
+	public OPTICSManager clone()
+	{
+		OPTICSManager m = (OPTICSManager) super.clone();
+		m.options = options.clone();
+		m.clearMemory();
+		return m;
 	}
 }
