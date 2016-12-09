@@ -339,6 +339,12 @@ public class OPTICSManager extends CoordinateStore
 		{
 			return list[i];
 		}
+
+		void add(Molecule[] molecules)
+		{
+			System.arraycopy(molecules, 0, list, size, molecules.length);
+			size += molecules.length;
+		}
 	}
 
 	/**
@@ -871,10 +877,31 @@ public class OPTICSManager extends CoordinateStore
 	}
 
 	/**
+	 * Store start and end x for each strip in the radial mask
+	 */
+	private class Offset
+	{
+		final int start;
+		final int startInternal;
+		final int endInternal;
+		final int end;
+
+		Offset(int start, int startInternal, int endInternal, int end)
+		{
+			this.start = start;
+			this.startInternal = startInternal;
+			this.endInternal = endInternal;
+			this.end = end;
+		}
+	}
+
+	/**
 	 * Store molecules in a high resolution 2D grid and perform distance computation
 	 */
 	private class RadialMoleculeSpace extends GridMoleculeSpace
 	{
+		Offset[] offset;
+
 		RadialMoleculeSpace(float generatingDistanceE)
 		{
 			super(generatingDistanceE);
@@ -887,6 +914,27 @@ public class OPTICSManager extends CoordinateStore
 
 			// TODO - Build a search space that can use a circular mask to only search over the required 
 			// points in the 2D grid
+			int size = 2 * resolution + 1;
+			offset = new Offset[size];
+			for (int i = 0; i < size; i++)
+			{
+				offset[i] = new Offset(-resolution, 0, 0, resolution + 1);
+			}
+
+			// TODO find the internal start and end:
+			// Any edge point that is only 8-connected to the row below creates 
+			// the requirement for extra internal cells to ensure we have a 4 connected edge
+			// 
+			// .....X
+			// ....Xx
+			// ....X
+			// ....Xx
+			// .....X     x are extra internal points
+
+			for (int i = 0; i < size; i++)
+			{
+				offset[i] = new Offset(-resolution, 0, 0, resolution + 1);
+			}
 
 			return m;
 		}
@@ -916,17 +964,20 @@ public class OPTICSManager extends CoordinateStore
 
 			// TODO - Use a circle mask over the grid to enumerate the correct cells
 			// Only compute distances at the edge of the mask 
-			
+
 			// Pre-compute range
-			final int minx = Math.max(xBin - resolution, 0);
-			final int maxx = Math.min(xBin + resolution + 1, xBins);
 			final int miny = Math.max(yBin - resolution, 0);
 			final int maxy = Math.min(yBin + resolution + 1, yBins);
+			final int startRow = Math.max(resolution - yBin, 0);
 
 			// Count if there are enough neighbours
 			int count = minPts;
-			counting: for (int y = miny; y < maxy; y++)
+			counting: for (int y = miny, row = startRow; y < maxy; y++, row++)
 			{
+				// Dynamically compute the search strip 
+				final int minx = Math.max(xBin - offset[row].start, 0);
+				final int maxx = Math.min(xBin + offset[row].end, xBins);
+
 				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
 				{
 					if (grid[index] != null)
@@ -946,19 +997,38 @@ public class OPTICSManager extends CoordinateStore
 			}
 
 			// Compute distances
-			for (int y = miny; y < maxy; y++)
+			for (int y = miny, row = startRow; y < maxy; y++, row++)
 			{
-				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+				// Dynamically compute the search strip 
+				final int minx = Math.max(xBin - offset[row].start, 0);
+				final int maxx = Math.min(xBin + offset[row].end, xBins);
+
+				int col = Math.max(resolution - minx, 0);
+
+				for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++, col++)
 				{
 					if (grid[index] != null)
 					{
 						final Molecule[] list = grid[index];
-						for (int i = list.length; i-- > 0;)
+
+						// Build a list of all the neighbours
+
+						// TODO - Can this be made more efficient with an internal flag (i.e. 1 comparison per loop)?
+
+						// If internal just add all the points
+						if (col >= offset[row].startInternal && col < offset[row].endInternal)
 						{
-							if (object.distance2(list[i]) <= e)
+							neighbours.add(list);
+						}
+						else
+						{
+							// If at the edge then compute distances
+							for (int i = list.length; i-- > 0;)
 							{
-								// Build a list of all the neighbours
-								neighbours.add(list[i]);
+								if (object.distance2(list[i]) <= e)
+								{
+									neighbours.add(list[i]);
+								}
 							}
 						}
 					}
