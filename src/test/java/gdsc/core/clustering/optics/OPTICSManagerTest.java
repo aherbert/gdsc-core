@@ -15,6 +15,7 @@ package gdsc.core.clustering.optics;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -49,6 +50,7 @@ import de.lmu.ifi.dbs.elki.index.preprocessed.fastoptics.RandomProjectedNeighbor
 import de.lmu.ifi.dbs.elki.math.random.RandomFactory;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
+import gdsc.core.clustering.optics.OPTICSManager.Option;
 import gdsc.core.logging.ConsoleLogger;
 import gdsc.core.logging.NullTrackProgress;
 import gdsc.core.logging.TrackProgress;
@@ -417,10 +419,17 @@ public class OPTICSManagerTest
 
 		int minPts = 10;
 		Assert.assertFalse(om.hasMemory());
-		OPTICSResult r1 = om.optics(radius, minPts, false);
+
+		EnumSet<Option> opt = om.getOptions();
+		
+		opt.add(OPTICSManager.Option.CACHE);
+		OPTICSResult r1 = om.optics(radius, minPts);
 		Assert.assertTrue(om.hasMemory());
-		OPTICSResult r2 = om.optics(radius, minPts, true);
+		
+		opt.remove(OPTICSManager.Option.CACHE);
+		OPTICSResult r2 = om.optics(radius, minPts);
 		Assert.assertFalse(om.hasMemory());
+		
 		Assert.assertEquals(r1.size(), r2.size());
 		for (int i = r1.size(); i-- > 0;)
 		{
@@ -455,12 +464,12 @@ public class OPTICSManagerTest
 		for (float radius : new float[] { -1, 0, 0.01f, 1f })
 			for (int minPts : new int[] { -1, 0, 1 })
 			{
-				OPTICSResult r1 = om.optics(radius, minPts, false);
+				OPTICSResult r1 = om.optics(radius, minPts);
 				// Should be 1 cluster
 				Assert.assertEquals(1, r1.get(0).clusterId);
 			}
 
-		OPTICSResult r1 = om.optics(1, 2, false);
+		OPTICSResult r1 = om.optics(1, 2);
 		// Should be 0 clusters as the min size is too high
 		Assert.assertEquals(0, r1.get(0).clusterId);
 	}
@@ -473,7 +482,7 @@ public class OPTICSManagerTest
 		for (float radius : new float[] { -1, 0, 0.01f, 1f })
 			for (int minPts : new int[] { -1, 0, 1, 10 })
 			{
-				OPTICSResult r1 = om.optics(radius, minPts, false);
+				OPTICSResult r1 = om.optics(radius, minPts);
 				// All should be in the same cluster
 				Assert.assertEquals(1, r1.get(0).clusterId);
 			}
@@ -488,7 +497,7 @@ public class OPTICSManagerTest
 		float radius = radii[radii.length - 1];
 
 		int minPts = 10;
-		OPTICSResult r1 = om.optics(radius, minPts, false);
+		OPTICSResult r1 = om.optics(radius, minPts);
 		// Store for later and reset
 		int[] clusterId = new int[r1.size()];
 		for (int i = r1.size(); i-- > 0;)
@@ -523,11 +532,13 @@ public class OPTICSManagerTest
 		for (int n : new int[] { 100, 500 })
 		{
 			OPTICSManager om = createOPTICSManager(size, n);
+			// Keep items in memory for speed during the test
+			om.setOption(OPTICSManager.Option.CACHE);
 
 			for (int minPts : new int[] { 5, 10 })
 			{
-				// Use default range and keep items in memory for speed during the test
-				OPTICSResult r1 = om.optics(0, minPts, false);
+				// Use default range
+				OPTICSResult r1 = om.optics(0, minPts);
 				DBSCANResult r2 = om.dbscan(0, minPts);
 
 				areSameClusters(r1, r2);
