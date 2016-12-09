@@ -20,7 +20,7 @@ import gdsc.core.logging.TrackProgress;
 /**
  * Store 2D coordinates shifted to the origin for efficient grid processing
  */
-public class CoordinateStore
+public class CoordinateStore implements Cloneable
 {
 	protected TrackProgress tracker = null;
 	protected final float[] xcoord, ycoord;
@@ -124,5 +124,22 @@ public class CoordinateStore
 	public void setTracker(TrackProgress tracker)
 	{
 		this.tracker = tracker;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	public CoordinateStore clone()
+	{
+		try
+		{
+			return (CoordinateStore) super.clone();
+		}
+		catch (CloneNotSupportedException e)
+		{
+			return null;
+		}
 	}
 }
