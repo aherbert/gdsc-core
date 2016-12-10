@@ -373,13 +373,13 @@ public class OPTICSManagerTest
 	@Test
 	public void canComputeOPTICSWithHighResolution()
 	{
-		canComputeOPTICSWithOptions(Option.HIGH_RESOLUTION);		
+		canComputeOPTICSWithOptions(Option.HIGH_RESOLUTION);
 	}
 
 	@Test
 	public void canComputeOPTICSWithHighResolutionRadial()
 	{
-		canComputeOPTICSWithOptions(Option.HIGH_RESOLUTION, Option.RADIAL_PROCESSING);		
+		canComputeOPTICSWithOptions(Option.HIGH_RESOLUTION, Option.RADIAL_PROCESSING);
 	}
 
 	public void canComputeOPTICSWithOptions(Option... options)
@@ -402,19 +402,18 @@ public class OPTICSManagerTest
 			}
 		}
 	}
-	
+
 	private void areEqual(String title, OPTICSResult r1, OPTICSResult r2)
 	{
 		for (int i = 0; i < r1.size(); i++)
 		{
+			// Edge-points are random so ignore them. Only do core points.
+			if (!r1.get(i).isCorePoint() || !r1.get(i).isCorePoint())
+				continue;
+
 			double expC = r1.get(i).coreDistance;
 			double obsC = r2.get(i).coreDistance;
-			
 			Assert.assertEquals(title + " C " + i, expC, obsC, expC * 1e-5);
-
-			// Edge-points are random so ignore them. Only do core points.
-			if (!r1.get(i).isCorePoint())
-				continue;
 			
 			int expId = r1.get(i).parent;
 			int obsId = r2.get(i).parent;
@@ -471,27 +470,28 @@ public class OPTICSManagerTest
 			}
 		}
 	}
-	
+
 	private void areEqual(String title, DBSCANResult r1, DBSCANResult r2, int minPts)
 	{
 		for (int i = 0; i < r1.size(); i++)
 		{
 			int expPts = r1.get(i).nPts;
 			int obsPts = r2.get(i).nPts;
-			Assert.assertEquals(title +" Pts " + i, expPts, obsPts);
-			
+
 			// Edge-points are random so ignore them. Only do core points.
-			if (expPts < minPts)
+			if (expPts < minPts || obsPts < minPts)
 				continue;
-			
+
+			Assert.assertEquals(title + " Pts " + i, expPts, obsPts);
+
 			int expId = r1.get(i).parent;
 			int obsId = r2.get(i).parent;
 
 			int expCId = r1.get(i).clusterId;
 			int obsCId = r2.get(i).clusterId;
-			
-			Assert.assertEquals(title +" Id " + i, expId, obsId);
-			Assert.assertEquals(title +" CId " + i, expCId, obsCId);
+
+			Assert.assertEquals(title + " Id " + i, expId, obsId);
+			Assert.assertEquals(title + " CId " + i, expCId, obsCId);
 		}
 	}
 
@@ -658,7 +658,7 @@ public class OPTICSManagerTest
 		{
 			OPTICSManager om = createOPTICSManager(size, n);
 			// Keep items in memory for speed during the test
-			om.setOption(OPTICSManager.Option.CACHE);
+			om.setOptions(OPTICSManager.Option.CACHE);
 
 			for (int minPts : new int[] { 5, 10 })
 			{
@@ -711,11 +711,10 @@ public class OPTICSManagerTest
 	{
 		OPTICSManager om1 = createOPTICSManager(size, 5000);
 		OPTICSManager om2 = om1.clone();
-		om2.setOption(Option.HIGH_RESOLUTION);
-		om2.setOption(Option.RADIAL_PROCESSING);
+		om2.setOptions(Option.HIGH_RESOLUTION, Option.RADIAL_PROCESSING);
 
 		int minPts = 20;
-		
+
 		long t1 = System.nanoTime();
 		DBSCANResult r1 = om1.dbscan(0, minPts);
 		long t2 = System.nanoTime();
@@ -723,7 +722,7 @@ public class OPTICSManagerTest
 		long t3 = System.nanoTime();
 
 		DBSCANResult r1b = om1.dbscan(0, minPts);
-		
+
 		areEqual("repeat", r1, r1b, minPts);
 		areEqual("new", r1, r2, minPts);
 

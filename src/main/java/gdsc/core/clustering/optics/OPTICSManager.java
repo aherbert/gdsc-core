@@ -21,6 +21,7 @@ import gdsc.core.clustering.CoordinateStore;
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.Maths;
+import ij.process.ByteProcessor;
 
 /**
  * Compute clustering using OPTICS.
@@ -62,17 +63,6 @@ public class OPTICSManager extends CoordinateStore
 	private EnumSet<Option> options = EnumSet.noneOf(Option.class);
 
 	/**
-	 * Sets the option.
-	 *
-	 * @param option
-	 *            the new option
-	 */
-	public void setOption(Option option)
-	{
-		options.add(option);
-	}
-
-	/**
 	 * Sets the options.
 	 *
 	 * @param options
@@ -80,10 +70,12 @@ public class OPTICSManager extends CoordinateStore
 	 */
 	public void setOptions(Option... options)
 	{
+		if (options == null)
+			return;
 		for (Option option : options)
 			this.options.add(option);
 	}
-	
+
 	/**
 	 * Sets the options.
 	 *
@@ -112,8 +104,8 @@ public class OPTICSManager extends CoordinateStore
 	 */
 	private class Molecule
 	{
-		int id;
-		float x, y;
+		final int id;
+		final float x, y;
 		// Used to construct a single linked list of molecules
 		public Molecule next = null;
 
@@ -164,6 +156,12 @@ public class OPTICSManager extends CoordinateStore
 			final float dx = x - other.x;
 			final float dy = y - other.y;
 			return dx * dx + dy * dy;
+		}
+
+		@SuppressWarnings("unused")
+		double distance(Molecule other)
+		{
+			return Math.sqrt(distance2(other));
 		}
 
 		/**
@@ -604,14 +602,20 @@ public class OPTICSManager extends CoordinateStore
 			super(generatingDistanceE);
 
 			// Traverse the grid and store the index to the next position that contains data
+			int count = 0;
 			int index = grid.length;
 			fastForward = new int[index];
 			for (int i = index; i-- > 0;)
 			{
 				fastForward[i] = index;
 				if (grid[i] != null)
+				{
 					index = i;
+					count += grid[i].length;
+				}
 			}
+			if (count != setOfObjects.length)
+				throw new RuntimeException("Grid does not contain all the objects");
 		}
 
 		Molecule[] generate()
@@ -640,6 +644,8 @@ public class OPTICSManager extends CoordinateStore
 				{
 					adjustResolution(xrange, yrange);
 					binWidth = generatingDistanceE / resolution;
+
+					//System.out.printf("e=%f, bw=%f, r=%d, w=%f\n", generatingDistanceE, binWidth, resolution, binWidth * resolution);
 				}
 			}
 
@@ -647,7 +653,11 @@ public class OPTICSManager extends CoordinateStore
 			xBins = 1 + (int) (xrange / binWidth);
 			yBins = 1 + (int) (yrange / binWidth);
 
-			Molecule[][] linkedListGrid = new Molecule[xBins][yBins];
+			// Use a transpose grid to allow freeing memory (as we later process in the y then x order)
+			Molecule[][] linkedListGrid = new Molecule[yBins][];
+			for (int yBin = 0; yBin < yBins; yBin++)
+				linkedListGrid[yBin] = new Molecule[xBins];
+
 			Molecule[] setOfObjects = new Molecule[xcoord.length];
 			for (int i = 0; i < xcoord.length; i++)
 			{
@@ -656,27 +666,29 @@ public class OPTICSManager extends CoordinateStore
 				final int xBin = (int) ((x - minXCoord) / binWidth);
 				final int yBin = (int) ((y - minYCoord) / binWidth);
 				// Build a single linked list
-				final Molecule m = new Molecule(i, x, y, xBin, yBin, linkedListGrid[xBin][yBin]);
+				final Molecule m = new Molecule(i, x, y, xBin, yBin, linkedListGrid[yBin][xBin]);
 				setOfObjects[i] = m;
-				linkedListGrid[xBin][yBin] = m;
+				linkedListGrid[yBin][xBin] = m;
 			}
 
 			// Convert grid to arrays ...
 			grid = new Molecule[xBins * yBins][];
-			for (int yBin = yBins, index = 0; yBin-- > 0;)
+			for (int yBin = 0, index = 0; yBin < yBins; yBin++)
 			{
-				for (int xBin = xBins; xBin-- > 0; index++)
+				for (int xBin = 0; xBin < xBins; xBin++, index++)
 				{
-					if (linkedListGrid[xBin][yBin] == null)
+					if (linkedListGrid[yBin][xBin] == null)
 						continue;
 					int count = 0;
-					for (Molecule m = linkedListGrid[xBin][yBin]; m != null; m = m.next)
+					for (Molecule m = linkedListGrid[yBin][xBin]; m != null; m = m.next)
 						count++;
 					final Molecule[] list = new Molecule[count];
-					for (Molecule m = linkedListGrid[xBin][yBin]; m != null; m = m.next)
+					for (Molecule m = linkedListGrid[yBin][xBin]; m != null; m = m.next)
 						list[--count] = m;
 					grid[index] = list;
 				}
+				// Free memory
+				linkedListGrid[yBin] = null;
 			}
 
 			return setOfObjects;
@@ -698,7 +710,9 @@ public class OPTICSManager extends CoordinateStore
 		void adjustResolution(final float xrange, final float yrange)
 		{
 			if (options.contains(Option.HIGH_RESOLUTION))
+			{
 				return;
+			}
 
 			// Do not increase the resolution so high we have thousands of blocks
 			// and not many expected points.		
@@ -762,9 +776,14 @@ public class OPTICSManager extends CoordinateStore
 			return nBins;
 		}
 
-		private int getNeighbourBlocks(int resolution)
+		int getNBlocks(int resolution)
 		{
-			int size = 2 * resolution + 1;
+			return 2 * resolution + 1;
+		}
+
+		int getNeighbourBlocks(int resolution)
+		{
+			int size = getNBlocks(resolution);
 			return size * size;
 		}
 
@@ -776,7 +795,7 @@ public class OPTICSManager extends CoordinateStore
 		 */
 		void findNeighbours(int minPts, Molecule object, float e)
 		{
-			boolean noFF = true;
+			//boolean noFF = true;
 
 			// Match findNeighboursAndDistances(minPts, object, e);
 			// But do not store the distances
@@ -796,33 +815,33 @@ public class OPTICSManager extends CoordinateStore
 			int count = minPts;
 			counting: for (int y = miny; y < maxy; y++)
 			{
-				if (noFF)
+				//				if (noFF)
+				//				{
+				//					for (int x = minx, index = getIndex(minx, y); x < maxx; x++, index++)
+				//					{
+				//						if (grid[index] != null)
+				//						{
+				//							count -= grid[index].length;
+				//							if (count <= 0)
+				//								break counting;
+				//						}
+				//					}
+				//				}
+				//				else
+				//				{
+				// Use fast-forward to skip to the next position with data
+				int index = getIndex(minx, y);
+				if (grid[index] == null)
+					index = fastForward[index];
+				int endIndex = getIndex(maxx, y);
+				while (index < endIndex)
 				{
-					for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
-					{
-						if (grid[index] != null)
-						{
-							count -= grid[index].length;
-							if (count <= 0)
-								break counting;
-						}
-					}
+					count -= grid[index].length;
+					if (count <= 0)
+						break counting;
+					index = fastForward[index];
 				}
-				else
-				{
-					// Use fast-forward to skip to the next position with data
-					int index = getIndex(minx, y);
-					if (grid[index] == null)
-						index = fastForward[index];
-					int endIndex = getIndex(maxx, y);
-					while (index < endIndex)
-					{
-						count -= grid[index].length;
-						if (count <= 0)
-							break counting;
-						index = fastForward[index];
-					}
-				}
+				//				}
 			}
 
 			if (count > 0)
@@ -835,46 +854,76 @@ public class OPTICSManager extends CoordinateStore
 			// Compute distances
 			for (int y = miny; y < maxy; y++)
 			{
-				if (noFF)
+				//				if (noFF)
+				//				{
+				//					for (int x = minx, index = getIndex(minx, y); x < maxx; x++, index++)
+				//					{
+				//						if (grid[index] != null)
+				//						{
+				//							final Molecule[] list = grid[index];
+				//							for (int i = list.length; i-- > 0;)
+				//							{
+				//								if (object.distance2(list[i]) <= e)
+				//								{
+				//									// Build a list of all the neighbours
+				//									neighbours.add(list[i]);
+				//								}
+				//							}
+				//						}
+				//					}
+				//				}
+				//				else
+				//				{
+				// Use fast-forward to skip to the next position with data
+				int index = getIndex(minx, y);
+				if (grid[index] == null)
+					index = fastForward[index];
+				int endIndex = getIndex(maxx, y);
+				while (index < endIndex)
 				{
-					for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+					final Molecule[] list = grid[index];
+					for (int i = list.length; i-- > 0;)
 					{
-						if (grid[index] != null)
+						if (object.distance2(list[i]) <= e)
 						{
-							final Molecule[] list = grid[index];
-							for (int i = list.length; i-- > 0;)
-							{
-								if (object.distance2(list[i]) <= e)
-								{
-									// Build a list of all the neighbours
-									neighbours.add(list[i]);
-								}
-							}
+							// Build a list of all the neighbours
+							neighbours.add(list[i]);
 						}
 					}
+					index = fastForward[index];
 				}
-				else
-				{
-					// Use fast-forward to skip to the next position with data
-					int index = getIndex(minx, y);
-					if (grid[index] == null)
-						index = fastForward[index];
-					int endIndex = getIndex(maxx, y);
-					while (index < endIndex)
-					{
-						final Molecule[] list = grid[index];
-						for (int i = list.length; i-- > 0;)
-						{
-							if (object.distance2(list[i]) <= e)
-							{
-								// Build a list of all the neighbours
-								neighbours.add(list[i]);
-							}
-						}
-						index = fastForward[index];
-					}
-				}
+				//				}
 			}
+
+			//			// Full debug of the neighbours that were found
+			//			final MoleculeList neighbours2 = new MoleculeList(size);
+			//			for (int index = grid.length; index-- > 0;)
+			//			{
+			//				if (grid[index] != null)
+			//				{
+			//					final Molecule[] list = grid[index];
+			//					for (int i = list.length; i-- > 0;)
+			//					{
+			//						if (object.distance2(list[i]) <= e)
+			//						{
+			//							// Build a list of all the neighbours
+			//							neighbours2.add(list[i]);
+			//						}
+			//					}
+			//				}
+			//			}
+			//			
+			//			if (neighbours2.size != neighbours.size)
+			//			{
+			//				System.out.printf("Size error %d vs %d @ %d/%d,%d/%d [%d] %f,%f [%d-%d,%d-%d] %f\n", neighbours2.size,
+			//						neighbours.size, xBin, xBins, yBin, yBins, resolution, object.x, object.y, minx, maxx, miny,
+			//						maxy, Math.sqrt(e));
+			//				for (int i = 0; i < neighbours2.size; i++)
+			//				{
+			//					Molecule o = neighbours2.get(i);
+			//					System.out.printf("%d,%d %f,%f = %f\n", o.xBin, o.yBin, o.x, o.y, object.distance(o));
+			//				}
+			//			}
 		}
 
 		int getIndex(final int x, final int y)
@@ -890,7 +939,7 @@ public class OPTICSManager extends CoordinateStore
 		 */
 		void findNeighboursAndDistances(int minPts, Molecule object, float e)
 		{
-			boolean noFF = true;
+			//boolean noFF = true;
 
 			final int xBin = object.xBin;
 			final int yBin = object.yBin;
@@ -907,33 +956,33 @@ public class OPTICSManager extends CoordinateStore
 			int count = minPts;
 			counting: for (int y = miny; y < maxy; y++)
 			{
-				if (noFF)
+				//				if (noFF)
+				//				{
+				//					for (int x = minx, index = getIndex(minx, y); x < maxx; x++, index++)
+				//					{
+				//						if (grid[index] != null)
+				//						{
+				//							count -= grid[index].length;
+				//							if (count <= 0)
+				//								break counting;
+				//						}
+				//					}
+				//				}
+				//				else
+				//				{
+				// Use fast-forward to skip to the next position with data
+				int index = getIndex(minx, y);
+				if (grid[index] == null)
+					index = fastForward[index];
+				int endIndex = getIndex(maxx, y);
+				while (index < endIndex)
 				{
-					for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
-					{
-						if (grid[index] != null)
-						{
-							count -= grid[index].length;
-							if (count <= 0)
-								break counting;
-						}
-					}
+					count -= grid[index].length;
+					if (count <= 0)
+						break counting;
+					index = fastForward[index];
 				}
-				else
-				{
-					// Use fast-forward to skip to the next position with data
-					int index = getIndex(minx, y);
-					if (grid[index] == null)
-						index = fastForward[index];
-					int endIndex = getIndex(maxx, y);
-					while (index < endIndex)
-					{
-						count -= grid[index].length;
-						if (count <= 0)
-							break counting;
-						index = fastForward[index];
-					}
-				}
+				//				}
 			}
 
 			if (count > 0)
@@ -946,51 +995,51 @@ public class OPTICSManager extends CoordinateStore
 			// Compute distances
 			for (int y = miny; y < maxy; y++)
 			{
-				if (noFF)
+				//				if (noFF)
+				//				{
+				//					for (int x = minx, index = getIndex(minx, y); x < maxx; x++, index++)
+				//					{
+				//						if (grid[index] != null)
+				//						{
+				//							final Molecule[] list = grid[index];
+				//							for (int i = list.length; i-- > 0;)
+				//							{
+				//								final float d = object.distance2(list[i]);
+				//								if (d <= e)
+				//								{
+				//									// Build a list of all the neighbours and their working distance
+				//									final Molecule otherObject = list[i];
+				//									otherObject.d = d;
+				//									neighbours.add(otherObject);
+				//								}
+				//							}
+				//						}
+				//					}
+				//				}
+				//				else
+				//				{
+				// Use fast-forward to skip to the next position with data
+				int index = getIndex(minx, y);
+				if (grid[index] == null)
+					index = fastForward[index];
+				int endIndex = getIndex(maxx, y);
+				while (index < endIndex)
 				{
-					for (int x = minx, index = y * xBins + minx; x < maxx; x++, index++)
+					final Molecule[] list = grid[index];
+					for (int i = list.length; i-- > 0;)
 					{
-						if (grid[index] != null)
+						final float d = object.distance2(list[i]);
+						if (d <= e)
 						{
-							final Molecule[] list = grid[index];
-							for (int i = list.length; i-- > 0;)
-							{
-								final float d = object.distance2(list[i]);
-								if (d <= e)
-								{
-									// Build a list of all the neighbours and their working distance
-									final Molecule otherObject = list[i];
-									otherObject.d = d;
-									neighbours.add(otherObject);
-								}
-							}
+							// Build a list of all the neighbours and their working distance
+							final Molecule otherObject = list[i];
+							otherObject.d = d;
+							neighbours.add(otherObject);
 						}
 					}
+					index = fastForward[index];
 				}
-				else
-				{
-					// Use fast-forward to skip to the next position with data
-					int index = getIndex(minx, y);
-					if (grid[index] == null)
-						index = fastForward[index];
-					int endIndex = getIndex(maxx, y);
-					while (index < endIndex)
-					{
-						final Molecule[] list = grid[index];
-						for (int i = list.length; i-- > 0;)
-						{
-							final float d = object.distance2(list[i]);
-							if (d <= e)
-							{
-								// Build a list of all the neighbours and their working distance
-								final Molecule otherObject = list[i];
-								otherObject.d = d;
-								neighbours.add(otherObject);
-							}
-						}
-						index = fastForward[index];
-					}
-				}
+				//				}
 			}
 		}
 	}
@@ -1046,22 +1095,148 @@ public class OPTICSManager extends CoordinateStore
 			// ....Xx
 			// .....X     x are extra internal points
 
-			for (int i = 0; i < resolution; i++)
+			float e = generatingDistanceE * generatingDistanceE;
+
+			// Create a quarter circle
+			int width = resolution + 1;
+			byte[] mask = new byte[width * width];
+			for (int i = 0, k = 0; i < width; i++)
 			{
-				offset[i] = new Offset(-resolution, 0, 0, resolution + 1);
+				int endInternal = -1;
+				int end = -1;
+				for (int j = 0; j < width; j++, k++)
+				{
+					// min distance
+					//@formatter:off
+					float d2 = Float.MAX_VALUE;
+					for (int ii = 0; ii <= 1; ii++)
+						for (int jj = 0; jj <= 1; jj++)
+							d2 = Maths.min(d2, 
+    							distance2(ii, jj, i,     j), 
+    							distance2(ii, jj, i + 1, j),
+    							distance2(ii, jj, i,     j + 1), 
+    							distance2(ii, jj, i + 1, j + 1));
+					//@formatter:on
+					if (d2 < e)
+					{
+						mask[k] = (byte) 127;
+						end = j;
+					}
+
+					// max distance
+					float d1 = distance2(0, 0, i + 1, j + 1);
+					if (d1 < e)
+					{
+						mask[k] = (byte) 255;
+						endInternal = j;
+					}
+				}
+
+				// Mirror
+				int start = -end;
+				int startInternal = (endInternal == -1) ? 0 : -endInternal;
+				end++;
+				endInternal++;
+
+				//startInternal = endInternal = 0;
+
+				offset[width - i - 1] = new Offset(start, startInternal, endInternal, end);
+			}
+			Utils.display("inner2", new ByteProcessor(width, width, mask));
+
+			// This does not work ...
+			for (int i = 0; i <= resolution; i++)
+			{
+				//offset[i] = create(i, e);
 			}
 
-			// The central row cannot have more than 1 pixel internal 
-			offset[resolution] = new Offset(-resolution, 0, 0, resolution + 1);
-			//offset[resolution] = new Offset(-resolution, -resolution + 1, resolution, resolution + 1);
-
-			// Mirror
-			for (int i = 0, j = offset.length - 1; i < resolution; i++, j--)
+			for (int i = 0, j = offset.length - 1; i <= resolution; i++, j--)
 			{
+				// Mirror
 				offset[j] = offset[i];
 			}
 
+			// TODO - Show an output mask image for debugging purposes of the region and the internal region.
+			byte[] outer = new byte[getNeighbourBlocks(resolution)];
+			byte[] inner = new byte[outer.length];
+			for (int i = 0, k = 0; i < offset.length; i++)
+			{
+				for (int j = -resolution; j <= resolution; j++, k++)
+				{
+					if (j >= offset[i].start && j < offset[i].end)
+						outer[k] = (byte) 255;
+					if (j >= offset[i].startInternal && j < offset[i].endInternal)
+						inner[k] = (byte) 255;
+				}
+			}
+			int w = getNBlocks(resolution);
+			Utils.display("Outer", new ByteProcessor(w, w, outer));
+			Utils.display("inner", new ByteProcessor(w, w, inner));
+
 			return m;
+		}
+
+		Offset create(int row, float e)
+		{
+			int originx, originy;
+			int start, end, startInternal, endInternal, x, y;
+
+			// Find the first grid cell where the minimum distance is below the generating distance,
+			// i.e. any points anywhere in the two cells could be within the distance.
+			start = -resolution;
+			end = resolution + 1;
+
+			originx = originy = 1;
+			x = resolution;
+			y = resolution - row;
+			while (start < end)
+			{
+				if (distance2(x, y, originx, originy) > e)
+				{
+					x--;
+					start++;
+					end--;
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			// TODO - fix this...
+
+			// Find the first grid cell where the maximum distance is below the generating distance,
+			// i.e. any points anywhere in the two cells are always within the distance.
+			startInternal = -resolution + 1;
+			endInternal = resolution;
+
+			originx = originy = 0;
+			x = resolution + 1;
+			y = resolution - row + 1;
+			while (startInternal < endInternal)
+			{
+				if (distance2(x, y, originx, originy) > e)
+				{
+					x--;
+					startInternal++;
+					endInternal--;
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			//startInternal = endInternal = 0;
+
+			return new Offset(start, startInternal, endInternal, end);
+		}
+
+		private float distance2(int x, int y, int x2, int y2)
+		{
+			float dx = (x - x2) * binWidth;
+			float dy = (y - y2) * binWidth;
+			return dx * dx + dy * dy;
 		}
 
 		@Override
@@ -1082,11 +1257,11 @@ public class OPTICSManager extends CoordinateStore
 
 		void findNeighbours(int minPts, Molecule object, float e)
 		{
-			if (true)
-			{
-				super.findNeighbours(minPts, object, e);
-				return;
-			}
+			//			if (true)
+			//			{
+			//				super.findNeighbours(minPts, object, e);
+			//				return;
+			//			}
 
 			final int xBin = object.xBin;
 			final int yBin = object.yBin;
@@ -1155,22 +1330,35 @@ public class OPTICSManager extends CoordinateStore
 
 					// TODO - Can this be made more efficient with an internal flag (i.e. 1 comparison per loop)?
 
-					//					// If internal just add all the points
-					//					if (col >= offset[row].startInternal && col < offset[row].endInternal)
-					//					{
-					//						neighbours.add(list);
-					//					}
-					//					else
-					//					{
-					// If at the edge then compute distances
-					for (int i = list.length; i-- > 0;)
+					// If internal just add all the points
+					if (col >= offset[row].startInternal && col < offset[row].endInternal)
 					{
-						if (object.distance2(list[i]) <= e)
+						neighbours.add(list);
+						// Debug ...
+						for (int i = list.length; i-- > 0;)
 						{
-							neighbours.add(list[i]);
+							double d = object.distance2(list[i]);
+							if (d > e)
+							{
+								float dx = binWidth * (xBin - list[i].xBin);
+								float dy = binWidth * (yBin - list[i].yBin);
+								System.out.printf("%d  %d/%d %d/%d (%f)  %f > %f :  %d %d %f %f  %f\n", resolution, col,
+										xBin, row, yBin, binWidth, Math.sqrt(d), generatingDistanceE,
+										xBin - list[i].xBin, yBin - list[i].yBin, dx, dy, Math.sqrt(dx * dx + dy * dy));
+							}
 						}
 					}
-					//					}
+					else
+					{
+						// If at the edge then compute distances
+						for (int i = list.length; i-- > 0;)
+						{
+							if (object.distance2(list[i]) <= e)
+							{
+								neighbours.add(list[i]);
+							}
+						}
+					}
 
 					index = fastForward[index];
 				}
