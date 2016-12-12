@@ -831,8 +831,9 @@ public class OPTICSManagerTest
 		OPTICSManager[] om;
 		int minPts;
 		float generatingDistanceE, e;
+		Option[] options;
 
-		public MyTimingTask(MS ms, OPTICSManager[] om, int minPts, float generatingDistanceE)
+		public MyTimingTask(MS ms, OPTICSManager[] om, int minPts, float generatingDistanceE, Option... options)
 		{
 			super(ms.toString());
 			this.ms = ms;
@@ -840,6 +841,15 @@ public class OPTICSManagerTest
 			this.generatingDistanceE = generatingDistanceE;
 			this.minPts = minPts;
 			e = generatingDistanceE * generatingDistanceE;
+			this.options = options;
+		}
+
+		@Override
+		public String getName()
+		{
+			if (options == null)
+				return super.getName();
+			return super.getName() + Arrays.toString(options);
 		}
 
 		public int getSize()
@@ -850,16 +860,27 @@ public class OPTICSManagerTest
 		public Object getData(int i)
 		{
 			// Create the molecule space
+			EnumSet<Option> o = om[i].getOptions();
+			if (options != null)
+			{
+				o = o.clone();
+				om[i].setOptions(options);
+			}
+			MoleculeSpace space = null;
 			switch (ms)
 			{
 				case SIMPLE:
-					return new SimpleMoleculeSpace(om[i], generatingDistanceE);
+					space = new SimpleMoleculeSpace(om[i], generatingDistanceE);
+					break;
 				case GRID:
-					return new GridMoleculeSpace(om[i], generatingDistanceE);
+					space = new GridMoleculeSpace(om[i], generatingDistanceE);
+					break;
 				case RADIAL:
-					return new RadialMoleculeSpace(om[i], generatingDistanceE);
+					space = new RadialMoleculeSpace(om[i], generatingDistanceE);
+					break;
 			}
-			return null;
+			om[i].setOptions(o);
+			return space;
 		}
 
 		public Object run(Object data)
@@ -880,9 +901,10 @@ public class OPTICSManagerTest
 
 	private abstract class FindNeighboursTimingTask extends MyTimingTask
 	{
-		public FindNeighboursTimingTask(MS ms, OPTICSManager[] om, int minPts, float generatingDistanceE)
+		public FindNeighboursTimingTask(MS ms, OPTICSManager[] om, int minPts, float generatingDistanceE,
+				Option... options)
 		{
-			super(ms, om, minPts, generatingDistanceE);
+			super(ms, om, minPts, generatingDistanceE, options);
 		}
 
 		public Object run(Object data)
@@ -914,7 +936,7 @@ public class OPTICSManagerTest
 		// Results
 		final int[][][] n = new int[om.length][][];
 
-		TimingService ts = new TimingService();
+		TimingService ts = new TimingService(2);
 
 		ts.execute(new FindNeighboursTimingTask(MS.SIMPLE, om, minPts, generatingDistanceE)
 		{
@@ -928,7 +950,18 @@ public class OPTICSManagerTest
 		{
 			public void check(int i, Object result)
 			{
-				String name = ms.toString() + ":" + i + ":";
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name + j, e[j], o[j]);
+			}
+		});
+		ts.execute(new FindNeighboursTimingTask(MS.GRID, om, minPts, generatingDistanceE, Option.HIGH_RESOLUTION)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
 				int[][] e = n[i];
 				int[][] o = format(result);
 				for (int j = 0; j < e.length; j++)
@@ -939,7 +972,18 @@ public class OPTICSManagerTest
 		{
 			public void check(int i, Object result)
 			{
-				String name = ms.toString() + ":" + i + ":";
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name, e[j], o[j]);
+			}
+		});
+		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, om, minPts, generatingDistanceE, Option.HIGH_RESOLUTION)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
 				int[][] e = n[i];
 				int[][] o = format(result);
 				for (int j = 0; j < e.length; j++)
@@ -955,17 +999,17 @@ public class OPTICSManagerTest
 	@Test
 	public void canTestRadialMoleculeSpaceFindNeighbours()
 	{
-		OPTICSManager[] om = new OPTICSManager[5];
+		OPTICSManager[] om = new OPTICSManager[3];
 		for (int i = 0; i < om.length; i++)
-			om[i] = createOPTICSManager(size, 5000);
+			om[i] = createOPTICSManager(size, 10000);
 
-		float generatingDistanceE = 10;
+		float generatingDistanceE = 20;
 		final int minPts = 20;
 
 		// Results
 		final int[][][] n = new int[om.length][][];
 
-		TimingService ts = new TimingService();
+		TimingService ts = new TimingService(1);
 
 		ts.execute(new FindNeighboursTimingTask(MS.GRID, om, minPts, generatingDistanceE)
 		{
@@ -974,11 +1018,33 @@ public class OPTICSManagerTest
 				n[i] = format(result);
 			}
 		});
+		ts.execute(new FindNeighboursTimingTask(MS.GRID, om, minPts, generatingDistanceE, Option.HIGH_RESOLUTION)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name, e[j], o[j]);
+			}
+		});
 		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, om, minPts, generatingDistanceE)
 		{
 			public void check(int i, Object result)
 			{
-				String name = ms.toString() + ":" + i + ":";
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name, e[j], o[j]);
+			}
+		});
+		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, om, minPts, generatingDistanceE, Option.HIGH_RESOLUTION)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
 				int[][] e = n[i];
 				int[][] o = format(result);
 				for (int j = 0; j < e.length; j++)
@@ -990,7 +1056,7 @@ public class OPTICSManagerTest
 
 		ts.report();
 	}
-	
+
 	private int[][] format(Object result)
 	{
 		int[][] n = (int[][]) result;

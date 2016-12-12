@@ -78,7 +78,8 @@ class GridMoleculeSpace extends MoleculeSpace
 				adjustResolution(xrange, yrange);
 				binWidth = generatingDistanceE / resolution;
 
-				//System.out.printf("e=%f, bw=%f, r=%d, w=%f\n", generatingDistanceE, binWidth, resolution, binWidth * resolution);
+				System.out.printf("e=%f, bw=%f, r=%d, w=%f\n", generatingDistanceE, binWidth, resolution,
+						binWidth * resolution);
 			}
 		}
 
@@ -131,7 +132,7 @@ class GridMoleculeSpace extends MoleculeSpace
 	{
 		int resolution = 0;
 		// What is a good maximum limit for the memory allocation?
-		while (getBins(xrange, yrange, generatingDistanceE, resolution + 1) < 100000)
+		while (getBins(xrange, yrange, generatingDistanceE, resolution + 1) < 1024 * 1024)
 		{
 			resolution++;
 		}
@@ -144,7 +145,7 @@ class GridMoleculeSpace extends MoleculeSpace
 	{
 		if (opticsManager.options.contains(Option.HIGH_RESOLUTION))
 		{
-			return;
+			//return;
 		}
 
 		// Do not increase the resolution so high we have thousands of blocks
@@ -181,7 +182,14 @@ class GridMoleculeSpace extends MoleculeSpace
 				break;
 		}
 
-		resolution = newResolution;
+		if (opticsManager.options.contains(Option.HIGH_RESOLUTION))
+		{
+			resolution = Math.min(resolution, newResolution * 3);
+		}
+		else
+		{
+			resolution = newResolution;
+		}
 
 		//System.out.printf("Expected %.2f [%d]\n", expected, (2 * resolution + 1) * (2 * resolution + 1));
 	}
@@ -241,6 +249,7 @@ class GridMoleculeSpace extends MoleculeSpace
 		// Pre-compute range
 		final int minx = Math.max(xBin - resolution, 0);
 		final int maxx = Math.min(xBin + resolution + 1, xBins);
+		final int diff = maxx - minx;
 		final int miny = Math.max(yBin - resolution, 0);
 		final int maxy = Math.min(yBin + resolution + 1, yBins);
 
@@ -309,9 +318,9 @@ class GridMoleculeSpace extends MoleculeSpace
 			//				{
 			// Use fast-forward to skip to the next position with data
 			int index = getIndex(minx, y);
+			final int endIndex = index + diff;
 			if (grid[index] == null)
 				index = fastForward[index];
-			int endIndex = getIndex(maxx, y);
 			while (index < endIndex)
 			{
 				final Molecule[] list = grid[index];

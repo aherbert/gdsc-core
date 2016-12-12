@@ -50,11 +50,15 @@ public class OPTICSManager extends CoordinateStore
 		/**
 		 * Flag to indicate that a high resolution 2D grid should be used. This has performance benefits when the number
 		 * of molecules is high since unnecessary distance computations can be avoided. This required more memory.
+		 * <p>
+		 * Note: This option is experimental and can cause considerable slow-down 
 		 */
 		HIGH_RESOLUTION,
 		/**
 		 * Flag to indicate that radial processing should be used on the 2D grid should be used. This has performance
 		 * benefits when the resolution is high since some distance computations can be assumed.
+		 * <p>
+		 * Note: This option is experimental and can cause considerable slow-down 
 		 */
 		RADIAL_PROCESSING;
 	}
