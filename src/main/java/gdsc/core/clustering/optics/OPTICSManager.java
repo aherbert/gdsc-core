@@ -186,6 +186,7 @@ public class OPTICSManager extends CoordinateStore
 			// return -DBIDUtil.compare(objectID, o.objectID);
 			// I do not know why this is but I have added it so the functionality 
 			// is identical in order to pass the JUnit tests
+			//return o1.id - o2.id;
 			return o2.id - o1.id;
 		}
 	}

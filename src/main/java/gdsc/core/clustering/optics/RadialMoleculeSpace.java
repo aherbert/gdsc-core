@@ -223,34 +223,34 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		final int maxy = Math.min(yBin + resolution + 1, yBins);
 		final int startRow = Math.max(resolution - yBin, 0);
 
-		// Count if there are enough neighbours
-		int count = minPts;
-		counting: for (int y = miny, row = startRow; y < maxy; y++, row++)
-		{
-			// Dynamically compute the search strip 
-			final int minx = Math.max(xBin + offset[row].start, 0);
-			final int maxx = Math.min(xBin + offset[row].end, xBins);
-
-			// Use fast-forward to skip to the next position with data
-			int index = getIndex(minx, y);
-			if (grid[index] == null)
-				index = fastForward[index];
-			int endIndex = getIndex(maxx, y);
-			while (index < endIndex)
-			{
-				count -= grid[index].length;
-				if (count <= 0)
-					break counting;
-				index = fastForward[index];
-			}
-		}
-
-		if (count > 0)
-		{
-			// Not a core point so do not compute distances
-			//System.out.println("Skipping distance computation (not a core point)");
-			return;
-		}
+		//		// Count if there are enough neighbours
+		//		int count = minPts;
+		//		counting: for (int y = miny, row = startRow; y < maxy; y++, row++)
+		//		{
+		//			// Dynamically compute the search strip 
+		//			final int minx = Math.max(xBin + offset[row].start, 0);
+		//			final int maxx = Math.min(xBin + offset[row].end, xBins);
+		//
+		//			// Use fast-forward to skip to the next position with data
+		//			int index = getIndex(minx, y);
+		//			if (grid[index] == null)
+		//				index = fastForward[index];
+		//			int endIndex = getIndex(maxx, y);
+		//			while (index < endIndex)
+		//			{
+		//				count -= grid[index].length;
+		//				if (count <= 0)
+		//					break counting;
+		//				index = fastForward[index];
+		//			}
+		//		}
+		//
+		//		if (count > 0)
+		//		{
+		//			// Not a core point so do not compute distances
+		//			//System.out.println("Skipping distance computation (not a core point)");
+		//			return;
+		//		}
 
 		// Compute distances
 		for (int y = miny, row = startRow, columnShift = getIndex(xBin,
@@ -279,20 +279,26 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 				// If internal just add all the points
 				if (col >= offset[row].startInternal && col < offset[row].endInternal)
 				{
+					// This uses System.arrayCopy.
 					neighbours.add(list);
-//					// Debug ...
-//					for (int i = list.length; i-- > 0;)
-//					{
-//						double d = object.distance2(list[i]);
-//						if (d > e)
-//						{
-//							float dx = binWidth * (xBin - list[i].xBin);
-//							float dy = binWidth * (yBin - list[i].yBin);
-//							System.out.printf("%d  %d/%d %d/%d (%f)  %f > %f :  %d %d %f %f  %f\n", resolution, col,
-//									xBin, row, yBin, binWidth, Math.sqrt(d), generatingDistanceE, xBin - list[i].xBin,
-//									yBin - list[i].yBin, dx, dy, Math.sqrt(dx * dx + dy * dy));
-//						}
-//					}
+
+					// Simple addition
+					//for (int i = list.length; i-- > 0;)
+					//	neighbours.add(list[i]);					
+
+					//					// Debug ...
+					//					for (int i = list.length; i-- > 0;)
+					//					{
+					//						double d = object.distance2(list[i]);
+					//						if (d > e)
+					//						{
+					//							float dx = binWidth * (xBin - list[i].xBin);
+					//							float dy = binWidth * (yBin - list[i].yBin);
+					//							System.out.printf("%d  %d/%d %d/%d (%f)  %f > %f :  %d %d %f %f  %f\n", resolution, col,
+					//									xBin, row, yBin, binWidth, Math.sqrt(d), generatingDistanceE, xBin - list[i].xBin,
+					//									yBin - list[i].yBin, dx, dy, Math.sqrt(dx * dx + dy * dy));
+					//						}
+					//					}
 				}
 				else
 				{
@@ -320,6 +326,19 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		// For all remaining points outside the core distance
 		// we only need to compute the reachability distance if it is currently UNDEFINED
 		// or it is greater than the core distance.
+
+		//Sweep grid in concentric squares. This is much easier then concentric circles as 
+		//we can ensure the bounds are checked only once.
+		//
+		//If we use circles then we could do this if the quarter circle is within bounds 
+		//by storing a list of index offsets. If the quarter circle intersects the edge of the grid then each position must be checked it is inside the bounds. This means storing the xy offset as well as the direct index. It is a lot of bounds comparisons.
+		//
+		//To sweep a concentric square ring you do upper and lower edges first. Then column 
+		//edges with an an index 1 inside. This avoids counting corners twice. This probably 
+		//needs 4 loops as each must be checked if it is inside.
+		//
+		//We can avoid checks if the max square is inside the grid. If not then we can avoid 
+		//checks up to the first intersect ring.
 
 		super.findNeighboursAndDistances(minPts, object, e);
 	}

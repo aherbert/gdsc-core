@@ -244,45 +244,45 @@ class GridMoleculeSpace extends MoleculeSpace
 		final int miny = Math.max(yBin - resolution, 0);
 		final int maxy = Math.min(yBin + resolution + 1, yBins);
 
-		// Count if there are enough neighbours
-		int count = minPts;
-		counting: for (int y = miny; y < maxy; y++)
-		{
-			//				if (noFF)
-			//				{
-			//					for (int x = minx, index = getIndex(minx, y); x < maxx; x++, index++)
-			//					{
-			//						if (grid[index] != null)
-			//						{
-			//							count -= grid[index].length;
-			//							if (count <= 0)
-			//								break counting;
-			//						}
-			//					}
-			//				}
-			//				else
-			//				{
-			// Use fast-forward to skip to the next position with data
-			int index = getIndex(minx, y);
-			if (grid[index] == null)
-				index = fastForward[index];
-			int endIndex = getIndex(maxx, y);
-			while (index < endIndex)
-			{
-				count -= grid[index].length;
-				if (count <= 0)
-					break counting;
-				index = fastForward[index];
-			}
-			//				}
-		}
-
-		if (count > 0)
-		{
-			// Not a core point so do not compute distances
-			//System.out.println("Skipping distance computation (not a core point)");
-			return;
-		}
+		//		// Count if there are enough neighbours
+		//		int count = minPts;
+		//		counting: for (int y = miny; y < maxy; y++)
+		//		{
+		//			//				if (noFF)
+		//			//				{
+		//			//					for (int x = minx, index = getIndex(minx, y); x < maxx; x++, index++)
+		//			//					{
+		//			//						if (grid[index] != null)
+		//			//						{
+		//			//							count -= grid[index].length;
+		//			//							if (count <= 0)
+		//			//								break counting;
+		//			//						}
+		//			//					}
+		//			//				}
+		//			//				else
+		//			//				{
+		//			// Use fast-forward to skip to the next position with data
+		//			int index = getIndex(minx, y);
+		//			if (grid[index] == null)
+		//				index = fastForward[index];
+		//			int endIndex = getIndex(maxx, y);
+		//			while (index < endIndex)
+		//			{
+		//				count -= grid[index].length;
+		//				if (count <= 0)
+		//					break counting;
+		//				index = fastForward[index];
+		//			}
+		//			//				}
+		//		}
+		//
+		//		if (count > 0)
+		//		{
+		//			// Not a core point so do not compute distances
+		//			//System.out.println("Skipping distance computation (not a core point)");
+		//			return;
+		//		}
 
 		// Compute distances
 		for (int y = miny; y < maxy; y++)

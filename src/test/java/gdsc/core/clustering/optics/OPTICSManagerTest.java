@@ -15,11 +15,11 @@ package gdsc.core.clustering.optics;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.RealMatrix;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,6 +54,8 @@ import gdsc.core.clustering.optics.OPTICSManager.Option;
 import gdsc.core.logging.ConsoleLogger;
 import gdsc.core.logging.NullTrackProgress;
 import gdsc.core.logging.TrackProgress;
+import gdsc.core.test.BaseTimingTask;
+import gdsc.core.test.TimingService;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.PartialSort;
 import gdsc.core.utils.Random;
@@ -78,6 +80,96 @@ public class OPTICSManagerTest
 		}
 	}
 
+	class SimpleMoleculeSpace extends MoleculeSpace
+	{
+		OPTICSManager opticsManager;
+		// All-vs-all distance matrix
+		float[][] d;
+
+		// All-vs-all distance matrix in double - Used for ELKI
+		double[][] dd;
+
+		SimpleMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE)
+		{
+			super(opticsManager.getSize(), generatingDistanceE);
+			this.opticsManager = opticsManager;
+			generate();
+		}
+
+		@Override
+		Molecule[] generate()
+		{
+			final float[] xcoord = opticsManager.getXData();
+			final float[] ycoord = opticsManager.getYData();
+
+			// Compute all-vs-all distance matrix
+			final int n = xcoord.length;
+			d = new float[n][n];
+
+			setOfObjects = new Molecule[xcoord.length];
+			for (int i = 0; i < xcoord.length; i++)
+			{
+				final float x = xcoord[i];
+				final float y = ycoord[i];
+				// Build a single linked list
+				final Molecule m = new Molecule(i, x, y, 0, 0, null);
+				setOfObjects[i] = m;
+				for (int j = i; j-- > 0;)
+					d[i][j] = d[j][i] = m.distance2(setOfObjects[j]);
+			}
+
+			return setOfObjects;
+		}
+
+		void createDD()
+		{
+			double[][] doubleData = opticsManager.getDoubleData();
+			final double[] xcoord = doubleData[0];
+			final double[] ycoord = doubleData[1];
+
+			// Compute all-vs-all distance matrix
+			final int n = xcoord.length;
+			dd = new double[n][n];
+
+			for (int i = 0; i < xcoord.length; i++)
+			{
+				final double x = xcoord[i];
+				final double y = ycoord[i];
+				// Build a single linked list
+				for (int j = i; j-- > 0;)
+					dd[i][j] = dd[j][i] = Maths.distance(x, y, xcoord[j], ycoord[j]);
+			}
+		}
+
+		@Override
+		void findNeighbours(int minPts, Molecule object, float e)
+		{
+			float[] fdata = d[object.id];
+			neighbours.clear();
+			for (int i = 0; i < fdata.length; i++)
+				//if (object.distance2(setOfObjects[i]) <= e)
+				if (fdata[i] <= e)
+					neighbours.add(setOfObjects[i]);
+			//if (neighbours.size < minPts)
+			//	neighbours.clear();
+		}
+
+		@Override
+		void findNeighboursAndDistances(int minPts, Molecule object, float e)
+		{
+			float[] fdata = d[object.id];
+			neighbours.clear();
+			for (int i = 0; i < fdata.length; i++)
+				if (fdata[i] < e)
+				{
+					setOfObjects[i].d = fdata[i];
+					neighbours.add(setOfObjects[i]);
+				}
+			if (neighbours.size < minPts)
+				neighbours.clear();
+		}
+	}
+
 	/**
 	 * To overcome the 'issue' with the ELKI algorithm using fast-approximations we return the actual values required.
 	 * We can do this because the dataset is small.
@@ -86,16 +178,14 @@ public class OPTICSManagerTest
 			extends RandomProjectedNeighborsAndDensities<DoubleVector>
 	{
 		// All-vs-all distance matrix
-		double[][] d;
+		SimpleMoleculeSpace space;
 		Relation<DoubleVector> points;
 		int minPts;
-		@SuppressWarnings("unused")
-		double generatingDistance;
 
-		public CheatingRandomProjectedNeighborsAndDensities(double[][] d, int minPts, double generatingDistance)
+		public CheatingRandomProjectedNeighborsAndDensities(SimpleMoleculeSpace space, int minPts)
 		{
 			super(RandomFactory.get(30051977l));
-			this.d = d;
+			this.space = space;
 			this.minPts = minPts;
 		}
 
@@ -119,8 +209,10 @@ public class OPTICSManagerTest
 					DataStoreFactory.HINT_HOT);
 			for (DBIDIter it = points.getDBIDs().iter(); it.valid(); it.advance())
 			{
-				double d;
-				double[] data = this.d[asInteger(it)];
+				//float[] fdata = space.d[asInteger(it)];
+				//double[] data = new StoredDataStatistics(fdata).getValues();
+
+				double[] data = space.dd[asInteger(it)];
 
 				// Simple sort
 				//double[] dd = data.clone();
@@ -128,11 +220,12 @@ public class OPTICSManagerTest
 				//d = dd[minPts - 1];
 
 				// Partial sort
-				d = PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, data, minPts)[0];
+				//double d = Math.sqrt(PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, data, minPts)[0]);
+				double d = PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, data, minPts)[0];
 
-				// This break the code
+				// This breaks the code
 				//davg.put(it, (d <= generatingDistance) ? d : FastOPTICS.UNDEFINED_DISTANCE);
-				// This break the code
+				// This breaks the code
 				//davg.put(it, (d <= generatingDistance) ? d : Double.POSITIVE_INFINITY);
 
 				// This is OK. I am not sure how to deal with a smaller generating distance
@@ -162,15 +255,11 @@ public class OPTICSManagerTest
 			OPTICSManager om = createOPTICSManager(size, n);
 			om.setTracker(tracker);
 
-			// Compute the all-vs-all distance for checking the answer
-			double[][] data = om.getDoubleData();
-			double[][] d = new double[n][n];
-			for (int i = 0; i < n; i++)
-				for (int j = i + 1; j < n; j++)
-					d[i][j] = d[j][i] = Maths.distance(data[0][i], data[1][i], data[0][j], data[1][j]);
+			SimpleMoleculeSpace space = new SimpleMoleculeSpace(om, 0);
+			space.createDD();
 
 			// Use ELKI to provide the expected results
-			data = new Array2DRowRealMatrix(data).transpose().getData();
+			double[][] data = new Array2DRowRealMatrix(om.getDoubleData()).transpose().getData();
 
 			for (int minPts : new int[] { 5, 10 })
 			{
@@ -196,7 +285,7 @@ public class OPTICSManagerTest
 
 				// Test verses the ELKI frame work
 				RandomProjectedNeighborsAndDensities<DoubleVector> index = new CheatingRandomProjectedNeighborsAndDensities(
-						d, minPts, size);
+						space, minPts);
 				FastOPTICS<DoubleVector> fo = new FastOPTICS<DoubleVector>(minPts, index);
 				ClusterOrder order = fo.run(db);
 
@@ -248,19 +337,16 @@ public class OPTICSManagerTest
 			om.setTracker(tracker);
 
 			// Compute the all-vs-all distance for checking the answer
-			double[][] data = om.getDoubleData();
-			double[][] d = new double[n][n];
-			for (int i = 0; i < n; i++)
-				for (int j = i + 1; j < n; j++)
-					d[i][j] = d[j][i] = Maths.distance(data[0][i], data[1][i], data[0][j], data[1][j]);
+			SimpleMoleculeSpace space = new SimpleMoleculeSpace(om, 0);
+			space.createDD();
 
 			// Use ELKI to provide the expected results
-			RealMatrix rm = new Array2DRowRealMatrix(data).transpose();
+			double[][] data = new Array2DRowRealMatrix(om.getDoubleData()).transpose().getData();
 
 			for (int minPts : new int[] { 5, 10 })
 			{
 				// Reset starting Id to 1
-				DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(rm.getData(), null, 0);
+				DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data, null, 0);
 				ListParameterization params = new ListParameterization();
 				params.addParameter(AbstractDatabase.Parameterizer.DATABASE_CONNECTION_ID, dbc);
 				Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
@@ -281,7 +367,7 @@ public class OPTICSManagerTest
 
 				// Test verses the ELKI frame work
 				RandomProjectedNeighborsAndDensities<DoubleVector> index = new CheatingRandomProjectedNeighborsAndDensities(
-						d, minPts, size);
+						space, minPts);
 				FastOPTICS<DoubleVector> fo = new FastOPTICS<DoubleVector>(minPts, index);
 
 				double xi = 0.03;
@@ -335,9 +421,6 @@ public class OPTICSManagerTest
 			clusters[i] = map[clusters[i]];
 	}
 
-	/**
-	 * Test the results of OPTICS using the ELKI framework
-	 */
 	@Test
 	public void canComputeOPTICSXiWithNoHierarchy()
 	{
@@ -414,7 +497,7 @@ public class OPTICSManagerTest
 			double expC = r1.get(i).coreDistance;
 			double obsC = r2.get(i).coreDistance;
 			Assert.assertEquals(title + " C " + i, expC, obsC, expC * 1e-5);
-			
+
 			int expId = r1.get(i).parent;
 			int obsId = r2.get(i).parent;
 
@@ -703,15 +786,15 @@ public class OPTICSManagerTest
 		// Note: The OPTICS paper reports that it should be about 1.6x slower than DBSCAN 
 		// This test shows a smaller difference probably due to unrealistic data. 
 
-		//System.out.printf("%d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
+		System.out.printf("dBSCANIsFasterThanOPTICS %d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
 	}
 
 	@Test
-	public void dBSCANHighResolutionRadialIsFaster()
+	public void dBSCANRadialIsFaster()
 	{
 		OPTICSManager om1 = createOPTICSManager(size, 50000);
 		OPTICSManager om2 = om1.clone();
-		om2.setOptions(Option.HIGH_RESOLUTION, Option.RADIAL_PROCESSING);
+		om2.setOptions(Option.RADIAL_PROCESSING);
 
 		float generatingDistanceE = 10;
 		int minPts = 20;
@@ -730,9 +813,190 @@ public class OPTICSManagerTest
 		t3 = t3 - t2;
 		t2 = t2 - t1;
 
-		System.out.printf("dBSCANHighResolutionRadialIsFaster %d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
+		System.out.printf("dBSCANRadialIsFaster %d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
+
+		// This fails. Do a test of the MoleculeSpace
 
 		//Assert.assertTrue(t3 < t2);
+	}
+
+	private enum MS
+	{
+		SIMPLE, GRID, RADIAL
+	}
+
+	private abstract class MyTimingTask extends BaseTimingTask
+	{
+		MS ms;
+		OPTICSManager[] om;
+		int minPts;
+		float generatingDistanceE, e;
+
+		public MyTimingTask(MS ms, OPTICSManager[] om, int minPts, float generatingDistanceE)
+		{
+			super(ms.toString());
+			this.ms = ms;
+			this.om = om;
+			this.generatingDistanceE = generatingDistanceE;
+			this.minPts = minPts;
+			e = generatingDistanceE * generatingDistanceE;
+		}
+
+		public int getSize()
+		{
+			return om.length;
+		}
+
+		public Object getData(int i)
+		{
+			// Create the molecule space
+			switch (ms)
+			{
+				case SIMPLE:
+					return new SimpleMoleculeSpace(om[i], generatingDistanceE);
+				case GRID:
+					return new GridMoleculeSpace(om[i], generatingDistanceE);
+				case RADIAL:
+					return new RadialMoleculeSpace(om[i], generatingDistanceE);
+			}
+			return null;
+		}
+
+		public Object run(Object data)
+		{
+			MoleculeSpace ms = (MoleculeSpace) data;
+			int[][] n = new int[ms.size][];
+			for (int i = ms.size; i-- > 0;)
+			{
+				ms.findNeighbours(minPts, ms.setOfObjects[i], e);
+				int[] nn = new int[ms.neighbours.size];
+				for (int j = ms.neighbours.size; j-- > 0;)
+					nn[j] = ms.neighbours.get(j).id;
+				n[i] = nn;
+			}
+			return n;
+		}
+	}
+
+	private abstract class FindNeighboursTimingTask extends MyTimingTask
+	{
+		public FindNeighboursTimingTask(MS ms, OPTICSManager[] om, int minPts, float generatingDistanceE)
+		{
+			super(ms, om, minPts, generatingDistanceE);
+		}
+
+		public Object run(Object data)
+		{
+			MoleculeSpace ms = (MoleculeSpace) data;
+			int[][] n = new int[ms.size][];
+			for (int i = ms.size; i-- > 0;)
+			{
+				ms.findNeighbours(minPts, ms.setOfObjects[i], e);
+				int[] nn = new int[ms.neighbours.size];
+				for (int j = ms.neighbours.size; j-- > 0;)
+					nn[j] = ms.neighbours.get(j).id;
+				n[i] = nn;
+			}
+			return n;
+		}
+	}
+
+	@Test
+	public void canTestMoleculeSpaceFindNeighbours()
+	{
+		OPTICSManager[] om = new OPTICSManager[5];
+		for (int i = 0; i < om.length; i++)
+			om[i] = createOPTICSManager(size, 500);
+
+		float generatingDistanceE = 10;
+		final int minPts = 20;
+
+		// Results
+		final int[][][] n = new int[om.length][][];
+
+		TimingService ts = new TimingService();
+
+		ts.execute(new FindNeighboursTimingTask(MS.SIMPLE, om, minPts, generatingDistanceE)
+		{
+			public void check(int i, Object result)
+			{
+				// Store these as the correct results
+				n[i] = format(result);
+			}
+		});
+		ts.execute(new FindNeighboursTimingTask(MS.GRID, om, minPts, generatingDistanceE)
+		{
+			public void check(int i, Object result)
+			{
+				String name = ms.toString() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name + j, e[j], o[j]);
+			}
+		});
+		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, om, minPts, generatingDistanceE)
+		{
+			public void check(int i, Object result)
+			{
+				String name = ms.toString() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name, e[j], o[j]);
+			}
+		});
+
+		ts.check();
+
+		ts.report();
+	}
+
+	@Test
+	public void canTestRadialMoleculeSpaceFindNeighbours()
+	{
+		OPTICSManager[] om = new OPTICSManager[5];
+		for (int i = 0; i < om.length; i++)
+			om[i] = createOPTICSManager(size, 5000);
+
+		float generatingDistanceE = 10;
+		final int minPts = 20;
+
+		// Results
+		final int[][][] n = new int[om.length][][];
+
+		TimingService ts = new TimingService();
+
+		ts.execute(new FindNeighboursTimingTask(MS.GRID, om, minPts, generatingDistanceE)
+		{
+			public void check(int i, Object result)
+			{
+				n[i] = format(result);
+			}
+		});
+		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, om, minPts, generatingDistanceE)
+		{
+			public void check(int i, Object result)
+			{
+				String name = ms.toString() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name, e[j], o[j]);
+			}
+		});
+
+		ts.check();
+
+		ts.report();
+	}
+	
+	private int[][] format(Object result)
+	{
+		int[][] n = (int[][]) result;
+		for (int i = 0; i < n.length; i++)
+			Arrays.sort(n[i]);
+		return n;
 	}
 
 	private OPTICSManager createOPTICSManager(int size, int n)
