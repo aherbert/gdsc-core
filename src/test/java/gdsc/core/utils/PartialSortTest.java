@@ -54,7 +54,7 @@ public class PartialSortTest
 	@Test
 	public void bottomCanHandleNullData()
 	{
-		double[] o = PartialSort.bottom(null, 5);
+		double[] o = PartialSort.bottom((double[]) null, 5);
 		Assert.assertEquals(0, o.length);
 	}
 
@@ -82,7 +82,7 @@ public class PartialSortTest
 		double[] o = PartialSort.bottom(d, 5);
 		Assert.assertArrayEquals(e, o, 0);
 	}
-	
+
 	public void computeBottom(int length, final int n, final int m)
 	{
 		double[][] data = createData(length, m);

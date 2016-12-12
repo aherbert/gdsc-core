@@ -317,6 +317,273 @@ public class PartialSort
 	}
 
 	/**
+	 * Provide partial sort of float arrays
+	 */
+	public static class FloatSelector
+	{
+		/**
+		 * The number N to select
+		 */
+		final int n;
+		/**
+		 * Working storage
+		 */
+		private final float[] queue;
+
+		/**
+		 * Create a new FloatSelector
+		 * 
+		 * @param n
+		 *            The number N to select
+		 */
+		public FloatSelector(int n)
+		{
+			if (n < 1)
+				throw new IllegalArgumentException("N must be strictly positive");
+			this.n = n;
+			queue = new float[n];
+		}
+
+		/**
+		 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
+		 * <p>
+		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
+		 * 
+		 * @param list
+		 *            the data list
+		 * @return The bottom N (passed as a reference to internal data structure)
+		 */
+		public float[] bottom(float[] list)
+		{
+			return bottom(OPTION_CLEAN, list, list.length);
+		}
+
+		/**
+		 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
+		 * <p>
+		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
+		 *
+		 * @param list
+		 *            the data list
+		 * @param options
+		 *            the options
+		 * @return The bottom N (passed as a reference to internal data structure)
+		 */
+		public float[] bottom(int options, float[] list)
+		{
+			return bottom(options, list, list.length);
+		}
+
+		/**
+		 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
+		 * <p>
+		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
+		 *
+		 * @param list
+		 *            the data list
+		 * @param size
+		 *            The size of the list (must be equal or above N)
+		 * @param options
+		 *            the options
+		 * @return The bottom N (passed as a reference to internal data structure)
+		 */
+		public float[] bottom(int options, float[] list, int size)
+		{
+			// We retain a pointer to the current highest value in the set. 
+			int max = 0;
+			queue[0] = list[0];
+
+			// Fill 
+			int i = 1;
+			while (i < n)
+			{
+				queue[i] = list[i];
+				if (queue[max] < queue[i])
+					max = i;
+				i++;
+			}
+
+			// Scan
+			while (i < size)
+			{
+				// Replace if lower
+				if (queue[max] > list[i])
+				{
+					queue[max] = list[i];
+					// Find new max
+					max = bottomMax(queue);
+				}
+				i++;
+			}
+
+			if (options == 0)
+				return queue;
+
+			if ((options & OPTION_HEAD_FIRST) != 0)
+				swapHead(queue, max);
+
+			return quickFinish(queue, options);
+		}
+
+		/**
+		 * Pick the top N from the data using ascending order, i.e. find the top n largest values.
+		 * <p>
+		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
+		 * 
+		 * @param list
+		 *            the data list
+		 * @return The top N (passed as a reference to internal data structure)
+		 */
+		public float[] top(float[] list)
+		{
+			return top(OPTION_CLEAN, list, list.length);
+		}
+
+		/**
+		 * Pick the top N from the data using ascending order, i.e. find the top n largest values.
+		 * <p>
+		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
+		 *
+		 * @param options
+		 *            the options
+		 * @param list
+		 *            the data list
+		 * @return The top N (passed as a reference to internal data structure)
+		 */
+		public float[] top(int options, float[] list)
+		{
+			return top(options, list, list.length);
+		}
+
+		/**
+		 * Pick the top N from the data using ascending order, i.e. find the top n largest values.
+		 * <p>
+		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
+		 *
+		 * @param list
+		 *            the data list
+		 * @param size
+		 *            The size of the list (must be equal or above N)
+		 * @param options
+		 *            the options
+		 * @return The top N (passed as a reference to internal data structure)
+		 */
+		public float[] top(int options, float[] list, int size)
+		{
+			// We retain a pointer to the current highest value in the set. 
+			int max = 0;
+			queue[0] = list[0];
+
+			// Fill 
+			int i = 1;
+			while (i < n)
+			{
+				queue[i] = list[i];
+				if (queue[max] > queue[i])
+					max = i;
+				i++;
+			}
+
+			// Scan
+			while (i < size)
+			{
+				// Replace if higher
+				if (queue[max] < list[i])
+				{
+					queue[max] = list[i];
+					// Find new max
+					max = topMax(queue);
+				}
+				i++;
+			}
+
+			if (options == 0)
+				return queue;
+
+			if ((options & OPTION_HEAD_FIRST) != 0)
+				swapHead(queue, max);
+
+			return quickFinish(queue, options | OPTION_TOP);
+		}
+
+		private static int bottomMax(float[] data)
+		{
+			int max = 0;
+			for (int i = 1; i < data.length; i++)
+				if (data[max] < data[i])
+					max = i;
+			return max;
+		}
+
+		private static int topMax(float[] data)
+		{
+			int max = 0;
+			for (int i = 1; i < data.length; i++)
+				if (data[max] > data[i])
+					max = i;
+			return max;
+		}
+
+		private static float[] quickFinish(float[] data, int options)
+		{
+			data = removeNaN(data, options);
+			sort(data, options);
+			return data;
+		}
+
+		private static float[] finish(float[] data, int options)
+		{
+			replaceHead(data, options);
+			return quickFinish(data, options);
+		}
+
+		private static void replaceHead(float[] data, int options)
+		{
+			if ((options & OPTION_HEAD_FIRST) != 0)
+			{
+				swapHead(data, ((options & OPTION_TOP) != 0) ? topMax(data) : bottomMax(data));
+			}
+		}
+
+		private static void swapHead(float[] data, int max)
+		{
+			float head = data[max];
+			data[max] = data[0];
+			data[0] = head;
+		}
+
+		private static float[] removeNaN(float[] data, int options)
+		{
+			if ((options & OPTION_REMOVE_NAN) != 0)
+			{
+				int size = 0;
+				for (int i = 0; i < data.length; i++)
+				{
+					if (Float.isNaN(data[i]))
+						continue;
+					data[size++] = data[i];
+				}
+				if (size == data.length)
+					return data;
+				if (size == 0)
+					return new float[0];
+				data = Arrays.copyOf(data, size);
+			}
+			return data;
+		}
+
+		private static void sort(float[] data, int options)
+		{
+			if ((options & OPTION_SORT) != 0)
+			{
+				Arrays.sort(data);
+				if ((options & OPTION_TOP) != 0)
+					Sort.reverse(data);
+			}
+		}
+	}
+	
+	/**
 	 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
 	 *
 	 * @param list
@@ -394,4 +661,84 @@ public class PartialSort
 		}
 		return list;
 	}
+	
+	
+	/**
+	 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
+	 *
+	 * @param list
+	 *            the data list
+	 * @param n
+	 *            The number N to select
+	 * @return The bottom N
+	 */
+	public static float[] bottom(float[] list, int n)
+	{
+		if (list == null)
+			return new float[0];
+		return bottom(list, list.length, n);
+	}
+
+	/**
+	 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
+	 * 
+	 * @param list
+	 *            the data list
+	 * @param size
+	 *            The size of the list
+	 * @param n
+	 *            The number N to select
+	 * @return The bottom N
+	 */
+	public static float[] bottom(float[] list, int size, int n)
+	{
+		return bottom(OPTION_CLEAN, list, size, n);
+	}
+
+	/**
+	 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
+	 *
+	 * @param options
+	 *            the options
+	 * @param list
+	 *            the data list
+	 * @param n
+	 *            The number N to select
+	 * @return The bottom N
+	 */
+	public static float[] bottom(int options, float[] list, int n)
+	{
+		if (list == null)
+			return new float[0];
+		return bottom(options, list, list.length, n);
+	}
+
+	/**
+	 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
+	 * 
+	 * @param list
+	 *            the data list
+	 * @param size
+	 *            The size of the list
+	 * @param n
+	 *            The number N to select
+	 * @param options
+	 *            the options
+	 * @return The bottom N
+	 */
+	public static float[] bottom(int options, float[] list, int size, int n)
+	{
+		if (list == null || size <= 0)
+			return new float[0];
+		size = Math.min(size, list.length);
+		if (size < n)
+		{
+			list = FloatSelector.finish(list.clone(), options);
+		}
+		else
+		{
+			list = new FloatSelector(n).bottom(options, list, size);
+		}
+		return list;
+	}	
 }
