@@ -21,7 +21,6 @@ import gdsc.core.clustering.CoordinateStore;
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.Maths;
-import ij.process.ByteProcessor;
 
 /**
  * Compute clustering using OPTICS.
@@ -36,7 +35,7 @@ public class OPTICSManager extends CoordinateStore
 	 * The UNDEFINED distance in the OPTICS algorithm. This is actually arbitrary. Use a simple value so we can spot it
 	 * when debugging.
 	 */
-	private static final float UNDEFINED = -1;
+	static final float UNDEFINED = -1;
 
 	/**
 	 * Options for the algorithms
@@ -60,7 +59,7 @@ public class OPTICSManager extends CoordinateStore
 		RADIAL_PROCESSING;
 	}
 
-	private EnumSet<Option> options = EnumSet.noneOf(Option.class);
+	EnumSet<Option> options = EnumSet.noneOf(Option.class);
 
 	/**
 	 * Sets the options.
@@ -97,264 +96,6 @@ public class OPTICSManager extends CoordinateStore
 	public EnumSet<Option> getOptions()
 	{
 		return options;
-	}
-
-	/**
-	 * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules.
-	 */
-	private class Molecule
-	{
-		final int id;
-		final float x, y;
-		// Used to construct a single linked list of molecules
-		public Molecule next = null;
-
-		private boolean processed;
-		private float coreDistance;
-		private float reachabilityDistance;
-
-		private final int xBin, yBin;
-		/**
-		 * Working distance to current centre object
-		 */
-		private float d;
-
-		/**
-		 * The Id of the point that set the current min reachability distance. A value of -1 has no predecessor (and so
-		 * was the first point chosen by the algorithm).
-		 */
-		private int predecessor = -1;
-
-		/**
-		 * Working data used in algorithm support
-		 */
-		private int workingData;
-
-		public int getQueueIndex()
-		{
-			return workingData;
-		}
-
-		public void setQueueIndex(int index)
-		{
-			workingData = index;
-		}
-
-		Molecule(int id, float x, float y, int xBin, int yBin, Molecule next)
-		{
-			this.id = id;
-			this.x = x;
-			this.y = y;
-			this.next = next;
-			this.xBin = xBin;
-			this.yBin = yBin;
-			reset();
-		}
-
-		float distance2(Molecule other)
-		{
-			final float dx = x - other.x;
-			final float dy = y - other.y;
-			return dx * dx + dy * dy;
-		}
-
-		@SuppressWarnings("unused")
-		double distance(Molecule other)
-		{
-			return Math.sqrt(distance2(other));
-		}
-
-		/**
-		 * Reset for fresh processing.
-		 */
-		void reset()
-		{
-			processed = false;
-			workingData = 0;
-			coreDistance = reachabilityDistance = UNDEFINED;
-		}
-
-		public double getReachabilityDistance()
-		{
-			return Math.sqrt(reachabilityDistance);
-		}
-
-		public double getCoreDistance()
-		{
-			return Math.sqrt(coreDistance);
-		}
-
-		public OPTICSOrder toOPTICSResult()
-		{
-			double actualCoreDistance = (coreDistance == UNDEFINED) ? Double.POSITIVE_INFINITY : getCoreDistance();
-			double actualReachabilityDistance = (reachabilityDistance == UNDEFINED) ? Double.POSITIVE_INFINITY
-					: getReachabilityDistance();
-			return new OPTICSOrder(id, predecessor, actualCoreDistance, actualReachabilityDistance);
-		}
-
-		public boolean isNotProcessed()
-		{
-			return !processed;
-		}
-
-		public void markProcessed()
-		{
-			processed = true;
-		}
-
-		/**
-		 * Set the core distance. Used in OPTICS
-		 *
-		 * @param minPts
-		 *            the min points to be a core point
-		 * @param neighbours
-		 *            the neighbours
-		 */
-		public void setCoreDistance(int minPts, MoleculeList neighbours)
-		{
-			processed = true;
-
-			final int size = neighbours.size;
-			if (size < minPts)
-				// Not a core point
-				return;
-
-			final Molecule[] list = neighbours.list;
-
-			// Avoid a full sort using a priority queue structure.
-			// We retain a pointer to the current highest value in the set. 
-			int max = 0;
-			floatArray[0] = list[0].d;
-
-			// Fill 
-			int i = 1;
-			while (i < minPts)
-			{
-				floatArray[i] = list[i].d;
-				if (floatArray[max] < floatArray[i])
-					max = i;
-				i++;
-			}
-
-			// Scan
-			while (i < size)
-			{
-				// Replace if lower
-				if (floatArray[max] > list[i].d)
-				{
-					floatArray[max] = list[i].d;
-					// Find new max
-					for (int j = minPts; j-- > 0;)
-					{
-						if (floatArray[max] < floatArray[j])
-							max = j;
-					}
-				}
-				i++;
-			}
-
-			coreDistance = floatArray[max];
-
-			// Full sort 
-			//		for (int i = size; i-- > 0;)
-			//			floatArray[i] = list[i].d;
-			//		Arrays.sort(floatArray, 0, size);
-			//		currentObject.coreDistance = floatArray[minPts - 1];
-		}
-
-		public void setNumberOfPoints(int nPts)
-		{
-			// Use the core distance to store this
-			coreDistance = nPts;
-		}
-
-		public int getNumberOfPoints()
-		{
-			return (int) coreDistance;
-		}
-
-		public int getClusterId()
-		{
-			return workingData;
-		}
-
-		/**
-		 * Sets the cluster origin.
-		 *
-		 * @param clusterId
-		 *            the new cluster id
-		 */
-		public void setClusterOrigin(int clusterId)
-		{
-			workingData = clusterId;
-		}
-
-		/**
-		 * Sets a member of the cluster member.
-		 *
-		 * @param clusterId
-		 *            the new cluster id
-		 */
-		public void setClusterMember(int clusterId)
-		{
-			workingData = clusterId;
-		}
-
-		public boolean isNotInACluster()
-		{
-			return workingData == 0;
-		}
-
-		public DBSCANOrder toDBSCANResult()
-		{
-			return new DBSCANOrder(id, getClusterId(), getNumberOfPoints());
-		}
-	}
-
-	/**
-	 * Used in the algorithms to store molecules
-	 */
-	private abstract class MoleculeArray
-	{
-		final Molecule[] list;
-		int size = 0;
-
-		MoleculeArray(int capacity)
-		{
-			list = new Molecule[capacity];
-		}
-
-		void add(Molecule m)
-		{
-			list[size++] = m;
-		}
-
-		void clear()
-		{
-			size = 0;
-		}
-	}
-
-	/**
-	 * Used in the algorithms to store molecules in an indexable list
-	 */
-	private class MoleculeList extends MoleculeArray
-	{
-		MoleculeList(int capacity)
-		{
-			super(capacity);
-		}
-
-		Molecule get(int i)
-		{
-			return list[i];
-		}
-
-		void add(Molecule[] molecules)
-		{
-			System.arraycopy(molecules, 0, list, size, molecules.length);
-			size += molecules.length;
-		}
 	}
 
 	/**
@@ -428,6 +169,9 @@ public class OPTICSManager extends CoordinateStore
 		}
 	}
 
+	/**
+	 * Used to rank molecules by their reachability distance. Used in the OPTICS algorithm.
+	 */
 	private static class OPTICSComparator implements Comparator<Molecule>
 	{
 		public int compare(Molecule o1, Molecule o2)
@@ -510,872 +254,6 @@ public class OPTICSManager extends CoordinateStore
 		{
 			if (opticsComparator.compare(object, list[next]) < 0)
 				swap(next, object.getQueueIndex());
-		}
-	}
-
-	/**
-	 * Used in the OPTICS algorithm
-	 */
-	private abstract class MoleculeSpace
-	{
-		final float generatingDistanceE;
-		final Molecule[] setOfObjects;
-		final int size = xcoord.length;
-		// Working storage for find neighbours
-		final MoleculeList neighbours = new MoleculeList(size);
-
-		MoleculeSpace(float generatingDistanceE)
-		{
-			this.generatingDistanceE = generatingDistanceE;
-			setOfObjects = generate();
-		}
-
-		/**
-		 * Generate the molecule space. Return the list of molecules that will be processed.
-		 *
-		 * @return the molecule list
-		 */
-		abstract Molecule[] generate();
-
-		/**
-		 * Reset all the molecules for fresh processing.
-		 */
-		void reset()
-		{
-			for (int i = setOfObjects.length; i-- > 0;)
-				setOfObjects[i].reset();
-		}
-
-		/**
-		 * Find neighbours closer than the generating distance. The neighbours are written to the working memory store.
-		 * <p>
-		 * If the number of points is definitely below the minimum number of points then no distances are computed (to
-		 * save
-		 * time).
-		 * <p>
-		 * The neighbours includes the actual point in the list of neighbours (where the distance would be 0).
-		 *
-		 * @param minPts
-		 *            the min pts
-		 * @param object
-		 *            the object
-		 * @param e
-		 *            the generating distance
-		 */
-		abstract void findNeighbours(int minPts, Molecule object, float e);
-
-		/**
-		 * Find neighbours closer than the generating distance. The neighbours are written to the working memory store.
-		 * The
-		 * distances are stored in the objects encountered.
-		 * <p>
-		 * If the number of points is definitely below the minimum number of points then no distances are computed (to
-		 * save
-		 * time).
-		 * <p>
-		 * The neighbours includes the actual point in the list of neighbours (where the distance would be 0).
-		 *
-		 * @param minPts
-		 *            the min pts
-		 * @param object
-		 *            the object
-		 * @param e
-		 *            the generating distance
-		 */
-		abstract void findNeighboursAndDistances(int minPts, Molecule object, float e);
-	}
-
-	/**
-	 * Store molecules in a 2D grid
-	 */
-	private class GridMoleculeSpace extends MoleculeSpace
-	{
-		int resolution;
-		float binWidth;
-		int xBins;
-		int yBins;
-		Molecule[][] grid;
-		final int[] fastForward;
-
-		GridMoleculeSpace(float generatingDistanceE)
-		{
-			super(generatingDistanceE);
-
-			// Traverse the grid and store the index to the next position that contains data
-			int count = 0;
-			int index = grid.length;
-			fastForward = new int[index];
-			for (int i = index; i-- > 0;)
-			{
-				fastForward[i] = index;
-				if (grid[i] != null)
-				{
-					index = i;
-					count += grid[i].length;
-				}
-			}
-			if (count != setOfObjects.length)
-				throw new RuntimeException("Grid does not contain all the objects");
-		}
-
-		Molecule[] generate()
-		{
-			final float xrange = maxXCoord - minXCoord;
-			final float yrange = maxYCoord - minYCoord;
-
-			if (xrange == 0 && yrange == 0)
-			{
-				resolution = 1;
-				binWidth = 1;
-			}
-			else
-			{
-				// Use a higher resolution grid to avoid too many distance comparisons
-				resolution = determineResolution(xrange, yrange);
-
-				if (resolution == 0)
-				{
-					// Handle a resolution of zero. This will happen when the generating distance is very small.
-					// In this instance we can use a resolution of 1 but change the bin width to something larger.
-					resolution = 1;
-					binWidth = determineBinWidth(xrange, yrange);
-				}
-				else
-				{
-					adjustResolution(xrange, yrange);
-					binWidth = generatingDistanceE / resolution;
-
-					//System.out.printf("e=%f, bw=%f, r=%d, w=%f\n", generatingDistanceE, binWidth, resolution, binWidth * resolution);
-				}
-			}
-
-			// Assign to a grid
-			xBins = 1 + (int) (xrange / binWidth);
-			yBins = 1 + (int) (yrange / binWidth);
-
-			// Use a transpose grid to allow freeing memory (as we later process in the y then x order)
-			Molecule[][] linkedListGrid = new Molecule[yBins][];
-			for (int yBin = 0; yBin < yBins; yBin++)
-				linkedListGrid[yBin] = new Molecule[xBins];
-
-			Molecule[] setOfObjects = new Molecule[xcoord.length];
-			for (int i = 0; i < xcoord.length; i++)
-			{
-				final float x = xcoord[i];
-				final float y = ycoord[i];
-				final int xBin = (int) ((x - minXCoord) / binWidth);
-				final int yBin = (int) ((y - minYCoord) / binWidth);
-				// Build a single linked list
-				final Molecule m = new Molecule(i, x, y, xBin, yBin, linkedListGrid[yBin][xBin]);
-				setOfObjects[i] = m;
-				linkedListGrid[yBin][xBin] = m;
-			}
-
-			// Convert grid to arrays ...
-			grid = new Molecule[xBins * yBins][];
-			for (int yBin = 0, index = 0; yBin < yBins; yBin++)
-			{
-				for (int xBin = 0; xBin < xBins; xBin++, index++)
-				{
-					if (linkedListGrid[yBin][xBin] == null)
-						continue;
-					int count = 0;
-					for (Molecule m = linkedListGrid[yBin][xBin]; m != null; m = m.next)
-						count++;
-					final Molecule[] list = new Molecule[count];
-					for (Molecule m = linkedListGrid[yBin][xBin]; m != null; m = m.next)
-						list[--count] = m;
-					grid[index] = list;
-				}
-				// Free memory
-				linkedListGrid[yBin] = null;
-			}
-
-			return setOfObjects;
-		}
-
-		int determineResolution(float xrange, float yrange)
-		{
-			int resolution = 0;
-			// What is a good maximum limit for the memory allocation?
-			while (getBins(xrange, yrange, generatingDistanceE, resolution + 1) < 100000)
-			{
-				resolution++;
-			}
-			//System.out.printf("d=%.3f  [%d]\n", generatingDistanceE, resolution);
-			// We handle a resolution of zero in the calling function
-			return resolution;
-		}
-
-		void adjustResolution(final float xrange, final float yrange)
-		{
-			if (options.contains(Option.HIGH_RESOLUTION))
-			{
-				return;
-			}
-
-			// Do not increase the resolution so high we have thousands of blocks
-			// and not many expected points.		
-			// Determine the number of molecules we would expect in a square block if they are uniform.
-			double blockArea = 4 * generatingDistanceE;
-			double expected = xcoord.length * blockArea / (xrange * yrange);
-
-			// It is OK if 25-50% of the blocks are full
-			int newResolution = 1;
-
-			double target = expected / 0.25;
-
-			// Closest
-			//				double minDelta = Math.abs(getNeighbourBlocks(newResolution) - target);
-			//				while (newResolution < resolution)
-			//				{
-			//					double delta = Math.abs(getNeighbourBlocks(newResolution + 1) - target);
-			//					if (delta < minDelta)
-			//					{
-			//						minDelta = delta;
-			//						newResolution++;
-			//					}
-			//					else
-			//						break;
-			//				}
-
-			// Next size up
-			while (newResolution < resolution)
-			{
-				if (getNeighbourBlocks(newResolution) < target)
-					newResolution++;
-				else
-					break;
-			}
-
-			resolution = newResolution;
-
-			//System.out.printf("Expected %.2f [%d]\n", expected, (2 * resolution + 1) * (2 * resolution + 1));
-		}
-
-		private float determineBinWidth(float xrange, float yrange)
-		{
-			float binWidth = generatingDistanceE;
-			while (getBins(xrange, yrange, binWidth, 1) > 100000)
-			{
-				// Dumb implementation that doubles the bin width. A better solution
-				// would be to conduct a search for the value with a number of bins close 
-				// to the target.
-				binWidth *= 2;
-			}
-			return binWidth;
-		}
-
-		private int getBins(float xrange, float yrange, float distance, int resolution)
-		{
-			final float binWidth = distance / resolution;
-			final int nXBins = 1 + (int) (xrange / binWidth);
-			final int nYBins = 1 + (int) (yrange / binWidth);
-			final int nBins = nXBins * nYBins;
-			//System.out.printf("d=%.3f  %d => %d\n", generatingDistanceE, resolution, nBins);
-			return nBins;
-		}
-
-		int getNBlocks(int resolution)
-		{
-			return 2 * resolution + 1;
-		}
-
-		int getNeighbourBlocks(int resolution)
-		{
-			int size = getNBlocks(resolution);
-			return size * size;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
-		 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
-		 */
-		void findNeighbours(int minPts, Molecule object, float e)
-		{
-			//boolean noFF = true;
-
-			// Match findNeighboursAndDistances(minPts, object, e);
-			// But do not store the distances
-
-			final int xBin = object.xBin;
-			final int yBin = object.yBin;
-
-			neighbours.clear();
-
-			// Pre-compute range
-			final int minx = Math.max(xBin - resolution, 0);
-			final int maxx = Math.min(xBin + resolution + 1, xBins);
-			final int miny = Math.max(yBin - resolution, 0);
-			final int maxy = Math.min(yBin + resolution + 1, yBins);
-
-			// Count if there are enough neighbours
-			int count = minPts;
-			counting: for (int y = miny; y < maxy; y++)
-			{
-				//				if (noFF)
-				//				{
-				//					for (int x = minx, index = getIndex(minx, y); x < maxx; x++, index++)
-				//					{
-				//						if (grid[index] != null)
-				//						{
-				//							count -= grid[index].length;
-				//							if (count <= 0)
-				//								break counting;
-				//						}
-				//					}
-				//				}
-				//				else
-				//				{
-				// Use fast-forward to skip to the next position with data
-				int index = getIndex(minx, y);
-				if (grid[index] == null)
-					index = fastForward[index];
-				int endIndex = getIndex(maxx, y);
-				while (index < endIndex)
-				{
-					count -= grid[index].length;
-					if (count <= 0)
-						break counting;
-					index = fastForward[index];
-				}
-				//				}
-			}
-
-			if (count > 0)
-			{
-				// Not a core point so do not compute distances
-				//System.out.println("Skipping distance computation (not a core point)");
-				return;
-			}
-
-			// Compute distances
-			for (int y = miny; y < maxy; y++)
-			{
-				//				if (noFF)
-				//				{
-				//					for (int x = minx, index = getIndex(minx, y); x < maxx; x++, index++)
-				//					{
-				//						if (grid[index] != null)
-				//						{
-				//							final Molecule[] list = grid[index];
-				//							for (int i = list.length; i-- > 0;)
-				//							{
-				//								if (object.distance2(list[i]) <= e)
-				//								{
-				//									// Build a list of all the neighbours
-				//									neighbours.add(list[i]);
-				//								}
-				//							}
-				//						}
-				//					}
-				//				}
-				//				else
-				//				{
-				// Use fast-forward to skip to the next position with data
-				int index = getIndex(minx, y);
-				if (grid[index] == null)
-					index = fastForward[index];
-				int endIndex = getIndex(maxx, y);
-				while (index < endIndex)
-				{
-					final Molecule[] list = grid[index];
-					for (int i = list.length; i-- > 0;)
-					{
-						if (object.distance2(list[i]) <= e)
-						{
-							// Build a list of all the neighbours
-							neighbours.add(list[i]);
-						}
-					}
-					index = fastForward[index];
-				}
-				//				}
-			}
-
-			//			// Full debug of the neighbours that were found
-			//			final MoleculeList neighbours2 = new MoleculeList(size);
-			//			for (int index = grid.length; index-- > 0;)
-			//			{
-			//				if (grid[index] != null)
-			//				{
-			//					final Molecule[] list = grid[index];
-			//					for (int i = list.length; i-- > 0;)
-			//					{
-			//						if (object.distance2(list[i]) <= e)
-			//						{
-			//							// Build a list of all the neighbours
-			//							neighbours2.add(list[i]);
-			//						}
-			//					}
-			//				}
-			//			}
-			//			
-			//			if (neighbours2.size != neighbours.size)
-			//			{
-			//				System.out.printf("Size error %d vs %d @ %d/%d,%d/%d [%d] %f,%f [%d-%d,%d-%d] %f\n", neighbours2.size,
-			//						neighbours.size, xBin, xBins, yBin, yBins, resolution, object.x, object.y, minx, maxx, miny,
-			//						maxy, Math.sqrt(e));
-			//				for (int i = 0; i < neighbours2.size; i++)
-			//				{
-			//					Molecule o = neighbours2.get(i);
-			//					System.out.printf("%d,%d %f,%f = %f\n", o.xBin, o.yBin, o.x, o.y, object.distance(o));
-			//				}
-			//			}
-		}
-
-		int getIndex(final int x, final int y)
-		{
-			return y * xBins + x;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
-		 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
-		 */
-		void findNeighboursAndDistances(int minPts, Molecule object, float e)
-		{
-			//boolean noFF = true;
-
-			final int xBin = object.xBin;
-			final int yBin = object.yBin;
-
-			neighbours.clear();
-
-			// Pre-compute range
-			final int minx = Math.max(xBin - resolution, 0);
-			final int maxx = Math.min(xBin + resolution + 1, xBins);
-			final int miny = Math.max(yBin - resolution, 0);
-			final int maxy = Math.min(yBin + resolution + 1, yBins);
-
-			// Count if there are enough neighbours
-			int count = minPts;
-			counting: for (int y = miny; y < maxy; y++)
-			{
-				//				if (noFF)
-				//				{
-				//					for (int x = minx, index = getIndex(minx, y); x < maxx; x++, index++)
-				//					{
-				//						if (grid[index] != null)
-				//						{
-				//							count -= grid[index].length;
-				//							if (count <= 0)
-				//								break counting;
-				//						}
-				//					}
-				//				}
-				//				else
-				//				{
-				// Use fast-forward to skip to the next position with data
-				int index = getIndex(minx, y);
-				if (grid[index] == null)
-					index = fastForward[index];
-				int endIndex = getIndex(maxx, y);
-				while (index < endIndex)
-				{
-					count -= grid[index].length;
-					if (count <= 0)
-						break counting;
-					index = fastForward[index];
-				}
-				//				}
-			}
-
-			if (count > 0)
-			{
-				// Not a core point so do not compute distances
-				//System.out.println("Skipping distance computation (not a core point)");
-				return;
-			}
-
-			// Compute distances
-			for (int y = miny; y < maxy; y++)
-			{
-				//				if (noFF)
-				//				{
-				//					for (int x = minx, index = getIndex(minx, y); x < maxx; x++, index++)
-				//					{
-				//						if (grid[index] != null)
-				//						{
-				//							final Molecule[] list = grid[index];
-				//							for (int i = list.length; i-- > 0;)
-				//							{
-				//								final float d = object.distance2(list[i]);
-				//								if (d <= e)
-				//								{
-				//									// Build a list of all the neighbours and their working distance
-				//									final Molecule otherObject = list[i];
-				//									otherObject.d = d;
-				//									neighbours.add(otherObject);
-				//								}
-				//							}
-				//						}
-				//					}
-				//				}
-				//				else
-				//				{
-				// Use fast-forward to skip to the next position with data
-				int index = getIndex(minx, y);
-				if (grid[index] == null)
-					index = fastForward[index];
-				int endIndex = getIndex(maxx, y);
-				while (index < endIndex)
-				{
-					final Molecule[] list = grid[index];
-					for (int i = list.length; i-- > 0;)
-					{
-						final float d = object.distance2(list[i]);
-						if (d <= e)
-						{
-							// Build a list of all the neighbours and their working distance
-							final Molecule otherObject = list[i];
-							otherObject.d = d;
-							neighbours.add(otherObject);
-						}
-					}
-					index = fastForward[index];
-				}
-				//				}
-			}
-		}
-	}
-
-	/**
-	 * Store start and end x for each strip in the radial mask
-	 */
-	private class Offset
-	{
-		final int start;
-		final int startInternal;
-		final int endInternal;
-		final int end;
-
-		Offset(int start, int startInternal, int endInternal, int end)
-		{
-			this.start = start;
-			this.startInternal = startInternal;
-			this.endInternal = endInternal;
-			this.end = end;
-		}
-	}
-
-	/**
-	 * Store molecules in a high resolution 2D grid and perform distance computation
-	 */
-	private class RadialMoleculeSpace extends GridMoleculeSpace
-	{
-		Offset[] offset;
-
-		RadialMoleculeSpace(float generatingDistanceE)
-		{
-			super(generatingDistanceE);
-		}
-
-		Molecule[] generate()
-		{
-			// Generate the grid
-			Molecule[] m = super.generate();
-
-			// TODO - Build a search space that can use a circular mask to only search over the required 
-			// points in the 2D grid
-			int size = 2 * resolution + 1;
-			offset = new Offset[size];
-
-			// TODO find the internal start and end:
-			// Any edge point that is only 8-connected to the row below creates 
-			// the requirement for extra internal cells to ensure we have a 4 connected edge
-			// 
-			// .....X
-			// ....Xx
-			// ....X
-			// ....Xx
-			// .....X     x are extra internal points
-
-			float e = generatingDistanceE * generatingDistanceE;
-
-			// Create a quarter circle
-			int width = resolution + 1;
-			byte[] mask = new byte[width * width];
-			for (int i = 0, k = 0; i < width; i++)
-			{
-				int endInternal = -1;
-				int end = -1;
-				for (int j = 0; j < width; j++, k++)
-				{
-					// min distance
-					//@formatter:off
-					float d2 = Float.MAX_VALUE;
-					for (int ii = 0; ii <= 1; ii++)
-						for (int jj = 0; jj <= 1; jj++)
-							d2 = Maths.min(d2, 
-    							distance2(ii, jj, i,     j), 
-    							distance2(ii, jj, i + 1, j),
-    							distance2(ii, jj, i,     j + 1), 
-    							distance2(ii, jj, i + 1, j + 1));
-					//@formatter:on
-					if (d2 < e)
-					{
-						mask[k] = (byte) 127;
-						end = j;
-					}
-
-					// max distance
-					float d1 = distance2(0, 0, i + 1, j + 1);
-					if (d1 < e)
-					{
-						mask[k] = (byte) 255;
-						endInternal = j;
-					}
-				}
-
-				// Mirror
-				int start = -end;
-				int startInternal = (endInternal == -1) ? 0 : -endInternal;
-				end++;
-				endInternal++;
-
-				//startInternal = endInternal = 0;
-
-				offset[width - i - 1] = new Offset(start, startInternal, endInternal, end);
-			}
-			Utils.display("inner2", new ByteProcessor(width, width, mask));
-
-			// This does not work ...
-			for (int i = 0; i <= resolution; i++)
-			{
-				//offset[i] = create(i, e);
-			}
-
-			for (int i = 0, j = offset.length - 1; i <= resolution; i++, j--)
-			{
-				// Mirror
-				offset[j] = offset[i];
-			}
-
-			// TODO - Show an output mask image for debugging purposes of the region and the internal region.
-			byte[] outer = new byte[getNeighbourBlocks(resolution)];
-			byte[] inner = new byte[outer.length];
-			for (int i = 0, k = 0; i < offset.length; i++)
-			{
-				for (int j = -resolution; j <= resolution; j++, k++)
-				{
-					if (j >= offset[i].start && j < offset[i].end)
-						outer[k] = (byte) 255;
-					if (j >= offset[i].startInternal && j < offset[i].endInternal)
-						inner[k] = (byte) 255;
-				}
-			}
-			int w = getNBlocks(resolution);
-			Utils.display("Outer", new ByteProcessor(w, w, outer));
-			Utils.display("inner", new ByteProcessor(w, w, inner));
-
-			return m;
-		}
-
-		Offset create(int row, float e)
-		{
-			int originx, originy;
-			int start, end, startInternal, endInternal, x, y;
-
-			// Find the first grid cell where the minimum distance is below the generating distance,
-			// i.e. any points anywhere in the two cells could be within the distance.
-			start = -resolution;
-			end = resolution + 1;
-
-			originx = originy = 1;
-			x = resolution;
-			y = resolution - row;
-			while (start < end)
-			{
-				if (distance2(x, y, originx, originy) > e)
-				{
-					x--;
-					start++;
-					end--;
-				}
-				else
-				{
-					break;
-				}
-			}
-
-			// TODO - fix this...
-
-			// Find the first grid cell where the maximum distance is below the generating distance,
-			// i.e. any points anywhere in the two cells are always within the distance.
-			startInternal = -resolution + 1;
-			endInternal = resolution;
-
-			originx = originy = 0;
-			x = resolution + 1;
-			y = resolution - row + 1;
-			while (startInternal < endInternal)
-			{
-				if (distance2(x, y, originx, originy) > e)
-				{
-					x--;
-					startInternal++;
-					endInternal--;
-				}
-				else
-				{
-					break;
-				}
-			}
-
-			//startInternal = endInternal = 0;
-
-			return new Offset(start, startInternal, endInternal, end);
-		}
-
-		private float distance2(int x, int y, int x2, int y2)
-		{
-			float dx = (x - x2) * binWidth;
-			float dy = (y - y2) * binWidth;
-			return dx * dx + dy * dy;
-		}
-
-		@Override
-		int determineResolution(float xrange, float yrange)
-		{
-			// TODO - determine a good resolution for the given generating distance
-
-			return super.determineResolution(xrange, yrange);
-		}
-
-		@Override
-		void adjustResolution(float xrange, float yrange)
-		{
-			// TODO - prevent the resolution from being reduced too small 
-
-			super.adjustResolution(xrange, yrange);
-		}
-
-		void findNeighbours(int minPts, Molecule object, float e)
-		{
-			//			if (true)
-			//			{
-			//				super.findNeighbours(minPts, object, e);
-			//				return;
-			//			}
-
-			final int xBin = object.xBin;
-			final int yBin = object.yBin;
-
-			neighbours.clear();
-
-			// TODO - Use a circle mask over the grid to enumerate the correct cells
-			// Only compute distances at the edge of the mask 
-
-			// Pre-compute range
-			final int miny = Math.max(yBin - resolution, 0);
-			final int maxy = Math.min(yBin + resolution + 1, yBins);
-			final int startRow = Math.max(resolution - yBin, 0);
-
-			// Count if there are enough neighbours
-			int count = minPts;
-			counting: for (int y = miny, row = startRow; y < maxy; y++, row++)
-			{
-				// Dynamically compute the search strip 
-				final int minx = Math.max(xBin + offset[row].start, 0);
-				final int maxx = Math.min(xBin + offset[row].end, xBins);
-
-				// Use fast-forward to skip to the next position with data
-				int index = getIndex(minx, y);
-				if (grid[index] == null)
-					index = fastForward[index];
-				int endIndex = getIndex(maxx, y);
-				while (index < endIndex)
-				{
-					count -= grid[index].length;
-					if (count <= 0)
-						break counting;
-					index = fastForward[index];
-				}
-			}
-
-			if (count > 0)
-			{
-				// Not a core point so do not compute distances
-				//System.out.println("Skipping distance computation (not a core point)");
-				return;
-			}
-
-			// Compute distances
-			for (int y = miny, row = startRow; y < maxy; y++, row++)
-			{
-				// Dynamically compute the search strip 
-				final int minx = Math.max(xBin + offset[row].start, 0);
-				final int maxx = Math.min(xBin + offset[row].end, xBins);
-
-				final int columnShift = getIndex(xBin - resolution, y);
-
-				// Use fast-forward to skip to the next position with data
-				int index = getIndex(minx, y);
-				if (grid[index] == null)
-					index = fastForward[index];
-				int endIndex = getIndex(maxx, y);
-				while (index < endIndex)
-				{
-					final Molecule[] list = grid[index];
-
-					// Build a list of all the neighbours
-
-					// Find the column in the circular mask
-					final int col = index - columnShift;
-
-					// TODO - Can this be made more efficient with an internal flag (i.e. 1 comparison per loop)?
-
-					// If internal just add all the points
-					if (col >= offset[row].startInternal && col < offset[row].endInternal)
-					{
-						neighbours.add(list);
-						// Debug ...
-						for (int i = list.length; i-- > 0;)
-						{
-							double d = object.distance2(list[i]);
-							if (d > e)
-							{
-								float dx = binWidth * (xBin - list[i].xBin);
-								float dy = binWidth * (yBin - list[i].yBin);
-								System.out.printf("%d  %d/%d %d/%d (%f)  %f > %f :  %d %d %f %f  %f\n", resolution, col,
-										xBin, row, yBin, binWidth, Math.sqrt(d), generatingDistanceE,
-										xBin - list[i].xBin, yBin - list[i].yBin, dx, dy, Math.sqrt(dx * dx + dy * dy));
-							}
-						}
-					}
-					else
-					{
-						// If at the edge then compute distances
-						for (int i = list.length; i-- > 0;)
-						{
-							if (object.distance2(list[i]) <= e)
-							{
-								neighbours.add(list[i]);
-							}
-						}
-					}
-
-					index = fastForward[index];
-				}
-			}
-		}
-
-		void findNeighboursAndDistances(int minPts, Molecule object, float e)
-		{
-			// TODO - could this be implemented to use concentric rings around the current pixel
-			// We would need to pre-compute all the bounds for each concentric ring.
-			// then process from the central point outward. When the min points is achieved 
-			// we then compute the core distance using the molecules in the most recent ring. 
-			// For all remaining points outside the core distance
-			// we only need to compute the reachability distance if it is currently UNDEFINED
-			// or it is greater than the core distance.
-
-			super.findNeighboursAndDistances(minPts, object, e);
 		}
 	}
 
@@ -1517,7 +395,7 @@ public class OPTICSManager extends CoordinateStore
 	}
 
 	private MoleculeSpace grid;
-	private float[] floatArray;
+	float[] floatArray;
 
 	/**
 	 * Initialise the memory structure for the OPTICS algorithm. This can be cached if the generatingDistanceE does not
@@ -1541,9 +419,9 @@ public class OPTICSManager extends CoordinateStore
 
 			// Control the type of space we use to store the data
 			if (options.contains(Option.RADIAL_PROCESSING))
-				grid = new RadialMoleculeSpace(generatingDistanceE);
+				grid = new RadialMoleculeSpace(this, generatingDistanceE);
 			else
-				grid = new GridMoleculeSpace(generatingDistanceE);
+				grid = new GridMoleculeSpace(this, generatingDistanceE);
 		}
 		else
 		{
@@ -1625,7 +503,7 @@ public class OPTICSManager extends CoordinateStore
 	{
 		grid.findNeighboursAndDistances(minPts, object, e);
 		object.markProcessed();
-		object.setCoreDistance(minPts, grid.neighbours);
+		setCoreDistance(object, minPts, grid.neighbours);
 		if (orderedFile.add(object))
 			return true;
 
@@ -1641,7 +519,7 @@ public class OPTICSManager extends CoordinateStore
 				object = orderSeeds.next();
 				grid.findNeighboursAndDistances(minPts, object, e);
 				object.markProcessed();
-				object.setCoreDistance(minPts, grid.neighbours);
+				setCoreDistance(object, minPts, grid.neighbours);
 				if (orderedFile.add(object))
 					return true;
 
@@ -1650,6 +528,66 @@ public class OPTICSManager extends CoordinateStore
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Set the core distance.
+	 *
+	 * @param object
+	 *            the object
+	 * @param minPts
+	 *            the min points to be a core point
+	 * @param neighbours
+	 *            the neighbours
+	 */
+	public void setCoreDistance(Molecule object, int minPts, MoleculeList neighbours)
+	{
+		final int size = neighbours.size;
+		if (size < minPts)
+			// Not a core point
+			return;
+
+		final Molecule[] list = neighbours.list;
+
+		// Avoid a full sort using a priority queue structure.
+		// We retain a pointer to the current highest value in the set. 
+		int max = 0;
+		floatArray[0] = list[0].d;
+
+		// Fill 
+		int i = 1;
+		while (i < minPts)
+		{
+			floatArray[i] = list[i].d;
+			if (floatArray[max] < floatArray[i])
+				max = i;
+			i++;
+		}
+
+		// Scan
+		while (i < size)
+		{
+			// Replace if lower
+			if (floatArray[max] > list[i].d)
+			{
+				floatArray[max] = list[i].d;
+				// Find new max
+				for (int j = minPts; j-- > 0;)
+				{
+					if (floatArray[max] < floatArray[j])
+						max = j;
+				}
+			}
+			i++;
+		}
+
+		object.coreDistance = floatArray[max];
+
+		// Full sort 
+		//		for (int i = size; i-- > 0;)
+		//			floatArray[i] = list[i].d;
+		//		Arrays.sort(floatArray, 0, size);
+		//		currentObject.coreDistance = floatArray[minPts - 1];
 	}
 
 	/**
@@ -1914,5 +852,15 @@ public class OPTICSManager extends CoordinateStore
 		m.options = options.clone();
 		m.clearMemory();
 		return m;
+	}
+
+	float[] getXData()
+	{
+		return xcoord;
+	}
+
+	float[] getYData()
+	{
+		return ycoord;
 	}
 }

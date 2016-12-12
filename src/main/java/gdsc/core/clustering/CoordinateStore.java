@@ -83,6 +83,56 @@ public class CoordinateStore implements Cloneable
 	}
 
 	/**
+	 * Gets the number of points in the data store.
+	 *
+	 * @return the size
+	 */
+	public int getSize()
+	{
+		return xcoord.length;
+	}
+
+	/**
+	 * Gets the minimum X.
+	 *
+	 * @return the minimum X
+	 */
+	public float getMinimumX()
+	{
+		return minXCoord;
+	}
+
+	/**
+	 * Gets the maximum X.
+	 *
+	 * @return the maximum X
+	 */
+	public float getMaximumX()
+	{
+		return maxXCoord;
+	}
+
+	/**
+	 * Gets the minimum Y.
+	 *
+	 * @return the minimum Y
+	 */
+	public float getMinimumY()
+	{
+		return minYCoord;
+	}
+
+	/**
+	 * Gets the maximum Y.
+	 *
+	 * @return the maximum Y
+	 */
+	public float getMaximumY()
+	{
+		return maxYCoord;
+	}
+
+	/**
 	 * Gets the data in float format.
 	 *
 	 * @return the data

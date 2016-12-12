@@ -709,19 +709,20 @@ public class OPTICSManagerTest
 	@Test
 	public void dBSCANHighResolutionRadialIsFaster()
 	{
-		OPTICSManager om1 = createOPTICSManager(size, 5000);
+		OPTICSManager om1 = createOPTICSManager(size, 50000);
 		OPTICSManager om2 = om1.clone();
 		om2.setOptions(Option.HIGH_RESOLUTION, Option.RADIAL_PROCESSING);
 
+		float generatingDistanceE = 10;
 		int minPts = 20;
 
 		long t1 = System.nanoTime();
-		DBSCANResult r1 = om1.dbscan(0, minPts);
+		DBSCANResult r1 = om1.dbscan(generatingDistanceE, minPts);
 		long t2 = System.nanoTime();
-		DBSCANResult r2 = om2.dbscan(0, minPts);
+		DBSCANResult r2 = om2.dbscan(generatingDistanceE, minPts);
 		long t3 = System.nanoTime();
 
-		DBSCANResult r1b = om1.dbscan(0, minPts);
+		DBSCANResult r1b = om1.dbscan(generatingDistanceE, minPts);
 
 		areEqual("repeat", r1, r1b, minPts);
 		areEqual("new", r1, r2, minPts);
