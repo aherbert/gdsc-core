@@ -1,6 +1,5 @@
 package gdsc.core.clustering.optics;
 
-// TODO: Auto-generated Javadoc
 /*----------------------------------------------------------------------------- 
  * GDSC ImageJ Software
  * 

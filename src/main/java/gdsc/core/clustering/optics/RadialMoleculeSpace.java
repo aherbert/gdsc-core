@@ -5,28 +5,7 @@ package gdsc.core.clustering.optics;
  */
 class RadialMoleculeSpace extends GridMoleculeSpace
 {
-	/**
-	 * Store start and end x for each strip in the radial mask
-	 */
-	private class Offset
-	{
-		final int start;
-		final int startInternal;
-		final int endInternal;
-		final int end;
-		final boolean internal;
-
-		Offset(int start, int startInternal, int endInternal, int end)
-		{
-			this.start = start;
-			this.startInternal = startInternal;
-			this.endInternal = endInternal;
-			this.end = end;
-			internal = endInternal > startInternal;
-		}
-	}
-
-	Offset[] offset;
+	CircularKernelOffset[] offset;
 	private final boolean useInternal;
 
 	RadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE)
@@ -58,85 +37,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		// Generate the grid
 		Molecule[] m = super.generate();
 
-		// Build a search space that can use a circular mask to only search over the required 
-		// points in the 2D grid
-		int size = 2 * resolution + 1;
-		offset = new Offset[size];
-
-		// We process the data in horizontal stripes.
-		// Find the external and internal start and end for each stripe.
-		// External: A pixel that cannot contain a distance within the generating distance
-		// Internal: A pixel that could not contain a distance above the generating distance
-
-		// We build this using only a quarter circle from the origin. The rest is filled using symmetry.
-		// XXX
-		// ...XXX
-		// ......XX
-		// ........XX
-		// ..........X
-		// ..........X
-
-		float e = generatingDistanceE * generatingDistanceE;
-
-		// External:
-		// The closest distance to the origin is above the generating distance
-
-		// The outer pixel inner corner (0,0) must be compared to the closest point in the origin pixel:
-		// 1,0 for the first row
-		// 1,1 for the rest
-		// 0,1 when the outerX is <= 0
-		// As we draw the arc anti-clockwise we update the origin.
-		int origX = 1;
-		int origY = 0;
-		int outerX = resolution;
-
-		// Internal:
-		// The farthest distance to the origin is below the generating distance.
-
-		// The outer pixel outer corner (1,1) must be compared to the farthest point in the origin pixel:
-		int innerX = resolution;
-
-		for (int y = 0; y <= resolution; y++)
-		{
-			// Move the outer pixel if it is above the limit and the minimum distance is currently outside.
-			//while (outerX > 0 && distance2(origX, origY, outerX, y) > e)
-			float target = e - distance2(origY, y);
-			while (outerX > 0 && distance2(origX, outerX) > target)
-			{
-				outerX--;
-				// Update origin
-				if (outerX == 0)
-					origX = 0;
-			}
-
-			// Update origin for subsequent rows
-			origY = 1;
-
-			// Move the inner pixel if it is above the limit and the maximum distance is not currently inside.
-			// This may be at the limit so check before distance calculations
-			if (innerX != -1)
-			{
-				//while (innerX > -1 && distance2(0, 0, innerX + 1, y + 1) > e)
-				target = e - distance2(y + 1);
-				while (innerX > -1 && distance2(innerX + 1) > target)
-				{
-					innerX--;
-				}
-			}
-
-			// Mirror. Add 1 to the end points so we can use i=start; i<end; i++.
-			int start = -outerX;
-			int end = outerX + 1;
-			int startInternal = -innerX;
-			int endInternal = innerX + 1;
-			offset[resolution - y] = new Offset(start, startInternal, endInternal, end);
-		}
-
-		// Initialise and mirror
-		for (int i = 0, j = offset.length - 1; i <= resolution; i++, j--)
-		{
-			offset[j] = offset[i];
-		}
+		offset = CircularKernelOffset.create(resolution);
 
 		//		// Show an output mask image for debugging purposes of the region and the internal region.
 		//		byte[] outer = new byte[getNeighbourBlocks(resolution)];
@@ -182,30 +83,10 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		//			}
 		//		}
 
-		//Utils.display("Outer", new ByteProcessor(w, w, outer));
+		//Utils.display("outer", new ByteProcessor(w, w, outer));
 		//Utils.display("inner", new ByteProcessor(w, w, inner));
 
 		return m;
-	}
-
-	@SuppressWarnings("unused")
-	private float distance2(int x, int y, int x2, int y2)
-	{
-		float dx = (x - x2) * binWidth;
-		float dy = (y - y2) * binWidth;
-		return dx * dx + dy * dy;
-	}
-
-	private float distance2(int x, int x2)
-	{
-		float dx = (x - x2) * binWidth;
-		return dx * dx;
-	}
-
-	private float distance2(int x)
-	{
-		float dx = x * binWidth;
-		return dx * dx;
 	}
 
 	@Override
@@ -218,8 +99,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		// However we must ensure that we have the memory to create the grid.
 
 		// Q. What is a good maximum limit for the memory allocation?
-		while (getBins(xrange, yrange, generatingDistanceE, resolution + 1) < 4096 * 4096 ||
-				resolution < 2)
+		while (getBins(xrange, yrange, generatingDistanceE, resolution + 1) < 4096 * 4096 || resolution < 2)
 		{
 			resolution++;
 		}
@@ -235,7 +115,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 		return nMoleculesInCircle;
 	}
-	
+
 	/**
 	 * Hold the point where inner processing starts to use a higher resolution grid.
 	 */
@@ -244,7 +124,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 	 * Hold the point where processing starts to use a higher resolution grid.
 	 */
 	static int N_MOLECULES_FOR_NEXT_RESOLUTION_OUTER = 150;
-	
+
 	@Override
 	void adjustResolution(float xrange, float yrange)
 	{
@@ -257,7 +137,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		//centre, missing the chance to ignore them.
 
 		double nMoleculesInArea = getNMoleculesInGeneratingArea(xrange, yrange);
-		
+
 		int newResolution;
 
 		if (useInternal)
@@ -265,7 +145,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 			// When using internal processing, we use a different look-up table. This is because
 			// there are additional loop constructs that must be maintained and there is a time penalty 
 			// for this due to complexity.
-			
+
 			if (nMoleculesInArea < N_MOLECULES_FOR_NEXT_RESOLUTION_INNER)
 				newResolution = 2;
 			else if (nMoleculesInArea < 500)

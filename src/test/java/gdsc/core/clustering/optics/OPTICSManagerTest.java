@@ -1375,10 +1375,33 @@ public class OPTICSManagerTest
 		}
 	}
 
-	// TODO - Build the inner and outer circle with different resolutions and see how the area
-	// converges as resolution increases (number of pixels * area of single pixel). 
-	// At a certain point additional resolution will add more pixels but will not better define 
-	// the circle.
+	//@Test
+	public void canBuildCircularKernelAtDifferentResolutions()
+	{
+		// Note: The radius of the default circle is 1 => 
+		// Circle Area = pi
+		// Square Area = 4
+
+		for (int r = 1; r <= 100; r++)
+		{
+			CircularKernelOffset[] offset = CircularKernelOffset.create(r);
+			int size = offset.length * offset.length;
+			double pixelArea = 4.0 / (size);
+			// Count pixels for the outer/inner circles
+			int outer = 0, inner = 0;
+			for (CircularKernelOffset o : offset)
+			{
+				outer += Math.max(0, o.end - o.start);
+				if (o.internal)
+					inner += o.endInternal - o.startInternal;
+			}
+			double outerArea = outer * pixelArea;
+			double innerArea = inner * pixelArea;
+			int skip = size - outer;
+			System.out.printf("R=%d, outer=%d  %f (%f), Skip=%d  (%f), inner=%d  %f (%f)\n", r, outer, outerArea,
+					outerArea / Math.PI, skip, (double) skip / size, inner, innerArea, innerArea / outerArea);
+		}
+	}
 
 	private void update(TimingResult r, double[] best)
 	{
