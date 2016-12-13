@@ -1,7 +1,7 @@
 package gdsc.core.clustering.optics;
 
 /**
- * Store molecules in a 2D grid and perform distance computation using cells within the radius from the centre. 
+ * Store molecules in a 2D grid and perform distance computation using cells within the radius from the centre.
  */
 class RadialMoleculeSpace extends GridMoleculeSpace
 {
@@ -211,11 +211,40 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 	@Override
 	int determineMaximumResolution(float xrange, float yrange)
 	{
-		// TODO - determine a good resolution for the given generating distance
+		int resolution = 0;
 
-		return super.determineMaximumResolution(xrange, yrange);
+		// A reasonable upper bound is that:
+		// - resolution should be 2 or above (to get the advantage of scanning the region around a point using cells).
+		// However we must ensure that we have the memory to create the grid.
+
+		// Q. What is a good maximum limit for the memory allocation?
+		while (getBins(xrange, yrange, generatingDistanceE, resolution + 1) < 4096 * 4096 ||
+				resolution < 2)
+		{
+			resolution++;
+		}
+		//System.out.printf("d=%.3f  [%d]\n", generatingDistanceE, resolution);
+		// We handle a resolution of zero in the calling function
+		return resolution;
 	}
 
+	@Override
+	double getNMoleculesInGeneratingArea(float xrange, float yrange)
+	{
+		double nMoleculesInPixel = (double) size / (xrange * yrange);
+		double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
+		return nMoleculesInCircle;
+	}
+	
+	/**
+	 * Hold the point where inner processing starts to use a higher resolution grid.
+	 */
+	static int N_MOLECULES_FOR_NEXT_RESOLUTION_INNER = 150;
+	/**
+	 * Hold the point where processing starts to use a higher resolution grid.
+	 */
+	static int N_MOLECULES_FOR_NEXT_RESOLUTION_OUTER = 150;
+	
 	@Override
 	void adjustResolution(float xrange, float yrange)
 	{
@@ -227,45 +256,44 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		//If the grid is too large then the outer cells may contain many points that are too far from the
 		//centre, missing the chance to ignore them.
 
-		double nMoleculesInPixel = (double) size / (xrange * yrange);
-		double nMoleculesInCircle = Math.PI * generatingDistanceE * nMoleculesInPixel;
-
+		double nMoleculesInArea = getNMoleculesInGeneratingArea(xrange, yrange);
+		
 		int newResolution;
 
 		if (useInternal)
 		{
-			// When using internal processing, we get an advantage from a higher resolution grid.
-			// This only applies to the findNeighbours method used by DBSCAN. However since this is
-			// what this class was written for we use a different look-up table.
-			if (nMoleculesInCircle < 20)
+			// When using internal processing, we use a different look-up table. This is because
+			// there are additional loop constructs that must be maintained and there is a time penalty 
+			// for this due to complexity.
+			
+			if (nMoleculesInArea < N_MOLECULES_FOR_NEXT_RESOLUTION_INNER)
 				newResolution = 2;
-			else if (nMoleculesInCircle < 25)
+			else if (nMoleculesInArea < 500)
 				newResolution = 3;
-			else if (nMoleculesInCircle < 30)
+			else if (nMoleculesInArea < 1000)
 				newResolution = 4;
-			else if (nMoleculesInCircle < 35)
-				newResolution = 5;
-			else if (nMoleculesInCircle < 40)
-				newResolution = 6;
-			else if (nMoleculesInCircle < 45)
-				newResolution = 7;
-			else if (nMoleculesInCircle < 70)
-				newResolution = 8;
 			else
-				// We continue to get benefit from high resolution as we can better define what is internal/external 
-				newResolution = (int) (nMoleculesInCircle / 10);
+				// Above this limit the resolution of the circles is good.
+				// TODO - Build the inner and outer circle with different resolutions and see how the area
+				// converges as resolution increases (number of pixels * area of single pixel). 
+				// At a certain point additional resolution will add more pixels
+				// but will not better define the circle.
+				newResolution = 5;
 		}
 		else
 		{
-			if (nMoleculesInCircle < 20)
+			if (nMoleculesInArea < N_MOLECULES_FOR_NEXT_RESOLUTION_OUTER)
 				newResolution = 2;
-			else if (nMoleculesInCircle < 35)
+			else if (nMoleculesInArea < 300)
 				newResolution = 3;
-			else if (nMoleculesInCircle < 40)
+			else if (nMoleculesInArea < 500)
 				newResolution = 4;
 			else
-				// When there are a lot more molecules then the speed is limited by the all-vs-all comparison, 
-				// not finding the molecules so this is an upper limit.
+				// Above this limit the resolution of the circles is good.
+				// TODO - Build the inner and outer circle with different resolutions and see how the area
+				// converges as resolution increases (number of pixels * area of single pixel). 
+				// At a certain point additional resolution will add more pixels
+				// but will not better define the circle.
 				newResolution = 5;
 		}
 
@@ -610,6 +638,92 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		//We can avoid checks if the max square is inside the grid. If not then we can avoid 
 		//checks up to the first intersect ring.
 
-		super.findNeighboursAndDistances(minPts, object, e);
+		final int xBin = object.xBin;
+		final int yBin = object.yBin;
+
+		neighbours.clear();
+
+		// Use a circle mask over the grid to enumerate the correct cells
+		// Only compute distances at the edge of the mask 
+
+		// Pre-compute range
+		final int miny = Math.max(yBin - resolution, 0);
+		final int maxy = Math.min(yBin + resolution + 1, yBins);
+		final int startRow = Math.max(resolution - yBin, 0);
+
+		if (xBin + resolution < xBins && xBin - resolution >= 0)
+		{
+			// Internal X. Maintain the centre index and use offsets to set the indices
+			int centreIndex = getIndex(xBin, miny);
+
+			for (int y = miny, row = startRow; y < maxy; y++, row++, centreIndex += xBins)
+			{
+				// Dynamically compute the search strip 
+				int index = centreIndex + offset[row].start;
+				int endIndex = centreIndex + offset[row].end;
+
+				// Use fast-forward to skip to the next position with data
+				if (grid[index] == null)
+					index = fastForward[index];
+
+				while (index < endIndex)
+				{
+					final Molecule[] list = grid[index];
+
+					// Build a list of all the neighbours
+					// If not internal then compute distances
+					for (int i = list.length; i-- > 0;)
+					{
+						final float d = object.distance2(list[i]);
+						if (d <= e)
+						{
+							// Build a list of all the neighbours and their working distance
+							final Molecule otherObject = list[i];
+							otherObject.d = d;
+							neighbours.add(otherObject);
+						}
+					}
+
+					index = fastForward[index];
+				}
+			}
+		}
+		else
+		{
+			// This must respect the bounds
+
+			// Compute distances
+			for (int y = miny, row = startRow; y < maxy; y++, row++)
+			{
+				// Dynamically compute the search strip 
+				int index = getIndex(Math.max(xBin + offset[row].start, 0), y);
+				int endIndex = getIndex(Math.min(xBin + offset[row].end, xBins), y);
+
+				// Use fast-forward to skip to the next position with data
+				if (grid[index] == null)
+					index = fastForward[index];
+
+				while (index < endIndex)
+				{
+					final Molecule[] list = grid[index];
+
+					// Build a list of all the neighbours
+					// If not internal then compute distances
+					for (int i = list.length; i-- > 0;)
+					{
+						final float d = object.distance2(list[i]);
+						if (d <= e)
+						{
+							// Build a list of all the neighbours and their working distance
+							final Molecule otherObject = list[i];
+							otherObject.d = d;
+							neighbours.add(otherObject);
+						}
+					}
+
+					index = fastForward[index];
+				}
+			}
+		}
 	}
 }

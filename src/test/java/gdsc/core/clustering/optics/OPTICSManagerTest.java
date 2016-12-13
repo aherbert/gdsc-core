@@ -799,7 +799,7 @@ public class OPTICSManagerTest
 	}
 
 	@Test
-	public void dBSCANInnerCircularIsFasterWhenComparisonsIsHigh()
+	public void dBSCANInnerCircularIsFasterWhenDensityIsHigh()
 	{
 		int molecules = 10000;
 		OPTICSManager om1 = createOPTICSManager(size, molecules);
@@ -810,20 +810,21 @@ public class OPTICSManagerTest
 		float generatingDistanceE = 0;
 		double nMoleculesInPixel = (double) molecules / (size * size);
 		double nMoleculesInCircle;
+		int limit = RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_INNER * 2;
 		do
 		{
 			generatingDistanceE += 0.1f;
-			nMoleculesInCircle = Math.PI * generatingDistanceE * nMoleculesInPixel;
-		} while (comparisons(nMoleculesInCircle) < 1000 && generatingDistanceE < size);
-		
+			nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
+		} while (nMoleculesInCircle < limit && generatingDistanceE < size);
+
 		int minPts = 20;
 
 		DBSCANResult r1, r2;
-		
+
 		// Warm-up
 		//r1 = om1.dbscan(generatingDistanceE, minPts);
 		//r2 = om2.dbscan(generatingDistanceE, minPts);
-		
+
 		long t1 = System.nanoTime();
 		r1 = om1.dbscan(generatingDistanceE, minPts);
 		long t2 = System.nanoTime();
@@ -835,7 +836,52 @@ public class OPTICSManagerTest
 		t3 = t3 - t2;
 		t2 = t2 - t1;
 
-		System.out.printf("dBSCANCircularIsFaster %d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
+		System.out.printf("dBSCANInnerCircularIsFasterWhenComparisonsIsHigh %d < %d (%.2f)\n", t3, t2,
+				(double) t2 / t3);
+
+		// This sometimes fails due to JVM warm-up so add a factor.
+		Assert.assertTrue(t3 < t2 * 2);
+	}
+
+	@Test
+	public void oPTICSCircularIsFasterWhenDensityIsHigh()
+	{
+		int molecules = 10000;
+		OPTICSManager om1 = createOPTICSManager(size, molecules);
+		OPTICSManager om2 = om1.clone();
+		om1.setOptions(Option.GRID_PROCESSING);
+		om2.setOptions(Option.CIRCULAR_PROCESSING);
+
+		float generatingDistanceE = 0;
+		double nMoleculesInPixel = (double) molecules / (size * size);
+		double nMoleculesInCircle;
+		int limit = RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_OUTER;
+		do
+		{
+			generatingDistanceE += 0.1f;
+			nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
+		} while (nMoleculesInCircle < limit && generatingDistanceE < size);
+
+		int minPts = 20;
+
+		OPTICSResult r1, r2;
+
+		// Warm-up
+		//r1 = om1.optics(generatingDistanceE, minPts);
+		//r2 = om2.optics(generatingDistanceE, minPts);
+
+		long t1 = System.nanoTime();
+		r1 = om1.optics(generatingDistanceE, minPts);
+		long t2 = System.nanoTime();
+		r2 = om2.optics(generatingDistanceE, minPts);
+		long t3 = System.nanoTime();
+
+		areEqual("new", r1, r2);
+
+		t3 = t3 - t2;
+		t2 = t2 - t1;
+
+		System.out.printf("oPTICSCircularIsFasterWhenDensityIsHigh %d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
 
 		// This sometimes fails due to JVM warm-up so add a factor.
 		Assert.assertTrue(t3 < t2 * 2);
@@ -900,6 +946,7 @@ public class OPTICSManagerTest
 					break;
 			}
 			om[i].setOptions(o);
+			space.generate();
 			name = space.toString();
 			return space;
 		}
@@ -1045,7 +1092,7 @@ public class OPTICSManagerTest
 	}
 
 	/**
-	 * This test uses the auto-resolution. It is mainly used to determine when to switch inner radial processing on.
+	 * This test uses the auto-resolution. It is mainly used to determine when to switch inner circle processing on.
 	 */
 	//@Test
 	public void canTestMoleculeSpaceFindNeighboursWithAutoResolution()
@@ -1055,29 +1102,25 @@ public class OPTICSManagerTest
 		final int minPts = 20;
 
 		double nMoleculesInPixel = (double) molecules / (size * size);
-		//int[] moleculesInArea = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
-		int[] nComparisons = new int[] { 100, 250, 500, 750, 1000 };
+		int[] moleculesInArea = new int[] { 64, 128, 256, 512, 1024 };
 
 		boolean check = false; // This is slow as the number of sorts in the check method is very large
 
-		for (int c : nComparisons)
+		for (int m : moleculesInArea)
 		{
 			// Increase generatingDistance until we achieve the molecules
-			double nMoleculesInSquare;
-			double comp;
+			double nMoleculesInCircle;
 			do
 			{
 				generatingDistanceE += 0.1f;
-				nMoleculesInSquare = 4 * generatingDistanceE * nMoleculesInPixel;
-				comp = comparisons(nMoleculesInSquare);
-			} while (comp < c && generatingDistanceE < size);
+				nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
+			} while (nMoleculesInCircle < m && generatingDistanceE < size);
 
-			double nMoleculesInCircle = Math.PI * generatingDistanceE * nMoleculesInPixel;
+			double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			int maxResolution = (int) Math.ceil(nMoleculesInSquare);
 
-			System.out.printf("Square=%.2f (%.1f), Circle=%.2f (%.1f), r <= %d\n", nMoleculesInSquare,
-					comparisons(nMoleculesInSquare), nMoleculesInCircle, comparisons(nMoleculesInCircle),
-					maxResolution);
+			System.out.printf("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
+					generatingDistanceE, maxResolution);
 
 			OPTICSManager[] om = new OPTICSManager[3];
 			for (int i = 0; i < om.length; i++)
@@ -1129,13 +1172,13 @@ public class OPTICSManagerTest
 	//@Test
 	public void canTestGridMoleculeSpaceFindNeighboursWithResolution()
 	{
-		int molecules = 20000;
+		int molecules = 50000;
 		float generatingDistanceE = 0;
 		final int minPts = 20;
 
 		double nMoleculesInPixel = (double) molecules / (size * size);
-		int[] moleculesInArea = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
-		int maxComparisons = 1000;
+		int[] moleculesInArea = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80,
+				90, 100, 120, 140, 160, 200, 300 };
 
 		for (int m : moleculesInArea)
 		{
@@ -1144,18 +1187,14 @@ public class OPTICSManagerTest
 			do
 			{
 				generatingDistanceE += 0.1f;
-				nMoleculesInSquare = 4 * generatingDistanceE * nMoleculesInPixel;
+				nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			} while (nMoleculesInSquare < m && generatingDistanceE < size);
 
-			if (comparisons(nMoleculesInSquare) > maxComparisons)
-				break;
-
-			double nMoleculesInCircle = Math.PI * generatingDistanceE * nMoleculesInPixel;
+			double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			int maxResolution = (int) Math.ceil(nMoleculesInSquare);
 
-			System.out.printf("Square=%.2f (%.1f), Circle=%.2f (%.1f), r <= %d\n", nMoleculesInSquare,
-					comparisons(nMoleculesInSquare), nMoleculesInCircle, comparisons(nMoleculesInCircle),
-					maxResolution);
+			System.out.printf("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
+					generatingDistanceE, maxResolution);
 
 			OPTICSManager[] om = new OPTICSManager[3];
 			for (int i = 0; i < om.length; i++)
@@ -1206,8 +1245,8 @@ public class OPTICSManagerTest
 		final int minPts = 20;
 
 		double nMoleculesInPixel = (double) molecules / (size * size);
-		int[] moleculesInArea = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
-		int maxComparisons = 1000;
+		int[] moleculesInArea = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80,
+				90, 100, 120, 140, 160, 200, 300 };
 
 		for (int m : moleculesInArea)
 		{
@@ -1216,18 +1255,14 @@ public class OPTICSManagerTest
 			do
 			{
 				generatingDistanceE += 0.1f;
-				nMoleculesInCircle = Math.PI * generatingDistanceE * nMoleculesInPixel;
+				nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			} while (nMoleculesInCircle < m && generatingDistanceE < size);
 
-			if (comparisons(nMoleculesInCircle) > maxComparisons)
-				break;
-
-			double nMoleculesInSquare = 4 * generatingDistanceE * nMoleculesInPixel;
+			double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			int maxResolution = (int) Math.ceil(nMoleculesInCircle);
 
-			System.out.printf("Square=%.2f (%.1f), Circle=%.2f (%.1f), r <= %d\n", nMoleculesInSquare,
-					comparisons(nMoleculesInSquare), nMoleculesInCircle, comparisons(nMoleculesInCircle),
-					maxResolution);
+			System.out.printf("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
+					generatingDistanceE, maxResolution);
 
 			OPTICSManager[] om = new OPTICSManager[3];
 			for (int i = 0; i < om.length; i++)
@@ -1279,9 +1314,7 @@ public class OPTICSManagerTest
 
 		double nMoleculesInPixel = (double) molecules / (size * size);
 		int[] moleculesInArea = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80,
-				90, 100, 150, 200 };
-		// This can handle far more comparisons without slow down
-		int maxComparisons = 5000;
+				90, 100, 150, 200, 300, 500, 1000 };
 
 		int lastMax = 0;
 		for (int m : moleculesInArea)
@@ -1291,18 +1324,14 @@ public class OPTICSManagerTest
 			do
 			{
 				generatingDistanceE += 0.1f;
-				nMoleculesInCircle = Math.PI * generatingDistanceE * nMoleculesInPixel;
+				nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			} while (nMoleculesInCircle < m && generatingDistanceE < size);
 
-			if (comparisons(nMoleculesInCircle) > maxComparisons)
-				break;
-
-			double nMoleculesInSquare = 4 * generatingDistanceE * nMoleculesInPixel;
+			double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			int maxResolution = (int) Math.ceil(nMoleculesInCircle);
 
-			System.out.printf("Square=%.2f (%.1f), Circle=%.2f (%.1f), r <= %d\n", nMoleculesInSquare,
-					comparisons(nMoleculesInSquare), nMoleculesInCircle, comparisons(nMoleculesInCircle),
-					maxResolution);
+			System.out.printf("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
+					generatingDistanceE, maxResolution);
 
 			OPTICSManager[] om = new OPTICSManager[3];
 			for (int i = 0; i < om.length; i++)
@@ -1346,24 +1375,16 @@ public class OPTICSManagerTest
 		}
 	}
 
+	// TODO - Build the inner and outer circle with different resolutions and see how the area
+	// converges as resolution increases (number of pixels * area of single pixel). 
+	// At a certain point additional resolution will add more pixels but will not better define 
+	// the circle.
+
 	private void update(TimingResult r, double[] best)
 	{
 		double time = r.getMean();
 		if (best[0] > time)
 			best[0] = time;
-	}
-
-	/**
-	 * Get the number of distance comparisons
-	 * 
-	 * @param molecules
-	 * @return the number of distance comparisons
-	 */
-	private double comparisons(double molecules)
-	{
-		if (molecules < 1)
-			return 0;
-		return molecules * (molecules - 1) / 2;
 	}
 
 	private int[][] format(Object result)

@@ -15,7 +15,7 @@ class GridMoleculeSpace extends MoleculeSpace
 	int xBins;
 	int yBins;
 	Molecule[][] grid;
-	final int[] fastForward;
+	int[] fastForward;
 
 	GridMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE)
 	{
@@ -28,23 +28,6 @@ class GridMoleculeSpace extends MoleculeSpace
 
 		this.opticsManager = opticsManager;
 		this.resolution = resolution;
-		setOfObjects = generate();
-
-		// Traverse the grid and store the index to the next position that contains data
-		int count = 0;
-		int index = grid.length;
-		fastForward = new int[index];
-		for (int i = index; i-- > 0;)
-		{
-			fastForward[i] = index;
-			if (grid[i] != null)
-			{
-				index = i;
-				count += grid[i].length;
-			}
-		}
-		if (count != setOfObjects.length)
-			throw new RuntimeException("Grid does not contain all the objects");
 	}
 
 	@Override
@@ -108,7 +91,7 @@ class GridMoleculeSpace extends MoleculeSpace
 		for (int yBin = 0; yBin < yBins; yBin++)
 			linkedListGrid[yBin] = new Molecule[xBins];
 
-		Molecule[] setOfObjects = new Molecule[xcoord.length];
+		setOfObjects = new Molecule[xcoord.length];
 		for (int i = 0; i < xcoord.length; i++)
 		{
 			final float x = xcoord[i];
@@ -140,6 +123,22 @@ class GridMoleculeSpace extends MoleculeSpace
 			// Free memory
 			linkedListGrid[yBin] = null;
 		}
+		
+		// Traverse the grid and store the index to the next position that contains data
+		int count = 0;
+		int index = grid.length;
+		fastForward = new int[index];
+		for (int i = index; i-- > 0;)
+		{
+			fastForward[i] = index;
+			if (grid[i] != null)
+			{
+				index = i;
+				count += grid[i].length;
+			}
+		}
+		if (count != setOfObjects.length)
+			throw new RuntimeException("Grid does not contain all the objects");
 
 		return setOfObjects;
 	}
@@ -155,7 +154,7 @@ class GridMoleculeSpace extends MoleculeSpace
 		final double nMoleculesInArea = getNMoleculesInGeneratingArea(xrange, yrange);
 
 		// Q. What is a good maximum limit for the memory allocation?
-		while (getBins(xrange, yrange, generatingDistanceE, resolution + 1) < 1024 * 1024 &&
+		while (getBins(xrange, yrange, generatingDistanceE, resolution + 1) < 4096 * 4096 &&
 				(resolution < 2 || nMoleculesInArea / getNBlocks(resolution) > 1))
 		{
 			resolution++;
@@ -170,7 +169,7 @@ class GridMoleculeSpace extends MoleculeSpace
 		// We can easily compute the expected number of molecules in a pixel and from that 
 		// the expected number in a square block of the max distance:
 		double nMoleculesInPixel = (double) size / (xrange * yrange);
-		double nMoleculesInArea = 4 * generatingDistanceE * nMoleculesInPixel;
+		double nMoleculesInArea = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 		return nMoleculesInArea;
 	}
 
@@ -183,26 +182,24 @@ class GridMoleculeSpace extends MoleculeSpace
 		//This leads to setting up a for loop through only 1 item.
 		//If the grid is too large then the outer cells may contain many points that are too far from the
 		//centre, missing the chance to ignore them.
-		//A JUnit test shows that using a grid of resolution of 2-3 works well when the grid is sparse (<10 molecules in the square).
-		//When the grid is more populated then a resolution up to 5 is good (<50 molecules in the square).
-		//When there are a lot more molecules in the the square then the speed is limited by the all-vs-all comparison, 
-		//not finding the molecules. So we can set the resolution using a simple look-up table.
 
-		double nMoleculesInPixel = (double) size / (xrange * yrange);
-		double nMoleculesInSquare = 4 * generatingDistanceE * nMoleculesInPixel;
+		int newResolution = 2;
 
-		int newResolution;
-		if (nMoleculesInSquare < 20)
-			newResolution = 2;
-		else if (nMoleculesInSquare < 25)
-			newResolution = 3;
-		else if (nMoleculesInSquare < 35)
-			newResolution = 4;
-		else
-			// When there are a lot more molecules then the speed is limited by the all-vs-all comparison, 
-			// not finding the molecules so this is an upper limit.
-			newResolution = 5;
-		
+		// We can set the resolution using a simple look-up table.
+		// A JUnit test shows there does not appear to be much benefit from higher resolution as the number 
+		// of distance comparisons is the limiting factor.
+		//		double nMoleculesInArea = getNMoleculesInGeneratingArea(xrange, yrange);
+		//		if (nMoleculesInArea < 20)
+		//			newResolution = 2;
+		//		else if (nMoleculesInArea < 25)
+		//			newResolution = 3;
+		//		else if (nMoleculesInArea < 35)
+		//			newResolution = 4;
+		//		else
+		//			// When there are a lot more molecules then the speed is limited by the all-vs-all comparison, 
+		//			// not finding the molecules so this is an upper limit.
+		//			newResolution = 5;
+
 		resolution = Math.min(newResolution, resolution);
 
 		//		// Old logic ...
@@ -272,7 +269,7 @@ class GridMoleculeSpace extends MoleculeSpace
 		return binWidth;
 	}
 
-	private int getBins(float xrange, float yrange, float distance, int resolution)
+	int getBins(float xrange, float yrange, float distance, int resolution)
 	{
 		final float binWidth = distance / resolution;
 		final int nXBins = 1 + (int) (xrange / binWidth);

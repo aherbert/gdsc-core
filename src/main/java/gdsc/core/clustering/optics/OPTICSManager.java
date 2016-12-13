@@ -419,7 +419,43 @@ public class OPTICSManager extends CoordinateStore
 	 */
 	private void initialiseOPTICS(float generatingDistanceE, int minPts)
 	{
-		initialise(generatingDistanceE, minPts, null);
+		// TODO - See if OPTICS can be made faster with a specialised MoleculeSpace.
+		// For now this is disabled.
+		//Class<?> clazz = getPreferredMoleculeSpace(true);
+		
+		Class<?> clazz = getPreferredMoleculeSpace(false);
+		if (clazz != null)
+		{
+			// Ensure the distance is valid
+			generatingDistanceE = getWorkingGeneratingDistance(generatingDistanceE, minPts);
+
+			// OPTICS will benefit from circular processing if the density is high.
+			// This is because we can skip distance computation to molecules outside the circle.
+			// This is roughly pi/4 
+			// Compute the expected number of molecules in the area.
+
+			final float xrange = maxXCoord - minXCoord;
+			final float yrange = maxYCoord - minYCoord;
+			double area;
+			if (xrange == 0 && yrange == 0)
+			{
+				// Occurs when only 1 point or colocated data. A distance of zero is invalid so set to 1.
+				area = 1;
+			}
+			else
+			{
+				area = xrange * yrange;
+			}
+
+			double nMoleculesInPixel = (double) getSize() / area;
+			double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
+
+			// TODO - JUnit test to show when to use a circle to avoid distance comparisons. 
+			// We can miss 1 - pi/4 = 21% of the area.  
+			if (nMoleculesInCircle > RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_OUTER)
+				clazz = RadialMoleculeSpace.class;
+		}
+		initialise(generatingDistanceE, minPts, clazz);
 	}
 
 	private void initialiseDBSCAN(float generatingDistanceE, int minPts)
@@ -447,9 +483,9 @@ public class OPTICSManager extends CoordinateStore
 			}
 
 			double nMoleculesInPixel = (double) getSize() / area;
-			double nMoleculesInCircle = Math.PI * generatingDistanceE * nMoleculesInPixel;
+			double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 
-			if (GridMoleculeSpace.comparisons(nMoleculesInCircle) > 500)
+			if (nMoleculesInCircle > RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_INNER)
 				clazz = InnerRadialMoleculeSpace.class;
 		}
 		initialise(generatingDistanceE, minPts, clazz);
@@ -507,6 +543,8 @@ public class OPTICSManager extends CoordinateStore
 				grid = new RadialMoleculeSpace(this, generatingDistanceE);
 			else
 				grid = new GridMoleculeSpace(this, generatingDistanceE);
+			
+			grid.generate();
 		}
 		else
 		{
