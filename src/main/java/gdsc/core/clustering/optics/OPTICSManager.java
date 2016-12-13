@@ -424,7 +424,7 @@ public class OPTICSManager extends CoordinateStore
 
 	private void initialiseDBSCAN(float generatingDistanceE, int minPts)
 	{
-		Class<?> clazz = getPreferredMoleculeSpace();
+		Class<?> clazz = getPreferredMoleculeSpace(true);
 		if (clazz != null)
 		{
 			// Ensure the distance is valid
@@ -455,7 +455,14 @@ public class OPTICSManager extends CoordinateStore
 		initialise(generatingDistanceE, minPts, clazz);
 	}
 
-	private Class<?> getPreferredMoleculeSpace()
+	/**
+	 * Returned the preferred class for the molecule space using the options.
+	 * 
+	 * @param allowNull
+	 *            Set to true to return null if no options are set
+	 * @return the preferred class for the molecule space
+	 */
+	private Class<?> getPreferredMoleculeSpace(boolean allowNull)
 	{
 		if (options.contains(Option.CIRCULAR_PROCESSING))
 		{
@@ -465,7 +472,7 @@ public class OPTICSManager extends CoordinateStore
 		}
 		if (options.contains(Option.GRID_PROCESSING))
 			return GridMoleculeSpace.class;
-		return GridMoleculeSpace.class;
+		return (allowNull) ? null : GridMoleculeSpace.class;
 	}
 
 	/**
@@ -485,7 +492,7 @@ public class OPTICSManager extends CoordinateStore
 		generatingDistanceE = getWorkingGeneratingDistance(generatingDistanceE, minPts);
 
 		if (clazz == null)
-			clazz = getPreferredMoleculeSpace();
+			clazz = getPreferredMoleculeSpace(false);
 
 		// Compare to the existing grid
 		if (grid == null || grid.generatingDistanceE != generatingDistanceE || grid.getClass() != clazz)
