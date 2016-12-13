@@ -334,6 +334,82 @@ public class Maths
 		return limits;
 	}
 
+	public static long min(long... data)
+	{
+		return minDefault(Integer.MAX_VALUE, data);
+	}
+
+	public static long minDefault(long min, long... data)
+	{
+		if (data == null || data.length == 0)
+			return min;
+		for (long d : data)
+			if (min > d)
+				min = d;
+		return min;
+	}
+
+	public static long max(long... data)
+	{
+		return maxDefault(Integer.MIN_VALUE, data);
+	}
+
+	public static long maxDefault(long max, long... data)
+	{
+		if (data == null || data.length == 0)
+			return max;
+		for (long d : data)
+			if (max < d)
+				max = d;
+		return max;
+	}
+
+	/**
+	 * Compute the min and max of the data
+	 * 
+	 * @param data
+	 * @return [min, max]
+	 */
+	public static long[] limits(long... data)
+	{
+		if (data == null || data.length == 0)
+			return noLongLimits();
+		return limits(null, data);
+	}
+
+	private static long[] noLongLimits()
+	{
+		return new long[] { 0, 0 };
+	}
+
+	/**
+	 * Compute the min and max of the data
+	 * 
+	 * @param limits
+	 *            The current [min, max]
+	 * @param data
+	 * @return [min, max]
+	 */
+	public static long[] limits(long[] limits, long... data)
+	{
+		if (data == null || data.length == 0)
+			return (limits == null || limits.length < 2) ? noLongLimits() : limits;
+		if (limits == null || limits.length < 2)
+			limits = new long[] { Long.MAX_VALUE, Long.MIN_VALUE };
+		long min = limits[0];
+		long max = limits[1];
+		for (long d : data)
+		{
+			if (min > d)
+				min = d;
+			if (max < d)
+				max = d;
+		}
+		limits[0] = min;
+		limits[1] = max;
+		return limits;
+	}
+	
 	/**
 	 * Calculate a cumulative histogram of the input values. The data is sorted and the first value in the returned
 	 * values array will be the lowest value. NaN are ignored.
