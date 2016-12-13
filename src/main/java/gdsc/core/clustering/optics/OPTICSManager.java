@@ -48,19 +48,25 @@ public class OPTICSManager extends CoordinateStore
 		 */
 		CACHE,
 		/**
-		 * Flag to indicate that a high resolution 2D grid should be used. This has performance benefits when the number
-		 * of molecules is high since unnecessary distance computations can be avoided. This required more memory.
+		 * Flag to indicate that a circular mask should be used on the 2D grid. This has performance
+		 * benefits since some distance computations can be avoided.
 		 * <p>
-		 * Note: This option is experimental and can cause considerable slow-down 
+		 * Note: This option is experimental and can cause slow-down
 		 */
-		HIGH_RESOLUTION,
+		CIRCULAR_PROCESSING,
 		/**
-		 * Flag to indicate that radial processing should be used on the 2D grid should be used. This has performance
-		 * benefits when the resolution is high since some distance computations can be assumed.
+		 * Flag to indicate that inner-circle processing should be used on the 2D grid. This has performance
+		 * benefits for DBSCAN since some distance computations can be assumed.
 		 * <p>
-		 * Note: This option is experimental and can cause considerable slow-down 
+		 * Note: This option is experimental and can cause slow-down
 		 */
-		RADIAL_PROCESSING;
+		INNER_PROCESSING,
+		/**
+		 * Flag to indicate that processing should use a 2D grid.
+		 * <p>
+		 * Note: If no options are provided then the memory structure will be chosen automatically.
+		 */
+		GRID_PROCESSING;
 	}
 
 	EnumSet<Option> options = EnumSet.noneOf(Option.class);
@@ -413,17 +419,84 @@ public class OPTICSManager extends CoordinateStore
 	 */
 	private void initialiseOPTICS(float generatingDistanceE, int minPts)
 	{
+		initialise(generatingDistanceE, minPts, null);
+	}
+
+	private void initialiseDBSCAN(float generatingDistanceE, int minPts)
+	{
+		Class<?> clazz = getPreferredMoleculeSpace();
+		if (clazz != null)
+		{
+			// Ensure the distance is valid
+			generatingDistanceE = getWorkingGeneratingDistance(generatingDistanceE, minPts);
+
+			// DBSCAN will benefit from inner radial processing if the number of comparisons is high.
+			// Compute the expected number of molecules in the area.
+
+			final float xrange = maxXCoord - minXCoord;
+			final float yrange = maxYCoord - minYCoord;
+			double area;
+			if (xrange == 0 && yrange == 0)
+			{
+				// Occurs when only 1 point or colocated data. A distance of zero is invalid so set to 1.
+				area = 1;
+			}
+			else
+			{
+				area = xrange * yrange;
+			}
+
+			double nMoleculesInPixel = (double) getSize() / area;
+			double nMoleculesInCircle = Math.PI * generatingDistanceE * nMoleculesInPixel;
+
+			if (GridMoleculeSpace.comparisons(nMoleculesInCircle) > 500)
+				clazz = InnerRadialMoleculeSpace.class;
+		}
+		initialise(generatingDistanceE, minPts, clazz);
+	}
+
+	private Class<?> getPreferredMoleculeSpace()
+	{
+		if (options.contains(Option.CIRCULAR_PROCESSING))
+		{
+			if (options.contains(Option.INNER_PROCESSING))
+				return InnerRadialMoleculeSpace.class;
+			return RadialMoleculeSpace.class;
+		}
+		if (options.contains(Option.GRID_PROCESSING))
+			return GridMoleculeSpace.class;
+		return GridMoleculeSpace.class;
+	}
+
+	/**
+	 * Initialise the memory structure for the OPTICS algorithm. This can be cached if the generatingDistanceE does not
+	 * change.
+	 *
+	 * @param generatingDistanceE
+	 *            the generating distance E
+	 * @param minPts
+	 *            the min points for a core object
+	 * @param clazz
+	 *            the preferred class for the molecule space
+	 */
+	private void initialise(float generatingDistanceE, int minPts, Class<?> clazz)
+	{
 		// Ensure the distance is valid
 		generatingDistanceE = getWorkingGeneratingDistance(generatingDistanceE, minPts);
 
+		if (clazz == null)
+			clazz = getPreferredMoleculeSpace();
+
 		// Compare to the existing grid
-		if (grid == null || grid.generatingDistanceE != generatingDistanceE)
+		if (grid == null || grid.generatingDistanceE != generatingDistanceE || grid.getClass() != clazz)
 		{
 			if (tracker != null)
 				tracker.log("Initialising ...");
 
 			// Control the type of space we use to store the data
-			if (options.contains(Option.RADIAL_PROCESSING))
+			if (clazz == InnerRadialMoleculeSpace.class)
+				grid = new InnerRadialMoleculeSpace(this, generatingDistanceE);
+			if (clazz == RadialMoleculeSpace.class)
 				grid = new RadialMoleculeSpace(this, generatingDistanceE);
 			else
 				grid = new GridMoleculeSpace(this, generatingDistanceE);
@@ -724,8 +797,7 @@ public class OPTICSManager extends CoordinateStore
 		if (minPts < 1)
 			minPts = 1;
 
-		// Use the same structure as OPTICS (since the algorithm is very similar)
-		initialiseOPTICS(generatingDistanceE, minPts);
+		initialiseDBSCAN(generatingDistanceE, minPts);
 
 		// The distance may be updated
 		generatingDistanceE = grid.generatingDistanceE;

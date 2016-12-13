@@ -1,7 +1,7 @@
 package gdsc.core.clustering.optics;
 
 /**
- * Store molecules in a high resolution 2D grid and perform distance computation
+ * Store molecules in a 2D grid and perform distance computation using cells within the radius from the centre. 
  */
 class RadialMoleculeSpace extends GridMoleculeSpace
 {
@@ -14,7 +14,6 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		final int startInternal;
 		final int endInternal;
 		final int end;
-		final int diff;
 		final boolean internal;
 
 		Offset(int start, int startInternal, int endInternal, int end)
@@ -23,16 +22,35 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 			this.startInternal = startInternal;
 			this.endInternal = endInternal;
 			this.end = end;
-			diff = end - start;
 			internal = endInternal > startInternal;
 		}
 	}
 
 	Offset[] offset;
+	private final boolean useInternal;
 
 	RadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE)
 	{
-		super(opticsManager, generatingDistanceE);
+		this(opticsManager, generatingDistanceE, 0);
+	}
+
+	RadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, int resolution)
+	{
+		super(opticsManager, generatingDistanceE, resolution);
+		useInternal = opticsManager.getOptions().contains(OPTICSManager.Option.INNER_PROCESSING);
+	}
+
+	RadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, int resolution, boolean useInternal)
+	{
+		super(opticsManager, generatingDistanceE, resolution);
+		this.useInternal = useInternal;
+	}
+
+	@Override
+	public String toString()
+	{
+		return String.format("%s, e=%f, bw=%f, r=%d, in=%b", this.getClass().getSimpleName(), generatingDistanceE,
+				binWidth, resolution, useInternal);
 	}
 
 	Molecule[] generate()
@@ -191,19 +209,67 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 	}
 
 	@Override
-	int determineResolution(float xrange, float yrange)
+	int determineMaximumResolution(float xrange, float yrange)
 	{
 		// TODO - determine a good resolution for the given generating distance
 
-		return super.determineResolution(xrange, yrange);
+		return super.determineMaximumResolution(xrange, yrange);
 	}
 
 	@Override
 	void adjustResolution(float xrange, float yrange)
 	{
-		// TODO - prevent the resolution from being reduced too small 
+		// This has been optimised using a simple JUnit test to increase the number of molecules in the circle region.
 
-		super.adjustResolution(xrange, yrange);
+		//If the grid is far too small then many of the lists in each cell will be empty.
+		//If the grid is too small then many of the lists in each cell will be empty or contain only 1 item. 
+		//This leads to setting up a for loop through only 1 item.
+		//If the grid is too large then the outer cells may contain many points that are too far from the
+		//centre, missing the chance to ignore them.
+
+		double nMoleculesInPixel = (double) size / (xrange * yrange);
+		double nMoleculesInCircle = Math.PI * generatingDistanceE * nMoleculesInPixel;
+
+		int newResolution;
+
+		if (useInternal)
+		{
+			// When using internal processing, we get an advantage from a higher resolution grid.
+			// This only applies to the findNeighbours method used by DBSCAN. However since this is
+			// what this class was written for we use a different look-up table.
+			if (nMoleculesInCircle < 20)
+				newResolution = 2;
+			else if (nMoleculesInCircle < 25)
+				newResolution = 3;
+			else if (nMoleculesInCircle < 30)
+				newResolution = 4;
+			else if (nMoleculesInCircle < 35)
+				newResolution = 5;
+			else if (nMoleculesInCircle < 40)
+				newResolution = 6;
+			else if (nMoleculesInCircle < 45)
+				newResolution = 7;
+			else if (nMoleculesInCircle < 70)
+				newResolution = 8;
+			else
+				// We continue to get benefit from high resolution as we can better define what is internal/external 
+				newResolution = (int) (nMoleculesInCircle / 10);
+		}
+		else
+		{
+			if (nMoleculesInCircle < 20)
+				newResolution = 2;
+			else if (nMoleculesInCircle < 35)
+				newResolution = 3;
+			else if (nMoleculesInCircle < 40)
+				newResolution = 4;
+			else
+				// When there are a lot more molecules then the speed is limited by the all-vs-all comparison, 
+				// not finding the molecules so this is an upper limit.
+				newResolution = 5;
+		}
+
+		resolution = Math.min(newResolution, resolution);
 	}
 
 	void findNeighbours(int minPts, Molecule object, float e)
@@ -259,164 +325,266 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		//			return;
 		//		}
 
-		//		if (xBin + resolution < xBins && xBin - resolution >= 0)
-		//		{
-		//			// Internal X
-		//			for (int y = miny, row = startRow; y < maxy; y++, row++)
-		//			{
-		//				// Dynamically compute the search strip 
-		//
-		//				int index = getIndex(xBin + offset[row].start, y);
-		//				int endIndex = index + offset[row].diff;
-		//
-		//				// Use fast-forward to skip to the next position with data
-		//				if (grid[index] == null)
-		//					index = fastForward[index];
-		//				if (index >= endIndex)
-		//					continue;
-		//
-		//				final int columnShift = getIndex(xBin, row);
-		//				while (index < endIndex)
-		//				{
-		//					final Molecule[] list = grid[index];
-		//
-		//					// Build a list of all the neighbours
-		//
-		//					// Find the column in the circular mask: It should range from -resolution to +resolution.
-		//					final int col = index - columnShift;
-		//
-		//					// TODO - Can this be made more efficient with an internal flag (i.e. 1 comparison per loop)?
-		//
-		//					// If internal just add all the points
-		//					if (col >= offset[row].startInternal && col < offset[row].endInternal)
-		//					{
-		//						// This uses System.arrayCopy.
-		//						neighbours.add(list);
-		//
-		//						// Simple addition
-		//						//for (int i = list.length; i-- > 0;)
-		//						//	neighbours.add(list[i]);					
-		//
-		//						//					// Debug ...
-		//						//					for (int i = list.length; i-- > 0;)
-		//						//					{
-		//						//						double d = object.distance2(list[i]);
-		//						//						if (d > e)
-		//						//						{
-		//						//							float dx = binWidth * (xBin - list[i].xBin);
-		//						//							float dy = binWidth * (yBin - list[i].yBin);
-		//						//							System.out.printf("%d  %d/%d %d/%d (%f)  %f > %f :  %d %d %f %f  %f\n", resolution, col,
-		//						//									xBin, row, yBin, binWidth, Math.sqrt(d), generatingDistanceE, xBin - list[i].xBin,
-		//						//									yBin - list[i].yBin, dx, dy, Math.sqrt(dx * dx + dy * dy));
-		//						//						}
-		//						//					}
-		//					}
-		//					else
-		//					{
-		//						// If at the edge then compute distances
-		//						for (int i = list.length; i-- > 0;)
-		//						{
-		//							if (object.distance2(list[i]) <= e)
-		//							{
-		//								neighbours.add(list[i]);
-		//							}
-		//						}
-		//					}
-		//
-		//					index = fastForward[index];
-		//				}
-		//			}
-		//		}
-		//		else
-		//		{
-
-		// Compute distances
-		for (int y = miny, row = startRow; y < maxy; y++, row++)
+		if (useInternal)
 		{
-			// Dynamically compute the search strip 
-			int index = getIndex(Math.max(xBin + offset[row].start, 0), y);
-			int endIndex = getIndex(Math.min(xBin + offset[row].end, xBins), y);
+			// Internal processing. Any pixel that is internal does not require 
+			// a distance computation.
 
-			// Use fast-forward to skip to the next position with data
-			if (grid[index] == null)
-				index = fastForward[index];
-			
-			if (offset[row].internal)
+			if (xBin + resolution < xBins && xBin - resolution >= 0)
 			{
-				// Speed this up with diffs
-				int startInternal = getIndex(xBin + offset[row].startInternal, y);
-				int endInternal = getIndex(Math.min(xBin + offset[row].endInternal, xBins), y);
+				// Internal X. Maintain the centre index and use offsets to set the indices
+				int centreIndex = getIndex(xBin, miny);
 
-				while (index < startInternal)
+				for (int y = miny, row = startRow; y < maxy; y++, row++, centreIndex += xBins)
 				{
-					final Molecule[] list = grid[index];
+					// Dynamically compute the search strip 
+					int index = centreIndex + offset[row].start;
+					int endIndex = centreIndex + offset[row].end;
 
-					// Build a list of all the neighbours
-					// If at the edge then compute distances
-					for (int i = list.length; i-- > 0;)
+					// Use fast-forward to skip to the next position with data
+					if (grid[index] == null)
+						index = fastForward[index];
+
+					if (offset[row].internal)
 					{
-						if (object.distance2(list[i]) <= e)
+						// Speed this up with diffs
+						int startInternal = centreIndex + offset[row].startInternal;
+						int endInternal = centreIndex + offset[row].endInternal;
+
+						while (index < startInternal)
 						{
-							neighbours.add(list[i]);
+							final Molecule[] list = grid[index];
+
+							// Build a list of all the neighbours
+							// If at the edge then compute distances
+							for (int i = list.length; i-- > 0;)
+							{
+								if (object.distance2(list[i]) <= e)
+								{
+									neighbours.add(list[i]);
+								}
+							}
+
+							index = fastForward[index];
+						}
+						while (index < endInternal)
+						{
+							final Molecule[] list = grid[index];
+
+							// Build a list of all the neighbours
+							// If internal just add all the points
+
+							// This uses System.arrayCopy.
+							neighbours.add(list);
+
+							// Simple addition
+							//for (int i = list.length; i-- > 0;)
+							//	neighbours.add(list[i]);					
+
+							index = fastForward[index];
+						}
+						while (index < endIndex)
+						{
+							final Molecule[] list = grid[index];
+
+							// Build a list of all the neighbours
+							// If at the edge then compute distances
+							for (int i = list.length; i-- > 0;)
+							{
+								if (object.distance2(list[i]) <= e)
+								{
+									neighbours.add(list[i]);
+								}
+							}
+
+							index = fastForward[index];
 						}
 					}
-
-					index = fastForward[index];
-				}
-				while (index < endInternal)
-				{
-					final Molecule[] list = grid[index];
-
-					// Build a list of all the neighbours
-					// If internal just add all the points
-
-					// This uses System.arrayCopy.
-					neighbours.add(list);
-
-					// Simple addition
-					//for (int i = list.length; i-- > 0;)
-					//	neighbours.add(list[i]);					
-
-					index = fastForward[index];
-				}
-				while (index < endIndex)
-				{
-					final Molecule[] list = grid[index];
-
-					// Build a list of all the neighbours
-					// If at the edge then compute distances
-					for (int i = list.length; i-- > 0;)
+					else
 					{
-						if (object.distance2(list[i]) <= e)
+						while (index < endIndex)
 						{
-							neighbours.add(list[i]);
+							final Molecule[] list = grid[index];
+
+							// Build a list of all the neighbours
+							// If not internal then compute distances
+							for (int i = list.length; i-- > 0;)
+							{
+								if (object.distance2(list[i]) <= e)
+								{
+									neighbours.add(list[i]);
+								}
+							}
+
+							index = fastForward[index];
 						}
 					}
-
-					index = fastForward[index];
 				}
 			}
 			else
 			{
-				while (index < endIndex)
-				{
-					final Molecule[] list = grid[index];
+				// This must respect the bounds
 
-					// Build a list of all the neighbours
-					// If not internal then compute distances
-					for (int i = list.length; i-- > 0;)
+				// Compute distances
+				for (int y = miny, row = startRow; y < maxy; y++, row++)
+				{
+					// Dynamically compute the search strip 
+					int index = getIndex(Math.max(xBin + offset[row].start, 0), y);
+					int endIndex = getIndex(Math.min(xBin + offset[row].end, xBins), y);
+
+					// Use fast-forward to skip to the next position with data
+					if (grid[index] == null)
+						index = fastForward[index];
+
+					if (offset[row].internal)
 					{
-						if (object.distance2(list[i]) <= e)
+						// Speed this up with diffs
+						int startInternal = getIndex(xBin + offset[row].startInternal, y);
+						int endInternal = getIndex(Math.min(xBin + offset[row].endInternal, xBins), y);
+
+						while (index < startInternal)
 						{
-							neighbours.add(list[i]);
+							final Molecule[] list = grid[index];
+
+							// Build a list of all the neighbours
+							// If at the edge then compute distances
+							for (int i = list.length; i-- > 0;)
+							{
+								if (object.distance2(list[i]) <= e)
+								{
+									neighbours.add(list[i]);
+								}
+							}
+
+							index = fastForward[index];
+						}
+						while (index < endInternal)
+						{
+							final Molecule[] list = grid[index];
+
+							// Build a list of all the neighbours
+							// If internal just add all the points
+
+							// This uses System.arrayCopy.
+							neighbours.add(list);
+
+							// Simple addition
+							//for (int i = list.length; i-- > 0;)
+							//	neighbours.add(list[i]);					
+
+							index = fastForward[index];
+						}
+						while (index < endIndex)
+						{
+							final Molecule[] list = grid[index];
+
+							// Build a list of all the neighbours
+							// If at the edge then compute distances
+							for (int i = list.length; i-- > 0;)
+							{
+								if (object.distance2(list[i]) <= e)
+								{
+									neighbours.add(list[i]);
+								}
+							}
+
+							index = fastForward[index];
 						}
 					}
+					else
+					{
+						while (index < endIndex)
+						{
+							final Molecule[] list = grid[index];
 
-					index = fastForward[index];
+							// Build a list of all the neighbours
+							// If not internal then compute distances
+							for (int i = list.length; i-- > 0;)
+							{
+								if (object.distance2(list[i]) <= e)
+								{
+									neighbours.add(list[i]);
+								}
+							}
+
+							index = fastForward[index];
+						}
+					}
 				}
 			}
 		}
-		//		}
+		else
+		{
+			// No use of the internal region. Always compute distances. This is fine if the 
+			// number of points per strip is low (i.e. not many distances to compute).
+
+			if (xBin + resolution < xBins && xBin - resolution >= 0)
+			{
+				// Internal X. Maintain the centre index and use offsets to set the indices
+				int centreIndex = getIndex(xBin, miny);
+
+				for (int y = miny, row = startRow; y < maxy; y++, row++, centreIndex += xBins)
+				{
+					// Dynamically compute the search strip 
+					int index = centreIndex + offset[row].start;
+					int endIndex = centreIndex + offset[row].end;
+
+					// Use fast-forward to skip to the next position with data
+					if (grid[index] == null)
+						index = fastForward[index];
+
+					while (index < endIndex)
+					{
+						final Molecule[] list = grid[index];
+
+						// Build a list of all the neighbours
+						// If not internal then compute distances
+						for (int i = list.length; i-- > 0;)
+						{
+							if (object.distance2(list[i]) <= e)
+							{
+								neighbours.add(list[i]);
+							}
+						}
+
+						index = fastForward[index];
+					}
+				}
+			}
+			else
+			{
+				// This must respect the bounds
+
+				// Compute distances
+				for (int y = miny, row = startRow; y < maxy; y++, row++)
+				{
+					// Dynamically compute the search strip 
+					int index = getIndex(Math.max(xBin + offset[row].start, 0), y);
+					int endIndex = getIndex(Math.min(xBin + offset[row].end, xBins), y);
+
+					// Use fast-forward to skip to the next position with data
+					if (grid[index] == null)
+						index = fastForward[index];
+
+					while (index < endIndex)
+					{
+						final Molecule[] list = grid[index];
+
+						// Build a list of all the neighbours
+						// If not internal then compute distances
+						for (int i = list.length; i-- > 0;)
+						{
+							if (object.distance2(list[i]) <= e)
+							{
+								neighbours.add(list[i]);
+							}
+						}
+
+						index = fastForward[index];
+					}
+				}
+			}
+		}
 	}
 
 	void findNeighboursAndDistances(int minPts, Molecule object, float e)

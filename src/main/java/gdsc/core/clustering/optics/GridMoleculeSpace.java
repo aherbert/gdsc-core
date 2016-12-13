@@ -1,7 +1,5 @@
 package gdsc.core.clustering.optics;
 
-import gdsc.core.clustering.optics.OPTICSManager.Option;
-
 /**
  * Store molecules in a 2D grid
  */
@@ -10,7 +8,7 @@ class GridMoleculeSpace extends MoleculeSpace
 	/**
 	 * Used for access to the raw coordinates
 	 */
-	private final OPTICSManager opticsManager;
+	protected final OPTICSManager opticsManager;
 
 	int resolution;
 	float binWidth;
@@ -21,9 +19,15 @@ class GridMoleculeSpace extends MoleculeSpace
 
 	GridMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE)
 	{
+		this(opticsManager, generatingDistanceE, 0);
+	}
+
+	GridMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, int resolution)
+	{
 		super(opticsManager.getSize(), generatingDistanceE);
 
 		this.opticsManager = opticsManager;
+		this.resolution = resolution;
 		setOfObjects = generate();
 
 		// Traverse the grid and store the index to the next position that contains data
@@ -41,6 +45,13 @@ class GridMoleculeSpace extends MoleculeSpace
 		}
 		if (count != setOfObjects.length)
 			throw new RuntimeException("Grid does not contain all the objects");
+	}
+
+	@Override
+	public String toString()
+	{
+		return String.format("%s, e=%f, bw=%f, r=%d", this.getClass().getSimpleName(), generatingDistanceE, binWidth,
+				resolution);
 	}
 
 	Molecule[] generate()
@@ -63,23 +74,28 @@ class GridMoleculeSpace extends MoleculeSpace
 		}
 		else
 		{
-			// Use a higher resolution grid to avoid too many distance comparisons
-			resolution = determineResolution(xrange, yrange);
-
-			if (resolution == 0)
+			if (resolution > 0)
 			{
-				// Handle a resolution of zero. This will happen when the generating distance is very small.
-				// In this instance we can use a resolution of 1 but change the bin width to something larger.
-				resolution = 1;
-				binWidth = determineBinWidth(xrange, yrange);
+				// The resolution was input
+				binWidth = generatingDistanceE / resolution;
 			}
 			else
 			{
-				adjustResolution(xrange, yrange);
-				binWidth = generatingDistanceE / resolution;
+				// Use a higher resolution grid to avoid too many distance comparisons
+				resolution = determineMaximumResolution(xrange, yrange);
 
-				System.out.printf("e=%f, bw=%f, r=%d, w=%f\n", generatingDistanceE, binWidth, resolution,
-						binWidth * resolution);
+				if (resolution == 0)
+				{
+					// Handle a resolution of zero. This will happen when the generating distance is very small.
+					// In this instance we can use a resolution of 1 but change the bin width to something larger.
+					resolution = 1;
+					binWidth = determineBinWidth(xrange, yrange);
+				}
+				else
+				{
+					adjustResolution(xrange, yrange);
+					binWidth = generatingDistanceE / resolution;
+				}
 			}
 		}
 
@@ -128,11 +144,19 @@ class GridMoleculeSpace extends MoleculeSpace
 		return setOfObjects;
 	}
 
-	int determineResolution(float xrange, float yrange)
+	int determineMaximumResolution(float xrange, float yrange)
 	{
 		int resolution = 0;
-		// What is a good maximum limit for the memory allocation?
-		while (getBins(xrange, yrange, generatingDistanceE, resolution + 1) < 1024 * 1024)
+
+		// A reasonable upper bound is that:
+		// - resolution should be 2 or above (to get the advantage of scanning the region around a point using cells).
+		// - there should be at least one molecule per stripe
+		// However we must ensure that we have the memory to create the grid.
+		final double nMoleculesInArea = getNMoleculesInGeneratingArea(xrange, yrange);
+
+		// Q. What is a good maximum limit for the memory allocation?
+		while (getBins(xrange, yrange, generatingDistanceE, resolution + 1) < 1024 * 1024 &&
+				(resolution < 2 || nMoleculesInArea / getNBlocks(resolution) > 1))
 		{
 			resolution++;
 		}
@@ -141,57 +165,98 @@ class GridMoleculeSpace extends MoleculeSpace
 		return resolution;
 	}
 
+	double getNMoleculesInGeneratingArea(float xrange, float yrange)
+	{
+		// We can easily compute the expected number of molecules in a pixel and from that 
+		// the expected number in a square block of the max distance:
+		double nMoleculesInPixel = (double) size / (xrange * yrange);
+		double nMoleculesInArea = 4 * generatingDistanceE * nMoleculesInPixel;
+		return nMoleculesInArea;
+	}
+
 	void adjustResolution(final float xrange, final float yrange)
 	{
-		if (opticsManager.options.contains(Option.HIGH_RESOLUTION))
-		{
-			//return;
-		}
+		// This has been optimised using a simple JUnit test to increase the number of molecules in the square region.
 
-		// Do not increase the resolution so high we have thousands of blocks
-		// and not many expected points.		
-		// Determine the number of molecules we would expect in a square block if they are uniform.
-		double blockArea = 4 * generatingDistanceE;
-		double expected = opticsManager.getSize() * blockArea / (xrange * yrange);
+		//If the grid is far too small then many of the lists in each cell will be empty.
+		//If the grid is too small then many of the lists in each cell will be empty or contain only 1 item. 
+		//This leads to setting up a for loop through only 1 item.
+		//If the grid is too large then the outer cells may contain many points that are too far from the
+		//centre, missing the chance to ignore them.
+		//A JUnit test shows that using a grid of resolution of 2-3 works well when the grid is sparse (<10 molecules in the square).
+		//When the grid is more populated then a resolution up to 5 is good (<50 molecules in the square).
+		//When there are a lot more molecules in the the square then the speed is limited by the all-vs-all comparison, 
+		//not finding the molecules. So we can set the resolution using a simple look-up table.
 
-		// It is OK if 25-50% of the blocks are full
-		int newResolution = 1;
+		double nMoleculesInPixel = (double) size / (xrange * yrange);
+		double nMoleculesInSquare = 4 * generatingDistanceE * nMoleculesInPixel;
 
-		double target = expected / 0.25;
-
-		// Closest
-		//				double minDelta = Math.abs(getNeighbourBlocks(newResolution) - target);
-		//				while (newResolution < resolution)
-		//				{
-		//					double delta = Math.abs(getNeighbourBlocks(newResolution + 1) - target);
-		//					if (delta < minDelta)
-		//					{
-		//						minDelta = delta;
-		//						newResolution++;
-		//					}
-		//					else
-		//						break;
-		//				}
-
-		// Next size up
-		while (newResolution < resolution)
-		{
-			if (getNeighbourBlocks(newResolution) < target)
-				newResolution++;
-			else
-				break;
-		}
-
-		if (opticsManager.options.contains(Option.HIGH_RESOLUTION))
-		{
-			resolution = Math.min(resolution, newResolution * 3);
-		}
+		int newResolution;
+		if (nMoleculesInSquare < 20)
+			newResolution = 2;
+		else if (nMoleculesInSquare < 25)
+			newResolution = 3;
+		else if (nMoleculesInSquare < 35)
+			newResolution = 4;
 		else
-		{
-			resolution = newResolution;
-		}
+			// When there are a lot more molecules then the speed is limited by the all-vs-all comparison, 
+			// not finding the molecules so this is an upper limit.
+			newResolution = 5;
+		
+		resolution = Math.min(newResolution, resolution);
+
+		//		// Old logic ...
+		//		
+		//		// Do not increase the resolution so high we have thousands of blocks
+		//		// and not many expected points.		
+		//		// Determine the number of molecules we would expect in a square block if they are uniform.
+		//		double blockArea = 4 * generatingDistanceE;
+		//		double expected = opticsManager.getSize() * blockArea / (xrange * yrange);
+		//
+		//		// It is OK if 25-50% of the blocks are full
+		//		int newResolution = 1;
+		//
+		//		double target = expected / 0.25;
+		//
+		//		// Closest
+		//		//				double minDelta = Math.abs(getNeighbourBlocks(newResolution) - target);
+		//		//				while (newResolution < resolution)
+		//		//				{
+		//		//					double delta = Math.abs(getNeighbourBlocks(newResolution + 1) - target);
+		//		//					if (delta < minDelta)
+		//		//					{
+		//		//						minDelta = delta;
+		//		//						newResolution++;
+		//		//					}
+		//		//					else
+		//		//						break;
+		//		//				}
+		//
+		//		// Next size up
+		//		while (newResolution < resolution)
+		//		{
+		//			if (getNeighbourBlocks(newResolution) < target)
+		//				newResolution++;
+		//			else
+		//				break;
+		//		}
+		//
+		//		resolution = newResolution;
 
 		//System.out.printf("Expected %.2f [%d]\n", expected, (2 * resolution + 1) * (2 * resolution + 1));
+	}
+
+	/**
+	 * Get the number of distance comparisons
+	 * 
+	 * @param molecules
+	 * @return the number of distance comparisons
+	 */
+	public static double comparisons(double molecules)
+	{
+		if (molecules < 1)
+			return 0;
+		return molecules * (molecules - 1) / 2;
 	}
 
 	private float determineBinWidth(float xrange, float yrange)

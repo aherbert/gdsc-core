@@ -3,6 +3,8 @@ package gdsc.core.test;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import gdsc.core.utils.Maths;
+
 /*----------------------------------------------------------------------------- 
  * GDSC Plugins for ImageJ
  * 
@@ -90,13 +92,46 @@ public class TimingService
 	 *
 	 * @param task
 	 *            the task
+	 * @param check
+	 *            Set to true to validate result with the check method
 	 * @return the timing result
 	 */
 	public TimingResult execute(TimingTask task)
 	{
+		return execute(task, false);
+	}
+
+	/**
+	 * Execute the timing task.
+	 *
+	 * @param task
+	 *            the task
+	 * @param check
+	 *            Set to true to validate result with the check method
+	 * @return the timing result
+	 */
+	public TimingResult execute(TimingTask task, boolean check)
+	{
 		final int size = task.getSize();
 		final long[] times = new long[runs];
-		for (int run = 0; run < runs; run++)
+
+		// First run store the result
+		int run = 0;
+		Object[] result = new Object[size];
+		for (; run < runs; run++)
+		{
+			final Object[] data = new Object[size];
+			for (int i = 0; i < size; i++)
+			{
+				data[i] = task.getData(i);
+			}
+			final long start = System.nanoTime();
+			for (int i = 0; i < size; i++)
+				result[i] = task.run(data[i]);
+			times[run] = System.nanoTime() - start;
+		}
+		// Remaining runs
+		for (; run < runs; run++)
 		{
 			final Object[] data = new Object[size];
 			for (int i = 0; i < size; i++)
@@ -107,6 +142,11 @@ public class TimingService
 			for (int i = 0; i < size; i++)
 				task.run(data[i]);
 			times[run] = System.nanoTime() - start;
+		}
+		if (check)
+		{
+			for (int i = 0; i < size; i++)
+				task.check(i, result[i]);
 		}
 		TimingResult r = new TimingResult(task, times);
 		results.add(r);
@@ -145,9 +185,8 @@ public class TimingService
 		if (results == null || results.length == 0)
 			return;
 
-		// For relative results
-		final long min = results[0].getMin();
-		final double av = results[0].getMean();
+		double[] avs = new double[results.length];
+		long[] mins = new long[results.length];
 
 		int width = 0;
 		for (int i = 0; i < results.length; i++)
@@ -155,14 +194,24 @@ public class TimingService
 			int l = results[i].getTask().getName().length();
 			if (width < l)
 				width = l;
+
+			mins[i] = results[i].getMin();
+			avs[i] = results[i].getMean();
 		}
-		String format = String.format("%%-%ds : %%15d (%%8.3f) : %%15f (%%8.3f)\n", width);
+		String format = String.format("%%-%ds : %%15d (%%8.3f)%%c: %%15f (%%8.3f)%%c\n", width);
+
+		// Find the fastest
+		long min = Maths.min(mins);
+		double av = Maths.min(avs);
 
 		for (int i = 0; i < results.length; i++)
 		{
-			long min2 = (i == 0) ? min : results[i].getMin();
-			double av2 = (i == 0) ? av : results[i].getMean();
-			out.printf(format, results[i].getTask().getName(), min2, (double) min2 / min, av2, av2 / av);
+			// Results relative to the first result
+			// Mark the fastest
+			char mc = (mins[i] == min) ? '*' : ' ';
+			char ac = (avs[i] == av) ? '*' : ' ';
+			out.printf(format, results[i].getTask().getName(), mins[i], (double) mins[i] / mins[0], mc, avs[i],
+					avs[i] / avs[0], ac);
 		}
 	}
 
