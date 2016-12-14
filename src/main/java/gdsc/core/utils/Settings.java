@@ -15,6 +15,7 @@ package gdsc.core.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Simple wrapper for a list of settings. Allows settings to be compared using equals().
@@ -32,5 +33,19 @@ public class Settings extends ArrayList<Object>
 	public Settings(Object... settings)
 	{
 		addAll(Arrays.asList(settings));
+	}
+
+	/**
+	 * Creates a sublist from index (inclusive) to the end of the list.
+	 *
+	 * @param from
+	 *            the from index (must be less than size
+	 * @return the sublist
+	 * @throws IndexOutOfBoundsException
+	 *             If the from index is invalid
+	 */
+	public List<Object> subList(int from)
+	{
+		return subList(from, size());
 	}
 }
