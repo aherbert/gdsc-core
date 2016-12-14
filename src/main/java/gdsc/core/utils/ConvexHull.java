@@ -78,19 +78,17 @@ public class ConvexHull
 	 */
 	public static ConvexHull create(float[] xCoordinates, float[] yCoordinates, int n)
 	{
-		float xbase = xCoordinates[0];
-		float ybase = yCoordinates[0];
-		for (int i = 1; i < n; i++)
-		{
-			if (xbase > xCoordinates[i])
-				xbase = xCoordinates[i];
-			if (ybase > yCoordinates[i])
-				ybase = yCoordinates[i];
-		}
+		// We do not require the xbase,ybase as in the ij.gui.PolygonRoi since we do not 
+		// store coordinates relative to the ROI bounds. They are always relative to 0,0.
 		float[] xx = new float[n];
 		float[] yy = new float[n];
 		int n2 = 0;
-		float smallestY = ybase;
+		float smallestY = yCoordinates[0];
+		for (int i = 1; i < n; i++)
+		{
+			if (smallestY > yCoordinates[i])
+				smallestY = yCoordinates[i];
+		}
 		float x, y;
 		float smallestX = Float.MAX_VALUE;
 		int p1 = 0;
@@ -138,8 +136,8 @@ public class ConvexHull
 			} while (p3 != p1);
 			if (n2 < n)
 			{
-				xx[n2] = xbase + x1;
-				yy[n2] = ybase + y1;
+				xx[n2] = x1;
+				yy[n2] = y1;
 				n2++;
 			}
 			else
