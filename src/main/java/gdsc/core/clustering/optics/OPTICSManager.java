@@ -351,7 +351,7 @@ public class OPTICSManager extends CoordinateStore
 
 		if (tracker != null)
 		{
-			tracker.log("Running OPTICS ...");
+			tracker.log("Running OPTICS ... Distance=%g, minPts=%d", generatingDistanceE, minPts);
 			tracker.progress(0, xcoord.length);
 		}
 
@@ -849,7 +849,7 @@ public class OPTICSManager extends CoordinateStore
 
 		if (tracker != null)
 		{
-			tracker.log("Running DBSCAN ...");
+			tracker.log("Running DBSCAN ... Distance=%g, minPts=%d", generatingDistanceE, minPts);
 			tracker.progress(0, xcoord.length);
 		}
 
