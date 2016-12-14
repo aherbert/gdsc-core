@@ -21,10 +21,10 @@ import java.util.Arrays;
 public class ConvexHull
 {
 	/** The x coordinates. */
-	final float[] x;
+	public final float[] x;
 
 	/** The y coordinates. */
-	final float[] y;
+	public final float[] y;
 
 	/**
 	 * Instantiates a new convex hull.
@@ -54,7 +54,30 @@ public class ConvexHull
 	 */
 	public static ConvexHull create(float[] xCoordinates, float[] yCoordinates)
 	{
-		int n = xCoordinates.length;
+		return create(xCoordinates, yCoordinates, xCoordinates.length);
+	}
+
+	/**
+	 * Create a new convex hull from the given coordinates.
+	 * <p>
+	 * Uses the gift wrap algorithm to find the convex hull.
+	 * <p>
+	 * Taken from ij.gui.PolygonRoi and adapted for float coordinates.
+	 *
+	 * @param xCoordinates
+	 *            the x coordinates
+	 * @param yCoordinates
+	 *            the y coordinates
+	 * @param n
+	 *            the number of coordinates
+	 * @return the convex hull
+	 * @throws NullPointerException
+	 *             if the inputs are null
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if the yCoordinates are smaller than the xCoordinates
+	 */
+	public static ConvexHull create(float[] xCoordinates, float[] yCoordinates, int n)
+	{
 		float xbase = xCoordinates[0];
 		float ybase = yCoordinates[0];
 		for (int i = 1; i < n; i++)
