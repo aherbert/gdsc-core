@@ -1574,8 +1574,7 @@ public class Utils
 
 	/**
 	 * True if the generic dialog will be shown. This will return false if headless or if there are macro options for
-	 * the
-	 * dialog (i.e. a macro is running and the dialog will not present to the user)
+	 * the dialog (i.e. a macro is running and the dialog will not present to the user)
 	 *
 	 * @return true, if the GenericDialog can and will be shown
 	 */
@@ -1587,6 +1586,16 @@ public class Utils
 		return Macro.getOptions() == null;
 	}
 
+	/**
+	 * True if a macro is running and the a generic dialog will not present to the user.
+	 *
+	 * @return true, if a macro is running
+	 */
+	public static boolean isMacro()
+	{
+		return Macro.getOptions() == null;
+	}
+	
 	/**
 	 * Write the text to file.
 	 *
