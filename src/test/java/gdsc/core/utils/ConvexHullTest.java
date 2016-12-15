@@ -1,13 +1,11 @@
 package gdsc.core.utils;
 
-import java.awt.Polygon;
+import java.awt.geom.Rectangle2D;
 
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
-
-import ij.gui.PolygonRoi;
 
 public class ConvexHullTest
 {
@@ -21,7 +19,7 @@ public class ConvexHullTest
 		ConvexHull hull = ConvexHull.create(x, y);
 		check(x, y, hull);
 	}
-	
+
 	@Test
 	public void canComputeConvexHullFromSquareWithInternalPoint()
 	{
@@ -33,7 +31,6 @@ public class ConvexHullTest
 		check(ex, ey, hull);
 	}
 
-	
 	@Test
 	public void canComputeConvexHullFromSquareWithInternalPoint2()
 	{
@@ -44,7 +41,7 @@ public class ConvexHullTest
 		ConvexHull hull = ConvexHull.create(x, y);
 		check(ex, ey, hull);
 	}
-	
+
 	private void check(float[] ex, float[] ey, ConvexHull hull)
 	{
 		if (ex == null)
@@ -67,75 +64,68 @@ public class ConvexHullTest
 			Assert.assertEquals(ex[i], hull.x[i], 0);
 			Assert.assertEquals(ey[i], hull.y[i], 0);
 		}
-		
 	}
 
 	@Test
 	public void canComputeConvexHullFromOrigin00()
 	{
 		for (int size : new int[] { 10 })
-			for (int m : new int[] { 10 })
-			{
-				compute(size, 0, 0, m);
-			}
+			for (float w : new float[] { 10, 5 })
+				for (float h : new float[] { 10, 5 })
+				{
+					compute(size, 0, 0, w, h);
+				}
 	}
 
 	@Test
 	public void canComputeConvexHullFromOriginXY()
 	{
 		for (int size : new int[] { 10 })
-			for (int ox : new int[] { -5, 5 })
-				for (int oy : new int[] { -5, 5 })
-					for (int m : new int[] { 10 })
-					{
-						compute(size, ox, oy, m);
-					}
+			for (float ox : new float[] { -5, 5 })
+				for (float oy : new float[] { -5, 5 })
+					for (float w : new float[] { 10, 5 })
+						for (float h : new float[] { 10, 5 })
+						{
+							compute(size, ox, oy, w, h);
+						}
 	}
 
-	private void compute(int size, int ox, int oy, int m)
+	private void compute(int size, float ox, float oy, float w, float h)
 	{
-		int[][] data = createData(size, ox, oy, m);
-		float[] x = new float[size];
-		float[] y = new float[size];
-		for (int i = 0; i < size; i++)
+		float[][] data = createData(size, ox, oy, w, h);
+		ConvexHull hull = ConvexHull.create(data[0], data[1]);
+
+		// Simple check of the bounds
+		try
 		{
-			x[i] = data[i][0];
-			y[i] = data[i][1];
+			Assert.assertNotNull(hull);
+			Rectangle2D.Double bounds = hull.getFloatBounds();
+			Assert.assertTrue("xmin " + ox + " " + bounds.getX(), ox <= bounds.getX());
+			Assert.assertTrue("ymin " + oy + " " + bounds.getY(), oy <= bounds.getY());
+			Assert.assertTrue("xmax " + (ox + w) + " " + bounds.getMaxX(), ox + w >= bounds.getMaxX());
+			Assert.assertTrue("ymax " + (ox + h) + " " + bounds.getMaxY(), oy + h >= bounds.getMaxY());
 		}
-		ConvexHull hull = ConvexHull.create(x, y);
-
-		// Check
-		PolygonRoi roi = new PolygonRoi(x, y, PolygonRoi.POLYGON);
-		Polygon expected = roi.getConvexHull();
-
-		if (expected == null)
+		catch (AssertionError e)
 		{
-			Assert.assertTrue(hull == null);
-			return;
-		}
-
-		Assert.assertEquals(expected.npoints, hull.x.length);
-
-		//for (int i = 0; i < expected.npoints; i++)
-		//{
-		//	System.out.printf("[%d] %d==%f (%f), %d==%f (%f)\n", i, expected.xpoints[i], hull.x[i],
-		//			hull.x[i] - expected.xpoints[i], expected.ypoints[i], hull.y[i], hull.y[i] - expected.ypoints[i]);
-		//}
-
-		for (int i = 0; i < expected.npoints; i++)
-		{
-			Assert.assertEquals(expected.xpoints[i], hull.x[i], 0);
-			Assert.assertEquals(expected.ypoints[i], hull.y[i], 0);
+			// Debug
+			//for (int i = 0; i < size; i++)
+			//	System.out.printf("[%d] %f,%f\n", i, data[0][i], data[1][i]);
+			//if (hull != null)
+			//{
+			//	for (int i = 0; i < hull.x.length; i++)
+			//		System.out.printf("H[%d] %f,%f\n", i, hull.x[i], hull.y[i]);
+			//}
+			throw e;
 		}
 	}
 
-	private int[][] createData(int size, int ox, int oy, int m)
+	private float[][] createData(int size, float ox, float oy, float w, float h)
 	{
-		int[][] data = new int[size][2];
+		float[][] data = new float[2][size];
 		for (int i = 0; i < size; i++)
 		{
-			data[i][0] = ox + r.nextInt(m);
-			data[i][1] = oy + r.nextInt(m);
+			data[0][i] = ox + r.nextFloat() * w;
+			data[1][i] = oy + r.nextFloat() * h;
 		}
 		return data;
 	}

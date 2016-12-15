@@ -18,6 +18,11 @@ import java.awt.geom.Rectangle2D;
 
 import java.util.Arrays;
 
+import org.apache.commons.math3.exception.ConvergenceException;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+import org.apache.commons.math3.geometry.euclidean.twod.hull.ConvexHull2D;
+import org.apache.commons.math3.geometry.euclidean.twod.hull.MonotoneChain;
+
 /**
  * Contains a set of paired coordinates representing the convex hull of a set of points.
  * <p>
@@ -39,10 +44,18 @@ public class ConvexHull
 	 * @param y
 	 *            the y
 	 */
-	private ConvexHull(float[] x, float[] y)
+	private ConvexHull(float xbase, float ybase, float[] x, float[] y)
 	{
 		this.x = x;
 		this.y = y;
+		if (xbase != 0 || ybase != 0)
+		{
+			for (int i = x.length; i-- > 0;)
+			{
+				x[i] += xbase;
+				y[i] += ybase;
+			}
+		}
 	}
 
 	public int size()
@@ -52,10 +65,6 @@ public class ConvexHull
 
 	/**
 	 * Create a new convex hull from the given coordinates.
-	 * <p>
-	 * Uses the gift wrap algorithm to find the convex hull.
-	 * <p>
-	 * Taken from ij.gui.PolygonRoi and adapted for float coordinates.
 	 * 
 	 * @throws NullPointerException
 	 *             if the inputs are null
@@ -69,10 +78,6 @@ public class ConvexHull
 
 	/**
 	 * Create a new convex hull from the given coordinates.
-	 * <p>
-	 * Uses the gift wrap algorithm to find the convex hull.
-	 * <p>
-	 * Taken from ij.gui.PolygonRoi and adapted for float coordinates.
 	 *
 	 * @param xCoordinates
 	 *            the x coordinates
@@ -89,6 +94,64 @@ public class ConvexHull
 	public static ConvexHull create(float[] xCoordinates, float[] yCoordinates, int n)
 	{
 		return create(0, 0, xCoordinates, yCoordinates, n);
+	}
+
+	/**
+	 * Create a new convex hull from the given coordinates.
+	 *
+	 * @param xbase
+	 *            the x base coordinate (origin)
+	 * @param ybase
+	 *            the y base coordinate (origin)
+	 * @param xCoordinates
+	 *            the x coordinates
+	 * @param yCoordinates
+	 *            the y coordinates
+	 * @param n
+	 *            the number of coordinates
+	 * @return the convex hull
+	 * @throws NullPointerException
+	 *             if the inputs are null
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if the yCoordinates are smaller than the xCoordinates
+	 */
+	public static ConvexHull create(float xbase, float ybase, float[] xCoordinates, float[] yCoordinates, int n)
+	{
+		// This algorithm is not suitable for floating point coords
+		//return createGiftWrap(xbase, ybase, xCoordinates, yCoordinates, n);
+
+		// Use Apache Math to do this
+		MonotoneChain chain = new MonotoneChain();
+		TurboList<Vector2D> points = new TurboList<Vector2D>(n);
+		for (int i = 0; i < n; i++)
+			points.add(new Vector2D(xbase + xCoordinates[i], ybase + yCoordinates[i]));
+		ConvexHull2D hull = null;
+		try
+		{
+			hull = chain.generate(points);
+		}
+		catch (ConvergenceException e)
+		{
+		}
+
+		if (hull == null)
+			return null;
+
+		Vector2D[] v = hull.getVertices();
+		if (v.length == 0)
+			return null;
+
+		int size = v.length;
+		float[] xx = new float[size];
+		float[] yy = new float[size];
+		int n2 = 0;
+		for (int i = 0; i < size; i++)
+		{
+			xx[n2] = (float) v[i].getX();
+			yy[n2] = (float) v[i].getY();
+			n2++;
+		}
+		return new ConvexHull(0, 0, xx, yy);
 	}
 
 	/**
@@ -114,7 +177,9 @@ public class ConvexHull
 	 * @throws ArrayIndexOutOfBoundsException
 	 *             if the yCoordinates are smaller than the xCoordinates
 	 */
-	public static ConvexHull create(float xbase, float ybase, float[] xCoordinates, float[] yCoordinates, int n)
+	@SuppressWarnings("unused")
+	private static ConvexHull createGiftWrap(float xbase, float ybase, float[] xCoordinates, float[] yCoordinates,
+			int n)
 	{
 		float[] xx = new float[n];
 		float[] yy = new float[n];
@@ -172,8 +237,8 @@ public class ConvexHull
 			} while (p3 != p1);
 			if (n2 < n)
 			{
-				xx[n2] = xbase + x1;
-				yy[n2] = ybase + y1;
+				xx[n2] = x1;
+				yy[n2] = y1;
 				n2++;
 			}
 			else
@@ -186,7 +251,7 @@ public class ConvexHull
 		} while (p1 != pstart);
 		xx = Arrays.copyOf(xx, n2);
 		yy = Arrays.copyOf(yy, n2);
-		return new ConvexHull(xx, yy);
+		return new ConvexHull(xbase, ybase, xx, yy);
 	}
 
 	// Below is functionality taken from ij.process.FloatPolygon
