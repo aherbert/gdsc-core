@@ -238,19 +238,19 @@ public class OPTICSResult
 		float[] x, y;
 		int n;
 
-		ScratchSpace(int n)
+		ScratchSpace(int capacity)
 		{
-			x = new float[n];
-			y = new float[n];
+			x = new float[capacity];
+			y = new float[capacity];
 			n = 0;
 		}
 
-		void resize(int n)
+		void resize(int capacity)
 		{
-			if (x.length < n)
+			if (x.length < capacity)
 			{
-				x = new float[n];
-				y = new float[n];
+				x = new float[capacity];
+				y = new float[capacity];
 			}
 			n = 0;
 		}
@@ -272,11 +272,21 @@ public class OPTICSResult
 	}
 
 	/**
+	 * Checks for convex hulls.
+	 *
+	 * @return true, if successful
+	 */
+	public boolean hasConvexHulls()
+	{
+		return hulls != null;
+	}
+	
+	/**
 	 * Compute convex hulls for each cluster.
 	 */
 	public void computeConvexHulls()
 	{
-		if (hulls != null)
+		if (hasConvexHulls())
 			return;
 
 		if (clustering == null)
