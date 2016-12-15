@@ -83,4 +83,14 @@ public class OPTICSCluster
 	{
 		return String.format("s=%d, e=%d, level=%d, id=%d", start, end, level, clusterId);
 	}
+
+	/**
+	 * Get the size (start to end inclusive)
+	 *
+	 * @return the size
+	 */
+	public int size()
+	{
+		return end - start + 1;
+	}
 }
