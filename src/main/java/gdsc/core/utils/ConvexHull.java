@@ -1,5 +1,8 @@
 package gdsc.core.utils;
 
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
+
 /*----------------------------------------------------------------------------- 
  * GDSC ImageJ Software
  * 
@@ -17,6 +20,8 @@ import java.util.Arrays;
 
 /**
  * Contains a set of paired coordinates representing the convex hull of a set of points.
+ * <p>
+ * Functionality of this has been taken from ij.process.FloatPolygon.
  */
 public class ConvexHull
 {
@@ -34,10 +39,15 @@ public class ConvexHull
 	 * @param y
 	 *            the y
 	 */
-	public ConvexHull(float[] x, float[] y)
+	private ConvexHull(float[] x, float[] y)
 	{
 		this.x = x;
 		this.y = y;
+	}
+
+	public int size()
+	{
+		return x.length;
 	}
 
 	/**
@@ -177,5 +187,95 @@ public class ConvexHull
 		xx = Arrays.copyOf(xx, n2);
 		yy = Arrays.copyOf(yy, n2);
 		return new ConvexHull(xx, yy);
+	}
+
+	// Below is functionality taken from ij.process.FloatPolygon
+	private Rectangle bounds;
+	private float minX, minY, maxX, maxY;
+
+	/**
+	 * Returns 'true' if the point (x,y) is inside this polygon. This is a Java
+	 * version of the remarkably small C program by W. Randolph Franklin at
+	 * http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html#The%20C%20Code
+	 */
+	public boolean contains(float x, float y)
+	{
+		int npoints = size();
+		float[] xpoints = this.x;
+		float[] ypoints = this.y;
+		boolean inside = false;
+		for (int i = 0, j = npoints - 1; i < npoints; j = i++)
+		{
+			if (((ypoints[i] > y) != (ypoints[j] > y)) &&
+					(x < (xpoints[j] - xpoints[i]) * (y - ypoints[i]) / (ypoints[j] - ypoints[i]) + xpoints[i]))
+				inside = !inside;
+		}
+		return inside;
+	}
+
+	public Rectangle getBounds()
+	{
+		int npoints = size();
+		float[] xpoints = this.x;
+		float[] ypoints = this.y;
+		if (npoints == 0)
+			return new Rectangle();
+		if (bounds == null)
+			calculateBounds(xpoints, ypoints, npoints);
+		return bounds.getBounds();
+	}
+
+	public Rectangle2D.Double getFloatBounds()
+	{
+		int npoints = size();
+		float[] xpoints = this.x;
+		float[] ypoints = this.y;
+		if (npoints == 0)
+			return new Rectangle2D.Double();
+		if (bounds == null)
+			calculateBounds(xpoints, ypoints, npoints);
+		return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
+	}
+
+	void calculateBounds(float[] xpoints, float[] ypoints, int npoints)
+	{
+		minX = Float.MAX_VALUE;
+		minY = Float.MAX_VALUE;
+		maxX = Float.MIN_VALUE;
+		maxY = Float.MIN_VALUE;
+		for (int i = 0; i < npoints; i++)
+		{
+			float x = xpoints[i];
+			minX = Math.min(minX, x);
+			maxX = Math.max(maxX, x);
+			float y = ypoints[i];
+			minY = Math.min(minY, y);
+			maxY = Math.max(maxY, y);
+		}
+		int iMinX = (int) Math.floor(minX);
+		int iMinY = (int) Math.floor(minY);
+		bounds = new Rectangle(iMinX, iMinY, (int) (maxX - iMinX + 0.5), (int) (maxY - iMinY + 0.5));
+	}
+
+	public double getLength(boolean isLine)
+	{
+		int npoints = size();
+		float[] xpoints = this.x;
+		float[] ypoints = this.y;
+		double dx, dy;
+		double length = 0.0;
+		for (int i = 0; i < (npoints - 1); i++)
+		{
+			dx = xpoints[i + 1] - xpoints[i];
+			dy = ypoints[i + 1] - ypoints[i];
+			length += Math.sqrt(dx * dx + dy * dy);
+		}
+		if (!isLine)
+		{
+			dx = xpoints[0] - xpoints[npoints - 1];
+			dy = ypoints[0] - ypoints[npoints - 1];
+			length += Math.sqrt(dx * dx + dy * dy);
+		}
+		return length;
 	}
 }

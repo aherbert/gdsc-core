@@ -391,7 +391,7 @@ public class OPTICSManager extends CoordinateStore
 		OPTICSResult optics = null;
 		if (!stopped)
 		{
-			optics = new OPTICSResult(minPts, generatingDistanceE, results.list);
+			optics = new OPTICSResult(this, minPts, generatingDistanceE, results.list);
 			final int nClusters = optics.extractDBSCANClustering(generatingDistanceE);
 			if (tracker != null)
 			{
@@ -422,7 +422,7 @@ public class OPTICSManager extends CoordinateStore
 		// TODO - See if OPTICS can be made faster with a specialised MoleculeSpace.
 		// For now this is disabled.
 		//Class<?> clazz = getPreferredMoleculeSpace(true);
-		
+
 		Class<?> clazz = getPreferredMoleculeSpace(false);
 		if (clazz != null)
 		{
@@ -543,7 +543,7 @@ public class OPTICSManager extends CoordinateStore
 				grid = new RadialMoleculeSpace(this, generatingDistanceE);
 			else
 				grid = new GridMoleculeSpace(this, generatingDistanceE);
-			
+
 			grid.generate();
 		}
 		else
@@ -976,13 +976,47 @@ public class OPTICSManager extends CoordinateStore
 		return m;
 	}
 
+	/**
+	 * Gets the raw x data.
+	 *
+	 * @return the raw x data
+	 */
 	float[] getXData()
 	{
 		return xcoord;
 	}
 
+	/**
+	 * Gets the raw y data.
+	 *
+	 * @return the raw y data
+	 */
 	float[] getYData()
 	{
 		return ycoord;
+	}
+
+	/**
+	 * Gets the original X.
+	 *
+	 * @param i
+	 *            the index
+	 * @return the original X
+	 */
+	float getOriginalX(int i)
+	{
+		return xcoord[i] + originx;
+	}
+
+	/**
+	 * Gets the original Y.
+	 *
+	 * @param i
+	 *            the i
+	 * @return the original Y
+	 */
+	float getOriginalY(int i)
+	{
+		return ycoord[i] + originy;
 	}
 }
