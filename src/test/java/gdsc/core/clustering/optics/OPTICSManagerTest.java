@@ -768,6 +768,11 @@ public class OPTICSManagerTest
 		int[] c1 = r1.getClusters(true);
 		int[] c2 = r2.getClusters(true);
 
+		//for (int i = 0; i < c1.length; i++)
+		//{
+		//	System.out.printf("[%d] %d == %d\n", i, c1[i], c2[i]);
+		//}
+
 		Assert.assertArrayEquals(c1, c2);
 	}
 

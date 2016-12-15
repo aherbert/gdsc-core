@@ -265,8 +265,6 @@ public class OPTICSResult
 	 * <p>
 	 * The generating distance E must be less than or equal to the generating distance used during OPTICS.
 	 *
-	 * @param clusterOrderedObjects
-	 *            the cluster ordered objects
 	 * @param generatingDistanceE
 	 *            the generating distance E
 	 * @return the number of clusters
@@ -280,6 +278,9 @@ public class OPTICSResult
 		// Reset cluster Id
 		int clusterId = NOISE;
 		final OPTICSOrder[] clusterOrderedObjects = opticsResults;
+		// Store the clusters. We use this for processing the convex hull of each cluster.
+		ArrayList<OPTICSCluster> setOfClusters = new ArrayList<OPTICSCluster>();
+		int cstart = -1, cend = 0;
 		for (int i = 0; i < clusterOrderedObjects.length; i++)
 		{
 			final OPTICSOrder object = clusterOrderedObjects[i];
@@ -291,16 +292,50 @@ public class OPTICSResult
 				// sume UNDEFINED to be greater than any defined distance
 				if (object.coreDistance <= generatingDistanceE)
 				{
-					// new cluster
+					// New cluster
+					
+					// Record the last cluster
+					if (clusterId != 0)
+					{
+						setOfClusters.add(new OPTICSCluster(cstart, cend, clusterId));
+					}
+
 					clusterId++;
 					object.clusterId = clusterId;
+
+					cstart = cend = i;
 				}
 				else
+				{
+					// This is noise
 					object.clusterId = NOISE;
+				}
 			}
 			else
+			{
+				// Extend the current cluster
+				cend = i;
 				object.clusterId = clusterId;
+			}
 		}
+
+		// Add last cluster
+		if (clusterId != 0)
+		{
+			setOfClusters.add(new OPTICSCluster(cstart, cend, clusterId));
+		}
+
+		// Write clusters
+		//resetClusterIds();
+		//for (int i = 0; i < setOfClusters.size(); i++)
+		//{
+		//	OPTICSCluster cluster = setOfClusters.get(i);
+		//	//System.out.println(cluster);
+		//	for (int c = cluster.start; c <= cluster.end; c++)
+		//		clusterOrderedObjects[c].clusterId = cluster.clusterId;
+		//}
+
+		setClustering(setOfClusters);
 		return clusterId;
 	}
 
