@@ -54,7 +54,7 @@ public class ConvexHull
 	 */
 	public static ConvexHull create(float[] xCoordinates, float[] yCoordinates)
 	{
-		return create(xCoordinates, yCoordinates, xCoordinates.length);
+		return create(0, 0, xCoordinates, yCoordinates, xCoordinates.length);
 	}
 
 	/**
@@ -78,8 +78,34 @@ public class ConvexHull
 	 */
 	public static ConvexHull create(float[] xCoordinates, float[] yCoordinates, int n)
 	{
-		// We do not require the xbase,ybase as in the ij.gui.PolygonRoi since we do not 
-		// store coordinates relative to the ROI bounds. They are always relative to 0,0.
+		return create(0, 0, xCoordinates, yCoordinates, n);
+	}
+
+	/**
+	 * Create a new convex hull from the given coordinates.
+	 * <p>
+	 * Uses the gift wrap algorithm to find the convex hull.
+	 * <p>
+	 * Taken from ij.gui.PolygonRoi and adapted for float coordinates.
+	 *
+	 * @param xbase
+	 *            the x base coordinate (origin)
+	 * @param ybase
+	 *            the y base coordinate (origin)
+	 * @param xCoordinates
+	 *            the x coordinates
+	 * @param yCoordinates
+	 *            the y coordinates
+	 * @param n
+	 *            the number of coordinates
+	 * @return the convex hull
+	 * @throws NullPointerException
+	 *             if the inputs are null
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if the yCoordinates are smaller than the xCoordinates
+	 */
+	public static ConvexHull create(float xbase, float ybase, float[] xCoordinates, float[] yCoordinates, int n)
+	{
 		float[] xx = new float[n];
 		float[] yy = new float[n];
 		int n2 = 0;
@@ -136,8 +162,8 @@ public class ConvexHull
 			} while (p3 != p1);
 			if (n2 < n)
 			{
-				xx[n2] = x1;
-				yy[n2] = y1;
+				xx[n2] = xbase + x1;
+				yy[n2] = ybase + y1;
 				n2++;
 			}
 			else
