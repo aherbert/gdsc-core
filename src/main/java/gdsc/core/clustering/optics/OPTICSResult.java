@@ -236,11 +236,13 @@ public class OPTICSResult
 	private static class ScratchSpace
 	{
 		float[] x, y;
+		int n;
 
 		ScratchSpace(int n)
 		{
 			x = new float[n];
 			y = new float[n];
+			n = 0;
 		}
 
 		void resize(int n)
@@ -250,6 +252,22 @@ public class OPTICSResult
 				x = new float[n];
 				y = new float[n];
 			}
+			n = 0;
+		}
+
+		void add(float xx, float yy)
+		{
+			x[n] = xx;
+			y[n] = yy;
+			n++;
+		}
+
+		void add(float[] xx, float[] yy)
+		{
+			int size = xx.length;
+			System.arraycopy(xx, 0, x, n, size);
+			System.arraycopy(yy, 0, y, n, size);
+			n += size;
 		}
 	}
 
@@ -283,11 +301,11 @@ public class OPTICSResult
 			computeConvexHulls(c.children, scratch);
 
 			// Count the unique points at this level of the hierarchy
-			int n = 0;
+			int nPoints = 0;
 			for (int i = c.start; i <= c.end; i++)
 			{
 				if (opticsResults[i].clusterId == c.clusterId)
-					n++;
+					nPoints++;
 			}
 
 			// Add the hull points in the children
@@ -295,24 +313,29 @@ public class OPTICSResult
 			{
 				for (OPTICSCluster child : c.children)
 				{
-					n += getConvexHull(child.clusterId).size();
+					ConvexHull h = getConvexHull(child.clusterId);
+					if (h != null)
+					{
+						nPoints += h.size();
+					}
+					else
+					{
+						// Count all the points since hull computation failed under this cluster
+						nPoints += child.size();
+					}
 				}
 			}
 
 			// Ensure we have the scratch space
-			scratch.resize(n);
-			float[] x = scratch.x;
-			float[] y = scratch.y;
+			scratch.resize(nPoints);
 
 			// Extract all the points
-			n = 0;
 			for (int i = c.start; i <= c.end; i++)
 			{
 				if (opticsResults[i].clusterId == c.clusterId)
 				{
-					x[n] = opticsManager.getOriginalX(opticsResults[i].parent);
-					y[n] = opticsManager.getOriginalY(opticsResults[i].parent);
-					n++;
+					scratch.add(opticsManager.getOriginalX(opticsResults[i].parent),
+							opticsManager.getOriginalY(opticsResults[i].parent));
 				}
 			}
 
@@ -322,15 +345,32 @@ public class OPTICSResult
 				for (OPTICSCluster child : c.children)
 				{
 					ConvexHull h = getConvexHull(child.clusterId);
-					int size = h.size();
-					System.arraycopy(h.x, 0, x, n, size);
-					System.arraycopy(h.y, 0, y, n, size);
-					n += size;
+					if (h != null)
+					{
+						scratch.add(h.x, h.y);
+					}
+					else
+					{
+						// Add all the points since hull computation failed under this cluster
+						for (int i = child.start; i <= child.end; i++)
+						{
+							scratch.add(opticsManager.getOriginalX(opticsResults[i].parent),
+									opticsManager.getOriginalY(opticsResults[i].parent));
+						}
+					}
 				}
 			}
 
 			// Compute the hull
-			hulls[c.clusterId - 1] = ConvexHull.create(x, y, n);
+			ConvexHull h = ConvexHull.create(scratch.x, scratch.y, scratch.n);
+			if (h != null)
+				hulls[c.clusterId - 1] = h;
+			else
+			{
+				System.out.printf("No hull: n=%d\n", scratch.n);
+				for (int i = 0; i < scratch.n; i++)
+					System.out.printf("%d: %f,%f\n", i, scratch.x[i], scratch.y[i]);
+			}
 		}
 	}
 
