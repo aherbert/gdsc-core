@@ -24,8 +24,23 @@ public class CoordinateStore implements Cloneable
 {
 	protected TrackProgress tracker = null;
 	protected final float[] xcoord, ycoord;
-	protected final float minXCoord, minYCoord, maxXCoord, maxYCoord;
-	protected final int area;
+
+	/** The origin for the x coordinate. Add this to x to get the original coordinates. */
+	public final float originx;
+	/** The origin for the y coordinate. Add this to y to get the original coordinates. */
+	public final float originy;
+	
+	/** The min X coord. */
+	public final float minXCoord;
+	/** The min Y coord. */
+	public final float minYCoord;
+	/** The max X coord. */
+	public final float maxXCoord;
+	/** The max Y coord. */
+	public final float maxYCoord;
+	
+	/** The area. This is the product of the constructor bounds width multiplied by the height. */
+	public final int area;
 
 	/**
 	 * Input arrays are modified
@@ -56,18 +71,18 @@ public class CoordinateStore implements Cloneable
 		}
 
 		// Round down and shift to origin (so all coords are >=0 for efficient grid allocation)
-		final float shiftx = (float) Math.floor(minXCoord);
-		final float shifty = (float) Math.floor(minYCoord);
+		originx = (float) Math.floor(minXCoord);
+		originy = (float) Math.floor(minYCoord);
 
 		// Get max bounds
-		minXCoord -= shiftx;
-		minYCoord -= shifty;
+		minXCoord -= originx;
+		minYCoord -= originy;
 		float maxXCoord = 0;
 		float maxYCoord = 0;
 		for (int i = 0; i < xcoord.length; i++)
 		{
-			xcoord[i] -= shiftx;
-			ycoord[i] -= shifty;
+			xcoord[i] -= originx;
+			ycoord[i] -= originy;
 			if (maxXCoord < xcoord[i])
 				maxXCoord = xcoord[i];
 			if (maxYCoord < ycoord[i])
