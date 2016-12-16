@@ -28,6 +28,7 @@ public class LUTHelper
 		RED_HOT{ public String getName() { return "Red-Hot"; }}, 
 		ICE{ public String getName() { return "Ice";}}, 
 		RAINBOW{ public String getName() { return "Rainbow"; }}, 
+		FIRE{ public String getName() { return "Fire"; }}, 
 		FIRE_LIGHT{ public String getName() { return "FireLight"; }}, 
 		RED_YELLOW{ public String getName() { return "Red-Yellow"; }}, 
 		RED{ public String getName() { return "Red"; }},
@@ -105,6 +106,9 @@ public class LUTHelper
 				break;
 			case RAINBOW:
 				nColors = rainbow(reds, greens, blues);
+				break;
+			case FIRE:
+				nColors = fire(reds, greens, blues);
 				break;
 			case FIRE_LIGHT:
 				nColors = firelight(reds, greens, blues);
@@ -204,6 +208,31 @@ public class LUTHelper
 	}
 
 	/**
+	 * Copied from ij.plugin.LutLoader
+	 * 
+	 * @param reds
+	 * @param greens
+	 * @param blues
+	 * @return
+	 */
+	private static int fire(byte[] reds, byte[] greens, byte[] blues)
+	{
+		int[] r = { 0, 0, 1, 25, 49, 73, 98, 122, 146, 162, 173, 184, 195, 207, 217, 229, 240, 252, 255, 255, 255, 255,
+				255, 255, 255, 255, 255, 255, 255, 255, 255, 255 };
+		int[] g = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 35, 57, 79, 101, 117, 133, 147, 161, 175, 190, 205, 219,
+				234, 248, 255, 255, 255, 255 };
+		int[] b = { 0, 61, 96, 130, 165, 192, 220, 227, 210, 181, 151, 122, 93, 64, 35, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 35, 98, 160, 223, 255 };
+		for (int i = 0; i < r.length; i++)
+		{
+			reds[i] = (byte) r[i];
+			greens[i] = (byte) g[i];
+			blues[i] = (byte) b[i];
+		}
+		return r.length;
+	}
+
+	/**
 	 * Adapted from ij.plugin.LutLoader to remove the dark colours
 	 * 
 	 * @param reds
@@ -266,8 +295,9 @@ public class LUTHelper
 
 	/**
 	 * Get a colour from the LUT. The LUT is assumed to have a 256 colours in the table.
-	 * 
+	 *
 	 * @param lut
+	 *            the lut
 	 * @param i
 	 *            The position in the LUT (from 0-255)
 	 * @return a colour
@@ -282,9 +312,12 @@ public class LUTHelper
 	}
 
 	/**
-	 * Get a colour from the LUT
-	 * 
+	 * Get a colour from the LUT. If the total is equal or less than 256 then the lut can be assumed for an 8-bit image.
+	 * If above 256 then the colour is assumed for a 16-bit image and so the position is scaled linearly to 0-255 to
+	 * find the colour. The uses the {@link #getColour(LUT, int, int, int)} method.
+	 *
 	 * @param lut
+	 *            the lut
 	 * @param n
 	 *            The position in the series (zero-based)
 	 * @param total
@@ -293,11 +326,75 @@ public class LUTHelper
 	 */
 	public static Color getColour(LUT lut, int n, int total)
 	{
-		if (n < 0)
-			n = 0;
-		if (n >= total)
-			n = total - 1;
-		final double scale = (double) lut.getMapSize() / total;
-		return getColour(lut, (int) (n * scale));
+		if (total <= 256)
+		{
+			// Assume 8-bit image
+			return getColour(lut, n);
+		}
+
+		// Use behaviour for 16-bit images 
+		return getColour(lut, n, 0, total);
+	}
+
+	/**
+	 * Get a colour from the LUT. Used for 16-bit images.
+	 *
+	 * @param lut
+	 *            the lut
+	 * @param value
+	 *            the value
+	 * @param minimum
+	 *            the minimum display value
+	 * @param maximum
+	 *            the maximum display value
+	 * @return a colour
+	 */
+	public static Color getColour(LUT lut, int value, int minimum, int maximum)
+	{
+		// Logic copied from ShortProcessor.create8BitImage
+		if (minimum < 0)
+			minimum = 0;
+		if (maximum > 65535)
+			maximum = 65535;
+
+		double scale = 256.0 / (maximum - minimum + 1);
+		value = value - minimum;
+		if (value < 0)
+			value = 0;
+		value = (int) (value * scale + 0.5);
+		if (value > 255)
+			value = 255;
+
+		return new Color(lut.getRGB(value));
+	}
+
+	/**
+	 * Get a colour from the LUT. Used for 32-bit images.
+	 *
+	 * @param lut
+	 *            the lut
+	 * @param value
+	 *            the value
+	 * @param minimum
+	 *            the minimum
+	 * @param maximum
+	 *            the maximum
+	 * @return a colour
+	 */
+	public static Color getColour(LUT lut, float value, float minimum, float maximum)
+	{
+		// Logic copied from FloatProcessor.create8BitImage
+
+		// No range check on the input min/max
+
+		float scale = 255f / (maximum - minimum);
+		value = value - minimum;
+		if (value < 0f)
+			value = 0f;
+		int ivalue = (int) ((value * scale) + 0.5f);
+		if (ivalue > 255)
+			ivalue = 255;
+
+		return new Color(lut.getRGB(ivalue));
 	}
 }
