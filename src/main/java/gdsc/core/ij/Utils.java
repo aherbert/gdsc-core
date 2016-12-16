@@ -267,7 +267,9 @@ public class Utils
 			{
 				plotWindow.setVisible(true);
 				p = (PlotWindow) plotWindow;
-				p.drawPlot(plot);
+				Dimension d = p.getPlot().getSize();
+				plot.setSize(d.width, d.height);
+				p.drawPlot(plot); // Causes a resize
 				plot.setLimitsToDefaults(true);
 				p.toFront();
 			}
@@ -278,9 +280,11 @@ public class Utils
 
 				// Get the location and close the error window
 				Point location = null;
+				Dimension d = null;
 				if (p != null)
 				{
 					location = p.getLocation();
+					d = p.getPlot().getSize();
 					try
 					{
 						p.close();
@@ -292,9 +296,15 @@ public class Utils
 				}
 
 				// Show a new window
+				if (d != null)
+				{
+					plot.setSize(d.width, d.height);
+				}
 				p = plot.show();
 				if (location != null)
+				{
 					p.setLocation(location);
+				}
 				newWindow = true;
 			}
 		}
