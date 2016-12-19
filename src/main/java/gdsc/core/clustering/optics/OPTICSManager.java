@@ -344,6 +344,7 @@ public class OPTICSManager extends CoordinateStore
 		if (minPts < 1)
 			minPts = 1;
 
+		long time = System.currentTimeMillis();
 		initialiseOPTICS(generatingDistanceE, minPts);
 
 		// The distance may be updated
@@ -395,7 +396,9 @@ public class OPTICSManager extends CoordinateStore
 			final int nClusters = optics.extractDBSCANClustering(generatingDistanceE);
 			if (tracker != null)
 			{
-				tracker.log("Finished OPTICS: " + Utils.pleural(nClusters, "Cluster"));
+				time = System.currentTimeMillis() - time;
+				tracker.log("Finished OPTICS: %s (Time = %s)", Utils.pleural(nClusters, "Cluster"),
+						Utils.timeToString(time));
 			}
 		}
 
@@ -842,6 +845,8 @@ public class OPTICSManager extends CoordinateStore
 		if (minPts < 1)
 			minPts = 1;
 
+		long time = System.currentTimeMillis();
+
 		initialiseDBSCAN(generatingDistanceE, minPts);
 
 		// The distance may be updated
@@ -895,7 +900,9 @@ public class OPTICSManager extends CoordinateStore
 			dbscanResult = new DBSCANResult(this, minPts, generatingDistanceE, dbscanOrder);
 			if (tracker != null)
 			{
-				tracker.log("Finished DBSCAN: " + Utils.pleural(counter.getTotalClusters(), "Cluster"));
+				time = System.currentTimeMillis() - time;
+				tracker.log("Finished DBSCAN: %s (Time = %s)", Utils.pleural(counter.getTotalClusters(), "Cluster"),
+						Utils.timeToString(time));
 			}
 		}
 
