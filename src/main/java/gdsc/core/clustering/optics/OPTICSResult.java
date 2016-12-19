@@ -383,11 +383,10 @@ public class OPTICSResult implements ClusteringResult
 		return hulls[clusterId - 1];
 	}
 
-	/**
-	 * Gets the cluster Id for each parent object. This can be set by {@link #extractDBSCANClustering(float)} or
-	 * {@link #extractClusters(double, boolean, boolean)}.
-	 *
-	 * @return the clusters
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.clustering.optics.ClusteringResult#getClusters()
 	 */
 	public int[] getClusters()
 	{
@@ -438,6 +437,22 @@ public class OPTICSResult implements ClusteringResult
 	 */
 	public int extractDBSCANClustering(float generatingDistanceE)
 	{
+		return extractDBSCANClustering(generatingDistanceE, false);
+	}
+
+	/**
+	 * Extract DBSCAN clustering from the cluster ordered objects returned from {@link #optics(float, int, boolean)}.
+	 * <p>
+	 * The generating distance E must be less than or equal to the generating distance used during OPTICS.
+	 *
+	 * @param generatingDistanceE
+	 *            the generating distance E
+	 * @param core
+	 *            Set to true to get the clusters using only the core points
+	 * @return the number of clusters
+	 */
+	public int extractDBSCANClustering(float generatingDistanceE, boolean core)
+	{
 		if (generatingDistanceE > generatingDistance)
 			throw new IllegalArgumentException(
 					"The generating distance must not be above the distance used during OPTICS");
@@ -475,15 +490,27 @@ public class OPTICSResult implements ClusteringResult
 				}
 				else
 				{
-					// This is noise
-					object.clusterId = NOISE;
+					// This is noise. It was reset earlier in resetClusterIds(). 
+					//object.clusterId = NOISE;
 				}
 			}
 			else
 			{
 				// Extend the current cluster
-				cend = i;
-				object.clusterId = clusterId;
+				if (core)
+				{
+					// Only extend if this is a core point
+					if (object.coreDistance <= generatingDistanceE)
+					{
+						cend = i;
+						object.clusterId = clusterId;
+					}
+				}
+				else
+				{
+					cend = i;
+					object.clusterId = clusterId;
+				}
 			}
 		}
 
