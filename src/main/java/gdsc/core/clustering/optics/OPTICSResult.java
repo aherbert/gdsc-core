@@ -23,7 +23,7 @@ import gdsc.core.utils.TurboList.SimplePredicate;
 /**
  * Contains the result of the OPTICS algorithm
  */
-public class OPTICSResult
+public class OPTICSResult implements ClusteringResult
 {
 	/**
 	 * Used to provide access to the raw coordinates
@@ -233,44 +233,6 @@ public class OPTICSResult
 		}
 	}
 
-	private static class ScratchSpace
-	{
-		float[] x, y;
-		int n;
-
-		ScratchSpace(int capacity)
-		{
-			x = new float[capacity];
-			y = new float[capacity];
-			n = 0;
-		}
-
-		void resize(int capacity)
-		{
-			if (x.length < capacity)
-			{
-				x = new float[capacity];
-				y = new float[capacity];
-			}
-			n = 0;
-		}
-
-		void add(float xx, float yy)
-		{
-			x[n] = xx;
-			y[n] = yy;
-			n++;
-		}
-
-		void add(float[] xx, float[] yy)
-		{
-			int size = xx.length;
-			System.arraycopy(xx, 0, x, n, size);
-			System.arraycopy(yy, 0, y, n, size);
-			n += size;
-		}
-	}
-
 	/**
 	 * Checks for convex hulls.
 	 *
@@ -280,7 +242,7 @@ public class OPTICSResult
 	{
 		return hulls != null;
 	}
-	
+
 	/**
 	 * Compute convex hulls for each cluster.
 	 */
@@ -377,9 +339,9 @@ public class OPTICSResult
 				hulls[c.clusterId - 1] = h;
 			else
 			{
-				System.out.printf("No hull: n=%d\n", scratch.n);
-				for (int i = 0; i < scratch.n; i++)
-					System.out.printf("%d: %f,%f\n", i, scratch.x[i], scratch.y[i]);
+				//System.out.printf("No hull: n=%d\n", scratch.n);
+				//for (int i = 0; i < scratch.n; i++)
+				//	System.out.printf("%d: %f,%f\n", i, scratch.x[i], scratch.y[i]);
 			}
 		}
 	}

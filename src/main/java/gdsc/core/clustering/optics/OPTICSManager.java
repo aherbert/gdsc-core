@@ -892,7 +892,7 @@ public class OPTICSManager extends CoordinateStore
 			DBSCANOrder[] dbscanOrder = new DBSCANOrder[size];
 			for (int i = 0; i < size; i++)
 				dbscanOrder[i] = setOfObjects[i].toDBSCANResult();
-			dbscanResult = new DBSCANResult(minPts, generatingDistanceE, dbscanOrder);
+			dbscanResult = new DBSCANResult(this, minPts, generatingDistanceE, dbscanOrder);
 			if (tracker != null)
 			{
 				tracker.log("Finished DBSCAN: " + Utils.pleural(counter.getTotalClusters(), "Cluster"));
