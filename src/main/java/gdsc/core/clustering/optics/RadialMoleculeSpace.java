@@ -39,53 +39,6 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 
 		offset = CircularKernelOffset.create(resolution);
 
-		//		// Show an output mask image for debugging purposes of the region and the internal region.
-		//		byte[] outer = new byte[getNeighbourBlocks(resolution)];
-		//		byte[] inner = new byte[outer.length];
-		//		for (int i = 0, k = 0; i < offset.length; i++)
-		//		{
-		//			for (int j = -resolution; j <= resolution; j++, k++)
-		//			{
-		//				if (j >= offset[i].start && j < offset[i].end)
-		//					outer[k] = (byte) 255;
-		//				if (j >= offset[i].startInternal && j < offset[i].endInternal)
-		//					inner[k] = (byte) 255;
-		//			}
-		//		}
-		//		int w = getNBlocks(resolution);
-		//		// Test for symmetry
-		//		outer: for (int y = 0, k = 0; y < w; y++)
-		//		{
-		//			for (int x = 0; x < w; x++, k++)
-		//			{
-		//				if (outer[k] != outer[x * w + y])
-		//				{
-		//					System.out.println("No outer symmetry");
-		//					break outer;
-		//				}
-		//			}
-		//		}
-		//		outer: for (int y = 0, k = 0; y < w; y++)
-		//		{
-		//			for (int x = 0; x < w; x++, k++)
-		//			{
-		//				if (inner[k] != inner[x * w + y])
-		//				{
-		//					System.out.println("No inner symmetry");
-		//					break outer;
-		//				}
-		//				// Test distance to centre
-		//				if (inner[k] != 0 && distance2(x-resolution, y-resolution, 0, 0) > e)
-		//				{
-		//					System.out.printf("Bad inner: %d,%d\n", x, y);
-		//					//break outer;
-		//				}				
-		//			}
-		//		}
-
-		//Utils.display("outer", new ByteProcessor(w, w, outer));
-		//Utils.display("inner", new ByteProcessor(w, w, inner));
-
 		return m;
 	}
 

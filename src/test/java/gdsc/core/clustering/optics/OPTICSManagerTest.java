@@ -1405,6 +1405,41 @@ public class OPTICSManagerTest
 			int skip = size - outer;
 			System.out.printf("R=%d, outer=%d  %f (%f), Skip=%d  (%f), inner=%d  %f (%f)\n", r, outer, outerArea,
 					outerArea / Math.PI, skip, (double) skip / size, inner, innerArea, innerArea / outerArea);
+
+			// Test for symmetry
+			int w = offset.length;
+			boolean[] outerMask = new boolean[w * w];
+			boolean[] innerMask = new boolean[outerMask.length];
+			for (int i = 0, k = 0; i < offset.length; i++)
+			{
+				for (int j = -r; j <= r; j++, k++)
+				{
+					if (j >= offset[i].start && j < offset[i].end)
+						outerMask[k] = true;
+					if (j >= offset[i].startInternal && j < offset[i].endInternal)
+						innerMask[k] = true;
+				}
+			}
+			for (int y = 0, k = 0; y < w; y++)
+			{
+				for (int x = 0; x < w; x++, k++)
+				{
+					Assert.assertTrue("No outer symmetry", outerMask[k] == outerMask[x * w + y]);
+				}
+			}
+			double e = r * r;
+			for (int y = 0, k = 0; y < w; y++)
+			{
+				for (int x = 0; x < w; x++, k++)
+				{
+					Assert.assertTrue("No inner symmetry", innerMask[k] == innerMask[x * w + y]);
+					// Test distance to centre (r,r)
+					if (innerMask[k])
+					{
+						Assert.assertTrue("Bad inner", Maths.distance2(x, y, r, r) <= e);
+					}
+				}
+			}
 		}
 	}
 
