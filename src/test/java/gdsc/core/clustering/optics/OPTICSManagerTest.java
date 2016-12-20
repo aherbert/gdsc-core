@@ -804,6 +804,40 @@ public class OPTICSManagerTest
 	}
 
 	@Test
+	public void canMatchDBSCANCorePointsWithOPTICS()
+	{
+		for (int n : new int[] { 100, 500 })
+		{
+			OPTICSManager om = createOPTICSManager(size, n);
+			// Keep items in memory for speed during the test
+			om.setOptions(OPTICSManager.Option.CACHE);
+
+			for (int minPts : new int[] { 5, 10 })
+			{
+				// Use default range for OPTICS
+				OPTICSResult r1 = om.optics(0, minPts);
+
+				// Try smaller radius for DBSCAN
+				for (int i = 2; i <= 4; i++)
+				{
+					float d = r1.generatingDistance / i;
+					DBSCANResult r2 = om.dbscan(d, minPts);
+
+					// Now extract core points
+					r1.extractDBSCANClustering(d, true);
+					int[] c1 = r1.getClusters();
+					int[] c2 = r2.getClusters(true);
+
+					remap(c1);
+					remap(c2);
+
+					Assert.assertArrayEquals(c1, c2);
+				}
+			}
+		}
+	}
+
+	@Test
 	public void dBSCANInnerCircularIsFasterWhenDensityIsHigh()
 	{
 		int molecules = 10000;
