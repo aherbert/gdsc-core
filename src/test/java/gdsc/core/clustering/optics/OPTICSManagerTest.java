@@ -812,26 +812,28 @@ public class OPTICSManagerTest
 			// Keep items in memory for speed during the test
 			om.setOptions(OPTICSManager.Option.CACHE);
 
-			for (int minPts : new int[] { 5, 10 })
+			for (int minPts : new int[] { 5, 20 })
 			{
-				// Use default range for OPTICS
-				OPTICSResult r1 = om.optics(0, minPts);
-
-				// Try smaller radius for DBSCAN
-				for (int i = 2; i <= 4; i++)
+				for (float e : new float[] { 0, 4 })
 				{
-					float d = r1.generatingDistance / i;
-					DBSCANResult r2 = om.dbscan(d, minPts);
+					OPTICSResult r1 = om.optics(e, minPts);
 
-					// Now extract core points
-					r1.extractDBSCANClustering(d, true);
-					int[] c1 = r1.getClusters();
-					int[] c2 = r2.getClusters(true);
+					// Try smaller radius for DBSCAN
+					for (int i = 2; i <= 5; i++)
+					{
+						float d = r1.generatingDistance / i;
+						DBSCANResult r2 = om.dbscan(d, minPts);
 
-					remap(c1);
-					remap(c2);
+						// Now extract core points
+						r1.extractDBSCANClustering(d, true);
+						int[] c1 = r1.getClusters();
+						int[] c2 = r2.getClusters(true);
 
-					Assert.assertArrayEquals(c1, c2);
+						remap(c1);
+						remap(c2);
+
+						Assert.assertArrayEquals(c1, c2);
+					}
 				}
 			}
 		}

@@ -459,6 +459,7 @@ public class OPTICSResult implements ClusteringResult
 
 		// Reset cluster Id
 		int clusterId = NOISE;
+		int nextClusterId = NOISE;
 		final OPTICSOrder[] clusterOrderedObjects = opticsResults;
 		// Store the clusters. We use this for processing the convex hull of each cluster.
 		ArrayList<OPTICSCluster> setOfClusters = new ArrayList<OPTICSCluster>();
@@ -478,24 +479,29 @@ public class OPTICSResult implements ClusteringResult
 					// New cluster
 
 					// Record the last cluster
-					if (clusterId != 0)
+					if (nextClusterId != NOISE)
 					{
-						setOfClusters.add(new OPTICSCluster(cstart, cend, clusterId));
+						setOfClusters.add(new OPTICSCluster(cstart, cend, nextClusterId));
 					}
 
-					clusterId++;
+					clusterId = ++nextClusterId;
 					object.clusterId = clusterId;
 
 					cstart = cend = i;
 				}
 				else
 				{
-					// This is noise. It was reset earlier in resetClusterIds(). 
-					//object.clusterId = NOISE;
+					// This is noise. It was reset earlier in resetClusterIds().
+					// Ensure no more objects are assigned to the cluster since we 
+					// have exceeded the generating distance.
+					clusterId = NOISE;
 				}
 			}
 			else
 			{
+				if (clusterId == NOISE)
+					continue;
+				
 				// Extend the current cluster
 				if (core)
 				{
