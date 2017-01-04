@@ -57,11 +57,37 @@ public class Random
 	}
 
 	/**
-	 * Returns a random number between 0 and 1
+	 * Returns a random number between 0 (included) and 1 (excluded)
 	 * 
 	 * @return Random number
 	 */
 	public float next()
+	{
+		return next(RNMX);
+	}
+
+	/**
+	 * Returns a random number between 0 (included) and 1 (optionally included).
+	 *
+	 * @param includeOne
+	 *            set to true to return a value up to 1 inclusive. The default is 1 exclusive.
+	 * @return Random number
+	 */
+	public float next(boolean includeOne)
+	{
+		if (includeOne)
+			return next(1f);
+		return next(RNMX);
+	}
+
+	/**
+	 * Returns a random number between 0 (included) and max.
+	 *
+	 * @param max
+	 *            the max
+	 * @return Random number
+	 */
+	private float next(float max)
 	{
 		int j, k;
 		float temp;
@@ -90,7 +116,7 @@ public class Random
 		j = iy / NDIV;
 		iy = iv[j];
 		iv[j] = idum;
-		return ((temp = AM * iy) > RNMX) ? RNMX : temp;
+		return ((temp = AM * iy) > max) ? max : temp;
 	}
 
 	/**
@@ -120,58 +146,116 @@ public class Random
 			return v1 * multiplier;
 		}
 	}
-	
+
 	/**
 	 * Perform a Fischer-Yates shuffle on the data
+	 * 
 	 * @param data
 	 */
 	public void shuffle(double[] data)
 	{
-		for (int i=data.length; i-- > 1; )
+		for (int i = data.length; i-- > 1;)
 		{
 			int j = (int) (next() * (i + 1));
 			//if (i != j)  // This comparison is probably not worth it
 			//{
-				double tmp = data[i];
-				data[i] = data[j];
-				data[j] = tmp;
+			double tmp = data[i];
+			data[i] = data[j];
+			data[j] = tmp;
 			//}
 		}
 	}
-	
+
 	/**
 	 * Perform a Fischer-Yates shuffle on the data
+	 * 
 	 * @param data
 	 */
 	public void shuffle(float[] data)
 	{
-		for (int i=data.length; i-- > 1; )
+		for (int i = data.length; i-- > 1;)
 		{
 			int j = (int) (next() * (i + 1));
 			//if (i != j)  // This comparison is probably not worth it
 			//{
-				float tmp = data[i];
-				data[i] = data[j];
-				data[j] = tmp;
+			float tmp = data[i];
+			data[i] = data[j];
+			data[j] = tmp;
 			//}
 		}
 	}
-	
+
 	/**
 	 * Perform a Fischer-Yates shuffle on the data
+	 * 
 	 * @param data
 	 */
 	public void shuffle(int[] data)
 	{
-		for (int i=data.length; i-- > 1; )
+		for (int i = data.length; i-- > 1;)
 		{
 			int j = (int) (next() * (i + 1));
 			//if (i != j)  // This comparison is probably not worth it
 			//{
-				int tmp = data[i];
-				data[i] = data[j];
-				data[j] = tmp;
+			int tmp = data[i];
+			data[i] = data[j];
+			data[j] = tmp;
 			//}
+		}
+	}
+
+	/**
+	 * Generate a random integer
+	 *
+	 * @return the integer
+	 */
+	public int nextInt()
+	{
+        return (int) ((2d * next(true) - 1d) * Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Generate a random integer between zero (included) and upper (excluded)
+	 *
+	 * @param upper
+	 *            the upper
+	 * @return the integer
+	 */
+	public int nextInt(int upper)
+	{
+		return (int) (next() * upper);
+	}
+
+	/**
+	 * Generate a random integer between lower and upper (end points included)
+	 *
+	 * @param lower
+	 *            the lower
+	 * @param upper
+	 *            the upper
+	 * @return the integer
+	 */
+	public int nextInt(int lower, int upper)
+	{
+		final int max = (upper - lower) + 1;
+		if (max <= 0)
+		{
+			// The range is too wide to fit in a positive int (larger
+			// than 2^31); as it covers more than half the integer range,
+			// we use a simple rejection method.
+			while (true)
+			{
+				final int r = nextInt();
+				if (r >= lower && r <= upper)
+				{
+					return r;
+				}
+			}
+		}
+		else
+		{
+			// We can shift the range and directly generate a positive int.
+			return lower + nextInt(max);
 		}
 	}
 }
