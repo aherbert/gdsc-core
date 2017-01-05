@@ -12,15 +12,15 @@ public class StoredDataStatisticsTest
 	static StoredDataStatistics stats;
 	static int n = 10000;
 	static int loops = 100;
-	
-	static 
+
+	static
 	{
 		stats = new StoredDataStatistics(n);
 		RandomGenerator rand = new Well19937c();
 		for (int i = 0; i < n; i++)
 			stats.add(rand.nextDouble());
 	}
-	
+
 	@Test
 	public void getValuesEqualsIterator()
 	{
@@ -30,6 +30,40 @@ public class StoredDataStatisticsTest
 		{
 			Assert.assertEquals(d, values[i++], 0);
 		}
+	}
+
+	@SuppressWarnings("unused")
+	//@Test
+	public void forLoopIsSlowerThanValuesIterator()
+	{
+		// This fails. Perhaps change the test to use the TimingService for repeat testing.
+		
+		long start1 = System.nanoTime();
+		for (int i = 0; i < loops; i++)
+		{
+			double total = 0;
+			double[] values = stats.getValues();
+			for (int j = 0; j < values.length; j++)
+			{
+				total += values[j];
+			}
+		}
+		start1 = System.nanoTime() - start1;
+
+		long start2 = System.nanoTime();
+		for (int i = 0; i < loops; i++)
+		{
+			double total = 0; 
+			for (double d : stats.getValues())
+			{
+				total += d;
+			}
+		}
+		start2 = System.nanoTime() - start2;
+
+		log("getValues = %d : values for loop = %d : %fx\n", start1, start2, (1.0 * start2) / start1);
+		if (TestSettings.ASSERT_SPEED_TESTS)
+			Assert.assertTrue(start1 < start2);
 	}
 
 	@SuppressWarnings("unused")
@@ -59,7 +93,6 @@ public class StoredDataStatisticsTest
 			Assert.assertTrue(start1 < start2);
 	}
 
-
 	@SuppressWarnings("unused")
 	@Test
 	public void iteratorIsSlowerUsingDouble()
@@ -86,7 +119,7 @@ public class StoredDataStatisticsTest
 		if (TestSettings.ASSERT_SPEED_TESTS)
 			Assert.assertTrue(start1 < start2);
 	}
-	
+
 	void log(String format, Object... args)
 	{
 		System.out.printf(format, args);
