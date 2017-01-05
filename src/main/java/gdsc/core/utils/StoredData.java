@@ -223,6 +223,33 @@ public class StoredData implements Iterable<Double>, DoubleData
 	}
 
 	/**
+	 * Adds the data to this store.
+	 *
+	 * @param data
+	 *            the data
+	 */
+	public void add(StoredData data)
+	{
+		if (data.n > 0)
+		{
+			checkCapacity(data.n);
+			System.arraycopy(data.values, 0, values, n, data.n);
+		}
+	}
+
+	/**
+	 * Adds the data to this store. Synchronized for thread safety. (Multiple threads must all use the same safeAdd
+	 * method to ensure thread safety.)
+	 *
+	 * @param data
+	 *            the data
+	 */
+	synchronized public void safeAdd(StoredData data)
+	{
+		this.add(data);
+	}
+
+	/**
 	 * Returns a list iterator over the elements in this list (in proper
 	 * sequence).
 	 *
