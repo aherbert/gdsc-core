@@ -33,6 +33,7 @@ import org.apache.commons.math3.util.FastMath;
 
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.StoredDataStatistics;
+import gdsc.core.utils.DoubleData;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -693,11 +694,12 @@ public class Utils
 	}
 
 	/**
-	 * Show a histogram of the data
-	 * 
+	 * Show a histogram of the data.
+	 *
 	 * @param title
 	 *            The title to prepend to the plot name
-	 * @param stats
+	 * @param data
+	 *            the data
 	 * @param name
 	 *            The name of plotted statistic
 	 * @param minWidth
@@ -708,18 +710,19 @@ public class Utils
 	 *            The number of bins to use
 	 * @return The histogram window ID
 	 */
-	public static int showHistogram(String title, StoredDataStatistics stats, String name, double minWidth,
-			int removeOutliers, int bins)
+	public static int showHistogram(String title, DoubleData data, String name, double minWidth, int removeOutliers,
+			int bins)
 	{
-		return showHistogram(title, stats, name, minWidth, removeOutliers, bins, true, null);
+		return showHistogram(title, data, name, minWidth, removeOutliers, bins, true, null);
 	}
 
 	/**
-	 * Show a histogram of the data
-	 * 
+	 * Show a histogram of the data.
+	 *
 	 * @param title
 	 *            The title to prepend to the plot name
-	 * @param stats
+	 * @param data
+	 *            the data
 	 * @param name
 	 *            The name of plotted statistic
 	 * @param minWidth
@@ -732,18 +735,19 @@ public class Utils
 	 *            The label to add
 	 * @return The histogram window ID
 	 */
-	public static int showHistogram(String title, StoredDataStatistics stats, String name, double minWidth,
-			int removeOutliers, int bins, String label)
+	public static int showHistogram(String title, DoubleData data, String name, double minWidth, int removeOutliers,
+			int bins, String label)
 	{
-		return showHistogram(title, stats, name, minWidth, removeOutliers, bins, true, label);
+		return showHistogram(title, data, name, minWidth, removeOutliers, bins, true, label);
 	}
 
 	/**
-	 * Show a histogram of the data
-	 * 
+	 * Show a histogram of the data.
+	 *
 	 * @param title
 	 *            The title to prepend to the plot name
-	 * @param stats
+	 * @param data
+	 *            the data
 	 * @param name
 	 *            The name of plotted statistic
 	 * @param minWidth
@@ -758,10 +762,10 @@ public class Utils
 	 *            The label to add
 	 * @return The histogram window ID
 	 */
-	public static int showHistogram(String title, StoredDataStatistics stats, String name, double minWidth,
-			int removeOutliers, int bins, boolean barChart, String label)
+	public static int showHistogram(String title, DoubleData data, String name, double minWidth, int removeOutliers,
+			int bins, boolean barChart, String label)
 	{
-		double[] values = stats.getValues();
+		double[] values = data.values();
 		// If we have +/- Infinity in here it will break
 		if (values == null || values.length < 2)
 			return 0;
@@ -771,6 +775,7 @@ public class Utils
 		double width;
 		double lower = Double.NaN;
 		double upper = Double.NaN;
+		StoredDataStatistics stats = null;
 
 		if (bins <= 0)
 		{
@@ -778,28 +783,32 @@ public class Utils
 			switch (defaultMethod)
 			{
 				case SCOTT:
-					width = getBinWidthScottsRule(stats.getStandardDeviation(), stats.getN());
+					stats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
+							: new StoredDataStatistics(data.values());
+					width = getBinWidthScottsRule(stats.getStandardDeviation(), stats.size());
 					bins = (int) Math.ceil((limits[1] - limits[0]) / width);
 					break;
 
 				case FD:
+					stats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
+							: new StoredDataStatistics(data.values());
 					lower = stats.getStatistics().getPercentile(25);
 					upper = stats.getStatistics().getPercentile(75);
-					width = getBinWidthFreedmanDiaconisRule(upper, lower, stats.getN());
+					width = getBinWidthFreedmanDiaconisRule(upper, lower, stats.size());
 					bins = (int) Math.ceil((limits[1] - limits[0]) / width);
 					break;
 
 				case STURGES:
-					bins = getBinsSturges(stats.getN());
+					bins = getBinsSturges(data.size());
 					break;
 
 				case SQRT:
 				default:
-					bins = getBinsSqrt(stats.getN());
+					bins = getBinsSqrt(data.size());
 			}
 			// In case of error (N=0, Infinity in the data range) 
 			if (bins == Integer.MAX_VALUE)
-				bins = getBinsSqrt(stats.getN());
+				bins = getBinsSqrt(data.size());
 		}
 		//System.out.printf("Bins = %d\n", bins);
 
@@ -809,6 +818,8 @@ public class Utils
 				// Get the inter quartile range
 				if (Double.isNaN(lower))
 				{
+					stats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
+							: new StoredDataStatistics(data.values());
 					lower = stats.getStatistics().getPercentile(25);
 					upper = stats.getStatistics().getPercentile(75);
 				}
@@ -819,6 +830,9 @@ public class Utils
 
 			case 2:
 				// Remove top 2%
+				if (stats == null)
+					stats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
+							: new StoredDataStatistics(data.values());
 				yMax = stats.getStatistics().getPercentile(98);
 				break;
 
@@ -921,39 +935,43 @@ public class Utils
 	 * Gets the bins.
 	 * <p>
 	 * Based on the MatLab methods.
-	 * 
-	 * @see http://uk.mathworks.com/help/matlab/ref/histogram.html : BinMethod
 	 *
-	 * @param n
-	 *            the number of observations
+	 * @param data
+	 *            the data
 	 * @param method
 	 *            the method
 	 * @return the bins
+	 * @see http://uk.mathworks.com/help/matlab/ref/histogram.html : BinMethod
 	 */
-	public static int getBins(StoredDataStatistics stats, BinMethod method)
+	public static int getBins(DoubleData data, BinMethod method)
 	{
 		double width;
 		double[] limits;
+		StoredDataStatistics stats;
 		switch (method)
 		{
 			case SCOTT:
-				width = getBinWidthScottsRule(stats.getStandardDeviation(), stats.getN());
-				limits = Maths.limits(stats.getValues());
+				stats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
+						: new StoredDataStatistics(data.values());
+				width = getBinWidthScottsRule(stats.getStandardDeviation(), stats.size());
+				limits = Maths.limits(stats.values());
 				return (int) Math.ceil((limits[1] - limits[0]) / width);
 
 			case FD:
+				stats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
+						: new StoredDataStatistics(data.values());
 				double lower = stats.getStatistics().getPercentile(25);
 				double upper = stats.getStatistics().getPercentile(75);
-				width = getBinWidthFreedmanDiaconisRule(upper, lower, stats.getN());
-				limits = Maths.limits(stats.getValues());
+				width = getBinWidthFreedmanDiaconisRule(upper, lower, stats.size());
+				limits = Maths.limits(stats.values());
 				return (int) Math.ceil((limits[1] - limits[0]) / width);
 
 			case STURGES:
-				return getBinsSturges(stats.getN());
+				return getBinsSturges(data.size());
 
 			case SQRT:
 			default:
-				return getBinsSqrt(stats.getN());
+				return getBinsSqrt(data.size());
 		}
 	}
 
@@ -1926,7 +1944,7 @@ public class Utils
 		greens[i] = (byte) (g & 255);
 		blues[i] = (byte) (b & 255);
 	}
-	
+
 	/**
 	 * Create a colour LUT so that all colours from 1-255 are distinct.
 	 * 

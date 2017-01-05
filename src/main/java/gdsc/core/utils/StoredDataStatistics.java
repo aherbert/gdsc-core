@@ -21,7 +21,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 /**
  * Calculate the mean and standard deviation of data. Stores the data for later retrieval.
  */
-public class StoredDataStatistics extends Statistics implements Iterable<Double>
+public class StoredDataStatistics extends Statistics implements Iterable<Double>, DoubleData
 {
 	private double[] values = new double[0];
 	private DescriptiveStatistics stats = null;
@@ -358,5 +358,25 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		{
 			throw new UnsupportedOperationException("remove");
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.DoubleData#size()
+	 */
+	public int size()
+	{
+		return n;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.DoubleData#values()
+	 */
+	public double[] values()
+	{
+		return getValues();
 	}
 }

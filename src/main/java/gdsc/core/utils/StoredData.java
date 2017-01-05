@@ -19,7 +19,7 @@ import java.util.Iterator;
 /**
  * Expandable store for data backed by a double array
  */
-public class StoredData implements Iterable<Double>
+public class StoredData implements Iterable<Double>, DoubleData
 {
 	private double[] values = new double[0];
 	private int n = 0;
@@ -266,5 +266,25 @@ public class StoredData implements Iterable<Double>
 		{
 			throw new UnsupportedOperationException("remove");
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.DoubleData#size()
+	 */
+	public int size()
+	{
+		return n;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.DoubleData#values()
+	 */
+	public double[] values()
+	{
+		return getValues();
 	}
 }
