@@ -255,7 +255,7 @@ public class StoredData implements Iterable<Double>, DoubleData
 			//int i = cursor;
 			//if (i >= n)
 			//	throw new NoSuchElementException();
-			//final double[] elementData = StoredDataStatistics.this.values;
+			//final double[] elementData = StoredData.this.values;
 			//if (i >= elementData.length)
 			//	throw new ConcurrentModificationException();
 			//cursor = i + 1;
