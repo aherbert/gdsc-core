@@ -3,30 +3,27 @@ package ags.utils.dataStructures.trees.secondGenKD;
 /**
  * Class for tracking up to 'size' closest values
  */
-public class ResultHeap
+public class FloatHeap
 {
-	final Object[] data;
-	final double[] distance;
+	final float[] distance;
 	private final int size;
 	int values;
 	public Object removedData;
-	public double removedDist;
+	public float removedDist;
 
-	public ResultHeap(int size)
+	public FloatHeap(int size)
 	{
-		this.data = new Object[size];
-		this.distance = new double[size];
+		this.distance = new float[size];
 		this.size = size;
 		this.values = 0;
 	}
 
-	public void addValue(double dist, Object value)
+	public void addValue(float dist)
 	{
 		// If there is still room in the heap
 		if (values < size)
 		{
 			// Insert new value at the end
-			data[values] = value;
 			distance[values] = dist;
 			upHeapify(values);
 			values++;
@@ -36,7 +33,6 @@ public class ResultHeap
 		else if (dist < distance[0])
 		{
 			// Replace the max entry with the new entry
-			data[0] = value;
 			distance[0] = dist;
 			downHeapify(0);
 		}
@@ -49,10 +45,8 @@ public class ResultHeap
 			throw new IllegalStateException();
 		}
 
-		removedData = data[0];
 		removedDist = distance[0];
 		values--;
-		data[0] = data[values];
 		distance[0] = distance[values];
 		downHeapify(0);
 	}
@@ -61,11 +55,8 @@ public class ResultHeap
 	{
 		for (int p = (c - 1) / 2; c != 0 && distance[c] > distance[p]; c = p, p = (c - 1) / 2)
 		{
-			Object pData = data[p];
-			double pDist = distance[p];
-			data[p] = data[c];
+			float pDist = distance[p];
 			distance[p] = distance[c];
-			data[c] = pData;
 			distance[c] = pDist;
 		}
 	}
@@ -81,11 +72,8 @@ public class ResultHeap
 			if (distance[p] < distance[c])
 			{
 				// Swap the points
-				Object pData = data[p];
-				double pDist = distance[p];
-				data[p] = data[c];
+				float pDist = distance[p];
 				distance[p] = distance[c];
-				data[c] = pData;
 				distance[c] = pDist;
 			}
 			else
@@ -95,11 +83,11 @@ public class ResultHeap
 		}
 	}
 
-	public double getMaxDist()
+	public float getMaxDist()
 	{
 		if (values < size)
 		{
-			return Double.POSITIVE_INFINITY;
+			return Float.POSITIVE_INFINITY;
 		}
 		return distance[0];
 	}

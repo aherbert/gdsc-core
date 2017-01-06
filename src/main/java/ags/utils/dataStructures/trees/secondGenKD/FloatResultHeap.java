@@ -3,7 +3,7 @@ package ags.utils.dataStructures.trees.secondGenKD;
 /**
  * Class for tracking up to 'size' closest values
  */
-class FloatResultHeap
+public class FloatResultHeap
 {
 	final Object[] data;
 	final float[] distance;
