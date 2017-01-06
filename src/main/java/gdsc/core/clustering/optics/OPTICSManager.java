@@ -19,14 +19,12 @@ import java.util.EnumSet;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.sun.jdi.Location;
 
 import ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D;
 import gdsc.core.clustering.CoordinateStore;
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.Maths;
-import gdsc.core.utils.Random;
 
 /**
  * Compute clustering using OPTICS.
