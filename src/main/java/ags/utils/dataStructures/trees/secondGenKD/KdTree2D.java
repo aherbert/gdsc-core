@@ -21,41 +21,18 @@
 package ags.utils.dataStructures.trees.secondGenKD;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
  * An efficient well-optimized kd-tree
+ * <p>
+ * This is a basic copy of the KdTree class but limited to 2 dimensions. Functionality to limit the tree size has been
+ * removed.
  * 
- * @author Rednaxela
+ * @author Alex Herbert
  */
-public abstract class KdTree<T> extends KdTreeNode<T>
+public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 {
-	// Root only
-	private final LinkedList<double[]> locationStack;
-	private final Integer sizeLimit;
-
-	/**
-	 * Construct a RTree with a given number of dimensions and a limit on
-	 * maxiumum size (after which it throws away old points)
-	 */
-	private KdTree(int dimensions, Integer sizeLimit)
-	{
-		super(dimensions);
-
-		// Init as root
-		this.sizeLimit = sizeLimit;
-		if (sizeLimit != null)
-		{
-			this.locationStack = new LinkedList<double[]>();
-		}
-		else
-		{
-			this.locationStack = null;
-		}
-	}
-
 	/**
 	 * Get the number of points in the tree
 	 */
@@ -69,7 +46,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 	 */
 	public void addPoint(double[] location, T value)
 	{
-		KdTreeNode<T> cursor = this;
+		KdTreeNode2D<T> cursor = this;
 
 		while (cursor.locations == null || cursor.locationCount >= cursor.locations.length)
 		{
@@ -114,8 +91,8 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 				}
 
 				// Create child leaves
-				KdTreeNode<T> left = new ChildNode(cursor, false);
-				KdTreeNode<T> right = new ChildNode(cursor, true);
+				KdTreeNode2D<T> left = new ChildNode(cursor, false);
+				KdTreeNode2D<T> right = new ChildNode(cursor, true);
 
 				// Move locations into children
 				for (int i = 0; i < cursor.locationCount; i++)
@@ -164,57 +141,6 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 		cursor.data[cursor.locationCount] = value;
 		cursor.locationCount++;
 		cursor.extendBounds(location);
-
-		if (this.sizeLimit != null)
-		{
-			this.locationStack.add(location);
-			if (this.locationCount > this.sizeLimit)
-			{
-				this.removeOld();
-			}
-		}
-	}
-
-	/**
-	 * Remove the oldest value from the tree. Note: This cannot trim the bounds
-	 * of nodes, nor empty nodes, and thus you can't expect it to perfectly
-	 * preserve the speed of the tree as you keep adding.
-	 */
-	private void removeOld()
-	{
-		double[] location = this.locationStack.removeFirst();
-		KdTreeNode<T> cursor = this;
-
-		// Find the node where the point is
-		while (cursor.locations == null)
-		{
-			if (location[cursor.splitDimension] > cursor.splitValue)
-			{
-				cursor = cursor.right;
-			}
-			else
-			{
-				cursor = cursor.left;
-			}
-		}
-
-		for (int i = 0; i < cursor.locationCount; i++)
-		{
-			if (cursor.locations[i] == location)
-			{
-				System.arraycopy(cursor.locations, i + 1, cursor.locations, i, cursor.locationCount - i - 1);
-				cursor.locations[cursor.locationCount - 1] = null;
-				System.arraycopy(cursor.data, i + 1, cursor.data, i, cursor.locationCount - i - 1);
-				cursor.data[cursor.locationCount - 1] = null;
-				do
-				{
-					cursor.locationCount--;
-					cursor = cursor.parent;
-				} while (cursor.parent != null);
-				return;
-			}
-		}
-		// If we got here... we couldn't find the value to remove. Weird...
 	}
 
 	/**
@@ -238,7 +164,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 	@SuppressWarnings("unchecked")
 	public List<Entry<T>> nearestNeighbor(double[] location, int count, boolean sequentialSorting)
 	{
-		KdTreeNode<T> cursor = this;
+		KdTreeNode2D<T> cursor = this;
 		cursor.status = Status.NONE;
 		double range = Double.POSITIVE_INFINITY;
 		ResultHeap resultHeap = new ResultHeap(count);
@@ -288,7 +214,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 			}
 
 			// Going to descend
-			KdTreeNode<T> nextCursor = null;
+			KdTreeNode2D<T> nextCursor = null;
 			if (cursor.status == Status.NONE)
 			{
 				// At a fresh node, descend the most probably useful direction
@@ -353,13 +279,13 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 
 		return results;
 	}
-	
+
 	/**
 	 * Internal class for child nodes
 	 */
-	private class ChildNode extends KdTreeNode<T>
+	private class ChildNode extends KdTreeNode2D<T>
 	{
-		private ChildNode(KdTreeNode<T> parent, boolean right)
+		private ChildNode(KdTreeNode2D<T> parent, boolean right)
 		{
 			super(parent, right);
 		}
@@ -377,137 +303,14 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 	}
 
 	/**
-	 * Class for tree with Weighted Squared Euclidean distancing
-	 */
-	public static class WeightedSqrEuclid<T> extends KdTree<T>
-	{
-		private double[] weights;
-
-		public WeightedSqrEuclid(int dimensions, Integer sizeLimit)
-		{
-			super(dimensions, sizeLimit);
-			this.weights = new double[dimensions];
-			Arrays.fill(this.weights, 1.0);
-		}
-
-		public void setWeights(double[] weights)
-		{
-			this.weights = weights;
-		}
-
-		protected double getAxisWeightHint(int i)
-		{
-			return weights[i];
-		}
-
-		protected double pointDist(double[] p1, double[] p2)
-		{
-			double d = 0;
-
-			for (int i = 0; i < p1.length; i++)
-			{
-				double diff = (p1[i] - p2[i]) * weights[i];
-				if (!Double.isNaN(diff))
-				{
-					d += diff * diff;
-				}
-			}
-
-			return d;
-		}
-
-		protected double pointRegionDist(double[] point, double[] min, double[] max)
-		{
-			double d = 0;
-
-			for (int i = 0; i < point.length; i++)
-			{
-				double diff = 0;
-				if (point[i] > max[i])
-				{
-					diff = (point[i] - max[i]) * weights[i];
-				}
-				else if (point[i] < min[i])
-				{
-					diff = (point[i] - min[i]) * weights[i];
-				}
-
-				if (!Double.isNaN(diff))
-				{
-					d += diff * diff;
-				}
-			}
-
-			return d;
-		}
-	}
-
-	/**
-	 * Class for tree with Unweighted Squared Euclidean distancing
-	 */
-	public static class SqrEuclid<T> extends KdTree<T>
-	{
-		public SqrEuclid(int dimensions, Integer sizeLimit)
-		{
-			super(dimensions, sizeLimit);
-		}
-
-		protected double pointDist(double[] p1, double[] p2)
-		{
-			double d = 0;
-
-			for (int i = 0; i < p1.length; i++)
-			{
-				double diff = (p1[i] - p2[i]);
-				if (!Double.isNaN(diff))
-				{
-					d += diff * diff;
-				}
-			}
-
-			return d;
-		}
-
-		protected double pointRegionDist(double[] point, double[] min, double[] max)
-		{
-			double d = 0;
-
-			for (int i = 0; i < point.length; i++)
-			{
-				double diff = 0;
-				if (point[i] > max[i])
-				{
-					diff = (point[i] - max[i]);
-				}
-				else if (point[i] < min[i])
-				{
-					diff = (point[i] - min[i]);
-				}
-
-				if (!Double.isNaN(diff))
-				{
-					d += diff * diff;
-				}
-			}
-
-			return d;
-		}
-	}
-
-	/**
 	 * Class for tree with Unweighted Squared Euclidean distancing assuming 2 dimensions with no NaN distance checking
 	 * <p>
 	 * This is an optimised version for use in the GDSC Core project.
 	 * 
 	 * @author Alex Herbert
 	 */
-	public static class SqrEuclid2D<T> extends KdTree<T>
+	public static class SqrEuclid2D<T> extends KdTree2D<T>
 	{
-		public SqrEuclid2D(Integer sizeLimit)
-		{
-			super(2, sizeLimit);
-		}
-
 		protected double pointDist(double[] p1, double[] p2)
 		{
 			double dx = p1[0] - p2[0];
@@ -520,124 +323,6 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 			double dx = (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? point[0] - min[0] : 0;
 			double dy = (point[1] > max[1]) ? point[1] - max[1] : (point[1] < min[1]) ? point[1] - min[1] : 0;
 			return dx * dx + dy * dy;
-		}
-	}
-
-	/**
-	 * Class for tree with Weighted Manhattan distancing
-	 */
-	public static class WeightedManhattan<T> extends KdTree<T>
-	{
-		private double[] weights;
-
-		public WeightedManhattan(int dimensions, Integer sizeLimit)
-		{
-			super(dimensions, sizeLimit);
-			this.weights = new double[dimensions];
-			Arrays.fill(this.weights, 1.0);
-		}
-
-		public void setWeights(double[] weights)
-		{
-			this.weights = weights;
-		}
-
-		protected double getAxisWeightHint(int i)
-		{
-			return weights[i];
-		}
-
-		protected double pointDist(double[] p1, double[] p2)
-		{
-			double d = 0;
-
-			for (int i = 0; i < p1.length; i++)
-			{
-				double diff = (p1[i] - p2[i]);
-				if (!Double.isNaN(diff))
-				{
-					d += ((diff < 0) ? -diff : diff) * weights[i];
-				}
-			}
-
-			return d;
-		}
-
-		protected double pointRegionDist(double[] point, double[] min, double[] max)
-		{
-			double d = 0;
-
-			for (int i = 0; i < point.length; i++)
-			{
-				double diff = 0;
-				if (point[i] > max[i])
-				{
-					diff = (point[i] - max[i]);
-				}
-				else if (point[i] < min[i])
-				{
-					diff = (min[i] - point[i]);
-				}
-
-				if (!Double.isNaN(diff))
-				{
-					d += diff * weights[i];
-				}
-			}
-
-			return d;
-		}
-	}
-
-	/**
-	 * Class for tree with Manhattan distancing
-	 */
-	public static class Manhattan<T> extends KdTree<T>
-	{
-		public Manhattan(int dimensions, Integer sizeLimit)
-		{
-			super(dimensions, sizeLimit);
-		}
-
-		protected double pointDist(double[] p1, double[] p2)
-		{
-			double d = 0;
-
-			for (int i = 0; i < p1.length; i++)
-			{
-				double diff = (p1[i] - p2[i]);
-				if (!Double.isNaN(diff))
-				{
-					d += (diff < 0) ? -diff : diff;
-				}
-			}
-
-			return d;
-		}
-
-		protected double pointRegionDist(double[] point, double[] min, double[] max)
-		{
-			double d = 0;
-
-			for (int i = 0; i < point.length; i++)
-			{
-				double diff = 0;
-				if (point[i] > max[i])
-				{
-					diff = (point[i] - max[i]);
-				}
-				else if (point[i] < min[i])
-				{
-					diff = (min[i] - point[i]);
-				}
-
-				if (!Double.isNaN(diff))
-				{
-					d += diff;
-				}
-			}
-
-			return d;
 		}
 	}
 }

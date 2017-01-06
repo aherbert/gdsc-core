@@ -7,13 +7,13 @@ import ags.utils.dataStructures.MinHeap;
 /**
  *
  */
-public class KdTree<T> extends KdNode<T> {
-    public KdTree(int dimensions) {
-        this(dimensions, 24);
+public abstract class KdTree<T> extends KdNode<T> {
+    public KdTree() {
+        super(24);
     }
 
-    public KdTree(int dimensions, int bucketCapacity) {
-        super(dimensions, bucketCapacity);
+    public KdTree(int bucketCapacity) {
+        super(bucketCapacity);
     }
 
     public NearestNeighborIterator<T> getNearestNeighborIterator(double[] searchPoint, int maxPointsReturned, DistanceFunction distanceFunction) {

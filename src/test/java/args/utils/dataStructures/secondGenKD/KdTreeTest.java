@@ -1,0 +1,499 @@
+package args.utils.dataStructures.secondGenKD;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Assert;
+
+/*----------------------------------------------------------------------------- 
+ * GDSC ImageJ Software
+ * 
+ * Copyright (C) 2017 Alex Herbert
+ * Genome Damage and Stability Centre
+ * University of Sussex, UK
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *---------------------------------------------------------------------------*/
+
+import org.junit.Test;
+
+import ags.utils.dataStructures.MaxHeap;
+import ags.utils.dataStructures.trees.secondGenKD.KdTree.Entry;
+import ags.utils.dataStructures.trees.thirdGenKD.DistanceFunction;
+import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction2D;
+import gdsc.core.ij.Utils;
+import gdsc.core.test.BaseTimingTask;
+import gdsc.core.test.TimingService;
+import gdsc.core.utils.Maths;
+import gdsc.core.utils.PartialSort;
+import gdsc.core.utils.Random;
+
+public class KdTreeTest
+{
+	private gdsc.core.utils.Random rand = new Random(30051977);
+
+	int size = 256;
+	int[] N = new int[] { 100, 200, 400, 2000 };
+	int[] K = new int[] { 2, 4, 8, 16 };
+
+	@Test
+	public void canComputeKNNSecondGen()
+	{
+		for (int n : N)
+		{
+			double[][] data = createData(size, n, false);
+
+			// Create the KDtree
+			ags.utils.dataStructures.trees.secondGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.secondGenKD.KdTree.SqrEuclid2D<Object>(
+					null);
+			for (double[] location : data)
+				tree.addPoint(location, null);
+
+			// Compute all-vs-all distances
+			double[][] d = new double[n][n];
+			for (int i = 0; i < n; i++)
+				for (int j = i + 1; j < n; j++)
+				{
+					d[i][j] = d[j][i] = Maths.distance2(data[i][0], data[i][1], data[j][0], data[j][1]);
+				}
+
+			// For each point
+			for (int i = 0; i < n; i++)
+			{
+				// Get the sorted distances to neighbours
+				double[] d2 = PartialSort.bottom(d[i], K[K.length - 1]);
+
+				// Get the KNN
+				for (int k : K)
+				{
+					List<Entry<Object>> neighbours = tree.nearestNeighbor(data[i], k, true);
+					double[] observed = new double[k];
+					// Neighbours will be in reverse order
+					int j = k;
+					for (Entry<Object> e : neighbours)
+					{
+						observed[--j] = e.distance;
+					}
+
+					double[] expected = Arrays.copyOf(d2, k);
+					//System.out.printf("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//		Arrays.toString(observed));
+
+					Assert.assertArrayEquals(expected, observed, 0);
+				}
+			}
+		}
+	}
+
+	@Test
+	public void canComputeKNNSecondGenWithDuplicates()
+	{
+		for (int n : N)
+		{
+			double[][] data = createData(size, n, true);
+
+			// Create the KDtree
+			ags.utils.dataStructures.trees.secondGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.secondGenKD.KdTree.SqrEuclid2D<Object>(
+					null);
+			for (double[] location : data)
+				tree.addPoint(location, null);
+
+			// Compute all-vs-all distances
+			double[][] d = new double[n][n];
+			for (int i = 0; i < n; i++)
+				for (int j = i + 1; j < n; j++)
+				{
+					d[i][j] = d[j][i] = Maths.distance2(data[i][0], data[i][1], data[j][0], data[j][1]);
+				}
+
+			// For each point
+			for (int i = 0; i < n; i++)
+			{
+				// Get the sorted distances to neighbours
+				double[] d2 = PartialSort.bottom(d[i], K[K.length - 1]);
+
+				// Get the KNN
+				for (int k : K)
+				{
+					List<Entry<Object>> neighbours = tree.nearestNeighbor(data[i], k, true);
+					double[] observed = new double[k];
+					// Neighbours will be in reverse order
+					int j = k;
+					for (Entry<Object> e : neighbours)
+					{
+						observed[--j] = e.distance;
+					}
+
+					double[] expected = Arrays.copyOf(d2, k);
+					//System.out.printf("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//		Arrays.toString(observed));
+
+					Assert.assertArrayEquals(expected, observed, 0);
+				}
+			}
+		}
+	}
+
+	@Test
+	public void canComputeKNNDistanceSecondGen()
+	{
+		for (int n : N)
+		{
+			double[][] data = createData(size, n, true);
+
+			// Create the KDtree
+			ags.utils.dataStructures.trees.secondGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.secondGenKD.KdTree.SqrEuclid2D<Object>(
+					null);
+			for (double[] location : data)
+				tree.addPoint(location, null);
+
+			// Compute all-vs-all distances
+			double[][] d = new double[n][n];
+			for (int i = 0; i < n; i++)
+				for (int j = i + 1; j < n; j++)
+				{
+					d[i][j] = d[j][i] = Maths.distance2(data[i][0], data[i][1], data[j][0], data[j][1]);
+				}
+
+			// For each point
+			for (int i = 0; i < n; i++)
+			{
+				// Get the sorted distances to neighbours
+				double[] d2 = PartialSort.bottom(d[i], K[K.length - 1]);
+
+				// Get the KNN
+				for (int k : K)
+				{
+					List<Entry<Object>> neighbours = tree.nearestNeighbor(data[i], k, false);
+
+					Assert.assertEquals(d2[k - 1], neighbours.get(0).distance, 0);
+				}
+			}
+		}
+	}
+
+	@Test
+	public void canComputeKNNThirdGen()
+	{
+		for (int n : N)
+		{
+			double[][] data = createData(size, n, false);
+
+			// Create the KDtree
+			ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object> tree = new ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object>(
+					2);
+			for (double[] location : data)
+				tree.addPoint(location, null);
+
+			// Compute all-vs-all distances
+			double[][] d = new double[n][n];
+			for (int i = 0; i < n; i++)
+				for (int j = i + 1; j < n; j++)
+				{
+					d[i][j] = d[j][i] = Maths.distance2(data[i][0], data[i][1], data[j][0], data[j][1]);
+				}
+
+			// For each point
+			for (int i = 0; i < n; i++)
+			{
+				// Get the sorted distances to neighbours
+				double[] d2 = PartialSort.bottom(d[i], K[K.length - 1]);
+
+				// Get the KNN
+				for (int k : K)
+				{
+					MaxHeap<Object> neighbours = tree.findNearestNeighbors(data[i], k,
+							new SquareEuclideanDistanceFunction2D());
+					double[] observed = new double[k];
+					// Neighbours will be in reverse order
+					int j = k;
+					while (neighbours.size() > 0)
+					{
+						observed[--j] = neighbours.getMaxKey();
+						neighbours.removeMax();
+					}
+
+					double[] expected = Arrays.copyOf(d2, k);
+					//System.out.printf("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//		Arrays.toString(observed));
+
+					Assert.assertArrayEquals(expected, observed, 0);
+				}
+			}
+		}
+	}
+
+	@Test
+	public void canComputeKNNThirdGenWithDuplicates()
+	{
+		for (int n : N)
+		{
+			double[][] data = createData(size, n, true);
+
+			// Create the KDtree
+			ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object> tree = new ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object>(
+					2);
+			for (double[] location : data)
+				tree.addPoint(location, null);
+
+			// Compute all-vs-all distances
+			double[][] d = new double[n][n];
+			for (int i = 0; i < n; i++)
+				for (int j = i + 1; j < n; j++)
+				{
+					d[i][j] = d[j][i] = Maths.distance2(data[i][0], data[i][1], data[j][0], data[j][1]);
+				}
+
+			// For each point
+			for (int i = 0; i < n; i++)
+			{
+				// Get the sorted distances to neighbours
+				double[] d2 = PartialSort.bottom(d[i], K[K.length - 1]);
+
+				// Get the KNN
+				for (int k : K)
+				{
+					MaxHeap<Object> neighbours = tree.findNearestNeighbors(data[i], k,
+							new SquareEuclideanDistanceFunction2D());
+					double[] observed = new double[k];
+					// Neighbours will be in reverse order
+					int j = k;
+					while (neighbours.size() > 0)
+					{
+						observed[--j] = neighbours.getMaxKey();
+						neighbours.removeMax();
+					}
+
+					double[] expected = Arrays.copyOf(d2, k);
+					//System.out.printf("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//		Arrays.toString(observed));
+
+					Assert.assertArrayEquals(expected, observed, 0);
+				}
+			}
+		}
+	}
+
+	@Test
+	public void canComputeKNNDistanceThirdGen()
+	{
+		for (int n : N)
+		{
+			double[][] data = createData(size, n, true);
+
+			// Create the KDtree
+			ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object> tree = new ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object>(
+					2);
+			for (double[] location : data)
+				tree.addPoint(location, null);
+
+			// Compute all-vs-all distances
+			double[][] d = new double[n][n];
+			for (int i = 0; i < n; i++)
+				for (int j = i + 1; j < n; j++)
+				{
+					d[i][j] = d[j][i] = Maths.distance2(data[i][0], data[i][1], data[j][0], data[j][1]);
+				}
+
+			// For each point
+			for (int i = 0; i < n; i++)
+			{
+				// Get the sorted distances to neighbours
+				double[] d2 = PartialSort.bottom(d[i], K[K.length - 1]);
+
+				// Get the KNN
+				for (int k : K)
+				{
+					MaxHeap<Object> neighbours = tree.findNearestNeighbors(data[i], k,
+							new SquareEuclideanDistanceFunction2D());
+
+					Assert.assertEquals(d2[k - 1], neighbours.getMaxKey(), 0);
+				}
+			}
+		}
+	}
+
+	private abstract class NNTimingTask extends BaseTimingTask
+	{
+		double[][] data;
+		double[] expected;
+
+		public NNTimingTask(String name, double[][] data, double[] expected)
+		{
+			super(name);
+			this.data = data;
+			this.expected = expected;
+		}
+
+		public int getSize()
+		{
+			return 1;
+		}
+
+		public Object getData(int i)
+		{
+			return data;
+		}
+
+		public void check(int i, Object result)
+		{
+			double[] observed = (double[]) result;
+			Assert.assertArrayEquals(expected, observed, 0);
+		}
+	}
+
+	@Test
+	public void secondGenIsFasterThanThirdGen()
+	{
+		TimingService ts = new TimingService(15);
+		int n = 5000;
+		double[][] data = createData(size, n, true);
+		final int k = 4;
+
+		long time = System.nanoTime();
+		double[] expected = new double[n];
+		double[][] d = new double[n][n];
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = i + 1; j < n; j++)
+			{
+				d[i][j] = d[j][i] = Maths.distance2(data[i][0], data[i][1], data[j][0], data[j][1]);
+			}
+		}
+		for (int i = 0; i < n; i++)
+			// Get the sorted distances to neighbours
+			expected[i] = PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, d[i], n, k)[0];
+		time = System.nanoTime() - time;
+
+		ts.execute(new NNTimingTask("Second", data, expected)
+		{
+			public Object run(Object oData)
+			{
+				ags.utils.dataStructures.trees.secondGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.secondGenKD.KdTree.SqrEuclid2D<Object>( 
+						null);
+				double[][] data = (double[][]) oData;
+				for (double[] location : data)
+					tree.addPoint(location, null);
+				double[] o = new double[data.length];
+				for (int i = 0; i < data.length; i++)
+				{
+					o[i] = tree.nearestNeighbor(data[i], k, false).get(0).distance;
+				}
+				return o;
+			}
+		});
+
+		ts.execute(new NNTimingTask("Second2D", data, expected)
+		{
+			public Object run(Object oData)
+			{
+				ags.utils.dataStructures.trees.secondGenKD.KdTree2D<Object> tree = new ags.utils.dataStructures.trees.secondGenKD.KdTree2D.SqrEuclid2D<Object>();
+				double[][] data = (double[][]) oData;
+				for (double[] location : data)
+					tree.addPoint(location, null);
+				double[] o = new double[data.length];
+				for (int i = 0; i < data.length; i++)
+				{
+					o[i] = tree.nearestNeighbor(data[i], k, false).get(0).distance;
+				}
+				return o;
+			}
+		});
+
+		ts.execute(new NNTimingTask("SecondSimple2D", data, expected)
+		{
+			public Object run(Object oData)
+			{
+				ags.utils.dataStructures.trees.secondGenKD.SimpleKdTree2D tree = new ags.utils.dataStructures.trees.secondGenKD.SimpleKdTree2D.SqrEuclid2D();
+				double[][] data = (double[][]) oData;
+				for (double[] location : data)
+					tree.addPoint(location);
+				double[] o = new double[data.length];
+				for (int i = 0; i < data.length; i++)
+				{
+					o[i] = tree.nearestNeighbor(data[i], k, false).get(0).distance;
+				}
+				return o;
+			}
+		});
+
+		ts.execute(new NNTimingTask("Third", data, expected)
+		{
+			public Object run(Object oData)
+			{
+				ags.utils.dataStructures.trees.thirdGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.thirdGenKD.KdTreeND<Object>(
+						2);
+				double[][] data = (double[][]) oData;
+				for (double[] location : data)
+					tree.addPoint(location, null);
+				DistanceFunction distanceFunction = new SquareEuclideanDistanceFunction2D();
+				double[] o = new double[data.length];
+				for (int i = 0; i < data.length; i++)
+				{
+					o[i] = tree.findNearestNeighbors(data[i], k, distanceFunction).getMaxKey();
+				}
+				return o;
+			}
+		});
+
+		ts.execute(new NNTimingTask("Third2D", data, expected)
+		{
+			public Object run(Object oData)
+			{
+				ags.utils.dataStructures.trees.thirdGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object>();
+				double[][] data = (double[][]) oData;
+				for (double[] location : data)
+					tree.addPoint(location, null);
+				DistanceFunction distanceFunction = new SquareEuclideanDistanceFunction2D();
+				double[] o = new double[data.length];
+				for (int i = 0; i < data.length; i++)
+				{
+					o[i] = tree.findNearestNeighbors(data[i], k, distanceFunction).getMaxKey();
+				}
+				return o;
+			}
+		});
+
+		ts.check();
+		int number = ts.getSize(); 
+		ts.repeat(number);
+		ts.repeat(number);
+		
+		System.out.printf("All-vs-all = %d\n", time);
+		ts.report();
+		
+		// No assertions are made since the timings are similar
+	}
+
+	private double[][] createData(int size, int n, boolean allowDuplicates)
+	{
+		double[][] data = new double[n][];
+		if (allowDuplicates)
+		{
+			int half = n / 2;
+			for (int i = half; i < n; i++)
+			{
+				data[i] = new double[] { rand.next() * size, rand.next() * size };
+			}
+			for (int i = 0, j = half; i < half; i++, j++)
+			{
+				data[i] = data[j];
+			}
+		}
+		else
+		{
+			double[] x = Utils.newArray(n, 0, (double) size / n);
+			double[] y = x.clone();
+			rand.shuffle(x);
+			rand.shuffle(y);
+			for (int i = 0; i < n; i++)
+			{
+				data[i] = new double[] { x[i], y[i] };
+			}
+		}
+		return data;
+	}
+}

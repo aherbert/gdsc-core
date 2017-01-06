@@ -5,9 +5,8 @@ import java.util.Arrays;
 /**
  *
  */
-class KdNode<T> {
+abstract class KdNode<T> {
     // All types
-    protected int dimensions;
     protected int bucketCapacity;
     protected int size;
 
@@ -24,9 +23,8 @@ class KdNode<T> {
     protected double[] minBound, maxBound;
     protected boolean singlePoint;
 
-    protected KdNode(int dimensions, int bucketCapacity) {
+    protected KdNode(int bucketCapacity) {
         // Init base
-        this.dimensions = dimensions;
         this.bucketCapacity = bucketCapacity;
         this.size = 0;
         this.singlePoint = true;
@@ -38,6 +36,8 @@ class KdNode<T> {
 
     /* -------- SIMPLE GETTERS -------- */
 
+    public abstract int getDimensions();
+    
     public int size() {
         return size;
     }
@@ -86,7 +86,7 @@ class KdNode<T> {
 
     @SuppressWarnings("unused")
 	private boolean checkBounds(double[] point) {
-        for (int i = 0; i < dimensions; i++) {
+        for (int i = getDimensions(); i-- > 0; ) {
             if (point[i] > maxBound[i]) return false;
             if (point[i] < minBound[i]) return false;
         }
@@ -95,12 +95,12 @@ class KdNode<T> {
 
     private void extendBounds(double[] point) {
         if (minBound == null) {
-            minBound = Arrays.copyOf(point, dimensions);
-            maxBound = Arrays.copyOf(point, dimensions);
+            minBound = Arrays.copyOf(point, getDimensions());
+            maxBound = Arrays.copyOf(point, getDimensions());
             return;
         }
 
-        for (int i = 0; i < dimensions; i++) {
+        for (int i = getDimensions(); i-- > 0; ) {
             if (Double.isNaN(point[i])) {
                 if (!Double.isNaN(minBound[i]) || !Double.isNaN(maxBound[i])) {
                     singlePoint = false;
@@ -128,7 +128,7 @@ class KdNode<T> {
         if (singlePoint) return false;
 
         double width = 0;
-        for (int i = 0; i < dimensions; i++) {
+        for (int i = getDimensions(); i-- > 0; ) {
             double dwidth = (maxBound[i] - minBound[i]);
             if (Double.isNaN(dwidth)) dwidth = 0;
             if (dwidth > width) {
@@ -164,8 +164,8 @@ class KdNode<T> {
 
     @SuppressWarnings("unchecked")
 	private void splitLeafNode() {
-        right = new KdNode<T>(dimensions, bucketCapacity);
-        left = new KdNode<T>(dimensions, bucketCapacity);
+        right = newInstance();
+        left = newInstance();
 
         // Move locations into children
         for (int i = 0; i < size; i++) {
@@ -182,4 +182,6 @@ class KdNode<T> {
         points = null;
         data = null;
     }
+    
+    protected abstract KdNode<T> newInstance(); 
 }
