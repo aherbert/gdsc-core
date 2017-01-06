@@ -609,6 +609,37 @@ public class OPTICSManagerTest
 	}
 
 	@Test
+	public void canComputeKNNDistance()
+	{
+		for (int n : N)
+		{
+			OPTICSManager om = createOPTICSManager(size, n);
+
+			for (int k : new int[] { 3, 5 })
+			{
+				float[] d = om.nearestNeighbourDistance(k, -1, true);
+				Assert.assertEquals(d.length, n);
+			}
+		}
+	}
+
+	@Test
+	public void canComputeKNNDistanceWithSample()
+	{
+		for (int n : N)
+		{
+			OPTICSManager om = createOPTICSManager(size, n);
+
+			int samples = n / 10;
+			for (int k : new int[] { 3, 5 })
+			{
+				float[] d = om.nearestNeighbourDistance(k, samples, true);
+				Assert.assertEquals(d.length, samples);
+			}
+		}
+	}
+
+	@Test
 	public void canComputeGeneratingDistance()
 	{
 		int[] points = new int[] { 1, 2, 3, 5, 10, 20, 50, 100 };
@@ -723,10 +754,12 @@ public class OPTICSManagerTest
 		// Smaller distance
 		int nClusters = r1.extractDBSCANClustering(radius * 0.8f);
 		int max = 0;
+		//int[] clusterId2 = new int[r1.size()];
 		for (int i = r1.size(); i-- > 0;)
 		{
 			if (max < r1.get(i).clusterId)
 				max = r1.get(i).clusterId;
+			//clusterId2[i] = r1.get(i).clusterId;
 			Assert.assertNotEquals(r1.get(i).clusterId, -1);
 		}
 		Assert.assertEquals(nClusters, max);
