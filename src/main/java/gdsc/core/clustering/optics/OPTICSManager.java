@@ -17,10 +17,16 @@ import java.awt.Rectangle;
 import java.util.Comparator;
 import java.util.EnumSet;
 
+import org.apache.commons.math3.random.RandomDataGenerator;
+
+import com.sun.jdi.Location;
+
+import ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D;
 import gdsc.core.clustering.CoordinateStore;
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.Maths;
+import gdsc.core.utils.Random;
 
 /**
  * Compute clustering using OPTICS.
@@ -1025,5 +1031,81 @@ public class OPTICSManager extends CoordinateStore
 	float getOriginalY(int i)
 	{
 		return ycoord[i] + originy;
+	}
+
+	private SimpleFloatKdTree2D tree = null;;
+
+	/**
+	 * Compute (a sample of) the k-nearest neighbour distance for objects from the data
+	 * The plot of the sorted k-distance can be used to pick the generating distance. Or it can be done
+	 * automatically using a % noise threshold.
+	 * <p>
+	 * See:
+	 * Jörg Sander, Martin Ester, Hans-Peter Kriegel, Xiaowei Xu
+	 * Density-Based Clustering in Spatial Databases: The Algorithm GDBSCAN and Its Applications
+	 * Data Mining and Knowledge Discovery, 1998.
+	 *
+	 * @param k
+	 *            the k (automatically bounded between 1 and size-1)
+	 * @param samples
+	 *            the number of samples (set to negative to compute all samples)
+	 * @param cache
+	 *            Set to true to cache the KD-tree used for the nearest neighbour search
+	 * @return the k-nearest neighbour distances
+	 */
+	public float[] nearestNeighbourDistance(int k, int samples, boolean cache)
+	{
+		int size = xcoord.length;
+		if (size < 2)
+			return new float[0];
+
+		// Optionally compute all samples
+		if (samples < 0)
+			samples = size;
+		
+		// Bounds check k
+		if (k < 1)
+			k = 1;
+		else if (k >= size)
+			k = size - 1;
+
+		int n = Math.min(samples, size);
+		float[] d = new float[n];
+
+		int[] indices;
+		if (n < size)
+		{
+			// Compute all
+			indices = Utils.newArray(n, 0, 1);
+		}
+		else
+		{
+			// Random sample
+			RandomDataGenerator r = new RandomDataGenerator();
+			indices = r.nextPermutation(size, n);
+		}
+
+		// Use a KDtree to allow search of the space
+		if (tree == null)
+		{
+			tree = new SimpleFloatKdTree2D.SqrEuclid2D();
+			for (int i = 0; i < size; i++)
+				tree.addPoint(new float[] { xcoord[i], ycoord[i] });
+		}
+		
+		// Note: The k-nearest neighbour search will include the actual point so increment by 1
+		k++;
+
+		for (int i = 0; i < n; i++)
+		{
+			int index = indices[i];
+			float[] location = new float[] { xcoord[index], ycoord[index] };
+			d[i] = tree.nearestNeighbor(location, k, false).get(0).distance;
+		}
+
+		if (!cache)
+			tree = null;
+
+		return d;
 	}
 }
