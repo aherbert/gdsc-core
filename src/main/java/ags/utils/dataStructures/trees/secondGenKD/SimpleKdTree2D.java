@@ -138,12 +138,12 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
 	/**
 	 * Stores a distance and value to output
 	 */
-	public static class Entry<T>
+	public static class Entry
 	{
 		public final double distance;
-		public final T value;
+		public final double[] value;
 
-		private Entry(double distance, T value)
+		private Entry(double distance, double[] value)
 		{
 			this.distance = distance;
 			this.value = value;
@@ -153,7 +153,7 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
 	/**
 	 * Calculates the nearest 'count' points to 'location'
 	 */
-	public List<Entry<double[]>> nearestNeighbor(double[] location, int count, boolean sequentialSorting)
+	public List<Entry> nearestNeighbor(double[] location, int count, boolean sequentialSorting)
 	{
 		SimpleKdTreeNode2D cursor = this;
 		cursor.status = Status.NONE;
@@ -251,20 +251,20 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
 			cursor.status = Status.NONE;
 		} while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
-		ArrayList<Entry<double[]>> results = new ArrayList<Entry<double[]>>(resultHeap.values);
+		ArrayList<Entry> results = new ArrayList<Entry>(resultHeap.values);
 		if (sequentialSorting)
 		{
 			while (resultHeap.values > 0)
 			{
 				resultHeap.removeLargest();
-				results.add(new Entry<double[]>(resultHeap.removedDist, (double[]) resultHeap.removedData));
+				results.add(new Entry(resultHeap.removedDist, (double[]) resultHeap.removedData));
 			}
 		}
 		else
 		{
 			for (int i = 0; i < resultHeap.values; i++)
 			{
-				results.add(new Entry<double[]>(resultHeap.distance[i], (double[]) resultHeap.data[i]));
+				results.add(new Entry(resultHeap.distance[i], (double[]) resultHeap.data[i]));
 			}
 		}
 
