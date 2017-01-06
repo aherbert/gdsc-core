@@ -318,14 +318,32 @@ public class KdTreeTest
 
 	private abstract class NNTimingTask extends BaseTimingTask
 	{
-		double[][] data;
+		Object data;
 		double[] expected;
+		double eps;
 
 		public NNTimingTask(String name, double[][] data, double[] expected)
 		{
 			super(name);
 			this.data = data;
 			this.expected = expected;
+			this.eps = 0;
+		}
+
+		public NNTimingTask(String name, double[][] data, double[] expected, double eps)
+		{
+			super(name);
+			// Convert to float
+			double[][] d = (double[][]) data;
+			int n = d.length;
+			float[][] d2 = new float[n][];
+			for (int i = 0; i < n; i++)
+			{
+				d2[i] = new float[] { (float) d[i][0], (float) d[i][1] };
+			}
+			this.data = d2;
+			this.expected = expected;
+			this.eps = eps;
 		}
 
 		public int getSize()
@@ -341,7 +359,7 @@ public class KdTreeTest
 		public void check(int i, Object result)
 		{
 			double[] observed = (double[]) result;
-			Assert.assertArrayEquals(expected, observed, 0);
+			Assert.assertArrayEquals(expected, observed, eps);
 		}
 	}
 
@@ -372,7 +390,7 @@ public class KdTreeTest
 		{
 			public Object run(Object oData)
 			{
-				ags.utils.dataStructures.trees.secondGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.secondGenKD.KdTree.SqrEuclid2D<Object>( 
+				ags.utils.dataStructures.trees.secondGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.secondGenKD.KdTree.SqrEuclid2D<Object>(
 						null);
 				double[][] data = (double[][]) oData;
 				for (double[] location : data)
@@ -410,6 +428,23 @@ public class KdTreeTest
 				ags.utils.dataStructures.trees.secondGenKD.SimpleKdTree2D tree = new ags.utils.dataStructures.trees.secondGenKD.SimpleKdTree2D.SqrEuclid2D();
 				double[][] data = (double[][]) oData;
 				for (double[] location : data)
+					tree.addPoint(location);
+				double[] o = new double[data.length];
+				for (int i = 0; i < data.length; i++)
+				{
+					o[i] = tree.nearestNeighbor(data[i], k, false).get(0).distance;
+				}
+				return o;
+			}
+		});
+
+		ts.execute(new NNTimingTask("SecondSimpleFloat2D", data, expected, 1e-3)
+		{
+			public Object run(Object oData)
+			{
+				ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D tree = new ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D.SqrEuclid2D();
+				float[][] data = (float[][]) oData;
+				for (float[] location : data)
 					tree.addPoint(location);
 				double[] o = new double[data.length];
 				for (int i = 0; i < data.length; i++)
@@ -458,13 +493,13 @@ public class KdTreeTest
 		});
 
 		ts.check();
-		int number = ts.getSize(); 
+		int number = ts.getSize();
 		ts.repeat(number);
 		ts.repeat(number);
-		
+
 		System.out.printf("All-vs-all = %d\n", time);
 		ts.report();
-		
+
 		// No assertions are made since the timings are similar
 	}
 
