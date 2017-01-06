@@ -537,7 +537,7 @@ public class OPTICSResult implements ClusteringResult
 		//}
 
 		setClustering(setOfClusters);
-		return clusterId;
+		return nextClusterId;
 	}
 
 	/**
