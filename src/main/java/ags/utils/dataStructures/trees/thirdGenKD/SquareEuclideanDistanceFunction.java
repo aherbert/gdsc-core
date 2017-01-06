@@ -4,7 +4,7 @@ package ags.utils.dataStructures.trees.thirdGenKD;
  *
  */
 public class SquareEuclideanDistanceFunction implements DistanceFunction {
-    @Override
+
     public double distance(double[] p1, double[] p2) {
         double d = 0;
 
@@ -16,7 +16,6 @@ public class SquareEuclideanDistanceFunction implements DistanceFunction {
         return d;
     }
 
-    @Override
     public double distanceToRect(double[] point, double[] min, double[] max) {
         double d = 0;
 

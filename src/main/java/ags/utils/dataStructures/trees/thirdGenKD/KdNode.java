@@ -84,7 +84,8 @@ class KdNode<T> {
         }
     }
 
-    private boolean checkBounds(double[] point) {
+    @SuppressWarnings("unused")
+	private boolean checkBounds(double[] point) {
         for (int i = 0; i < dimensions; i++) {
             if (point[i] > maxBound[i]) return false;
             if (point[i] < minBound[i]) return false;
@@ -161,7 +162,8 @@ class KdNode<T> {
         return true;
     }
 
-    private void splitLeafNode() {
+    @SuppressWarnings("unchecked")
+	private void splitLeafNode() {
         right = new KdNode<T>(dimensions, bucketCapacity);
         left = new KdNode<T>(dimensions, bucketCapacity);
 

@@ -29,12 +29,10 @@ public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T> {
 
     /* -------- INTERFACE IMPLEMENTATION -------- */
 
-    @Override
     public boolean hasNext() {
         return pointsRemaining > 0;
     }
 
-    @Override
     public T next() {
         if (!hasNext()) {
             throw new IllegalStateException("NearestNeighborIterator has reached end!");
@@ -56,12 +54,10 @@ public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T> {
         return lastDistanceReturned;
     }
 
-    @Override
     public void remove() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
     public Iterator<T> iterator() {
         return this;
     }
