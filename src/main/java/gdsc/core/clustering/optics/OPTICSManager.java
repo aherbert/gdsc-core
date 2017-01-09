@@ -19,7 +19,6 @@ import java.util.EnumSet;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-
 import ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D;
 import gdsc.core.clustering.CoordinateStore;
 import gdsc.core.ij.Utils;
@@ -713,6 +712,13 @@ public class OPTICSManager extends CoordinateStore
 
 		object.coreDistance = floatArray[max];
 
+		// TODO - See if this is faster
+		// Try a sorted heap
+		//		ags.utils.dataStructures.trees.secondGenKD.FloatHeap heap = new ags.utils.dataStructures.trees.secondGenKD.FloatHeap(minPts);
+		//		for (int j = 0; j < size; j++)
+		//			heap.addValue(list[j].d);
+		//		object.coreDistance = heap.getMaxDist();
+
 		// Full sort 
 		//		for (int i = size; i-- > 0;)
 		//			floatArray[i] = list[i].d;
@@ -1060,7 +1066,7 @@ public class OPTICSManager extends CoordinateStore
 		// Optionally compute all samples
 		if (samples < 0)
 			samples = size;
-		
+
 		// Bounds check k
 		if (k < 1)
 			k = 1;
@@ -1071,7 +1077,7 @@ public class OPTICSManager extends CoordinateStore
 		float[] d = new float[n];
 
 		int[] indices;
-		if (n < size)
+		if (n <= size)
 		{
 			// Compute all
 			indices = Utils.newArray(n, 0, 1);
@@ -1090,7 +1096,7 @@ public class OPTICSManager extends CoordinateStore
 			for (int i = 0; i < size; i++)
 				tree.addPoint(new float[] { xcoord[i], ycoord[i] });
 		}
-		
+
 		// Note: The k-nearest neighbour search will include the actual point so increment by 1
 		k++;
 
@@ -1098,7 +1104,8 @@ public class OPTICSManager extends CoordinateStore
 		{
 			int index = indices[i];
 			float[] location = new float[] { xcoord[index], ycoord[index] };
-			d[i] = tree.nearestNeighbor(location, k, false).get(0).distance;
+			// The tree will use the squared distance so compute the root
+			d[i] = (float) (Math.sqrt(tree.nearestNeighbor(location, k, false).get(0).distance));
 		}
 
 		if (!cache)

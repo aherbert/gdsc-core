@@ -611,6 +611,42 @@ public class OPTICSManagerTest
 	@Test
 	public void canComputeKNNDistance()
 	{
+		int n = 100;
+		OPTICSManager om = createOPTICSManager(size, n);
+
+		// All-vs-all distance matrix
+		float[][] data = om.getData();
+		float[] x = data[0];
+		float[] y = data[1];
+		float[][] d2 = new float[n][n];
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = i + 1; j < n; j++)
+			{
+				d2[i][j] = d2[j][i] = Maths.distance2(x[i], y[i], x[j], y[j]);
+			}
+		}
+
+		// Try all including invalid bounds
+		for (int k : new int[] { 0, 1, 3, 5, n - 1, n })
+		{
+			float[] o = om.nearestNeighbourDistance(k, -1, true);
+			float[] e = new float[n];
+			// Set the correct bounds on k
+			if (k >= n)
+				k = n - 1;
+			if (k < 1)
+				k = 1;
+			for (int i = 0; i < n; i++)
+				e[i] = (float) Math.sqrt(PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, d2[i], n, k + 1)[0]);
+			//System.out.printf("e=%s, o=%s\n", Arrays.toString(e), Arrays.toString(o));
+			Assert.assertArrayEquals(e, o, 0);
+		}
+	}
+
+	@Test
+	public void canComputeKNNDistanceWithBigData()
+	{
 		for (int n : N)
 		{
 			OPTICSManager om = createOPTICSManager(size, n);
