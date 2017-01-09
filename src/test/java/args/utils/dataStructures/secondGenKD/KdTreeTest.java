@@ -503,6 +503,58 @@ public class KdTreeTest
 		// No assertions are made since the timings are similar
 	}
 
+	class Float2DNNTimingTask extends NNTimingTask
+	{
+		int k;
+		int buckectSize;
+
+		public Float2DNNTimingTask(double[][] data, int k, int buckectSize)
+		{
+			super("Bucket" + buckectSize, data, null, 0);
+			this.k = k;
+			this.buckectSize = buckectSize;
+		}
+
+		public Object run(Object oData)
+		{
+			// The following tests the bucket size is optimal. It requires the bucketSize be set to public non-final.
+			// This prevents some code optimisation and so is not the default. The default uses a final bucket size of 24.
+			//int b = ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D.bucketSize;
+			//ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D.bucketSize = buckectSize;
+			
+			ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D tree = new ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D.SqrEuclid2D();
+			float[][] data = (float[][]) oData;
+			for (float[] location : data)
+				tree.addPoint(location);
+			double[] o = new double[data.length];
+			for (int i = 0; i < data.length; i++)
+			{
+				o[i] = tree.nearestNeighbor(data[i], k, false).get(0).distance;
+			}
+			//ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D.bucketSize = b;
+			return o;
+		}
+	}
+
+	// Requires code modification of the SimpleFloatKdTree2D class to make bucketSize size visible and not final ...
+	//@Test
+	public void secondGenBucket24IsFastest()
+	{
+		TimingService ts = new TimingService(15);
+		int n = 5000;
+		double[][] data = createData(size, n, true);
+		final int k = 4;
+
+		for (int b : new int[] { 1, 2, 3, 4, 5, 8, 16, 24, 32 })
+			ts.execute(new Float2DNNTimingTask(data, k, b));
+
+		int number = ts.getSize();
+		ts.repeat(number);
+		ts.repeat(number);
+
+		ts.report();
+	}
+
 	private double[][] createData(int size, int n, boolean allowDuplicates)
 	{
 		double[][] data = new double[n][];
