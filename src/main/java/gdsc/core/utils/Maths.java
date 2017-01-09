@@ -409,7 +409,7 @@ public class Maths
 		limits[1] = max;
 		return limits;
 	}
-	
+
 	/**
 	 * Calculate a cumulative histogram of the input values. The data is sorted and the first value in the returned
 	 * values array will be the lowest value. NaN are ignored.
@@ -837,7 +837,7 @@ public class Maths
 		final double dy = y1 - y2;
 		return Math.sqrt(dx * dx + dy * dy);
 	}
-	
+
 	/**
 	 * Compute the squared euclidian distance between two 2D points.
 	 *
@@ -855,6 +855,46 @@ public class Maths
 	{
 		final double dx = x1 - x2;
 		final double dy = y1 - y2;
+		return (dx * dx + dy * dy);
+	}
+
+	/**
+	 * Compute the euclidian distance between two 2D points.
+	 *
+	 * @param x1
+	 *            the x 1
+	 * @param y1
+	 *            the y 1
+	 * @param x2
+	 *            the x 2
+	 * @param y2
+	 *            the y 2
+	 * @return the distance
+	 */
+	public static float distance(float x1, float y1, float x2, float y2)
+	{
+		final float dx = x1 - x2;
+		final float dy = y1 - y2;
+		return (float) Math.sqrt(dx * dx + dy * dy);
+	}
+
+	/**
+	 * Compute the squared euclidian distance between two 2D points.
+	 *
+	 * @param x1
+	 *            the x 1
+	 * @param y1
+	 *            the y 1
+	 * @param x2
+	 *            the x 2
+	 * @param y2
+	 *            the y 2
+	 * @return the squared distance
+	 */
+	public static float distance2(float x1, float y1, float x2, float y2)
+	{
+		final float dx = x1 - x2;
+		final float dy = y1 - y2;
 		return (dx * dx + dy * dy);
 	}
 }
