@@ -897,4 +897,64 @@ public class Maths
 		final float dy = y1 - y2;
 		return (dx * dx + dy * dy);
 	}
+
+	/**
+	 * Return value clipped to within the given bounds.
+	 *
+	 * @param lower
+	 *            the lower limit
+	 * @param upper
+	 *            the upper limit
+	 * @param value
+	 *            the value
+	 * @return the clipped value
+	 */
+	public static double clip(double lower, double upper, double value)
+	{
+		if (value < lower)
+			return lower;
+		if (value > upper)
+			return lower;
+		return value;
+	}
+
+	/**
+	 * Return value clipped to within the given bounds.
+	 *
+	 * @param lower
+	 *            the lower limit
+	 * @param upper
+	 *            the upper limit
+	 * @param value
+	 *            the value
+	 * @return the clipped value
+	 */
+	public static float clip(float lower, float upper, float value)
+	{
+		if (value < lower)
+			return lower;
+		if (value > upper)
+			return lower;
+		return value;
+	}
+
+	/**
+	 * Return value clipped to within the given bounds.
+	 *
+	 * @param lower
+	 *            the lower limit
+	 * @param upper
+	 *            the upper limit
+	 * @param value
+	 *            the value
+	 * @return the clipped value
+	 */
+	public static int clip(int lower, int upper, int value)
+	{
+		if (value < lower)
+			return lower;
+		if (value > upper)
+			return lower;
+		return value;
+	}
 }
