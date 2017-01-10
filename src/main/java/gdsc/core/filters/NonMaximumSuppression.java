@@ -26,7 +26,7 @@ public class NonMaximumSuppression implements Cloneable
 {
 	private static final float floatMin = Float.NEGATIVE_INFINITY;
 	private static final int intMin = Integer.MIN_VALUE;
-	
+
 	private boolean neighbourCheck = false;
 	private boolean dataBuffer = true;
 
@@ -50,7 +50,7 @@ public class NonMaximumSuppression implements Cloneable
 	 */
 	public int[] maxFind(float[] data, int maxx, int maxy, int n)
 	{
-		FixedIntList results = getResultsBuffer(data.length / 4);
+		FixedIntList results = getResultsBuffer(data.length);
 		boolean[] maximaFlag = getFlagBuffer(data.length);
 
 		// Boundary control
@@ -138,7 +138,7 @@ public class NonMaximumSuppression implements Cloneable
 	 */
 	public int[] maxFindInternal(float[] data, int maxx, int maxy, int n)
 	{
-		FixedIntList results = getResultsBuffer(data.length / 4);
+		FixedIntList results = getResultsBuffer(data.length);
 		boolean[] maximaFlag = getFlagBuffer(data.length);
 
 		// Boundary control
@@ -203,7 +203,7 @@ public class NonMaximumSuppression implements Cloneable
 			// Faster algorithm as there is no requirement for bounds checking.
 			return maxFindInternal(data, maxx, maxy, n);
 
-		FixedIntList results = getResultsBuffer(data.length / 4);
+		FixedIntList results = getResultsBuffer(data.length);
 		boolean[] maximaFlag = getFlagBuffer(data.length);
 
 		// Boundary control
@@ -399,8 +399,8 @@ public class NonMaximumSuppression implements Cloneable
 					int mj = y;
 					int i = (n + 1) * (mi / (n + 1));
 					int j = (n + 1) * (mj / (n + 1));
-					int i_plus_n = FastMath.min(i + n + 1, maxx - 1);
-					int j_plus_n = FastMath.min(j + n + 1, maxy - 1);
+					int i_plus_n = i + n + 1;
+					int j_plus_n = FastMath.min(j + n, maxy - 1);
 					int mi_minus_n = FastMath.max(mi - n, 0);
 					int mi_plus_n = FastMath.min(mi + n, maxx - 1);
 					int mj_minus_n = FastMath.max(mj - n, 0);
@@ -418,7 +418,7 @@ public class NonMaximumSuppression implements Cloneable
 								continue FIND_MAXIMUM;
 						}
 					}
-					for (int jj = j; jj < j_plus_n; jj++)
+					for (int jj = j; jj <= j_plus_n; jj++)
 					{
 						// B
 						{
@@ -445,7 +445,7 @@ public class NonMaximumSuppression implements Cloneable
 						}
 					}
 					// D
-					for (int jj = j_plus_n; jj <= mj_plus_n; jj++)
+					for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++)
 					{
 						int indexStart = jj * maxx + mi_minus_n;
 						int indexEnd = jj * maxx + mi_plus_n;
@@ -480,7 +480,7 @@ public class NonMaximumSuppression implements Cloneable
 								continue FIND_MAXIMUM;
 						}
 					}
-					for (int jj = j; jj < j_plus_n; jj++)
+					for (int jj = j; jj <= j_plus_n; jj++)
 					{
 						// B
 						{
@@ -544,8 +544,8 @@ public class NonMaximumSuppression implements Cloneable
 				int mj = y;
 				int i = (n + 1) * (mi / (n + 1));
 				int j = (n + 1) * (mj / (n + 1));
-				int i_plus_n = FastMath.min(i + n + 1, maxx - 1);
-				int j_plus_n = FastMath.min(j + n + 1, maxy - 1);
+				int i_plus_n = i + n + 1;
+				int j_plus_n = FastMath.min(j + n, maxy - 1);
 				int mi_minus_n = FastMath.max(mi - n, 0);
 				int mi_plus_n = FastMath.min(mi + n, maxx - 1);
 				int mj_minus_n = FastMath.max(mj - n, 0);
@@ -563,7 +563,7 @@ public class NonMaximumSuppression implements Cloneable
 							continue FIND_MAXIMUM;
 					}
 				}
-				for (int jj = j; jj < j_plus_n; jj++)
+				for (int jj = j; jj <= j_plus_n; jj++)
 				{
 					// B
 					{
@@ -590,7 +590,7 @@ public class NonMaximumSuppression implements Cloneable
 					}
 				}
 				// D
-				for (int jj = j_plus_n; jj <= mj_plus_n; jj++)
+				for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++)
 				{
 					int indexStart = jj * maxx + mi_minus_n;
 					int indexEnd = jj * maxx + mi_plus_n;
@@ -637,7 +637,7 @@ public class NonMaximumSuppression implements Cloneable
 		{
 			// Compute all candidate maxima in the NxN blocks. Then check each candidate
 			// is a maxima in the 2N+1 region including a check for existing maxima.
-			int[][] blockMaximaCandidates = findBlockMaximaCandidatesNxN(data, maxx, maxy, n);
+			int[][] blockMaximaCandidates = findBlockMaximaCandidatesNxNInternal(data, maxx, maxy, n, border);
 
 			maxima = new int[blockMaximaCandidates.length];
 			boolean[] maximaFlag = getFlagBuffer(data.length);
@@ -680,8 +680,8 @@ public class NonMaximumSuppression implements Cloneable
 					int i = (n + 1) * ((mi - border) / (n + 1)) + border; // Blocks n+1 wide
 					int j = (n + 1) * ((mj - border) / (n + 1)) + border; // Blocks n+1 wide
 					// The block boundaries will have been truncated on the final block. Ensure this is swept
-					int i_plus_n = FastMath.min(i + n + 1, maxx - border - 1);
-					int j_plus_n = FastMath.min(j + n + 1, maxy - border - 1);
+					int i_plus_n = i + n + 1;
+					int j_plus_n = FastMath.min(j + n, maxy - border - 1);
 					int mi_minus_n = FastMath.max(mi - n, 0);
 					int mi_plus_n = FastMath.min(mi + n, maxx - 1);
 					int mj_minus_n = FastMath.max(mj - n, 0);
@@ -701,7 +701,7 @@ public class NonMaximumSuppression implements Cloneable
 								continue FIND_MAXIMUM;
 						}
 					}
-					for (int jj = j; jj < j_plus_n; jj++)
+					for (int jj = j; jj <= j_plus_n; jj++)
 					{
 						// B
 						{
@@ -728,7 +728,7 @@ public class NonMaximumSuppression implements Cloneable
 						}
 					}
 					// D
-					for (int jj = j_plus_n; jj <= mj_plus_n; jj++)
+					for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++)
 					{
 						int indexStart = jj * maxx + mi_minus_n;
 						int indexEnd = jj * maxx + mi_plus_n;
@@ -764,7 +764,7 @@ public class NonMaximumSuppression implements Cloneable
 								continue FIND_MAXIMUM;
 						}
 					}
-					for (int jj = j; jj < j_plus_n; jj++)
+					for (int jj = j; jj <= j_plus_n; jj++)
 					{
 						// B
 						{
@@ -829,8 +829,8 @@ public class NonMaximumSuppression implements Cloneable
 				int i = (n + 1) * ((mi - border) / (n + 1)) + border; // Blocks n+1 wide
 				int j = (n + 1) * ((mj - border) / (n + 1)) + border; // Blocks n+1 wide
 				// The block boundaries will have been truncated on the final block. Ensure this is swept
-				int i_plus_n = FastMath.min(i + n + 1, maxx - border - 1);
-				int j_plus_n = FastMath.min(j + n + 1, maxy - border - 1);
+				int i_plus_n = i + n + 1;
+				int j_plus_n = FastMath.min(j + n, maxy - border - 1);
 				int mi_minus_n = FastMath.max(mi - n, 0);
 				int mi_plus_n = FastMath.min(mi + n, maxx - 1);
 				int mj_minus_n = FastMath.max(mj - n, 0);
@@ -850,7 +850,7 @@ public class NonMaximumSuppression implements Cloneable
 							continue FIND_MAXIMUM;
 					}
 				}
-				for (int jj = j; jj < j_plus_n; jj++)
+				for (int jj = j; jj <= j_plus_n; jj++)
 				{
 					// B
 					{
@@ -877,7 +877,7 @@ public class NonMaximumSuppression implements Cloneable
 					}
 				}
 				// D
-				for (int jj = j_plus_n; jj <= mj_plus_n; jj++)
+				for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++)
 				{
 					int indexStart = jj * maxx + mi_minus_n;
 					int indexEnd = jj * maxx + mi_plus_n;
@@ -1473,8 +1473,8 @@ public class NonMaximumSuppression implements Cloneable
 					// Compare A and B
 					if (data[xindex] < data[xindex + 1])
 					{
-						scans[0] = a;
-						maxIndices[0] = xindex;
+						scans[0] = b;
+						maxIndices[0] = xindex + 1;
 						candidates = 1;
 					}
 					else if (data[xindex] == data[xindex + 1])
@@ -1487,8 +1487,8 @@ public class NonMaximumSuppression implements Cloneable
 					}
 					else
 					{
-						scans[0] = b;
-						maxIndices[0] = xindex + 1;
+						scans[0] = a;
+						maxIndices[0] = xindex;
 						candidates = 1;
 					}
 
@@ -1645,7 +1645,7 @@ public class NonMaximumSuppression implements Cloneable
 		if (isNeighbourCheck())
 		{
 			boolean[] maximaFlag = getFlagBuffer(data.length);
-			
+
 			int[][] scans = new int[4][];
 			int[] maxIndices = new int[4];
 			int candidates;
@@ -1658,8 +1658,8 @@ public class NonMaximumSuppression implements Cloneable
 					// Compare A and B
 					if (data[xindex] < data[xindex + 1])
 					{
-						scans[0] = a;
-						maxIndices[0] = xindex;
+						scans[0] = b;
+						maxIndices[0] = xindex + 1;
 						candidates = 1;
 					}
 					else if (data[xindex] == data[xindex + 1])
@@ -1672,8 +1672,8 @@ public class NonMaximumSuppression implements Cloneable
 					}
 					else
 					{
-						scans[0] = b;
-						maxIndices[0] = xindex + 1;
+						scans[0] = a;
+						maxIndices[0] = xindex;
 						candidates = 1;
 					}
 
@@ -1732,7 +1732,7 @@ public class NonMaximumSuppression implements Cloneable
 						break;
 					} // end FIND_MAXIMA
 				}
-			}			
+			}
 		}
 		else
 		{
@@ -1817,7 +1817,7 @@ public class NonMaximumSuppression implements Cloneable
 
 		return findBlockMaximaCandidatesNxN(data, maxx, maxy, n);
 	}
-	
+
 	// ----------------------------------------------------
 	// NOTE:
 	// Copy up to here to replace 'float' with 'int'
@@ -2077,7 +2077,7 @@ public class NonMaximumSuppression implements Cloneable
 	// The following code is copied directly from above. 
 	// All 'float' have been replaced with 'int'
 	// ----------------------------------------------------
-	
+
 	/**
 	 * Compute the local-maxima within a 2n+1 block
 	 * 
@@ -2093,7 +2093,7 @@ public class NonMaximumSuppression implements Cloneable
 	 */
 	public int[] maxFind(int[] data, int maxx, int maxy, int n)
 	{
-		FixedIntList results = getResultsBuffer(data.length / 4);
+		FixedIntList results = getResultsBuffer(data.length);
 		boolean[] maximaFlag = getFlagBuffer(data.length);
 
 		// Boundary control
@@ -2181,7 +2181,7 @@ public class NonMaximumSuppression implements Cloneable
 	 */
 	public int[] maxFindInternal(int[] data, int maxx, int maxy, int n)
 	{
-		FixedIntList results = getResultsBuffer(data.length / 4);
+		FixedIntList results = getResultsBuffer(data.length);
 		boolean[] maximaFlag = getFlagBuffer(data.length);
 
 		// Boundary control
@@ -2246,7 +2246,7 @@ public class NonMaximumSuppression implements Cloneable
 			// Faster algorithm as there is no requirement for bounds checking.
 			return maxFindInternal(data, maxx, maxy, n);
 
-		FixedIntList results = getResultsBuffer(data.length / 4);
+		FixedIntList results = getResultsBuffer(data.length);
 		boolean[] maximaFlag = getFlagBuffer(data.length);
 
 		// Boundary control
@@ -2442,8 +2442,8 @@ public class NonMaximumSuppression implements Cloneable
 					int mj = y;
 					int i = (n + 1) * (mi / (n + 1));
 					int j = (n + 1) * (mj / (n + 1));
-					int i_plus_n = FastMath.min(i + n + 1, maxx - 1);
-					int j_plus_n = FastMath.min(j + n + 1, maxy - 1);
+					int i_plus_n = i + n + 1;
+					int j_plus_n = FastMath.min(j + n, maxy - 1);
 					int mi_minus_n = FastMath.max(mi - n, 0);
 					int mi_plus_n = FastMath.min(mi + n, maxx - 1);
 					int mj_minus_n = FastMath.max(mj - n, 0);
@@ -2461,7 +2461,7 @@ public class NonMaximumSuppression implements Cloneable
 								continue FIND_MAXIMUM;
 						}
 					}
-					for (int jj = j; jj < j_plus_n; jj++)
+					for (int jj = j; jj <= j_plus_n; jj++)
 					{
 						// B
 						{
@@ -2488,7 +2488,7 @@ public class NonMaximumSuppression implements Cloneable
 						}
 					}
 					// D
-					for (int jj = j_plus_n; jj <= mj_plus_n; jj++)
+					for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++)
 					{
 						int indexStart = jj * maxx + mi_minus_n;
 						int indexEnd = jj * maxx + mi_plus_n;
@@ -2523,7 +2523,7 @@ public class NonMaximumSuppression implements Cloneable
 								continue FIND_MAXIMUM;
 						}
 					}
-					for (int jj = j; jj < j_plus_n; jj++)
+					for (int jj = j; jj <= j_plus_n; jj++)
 					{
 						// B
 						{
@@ -2587,8 +2587,8 @@ public class NonMaximumSuppression implements Cloneable
 				int mj = y;
 				int i = (n + 1) * (mi / (n + 1));
 				int j = (n + 1) * (mj / (n + 1));
-				int i_plus_n = FastMath.min(i + n + 1, maxx - 1);
-				int j_plus_n = FastMath.min(j + n + 1, maxy - 1);
+				int i_plus_n = i + n + 1;
+				int j_plus_n = FastMath.min(j + n, maxy - 1);
 				int mi_minus_n = FastMath.max(mi - n, 0);
 				int mi_plus_n = FastMath.min(mi + n, maxx - 1);
 				int mj_minus_n = FastMath.max(mj - n, 0);
@@ -2606,7 +2606,7 @@ public class NonMaximumSuppression implements Cloneable
 							continue FIND_MAXIMUM;
 					}
 				}
-				for (int jj = j; jj < j_plus_n; jj++)
+				for (int jj = j; jj <= j_plus_n; jj++)
 				{
 					// B
 					{
@@ -2633,7 +2633,7 @@ public class NonMaximumSuppression implements Cloneable
 					}
 				}
 				// D
-				for (int jj = j_plus_n; jj <= mj_plus_n; jj++)
+				for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++)
 				{
 					int indexStart = jj * maxx + mi_minus_n;
 					int indexEnd = jj * maxx + mi_plus_n;
@@ -2680,7 +2680,7 @@ public class NonMaximumSuppression implements Cloneable
 		{
 			// Compute all candidate maxima in the NxN blocks. Then check each candidate
 			// is a maxima in the 2N+1 region including a check for existing maxima.
-			int[][] blockMaximaCandidates = findBlockMaximaCandidatesNxN(data, maxx, maxy, n);
+			int[][] blockMaximaCandidates = findBlockMaximaCandidatesNxNInternal(data, maxx, maxy, n, border);
 
 			maxima = new int[blockMaximaCandidates.length];
 			boolean[] maximaFlag = getFlagBuffer(data.length);
@@ -2723,8 +2723,8 @@ public class NonMaximumSuppression implements Cloneable
 					int i = (n + 1) * ((mi - border) / (n + 1)) + border; // Blocks n+1 wide
 					int j = (n + 1) * ((mj - border) / (n + 1)) + border; // Blocks n+1 wide
 					// The block boundaries will have been truncated on the final block. Ensure this is swept
-					int i_plus_n = FastMath.min(i + n + 1, maxx - border - 1);
-					int j_plus_n = FastMath.min(j + n + 1, maxy - border - 1);
+					int i_plus_n = i + n + 1;
+					int j_plus_n = FastMath.min(j + n, maxy - border - 1);
 					int mi_minus_n = FastMath.max(mi - n, 0);
 					int mi_plus_n = FastMath.min(mi + n, maxx - 1);
 					int mj_minus_n = FastMath.max(mj - n, 0);
@@ -2744,7 +2744,7 @@ public class NonMaximumSuppression implements Cloneable
 								continue FIND_MAXIMUM;
 						}
 					}
-					for (int jj = j; jj < j_plus_n; jj++)
+					for (int jj = j; jj <= j_plus_n; jj++)
 					{
 						// B
 						{
@@ -2771,7 +2771,7 @@ public class NonMaximumSuppression implements Cloneable
 						}
 					}
 					// D
-					for (int jj = j_plus_n; jj <= mj_plus_n; jj++)
+					for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++)
 					{
 						int indexStart = jj * maxx + mi_minus_n;
 						int indexEnd = jj * maxx + mi_plus_n;
@@ -2807,7 +2807,7 @@ public class NonMaximumSuppression implements Cloneable
 								continue FIND_MAXIMUM;
 						}
 					}
-					for (int jj = j; jj < j_plus_n; jj++)
+					for (int jj = j; jj <= j_plus_n; jj++)
 					{
 						// B
 						{
@@ -2872,8 +2872,8 @@ public class NonMaximumSuppression implements Cloneable
 				int i = (n + 1) * ((mi - border) / (n + 1)) + border; // Blocks n+1 wide
 				int j = (n + 1) * ((mj - border) / (n + 1)) + border; // Blocks n+1 wide
 				// The block boundaries will have been truncated on the final block. Ensure this is swept
-				int i_plus_n = FastMath.min(i + n + 1, maxx - border - 1);
-				int j_plus_n = FastMath.min(j + n + 1, maxy - border - 1);
+				int i_plus_n = i + n + 1;
+				int j_plus_n = FastMath.min(j + n, maxy - border - 1);
 				int mi_minus_n = FastMath.max(mi - n, 0);
 				int mi_plus_n = FastMath.min(mi + n, maxx - 1);
 				int mj_minus_n = FastMath.max(mj - n, 0);
@@ -2893,7 +2893,7 @@ public class NonMaximumSuppression implements Cloneable
 							continue FIND_MAXIMUM;
 					}
 				}
-				for (int jj = j; jj < j_plus_n; jj++)
+				for (int jj = j; jj <= j_plus_n; jj++)
 				{
 					// B
 					{
@@ -2920,7 +2920,7 @@ public class NonMaximumSuppression implements Cloneable
 					}
 				}
 				// D
-				for (int jj = j_plus_n; jj <= mj_plus_n; jj++)
+				for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++)
 				{
 					int indexStart = jj * maxx + mi_minus_n;
 					int indexEnd = jj * maxx + mi_plus_n;
@@ -3516,8 +3516,8 @@ public class NonMaximumSuppression implements Cloneable
 					// Compare A and B
 					if (data[xindex] < data[xindex + 1])
 					{
-						scans[0] = a;
-						maxIndices[0] = xindex;
+						scans[0] = b;
+						maxIndices[0] = xindex + 1;
 						candidates = 1;
 					}
 					else if (data[xindex] == data[xindex + 1])
@@ -3530,8 +3530,8 @@ public class NonMaximumSuppression implements Cloneable
 					}
 					else
 					{
-						scans[0] = b;
-						maxIndices[0] = xindex + 1;
+						scans[0] = a;
+						maxIndices[0] = xindex;
 						candidates = 1;
 					}
 
@@ -3688,7 +3688,7 @@ public class NonMaximumSuppression implements Cloneable
 		if (isNeighbourCheck())
 		{
 			boolean[] maximaFlag = getFlagBuffer(data.length);
-			
+
 			int[][] scans = new int[4][];
 			int[] maxIndices = new int[4];
 			int candidates;
@@ -3701,8 +3701,8 @@ public class NonMaximumSuppression implements Cloneable
 					// Compare A and B
 					if (data[xindex] < data[xindex + 1])
 					{
-						scans[0] = a;
-						maxIndices[0] = xindex;
+						scans[0] = b;
+						maxIndices[0] = xindex + 1;
 						candidates = 1;
 					}
 					else if (data[xindex] == data[xindex + 1])
@@ -3715,8 +3715,8 @@ public class NonMaximumSuppression implements Cloneable
 					}
 					else
 					{
-						scans[0] = b;
-						maxIndices[0] = xindex + 1;
+						scans[0] = a;
+						maxIndices[0] = xindex;
 						candidates = 1;
 					}
 
@@ -3775,7 +3775,7 @@ public class NonMaximumSuppression implements Cloneable
 						break;
 					} // end FIND_MAXIMA
 				}
-			}			
+			}
 		}
 		else
 		{
