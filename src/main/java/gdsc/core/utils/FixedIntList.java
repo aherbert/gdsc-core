@@ -150,4 +150,12 @@ public class FixedIntList
 	{
 		return Arrays.copyOf(data, size);
 	}
+
+	/**
+	 * Clear the list.
+	 */
+	public void clear()
+	{
+		size = 0;
+	}
 }
