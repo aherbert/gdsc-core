@@ -1504,7 +1504,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 */
 	private int intHalfMaximum(int background, int maximum)
 	{
-		return (int) (0.5 + (maximum - background) / 2);
+		return (int) (0.5 + (maximum - background) * 0.5);
 	}
 
 	/**
