@@ -117,6 +117,19 @@ public class FixedIntList
 	}
 
 	/**
+	 * Adds the values. No bounds checks are made against capacity or for a valid input array.
+	 *
+	 * @param values
+	 *            the values
+	 */
+	public void add(FixedIntList values)
+	{
+		int length = values.size;
+		System.arraycopy(values.data, 0, data, size, length);
+		size += length;
+	}
+	
+	/**
 	 * Gets the value at the given index. No bounds checks are made against the size.
 	 *
 	 * @param index
