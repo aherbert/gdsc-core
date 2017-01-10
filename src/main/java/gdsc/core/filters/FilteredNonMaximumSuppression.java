@@ -21,7 +21,10 @@ import gdsc.core.utils.FixedIntList;
 
 /**
  * Computes the local maxima. Allows filtering of the maxima using simple height and width checks.
+ * <p>
+ * Note: The neighbour check within the block find algorithm does not match that in the NonMaximumSuppression class. 
  */
+// TODO: Update to use the same block find algorithm as NonMaximumSuppression
 public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 {
 	private float background = 0;
