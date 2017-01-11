@@ -1063,6 +1063,8 @@ public class OPTICSManager extends CoordinateStore
 		if (size < 2)
 			return new float[0];
 
+		long time = System.currentTimeMillis();
+
 		// Optionally compute all samples
 		if (samples < 0)
 			samples = size;
@@ -1073,8 +1075,14 @@ public class OPTICSManager extends CoordinateStore
 		else if (k >= size)
 			k = size - 1;
 
-		int n = Math.min(samples, size);
+		final int n = Math.min(samples, size);
 		float[] d = new float[n];
+
+		if (tracker != null)
+		{
+			tracker.log("Computing %d nearest-neighbour distances, samples=%d", k, n);
+			tracker.progress(0, n);
+		}
 
 		int[] indices;
 		if (n <= size)
@@ -1102,10 +1110,18 @@ public class OPTICSManager extends CoordinateStore
 
 		for (int i = 0; i < n; i++)
 		{
+			if (tracker != null)
+				tracker.progress(i, n);
 			int index = indices[i];
 			float[] location = new float[] { xcoord[index], ycoord[index] };
 			// The tree will use the squared distance so compute the root
 			d[i] = (float) (Math.sqrt(tree.nearestNeighbor(location, k, false).get(0).distance));
+		}
+		if (tracker != null)
+		{
+			time = System.currentTimeMillis() - time;
+			tracker.log("Finished KNN computation (Time = " + Utils.timeToString(time) + ")");
+			tracker.progress(1);
 		}
 
 		if (!cache)
