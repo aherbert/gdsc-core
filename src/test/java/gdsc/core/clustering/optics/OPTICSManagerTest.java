@@ -166,8 +166,8 @@ public class OPTICSManagerTest
 					setOfObjects[i].d = fdata[i];
 					neighbours.add(setOfObjects[i]);
 				}
-			if (neighbours.size < minPts)
-				neighbours.clear();
+			//if (neighbours.size < minPts)
+			//	neighbours.clear();
 		}
 	}
 
@@ -999,7 +999,7 @@ public class OPTICSManagerTest
 
 	private enum MS
 	{
-		SIMPLE, GRID, RADIAL, INNER_RADIAL
+		SIMPLE, GRID, RADIAL, INNER_RADIAL, TREE
 	}
 
 	private abstract class MyTimingTask extends BaseTimingTask
@@ -1053,6 +1053,9 @@ public class OPTICSManagerTest
 					break;
 				case INNER_RADIAL:
 					space = new InnerRadialMoleculeSpace(om[i], generatingDistanceE, resolution);
+					break;
+				case TREE:
+					space = new TreeMoleculeSpace(om[i], generatingDistanceE);
 					break;
 			}
 			om[i].setOptions(o);
@@ -1112,7 +1115,7 @@ public class OPTICSManagerTest
 	{
 		OPTICSManager[] om = new OPTICSManager[5];
 		for (int i = 0; i < om.length; i++)
-			om[i] = createOPTICSManager(size, 500);
+			om[i] = createOPTICSManager(size, 1000);
 
 		float generatingDistanceE = 10;
 		final int minPts = 20;
@@ -1187,6 +1190,17 @@ public class OPTICSManagerTest
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.INNER_RADIAL, om, minPts, generatingDistanceE, 10)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name, e[j], o[j]);
+			}
+		}, check);
+		ts.execute(new FindNeighboursTimingTask(MS.TREE, om, minPts, generatingDistanceE, 0)
 		{
 			public void check(int i, Object result)
 			{
