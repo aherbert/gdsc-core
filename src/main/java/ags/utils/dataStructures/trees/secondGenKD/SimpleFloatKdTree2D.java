@@ -311,8 +311,8 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 
 		protected float pointRegionDist(float[] point, float[] min, float[] max)
 		{
-			float dx = (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? point[0] - min[0] : 0;
-			float dy = (point[1] > max[1]) ? point[1] - max[1] : (point[1] < min[1]) ? point[1] - min[1] : 0;
+			float dx = (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? min[0] - point[0] : 0;
+			float dy = (point[1] > max[1]) ? point[1] - max[1] : (point[1] < min[1]) ? min[1] - point[1] : 0;
 			return dx * dx + dy * dy;
 		}
 	}
