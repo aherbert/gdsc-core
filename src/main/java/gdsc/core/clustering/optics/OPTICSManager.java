@@ -405,14 +405,14 @@ public class OPTICSManager extends CoordinateStore
 			}
 		}
 
-		if (!options.contains(Option.CACHE))
-			clearMemory();
+		finish();
 
 		return optics;
 	}
 
 	private MoleculeSpace grid;
-	float[] floatArray;
+	//private float[] floatArray;
+	private FloatHeap heap;
 
 	/**
 	 * Initialise the memory structure for the OPTICS algorithm. This can be cached if the generatingDistanceE does not
@@ -558,8 +558,11 @@ public class OPTICSManager extends CoordinateStore
 			grid.reset();
 		}
 
-		if (floatArray == null || floatArray.length < minPts)
-			floatArray = new float[minPts];
+		//if (floatArray == null || floatArray.length < minPts)
+		//	floatArray = new float[minPts];
+
+		if (heap == null || heap.n != minPts)
+			heap = new FloatHeap(minPts);
 	}
 
 	/**
@@ -606,10 +609,22 @@ public class OPTICSManager extends CoordinateStore
 	/**
 	 * Clear memory used by the search algorithm
 	 */
+	private void finish()
+	{
+		if (!options.contains(Option.CACHE))
+		{
+			clearMemory();
+		}
+		heap = null;
+	}
+
+	/**
+	 * Clear memory used by the search algorithm
+	 */
 	public void clearMemory()
 	{
 		grid = null;
-		floatArray = null;
+		//floatArray = null;
 	}
 
 	/**
@@ -660,6 +675,112 @@ public class OPTICSManager extends CoordinateStore
 	}
 
 	/**
+	 * An optimised heap structure for selecting the top n values.
+	 */
+	private static class FloatHeap
+	{
+		/**
+		 * The number N to select
+		 */
+		final int n;
+		/**
+		 * Working storage
+		 */
+		private final float[] queue;
+
+		/**
+		 * Instantiates a new heap.
+		 *
+		 * @param n
+		 *            the number to select
+		 */
+		private FloatHeap(int n)
+		{
+			if (n < 1)
+				throw new IllegalArgumentException("N must be strictly positive");
+			this.queue = new float[n];
+			this.n = n;
+		}
+
+		/**
+		 * Add the first value to the heap.
+		 *
+		 * @param value
+		 *            the value
+		 */
+		private void start(float value)
+		{
+			queue[0] = value;
+		}
+
+		/**
+		 * Put the next value into the heap. This method is used to fill the heap from i=1 to i<n.
+		 *
+		 * @param i
+		 *            the index
+		 * @param value
+		 *            the value
+		 */
+		private void put(int i, float value)
+		{
+			queue[i] = value;
+			upHeapify(i);
+		}
+
+		/**
+		 * Push a value onto a full heap. This method is used to add more values to a full heap.
+		 *
+		 * @param value
+		 *            the value
+		 */
+		private void push(float value)
+		{
+			if (queue[0] > value)
+			{
+				queue[0] = value;
+				downHeapify(0);
+			}
+		}
+
+		private float getMaxValue()
+		{
+			return queue[0];
+		}
+
+		private void upHeapify(int c)
+		{
+			for (int p = (c - 1) / 2; c != 0 && queue[c] > queue[p]; c = p, p = (c - 1) / 2)
+			{
+				float pDist = queue[p];
+				queue[p] = queue[c];
+				queue[c] = pDist;
+			}
+		}
+
+		private void downHeapify(int p)
+		{
+			for (int c = p * 2 + 1; c < n; p = c, c = p * 2 + 1)
+			{
+				if (c + 1 < n && queue[c] < queue[c + 1])
+				{
+					c++;
+				}
+				if (queue[p] < queue[c])
+				{
+					// Swap the points
+					float pDist = queue[p];
+					queue[p] = queue[c];
+					queue[c] = pDist;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+
+	/**
 	 * Set the core distance.
 	 *
 	 * @param object
@@ -676,54 +797,82 @@ public class OPTICSManager extends CoordinateStore
 			// Not a core point
 			return;
 
+		// Use a heap structure. This should out perform a pointer to the max value when 
+		// minPts is much lower than the number of neighbours.
 		final Molecule[] list = neighbours.list;
 
-		// Avoid a full sort using a priority queue structure.
-		// We retain a pointer to the current highest value in the set. 
-		int max = 0;
-		floatArray[0] = list[0].d;
-
-		// Fill 
+		heap.start(list[0].d);
 		int i = 1;
 		while (i < minPts)
 		{
-			floatArray[i] = list[i].d;
-			if (floatArray[max] < floatArray[i])
-				max = i;
-			i++;
+			heap.put(i, list[i++].d);
 		}
-
 		// Scan
 		while (i < size)
 		{
-			// Replace if lower
-			if (floatArray[max] > list[i].d)
-			{
-				floatArray[max] = list[i].d;
-				// Find new max
-				for (int j = minPts; j-- > 0;)
-				{
-					if (floatArray[max] < floatArray[j])
-						max = j;
-				}
-			}
-			i++;
+			heap.push(list[i++].d);
 		}
 
-		object.coreDistance = floatArray[max];
+		object.coreDistance = heap.getMaxValue();
 
-		// TODO - See if this is faster
-		// Try a sorted heap
-		//		ags.utils.dataStructures.trees.secondGenKD.FloatHeap heap = new ags.utils.dataStructures.trees.secondGenKD.FloatHeap(minPts);
-		//		for (int j = 0; j < size; j++)
-		//			heap.addValue(list[j].d);
-		//		object.coreDistance = heap.getMaxDist();
-
-		// Full sort 
-		//		for (int i = size; i-- > 0;)
-		//			floatArray[i] = list[i].d;
-		//		Arrays.sort(floatArray, 0, size);
-		//		currentObject.coreDistance = floatArray[minPts - 1];
+		//		// DEBUGGING : Used for Speed timing
+		//		for (int ii = 100; ii-- > 0;)
+		//		{
+		//			final boolean useHeap = true;
+		//			if (useHeap)
+		//			{
+		//				// Fill 
+		//				heap.start(list[0].d);
+		//				i = 1;
+		//				while (i < minPts)
+		//				{
+		//					heap.put(i, list[i++].d);
+		//				}
+		//				// Scan
+		//				while (i < size)
+		//				{
+		//					heap.push(list[i++].d);
+		//				}
+		//				
+		//				object.coreDistance = heap.getMaxValue();
+		//			}
+		//			else
+		//			{
+		//				// Avoid a full sort using a priority queue structure.
+		//				// We retain a pointer to the current highest value in the set. 
+		//				int max = 0;
+		//				floatArray[0] = list[0].d;
+		//
+		//				// Fill 
+		//				i = 1;
+		//				while (i < minPts)
+		//				{
+		//					floatArray[i] = list[i].d;
+		//					if (floatArray[max] < floatArray[i])
+		//						max = i;
+		//					i++;
+		//				}
+		//
+		//				// Scan
+		//				while (i < size)
+		//				{
+		//					// Replace if lower
+		//					if (floatArray[max] > list[i].d)
+		//					{
+		//						floatArray[max] = list[i].d;
+		//						// Find new max
+		//						for (int j = minPts; j-- > 0;)
+		//						{
+		//							if (floatArray[max] < floatArray[j])
+		//								max = j;
+		//						}
+		//					}
+		//					i++;
+		//				}
+		//
+		//				object.coreDistance = floatArray[max];
+		//			}
+		//		}
 	}
 
 	/**
@@ -916,8 +1065,7 @@ public class OPTICSManager extends CoordinateStore
 			}
 		}
 
-		if (!options.contains(Option.CACHE))
-			clearMemory();
+		finish();
 
 		return dbscanResult;
 	}

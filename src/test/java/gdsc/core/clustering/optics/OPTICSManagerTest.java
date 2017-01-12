@@ -606,6 +606,27 @@ public class OPTICSManagerTest
 				om.optics(0, minPts);
 			}
 		}
+
+		// Use to speed time the algorithm when making changes
+		//		long time2 = 0;
+		//		for (int i = 10; i-- > 0;)
+		//		{
+		//			long time = System.nanoTime();
+		//			for (int n : N)
+		//			{
+		//				OPTICSManager om = createOPTICSManager(size, n);
+		//
+		//				for (int minPts : new int[] { 10, 20 })
+		//				{
+		//					om.optics(0, minPts);
+		//				}
+		//			}
+		//			time = System.nanoTime() - time;
+		//			System.out.printf("Time = %d\n", time);
+		//			if (i < 5)
+		//				time2 += time;
+		//		}
+		//		System.out.printf("Time = %d\n", time2);
 	}
 
 	@Test
@@ -1068,7 +1089,7 @@ public class OPTICSManagerTest
 				generate(space);
 			return space;
 		}
-		
+
 		void generate(MoleculeSpace space)
 		{
 			space.generate();
