@@ -8,7 +8,6 @@ public class FloatHeap
 	final float[] distance;
 	private final int size;
 	int values;
-	public Object removedData;
 	public float removedDist;
 
 	public FloatHeap(int size)
@@ -90,5 +89,10 @@ public class FloatHeap
 			return Float.POSITIVE_INFINITY;
 		}
 		return distance[0];
+	}
+	
+	public float[] values()
+	{
+		return distance;
 	}
 }

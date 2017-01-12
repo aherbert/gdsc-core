@@ -8,7 +8,6 @@ public class DoubleHeap
 	final double[] distance;
 	private final int size;
 	int values;
-	public Object removedData;
 	public double removedDist;
 
 	public DoubleHeap(int size)
@@ -90,5 +89,10 @@ public class DoubleHeap
 			return Double.POSITIVE_INFINITY;
 		}
 		return distance[0];
+	}
+	
+	public double[] values()
+	{
+		return distance;
 	}
 }

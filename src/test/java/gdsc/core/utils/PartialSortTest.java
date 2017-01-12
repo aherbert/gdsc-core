@@ -35,20 +35,28 @@ public class PartialSortTest
 		}
 	}
 
+	int[] testN = new int[] { 2, 3, 5, 10, 20, 30, 40, 50 };
+	int[] testM = new int[] { 50, 100, 500 };
+
 	@Test
-	public void botttomNofMIsCorrect()
+	public void bottomNofMIsCorrect()
 	{
-		for (int n : new int[] { 1, 3, 5, 10 })
-			for (int m : new int[] { 10, 20, 50 })
+		for (int n : testN)
+			for (int m : testM)
 			{
-				computeBottom(100, n, m);
+				bottomCompute(100, n, m);
 			}
 	}
 
 	private static double[] bottom(int n, double[] d)
 	{
-		Arrays.sort(d);
+		bottomSort(d);
 		return Arrays.copyOf(d, n);
+	}
+
+	private static void bottomSort(double[] d)
+	{
+		Arrays.sort(d);
 	}
 
 	@Test
@@ -83,7 +91,7 @@ public class PartialSortTest
 		Assert.assertArrayEquals(e, o, 0);
 	}
 
-	public void computeBottom(int length, final int n, final int m)
+	public void bottomCompute(int length, final int n, final int m)
 	{
 		double[][] data = createData(length, m);
 		String msg = String.format(" %d of %d", n, m);
@@ -126,19 +134,32 @@ public class PartialSortTest
 			{
 				double[] e = (double[])expected.run(expected.getData(i));
 				double[] o = (double[])result;
-				Arrays.sort(o);
+				bottomSort(o);
 				Assert.assertArrayEquals(e, o, 0);
 			}
 		});
 		final PartialSort.DoubleSelector ps = new PartialSort.DoubleSelector(n);
-		ts.execute(new MyTimingTask("bottomInstance" + msg, data)
+		ts.execute(new MyTimingTask("DoubleSelector" + msg, data)
 		{
 			public Object run(Object data) { return ps.bottom(0, (double[]) data); }
 			public void check(int i, Object result)
 			{
 				double[] e = (double[])expected.run(expected.getData(i));
 				double[] o = (double[])result;
-				Arrays.sort(o);
+				bottomSort(o);
+				Assert.assertArrayEquals(e, o, 0);
+			}
+		});
+		
+		final PartialSort.DoubleHeap heap = new PartialSort.DoubleHeap(n);
+		ts.execute(new MyTimingTask("DoubleHeap" + msg, data)
+		{
+			public Object run(Object data) { return heap.bottom(0, (double[]) data); }
+			public void check(int i, Object result)
+			{
+				double[] e = (double[])expected.run(expected.getData(i));
+				double[] o = (double[])result;
+				bottomSort(o);
 				Assert.assertArrayEquals(e, o, 0);
 			}
 		});
@@ -146,9 +167,149 @@ public class PartialSortTest
 		//@formatter:on
 
 		// Sometimes this fails
-		if ((double) n / m > 0.5)
-			Assert.assertTrue(String.format("%f vs %f" + msg, ts.get(0).getMean(), ts.get(1).getMean()),
-					ts.get(0).getMean() > ts.get(1).getMean() * 0.5);
+		//		if ((double) n / m > 0.5)
+		//			Assert.assertTrue(String.format("%f vs %f" + msg, ts.get(0).getMean(), ts.get(1).getMean()),
+		//					ts.get(0).getMean() > ts.get(1).getMean() * 0.5);
+
+		ts.check();
+
+		ts.report();
+	}
+
+	@Test
+	public void topNofMIsCorrect()
+	{
+		for (int n : testN)
+			for (int m : testM)
+			{
+				topCompute(100, n, m);
+			}
+	}
+
+	private static double[] top(int n, double[] d)
+	{
+		topSort(d);
+		return Arrays.copyOf(d, n);
+	}
+
+	private static void topSort(double[] d)
+	{
+		Arrays.sort(d);
+		Sort.reverse(d);
+	}
+
+	@Test
+	public void topCanHandleNullData()
+	{
+		double[] o = PartialSort.top((double[]) null, 5);
+		Assert.assertEquals(0, o.length);
+	}
+
+	@Test
+	public void topCanHandleEmptyData()
+	{
+		double[] o = PartialSort.top(new double[0], 5);
+		Assert.assertEquals(0, o.length);
+	}
+
+	@Test
+	public void topCanHandleIncompleteData()
+	{
+		double[] d = { 1, 3, 2 };
+		double[] e = { 1, 2, 3 };
+		double[] o = PartialSort.top(d, 5);
+		Assert.assertArrayEquals(e, o, 0);
+	}
+
+	@Test
+	public void topCanHandleNaNData()
+	{
+		double[] d = { 1, 2, Double.NaN, 3 };
+		double[] e = { 1, 2, 3 };
+		double[] o = PartialSort.top(d, 5);
+		Assert.assertArrayEquals(e, o, 0);
+	}
+
+	public void topCompute(int length, final int n, final int m)
+	{
+		double[][] data = createData(length, m);
+		String msg = String.format(" %d of %d", n, m);
+
+		final MyTimingTask expected = new MyTimingTask("Sort" + msg, data)
+		{
+			public Object run(Object data)
+			{
+				return top(n, (double[]) data);
+			}
+		};
+
+		//@formatter:off
+		TimingService ts = new TimingService();
+		ts.execute(expected);
+		ts.execute(new MyTimingTask("topSort" + msg, data)
+		{
+			public Object run(Object data) { return PartialSort.top((double[]) data, n); }
+			public void check(int i, Object result)
+			{
+				double[] e = (double[])expected.run(expected.getData(i));
+				double[] o = (double[])result;
+				Assert.assertArrayEquals(e, o, 0);
+			}
+		});
+		ts.execute(new MyTimingTask("topHead" + msg, data)
+		{
+			public Object run(Object data) { return PartialSort.top(PartialSort.OPTION_HEAD_FIRST, (double[]) data, n); }
+			public void check(int i, Object result)
+			{
+				double[] e = (double[])expected.run(expected.getData(i));
+				double[] o = (double[])result;
+				Assert.assertEquals(e[n-1], o[0], 0);
+			}
+		});
+		ts.execute(new MyTimingTask("top" + msg, data)
+		{
+			public Object run(Object data) { return PartialSort.top(0, (double[]) data, n); }
+			public void check(int i, Object result)
+			{
+				double[] e = (double[])expected.run(expected.getData(i));
+				double[] o = (double[])result;
+				topSort(o);
+				Assert.assertArrayEquals(e, o, 0);
+			}
+		});
+		final PartialSort.DoubleSelector ps = new PartialSort.DoubleSelector(n);
+		ts.execute(new MyTimingTask("DoubleSelector" + msg, data)
+		{
+			public Object run(Object data) { return ps.top(0, (double[]) data); }
+			public void check(int i, Object result)
+			{
+				double[] e = (double[])expected.run(expected.getData(i));
+				double[] o = (double[])result;
+				topSort(o);
+				Assert.assertArrayEquals(e, o, 0);
+			}
+		});
+		
+		final PartialSort.DoubleHeap heap = new PartialSort.DoubleHeap(n);
+		ts.execute(new MyTimingTask("DoubleHeap" + msg, data)
+		{
+			public Object run(Object data) { return heap.top(0, (double[]) data); }
+			public void check(int i, Object result)
+			{
+				double[] e = (double[])expected.run(expected.getData(i));
+				double[] o = (double[])result;
+				topSort(o);
+				Assert.assertArrayEquals(e, o, 0);
+			}
+		});
+
+		//@formatter:on
+
+		//		// Sometimes this fails
+		//		if ((double) n / m > 0.5)
+		//			Assert.assertTrue(String.format("%f vs %f" + msg, ts.get(0).getMean(), ts.get(1).getMean()),
+		//					ts.get(0).getMean() > ts.get(1).getMean() * 0.5);
+
 		ts.check();
 
 		ts.report();
