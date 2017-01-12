@@ -798,7 +798,9 @@ public class OPTICSManager extends CoordinateStore
 			return;
 
 		// Use a heap structure. This should out perform a pointer to the max value when 
-		// minPts is much lower than the number of neighbours.
+		// minPts is much lower than the number of neighbours. When it is similar then 
+		// the speed is fast no matter what method is used since minPts is expected to be low
+		// (somewhere around 5 for 2D data).
 		final Molecule[] list = neighbours.list;
 
 		heap.start(list[0].d);
