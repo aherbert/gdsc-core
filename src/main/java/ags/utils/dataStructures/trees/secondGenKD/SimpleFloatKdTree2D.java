@@ -21,6 +21,7 @@
 package ags.utils.dataStructures.trees.secondGenKD;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -269,6 +270,113 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 		}
 
 		return results;
+	}
+
+	/**
+	 * Calculates the nearest 'count' point distances to 'location'. Results are unsorted. The first entry in the
+	 * returned results in the max distance.
+	 */
+	public float[] nearestNeighbor(float[] location, int count)
+	{
+		SimpleFloatKdTreeNode2D cursor = this;
+		cursor.status = Status.NONE;
+		float range = Float.POSITIVE_INFINITY;
+		FloatHeap resultHeap = new FloatHeap(count);
+
+		do
+		{
+			if (cursor.status == Status.ALLVISITED)
+			{
+				// At a fully visited part. Move up the tree
+				cursor = cursor.parent;
+				continue;
+			}
+
+			if (cursor.status == Status.NONE && cursor.locations != null)
+			{
+				// At a leaf. Use the data.
+				if (cursor.locationCount > 0)
+				{
+					if (cursor.singularity)
+					{
+						float dist = pointDist(cursor.locations[0], location);
+						if (dist <= range)
+						{
+							for (int i = 0; i < cursor.locationCount; i++)
+							{
+								resultHeap.addValue(dist);
+							}
+						}
+					}
+					else
+					{
+						for (int i = 0; i < cursor.locationCount; i++)
+						{
+							float dist = pointDist(cursor.locations[i], location);
+							resultHeap.addValue(dist);
+						}
+					}
+					range = resultHeap.getMaxDist();
+				}
+
+				if (cursor.parent == null)
+				{
+					break;
+				}
+				cursor = cursor.parent;
+				continue;
+			}
+
+			// Going to descend
+			SimpleFloatKdTreeNode2D nextCursor = null;
+			if (cursor.status == Status.NONE)
+			{
+				// At a fresh node, descend the most probably useful direction
+				if (location[cursor.splitDimension] > cursor.splitValue)
+				{
+					// Descend right
+					nextCursor = cursor.right;
+					cursor.status = Status.RIGHTVISITED;
+				}
+				else
+				{
+					// Descend left;
+					nextCursor = cursor.left;
+					cursor.status = Status.LEFTVISITED;
+				}
+			}
+			else if (cursor.status == Status.LEFTVISITED)
+			{
+				// Left node visited, descend right.
+				nextCursor = cursor.right;
+				cursor.status = Status.ALLVISITED;
+			}
+			else if (cursor.status == Status.RIGHTVISITED)
+			{
+				// Right node visited, descend left.
+				nextCursor = cursor.left;
+				cursor.status = Status.ALLVISITED;
+			}
+
+			// Check if it's worth descending. Assume it is if it's sibling has
+			// not been visited yet.
+			if (cursor.status == Status.ALLVISITED)
+			{
+				if (nextCursor.locationCount == 0 || (!nextCursor.singularity &&
+						pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range))
+				{
+					continue;
+				}
+			}
+
+			// Descend down the tree
+			cursor = nextCursor;
+			cursor.status = Status.NONE;
+		} while (cursor.parent != null || cursor.status != Status.ALLVISITED);
+
+		if (count == resultHeap.values)
+			return resultHeap.distance;
+		return Arrays.copyOf(resultHeap.distance, resultHeap.values);
 	}
 
 	/**

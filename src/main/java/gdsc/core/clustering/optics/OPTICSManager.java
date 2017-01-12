@@ -1279,7 +1279,7 @@ public class OPTICSManager extends CoordinateStore
 			int index = indices[i];
 			float[] location = new float[] { xcoord[index], ycoord[index] };
 			// The tree will use the squared distance so compute the root
-			d[i] = (float) (Math.sqrt(tree.nearestNeighbor(location, k, false).get(0).distance));
+			d[i] = (float) (Math.sqrt(tree.nearestNeighbor(location, k)[0]));
 		}
 		if (tracker != null)
 		{
