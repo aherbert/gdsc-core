@@ -604,7 +604,7 @@ public class PartialSort
 			this.queue = new float[n];
 			this.n = n;
 		}
-		
+
 		/**
 		 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
 		 * <p>
@@ -1432,5 +1432,164 @@ public class PartialSort
 			list = new FloatHeap(n).top(options, list, size);
 		}
 		return list;
+	}
+
+	// The following select routine is copied from: 
+	// Numerical Recipes in C++, The Art of Scientific Computing, 2nd Edition, Cambridge Press.
+
+	/**
+	 * Given k in [0..n-1] returns an array value from arr[0..n-1] such that k array values are less than or equal to
+	 * the one returned. The input array will be rearranged to have this value in arr[k], with all smaller elements
+	 * moved to arr[0..k-1] (in arbitrary order) and all larger elements in arr[k+1..n-1] (also in arbitrary order).
+	 *
+	 * @param k
+	 *            the k
+	 * @param n
+	 *            the n
+	 * @param arr
+	 *            the arr
+	 * @return the value
+	 */
+	public static double select(int k, int n, double[] arr)
+	{
+		int i, ir, j, l, mid;
+		double a;
+
+		l = 0;
+		ir = n - 1;
+		for (;;)
+		{
+			if (ir <= l + 1)
+			{
+				if (ir == l + 1 && arr[ir] < arr[l])
+				{
+					SWAP(arr, l, ir);
+				}
+				return arr[k];
+			}
+			else
+			{
+				mid = (l + ir) >> 1;
+				SWAP(arr, mid, l + 1);
+				if (arr[l] > arr[ir])
+				{
+					SWAP(arr, l, ir);
+				}
+				if (arr[l + 1] > arr[ir])
+				{
+					SWAP(arr, l + 1, ir);
+				}
+				if (arr[l] > arr[l + 1])
+				{
+					SWAP(arr, l, l + 1);
+				}
+				i = l + 1;
+				j = ir;
+				a = arr[l + 1];
+				for (;;)
+				{
+					do
+						i++;
+					while (arr[i] < a);
+					do
+						j--;
+					while (arr[j] > a);
+					if (j < i)
+						break;
+					SWAP(arr, i, j);
+				}
+				arr[l + 1] = arr[j];
+				arr[j] = a;
+				if (j >= k)
+					ir = j - 1;
+				if (j <= k)
+					l = i;
+			}
+		}
+	}
+
+	private static void SWAP(double[] data, int a, int b)
+	{
+		double temp = data[a];
+		data[a] = data[b];
+		data[b] = temp;
+	}
+
+	/**
+	 * Given k in [0..n-1] returns an array value from arr[0..n-1] such that k array values are less than or equal to
+	 * the one returned. The input array will be rearranged to have this value in arr[k], with all smaller elements
+	 * moved to arr[0..k-1] (in arbitrary order) and all larger elements in arr[k+1..n-1] (also in arbitrary order).
+	 *
+	 * @param k
+	 *            the k
+	 * @param n
+	 *            the n
+	 * @param arr
+	 *            the arr
+	 * @return the value
+	 */
+	public static float select(int k, int n, float[] arr)
+	{
+		int i, ir, j, l, mid;
+		float a;
+
+		l = 0;
+		ir = n - 1;
+		for (;;)
+		{
+			if (ir <= l + 1)
+			{
+				if (ir == l + 1 && arr[ir] < arr[l])
+				{
+					SWAP(arr, l, ir);
+				}
+				return arr[k];
+			}
+			else
+			{
+				mid = (l + ir) >> 1;
+				SWAP(arr, mid, l + 1);
+				if (arr[l] > arr[ir])
+				{
+					SWAP(arr, l, ir);
+				}
+				if (arr[l + 1] > arr[ir])
+				{
+					SWAP(arr, l + 1, ir);
+				}
+				if (arr[l] > arr[l + 1])
+				{
+					SWAP(arr, l, l + 1);
+				}
+				i = l + 1;
+				j = ir;
+				a = arr[l + 1];
+				for (;;)
+				{
+					do
+						i++;
+					while (arr[i] < a);
+					do
+						j--;
+					while (arr[j] > a);
+					if (j < i)
+						break;
+					SWAP(arr, i, j);
+				}
+				arr[l + 1] = arr[j];
+				arr[j] = a;
+				if (j >= k)
+					ir = j - 1;
+				if (j <= k)
+					l = i;
+			}
+		}
+	}
+
+	private static void SWAP(float[] data, int a, int b)
+	{
+		float temp = data[a];
+		data[a] = data[b];
+		data[b] = temp;
 	}
 }

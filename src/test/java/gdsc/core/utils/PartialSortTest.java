@@ -163,6 +163,21 @@ public class PartialSortTest
 				Assert.assertArrayEquals(e, o, 0);
 			}
 		});
+		ts.execute(new MyTimingTask("select" + msg, data)
+		{
+			public Object run(Object data) { 
+				double[] arr = (double[]) data;
+				PartialSort.select(n-1, arr.length, arr);
+				return Arrays.copyOf(arr, n);
+			}
+			public void check(int i, Object result)
+			{
+				double[] e = (double[])expected.run(expected.getData(i));
+				double[] o = (double[])result;
+				bottomSort(o);
+				Assert.assertArrayEquals(e, o, 0);
+			}
+		});
 
 		//@formatter:on
 
