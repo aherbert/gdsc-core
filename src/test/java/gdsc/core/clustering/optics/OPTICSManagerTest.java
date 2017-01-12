@@ -296,8 +296,14 @@ public class OPTICSManagerTest
 				for (DBIDIter it = order.iter(); it.valid(); it.advance(), i++)
 				{
 					if (i == 0)
+					{
+						//System.out.printf("[%d] %d\n", i, r1.get(i).parent);
+
 						// No predecessor or reachability distance
 						continue;
+					}
+
+					String prefix = "[" + i + "] ";
 
 					int expId = asInteger(it);
 					int obsId = r1.get(i).parent;
@@ -312,9 +318,9 @@ public class OPTICSManagerTest
 					//System.out.printf("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
 					//		r1.get(i).coreDistance, expPre, obsPre);
 
-					Assert.assertEquals(expId, obsId);
-					Assert.assertEquals(expPre, obsPre);
-					Assert.assertEquals(expR, obsR, expR * 1e-5);
+					Assert.assertEquals(prefix + "Id", expId, obsId);
+					Assert.assertEquals(prefix + "Pre", expPre, obsPre);
+					Assert.assertEquals(prefix + "R", expR, obsR, expR * 1e-5);
 				}
 			}
 		}

@@ -207,9 +207,25 @@ public class OPTICSManager extends CoordinateStore
 	private final static OPTICSComparator opticsComparator = new OPTICSComparator();
 
 	/**
+	 * Interface for the OPTICS priority queue. Molecules should be ordered by their reachability distance.
+	 */
+	private interface OPTICSPriorityQueue
+	{
+		public void push(Molecule m);
+
+		public void moveUp(Molecule object);
+
+		public boolean hasNext();
+
+		public Molecule next();
+
+		public void clear();
+	}
+
+	/**
 	 * Used in the OPTICS algorithm to store the next seed is a priority queue
 	 */
-	private class OPTICSMoleculePriorityQueue extends MoleculeArray
+	class OPTICSMoleculePriorityQueue extends MoleculeArray implements OPTICSPriorityQueue
 	{
 		int next = 0;
 
@@ -218,7 +234,7 @@ public class OPTICSManager extends CoordinateStore
 			super(capacity);
 		}
 
-		void push(Molecule m)
+		public void push(Molecule m)
 		{
 			set(m, size++);
 			moveUp(m);
@@ -230,12 +246,13 @@ public class OPTICSManager extends CoordinateStore
 			m.setQueueIndex(index);
 		}
 
-		void clear()
+		public void moveUp(Molecule object)
 		{
-			size = next = 0;
+			if (opticsComparator.compare(object, list[next]) < 0)
+				swap(next, object.getQueueIndex());
 		}
 
-		boolean hasNext()
+		public boolean hasNext()
 		{
 			return next < size;
 		}
@@ -264,10 +281,100 @@ public class OPTICSManager extends CoordinateStore
 			set(m, j);
 		}
 
+		public void clear()
+		{
+			size = next = 0;
+		}
+	}
+
+	/**
+	 * An implementation of a binary heap respecting minimum order.
+	 * <p>
+	 * This class is based on ags.utils.dataStructures.BinaryHeap
+	 */
+	class OPTICSMoleculeBinaryHeap extends MoleculeArray implements OPTICSPriorityQueue
+	{
+		OPTICSMoleculeBinaryHeap(int capacity)
+		{
+			super(capacity);
+		}
+
+		public void push(Molecule m)
+		{
+			set(m, size++);
+			moveUp(m);
+		}
+
+		void set(Molecule m, int index)
+		{
+			list[index] = m;
+			m.setQueueIndex(index);
+		}
+
+		public boolean hasNext()
+		{
+			return size != 0;
+		}
+
+		public Molecule next()
+		{
+			Molecule m = list[0];
+			list[0] = list[--size];
+			siftDown(0);
+			return m;
+		}
+
 		public void moveUp(Molecule object)
 		{
-			if (opticsComparator.compare(object, list[next]) < 0)
-				swap(next, object.getQueueIndex());
+			siftUp(object.getQueueIndex());
+		}
+
+		private void siftUp(int c)
+		{
+			for (int p = (c - 1) / 2; c != 0 &&
+					opticsComparator.compare(list[c], list[p]) < 0					
+					//list[c].reachabilityDistance < list[p].reachabilityDistance
+					; c = p, p = (c - 1) / 2)
+			{
+				swap(p, c);
+			}
+		}
+
+		private void swap(int i, int j)
+		{
+			Molecule m = list[i];
+			set(list[j], i);
+			set(m, j);
+		}
+
+		private void siftDown(int p)
+		{
+			for (int c = p * 2 + 1; c < size; p = c, c = p * 2 + 1)
+			{
+				if (c + 1 < size &&
+						opticsComparator.compare(list[c], list[c + 1]) > 0
+						//list[c].reachabilityDistance > list[c + 1].reachabilityDistance
+						)
+				{
+					c++;
+				}
+				if (
+						opticsComparator.compare(list[p], list[c]) > 0						
+						//list[p].reachabilityDistance > list[c].reachabilityDistance
+						)
+				{
+					swap(p, c);
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+
+		public void clear()
+		{
+			super.clear();
 		}
 	}
 
@@ -305,6 +412,112 @@ public class OPTICSManager extends CoordinateStore
 		}
 	}
 
+	/**
+	 * An optimised heap structure for selecting the top n values.
+	 */
+	private static class FloatHeap
+	{
+		/**
+		 * The number N to select
+		 */
+		final int n;
+		/**
+		 * Working storage
+		 */
+		private final float[] queue;
+
+		/**
+		 * Instantiates a new heap.
+		 *
+		 * @param n
+		 *            the number to select
+		 */
+		private FloatHeap(int n)
+		{
+			if (n < 1)
+				throw new IllegalArgumentException("N must be strictly positive");
+			this.queue = new float[n];
+			this.n = n;
+		}
+
+		/**
+		 * Add the first value to the heap.
+		 *
+		 * @param value
+		 *            the value
+		 */
+		private void start(float value)
+		{
+			queue[0] = value;
+		}
+
+		/**
+		 * Put the next value into the heap. This method is used to fill the heap from i=1 to i<n.
+		 *
+		 * @param i
+		 *            the index
+		 * @param value
+		 *            the value
+		 */
+		private void put(int i, float value)
+		{
+			queue[i] = value;
+			upHeapify(i);
+		}
+
+		/**
+		 * Push a value onto a full heap. This method is used to add more values to a full heap.
+		 *
+		 * @param value
+		 *            the value
+		 */
+		private void push(float value)
+		{
+			if (queue[0] > value)
+			{
+				queue[0] = value;
+				downHeapify(0);
+			}
+		}
+
+		private float getMaxValue()
+		{
+			return queue[0];
+		}
+
+		private void upHeapify(int c)
+		{
+			for (int p = (c - 1) / 2; c != 0 && queue[c] > queue[p]; c = p, p = (c - 1) / 2)
+			{
+				float pDist = queue[p];
+				queue[p] = queue[c];
+				queue[c] = pDist;
+			}
+		}
+
+		private void downHeapify(int p)
+		{
+			for (int c = p * 2 + 1; c < n; p = c, c = p * 2 + 1)
+			{
+				if (c + 1 < n && queue[c] < queue[c + 1])
+				{
+					c++;
+				}
+				if (queue[p] < queue[c])
+				{
+					// Swap the points
+					float pDist = queue[p];
+					queue[p] = queue[c];
+					queue[c] = pDist;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Input arrays are modified
 	 * 
@@ -369,7 +582,9 @@ public class OPTICSManager extends CoordinateStore
 		final int size = xcoord.length;
 		Molecule[] setOfObjects = grid.setOfObjects;
 
-		OPTICSMoleculePriorityQueue orderSeeds = new OPTICSMoleculePriorityQueue(size);
+		OPTICSPriorityQueue orderSeeds;
+		//orderSeeds = new OPTICSMoleculePriorityQueue(size);
+		orderSeeds = new OPTICSMoleculeBinaryHeap(size);
 		OPTICSResultList results = new OPTICSResultList(size);
 
 		for (int i = 0; i < size; i++)
@@ -643,7 +858,7 @@ public class OPTICSManager extends CoordinateStore
 	 * @return true, if the algorithm has received a shutdown signal
 	 */
 	private boolean expandClusterOrder(Molecule object, float e, int minPts, OPTICSResultList orderedFile,
-			OPTICSMoleculePriorityQueue orderSeeds)
+			OPTICSPriorityQueue orderSeeds)
 	{
 		grid.findNeighboursAndDistances(minPts, object, e);
 		object.markProcessed();
@@ -672,112 +887,6 @@ public class OPTICSManager extends CoordinateStore
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * An optimised heap structure for selecting the top n values.
-	 */
-	private static class FloatHeap
-	{
-		/**
-		 * The number N to select
-		 */
-		final int n;
-		/**
-		 * Working storage
-		 */
-		private final float[] queue;
-
-		/**
-		 * Instantiates a new heap.
-		 *
-		 * @param n
-		 *            the number to select
-		 */
-		private FloatHeap(int n)
-		{
-			if (n < 1)
-				throw new IllegalArgumentException("N must be strictly positive");
-			this.queue = new float[n];
-			this.n = n;
-		}
-
-		/**
-		 * Add the first value to the heap.
-		 *
-		 * @param value
-		 *            the value
-		 */
-		private void start(float value)
-		{
-			queue[0] = value;
-		}
-
-		/**
-		 * Put the next value into the heap. This method is used to fill the heap from i=1 to i<n.
-		 *
-		 * @param i
-		 *            the index
-		 * @param value
-		 *            the value
-		 */
-		private void put(int i, float value)
-		{
-			queue[i] = value;
-			upHeapify(i);
-		}
-
-		/**
-		 * Push a value onto a full heap. This method is used to add more values to a full heap.
-		 *
-		 * @param value
-		 *            the value
-		 */
-		private void push(float value)
-		{
-			if (queue[0] > value)
-			{
-				queue[0] = value;
-				downHeapify(0);
-			}
-		}
-
-		private float getMaxValue()
-		{
-			return queue[0];
-		}
-
-		private void upHeapify(int c)
-		{
-			for (int p = (c - 1) / 2; c != 0 && queue[c] > queue[p]; c = p, p = (c - 1) / 2)
-			{
-				float pDist = queue[p];
-				queue[p] = queue[c];
-				queue[c] = pDist;
-			}
-		}
-
-		private void downHeapify(int p)
-		{
-			for (int c = p * 2 + 1; c < n; p = c, c = p * 2 + 1)
-			{
-				if (c + 1 < n && queue[c] < queue[c + 1])
-				{
-					c++;
-				}
-				if (queue[p] < queue[c])
-				{
-					// Swap the points
-					float pDist = queue[p];
-					queue[p] = queue[c];
-					queue[c] = pDist;
-				}
-				else
-				{
-					break;
-				}
-			}
-		}
 	}
 
 	/**
@@ -902,7 +1011,7 @@ public class OPTICSManager extends CoordinateStore
 	 *            the object
 	 * @param next
 	 */
-	private void update(OPTICSMoleculePriorityQueue orderSeeds, MoleculeList neighbours, Molecule centreObject)
+	private void update(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours, Molecule centreObject)
 	{
 		final float c_dist = centreObject.coreDistance;
 		for (int i = neighbours.size; i-- > 0;)
