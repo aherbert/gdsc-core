@@ -797,11 +797,25 @@ public class OPTICSManager extends CoordinateStore
 			// Not a core point
 			return;
 
+		final Molecule[] list = neighbours.list;
+
+		// Special case where we find the max value
+		if (size == minPts)
+		{
+			float max = list[0].d;
+			for (int i = 1; i < size; i++)
+			{
+				if (max < list[i].d)
+					max = list[i].d;
+			}
+			object.coreDistance = max;
+			return;
+		}
+
 		// Use a heap structure. This should out perform a pointer to the max value when 
 		// minPts is much lower than the number of neighbours. When it is similar then 
 		// the speed is fast no matter what method is used since minPts is expected to be low
 		// (somewhere around 5 for 2D data).
-		final Molecule[] list = neighbours.list;
 
 		heap.start(list[0].d);
 		int i = 1;
