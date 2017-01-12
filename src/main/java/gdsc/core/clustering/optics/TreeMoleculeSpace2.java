@@ -1,36 +1,29 @@
 package gdsc.core.clustering.optics;
 
-import ags.utils.dataStructures.trees.secondGenKD.KdTree2D;
-import ags.utils.dataStructures.trees.secondGenKD.NeighbourStore;
+import ags.utils.dataStructures.trees.thirdGenKD.DistanceFunction;
+import ags.utils.dataStructures.trees.thirdGenKD.KdTree2D;
+import ags.utils.dataStructures.trees.thirdGenKD.NearestNeighborIterator;
+import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction2D;
 
 /**
  * Store molecules in a 2D tree
  */
-class TreeMoleculeSpace extends MoleculeSpace
+class TreeMoleculeSpace2 extends MoleculeSpace
 {
-	private class MoleculeStore implements NeighbourStore<Molecule>
-	{
-		public void add(double distance, Molecule m)
-		{
-			m.d = (float) distance;
-			neighbours.add(m);
-		}
-	}
-	
+	private static final DistanceFunction distanceFunction = new SquareEuclideanDistanceFunction2D();
+
 	/**
 	 * Used for access to the raw coordinates
 	 */
 	protected final OPTICSManager opticsManager;
 
 	private KdTree2D<Molecule> tree;
-	private final MoleculeStore store;
 
-	TreeMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE)
+	TreeMoleculeSpace2(OPTICSManager opticsManager, float generatingDistanceE)
 	{
 		super(opticsManager.getSize(), generatingDistanceE);
 
 		this.opticsManager = opticsManager;
-		this.store = new MoleculeStore();
 	}
 
 	// Nothing to add to default toString()
@@ -39,7 +32,7 @@ class TreeMoleculeSpace extends MoleculeSpace
 	//	{
 	//		return this.getClass().getSimpleName();
 	//	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -51,7 +44,7 @@ class TreeMoleculeSpace extends MoleculeSpace
 		final float[] ycoord = opticsManager.getYData();
 
 		setOfObjects = new Molecule[xcoord.length];
-		tree = new KdTree2D.SqrEuclid2D<Molecule>();
+		tree = new KdTree2D<Molecule>();
 		for (int i = 0; i < xcoord.length; i++)
 		{
 			final float x = xcoord[i];
@@ -73,8 +66,18 @@ class TreeMoleculeSpace extends MoleculeSpace
 	 */
 	void findNeighbours(int minPts, Molecule object, float e)
 	{
+		NearestNeighborIterator<Molecule> iter = tree.getNearestNeighborIterator(new double[] { object.x, object.y },
+				tree.size(), distanceFunction);
 		neighbours.clear();
-		tree.findNeighbor(new double[] { object.x, object.y }, e, store);
+		final double e2 = e;
+		while (iter.hasNext())
+		{
+			Molecule m = iter.next();
+			if (iter.distance() <= e2)
+				neighbours.add(m);
+			else
+				break;
+		}
 	}
 
 	/*
@@ -85,7 +88,20 @@ class TreeMoleculeSpace extends MoleculeSpace
 	 */
 	void findNeighboursAndDistances(int minPts, Molecule object, float e)
 	{
+		NearestNeighborIterator<Molecule> iter = tree.getNearestNeighborIterator(new double[] { object.x, object.y },
+				tree.size(), distanceFunction);
 		neighbours.clear();
-		tree.findNeighbor(new double[] { object.x, object.y }, e, store);
+		while (iter.hasNext())
+		{
+			Molecule m = iter.next();
+			float d = (float) iter.distance();
+			if (d <= e)
+			{
+				m.d = d;
+				neighbours.add(m);
+			}
+			else
+				break;
+		}
 	}
 }

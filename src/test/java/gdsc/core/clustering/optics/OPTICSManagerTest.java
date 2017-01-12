@@ -999,12 +999,13 @@ public class OPTICSManagerTest
 
 	private enum MS
 	{
-		SIMPLE, GRID, RADIAL, INNER_RADIAL, TREE
+		SIMPLE, GRID, RADIAL, INNER_RADIAL, TREE, TREE2
 	}
 
 	private abstract class MyTimingTask extends BaseTimingTask
 	{
 		MS ms;
+		boolean generate;
 		OPTICSManager[] om;
 		int minPts;
 		float generatingDistanceE, e;
@@ -1012,11 +1013,12 @@ public class OPTICSManagerTest
 		Option[] options;
 		String name;
 
-		public MyTimingTask(MS ms, OPTICSManager[] om, int minPts, float generatingDistanceE, int resolution,
-				Option... options)
+		public MyTimingTask(MS ms, boolean generate, OPTICSManager[] om, int minPts, float generatingDistanceE,
+				int resolution, Option... options)
 		{
 			super(ms.toString());
 			this.ms = ms;
+			this.generate = generate;
 			this.om = om;
 			this.generatingDistanceE = generatingDistanceE;
 			this.resolution = resolution;
@@ -1057,11 +1059,21 @@ public class OPTICSManagerTest
 				case TREE:
 					space = new TreeMoleculeSpace(om[i], generatingDistanceE);
 					break;
+				case TREE2:
+					space = new TreeMoleculeSpace2(om[i], generatingDistanceE);
+					break;
 			}
 			om[i].setOptions(o);
-			space.generate();
-			name = space.toString();
+			if (generate)
+				generate(space);
 			return space;
+		}
+		
+		void generate(MoleculeSpace space)
+		{
+			space.generate();
+			if (name == null)
+				name = space.toString();
 		}
 
 		@Override
@@ -1069,41 +1081,34 @@ public class OPTICSManagerTest
 		{
 			return name;
 		}
-
-		public Object run(Object data)
-		{
-			MoleculeSpace ms = (MoleculeSpace) data;
-			int[][] n = new int[ms.size][];
-			for (int i = ms.size; i-- > 0;)
-			{
-				ms.findNeighbours(minPts, ms.setOfObjects[i], e);
-				int[] nn = new int[ms.neighbours.size];
-				for (int j = ms.neighbours.size; j-- > 0;)
-					nn[j] = ms.neighbours.get(j).id;
-				n[i] = nn;
-			}
-			return n;
-		}
 	}
 
 	private abstract class FindNeighboursTimingTask extends MyTimingTask
 	{
+		public FindNeighboursTimingTask(MS ms, boolean generate, OPTICSManager[] om, int minPts,
+				float generatingDistanceE, int resolution, Option... options)
+		{
+			super(ms, generate, om, minPts, generatingDistanceE, resolution, options);
+		}
+
 		public FindNeighboursTimingTask(MS ms, OPTICSManager[] om, int minPts, float generatingDistanceE,
 				int resolution, Option... options)
 		{
-			super(ms, om, minPts, generatingDistanceE, resolution, options);
+			super(ms, false, om, minPts, generatingDistanceE, resolution, options);
 		}
 
 		public Object run(Object data)
 		{
-			MoleculeSpace ms = (MoleculeSpace) data;
-			int[][] n = new int[ms.size][];
-			for (int i = ms.size; i-- > 0;)
+			MoleculeSpace space = (MoleculeSpace) data;
+			if (!generate)
+				generate(space);
+			int[][] n = new int[space.size][];
+			for (int i = space.size; i-- > 0;)
 			{
-				ms.findNeighbours(minPts, ms.setOfObjects[i], e);
-				int[] nn = new int[ms.neighbours.size];
-				for (int j = ms.neighbours.size; j-- > 0;)
-					nn[j] = ms.neighbours.get(j).id;
+				space.findNeighbours(minPts, space.setOfObjects[i], e);
+				int[] nn = new int[space.neighbours.size];
+				for (int j = space.neighbours.size; j-- > 0;)
+					nn[j] = space.neighbours.get(j).id;
 				n[i] = nn;
 			}
 			return n;
@@ -1123,7 +1128,7 @@ public class OPTICSManagerTest
 		// Results
 		final int[][][] n = new int[om.length][][];
 
-		TimingService ts = new TimingService(2);
+		TimingService ts = new TimingService(5);
 		boolean check = true;
 
 		ts.execute(new FindNeighboursTimingTask(MS.SIMPLE, om, minPts, generatingDistanceE, 0)
@@ -1201,6 +1206,133 @@ public class OPTICSManagerTest
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.TREE, om, minPts, generatingDistanceE, 0)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name, e[j], o[j]);
+			}
+		}, check);
+		ts.execute(new FindNeighboursTimingTask(MS.TREE2, om, minPts, generatingDistanceE, 0)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name, e[j], o[j]);
+			}
+		}, check);
+
+		ts.report();
+	}
+
+	@Test
+	public void canTestMoleculeSpaceFindNeighboursPregenerated()
+	{
+		OPTICSManager[] om = new OPTICSManager[5];
+		for (int i = 0; i < om.length; i++)
+			om[i] = createOPTICSManager(size, 1000);
+
+		float generatingDistanceE = 10;
+		final int minPts = 20;
+
+		// Results
+		final int[][][] n = new int[om.length][][];
+
+		TimingService ts = new TimingService(5);
+		boolean check = true;
+
+		ts.execute(new FindNeighboursTimingTask(MS.SIMPLE, true, om, minPts, generatingDistanceE, 0)
+		{
+			public void check(int i, Object result)
+			{
+				// Store these as the correct results
+				n[i] = format(result);
+			}
+		}, check);
+		ts.execute(new FindNeighboursTimingTask(MS.GRID, true, om, minPts, generatingDistanceE, 0)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name + j, e[j], o[j]);
+			}
+		}, check);
+		ts.execute(new FindNeighboursTimingTask(MS.GRID, true, om, minPts, generatingDistanceE, 10)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name + j, e[j], o[j]);
+			}
+		}, check);
+		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, true, om, minPts, generatingDistanceE, 0)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name, e[j], o[j]);
+			}
+		}, check);
+		ts.execute(new FindNeighboursTimingTask(MS.INNER_RADIAL, true, om, minPts, generatingDistanceE, 0)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name, e[j], o[j]);
+			}
+		}, check);
+		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, true, om, minPts, generatingDistanceE, 10)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name, e[j], o[j]);
+			}
+		}, check);
+		ts.execute(new FindNeighboursTimingTask(MS.INNER_RADIAL, true, om, minPts, generatingDistanceE, 10)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name, e[j], o[j]);
+			}
+		}, check);
+		ts.execute(new FindNeighboursTimingTask(MS.TREE, true, om, minPts, generatingDistanceE, 0)
+		{
+			public void check(int i, Object result)
+			{
+				String name = getName() + ":" + i + ":";
+				int[][] e = n[i];
+				int[][] o = format(result);
+				for (int j = 0; j < e.length; j++)
+					Assert.assertArrayEquals(name, e[j], o[j]);
+			}
+		}, check);
+		ts.execute(new FindNeighboursTimingTask(MS.TREE2, true, om, minPts, generatingDistanceE, 0)
 		{
 			public void check(int i, Object result)
 			{
