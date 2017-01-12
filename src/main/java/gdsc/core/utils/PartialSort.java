@@ -604,7 +604,7 @@ public class PartialSort
 			this.queue = new float[n];
 			this.n = n;
 		}
-
+		
 		/**
 		 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
 		 * <p>
