@@ -20,6 +20,9 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.random.RandomDataGenerator;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -59,12 +62,11 @@ import gdsc.core.test.TimingResult;
 import gdsc.core.test.TimingService;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.PartialSort;
-import gdsc.core.utils.Random;
 
 public class OPTICSManagerTest
 {
 	boolean skipSpeedTest = true;
-	private gdsc.core.utils.Random rand = new Random(30051977);
+	private RandomDataGenerator rand = new RandomDataGenerator(new Well19937c(30051977));
 
 	int size = 256;
 	float[] radii = new float[] { 2, 4, 8, 16 };
@@ -1807,7 +1809,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canTestOPTICSQueue()
 	{
-		int molecules = 20000;
+		int molecules = 5000;
 		float generatingDistanceE = 0;
 		final int minPts = 5;
 
@@ -1937,13 +1939,45 @@ public class OPTICSManagerTest
 
 	private OPTICSManager createOPTICSManager(int size, int n)
 	{
+		double noiseFraction = 0.1;
+		int clusterMin = 2;
+		int clusterMax = 30;
+		double radius = size / 20.0;
+		return createOPTICSManager(size, n, noiseFraction, clusterMin, clusterMax, radius);
+	}
+
+	private OPTICSManager createOPTICSManager(int size, int n, double noiseFraction, int clusterMin, int clusterMax,
+			double radius)
+	{
 		float[] xcoord = new float[n];
 		float[] ycoord = new float[xcoord.length];
-		for (int i = 0; i < xcoord.length; i++)
+
+		int i = 0;
+
+		// Uniform noise
+		int noise = (int) (noiseFraction * n);
+		for (; i < noise; i++)
 		{
-			xcoord[i] = rand.next() * size;
-			ycoord[i] = rand.next() * size;
+			xcoord[i] = (float) rand.nextUniform(0, size);
+			ycoord[i] = (float) rand.nextUniform(0, size);
 		}
+
+		// Clustered
+		RandomGenerator r = rand.getRandomGenerator();
+		while (i < n)
+		{
+			// Create a cluster
+			int m = rand.nextInt(clusterMin, clusterMax);
+			double x = r.nextDouble();
+			double y = r.nextDouble();
+			while (m-- > 0 && i < n)
+			{
+				xcoord[i] = (float) rand.nextGaussian(x, radius);
+				ycoord[i] = (float) rand.nextGaussian(y, radius);
+				i++;
+			}
+		}
+
 		OPTICSManager om = new OPTICSManager(xcoord, ycoord, new Rectangle(size, size));
 		return om;
 	}
