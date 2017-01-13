@@ -1814,7 +1814,7 @@ public class OPTICSManagerTest
 		double nMoleculesInPixel = (double) molecules / (size * size);
 		int[] moleculesInArea = new int[] { 0, 5, 10, 20, 50 };
 
-		OPTICSManager[] om = new OPTICSManager[10];
+		OPTICSManager[] om = new OPTICSManager[5];
 		for (int i = 0; i < om.length; i++)
 		{
 			om[i] = createOPTICSManager(size, molecules);
