@@ -69,7 +69,19 @@ public class OPTICSManager extends CoordinateStore
 		 * <p>
 		 * Note: If no options are provided then the memory structure will be chosen automatically.
 		 */
-		GRID_PROCESSING;
+		GRID_PROCESSING,
+		/**
+		 * Flag to indicate that OPTICS should sort objects using their input order (id) if the reachability distance is
+		 * equal. Objects are sorted in reverse ID order. Omitting this flag default to sorting objects using their
+		 * reachability distance.
+		 * <p>
+		 * Note: This option matches the implementation in the ELKI framework.
+		 */
+		OPTICS_STRICT_REVERSE_ID_ORDER,
+		/**
+		 * Flag to indicate that OPTICS should sort objects using a simple priority queue. The default is a binary heap.
+		 */
+		OPTICS_SIMPLE_PRIORITY_QUEUE;
 	}
 
 	EnumSet<Option> options = EnumSet.noneOf(Option.class);
@@ -211,14 +223,39 @@ public class OPTICSManager extends CoordinateStore
 	 */
 	private interface OPTICSPriorityQueue
 	{
+		/**
+		 * Push the molecule to the queue and move up.
+		 *
+		 * @param m
+		 *            the molecule
+		 */
 		public void push(Molecule m);
 
-		public void moveUp(Molecule object);
+		/**
+		 * Move the molecule up the queue (since the reachability distance has changed).
+		 *
+		 * @param m
+		 *            the molecule
+		 */
+		public void moveUp(Molecule m);
 
+		/**
+		 * Checks for next.
+		 *
+		 * @return true, if successful
+		 */
 		public boolean hasNext();
 
+		/**
+		 * Get the next molecule.
+		 *
+		 * @return the molecule
+		 */
 		public Molecule next();
 
+		/**
+		 * Clear the queue.
+		 */
 		public void clear();
 	}
 
@@ -248,7 +285,7 @@ public class OPTICSManager extends CoordinateStore
 
 		public void moveUp(Molecule object)
 		{
-			if (opticsComparator.compare(object, list[next]) < 0)
+			if (object.reachabilityDistance < list[next].reachabilityDistance)
 				swap(next, object.getQueueIndex());
 		}
 
@@ -266,7 +303,7 @@ public class OPTICSManager extends CoordinateStore
 				int lowest = next;
 				for (int i = next + 1; i < size; i++)
 				{
-					if (opticsComparator.compare(list[i], list[lowest]) < 0)
+					if (list[i].reachabilityDistance < list[lowest].reachabilityDistance)
 						lowest = i;
 				}
 				swap(next, lowest);
@@ -274,7 +311,7 @@ public class OPTICSManager extends CoordinateStore
 			return m;
 		}
 
-		private void swap(int i, int j)
+		void swap(int i, int j)
 		{
 			Molecule m = list[i];
 			set(list[j], i);
@@ -284,6 +321,44 @@ public class OPTICSManager extends CoordinateStore
 		public void clear()
 		{
 			size = next = 0;
+		}
+	}
+
+	/**
+	 * Used in the OPTICS algorithm to store the next seed is a priority queue
+	 * <p>
+	 * If distances are equal then IDs are used to sort the objects in reverse order.
+	 */
+	class OPTICSMoleculePriorityQueueID extends OPTICSMoleculePriorityQueue
+	{
+		int next = 0;
+
+		OPTICSMoleculePriorityQueueID(int capacity)
+		{
+			super(capacity);
+		}
+
+		public void moveUp(Molecule object)
+		{
+			if (opticsComparator.compare(object, list[next]) < 0)
+				swap(next, object.getQueueIndex());
+		}
+
+		public Molecule next()
+		{
+			Molecule m = list[next++];
+			if (hasNext())
+			{
+				// Find the next lowest molecule
+				int lowest = next;
+				for (int i = next + 1; i < size; i++)
+				{
+					if (opticsComparator.compare(list[i], list[lowest]) < 0)
+						lowest = i;
+				}
+				swap(next, lowest);
+			}
+			return m;
 		}
 	}
 
@@ -329,39 +404,31 @@ public class OPTICSManager extends CoordinateStore
 			siftUp(object.getQueueIndex());
 		}
 
-		private void siftUp(int c)
+		void siftUp(int c)
 		{
 			for (int p = (c - 1) / 2; c != 0 &&
-					opticsComparator.compare(list[c], list[p]) < 0					
-					//list[c].reachabilityDistance < list[p].reachabilityDistance
-					; c = p, p = (c - 1) / 2)
+					list[c].reachabilityDistance < list[p].reachabilityDistance; c = p, p = (c - 1) / 2)
 			{
 				swap(p, c);
 			}
 		}
 
-		private void swap(int i, int j)
+		void swap(int i, int j)
 		{
 			Molecule m = list[i];
 			set(list[j], i);
 			set(m, j);
 		}
 
-		private void siftDown(int p)
+		void siftDown(int p)
 		{
 			for (int c = p * 2 + 1; c < size; p = c, c = p * 2 + 1)
 			{
-				if (c + 1 < size &&
-						opticsComparator.compare(list[c], list[c + 1]) > 0
-						//list[c].reachabilityDistance > list[c + 1].reachabilityDistance
-						)
+				if (c + 1 < size && list[c].reachabilityDistance > list[c + 1].reachabilityDistance)
 				{
 					c++;
 				}
-				if (
-						opticsComparator.compare(list[p], list[c]) > 0						
-						//list[p].reachabilityDistance > list[c].reachabilityDistance
-						)
+				if (list[p].reachabilityDistance > list[c].reachabilityDistance)
 				{
 					swap(p, c);
 				}
@@ -375,6 +442,46 @@ public class OPTICSManager extends CoordinateStore
 		public void clear()
 		{
 			super.clear();
+		}
+	}
+
+	/**
+	 * An implementation of a binary heap respecting minimum order.
+	 * <p>
+	 * If distances are equal then IDs are used to sort the objects in reverse order.
+	 */
+	class OPTICSMoleculeBinaryHeapID extends OPTICSMoleculeBinaryHeap
+	{
+		OPTICSMoleculeBinaryHeapID(int capacity)
+		{
+			super(capacity);
+		}
+
+		void siftUp(int c)
+		{
+			for (int p = (c - 1) / 2; c != 0 && opticsComparator.compare(list[c], list[p]) < 0; c = p, p = (c - 1) / 2)
+			{
+				swap(p, c);
+			}
+		}
+
+		void siftDown(int p)
+		{
+			for (int c = p * 2 + 1; c < size; p = c, c = p * 2 + 1)
+			{
+				if (c + 1 < size && opticsComparator.compare(list[c], list[c + 1]) > 0)
+				{
+					c++;
+				}
+				if (opticsComparator.compare(list[p], list[c]) > 0)
+				{
+					swap(p, c);
+				}
+				else
+				{
+					break;
+				}
+			}
 		}
 	}
 
@@ -517,7 +624,7 @@ public class OPTICSManager extends CoordinateStore
 			}
 		}
 	}
-	
+
 	/**
 	 * Input arrays are modified
 	 * 
@@ -582,9 +689,22 @@ public class OPTICSManager extends CoordinateStore
 		final int size = xcoord.length;
 		Molecule[] setOfObjects = grid.setOfObjects;
 
+		// Allow different queue implementations
 		OPTICSPriorityQueue orderSeeds;
-		//orderSeeds = new OPTICSMoleculePriorityQueue(size);
-		orderSeeds = new OPTICSMoleculeBinaryHeap(size);
+		if (options.contains(Option.OPTICS_SIMPLE_PRIORITY_QUEUE))
+		{
+			if (options.contains(Option.OPTICS_STRICT_REVERSE_ID_ORDER))
+				orderSeeds = new OPTICSMoleculePriorityQueueID(size);
+			else
+				orderSeeds = new OPTICSMoleculePriorityQueue(size);
+		}
+		else
+		{
+			if (options.contains(Option.OPTICS_STRICT_REVERSE_ID_ORDER))
+				orderSeeds = new OPTICSMoleculeBinaryHeapID(size);
+			else
+				orderSeeds = new OPTICSMoleculeBinaryHeap(size);
+		}
 		OPTICSResultList results = new OPTICSResultList(size);
 
 		for (int i = 0; i < size; i++)
@@ -869,9 +989,7 @@ public class OPTICSManager extends CoordinateStore
 		if (object.coreDistance != UNDEFINED)
 		{
 			// Create seed-list for further expansion.
-			// The next counter is used to ensure we sort only the remaining entries in the seed list.
-			orderSeeds.clear();
-			update(orderSeeds, grid.neighbours, object);
+			fill(orderSeeds, grid.neighbours, object);
 
 			while (orderSeeds.hasNext())
 			{
@@ -1001,6 +1119,34 @@ public class OPTICSManager extends CoordinateStore
 	}
 
 	/**
+	 * Clear the seeds and fill with the unprocessed neighbours of the current object. Set the reachability distance and reorder.
+	 *
+	 * @param orderSeeds
+	 *            the order seeds
+	 * @param neighbours
+	 *            the neighbours
+	 * @param centreObject
+	 *            the object
+	 */
+	private void fill(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours, Molecule centreObject)
+	{
+		orderSeeds.clear();
+		
+		final float c_dist = centreObject.coreDistance;
+		for (int i = neighbours.size; i-- > 0;)
+		{
+			final Molecule object = neighbours.get(i);
+			if (object.isNotProcessed())
+			{
+				// This is new so add it to the list
+				object.reachabilityDistance = max(c_dist, object.d);
+				object.predecessor = centreObject.id;
+				orderSeeds.push(object);
+			}
+		}
+	}
+
+	/**
 	 * Update the ordered seeds with the neighbours of the current object. Set the reachability distance and reorder.
 	 *
 	 * @param orderSeeds
@@ -1009,7 +1155,6 @@ public class OPTICSManager extends CoordinateStore
 	 *            the neighbours
 	 * @param centreObject
 	 *            the object
-	 * @param next
 	 */
 	private void update(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours, Molecule centreObject)
 	{
