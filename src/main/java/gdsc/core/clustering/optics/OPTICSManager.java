@@ -72,8 +72,20 @@ public class OPTICSManager extends CoordinateStore
 		GRID_PROCESSING,
 		/**
 		 * Flag to indicate that OPTICS should sort objects using their input order (id) if the reachability distance is
-		 * equal. Objects are sorted in reverse ID order. Omitting this flag default to sorting objects using their
-		 * reachability distance.
+		 * equal.
+		 * <p>
+		 * Omitting this flag defaults to sorting objects using their reachability distance. If the reachability
+		 * distance is the same then the order will be dependent on the type of priority queue, i.e. is
+		 * non-deterministic.
+		 */
+		OPTICS_STRICT_ID_ORDER,
+		/**
+		 * Flag to indicate that OPTICS should sort objects using their reverse input order (id) if the reachability
+		 * distance is equal.
+		 * <p>
+		 * Omitting this flag defaults to sorting objects using their reachability distance. If the reachability
+		 * distance is the same then the order will be dependent on the type of priority queue, i.e. is
+		 * non-deterministic.
 		 * <p>
 		 * Note: This option matches the implementation in the ELKI framework.
 		 */
@@ -197,7 +209,7 @@ public class OPTICSManager extends CoordinateStore
 	/**
 	 * Used to rank molecules by their reachability distance. Used in the OPTICS algorithm.
 	 */
-	private static class OPTICSComparator implements Comparator<Molecule>
+	private static class OPTICSReverseIdComparator implements Comparator<Molecule>
 	{
 		public int compare(Molecule o1, Molecule o2)
 		{
@@ -216,7 +228,25 @@ public class OPTICSManager extends CoordinateStore
 		}
 	}
 
-	private final static OPTICSComparator opticsComparator = new OPTICSComparator();
+	private final static OPTICSReverseIdComparator opticsReverseIdComparator = new OPTICSReverseIdComparator();
+
+	/**
+	 * Used to rank molecules by their reachability distance. Used in the OPTICS algorithm.
+	 */
+	private static class OPTICSIdComparator implements Comparator<Molecule>
+	{
+		public int compare(Molecule o1, Molecule o2)
+		{
+			// Sort by reachability distance
+			if (o1.reachabilityDistance < o2.reachabilityDistance)
+				return -1;
+			if (o1.reachabilityDistance > o2.reachabilityDistance)
+				return 1;
+			return o1.id - o2.id;
+		}
+	}
+
+	private final static OPTICSIdComparator opticsIdComparator = new OPTICSIdComparator();
 
 	/**
 	 * Interface for the OPTICS priority queue. Molecules should be ordered by their reachability distance.
@@ -329,16 +359,19 @@ public class OPTICSManager extends CoordinateStore
 	 * <p>
 	 * If distances are equal then IDs are used to sort the objects in reverse order.
 	 */
-	class OPTICSMoleculePriorityQueueID extends OPTICSMoleculePriorityQueue
+	class OPTICSMoleculePriorityQueueOrdered extends OPTICSMoleculePriorityQueue
 	{
-		OPTICSMoleculePriorityQueueID(int capacity)
+		final Comparator<Molecule> comp;
+
+		OPTICSMoleculePriorityQueueOrdered(int capacity, Comparator<Molecule> comp)
 		{
 			super(capacity);
+			this.comp = comp;
 		}
 
 		public void moveUp(Molecule object)
 		{
-			if (opticsComparator.compare(object, list[next]) < 0)
+			if (comp.compare(object, list[next]) < 0)
 				swap(next, object.getQueueIndex());
 		}
 
@@ -351,7 +384,7 @@ public class OPTICSManager extends CoordinateStore
 				int lowest = next;
 				for (int i = next + 1; i < size; i++)
 				{
-					if (opticsComparator.compare(list[i], list[lowest]) < 0)
+					if (comp.compare(list[i], list[lowest]) < 0)
 						lowest = i;
 				}
 				swap(next, lowest);
@@ -448,16 +481,19 @@ public class OPTICSManager extends CoordinateStore
 	 * <p>
 	 * If distances are equal then IDs are used to sort the objects in reverse order.
 	 */
-	class OPTICSMoleculeBinaryHeapID extends OPTICSMoleculeBinaryHeap
+	class OPTICSMoleculeBinaryHeapOrdered extends OPTICSMoleculeBinaryHeap
 	{
-		OPTICSMoleculeBinaryHeapID(int capacity)
+		final Comparator<Molecule> comp;
+
+		OPTICSMoleculeBinaryHeapOrdered(int capacity, Comparator<Molecule> comp)
 		{
 			super(capacity);
+			this.comp = comp;
 		}
 
 		void siftUp(int c)
 		{
-			for (int p = (c - 1) / 2; c != 0 && opticsComparator.compare(list[c], list[p]) < 0; c = p, p = (c - 1) / 2)
+			for (int p = (c - 1) / 2; c != 0 && comp.compare(list[c], list[p]) < 0; c = p, p = (c - 1) / 2)
 			{
 				swap(p, c);
 			}
@@ -467,11 +503,11 @@ public class OPTICSManager extends CoordinateStore
 		{
 			for (int c = p * 2 + 1; c < size; p = c, c = p * 2 + 1)
 			{
-				if (c + 1 < size && opticsComparator.compare(list[c], list[c + 1]) > 0)
+				if (c + 1 < size && comp.compare(list[c], list[c + 1]) > 0)
 				{
 					c++;
 				}
-				if (opticsComparator.compare(list[p], list[c]) > 0)
+				if (comp.compare(list[p], list[c]) > 0)
 				{
 					swap(p, c);
 				}
@@ -691,15 +727,19 @@ public class OPTICSManager extends CoordinateStore
 		OPTICSPriorityQueue orderSeeds;
 		if (options.contains(Option.OPTICS_SIMPLE_PRIORITY_QUEUE))
 		{
-			if (options.contains(Option.OPTICS_STRICT_REVERSE_ID_ORDER))
-				orderSeeds = new OPTICSMoleculePriorityQueueID(size);
+			if (options.contains(Option.OPTICS_STRICT_ID_ORDER))
+				orderSeeds = new OPTICSMoleculePriorityQueueOrdered(size, opticsIdComparator);
+			else if (options.contains(Option.OPTICS_STRICT_REVERSE_ID_ORDER))
+				orderSeeds = new OPTICSMoleculePriorityQueueOrdered(size, opticsReverseIdComparator);
 			else
 				orderSeeds = new OPTICSMoleculePriorityQueue(size);
 		}
 		else
 		{
-			if (options.contains(Option.OPTICS_STRICT_REVERSE_ID_ORDER))
-				orderSeeds = new OPTICSMoleculeBinaryHeapID(size);
+			if (options.contains(Option.OPTICS_STRICT_ID_ORDER))
+				orderSeeds = new OPTICSMoleculeBinaryHeapOrdered(size, opticsIdComparator);
+			else if (options.contains(Option.OPTICS_STRICT_REVERSE_ID_ORDER))
+				orderSeeds = new OPTICSMoleculeBinaryHeapOrdered(size, opticsReverseIdComparator);
 			else
 				orderSeeds = new OPTICSMoleculeBinaryHeap(size);
 		}
