@@ -34,6 +34,14 @@ public class TimingService
 	{
 		return results.size();
 	}
+	
+	/**
+	 * Clear the results.
+	 */
+	public void clearResults()
+	{
+		results.clear();
+	}
 
 	/**
 	 * Get the timing result
