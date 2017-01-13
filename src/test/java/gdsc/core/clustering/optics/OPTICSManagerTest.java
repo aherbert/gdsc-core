@@ -1806,7 +1806,7 @@ public class OPTICSManagerTest
 	 * the number of molecules within the generating distance is high. When at the default level then the speed is
 	 * similar.
 	 */
-	@Test
+	//@Test
 	public void canTestOPTICSQueue()
 	{
 		int molecules = 5000;
