@@ -392,7 +392,7 @@ public class OPTICSManager extends CoordinateStore
 		public Molecule next()
 		{
 			Molecule m = list[0];
-			list[0] = list[--size];
+			set(list[--size], 0);
 			siftDown(0);
 			return m;
 		}
@@ -993,6 +993,8 @@ public class OPTICSManager extends CoordinateStore
 			{
 				object = orderSeeds.next();
 				grid.findNeighboursAndDistances(minPts, object, e);
+				if (!object.isNotProcessed())
+					System.out.printf("Choose a processed point ?\n");
 				object.markProcessed();
 				setCoreDistance(object, minPts, grid.neighbours);
 				if (orderedFile.add(object))
@@ -1117,7 +1119,8 @@ public class OPTICSManager extends CoordinateStore
 	}
 
 	/**
-	 * Clear the seeds and fill with the unprocessed neighbours of the current object. Set the reachability distance and reorder.
+	 * Clear the seeds and fill with the unprocessed neighbours of the current object. Set the reachability distance and
+	 * reorder.
 	 *
 	 * @param orderSeeds
 	 *            the order seeds
@@ -1129,7 +1132,7 @@ public class OPTICSManager extends CoordinateStore
 	private void fill(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours, Molecule centreObject)
 	{
 		orderSeeds.clear();
-		
+
 		final float c_dist = centreObject.coreDistance;
 		for (int i = neighbours.size; i-- > 0;)
 		{
