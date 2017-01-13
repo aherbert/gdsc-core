@@ -482,11 +482,70 @@ public class OPTICSManagerTest
 		canComputeOPTICSWithOptions(Option.INNER_PROCESSING, Option.CIRCULAR_PROCESSING);
 	}
 
-	public void canComputeOPTICSWithOptions(Option... options)
+	@Test
+	public void canComputeOPTICSWithSimpleQueue()
+	{
+		// This fails as the order is different when we do not use ID to order the objects when reachability distance is equal
+		//canComputeOPTICSWithOptions(Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
+
+		// We can do a simple check that the cluster ID and core distance are the same for each object.
+		// Since the processing order is different we cannot check the reachability distance or the predecessor.
+		canComputeOPTICSWithOptions(true, Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
+	}
+
+	@Test
+	public void canComputeOPTICSWithSimpleQueueReverseIdOrderD()
+	{
+		canComputeOPTICSWithOptions(new Option[] { Option.OPTICS_STRICT_REVERSE_ID_ORDER },
+				Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
+	}
+
+	@Test
+	public void canComputeOPTICSWithSimpleQueueIdOrder()
+	{
+		canComputeOPTICSWithOptions(new Option[] { Option.OPTICS_STRICT_ID_ORDER },
+				Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
+	}
+
+	private void canComputeOPTICSWithOptions(Option... options)
+	{
+		canComputeOPTICSWithOptions(false, options);
+	}
+
+	private void canComputeOPTICSWithOptions(boolean simpleCheck, Option... options)
 	{
 		for (int n : new int[] { 100, 500 })
 		{
 			OPTICSManager om1 = createOPTICSManager(size, n);
+			OPTICSManager om2 = om1.clone();
+			om2.setOptions(options);
+
+			for (int minPts : new int[] { 5, 10 })
+			{
+				// Use max range
+				OPTICSResult r1 = om1.optics(0, minPts);
+				OPTICSResult r1b = om1.optics(0, minPts);
+				OPTICSResult r2 = om2.optics(0, minPts);
+
+				areEqual("repeat", r1, r1b);
+				if (simpleCheck)
+				{
+					areEqualClusters("new", r1, r2);
+				}
+				else
+				{
+					areEqual("new", r1, r2);
+				}
+			}
+		}
+	}
+
+	private void canComputeOPTICSWithOptions(Option[] options1, Option... options)
+	{
+		for (int n : new int[] { 100, 500 })
+		{
+			OPTICSManager om1 = createOPTICSManager(size, n);
+			om1.setOptions(options1);
 			OPTICSManager om2 = om1.clone();
 			om2.setOptions(options);
 
@@ -513,7 +572,6 @@ public class OPTICSManagerTest
 
 			double expC = r1.get(i).coreDistance;
 			double obsC = r2.get(i).coreDistance;
-			Assert.assertEquals(title + " C " + i, expC, obsC, expC * 1e-5);
 
 			int expId = r1.get(i).parent;
 			int obsId = r2.get(i).parent;
@@ -527,10 +585,25 @@ public class OPTICSManagerTest
 			//System.out.printf("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
 			//		r1.get(i).coreDistance, expPre, obsPre);
 
+			Assert.assertEquals(title + " C " + i, expC, obsC, expC * 1e-5);
 			Assert.assertEquals(title + " Id " + i, expId, obsId);
 			Assert.assertEquals(title + " Pre " + i, expPre, obsPre);
 			Assert.assertEquals(title + " R " + i, expR, obsR, expR * 1e-5);
 		}
+	}
+
+	private void areEqualClusters(String title, OPTICSResult r1, OPTICSResult r2)
+	{
+		// We check the core distance and cluster ID are the same for each parent
+		double[] core1 = r1.getCoreDistance(false);
+		double[] core2 = r2.getCoreDistance(false);
+
+		Assert.assertArrayEquals("Core", core1, core2, 0);
+
+		int[] cluster1 = r1.getClusters();
+		int[] cluster2 = r2.getClusters();
+
+		Assert.assertArrayEquals("Cluster", cluster1, cluster2);
 	}
 
 	@Test
@@ -1657,6 +1730,128 @@ public class OPTICSManagerTest
 			}
 
 			//ts.check();
+
+			ts.report();
+		}
+	}
+
+	private class OPTICSTimingTask extends BaseTimingTask
+	{
+		int moleculesInArea;
+		OPTICSManager[] om;
+		int minPts;
+		float generatingDistanceE;
+		Option[] options;
+		String name = null;
+
+		public OPTICSTimingTask(int moleculesInArea, OPTICSManager[] om, int minPts, float generatingDistanceE,
+				Option... options)
+		{
+			super(options.toString());
+			this.moleculesInArea = moleculesInArea;
+			this.om = om;
+			this.generatingDistanceE = generatingDistanceE;
+			this.minPts = minPts;
+			this.options = options;
+			setName();
+		}
+
+		private void setName()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.append("m=").append(moleculesInArea);
+			sb.append(" minPts=").append(minPts).append(" e=").append(generatingDistanceE);
+			for (Option o : options)
+				sb.append(' ').append(o.toString());
+			name = sb.toString();
+		}
+
+		public int getSize()
+		{
+			return om.length;
+		}
+
+		public Object getData(int i)
+		{
+			return om[i];
+		}
+
+		public Object run(Object data)
+		{
+			OPTICSManager om = (OPTICSManager) data;
+			// Set the options
+			EnumSet<Option> o = om.getOptions();
+			if (options != null)
+			{
+				o = o.clone();
+				om.setOptions(options);
+			}
+			OPTICSResult r = om.optics(generatingDistanceE, minPts);
+			// Reset
+			om.setOptions(o);
+			return r;
+		}
+
+		@Override
+		public String getName()
+		{
+			return name;
+		}
+	}
+
+	/**
+	 * Tests the speed of the different queue structures. The default Heap is faster that the simple priority queue when
+	 * the number of molecules within the generating distance is high. When at the default level then the speed is
+	 * similar.
+	 */
+	@Test
+	public void canTestOPTICSQueue()
+	{
+		int molecules = 20000;
+		float generatingDistanceE = 0;
+		final int minPts = 5;
+
+		double nMoleculesInPixel = (double) molecules / (size * size);
+		int[] moleculesInArea = new int[] { 0, 5, 10, 20, 50 };
+
+		OPTICSManager[] om = new OPTICSManager[10];
+		for (int i = 0; i < om.length; i++)
+		{
+			om[i] = createOPTICSManager(size, molecules);
+			om[i].setOptions(Option.CACHE);
+		}
+
+		for (int m : moleculesInArea)
+		{
+			// Increase generatingDistance until we achieve the molecules
+			double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
+			while (nMoleculesInCircle < m && generatingDistanceE < size)
+			{
+				generatingDistanceE += 0.1f;
+				nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
+			}
+
+			TimingService ts = new TimingService(3);
+
+			// Run once without timing so the structure is cached
+			OPTICSTimingTask task = new OPTICSTimingTask(m, om, minPts, generatingDistanceE);
+			ts.execute(task);
+			ts.clearResults();
+
+			// Note: It is not actually fair to do a speed test without strict ID ordering as the order may dictate the speed
+			// as the list of items to process will be built in a different order (and to a different size).
+			// So we can compare ID and reverse ID ordering for different structures. 
+			// But not no ID ordering for different structures as the order will be dictated by the structure itself.
+			ts.execute(task);
+			ts.execute(new OPTICSTimingTask(m, om, minPts, generatingDistanceE, Option.OPTICS_SIMPLE_PRIORITY_QUEUE));
+
+			//@formatter:off
+			ts.execute(new OPTICSTimingTask(m, om, minPts, generatingDistanceE, Option.OPTICS_STRICT_ID_ORDER));
+			ts.execute(new OPTICSTimingTask(m, om, minPts, generatingDistanceE, Option.OPTICS_STRICT_ID_ORDER, Option.OPTICS_SIMPLE_PRIORITY_QUEUE));
+
+			ts.execute(new OPTICSTimingTask(m, om, minPts, generatingDistanceE, Option.OPTICS_STRICT_REVERSE_ID_ORDER));
+			ts.execute(new OPTICSTimingTask(m, om, minPts, generatingDistanceE, Option.OPTICS_STRICT_REVERSE_ID_ORDER, Option.OPTICS_SIMPLE_PRIORITY_QUEUE));
+			//@formatter:on
 
 			ts.report();
 		}
