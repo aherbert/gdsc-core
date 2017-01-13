@@ -331,8 +331,6 @@ public class OPTICSManager extends CoordinateStore
 	 */
 	class OPTICSMoleculePriorityQueueID extends OPTICSMoleculePriorityQueue
 	{
-		int next = 0;
-
 		OPTICSMoleculePriorityQueueID(int capacity)
 		{
 			super(capacity);
