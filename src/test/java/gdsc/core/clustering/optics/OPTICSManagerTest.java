@@ -255,6 +255,8 @@ public class OPTICSManagerTest
 		{
 			OPTICSManager om = createOPTICSManager(size, n);
 			om.setTracker(tracker);
+			// Needed to match the ELKI framework
+			om.setOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER);
 
 			SimpleMoleculeSpace space = new SimpleMoleculeSpace(om, 0);
 			space.createDD();
@@ -342,6 +344,8 @@ public class OPTICSManagerTest
 		{
 			OPTICSManager om = createOPTICSManager(size, n);
 			om.setTracker(tracker);
+			// Needed to match the ELKI framework
+			om.setOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER);
 
 			// Compute the all-vs-all distance for checking the answer
 			SimpleMoleculeSpace space = new SimpleMoleculeSpace(om, 0);
