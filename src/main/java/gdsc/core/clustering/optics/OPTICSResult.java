@@ -127,8 +127,8 @@ public class OPTICSResult implements ClusteringResult
 	}
 
 	/**
-	 * Gets the core distance profile. Points with no core distance (stored as infinity) can be
-	 * converted to the generating distance.
+	 * Gets the core distance profile using the ordering defined by OPTICS. Points with no core distance (stored as
+	 * infinity) can be converted to the generating distance.
 	 *
 	 * @param convert
 	 *            convert non-core spots to have a core distance of the generating distance
@@ -139,6 +139,26 @@ public class OPTICSResult implements ClusteringResult
 		final double[] data = new double[size()];
 		for (int i = size(); i-- > 0;)
 			data[i] = opticsResults[i].coreDistance;
+		if (convert)
+			convert(data);
+		return data;
+	}
+
+	/**
+	 * Gets the core distance using the original input ordering. Points with no core distance (stored as infinity) can
+	 * be converted to the generating distance.
+	 * <p>
+	 * This method is different from {@link #getCoreDistanceProfile(boolean)} as the original input ordering is used.
+	 *
+	 * @param convert
+	 *            convert non-core spots to have a core distance of the generating distance
+	 * @return the core distance
+	 */
+	public double[] getCoreDistance(boolean convert)
+	{
+		final double[] data = new double[size()];
+		for (int i = size(); i-- > 0;)
+			data[opticsResults[i].parent] = opticsResults[i].coreDistance;
 		if (convert)
 			convert(data);
 		return data;
@@ -410,8 +430,7 @@ public class OPTICSResult implements ClusteringResult
 			{
 				if (opticsResults[i].isCorePoint())
 				{
-					int id = opticsResults[i].parent;
-					clusters[id] = opticsResults[i].clusterId;
+					clusters[opticsResults[i].parent] = opticsResults[i].clusterId;
 				}
 			}
 		}
@@ -419,8 +438,7 @@ public class OPTICSResult implements ClusteringResult
 		{
 			for (int i = size(); i-- > 0;)
 			{
-				int id = opticsResults[i].parent;
-				clusters[id] = opticsResults[i].clusterId;
+				clusters[opticsResults[i].parent] = opticsResults[i].clusterId;
 			}
 		}
 		return clusters;
@@ -501,7 +519,7 @@ public class OPTICSResult implements ClusteringResult
 			{
 				if (clusterId == NOISE)
 					continue;
-				
+
 				// Extend the current cluster
 				if (core)
 				{
