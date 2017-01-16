@@ -748,6 +748,15 @@ public class OPTICSManager extends CoordinateStore
 			else
 				orderSeeds = new OPTICSMoleculeBinaryHeap(size);
 		}
+		
+		// Testing ... Should we use the ID order by default? Nothing in the OPTICS paper mentions it.
+		// Perhaps the reachability distance profile is more consistent when changing the generating distance?
+		//orderSeeds = new OPTICSMoleculeBinaryHeap(size);
+		//orderSeeds = new OPTICSMoleculePriorityQueue(size);
+		//orderSeeds = new OPTICSMoleculeBinaryHeapIdOrdered(size);
+		//orderSeeds = new OPTICSMoleculePriorityQueueIdOrdered(size);
+		//orderSeeds = new OPTICSMoleculeBinaryHeapReverseIdOrdered(size);
+		
 		OPTICSResultList results = new OPTICSResultList(size);
 
 		for (int i = 0; i < size; i++)
