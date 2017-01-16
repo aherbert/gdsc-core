@@ -363,6 +363,16 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
     }
 
     /**
+     * Appends the specified element to the end of this list without capacity checks.
+     *
+     * @param e element to be appended to this list
+     * @throws IndexOutOfBoundsException if there is no more capacity
+     */
+    public void addf(E e) {
+        elementData[size++] = e;
+    }
+    
+    /**
      * Inserts the specified element at the specified position in this
      * list. Shifts the element currently at that position (if any) and
      * any subsequent elements to the right (adds one to their indices).
@@ -455,6 +465,14 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         // Let gc do its work
         for (int i = 0; i < size; i++)
             elementData[i] = null;
+
+        size = 0;
+    }
+
+    /**
+     * Removes all of the elements from this list. Does not set the references to null to allow garbage collection.
+     */
+    public void clearf() {
 
         size = 0;
     }
