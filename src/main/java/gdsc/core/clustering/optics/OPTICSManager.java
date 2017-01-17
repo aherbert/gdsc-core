@@ -361,7 +361,7 @@ public class OPTICSManager extends CoordinateStore
 			return m1.id > m2.id;
 		}
 	}
-	
+
 	/**
 	 * An implementation of a binary heap respecting minimum order.
 	 * <p>
@@ -406,9 +406,25 @@ public class OPTICSManager extends CoordinateStore
 
 		void siftUp(int c)
 		{
-			for (int p = (c - 1) / 2; c != 0 && lower(list[c], list[p]); c = p, p = (c - 1) / 2)
+			// Original
+			//			for (int p = (c - 1) / 2; c != 0 && lower(list[c], list[p]); c = p, p = (c - 1) / 2)
+			//			{
+			//				swap(p, c);
+			//			}
+			
+			// Remove unnecessary loop set-up statements, i.e. where p is not needed
+			while (c > 0)
 			{
-				swap(p, c);
+				final int p = (c - 1) / 2;
+				if (lower(list[c], list[p]))
+				{
+					swap(p, c);
+					c = p;
+				}
+				else
+				{
+					break;
+				}
 			}
 		}
 
@@ -453,7 +469,7 @@ public class OPTICSManager extends CoordinateStore
 			return m1.reachabilityDistance > m2.reachabilityDistance;
 		}
 	}
-	
+
 	/**
 	 * An implementation of a binary heap respecting minimum order.
 	 * <p>
@@ -475,7 +491,7 @@ public class OPTICSManager extends CoordinateStore
 				return false;
 			return m1.id < m2.id;
 		}
-		
+
 		@Override
 		boolean higher(Molecule m1, Molecule m2)
 		{
@@ -485,7 +501,9 @@ public class OPTICSManager extends CoordinateStore
 				return false;
 			return m1.id > m2.id;
 		}
-	}	/**
+	}
+
+	/**
 	 * An implementation of a binary heap respecting minimum order.
 	 * <p>
 	 * If distances are equal then IDs are used to sort the objects in reverse order.
@@ -506,7 +524,7 @@ public class OPTICSManager extends CoordinateStore
 				return false;
 			return m1.id > m2.id;
 		}
-		
+
 		@Override
 		boolean higher(Molecule m1, Molecule m2)
 		{
@@ -748,7 +766,7 @@ public class OPTICSManager extends CoordinateStore
 			else
 				orderSeeds = new OPTICSMoleculeBinaryHeap(size);
 		}
-		
+
 		// Testing ... Should we use the ID order by default? Nothing in the OPTICS paper mentions it.
 		// Perhaps the reachability distance profile is more consistent when changing the generating distance?
 		//orderSeeds = new OPTICSMoleculeBinaryHeap(size);
@@ -756,7 +774,7 @@ public class OPTICSManager extends CoordinateStore
 		//orderSeeds = new OPTICSMoleculeBinaryHeapIdOrdered(size);
 		//orderSeeds = new OPTICSMoleculePriorityQueueIdOrdered(size);
 		//orderSeeds = new OPTICSMoleculeBinaryHeapReverseIdOrdered(size);
-		
+
 		OPTICSResultList results = new OPTICSResultList(size);
 
 		for (int i = 0; i < size; i++)
