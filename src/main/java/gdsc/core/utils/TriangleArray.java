@@ -18,6 +18,46 @@ package gdsc.core.utils;
  * <p>
  * The amount of data will be n*(n-1)/2. The data can be iterated for i in 0:n-1 and for j in i+1:n-1. No index is
  * computed for i==j.
+ * <p>
+ * The following syntax is valid:
+ * 
+ * <pre>
+    int n;
+    TriangleArray a = new TriangleArray(n);
+    
+    // fast iteration over the data
+    for (int i = 0; i<n; i++)
+        for (int j = i + 1, index = a.toIndex(i, j); j<n; j++, index++)
+        {
+        }
+
+	// Iterate over all NxN values 
+	for (int i = 0; i<n; i++)
+	{
+		for (int j = 0, precursor = a.toPrecursorIndex(i); j < i; j++)
+		{
+			int k = a.toSafeIndex(i, j);
+			int index = a.precursorToIndex(precursor, j);
+			// k == index
+		}
+		for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
+		{
+			int k = a.toSafeIndex(i, j);
+			// k == index
+		}
+	}
+
+	// Comparing any index j to index i 
+	a.setup(i);
+	for (int j = 0; j < n; j++)
+	{
+		if (i == j)
+			continue;
+		int k = a.toSafeIndex(i, j);
+		int index = a.toIndex(j);
+		// k == index
+	}
+ * </pre>
  * 
  * @author Alex Herbert
  */
@@ -150,6 +190,71 @@ public class TriangleArray
 	public int toIndex(int i, int j)
 	{
 		return toIndex1 - (n - i) * ((n - i) - 1) / 2 + j - i;
+	}
+
+	private int j, precursor, rootIndex;
+
+	/**
+	 * Setup to generate the linear index for any index i and target index j
+	 * 
+	 * @param j
+	 *            the index j
+	 */
+	public void setup(int j)
+	{
+		this.j = j;
+		precursor = toPrecursorIndex(j);
+		rootIndex = toIndex(j, 0);
+	}
+
+	/**
+	 * Generate the linear index for any index i and target index j (initialised with {@link #setup(int)})
+	 * 
+	 * @param i
+	 *            the index i
+	 * @return the linear index
+	 * @throws IllegalArgumentException
+	 *             if i==j
+	 */
+	public int toIndex(int i)
+	{
+		if (j > i)
+		{
+			return precursorToIndex(precursor, i);
+		}
+		if (j < i)
+		{
+			return rootIndex + i;
+		}
+		throw new IllegalArgumentException("i cannot equal j");
+	}
+
+	/**
+	 * Convert from j to a precursor for the linear index. Index j must be greater than target i. Behaviour is
+	 * undefined if i==j.
+	 *
+	 * @param j
+	 *            the index j
+	 * @return the precursor to the linear index
+	 */
+	public int toPrecursorIndex(int j)
+	{
+		return toIndex1 + j;
+	}
+
+	/**
+	 * Convert from precursor j to linear index. Precursor for j must be computed with index j greater than i. Behaviour
+	 * is undefined if i==j.
+	 *
+	 * @param precusor
+	 *            the precursor to the linear index
+	 * @param i
+	 *            the index i
+	 * @return the linear index
+	 */
+	public int precursorToIndex(int precusor, int i)
+	{
+		return precusor - (n - i) * ((n - i) - 1) / 2 - i;
 	}
 
 	/**

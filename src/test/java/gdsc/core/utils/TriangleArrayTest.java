@@ -77,4 +77,84 @@ public class TriangleArrayTest
 				Assert.assertEquals(k, k2);
 			}
 	}
+
+	@Test
+	public void canFastComputePostIndex()
+	{
+		for (int n : testN)
+		{
+			TriangleArray a = new TriangleArray(n);
+
+			for (int i = 0; i < n; i++)
+				for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
+				{
+					int k = a.toIndex(i, j);
+					Assert.assertEquals("i", k, index);
+				}
+		}
+	}
+
+	@Test
+	public void canFastComputePreIndex()
+	{
+		for (int n : testN)
+		{
+			TriangleArray a = new TriangleArray(n);
+
+			for (int j = n; j-- > 0;)
+				for (int i = j, index = a.toPrecursorIndex(j); i-- > 0;)
+				{
+					int k = a.toIndex(i, j);
+					int k2 = a.precursorToIndex(index, i);
+					Assert.assertEquals("i", k, k2);
+				}
+		}
+	}
+
+	@Test
+	public void canFastIterateNxN()
+	{
+		for (int n : testN)
+		{
+			TriangleArray a = new TriangleArray(n);
+
+			for (int i = 0; i < n; i++)
+			{
+				for (int j = 0, precursor = a.toPrecursorIndex(i); j < i; j++)
+				{
+					int k = a.toSafeIndex(i, j);
+					int k2 = a.precursorToIndex(precursor, j);
+					Assert.assertEquals(k, k2);
+				}
+				for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
+				{
+					int k = a.toSafeIndex(i, j);
+					Assert.assertEquals(k, index);
+				}
+			}
+		}
+	}
+
+	@Test
+	public void canCompareItoAnyJ()
+	{
+		for (int n : testN)
+		{
+			TriangleArray a = new TriangleArray(n);
+
+			for (int i = 0; i < n; i++)
+			{
+				a.setup(i);
+				for (int j = 0; j < n; j++)
+				{
+					if (i == j)
+						continue;
+					int k = a.toSafeIndex(i, j);
+					int k2 = a.toIndex(j);
+					Assert.assertEquals(k, k2);
+				}
+			}
+
+		}
+	}
 }
