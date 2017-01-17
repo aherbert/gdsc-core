@@ -1469,6 +1469,11 @@ public class OPTICSManager extends CoordinateStore
 				object.setClusterMember(clusterId);
 
 				// Ensure that the search is not repeated
+				// ---
+				// Note: It is possible to speed up the algorithm by skipping those at zero distance
+				// (since no more points can be found from a second search from the same location).
+				// However we do not currently require that we compute neighbour distances so this 
+				// cannot be done at present. 
 				if (object.isNotProcessed())
 					pointsToSearch.push(object);
 			}
@@ -1543,7 +1548,7 @@ public class OPTICSManager extends CoordinateStore
 	 * @param k
 	 *            the k (automatically bounded between 1 and size-1)
 	 * @param samples
-	 *            the number of samples (set to negative to compute all samples)
+	 *            the number of samples (set to below 1 to compute all samples)
 	 * @param cache
 	 *            Set to true to cache the KD-tree used for the nearest neighbour search
 	 * @return the k-nearest neighbour distances
@@ -1557,7 +1562,7 @@ public class OPTICSManager extends CoordinateStore
 		long time = System.currentTimeMillis();
 
 		// Optionally compute all samples
-		if (samples < 0)
+		if (samples <= 0)
 			samples = size;
 
 		// Bounds check k
