@@ -645,11 +645,20 @@ public class OPTICSManager extends CoordinateStore
 
 		private void upHeapify(int c)
 		{
-			for (int p = (c - 1) / 2; c != 0 && queue[c] > queue[p]; c = p, p = (c - 1) / 2)
+			while (c > 0)
 			{
-				float pDist = queue[p];
-				queue[p] = queue[c];
-				queue[c] = pDist;
+				final int p = (c - 1) / 2;
+				if (queue[c] > queue[p])
+				{
+					float pDist = queue[p];
+					queue[p] = queue[c];
+					queue[c] = pDist;
+					c = p;
+				}
+				else
+				{
+					break;
+				}
 			}
 		}
 
