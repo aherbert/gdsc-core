@@ -17,6 +17,7 @@ import java.awt.Rectangle;
 import java.util.EnumSet;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.apache.commons.math3.random.Well19937c;
 
 import ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D;
 import gdsc.core.clustering.CoordinateStore;
@@ -411,7 +412,7 @@ public class OPTICSManager extends CoordinateStore
 			//			{
 			//				swap(p, c);
 			//			}
-			
+
 			// Remove unnecessary loop set-up statements, i.e. where p is not needed
 			while (c > 0)
 			{
@@ -719,7 +720,7 @@ public class OPTICSManager extends CoordinateStore
 	 * @param generatingDistanceE
 	 *            the generating distance E (set to zero to auto calibrate)
 	 * @param minPts
-	 *            the min points for a core object (recommended range 10-20)
+	 *            the min points for a core object (recommended range around 4)
 	 * @return the results (or null if the algorithm was stopped using the tracker)
 	 */
 	public OPTICSResult optics(float generatingDistanceE, int minPts)
@@ -756,25 +757,7 @@ public class OPTICSManager extends CoordinateStore
 		// return -DBIDUtil.compare(objectID, o.objectID);
 		// I do not know why this is but I have added it so the functionality 
 		// is identical in order to pass the JUnit tests		
-		OPTICSPriorityQueue orderSeeds;
-		if (options.contains(Option.OPTICS_SIMPLE_PRIORITY_QUEUE))
-		{
-			if (options.contains(Option.OPTICS_STRICT_ID_ORDER))
-				orderSeeds = new OPTICSMoleculePriorityQueueIdOrdered(size);
-			else if (options.contains(Option.OPTICS_STRICT_REVERSE_ID_ORDER))
-				orderSeeds = new OPTICSMoleculePriorityQueueReverseIdOrdered(size);
-			else
-				orderSeeds = new OPTICSMoleculePriorityQueue(size);
-		}
-		else
-		{
-			if (options.contains(Option.OPTICS_STRICT_ID_ORDER))
-				orderSeeds = new OPTICSMoleculeBinaryHeapIdOrdered(size);
-			else if (options.contains(Option.OPTICS_STRICT_REVERSE_ID_ORDER))
-				orderSeeds = new OPTICSMoleculeBinaryHeapReverseIdOrdered(size);
-			else
-				orderSeeds = new OPTICSMoleculeBinaryHeap(size);
-		}
+		OPTICSPriorityQueue orderSeeds = createQueue(size);
 
 		// Testing ... Should we use the ID order by default? Nothing in the OPTICS paper mentions it.
 		// Perhaps the reachability distance profile is more consistent when changing the generating distance?
@@ -822,6 +805,30 @@ public class OPTICSManager extends CoordinateStore
 		finish();
 
 		return optics;
+	}
+
+	private OPTICSPriorityQueue createQueue(final int size)
+	{
+		OPTICSPriorityQueue orderSeeds;
+		if (options.contains(Option.OPTICS_SIMPLE_PRIORITY_QUEUE))
+		{
+			if (options.contains(Option.OPTICS_STRICT_ID_ORDER))
+				orderSeeds = new OPTICSMoleculePriorityQueueIdOrdered(size);
+			else if (options.contains(Option.OPTICS_STRICT_REVERSE_ID_ORDER))
+				orderSeeds = new OPTICSMoleculePriorityQueueReverseIdOrdered(size);
+			else
+				orderSeeds = new OPTICSMoleculePriorityQueue(size);
+		}
+		else
+		{
+			if (options.contains(Option.OPTICS_STRICT_ID_ORDER))
+				orderSeeds = new OPTICSMoleculeBinaryHeapIdOrdered(size);
+			else if (options.contains(Option.OPTICS_STRICT_REVERSE_ID_ORDER))
+				orderSeeds = new OPTICSMoleculeBinaryHeapReverseIdOrdered(size);
+			else
+				orderSeeds = new OPTICSMoleculeBinaryHeap(size);
+		}
+		return orderSeeds;
 	}
 
 	private MoleculeSpace grid;
@@ -957,9 +964,11 @@ public class OPTICSManager extends CoordinateStore
 				tracker.log("Initialising ...");
 
 			// Control the type of space we use to store the data
-			if (clazz == InnerRadialMoleculeSpace.class)
+			if (clazz == ProjectedMoleculeSpace.class)
+				grid = new ProjectedMoleculeSpace(this, generatingDistanceE, new Well19937c());
+			else if (clazz == InnerRadialMoleculeSpace.class)
 				grid = new InnerRadialMoleculeSpace(this, generatingDistanceE);
-			if (clazz == RadialMoleculeSpace.class)
+			else if (clazz == RadialMoleculeSpace.class)
 				grid = new RadialMoleculeSpace(this, generatingDistanceE);
 			else
 				grid = new GridMoleculeSpace(this, generatingDistanceE);
@@ -977,6 +986,20 @@ public class OPTICSManager extends CoordinateStore
 
 		if (heap == null || heap.n != minPts)
 			heap = new FloatHeap(minPts);
+	}
+	
+	/**
+	 * Initialise the memory structure for the OPTICS algorithm. This can be cached if the generatingDistanceE does not
+	 * change.
+	 *
+	 * @param generatingDistanceE
+	 *            the generating distance E
+	 * @param minPts
+	 *            the min points for a core object
+	 */
+	private void initialiseFastOPTICS(int minPts)
+	{
+		initialise(0, minPts, GridMoleculeSpace.class);
 	}
 
 	/**
@@ -1633,5 +1656,107 @@ public class OPTICSManager extends CoordinateStore
 			tree = null;
 
 		return d;
+	}
+
+	/**
+	 * Compute the core radius for each point to have n closest neighbours and the minimum reachability distance of a
+	 * point from another core point.
+	 * <p>
+	 * This is an implementation of the Fast OPTICS method. J. Schneider and M. Vlachos. Fast parameterless
+	 * density-based clustering via random projections. Proc. 22nd ACM international conference on Conference on
+	 * Information & Knowledge Management (CIKM).
+	 * <p>
+	 * Fast OPTICS uses random projections of the data into a linear space. The linear space is then divided into sets
+	 * until each set is below a minimum size. The process is repeated multiple times to generate many sets of
+	 * neighbours. Analysis for each object is then performed using only those other objects that are found in the same
+	 * sets as it (the union of the neighbours in all sets containing an object defines the object neighbourhood). This
+	 * method therefore does not require a distance threshold as each object will always have a neighbourhood and a core
+	 * distance which is the average distance to all the other objects in its neighbourhood. The method allows
+	 * clustering of data with widely varying densities across the set.
+	 * <p>
+	 * Note that once the neighbourhood and core distance are computed for each object the remaining algorithm follows
+	 * that of OPTICS. Note that despite the name this is not faster than the OPTICS method implemented here due to the
+	 * low number of dimensions. Speed is significantly faster for high dimensional data.
+	 * <p>
+	 * The returned results are the output of {@link #extractDBSCANClustering(OPTICSOrder[], float)} with the
+	 * auto-configured generating distance set using {@link #computeGeneratingDistance(int)}. If it is larger
+	 * than the data range allows it is set to the maximum distance that can be computed for the data range. If the data
+	 * are colocated the distance is set to 1. The distance is stored in the results.
+	 * <p>
+	 * This implementation is a port of the version in the ELKI framework: https://elki-project.github.io/. 
+	 *
+	 * @param minPts
+	 *            the min points for a core object (recommended range around 4)
+	 * @return the results (or null if the algorithm was stopped using the tracker)
+	 */
+	public OPTICSResult fastOptics(int minPts)
+	{
+		if (minPts < 1)
+			minPts = 1;
+
+		long time = System.currentTimeMillis();
+		initialiseFastOPTICS(minPts);
+
+		// Compute projections and find neighbours
+		ProjectedMoleculeSpace space = (ProjectedMoleculeSpace) grid;
+		space.setTracker(tracker);
+	    space.computeSets(minPts); // project points
+	    space.computeAverageDistInSet(); // compute densities
+	    int[][] neighbours = space.getNeighbours();
+		
+		// Run OPTICS		
+		if (tracker != null)
+		{
+			tracker.log("Running FastOPTICS ... minPts=%d", minPts);
+			tracker.progress(0, xcoord.length);
+		}
+		
+		// Note: The method and variable names used in this function are designed to match 
+		// the pseudocode implementation from the 1999 OPTICS paper.
+
+		final int size = xcoord.length;
+		Molecule[] setOfObjects = grid.setOfObjects;
+
+		OPTICSPriorityQueue orderSeeds = createQueue(size);
+
+		OPTICSResultList results = new OPTICSResultList(size);
+
+		for (int i = 0; i < size; i++)
+		{
+			final Molecule object = setOfObjects[i];
+			if (object.isNotProcessed())
+			{
+				// TODO - specific version using the precomputed neighbours
+				if (expandClusterOrder(object, 0, minPts, results, orderSeeds))
+					break;
+			}
+		}
+
+		boolean stopped = false;
+		if (tracker != null)
+		{
+			stopped = tracker.isEnded();
+			tracker.progress(1.0);
+
+			if (stopped)
+				tracker.log("Aborted OPTICS");
+		}
+
+		OPTICSResult optics = null;
+		if (!stopped)
+		{
+			optics = new OPTICSResult(this, minPts, Float.POSITIVE_INFINITY, results.list);
+			final int nClusters = optics.extractDBSCANClustering(grid.generatingDistanceE);
+			if (tracker != null)
+			{
+				time = System.currentTimeMillis() - time;
+				tracker.log("Finished OPTICS: %s (Time = %s)", Utils.pleural(nClusters, "Cluster"),
+						Utils.timeToString(time));
+			}
+		}
+
+		finish();
+
+		return optics;
 	}
 }
