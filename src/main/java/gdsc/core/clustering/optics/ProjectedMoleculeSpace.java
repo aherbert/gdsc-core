@@ -22,6 +22,7 @@ import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.NotImplementedException;
 import gdsc.core.utils.PseudoRandomGenerator;
+import gdsc.core.utils.Random;
 import gdsc.core.utils.Sort;
 import gdsc.core.utils.TurboList;
 import gnu.trove.set.hash.TIntHashSet;
@@ -88,6 +89,12 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 * The number of projections to compute (if below 1 it will be auto-computed using the size of the data)
 	 */
 	public int nProjections = 0;
+
+	/**
+	 * Set to true to compute the neighbours using the distance to the median of the projected set. The alternative is
+	 * to randomly sample neighbours from the set.
+	 */
+	public boolean isDistanceToMedian = true;
 
 	ProjectedMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, RandomGenerator rand)
 	{
@@ -259,7 +266,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 				if (avgP % interval == 0)
 					tracker.progress(avgP, nPointSetSplits);
 			}
-			
+
 			// shuffle projections
 			float[][] shuffledProjectedPoints = new float[nProject1d][];
 			if (avgP != 0)
@@ -336,10 +343,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		// sets should be roughly minSplitSize
 		if (nele > minSplitSize * (1 - sizeTolerance) && nele < minSplitSize * (1 + sizeTolerance))
 		{
-			// sort set, since need median element later
-			// (when computing distance to the middle of the set)
 			int[] indices = Arrays.copyOfRange(ind, begin, end);
-			Sort.sort(indices, tpro);
+			if (isDistanceToMedian)
+			{
+				// sort set, since need median element later
+				// (when computing distance to the middle of the set)
+				Sort.sort(indices, tpro);
+			}
 			addToSets(indices);
 		}
 
@@ -362,7 +372,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			splitupNoSort(projectedPoints, ind, splitpos, end, dim + 1, rand, minSplitSize);
 		}
 	}
-	
+
 	private void addToSets(int[] indices)
 	{
 		// TODO - this should be synchronized when multi-threading the split
@@ -490,61 +500,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	}
 
 	/**
-	 * Compute for each point the average distance to a point in a projected set
-	 */
-	public void computeAverageDistInSet()
-	{
-		double[] davg = new double[size];
-		int[] nDists = new int[size];
-		final int n = splitsets.size();
-		long time = System.currentTimeMillis();
-		if (tracker != null)
-		{
-			tracker.log("Computing density ...");
-		}
-		final int interval = Utils.getProgressInterval(n);
-		for (int i = 0; i < n; i++)
-		{
-			if (tracker != null)
-			{
-				if (i % interval == 0)
-					tracker.progress(i, n);
-			}
-			int[] pinSet = splitsets.get(i);
-			final int len = pinSet.length;
-			final int indoff = len >> 1;
-			int v = pinSet[indoff];
-			Molecule midpoint = setOfObjects[v];
-			for (int j = len; j-- > 0;)
-			{
-				int it = pinSet[j];
-				if (it == v)
-				{
-					continue;
-				}
-				double dist = midpoint.distance(setOfObjects[it]);
-				++distanceComputations;
-				davg[v] += dist;
-				nDists[v]++;
-				davg[it] += dist;
-				nDists[it]++;
-			}
-		}
-		if (tracker != null)
-		{
-			time = System.currentTimeMillis() - time;
-			tracker.log("Computed density ... " + Utils.timeToString(time));
-			tracker.progress(1);
-		}
-
-		// Finalise averages
-		for (int it = size; it-- > 0;)
-		{
-			setOfObjects[it].coreDistance = getCoreDistance(davg[it], nDists[it]);
-		}
-	}
-
-	/**
 	 * Gets the core distance. We actually return the squared distance.
 	 *
 	 * @param sum
@@ -566,71 +521,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	}
 
 	/**
-	 * Compute list of neighbors for each point from sets resulting from
-	 * projection
-	 *
-	 * @return list of neighbors for each point
-	 */
-	public int[][] getNeighbours()
-	{
-		// init lists
-		TIntHashSet[] neighs = new TIntHashSet[size];
-		for (int it = size; it-- > 0;)
-			neighs[it] = new TIntHashSet();
-
-		final int n = splitsets.size();
-		long time = System.currentTimeMillis();
-		if (tracker != null)
-		{
-			tracker.log("Computing neighbourhoods ...");
-		}
-		final int interval = Utils.getProgressInterval(n);
-		for (int i = 0; i < n; i++)
-		{
-			if (tracker != null)
-			{
-				if (i % interval == 0)
-					tracker.progress(i, n);
-			}
-			int[] pinSet = splitsets.get(i);
-			final int len = pinSet.length;
-			final int indoff = len >> 1;
-			int v = pinSet[indoff];
-			// add all points as neighbors to middle point
-			// Note: This is now done below (ignoring self)
-			//neighs[v].addAll(pinSet);
-
-			// and the the middle point to all other points in set
-			for (int j = len; j-- > 0;)
-			{
-				int it = pinSet[j];
-				if (it == v)
-				{
-					continue;
-				}
-				neighs[it].add(v);
-				neighs[v].add(it);
-			}
-		}
-		if (tracker != null)
-		{
-			time = System.currentTimeMillis() - time;
-			tracker.log("Computed neighbourhoods ... " + Utils.timeToString(time));
-			tracker.progress(1);
-		}
-
-		// Convert to simple arrays
-		allNeighbours = new int[size][];
-		for (int it = size; it-- > 0;)
-		{
-			allNeighbours[it] = neighs[it].toArray();
-			neighs[it] = null; // Allow garbage collection
-		}
-
-		return allNeighbours;
-	}
-
-	/**
 	 * Compute for each point the average distance to a point in a projected set and list of neighbors for each point
 	 * from sets resulting from projection
 	 *
@@ -643,7 +533,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		// paper states that any neighbour is valid but further neighbours can be excluded using an
 		// f-factor (with f 0:1). If f=1 then all neighbours are included. Below this then only some
 		// of the neighbours are included using the projected distance values. Neighbours to be 
-		// included are picked at random.			
+		// included are picked at random.
 
 		double[] davg = new double[size];
 		int[] nDists = new int[size];
@@ -665,27 +555,65 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 				if (i % interval == 0)
 					tracker.progress(i, n);
 			}
-			int[] pinSet = splitsets.get(i);
-			final int len = pinSet.length;
-			final int indoff = len >> 1;
-			int v = pinSet[indoff];
-			nDists[v] += len - 1;
-			Molecule midpoint = setOfObjects[v];
-			for (int j = len; j-- > 0;)
-			{
-				int it = pinSet[j];
-				if (it == v)
-				{
-					continue;
-				}
-				double dist = midpoint.distance(setOfObjects[it]);
-				++distanceComputations;
-				davg[v] += dist;
-				davg[it] += dist;
-				nDists[it]++;
 
-				neighs[it].add(v);
-				neighs[v].add(it);
+			if (isDistanceToMedian)
+			{
+				// ELKI uses the distance to the median of the set
+				int[] pinSet = splitsets.get(i);
+				final int len = pinSet.length;
+				final int indoff = len >> 1;
+				int v = pinSet[indoff];
+				nDists[v] += len - 1;
+				Molecule midpoint = setOfObjects[v];
+				for (int j = len; j-- > 0;)
+				{
+					int it = pinSet[j];
+					if (it == v)
+					{
+						continue;
+					}
+					double dist = midpoint.distance(setOfObjects[it]);
+					++distanceComputations;
+					davg[v] += dist;
+					davg[it] += dist;
+					nDists[it]++;
+
+					neighs[it].add(v);
+					neighs[v].add(it);
+				}
+			}
+			else
+			{
+				// For each point A choose a neighbour from the set B
+				// Note: This only works if the set has size 2 or more.
+				int[] pinSet = splitsets.get(i);
+
+				// For a fast implementation we just shuffle the set and pick consecutive 
+				// points as neighbours.
+				// For speed we can use the pseudoRandom generator that was 
+				// created when the sets were generated.
+				pseudoRandom.shuffle(pinSet);
+
+				for (int j = pinSet.length, k = 0; j-- > 0;)
+				{
+					int a = pinSet[j];
+					int b = pinSet[k];
+
+					k = j;
+
+					double dist = setOfObjects[a].distance(setOfObjects[b]);
+					++distanceComputations;
+
+					davg[a] += dist;
+					neighs[a].add(b);
+
+					// Mirror this to get another neighbour without extra distance computations
+					davg[b] += dist;
+					neighs[b].add(a);
+					
+					// Count the distances. Each object will have 2 due to mirroring
+					nDists[a] += 2;
+				}
 			}
 		}
 		if (tracker != null)
