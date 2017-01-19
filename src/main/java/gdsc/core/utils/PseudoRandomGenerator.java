@@ -21,7 +21,7 @@ import org.apache.commons.math3.random.RandomGenerator;
  */
 public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cloneable
 {
-	private final double[] sequence;
+	protected final double[] sequence;
 
 	private int position = 0;
 
