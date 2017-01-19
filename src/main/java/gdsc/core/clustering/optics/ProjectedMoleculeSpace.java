@@ -18,7 +18,6 @@ import java.util.Arrays;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.MathArrays;
 
-import de.lmu.ifi.dbs.elki.math.MathUtil;
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.NotImplementedException;
@@ -154,14 +153,27 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	public void computeSets(int minSplitSize)
 	{
+		splitsets = new TurboList<int[]>();
+		
+		// Edge cases
+		if (minSplitSize < 2 || size < 1)
+			return;
+
+		if (size < 2)
+		{
+			// No point performing projections and splits
+			splitsets.add(new int[] { 0, 1 });
+			return;
+		}
+
 		final int dim = 2;
 
-		// perform O(log N+log dim) splits of the entire point sets projections
-		int nPointSetSplits = (int) (logOProjectionConst * MathUtil.log2(size * dim + 1));
-		// perform O(log N+log dim) projections of the point set onto a random line
-		int nProject1d = (int) (logOProjectionConst * MathUtil.log2(size * dim + 1));
+		// TODO - FastOPTICS paper states you can use c0 log(N) sets and c1 log(N) projections
 
-		splitsets = new TurboList<int[]>();
+		// perform O(log N+log dim) splits of the entire point sets projections
+		int nPointSetSplits = (int) (logOProjectionConst * log2(size * dim + 1));
+		// perform O(log N+log dim) projections of the point set onto a random line
+		int nProject1d = (int) (logOProjectionConst * log2(size * dim + 1));
 
 		// perform projections of points
 		projectedPoints = new double[nProject1d][];
@@ -228,18 +240,35 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 			// split point set
 			splitupNoSort(Utils.newArray(size, 0, 1), 0, size, 0, rand, minSplitSize);
-			
+
 			// TODO: The ELKI implementation includes all sets within a tolerance of the minSplitSize
 			// Note though that if a set is included at the upper tolerance it may be split unevenly
 			// (e.g. n into n-1 and 1) and basically the same set included again.
 			// Add an implementation that is true to the FastOPTICS paper. Data is split until they are
 			// less than minPoints.
-			
+
 			if (tracker != null)
 			{
 				tracker.progress(avgP = 1, nPointSetSplits);
 			}
 		}
+	}
+
+	/**
+	 * 1. / log(2)
+	 */
+	public static final double ONE_BY_LOG2 = 1. / Math.log(2.);
+
+	/**
+	 * Compute the base 2 logarithm.
+	 *
+	 * @param x
+	 *            X
+	 * @return Logarithm base 2.
+	 */
+	public static double log2(double x)
+	{
+		return Math.log(x) * ONE_BY_LOG2;
 	}
 
 	/**
@@ -260,7 +289,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 *            minimum size for which a point set is further
 	 *            partitioned (roughly corresponds to minPts in OPTICS)
 	 */
-	public void splitupNoSort(int[] ind, int begin, int end, int dim, RandomGenerator rand, int minSplitSize)
+	private void splitupNoSort(int[] ind, int begin, int end, int dim, RandomGenerator rand, int minSplitSize)
 	{
 		final int nele = end - begin;
 		dim = dim % projectedPoints.length;// choose a projection of points
@@ -317,16 +346,16 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		final int nele = end - begin;
 
 		// pick random splitting element based on position
-		double rs = tpro[begin + rand.nextInt(nele)];
+		double rs = tpro[ind[begin + rand.nextInt(nele)]];
 		int minInd = begin, maxInd = end - 1;
 		// permute elements such that all points smaller than the splitting
 		// element are on the right and the others on the left in the array
 		while (minInd < maxInd)
 		{
-			double currEle = tpro[minInd];
+			double currEle = tpro[ind[minInd]];
 			if (currEle > rs)
 			{
-				while (minInd < maxInd && tpro[maxInd] > rs)
+				while (minInd < maxInd && tpro[ind[maxInd]] > rs)
 				{
 					maxInd--;
 				}
@@ -372,10 +401,10 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	public static int splitByDistance(int[] ind, int begin, int end, double[] tpro, RandomGenerator rand)
 	{
 		// pick random splitting point based on distance
-		double rmin = tpro[begin], rmax = rmin;
+		double rmin = tpro[ind[begin]], rmax = rmin;
 		for (int it = begin + 1; it < end; it++)
 		{
-			double currEle = tpro[it];
+			double currEle = tpro[ind[it]];
 			if (currEle < rmin)
 				rmin = currEle;
 			else if (currEle > rmax)
@@ -392,10 +421,10 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			// element are on the right and the others on the left in the array
 			while (minInd < maxInd)
 			{
-				double currEle = tpro[minInd];
+				double currEle = tpro[ind[minInd]];
 				if (currEle > rs)
 				{
-					while (minInd < maxInd && tpro[maxInd] > rs)
+					while (minInd < maxInd && tpro[ind[maxInd]] > rs)
 					{
 						maxInd--;
 					}
@@ -473,8 +502,10 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	/**
 	 * Gets the core distance. We actually return the squared distance.
 	 *
-	 * @param sum the sum of distances
-	 * @param count the count of distances
+	 * @param sum
+	 *            the sum of distances
+	 * @param count
+	 *            the count of distances
 	 * @return the squared average core distance
 	 */
 	private float getCoreDistance(double sum, int count)
@@ -565,9 +596,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		// paper states that any neighbour is valid but further neighbours can be excluded using an
 		// f-factor (with f 0:1). If f=1 then all neighbours are included. Below this then only some
 		// of the neighbours are included using the projected distance values. Neighbours to be 
-		// included are picked at random?			
-		
-		
+		// included are picked at random.			
+
 		double[] davg = new double[size];
 		int[] nDists = new int[size];
 		TIntHashSet[] neighs = new TIntHashSet[size];
