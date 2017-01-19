@@ -168,12 +168,19 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 		final int dim = 2;
 
-		// TODO - FastOPTICS paper states you can use c0 log(N) sets and c1 log(N) projections
-
+		// FastOPTICS paper states you can use c0 log(N) sets and c1 log(N) projections.
+		// The ELKI framework increase this for the number of dimensions. However I have stuck
+		// with the original (as it is less so will be faster).
+		// Note: In most computer science contexts log is in base 2.
+		int nPointSetSplits, nProject1d;
+		
+		nPointSetSplits = (int) (logOProjectionConst * log2(size));
+		nProject1d = (int) (logOProjectionConst * log2(size));
+		
 		// perform O(log N+log dim) splits of the entire point sets projections
-		int nPointSetSplits = (int) (logOProjectionConst * log2(size * dim + 1));
+		//nPointSetSplits = (int) (logOProjectionConst * log2(size * dim + 1));
 		// perform O(log N+log dim) projections of the point set onto a random line
-		int nProject1d = (int) (logOProjectionConst * log2(size * dim + 1));
+		//nProject1d = (int) (logOProjectionConst * log2(size * dim + 1));
 
 		// perform projections of points
 		projectedPoints = new double[nProject1d][];
@@ -235,7 +242,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			for (int i = 0; i < nProject1d; i++)
 			{
 				projectedPoints[i] = tmpPro[proind[i]];
-				tmpPro[i] = projectedPoints[i];
 			}
 
 			// split point set
@@ -249,7 +255,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 			if (tracker != null)
 			{
-				tracker.progress(avgP = 1, nPointSetSplits);
+				tracker.progress(avgP, nPointSetSplits);
 			}
 		}
 	}
