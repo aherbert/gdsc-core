@@ -169,10 +169,10 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		splitsets = new TurboList<int[]>();
 
 		// Edge cases
-		if (minSplitSize < 2 || size < 1)
+		if (minSplitSize < 2 || size <= 1)
 			return;
 
-		if (size < 2)
+		if (size == 2)
 		{
 			// No point performing projections and splits
 			splitsets.add(new int[] { 0, 1 });
@@ -187,8 +187,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		// Note: In most computer science contexts log is in base 2.
 		int nPointSetSplits, nProject1d;
 
-		nPointSetSplits = (nSplits > 0) ? nSplits : (int) (logOProjectionConst * log2(size));
-		nProject1d = (nProjections > 0) ? nProjections : (int) (logOProjectionConst * log2(size));
+		nPointSetSplits = getNumberOfSplitSets(nSplits, size);
+		nProject1d = getNumberOfProjections(nProjections, size);
 
 		// perform O(log N+log dim) splits of the entire point sets projections
 		//nPointSetSplits = (int) (logOProjectionConst * log2(size * dim + 1));
@@ -294,6 +294,36 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	}
 
 	/**
+	 * Gets the number of split sets.
+	 *
+	 * @param nSplits
+	 *            The number of splits to compute (if below 1 it will be auto-computed using the size of the data)
+	 * @param size
+	 *            the size
+	 * @return the number of split sets
+	 */
+	public static int getNumberOfSplitSets(int nSplits, int size)
+	{
+		if (size < 2)
+			return 0;
+		return (nSplits > 0) ? nSplits : (int) (logOProjectionConst * log2(size));
+	}
+
+	/**
+	 * Gets the number of projections.
+	 *
+	 * @param nProjections
+	 *            The number of projections to compute (if below 1 it will be auto-computed using the size of the data)
+	 * @param size
+	 *            the size
+	 * @return the number of projections
+	 */
+	public static int getNumberOfProjections(int nProjections, int size)
+	{
+		return getNumberOfSplitSets(nProjections, size);
+	}
+
+	/**
 	 * 1. / log(2)
 	 */
 	public static final double ONE_BY_LOG2 = 1. / Math.log(2.);
@@ -334,13 +364,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			int minSplitSize)
 	{
 		final int nele = end - begin;
-		
+
 		if (nele < 2)
 		{
 			// Nothing to split. Also ensures we only add to the sets if neighbours can be sampled.
 			return;
 		}
-		
+
 		dim = dim % projectedPoints.length;// choose a projection of points
 		float[] tpro = projectedPoints[dim];
 
@@ -552,6 +582,9 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		{
 			tracker.log("Computing density and neighbourhoods ...");
 		}
+		// Avoid null pointer
+		if (!isDistanceToMedian && pseudoRandom == null && n != 0)
+			pseudoRandom = new TurboRandomGenerator(1000, rand);
 		final int interval = Utils.getProgressInterval(n);
 		for (int i = 0; i < n; i++)
 		{
@@ -615,7 +648,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 					// Mirror this to get another neighbour without extra distance computations
 					davg[b] += dist;
 					neighs[b].add(a);
-					
+
 					// Count the distances. Each object will have 2 due to mirroring
 					nDists[a] += 2;
 				}
