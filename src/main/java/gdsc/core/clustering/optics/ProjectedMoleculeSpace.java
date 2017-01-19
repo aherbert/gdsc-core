@@ -154,7 +154,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	public void computeSets(int minSplitSize)
 	{
 		splitsets = new TurboList<int[]>();
-		
+
 		// Edge cases
 		if (minSplitSize < 2 || size < 1)
 			return;
@@ -173,10 +173,10 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		// with the original (as it is less so will be faster).
 		// Note: In most computer science contexts log is in base 2.
 		int nPointSetSplits, nProject1d;
-		
+
 		nPointSetSplits = (int) (logOProjectionConst * log2(size));
 		nProject1d = (int) (logOProjectionConst * log2(size));
-		
+
 		// perform O(log N+log dim) splits of the entire point sets projections
 		//nPointSetSplits = (int) (logOProjectionConst * log2(size * dim + 1));
 		// perform O(log N+log dim) projections of the point set onto a random line
@@ -186,13 +186,19 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		projectedPoints = new double[nProject1d][];
 		double[][] tmpPro = new double[nProject1d][];
 
+		long time = System.currentTimeMillis();
+		int interval = Utils.getProgressInterval(nProject1d);
 		if (tracker != null)
 		{
 			tracker.log("Computing projections ...");
-			tracker.progress(0, nProject1d);
 		}
 		for (int j = 0; j < nProject1d; j++)
 		{
+			if (tracker != null)
+			{
+				if (j % interval == 0)
+					tracker.progress(j, nProject1d);
+			}
 			// Create a random unit vector
 			double[] currRp = new double[dim];
 			double sum = 0;
@@ -217,22 +223,25 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 				currPro[it] = currRp[0] * m.x + currRp[1] * m.y;
 			}
 			projectedPoints[j] = currPro;
-
-			if (tracker != null)
-			{
-				tracker.progress(j + 1, nProject1d);
-			}
 		}
 
 		// split entire point set, reuse projections by shuffling them
 		int[] proind = Utils.newArray(nProject1d, 0, 1);
+		interval = Utils.getProgressInterval(nPointSetSplits);
 		if (tracker != null)
 		{
+			long time2 = System.currentTimeMillis();
+			tracker.log("Computed projections ... " + Utils.timeToString(time2 - time));
+			time = time2;
 			tracker.log("Splitting data ...");
-			tracker.progress(0, nPointSetSplits);
 		}
 		for (int avgP = 0; avgP < nPointSetSplits; avgP++)
 		{
+			if (tracker != null)
+			{
+				if (avgP % interval == 0)
+					tracker.progress(avgP, nPointSetSplits);
+			}
 			// shuffle projections
 			for (int i = 0; i < nProject1d; i++)
 			{
@@ -252,11 +261,12 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			// (e.g. n into n-1 and 1) and basically the same set included again.
 			// Add an implementation that is true to the FastOPTICS paper. Data is split until they are
 			// less than minPoints.
-
-			if (tracker != null)
-			{
-				tracker.progress(avgP, nPointSetSplits);
-			}
+		}
+		if (tracker != null)
+		{
+			time = System.currentTimeMillis() - time;
+			tracker.log("Split data ... " + Utils.timeToString(time));
+			tracker.progress(1);
 		}
 	}
 
@@ -460,14 +470,19 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		double[] davg = new double[size];
 		int[] nDists = new int[size];
 		final int n = splitsets.size();
+		long time = System.currentTimeMillis();
 		if (tracker != null)
 		{
 			tracker.log("Computing density ...");
-			tracker.progress(0, n);
 		}
 		final int interval = Utils.getProgressInterval(n);
 		for (int i = 0; i < n; i++)
 		{
+			if (tracker != null)
+			{
+				if (i % interval == 0)
+					tracker.progress(i, n);
+			}
 			int[] pinSet = splitsets.get(i);
 			final int len = pinSet.length;
 			final int indoff = len >> 1;
@@ -487,14 +502,11 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 				davg[it] += dist;
 				nDists[it]++;
 			}
-			if (tracker != null)
-			{
-				if (i % interval == 0)
-					tracker.progress(i, n);
-			}
 		}
 		if (tracker != null)
 		{
+			time = System.currentTimeMillis() - time;
+			tracker.log("Computed density ... " + Utils.timeToString(time));
 			tracker.progress(1);
 		}
 
@@ -540,14 +552,19 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			neighs[it] = new TIntHashSet();
 
 		final int n = splitsets.size();
+		long time = System.currentTimeMillis();
 		if (tracker != null)
 		{
 			tracker.log("Computing neighbourhoods ...");
-			tracker.progress(0, n);
 		}
 		final int interval = Utils.getProgressInterval(n);
 		for (int i = 0; i < n; i++)
 		{
+			if (tracker != null)
+			{
+				if (i % interval == 0)
+					tracker.progress(i, n);
+			}
 			int[] pinSet = splitsets.get(i);
 			final int len = pinSet.length;
 			final int indoff = len >> 1;
@@ -567,14 +584,11 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 				neighs[it].add(v);
 				neighs[v].add(it);
 			}
-			if (tracker != null)
-			{
-				if (i % interval == 0)
-					tracker.progress(i, n);
-			}
 		}
 		if (tracker != null)
 		{
+			time = System.currentTimeMillis() - time;
+			tracker.log("Computed neighbourhoods ... " + Utils.timeToString(time));
 			tracker.progress(1);
 		}
 
@@ -611,14 +625,19 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			neighs[it] = new TIntHashSet();
 
 		final int n = splitsets.size();
+		long time = System.currentTimeMillis();
 		if (tracker != null)
 		{
 			tracker.log("Computing density and neighbourhoods ...");
-			tracker.progress(0, n);
 		}
 		final int interval = Utils.getProgressInterval(n);
 		for (int i = 0; i < n; i++)
 		{
+			if (tracker != null)
+			{
+				if (i % interval == 0)
+					tracker.progress(i, n);
+			}
 			int[] pinSet = splitsets.get(i);
 			final int len = pinSet.length;
 			final int indoff = len >> 1;
@@ -641,14 +660,11 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 				neighs[it].add(v);
 				neighs[v].add(it);
 			}
-			if (tracker != null)
-			{
-				if (i % interval == 0)
-					tracker.progress(i, n);
-			}
 		}
 		if (tracker != null)
 		{
+			time = System.currentTimeMillis() - time;
+			tracker.log("Computed density and neighbourhoods ... " + Utils.timeToString(time));
 			tracker.progress(1);
 		}
 

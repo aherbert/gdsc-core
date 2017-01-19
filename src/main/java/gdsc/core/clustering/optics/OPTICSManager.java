@@ -1696,6 +1696,11 @@ public class OPTICSManager extends CoordinateStore
 		long time = System.currentTimeMillis();
 		initialiseFastOPTICS(minPts);
 
+		if (tracker != null)
+		{
+			tracker.log("Running FastOPTICS ... minPts=%d", minPts);
+		}
+
 		// Compute projections and find neighbours
 		ProjectedMoleculeSpace space = (ProjectedMoleculeSpace) grid;
 		space.setTracker(tracker);
@@ -1703,9 +1708,11 @@ public class OPTICSManager extends CoordinateStore
 		space.computeAverageDistInSetAndNeighbours();
 
 		// Run OPTICS		
+		long time2 = 0;
 		if (tracker != null)
 		{
-			tracker.log("Running FastOPTICS ... minPts=%d", minPts);
+			time2 = System.currentTimeMillis();
+			tracker.log("Running OPTICS ...");
 			tracker.progress(0, xcoord.length);
 		}
 
@@ -1747,9 +1754,11 @@ public class OPTICSManager extends CoordinateStore
 			final int nClusters = optics.extractDBSCANClustering(grid.generatingDistanceE);
 			if (tracker != null)
 			{
-				time = System.currentTimeMillis() - time;
-				tracker.log("Finished OPTICS: %s (Time = %s)", Utils.pleural(nClusters, "Cluster"),
-						Utils.timeToString(time));
+				long end = System.currentTimeMillis();
+				time = end - time;
+				time2 = end - time2;
+				tracker.log("Finished FastOPTICS: %s (Time = %s : Total = %s)", Utils.pleural(nClusters, "Cluster"),
+						Utils.timeToString(time2), Utils.timeToString(time));
 			}
 		}
 
