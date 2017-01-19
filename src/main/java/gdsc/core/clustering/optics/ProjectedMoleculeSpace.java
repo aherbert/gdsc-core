@@ -21,6 +21,7 @@ import org.apache.commons.math3.util.MathArrays;
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.NotImplementedException;
+import gdsc.core.utils.PseudoRandomGenerator;
 import gdsc.core.utils.Sort;
 import gdsc.core.utils.TurboList;
 import gnu.trove.set.hash.TIntHashSet;
@@ -62,14 +63,11 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	TurboList<int[]> splitsets;
 
 	/**
-	 * all projected points
-	 */
-	float[][] projectedPoints;
-
-	/**
 	 * Random factory.
 	 */
 	RandomGenerator rand;
+
+	private PseudoRandomGenerator pseudoRandom = null;
 
 	/**
 	 * Count the number of distance computations.
@@ -80,6 +78,16 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 * The neighbours of each point
 	 */
 	int[][] allNeighbours;
+
+	/**
+	 * The number of splits to compute (if below 1 it will be auto-computed using the size of the data)
+	 */
+	public int nSplits = 0;
+
+	/**
+	 * The number of projections to compute (if below 1 it will be auto-computed using the size of the data)
+	 */
+	public int nProjections = 0;
 
 	ProjectedMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, RandomGenerator rand)
 	{
@@ -168,14 +176,14 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 		final int dim = 2;
 
-		// FastOPTICS paper states you can use c0 log(N) sets and c1 log(N) projections.
+		// FastOPTICS paper states you can use c0*log(N) sets and c1*log(N) projections.
 		// The ELKI framework increase this for the number of dimensions. However I have stuck
 		// with the original (as it is less so will be faster).
 		// Note: In most computer science contexts log is in base 2.
 		int nPointSetSplits, nProject1d;
 
-		nPointSetSplits = (int) (logOProjectionConst * log2(size));
-		nProject1d = (int) (logOProjectionConst * log2(size));
+		nPointSetSplits = (nSplits > 0) ? nSplits : (int) (logOProjectionConst * log2(size));
+		nProject1d = (nProjections > 0) ? nProjections : (int) (logOProjectionConst * log2(size));
 
 		// perform O(log N+log dim) splits of the entire point sets projections
 		//nPointSetSplits = (int) (logOProjectionConst * log2(size * dim + 1));
@@ -183,8 +191,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		//nProject1d = (int) (logOProjectionConst * log2(size * dim + 1));
 
 		// perform projections of points
-		projectedPoints = new float[nProject1d][];
-		float[][] tmpPro = new float[nProject1d][];
+		float[][] projectedPoints = new float[nProject1d][];
 
 		long time = System.currentTimeMillis();
 		int interval = Utils.getProgressInterval(nProject1d);
@@ -192,6 +199,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		{
 			tracker.log("Computing projections ...");
 		}
+		// TODO - This can be multi-threaded
 		for (int j = 0; j < nProject1d; j++)
 		{
 			if (tracker != null)
@@ -235,6 +243,15 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			time = time2;
 			tracker.log("Splitting data ...");
 		}
+
+		// The splits do not have to be that random so we can use a pseudo random sequence.
+		// The sets will be randomly sized between 1 and minSplitSize. Ensure we have enough 
+		// numbers for all the splits.
+		double expectedSetSize = (1 + minSplitSize) * 0.5;
+		int expectedSets = (int) Math.round(size / expectedSetSize);
+		pseudoRandom = new PseudoRandomGenerator(minSplitSize + 2 * expectedSets, rand);
+
+		// TODO - This can be multi-threaded
 		for (int avgP = 0; avgP < nPointSetSplits; avgP++)
 		{
 			if (tracker != null)
@@ -242,19 +259,20 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 				if (avgP % interval == 0)
 					tracker.progress(avgP, nPointSetSplits);
 			}
+			
 			// shuffle projections
+			float[][] shuffledProjectedPoints = new float[nProject1d][];
+			if (avgP != 0)
+				MathArrays.shuffle(proind, rand);
 			for (int i = 0; i < nProject1d; i++)
 			{
-				tmpPro[i] = projectedPoints[i];
-			}
-			MathArrays.shuffle(proind, rand);
-			for (int i = 0; i < nProject1d; i++)
-			{
-				projectedPoints[i] = tmpPro[proind[i]];
+				shuffledProjectedPoints[i] = projectedPoints[proind[i]];
 			}
 
 			// split point set
-			splitupNoSort(Utils.newArray(size, 0, 1), 0, size, 0, rand, minSplitSize);
+			// TODO - to multi-thread we just clone the random generator, set the seed and pass in the projections
+			pseudoRandom.setSeed(avgP);
+			splitupNoSort(shuffledProjectedPoints, Utils.newArray(size, 0, 1), 0, size, 0, pseudoRandom, minSplitSize);
 
 			// TODO: The ELKI implementation includes all sets within a tolerance of the minSplitSize
 			// Note though that if a set is included at the upper tolerance it may be split unevenly
@@ -288,8 +306,10 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	}
 
 	/**
-	 * Recursively splits entire point set until the set is below a threshold
+	 * Recursively splits entire point set until the set is below a threshold.
 	 *
+	 * @param projectedPoints
+	 *            the projected points
 	 * @param ind
 	 *            points that are in the current set
 	 * @param begin
@@ -305,7 +325,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 *            minimum size for which a point set is further
 	 *            partitioned (roughly corresponds to minPts in OPTICS)
 	 */
-	private void splitupNoSort(int[] ind, int begin, int end, int dim, RandomGenerator rand, int minSplitSize)
+	private void splitupNoSort(float[][] projectedPoints, int[] ind, int begin, int end, int dim, RandomGenerator rand,
+			int minSplitSize)
 	{
 		final int nele = end - begin;
 		dim = dim % projectedPoints.length;// choose a projection of points
@@ -319,7 +340,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			// (when computing distance to the middle of the set)
 			int[] indices = Arrays.copyOfRange(ind, begin, end);
 			Sort.sort(indices, tpro);
-			splitsets.add(indices);
+			addToSets(indices);
 		}
 
 		// compute splitting element
@@ -337,9 +358,15 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			// position used for splitting the projected points into two
 			// sets used for recursive splitting
 			int splitpos = minInd + 1;
-			splitupNoSort(ind, begin, splitpos, dim + 1, rand, minSplitSize);
-			splitupNoSort(ind, splitpos, end, dim + 1, rand, minSplitSize);
+			splitupNoSort(projectedPoints, ind, begin, splitpos, dim + 1, rand, minSplitSize);
+			splitupNoSort(projectedPoints, ind, splitpos, end, dim + 1, rand, minSplitSize);
 		}
+	}
+	
+	private void addToSets(int[] indices)
+	{
+		// TODO - this should be synchronized when multi-threading the split
+		splitsets.add(indices);
 	}
 
 	/**
