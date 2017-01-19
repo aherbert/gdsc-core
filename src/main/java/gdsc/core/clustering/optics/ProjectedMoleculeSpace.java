@@ -335,6 +335,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			int minSplitSize)
 	{
 		final int nele = end - begin;
+		
+		if (nele < 2)
+		{
+			// Nothing to split. Also ensures we only add to the sets if neighbours can be sampled.
+			return;
+		}
+		
 		dim = dim % projectedPoints.length;// choose a projection of points
 		float[] tpro = projectedPoints[dim];
 
