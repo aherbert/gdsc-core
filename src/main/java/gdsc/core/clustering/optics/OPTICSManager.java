@@ -1690,6 +1690,50 @@ public class OPTICSManager extends CoordinateStore
 	 */
 	public OPTICSResult fastOptics(int minPts)
 	{
+		return fastOptics(minPts, 0, 0, false);
+	}
+
+	/**
+	 * Compute the core radius for each point to have n closest neighbours and the minimum reachability distance of a
+	 * point from another core point.
+	 * <p>
+	 * This is an implementation of the Fast OPTICS method. J. Schneider and M. Vlachos. Fast parameterless
+	 * density-based clustering via random projections. Proc. 22nd ACM international conference on Conference on
+	 * Information & Knowledge Management (CIKM).
+	 * <p>
+	 * Fast OPTICS uses random projections of the data into a linear space. The linear space is then divided into sets
+	 * until each set is below a minimum size. The process is repeated multiple times to generate many sets of
+	 * neighbours. Analysis for each object is then performed using only those other objects that are found in the same
+	 * sets as it (the union of the neighbours in all sets containing an object defines the object neighbourhood). This
+	 * method therefore does not require a distance threshold as each object will always have a neighbourhood and a core
+	 * distance which is the average distance to all the other objects in its neighbourhood. The method allows
+	 * clustering of data with widely varying densities across the set.
+	 * <p>
+	 * Note that once the neighbourhood and core distance are computed for each object the remaining algorithm follows
+	 * that of OPTICS. Note that despite the name this is not faster than the OPTICS method implemented here due to the
+	 * low number of dimensions. Speed is significantly faster for high dimensional data.
+	 * <p>
+	 * The returned results are the output of {@link #extractDBSCANClustering(OPTICSOrder[], float)} with the
+	 * auto-configured generating distance set using {@link #computeGeneratingDistance(int)}. If it is larger
+	 * than the data range allows it is set to the maximum distance that can be computed for the data range. If the data
+	 * are colocated the distance is set to 1. The distance is stored in the results.
+	 * <p>
+	 * This implementation is a port of the version in the ELKI framework: https://elki-project.github.io/.
+	 *
+	 * @param minPts
+	 *            the min points for a core object (recommended range around 4)
+	 * @param nSplits
+	 *            The number of splits to compute (if below 1 it will be auto-computed using the size of the data)
+	 * @param nProjections
+	 *            The number of projections to compute (if below 1 it will be auto-computed using the size of the data)
+	 * @param isDistanceToMedian
+	 *            Set to true to compute the neighbours using the distance to the median of the projected set. The
+	 *            alternative is
+	 *            to randomly sample neighbours from the set.
+	 * @return the results (or null if the algorithm was stopped using the tracker)
+	 */
+	public OPTICSResult fastOptics(int minPts, int nSplits, int nProjections, boolean isDistanceToMedian)
+	{
 		if (minPts < 1)
 			minPts = 1;
 
@@ -1703,6 +1747,11 @@ public class OPTICSManager extends CoordinateStore
 
 		// Compute projections and find neighbours
 		ProjectedMoleculeSpace space = (ProjectedMoleculeSpace) grid;
+
+		space.nSplits = nSplits;
+		space.nProjections = nProjections;
+		space.isDistanceToMedian = isDistanceToMedian;
+
 		space.setTracker(tracker);
 		space.computeSets(minPts); // project points
 		space.computeAverageDistInSetAndNeighbours();
