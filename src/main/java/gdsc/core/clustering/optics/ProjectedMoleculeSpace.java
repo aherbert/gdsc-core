@@ -16,14 +16,13 @@ package gdsc.core.clustering.optics;
 import java.util.Arrays;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.util.MathArrays;
 
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.NotImplementedException;
-import gdsc.core.utils.PseudoRandomGenerator;
 import gdsc.core.utils.Sort;
 import gdsc.core.utils.TurboList;
+import gdsc.core.utils.TurboRandomGenerator;
 import gnu.trove.set.hash.TIntHashSet;
 
 /**
@@ -67,7 +66,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	RandomGenerator rand;
 
-	private PseudoRandomGenerator pseudoRandom = null;
+	private TurboRandomGenerator pseudoRandom = null;
 
 	/**
 	 * Count the number of distance computations.
@@ -255,7 +254,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		// numbers for all the splits.
 		double expectedSetSize = (1 + minSplitSize) * 0.5;
 		int expectedSets = (int) Math.round(size / expectedSetSize);
-		pseudoRandom = new PseudoRandomGenerator(minSplitSize + 2 * expectedSets, rand);
+		pseudoRandom = new TurboRandomGenerator(Math.max(200, minSplitSize + 2 * expectedSets), rand);
 
 		// TODO - This can be multi-threaded
 		for (int avgP = 0; avgP < nPointSetSplits; avgP++)
@@ -269,7 +268,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			// shuffle projections
 			float[][] shuffledProjectedPoints = new float[nProject1d][];
 			if (avgP != 0)
-				MathArrays.shuffle(proind, rand);
+				pseudoRandom.shuffle(proind);
 			for (int i = 0; i < nProject1d; i++)
 			{
 				shuffledProjectedPoints[i] = projectedPoints[proind[i]];
@@ -590,7 +589,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			}
 			else
 			{
-				// For each point A choose a neighbour from the set B
+				// For each point A choose a neighbour from the set B.
 				// Note: This only works if the set has size 2 or more.
 				int[] pinSet = splitsets.get(i);
 
