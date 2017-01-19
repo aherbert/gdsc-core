@@ -151,6 +151,7 @@ public class Random
 	 * Perform a Fischer-Yates shuffle on the data
 	 * 
 	 * @param data
+	 *            the data
 	 */
 	public void shuffle(double[] data)
 	{
@@ -170,6 +171,7 @@ public class Random
 	 * Perform a Fischer-Yates shuffle on the data
 	 * 
 	 * @param data
+	 *            the data
 	 */
 	public void shuffle(float[] data)
 	{
@@ -189,6 +191,7 @@ public class Random
 	 * Perform a Fischer-Yates shuffle on the data
 	 * 
 	 * @param data
+	 *            the data
 	 */
 	public void shuffle(int[] data)
 	{
@@ -211,7 +214,7 @@ public class Random
 	 */
 	public int nextInt()
 	{
-        return (int) ((2d * next(true) - 1d) * Integer.MAX_VALUE);
+		return (int) ((2d * next(true) - 1d) * Integer.MAX_VALUE);
 	}
 
 	/**

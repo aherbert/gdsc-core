@@ -109,4 +109,46 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 			return new PseudoRandomGenerator(sequence);
 		}
 	}
+
+	/**
+	 * Returns a pseudorandom, uniformly distributed {@code int} value
+	 * between 0 (inclusive) and the specified value (exclusive), drawn from
+	 * this random number generator's sequence.
+	 * <p>
+	 * The default implementation returns:
+	 * 
+	 * <pre>
+	 * <code>(int) (nextDouble() * n</code>
+	 * </pre>
+	 * <p>
+	 * Warning: No check is made that n is positive so use with caution.
+	 *
+	 * @param n
+	 *            the bound on the random number to be returned. Must be
+	 *            positive.
+	 * @return a pseudorandom, uniformly distributed {@code int}
+	 *         value between 0 (inclusive) and n (exclusive).
+	 */
+	public int nextIntFast(int n)
+	{
+		int result = (int) (nextDouble() * n);
+		return result < n ? result : n - 1;
+	}
+
+	/**
+	 * Perform a Fischer-Yates shuffle on the data.
+	 *
+	 * @param data
+	 *            the data
+	 */
+	public void shuffle(int[] data)
+	{
+		for (int i = data.length; i-- > 1;)
+		{
+			int j = nextIntFast(i + 1);
+			int tmp = data[i];
+			data[i] = data[j];
+			data[j] = tmp;
+		}
+	}
 }
