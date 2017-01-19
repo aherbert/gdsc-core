@@ -64,7 +64,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	/**
 	 * all projected points
 	 */
-	double[][] projectedPoints;
+	float[][] projectedPoints;
 
 	/**
 	 * Random factory.
@@ -183,8 +183,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		//nProject1d = (int) (logOProjectionConst * log2(size * dim + 1));
 
 		// perform projections of points
-		projectedPoints = new double[nProject1d][];
-		double[][] tmpPro = new double[nProject1d][];
+		projectedPoints = new float[nProject1d][];
+		float[][] tmpPro = new float[nProject1d][];
 
 		long time = System.currentTimeMillis();
 		int interval = Utils.getProgressInterval(nProject1d);
@@ -215,12 +215,12 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			}
 
 			// Project points to the vector and compute the distance along the vector from the origin
-			double[] currPro = new double[size];
+			float[] currPro = new float[size];
 			for (int it = size; it-- > 0;)
 			{
 				Molecule m = setOfObjects[it];
 				// Dot product:
-				currPro[it] = currRp[0] * m.x + currRp[1] * m.y;
+				currPro[it] = (float) (currRp[0] * m.x + currRp[1] * m.y);
 			}
 			projectedPoints[j] = currPro;
 		}
@@ -309,7 +309,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	{
 		final int nele = end - begin;
 		dim = dim % projectedPoints.length;// choose a projection of points
-		double[] tpro = projectedPoints[dim];
+		float[] tpro = projectedPoints[dim];
 
 		// save set such that used for density or neighborhood computation
 		// sets should be roughly minSplitSize
@@ -357,18 +357,18 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 *            Random generator
 	 * @return Splitting point
 	 */
-	public static int splitRandomly(int[] ind, int begin, int end, double[] tpro, RandomGenerator rand)
+	public static int splitRandomly(int[] ind, int begin, int end, float[] tpro, RandomGenerator rand)
 	{
 		final int nele = end - begin;
 
 		// pick random splitting element based on position
-		double rs = tpro[ind[begin + rand.nextInt(nele)]];
+		float rs = tpro[ind[begin + rand.nextInt(nele)]];
 		int minInd = begin, maxInd = end - 1;
 		// permute elements such that all points smaller than the splitting
 		// element are on the right and the others on the left in the array
 		while (minInd < maxInd)
 		{
-			double currEle = tpro[ind[minInd]];
+			float currEle = tpro[ind[minInd]];
 			if (currEle > rs)
 			{
 				while (minInd < maxInd && tpro[ind[maxInd]] > rs)
@@ -414,13 +414,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 *            Random generator
 	 * @return Splitting point
 	 */
-	public static int splitByDistance(int[] ind, int begin, int end, double[] tpro, RandomGenerator rand)
+	public static int splitByDistance(int[] ind, int begin, int end, float[] tpro, RandomGenerator rand)
 	{
 		// pick random splitting point based on distance
-		double rmin = tpro[ind[begin]], rmax = rmin;
+		float rmin = tpro[ind[begin]], rmax = rmin;
 		for (int it = begin + 1; it < end; it++)
 		{
-			double currEle = tpro[ind[it]];
+			float currEle = tpro[ind[it]];
 			if (currEle < rmin)
 				rmin = currEle;
 			else if (currEle > rmax)
@@ -429,7 +429,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 		if (rmin != rmax)
 		{ // if not all elements are the same
-			double rs = rmin + rand.nextDouble() * (rmax - rmin);
+			float rs = (float) (rmin + rand.nextDouble() * (rmax - rmin));
 
 			int minInd = begin, maxInd = end - 1;
 
@@ -437,7 +437,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			// element are on the right and the others on the left in the array
 			while (minInd < maxInd)
 			{
-				double currEle = tpro[ind[minInd]];
+				float currEle = tpro[ind[minInd]];
 				if (currEle > rs)
 				{
 					while (minInd < maxInd && tpro[ind[maxInd]] > rs)
