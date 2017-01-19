@@ -40,12 +40,16 @@ import de.lmu.ifi.dbs.elki.database.datastore.DataStore;
 import de.lmu.ifi.dbs.elki.database.datastore.DataStoreFactory;
 import de.lmu.ifi.dbs.elki.database.datastore.DataStoreUtil;
 import de.lmu.ifi.dbs.elki.database.datastore.DoubleDataStore;
+import de.lmu.ifi.dbs.elki.database.datastore.WritableDataStore;
 import de.lmu.ifi.dbs.elki.database.datastore.WritableDoubleDataStore;
+import de.lmu.ifi.dbs.elki.database.ids.ArrayModifiableDBIDs;
+import de.lmu.ifi.dbs.elki.database.ids.DBIDFactory;
 import de.lmu.ifi.dbs.elki.database.ids.DBIDIter;
 import de.lmu.ifi.dbs.elki.database.ids.DBIDRef;
 import de.lmu.ifi.dbs.elki.database.ids.DBIDUtil;
 import de.lmu.ifi.dbs.elki.database.ids.DBIDVar;
 import de.lmu.ifi.dbs.elki.database.ids.DBIDs;
+import de.lmu.ifi.dbs.elki.database.ids.ModifiableDBIDs;
 import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.datasource.ArrayAdapterDatabaseConnection;
 import de.lmu.ifi.dbs.elki.datasource.DatabaseConnection;
@@ -247,6 +251,77 @@ public class OPTICSManagerTest
 	}
 
 	/**
+	 * This is injected into the ELKI framework to output the same distances and neighbours
+	 */
+	private class CopyRandomProjectedNeighborsAndDensities extends RandomProjectedNeighborsAndDensities<DoubleVector>
+	{
+		// All-vs-all distance matrix
+		ProjectedMoleculeSpace space;
+		Relation<DoubleVector> points;
+
+		public CopyRandomProjectedNeighborsAndDensities(ProjectedMoleculeSpace space)
+		{
+			super(RandomFactory.get(30051977l));
+			this.space = space;
+		}
+
+		// Override the methods used by optics
+
+		@Override
+		public void computeSetsBounds(Relation<DoubleVector> points, int minSplitSize, DBIDs ptList)
+		{
+			// Store the points
+			this.points = points;
+		}
+
+		@Override
+		public DoubleDataStore computeAverageDistInSet()
+		{
+			// Use the same core distance calculated by the space
+
+			WritableDoubleDataStore davg = DataStoreUtil.makeDoubleStorage(points.getDBIDs(),
+					DataStoreFactory.HINT_HOT);
+			for (DBIDIter it = points.getDBIDs().iter(); it.valid(); it.advance())
+			{
+				int id = asInteger(it);
+				Molecule m = space.setOfObjects[id];
+				double d = (m.coreDistance != OPTICSManager.UNDEFINED) ? m.getCoreDistance()
+						: FastOPTICS.UNDEFINED_DISTANCE;
+				davg.put(it, d);
+			}
+			return davg;
+		}
+
+		@Override
+		public DataStore<? extends DBIDs> getNeighs()
+		{
+			// Use the same neighbours calculated by the space
+
+			final DBIDs ids = points.getDBIDs();
+			// init lists
+			WritableDataStore<ModifiableDBIDs> neighs = DataStoreUtil.makeStorage(ids, DataStoreFactory.HINT_HOT,
+					ModifiableDBIDs.class);
+			for (DBIDIter it = ids.iter(); it.valid(); it.advance())
+			{
+				neighs.put(it, DBIDUtil.newHashSet());
+			}
+
+		    DBIDVar v = DBIDUtil.newVar();
+			for (int i = space.allNeighbours.length; i-- > 0;)
+			{
+				int[] list = space.allNeighbours[i];
+				ArrayModifiableDBIDs nids = DBIDUtil.newArray(list.length);
+				for (int id : list)
+					nids.add(DBIDFactory.FACTORY.importInteger(id));
+				v.assignVar(i, v);
+				neighs.get(v).addDBIDs(nids);
+			}
+
+			return neighs;
+		}
+	}
+
+	/**
 	 * Test the results of OPTICS using the ELKI framework
 	 */
 	@Test
@@ -333,6 +408,89 @@ public class OPTICSManagerTest
 	private static int asInteger(DBIDRef id)
 	{
 		return DBIDUtil.asInteger(id);
+	}
+
+	/**
+	 * Test the results of Fast OPTICS using the ELKI framework
+	 */
+	@Test
+	public void canComputeFastOPTICS()
+	{
+		TrackProgress tracker = null; //new SimpleTrackProgress();
+		for (int n : new int[] { 100, 500 })
+		{
+			OPTICSManager om = createOPTICSManager(size, n);
+			om.setTracker(tracker);
+			// Needed to match the ELKI framework
+			om.setOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER, Option.CACHE);
+
+			SimpleMoleculeSpace space = new SimpleMoleculeSpace(om, 0);
+			space.createDD();
+
+			// Use ELKI to provide the expected results
+			double[][] data = new Array2DRowRealMatrix(om.getDoubleData()).transpose().getData();
+
+			for (int minPts : new int[] { 5, 10 })
+			{
+				// Reset starting Id to 1
+				DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data, null, 0);
+				ListParameterization params = new ListParameterization();
+				params.addParameter(AbstractDatabase.Parameterizer.DATABASE_CONNECTION_ID, dbc);
+				Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
+				db.initialize();
+				Relation<?> rel = db.getRelation(TypeUtil.ANY);
+				Assert.assertEquals("Database size does not match.", n, rel.size());
+
+				// Debug: Print the core distance for each point
+				//for (int i = 0; i < n; i++)
+				//{
+				//	double[] dd = d[i].clone();
+				//	Arrays.sort(dd);
+				//	System.out.printf("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
+				//}
+
+				OPTICSResult r1 = om.fastOptics(minPts);
+
+				// Test verses the ELKI frame work
+				RandomProjectedNeighborsAndDensities<DoubleVector> index = new CopyRandomProjectedNeighborsAndDensities(
+						(ProjectedMoleculeSpace) om.grid);
+				FastOPTICS<DoubleVector> fo = new FastOPTICS<DoubleVector>(minPts, index);
+				ClusterOrder order = fo.run(db);
+
+				// Check 
+				int i = 0;
+				DBIDVar pre = DBIDUtil.newVar();
+				for (DBIDIter it = order.iter(); it.valid(); it.advance(), i++)
+				{
+					if (i == 0)
+					{
+						//System.out.printf("[%d] %d\n", i, r1.get(i).parent);
+
+						// No predecessor or reachability distance
+						continue;
+					}
+
+					String prefix = "[" + i + "] ";
+
+					int expId = asInteger(it);
+					int obsId = r1.get(i).parent;
+
+					order.getPredecessor(it, pre);
+					int expPre = asInteger(pre);
+					int obsPre = r1.get(i).predecessor;
+
+					double expR = order.getReachability(it);
+					double obsR = r1.get(i).reachabilityDistance;
+
+					//System.out.printf("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
+					//		r1.get(i).coreDistance, expPre, obsPre);
+
+					Assert.assertEquals(prefix + "Id", expId, obsId);
+					Assert.assertEquals(prefix + "Pre", expPre, obsPre);
+					Assert.assertEquals(prefix + "R", expR, obsR, expR * 1e-5);
+				}
+			}
+		}
 	}
 
 	/**

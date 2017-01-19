@@ -58,12 +58,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	private static final float sizeTolerance = 2f / 3;
 
 	/**
-	 * minimum size for which a point set is further partitioned (roughly
-	 * corresponds to minPts in OPTICS)
-	 */
-	int minSplitSize;
-
-	/**
 	 * sets that resulted from recursive split of entire point set
 	 */
 	TurboList<int[]> splitsets;
@@ -233,7 +227,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			}
 
 			// split point set
-			splitupNoSort(Utils.newArray(size, 0, 1), 0, size, 0, rand);
+			splitupNoSort(Utils.newArray(size, 0, 1), 0, size, 0, rand, minSplitSize);
 			if (tracker != null)
 			{
 				tracker.progress(avgP = 1, nPointSetSplits);
@@ -255,8 +249,11 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 *            already)
 	 * @param rand
 	 *            Random generator
+	 * @param minSplitSize
+	 *            minimum size for which a point set is further
+	 *            partitioned (roughly corresponds to minPts in OPTICS)
 	 */
-	public void splitupNoSort(int[] ind, int begin, int end, int dim, RandomGenerator rand)
+	public void splitupNoSort(int[] ind, int begin, int end, int dim, RandomGenerator rand, int minSplitSize)
 	{
 		final int nele = end - begin;
 		dim = dim % projectedPoints.length;// choose a projection of points
@@ -288,8 +285,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			// position used for splitting the projected points into two
 			// sets used for recursive splitting
 			int splitpos = minInd + 1;
-			splitupNoSort(ind, begin, splitpos, dim + 1, rand);
-			splitupNoSort(ind, splitpos, end, dim + 1, rand);
+			splitupNoSort(ind, begin, splitpos, dim + 1, rand, minSplitSize);
+			splitupNoSort(ind, splitpos, end, dim + 1, rand, minSplitSize);
 		}
 	}
 

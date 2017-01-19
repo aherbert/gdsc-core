@@ -831,7 +831,8 @@ public class OPTICSManager extends CoordinateStore
 		return orderSeeds;
 	}
 
-	private MoleculeSpace grid;
+	// Package level for JUnit testing
+	MoleculeSpace grid;
 	//private float[] floatArray;
 	private FloatHeap heap;
 
@@ -999,7 +1000,7 @@ public class OPTICSManager extends CoordinateStore
 	 */
 	private void initialiseFastOPTICS(int minPts)
 	{
-		initialise(0, minPts, GridMoleculeSpace.class);
+		initialise(0, minPts, ProjectedMoleculeSpace.class);
 	}
 
 	/**
@@ -1052,7 +1053,6 @@ public class OPTICSManager extends CoordinateStore
 		{
 			clearMemory();
 		}
-		heap = null;
 	}
 
 	/**
@@ -1062,6 +1062,7 @@ public class OPTICSManager extends CoordinateStore
 	{
 		grid = null;
 		//floatArray = null;
+		heap = null;
 	}
 
 	/**
