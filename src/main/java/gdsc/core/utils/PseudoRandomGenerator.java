@@ -14,40 +14,74 @@ package gdsc.core.utils;
  *---------------------------------------------------------------------------*/
 
 import org.apache.commons.math3.random.AbstractRandomGenerator;
+import org.apache.commons.math3.random.RandomGenerator;
 
 /**
  * Contains a set of random numbers that are reused in sequence
  */
-public class PseudoRandomGenerator extends AbstractRandomGenerator
+public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cloneable
 {
 	private final double[] sequence;
 
 	private int position = 0;
 
+	/**
+	 * Instantiates a new pseudo random generator. The input sequence is cloned.
+	 *
+	 * @param sequence
+	 *            the sequence (must contains numbers in the interval 0 to 1)
+	 * @throw {@link IllegalArgumentException} if the sequence is not positive in length and contains numbers outside
+	 *        the interval 0 to 1.
+	 */
 	public PseudoRandomGenerator(double[] sequence)
 	{
-		this(sequence, true);
+		if (sequence == null || sequence.length < 1)
+			throw new IllegalArgumentException("Sequence must have a positive length");
+		for (int i = sequence.length; i-- > 0;)
+			if (sequence[i] < 0 || sequence[i] > 1)
+				throw new IllegalArgumentException("Sequence must contain numbers between 0 and 1 inclusive");
+		this.sequence = sequence.clone();
 	}
 
-	private PseudoRandomGenerator(double[] sequence, boolean check)
+	/**
+	 * Instantiates a new pseudo random generator of the given size.
+	 *
+	 * @param size
+	 *            the size
+	 * @param source
+	 *            the random source
+	 * @throw {@link IllegalArgumentException} if the size is not positive
+	 * @throw {@link NullPointerException} if the generator is null
+	 */
+	public PseudoRandomGenerator(int size, RandomGenerator source)
 	{
-		if (check)
+		if (size < 1)
+			throw new IllegalArgumentException("Sequence must have a positive length");
+		if (source == null)
+			throw new NullPointerException("Source generator must not be null");
+		sequence = new double[size];
+		while (size-- > 0)
 		{
-			if (sequence == null || sequence.length < 1)
-				throw new IllegalArgumentException("Sequence must have a positive length");
-			for (int i = sequence.length; i-- > 0;)
-				if (sequence[i] < 0 || sequence[i] > 1)
-					throw new IllegalArgumentException("Sequence must contain numbers between 0 and 1 inclusive");
+			sequence[size] = source.nextDouble();
 		}
-		this.sequence = sequence;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#setSeed(long)
+	 */
 	@Override
 	public void setSeed(long seed)
 	{
 		position = (int) (seed % sequence.length);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#nextDouble()
+	 */
 	@Override
 	public double nextDouble()
 	{
@@ -57,13 +91,22 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator
 		return d;
 	}
 
-	/**
-	 * Copy the generator. The position in the sequence will be reset to zero for the copy.
-	 *
-	 * @return the pseudo random generator
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
 	 */
-	public PseudoRandomGenerator copy()
+	@Override
+	public PseudoRandomGenerator clone()
 	{
-		return new PseudoRandomGenerator(sequence.clone(), false);
+		try
+		{
+			return (PseudoRandomGenerator) super.clone();
+		}
+		catch (CloneNotSupportedException e)
+		{
+			// This should not happen
+			return new PseudoRandomGenerator(sequence);
+		}
 	}
 }
