@@ -1,5 +1,7 @@
 package gdsc.core.clustering.optics;
 
+import gdsc.core.utils.NotImplementedException;
+
 /*----------------------------------------------------------------------------- 
  * GDSC ImageJ Software
  * 
@@ -20,19 +22,10 @@ class Molecule
 {
 	final int id;
 	final float x, y;
-	// Used to construct a single linked list of molecules
-	public Molecule next = null;
 
 	private boolean processed;
 	float coreDistance;
 	float reachabilityDistance;
-
-	final int xBin;
-	final int yBin;
-	/**
-	 * Working distance to current centre object
-	 */
-	float d;
 
 	/**
 	 * The Id of the point that set the current min reachability distance. A value of -1 has no predecessor (and so
@@ -55,14 +48,11 @@ class Molecule
 		workingData = index;
 	}
 
-	Molecule(int id, float x, float y, int xBin, int yBin, Molecule next)
+	Molecule(int id, float x, float y)
 	{
 		this.id = id;
 		this.x = x;
 		this.y = y;
-		this.next = next;
-		this.xBin = xBin;
-		this.yBin = yBin;
 		reset();
 	}
 
@@ -162,5 +152,35 @@ class Molecule
 	public DBSCANOrder toDBSCANResult()
 	{
 		return new DBSCANOrder(id, getClusterId(), getNumberOfPoints());
+	}
+
+	public Molecule getNext()
+	{
+		throw new NotImplementedException();
+	}
+
+	public void setNext(Molecule next)
+	{
+		throw new NotImplementedException();
+	}
+
+	int getXBin()
+	{
+		throw new NotImplementedException();
+	}
+
+	int getYBin()
+	{
+		throw new NotImplementedException();
+	}
+
+	float getD()
+	{
+		throw new NotImplementedException();
+	}
+
+	void setD(float d)
+	{
+		throw new NotImplementedException();
 	}
 }

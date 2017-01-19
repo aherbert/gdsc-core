@@ -115,7 +115,7 @@ public class OPTICSManagerTest
 				final float x = xcoord[i];
 				final float y = ycoord[i];
 				// Build a single linked list
-				final Molecule m = new Molecule(i, x, y, 0, 0, null);
+				final Molecule m = new DistanceMolecule(i, x, y);
 				setOfObjects[i] = m;
 				for (int j = i; j-- > 0;)
 					d[i][j] = d[j][i] = m.distance2(setOfObjects[j]);
@@ -165,7 +165,7 @@ public class OPTICSManagerTest
 			for (int i = 0; i < fdata.length; i++)
 				if (fdata[i] < e)
 				{
-					setOfObjects[i].d = fdata[i];
+					setOfObjects[i].setD(fdata[i]);
 					neighbours.add(setOfObjects[i]);
 				}
 			//if (neighbours.size < minPts)

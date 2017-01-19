@@ -30,7 +30,8 @@ public class OPTICSOrder
 	/**
 	 * The cluster identifier. This may be modified if clustering is re-performed by OPTICS.
 	 */
-	int clusterId;	
+	int clusterId;
+
 	/**
 	 * Gets the cluster id.
 	 *
@@ -40,6 +41,7 @@ public class OPTICSOrder
 	{
 		return clusterId;
 	}
+
 	/**
 	 * The core distance. Set to positive infinity if not a core point.
 	 */
@@ -77,5 +79,18 @@ public class OPTICSOrder
 	public boolean isCorePoint()
 	{
 		return coreDistance != Double.POSITIVE_INFINITY;
+	}
+
+	/**
+	 * Checks if is a reachable point.
+	 * <p>
+	 * Note that the first core point of a new grouping will not be labelled as a reachable point as it has no
+	 * reachability distance.
+	 *
+	 * @return true, if is reachable point
+	 */
+	public boolean isReachablePoint()
+	{
+		return reachabilityDistance != Double.POSITIVE_INFINITY;
 	}
 }

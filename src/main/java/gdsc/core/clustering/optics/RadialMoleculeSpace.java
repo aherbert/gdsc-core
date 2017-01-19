@@ -141,8 +141,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		//				return;
 		//			}
 
-		final int xBin = object.xBin;
-		final int yBin = object.yBin;
+		final int xBin = object.getXBin();
+		final int yBin = object.getYBin();
 
 		neighbours.clear();
 
@@ -471,8 +471,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		//We can avoid checks if the max square is inside the grid. If not then we can avoid 
 		//checks up to the first intersect ring.
 
-		final int xBin = object.xBin;
-		final int yBin = object.yBin;
+		final int xBin = object.getXBin();
+		final int yBin = object.getYBin();
 
 		neighbours.clear();
 
@@ -512,7 +512,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 						{
 							// Build a list of all the neighbours and their working distance
 							final Molecule otherObject = list[i];
-							otherObject.d = d;
+							otherObject.setD(d);
 							neighbours.add(otherObject);
 						}
 					}
@@ -549,7 +549,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 						{
 							// Build a list of all the neighbours and their working distance
 							final Molecule otherObject = list[i];
-							otherObject.d = d;
+							otherObject.setD(d);
 							neighbours.add(otherObject);
 						}
 					}

@@ -50,7 +50,7 @@ class TreeMoleculeSpace2 extends MoleculeSpace
 			final float x = xcoord[i];
 			final float y = ycoord[i];
 			// Build a single linked list
-			final Molecule m = new Molecule(i, x, y, 0, 0, null);
+			final Molecule m = new DistanceMolecule(i, x, y);
 			setOfObjects[i] = m;
 			tree.addPoint(new double[] { x, y }, m);
 		}
@@ -97,7 +97,7 @@ class TreeMoleculeSpace2 extends MoleculeSpace
 			float d = (float) iter.distance();
 			if (d <= e)
 			{
-				m.d = d;
+				m.setD(d);
 				neighbours.add(m);
 			}
 			else

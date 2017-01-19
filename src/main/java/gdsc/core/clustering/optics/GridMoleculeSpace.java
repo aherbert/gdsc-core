@@ -87,9 +87,9 @@ class GridMoleculeSpace extends MoleculeSpace
 		yBins = 1 + (int) (yrange / binWidth);
 
 		// Use a transpose grid to allow freeing memory (as we later process in the y then x order)
-		Molecule[][] linkedListGrid = new Molecule[yBins][];
+		GridMolecule[][] linkedListGrid = new GridMolecule[yBins][];
 		for (int yBin = 0; yBin < yBins; yBin++)
-			linkedListGrid[yBin] = new Molecule[xBins];
+			linkedListGrid[yBin] = new GridMolecule[xBins];
 
 		setOfObjects = new Molecule[xcoord.length];
 		for (int i = 0; i < xcoord.length; i++)
@@ -99,7 +99,7 @@ class GridMoleculeSpace extends MoleculeSpace
 			final int xBin = (int) ((x - minXCoord) / binWidth);
 			final int yBin = (int) ((y - minYCoord) / binWidth);
 			// Build a single linked list
-			final Molecule m = new Molecule(i, x, y, xBin, yBin, linkedListGrid[yBin][xBin]);
+			final GridMolecule m = new GridMolecule(i, x, y, xBin, yBin, linkedListGrid[yBin][xBin]);
 			setOfObjects[i] = m;
 			linkedListGrid[yBin][xBin] = m;
 		}
@@ -113,10 +113,10 @@ class GridMoleculeSpace extends MoleculeSpace
 				if (linkedListGrid[yBin][xBin] == null)
 					continue;
 				int count = 0;
-				for (Molecule m = linkedListGrid[yBin][xBin]; m != null; m = m.next)
+				for (Molecule m = linkedListGrid[yBin][xBin]; m != null; m = m.getNext())
 					count++;
 				final Molecule[] list = new Molecule[count];
-				for (Molecule m = linkedListGrid[yBin][xBin]; m != null; m = m.next)
+				for (Molecule m = linkedListGrid[yBin][xBin]; m != null; m = m.getNext())
 					list[--count] = m;
 				grid[index] = list;
 			}
@@ -303,8 +303,8 @@ class GridMoleculeSpace extends MoleculeSpace
 		// Match findNeighboursAndDistances(minPts, object, e);
 		// But do not store the distances
 
-		final int xBin = object.xBin;
-		final int yBin = object.yBin;
+		final int xBin = object.getXBin();
+		final int yBin = object.getYBin();
 
 		neighbours.clear();
 
@@ -445,8 +445,8 @@ class GridMoleculeSpace extends MoleculeSpace
 	{
 		//boolean noFF = true;
 
-		final int xBin = object.xBin;
-		final int yBin = object.yBin;
+		final int xBin = object.getXBin();
+		final int yBin = object.getYBin();
 
 		neighbours.clear();
 
@@ -537,7 +537,7 @@ class GridMoleculeSpace extends MoleculeSpace
 					{
 						// Build a list of all the neighbours and their working distance
 						final Molecule otherObject = list[i];
-						otherObject.d = d;
+						otherObject.setD(d);
 						neighbours.add(otherObject);
 					}
 				}

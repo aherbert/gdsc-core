@@ -987,7 +987,7 @@ public class OPTICSManager extends CoordinateStore
 		if (heap == null || heap.n != minPts)
 			heap = new FloatHeap(minPts);
 	}
-	
+
 	/**
 	 * Initialise the memory structure for the OPTICS algorithm. This can be cached if the generatingDistanceE does not
 	 * change.
@@ -1097,8 +1097,6 @@ public class OPTICSManager extends CoordinateStore
 			{
 				object = orderSeeds.next();
 				grid.findNeighboursAndDistances(minPts, object, e);
-				if (!object.isNotProcessed())
-					System.out.printf("Choose a processed point ?\n");
 				object.markProcessed();
 				setCoreDistance(object, minPts, grid.neighbours);
 				if (orderedFile.add(object))
@@ -1133,11 +1131,11 @@ public class OPTICSManager extends CoordinateStore
 		// Special case where we find the max value
 		if (size == minPts)
 		{
-			float max = list[0].d;
+			float max = list[0].getD();
 			for (int i = 1; i < size; i++)
 			{
-				if (max < list[i].d)
-					max = list[i].d;
+				if (max < list[i].getD())
+					max = list[i].getD();
 			}
 			object.coreDistance = max;
 			return;
@@ -1148,16 +1146,16 @@ public class OPTICSManager extends CoordinateStore
 		// the speed is fast no matter what method is used since minPts is expected to be low
 		// (somewhere around 5 for 2D data).
 
-		heap.start(list[0].d);
+		heap.start(list[0].getD());
 		int i = 1;
 		while (i < minPts)
 		{
-			heap.put(i, list[i++].d);
+			heap.put(i, list[i++].getD());
 		}
 		// Scan
 		while (i < size)
 		{
-			heap.push(list[i++].d);
+			heap.push(list[i++].getD());
 		}
 
 		object.coreDistance = heap.getMaxValue();
@@ -1244,7 +1242,7 @@ public class OPTICSManager extends CoordinateStore
 			if (object.isNotProcessed())
 			{
 				// This is new so add it to the list
-				object.reachabilityDistance = max(c_dist, object.d);
+				object.reachabilityDistance = max(c_dist, object.getD());
 				object.predecessor = centreObject.id;
 				orderSeeds.push(object);
 			}
@@ -1269,7 +1267,7 @@ public class OPTICSManager extends CoordinateStore
 			final Molecule object = neighbours.get(i);
 			if (object.isNotProcessed())
 			{
-				final float new_r_dist = max(c_dist, object.d);
+				final float new_r_dist = max(c_dist, object.getD());
 				if (object.reachabilityDistance == UNDEFINED)
 				{
 					// This is new so add it to the list
@@ -1683,7 +1681,7 @@ public class OPTICSManager extends CoordinateStore
 	 * than the data range allows it is set to the maximum distance that can be computed for the data range. If the data
 	 * are colocated the distance is set to 1. The distance is stored in the results.
 	 * <p>
-	 * This implementation is a port of the version in the ELKI framework: https://elki-project.github.io/. 
+	 * This implementation is a port of the version in the ELKI framework: https://elki-project.github.io/.
 	 *
 	 * @param minPts
 	 *            the min points for a core object (recommended range around 4)
@@ -1700,17 +1698,16 @@ public class OPTICSManager extends CoordinateStore
 		// Compute projections and find neighbours
 		ProjectedMoleculeSpace space = (ProjectedMoleculeSpace) grid;
 		space.setTracker(tracker);
-	    space.computeSets(minPts); // project points
-	    space.computeAverageDistInSet(); // compute densities
-	    int[][] neighbours = space.getNeighbours();
-		
+		space.computeSets(minPts); // project points
+		space.computeAverageDistInSetAndNeighbours();
+
 		// Run OPTICS		
 		if (tracker != null)
 		{
 			tracker.log("Running FastOPTICS ... minPts=%d", minPts);
 			tracker.progress(0, xcoord.length);
 		}
-		
+
 		// Note: The method and variable names used in this function are designed to match 
 		// the pseudocode implementation from the 1999 OPTICS paper.
 
@@ -1727,7 +1724,7 @@ public class OPTICSManager extends CoordinateStore
 			if (object.isNotProcessed())
 			{
 				// TODO - specific version using the precomputed neighbours
-				if (expandClusterOrder(object, 0, minPts, results, orderSeeds))
+				if (expandClusterOrder(object, minPts, results, orderSeeds))
 					break;
 			}
 		}
@@ -1745,7 +1742,7 @@ public class OPTICSManager extends CoordinateStore
 		OPTICSResult optics = null;
 		if (!stopped)
 		{
-			optics = new OPTICSResult(this, minPts, Float.POSITIVE_INFINITY, results.list);
+			optics = new OPTICSResult(this, minPts, getMaxReachability(results.list), results.list);
 			final int nClusters = optics.extractDBSCANClustering(grid.generatingDistanceE);
 			if (tracker != null)
 			{
@@ -1758,5 +1755,148 @@ public class OPTICSManager extends CoordinateStore
 		finish();
 
 		return optics;
+	}
+
+	/**
+	 * Expand cluster order.
+	 *
+	 * @param object
+	 *            the object
+	 * @param minPts
+	 *            the min points for a core object
+	 * @param orderedFile
+	 *            the results
+	 * @param orderSeeds
+	 *            the order seeds
+	 * @return true, if the algorithm has received a shutdown signal
+	 */
+	private boolean expandClusterOrder(Molecule object, int minPts, OPTICSResultList orderedFile,
+			OPTICSPriorityQueue orderSeeds)
+	{
+		grid.findNeighbours(minPts, object, 0);
+		object.markProcessed();
+		if (orderedFile.add(object))
+			return true;
+
+		if (object.coreDistance != UNDEFINED)
+		{
+			// Create seed-list for further expansion.
+			fillWithComputeDistance(orderSeeds, grid.neighbours, object);
+
+			while (orderSeeds.hasNext())
+			{
+				object = orderSeeds.next();
+				grid.findNeighbours(minPts, object, 0);
+				object.markProcessed();
+				if (orderedFile.add(object))
+					return true;
+
+				if (object.coreDistance != UNDEFINED)
+					updateWithComputeDistance(orderSeeds, grid.neighbours, object);
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Clear the seeds and fill with the unprocessed neighbours of the current object. Set the reachability distance and
+	 * reorder.
+	 *
+	 * @param orderSeeds
+	 *            the order seeds
+	 * @param neighbours
+	 *            the neighbours
+	 * @param centreObject
+	 *            the object
+	 */
+	private void fillWithComputeDistance(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours, Molecule centreObject)
+	{
+		orderSeeds.clear();
+
+		final float c_dist = centreObject.coreDistance;
+		for (int i = neighbours.size; i-- > 0;)
+		{
+			final Molecule object = neighbours.get(i);
+			if (object.isNotProcessed())
+			{
+				// This is new so add it to the list
+				object.reachabilityDistance = max(c_dist, object.distance2(centreObject));
+				object.predecessor = centreObject.id;
+				orderSeeds.push(object);
+			}
+		}
+	}
+
+	/**
+	 * Update the ordered seeds with the neighbours of the current object. Set the reachability distance and reorder.
+	 *
+	 * @param orderSeeds
+	 *            the order seeds
+	 * @param neighbours
+	 *            the neighbours
+	 * @param centreObject
+	 *            the object
+	 */
+	private void updateWithComputeDistance(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours,
+			Molecule centreObject)
+	{
+		final float c_dist = centreObject.coreDistance;
+		for (int i = neighbours.size; i-- > 0;)
+		{
+			final Molecule object = neighbours.get(i);
+			if (object.isNotProcessed())
+			{
+				final float new_r_dist = max(c_dist, object.distance2(centreObject));
+				if (object.reachabilityDistance == UNDEFINED)
+				{
+					// This is new so add it to the list
+					object.reachabilityDistance = new_r_dist;
+					object.predecessor = centreObject.id;
+					orderSeeds.push(object);
+				}
+				else
+				{
+					// This is already in the list
+					// Here is the difference between OPTICS and DBSCAN.
+					// In this case the order of points to process can be changed based on the reachability.
+					if (new_r_dist < object.reachabilityDistance)
+					{
+						object.reachabilityDistance = new_r_dist;
+						object.predecessor = centreObject.id;
+						orderSeeds.moveUp(object);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Gets the max reachability distance in the results.
+	 *
+	 * @param list
+	 *            the results list
+	 * @return the max reachability distance
+	 */
+	private float getMaxReachability(OPTICSOrder[] list)
+	{
+		double max = 0;
+		for (int i = list.length; i-- > 0;)
+			if (list[i].isReachablePoint() && max < list[i].reachabilityDistance)
+				max = list[i].reachabilityDistance;
+
+		// Commented out as it may not matter  
+		//if (max == 0)
+		//{
+		//	// Get the max core distance
+		//	for (int i = list.length; i-- > 0;)
+		//		if (list[i].isCorePoint() && max < list[i].coreDistance)
+		//			max = list[i].coreDistance;
+		//	
+		//	// This will probably never happen
+		//	if (max == 0)
+		//		max = 1;
+		//}
+
+		return (float) max;
 	}
 }

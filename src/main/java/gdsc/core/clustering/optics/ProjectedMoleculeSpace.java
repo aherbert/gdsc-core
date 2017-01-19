@@ -83,6 +83,11 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	long distanceComputations;
 
+	/**
+	 * The neighbours of each point
+	 */
+	int[][] allNeighbours;
+
 	ProjectedMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, RandomGenerator rand)
 	{
 		super(opticsManager.getSize(), generatingDistanceE);
@@ -107,7 +112,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		{
 			final float x = xcoord[i];
 			final float y = ycoord[i];
-			setOfObjects[i] = new Molecule(i, x, y, 0, 0, null);
+			setOfObjects[i] = new Molecule(i, x, y);
 		}
 
 		return setOfObjects;
@@ -121,9 +126,12 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	void findNeighbours(int minPts, Molecule object, float e)
 	{
-		// Note: This could return the neighbours found in {@link #getNeighbours()}. 
-		// We would have store store a reference to the computed neighbours.  
-		throw new NotImplementedException();
+		// Return the neighbours found in {@link #getNeighbours()}.
+		// Assume allNeighbours has been computed.
+		neighbours.clear();
+		int[] list = allNeighbours[object.id];
+		for (int i = list.length; i-- > 0;)
+			neighbours.add(setOfObjects[list[i]]);
 	}
 
 	/*
@@ -454,15 +462,35 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		// Finalise averages
 		for (int it = size; it-- > 0;)
 		{
-			// it might be that a point does not occur for a certain size of a
-			// projection (likely if do few projections, in this case there is no avg
-			// distance)
-			int count = nDists[it];
-			float val = (count == 0) ? OPTICSManager.UNDEFINED : (float) (davg[it] / count);
-			setOfObjects[it].coreDistance = val;
+			setOfObjects[it].coreDistance = getCoreDistance(davg[it], nDists[it]);
 		}
 	}
 
+	/**
+	 * Gets the core distance. We actually return the squared distance.
+	 *
+	 * @param sum the sum of distances
+	 * @param count the count of distances
+	 * @return the squared average core distance
+	 */
+	private float getCoreDistance(double sum, int count)
+	{
+		// it might be that a point does not occur for a certain size of a
+		// projection (likely if too few projections, in this case there is no avg
+		// distance)
+		if (count == 0)
+			return OPTICSManager.UNDEFINED;
+		double d = sum / count;
+		// We actually want the squared distance
+		return (float) (d * d);
+	}
+
+	/**
+	 * Compute list of neighbors for each point from sets resulting from
+	 * projection
+	 *
+	 * @return list of neighbors for each point
+	 */
 	public int[][] getNeighbours()
 	{
 		// init lists
@@ -484,7 +512,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			final int indoff = len >> 1;
 			int v = pinSet[indoff];
 			// add all points as neighbors to middle point
-			neighs[v].addAll(pinSet);
+			// Note: This is now done below (ignoring self)
+			//neighs[v].addAll(pinSet);
 
 			// and the the middle point to all other points in set
 			for (int j = len; j-- > 0;)
@@ -495,6 +524,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 					continue;
 				}
 				neighs[it].add(v);
+				neighs[v].add(it);
 			}
 			if (tracker != null)
 			{
@@ -508,13 +538,83 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		}
 
 		// Convert to simple arrays
-		int[][] neighbours = new int[size][];
+		allNeighbours = new int[size][];
 		for (int it = size; it-- > 0;)
 		{
-			neighbours[it] = neighs[it].toArray();
+			allNeighbours[it] = neighs[it].toArray();
 			neighs[it] = null; // Allow garbage collection
 		}
 
-		return neighbours;
+		return allNeighbours;
+	}
+
+	/**
+	 * Compute for each point the average distance to a point in a projected set and list of neighbors for each point
+	 * from sets resulting from projection
+	 *
+	 * @return list of neighbours for each point
+	 */
+	public int[][] computeAverageDistInSetAndNeighbours()
+	{
+		double[] davg = new double[size];
+		int[] nDists = new int[size];
+		TIntHashSet[] neighs = new TIntHashSet[size];
+		for (int it = size; it-- > 0;)
+			neighs[it] = new TIntHashSet();
+
+		final int n = splitsets.size();
+		if (tracker != null)
+		{
+			tracker.log("Computing density and neighbourhoods ...");
+			tracker.progress(0, n);
+		}
+		final int interval = Utils.getProgressInterval(n);
+		for (int i = 0; i < n; i++)
+		{
+			int[] pinSet = splitsets.get(i);
+			final int len = pinSet.length;
+			final int indoff = len >> 1;
+			int v = pinSet[indoff];
+			nDists[v] += len - 1;
+			Molecule midpoint = setOfObjects[v];
+			for (int j = len; j-- > 0;)
+			{
+				int it = pinSet[j];
+				if (it == v)
+				{
+					continue;
+				}
+				double dist = midpoint.distance(setOfObjects[it]);
+				++distanceComputations;
+				davg[v] += dist;
+				davg[it] += dist;
+				nDists[it]++;
+
+				neighs[it].add(v);
+				neighs[v].add(it);
+			}
+			if (tracker != null)
+			{
+				if (i % interval == 0)
+					tracker.progress(i, n);
+			}
+		}
+		if (tracker != null)
+		{
+			tracker.progress(1);
+		}
+
+		// Finalise averages
+		// Convert to simple arrays
+		allNeighbours = new int[size][];
+		for (int it = size; it-- > 0;)
+		{
+			setOfObjects[it].coreDistance = getCoreDistance(davg[it], nDists[it]);
+
+			allNeighbours[it] = neighs[it].toArray();
+			neighs[it] = null; // Allow garbage collection
+		}
+
+		return allNeighbours;
 	}
 }
