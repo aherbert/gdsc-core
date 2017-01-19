@@ -228,6 +228,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 			// split point set
 			splitupNoSort(Utils.newArray(size, 0, 1), 0, size, 0, rand, minSplitSize);
+			
+			// TODO: The ELKI implementation includes all sets within a tolerance of the minSplitSize
+			// Note though that if a set is included at the upper tolerance it may be split unevenly
+			// (e.g. n into n-1 and 1) and basically the same set included again.
+			// Add an implementation that is true to the FastOPTICS paper. Data is split until they are
+			// less than minPoints.
+			
 			if (tracker != null)
 			{
 				tracker.progress(avgP = 1, nPointSetSplits);
@@ -553,6 +560,14 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	public int[][] computeAverageDistInSetAndNeighbours()
 	{
+		// TODO: The ELKI implementation computes the neighbours using all items in a set to 
+		// the middle of the set, and each item in the set to the middle of the set. The FastOPTICS
+		// paper states that any neighbour is valid but further neighbours can be excluded using an
+		// f-factor (with f 0:1). If f=1 then all neighbours are included. Below this then only some
+		// of the neighbours are included using the projected distance values. Neighbours to be 
+		// included are picked at random?			
+		
+		
 		double[] davg = new double[size];
 		int[] nDists = new int[size];
 		TIntHashSet[] neighs = new TIntHashSet[size];
