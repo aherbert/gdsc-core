@@ -89,10 +89,19 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	public int nProjections = 0;
 
 	/**
+	 * Set to true to save all sets that are approximately min split size. The default is to only save sets smaller than
+	 * min split size.
+	 */
+	public boolean saveApproximateSets = false;
+
+	/**
 	 * Set to true to compute the neighbours using the distance to the median of the projected set. The alternative is
 	 * to randomly sample neighbours from the set.
 	 */
 	public boolean isDistanceToMedian = true;
+
+	/** The number of threads to use. */
+	public int nThreads = 1;
 
 	ProjectedMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, RandomGenerator rand)
 	{
@@ -374,18 +383,23 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		dim = dim % projectedPoints.length;// choose a projection of points
 		float[] tpro = projectedPoints[dim];
 
-		// save set such that used for density or neighborhood computation
-		// sets should be roughly minSplitSize
-		if (nele > minSplitSize * (1 - sizeTolerance) && nele < minSplitSize * (1 + sizeTolerance))
+		if (saveApproximateSets)
 		{
-			int[] indices = Arrays.copyOfRange(ind, begin, end);
-			if (isDistanceToMedian)
+			// This is the method used in ELKI which uses the distance to the median of the set (thus no
+			// distances are computed that are between points very far apart, e.g. each end of the set).
+			// save set such that used for density or neighborhood computation
+			// sets should be roughly minSplitSize
+			if (nele > minSplitSize * (1 - sizeTolerance) && nele < minSplitSize * (1 + sizeTolerance))
 			{
-				// sort set, since need median element later
-				// (when computing distance to the middle of the set)
-				Sort.sort(indices, tpro);
+				int[] indices = Arrays.copyOfRange(ind, begin, end);
+				if (isDistanceToMedian)
+				{
+					// sort set, since need median element later
+					// (when computing distance to the middle of the set)
+					Sort.sort(indices, tpro);
+				}
+				addToSets(indices);
 			}
-			addToSets(indices);
 		}
 
 		// compute splitting element
@@ -396,7 +410,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			// picking a point randomly(picking index of point)
 			// outcome is similar
 
-			// int minInd splitByDistance(ind, nele, tpro);
+			//int minInd = splitByDistance(ind, begin, end, tpro, rand);
 			int minInd = splitRandomly(ind, begin, end, tpro, rand);
 
 			// split set recursively
@@ -405,6 +419,11 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			int splitpos = minInd + 1;
 			splitupNoSort(projectedPoints, ind, begin, splitpos, dim + 1, rand, minSplitSize);
 			splitupNoSort(projectedPoints, ind, splitpos, end, dim + 1, rand, minSplitSize);
+		}
+		else if (!saveApproximateSets)
+		{
+			// This is the method used in the original paper. All sets must be less than minSplitSize
+			addToSets(Arrays.copyOfRange(ind, begin, end));
 		}
 	}
 
@@ -563,6 +582,12 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	public int[][] computeAverageDistInSetAndNeighbours()
 	{
+		// Q. Are the neighbours worked out using the core distance?
+		// The FastOPTICS paper discusses a merging distance as the min of the core distance for A and B.
+		// Only those below the merge distance are candidates for a merge.
+		// However in a later discussion of FastOPTICS they state that reachability is only computed for
+		// the sampled neighbours (and these may be above the merge distance).       
+
 		// TODO: The ELKI implementation computes the neighbours using all items in a set to 
 		// the middle of the set, and each item in the set to the middle of the set. The FastOPTICS
 		// paper states that any neighbour is valid but further neighbours can be excluded using an
