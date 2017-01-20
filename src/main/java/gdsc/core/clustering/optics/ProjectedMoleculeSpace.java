@@ -648,21 +648,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			else
 			{
 				// For each point A choose a neighbour from the set B.
-				// Note: This only works if the set has size 2 or more.
 				int[] pinSet = splitsets.get(i);
 
-				// For a fast implementation we just shuffle the set and pick consecutive 
-				// points as neighbours.
-				// For speed we can use the pseudoRandom generator that was 
-				// created when the sets were generated.
-				pseudoRandom.shuffle(pinSet);
-
-				for (int j = pinSet.length, k = 0; j-- > 0;)
+				if (pinSet.length == 2)
 				{
-					int a = pinSet[j];
-					int b = pinSet[k];
-
-					k = j;
+					// Only one set of neighbours
+					int a = pinSet[0];
+					int b = pinSet[1];
 
 					double dist = setOfObjects[a].distance(setOfObjects[b]);
 					++distanceComputations;
@@ -674,8 +666,39 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 					davg[b] += dist;
 					neighs[b].add(a);
 
-					// Count the distances. Each object will have 2 due to mirroring
-					nDists[a] += 2;
+					// Count the distances.
+					nDists[a]++;
+					nDists[b]++;
+				}
+				else
+				{
+					// For a fast implementation we just shuffle the set and pick consecutive 
+					// points as neighbours.
+					// For speed we can use the pseudoRandom generator that was 
+					// created when the sets were generated.
+					// Note: This only works if the set has size 3 or more.
+					pseudoRandom.shuffle(pinSet);
+
+					for (int j = pinSet.length, k = 0; j-- > 0;)
+					{
+						int a = pinSet[j];
+						int b = pinSet[k];
+
+						k = j;
+
+						double dist = setOfObjects[a].distance(setOfObjects[b]);
+						++distanceComputations;
+
+						davg[a] += dist;
+						neighs[a].add(b);
+
+						// Mirror this to get another neighbour without extra distance computations
+						davg[b] += dist;
+						neighs[b].add(a);
+
+						// Count the distances. Each object will have 2 due to mirroring
+						nDists[a] += 2;
+					}
 				}
 			}
 		}
