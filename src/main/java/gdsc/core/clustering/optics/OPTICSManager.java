@@ -136,7 +136,7 @@ public class OPTICSManager extends CoordinateStore
 	}
 
 	private int nThreads = 1;
-	
+
 	/**
 	 * Used in the DBSCAN algorithm to store a queue of molecules to process
 	 */
@@ -799,8 +799,8 @@ public class OPTICSManager extends CoordinateStore
 			if (tracker != null)
 			{
 				time = System.currentTimeMillis() - time;
-				tracker.log("Finished OPTICS: %s (Time = %s)", Utils.pleural(nClusters, "Cluster"),
-						Utils.timeToString(time));
+				tracker.log("Finished OPTICS: %s @ %s (Time = %s)", Utils.pleural(nClusters, "Cluster"),
+						Utils.rounded(generatingDistanceE), Utils.timeToString(time));
 			}
 		}
 
@@ -1746,7 +1746,7 @@ public class OPTICSManager extends CoordinateStore
 		{
 			nSplits = ProjectedMoleculeSpace.getNumberOfSplitSets(nSplits, getSize());
 			nProjections = ProjectedMoleculeSpace.getNumberOfProjections(nProjections, getSize());
-			
+
 			tracker.log("Running FastOPTICS ... minPts=%d, splits=%d, projections=%d, distanceToMedian=%b", minPts,
 					nSplits, nProjections, isDistanceToMedian);
 		}
@@ -1813,7 +1813,8 @@ public class OPTICSManager extends CoordinateStore
 				long end = System.currentTimeMillis();
 				time = end - time;
 				time2 = end - time2;
-				tracker.log("Finished FastOPTICS: %s (Time = %s : Total = %s)", Utils.pleural(nClusters, "Cluster"),
+				tracker.log("Finished FastOPTICS: %s @ %s (Time = %s : Total = %s)",
+						Utils.pleural(nClusters, "Cluster"), Utils.rounded(grid.generatingDistanceE),
 						Utils.timeToString(time2), Utils.timeToString(time));
 			}
 		}
@@ -1991,7 +1992,8 @@ public class OPTICSManager extends CoordinateStore
 	/**
 	 * Sets the number of threads to use for multi-threaded algorithms (FastOPTICS).
 	 *
-	 * @param nThreads the new number of threads
+	 * @param nThreads
+	 *            the new number of threads
 	 */
 	public void setNumberOfThreads(int nThreads)
 	{
