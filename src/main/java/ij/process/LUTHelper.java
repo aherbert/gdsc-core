@@ -326,7 +326,7 @@ public class LUTHelper
 	 */
 	public static Color getColour(LUT lut, int n, int total)
 	{
-		if (total <= 256)
+		if (total <= 255)
 		{
 			// Assume 8-bit image
 			return getColour(lut, n);
@@ -397,4 +397,92 @@ public class LUTHelper
 
 		return new Color(lut.getRGB(ivalue));
 	}
+	
+
+	/**
+	 * Get a colour from the LUT ignoring zero. If the total is equal or less than 256 then the lut can be assumed for an 8-bit image.
+	 * If above 256 then the colour is assumed for a 16-bit image and so the position is scaled linearly to 1-255 to
+	 * find the colour. The uses the {@link #getNonZeroColour(LUT, int, int, int)} method.
+	 *
+	 * @param lut
+	 *            the lut
+	 * @param n
+	 *            The position in the series (zero-based)
+	 * @param total
+	 *            The total in the series
+	 * @return a colour
+	 */
+	public static Color getNonZeroColour(LUT lut, int n, int total)
+	{
+		if (total <= 256)
+		{
+			// Assume 8-bit image
+			return getColour(lut, n);
+		}
+
+		// Use behaviour for 16-bit images 
+		return getNonZeroColour(lut, n, 1, total);
+	}
+
+	/**
+	 * Get a colour from the LUT ignoring zero. Used for 16-bit images.
+	 *
+	 * @param lut
+	 *            the lut
+	 * @param value
+	 *            the value
+	 * @param minimum
+	 *            the minimum display value (mapped to 1)
+	 * @param maximum
+	 *            the maximum display value (mapped to 255)
+	 * @return a colour
+	 */
+	public static Color getNonZeroColour(LUT lut, int value, int minimum, int maximum)
+	{
+		// Logic copied from ShortProcessor.create8BitImage
+		if (minimum < 0)
+			minimum = 0;
+		if (maximum > 65535)
+			maximum = 65535;
+
+		double scale = 255.0 / (maximum - minimum + 1);
+		value = value - minimum;
+		if (value < 0)
+			value = 0;
+		value = 1 + (int) (value * scale + 0.5);
+		if (value > 255)
+			value = 255;
+
+		return new Color(lut.getRGB(value));
+	}
+
+	/**
+	 * Get a colour from the LUT ignoring zero. Used for 32-bit images.
+	 *
+	 * @param lut
+	 *            the lut
+	 * @param value
+	 *            the value
+	 * @param minimum
+	 *            the minimum display value (mapped to 1)
+	 * @param maximum
+	 *            the maximum display value (mapped to 255)
+	 * @return a colour
+	 */
+	public static Color getNonZeroColour(LUT lut, float value, float minimum, float maximum)
+	{
+		// Logic copied from FloatProcessor.create8BitImage
+
+		// No range check on the input min/max
+
+		float scale = 254f / (maximum - minimum);
+		value = value - minimum;
+		if (value < 0f)
+			value = 0f;
+		int ivalue = 1 + (int) ((value * scale) + 0.5f);
+		if (ivalue > 255)
+			ivalue = 255;
+
+		return new Color(lut.getRGB(ivalue));
+	}	
 }
