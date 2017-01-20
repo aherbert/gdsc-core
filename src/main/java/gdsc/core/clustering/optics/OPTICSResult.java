@@ -471,9 +471,9 @@ public class OPTICSResult implements ClusteringResult
 	 */
 	public int extractDBSCANClustering(float generatingDistanceE, boolean core)
 	{
-		if (generatingDistanceE > generatingDistance)
-			throw new IllegalArgumentException(
-					"The generating distance must not be above the distance used during OPTICS");
+		//if (generatingDistanceE > generatingDistance)
+		//	throw new IllegalArgumentException(
+		//			"The generating distance must not be above the distance used during OPTICS");
 
 		// Reset cluster Id
 		int clusterId = NOISE;
