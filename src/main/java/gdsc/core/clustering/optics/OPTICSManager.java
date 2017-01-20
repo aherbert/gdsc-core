@@ -135,6 +135,8 @@ public class OPTICSManager extends CoordinateStore
 		return options;
 	}
 
+	private int nThreads = 1;
+	
 	/**
 	 * Used in the DBSCAN algorithm to store a queue of molecules to process
 	 */
@@ -1742,7 +1744,11 @@ public class OPTICSManager extends CoordinateStore
 
 		if (tracker != null)
 		{
-			tracker.log("Running FastOPTICS ... minPts=%d", minPts);
+			nSplits = ProjectedMoleculeSpace.getNumberOfSplitSets(nSplits, getSize());
+			nProjections = ProjectedMoleculeSpace.getNumberOfProjections(nProjections, getSize());
+			
+			tracker.log("Running FastOPTICS ... minPts=%d, splits=%d, projections=%d, distanceToMedian=%b", minPts,
+					nSplits, nProjections, isDistanceToMedian);
 		}
 
 		// Compute projections and find neighbours
@@ -1751,6 +1757,7 @@ public class OPTICSManager extends CoordinateStore
 		space.nSplits = nSplits;
 		space.nProjections = nProjections;
 		space.isDistanceToMedian = isDistanceToMedian;
+		space.nThreads = nThreads;
 
 		space.setTracker(tracker);
 		space.computeSets(minPts); // project points
@@ -1814,6 +1821,18 @@ public class OPTICSManager extends CoordinateStore
 		finish();
 
 		return optics;
+	}
+
+	/**
+	 * Gets the number of split sets to use for FastOPTICS.
+	 *
+	 * @param nSplits
+	 *            The number of splits to compute (if below 1 it will be auto-computed using the size of the data)
+	 * @return the number of split sets
+	 */
+	public int getNumberOfSplitSets(int nSplits)
+	{
+		return ProjectedMoleculeSpace.getNumberOfSplitSets(nSplits, getSize());
 	}
 
 	/**
@@ -1957,5 +1976,28 @@ public class OPTICSManager extends CoordinateStore
 		//}
 
 		return (float) max;
+	}
+
+	/**
+	 * Gets the number of threads to use for multi-threaded algorithms (FastOPTICS).
+	 *
+	 * @return the number of threads
+	 */
+	public int getNumberOfThreads()
+	{
+		return nThreads;
+	}
+
+	/**
+	 * Sets the number of threads to use for multi-threaded algorithms (FastOPTICS).
+	 *
+	 * @param nThreads the new number of threads
+	 */
+	public void setNumberOfThreads(int nThreads)
+	{
+		if (nThreads > 0)
+			this.nThreads = nThreads;
+		else
+			this.nThreads = 1;
 	}
 }
