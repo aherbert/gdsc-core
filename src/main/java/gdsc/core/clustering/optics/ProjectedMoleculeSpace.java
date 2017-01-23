@@ -125,7 +125,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 * Set to true to compute the neighbours using the distance to the median of the projected set. The alternative is
 	 * to randomly sample neighbours from the set.
 	 */
-	public boolean isDistanceToMedian = false;
+	public boolean isSampleUsingMedian = false;
 
 	/**
 	 * Set to true to use random vectors for the projectsion. The default is to uniformly create vectors on the
@@ -391,7 +391,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 		public void run()
 		{
-			if (isDistanceToMedian)
+			if (isSampleUsingMedian)
 			{
 				for (int i = from; i < to; i++)
 					sampleNeighboursUsingMedian(sumDistances, nDistances, neighbours, sets.get(i));
@@ -701,7 +701,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			if (nele > minSplitSize * (1 - sizeTolerance) && nele < minSplitSize * (1 + sizeTolerance))
 			{
 				int[] indices = Arrays.copyOfRange(ind, begin, end);
-				if (isDistanceToMedian)
+				if (isSampleUsingMedian)
 				{
 					// sort set, since need median element later
 					// (when computing distance to the middle of the set)
@@ -737,7 +737,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		else if (!saveApproximateSets)
 		{
 			int[] indices = Arrays.copyOfRange(ind, begin, end);
-			if (isDistanceToMedian)
+			if (isSampleUsingMedian)
 			{
 				// sort set, since need median element later
 				// (when computing distance to the middle of the set)
@@ -988,7 +988,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			else
 			{
 				TurboList<int[]> sets = split.sets;
-				if (isDistanceToMedian)
+				if (isSampleUsingMedian)
 				{
 					// ELKI uses the distance to the median of the set
 					for (int s = sets.size(); s-- > 0;)

@@ -1728,13 +1728,12 @@ public class OPTICSManager extends CoordinateStore
 	 *            The number of splits to compute (if below 1 it will be auto-computed using the size of the data)
 	 * @param nProjections
 	 *            The number of projections to compute (if below 1 it will be auto-computed using the size of the data)
-	 * @param isDistanceToMedian
+	 * @param isSampleUsingMedian
 	 *            Set to true to compute the neighbours using the distance to the median of the projected set. The
-	 *            alternative is
-	 *            to randomly sample neighbours from the set.
+	 *            alternative is to randomly sample neighbours from the set.
 	 * @return the results (or null if the algorithm was stopped using the tracker)
 	 */
-	public OPTICSResult fastOptics(int minPts, int nSplits, int nProjections, boolean isDistanceToMedian)
+	public OPTICSResult fastOptics(int minPts, int nSplits, int nProjections, boolean isSampleUsingMedian)
 	{
 		if (minPts < 1)
 			minPts = 1;
@@ -1747,8 +1746,8 @@ public class OPTICSManager extends CoordinateStore
 			nSplits = ProjectedMoleculeSpace.getNumberOfSplitSets(nSplits, getSize());
 			nProjections = ProjectedMoleculeSpace.getNumberOfProjections(nProjections, getSize());
 
-			tracker.log("Running FastOPTICS ... minPts=%d, splits=%d, projections=%d, distanceToMedian=%b", minPts,
-					nSplits, nProjections, isDistanceToMedian);
+			tracker.log("Running FastOPTICS ... minPts=%d, splits=%d, projections=%d, sampleUsingMedian=%b, threads=%d",
+					minPts, nSplits, nProjections, isSampleUsingMedian, nThreads);
 		}
 
 		// Compute projections and find neighbours
@@ -1756,7 +1755,7 @@ public class OPTICSManager extends CoordinateStore
 
 		space.nSplits = nSplits;
 		space.nProjections = nProjections;
-		space.isDistanceToMedian = isDistanceToMedian;
+		space.isSampleUsingMedian = isSampleUsingMedian;
 		space.nThreads = nThreads;
 
 		space.setTracker(tracker);
@@ -1813,9 +1812,9 @@ public class OPTICSManager extends CoordinateStore
 				long end = System.currentTimeMillis();
 				time = end - time;
 				time2 = end - time2;
-				tracker.log("Finished FastOPTICS: %s @ %s (Time = %s : Total = %s)",
-						Utils.pleural(nClusters, "Cluster"), Utils.rounded(grid.generatingDistanceE),
-						Utils.timeToString(time2), Utils.timeToString(time));
+				tracker.log("Finished OPTICS: %s @ %s (Time = %s)", Utils.pleural(nClusters, "Cluster"),
+						Utils.rounded(grid.generatingDistanceE), Utils.timeToString(time2));
+				tracker.log("Finished FastOPTICS ... " + Utils.timeToString(time));
 			}
 		}
 
