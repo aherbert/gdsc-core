@@ -500,6 +500,23 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
     }
 
     /**
+     * Appends all of the elements in the specified list to the end of
+     * this list.
+     *
+     * @param c list containing elements to be added to this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws NullPointerException if the specified collection is null
+     */
+    public boolean addAll(TurboList<? extends E> c) {
+        Object[] a = c.elementData;
+        int numNew = c.size;
+        ensureCapacityInternal(size + numNew);
+        System.arraycopy(a, 0, elementData, size, numNew);
+        size += numNew;
+        return numNew != 0;
+    }
+    
+    /**
      * Inserts all of the elements in the specified collection into this
      * list, starting at the specified position.  Shifts the element
      * currently at that position (if any) and any subsequent elements to
