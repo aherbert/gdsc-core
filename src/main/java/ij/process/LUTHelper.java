@@ -397,10 +397,10 @@ public class LUTHelper
 
 		return new Color(lut.getRGB(ivalue));
 	}
-	
 
 	/**
-	 * Get a colour from the LUT ignoring zero. If the total is equal or less than 256 then the lut can be assumed for an 8-bit image.
+	 * Get a colour from the LUT ignoring zero. If the total is equal or less than 256 then the lut can be assumed for
+	 * an 8-bit image.
 	 * If above 256 then the colour is assumed for a 16-bit image and so the position is scaled linearly to 1-255 to
 	 * find the colour. The uses the {@link #getNonZeroColour(LUT, int, int, int)} method.
 	 *
@@ -484,5 +484,178 @@ public class LUTHelper
 			ivalue = 255;
 
 		return new Color(lut.getRGB(ivalue));
-	}	
+	}
+
+	/**
+	 * Provide mapping for values to the range of 0-255 for a 8-bit image.
+	 */
+	public interface LUTMapper
+	{
+		/**
+		 * Map the value to a value between 0 and 255.
+		 *
+		 * @param value
+		 *            the value
+		 * @return the mapped value
+		 */
+		public int map(float value);
+
+		/**
+		 * Map the value to a value between 0 and 255.
+		 *
+		 * @param value
+		 *            the value
+		 * @return the mapped value
+		 */
+		public float mapf(float value);
+
+		/**
+		 * Gets the colour.
+		 *
+		 * @param lut
+		 *            the lut
+		 * @param value
+		 *            the value
+		 * @return the colour
+		 */
+		public Color getColour(LUT lut, float value);
+	}
+
+	/**
+	 * Provide no mapping
+	 */
+	public static class NullLUTMapper implements LUTMapper
+	{
+		/**
+		 * Rounds the input to the nearest int and truncates to the range 0-255.
+		 * 
+		 * @see ij.process.LUTHelper.LUTMapper#map(float)
+		 */
+		public int map(float value)
+		{
+			if (value < 0f)
+				return 0;
+			if (value > 255f)
+				return 255;
+			return (int) Math.round(value);
+		}
+
+		/**
+		 * Provide no mapping (returns the input value)
+		 * 
+		 * @see ij.process.LUTHelper.LUTMapper#mapf(float)
+		 */
+		public float mapf(float value)
+		{
+			return value;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ij.process.LUTHelper.LUTMapper#getColour(ij.process.LUT, float)
+		 */
+		public Color getColour(LUT lut, float value)
+		{
+			return new Color(lut.getRGB(map(value)));
+		}
+	}
+
+	/**
+	 * Provide a default map for a value to the range 0-255. Functionality will match that of rendered 32-bit images.
+	 */
+	public static class DefaultLUTMapper extends NullLUTMapper
+	{
+		final float minimum, maximum, scale;
+
+		/**
+		 * Instantiates a new zero LUT mapper.
+		 *
+		 * @param minimum
+		 *            the minimum
+		 * @param maximum
+		 *            the maximum
+		 */
+		public DefaultLUTMapper(float minimum, float maximum)
+		{
+			this.maximum = maximum;
+			this.minimum = minimum;
+			scale = 255f / (maximum - minimum);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ij.process.LUTHelper.LUTMapper#map(float)
+		 */
+		public int map(float value)
+		{
+			value = value - minimum;
+			if (value < 0f)
+				value = 0f;
+			int ivalue = (int) ((value * scale) + 0.5f);
+			if (ivalue > 255)
+				ivalue = 255;
+			return ivalue;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ij.process.LUTHelper.LUTMapper#mapf(float)
+		 */
+		public float mapf(float value)
+		{
+			return map(value);
+		}
+	}
+
+	/**
+	 * Provide a default map for a value to the range 1-255
+	 */
+	public static class NonZeroLUTMapper extends NullLUTMapper
+	{
+		final float minimum, maximum, scale;
+
+		/**
+		 * Instantiates a new zero LUT mapper.
+		 *
+		 * @param minimum
+		 *            the minimum
+		 * @param maximum
+		 *            the maximum
+		 */
+		public NonZeroLUTMapper(float minimum, float maximum)
+		{
+			this.maximum = maximum;
+			this.minimum = minimum;
+			scale = 254f / (maximum - minimum);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ij.process.LUTHelper.LUTMapper#map(float)
+		 */
+		public int map(float value)
+		{
+			value = value - minimum;
+			if (value < 0f)
+				value = 0f;
+			int ivalue = 1 + (int) ((value * scale) + 0.5f);
+			if (ivalue > 255)
+				ivalue = 255;
+			return ivalue;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ij.process.LUTHelper.LUTMapper#mapf(float)
+		 */
+		public float mapf(float value)
+		{
+			return map(value);
+		}
+	}
 }
