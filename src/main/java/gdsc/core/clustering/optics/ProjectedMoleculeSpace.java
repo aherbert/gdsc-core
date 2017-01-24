@@ -144,7 +144,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 * Set to true to use random vectors for the projections. The default is to uniformly create vectors on the
 	 * semi-circle interval.
 	 */
-	public boolean isRandomVectors = false;
+	public boolean useRandomVectors = false;
 
 	/** The number of threads to use. */
 	public int nThreads = 1;
@@ -647,13 +647,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		}
 
 		// Create random vectors or uniform distribution
-		RandomVectorGenerator vectorGen = (isRandomVectors) ? new UnitSphereRandomVectorGenerator(2, rand) : null;
+		RandomVectorGenerator vectorGen = (useRandomVectors) ? new UnitSphereRandomVectorGenerator(2, rand) : null;
 		final double increment = Math.PI / nProject1d;
 		for (int i = 0; i < nProject1d; i++)
 		{
 			// Create a random unit vector
 			double[] currRp;
-			if (isRandomVectors)
+			if (useRandomVectors)
 			{
 				currRp = vectorGen.nextVector();
 			}

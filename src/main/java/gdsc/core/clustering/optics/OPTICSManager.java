@@ -1728,7 +1728,7 @@ public class OPTICSManager extends CoordinateStore
 	 *            The number of splits to compute (if below 1 it will be auto-computed using the size of the data)
 	 * @param nProjections
 	 *            The number of projections to compute (if below 1 it will be auto-computed using the size of the data)
-	 * @param isRandomVectors
+	 * @param useRandomVectors
 	 *            Set to true to use random vectors for the projections. The default is to uniformly create vectors on
 	 *            the semi-circle interval.
 	 * @param saveApproximateSets
@@ -1738,7 +1738,7 @@ public class OPTICSManager extends CoordinateStore
 	 *            the sample mode to select neighbours within each split set
 	 * @return the results (or null if the algorithm was stopped using the tracker)
 	 */
-	public OPTICSResult fastOptics(int minPts, int nSplits, int nProjections, boolean isRandomVectors,
+	public OPTICSResult fastOptics(int minPts, int nSplits, int nProjections, boolean useRandomVectors,
 			boolean saveApproximateSets, SampleMode sampleMode)
 	{
 		if (minPts < 1)
@@ -1754,7 +1754,7 @@ public class OPTICSManager extends CoordinateStore
 
 			tracker.log(
 					"Running FastOPTICS ... minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s, threads=%d",
-					minPts, nSplits, nProjections, isRandomVectors, saveApproximateSets, sampleMode, nThreads);
+					minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode, nThreads);
 		}
 
 		// Compute projections and find neighbours
@@ -1762,7 +1762,7 @@ public class OPTICSManager extends CoordinateStore
 
 		space.nSplits = nSplits;
 		space.nProjections = nProjections;
-		space.isRandomVectors = isRandomVectors;
+		space.useRandomVectors = useRandomVectors;
 		space.saveApproximateSets = saveApproximateSets;
 		space.setSampleMode(sampleMode);
 		space.nThreads = nThreads;
