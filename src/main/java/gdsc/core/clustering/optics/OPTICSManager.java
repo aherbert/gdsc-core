@@ -995,8 +995,6 @@ public class OPTICSManager extends CoordinateStore
 	 * Initialise the memory structure for the OPTICS algorithm. This can be cached if the generatingDistanceE does not
 	 * change.
 	 *
-	 * @param generatingDistanceE
-	 *            the generating distance E
 	 * @param minPts
 	 *            the min points for a core object
 	 */
