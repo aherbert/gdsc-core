@@ -9,7 +9,7 @@ import org.junit.Test;
 public class RandIndexTest
 {
 	RandIndex ri = new RandIndex();
-	
+
 	@Test
 	public void canComputeSimpleRandIndexWithNoData()
 	{
@@ -29,11 +29,12 @@ public class RandIndexTest
 			int[] clusters = new int[size];
 			double r = RandIndex.randIndex(clusters, clusters);
 			Assert.assertEquals(1, r, 0);
+			// Instance test
 			r = ri.getRandIndex(clusters, clusters);
 			Assert.assertEquals(1, r, 0);
 		}
 	}
-	
+
 	@Test
 	public void canComputeRandIndex2WithNoData()
 	{
@@ -42,11 +43,12 @@ public class RandIndexTest
 			int[] clusters = new int[size];
 			double r = RandIndex.randIndex(clusters, 1, clusters, 1);
 			Assert.assertEquals(1, r, 0);
+			// Instance test
 			r = ri.getRandIndex(clusters, 1, clusters, 1);
 			Assert.assertEquals(1, r, 0);
 		}
 	}
-	
+
 	@Test
 	public void canComputeSimpleRandIndex()
 	{
@@ -65,6 +67,7 @@ public class RandIndexTest
 		int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0 };
 		double r = RandIndex.randIndex(clusters, classes);
 		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		// Instance test
 		r = ri.getRandIndex(clusters, classes);
 		Assert.assertEquals(0.67647058823529416, r, 1e-10);
 	}
@@ -77,22 +80,48 @@ public class RandIndexTest
 		int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0 };
 		double r = RandIndex.randIndex(clusters, 3, classes, 3);
 		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		// Instance test
 		r = ri.getRandIndex(clusters, 3, classes, 3);
 		Assert.assertEquals(0.67647058823529416, r, 1e-10);
 	}
 
+	@Test
+	public void canComputeRandIndexWithSimpleData()
+	{
+		int size = 100;
+		for (int n1 : new int[] { 1, 2, 3, 4, 5 })
+			for (int n2 : new int[] { 1, 2, 3, 4, 5 })
+				canComputeRandIndexWithData(size, n1, n2);
+	}
+
 	// Speed test on large data
 	@Test
-	public void canComputeRandIndexWithData()
+	public void canComputeRandIndexWithBigData()
 	{
 		int size = 10000;
-		int n1 = 5;
-		int n2 = 6;
-		canComputeRandIndexWithData(size, n1, n2);
+		for (int i : new int[] { 3, 5, 10 })
+		{
+			int n1 = size / i;
+			int n2 = size / i;
+			canComputeRandIndexWithData(size, n1, n2);
+		}
+		for (int i : new int[] { 3, 5, 10 })
+		{
+			int n1 = size / i;
+			int n2 = i;
+			canComputeRandIndexWithData(size, n1, n2);
+		}
+		for (int i : new int[] { 3, 5, 10 })
+		{
+			int n1 = i;
+			int n2 = i;
+			canComputeRandIndexWithData(size, n1, n2);
+		}
 	}
 
 	private void canComputeRandIndexWithData(int size, int n1, int n2)
 	{
+		int n = size;
 		int[] c1 = new int[size];
 		int[] c2 = new int[size];
 		while (size-- > 0)
@@ -116,9 +145,12 @@ public class RandIndexTest
 		long table1 = t3 - t2;
 		long table2 = t4 - t3;
 
-		System.out.printf("simple=%d (%f), table=%d (%f), %f\n", simple, e, table1, o1, simple / (double) table1);
-		System.out.printf("simple=%d (%f), table=%d (%f), %f\n", simple, e, table2, o2, simple / (double) table2);
-		
+		System.out.printf("[%d,%d,%d] simple=%d (%f), table1=%d (%f), %f\n", n, n1, n2, simple, e, table1, o1,
+				simple / (double) table1);
+		System.out.printf("[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f\n", n, n1, n2, simple, e, table2, o2,
+				simple / (double) table2);
+
 		Assert.assertEquals(e, o1, e * 1e-10);
+		Assert.assertEquals(o2, o1, 0);
 	}
 }

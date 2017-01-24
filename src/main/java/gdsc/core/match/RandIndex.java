@@ -1,7 +1,5 @@
 package gdsc.core.match;
 
-import org.apache.commons.math3.exception.MathArithmeticException;
-
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
  * 
@@ -15,8 +13,6 @@ import org.apache.commons.math3.exception.MathArithmeticException;
  * (at your option) any later version.
  *---------------------------------------------------------------------------*/
 
-import org.apache.commons.math3.util.CombinatoricsUtils;
-
 /**
  * Compute the Rand index for two classifications of a set of data.
  * <p>
@@ -28,6 +24,25 @@ import org.apache.commons.math3.util.CombinatoricsUtils;
  */
 public class RandIndex
 {
+	/**
+	 * Returns an exact representation of the the number of
+	 * 2-element subsets that can be selected from an
+	 * {@code n}-element set.
+	 * <p>
+	 * If n is less than 2 it returns 0.
+	 * </p>
+	 *
+	 * @param n
+	 *            the size of the set
+	 * @return {@code n choose 2}
+	 */
+	public static long binomialCoefficient(final int n)
+	{
+		if (n < 2)
+			return 0L;
+		return (long) (n - 1) * (long) n / 2L;
+	}
+
 	/**
 	 * Compute the Rand index for two classifications of a set of data.
 	 * <p>
@@ -66,14 +81,20 @@ public class RandIndex
 			int s2 = set2[i];
 			for (int j = i + 1; j < n; j++)
 			{
-				boolean same1 = (s1 == set1[j]);
-				boolean same2 = (s2 == set2[j]);
-				if (same1 == same2)
-					a_plus_b++;
+				if (s1 == set1[j])
+				{
+					if (s2 == set2[j])
+						a_plus_b++;
+				}
+				else
+				{
+					if (s2 != set2[j])
+						a_plus_b++;
+				}
 			}
 		}
 
-		return (double) a_plus_b / CombinatoricsUtils.binomialCoefficient(n, 2);
+		return (double) a_plus_b / binomialCoefficient(n);
 	}
 
 	/**
@@ -225,7 +246,7 @@ public class RandIndex
 	 *            the number of clusters in set 1
 	 * @return the Rand index
 	 * @see https://en.wikipedia.org/wiki/Rand_index
-	 * @throws MathArithmeticException
+	 * @throws RuntimeException
 	 *             if the sum of the contingency table is greater than the max value of an integer
 	 */
 	public static double randIndex(int[] set1, int n1, int[] set2, int n2)
@@ -242,47 +263,41 @@ public class RandIndex
 		}
 
 		long total = 0;
+		long tp_fp = 0;
+		long tp = 0;
 		for (int i = 0; i < n1; i++)
 		{
-			long last = total;
+			long sum = 0;
+			int[] data = table[i];
 			for (int j = 0; j < n2; j++)
-				total += table[i][j];
-			if (total < last)
-				throw new MathArithmeticException();
+			{
+				int v = data[j];
+				sum += v;
+				tp += binomialCoefficient(v);
+			}
+			if (sum > Integer.MAX_VALUE)
+				throw new RuntimeException();
+			total += sum;
+			tp_fp += binomialCoefficient((int) sum);
 		}
 
 		if (total > Integer.MAX_VALUE)
-			throw new MathArithmeticException();
-
-		long tp_fp = 0;
-		for (int i = 0; i < n1; i++)
-		{
-			int sum = 0;
-			for (int j = 0; j < n2; j++)
-				sum += table[i][j];
-			tp_fp += CombinatoricsUtils.binomialCoefficient(sum, 2);
-		}
+			throw new RuntimeException();
 
 		long tp_fn = 0;
 		for (int j = 0; j < n2; j++)
 		{
-			int sum = 0;
+			long sum = 0;
 			for (int i = 0; i < n1; i++)
 				sum += table[i][j];
-			tp_fn += CombinatoricsUtils.binomialCoefficient(sum, 2);
-		}
-
-		long tp = 0;
-		for (int i = 0; i < n1; i++)
-		{
-			for (int j = 0; j < n2; j++)
-				if (table[i][j] > 1)
-					tp += CombinatoricsUtils.binomialCoefficient(table[i][j], 2);
+			if (sum > Integer.MAX_VALUE)
+				throw new RuntimeException();
+			tp_fn += binomialCoefficient((int) sum);
 		}
 
 		long fp = tp_fp - tp;
 		long fn = tp_fn - tp;
-		long tn = CombinatoricsUtils.binomialCoefficient((int) total, 2) - tp - fp - fn;
+		long tn = binomialCoefficient((int) total) - tp - fp - fn;
 
 		//System.out.printf("%d %d %d %d\n", tp, fp, tn, fn);
 
@@ -354,7 +369,7 @@ public class RandIndex
 	 *            the number of clusters in set 1
 	 * @return the Rand index
 	 * @see https://en.wikipedia.org/wiki/Rand_index
-	 * @throws MathArithmeticException
+	 * @throws RuntimeException
 	 *             if the sum of the contingency table is greater than the max value of an integer
 	 */
 	public double getRandIndex(int[] set1, int n1, int[] set2, int n2)
@@ -376,47 +391,41 @@ public class RandIndex
 		}
 
 		long total = 0;
+		long tp_fp = 0;
+		long tp = 0;
 		for (int i = 0; i < n1; i++)
 		{
-			long last = total;
+			long sum = 0;
+			int[] data = table[i];
 			for (int j = 0; j < n2; j++)
-				total += table[i][j];
-			if (total < last)
-				throw new MathArithmeticException();
+			{
+				int v = data[j];
+				sum += v;
+				tp += binomialCoefficient(v);
+			}
+			if (sum > Integer.MAX_VALUE)
+				throw new RuntimeException();
+			total += sum;
+			tp_fp += binomialCoefficient((int) sum);
 		}
 
 		if (total > Integer.MAX_VALUE)
-			throw new MathArithmeticException();
-
-		long tp_fp = 0;
-		for (int i = 0; i < n1; i++)
-		{
-			int sum = 0;
-			for (int j = 0; j < n2; j++)
-				sum += table[i][j];
-			tp_fp += CombinatoricsUtils.binomialCoefficient(sum, 2);
-		}
+			throw new RuntimeException();
 
 		long tp_fn = 0;
 		for (int j = 0; j < n2; j++)
 		{
-			int sum = 0;
+			long sum = 0;
 			for (int i = 0; i < n1; i++)
 				sum += table[i][j];
-			tp_fn += CombinatoricsUtils.binomialCoefficient(sum, 2);
+			if (sum > Integer.MAX_VALUE)
+				throw new RuntimeException();
+			tp_fn += binomialCoefficient((int) sum);
 		}
-
-		tp = 0;
-		for (int i = 0; i < n1; i++)
-		{
-			for (int j = 0; j < n2; j++)
-				if (table[i][j] > 1)
-					tp += CombinatoricsUtils.binomialCoefficient(table[i][j], 2);
-		}
-
+		
 		fp = tp_fp - tp;
 		fn = tp_fn - tp;
-		tn = CombinatoricsUtils.binomialCoefficient((int) total, 2) - tp - fp - fn;
+		tn = binomialCoefficient((int) total) - tp - fp - fn;
 
 		return (double) (tp + tn) / (tp + fp + tn + fn);
 	}
