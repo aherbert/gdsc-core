@@ -62,7 +62,7 @@ public class LUTHelper
 
 	/** The LUT with distinct colours. */
 	private static final LUT cachedLUT;
-	
+
 	static
 	{
 		LutColour[] l = LutColour.values();
@@ -352,7 +352,7 @@ public class LUTHelper
 	{
 		return cachedLUT;
 	}
-	
+
 	/**
 	 * Build a custom LUT
 	 * 
@@ -375,6 +375,20 @@ public class LUTHelper
 	 * @return the LUT
 	 */
 	public static LUT createLUT(LutColour lut)
+	{
+		return createLUT(lut, false);
+	}
+
+	/**
+	 * Build a custom LUT.
+	 *
+	 * @param lut
+	 *            The LUT to create
+	 * @param includeBlack
+	 *            Set to true to include black at index 0
+	 * @return the LUT
+	 */
+	public static LUT createLUT(LutColour lut, boolean includeBlack)
 	{
 		byte[] reds = new byte[256];
 		byte[] greens = new byte[256];
@@ -428,6 +442,8 @@ public class LUTHelper
 		}
 		if (nColors < 256)
 			interpolate(reds, greens, blues, nColors);
+		if (includeBlack)
+			reds[0] = greens[0] = blues[0] = 0;
 		return new LUT(reds, greens, blues);
 	}
 
