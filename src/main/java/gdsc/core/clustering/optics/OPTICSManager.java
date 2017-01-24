@@ -1692,7 +1692,7 @@ public class OPTICSManager extends CoordinateStore
 	 */
 	public OPTICSResult fastOptics(int minPts)
 	{
-		return fastOptics(minPts, 0, 0, false);
+		return fastOptics(minPts, 0, 0, false, SampleMode.RANDOM);
 	}
 
 	/**
@@ -1728,12 +1728,15 @@ public class OPTICSManager extends CoordinateStore
 	 *            The number of splits to compute (if below 1 it will be auto-computed using the size of the data)
 	 * @param nProjections
 	 *            The number of projections to compute (if below 1 it will be auto-computed using the size of the data)
-	 * @param isSampleUsingMedian
-	 *            Set to true to compute the neighbours using the distance to the median of the projected set. The
-	 *            alternative is to randomly sample neighbours from the set.
+	 * @param saveApproximateSets
+	 *            Set to true to save all sets that are approximately minPts size. The default is to only save sets
+	 *            smaller than minPts size.
+	 * @param sampleMode
+	 *            the sample mode to select neighbours within each split set
 	 * @return the results (or null if the algorithm was stopped using the tracker)
 	 */
-	public OPTICSResult fastOptics(int minPts, int nSplits, int nProjections, boolean isSampleUsingMedian)
+	public OPTICSResult fastOptics(int minPts, int nSplits, int nProjections, boolean saveApproximateSets,
+			SampleMode sampleMode)
 	{
 		if (minPts < 1)
 			minPts = 1;
@@ -1746,8 +1749,9 @@ public class OPTICSManager extends CoordinateStore
 			nSplits = ProjectedMoleculeSpace.getNumberOfSplitSets(nSplits, getSize());
 			nProjections = ProjectedMoleculeSpace.getNumberOfProjections(nProjections, getSize());
 
-			tracker.log("Running FastOPTICS ... minPts=%d, splits=%d, projections=%d, sampleUsingMedian=%b, threads=%d",
-					minPts, nSplits, nProjections, isSampleUsingMedian, nThreads);
+			tracker.log(
+					"Running FastOPTICS ... minPts=%d, splits=%d, projections=%d, approxSets=%b, sampleMode=%s, threads=%d",
+					minPts, nSplits, nProjections, saveApproximateSets, sampleMode, nThreads);
 		}
 
 		// Compute projections and find neighbours
@@ -1755,7 +1759,8 @@ public class OPTICSManager extends CoordinateStore
 
 		space.nSplits = nSplits;
 		space.nProjections = nProjections;
-		space.isSampleUsingMedian = isSampleUsingMedian;
+		space.saveApproximateSets = saveApproximateSets;
+		space.setSampleMode(sampleMode);
 		space.nThreads = nThreads;
 
 		space.setTracker(tracker);
