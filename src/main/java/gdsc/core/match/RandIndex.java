@@ -67,7 +67,7 @@ public class RandIndex
 		if (set1.length != set2.length)
 			throw new IllegalArgumentException("Sets must be the same size");
 
-		int n = set1.length;
+		final int n = set1.length;
 
 		if (n < 2)
 			return 1;
@@ -77,8 +77,8 @@ public class RandIndex
 		long a_plus_b = 0; // a+b
 		for (int i = 0; i < n; i++)
 		{
-			int s1 = set1[i];
-			int s2 = set2[i];
+			final int s1 = set1[i];
+			final int s2 = set2[i];
 			for (int j = i + 1; j < n; j++)
 			{
 				if (s1 == set1[j])
@@ -121,16 +121,16 @@ public class RandIndex
 		if (set1.length != set2.length)
 			throw new IllegalArgumentException("Sets must be the same size");
 
-		int n = set1.length;
+		final int n = set1.length;
 		if (n < 2)
 			return 1;
 
 		// Compute using a contingency table.
 		// Each set should optimally use integers from 0 to n-1 for n clusters.
-		int[] set1a = new int[n];
-		int[] set2b = new int[n];
-		int max1 = compact(set1, set1a);
-		int max2 = compact(set2, set2b);
+		final int[] set1a = new int[n];
+		final int[] set2b = new int[n];
+		final int max1 = compact(set1, set1a);
+		final int max2 = compact(set2, set2b);
 
 		return randIndex(set1a, max1, set2b, max2);
 	}
@@ -154,15 +154,15 @@ public class RandIndex
 			return 1;
 		}
 
-		int[] newSet = new int[set.length];
-		boolean[] skip = new boolean[set.length];
+		final int[] newSet = new int[set.length];
+		final boolean[] skip = new boolean[set.length];
 
 		int n = 0;
 		for (int i = 0; i < set.length; i++)
 		{
 			if (skip[i])
 				continue;
-			int value = set[i];
+			final int value = set[i];
 			for (int j = i; j < set.length; j++)
 			{
 				if (value == set[j])
@@ -204,14 +204,14 @@ public class RandIndex
 			return 1;
 		}
 
-		boolean[] skip = new boolean[set.length];
+		final boolean[] skip = new boolean[set.length];
 
 		int n = 0;
 		for (int i = 0; i < set.length; i++)
 		{
 			if (skip[i])
 				continue;
-			int value = set[i];
+			final int value = set[i];
 			for (int j = i; j < set.length; j++)
 			{
 				if (value == set[j])
@@ -251,11 +251,11 @@ public class RandIndex
 	 */
 	public static double randIndex(int[] set1, int n1, int[] set2, int n2)
 	{
-		int n = set1.length;
+		final int n = set1.length;
 		if (n < 2)
 			return 1;
 
-		int[][] table = new int[n1][n2];
+		final int[][] table = new int[n1][n2];
 
 		for (int i = 0; i < n; i++)
 		{
@@ -268,10 +268,10 @@ public class RandIndex
 		for (int i = 0; i < n1; i++)
 		{
 			long sum = 0;
-			int[] data = table[i];
+			final int[] data = table[i];
 			for (int j = 0; j < n2; j++)
 			{
-				int v = data[j];
+				final int v = data[j];
 				sum += v;
 				tp += binomialCoefficient(v);
 			}
@@ -295,9 +295,9 @@ public class RandIndex
 			tp_fn += binomialCoefficient((int) sum);
 		}
 
-		long fp = tp_fp - tp;
-		long fn = tp_fn - tp;
-		long tn = binomialCoefficient((int) total) - tp - fp - fn;
+		final long fp = tp_fp - tp;
+		final long fn = tp_fn - tp;
+		final long tn = binomialCoefficient((int) total) - tp - fp - fn;
 
 		//System.out.printf("%d %d %d %d\n", tp, fp, tn, fn);
 
@@ -330,7 +330,7 @@ public class RandIndex
 		if (set1.length != set2.length)
 			throw new IllegalArgumentException("Sets must be the same size");
 
-		int n = set1.length;
+		final int n = set1.length;
 		if (n < 2)
 		{
 			tp = (n == 1) ? 1 : 0;
@@ -339,10 +339,10 @@ public class RandIndex
 
 		// Compute using a contingency table.
 		// Each set should optimally use integers from 0 to n-1 for n clusters.
-		int[] set1a = new int[n];
-		int[] set2b = new int[n];
-		int max1 = compact(set1, set1a);
-		int max2 = compact(set2, set2b);
+		final int[] set1a = new int[n];
+		final int[] set2b = new int[n];
+		final int max1 = compact(set1, set1a);
+		final int max2 = compact(set2, set2b);
 
 		return getRandIndex(set1a, max1, set2b, max2);
 	}
@@ -376,14 +376,14 @@ public class RandIndex
 	{
 		tp = fp = tn = fn = 0;
 
-		int n = set1.length;
+		final int n = set1.length;
 		if (n < 2)
 		{
 			tp = (n == 1) ? 1 : 0;
 			return 1;
 		}
 
-		int[][] table = new int[n1][n2];
+		final int[][] table = new int[n1][n2];
 
 		for (int i = 0; i < n; i++)
 		{
@@ -396,10 +396,10 @@ public class RandIndex
 		for (int i = 0; i < n1; i++)
 		{
 			long sum = 0;
-			int[] data = table[i];
+			final int[] data = table[i];
 			for (int j = 0; j < n2; j++)
 			{
-				int v = data[j];
+				final int v = data[j];
 				sum += v;
 				tp += binomialCoefficient(v);
 			}
@@ -422,7 +422,7 @@ public class RandIndex
 				throw new RuntimeException();
 			tp_fn += binomialCoefficient((int) sum);
 		}
-		
+
 		fp = tp_fp - tp;
 		fn = tp_fn - tp;
 		tn = binomialCoefficient((int) total) - tp - fp - fn;
