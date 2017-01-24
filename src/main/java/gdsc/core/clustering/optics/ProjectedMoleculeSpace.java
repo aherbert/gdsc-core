@@ -19,6 +19,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.RandomVectorGenerator;
@@ -33,7 +34,6 @@ import gdsc.core.utils.TurboList;
 import gdsc.core.utils.TurboRandomGenerator;
 import gnu.trove.set.hash.TIntHashSet;
 
-// TODO: Auto-generated Javadoc
 /**
  * Store molecules and allows generation of random projections
  * <p>
@@ -41,7 +41,9 @@ import gnu.trove.set.hash.TIntHashSet;
  * Copyright (C) 2015.
  * Johannes Schneider, ABB Research, Switzerland, johannes.schneider@alumni.ethz.ch.
  * Released under the GPL v3 licence.
- * Modifications have been made for multi-threading.
+ * <p>
+ * Modifications have been made for multi-threading and different neighbour sampling modes. The partitioning of the sets is
+ * essentially unchanged.
  * 
  * @author Alex Herbert
  */
@@ -139,13 +141,16 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	private SampleMode sampleMode;
 
 	/**
-	 * Set to true to use random vectors for the projectsion. The default is to uniformly create vectors on the
+	 * Set to true to use random vectors for the projections. The default is to uniformly create vectors on the
 	 * semi-circle interval.
 	 */
 	public boolean isRandomVectors = false;
 
 	/** The number of threads to use. */
 	public int nThreads = 1;
+
+	/** The number of distance computations. */
+	public AtomicInteger distanceComputations = new AtomicInteger();
 
 	/**
 	 * Instantiates a new projected molecule space.
@@ -1088,6 +1093,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	public int[][] computeAverageDistInSetAndNeighbours()
 	{
+		distanceComputations.set(0);
+
 		// Q. Are the neighbours worked out using the core distance?
 		// The FastOPTICS paper discusses a merging distance as the min of the core distance for A and B.
 		// Only those below the merge distance are candidates for a merge.
@@ -1196,7 +1203,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		if (tracker != null)
 		{
 			time = System.currentTimeMillis() - time;
-			tracker.log("Computed density and neighbourhoods ... " + Utils.timeToString(time));
+			tracker.log("Computed density and neighbourhoods (%d distances) ... %s", distanceComputations.get(),
+					Utils.timeToString(time));
 			tracker.progress(1);
 		}
 
@@ -1260,7 +1268,9 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		final int len = indices.length;
 		final int indoff = len >> 1;
 		int v = indices[indoff];
-		nDistances[v] += len - 1;
+		int delta = len - 1;
+		distanceComputations.addAndGet(delta);
+		nDistances[v] += delta;
 		Molecule midpoint = setOfObjects[v];
 		for (int j = len; j-- > 0;)
 		{
@@ -1300,6 +1310,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	{
 		if (indices.length == 2)
 		{
+			distanceComputations.incrementAndGet();
+
 			// Only one set of neighbours
 			int a = indices[0];
 			int b = indices[1];
@@ -1316,6 +1328,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		}
 		else
 		{
+			distanceComputations.addAndGet(indices.length);
+
 			// For a fast implementation we just pick consecutive 
 			// points as neighbours since the order is random.
 			// Note: This only works if the set has size 3 or more.
@@ -1352,16 +1366,21 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	private void sampleNeighboursAll(double[] sumDistances, int[] nDistances, TIntHashSet[] neighbours, int[] indices)
 	{
-		int n = indices.length - 1;
-		for (int i = indices.length; i-- > 0;)
+		int n = indices.length;
+		int n1 = n - 1;
+
+		// for all-vs-all = n(n-1)/2
+		distanceComputations.addAndGet((n * n1) / 2);
+
+		for (int i = 0; i < n1; i++)
 		{
 			int a = indices[i];
-			nDistances[a] += n;
+			nDistances[a] += n1;
 			double d = 0;
 			Molecule ma = setOfObjects[a];
 			TIntHashSet na = neighbours[a];
 
-			for (int j = i; j-- > 0;)
+			for (int j = i + 1; j < n; j++)
 			{
 				int b = indices[j];
 
@@ -1373,9 +1392,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 				na.add(b);
 				neighbours[b].add(a);
 			}
-			
+
 			sumDistances[a] += d;
 		}
+
+		// For the last index that was skipped in the outer loop.
+		// The set will always be a positive size so do not worry about index bounds.
+		nDistances[indices[n1]] += n1;
 	}
 
 	/**
