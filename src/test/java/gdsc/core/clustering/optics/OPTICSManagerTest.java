@@ -26,6 +26,7 @@ import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.lmu.ifi.dbs.elki.algorithm.clustering.optics.AbstractOPTICS;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.optics.ClusterOrder;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.optics.FastOPTICS;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.optics.OPTICSXi;
@@ -54,6 +55,7 @@ import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.datasource.ArrayAdapterDatabaseConnection;
 import de.lmu.ifi.dbs.elki.datasource.DatabaseConnection;
 import de.lmu.ifi.dbs.elki.index.preprocessed.fastoptics.RandomProjectedNeighborsAndDensities;
+import de.lmu.ifi.dbs.elki.math.MathUtil;
 import de.lmu.ifi.dbs.elki.math.random.RandomFactory;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
@@ -61,6 +63,7 @@ import gdsc.core.clustering.optics.OPTICSManager.Option;
 import gdsc.core.logging.ConsoleLogger;
 import gdsc.core.logging.NullTrackProgress;
 import gdsc.core.logging.TrackProgress;
+import gdsc.core.match.RandIndex;
 import gdsc.core.test.BaseTimingTask;
 import gdsc.core.test.TimingResult;
 import gdsc.core.test.TimingService;
@@ -71,6 +74,7 @@ public class OPTICSManagerTest
 {
 	boolean skipSpeedTest = true;
 	private RandomDataGenerator rand = new RandomDataGenerator(new Well19937c(30051977));
+	RandIndex ri = new RandIndex();
 
 	int size = 256;
 	float[] radii = new float[] { 2, 4, 8, 16 };
@@ -306,7 +310,7 @@ public class OPTICSManagerTest
 				neighs.put(it, DBIDUtil.newHashSet());
 			}
 
-		    DBIDVar v = DBIDUtil.newVar();
+			DBIDVar v = DBIDUtil.newVar();
 			for (int i = space.allNeighbours.length; i-- > 0;)
 			{
 				int[] list = space.allNeighbours[i];
@@ -566,30 +570,12 @@ public class OPTICSManagerTest
 				r1.extractClusters(xi);
 				int[] obsClusters = r1.getClusters();
 
-				// I will have to allow the Ids to be different. So change the Ids using first occurrence mapping...
-				remap(expClusters);
-				remap(obsClusters);
-
 				//for (int i = 0; i < n; i++)
 				//	System.out.printf("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
 
-				Assert.assertArrayEquals(expClusters, obsClusters);
+				Assert.assertEquals(1, RandIndex.randIndex(expClusters, obsClusters), 0);
 			}
 		}
-	}
-
-	private void remap(int[] clusters)
-	{
-		int n = clusters.length;
-		int[] map = new int[n];
-		int clusterId = 0;
-		for (int i = 0; i < n; i++)
-		{
-			if (map[clusters[i]] == 0)
-				map[clusters[i]] = ++clusterId;
-		}
-		for (int i = 0; i < n; i++)
-			clusters[i] = map[clusters[i]];
 	}
 
 	@Test
@@ -622,6 +608,228 @@ public class OPTICSManagerTest
 				}
 			}
 		}
+	}
+
+	/**
+	 * Test the results of FastOPTICS using the ELKI framework
+	 */
+	@Test
+	public void canComputeSimilarFastOPTICSToELKI()
+	{
+		TrackProgress tracker = null; //new SimpleTrackProgress();
+		for (int n : new int[] { 500 })
+		{
+			OPTICSManager om = createOPTICSManager(size, n);
+			om.setTracker(tracker);
+			// Needed to match the ELKI framework
+			om.setOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER);
+
+			// Use ELKI to provide the expected results
+			double[][] data = new Array2DRowRealMatrix(om.getDoubleData()).transpose().getData();
+
+			for (int minPts : new int[] { 4 })
+			{
+				double sum = 0;
+				int nLoops = 5;
+				for (int loop = 0; loop < nLoops; loop++)
+				{
+					// Reset starting Id to 1
+					DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data, null, 0);
+					ListParameterization params = new ListParameterization();
+					params.addParameter(AbstractDatabase.Parameterizer.DATABASE_CONNECTION_ID, dbc);
+					Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
+					db.initialize();
+					Relation<?> rel = db.getRelation(TypeUtil.ANY);
+					Assert.assertEquals("Database size does not match.", n, rel.size());
+
+					// Use Same setings as ELKI
+					int logOProjectionConst = 20;
+					int dim = 2;
+					int nSplits = (int) (logOProjectionConst * MathUtil.log2(size * dim + 1));
+					int nProjections = nSplits;
+					boolean useRandomVectors = true;
+					boolean saveApproximateSets = true;
+					SampleMode sampleMode = SampleMode.MEDIAN;
+					OPTICSResult r1 = om.fastOptics(minPts, nSplits, nProjections, useRandomVectors,
+							saveApproximateSets, sampleMode);
+
+					// Test verses the ELKI frame work
+					params = new ListParameterization();
+					params.addParameter(AbstractOPTICS.Parameterizer.MINPTS_ID, minPts);
+					params.addParameter(RandomProjectedNeighborsAndDensities.Parameterizer.RANDOM_ID, loop + 1);
+					Class<FastOPTICS<DoubleVector>> clz = ClassGenericsUtil.uglyCastIntoSubclass(FastOPTICS.class);
+					FastOPTICS<DoubleVector> fo = params.tryInstantiate(clz);
+
+					double xi = 0.03;
+
+					OPTICSXi opticsXi = new OPTICSXi(fo, xi, false, false);
+					Clustering<OPTICSModel> clustering = opticsXi.run(db);
+
+					// Check by building the clusters into an array 
+					int[] expClusters = new int[n];
+					List<de.lmu.ifi.dbs.elki.data.Cluster<OPTICSModel>> allClusters = clustering.getAllClusters();
+					int clusterId = 0;
+					for (de.lmu.ifi.dbs.elki.data.Cluster<OPTICSModel> c : allClusters)
+					{
+						// Add the cluster Id to the expClusters
+						clusterId++;
+						for (DBIDIter it = c.getIDs().iter(); it.valid(); it.advance())
+						{
+							expClusters[asInteger(it)] = clusterId;
+						}
+					}
+
+					// check the clusters match
+					r1.extractClusters(xi);
+					int[] obsClusters = r1.getClusters();
+
+					//for (int i = 0; i < n; i++)
+					//	System.out.printf("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
+
+					// Should be similar
+					ri.compute(expClusters, obsClusters);
+					
+					double r = ri.getRandIndex();
+					System.out.printf("%d,%d : [%d] r=%f (%f)\n", n, minPts, loop, r, ri.getAdjustedRandIndex());
+					Assert.assertTrue(ri.getAdjustedRandIndex() > 0);
+					sum += r;
+				}
+
+				sum /= nLoops;
+				System.out.printf("%d,%d : r=%f\n", n, minPts, sum);
+				Assert.assertTrue(sum > 0.6);
+			}
+		}
+	}
+
+	/**
+	 * Test the results of FastOPTICS using the ELKI framework
+	 */
+	@Test
+	public void canComputeFastOPTICSFasterThanELKI()
+	{
+		TrackProgress tracker = null; //new SimpleTrackProgress();
+		for (int n : new int[] { 2000 })
+		{
+			OPTICSManager om = createOPTICSManager(size, n);
+			om.setTracker(tracker);
+			// Needed to match the ELKI framework
+			om.setOptions(Option.OPTICS_STRICT_REVERSE_ID_ORDER);
+
+			// Use ELKI to provide the expected results
+			double[][] data = new Array2DRowRealMatrix(om.getDoubleData()).transpose().getData();
+
+			for (int minPts : new int[] { 4 })
+			{
+				// Reset starting Id to 1
+				DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data, null, 0);
+				ListParameterization params = new ListParameterization();
+				params.addParameter(AbstractDatabase.Parameterizer.DATABASE_CONNECTION_ID, dbc);
+				Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
+				db.initialize();
+				Relation<?> rel = db.getRelation(TypeUtil.ANY);
+				Assert.assertEquals("Database size does not match.", n, rel.size());
+
+				// Use same setings as ELKI
+				int logOProjectionConst = 20;
+				int dim = 2;
+				int nSplits = (int) (logOProjectionConst * MathUtil.log2(size * dim + 1));
+				int nProjections = nSplits;
+				boolean useRandomVectors = true;
+				boolean saveApproximateSets = true;
+				SampleMode sampleMode = SampleMode.MEDIAN;
+
+				// Test verses the ELKI frame work
+				params = new ListParameterization();
+				params.addParameter(AbstractOPTICS.Parameterizer.MINPTS_ID, minPts);
+				params.addParameter(RandomProjectedNeighborsAndDensities.Parameterizer.RANDOM_ID, 1);
+				Class<FastOPTICS<DoubleVector>> clz = ClassGenericsUtil.uglyCastIntoSubclass(FastOPTICS.class);
+				FastOPTICS<DoubleVector> fo = params.tryInstantiate(clz);
+
+				double xi = 0.03;
+				OPTICSXi opticsXi = new OPTICSXi(fo, xi, false, false);
+
+				long t1 = System.nanoTime();
+				opticsXi.run(db);
+				long t2 = System.nanoTime();
+				om.fastOptics(minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode);
+				long t3 = System.nanoTime();
+				om.fastOptics(minPts);
+				long t4 = System.nanoTime();
+
+				long elki = t2 - t1;
+				long smlm1 = t3 - t2;
+				long smlm2 = t4 - t3;
+				System.out.printf("ELKI = %d, SMLM = %d = %f\n", elki, smlm1, elki / (double) smlm1);
+				System.out.printf("ELKI = %d, SMLM (default) = %d = %f\n", elki, smlm2, elki / (double) smlm2);
+				Assert.assertTrue(smlm1 < elki);
+				Assert.assertTrue(smlm2 < elki);
+			}
+		}
+	}
+
+	@Test
+	public void canComputeSimilarFastOPTICSTopLevelClusters()
+	{
+		canComputeSimilarFastOPTICS(0, 0.9);
+	}
+
+	@Test
+	public void canComputeSimilarFastOPTICSXi()
+	{
+		canComputeSimilarFastOPTICS(0.03, 0.5);
+	}
+
+	private void canComputeSimilarFastOPTICS(double xi, double randMin)
+	{
+		int processors = Math.max(1, Runtime.getRuntime().availableProcessors());
+		TrackProgress tracker = null; //new SimpleTrackProgress();
+		boolean[] both = new boolean[] { true, false };
+
+		for (int n : new int[] { 500 })
+		{
+			OPTICSManager om = createOPTICSManager(size, n);
+			om.setTracker(tracker);
+			om.setOptions(Option.OPTICS_STRICT_ID_ORDER);
+			om.setNumberOfThreads(processors);
+
+			for (int minPts : new int[] { 5, 10 })
+			{
+				// Default using ALL
+				int[] c1 = runFastOPTICS(om, xi, minPts, 0, 0, false, false, SampleMode.ALL);
+
+				int nSplits = 0;
+				int nProjections = 0;
+				// @formatter:off
+				for (boolean useRandomVectors : both)
+				for (boolean saveApproximateSets : both)
+				for (SampleMode sampleMode : SampleMode.values())
+				{
+					int[] c2 = runFastOPTICS(om, xi, minPts, nSplits, nProjections, useRandomVectors,
+							saveApproximateSets, sampleMode);
+
+					// Should be similar
+					double r = ri.getRandIndex(c1, c2);
+					double ari = ri.getAdjustedRandIndex();
+					System.out.printf(
+							"xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s : r=%f (%f)\n",
+							xi, n, minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode, r, ari);
+					Assert.assertTrue(randMin < r);
+					Assert.assertTrue(0 < ari);
+				}
+				// @formatter:on
+			}
+		}
+	}
+
+	private int[] runFastOPTICS(OPTICSManager om, double xi, int minPts, int nSplits, int nProjections,
+			boolean useRandomVectors, boolean saveApproximateSets, SampleMode sampleMode)
+	{
+		OPTICSResult r1 = om.fastOptics(minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets,
+				sampleMode);
+		if (xi > 0)
+			r1.extractClusters(xi);
+		return r1.getClusters();
 	}
 
 	@Test
@@ -1162,10 +1370,7 @@ public class OPTICSManagerTest
 						int[] c1 = r1.getClusters();
 						int[] c2 = r2.getClusters(true);
 
-						remap(c1);
-						remap(c2);
-
-						Assert.assertArrayEquals(c1, c2);
+						Assert.assertEquals(1, RandIndex.randIndex(c1, c2), 0);
 					}
 				}
 			}
