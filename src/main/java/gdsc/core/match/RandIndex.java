@@ -29,18 +29,16 @@ public class RandIndex
 	 * 2-element subsets that can be selected from an
 	 * {@code n}-element set.
 	 * <p>
-	 * If n is less than 2 it returns 0.
+	 * If n==0 or n==1 it will return 0.
 	 * </p>
 	 *
 	 * @param n
 	 *            the size of the set
 	 * @return {@code n choose 2}
 	 */
-	public static long binomialCoefficient(final int n)
+	private static long binomialCoefficient2(final long n)
 	{
-		if (n < 2)
-			return 0L;
-		return (long) (n - 1) * (long) n / 2L;
+		return (n - 1L) * n / 2L;
 	}
 
 	/**
@@ -94,7 +92,7 @@ public class RandIndex
 			}
 		}
 
-		return (double) a_plus_b / binomialCoefficient(n);
+		return (double) a_plus_b / binomialCoefficient2(n);
 	}
 
 	/**
@@ -136,11 +134,11 @@ public class RandIndex
 	}
 
 	/**
-	 * Compact the set so that it contains cluster assignments from 0 to n-1 where n is the number of clusters.
+	 * Compact the set so that it contains cluster assignments from 0 to n-1 where n is the number of clusters (max cluster number + 1).
 	 *
 	 * @param set
 	 *            the set (modified in place)
-	 * @return the number of clusters (n)
+	 * @return the number of clusters (max cluster number + 1) (n)
 	 */
 	public static int compact(int[] set)
 	{
@@ -181,13 +179,13 @@ public class RandIndex
 	}
 
 	/**
-	 * Compact the set so that it contains cluster assignments from 0 to n-1 where n is the number of clusters.
+	 * Compact the set so that it contains cluster assignments from 0 to n-1 where n is the number of clusters (max cluster number + 1).
 	 *
 	 * @param set
 	 *            the set
 	 * @param newSet
 	 *            the new set
-	 * @return the number of clusters (n)
+	 * @return the number of clusters (max cluster number + 1) (n)
 	 */
 	public static int compact(int[] set, int[] newSet)
 	{
@@ -232,18 +230,19 @@ public class RandIndex
 	 * The Rand index has a value between 0 and 1, with 0 indicating that the two data clusters do not agree on any pair
 	 * of points and 1 indicating that the data clusters are exactly the same.
 	 * <p>
-	 * Compute using a contingency table. Each set should optimally use integers from 0 to n-1 for n clusters.
+	 * Compute using a contingency table. Each set should use integers from 0 to n-1 for n clusters. If clusters numbers
+	 * above n clusters are used for either set then an {@link ArrayIndexOutOfBoundsException} will occur.
 	 * <p>
 	 * Warning: No checks are made on the input!
 	 *
 	 * @param set1
 	 *            the first set of clusters for the objects
 	 * @param n1
-	 *            the number of clusters in set 1
+	 *            the number of clusters (max cluster number + 1) in set 1
 	 * @param set2
 	 *            the second set of clusters for the objects
 	 * @param n2
-	 *            the number of clusters in set 1
+	 *            the number of clusters (max cluster number + 1) in set 2
 	 * @return the Rand index
 	 * @see https://en.wikipedia.org/wiki/Rand_index
 	 * @throws RuntimeException
@@ -255,30 +254,30 @@ public class RandIndex
 		if (n < 2)
 			return 1;
 
-		final int[][] table = new int[n1][n2];
+		final int size = n1 * n2;
+		final int[] table = new int[size];
 
 		for (int i = 0; i < n; i++)
 		{
-			table[set1[i]][set2[i]]++;
+			table[set1[i] * n2 + set2[i]]++;
 		}
 
 		long total = 0;
 		long tp_fp = 0;
 		long tp = 0;
-		for (int i = 0; i < n1; i++)
+		for (int i = 0, index = 0; i < n1; i++)
 		{
 			long sum = 0;
-			final int[] data = table[i];
-			for (int j = 0; j < n2; j++)
+			for (final int stop = index + n2; index < stop; index++)
 			{
-				final int v = data[j];
+				final int v = table[index];
 				sum += v;
-				tp += binomialCoefficient(v);
+				tp += binomialCoefficient2(v);
 			}
 			if (sum > Integer.MAX_VALUE)
 				throw new RuntimeException();
 			total += sum;
-			tp_fp += binomialCoefficient((int) sum);
+			tp_fp += binomialCoefficient2(sum);
 		}
 
 		if (total > Integer.MAX_VALUE)
@@ -288,16 +287,16 @@ public class RandIndex
 		for (int j = 0; j < n2; j++)
 		{
 			long sum = 0;
-			for (int i = 0; i < n1; i++)
-				sum += table[i][j];
+			for (int index = j; index < size; index += n2)
+				sum += table[index];
 			if (sum > Integer.MAX_VALUE)
 				throw new RuntimeException();
-			tp_fn += binomialCoefficient((int) sum);
+			tp_fn += binomialCoefficient2(sum);
 		}
 
 		final long fp = tp_fp - tp;
 		final long fn = tp_fn - tp;
-		final long tn = binomialCoefficient((int) total) - tp - fp - fn;
+		final long tn = binomialCoefficient2(total) - tp - fp - fn;
 
 		//System.out.printf("%d %d %d %d\n", tp, fp, tn, fn);
 
@@ -355,18 +354,19 @@ public class RandIndex
 	 * The Rand index has a value between 0 and 1, with 0 indicating that the two data clusters do not agree on any pair
 	 * of points and 1 indicating that the data clusters are exactly the same.
 	 * <p>
-	 * Compute using a contingency table. Each set should optimally use integers from 0 to n-1 for n clusters.
+	 * Compute using a contingency table. Each set should use integers from 0 to n-1 for n clusters. If clusters numbers
+	 * above n clusters are used for either set then an {@link ArrayIndexOutOfBoundsException} will occur.
 	 * <p>
 	 * Warning: No checks are made on the input!
 	 *
 	 * @param set1
 	 *            the first set of clusters for the objects
 	 * @param n1
-	 *            the number of clusters in set 1
+	 *            the number of clusters (max cluster number + 1) in set 1
 	 * @param set2
 	 *            the second set of clusters for the objects
 	 * @param n2
-	 *            the number of clusters in set 1
+	 *            the number of clusters (max cluster number + 1) in set 2
 	 * @return the Rand index
 	 * @see https://en.wikipedia.org/wiki/Rand_index
 	 * @throws RuntimeException
@@ -383,30 +383,30 @@ public class RandIndex
 			return 1;
 		}
 
-		final int[][] table = new int[n1][n2];
+		final int size = n1 * n2;
+		final int[] table = new int[size];
 
 		for (int i = 0; i < n; i++)
 		{
-			table[set1[i]][set2[i]]++;
+			table[set1[i] * n2 + set2[i]]++;
 		}
 
 		long total = 0;
 		long tp_fp = 0;
 		long tp = 0;
-		for (int i = 0; i < n1; i++)
+		for (int i = 0, index = 0; i < n1; i++)
 		{
 			long sum = 0;
-			final int[] data = table[i];
-			for (int j = 0; j < n2; j++)
+			for (final int stop = index + n2; index < stop; index++)
 			{
-				final int v = data[j];
+				final int v = table[index];
 				sum += v;
-				tp += binomialCoefficient(v);
+				tp += binomialCoefficient2(v);
 			}
 			if (sum > Integer.MAX_VALUE)
 				throw new RuntimeException();
 			total += sum;
-			tp_fp += binomialCoefficient((int) sum);
+			tp_fp += binomialCoefficient2(sum);
 		}
 
 		if (total > Integer.MAX_VALUE)
@@ -416,16 +416,16 @@ public class RandIndex
 		for (int j = 0; j < n2; j++)
 		{
 			long sum = 0;
-			for (int i = 0; i < n1; i++)
-				sum += table[i][j];
+			for (int index = j; index < size; index += n2)
+				sum += table[index];
 			if (sum > Integer.MAX_VALUE)
 				throw new RuntimeException();
-			tp_fn += binomialCoefficient((int) sum);
+			tp_fn += binomialCoefficient2(sum);
 		}
 
 		fp = tp_fp - tp;
 		fn = tp_fn - tp;
-		tn = binomialCoefficient((int) total) - tp - fp - fn;
+		tn = binomialCoefficient2(total) - tp - fp - fn;
 
 		return (double) (tp + tn) / (tp + fp + tn + fn);
 	}

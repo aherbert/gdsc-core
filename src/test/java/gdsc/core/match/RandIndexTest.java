@@ -49,10 +49,12 @@ public class RandIndexTest
 		}
 	}
 
+	// The example data and answer are from:
+	// http://stats.stackexchange.com/questions/89030/rand-index-calculation
+	
 	@Test
 	public void canComputeSimpleRandIndex()
 	{
-		// From http://stats.stackexchange.com/questions/89030/rand-index-calculation
 		int[] clusters = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 };
 		int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0 };
 		double r = RandIndex.simpleRandIndex(clusters, classes);
@@ -62,7 +64,6 @@ public class RandIndexTest
 	@Test
 	public void canComputeRandIndex()
 	{
-		// From http://stats.stackexchange.com/questions/89030/rand-index-calculation
 		int[] clusters = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 };
 		int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0 };
 		double r = RandIndex.randIndex(clusters, classes);
@@ -75,7 +76,6 @@ public class RandIndexTest
 	@Test
 	public void canComputeRandIndex2()
 	{
-		// From http://stats.stackexchange.com/questions/89030/rand-index-calculation
 		int[] clusters = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 };
 		int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0 };
 		double r = RandIndex.randIndex(clusters, 3, classes, 3);
@@ -85,6 +85,55 @@ public class RandIndexTest
 		Assert.assertEquals(0.67647058823529416, r, 1e-10);
 	}
 
+	@Test(expected=ArrayIndexOutOfBoundsException.class)
+	public void computeRandIndex2ThrowsFromStaticMethodWhenInvalidNClusters()
+	{
+		int[] clusters = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 };
+		int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0 };
+		RandIndex.randIndex(clusters, 2, classes, 3);
+	}
+	
+	@Test(expected=ArrayIndexOutOfBoundsException.class)
+	public void computeRandIndex2ThrowsFromInstanceMethodWhenInvalidNClusters()
+	{
+		int[] clusters = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 };
+		int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0 };
+		ri.getRandIndex(clusters, 2, classes, 3);
+	}
+	
+	@Test
+	public void canComputeSimpleRandIndexWithSparseData()
+	{
+		int[] clusters = { 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6 };
+		int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 9, 1, 0, 9, 9, 9, 0 };
+		double r = RandIndex.simpleRandIndex(clusters, classes);
+		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+	}
+
+	@Test
+	public void canComputeRandIndexWithSparseData()
+	{
+		int[] clusters = { 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6 };
+		int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 9, 1, 0, 9, 9, 9, 0 };
+		double r = RandIndex.randIndex(clusters, classes);
+		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		// Instance test
+		r = ri.getRandIndex(clusters, classes);
+		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+	}
+
+	@Test
+	public void canComputeRandIndex2WithSparseData()
+	{
+		int[] clusters = { 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6 };
+		int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 9, 1, 0, 9, 9, 9, 0 };
+		double r = RandIndex.randIndex(clusters, 7, classes, 10);
+		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		// Instance test
+		r = ri.getRandIndex(clusters, 7, classes, 10);
+		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+	}
+	
 	@Test
 	public void canComputeRandIndexWithSimpleData()
 	{
