@@ -42,6 +42,28 @@ public class RandIndex
 	}
 
 	/**
+	 * Gets the default Rand index for small datasets.
+	 *
+	 * @param n the n
+	 * @return the default rand index
+	 */
+	private static double getDefaultRandIndex(int n)
+	{
+		return (n == 1) ? 1 : 0;
+	}
+
+	/**
+	 * Gets the default adjusted Rand index for small datasets.
+	 *
+	 * @param n the n
+	 * @return the default rand index
+	 */
+	private static double getDefaultAdjustedRandIndex(int n)
+	{
+		return (n == 1) ? 1 : 0;
+	}
+	
+	/**
 	 * Compute the Rand index for two classifications of a set of data.
 	 * <p>
 	 * The Rand index has a value between 0 and 1, with 0 indicating that the two data clusters do not agree on any pair
@@ -68,7 +90,7 @@ public class RandIndex
 		final int n = set1.length;
 
 		if (n < 2)
-			return 1;
+			return getDefaultRandIndex(n);
 
 		// a = the number of pairs of elements in S that are in the same set in X and in the same set in Y
 		// b = the number of pairs of elements in S that are in different sets in X and in different sets in Y
@@ -121,7 +143,7 @@ public class RandIndex
 
 		final int n = set1.length;
 		if (n < 2)
-			return 1;
+			return getDefaultRandIndex(n);
 
 		// Compute using a contingency table.
 		// Each set should optimally use integers from 0 to n-1 for n clusters.
@@ -134,7 +156,45 @@ public class RandIndex
 	}
 
 	/**
-	 * Compact the set so that it contains cluster assignments from 0 to n-1 where n is the number of clusters (max cluster number + 1).
+	 * Compute the adjusted Rand index for two classifications of a set of data.
+	 * <p>
+	 * The adjusted Rand index is the corrected-for-chance version of the Rand index. Though the Rand Index may only
+	 * yield a value between 0 and +1, the adjusted Rand index can yield negative values if the index is less than the
+	 * expected index.
+	 * 
+	 * @param set1
+	 *            the first set of clusters for the objects
+	 * @param set2
+	 *            the second set of clusters for the objects
+	 * @return the Rand index
+	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 */
+	public static double adjustedRandIndex(int[] set1, int[] set2)
+	{
+		if (set1 == null)
+			throw new NullPointerException("set1");
+		if (set2 == null)
+			throw new NullPointerException("set2");
+		if (set1.length != set2.length)
+			throw new IllegalArgumentException("Sets must be the same size");
+
+		final int n = set1.length;
+		if (n < 2)
+			return getDefaultAdjustedRandIndex(n);
+
+		// Compute using a contingency table.
+		// Each set should optimally use integers from 0 to n-1 for n clusters.
+		final int[] set1a = new int[n];
+		final int[] set2b = new int[n];
+		final int max1 = compact(set1, set1a);
+		final int max2 = compact(set2, set2b);
+
+		return adjustedRandIndex(set1a, max1, set2b, max2);
+	}
+
+	/**
+	 * Compact the set so that it contains cluster assignments from 0 to n-1 where n is the number of clusters (max
+	 * cluster number + 1).
 	 *
 	 * @param set
 	 *            the set (modified in place)
@@ -179,7 +239,8 @@ public class RandIndex
 	}
 
 	/**
-	 * Compact the set so that it contains cluster assignments from 0 to n-1 where n is the number of clusters (max cluster number + 1).
+	 * Compact the set so that it contains cluster assignments from 0 to n-1 where n is the number of clusters (max
+	 * cluster number + 1).
 	 *
 	 * @param set
 	 *            the set
@@ -252,7 +313,7 @@ public class RandIndex
 	{
 		final int n = set1.length;
 		if (n < 2)
-			return 1;
+			return getDefaultRandIndex(n);
 
 		final int size = n1 * n2;
 		final int[] table = new int[size];
@@ -300,62 +361,33 @@ public class RandIndex
 
 		//System.out.printf("%d %d %d %d\n", tp, fp, tn, fn);
 
+		// Note:
+		// Use the definitions here:
+		// https://en.wikipedia.org/wiki/Rand_index
+		// a = tp
+		// b = tn
+		// c = fp
+		// d = fn
+		// R = (a+b) / (a+b+c+d)
+		// 
+		// Adjusted Rand Index
+		// sum(nij C 2) = tp 
+		// sum(ai C 2)  = tp_fp 
+		// sum(bj C 2)  = tp_fn 
+		// ARI = (sum(nij C 2) - (sum(ai C 2) * sum(bj C 2))/ nC2) / ((0.5*(sum(ai C 2)+sum(bj C 2))) - (sum(ai C 2)*sum(bj C 2)) / nC2))
+
 		return (double) (tp + tn) / (tp + fp + tn + fn);
 	}
 
 	/**
-	 * Compute the Rand index for two classifications of a set of data.
+	 * Compute the adjusted Rand index for two classifications of a set of data.
 	 * <p>
-	 * The Rand index has a value between 0 and 1, with 0 indicating that the two data clusters do not agree on any pair
-	 * of points and 1 indicating that the data clusters are exactly the same.
+	 * The adjusted Rand index is the corrected-for-chance version of the Rand index. Though the Rand Index may only
+	 * yield a value between 0 and +1, the adjusted Rand index can yield negative values if the index is less than the
+	 * expected index.
 	 * <p>
-	 * Compute using a contingency table.
-	 * 
-	 * @param set1
-	 *            the first set of clusters for the objects
-	 * @param set2
-	 *            the second set of clusters for the objects
-	 * @return the Rand index
-	 * @see https://en.wikipedia.org/wiki/Rand_index
-	 */
-	public double getRandIndex(int[] set1, int[] set2)
-	{
-		tp = fp = tn = fn = 0;
-
-		if (set1 == null)
-			throw new NullPointerException("set1");
-		if (set2 == null)
-			throw new NullPointerException("set2");
-		if (set1.length != set2.length)
-			throw new IllegalArgumentException("Sets must be the same size");
-
-		final int n = set1.length;
-		if (n < 2)
-		{
-			tp = (n == 1) ? 1 : 0;
-			return 1;
-		}
-
-		// Compute using a contingency table.
-		// Each set should optimally use integers from 0 to n-1 for n clusters.
-		final int[] set1a = new int[n];
-		final int[] set2b = new int[n];
-		final int max1 = compact(set1, set1a);
-		final int max2 = compact(set2, set2b);
-
-		return getRandIndex(set1a, max1, set2b, max2);
-	}
-
-	private long tp, fp, tn, fn;
-
-	/**
-	 * Compute the Rand index for two classifications of a set of data.
-	 * <p>
-	 * The Rand index has a value between 0 and 1, with 0 indicating that the two data clusters do not agree on any pair
-	 * of points and 1 indicating that the data clusters are exactly the same.
-	 * <p>
-	 * Compute using a contingency table. Each set should use integers from 0 to n-1 for n clusters. If clusters numbers
-	 * above n clusters are used for either set then an {@link ArrayIndexOutOfBoundsException} will occur.
+	 * Each set should use integers from 0 to n-1 for n clusters. If clusters numbers above n clusters are used for
+	 * either set then an {@link ArrayIndexOutOfBoundsException} will occur.
 	 * <p>
 	 * Warning: No checks are made on the input!
 	 *
@@ -372,15 +404,155 @@ public class RandIndex
 	 * @throws RuntimeException
 	 *             if the sum of the contingency table is greater than the max value of an integer
 	 */
-	public double getRandIndex(int[] set1, int n1, int[] set2, int n2)
+	public static double adjustedRandIndex(int[] set1, int n1, int[] set2, int n2)
 	{
-		tp = fp = tn = fn = 0;
+		final int n = set1.length;
+		if (n < 2)
+			return getDefaultAdjustedRandIndex(n);
+
+		final int size = n1 * n2;
+		final int[] table = new int[size];
+
+		for (int i = 0; i < n; i++)
+		{
+			table[set1[i] * n2 + set2[i]]++;
+		}
+
+		long total = 0;
+		long tp_fp = 0;
+		long tp = 0;
+		for (int i = 0, index = 0; i < n1; i++)
+		{
+			long sum = 0;
+			for (final int stop = index + n2; index < stop; index++)
+			{
+				final int v = table[index];
+				sum += v;
+				tp += binomialCoefficient2(v);
+			}
+			if (sum > Integer.MAX_VALUE)
+				throw new RuntimeException();
+			total += sum;
+			tp_fp += binomialCoefficient2(sum);
+		}
+
+		if (total > Integer.MAX_VALUE)
+			throw new RuntimeException();
+
+		long tp_fn = 0;
+		for (int j = 0; j < n2; j++)
+		{
+			long sum = 0;
+			for (int index = j; index < size; index += n2)
+				sum += table[index];
+			if (sum > Integer.MAX_VALUE)
+				throw new RuntimeException();
+			tp_fn += binomialCoefficient2(sum);
+		}
+
+		// Note:
+		// Use the definitions here:
+		// https://en.wikipedia.org/wiki/Rand_index
+		// 
+		// Adjusted Rand Index
+		// sum(nij C 2) = tp 
+		// sum(ai C 2)  = tp_fp 
+		// sum(bj C 2)  = tp_fn 
+		// ARI = (sum(nij C 2) - (sum(ai C 2) * sum(bj C 2))/ nC2) / ((0.5*(sum(ai C 2)+sum(bj C 2))) - (sum(ai C 2)*sum(bj C 2)) / nC2))
+		//     = (Index - ExpectedIndex) / (MaxIndex - ExpectedIndex)
+
+		long index = tp;
+		double expectedIndex = tp_fp * (double) tp_fn / binomialCoefficient2(n);
+		double maxIndex = 0.5 * (tp_fp + tp_fn);
+
+		return getAdjustedRandIndex(index, expectedIndex, maxIndex);
+	}
+
+	private static double getAdjustedRandIndex(long index, double expectedIndex, double maxIndex)
+	{
+		// This therefore returns 1 when the sample size is small (n<2).
+		// It also returns 1 if a sample of n=2 is used with only 1 cluster. 
+		// Q. Is this correct? Perhaps return 0 in that case (i.e. we are no better than random).
+		if (index == maxIndex)
+			return 1;
+
+		return (index - expectedIndex) / (maxIndex - expectedIndex);
+	}
+
+	/**
+	 * Compute the contingency table for two classifications of a set of data and generate the values required to
+	 * produce the Rand index.
+	 * 
+	 * @param set1
+	 *            the first set of clusters for the objects
+	 * @param set2
+	 *            the second set of clusters for the objects
+	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @throws RuntimeException
+	 *             if the sum of the contingency table is greater than the max value of an integer
+	 */
+	public void compute(int[] set1, int[] set2)
+	{
+		tp = tp_fp = tp_fn = 0;
+
+		if (set1 == null)
+			throw new NullPointerException("set1");
+		if (set2 == null)
+			throw new NullPointerException("set2");
+		if (set1.length != set2.length)
+			throw new IllegalArgumentException("Sets must be the same size");
 
 		final int n = set1.length;
 		if (n < 2)
 		{
-			tp = (n == 1) ? 1 : 0;
-			return 1;
+			this.n = n;
+			return;
+		}
+
+		// Compute using a contingency table.
+		// Each set should optimally use integers from 0 to n-1 for n clusters.
+		final int[] set1a = new int[n];
+		final int[] set2b = new int[n];
+		final int max1 = compact(set1, set1a);
+		final int max2 = compact(set2, set2b);
+
+		compute(set1a, max1, set2b, max2);
+	}
+
+	private int n;
+	private long total, tp, tp_fp, tp_fn;
+
+	/**
+	 * Compute the contingency table for two classifications of a set of data and generate the values required to
+	 * produce the Rand index.
+	 * <p>
+	 * Each set should use integers from 0 to n-1 for n clusters. If clusters numbers above n clusters are used for
+	 * either set then an {@link ArrayIndexOutOfBoundsException} will occur.
+	 * <p>
+	 * Warning: No checks are made on the input!
+	 *
+	 * @param set1
+	 *            the first set of clusters for the objects
+	 * @param n1
+	 *            the number of clusters (max cluster number + 1) in set 1
+	 * @param set2
+	 *            the second set of clusters for the objects
+	 * @param n2
+	 *            the number of clusters (max cluster number + 1) in set 2
+	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @throws RuntimeException
+	 *             if the sum of the contingency table is greater than the max value of an integer
+	 */
+	public void compute(int[] set1, int n1, int[] set2, int n2)
+	{
+		n = 0;
+		total = tp = tp_fp = tp_fn = 0;
+
+		final int n = set1.length;
+		if (n < 2)
+		{
+			this.n = n;
+			return;
 		}
 
 		final int size = n1 * n2;
@@ -423,15 +595,190 @@ public class RandIndex
 			tp_fn += binomialCoefficient2(sum);
 		}
 
-		fp = tp_fp - tp;
-		fn = tp_fn - tp;
-		tn = binomialCoefficient2(total) - tp - fp - fn;
+		// Store after no exceptions are raised
+		this.n = n;
+		this.total = total;
+		this.tp = tp;
+		this.tp_fp = tp_fp;
+		this.tp_fn = tp_fn;
+	}
+
+	/**
+	 * Compute the Rand index for two classifications of a set of data.
+	 * <p>
+	 * The Rand index has a value between 0 and 1, with 0 indicating that the two data clusters do not agree on any pair
+	 * of points and 1 indicating that the data clusters are exactly the same.
+	 * <p>
+	 * Compute using a contingency table.
+	 * 
+	 * @param set1
+	 *            the first set of clusters for the objects
+	 * @param set2
+	 *            the second set of clusters for the objects
+	 * @return the Rand index
+	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 */
+	public double getRandIndex(int[] set1, int[] set2)
+	{
+		compute(set1, set2);
+		return getRandIndex();
+	}
+
+	/**
+	 * Compute the Rand index for two classifications of a set of data.
+	 * <p>
+	 * The Rand index has a value between 0 and 1, with 0 indicating that the two data clusters do not agree on any pair
+	 * of points and 1 indicating that the data clusters are exactly the same.
+	 * <p>
+	 * Compute using a contingency table. Each set should use integers from 0 to n-1 for n clusters. If clusters numbers
+	 * above n clusters are used for either set then an {@link ArrayIndexOutOfBoundsException} will occur.
+	 * <p>
+	 * Warning: No checks are made on the input!
+	 *
+	 * @param set1
+	 *            the first set of clusters for the objects
+	 * @param n1
+	 *            the number of clusters (max cluster number + 1) in set 1
+	 * @param set2
+	 *            the second set of clusters for the objects
+	 * @param n2
+	 *            the number of clusters (max cluster number + 1) in set 2
+	 * @return the Rand index
+	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @throws RuntimeException
+	 *             if the sum of the contingency table is greater than the max value of an integer
+	 */
+	public double getRandIndex(int[] set1, int n1, int[] set2, int n2)
+	{
+		compute(set1, n1, set2, n2);
+		return getRandIndex();
+	}
+
+	/**
+	 * Compute the Rand index for two classifications of a set of data.
+	 * <p>
+	 * The Rand index has a value between 0 and 1, with 0 indicating that the two data clusters do not agree on any pair
+	 * of points and 1 indicating that the data clusters are exactly the same.
+	 * <p>
+	 * Compute using a contingency table.
+	 *
+	 * @return the Rand index
+	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 */
+	public double getRandIndex()
+	{
+		if (n < 2)
+			return getDefaultRandIndex(n);
+
+		long fp = getFalsePositives();
+		long fn = getFalseNegatives();
+		long tn = getTrueNegatives();
 
 		return (double) (tp + tn) / (tp + fp + tn + fn);
 	}
 
 	/**
-	 * Gets the true positives from the last call to getRandIndex().
+	 * Compute the adjusted Rand index for two classifications of a set of data.
+	 * <p>
+	 * The adjusted Rand index is the corrected-for-chance version of the Rand index. Though the Rand Index may only
+	 * yield a value between 0 and +1, the adjusted Rand index can yield negative values if the index is less than the
+	 * expected index.
+	 * 
+	 * @param set1
+	 *            the first set of clusters for the objects
+	 * @param set2
+	 *            the second set of clusters for the objects
+	 * @return the Rand index
+	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 */
+	public double getAdjustedRandIndex(int[] set1, int[] set2)
+	{
+		compute(set1, set2);
+		return getAdjustedRandIndex();
+	}
+
+	/**
+	 * Compute the adjusted Rand index for two classifications of a set of data.
+	 * <p>
+	 * The adjusted Rand index is the corrected-for-chance version of the Rand index. Though the Rand Index may only
+	 * yield a value between 0 and +1, the adjusted Rand index can yield negative values if the index is less than the
+	 * expected index.
+	 * <p>
+	 * Each set should use integers from 0 to n-1 for n clusters. If clusters numbers above n clusters are used for
+	 * either set then an {@link ArrayIndexOutOfBoundsException} will occur.
+	 * <p>
+	 * Warning: No checks are made on the input!
+	 *
+	 * @param set1
+	 *            the first set of clusters for the objects
+	 * @param n1
+	 *            the number of clusters (max cluster number + 1) in set 1
+	 * @param set2
+	 *            the second set of clusters for the objects
+	 * @param n2
+	 *            the number of clusters (max cluster number + 1) in set 2
+	 * @return the Rand index
+	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @throws RuntimeException
+	 *             if the sum of the contingency table is greater than the max value of an integer
+	 */
+	public double getAdjustedRandIndex(int[] set1, int n1, int[] set2, int n2)
+	{
+		compute(set1, n1, set2, n2);
+		return getAdjustedRandIndex();
+	}
+
+	/**
+	 * Compute the adjusted Rand index for two classifications of a set of data.
+	 * <p>
+	 * The adjusted Rand index is the corrected-for-chance version of the Rand index. Though the Rand Index may only
+	 * yield a value between 0 and +1, the adjusted Rand index can yield negative values if the index is less than the
+	 * expected index.
+	 * <p>
+	 * Compute using a contingency table.
+	 * 
+	 * @param set1
+	 *            the first set of clusters for the objects
+	 * @param set2
+	 *            the second set of clusters for the objects
+	 * @return the Rand index
+	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 */
+	public double getAdjustedRandIndex()
+	{
+		if (n < 2)
+			return getDefaultAdjustedRandIndex(n);
+
+		// Note:
+		// Use the definitions here:
+		// https://en.wikipedia.org/wiki/Rand_index
+		// 
+		// Adjusted Rand Index
+		// sum(nij C 2) = tp 
+		// sum(ai C 2)  = tp_fp 
+		// sum(bj C 2)  = tp_fn 
+		// ARI = (sum(nij C 2) - (sum(ai C 2) * sum(bj C 2))/ nC2) / ((0.5*(sum(ai C 2)+sum(bj C 2))) - (sum(ai C 2)*sum(bj C 2)) / nC2))
+		//     = (Index - ExpectedIndex) / (MaxIndex - ExpectedIndex)
+
+		long index = tp;
+		double expectedIndex = tp_fp * (double) tp_fn / binomialCoefficient2(n);
+		double maxIndex = 0.5 * (tp_fp + tp_fn);
+
+		return getAdjustedRandIndex(index, expectedIndex, maxIndex);
+	}
+
+	/**
+	 * Gets the number of elements in the set of data.
+	 *
+	 * @return the number of elements
+	 */
+	public int getN()
+	{
+		return n;
+	}
+
+	/**
+	 * Gets the true positives from the last call to compute().
 	 *
 	 * @return the true positives
 	 */
@@ -441,32 +788,38 @@ public class RandIndex
 	}
 
 	/**
-	 * Gets the true negatives from the last call to getRandIndex().
+	 * Gets the true negatives from the last call to compute().
 	 *
 	 * @return the true negatives
 	 */
 	public long getTrueNegatives()
 	{
-		return tn;
+		//long fp = getFalsePositives();
+		//long fn = getFalseNegatives();
+		//return binomialCoefficient2(total) - tp - fp - fn;
+
+		//return binomialCoefficient2(total) - tp - (tp_fp - tp) - (tp_fn - tp);
+
+		return binomialCoefficient2(total) + tp - tp_fp - tp_fn;
 	}
 
 	/**
-	 * Gets the false positives from the last call to getRandIndex().
+	 * Gets the false positives from the last call to compute().
 	 *
 	 * @return the false positives
 	 */
 	public long getFalsePositives()
 	{
-		return fp;
+		return tp_fp - tp;
 	}
 
 	/**
-	 * Gets the false negatives from the last call to getRandIndex().
+	 * Gets the false negatives from the last call to compute().
 	 *
 	 * @return the false negatives
 	 */
 	public long getFalseNegatives()
 	{
-		return fn;
+		return tp_fn - tp;
 	}
 }
