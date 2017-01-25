@@ -18,6 +18,13 @@ package gdsc.core.match;
  * <p>
  * The Rand index has a value between 0 and 1, with 0 indicating that the two data clusters do not agree on any pair
  * of points and 1 indicating that the data clusters are exactly the same.
+ * <p>
+ * A problem with the Rand index is that the expected value between random partitions is not constant. The adjusted Rand
+ * index assumes the generalized hyper-geometric distribution as the model of randomness. It has the maximum value 1,
+ * and its expected value is 0 in the case of random clusters.
+ * <p>
+ * W. M. Rand (1971). "Objective criteria for the evaluation of clustering methods". Journal of the American Statistical
+ * Association. American Statistical Association. 66 (336): 846–850. doi:10.2307/2284239. JSTOR 2284239. 
  * 
  * @see https://en.wikipedia.org/wiki/Rand_index
  * @author Alex Herbert
@@ -44,7 +51,8 @@ public class RandIndex
 	/**
 	 * Gets the default Rand index for small datasets.
 	 *
-	 * @param n the n
+	 * @param n
+	 *            the n
 	 * @return the default rand index
 	 */
 	private static double getDefaultRandIndex(int n)
@@ -55,14 +63,15 @@ public class RandIndex
 	/**
 	 * Gets the default adjusted Rand index for small datasets.
 	 *
-	 * @param n the n
+	 * @param n
+	 *            the n
 	 * @return the default rand index
 	 */
 	private static double getDefaultAdjustedRandIndex(int n)
 	{
 		return (n == 1) ? 1 : 0;
 	}
-	
+
 	/**
 	 * Compute the Rand index for two classifications of a set of data.
 	 * <p>
