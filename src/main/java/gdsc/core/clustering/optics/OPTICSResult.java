@@ -102,8 +102,8 @@ public class OPTICSResult implements ClusteringResult
 	}
 
 	/**
-	 * Gets the reachability distance profile. Points with no reachability distance (stored as infinity) can be
-	 * converted to the generating distance.
+	 * Gets the reachability distance profile using the ordering defined by OPTICS. Points with no reachability distance
+	 * (stored as infinity) can be converted to the generating distance.
 	 *
 	 * @param convert
 	 *            convert unreachable spots to have a reachability distance of the generating distance
@@ -124,6 +124,24 @@ public class OPTICSResult implements ClusteringResult
 		for (int i = data.length; i-- > 0;)
 			if (data[i] == Double.POSITIVE_INFINITY)
 				data[i] = generatingDistance;
+	}
+
+	/**
+	 * Gets the reachability distance using the original input ordering. Points with no reachability distance
+	 * (stored as infinity) can be converted to the generating distance.
+	 *
+	 * @param convert
+	 *            convert unreachable spots to have a reachability distance of the generating distance
+	 * @return the reachability distance
+	 */
+	public double[] getReachabilityDistance(boolean convert)
+	{
+		final double[] data = new double[size()];
+		for (int i = size(); i-- > 0;)
+			data[opticsResults[i].parent] = opticsResults[i].reachabilityDistance;
+		if (convert)
+			convert(data);
+		return data;
 	}
 
 	/**
