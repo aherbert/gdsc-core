@@ -74,6 +74,7 @@ class Molecule
 	void reset()
 	{
 		processed = false;
+		predecessor = -1;
 		workingData = 0;
 		coreDistance = reachabilityDistance = OPTICSManager.UNDEFINED;
 	}
