@@ -360,6 +360,8 @@ public class RandIndex
 	 * @see https://en.wikipedia.org/wiki/Rand_index
 	 * @throws IllegalArgumentException
 	 *             if the sets are different lengths
+	 * @throws RuntimeException
+	 *             if the sums are larger than Long.MAX_VALUE
 	 */
 	public void compute(int[] set1, int[] set2)
 	{
@@ -444,10 +446,13 @@ public class RandIndex
 			this.n = n;
 			return;
 		}
-
+		
 		// TP will only overflow after TP+FP
 		long tp = 0;
-		// Note: The following could overflow
+		// Note: The following could overflow. 
+		// This will happen if the number of clusters is very large (approaching Integer.MAX_VALUE), 
+		// i.e. non-clustered data. Any reasonable clustering comparison will have clustered the data 
+		// better than that so we just fail with an exception.
 		long tp_fp = 0;
 		long tp_fn = 0;
 
