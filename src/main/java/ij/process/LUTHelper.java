@@ -870,7 +870,7 @@ public class LUTHelper
 		final float minimum, maximum, scale;
 
 		/**
-		 * Instantiates a new zero LUT mapper.
+		 * Instantiates a new default LUT mapper.
 		 *
 		 * @param minimum
 		 *            the minimum
@@ -919,7 +919,7 @@ public class LUTHelper
 		final float minimum, maximum, scale;
 
 		/**
-		 * Instantiates a new zero LUT mapper.
+		 * Instantiates a new non zero LUT mapper.
 		 *
 		 * @param minimum
 		 *            the minimum
