@@ -90,6 +90,33 @@ public class RandIndexTest
 	}
 
 	@Test
+	public void canComputeRandIndexWithArbitraryClusterNumbers()
+	{
+		int[] clusters = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 };
+		int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0 };
+		double r = RandIndex.simpleRandIndex(clusters, classes);
+
+		//@formatter:off
+		int[][] maps = new int[][] {
+			{ 0,1,2 },
+			{ 0,2,1 },
+			{ 1,0,2 },
+			{ 1,2,0 },
+			{ 2,0,1 },
+			{ 2,1,0 },
+		};
+		//@formatter:on
+		RandIndex ri = new RandIndex();
+		for (int[] map : maps)
+		{
+			int[] c2 = new int[classes.length];
+			for (int i = 0; i < c2.length; i++)
+				c2[i] = map[classes[i]];
+			Assert.assertEquals(r, ri.getRandIndex(clusters, 3, c2, 3), 0);
+		}
+	}
+
+	@Test
 	public void canComputeRandIndex2()
 	{
 		int[] clusters = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 };
@@ -171,20 +198,20 @@ public class RandIndexTest
 		Assert.assertEquals(0.67647058823529416, r, 1e-10);
 	}
 
-	@Test(expected=IllegalStateException.class)
+	@Test(expected = IllegalStateException.class)
 	public void getRandIndexThrowsWhenNotComputed()
 	{
 		RandIndex ri = new RandIndex();
 		ri.getRandIndex();
 	}
-	
-	@Test(expected=IllegalStateException.class)
+
+	@Test(expected = IllegalStateException.class)
 	public void getAdjustedRandIndexThrowsWhenNotComputed()
 	{
 		RandIndex ri = new RandIndex();
 		ri.getAdjustedRandIndex();
 	}
-	
+
 	@Test
 	public void canComputeRandIndexWithSimpleData()
 	{
@@ -284,7 +311,7 @@ public class RandIndexTest
 
 		sum /= loops;
 		System.out.printf("[%d,%d,%d,%d] %f\n", n, n1, n2, loops, sum);
-		
+
 		double delta = 0.1;
 		Assert.assertTrue(sum < delta && sum > -delta);
 	}
