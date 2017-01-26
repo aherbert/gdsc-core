@@ -30,6 +30,7 @@ public class LUTHelper
 		RAINBOW{ public String getName() { return "Rainbow"; }}, 
 		FIRE{ public String getName() { return "Fire"; }}, 
 		FIRE_LIGHT{ public String getName() { return "FireLight"; }}, 
+		FIRE_GLOW{ public String getName() { return "FireGlow"; }}, 
 		RED_YELLOW{ public String getName() { return "Red-Yellow"; }}, 
 		RED{ public String getName() { return "Red"; }},
 		GREEN{ public String getName() { return "Green"; }}, 
@@ -412,6 +413,9 @@ public class LUTHelper
 			case FIRE_LIGHT:
 				nColors = firelight(reds, greens, blues);
 				break;
+			case FIRE_GLOW:
+				nColors = fireglow(reds, greens, blues);
+				break;
 			case RED_YELLOW:
 				nColors = setColours(reds, greens, blues, Color.red, Color.yellow);
 				break;
@@ -561,6 +565,38 @@ public class LUTHelper
 		return r.length;
 	}
 
+	/**
+	 * Adapted from ij.plugin.LutLoader to remove the dark colours and near white colours
+	 * 
+	 * @param reds
+	 * @param greens
+	 * @param blues
+	 * @return
+	 */
+	private static int fireglow(byte[] reds, byte[] greens, byte[] blues)
+	{
+		int[] r = { //0, 0, 1, 25, 49, 
+				73, 98, 122, 146, 162, 173, 184, 195, 207, 217, 229, 240, 252, 255, 255, 255, 255, 255, 255, 255, 255,
+				255, 255, 255
+				//, 255, 255, 255 
+				};
+		int[] g = { //0, 0, 0, 0, 0, 
+				0, 0, 0, 0, 0, 0, 0, 0, 14, 35, 57, 79, 101, 117, 133, 147, 161, 175, 190, 205, 219, 234, 248, 255
+				//, 255, 255, 255 
+				};
+		int[] b = { //0, 61, 96, 130, 165, 
+				192, 220, 227, 210, 181, 151, 122, 93, 64, 35, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, 98
+				//, 160, 223, 255 
+				};
+		for (int i = 0; i < r.length; i++)
+		{
+			reds[i] = (byte) r[i];
+			greens[i] = (byte) g[i];
+			blues[i] = (byte) b[i];
+		}
+		return r.length;
+	}
+	
 	/**
 	 * Copied from ij.plugin.LutLoader.
 	 * 
@@ -833,7 +869,7 @@ public class LUTHelper
 		 *
 		 * @return the max value
 		 */
-		public int getMax());
+		public int getMax();
 	}
 
 	/**
