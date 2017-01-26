@@ -820,6 +820,20 @@ public class LUTHelper
 		 * @return the colour
 		 */
 		public Color getColour(LUT lut, float value);
+
+		/**
+		 * Gets the min value output by {@link #map(float)}
+		 *
+		 * @return the min value
+		 */
+		public int getMin();
+
+		/**
+		 * Gets the max value output by {@link #map(float)}
+		 *
+		 * @return the max value
+		 */
+		public int getMax());
 	}
 
 	/**
@@ -859,6 +873,26 @@ public class LUTHelper
 		public Color getColour(LUT lut, float value)
 		{
 			return new Color(lut.getRGB(map(value)));
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ij.process.LUTHelper.LUTMapper#getMin()
+		 */
+		public int getMin()
+		{
+			return 0;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ij.process.LUTHelper.LUTMapper#getMax()
+		 */
+		public int getMax()
+		{
+			return 255;
 		}
 	}
 
@@ -957,6 +991,17 @@ public class LUTHelper
 		public float mapf(float value)
 		{
 			return map(value);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ij.process.LUTHelper.NullLUTMapper#getMin()
+		 */
+		@Override
+		public int getMin()
+		{
+			return 1;
 		}
 	}
 }
