@@ -135,7 +135,7 @@ public class OPTICSManager extends CoordinateStore
 		return options;
 	}
 
-	private int nThreads = 1;
+	private int nThreads = -1;
 
 	/**
 	 * Used in the DBSCAN algorithm to store a queue of molecules to process
@@ -1752,7 +1752,7 @@ public class OPTICSManager extends CoordinateStore
 
 			tracker.log(
 					"Running FastOPTICS ... minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s, threads=%d",
-					minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode, nThreads);
+					minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode, getNumberOfThreads());
 		}
 
 		// Compute projections and find neighbours
@@ -1763,7 +1763,7 @@ public class OPTICSManager extends CoordinateStore
 		space.useRandomVectors = useRandomVectors;
 		space.saveApproximateSets = saveApproximateSets;
 		space.setSampleMode(sampleMode);
-		space.nThreads = nThreads;
+		space.nThreads = getNumberOfThreads();
 
 		space.setTracker(tracker);
 		space.computeSets(minPts); // project points
@@ -1987,11 +1987,15 @@ public class OPTICSManager extends CoordinateStore
 
 	/**
 	 * Gets the number of threads to use for multi-threaded algorithms (FastOPTICS).
+	 * <p>
+	 * Note: This is initialised to the number of processors available to the JVM.
 	 *
 	 * @return the number of threads
 	 */
 	public int getNumberOfThreads()
 	{
+		if (nThreads == -1)
+			nThreads = Runtime.getRuntime().availableProcessors();
 		return nThreads;
 	}
 

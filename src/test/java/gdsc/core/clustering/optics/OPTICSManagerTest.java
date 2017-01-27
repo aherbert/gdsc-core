@@ -782,7 +782,6 @@ public class OPTICSManagerTest
 
 	private void canComputeSimilarFastOPTICS(double xi, double randMin)
 	{
-		int processors = Math.max(1, Runtime.getRuntime().availableProcessors());
 		TrackProgress tracker = null; //new SimpleTrackProgress();
 		boolean[] both = new boolean[] { true, false };
 
@@ -791,7 +790,6 @@ public class OPTICSManagerTest
 			OPTICSManager om = createOPTICSManager(size, n);
 			om.setTracker(tracker);
 			om.setOptions(Option.OPTICS_STRICT_ID_ORDER);
-			om.setNumberOfThreads(processors);
 
 			for (int minPts : new int[] { 5, 10 })
 			{
