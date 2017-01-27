@@ -183,7 +183,9 @@ public class OPTICSResult implements ClusteringResult
 	}
 
 	/**
-	 * Gets the OPTICS order of the original input points.
+	 * Gets the OPTICS order of the original input points. 
+	 * <p>
+	 * Note: The order is 1-based (range from 1 to size)
 	 *
 	 * @return the order
 	 */
@@ -460,6 +462,42 @@ public class OPTICSResult implements ClusteringResult
 			}
 		}
 		return clusters;
+	}
+
+	/**
+	 * Gets the cluster Id for each parent object. This can be set by {@link #extractDBSCANClustering(float)} or
+	 * {@link #extractClusters(double, boolean, boolean)}.
+	 *
+	 * @param core
+	 *            Set to true to get the clusters using only the core points
+	 * @return the clusters
+	 */
+	public int[] getTopLevelClusters(boolean core)
+	{
+		// Fill in the top level clusters using the OPTICS order
+		int[] clusters = new int[size()];
+		for (OPTICSCluster c : clustering)
+		{
+			fill(clusters, c.start, c.end + 1, c.clusterId);
+		}
+		
+		// Get the order (zero-based)
+		int[] order = new int[size()];
+		for (int i = size(); i-- > 0;)
+			order[opticsResults[i].parent] = i;
+		
+		// Map back to the input order
+		int[] copy = clusters.clone();
+		for (int i = size(); i-- > 0;)
+			clusters[i] = copy[order[i]];
+
+		return clusters;
+	}
+
+	private static void fill(int[] a, int fromIndex, int toIndex, int val)
+	{
+		for (int i = fromIndex; i < toIndex; i++)
+			a[i] = val;
 	}
 
 	/**
