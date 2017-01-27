@@ -49,7 +49,10 @@ public class RandIndex
 	 */
 	private static long binomialCoefficient2(final long n)
 	{
-		return (n - 1L) * n / 2L;
+		//return (n - 1L) * n / 2L;
+		// Unsigned right shift since the number will be positive
+		// (it is only called with integers cast up to long)
+		return ((n - 1L) * n) >>> 1;
 	}
 
 	/**
