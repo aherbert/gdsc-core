@@ -159,11 +159,27 @@ public class PartialSort
 
 		private void bottomUpHeapify(int c)
 		{
-			for (int p = (c - 1) / 2; c != 0 && queue[c] > queue[p]; c = p, p = (c - 1) / 2)
+			//for (int p = (c - 1) / 2; c != 0 && queue[c] > queue[p]; c = p, p = (c - 1) / 2)
+			//{
+			//	double pDist = queue[p];
+			//	queue[p] = queue[c];
+			//	queue[c] = pDist;
+			//}
+
+			while (c > 0)
 			{
-				double pDist = queue[p];
-				queue[p] = queue[c];
-				queue[c] = pDist;
+				final int p = (c - 1) >>> 1;
+				if (queue[c] > queue[p])
+				{
+					final double pDist = queue[p];
+					queue[p] = queue[c];
+					queue[c] = pDist;
+					c = p;
+				}
+				else
+				{
+					break;
+				}
 			}
 		}
 
@@ -266,11 +282,27 @@ public class PartialSort
 
 		private void topUpHeapify(int c)
 		{
-			for (int p = (c - 1) / 2; c != 0 && queue[c] < queue[p]; c = p, p = (c - 1) / 2)
+			//for (int p = (c - 1) / 2; c != 0 && queue[c] < queue[p]; c = p, p = (c - 1) / 2)
+			//{
+			//	double pDist = queue[p];
+			//	queue[p] = queue[c];
+			//	queue[c] = pDist;
+			//}
+
+			while (c > 0)
 			{
-				double pDist = queue[p];
-				queue[p] = queue[c];
-				queue[c] = pDist;
+				final int p = (c - 1) >>> 1;
+				if (queue[c] < queue[p])
+				{
+					final double pDist = queue[p];
+					queue[p] = queue[c];
+					queue[c] = pDist;
+					c = p;
+				}
+				else
+				{
+					break;
+				}
 			}
 		}
 
@@ -682,11 +714,27 @@ public class PartialSort
 
 		private void bottomUpHeapify(int c)
 		{
-			for (int p = (c - 1) / 2; c != 0 && queue[c] > queue[p]; c = p, p = (c - 1) / 2)
+			//for (int p = (c - 1) / 2; c != 0 && queue[c] > queue[p]; c = p, p = (c - 1) / 2)
+			//{
+			//	float pDist = queue[p];
+			//	queue[p] = queue[c];
+			//	queue[c] = pDist;
+			//}
+
+			while (c > 0)
 			{
-				float pDist = queue[p];
-				queue[p] = queue[c];
-				queue[c] = pDist;
+				final int p = (c - 1) >>> 1;
+				if (queue[c] > queue[p])
+				{
+					final float pDist = queue[p];
+					queue[p] = queue[c];
+					queue[c] = pDist;
+					c = p;
+				}
+				else
+				{
+					break;
+				}
 			}
 		}
 
@@ -789,11 +837,27 @@ public class PartialSort
 
 		private void topUpHeapify(int c)
 		{
-			for (int p = (c - 1) / 2; c != 0 && queue[c] < queue[p]; c = p, p = (c - 1) / 2)
+			//for (int p = (c - 1) / 2; c != 0 && queue[c] < queue[p]; c = p, p = (c - 1) / 2)
+			//{
+			//	float pDist = queue[p];
+			//	queue[p] = queue[c];
+			//	queue[c] = pDist;
+			//}
+			
+			while (c > 0)
 			{
-				float pDist = queue[p];
-				queue[p] = queue[c];
-				queue[c] = pDist;
+				final int p = (c - 1) >>> 1;
+				if (queue[c] < queue[p])
+				{
+					final float pDist = queue[p];
+					queue[p] = queue[c];
+					queue[c] = pDist;
+					c = p;
+				}
+				else
+				{
+					break;
+				}
 			}
 		}
 

@@ -231,7 +231,7 @@ public class PartialSortTest
 	public void topCanHandleIncompleteData()
 	{
 		double[] d = { 1, 3, 2 };
-		double[] e = { 1, 2, 3 };
+		double[] e = { 3, 2, 1 };
 		double[] o = PartialSort.top(d, 5);
 		Assert.assertArrayEquals(e, o, 0);
 	}
@@ -240,7 +240,7 @@ public class PartialSortTest
 	public void topCanHandleNaNData()
 	{
 		double[] d = { 1, 2, Double.NaN, 3 };
-		double[] e = { 1, 2, 3 };
+		double[] e = { 3, 2, 1 };
 		double[] o = PartialSort.top(d, 5);
 		Assert.assertArrayEquals(e, o, 0);
 	}
