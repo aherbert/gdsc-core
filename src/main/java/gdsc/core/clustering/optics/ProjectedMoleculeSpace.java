@@ -1370,7 +1370,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		int n1 = n - 1;
 
 		// for all-vs-all = n(n-1)/2
-		distanceComputations.addAndGet((n * n1) / 2);
+		distanceComputations.addAndGet((n * n1) >>> 1);
 
 		for (int i = 0; i < n1; i++)
 		{
