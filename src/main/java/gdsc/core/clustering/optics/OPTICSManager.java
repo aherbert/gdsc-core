@@ -418,7 +418,7 @@ public class OPTICSManager extends CoordinateStore
 			// Remove unnecessary loop set-up statements, i.e. where p is not needed
 			while (c > 0)
 			{
-				final int p = (c - 1) / 2;
+				final int p = (c - 1) >>> 1;
 				if (lower(list[c], list[p]))
 				{
 					swap(p, c);
@@ -650,7 +650,7 @@ public class OPTICSManager extends CoordinateStore
 		{
 			while (c > 0)
 			{
-				final int p = (c - 1) / 2;
+				final int p = (c - 1) >>> 1;
 				if (queue[c] > queue[p])
 				{
 					float pDist = queue[p];
