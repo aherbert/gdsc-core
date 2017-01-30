@@ -42,7 +42,8 @@ import gnu.trove.set.hash.TIntHashSet;
  * Johannes Schneider, ABB Research, Switzerland, johannes.schneider@alumni.ethz.ch.
  * Released under the GPL v3 licence.
  * <p>
- * Modifications have been made for multi-threading and different neighbour sampling modes. The partitioning of the sets is
+ * Modifications have been made for multi-threading and different neighbour sampling modes. The partitioning of the sets
+ * is
  * essentially unchanged.
  * 
  * @author Alex Herbert
@@ -210,7 +211,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	void findNeighbours(int minPts, Molecule object, float e)
 	{
-		// Return the neighbours found in {@link #getNeighbours()}.
+		// Return the neighbours found in {@link #computeAverageDistInSetAndNeighbours()}.
 		// Assume allNeighbours has been computed.
 		neighbours.clear();
 		int[] list = allNeighbours[object.id];
@@ -226,7 +227,16 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	void findNeighboursAndDistances(int minPts, Molecule object, float e)
 	{
-		throw new NotImplementedException();
+		// Return the neighbours found in {@link #computeAverageDistInSetAndNeighbours()}.
+		// Assume allNeighbours has been computed.
+		neighbours.clear();
+		int[] list = allNeighbours[object.id];
+		for (int i = list.length; i-- > 0;)
+		{
+			Molecule otherObject = setOfObjects[list[i]];
+			otherObject.setD(object.distance2(otherObject));
+			neighbours.add(otherObject);
+		}
 	}
 
 	/**
