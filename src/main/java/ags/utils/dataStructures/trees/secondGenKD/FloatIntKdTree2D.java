@@ -27,12 +27,25 @@ import java.util.List;
  * An efficient well-optimized kd-tree
  * <p>
  * This is a basic copy of the KdTree class but limited to 2 dimensions. Functionality to limit the tree size has been
- * removed.
+ * removed. The status proprty has been removed to allow multi-threaded search.
  * 
  * @author Alex Herbert
  */
 public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 {
+	// For child nodes
+	private int nextId = 1;
+
+	/**
+	 * Gets the number of nodes in the tree.
+	 *
+	 * @return the number of nodes
+	 */
+	public int getNumberOfNodes()
+	{
+		return nextId;
+	}
+
 	/**
 	 * Get the number of points in the tree
 	 */
@@ -91,8 +104,8 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 				}
 
 				// Create child leaves
-				FloatIntKdTreeNode2D left = new ChildNode(cursor, false);
-				FloatIntKdTreeNode2D right = new ChildNode(cursor, true);
+				FloatIntKdTreeNode2D left = new ChildNode(cursor, nextId++);
+				FloatIntKdTreeNode2D right = new ChildNode(cursor, nextId++);
 
 				// Move locations into children
 				for (int i = 0; i < cursor.locationCount; i++)
@@ -159,25 +172,51 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 	}
 
 	/**
-	 * Calculates the nearest 'count' points to 'location'
+	 * Calculates the nearest 'count' points to 'location'.
+	 *
+	 * @param location
+	 *            the location
+	 * @param count
+	 *            the count
+	 * @param sequentialSorting
+	 *            Set to true to return the points in order, largest distance first
+	 * @return the list
 	 */
 	public List<Entry> nearestNeighbor(float[] location, int count, boolean sequentialSorting)
 	{
+		return nearestNeighbor(location, count, sequentialSorting, new Status[getNumberOfNodes()]);
+	}
+
+	/**
+	 * Calculates the nearest 'count' points to 'location'.
+	 *
+	 * @param location
+	 *            the location
+	 * @param count
+	 *            the count
+	 * @param sequentialSorting
+	 *            Set to true to return the points in order, largest distance first
+	 * @param status
+	 *            the status array. Must equal the number of nodes in the tree
+	 * @return the list
+	 */
+	public List<Entry> nearestNeighbor(float[] location, int count, boolean sequentialSorting, Status[] status)
+	{
 		FloatIntKdTreeNode2D cursor = this;
-		cursor.status = Status.NONE;
+		status[cursor.id] = Status.NONE;
 		float range = Float.POSITIVE_INFINITY;
 		FloatIntResultHeap resultHeap = new FloatIntResultHeap(count);
 
 		do
 		{
-			if (cursor.status == Status.ALLVISITED)
+			if (status[cursor.id] == Status.ALLVISITED)
 			{
 				// At a fully visited part. Move up the tree
 				cursor = cursor.parent;
 				continue;
 			}
 
-			if (cursor.status == Status.NONE && cursor.locations != null)
+			if (status[cursor.id] == Status.NONE && cursor.locations != null)
 			{
 				// At a leaf. Use the data.
 				if (cursor.locationCount > 0)
@@ -214,38 +253,38 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 
 			// Going to descend
 			FloatIntKdTreeNode2D nextCursor = null;
-			if (cursor.status == Status.NONE)
+			if (status[cursor.id] == Status.NONE)
 			{
 				// At a fresh node, descend the most probably useful direction
 				if (location[cursor.splitDimension] > cursor.splitValue)
 				{
 					// Descend right
 					nextCursor = cursor.right;
-					cursor.status = Status.RIGHTVISITED;
+					status[cursor.id] = Status.RIGHTVISITED;
 				}
 				else
 				{
 					// Descend left;
 					nextCursor = cursor.left;
-					cursor.status = Status.LEFTVISITED;
+					status[cursor.id] = Status.LEFTVISITED;
 				}
 			}
-			else if (cursor.status == Status.LEFTVISITED)
+			else if (status[cursor.id] == Status.LEFTVISITED)
 			{
 				// Left node visited, descend right.
 				nextCursor = cursor.right;
-				cursor.status = Status.ALLVISITED;
+				status[cursor.id] = Status.ALLVISITED;
 			}
-			else if (cursor.status == Status.RIGHTVISITED)
+			else if (status[cursor.id] == Status.RIGHTVISITED)
 			{
 				// Right node visited, descend left.
 				nextCursor = cursor.left;
-				cursor.status = Status.ALLVISITED;
+				status[cursor.id] = Status.ALLVISITED;
 			}
 
 			// Check if it's worth descending. Assume it is if it's sibling has
 			// not been visited yet.
-			if (cursor.status == Status.ALLVISITED)
+			if (status[cursor.id] == Status.ALLVISITED)
 			{
 				if (nextCursor.locationCount == 0 || (!nextCursor.singularity &&
 						pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range))
@@ -256,8 +295,8 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 
 			// Descend down the tree
 			cursor = nextCursor;
-			cursor.status = Status.NONE;
-		} while (cursor.parent != null || cursor.status != Status.ALLVISITED);
+			status[cursor.id] = Status.NONE;
+		} while (cursor.parent != null || status[cursor.id] != Status.ALLVISITED);
 
 		ArrayList<Entry> results = new ArrayList<Entry>(resultHeap.values);
 		if (sequentialSorting)
@@ -284,21 +323,38 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 	 */
 	public void nearestNeighbor(float[] location, int count, IntNeighbourStore results)
 	{
+		nearestNeighbor(location, count, results, new Status[getNumberOfNodes()]);
+	}
+
+	/**
+	 * Calculates the nearest 'count' points to 'location'.
+	 *
+	 * @param location
+	 *            the location
+	 * @param count
+	 *            the count
+	 * @param results
+	 *            the results
+	 * @param status
+	 *            the status array. Must equal the number of nodes in the tree
+	 */
+	public void nearestNeighbor(float[] location, int count, IntNeighbourStore results, Status[] status)
+	{
 		FloatIntKdTreeNode2D cursor = this;
-		cursor.status = Status.NONE;
+		status[cursor.id] = Status.NONE;
 		float range = Float.POSITIVE_INFINITY;
 		FloatIntResultHeap resultHeap = new FloatIntResultHeap(count);
 
 		do
 		{
-			if (cursor.status == Status.ALLVISITED)
+			if (status[cursor.id] == Status.ALLVISITED)
 			{
 				// At a fully visited part. Move up the tree
 				cursor = cursor.parent;
 				continue;
 			}
 
-			if (cursor.status == Status.NONE && cursor.locations != null)
+			if (status[cursor.id] == Status.NONE && cursor.locations != null)
 			{
 				// At a leaf. Use the data.
 				if (cursor.locationCount > 0)
@@ -335,38 +391,38 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 
 			// Going to descend
 			FloatIntKdTreeNode2D nextCursor = null;
-			if (cursor.status == Status.NONE)
+			if (status[cursor.id] == Status.NONE)
 			{
 				// At a fresh node, descend the most probably useful direction
 				if (location[cursor.splitDimension] > cursor.splitValue)
 				{
 					// Descend right
 					nextCursor = cursor.right;
-					cursor.status = Status.RIGHTVISITED;
+					status[cursor.id] = Status.RIGHTVISITED;
 				}
 				else
 				{
 					// Descend left;
 					nextCursor = cursor.left;
-					cursor.status = Status.LEFTVISITED;
+					status[cursor.id] = Status.LEFTVISITED;
 				}
 			}
-			else if (cursor.status == Status.LEFTVISITED)
+			else if (status[cursor.id] == Status.LEFTVISITED)
 			{
 				// Left node visited, descend right.
 				nextCursor = cursor.right;
-				cursor.status = Status.ALLVISITED;
+				status[cursor.id] = Status.ALLVISITED;
 			}
-			else if (cursor.status == Status.RIGHTVISITED)
+			else if (status[cursor.id] == Status.RIGHTVISITED)
 			{
 				// Right node visited, descend left.
 				nextCursor = cursor.left;
-				cursor.status = Status.ALLVISITED;
+				status[cursor.id] = Status.ALLVISITED;
 			}
 
 			// Check if it's worth descending. Assume it is if it's sibling has
 			// not been visited yet.
-			if (cursor.status == Status.ALLVISITED)
+			if (status[cursor.id] == Status.ALLVISITED)
 			{
 				if (nextCursor.locationCount == 0 || (!nextCursor.singularity &&
 						pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range))
@@ -377,8 +433,8 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 
 			// Descend down the tree
 			cursor = nextCursor;
-			cursor.status = Status.NONE;
-		} while (cursor.parent != null || cursor.status != Status.ALLVISITED);
+			status[cursor.id] = Status.NONE;
+		} while (cursor.parent != null || status[cursor.id] != Status.ALLVISITED);
 
 		for (int i = 0; i < resultHeap.values; i++)
 		{
@@ -391,19 +447,36 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 	 */
 	public void findNeighbor(float[] location, float range, IntNeighbourStore results)
 	{
+		findNeighbor(location, range, results, new Status[getNumberOfNodes()]);
+	}
+
+	/**
+	 * Calculates the neighbour points within 'range' to 'location' and puts them in the results store.
+	 *
+	 * @param location
+	 *            the location
+	 * @param range
+	 *            the range
+	 * @param results
+	 *            the results
+	 * @param status
+	 *            the status array. Must equal the number of nodes in the tree
+	 */
+	public void findNeighbor(float[] location, float range, IntNeighbourStore results, Status[] status)
+	{
 		FloatIntKdTreeNode2D cursor = this;
-		cursor.status = Status.NONE;
+		status[cursor.id] = Status.NONE;
 
 		do
 		{
-			if (cursor.status == Status.ALLVISITED)
+			if (status[cursor.id] == Status.ALLVISITED)
 			{
 				// At a fully visited part. Move up the tree
 				cursor = cursor.parent;
 				continue;
 			}
 
-			if (cursor.status == Status.NONE && cursor.locations != null)
+			if (status[cursor.id] == Status.NONE && cursor.locations != null)
 			{
 				// At a leaf. Use the data.
 				if (cursor.locationCount > 0)
@@ -442,38 +515,38 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 
 			// Going to descend
 			FloatIntKdTreeNode2D nextCursor = null;
-			if (cursor.status == Status.NONE)
+			if (status[cursor.id] == Status.NONE)
 			{
 				// At a fresh node, descend the most probably useful direction
 				if (location[cursor.splitDimension] > cursor.splitValue)
 				{
 					// Descend right
 					nextCursor = cursor.right;
-					cursor.status = Status.RIGHTVISITED;
+					status[cursor.id] = Status.RIGHTVISITED;
 				}
 				else
 				{
 					// Descend left;
 					nextCursor = cursor.left;
-					cursor.status = Status.LEFTVISITED;
+					status[cursor.id] = Status.LEFTVISITED;
 				}
 			}
-			else if (cursor.status == Status.LEFTVISITED)
+			else if (status[cursor.id] == Status.LEFTVISITED)
 			{
 				// Left node visited, descend right.
 				nextCursor = cursor.right;
-				cursor.status = Status.ALLVISITED;
+				status[cursor.id] = Status.ALLVISITED;
 			}
-			else if (cursor.status == Status.RIGHTVISITED)
+			else if (status[cursor.id] == Status.RIGHTVISITED)
 			{
 				// Right node visited, descend left.
 				nextCursor = cursor.left;
-				cursor.status = Status.ALLVISITED;
+				status[cursor.id] = Status.ALLVISITED;
 			}
 
 			// Check if it's worth descending. Assume it is if it's sibling has
 			// not been visited yet.
-			if (cursor.status == Status.ALLVISITED)
+			if (status[cursor.id] == Status.ALLVISITED)
 			{
 				if (nextCursor.locationCount == 0 || (!nextCursor.singularity &&
 						pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range))
@@ -484,8 +557,8 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 
 			// Descend down the tree
 			cursor = nextCursor;
-			cursor.status = Status.NONE;
-		} while (cursor.parent != null || cursor.status != Status.ALLVISITED);
+			status[cursor.id] = Status.NONE;
+		} while (cursor.parent != null || status[cursor.id] != Status.ALLVISITED);
 	}
 
 	/**
@@ -493,9 +566,9 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 	 */
 	private class ChildNode extends FloatIntKdTreeNode2D
 	{
-		private ChildNode(FloatIntKdTreeNode2D parent, boolean right)
+		private ChildNode(FloatIntKdTreeNode2D parent, int id)
 		{
-			super(parent, right);
+			super(parent, id);
 		}
 
 		// Distance measurements are always called from the root node
@@ -517,7 +590,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 	 * 
 	 * @author Alex Herbert
 	 */
-	public static class FloatIntSqrEuclidD extends FloatIntKdTree2D
+	public static class SqrEuclid2D extends FloatIntKdTree2D
 	{
 		protected float pointDist(float[] p1, float[] p2)
 		{

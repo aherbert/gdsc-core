@@ -50,7 +50,7 @@ abstract class FloatIntKdTreeNode2D
 	boolean singularity;
 
 	// Temporary
-	Status status;
+	final int id;
 
 	/**
 	 * Construct a RTree with 2 dimensions
@@ -65,12 +65,13 @@ abstract class FloatIntKdTreeNode2D
 
 		// Init as root
 		this.parent = null;
+		id = 0;
 	}
 
 	/**
 	 * Constructor for child nodes. Internal use only.
 	 */
-	FloatIntKdTreeNode2D(FloatIntKdTreeNode2D parent, boolean right)
+	FloatIntKdTreeNode2D(FloatIntKdTreeNode2D parent, int id)
 	{
 		// Init as leaf
 		this.locations = new float[Math.max(bucketSize, parent.locationCount)][];
@@ -80,6 +81,7 @@ abstract class FloatIntKdTreeNode2D
 
 		// Init as non-root
 		this.parent = parent;
+		this.id = id;
 	}
 
 	/**

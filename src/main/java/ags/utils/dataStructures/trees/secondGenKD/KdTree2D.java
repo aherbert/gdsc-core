@@ -384,7 +384,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 
 		for (int i = 0; i < resultHeap.values; i++)
 		{
-			results.add(i, resultHeap.distance[i], (T) resultHeap.data[i]);
+			results.add(resultHeap.distance[i], (T) resultHeap.data[i]);
 		}
 	}
 

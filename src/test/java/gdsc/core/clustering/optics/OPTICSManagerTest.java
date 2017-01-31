@@ -51,12 +51,15 @@ import de.lmu.ifi.dbs.elki.database.ids.DBIDUtil;
 import de.lmu.ifi.dbs.elki.database.ids.DBIDVar;
 import de.lmu.ifi.dbs.elki.database.ids.DBIDs;
 import de.lmu.ifi.dbs.elki.database.ids.ModifiableDBIDs;
+import de.lmu.ifi.dbs.elki.database.relation.DoubleRelation;
 import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.datasource.ArrayAdapterDatabaseConnection;
 import de.lmu.ifi.dbs.elki.datasource.DatabaseConnection;
+import de.lmu.ifi.dbs.elki.distance.distancefunction.minkowski.EuclideanDistanceFunction;
 import de.lmu.ifi.dbs.elki.index.preprocessed.fastoptics.RandomProjectedNeighborsAndDensities;
 import de.lmu.ifi.dbs.elki.math.MathUtil;
 import de.lmu.ifi.dbs.elki.math.random.RandomFactory;
+import de.lmu.ifi.dbs.elki.result.outlier.OutlierResult;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 import gdsc.core.clustering.optics.OPTICSManager.Option;
@@ -2282,6 +2285,75 @@ public class OPTICSManagerTest
 			}
 		}
 	}
+	
+	/**
+	 * Test the results of LoOP using the ELKI framework
+	 */
+	@Test
+	public void canComputeLoOP()
+	{
+		TrackProgress tracker = null; //new SimpleTrackProgress();
+		for (int n : new int[] { 100, 500 })
+		{
+			OPTICSManager om = createOPTICSManager(size, n);
+			om.setTracker(tracker);
+			om.setNumberOfThreads(1);
+
+			// Use ELKI to provide the expected results
+			double[][] data = new Array2DRowRealMatrix(om.getDoubleData()).transpose().getData();
+
+			for (int minPts : new int[] { 5, 10 })
+			{
+				// Reset starting Id to 1
+				DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data, null, 0);
+				ListParameterization params = new ListParameterization();
+				params.addParameter(AbstractDatabase.Parameterizer.DATABASE_CONNECTION_ID, dbc);
+				Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
+				db.initialize();
+				Relation<?> rel = db.getRelation(TypeUtil.ANY);
+				Assert.assertEquals("Database size does not match.", n, rel.size());
+
+				double lambda = 1;
+				
+				// Use max range
+				long t1 = System.nanoTime();
+				float[] r1 = om.loop(minPts, lambda, false);
+				t1 = System.nanoTime() - t1;
+
+				// Test verses the ELKI frame work
+				params = new ListParameterization();
+				params.addParameter(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP.Parameterizer.KCOMP_ID, minPts);
+				params.addParameter(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP.Parameterizer.KREACH_ID, minPts);
+				params.addParameter(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP.Parameterizer.LAMBDA_ID, lambda);
+				params.addParameter(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP.Parameterizer.COMPARISON_DISTANCE_FUNCTION_ID, EuclideanDistanceFunction.STATIC);
+				Class<de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP<DoubleVector>> clz = ClassGenericsUtil.uglyCastIntoSubclass(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP.class);
+				de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP<DoubleVector> loop = params.tryInstantiate(clz);
+				long t2 = System.nanoTime();
+				OutlierResult or = loop.run(db);
+				t2 = System.nanoTime() - t2;
+
+				// Check 
+				//System.out.printf("LoOP %d vs %d (ELKI) %f\n", t1, t2, (double)t2 / t1);
+				int i = 0;
+				DoubleRelation scores = or.getScores();
+				for (DBIDIter it = scores.iterDBIDs(); it.valid(); it.advance(), i++)
+				{
+					String prefix = "[" + i + "] ";
+
+					int expId = asInteger(it);
+					int obsId = i;
+
+					double expL = scores.doubleValue(it);
+					double obsL = r1[i]; 
+					
+					//System.out.printf("%s %d %d : %f = %f\n", prefix, expId, obsId, expL, obsL);
+
+					Assert.assertEquals(prefix + "Id", expId, obsId);
+					Assert.assertEquals(prefix + "LoOP", expL, obsL, expL * 1e-3);
+				}
+			}
+		}
+	}	
 
 	private void update(TimingResult r, double[] best)
 	{

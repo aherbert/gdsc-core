@@ -1752,7 +1752,8 @@ public class OPTICSManager extends CoordinateStore
 
 			tracker.log(
 					"Running FastOPTICS ... minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s, threads=%d",
-					minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode, getNumberOfThreads());
+					minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode,
+					getNumberOfThreads());
 		}
 
 		// Compute projections and find neighbours
@@ -2011,5 +2012,82 @@ public class OPTICSManager extends CoordinateStore
 			this.nThreads = nThreads;
 		else
 			this.nThreads = 1;
+	}
+
+	private LoOP loop = null;
+
+	/**
+	 * Compute the Local Outlier Probability scores. Scores are normalised to the range [0:1] with the expected value of
+	 * 0 (not an outlier).
+	 * <p>
+	 * See:
+	 * Hans-Peter Kriegel, Peer Kröger, Erich Schubert, Arthur Zimek:<br />
+	 * LoOP: Local Outlier Probabilities< br /> In Proceedings of the 18th
+	 * International Conference on Information and Knowledge Management (CIKM), Hong
+	 * Kong, China, 2009
+	 *
+	 * @param k
+	 *            the number of neighbours (automatically bounded between 1 and size-1)
+	 * @param lambda
+	 *            The number of standard deviations to consider for density computation.
+	 * @param cache
+	 *            Set to true to cache the KD-tree used for the nearest neighbour search
+	 * @return the k-nearest neighbour distances
+	 */
+	public float[] loop(int k, double lambda, boolean cache)
+	{
+		int size = xcoord.length;
+		if (size < 2)
+			return new float[size];
+
+		long time = System.currentTimeMillis();
+
+		// Bounds check k
+		if (k < 1)
+			k = 1;
+		else if (k >= size)
+			k = size - 1;
+
+		if (tracker != null)
+		{
+			tracker.log("Computing Local Outlier Probability scores, k=%d, Lambda=%s", k, Utils.rounded(lambda));
+		}
+
+		if (loop == null)
+		{
+			loop = new LoOP(xcoord, ycoord);
+		}
+		loop.setNumberOfThreads(getNumberOfThreads());
+
+		double[] scores;
+		try
+		{
+			scores = loop.run(k, lambda);
+		}
+		catch (Exception e)
+		{
+			if (tracker != null)
+			{
+				tracker.log("Failed LoOP computation: " + e.getMessage());
+			}
+			e.printStackTrace();
+			return null;
+		}
+
+		// Convert to float 
+		float[] result = new float[scores.length];
+		for (int i = 0; i < scores.length; i++)
+			result[i] = (float) scores[i];
+
+		if (tracker != null)
+		{
+			time = System.currentTimeMillis() - time;
+			tracker.log("Finished LoOP computation (Time = " + Utils.timeToString(time) + ")");
+		}
+
+		if (!cache)
+			loop = null;
+
+		return result;
 	}
 }
