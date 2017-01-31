@@ -59,14 +59,23 @@ public class FloatResultHeap
 
 	private void upHeapify(int c)
 	{
-		for (int p = (c - 1) / 2; c != 0 && distance[c] > distance[p]; c = p, p = (c - 1) / 2)
+		while (c > 0)
 		{
-			Object pData = data[p];
-			float pDist = distance[p];
-			data[p] = data[c];
-			distance[p] = distance[c];
-			data[c] = pData;
-			distance[c] = pDist;
+			final int p = (c - 1) >>> 1;
+			if (distance[c] > distance[p])
+			{
+				Object pData = data[p];
+				float pDist = distance[p];
+				data[p] = data[c];
+				distance[p] = distance[c];
+				data[c] = pData;
+				distance[c] = pDist;
+				c = p;
+			}
+			else
+			{
+				break;
+			}
 		}
 	}
 

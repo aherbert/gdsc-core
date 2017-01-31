@@ -52,11 +52,20 @@ public class FloatHeap
 
 	private void upHeapify(int c)
 	{
-		for (int p = (c - 1) / 2; c != 0 && distance[c] > distance[p]; c = p, p = (c - 1) / 2)
+		while (c > 0)
 		{
-			float pDist = distance[p];
-			distance[p] = distance[c];
-			distance[c] = pDist;
+			final int p = (c - 1) >>> 1;
+			if (distance[c] > distance[p])
+			{
+				float pDist = distance[p];
+				distance[p] = distance[c];
+				distance[c] = pDist;
+				c = p;
+			}
+			else
+			{
+				break;
+			}
 		}
 	}
 

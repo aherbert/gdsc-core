@@ -31,7 +31,7 @@ import java.util.List;
  * 
  * @author Alex Herbert
  */
-public abstract class KdTree2D<T> extends KdTreeNode2D<T>
+public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 {
 	/**
 	 * Get the number of points in the tree
@@ -44,9 +44,9 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	/**
 	 * Add a point and associated value to the tree
 	 */
-	public void addPoint(double[] location, T value)
+	public void addPoint(float[] location, int value)
 	{
-		KdTreeNode2D<T> cursor = this;
+		FloatIntKdTreeNode2D cursor = this;
 
 		while (cursor.locations == null || cursor.locationCount >= cursor.locations.length)
 		{
@@ -54,30 +54,30 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 			{
 				cursor.splitDimension = cursor.findWidestAxis();
 				cursor.splitValue = (cursor.minLimit[cursor.splitDimension] + cursor.maxLimit[cursor.splitDimension]) *
-						0.5;
+						0.5f;
 
 				// Never split on infinity or NaN
-				if (cursor.splitValue == Double.POSITIVE_INFINITY)
+				if (cursor.splitValue == Float.POSITIVE_INFINITY)
 				{
-					cursor.splitValue = Double.MAX_VALUE;
+					cursor.splitValue = Float.MAX_VALUE;
 				}
-				else if (cursor.splitValue == Double.NEGATIVE_INFINITY)
+				else if (cursor.splitValue == Float.NEGATIVE_INFINITY)
 				{
-					cursor.splitValue = -Double.MAX_VALUE;
+					cursor.splitValue = -Float.MAX_VALUE;
 				}
-				else if (Double.isNaN(cursor.splitValue))
+				else if (Float.isNaN(cursor.splitValue))
 				{
 					cursor.splitValue = 0;
 				}
 
-				// Don't split node if it has no width in any axis. Double the
+				// Don't split node if it has no width in any axis. Float the
 				// bucket size instead
 				if (cursor.minLimit[cursor.splitDimension] == cursor.maxLimit[cursor.splitDimension])
 				{
-					double[][] newLocations = new double[cursor.locations.length * 2][];
+					float[][] newLocations = new float[cursor.locations.length * 2][];
 					System.arraycopy(cursor.locations, 0, newLocations, 0, cursor.locationCount);
 					cursor.locations = newLocations;
-					Object[] newData = new Object[newLocations.length];
+					int[] newData = new int[newLocations.length];
 					System.arraycopy(cursor.data, 0, newData, 0, cursor.locationCount);
 					cursor.data = newData;
 					break;
@@ -91,14 +91,14 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 				}
 
 				// Create child leaves
-				KdTreeNode2D<T> left = new ChildNode(cursor, false);
-				KdTreeNode2D<T> right = new ChildNode(cursor, true);
+				FloatIntKdTreeNode2D left = new ChildNode(cursor, false);
+				FloatIntKdTreeNode2D right = new ChildNode(cursor, true);
 
 				// Move locations into children
 				for (int i = 0; i < cursor.locationCount; i++)
 				{
-					double[] oldLocation = cursor.locations[i];
-					Object oldData = cursor.data[i];
+					float[] oldLocation = cursor.locations[i];
+					int oldData = cursor.data[i];
 					if (oldLocation[cursor.splitDimension] > cursor.splitValue)
 					{
 						// Right
@@ -146,12 +146,12 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	/**
 	 * Stores a distance and value to output
 	 */
-	public static class Entry<T>
+	public static class Entry
 	{
-		public final double distance;
-		public final T value;
+		public final float distance;
+		public final int value;
 
-		private Entry(double distance, T value)
+		private Entry(float distance, int value)
 		{
 			this.distance = distance;
 			this.value = value;
@@ -161,13 +161,12 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	/**
 	 * Calculates the nearest 'count' points to 'location'
 	 */
-	@SuppressWarnings("unchecked")
-	public List<Entry<T>> nearestNeighbor(double[] location, int count, boolean sequentialSorting)
+	public List<Entry> nearestNeighbor(float[] location, int count, boolean sequentialSorting)
 	{
-		KdTreeNode2D<T> cursor = this;
+		FloatIntKdTreeNode2D cursor = this;
 		cursor.status = Status.NONE;
-		double range = Double.POSITIVE_INFINITY;
-		ResultHeap resultHeap = new ResultHeap(count);
+		float range = Float.POSITIVE_INFINITY;
+		FloatIntResultHeap resultHeap = new FloatIntResultHeap(count);
 
 		do
 		{
@@ -185,7 +184,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 				{
 					if (cursor.singularity)
 					{
-						double dist = pointDist(cursor.locations[0], location);
+						float dist = pointDist(cursor.locations[0], location);
 						if (dist <= range)
 						{
 							for (int i = 0; i < cursor.locationCount; i++)
@@ -198,7 +197,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 					{
 						for (int i = 0; i < cursor.locationCount; i++)
 						{
-							double dist = pointDist(cursor.locations[i], location);
+							float dist = pointDist(cursor.locations[i], location);
 							resultHeap.addValue(dist, cursor.data[i]);
 						}
 					}
@@ -214,7 +213,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 			}
 
 			// Going to descend
-			KdTreeNode2D<T> nextCursor = null;
+			FloatIntKdTreeNode2D nextCursor = null;
 			if (cursor.status == Status.NONE)
 			{
 				// At a fresh node, descend the most probably useful direction
@@ -260,20 +259,20 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 			cursor.status = Status.NONE;
 		} while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
-		ArrayList<Entry<T>> results = new ArrayList<Entry<T>>(resultHeap.values);
+		ArrayList<Entry> results = new ArrayList<Entry>(resultHeap.values);
 		if (sequentialSorting)
 		{
 			while (resultHeap.values > 0)
 			{
 				resultHeap.removeLargest();
-				results.add(new Entry<T>(resultHeap.removedDist, (T) resultHeap.removedData));
+				results.add(new Entry(resultHeap.removedDist, resultHeap.removedData));
 			}
 		}
 		else
 		{
 			for (int i = 0; i < resultHeap.values; i++)
 			{
-				results.add(new Entry<T>(resultHeap.distance[i], (T) resultHeap.data[i]));
+				results.add(new Entry(resultHeap.distance[i], resultHeap.data[i]));
 			}
 		}
 
@@ -283,13 +282,12 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	/**
 	 * Calculates the nearest 'count' points to 'location'
 	 */
-	@SuppressWarnings("unchecked")
-	public void nearestNeighbor(double[] location, int count, NeighbourStore<T> results)
+	public void nearestNeighbor(float[] location, int count, IntNeighbourStore results)
 	{
-		KdTreeNode2D<T> cursor = this;
+		FloatIntKdTreeNode2D cursor = this;
 		cursor.status = Status.NONE;
-		double range = Double.POSITIVE_INFINITY;
-		ResultHeap resultHeap = new ResultHeap(count);
+		float range = Float.POSITIVE_INFINITY;
+		FloatIntResultHeap resultHeap = new FloatIntResultHeap(count);
 
 		do
 		{
@@ -307,7 +305,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 				{
 					if (cursor.singularity)
 					{
-						double dist = pointDist(cursor.locations[0], location);
+						float dist = pointDist(cursor.locations[0], location);
 						if (dist <= range)
 						{
 							for (int i = 0; i < cursor.locationCount; i++)
@@ -320,7 +318,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 					{
 						for (int i = 0; i < cursor.locationCount; i++)
 						{
-							double dist = pointDist(cursor.locations[i], location);
+							float dist = pointDist(cursor.locations[i], location);
 							resultHeap.addValue(dist, cursor.data[i]);
 						}
 					}
@@ -336,7 +334,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 			}
 
 			// Going to descend
-			KdTreeNode2D<T> nextCursor = null;
+			FloatIntKdTreeNode2D nextCursor = null;
 			if (cursor.status == Status.NONE)
 			{
 				// At a fresh node, descend the most probably useful direction
@@ -384,17 +382,16 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 
 		for (int i = 0; i < resultHeap.values; i++)
 		{
-			results.add(i, resultHeap.distance[i], (T) resultHeap.data[i]);
+			results.add(resultHeap.distance[i], resultHeap.data[i]);
 		}
 	}
 
 	/**
 	 * Calculates the neighbour points within 'range' to 'location' and puts them in the results store
 	 */
-	@SuppressWarnings("unchecked")
-	public void findNeighbor(double[] location, double range, NeighbourStore<T> results)
+	public void findNeighbor(float[] location, float range, IntNeighbourStore results)
 	{
-		KdTreeNode2D<T> cursor = this;
+		FloatIntKdTreeNode2D cursor = this;
 		cursor.status = Status.NONE;
 
 		do
@@ -413,12 +410,12 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 				{
 					if (cursor.singularity)
 					{
-						double dist = pointDist(cursor.locations[0], location);
+						float dist = pointDist(cursor.locations[0], location);
 						if (dist <= range)
 						{
 							for (int i = 0; i < cursor.locationCount; i++)
 							{
-								results.add(dist, (T) cursor.data[i]);
+								results.add(dist, cursor.data[i]);
 							}
 						}
 					}
@@ -426,10 +423,10 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 					{
 						for (int i = 0; i < cursor.locationCount; i++)
 						{
-							double dist = pointDist(cursor.locations[i], location);
+							float dist = pointDist(cursor.locations[i], location);
 							if (dist <= range)
 							{
-								results.add(dist, (T) cursor.data[i]);
+								results.add(dist, cursor.data[i]);
 							}
 						}
 					}
@@ -444,7 +441,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 			}
 
 			// Going to descend
-			KdTreeNode2D<T> nextCursor = null;
+			FloatIntKdTreeNode2D nextCursor = null;
 			if (cursor.status == Status.NONE)
 			{
 				// At a fresh node, descend the most probably useful direction
@@ -494,20 +491,20 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	/**
 	 * Internal class for child nodes
 	 */
-	private class ChildNode extends KdTreeNode2D<T>
+	private class ChildNode extends FloatIntKdTreeNode2D
 	{
-		private ChildNode(KdTreeNode2D<T> parent, boolean right)
+		private ChildNode(FloatIntKdTreeNode2D parent, boolean right)
 		{
 			super(parent, right);
 		}
 
 		// Distance measurements are always called from the root node
-		protected double pointDist(double[] p1, double[] p2)
+		protected float pointDist(float[] p1, float[] p2)
 		{
 			throw new IllegalStateException();
 		}
 
-		protected double pointRegionDist(double[] point, double[] min, double[] max)
+		protected float pointRegionDist(float[] point, float[] min, float[] max)
 		{
 			throw new IllegalStateException();
 		}
@@ -520,19 +517,19 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	 * 
 	 * @author Alex Herbert
 	 */
-	public static class SqrEuclid2D<T> extends KdTree2D<T>
+	public static class FloatIntSqrEuclidD extends FloatIntKdTree2D
 	{
-		protected double pointDist(double[] p1, double[] p2)
+		protected float pointDist(float[] p1, float[] p2)
 		{
-			double dx = p1[0] - p2[0];
-			double dy = p1[1] - p2[1];
+			float dx = p1[0] - p2[0];
+			float dy = p1[1] - p2[1];
 			return dx * dx + dy * dy;
 		}
 
-		protected double pointRegionDist(double[] point, double[] min, double[] max)
+		protected float pointRegionDist(float[] point, float[] min, float[] max)
 		{
-			double dx = (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? min[0] - point[0] : 0;
-			double dy = (point[1] > max[1]) ? point[1] - max[1] : (point[1] < min[1]) ? min[1] - point[1] : 0;
+			float dx = (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? min[0] - point[0] : 0;
+			float dy = (point[1] > max[1]) ? point[1] - max[1] : (point[1] < min[1]) ? min[1] - point[1] : 0;
 			return dx * dx + dy * dy;
 		}
 	}

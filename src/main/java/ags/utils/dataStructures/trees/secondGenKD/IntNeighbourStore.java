@@ -3,7 +3,7 @@ package ags.utils.dataStructures.trees.secondGenKD;
 /**
  * Interface to allow storing neighbours of a location within the KD-tree
  */
-public interface NeighbourStore<T>
+public interface IntNeighbourStore
 {
 	/**
 	 * Adds the neighbour to the store.
@@ -13,7 +13,7 @@ public interface NeighbourStore<T>
 	 * @param neighbour
 	 *            the neighbour
 	 */
-	void add(double distance, T neighbour);
+	void add(double distance, int neighbour);
 
 	/**
 	 * Adds the neighbour to the store.
@@ -25,5 +25,5 @@ public interface NeighbourStore<T>
 	 * @param neighbour
 	 *            the neighbour
 	 */
-	void add(int index, double distance, T neighbour);
+	void add(int index, double distance, int neighbour);
 }
