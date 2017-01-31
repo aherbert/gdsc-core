@@ -92,6 +92,7 @@ public class LoOP
 		final int[][] neighbours;
 		int i;
 		int n;
+		int[] list;
 
 		// Sum-of-squared distances
 		double ss;
@@ -107,7 +108,7 @@ public class LoOP
 				// Ignore self
 				return;
 			ss += distance;
-			neighbours[i][n++] = neighbour;
+			list[n++] = neighbour;
 		}
 
 		public void reset(int i)
@@ -115,6 +116,7 @@ public class LoOP
 			this.i = i;
 			ss = 0;
 			n = 0;
+			list = neighbours[i];
 		}
 	}
 
@@ -144,8 +146,8 @@ public class LoOP
 		{
 			// Note: The k-nearest neighbour search will include the actual 
 			// point so increment by 1
-			int k1 = k + 1;
-			Status[] status = new Status[tree.getNumberOfNodes()];
+			final int k1 = k + 1;
+			final Status[] status = new Status[tree.getNumberOfNodes()];
 			for (int i = from; i < to; i++)
 			{
 				store.reset(i);
@@ -185,9 +187,10 @@ public class LoOP
 			for (int i = from; i < to; i++)
 			{
 				double sum = 0;
+				final int[] list = neighbours[i];
 				for (int j = k; j-- > 0;)
 				{
-					sum += pd[neighbours[i][j]];
+					sum += pd[list[j]];
 				}
 				double plof = max(pd[i] * k / sum, 1.0);
 				if (Double.isNaN(plof) || Double.isInfinite(plof))
