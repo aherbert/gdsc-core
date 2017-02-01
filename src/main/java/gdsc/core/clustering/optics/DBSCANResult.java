@@ -1,5 +1,9 @@
 package gdsc.core.clustering.optics;
 
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.util.MathArrays;
+
+import gdsc.core.ij.Utils;
 import gdsc.core.utils.ConvexHull;
 import gdsc.core.utils.Maths;
 
@@ -110,6 +114,36 @@ public class DBSCANResult implements ClusteringResult
 		return data;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * gdsc.core.clustering.optics.ClusteringResult#scrambleClusters(org.apache.commons.math3.random.RandomGenerator)
+	 */
+	public void scrambleClusters(RandomGenerator rng)
+	{
+		clusters = null;
+		hulls = null;
+
+		int max = 0;
+		for (int i = size(); i-- > 0;)
+		{
+			if (max < results[i].clusterId)
+				max = results[i].clusterId;
+		}
+		if (max == 0)
+			return;
+
+		int[] map = Utils.newArray(max, 1, 1);
+		MathArrays.shuffle(map, rng);
+
+		for (int i = size(); i-- > 0;)
+		{
+			if (results[i].clusterId > 0)
+				results[i].clusterId = map[results[i].clusterId - 1];
+		}
+	}
+
 	/**
 	 * Extract the clusters and store a reference to them for return by {@link #getClusters()}. Deletes the cached
 	 * convex hulls for previous clusters.
@@ -155,7 +189,6 @@ public class DBSCANResult implements ClusteringResult
 					clusters[id] = results[i].clusterId;
 				}
 			}
-
 		}
 		else
 		{

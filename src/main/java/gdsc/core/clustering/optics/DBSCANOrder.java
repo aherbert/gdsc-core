@@ -26,7 +26,7 @@ public class DBSCANOrder
 	/**
 	 * The cluster identifier.
 	 */
-	public final int clusterId;
+	int clusterId;
 	/**
 	 * The number of points within the generating distance.
 	 */
@@ -47,5 +47,15 @@ public class DBSCANOrder
 		this.parent = parent;
 		this.clusterId = clusterId;
 		this.nPts = nPts;
+	}
+
+	/**
+	 * Gets the cluster id.
+	 *
+	 * @return the cluster id
+	 */
+	public int getClusterId()
+	{
+		return clusterId;
 	}
 }

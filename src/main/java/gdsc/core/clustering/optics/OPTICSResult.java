@@ -16,6 +16,10 @@ package gdsc.core.clustering.optics;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.util.MathArrays;
+
+import gdsc.core.ij.Utils;
 import gdsc.core.utils.ConvexHull;
 import gdsc.core.utils.TurboList;
 import gdsc.core.utils.TurboList.SimplePredicate;
@@ -225,6 +229,34 @@ public class OPTICSResult implements ClusteringResult
 	private void setClustering(ArrayList<OPTICSCluster> clustering)
 	{
 		this.clustering = clustering;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * gdsc.core.clustering.optics.ClusteringResult#scrambleClusters(org.apache.commons.math3.random.RandomGenerator)
+	 */
+	public void scrambleClusters(RandomGenerator rng)
+	{
+		hulls = null;
+
+		int max = getNumberOfClusters();
+		if (max == 0)
+			return;
+
+		int[] map = Utils.newArray(max, 1, 1);
+		MathArrays.shuffle(map, rng);
+
+		for (int i = size(); i-- > 0;)
+		{
+			if (opticsResults[i].clusterId > 0)
+				opticsResults[i].clusterId = map[opticsResults[i].clusterId - 1];
+		}
+
+		ArrayList<OPTICSCluster> list = getAllClusters();
+		for (OPTICSCluster c : list)
+			c.clusterId = map[c.clusterId - 1];
 	}
 
 	/**
@@ -826,7 +858,7 @@ public class OPTICSResult implements ClusteringResult
 					index++;
 					continue;
 				}
-				
+
 				// Update mib values with current mib and filter
 				updateFilterSDASet(mib, setOfSteepDownAreas, ixi);
 				SteepUpArea sua;
@@ -854,7 +886,7 @@ public class OPTICSResult implements ClusteringResult
 								//	// Not allowed so end
 								//	break;
 								//}
-								
+
 								endSteep = index + 1;
 								mib = r[index];
 								eSuccessor = getNextReachability(index, size, r);
@@ -955,15 +987,6 @@ public class OPTICSResult implements ClusteringResult
 					// Condition 3A: obey minpts 
 					if (cend - cstart + 1 < minPts)
 						continue;
-
-					// Addition to limit the hierarchy:
-					if (useLowerLimit)
-					{
-						// The first reachable point within a cluster and the last point of the
-						// cluster must have a reachability above the lower limit.
-						if (r[cstart + 1] <= lowerLimit || r[cend] <= lowerLimit)
-							continue;
-					}
 
 					// Build the cluster 
 					clusterId++;

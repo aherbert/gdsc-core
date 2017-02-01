@@ -27,7 +27,7 @@ public class OPTICSCluster
 	public final int end;
 
 	/** The cluster id. */
-	public final int clusterId;
+	int clusterId;
 
 	/** The children. */
 	LinkedList<OPTICSCluster> children = null;
@@ -92,5 +92,15 @@ public class OPTICSCluster
 	public int size()
 	{
 		return end - start + 1;
+	}
+
+	/**
+	 * Gets the cluster id.
+	 *
+	 * @return the cluster id
+	 */
+	public int getClusterId()
+	{
+		return clusterId;
 	}
 }

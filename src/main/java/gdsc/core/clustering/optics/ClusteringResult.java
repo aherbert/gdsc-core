@@ -1,5 +1,7 @@
 package gdsc.core.clustering.optics;
 
+import org.apache.commons.math3.random.RandomGenerator;
+
 /*----------------------------------------------------------------------------- 
  * GDSC ImageJ Software
  * 
@@ -26,7 +28,7 @@ public interface ClusteringResult
 	 * @return true, if successful
 	 */
 	public boolean hasConvexHulls();
-	
+
 	/**
 	 * Compute convex hulls for each cluster.
 	 */
@@ -48,4 +50,12 @@ public interface ClusteringResult
 	 * @return the clusters
 	 */
 	public int[] getClusters();
+
+	/**
+	 * Scramble the cluster numbers assigned to the results.
+	 * <p>
+	 * Since clusters are arbitrary this ensures that clusters close in proximity that are created sequentially will not
+	 * have sequential cluster Ids.
+	 */
+	public void scrambleClusters(RandomGenerator rng);
 }

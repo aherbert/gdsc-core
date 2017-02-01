@@ -1029,8 +1029,8 @@ public class OPTICSManagerTest
 			int expId = r1.get(i).parent;
 			int obsId = r2.get(i).parent;
 
-			int expCId = r1.get(i).clusterId;
-			int obsCId = r2.get(i).clusterId;
+			int expCId = r1.get(i).getClusterId();
+			int obsCId = r2.get(i).getClusterId();
 
 			Assert.assertEquals(title + " Id " + i, expId, obsId);
 			Assert.assertEquals(title + " CId " + i, expCId, obsCId);
