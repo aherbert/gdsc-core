@@ -183,7 +183,7 @@ public class OPTICSResult implements ClusteringResult
 	}
 
 	/**
-	 * Gets the OPTICS order of the original input points. 
+	 * Gets the OPTICS order of the original input points.
 	 * <p>
 	 * Note: The order is 1-based (range from 1 to size)
 	 *
@@ -480,12 +480,12 @@ public class OPTICSResult implements ClusteringResult
 		{
 			fill(clusters, c.start, c.end + 1, c.clusterId);
 		}
-		
+
 		// Get the order (zero-based)
 		int[] order = new int[size()];
 		for (int i = size(); i-- > 0;)
 			order[opticsResults[i].parent] = i;
-		
+
 		// Map back to the input order
 		int[] copy = clusters.clone();
 		for (int i = size(); i-- > 0;)
@@ -635,6 +635,7 @@ public class OPTICSResult implements ClusteringResult
 	 */
 	private class SteepDownArea extends SteepArea
 	{
+		/** The maximum-in-between (mib) value. */
 		double mib;
 
 		SteepDownArea(int s, int e, double maximum)
@@ -646,7 +647,7 @@ public class OPTICSResult implements ClusteringResult
 		@Override
 		public String toString()
 		{
-			return String.format("s=%d, e=%d, max=%f, mib=%f", s, e, maximum, mib);
+			return String.format("SDA s=%d, e=%d, max=%f, mib=%f", s, e, maximum, mib);
 		}
 	}
 
@@ -663,7 +664,7 @@ public class OPTICSResult implements ClusteringResult
 		@Override
 		public String toString()
 		{
-			return String.format("s=%d, e=%d, max=%f, mib=%f", s, e, maximum);
+			return String.format("SUA s=%d, e=%d, max=%f", s, e, maximum);
 		}
 	}
 
@@ -691,6 +692,20 @@ public class OPTICSResult implements ClusteringResult
 	 * Use to not correct the ends of steep up areas (matching the original algorithm)
 	 */
 	public static final int XI_OPTION_NO_CORRECT = 2;
+	/**
+	 * Use an upper limit for reachability. The first and last reachable points within a cluster must have a
+	 * reachability equal or below the upper limit. This prevents creating clusters with points associated above the
+	 * upper limit.
+	 */
+	public static final int XI_OPTION_UPPER_LIMIT = 4;
+	/**
+	 * Use a lower limit for reachability. The first and last reachable points within a cluster must have a reachability
+	 * equal or above the lower limit. This prevents creating clusters that are only associated below the lower limit.
+	 */
+	public static final int XI_OPTION_LOWER_LIMIT = 8;
+
+	private double upperLimit = Double.POSITIVE_INFINITY;
+	private double lowerLimit = 0;
 
 	/**
 	 * Extract clusters from the reachability distance profile.
@@ -721,8 +736,12 @@ public class OPTICSResult implements ClusteringResult
 	 */
 	public void extractClusters(double xi, int options)
 	{
-		boolean topLevel = (options & XI_OPTION_TOP_LEVEL) != 0;
-		boolean noCorrect = (options & XI_OPTION_NO_CORRECT) != 0;
+		final boolean topLevel = (options & XI_OPTION_TOP_LEVEL) != 0;
+		final boolean noCorrect = (options & XI_OPTION_NO_CORRECT) != 0;
+		final double ul = getUpperLimit();
+		final double ll = getLowerLimit();
+		final boolean useUpperLimit = (options & XI_OPTION_UPPER_LIMIT) != 0 && ul < Double.POSITIVE_INFINITY;
+		final boolean useLowerLimit = (options & XI_OPTION_LOWER_LIMIT) != 0 && ll > 0;
 
 		// This code is based on the original OPTICS paper and an R-implementation available here:
 		// https://cran.r-project.org/web/packages/dbscan/ 
@@ -733,6 +752,7 @@ public class OPTICSResult implements ClusteringResult
 		TurboList<SteepDownArea> setOfSteepDownAreas = new TurboList<SteepDownArea>();
 		TurboList<OPTICSCluster> setOfClusters = new TurboList<OPTICSCluster>();
 		int index = 0;
+		// The maximum value between a certain point and the current index; Maximum-in-between (mib).
 		double mib = 0;
 		final int size = size();
 		final double ixi = 1 - xi;
@@ -750,6 +770,21 @@ public class OPTICSResult implements ClusteringResult
 			// Test if this is a steep down area 
 			if (steepDown(index, r, ixi))
 			{
+				// The first reachable point must have a reachability equal or below the upper limit
+				if (useUpperLimit && r[index + 1] > ul)
+				{
+					// Not allowed so move on
+					index++;
+					continue;
+				}
+				// The first reachable point must have a reachability equal or above the lower limit
+				if (useLowerLimit && r[index + 1] < ll)
+				{
+					// Not allowed so move on
+					index++;
+					continue;
+				}
+
 				// Update mib values with current mib and filter
 				updateFilterSDASet(mib, setOfSteepDownAreas, ixi);
 				double startValue = r[index];
@@ -771,12 +806,27 @@ public class OPTICSResult implements ClusteringResult
 					}
 				}
 				SteepDownArea sda = new SteepDownArea(startSteep, endSteep, startValue);
-				//System.out.println("New steep down area:" + sda);
+				//System.out.println("New " + sda);
 				setOfSteepDownAreas.add(sda);
 				continue;
 			}
 			if (steepUp(index, r, ixi))
 			{
+				// The last reachable point must have a reachability equal or below the upper limit
+				if (useUpperLimit && r[index] > ul)
+				{
+					// Not allowed so move on
+					index++;
+					continue;
+				}
+				// The last reachable point must have a reachability equal or above the lower limit
+				if (useLowerLimit && r[index] < ll)
+				{
+					// Not allowed so move on
+					index++;
+					continue;
+				}
+				
 				// Update mib values with current mib and filter
 				updateFilterSDASet(mib, setOfSteepDownAreas, ixi);
 				SteepUpArea sua;
@@ -791,6 +841,20 @@ public class OPTICSResult implements ClusteringResult
 						{
 							if (steepUp(index, r, ixi))
 							{
+								// The last reachable point must have a reachability equal or below the upper limit
+								if (useUpperLimit && r[index] > ul)
+								{
+									// Not allowed so end
+									break;
+								}
+								// The last reachable point must have a reachability equal or above the lower limit
+								// This check is not relevant as we are going up and are already above the limit.
+								//if (useLowerLimit && r[index] < ll)
+								//{
+								//	// Not allowed so end
+								//	break;
+								//}
+								
 								endSteep = index + 1;
 								mib = r[index];
 								eSuccessor = getNextReachability(index, size, r);
@@ -814,16 +878,20 @@ public class OPTICSResult implements ClusteringResult
 						index++;
 					}
 					sua = new SteepUpArea(startSteep, endSteep, eSuccessor);
-					//System.out.println("New steep up area:" + sua);
+					//System.out.println("New " + sua);
 				}
-				//final double threshold = mib * ixi;
+				// Note: mib currently holds the value at the end-of-steep-up
+				final double threshold = mib * ixi;
 				for (int i = setOfSteepDownAreas.size(); i-- > 0;)
 				{
 					final SteepDownArea sda = setOfSteepDownAreas.getf(i);
 
-					// Condition 3B:  end-of-steep-up > maximum-in-between lower
-					//if (threshold < sda.mib)
-					if (mib * ixi < sda.mib)
+					// Condition 3B:
+					// All points within the start-end are below min(r[start],r[end]) * (1-Xi).
+					// Since each SDA stores the maximum point between it and the current point (stored in mib)
+					// we only check the mib, i.e. maximum-in-between SDA <= end-of-steep-up * (1-Xi)
+					//if (sda.mib > mib * ixi)
+					if (sda.mib > threshold)
 						continue;
 
 					// Default values 
@@ -887,6 +955,15 @@ public class OPTICSResult implements ClusteringResult
 					// Condition 3A: obey minpts 
 					if (cend - cstart + 1 < minPts)
 						continue;
+
+					// Addition to limit the hierarchy:
+					if (useLowerLimit)
+					{
+						// The first reachable point within a cluster and the last point of the
+						// cluster must have a reachability above the lower limit.
+						if (r[cstart + 1] <= lowerLimit || r[cend] <= lowerLimit)
+							continue;
+					}
 
 					// Build the cluster 
 					clusterId++;
@@ -967,7 +1044,7 @@ public class OPTICSResult implements ClusteringResult
 	 * Update filter SDA set. Remove obsolete steep areas
 	 *
 	 * @param mib
-	 *            the mib
+	 *            the mib (maximum-in-between) value. The maximum value between a certain point and the current index.
 	 * @param setOfSteepDownAreas
 	 *            the set of steep down areas
 	 * @param ixi
@@ -975,7 +1052,7 @@ public class OPTICSResult implements ClusteringResult
 	 */
 	private void updateFilterSDASet(final double mib, TurboList<SteepDownArea> setOfSteepDownAreas, final double ixi)
 	{
-		//final double threshold = mib / ixi;
+		final double threshold = mib / ixi;
 		setOfSteepDownAreas.removeIf(new SimplePredicate<SteepArea>()
 		{
 			/*
@@ -988,8 +1065,8 @@ public class OPTICSResult implements ClusteringResult
 				// Return true to remove.
 				// "we filter all steep down areas from SDASet whose start multiplied by (1-ξ)
 				// is smaller than the global mib -value"
-				return sda.maximum * ixi <= mib;
-				//return sda.maximum < threshold;
+				//return sda.maximum * ixi < mib;
+				return sda.maximum < threshold;
 			}
 		});
 		// Update mib-values
@@ -1068,5 +1145,51 @@ public class OPTICSResult implements ClusteringResult
 	private double getNextReachability(int index, final int size, final double[] r)
 	{
 		return (valid(index + 1, size)) ? r[index + 1] : Double.POSITIVE_INFINITY;
+	}
+
+	/**
+	 * Gets the upper limit for OPTICS Xi cluster extraction.
+	 *
+	 * @return the upper limit for OPTICS Xi cluster extraction
+	 */
+	public double getUpperLimit()
+	{
+		return upperLimit;
+	}
+
+	/**
+	 * Sets the upper limit for OPTICS Xi cluster extraction.
+	 *
+	 * @param upperLimit
+	 *            the new upper limit for OPTICS Xi cluster extraction
+	 */
+	public void setUpperLimit(double upperLimit)
+	{
+		if (Double.isNaN(upperLimit) || upperLimit <= 0)
+			upperLimit = Double.POSITIVE_INFINITY;
+		this.upperLimit = upperLimit;
+	}
+
+	/**
+	 * Gets the lower limit for OPTICS Xi cluster extraction.
+	 *
+	 * @return the lower limit for OPTICS Xi cluster extraction
+	 */
+	public double getLowerLimit()
+	{
+		return lowerLimit;
+	}
+
+	/**
+	 * Sets the lower limit for OPTICS Xi cluster extraction.
+	 *
+	 * @param lowerLimit
+	 *            the new lower limit for OPTICS Xi cluster extraction
+	 */
+	public void setLowerLimit(double lowerLimit)
+	{
+		if (Double.isNaN(lowerLimit))
+			lowerLimit = 0;
+		this.lowerLimit = lowerLimit;
 	}
 }
