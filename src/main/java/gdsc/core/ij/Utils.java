@@ -304,10 +304,13 @@ public class Utils
 				// Get the location and close the error window
 				Point location = null;
 				Dimension d = null;
+				double[] limits = null;
 				if (p != null)
 				{
 					location = p.getLocation();
-					d = p.getPlot().getSize();
+					Plot oldPlot = p.getPlot();
+					d = oldPlot.getSize();
+					limits = oldPlot.getLimits();
 					try
 					{
 						p.close();
@@ -323,6 +326,8 @@ public class Utils
 				{
 					plot.setSize(d.width, d.height);
 				}
+				if (preserveLimits && limits != null)
+					plot.setLimits(limits[0], limits[1], limits[2], limits[3]);
 				p = plot.show();
 				if (location != null)
 				{
