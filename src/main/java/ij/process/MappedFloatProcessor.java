@@ -17,12 +17,19 @@ import java.awt.image.ColorModel;
 
 /**
  * Extends the ImageJ FloatProcess class to map the min-max range to 1-255 in the 8-bit image. Zero in the data is
- * mapped to 0.
+ * mapped to 0 unless the zero value is specifically set (e.g. to -0.0f).
  * 
  * @author Alex Herbert
  */
 public class MappedFloatProcessor extends FloatProcessor
 {
+	private int mapToZero = Float.floatToRawIntBits(0.0f);
+
+	public void setZero(float f)
+	{
+		mapToZero = Float.floatToRawIntBits(f);
+	}
+
 	/** Creates a new MappedFloatProcessor using the specified pixel array. */
 	public MappedFloatProcessor(int width, int height, float[] pixels)
 	{
@@ -81,10 +88,12 @@ public class MappedFloatProcessor extends FloatProcessor
 		float scale = 254f / (max2 - min2);
 		for (int i = 0; i < size; i++)
 		{
-			// Zero is mapped to 0 in the 8-bit image
-			if (pixels[i] == 0)
+			if (Float.floatToRawIntBits(pixels[i]) == mapToZero)
+			{
+				pixels8[i] = (byte) 0;
 				continue;
-			
+			}
+
 			value = pixels[i] - min2;
 			if (value < 0f)
 				value = 0f;
