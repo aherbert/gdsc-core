@@ -231,12 +231,30 @@ public class Utils
 
 	/**
 	 * Show the plot. Replace a currently open plot with the specified title or else create a new plot window.
-	 * 
+	 *
 	 * @param title
+	 *            the title
 	 * @param plot
+	 *            the plot
 	 * @return the plot window
 	 */
 	public static PlotWindow display(String title, Plot plot)
+	{
+		return display(title, plot, false);
+	}
+
+	/**
+	 * Show the plot. Replace a currently open plot with the specified title or else create a new plot window.
+	 *
+	 * @param title
+	 *            the title
+	 * @param plot
+	 *            the plot
+	 * @param preserveLimits
+	 *            Set to true to use the current limits of an existing plot
+	 * @return the plot window
+	 */
+	public static PlotWindow display(String title, Plot plot, boolean preserveLimits)
 	{
 		newWindow = false;
 		Frame plotWindow = null;
@@ -267,10 +285,15 @@ public class Utils
 			{
 				plotWindow.setVisible(true);
 				p = (PlotWindow) plotWindow;
-				Dimension d = p.getPlot().getSize();
+				Plot oldPlot = p.getPlot();
+				Dimension d = oldPlot.getSize();
+				double[] limits = oldPlot.getLimits();
 				plot.setSize(d.width, d.height);
+				if (preserveLimits)
+					plot.setLimits(limits[0], limits[1], limits[2], limits[3]);
 				p.drawPlot(plot); // Causes a resize
-				plot.setLimitsToDefaults(true);
+				if (!preserveLimits)
+					plot.setLimitsToDefaults(true);
 				p.toFront();
 			}
 			catch (Throwable t)
