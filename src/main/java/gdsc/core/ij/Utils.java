@@ -240,8 +240,14 @@ public class Utils
 	 */
 	public static PlotWindow display(String title, Plot plot)
 	{
-		return display(title, plot, false);
+		return display(title, plot, 0);
 	}
+
+	public static final int PRESERVE_X_MIN = 0x01;
+	public static final int PRESERVE_X_MAX = 0x02;
+	public static final int PRESERVE_Y_MIN = 0x04;
+	public static final int PRESERVE_Y_MAX = 0x08;
+	public static final int PRESERVE_ALL = 0x0f;
 
 	/**
 	 * Show the plot. Replace a currently open plot with the specified title or else create a new plot window.
@@ -251,10 +257,10 @@ public class Utils
 	 * @param plot
 	 *            the plot
 	 * @param preserveLimits
-	 *            Set to true to use the current limits of an existing plot
+	 *            Use flags to preserve the current limits of an existing plot
 	 * @return the plot window
 	 */
-	public static PlotWindow display(String title, Plot plot, boolean preserveLimits)
+	public static PlotWindow display(String title, Plot plot, int preserveLimits)
 	{
 		newWindow = false;
 		Frame plotWindow = null;
@@ -289,11 +295,14 @@ public class Utils
 				Dimension d = oldPlot.getSize();
 				double[] limits = oldPlot.getLimits();
 				plot.setSize(d.width, d.height);
-				if (preserveLimits)
+				if ((preserveLimits & PRESERVE_ALL) == PRESERVE_ALL)
+				{
+					// Setting the limits before drawing avoids a double draw
+					preserveLimits = 0;
 					plot.setLimits(limits[0], limits[1], limits[2], limits[3]);
-				p.drawPlot(plot); // Causes a resize
-				if (!preserveLimits)
-					plot.setLimitsToDefaults(true);
+				}
+				p.drawPlot(plot);
+				preserveLimits(plot, preserveLimits, limits);
 				p.toFront();
 			}
 			catch (Throwable t)
@@ -326,17 +335,50 @@ public class Utils
 				{
 					plot.setSize(d.width, d.height);
 				}
-				if (preserveLimits && limits != null)
-					plot.setLimits(limits[0], limits[1], limits[2], limits[3]);
 				p = plot.show();
 				if (location != null)
 				{
 					p.setLocation(location);
 				}
+				if (limits != null)
+				{
+					preserveLimits(plot, preserveLimits, limits);
+				}
 				newWindow = true;
 			}
 		}
 		return p;
+	}
+
+	/**
+	 * Preserve limits the limits from the input array for all the set flags. Otherwise use the current plot limits.
+	 *
+	 * @param plot
+	 *            the plot
+	 * @param preserveLimits
+	 *            the preserve limits flag
+	 * @param limits
+	 *            the limits
+	 */
+	private static void preserveLimits(Plot plot, int preserveLimits, double[] limits)
+	{
+		if (preserveLimits != 0)
+		{
+			// We must have drawn the plot to get the current limits
+			// TODO - Find a way to get the limits when the plot has not been drawn. Currently the 
+			// initial limits can be retrieved by a package level method.
+			double[] limits2 = plot.getLimits();
+			if ((preserveLimits & PRESERVE_X_MIN) == 0)
+				limits[0] = limits2[0];
+			if ((preserveLimits & PRESERVE_X_MAX) == 0)
+				limits[1] = limits2[1];
+			if ((preserveLimits & PRESERVE_Y_MIN) == 0)
+				limits[2] = limits2[2];
+			if ((preserveLimits & PRESERVE_Y_MAX) == 0)
+				limits[3] = limits2[3];
+
+			plot.setLimits(limits[0], limits[1], limits[2], limits[3]);
+		}
 	}
 
 	/**
