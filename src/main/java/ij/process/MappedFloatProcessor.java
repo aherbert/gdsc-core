@@ -101,8 +101,6 @@ public class MappedFloatProcessor extends FloatProcessor
 	// scale from float to 8-bits
 	protected byte[] create8BitImage()
 	{
-		System.out.println("Using mapped processor");
-
 		/*
 		 * Map all non zero values to the range 1-255.
 		 * 
@@ -176,14 +174,14 @@ public class MappedFloatProcessor extends FloatProcessor
 		{
 			for (int i = 0; i < size; i++)
 			{
-				if (pixels[i] < min2)
+				if (pixels[i] < min2 || pixels[i] == 0)
 				{
-					// Below min maps to zero
+					// Below min (or zero) maps to zero
 					pixels8[i] = (byte) 0;
 				}
 				else
 				{
-					// Above min maps to 1-255
+					// Map all non zero values to the range 1-255.
 					value = pixels[i] - min2;
 					ivalue = 1 + (int) ((value * scale) + 0.5f);
 					if (ivalue > 255)
