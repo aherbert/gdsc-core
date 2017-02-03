@@ -1,16 +1,11 @@
 package ij.gui;
 
-import java.awt.Color;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.awt.Window;
 
 import ij.IJ;
 import ij.ImagePlus;
-import ij.Prefs;
 import ij.WindowManager;
 import ij.macro.Interpreter;
-import ij.process.ByteProcessor;
-import ij.process.ImageProcessor;
 
 /**
  * Extension of the ij.gui.Plot class to add functionality
@@ -82,7 +77,7 @@ public class Plot2 extends Plot
 			if (shape == BAR)
 			{
 				shape = Plot.LINE;
-				
+
 				if (xValues == null || xValues.length == 0)
 				{
 					xValues = new float[yValues.length];
@@ -92,7 +87,7 @@ public class Plot2 extends Plot
 
 				float[] x = createHistogramAxis(xValues);
 				float[] y = createHistogramValues(yValues);
-				
+
 				// No errors
 				xValues = x;
 				yValues = y;
@@ -167,41 +162,33 @@ public class Plot2 extends Plot
 
 		try
 		{
-			Method m = Plot.class.getDeclaredMethod("draw");
-			m.setAccessible(true);
-			m.invoke(this);
-
-			ImageProcessor ip = getProcessor();
-			if (Prefs.useInvertingLut && (ip instanceof ByteProcessor) && !Interpreter.isBatchMode() &&
-					IJ.getInstance() != null)
-			{
-				ip.invertLut();
-				ip.invert();
-			}
+			ImagePlus imp = getImagePlus();
 			if ((IJ.macroRunning() && IJ.getInstance() == null) || Interpreter.isBatchMode())
 			{
-				String title = "";
-				try
-				{
-					Field f = Plot.class.getDeclaredField("title");
-					f.setAccessible(true);
-					title = f.get(this).toString();
-				}
-				catch (Throwable e)
-				{
-					// Ignore
-				}
-				ImagePlus imp = new ImagePlus(title, ip);
 				WindowManager.setTempCurrentImage(imp);
-				imp.setProperty("XValues", getXValues()); //Allows values to be retrieved by 
-				imp.setProperty("YValues", getYValues()); // by Plot.getValues() macro function
+				float[] x = getXValues();
+				if (x != null)
+				{
+					imp.setProperty("XValues", x); // Allows values to be retrieved by 
+					imp.setProperty("YValues", getYValues()); // by Plot.getValues() macro function
+				}
 				Interpreter.addBatchModeImage(imp);
 				return null;
 			}
-			ImageWindow.centerNextImage();
-			// This may throw an IllegalAccessError on some platforms
+			if (imp != null)
+			{
+				Window win = imp.getWindow();
+				if (win instanceof PlotWindow && win.isVisible())
+				{
+					updateImage(); // show in existing window
+					return (PlotWindow) win;
+				}
+			}
 			PlotWindow2 pw = new PlotWindow2(this);
-			ImagePlus imp = pw.getImagePlus();
+			//if (imp == null)
+			imp.setProperty(PROPERTY_KEY, null);
+			imp = pw.getImagePlus();
+			imp.setProperty(PROPERTY_KEY, this);
 			if (IJ.isMacro() && imp != null) // wait for plot to be displayed
 				IJ.selectWindow(imp.getID());
 			return pw;
@@ -215,18 +202,22 @@ public class Plot2 extends Plot
 		return super.show();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see ij.gui.Plot#setColor(java.awt.Color)
+	/**
+	 * Gets the default min and max. This will be the full range of data unless the
+	 * {@link #setLimits(double, double, double, double)} method has been called.
+	 *
+	 * @return the default min and max
 	 */
-	@Override
-	public void setColor(Color c)
+	public double[] getDefaultMinAndMax()
 	{
-		// If the user sets a custom colour we must make sure the image processor is initialised and the plot
-		// drawn. This is getProcessor() sets the colour to black and we use getProcessor() to get 
-		// the processor in the addPoints(...) method.
-		getProcessor();
-		super.setColor(c);
+		try
+		{
+			super.getInitialMinAndMax();
+			return defaultMinMax.clone();
+		}
+		catch (Throwable e)
+		{
+		}
+		return null;
 	}
 }
