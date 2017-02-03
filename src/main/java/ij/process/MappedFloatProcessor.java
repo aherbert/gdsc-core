@@ -16,18 +16,39 @@ package ij.process;
 import java.awt.image.ColorModel;
 
 /**
- * Extends the ImageJ FloatProcess class to map the min-max range to 1-255 in the 8-bit image. Zero in the data is
- * mapped to 0 unless the zero value is specifically set (e.g. to -0.0f).
+ * Extends the ImageJ FloatProcess class to map the min-max range to 1-255 in the 8-bit image. The min is set to the
+ * first value above zero. All values below min are mapped to 0 in the LUT.
+ * <p>
+ * Optionally +0.0f can be set as the min value mapped to 1. In this case -0.0f is still mapped to 0. This allows for
+ * example display of the results of a probability calculation where 0 is a valid display value. -0.0f can be used when
+ * no probability exists.
  * 
  * @author Alex Herbert
  */
 public class MappedFloatProcessor extends FloatProcessor
 {
-	private int mapToZero = Float.floatToRawIntBits(0.0f);
+	private boolean mapZero = false;
 
-	public void setZero(float f)
+	/**
+	 * If set to true positive zero is mapped to 1 in the LUT. The default maps the first value above zero to 1 in the
+	 * LUT.
+	 *
+	 * @return true, if is map zero
+	 */
+	public boolean isMapZero()
 	{
-		mapToZero = Float.floatToRawIntBits(f);
+		return mapZero;
+	}
+
+	/**
+	 * Set to true to map positive zero to 1 in the LUT. The default maps the first value above zero to 1 in the LUT.
+	 *
+	 * @param mapZero
+	 *            the new map zero value
+	 */
+	public void setMapZero(boolean mapZero)
+	{
+		this.mapZero = mapZero;
 	}
 
 	/** Creates a new MappedFloatProcessor using the specified pixel array. */
@@ -75,32 +96,101 @@ public class MappedFloatProcessor extends FloatProcessor
 		super(array);
 	}
 
+	private static int NEGATIVE_ZERO = Float.floatToRawIntBits(-0.0f);
+
 	// scale from float to 8-bits
 	protected byte[] create8BitImage()
 	{
+		System.out.println("Using mapped processor");
+
+		/*
+		 * Map all non zero values to the range 1-255.
+		 * 
+		 * Optionally map +zero to the range 1-255 as well.
+		 * 
+		 * Must find the minimum value above zero. This will be mapped to 1.
+		 * Or special case is mapping +0f to 1 but -0f to 0.
+		 */
+
 		int size = width * height;
 		if (pixels8 == null)
 			pixels8 = new byte[size];
 		float[] pixels = (float[]) getPixels();
 		float value;
 		int ivalue;
-		float min2 = (float) getMin(), max2 = (float) getMax();
-		float scale = 254f / (max2 - min2);
-		for (int i = 0; i < size; i++)
-		{
-			if (Float.floatToRawIntBits(pixels[i]) == mapToZero)
-			{
-				pixels8[i] = (byte) 0;
-				continue;
-			}
 
-			value = pixels[i] - min2;
-			if (value < 0f)
-				value = 0f;
-			ivalue = 1 + (int) ((value * scale) + 0.5f);
-			if (ivalue > 255)
-				ivalue = 255;
-			pixels8[i] = (byte) ivalue;
+		// Default min/max
+		float min2 = (float) getMin(), max2 = (float) getMax();
+
+		// Ensure above zero
+		min2 = Math.max(0, min2);
+		max2 = Math.max(0, max2);
+
+		// Get minimum above zero
+		if (min2 == 0 && max2 > 0 && !isMapZero())
+		{
+			min2 = max2;
+			for (int i = 0; i < size; i++)
+			{
+				if (pixels[i] > 0)
+				{
+					if (min2 > pixels[i])
+						min2 = pixels[i];
+				}
+			}
+		}
+
+		float scale = 254f / (max2 - min2);
+
+		if (isMapZero() && min2 == 0)
+		{
+			// We map equal or below -0 to 0.
+			// Special case of mapping +0 to 1.
+			for (int i = 0; i < size; i++)
+			{
+				if (pixels[i] < 0)
+				{
+					// Below zero maps to zero
+					pixels8[i] = (byte) 0;
+					continue;
+				}
+
+				// Special case where we must check for -0 or +0
+				if (pixels[i] == 0)
+				{
+					if (Float.floatToRawIntBits(pixels[i]) == NEGATIVE_ZERO)
+					{
+						pixels8[i] = (byte) 0;
+						continue;
+					}
+				}
+
+				// +0 or above maps to 1-255
+				ivalue = 1 + (int) ((pixels[i] * scale) + 0.5f);
+				if (ivalue > 255)
+					ivalue = 255;
+				pixels8[i] = (byte) ivalue;
+			}
+		}
+		else
+		{
+			for (int i = 0; i < size; i++)
+			{
+				if (pixels[i] < min2)
+				{
+					// Below min maps to zero
+					pixels8[i] = (byte) 0;
+				}
+				else
+				{
+					// Above min maps to 1-255
+					value = pixels[i] - min2;
+					ivalue = 1 + (int) ((value * scale) + 0.5f);
+					if (ivalue > 255)
+						ivalue = 255;
+					pixels8[i] = (byte) ivalue;
+				}
+			}
 		}
 		return pixels8;
 	}
