@@ -19,10 +19,10 @@ import java.util.List;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.MathArrays;
 
-import gdsc.core.ij.Utils;
 import gdsc.core.utils.ConvexHull;
 import gdsc.core.utils.TurboList;
 import gdsc.core.utils.TurboList.SimplePredicate;
+import gnu.trove.list.array.TIntArrayList;
 
 /**
  * Contains the result of the OPTICS algorithm
@@ -245,18 +245,35 @@ public class OPTICSResult implements ClusteringResult
 		if (max == 0)
 			return;
 
-		int[] map = Utils.newArray(max, 1, 1);
-		MathArrays.shuffle(map, rng);
+		// Scramble within levels. 
+		// This makes the cluster number increase with level.
+		int nLevels = getNumberOfLevels();
+		
+		// Build the clusters Id at each level
+		TIntArrayList[] clusterIds = new TIntArrayList[nLevels];
+		ArrayList<OPTICSCluster> list = getAllClusters();
+		for (OPTICSCluster c : list)
+			clusterIds[c.getLevel()].add(c.clusterId);
 
+		// Map old Ids to new Ids. Process through the levels.
+		int id = 1;
+		int[] map = new int[max + 1];
+		for (int l = 0; l < nLevels; l++)
+		{
+			int[] set = clusterIds[l].toArray();
+			MathArrays.shuffle(set, rng);
+			for (int clusterId : set)
+				map[clusterId] = id++;
+		}
+		
 		for (int i = size(); i-- > 0;)
 		{
 			if (opticsResults[i].clusterId > 0)
-				opticsResults[i].clusterId = map[opticsResults[i].clusterId - 1];
+				opticsResults[i].clusterId = map[opticsResults[i].clusterId];
 		}
 
-		ArrayList<OPTICSCluster> list = getAllClusters();
 		for (OPTICSCluster c : list)
-			c.clusterId = map[c.clusterId - 1];
+			c.clusterId = map[c.clusterId];
 	}
 
 	/**
@@ -438,6 +455,30 @@ public class OPTICSResult implements ClusteringResult
 			count++;
 		}
 		return count;
+	}
+
+	/**
+	 * Count the number of levels in the clustering hierarchy.
+	 */
+	public int getNumberOfLevels()
+	{
+		if (clustering == null)
+			return 0;
+		return getNumberOfLevels(clustering, 0) + 1;
+	}
+
+	private int getNumberOfLevels(List<OPTICSCluster> hierarchy, int maxLevel)
+	{
+		for (OPTICSCluster c : hierarchy)
+		{
+			if (c.children != null)
+				// Process the children
+				maxLevel = getNumberOfLevels(c.children, maxLevel);
+			else
+				// Then use this level
+				maxLevel = Math.max(maxLevel, c.getLevel());
+		}
+		return maxLevel;
 	}
 
 	/**
