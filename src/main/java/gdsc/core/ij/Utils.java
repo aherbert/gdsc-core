@@ -298,8 +298,21 @@ public class Utils
 				if ((preserveLimits & PRESERVE_ALL) == PRESERVE_ALL)
 				{
 					// Setting the limits before drawing avoids a double draw
-					preserveLimits = 0;
 					plot.setLimits(limits[0], limits[1], limits[2], limits[3]);
+					preserveLimits = 0;
+				}
+				// If only some of the limits are to be preserved then we must get the current default min/max.
+				// This cannot be done for a Plot class but we can do it for Plot2 (which makes public extra 
+				// functionality).
+				if ((preserveLimits & PRESERVE_ALL) != 0 && plot instanceof Plot2)
+				{
+					Plot2 p2 = (Plot2) plot;
+					double[] currentLimits = p2.getDefaultMinAndMax();
+					if (currentLimits != null)
+					{
+						preserveLimits(plot, preserveLimits, limits, currentLimits);
+						preserveLimits = 0;
+					}
 				}
 				p.drawPlot(plot);
 				preserveLimits(plot, preserveLimits, limits);
@@ -362,20 +375,34 @@ public class Utils
 	 */
 	private static void preserveLimits(Plot plot, int preserveLimits, double[] limits)
 	{
+		// Note: We must have drawn the plot to get the current limits
+		preserveLimits(plot, preserveLimits, limits, plot.getLimits());
+	}
+
+	/**
+	 * Preserve limits the limits from the input array for all the set flags. Otherwise use the current plot limits.
+	 *
+	 * @param plot
+	 *            the plot
+	 * @param preserveLimits
+	 *            the preserve limits flag
+	 * @param limits
+	 *            the limits
+	 * @param currentLimits
+	 *            the current limits
+	 */
+	private static void preserveLimits(Plot plot, int preserveLimits, double[] limits, double[] currentLimits)
+	{
 		if (preserveLimits != 0)
 		{
-			// We must have drawn the plot to get the current limits
-			// TODO - Find a way to get the limits when the plot has not been drawn. Currently the 
-			// initial limits can be retrieved by a package level method.
-			double[] limits2 = plot.getLimits();
 			if ((preserveLimits & PRESERVE_X_MIN) == 0)
-				limits[0] = limits2[0];
+				limits[0] = currentLimits[0];
 			if ((preserveLimits & PRESERVE_X_MAX) == 0)
-				limits[1] = limits2[1];
+				limits[1] = currentLimits[1];
 			if ((preserveLimits & PRESERVE_Y_MIN) == 0)
-				limits[2] = limits2[2];
+				limits[2] = currentLimits[2];
 			if ((preserveLimits & PRESERVE_Y_MAX) == 0)
-				limits[3] = limits2[3];
+				limits[3] = currentLimits[3];
 
 			plot.setLimits(limits[0], limits[1], limits[2], limits[3]);
 		}
