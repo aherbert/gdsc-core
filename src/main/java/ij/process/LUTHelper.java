@@ -39,6 +39,12 @@ public class LUTHelper
 		MAGENTA{ public String getName() { return "Magenta"; }}, 
 		YELLOW{ public String getName() { return "Yellow"; }},
 		RED_BLUE{ public String getName() { return "Red-Blue"; }}, 
+		INTENSE{ public String getName() { return "Intense"; }
+			public boolean isDistinct() { return true;}},
+		PIMP{ public String getName() { return "Pimp"; }
+			public boolean isDistinct() { return true;}},
+		DISTINCT{ public String getName() { return "Distinct"; }
+			public boolean isDistinct() { return true;}},
 		RED_CYAN{ public String getName() { return "Red-Cyan"; }};
 		//@formatter:on
 
@@ -54,6 +60,16 @@ public class LUTHelper
 		 * @return the name
 		 */
 		abstract public String getName();
+
+		/**
+		 * Checks if is a distinct colour set.
+		 *
+		 * @return true, if is distinct
+		 */
+		public boolean isDistinct()
+		{
+			return false;
+		}
 	}
 
 	/**
@@ -61,8 +77,149 @@ public class LUTHelper
 	 */
 	public static final String[] luts;
 
-	/** The LUT with distinct colours. */
-	private static final LUT cachedLUT;
+	/** LUTs with distinct colours. */
+
+	// Finding distinct colours using the Hue, Chroma, Lightness scales of the CIE colourspace. 
+	// http://tools.medialab.sciences-po.fr/iwanthue/
+	// Colours were generated for 256 distinct colours using the force-vector method and then randomly ordered. 
+
+	// Intense = H 0:360, C 20-100, L 15-80
+	private static final int[][] intense = new int[][] { { 165, 54, 0 }, { 255, 138, 168 }, { 189, 0, 40 },
+			{ 56, 158, 0 }, { 248, 180, 197 }, { 1, 200, 181 }, { 151, 0, 25 }, { 146, 0, 46 }, { 59, 24, 62 },
+			{ 242, 191, 53 }, { 83, 3, 8 }, { 64, 93, 0 }, { 233, 189, 162 }, { 176, 208, 151 }, { 117, 95, 125 },
+			{ 53, 24, 76 }, { 111, 222, 100 }, { 254, 0, 31 }, { 0, 61, 170 }, { 131, 0, 161 }, { 121, 65, 0 },
+			{ 0, 100, 199 }, { 199, 0, 80 }, { 255, 80, 165 }, { 6, 226, 146 }, { 184, 82, 255 }, { 255, 169, 183 },
+			{ 60, 112, 0 }, { 194, 207, 54 }, { 255, 142, 129 }, { 98, 0, 155 }, { 128, 48, 0 }, { 0, 84, 142 },
+			{ 132, 218, 128 }, { 255, 120, 158 }, { 155, 118, 0 }, { 123, 82, 72 }, { 20, 180, 0 }, { 195, 163, 255 },
+			{ 0, 177, 126 }, { 237, 192, 82 }, { 112, 0, 27 }, { 73, 56, 225 }, { 167, 0, 186 }, { 46, 53, 0 },
+			{ 242, 148, 255 }, { 87, 199, 0 }, { 1, 33, 148 }, { 250, 185, 126 }, { 59, 1, 102 }, { 187, 132, 255 },
+			{ 236, 187, 175 }, { 142, 211, 200 }, { 1, 205, 150 }, { 103, 140, 255 }, { 162, 0, 47 }, { 68, 219, 207 },
+			{ 98, 213, 240 }, { 223, 177, 255 }, { 160, 110, 255 }, { 128, 208, 243 }, { 109, 155, 255 },
+			{ 129, 0, 116 }, { 0, 133, 30 }, { 84, 0, 85 }, { 0, 146, 211 }, { 155, 214, 119 }, { 0, 138, 68 },
+			{ 0, 162, 139 }, { 33, 41, 0 }, { 210, 65, 244 }, { 255, 122, 177 }, { 218, 40, 0 }, { 206, 203, 73 },
+			{ 0, 66, 151 }, { 201, 139, 0 }, { 210, 0, 104 }, { 152, 95, 0 }, { 167, 137, 167 }, { 88, 0, 44 },
+			{ 128, 220, 67 }, { 92, 0, 0 }, { 2, 151, 185 }, { 0, 49, 165 }, { 132, 108, 0 }, { 0, 206, 49 },
+			{ 0, 61, 41 }, { 32, 218, 233 }, { 38, 23, 100 }, { 200, 102, 255 }, { 255, 156, 112 }, { 106, 0, 76 },
+			{ 255, 114, 204 }, { 250, 0, 204 }, { 115, 46, 220 }, { 0, 85, 162 }, { 255, 162, 221 }, { 99, 120, 255 },
+			{ 68, 12, 70 }, { 211, 152, 255 }, { 187, 149, 127 }, { 0, 2, 140 }, { 1, 103, 94 }, { 240, 174, 0 },
+			{ 2, 162, 157 }, { 149, 208, 0 }, { 182, 211, 38 }, { 34, 109, 0 }, { 201, 84, 0 }, { 0, 176, 109 },
+			{ 0, 178, 69 }, { 154, 142, 0 }, { 67, 24, 23 }, { 0, 91, 71 }, { 0, 78, 21 }, { 223, 0, 57 },
+			{ 255, 67, 83 }, { 0, 60, 12 }, { 1, 114, 90 }, { 77, 2, 57 }, { 255, 113, 114 }, { 136, 121, 255 },
+			{ 110, 178, 255 }, { 153, 161, 125 }, { 136, 24, 0 }, { 45, 198, 255 }, { 1, 109, 244 }, { 41, 64, 0 },
+			{ 107, 44, 0 }, { 1, 144, 156 }, { 0, 141, 101 }, { 59, 47, 0 }, { 83, 39, 0 }, { 255, 143, 102 },
+			{ 255, 117, 90 }, { 83, 55, 0 }, { 255, 181, 81 }, { 255, 98, 98 }, { 176, 0, 156 }, { 174, 183, 255 },
+			{ 0, 173, 78 }, { 1, 209, 85 }, { 0, 50, 129 }, { 153, 0, 119 }, { 0, 131, 102 }, { 0, 97, 97 },
+			{ 187, 101, 0 }, { 45, 32, 64 }, { 255, 163, 91 }, { 190, 0, 25 }, { 0, 83, 178 }, { 0, 47, 28 },
+			{ 204, 127, 0 }, { 194, 180, 255 }, { 167, 68, 0 }, { 116, 218, 155 }, { 74, 14, 38 }, { 255, 107, 253 },
+			{ 2, 139, 231 }, { 78, 0, 133 }, { 232, 174, 255 }, { 94, 112, 0 }, { 0, 76, 229 }, { 255, 64, 140 },
+			{ 255, 99, 145 }, { 0, 64, 111 }, { 0, 117, 147 }, { 106, 150, 0 }, { 0, 131, 234 }, { 255, 142, 40 },
+			{ 255, 173, 174 }, { 105, 96, 0 }, { 0, 208, 245 }, { 145, 213, 167 }, { 67, 77, 0 }, { 203, 201, 138 },
+			{ 255, 132, 234 }, { 82, 42, 54 }, { 171, 213, 2 }, { 246, 31, 219 }, { 138, 0, 184 }, { 255, 117, 194 },
+			{ 221, 0, 147 }, { 225, 106, 255 }, { 124, 0, 52 }, { 255, 76, 195 }, { 255, 123, 248 }, { 137, 172, 255 },
+			{ 0, 48, 89 }, { 147, 218, 11 }, { 107, 0, 115 }, { 17, 44, 1 }, { 1, 146, 191 }, { 255, 130, 61 },
+			{ 223, 195, 142 }, { 210, 66, 0 }, { 244, 189, 98 }, { 0, 112, 228 }, { 179, 0, 98 }, { 71, 22, 10 },
+			{ 255, 83, 42 }, { 175, 0, 116 }, { 0, 192, 232 }, { 216, 201, 51 }, { 187, 207, 125 }, { 186, 0, 134 },
+			{ 239, 0, 118 }, { 193, 0, 186 }, { 223, 0, 176 }, { 253, 0, 99 }, { 0, 54, 218 }, { 0, 88, 218 },
+			{ 234, 76, 253 }, { 173, 212, 67 }, { 255, 169, 135 }, { 203, 106, 0 }, { 52, 0, 158 }, { 227, 0, 134 },
+			{ 0, 101, 61 }, { 85, 74, 0 }, { 92, 0, 32 }, { 116, 0, 8 }, { 164, 118, 133 }, { 1, 151, 245 },
+			{ 0, 26, 161 }, { 99, 100, 255 }, { 255, 186, 30 }, { 139, 0, 150 }, { 63, 29, 3 }, { 235, 194, 0 },
+			{ 21, 36, 74 }, { 117, 217, 179 }, { 147, 217, 70 }, { 90, 131, 0 }, { 2, 23, 117 }, { 90, 182, 255 },
+			{ 0, 88, 13 }, { 255, 67, 117 }, { 250, 181, 176 }, { 226, 185, 230 }, { 40, 226, 127 }, { 84, 44, 42 },
+			{ 1, 185, 184 }, { 244, 28, 0 }, { 217, 197, 131 }, { 125, 66, 240 }, { 1, 121, 173 }, { 255, 173, 49 },
+			{ 187, 207, 106 }, { 0, 34, 93 }, { 170, 200, 248 }, { 255, 16, 75 }, { 255, 142, 155 }, { 143, 0, 69 },
+			{ 212, 188, 247 }, { 0, 142, 13 } };
+
+	// Pimp = H 0:360, C 20-100, L 15-80
+	private static final int[][] pimp = new int[][] { { 110, 20, 88 }, { 18, 69, 14 }, { 78, 194, 41 }, { 175, 0, 30 },
+			{ 234, 149, 134 }, { 45, 23, 179 }, { 1, 173, 133 }, { 184, 173, 69 }, { 217, 0, 115 }, { 104, 39, 16 },
+			{ 131, 0, 93 }, { 0, 181, 163 }, { 210, 118, 255 }, { 62, 143, 0 }, { 26, 133, 0 }, { 204, 152, 223 },
+			{ 178, 115, 0 }, { 255, 97, 210 }, { 105, 14, 109 }, { 158, 141, 255 }, { 253, 137, 141 },
+			{ 243, 126, 245 }, { 175, 119, 158 }, { 182, 111, 115 }, { 139, 0, 22 }, { 69, 194, 86 }, { 88, 191, 109 },
+			{ 5, 71, 3 }, { 1, 76, 200 }, { 234, 0, 181 }, { 99, 42, 33 }, { 124, 46, 0 }, { 171, 0, 115 },
+			{ 255, 93, 99 }, { 255, 46, 157 }, { 199, 167, 93 }, { 103, 175, 254 }, { 65, 63, 0 }, { 255, 46, 173 },
+			{ 117, 23, 16 }, { 170, 176, 111 }, { 183, 107, 0 }, { 242, 119, 255 }, { 223, 156, 101 },
+			{ 252, 133, 174 }, { 107, 51, 223 }, { 250, 129, 210 }, { 138, 186, 19 }, { 109, 187, 130 },
+			{ 94, 34, 100 }, { 1, 108, 166 }, { 237, 43, 227 }, { 155, 112, 255 }, { 207, 136, 0 }, { 222, 0, 63 },
+			{ 249, 0, 168 }, { 167, 156, 0 }, { 46, 44, 145 }, { 237, 106, 255 }, { 255, 119, 101 }, { 148, 112, 70 },
+			{ 175, 0, 46 }, { 231, 155, 17 }, { 99, 187, 160 }, { 0, 175, 253 }, { 0, 102, 73 }, { 255, 118, 78 },
+			{ 0, 95, 175 }, { 218, 75, 0 }, { 255, 132, 149 }, { 173, 96, 255 }, { 1, 173, 74 }, { 179, 141, 97 },
+			{ 0, 98, 34 }, { 238, 116, 0 }, { 255, 43, 193 }, { 37, 50, 135 }, { 118, 18, 38 }, { 113, 31, 0 },
+			{ 1, 111, 34 }, { 59, 81, 252 }, { 134, 72, 0 }, { 251, 15, 18 }, { 38, 154, 0 }, { 104, 145, 100 },
+			{ 255, 137, 107 }, { 180, 155, 255 }, { 0, 144, 63 }, { 164, 180, 39 }, { 170, 49, 0 }, { 110, 45, 0 },
+			{ 1, 61, 116 }, { 255, 115, 41 }, { 0, 76, 125 }, { 30, 55, 123 }, { 183, 149, 199 }, { 198, 142, 112 },
+			{ 143, 0, 67 }, { 127, 62, 80 }, { 177, 0, 106 }, { 64, 123, 0 }, { 216, 142, 149 }, { 0, 153, 210 },
+			{ 125, 69, 102 }, { 1, 174, 221 }, { 117, 135, 0 }, { 84, 61, 17 }, { 106, 8, 195 }, { 255, 101, 124 },
+			{ 137, 107, 0 }, { 0, 87, 195 }, { 12, 170, 255 }, { 89, 41, 90 }, { 255, 113, 144 }, { 210, 0, 101 },
+			{ 53, 57, 103 }, { 130, 92, 0 }, { 213, 164, 17 }, { 123, 75, 0 }, { 255, 50, 213 }, { 112, 25, 59 },
+			{ 251, 135, 163 }, { 134, 88, 129 }, { 247, 145, 87 }, { 225, 1, 139 }, { 146, 0, 132 }, { 166, 0, 70 },
+			{ 114, 190, 38 }, { 238, 0, 209 }, { 195, 75, 253 }, { 255, 95, 154 }, { 167, 177, 92 }, { 255, 117, 123 },
+			{ 207, 0, 150 }, { 119, 189, 69 }, { 205, 0, 46 }, { 235, 137, 220 }, { 107, 36, 28 }, { 129, 0, 53 },
+			{ 0, 134, 110 }, { 88, 165, 255 }, { 164, 125, 0 }, { 97, 191, 83 }, { 198, 0, 203 }, { 152, 0, 175 },
+			{ 211, 0, 83 }, { 57, 108, 0 }, { 199, 42, 0 }, { 128, 64, 238 }, { 249, 141, 124 }, { 204, 150, 234 },
+			{ 95, 48, 0 }, { 128, 157, 255 }, { 163, 98, 89 }, { 241, 149, 67 }, { 214, 163, 48 }, { 55, 50, 120 },
+			{ 120, 0, 138 }, { 125, 154, 0 }, { 212, 0, 69 }, { 97, 91, 255 }, { 0, 173, 3 }, { 1, 83, 240 },
+			{ 87, 70, 241 }, { 118, 4, 74 }, { 1, 176, 110 }, { 255, 66, 94 }, { 224, 157, 79 }, { 67, 99, 0 },
+			{ 24, 69, 26 }, { 255, 93, 66 }, { 144, 0, 46 }, { 95, 104, 255 }, { 230, 93, 0 }, { 67, 44, 123 },
+			{ 220, 60, 240 }, { 1, 149, 117 }, { 161, 92, 98 }, { 214, 147, 227 }, { 255, 129, 188 }, { 114, 111, 163 },
+			{ 255, 117, 221 }, { 145, 183, 91 }, { 136, 182, 133 }, { 177, 107, 123 }, { 190, 0, 177 }, { 0, 105, 241 },
+			{ 0, 112, 235 }, { 1, 52, 178 }, { 238, 146, 0 }, { 206, 164, 101 }, { 255, 93, 168 }, { 197, 167, 111 },
+			{ 0, 122, 237 }, { 195, 165, 0 }, { 59, 192, 145 }, { 155, 0, 40 }, { 0, 101, 143 }, { 255, 132, 54 },
+			{ 255, 133, 19 }, { 177, 161, 107 }, { 177, 162, 223 }, { 86, 87, 136 }, { 66, 34, 149 }, { 183, 0, 61 },
+			{ 175, 74, 0 }, { 0, 65, 217 }, { 0, 83, 47 }, { 0, 186, 202 }, { 1, 106, 204 }, { 127, 118, 255 },
+			{ 151, 183, 45 }, { 158, 0, 96 }, { 138, 183, 114 }, { 126, 0, 20 }, { 254, 143, 2 }, { 153, 0, 1 },
+			{ 81, 32, 132 }, { 0, 141, 236 }, { 149, 168, 241 }, { 95, 90, 0 }, { 90, 56, 0 }, { 101, 53, 31 },
+			{ 202, 0, 24 }, { 1, 148, 44 }, { 95, 40, 74 }, { 1, 53, 213 }, { 48, 142, 255 }, { 185, 172, 88 },
+			{ 105, 93, 43 }, { 221, 139, 248 }, { 146, 39, 0 }, { 214, 159, 122 }, { 235, 145, 164 }, { 189, 0, 158 },
+			{ 101, 0, 170 }, { 205, 89, 255 }, { 141, 59, 0 }, { 71, 185, 0 }, { 137, 138, 0 }, { 0, 123, 70 },
+			{ 185, 153, 0 }, { 238, 148, 112 }, { 184, 0, 146 }, { 121, 0, 101 }, { 255, 41, 96 }, { 255, 61, 131 },
+			{ 61, 81, 0 }, { 171, 85, 0 }, { 174, 5, 0 }, { 106, 35, 44 }, { 67, 51, 100 }, { 0, 182, 212 },
+			{ 0, 71, 142 }, { 164, 0, 84 }, { 99, 81, 0 } };
+
+	// This was produced using http://phrogz.net/css/distinct-colors.html
+	private static final int[][] distinct = new int[][] { { 0, 0, 0 }, { 255, 0, 0 }, { 153, 135, 115 },
+			{ 76, 217, 54 }, { 0, 136, 255 }, { 129, 105, 140 }, { 242, 0, 0 }, { 255, 170, 0 }, { 0, 51, 0 },
+			{ 0, 102, 191 }, { 204, 0, 255 }, { 166, 0, 0 }, { 191, 128, 0 }, { 127, 255, 145 }, { 0, 75, 140 },
+			{ 184, 54, 217 }, { 51, 0, 0 }, { 115, 77, 0 }, { 83, 166, 94 }, { 0, 48, 89 }, { 230, 128, 255 },
+			{ 255, 128, 128 }, { 76, 51, 0 }, { 38, 77, 43 }, { 128, 196, 255 }, { 46, 26, 51 }, { 153, 77, 77 },
+			{ 51, 34, 0 }, { 143, 191, 150 }, { 191, 225, 255 }, { 71, 0, 77 }, { 76, 38, 38 }, { 229, 172, 57 },
+			{ 0, 140, 37 }, { 77, 90, 102 }, { 133, 35, 140 }, { 51, 26, 26 }, { 153, 115, 38 }, { 0, 89, 24 },
+			{ 0, 102, 255 }, { 99, 51, 102 }, { 255, 191, 191 }, { 255, 213, 128 }, { 0, 255, 102 }, { 0, 61, 153 },
+			{ 188, 143, 191 }, { 115, 86, 86 }, { 178, 149, 89 }, { 115, 230, 161 }, { 0, 20, 51 }, { 255, 0, 238 },
+			{ 64, 48, 48 }, { 102, 85, 51 }, { 191, 255, 217 }, { 128, 179, 255 }, { 255, 191, 251 }, { 76, 10, 0 },
+			{ 204, 187, 153 }, { 115, 153, 130 }, { 83, 116, 166 }, { 77, 57, 75 }, { 255, 89, 64 }, { 255, 204, 0 },
+			{ 77, 102, 87 }, { 57, 80, 115 }, { 179, 0, 143 }, { 191, 67, 48 }, { 166, 133, 0 }, { 0, 204, 109 },
+			{ 153, 173, 204 }, { 115, 0, 92 }, { 115, 40, 29 }, { 102, 82, 0 }, { 0, 128, 68 }, { 105, 119, 140 },
+			{ 64, 0, 51 }, { 217, 123, 108 }, { 217, 184, 54 }, { 0, 51, 27 }, { 0, 68, 255 }, { 230, 57, 195 },
+			{ 115, 65, 57 }, { 76, 65, 19 }, { 26, 102, 66 }, { 0, 48, 179 }, { 255, 128, 229 }, { 204, 160, 153 },
+			{ 204, 184, 102 }, { 83, 166, 127 }, { 0, 34, 128 }, { 191, 96, 172 }, { 217, 58, 0 }, { 127, 115, 64 },
+			{ 153, 204, 180 }, { 0, 24, 89 }, { 77, 38, 69 }, { 127, 34, 0 }, { 255, 242, 191 }, { 0, 255, 170 },
+			{ 51, 92, 204 }, { 255, 0, 170 }, { 89, 24, 0 }, { 153, 145, 115 }, { 0, 179, 119 }, { 29, 52, 115 },
+			{ 153, 0, 102 }, { 51, 14, 0 }, { 102, 97, 77 }, { 115, 230, 191 }, { 19, 34, 77 }, { 89, 0, 60 },
+			{ 255, 115, 64 }, { 64, 61, 48 }, { 0, 255, 204 }, { 128, 162, 255 }, { 153, 77, 128 }, { 166, 75, 41 },
+			{ 255, 238, 0 }, { 0, 128, 102 }, { 32, 40, 64 }, { 115, 86, 105 }, { 255, 162, 128 }, { 153, 143, 0 },
+			{ 0, 77, 61 }, { 191, 208, 255 }, { 255, 0, 136 }, { 191, 121, 96 }, { 115, 107, 0 }, { 13, 51, 43 },
+			{ 57, 62, 77 }, { 178, 0, 95 }, { 140, 89, 70 }, { 51, 48, 13 }, { 57, 115, 103 }, { 0, 27, 204 },
+			{ 127, 0, 68 }, { 76, 48, 38 }, { 255, 247, 128 }, { 191, 255, 242 }, { 0, 8, 64 }, { 51, 0, 27 },
+			{ 255, 208, 191 }, { 191, 188, 143 }, { 57, 77, 73 }, { 102, 116, 204 }, { 217, 54, 141 },
+			{ 153, 125, 115 }, { 238, 255, 0 }, { 0, 255, 238 }, { 143, 150, 191 }, { 255, 128, 196 }, { 255, 102, 0 },
+			{ 167, 179, 0 }, { 0, 179, 167 }, { 0, 0, 255 }, { 115, 57, 88 }, { 191, 77, 0 }, { 59, 64, 0 },
+			{ 115, 230, 222 }, { 0, 0, 153 }, { 51, 26, 39 }, { 140, 56, 0 }, { 160, 166, 83 }, { 77, 153, 148 },
+			{ 0, 0, 140 }, { 255, 191, 225 }, { 64, 26, 0 }, { 74, 77, 38 }, { 153, 204, 201 }, { 0, 0, 128 },
+			{ 166, 124, 146 }, { 255, 140, 64 }, { 102, 128, 0 }, { 38, 51, 50 }, { 0, 0, 102 }, { 255, 0, 102 },
+			{ 191, 105, 48 }, { 71, 89, 0 }, { 0, 238, 255 }, { 128, 128, 255 }, { 153, 0, 61 }, { 127, 70, 32 },
+			{ 195, 230, 57 }, { 0, 179, 191 }, { 77, 77, 153 }, { 102, 0, 41 }, { 89, 49, 22 }, { 229, 255, 128 },
+			{ 0, 131, 140 }, { 191, 191, 255 }, { 76, 19, 42 }, { 255, 179, 128 }, { 103, 115, 57 }, { 0, 60, 64 },
+			{ 105, 105, 140 }, { 204, 102, 143 }, { 191, 134, 96 }, { 242, 255, 191 }, { 51, 99, 102 }, { 29, 26, 51 },
+			{ 255, 0, 68 }, { 140, 98, 70 }, { 170, 255, 0 }, { 115, 150, 153 }, { 121, 96, 191 }, { 166, 0, 44 },
+			{ 51, 36, 26 }, { 110, 166, 0 }, { 0, 204, 255 }, { 48, 38, 77 }, { 76, 0, 20 }, { 255, 217, 191 },
+			{ 170, 204, 102 }, { 0, 102, 128 }, { 126, 57, 230 }, { 204, 51, 92 }, { 191, 163, 143 }, { 140, 153, 115 },
+			{ 48, 163, 191 }, { 84, 38, 153 }, { 255, 128, 162 }, { 115, 98, 86 }, { 34, 64, 0 }, { 22, 76, 89 },
+			{ 49, 22, 89 }, { 153, 77, 97 }, { 64, 54, 48 }, { 141, 217, 54 }, { 128, 230, 255 }, { 179, 128, 255 },
+			{ 217, 163, 177 }, { 255, 136, 0 }, { 117, 153, 77 }, { 191, 242, 255 }, { 80, 57, 115 }, { 89, 67, 73 },
+			{ 191, 102, 0 }, { 39, 51, 26 }, { 0, 170, 255 }, { 163, 143, 191 }, { 217, 0, 29 }, { 140, 75, 0 },
+			{ 180, 204, 153 }, { 0, 128, 191 }, { 87, 77, 102 }, { 140, 0, 19 }, { 102, 54, 0 }, { 68, 77, 57 },
+			{ 0, 94, 140 }, { 43, 38, 51 }, { 102, 0, 14 }, { 64, 34, 0 }, { 102, 255, 0 }, { 0, 51, 77 },
+			{ 136, 0, 255 }, { 217, 54, 76 } };
 
 	static
 	{
@@ -70,278 +227,20 @@ public class LUTHelper
 		luts = new String[l.length];
 		for (int i = 0; i < l.length; i++)
 			luts[i] = l[i].getName();
-
-		// Create a colour LUT so that all colours from 1-255 are distinct.
-		// This was produced using http://phrogz.net/css/distinct-colors.html
-		byte[] reds = new byte[256];
-		byte[] greens = new byte[256];
-		byte[] blues = new byte[256];
-
-		int i = 1;
-		rgb(255, 0, 0, reds, greens, blues, i++);
-		rgb(153, 135, 115, reds, greens, blues, i++);
-		rgb(76, 217, 54, reds, greens, blues, i++);
-		rgb(0, 136, 255, reds, greens, blues, i++);
-		rgb(129, 105, 140, reds, greens, blues, i++);
-		rgb(242, 0, 0, reds, greens, blues, i++);
-		rgb(255, 170, 0, reds, greens, blues, i++);
-		rgb(0, 51, 0, reds, greens, blues, i++);
-		rgb(0, 102, 191, reds, greens, blues, i++);
-		rgb(204, 0, 255, reds, greens, blues, i++);
-		rgb(166, 0, 0, reds, greens, blues, i++);
-		rgb(191, 128, 0, reds, greens, blues, i++);
-		rgb(127, 255, 145, reds, greens, blues, i++);
-		rgb(0, 75, 140, reds, greens, blues, i++);
-		rgb(184, 54, 217, reds, greens, blues, i++);
-		rgb(51, 0, 0, reds, greens, blues, i++);
-		rgb(115, 77, 0, reds, greens, blues, i++);
-		rgb(83, 166, 94, reds, greens, blues, i++);
-		rgb(0, 48, 89, reds, greens, blues, i++);
-		rgb(230, 128, 255, reds, greens, blues, i++);
-		rgb(255, 128, 128, reds, greens, blues, i++);
-		rgb(76, 51, 0, reds, greens, blues, i++);
-		rgb(38, 77, 43, reds, greens, blues, i++);
-		rgb(128, 196, 255, reds, greens, blues, i++);
-		rgb(46, 26, 51, reds, greens, blues, i++);
-		rgb(153, 77, 77, reds, greens, blues, i++);
-		rgb(51, 34, 0, reds, greens, blues, i++);
-		rgb(143, 191, 150, reds, greens, blues, i++);
-		rgb(191, 225, 255, reds, greens, blues, i++);
-		rgb(71, 0, 77, reds, greens, blues, i++);
-		rgb(76, 38, 38, reds, greens, blues, i++);
-		rgb(229, 172, 57, reds, greens, blues, i++);
-		rgb(0, 140, 37, reds, greens, blues, i++);
-		rgb(77, 90, 102, reds, greens, blues, i++);
-		rgb(133, 35, 140, reds, greens, blues, i++);
-		rgb(51, 26, 26, reds, greens, blues, i++);
-		rgb(153, 115, 38, reds, greens, blues, i++);
-		rgb(0, 89, 24, reds, greens, blues, i++);
-		rgb(0, 102, 255, reds, greens, blues, i++);
-		rgb(99, 51, 102, reds, greens, blues, i++);
-		rgb(255, 191, 191, reds, greens, blues, i++);
-		rgb(255, 213, 128, reds, greens, blues, i++);
-		rgb(0, 255, 102, reds, greens, blues, i++);
-		rgb(0, 61, 153, reds, greens, blues, i++);
-		rgb(188, 143, 191, reds, greens, blues, i++);
-		rgb(115, 86, 86, reds, greens, blues, i++);
-		rgb(178, 149, 89, reds, greens, blues, i++);
-		rgb(115, 230, 161, reds, greens, blues, i++);
-		rgb(0, 20, 51, reds, greens, blues, i++);
-		rgb(255, 0, 238, reds, greens, blues, i++);
-		rgb(64, 48, 48, reds, greens, blues, i++);
-		rgb(102, 85, 51, reds, greens, blues, i++);
-		rgb(191, 255, 217, reds, greens, blues, i++);
-		rgb(128, 179, 255, reds, greens, blues, i++);
-		rgb(255, 191, 251, reds, greens, blues, i++);
-		rgb(76, 10, 0, reds, greens, blues, i++);
-		rgb(204, 187, 153, reds, greens, blues, i++);
-		rgb(115, 153, 130, reds, greens, blues, i++);
-		rgb(83, 116, 166, reds, greens, blues, i++);
-		rgb(77, 57, 75, reds, greens, blues, i++);
-		rgb(255, 89, 64, reds, greens, blues, i++);
-		rgb(255, 204, 0, reds, greens, blues, i++);
-		rgb(77, 102, 87, reds, greens, blues, i++);
-		rgb(57, 80, 115, reds, greens, blues, i++);
-		rgb(179, 0, 143, reds, greens, blues, i++);
-		rgb(191, 67, 48, reds, greens, blues, i++);
-		rgb(166, 133, 0, reds, greens, blues, i++);
-		rgb(0, 204, 109, reds, greens, blues, i++);
-		rgb(153, 173, 204, reds, greens, blues, i++);
-		rgb(115, 0, 92, reds, greens, blues, i++);
-		rgb(115, 40, 29, reds, greens, blues, i++);
-		rgb(102, 82, 0, reds, greens, blues, i++);
-		rgb(0, 128, 68, reds, greens, blues, i++);
-		rgb(105, 119, 140, reds, greens, blues, i++);
-		rgb(64, 0, 51, reds, greens, blues, i++);
-		rgb(217, 123, 108, reds, greens, blues, i++);
-		rgb(217, 184, 54, reds, greens, blues, i++);
-		rgb(0, 51, 27, reds, greens, blues, i++);
-		rgb(0, 68, 255, reds, greens, blues, i++);
-		rgb(230, 57, 195, reds, greens, blues, i++);
-		rgb(115, 65, 57, reds, greens, blues, i++);
-		rgb(76, 65, 19, reds, greens, blues, i++);
-		rgb(26, 102, 66, reds, greens, blues, i++);
-		rgb(0, 48, 179, reds, greens, blues, i++);
-		rgb(255, 128, 229, reds, greens, blues, i++);
-		rgb(204, 160, 153, reds, greens, blues, i++);
-		rgb(204, 184, 102, reds, greens, blues, i++);
-		rgb(83, 166, 127, reds, greens, blues, i++);
-		rgb(0, 34, 128, reds, greens, blues, i++);
-		rgb(191, 96, 172, reds, greens, blues, i++);
-		rgb(217, 58, 0, reds, greens, blues, i++);
-		rgb(127, 115, 64, reds, greens, blues, i++);
-		rgb(153, 204, 180, reds, greens, blues, i++);
-		rgb(0, 24, 89, reds, greens, blues, i++);
-		rgb(77, 38, 69, reds, greens, blues, i++);
-		rgb(127, 34, 0, reds, greens, blues, i++);
-		rgb(255, 242, 191, reds, greens, blues, i++);
-		rgb(0, 255, 170, reds, greens, blues, i++);
-		rgb(51, 92, 204, reds, greens, blues, i++);
-		rgb(255, 0, 170, reds, greens, blues, i++);
-		rgb(89, 24, 0, reds, greens, blues, i++);
-		rgb(153, 145, 115, reds, greens, blues, i++);
-		rgb(0, 179, 119, reds, greens, blues, i++);
-		rgb(29, 52, 115, reds, greens, blues, i++);
-		rgb(153, 0, 102, reds, greens, blues, i++);
-		rgb(51, 14, 0, reds, greens, blues, i++);
-		rgb(102, 97, 77, reds, greens, blues, i++);
-		rgb(115, 230, 191, reds, greens, blues, i++);
-		rgb(19, 34, 77, reds, greens, blues, i++);
-		rgb(89, 0, 60, reds, greens, blues, i++);
-		rgb(255, 115, 64, reds, greens, blues, i++);
-		rgb(64, 61, 48, reds, greens, blues, i++);
-		rgb(0, 255, 204, reds, greens, blues, i++);
-		rgb(128, 162, 255, reds, greens, blues, i++);
-		rgb(153, 77, 128, reds, greens, blues, i++);
-		rgb(166, 75, 41, reds, greens, blues, i++);
-		rgb(255, 238, 0, reds, greens, blues, i++);
-		rgb(0, 128, 102, reds, greens, blues, i++);
-		rgb(32, 40, 64, reds, greens, blues, i++);
-		rgb(115, 86, 105, reds, greens, blues, i++);
-		rgb(255, 162, 128, reds, greens, blues, i++);
-		rgb(153, 143, 0, reds, greens, blues, i++);
-		rgb(0, 77, 61, reds, greens, blues, i++);
-		rgb(191, 208, 255, reds, greens, blues, i++);
-		rgb(255, 0, 136, reds, greens, blues, i++);
-		rgb(191, 121, 96, reds, greens, blues, i++);
-		rgb(115, 107, 0, reds, greens, blues, i++);
-		rgb(13, 51, 43, reds, greens, blues, i++);
-		rgb(57, 62, 77, reds, greens, blues, i++);
-		rgb(178, 0, 95, reds, greens, blues, i++);
-		rgb(140, 89, 70, reds, greens, blues, i++);
-		rgb(51, 48, 13, reds, greens, blues, i++);
-		rgb(57, 115, 103, reds, greens, blues, i++);
-		rgb(0, 27, 204, reds, greens, blues, i++);
-		rgb(127, 0, 68, reds, greens, blues, i++);
-		rgb(76, 48, 38, reds, greens, blues, i++);
-		rgb(255, 247, 128, reds, greens, blues, i++);
-		rgb(191, 255, 242, reds, greens, blues, i++);
-		rgb(0, 8, 64, reds, greens, blues, i++);
-		rgb(51, 0, 27, reds, greens, blues, i++);
-		rgb(255, 208, 191, reds, greens, blues, i++);
-		rgb(191, 188, 143, reds, greens, blues, i++);
-		rgb(57, 77, 73, reds, greens, blues, i++);
-		rgb(102, 116, 204, reds, greens, blues, i++);
-		rgb(217, 54, 141, reds, greens, blues, i++);
-		rgb(153, 125, 115, reds, greens, blues, i++);
-		rgb(238, 255, 0, reds, greens, blues, i++);
-		rgb(0, 255, 238, reds, greens, blues, i++);
-		rgb(143, 150, 191, reds, greens, blues, i++);
-		rgb(255, 128, 196, reds, greens, blues, i++);
-		rgb(255, 102, 0, reds, greens, blues, i++);
-		rgb(167, 179, 0, reds, greens, blues, i++);
-		rgb(0, 179, 167, reds, greens, blues, i++);
-		rgb(0, 0, 255, reds, greens, blues, i++);
-		rgb(115, 57, 88, reds, greens, blues, i++);
-		rgb(191, 77, 0, reds, greens, blues, i++);
-		rgb(59, 64, 0, reds, greens, blues, i++);
-		rgb(115, 230, 222, reds, greens, blues, i++);
-		rgb(0, 0, 153, reds, greens, blues, i++);
-		rgb(51, 26, 39, reds, greens, blues, i++);
-		rgb(140, 56, 0, reds, greens, blues, i++);
-		rgb(160, 166, 83, reds, greens, blues, i++);
-		rgb(77, 153, 148, reds, greens, blues, i++);
-		rgb(0, 0, 140, reds, greens, blues, i++);
-		rgb(255, 191, 225, reds, greens, blues, i++);
-		rgb(64, 26, 0, reds, greens, blues, i++);
-		rgb(74, 77, 38, reds, greens, blues, i++);
-		rgb(153, 204, 201, reds, greens, blues, i++);
-		rgb(0, 0, 128, reds, greens, blues, i++);
-		rgb(166, 124, 146, reds, greens, blues, i++);
-		rgb(255, 140, 64, reds, greens, blues, i++);
-		rgb(102, 128, 0, reds, greens, blues, i++);
-		rgb(38, 51, 50, reds, greens, blues, i++);
-		rgb(0, 0, 102, reds, greens, blues, i++);
-		rgb(255, 0, 102, reds, greens, blues, i++);
-		rgb(191, 105, 48, reds, greens, blues, i++);
-		rgb(71, 89, 0, reds, greens, blues, i++);
-		rgb(0, 238, 255, reds, greens, blues, i++);
-		rgb(128, 128, 255, reds, greens, blues, i++);
-		rgb(153, 0, 61, reds, greens, blues, i++);
-		rgb(127, 70, 32, reds, greens, blues, i++);
-		rgb(195, 230, 57, reds, greens, blues, i++);
-		rgb(0, 179, 191, reds, greens, blues, i++);
-		rgb(77, 77, 153, reds, greens, blues, i++);
-		rgb(102, 0, 41, reds, greens, blues, i++);
-		rgb(89, 49, 22, reds, greens, blues, i++);
-		rgb(229, 255, 128, reds, greens, blues, i++);
-		rgb(0, 131, 140, reds, greens, blues, i++);
-		rgb(191, 191, 255, reds, greens, blues, i++);
-		rgb(76, 19, 42, reds, greens, blues, i++);
-		rgb(255, 179, 128, reds, greens, blues, i++);
-		rgb(103, 115, 57, reds, greens, blues, i++);
-		rgb(0, 60, 64, reds, greens, blues, i++);
-		rgb(105, 105, 140, reds, greens, blues, i++);
-		rgb(204, 102, 143, reds, greens, blues, i++);
-		rgb(191, 134, 96, reds, greens, blues, i++);
-		rgb(242, 255, 191, reds, greens, blues, i++);
-		rgb(51, 99, 102, reds, greens, blues, i++);
-		rgb(29, 26, 51, reds, greens, blues, i++);
-		rgb(255, 0, 68, reds, greens, blues, i++);
-		rgb(140, 98, 70, reds, greens, blues, i++);
-		rgb(170, 255, 0, reds, greens, blues, i++);
-		rgb(115, 150, 153, reds, greens, blues, i++);
-		rgb(121, 96, 191, reds, greens, blues, i++);
-		rgb(166, 0, 44, reds, greens, blues, i++);
-		rgb(51, 36, 26, reds, greens, blues, i++);
-		rgb(110, 166, 0, reds, greens, blues, i++);
-		rgb(0, 204, 255, reds, greens, blues, i++);
-		rgb(48, 38, 77, reds, greens, blues, i++);
-		rgb(76, 0, 20, reds, greens, blues, i++);
-		rgb(255, 217, 191, reds, greens, blues, i++);
-		rgb(170, 204, 102, reds, greens, blues, i++);
-		rgb(0, 102, 128, reds, greens, blues, i++);
-		rgb(126, 57, 230, reds, greens, blues, i++);
-		rgb(204, 51, 92, reds, greens, blues, i++);
-		rgb(191, 163, 143, reds, greens, blues, i++);
-		rgb(140, 153, 115, reds, greens, blues, i++);
-		rgb(48, 163, 191, reds, greens, blues, i++);
-		rgb(84, 38, 153, reds, greens, blues, i++);
-		rgb(255, 128, 162, reds, greens, blues, i++);
-		rgb(115, 98, 86, reds, greens, blues, i++);
-		rgb(34, 64, 0, reds, greens, blues, i++);
-		rgb(22, 76, 89, reds, greens, blues, i++);
-		rgb(49, 22, 89, reds, greens, blues, i++);
-		rgb(153, 77, 97, reds, greens, blues, i++);
-		rgb(64, 54, 48, reds, greens, blues, i++);
-		rgb(141, 217, 54, reds, greens, blues, i++);
-		rgb(128, 230, 255, reds, greens, blues, i++);
-		rgb(179, 128, 255, reds, greens, blues, i++);
-		rgb(217, 163, 177, reds, greens, blues, i++);
-		rgb(255, 136, 0, reds, greens, blues, i++);
-		rgb(117, 153, 77, reds, greens, blues, i++);
-		rgb(191, 242, 255, reds, greens, blues, i++);
-		rgb(80, 57, 115, reds, greens, blues, i++);
-		rgb(89, 67, 73, reds, greens, blues, i++);
-		rgb(191, 102, 0, reds, greens, blues, i++);
-		rgb(39, 51, 26, reds, greens, blues, i++);
-		rgb(0, 170, 255, reds, greens, blues, i++);
-		rgb(163, 143, 191, reds, greens, blues, i++);
-		rgb(217, 0, 29, reds, greens, blues, i++);
-		rgb(140, 75, 0, reds, greens, blues, i++);
-		rgb(180, 204, 153, reds, greens, blues, i++);
-		rgb(0, 128, 191, reds, greens, blues, i++);
-		rgb(87, 77, 102, reds, greens, blues, i++);
-		rgb(140, 0, 19, reds, greens, blues, i++);
-		rgb(102, 54, 0, reds, greens, blues, i++);
-		rgb(68, 77, 57, reds, greens, blues, i++);
-		rgb(0, 94, 140, reds, greens, blues, i++);
-		rgb(43, 38, 51, reds, greens, blues, i++);
-		rgb(102, 0, 14, reds, greens, blues, i++);
-		rgb(64, 34, 0, reds, greens, blues, i++);
-		rgb(102, 255, 0, reds, greens, blues, i++);
-		rgb(0, 51, 77, reds, greens, blues, i++);
-		rgb(136, 0, 255, reds, greens, blues, i++);
-		rgb(217, 54, 76, reds, greens, blues, i++);
-
-		cachedLUT = new LUT(reds, greens, blues);
 	}
 
-	private static void rgb(int r, int g, int b, byte[] reds, byte[] greens, byte[] blues, int i)
+	private static LUT fromRGBValues(byte[] r, byte[] g, byte[] b, int[][] values, boolean includeBlack)
 	{
-		reds[i] = (byte) (r & 255);
-		greens[i] = (byte) (g & 255);
-		blues[i] = (byte) (b & 255);
+		if (values.length != 256)
+			throw new RuntimeException("The LUT colours must have 256 values");
+		for (int i = (includeBlack) ? 1 : 0; i < 256; i++)
+		{
+			int[] rgb = values[i];
+			r[i] = (byte) (rgb[0] & 255);
+			g[i] = (byte) (rgb[1] & 255);
+			b[i] = (byte) (rgb[2] & 255);
+		}
+		return new LUT(r, g, b);
 	}
 
 	/**
@@ -351,7 +250,8 @@ public class LUTHelper
 	 */
 	public static LUT getColorModel()
 	{
-		return cachedLUT;
+		// For legacy comptability. There are now other choices in the LutColour enum for distinct colours
+		return createLUT(LutColour.DISTINCT);
 	}
 
 	/**
@@ -443,6 +343,12 @@ public class LUTHelper
 			case YELLOW:
 				nColors = setColours(reds, greens, blues, Color.yellow);
 				break;
+			case INTENSE:
+				return fromRGBValues(reds, greens, blues, intense, includeBlack);
+			case PIMP:
+				return fromRGBValues(reds, greens, blues, pimp, includeBlack);
+			case DISTINCT:
+				return fromRGBValues(reds, greens, blues, distinct, includeBlack);
 		}
 		if (nColors < 256)
 			interpolate(reds, greens, blues, nColors);
@@ -579,15 +485,15 @@ public class LUTHelper
 				73, 98, 122, 146, 162, 173, 184, 195, 207, 217, 229, 240, 252, 255, 255, 255, 255, 255, 255, 255, 255,
 				255, 255, 255
 				//, 255, 255, 255 
-				};
+		};
 		int[] g = { //0, 0, 0, 0, 0, 
 				0, 0, 0, 0, 0, 0, 0, 0, 14, 35, 57, 79, 101, 117, 133, 147, 161, 175, 190, 205, 219, 234, 248, 255
 				//, 255, 255, 255 
-				};
+		};
 		int[] b = { //0, 61, 96, 130, 165, 
 				192, 220, 227, 210, 181, 151, 122, 93, 64, 35, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, 98
 				//, 160, 223, 255 
-				};
+		};
 		for (int i = 0; i < r.length; i++)
 		{
 			reds[i] = (byte) r[i];
@@ -596,7 +502,7 @@ public class LUTHelper
 		}
 		return r.length;
 	}
-	
+
 	/**
 	 * Copied from ij.plugin.LutLoader.
 	 * 
