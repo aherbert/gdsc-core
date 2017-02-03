@@ -251,6 +251,8 @@ public class OPTICSResult implements ClusteringResult
 		
 		// Build the clusters Id at each level
 		TIntArrayList[] clusterIds = new TIntArrayList[nLevels];
+		for (int l = 0; l < nLevels; l++)
+			clusterIds[l] = new TIntArrayList();
 		ArrayList<OPTICSCluster> list = getAllClusters();
 		for (OPTICSCluster c : list)
 			clusterIds[c.getLevel()].add(c.clusterId);
