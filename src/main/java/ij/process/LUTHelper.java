@@ -47,7 +47,8 @@ public class LUTHelper
 			public boolean isDistinct() { return true;}},
 		DISTINCT{ public String getName() { return "Distinct"; }
 			public boolean isDistinct() { return true;}},
-		RED_CYAN{ public String getName() { return "Red-Cyan"; }};
+		RED_CYAN{ public String getName() { return "Red-Cyan"; }},
+		GRAYS{ public String getName() { return "Grays"; }};
 		//@formatter:on
 
 		@Override
@@ -400,6 +401,9 @@ public class LUTHelper
 				return fromRGBValues(reds, greens, blues, pimpLight, includeBlack);
 			case DISTINCT:
 				return fromRGBValues(reds, greens, blues, distinct, includeBlack);
+			case GRAYS:
+				nColors = grays(reds, greens, blues);
+				break;
 		}
 		if (nColors < 256)
 			interpolate(reds, greens, blues, nColors);
@@ -492,6 +496,25 @@ public class LUTHelper
 			blues[i] = (byte) b[i];
 		}
 		return r.length;
+	}
+
+	/**
+	 * Copied from ij.plugin.LutLoader
+	 * 
+	 * @param reds
+	 * @param greens
+	 * @param blues
+	 * @return
+	 */
+	private static int grays(byte[] reds, byte[] greens, byte[] blues)
+	{
+		for (int i = 0; i < 256; i++)
+		{
+			reds[i] = (byte) i;
+			greens[i] = (byte) i;
+			blues[i] = (byte) i;
+		}
+		return 256;
 	}
 
 	/**
