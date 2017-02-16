@@ -57,7 +57,8 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	 */
 	public void add(ImagePlus imp)
 	{
-		add(imp.getID());
+		if (imp != null)
+			add(imp.getID());
 	}
 
 	/**
@@ -68,7 +69,8 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	 */
 	public void add(PlotWindow pw)
 	{
-		add(pw.getImagePlus());
+		if (pw != null)
+			add(pw.getImagePlus());
 	}
 
 	/**
