@@ -58,8 +58,8 @@ public class ImageWindow
 					break;
 				case TUKEY:
 				default:
-					wx = tukey(maxx, ALPHA);
-					wy = tukey(maxy, ALPHA);
+					wx = tukey(maxx);
+					wy = tukey(maxy);
 					break;
 			}
 		}
@@ -106,8 +106,8 @@ public class ImageWindow
 				wy = cosine(maxy);
 				break;
 			case TUKEY:
-				wx = tukey(maxx, ALPHA);
-				wy = tukey(maxy, ALPHA);
+				wx = tukey(maxx);
+				wy = tukey(maxy);
 				break;
 		}
 
@@ -144,13 +144,13 @@ public class ImageWindow
 		switch (windowFunction)
 		{
 			case HANNING:
-				wf = instance.new Hanning();
+				wf = new Hanning();
 				break;
 			case COSINE:
-				wf = instance.new Cosine();
+				wf = new Cosine();
 				break;
 			case TUKEY:
-				wf = instance.new Tukey(ALPHA);
+				wf = new Tukey(ALPHA);
 		}
 
 		if (wf == null)
@@ -176,7 +176,6 @@ public class ImageWindow
 		return data;
 	}
 
-	private static ImageWindow instance = new ImageWindow();
 	private static double ALPHA = 0.5;
 
 	private interface WindowMethod
@@ -192,7 +191,7 @@ public class ImageWindow
 		double weight(double fractionDistance);
 	}
 
-	private class Hanning implements WindowMethod
+	private static class Hanning implements WindowMethod
 	{
 		public double weight(double fractionDistance)
 		{
@@ -200,7 +199,7 @@ public class ImageWindow
 		}
 	}
 
-	private class Cosine implements WindowMethod
+	private static class Cosine implements WindowMethod
 	{
 		public double weight(double fractionDistance)
 		{
@@ -208,20 +207,23 @@ public class ImageWindow
 		}
 	}
 
-	private class Tukey implements WindowMethod
+	private static class Tukey implements WindowMethod
 	{
 		final double alpha;
+		final double a1, a2;
 
 		public Tukey(double alpha)
 		{
 			this.alpha = alpha;
+			a1 = alpha / 2;
+			a2 = 1 - alpha / 2;
 		}
 
 		public double weight(double fractionDistance)
 		{
-			if (fractionDistance < alpha / 2)
+			if (fractionDistance < a1)
 				return 0.5 * (1 + Math.cos(Math.PI * (2 * fractionDistance / alpha - 1)));
-			if (fractionDistance > 1 - alpha / 2)
+			if (fractionDistance > a2)
 				return 0.5 * (1 + Math.cos(Math.PI * (2 * fractionDistance / alpha - 2 / alpha + 1)));
 			return 1;
 		}
@@ -236,18 +238,83 @@ public class ImageWindow
 		return w;
 	}
 
-	private static double[] hanning(int N)
+	/**
+	 * Create a Hanning window.
+	 *
+	 * @param N
+	 *            the size of the window
+	 * @return the window weighting
+	 */
+	public static double[] hanning(int N)
 	{
-		return createWindow(instance.new Hanning(), N);
+		return createWindow(new Hanning(), N);
 	}
 
-	private static double[] cosine(int N)
+	/**
+	 * Create a Cosine window.
+	 *
+	 * @param N
+	 *            the size of the window
+	 * @return the window weighting
+	 */
+	public static double[] cosine(int N)
 	{
-		return createWindow(instance.new Cosine(), N);
+		return createWindow(new Cosine(), N);
 	}
 
-	private static double[] tukey(int N, double alpha)
+	/**
+	 * Create a Tukey (Tapered Cosine) window.
+	 * <p>
+	 * Alpha controls the distance from the edge of the window to the centre to apply the weight.
+	 * A value of 1 will return a Hanning window, 0 will return a rectangular window.
+	 *
+	 * @param N
+	 *            the size of the window
+	 * @param alpha
+	 *            the alpha parameter
+	 * @return the window weighting
+	 * @throws IllegalArgumentException
+	 *             If alpha is not in the range 0-1
+	 */
+	public static double[] tukey(int N, double alpha)
 	{
-		return createWindow(instance.new Tukey(alpha), N);
+		if (alpha < 0 || alpha > 1)
+			throw new IllegalArgumentException("Alpha must be in the range 0-1");
+		return createWindow(new Tukey(alpha), N);
+	}
+
+	/**
+	 * Create a Tukey (Tapered Cosine) window using the default alpha of 0.5.
+	 *
+	 * @param N
+	 *            the size of the window
+	 * @return the window weighting
+	 */
+	public static double[] tukey(int N)
+	{
+		return createWindow(new Tukey(ALPHA), N);
+	}
+	
+	/**
+	 * Create a window function.
+	 *
+	 * @param windowFunction
+	 *            the window function
+	 * @param N
+	 *            the size of the window
+	 * @return the window weighting
+	 */
+	public static double[] createWindow(WindowFunction windowFunction, int N)
+	{
+		switch (windowFunction)
+		{
+			case HANNING:
+				return hanning(N);
+			case COSINE:
+				return cosine(N);
+			case TUKEY:
+			default:
+				return tukey(N);
+		}
 	}
 }
