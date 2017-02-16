@@ -32,6 +32,13 @@ public interface TrackProgress
 	 * @param total
 	 */
 	public void progress(long position, long total);
+	
+	/**
+	 * Specify an increment to the progress as a fraction
+	 * 
+	 * @param fraction
+	 */
+	public void incrementProgress(double fraction);
 
 	/**
 	 * Logs a message on the progress

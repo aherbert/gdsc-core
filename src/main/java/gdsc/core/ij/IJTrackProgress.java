@@ -21,6 +21,8 @@ import ij.IJ;
  */
 public class IJTrackProgress implements TrackProgress
 {
+	double done = 0;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -28,6 +30,8 @@ public class IJTrackProgress implements TrackProgress
 	 */
 	public void progress(double fraction)
 	{
+		if (fraction == 0)
+			done = 0;
 		IJ.showProgress(fraction);
 	}
 
@@ -38,7 +42,21 @@ public class IJTrackProgress implements TrackProgress
 	 */
 	public void progress(long position, long total)
 	{
+		if (position == 0)
+			done = 0;
 		IJ.showProgress((double) position / total);
+	}
+
+	/**
+	 * This is not thread safe. The total work done is accumulated and can be reset by passing zero progress to the
+	 * progress methods.
+	 * 
+	 * @see gdsc.core.logging.TrackProgress#incrementProgress(double)
+	 */
+	public void incrementProgress(double fraction)
+	{
+		done += fraction;
+		IJ.showProgress(done);
 	}
 
 	/*

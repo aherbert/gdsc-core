@@ -39,6 +39,15 @@ public class NullTrackProgress implements TrackProgress
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see gdsc.core.logging.TrackProgress#incrementProgress(double)
+	 */
+	public void incrementProgress(double fraction)
+	{
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see gdsc.core.logging.TrackProgress#log(java.lang.String, java.lang.Object[])
 	 */
 	public void log(String format, Object... args)
