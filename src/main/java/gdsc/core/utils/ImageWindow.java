@@ -162,12 +162,17 @@ public class ImageWindow
 		double cy = maxy * 0.5;
 		double maxDistance = Math.sqrt(maxx * maxx + maxy * maxy);
 
+		// Precompute
+		double[] dx2 = new double[maxx];
+		for (int x = 0; x < maxx; x++)
+			dx2[x] = (x - cx) * (x - cx);
+		
 		for (int y = 0, i = 0; y < maxy; y++)
 		{
 			final double dy2 = (y - cy) * (y - cy);
 			for (int x = 0; x < maxx; x++, i++)
 			{
-				final double distance = Math.sqrt((x - cx) * (x - cx) + dy2);
+				final double distance = Math.sqrt(dx2[x] + dy2);
 				final double w = wf.weight(0.5 - (distance / maxDistance));
 				data[i] = (float) (image[i] * w);
 			}
@@ -233,8 +238,10 @@ public class ImageWindow
 	{
 		double N_1 = N - 1;
 		double[] w = new double[N];
-		for (int i = 0; i < N; i++)
-			w[i] = wf.weight(i / N_1);
+		// Assume symmetry
+		int middle = N / 2;
+		for (int i = 0, j = N - 1; i <= middle; i++, j--)
+			w[i] = w[j] = wf.weight(i / N_1);
 		return w;
 	}
 
@@ -294,7 +301,7 @@ public class ImageWindow
 	{
 		return createWindow(new Tukey(ALPHA), N);
 	}
-	
+
 	/**
 	 * Create a window function.
 	 *

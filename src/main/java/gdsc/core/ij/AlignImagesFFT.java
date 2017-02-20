@@ -1363,13 +1363,13 @@ public class AlignImagesFFT
 		switch (windowMethod)
 		{
 			case HANNING: //
-				wf = instance.new Hanning();
+				wf = new Hanning();
 				break;
 			case COSINE:
-				wf = instance.new Cosine();
+				wf = new Cosine();
 				break;
 			case TUKEY:
-				wf = instance.new Tukey(ALPHA);
+				wf = new Tukey(ALPHA);
 				break;
 			default:
 				return ip.toFloat(0, null);
@@ -1381,6 +1381,11 @@ public class AlignImagesFFT
 		double cy = maxy * 0.5;
 		double maxDistance = Math.sqrt(maxx * maxx + maxy * maxy);
 
+		// Precompute
+		double[] dx2 = new double[maxx];
+		for (int x = 0; x < maxx; x++)
+			dx2[x] = (x - cx) * (x - cx);
+		
 		// Calculate total signal of window function applied to image (t1).
 		// Calculate total signal of window function applied to a flat signal of intensity 1 (t2).
 		// Divide t1/t2 => Result is the mean shift for image so that the average is zero.
@@ -1389,9 +1394,10 @@ public class AlignImagesFFT
 		double sumImage = 0;
 		for (int y = 0, i = 0; y < maxy; y++)
 		{
+			final double dy2 = (y - cy) * (y - cy);
 			for (int x = 0; x < maxx; x++, i++)
 			{
-				double distance = Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
+				double distance = Math.sqrt(dx2[x] + dy2);
 				double w = wf.weight(0.5 - (distance / maxDistance));
 				sumWindowFunction += w;
 				sumImage += ip.getf(i) * w;
@@ -1403,9 +1409,10 @@ public class AlignImagesFFT
 		//double sum = 0;
 		for (int y = 0, i = 0; y < maxy; y++)
 		{
+			final double dy2 = (y - cy) * (y - cy);
 			for (int x = 0; x < maxx; x++, i++)
 			{
-				double distance = Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
+				double distance = Math.sqrt(dx2[x] + dy2);
 				double w = wf.weight(0.5 - (distance / maxDistance));
 				double value = (ip.getf(i) - shift) * w;
 				//sum += value;
@@ -1416,7 +1423,6 @@ public class AlignImagesFFT
 		return new FloatProcessor(maxx, maxy, data, null);
 	}
 
-	private static AlignImagesFFT instance = new AlignImagesFFT();
 	private static double ALPHA = 0.5;
 
 	interface WindowFunction
@@ -1431,7 +1437,7 @@ public class AlignImagesFFT
 		double weight(double fractionDistance);
 	}
 
-	class Hanning implements WindowFunction
+	static class Hanning implements WindowFunction
 	{
 		public double weight(double fractionDistance)
 		{
@@ -1439,7 +1445,7 @@ public class AlignImagesFFT
 		}
 	}
 
-	class Cosine implements WindowFunction
+	static class Cosine implements WindowFunction
 	{
 		public double weight(double fractionDistance)
 		{
@@ -1447,7 +1453,7 @@ public class AlignImagesFFT
 		}
 	}
 
-	class Tukey implements WindowFunction
+	static class Tukey implements WindowFunction
 	{
 		final double alpha;
 
@@ -1480,17 +1486,17 @@ public class AlignImagesFFT
 
 	private static double[] hanning(int N)
 	{
-		return window(instance.new Hanning(), N);
+		return window(new Hanning(), N);
 	}
 
 	private static double[] cosine(int N)
 	{
-		return window(instance.new Cosine(), N);
+		return window(new Cosine(), N);
 	}
 
 	private static double[] tukey(int N, double alpha)
 	{
-		return window(instance.new Tukey(alpha), N);
+		return window(new Tukey(alpha), N);
 	}
 
 	/**
