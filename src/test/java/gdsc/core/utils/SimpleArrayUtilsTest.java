@@ -151,6 +151,16 @@ public class SimpleArrayUtilsTest
 				return a;
 			}
 		});
+		ts.execute(new MyTimingTask("merge+sort unique" + msg, data)
+		{
+			public Object run(Object data)
+			{
+				int[][] d = (int[][]) data;
+				int[] a = SimpleArrayUtils.merge(d[0], d[1], true);
+				Arrays.sort(a);
+				return a;
+			}
+		});
 
 		ts.repeat(ts.getSize());
 		ts.report();

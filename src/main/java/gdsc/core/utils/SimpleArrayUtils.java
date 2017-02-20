@@ -54,7 +54,7 @@ public class SimpleArrayUtils
 	{
 		TIntHashSet set;
 		if (unique)
-			set = new TIntHashSet(Math.max(s1.length, s2.length) * 2);
+			set = new TIntHashSet(Math.max(s1.length, s2.length));
 		else
 			set = new TIntHashSet();
 		set.addAll(s1);
