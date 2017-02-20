@@ -36,7 +36,27 @@ public class SimpleArrayUtils
 	 */
 	public static int[] merge(int[] s1, int[] s2)
 	{
-		TIntHashSet set = new TIntHashSet();
+		return merge(s1, s2, false);
+	}
+
+	/**
+	 * Merge the two sets into a single set using a hashset. The order is undefined. Input sets are unchanged.
+	 *
+	 * @param s1
+	 *            the first set
+	 * @param s2
+	 *            the second set
+	 * @param unique
+	 *            Set to true if the values in the sets are unique (allows optimisation of hashset size)
+	 * @return the merged set
+	 */
+	public static int[] merge(int[] s1, int[] s2, boolean unique)
+	{
+		TIntHashSet set;
+		if (unique)
+			set = new TIntHashSet(Math.max(s1.length, s2.length) * 2);
+		else
+			set = new TIntHashSet();
 		set.addAll(s1);
 		set.addAll(s2);
 		return set.toArray();
