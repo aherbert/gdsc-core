@@ -1479,8 +1479,10 @@ public class AlignImagesFFT
 	{
 		double N_1 = N - 1;
 		double[] w = new double[N];
-		for (int i = 0; i < N; i++)
-			w[i] = wf.weight(i / N_1);
+		// Assume symmetry
+		int middle = N / 2;
+		for (int i = 0, j = N - 1; i <= middle; i++, j--)
+			w[i] = w[j] = wf.weight(i / N_1);
 		return w;
 	}
 
