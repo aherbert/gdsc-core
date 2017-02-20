@@ -1,5 +1,7 @@
 package ij.process;
 
+import ij.ImageStack;
+
 /**
  * Extends the ImageJ FHT class to increase the speed where possible.
  */
@@ -19,7 +21,7 @@ public class FHT2 extends FHT
 	{
 		super(floatProcessor, isFrequencyDomain);
 	}
-	
+
 	public FHT2(float[] data, int maxN, boolean isFrequencyDomain)
 	{
 		super(new FloatProcessor(maxN, maxN, data, null), isFrequencyDomain);
@@ -119,5 +121,49 @@ public class FHT2 extends FHT
 			}
 		}
 		return new FHT2(new FloatProcessor(maxN, maxN, tmp, null), true);
+	}
+
+	/**
+	 * Converts this FHT to a complex Fourier transform and returns it as a two slice stack.
+	 * Assumes this is in the frequency domain since that cannot be checked as the super-class isFrequencyDomain flag is
+	 * hidden
+	 * 
+	 * Author: Joachim Wesner
+	 */
+	public ImageStack getComplexTransform2()
+	{
+		//if (!isFrequencyDomain)
+		//	throw new  IllegalArgumentException("Frequency domain image required");
+		int maxN = getWidth();
+		float[] fht = (float[]) getPixels();
+		float[] re = new float[maxN * maxN];
+		float[] im = new float[maxN * maxN];
+		for (int i = 0; i < maxN; i++)
+		{
+			FHTboth(i, maxN, fht, re, im);
+		}
+		swapQuadrants(new FloatProcessor(maxN, maxN, re, null));
+		swapQuadrants(new FloatProcessor(maxN, maxN, im, null));
+		ImageStack stack = new ImageStack(maxN, maxN);
+		stack.addSlice("Real", re);
+		stack.addSlice("Imaginary", im);
+		return stack;
+	}
+
+	/**	 FFT real & imaginary value of one row from 2D Hartley Transform.
+	*	Author: Joachim Wesner
+	*   Adapted by Alex Herbert to compute both together 
+	*/
+	void FHTboth(int row, int maxN, float[] fht, float[] real, float[] imag)
+	{
+		int base = row * maxN;
+		int offs = ((maxN - row) % maxN) * maxN;
+		for (int c = 0; c < maxN; c++)
+		{
+			final float a = fht[base + c];
+			final float b = fht[offs + ((maxN - c) % maxN)];
+			real[base + c] = (a + b) * 0.5f;
+			imag[base + c] = (-a + b) * 0.5f;
+		}
 	}
 }
