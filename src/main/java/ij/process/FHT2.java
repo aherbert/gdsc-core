@@ -126,9 +126,10 @@ public class FHT2 extends FHT
 	/**
 	 * Converts this FHT to a complex Fourier transform and returns it as a two slice stack.
 	 * Assumes this is in the frequency domain since that cannot be checked as the super-class isFrequencyDomain flag is
-	 * hidden
+	 * hidden. This has been adapted from the routine {@link #getComplexTransform()} to compute the real and imaginary 
+	 * parts of the transform at the same time.  
 	 * 
-	 * Author: Joachim Wesner
+	 * Author: Joachim Wesner, Alex Herbert
 	 */
 	public ImageStack getComplexTransform2()
 	{
