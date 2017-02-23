@@ -1712,7 +1712,7 @@ public class Utils
 	}
 
 	/**
-	 * True if a macro is running and the a generic dialog will not present to the user.
+	 * True if a macro is running and the generic dialog will not present to the user.
 	 *
 	 * @return true, if a macro is running
 	 */
