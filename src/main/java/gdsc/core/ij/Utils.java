@@ -1718,7 +1718,7 @@ public class Utils
 	 */
 	public static boolean isMacro()
 	{
-		return Macro.getOptions() == null;
+		return Macro.getOptions() != null;
 	}
 
 	/**
