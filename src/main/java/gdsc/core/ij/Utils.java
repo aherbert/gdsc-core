@@ -130,6 +130,22 @@ public class Utils
 	 */
 	public static ImagePlus display(String title, ImageProcessor ip)
 	{
+		return display(title, ip, 0);
+	}
+
+	/**
+	 * Show the image. Replace a currently open image with the specified title or else create a new image.
+	 *
+	 * @param title
+	 *            the title
+	 * @param ip
+	 *            the ip
+	 * @param flags
+	 *            the flags
+	 * @return the
+	 */
+	public static ImagePlus display(String title, ImageProcessor ip, int flags)
+	{
 		newWindow = false;
 		ImagePlus imp = WindowManager.getImage(title);
 		if (imp == null)
@@ -146,19 +162,38 @@ public class Utils
 				// Assume overlay is no longer valid
 				imp.setOverlay(null);
 			imp.getWindow().setVisible(true);
-			imp.getWindow().toFront();
+			if ((flags & NO_TO_FRONT) == 0)
+				imp.getWindow().toFront();
 		}
 		return imp;
 	}
 
 	/**
 	 * Show the image. Replace a currently open image with the specified title or else create a new image.
-	 * 
+	 *
 	 * @param title
+	 *            the title
 	 * @param slices
+	 *            the slices
 	 * @return the image
 	 */
 	public static ImagePlus display(String title, ImageStack slices)
+	{
+		return display(title, slices, 0);
+	}
+
+	/**
+	 * Show the image. Replace a currently open image with the specified title or else create a new image.
+	 *
+	 * @param title
+	 *            the title
+	 * @param slices
+	 *            the slices
+	 * @param flags
+	 *            the flags
+	 * @return the image
+	 */
+	public static ImagePlus display(String title, ImageStack slices, int flags)
 	{
 		newWindow = false;
 		ImagePlus imp = WindowManager.getImage(title);
@@ -177,7 +212,8 @@ public class Utils
 				// Assume overlay is no longer valid
 				imp.setOverlay(null);
 			imp.getWindow().setVisible(true);
-			imp.getWindow().toFront();
+			if ((flags & NO_TO_FRONT) == 0)
+				imp.getWindow().toFront();
 		}
 		return imp;
 	}
@@ -248,6 +284,7 @@ public class Utils
 	public static final int PRESERVE_Y_MIN = 0x04;
 	public static final int PRESERVE_Y_MAX = 0x08;
 	public static final int PRESERVE_ALL = 0x0f;
+	public static final int NO_TO_FRONT = 0x10;
 
 	/**
 	 * Show the plot. Replace a currently open plot with the specified title or else create a new plot window.
@@ -256,11 +293,11 @@ public class Utils
 	 *            the title
 	 * @param plot
 	 *            the plot
-	 * @param preserveLimits
-	 *            Use flags to preserve the current limits of an existing plot
+	 * @param flags
+	 *            Option flags, e.g. to preserve the current limits of an existing plot
 	 * @return the plot window
 	 */
-	public static PlotWindow display(String title, Plot plot, int preserveLimits)
+	public static PlotWindow display(String title, Plot plot, int flags)
 	{
 		newWindow = false;
 		Frame plotWindow = null;
@@ -295,28 +332,29 @@ public class Utils
 				Dimension d = oldPlot.getSize();
 				double[] limits = oldPlot.getLimits();
 				plot.setSize(d.width, d.height);
-				if ((preserveLimits & PRESERVE_ALL) == PRESERVE_ALL)
+				if ((flags & PRESERVE_ALL) == PRESERVE_ALL)
 				{
 					// Setting the limits before drawing avoids a double draw
 					plot.setLimits(limits[0], limits[1], limits[2], limits[3]);
-					preserveLimits = 0;
+					flags = 0;
 				}
 				// If only some of the limits are to be preserved then we must get the current default min/max.
 				// This cannot be done for a Plot class but we can do it for Plot2 (which makes public extra 
 				// functionality).
-				if ((preserveLimits & PRESERVE_ALL) != 0 && plot instanceof Plot2)
+				if ((flags & PRESERVE_ALL) != 0 && plot instanceof Plot2)
 				{
 					Plot2 p2 = (Plot2) plot;
 					double[] currentLimits = p2.getDefaultMinAndMax();
 					if (currentLimits != null)
 					{
-						preserveLimits(plot, preserveLimits, limits, currentLimits);
-						preserveLimits = 0;
+						preserveLimits(plot, flags, limits, currentLimits);
+						flags = 0;
 					}
 				}
 				p.drawPlot(plot);
-				preserveLimits(plot, preserveLimits, limits);
-				p.toFront();
+				preserveLimits(plot, flags, limits);
+				if ((flags & NO_TO_FRONT) == 0)
+					p.toFront();
 			}
 			catch (Throwable t)
 			{
@@ -355,7 +393,7 @@ public class Utils
 				}
 				if (limits != null)
 				{
-					preserveLimits(plot, preserveLimits, limits);
+					preserveLimits(plot, flags, limits);
 				}
 				newWindow = true;
 			}
