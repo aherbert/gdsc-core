@@ -1,5 +1,7 @@
 package gdsc.core.utils;
 
+import org.apache.commons.math3.distribution.TDistribution;
+
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
  * 
@@ -267,5 +269,34 @@ public class Statistics
 		n += statistics.n;
 		s += statistics.s;
 		ss += statistics.ss;
+	}
+
+	/**
+	 * Gets the confidence interval around the mean using the given confidence level. This is computed using the
+	 * critical value from the two-sided T-distribution multiplied by the standard error.
+	 * 
+	 * <p>
+	 * If the number of samples is less than 2 then the result is positive infinity. If the confidence level is one then
+	 * the result is positive infinity. If the confidence level is zero then the result is 0.
+	 * 
+	 * @see https://en.wikipedia.org/wiki/Confidence_interval#Basic_steps.
+	 *
+	 * @param c
+	 *            the confidence level of the test (in the range 0-1)
+	 * @return the confidence interval
+	 * @throws IllegalArgumentException
+	 *             if the confidence level is not in the range 0-1
+	 */
+	public double getConfidenceInterval(double c)
+	{
+		if (n < 2)
+			return Double.POSITIVE_INFINITY;
+		if (c < 0 || c > 1)
+			throw new IllegalArgumentException("Confidence level must be in the range 0-1");
+		double se = getStandardError();
+		double alpha = 1 - (1 - c) * 0.5; // Two-sided, e.g. 0.95 -> 0.975
+		int degreesOfFreedom = n - 1;
+		TDistribution t = new TDistribution(degreesOfFreedom);
+		return t.inverseCumulativeProbability(alpha) * se;
 	}
 }
