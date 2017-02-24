@@ -161,8 +161,9 @@ public class Utils
 			if (resized)
 				// Assume overlay is no longer valid
 				imp.setOverlay(null);
-			imp.getWindow().setVisible(true);
-			if ((flags & NO_TO_FRONT) == 0)
+			if (!imp.getWindow().isVisible())
+				imp.getWindow().setVisible(true);
+			else if ((flags & NO_TO_FRONT) == 0)
 				imp.getWindow().toFront();
 		}
 		return imp;
@@ -211,8 +212,9 @@ public class Utils
 			if (resized)
 				// Assume overlay is no longer valid
 				imp.setOverlay(null);
-			imp.getWindow().setVisible(true);
-			if ((flags & NO_TO_FRONT) == 0)
+			if (!imp.getWindow().isVisible())
+				imp.getWindow().setVisible(true);
+			else if ((flags & NO_TO_FRONT) == 0)
 				imp.getWindow().toFront();
 		}
 		return imp;
@@ -326,7 +328,6 @@ public class Utils
 			// Since the new IJ 1.50 plot functionality to have scalable plots this can sometimes error
 			try
 			{
-				plotWindow.setVisible(true);
 				p = (PlotWindow) plotWindow;
 				Plot oldPlot = p.getPlot();
 				Dimension d = oldPlot.getSize();
@@ -353,7 +354,9 @@ public class Utils
 				}
 				p.drawPlot(plot);
 				preserveLimits(plot, flags, limits);
-				if ((flags & NO_TO_FRONT) == 0)
+				if (!plotWindow.isVisible())
+					plotWindow.setVisible(true);
+				else if ((flags & NO_TO_FRONT) == 0)
 					p.toFront();
 			}
 			catch (Throwable t)
