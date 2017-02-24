@@ -37,7 +37,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	private int count = 0;
 
 	/** Set to true to ignore any added window. */
-	public boolean ignore = false;
+	private boolean ignore = false;
 
 	/**
 	 * Adds the window ID to the instance
@@ -78,6 +78,36 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 			add(pw.getImagePlus());
 	}
 
+	/**
+	 * Checks if ignoring any added window.
+	 *
+	 * @return true, if ignoring
+	 */
+	public boolean isIgnore()
+	{
+		return ignore;
+	}
+
+	/**
+	 * Sets the ignore flag.
+	 *
+	 * @param ignore Set to true to ignore any added window.
+	 */
+	public void setIgnore(boolean ignore)
+	{
+		this.ignore = ignore;
+	}
+	
+	/**
+	 * The number of windows that have been added.
+	 *
+	 * @return the size
+	 */
+	public int size()
+	{
+		return count;
+	}
+	
 	/**
 	 * Tile all the windows added to this instance
 	 */
