@@ -36,6 +36,9 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	private int[] list = new int[10];
 	private int count = 0;
 
+	/** Set to true to ignore any added window. */
+	public boolean ignore = false;
+
 	/**
 	 * Adds the window ID to the instance
 	 *
@@ -44,6 +47,8 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	 */
 	public void add(int id)
 	{
+		if (ignore)
+			return;
 		if (list.length == count)
 			list = Arrays.copyOf(list, (int) (count * 1.5));
 		list[count++] = id;
