@@ -6,7 +6,7 @@ import org.apache.commons.math3.stat.descriptive.moment.SecondMoment;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class RollingMomentTest
+public class ArrayMomentTest
 {
 	@Test
 	public void canComputeMomentDouble()
@@ -35,7 +35,7 @@ public class RollingMomentTest
 		m1.add(d);
 		SecondMoment m2 = new SecondMoment();
 		m2.incrementAll(d);
-		RollingMoment r2 = new RollingMoment();
+		ArrayMoment r2 = new ArrayMoment();
 		for (int i = 0; i < d.length; i++)
 			r2.add(new double[] { d[i] });
 		assertEquals(title + " Mean", m1.getMean(), r2.getFirstMoment()[0], 1e-6);
@@ -70,7 +70,7 @@ public class RollingMomentTest
 		m1.add(d);
 		SecondMoment m2 = new SecondMoment();
 		m2.incrementAll(toDouble(d));
-		RollingMoment r2 = new RollingMoment();
+		ArrayMoment r2 = new ArrayMoment();
 		for (int i = 0; i < d.length; i++)
 			r2.add(new double[] { d[i] });
 		assertEquals(title + " Mean", m1.getMean(), r2.getFirstMoment()[0], 1e-6);
@@ -109,7 +109,7 @@ public class RollingMomentTest
 		m1.add(d);
 		SecondMoment m2 = new SecondMoment();
 		m2.incrementAll(toDouble(d));
-		RollingMoment r2 = new RollingMoment();
+		ArrayMoment r2 = new ArrayMoment();
 		for (int i = 0; i < d.length; i++)
 			r2.add(new double[] { d[i] });
 		assertEquals(title + " Mean", m1.getMean(), r2.getFirstMoment()[0], 1e-6);
@@ -151,7 +151,7 @@ public class RollingMomentTest
 
 	private void canComputeArrayMoment(String title, double[][] d)
 	{
-		RollingMoment r2 = new RollingMoment();
+		ArrayMoment r2 = new ArrayMoment();
 		for (int i = 0; i < d.length; i++)
 			r2.add(d[i]);
 		double[] om1 = r2.getFirstMoment();
@@ -183,11 +183,11 @@ public class RollingMomentTest
 		for (int i = d.length; i-- > 0;)
 			d[i] = uniform(rand, n);
 
-		RollingMoment r1 = new RollingMoment();
+		ArrayMoment r1 = new ArrayMoment();
 		int size = 6;
-		RollingMoment[] r2 = new RollingMoment[size];
+		ArrayMoment[] r2 = new ArrayMoment[size];
 		for (int i = 0; i < size; i++)
-			r2[i] = new RollingMoment();
+			r2[i] = new ArrayMoment();
 		for (int i = 0; i < d.length; i++)
 		{
 			r1.add(d[i]);

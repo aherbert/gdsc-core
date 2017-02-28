@@ -18,7 +18,7 @@ package gdsc.core.utils;
  * <p>
  * Based on org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
  */
-public class RollingMoment
+public class ArrayMoment
 {
 	private long n = 0;
 
@@ -29,41 +29,41 @@ public class RollingMoment
 	private double[] m2;
 
 	/**
-	 * Instantiates a new rolling moment with data.
+	 * Instantiates a new array moment with data.
 	 */
-	public RollingMoment()
+	public ArrayMoment()
 	{
 	}
 
 	/**
-	 * Instantiates a new rolling moment with data.
+	 * Instantiates a new array moment with data.
 	 *
 	 * @param data
 	 *            the data
 	 */
-	public RollingMoment(double[] data)
-	{
-		add(data);
-	}
-
-	/**
-	 * Instantiates a new rolling moment with data.
-	 *
-	 * @param data
-	 *            the data
-	 */
-	public RollingMoment(float[] data)
+	public ArrayMoment(double[] data)
 	{
 		add(data);
 	}
 
 	/**
-	 * Instantiates a new rolling moment with data.
+	 * Instantiates a new array moment with data.
 	 *
 	 * @param data
 	 *            the data
 	 */
-	public RollingMoment(int[] data)
+	public ArrayMoment(float[] data)
+	{
+		add(data);
+	}
+
+	/**
+	 * Instantiates a new array moment with data.
+	 *
+	 * @param data
+	 *            the data
+	 */
+	public ArrayMoment(int[] data)
 	{
 		add(data);
 	}
@@ -235,19 +235,19 @@ public class RollingMoment
 	}
 
 	/**
-	 * Adds the.
+	 * Adds the data in the array moment.
 	 *
-	 * @param rollingMoment
-	 *            the rolling moment
+	 * @param arrayMoment
+	 *            the array moment
 	 */
-	public void add(RollingMoment rollingMoment)
+	public void add(ArrayMoment arrayMoment)
 	{
-		if (rollingMoment.n == 0)
+		if (arrayMoment.n == 0)
 			return;
 
-		final long nb = rollingMoment.n;
-		final double[] m1b = rollingMoment.m1;
-		final double[] m2b = rollingMoment.m2;
+		final long nb = arrayMoment.n;
+		final double[] m1b = arrayMoment.m1;
+		final double[] m2b = arrayMoment.m2;
 
 		if (n == 0)
 		{
