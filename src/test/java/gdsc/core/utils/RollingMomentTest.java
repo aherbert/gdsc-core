@@ -173,8 +173,51 @@ public class RollingMomentTest
 		}
 	}
 
+	@Test
+	public void canCombineArrayMomentDouble()
+	{
+		RandomGenerator rand = new Well19937c();
+		double[][] d = new double[50][];
+
+		int n = 1000;
+		for (int i = d.length; i-- > 0;)
+			d[i] = uniform(rand, n);
+
+		RollingMoment r1 = new RollingMoment();
+		int size = 6;
+		RollingMoment[] r2 = new RollingMoment[size];
+		for (int i = 0; i < size; i++)
+			r2[i] = new RollingMoment();
+		for (int i = 0; i < d.length; i++)
+		{
+			r1.add(d[i]);
+			r2[i % size].add(d[i]);
+		}
+
+		double[] em1 = r1.getFirstMoment();
+		double[] em2 = r1.getSecondMoment();
+		double[] ev = r1.getVariance();
+
+		for (int i = 1; i < size; i++)
+			r2[0].add(r2[i]);
+
+		double[] om1 = r2[0].getFirstMoment();
+		double[] om2 = r2[0].getSecondMoment();
+		double[] ov = r2[0].getVariance();
+
+		assertArrayEquals("Mean", em1, om1, 1e-6);
+		assertArrayEquals("2nd Moment", em2, om2, 1e-6);
+		assertArrayEquals("Variance", ev, ov, 1e-6);
+	}
+
 	private void assertEquals(String msg, double e, double o, double delta)
 	{
 		Assert.assertEquals(msg, e, o, Math.abs(e * delta));
+	}
+
+	private void assertArrayEquals(String msg, double[] e, double[] o, double delta)
+	{
+		for (int i = 0; i < e.length; i++)
+			assertEquals(msg, e[i], o[i], Math.abs(e[i] * delta));
 	}
 }

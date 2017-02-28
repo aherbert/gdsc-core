@@ -109,9 +109,9 @@ public class RollingMoment
 		}
 		else
 		{
+			final double n_1 = n;
 			n++;
 			final double n0 = n;
-			final double n_1 = n - 1;
 			for (int i = 0; i < data.length; i++)
 			{
 				final double dev = data[i] - m1[i];
@@ -165,9 +165,9 @@ public class RollingMoment
 		}
 		else
 		{
+			final double n_1 = n;
 			n++;
 			final double n0 = n;
-			final double n_1 = n - 1;
 			for (int i = 0; i < data.length; i++)
 			{
 				final double dev = data[i] - m1[i];
@@ -221,9 +221,9 @@ public class RollingMoment
 		}
 		else
 		{
+			final double n_1 = n;
 			n++;
 			final double n0 = n;
-			final double n_1 = n - 1;
 			for (int i = 0; i < data.length; i++)
 			{
 				final double dev = data[i] - m1[i];
@@ -232,6 +232,45 @@ public class RollingMoment
 				m2[i] += n_1 * dev * nDev;
 			}
 		}
+	}
+
+	/**
+	 * Adds the.
+	 *
+	 * @param rollingMoment
+	 *            the rolling moment
+	 */
+	public void add(RollingMoment rollingMoment)
+	{
+		if (rollingMoment.n == 0)
+			return;
+
+		final long nb = rollingMoment.n;
+		final double[] m1b = rollingMoment.m1;
+		final double[] m2b = rollingMoment.m2;
+
+		if (n == 0)
+		{
+			// Copy
+			this.n = nb;
+			m1 = m1b.clone();
+			m2 = m2b.clone();
+			return;
+		}
+
+		if (m1b.length != m1.length)
+			throw new IllegalArgumentException("Different number of moments");
+
+		// Adapted from org.apache.commons.math3.stat.regression.SimpleRegression.append(SimpleRegression)
+        final double f1 = nb / (double) (nb + n);
+        final double f2 = n * nb / (double) (nb + n);
+		for (int i = 0; i < m1.length; i++)
+		{
+	        final double dev = m1b[i] - m1[i];
+	        m1[i] += dev * f1;
+	        m2[i] += m2b[i] + dev * dev * f2;
+		}
+		n += nb;
 	}
 
 	/**
