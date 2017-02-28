@@ -262,13 +262,13 @@ public class RollingMoment
 			throw new IllegalArgumentException("Different number of moments");
 
 		// Adapted from org.apache.commons.math3.stat.regression.SimpleRegression.append(SimpleRegression)
-        final double f1 = nb / (double) (nb + n);
-        final double f2 = n * nb / (double) (nb + n);
+		final double f1 = nb / (double) (nb + n);
+		final double f2 = n * nb / (double) (nb + n);
 		for (int i = 0; i < m1.length; i++)
 		{
-	        final double dev = m1b[i] - m1[i];
-	        m1[i] += dev * f1;
-	        m2[i] += m2b[i] + dev * dev * f2;
+			final double dev = m1b[i] - m1[i];
+			m1[i] += dev * f1;
+			m2[i] += m2b[i] + dev * dev * f2;
 		}
 		n += nb;
 	}
@@ -310,12 +310,24 @@ public class RollingMoment
 	 */
 	public double[] getVariance()
 	{
-		if (m2 == null)
+		return getVariance(true);
+	}
+
+	/**
+	 * Gets the estimate of the variance.
+	 *
+	 * @param isBiasCorrected
+	 *            Set to true to be bias corrected, i.e. unbiased
+	 * @return the variance (null if no data has been added)
+	 */
+	public double[] getVariance(boolean isBiasCorrected)
+	{
+		if (n == 0)
 			return null;
 		if (n == 1)
 			return new double[m2.length];
 		double[] v = m2.clone();
-		final double n1 = n - 1;
+		final double n1 = (isBiasCorrected) ? n - 1 : n;
 		for (int i = 0; i < v.length; i++)
 			v[i] /= n1;
 		return v;
