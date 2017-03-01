@@ -402,4 +402,18 @@ public class RollingArrayMoment implements ArrayMoment
 	{
 		return new RollingArrayMoment();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#add(gdsc.core.math.ArrayMoment)
+	 */
+	public void add(ArrayMoment arrayMoment)
+	{
+		if (arrayMoment == null)
+			throw new NullPointerException();
+		if (arrayMoment instanceof RollingArrayMoment)
+			add((RollingArrayMoment) arrayMoment);
+		throw new IllegalArgumentException("Not compatible: " + arrayMoment.getClass());
+	}
 }

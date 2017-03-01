@@ -112,4 +112,12 @@ public interface ArrayMoment
 	 * @return the array moment
 	 */
 	public ArrayMoment newInstance();
+
+	/**
+	 * Adds the data in the array moment. This can throw an illegal argument exception is the input is not compatible.
+	 *
+	 * @param arrayMoment
+	 *            the array moment
+	 */
+	public void add(ArrayMoment arrayMoment);
 }

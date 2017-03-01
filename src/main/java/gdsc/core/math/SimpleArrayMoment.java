@@ -334,4 +334,18 @@ public class SimpleArrayMoment implements ArrayMoment
 	{
 		return new SimpleArrayMoment();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#add(gdsc.core.math.ArrayMoment)
+	 */
+	public void add(ArrayMoment arrayMoment)
+	{
+		if (arrayMoment == null)
+			throw new NullPointerException();
+		if (arrayMoment instanceof SimpleArrayMoment)
+			add((SimpleArrayMoment) arrayMoment);
+		throw new IllegalArgumentException("Not compatible: " + arrayMoment.getClass());
+	}
 }
