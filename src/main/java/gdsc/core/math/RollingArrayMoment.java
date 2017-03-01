@@ -1,4 +1,4 @@
-package gdsc.core.utils;
+package gdsc.core.math;
 
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
@@ -18,7 +18,7 @@ package gdsc.core.utils;
  * <p>
  * Based on org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
  */
-public class ArrayMoment
+public class RollingArrayMoment implements ArrayMoment
 {
 	private long n = 0;
 
@@ -31,7 +31,7 @@ public class ArrayMoment
 	/**
 	 * Instantiates a new array moment with data.
 	 */
-	public ArrayMoment()
+	public RollingArrayMoment()
 	{
 	}
 
@@ -41,7 +41,7 @@ public class ArrayMoment
 	 * @param data
 	 *            the data
 	 */
-	public ArrayMoment(double[] data)
+	public RollingArrayMoment(double[] data)
 	{
 		add(data);
 	}
@@ -52,7 +52,7 @@ public class ArrayMoment
 	 * @param data
 	 *            the data
 	 */
-	public ArrayMoment(float[] data)
+	public RollingArrayMoment(float[] data)
 	{
 		add(data);
 	}
@@ -63,16 +63,15 @@ public class ArrayMoment
 	 * @param data
 	 *            the data
 	 */
-	public ArrayMoment(int[] data)
+	public RollingArrayMoment(int[] data)
 	{
 		add(data);
 	}
 
-	/**
-	 * Add the data. This is a convenience method for arrays of size one.
-	 *
-	 * @param data
-	 *            the data
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#add(double)
 	 */
 	public void add(double data)
 	{
@@ -97,8 +96,7 @@ public class ArrayMoment
 	}
 
 	/**
-	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
-	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * {@inheritDoc}
 	 * <p>
 	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
 	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
@@ -151,8 +149,7 @@ public class ArrayMoment
 	}
 
 	/**
-	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
-	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * {@inheritDoc}
 	 * <p>
 	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
 	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
@@ -207,8 +204,7 @@ public class ArrayMoment
 	}
 
 	/**
-	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
-	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * {@inheritDoc}
 	 * <p>
 	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
 	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
@@ -268,7 +264,7 @@ public class ArrayMoment
 	 * @param arrayMoment
 	 *            the array moment
 	 */
-	public void add(ArrayMoment arrayMoment)
+	public void add(RollingArrayMoment arrayMoment)
 	{
 		if (arrayMoment.n == 0)
 			return;
@@ -301,52 +297,50 @@ public class ArrayMoment
 		n += nb;
 	}
 
-	/**
-	 * Gets the first moment (the sample mean).
-	 *
-	 * @return the first moment (null if no data has been added)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#getFirstMoment()
 	 */
 	public double[] getFirstMoment()
 	{
 		return m1;
 	}
 
-	/**
-	 * Gets the second moment (sum of squared deviations from the sample mean).
-	 *
-	 * @return the second moment (null if no data has been added)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#getSecondMoment()
 	 */
 	public double[] getSecondMoment()
 	{
 		return m2;
 	}
 
-	/**
-	 * Gets the number of observations.
-	 *
-	 * @return the n
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#getN()
 	 */
 	public long getN()
 	{
 		return n;
 	}
 
-	/**
-	 * Gets the unbiased estimate of the variance.
-	 *
-	 * @return the variance (null if no data has been added)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#getVariance()
 	 */
 	public double[] getVariance()
 	{
 		return getVariance(true);
 	}
 
-	/**
-	 * Gets the estimate of the variance.
-	 *
-	 * @param isBiasCorrected
-	 *            Set to true to be bias corrected, i.e. unbiased
-	 * @return the variance (null if no data has been added)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#getVariance(boolean)
 	 */
 	public double[] getVariance(boolean isBiasCorrected)
 	{
@@ -366,22 +360,20 @@ public class ArrayMoment
 		return (d > 0) ? d : 0;
 	}
 
-	/**
-	 * Gets the unbiased estimate of the standard deviation.
-	 *
-	 * @return the standard deviation (null if no data has been added)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#getStandardDeviation()
 	 */
 	public double[] getStandardDeviation()
 	{
 		return getStandardDeviation(true);
 	}
 
-	/**
-	 * Gets the estimate of the standard deviation.
-	 *
-	 * @param isBiasCorrected
-	 *            Set to true to be bias corrected, i.e. unbiased
-	 * @return the standard deviation (null if no data has been added)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#getStandardDeviation(boolean)
 	 */
 	public double[] getStandardDeviation(boolean isBiasCorrected)
 	{
