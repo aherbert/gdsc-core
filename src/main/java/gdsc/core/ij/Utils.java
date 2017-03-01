@@ -1,5 +1,7 @@
 package gdsc.core.ij;
 
+import java.awt.Component;
+
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
  * 
@@ -15,6 +17,7 @@ package gdsc.core.ij;
 
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Panel;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
@@ -29,12 +32,15 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import javax.swing.JLabel;
+
 import org.apache.commons.math3.util.FastMath;
 
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.StoredDataStatistics;
 import gdsc.core.utils.DoubleData;
 import ij.IJ;
+import ij.ImageJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Macro;
@@ -1176,6 +1182,68 @@ public class Utils
 			Field f = IJ.class.getDeclaredField("progressBar");
 			f.setAccessible(true);
 			f.set(IJ.class, newProgressBar);
+		}
+		catch (Exception e)
+		{
+			// Ignore
+		}
+	}
+
+	private static boolean NULL_STATUS_LINE = false;
+	private static JLabel statusLine = null;
+
+	/**
+	 * Gets the status bar label
+	 *
+	 * @return the status bar label
+	 */
+	public static JLabel getStatusLine()
+	{
+		if (statusLine == null && !NULL_STATUS_LINE)
+		{
+			Panel statusBar = IJ.getInstance().getStatusBar();
+			for (Component c : statusBar.getComponents())
+			{
+				if (c instanceof JLabel)
+				{
+					statusLine = (JLabel) statusBar.getComponent(0);
+					break;
+				}
+			}
+			NULL_STATUS_LINE = statusLine == null;
+		}
+		return statusLine;
+	}
+
+	/**
+	 * Use reflection to replace the status bar label with null
+	 * 
+	 * @param showStatus
+	 *            Set to true to disable the status bar
+	 */
+	public static void setShowStatus(boolean showStatus)
+	{
+		getStatusLine();
+		if (NULL_STATUS_LINE)
+			return;
+
+		JLabel newStatusLine;
+		if (showStatus)
+		{
+			newStatusLine = statusLine;
+		}
+		else
+		{
+			// Provide a label that will swallow method calls to setText()
+			newStatusLine = new JLabel();
+		}
+
+		try
+		{
+			ImageJ ij = IJ.getInstance();
+			Field f = ij.getClass().getDeclaredField("statusLine");
+			f.setAccessible(true);
+			f.set(ij, newStatusLine);
 		}
 		catch (Exception e)
 		{
