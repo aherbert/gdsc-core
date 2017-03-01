@@ -105,4 +105,11 @@ public interface ArrayMoment
 	 * @return the standard deviation (null if no data has been added)
 	 */
 	public double[] getStandardDeviation(boolean isBiasCorrected);
+
+	/**
+	 * Create a new instance.
+	 *
+	 * @return the array moment
+	 */
+	public ArrayMoment newInstance();
 }

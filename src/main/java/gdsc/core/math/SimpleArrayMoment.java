@@ -324,4 +324,14 @@ public class SimpleArrayMoment implements ArrayMoment
 	{
 		return (d > 0) ? Math.sqrt(d) : 0;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#newInstance()
+	 */
+	public SimpleArrayMoment newInstance()
+	{
+		return new SimpleArrayMoment();
+	}
 }

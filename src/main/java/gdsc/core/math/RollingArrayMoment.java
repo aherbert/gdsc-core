@@ -392,4 +392,14 @@ public class RollingArrayMoment implements ArrayMoment
 	{
 		return (d > 0) ? Math.sqrt(d) : 0;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#newInstance()
+	 */
+	public RollingArrayMoment newInstance()
+	{
+		return new RollingArrayMoment();
+	}
 }
