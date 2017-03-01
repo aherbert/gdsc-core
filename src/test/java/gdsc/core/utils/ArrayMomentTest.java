@@ -41,6 +41,7 @@ public class ArrayMomentTest
 		assertEquals(title + " Mean", m1.getMean(), r2.getFirstMoment()[0], 1e-6);
 		assertEquals(title + " 2nd Moment", m2.getResult(), r2.getSecondMoment()[0], 0);
 		assertEquals(title + " Variance", m1.getVariance(), r2.getVariance()[0], 1e-6);
+		assertEquals(title + " SD", m1.getStandardDeviation(), r2.getStandardDeviation()[0], 1e-6);
 	}
 
 	@Test
@@ -76,6 +77,7 @@ public class ArrayMomentTest
 		assertEquals(title + " Mean", m1.getMean(), r2.getFirstMoment()[0], 1e-6);
 		assertEquals(title + " 2nd Moment", m2.getResult(), r2.getSecondMoment()[0], 0);
 		assertEquals(title + " Variance", m1.getVariance(), r2.getVariance()[0], 1e-6);
+		assertEquals(title + " SD", m1.getStandardDeviation(), r2.getStandardDeviation()[0], 1e-6);
 	}
 
 	private double[] toDouble(float[] in)
@@ -115,6 +117,7 @@ public class ArrayMomentTest
 		assertEquals(title + " Mean", m1.getMean(), r2.getFirstMoment()[0], 1e-6);
 		assertEquals(title + " 2nd Moment", m2.getResult(), r2.getSecondMoment()[0], 0);
 		assertEquals(title + " Variance", m1.getVariance(), r2.getVariance()[0], 1e-6);
+		assertEquals(title + " SD", m1.getStandardDeviation(), r2.getStandardDeviation()[0], 1e-6);
 	}
 
 	private double[] toDouble(int[] in)
@@ -157,6 +160,7 @@ public class ArrayMomentTest
 		double[] om1 = r2.getFirstMoment();
 		double[] om2 = r2.getSecondMoment();
 		double[] ov = r2.getVariance();
+		double[] osd = r2.getStandardDeviation();
 
 		for (int n = d[0].length; n-- > 0;)
 		{
@@ -170,6 +174,7 @@ public class ArrayMomentTest
 			assertEquals(title + " Mean", m1.getMean(), om1[n], 1e-6);
 			assertEquals(title + " 2nd Moment", m2.getResult(), om2[n], 0);
 			assertEquals(title + " Variance", m1.getVariance(), ov[n], 1e-6);
+			assertEquals(title + " SD", m1.getStandardDeviation(), osd[n], 1e-6);
 		}
 	}
 
@@ -197,6 +202,7 @@ public class ArrayMomentTest
 		double[] em1 = r1.getFirstMoment();
 		double[] em2 = r1.getSecondMoment();
 		double[] ev = r1.getVariance();
+		double[] esd = r1.getStandardDeviation();
 
 		for (int i = 1; i < size; i++)
 			r2[0].add(r2[i]);
@@ -204,10 +210,39 @@ public class ArrayMomentTest
 		double[] om1 = r2[0].getFirstMoment();
 		double[] om2 = r2[0].getSecondMoment();
 		double[] ov = r2[0].getVariance();
+		double[] osd = r2[0].getStandardDeviation();
 
 		assertArrayEquals("Mean", em1, om1, 1e-6);
 		assertArrayEquals("2nd Moment", em2, om2, 1e-6);
 		assertArrayEquals("Variance", ev, ov, 1e-6);
+		assertArrayEquals("SD", esd, osd, 1e-6);
+	}
+
+	@Test
+	public void canComputeMomentForLargeSeries()
+	{
+		RandomGenerator rand = new Well19937c();
+
+		Statistics m1 = new Statistics();
+		SecondMoment m2 = new SecondMoment();
+		ArrayMoment r2 = new ArrayMoment();
+		
+		// Test if the standard Statistics object is good enough for 
+		// computing the mean and variance of sCMOS data from 60,000 frames. It seems it is.
+		for (int i = 1000000; i-- > 0;)
+		{
+			double d = 100.345 + rand.nextGaussian() * Math.PI;
+			m1.add(d);
+			m2.increment(d);
+			r2.add(d);
+		}
+		//System.out.printf("Mean %s vs %s, SD %s vs %s\n", Double.toString(m1.getMean()),
+		//		Double.toString(r2.getFirstMoment()[0]), Double.toString(m1.getStandardDeviation()),
+		//		Double.toString(r2.getStandardDeviation()[0]));
+		assertEquals("Mean", m1.getMean(), r2.getFirstMoment()[0], 1e-6);
+		assertEquals("2nd Moment", m2.getResult(), r2.getSecondMoment()[0], 0);
+		assertEquals("Variance", m1.getVariance(), r2.getVariance()[0], 1e-6);
+		assertEquals("SD", m1.getStandardDeviation(), r2.getStandardDeviation()[0], 1e-6);
 	}
 
 	private void assertEquals(String msg, double e, double o, double delta)

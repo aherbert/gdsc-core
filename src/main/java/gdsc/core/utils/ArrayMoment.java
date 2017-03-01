@@ -69,6 +69,34 @@ public class ArrayMoment
 	}
 
 	/**
+	 * Add the data. This is a convenience method for arrays of size one.
+	 *
+	 * @param data
+	 *            the data
+	 */
+	public void add(double data)
+	{
+		if (n == 0)
+		{
+			n = 1;
+			// Initialise the first moment to the input value
+			m1 = new double[] { data };
+			// Initialise sum-of-squared differences to zero
+			m2 = new double[1];
+		}
+		else
+		{
+			final double n_1 = n;
+			n++;
+			final double n0 = n;
+			final double dev = data - m1[0];
+			final double nDev = dev / n0;
+			m1[0] += nDev;
+			m2[0] += n_1 * dev * nDev;
+		}
+	}
+
+	/**
 	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
 	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
 	 * <p>
@@ -329,7 +357,47 @@ public class ArrayMoment
 		double[] v = m2.clone();
 		final double n1 = (isBiasCorrected) ? n - 1 : n;
 		for (int i = 0; i < v.length; i++)
-			v[i] /= n1;
+			v[i] = positive(v[i] / n1);
 		return v;
+	}
+
+	private static double positive(final double d)
+	{
+		return (d > 0) ? d : 0;
+	}
+
+	/**
+	 * Gets the unbiased estimate of the standard deviation.
+	 *
+	 * @return the standard deviation (null if no data has been added)
+	 */
+	public double[] getStandardDeviation()
+	{
+		return getStandardDeviation(true);
+	}
+
+	/**
+	 * Gets the estimate of the standard deviation.
+	 *
+	 * @param isBiasCorrected
+	 *            Set to true to be bias corrected, i.e. unbiased
+	 * @return the standard deviation (null if no data has been added)
+	 */
+	public double[] getStandardDeviation(boolean isBiasCorrected)
+	{
+		if (n == 0)
+			return null;
+		if (n == 1)
+			return new double[m2.length];
+		double[] v = m2.clone();
+		final double n1 = (isBiasCorrected) ? n - 1 : n;
+		for (int i = 0; i < v.length; i++)
+			v[i] = positiveSqrt(v[i] / n1);
+		return v;
+	}
+
+	private static double positiveSqrt(final double d)
+	{
+		return (d > 0) ? Math.sqrt(d) : 0;
 	}
 }
