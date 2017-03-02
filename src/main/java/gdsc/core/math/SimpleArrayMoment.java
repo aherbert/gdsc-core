@@ -346,6 +346,7 @@ public class SimpleArrayMoment implements ArrayMoment
 			throw new NullPointerException();
 		if (arrayMoment instanceof SimpleArrayMoment)
 			add((SimpleArrayMoment) arrayMoment);
-		throw new IllegalArgumentException("Not compatible: " + arrayMoment.getClass());
+		else
+			throw new IllegalArgumentException("Not compatible: " + arrayMoment.getClass());
 	}
 }

@@ -414,6 +414,7 @@ public class RollingArrayMoment implements ArrayMoment
 			throw new NullPointerException();
 		if (arrayMoment instanceof RollingArrayMoment)
 			add((RollingArrayMoment) arrayMoment);
-		throw new IllegalArgumentException("Not compatible: " + arrayMoment.getClass());
+		else
+			throw new IllegalArgumentException("Not compatible: " + arrayMoment.getClass());
 	}
 }
