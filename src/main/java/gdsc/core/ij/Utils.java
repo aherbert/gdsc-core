@@ -910,6 +910,34 @@ public class Utils
 	public static int showHistogram(String title, DoubleData data, String name, double minWidth, int removeOutliers,
 			int bins, boolean barChart, String label)
 	{
+		return showHistogram(title, data, name, minWidth, removeOutliers, bins, (barChart) ? Plot2.BAR : Plot.LINE,
+				label);
+	}
+
+	/**
+	 * Show a histogram of the data.
+	 *
+	 * @param title
+	 *            The title to prepend to the plot name
+	 * @param data
+	 *            the data
+	 * @param name
+	 *            The name of plotted statistic
+	 * @param minWidth
+	 *            The minimum bin width to use (e.g. set to 1 for integer values)
+	 * @param removeOutliers
+	 *            Remove outliers. 1 - 1.5x IQR. 2 - remove top 2%.
+	 * @param bins
+	 *            The number of bins to use
+	 * @param shape
+	 *            the shape
+	 * @param label
+	 *            The label to add
+	 * @return The histogram window ID
+	 */
+	public static int showHistogram(String title, DoubleData data, String name, double minWidth, int removeOutliers,
+			int bins, int shape, String label)
+	{
 		double[] values = data.values();
 		// If we have +/- Infinity in here it will break
 		if (values == null || values.length < 2)
@@ -1019,6 +1047,7 @@ public class Utils
 
 		double[][] hist = Utils.calcHistogram(values, yMin, yMax, bins);
 
+		boolean barChart = (shape & Plot2.BAR) == Plot2.BAR;
 		if (barChart)
 		{
 			// Standard histogram
@@ -1058,7 +1087,7 @@ public class Utils
 			Utils.yMax = Maths.max(yValues) * 1.05;
 			plot.setLimits(xMin, xMax, Utils.yMin, Utils.yMax);
 		}
-		plot.addPoints(xValues, yValues, (barChart) ? Plot2.BAR : Plot.LINE);
+		plot.addPoints(xValues, yValues, shape);
 		if (label != null)
 			plot.addLabel(0, 0, label);
 		PlotWindow window = Utils.display(title, plot);
@@ -1095,8 +1124,7 @@ public class Utils
 		switch (method)
 		{
 			case SCOTT:
-				Statistics stats = (data instanceof Statistics) ? (Statistics) data
-						: new Statistics(data.values());
+				Statistics stats = (data instanceof Statistics) ? (Statistics) data : new Statistics(data.values());
 				width = getBinWidthScottsRule(stats.getStandardDeviation(), data.size());
 				limits = Maths.limits(data.values());
 				return (int) Math.ceil((limits[1] - limits[0]) / width);
