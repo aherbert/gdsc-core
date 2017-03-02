@@ -40,7 +40,16 @@ public class StoredData implements Iterable<Double>, DoubleData
 
 	public StoredData(double[] data)
 	{
-		add(data);
+		this(data, true);
+	}
+
+	public StoredData(double[] data, boolean clone)
+	{
+		if (data != null)
+		{
+			values = (clone) ? data.clone() : data;
+			n = data.length;
+		}
 	}
 
 	public StoredData(int[] data)
@@ -97,10 +106,12 @@ public class StoredData implements Iterable<Double>, DoubleData
 		if (data == null)
 			return;
 		checkCapacity(data.length);
-		for (int i = 0; i < data.length; i++)
-		{
-			values[n++] = data[i];
-		}
+		System.arraycopy(data, 0, values, n, data.length);
+		n += data.length;
+		//for (int i = 0; i < data.length; i++)
+		//{
+		//	values[n++] = data[i];
+		//}
 	}
 
 	/**
