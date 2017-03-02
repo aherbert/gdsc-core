@@ -245,6 +245,7 @@ public class StoredData implements Iterable<Double>, DoubleData
 		{
 			checkCapacity(data.n);
 			System.arraycopy(data.values, 0, values, n, data.n);
+			this.n += data.n;
 		}
 	}
 
