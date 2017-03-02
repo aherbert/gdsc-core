@@ -34,9 +34,11 @@ import java.util.concurrent.Future;
 
 import javax.swing.JLabel;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.util.FastMath;
 
 import gdsc.core.utils.Maths;
+import gdsc.core.utils.Statistics;
 import gdsc.core.utils.StoredDataStatistics;
 import gdsc.core.utils.DoubleData;
 import ij.IJ;
@@ -1090,23 +1092,22 @@ public class Utils
 	{
 		double width;
 		double[] limits;
-		StoredDataStatistics stats;
 		switch (method)
 		{
 			case SCOTT:
-				stats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
-						: new StoredDataStatistics(data.values());
-				width = getBinWidthScottsRule(stats.getStandardDeviation(), stats.size());
-				limits = Maths.limits(stats.values());
+				Statistics stats = (data instanceof Statistics) ? (Statistics) data
+						: new Statistics(data.values());
+				width = getBinWidthScottsRule(stats.getStandardDeviation(), data.size());
+				limits = Maths.limits(data.values());
 				return (int) Math.ceil((limits[1] - limits[0]) / width);
 
 			case FD:
-				stats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
-						: new StoredDataStatistics(data.values());
-				double lower = stats.getStatistics().getPercentile(25);
-				double upper = stats.getStatistics().getPercentile(75);
-				width = getBinWidthFreedmanDiaconisRule(upper, lower, stats.size());
-				limits = Maths.limits(stats.values());
+				DescriptiveStatistics descriptiveStats = (data instanceof StoredDataStatistics)
+						? ((StoredDataStatistics) data).getStatistics() : new DescriptiveStatistics(data.values());
+				double lower = descriptiveStats.getPercentile(25);
+				double upper = descriptiveStats.getPercentile(75);
+				width = getBinWidthFreedmanDiaconisRule(upper, lower, data.size());
+				limits = Maths.limits(data.values());
 				return (int) Math.ceil((limits[1] - limits[0]) / width);
 
 			case STURGES:
@@ -1167,7 +1168,7 @@ public class Utils
 		}
 		return progressBar;
 	}
-	
+
 	/**
 	 * Use reflection to replace the progress bar with null
 	 * 
