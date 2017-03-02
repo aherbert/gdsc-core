@@ -1155,6 +1155,20 @@ public class Utils
 	private static ProgressBar progressBar = null;
 
 	/**
+	 * Gets the ImageJ GUI progress bar.
+	 *
+	 * @return the progress bar
+	 */
+	public static ProgressBar getProgressBar()
+	{
+		if (progressBar == null)
+		{
+			progressBar = IJ.getInstance().getProgressBar();
+		}
+		return progressBar;
+	}
+	
+	/**
 	 * Use reflection to replace the progress bar with null
 	 * 
 	 * @param showProgress
@@ -1162,10 +1176,7 @@ public class Utils
 	 */
 	public static void setShowProgress(boolean showProgress)
 	{
-		if (progressBar == null)
-		{
-			progressBar = IJ.getInstance().getProgressBar();
-		}
+		getProgressBar();
 
 		ProgressBar newProgressBar;
 		if (showProgress)
@@ -1193,7 +1204,7 @@ public class Utils
 	private static JLabel statusLine = null;
 
 	/**
-	 * Gets the status bar label
+	 * Gets the ImageJ GUI status bar label
 	 *
 	 * @return the status bar label
 	 */
