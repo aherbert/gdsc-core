@@ -1,5 +1,7 @@
 package gdsc.core.utils;
 
+import java.util.Arrays;
+
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
  * 
@@ -148,7 +150,7 @@ public class Random
 	}
 
 	/**
-	 * Perform a Fischer-Yates shuffle on the data
+	 * Perform a Fisher-Yates shuffle on the data
 	 * 
 	 * @param data
 	 *            the data
@@ -168,7 +170,7 @@ public class Random
 	}
 
 	/**
-	 * Perform a Fischer-Yates shuffle on the data
+	 * Perform a Fisher-Yates shuffle on the data
 	 * 
 	 * @param data
 	 *            the data
@@ -188,7 +190,7 @@ public class Random
 	}
 
 	/**
-	 * Perform a Fischer-Yates shuffle on the data
+	 * Perform a Fisher-Yates shuffle on the data
 	 * 
 	 * @param data
 	 *            the data
@@ -205,6 +207,70 @@ public class Random
 			data[j] = tmp;
 			//}
 		}
+	}
+
+	/**
+	 * Sample k objects without replacement from n objects. This is done using an in-line Fisher-Yates shuffle on an
+	 * array of length n for the first k target indices.
+	 * <p>
+	 * Note: Returns an empty array if n or k are less than 1. Returns an ascending array of indices if k is equal or
+	 * bigger than n.
+	 *
+	 * @param k
+	 *            the k
+	 * @param n
+	 *            the n
+	 * @return the sample
+	 */
+	public int[] sample(final int k, final int n)
+	{
+		// Avoid stupidity
+		if (n < 1 || k < 1)
+			return new int[0];
+
+		// Create a range of data to sample
+		final int[] data = new int[n];
+		for (int i = 1; i < n; i++)
+			data[i] = i;
+
+		if (k >= n)
+			// No sub-sample needed
+			return data;
+
+		// If k>n/2 then we can sample (n-k) and then construct the result 
+		// by removing the selection from the original range.
+		if (k > n / 2)
+		{
+			final int[] sample = inlineSelection(data.clone(), n - k);
+			// Flag for removal
+			for (int i = 0; i < sample.length; i++)
+				data[sample[i]] = -1;
+			// Remove from original series
+			int c = 0;
+			for (int i = 0; i < n; i++)
+			{
+				if (data[i] == -1)
+					continue;
+				data[c++] = data[i];
+			}
+			return Arrays.copyOf(data, c);
+		}
+
+		return inlineSelection(data, k);
+	}
+
+	private int[] inlineSelection(final int[] data, int k)
+	{
+		// Do an in-line Fisher-Yates shuffle into a result array
+		final int[] result = new int[k];
+		for (int i = data.length - 1; k-- > 0; i--)
+		{
+			int j = (int) (next() * (i + 1));
+			// We don't need result[i] anymore so write direct to the result array 
+			result[k] = data[j];
+			data[j] = data[i];
+		}
+		return result;
 	}
 
 	/**
