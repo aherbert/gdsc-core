@@ -274,6 +274,26 @@ public class Random
 	}
 
 	/**
+	 * Sample k values without replacement from the data.
+	 * <p>
+	 * Note: Returns an empty array if k is less than 1. Returns a copy of the data if k is greater than data.length.
+	 *
+	 * @param k
+	 *            the k
+	 * @param n
+	 *            the n
+	 * @return the sample
+	 */
+	public int[] sample(final int k, final int[] data)
+	{
+		int[] sample = sample(k, data.length);
+		// Convert indices to values
+		for (int i = sample.length; i-- > 0;)
+			sample[i] = data[sample[i]];
+		return sample;
+	}
+
+	/**
 	 * Generate a random integer
 	 *
 	 * @return the integer
