@@ -17,11 +17,10 @@ package gdsc.core.math;
  *---------------------------------------------------------------------------*/
 
 /**
- * Compute the radial sum of 2D data.
+ * Compute the radial statistics of 2D data.
  */
-public class RadialSum
+public class RadialStatistics
 {
-
 	/**
 	 * Compute the radial sum of circles up to radius size/2. The sum includes all pixels that are at a radius (r) equal
 	 * to or greater than n and less than n+1.
