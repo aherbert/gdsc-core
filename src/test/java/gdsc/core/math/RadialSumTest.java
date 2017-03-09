@@ -7,8 +7,6 @@ import org.junit.Test;
 
 public class RadialSumTest
 {
-	final double DELTA = 1e-8;
-
 	@Test
 	public void canComputeRadialSum()
 	{
