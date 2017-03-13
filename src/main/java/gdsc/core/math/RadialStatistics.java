@@ -41,60 +41,58 @@ public class RadialStatistics
 			throw new IllegalArgumentException("Data is incorrect size");
 
 		// Centre
-		int cx = size / 2;
+		final int cx = size / 2;
 
 		// Maximum distance from centre in each dimension
-		int max = size - cx;
+		final int max = size - cx;
 
 		// Squared distance
-		int[] d2 = new int[max + 1];
+		final int[] d2 = new int[max + 1];
 		for (int i = 1; i < d2.length; i++)
 		{
 			d2[i] = i * i;
 		}
 
-		double[] sum = new double[max];
+		final double[] sum = new double[max];
 
 		// Centre
 		int cxi = size * cx + cx;
 		sum[0] = data[cxi];
 
 		// Do the central row
-		for (int x1 = cx + 1, xi = 1, i1 = cxi - 1, i2 = cxi + 1; x1 < size; x1++, xi++, i1++, i2--)
+		for (int xi = 1, i1 = cxi - 1, i2 = cxi + 1; xi < max; xi++, i1++, i2--)
 		{
 			sum[xi] = data[i1] + data[i2];
 		}
 		// Do the central column
-		for (int y1 = cx + 1, xi = 1, i1 = cxi + size, i2 = cxi - size; y1 < size; y1++, xi++, i1 += size, i2 -= size)
+		for (int xi = 1, i1 = cxi + size, i2 = cxi - size; xi < max; xi++, i1 += size, i2 -= size)
 		{
 			sum[xi] += data[i1] + data[i2];
 		}
 
 		// Sweep out from centre
-		Y: for (int y1 = cx + 1, y2 = cx - 1, yi = 1; y1 < size; y1++, y2--, yi++)
+		Y: for (int y1 = cx + 1, y2 = cx - 1, yi = 1; yi < max; y1++, y2--, yi++)
 		{
-			int d2y = d2[yi];
+			final int d2y = d2[yi];
 			//@formatter:off
 			// Initialise for sweep of 2 rows (below (y1) and above (y2)) 
 			// from the centre outwards in both directions. missing the initial column.
-			for (int x1 = cx + 1, 
-					xi = 1, 
+			for (int xi = 1, 
 					xyi = yi, // This will be the initial squared distance index
 					i1 = size * y1 + cx - 1, 
-					i2 = size * y1 + cx + 1, 
+					i2 = i1 + 2, 
 					i3 = size * y2 + cx - 1, 
-					i4 = size * y2 + cx + 1;
+					i4 = i3 + 2;
 					// Condition
-					x1 < size; 
+					xi < max; 
 					// Move indices
-					x1++, xi++, i1--, i2++, i3--, i4++)
+					xi++, i1--, i2++, i3--, i4++)
 				//@formatter:on
 			{
-				int d = d2[xi] + d2y;
 				// Find index in squared distance array:
 				// d2[xyi] <= d < d2[xyi+1]
 				// No need for loop as we are only moving a max of 1 pixel distance increment
-				if (d2[xyi + 1] <= d)
+				if (d2[xyi + 1] <= d2[xi] + d2y)
 				{
 					xyi++;
 					if (xyi == max)
@@ -121,50 +119,48 @@ public class RadialStatistics
 			throw new IllegalArgumentException("Size must be positive");
 
 		// Centre
-		int cx = size / 2;
+		final int cx = size / 2;
 
 		// Maximum distance from centre in each dimension
-		int max = size - cx;
+		final int max = size - cx;
 
 		// Squared distance
-		int[] d2 = new int[max + 1];
+		final int[] d2 = new int[max + 1];
 		for (int i = 1; i < d2.length; i++)
 		{
 			d2[i] = i * i;
 		}
 
-		int[] sum = new int[max];
+		final int[] sum = new int[max];
 
 		// Centre
 		sum[0] = 1;
 
 		// Do the central row. This is mirrored to the column
-		for (int x1 = cx + 1, xi = 1; x1 < size; x1++, xi++)
+		for (int xi = 1; xi < max; xi++)
 		{
 			sum[xi] = 4;
 		}
 
 		// Sweep out from centre
-		Y: for (int y1 = cx + 1, yi = 1; y1 < size; y1++, yi++)
+		Y: for (int yi = 1; yi < max; yi++)
 		{
-			int d2y = d2[yi];
+			final int d2y = d2[yi];
 			//@formatter:off
 			// Initialise for sweep of 2 rows (below (y1) and above (y2)) 
 			// from the centre outwards in both directions. missing the initial column.
-			for (int x1 = cx + 1, 
-					xi = 1, 
+			for (int xi = 1, 
 					xyi = yi; // This will be the initial squared distance index
 					// Condition
-					x1 < size; 
+					xi < max; 
 					// Move indices
-					x1++, xi++)
+					xi++)
 				//@formatter:on
 			{
-				int d = d2[xi] + d2y;
 				// Find index in squared distance array:
 				// d2[xyi] <= d < d2[xyi+1]
 				// No need for loop as we are only moving a max of 1 pixel distance increment
-				if (d2[xyi + 1] <= d)
+				if (d2[xyi + 1] <= d2[xi] + d2y)
 				{
 					xyi++;
 					if (xyi == max)
@@ -201,19 +197,19 @@ public class RadialStatistics
 				throw new IllegalArgumentException("Data array " + mi + " is incorrect size");
 
 		// Centre
-		int cx = size / 2;
+		final int cx = size / 2;
 
 		// Maximum distance from centre in each dimension
-		int max = size - cx;
+		final int max = size - cx;
 
 		// Squared distance
-		int[] d2 = new int[max + 1];
+		final int[] d2 = new int[max + 1];
 		for (int i = 1; i < d2.length; i++)
 		{
 			d2[i] = i * i;
 		}
 
-		double[][] sum = new double[m][max];
+		final double[][] sum = new double[m][max];
 
 		// Centre
 		int cxi = size * cx + cx;
@@ -221,43 +217,41 @@ public class RadialStatistics
 			sum[mi][0] = data[mi][cxi];
 
 		// Do the central row
-		for (int x1 = cx + 1, xi = 1, i1 = cxi - 1, i2 = cxi + 1; x1 < size; x1++, xi++, i1++, i2--)
+		for (int xi = 1, i1 = cxi - 1, i2 = cxi + 1; xi < max; xi++, i1++, i2--)
 		{
 			for (int mi = 0; mi < m; mi++)
 				sum[mi][xi] = data[mi][i1] + data[mi][i2];
 		}
 		// Do the central column
-		for (int y1 = cx + 1, xi = 1, i1 = cxi + size, i2 = cxi - size; y1 < size; y1++, xi++, i1 += size, i2 -= size)
+		for (int xi = 1, i1 = cxi + size, i2 = cxi - size; xi < max; xi++, i1 += size, i2 -= size)
 		{
 			for (int mi = 0; mi < m; mi++)
 				sum[mi][xi] += data[mi][i1] + data[mi][i2];
 		}
 
 		// Sweep out from centre
-		Y: for (int y1 = cx + 1, y2 = cx - 1, yi = 1; y1 < size; y1++, y2--, yi++)
+		Y: for (int y1 = cx + 1, y2 = cx - 1, yi = 1; yi < max; y1++, y2--, yi++)
 		{
-			int d2y = d2[yi];
+			final int d2y = d2[yi];
 			//@formatter:off
 			// Initialise for sweep of 2 rows (below (y1) and above (y2)) 
 			// from the centre outwards in both directions. missing the initial column.
-			for (int x1 = cx + 1, 
-					xi = 1, 
+			for (int xi = 1, 
 					xyi = yi, // This will be the initial squared distance index
 					i1 = size * y1 + cx - 1, 
-					i2 = size * y1 + cx + 1, 
+					i2 = i1 + 2, 
 					i3 = size * y2 + cx - 1, 
-					i4 = size * y2 + cx + 1;
+					i4 = i3 + 2;
 					// Condition
-					x1 < size; 
+					xi < max; 
 					// Move indices
-					x1++, xi++, i1--, i2++, i3--, i4++)
+					xi++, i1--, i2++, i3--, i4++)
 				//@formatter:on
 			{
-				int d = d2[xi] + d2y;
 				// Find index in squared distance array:
 				// d2[xyi] <= d < d2[xyi+1]
 				// No need for loop as we are only moving a max of 1 pixel distance increment
-				if (d2[xyi + 1] <= d)
+				if (d2[xyi + 1] <= d2[xi] + d2y)
 				{
 					xyi++;
 					if (xyi == max)
@@ -296,19 +290,19 @@ public class RadialStatistics
 				throw new IllegalArgumentException("Data array " + mi + " is incorrect size");
 
 		// Centre
-		int cx = size / 2;
+		final int cx = size / 2;
 
 		// Maximum distance from centre in each dimension
-		int max = size - cx;
+		final int max = size - cx;
 
 		// Squared distance
-		int[] d2 = new int[max + 1];
+		final int[] d2 = new int[max + 1];
 		for (int i = 1; i < d2.length; i++)
 		{
 			d2[i] = i * i;
 		}
 
-		double[][] sum = new double[m + 1][max];
+		final double[][] sum = new double[m + 1][max];
 
 		// Centre
 		int cxi = size * cx + cx;
@@ -317,14 +311,14 @@ public class RadialStatistics
 		sum[m][0] = 1;
 
 		// Do the central row
-		for (int x1 = cx + 1, xi = 1, i1 = cxi - 1, i2 = cxi + 1; x1 < size; x1++, xi++, i1++, i2--)
+		for (int xi = 1, i1 = cxi - 1, i2 = cxi + 1; xi < max; xi++, i1++, i2--)
 		{
 			for (int mi = 0; mi < m; mi++)
 				sum[mi][xi] = data[mi][i1] + data[mi][i2];
 			sum[m][xi] = 2;
 		}
 		// Do the central column
-		for (int y1 = cx + 1, xi = 1, i1 = cxi + size, i2 = cxi - size; y1 < size; y1++, xi++, i1 += size, i2 -= size)
+		for (int xi = 1, i1 = cxi + size, i2 = cxi - size; xi < max; xi++, i1 += size, i2 -= size)
 		{
 			for (int mi = 0; mi < m; mi++)
 				sum[mi][xi] += data[mi][i1] + data[mi][i2];
@@ -332,30 +326,28 @@ public class RadialStatistics
 		}
 
 		// Sweep out from centre
-		Y: for (int y1 = cx + 1, y2 = cx - 1, yi = 1; y1 < size; y1++, y2--, yi++)
+		Y: for (int y1 = cx + 1, y2 = cx - 1, yi = 1; yi < max; y1++, y2--, yi++)
 		{
-			int d2y = d2[yi];
+			final int d2y = d2[yi];
 			//@formatter:off
 			// Initialise for sweep of 2 rows (below (y1) and above (y2)) 
 			// from the centre outwards in both directions. missing the initial column.
-			for (int x1 = cx + 1, 
-					xi = 1, 
+			for (int xi = 1, 
 					xyi = yi, // This will be the initial squared distance index
 					i1 = size * y1 + cx - 1, 
-					i2 = size * y1 + cx + 1, 
+					i2 = i1 + 2, 
 					i3 = size * y2 + cx - 1, 
-					i4 = size * y2 + cx + 1;
+					i4 = i3 + 2;
 					// Condition
-					x1 < size; 
+					xi < max; 
 					// Move indices
-					x1++, xi++, i1--, i2++, i3--, i4++)
+					xi++, i1--, i2++, i3--, i4++)
 				//@formatter:on
 			{
-				int d = d2[xi] + d2y;
 				// Find index in squared distance array:
 				// d2[xyi] <= d < d2[xyi+1]
 				// No need for loop as we are only moving a max of 1 pixel distance increment
-				if (d2[xyi + 1] <= d)
+				if (d2[xyi + 1] <= d2[xi] + d2y)
 				{
 					xyi++;
 					if (xyi == max)
