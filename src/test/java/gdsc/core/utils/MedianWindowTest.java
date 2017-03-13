@@ -7,6 +7,7 @@ import org.apache.commons.math3.util.FastMath;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.core.ij.Utils;
 import gdsc.core.utils.MedianWindow;
 import gdsc.core.utils.MedianWindowDLL;
 import gdsc.core.utils.MedianWindowFloat;
@@ -52,7 +53,7 @@ public class MedianWindowTest
 	@Test
 	public void canComputeMedianForRandomDataUsingDynamicLinkedListIfNewDataIsAboveMedian()
 	{
-		double[] data = new double[] {1,2,3,4,5};
+		double[] data = new double[] { 1, 2, 3, 4, 5 };
 
 		MedianWindowDLL mw = new MedianWindowDLL(data);
 		double median = mw.getMedian();
@@ -127,6 +128,8 @@ public class MedianWindowTest
 	@Test
 	public void canComputeMedianForSparseDataUsingSingleIncrement()
 	{
+		//canComputeMedianForDataUsingSingleIncrement(Utils.newArray(10, 1.0, 1));
+
 		for (double value : values)
 			canComputeMedianForDataUsingSingleIncrement(createSparseData(dataSize, value));
 	}
@@ -155,6 +158,7 @@ public class MedianWindowTest
 				double median = mw.getMedian();
 				mw.increment();
 				double median2 = calculateMedian(data, i, radius);
+				//System.out.printf("%f vs %f\n", median, median2);
 				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
 			}
 		}
@@ -188,6 +192,31 @@ public class MedianWindowTest
 				double median2 = calculateMedian(data, i, radius);
 				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
 			}
+		}
+	}
+
+	@Test(expected = AssertionError.class)
+	public void cannotComputeMedianBackToInputArrayUsingSingleIncrement()
+	{
+		double[] data = Utils.newArray(dataSize, 0.0, 1);
+		for (int radius : radii)
+		{
+			double[] in = data.clone();
+			double[] e = new double[in.length];
+			MedianWindow mw = new MedianWindow(in, radius);
+			for (int i = 0; i < data.length; i++)
+			{
+				e[i] = mw.getMedian();
+				mw.increment();
+			}
+			// Must create a new window
+			mw = new MedianWindow(in, radius);
+			for (int i = 0; i < data.length; i++)
+			{
+				in[i] = mw.getMedian();
+				mw.increment();
+			}
+			Assert.assertArrayEquals(e, in, 0);
 		}
 	}
 
@@ -352,8 +381,8 @@ public class MedianWindowTest
 		long t2 = System.nanoTime() - s2;
 
 		Assert.assertArrayEquals(m1, m2, 1e-6);
-		System.out.printf("Radius %d, Increment %d : window %d : standard %d = %fx faster\n", radius, increment, t1,
-				t2, (double) t2 / t1);
+		System.out.printf("Radius %d, Increment %d : window %d : standard %d = %fx faster\n", radius, increment, t1, t2,
+				(double) t2 / t1);
 
 		// Only test the largest radii 
 		if (radius == speedRadii[speedRadii.length - 1])

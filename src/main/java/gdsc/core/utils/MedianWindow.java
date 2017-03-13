@@ -18,7 +18,7 @@ import org.apache.commons.math3.util.FastMath;
  *---------------------------------------------------------------------------*/
 
 /**
- * Provides a rolling median window on a data array
+ * Provides a rolling median window on a data array.
  */
 public class MedianWindow
 {
@@ -29,10 +29,15 @@ public class MedianWindow
 	private boolean sortedScan = false;
 
 	/**
+	 * Instantiates a new median window.
+	 * <p>
+	 * Note that if the median must be written back to a different array,
+	 * i.e. the input data should be cloned if the array is to be reused.
+	 * 
 	 * @param data
+	 *            the data
 	 * @param radius
-	 * @throws IllegalArgumentException
-	 *             if the input data is null
+	 *            the radius
 	 * @throws IllegalArgumentException
 	 *             if the radius is negative
 	 */
