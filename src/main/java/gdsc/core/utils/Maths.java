@@ -914,7 +914,7 @@ public class Maths
 		if (value < lower)
 			return lower;
 		if (value > upper)
-			return lower;
+			return upper;
 		return value;
 	}
 
@@ -934,7 +934,7 @@ public class Maths
 		if (value < lower)
 			return lower;
 		if (value > upper)
-			return lower;
+			return upper;
 		return value;
 	}
 
@@ -954,7 +954,7 @@ public class Maths
 		if (value < lower)
 			return lower;
 		if (value > upper)
-			return lower;
+			return upper;
 		return value;
 	}
 }
