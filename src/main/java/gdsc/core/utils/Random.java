@@ -216,6 +216,8 @@ public class Random extends AbstractRandomGenerator
 	 *            the k
 	 * @param n
 	 *            the n
+	 * @param r
+	 *            the random generator
 	 * @return the sample
 	 */
 	public static int[] sample(final int k, final int n, RandomGenerator r)
@@ -281,8 +283,10 @@ public class Random extends AbstractRandomGenerator
 	 *
 	 * @param k
 	 *            the k
-	 * @param n
-	 *            the n
+	 * @param data
+	 *            the data
+	 * @param r
+	 *            the random generator
 	 * @return the sample
 	 */
 	public static int[] sample(final int k, final int[] data, RandomGenerator r)
