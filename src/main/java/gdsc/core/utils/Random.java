@@ -332,7 +332,7 @@ public class Random extends AbstractRandomGenerator
 	@Override
 	public void setSeed(long seed)
 	{
-		init((int) seed);
+		init((int) (seed & 0xffffffffL));
 	}
 
 	@Override
