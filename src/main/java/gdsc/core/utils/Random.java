@@ -2,6 +2,9 @@ package gdsc.core.utils;
 
 import java.util.Arrays;
 
+import org.apache.commons.math3.random.AbstractRandomGenerator;
+import org.apache.commons.math3.random.RandomGenerator;
+
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
  * 
@@ -18,7 +21,7 @@ import java.util.Arrays;
 /**
  * Random number generator.
  */
-public class Random
+public class Random extends AbstractRandomGenerator
 {
 	private static int IA = 16807, IM = 2147483647, IQ = 127773, IR = 2836, NTAB = 32;
 	private static int NDIV = (1 + (IM - 1) / NTAB);
@@ -29,8 +32,6 @@ public class Random
 	private int idum;
 	private int iy = 0;
 	private int[] iv = new int[NTAB];
-	private boolean haveNextNextGaussian = false;
-	private double nextNextGaussian = 0;
 
 	/**
 	 * Default constructor
@@ -77,9 +78,7 @@ public class Random
 	 */
 	public float next(boolean includeOne)
 	{
-		if (includeOne)
-			return next(1f);
-		return next(RNMX);
+		return (includeOne) ? next(1f) : next(RNMX);
 	}
 
 	/**
@@ -122,34 +121,6 @@ public class Random
 	}
 
 	/**
-	 * Returns a random number from a Gaussian distribution with mean 0 and standard deviation 1
-	 * 
-	 * @return Random number
-	 */
-	public double nextGaussian()
-	{
-		if (haveNextNextGaussian)
-		{
-			haveNextNextGaussian = false;
-			return nextNextGaussian;
-		}
-		else
-		{
-			double v1, v2, s;
-			do
-			{
-				v1 = 2 * next() - 1; // between -1.0 and 1.0
-				v2 = 2 * next() - 1; // between -1.0 and 1.0
-				s = v1 * v1 + v2 * v2;
-			} while (s >= 1 || s == 0);
-			double multiplier = StrictMath.sqrt(-2 * StrictMath.log(s) / s);
-			nextNextGaussian = v2 * multiplier;
-			haveNextNextGaussian = true;
-			return v1 * multiplier;
-		}
-	}
-
-	/**
 	 * Perform a Fisher-Yates shuffle on the data
 	 * 
 	 * @param data
@@ -159,13 +130,10 @@ public class Random
 	{
 		for (int i = data.length; i-- > 1;)
 		{
-			int j = (int) (next() * (i + 1));
-			//if (i != j)  // This comparison is probably not worth it
-			//{
+			int j = nextInt(i + 1);
 			double tmp = data[i];
 			data[i] = data[j];
 			data[j] = tmp;
-			//}
 		}
 	}
 
@@ -179,13 +147,10 @@ public class Random
 	{
 		for (int i = data.length; i-- > 1;)
 		{
-			int j = (int) (next() * (i + 1));
-			//if (i != j)  // This comparison is probably not worth it
-			//{
+			int j = nextInt(i + 1);
 			float tmp = data[i];
 			data[i] = data[j];
 			data[j] = tmp;
-			//}
 		}
 	}
 
@@ -199,13 +164,10 @@ public class Random
 	{
 		for (int i = data.length; i-- > 1;)
 		{
-			int j = (int) (next() * (i + 1));
-			//if (i != j)  // This comparison is probably not worth it
-			//{
+			int j = nextInt(i + 1);
 			int tmp = data[i];
 			data[i] = data[j];
 			data[j] = tmp;
-			//}
 		}
 	}
 
@@ -224,6 +186,40 @@ public class Random
 	 */
 	public int[] sample(final int k, final int n)
 	{
+		return sample(k, n, this);
+	}
+
+	/**
+	 * Sample k values without replacement from the data.
+	 * <p>
+	 * Note: Returns an empty array if k is less than 1. Returns a copy of the data if k is greater than data.length.
+	 *
+	 * @param k
+	 *            the k
+	 * @param n
+	 *            the n
+	 * @return the sample
+	 */
+	public int[] sample(final int k, final int[] data)
+	{
+		return sample(k, data.length, this);
+	}
+
+	/**
+	 * Sample k objects without replacement from n objects. This is done using an in-line Fisher-Yates shuffle on an
+	 * array of length n for the first k target indices.
+	 * <p>
+	 * Note: Returns an empty array if n or k are less than 1. Returns an ascending array of indices if k is equal or
+	 * bigger than n.
+	 *
+	 * @param k
+	 *            the k
+	 * @param n
+	 *            the n
+	 * @return the sample
+	 */
+	public static int[] sample(final int k, final int n, RandomGenerator r)
+	{
 		// Avoid stupidity
 		if (n < 1 || k < 1)
 			return new int[0];
@@ -241,7 +237,7 @@ public class Random
 		// by removing the selection from the original range.
 		if (k > n / 2)
 		{
-			final int[] sample = inlineSelection(data.clone(), n - k);
+			final int[] sample = inlineSelection(data.clone(), n - k, r);
 			// Flag for removal
 			for (int i = 0; i < sample.length; i++)
 				data[sample[i]] = -1;
@@ -256,17 +252,22 @@ public class Random
 			return Arrays.copyOf(data, c);
 		}
 
-		return inlineSelection(data, k);
+		return inlineSelection(data, k, r);
 	}
 
-	private int[] inlineSelection(final int[] data, int k)
+	private static int[] inlineSelection(final int[] data, int k, RandomGenerator r)
 	{
 		// Do an in-line Fisher-Yates shuffle into a result array
 		final int[] result = new int[k];
 		for (int i = data.length - 1; k-- > 0; i--)
 		{
-			int j = (int) (next() * (i + 1));
-			// We don't need result[i] anymore so write direct to the result array 
+			int j = r.nextInt(i + 1);
+			// In a standard shuffle we swap i and j:
+			// int tmp = data[i];
+			// data[i] = data[j];
+			// data[j] = tmp;
+			// i then becomes fixed (with a random sample) as we descend the array.
+			// This method is modified to write i into j and write what we would put into i into the result array. 
 			result[k] = data[j];
 			data[j] = data[i];
 		}
@@ -284,35 +285,13 @@ public class Random
 	 *            the n
 	 * @return the sample
 	 */
-	public int[] sample(final int k, final int[] data)
+	public static int[] sample(final int k, final int[] data, RandomGenerator r)
 	{
-		int[] sample = sample(k, data.length);
+		int[] sample = sample(k, data.length, r);
 		// Convert indices to values
 		for (int i = sample.length; i-- > 0;)
 			sample[i] = data[sample[i]];
 		return sample;
-	}
-
-	/**
-	 * Generate a random integer
-	 *
-	 * @return the integer
-	 */
-	public int nextInt()
-	{
-		return (int) ((2d * next(true) - 1d) * Integer.MAX_VALUE);
-	}
-
-	/**
-	 * Generate a random integer between zero (included) and upper (excluded)
-	 *
-	 * @param upper
-	 *            the upper
-	 * @return the integer
-	 */
-	public int nextInt(int upper)
-	{
-		return (int) (next() * upper);
 	}
 
 	/**
@@ -346,5 +325,39 @@ public class Random
 			// We can shift the range and directly generate a positive int.
 			return lower + nextInt(max);
 		}
+	}
+
+	// Apache commons random generator methods
+
+	@Override
+	public void setSeed(long seed)
+	{
+		init((int) seed);
+	}
+
+	@Override
+	public double nextDouble()
+	{
+		// 0 to 1 inclusive
+		return next(true);
+	}
+
+	@Override
+	public float nextFloat()
+	{
+		// 0 to 1 inclusive
+		return next(true);
+	}
+
+	@Override
+	public int nextInt()
+	{
+		return (int) ((2d * next(true) - 1d) * Integer.MAX_VALUE);
+	}
+
+	@Override
+	public int nextInt(int upper)
+	{
+		return (int) (next() * upper);
 	}
 }
