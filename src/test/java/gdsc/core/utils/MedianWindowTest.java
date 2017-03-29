@@ -16,7 +16,6 @@ import gdsc.core.utils.Random;
 
 public class MedianWindowTest
 {
-	Random random = new Random(30051977);
 	int dataSize = 2000;
 	int[] radii = new int[] { 0, 1, 2, 4, 8, 16 };
 	double[] values = new double[] { 0, -1.1, 2.2 };
@@ -651,6 +650,11 @@ public class MedianWindowTest
 
 	double[] createRandomData(int size)
 	{
+		return createRandomData(new Random(30051977), size);
+	}
+
+	static double[] createRandomData(Random random, int size)
+	{
 		double[] data = new double[size];
 		for (int i = 0; i < data.length; i++)
 			data[i] = random.next() * size;
@@ -664,7 +668,7 @@ public class MedianWindowTest
 		return data;
 	}
 
-	double[] createSparseData(int size, double value)
+	static double[] createSparseData(int size, double value)
 	{
 		double[] data = new double[size];
 		for (int i = 0; i < data.length; i++)
@@ -673,7 +677,7 @@ public class MedianWindowTest
 			if (i % 32 == 0)
 				value++;
 		}
-		random.shuffle(data);
+		new Random(30051977).shuffle(data);
 		return data;
 	}
 

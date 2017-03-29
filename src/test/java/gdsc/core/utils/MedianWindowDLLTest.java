@@ -127,7 +127,7 @@ public class MedianWindowDLLTest
 				//System.out.printf("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
 				Assert.assertEquals(String.format("Position %d, Radius %d", p, radius), median2, median, 1e-6);
 			}
-			for (int i = 2*radius+1; i-- > 0; p++)
+			for (int i = 2 * radius + 1; i-- > 0; p++)
 			{
 				double median = mw.getMedianYoungest(i + 1);
 				double median2 = MedianWindowTest.calculateMedian(data, p, radius);
@@ -142,7 +142,7 @@ public class MedianWindowDLLTest
 	{
 		for (double value : values)
 		{
-			double[] data = mwt.createSparseData(dataSize, value);
+			double[] data = MedianWindowTest.createSparseData(dataSize, value);
 			for (int radius : radii)
 			{
 				double[] startData = Arrays.copyOf(data, 2 * radius + 1);
@@ -163,7 +163,7 @@ public class MedianWindowDLLTest
 					//System.out.printf("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
 					Assert.assertEquals(String.format("Position %d, Radius %d", p, radius), median2, median, 1e-6);
 				}
-				for (int i = 2*radius+1; i-- > 0; p++)
+				for (int i = 2 * radius + 1; i-- > 0; p++)
 				{
 					double median = mw.getMedianYoungest(i + 1);
 					double median2 = MedianWindowTest.calculateMedian(data, p, radius);
@@ -200,7 +200,7 @@ public class MedianWindowDLLTest
 					//System.out.printf("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
 					Assert.assertEquals(String.format("Position %d, Radius %d", p, radius), median2, median, 1e-6);
 				}
-				for (int i = 2*radius+1; i-- > 0; p++)
+				for (int i = 2 * radius + 1; i-- > 0; p++)
 				{
 					double median = mw.getMedianYoungest(i + 1);
 					double median2 = MedianWindowTest.calculateMedian(data, p, radius);
@@ -212,7 +212,7 @@ public class MedianWindowDLLTest
 	}
 
 	@Test
-	public void isFasterThenMedianWindowUsingSortedCacheData()
+	public void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall()
 	{
 		for (int radius : speedRadii)
 		{
@@ -220,12 +220,12 @@ public class MedianWindowDLLTest
 			{
 				if (increment > radius)
 					continue;
-				isFaster(radius, increment);
+				isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(radius, increment);
 			}
 		}
 	}
 
-	private void isFaster(int radius, int increment)
+	private void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(int radius, int increment)
 	{
 		int iterations = 20;
 		double[][] data = new double[iterations][];
@@ -341,8 +341,10 @@ public class MedianWindowDLLTest
 		System.out.printf("Radius %d, Increment %d : Cached %d : DLL %d = %fx faster\n", radius, increment, t1, t2,
 				(double) t1 / t2);
 
-		// Only test the largest radii with a reasonable increment
-		if (radius == speedRadii[speedRadii.length - 1] && increment <= radius / 2)
+		// Only test when the increment is small.
+		// When the increment is large then the linked list is doing too many operations
+		// verses the full array sort of the cache median window. 
+		if (increment <= 4)
 			Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1);
 	}
 }
