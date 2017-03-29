@@ -455,8 +455,9 @@ public class NonMaximumSuppressionTest
 		System.out.printf("float blockFind %d  (border >= 5) => blockFindInternal %d = %.2fx\n", bigTotal,
 				bigInternalTotal, (1.0 * bigTotal) / bigInternalTotal);
 		// Add margin for error
-		Assert.assertTrue(String.format("Internal not faster: %d > %d", bigInternalTotal, bigTotal),
-				bigInternalTotal < bigTotal * 1.05);
+		if (gdsc.core.TestSettings.ASSERT_SPEED_TESTS)
+			Assert.assertTrue(String.format("Internal not faster: %d > %d", bigInternalTotal, bigTotal),
+					bigInternalTotal < bigTotal * 1.05);
 	}
 
 	@Test
@@ -1780,8 +1781,9 @@ public class NonMaximumSuppressionTest
 		System.out.printf("int blockFind %d  (border >= 5) => blockFindInternal %d = %.2fx\n", bigTotal,
 				bigInternalTotal, (1.0 * bigTotal) / bigInternalTotal);
 		// Add margin for error
-		Assert.assertTrue(String.format("Internal not faster: %d > %d", bigInternalTotal, bigTotal),
-				bigInternalTotal < bigTotal * 1.05);
+		if (gdsc.core.TestSettings.ASSERT_SPEED_TESTS)
+			Assert.assertTrue(String.format("Internal not faster: %d > %d", bigInternalTotal, bigTotal),
+					bigInternalTotal < bigTotal * 1.05);
 	}
 
 	@Test
