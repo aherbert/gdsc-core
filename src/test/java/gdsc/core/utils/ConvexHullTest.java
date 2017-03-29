@@ -14,8 +14,8 @@ public class ConvexHullTest
 	@Test
 	public void canComputeConvexHullFromSquare()
 	{
-		float[] x = new float[] { 0, 0, 10, 10 };
-		float[] y = new float[] { 0, 10, 10, 0 };
+		float[] x = new float[] { 0, 10, 10, 0 };
+		float[] y = new float[] { 0, 0, 10, 10 };
 		ConvexHull hull = ConvexHull.create(x, y);
 		check(x, y, hull);
 	}
@@ -25,8 +25,8 @@ public class ConvexHullTest
 	{
 		float[] x = new float[] { 0, 0, 10, 10, 5 };
 		float[] y = new float[] { 0, 10, 10, 0, 5 };
-		float[] ex = new float[] { 0, 0, 10, 10 };
-		float[] ey = new float[] { 0, 10, 10, 0 };
+		float[] ex = new float[] { 0, 10, 10, 0 };
+		float[] ey = new float[] { 0, 0, 10, 10 };
 		ConvexHull hull = ConvexHull.create(x, y);
 		check(ex, ey, hull);
 	}
@@ -36,8 +36,8 @@ public class ConvexHullTest
 	{
 		float[] x = new float[] { 0, 0, 5, 10, 10 };
 		float[] y = new float[] { 0, 10, 5, 10, 0 };
-		float[] ex = new float[] { 0, 0, 10, 10 };
-		float[] ey = new float[] { 0, 10, 10, 0 };
+		float[] ex = new float[] { 0, 10, 10, 0 };
+		float[] ey = new float[] { 0, 0, 10, 10 };
 		ConvexHull hull = ConvexHull.create(x, y);
 		check(ex, ey, hull);
 	}
@@ -53,10 +53,10 @@ public class ConvexHullTest
 
 		Assert.assertEquals(n, hull.x.length);
 
-		//for (int i = 0; i < expected.npoints; i++)
+		//for (int i = 0; i < ex.length; i++)
 		//{
-		//	System.out.printf("[%d] %d==%f (%f), %d==%f (%f)\n", i, expected.xpoints[i], hull.x[i],
-		//			hull.x[i] - expected.xpoints[i], expected.ypoints[i], hull.y[i], hull.y[i] - expected.ypoints[i]);
+		//	System.out.printf("[%d] %f==%f (%f), %f==%f (%f)\n", i, ex[i], hull.x[i],
+		//			hull.x[i] - ex[i], ey[i], hull.y[i], hull.y[i] - ey[i]);
 		//}
 
 		for (int i = 0; i < n; i++)
