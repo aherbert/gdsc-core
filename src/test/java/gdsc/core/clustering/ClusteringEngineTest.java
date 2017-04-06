@@ -12,9 +12,6 @@ import gdsc.core.utils.Random;
 
 public class ClusteringEngineTest
 {
-	//private RandomGenerator rand = new Well19937c(System.currentTimeMillis() + System.identityHashCode(this));
-	private RandomGenerator rand = new Well19937c(30051977);
-
 	// Store the closest pair of clusters
 	int ii, jj;
 
@@ -49,14 +46,15 @@ public class ClusteringEngineTest
 		double radius = 50;
 		Object[] points = new Object[Repeats];
 		for (int i = 0; i < Repeats; i++)
-			points[i] = createClusters(50, 1000, 2, radius / 2);
+			points[i] = createClusters(20, 1000, 2, radius / 2);
 
 		long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
 		long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
 
 		System.out.printf("SpeedTest (Low Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1, t2,
 				(double) t1 / t2);
-		Assert.assertTrue(t2 < t1);
+		if (gdsc.core.TestSettings.ASSERT_SPEED_TESTS)
+			Assert.assertTrue(t2 < t1);
 	}
 
 	@Test
@@ -357,9 +355,17 @@ public class ClusteringEngineTest
 	private ArrayList<ClusterPoint> createPoints(int n, int size)
 	{
 		ArrayList<ClusterPoint> points = new ArrayList<ClusterPoint>(n);
+		RandomGenerator rand = getRandomGenerator();		
 		while (n-- > 0)
 			points.add(ClusterPoint.newClusterPoint(n, rand.nextDouble() * size, rand.nextDouble() * size));
 		return points;
+	}
+	
+	private RandomGenerator getRandomGenerator()
+	{
+		//return new Well19937c(System.currentTimeMillis() + System.identityHashCode(this));
+		// Use static seed for the same JUnit test each time
+		return new Well19937c(30051977);
 	}
 
 	/**
@@ -418,6 +424,7 @@ public class ClusteringEngineTest
 				throw new RuntimeException("Input time array must be at least as large as the number of points");
 			random = new Random();
 		}
+		RandomGenerator rand = getRandomGenerator();		
 		while (n-- > 0)
 		{
 			double x = rand.nextDouble() * size;
