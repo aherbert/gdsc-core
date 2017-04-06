@@ -507,7 +507,8 @@ public class MedianWindowTest
 
 		// Only test the largest radii 
 		if (radius == speedRadii[speedRadii.length - 1])
-			Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1);
+			// Allow a margin of error
+			Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1 * 1.1);
 	}
 
 	@Test
