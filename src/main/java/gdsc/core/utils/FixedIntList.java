@@ -128,7 +128,7 @@ public class FixedIntList
 		System.arraycopy(values.data, 0, data, size, length);
 		size += length;
 	}
-	
+
 	/**
 	 * Gets the value at the given index. No bounds checks are made against the size.
 	 *
@@ -170,5 +170,18 @@ public class FixedIntList
 	public void clear()
 	{
 		size = 0;
+	}
+
+	/**
+	 * Copy the data into the provided array at the given position.
+	 *
+	 * @param dest
+	 *            the destination
+	 * @param destPos
+	 *            the destination position
+	 */
+	public void copy(int[] dest, int destPos)
+	{
+		System.arraycopy(data, 0, dest, destPos, size);
 	}
 }
