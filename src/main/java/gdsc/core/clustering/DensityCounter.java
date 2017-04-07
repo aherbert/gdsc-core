@@ -219,7 +219,10 @@ public class DensityCounter
 	private final int nonEmpty, maxCellSize;
 	int[] gridPriority = null;
 
-	private int nThreads = -1;
+	// Initialise to 1 since the multi-threading is not faster unless the 
+	// number of molecules is very large and/or the radius (i.e. the total 
+	// number of comparisons) 
+	private int nThreads = 1;
 
 	static byte MODE_SYNC = 0;
 	static byte MODE_NON_SYNC = 1;
@@ -227,8 +230,6 @@ public class DensityCounter
 
 	/**
 	 * Gets the number of threads to use for multi-threaded algorithms.
-	 * <p>
-	 * Note: This is initialised to the number of processors available to the JVM.
 	 *
 	 * @return the number of threads
 	 */
