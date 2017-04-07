@@ -750,33 +750,37 @@ public class DensityManager extends CoordinateStore
 		{
 			for (int xBin = 0; xBin < nXBins; xBin++)
 			{
+				if (grid[xBin][yBin] == null)
+					continue;
+
+				// Build a list of which cells to compare up to a maximum of 4
+				//      | 0,0  |  1,0
+				// ------------+-----
+				// -1,1 | 0,1  |  1,1
+
+				int count = 1;
+
+				if (yBin < nYBins - 1)
+				{
+					neighbours[count++] = grid[xBin][yBin + 1];
+					if (xBin > 0)
+						neighbours[count++] = grid[xBin - 1][yBin + 1];
+				}
+				if (xBin < nXBins - 1)
+				{
+					neighbours[count++] = grid[xBin + 1][yBin];
+					if (yBin < nYBins - 1)
+						neighbours[count++] = grid[xBin + 1][yBin + 1];
+				}
+
 				for (Molecule m1 = grid[xBin][yBin]; m1 != null; m1 = m1.next)
 				{
-					// Build a list of which cells to compare up to a maximum of 4
-					//      | 0,0  |  1,0
-					// ------------+-----
-					// -1,1 | 0,1  |  1,1
-
-					int count = 1;
 					neighbours[0] = m1.next;
 
-					if (yBin < nYBins - 1)
-					{
-						neighbours[count++] = grid[xBin][yBin + 1];
-						if (xBin > 0)
-							neighbours[count++] = grid[xBin - 1][yBin + 1];
-					}
-					if (xBin < nXBins - 1)
-					{
-						neighbours[count++] = grid[xBin + 1][yBin];
-						if (yBin < nYBins - 1)
-							neighbours[count++] = grid[xBin + 1][yBin + 1];
-					}
-
 					// Compare to neighbours
-					while (count-- > 0)
+					for (int c = count; c-- > 0;)
 					{
-						for (Molecule m2 = neighbours[count]; m2 != null; m2 = m2.next)
+						for (Molecule m2 = neighbours[c]; m2 != null; m2 = m2.next)
 						{
 							if (m1.distance2(m2) < radius2)
 							{
@@ -961,33 +965,37 @@ public class DensityManager extends CoordinateStore
 		{
 			for (int xBin = 0; xBin < nXBins; xBin++)
 			{
+				if (grid[xBin][yBin] == null)
+					continue;
+				
+				// Build a list of which cells to compare up to a maximum of 4
+				//      | 0,0  |  1,0
+				// ------------+-----
+				// -1,1 | 0,1  |  1,1
+
+				int count = 1;
+
+				if (yBin < nYBins - 1)
+				{
+					neighbours[count++] = grid[xBin][yBin + 1];
+					if (xBin > 0)
+						neighbours[count++] = grid[xBin - 1][yBin + 1];
+				}
+				if (xBin < nXBins - 1)
+				{
+					neighbours[count++] = grid[xBin + 1][yBin];
+					if (yBin < nYBins - 1)
+						neighbours[count++] = grid[xBin + 1][yBin + 1];
+				}
+				
 				for (Molecule m1 = grid[xBin][yBin]; m1 != null; m1 = m1.next)
 				{
-					// Build a list of which cells to compare up to a maximum of 4
-					//      | 0,0  |  1,0
-					// ------------+-----
-					// -1,1 | 0,1  |  1,1
-
-					int count = 1;
 					neighbours[0] = m1.next;
 
-					if (yBin < nYBins - 1)
-					{
-						neighbours[count++] = grid[xBin][yBin + 1];
-						if (xBin > 0)
-							neighbours[count++] = grid[xBin - 1][yBin + 1];
-					}
-					if (xBin < nXBins - 1)
-					{
-						neighbours[count++] = grid[xBin + 1][yBin];
-						if (yBin < nYBins - 1)
-							neighbours[count++] = grid[xBin + 1][yBin + 1];
-					}
-
 					// Compare to neighbours
-					while (count-- > 0)
+					for (int c = count; c-- > 0;)
 					{
-						for (Molecule m2 = neighbours[count]; m2 != null; m2 = m2.next)
+						for (Molecule m2 = neighbours[c]; m2 != null; m2 = m2.next)
 						{
 							if (m1.distance2(m2) < radius2)
 							{
