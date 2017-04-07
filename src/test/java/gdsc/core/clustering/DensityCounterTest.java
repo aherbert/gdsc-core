@@ -1,5 +1,7 @@
 package gdsc.core.clustering;
 
+import org.apache.commons.math3.random.RandomDataGenerator;
+
 /*----------------------------------------------------------------------------- 
  * GDSC ImageJ Software
  * 
@@ -63,7 +65,7 @@ public class DensityCounterTest
 			}
 		}
 	}
-	
+
 	/**
 	 * Count all with single thread matches count all.
 	 */
@@ -78,6 +80,35 @@ public class DensityCounterTest
 			{
 				DensityCounter c = new DensityCounter(molecules, radius, true);
 				c.setNumberOfThreads(1);
+
+				int[][] d1 = DensityCounter.countAll(molecules, radius, nChannels - 1);
+				int[][] d2 = c.countAll(nChannels - 1);
+
+				String name = String.format("N=%d, R=%f", n, radius);
+				Assert.assertNotNull(name, d1);
+				Assert.assertNotNull(name, d2);
+				Assert.assertEquals(name, d1.length, n);
+				Assert.assertEquals(name, d2.length, n);
+				for (int i = 0; i < n; i++)
+					Assert.assertArrayEquals(name, d1[i], d2[i]);
+			}
+		}
+	}
+
+	/**
+	 * Count all with single thread matches count all.
+	 */
+	@Test
+	public void countAllWithMultiThreadMatches()
+	{
+		for (int n : N)
+		{
+			SimpleMolecule[] molecules = createMolecules(size, n);
+
+			for (float radius : radii)
+			{
+				DensityCounter c = new DensityCounter(molecules, radius, true);
+				c.setNumberOfThreads(4);
 
 				int[][] d1 = DensityCounter.countAll(molecules, radius, nChannels - 1);
 				int[][] d2 = c.countAll(nChannels - 1);
@@ -117,13 +148,14 @@ public class DensityCounterTest
 	@Test
 	public void countAllSpeedTest()
 	{
-		final float radius = 1;
+		final float radius = 0.35f;
+		final int nThreads = 16;
 
 		final SimpleMolecule[][] molecules = new SimpleMolecule[speedTestSize][];
 		final DensityCounter[] c = new DensityCounter[molecules.length];
 		for (int i = 0; i < molecules.length; i++)
 		{
-			molecules[i] = createMolecules(size, 5000);
+			molecules[i] = createMolecules(size, 20000);
 			c[i] = new DensityCounter(molecules[i], radius, true);
 		}
 
@@ -137,41 +169,71 @@ public class DensityCounterTest
 		{
 			public Object run(Object data) { int i = (Integer) data; return DensityCounter.countAll(molecules[i], radius, nChannels - 1); }
 		});
-		ts.execute(new MyTimingTask("countAll")
+		ts.execute(new MyTimingTask("countAll single thread")
 		{
-			public Object run(Object data) { int i = (Integer) data; return c[i].countAll(nChannels - 1); }
+			public Object run(Object data) { int i = (Integer) data;
+				c[i].setNumberOfThreads(1);
+				return c[i].countAll(nChannels - 1); }
 		});		
-		ts.execute(new MyTimingTask("countAll + constructor")
+		ts.execute(new MyTimingTask("countAll single thread + constructor")
 		{
-			public Object run(Object data) { int i = (Integer) data; 
-			return new DensityCounter(molecules[i], radius, true).countAll(nChannels - 1); }
+			public Object run(Object data) { int i = (Integer) data;
+    			DensityCounter c = new DensityCounter(molecules[i], radius, true);
+    			c.setNumberOfThreads(1);
+    			return c.countAll(nChannels - 1); }
+		});		
+		ts.execute(new MyTimingTask("countAll multi thread")
+		{
+			public Object run(Object data) { int i = (Integer) data;
+				c[i].setNumberOfThreads(nThreads);
+				return c[i].countAll(nChannels - 1); }
+		});		
+		ts.execute(new MyTimingTask("countAll multi thread + constructor")
+		{
+			public Object run(Object data) { int i = (Integer) data;
+    			DensityCounter c = new DensityCounter(molecules[i], radius, true);
+    			c.setNumberOfThreads(nThreads);
+    			return c.countAll(nChannels - 1); }
 		});		
 
 		//@formatter:on
 
-		//int size = ts.repeat();
+		ts.repeat();
 		//ts.repeat(size);
 
 		ts.report();
 	}
 
 	/**
-	 * Creates the molecules.
+	 * Creates the molecules. Creates clusters of molecules.
 	 *
 	 * @param size
 	 *            the size
 	 * @param n
-	 *            the n
+	 *            the number of molecules
 	 * @return the simple molecule[]
 	 */
 	private SimpleMolecule[] createMolecules(int size, int n)
 	{
 		RandomGenerator r = new Well19937c();
+		RandomDataGenerator rdg = new RandomDataGenerator(r);
+
+		float precision = 0.1f; // pixels
+		int meanClusterSize = 5;
 
 		SimpleMolecule[] molecules = new SimpleMolecule[n];
-		for (int i = 0; i < n; i++)
+		for (int i = 0; i < n;)
 		{
-			molecules[i] = new SimpleMolecule(r.nextFloat() * size, r.nextFloat() * size, r.nextInt(nChannels));
+			float x = r.nextFloat() * size;
+			float y = r.nextFloat() * size;
+			int id = r.nextInt(nChannels);
+
+			int c = (int) rdg.nextPoisson(meanClusterSize);
+			while (i < n && c-- > 0)
+			{
+				molecules[i++] = new SimpleMolecule((float) rdg.nextGaussian(x, precision),
+						(float) rdg.nextGaussian(y, precision), id);
+			}
 		}
 		return molecules;
 	}
