@@ -14,11 +14,11 @@ package gdsc.core.clustering;
  *---------------------------------------------------------------------------*/
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import gdsc.core.utils.FixedIntList;
 import gdsc.core.utils.TurboList;
 
 /**
@@ -216,10 +216,14 @@ public class DensityCounter
 	private final int nXBins, nYBins, nMolecules;
 	private final IndexMolecule[][] grid;
 
-	private final int nonEmpty;
-	private int[] gridPriority = null;
+	private final int nonEmpty, maxCellSize;
+	int[] gridPriority = null;
 
 	private int nThreads = -1;
+
+	static byte MODE_SYNC = 0;
+	static byte MODE_NON_SYNC = 1;
+	byte multiThreadMode = MODE_NON_SYNC;
 
 	/**
 	 * Gets the number of threads to use for multi-threaded algorithms.
@@ -321,17 +325,20 @@ public class DensityCounter
 
 		// Convert for efficiency
 		grid = new IndexMolecule[tmp.length][];
-		int c = 0;
+		int c = 0, max = 0;
 		for (int i = 0; i < tmp.length; i++)
 		{
 			if (tmp[i].size != 0)
 			{
+				if (max < tmp[i].size)
+					max = tmp[i].size;
 				c++;
 				grid[i] = tmp[i].toArray();
 			}
 			tmp[i] = null;
 		}
 		nonEmpty = c;
+		maxCellSize = max;
 	}
 
 	/**
@@ -384,6 +391,31 @@ public class DensityCounter
 	private int getBin(int xbin, int ybin)
 	{
 		return ybin * nXBins + xbin;
+	}
+
+	/**
+	 * Gets the bin.
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @return the bin
+	 */
+	private int getBinSafe(float x, float y)
+	{
+		int xBin = clip(nXBins, getXBin(x));
+		int yBin = clip(nYBins, getYBin(y));
+		return getBin(xBin, yBin);
+	}
+
+	private static int clip(int upper, int value)
+	{
+		if (value < 0)
+			return 0;
+		if (value >= upper)
+			return upper - 1;
+		return value;
 	}
 
 	/**
@@ -482,13 +514,8 @@ public class DensityCounter
 	 * Count the density of each class of molecule around each molecule. Counts are returned using the original input
 	 * order of molecules.
 	 * <p>
-	 * This method allows the molecule ID to be changed following creation of the counter but coordinates must be the
-	 * same. The maximum ID must be input to allow efficient counting.
-	 * <p>
 	 * This method is optimised for use when the number of IDs is small. If the number of IDs is large then the routine
 	 * may run out of memory.
-	 * <p>
-	 * NOTE: Package level for JUnit test only
 	 *
 	 * @param molecules
 	 *            the molecules
@@ -507,13 +534,8 @@ public class DensityCounter
 	 * Count the density of each class of molecule around each molecule. Counts are returned using the original input
 	 * order of molecules.
 	 * <p>
-	 * This method allows the molecule ID to be changed following creation of the counter but coordinates must be the
-	 * same. The maximum ID must be input to allow efficient counting.
-	 * <p>
 	 * This method is optimised for use when the number of IDs is small. If the number of IDs is large then the routine
 	 * may run out of memory.
-	 * <p>
-	 * NOTE: Package level for JUnit test only
 	 *
 	 * @param molecules
 	 *            the molecules
@@ -556,6 +578,91 @@ public class DensityCounter
 	}
 
 	/**
+	 * Count the density of each class of molecule around each input molecule. Counts are returned using the original
+	 * input order of molecules.
+	 * <p>
+	 * This method is optimised for use when the number of IDs is small. If the number of IDs is large then the routine
+	 * may run out of memory.
+	 * <p>
+	 * NOTE: Package level for JUnit test only
+	 *
+	 * @param molecules2
+	 *            the molecules to around which to search
+	 * @param maxID
+	 *            the max ID of molecules
+	 * @return the counts
+	 */
+	int[][] countAllSimple(Molecule[] molecules2, int maxID)
+	{
+		return countAllSimple(getMolecules(), molecules2, r2, maxID);
+	}
+	
+	/**
+	 * Count the density of each class of molecule around each input molecule. Counts are returned using the original
+	 * input order of molecules.
+	 * <p>
+	 * This method is optimised for use when the number of IDs is small. If the number of IDs is large then the routine
+	 * may run out of memory.
+	 *
+	 * @param molecules
+	 *            the molecules to create the density space
+	 * @param molecules2
+	 *            the molecules to around which to search
+	 * @param r
+	 *            the radius distance
+	 * @param maxID
+	 *            the max ID of molecules
+	 * @return the counts
+	 */
+	public static int[][] countAll(Molecule[] molecules, Molecule[] molecules2, float r, int maxID)
+	{
+		return countAllSimple(molecules, molecules2, r * r, maxID);
+	}
+
+	/**
+	 * Count the density of each class of molecule around each input molecule. Counts are returned using the original
+	 * input order of molecules.
+	 * <p>
+	 * This method is optimised for use when the number of IDs is small. If the number of IDs is large then the routine
+	 * may run out of memory.
+	 *
+	 * @param molecules
+	 *            the molecules to create the density space
+	 * @param molecules2
+	 *            the molecules to around which to search
+	 * @param r2
+	 *            the squared radius distance
+	 * @param maxID
+	 *            the max ID of molecules
+	 * @return the counts
+	 */
+	private static int[][] countAllSimple(Molecule[] molecules, Molecule[] molecules2, float r2, int maxID)
+	{
+		int nMolecules = molecules2.length;
+		int[][] results = new int[nMolecules][maxID + 1];
+
+		// All-vs-all
+		for (int i = 0; i < nMolecules; i++)
+		{
+			final Molecule m1 = molecules2[i];
+			final int[] count1 = results[i];
+			final float x = m1.getX();
+			final float y = m1.getY();
+
+			for (int j = 0; j < molecules.length; j++)
+			{
+				Molecule m2 = molecules[j];
+				if (distance2(x, y, m2) < r2)
+				{
+					count1[m2.getID()]++;
+				}
+			}
+		}
+
+		return results;
+	}
+
+	/**
 	 * Count the density of each class of molecule around each molecule. Counts are returned using the original input
 	 * order of molecules.
 	 * <p>
@@ -583,30 +690,7 @@ public class DensityCounter
 				if (cell1 == null)
 					continue;
 
-				final int xBin = i % nXBins;
-				final int yBin = i / nXBins;
-
-				// Build a list of which cells to compare up to a maximum of 4
-				//      | 0,0  |  1,0
-				// ------------+-----
-				// -1,1 | 0,1  |  1,1
-
-				int count = 0;
-				if (yBin < nYBins - 1)
-				{
-					if (xBin > 0)
-						neighbours[count++] = i + nXBins - 1;
-					neighbours[count++] = i + nXBins;
-					if (xBin < nXBins - 1)
-					{
-						neighbours[count++] = i + nXBins + 1;
-						neighbours[count++] = i + 1;
-					}
-				}
-				else if (xBin < nXBins - 1)
-				{
-					neighbours[count++] = i + 1;
-				}
+				int count = getNeighbours4(neighbours, i);
 
 				for (int j = cell1.length; j-- > 0;)
 				{
@@ -635,8 +719,6 @@ public class DensityCounter
 					for (int c = count; c-- > 0;)
 					{
 						final IndexMolecule[] cell2 = grid[neighbours[c]];
-						if (cell2 == null)
-							continue;
 						for (int k = cell2.length; k-- > 0;)
 						{
 							IndexMolecule m2 = cell2[k];
@@ -655,32 +737,9 @@ public class DensityCounter
 		{
 			// Multi-threaded
 
-			if (gridPriority == null)
-			{
-				// Count the number of entries in each grid cell
-				int[][] count = new int[nonEmpty][2];
-				for (int i = 0, c = 0; i < grid.length; i++)
-				{
-					final IndexMolecule[] cell1 = grid[i];
-					if (cell1 == null)
-						continue;
-					count[c][0] = cell1.length;
-					count[c][1] = i;
-					c++;
-				}
+			createGridPriority();
 
-				// Sort by the size
-				Arrays.sort(count, new Comparator<int[]>()
-				{
-					public int compare(int[] o1, int[] o2)
-					{
-						return o2[0] - o1[0];
-					}
-				});
-				gridPriority = new int[nonEmpty];
-				for (int i = 0; i < gridPriority.length; i++)
-					gridPriority[i] = count[i][1];
-			}
+			int nThreads = Math.min(this.nThreads, gridPriority.length);
 
 			// Split the entries evenly over each thread
 			// This should fairly allocate the density to all processing threads
@@ -693,19 +752,6 @@ public class DensityCounter
 					j = ++k;
 			}
 
-			//			// Check we have all the indices
-			//			{
-			//				int[] p = process.clone();
-			//				int[] g = gridPriority.clone();
-			//				Arrays.sort(p);
-			//				Arrays.sort(g);
-			//				for (int i = 0; i < p.length; i++)
-			//					if (p[i] != g[i])
-			//					{
-			//						throw new RuntimeException(String.format("[%d] %f != %f", i, p[i], g[i]));
-			//					}
-			//			}
-
 			// Use an executor service so that we know when complete
 			ExecutorService executor = Executors.newFixedThreadPool(nThreads);
 			TurboList<Future<?>> futures = new TurboList<Future<?>>(nThreads);
@@ -714,7 +760,10 @@ public class DensityCounter
 			for (int from = 0; from < process.length;)
 			{
 				int to = Math.min(from + nPerThread, process.length);
-				futures.add(executor.submit(new CountWorker(results, process, from, to)));
+				if (multiThreadMode == MODE_NON_SYNC)
+					futures.add(executor.submit(new CountWorker2(results, process, from, to)));
+				else
+					futures.add(executor.submit(new CountWorker(results, process, from, to)));
 				from = to;
 			}
 			// Wait for all to finish
@@ -739,8 +788,84 @@ public class DensityCounter
 		return results;
 	}
 
+	private void createGridPriority()
+	{
+		if (gridPriority == null)
+		{
+			// Histogram the size of each cell.
+			// This should not be a memory problem as no cell will be larger than nMolecules. 
+			int[] h = new int[maxCellSize + 1];
+			for (int i = 0; i < grid.length; i++)
+			{
+				final IndexMolecule[] cell1 = grid[i];
+				if (cell1 == null)
+					continue;
+				h[cell1.length]++;
+			}
+
+			// Allocate storage
+			FixedIntList[] indices = new FixedIntList[h.length];
+			for (int i = h.length; i-- > 0;)
+				if (h[i] > 0)
+					indices[i] = new FixedIntList(h[i]);
+
+			// Layout
+			for (int i = 0; i < grid.length; i++)
+			{
+				final IndexMolecule[] cell1 = grid[i];
+				if (cell1 == null)
+					continue;
+				indices[cell1.length].add(i);
+			}
+
+			// Record in reverse order (largest first)
+			gridPriority = new int[nonEmpty];
+			for (int i = indices.length, j = 0; i-- > 0;)
+			{
+				if (indices[i] != null)
+				{
+					indices[i].copy(gridPriority, j);
+					j += indices[i].size();
+				}
+			}
+
+			// Old method uses a full sort
+
+			//			// Count the number of entries in each grid cell
+			//			int[][] count = new int[nonEmpty][2];
+			//			for (int i = 0, c = 0; i < grid.length; i++)
+			//			{
+			//				final IndexMolecule[] cell1 = grid[i];
+			//				if (cell1 == null)
+			//					continue;
+			//				count[c][0] = cell1.length;
+			//				count[c][1] = i;
+			//				c++;
+			//			}
+			//
+			//			// Sort by the size
+			//			Arrays.sort(count, new Comparator<int[]>()
+			//			{
+			//				public int compare(int[] o1, int[] o2)
+			//				{
+			//					return o2[0] - o1[0];
+			//				}
+			//			});
+			//			gridPriority = new int[nonEmpty];
+			//			for (int i = 0; i < gridPriority.length; i++)
+			//				gridPriority[i] = count[i][1];
+		}
+	}
+
+	private int addNeighbour(int[] neighbours, int count, int index)
+	{
+		if (grid[index] != null)
+			neighbours[count++] = index;
+		return count;
+	}
+
 	/**
-	 * The Class SetWorker.
+	 * For processing the countAll method using thread-safe writing to the results array with synchronized
 	 */
 	private class CountWorker implements Runnable
 	{
@@ -805,34 +930,7 @@ public class DensityCounter
 				int i = process[index];
 				final IndexMolecule[] cell1 = grid[i];
 
-				// We ensure the indices to process are not empty
-				//if (cell1 == null) 
-				//	continue;
-
-				final int xBin = i % nXBins;
-				final int yBin = i / nXBins;
-
-				// Build a list of which cells to compare up to a maximum of 4
-				//      | 0,0  |  1,0
-				// ------------+-----
-				// -1,1 | 0,1  |  1,1
-
-				int count = 0;
-				if (yBin < nYBins - 1)
-				{
-					if (xBin > 0)
-						neighbours[count++] = i + nXBins - 1;
-					neighbours[count++] = i + nXBins;
-					if (xBin < nXBins - 1)
-					{
-						neighbours[count++] = i + nXBins + 1;
-						neighbours[count++] = i + 1;
-					}
-				}
-				else if (xBin < nXBins - 1)
-				{
-					neighbours[count++] = i + 1;
-				}
+				int count = getNeighbours4(neighbours, i);
 
 				for (int j = cell1.length; j-- > 0;)
 				{
@@ -863,8 +961,6 @@ public class DensityCounter
 					for (int c = count; c-- > 0;)
 					{
 						final IndexMolecule[] cell2 = grid[neighbours[c]];
-						if (cell2 == null)
-							continue;
 						for (int k = cell2.length; k-- > 0;)
 						{
 							IndexMolecule m2 = cell2[k];
@@ -900,6 +996,201 @@ public class DensityCounter
 	}
 
 	/**
+	 * For processing the countAll method using an all neighbour cell comparison. This doubles the number of distance
+	 * comparisons but does not require synchronisation.
+	 */
+	private class CountWorker2 implements Runnable
+	{
+		final int[][] results;
+		final int[] process;
+		final int from;
+		final int to;
+
+		public CountWorker2(int[][] results, int[] process, int from, int to)
+		{
+			this.results = results;
+			this.process = process;
+			this.from = from;
+			this.to = to;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Runnable#run()
+		 */
+		public void run()
+		{
+			int[] neighbours = new int[8];
+			for (int index = from; index < to; index++)
+			{
+				int i = process[index];
+				final IndexMolecule[] cell1 = grid[i];
+
+				int count = getNeighbours8(neighbours, i);
+
+				for (int j = cell1.length; j-- > 0;)
+				{
+					final IndexMolecule m1 = cell1[j];
+					int[] count1 = results[m1.index];
+					final float x = m1.getX();
+					final float y = m1.getY();
+
+					// Compare all inside the bin. This will self-count
+					for (int k = cell1.length; k-- > 0;)
+					{
+						IndexMolecule m2 = cell1[k];
+						if (distance2(x, y, m2) < r2)
+						{
+							count1[m2.getID()]++;
+						}
+					}
+
+					// Compare to neighbours
+					for (int c = count; c-- > 0;)
+					{
+						final IndexMolecule[] cell2 = grid[neighbours[c]];
+						for (int k = cell2.length; k-- > 0;)
+						{
+							IndexMolecule m2 = cell2[k];
+							if (distance2(x, y, m2) < r2)
+							{
+								count1[m2.getID()]++;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Build a list of which cells to compare up to a maximum of 4
+	 *
+	 * @param neighbours
+	 *            the neighbours
+	 * @param i
+	 *            the grid index
+	 * @return the number of neighbours
+	 */
+	private int getNeighbours4(int[] neighbours, int i)
+	{
+		// Build a list of which cells to compare up to a maximum of 4
+		//      | 0,0  |  1,0
+		// ------------+-----
+		// -1,1 | 0,1  |  1,1
+		int count = 0;
+		final int xBin = i % nXBins;
+		final int yBin = i / nXBins;
+		if (yBin < nYBins - 1)
+		{
+			if (xBin > 0)
+				count = addNeighbour(neighbours, count, i + nXBins - 1);
+			count = addNeighbour(neighbours, count, i + nXBins);
+			if (xBin < nXBins - 1)
+			{
+				count = addNeighbour(neighbours, count, i + nXBins + 1);
+				count = addNeighbour(neighbours, count, i + 1);
+			}
+		}
+		else if (xBin < nXBins - 1)
+		{
+			count = addNeighbour(neighbours, count, i + 1);
+		}
+		return count;
+	}
+
+	/**
+	 * Build a list of which cells to compare up to a maximum of 8
+	 *
+	 * @param neighbours
+	 *            the neighbours
+	 * @param i
+	 *            the grid index
+	 * @return the number of neighbours
+	 */
+	private int getNeighbours8(int[] neighbours, int i)
+	{
+		// Build a list of which cells to compare up to a maximum of 8
+		// -1,-1 | 0,-1  |  1,-1
+		// ------------+--------
+		// -1, 0 | 0, 0  |  1, 0
+		// ------------+--------
+		// -1, 1 | 0, 1  |  1, 1
+		int count = 0;
+		final int xBin = i % nXBins;
+		final int yBin = i / nXBins;
+		final boolean lowerY = yBin > 0;
+		final boolean upperY = yBin < nYBins - 1;
+		if (xBin > 0)
+		{
+			count = addNeighbour(neighbours, count, i - 1);
+			if (lowerY)
+				count = addNeighbour(neighbours, count, i - 1 - nXBins);
+			if (upperY)
+				count = addNeighbour(neighbours, count, i - 1 + nXBins);
+		}
+		if (lowerY)
+			count = addNeighbour(neighbours, count, i - nXBins);
+		if (upperY)
+			count = addNeighbour(neighbours, count, i + nXBins);
+		if (xBin < nXBins - 1)
+		{
+			count = addNeighbour(neighbours, count, i + 1);
+			if (lowerY)
+				count = addNeighbour(neighbours, count, i + 1 - nXBins);
+			if (upperY)
+				count = addNeighbour(neighbours, count, i + 1 + nXBins);
+		}
+		return count;
+	}
+
+	/**
+	 * Build a list of which cells to compare up to a maximum of 9
+	 *
+	 * @param neighbours
+	 *            the neighbours
+	 * @param i
+	 *            the grid index
+	 * @return the number of neighbours
+	 */
+	private int getNeighbours9(int[] neighbours, int i)
+	{
+		// Build a list of which cells to compare up to a maximum of 9
+		// -1,-1 | 0,-1  |  1,-1
+		// ------------+--------
+		// -1, 0 | 0, 0  |  1, 0
+		// ------------+--------
+		// -1, 1 | 0, 1  |  1, 1
+		int count = addNeighbour(neighbours, 0, i);
+		final int xBin = i % nXBins;
+		final int yBin = i / nXBins;
+		final boolean lowerY = yBin > 0;
+		final boolean upperY = yBin < nYBins - 1;
+		if (xBin > 0)
+		{
+			count = addNeighbour(neighbours, count, i - 1);
+			if (lowerY)
+				count = addNeighbour(neighbours, count, i - 1 - nXBins);
+			if (upperY)
+				count = addNeighbour(neighbours, count, i - 1 + nXBins);
+		}
+		if (lowerY)
+			count = addNeighbour(neighbours, count, i - nXBins);
+		if (upperY)
+			count = addNeighbour(neighbours, count, i + nXBins);
+		if (xBin < nXBins - 1)
+		{
+			count = addNeighbour(neighbours, count, i + 1);
+			if (lowerY)
+				count = addNeighbour(neighbours, count, i + 1 - nXBins);
+			if (upperY)
+				count = addNeighbour(neighbours, count, i + 1 + nXBins);
+		}
+		return count;
+	}
+
+	/**
 	 * The squared distance
 	 *
 	 * @param x
@@ -915,5 +1206,155 @@ public class DensityCounter
 		final float dx = x - molecule.getX();
 		final float dy = y - molecule.getY();
 		return dx * dx + dy * dy;
+	}
+
+	/**
+	 * Count the density of each class of molecule around the input molecule. Counts are returned using the input
+	 * order of molecules. The ID of the input molecules is ignored.
+	 * <p>
+	 * This method allows the molecule ID to be changed following creation of the counter but coordinates must be the
+	 * same. The maximum ID must be input to allow efficient counting.
+	 * <p>
+	 * This method is optimised for use when the number of IDs is small. If the number of IDs is large then the routine
+	 * may run out of memory.
+	 *
+	 * @param m1
+	 *            the molecule
+	 * @param maxID
+	 *            the max ID of molecules
+	 * @return the counts
+	 */
+	public int[] count(Molecule m1, int maxID)
+	{
+		return count(m1, maxID, new int[9]);
+	}
+
+	private int[] count(Molecule m1, int maxID, int[] neighbours)
+	{
+		final int[] count1 = new int[maxID + 1];
+
+		final float x = m1.getX();
+		final float y = m1.getY();
+		int c = getNeighbours9(neighbours, getBinSafe(x, y));
+
+		// Compare to neighbours
+		while (c-- > 0)
+		{
+			final IndexMolecule[] cell2 = grid[neighbours[c]];
+			for (int k = cell2.length; k-- > 0;)
+			{
+				IndexMolecule m2 = cell2[k];
+				if (distance2(x, y, m2) < r2)
+				{
+					count1[m2.getID()]++;
+				}
+			}
+		}
+		return count1;
+	}
+
+	/**
+	 * Count the density of each class of molecule around each input molecule. Counts are returned using the input
+	 * order of molecules. The ID of the input molecules is ignored.
+	 * <p>
+	 * This method allows the molecule ID to be changed following creation of the counter but coordinates must be the
+	 * same. The maximum ID must be input to allow efficient counting.
+	 * <p>
+	 * This method is optimised for use when the number of IDs is small. If the number of IDs is large then the routine
+	 * may run out of memory.
+	 *
+	 * @param molecules2
+	 *            the molecules to around which to search
+	 * @param maxID
+	 *            the max ID of molecules
+	 * @return the counts
+	 */
+	public int[][] countAll(Molecule[] molecules2, int maxID)
+	{
+		int nMolecules = (molecules2 == null) ? 0 : molecules2.length;
+		int[][] results = new int[nMolecules][];
+		if (nMolecules == 0)
+			return results;
+
+		// Single threaded
+		if (getNumberOfThreads() == 1)
+		{
+			int[] neighbours = new int[9];
+			for (int i = 0; i < nMolecules; i++)
+			{
+				results[i] = count(molecules2[i], maxID, neighbours);
+			}
+		}
+		else
+		{
+			// Multi-threaded
+			int nThreads = Math.min(this.nThreads, nMolecules);
+
+			// Use an executor service so that we know when complete
+			ExecutorService executor = Executors.newFixedThreadPool(nThreads);
+			TurboList<Future<?>> futures = new TurboList<Future<?>>(nThreads);
+
+			int nPerThread = (int) Math.ceil((double) nMolecules / nThreads);
+			for (int from = 0; from < nMolecules;)
+			{
+				int to = Math.min(from + nPerThread, nMolecules);
+				futures.add(executor.submit(new MoleculeCountWorker(molecules2, maxID, results, from, to)));
+				from = to;
+			}
+			// Wait for all to finish
+			for (int t = futures.size(); t-- > 0;)
+			{
+				try
+				{
+					// The future .get() method will block until completed
+					futures.get(t).get();
+				}
+				catch (Exception e)
+				{
+					// This should not happen. 
+					// Ignore it and allow processing to continue (the number of neighbour samples will just be smaller).  
+					e.printStackTrace();
+				}
+			}
+
+			executor.shutdown();
+		}
+
+		return results;
+	}
+
+	/**
+	 * For processing the countAll method using an all neighbour cell comparison.
+	 */
+	private class MoleculeCountWorker implements Runnable
+	{
+		final Molecule[] molecules2;
+		final int maxID;
+		final int[][] results;
+		final int from;
+		final int to;
+
+		public MoleculeCountWorker(Molecule[] molecules2, int maxID, int[][] results, int from, int to)
+		{
+			this.molecules2 = molecules2;
+			this.maxID = maxID;
+			this.results = results;
+			this.from = from;
+			this.to = to;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Runnable#run()
+		 */
+		public void run()
+		{
+			int[] neighbours = new int[9];
+			for (int i = from; i < to; i++)
+			{
+				results[i] = count(molecules2[i], maxID, neighbours);
+			}
+		}
 	}
 }

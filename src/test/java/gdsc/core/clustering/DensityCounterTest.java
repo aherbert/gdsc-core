@@ -37,9 +37,6 @@ public class DensityCounterTest
 	int nChannels = 3;
 	int speedTestSize = 5;
 
-	/**
-	 * Count all with single thread matches count all.
-	 */
 	@Test
 	public void countAllWithSimpleMatches()
 	{
@@ -66,9 +63,6 @@ public class DensityCounterTest
 		}
 	}
 
-	/**
-	 * Count all with single thread matches count all.
-	 */
 	@Test
 	public void countAllWithSingleThreadMatches()
 	{
@@ -95,11 +89,8 @@ public class DensityCounterTest
 		}
 	}
 
-	/**
-	 * Count all with single thread matches count all.
-	 */
 	@Test
-	public void countAllWithMultiThreadMatches()
+	public void countAllWithMultiThreadSycnMatches()
 	{
 		for (int n : N)
 		{
@@ -109,9 +100,118 @@ public class DensityCounterTest
 			{
 				DensityCounter c = new DensityCounter(molecules, radius, true);
 				c.setNumberOfThreads(4);
+				c.multiThreadMode = DensityCounter.MODE_SYNC;
 
 				int[][] d1 = DensityCounter.countAll(molecules, radius, nChannels - 1);
 				int[][] d2 = c.countAll(nChannels - 1);
+
+				String name = String.format("N=%d, R=%f", n, radius);
+				Assert.assertNotNull(name, d1);
+				Assert.assertNotNull(name, d2);
+				Assert.assertEquals(name, d1.length, n);
+				Assert.assertEquals(name, d2.length, n);
+				for (int i = 0; i < n; i++)
+					Assert.assertArrayEquals(name, d1[i], d2[i]);
+			}
+		}
+	}
+
+	@Test
+	public void countAllWithMultiThreadNonSyncMatches()
+	{
+		for (int n : N)
+		{
+			SimpleMolecule[] molecules = createMolecules(size, n);
+
+			for (float radius : radii)
+			{
+				DensityCounter c = new DensityCounter(molecules, radius, true);
+				c.setNumberOfThreads(4);
+				c.multiThreadMode = DensityCounter.MODE_NON_SYNC;
+
+				int[][] d1 = DensityCounter.countAll(molecules, radius, nChannels - 1);
+				int[][] d2 = c.countAll(nChannels - 1);
+
+				String name = String.format("N=%d, R=%f", n, radius);
+				Assert.assertNotNull(name, d1);
+				Assert.assertNotNull(name, d2);
+				Assert.assertEquals(name, d1.length, n);
+				Assert.assertEquals(name, d2.length, n);
+				for (int i = 0; i < n; i++)
+					Assert.assertArrayEquals(name, d1[i], d2[i]);
+			}
+		}
+	}
+
+	@Test
+	public void countAllAroundMoleculesWithSimpleMatches()
+	{
+		for (int n : N)
+		{
+			SimpleMolecule[] molecules = createMolecules(size, n / 2);
+			SimpleMolecule[] molecules2 = createMolecules(size, n);
+
+			for (float radius : radii)
+			{
+				DensityCounter c = new DensityCounter(molecules, radius, true);
+				c.setNumberOfThreads(1);
+
+				int[][] d1 = DensityCounter.countAll(molecules, molecules2, radius, nChannels - 1);
+				int[][] d2 = c.countAllSimple(molecules2, nChannels - 1);
+
+				String name = String.format("N=%d, R=%f", n, radius);
+				Assert.assertNotNull(name, d1);
+				Assert.assertNotNull(name, d2);
+				Assert.assertEquals(name, d1.length, n);
+				Assert.assertEquals(name, d2.length, n);
+				for (int i = 0; i < n; i++)
+					Assert.assertArrayEquals(name, d1[i], d2[i]);
+			}
+		}
+	}
+
+	@Test
+	public void countAllAroundMoleculesWithSingleThreadMatches()
+	{
+		for (int n : N)
+		{
+			SimpleMolecule[] molecules = createMolecules(size, n / 2);
+			SimpleMolecule[] molecules2 = createMolecules(size, n);
+
+			for (float radius : radii)
+			{
+				DensityCounter c = new DensityCounter(molecules, radius, true);
+				c.setNumberOfThreads(1);
+
+				int[][] d1 = DensityCounter.countAll(molecules, molecules2, radius, nChannels - 1);
+				int[][] d2 = c.countAll(molecules2, nChannels - 1);
+
+				String name = String.format("N=%d, R=%f", n, radius);
+				Assert.assertNotNull(name, d1);
+				Assert.assertNotNull(name, d2);
+				Assert.assertEquals(name, d1.length, n);
+				Assert.assertEquals(name, d2.length, n);
+				for (int i = 0; i < n; i++)
+					Assert.assertArrayEquals(name, d1[i], d2[i]);
+			}
+		}
+	}
+
+	@Test
+	public void countAllAroundMoleculesWithMultiThreadMatches()
+	{
+		for (int n : N)
+		{
+			SimpleMolecule[] molecules = createMolecules(size, n / 2);
+			SimpleMolecule[] molecules2 = createMolecules(size, n);
+
+			for (float radius : radii)
+			{
+				DensityCounter c = new DensityCounter(molecules, radius, true);
+				c.setNumberOfThreads(4);
+
+				int[][] d1 = DensityCounter.countAll(molecules, molecules2, radius, nChannels - 1);
+				int[][] d2 = c.countAll(molecules2, nChannels - 1);
 
 				String name = String.format("N=%d, R=%f", n, radius);
 				Assert.assertNotNull(name, d1);
@@ -142,14 +242,20 @@ public class DensityCounterTest
 		}
 	}
 
-	/**
-	 * Count all with single thread matches count all.
-	 */
 	@Test
 	public void countAllSpeedTest()
 	{
+		// The single thread mode is faster when the radius is small.
+		// The multi-thread mode is faster when the radius is large (>4).
+		// The non-synchronised multi-thread mode is faster than the synchronised mode.
+
+		// However both will be fast enough when the radius is small so it is 
+		// probably OK to leave it multi-threading by default.
+
 		final float radius = 0.35f;
 		final int nThreads = 16;
+
+		// TODO - Repeat this at different number of molecules to to determine if multi-threading is worth it
 
 		final SimpleMolecule[][] molecules = new SimpleMolecule[speedTestSize][];
 		final DensityCounter[] c = new DensityCounter[molecules.length];
@@ -159,16 +265,25 @@ public class DensityCounterTest
 			c[i] = new DensityCounter(molecules[i], radius, true);
 		}
 
+		// How many distance comparison are we expected to make?
+		// Compute mean density per grid cell (d):
+		// single/sync multi = nCells * (5 * d * d) // For simplicity the n*(n-1)/2 for the main cell is ignored
+		// non-sync multi = nCells * (9 * d * d)
+		double d = molecules[0].length * radius * radius / (size * size);
+		double nCells = (size / radius) * (size / radius);
+		System.out.printf("Expected Comparisons : Single = %f, Multi non-sync = %f\n", nCells * 5 * d * d,
+				nCells * 9 * d * d);
+
 		//@formatter:off
 		TimingService ts = new TimingService();
-		ts.execute(new MyTimingTask("countAllSimple")
-		{
-			public Object run(Object data) { int i = (Integer) data; return c[i].countAllSimple(nChannels - 1); }
-		});
-		ts.execute(new MyTimingTask("countAllSimple static")
-		{
-			public Object run(Object data) { int i = (Integer) data; return DensityCounter.countAll(molecules[i], radius, nChannels - 1); }
-		});
+//		ts.execute(new MyTimingTask("countAllSimple")
+//		{
+//			public Object run(Object data) { int i = (Integer) data; return c[i].countAllSimple(nChannels - 1); }
+//		});
+//		ts.execute(new MyTimingTask("countAllSimple static")
+//		{
+//			public Object run(Object data) { int i = (Integer) data; return DensityCounter.countAll(molecules[i], radius, nChannels - 1); }
+//		});
 		ts.execute(new MyTimingTask("countAll single thread")
 		{
 			public Object run(Object data) { int i = (Integer) data;
@@ -186,6 +301,8 @@ public class DensityCounterTest
 		{
 			public Object run(Object data) { int i = (Integer) data;
 				c[i].setNumberOfThreads(nThreads);
+				//c[i].gridPriority = null;
+    			c[i].multiThreadMode = DensityCounter.MODE_SYNC;
 				return c[i].countAll(nChannels - 1); }
 		});		
 		ts.execute(new MyTimingTask("countAll multi thread + constructor")
@@ -193,12 +310,106 @@ public class DensityCounterTest
 			public Object run(Object data) { int i = (Integer) data;
     			DensityCounter c = new DensityCounter(molecules[i], radius, true);
     			c.setNumberOfThreads(nThreads);
+				c.gridPriority = null;
+    			c.multiThreadMode = DensityCounter.MODE_SYNC;
+    			return c.countAll(nChannels - 1); }
+		});		
+		ts.execute(new MyTimingTask("countAll multi thread non-sync")
+		{
+			public Object run(Object data) { int i = (Integer) data;
+				c[i].setNumberOfThreads(nThreads);
+				//c[i].gridPriority = null;
+    			c[i].multiThreadMode = DensityCounter.MODE_NON_SYNC;
+				return c[i].countAll(nChannels - 1); }
+		});		
+		ts.execute(new MyTimingTask("countAll multi thread non-sync + constructor")
+		{
+			public Object run(Object data) { int i = (Integer) data;
+    			DensityCounter c = new DensityCounter(molecules[i], radius, true);
+    			c.setNumberOfThreads(nThreads);
+				c.gridPriority = null;
+    			c.multiThreadMode = DensityCounter.MODE_NON_SYNC;
     			return c.countAll(nChannels - 1); }
 		});		
 
 		//@formatter:on
 
-		ts.repeat();
+		@SuppressWarnings("unused")
+		int size = ts.repeat();
+		//ts.repeat(size);
+
+		ts.report();
+	}
+
+	@Test
+	public void countAllAroundMoleculesSpeedTest()
+	{
+		// The multi-thread mode is faster when the number of molecules is large.
+
+		// However both will be fast enough when the data size is small so it is 
+		// probably OK to leave it multi-threading by default.
+
+		final float radius = 0.35f;
+		final int nThreads = 16;
+
+		// TODO - Repeat this at different number of molecules to to determine if multi-threading is worth it
+
+		final SimpleMolecule[][] molecules = new SimpleMolecule[speedTestSize][];
+		final SimpleMolecule[][] molecules2 = new SimpleMolecule[speedTestSize][];
+		final DensityCounter[] c = new DensityCounter[molecules.length];
+		for (int i = 0; i < molecules.length; i++)
+		{
+			molecules[i] = createMolecules(size, 20000);
+			molecules2[i] = createMolecules(size, 20000);
+			c[i] = new DensityCounter(molecules[i], radius, true);
+		}
+
+		// How many distance comparison are we expected to make?
+		// Compute mean density per grid cell (d) = nMolecules * 9 * d.
+		double d = molecules[0].length * radius * radius / (size * size);
+		System.out.printf("Expected Comparisons = %f\n", molecules2[0].length * 9.0 * d);
+
+		//@formatter:off
+		TimingService ts = new TimingService();
+//		ts.execute(new MyTimingTask("countAllSimple")
+//		{
+//			public Object run(Object data) { int i = (Integer) data; return c[i].countAllSimple(molecules[i], nChannels - 1); }
+//		});
+//		ts.execute(new MyTimingTask("countAllSimple static")
+//		{
+//			public Object run(Object data) { int i = (Integer) data; return DensityCounter.countAll(molecules[i], molecules2[i], radius, nChannels - 1); }
+//		});
+		ts.execute(new MyTimingTask("countAllAroundMolecules single thread")
+		{
+			public Object run(Object data) { int i = (Integer) data;
+				c[i].setNumberOfThreads(1);
+				return c[i].countAll(molecules2[i], nChannels - 1); }
+		});		
+		ts.execute(new MyTimingTask("countAllAroundMolecules single thread + constructor")
+		{
+			public Object run(Object data) { int i = (Integer) data;
+    			DensityCounter c = new DensityCounter(molecules[i], radius, true);
+    			c.setNumberOfThreads(1);
+    			return c.countAll(molecules2[i], nChannels - 1); }
+		});		
+		ts.execute(new MyTimingTask("countAllAroundMolecules multi thread")
+		{
+			public Object run(Object data) { int i = (Integer) data;
+				c[i].setNumberOfThreads(nThreads);
+				return c[i].countAll(molecules2[i], nChannels - 1); }
+		});		
+		ts.execute(new MyTimingTask("countAllAroundMolecules multi thread + constructor")
+		{
+			public Object run(Object data) { int i = (Integer) data;
+    			DensityCounter c = new DensityCounter(molecules[i], radius, true);
+    			c.setNumberOfThreads(nThreads);
+    			return c.countAll(molecules2[i], nChannels - 1); }
+		});		
+
+		//@formatter:on
+
+		@SuppressWarnings("unused")
+		int size = ts.repeat();
 		//ts.repeat(size);
 
 		ts.report();
