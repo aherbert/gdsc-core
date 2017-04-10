@@ -211,6 +211,9 @@ public class DensityCounter
 		}
 	}
 
+	/** The radius. */
+	public final float radius;
+	
 	private final float r2;
 	private final float xmin, ymin, binWidth;
 	private final int nXBins, nYBins, nMolecules;
@@ -272,6 +275,7 @@ public class DensityCounter
 			throw new IllegalArgumentException("Molecules must not be empty");
 		if (Float.isInfinite(radius) || Float.isNaN(radius) || radius <= 0)
 			throw new IllegalArgumentException("Radius must be a positive real number");
+		this.radius = radius;
 		r2 = radius * radius;
 		nMolecules = molecules.length;
 
@@ -1302,6 +1306,7 @@ public class DensityCounter
 				futures.add(executor.submit(new MoleculeCountWorker(molecules2, maxID, results, from, to)));
 				from = to;
 			}
+			
 			// Wait for all to finish
 			for (int t = futures.size(); t-- > 0;)
 			{
