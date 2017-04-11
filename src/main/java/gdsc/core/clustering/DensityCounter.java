@@ -222,10 +222,12 @@ public class DensityCounter
 	private final int nonEmpty, maxCellSize;
 	int[] gridPriority = null;
 
-	// Initialise to 1 since the multi-threading is not faster unless the 
+	// Note:
+	// Multi-threading is not faster unless the 
 	// number of molecules is very large and/or the radius (i.e. the total 
-	// number of comparisons) 
-	private int nThreads = 1;
+	// number of comparisons). However at low numbers of comparison the
+	// speed slow-down for multi-threading will likely not be noticed.
+	private int nThreads = -1;
 
 	static byte MODE_SYNC = 0;
 	static byte MODE_NON_SYNC = 1;
