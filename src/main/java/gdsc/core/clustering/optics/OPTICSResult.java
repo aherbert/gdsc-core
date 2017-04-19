@@ -248,7 +248,7 @@ public class OPTICSResult implements ClusteringResult
 		// Scramble within levels. 
 		// This makes the cluster number increase with level.
 		int nLevels = getNumberOfLevels();
-		
+
 		// Build the clusters Id at each level
 		TIntArrayList[] clusterIds = new TIntArrayList[nLevels];
 		for (int l = 0; l < nLevels; l++)
@@ -267,7 +267,7 @@ public class OPTICSResult implements ClusteringResult
 			for (int clusterId : set)
 				map[clusterId] = id++;
 		}
-		
+
 		for (int i = size(); i-- > 0;)
 		{
 			if (opticsResults[i].clusterId > 0)
@@ -610,9 +610,9 @@ public class OPTICSResult implements ClusteringResult
 		int clusterId = NOISE;
 		int nextClusterId = NOISE;
 		final OPTICSOrder[] clusterOrderedObjects = opticsResults;
-		// Store the clusters. We use this for processing the convex hull of each cluster.
+		// Store the clusters
 		ArrayList<OPTICSCluster> setOfClusters = new ArrayList<OPTICSCluster>();
-		int cstart = -1, cend = 0;
+		int[] tmpCluster = null; // Use an array so we can update the end position
 		resetClusterIds();
 		for (int i = 0; i < clusterOrderedObjects.length; i++)
 		{
@@ -628,15 +628,15 @@ public class OPTICSResult implements ClusteringResult
 					// New cluster
 
 					// Record the last cluster
-					if (nextClusterId != NOISE)
+					if (tmpCluster != null)
 					{
-						setOfClusters.add(new OPTICSCluster(cstart, cend, nextClusterId));
+						setOfClusters.add(new OPTICSCluster(tmpCluster[0], tmpCluster[1], tmpCluster[2]));
 					}
 
 					clusterId = ++nextClusterId;
 					object.clusterId = clusterId;
 
-					cstart = cend = i;
+					tmpCluster = new int[] { i, i, clusterId };
 				}
 				else
 				{
@@ -651,38 +651,50 @@ public class OPTICSResult implements ClusteringResult
 				if (clusterId == NOISE)
 					continue;
 
-				// Extend the current cluster
+				// Extend the current cluster by updating the end position: tmpCluster[1]
+
 				if (core)
 				{
 					// Only extend if this is a core point
 					if (object.coreDistance <= generatingDistanceE)
 					{
-						cend = i;
+						tmpCluster[1] = i;
 						object.clusterId = clusterId;
 					}
 				}
 				else
 				{
-					cend = i;
+					tmpCluster[1] = i;
 					object.clusterId = clusterId;
 				}
 			}
 		}
 
 		// Add last cluster
-		if (clusterId != 0)
+		if (tmpCluster != null)
 		{
-			setOfClusters.add(new OPTICSCluster(cstart, cend, clusterId));
+			setOfClusters.add(new OPTICSCluster(tmpCluster[0], tmpCluster[1], tmpCluster[2]));
 		}
 
-		// Write clusters
+		// Write clusters.
+		// -=-=-
+		// This is not valid if we are doing 'core' mode since we may have a start and end 
+		// point that contains objects that are not in the cluster (because their 
+		// coreDistance was above the generating distance).
+		// -=-=-
+
 		//resetClusterIds();
 		//for (int i = 0; i < setOfClusters.size(); i++)
 		//{
 		//	OPTICSCluster cluster = setOfClusters.get(i);
 		//	//System.out.println(cluster);
 		//	for (int c = cluster.start; c <= cluster.end; c++)
+		//	{
+		//		if (clusterOrderedObjects[c].clusterId != cluster.clusterId)
+		//			System.out.printf("In-line update error [%d] %d != %d\n", c, clusterOrderedObjects[c].clusterId,
+		//					cluster.clusterId);
 		//		clusterOrderedObjects[c].clusterId = cluster.clusterId;
+		//	}
 		//}
 
 		setClustering(setOfClusters);
