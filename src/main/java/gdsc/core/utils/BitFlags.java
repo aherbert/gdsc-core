@@ -55,4 +55,32 @@ public class BitFlags
 	{
 		return !areSet(flags, bits);
 	}
+
+	/**
+	 * Set the given bits in the flags.
+	 *
+	 * @param flags
+	 *            the flags
+	 * @param bits
+	 *            the bits
+	 * @return the new flags
+	 */
+	public static int set(final int flags, final int bits)
+	{
+		return flags | bits;
+	}
+
+	/**
+	 * Unset the given bits in the flags.
+	 *
+	 * @param flags
+	 *            the flags
+	 * @param bits
+	 *            the bits
+	 * @return the new flags
+	 */
+	public static int unset(final int flags, final int bits)
+	{
+		return flags & ~bits;
+	}
 }
