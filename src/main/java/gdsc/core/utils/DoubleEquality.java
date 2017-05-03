@@ -16,7 +16,7 @@ import org.apache.commons.math3.util.FastMath;
  *---------------------------------------------------------------------------*/
 
 /**
- * Provides equality functions for double doubleing polong numbers
+ * Provides equality functions for floating point numbers
  * <p>
  * Adapted from http://www.cygnus-software.com/papers/comparingdoubles/comparingdoubles.htm
  */
