@@ -74,7 +74,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	@Override
 	public void setSeed(long seed)
 	{
-		position = (int) (seed % sequence.length);
+		position = (int) (Math.abs(seed) % sequence.length);
 	}
 
 	/*
