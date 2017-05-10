@@ -494,7 +494,9 @@ public class Maths
 	}
 
 	/**
-	 * Gets the log likelihood for a least squares estimate
+	 * Gets the log likelihood for a least squares estimate. This assumes that the residuals are distributed according
+	 * to independent identical normal distributions (with zero mean). This is the case for weighted-least squares
+	 * fitting.
 	 *
 	 * @param sumOfSquaredResiduals
 	 *            the sum of squared residuals from the nonlinear least-squares fit
@@ -506,10 +508,10 @@ public class Maths
 	 */
 	public static double getLogLikelihood(double sumOfSquaredResiduals, int n)
 	{
-		//final double logLikelihood = 0.5 * (-n * (Math.log(2 * Math.PI) + 1 - Math.log(n) + Math.log(sumOfSquaredResiduals)));
-		//final double logLikelihood = 0.5 * (-n * (Math.log(2 * Math.PI) + Math.log(sumOfSquaredResiduals / n) + 1));
+		//final double logLikelihood = 0.5 * (-n * Math.log(2 * Math.PI) - n * Math.log(sumOfSquaredResiduals/n) - n);
+		//final double logLikelihood = 0.5 * (-n * (Math.log(2 * Math.PI) + Math.log(sumOfSquaredResiduals/n) + 1));
 		// Math.log(2 * Math.PI) = 1.837877066
-		final double logLikelihood = 0.5 * (-n * (1.837877066 + Math.log(sumOfSquaredResiduals / n) + 1));
+		final double logLikelihood = 0.5 * (-n * (1.837877066 + Math.log(sumOfSquaredResiduals / n) + 1.0));
 		return logLikelihood;
 	}
 
