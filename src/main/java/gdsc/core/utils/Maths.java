@@ -495,8 +495,8 @@ public class Maths
 
 	/**
 	 * Gets the log likelihood for a least squares estimate. This assumes that the residuals are distributed according
-	 * to independent identical normal distributions (with zero mean). This is the case for weighted-least squares
-	 * fitting.
+	 * to independent identical normal distributions (with zero mean). This is approximately the case for weighted-least 
+	 * squares fitting of Poisson distributed data (with the weight equal to the Poisson mean of each measurement).
 	 *
 	 * @param sumOfSquaredResiduals
 	 *            the sum of squared residuals from the nonlinear least-squares fit
