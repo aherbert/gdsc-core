@@ -29,11 +29,6 @@ public class EqualityTest
 			if (i > 0)
 				Assert.assertFalse("equal " + f,
 						equality.almostEqualRelativeOrAbsolute(f, f * (1.0f + 2.0f * maxRelativeError)));
-			Assert.assertEquals("compare == " + f, 0, equality.compareComplement(f, f));
-			Assert.assertEquals("compare < " + f, -1, equality.compareComplement(f, f + 0.01f));
-			Assert.assertEquals("compare > " + f, 1, equality.compareComplement(f + 0.01f, f));
-			Assert.assertEquals("compare ~= " + f, 0, equality.compareComplement(f, f * 1.000001f));
-			Assert.assertEquals("compare =~ " + f, 0, equality.compareComplement(f * 1.000001f, f));
 		}
 
 		intBits(100f);
@@ -61,8 +56,39 @@ public class EqualityTest
 		for (int i = 0; i < 18; i++)
 			log("sig = %d -> %d : %d\n", i, FloatEquality.getUlps(i), DoubleEquality.getUlps(i));
 
-		log("%d\n", DoubleEquality.complement(0e-16, -1.11022e-16));
-		log("%d\n", DoubleEquality.complement(-1.11022e-15, -1.11022e-16));
+		// Simple tests
+		Assert.assertEquals(1, DoubleEquality.complement(0, Double.MIN_VALUE));
+		Assert.assertEquals(1, DoubleEquality.complement(0, -Double.MIN_VALUE));
+		Assert.assertEquals(2, DoubleEquality.complement(-Double.MIN_VALUE, Double.MIN_VALUE));
+
+		// Check the complement is correct around a change of sign
+		test(-Double.MAX_VALUE, Double.MAX_VALUE);
+		test(-1e10, 1e40);
+		test(-1e2, 1e2);
+		test(-10, 10);
+		test(-1, 1);
+		test(-1e-1, 1e-1);
+		test(-1e-2, 1e-2);
+		test(1e-2, 1e-4);
+		test(1e-2, 2e-2);
+		test(1.0001, 1.0002);
+	}
+
+	private void test(double lower, double upper)
+	{
+		if (lower > upper)
+		{
+			double tmp = lower;
+			lower = upper;
+			upper = tmp;
+		}
+		long h = DoubleEquality.complement(0, upper);
+		long l = DoubleEquality.complement(0, lower);
+		long d = (lower > 0) ? h - l : h + l;
+		if (d < 0)
+			d = Long.MAX_VALUE;
+		log("%g - %g = %d\n", upper, lower, d);
+		Assert.assertEquals(d, DoubleEquality.complement(lower, upper));
 	}
 
 	/**

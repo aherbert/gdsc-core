@@ -104,18 +104,6 @@ public class FloatEquality
 	}
 
 	/**
-	 * Compares two floats within the configured number of bits variation using integer comparisons.
-	 * 
-	 * @param A
-	 * @param B
-	 * @return -1, 0 or 1
-	 */
-	public int compareComplement(float A, float B)
-	{
-		return compareComplement(A, B, maxUlps);
-	}
-
-	/**
 	 * Compares two float arrays are within the configured errors.
 	 * 
 	 * @param A
@@ -211,25 +199,6 @@ public class FloatEquality
 	}
 
 	/**
-	 * Compares two floats within the specified number of bits variation using integer comparisons.
-	 * 
-	 * @param A
-	 * @param B
-	 * @param maxUlps
-	 *            How many representable floats we are willing to accept between A and B
-	 * @return -1, 0 or 1
-	 */
-	public static int compareComplement(float A, float B, int maxUlps)
-	{
-		int c = signedComplement(A, B);
-		if (c < -maxUlps)
-			return -1;
-		if (c > maxUlps)
-			return 1;
-		return 0;
-	}
-
-	/**
 	 * @param maxRelativeError
 	 *            the maxRelativeError to set
 	 */
@@ -320,34 +289,28 @@ public class FloatEquality
 	public static int complement(float A, float B)
 	{
 		int aInt = Float.floatToRawIntBits(A);
-		// Make aInt lexicographically ordered as a twos-complement int
-		if (aInt < 0)
-			aInt = 0x80000000 - aInt;
-		// Make bInt lexicographically ordered as a twos-complement int
 		int bInt = Float.floatToRawIntBits(B);
-		if (bInt < 0)
+		if (((aInt ^ bInt) & 0x80000000) == 0)
+			// Same sign
+			return Math.abs(aInt - bInt);
+		if (aInt < 0)
+		{
+			// Make aInt lexicographically ordered as a twos-complement long
+			aInt = 0x80000000 - aInt;
+			return difference(bInt, aInt);
+		}
+		else
+		{
+			// Make bInt lexicographically ordered as a twos-complement long
 			bInt = 0x80000000 - bInt;
-		return Math.abs(aInt - bInt);
+			return difference(aInt, bInt);
+		}
 	}
-	
-	/**
-	 * Compute the number of bits variation using integer comparisons.
-	 * 
-	 * @param A
-	 * @param B
-	 * 
-	 * @return How many representable floats we are between A and B
-	 */
-	public static int signedComplement(float A, float B)
+
+	private static int difference(int high, int low)
 	{
-		int aInt = Float.floatToRawIntBits(A);
-		// Make aInt lexicographically ordered as a twos-complement int
-		if (aInt < 0)
-			aInt = 0x80000000 - aInt;
-		// Make bInt lexicographically ordered as a twos-complement int
-		int bInt = Float.floatToRawIntBits(B);
-		if (bInt < 0)
-			bInt = 0x80000000 - bInt;
-		return aInt - bInt;
+		int d = high - low;
+		// Check for over-flow
+		return (d < 0) ? Integer.MAX_VALUE : d;
 	}
 }
