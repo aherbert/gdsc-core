@@ -51,6 +51,15 @@ public class DoubleEquality
 	}
 
 	/**
+	 * @deprecated The significant digits are ignored
+	 */
+	@Deprecated
+	public DoubleEquality(double maxRelativeError, double maxAbsoluteError, long significantDigits)
+	{
+		this(maxRelativeError, maxAbsoluteError);
+	}
+
+	/**
 	 * Override constructor
 	 * 
 	 * @param significantDigits
@@ -59,7 +68,7 @@ public class DoubleEquality
 	 * @see #getMaxRelativeError(int)
 	 */
 	@Deprecated
-	public DoubleEquality(int significantDigits, double maxAbsoluteError)
+	public DoubleEquality(long significantDigits, double maxAbsoluteError)
 	{
 		setSignificantDigits(significantDigits);
 		setMaxAbsoluteError(maxAbsoluteError);
@@ -78,6 +87,32 @@ public class DoubleEquality
 	}
 
 	/**
+	 * Compares two doubles are within the configured number of bits variation using long comparisons.
+	 * 
+	 * @param A
+	 * @param B
+	 * @return True if equal
+	 * @deprecated This method now calls {@link #almostEqualRelativeOrAbsolute(double, double)}
+	 */
+	@Deprecated
+	public boolean almostEqualComplement(double A, double B)
+	{
+		return almostEqualRelativeOrAbsolute(A, B);
+	}
+
+	/**
+	 * @deprecated This method now converts the relative error to significant digits and then to ULPs for complement
+	 *             comparison
+	 */
+	@Deprecated
+	public long compareComplement(double A, double B)
+	{
+		// Convert the relative error back to significant digits, then to ULPs
+		long maxUlps = getUlps(Math.round(1 - Math.log(maxRelativeError)));
+		return compareComplement(A, B, maxUlps);
+	}
+
+	/**
 	 * Compares two double arrays are within the configured errors.
 	 * 
 	 * @param A
@@ -90,6 +125,15 @@ public class DoubleEquality
 			if (!almostEqualRelativeOrAbsolute(A[i], B[i], maxRelativeError, maxAbsoluteError))
 				return false;
 		return true;
+	}
+
+	/**
+	 * @deprecated This method now calls {@link #almostEqualRelativeOrAbsolute(double[], double[])}
+	 */
+	@Deprecated
+	public boolean almostEqualComplement(double[] A, double[] B)
+	{
+		return almostEqualRelativeOrAbsolute(A, B);
 	}
 
 	/**
@@ -166,6 +210,25 @@ public class DoubleEquality
 	}
 
 	/**
+	 * Compares two doubles within the specified number of bits variation using long comparisons.
+	 * 
+	 * @param A
+	 * @param B
+	 * @param maxUlps
+	 *            How many representable doubles we are willing to accept between A and B
+	 * @return -1, 0 or 1
+	 */
+	public static int compareComplement(double A, double B, long maxUlps)
+	{
+		long c = signedComplement(A, B);
+		if (c < -maxUlps)
+			return -1;
+		if (c > maxUlps)
+			return 1;
+		return 0;
+	}
+
+	/**
 	 * @param maxRelativeError
 	 *            the maxRelativeError to set
 	 */
@@ -197,6 +260,23 @@ public class DoubleEquality
 	public double getMaxAbsoluteError()
 	{
 		return maxAbsoluteError;
+	}
+
+	/**
+	 * @deprecated ULP comparison is no longer supported
+	 */
+	@Deprecated
+	public void setMaxUlps(long maxUlps)
+	{
+	}
+
+	/**
+	 * @deprecated ULP comparison is no longer supported
+	 */
+	@Deprecated
+	public long getMaxUlps()
+	{
+		return 0;
 	}
 
 	// The following methods are different between the FloatEquality and DoubleEquality class
@@ -251,9 +331,27 @@ public class DoubleEquality
 	 * @deprecated The significant digits are used to set the max relative error as 1e^-(n-1), e.g. 3sd => 1e-2
 	 */
 	@Deprecated
-	public void setSignificantDigits(int significantDigits)
+	public void setSignificantDigits(long significantDigits)
 	{
-		setMaxRelativeError(getMaxRelativeError(significantDigits));
+		setMaxRelativeError(getMaxRelativeError((int) significantDigits));
+	}
+
+	/**
+	 * Compute the number of representable doubles until a difference in significant digits. This is only approximate
+	 * since the ULP depend on the doubles being compared.
+	 * <p>
+	 * The number of doubles are computed between Math.power(10, sig-1) and 1 + Math.power(10, sig-1)
+	 * 
+	 * @param significantDigits
+	 *            The significant digits
+	 * @return The number of representable doubles (Units in the Last Place)
+	 */
+	public static long getUlps(long significantDigits)
+	{
+		long value1 = (long) Math.pow(10.0, significantDigits - 1);
+		long value2 = value1 + 1;
+		long ulps = Double.doubleToRawLongBits((double) value2) - Double.doubleToRawLongBits((double) value1);
+		return (ulps < 0) ? 0 : ulps;
 	}
 
 	/**
@@ -292,5 +390,40 @@ public class DoubleEquality
 		long d = high - low;
 		// Check for over-flow
 		return (d < 0) ? Long.MAX_VALUE : d;
+	}
+
+	/**
+	 * Compute the number of bits variation using long comparisons.
+	 * <p>
+	 * If the number is too large to fit in a long then Long.MAX_VALUE is returned.
+	 * 
+	 * @param A
+	 * @param B
+	 * 
+	 * @return How many representable doubles we are between A and B
+	 */
+	public static long signedComplement(double A, double B)
+	{
+		long aInt = Double.doubleToRawLongBits(A);
+		long bInt = Double.doubleToRawLongBits(B);
+		if (((aInt ^ bInt) & 0x8000000000000000L) == 0l)
+			// Same sign - no overflow
+			return aInt - bInt;
+		if (aInt < 0)
+		{
+			// Make aInt lexicographically ordered as a twos-complement long
+			aInt = 0x8000000000000000L - aInt;
+			long d = aInt - bInt;
+			// Check for over-flow. We know a is negative and b positive
+			return (d > 0) ? -Long.MAX_VALUE : d;
+		}
+		else
+		{
+			// Make bInt lexicographically ordered as a twos-complement long
+			bInt = 0x8000000000000000L - bInt;
+			long d = aInt - bInt;
+			// Check for over-flow. We know a is positive and b negative
+			return (d < 0) ? Long.MAX_VALUE : d;
+		}
 	}
 }

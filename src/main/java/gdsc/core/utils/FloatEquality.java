@@ -51,6 +51,15 @@ public class FloatEquality
 	}
 
 	/**
+	 * @deprecated The significant digits are ignored
+	 */
+	@Deprecated
+	public FloatEquality(float maxRelativeError, float maxAbsoluteError, int significantDigits)
+	{
+		this(maxRelativeError, maxAbsoluteError);
+	}
+
+	/**
 	 * Override constructor
 	 * 
 	 * @param significantDigits
@@ -78,6 +87,32 @@ public class FloatEquality
 	}
 
 	/**
+	 * Compares two floats are within the configured number of bits variation using int comparisons.
+	 * 
+	 * @param A
+	 * @param B
+	 * @return True if equal
+	 * @deprecated This method now calls {@link #almostEqualRelativeOrAbsolute(float, float)}
+	 */
+	@Deprecated
+	public boolean almostEqualComplement(float A, float B)
+	{
+		return almostEqualRelativeOrAbsolute(A, B);
+	}
+
+	/**
+	 * @deprecated This method now converts the relative error to significant digits and then to ULPs for complement
+	 *             comparison
+	 */
+	@Deprecated
+	public int compareComplement(float A, float B)
+	{
+		// Convert the relative error back to significant digits, then to ULPs
+		int maxUlps = getUlps((int) Math.round(1 - Math.log(maxRelativeError)));
+		return compareComplement(A, B, maxUlps);
+	}
+
+	/**
 	 * Compares two float arrays are within the configured errors.
 	 * 
 	 * @param A
@@ -90,6 +125,15 @@ public class FloatEquality
 			if (!almostEqualRelativeOrAbsolute(A[i], B[i], maxRelativeError, maxAbsoluteError))
 				return false;
 		return true;
+	}
+
+	/**
+	 * @deprecated This method now calls {@link #almostEqualRelativeOrAbsolute(float[], float[])}
+	 */
+	@Deprecated
+	public boolean almostEqualComplement(float[] A, float[] B)
+	{
+		return almostEqualRelativeOrAbsolute(A, B);
 	}
 
 	/**
@@ -142,7 +186,7 @@ public class FloatEquality
 	}
 
 	/**
-	 * Compares two floats are within the specified number of bits variation using integer comparisons.
+	 * Compares two floats are within the specified number of bits variation using int comparisons.
 	 * 
 	 * @param A
 	 * @param B
@@ -163,6 +207,25 @@ public class FloatEquality
 		if (complement(A, B) <= maxUlps)
 			return true;
 		return false;
+	}
+
+	/**
+	 * Compares two floats within the specified number of bits variation using int comparisons.
+	 * 
+	 * @param A
+	 * @param B
+	 * @param maxUlps
+	 *            How many representable floats we are willing to accept between A and B
+	 * @return -1, 0 or 1
+	 */
+	public static int compareComplement(float A, float B, int maxUlps)
+	{
+		int c = signedComplement(A, B);
+		if (c < -maxUlps)
+			return -1;
+		if (c > maxUlps)
+			return 1;
+		return 0;
 	}
 
 	/**
@@ -199,7 +262,24 @@ public class FloatEquality
 		return maxAbsoluteError;
 	}
 
-	// The following methods are different between the FloatEquality and DoubleEquality class
+	/**
+	 * @deprecated ULP comparison is no longer supported
+	 */
+	@Deprecated
+	public void setMaxUlps(int maxUlps)
+	{
+	}
+
+	/**
+	 * @deprecated ULP comparison is no longer supported
+	 */
+	@Deprecated
+	public int getMaxUlps()
+	{
+		return 0;
+	}
+
+	// The following methods are different between the FloatEquality and FloatEquality class
 
 	private static float[] RELATIVE_ERROR_TABLE;
 	static
@@ -257,9 +337,27 @@ public class FloatEquality
 	}
 
 	/**
+	 * Compute the number of representable doubles until a difference in significant digits. This is only approximate
+	 * since the ULP depend on the doubles being compared.
+	 * <p>
+	 * The number of doubles are computed between Math.power(10, sig-1) and 1 + Math.power(10, sig-1)
+	 * 
+	 * @param significantDigits
+	 *            The significant digits
+	 * @return The number of representable doubles (Units in the Last Place)
+	 */
+	public static int getUlps(int significantDigits)
+	{
+		int value1 = (int) Math.pow(10.0, significantDigits - 1);
+		int value2 = value1 + 1;
+		int ulps = Float.floatToRawIntBits((float) value2) - Float.floatToRawIntBits((float) value1);
+		return (ulps < 0) ? 0 : ulps;
+	}
+
+	/**
 	 * Compute the number of bits variation using integer comparisons.
 	 * <p>
-	 * If the number is too large to fit in a long then Integer.MAX_VALUE is returned.
+	 * If the number is too large to fit in a int then Integer.MAX_VALUE is returned.
 	 * 
 	 * @param A
 	 * @param B
@@ -275,13 +373,13 @@ public class FloatEquality
 			return Math.abs(aInt - bInt);
 		if (aInt < 0)
 		{
-			// Make aInt lexicographically ordered as a twos-complement long
+			// Make aInt lexicographically ordered as a twos-complement int
 			aInt = 0x80000000 - aInt;
 			return difference(bInt, aInt);
 		}
 		else
 		{
-			// Make bInt lexicographically ordered as a twos-complement long
+			// Make bInt lexicographically ordered as a twos-complement int
 			bInt = 0x80000000 - bInt;
 			return difference(aInt, bInt);
 		}
@@ -293,4 +391,40 @@ public class FloatEquality
 		// Check for over-flow
 		return (d < 0) ? Integer.MAX_VALUE : d;
 	}
+
+	/**
+	 * Compute the number of bits variation using int comparisons.
+	 * <p>
+	 * If the number is too large to fit in a int then Integer.MAX_VALUE is returned.
+	 * 
+	 * @param A
+	 * @param B
+	 * 
+	 * @return How many representable floats we are between A and B
+	 */
+	public static int signedComplement(float A, float B)
+	{
+		int aInt = Float.floatToRawIntBits(A);
+		int bInt = Float.floatToRawIntBits(B);
+		if (((aInt ^ bInt) & 0x80000000) == 0)
+			// Same sign - no overflow
+			return aInt - bInt;
+		if (aInt < 0)
+		{
+			// Make aInt lexicographically ordered as a twos-complement int
+			aInt = 0x80000000 - aInt;
+			int d = aInt - bInt;
+			// Check for over-flow. We know a is negative and b positive
+			return (d > 0) ? -Integer.MAX_VALUE : d;
+		}
+		else
+		{
+			// Make bInt lexicographically ordered as a twos-complement int
+			bInt = 0x80000000 - bInt;
+			int d = aInt - bInt;
+			// Check for over-flow. We know a is positive and b negative
+			return (d < 0) ? Integer.MAX_VALUE : d;
+		}
+	}
+
 }
