@@ -1,6 +1,6 @@
 package gdsc.core.utils;
 
-import org.apache.commons.math3.util.FastMath;
+import java.math.BigDecimal;
 
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
@@ -22,20 +22,20 @@ import org.apache.commons.math3.util.FastMath;
  */
 public class FloatEquality
 {
-	private static final float RELATIVE_ERROR = 1e-2f;
-	private static final float ABSOLUTE_ERROR = 1e-10f;
-	private static final int SIGNIFICANT_DIGITS = 3;
-	
+	/** The default relative error */
+	public static final float RELATIVE_ERROR = 1e-2f;
+	/** The default absolute error */
+	public static final float ABSOLUTE_ERROR = 1e-10f;
+
 	private float maxRelativeError;
 	private float maxAbsoluteError;
-	private int maxUlps;
 
 	/**
 	 * Default constructor
 	 */
 	public FloatEquality()
 	{
-		init(RELATIVE_ERROR, ABSOLUTE_ERROR, SIGNIFICANT_DIGITS);
+		this(RELATIVE_ERROR, ABSOLUTE_ERROR);
 	}
 
 	/**
@@ -46,19 +46,8 @@ public class FloatEquality
 	 */
 	public FloatEquality(float maxRelativeError, float maxAbsoluteError)
 	{
-		init(maxRelativeError, maxAbsoluteError, SIGNIFICANT_DIGITS);
-	}
-
-	/**
-	 * Override constructor
-	 * 
-	 * @param maxRelativeError
-	 * @param maxAbsoluteError
-	 * @param significantDigits
-	 */
-	public FloatEquality(float maxRelativeError, float maxAbsoluteError, int significantDigits)
-	{
-		init(maxRelativeError, maxAbsoluteError, significantDigits);
+		setMaxRelativeError(maxRelativeError);
+		setMaxAbsoluteError(maxAbsoluteError);
 	}
 
 	/**
@@ -66,17 +55,14 @@ public class FloatEquality
 	 * 
 	 * @param significantDigits
 	 * @param maxAbsoluteError
+	 * @deprecated The significant digits are used to set the max relative error as 1e^-(n-1), e.g. 3sd => 1e-2
+	 * @see #getMaxRelativeError(int)
 	 */
+	@Deprecated
 	public FloatEquality(int significantDigits, float maxAbsoluteError)
 	{
-		init(RELATIVE_ERROR, maxAbsoluteError, significantDigits);
-	}
-	
-	private void init(float maxRelativeError, float maxAbsoluteError, int significantDigits)
-	{
-		this.maxRelativeError = maxRelativeError;
-		this.maxAbsoluteError = maxAbsoluteError;
 		setSignificantDigits(significantDigits);
+		setMaxAbsoluteError(maxAbsoluteError);
 	}
 
 	/**
@@ -89,18 +75,6 @@ public class FloatEquality
 	public boolean almostEqualRelativeOrAbsolute(float A, float B)
 	{
 		return almostEqualRelativeOrAbsolute(A, B, maxRelativeError, maxAbsoluteError);
-	}
-
-	/**
-	 * Compares two floats are within the configured number of bits variation using integer comparisons.
-	 * 
-	 * @param A
-	 * @param B
-	 * @return True if equal
-	 */
-	public boolean almostEqualComplement(float A, float B)
-	{
-		return almostEqualComplement(A, B, maxUlps, maxAbsoluteError);
 	}
 
 	/**
@@ -119,21 +93,6 @@ public class FloatEquality
 	}
 
 	/**
-	 * Compares two float arrays are within the configured number of bits variation using integer comparisons.
-	 * 
-	 * @param A
-	 * @param B
-	 * @return True if equal
-	 */
-	public boolean almostEqualComplement(float[] A, float[] B)
-	{
-		for (int i = 0; i < A.length; i++)
-			if (!almostEqualComplement(A[i], B[i], maxUlps, maxAbsoluteError))
-				return false;
-		return true;
-	}
-	
-	/**
 	 * Compares two floats are within the specified errors.
 	 * 
 	 * @param A
@@ -144,16 +103,24 @@ public class FloatEquality
 	 *            The absolute error allowed between the numbers. Should be a small number (e.g. 1e-10)
 	 * @return True if equal
 	 */
-	public static boolean almostEqualRelativeOrAbsolute(float A, float B, float maxRelativeError, float maxAbsoluteError)
+	public static boolean almostEqualRelativeOrAbsolute(float A, float B, float maxRelativeError,
+			float maxAbsoluteError)
 	{
 		// Check the two numbers are within an absolute distance.
 		final float difference = Math.abs(A - B);
 		if (difference <= maxAbsoluteError)
 			return true;
-		final float size = FastMath.max(Math.abs(A), Math.abs(B));
+		// Ignore NaNs. This is OK since if either number is a NaN the difference 
+		// will be NaN and we end up returning false 
+		final float size = max(Math.abs(A), Math.abs(B));
 		if (difference <= size * maxRelativeError)
 			return true;
 		return false;
+	}
+
+	private static float max(float a, float b)
+	{
+		return (a >= b) ? a : b;
 	}
 
 	/**
@@ -190,7 +157,7 @@ public class FloatEquality
 		// Make sure maxUlps is non-negative and small enough that the
 		// default NAN won't compare as equal to anything.
 		//assert (maxUlps > 0 && maxUlps < 4 * 1024 * 1024);
-		
+
 		if (Math.abs(A - B) < maxAbsoluteError)
 			return true;
 		if (complement(A, B) <= maxUlps)
@@ -232,54 +199,67 @@ public class FloatEquality
 		return maxAbsoluteError;
 	}
 
-	/**
-	 * @param maxUlps
-	 *            the maximum error in terms of Units in the Last Place
-	 */
-	public void setMaxUlps(int maxUlps)
-	{
-		this.maxUlps = maxUlps;
-	}
-
-	/**
-	 * @return the maximum error in terms of Units in the Last Place
-	 */
-	public int getMaxUlps()
-	{
-		return maxUlps;
-	}
-
-	/**
-	 * Set the maximum error in terms of Units in the Last Place using the number of decimal significant digits
-	 * 
-	 * @param significantDigits The number of significant digits for comparisons
-	 */
-	public void setSignificantDigits(int significantDigits)
-	{
-		this.maxUlps = getUlps(significantDigits);
-	}
-
 	// The following methods are different between the FloatEquality and DoubleEquality class
 
+	private static float[] RELATIVE_ERROR_TABLE;
+	static
+	{
+		int precision = new BigDecimal(Float.toString(Float.MAX_VALUE)).precision();
+		RELATIVE_ERROR_TABLE = new float[precision];
+		for (int p = 0; p < precision; p++)
+		{
+			RELATIVE_ERROR_TABLE[p] = Float.parseFloat("1e-" + p);
+		}
+	}
+
 	/**
-	 * Compute the number of representable floats until a difference in significant digits
+	 * Get the maximum relative error in terms of the number of decimal significant digits that will be compared between
+	 * two real values, e.g. the relative error to use for equality testing at approximately n significant digits.
 	 * <p>
-	 * The number of floats are computed between Math.power(10, sig) and 1 + Math.power(10, sig)
+	 * Note that the relative error term is just 1e^-(n-1). This method is to provide backward support for equality
+	 * testing when the significant digits term was used to generate an approximate ULP (Unit of Least Precision) value
+	 * for direct float comparisons using the complement.
+	 * <p>
+	 * If significant digits is below 1 or above the precision of the float datatype then zero is returned.
+	 *
+	 * @param significantDigits
+	 *            The number of significant digits for comparisons
+	 * @return the max relative error
+	 */
+	public static float getMaxRelativeError(int significantDigits)
+	{
+		if (significantDigits < 1 || significantDigits > RELATIVE_ERROR_TABLE.length)
+			return 0;
+		return RELATIVE_ERROR_TABLE[significantDigits - 1];
+	}
+
+	/**
+	 * Gets the supported max significant digits.
+	 *
+	 * @return the max significant digits
+	 */
+	public static int getMaxSignificantDigits()
+	{
+		return RELATIVE_ERROR_TABLE.length;
+	}
+
+	/**
+	 * Set the maximum relative error in terms of the number of decimal significant digits
 	 * 
 	 * @param significantDigits
-	 *            The significant digits
-	 * @return The number of representable floats (Units in the Last Place)
+	 *            The number of significant digits for comparisons
+	 * @deprecated The significant digits are used to set the max relative error as 1e^-(n-1), e.g. 3sd => 1e-2
 	 */
-	public static int getUlps(int significantDigits)
+	@Deprecated
+	public void setSignificantDigits(int significantDigits)
 	{
-		int value1 = (int)Math.pow(10.0, significantDigits-1);
-		int value2 = value1 + 1;
-		int ulps = Float.floatToRawIntBits((float)value2) - Float.floatToRawIntBits((float)value1);
-		return (ulps < 0) ? 0 : ulps;
+		setMaxRelativeError(getMaxRelativeError(significantDigits));
 	}
-	
+
 	/**
 	 * Compute the number of bits variation using integer comparisons.
+	 * <p>
+	 * If the number is too large to fit in a long then Integer.MAX_VALUE is returned.
 	 * 
 	 * @param A
 	 * @param B
