@@ -258,10 +258,18 @@ public class EqualityTest
 		Assert.assertEquals(1, DoubleEquality.complement(0, Double.MIN_VALUE));
 		Assert.assertEquals(1, DoubleEquality.complement(0, -Double.MIN_VALUE));
 		Assert.assertEquals(2, DoubleEquality.complement(-Double.MIN_VALUE, Double.MIN_VALUE));
-
+		Assert.assertEquals(2, DoubleEquality.signedComplement(Double.MIN_VALUE, -Double.MIN_VALUE));
+		Assert.assertEquals(-2, DoubleEquality.signedComplement(-Double.MIN_VALUE, Double.MIN_VALUE));
+		Assert.assertEquals(Long.MAX_VALUE, DoubleEquality.signedComplement(Double.MAX_VALUE, -Double.MAX_VALUE));
+		Assert.assertEquals(Long.MIN_VALUE, DoubleEquality.signedComplement(-Double.MAX_VALUE, Double.MAX_VALUE));
+		
 		Assert.assertEquals(1, FloatEquality.complement(0, Float.MIN_VALUE));
 		Assert.assertEquals(1, FloatEquality.complement(0, -Float.MIN_VALUE));
 		Assert.assertEquals(2, FloatEquality.complement(-Float.MIN_VALUE, Float.MIN_VALUE));
+		Assert.assertEquals(2, FloatEquality.signedComplement(Float.MIN_VALUE, -Float.MIN_VALUE));
+		Assert.assertEquals(-2, FloatEquality.signedComplement(-Float.MIN_VALUE, Float.MIN_VALUE));
+		Assert.assertEquals(Integer.MAX_VALUE, FloatEquality.signedComplement(Float.MAX_VALUE, -Float.MAX_VALUE));
+		Assert.assertEquals(Integer.MIN_VALUE, FloatEquality.signedComplement(-Float.MAX_VALUE, Float.MAX_VALUE));
 
 		// Check the complement is correct around a change of sign
 		test(-Double.MAX_VALUE, Double.MAX_VALUE);
@@ -300,6 +308,13 @@ public class EqualityTest
 		long d = (lower > 0) ? h - l : h + l;
 		if (d < 0)
 			d = Long.MAX_VALUE;
+		else
+		{
+			long c = DoubleEquality.signedComplement(lower, upper);
+			Assert.assertTrue(c < 0);
+			Assert.assertEquals(d, -c);
+			Assert.assertEquals(d, DoubleEquality.signedComplement(upper, lower));
+		}
 		//log("%g - %g = %d\n", upper, lower, d);
 		Assert.assertEquals(d, DoubleEquality.complement(lower, upper));
 	}

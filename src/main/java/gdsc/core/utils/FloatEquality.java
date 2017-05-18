@@ -395,7 +395,7 @@ public class FloatEquality
 	/**
 	 * Compute the number of bits variation using int comparisons.
 	 * <p>
-	 * If the number is too large to fit in a int then Integer.MAX_VALUE is returned.
+	 * If the number is too large to fit in a int then Integer.MIN_VALUE/MAX_VALUE is returned depending on the sign.
 	 * 
 	 * @param A
 	 * @param B
@@ -415,7 +415,7 @@ public class FloatEquality
 			aInt = 0x80000000 - aInt;
 			int d = aInt - bInt;
 			// Check for over-flow. We know a is negative and b positive
-			return (d > 0) ? -Integer.MAX_VALUE : d;
+			return (d > 0) ? Integer.MIN_VALUE : d;
 		}
 		else
 		{

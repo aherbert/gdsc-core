@@ -395,7 +395,7 @@ public class DoubleEquality
 	/**
 	 * Compute the number of bits variation using long comparisons.
 	 * <p>
-	 * If the number is too large to fit in a long then Long.MAX_VALUE is returned.
+	 * If the number is too large to fit in a long then Long.MIN_VALUE/MAX_VALUE is returned depending on the sign.
 	 * 
 	 * @param A
 	 * @param B
@@ -415,7 +415,7 @@ public class DoubleEquality
 			aInt = 0x8000000000000000L - aInt;
 			long d = aInt - bInt;
 			// Check for over-flow. We know a is negative and b positive
-			return (d > 0) ? -Long.MAX_VALUE : d;
+			return (d > 0) ? Long.MIN_VALUE : d;
 		}
 		else
 		{
