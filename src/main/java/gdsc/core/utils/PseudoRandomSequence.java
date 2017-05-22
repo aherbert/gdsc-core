@@ -13,47 +13,45 @@ package gdsc.core.utils;
  * (at your option) any later version.
  *---------------------------------------------------------------------------*/
 
-import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 
 /**
  * Contains a set of random numbers that are reused in sequence
  */
-public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cloneable
+public class PseudoRandomSequence implements Cloneable
 {
 	protected final double[] sequence;
 
 	private int position = 0;
 
 	/**
-	 * Instantiates a new pseudo random generator. The input sequence is cloned.
+	 * Instantiates a new pseudo random sequence. The input sequence is cloned.
 	 *
 	 * @param sequence
 	 *            the sequence (must contains numbers in the interval 0 to 1)
 	 * @throw {@link IllegalArgumentException} if the sequence is not positive in length and contains numbers outside
 	 *        the interval 0 to 1.
 	 */
-	public PseudoRandomGenerator(double[] sequence)
+	public PseudoRandomSequence(double[] sequence)
 	{
 		if (sequence == null || sequence.length < 1)
 			throw new IllegalArgumentException("Sequence must have a positive length");
-		for (int i = sequence.length; i-- > 0;)
-			if (sequence[i] < 0 || sequence[i] > 1)
-				throw new IllegalArgumentException("Sequence must contain numbers between 0 and 1 inclusive");
 		this.sequence = sequence.clone();
 	}
 
 	/**
-	 * Instantiates a new pseudo random generator of the given size.
+	 * Instantiates a new pseudo random sequence of the given size.
 	 *
 	 * @param size
 	 *            the size
 	 * @param source
 	 *            the random source
+	 * @param scale
+	 *            the scale
 	 * @throw {@link IllegalArgumentException} if the size is not positive
 	 * @throw {@link NullPointerException} if the generator is null
 	 */
-	public PseudoRandomGenerator(int size, RandomGenerator source)
+	public PseudoRandomSequence(int size, RandomGenerator source, double scale)
 	{
 		if (size < 1)
 			throw new IllegalArgumentException("Sequence must have a positive length");
@@ -62,27 +60,25 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 		sequence = new double[size];
 		while (size-- > 0)
 		{
-			sequence[size] = source.nextDouble();
+			sequence[size] = source.nextDouble() * scale;
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#setSeed(long)
+	/**
+	 * Sets the seed for the sequence.
+	 *
+	 * @param seed the new seed
 	 */
-	@Override
 	public void setSeed(long seed)
 	{
 		position = (int) (Math.abs(seed) % sequence.length);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#nextDouble()
+	/**
+	 * Get the next double in the sequence.
+	 *
+	 * @return the double
 	 */
-	@Override
 	public double nextDouble()
 	{
 		double d = sequence[position++];
@@ -97,19 +93,19 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public PseudoRandomGenerator clone()
+	public PseudoRandomSequence clone()
 	{
 		try
 		{
-			return (PseudoRandomGenerator) super.clone();
+			return (PseudoRandomSequence) super.clone();
 		}
 		catch (CloneNotSupportedException e)
 		{
 			// This should not happen
-			return new PseudoRandomGenerator(sequence);
+			return new PseudoRandomSequence(sequence);
 		}
 	}
-	
+
 	/**
 	 * Gets the sequence of random numbers.
 	 *
@@ -118,47 +114,5 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	public double[] getSequence()
 	{
 		return sequence.clone();
-	}
-
-	/**
-	 * Returns a pseudorandom, uniformly distributed {@code int} value
-	 * between 0 (inclusive) and the specified value (exclusive), drawn from
-	 * this random number generator's sequence.
-	 * <p>
-	 * The default implementation returns:
-	 * 
-	 * <pre>
-	 * <code>(int) (nextDouble() * n</code>
-	 * </pre>
-	 * <p>
-	 * Warning: No check is made that n is positive so use with caution.
-	 *
-	 * @param n
-	 *            the bound on the random number to be returned. Must be
-	 *            positive.
-	 * @return a pseudorandom, uniformly distributed {@code int}
-	 *         value between 0 (inclusive) and n (exclusive).
-	 */
-	public int nextIntFast(int n)
-	{
-		int result = (int) (nextDouble() * n);
-		return result < n ? result : n - 1;
-	}
-
-	/**
-	 * Perform a Fischer-Yates shuffle on the data.
-	 *
-	 * @param data
-	 *            the data
-	 */
-	public void shuffle(int[] data)
-	{
-		for (int i = data.length; i-- > 1;)
-		{
-			int j = nextIntFast(i + 1);
-			int tmp = data[i];
-			data[i] = data[j];
-			data[j] = tmp;
-		}
 	}
 }
