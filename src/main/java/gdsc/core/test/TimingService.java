@@ -2,6 +2,7 @@ package gdsc.core.test;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import gdsc.core.utils.Maths;
 
@@ -34,7 +35,7 @@ public class TimingService
 	{
 		return results.size();
 	}
-	
+
 	/**
 	 * Clear the results.
 	 */
@@ -170,6 +171,17 @@ public class TimingService
 	}
 
 	/**
+	 * Report the last n timimg results to the standard output.
+	 *
+	 * @param n
+	 *            the n
+	 */
+	public void report(int n)
+	{
+		report(System.out, n);
+	}
+
+	/**
 	 * Report the timimg results to the output.
 	 *
 	 * @param out
@@ -178,6 +190,23 @@ public class TimingService
 	public void report(PrintStream out)
 	{
 		report(out, results.toArray(new TimingResult[results.size()]));
+	}
+
+	/**
+	 * Report the last n timimg results to the output.
+	 *
+	 * @param out
+	 *            the output
+	 * @param n
+	 *            the n
+	 */
+	public void report(PrintStream out, int n)
+	{
+		if (n < 1)
+			return;
+		TimingResult[] r = new TimingResult[results.size()];
+		results.toArray(r);
+		report(out, Arrays.copyOfRange(r, Math.max(0, r.length - n), r.length));
 	}
 
 	/**
