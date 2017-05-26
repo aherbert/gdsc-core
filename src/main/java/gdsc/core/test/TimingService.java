@@ -45,7 +45,9 @@ public class TimingService
 	}
 
 	/**
-	 * Get the timing result
+	 * Get the timing result.
+	 * <p>
+	 * If the index is negative then count back from the end of the results list.
 	 * 
 	 * @param index
 	 *            The index
@@ -53,6 +55,8 @@ public class TimingService
 	 */
 	public TimingResult get(int index)
 	{
+		if (index < 0)
+			return results.get(results.size() + index);
 		return results.get(index);
 	}
 
