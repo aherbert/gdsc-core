@@ -5,8 +5,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.commons.math3.special.Erf;
-
 import ags.utils.dataStructures.trees.secondGenKD.FloatIntKdTree2D;
 import ags.utils.dataStructures.trees.secondGenKD.IntNeighbourStore;
 import ags.utils.dataStructures.trees.secondGenKD.Status;
@@ -235,9 +233,57 @@ public class LoOP
 		{
 			for (int i = from; i < to; i++)
 			{
-				plofs[i] = Erf.erf((plofs[i] - 1.0) * norm);
+				// Use an approximation for speed
+				plofs[i] = erf((plofs[i] - 1.0) * norm);
 			}
 		}
+	}
+
+	/**
+	 * Returns the error function.
+	 *
+	 * <p>
+	 * erf(x) = 2/&radic;&pi; <sub>0</sub>&int;<sup>x</sup> e<sup>-t<sup>2</sup></sup>dt
+	 * </p>
+	 *
+	 * <p>
+	 * This implementation computes erf(x) using the approximation by Abramowitz and Stegun. The maximum absolute error
+	 * is about 3e-7 for all x.
+	 * </p>
+	 *
+	 * <p>
+	 * The value returned is always between -1 and 1 (inclusive).
+	 * If {@code abs(x) > 40}, then {@code erf(x)} is indistinguishable from
+	 * either 1 or -1 as a double, so the appropriate extreme value is returned.
+	 * </p>
+	 *
+	 * @param x
+	 *            the value.
+	 * @return the error function erf(x)
+	 */
+	public static double erf(double x)
+	{
+		final boolean negative = (x < 0);
+		if (negative)
+			x = -x;
+		// Set this to 40 when computing the limit in the JUnit test
+		if (x > 6.183574750897915)
+			return negative ? -1 : 1;
+
+		final double x2 = x * x;
+		final double x3 = x2 * x;
+		final double ret = 1 - 1 / power16(1.0 + 0.0705230784 * x + 0.0422820123 * x2 + 0.0092705272 * x3 +
+				0.0001520143 * x2 * x2 + 0.0002765672 * x2 * x3 + 0.0000430638 * x3 * x3);
+
+		return (negative) ? -ret : ret;
+	}
+
+	private static double power16(double d)
+	{
+		d = d * d; // power2
+		d = d * d; // power4
+		d = d * d; // power8
+		return d * d;
 	}
 
 	/**
