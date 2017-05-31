@@ -495,7 +495,7 @@ public class Maths
 
 	/**
 	 * Gets the log likelihood for a least squares estimate. This assumes that the residuals are distributed according
-	 * to independent identical normal distributions (with zero mean). This is approximately the case for weighted-least 
+	 * to independent identical normal distributions (with zero mean). This is approximately the case for weighted-least
 	 * squares fitting of Poisson distributed data (with the weight equal to the Poisson mean of each measurement).
 	 *
 	 * @param sumOfSquaredResiduals
@@ -958,5 +958,42 @@ public class Maths
 		if (value > upper)
 			return upper;
 		return value;
+	}
+
+	/**
+	 * Get the argument to the power 2.
+	 *
+	 * @param d
+	 *            the d
+	 * @return d^2
+	 */
+	public static double pow2(double d)
+	{
+		return d * d;
+	}
+
+	/**
+	 * Get the argument to the power 3.
+	 *
+	 * @param d
+	 *            the d
+	 * @return d^3
+	 */
+	public static double pow3(double d)
+	{
+		return d * d * d;
+	}
+
+	/**
+	 * Get the argument to the power 4.
+	 *
+	 * @param d
+	 *            the d
+	 * @return d^4
+	 */
+	public static double pow4(double d)
+	{
+		d = d * d;
+		return d * d;
 	}
 }
