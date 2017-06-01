@@ -1462,11 +1462,12 @@ public class Utils
 	public static String getDirectory(String title, String directory)
 	{
 		String defaultDir = OpenDialog.getDefaultDirectory();
-		if (directory != null && directory.length() > 0)
+		if (!Utils.isNullOrEmpty(directory))
 			OpenDialog.setDefaultDirectory(directory);
 		DirectoryChooser chooser = new DirectoryChooser(title);
 		directory = chooser.getDirectory();
-		OpenDialog.setDefaultDirectory(defaultDir);
+		if (!Utils.isNullOrEmpty(defaultDir))
+			OpenDialog.setDefaultDirectory(defaultDir);
 		return directory;
 	}
 
