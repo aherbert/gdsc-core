@@ -16,6 +16,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+
 import gdsc.core.ij.Utils;
 
 /**
@@ -288,7 +291,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		GridBagConstraints c = grid.getConstraints(tf);
 		remove(tf);
 
-		Button button = new Button("...");
+		JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
 			@Override
@@ -299,11 +302,20 @@ public class ExtendedGenericDialog extends GenericDialog
 		});
 
 		Panel panel = new Panel();
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		panel.add(tf);
 		panel.add(button);
 		grid.setConstraints(panel, c);
 		add(panel);
+	}
+
+	private JButton createOptionButton()
+	{
+		JButton button = new JButton("...");
+		button.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(1),
+				// For some reason an extra 2 pixels looks correct on a mac
+				BorderFactory.createEmptyBorder(1, 1, 1, 3)));
+		return button;
 	}
 
 	/**
@@ -312,7 +324,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * @param label
 	 *            the label
 	 * @param defaultText
-	 *            the default text
+	 *            the default filename
 	 * @param columns
 	 *            the columns
 	 * @throws NullPointerException
@@ -324,7 +336,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		GridBagConstraints c = grid.getConstraints(tf);
 		remove(tf);
 
-		Button button = new Button("...");
+		JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
 			@Override
@@ -337,7 +349,45 @@ public class ExtendedGenericDialog extends GenericDialog
 		});
 
 		Panel panel = new Panel();
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		panel.add(tf);
+		panel.add(button);
+		grid.setConstraints(panel, c);
+		add(panel);
+	}
+
+	/**
+	 * Adds the directory field.
+	 *
+	 * @param label
+	 *            the label
+	 * @param defaultText
+	 *            the default directory
+	 * @param columns
+	 *            the columns
+	 * @throws NullPointerException
+	 *             if the option lister is null
+	 */
+	public void addDirectoryField(String label, String defaultText, int columns)
+	{
+		TextField tf = addAndGetStringField(label, defaultText, columns);
+		GridBagConstraints c = grid.getConstraints(tf);
+		remove(tf);
+
+		JButton button = createOptionButton();
+		button.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				String filename = Utils.getDirectory("Test_file", tf.getText());
+				if (filename != null)
+					tf.setText(filename);
+			}
+		});
+
+		Panel panel = new Panel();
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		panel.add(tf);
 		panel.add(button);
 		grid.setConstraints(panel, c);
@@ -367,7 +417,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		GridBagConstraints c = grid.getConstraints(choice);
 		remove(choice);
 
-		Button button = new Button("...");
+		JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
 			@Override
@@ -378,7 +428,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		});
 
 		Panel panel = new Panel();
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		panel.add(choice);
 		panel.add(button);
 		grid.setConstraints(panel, c);
