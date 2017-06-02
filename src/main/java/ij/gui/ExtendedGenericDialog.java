@@ -1,4 +1,20 @@
+/*
+ * 
+ */
 package ij.gui;
+
+/*----------------------------------------------------------------------------- 
+ * GDSC Plugins for ImageJ
+ * 
+ * Copyright (C) 2017 Alex Herbert
+ * Genome Damage and Stability Centre
+ * University of Sussex, UK
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *---------------------------------------------------------------------------*/
 
 import java.awt.Button;
 import java.awt.Checkbox;
@@ -19,7 +35,10 @@ import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
+import gdsc.core.ij.RecorderUtils;
 import gdsc.core.ij.Utils;
+import gdsc.core.utils.TurboList;
+import ij.plugin.frame.Recorder;
 
 /**
  * Extension of the ij.gui.GenericDialog class to add functionality
@@ -29,6 +48,11 @@ public class ExtendedGenericDialog extends GenericDialog
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 2405780565152258007L;
 	private final GridBagLayout grid;
+
+	private TurboList<OptionListener<?>> listeners;
+
+	/** The labels. Used to reset the recorder. */
+	private TurboList<String> labels = new TurboList<String>();
 
 	/**
 	 * Instantiates a new extended generic dialog.
@@ -56,6 +80,82 @@ public class ExtendedGenericDialog extends GenericDialog
 		grid = (GridBagLayout) getLayout();
 	}
 
+	// Record all the field names
+
+	@Override
+	public void addCheckbox(String label, boolean defaultValue)
+	{
+		labels.add(label);
+		super.addCheckbox(label, defaultValue);
+	}
+
+	@Override
+	public void addCheckboxGroup(int rows, int columns, String[] labels, boolean[] defaultValues)
+	{
+		for (String label : labels)
+			this.labels.add(label);
+		super.addCheckboxGroup(rows, columns, labels, defaultValues);
+	}
+
+	@Override
+	public void addCheckboxGroup(int rows, int columns, String[] labels, boolean[] defaultValues, String[] headings)
+	{
+		for (String label : labels)
+			this.labels.add(label);
+		super.addCheckboxGroup(rows, columns, labels, defaultValues, headings);
+	}
+
+	@Override
+	public void addChoice(String label, String[] items, String defaultItem)
+	{
+		labels.add(label);
+		super.addChoice(label, items, defaultItem);
+	}
+
+	@Override
+	public void addNumericField(String label, double defaultValue, int digits)
+	{
+		labels.add(label);
+		super.addNumericField(label, defaultValue, digits);
+	}
+
+	@Override
+	public void addNumericField(String label, double defaultValue, int digits, int columns, String units)
+	{
+		labels.add(label);
+		super.addNumericField(label, defaultValue, digits, columns, units);
+	}
+
+	@Override
+	public void addSlider(String label, double minValue, double maxValue, double defaultValue)
+	{
+		labels.add(label);
+		super.addSlider(label, minValue, maxValue, defaultValue);
+	}
+
+	@Override
+	public void addStringField(String label, String defaultText)
+	{
+		labels.add(label);
+		super.addStringField(label, defaultText);
+	}
+
+	@Override
+	public void addStringField(String label, String defaultText, int columns)
+	{
+		labels.add(label);
+		super.addStringField(label, defaultText, columns);
+	}
+
+	@Override
+	public void addTextAreas(String text1, String text2, int rows, int columns)
+	{
+		labels.add("text1");
+		if (text2 != null)
+			labels.add("text2");
+		super.addTextAreas(text1, text2, rows, columns);
+	}
+
 	/**
 	 * Adds and then gets a checkbox.
 	 *
@@ -67,7 +167,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Checkbox addAndGetCheckbox(String label, boolean defaultValue)
 	{
-		super.addCheckbox(label, defaultValue);
+		addCheckbox(label, defaultValue);
 		return (Checkbox) tail(getCheckboxes());
 	}
 
@@ -96,7 +196,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Choice addAndGetChoice(String label, String[] items, String defaultItem)
 	{
-		super.addChoice(label, items, defaultItem);
+		addChoice(label, items, defaultItem);
 		return (Choice) tail(getChoices());
 	}
 
@@ -111,7 +211,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public TextField addAndGetStringField(String label, String defaultText)
 	{
-		super.addStringField(label, defaultText);
+		addStringField(label, defaultText);
 		return (TextField) tail(getStringFields());
 	}
 
@@ -128,7 +228,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public TextField addAndGetStringField(String label, String defaultText, int columns)
 	{
-		super.addStringField(label, defaultText, columns);
+		addStringField(label, defaultText, columns);
 		return (TextField) tail(getStringFields());
 	}
 
@@ -149,7 +249,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public TextField addAndGetNumericField(String label, double defaultValue, int digits, int columns, String units)
 	{
-		super.addNumericField(label, defaultValue, digits, columns, units);
+		addNumericField(label, defaultValue, digits, columns, units);
 		return (TextField) tail(getNumericFields());
 	}
 
@@ -166,7 +266,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public TextField addAndGetNumericField(String label, double defaultValue, int digits)
 	{
-		super.addNumericField(label, defaultValue, digits);
+		addNumericField(label, defaultValue, digits);
 		return (TextField) tail(getNumericFields());
 	}
 
@@ -185,7 +285,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Scrollbar addAndGetSlider(String label, double minValue, double maxValue, double defaultValue)
 	{
-		super.addSlider(label, minValue, maxValue, defaultValue);
+		addSlider(label, minValue, maxValue, defaultValue);
 		return (Scrollbar) tail(getSliders());
 	}
 
@@ -232,7 +332,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		return button;
 	}
 
-	// TODO add fields as per the normal add methods but have a custom OptionListener interface
+	// Add fields as per the normal add methods but have a custom OptionListener interface
 	// to call when an options button is pressed. Add a ... button at the end of the row
 	// with a mouse over tooltip that calls the option listener
 
@@ -242,12 +342,22 @@ public class ExtendedGenericDialog extends GenericDialog
 	public interface OptionListener<T>
 	{
 		/**
-		 * Gets the options.
+		 * Gets the options using the current value of the field.
 		 *
 		 * @param field
 		 *            the field
 		 */
 		public void collectOptions(T field);
+
+		/**
+		 * Gets the options using the previously read value of the field.
+		 * <p>
+		 * This will be called when the parent field is read using the appropriate getNext(...) method. It allows macros
+		 * to be supported by either recording the options in the Recorder or reading the options from the Macro
+		 * options. The simple implementation is to construct an ExtendedGenericDialog to collect the options but do not
+		 * present the dialog using the showDialog() method, just proceed direct to reading the fields..
+		 */
+		public void collectOptions();
 	}
 
 	/**
@@ -291,6 +401,8 @@ public class ExtendedGenericDialog extends GenericDialog
 		GridBagConstraints c = grid.getConstraints(tf);
 		remove(tf);
 
+		add(optionListener);
+
 		JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
@@ -311,11 +423,43 @@ public class ExtendedGenericDialog extends GenericDialog
 
 	private JButton createOptionButton()
 	{
+		return createOptionButton("Extra options");
+	}
+
+	private JButton createOptionButton(String tooltip)
+	{
 		JButton button = new JButton("...");
+		button.setToolTipText(tooltip);
 		button.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(1),
 				// For some reason an extra 2 pixels looks correct on a mac
 				BorderFactory.createEmptyBorder(1, 1, 1, 3)));
 		return button;
+	}
+
+	private int add(OptionListener<?> optionListener)
+	{
+		if (listeners == null)
+		{
+			listeners = new TurboList<>();
+		}
+		int id = listeners.size();
+		listeners.add(optionListener);
+		return id;
+	}
+
+	/**
+	 * Adds the filename field.
+	 *
+	 * @param label
+	 *            the label
+	 * @param defaultText
+	 *            the default filename
+	 * @throws NullPointerException
+	 *             if the option lister is null
+	 */
+	public void addFilenameField(String label, String defaultText)
+	{
+		addFilenameField(label, defaultText, 30);
 	}
 
 	/**
@@ -336,13 +480,15 @@ public class ExtendedGenericDialog extends GenericDialog
 		GridBagConstraints c = grid.getConstraints(tf);
 		remove(tf);
 
-		JButton button = createOptionButton();
+		JButton button = createOptionButton("Select a file");
 		button.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				String filename = Utils.getFilename("Test_file", tf.getText());
+				boolean record = Recorder.record;
+				String filename = Utils.getFilename(label, tf.getText());
+				Recorder.record = record;
 				if (filename != null)
 					tf.setText(filename);
 			}
@@ -368,19 +514,38 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
+	public void addDirectoryField(String label, String defaultText)
+	{
+		addDirectoryField(label, defaultText, 30);
+	}
+
+	/**
+	 * Adds the directory field.
+	 *
+	 * @param label
+	 *            the label
+	 * @param defaultText
+	 *            the default directory
+	 * @param columns
+	 *            the columns
+	 * @throws NullPointerException
+	 *             if the option lister is null
+	 */
 	public void addDirectoryField(String label, String defaultText, int columns)
 	{
 		TextField tf = addAndGetStringField(label, defaultText, columns);
 		GridBagConstraints c = grid.getConstraints(tf);
 		remove(tf);
 
-		JButton button = createOptionButton();
+		JButton button = createOptionButton("Select a directory");
 		button.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				String filename = Utils.getDirectory("Test_file", tf.getText());
+				boolean record = Recorder.record;
+				String filename = Utils.getDirectory(label, tf.getText());
+				Recorder.record = record;
 				if (filename != null)
 					tf.setText(filename);
 			}
@@ -417,6 +582,8 @@ public class ExtendedGenericDialog extends GenericDialog
 		GridBagConstraints c = grid.getConstraints(choice);
 		remove(choice);
 
+		add(optionListener);
+
 		JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
@@ -433,5 +600,46 @@ public class ExtendedGenericDialog extends GenericDialog
 		panel.add(button);
 		grid.setConstraints(panel, c);
 		add(panel);
+	}
+
+	/**
+	 * Reset the recorder for all the named fields that have been added to the dialog. This should be called if the
+	 * dialog is to be reused as repeat calls to getNext(...) for fields with the same name will call ImageJ to show a
+	 * duplicate field error.
+	 */
+	public void resetRecorder()
+	{
+		RecorderUtils.resetRecorder(labels.toArray(new String[labels.size()]));
+	}
+
+	/**
+	 * Show the dialog.
+	 *
+	 * @param resetRecorder
+	 *            Set to true to reset the recorder for all the named fields that have been added to the dialog.
+	 * @see ij.gui.GenericDialog#showDialog()
+	 */
+	public void showDialog(boolean resetRecorder)
+	{
+		if (resetRecorder)
+			resetRecorder();
+		super.showDialog();
+	}
+
+	/**
+	 * Collect the options from all the option listeners silently. Calls all the listeners since the value may have been
+	 * changed since they were last called interactively.
+	 * <p>
+	 * This should be called after all the fields have been read. This allows the fields to be read correctly from Macro
+	 * option arguments. It also allows the options to be recorded to the Recorder.
+	 */
+	public void collectOptions()
+	{
+		if (listeners == null)
+			return;
+		for (int i = 0; i < listeners.size(); i++)
+		{
+			listeners.getf(i).collectOptions();
+		}
 	}
 }
