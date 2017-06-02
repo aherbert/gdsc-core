@@ -632,10 +632,15 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * <p>
 	 * This should be called after all the fields have been read. This allows the fields to be read correctly from Macro
 	 * option arguments. It also allows the options to be recorded to the Recorder.
+	 * <p>
+	 * This method does nothing if the Recorder is disabled or this is not running in a macro, i.e. there is no point
+	 * collecting options again.
 	 */
 	public void collectOptions()
 	{
 		if (listeners == null)
+			return;
+		if (!(Recorder.record || Utils.isMacro()))
 			return;
 		for (int i = 0; i < listeners.size(); i++)
 		{
