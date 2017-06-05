@@ -397,7 +397,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		if (optionListener == null)
 			throw new NullPointerException("Option listener is null");
 
-		TextField tf = addAndGetStringField(label, defaultText, columns);
+		final TextField tf = addAndGetStringField(label, defaultText, columns);
 		GridBagConstraints c = grid.getConstraints(tf);
 		remove(tf);
 
@@ -406,7 +406,6 @@ public class ExtendedGenericDialog extends GenericDialog
 		JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
-			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				optionListener.collectOptions(tf);
@@ -440,7 +439,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	{
 		if (listeners == null)
 		{
-			listeners = new TurboList<>();
+			listeners = new TurboList<OptionListener<?>>();
 		}
 		int id = listeners.size();
 		listeners.add(optionListener);
@@ -474,16 +473,15 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public void addFilenameField(String label, String defaultText, int columns)
+	public void addFilenameField(final String label, String defaultText, int columns)
 	{
-		TextField tf = addAndGetStringField(label, defaultText, columns);
+		final TextField tf = addAndGetStringField(label, defaultText, columns);
 		GridBagConstraints c = grid.getConstraints(tf);
 		remove(tf);
 
 		JButton button = createOptionButton("Select a file");
 		button.addActionListener(new ActionListener()
 		{
-			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				boolean record = Recorder.record;
@@ -531,16 +529,15 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public void addDirectoryField(String label, String defaultText, int columns)
+	public void addDirectoryField(final String label, String defaultText, int columns)
 	{
-		TextField tf = addAndGetStringField(label, defaultText, columns);
+		final TextField tf = addAndGetStringField(label, defaultText, columns);
 		GridBagConstraints c = grid.getConstraints(tf);
 		remove(tf);
 
 		JButton button = createOptionButton("Select a directory");
 		button.addActionListener(new ActionListener()
 		{
-			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				boolean record = Recorder.record;
@@ -578,7 +575,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		if (optionListener == null)
 			throw new NullPointerException("Option listener is null");
 
-		Choice choice = addAndGetChoice(label, items, defaultItem);
+		final Choice choice = addAndGetChoice(label, items, defaultItem);
 		GridBagConstraints c = grid.getConstraints(choice);
 		remove(choice);
 
@@ -587,7 +584,6 @@ public class ExtendedGenericDialog extends GenericDialog
 		JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
-			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				optionListener.collectOptions(choice);
