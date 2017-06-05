@@ -594,10 +594,10 @@ public class Maths
 	}
 
 	/**
-	 * @param SSresid
-	 *            Sum of squared residuals from the model
-	 * @param SStotal
-	 *            SStotal is the sum of the squared differences from the mean of the dependent variable (total sum of
+	 * @param residualSS
+	 *            The sum of squared residuals from the model
+	 * @param totalSS
+	 *            the sum of the squared differences from the mean of the dependent variable (total sum of
 	 *            squares)
 	 * @param n
 	 *            The number of data points
@@ -605,9 +605,28 @@ public class Maths
 	 *            The number of fitted parameters
 	 * @return The adjusted coefficient of determination
 	 */
-	public static double getAdjustedCoefficientOfDetermination(double SSresid, double SStotal, int n, int p)
+	public static double getAdjustedCoefficientOfDetermination(double residualSS, double totalSS, int n, int p)
 	{
-		return 1 - (SSresid / SStotal) * ((n - 1) / (n - p - 1));
+		return 1 - (residualSS / totalSS) * ((n - 1) / (n - p - 1));
+	}
+
+	/**
+	 * Gets the total sum of squares.
+	 *
+	 * @param y
+	 *            the y
+	 * @return the total sum of squares
+	 */
+	public static double getTotalSumOfSquares(double[] y)
+	{
+		double sx = 0, ssx = 0;
+		for (int i = y.length; i-- > 0;)
+		{
+			sx += y[i];
+			ssx += y[i] * y[i];
+		}
+		final double sumOfSquares = ssx - (sx * sx) / (y.length);
+		return sumOfSquares;
 	}
 
 	public static double sum(double... data)
