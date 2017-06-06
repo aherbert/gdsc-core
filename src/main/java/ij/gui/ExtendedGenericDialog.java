@@ -600,7 +600,7 @@ public class ExtendedGenericDialog extends GenericDialog
 
 	/**
 	 * Reset the recorder for all the named fields that have been added to the dialog. This should be called if the
-	 * dialog is to be reused as repeat calls to getNext(...) for fields with the same name will call ImageJ to show a
+	 * dialog is to be reused as repeat calls to getNext(...) for fields with the same name will cause ImageJ to show a
 	 * duplicate field error.
 	 */
 	public void resetRecorder()
@@ -612,12 +612,13 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * Show the dialog.
 	 *
 	 * @param resetRecorder
-	 *            Set to true to reset the recorder for all the named fields that have been added to the dialog.
+	 *            Set to true to reset the recorder for all the named fields that have been added to the dialog. Ignored
+	 *            if the Recorder is not enabled.
 	 * @see ij.gui.GenericDialog#showDialog()
 	 */
 	public void showDialog(boolean resetRecorder)
 	{
-		if (resetRecorder)
+		if (resetRecorder && Recorder.record)
 			resetRecorder();
 		super.showDialog();
 	}
