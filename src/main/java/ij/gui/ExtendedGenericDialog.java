@@ -19,6 +19,7 @@ package ij.gui;
 import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.Choice;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Frame;
@@ -39,6 +40,7 @@ import javax.swing.JButton;
 import gdsc.core.ij.RecorderUtils;
 import gdsc.core.ij.Utils;
 import gdsc.core.utils.TurboList;
+import ij.IJ;
 import ij.plugin.frame.Recorder;
 
 /**
@@ -531,13 +533,23 @@ public class ExtendedGenericDialog extends GenericDialog
 		return createOptionButton("Extra options");
 	}
 
+	// Try and control the button appearance across platforms
+	private static Color buttonBackgroundColor;
+	private static int buttonRightBorder;
+	static
+	{
+		buttonBackgroundColor = new Color(240, 240, 240);
+		// For some reason an extra 2 pixels looks correct on a mac
+		buttonRightBorder = (IJ.isMacOSX()) ? 3 : 1;
+	}
+
 	private JButton createOptionButton(String tooltip)
 	{
 		lastOptionButton = new JButton("...");
+		lastOptionButton.setBackground(buttonBackgroundColor);
 		lastOptionButton.setToolTipText(tooltip);
 		lastOptionButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(1),
-				// For some reason an extra 2 pixels looks correct on a mac
-				BorderFactory.createEmptyBorder(1, 1, 1, 3)));
+				BorderFactory.createEmptyBorder(1, 1, 1, buttonRightBorder)));
 		return lastOptionButton;
 	}
 
