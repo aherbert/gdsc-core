@@ -157,6 +157,108 @@ public class ExtendedGenericDialog extends GenericDialog
 	}
 
 	/**
+	 * Gets the last label added to the dialog.
+	 *
+	 * @return the last label
+	 */
+	public Label getLastLabel()
+	{
+		int n = getComponentCount();
+		while (n-- > 0)
+		{
+			java.awt.Component c = getComponent(n);
+			if (c instanceof Label)
+				return (Label) c;
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the last panel added to the dialog.
+	 *
+	 * @return the last panel
+	 */
+	public Panel getLastPanel()
+	{
+		int n = getComponentCount();
+		while (n-- > 0)
+		{
+			java.awt.Component c = getComponent(n);
+			if (c instanceof Panel)
+				return (Panel) c;
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the last choice added to the dialog.
+	 *
+	 * @return the last choice
+	 */
+	public Choice getLastChoice()
+	{
+		int n = getComponentCount();
+		while (n-- > 0)
+		{
+			java.awt.Component c = getComponent(n);
+			if (c instanceof Choice)
+				return (Choice) c;
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the last text field added to the dialog.
+	 *
+	 * @return the last text field
+	 */
+	public TextField getLastTextField()
+	{
+		int n = getComponentCount();
+		while (n-- > 0)
+		{
+			java.awt.Component c = getComponent(n);
+			if (c instanceof TextField)
+				return (TextField) c;
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the last checkbox added to the dialog.
+	 *
+	 * @return the last checkbox
+	 */
+	public Checkbox getLastCheckbox()
+	{
+		int n = getComponentCount();
+		while (n-- > 0)
+		{
+			java.awt.Component c = getComponent(n);
+			if (c instanceof Checkbox)
+				return (Checkbox) c;
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the last scrollbar added to the dialog.
+	 *
+	 * @return the last scrollbar
+	 */
+	public Scrollbar getLastScrollbar()
+	{
+		int n = getComponentCount();
+		while (n-- > 0)
+		{
+			java.awt.Component c = getComponent(n);
+			if (c instanceof Scrollbar)
+				return (Scrollbar) c;
+		}
+		return null;
+	}
+
+	/**
 	 * Adds and then gets a checkbox.
 	 *
 	 * @param label
@@ -420,6 +522,8 @@ public class ExtendedGenericDialog extends GenericDialog
 		add(panel);
 	}
 
+	private JButton lastOptionButton = null;
+
 	private JButton createOptionButton()
 	{
 		return createOptionButton("Extra options");
@@ -427,12 +531,22 @@ public class ExtendedGenericDialog extends GenericDialog
 
 	private JButton createOptionButton(String tooltip)
 	{
-		JButton button = new JButton("...");
-		button.setToolTipText(tooltip);
-		button.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(1),
+		lastOptionButton = new JButton("...");
+		lastOptionButton.setToolTipText(tooltip);
+		lastOptionButton.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(1),
 				// For some reason an extra 2 pixels looks correct on a mac
 				BorderFactory.createEmptyBorder(1, 1, 1, 3)));
-		return button;
+		return lastOptionButton;
+	}
+
+	/**
+	 * Gets a reference to the most recently added option button.
+	 *
+	 * @return the last option button
+	 */
+	public JButton getLastOptionButton()
+	{
+		return lastOptionButton;
 	}
 
 	private int add(OptionListener<?> optionListener)
@@ -453,12 +567,13 @@ public class ExtendedGenericDialog extends GenericDialog
 	 *            the label
 	 * @param defaultText
 	 *            the default filename
+	 * @return the text field
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public void addFilenameField(String label, String defaultText)
+	public TextField addFilenameField(String label, String defaultText)
 	{
-		addFilenameField(label, defaultText, 30);
+		return addFilenameField(label, defaultText, 30);
 	}
 
 	/**
@@ -470,10 +585,11 @@ public class ExtendedGenericDialog extends GenericDialog
 	 *            the default filename
 	 * @param columns
 	 *            the columns
+	 * @return the text field
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public void addFilenameField(final String label, String defaultText, int columns)
+	public TextField addFilenameField(final String label, String defaultText, int columns)
 	{
 		final TextField tf = addAndGetStringField(label, defaultText, columns);
 		GridBagConstraints c = grid.getConstraints(tf);
@@ -498,6 +614,8 @@ public class ExtendedGenericDialog extends GenericDialog
 		panel.add(button);
 		grid.setConstraints(panel, c);
 		add(panel);
+
+		return tf;
 	}
 
 	/**
@@ -507,14 +625,13 @@ public class ExtendedGenericDialog extends GenericDialog
 	 *            the label
 	 * @param defaultText
 	 *            the default directory
-	 * @param columns
-	 *            the columns
+	 * @return the text field
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public void addDirectoryField(String label, String defaultText)
+	public TextField addDirectoryField(String label, String defaultText)
 	{
-		addDirectoryField(label, defaultText, 30);
+		return addDirectoryField(label, defaultText, 30);
 	}
 
 	/**
@@ -526,10 +643,11 @@ public class ExtendedGenericDialog extends GenericDialog
 	 *            the default directory
 	 * @param columns
 	 *            the columns
+	 * @return the text field
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public void addDirectoryField(final String label, String defaultText, int columns)
+	public TextField addDirectoryField(final String label, String defaultText, int columns)
 	{
 		final TextField tf = addAndGetStringField(label, defaultText, columns);
 		GridBagConstraints c = grid.getConstraints(tf);
@@ -554,6 +672,8 @@ public class ExtendedGenericDialog extends GenericDialog
 		panel.add(button);
 		grid.setConstraints(panel, c);
 		add(panel);
+
+		return tf;
 	}
 
 	/**
