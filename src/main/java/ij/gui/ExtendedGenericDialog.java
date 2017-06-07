@@ -19,6 +19,7 @@ package ij.gui;
 import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.Choice;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -48,6 +49,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 2405780565152258007L;
 	private final GridBagLayout grid;
+	private Component positionComponent = null;
 
 	private TurboList<OptionListener<?>> listeners;
 
@@ -166,7 +168,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		int n = getComponentCount();
 		while (n-- > 0)
 		{
-			java.awt.Component c = getComponent(n);
+			Component c = getComponent(n);
 			if (c instanceof Label)
 				return (Label) c;
 		}
@@ -183,7 +185,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		int n = getComponentCount();
 		while (n-- > 0)
 		{
-			java.awt.Component c = getComponent(n);
+			Component c = getComponent(n);
 			if (c instanceof Panel)
 				return (Panel) c;
 		}
@@ -200,7 +202,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		int n = getComponentCount();
 		while (n-- > 0)
 		{
-			java.awt.Component c = getComponent(n);
+			Component c = getComponent(n);
 			if (c instanceof Choice)
 				return (Choice) c;
 		}
@@ -217,7 +219,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		int n = getComponentCount();
 		while (n-- > 0)
 		{
-			java.awt.Component c = getComponent(n);
+			Component c = getComponent(n);
 			if (c instanceof TextField)
 				return (TextField) c;
 		}
@@ -234,7 +236,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		int n = getComponentCount();
 		while (n-- > 0)
 		{
-			java.awt.Component c = getComponent(n);
+			Component c = getComponent(n);
 			if (c instanceof Checkbox)
 				return (Checkbox) c;
 		}
@@ -251,7 +253,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		int n = getComponentCount();
 		while (n-- > 0)
 		{
-			java.awt.Component c = getComponent(n);
+			Component c = getComponent(n);
 			if (c instanceof Scrollbar)
 				return (Scrollbar) c;
 		}
@@ -741,6 +743,49 @@ public class ExtendedGenericDialog extends GenericDialog
 		if (resetRecorder && Recorder.record)
 			resetRecorder();
 		super.showDialog();
+	}
+
+	/**
+	 * Show the dialog.
+	 *
+	 * @param resetRecorder
+	 *            Set to true to reset the recorder for all the named fields that have been added to the dialog. Ignored
+	 *            if the Recorder is not enabled.
+	 * @param positionComponent
+	 *            Sets the component that will be used to position this dialog
+	 * @see ij.gui.GenericDialog#showDialog()
+	 */
+	public void showDialog(boolean resetRecorder, Component positionComponent)
+	{
+		setPositionComponent(positionComponent);
+		showDialog(resetRecorder);
+	}
+
+	/**
+	 * Sets the component that will be used to position this dialog. See
+	 * {@link #setLocationRelativeTo(Component)}.
+	 *
+	 * @param c
+	 *            the new position component
+	 */
+	public void setPositionComponent(Component c)
+	{
+		positionComponent = c;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.awt.Dialog#setVisible(boolean)
+	 */
+	@Override
+	public void setVisible(boolean b)
+	{
+		// Allow positioning relative to a parent component
+		if (positionComponent != null && positionComponent.isVisible())
+			setLocationRelativeTo(positionComponent);
+
+		super.setVisible(b);
 	}
 
 	/**
