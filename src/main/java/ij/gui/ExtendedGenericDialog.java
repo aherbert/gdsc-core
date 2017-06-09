@@ -733,6 +733,46 @@ public class ExtendedGenericDialog extends GenericDialog
 	}
 
 	/**
+	 * Adds the choice.
+	 *
+	 * @param label
+	 *            the label
+	 * @param defaultValue
+	 *            the default value
+	 * @param optionListener
+	 *            the option listener
+	 * @throws NullPointerException
+	 *             if the option lister is null
+	 */
+	public void addCheckbox(String label, boolean defaultValue, final OptionListener<Checkbox> optionListener)
+	{
+		if (optionListener == null)
+			throw new NullPointerException("Option listener is null");
+
+		final Checkbox cb = addAndGetCheckbox(label, defaultValue);
+		GridBagConstraints c = grid.getConstraints(cb);
+		remove(cb);
+
+		add(optionListener);
+
+		JButton button = createOptionButton();
+		button.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				optionListener.collectOptions(cb);
+			}
+		});
+
+		Panel panel = new Panel();
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		panel.add(cb);
+		panel.add(button);
+		grid.setConstraints(panel, c);
+		add(panel);
+	}
+
+	/**
 	 * Reset the recorder for all the named fields that have been added to the dialog. This should be called if the
 	 * dialog is to be reused as repeat calls to getNext(...) for fields with the same name will cause ImageJ to show a
 	 * duplicate field error.
