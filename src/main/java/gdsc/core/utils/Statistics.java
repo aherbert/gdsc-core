@@ -3,7 +3,7 @@ package gdsc.core.utils;
 import org.apache.commons.math3.distribution.TDistribution;
 
 /*----------------------------------------------------------------------------- 
- * GDSC SMLM Software
+ * GDSC Software
  * 
  * Copyright (C) 2013 Alex Herbert
  * Genome Damage and Stability Centre

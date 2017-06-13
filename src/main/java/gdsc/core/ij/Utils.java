@@ -3,7 +3,7 @@ package gdsc.core.ij;
 import java.awt.Component;
 
 /*----------------------------------------------------------------------------- 
- * GDSC SMLM Software
+ * GDSC Software
  * 
  * Copyright (C) 2016 Alex Herbert
  * Genome Damage and Stability Centre

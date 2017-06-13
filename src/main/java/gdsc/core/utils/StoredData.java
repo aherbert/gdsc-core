@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 /*----------------------------------------------------------------------------- 
- * GDSC SMLM Software
+ * GDSC Software
  * 
  * Copyright (C) 2017 Alex Herbert
  * Genome Damage and Stability Centre

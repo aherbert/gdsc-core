@@ -6,7 +6,7 @@ import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 
 /*----------------------------------------------------------------------------- 
- * GDSC SMLM Software
+ * GDSC Software
  * 
  * Copyright (C) 2013 Alex Herbert
  * Genome Damage and Stability Centre

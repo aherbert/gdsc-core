@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /*----------------------------------------------------------------------------- 
- * GDSC SMLM Software
+ * GDSC Software
  * 
  * Copyright (C) 2016 Alex Herbert
  * Genome Damage and Stability Centre

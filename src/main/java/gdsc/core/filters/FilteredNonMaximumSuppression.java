@@ -7,7 +7,7 @@ import org.apache.commons.math3.util.FastMath;
 import gdsc.core.utils.FixedIntList;
 
 /*----------------------------------------------------------------------------- 
- * GDSC SMLM Software
+ * GDSC Software
  * 
  * Copyright (C) 2013 Alex Herbert
  * Genome Damage and Stability Centre

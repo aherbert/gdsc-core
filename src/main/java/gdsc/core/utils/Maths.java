@@ -5,7 +5,7 @@ import java.math.MathContext;
 import java.util.Arrays;
 
 /*----------------------------------------------------------------------------- 
- * GDSC SMLM Software
+ * GDSC Software
  * 
  * Copyright (C) 2013 Alex Herbert
  * Genome Damage and Stability Centre

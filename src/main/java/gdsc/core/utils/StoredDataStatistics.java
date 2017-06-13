@@ -6,7 +6,7 @@ import java.util.Iterator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /*----------------------------------------------------------------------------- 
- * GDSC SMLM Software
+ * GDSC Software
  * 
  * Copyright (C) 2016 Alex Herbert
  * Genome Damage and Stability Centre

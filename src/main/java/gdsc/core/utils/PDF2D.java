@@ -1,7 +1,7 @@
 package gdsc.core.utils;
 
 /*----------------------------------------------------------------------------- 
- * GDSC SMLM Software
+ * GDSC Software
  * 
  * Copyright (C) 2015 Alex Herbert
  * Genome Damage and Stability Centre
