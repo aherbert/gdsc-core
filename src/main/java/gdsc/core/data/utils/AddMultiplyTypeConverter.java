@@ -51,13 +51,23 @@ public class AddMultiplyTypeConverter<T> extends MultiplyTypeConverter<T>
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see gdsc.smlm.units.UnitConverter#convert(double)
+	 * @see gdsc.core.data.utils.MultiplyTypeConverter#convert(double)
 	 */
 	public double convert(double value)
 	{
 		return (value + addition) * multiplication;
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.data.utils.MultiplyTypeConverter#convertBack(double)
+	 */
+	public double convertBack(double value)
+	{
+		return (value / multiplication) - addition;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

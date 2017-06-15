@@ -75,6 +75,16 @@ public abstract class AbstractTypeConverter<T> implements TypeConverter<T>
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see gdsc.core.data.utils.Converter#convertBack(float)
+	 */
+	public float convertBack(float value)
+	{
+		return (float) convertBack((double) value);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see gdsc.smlm.units.UnitConverter#from()
 	 */
 	public T from()
