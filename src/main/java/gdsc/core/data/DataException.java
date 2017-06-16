@@ -1,6 +1,4 @@
-package gdsc.core.data.utils;
-
-import gdsc.core.data.DataException;
+package gdsc.core.data;
 
 /*----------------------------------------------------------------------------- 
  * GDSC Software
@@ -16,28 +14,28 @@ import gdsc.core.data.DataException;
  *---------------------------------------------------------------------------*/
 
 /**
- * Exception to throw if conversion is not possible
+ * Exception to throw if data is invalid
  */
-public class ConversionException extends DataException
+public class DataException extends RuntimeException
 {
-	private static final long serialVersionUID = 2470815639465684383L;
+	private static final long serialVersionUID = 3748233784596729168L;
 
-	public ConversionException()
+	public DataException()
 	{
 		super();
 	}
 
-	public ConversionException(String message)
+	public DataException(String message)
 	{
 		super(message);
 	}
 
-	public ConversionException(String message, Throwable cause)
+	public DataException(String message, Throwable cause)
 	{
 		super(message, cause);
 	}
 
-	public ConversionException(Throwable cause)
+	public DataException(Throwable cause)
 	{
 		super(cause);
 	}
