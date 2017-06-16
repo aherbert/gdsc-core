@@ -164,4 +164,36 @@ public class SimpleArrayUtils
 		}
 		return Arrays.copyOf(s, c + 1);
 	}
+
+	/**
+	 * Convert the input array to a double
+	 * 
+	 * @param a
+	 * @return The new array
+	 */
+	public static double[] toDouble(float[] a)
+	{
+		if (a == null)
+			return null;
+		double[] b = new double[a.length];
+		for (int i = 0; i < a.length; i++)
+			b[i] = a[i];
+		return b;
+	}
+
+	/**
+	 * Convert the input array to a float
+	 * 
+	 * @param a
+	 * @return The new array
+	 */
+	public static float[] toFloat(double[] a)
+	{
+		if (a == null)
+			return null;
+		float[] b = new float[a.length];
+		for (int i = 0; i < a.length; i++)
+			b[i] = (float) a[i];
+		return b;
+	}
 }
