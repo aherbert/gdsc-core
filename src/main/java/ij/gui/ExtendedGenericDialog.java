@@ -116,6 +116,24 @@ public class ExtendedGenericDialog extends GenericDialog
 		super.addChoice(label, items, defaultItem);
 	}
 
+	/**
+	 * Adds the choice.
+	 *
+	 * @param label
+	 *            the label
+	 * @param items
+	 *            the items
+	 * @param defaultIndex
+	 *            the default index
+	 */
+	public void addChoice(String label, String[] items, int defaultIndex)
+	{
+		if (defaultIndex < 0 || defaultIndex >= items.length)
+			defaultIndex = 0;
+		String defaultItem = items[defaultIndex];
+		addChoice(label, items, defaultItem);
+	}
+
 	@Override
 	public void addNumericField(String label, double defaultValue, int digits)
 	{
@@ -688,6 +706,28 @@ public class ExtendedGenericDialog extends GenericDialog
 		add(panel);
 
 		return tf;
+	}
+
+	/**
+	 * Adds the choice.
+	 *
+	 * @param label
+	 *            the label
+	 * @param items
+	 *            the items
+	 * @param defaultIndex
+	 *            the default index
+	 * @param optionListener
+	 *            the option listener
+	 * @throws NullPointerException
+	 *             if the option lister is null
+	 */
+	public void addChoice(String label, String[] items, int defaultIndex, final OptionListener<Choice> optionListener)
+	{
+		if (defaultIndex < 0 || defaultIndex >= items.length)
+			defaultIndex = 0;
+		String defaultItem = items[defaultIndex];
+		addChoice(label, items, defaultItem, optionListener);
 	}
 
 	/**

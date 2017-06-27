@@ -1757,8 +1757,8 @@ public class Utils
 	 * 	}
 	 * }
 	 * </pre>
-	 * 
-	 * @param total
+	 *
+	 * @param total the total number of steps
 	 * @return The interval
 	 */
 	public static int getProgressInterval(int total)
