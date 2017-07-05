@@ -21,6 +21,7 @@ import java.awt.Checkbox;
 import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -185,14 +186,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Label getLastLabel()
 	{
-		int n = getComponentCount();
-		while (n-- > 0)
-		{
-			Component c = getComponent(n);
-			if (c instanceof Label)
-				return (Label) c;
-		}
-		return null;
+		return new ComponentFinder<Label>(this, Label.class).getLast();
 	}
 
 	/**
@@ -202,14 +196,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Panel getLastPanel()
 	{
-		int n = getComponentCount();
-		while (n-- > 0)
-		{
-			Component c = getComponent(n);
-			if (c instanceof Panel)
-				return (Panel) c;
-		}
-		return null;
+		return new ComponentFinder<Panel>(this, Panel.class).getLast();
 	}
 
 	/**
@@ -219,14 +206,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Choice getLastChoice()
 	{
-		int n = getComponentCount();
-		while (n-- > 0)
-		{
-			Component c = getComponent(n);
-			if (c instanceof Choice)
-				return (Choice) c;
-		}
-		return null;
+		return new ComponentFinder<Choice>(this, Choice.class).getLast();
 	}
 
 	/**
@@ -236,14 +216,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public TextField getLastTextField()
 	{
-		int n = getComponentCount();
-		while (n-- > 0)
-		{
-			Component c = getComponent(n);
-			if (c instanceof TextField)
-				return (TextField) c;
-		}
-		return null;
+		return new ComponentFinder<TextField>(this, TextField.class).getLast();
 	}
 
 	/**
@@ -253,14 +226,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Checkbox getLastCheckbox()
 	{
-		int n = getComponentCount();
-		while (n-- > 0)
-		{
-			Component c = getComponent(n);
-			if (c instanceof Checkbox)
-				return (Checkbox) c;
-		}
-		return null;
+		return new ComponentFinder<Checkbox>(this, Checkbox.class).getLast();
 	}
 
 	/**
@@ -270,14 +236,49 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Scrollbar getLastScrollbar()
 	{
-		int n = getComponentCount();
-		while (n-- > 0)
+		return new ComponentFinder<Scrollbar>(this, Scrollbar.class).getLast();
+	}
+
+	/**
+	 * Simple generic component finder to traverse the dialog looking for the last component of a given type.
+	 *
+	 * @param <T>
+	 *            the generic type
+	 */
+	private static class ComponentFinder<T>
+	{
+		Container container;
+		Class<T> type;
+
+		ComponentFinder(Container container, Class<T> type)
 		{
-			Component c = getComponent(n);
-			if (c instanceof Scrollbar)
-				return (Scrollbar) c;
+			this.container = container;
+			this.type = type;
 		}
-		return null;
+
+		T getLast()
+		{
+			return getLast(container);
+		}
+
+		T getLast(Container container)
+		{
+			int n = container.getComponentCount();
+			while (n-- > 0)
+			{
+				Component c = container.getComponent(n);
+				if (type.isInstance(c))
+					return type.cast(c);
+				if (c instanceof Container)
+				{
+					// Traverse containers
+					T t = getLast((Container) c);
+					if (t != null)
+						return t;
+				}
+			}
+			return null;
+		}
 	}
 
 	/**
