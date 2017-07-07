@@ -20,11 +20,32 @@ public enum SampleMode
 {
 	//@formatter:on
 	/** Randomly sample a maximum of two neighbours from each set */
-	RANDOM { @Override	public String getName() { return "Random"; } },
+	RANDOM
+	{
+		@Override
+		public String getName()
+		{
+			return "Random";
+		}
+	},
 	/** The median of the project set is the neighbour of all points in the set */
-	MEDIAN { @Override	public String getName() { return "Median"; } },
+	MEDIAN
+	{
+		@Override
+		public String getName()
+		{
+			return "Median";
+		}
+	},
 	/** Sample all-vs-all from each set */
-	ALL { @Override	public String getName() { return "All"; } };
+	ALL
+	{
+		@Override
+		public String getName()
+		{
+			return "All";
+		}
+	};
 	//@formatter:off
 	
 	/**
@@ -39,4 +60,11 @@ public enum SampleMode
 	{
 		return getName();
 	}	
+	
+	public static SampleMode get(int ordinal)
+	{
+		if (ordinal < 0|| ordinal >= values().length)
+			ordinal = 0;
+		return values()[ordinal];
+	}
 }
