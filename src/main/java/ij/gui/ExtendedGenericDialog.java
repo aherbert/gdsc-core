@@ -622,21 +622,19 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public TextField addFilenameField(String label, String defaultText, int columns)
+	public TextField addFilenameField(final String label, String defaultText, int columns)
 	{
 		final TextField tf = addAndGetStringField(label, defaultText, columns);
 		GridBagConstraints c = grid.getConstraints(tf);
 		remove(tf);
 
-		final String flabel = label;
-		
 		JButton button = createOptionButton("Select a file");
 		button.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
 				boolean record = Recorder.record;
-				String filename = Utils.getFilename(flabel, tf.getText());
+				String filename = Utils.getFilename(label, tf.getText());
 				Recorder.record = record;
 				if (filename != null)
 					tf.setText(filename);
