@@ -628,13 +628,15 @@ public class ExtendedGenericDialog extends GenericDialog
 		GridBagConstraints c = grid.getConstraints(tf);
 		remove(tf);
 
+		final String flabel = label;
+		
 		JButton button = createOptionButton("Select a file");
 		button.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
 				boolean record = Recorder.record;
-				String filename = Utils.getFilename(label, tf.getText());
+				String filename = Utils.getFilename(flabel, tf.getText());
 				Recorder.record = record;
 				if (filename != null)
 					tf.setText(filename);
