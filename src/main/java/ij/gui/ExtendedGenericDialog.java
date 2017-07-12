@@ -622,7 +622,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public TextField addFilenameField(final String label, String defaultText, int columns)
+	public TextField addFilenameField(String label, String defaultText, int columns)
 	{
 		final TextField tf = addAndGetStringField(label, defaultText, columns);
 		GridBagConstraints c = grid.getConstraints(tf);
