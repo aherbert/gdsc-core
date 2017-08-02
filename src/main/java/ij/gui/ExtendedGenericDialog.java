@@ -471,8 +471,9 @@ public class ExtendedGenericDialog extends GenericDialog
 		 *
 		 * @param field
 		 *            the field
+		 * @return true, if options were collected successful
 		 */
-		public void collectOptions(T field);
+		public boolean collectOptions(T field);
 
 		/**
 		 * Gets the options using the previously read value of the field.
@@ -481,8 +482,73 @@ public class ExtendedGenericDialog extends GenericDialog
 		 * to be supported by either recording the options in the Recorder or reading the options from the Macro
 		 * options. The simple implementation is to construct an ExtendedGenericDialog to collect the options but do not
 		 * present the dialog using the showDialog() method, just proceed direct to reading the fields..
+		 * 
+		 * @return true, if options were collected successful
 		 */
-		public void collectOptions();
+		public boolean collectOptions();
+	}
+
+	/**
+	 * An event generated when options are collected
+	 */
+	public class OptionCollectedEvent
+	{
+		private final String label;
+
+		public OptionCollectedEvent(String label)
+		{
+			this.label = label;
+		}
+
+		/**
+		 * Gets the label of the field for which options were collected.
+		 *
+		 * @return the label
+		 */
+		public String getLabel()
+		{
+			return label;
+		}
+	}
+
+	/**
+	 * The listener interface for receiving optionCollected events.
+	 * The class that is interested in processing a optionCollected
+	 * event implements this interface, and the object created
+	 * with that class is registered with a component using the
+	 * component's <code>addOptionCollectedListener<code> method. When
+	 * the optionCollected event occurs, that object's appropriate
+	 * method is invoked.
+	 *
+	 * @see OptionCollectedEvent
+	 */
+	public interface OptionCollectedListener
+	{
+		/**
+		 * Called if options were collected.
+		 *
+		 * @param e
+		 *            the event
+		 */
+		public void optionCollected(OptionCollectedEvent e);
+	}
+
+	private TurboList<OptionCollectedListener> optionCollectedListeners = null;
+
+	public void addOptionCollectedListener(OptionCollectedListener listener)
+	{
+		if (optionCollectedListeners == null)
+			optionCollectedListeners = new TurboList<OptionCollectedListener>();
+		optionCollectedListeners.add(listener);
+	}
+
+	private void notifyOptionCollectedListeners(String label)
+	{
+		if (optionCollectedListeners == null)
+			return;
+		OptionCollectedEvent e = new OptionCollectedEvent(label);
+		for (int i = 0; i < optionCollectedListeners.size(); i++)
+			optionCollectedListeners.getf(i).optionCollected(e);
 	}
 
 	/**
@@ -516,7 +582,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public void addStringField(String label, String defaultText, int columns,
+	public void addStringField(final String label, String defaultText, int columns,
 			final OptionListener<TextField> optionListener)
 	{
 		if (optionListener == null)
@@ -533,7 +599,8 @@ public class ExtendedGenericDialog extends GenericDialog
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				optionListener.collectOptions(tf);
+				if (optionListener.collectOptions(tf))
+					notifyOptionCollectedListeners(label);
 			}
 		});
 
@@ -745,7 +812,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public void addChoice(String label, String[] items, String defaultItem, final OptionListener<Choice> optionListener)
+	public void addChoice(final String label, String[] items, String defaultItem, final OptionListener<Choice> optionListener)
 	{
 		if (optionListener == null)
 			throw new NullPointerException("Option listener is null");
@@ -761,7 +828,8 @@ public class ExtendedGenericDialog extends GenericDialog
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				optionListener.collectOptions(choice);
+				if (optionListener.collectOptions(choice))
+					notifyOptionCollectedListeners(label);
 			}
 		});
 
@@ -785,7 +853,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public void addCheckbox(String label, boolean defaultValue, final OptionListener<Checkbox> optionListener)
+	public void addCheckbox(final String label, boolean defaultValue, final OptionListener<Checkbox> optionListener)
 	{
 		if (optionListener == null)
 			throw new NullPointerException("Option listener is null");
@@ -801,7 +869,8 @@ public class ExtendedGenericDialog extends GenericDialog
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				optionListener.collectOptions(cb);
+				if (optionListener.collectOptions(cb))
+					notifyOptionCollectedListeners(label);
 			}
 		});
 
