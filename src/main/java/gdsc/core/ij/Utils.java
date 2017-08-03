@@ -1398,6 +1398,7 @@ public class Utils
 	 * @param increment
 	 *            The increment
 	 * @return The new array
+	 * @deprecated This method has been moved to gdsc.core.utils.SimpleArrayUtils
 	 */
 	public static double[] newArray(int length, double start, double increment)
 	{
@@ -1417,6 +1418,7 @@ public class Utils
 	 * @param increment
 	 *            The increment
 	 * @return The new array
+	 * @deprecated This method has been moved to gdsc.core.utils.SimpleArrayUtils
 	 */
 	public static int[] newArray(int length, int start, int increment)
 	{
@@ -1763,7 +1765,8 @@ public class Utils
 	 * }
 	 * </pre>
 	 *
-	 * @param total the total number of steps
+	 * @param total
+	 *            the total number of steps
 	 * @return The interval
 	 */
 	public static int getProgressInterval(int total)
@@ -1884,6 +1887,7 @@ public class Utils
 	 * @param text
 	 *            the text
 	 * @return true, if successful
+	 * @deprecated This method has been moved to gdsc.core.utils.TextUtils
 	 */
 	public static boolean write(String filename, String text)
 	{

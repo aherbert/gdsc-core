@@ -1,5 +1,9 @@
 package gdsc.core.utils;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 /*----------------------------------------------------------------------------- 
  * GDSC Software
  * 
@@ -189,5 +193,48 @@ public class TextUtils
 	public static boolean isNullOrEmpty(String string)
 	{
 		return string == null || string.length() == 0;
+	}
+
+	/**
+	 * Write the text to file.
+	 *
+	 * @param filename
+	 *            the filename
+	 * @param text
+	 *            the text
+	 * @return true, if successful
+	 */
+	public static boolean write(String filename, String text)
+	{
+		FileOutputStream fs = null;
+		try
+		{
+			fs = new FileOutputStream(filename);
+			fs.write(text.getBytes());
+			return true;
+		}
+		catch (FileNotFoundException e)
+		{
+			//e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			//e.printStackTrace();
+		}
+		finally
+		{
+			if (fs != null)
+			{
+				try
+				{
+					fs.close();
+				}
+				catch (IOException e)
+				{
+					//e.printStackTrace();
+				}
+			}
+		}
+		return false;
 	}
 }
