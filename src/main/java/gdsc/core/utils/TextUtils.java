@@ -143,4 +143,51 @@ public class TextUtils
 
 		return wrappedLine.toString();
 	}
+
+	/**
+	 * Return "s" if the size is not 1 otherwise returns an empty string. This can be used to add an s where necessary
+	 * to adjectives:
+	 * 
+	 * <pre>
+	 * System.out.printf(&quot;Created %d thing%s\n&quot;, n, Utils.pleural(n));
+	 * </pre>
+	 * 
+	 * @param n
+	 *            The number of things
+	 * @return "s" or empty string
+	 */
+	public static String pleural(int n)
+	{
+		return (Math.abs(n) == 1) ? "" : "s";
+	}
+
+	/**
+	 * Return "s" if the size is not 1 otherwise returns an empty string. This can be used to add an s where necessary
+	 * to adjectives:
+	 * 
+	 * <pre>
+	 * System.out.printf(&quot;Created %s\n&quot;, Utils.pleural(n, &quot;thing&quot;));
+	 * </pre>
+	 * 
+	 * @param n
+	 *            The number of things
+	 * @param name
+	 *            The name of the thing
+	 * @return "s" or empty string
+	 */
+	public static String pleural(int n, String name)
+	{
+		return n + " " + name + ((Math.abs(n) == 1) ? "" : "s");
+	}
+
+	/**
+	 * Check if the string is null or length zero. Does not check for a string of whitespace.
+	 * 
+	 * @param string
+	 * @return true if the string is null or length zero
+	 */
+	public static boolean isNullOrEmpty(String string)
+	{
+		return string == null || string.length() == 0;
+	}
 }

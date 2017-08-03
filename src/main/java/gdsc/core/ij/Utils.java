@@ -1517,6 +1517,7 @@ public class Utils
 	 * 
 	 * @param a
 	 * @return The new array
+	 * @deprecated This method has been moved to gdsc.core.utils.SimpleArrayUtils
 	 */
 	public static double[] toDouble(float[] a)
 	{
@@ -1533,6 +1534,7 @@ public class Utils
 	 * 
 	 * @param a
 	 * @return The new array
+	 * @deprecated This method has been moved to gdsc.core.utils.SimpleArrayUtils
 	 */
 	public static float[] toFloat(double[] a)
 	{
@@ -1555,6 +1557,7 @@ public class Utils
 	 * @param n
 	 *            The number of things
 	 * @return "s" or empty string
+	 * @deprecated This method has been moved to gdsc.core.utils.TextUtils
 	 */
 	public static String pleural(int n)
 	{
@@ -1574,6 +1577,7 @@ public class Utils
 	 * @param name
 	 *            The name of the thing
 	 * @return "s" or empty string
+	 * @deprecated This method has been moved to gdsc.core.utils.TextUtils
 	 */
 	public static String pleural(int n, String name)
 	{
@@ -1585,6 +1589,7 @@ public class Utils
 	 * 
 	 * @param string
 	 * @return true if the string is null or length zero
+	 * @deprecated This method has been moved to gdsc.core.utils.TextUtils
 	 */
 	public static boolean isNullOrEmpty(String string)
 	{
