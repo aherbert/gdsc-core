@@ -8,7 +8,6 @@ import org.apache.commons.math3.util.MathArrays;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.ij.Utils;
 import gdsc.core.test.BaseTimingTask;
 import gdsc.core.test.TimingService;
 import gnu.trove.set.hash.TIntHashSet;
@@ -121,7 +120,7 @@ public class SimpleArrayUtilsTest
 	public void testOnIndexData(int length, final int size, final int n1, final int n2)
 	{
 		int[][][] data = new int[length][2][];
-		int[] s1 = Utils.newArray(size, 0, 1);
+		int[] s1 = SimpleArrayUtils.newArray(size, 0, 1);
 		for (int i = 0; i < length; i++)
 		{
 			MathArrays.shuffle(s1, r);

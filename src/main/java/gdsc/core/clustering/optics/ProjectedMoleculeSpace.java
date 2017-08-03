@@ -29,6 +29,7 @@ import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.NotImplementedException;
 import gdsc.core.utils.PseudoRandomGenerator;
+import gdsc.core.utils.SimpleArrayUtils;
 import gdsc.core.utils.Sort;
 import gdsc.core.utils.TurboList;
 import gdsc.core.utils.TurboRandomGenerator;
@@ -522,7 +523,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			showProgress();
 
 			final TurboList<int[]> sets = new TurboList<int[]>();
-			splitupNoSort(sets, job.projectedPoints, Utils.newArray(size, 0, 1), 0, size, 0, job.rand, minSplitSize);
+			splitupNoSort(sets, job.projectedPoints, SimpleArrayUtils.newArray(size, 0, 1), 0, size, 0, job.rand, minSplitSize);
 			splitSets.add(new Split(job.index, sets));
 		}
 	}
@@ -707,7 +708,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		}
 
 		// split entire point set, reuse projections by shuffling them
-		int[] proind = Utils.newArray(nProject1d, 0, 1);
+		int[] proind = SimpleArrayUtils.newArray(nProject1d, 0, 1);
 		setUpProgress(nPointSetSplits);
 
 		// The splits do not have to be that random so we can use a pseudo random sequence.

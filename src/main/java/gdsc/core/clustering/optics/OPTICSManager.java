@@ -24,6 +24,8 @@ import gdsc.core.clustering.CoordinateStore;
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.Maths;
+import gdsc.core.utils.SimpleArrayUtils;
+import gdsc.core.utils.TextUtils;
 
 /**
  * Compute clustering using OPTICS.
@@ -799,7 +801,7 @@ public class OPTICSManager extends CoordinateStore
 			if (tracker != null)
 			{
 				time = System.currentTimeMillis() - time;
-				tracker.log("Finished OPTICS: %s @ %s (Time = %s)", Utils.pleural(nClusters, "Cluster"),
+				tracker.log("Finished OPTICS: %s @ %s (Time = %s)", TextUtils.pleural(nClusters, "Cluster"),
 						Utils.rounded(generatingDistanceE), Utils.timeToString(time));
 			}
 		}
@@ -1434,7 +1436,7 @@ public class OPTICSManager extends CoordinateStore
 			if (tracker != null)
 			{
 				time = System.currentTimeMillis() - time;
-				tracker.log("Finished DBSCAN: %s (Time = %s)", Utils.pleural(counter.getTotalClusters(), "Cluster"),
+				tracker.log("Finished DBSCAN: %s (Time = %s)", TextUtils.pleural(counter.getTotalClusters(), "Cluster"),
 						Utils.timeToString(time));
 			}
 		}
@@ -1615,7 +1617,7 @@ public class OPTICSManager extends CoordinateStore
 		if (n <= size)
 		{
 			// Compute all
-			indices = Utils.newArray(n, 0, 1);
+			indices = SimpleArrayUtils.newArray(n, 0, 1);
 		}
 		else
 		{
@@ -1820,7 +1822,7 @@ public class OPTICSManager extends CoordinateStore
 				long end = System.currentTimeMillis();
 				time = end - time;
 				time2 = end - time2;
-				tracker.log("Finished OPTICS: %s @ %s (Time = %s)", Utils.pleural(nClusters, "Cluster"),
+				tracker.log("Finished OPTICS: %s @ %s (Time = %s)", TextUtils.pleural(nClusters, "Cluster"),
 						Utils.rounded(grid.generatingDistanceE), Utils.timeToString(time2));
 				tracker.log("Finished FastOPTICS ... " + Utils.timeToString(time));
 			}

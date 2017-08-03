@@ -3,9 +3,9 @@ package gdsc.core.clustering.optics;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.MathArrays;
 
-import gdsc.core.ij.Utils;
 import gdsc.core.utils.ConvexHull;
 import gdsc.core.utils.Maths;
+import gdsc.core.utils.SimpleArrayUtils;
 
 /*----------------------------------------------------------------------------- 
  * GDSC ImageJ Software
@@ -134,7 +134,7 @@ public class DBSCANResult implements ClusteringResult
 		if (max == 0)
 			return;
 
-		int[] map = Utils.newArray(max, 1, 1);
+		int[] map = SimpleArrayUtils.newArray(max, 1, 1);
 		MathArrays.shuffle(map, rng);
 
 		for (int i = size(); i-- > 0;)

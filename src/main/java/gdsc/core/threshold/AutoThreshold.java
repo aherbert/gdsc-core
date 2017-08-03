@@ -1,19 +1,6 @@
 package gdsc.core.threshold;
 
-/*----------------------------------------------------------------------------- 
- * GDSC Plugins for ImageJ
- * 
- * Copyright (C) 2016 Alex Herbert
- * Genome Damage and Stability Centre
- * University of Sussex, UK
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *---------------------------------------------------------------------------*/
-
-import gdsc.core.ij.Utils;
+import gdsc.core.utils.TextUtils;
 
 // History of the Auto_ThresholdImageJ plugin of G. Landini:
 // Autothreshold segmentation 
@@ -1578,7 +1565,7 @@ public class AutoThreshold
 	 */
 	public static int getThreshold(String method, int[] data)
 	{
-		if (Utils.isNullOrEmpty(method))
+		if (TextUtils.isNullOrEmpty(method))
 			return 0;
 		for (Method m : Method.values())
 			if (m.name.equals(method))

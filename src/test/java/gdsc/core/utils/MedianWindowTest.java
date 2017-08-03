@@ -7,13 +7,6 @@ import org.apache.commons.math3.util.FastMath;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.ij.Utils;
-import gdsc.core.utils.MedianWindow;
-import gdsc.core.utils.MedianWindowDLL;
-import gdsc.core.utils.MedianWindowFloat;
-import gdsc.core.utils.MedianWindowInt;
-import gdsc.core.utils.Random;
-
 public class MedianWindowTest
 {
 	int dataSize = 2000;
@@ -127,7 +120,7 @@ public class MedianWindowTest
 	@Test
 	public void canComputeMedianForSparseDataUsingSingleIncrement()
 	{
-		//canComputeMedianForDataUsingSingleIncrement(Utils.newArray(10, 1.0, 1));
+		//canComputeMedianForDataUsingSingleIncrement(SimpleArrayUtils.newArray(10, 1.0, 1));
 
 		for (double value : values)
 			canComputeMedianForDataUsingSingleIncrement(createSparseData(dataSize, value));
@@ -197,7 +190,7 @@ public class MedianWindowTest
 	@Test(expected = AssertionError.class)
 	public void cannotComputeMedianBackToInputArrayUsingSingleIncrement()
 	{
-		double[] data = Utils.newArray(dataSize, 0.0, 1);
+		double[] data = SimpleArrayUtils.newArray(dataSize, 0.0, 1);
 		for (int radius : radii)
 		{
 			double[] in = data.clone();

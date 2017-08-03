@@ -153,7 +153,7 @@ public class TextUtils
 	 * to adjectives:
 	 * 
 	 * <pre>
-	 * System.out.printf(&quot;Created %d thing%s\n&quot;, n, Utils.pleural(n));
+	 * System.out.printf(&quot;Created %d thing%s\n&quot;, n, TextUtils.pleural(n));
 	 * </pre>
 	 * 
 	 * @param n
@@ -170,7 +170,7 @@ public class TextUtils
 	 * to adjectives:
 	 * 
 	 * <pre>
-	 * System.out.printf(&quot;Created %s\n&quot;, Utils.pleural(n, &quot;thing&quot;));
+	 * System.out.printf(&quot;Created %s\n&quot;, TextUtils.pleural(n, &quot;thing&quot;));
 	 * </pre>
 	 * 
 	 * @param n

@@ -40,6 +40,7 @@ import org.apache.commons.math3.util.FastMath;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.Statistics;
 import gdsc.core.utils.StoredDataStatistics;
+import gdsc.core.utils.TextUtils;
 import gdsc.core.utils.DoubleData;
 import ij.IJ;
 import ij.ImageJ;
@@ -1464,11 +1465,11 @@ public class Utils
 	public static String getDirectory(String title, String directory)
 	{
 		String defaultDir = OpenDialog.getDefaultDirectory();
-		if (!Utils.isNullOrEmpty(directory))
+		if (!TextUtils.isNullOrEmpty(directory))
 			OpenDialog.setDefaultDirectory(directory);
 		DirectoryChooser chooser = new DirectoryChooser(title);
 		directory = chooser.getDirectory();
-		if (!Utils.isNullOrEmpty(defaultDir))
+		if (!TextUtils.isNullOrEmpty(defaultDir))
 			OpenDialog.setDefaultDirectory(defaultDir);
 		return directory;
 	}
@@ -1553,7 +1554,7 @@ public class Utils
 	 * to adjectives:
 	 * 
 	 * <pre>
-	 * System.out.printf(&quot;Created %d thing%s\n&quot;, n, Utils.pleural(n));
+	 * System.out.printf(&quot;Created %d thing%s\n&quot;, n, TextUtils.pleural(n));
 	 * </pre>
 	 * 
 	 * @param n
@@ -1571,7 +1572,7 @@ public class Utils
 	 * to adjectives:
 	 * 
 	 * <pre>
-	 * System.out.printf(&quot;Created %s\n&quot;, Utils.pleural(n, &quot;thing&quot;));
+	 * System.out.printf(&quot;Created %s\n&quot;, TextUtils.pleural(n, &quot;thing&quot;));
 	 * </pre>
 	 * 
 	 * @param n

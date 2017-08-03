@@ -4,8 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import gdsc.core.ij.Utils;
-
 /*----------------------------------------------------------------------------- 
  * GDSC Software
  * 
@@ -42,7 +40,7 @@ public class IO
 		try
 		{
 			file = new BufferedWriter(new FileWriter(filename));
-			if (!Utils.isNullOrEmpty(header))
+			if (!TextUtils.isNullOrEmpty(header))
 			{
 				file.write(header);
 				file.newLine();
@@ -108,7 +106,7 @@ public class IO
 		try
 		{
 			file = new BufferedWriter(new FileWriter(filename));
-			if (!Utils.isNullOrEmpty(header))
+			if (!TextUtils.isNullOrEmpty(header))
 			{
 				file.write(header);
 				file.newLine();
@@ -174,7 +172,7 @@ public class IO
 		try
 		{
 			file = new BufferedWriter(new FileWriter(filename));
-			if (!Utils.isNullOrEmpty(header))
+			if (!TextUtils.isNullOrEmpty(header))
 			{
 				file.write(header);
 				file.newLine();

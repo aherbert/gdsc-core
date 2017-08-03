@@ -24,12 +24,12 @@ import ags.utils.dataStructures.MaxHeap;
 import ags.utils.dataStructures.trees.secondGenKD.KdTree.Entry;
 import ags.utils.dataStructures.trees.thirdGenKD.DistanceFunction;
 import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction2D;
-import gdsc.core.ij.Utils;
 import gdsc.core.test.BaseTimingTask;
 import gdsc.core.test.TimingService;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.PartialSort;
 import gdsc.core.utils.Random;
+import gdsc.core.utils.SimpleArrayUtils;
 
 public class KdTreeTest
 {
@@ -572,7 +572,7 @@ public class KdTreeTest
 		}
 		else
 		{
-			double[] x = Utils.newArray(n, 0, (double) size / n);
+			double[] x = SimpleArrayUtils.newArray(n, 0, (double) size / n);
 			double[] y = x.clone();
 			rand.shuffle(x);
 			rand.shuffle(y);
