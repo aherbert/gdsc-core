@@ -662,6 +662,10 @@ public class ExtendedGenericDialog extends GenericDialog
 
 	/**
 	 * Adds the filename field.
+	 * <p>
+	 * Note that if the filename is empty then the open dialog within the action listener
+	 * will use ij.io.OpenDialog.getDefaultDirectory(). This can be changed using
+	 * ij.io.OpenDialog.setDefaultDirectory(String).
 	 *
 	 * @param label
 	 *            the label
@@ -678,6 +682,10 @@ public class ExtendedGenericDialog extends GenericDialog
 
 	/**
 	 * Adds the filename field.
+	 * <p>
+	 * Note that if the filename is empty then the open dialog within the action listener
+	 * will use ij.io.OpenDialog.getDefaultDirectory(). This can be changed using
+	 * ij.io.OpenDialog.setDefaultDirectory(String).
 	 *
 	 * @param label
 	 *            the label
@@ -812,7 +820,8 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public void addChoice(final String label, String[] items, String defaultItem, final OptionListener<Choice> optionListener)
+	public void addChoice(final String label, String[] items, String defaultItem,
+			final OptionListener<Choice> optionListener)
 	{
 		if (optionListener == null)
 			throw new NullPointerException("Option listener is null");
