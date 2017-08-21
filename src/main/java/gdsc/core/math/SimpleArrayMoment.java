@@ -205,7 +205,7 @@ public class SimpleArrayMoment implements ArrayMoment
 		}
 
 		if (sb.length != s.length)
-			throw new IllegalArgumentException("Different number of moments");
+			throw new IllegalArgumentException("Different number of moments: " + sb.length + " != " + s.length);
 
 		n += nb;
 		for (int i = 0; i < s.length; i++)
