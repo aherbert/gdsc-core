@@ -234,4 +234,65 @@ public class SimpleArrayUtils
 			data[i] = start;
 		return data;
 	}
+
+	/**
+	 * Convert the data to strictly positive. Any value that is zero or below is set the minimum value above zero.
+	 * <p>
+	 * If no data is above zero then an array of zero is returned.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the strictly positive variance
+	 */
+	public static float[] ensureStrictlyPositive(float[] data)
+	{
+		for (int i = 0, n = data.length; i < n; i++)
+		{
+			if (data[i] <= 0)
+			{
+				// Not strictly positive so create a clone
+
+				final float[] v = new float[n];
+				if (i != 0)
+					// Copy the values that were positive
+					System.arraycopy(data, 0, v, 0, i);
+
+				// Find the min above zero
+				float min = minAboveZero(data);
+				if (min == 0)
+					return v;
+
+				v[i] = min; // We know this was not strictly positive
+
+				// Check and copy the rest 
+				while (++i < n)
+				{
+					v[i] = (data[i] <= 0) ? min : data[i];
+				}
+				return v;
+			}
+		}
+		return data;
+	}
+
+	/**
+	 * Find the minimum above zero.
+	 * <p>
+	 * Returns zero if no values are above zero.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the minimum above zero
+	 */
+	public static float minAboveZero(float[] data)
+	{
+		float min = Float.POSITIVE_INFINITY;
+		for (int i = 0, n = data.length; i < n; i++)
+		{
+			if (data[i] > 0 && min > data[i])
+				min = data[i];
+		}
+		// Check if any values were above zero, else return zero
+		return (min == Float.POSITIVE_INFINITY) ? 0 : min;
+	}
 }
