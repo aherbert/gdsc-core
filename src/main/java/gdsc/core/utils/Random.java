@@ -56,6 +56,8 @@ public class Random extends AbstractRandomGenerator
 
 	private void init(int seed)
 	{
+		// Clear the Gaussian random deviate cache
+		clear();
 		idum = (seed > 0) ? -seed : seed;
 	}
 
