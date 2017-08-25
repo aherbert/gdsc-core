@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import gdsc.core.TestSettings;
 
-public class StoredDataStatisticsTest
+public class StoredDataStatisticsTest extends StatisticsTest
 {
 	static StoredDataStatistics stats;
 	static int n = 10000;

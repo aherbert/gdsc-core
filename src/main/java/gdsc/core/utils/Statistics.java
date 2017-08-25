@@ -208,10 +208,9 @@ public class Statistics
 	 */
 	public double getStandardDeviation()
 	{
-		final double d = n;
-		double stdDev = ss - ((double) s * s) / d;
+		double stdDev = ss - ((double) s * s) / n;
 		if (stdDev > 0.0)
-			stdDev = Math.sqrt(stdDev / (d - 1.0));
+			stdDev = Math.sqrt(stdDev / (n - 1));
 		else
 			stdDev = 0.0;
 		return stdDev;
@@ -222,10 +221,9 @@ public class Statistics
 	 */
 	public double getVariance()
 	{
-		final double d = n;
-		double variance = ss - ((double) s * s) / d;
+		double variance = ss - ((double) s * s) / n;
 		if (variance > 0.0)
-			variance = variance / (d - 1.0);
+			variance = variance / (n - 1);
 		else
 			variance = 0.0;
 		return variance;
