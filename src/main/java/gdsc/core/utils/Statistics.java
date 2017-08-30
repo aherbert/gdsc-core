@@ -54,10 +54,10 @@ public class Statistics
 		for (int i = 0; i < data.length; i++)
 		{
 			final double value = data[i];
-			n++;
 			s += value;
 			ss += value * value;
 		}
+		n += data.length;
 	}
 
 	/**
@@ -72,10 +72,10 @@ public class Statistics
 		for (int i = 0; i < data.length; i++)
 		{
 			final double value = data[i];
-			n++;
 			s += value;
 			ss += value * value;
 		}
+		n += data.length;
 	}
 
 	/**
@@ -90,10 +90,10 @@ public class Statistics
 		for (int i = 0; i < data.length; i++)
 		{
 			final double value = data[i];
-			n++;
 			s += value;
 			ss += value * value;
 		}
+		n += data.length;
 	}
 
 	/**
@@ -135,10 +135,10 @@ public class Statistics
 		for (int i = 0; i < data.length; i++)
 		{
 			final double value = data[i];
-			n++;
 			s += value;
 			ss += value * value;
 		}
+		n += data.length;
 	}
 
 	/**
@@ -153,10 +153,10 @@ public class Statistics
 		for (int i = 0; i < data.length; i++)
 		{
 			final double value = data[i];
-			n++;
 			s += value;
 			ss += value * value;
 		}
+		n += data.length;
 	}
 
 	/**
