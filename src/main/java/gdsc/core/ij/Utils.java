@@ -1,5 +1,6 @@
 package gdsc.core.ij;
 
+import java.awt.Color;
 import java.awt.Component;
 
 /*----------------------------------------------------------------------------- 
@@ -17,6 +18,9 @@ import java.awt.Component;
 
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.LayoutManager;
 import java.awt.Panel;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -37,11 +41,11 @@ import javax.swing.JLabel;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.util.FastMath;
 
+import gdsc.core.utils.DoubleData;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.Statistics;
 import gdsc.core.utils.StoredDataStatistics;
 import gdsc.core.utils.TextUtils;
-import gdsc.core.utils.DoubleData;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
@@ -49,6 +53,7 @@ import ij.ImageStack;
 import ij.Macro;
 import ij.Prefs;
 import ij.WindowManager;
+import ij.gui.GenericDialog;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.Plot;
@@ -1922,5 +1927,98 @@ public class Utils
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Rearrange the columns in the dialog layout so that each column has the configured number of rows.
+	 * <p>
+	 * Assumes the generic dialog has been constructed normally/ and consists of a layout with pairs of items in
+	 * ascending y in the grid layout. The components are extracted put into a panel for each column. The panels
+	 * are then added to the dialog.
+	 *
+	 * @param gd
+	 *            the dialog
+	 * @param rowsPerColumn
+	 *            the rows per column, for each column in order
+	 */
+	public static void rearrangeColumns(GenericDialog gd, int... rowsPerColumn)
+	{
+		if (!isShowGenericDialog())
+			return;
+		if (rowsPerColumn.length < 1)
+			return;
+
+		LayoutManager manager = gd.getLayout();
+		if (manager != null && manager instanceof GridBagLayout)
+		{
+			GridBagLayout grid = (GridBagLayout) gd.getLayout();
+
+			// We assume the generic dialog has been constructed normally
+			// and consists of a layout with pairs of items in ascending y
+			// in the grid layout. We will extract all of these and put them 
+			// into columns on a panel. The panels can then be added to the dialog.
+			ArrayList<Panel> panels = new ArrayList<Panel>();
+
+			Panel current = null;
+			GridBagLayout currentGrid = null;
+
+			int counter = -1;
+			int nextColumnY = 0;
+			int yOffset = 0;
+
+			for (Component comp : gd.getComponents())
+			{
+				GridBagConstraints c = grid.getConstraints(comp);
+
+				// Check if this should be a new column
+				if (c.gridy >= nextColumnY)
+				{
+					current = new Panel();
+					currentGrid = new GridBagLayout();
+					current.setLayout(currentGrid);
+					panels.add(current);
+
+					// Used to reset the y to the top of the column
+					yOffset += nextColumnY;
+
+					counter++;
+					if (counter < rowsPerColumn.length)
+					{
+						nextColumnY = rowsPerColumn[counter];
+					}
+					else
+					{
+						nextColumnY = Integer.MAX_VALUE;
+					}
+				}
+
+				// Reposition in the current column
+				c.gridy = c.gridy - yOffset;
+				//c.insets.left = c.insets.left + 10 * xOffset;
+				//c.insets.top = 0;
+				//c.insets.bottom = 0;
+
+				// Setting constraints separately clones the constraints
+				current.add(comp);
+				currentGrid.setConstraints(comp, c);
+			}
+
+			// Replace the components with columns
+			gd.removeAll();
+
+			GridBagConstraints c = new GridBagConstraints();
+			c.gridy = 0;
+			c.anchor = GridBagConstraints.NORTH;
+			for (int i = 0; i < panels.size(); i++)
+			{
+				Panel p = panels.get(i);
+				c.gridx = i;
+				gd.add(p);
+				grid.setConstraints(p, c);
+			}
+
+			if (IJ.isLinux())
+				gd.setBackground(new Color(238, 238, 238));
+		}
 	}
 }
