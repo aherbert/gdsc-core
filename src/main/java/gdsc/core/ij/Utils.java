@@ -1979,12 +1979,12 @@ public class Utils
 					panels.add(current);
 
 					// Used to reset the y to the top of the column
-					yOffset += nextColumnY;
+					yOffset = nextColumnY;
 
 					counter++;
 					if (counter < rowsPerColumn.length)
 					{
-						nextColumnY = rowsPerColumn[counter];
+						nextColumnY += rowsPerColumn[counter];
 					}
 					else
 					{
@@ -1995,8 +1995,8 @@ public class Utils
 				// Reposition in the current column
 				c.gridy = c.gridy - yOffset;
 				//c.insets.left = c.insets.left + 10 * xOffset;
-				//c.insets.top = 0;
-				//c.insets.bottom = 0;
+				c.insets.top = 0;
+				c.insets.bottom = 0;
 
 				// Setting constraints separately clones the constraints
 				current.add(comp);
@@ -2015,6 +2015,8 @@ public class Utils
 				c.gridx = i;
 				gd.add(p);
 				grid.setConstraints(p, c);
+				// For the next columns
+				c.insets.left = 10;
 			}
 
 			if (IJ.isLinux())
