@@ -49,20 +49,13 @@ public class RampedScore implements Cloneable
 	 */
 	public double score(double value)
 	{
-		if (value <= upper)
-		{
-			if (value <= lower)
-			{
-				return 1.0;
-			}
-			else
-			{
-				// Interpolate from the minimum to the maximum match distance:
-				// Cosine
-				return (0.5 * (1 + Math.cos(((value - lower) / range) * Math.PI)));
-			}
-		}
-		return 0.0;
+		if (value > upper)
+			return 0.0;
+		if (value <= lower)
+			return 1.0;
+		// Interpolate from the minimum to the maximum match distance:
+		// Cosine
+		return (0.5 * (1 + Math.cos(((value - lower) / range) * Math.PI)));
 	}
 
 	/**
