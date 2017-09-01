@@ -2,8 +2,6 @@ package gdsc.core.filters;
 
 import java.awt.Rectangle;
 
-import org.apache.commons.math3.util.FastMath;
-
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
  * 
@@ -103,7 +101,7 @@ public class AreaStatistics
 	}
 
 	/**
-	 * Gets the statistics within a region from minU to maxU and minV to maxV. Lower bounds exclusive and upper bounds
+	 * Gets the statistics within a region from minU to maxU and minV to maxV. Lower bounds inclusive and upper bounds
 	 * inclusive.
 	 *
 	 * @param minU
@@ -118,8 +116,12 @@ public class AreaStatistics
 	 */
 	private double[] getStatistics(int minU, int maxU, int minV, int maxV)
 	{
-		return (rollingSums) ? getStatisticsRollingSums(minU, maxU, minV, maxV)
-				: getStatisticsSimple(minU, maxU, minV, maxV);
+		// Note that the two methods use different bounds for their implementation
+		return (rollingSums)
+				// Lower bounds exclusive, Upper inclusive
+				? getStatisticsRollingSums(minU - 1, maxU, minV - 1, maxV)
+				// Lower bounds inclusive, Upper exclusive
+				: getStatisticsSimple(minU, maxU + 1, minV, maxV + 1);
 	}
 
 	/**
@@ -155,9 +157,11 @@ public class AreaStatistics
 		// s(u,v) = s(umax,vmax) when u>umax,v>vmax
 		// Likewise for ss
 
-		// Clip to upper limit
-		maxU = FastMath.min(maxU, maxx - 1);
-		maxV = FastMath.min(maxV, maxy - 1);
+		// Clip to limits
+		if (maxU >= maxx)
+			maxU = maxx - 1;
+		if (maxV >= maxy)
+			maxV = maxy - 1;
 
 		// + s(u+N-1,v+N-1) 
 		int index = maxV * maxx + maxU;
@@ -205,15 +209,15 @@ public class AreaStatistics
 			// Get the sum of squared differences
 			double residuals = sumSquares - (sum * sum) / n;
 			if (residuals > 0.0)
-				stats[SD] = Math.sqrt(residuals / (n - 1.0));
+				stats[SD] = Math.sqrt(residuals / (n - 1));
 		}
 
 		return stats;
 	}
 
 	/**
-	 * Gets the statistics within a region from minU to maxU and minV to maxV. Lower bounds exclusive and upper bounds
-	 * inclusive.
+	 * Gets the statistics within a region from minU to maxU and minV to maxV. Lower bounds inclusive and upper bounds
+	 * exclusive.
 	 *
 	 * @param minU
 	 *            the min U
@@ -228,26 +232,28 @@ public class AreaStatistics
 	private double[] getStatisticsSimple(int minU, int maxU, int minV, int maxV)
 	{
 		// Clip to limits
-		minU = FastMath.max(0, minU + 1);
-		minV = FastMath.max(0, minV + 1);
-		maxU = FastMath.min(maxU, maxx - 1);
-		maxV = FastMath.min(maxV, maxy - 1);
+		if (minU < 0)
+			minU = 0;
+		if (minV < 0)
+			minV = 0;
+		if (maxU > maxx)
+			maxU = maxx;
+		if (maxV > maxy)
+			maxV = maxy;
 
 		double sum = 0;
 		double sumSquares = 0;
-		//int n = 0;
-		for (int y = minV; y <= maxV; y++)
-			for (int x = minU, i = getIndex(minU, y); x <= maxU; x++, i++)
+		for (int y = minV; y < maxV; y++)
+			for (int x = minU, i = getIndex(minU, y); x < maxU; x++, i++)
 			{
-				float value = data[i];
-				sum += value;
-				sumSquares += value * value;
-				//n++;
+				double d = data[i];
+				sum += d;
+				sumSquares += d * d;
 			}
 
 		double[] stats = new double[3];
 
-		int n = (maxU - minU + 1) * (maxV - minV + 1);
+		int n = (maxU - minU) * (maxV - minV);
 
 		stats[N] = n;
 		stats[MEAN] = sum / n;
@@ -257,7 +263,7 @@ public class AreaStatistics
 			// Get the sum of squared differences
 			double residuals = sumSquares - (sum * sum) / n;
 			if (residuals > 0.0)
-				stats[SD] = Math.sqrt(residuals / (n - 1.0));
+				stats[SD] = Math.sqrt(residuals / (n - 1));
 		}
 
 		return stats;
@@ -282,9 +288,9 @@ public class AreaStatistics
 		// Special case for 1 data point
 		if (n == 0)
 			return new double[] { 1, data[getIndex(x, y)], 0 };
-		// Lower bounds exclusive
-		int minU = x - n - 1;
-		int minV = y - n - 1;
+		// Lower bounds inclusive
+		int minU = x - n;
+		int minV = y - n;
 		// Upper bounds inclusive
 		int maxU = x + n;
 		int maxV = y + n;
@@ -320,9 +326,9 @@ public class AreaStatistics
 		// Bounds check
 		if (region.width < 0 || region.height < 0 || region.x >= maxx || region.y >= maxy || maxU < 0 || maxV < 0)
 			return new double[3];
-		// Lower bounds exclusive
-		int minU = region.x - 1;
-		int minV = region.y - 1;
+		// Lower bounds inclusive
+		int minU = region.x;
+		int minV = region.y;
 		return getStatistics(minU, maxU, minV, maxV);
 	}
 
