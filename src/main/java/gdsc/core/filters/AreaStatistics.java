@@ -174,28 +174,44 @@ public class AreaStatistics
 			index = maxV * maxx + minU;
 			sum -= s_[index];
 			sumSquares -= ss[index];
-		}
-		if (minV >= 0)
-		{
-			// - s(u+N-1,v-1)
-			index = minV * maxx + maxU;
-			sum -= s_[index];
-			sumSquares -= ss[index];
 
-			if (minU >= 0)
+			if (minV >= 0)
 			{
+				// - s(u+N-1,v-1)
+				index = minV * maxx + maxU;
+				sum -= s_[index];
+				sumSquares -= ss[index];
+
 				// + s(u-1,v-1)
 				index = minV * maxx + minU;
 				sum += s_[index];
 				sumSquares += ss[index];
 			}
+			else
+			{
+				// Reset to bounds to calculate the number of pixels
+				minV = -1;
+			}
 		}
-
-		// Reset to bounds to calculate the number of pixels
-		if (minU < 0)
+		else
+		{
+			// Reset to bounds to calculate the number of pixels
 			minU = -1;
-		if (minV < 0)
-			minV = -1;
+			
+			if (minV >= 0)
+			{
+				// - s(u+N-1,v-1)
+				index = minV * maxx + maxU;
+				sum -= s_[index];
+				sumSquares -= ss[index];
+
+			}
+			else
+			{
+				// Reset to bounds to calculate the number of pixels
+				minV = -1;
+			}
+		}
 
 		double[] stats = new double[3];
 
