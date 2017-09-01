@@ -213,11 +213,17 @@ public class AreaStatistics
 			}
 		}
 
-		double[] stats = new double[3];
-
 		int n = (maxU - minU) * (maxV - minV);
 
+		return getResults(sum, sumSquares, n);
+	}
+
+	private double[] getResults(double sum, double sumSquares, int n)
+	{
+		double[] stats = new double[3];
+		
 		stats[N] = n;
+		// Note: We do not consider n==0 since the methods are not called with an empty region 
 		stats[MEAN] = sum / n;
 
 		if (n > 1)
@@ -267,22 +273,9 @@ public class AreaStatistics
 				sumSquares += d * d;
 			}
 
-		double[] stats = new double[3];
-
 		int n = (maxU - minU) * (maxV - minV);
 
-		stats[N] = n;
-		stats[MEAN] = sum / n;
-
-		if (n > 1)
-		{
-			// Get the sum of squared differences
-			double residuals = sumSquares - (sum * sum) / n;
-			if (residuals > 0.0)
-				stats[SD] = Math.sqrt(residuals / (n - 1));
-		}
-
-		return stats;
+		return getResults(sum, sumSquares, n);
 	}
 
 	/**
