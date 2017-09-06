@@ -3,6 +3,8 @@
  */
 package ij.gui;
 
+import java.awt.BorderLayout;
+
 /*----------------------------------------------------------------------------- 
  * GDSC Plugins for ImageJ
  * 
@@ -22,6 +24,7 @@ import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -29,6 +32,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Label;
 import java.awt.Panel;
+import java.awt.ScrollPane;
 import java.awt.Scrollbar;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
@@ -37,6 +41,7 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JPanel;
 
 import gdsc.core.ij.RecorderUtils;
 import gdsc.core.ij.Utils;
@@ -51,13 +56,19 @@ public class ExtendedGenericDialog extends GenericDialog
 {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 2405780565152258007L;
-	private final GridBagLayout grid;
 	private Component positionComponent = null;
 
 	private TurboList<OptionListener<?>> listeners;
 
 	/** The labels. Used to reset the recorder. */
 	private TurboList<String> labels = new TurboList<String>();
+
+	// We capture all components added to the dialog and put them on a single panel
+	private GridBagLayout grid;
+	private JPanel panel = new JPanel();
+
+	private int maxWidth;
+	private int maxHeight;
 
 	/**
 	 * Instantiates a new extended generic dialog.
@@ -70,7 +81,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	public ExtendedGenericDialog(String title, Frame parent)
 	{
 		super(title, parent);
-		grid = (GridBagLayout) getLayout();
+		initialise();
 	}
 
 	/**
@@ -82,7 +93,45 @@ public class ExtendedGenericDialog extends GenericDialog
 	public ExtendedGenericDialog(String title)
 	{
 		super(title);
+		initialise();
+	}
+
+	private void initialise()
+	{
 		grid = (GridBagLayout) getLayout();
+		panel.setLayout(grid);
+
+		this.setLayout(new BorderLayout());
+
+		// Use a scroll pane as required
+		if (Utils.isShowGenericDialog())
+		{
+			// JScrollPane allows the border to be set to null.
+			// However it does not repaint the contents inside the 
+			// window unless we use a JPanel. Even then some of the 
+			// java.awt.Panel components are not always redrawn.
+			// Given the GenericDialog uses a lot of java.awt components 
+			// we stick to use a java.awt.ScrollPane. 
+			//JScrollPane scroll = new JScrollPane(panel);
+			//scroll.setBorder(BorderFactory.createEmptyBorder());
+			//scroll.getVerticalScrollBar().setUnitIncrement(8);
+			//scroll.getHorizontalScrollBar().setUnitIncrement(8);
+			//scroll.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
+
+			// The ScrollPanel must be sized from the default of 100x100 when
+			// displayed. This is done in setup()
+			ScrollPane scroll = new ScrollPane();
+			scroll.getHAdjustable().setUnitIncrement(16);
+			scroll.getVAdjustable().setUnitIncrement(16);
+			scroll.add(panel);
+
+			super.add(scroll, BorderLayout.CENTER);
+		}
+		else
+		{
+			// No need for a scroll pane
+			super.add(panel);
+		}
 	}
 
 	// Record all the field names
@@ -186,17 +235,17 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Label getLastLabel()
 	{
-		return new ComponentFinder<Label>(this, Label.class).getLast();
+		return new ComponentFinder<Label>(getContents(), Label.class).getLast();
 	}
 
 	/**
-	 * Gets the last panel added to the dialog.
+	 * Gets the last getContents() added to the dialog.
 	 *
-	 * @return the last panel
+	 * @return the last getContents()
 	 */
 	public Panel getLastPanel()
 	{
-		return new ComponentFinder<Panel>(this, Panel.class).getLast();
+		return new ComponentFinder<Panel>(getContents(), Panel.class).getLast();
 	}
 
 	/**
@@ -206,7 +255,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Choice getLastChoice()
 	{
-		return new ComponentFinder<Choice>(this, Choice.class).getLast();
+		return new ComponentFinder<Choice>(getContents(), Choice.class).getLast();
 	}
 
 	/**
@@ -216,7 +265,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public TextField getLastTextField()
 	{
-		return new ComponentFinder<TextField>(this, TextField.class).getLast();
+		return new ComponentFinder<TextField>(getContents(), TextField.class).getLast();
 	}
 
 	/**
@@ -226,7 +275,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Checkbox getLastCheckbox()
 	{
-		return new ComponentFinder<Checkbox>(this, Checkbox.class).getLast();
+		return new ComponentFinder<Checkbox>(getContents(), Checkbox.class).getLast();
 	}
 
 	/**
@@ -236,7 +285,13 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Scrollbar getLastScrollbar()
 	{
-		return new ComponentFinder<Scrollbar>(this, Scrollbar.class).getLast();
+		return new ComponentFinder<Scrollbar>(getContents(), Scrollbar.class).getLast();
+	}
+
+	private Container getContents()
+	{
+		// We May not want to put all contents into a single panel
+		return panel;
 	}
 
 	/**
@@ -979,5 +1034,119 @@ public class ExtendedGenericDialog extends GenericDialog
 		{
 			listeners.getf(i).collectOptions();
 		}
+	}
+
+	/**
+	 * Gets the max width before a scroll pane is used.
+	 *
+	 * @return the max width
+	 */
+	public int getMaxUnscrolledWidth()
+	{
+		return maxWidth;
+	}
+
+	/**
+	 * Sets the max width before a scroll pane is used.
+	 *
+	 * @param maxWidth
+	 *            the new max width
+	 */
+	public void setMaxUnscrolledWidth(int maxWidth)
+	{
+		this.maxWidth = maxWidth;
+	}
+
+	/**
+	 * Gets the max height before a scroll pane is used.
+	 *
+	 * @return the max height
+	 */
+	public int getMaxUnscrolledHeight()
+	{
+		return maxHeight;
+	}
+
+	/**
+	 * Sets the max height before a scroll pane is used.
+	 *
+	 * @param maxHeight
+	 *            the new max height
+	 */
+	public void setMaxUnscrolledHeight(int maxHeight)
+	{
+		this.maxHeight = maxHeight;
+	}
+
+	/**
+	 * Sets the max size before a scroll pane is used.
+	 *
+	 * @param maxWidth
+	 *            the max width
+	 * @param maxHeight
+	 *            the max height
+	 */
+	public void setMaxUnscrolledSize(int maxWidth, int maxHeight)
+	{
+		setMaxUnscrolledWidth(maxWidth);
+		setMaxUnscrolledHeight(maxHeight);
+	}
+
+	// Methods used within GenericDialog to add components to the container.
+	// These are overridden so that we can add components to a single panel.
+
+	@Override
+	public Component add(Component comp)
+	{
+		return panel.add(comp);
+	}
+
+	@Override
+	public void remove(Component comp)
+	{
+		panel.remove(comp);
+	}
+
+	/**
+	 * This method is called just before the dialog is set visible. Determine the preferred size of the panel
+	 * contents and appropriately size the scroll pane to fit.
+	 * 
+	 * @see ij.gui.GenericDialog#setup()
+	 */
+	@Override
+	protected void setup()
+	{
+		if (!Utils.isShowGenericDialog())
+			return;
+
+		// This is how to set the preferred size on the JScrollPane.
+		// This is not used as the java.awt components are not repainted.
+		//		if (maxWidth <= 0 && maxHeight <= 0)
+		//			return;
+		//		JScrollPane scroll = (JScrollPane) getComponent(0);
+		//		JViewport viewport = scroll.getViewport();
+		//		Dimension d = viewport.getViewSize();
+		//		if (maxWidth > 0)
+		//			d.width = Math.min(d.width, maxWidth);
+		//		if (maxHeight > 0)
+		//			d.height = Math.min(d.height, maxHeight);
+		//		viewport.setPreferredSize(d);
+
+		// Appropriately size the scrollpane
+		Dimension d = panel.getPreferredSize();
+
+		ScrollPane scroll = (ScrollPane) getComponent(0);
+
+		if (maxWidth > 0)
+			d.width = Math.min(d.width, maxWidth);
+		if (maxHeight > 0)
+			d.height = Math.min(d.height, maxHeight);
+
+		Insets insets = scroll.getInsets();
+		d.width += insets.left + insets.right;
+		d.height += insets.top + insets.bottom;
+
+		scroll.setPreferredSize(d);
+		pack();
 	}
 }
