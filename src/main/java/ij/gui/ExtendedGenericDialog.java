@@ -50,7 +50,10 @@ import ij.IJ;
 import ij.plugin.frame.Recorder;
 
 /**
- * Extension of the ij.gui.GenericDialog class to add functionality
+ * Extension of the ij.gui.GenericDialog class to add functionality.
+ * <p>
+ * This dialog adds all components to a panel that is presented in a java.awt.ScrollPane. This allows display of large
+ * dialogs on small screens.
  */
 public class ExtendedGenericDialog extends GenericDialog
 {
@@ -67,8 +70,17 @@ public class ExtendedGenericDialog extends GenericDialog
 	private GridBagLayout grid;
 	private JPanel panel = new JPanel();
 
-	private int maxWidth;
-	private int maxHeight;
+	// Store the screen dimension
+	private static Dimension screenDimension;
+	static
+	{
+		screenDimension = IJ.getScreenSize();
+	}
+	
+	// Max unscrolled width - No limit
+	private int maxWidth = 0; 
+	// Max unscrolled height - Set to a reasonable value for current screen resolution.
+	private int maxHeight = screenDimension.height - 100; 
 
 	/**
 	 * Instantiates a new extended generic dialog.
