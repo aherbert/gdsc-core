@@ -2,6 +2,7 @@ package gdsc.core.utils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Arrays;
 
 /*----------------------------------------------------------------------------- 
@@ -717,6 +718,57 @@ public class Maths
 		return bd.doubleValue();
 	}
 
+	/**
+	 * Round the double to the specified significant digits
+	 * 
+	 * @param d
+	 *            The double
+	 * @param significantDigits
+	 *            The number of significant digits
+	 * @return The rounded value
+	 */
+	public static BigDecimal roundToBigDecimal(double d, int significantDigits)
+	{
+		BigDecimal bd = new BigDecimal(d);
+		return bd.round(new MathContext(significantDigits));
+	}
+
+	/**
+	 * Round the double to the specified decimal places
+	 * 
+	 * @param d
+	 *            The double
+	 * @param decimalPlaces
+	 *            the decimal places (can be negative)
+	 * @return The rounded double
+	 */
+	public static double roundUsingDecimalPlaces(double d, int decimalPlaces)
+	{
+		if (Double.isInfinite(d) || Double.isNaN(d))
+			return d;
+		BigDecimal bd = new BigDecimal(d);
+		if (decimalPlaces > bd.scale())
+			return d;
+		return bd.setScale(decimalPlaces, RoundingMode.HALF_UP).doubleValue();
+	}
+
+	/**
+	 * Round the double to the specified decimal places
+	 * 
+	 * @param d
+	 *            The double
+	 * @param decimalPlaces
+	 *            the decimal places
+	 * @return The rounded value
+	 */
+	public static BigDecimal roundUsingDecimalPlacesToBigDecimal(double d, int decimalPlaces)
+	{
+		BigDecimal bd = new BigDecimal(d);
+		if (decimalPlaces > bd.scale())
+			return bd;
+		return bd.setScale(decimalPlaces, RoundingMode.HALF_UP);
+	}
+	
 	/**
 	 * Round the double to 4 significant digits
 	 * 
