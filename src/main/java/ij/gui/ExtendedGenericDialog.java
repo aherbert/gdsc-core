@@ -302,7 +302,7 @@ public class ExtendedGenericDialog extends GenericDialog
 
 	private Container getContents()
 	{
-		// We May not want to put all contents into a single panel
+		// We may not want to put all contents into a single panel
 		return panel;
 	}
 
@@ -1005,7 +1005,7 @@ public class ExtendedGenericDialog extends GenericDialog
 				}
 				else
 				{
-					value = new Double(theText);
+					value = convertToDouble(theText);
 				}
 				if (optionListener.collectOptions(value))
 					notifyOptionCollectedListeners(label);
@@ -1018,6 +1018,124 @@ public class ExtendedGenericDialog extends GenericDialog
 		pc.insets = new Insets(5, 5, 0, 0);
 		pc.anchor = GridBagConstraints.EAST;
 		p.add(button, pc);
+	}
+
+	private Double convertToDouble(String theText)
+	{
+		// This catches any number format exceptions
+		Double value = getValue(theText);
+		if (value == null)
+			// return NaN and let the downstream code handle this
+			return Double.NaN;
+		return value;
+	}
+
+	/**
+	 * Adds a numeric field. The first word of the label must be
+	 * unique or command recording will not work.
+	 *
+	 * @param label
+	 *            the label
+	 * @param defaultValue
+	 *            value to be initially displayed
+	 * @param digits
+	 *            number of digits to right of decimal point
+	 * @param optionListener
+	 *            the option listener
+	 */
+	public void addNumericField(String label, double defaultValue, int digits,
+			final OptionListener<Double> optionListener)
+	{
+		if (optionListener == null)
+			throw new NullPointerException("Option listener is null");
+
+		TextField tf = addAndGetNumericField(label, defaultValue, digits);
+
+		addNumericFieldListener(tf, label, defaultValue, optionListener);
+	}
+
+	/**
+	 * Adds a numeric field. The first word of the label must be
+	 * unique or command recording will not work.
+	 *
+	 * @param label
+	 *            the label
+	 * @param defaultValue
+	 *            value to be initially displayed
+	 * @param digits
+	 *            number of digits to right of decimal point
+	 * @param columns
+	 *            width of field in characters
+	 * @param units
+	 *            a string displayed to the right of the field
+	 * @param optionListener
+	 *            the option listener
+	 */
+	public void addNumericField(String label, double defaultValue, int digits, int columns, String units,
+			final OptionListener<Double> optionListener)
+	{
+		if (optionListener == null)
+			throw new NullPointerException("Option listener is null");
+
+		TextField tf = addAndGetNumericField(label, defaultValue, digits, columns, units);
+
+		addNumericFieldListener(tf, label, defaultValue, optionListener);
+	}
+
+	/**
+	 * Adds a numeric field. The first word of the label must be
+	 * unique or command recording will not work.
+	 *
+	 * @param tf
+	 *            the tf
+	 * @param label
+	 *            the label
+	 * @param originalValue
+	 *            value to be initially displayed
+	 * @param optionListener
+	 *            the option listener
+	 */
+	private void addNumericFieldListener(final TextField tf, final String label, final double originalValue,
+			final OptionListener<Double> optionListener)
+	{
+		// Numeric fields may have a text field and units in a panel
+		Component lastAdded = getContents().getComponent(getContents().getComponentCount() - 1);
+
+		GridBagConstraints c = grid.getConstraints(lastAdded);
+		remove(lastAdded);
+
+		final String originalText = tf.getText();
+
+		add(optionListener);
+
+		JButton button = createOptionButton();
+		button.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				String theText = tf.getText();
+				Double value;
+				if (theText.equals(originalText))
+				{
+					value = originalValue;
+				}
+				else
+				{
+					value = getValue(theText);
+					if (value == null)
+						value = Double.NaN;
+				}
+				if (optionListener.collectOptions(value))
+					notifyOptionCollectedListeners(label);
+			}
+		});
+
+		Panel panel = new Panel();
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		panel.add(lastAdded);
+		panel.add(button);
+		grid.setConstraints(panel, c);
+		add(panel);
 	}
 
 	/**
