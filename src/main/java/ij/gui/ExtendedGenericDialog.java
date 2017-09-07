@@ -76,11 +76,11 @@ public class ExtendedGenericDialog extends GenericDialog
 	{
 		screenDimension = IJ.getScreenSize();
 	}
-	
+
 	// Max unscrolled width - Set to a reasonable value for current screen resolution.
-	private int maxWidth = screenDimension.width - 100; 
+	private int maxWidth = screenDimension.width - 100;
 	// Max unscrolled height - Set to a reasonable value for current screen resolution.
-	private int maxHeight = screenDimension.height - 150; 
+	private int maxHeight = screenDimension.height - 150;
 
 	/**
 	 * Instantiates a new extended generic dialog.
@@ -959,6 +959,63 @@ public class ExtendedGenericDialog extends GenericDialog
 	}
 
 	/**
+	 * Adds a slider (scroll bar) to the dialog box.
+	 * Floating point values will be used if (maxValue-minValue)<=5.0
+	 * and either minValue or maxValue are non-integer.
+	 * 
+	 * @param label
+	 *            the label
+	 * @param minValue
+	 *            the minimum value of the slider
+	 * @param maxValue
+	 *            the maximum value of the slider
+	 * @param defaultValue
+	 *            the initial value of the slider
+	 */
+	public void addSlider(final String label, double minValue, double maxValue, double defaultValue,
+			final OptionListener<Double> optionListener)
+	{
+		if (optionListener == null)
+			throw new NullPointerException("Option listener is null");
+
+		if (defaultValue<minValue) defaultValue=minValue;
+		if (defaultValue>maxValue) defaultValue=maxValue;
+		
+		addSlider(label, minValue, maxValue, defaultValue);
+		Panel p = getLastPanel();
+		
+		final TextField tf = new ComponentFinder<TextField>(p, TextField.class).getLast();
+		final String originalText = tf.getText();
+		final double originalValue = defaultValue;
+		
+		add(optionListener);
+
+		JButton button = createOptionButton();
+		button.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				String theText = tf.getText();
+				Double value; 
+				if (theText.equals(originalText)) {
+					value = originalValue;
+				} else {
+					value = new Double(theText);
+				}				
+				if (optionListener.collectOptions(value))
+					notifyOptionCollectedListeners(label);
+			}
+		});
+		
+		GridBagConstraints pc  = new GridBagConstraints();
+		pc.gridy = 0;
+		pc.gridx = 2;
+		pc.insets = new Insets(5, 5, 0, 0);
+		pc.anchor = GridBagConstraints.EAST;
+		p.add(button, pc);		
+	}
+
+	/**
 	 * Reset the recorder for all the named fields that have been added to the dialog. This should be called if the
 	 * dialog is to be reused as repeat calls to getNext(...) for fields with the same name will cause ImageJ to show a
 	 * duplicate field error.
@@ -1157,7 +1214,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		Insets insets = scroll.getInsets();
 		d.width += insets.left + insets.right;
 		d.height += insets.top + insets.bottom;
-		
+
 		if (IJ.isMacintosh())
 		{
 			// This is needed as the OSX scroll pane adds scrollbars when the panel 
@@ -1166,7 +1223,7 @@ public class ExtendedGenericDialog extends GenericDialog
 			d.width += padding;
 			d.height += padding;
 		}
-		
+
 		//scroll.setPreferredSize(d);
 		scroll.setSize(d);
 		pack();
