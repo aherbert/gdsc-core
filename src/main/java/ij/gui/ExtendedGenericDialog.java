@@ -536,11 +536,11 @@ public class ExtendedGenericDialog extends GenericDialog
 		/**
 		 * Gets the options using the current value of the field.
 		 *
-		 * @param field
-		 *            the field
+		 * @param value
+		 *            the field value
 		 * @return true, if options were collected successful
 		 */
-		public boolean collectOptions(T field);
+		public boolean collectOptions(T value);
 
 		/**
 		 * Gets the options using the previously read value of the field.
@@ -630,7 +630,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public void addStringField(String label, String defaultText, final OptionListener<TextField> optionListener)
+	public void addStringField(String label, String defaultText, final OptionListener<String> optionListener)
 	{
 		addStringField(label, defaultText, 8, optionListener);
 	}
@@ -650,7 +650,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 *             if the option lister is null
 	 */
 	public void addStringField(final String label, String defaultText, int columns,
-			final OptionListener<TextField> optionListener)
+			final OptionListener<String> optionListener)
 	{
 		if (optionListener == null)
 			throw new NullPointerException("Option listener is null");
@@ -666,7 +666,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				if (optionListener.collectOptions(tf))
+				if (optionListener.collectOptions(tf.getText()))
 					notifyOptionCollectedListeners(label);
 			}
 		});
@@ -865,7 +865,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public void addChoice(String label, String[] items, int defaultIndex, final OptionListener<Choice> optionListener)
+	public void addChoice(String label, String[] items, int defaultIndex, final OptionListener<Integer> optionListener)
 	{
 		if (defaultIndex < 0 || defaultIndex >= items.length)
 			defaultIndex = 0;
@@ -888,7 +888,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 *             if the option lister is null
 	 */
 	public void addChoice(final String label, String[] items, String defaultItem,
-			final OptionListener<Choice> optionListener)
+			final OptionListener<Integer> optionListener)
 	{
 		if (optionListener == null)
 			throw new NullPointerException("Option listener is null");
@@ -904,7 +904,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				if (optionListener.collectOptions(choice))
+				if (optionListener.collectOptions(choice.getSelectedIndex()))
 					notifyOptionCollectedListeners(label);
 			}
 		});
@@ -929,7 +929,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * @throws NullPointerException
 	 *             if the option lister is null
 	 */
-	public void addCheckbox(final String label, boolean defaultValue, final OptionListener<Checkbox> optionListener)
+	public void addCheckbox(final String label, boolean defaultValue, final OptionListener<Boolean> optionListener)
 	{
 		if (optionListener == null)
 			throw new NullPointerException("Option listener is null");
@@ -945,7 +945,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				if (optionListener.collectOptions(cb))
+				if (optionListener.collectOptions(cb.getState()))
 					notifyOptionCollectedListeners(label);
 			}
 		});
@@ -978,16 +978,18 @@ public class ExtendedGenericDialog extends GenericDialog
 		if (optionListener == null)
 			throw new NullPointerException("Option listener is null");
 
-		if (defaultValue<minValue) defaultValue=minValue;
-		if (defaultValue>maxValue) defaultValue=maxValue;
-		
+		if (defaultValue < minValue)
+			defaultValue = minValue;
+		if (defaultValue > maxValue)
+			defaultValue = maxValue;
+
 		addSlider(label, minValue, maxValue, defaultValue);
 		Panel p = getLastPanel();
-		
+
 		final TextField tf = new ComponentFinder<TextField>(p, TextField.class).getLast();
 		final String originalText = tf.getText();
 		final double originalValue = defaultValue;
-		
+
 		add(optionListener);
 
 		JButton button = createOptionButton();
@@ -996,23 +998,26 @@ public class ExtendedGenericDialog extends GenericDialog
 			public void actionPerformed(ActionEvent e)
 			{
 				String theText = tf.getText();
-				Double value; 
-				if (theText.equals(originalText)) {
+				Double value;
+				if (theText.equals(originalText))
+				{
 					value = originalValue;
-				} else {
+				}
+				else
+				{
 					value = new Double(theText);
-				}				
+				}
 				if (optionListener.collectOptions(value))
 					notifyOptionCollectedListeners(label);
 			}
 		});
-		
-		GridBagConstraints pc  = new GridBagConstraints();
+
+		GridBagConstraints pc = new GridBagConstraints();
 		pc.gridy = 0;
 		pc.gridx = 2;
 		pc.insets = new Insets(5, 5, 0, 0);
 		pc.anchor = GridBagConstraints.EAST;
-		p.add(button, pc);		
+		p.add(button, pc);
 	}
 
 	/**
