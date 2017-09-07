@@ -1159,12 +1159,16 @@ public class ExtendedGenericDialog extends GenericDialog
 		d.height += insets.top + insets.bottom;
 		
 		if (IJ.isMacintosh())
-			setResizable(true);
+		{
+			// This is needed as the OSX scroll pane adds scrollbars when the panel 
+			// is close in size to the scroll pane
+			int padding = 15;
+			d.width += padding;
+			d.height += padding;
+		}
 		
-		scroll.setPreferredSize(d);
+		//scroll.setPreferredSize(d);
+		scroll.setSize(d);
 		pack();
-		
-		if (IJ.isMacintosh())
-			setResizable(false);
 	}
 }
