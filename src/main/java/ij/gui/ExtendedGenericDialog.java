@@ -77,10 +77,10 @@ public class ExtendedGenericDialog extends GenericDialog
 		screenDimension = IJ.getScreenSize();
 	}
 	
-	// Max unscrolled width - No limit
-	private int maxWidth = 0; 
+	// Max unscrolled width - Set to a reasonable value for current screen resolution.
+	private int maxWidth = screenDimension.width - 100; 
 	// Max unscrolled height - Set to a reasonable value for current screen resolution.
-	private int maxHeight = screenDimension.height - 100; 
+	private int maxHeight = screenDimension.height - 150; 
 
 	/**
 	 * Instantiates a new extended generic dialog.
@@ -1157,8 +1157,14 @@ public class ExtendedGenericDialog extends GenericDialog
 		Insets insets = scroll.getInsets();
 		d.width += insets.left + insets.right;
 		d.height += insets.top + insets.bottom;
-
+		
+		if (IJ.isMacintosh())
+			setResizable(true);
+		
 		scroll.setPreferredSize(d);
 		pack();
+		
+		if (IJ.isMacintosh())
+			setResizable(false);
 	}
 }
