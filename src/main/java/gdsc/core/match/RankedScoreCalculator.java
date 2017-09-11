@@ -368,16 +368,16 @@ public class RankedScoreCalculator
 	 *
 	 * @param assignments
 	 *            the assignments (e.g. following a call to {@link #getScoredAssignments()})
+	 * @param nActual
+	 *            the total number of actual points. This should be higher than all the ids in the assignments.
 	 * @param nPredicted
 	 *            the total number of predicted points. This should be higher that the sum of the scores in the
 	 *            assignments.
-	 * @param nActual
-	 *            the total number of actual points. This should be higher than all the ids in the assignments.
 	 * @return the precision, recall and Jaccard curves
 	 * @throws ArrayIndexOutOfBoundsException
 	 *             If the assignments have an id equal or bigger than the nPrecited
 	 */
-	public static double[][] getPrecisionRecallCurve(FractionalAssignment[] assignments, int nPredicted, int nActual)
+	public static double[][] getPrecisionRecallCurve(FractionalAssignment[] assignments, int nActual, int nPredicted)
 	{
 		double[] score = getMatchScore(assignments, nPredicted);
 		double[] p = new double[nPredicted + 1];
