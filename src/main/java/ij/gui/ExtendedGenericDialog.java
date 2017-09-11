@@ -1347,7 +1347,7 @@ public class ExtendedGenericDialog extends GenericDialog
 			d.height += padding;
 		}
 
-		//scroll.setPreferredSize(d);
+		scroll.setPreferredSize(d);
 		scroll.setSize(d);
 		pack();
 	}
