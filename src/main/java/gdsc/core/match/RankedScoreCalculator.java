@@ -15,6 +15,8 @@ package gdsc.core.match;
 
 import java.util.Arrays;
 
+import gdsc.core.utils.TurboList;
+
 /**
  * Calculates the match scoring statistics for the first N predictions in a set of assignments between actual and
  * predicted results.
@@ -38,12 +40,12 @@ public class RankedScoreCalculator
 	public RankedScoreCalculator(FractionalAssignment[] assignments)
 	{
 		this.assignments = assignments;
-		// TODO - update the scoring algorithm to not require a sorted list
 		AssignmentComparator.sort(assignments);
 		// Count unique actual and predicted
 		int maxA = 0, maxP = 0;
-		for (FractionalAssignment a : assignments)
+		for (int i = 0; i < assignments.length; i++)
 		{
+			FractionalAssignment a = assignments[i];
 			if (maxA < a.getTargetId())
 				maxA = a.getTargetId();
 			if (maxP < a.getPredictedId())
@@ -51,8 +53,9 @@ public class RankedScoreCalculator
 		}
 		final boolean[] obsA = new boolean[maxA + 1];
 		final boolean[] obsP = new boolean[maxP + 1];
-		for (FractionalAssignment a : assignments)
+		for (int i = 0; i < assignments.length; i++)
 		{
+			FractionalAssignment a = assignments[i];
 			obsA[a.getTargetId()] = true;
 			obsP[a.getPredictedId()] = true;
 		}
@@ -75,7 +78,6 @@ public class RankedScoreCalculator
 	public RankedScoreCalculator(FractionalAssignment[] assignments, int maxA, int maxP)
 	{
 		this.assignments = assignments;
-		// TODO - update the scoring algorithm to not require a sorted list
 		AssignmentComparator.sort(assignments);
 		//AssignmentComparator.sort1(assignments);
 		//AssignmentComparator.sort2(assignments);
@@ -84,8 +86,9 @@ public class RankedScoreCalculator
 		// Count unique actual and predicted
 		final boolean[] obsA = new boolean[maxA + 1];
 		final boolean[] obsP = new boolean[maxP + 1];
-		for (FractionalAssignment a : assignments)
+		for (int i = 0; i < assignments.length; i++)
 		{
+			FractionalAssignment a = assignments[i];
 			obsA[a.getTargetId()] = true;
 			obsP[a.getPredictedId()] = true;
 		}
@@ -140,9 +143,12 @@ public class RankedScoreCalculator
 	{
 		final FractionalAssignment[] assignments2 = new FractionalAssignment[assignments.length];
 		int count = 0;
-		for (FractionalAssignment a : assignments)
+		for (int i = 0; i < assignments.length; i++)
+		{
+			FractionalAssignment a = assignments[i];
 			if (a.getPredictedId() < nPredicted)
 				assignments2[count++] = a;
+		}
 		return Arrays.copyOf(assignments2, count);
 	}
 
@@ -182,26 +188,29 @@ public class RankedScoreCalculator
 	public double[] score(int nPredicted, boolean multipleMatches, boolean save)
 	{
 		final FractionalAssignment[] assignments = getAssignmentsInternal(nPredicted);
-		int scored = 0;
-		scoredAssignments = (save) ? new FractionalAssignment[totalA] : null;
+		final boolean[] actualAssignment = new boolean[maxA + 1];
+		int sizeP = Math.min(nPredicted, maxP + 1);
+		TurboList<FractionalAssignment> scored = (save)
+				? new TurboList<FractionalAssignment>(Math.min(sizeP, actualAssignment.length)) : null;
 
 		// TODO - update the scoring algorithm to not require a sorted list.
 		// This would mean a creating a different method since this current method may be 
 		// called repeatedly with different nPredicted values. So store the assignments as a raw list 
 		// and then if necessary sort them for this method.
-		
+
 		// All we need to do is find the smallest value in the assignment list.
 		// We could hold an array containing the next index to check from the current index.
 		// As assignments are made we can update the next index to allow assignments
 		// to be skipped over as we scan the array for the next smallest value.
 
 		// Compare the speed of the two versions...
-		
+
+		double[] result;
+
 		// Assign matches
 		if (multipleMatches)
 		{
-			final boolean[] actualAssignment = new boolean[maxA + 1];
-			final double[] predictedAssignment = new double[maxP + 1];
+			final double[] predictedAssignment = new double[sizeP];
 
 			double tp = 0;
 			int nA = totalA;
@@ -215,7 +224,7 @@ public class RankedScoreCalculator
 					tp += a.getScore();
 					predictedAssignment[a.getPredictedId()] += a.getScore();
 					if (save)
-						scoredAssignments[scored++] = a;
+						scored.add(a);
 					if (--nA == 0)
 						break;
 				}
@@ -232,19 +241,16 @@ public class RankedScoreCalculator
 					continue;
 				p++;
 				if (predictedAssignment[i] > 1)
-					predictedAssignment[i] = 1;
-				fp -= predictedAssignment[i];
+					fp -= 1.0;
+				else
+					fp -= predictedAssignment[i];
 			}
 
-			if (save)
-				scoredAssignments = Arrays.copyOf(scoredAssignments, scored);
-
-			return new double[] { tp, fp, p, nPredicted - p };
+			result = new double[] { tp, fp, p, nPredicted - p };
 		}
 		else
 		{
-			final boolean[] actualAssignment = new boolean[maxA + 1];
-			final boolean[] predictedAssignment = new boolean[maxP + 1];
+			final boolean[] predictedAssignment = new boolean[sizeP];
 
 			double tp = 0;
 			int nP = totalP;
@@ -261,19 +267,23 @@ public class RankedScoreCalculator
 						predictedAssignment[a.getPredictedId()] = true;
 						tp += a.getScore();
 						if (save)
-							scoredAssignments[scored++] = a;
+							scored.add(a);
 						if (--nP == 0 || --nA == 0)
 							break;
 					}
 				}
 			}
 
-			if (save)
-				scoredAssignments = Arrays.copyOf(scoredAssignments, scored);
-
 			final int p = totalP - nP;
-			return new double[] { tp, nPredicted - tp, p, nPredicted - p };
+			result = new double[] { tp, nPredicted - tp, p, nPredicted - p };
 		}
+
+		if (save)
+		{
+			scoredAssignments = scored.toArray(new FractionalAssignment[scored.size()]);
+		}
+
+		return result;
 	}
 
 	/**
@@ -321,5 +331,80 @@ public class RankedScoreCalculator
 		final int tp = (int) score[2];
 		final int fp = (int) score[3];
 		return new ClassificationResult(tp, fp, 0, nActual - tp);
+	}
+
+	/**
+	 * Gets the match score for each predicted id from the assignments.
+	 * <p>
+	 * Note: The match score may be greater than 1 if multiple matching was used.
+	 *
+	 * @param assignments
+	 *            the assignments (e.g. following a call to {@link #getScoredAssignments()})
+	 * @param nPredicted
+	 *            the total number of predicted points. This should be higher that the sum of the scores in the
+	 *            assignments.
+	 * @return the match score
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             If the assignments have an id equal or bigger than the nPrecited
+	 */
+	public static double[] getMatchScore(FractionalAssignment[] assignments, int nPredicted)
+			throws ArrayIndexOutOfBoundsException
+	{
+		double[] matchScore = new double[nPredicted];
+		for (int i = 0; i < assignments.length; i++)
+		{
+			FractionalAssignment a = assignments[i];
+			matchScore[a.getPredictedId()] += a.getScore();
+		}
+		return matchScore;
+	}
+
+	/**
+	 * Gets the precision, recall and Jaccard curve. The curves are computed for each additional point added to the
+	 * scored
+	 * set, beginning with no points. The precision is assumed to be 1 when no points have been considered.
+	 * Assuming the predicted points IDs are a ranking this produces a precision-recall curve where the area underneath
+	 * the curve is an indicator of the quality of the ranking of predicted points.
+	 *
+	 * @param assignments
+	 *            the assignments (e.g. following a call to {@link #getScoredAssignments()})
+	 * @param nPredicted
+	 *            the total number of predicted points. This should be higher that the sum of the scores in the
+	 *            assignments.
+	 * @param nActual
+	 *            the total number of actual points. This should be higher than all the ids in the assignments.
+	 * @return the precision, recall and Jaccard curves
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             If the assignments have an id equal or bigger than the nPrecited
+	 */
+	public static double[][] getPrecisionRecallCurve(FractionalAssignment[] assignments, int nPredicted, int nActual)
+	{
+		double[] score = getMatchScore(assignments, nPredicted);
+		double[] p = new double[nPredicted + 1];
+		double[] r = new double[p.length];
+		double[] j = new double[p.length];
+		double tp = 0, fp = 0;
+		p[0] = 1;
+		for (int i = 0; i < score.length;)
+		{
+			if (score[i] == 0)
+			{
+				fp += 1.0;
+			}
+			else if (score[i] > 1.0)
+			{
+				tp += score[i];
+			}
+			else
+			{
+				tp += score[i];
+				fp += (1.0 - score[i]);
+			}
+			i++; // Increment since the arrays are offset by 1
+			r[i] = (double) tp / nActual;
+			p[i] = (double) tp / (tp + fp);
+			j[i] = (double) tp / (fp + nActual); // (tp+fp+fn) == (fp+n) since tp+fn=n;
+		}
+		return new double[][] { p, r, j };
 	}
 }
