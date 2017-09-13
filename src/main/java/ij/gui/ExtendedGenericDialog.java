@@ -538,7 +538,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		 *
 		 * @param value
 		 *            the field value
-		 * @return true, if options were collected successful
+		 * @return true, if new options were collected
 		 */
 		public boolean collectOptions(T value);
 
@@ -550,7 +550,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		 * options. The simple implementation is to construct an ExtendedGenericDialog to collect the options but do not
 		 * present the dialog using the showDialog() method, just proceed direct to reading the fields..
 		 * 
-		 * @return true, if options were collected successful
+		 * @return true, if new options were collected
 		 */
 		public boolean collectOptions();
 	}
