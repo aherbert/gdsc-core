@@ -129,4 +129,79 @@ public class ConvexHullTest
 		}
 		return data;
 	}
+
+	@Test
+	public void canCreateWithNoPoints()
+	{
+		float[] x = new float[0];
+		Assert.assertNull(ConvexHull.create(x, x));
+	}
+
+	@Test
+	public void canCreateWithOnePoint()
+	{
+		canCreateWithNPoints(1);
+	}
+
+	@Test
+	public void canCreateWithTwoPoints()
+	{
+		canCreateWithNPoints(2);
+	}
+
+	@Test
+	public void canCreateWithThreePoints()
+	{
+		canCreateWithNPoints(3);
+	}
+
+	public void canCreateWithNPoints(int n)
+	{
+		// Assumes that no random points will be colinear
+		float[][] data = createData(n, 0, 0, 10, 10);
+		ConvexHull hull = ConvexHull.create(data[0], data[1]);
+		Assert.assertEquals(n, hull.size());
+		if (n > 1)
+			Assert.assertTrue(hull.getLength() > 0);
+		else
+			Assert.assertTrue(hull.getLength() == 0);
+		if (n > 2)
+			Assert.assertTrue(hull.getArea() > 0);
+		else
+			Assert.assertTrue(hull.getArea() == 0);
+	}
+
+	@Test
+	public void canComputeLengthAndArea()
+	{
+		// Parallelogram
+		float[] x = new float[] { 0, 10, 11, 1 };
+		float[] y = new float[] { 0, 0, 10, 10 };
+		ConvexHull hull = ConvexHull.create(x, y);
+		Assert.assertEquals(2 * 10 + 2 * Math.sqrt(1 * 1 + 10 * 10), hull.getLength(), 1e-6);
+		Assert.assertEquals(100, hull.getArea(), 1e-6);
+
+		// Rotated square
+		x = new float[] { 0, 10, 9, -1 };
+		y = new float[] { 0, 1, 11, 10 };
+		hull = ConvexHull.create(x, y);
+		double edgeLengthSquared = 1 * 1 + 10 * 10;
+		Assert.assertEquals(4 * Math.sqrt(edgeLengthSquared), hull.getLength(), 1e-6);
+		Assert.assertEquals(edgeLengthSquared, hull.getArea(), 1e-6);
+
+		// Polygon circle
+		int n = 1000;
+		double r = 4;
+		x = new float[n];
+		y = new float[n];
+		for (int i=0; i<1000; i++)
+		{
+			double a = i * 2 * Math.PI / n;
+			x[i] = (float) (Math.sin(a) * r); 
+			y[i] = (float) (Math.cos(a) * r); 
+		}
+		hull = ConvexHull.create(x, y);
+		Assert.assertEquals(2 * Math.PI * r, hull.getLength(), 1e-2);
+		Assert.assertEquals(Math.PI * r*r, hull.getArea(), 1e-2);
+	}
 }

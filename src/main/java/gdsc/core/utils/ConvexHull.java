@@ -1,27 +1,27 @@
 package gdsc.core.utils;
 
-import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
-
 /*----------------------------------------------------------------------------- 
- * GDSC ImageJ Software
+ * GDSC Plugins for ImageJ
  * 
- * Copyright (C) 2016 Alex Herbert
+ * Copyright (C) 2017 Alex Herbert
  * Genome Damage and Stability Centre
  * University of Sussex, UK
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
+ * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *---------------------------------------------------------------------------*/
 
-import java.util.Arrays;
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.geometry.euclidean.twod.hull.ConvexHull2D;
 import org.apache.commons.math3.geometry.euclidean.twod.hull.MonotoneChain;
+
+import gdsc.core.math.Geometry;
 
 /**
  * Contains a set of paired coordinates representing the convex hull of a set of points.
@@ -96,6 +96,9 @@ public class ConvexHull
 		return create(0, 0, xCoordinates, yCoordinates, n);
 	}
 
+	/** Default value for tolerance. */
+	private static final double DEFAULT_TOLERANCE = 1e-10;
+
 	/**
 	 * Create a new convex hull from the given coordinates.
 	 *
@@ -117,11 +120,8 @@ public class ConvexHull
 	 */
 	public static ConvexHull create(float xbase, float ybase, float[] xCoordinates, float[] yCoordinates, int n)
 	{
-		// This algorithm is not suitable for floating point coords
-		//return createGiftWrap(xbase, ybase, xCoordinates, yCoordinates, n);
-
 		// Use Apache Math to do this
-		MonotoneChain chain = new MonotoneChain();
+		MonotoneChain chain = new MonotoneChain(false, DEFAULT_TOLERANCE);
 		TurboList<Vector2D> points = new TurboList<Vector2D>(n);
 		for (int i = 0; i < n; i++)
 			points.add(new Vector2D(xbase + xCoordinates[i], ybase + yCoordinates[i]));
@@ -154,106 +154,6 @@ public class ConvexHull
 		return new ConvexHull(0, 0, xx, yy);
 	}
 
-	/**
-	 * Create a new convex hull from the given coordinates.
-	 * <p>
-	 * Uses the gift wrap algorithm to find the convex hull.
-	 * <p>
-	 * Taken from ij.gui.PolygonRoi and adapted for float coordinates.
-	 *
-	 * @param xbase
-	 *            the x base coordinate (origin)
-	 * @param ybase
-	 *            the y base coordinate (origin)
-	 * @param xCoordinates
-	 *            the x coordinates
-	 * @param yCoordinates
-	 *            the y coordinates
-	 * @param n
-	 *            the number of coordinates
-	 * @return the convex hull
-	 * @throws NullPointerException
-	 *             if the inputs are null
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the yCoordinates are smaller than the xCoordinates
-	 */
-	@SuppressWarnings("unused")
-	private static ConvexHull createGiftWrap(float xbase, float ybase, float[] xCoordinates, float[] yCoordinates,
-			int n)
-	{
-		float[] xx = new float[n];
-		float[] yy = new float[n];
-		int n2 = 0;
-		float smallestY = yCoordinates[0];
-		for (int i = 1; i < n; i++)
-		{
-			if (smallestY > yCoordinates[i])
-				smallestY = yCoordinates[i];
-		}
-		float x, y;
-		float smallestX = Float.MAX_VALUE;
-		int p1 = 0;
-		for (int i = 0; i < n; i++)
-		{
-			x = xCoordinates[i];
-			y = yCoordinates[i];
-			if (y == smallestY && x < smallestX)
-			{
-				smallestX = x;
-				p1 = i;
-			}
-		}
-		int pstart = p1;
-		float x1, y1, x2, y2, x3, y3;
-		int p2, p3;
-		float determinate;
-		int count = 0;
-		do
-		{
-			x1 = xCoordinates[p1];
-			y1 = yCoordinates[p1];
-			p2 = p1 + 1;
-			if (p2 == n)
-				p2 = 0;
-			x2 = xCoordinates[p2];
-			y2 = yCoordinates[p2];
-			p3 = p2 + 1;
-			if (p3 == n)
-				p3 = 0;
-			do
-			{
-				x3 = xCoordinates[p3];
-				y3 = yCoordinates[p3];
-				determinate = x1 * (y2 - y3) - y1 * (x2 - x3) + (y3 * x2 - y2 * x3);
-				if (determinate > 0)
-				{
-					x2 = x3;
-					y2 = y3;
-					p2 = p3;
-				}
-				p3 += 1;
-				if (p3 == n)
-					p3 = 0;
-			} while (p3 != p1);
-			if (n2 < n)
-			{
-				xx[n2] = x1;
-				yy[n2] = y1;
-				n2++;
-			}
-			else
-			{
-				count++;
-				if (count > 10)
-					return null;
-			}
-			p1 = p2;
-		} while (p1 != pstart);
-		xx = Arrays.copyOf(xx, n2);
-		yy = Arrays.copyOf(yy, n2);
-		return new ConvexHull(xbase, ybase, xx, yy);
-	}
-
 	// Below is functionality taken from ij.process.FloatPolygon
 	private Rectangle bounds;
 	private float minX, minY, maxX, maxY;
@@ -281,10 +181,10 @@ public class ConvexHull
 	public Rectangle getBounds()
 	{
 		int npoints = size();
-		float[] xpoints = this.x;
-		float[] ypoints = this.y;
 		if (npoints == 0)
 			return new Rectangle();
+		float[] xpoints = this.x;
+		float[] ypoints = this.y;
 		if (bounds == null)
 			calculateBounds(xpoints, ypoints, npoints);
 		return bounds.getBounds();
@@ -322,25 +222,53 @@ public class ConvexHull
 		bounds = new Rectangle(iMinX, iMinY, (int) (maxX - iMinX + 0.5), (int) (maxY - iMinY + 0.5));
 	}
 
-	public double getLength(boolean isLine)
+	/**
+	 * Gets the length.
+	 *
+	 * @return the length
+	 */
+	public double getLength()
 	{
 		int npoints = size();
-		float[] xpoints = this.x;
-		float[] ypoints = this.y;
-		double dx, dy;
-		double length = 0.0;
-		for (int i = 0; i < (npoints - 1); i++)
+		if (npoints < 2)
+			return 0;
+		// Start with the closing line
+		double length = distance(x[0], y[0], x[npoints - 1], y[npoints - 1]);
+		for (int i = 1; i < npoints; i++)
 		{
-			dx = xpoints[i + 1] - xpoints[i];
-			dy = ypoints[i + 1] - ypoints[i];
-			length += Math.sqrt(dx * dx + dy * dy);
-		}
-		if (!isLine)
-		{
-			dx = xpoints[0] - xpoints[npoints - 1];
-			dy = ypoints[0] - ypoints[npoints - 1];
-			length += Math.sqrt(dx * dx + dy * dy);
+			length += distance(x[i], y[i], x[i - 1], y[i - 1]);
 		}
 		return length;
+	}
+
+	/**
+	 * Compute the euclidian distance between two 2D points.
+	 *
+	 * @param x1
+	 *            the x 1
+	 * @param y1
+	 *            the y 1
+	 * @param x2
+	 *            the x 2
+	 * @param y2
+	 *            the y 2
+	 * @return the distance
+	 */
+	private static double distance(double x1, double y1, double x2, double y2)
+	{
+		// Note: This casts up to double for increased precision
+		final double dx = x1 - x2;
+		final double dy = y1 - y2;
+		return Math.sqrt(dx * dx + dy * dy);
+	}
+
+	/**
+	 * Gets the area.
+	 *
+	 * @return the area
+	 */
+	public double getArea()
+	{
+		return Geometry.getArea(x, y);
 	}
 }
