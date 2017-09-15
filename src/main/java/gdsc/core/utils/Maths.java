@@ -768,7 +768,7 @@ public class Maths
 			return bd;
 		return bd.setScale(decimalPlaces, RoundingMode.HALF_UP);
 	}
-	
+
 	/**
 	 * Round the double to 4 significant digits
 	 * 
@@ -929,6 +929,56 @@ public class Maths
 		final double dx = x1 - x2;
 		final double dy = y1 - y2;
 		return (dx * dx + dy * dy);
+	}
+
+	/**
+	 * Compute the euclidian distance between two 3D points.
+	 *
+	 * @param x1
+	 *            the x 1
+	 * @param y1
+	 *            the y 1
+	 * @param z1
+	 *            the z 1
+	 * @param x2
+	 *            the x 2
+	 * @param y2
+	 *            the y 2
+	 * @param z2
+	 *            the z 2
+	 * @return the distance
+	 */
+	public static double distance(double x1, double y1, double z1, double x2, double y2, double z2)
+	{
+		final double dx = x1 - x2;
+		final double dy = y1 - y2;
+		final double dz = z1 - z2;
+		return Math.sqrt(dx * dx + dy * dy + dz * dz);
+	}
+
+	/**
+	 * Compute the squared euclidian distance between two 3D points.
+	 *
+	 * @param x1
+	 *            the x 1
+	 * @param y1
+	 *            the y 1
+	 * @param z1
+	 *            the z 1
+	 * @param x2
+	 *            the x 2
+	 * @param y2
+	 *            the y 2
+	 * @param z2
+	 *            the z 2
+	 * @return the squared distance
+	 */
+	public static double distance2(double x1, double y1, double z1, double x2, double y2, double z2)
+	{
+		final double dx = x1 - x2;
+		final double dy = y1 - y2;
+		final double dz = z1 - z2;
+		return (dx * dx + dy * dy + dz * dz);
 	}
 
 	/**
