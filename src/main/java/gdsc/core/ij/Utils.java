@@ -67,6 +67,7 @@ import ij.plugin.ZProjector;
 import ij.plugin.frame.Recorder;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import ij.text.TextPanel;
 import ij.text.TextWindow;
 
 /**
@@ -2022,5 +2023,26 @@ public class Utils
 			if (IJ.isLinux())
 				gd.setBackground(new Color(238, 238, 238));
 		}
+	}
+
+	/**
+	 * Gets the column from the text panel.
+	 *
+	 * @param tp
+	 *            the tp
+	 * @param heading
+	 *            the heading
+	 * @return the column
+	 */
+	public static int getColumn(TextPanel tp, String heading)
+	{
+		if (tp != null)
+		{
+			String[] headings = tp.getColumnHeadings().split("\t");
+			for (int i = 0; i < headings.length; i++)
+				if (headings[i].equals(heading))
+					return i;
+		}
+		return -1;
 	}
 }
