@@ -1125,5 +1125,19 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
 
         return anyToRemove;
     }
+
+	/**
+	 * Reverse the list contents.
+	 */
+	public void reverse()
+	{
+        for (int left=0, mid=size>>1, right=size-1; left<mid; left++, right--)
+        {
+			// swap the values at the left and right indices
+			Object temp = elementData[left];
+			elementData[left] = elementData[right];
+			elementData[right] = temp;
+        }
+	}
 }
 //@formatter:on
