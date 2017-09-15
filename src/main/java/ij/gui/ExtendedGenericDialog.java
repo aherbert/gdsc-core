@@ -1351,4 +1351,32 @@ public class ExtendedGenericDialog extends GenericDialog
 		scroll.setSize(d);
 		pack();
 	}
+
+	/**
+	 * Checks for fields.
+	 *
+	 * @return true, if successful
+	 */
+	public boolean hasFields()
+	{
+		if (getNumericFields() != null)
+			return true;
+		if (getStringFields() != null)
+			return true;
+		if (getCheckboxes() != null)
+			return true;
+		if (getChoices() != null)
+			return true;
+		if (getSliders() != null)
+			return true;
+		if (getRadioButtonGroups() != null)
+			return true;
+		if (getTextArea1() != null)
+			return true;
+		if (getTextArea2() != null)
+			return true;
+		if (getMessage() != null)
+			return true;
+		return false;
+	}
 }
