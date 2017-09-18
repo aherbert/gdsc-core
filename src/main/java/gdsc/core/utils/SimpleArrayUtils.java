@@ -295,4 +295,52 @@ public class SimpleArrayUtils
 		// Check if any values were above zero, else return zero
 		return (min == Float.POSITIVE_INFINITY) ? 0 : min;
 	}
+
+	/**
+	 * Create a new double array with the given value.
+	 *
+	 * @param length
+	 *            the length
+	 * @param value
+	 *            the value
+	 * @return the double array
+	 */
+	public static double[] newDoubleArray(int length, double value)
+	{
+		double[] data = new double[length];
+		Arrays.fill(data, value);
+		return data;
+	}
+
+	/**
+	 * Create a new float array with the given value.
+	 *
+	 * @param length
+	 *            the length
+	 * @param value
+	 *            the value
+	 * @return the float array
+	 */
+	public static float[] newFloatArray(int length, float value)
+	{
+		float[] data = new float[length];
+		Arrays.fill(data, value);
+		return data;
+	}
+
+	/**
+	 * Create a new int array with the given value.
+	 *
+	 * @param length
+	 *            the length
+	 * @param value
+	 *            the value
+	 * @return the int array
+	 */
+	public static int[] newIntArray(int length, int value)
+	{
+		int[] data = new int[length];
+		Arrays.fill(data, value);
+		return data;
+	}
 }
