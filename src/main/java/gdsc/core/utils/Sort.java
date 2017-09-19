@@ -345,6 +345,108 @@ public class Sort
 	 * @param ascending
 	 * @return The two arrays, sorted using array 2
 	 */
+	public static void sortArrays(int[] values1, final double[] values2, boolean ascending)
+	{
+		// Extract indices
+		int[] indices = new int[values1.length];
+		for (int i = values1.length; i-- > 0;)
+		{
+			indices[i] = i;
+		}
+
+		// Sort descending
+		sort(indices, values2, false);
+
+		if (ascending)
+			reverse(indices);
+
+		// Copy back
+		int[] v1 = Arrays.copyOf(values1, values1.length);
+		double[] v2 = Arrays.copyOf(values2, values2.length);
+
+		for (int i = values1.length; i-- > 0;)
+		{
+			values1[i] = v1[indices[i]];
+			values2[i] = v2[indices[i]];
+		}
+	}
+
+	/**
+	 * Sorts array 1 using the values in array 2.
+	 * 
+	 * @param values1
+	 * @param values2
+	 * @param ascending
+	 * @return The two arrays, sorted using array 2
+	 */
+	public static void sortArrays(int[] values1, final float[] values2, boolean ascending)
+	{
+		// Extract indices
+		int[] indices = new int[values1.length];
+		for (int i = values1.length; i-- > 0;)
+		{
+			indices[i] = i;
+		}
+
+		// Sort descending
+		sort(indices, values2, false);
+
+		if (ascending)
+			reverse(indices);
+
+		// Copy back
+		int[] v1 = Arrays.copyOf(values1, values1.length);
+		float[] v2 = Arrays.copyOf(values2, values2.length);
+
+		for (int i = values1.length; i-- > 0;)
+		{
+			values1[i] = v1[indices[i]];
+			values2[i] = v2[indices[i]];
+		}
+	}
+
+	/**
+	 * Sorts array 1 using the values in array 2.
+	 * 
+	 * @param values1
+	 * @param values2
+	 * @param ascending
+	 * @return The two arrays, sorted using array 2
+	 */
+	public static void sortArrays(int[] values1, final int[] values2, boolean ascending)
+	{
+		// Extract indices
+		int[] indices = new int[values1.length];
+		for (int i = values1.length; i-- > 0;)
+		{
+			indices[i] = i;
+		}
+
+		// Sort descending
+		sort(indices, values2, false);
+
+		if (ascending)
+			reverse(indices);
+
+		// Copy back
+		int[] v1 = Arrays.copyOf(values1, values1.length);
+		int[] v2 = Arrays.copyOf(values2, values2.length);
+
+		for (int i = values1.length; i-- > 0;)
+		{
+			values1[i] = v1[indices[i]];
+			values2[i] = v2[indices[i]];
+		}
+	}
+
+	/**
+	 * Sorts array 1 using the values in array 2.
+	 * 
+	 * @param values1
+	 * @param values2
+	 * @param ascending
+	 * @return The two arrays, sorted using array 2
+	 */
 	public static void sortArrays(float[] values1, final float[] values2, boolean ascending)
 	{
 		// Extract indices
@@ -354,7 +456,11 @@ public class Sort
 			indices[i] = i;
 		}
 
-		sort(indices, values2, ascending);
+		// Sort descending
+		sort(indices, values2, false);
+
+		if (ascending)
+			reverse(indices);
 
 		// Copy back
 		float[] v1 = Arrays.copyOf(values1, values1.length);
@@ -368,15 +474,14 @@ public class Sort
 	}
 
 	/**
-	 * Sorts array 1 using the values in array 2. Does not evaluate equivalence
-	 * (returns only 1 or -1 to the sort routine)
+	 * Sorts array 1 using the values in array 2.
 	 * 
 	 * @param values1
 	 * @param values2
 	 * @param ascending
 	 * @return The two arrays, sorted using array 2
 	 */
-	public static void sortArraysIgnoreEqual(float[] values1, final float[] values2, boolean ascending)
+	public static void sortArrays(double[] values1, final double[] values2, boolean ascending)
 	{
 		// Extract indices
 		int[] indices = new int[values1.length];
@@ -385,11 +490,15 @@ public class Sort
 			indices[i] = i;
 		}
 
-		sortIgnoreEqual(indices, values2, ascending);
+		// Sort descending
+		sort(indices, values2, false);
+
+		if (ascending)
+			reverse(indices);
 
 		// Copy back
-		float[] v1 = Arrays.copyOf(values1, values1.length);
-		float[] v2 = Arrays.copyOf(values2, values2.length);
+		double[] v1 = Arrays.copyOf(values1, values1.length);
+		double[] v2 = Arrays.copyOf(values2, values2.length);
 
 		for (int i = values1.length; i-- > 0;)
 		{
@@ -397,6 +506,4 @@ public class Sort
 			values2[i] = v2[indices[i]];
 		}
 	}
-	
-
 }
