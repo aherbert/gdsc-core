@@ -1,5 +1,7 @@
 package gdsc.core.clustering.optics;
 
+import java.awt.geom.Rectangle2D;
+
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.MathArrays;
 
@@ -58,6 +60,11 @@ public class DBSCANResult implements ClusteringResult
 	 * Convex hulls assigned by computeConvexHulls()
 	 */
 	private ConvexHull[] hulls = null;
+
+	/**
+	 * Bounds assigned by computeConvexHulls()
+	 */
+	private Rectangle2D[] bounds = null;
 
 	/**
 	 * Instantiates a new DBSCAN result.
@@ -124,6 +131,7 @@ public class DBSCANResult implements ClusteringResult
 	{
 		clusters = null;
 		hulls = null;
+		bounds = null;
 
 		int max = 0;
 		for (int i = size(); i-- > 0;)
@@ -155,6 +163,7 @@ public class DBSCANResult implements ClusteringResult
 	{
 		clusters = getClusters(core);
 		hulls = null;
+		bounds = null;
 	}
 
 	/**
@@ -227,6 +236,7 @@ public class DBSCANResult implements ClusteringResult
 		// Get the number of clusters
 		int nClusters = Maths.max(clusters);
 		hulls = new ConvexHull[nClusters];
+		bounds = new Rectangle2D[nClusters];
 
 		// Descend the hierarchy and compute the hulls, smallest first
 		ScratchSpace scratch = new ScratchSpace(100);
@@ -246,8 +256,10 @@ public class DBSCANResult implements ClusteringResult
 			}
 		}
 
+		bounds[clusterId - 1] = scratch.getBounds();
+
 		// Compute the hull
-		ConvexHull h = ConvexHull.create(scratch.x, scratch.y, scratch.n);
+		ConvexHull h = scratch.getConvexHull();
 		if (h != null)
 			hulls[clusterId - 1] = h;
 		else
@@ -258,13 +270,10 @@ public class DBSCANResult implements ClusteringResult
 		}
 	}
 
-	/**
-	 * Gets the convex hull for the cluster. The hull includes any points within child clusters. Hulls are computed by
-	 * {@link #computeConvexHulls()}.
-	 *
-	 * @param clusterId
-	 *            the cluster id
-	 * @return the convex hull (or null if not available)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.clustering.optics.ClusteringResult#getConvexHull(int)
 	 */
 	public ConvexHull getConvexHull(int clusterId)
 	{
@@ -272,4 +281,16 @@ public class DBSCANResult implements ClusteringResult
 			return null;
 		return hulls[clusterId - 1];
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.clustering.optics.ClusteringResult#getBounds(int)
+	 */
+	public Rectangle2D getBounds(int clusterId)
+	{
+		if (bounds == null || clusterId <= 0 || clusterId > bounds.length)
+			return null;
+		return bounds[clusterId - 1];
+	};
 }

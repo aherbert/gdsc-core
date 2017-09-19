@@ -1,6 +1,9 @@
 package gdsc.core.clustering.optics;
 
+import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
+
+import gdsc.core.utils.ConvexHull;
 
 /*----------------------------------------------------------------------------- 
  * GDSC ImageJ Software
@@ -69,5 +72,32 @@ class ScratchSpace
 		x[n] = xx;
 		y[n] = yy;
 		n++;
+	}
+
+	Rectangle2D getBounds()
+	{
+		if (n == 0)
+			return null;
+		float minX = x[0];
+		float minY = y[0];
+		float maxX = minX;
+		float maxY = minY;
+		for (int i = 1; i < n; i++)
+		{
+			if (maxX < x[i])
+				maxX = x[i];
+			else if (minX > x[i])
+				minX = x[i];
+			if (maxY < y[i])
+				maxY = y[i];
+			else if (minY > y[i])
+				minY = y[i];
+		}
+		return new Rectangle2D.Float(minX, minY, maxX - minX, maxY - minY);
+	}
+
+	ConvexHull getConvexHull()
+	{
+		return ConvexHull.create(x, y, n);
 	}
 }

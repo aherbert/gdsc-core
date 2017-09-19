@@ -183,10 +183,8 @@ public class ConvexHull
 		int npoints = size();
 		if (npoints == 0)
 			return new Rectangle();
-		float[] xpoints = this.x;
-		float[] ypoints = this.y;
 		if (bounds == null)
-			calculateBounds(xpoints, ypoints, npoints);
+			calculateBounds(x, y, npoints);
 		return bounds.getBounds();
 	}
 
@@ -204,18 +202,22 @@ public class ConvexHull
 
 	void calculateBounds(float[] xpoints, float[] ypoints, int npoints)
 	{
-		minX = Float.MAX_VALUE;
-		minY = Float.MAX_VALUE;
-		maxX = Float.MIN_VALUE;
-		maxY = Float.MIN_VALUE;
-		for (int i = 0; i < npoints; i++)
+		minX = xpoints[0];
+		minY = ypoints[0];
+		maxX = minX;
+		maxY = minY;
+		for (int i = 1; i < npoints; i++)
 		{
 			float x = xpoints[i];
-			minX = Math.min(minX, x);
-			maxX = Math.max(maxX, x);
+			if (maxX < x)
+				maxX = x;
+			else if (minX > x)
+				minX = x;
 			float y = ypoints[i];
-			minY = Math.min(minY, y);
-			maxY = Math.max(maxY, y);
+			if (maxY < y)
+				maxY = y;
+			else if (minY > y)
+				minY = y;
 		}
 		int iMinX = (int) Math.floor(minX);
 		int iMinY = (int) Math.floor(minY);

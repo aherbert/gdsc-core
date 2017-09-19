@@ -1,5 +1,7 @@
 package gdsc.core.clustering.optics;
 
+import java.awt.geom.Rectangle2D;
+
 /*----------------------------------------------------------------------------- 
  * GDSC ImageJ Software
  * 
@@ -63,6 +65,11 @@ public class OPTICSResult implements ClusteringResult
 	 */
 	private ConvexHull[] hulls = null;
 
+	/**
+	 * Bounds assigned by computeConvexHulls()
+	 */
+	private Rectangle2D[] bounds = null;
+	
 	/**
 	 * Instantiates a new Optics result.
 	 *
@@ -224,6 +231,7 @@ public class OPTICSResult implements ClusteringResult
 
 		setClustering(null);
 		hulls = null;
+		bounds = null;
 	}
 
 	private void setClustering(ArrayList<OPTICSCluster> clustering)
@@ -240,6 +248,7 @@ public class OPTICSResult implements ClusteringResult
 	public void scrambleClusters(RandomGenerator rng)
 	{
 		hulls = null;
+		bounds = null;
 
 		int max = getNumberOfClusters();
 		if (max == 0)
@@ -348,6 +357,7 @@ public class OPTICSResult implements ClusteringResult
 		// Get the number of clusters
 		int nClusters = getNumberOfClusters();
 		hulls = new ConvexHull[nClusters];
+		bounds = new Rectangle2D[nClusters];
 
 		// Descend the hierarchy and compute the hulls, smallest first
 		ScratchSpace scratch = new ScratchSpace(100);
@@ -424,8 +434,11 @@ public class OPTICSResult implements ClusteringResult
 				}
 			}
 
+			// Compute the bounds
+			bounds[c.clusterId - 1] = scratch.getBounds();
+			
 			// Compute the hull
-			ConvexHull h = ConvexHull.create(scratch.x, scratch.y, scratch.n);
+			ConvexHull h = scratch.getConvexHull();
 			if (h != null)
 				hulls[c.clusterId - 1] = h;
 			else
@@ -498,6 +511,18 @@ public class OPTICSResult implements ClusteringResult
 		return hulls[clusterId - 1];
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.clustering.optics.ClusteringResult#getBounds(int)
+	 */
+	public Rectangle2D getBounds(int clusterId)
+	{
+		if (bounds == null || clusterId <= 0 || clusterId > bounds.length)
+			return null;
+		return bounds[clusterId - 1];
+	};
+	
 	/*
 	 * (non-Javadoc)
 	 * 

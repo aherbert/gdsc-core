@@ -1,5 +1,7 @@
 package gdsc.core.clustering.optics;
 
+import java.awt.geom.Rectangle2D;
+
 import org.apache.commons.math3.random.RandomGenerator;
 
 /*----------------------------------------------------------------------------- 
@@ -30,7 +32,7 @@ public interface ClusteringResult
 	public boolean hasConvexHulls();
 
 	/**
-	 * Compute convex hulls for each cluster.
+	 * Compute convex hulls and bounds for each cluster.
 	 */
 	public void computeConvexHulls();
 
@@ -43,6 +45,16 @@ public interface ClusteringResult
 	 * @return the convex hull (or null if not available)
 	 */
 	public ConvexHull getConvexHull(int clusterId);
+
+	/**
+	 * Gets the bounds for the cluster. The bounds includes any points within child clusters. Bounds are computed by
+	 * {@link #computeConvexHulls()}.
+	 *
+	 * @param clusterId
+	 *            the cluster id
+	 * @return the convex hull (or null if not available)
+	 */
+	public Rectangle2D getBounds(int clusterId);
 
 	/**
 	 * Gets the cluster Id for each parent object.
