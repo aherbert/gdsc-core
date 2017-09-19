@@ -36,18 +36,18 @@ public class DetectionGridTest
 		int i1, i2;
 		for (int i = 0; i < data.length; i++)
 		{
-			i1 = BinaryTreeDetectionGrid.findIndexUpToAndIncluding(data, data[i]);
+			i1 = BinarySearchDetectionGrid.findIndexUpToAndIncluding(data, data[i]);
 			Assert.assertEquals(i, i1);
-			i1 = BinaryTreeDetectionGrid.findIndexUpToAndIncluding(data, data[i] + 0.1);
+			i1 = BinarySearchDetectionGrid.findIndexUpToAndIncluding(data, data[i] + 0.1);
 			Assert.assertEquals(i, i1);
-			i1 = BinaryTreeDetectionGrid.findIndexUpToAndIncluding(data, data[i] - 0.1);
+			i1 = BinarySearchDetectionGrid.findIndexUpToAndIncluding(data, data[i] - 0.1);
 			Assert.assertEquals(i - 1, i1);
 
-			i2 = BinaryTreeDetectionGrid.findIndexIncludingAndAfter(data, data[i]);
+			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i]);
 			Assert.assertEquals(i, i2);
-			i2 = BinaryTreeDetectionGrid.findIndexIncludingAndAfter(data, data[i] - 0.1);
+			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i] - 0.1);
 			Assert.assertEquals(i, i2);
-			i2 = BinaryTreeDetectionGrid.findIndexIncludingAndAfter(data, data[i] + 0.1);
+			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i] + 0.1);
 			Assert.assertEquals(i + 1, i2);
 		}
 
@@ -57,18 +57,18 @@ public class DetectionGridTest
 
 		for (int i = 0; i < data.length; i++)
 		{
-			i1 = BinaryTreeDetectionGrid.findIndexUpToAndIncluding(data, data[i]);
+			i1 = BinarySearchDetectionGrid.findIndexUpToAndIncluding(data, data[i]);
 			Assert.assertEquals(i + (i + 1) % 2, i1);
-			i1 = BinaryTreeDetectionGrid.findIndexUpToAndIncluding(data, data[i] + 0.1);
+			i1 = BinarySearchDetectionGrid.findIndexUpToAndIncluding(data, data[i] + 0.1);
 			Assert.assertEquals(i + (i + 1) % 2, i1);
-			i1 = BinaryTreeDetectionGrid.findIndexUpToAndIncluding(data, data[i] - 0.1);
+			i1 = BinarySearchDetectionGrid.findIndexUpToAndIncluding(data, data[i] - 0.1);
 			Assert.assertEquals(i - i % 2 - 1, i1);
 
-			i2 = BinaryTreeDetectionGrid.findIndexIncludingAndAfter(data, data[i]);
+			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i]);
 			Assert.assertEquals(i - i % 2, i2);
-			i2 = BinaryTreeDetectionGrid.findIndexIncludingAndAfter(data, data[i] - 0.1);
+			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i] - 0.1);
 			Assert.assertEquals(i - i % 2, i2);
-			i2 = BinaryTreeDetectionGrid.findIndexIncludingAndAfter(data, data[i] + 0.1);
+			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i] + 0.1);
 			Assert.assertEquals(i - i % 2 + 2, i2);
 		}
 	}
@@ -80,7 +80,7 @@ public class DetectionGridTest
 		r[0] = new Rectangle(0, 0, 10, 10);
 		r[1] = new Rectangle(0, 5, 10, 5);
 		r[2] = new Rectangle(5, 5, 5, 5);
-		BinaryTreeDetectionGrid g = new BinaryTreeDetectionGrid(r);
+		BinarySearchDetectionGrid g = new BinarySearchDetectionGrid(r);
 		Assert.assertArrayEquals(new int[] { 0 }, g.find(0, 0));
 		Assert.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(5, 5));
 		Assert.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(10, 10));
@@ -95,7 +95,7 @@ public class DetectionGridTest
 		Rectangle2D[] r = generateRectangles(rdg, 1000, size);
 
 		SimpleDetectionGrid g1 = new SimpleDetectionGrid(r);
-		BinaryTreeDetectionGrid g2 = new BinaryTreeDetectionGrid(r);
+		BinarySearchDetectionGrid g2 = new BinarySearchDetectionGrid(r);
 
 		double[][] points = generatePoints(rdg, 500, size);
 
@@ -225,7 +225,7 @@ public class DetectionGridTest
 			Rectangle2D[] r = generateSmallRectangles(rdg, n, size, width);
 
 			SimpleDetectionGrid g1 = new SimpleDetectionGrid(r);
-			BinaryTreeDetectionGrid g2 = new BinaryTreeDetectionGrid(r);
+			BinarySearchDetectionGrid g2 = new BinarySearchDetectionGrid(r);
 
 			double[][] points = generatePoints(rdg, np, size);
 			ts.execute(new MyTimingtask(g1, points));

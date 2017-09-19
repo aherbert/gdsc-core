@@ -20,7 +20,7 @@ import java.util.Comparator;
 /**
  * Class to compute collision detections between a point and a set of rectangles
  */
-public class BinaryTreeDetectionGrid implements DetectionGrid
+public class BinarySearchDetectionGrid implements DetectionGrid
 {
 	private static final int[] EMPTY = new int[0];
 
@@ -28,7 +28,7 @@ public class BinaryTreeDetectionGrid implements DetectionGrid
 	private final int[] minxIds, maxxIds, minyIds, maxyIds;
 	private final double[] minx, maxx, miny, maxy;
 
-	public BinaryTreeDetectionGrid(Rectangle2D[] rectangles)
+	public BinarySearchDetectionGrid(Rectangle2D[] rectangles)
 	{
 		if (rectangles == null)
 			throw new IllegalArgumentException("Rectangle2Ds must not be null");
