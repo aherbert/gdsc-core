@@ -25,7 +25,6 @@ import gdsc.core.utils.ConvexHull;
 import gdsc.core.utils.TurboList;
 import gdsc.core.utils.TurboList.SimplePredicate;
 import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * Contains the result of the OPTICS algorithm
@@ -579,10 +578,15 @@ public class OPTICSResult implements ClusteringResult
 	 *            the start
 	 * @param end
 	 *            the end
+	 * @param includeChildren
+	 *            Set to true to include nested clusters (or else only find the top level cluster Ids)
 	 * @return the clusters
 	 */
-	public int[] getClustersFromOrder(int start, int end)
+	public int[] getClustersFromOrder(int start, int end, boolean includeChildren)
 	{
+		if (clustering == null)
+			return EMPTY;
+
 		// Check the range covers some of the profile
 		if (end < start)
 			end = start;
@@ -593,33 +597,53 @@ public class OPTICSResult implements ClusteringResult
 		start = Math.max(0, start - 1);
 		end = Math.min(size() - 1, end - 1);
 
-		if (start == end)
-		{
-			int id = opticsResults[start].clusterId;
-			if (id != 0)
-				return new int[] { id };
-			return EMPTY;
-		}
+		TIntArrayList clusters = new TIntArrayList();
 
-		// Use a hash set since the clusters are nested and we may see the 
-		// same ID after switching to a child cluster
-		TIntHashSet clusters = new TIntHashSet();
-		int last = 0;
-		for (int i = start; i <= end; i++)
+		boolean single = start == end;
+
+		// Use the hierarchy
+		for (OPTICSCluster cluster : clustering)
 		{
-			int id = opticsResults[i].clusterId;
-			// Non-zero values are clusters
-			if (id != 0)
+			if (overlap(cluster.start, cluster.end, start, end))
 			{
-				// We expect contiguous clusters IDs so just look for a change
-				if (last != id)
+				clusters.add(cluster.clusterId);
+				if (includeChildren)
 				{
-					last = id;
-					clusters.add(id);
+					addClusters(cluster.children, clusters);
 				}
+				if (single)
+					break;
 			}
 		}
+
 		return clusters.toArray();
+	}
+
+	private boolean overlap(int start, int end, int start2, int end2)
+	{
+		if (start <= start2)
+			return end >= start2;
+		return start <= end2;
+	}
+
+	/**
+	 * Descend the hierachy and add the clusters to the list.
+	 *
+	 * @param hierarchy
+	 *            the hierarchy
+	 * @param clusters
+	 *            the clusters
+	 */
+	private void addClusters(List<OPTICSCluster> hierarchy, TIntArrayList clusters)
+	{
+		if (hierarchy == null)
+			return;
+
+		for (OPTICSCluster c : hierarchy)
+		{
+			addClusters(c.children, clusters);
+			clusters.add(c.clusterId);
+		}
 	}
 
 	/**
