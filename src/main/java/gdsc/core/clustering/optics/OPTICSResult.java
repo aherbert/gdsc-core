@@ -25,6 +25,7 @@ import gdsc.core.utils.ConvexHull;
 import gdsc.core.utils.TurboList;
 import gdsc.core.utils.TurboList.SimplePredicate;
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * Contains the result of the OPTICS algorithm
@@ -69,7 +70,7 @@ public class OPTICSResult implements ClusteringResult
 	 * Bounds assigned by computeConvexHulls()
 	 */
 	private Rectangle2D[] bounds = null;
-	
+
 	/**
 	 * Instantiates a new Optics result.
 	 *
@@ -436,7 +437,7 @@ public class OPTICSResult implements ClusteringResult
 
 			// Compute the bounds
 			bounds[c.clusterId - 1] = scratch.getBounds();
-			
+
 			// Compute the hull
 			ConvexHull h = scratch.getConvexHull();
 			if (h != null)
@@ -522,7 +523,7 @@ public class OPTICSResult implements ClusteringResult
 			return null;
 		return bounds[clusterId - 1];
 	};
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -562,6 +563,63 @@ public class OPTICSResult implements ClusteringResult
 			}
 		}
 		return clusters;
+	}
+
+	private static final int[] EMPTY = new int[0];
+
+	/**
+	 * Gets the clusters using the range of order values. Order values are 1-based. Calling this method with start=10
+	 * and end=15 will return all the cluster Ids from the reachability profile between [9] and [14] inclusive. If no
+	 * clusters exist then it will return an empty array.
+	 * <p>
+	 * If the range covers at least some of the order value then the input indices are clipped to the appropriate range
+	 * of the reachability profile. If none of the reachability profile is covered then it will return an empty array.
+	 *
+	 * @param start
+	 *            the start
+	 * @param end
+	 *            the end
+	 * @return the clusters
+	 */
+	public int[] getClustersFromOrder(int start, int end)
+	{
+		// Check the range covers some of the profile
+		if (end < start)
+			end = start;
+		if (start > size() || end < 1)
+			return EMPTY;
+
+		// Clip to the range 
+		start = Math.max(0, start - 1);
+		end = Math.min(size() - 1, end - 1);
+
+		if (start == end)
+		{
+			int id = opticsResults[start].clusterId;
+			if (id != 0)
+				return new int[] { id };
+			return EMPTY;
+		}
+
+		// Use a hash set since the clusters are nested and we may see the 
+		// same ID after switching to a child cluster
+		TIntHashSet clusters = new TIntHashSet();
+		int last = 0;
+		for (int i = start; i <= end; i++)
+		{
+			int id = opticsResults[i].clusterId;
+			// Non-zero values are clusters
+			if (id != 0)
+			{
+				// We expect contiguous clusters IDs so just look for a change
+				if (last != id)
+				{
+					last = id;
+					clusters.add(id);
+				}
+			}
+		}
+		return clusters.toArray();
 	}
 
 	/**
