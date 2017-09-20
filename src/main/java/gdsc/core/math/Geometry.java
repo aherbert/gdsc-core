@@ -62,7 +62,9 @@ public class Geometry
 
 	/**
 	 * Gets the area of a polygon using the Shoelace formula (https://en.wikipedia.org/wiki/Shoelace_formula)
-	 *
+	 * <p>
+	 * Note: The float values are cast up to double precision for the computation.
+	 * 
 	 * @param x
 	 *            the x
 	 * @param y
@@ -79,12 +81,12 @@ public class Geometry
 			throw new IllegalArgumentException("Input arrays must be the same length");
 		// Start with the closing values
 		int i = x.length - 1;
-		double sum1 = x[i] * y[0];
-		double sum2 = x[0] * y[i];
+		double sum1 = (double) x[i] * (double) y[0];
+		double sum2 = (double) x[0] * (double) y[i];
 		while (i-- > 0)
 		{
-			sum1 += x[i] * y[i + 1];
-			sum2 += x[i + 1] * y[i];
+			sum1 += (double) x[i] * (double) y[i + 1];
+			sum2 += (double) x[i + 1] * (double) y[i];
 		}
 		return (sum1 - sum2) / 2;
 	}
