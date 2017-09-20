@@ -264,9 +264,9 @@ public class DBSCANResult implements ClusteringResult
 			hulls[clusterId - 1] = h;
 		else
 		{
-			System.out.printf("No hull: n=%d\n", scratch.n);
-			for (int i = 0; i < scratch.n; i++)
-				System.out.printf("%d: %f,%f\n", i, scratch.x[i], scratch.y[i]);
+			//System.out.printf("No hull: n=%d\n", scratch.n);
+			//for (int i = 0; i < scratch.n; i++)
+			//	System.out.printf("%d: %f,%f\n", i, scratch.x[i], scratch.y[i]);
 		}
 	}
 
