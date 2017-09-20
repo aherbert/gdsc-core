@@ -211,7 +211,7 @@ public class OPTICSResult implements ClusteringResult
 	/**
 	 * Gets the OPTICS predecessor of the original input points.
 	 *
-	 * @return the order
+	 * @return the predecessor
 	 */
 	public int[] getPredecessor()
 	{
