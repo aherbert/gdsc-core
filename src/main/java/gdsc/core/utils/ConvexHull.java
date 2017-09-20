@@ -165,11 +165,10 @@ public class ConvexHull
 	 */
 	public boolean contains(float x, float y)
 	{
-		int npoints = size();
 		float[] xpoints = this.x;
 		float[] ypoints = this.y;
 		boolean inside = false;
-		for (int i = 0, j = npoints - 1; i < npoints; j = i++)
+		for (int i = xpoints.length, j = 0; i-- > 0; j = i)
 		{
 			if (((ypoints[i] > y) != (ypoints[j] > y)) &&
 					(x < (xpoints[j] - xpoints[i]) * (y - ypoints[i]) / (ypoints[j] - ypoints[i]) + xpoints[i]))
@@ -231,14 +230,12 @@ public class ConvexHull
 	 */
 	public double getLength()
 	{
-		int npoints = size();
-		if (npoints < 2)
+		if (size() < 2)
 			return 0;
-		// Start with the closing line
-		double length = distance(x[0], y[0], x[npoints - 1], y[npoints - 1]);
-		for (int i = 1; i < npoints; i++)
+		double length = 0;
+		for (int i = x.length, j = 0; i-- > 0; j = i)
 		{
-			length += distance(x[i], y[i], x[i - 1], y[i - 1]);
+			length += distance(x[i], y[i], x[j], y[j]);
 		}
 		return length;
 	}

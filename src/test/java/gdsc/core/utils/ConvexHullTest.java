@@ -194,14 +194,29 @@ public class ConvexHullTest
 		double r = 4;
 		x = new float[n];
 		y = new float[n];
-		for (int i=0; i<1000; i++)
+		for (int i = 0; i < 1000; i++)
 		{
 			double a = i * 2 * Math.PI / n;
-			x[i] = (float) (Math.sin(a) * r); 
-			y[i] = (float) (Math.cos(a) * r); 
+			x[i] = (float) (Math.sin(a) * r);
+			y[i] = (float) (Math.cos(a) * r);
 		}
 		hull = ConvexHull.create(x, y);
 		Assert.assertEquals(2 * Math.PI * r, hull.getLength(), 1e-2);
-		Assert.assertEquals(Math.PI * r*r, hull.getArea(), 1e-2);
+		Assert.assertEquals(Math.PI * r * r, hull.getArea(), 1e-2);
+	}
+
+	@Test
+	public void conComputeContains()
+	{
+		float[] x = new float[] { 0, 10, 11, 1 };
+		float[] y = new float[] { 0, 0, 10, 10 };
+		ConvexHull hull = ConvexHull.create(x, y);
+		// Contains does not match outer bounds on right or bottom
+		Assert.assertTrue(hull.contains(x[0], y[0]));
+		for (int i = 1; i < x.length; i++)
+			Assert.assertFalse(hull.contains(x[i], y[i]));
+		Assert.assertTrue(hull.contains(5, 5));
+		Assert.assertFalse(hull.contains(-5, 5));
+		Assert.assertFalse(hull.contains(5, -5));
 	}
 }

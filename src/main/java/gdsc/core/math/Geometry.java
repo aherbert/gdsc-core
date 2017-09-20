@@ -79,14 +79,11 @@ public class Geometry
 			return 0;
 		if (x.length != y.length)
 			throw new IllegalArgumentException("Input arrays must be the same length");
-		// Start with the closing values
-		int i = x.length - 1;
-		double sum1 = (double) x[i] * (double) y[0];
-		double sum2 = (double) x[0] * (double) y[i];
-		while (i-- > 0)
+		double sum1 = 0, sum2 = 0;
+		for (int i = x.length, j = 0; i-- > 0; j = i)
 		{
-			sum1 += (double) x[i] * (double) y[i + 1];
-			sum2 += (double) x[i + 1] * (double) y[i];
+			sum1 += (double) x[i] * (double) y[j];
+			sum2 += (double) x[j] * (double) y[i];
 		}
 		return (sum1 - sum2) / 2;
 	}
@@ -108,14 +105,11 @@ public class Geometry
 			return 0;
 		if (x.length != y.length)
 			throw new IllegalArgumentException("Input arrays must be the same length");
-		// Start with the closing values
-		int i = x.length - 1;
-		double sum1 = x[i] * y[0];
-		double sum2 = x[0] * y[i];
-		while (i-- > 0)
+		double sum1 = 0, sum2 = 0;
+		for (int i = x.length, j = 0; i-- > 0; j = i)
 		{
-			sum1 += x[i] * y[i + 1];
-			sum2 += x[i + 1] * y[i];
+			sum1 += x[i] * y[j];
+			sum2 += x[j] * y[i];
 		}
 		return (sum1 - sum2) / 2;
 	}
