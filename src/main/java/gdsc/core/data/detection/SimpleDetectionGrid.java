@@ -23,6 +23,7 @@ import gnu.trove.list.array.TIntArrayList;
 public class SimpleDetectionGrid implements DetectionGrid
 {
 	private Rectangle2D[] rectangles;
+	public boolean includeOuterEdge = false;
 
 	public SimpleDetectionGrid(Rectangle2D[] rectangles)
 	{
@@ -44,14 +45,26 @@ public class SimpleDetectionGrid implements DetectionGrid
 	public int[] find(double x, double y)
 	{
 		TIntArrayList list = new TIntArrayList();
-		for (int i = 0; i < rectangles.length; i++)
+		if (includeOuterEdge)
 		{
-			// Because we want to know if the point is less than or equal to
-			// the max XY. The default contains method of the rectangle
-			// does less than.
-			//if (rectangles[i].contains(x, y))
-			if (contains(rectangles[i], x, y))
-				list.add(i);
+			for (int i = 0; i < rectangles.length; i++)
+			{
+				// Because we want to know if the point is less than or equal to
+				// the max XY. The default contains method of the rectangle
+				// does less than.
+				if (contains(rectangles[i], x, y))
+					list.add(i);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < rectangles.length; i++)
+			{
+				// Note that a point on the right or lower boundary will not be 
+				// within the rectangle since it respects the definition of "insideness"
+				if (rectangles[i].contains(x, y))
+					list.add(i);
+			}
 		}
 		return list.toArray();
 	}

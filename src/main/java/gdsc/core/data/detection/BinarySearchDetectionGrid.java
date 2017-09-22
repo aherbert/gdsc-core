@@ -123,7 +123,7 @@ public class BinarySearchDetectionGrid implements DetectionGrid
 		byte[] data = new byte[size];
 		for (int i = findIndexUpToAndIncluding(minx, x) + 1; i-- > 0;)
 			data[minxIds[i]]++;
-		for (int i = findIndexIncludingAndAfter(maxx, x); i < size; i++)
+		for (int i = findIndexAfter(maxx, x); i < size; i++)
 			data[maxxIds[i]]++;
 
 		if (!contains(data, TWO))
@@ -133,7 +133,7 @@ public class BinarySearchDetectionGrid implements DetectionGrid
 			data[minyIds[i]]++;
 		//if (!contains(data, 0x03))
 		//	return EMPTY;
-		for (int i = findIndexIncludingAndAfter(maxy, y); i < size; i++)
+		for (int i = findIndexAfter(maxy, y); i < size; i++)
 			data[maxyIds[i]]++;
 
 		int count = count(data, FOUR);
@@ -227,6 +227,35 @@ public class BinarySearchDetectionGrid implements DetectionGrid
 			while (i > 0 && sum[i - 1] == p)
 				i--;
 			return i;
+		}
+	}
+
+	/**
+	 * Find the index such that all indices including and after that point have a sum above p.
+	 * 
+	 * @param sum
+	 * @param p
+	 * @return the index (or -1)
+	 */
+	static int findIndexAfter(double[] sum, double p)
+	{
+		// index of the search key, if it is contained in the array; 
+		// otherwise, (-(insertion point) - 1)
+		int i = Arrays.binarySearch(sum, p);
+		if (i < 0)
+		{
+			// The insertion point is defined as the point at which the key would be 
+			// inserted into the array: the index of the first element greater than the key
+			// or a.length if all elements in the array are less than the specified key.
+			int insert = -(i + 1);
+			return insert;
+		}
+		else
+		{
+			// We found a match. Ensure we return the last index in the event of equality.
+			while ((i + 1) < sum.length && sum[i + 1] == p)
+				i++;
+			return i + 1; // After
 		}
 	}
 }

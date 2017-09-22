@@ -25,8 +25,12 @@ public class DetectionGridTest
 		SimpleDetectionGrid g = new SimpleDetectionGrid(r);
 		Assert.assertArrayEquals(new int[] { 0 }, g.find(0, 0));
 		Assert.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(5, 5));
-		Assert.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(10, 10));
 		Assert.assertArrayEquals(new int[0], g.find(-5, 5));
+
+		// Definition of insideness
+		Assert.assertArrayEquals(new int[0], g.find(10, 10));
+		g.includeOuterEdge = true;
+		Assert.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(10, 10));
 	}
 
 	@Test
@@ -49,6 +53,13 @@ public class DetectionGridTest
 			Assert.assertEquals(i, i2);
 			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i] + 0.1);
 			Assert.assertEquals(i + 1, i2);
+
+			i2 = BinarySearchDetectionGrid.findIndexAfter(data, data[i]);
+			Assert.assertEquals(i + 1, i2);
+			i2 = BinarySearchDetectionGrid.findIndexAfter(data, data[i] - 0.1);
+			Assert.assertEquals(i, i2);
+			i2 = BinarySearchDetectionGrid.findIndexAfter(data, data[i] + 0.1);
+			Assert.assertEquals(i + 1, i2);
 		}
 
 		// Handle identity by testing with duplicates
@@ -70,6 +81,13 @@ public class DetectionGridTest
 			Assert.assertEquals(i - i % 2, i2);
 			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i] + 0.1);
 			Assert.assertEquals(i - i % 2 + 2, i2);
+
+			i2 = BinarySearchDetectionGrid.findIndexAfter(data, data[i]);
+			Assert.assertEquals(i - i % 2 + 2, i2);
+			i2 = BinarySearchDetectionGrid.findIndexAfter(data, data[i] - 0.1);
+			Assert.assertEquals(i - i % 2, i2);
+			i2 = BinarySearchDetectionGrid.findIndexAfter(data, data[i] + 0.1);
+			Assert.assertEquals(i - i % 2 + 2, i2);
 		}
 	}
 
@@ -83,8 +101,10 @@ public class DetectionGridTest
 		BinarySearchDetectionGrid g = new BinarySearchDetectionGrid(r);
 		Assert.assertArrayEquals(new int[] { 0 }, g.find(0, 0));
 		Assert.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(5, 5));
-		Assert.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(10, 10));
 		Assert.assertArrayEquals(new int[0], g.find(-5, 5));
+
+		// Respect the insdieness definition
+		Assert.assertArrayEquals(new int[0], g.find(10, 10));
 	}
 
 	@Test
