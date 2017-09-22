@@ -25,7 +25,6 @@ import gdsc.core.utils.ConvexHull;
 import gdsc.core.utils.TurboList;
 import gdsc.core.utils.TurboList.SimplePredicate;
 import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.procedure.TIntProcedure;
 import gnu.trove.set.hash.TIntHashSet;
 
 /**
@@ -661,7 +660,7 @@ public class OPTICSResult implements ClusteringResult
 		final TIntArrayList parents = new TIntArrayList();
 
 		// Detect if clustering was the result of a DBSCAN-like clustering
-		
+
 		if (clustering != null && clustering.get(0) instanceof OPTICSDBSCANCluster)
 		{
 			// No hierarchy.
@@ -685,24 +684,22 @@ public class OPTICSResult implements ClusteringResult
 				TIntHashSet ids = new TIntHashSet(clusterIds.length);
 
 				for (int clusterId : clusterIds)
-					if (clusterId > 0 && clusterId <= nClusters)
-						ids.add(clusterId);
-
-				ids.forEach(new TIntProcedure()
 				{
-					public boolean execute(int clusterId)
+					if (clusterId > 0 && clusterId <= nClusters)
 					{
-						for (int i = size(); i-- > 0;)
+						if (ids.add(clusterId))
 						{
-							if (clusterId == opticsResults[i].clusterId)
+							for (int i = size(); i-- > 0;)
 							{
-								parents.add(opticsResults[i].parent);
+								if (clusterId == opticsResults[i].clusterId)
+								{
+									parents.add(opticsResults[i].parent);
+								}
 							}
 						}
-						return true;
 					}
-				});
-			}		
+				}
+			}
 		}
 		else
 		{
@@ -714,7 +711,7 @@ public class OPTICSResult implements ClusteringResult
 			for (int clusterId : clusterIds)
 				if (clusterId > 0 && clusterId <= nClusters)
 					ids.add(clusterId);
-			
+
 			// Use the hierarchy
 			addClusters(clustering, ids, parents);
 		}

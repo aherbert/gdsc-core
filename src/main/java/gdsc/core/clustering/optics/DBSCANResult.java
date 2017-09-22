@@ -9,7 +9,6 @@ import gdsc.core.utils.ConvexHull;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.SimpleArrayUtils;
 import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.procedure.TIntProcedure;
 import gnu.trove.set.hash.TIntHashSet;
 
 /*----------------------------------------------------------------------------- 
@@ -328,23 +327,21 @@ public class DBSCANResult implements ClusteringResult
 			TIntHashSet ids = new TIntHashSet(clusterIds.length);
 
 			for (int clusterId : clusterIds)
-				if (clusterId > 0 && clusterId <= nClusters)
-					ids.add(clusterId);
-
-			ids.forEach(new TIntProcedure()
 			{
-				public boolean execute(int clusterId)
+				if (clusterId > 0 && clusterId <= nClusters)
 				{
-					for (int i = size(); i-- > 0;)
+					if (ids.add(clusterId))
 					{
-						if (clusterId == clusters[i])
+						for (int i = size(); i-- > 0;)
 						{
-							parents.add(results[i].parent);
+							if (clusterId == clusters[i])
+							{
+								parents.add(results[i].parent);
+							}
 						}
 					}
-					return true;
 				}
-			});
+			}
 		}
 
 		return parents.toArray();
