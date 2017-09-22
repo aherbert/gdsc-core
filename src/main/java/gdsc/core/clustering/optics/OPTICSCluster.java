@@ -85,15 +85,25 @@ public class OPTICSCluster
 	}
 
 	/**
-	 * Get the size (start to end inclusive)
+	 * Get the length of the cluster on the reachability profile (start to end inclusive)
+	 *
+	 * @return the length
+	 */
+	public int length()
+	{
+		return end - start + 1;
+	}
+	
+	/**
+	 * Get the size of the cluster
 	 *
 	 * @return the size
 	 */
 	public int size()
 	{
-		return end - start + 1;
+		return length();
 	}
-
+	
 	/**
 	 * Gets the cluster id.
 	 *

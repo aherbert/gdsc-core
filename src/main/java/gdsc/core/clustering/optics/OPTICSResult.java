@@ -25,6 +25,7 @@ import gdsc.core.utils.ConvexHull;
 import gdsc.core.utils.TurboList;
 import gdsc.core.utils.TurboList.SimplePredicate;
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.procedure.TIntProcedure;
 import gnu.trove.set.hash.TIntHashSet;
 
 /**
@@ -395,7 +396,7 @@ public class OPTICSResult implements ClusteringResult
 					else
 					{
 						// Count all the points since hull computation failed under this cluster
-						nPoints += child.size();
+						nPoints += child.length();
 					}
 				}
 			}
@@ -657,19 +658,66 @@ public class OPTICSResult implements ClusteringResult
 		if (clusterIds == null)
 			return EMPTY;
 
-		// Use a bit set to store each cluster we have yet to process 
-		int nClusters = getNumberOfClusters();
+		final TIntArrayList parents = new TIntArrayList();
 
-		TIntHashSet ids = new TIntHashSet(clusterIds.length);
+		// Detect if clustering was the result of a DBSCAN-like clustering
+		
+		if (clustering != null && clustering.get(0) instanceof OPTICSDBSCANCluster)
+		{
+			// No hierarchy.
+			// Stupid implementation processes each cluster in turn. 
+			if (clusterIds.length == 1)
+			{
+				final int clusterId = clusterIds[0];
+				for (int i = size(); i-- > 0;)
+				{
+					if (clusterId == opticsResults[i].clusterId)
+					{
+						parents.add(opticsResults[i].parent);
+					}
+				}
+			}
+			else
+			{
+				// Multiple clusters selected. Prevent double counting by 
+				// using a hash set to store each cluster we have yet to process 
+				int nClusters = getNumberOfClusters();
+				TIntHashSet ids = new TIntHashSet(clusterIds.length);
 
-		for (int clusterId : clusterIds)
-			if (clusterId > 0 && clusterId <= nClusters)
-				ids.add(clusterId);
+				for (int clusterId : clusterIds)
+					if (clusterId > 0 && clusterId <= nClusters)
+						ids.add(clusterId);
 
-		TIntArrayList parents = new TIntArrayList();
+				ids.forEach(new TIntProcedure()
+				{
+					public boolean execute(int clusterId)
+					{
+						for (int i = size(); i-- > 0;)
+						{
+							if (clusterId == opticsResults[i].clusterId)
+							{
+								parents.add(opticsResults[i].parent);
+							}
+						}
+						return true;
+					}
+				});
+			}		
+		}
+		else
+		{
+			// Use a set to store each cluster we have yet to process 
+			int nClusters = getNumberOfClusters();
 
-		// Use the hierarchy
-		addClusters(clustering, ids, parents);
+			TIntHashSet ids = new TIntHashSet(clusterIds.length);
+
+			for (int clusterId : clusterIds)
+				if (clusterId > 0 && clusterId <= nClusters)
+					ids.add(clusterId);
+			
+			// Use the hierarchy
+			addClusters(clustering, ids, parents);
+		}
 
 		return parents.toArray();
 	}
@@ -682,7 +730,7 @@ public class OPTICSResult implements ClusteringResult
 		{
 			if (ids.contains(cluster.clusterId))
 			{
-				// Include all 
+				// Include all
 				for (int i = cluster.start; i <= cluster.end; i++)
 				{
 					parents.add(opticsResults[i].parent);
@@ -793,7 +841,7 @@ public class OPTICSResult implements ClusteringResult
 		final OPTICSOrder[] clusterOrderedObjects = opticsResults;
 		// Store the clusters
 		ArrayList<OPTICSCluster> setOfClusters = new ArrayList<OPTICSCluster>();
-		int[] tmpCluster = null; // Use an array so we can update the end position
+		int start = 0, end = 0, id = 0, size = 0;
 		resetClusterIds();
 		for (int i = 0; i < clusterOrderedObjects.length; i++)
 		{
@@ -809,15 +857,17 @@ public class OPTICSResult implements ClusteringResult
 					// New cluster
 
 					// Record the last cluster
-					if (tmpCluster != null)
+					if (size != 0)
 					{
-						setOfClusters.add(new OPTICSCluster(tmpCluster[0], tmpCluster[1], tmpCluster[2]));
+						setOfClusters.add(new OPTICSDBSCANCluster(start, end, id, size));
 					}
 
 					clusterId = ++nextClusterId;
 					object.clusterId = clusterId;
 
-					tmpCluster = new int[] { i, i, clusterId };
+					start = end = i;
+					id = clusterId;
+					size = 1;
 				}
 				else
 				{
@@ -834,27 +884,19 @@ public class OPTICSResult implements ClusteringResult
 
 				// Extend the current cluster by updating the end position: tmpCluster[1]
 
-				if (core)
+				if (!core || object.coreDistance <= generatingDistanceE)
 				{
-					// Only extend if this is a core point
-					if (object.coreDistance <= generatingDistanceE)
-					{
-						tmpCluster[1] = i;
-						object.clusterId = clusterId;
-					}
-				}
-				else
-				{
-					tmpCluster[1] = i;
+					end = i;
+					size++;
 					object.clusterId = clusterId;
 				}
 			}
 		}
 
 		// Add last cluster
-		if (tmpCluster != null)
+		if (size != 0)
 		{
-			setOfClusters.add(new OPTICSCluster(tmpCluster[0], tmpCluster[1], tmpCluster[2]));
+			setOfClusters.add(new OPTICSDBSCANCluster(start, end, id, size));
 		}
 
 		// Write clusters.
