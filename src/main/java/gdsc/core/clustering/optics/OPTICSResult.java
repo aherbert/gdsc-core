@@ -22,9 +22,11 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.MathArrays;
 
 import gdsc.core.utils.ConvexHull;
+import gdsc.core.utils.Sort;
 import gdsc.core.utils.TurboList;
 import gdsc.core.utils.TurboList.SimplePredicate;
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.set.hash.TIntHashSet;
 
 /**
@@ -679,7 +681,7 @@ public class OPTICSResult implements ClusteringResult
 			else
 			{
 				// Multiple clusters selected. Prevent double counting by 
-				// using a hash set to store each cluster we have yet to process 
+				// using a hash set to store each cluster we have processed 
 				int nClusters = getNumberOfClusters();
 				TIntHashSet ids = new TIntHashSet(clusterIds.length);
 
@@ -700,26 +702,39 @@ public class OPTICSResult implements ClusteringResult
 					}
 				}
 			}
+
+			return parents.toArray();
 		}
 		else
 		{
-			// Use a set to store each cluster we have yet to process 
+			// Use a map so we know the order for each cluster.
+			// Add all the ids we have yet to process 
 			int nClusters = getNumberOfClusters();
 
-			TIntHashSet ids = new TIntHashSet(clusterIds.length);
+			TIntIntHashMap ids = new TIntIntHashMap(clusterIds.length);
 
-			for (int clusterId : clusterIds)
-				if (clusterId > 0 && clusterId <= nClusters)
-					ids.add(clusterId);
+			for (int i = 0; i < clusterIds.length; i++)
+				if (clusterIds[i] > 0 && clusterIds[i] <= nClusters)
+				{
+					ids.putIfAbsent(clusterIds[i], i);
+				}
+
+			// Used to maintain the order of the input clusters
+			final TIntArrayList parentsRank = new TIntArrayList();
 
 			// Use the hierarchy
-			addClusters(clustering, ids, parents);
-		}
+			addClusters(clustering, ids, parents, parentsRank);
 
-		return parents.toArray();
+			// Sort
+			int[] parentIds = parents.toArray();
+			int[] rank = parentsRank.toArray();
+			Sort.sortArrays(parentIds, rank, true);
+			return parentIds;
+		}
 	}
 
-	private void addClusters(List<OPTICSCluster> hierarchy, TIntHashSet ids, TIntArrayList parents)
+	private void addClusters(List<OPTICSCluster> hierarchy, TIntIntHashMap ids, TIntArrayList parents,
+			TIntArrayList parentsRank)
 	{
 		if (hierarchy == null)
 			return;
@@ -728,10 +743,14 @@ public class OPTICSResult implements ClusteringResult
 			if (ids.contains(cluster.clusterId))
 			{
 				// Include all
+				int rank = ids.get(cluster.clusterId);
 				for (int i = cluster.start; i <= cluster.end; i++)
 				{
 					parents.add(opticsResults[i].parent);
 				}
+				int fromIndex = parentsRank.size();
+				int toIndex = parents.size();
+				parentsRank.fill(fromIndex, toIndex, rank);
 
 				if (ids.size() == 1)
 					// Fast exit - nothing more to do
@@ -744,7 +763,7 @@ public class OPTICSResult implements ClusteringResult
 			else
 			{
 				// Scan children
-				addClusters(cluster.children, ids, parents);
+				addClusters(cluster.children, ids, parents, parentsRank);
 			}
 		}
 	}
@@ -757,7 +776,7 @@ public class OPTICSResult implements ClusteringResult
 	 * @param ids
 	 *            the ids
 	 */
-	private static void removeIds(OPTICSCluster cluster, TIntHashSet ids)
+	private static void removeIds(OPTICSCluster cluster, TIntIntHashMap ids)
 	{
 		ids.remove(cluster.clusterId);
 		if (cluster.children != null)

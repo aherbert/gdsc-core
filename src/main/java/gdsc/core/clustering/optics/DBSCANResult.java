@@ -322,7 +322,7 @@ public class DBSCANResult implements ClusteringResult
 		else
 		{
 			// Multiple clusters selected. Prevent double counting by 
-			// using a hash set to store each cluster we have yet to process 
+			// using a hash set to store each cluster we have processed 
 			int nClusters = Maths.max(clusters);
 			TIntHashSet ids = new TIntHashSet(clusterIds.length);
 
