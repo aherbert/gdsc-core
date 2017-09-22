@@ -25,6 +25,7 @@ import gdsc.core.utils.ConvexHull;
 import gdsc.core.utils.TurboList;
 import gdsc.core.utils.TurboList.SimplePredicate;
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * Contains the result of the OPTICS algorithm
@@ -619,7 +620,7 @@ public class OPTICSResult implements ClusteringResult
 		return clusters.toArray();
 	}
 
-	private boolean overlap(int start, int end, int start2, int end2)
+	private static boolean overlap(int start, int end, int start2, int end2)
 	{
 		if (start <= start2)
 			return end >= start2;
@@ -634,7 +635,7 @@ public class OPTICSResult implements ClusteringResult
 	 * @param clusters
 	 *            the clusters
 	 */
-	private void addClusters(List<OPTICSCluster> hierarchy, TIntArrayList clusters)
+	private static void addClusters(List<OPTICSCluster> hierarchy, TIntArrayList clusters)
 	{
 		if (hierarchy == null)
 			return;
@@ -644,6 +645,79 @@ public class OPTICSResult implements ClusteringResult
 			addClusters(c.children, clusters);
 			clusters.add(c.clusterId);
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.clustering.optics.ClusteringResult#getParents(int[])
+	 */
+	public int[] getParents(int[] clusterIds)
+	{
+		if (clusterIds == null)
+			return EMPTY;
+
+		// Use a bit set to store each cluster we have yet to process 
+		int nClusters = getNumberOfClusters();
+
+		TIntHashSet ids = new TIntHashSet(clusterIds.length);
+
+		for (int clusterId : clusterIds)
+			if (clusterId > 0 && clusterId <= nClusters)
+				ids.add(clusterId);
+
+		TIntArrayList parents = new TIntArrayList();
+
+		// Use the hierarchy
+		addClusters(clustering, ids, parents);
+
+		return parents.toArray();
+	}
+
+	private void addClusters(List<OPTICSCluster> hierarchy, TIntHashSet ids, TIntArrayList parents)
+	{
+		if (hierarchy == null)
+			return;
+		for (OPTICSCluster cluster : hierarchy)
+		{
+			if (ids.contains(cluster.clusterId))
+			{
+				// Include all 
+				for (int i = cluster.start; i <= cluster.end; i++)
+				{
+					parents.add(opticsResults[i].parent);
+				}
+
+				if (ids.size() == 1)
+					// Fast exit - nothing more to do
+					return;
+				// Remove the Ids we have processed
+				removeIds(cluster, ids);
+				if (ids.isEmpty())
+					return;
+			}
+			else
+			{
+				// Scan children
+				addClusters(cluster.children, ids, parents);
+			}
+		}
+	}
+
+	/**
+	 * Removes the cluster ids of the cluster all its children from the ids.
+	 *
+	 * @param cluster
+	 *            the cluster
+	 * @param ids
+	 *            the ids
+	 */
+	private static void removeIds(OPTICSCluster cluster, TIntHashSet ids)
+	{
+		ids.remove(cluster.clusterId);
+		if (cluster.children != null)
+			for (OPTICSCluster child : cluster.children)
+				removeIds(child, ids);
 	}
 
 	/**

@@ -70,4 +70,14 @@ public interface ClusteringResult
 	 * have sequential cluster Ids.
 	 */
 	public void scrambleClusters(RandomGenerator rng);
+
+	/**
+	 * Gets the parent ids for each cluster in the list of Ids. If hierarchical clusters are specified then the child
+	 * ids are also returned (i.e. all members of the cluster or its children).
+	 *
+	 * @param clusterIds
+	 *            the cluster ids
+	 * @return the parent ids
+	 */
+	public int[] getParents(int[] clusterIds);
 }

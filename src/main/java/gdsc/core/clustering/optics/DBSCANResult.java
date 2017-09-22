@@ -8,6 +8,9 @@ import org.apache.commons.math3.util.MathArrays;
 import gdsc.core.utils.ConvexHull;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.SimpleArrayUtils;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.procedure.TIntProcedure;
+import gnu.trove.set.hash.TIntHashSet;
 
 /*----------------------------------------------------------------------------- 
  * GDSC ImageJ Software
@@ -293,4 +296,57 @@ public class DBSCANResult implements ClusteringResult
 			return null;
 		return bounds[clusterId - 1];
 	};
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.clustering.optics.ClusteringResult#getParents(int[])
+	 */
+	public int[] getParents(int[] clusterIds)
+	{
+		if (clusterIds == null)
+			return new int[0];
+		final TIntArrayList parents = new TIntArrayList();
+
+		// Stupid implementation processes each cluster in turn. 
+		if (clusterIds.length == 1)
+		{
+			final int clusterId = clusterIds[0];
+			for (int i = size(); i-- > 0;)
+			{
+				if (clusterId == clusters[i])
+				{
+					parents.add(results[i].parent);
+				}
+			}
+		}
+		else
+		{
+			// Multiple clusters selected. Prevent double counting by 
+			// using a hash set to store each cluster we have yet to process 
+			int nClusters = Maths.max(clusters);
+			TIntHashSet ids = new TIntHashSet(clusterIds.length);
+
+			for (int clusterId : clusterIds)
+				if (clusterId > 0 && clusterId <= nClusters)
+					ids.add(clusterId);
+
+			ids.forEach(new TIntProcedure()
+			{
+				public boolean execute(int clusterId)
+				{
+					for (int i = size(); i-- > 0;)
+					{
+						if (clusterId == clusters[i])
+						{
+							parents.add(results[i].parent);
+						}
+					}
+					return true;
+				}
+			});
+		}
+
+		return parents.toArray();
+	}
 }
