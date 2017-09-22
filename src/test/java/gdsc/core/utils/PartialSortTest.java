@@ -210,7 +210,7 @@ public class PartialSortTest
 	private static void topSort(double[] d)
 	{
 		Arrays.sort(d);
-		Sort.reverse(d);
+		SimpleArrayUtils.reverse(d);
 	}
 
 	@Test

@@ -583,7 +583,7 @@ public class PartialSort
 		{
 			Arrays.sort(data);
 			if ((options & OPTION_TOP) != 0)
-				Sort.reverse(data);
+				SimpleArrayUtils.reverse(data);
 		}
 	}
 
@@ -1158,7 +1158,7 @@ public class PartialSort
 		{
 			Arrays.sort(data);
 			if ((options & OPTION_TOP) != 0)
-				Sort.reverse(data);
+				SimpleArrayUtils.reverse(data);
 		}
 	}
 
