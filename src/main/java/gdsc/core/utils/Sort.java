@@ -56,7 +56,11 @@ public class Sort
 			public int compare(int[] o1, int[] o2)
 			{
 				// Largest first
-				return o2[0] - o1[0];
+				if (o2[0] < o1[0])
+					return -1;
+				if (o2[0] > o1[0])
+					return 1;
+				return 0;
 			}
 		});
 
@@ -111,9 +115,9 @@ public class Sort
 			public int compare(float[] o1, float[] o2)
 			{
 				// Largest first
-				if (o1[0] > o2[0])
+				if (o2[0] < o1[0])
 					return -1;
-				if (o1[0] < o2[0])
+				if (o2[0] > o1[0])
 					return 1;
 				return 0;
 			}
@@ -170,9 +174,9 @@ public class Sort
 			public int compare(double[] o1, double[] o2)
 			{
 				// Largest first
-				if (o1[0] > o2[0])
+				if (o2[0] < o1[0])
 					return -1;
-				if (o1[0] < o2[0])
+				if (o2[0] > o1[0])
 					return 1;
 				return 0;
 			}
@@ -195,31 +199,85 @@ public class Sort
 	}
 
 	/**
-	 * Sorts the indices in descending order of their values. Does not evaluate
-	 * equivalence (returns only 1 or -1 to the sort routine)
-	 * <p>
-	 * Warning: This method can cause sorting violations within the sort implementation if there are elements with equal
-	 * values - use with caution.
+	 * Sorts the indices in ascending order of their values
 	 * 
 	 * @param indices
 	 * @param values
 	 * @return The indices
 	 */
-	public static int[] sortIgnoreEqual(int[] indices, final float[] values)
+	public static int[] sortAscending(int[] indices, final int[] values)
 	{
-		return sortIgnoreEqual(indices, values, false);
+		return sort(indices, values, false);
 	}
 
 	/**
-	 * Sorts the indices in order of their values. Does not evaluate equivalence
-	 * (returns only 1 or -1 to the sort routine)
+	 * Sorts the indices in ascending order of their values
 	 * 
 	 * @param indices
 	 * @param values
-	 * @param ascending
+	 * @param sortValues
 	 * @return The indices
 	 */
-	public static int[] sortIgnoreEqual(int[] indices, final float[] values, boolean ascending)
+	public static int[] sortAscending(int[] indices, final int[] values, boolean sortValues)
+	{
+		// Convert data for sorting
+		int[][] data = new int[indices.length][2];
+		for (int i = indices.length; i-- > 0;)
+		{
+			data[i][0] = values[indices[i]];
+			data[i][1] = indices[i];
+		}
+
+		Arrays.sort(data, new Comparator<int[]>()
+		{
+			public int compare(int[] o1, int[] o2)
+			{
+				// Smallest first
+				if (o1[0] < o2[0])
+					return -1;
+				if (o1[0] > o2[0])
+					return 1;
+				return 0;
+			}
+		});
+
+		// Copy back
+		for (int i = indices.length; i-- > 0;)
+		{
+			indices[i] = data[i][1];
+		}
+		if (sortValues)
+		{
+			for (int i = indices.length; i-- > 0;)
+			{
+				values[i] = data[i][0];
+			}
+		}
+
+		return indices;
+	}
+
+	/**
+	 * Sorts the indices in ascending order of their values
+	 * 
+	 * @param indices
+	 * @param values
+	 * @return The indices
+	 */
+	public static int[] sortAscending(int[] indices, final float[] values)
+	{
+		return sort(indices, values, false);
+	}
+
+	/**
+	 * Sorts the indices in ascending order of their values
+	 * 
+	 * @param indices
+	 * @param values
+	 * @param sortValues
+	 * @return The indices
+	 */
+	public static int[] sortAscending(int[] indices, final float[] values, boolean sortValues)
 	{
 		// Convert data for sorting
 		float[][] data = new float[indices.length][2];
@@ -229,40 +287,89 @@ public class Sort
 			data[i][1] = indices[i];
 		}
 
-		Comparator<float[]> comp;
-		if (ascending)
+		Arrays.sort(data, new Comparator<float[]>()
 		{
-			comp = new Comparator<float[]>()
+			public int compare(float[] o1, float[] o2)
 			{
-				public int compare(float[] o1, float[] o2)
-				{
-					// smallest first
-					if (o1[0] < o2[0])
-						return -1;
+				// Smallest first
+				if (o1[0] < o2[0])
+					return -1;
+				if (o1[0] > o2[0])
 					return 1;
-				}
-			};
-		}
-		else
-		{
-			comp = new Comparator<float[]>()
-			{
-				public int compare(float[] o1, float[] o2)
-				{
-					// Largest first
-					if (o1[0] > o2[0])
-						return -1;
-					return 1;
-				}
-			};
-		}
-
-		Arrays.sort(data, comp);
+				return 0;
+			}
+		});
 
 		// Copy back
 		for (int i = indices.length; i-- > 0;)
 		{
 			indices[i] = (int) data[i][1];
+		}
+		if (sortValues)
+		{
+			for (int i = indices.length; i-- > 0;)
+			{
+				values[i] = data[i][0];
+			}
+		}
+
+		return indices;
+	}
+
+	/**
+	 * Sorts the indices in ascending order of their values
+	 * 
+	 * @param indices
+	 * @param values
+	 * @return The indices
+	 */
+	public static int[] sortAscending(int[] indices, final double[] values)
+	{
+		return sort(indices, values, false);
+	}
+
+	/**
+	 * Sorts the indices in ascending order of their values
+	 * 
+	 * @param indices
+	 * @param values
+	 * @param sortValues
+	 * @return The indices
+	 */
+	public static int[] sortAscending(int[] indices, final double[] values, boolean sortValues)
+	{
+		// Convert data for sorting
+		double[][] data = new double[indices.length][2];
+		for (int i = indices.length; i-- > 0;)
+		{
+			data[i][0] = values[indices[i]];
+			data[i][1] = indices[i];
+		}
+
+		Arrays.sort(data, new Comparator<double[]>()
+		{
+			public int compare(double[] o1, double[] o2)
+			{
+				// Smallest first
+				if (o1[0] < o2[0])
+					return -1;
+				if (o1[0] > o2[0])
+					return 1;
+				return 0;
+			}
+		});
+
+		// Copy back
+		for (int i = indices.length; i-- > 0;)
+		{
+			indices[i] = (int) data[i][1];
+		}
+		if (sortValues)
+		{
+			for (int i = indices.length; i-- > 0;)
+			{
+				values[i] = data[i][0];
+			}
 		}
 
 		return indices;
@@ -272,6 +379,7 @@ public class Sort
 	 * Reverse the array order
 	 * 
 	 * @param data
+	 * @deprecated Moved to SimpleArrayUtils
 	 */
 	public static void reverse(int[] data)
 	{
@@ -295,6 +403,7 @@ public class Sort
 	 * Reverse the array order
 	 * 
 	 * @param data
+	 * @deprecated Moved to SimpleArrayUtils
 	 */
 	public static void reverse(float[] data)
 	{
@@ -318,6 +427,7 @@ public class Sort
 	 * Reverse the array order
 	 * 
 	 * @param data
+	 * @deprecated Moved to SimpleArrayUtils
 	 */
 	public static void reverse(double[] data)
 	{
@@ -354,11 +464,10 @@ public class Sort
 			indices[i] = i;
 		}
 
-		// Sort descending
-		sort(indices, values2, false);
-
 		if (ascending)
-			reverse(indices);
+			sortAscending(indices, values2, false);
+		else
+			sort(indices, values2, false);
 
 		// Copy back
 		int[] v1 = Arrays.copyOf(values1, values1.length);
@@ -388,11 +497,10 @@ public class Sort
 			indices[i] = i;
 		}
 
-		// Sort descending
-		sort(indices, values2, false);
-
 		if (ascending)
-			reverse(indices);
+			sortAscending(indices, values2, false);
+		else
+			sort(indices, values2, false);
 
 		// Copy back
 		int[] v1 = Arrays.copyOf(values1, values1.length);
@@ -422,11 +530,10 @@ public class Sort
 			indices[i] = i;
 		}
 
-		// Sort descending
-		sort(indices, values2, false);
-
 		if (ascending)
-			reverse(indices);
+			sortAscending(indices, values2, false);
+		else
+			sort(indices, values2, false);
 
 		// Copy back
 		int[] v1 = Arrays.copyOf(values1, values1.length);
@@ -456,11 +563,10 @@ public class Sort
 			indices[i] = i;
 		}
 
-		// Sort descending
-		sort(indices, values2, false);
-
 		if (ascending)
-			reverse(indices);
+			sortAscending(indices, values2, false);
+		else
+			sort(indices, values2, false);
 
 		// Copy back
 		float[] v1 = Arrays.copyOf(values1, values1.length);
@@ -490,11 +596,10 @@ public class Sort
 			indices[i] = i;
 		}
 
-		// Sort descending
-		sort(indices, values2, false);
-
 		if (ascending)
-			reverse(indices);
+			sortAscending(indices, values2, false);
+		else
+			sort(indices, values2, false);
 
 		// Copy back
 		double[] v1 = Arrays.copyOf(values1, values1.length);

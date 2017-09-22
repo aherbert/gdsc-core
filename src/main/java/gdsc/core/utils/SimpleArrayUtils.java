@@ -343,4 +343,73 @@ public class SimpleArrayUtils
 		Arrays.fill(data, value);
 		return data;
 	}
+
+	/**
+	 * Reverse the array order
+	 * 
+	 * @param data
+	 */
+	public static void reverse(int[] data)
+	{
+		int left = 0;
+		int right = data.length - 1;
+
+		while (left < right)
+		{
+			// swap the values at the left and right indices
+			int temp = data[left];
+			data[left] = data[right];
+			data[right] = temp;
+
+			// move the left and right index pointers in toward the center
+			left++;
+			right--;
+		}
+	}
+
+	/**
+	 * Reverse the array order
+	 * 
+	 * @param data
+	 */
+	public static void reverse(float[] data)
+	{
+		int left = 0;
+		int right = data.length - 1;
+
+		while (left < right)
+		{
+			// swap the values at the left and right indices
+			float temp = data[left];
+			data[left] = data[right];
+			data[right] = temp;
+
+			// move the left and right index pointers in toward the center
+			left++;
+			right--;
+		}
+	}
+
+	/**
+	 * Reverse the array order
+	 * 
+	 * @param data
+	 */
+	public static void reverse(double[] data)
+	{
+		int left = 0;
+		int right = data.length - 1;
+
+		while (left < right)
+		{
+			// swap the values at the left and right indices
+			double temp = data[left];
+			data[left] = data[right];
+			data[right] = temp;
+
+			// move the left and right index pointers in toward the center
+			left++;
+			right--;
+		}
+	}
 }
