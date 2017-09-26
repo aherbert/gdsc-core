@@ -412,4 +412,34 @@ public class SimpleArrayUtils
 			right--;
 		}
 	}
+
+	/**
+	 * Checks if all the values have an integer representation.
+	 *
+	 * @param x
+	 *            the x
+	 * @return true, if is integer
+	 */
+	public static boolean isInteger(double[] x)
+	{
+		for (int i = 0; i < x.length; i++)
+			if ((int) x[i] != x[i])
+				return false;
+		return true;
+	}
+
+	/**
+	 * Checks if all the values have an integer representation.
+	 *
+	 * @param x
+	 *            the x
+	 * @return true, if is integer
+	 */
+	public static boolean isInteger(float[] x)
+	{
+		for (int i = 0; i < x.length; i++)
+			if ((int) x[i] != x[i])
+				return false;
+		return true;
+	}
 }
