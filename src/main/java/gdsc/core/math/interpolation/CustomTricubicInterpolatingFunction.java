@@ -360,12 +360,14 @@ public class CustomTricubicInterpolatingFunction
 	 */
 	private static int searchIndex(double c, double[] val)
 	{
-		// TODO - remove this after testing the binary search
-		int i = searchIndex0(c, val);
-		int j = searchIndex1(c, val);
-		if (i != j)
-			throw new RuntimeException();
-		return j;
+		return searchIndex(c, val);
+
+		//// TODO - remove this after testing the binary search
+		//int i = searchIndex0(c, val);
+		//int j = searchIndex1(c, val);
+		//if (i != j)
+		//	throw new RuntimeException();
+		//return j;
 	}
 
 	/**
@@ -570,14 +572,15 @@ public class CustomTricubicInterpolatingFunction
 	 * @throws ArrayIndexOutOfBoundsException
 	 *             if the spline node does not exist
 	 */
-	public double value(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z) throws ArrayIndexOutOfBoundsException
+	public double value(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z)
+			throws ArrayIndexOutOfBoundsException
 	{
 		return splines[x.index][y.index][z.index].value(x, y, z);
 	}
-	
+
 	private static double getMax(double[] xval)
 	{
-		return xval[xval.length-1];
+		return xval[xval.length - 1];
 	}
 
 	/**
@@ -589,7 +592,7 @@ public class CustomTricubicInterpolatingFunction
 	{
 		return getMax(xval);
 	}
-	
+
 	/**
 	 * Gets the min X value for interpolation.
 	 *
@@ -599,7 +602,7 @@ public class CustomTricubicInterpolatingFunction
 	{
 		return xval[0];
 	}
-	
+
 	/**
 	 * Gets the max Y value for interpolation.
 	 *
@@ -609,7 +612,7 @@ public class CustomTricubicInterpolatingFunction
 	{
 		return getMax(yval);
 	}
-	
+
 	/**
 	 * Gets the min Y value for interpolation.
 	 *
@@ -619,7 +622,7 @@ public class CustomTricubicInterpolatingFunction
 	{
 		return yval[0];
 	}
-	
+
 	/**
 	 * Gets the max Z value for interpolation.
 	 *
@@ -629,7 +632,7 @@ public class CustomTricubicInterpolatingFunction
 	{
 		return getMax(zval);
 	}
-	
+
 	/**
 	 * Gets the min Z value for interpolation.
 	 *
@@ -639,7 +642,7 @@ public class CustomTricubicInterpolatingFunction
 	{
 		return zval[0];
 	}
-	
+
 	/**
 	 * Indicates whether a point is within the interpolation range.
 	 *
