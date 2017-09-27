@@ -24,7 +24,6 @@ import ij.process.ColorProcessor;
 import ij.process.FHT;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
-import ij.process.ImageStatistics;
 import ij.util.Tools;
 
 /**
@@ -267,7 +266,7 @@ public class AlignImagesFFT
 
 		// Subtract mean to normalise the numerator of the cross-correlation.
 		// ---
-		// The effectively normalises the numerator of the correlation but does not address the denominator.
+		// This effectively normalises the numerator of the correlation but does not address the denominator.
 		// The denominator should be calculated using rolling sums for each offset position.
 		// See: http://www.idiom.com/~zilla/Papers/nvisionInterface/nip.html
 		// Following the computation of the correlation each offset (u,v) position should then be divided
@@ -925,16 +924,21 @@ public class AlignImagesFFT
 
 		// Bicubic interpolation can generate values outside the input range. 
 		// Optionally clip these. This is not applicable for ColorProcessors.
-		ImageStatistics stats = null;
+		float max = Float.NEGATIVE_INFINITY;
 		if (interpolationMethod == ImageProcessor.BICUBIC && clipOutput && !(ip instanceof ColorProcessor))
-			stats = ImageStatistics.getStatistics(ip, ImageStatistics.MIN_MAX, null);
+		{
+			for (int i = ip.getPixelCount(); i-- > 0;)
+			{
+				if (max < ip.getf(i))
+					max = ip.getf(i);
+			}
+		}
 
 		ip.setInterpolationMethod(interpolationMethod);
 		ip.translate(xOffset, yOffset);
 
 		if (interpolationMethod == ImageProcessor.BICUBIC && clipOutput && !(ip instanceof ColorProcessor))
 		{
-			float max = (float) stats.max;
 			for (int i = ip.getPixelCount(); i-- > 0;)
 			{
 				if (ip.getf(i) > max)
