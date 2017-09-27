@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
@@ -1138,6 +1139,17 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
 			elementData[left] = elementData[right];
 			elementData[right] = temp;
         }
+	}
+
+	/**
+	 * Sort the list.
+	 *
+	 * @param c the comparator
+	 */
+	@SuppressWarnings("unchecked")
+	public void sort(Comparator<? super E> c)
+	{
+        Arrays.sort(elementData, 0, size, (Comparator)c);
 	}
 }
 //@formatter:on
