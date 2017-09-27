@@ -1146,7 +1146,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
 	 *
 	 * @param c the comparator
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void sort(Comparator<? super E> c)
 	{
         Arrays.sort(elementData, 0, size, (Comparator)c);
