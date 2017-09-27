@@ -360,11 +360,11 @@ public class CustomTricubicInterpolatingFunction
 	 */
 	private static int searchIndex(double c, double[] val)
 	{
-		return searchIndex(c, val);
+		return searchIndexBinarySearch(c, val);
 
 		//// TODO - remove this after testing the binary search
-		//int i = searchIndex0(c, val);
-		//int j = searchIndex1(c, val);
+		//int i = searchIndexOriginal(c, val);
+		//int j = searchIndexBinarySearch(c, val);
 		//if (i != j)
 		//	throw new RuntimeException();
 		//return j;
@@ -378,7 +378,7 @@ public class CustomTricubicInterpolatingFunction
 	 * @return the index in {@code val} corresponding to the interval containing {@code c}, or {@code -1}
 	 *         if {@code c} is out of the range defined by the end values of {@code val}.
 	 */
-	private static int searchIndex0(double c, double[] val)
+	private static int searchIndexOriginal(double c, double[] val)
 	{
 		if (c < val[0])
 		{
@@ -405,9 +405,8 @@ public class CustomTricubicInterpolatingFunction
 	 * @return the index in {@code val} corresponding to the interval containing {@code c}, or {@code -1}
 	 *         if {@code c} is out of the range defined by the end values of {@code val}.
 	 */
-	private static int searchIndex1(double c, double[] val)
+	private static int searchIndexBinarySearch(double c, double[] val)
 	{
-
 		// Use a Binary search.
 		// We want to find the index equal to or before the key.  
 		int high = val.length - 1;
