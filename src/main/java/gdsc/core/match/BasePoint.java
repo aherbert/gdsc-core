@@ -15,7 +15,7 @@ package gdsc.core.match;
 
 /**
  * <p>
- * Stores a 2D/3D point. 
+ * Stores a 2D/3D point.
  * <p>
  * Overrides equals and hashCode methods using x,y,z, coordinates for equivalence. Derived classes can optionally
  * override this.
@@ -209,5 +209,21 @@ public class BasePoint implements Coordinate
 	public double distanceXYZ2(Coordinate other)
 	{
 		return distance2(other.getX(), other.getY(), other.getZ());
+	}
+
+	/**
+	 * Shift the point by the given deltas.
+	 *
+	 * @param dx
+	 *            the dx
+	 * @param dy
+	 *            the dy
+	 * @param dz
+	 *            the dz
+	 * @return the new base point
+	 */
+	public BasePoint shift(float dx, float dy, float dz)
+	{
+		return new BasePoint(x + dx, y + dy, z + dz);
 	}
 }
