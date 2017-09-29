@@ -77,6 +77,28 @@ public class CustomTricubicInterpolatorTest
 	}
 
 	@Test
+	public void canDetectIfUniform()
+	{
+		int x = 3, y = 3, z = 3;
+		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
+		double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
+		double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
+		double[][][] fval = new double[x][y][z];
+		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval).isUniform);
+		double[] bad = xval.clone();
+		bad[1] *= 1.001;
+		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(bad, yval, zval, fval).isUniform);
+		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(xval, bad, zval, fval).isUniform);
+		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(xval, yval, bad, fval).isUniform);
+		double[] good = xval.clone();
+		// The tolerance is relative but we habve steps of size 1 so use as an absolute
+		good[1] += CustomTricubicInterpolatingFunction.UNIFORM_TOLERANCE / 2;
+		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(good, yval, zval, fval).isUniform);
+		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, good, zval, fval).isUniform);
+		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, yval, good, fval).isUniform);
+	}
+	
+	@Test
 	public void canInterpolate()
 	{
 		// Test verses the original
