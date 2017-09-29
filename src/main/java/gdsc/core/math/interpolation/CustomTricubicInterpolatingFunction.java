@@ -33,6 +33,7 @@ import org.apache.commons.math3.exception.NonMonotonicSequenceException;
 import org.apache.commons.math3.exception.OutOfRangeException;
 import org.apache.commons.math3.util.MathArrays;
 
+import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.SimpleArrayUtils;
 
 /**
@@ -144,6 +145,8 @@ public class CustomTricubicInterpolatingFunction
     private final CustomTricubicFunction[][][] splines;
 
     /**
+     * Instantiates a new custom tricubic interpolating function.
+     *
      * @param x Sample values of the x-coordinate, in increasing order.
      * @param y Sample values of the y-coordinate, in increasing order.
      * @param z Sample values of the z-coordinate, in increasing order.
@@ -155,6 +158,7 @@ public class CustomTricubicInterpolatingFunction
      * @param d2FdXdZ Values of the cross partial derivative of function on every grid point.
      * @param d2FdYdZ Values of the cross partial derivative of function on every grid point.
      * @param d3FdXdYdZ Values of the cross partial derivative of function on every grid point.
+     * @param progress the progress
      * @throws NoDataException if any of the arrays has zero length.
      * @throws DimensionMismatchException if the various arrays do not contain the expected number of elements.
      * @throws NonMonotonicSequenceException if {@code x}, {@code y} or {@code z} are not strictly increasing.
@@ -169,7 +173,8 @@ public class CustomTricubicInterpolatingFunction
                                          double[][][] d2FdXdY,
                                          double[][][] d2FdXdZ,
                                          double[][][] d2FdYdZ,
-                                         double[][][] d3FdXdYdZ)
+                                         double[][][] d3FdXdYdZ,
+                                         TrackProgress progress)
         throws NoDataException,
                DimensionMismatchException,
                NonMonotonicSequenceException {
@@ -227,6 +232,9 @@ public class CustomTricubicInterpolatingFunction
         final int lastK = zLen - 1;
         splines = new CustomTricubicFunction[lastI][lastJ][lastK];
 
+        final long total = lastI * lastJ * lastK;
+        long current = 0;
+        
         for (int i = 0; i < lastI; i++) {
             if (f[i].length != yLen) {
                 throw new DimensionMismatchException(f[i].length, yLen);
@@ -285,6 +293,7 @@ public class CustomTricubicInterpolatingFunction
                 final double yR = yval[jp1] - yval[j];
                 final double xRyR = xR * yR;
                 for (int k = 0; k < lastK; k++) {
+                	progress.progress(current++, total);
                     final int kp1 = k + 1;
                     final double zR = zval[kp1] - zval[k];
                     final double xRzR = xR * zR;
@@ -337,6 +346,8 @@ public class CustomTricubicInterpolatingFunction
                 }
             }
         }
+        
+        progress.progress(1);
     }
 
     /**

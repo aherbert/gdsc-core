@@ -18,6 +18,9 @@ package gdsc.core.logging;
  */
 public class NullTrackProgress implements TrackProgress
 {
+	/** An instance to ignore progress reporting */
+	public static final NullTrackProgress INSTANCE = new NullTrackProgress();
+
 	/*
 	 * (non-Javadoc)
 	 * 

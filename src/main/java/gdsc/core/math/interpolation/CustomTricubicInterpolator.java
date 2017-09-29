@@ -1,5 +1,7 @@
 package gdsc.core.math.interpolation;
 
+//@formatter:off
+
 /*----------------------------------------------------------------------------- 
  * GDSC Software
  * 
@@ -34,27 +36,69 @@ import org.apache.commons.math3.exception.NonMonotonicSequenceException;
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
 import org.apache.commons.math3.util.MathArrays;
 
+import gdsc.core.logging.NullTrackProgress;
+import gdsc.core.logging.TrackProgress;
+
 /**
  * Generates a tricubic interpolating function.
  */
 public class CustomTricubicInterpolator
     implements TrivariateGridInterpolator {
+	
     /**
      * {@inheritDoc}
      */
     public CustomTricubicInterpolatingFunction interpolate(final double[] xval,
-                                                     final double[] yval,
-                                                     final double[] zval,
-                                                     final double[][][] fval)
+            final double[] yval,
+            final double[] zval,
+            final double[][][] fval)
+    {
+    	return interpolate(xval, yval, zval, fval, NullTrackProgress.INSTANCE);
+    }
+    
+    /**
+     * Compute an interpolating function for the dataset.
+     *
+     * @param xval All the x-coordinates of the interpolation points, sorted
+     * in increasing order.
+     * @param yval All the y-coordinates of the interpolation points, sorted
+     * in increasing order.
+     * @param zval All the z-coordinates of the interpolation points, sorted
+     * in increasing order.
+     * @param fval the values of the interpolation points on all the grid knots:
+     * {@code fval[i][j][k] = f(xval[i], yval[j], zval[k])}.
+     * @return a function that interpolates the data set.
+     * @throws NoDataException if any of the arrays has zero length.
+     * @throws DimensionMismatchException if the array lengths are inconsistent.
+     * @throws NonMonotonicSequenceException if arrays are not sorted
+     * @throws NumberIsTooSmallException if the number of points is too small for
+     * the order of the interpolation
+     * 
+     * @see org.apache.commons.math3.analysis.interpolation.TrivariateGridInterpolator#interpolate(double[], double[], double[], double[][][])
+     */
+    public CustomTricubicInterpolatingFunction interpolate(final double[] xval,
+                                                           final double[] yval,
+                                                           final double[] zval,
+                                                           final double[][][] fval,
+                                                           TrackProgress progress)
         throws NoDataException, NumberIsTooSmallException,
                DimensionMismatchException, NonMonotonicSequenceException {
-        if (xval.length == 0 || yval.length == 0 || zval.length == 0 || fval.length == 0) {
+        if (fval.length == 0) {
             throw new NoDataException();
+        }
+        if (xval.length < 2) {
+            throw new NumberIsTooSmallException(xval.length, 2, true);
+        }
+        if (yval.length < 2) {
+            throw new NumberIsTooSmallException(yval.length, 2, true);
+        }
+        if (zval.length < 2) {
+            throw new NumberIsTooSmallException(zval.length, 2, true);
         }
         if (xval.length != fval.length) {
             throw new DimensionMismatchException(xval.length, fval.length);
         }
-
+        
         MathArrays.checkOrder(xval);
         MathArrays.checkOrder(yval);
         MathArrays.checkOrder(zval);
@@ -63,6 +107,19 @@ public class CustomTricubicInterpolator
         final int yLen = yval.length;
         final int zLen = zval.length;
 
+        // Check dimensions here
+        for (int i = 0; i < xLen; i++) {
+            if (yLen != fval[i].length) {
+                throw new DimensionMismatchException(yval.length, fval[i].length);
+            }
+
+            for (int j = 0;j < yLen; j++) {
+                if (zLen != fval[i][j].length) {
+                    throw new DimensionMismatchException(zval.length, fval[i][j].length);
+                }
+            }
+        }
+        
         // Approximation to the partial derivatives using finite differences.
         final double[][][] dFdX = new double[xLen][yLen][zLen];
         final double[][][] dFdY = new double[xLen][yLen][zLen];
@@ -72,11 +129,11 @@ public class CustomTricubicInterpolator
         final double[][][] d2FdYdZ = new double[xLen][yLen][zLen];
         final double[][][] d3FdXdYdZ = new double[xLen][yLen][zLen];
 
+        final long total = (xLen-2) * (yLen-2) * (zLen-2);
+        long current = 0;
+        
         for (int i = 1; i < xLen - 1; i++) {
-            if (yval.length != fval[i].length) {
-                throw new DimensionMismatchException(yval.length, fval[i].length);
-            }
-
+        	
             final int nI = i + 1;
             final int pI = i - 1;
 
@@ -86,10 +143,7 @@ public class CustomTricubicInterpolator
             final double deltaX = nX - pX;
 
             for (int j = 1; j < yLen - 1; j++) {
-                if (zval.length != fval[i][j].length) {
-                    throw new DimensionMismatchException(zval.length, fval[i][j].length);
-                }
-
+            	
                 final int nJ = j + 1;
                 final int pJ = j - 1;
 
@@ -100,6 +154,7 @@ public class CustomTricubicInterpolator
                 final double deltaXY = deltaX * deltaY;
 
                 for (int k = 1; k < zLen - 1; k++) {
+                	progress.progress(current++, total);
                     final int nK = k + 1;
                     final int pK = k - 1;
 
@@ -128,11 +183,13 @@ public class CustomTricubicInterpolator
                 }
             }
         }
+        
+        progress.progress(1);
 
         // Create the interpolating function.
         return new CustomTricubicInterpolatingFunction(xval, yval, zval, fval,
                                                        dFdX, dFdY, dFdZ,
                                                        d2FdXdY, d2FdXdZ, d2FdYdZ,
-                                                       d3FdXdYdZ);
+                                                       d3FdXdYdZ, progress);
     }
 }
