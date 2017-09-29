@@ -38,7 +38,7 @@ public class CustomTricubicFunction implements TrivariateFunction
 	/** Number of points. */
 	private static final short N = 4;
 	/** Coefficients */
-	private final double[] a = new double[64];
+	private final double[] a;
 
 	/**
 	 * @param aV
@@ -46,16 +46,38 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 */
 	CustomTricubicFunction(double[] aV)
 	{
-		for (int k = 0, ai = 0; k < N; k++)
-		{
-			for (int j = 0; j < N; j++)
-			{
-				for (int i = 0; i < N; i++)
-				{
-					a[ai++] = aV[i + N * (j + N * k)];
-				}
-			}
-		}
+		// Use the table directly
+		a = aV;
+		
+		//// Copy the table
+		//a = new double[64];
+		//for (int k = 0, ai = 0; k < N; k++)
+		//{
+		//	for (int j = 0; j < N; j++)
+		//	{
+		//		for (int i = 0; i < N; i++)
+		//		{
+		//			int ii = getIndex(i, j, k);
+		//			a[ai++] = aV[ii];
+		//		}
+		//	}
+		//}
+	}
+
+	/**
+	 * Gets the index in the table for the specified position.
+	 *
+	 * @param i
+	 *            the x index
+	 * @param j
+	 *            the x index
+	 * @param k
+	 *            the z index
+	 * @return the index
+	 */
+	public static int getIndex(int i, int j, int k)
+	{
+		return i + N * (j + N * k);
 	}
 
 	/**
@@ -126,7 +148,7 @@ public class CustomTricubicFunction implements TrivariateFunction
 	private double value(final double[] pX, final double[] pY, final double[] pZ)
 	{
 		double result = 0;
-		
+
 		//		for (int k = 0, ai = 0; k < N; k++)
 		//		{
 		//			for (int j = 0; j < N; j++)
@@ -223,7 +245,7 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 *             if {@code x}, {@code y} or
 	 *             {@code z} are not in the interval {@code [0, 1]}.
 	 */
-	public double[] computePowerTable(double x, double y, double z) throws OutOfRangeException
+	public static double[] computePowerTable(double x, double y, double z) throws OutOfRangeException
 	{
 		if (x < 0 || x > 1)
 		{
@@ -264,11 +286,11 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 *            z-coordinate of the interpolation point.
 	 * @return the power table.
 	 */
-	public double[] computePowerTable(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z)
+	public static double[] computePowerTable(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z)
 	{
 		return computePowerTable(x.p, y.p, z.p);
 	}
-	
+
 	/**
 	 * Compute the power table.
 	 *
@@ -295,7 +317,7 @@ public class CustomTricubicFunction implements TrivariateFunction
 		}
 		return table;
 	}
-	
+
 	/**
 	 * Get the value using a pre-computed power table.
 	 *

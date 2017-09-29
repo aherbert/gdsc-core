@@ -166,7 +166,10 @@ public class CustomTricubicInterpolatingFunction
         final int yLen = y.length;
         final int zLen = z.length;
 
-        if (xLen == 0 || yLen == 0 || z.length == 0 || f.length == 0 || f[0].length == 0) {
+        // The original only failed if the length was zero. However
+        // this function requires two points to interpolate between so 
+        // check the length is at least 2.
+        if (xLen <= 1 || yLen <= 1 || z.length <= 1 || f.length <= 1 || f[0].length <= 1) {
             throw new NoDataException();
         }
         if (xLen != f.length) {
@@ -378,6 +381,7 @@ public class CustomTricubicInterpolatingFunction
 	 * @return the index in {@code val} corresponding to the interval containing {@code c}, or {@code -1}
 	 *         if {@code c} is out of the range defined by the end values of {@code val}.
 	 */
+	@SuppressWarnings("unused")
 	private static int searchIndexOriginal(double c, double[] val)
 	{
 		if (c < val[0])
@@ -577,9 +581,35 @@ public class CustomTricubicInterpolatingFunction
 		return splines[x.index][y.index][z.index].value(x, y, z);
 	}
 
+	/**
+	 * Get the interpolated value using pre-computed spline coefficient power table.
+	 *
+	 * @param xindex
+	 *            the x spline position
+	 * @param yindex
+	 *            the y spline position
+	 * @param zindex
+	 *            the z spline position
+	 * @param table
+	 *            the table of 64 precomputed power coefficients
+	 * @return the value
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if the spline node does not exist
+	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
+	 */
+	public double value(int xindex, int yindex, int zindex, double[] table)
+	{
+		return splines[xindex][yindex][zindex].value(table);
+	}
+
 	private static double getMax(double[] xval)
 	{
 		return xval[xval.length - 1];
+	}
+
+	private static int getMaxSplinePosition(double[] xval)
+	{
+		return xval.length - 2;
 	}
 
 	/**
@@ -590,6 +620,16 @@ public class CustomTricubicInterpolatingFunction
 	public double getMaxX()
 	{
 		return getMax(xval);
+	}
+
+	/**
+	 * Gets the max X spline position for interpolation.
+	 *
+	 * @return the max X spline position
+	 */
+	public int getMaxXSplinePosition()
+	{
+		return getMaxSplinePosition(xval);
 	}
 
 	/**
@@ -613,6 +653,16 @@ public class CustomTricubicInterpolatingFunction
 	}
 
 	/**
+	 * Gets the max Y spline position for interpolation.
+	 *
+	 * @return the max Y spline position
+	 */
+	public int getMaxYSplinePosition()
+	{
+		return getMaxSplinePosition(yval);
+	}
+
+	/**
 	 * Gets the min Y value for interpolation.
 	 *
 	 * @return the min Y value
@@ -630,6 +680,16 @@ public class CustomTricubicInterpolatingFunction
 	public double getMaxZ()
 	{
 		return getMax(zval);
+	}
+
+	/**
+	 * Gets the max Z spline position for interpolation.
+	 *
+	 * @return the max Z spline position
+	 */
+	public int getMaxZSplinePosition()
+	{
+		return getMaxSplinePosition(zval);
 	}
 
 	/**
