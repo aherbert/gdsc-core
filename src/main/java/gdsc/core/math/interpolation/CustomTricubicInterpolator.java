@@ -131,8 +131,8 @@ public class CustomTricubicInterpolator
 
         // Create the interpolating function.
         return new CustomTricubicInterpolatingFunction(xval, yval, zval, fval,
-                                                 dFdX, dFdY, dFdZ,
-                                                 d2FdXdY, d2FdXdZ, d2FdYdZ,
-                                                 d3FdXdYdZ);
+                                                       dFdX, dFdY, dFdZ,
+                                                       d2FdXdY, d2FdXdZ, d2FdYdZ,
+                                                       d3FdXdYdZ);
     }
 }

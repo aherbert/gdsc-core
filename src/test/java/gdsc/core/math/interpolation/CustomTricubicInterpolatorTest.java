@@ -38,7 +38,14 @@ public class CustomTricubicInterpolatorTest
 			Assert.assertEquals(x - 2, f1.getMaxXSplinePosition());
 			Assert.assertEquals(y - 2, f1.getMaxYSplinePosition());
 			Assert.assertEquals(z - 2, f1.getMaxZSplinePosition());
-			
+
+			for (int j = 0; j < xval.length; j++)
+				Assert.assertEquals(xval[j], f1.getXSplineValue(j), 0);
+			for (int j = 0; j < yval.length; j++)
+				Assert.assertEquals(yval[j], f1.getYSplineValue(j), 0);
+			for (int j = 0; j < zval.length; j++)
+				Assert.assertEquals(zval[j], f1.getZSplineValue(j), 0);
+
 			Assert.assertTrue(f1.isUniform);
 		}
 	}
@@ -97,7 +104,7 @@ public class CustomTricubicInterpolatorTest
 		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, good, zval, fval).isUniform);
 		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, yval, good, fval).isUniform);
 	}
-	
+
 	@Test
 	public void canInterpolate()
 	{
@@ -107,7 +114,8 @@ public class CustomTricubicInterpolatorTest
 		double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
 		double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
 		RandomGenerator r = new Well19937c(30051977);
-		double[] test = SimpleArrayUtils.newArray(9, 1, 0.2);
+		double[] test = SimpleArrayUtils.newArray(9, 1, 0.2); // between 1 and 3
+		TricubicInterpolator f3 = new TricubicInterpolator();
 		for (int i = 0; i < 3; i++)
 		{
 			double[][][] fval = createData(x, y, z, (i == 0) ? null : r);
@@ -117,19 +125,28 @@ public class CustomTricubicInterpolatorTest
 					.interpolate(xval, yval, zval, fval);
 			for (double zz : test)
 			{
-				CubicSplinePosition sz = f1.getZSplinePosition(zz);
+				IndexedCubicSplinePosition sz = f1.getZSplinePosition(zz);
 				for (double yy : test)
 				{
-					CubicSplinePosition sy = f1.getYSplinePosition(yy);
+					IndexedCubicSplinePosition sy = f1.getYSplinePosition(yy);
 
 					for (double xx : test)
 					{
 						double o = f1.value(xx, yy, zz);
 						double e = f2.value(xx, yy, zz);
 						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
-						CubicSplinePosition sx = f1.getXSplinePosition(xx);
+						IndexedCubicSplinePosition sx = f1.getXSplinePosition(xx);
 						double o2 = f1.value(sx, sy, sz);
 						Assert.assertEquals(o, o2, 0);
+
+						// Test against simple tricubic spline
+						// Which requires x,y,z in the range 0-1 for function values
+						// x=-1 to x=2; y=-1 to y=2; and z=-1 to z=2
+						if (zz < 2 && yy < 2 && xx < 2)
+						{
+							double e2 = f3.getValue(fval, xx - 1, yy - 1, zz - 1);
+							Assert.assertEquals(e2, o, Math.abs(e2 * 1e-8));
+						}
 					}
 				}
 			}

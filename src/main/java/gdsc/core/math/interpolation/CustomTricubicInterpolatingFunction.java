@@ -524,7 +524,7 @@ public class CustomTricubicInterpolatingFunction
 	 * @throws OutOfRangeException
 	 *             if the value is outside its interpolation range.
 	 */
-	private static CubicSplinePosition getSplinePosition(double[] xval, double x)
+	private static IndexedCubicSplinePosition getSplinePosition(double[] xval, double x)
 	{
 		final int i = searchIndex(x, xval);
 		if (i < 0)
@@ -532,7 +532,7 @@ public class CustomTricubicInterpolatingFunction
 			throw new OutOfRangeException(x, xval[0], xval[xval.length - 1]);
 		}
 		final double xN = (x - xval[i]) / (xval[i + 1] - xval[i]);
-		return new CubicSplinePosition(i, xN, false);
+		return new IndexedCubicSplinePosition(i, xN, false);
 	}
 
 	/**
@@ -544,7 +544,7 @@ public class CustomTricubicInterpolatingFunction
 	 * @throws OutOfRangeException
 	 *             if the value is outside its interpolation range.
 	 */
-	public CubicSplinePosition getXSplinePosition(double value) throws OutOfRangeException
+	public IndexedCubicSplinePosition getXSplinePosition(double value) throws OutOfRangeException
 	{
 		return getSplinePosition(xval, value);
 	}
@@ -558,7 +558,7 @@ public class CustomTricubicInterpolatingFunction
 	 * @throws OutOfRangeException
 	 *             if the value is outside its interpolation range.
 	 */
-	public CubicSplinePosition getYSplinePosition(double value)
+	public IndexedCubicSplinePosition getYSplinePosition(double value)
 	{
 		return getSplinePosition(yval, value);
 	}
@@ -572,7 +572,7 @@ public class CustomTricubicInterpolatingFunction
 	 * @throws OutOfRangeException
 	 *             if the value is outside its interpolation range.
 	 */
-	public CubicSplinePosition getZSplinePosition(double value)
+	public IndexedCubicSplinePosition getZSplinePosition(double value)
 	{
 		return getSplinePosition(zval, value);
 	}
@@ -590,7 +590,7 @@ public class CustomTricubicInterpolatingFunction
 	 * @throws ArrayIndexOutOfBoundsException
 	 *             if the spline node does not exist
 	 */
-	public double value(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z)
+	public double value(IndexedCubicSplinePosition x, IndexedCubicSplinePosition y, IndexedCubicSplinePosition z)
 			throws ArrayIndexOutOfBoundsException
 	{
 		return splines[x.index][y.index][z.index].value(x, y, z);
@@ -658,6 +658,18 @@ public class CustomTricubicInterpolatingFunction
 	}
 
 	/**
+	 * Gets the x spline value for the spline position. Equivalent to the x-value used when constructing the spline
+	 *
+	 * @param position
+	 *            the position
+	 * @return the x spline value
+	 */
+	public double getXSplineValue(int position)
+	{
+		return xval[position];
+	}
+
+	/**
 	 * Gets the max Y value for interpolation.
 	 *
 	 * @return the max Y value
@@ -688,6 +700,18 @@ public class CustomTricubicInterpolatingFunction
 	}
 
 	/**
+	 * Gets the y spline value for the spline position. Equivalent to the y-value used when constructing the spline
+	 *
+	 * @param position
+	 *            the position
+	 * @return the x spline value
+	 */
+	public double getYSplineValue(int position)
+	{
+		return yval[position];
+	}
+
+	/**
 	 * Gets the max Z value for interpolation.
 	 *
 	 * @return the max Z value
@@ -715,6 +739,18 @@ public class CustomTricubicInterpolatingFunction
 	public double getMinZ()
 	{
 		return zval[0];
+	}
+
+	/**
+	 * Gets the z spline value for the spline position. Equivalent to the z-value used when constructing the spline
+	 *
+	 * @param position
+	 *            the position
+	 * @return the z spline value
+	 */
+	public double getZSplineValue(int position)
+	{
+		return zval[position];
 	}
 
 	/**
