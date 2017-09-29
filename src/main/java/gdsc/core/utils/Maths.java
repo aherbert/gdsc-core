@@ -1116,4 +1116,40 @@ public class Maths
 	{
 		return pow2(pow2(d));
 	}
+
+	/**
+	 * Get the argument to the power 2. No check is made for overflow.
+	 *
+	 * @param d
+	 *            the d
+	 * @return d^2
+	 */
+	public static int pow2(int d)
+	{
+		return d * d;
+	}
+
+	/**
+	 * Get the argument to the power 3. No check is made for overflow.
+	 *
+	 * @param d
+	 *            the d
+	 * @return d^3
+	 */
+	public static int pow3(int d)
+	{
+		return d * d * d;
+	}
+
+	/**
+	 * Get the argument to the power 4. No check is made for overflow.
+	 *
+	 * @param d
+	 *            the d
+	 * @return d^4
+	 */
+	public static int pow4(int d)
+	{
+		return pow2(pow2(d));
+	}
 }
