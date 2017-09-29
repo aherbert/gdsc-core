@@ -49,8 +49,19 @@ import gdsc.core.utils.SimpleArrayUtils;
 public class CustomTricubicInterpolatingFunction
     implements TrivariateFunction {
 	
+	/** The tolerance for checking the spline points are uniform */
+	public static final double UNIFORM_TOLERANCE = 1e-6;
+	
 	/** Set to true if the x,y,z spline points have integer values. */
 	final boolean isInteger;
+	
+	/** 
+	 * Set to true if the x,y,z spline points are uniformly spaced. 
+	 * <p>
+	 * This allows the function to be efficiently sampled using precomputed 
+	 * spline coefficients (see {@link #value(int, int, int, double[])})
+	 */
+	final boolean isUniform;
 	
     /**
      * Matrix to compute the spline coefficients from the function values
@@ -202,7 +213,11 @@ public class CustomTricubicInterpolatingFunction
         MathArrays.checkOrder(z);
         
         isInteger = SimpleArrayUtils.isInteger(x) && SimpleArrayUtils.isInteger(y) && SimpleArrayUtils.isInteger(z); 
-
+    	isUniform = 
+    			SimpleArrayUtils.isUniform(x, (x[1]-x[0])*UNIFORM_TOLERANCE) && 
+    			SimpleArrayUtils.isUniform(y, (y[1]-y[0])*UNIFORM_TOLERANCE) && 
+    			SimpleArrayUtils.isUniform(z, (z[1]-z[0])*UNIFORM_TOLERANCE);
+ 
         xval = x.clone();
         yval = y.clone();
         zval = z.clone();

@@ -38,6 +38,8 @@ public class CustomTricubicInterpolatorTest
 			Assert.assertEquals(x - 2, f1.getMaxXSplinePosition());
 			Assert.assertEquals(y - 2, f1.getMaxYSplinePosition());
 			Assert.assertEquals(z - 2, f1.getMaxZSplinePosition());
+			
+			Assert.assertTrue(f1.isUniform);
 		}
 	}
 

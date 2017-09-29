@@ -442,4 +442,94 @@ public class SimpleArrayUtils
 				return false;
 		return true;
 	}
+
+	/**
+	 * Checks if all the values have a uniform interval between them. The interval between each successive pair is
+	 * compared to the mean interval. If the error is greater than the tolerance then return false. If any interval is
+	 * zero then return false. If any interval reverses direction then return false. This ensures that the function
+	 * returns true only if the sequence is monotonic and evenly sampled within the tolerance.
+	 * <p>
+	 * Note that the tolerance is absolute. You can create this from a relative tolerance using:
+	 * <code>(x[1]-x[0])*relativeTolerance</code>.
+	 *
+	 * @param x
+	 *            the x
+	 * @param uniformTolerance
+	 *            the uniform tolerance
+	 * @return true, if is uniform
+	 */
+	public static boolean isUniform(double[] x, double uniformTolerance)
+	{
+		if (x.length <= 2)
+			return true;
+		double sum = 0;
+		double reference = 0;
+		double direction = Math.signum(x[1] - x[0]);
+		if (direction == 0.0)
+			return false;
+		for (int i = 1; i < x.length; i++)
+		{
+			double interval = x[i] - x[i - 1];
+			if (Math.signum(interval) != direction)
+				return false;
+			sum += interval;
+			// Difference from last. Use this to avoid having to compute the mean if the intervals are very different.
+			if (i != 1)
+			{
+				if (interval > reference)
+				{
+					if (interval - reference > uniformTolerance)
+						return false;
+				}
+				else
+				{
+					if (reference - interval > uniformTolerance)
+						return false;
+				}
+			}
+			reference = interval;
+		}
+		// Check against the mean 
+		reference = sum / (x.length - 1);
+		for (int i = 1; i < x.length; i++)
+		{
+			double interval = x[i] - x[i - 1];
+			if (interval > reference)
+			{
+				if (interval - reference > uniformTolerance)
+					return false;
+			}
+			else
+			{
+				if (reference - interval > uniformTolerance)
+					return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Checks if all the values have a uniform interval between them. The interval between each successive pair is
+	 * compared to the first interval. If different then return false. If the first interval is zero then return false.
+	 * This ensures that the function returns true only if the sequence is monotonic and evenly sampled.
+	 *
+	 * @param x
+	 *            the x
+	 * @return true, if is uniform
+	 */
+	public static boolean isUniform(int[] x)
+	{
+		if (x.length <= 2)
+			return true;
+		final int reference = x[1] - x[0];
+		if (reference == 0)
+			return false;
+		for (int i = 2; i < x.length; i++)
+		{
+			int interval = x[i] - x[i - 1];
+			if (interval != reference)
+				return false;
+		}
+		return true;
+	}
 }
