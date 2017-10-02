@@ -24,6 +24,9 @@ public class IndexedCubicSplinePosition extends CubicSplinePosition
 	/** The index of the spline node */
 	final int index;
 
+	/** The scale used to compress the original value to the range 0-1. */
+	final double scale;
+
 	/**
 	 * Instantiates a new indexed cubic spline position. Only used when x is known to be in the range 0-1 and the index
 	 * is positive..
@@ -32,13 +35,16 @@ public class IndexedCubicSplinePosition extends CubicSplinePosition
 	 *            the index
 	 * @param x
 	 *            the x
+	 * @param scale
+	 *            the scale used to compress the original value to the range 0-1
 	 * @param dummy
 	 *            the dummy flag
 	 */
-	IndexedCubicSplinePosition(int index, double x, boolean dummy)
+	IndexedCubicSplinePosition(int index, double x, double scale, boolean dummy)
 	{
 		super(x, dummy);
 		this.index = index;
+		this.scale = scale;
 	}
 
 	/**
@@ -48,17 +54,39 @@ public class IndexedCubicSplinePosition extends CubicSplinePosition
 	 *            the index
 	 * @param x
 	 *            the distance along the spline to the next node (range 0 to 1)
+	 * @param scale
+	 *            the scale used to compress the original value to the range 0-1
 	 * @throws IllegalArgumentException
 	 *             If the index is negative
 	 * @throws OutOfRangeException
 	 *             If x is not in the range 0 to 1
 	 */
-	public IndexedCubicSplinePosition(int index, double x) throws IllegalArgumentException, OutOfRangeException
+	public IndexedCubicSplinePosition(int index, double x, double scale)
+			throws IllegalArgumentException, OutOfRangeException
 	{
 		super(x);
 		// If the user creates a spline position then we should check it is valid
 		if (index < 0)
 			throw new IllegalArgumentException("Index must be positive");
 		this.index = index;
+		this.scale = scale;
+	}
+
+	@Override
+	public double scale(double x)
+	{
+		return x * scale;
+	}
+
+	@Override
+	public double scaleGradient(double df_dx)
+	{
+		return df_dx / scale;
+	}
+	
+	@Override
+	public double scaleGradient2(double d2f_dx2)
+	{
+		return d2f_dx2 / scale / scale;
 	}
 }

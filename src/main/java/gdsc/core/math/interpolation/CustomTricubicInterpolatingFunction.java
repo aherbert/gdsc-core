@@ -64,6 +64,8 @@ public class CustomTricubicInterpolatingFunction
 	 */
 	final boolean isUniform;
 	
+	private double[] scale;
+	
     /**
      * Matrix to compute the spline coefficients from the function values
      * and function derivatives values
@@ -143,6 +145,14 @@ public class CustomTricubicInterpolatingFunction
     private final double[] zval;
     /** Set of cubic splines patching the whole data grid */
     private final CustomTricubicFunction[][][] splines;
+    
+	/** The scale for x. This is the interval between x[i+1] and x[i] */
+	private final double[] xscale;
+	/** The scale for y. This is the interval between y[i+1] and y[i] */
+	private final double[] yscale;
+	/** The scale for z. This is the interval between z[i+1] and z[i] */
+	private final double[] zscale;
+    
 
     /**
      * Instantiates a new custom tricubic interpolating function.
@@ -217,6 +227,7 @@ public class CustomTricubicInterpolatingFunction
         MathArrays.checkOrder(y);
         MathArrays.checkOrder(z);
         
+        
         isInteger = SimpleArrayUtils.isInteger(x) && SimpleArrayUtils.isInteger(y) && SimpleArrayUtils.isInteger(z); 
     	isUniform = 
     			SimpleArrayUtils.isUniform(x, (x[1]-x[0])*UNIFORM_TOLERANCE) && 
@@ -227,6 +238,10 @@ public class CustomTricubicInterpolatingFunction
         yval = y.clone();
         zval = z.clone();
 
+        xscale = createScale(x);
+        yscale = createScale(y);
+        zscale = createScale(z);
+        
         final int lastI = xLen - 1;
         final int lastJ = yLen - 1;
         final int lastK = zLen - 1;
@@ -350,7 +365,16 @@ public class CustomTricubicInterpolatingFunction
         progress.progress(1);
     }
 
-    /**
+    private static double[] createScale(double[] x)
+	{
+    	int n = x.length-1;
+    	double[] scale = new double[n];
+    	for (int i=0; i < n; i++)
+    		scale[i] = x[i + 1] - x[i];
+		return scale;
+	}
+
+	/**
      * {@inheritDoc}
      *
      * @throws OutOfRangeException if any of the variables is outside its interpolation range.
@@ -358,17 +382,8 @@ public class CustomTricubicInterpolatingFunction
     public double value(double x, double y, double z)
         throws OutOfRangeException {
         final int i = searchIndex(x, xval);
-        if (i < 0) {
-            throw new OutOfRangeException(x, xval[0], xval[xval.length - 1]);
-        }
         final int j = searchIndex(y, yval);
-        if (j < 0) {
-            throw new OutOfRangeException(y, yval[0], yval[yval.length - 1]);
-        }
         final int k = searchIndex(z, zval);
-        if (k < 0) {
-            throw new OutOfRangeException(z, zval[0], zval[zval.length - 1]);
-        }
 
         final double xN = (x - xval[i]) / (xval[i + 1] - xval[i]);
         final double yN = (y - yval[j]) / (yval[j + 1] - yval[j]);
@@ -386,8 +401,10 @@ public class CustomTricubicInterpolatingFunction
 	 *            Coordinate samples.
 	 * @return the index in {@code val} corresponding to the interval containing {@code c}, or {@code -1}
 	 *         if {@code c} is out of the range defined by the end values of {@code val}.
+	 * @throws OutOfRangeException
+	 *             if any of the variables is outside its interpolation range.
 	 */
-	private static int searchIndex(double c, double[] val)
+	private static int searchIndex(double c, double[] val) throws OutOfRangeException
 	{
 		return searchIndexBinarySearch(c, val);
 
@@ -404,15 +421,17 @@ public class CustomTricubicInterpolatingFunction
 	 *            Coordinate.
 	 * @param val
 	 *            Coordinate samples.
-	 * @return the index in {@code val} corresponding to the interval containing {@code c}, or {@code -1}
-	 *         if {@code c} is out of the range defined by the end values of {@code val}.
+	 * @return the index in {@code val} corresponding to the interval containing {@code c}
+	 * @throws OutOfRangeException
+	 *             if any of the variables is outside its interpolation range.
 	 */
 	@SuppressWarnings("unused")
-	private static int searchIndexOriginal(double c, double[] val)
+	private static int searchIndexOriginal(double c, double[] val) throws OutOfRangeException
 	{
 		if (c < val[0])
 		{
-			return -1;
+			throw new OutOfRangeException(c, val[0], val[val.length - 1]);
+			//return -1;
 		}
 
 		final int max = val.length;
@@ -424,7 +443,8 @@ public class CustomTricubicInterpolatingFunction
 			}
 		}
 
-		return -1;
+		throw new OutOfRangeException(c, val[0], val[val.length - 1]);
+		//return -1;
 	}
 
 	/**
@@ -434,17 +454,17 @@ public class CustomTricubicInterpolatingFunction
 	 *            Coordinate samples.
 	 * @return the index in {@code val} corresponding to the interval containing {@code c}, or {@code -1}
 	 *         if {@code c} is out of the range defined by the end values of {@code val}.
+	 * @throws OutOfRangeException
+	 *             if any of the variables is outside its interpolation range.
 	 */
-	private static int searchIndexBinarySearch(double c, double[] val)
+	private static int searchIndexBinarySearch(double c, double[] val) throws OutOfRangeException
 	{
 		// Use a Binary search.
 		// We want to find the index equal to or before the key.  
 		int high = val.length - 1;
 
-		if (c < val[0])
-			return -1;
-		if (c > val[high])
-			return -val.length;
+		if (c < val[0] || c > val[high])
+			throw new OutOfRangeException(c, val[0], val[high]);
 
 		int i = binarySearch0(val, 0, val.length, c);
 		if (i < 0)
@@ -529,21 +549,19 @@ public class CustomTricubicInterpolatingFunction
 	 *
 	 * @param xval
 	 *            the spline values
+	 * @param xscale
+	 *            the scale (xval[i+1] - xval[i])
 	 * @param x
 	 *            the value
 	 * @return the spline position
 	 * @throws OutOfRangeException
 	 *             if the value is outside its interpolation range.
 	 */
-	private static IndexedCubicSplinePosition getSplinePosition(double[] xval, double x)
+	private static IndexedCubicSplinePosition getSplinePosition(double[] xval, double[] xscale, double x)
 	{
 		final int i = searchIndex(x, xval);
-		if (i < 0)
-		{
-			throw new OutOfRangeException(x, xval[0], xval[xval.length - 1]);
-		}
-		final double xN = (x - xval[i]) / (xval[i + 1] - xval[i]);
-		return new IndexedCubicSplinePosition(i, xN, false);
+		final double xN = (x - xval[i]) / xscale[i];
+		return new IndexedCubicSplinePosition(i, xN, xscale[i], false);
 	}
 
 	/**
@@ -557,7 +575,7 @@ public class CustomTricubicInterpolatingFunction
 	 */
 	public IndexedCubicSplinePosition getXSplinePosition(double value) throws OutOfRangeException
 	{
-		return getSplinePosition(xval, value);
+		return getSplinePosition(xval, xscale, value);
 	}
 
 	/**
@@ -571,7 +589,7 @@ public class CustomTricubicInterpolatingFunction
 	 */
 	public IndexedCubicSplinePosition getYSplinePosition(double value)
 	{
-		return getSplinePosition(yval, value);
+		return getSplinePosition(yval, yscale, value);
 	}
 
 	/**
@@ -585,7 +603,7 @@ public class CustomTricubicInterpolatingFunction
 	 */
 	public IndexedCubicSplinePosition getZSplinePosition(double value)
 	{
-		return getSplinePosition(zval, value);
+		return getSplinePosition(zval, zscale, value);
 	}
 
 	/**
@@ -626,6 +644,213 @@ public class CustomTricubicInterpolatingFunction
 	public double value(int xindex, int yindex, int zindex, double[] table)
 	{
 		return splines[xindex][yindex][zindex].value(table);
+	}
+
+	/**
+	 * Get the interpolated value and partial first-order derivatives.
+	 *
+	 * @param x
+	 *            the x value
+	 * @param y
+	 *            the y value
+	 * @param z
+	 *            the z value
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 * @return the value
+	 * @throws OutOfRangeException
+	 *             if any of the variables is outside its interpolation range.
+	 */
+	public double value(double x, double y, double z, double[] df_da) throws OutOfRangeException
+	{
+		final int i = searchIndex(x, xval);
+		final int j = searchIndex(y, yval);
+		final int k = searchIndex(z, zval);
+
+		final double xN = (x - xval[i]) / xscale[i];
+		final double yN = (y - yval[j]) / yscale[j];
+		final double zN = (z - zval[k]) / zscale[k];
+
+		double value = splines[i][j][k].value(xN, yN, zN, df_da);
+		df_da[0] /= xscale[i];
+		df_da[1] /= yscale[j];
+		df_da[2] /= zscale[k];
+		return value;
+	}
+
+	/**
+	 * Get the interpolated value and partial first-order derivatives using pre-computed spline positions.
+	 *
+	 * @param x
+	 *            the x value
+	 * @param y
+	 *            the y value
+	 * @param z
+	 *            the z value
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 * @return the value
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if the spline node does not exist
+	 */
+	public double value(IndexedCubicSplinePosition x, IndexedCubicSplinePosition y, IndexedCubicSplinePosition z,
+			double[] df_da) throws ArrayIndexOutOfBoundsException
+	{
+		return splines[x.index][y.index][z.index].value(x, y, z, df_da);
+	}
+
+	/**
+	 * Get the interpolated value and partial first-order derivatives using pre-computed spline coefficient power table.
+	 *
+	 * @param xindex
+	 *            the x spline position
+	 * @param yindex
+	 *            the y spline position
+	 * @param zindex
+	 *            the z spline position
+	 * @param tables
+	 *            the tables
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 * @return the value
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if the spline node does not exist
+	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
+	 */
+	public double value(int xindex, int yindex, int zindex, double[][] tables, double[] df_da)
+	{
+		double value = splines[xindex][yindex][zindex].value(tables, df_da);
+		df_da[0] /= xscale[xindex];
+		df_da[1] /= yscale[yindex];
+		df_da[2] /= zscale[zindex];
+		return value;
+	}
+
+	/**
+	 * Get the interpolated value and partial first-order and second-order derivatives.
+	 *
+	 * @param x
+	 *            the x value
+	 * @param y
+	 *            the y value
+	 * @param z
+	 *            the z value
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 * @param d2f_da2
+	 *            the partial second order derivatives with respect to x,y,z
+	 * @return the value
+	 * @throws OutOfRangeException
+	 *             if any of the variables is outside its interpolation range.
+	 */
+	public double value(double x, double y, double z, double[] df_da, double[] d2f_da2) throws OutOfRangeException
+	{
+		final int i = searchIndex(x, xval);
+		final int j = searchIndex(y, yval);
+		final int k = searchIndex(z, zval);
+
+		final double xN = (x - xval[i]) / xscale[i];
+		final double yN = (y - yval[j]) / yscale[j];
+		final double zN = (z - zval[k]) / zscale[k];
+
+		double value = splines[i][j][k].value(xN, yN, zN, df_da, d2f_da2);
+		df_da[0] /= xscale[i];
+		df_da[1] /= yscale[j];
+		df_da[2] /= zscale[k];
+		d2f_da2[0] /= xscale[i] * xscale[i];
+		d2f_da2[1] /= yscale[j] * yscale[j];
+		d2f_da2[2] /= zscale[k] * zscale[k];
+		return value;
+	}
+
+	/**
+	 * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
+	 * positions.
+	 *
+	 * @param x
+	 *            the x value
+	 * @param y
+	 *            the y value
+	 * @param z
+	 *            the z value
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 * @param d2f_da2
+	 *            the partial second order derivatives with respect to x,y,z
+	 * @return the value
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if the spline node does not exist
+	 */
+	public double value(IndexedCubicSplinePosition x, IndexedCubicSplinePosition y, IndexedCubicSplinePosition z,
+			double[] df_da, double[] d2f_da2) throws ArrayIndexOutOfBoundsException
+	{
+		return splines[x.index][y.index][z.index].value(x, y, z, df_da, d2f_da2);
+	}
+
+	/**
+	 * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
+	 * coefficient power table.
+	 *
+	 * @param xindex
+	 *            the x spline position
+	 * @param yindex
+	 *            the y spline position
+	 * @param zindex
+	 *            the z spline position
+	 * @param tables
+	 *            the tables
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 * @param d2f_da2
+	 *            the partial second order derivatives with respect to x,y,z
+	 * @return the value
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if the spline node does not exist
+	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
+	 */
+	public double value(int xindex, int yindex, int zindex, double[][] tables, double[] df_da, double[] d2f_da2)
+	{
+		double value = splines[xindex][yindex][zindex].value(tables, df_da, d2f_da2);
+		df_da[0] /= xscale[xindex];
+		df_da[1] /= yscale[yindex];
+		df_da[2] /= zscale[zindex];
+		d2f_da2[0] /= xscale[xindex] * xscale[xindex];
+		d2f_da2[1] /= yscale[yindex] * yscale[yindex];
+		d2f_da2[2] /= zscale[zindex] * zscale[zindex];
+		return value;
+	}
+
+	/**
+	 * Gets the scale to convert the cube interval 0-1 back to correctly scaled values.
+	 * <p>
+	 * This is only valid if the function is uniform on each input axis (see {@link #isUniform}).
+	 *
+	 * @return the scale
+	 * @throws IllegalStateException
+	 *             the illegal state exception
+	 */
+	public double[] getScale() throws IllegalStateException
+	{
+		if (isUniform)
+		{
+			if (scale == null)
+			{
+				// We know that the values scale is uniform. Compute the scale using the 
+				// range of values
+				scale = new double[3];
+				scale[0] = getScale(xval);
+				scale[1] = getScale(yval);
+				scale[2] = getScale(zval);
+			}
+			return scale.clone();
+		}
+		throw new IllegalStateException("The function is not uniform");
+	}
+
+	private static double getScale(double[] xval)
+	{
+		int n = xval.length - 1;
+		return (xval[n] - xval[0]) / n;
 	}
 
 	private static double getMax(double[] xval)
