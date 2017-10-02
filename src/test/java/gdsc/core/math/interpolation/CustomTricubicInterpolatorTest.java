@@ -284,8 +284,7 @@ public class CustomTricubicInterpolatorTest
 						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
 						double o2 = f1.value(xx, yy, zz, df_daB, d2f_da2A);
 						Assert.assertEquals(e, o2, Math.abs(e * 1e-8));
-						// TODO - change this error to zero
-						Assert.assertArrayEquals(df_daA, df_daB, 1e-8);
+						Assert.assertArrayEquals(df_daA, df_daB, 0);
 
 						IndexedCubicSplinePosition sx = f1.getXSplinePosition(xx);
 						o2 = f1.value(sx, sy, sz, df_daB);
@@ -293,8 +292,7 @@ public class CustomTricubicInterpolatorTest
 						Assert.assertArrayEquals(df_daA, df_daB, 0);
 						o2 = f1.value(sx, sy, sz, df_daB, d2f_da2B);
 						Assert.assertEquals(e, o2, Math.abs(e * 1e-8));
-						// TODO - change this error to zero
-						Assert.assertArrayEquals(df_daA, df_daB, 1e-8);
+						Assert.assertArrayEquals(df_daA, df_daB, 0);
 						Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 0);
 
 						// Get gradient and check
@@ -351,6 +349,8 @@ public class CustomTricubicInterpolatorTest
 		double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
 		double[] df_daA = new double[3];
 		double[] df_daB = new double[3];
+		double[] d2f_da2A = new double[3];
+		double[] d2f_da2B = new double[3];
 		double[][][] fval = createData(x, y, z, null);
 		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
 		for (int i = 0; i < 3; i++)
@@ -361,6 +361,7 @@ public class CustomTricubicInterpolatorTest
 
 			// This is done unscaled
 			double[][] tables = CustomTricubicFunction.computeFirstOrderPowerTables(xx, yy, zz);
+			double[][] tables2 = CustomTricubicFunction.computeSecondOrderPowerTables(xx, yy, zz);
 
 			xx *= xscale;
 			yy *= yscale;
@@ -372,10 +373,19 @@ public class CustomTricubicInterpolatorTest
 					{
 						// Just check relative to the non-table version
 						double[] a = new double[] { xval[xi] + xx, yval[yi] + yy, zval[zi] + zz };
-						double o = f1.value(a[0], a[1], a[2], df_daA);
-						double e = f1.value(xi, yi, zi, tables, df_daB);
+						double e = f1.value(a[0], a[1], a[2], df_daA);
+						double o = f1.value(xi, yi, zi, tables, df_daB);
 						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
 						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
+						
+						o = f1.value(a[0], a[1], a[2], df_daB, d2f_da2A);
+						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
+						
+						o = f1.value(xi, yi, zi, tables2, df_daB, d2f_da2B);
+						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
+						Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 1e-10);
 					}
 		}
 	}
