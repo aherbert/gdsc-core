@@ -85,6 +85,8 @@ public class CustomTricubicFunction implements TrivariateFunction
 	}
 
 	/**
+	 * Get the interpolated value
+	 * 
 	 * @param x
 	 *            x-coordinate of the interpolation point.
 	 * @param y
@@ -127,6 +129,8 @@ public class CustomTricubicFunction implements TrivariateFunction
 	}
 
 	/**
+	 * Get the interpolated value
+	 * 
 	 * @param x
 	 *            x-coordinate of the interpolation point.
 	 * @param y
@@ -141,6 +145,8 @@ public class CustomTricubicFunction implements TrivariateFunction
 	}
 
 	/**
+	 * Get the interpolated value
+	 * 
 	 * @param pX
 	 *            x-coordinate powers of the interpolation point.
 	 * @param pY
@@ -154,103 +160,130 @@ public class CustomTricubicFunction implements TrivariateFunction
 		double pYpZ;
 		double result = 0;
 
-		//for (int k = 0, ai = 0; k < N; k++)
-		//{
-		//	for (int j = 0; j < N; j++)
-		//	{
-		//		System.out.printf("pYpZ = pY[%d] * pZ[%d];\n", j, k);
-		//		pYpZ = pY[j] * pZ[k];
-		//		for (int i = 0; i < N; i++)
-		//		{
-		//			// Used for inlining the computation
-		//			System.out.printf("result += a[%d] * pX[%d] * pYpZ;\n", ai, i);
-		//			result += a[ai++] * pX[i] * pYpZ;
-		//		}
-		//	}
-		//}
+		// See inlineValue(...) for details of how the inlining was performed
 
-		// In-line
-		pYpZ = pY[0] * pZ[0];
-		result += a[0] * pX[0] * pYpZ;
-		result += a[1] * pX[1] * pYpZ;
-		result += a[2] * pX[2] * pYpZ;
-		result += a[3] * pX[3] * pYpZ;
-		pYpZ = pY[1] * pZ[0];
-		result += a[4] * pX[0] * pYpZ;
-		result += a[5] * pX[1] * pYpZ;
-		result += a[6] * pX[2] * pYpZ;
-		result += a[7] * pX[3] * pYpZ;
-		pYpZ = pY[2] * pZ[0];
-		result += a[8] * pX[0] * pYpZ;
-		result += a[9] * pX[1] * pYpZ;
-		result += a[10] * pX[2] * pYpZ;
-		result += a[11] * pX[3] * pYpZ;
-		pYpZ = pY[3] * pZ[0];
-		result += a[12] * pX[0] * pYpZ;
-		result += a[13] * pX[1] * pYpZ;
-		result += a[14] * pX[2] * pYpZ;
-		result += a[15] * pX[3] * pYpZ;
-		pYpZ = pY[0] * pZ[1];
-		result += a[16] * pX[0] * pYpZ;
-		result += a[17] * pX[1] * pYpZ;
-		result += a[18] * pX[2] * pYpZ;
-		result += a[19] * pX[3] * pYpZ;
+		result += a[0];
+		result += a[1] * pX[1];
+		result += a[2] * pX[2];
+		result += a[3] * pX[3];
+		result += a[4] * pY[1];
+		result += a[5] * pX[1] * pY[1];
+		result += a[6] * pX[2] * pY[1];
+		result += a[7] * pX[3] * pY[1];
+		result += a[8] * pY[2];
+		result += a[9] * pX[1] * pY[2];
+		result += a[10] * pX[2] * pY[2];
+		result += a[11] * pX[3] * pY[2];
+		result += a[12] * pY[3];
+		result += a[13] * pX[1] * pY[3];
+		result += a[14] * pX[2] * pY[3];
+		result += a[15] * pX[3] * pY[3];
+		result += a[16] * pZ[1];
+		result += a[17] * pX[1] * pZ[1];
+		result += a[18] * pX[2] * pZ[1];
+		result += a[19] * pX[3] * pZ[1];
 		pYpZ = pY[1] * pZ[1];
-		result += a[20] * pX[0] * pYpZ;
+		result += a[20] * pYpZ;
 		result += a[21] * pX[1] * pYpZ;
 		result += a[22] * pX[2] * pYpZ;
 		result += a[23] * pX[3] * pYpZ;
 		pYpZ = pY[2] * pZ[1];
-		result += a[24] * pX[0] * pYpZ;
+		result += a[24] * pYpZ;
 		result += a[25] * pX[1] * pYpZ;
 		result += a[26] * pX[2] * pYpZ;
 		result += a[27] * pX[3] * pYpZ;
 		pYpZ = pY[3] * pZ[1];
-		result += a[28] * pX[0] * pYpZ;
+		result += a[28] * pYpZ;
 		result += a[29] * pX[1] * pYpZ;
 		result += a[30] * pX[2] * pYpZ;
 		result += a[31] * pX[3] * pYpZ;
-		pYpZ = pY[0] * pZ[2];
-		result += a[32] * pX[0] * pYpZ;
-		result += a[33] * pX[1] * pYpZ;
-		result += a[34] * pX[2] * pYpZ;
-		result += a[35] * pX[3] * pYpZ;
+		result += a[32] * pZ[2];
+		result += a[33] * pX[1] * pZ[2];
+		result += a[34] * pX[2] * pZ[2];
+		result += a[35] * pX[3] * pZ[2];
 		pYpZ = pY[1] * pZ[2];
-		result += a[36] * pX[0] * pYpZ;
+		result += a[36] * pYpZ;
 		result += a[37] * pX[1] * pYpZ;
 		result += a[38] * pX[2] * pYpZ;
 		result += a[39] * pX[3] * pYpZ;
 		pYpZ = pY[2] * pZ[2];
-		result += a[40] * pX[0] * pYpZ;
+		result += a[40] * pYpZ;
 		result += a[41] * pX[1] * pYpZ;
 		result += a[42] * pX[2] * pYpZ;
 		result += a[43] * pX[3] * pYpZ;
 		pYpZ = pY[3] * pZ[2];
-		result += a[44] * pX[0] * pYpZ;
+		result += a[44] * pYpZ;
 		result += a[45] * pX[1] * pYpZ;
 		result += a[46] * pX[2] * pYpZ;
 		result += a[47] * pX[3] * pYpZ;
-		pYpZ = pY[0] * pZ[3];
-		result += a[48] * pX[0] * pYpZ;
-		result += a[49] * pX[1] * pYpZ;
-		result += a[50] * pX[2] * pYpZ;
-		result += a[51] * pX[3] * pYpZ;
+		result += a[48] * pZ[3];
+		result += a[49] * pX[1] * pZ[3];
+		result += a[50] * pX[2] * pZ[3];
+		result += a[51] * pX[3] * pZ[3];
 		pYpZ = pY[1] * pZ[3];
-		result += a[52] * pX[0] * pYpZ;
+		result += a[52] * pYpZ;
 		result += a[53] * pX[1] * pYpZ;
 		result += a[54] * pX[2] * pYpZ;
 		result += a[55] * pX[3] * pYpZ;
 		pYpZ = pY[2] * pZ[3];
-		result += a[56] * pX[0] * pYpZ;
+		result += a[56] * pYpZ;
 		result += a[57] * pX[1] * pYpZ;
 		result += a[58] * pX[2] * pYpZ;
 		result += a[59] * pX[3] * pYpZ;
 		pYpZ = pY[3] * pZ[3];
-		result += a[60] * pX[0] * pYpZ;
+		result += a[60] * pYpZ;
 		result += a[61] * pX[1] * pYpZ;
 		result += a[62] * pX[2] * pYpZ;
 		result += a[63] * pX[3] * pYpZ;
 
+		return result;
+	}
+
+	/**
+	 * Used to create the inline value function
+	 * 
+	 * @return the function text.
+	 */
+	static String inlineValue()
+	{
+		String _pYpZ;
+		StringBuilder sb = new StringBuilder();
+
+		for (int k = 0, ai = 0; k < N; k++)
+		{
+			for (int j = 0; j < N; j++)
+			{
+				if (k == 0)
+				{
+					if (j == 0)
+					{
+						_pYpZ = "1";
+					}
+					else
+					{
+						_pYpZ = String.format("pY[%d]", j);
+					}
+				}
+				else if (j == 0)
+				{
+					_pYpZ = String.format("pZ[%d]", k);
+				}
+				else
+				{
+					sb.append(String.format("pYpZ = pY[%d] * pZ[%d];\n", j, k));
+					_pYpZ = "pYpZ";
+				}
+
+				for (int i = 0; i < N; i++, ai++)
+				{
+					sb.append(String.format("result += a[%d] * pX[%d] * %s;\n", ai, i, _pYpZ));
+				}
+			}
+		}
+
+		String result = sb.toString();
+		result = result.replace(" * 1", "");
+		result = result.replace(" * pX[0]", "");
 		return result;
 	}
 
@@ -329,18 +362,128 @@ public class CustomTricubicFunction implements TrivariateFunction
 	{
 		double pYpZ;
 		double[] table = new double[64];
+		
+		// See inlineComputePowerTable(...) for details of how the inlining was performed
+		
+		table[0] = 1;
+		table[1] = pX[1];
+		table[2] = pX[2];
+		table[3] = pX[3];
+		table[4] = pY[1];
+		table[5] = pX[1] * pY[1];
+		table[6] = pX[2] * pY[1];
+		table[7] = pX[3] * pY[1];
+		table[8] = pY[2];
+		table[9] = pX[1] * pY[2];
+		table[10] = pX[2] * pY[2];
+		table[11] = pX[3] * pY[2];
+		table[12] = pY[3];
+		table[13] = pX[1] * pY[3];
+		table[14] = pX[2] * pY[3];
+		table[15] = pX[3] * pY[3];
+		table[16] = pZ[1];
+		table[17] = pX[1] * pZ[1];
+		table[18] = pX[2] * pZ[1];
+		table[19] = pX[3] * pZ[1];
+		pYpZ = pY[1] * pZ[1];
+		table[20] = pYpZ;
+		table[21] = pX[1] * pYpZ;
+		table[22] = pX[2] * pYpZ;
+		table[23] = pX[3] * pYpZ;
+		pYpZ = pY[2] * pZ[1];
+		table[24] = pYpZ;
+		table[25] = pX[1] * pYpZ;
+		table[26] = pX[2] * pYpZ;
+		table[27] = pX[3] * pYpZ;
+		pYpZ = pY[3] * pZ[1];
+		table[28] = pYpZ;
+		table[29] = pX[1] * pYpZ;
+		table[30] = pX[2] * pYpZ;
+		table[31] = pX[3] * pYpZ;
+		table[32] = pZ[2];
+		table[33] = pX[1] * pZ[2];
+		table[34] = pX[2] * pZ[2];
+		table[35] = pX[3] * pZ[2];
+		pYpZ = pY[1] * pZ[2];
+		table[36] = pYpZ;
+		table[37] = pX[1] * pYpZ;
+		table[38] = pX[2] * pYpZ;
+		table[39] = pX[3] * pYpZ;
+		pYpZ = pY[2] * pZ[2];
+		table[40] = pYpZ;
+		table[41] = pX[1] * pYpZ;
+		table[42] = pX[2] * pYpZ;
+		table[43] = pX[3] * pYpZ;
+		pYpZ = pY[3] * pZ[2];
+		table[44] = pYpZ;
+		table[45] = pX[1] * pYpZ;
+		table[46] = pX[2] * pYpZ;
+		table[47] = pX[3] * pYpZ;
+		table[48] = pZ[3];
+		table[49] = pX[1] * pZ[3];
+		table[50] = pX[2] * pZ[3];
+		table[51] = pX[3] * pZ[3];
+		pYpZ = pY[1] * pZ[3];
+		table[52] = pYpZ;
+		table[53] = pX[1] * pYpZ;
+		table[54] = pX[2] * pYpZ;
+		table[55] = pX[3] * pYpZ;
+		pYpZ = pY[2] * pZ[3];
+		table[56] = pYpZ;
+		table[57] = pX[1] * pYpZ;
+		table[58] = pX[2] * pYpZ;
+		table[59] = pX[3] * pYpZ;
+		pYpZ = pY[3] * pZ[3];
+		table[60] = pYpZ;
+		table[61] = pX[1] * pYpZ;
+		table[62] = pX[2] * pYpZ;
+		table[63] = pX[3] * pYpZ;
+
+		return table;
+	}
+
+	static String inlineComputePowerTable()
+	{
+		String _pYpZ;
+		StringBuilder sb = new StringBuilder();
+
 		for (int k = 0, ai = 0; k < N; k++)
 		{
 			for (int j = 0; j < N; j++)
 			{
-				pYpZ = pY[j] * pZ[k];
-				for (int i = 0; i < N; i++)
+				if (k == 0)
 				{
-					table[ai++] = pX[i] * pYpZ;
+					if (j == 0)
+					{
+						_pYpZ = "1";
+					}
+					else
+					{
+						_pYpZ = String.format("pY[%d]", j);
+					}
+				}
+				else if (j == 0)
+				{
+					_pYpZ = String.format("pZ[%d]", k);
+				}
+				else
+				{
+					sb.append(String.format("pYpZ = pY[%d] * pZ[%d];\n", j, k));
+					_pYpZ = "pYpZ";
+				}
+
+				for (int i = 0; i < N; i++, ai++)
+				{
+					sb.append(String.format("table[%d] = pX[%d] * %s;\n", ai, i, _pYpZ));
 				}
 			}
 		}
-		return table;
+
+		String result = sb.toString();
+		result = result.replace("pX[0]", "1");
+		result = result.replace(" * 1", "");
+		result = result.replace(" 1 *", "");
+		return result;
 	}
 
 	/**
