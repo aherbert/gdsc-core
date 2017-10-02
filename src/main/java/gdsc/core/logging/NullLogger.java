@@ -18,6 +18,21 @@ package gdsc.core.logging;
  */
 public class NullLogger implements Logger
 {
+	/** An instance to ignore progress reporting */
+	public static final NullLogger INSTANCE = new NullLogger();
+
+	/**
+	 * Creates an instance if the argument is null, else return the argument.
+	 *
+	 * @param logger
+	 *            the logger (may be null)
+	 * @return the logger (not null)
+	 */
+	public static Logger createIfNull(Logger logger)
+	{
+		return (logger == null) ? INSTANCE : logger;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
