@@ -21,6 +21,18 @@ public class NullTrackProgress implements TrackProgress
 	/** An instance to ignore progress reporting */
 	public static final NullTrackProgress INSTANCE = new NullTrackProgress();
 
+	/**
+	 * Creates an instance if the argument is null, else return the argument.
+	 *
+	 * @param trackProgress
+	 *            the track progress (may be null)
+	 * @return the track progress (not null)
+	 */
+	public static TrackProgress createIfNull(TrackProgress trackProgress)
+	{
+		return (trackProgress == null) ? INSTANCE : trackProgress;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

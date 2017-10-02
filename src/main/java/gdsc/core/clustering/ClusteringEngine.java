@@ -279,7 +279,7 @@ public class ClusteringEngine
 	private int xBlock, yBlock;
 
 	private ClusteringAlgorithm clusteringAlgorithm = ClusteringAlgorithm.PAIRWISE;
-	private TrackProgress tracker;
+	private TrackProgress tracker = NullTrackProgress.INSTANCE;
 	private int pulseInterval = 0;
 	private boolean trackJoins = false;
 	private int threadCount = 1;
@@ -2688,9 +2688,7 @@ public class ClusteringEngine
 	 */
 	public void setTracker(TrackProgress tracker)
 	{
-		if (tracker == null)
-			tracker = new NullTrackProgress();
-		this.tracker = tracker;
+		this.tracker = NullTrackProgress.createIfNull(tracker);
 	}
 
 	/**

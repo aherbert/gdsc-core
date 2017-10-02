@@ -53,7 +53,7 @@ public class CustomTricubicInterpolator
             final double[] zval,
             final double[][][] fval)
     {
-    	return interpolate(xval, yval, zval, fval, NullTrackProgress.INSTANCE);
+    	return interpolate(xval, yval, zval, fval, null);
     }
     
     /**
@@ -129,6 +129,7 @@ public class CustomTricubicInterpolator
         final double[][][] d2FdYdZ = new double[xLen][yLen][zLen];
         final double[][][] d3FdXdYdZ = new double[xLen][yLen][zLen];
 
+        progress = NullTrackProgress.createIfNull(progress);
         final long total = (xLen-2) * (yLen-2) * (zLen-2);
         long current = 0;
         
