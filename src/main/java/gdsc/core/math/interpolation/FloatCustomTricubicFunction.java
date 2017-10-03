@@ -30,32 +30,29 @@ package gdsc.core.math.interpolation;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.exception.OutOfRangeException;
 
-import gnu.trove.map.hash.TObjectIntHashMap;
-import gnu.trove.procedure.TObjectIntProcedure;
-
 /**
- * 3D-spline function.
+ * 3D-spline function using single precision float values to store the coefficients. This reduces the memory required to
+ * store the function.
+ * <p>
+ * Not all computations use exclusively float precision. The computations using the power table use float computation
+ * and should show the largest speed benefit over the double precision counter part.
  */
-public class CustomTricubicFunction implements TrivariateFunction
+public class FloatCustomTricubicFunction implements TrivariateFunction
 {
 	/** Number of points. */
 	private static final short N = 4;
-	/** Number of points - 1. */
-	private static final short N_1 = 3;
-	/** Number of points - 2. */
-	private static final short N_2 = 2;
 	/** Coefficients */
-	private final double[] a;
+	private final float[] a;
 	/** Coefficients multiplied by 2 */
-	private double[] a2 = null;
+	private float[] a2 = null;
 	/** Coefficients multiplied by 3 */
-	private double[] a3 = null;
+	private float[] a3 = null;
 	/** Coefficients multiplied by 6 */
-	private double[] a6 = null;
+	private float[] a6 = null;
 
-	private double[] getA2()
+	private float[] getA2()
 	{
-		double[] data = a2;
+		float[] data = a2;
 		if (data == null)
 		{
 			data = a2 = scaleA(2);
@@ -64,9 +61,9 @@ public class CustomTricubicFunction implements TrivariateFunction
 		return data;
 	}
 
-	private double[] getA3()
+	private float[] getA3()
 	{
-		double[] data = a3;
+		float[] data = a3;
 		if (data == null)
 		{
 			data = a3 = scaleA(3);
@@ -74,9 +71,9 @@ public class CustomTricubicFunction implements TrivariateFunction
 		return data;
 	}
 
-	private double[] getA6()
+	private float[] getA6()
 	{
-		double[] data = a6;
+		float[] data = a6;
 		if (data == null)
 		{
 			data = a6 = scaleA(6);
@@ -84,9 +81,9 @@ public class CustomTricubicFunction implements TrivariateFunction
 		return data;
 	}
 
-	private double[] scaleA(int n)
+	private float[] scaleA(int n)
 	{
-		final double[] s = new double[64];
+		final float[] s = new float[64];
 		for (int i = 0; i < 64; i++)
 			s[i] = a[i] * n;
 		return s;
@@ -96,24 +93,40 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 * @param aV
 	 *            List of spline coefficients.
 	 */
-	CustomTricubicFunction(double[] aV)
+	FloatCustomTricubicFunction(double[] aV)
 	{
-		// Use the table directly
-		a = aV;
+		a = toFloat(aV);
+	}
 
-		//// Copy the table
-		//a = new double[64];
-		//for (int k = 0, ai = 0; k < N; k++)
-		//{
-		//	for (int j = 0; j < N; j++)
-		//	{
-		//		for (int i = 0; i < N; i++)
-		//		{
-		//			int ii = getIndex(i, j, k);
-		//			a[ai++] = aV[ii];
-		//		}
-		//	}
-		//}
+	/**
+	 * Instantiates a new float custom tricubic function.
+	 *
+	 * @param aV
+	 *            List of spline coefficients.
+	 * @param a2
+	 *            the a * 2 coefficients
+	 * @param a3
+	 *            the a * 3 coefficients
+	 * @param a6
+	 *            the a * 6 coefficients
+	 */
+	FloatCustomTricubicFunction(double[] aV, double[] a2, double[] a3, double[] a6)
+	{
+		a = toFloat(aV);
+		if (a2 != null)
+			this.a2 = toFloat(a2);
+		if (a3 != null)
+			this.a3 = toFloat(a3);
+		if (a6 != null)
+			this.a6 = toFloat(a6);
+	}
+
+	private static float[] toFloat(double[] aV)
+	{
+		float[] a = new float[64];
+		for (int i = 0; i < 64; i++)
+			a[i] = (float) aV[i];
+		return a;
 	}
 
 	/**
@@ -137,16 +150,6 @@ public class CustomTricubicFunction implements TrivariateFunction
 		}
 	}
 
-	/**
-	 * Convert this instance to single precision.
-	 *
-	 * @return the float custom tricubic function
-	 */
-	public FloatCustomTricubicFunction toSinglePrecision()
-	{
-		return new FloatCustomTricubicFunction(a, a2, a3, a6);
-	}
-	
 	/**
 	 * Gets the index in the table for the specified position.
 	 *
@@ -317,85 +320,6 @@ public class CustomTricubicFunction implements TrivariateFunction
 	}
 
 	/**
-	 * Used to create the inline value function
-	 * 
-	 * @return the function text.
-	 */
-	static String inlineValue()
-	{
-		String _pYpZ;
-		StringBuilder sb = new StringBuilder();
-
-		for (int k = 0, ai = 0; k < N; k++)
-		{
-			for (int j = 0; j < N; j++)
-			{
-				_pYpZ = append_pYpZ(sb, k, j);
-
-				for (int i = 0; i < N; i++, ai++)
-				{
-					sb.append(String.format("result += a[%d] * pX[%d] * %s;\n", ai, i, _pYpZ));
-				}
-			}
-		}
-
-		return finaliseInlineFunction(sb);
-	}
-
-	private static String append_pYpZ(StringBuilder sb, int k, int j)
-	{
-		String _pYpZ;
-		if (k == 0)
-		{
-			if (j == 0)
-			{
-				_pYpZ = "1";
-			}
-			else
-			{
-				_pYpZ = String.format("pY[%d]", j);
-			}
-		}
-		else if (j == 0)
-		{
-			_pYpZ = String.format("pZ[%d]", k);
-		}
-		else
-		{
-			sb.append(String.format("pYpZ = pY[%d] * pZ[%d];\n", j, k));
-			_pYpZ = "pYpZ";
-		}
-		return _pYpZ;
-	}
-
-	private static String finaliseInlineFunction(StringBuilder sb)
-	{
-		String result = sb.toString();
-		// Replace the use of 1 in multiplications
-		result = result.replace("pX[0]", "1");
-		result = result.replace(" * 1", "");
-		result = result.replace(" 1 *", "");
-		// We optimise out the need to store 1.0 in the array at pN[0]
-		// The power must all be shifted
-		for (int i = 0; i < 3; i++)
-		{
-			String was = String.format("[%d]", i + 1);
-			String now = String.format("[%d]", i);
-			result = result.replace("pX" + was, "pX" + now);
-			result = result.replace("pY" + was, "pY" + now);
-			result = result.replace("pZ" + was, "pZ" + now);
-		}
-
-		result = result.replace("a1[", "a[");
-
-		// TODO - multiplications are not done as
-		// Simplify compound multiplications
-		result = result.replace("2 * 3", "6");
-		result = result.replace("3 * 2", "6");
-		return result;
-	}
-
-	/**
 	 * Compute the power table.
 	 *
 	 * @param x
@@ -409,7 +333,7 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 *             if {@code x}, {@code y} or
 	 *             {@code z} are not in the interval {@code [0, 1]}.
 	 */
-	public static double[] computePowerTable(double x, double y, double z) throws OutOfRangeException
+	public static float[] computePowerTable(double x, double y, double z) throws OutOfRangeException
 	{
 		if (x < 0 || x > 1)
 		{
@@ -450,7 +374,7 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 *            z-coordinate of the interpolation point.
 	 * @return the power table.
 	 */
-	public static double[] computePowerTable(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z)
+	public static float[] computePowerTable(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z)
 	{
 		return computePowerTable(x.p, y.p, z.p);
 	}
@@ -466,133 +390,9 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 *            z-coordinate powers of the interpolation point.
 	 * @return the power table.
 	 */
-	static double[] computePowerTable(final double[] pX, final double[] pY, final double[] pZ)
+	private static float[] computePowerTable(final double[] pX, final double[] pY, final double[] pZ)
 	{
-		double[] table = new double[64];
-
-		table[0] = 1;
-		table[1] = pX[0];
-		table[2] = pX[1];
-		table[3] = pX[2];
-		table[4] = pY[0];
-		table[5] = pX[0] * pY[0];
-		table[6] = pX[1] * pY[0];
-		table[7] = pX[2] * pY[0];
-		table[8] = pY[1];
-		table[9] = pX[0] * pY[1];
-		table[10] = pX[1] * pY[1];
-		table[11] = pX[2] * pY[1];
-		table[12] = pY[2];
-		table[13] = pX[0] * pY[2];
-		table[14] = pX[1] * pY[2];
-		table[15] = pX[2] * pY[2];
-		table[16] = pZ[0];
-		table[17] = pX[0] * pZ[0];
-		table[18] = pX[1] * pZ[0];
-		table[19] = pX[2] * pZ[0];
-		table[20] = pY[0] * pZ[0];
-		table[21] = pX[0] * table[20];
-		table[22] = pX[1] * table[20];
-		table[23] = pX[2] * table[20];
-		table[24] = pY[1] * pZ[0];
-		table[25] = pX[0] * table[24];
-		table[26] = pX[1] * table[24];
-		table[27] = pX[2] * table[24];
-		table[28] = pY[2] * pZ[0];
-		table[29] = pX[0] * table[28];
-		table[30] = pX[1] * table[28];
-		table[31] = pX[2] * table[28];
-		table[32] = pZ[1];
-		table[33] = pX[0] * pZ[1];
-		table[34] = pX[1] * pZ[1];
-		table[35] = pX[2] * pZ[1];
-		table[36] = pY[0] * pZ[1];
-		table[37] = pX[0] * table[36];
-		table[38] = pX[1] * table[36];
-		table[39] = pX[2] * table[36];
-		table[40] = pY[1] * pZ[1];
-		table[41] = pX[0] * table[40];
-		table[42] = pX[1] * table[40];
-		table[43] = pX[2] * table[40];
-		table[44] = pY[2] * pZ[1];
-		table[45] = pX[0] * table[44];
-		table[46] = pX[1] * table[44];
-		table[47] = pX[2] * table[44];
-		table[48] = pZ[2];
-		table[49] = pX[0] * pZ[2];
-		table[50] = pX[1] * pZ[2];
-		table[51] = pX[2] * pZ[2];
-		table[52] = pY[0] * pZ[2];
-		table[53] = pX[0] * table[52];
-		table[54] = pX[1] * table[52];
-		table[55] = pX[2] * table[52];
-		table[56] = pY[1] * pZ[2];
-		table[57] = pX[0] * table[56];
-		table[58] = pX[1] * table[56];
-		table[59] = pX[2] * table[56];
-		table[60] = pY[2] * pZ[2];
-		table[61] = pX[0] * table[60];
-		table[62] = pX[1] * table[60];
-		table[63] = pX[2] * table[60];
-
-		return table;
-	}
-
-	/**
-	 * Used to create the inline power table function
-	 * 
-	 * @return the function text.
-	 */
-	static String inlineComputePowerTable()
-	{
-		String table0jk;
-		StringBuilder sb = new StringBuilder();
-
-		for (int k = 0, ai = 0; k < N; k++)
-		{
-			for (int j = 0; j < N; j++)
-			{
-				table0jk = appendTableijk(sb, k, j, 0, ai++);
-
-				for (int i = 1; i < N; i++, ai++)
-				{
-					sb.append(String.format("table[%d] = pX[%d] * %s;\n", ai, i, table0jk));
-				}
-			}
-		}
-
-		return finaliseInlineFunction(sb);
-	}
-
-	private static String appendTableijk(StringBuilder sb, int k, int j, int i, int ai)
-	{
-		String pYpZ;
-		boolean compound = true;
-		if (k == 0)
-		{
-			compound = false;
-			if (j == 0)
-			{
-				pYpZ = "1";
-			}
-			else
-			{
-				pYpZ = String.format("pY[%d]", j);
-			}
-		}
-		else if (j == 0)
-		{
-			compound = false;
-			pYpZ = String.format("pZ[%d]", k);
-		}
-		else
-		{
-			pYpZ = String.format("pY[%d] * pZ[%d]", j, k);
-		}
-
-		String tableijk = String.format("table[%d]", ai);
-		sb.append(String.format("%s = pX[%d] * %s;\n", tableijk, i, pYpZ));
-		return (compound) ? tableijk : pYpZ;
+		return toFloat(CustomTricubicFunction.computePowerTable(pX, pY, pZ));
 	}
 
 	/**
@@ -602,7 +402,7 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 *            the power table
 	 * @return the interpolated value.
 	 */
-	public double value(double[] table)
+	public double value(float[] table)
 	{
 		double result = 0;
 		for (int ai = 0; ai < 64; ai++)
@@ -706,8 +506,8 @@ public class CustomTricubicFunction implements TrivariateFunction
 		df_da[1] = 0;
 		df_da[2] = 0;
 
-		final double[] a2 = getA2();
-		final double[] a3 = getA3();
+		final float[] a2 = getA2();
+		final float[] a3 = getA3();
 		result += a[0];
 		df_da[0] += a[1];
 		df_da[1] += a[4];
@@ -978,75 +778,6 @@ public class CustomTricubicFunction implements TrivariateFunction
 	}
 
 	/**
-	 * Used to create the inline value function for first-order gradients
-	 * 
-	 * @return the function text.
-	 */
-	static String inlineValue1()
-	{
-		String _pYpZ;
-		String _pXpYpZ;
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("final double[] a2 = getA2();\n");
-		sb.append("final double[] a3 = getA3();\n");
-
-		// Gradients are described in:
-		// Babcock & Zhuang (2017) 
-		// Analyzing Single Molecule Localization Microscopy Data Using Cubic Splines
-		// Scientific Reports 7, Article number: 552
-		for (int k = 0, ai = 0; k < N; k++)
-		{
-			for (int j = 0; j < N; j++)
-			{
-				_pYpZ = append_pYpZ(sb, k, j);
-
-				for (int i = 0; i < N; i++, ai++)
-				{
-					_pXpYpZ = append_pXpYpZ(sb, _pYpZ, i);
-
-					//@formatter:off
-					sb.append(String.format("result += a[%d] * %s;\n", ai, _pXpYpZ));
-					if (i < N_1)
-						sb.append(String.format("df_da[0] += a%d[%d] * %s;\n", i+1, getIndex(i+1, j, k), _pXpYpZ));
-					if (j < N_1)
-						sb.append(String.format("df_da[1] += a%d[%d] * %s;\n", j+1, getIndex(i, j+1, k), _pXpYpZ));
-					if (k < N_1)
-						sb.append(String.format("df_da[2] += a%d[%d] * %s;\n", k+1, getIndex(i, j, k+1), _pXpYpZ));
-					//@formatter:on
-
-					// Formal computation
-					//pXpYpZ = pX[i] * pY[j] * pZ[k];
-					//result += a[ai] * pXpYpZ;
-					//if (i < N_1)
-					//	df_da[0] += (i+1) * a[getIndex(i+1, j, k)] * pXpYpZ;
-					//if (j < N_1)
-					//	df_da[1] += (j+1) * a[getIndex(i, j+1, k)] * pXpYpZ;
-					//if (k < N_1)
-					//	df_da[2] += (k+1) * a[getIndex(i, j, k+1)] * pXpYpZ;
-				}
-			}
-		}
-
-		return finaliseInlineFunction(sb);
-	}
-
-	private static String append_pXpYpZ(StringBuilder sb, String _pYpZ, int i)
-	{
-		String _pXpYpZ;
-		if (i == 0)
-		{
-			_pXpYpZ = _pYpZ;
-		}
-		else
-		{
-			sb.append(String.format("pXpYpZ = pX[%d] * %s;\n", i, _pYpZ));
-			_pXpYpZ = "pXpYpZ";
-		}
-		return _pXpYpZ;
-	}
-
-	/**
 	 * Compute the value and partial first-order derivatives using pre-computed power table.
 	 *
 	 * @param table
@@ -1055,15 +786,15 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 *            the partial first order derivatives with respect to x,y,z
 	 * @return the interpolated value.
 	 */
-	public double value(double[] table, double[] df_da)
+	public double value(float[] table, double[] df_da)
 	{
 		double result = 0;
 		df_da[0] = 0;
 		df_da[1] = 0;
 		df_da[2] = 0;
 
-		final double[] a2 = getA2();
-		final double[] a3 = getA3();
+		final float[] a2 = getA2();
+		final float[] a3 = getA3();
 		result = a[0] * table[0] + a[1] * table[1] + a[2] * table[2] + a[3] * table[3] + a[4] * table[4] +
 				a[5] * table[5] + a[6] * table[6] + a[7] * table[7] + a[8] * table[8] + a[9] * table[9] +
 				a[10] * table[10] + a[11] * table[11] + a[12] * table[12] + a[13] * table[13] + a[14] * table[14] +
@@ -1108,105 +839,6 @@ public class CustomTricubicFunction implements TrivariateFunction
 				a3[56] * table[40] + a3[57] * table[41] + a3[58] * table[42] + a3[59] * table[43] + a3[60] * table[44] +
 				a3[61] * table[45] + a3[62] * table[46] + a3[63] * table[47];
 
-		return result;
-	}
-
-	/**
-	 * Used to create the inline value function for first-order gradients with power table
-	 * 
-	 * @return the function text.
-	 */
-	static String inlineValue1WithPowerTable()
-	{
-		TObjectIntHashMap<String> map = new TObjectIntHashMap<String>(64);
-
-		StringBuilder sb = new StringBuilder();
-		sb.append("final double[] a2 = getA2();\n");
-		sb.append("final double[] a3 = getA3();\n");
-		// Inline each gradient array in order.
-		// Maybe it will help the optimiser?
-		sb.append("result =");
-		for (int k = 0; k < N; k++)
-			for (int j = 0; j < N; j++)
-				for (int i = 0; i < N; i++)
-					appendPower(map, sb, i, j, k, i, j, k);
-		sb.append(";\n");
-		sb.append("df_da[0] =");
-		for (int k = 0; k < N; k++)
-			for (int j = 0; j < N; j++)
-				for (int i = 0; i < N; i++)
-					if (i < N_1)
-						appendPower(map, sb, i + 1, j, k, i, j, k);
-		sb.append(";\n");
-		sb.append("df_da[1] =");
-		for (int k = 0; k < N; k++)
-			for (int j = 0; j < N; j++)
-				for (int i = 0; i < N; i++)
-					if (j < N_1)
-						appendPower(map, sb, i, j + 1, k, i, j, k);
-		sb.append(";\n");
-		sb.append("df_da[2] =");
-		for (int k = 0; k < N; k++)
-			for (int j = 0; j < N; j++)
-				for (int i = 0; i < N; i++)
-					if (k < N_1)
-						appendPower(map, sb, i, j, k + 1, i, j, k);
-		sb.append(";\n");
-
-		// Each entry should be unique indicating that the result is optimal 
-		map.forEachEntry(new TObjectIntProcedure<String>()
-		{
-			public boolean execute(String a, int b)
-			{
-				if (b > 1)
-				{
-					System.out.printf("%s = %d\n", a, b);
-					return false;
-				}
-				return true;
-			}
-		});
-
-		return finaliseInlinePowerTableFunction(sb);
-	}
-
-	private static void appendPower(TObjectIntHashMap<String> map, StringBuilder sb, int i1, int j1, int k1, int i2,
-			int j2, int k2)
-	{
-		int after = getIndex(i2, j2, k2);
-		int before = getIndex(i1, j1, k1);
-		int nh, nl;
-		if (i1 != i2)
-		{
-			nh = i1;
-			nl = i2;
-		}
-		else if (j1 != j2)
-		{
-			nh = j1;
-			nl = j2;
-		}
-		else
-		{
-			nh = k1;
-			nl = k2;
-		}
-		int n = 1;
-		while (nh > nl)
-		{
-			n *= nh;
-			nh--;
-		}
-		String sum = String.format("a%d[%d] * table[%d]\n", n, before, after);
-		map.adjustOrPutValue(sum, 1, 1);
-		sb.append("+ ").append(sum);
-	}
-
-	private static String finaliseInlinePowerTableFunction(StringBuilder sb)
-	{
-		String result = sb.toString();
-		result = result.replace("=+", "=");
-		result = result.replace("a1[", "a[");
 		return result;
 	}
 
@@ -1316,9 +948,9 @@ public class CustomTricubicFunction implements TrivariateFunction
 		d2f_da2[1] = 0;
 		d2f_da2[2] = 0;
 
-		final double[] a2 = getA2();
-		final double[] a3 = getA3();
-		final double[] a6 = getA6();
+		final float[] a2 = getA2();
+		final float[] a3 = getA3();
+		final float[] a6 = getA6();
 		result += a[0];
 		df_da[0] += a[1];
 		d2f_da2[0] += a2[2];
@@ -1685,85 +1317,6 @@ public class CustomTricubicFunction implements TrivariateFunction
 	}
 
 	/**
-	 * Used to create the inline value function for second-order gradients
-	 * 
-	 * @return the function text.
-	 */
-	static String inlineValue2()
-	{
-		String _pYpZ;
-		String _pXpYpZ;
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("final double[] a2 = getA2();\n");
-		sb.append("final double[] a3 = getA3();\n");
-		sb.append("final double[] a6 = getA6();\n");
-
-		// Gradients are described in:
-		// Babcock & Zhuang (2017) 
-		// Analyzing Single Molecule Localization Microscopy Data Using Cubic Splines
-		// Scientific Reports 7, Article number: 552
-		for (int k = 0, ai = 0; k < N; k++)
-		{
-			for (int j = 0; j < N; j++)
-			{
-				_pYpZ = append_pYpZ(sb, k, j);
-
-				for (int i = 0; i < N; i++, ai++)
-				{
-					_pXpYpZ = append_pXpYpZ(sb, _pYpZ, i);
-
-					//@formatter:off
-					sb.append(String.format("result += a[%d] * %s;\n", ai, _pXpYpZ));
-					if (i < N_1)
-					{
-						sb.append(String.format("df_da[0] += a%d[%d] * %s;\n", i+1, getIndex(i+1, j, k), _pXpYpZ));
-						if (i < N_2)
-							sb.append(String.format("d2f_da2[0] += a%d[%d] * %s;\n", (i+1)*(i+2), getIndex(i+2, j, k), _pXpYpZ));
-					}
-					if (j < N_1)
-					{
-						sb.append(String.format("df_da[1] += a%d[%d] * %s;\n", j+1, getIndex(i, j+1, k), _pXpYpZ));
-						if (j < N_2)
-							sb.append(String.format("d2f_da2[1] += a%d[%d] * %s;\n", (j+1)*(j+2), getIndex(i, j+2, k), _pXpYpZ));
-					}						
-					if (k < N_1)
-					{
-						sb.append(String.format("df_da[2] += a%d[%d] * %s;\n", k+1, getIndex(i, j, k+1), _pXpYpZ));
-						if (k < N_2)
-							sb.append(String.format("d2f_da2[2] += a%d[%d] * %s;\n", (k+1)*(k+2), getIndex(i, j, k+2), _pXpYpZ));
-					}
-					//@formatter:on
-
-					//// Formal computation
-					//pXpYpZ = pX[i] * pYpZ;
-					//result += a[ai] * pXpYpZ;
-					//if (i < N_1)
-					//{
-					//	df_da[0] += (i+1) * a[getIndex(i+1, j, k)] * pXpYpZ;
-					//	if (i < N_2)
-					//		d2f_da2[0] += (i+1) * (i + 2) * a[getIndex(i + 2, j, k)] * pXpYpZ;
-					//}
-					//if (j < N_1)
-					//{
-					//	df_da[1] += (j+1) * a[getIndex(i, j+1, k)] * pXpYpZ;
-					//	if (j < N_2)
-					//		d2f_da2[1] += (j+1) * (j + 2) * a[getIndex(i, j + 2, k)] * pXpYpZ;
-					//}
-					//if (k < N_1)
-					//{
-					//	df_da[2] += (k+1) * a[getIndex(i, j, k+1)] * pXpYpZ;
-					//	if (k < N_2)
-					//		d2f_da2[2] += (k+1) * (k + 2) * a[getIndex(i, j, k + 2)] * pXpYpZ;
-					//}
-				}
-			}
-		}
-
-		return finaliseInlineFunction(sb);
-	}
-
-	/**
 	 * Compute the value and partial first-order and second-order derivatives using pre-computed power table.
 	 *
 	 * @param table
@@ -1774,7 +1327,7 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 *            the partial second order derivatives with respect to x,y,z
 	 * @return the interpolated value.
 	 */
-	public double value(double[] table, double[] df_da, double[] d2f_da2)
+	public double value(float[] table, double[] df_da, double[] d2f_da2)
 	{
 		double result = 0;
 		df_da[0] = 0;
@@ -1784,9 +1337,9 @@ public class CustomTricubicFunction implements TrivariateFunction
 		d2f_da2[1] = 0;
 		d2f_da2[2] = 0;
 
-		final double[] a2 = getA2();
-		final double[] a3 = getA3();
-		final double[] a6 = getA6();
+		final float[] a2 = getA2();
+		final float[] a3 = getA3();
+		final float[] a6 = getA6();
 		result = a[0] * table[0] + a[1] * table[1] + a[2] * table[2] + a[3] * table[3] + a[4] * table[4] +
 				a[5] * table[5] + a[6] * table[6] + a[7] * table[7] + a[8] * table[8] + a[9] * table[9] +
 				a[10] * table[10] + a[11] * table[11] + a[12] * table[12] + a[13] * table[13] + a[14] * table[14] +
@@ -1853,85 +1406,5 @@ public class CustomTricubicFunction implements TrivariateFunction
 				a6[62] * table[30] + a6[63] * table[31];
 
 		return result;
-	}
-
-	/**
-	 * Used to create the inline value function for second-order gradients with power table
-	 * 
-	 * @return the function text.
-	 */
-	static String inlineValue2WithPowerTable()
-	{
-		TObjectIntHashMap<String> map = new TObjectIntHashMap<String>(64);
-		StringBuilder sb = new StringBuilder();
-		sb.append("final double[] a2 = getA2();\n");
-		sb.append("final double[] a3 = getA3();\n");
-		sb.append("final double[] a6 = getA6();\n");
-		// Inline each gradient array in order.
-		// Maybe it will help the optimiser?
-		sb.append("result =");
-		for (int k = 0; k < N; k++)
-			for (int j = 0; j < N; j++)
-				for (int i = 0; i < N; i++)
-					appendPower(map, sb, i, j, k, i, j, k);
-		sb.append(";\n");
-		sb.append("df_da[0] =");
-		for (int k = 0; k < N; k++)
-			for (int j = 0; j < N; j++)
-				for (int i = 0; i < N; i++)
-					if (i < N_1)
-						appendPower(map, sb, i + 1, j, k, i, j, k);
-		sb.append(";\n");
-		sb.append("df_da[1] =");
-		for (int k = 0; k < N; k++)
-			for (int j = 0; j < N; j++)
-				for (int i = 0; i < N; i++)
-					if (j < N_1)
-						appendPower(map, sb, i, j + 1, k, i, j, k);
-		sb.append(";\n");
-		sb.append("df_da[2] =");
-		for (int k = 0; k < N; k++)
-			for (int j = 0; j < N; j++)
-				for (int i = 0; i < N; i++)
-					if (k < N_1)
-						appendPower(map, sb, i, j, k + 1, i, j, k);
-		sb.append(";\n");
-		sb.append("d2f_da2[0] =");
-		for (int k = 0; k < N; k++)
-			for (int j = 0; j < N; j++)
-				for (int i = 0; i < N; i++)
-					if (i < N_2)
-						appendPower(map, sb, i + 2, j, k, i, j, k);
-		sb.append(";\n");
-		sb.append("d2f_da2[1] =");
-		for (int k = 0; k < N; k++)
-			for (int j = 0; j < N; j++)
-				for (int i = 0; i < N; i++)
-					if (j < N_2)
-						appendPower(map, sb, i, j + 2, k, i, j, k);
-		sb.append(";\n");
-		sb.append("d2f_da2[2] =");
-		for (int k = 0; k < N; k++)
-			for (int j = 0; j < N; j++)
-				for (int i = 0; i < N; i++)
-					if (k < N_2)
-						appendPower(map, sb, i, j, k + 2, i, j, k);
-		sb.append(";\n");
-
-		// Each entry should be unique indicating that the result is optimal 
-		map.forEachEntry(new TObjectIntProcedure<String>()
-		{
-			public boolean execute(String a, int b)
-			{
-				if (b > 1)
-				{
-					System.out.printf("%s = %d\n", a, b);
-					return false;
-				}
-				return true;
-			}
-		});
-
-		return finaliseInlinePowerTableFunction(sb);
 	}
 }
