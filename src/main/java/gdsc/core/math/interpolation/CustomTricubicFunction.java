@@ -385,82 +385,72 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 */
 	private static double[] computePowerTable(final double[] pX, final double[] pY, final double[] pZ)
 	{
-		double pYpZ;
 		double[] table = new double[64];
 
 		table[0] = 1;
-		table[1] = pX[0];
-		table[2] = pX[1];
-		table[3] = pX[2];
+		table[1] = pX[0] * table[0];
+		table[2] = pX[1] * table[0];
+		table[3] = pX[2] * table[0];
 		table[4] = pY[0];
-		table[5] = pX[0] * pY[0];
-		table[6] = pX[1] * pY[0];
-		table[7] = pX[2] * pY[0];
+		table[5] = pX[0] * table[4];
+		table[6] = pX[1] * table[4];
+		table[7] = pX[2] * table[4];
 		table[8] = pY[1];
-		table[9] = pX[0] * pY[1];
-		table[10] = pX[1] * pY[1];
-		table[11] = pX[2] * pY[1];
+		table[9] = pX[0] * table[8];
+		table[10] = pX[1] * table[8];
+		table[11] = pX[2] * table[8];
 		table[12] = pY[2];
-		table[13] = pX[0] * pY[2];
-		table[14] = pX[1] * pY[2];
-		table[15] = pX[2] * pY[2];
+		table[13] = pX[0] * table[12];
+		table[14] = pX[1] * table[12];
+		table[15] = pX[2] * table[12];
 		table[16] = pZ[0];
-		table[17] = pX[0] * pZ[0];
-		table[18] = pX[1] * pZ[0];
-		table[19] = pX[2] * pZ[0];
-		pYpZ = pY[0] * pZ[0];
-		table[20] = pYpZ;
-		table[21] = pX[0] * pYpZ;
-		table[22] = pX[1] * pYpZ;
-		table[23] = pX[2] * pYpZ;
-		pYpZ = pY[1] * pZ[0];
-		table[24] = pYpZ;
-		table[25] = pX[0] * pYpZ;
-		table[26] = pX[1] * pYpZ;
-		table[27] = pX[2] * pYpZ;
-		pYpZ = pY[2] * pZ[0];
-		table[28] = pYpZ;
-		table[29] = pX[0] * pYpZ;
-		table[30] = pX[1] * pYpZ;
-		table[31] = pX[2] * pYpZ;
+		table[17] = pX[0] * table[16];
+		table[18] = pX[1] * table[16];
+		table[19] = pX[2] * table[16];
+		table[20] = pY[0] * pZ[0];
+		table[21] = pX[0] * table[20];
+		table[22] = pX[1] * table[20];
+		table[23] = pX[2] * table[20];
+		table[24] = pY[1] * pZ[0];
+		table[25] = pX[0] * table[24];
+		table[26] = pX[1] * table[24];
+		table[27] = pX[2] * table[24];
+		table[28] = pY[2] * pZ[0];
+		table[29] = pX[0] * table[28];
+		table[30] = pX[1] * table[28];
+		table[31] = pX[2] * table[28];
 		table[32] = pZ[1];
-		table[33] = pX[0] * pZ[1];
-		table[34] = pX[1] * pZ[1];
-		table[35] = pX[2] * pZ[1];
-		pYpZ = pY[0] * pZ[1];
-		table[36] = pYpZ;
-		table[37] = pX[0] * pYpZ;
-		table[38] = pX[1] * pYpZ;
-		table[39] = pX[2] * pYpZ;
-		pYpZ = pY[1] * pZ[1];
-		table[40] = pYpZ;
-		table[41] = pX[0] * pYpZ;
-		table[42] = pX[1] * pYpZ;
-		table[43] = pX[2] * pYpZ;
-		pYpZ = pY[2] * pZ[1];
-		table[44] = pYpZ;
-		table[45] = pX[0] * pYpZ;
-		table[46] = pX[1] * pYpZ;
-		table[47] = pX[2] * pYpZ;
+		table[33] = pX[0] * table[32];
+		table[34] = pX[1] * table[32];
+		table[35] = pX[2] * table[32];
+		table[36] = pY[0] * pZ[1];
+		table[37] = pX[0] * table[36];
+		table[38] = pX[1] * table[36];
+		table[39] = pX[2] * table[36];
+		table[40] = pY[1] * pZ[1];
+		table[41] = pX[0] * table[40];
+		table[42] = pX[1] * table[40];
+		table[43] = pX[2] * table[40];
+		table[44] = pY[2] * pZ[1];
+		table[45] = pX[0] * table[44];
+		table[46] = pX[1] * table[44];
+		table[47] = pX[2] * table[44];
 		table[48] = pZ[2];
-		table[49] = pX[0] * pZ[2];
-		table[50] = pX[1] * pZ[2];
-		table[51] = pX[2] * pZ[2];
-		pYpZ = pY[0] * pZ[2];
-		table[52] = pYpZ;
-		table[53] = pX[0] * pYpZ;
-		table[54] = pX[1] * pYpZ;
-		table[55] = pX[2] * pYpZ;
-		pYpZ = pY[1] * pZ[2];
-		table[56] = pYpZ;
-		table[57] = pX[0] * pYpZ;
-		table[58] = pX[1] * pYpZ;
-		table[59] = pX[2] * pYpZ;
-		pYpZ = pY[2] * pZ[2];
-		table[60] = pYpZ;
-		table[61] = pX[0] * pYpZ;
-		table[62] = pX[1] * pYpZ;
-		table[63] = pX[2] * pYpZ;
+		table[49] = pX[0] * table[48];
+		table[50] = pX[1] * table[48];
+		table[51] = pX[2] * table[48];
+		table[52] = pY[0] * pZ[2];
+		table[53] = pX[0] * table[52];
+		table[54] = pX[1] * table[52];
+		table[55] = pX[2] * table[52];
+		table[56] = pY[1] * pZ[2];
+		table[57] = pX[0] * table[56];
+		table[58] = pX[1] * table[56];
+		table[59] = pX[2] * table[56];
+		table[60] = pY[2] * pZ[2];
+		table[61] = pX[0] * table[60];
+		table[62] = pX[1] * table[60];
+		table[63] = pX[2] * table[60];
 
 		return table;
 	}
@@ -472,23 +462,51 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 */
 	static String inlineComputePowerTable()
 	{
-		String _pYpZ;
+		String table0jk;
 		StringBuilder sb = new StringBuilder();
 
 		for (int k = 0, ai = 0; k < N; k++)
 		{
 			for (int j = 0; j < N; j++)
 			{
-				_pYpZ = append_pYpZ(sb, k, j);
+				table0jk = appendTableijk(sb, k, j, 0, ai++);
 
-				for (int i = 0; i < N; i++, ai++)
+				for (int i = 1; i < N; i++, ai++)
 				{
-					sb.append(String.format("table[%d] = pX[%d] * %s;\n", ai, i, _pYpZ));
+					sb.append(String.format("table[%d] = pX[%d] * %s;\n", ai, i, table0jk));
 				}
 			}
 		}
 
 		return finaliseInlineFunction(sb);
+	}
+
+	private static String appendTableijk(StringBuilder sb, int k, int j, int i, int ai)
+	{
+		String pYpZ;
+		if (k == 0)
+		{
+			if (j == 0)
+			{
+				pYpZ = "1";
+			}
+			else
+			{
+				pYpZ = String.format("pY[%d]", j);
+			}
+		}
+		else if (j == 0)
+		{
+			pYpZ = String.format("pZ[%d]", k);
+		}
+		else
+		{
+			pYpZ = String.format("pY[%d] * pZ[%d]", j, k);
+		}
+
+		String tableijk = String.format("table[%d]", ai);
+		sb.append(String.format("%s = pX[%d] * %s;\n", tableijk, i, pYpZ));
+		return tableijk;
 	}
 
 	/**
@@ -1294,26 +1312,22 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 */
 	static String inlineComputePowerTable1()
 	{
-		String _pYpZ, _pXpYpZ;
+		String tableijk;
 		StringBuilder sb = new StringBuilder();
 
 		for (int k = 0, ai = 0, x1 = 0, y1 = 0, z1 = 0; k < N; k++)
 		{
 			for (int j = 0; j < N; j++)
 			{
-				_pYpZ = append_pYpZ(sb, k, j);
-
-				for (int i = 0; i < N; i++, ai++)
+				for (int i = 1; i < N; i++, ai++)
 				{
-					_pXpYpZ = append_pXpYpZ(sb, _pYpZ, i);
-
-					sb.append(String.format("table[%d] = %s;\n", ai, _pXpYpZ));
+					tableijk = appendTableijk(sb, k, j, i, ai++);
 					if (i < N_1)
-						sb.append(String.format("table_df_dx[%d] = %d * %s;\n", x1++, i + 1, _pXpYpZ));
+						sb.append(String.format("table_df_dx[%d] = %d * %s;\n", x1++, i + 1, tableijk));
 					if (j < N_1)
-						sb.append(String.format("table_df_dy[%d] = %d * %s;\n", y1++, j + 1, _pXpYpZ));
+						sb.append(String.format("table_df_dy[%d] = %d * %s;\n", y1++, j + 1, tableijk));
 					if (k < N_1)
-						sb.append(String.format("table_df_dz[%d] = %d * %s;\n", z1++, k + 1, _pXpYpZ));
+						sb.append(String.format("table_df_dz[%d] = %d * %s;\n", z1++, k + 1, tableijk));
 				}
 			}
 		}
