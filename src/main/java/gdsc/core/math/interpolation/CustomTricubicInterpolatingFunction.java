@@ -373,7 +373,7 @@ public class CustomTricubicInterpolatingFunction
     		scale[i] = x[i + 1] - x[i];
 		return scale;
 	}
-
+    
 	/**
      * {@inheritDoc}
      *
@@ -1010,6 +1010,28 @@ public class CustomTricubicInterpolatingFunction
 		else
 		{
 			return true;
+		}
+	}
+
+	/**
+	 * Pre-compute gradient coefficients for partial derivatives.
+	 *
+	 * @param order
+	 *            the order (<=2)
+	 */
+	public void precomputeGradientCoefficients(int order)
+	{
+		int maxj = getMaxYSplinePosition() + 1;
+		int maxk = getMaxZSplinePosition() + 1;
+		for (int i = getMaxXSplinePosition() + 1; i-- > 0;)
+		{
+			for (int j = maxj; j-- > 0;)
+			{
+				for (int k = maxk; k-- > 0;)
+				{
+					splines[i][j][k].precomputeGradientCoefficients(order);
+				}
+			}
 		}
 	}
 

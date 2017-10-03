@@ -52,6 +52,8 @@ public class CustomTricubicInterpolatorTest
 				Assert.assertEquals(zval[j], f1.getZSplineValue(j), 0);
 
 			Assert.assertTrue(f1.isUniform);
+			
+			f1.precomputeGradientCoefficients(1);
 		}
 	}
 

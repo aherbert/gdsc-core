@@ -117,6 +117,27 @@ public class CustomTricubicFunction implements TrivariateFunction
 	}
 
 	/**
+	 * Pre-compute gradient coefficients for partial derivatives.
+	 *
+	 * @param order
+	 *            the order (<=2)
+	 */
+	void precomputeGradientCoefficients(int order)
+	{
+		// Use a switch statement to allow fall through
+		switch (order)
+		{
+			case 2: // Second-order
+				getA6();
+			case 1: // First-order
+				getA3();
+				getA2();
+			default:
+				return;
+		}
+	}
+
+	/**
 	 * Gets the index in the table for the specified position.
 	 *
 	 * @param i
