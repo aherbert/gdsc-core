@@ -23,12 +23,6 @@ public class CustomTricubicFunctionTest
 	}
 
 	@Test
-	public void canConstructInlineComputePowerTable1()
-	{
-		System.out.println(CustomTricubicFunction.inlineComputePowerTable1());
-	}
-
-	@Test
 	public void canConstructInlineValue1WithPowerTable()
 	{
 		System.out.println(CustomTricubicFunction.inlineValue1WithPowerTable());
@@ -38,12 +32,6 @@ public class CustomTricubicFunctionTest
 	public void canConstructInlineValue2()
 	{
 		System.out.println(CustomTricubicFunction.inlineValue2());
-	}
-
-	@Test
-	public void canConstructInlineComputePowerTable2()
-	{
-		System.out.println(CustomTricubicFunction.inlineComputePowerTable2());
 	}
 
 	@Test

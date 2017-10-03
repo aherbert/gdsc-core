@@ -708,8 +708,8 @@ public class CustomTricubicInterpolatingFunction
 	 *            the y spline position
 	 * @param zindex
 	 *            the z spline position
-	 * @param tables
-	 *            the tables
+	 * @param table
+	 *            the power table
 	 * @param df_da
 	 *            the partial first order derivatives with respect to x,y,z
 	 * @return the value
@@ -717,9 +717,9 @@ public class CustomTricubicInterpolatingFunction
 	 *             if the spline node does not exist
 	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
 	 */
-	public double value(int xindex, int yindex, int zindex, double[][] tables, double[] df_da)
+	public double value(int xindex, int yindex, int zindex, double[] table, double[] df_da)
 	{
-		double value = splines[xindex][yindex][zindex].value(tables, df_da);
+		double value = splines[xindex][yindex][zindex].value(table, df_da);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
 		df_da[2] /= zscale[zindex];
@@ -797,8 +797,8 @@ public class CustomTricubicInterpolatingFunction
 	 *            the y spline position
 	 * @param zindex
 	 *            the z spline position
-	 * @param tables
-	 *            the tables
+	 * @param table
+	 *            the power table
 	 * @param df_da
 	 *            the partial first order derivatives with respect to x,y,z
 	 * @param d2f_da2
@@ -808,9 +808,9 @@ public class CustomTricubicInterpolatingFunction
 	 *             if the spline node does not exist
 	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
 	 */
-	public double value(int xindex, int yindex, int zindex, double[][] tables, double[] df_da, double[] d2f_da2)
+	public double value(int xindex, int yindex, int zindex, double[] table, double[] df_da, double[] d2f_da2)
 	{
-		double value = splines[xindex][yindex][zindex].value(tables, df_da, d2f_da2);
+		double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
 		df_da[2] /= zscale[zindex];
