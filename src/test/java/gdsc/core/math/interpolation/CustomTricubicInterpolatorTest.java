@@ -284,8 +284,7 @@ public class CustomTricubicInterpolatorTest
 						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
 						double o2 = f1.value(xx, yy, zz, df_daB, d2f_da2A);
 						Assert.assertEquals(e, o2, Math.abs(e * 1e-8));
-						// TODO - reset to zero
-						Assert.assertArrayEquals(df_daA, df_daB, 1e-8);
+						Assert.assertArrayEquals(df_daA, df_daB, 0);
 
 						IndexedCubicSplinePosition sx = f1.getXSplinePosition(xx);
 						o2 = f1.value(sx, sy, sz, df_daB);
@@ -293,8 +292,7 @@ public class CustomTricubicInterpolatorTest
 						Assert.assertArrayEquals(df_daA, df_daB, 0);
 						o2 = f1.value(sx, sy, sz, df_daB, d2f_da2B);
 						Assert.assertEquals(e, o2, Math.abs(e * 1e-8));
-						// TODO - reset to zero
-						Assert.assertArrayEquals(df_daA, df_daB, 1e-8);
+						Assert.assertArrayEquals(df_daA, df_daB,0);
 						Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 0);
 
 						// Get gradient and check
