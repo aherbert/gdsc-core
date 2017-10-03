@@ -30,6 +30,9 @@ package gdsc.core.math.interpolation;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.exception.OutOfRangeException;
 
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.procedure.TObjectIntProcedure;
+
 /**
  * 3D-spline function.
  */
@@ -1081,42 +1084,60 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 */
 	static String inlineValue1WithPowerTable()
 	{
+		TObjectIntHashMap<String> map = new TObjectIntHashMap<String>(64);
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("final double[] a2 = getA2();\n");
 		sb.append("final double[] a3 = getA3();\n");
 		// Inline each gradient array in order.
 		// Maybe it will help the optimiser?
 		sb.append("result =");
-		for (int k = 0, ai = 0; k < N; k++)
+		for (int k = 0; k < N; k++)
 			for (int j = 0; j < N; j++)
-				for (int i = 0; i < N; i++, ai++)
-					sb.append(String.format("+ a[%d] * table[%d]\n", ai, ai));
+				for (int i = 0; i < N; i++)
+					appendPower(map, sb, i, j, k, i, j, k);
 		sb.append(";\n");
 		sb.append("df_da[0] =");
 		for (int k = 0; k < N; k++)
 			for (int j = 0; j < N; j++)
 				for (int i = 0; i < N; i++)
 					if (i < N_1)
-						appendPower(sb, i + 1, j, k, i, j, k);
+						appendPower(map, sb, i + 1, j, k, i, j, k);
 		sb.append(";\n");
 		sb.append("df_da[1] =");
 		for (int k = 0; k < N; k++)
 			for (int j = 0; j < N; j++)
 				for (int i = 0; i < N; i++)
 					if (j < N_1)
-						appendPower(sb, i, j + 1, k, i, j, k);
+						appendPower(map, sb, i, j + 1, k, i, j, k);
 		sb.append(";\n");
 		sb.append("df_da[2] =");
 		for (int k = 0; k < N; k++)
 			for (int j = 0; j < N; j++)
 				for (int i = 0; i < N; i++)
 					if (k < N_1)
-						appendPower(sb, i, j, k + 1, i, j, k);
+						appendPower(map, sb, i, j, k + 1, i, j, k);
 		sb.append(";\n");
+
+		// Each entry should be unique indicating that the result is optimal 
+		map.forEachEntry(new TObjectIntProcedure<String>()
+		{
+			public boolean execute(String a, int b)
+			{
+				if (b > 1)
+				{
+					System.out.printf("%s = %d\n", a, b);
+					return false;
+				}
+				return true;
+			}
+		});
+
 		return finaliseInlinePowerTableFunction(sb);
 	}
 
-	private static void appendPower(StringBuilder sb, int i1, int j1, int k1, int i2, int j2, int k2)
+	private static void appendPower(TObjectIntHashMap<String> map, StringBuilder sb, int i1, int j1, int k1, int i2,
+			int j2, int k2)
 	{
 		int after = getIndex(i2, j2, k2);
 		int before = getIndex(i1, j1, k1);
@@ -1136,12 +1157,15 @@ public class CustomTricubicFunction implements TrivariateFunction
 			nh = k1;
 			nl = k2;
 		}
-		int n = nh;
-		while (--nh > nl)
+		int n = 1;
+		while (nh > nl)
 		{
 			n *= nh;
+			nh--;
 		}
-		sb.append(String.format("+ a%d[%d] * table[%d]\n", n, before, after));
+		String sum = String.format("a%d[%d] * table[%d]\n", n, before, after);
+		map.adjustOrPutValue(sum, 1, 1);
+		sb.append("+ ").append(sum);
 	}
 
 	private static String finaliseInlinePowerTableFunction(StringBuilder sb)
@@ -1797,6 +1821,7 @@ public class CustomTricubicFunction implements TrivariateFunction
 	 */
 	static String inlineValue2WithPowerTable()
 	{
+		TObjectIntHashMap<String> map = new TObjectIntHashMap<String>(64);
 		StringBuilder sb = new StringBuilder();
 		sb.append("final double[] a2 = getA2();\n");
 		sb.append("final double[] a3 = getA3();\n");
@@ -1804,53 +1829,68 @@ public class CustomTricubicFunction implements TrivariateFunction
 		// Inline each gradient array in order.
 		// Maybe it will help the optimiser?
 		sb.append("result =");
-		for (int k = 0, ai = 0; k < N; k++)
+		for (int k = 0; k < N; k++)
 			for (int j = 0; j < N; j++)
-				for (int i = 0; i < N; i++, ai++)
-					sb.append(String.format("+ a[%d] * table[%d]\n", ai, ai));
+				for (int i = 0; i < N; i++)
+					appendPower(map, sb, i, j, k, i, j, k);
 		sb.append(";\n");
 		sb.append("df_da[0] =");
 		for (int k = 0; k < N; k++)
 			for (int j = 0; j < N; j++)
 				for (int i = 0; i < N; i++)
 					if (i < N_1)
-						appendPower(sb, i + 1, j, k, i, j, k);
+						appendPower(map, sb, i + 1, j, k, i, j, k);
 		sb.append(";\n");
 		sb.append("df_da[1] =");
 		for (int k = 0; k < N; k++)
 			for (int j = 0; j < N; j++)
 				for (int i = 0; i < N; i++)
 					if (j < N_1)
-						appendPower(sb, i, j + 1, k, i, j, k);
+						appendPower(map, sb, i, j + 1, k, i, j, k);
 		sb.append(";\n");
 		sb.append("df_da[2] =");
 		for (int k = 0; k < N; k++)
 			for (int j = 0; j < N; j++)
 				for (int i = 0; i < N; i++)
 					if (k < N_1)
-						appendPower(sb, i, j, k + 1, i, j, k);
+						appendPower(map, sb, i, j, k + 1, i, j, k);
 		sb.append(";\n");
 		sb.append("d2f_da2[0] =");
 		for (int k = 0; k < N; k++)
 			for (int j = 0; j < N; j++)
 				for (int i = 0; i < N; i++)
 					if (i < N_2)
-						appendPower(sb, i + 2, j, k, i, j, k);
+						appendPower(map, sb, i + 2, j, k, i, j, k);
 		sb.append(";\n");
 		sb.append("d2f_da2[1] =");
 		for (int k = 0; k < N; k++)
 			for (int j = 0; j < N; j++)
 				for (int i = 0; i < N; i++)
 					if (j < N_2)
-						appendPower(sb, i, j + 2, k, i, j, k);
+						appendPower(map, sb, i, j + 2, k, i, j, k);
 		sb.append(";\n");
 		sb.append("d2f_da2[2] =");
 		for (int k = 0; k < N; k++)
 			for (int j = 0; j < N; j++)
 				for (int i = 0; i < N; i++)
 					if (k < N_2)
-						appendPower(sb, i, j, k + 2, i, j, k);
+						appendPower(map, sb, i, j, k + 2, i, j, k);
 		sb.append(";\n");
+
+		// Each entry should be unique indicating that the result is optimal 
+		map.forEachEntry(new TObjectIntProcedure<String>()
+		{
+			public boolean execute(String a, int b)
+			{
+				if (b > 1)
+				{
+					System.out.printf("%s = %d\n", a, b);
+					return false;
+				}
+				return true;
+			}
+		});
+
 		return finaliseInlinePowerTableFunction(sb);
 	}
 }
