@@ -27,33 +27,35 @@ package gdsc.core.math.interpolation;
  * limitations under the License.
  */
 
-import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.exception.OutOfRangeException;
 
+import gdsc.core.utils.SimpleArrayUtils;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectIntProcedure;
 
 /**
- * 3D-spline function using single precision float values to store the coefficients. This reduces the memory required to
- * store the function.
- * <p>
- * Not all computations use exclusively float precision. The computations using the power table use float computation
- * and should show the largest speed benefit over the double precision counter part.
+ * 3D-spline function using double precision float values to store the coefficients.
  */
-public class FloatCustomTricubicFunction extends CustomTricubicFunction
+public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 {
+	/** Number of points. */
+	private static final short N = 4;
+	/** Number of points - 1. */
+	private static final short N_1 = 3;
+	/** Number of points - 2. */
+	private static final short N_2 = 2;
 	/** Coefficients */
-	private final float[] a;
+	private final double[] a;
 	/** Coefficients multiplied by 2 */
-	private float[] a2 = null;
+	private double[] a2 = null;
 	/** Coefficients multiplied by 3 */
-	private float[] a3 = null;
+	private double[] a3 = null;
 	/** Coefficients multiplied by 6 */
-	private float[] a6 = null;
+	private double[] a6 = null;
 
-	private float[] getA2()
+	private double[] getA2()
 	{
-		float[] data = a2;
+		double[] data = a2;
 		if (data == null)
 		{
 			a2 = data = scaleA(2);
@@ -61,9 +63,9 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		return data;
 	}
 
-	private float[] getA3()
+	private double[] getA3()
 	{
-		float[] data = a3;
+		double[] data = a3;
 		if (data == null)
 		{
 			a3 = data = scaleA(3);
@@ -71,9 +73,9 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		return data;
 	}
 
-	private float[] getA6()
+	private double[] getA6()
 	{
-		float[] data = a6;
+		double[] data = a6;
 		if (data == null)
 		{
 			a6 = data = scaleA(6);
@@ -81,54 +83,27 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		return data;
 	}
 
-	private float[] scaleA(int n)
+	private double[] scaleA(int n)
 	{
-		final float[] s = new float[64];
+		final double[] s = new double[64];
 		for (int i = 0; i < 64; i++)
 			s[i] = a[i] * n;
 		return s;
 	}
 
 	/**
-	 * Instantiates a new float custom tricubic function.
-	 * 
 	 * @param aV
 	 *            List of spline coefficients.
 	 */
-	FloatCustomTricubicFunction(double[] aV)
+	DoubleCustomTricubicFunction(double[] aV)
 	{
-		a = toFloat(aV);
+		// Use the table directly
+		a = aV;
 	}
 
-	/**
-	 * Instantiates a new float custom tricubic function.
-	 *
-	 * @param aV
-	 *            List of spline coefficients.
-	 * @param a2
-	 *            the a * 2 coefficients
-	 * @param a3
-	 *            the a * 3 coefficients
-	 * @param a6
-	 *            the a * 6 coefficients
-	 */
-	FloatCustomTricubicFunction(double[] aV, double[] a2, double[] a3, double[] a6)
+	DoubleCustomTricubicFunction(float[] aV)
 	{
-		a = toFloat(aV);
-		if (a2 != null)
-			this.a2 = toFloat(a2);
-		if (a3 != null)
-			this.a3 = toFloat(a3);
-		if (a6 != null)
-			this.a6 = toFloat(a6);
-	}
-
-	private static float[] toFloat(double[] aV)
-	{
-		float[] a = new float[64];
-		for (int i = 0; i < 64; i++)
-			a[i] = (float) aV[i];
-		return a;
+		a = SimpleArrayUtils.toDouble(aV);
 	}
 
 	/*
@@ -159,7 +134,7 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	@Override
 	public FloatCustomTricubicFunction toSinglePrecision()
 	{
-		return this;
+		return new FloatCustomTricubicFunction(a, a2, a3, a6);
 	}
 
 	/*
@@ -170,7 +145,7 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	@Override
 	public CustomTricubicFunction toDoublePrecision()
 	{
-		return new DoubleCustomTricubicFunction(a);
+		return this;
 	}
 
 	/**
@@ -355,7 +330,7 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	 *             if {@code x}, {@code y} or
 	 *             {@code z} are not in the interval {@code [0, 1]}.
 	 */
-	public static float[] computePowerTable(double x, double y, double z) throws OutOfRangeException
+	public static double[] computePowerTable(double x, double y, double z) throws OutOfRangeException
 	{
 		if (x < 0 || x > 1)
 		{
@@ -396,7 +371,7 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	 *            z-coordinate of the interpolation point.
 	 * @return the power table.
 	 */
-	public static float[] computePowerTable(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z)
+	public static double[] computePowerTable(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z)
 	{
 		return computePowerTable(x.p, y.p, z.p);
 	}
@@ -412,9 +387,76 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	 *            z-coordinate powers of the interpolation point.
 	 * @return the power table.
 	 */
-	static float[] computePowerTable(final double[] pX, final double[] pY, final double[] pZ)
+	static double[] computePowerTable(final double[] pX, final double[] pY, final double[] pZ)
 	{
-		return toFloat(DoubleCustomTricubicFunction.computePowerTable(pX, pY, pZ));
+		double[] table = new double[64];
+
+		table[0] = 1;
+		table[1] = pX[0];
+		table[2] = pX[1];
+		table[3] = pX[2];
+		table[4] = pY[0];
+		table[5] = pX[0] * pY[0];
+		table[6] = pX[1] * pY[0];
+		table[7] = pX[2] * pY[0];
+		table[8] = pY[1];
+		table[9] = pX[0] * pY[1];
+		table[10] = pX[1] * pY[1];
+		table[11] = pX[2] * pY[1];
+		table[12] = pY[2];
+		table[13] = pX[0] * pY[2];
+		table[14] = pX[1] * pY[2];
+		table[15] = pX[2] * pY[2];
+		table[16] = pZ[0];
+		table[17] = pX[0] * pZ[0];
+		table[18] = pX[1] * pZ[0];
+		table[19] = pX[2] * pZ[0];
+		table[20] = pY[0] * pZ[0];
+		table[21] = pX[0] * table[20];
+		table[22] = pX[1] * table[20];
+		table[23] = pX[2] * table[20];
+		table[24] = pY[1] * pZ[0];
+		table[25] = pX[0] * table[24];
+		table[26] = pX[1] * table[24];
+		table[27] = pX[2] * table[24];
+		table[28] = pY[2] * pZ[0];
+		table[29] = pX[0] * table[28];
+		table[30] = pX[1] * table[28];
+		table[31] = pX[2] * table[28];
+		table[32] = pZ[1];
+		table[33] = pX[0] * pZ[1];
+		table[34] = pX[1] * pZ[1];
+		table[35] = pX[2] * pZ[1];
+		table[36] = pY[0] * pZ[1];
+		table[37] = pX[0] * table[36];
+		table[38] = pX[1] * table[36];
+		table[39] = pX[2] * table[36];
+		table[40] = pY[1] * pZ[1];
+		table[41] = pX[0] * table[40];
+		table[42] = pX[1] * table[40];
+		table[43] = pX[2] * table[40];
+		table[44] = pY[2] * pZ[1];
+		table[45] = pX[0] * table[44];
+		table[46] = pX[1] * table[44];
+		table[47] = pX[2] * table[44];
+		table[48] = pZ[2];
+		table[49] = pX[0] * pZ[2];
+		table[50] = pX[1] * pZ[2];
+		table[51] = pX[2] * pZ[2];
+		table[52] = pY[0] * pZ[2];
+		table[53] = pX[0] * table[52];
+		table[54] = pX[1] * table[52];
+		table[55] = pX[2] * table[52];
+		table[56] = pY[1] * pZ[2];
+		table[57] = pX[0] * table[56];
+		table[58] = pX[1] * table[56];
+		table[59] = pX[2] * table[56];
+		table[60] = pY[2] * pZ[2];
+		table[61] = pX[0] * table[60];
+		table[62] = pX[1] * table[60];
+		table[63] = pX[2] * table[60];
+
+		return table;
 	}
 
 	/**
@@ -532,8 +574,8 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		df_da[1] = 0;
 		df_da[2] = 0;
 
-		final float[] a2 = getA2();
-		final float[] a3 = getA3();
+		final double[] a2 = getA2();
+		final double[] a3 = getA3();
 		result += a[0];
 		df_da[0] += a[1];
 		df_da[1] += a[4];
@@ -814,8 +856,8 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		String _pXpYpZ;
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("final float[] a2 = getA2();\n");
-		sb.append("final float[] a3 = getA3();\n");
+		sb.append("final double[] a2 = getA2();\n");
+		sb.append("final double[] a3 = getA3();\n");
 
 		// Gradients are described in:
 		// Babcock & Zhuang (2017) 
@@ -883,8 +925,8 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	 */
 	public double value(double[] table, double[] df_da)
 	{
-		final float[] a2 = getA2();
-		final float[] a3 = getA3();
+		final double[] a2 = getA2();
+		final double[] a3 = getA3();
 		df_da[0] = a[1] * table[0] + a2[2] * table[1] + a3[3] * table[2] + a[5] * table[4] + a2[6] * table[5] +
 				a3[7] * table[6] + a[9] * table[8] + a2[10] * table[9] + a3[11] * table[10] + a[13] * table[12] +
 				a2[14] * table[13] + a3[15] * table[14] + a[17] * table[16] + a2[18] * table[17] + a3[19] * table[18] +
@@ -933,8 +975,8 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	@Override
 	public double value(float[] table, double[] df_da)
 	{
-		final float[] a2 = getA2();
-		final float[] a3 = getA3();
+		final double[] a2 = getA2();
+		final double[] a3 = getA3();
 		df_da[0] = a[1] * table[0] + a2[2] * table[1] + a3[3] * table[2] + a[5] * table[4] + a2[6] * table[5] +
 				a3[7] * table[6] + a[9] * table[8] + a2[10] * table[9] + a3[11] * table[10] + a[13] * table[12] +
 				a2[14] * table[13] + a3[15] * table[14] + a[17] * table[16] + a2[18] * table[17] + a3[19] * table[18] +
@@ -990,8 +1032,8 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		TObjectIntHashMap<String> map = new TObjectIntHashMap<String>(64);
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("final float[] a2 = getA2();\n");
-		sb.append("final float[] a3 = getA3();\n");
+		sb.append("final double[] a2 = getA2();\n");
+		sb.append("final double[] a3 = getA3();\n");
 		// Inline each gradient array in order.
 		// Maybe it will help the optimiser?
 		sb.append("df_da[0] =");
@@ -1099,9 +1141,9 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		d2f_da2[1] = 0;
 		d2f_da2[2] = 0;
 
-		final float[] a2 = getA2();
-		final float[] a3 = getA3();
-		final float[] a6 = getA6();
+		final double[] a2 = getA2();
+		final double[] a3 = getA3();
+		final double[] a6 = getA6();
 		result += a[0];
 		df_da[0] += a[1];
 		d2f_da2[0] += a2[2];
@@ -1478,9 +1520,9 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		String _pXpYpZ;
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("final float[] a2 = getA2();\n");
-		sb.append("final float[] a3 = getA3();\n");
-		sb.append("final float[] a6 = getA6();\n");
+		sb.append("final double[] a2 = getA2();\n");
+		sb.append("final double[] a3 = getA3();\n");
+		sb.append("final double[] a6 = getA6();\n");
 
 		// Gradients are described in:
 		// Babcock & Zhuang (2017) 
@@ -1559,9 +1601,9 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	 */
 	public double value(double[] table, double[] df_da, double[] d2f_da2)
 	{
-		final float[] a2 = getA2();
-		final float[] a3 = getA3();
-		final float[] a6 = getA6();
+		final double[] a2 = getA2();
+		final double[] a3 = getA3();
+		final double[] a6 = getA6();
 		df_da[0] = a[1] * table[0] + a2[2] * table[1] + a3[3] * table[2] + a[5] * table[4] + a2[6] * table[5] +
 				a3[7] * table[6] + a[9] * table[8] + a2[10] * table[9] + a3[11] * table[10] + a[13] * table[12] +
 				a2[14] * table[13] + a3[15] * table[14] + a[17] * table[16] + a2[18] * table[17] + a3[19] * table[18] +
@@ -1631,9 +1673,9 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	@Override
 	public double value(float[] table, double[] df_da, double[] d2f_da2)
 	{
-		final float[] a2 = getA2();
-		final float[] a3 = getA3();
-		final float[] a6 = getA6();
+		final double[] a2 = getA2();
+		final double[] a3 = getA3();
+		final double[] a6 = getA6();
 		df_da[0] = a[1] * table[0] + a2[2] * table[1] + a3[3] * table[2] + a[5] * table[4] + a2[6] * table[5] +
 				a3[7] * table[6] + a[9] * table[8] + a2[10] * table[9] + a3[11] * table[10] + a[13] * table[12] +
 				a2[14] * table[13] + a3[15] * table[14] + a[17] * table[16] + a2[18] * table[17] + a3[19] * table[18] +
@@ -1709,9 +1751,9 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	{
 		TObjectIntHashMap<String> map = new TObjectIntHashMap<String>(64);
 		StringBuilder sb = new StringBuilder();
-		sb.append("final float[] a2 = getA2();\n");
-		sb.append("final float[] a3 = getA3();\n");
-		sb.append("final float[] a6 = getA6();\n");
+		sb.append("final double[] a2 = getA2();\n");
+		sb.append("final double[] a3 = getA3();\n");
+		sb.append("final double[] a6 = getA6();\n");
 		// Inline each gradient array in order.
 		// Maybe it will help the optimiser?
 		sb.append("df_da[0] =");

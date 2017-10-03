@@ -8,6 +8,8 @@ import org.apache.commons.math3.util.Precision;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.core.test.BaseTimingTask;
+import gdsc.core.test.TimingService;
 import gdsc.core.utils.DoubleEquality;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.SimpleArrayUtils;
@@ -52,7 +54,7 @@ public class CustomTricubicInterpolatorTest
 				Assert.assertEquals(zval[j], f1.getZSplineValue(j), 0);
 
 			Assert.assertTrue(f1.isUniform);
-			
+
 			f1.precomputeGradientCoefficients(1);
 		}
 	}
@@ -194,7 +196,7 @@ public class CustomTricubicInterpolatorTest
 			double zz = r.nextDouble();
 
 			// This is done unscaled
-			double[] table = CustomTricubicFunction.computePowerTable(xx, yy, zz);
+			double[] table = DoubleCustomTricubicFunction.computePowerTable(xx, yy, zz);
 
 			xx *= xscale;
 			yy *= yscale;
@@ -294,7 +296,7 @@ public class CustomTricubicInterpolatorTest
 						Assert.assertArrayEquals(df_daA, df_daB, 0);
 						o2 = f1.value(sx, sy, sz, df_daB, d2f_da2B);
 						Assert.assertEquals(e, o2, Math.abs(e * 1e-8));
-						Assert.assertArrayEquals(df_daA, df_daB,0);
+						Assert.assertArrayEquals(df_daA, df_daB, 0);
 						Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 0);
 
 						// Get gradient and check
@@ -328,8 +330,8 @@ public class CustomTricubicInterpolatorTest
 							//		j, d2f_da2A[j], ok);
 							//if (!ok)
 							//{
-								//System.out.printf("%d [%.1f,%.1f,%.1f] %f == [%d] %f?\n", j, xx, yy, zz, secondOrder, j,
-								//		d2f_da2A[j]);
+							//System.out.printf("%d [%.1f,%.1f,%.1f] %f == [%d] %f?\n", j, xx, yy, zz, secondOrder, j,
+							//		d2f_da2A[j]);
 							//}
 							Assert.assertTrue(secondOrder + " != " + d2f_da2A[j],
 									eq.almostEqualRelativeOrAbsolute(secondOrder, d2f_da2A[j]));
@@ -362,7 +364,7 @@ public class CustomTricubicInterpolatorTest
 			double zz = r.nextDouble();
 
 			// This is done unscaled
-			double[] table = CustomTricubicFunction.computePowerTable(xx, yy, zz);
+			double[] table = DoubleCustomTricubicFunction.computePowerTable(xx, yy, zz);
 
 			xx *= xscale;
 			yy *= yscale;
@@ -378,16 +380,325 @@ public class CustomTricubicInterpolatorTest
 						double o = f1.value(xi, yi, zi, table, df_daB);
 						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
 						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
-						
+
 						o = f1.value(a[0], a[1], a[2], df_daB, d2f_da2A);
 						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
 						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
-						
+
 						o = f1.value(xi, yi, zi, table, df_daB, d2f_da2B);
 						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
 						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
 						Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 1e-10);
 					}
 		}
+	}
+
+	@Test
+	public void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision()
+	{
+		RandomGenerator r = new Well19937c(30051977);
+		int x = 4, y = 4, z = 4;
+		double xscale = 1, yscale = 0.5, zscale = 2.0;
+		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
+		double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
+		double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
+		double[] df_daA = new double[3];
+		double[] df_daB = new double[3];
+		double[] df_daA2 = new double[3];
+		double[] df_daB2 = new double[3];
+		double[] d2f_da2A = new double[3];
+		double[] d2f_da2B = new double[3];
+		double e, o, e2, o2;
+		double[][][] fval = createData(x, y, z, null);
+		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
+
+		double valueTolerance = 1e-5;
+		double gradientTolerance = 1e-3;
+
+		// Extract nodes for testing
+		CustomTricubicFunction[] nodes = new CustomTricubicFunction[2 * 2 * 2];
+		CustomTricubicFunction[] fnodes = new CustomTricubicFunction[nodes.length];
+		for (int zi = 1, i = 0; zi < 3; zi++)
+			for (int yi = 1; yi < 3; yi++)
+				for (int xi = 1; xi < 3; xi++, i++)
+				{
+					nodes[i] = f1.getSplineNode(zi, yi, xi);
+					nodes[i].precomputeGradientCoefficients(2);
+					fnodes[i] = nodes[i].toSinglePrecision();
+				}
+
+		for (int i = 0; i < 3; i++)
+		{
+			double xx = r.nextDouble();
+			double yy = r.nextDouble();
+			double zz = r.nextDouble();
+
+			double[] table = DoubleCustomTricubicFunction.computePowerTable(xx, yy, zz);
+			float[] ftable = FloatCustomTricubicFunction.computePowerTable(xx, yy, zz);
+
+			for (int ii = 0; ii < nodes.length; ii++)
+			{
+				CustomTricubicFunction n1 = nodes[ii];
+				CustomTricubicFunction n2 = fnodes[ii];
+
+				// Just check relative to the non-table version
+				e = n1.value(table);
+				o = n2.value(ftable);
+				assertEquals(e, o, valueTolerance);
+
+				e = n1.value(table, df_daA);
+				o = n2.value(ftable, df_daB);
+				assertEquals(e, o, valueTolerance);
+				for (int j = 0; j < 3; j++)
+					assertEquals(df_daA[j], df_daB[j], gradientTolerance);
+
+				e2 = n1.value(table, df_daA2, d2f_da2A);
+				o2 = n2.value(ftable, df_daB2, d2f_da2B);
+				// Should be the same as the first-order gradient 
+				Assert.assertEquals(e, e2, 0);
+				Assert.assertEquals(o, o2, 0);
+				Assert.assertArrayEquals(df_daA, df_daA2, 0);
+				Assert.assertArrayEquals(df_daB, df_daB2, 0);
+				assertEquals(e2, o2, valueTolerance);
+				for (int j = 0; j < 3; j++)
+				{
+					assertEquals(df_daA[j], df_daB[j], gradientTolerance);
+					assertEquals(d2f_da2A[j], d2f_da2B[j], gradientTolerance);
+				}
+			}
+		}
+	}
+
+	private static void assertEquals(double e, double o, double tolerance)
+	{
+		Assert.assertEquals(e, o, Math.abs(e * tolerance));
+	}
+
+	private abstract class MyTimingTask extends BaseTimingTask
+	{
+		CustomTricubicFunction[] nodes;
+		double[] df_da = new double[3];
+		double[] d2f_da2 = new double[3];
+
+		public MyTimingTask(String name, CustomTricubicFunction[] nodes)
+		{
+			super(name + " " + nodes[0].getClass().getSimpleName());
+			this.nodes = nodes;
+		}
+
+		public int getSize()
+		{
+			return 1;
+		}
+
+		public Object getData(int i)
+		{
+			return null;
+		}
+	}
+
+	private abstract class DoubleTimingTask extends MyTimingTask
+	{
+		double[][] tables;
+
+		public DoubleTimingTask(String name, double[][] tables, CustomTricubicFunction[] nodes)
+		{
+			super(name, nodes);
+			this.tables = tables;
+		}
+	}
+
+	private abstract class FloatTimingTask extends MyTimingTask
+	{
+		float[][] tables;
+
+		public FloatTimingTask(String name, float[][] tables, CustomTricubicFunction[] nodes)
+		{
+			super(name, nodes);
+			this.tables = tables;
+		}
+	}
+
+	private class Double0TimingTask extends DoubleTimingTask
+	{
+		public Double0TimingTask(double[][] tables, CustomTricubicFunction[] nodes)
+		{
+			super(Double0TimingTask.class.getSimpleName(), tables, nodes);
+		}
+
+		public Object run(Object data)
+		{
+			double v = 0;
+			for (int i = 0; i < nodes.length; i++)
+			{
+				for (int j = 0; j < tables.length; j++)
+					v += nodes[i].value(tables[j]);
+			}
+			return v;
+		}
+	}
+
+	private class Float0TimingTask extends FloatTimingTask
+	{
+		public Float0TimingTask(float[][] tables, CustomTricubicFunction[] nodes)
+		{
+			super(Float0TimingTask.class.getSimpleName(), tables, nodes);
+		}
+
+		public Object run(Object data)
+		{
+			double v = 0;
+			for (int i = 0; i < nodes.length; i++)
+			{
+				for (int j = 0; j < tables.length; j++)
+					v += nodes[i].value(tables[j]);
+			}
+			return v;
+		}
+	}
+
+	private class Double1TimingTask extends DoubleTimingTask
+	{
+		public Double1TimingTask(double[][] tables, CustomTricubicFunction[] nodes)
+		{
+			super(Double1TimingTask.class.getSimpleName(), tables, nodes);
+		}
+
+		public Object run(Object data)
+		{
+			double v = 0;
+			for (int i = 0; i < nodes.length; i++)
+			{
+				for (int j = 0; j < tables.length; j++)
+					v += nodes[i].value(tables[j], df_da);
+			}
+			return v;
+		}
+	}
+
+	private class Float1TimingTask extends FloatTimingTask
+	{
+		public Float1TimingTask(float[][] tables, CustomTricubicFunction[] nodes)
+		{
+			super(Float1TimingTask.class.getSimpleName(), tables, nodes);
+		}
+
+		public Object run(Object data)
+		{
+			double v = 0;
+			for (int i = 0; i < nodes.length; i++)
+			{
+				for (int j = 0; j < tables.length; j++)
+					v += nodes[i].value(tables[j], df_da);
+			}
+			return v;
+		}
+	}
+
+	private class Double2TimingTask extends DoubleTimingTask
+	{
+		public Double2TimingTask(double[][] tables, CustomTricubicFunction[] nodes)
+		{
+			super(Double2TimingTask.class.getSimpleName(), tables, nodes);
+		}
+
+		public Object run(Object data)
+		{
+			double v = 0;
+			for (int i = 0; i < nodes.length; i++)
+			{
+				for (int j = 0; j < tables.length; j++)
+					v += nodes[i].value(tables[j], df_da, d2f_da2);
+			}
+			return v;
+		}
+	}
+
+	private class Float2TimingTask extends FloatTimingTask
+	{
+		public Float2TimingTask(float[][] tables, CustomTricubicFunction[] nodes)
+		{
+			super(Float2TimingTask.class.getSimpleName(), tables, nodes);
+		}
+
+		public Object run(Object data)
+		{
+			double v = 0;
+			for (int i = 0; i < nodes.length; i++)
+			{
+				for (int j = 0; j < tables.length; j++)
+					v += nodes[i].value(tables[j], df_da, d2f_da2);
+			}
+			return v;
+		}
+	}
+
+	@Test
+	public void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable()
+	{
+		RandomGenerator r = new Well19937c(30051977);
+		int x = 6, y = 5, z = 4;
+		double xscale = 1, yscale = 0.5, zscale = 2.0;
+		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
+		double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
+		double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
+		double[][][] fval = createData(x, y, z, null);
+		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
+
+		// Extract nodes for testing
+		CustomTricubicFunction[] nodes = new CustomTricubicFunction[(x - 2) * (y - 2) * (z - 2)];
+		CustomTricubicFunction[] fnodes = new CustomTricubicFunction[nodes.length];
+		for (int zi = 1, i = 0; zi < x - 1; zi++)
+			for (int yi = 1; yi < y - 1; yi++)
+				for (int xi = 1; xi < z - 1; xi++, i++)
+				{
+					nodes[i] = f1.getSplineNode(zi, yi, xi);
+					nodes[i].precomputeGradientCoefficients(2);
+					fnodes[i] = nodes[i].toSinglePrecision();
+				}
+
+		// Get points
+		double[][] tables = new double[3000][];
+		float[][] ftables = new float[tables.length][];
+		for (int i = 0; i < tables.length; i++)
+		{
+			double xx = r.nextDouble();
+			double yy = r.nextDouble();
+			double zz = r.nextDouble();
+
+			tables[i] = DoubleCustomTricubicFunction.computePowerTable(xx, yy, zz);
+			ftables[i] = FloatCustomTricubicFunction.computePowerTable(xx, yy, zz);
+		}
+
+		TimingService ts = new TimingService();
+
+		// Put in order to pass the speed test
+		ts.execute(new Double2TimingTask(tables, fnodes));
+		ts.execute(new Double2TimingTask(tables, nodes));
+		
+		ts.execute(new Float2TimingTask(ftables, nodes));
+		ts.execute(new Float2TimingTask(ftables, fnodes));
+		
+		ts.execute(new Double1TimingTask(tables, fnodes));
+		ts.execute(new Double1TimingTask(tables, nodes));
+		
+		ts.execute(new Float1TimingTask(ftables, nodes));
+		ts.execute(new Float1TimingTask(ftables, fnodes));
+		
+		ts.execute(new Double0TimingTask(tables, fnodes));
+		ts.execute(new Double0TimingTask(tables, nodes));
+		
+		ts.execute(new Float0TimingTask(ftables, nodes));
+		ts.execute(new Float0TimingTask(ftables, fnodes));
+
+		int n = ts.getSize();
+		ts.repeat();
+		ts.report(n);
+
+		// Sometimes this fails for the Float0TimingTask so add a margin for error
+		double margin = 1.1;
+		for (int i = 1; i < n; i += 2)
+			Assert.assertTrue(String.format("%f vs %f", ts.get(-i).getMean(), ts.get(-i - 1).getMean()),
+					ts.get(-i).getMean() < ts.get(-i - 1).getMean() * margin);
 	}
 }
