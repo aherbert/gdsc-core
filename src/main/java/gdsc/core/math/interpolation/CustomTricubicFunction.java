@@ -115,15 +115,15 @@ public class CustomTricubicFunction implements TrivariateFunction
 
 		final double x2 = x * x;
 		final double x3 = x2 * x;
-		final double[] pX = { 1, x, x2, x3 };
+		final double[] pX = { /* 1, optimised out */ x, x2, x3 };
 
 		final double y2 = y * y;
 		final double y3 = y2 * y;
-		final double[] pY = { 1, y, y2, y3 };
+		final double[] pY = { /* 1, optimised out */ y, y2, y3 };
 
 		final double z2 = z * z;
 		final double z3 = z2 * z;
-		final double[] pZ = { 1, z, z2, z3 };
+		final double[] pZ = { /* 1, optimised out */ z, z2, z3 };
 
 		return value(pX, pY, pZ);
 	}
@@ -296,6 +296,16 @@ public class CustomTricubicFunction implements TrivariateFunction
 		result = result.replace("pX[0]", "1");
 		result = result.replace(" * 1", "");
 		result = result.replace(" 1 *", "");
+		// We optimise out the need to store 1.0 in the array at pN[0]
+		// The power must all be shifted
+		for (int i = 0; i < 3; i++)
+		{
+			String was = String.format("[%d]", i + 1);
+			String now = String.format("[%d]", i);
+			result = result.replace("pX" + was, "pX" + now);
+			result = result.replace("pY" + was, "pY" + now);
+			result = result.replace("pZ" + was, "pZ" + now);
+		}
 		// Simplify compound multiplications
 		result = result.replace("2 * 3", "6");
 		result = result.replace("3 * 2", "6");
@@ -333,15 +343,15 @@ public class CustomTricubicFunction implements TrivariateFunction
 
 		final double x2 = x * x;
 		final double x3 = x2 * x;
-		final double[] pX = { 1, x, x2, x3 };
+		final double[] pX = { /* 1, optimised out */ x, x2, x3 };
 
 		final double y2 = y * y;
 		final double y3 = y2 * y;
-		final double[] pY = { 1, y, y2, y3 };
+		final double[] pY = { /* 1, optimised out */ y, y2, y3 };
 
 		final double z2 = z * z;
 		final double z3 = z2 * z;
-		final double[] pZ = { 1, z, z2, z3 };
+		final double[] pZ = { /* 1, optimised out */ z, z2, z3 };
 
 		return computePowerTable(pX, pY, pZ);
 	}
@@ -533,15 +543,15 @@ public class CustomTricubicFunction implements TrivariateFunction
 
 		final double x2 = x * x;
 		final double x3 = x2 * x;
-		final double[] pX = { 1, x, x2, x3 };
+		final double[] pX = { /* 1, optimised out */ x, x2, x3 };
 
 		final double y2 = y * y;
 		final double y3 = y2 * y;
-		final double[] pY = { 1, y, y2, y3 };
+		final double[] pY = { /* 1, optimised out */ y, y2, y3 };
 
 		final double z2 = z * z;
 		final double z3 = z2 * z;
-		final double[] pZ = { 1, z, z2, z3 };
+		final double[] pZ = { /* 1, optimised out */ z, z2, z3 };
 
 		return value(pX, pY, pZ, df_da);
 	}
@@ -958,15 +968,15 @@ public class CustomTricubicFunction implements TrivariateFunction
 
 		final double x2 = x * x;
 		final double x3 = x2 * x;
-		final double[] pX = { 1, x, x2, x3 };
+		final double[] pX = { /* 1, optimised out */ x, x2, x3 };
 
 		final double y2 = y * y;
 		final double y3 = y2 * y;
-		final double[] pY = { 1, y, y2, y3 };
+		final double[] pY = { /* 1, optimised out */ y, y2, y3 };
 
 		final double z2 = z * z;
 		final double z3 = z2 * z;
-		final double[] pZ = { 1, z, z2, z3 };
+		final double[] pZ = { /* 1, optimised out */ z, z2, z3 };
 
 		return computeFirstOrderPowerTables(pX, pY, pZ);
 	}
@@ -1469,15 +1479,15 @@ public class CustomTricubicFunction implements TrivariateFunction
 
 		final double x2 = x * x;
 		final double x3 = x2 * x;
-		final double[] pX = { 1, x, x2, x3 };
+		final double[] pX = { /* 1, optimised out */ x, x2, x3 };
 
 		final double y2 = y * y;
 		final double y3 = y2 * y;
-		final double[] pY = { 1, y, y2, y3 };
+		final double[] pY = { /* 1, optimised out */ y, y2, y3 };
 
 		final double z2 = z * z;
 		final double z3 = z2 * z;
-		final double[] pZ = { 1, z, z2, z3 };
+		final double[] pZ = { /* 1, optimised out */ z, z2, z3 };
 
 		return value(pX, pY, pZ, df_da, d2f_da2);
 	}
@@ -2011,15 +2021,15 @@ public class CustomTricubicFunction implements TrivariateFunction
 
 		final double x2 = x * x;
 		final double x3 = x2 * x;
-		final double[] pX = { 1, x, x2, x3 };
+		final double[] pX = { /* 1, optimised out */ x, x2, x3 };
 
 		final double y2 = y * y;
 		final double y3 = y2 * y;
-		final double[] pY = { 1, y, y2, y3 };
+		final double[] pY = { /* 1, optimised out */ y, y2, y3 };
 
 		final double z2 = z * z;
 		final double z3 = z2 * z;
-		final double[] pZ = { 1, z, z2, z3 };
+		final double[] pZ = { /* 1, optimised out */ z, z2, z3 };
 
 		return computeSecondOrderPowerTables(pX, pY, pZ);
 	}

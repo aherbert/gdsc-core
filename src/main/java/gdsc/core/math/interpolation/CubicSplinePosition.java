@@ -21,8 +21,8 @@ import org.apache.commons.math3.exception.OutOfRangeException;
  */
 public class CubicSplinePosition
 {
-	/** The power of the value (0, 1, 2, 3) */
-	final double[] p = new double[4];
+	/** The power of the value (1, 2, 3) */
+	final double[] p = new double[3];
 
 	/**
 	 * Instantiates a new cubic spline position. Only used when x is known to be in the range 0-1.
@@ -40,10 +40,9 @@ public class CubicSplinePosition
 	private void createPowers(double x)
 	{
 		final double x2 = x * x;
-		p[0] = 1;
-		p[1] = x;
-		p[2] = x2;
-		p[3] = x2 * x;
+		p[0] = x;
+		p[1] = x2;
+		p[2] = x2 * x;
 	}
 
 	/**
@@ -73,7 +72,7 @@ public class CubicSplinePosition
 	 */
 	public double getPower(int n)
 	{
-		return p[n];
+		return (n == 0) ? 1.0 : p[n - 1];
 	}
 
 	/**
@@ -83,7 +82,7 @@ public class CubicSplinePosition
 	 */
 	public double getX()
 	{
-		return p[1];
+		return p[0];
 	}
 
 	/**
@@ -93,7 +92,7 @@ public class CubicSplinePosition
 	 */
 	public double getX2()
 	{
-		return p[2];
+		return p[1];
 	}
 
 	/**
@@ -103,7 +102,7 @@ public class CubicSplinePosition
 	 */
 	public double getX3()
 	{
-		return p[3];
+		return p[2];
 	}
 
 	/**
