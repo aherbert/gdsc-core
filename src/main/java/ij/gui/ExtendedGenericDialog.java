@@ -45,6 +45,7 @@ import javax.swing.JPanel;
 
 import gdsc.core.ij.RecorderUtils;
 import gdsc.core.ij.Utils;
+import gdsc.core.utils.Maths;
 import gdsc.core.utils.TurboList;
 import ij.IJ;
 import ij.plugin.frame.Recorder;
@@ -214,6 +215,35 @@ public class ExtendedGenericDialog extends GenericDialog
 	public void addSlider(String label, double minValue, double maxValue, double defaultValue)
 	{
 		labels.add(label);
+		super.addSlider(label, minValue, maxValue, defaultValue);
+	}
+
+	/**
+	 * Adds a slider (scroll bar) to the dialog box.
+	 * Floating point values will be used if (maxValue-minValue)<=5.0
+	 * and either minValue or maxValue are non-integer.
+	 * <p>
+	 * Update the min or max value to include the default value if it is outside the slider range.
+	 * 
+	 * @param label
+	 *            the label
+	 * @param minValue
+	 *            the minimum value of the slider
+	 * @param maxValue
+	 *            the maximum value of the slider
+	 * @param defaultValue
+	 *            the initial value of the slider
+	 */
+	public void addSliderIncludeDefault(String label, double minValue, double maxValue, double defaultValue)
+	{
+		labels.add(label);
+		if (Maths.isFinite(defaultValue))
+		{
+			if (defaultValue < minValue)
+				minValue = defaultValue;
+			if (defaultValue > maxValue)
+				maxValue = defaultValue;
+		}
 		super.addSlider(label, minValue, maxValue, defaultValue);
 	}
 
