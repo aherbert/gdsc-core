@@ -166,7 +166,7 @@ public class ImageWindow
 		double[] dx2 = new double[maxx];
 		for (int x = 0; x < maxx; x++)
 			dx2[x] = (x - cx) * (x - cx);
-		
+
 		for (int y = 0, i = 0; y < maxy; y++)
 		{
 			final double dy2 = (y - cy) * (y - cy);
@@ -300,6 +300,39 @@ public class ImageWindow
 	public static double[] tukey(int N)
 	{
 		return createWindow(new Tukey(ALPHA), N);
+	}
+
+	/**
+	 * Create a Tukey (Tapered Cosine) window using the specified edge.
+	 * <p>
+	 * Edge controls the distance from the edge of the window to the centre to apply the weight.
+	 * A 0 will return a rectangular window.
+	 *
+	 * @param N
+	 *            the size of the window
+	 * @param edge
+	 *            the size of the window edge
+	 * @return the window weighting
+	 */
+	public static double[] tukeyEdge(int N, int edge)
+	{
+		return tukey(N, tukeyAlpha(N, edge));
+	}
+
+	/**
+	 * Create the alpha for the Tukey window using the desired size of the edge window.
+	 *
+	 * @param edge
+	 *            the size of the window edge
+	 * @param N
+	 *            the size of the window
+	 * @return the alpha (range 0-1)
+	 */
+	public static double tukeyAlpha(int N, int edge)
+	{
+		if (edge <= 0 || N < 1)
+			return 0;
+		return Math.min((2.0 * edge) / (N - 1), 1.0);
 	}
 
 	/**
