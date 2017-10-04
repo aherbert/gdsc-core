@@ -88,14 +88,20 @@ public class Maths
 		if (data == null || data.length == 0)
 			return (limits == null || limits.length < 2) ? noDoubleLimits() : limits;
 		if (limits == null || limits.length < 2)
-			limits = new double[] { Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY };
+			limits = new double[] { data[0], data[0] };
 		double min = limits[0];
 		double max = limits[1];
+		if (min > max)
+		{
+			double tmp = min;
+			min = max;
+			max = tmp;
+		}
 		for (double d : data)
 		{
 			if (min > d)
 				min = d;
-			if (max < d)
+			else if (max < d)
 				max = d;
 		}
 		limits[0] = min;
@@ -168,14 +174,20 @@ public class Maths
 		if (data == null || data.length == 0)
 			return (limits == null || limits.length < 2) ? noFloatLimits() : limits;
 		if (limits == null || limits.length < 2)
-			limits = new float[] { Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY };
+			limits = new float[] { data[0], data[0] };
 		float min = limits[0];
 		float max = limits[1];
+		if (min > max)
+		{
+			float tmp = min;
+			min = max;
+			max = tmp;
+		}
 		for (float d : data)
 		{
 			if (min > d)
 				min = d;
-			if (max < d)
+			else if (max < d)
 				max = d;
 		}
 		limits[0] = min;
@@ -244,9 +256,15 @@ public class Maths
 		if (data == null || data.length == 0)
 			return (limits == null || limits.length < 2) ? noIntegerLimits() : limits;
 		if (limits == null || limits.length < 2)
-			limits = new int[] { Integer.MAX_VALUE, Integer.MIN_VALUE };
+			limits = new int[] { data[0], data[0] };
 		int min = limits[0];
 		int max = limits[1];
+		if (min > max)
+		{
+			int tmp = min;
+			min = max;
+			max = tmp;
+		}
 		for (int d : data)
 		{
 			if (min > d)
@@ -320,14 +338,20 @@ public class Maths
 		if (data == null || data.length == 0)
 			return (limits == null || limits.length < 2) ? noShortLimits() : limits;
 		if (limits == null || limits.length < 2)
-			limits = new short[] { Short.MAX_VALUE, Short.MIN_VALUE };
+			limits = new short[] { data[0], data[0] };
 		short min = limits[0];
 		short max = limits[1];
+		if (min > max)
+		{
+			short tmp = min;
+			min = max;
+			max = tmp;
+		}
 		for (short d : data)
 		{
 			if (min > d)
 				min = d;
-			if (max < d)
+			else if (max < d)
 				max = d;
 		}
 		limits[0] = min;
@@ -396,14 +420,20 @@ public class Maths
 		if (data == null || data.length == 0)
 			return (limits == null || limits.length < 2) ? noLongLimits() : limits;
 		if (limits == null || limits.length < 2)
-			limits = new long[] { Long.MAX_VALUE, Long.MIN_VALUE };
+			limits = new long[] { data[0], data[0] };
 		long min = limits[0];
 		long max = limits[1];
+		if (min > max)
+		{
+			long tmp = min;
+			min = max;
+			max = tmp;
+		}
 		for (long d : data)
 		{
 			if (min > d)
 				min = d;
-			if (max < d)
+			else if (max < d)
 				max = d;
 		}
 		limits[0] = min;
