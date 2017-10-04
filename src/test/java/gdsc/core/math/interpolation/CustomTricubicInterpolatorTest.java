@@ -433,8 +433,8 @@ public class CustomTricubicInterpolatorTest
 			double yy = r.nextDouble();
 			double zz = r.nextDouble();
 
-			double[] table = DoubleCustomTricubicFunction.computePowerTable(xx, yy, zz);
-			float[] ftable = FloatCustomTricubicFunction.computePowerTable(xx, yy, zz);
+			double[] table = CustomTricubicFunction.computePowerTable(xx, yy, zz);
+			float[] ftable = CustomTricubicFunction.computeFloatPowerTable(xx, yy, zz);
 
 			for (int ii = 0; ii < nodes.length; ii++)
 			{
@@ -666,8 +666,8 @@ public class CustomTricubicInterpolatorTest
 			double yy = r.nextDouble();
 			double zz = r.nextDouble();
 
-			tables[i] = DoubleCustomTricubicFunction.computePowerTable(xx, yy, zz);
-			ftables[i] = FloatCustomTricubicFunction.computePowerTable(xx, yy, zz);
+			tables[i] = CustomTricubicFunction.computePowerTable(xx, yy, zz);
+			ftables[i] = CustomTricubicFunction.computeFloatPowerTable(xx, yy, zz);
 		}
 
 		TimingService ts = new TimingService();

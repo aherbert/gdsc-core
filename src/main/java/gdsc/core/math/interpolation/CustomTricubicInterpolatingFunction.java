@@ -70,7 +70,7 @@ public class CustomTricubicInterpolatingFunction
      * Matrix to compute the spline coefficients from the function values
      * and function derivatives values
      */
-    private static final double[][] AINV = {
+    static final double[][] AINV = {
         { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
         { 0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
         { -3,3,0,0,0,0,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -358,7 +358,7 @@ public class CustomTricubicInterpolatingFunction
                     };
 
                     // Q. Option to create as single precision?
-                    splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficients(beta));
+                    splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
                 }
             }
         }
@@ -1235,7 +1235,7 @@ public class CustomTricubicInterpolatingFunction
      * @param beta List of function values and function partial derivatives values.
      * @return the spline coefficients.
      */
-    private double[] computeCoefficients(double[] beta) {
+    static double[] computeCoefficients(double[] beta) {
         final int sz = 64;
         final double[] a = new double[sz];
 
@@ -1249,6 +1249,159 @@ public class CustomTricubicInterpolatingFunction
         }
 
         return a;
+    }
+    
+    /**
+     * Compute coefficients inline. This has been created using the same code as 
+     * {@link #computeCoefficients(double[])} but ignoring any entry in AINV that is zero. 
+     *
+     * @param beta List of function values and function partial derivatives values.
+     * @return the spline coefficients.
+     */
+    static double[] computeCoefficientsInline(double[] beta) {
+    	final double[] a = new double[64];
+    	a[0]=beta[0];
+    	a[1]=beta[8];
+    	a[2]=-3*beta[0]+3*beta[1]-2*beta[8]-beta[9];
+    	a[3]=2*beta[0]-2*beta[1]+beta[8]+beta[9];
+    	a[4]=beta[16];
+    	a[5]=beta[32];
+    	a[6]=-3*beta[16]+3*beta[17]-2*beta[32]-beta[33];
+    	a[7]=2*beta[16]-2*beta[17]+beta[32]+beta[33];
+    	a[8]=-3*beta[0]+3*beta[2]-2*beta[16]-beta[18];
+    	a[9]=-3*beta[8]+3*beta[10]-2*beta[32]-beta[34];
+    	a[10]=9*beta[0]-9*beta[1]-9*beta[2]+9*beta[3]+6*beta[8]+3*beta[9]-6*beta[10]-3*beta[11]+6*beta[16]-6*beta[17]+3*beta[18]-3*beta[19]+4*beta[32]+2*beta[33]+2*beta[34]+beta[35];
+    	a[11]=-6*beta[0]+6*beta[1]+6*beta[2]-6*beta[3]-3*beta[8]-3*beta[9]+3*beta[10]+3*beta[11]-4*beta[16]+4*beta[17]-2*beta[18]+2*beta[19]-2*beta[32]-2*beta[33]-beta[34]-beta[35];
+    	a[12]=2*beta[0]-2*beta[2]+beta[16]+beta[18];
+    	a[13]=2*beta[8]-2*beta[10]+beta[32]+beta[34];
+    	a[14]=-6*beta[0]+6*beta[1]+6*beta[2]-6*beta[3]-4*beta[8]-2*beta[9]+4*beta[10]+2*beta[11]-3*beta[16]+3*beta[17]-3*beta[18]+3*beta[19]-2*beta[32]-beta[33]-2*beta[34]-beta[35];
+    	a[15]=4*beta[0]-4*beta[1]-4*beta[2]+4*beta[3]+2*beta[8]+2*beta[9]-2*beta[10]-2*beta[11]+2*beta[16]-2*beta[17]+2*beta[18]-2*beta[19]+beta[32]+beta[33]+beta[34]+beta[35];
+    	a[16]=beta[24];
+    	a[17]=beta[40];
+    	a[18]=-3*beta[24]+3*beta[25]-2*beta[40]-beta[41];
+    	a[19]=2*beta[24]-2*beta[25]+beta[40]+beta[41];
+    	a[20]=beta[48];
+    	a[21]=beta[56];
+    	a[22]=-3*beta[48]+3*beta[49]-2*beta[56]-beta[57];
+    	a[23]=2*beta[48]-2*beta[49]+beta[56]+beta[57];
+    	a[24]=-3*beta[24]+3*beta[26]-2*beta[48]-beta[50];
+    	a[25]=-3*beta[40]+3*beta[42]-2*beta[56]-beta[58];
+    	a[26]=9*beta[24]-9*beta[25]-9*beta[26]+9*beta[27]+6*beta[40]+3*beta[41]-6*beta[42]-3*beta[43]+6*beta[48]-6*beta[49]+3*beta[50]-3*beta[51]+4*beta[56]+2*beta[57]+2*beta[58]+beta[59];
+    	a[27]=-6*beta[24]+6*beta[25]+6*beta[26]-6*beta[27]-3*beta[40]-3*beta[41]+3*beta[42]+3*beta[43]-4*beta[48]+4*beta[49]-2*beta[50]+2*beta[51]-2*beta[56]-2*beta[57]-beta[58]-beta[59];
+    	a[28]=2*beta[24]-2*beta[26]+beta[48]+beta[50];
+    	a[29]=2*beta[40]-2*beta[42]+beta[56]+beta[58];
+    	a[30]=-6*beta[24]+6*beta[25]+6*beta[26]-6*beta[27]-4*beta[40]-2*beta[41]+4*beta[42]+2*beta[43]-3*beta[48]+3*beta[49]-3*beta[50]+3*beta[51]-2*beta[56]-beta[57]-2*beta[58]-beta[59];
+    	a[31]=4*beta[24]-4*beta[25]-4*beta[26]+4*beta[27]+2*beta[40]+2*beta[41]-2*beta[42]-2*beta[43]+2*beta[48]-2*beta[49]+2*beta[50]-2*beta[51]+beta[56]+beta[57]+beta[58]+beta[59];
+    	a[32]=-3*beta[0]+3*beta[4]-2*beta[24]-beta[28];
+    	a[33]=-3*beta[8]+3*beta[12]-2*beta[40]-beta[44];
+    	a[34]=9*beta[0]-9*beta[1]-9*beta[4]+9*beta[5]+6*beta[8]+3*beta[9]-6*beta[12]-3*beta[13]+6*beta[24]-6*beta[25]+3*beta[28]-3*beta[29]+4*beta[40]+2*beta[41]+2*beta[44]+beta[45];
+    	a[35]=-6*beta[0]+6*beta[1]+6*beta[4]-6*beta[5]-3*beta[8]-3*beta[9]+3*beta[12]+3*beta[13]-4*beta[24]+4*beta[25]-2*beta[28]+2*beta[29]-2*beta[40]-2*beta[41]-beta[44]-beta[45];
+    	a[36]=-3*beta[16]+3*beta[20]-2*beta[48]-beta[52];
+    	a[37]=-3*beta[32]+3*beta[36]-2*beta[56]-beta[60];
+    	a[38]=9*beta[16]-9*beta[17]-9*beta[20]+9*beta[21]+6*beta[32]+3*beta[33]-6*beta[36]-3*beta[37]+6*beta[48]-6*beta[49]+3*beta[52]-3*beta[53]+4*beta[56]+2*beta[57]+2*beta[60]+beta[61];
+    	a[39]=-6*beta[16]+6*beta[17]+6*beta[20]-6*beta[21]-3*beta[32]-3*beta[33]+3*beta[36]+3*beta[37]-4*beta[48]+4*beta[49]-2*beta[52]+2*beta[53]-2*beta[56]-2*beta[57]-beta[60]-beta[61];
+    	a[40]=9*beta[0]-9*beta[2]-9*beta[4]+9*beta[6]+6*beta[16]+3*beta[18]-6*beta[20]-3*beta[22]+6*beta[24]-6*beta[26]+3*beta[28]-3*beta[30]+4*beta[48]+2*beta[50]+2*beta[52]+beta[54];
+    	a[41]=9*beta[8]-9*beta[10]-9*beta[12]+9*beta[14]+6*beta[32]+3*beta[34]-6*beta[36]-3*beta[38]+6*beta[40]-6*beta[42]+3*beta[44]-3*beta[46]+4*beta[56]+2*beta[58]+2*beta[60]+beta[62];
+    	a[42]=-27*beta[0]+27*beta[1]+27*beta[2]-27*beta[3]+27*beta[4]-27*beta[5]-27*beta[6]+27*beta[7]-18*beta[8]-9*beta[9]+18*beta[10]+9*beta[11]+18*beta[12]+9*beta[13]-18*beta[14]-9*beta[15]-18*beta[16]+18*beta[17]-9*beta[18]+9*beta[19]+18*beta[20]-18*beta[21]+9*beta[22]-9*beta[23]-18*beta[24]+18*beta[25]+18*beta[26]-18*beta[27]-9*beta[28]+9*beta[29]+9*beta[30]-9*beta[31]-12*beta[32]-6*beta[33]-6*beta[34]-3*beta[35]+12*beta[36]+6*beta[37]+6*beta[38]+3*beta[39]-12*beta[40]-6*beta[41]+12*beta[42]+6*beta[43]-6*beta[44]-3*beta[45]+6*beta[46]+3*beta[47]-12*beta[48]+12*beta[49]-6*beta[50]+6*beta[51]-6*beta[52]+6*beta[53]-3*beta[54]+3*beta[55]-8*beta[56]-4*beta[57]-4*beta[58]-2*beta[59]-4*beta[60]-2*beta[61]-2*beta[62]-beta[63];
+    	a[43]=18*beta[0]-18*beta[1]-18*beta[2]+18*beta[3]-18*beta[4]+18*beta[5]+18*beta[6]-18*beta[7]+9*beta[8]+9*beta[9]-9*beta[10]-9*beta[11]-9*beta[12]-9*beta[13]+9*beta[14]+9*beta[15]+12*beta[16]-12*beta[17]+6*beta[18]-6*beta[19]-12*beta[20]+12*beta[21]-6*beta[22]+6*beta[23]+12*beta[24]-12*beta[25]-12*beta[26]+12*beta[27]+6*beta[28]-6*beta[29]-6*beta[30]+6*beta[31]+6*beta[32]+6*beta[33]+3*beta[34]+3*beta[35]-6*beta[36]-6*beta[37]-3*beta[38]-3*beta[39]+6*beta[40]+6*beta[41]-6*beta[42]-6*beta[43]+3*beta[44]+3*beta[45]-3*beta[46]-3*beta[47]+8*beta[48]-8*beta[49]+4*beta[50]-4*beta[51]+4*beta[52]-4*beta[53]+2*beta[54]-2*beta[55]+4*beta[56]+4*beta[57]+2*beta[58]+2*beta[59]+2*beta[60]+2*beta[61]+beta[62]+beta[63];
+    	a[44]=-6*beta[0]+6*beta[2]+6*beta[4]-6*beta[6]-3*beta[16]-3*beta[18]+3*beta[20]+3*beta[22]-4*beta[24]+4*beta[26]-2*beta[28]+2*beta[30]-2*beta[48]-2*beta[50]-beta[52]-beta[54];
+    	a[45]=-6*beta[8]+6*beta[10]+6*beta[12]-6*beta[14]-3*beta[32]-3*beta[34]+3*beta[36]+3*beta[38]-4*beta[40]+4*beta[42]-2*beta[44]+2*beta[46]-2*beta[56]-2*beta[58]-beta[60]-beta[62];
+    	a[46]=18*beta[0]-18*beta[1]-18*beta[2]+18*beta[3]-18*beta[4]+18*beta[5]+18*beta[6]-18*beta[7]+12*beta[8]+6*beta[9]-12*beta[10]-6*beta[11]-12*beta[12]-6*beta[13]+12*beta[14]+6*beta[15]+9*beta[16]-9*beta[17]+9*beta[18]-9*beta[19]-9*beta[20]+9*beta[21]-9*beta[22]+9*beta[23]+12*beta[24]-12*beta[25]-12*beta[26]+12*beta[27]+6*beta[28]-6*beta[29]-6*beta[30]+6*beta[31]+6*beta[32]+3*beta[33]+6*beta[34]+3*beta[35]-6*beta[36]-3*beta[37]-6*beta[38]-3*beta[39]+8*beta[40]+4*beta[41]-8*beta[42]-4*beta[43]+4*beta[44]+2*beta[45]-4*beta[46]-2*beta[47]+6*beta[48]-6*beta[49]+6*beta[50]-6*beta[51]+3*beta[52]-3*beta[53]+3*beta[54]-3*beta[55]+4*beta[56]+2*beta[57]+4*beta[58]+2*beta[59]+2*beta[60]+beta[61]+2*beta[62]+beta[63];
+    	a[47]=-12*beta[0]+12*beta[1]+12*beta[2]-12*beta[3]+12*beta[4]-12*beta[5]-12*beta[6]+12*beta[7]-6*beta[8]-6*beta[9]+6*beta[10]+6*beta[11]+6*beta[12]+6*beta[13]-6*beta[14]-6*beta[15]-6*beta[16]+6*beta[17]-6*beta[18]+6*beta[19]+6*beta[20]-6*beta[21]+6*beta[22]-6*beta[23]-8*beta[24]+8*beta[25]+8*beta[26]-8*beta[27]-4*beta[28]+4*beta[29]+4*beta[30]-4*beta[31]-3*beta[32]-3*beta[33]-3*beta[34]-3*beta[35]+3*beta[36]+3*beta[37]+3*beta[38]+3*beta[39]-4*beta[40]-4*beta[41]+4*beta[42]+4*beta[43]-2*beta[44]-2*beta[45]+2*beta[46]+2*beta[47]-4*beta[48]+4*beta[49]-4*beta[50]+4*beta[51]-2*beta[52]+2*beta[53]-2*beta[54]+2*beta[55]-2*beta[56]-2*beta[57]-2*beta[58]-2*beta[59]-beta[60]-beta[61]-beta[62]-beta[63];
+    	a[48]=2*beta[0]-2*beta[4]+beta[24]+beta[28];
+    	a[49]=2*beta[8]-2*beta[12]+beta[40]+beta[44];
+    	a[50]=-6*beta[0]+6*beta[1]+6*beta[4]-6*beta[5]-4*beta[8]-2*beta[9]+4*beta[12]+2*beta[13]-3*beta[24]+3*beta[25]-3*beta[28]+3*beta[29]-2*beta[40]-beta[41]-2*beta[44]-beta[45];
+    	a[51]=4*beta[0]-4*beta[1]-4*beta[4]+4*beta[5]+2*beta[8]+2*beta[9]-2*beta[12]-2*beta[13]+2*beta[24]-2*beta[25]+2*beta[28]-2*beta[29]+beta[40]+beta[41]+beta[44]+beta[45];
+    	a[52]=2*beta[16]-2*beta[20]+beta[48]+beta[52];
+    	a[53]=2*beta[32]-2*beta[36]+beta[56]+beta[60];
+    	a[54]=-6*beta[16]+6*beta[17]+6*beta[20]-6*beta[21]-4*beta[32]-2*beta[33]+4*beta[36]+2*beta[37]-3*beta[48]+3*beta[49]-3*beta[52]+3*beta[53]-2*beta[56]-beta[57]-2*beta[60]-beta[61];
+    	a[55]=4*beta[16]-4*beta[17]-4*beta[20]+4*beta[21]+2*beta[32]+2*beta[33]-2*beta[36]-2*beta[37]+2*beta[48]-2*beta[49]+2*beta[52]-2*beta[53]+beta[56]+beta[57]+beta[60]+beta[61];
+    	a[56]=-6*beta[0]+6*beta[2]+6*beta[4]-6*beta[6]-4*beta[16]-2*beta[18]+4*beta[20]+2*beta[22]-3*beta[24]+3*beta[26]-3*beta[28]+3*beta[30]-2*beta[48]-beta[50]-2*beta[52]-beta[54];
+    	a[57]=-6*beta[8]+6*beta[10]+6*beta[12]-6*beta[14]-4*beta[32]-2*beta[34]+4*beta[36]+2*beta[38]-3*beta[40]+3*beta[42]-3*beta[44]+3*beta[46]-2*beta[56]-beta[58]-2*beta[60]-beta[62];
+    	a[58]=18*beta[0]-18*beta[1]-18*beta[2]+18*beta[3]-18*beta[4]+18*beta[5]+18*beta[6]-18*beta[7]+12*beta[8]+6*beta[9]-12*beta[10]-6*beta[11]-12*beta[12]-6*beta[13]+12*beta[14]+6*beta[15]+12*beta[16]-12*beta[17]+6*beta[18]-6*beta[19]-12*beta[20]+12*beta[21]-6*beta[22]+6*beta[23]+9*beta[24]-9*beta[25]-9*beta[26]+9*beta[27]+9*beta[28]-9*beta[29]-9*beta[30]+9*beta[31]+8*beta[32]+4*beta[33]+4*beta[34]+2*beta[35]-8*beta[36]-4*beta[37]-4*beta[38]-2*beta[39]+6*beta[40]+3*beta[41]-6*beta[42]-3*beta[43]+6*beta[44]+3*beta[45]-6*beta[46]-3*beta[47]+6*beta[48]-6*beta[49]+3*beta[50]-3*beta[51]+6*beta[52]-6*beta[53]+3*beta[54]-3*beta[55]+4*beta[56]+2*beta[57]+2*beta[58]+beta[59]+4*beta[60]+2*beta[61]+2*beta[62]+beta[63];
+    	a[59]=-12*beta[0]+12*beta[1]+12*beta[2]-12*beta[3]+12*beta[4]-12*beta[5]-12*beta[6]+12*beta[7]-6*beta[8]-6*beta[9]+6*beta[10]+6*beta[11]+6*beta[12]+6*beta[13]-6*beta[14]-6*beta[15]-8*beta[16]+8*beta[17]-4*beta[18]+4*beta[19]+8*beta[20]-8*beta[21]+4*beta[22]-4*beta[23]-6*beta[24]+6*beta[25]+6*beta[26]-6*beta[27]-6*beta[28]+6*beta[29]+6*beta[30]-6*beta[31]-4*beta[32]-4*beta[33]-2*beta[34]-2*beta[35]+4*beta[36]+4*beta[37]+2*beta[38]+2*beta[39]-3*beta[40]-3*beta[41]+3*beta[42]+3*beta[43]-3*beta[44]-3*beta[45]+3*beta[46]+3*beta[47]-4*beta[48]+4*beta[49]-2*beta[50]+2*beta[51]-4*beta[52]+4*beta[53]-2*beta[54]+2*beta[55]-2*beta[56]-2*beta[57]-beta[58]-beta[59]-2*beta[60]-2*beta[61]-beta[62]-beta[63];
+    	a[60]=4*beta[0]-4*beta[2]-4*beta[4]+4*beta[6]+2*beta[16]+2*beta[18]-2*beta[20]-2*beta[22]+2*beta[24]-2*beta[26]+2*beta[28]-2*beta[30]+beta[48]+beta[50]+beta[52]+beta[54];
+    	a[61]=4*beta[8]-4*beta[10]-4*beta[12]+4*beta[14]+2*beta[32]+2*beta[34]-2*beta[36]-2*beta[38]+2*beta[40]-2*beta[42]+2*beta[44]-2*beta[46]+beta[56]+beta[58]+beta[60]+beta[62];
+    	a[62]=-12*beta[0]+12*beta[1]+12*beta[2]-12*beta[3]+12*beta[4]-12*beta[5]-12*beta[6]+12*beta[7]-8*beta[8]-4*beta[9]+8*beta[10]+4*beta[11]+8*beta[12]+4*beta[13]-8*beta[14]-4*beta[15]-6*beta[16]+6*beta[17]-6*beta[18]+6*beta[19]+6*beta[20]-6*beta[21]+6*beta[22]-6*beta[23]-6*beta[24]+6*beta[25]+6*beta[26]-6*beta[27]-6*beta[28]+6*beta[29]+6*beta[30]-6*beta[31]-4*beta[32]-2*beta[33]-4*beta[34]-2*beta[35]+4*beta[36]+2*beta[37]+4*beta[38]+2*beta[39]-4*beta[40]-2*beta[41]+4*beta[42]+2*beta[43]-4*beta[44]-2*beta[45]+4*beta[46]+2*beta[47]-3*beta[48]+3*beta[49]-3*beta[50]+3*beta[51]-3*beta[52]+3*beta[53]-3*beta[54]+3*beta[55]-2*beta[56]-beta[57]-2*beta[58]-beta[59]-2*beta[60]-beta[61]-2*beta[62]-beta[63];
+    	a[63]=8*beta[0]-8*beta[1]-8*beta[2]+8*beta[3]-8*beta[4]+8*beta[5]+8*beta[6]-8*beta[7]+4*beta[8]+4*beta[9]-4*beta[10]-4*beta[11]-4*beta[12]-4*beta[13]+4*beta[14]+4*beta[15]+4*beta[16]-4*beta[17]+4*beta[18]-4*beta[19]-4*beta[20]+4*beta[21]-4*beta[22]+4*beta[23]+4*beta[24]-4*beta[25]-4*beta[26]+4*beta[27]+4*beta[28]-4*beta[29]-4*beta[30]+4*beta[31]+2*beta[32]+2*beta[33]+2*beta[34]+2*beta[35]-2*beta[36]-2*beta[37]-2*beta[38]-2*beta[39]+2*beta[40]+2*beta[41]-2*beta[42]-2*beta[43]+2*beta[44]+2*beta[45]-2*beta[46]-2*beta[47]+2*beta[48]-2*beta[49]+2*beta[50]-2*beta[51]+2*beta[52]-2*beta[53]+2*beta[54]-2*beta[55]+beta[56]+beta[57]+beta[58]+beta[59]+beta[60]+beta[61]+beta[62]+beta[63];
+    	return a;
+    }
+    
+    /**
+     * Compute coefficients inline. This has been created using the same code as 
+     * {@link #computeCoefficients(double[])} but ignoring any entry in AINV that is zero.
+     * Terms have then been collected to remove multiplications. 
+     *
+     * @param beta List of function values and function partial derivatives values.
+     * @return the spline coefficients.
+     */
+    static double[] computeCoefficientsInlineCollectTerms(double[] beta) {
+    	final double[] a = new double[64];
+    	a[0]=beta[0];
+    	a[1]=beta[8];
+    	a[2]=-3*(beta[0]-beta[1])-2*beta[8]-beta[9];
+    	a[3]=2*(beta[0]-beta[1])+(beta[8]+beta[9]);
+    	a[4]=beta[16];
+    	a[5]=beta[32];
+    	a[6]=-3*(beta[16]-beta[17])-2*beta[32]-beta[33];
+    	a[7]=2*(beta[16]-beta[17])+(beta[32]+beta[33]);
+    	a[8]=-3*(beta[0]-beta[2])-2*beta[16]-beta[18];
+    	a[9]=-3*(beta[8]-beta[10])-2*beta[32]-beta[34];
+    	a[10]=9*(beta[0]-beta[1]-beta[2]+beta[3])+6*(beta[8]-beta[10]+beta[16]-beta[17])+4*beta[32]+3*(beta[9]-beta[11]+beta[18]-beta[19])+2*(beta[33]+beta[34])+beta[35];
+    	a[11]=-6*(beta[0]-beta[1]-beta[2]+beta[3])-4*(beta[16]-beta[17])-3*(beta[8]+beta[9]-beta[10]-beta[11])-2*(beta[18]-beta[19]+beta[32]+beta[33])-(beta[34]+beta[35]);
+    	a[12]=2*(beta[0]-beta[2])+(beta[16]+beta[18]);
+    	a[13]=2*(beta[8]-beta[10])+(beta[32]+beta[34]);
+    	a[14]=-6*(beta[0]-beta[1]-beta[2]+beta[3])-4*(beta[8]-beta[10])-3*(beta[16]-beta[17]+beta[18]-beta[19])-2*(beta[9]-beta[11]+beta[32]+beta[34])-(beta[33]+beta[35]);
+    	a[15]=4*(beta[0]-beta[1]-beta[2]+beta[3])+2*(beta[8]+beta[9]-beta[10]-beta[11]+beta[16]-beta[17]+beta[18]-beta[19])+(beta[32]+beta[33]+beta[34]+beta[35]);
+    	a[16]=beta[24];
+    	a[17]=beta[40];
+    	a[18]=-3*(beta[24]-beta[25])-2*beta[40]-beta[41];
+    	a[19]=2*(beta[24]-beta[25])+(beta[40]+beta[41]);
+    	a[20]=beta[48];
+    	a[21]=beta[56];
+    	a[22]=-3*(beta[48]-beta[49])-2*beta[56]-beta[57];
+    	a[23]=2*(beta[48]-beta[49])+(beta[56]+beta[57]);
+    	a[24]=-3*(beta[24]-beta[26])-2*beta[48]-beta[50];
+    	a[25]=-3*(beta[40]-beta[42])-2*beta[56]-beta[58];
+    	a[26]=9*(beta[24]-beta[25]-beta[26]+beta[27])+6*(beta[40]-beta[42]+beta[48]-beta[49])+4*beta[56]+3*(beta[41]-beta[43]+beta[50]-beta[51])+2*(beta[57]+beta[58])+beta[59];
+    	a[27]=-6*(beta[24]-beta[25]-beta[26]+beta[27])-4*(beta[48]-beta[49])-3*(beta[40]+beta[41]-beta[42]-beta[43])-2*(beta[50]-beta[51]+beta[56]+beta[57])-(beta[58]+beta[59]);
+    	a[28]=2*(beta[24]-beta[26])+(beta[48]+beta[50]);
+    	a[29]=2*(beta[40]-beta[42])+(beta[56]+beta[58]);
+    	a[30]=-6*(beta[24]-beta[25]-beta[26]+beta[27])-4*(beta[40]-beta[42])-3*(beta[48]-beta[49]+beta[50]-beta[51])-2*(beta[41]-beta[43]+beta[56]+beta[58])-(beta[57]+beta[59]);
+    	a[31]=4*(beta[24]-beta[25]-beta[26]+beta[27])+2*(beta[40]+beta[41]-beta[42]-beta[43]+beta[48]-beta[49]+beta[50]-beta[51])+(beta[56]+beta[57]+beta[58]+beta[59]);
+    	a[32]=-3*(beta[0]-beta[4])-2*beta[24]-beta[28];
+    	a[33]=-3*(beta[8]-beta[12])-2*beta[40]-beta[44];
+    	a[34]=9*(beta[0]-beta[1]-beta[4]+beta[5])+6*(beta[8]-beta[12]+beta[24]-beta[25])+4*beta[40]+3*(beta[9]-beta[13]+beta[28]-beta[29])+2*(beta[41]+beta[44])+beta[45];
+    	a[35]=-6*(beta[0]-beta[1]-beta[4]+beta[5])-4*(beta[24]-beta[25])-3*(beta[8]+beta[9]-beta[12]-beta[13])-2*(beta[28]-beta[29]+beta[40]+beta[41])-(beta[44]+beta[45]);
+    	a[36]=-3*(beta[16]-beta[20])-2*beta[48]-beta[52];
+    	a[37]=-3*(beta[32]-beta[36])-2*beta[56]-beta[60];
+    	a[38]=9*(beta[16]-beta[17]-beta[20]+beta[21])+6*(beta[32]-beta[36]+beta[48]-beta[49])+4*beta[56]+3*(beta[33]-beta[37]+beta[52]-beta[53])+2*(beta[57]+beta[60])+beta[61];
+    	a[39]=-6*(beta[16]-beta[17]-beta[20]+beta[21])-4*(beta[48]-beta[49])-3*(beta[32]+beta[33]-beta[36]-beta[37])-2*(beta[52]-beta[53]+beta[56]+beta[57])-(beta[60]+beta[61]);
+    	a[40]=9*(beta[0]-beta[2]-beta[4]+beta[6])+6*(beta[16]-beta[20]+beta[24]-beta[26])+4*beta[48]+3*(beta[18]-beta[22]+beta[28]-beta[30])+2*(beta[50]+beta[52])+beta[54];
+    	a[41]=9*(beta[8]-beta[10]-beta[12]+beta[14])+6*(beta[32]-beta[36]+beta[40]-beta[42])+4*beta[56]+3*(beta[34]-beta[38]+beta[44]-beta[46])+2*(beta[58]+beta[60])+beta[62];
+    	a[42]=-27*(beta[0]-beta[1]-beta[2]+beta[3]-beta[4]+beta[5]+beta[6]-beta[7])-18*(beta[8]-beta[10]-beta[12]+beta[14]+beta[16]-beta[17]-beta[20]+beta[21]+beta[24]-beta[25]-beta[26]+beta[27])-12*(beta[32]-beta[36]+beta[40]-beta[42]+beta[48]-beta[49])-9*(beta[9]-beta[11]-beta[13]+beta[15]+beta[18]-beta[19]-beta[22]+beta[23]+beta[28]-beta[29]-beta[30]+beta[31])-8*beta[56]-6*(beta[33]+beta[34]-beta[37]-beta[38]+beta[41]-beta[43]+beta[44]-beta[46]+beta[50]-beta[51]+beta[52]-beta[53])-4*(beta[57]+beta[58]+beta[60])-3*(beta[35]-beta[39]+beta[45]-beta[47]+beta[54]-beta[55])-2*(beta[59]+beta[61]+beta[62])-beta[63];
+    	a[43]=18*(beta[0]-beta[1]-beta[2]+beta[3]-beta[4]+beta[5]+beta[6]-beta[7])+12*(beta[16]-beta[17]-beta[20]+beta[21]+beta[24]-beta[25]-beta[26]+beta[27])+9*(beta[8]+beta[9]-beta[10]-beta[11]-beta[12]-beta[13]+beta[14]+beta[15])+8*(beta[48]-beta[49])+6*(beta[18]-beta[19]-beta[22]+beta[23]+beta[28]-beta[29]-beta[30]+beta[31]+beta[32]+beta[33]-beta[36]-beta[37]+beta[40]+beta[41]-beta[42]-beta[43])+4*(beta[50]-beta[51]+beta[52]-beta[53]+beta[56]+beta[57])+3*(beta[34]+beta[35]-beta[38]-beta[39]+beta[44]+beta[45]-beta[46]-beta[47])+2*(beta[54]-beta[55]+beta[58]+beta[59]+beta[60]+beta[61])+(beta[62]+beta[63]);
+    	a[44]=-6*(beta[0]-beta[2]-beta[4]+beta[6])-4*(beta[24]-beta[26])-3*(beta[16]+beta[18]-beta[20]-beta[22])-2*(beta[28]-beta[30]+beta[48]+beta[50])-(beta[52]+beta[54]);
+    	a[45]=-6*(beta[8]-beta[10]-beta[12]+beta[14])-4*(beta[40]-beta[42])-3*(beta[32]+beta[34]-beta[36]-beta[38])-2*(beta[44]-beta[46]+beta[56]+beta[58])-(beta[60]+beta[62]);
+    	a[46]=18*(beta[0]-beta[1]-beta[2]+beta[3]-beta[4]+beta[5]+beta[6]-beta[7])+12*(beta[8]-beta[10]-beta[12]+beta[14]+beta[24]-beta[25]-beta[26]+beta[27])+9*(beta[16]-beta[17]+beta[18]-beta[19]-beta[20]+beta[21]-beta[22]+beta[23])+8*(beta[40]-beta[42])+6*(beta[9]-beta[11]-beta[13]+beta[15]+beta[28]-beta[29]-beta[30]+beta[31]+beta[32]+beta[34]-beta[36]-beta[38]+beta[48]-beta[49]+beta[50]-beta[51])+4*(beta[41]-beta[43]+beta[44]-beta[46]+beta[56]+beta[58])+3*(beta[33]+beta[35]-beta[37]-beta[39]+beta[52]-beta[53]+beta[54]-beta[55])+2*(beta[45]-beta[47]+beta[57]+beta[59]+beta[60]+beta[62])+(beta[61]+beta[63]);
+    	a[47]=-12*(beta[0]-beta[1]-beta[2]+beta[3]-beta[4]+beta[5]+beta[6]-beta[7])-8*(beta[24]-beta[25]-beta[26]+beta[27])-6*(beta[8]+beta[9]-beta[10]-beta[11]-beta[12]-beta[13]+beta[14]+beta[15]+beta[16]-beta[17]+beta[18]-beta[19]-beta[20]+beta[21]-beta[22]+beta[23])-4*(beta[28]-beta[29]-beta[30]+beta[31]+beta[40]+beta[41]-beta[42]-beta[43]+beta[48]-beta[49]+beta[50]-beta[51])-3*(beta[32]+beta[33]+beta[34]+beta[35]-beta[36]-beta[37]-beta[38]-beta[39])-2*(beta[44]+beta[45]-beta[46]-beta[47]+beta[52]-beta[53]+beta[54]-beta[55]+beta[56]+beta[57]+beta[58]+beta[59])-(beta[60]+beta[61]+beta[62]+beta[63]);
+    	a[48]=2*(beta[0]-beta[4])+(beta[24]+beta[28]);
+    	a[49]=2*(beta[8]-beta[12])+(beta[40]+beta[44]);
+    	a[50]=-6*(beta[0]-beta[1]-beta[4]+beta[5])-4*(beta[8]-beta[12])-3*(beta[24]-beta[25]+beta[28]-beta[29])-2*(beta[9]-beta[13]+beta[40]+beta[44])-(beta[41]+beta[45]);
+    	a[51]=4*(beta[0]-beta[1]-beta[4]+beta[5])+2*(beta[8]+beta[9]-beta[12]-beta[13]+beta[24]-beta[25]+beta[28]-beta[29])+(beta[40]+beta[41]+beta[44]+beta[45]);
+    	a[52]=2*(beta[16]-beta[20])+(beta[48]+beta[52]);
+    	a[53]=2*(beta[32]-beta[36])+(beta[56]+beta[60]);
+    	a[54]=-6*(beta[16]-beta[17]-beta[20]+beta[21])-4*(beta[32]-beta[36])-3*(beta[48]-beta[49]+beta[52]-beta[53])-2*(beta[33]-beta[37]+beta[56]+beta[60])-(beta[57]+beta[61]);
+    	a[55]=4*(beta[16]-beta[17]-beta[20]+beta[21])+2*(beta[32]+beta[33]-beta[36]-beta[37]+beta[48]-beta[49]+beta[52]-beta[53])+(beta[56]+beta[57]+beta[60]+beta[61]);
+    	a[56]=-6*(beta[0]-beta[2]-beta[4]+beta[6])-4*(beta[16]-beta[20])-3*(beta[24]-beta[26]+beta[28]-beta[30])-2*(beta[18]-beta[22]+beta[48]+beta[52])-(beta[50]+beta[54]);
+    	a[57]=-6*(beta[8]-beta[10]-beta[12]+beta[14])-4*(beta[32]-beta[36])-3*(beta[40]-beta[42]+beta[44]-beta[46])-2*(beta[34]-beta[38]+beta[56]+beta[60])-(beta[58]+beta[62]);
+    	a[58]=18*(beta[0]-beta[1]-beta[2]+beta[3]-beta[4]+beta[5]+beta[6]-beta[7])+12*(beta[8]-beta[10]-beta[12]+beta[14]+beta[16]-beta[17]-beta[20]+beta[21])+9*(beta[24]-beta[25]-beta[26]+beta[27]+beta[28]-beta[29]-beta[30]+beta[31])+8*(beta[32]-beta[36])+6*(beta[9]-beta[11]-beta[13]+beta[15]+beta[18]-beta[19]-beta[22]+beta[23]+beta[40]-beta[42]+beta[44]-beta[46]+beta[48]-beta[49]+beta[52]-beta[53])+4*(beta[33]+beta[34]-beta[37]-beta[38]+beta[56]+beta[60])+3*(beta[41]-beta[43]+beta[45]-beta[47]+beta[50]-beta[51]+beta[54]-beta[55])+2*(beta[35]-beta[39]+beta[57]+beta[58]+beta[61]+beta[62])+(beta[59]+beta[63]);
+    	a[59]=-12*(beta[0]-beta[1]-beta[2]+beta[3]-beta[4]+beta[5]+beta[6]-beta[7])-8*(beta[16]-beta[17]-beta[20]+beta[21])-6*(beta[8]+beta[9]-beta[10]-beta[11]-beta[12]-beta[13]+beta[14]+beta[15]+beta[24]-beta[25]-beta[26]+beta[27]+beta[28]-beta[29]-beta[30]+beta[31])-4*(beta[18]-beta[19]-beta[22]+beta[23]+beta[32]+beta[33]-beta[36]-beta[37]+beta[48]-beta[49]+beta[52]-beta[53])-3*(beta[40]+beta[41]-beta[42]-beta[43]+beta[44]+beta[45]-beta[46]-beta[47])-2*(beta[34]+beta[35]-beta[38]-beta[39]+beta[50]-beta[51]+beta[54]-beta[55]+beta[56]+beta[57]+beta[60]+beta[61])-(beta[58]+beta[59]+beta[62]+beta[63]);
+    	a[60]=4*(beta[0]-beta[2]-beta[4]+beta[6])+2*(beta[16]+beta[18]-beta[20]-beta[22]+beta[24]-beta[26]+beta[28]-beta[30])+(beta[48]+beta[50]+beta[52]+beta[54]);
+    	a[61]=4*(beta[8]-beta[10]-beta[12]+beta[14])+2*(beta[32]+beta[34]-beta[36]-beta[38]+beta[40]-beta[42]+beta[44]-beta[46])+(beta[56]+beta[58]+beta[60]+beta[62]);
+    	a[62]=-12*(beta[0]-beta[1]-beta[2]+beta[3]-beta[4]+beta[5]+beta[6]-beta[7])-8*(beta[8]-beta[10]-beta[12]+beta[14])-6*(beta[16]-beta[17]+beta[18]-beta[19]-beta[20]+beta[21]-beta[22]+beta[23]+beta[24]-beta[25]-beta[26]+beta[27]+beta[28]-beta[29]-beta[30]+beta[31])-4*(beta[9]-beta[11]-beta[13]+beta[15]+beta[32]+beta[34]-beta[36]-beta[38]+beta[40]-beta[42]+beta[44]-beta[46])-3*(beta[48]-beta[49]+beta[50]-beta[51]+beta[52]-beta[53]+beta[54]-beta[55])-2*(beta[33]+beta[35]-beta[37]-beta[39]+beta[41]-beta[43]+beta[45]-beta[47]+beta[56]+beta[58]+beta[60]+beta[62])-(beta[57]+beta[59]+beta[61]+beta[63]);
+    	a[63]=8*(beta[0]-beta[1]-beta[2]+beta[3]-beta[4]+beta[5]+beta[6]-beta[7])+4*(beta[8]+beta[9]-beta[10]-beta[11]-beta[12]-beta[13]+beta[14]+beta[15]+beta[16]-beta[17]+beta[18]-beta[19]-beta[20]+beta[21]-beta[22]+beta[23]+beta[24]-beta[25]-beta[26]+beta[27]+beta[28]-beta[29]-beta[30]+beta[31])+2*(beta[32]+beta[33]+beta[34]+beta[35]-beta[36]-beta[37]-beta[38]-beta[39]+beta[40]+beta[41]-beta[42]-beta[43]+beta[44]+beta[45]-beta[46]-beta[47]+beta[48]-beta[49]+beta[50]-beta[51]+beta[52]-beta[53]+beta[54]-beta[55])+(beta[56]+beta[57]+beta[58]+beta[59]+beta[60]+beta[61]+beta[62]+beta[63]);
+    	return a;
     }
 }
 //@formatter:on
