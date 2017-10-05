@@ -1782,6 +1782,18 @@ public class Utils
 	}
 
 	/**
+	 * Return the interval for reporting progress to the ImageJ progress bar given the total number of steps
+	 *
+	 * @param total
+	 *            the total number of steps
+	 * @return The interval
+	 */
+	public static long getProgressInterval(long total)
+	{
+		return (total > 200L) ? total / 100L : 1L;
+	}
+
+	/**
 	 * Combine the arguments into a complete file path
 	 * 
 	 * @param paths
