@@ -1,5 +1,7 @@
 package gdsc.core.math.interpolation;
 
+import gdsc.core.utils.SimpleArrayUtils;
+
 /**
  * 3D-spline function using single precision float values to store the coefficients. This reduces the memory required to
  * store the function.
@@ -54,6 +56,16 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		for (int i = 0; i < 64; i++)
 			s[i] = a[i] * n;
 		return s;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#getA()
+	 */
+	public double[] getA()
+	{
+		return SimpleArrayUtils.toDouble(a);
 	}
 
 	/**

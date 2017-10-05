@@ -1,5 +1,8 @@
 package gdsc.core.math.interpolation;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.apache.commons.math3.analysis.interpolation.TricubicInterpolatingFunction;
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -150,7 +153,7 @@ public class CustomTricubicInterpolatorTest
 		Assert.assertEquals(1, scale[1], 0);
 		Assert.assertEquals(1, scale[2], 0);
 	}
-	
+
 	@Test
 	public void canInterpolate()
 	{
@@ -525,7 +528,7 @@ public class CustomTricubicInterpolatorTest
 		e = n1.value(table);
 		o = n1.value000();
 		Assert.assertEquals(e, o, 0);
-		
+
 		e = n1.value(table, df_daA);
 		o = n1.value000(df_daB);
 		Assert.assertEquals(e, o, 0);
@@ -541,7 +544,7 @@ public class CustomTricubicInterpolatorTest
 		e = n2.value(ftable);
 		o = n2.value000();
 		Assert.assertEquals(e, o, 0);
-		
+
 		e = n2.value(ftable, df_daA);
 		o = n2.value000(df_daB);
 		Assert.assertEquals(e, o, 0);
@@ -722,7 +725,7 @@ public class CustomTricubicInterpolatorTest
 	public void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable()
 	{
 		Assume.assumeTrue(false);
-		
+
 		RandomGenerator r = new Well19937c(30051977);
 		int x = 6, y = 5, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
@@ -787,5 +790,45 @@ public class CustomTricubicInterpolatorTest
 		for (int i = 1; i < n; i += 2)
 			Assert.assertTrue(String.format("%f vs %f", ts.get(-i).getMean(), ts.get(-i - 1).getMean()),
 					ts.get(-i).getMean() < ts.get(-i - 1).getMean() * margin);
+	}
+
+	@Test
+	public void canComputeWithExecutorService()
+	{
+		canComputeWithExecutorService(1, 0.5, 2.0);
+	}
+
+	@Test
+	public void canComputeIntegerGridWithExecutorService()
+	{
+		canComputeWithExecutorService(1, 1, 1);
+	}
+	
+	private void canComputeWithExecutorService(double xscale, double yscale, double zscale)
+	{
+		new Well19937c(30051977);
+		int x = 6, y = 5, z = 4;
+		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
+		double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
+		double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
+		double[][][] fval = createData(x, y, z, null);
+
+		CustomTricubicInterpolator interpolator = new CustomTricubicInterpolator();
+		CustomTricubicInterpolatingFunction f1 = interpolator.interpolate(xval, yval, zval, fval);
+		ExecutorService es = Executors.newFixedThreadPool(4);
+		interpolator.setExecutorService(es);
+		interpolator.setTaskSize(5);
+		CustomTricubicInterpolatingFunction f2 = interpolator.interpolate(xval, yval, zval, fval);
+		es.shutdown();
+
+		// Compare all nodes
+		for (int i = 0; i < f1.getMaxXSplinePosition(); i++)
+			for (int j = 0; j < f1.getMaxYSplinePosition(); j++)
+				for (int k = 0; k < f1.getMaxZSplinePosition(); k++)
+				{
+					DoubleCustomTricubicFunction n1 = (DoubleCustomTricubicFunction) f1.getSplineNode(i, j, k);
+					DoubleCustomTricubicFunction n2 = (DoubleCustomTricubicFunction) f2.getSplineNode(i, j, k);
+					Assert.assertArrayEquals(n1.getA(), n2.getA(), 0);
+				}
 	}
 }

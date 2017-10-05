@@ -1,6 +1,7 @@
 package gdsc.core.math.interpolation;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 //@formatter:off
 
@@ -42,8 +43,10 @@ import gdsc.core.data.DoubleArrayTrivalueProvider;
 import gdsc.core.data.DoubleArrayValueProvider;
 import gdsc.core.data.TrivalueProvider;
 import gdsc.core.data.ValueProvider;
-import gdsc.core.logging.NullTrackProgress;
+import gdsc.core.ij.Utils;
+import gdsc.core.logging.Ticker;
 import gdsc.core.logging.TrackProgress;
+import gdsc.core.utils.TurboList;
 
 /**
  * Generates a tricubic interpolating function.
@@ -52,8 +55,9 @@ public class CustomTricubicInterpolator
     implements TrivariateGridInterpolator {
 	
 	private TrackProgress progress;
-	private ExecutorService threadPool;
-	
+	private ExecutorService executorService;
+	private long taskSize = 1000;
+
     /**
      * {@inheritDoc}
      */
@@ -130,85 +134,130 @@ public class CustomTricubicInterpolator
         final double[][][] d2FdXdZ = new double[xLen][yLen][zLen];
         final double[][][] d2FdYdZ = new double[xLen][yLen][zLen];
         final double[][][] d3FdXdYdZ = new double[xLen][yLen][zLen];
-        final double[][][] values = new double[3][3][3];
 
-        TrackProgress progress = NullTrackProgress.createIfNull(this.progress);
-        final long total = (xLen-2) * (yLen-2) * (zLen-2);
-        long current = 0;
+        final long total = (long)(xLen-2) * (yLen-2) * (zLen-2);
         
-        for (int i = 1; i < xLen - 1; i++) {
+        ExecutorService executorService = this.executorService;
+		long taskSize = Math.max(1, this.taskSize);
+        boolean threaded = executorService != null && taskSize < total;
+        
+        final Ticker ticker = Ticker.create(progress, total, threaded);
+        ticker.start();
+        
+        if (threaded)
+        {
+    		final int xLen_2 = xLen - 2;
+    		final long xLen_2_yLen_2 = (long)xLen_2 * (yLen-2);
+    		
+        	// Break this up into reasonable tasks, ensuring we can hold all the futures
+        	long nTasks = (long) Math.ceil((double) total / taskSize);
+        	while (nTasks >= Integer.MAX_VALUE)
+        	{	
+        		taskSize *= 2;
+            	nTasks = (long) Math.ceil((double) total / taskSize);
+            }
+    		TurboList<Future<?>> futures = new TurboList<Future<?>>((int)nTasks);
+			for (long from = 0; from < total;)
+			{
+				final long from_ = from;
+				final long to = Math.min(from + taskSize, total);
+				futures.add(executorService.submit(new Runnable()
+				{
+					public void run()
+					{
+				        final double[][][] values = new double[3][3][3];
+						for (long index = from_; index < to; index++)
+							build(index, xLen_2, xLen_2_yLen_2, 
+									xval, yval, zval, fval, 
+									dFdX, dFdY, dFdZ, d2FdXdY, 
+									d2FdXdZ, d2FdYdZ, d3FdXdYdZ, 
+									values, ticker);
+					}
+				}));
+				from = to;
+			}
+			
+			Utils.waitForCompletion(futures);
+        }
+        else
+        {
+            final double[][][] values = new double[3][3][3];
         	
-            final int nI = i + 1;
-            final int pI = i - 1;
-
-            final double nX = xval.get(nI);
-            final double pX = xval.get(pI);
-
-            final double deltaX = nX - pX;
-
-            for (int j = 1; j < yLen - 1; j++) {
+            for (int i = 1; i < xLen - 1; i++) {
             	
-                final int nJ = j + 1;
-                final int pJ = j - 1;
-
-                final double nY = yval.get(nJ);
-                final double pY = yval.get(pJ);
-
-                final double deltaY = nY - pY;
-                final double deltaXY = deltaX * deltaY;
-
-                for (int k = 1; k < zLen - 1; k++) {
-                	progress.progress(current++, total);
-                    final int nK = k + 1;
-                    final int pK = k - 1;
-
-                    final double nZ = zval.get(nK);
-                    final double pZ = zval.get(pK);
-
-                    final double deltaZ = nZ - pZ;
-                    
-                    fval.get(i, j, k, values);
-
-                    dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / deltaX;
-                    dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / deltaY;
-                    dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / deltaZ;
+                final int nI = i + 1;
+                final int pI = i - 1;
+    
+                final double nX = xval.get(nI);
+                final double pX = xval.get(pI);
+    
+                final double deltaX = nX - pX;
+    
+                for (int j = 1; j < yLen - 1; j++) {
+                	
+                    final int nJ = j + 1;
+                    final int pJ = j - 1;
+    
+                    final double nY = yval.get(nJ);
+                    final double pY = yval.get(pJ);
+    
+                    final double deltaY = nY - pY;
+                    final double deltaXY = deltaX * deltaY;
+    
+                    for (int k = 1; k < zLen - 1; k++) {
+                        final int nK = k + 1;
+                        final int pK = k - 1;
+    
+                        final double nZ = zval.get(nK);
+                        final double pZ = zval.get(pK);
+    
+                        final double deltaZ = nZ - pZ;
+                        
+                        fval.get(i, j, k, values);
+    
+                        dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / deltaX;
+                        dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / deltaY;
+                        dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / deltaZ;
+                          
+                        final double deltaXZ = deltaX * deltaZ;
+                        final double deltaYZ = deltaY * deltaZ;
+                          
+                        d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / deltaXY;
+                        d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / deltaXZ;
+                        d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / deltaYZ;
+                          
+                        final double deltaXYZ = deltaXY * deltaZ;
+                          
+                        d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
+                                              values[0][2][2] + values[0][0][2] -
+                                              values[2][2][0] + values[2][0][0] +
+                                              values[0][2][0] - values[0][0][0]) / deltaXYZ;
                       
-                    final double deltaXZ = deltaX * deltaZ;
-                    final double deltaYZ = deltaY * deltaZ;
-                      
-                    d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / deltaXY;
-                    d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / deltaXZ;
-                    d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / deltaYZ;
-                      
-                    final double deltaXYZ = deltaXY * deltaZ;
-                      
-                    d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
-                                          values[0][2][2] + values[0][0][2] -
-                                          values[2][2][0] + values[2][0][0] +
-                                          values[0][2][0] - values[0][0][0]) / deltaXYZ;
-                  
-                    //dFdX[i][j][k] = (fval.get[nI][j][k] - fval.get[pI][j][k]) / deltaX;
-                    //dFdY[i][j][k] = (fval.get[i][nJ][k] - fval.get[i][pJ][k]) / deltaY;
-                    //dFdZ[i][j][k] = (fval.get[i][j][nK] - fval.get[i][j][pK]) / deltaZ;
-                    //
-                    //final double deltaXZ = deltaX * deltaZ;
-                    //final double deltaYZ = deltaY * deltaZ;
-                    //
-                    //d2FdXdY[i][j][k] = (fval.get[nI][nJ][k] - fval.get[nI][pJ][k] - fval.get[pI][nJ][k] + fval.get[pI][pJ][k]) / deltaXY;
-                    //d2FdXdZ[i][j][k] = (fval.get[nI][j][nK] - fval.get[nI][j][pK] - fval.get[pI][j][nK] + fval.get[pI][j][pK]) / deltaXZ;
-                    //d2FdYdZ[i][j][k] = (fval.get[i][nJ][nK] - fval.get[i][nJ][pK] - fval.get[i][pJ][nK] + fval.get[i][pJ][pK]) / deltaYZ;
-                    //
-                    //final double deltaXYZ = deltaXY * deltaZ;
-                    //
-                    //d3FdXdYdZ[i][j][k] = (fval.get[nI][nJ][nK] - fval.get[nI][pJ][nK] -
-                    //                      fval.get[pI][nJ][nK] + fval.get[pI][pJ][nK] -
-                    //                      fval.get[nI][nJ][pK] + fval.get[nI][pJ][pK] +
-                    //                      fval.get[pI][nJ][pK] - fval.get[pI][pJ][pK]) / deltaXYZ;
+                        //dFdX[i][j][k] = (fval.get[nI][j][k] - fval.get[pI][j][k]) / deltaX;
+                        //dFdY[i][j][k] = (fval.get[i][nJ][k] - fval.get[i][pJ][k]) / deltaY;
+                        //dFdZ[i][j][k] = (fval.get[i][j][nK] - fval.get[i][j][pK]) / deltaZ;
+                        //
+                        //final double deltaXZ = deltaX * deltaZ;
+                        //final double deltaYZ = deltaY * deltaZ;
+                        //
+                        //d2FdXdY[i][j][k] = (fval.get[nI][nJ][k] - fval.get[nI][pJ][k] - fval.get[pI][nJ][k] + fval.get[pI][pJ][k]) / deltaXY;
+                        //d2FdXdZ[i][j][k] = (fval.get[nI][j][nK] - fval.get[nI][j][pK] - fval.get[pI][j][nK] + fval.get[pI][j][pK]) / deltaXZ;
+                        //d2FdYdZ[i][j][k] = (fval.get[i][nJ][nK] - fval.get[i][nJ][pK] - fval.get[i][pJ][nK] + fval.get[i][pJ][pK]) / deltaYZ;
+                        //
+                        //final double deltaXYZ = deltaXY * deltaZ;
+                        //
+                        //d3FdXdYdZ[i][j][k] = (fval.get[nI][nJ][nK] - fval.get[nI][pJ][nK] -
+                        //                      fval.get[pI][nJ][nK] + fval.get[pI][pJ][nK] -
+                        //                      fval.get[nI][nJ][pK] + fval.get[nI][pJ][pK] +
+                        //                      fval.get[pI][nJ][pK] - fval.get[pI][pJ][pK]) / deltaXYZ;
+                        
+                    	ticker.tick();
+                    }
                 }
             }
         }
         
-        progress.progress(1);
+        ticker.stop();
 
         // Create the interpolating function.
         return new CustomTricubicInterpolatingFunction(xval, yval, zval, fval,
@@ -219,7 +268,82 @@ public class CustomTricubicInterpolator
         		new DoubleArrayTrivalueProvider(d2FdXdZ),
         		new DoubleArrayTrivalueProvider(d2FdYdZ),
         		new DoubleArrayTrivalueProvider(d3FdXdYdZ),
-        		progress);
+        		progress, executorService, taskSize);
+    }
+ 	
+    private static void build(long index,
+    		final int xLen_2,
+    		final long xLen_2_yLen_2,
+            final ValueProvider xval,
+            final ValueProvider yval,
+            final ValueProvider zval,
+            final TrivalueProvider fval,            
+            final double[][][] dFdX,
+            final double[][][] dFdY,
+            final double[][][] dFdZ,
+            final double[][][] d2FdXdY,
+            final double[][][] d2FdXdZ,
+            final double[][][] d2FdYdZ,
+            final double[][][] d3FdXdYdZ,
+            final double[][][] values,
+            final Ticker ticker
+    		)
+    {
+    	// Convert position to the indices
+    	// Add 1 since the packing into the index is for the (lengths-2)
+		int k = 1 + (int) (index / xLen_2_yLen_2);
+		long mod = index % xLen_2_yLen_2;
+		int j = 1 + (int) (mod / xLen_2);
+		int i = 1 + (int) (mod % xLen_2);
+		
+		//System.out.printf("%d => [%d][%d][%d]\n", index, i, j, k);
+    	
+        final int nI = i + 1;
+        final int pI = i - 1;
+
+        final double nX = xval.get(nI);
+        final double pX = xval.get(pI);
+
+        final double deltaX = nX - pX;
+    	
+        final int nJ = j + 1;
+        final int pJ = j - 1;
+
+        final double nY = yval.get(nJ);
+        final double pY = yval.get(pJ);
+
+        final double deltaY = nY - pY;
+        final double deltaXY = deltaX * deltaY;
+
+        final int nK = k + 1;
+        final int pK = k - 1;
+        
+        final double nZ = zval.get(nK);
+        final double pZ = zval.get(pK);
+
+        final double deltaZ = nZ - pZ;
+        
+        fval.get(i, j, k, values);
+
+        dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / deltaX;
+        dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / deltaY;
+        dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / deltaZ;
+          
+        final double deltaXZ = deltaX * deltaZ;
+        final double deltaYZ = deltaY * deltaZ;
+          
+        d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / deltaXY;
+        d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / deltaXZ;
+        d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / deltaYZ;
+          
+        final double deltaXYZ = deltaXY * deltaZ;
+          
+        d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
+                              values[0][2][2] + values[0][0][2] -
+                              values[2][2][0] + values[2][0][0] +
+                              values[0][2][0] - values[0][0][0]) / deltaXYZ;
+        
+    	ticker.tick();    	
     }
 
 	/**
@@ -233,12 +357,33 @@ public class CustomTricubicInterpolator
 	}
 	
 	/**
-	 * Sets the thread pool for interpolating.
+	 * Sets the executor service for interpolating.
 	 *
-	 * @param threadPool the new thread pool
+	 * @param executorService the new executor service
 	 */
-	public void setThreadPool(ExecutorService threadPool)
+	public void setExecutorService(ExecutorService executorService)
 	{
-		this.threadPool = threadPool;
+		this.executorService = executorService;
+	}
+
+	/**
+	 * Gets the task size for multi-threaded interpolation.
+	 *
+	 * @return the task size
+	 */
+	public long getTaskSize()
+	{
+		return taskSize;
+	}
+
+	/**
+	 * Sets the task size for multi-threaded interpolation. If the number of interpolation 
+	 * nodes is less than this then multi-threading is not used.
+	 *
+	 * @param taskSize the new task size
+	 */
+	public void setTaskSize(long taskSize)
+	{
+		this.taskSize = taskSize;
 	}
 }

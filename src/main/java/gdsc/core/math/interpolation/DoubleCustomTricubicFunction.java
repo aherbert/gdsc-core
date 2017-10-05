@@ -81,6 +81,16 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 		return s;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#getA()
+	 */
+	public double[] getA()
+	{
+		return a.clone();
+	}
+
 	/**
 	 * @param aV
 	 *            List of spline coefficients.

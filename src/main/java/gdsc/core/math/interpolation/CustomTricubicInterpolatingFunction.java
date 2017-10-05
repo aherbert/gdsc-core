@@ -1,5 +1,8 @@
 package gdsc.core.math.interpolation;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
 /*----------------------------------------------------------------------------- 
  * GDSC Software
  * 
@@ -36,8 +39,11 @@ import org.apache.commons.math3.util.MathArrays.OrderDirection;
 
 import gdsc.core.data.TrivalueProvider;
 import gdsc.core.data.ValueProvider;
+import gdsc.core.ij.Utils;
+import gdsc.core.logging.Ticker;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.SimpleArrayUtils;
+import gdsc.core.utils.TurboList;
 
 /**
  * Function that implements the
@@ -175,6 +181,9 @@ public class CustomTricubicInterpolatingFunction
      * @param d2FdYdZ Values of the cross partial derivative of function on every grid point.
      * @param d3FdXdYdZ Values of the cross partial derivative of function on every grid point.
      * @param progress the progress
+     * @param executorService the executor service
+     * @param taskSize the task size (If the number of interpolation
+     *        nodes is less than this then multi-threading is not used)
      * @throws NoDataException if any of the arrays has zero length.
      * @throws DimensionMismatchException if the various arrays do not contain the expected number of elements.
      * @throws NonMonotonicSequenceException if {@code x}, {@code y} or {@code z} are not strictly increasing.
@@ -182,15 +191,17 @@ public class CustomTricubicInterpolatingFunction
     public CustomTricubicInterpolatingFunction(ValueProvider x,
                                                ValueProvider y,
                                                ValueProvider z,
-                                               TrivalueProvider f,
-                                               TrivalueProvider dFdX,
-                                               TrivalueProvider dFdY,
-                                               TrivalueProvider dFdZ,
-                                               TrivalueProvider d2FdXdY,
-                                               TrivalueProvider d2FdXdZ,
-                                               TrivalueProvider d2FdYdZ,
-                                               TrivalueProvider d3FdXdYdZ,
-                                               TrackProgress progress)
+                                               final TrivalueProvider f,
+                                               final TrivalueProvider dFdX,
+                                               final TrivalueProvider dFdY,
+                                               final TrivalueProvider dFdZ,
+                                               final TrivalueProvider d2FdXdY,
+                                               final TrivalueProvider d2FdXdZ,
+                                               final TrivalueProvider d2FdYdZ,
+                                               final TrivalueProvider d3FdXdYdZ,
+                                               TrackProgress progress, 
+                                               ExecutorService executorService, 
+                                               long taskSize)
         throws NoDataException,
                DimensionMismatchException,
                NonMonotonicSequenceException {
@@ -240,138 +251,322 @@ public class CustomTricubicInterpolatingFunction
         splines = new CustomTricubicFunction[lastI][lastJ][lastK];
 
         final long total = lastI * lastJ * lastK;
-        long current = 0;
+		taskSize = Math.max(1, taskSize);
         
-        if (isInteger)
+        boolean threaded = executorService != null && taskSize < total;
+        
+        final Ticker ticker = Ticker.create(progress, total, threaded);
+        ticker.start();
+        
+        if (threaded)
         {
-            // We can shortcut if a true integer grid by ignoring the scale
-            for (int i = 0; i < lastI; i++) {
-                
-                final int ip1 = i + 1;
-                for (int j = 0; j < lastJ; j++) {
-    
-                    final int jp1 = j + 1;
-                    for (int k = 0; k < lastK; k++) {
-                    	progress.progress(current++, total);
-                        final int kp1 = k + 1;
-    
-                        final double[] beta = new double[] {
-                            f.get(i,j,k), f.get(ip1,j,k),
-                            f.get(i,jp1,k), f.get(ip1,jp1,k),
-                            f.get(i,j,kp1), f.get(ip1,j,kp1),
-                            f.get(i,jp1,kp1), f.get(ip1,jp1,kp1),
-    
-                            dFdX.get(i,j,k), dFdX.get(ip1,j,k),
-                            dFdX.get(i,jp1,k), dFdX.get(ip1,jp1,k),
-                            dFdX.get(i,j,kp1), dFdX.get(ip1,j,kp1),
-                            dFdX.get(i,jp1,kp1), dFdX.get(ip1,jp1,kp1),
-    
-                            dFdY.get(i,j,k), dFdY.get(ip1,j,k),
-                            dFdY.get(i,jp1,k), dFdY.get(ip1,jp1,k),
-                            dFdY.get(i,j,kp1), dFdY.get(ip1,j,kp1),
-                            dFdY.get(i,jp1,kp1), dFdY.get(ip1,jp1,kp1),
-    
-                            dFdZ.get(i,j,k), dFdZ.get(ip1,j,k),
-                            dFdZ.get(i,jp1,k), dFdZ.get(ip1,jp1,k),
-                            dFdZ.get(i,j,kp1), dFdZ.get(ip1,j,kp1),
-                            dFdZ.get(i,jp1,kp1), dFdZ.get(ip1,jp1,kp1),
-    
-                            d2FdXdY.get(i,j,k), d2FdXdY.get(ip1,j,k),
-                            d2FdXdY.get(i,jp1,k), d2FdXdY.get(ip1,jp1,k),
-                            d2FdXdY.get(i,j,kp1), d2FdXdY.get(ip1,j,kp1),
-                            d2FdXdY.get(i,jp1,kp1), d2FdXdY.get(ip1,jp1,kp1),
-    
-                            d2FdXdZ.get(i,j,k), d2FdXdZ.get(ip1,j,k),
-                            d2FdXdZ.get(i,jp1,k), d2FdXdZ.get(ip1,jp1,k),
-                            d2FdXdZ.get(i,j,kp1), d2FdXdZ.get(ip1,j,kp1),
-                            d2FdXdZ.get(i,jp1,kp1), d2FdXdZ.get(ip1,jp1,kp1),
-    
-                            d2FdYdZ.get(i,j,k), d2FdYdZ.get(ip1,j,k),
-                            d2FdYdZ.get(i,jp1,k), d2FdYdZ.get(ip1,jp1,k),
-                            d2FdYdZ.get(i,j,kp1), d2FdYdZ.get(ip1,j,kp1),
-                            d2FdYdZ.get(i,jp1,kp1), d2FdYdZ.get(ip1,jp1,kp1),
-    
-                            d3FdXdYdZ.get(i,j,k), d3FdXdYdZ.get(ip1,j,k),
-                            d3FdXdYdZ.get(i,jp1,k), d3FdXdYdZ.get(ip1,jp1,k),
-                            d3FdXdYdZ.get(i,j,kp1), d3FdXdYdZ.get(ip1,j,kp1),
-                            d3FdXdYdZ.get(i,jp1,kp1), d3FdXdYdZ.get(ip1,jp1,kp1),
-                        };
-    
-                        // Q. Option to create as single precision?
-                        splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
-                    }
-                }
-            }        	
+    		final long lastI_lastJ = (long)lastI * lastJ;
+    		
+        	// Break this up into reasonable tasks, ensuring we can hold all the futures
+        	long nTasks = (long) Math.ceil((double) total / taskSize);
+        	while (nTasks >= Integer.MAX_VALUE)
+        	{	
+        		taskSize *= 2;
+            	nTasks = (long) Math.ceil((double) total / taskSize);
+            }
+    		TurboList<Future<?>> futures = new TurboList<Future<?>>((int)nTasks);
+			for (long from = 0; from < total;)
+			{
+				final long from_ = from;
+				final long to = Math.min(from + taskSize, total);
+				futures.add(executorService.submit(new Runnable()
+				{
+					public void run()
+					{
+			        	final double[] beta = new double[64];
+						if (isInteger)
+						{
+    						for (long index = from_; index < to; index++)
+    						{
+    							buildInteger(f, dFdX, dFdY, dFdZ, 
+    									d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ, 
+    									lastI, lastI_lastJ, index, ticker, beta);									
+    						}
+						}
+						else
+						{
+    						for (long index = from_; index < to; index++)
+    						{
+    							build(f, dFdX, dFdY, dFdZ, 
+    									d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ, 
+    									lastI, lastI_lastJ, index, ticker, beta);									
+    						}
+						}
+					}
+				}));
+				from = to;
+			}
+			
+			Utils.waitForCompletion(futures);
         }
         else
         {
-            for (int i = 0; i < lastI; i++) {
-    
-                final int ip1 = i + 1;
-                final double xR = xscale[i];
-                for (int j = 0; j < lastJ; j++) {
-    
-                    final int jp1 = j + 1;
-                    final double yR = yscale[j];
-                    final double xRyR = xR * yR;
-                    for (int k = 0; k < lastK; k++) {
-                    	progress.progress(current++, total);
-                        final int kp1 = k + 1;
-                        final double zR = zscale[k];
-                        final double xRzR = xR * zR;
-                        final double yRzR = yR * zR;
-                        final double xRyRzR = xR * yRzR;
-    
-                        final double[] beta = new double[] {
-                            f.get(i,j,k), f.get(ip1,j,k),
-                            f.get(i,jp1,k), f.get(ip1,jp1,k),
-                            f.get(i,j,kp1), f.get(ip1,j,kp1),
-                            f.get(i,jp1,kp1), f.get(ip1,jp1,kp1),
-    
-                            dFdX.get(i,j,k) * xR, dFdX.get(ip1,j,k) * xR,
-                            dFdX.get(i,jp1,k) * xR, dFdX.get(ip1,jp1,k) * xR,
-                            dFdX.get(i,j,kp1) * xR, dFdX.get(ip1,j,kp1) * xR,
-                            dFdX.get(i,jp1,kp1) * xR, dFdX.get(ip1,jp1,kp1) * xR,
-    
-                            dFdY.get(i,j,k) * yR, dFdY.get(ip1,j,k) * yR,
-                            dFdY.get(i,jp1,k) * yR, dFdY.get(ip1,jp1,k) * yR,
-                            dFdY.get(i,j,kp1) * yR, dFdY.get(ip1,j,kp1) * yR,
-                            dFdY.get(i,jp1,kp1) * yR, dFdY.get(ip1,jp1,kp1) * yR,
-    
-                            dFdZ.get(i,j,k) * zR, dFdZ.get(ip1,j,k) * zR,
-                            dFdZ.get(i,jp1,k) * zR, dFdZ.get(ip1,jp1,k) * zR,
-                            dFdZ.get(i,j,kp1) * zR, dFdZ.get(ip1,j,kp1) * zR,
-                            dFdZ.get(i,jp1,kp1) * zR, dFdZ.get(ip1,jp1,kp1) * zR,
-    
-                            d2FdXdY.get(i,j,k) * xRyR, d2FdXdY.get(ip1,j,k) * xRyR,
-                            d2FdXdY.get(i,jp1,k) * xRyR, d2FdXdY.get(ip1,jp1,k) * xRyR,
-                            d2FdXdY.get(i,j,kp1) * xRyR, d2FdXdY.get(ip1,j,kp1) * xRyR,
-                            d2FdXdY.get(i,jp1,kp1) * xRyR, d2FdXdY.get(ip1,jp1,kp1) * xRyR,
-    
-                            d2FdXdZ.get(i,j,k) * xRzR, d2FdXdZ.get(ip1,j,k) * xRzR,
-                            d2FdXdZ.get(i,jp1,k) * xRzR, d2FdXdZ.get(ip1,jp1,k) * xRzR,
-                            d2FdXdZ.get(i,j,kp1) * xRzR, d2FdXdZ.get(ip1,j,kp1) * xRzR,
-                            d2FdXdZ.get(i,jp1,kp1) * xRzR, d2FdXdZ.get(ip1,jp1,kp1) * xRzR,
-    
-                            d2FdYdZ.get(i,j,k) * yRzR, d2FdYdZ.get(ip1,j,k) * yRzR,
-                            d2FdYdZ.get(i,jp1,k) * yRzR, d2FdYdZ.get(ip1,jp1,k) * yRzR,
-                            d2FdYdZ.get(i,j,kp1) * yRzR, d2FdYdZ.get(ip1,j,kp1) * yRzR,
-                            d2FdYdZ.get(i,jp1,kp1) * yRzR, d2FdYdZ.get(ip1,jp1,kp1) * yRzR,
-    
-                            d3FdXdYdZ.get(i,j,k) * xRyRzR, d3FdXdYdZ.get(ip1,j,k) * xRyRzR,
-                            d3FdXdYdZ.get(i,jp1,k) * xRyRzR, d3FdXdYdZ.get(ip1,jp1,k) * xRyRzR,
-                            d3FdXdYdZ.get(i,j,kp1) * xRyRzR, d3FdXdYdZ.get(ip1,j,kp1) * xRyRzR,
-                            d3FdXdYdZ.get(i,jp1,kp1) * xRyRzR, d3FdXdYdZ.get(ip1,jp1,kp1) * xRyRzR,
-                        };
-    
-                        // Q. Option to create as single precision?
-                        splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
+        	final double[] beta = new double[64];
+            if (isInteger)
+            {
+                // We can shortcut if a true integer grid by ignoring the scale
+                for (int i = 0; i < lastI; i++) {
+                    
+                    final int ip1 = i + 1;
+                    for (int j = 0; j < lastJ; j++) {
+        
+                        final int jp1 = j + 1;
+                        for (int k = 0; k < lastK; k++) {
+                            final int kp1 = k + 1;
+        
+                    		beta[0] = f.get(i, j, k);
+                    		beta[1] = f.get(ip1, j, k);
+                    		beta[2] = f.get(i, jp1, k);
+                    		beta[3] = f.get(ip1, jp1, k);
+                    		beta[4] = f.get(i, j, kp1);
+                    		beta[5] = f.get(ip1, j, kp1);
+                    		beta[6] = f.get(i, jp1, kp1);
+                    		beta[7] = f.get(ip1, jp1, kp1);
+                    		beta[8] = dFdX.get(i, j, k);
+                    		beta[9] = dFdX.get(ip1, j, k);
+                    		beta[10] = dFdX.get(i, jp1, k);
+                    		beta[11] = dFdX.get(ip1, jp1, k);
+                    		beta[12] = dFdX.get(i, j, kp1);
+                    		beta[13] = dFdX.get(ip1, j, kp1);
+                    		beta[14] = dFdX.get(i, jp1, kp1);
+                    		beta[15] = dFdX.get(ip1, jp1, kp1);
+                    		beta[16] = dFdY.get(i, j, k);
+                    		beta[17] = dFdY.get(ip1, j, k);
+                    		beta[18] = dFdY.get(i, jp1, k);
+                    		beta[19] = dFdY.get(ip1, jp1, k);
+                    		beta[20] = dFdY.get(i, j, kp1);
+                    		beta[21] = dFdY.get(ip1, j, kp1);
+                    		beta[22] = dFdY.get(i, jp1, kp1);
+                    		beta[23] = dFdY.get(ip1, jp1, kp1);
+                    		beta[24] = dFdZ.get(i, j, k) ;
+                    		beta[25] = dFdZ.get(ip1, j, k) ;
+                    		beta[26] = dFdZ.get(i, jp1, k) ;
+                    		beta[27] = dFdZ.get(ip1, jp1, k) ;
+                    		beta[28] = dFdZ.get(i, j, kp1) ;
+                    		beta[29] = dFdZ.get(ip1, j, kp1) ;
+                    		beta[30] = dFdZ.get(i, jp1, kp1) ;
+                    		beta[31] = dFdZ.get(ip1, jp1, kp1) ;
+                    		beta[32] = d2FdXdY.get(i, j, k);
+                    		beta[33] = d2FdXdY.get(ip1, j, k);
+                    		beta[34] = d2FdXdY.get(i, jp1, k);
+                    		beta[35] = d2FdXdY.get(ip1, jp1, k);
+                    		beta[36] = d2FdXdY.get(i, j, kp1);
+                    		beta[37] = d2FdXdY.get(ip1, j, kp1);
+                    		beta[38] = d2FdXdY.get(i, jp1, kp1);
+                    		beta[39] = d2FdXdY.get(ip1, jp1, kp1);
+                    		beta[40] = d2FdXdZ.get(i, j, k);
+                    		beta[41] = d2FdXdZ.get(ip1, j, k);
+                    		beta[42] = d2FdXdZ.get(i, jp1, k);
+                    		beta[43] = d2FdXdZ.get(ip1, jp1, k);
+                    		beta[44] = d2FdXdZ.get(i, j, kp1);
+                    		beta[45] = d2FdXdZ.get(ip1, j, kp1);
+                    		beta[46] = d2FdXdZ.get(i, jp1, kp1);
+                    		beta[47] = d2FdXdZ.get(ip1, jp1, kp1);
+                    		beta[48] = d2FdYdZ.get(i, j, k);
+                    		beta[49] = d2FdYdZ.get(ip1, j, k);
+                    		beta[50] = d2FdYdZ.get(i, jp1, k);
+                    		beta[51] = d2FdYdZ.get(ip1, jp1, k);
+                    		beta[52] = d2FdYdZ.get(i, j, kp1);
+                    		beta[53] = d2FdYdZ.get(ip1, j, kp1);
+                    		beta[54] = d2FdYdZ.get(i, jp1, kp1);
+                    		beta[55] = d2FdYdZ.get(ip1, jp1, kp1);
+                    		beta[56] = d3FdXdYdZ.get(i, j, k);
+                    		beta[57] = d3FdXdYdZ.get(ip1, j, k);
+                    		beta[58] = d3FdXdYdZ.get(i, jp1, k);
+                    		beta[59] = d3FdXdYdZ.get(ip1, jp1, k);
+                    		beta[60] = d3FdXdYdZ.get(i, j, kp1);
+                    		beta[61] = d3FdXdYdZ.get(ip1, j, kp1);
+                    		beta[62] = d3FdXdYdZ.get(i, jp1, kp1);
+                    		beta[63] = d3FdXdYdZ.get(ip1, jp1, kp1);		
+                            
+                            //final double[] beta = new double[] {
+                            //    f.get(i,j,k), f.get(ip1,j,k),
+                            //    f.get(i,jp1,k), f.get(ip1,jp1,k),
+                            //    f.get(i,j,kp1), f.get(ip1,j,kp1),
+                            //    f.get(i,jp1,kp1), f.get(ip1,jp1,kp1),
+                            //
+                            //    dFdX.get(i,j,k), dFdX.get(ip1,j,k),
+                            //    dFdX.get(i,jp1,k), dFdX.get(ip1,jp1,k),
+                            //    dFdX.get(i,j,kp1), dFdX.get(ip1,j,kp1),
+                            //    dFdX.get(i,jp1,kp1), dFdX.get(ip1,jp1,kp1),
+                            //
+                            //    dFdY.get(i,j,k), dFdY.get(ip1,j,k),
+                            //    dFdY.get(i,jp1,k), dFdY.get(ip1,jp1,k),
+                            //    dFdY.get(i,j,kp1), dFdY.get(ip1,j,kp1),
+                            //    dFdY.get(i,jp1,kp1), dFdY.get(ip1,jp1,kp1),
+                            //
+                            //    dFdZ.get(i,j,k), dFdZ.get(ip1,j,k),
+                            //    dFdZ.get(i,jp1,k), dFdZ.get(ip1,jp1,k),
+                            //    dFdZ.get(i,j,kp1), dFdZ.get(ip1,j,kp1),
+                            //    dFdZ.get(i,jp1,kp1), dFdZ.get(ip1,jp1,kp1),
+                            //
+                            //    d2FdXdY.get(i,j,k), d2FdXdY.get(ip1,j,k),
+                            //    d2FdXdY.get(i,jp1,k), d2FdXdY.get(ip1,jp1,k),
+                            //    d2FdXdY.get(i,j,kp1), d2FdXdY.get(ip1,j,kp1),
+                            //    d2FdXdY.get(i,jp1,kp1), d2FdXdY.get(ip1,jp1,kp1),
+                            //
+                            //    d2FdXdZ.get(i,j,k), d2FdXdZ.get(ip1,j,k),
+                            //    d2FdXdZ.get(i,jp1,k), d2FdXdZ.get(ip1,jp1,k),
+                            //    d2FdXdZ.get(i,j,kp1), d2FdXdZ.get(ip1,j,kp1),
+                            //    d2FdXdZ.get(i,jp1,kp1), d2FdXdZ.get(ip1,jp1,kp1),
+                            //
+                            //    d2FdYdZ.get(i,j,k), d2FdYdZ.get(ip1,j,k),
+                            //    d2FdYdZ.get(i,jp1,k), d2FdYdZ.get(ip1,jp1,k),
+                            //    d2FdYdZ.get(i,j,kp1), d2FdYdZ.get(ip1,j,kp1),
+                            //    d2FdYdZ.get(i,jp1,kp1), d2FdYdZ.get(ip1,jp1,kp1),
+                            //
+                            //    d3FdXdYdZ.get(i,j,k), d3FdXdYdZ.get(ip1,j,k),
+                            //    d3FdXdYdZ.get(i,jp1,k), d3FdXdYdZ.get(ip1,jp1,k),
+                            //    d3FdXdYdZ.get(i,j,kp1), d3FdXdYdZ.get(ip1,j,kp1),
+                            //    d3FdXdYdZ.get(i,jp1,kp1), d3FdXdYdZ.get(ip1,jp1,kp1),
+                            //};
+        
+                            // Q. Option to create as single precision?
+                            splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
+                            ticker.tick();
+                        }
+                    }
+                }        	
+            }
+            else
+            {
+                for (int i = 0; i < lastI; i++) {
+        
+                    final int ip1 = i + 1;
+                    final double xR = xscale[i];
+                    for (int j = 0; j < lastJ; j++) {
+        
+                        final int jp1 = j + 1;
+                        final double yR = yscale[j];
+                        final double xRyR = xR * yR;
+                        for (int k = 0; k < lastK; k++) {
+                            final int kp1 = k + 1;
+                            final double zR = zscale[k];
+                            final double xRzR = xR * zR;
+                            final double yRzR = yR * zR;
+                            final double xRyRzR = xR * yRzR;
+        
+                    		beta[0] = f.get(i, j, k);
+                    		beta[1] = f.get(ip1, j, k);
+                    		beta[2] = f.get(i, jp1, k);
+                    		beta[3] = f.get(ip1, jp1, k);
+                    		beta[4] = f.get(i, j, kp1);
+                    		beta[5] = f.get(ip1, j, kp1);
+                    		beta[6] = f.get(i, jp1, kp1);
+                    		beta[7] = f.get(ip1, jp1, kp1);
+                    		beta[8] = dFdX.get(i, j, k) * xR;
+                    		beta[9] = dFdX.get(ip1, j, k) * xR;
+                    		beta[10] = dFdX.get(i, jp1, k) * xR;
+                    		beta[11] = dFdX.get(ip1, jp1, k) * xR;
+                    		beta[12] = dFdX.get(i, j, kp1) * xR;
+                    		beta[13] = dFdX.get(ip1, j, kp1) * xR;
+                    		beta[14] = dFdX.get(i, jp1, kp1) * xR;
+                    		beta[15] = dFdX.get(ip1, jp1, kp1) * xR;
+                    		beta[16] = dFdY.get(i, j, k) * yR;
+                    		beta[17] = dFdY.get(ip1, j, k) * yR;
+                    		beta[18] = dFdY.get(i, jp1, k) * yR;
+                    		beta[19] = dFdY.get(ip1, jp1, k) * yR;
+                    		beta[20] = dFdY.get(i, j, kp1) * yR;
+                    		beta[21] = dFdY.get(ip1, j, kp1) * yR;
+                    		beta[22] = dFdY.get(i, jp1, kp1) * yR;
+                    		beta[23] = dFdY.get(ip1, jp1, kp1) * yR;
+                    		beta[24] = dFdZ.get(i, j, k) * zR;
+                    		beta[25] = dFdZ.get(ip1, j, k) * zR;
+                    		beta[26] = dFdZ.get(i, jp1, k) * zR;
+                    		beta[27] = dFdZ.get(ip1, jp1, k) * zR;
+                    		beta[28] = dFdZ.get(i, j, kp1) * zR;
+                    		beta[29] = dFdZ.get(ip1, j, kp1) * zR;
+                    		beta[30] = dFdZ.get(i, jp1, kp1) * zR;
+                    		beta[31] = dFdZ.get(ip1, jp1, kp1) * zR;
+                    		beta[32] = d2FdXdY.get(i, j, k) * xRyR;
+                    		beta[33] = d2FdXdY.get(ip1, j, k) * xRyR;
+                    		beta[34] = d2FdXdY.get(i, jp1, k) * xRyR;
+                    		beta[35] = d2FdXdY.get(ip1, jp1, k) * xRyR;
+                    		beta[36] = d2FdXdY.get(i, j, kp1) * xRyR;
+                    		beta[37] = d2FdXdY.get(ip1, j, kp1) * xRyR;
+                    		beta[38] = d2FdXdY.get(i, jp1, kp1) * xRyR;
+                    		beta[39] = d2FdXdY.get(ip1, jp1, kp1) * xRyR;
+                    		beta[40] = d2FdXdZ.get(i, j, k) * xRzR;
+                    		beta[41] = d2FdXdZ.get(ip1, j, k) * xRzR;
+                    		beta[42] = d2FdXdZ.get(i, jp1, k) * xRzR;
+                    		beta[43] = d2FdXdZ.get(ip1, jp1, k) * xRzR;
+                    		beta[44] = d2FdXdZ.get(i, j, kp1) * xRzR;
+                    		beta[45] = d2FdXdZ.get(ip1, j, kp1) * xRzR;
+                    		beta[46] = d2FdXdZ.get(i, jp1, kp1) * xRzR;
+                    		beta[47] = d2FdXdZ.get(ip1, jp1, kp1) * xRzR;
+                    		beta[48] = d2FdYdZ.get(i, j, k) * yRzR;
+                    		beta[49] = d2FdYdZ.get(ip1, j, k) * yRzR;
+                    		beta[50] = d2FdYdZ.get(i, jp1, k) * yRzR;
+                    		beta[51] = d2FdYdZ.get(ip1, jp1, k) * yRzR;
+                    		beta[52] = d2FdYdZ.get(i, j, kp1) * yRzR;
+                    		beta[53] = d2FdYdZ.get(ip1, j, kp1) * yRzR;
+                    		beta[54] = d2FdYdZ.get(i, jp1, kp1) * yRzR;
+                    		beta[55] = d2FdYdZ.get(ip1, jp1, kp1) * yRzR;
+                    		beta[56] = d3FdXdYdZ.get(i, j, k) * xRyRzR;
+                    		beta[57] = d3FdXdYdZ.get(ip1, j, k) * xRyRzR;
+                    		beta[58] = d3FdXdYdZ.get(i, jp1, k) * xRyRzR;
+                    		beta[59] = d3FdXdYdZ.get(ip1, jp1, k) * xRyRzR;
+                    		beta[60] = d3FdXdYdZ.get(i, j, kp1) * xRyRzR;
+                    		beta[61] = d3FdXdYdZ.get(ip1, j, kp1) * xRyRzR;
+                    		beta[62] = d3FdXdYdZ.get(i, jp1, kp1) * xRyRzR;
+                    		beta[63] = d3FdXdYdZ.get(ip1, jp1, kp1) * xRyRzR;
+                    		
+                            //final double[] beta = new double[] {
+                            //    f.get(i,j,k), f.get(ip1,j,k),
+                            //    f.get(i,jp1,k), f.get(ip1,jp1,k),
+                            //    f.get(i,j,kp1), f.get(ip1,j,kp1),
+                            //    f.get(i,jp1,kp1), f.get(ip1,jp1,kp1),
+                            //
+                            //    dFdX.get(i,j,k) * xR, dFdX.get(ip1,j,k) * xR,
+                            //    dFdX.get(i,jp1,k) * xR, dFdX.get(ip1,jp1,k) * xR,
+                            //    dFdX.get(i,j,kp1) * xR, dFdX.get(ip1,j,kp1) * xR,
+                            //    dFdX.get(i,jp1,kp1) * xR, dFdX.get(ip1,jp1,kp1) * xR,
+                            //
+                            //    dFdY.get(i,j,k) * yR, dFdY.get(ip1,j,k) * yR,
+                            //    dFdY.get(i,jp1,k) * yR, dFdY.get(ip1,jp1,k) * yR,
+                            //    dFdY.get(i,j,kp1) * yR, dFdY.get(ip1,j,kp1) * yR,
+                            //    dFdY.get(i,jp1,kp1) * yR, dFdY.get(ip1,jp1,kp1) * yR,
+                            //
+                            //    dFdZ.get(i,j,k) * zR, dFdZ.get(ip1,j,k) * zR,
+                            //    dFdZ.get(i,jp1,k) * zR, dFdZ.get(ip1,jp1,k) * zR,
+                            //    dFdZ.get(i,j,kp1) * zR, dFdZ.get(ip1,j,kp1) * zR,
+                            //    dFdZ.get(i,jp1,kp1) * zR, dFdZ.get(ip1,jp1,kp1) * zR,
+                            //
+                            //    d2FdXdY.get(i,j,k) * xRyR, d2FdXdY.get(ip1,j,k) * xRyR,
+                            //    d2FdXdY.get(i,jp1,k) * xRyR, d2FdXdY.get(ip1,jp1,k) * xRyR,
+                            //    d2FdXdY.get(i,j,kp1) * xRyR, d2FdXdY.get(ip1,j,kp1) * xRyR,
+                            //    d2FdXdY.get(i,jp1,kp1) * xRyR, d2FdXdY.get(ip1,jp1,kp1) * xRyR,
+                            //
+                            //    d2FdXdZ.get(i,j,k) * xRzR, d2FdXdZ.get(ip1,j,k) * xRzR,
+                            //    d2FdXdZ.get(i,jp1,k) * xRzR, d2FdXdZ.get(ip1,jp1,k) * xRzR,
+                            //    d2FdXdZ.get(i,j,kp1) * xRzR, d2FdXdZ.get(ip1,j,kp1) * xRzR,
+                            //    d2FdXdZ.get(i,jp1,kp1) * xRzR, d2FdXdZ.get(ip1,jp1,kp1) * xRzR,
+                            //
+                            //    d2FdYdZ.get(i,j,k) * yRzR, d2FdYdZ.get(ip1,j,k) * yRzR,
+                            //    d2FdYdZ.get(i,jp1,k) * yRzR, d2FdYdZ.get(ip1,jp1,k) * yRzR,
+                            //    d2FdYdZ.get(i,j,kp1) * yRzR, d2FdYdZ.get(ip1,j,kp1) * yRzR,
+                            //    d2FdYdZ.get(i,jp1,kp1) * yRzR, d2FdYdZ.get(ip1,jp1,kp1) * yRzR,
+                            //
+                            //    d3FdXdYdZ.get(i,j,k) * xRyRzR, d3FdXdYdZ.get(ip1,j,k) * xRyRzR,
+                            //    d3FdXdYdZ.get(i,jp1,k) * xRyRzR, d3FdXdYdZ.get(ip1,jp1,k) * xRyRzR,
+                            //    d3FdXdYdZ.get(i,j,kp1) * xRyRzR, d3FdXdYdZ.get(ip1,j,kp1) * xRyRzR,
+                            //    d3FdXdYdZ.get(i,jp1,kp1) * xRyRzR, d3FdXdYdZ.get(ip1,jp1,kp1) * xRyRzR,
+                            //};
+        
+                            // Q. Option to create as single precision?
+                            splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
+                            ticker.tick();
+                        }
                     }
                 }
             }
         }
-        
-        progress.progress(1);
+        ticker.stop();
     }
 
     private static void checkDimensions(int xLen, int yLen, int zLen, TrivalueProvider f)
@@ -416,25 +611,199 @@ public class CustomTricubicInterpolatingFunction
 		return scale;
 	}
     
-	/**
-     * {@inheritDoc}
-     *
-     * @throws OutOfRangeException if any of the variables is outside its interpolation range.
-     */
-    public double value(double x, double y, double z)
-        throws OutOfRangeException {
-        final int i = searchIndex(x, xval);
-        final int j = searchIndex(y, yval);
-        final int k = searchIndex(z, zval);
+	private void buildInteger(final TrivalueProvider f, final TrivalueProvider dFdX,
+			final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
+			final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ,
+			final TrivalueProvider d3FdXdYdZ, final int lastI,
+			final long lastI_lastJ, long index, final Ticker ticker, double[] beta)
+	{
+		int k = (int) (index / lastI_lastJ);
+		long mod = index % lastI_lastJ;
+		int j = (int) (mod / lastI);
+		int i = (int) (mod % lastI);
+		final int ip1 = i + 1;
+		final int jp1 = j + 1;
+		final int kp1 = k + 1;
 
-        final double xN = (x - xval[i]) / (xval[i + 1] - xval[i]);
-        final double yN = (y - yval[j]) / (yval[j + 1] - yval[j]);
-        final double zN = (z - zval[k]) / (zval[k + 1] - zval[k]);
+		beta[0] = f.get(i, j, k);
+		beta[1] = f.get(ip1, j, k);
+		beta[2] = f.get(i, jp1, k);
+		beta[3] = f.get(ip1, jp1, k);
+		beta[4] = f.get(i, j, kp1);
+		beta[5] = f.get(ip1, j, kp1);
+		beta[6] = f.get(i, jp1, kp1);
+		beta[7] = f.get(ip1, jp1, kp1);
+		beta[8] = dFdX.get(i, j, k);
+		beta[9] = dFdX.get(ip1, j, k);
+		beta[10] = dFdX.get(i, jp1, k);
+		beta[11] = dFdX.get(ip1, jp1, k);
+		beta[12] = dFdX.get(i, j, kp1);
+		beta[13] = dFdX.get(ip1, j, kp1);
+		beta[14] = dFdX.get(i, jp1, kp1);
+		beta[15] = dFdX.get(ip1, jp1, kp1);
+		beta[16] = dFdY.get(i, j, k);
+		beta[17] = dFdY.get(ip1, j, k);
+		beta[18] = dFdY.get(i, jp1, k);
+		beta[19] = dFdY.get(ip1, jp1, k);
+		beta[20] = dFdY.get(i, j, kp1);
+		beta[21] = dFdY.get(ip1, j, kp1);
+		beta[22] = dFdY.get(i, jp1, kp1);
+		beta[23] = dFdY.get(ip1, jp1, kp1);
+		beta[24] = dFdZ.get(i, j, k) ;
+		beta[25] = dFdZ.get(ip1, j, k) ;
+		beta[26] = dFdZ.get(i, jp1, k) ;
+		beta[27] = dFdZ.get(ip1, jp1, k) ;
+		beta[28] = dFdZ.get(i, j, kp1) ;
+		beta[29] = dFdZ.get(ip1, j, kp1) ;
+		beta[30] = dFdZ.get(i, jp1, kp1) ;
+		beta[31] = dFdZ.get(ip1, jp1, kp1) ;
+		beta[32] = d2FdXdY.get(i, j, k);
+		beta[33] = d2FdXdY.get(ip1, j, k);
+		beta[34] = d2FdXdY.get(i, jp1, k);
+		beta[35] = d2FdXdY.get(ip1, jp1, k);
+		beta[36] = d2FdXdY.get(i, j, kp1);
+		beta[37] = d2FdXdY.get(ip1, j, kp1);
+		beta[38] = d2FdXdY.get(i, jp1, kp1);
+		beta[39] = d2FdXdY.get(ip1, jp1, kp1);
+		beta[40] = d2FdXdZ.get(i, j, k);
+		beta[41] = d2FdXdZ.get(ip1, j, k);
+		beta[42] = d2FdXdZ.get(i, jp1, k);
+		beta[43] = d2FdXdZ.get(ip1, jp1, k);
+		beta[44] = d2FdXdZ.get(i, j, kp1);
+		beta[45] = d2FdXdZ.get(ip1, j, kp1);
+		beta[46] = d2FdXdZ.get(i, jp1, kp1);
+		beta[47] = d2FdXdZ.get(ip1, jp1, kp1);
+		beta[48] = d2FdYdZ.get(i, j, k);
+		beta[49] = d2FdYdZ.get(ip1, j, k);
+		beta[50] = d2FdYdZ.get(i, jp1, k);
+		beta[51] = d2FdYdZ.get(ip1, jp1, k);
+		beta[52] = d2FdYdZ.get(i, j, kp1);
+		beta[53] = d2FdYdZ.get(ip1, j, kp1);
+		beta[54] = d2FdYdZ.get(i, jp1, kp1);
+		beta[55] = d2FdYdZ.get(ip1, jp1, kp1);
+		beta[56] = d3FdXdYdZ.get(i, j, k);
+		beta[57] = d3FdXdYdZ.get(ip1, j, k);
+		beta[58] = d3FdXdYdZ.get(i, jp1, k);
+		beta[59] = d3FdXdYdZ.get(ip1, jp1, k);
+		beta[60] = d3FdXdYdZ.get(i, j, kp1);
+		beta[61] = d3FdXdYdZ.get(ip1, j, kp1);
+		beta[62] = d3FdXdYdZ.get(i, jp1, kp1);
+		beta[63] = d3FdXdYdZ.get(ip1, jp1, kp1);		
 
-        return splines[i][j][k].value(xN, yN, zN);
-    }
+		splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
+		ticker.tick();
+	}	
     
-    //@formatter:on
+	private void build(final TrivalueProvider f, final TrivalueProvider dFdX,
+			final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
+			final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ,
+			final TrivalueProvider d3FdXdYdZ, final int lastI, 
+			final long lastI_lastJ, long index, final Ticker ticker, double[] beta)
+	{
+		int k = (int) (index / lastI_lastJ);
+		long mod = index % lastI_lastJ;
+		int j = (int) (mod / lastI);
+		int i = (int) (mod % lastI);
+		final int ip1 = i + 1;
+		final int jp1 = j + 1;
+		final int kp1 = k + 1;
+        final double xR = xscale[i];
+        final double yR = yscale[j];
+        final double xRyR = xR * yR;
+        final double zR = zscale[k];
+        final double xRzR = xR * zR;
+        final double yRzR = yR * zR;
+        final double xRyRzR = xR * yRzR;
+		
+		beta[0] = f.get(i, j, k);
+		beta[1] = f.get(ip1, j, k);
+		beta[2] = f.get(i, jp1, k);
+		beta[3] = f.get(ip1, jp1, k);
+		beta[4] = f.get(i, j, kp1);
+		beta[5] = f.get(ip1, j, kp1);
+		beta[6] = f.get(i, jp1, kp1);
+		beta[7] = f.get(ip1, jp1, kp1);
+		beta[8] = dFdX.get(i, j, k) * xR;
+		beta[9] = dFdX.get(ip1, j, k) * xR;
+		beta[10] = dFdX.get(i, jp1, k) * xR;
+		beta[11] = dFdX.get(ip1, jp1, k) * xR;
+		beta[12] = dFdX.get(i, j, kp1) * xR;
+		beta[13] = dFdX.get(ip1, j, kp1) * xR;
+		beta[14] = dFdX.get(i, jp1, kp1) * xR;
+		beta[15] = dFdX.get(ip1, jp1, kp1) * xR;
+		beta[16] = dFdY.get(i, j, k) * yR;
+		beta[17] = dFdY.get(ip1, j, k) * yR;
+		beta[18] = dFdY.get(i, jp1, k) * yR;
+		beta[19] = dFdY.get(ip1, jp1, k) * yR;
+		beta[20] = dFdY.get(i, j, kp1) * yR;
+		beta[21] = dFdY.get(ip1, j, kp1) * yR;
+		beta[22] = dFdY.get(i, jp1, kp1) * yR;
+		beta[23] = dFdY.get(ip1, jp1, kp1) * yR;
+		beta[24] = dFdZ.get(i, j, k) * zR;
+		beta[25] = dFdZ.get(ip1, j, k) * zR;
+		beta[26] = dFdZ.get(i, jp1, k) * zR;
+		beta[27] = dFdZ.get(ip1, jp1, k) * zR;
+		beta[28] = dFdZ.get(i, j, kp1) * zR;
+		beta[29] = dFdZ.get(ip1, j, kp1) * zR;
+		beta[30] = dFdZ.get(i, jp1, kp1) * zR;
+		beta[31] = dFdZ.get(ip1, jp1, kp1) * zR;
+		beta[32] = d2FdXdY.get(i, j, k) * xRyR;
+		beta[33] = d2FdXdY.get(ip1, j, k) * xRyR;
+		beta[34] = d2FdXdY.get(i, jp1, k) * xRyR;
+		beta[35] = d2FdXdY.get(ip1, jp1, k) * xRyR;
+		beta[36] = d2FdXdY.get(i, j, kp1) * xRyR;
+		beta[37] = d2FdXdY.get(ip1, j, kp1) * xRyR;
+		beta[38] = d2FdXdY.get(i, jp1, kp1) * xRyR;
+		beta[39] = d2FdXdY.get(ip1, jp1, kp1) * xRyR;
+		beta[40] = d2FdXdZ.get(i, j, k) * xRzR;
+		beta[41] = d2FdXdZ.get(ip1, j, k) * xRzR;
+		beta[42] = d2FdXdZ.get(i, jp1, k) * xRzR;
+		beta[43] = d2FdXdZ.get(ip1, jp1, k) * xRzR;
+		beta[44] = d2FdXdZ.get(i, j, kp1) * xRzR;
+		beta[45] = d2FdXdZ.get(ip1, j, kp1) * xRzR;
+		beta[46] = d2FdXdZ.get(i, jp1, kp1) * xRzR;
+		beta[47] = d2FdXdZ.get(ip1, jp1, kp1) * xRzR;
+		beta[48] = d2FdYdZ.get(i, j, k) * yRzR;
+		beta[49] = d2FdYdZ.get(ip1, j, k) * yRzR;
+		beta[50] = d2FdYdZ.get(i, jp1, k) * yRzR;
+		beta[51] = d2FdYdZ.get(ip1, jp1, k) * yRzR;
+		beta[52] = d2FdYdZ.get(i, j, kp1) * yRzR;
+		beta[53] = d2FdYdZ.get(ip1, j, kp1) * yRzR;
+		beta[54] = d2FdYdZ.get(i, jp1, kp1) * yRzR;
+		beta[55] = d2FdYdZ.get(ip1, jp1, kp1) * yRzR;
+		beta[56] = d3FdXdYdZ.get(i, j, k) * xRyRzR;
+		beta[57] = d3FdXdYdZ.get(ip1, j, k) * xRyRzR;
+		beta[58] = d3FdXdYdZ.get(i, jp1, k) * xRyRzR;
+		beta[59] = d3FdXdYdZ.get(ip1, jp1, k) * xRyRzR;
+		beta[60] = d3FdXdYdZ.get(i, j, kp1) * xRyRzR;
+		beta[61] = d3FdXdYdZ.get(ip1, j, kp1) * xRyRzR;
+		beta[62] = d3FdXdYdZ.get(i, jp1, kp1) * xRyRzR;
+		beta[63] = d3FdXdYdZ.get(ip1, jp1, kp1) * xRyRzR;
+
+		splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
+		ticker.tick();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws OutOfRangeException
+	 *             if any of the variables is outside its interpolation range.
+	 */
+	public double value(double x, double y, double z) throws OutOfRangeException
+	{
+		final int i = searchIndex(x, xval);
+		final int j = searchIndex(y, yval);
+		final int k = searchIndex(z, zval);
+
+		final double xN = (x - xval[i]) / (xval[i + 1] - xval[i]);
+		final double yN = (y - yval[j]) / (yval[j + 1] - yval[j]);
+		final double zN = (z - zval[k]) / (zval[k + 1] - zval[k]);
+
+		return splines[i][j][k].value(xN, yN, zN);
+	}
+
+	//@formatter:on
 
 	/**
 	 * @param c
@@ -859,7 +1228,7 @@ public class CustomTricubicInterpolatingFunction
 		{
 			return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k], df_da, d2f_da2);
 		}
-		
+
 		final double xN = (x - xval[i]) / xscale[i];
 		final double yN = (y - yval[j]) / yscale[j];
 		final double zN = (z - zval[k]) / zscale[k];
@@ -924,7 +1293,7 @@ public class CustomTricubicInterpolatingFunction
 		if (isInteger)
 		{
 			return splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
-		}		
+		}
 		double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
@@ -961,7 +1330,7 @@ public class CustomTricubicInterpolatingFunction
 		if (isInteger)
 		{
 			return splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
-		}		
+		}
 		double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];

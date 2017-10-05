@@ -36,6 +36,13 @@ import org.apache.commons.math3.exception.OutOfRangeException;
 public abstract class CustomTricubicFunction implements TrivariateFunction
 {
 	/**
+	 * Get a copy of he 64 coefficients for the tricubic function.
+	 *
+	 * @return the coefficients
+	 */
+	abstract public double[] getA();
+	
+	/**
 	 * Pre-compute gradient coefficients for partial derivatives.
 	 *
 	 * @param order
