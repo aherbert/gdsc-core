@@ -6,7 +6,8 @@ package gdsc.core.math.interpolation;
  * This is an extension of the 
  * org.apache.commons.math3.analysis.interpolation.TricubicInterpolatingFunction
  * 
- * Modifications have been made to allow computation of gradients.
+ * Modifications have been made to allow computation of gradients and abstraction 
+ * of the input data into value providers.
  * 
  * The code is released under the original Apache licence: 
  * 
@@ -31,8 +32,10 @@ import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NoDataException;
 import org.apache.commons.math3.exception.NonMonotonicSequenceException;
 import org.apache.commons.math3.exception.OutOfRangeException;
-import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.util.MathArrays.OrderDirection;
 
+import gdsc.core.data.TrivalueProvider;
+import gdsc.core.data.ValueProvider;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.utils.SimpleArrayUtils;
 
@@ -53,9 +56,6 @@ public class CustomTricubicInterpolatingFunction
 	/** The tolerance for checking the spline points are uniform */
 	public static final double UNIFORM_TOLERANCE = 1e-6;
 	
-	/** Set to true if the x,y,z spline points have integer values. */
-	final boolean isInteger;
-	
 	/** 
 	 * Set to true if the x,y,z spline points are uniformly spaced. 
 	 * <p>
@@ -63,6 +63,13 @@ public class CustomTricubicInterpolatingFunction
 	 * spline coefficients (see {@link #value(int, int, int, double[])})
 	 */
 	final boolean isUniform;
+	
+	/** 
+	 * Set to true if the x,y,z spline points have integer values with a grid spacing of 1.
+	 * <p>
+	 * This allows faster computation with no scaling.
+	 */
+	final boolean isInteger;
 	
 	private double[] scale;
 	
@@ -151,8 +158,7 @@ public class CustomTricubicInterpolatingFunction
 	/** The scale for y. This is the interval between y[i+1] and y[i] */
 	private final double[] yscale;
 	/** The scale for z. This is the interval between z[i+1] and z[i] */
-	private final double[] zscale;
-    
+	private final double[] zscale;    
 
     /**
      * Instantiates a new custom tricubic interpolating function.
@@ -173,74 +179,60 @@ public class CustomTricubicInterpolatingFunction
      * @throws DimensionMismatchException if the various arrays do not contain the expected number of elements.
      * @throws NonMonotonicSequenceException if {@code x}, {@code y} or {@code z} are not strictly increasing.
      */
-    public CustomTricubicInterpolatingFunction(double[] x,
-                                         double[] y,
-                                         double[] z,
-                                         double[][][] f,
-                                         double[][][] dFdX,
-                                         double[][][] dFdY,
-                                         double[][][] dFdZ,
-                                         double[][][] d2FdXdY,
-                                         double[][][] d2FdXdZ,
-                                         double[][][] d2FdYdZ,
-                                         double[][][] d3FdXdYdZ,
-                                         TrackProgress progress)
+    public CustomTricubicInterpolatingFunction(ValueProvider x,
+                                               ValueProvider y,
+                                               ValueProvider z,
+                                               TrivalueProvider f,
+                                               TrivalueProvider dFdX,
+                                               TrivalueProvider dFdY,
+                                               TrivalueProvider dFdZ,
+                                               TrivalueProvider d2FdXdY,
+                                               TrivalueProvider d2FdXdZ,
+                                               TrivalueProvider d2FdYdZ,
+                                               TrivalueProvider d3FdXdYdZ,
+                                               TrackProgress progress)
         throws NoDataException,
                DimensionMismatchException,
                NonMonotonicSequenceException {
-        final int xLen = x.length;
-        final int yLen = y.length;
-        final int zLen = z.length;
+        final int xLen = x.getMaxX();
+        final int yLen = y.getMaxX();
+        final int zLen = z.getMaxX();
 
         // The original only failed if the length was zero. However
         // this function requires two points to interpolate between so 
         // check the length is at least 2.
-        if (xLen <= 1 || yLen <= 1 || z.length <= 1 || f.length <= 1 || f[0].length <= 1) {
+        if (xLen <= 1 || yLen <= 1 || zLen <= 1) {
             throw new NoDataException();
         }
-        if (xLen != f.length) {
-            throw new DimensionMismatchException(xLen, f.length);
-        }
-        if (xLen != dFdX.length) {
-            throw new DimensionMismatchException(xLen, dFdX.length);
-        }
-        if (xLen != dFdY.length) {
-            throw new DimensionMismatchException(xLen, dFdY.length);
-        }
-        if (xLen != dFdZ.length) {
-            throw new DimensionMismatchException(xLen, dFdZ.length);
-        }
-        if (xLen != d2FdXdY.length) {
-            throw new DimensionMismatchException(xLen, d2FdXdY.length);
-        }
-        if (xLen != d2FdXdZ.length) {
-            throw new DimensionMismatchException(xLen, d2FdXdZ.length);
-        }
-        if (xLen != d2FdYdZ.length) {
-            throw new DimensionMismatchException(xLen, d2FdYdZ.length);
-        }
-        if (xLen != d3FdXdYdZ.length) {
-            throw new DimensionMismatchException(xLen, d3FdXdYdZ.length);
-        }
+        checkDimensions(xLen, yLen, zLen, f);
+        checkDimensions(xLen, yLen, zLen, dFdX);
+        checkDimensions(xLen, yLen, zLen, dFdY);
+        checkDimensions(xLen, yLen, zLen, dFdZ);
+        checkDimensions(xLen, yLen, zLen, d2FdXdY);
+        checkDimensions(xLen, yLen, zLen, d2FdXdZ);
+        checkDimensions(xLen, yLen, zLen, d2FdYdZ);
+        checkDimensions(xLen, yLen, zLen, d3FdXdYdZ);
 
-        MathArrays.checkOrder(x);
-        MathArrays.checkOrder(y);
-        MathArrays.checkOrder(z);
+        checkOrder(x);
+        checkOrder(y);
+        checkOrder(z);
+
+        xval = x.toArray();
+        yval = y.toArray();
+        zval = z.toArray();
         
-        
-        isInteger = SimpleArrayUtils.isInteger(x) && SimpleArrayUtils.isInteger(y) && SimpleArrayUtils.isInteger(z); 
     	isUniform = 
-    			SimpleArrayUtils.isUniform(x, (x[1]-x[0])*UNIFORM_TOLERANCE) && 
-    			SimpleArrayUtils.isUniform(y, (y[1]-y[0])*UNIFORM_TOLERANCE) && 
-    			SimpleArrayUtils.isUniform(z, (z[1]-z[0])*UNIFORM_TOLERANCE);
- 
-        xval = x.clone();
-        yval = y.clone();
-        zval = z.clone();
+    			SimpleArrayUtils.isUniform(xval, (xval[1]-xval[0])*UNIFORM_TOLERANCE) && 
+    			SimpleArrayUtils.isUniform(yval, (yval[1]-yval[0])*UNIFORM_TOLERANCE) && 
+    			SimpleArrayUtils.isUniform(zval, (zval[1]-zval[0])*UNIFORM_TOLERANCE);
+        isInteger = isUniform &&
+        		(SimpleArrayUtils.isInteger(xval) && (xval[1]-xval[0])==1) &&  
+        		(SimpleArrayUtils.isInteger(yval) && (yval[1]-yval[0])==1) && 
+        		(SimpleArrayUtils.isInteger(zval) && (zval[1]-zval[0])==1); 
 
-        xscale = createScale(x);
-        yscale = createScale(y);
-        zscale = createScale(z);
+        xscale = createScale(xval);
+        yscale = createScale(yval);
+        zscale = createScale(zval);
         
         final int lastI = xLen - 1;
         final int lastJ = yLen - 1;
@@ -250,115 +242,131 @@ public class CustomTricubicInterpolatingFunction
         final long total = lastI * lastJ * lastK;
         long current = 0;
         
-        for (int i = 0; i < lastI; i++) {
-            if (f[i].length != yLen) {
-                throw new DimensionMismatchException(f[i].length, yLen);
-            }
-            if (dFdX[i].length != yLen) {
-                throw new DimensionMismatchException(dFdX[i].length, yLen);
-            }
-            if (dFdY[i].length != yLen) {
-                throw new DimensionMismatchException(dFdY[i].length, yLen);
-            }
-            if (dFdZ[i].length != yLen) {
-                throw new DimensionMismatchException(dFdZ[i].length, yLen);
-            }
-            if (d2FdXdY[i].length != yLen) {
-                throw new DimensionMismatchException(d2FdXdY[i].length, yLen);
-            }
-            if (d2FdXdZ[i].length != yLen) {
-                throw new DimensionMismatchException(d2FdXdZ[i].length, yLen);
-            }
-            if (d2FdYdZ[i].length != yLen) {
-                throw new DimensionMismatchException(d2FdYdZ[i].length, yLen);
-            }
-            if (d3FdXdYdZ[i].length != yLen) {
-                throw new DimensionMismatchException(d3FdXdYdZ[i].length, yLen);
-            }
-
-            final int ip1 = i + 1;
-            final double xR = xval[ip1] - xval[i];
-            for (int j = 0; j < lastJ; j++) {
-                if (f[i][j].length != zLen) {
-                    throw new DimensionMismatchException(f[i][j].length, zLen);
+        if (isInteger)
+        {
+            // We can shortcut if a true integer grid by ignoring the scale
+            for (int i = 0; i < lastI; i++) {
+                
+                final int ip1 = i + 1;
+                for (int j = 0; j < lastJ; j++) {
+    
+                    final int jp1 = j + 1;
+                    for (int k = 0; k < lastK; k++) {
+                    	progress.progress(current++, total);
+                        final int kp1 = k + 1;
+    
+                        final double[] beta = new double[] {
+                            f.get(i,j,k), f.get(ip1,j,k),
+                            f.get(i,jp1,k), f.get(ip1,jp1,k),
+                            f.get(i,j,kp1), f.get(ip1,j,kp1),
+                            f.get(i,jp1,kp1), f.get(ip1,jp1,kp1),
+    
+                            dFdX.get(i,j,k), dFdX.get(ip1,j,k),
+                            dFdX.get(i,jp1,k), dFdX.get(ip1,jp1,k),
+                            dFdX.get(i,j,kp1), dFdX.get(ip1,j,kp1),
+                            dFdX.get(i,jp1,kp1), dFdX.get(ip1,jp1,kp1),
+    
+                            dFdY.get(i,j,k), dFdY.get(ip1,j,k),
+                            dFdY.get(i,jp1,k), dFdY.get(ip1,jp1,k),
+                            dFdY.get(i,j,kp1), dFdY.get(ip1,j,kp1),
+                            dFdY.get(i,jp1,kp1), dFdY.get(ip1,jp1,kp1),
+    
+                            dFdZ.get(i,j,k), dFdZ.get(ip1,j,k),
+                            dFdZ.get(i,jp1,k), dFdZ.get(ip1,jp1,k),
+                            dFdZ.get(i,j,kp1), dFdZ.get(ip1,j,kp1),
+                            dFdZ.get(i,jp1,kp1), dFdZ.get(ip1,jp1,kp1),
+    
+                            d2FdXdY.get(i,j,k), d2FdXdY.get(ip1,j,k),
+                            d2FdXdY.get(i,jp1,k), d2FdXdY.get(ip1,jp1,k),
+                            d2FdXdY.get(i,j,kp1), d2FdXdY.get(ip1,j,kp1),
+                            d2FdXdY.get(i,jp1,kp1), d2FdXdY.get(ip1,jp1,kp1),
+    
+                            d2FdXdZ.get(i,j,k), d2FdXdZ.get(ip1,j,k),
+                            d2FdXdZ.get(i,jp1,k), d2FdXdZ.get(ip1,jp1,k),
+                            d2FdXdZ.get(i,j,kp1), d2FdXdZ.get(ip1,j,kp1),
+                            d2FdXdZ.get(i,jp1,kp1), d2FdXdZ.get(ip1,jp1,kp1),
+    
+                            d2FdYdZ.get(i,j,k), d2FdYdZ.get(ip1,j,k),
+                            d2FdYdZ.get(i,jp1,k), d2FdYdZ.get(ip1,jp1,k),
+                            d2FdYdZ.get(i,j,kp1), d2FdYdZ.get(ip1,j,kp1),
+                            d2FdYdZ.get(i,jp1,kp1), d2FdYdZ.get(ip1,jp1,kp1),
+    
+                            d3FdXdYdZ.get(i,j,k), d3FdXdYdZ.get(ip1,j,k),
+                            d3FdXdYdZ.get(i,jp1,k), d3FdXdYdZ.get(ip1,jp1,k),
+                            d3FdXdYdZ.get(i,j,kp1), d3FdXdYdZ.get(ip1,j,kp1),
+                            d3FdXdYdZ.get(i,jp1,kp1), d3FdXdYdZ.get(ip1,jp1,kp1),
+                        };
+    
+                        // Q. Option to create as single precision?
+                        splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
+                    }
                 }
-                if (dFdX[i][j].length != zLen) {
-                    throw new DimensionMismatchException(dFdX[i][j].length, zLen);
-                }
-                if (dFdY[i][j].length != zLen) {
-                    throw new DimensionMismatchException(dFdY[i][j].length, zLen);
-                }
-                if (dFdZ[i][j].length != zLen) {
-                    throw new DimensionMismatchException(dFdZ[i][j].length, zLen);
-                }
-                if (d2FdXdY[i][j].length != zLen) {
-                    throw new DimensionMismatchException(d2FdXdY[i][j].length, zLen);
-                }
-                if (d2FdXdZ[i][j].length != zLen) {
-                    throw new DimensionMismatchException(d2FdXdZ[i][j].length, zLen);
-                }
-                if (d2FdYdZ[i][j].length != zLen) {
-                    throw new DimensionMismatchException(d2FdYdZ[i][j].length, zLen);
-                }
-                if (d3FdXdYdZ[i][j].length != zLen) {
-                    throw new DimensionMismatchException(d3FdXdYdZ[i][j].length, zLen);
-                }
-
-                final int jp1 = j + 1;
-                final double yR = yval[jp1] - yval[j];
-                final double xRyR = xR * yR;
-                for (int k = 0; k < lastK; k++) {
-                	progress.progress(current++, total);
-                    final int kp1 = k + 1;
-                    final double zR = zval[kp1] - zval[k];
-                    final double xRzR = xR * zR;
-                    final double yRzR = yR * zR;
-                    final double xRyRzR = xR * yRzR;
-
-                    final double[] beta = new double[] {
-                        f[i][j][k], f[ip1][j][k],
-                        f[i][jp1][k], f[ip1][jp1][k],
-                        f[i][j][kp1], f[ip1][j][kp1],
-                        f[i][jp1][kp1], f[ip1][jp1][kp1],
-
-                        dFdX[i][j][k] * xR, dFdX[ip1][j][k] * xR,
-                        dFdX[i][jp1][k] * xR, dFdX[ip1][jp1][k] * xR,
-                        dFdX[i][j][kp1] * xR, dFdX[ip1][j][kp1] * xR,
-                        dFdX[i][jp1][kp1] * xR, dFdX[ip1][jp1][kp1] * xR,
-
-                        dFdY[i][j][k] * yR, dFdY[ip1][j][k] * yR,
-                        dFdY[i][jp1][k] * yR, dFdY[ip1][jp1][k] * yR,
-                        dFdY[i][j][kp1] * yR, dFdY[ip1][j][kp1] * yR,
-                        dFdY[i][jp1][kp1] * yR, dFdY[ip1][jp1][kp1] * yR,
-
-                        dFdZ[i][j][k] * zR, dFdZ[ip1][j][k] * zR,
-                        dFdZ[i][jp1][k] * zR, dFdZ[ip1][jp1][k] * zR,
-                        dFdZ[i][j][kp1] * zR, dFdZ[ip1][j][kp1] * zR,
-                        dFdZ[i][jp1][kp1] * zR, dFdZ[ip1][jp1][kp1] * zR,
-
-                        d2FdXdY[i][j][k] * xRyR, d2FdXdY[ip1][j][k] * xRyR,
-                        d2FdXdY[i][jp1][k] * xRyR, d2FdXdY[ip1][jp1][k] * xRyR,
-                        d2FdXdY[i][j][kp1] * xRyR, d2FdXdY[ip1][j][kp1] * xRyR,
-                        d2FdXdY[i][jp1][kp1] * xRyR, d2FdXdY[ip1][jp1][kp1] * xRyR,
-
-                        d2FdXdZ[i][j][k] * xRzR, d2FdXdZ[ip1][j][k] * xRzR,
-                        d2FdXdZ[i][jp1][k] * xRzR, d2FdXdZ[ip1][jp1][k] * xRzR,
-                        d2FdXdZ[i][j][kp1] * xRzR, d2FdXdZ[ip1][j][kp1] * xRzR,
-                        d2FdXdZ[i][jp1][kp1] * xRzR, d2FdXdZ[ip1][jp1][kp1] * xRzR,
-
-                        d2FdYdZ[i][j][k] * yRzR, d2FdYdZ[ip1][j][k] * yRzR,
-                        d2FdYdZ[i][jp1][k] * yRzR, d2FdYdZ[ip1][jp1][k] * yRzR,
-                        d2FdYdZ[i][j][kp1] * yRzR, d2FdYdZ[ip1][j][kp1] * yRzR,
-                        d2FdYdZ[i][jp1][kp1] * yRzR, d2FdYdZ[ip1][jp1][kp1] * yRzR,
-
-                        d3FdXdYdZ[i][j][k] * xRyRzR, d3FdXdYdZ[ip1][j][k] * xRyRzR,
-                        d3FdXdYdZ[i][jp1][k] * xRyRzR, d3FdXdYdZ[ip1][jp1][k] * xRyRzR,
-                        d3FdXdYdZ[i][j][kp1] * xRyRzR, d3FdXdYdZ[ip1][j][kp1] * xRyRzR,
-                        d3FdXdYdZ[i][jp1][kp1] * xRyRzR, d3FdXdYdZ[ip1][jp1][kp1] * xRyRzR,
-                    };
-
-                    // Q. Option to create as single precision?
-                    splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
+            }        	
+        }
+        else
+        {
+            for (int i = 0; i < lastI; i++) {
+    
+                final int ip1 = i + 1;
+                final double xR = xscale[i];
+                for (int j = 0; j < lastJ; j++) {
+    
+                    final int jp1 = j + 1;
+                    final double yR = yscale[j];
+                    final double xRyR = xR * yR;
+                    for (int k = 0; k < lastK; k++) {
+                    	progress.progress(current++, total);
+                        final int kp1 = k + 1;
+                        final double zR = zscale[k];
+                        final double xRzR = xR * zR;
+                        final double yRzR = yR * zR;
+                        final double xRyRzR = xR * yRzR;
+    
+                        final double[] beta = new double[] {
+                            f.get(i,j,k), f.get(ip1,j,k),
+                            f.get(i,jp1,k), f.get(ip1,jp1,k),
+                            f.get(i,j,kp1), f.get(ip1,j,kp1),
+                            f.get(i,jp1,kp1), f.get(ip1,jp1,kp1),
+    
+                            dFdX.get(i,j,k) * xR, dFdX.get(ip1,j,k) * xR,
+                            dFdX.get(i,jp1,k) * xR, dFdX.get(ip1,jp1,k) * xR,
+                            dFdX.get(i,j,kp1) * xR, dFdX.get(ip1,j,kp1) * xR,
+                            dFdX.get(i,jp1,kp1) * xR, dFdX.get(ip1,jp1,kp1) * xR,
+    
+                            dFdY.get(i,j,k) * yR, dFdY.get(ip1,j,k) * yR,
+                            dFdY.get(i,jp1,k) * yR, dFdY.get(ip1,jp1,k) * yR,
+                            dFdY.get(i,j,kp1) * yR, dFdY.get(ip1,j,kp1) * yR,
+                            dFdY.get(i,jp1,kp1) * yR, dFdY.get(ip1,jp1,kp1) * yR,
+    
+                            dFdZ.get(i,j,k) * zR, dFdZ.get(ip1,j,k) * zR,
+                            dFdZ.get(i,jp1,k) * zR, dFdZ.get(ip1,jp1,k) * zR,
+                            dFdZ.get(i,j,kp1) * zR, dFdZ.get(ip1,j,kp1) * zR,
+                            dFdZ.get(i,jp1,kp1) * zR, dFdZ.get(ip1,jp1,kp1) * zR,
+    
+                            d2FdXdY.get(i,j,k) * xRyR, d2FdXdY.get(ip1,j,k) * xRyR,
+                            d2FdXdY.get(i,jp1,k) * xRyR, d2FdXdY.get(ip1,jp1,k) * xRyR,
+                            d2FdXdY.get(i,j,kp1) * xRyR, d2FdXdY.get(ip1,j,kp1) * xRyR,
+                            d2FdXdY.get(i,jp1,kp1) * xRyR, d2FdXdY.get(ip1,jp1,kp1) * xRyR,
+    
+                            d2FdXdZ.get(i,j,k) * xRzR, d2FdXdZ.get(ip1,j,k) * xRzR,
+                            d2FdXdZ.get(i,jp1,k) * xRzR, d2FdXdZ.get(ip1,jp1,k) * xRzR,
+                            d2FdXdZ.get(i,j,kp1) * xRzR, d2FdXdZ.get(ip1,j,kp1) * xRzR,
+                            d2FdXdZ.get(i,jp1,kp1) * xRzR, d2FdXdZ.get(ip1,jp1,kp1) * xRzR,
+    
+                            d2FdYdZ.get(i,j,k) * yRzR, d2FdYdZ.get(ip1,j,k) * yRzR,
+                            d2FdYdZ.get(i,jp1,k) * yRzR, d2FdYdZ.get(ip1,jp1,k) * yRzR,
+                            d2FdYdZ.get(i,j,kp1) * yRzR, d2FdYdZ.get(ip1,j,kp1) * yRzR,
+                            d2FdYdZ.get(i,jp1,kp1) * yRzR, d2FdYdZ.get(ip1,jp1,kp1) * yRzR,
+    
+                            d3FdXdYdZ.get(i,j,k) * xRyRzR, d3FdXdYdZ.get(ip1,j,k) * xRyRzR,
+                            d3FdXdYdZ.get(i,jp1,k) * xRyRzR, d3FdXdYdZ.get(ip1,jp1,k) * xRyRzR,
+                            d3FdXdYdZ.get(i,j,kp1) * xRyRzR, d3FdXdYdZ.get(ip1,j,kp1) * xRyRzR,
+                            d3FdXdYdZ.get(i,jp1,kp1) * xRyRzR, d3FdXdYdZ.get(ip1,jp1,kp1) * xRyRzR,
+                        };
+    
+                        // Q. Option to create as single precision?
+                        splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
+                    }
                 }
             }
         }
@@ -366,6 +374,39 @@ public class CustomTricubicInterpolatingFunction
         progress.progress(1);
     }
 
+    private static void checkDimensions(int xLen, int yLen, int zLen, TrivalueProvider f)
+	{
+        if (xLen != f.getMaxX())
+            throw new DimensionMismatchException(xLen, f.getMaxX());
+        if (yLen != f.getMaxY())
+            throw new DimensionMismatchException(yLen, f.getMaxY());
+        if (zLen != f.getMaxZ())
+            throw new DimensionMismatchException(zLen, f.getMaxZ());
+	}
+
+	/**
+     * Check that the given array is sorted.
+     * <p>
+     * Adapted from org.apache.commons.math3.util.MathArrays.checkOrder(...)
+     *
+     * @param val Values.
+     * @throws NonMonotonicSequenceException if the array is not sorted
+     */
+	static void checkOrder(ValueProvider val) throws NonMonotonicSequenceException 
+	{
+        double previous = val.get(0);
+        final int max = val.getMaxX();
+
+        for (int index = 1; index < max; index++) {
+        	double current = val.get(index);
+            if (current <= previous) {
+                throw new NonMonotonicSequenceException(current, previous, index, 
+                		OrderDirection.INCREASING, true);
+            }
+            previous = current;
+        }
+    }
+    
     private static double[] createScale(double[] x)
 	{
     	int n = x.length-1;
@@ -558,11 +599,13 @@ public class CustomTricubicInterpolatingFunction
 	 * @throws OutOfRangeException
 	 *             if the value is outside its interpolation range.
 	 */
-	private static IndexedCubicSplinePosition getSplinePosition(double[] xval, double[] xscale, double x)
+	private IndexedCubicSplinePosition getSplinePosition(double[] xval, double[] xscale, double x)
 	{
 		final int i = searchIndex(x, xval);
+		if (isInteger)
+			return new IndexedCubicSplinePosition(i, x - xval[i], false);
 		final double xN = (x - xval[i]) / xscale[i];
-		return new IndexedCubicSplinePosition(i, xN, xscale[i], false);
+		return new ScaledIndexedCubicSplinePosition(i, xN, xscale[i], false);
 	}
 
 	/**
@@ -689,6 +732,11 @@ public class CustomTricubicInterpolatingFunction
 		final int j = searchIndex(y, yval);
 		final int k = searchIndex(z, zval);
 
+		if (isInteger)
+		{
+			return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k], df_da);
+		}
+
 		final double xN = (x - xval[i]) / xscale[i];
 		final double yN = (y - yval[j]) / yscale[j];
 		final double zN = (z - zval[k]) / zscale[k];
@@ -701,7 +749,8 @@ public class CustomTricubicInterpolatingFunction
 	}
 
 	/**
-	 * Get the interpolated value and partial first-order derivatives using pre-computed spline positions.
+	 * Get the interpolated value and partial first-order derivatives using pre-computed spline positions. The positions
+	 * must be computed by this function to ensure correct scaling.
 	 *
 	 * @param x
 	 *            the x value
@@ -741,6 +790,10 @@ public class CustomTricubicInterpolatingFunction
 	 */
 	public double value(int xindex, int yindex, int zindex, double[] table, double[] df_da)
 	{
+		if (isInteger)
+		{
+			return splines[xindex][yindex][zindex].value(table, df_da);
+		}
 		double value = splines[xindex][yindex][zindex].value(table, df_da);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
@@ -768,6 +821,10 @@ public class CustomTricubicInterpolatingFunction
 	 */
 	public double value(int xindex, int yindex, int zindex, float[] table, double[] df_da)
 	{
+		if (isInteger)
+		{
+			return splines[xindex][yindex][zindex].value(table, df_da);
+		}
 		double value = splines[xindex][yindex][zindex].value(table, df_da);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
@@ -798,6 +855,11 @@ public class CustomTricubicInterpolatingFunction
 		final int j = searchIndex(y, yval);
 		final int k = searchIndex(z, zval);
 
+		if (isInteger)
+		{
+			return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k], df_da, d2f_da2);
+		}
+		
 		final double xN = (x - xval[i]) / xscale[i];
 		final double yN = (y - yval[j]) / yscale[j];
 		final double zN = (z - zval[k]) / zscale[k];
@@ -859,6 +921,10 @@ public class CustomTricubicInterpolatingFunction
 	 */
 	public double value(int xindex, int yindex, int zindex, double[] table, double[] df_da, double[] d2f_da2)
 	{
+		if (isInteger)
+		{
+			return splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
+		}		
 		double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
@@ -892,6 +958,10 @@ public class CustomTricubicInterpolatingFunction
 	 */
 	public double value(int xindex, int yindex, int zindex, float[] table, double[] df_da, double[] d2f_da2)
 	{
+		if (isInteger)
+		{
+			return splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
+		}		
 		double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];

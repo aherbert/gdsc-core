@@ -132,6 +132,17 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		return new DoubleCustomTricubicFunction(a);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value000()
+	 */
+	@Override
+	public double value000()
+	{
+		return a[0];
+	}
+
 	/**
 	 * Get the interpolated value
 	 * 
@@ -271,6 +282,20 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value000(double[])
+	 */
+	@Override
+	public double value000(double[] df_da)
+	{
+		df_da[0] = a[1];
+		df_da[1] = a[4];
+		df_da[2] = a[16];
+		return a[0];
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value1(double[], double[], double[], double[])
 	 */
 	@Override
@@ -289,20 +314,17 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		df_da[0] += a[1];
 		df_da[1] += a[4];
 		df_da[2] += a[16];
-		pXpYpZ = pX[0];
-		result += a[1] * pXpYpZ;
-		df_da[0] += a2[2] * pXpYpZ;
-		df_da[1] += a[5] * pXpYpZ;
-		df_da[2] += a[17] * pXpYpZ;
-		pXpYpZ = pX[1];
-		result += a[2] * pXpYpZ;
-		df_da[0] += a3[3] * pXpYpZ;
-		df_da[1] += a[6] * pXpYpZ;
-		df_da[2] += a[18] * pXpYpZ;
-		pXpYpZ = pX[2];
-		result += a[3] * pXpYpZ;
-		df_da[1] += a[7] * pXpYpZ;
-		df_da[2] += a[19] * pXpYpZ;
+		result += a[1] * pX[0];
+		df_da[0] += a2[2] * pX[0];
+		df_da[1] += a[5] * pX[0];
+		df_da[2] += a[17] * pX[0];
+		result += a[2] * pX[1];
+		df_da[0] += a3[3] * pX[1];
+		df_da[1] += a[6] * pX[1];
+		df_da[2] += a[18] * pX[1];
+		result += a[3] * pX[2];
+		df_da[1] += a[7] * pX[2];
+		df_da[2] += a[19] * pX[2];
 		result += a[4] * pY[0];
 		df_da[0] += a[5] * pY[0];
 		df_da[1] += a2[8] * pY[0];
@@ -665,6 +687,24 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value000(double[], double[])
+	 */
+	@Override
+	public double value000(double[] df_da, double[] d2f_da2)
+	{
+		final float[] a2 = getA2();
+		df_da[0] = a[1];
+		df_da[1] = a[4];
+		df_da[2] = a[16];
+		d2f_da2[0] = a2[2];
+		d2f_da2[1] = a2[8];
+		d2f_da2[2] = a2[32];
+		return a[0];
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value2(double[], double[], double[], double[], double[])
 	 */
 	@Override
@@ -691,27 +731,24 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		d2f_da2[1] += a2[8];
 		df_da[2] += a[16];
 		d2f_da2[2] += a2[32];
-		pXpYpZ = pX[0];
-		result += a[1] * pXpYpZ;
-		df_da[0] += a2[2] * pXpYpZ;
-		d2f_da2[0] += a6[3] * pXpYpZ;
-		df_da[1] += a[5] * pXpYpZ;
-		d2f_da2[1] += a2[9] * pXpYpZ;
-		df_da[2] += a[17] * pXpYpZ;
-		d2f_da2[2] += a2[33] * pXpYpZ;
-		pXpYpZ = pX[1];
-		result += a[2] * pXpYpZ;
-		df_da[0] += a3[3] * pXpYpZ;
-		df_da[1] += a[6] * pXpYpZ;
-		d2f_da2[1] += a2[10] * pXpYpZ;
-		df_da[2] += a[18] * pXpYpZ;
-		d2f_da2[2] += a2[34] * pXpYpZ;
-		pXpYpZ = pX[2];
-		result += a[3] * pXpYpZ;
-		df_da[1] += a[7] * pXpYpZ;
-		d2f_da2[1] += a2[11] * pXpYpZ;
-		df_da[2] += a[19] * pXpYpZ;
-		d2f_da2[2] += a2[35] * pXpYpZ;
+		result += a[1] * pX[0];
+		df_da[0] += a2[2] * pX[0];
+		d2f_da2[0] += a6[3] * pX[0];
+		df_da[1] += a[5] * pX[0];
+		d2f_da2[1] += a2[9] * pX[0];
+		df_da[2] += a[17] * pX[0];
+		d2f_da2[2] += a2[33] * pX[0];
+		result += a[2] * pX[1];
+		df_da[0] += a3[3] * pX[1];
+		df_da[1] += a[6] * pX[1];
+		d2f_da2[1] += a2[10] * pX[1];
+		df_da[2] += a[18] * pX[1];
+		d2f_da2[2] += a2[34] * pX[1];
+		result += a[3] * pX[2];
+		df_da[1] += a[7] * pX[2];
+		d2f_da2[1] += a2[11] * pX[2];
+		df_da[2] += a[19] * pX[2];
+		d2f_da2[2] += a2[35] * pX[2];
 		result += a[4] * pY[0];
 		df_da[0] += a[5] * pY[0];
 		d2f_da2[0] += a2[6] * pY[0];

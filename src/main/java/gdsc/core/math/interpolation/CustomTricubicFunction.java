@@ -589,4 +589,29 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 * @return the interpolated value.
 	 */
 	abstract public double value(float[] table, double[] df_da, double[] d2f_da2);
+
+	/**
+	 * Compute the value with no interpolation (i.e. x=0,y=0,z=0).
+	 *
+	 * @return the interpolated value.
+	 */
+	abstract public double value000();
+	/**
+	 * Compute the value and partial first-order derivatives with no interpolation (i.e. x=0,y=0,z=0).
+	 *
+	 * @param df_da
+	 *            the partial second order derivatives with respect to x,y,z
+	 * @return the interpolated value.
+	 */
+	abstract public double value000(double[] df_da);
+	/**
+	 * Compute the value and partial first-order and second-order derivatives with no interpolation (i.e. x=0,y=0,z=0).
+	 *
+	 * @param df_da
+	 *            the partial second order derivatives with respect to x,y,z
+	 * @param d2f_da2
+	 *            the partial second order derivatives with respect to x,y,z
+	 * @return the interpolated value.
+	 */
+	abstract public double value000(double[] df_da, double[] d2f_da2);
 }

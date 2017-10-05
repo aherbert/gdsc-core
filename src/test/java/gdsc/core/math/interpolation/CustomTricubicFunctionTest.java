@@ -216,6 +216,10 @@ public class CustomTricubicFunctionTest
 		{
 			_pXpYpZ = _pYpZ;
 		}
+		else if (_pYpZ.equals("1"))
+		{
+			_pXpYpZ = String.format("pX[%d]", i);
+		}
 		else
 		{
 			sb.append(String.format("pXpYpZ = pX[%d] * %s;\n", i, _pYpZ));

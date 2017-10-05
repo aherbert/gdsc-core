@@ -6,6 +6,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.util.Precision;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 import gdsc.core.test.BaseTimingTask;
@@ -123,6 +124,33 @@ public class CustomTricubicInterpolatorTest
 		Assert.assertEquals(zscale, scale[2], 0);
 	}
 
+	@Test
+	public void canDetectIfInteger()
+	{
+		int x = 3, y = 3, z = 3;
+		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
+		double[] yval = SimpleArrayUtils.newArray(y, 4, 1.0);
+		double[] zval = SimpleArrayUtils.newArray(z, 17, 1.0);
+		double[][][] fval = new double[x][y][z];
+		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
+		Assert.assertTrue(f1.isUniform);
+		Assert.assertTrue(f1.isInteger);
+		double[] bad = SimpleArrayUtils.newArray(x, 0, 2.0);
+		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(bad, yval, zval, fval).isUniform);
+		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, bad, zval, fval).isUniform);
+		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, yval, bad, fval).isUniform);
+		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(bad, yval, zval, fval).isInteger);
+		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(xval, bad, zval, fval).isInteger);
+		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(xval, yval, bad, fval).isInteger);
+
+		// Check scale. This can be used to map an interpolation point x to the 
+		// range 0-1 for power tables 
+		double[] scale = f1.getScale();
+		Assert.assertEquals(1, scale[0], 0);
+		Assert.assertEquals(1, scale[1], 0);
+		Assert.assertEquals(1, scale[2], 0);
+	}
+	
 	@Test
 	public void canInterpolate()
 	{
@@ -469,6 +497,63 @@ public class CustomTricubicInterpolatorTest
 		}
 	}
 
+	@Test
+	public void canComputeNoInterpolation()
+	{
+		new Well19937c(30051977);
+		int x = 4, y = 4, z = 4;
+		double xscale = 1, yscale = 0.5, zscale = 2.0;
+		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
+		double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
+		double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
+		double[] df_daA = new double[3];
+		double[] df_daB = new double[3];
+		double[] d2f_da2A = new double[3];
+		double[] d2f_da2B = new double[3];
+		double e, o;
+		double[][][] fval = createData(x, y, z, null);
+		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
+
+		// Extract node for testing
+		CustomTricubicFunction n1 = f1.getSplineNode(1, 1, 1);
+		CustomTricubicFunction n2 = n1.toSinglePrecision();
+
+		double[] table = CustomTricubicFunction.computePowerTable(0, 0, 0);
+		float[] ftable = CustomTricubicFunction.computeFloatPowerTable(0, 0, 0);
+
+		// Check no interpolation is correct
+		e = n1.value(table);
+		o = n1.value000();
+		Assert.assertEquals(e, o, 0);
+		
+		e = n1.value(table, df_daA);
+		o = n1.value000(df_daB);
+		Assert.assertEquals(e, o, 0);
+		Assert.assertArrayEquals(df_daA, df_daB, 0);
+
+		e = n1.value(table, df_daA, d2f_da2A);
+		o = n1.value000(df_daB, d2f_da2B);
+		Assert.assertEquals(e, o, 0);
+		Assert.assertArrayEquals(df_daA, df_daB, 0);
+		Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 0);
+
+		// Check no interpolation is correct
+		e = n2.value(ftable);
+		o = n2.value000();
+		Assert.assertEquals(e, o, 0);
+		
+		e = n2.value(ftable, df_daA);
+		o = n2.value000(df_daB);
+		Assert.assertEquals(e, o, 0);
+		Assert.assertArrayEquals(df_daA, df_daB, 0);
+
+		e = n2.value(ftable, df_daA, d2f_da2A);
+		o = n2.value000(df_daB, d2f_da2B);
+		Assert.assertEquals(e, o, 0);
+		Assert.assertArrayEquals(df_daA, df_daB, 0);
+		Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 0);
+	}
+
 	private static void assertEquals(double e, double o, double tolerance)
 	{
 		Assert.assertEquals(e, o, Math.abs(e * tolerance));
@@ -636,6 +721,8 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable()
 	{
+		Assume.assumeTrue(false);
+		
 		RandomGenerator r = new Well19937c(30051977);
 		int x = 6, y = 5, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
@@ -675,19 +762,19 @@ public class CustomTricubicInterpolatorTest
 		// Put in order to pass the speed test
 		ts.execute(new Double2TimingTask(tables, fnodes));
 		ts.execute(new Double2TimingTask(tables, nodes));
-		
+
 		ts.execute(new Float2TimingTask(ftables, nodes));
 		ts.execute(new Float2TimingTask(ftables, fnodes));
-		
+
 		ts.execute(new Double1TimingTask(tables, fnodes));
 		ts.execute(new Double1TimingTask(tables, nodes));
-		
+
 		ts.execute(new Float1TimingTask(ftables, nodes));
 		ts.execute(new Float1TimingTask(ftables, fnodes));
-		
+
 		ts.execute(new Double0TimingTask(tables, fnodes));
 		ts.execute(new Double0TimingTask(tables, nodes));
-		
+
 		ts.execute(new Float0TimingTask(ftables, nodes));
 		ts.execute(new Float0TimingTask(ftables, fnodes));
 

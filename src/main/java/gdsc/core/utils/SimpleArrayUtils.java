@@ -532,4 +532,32 @@ public class SimpleArrayUtils
 		}
 		return true;
 	}
+
+	/**
+	 * Multiply the data in-place.
+	 *
+	 * @param x
+	 *            the x
+	 * @param factor
+	 *            the factor
+	 */
+	public static void multiply(float[] x, float factor)
+	{
+		for (int i = 0; i < x.length; i++)
+			x[i] *= factor;
+	}
+
+	/**
+	 * Scale the data in-place.
+	 *
+	 * @param x
+	 *            the x
+	 * @param addition
+	 *            the scale
+	 */
+	public static void add(float[] x, float addition)
+	{
+		for (int i = 0; i < x.length; i++)
+			x[i] += addition;
+	}
 }
