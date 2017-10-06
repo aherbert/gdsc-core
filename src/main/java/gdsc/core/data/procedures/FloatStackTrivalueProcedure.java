@@ -14,7 +14,7 @@ package gdsc.core.data.procedures;
  *---------------------------------------------------------------------------*/
 
 /**
- * Custom implementation for accessing a value in three dimensions. Requires the procedure to be executed in ZYX order.
+ * Custom implementation for accessing a value in three dimensions using a stack of float data
  */
 public class FloatStackTrivalueProcedure implements TrivalueProcedure
 {
