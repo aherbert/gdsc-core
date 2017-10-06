@@ -52,10 +52,9 @@ public class FloatStackTrivalueProcedure implements TrivalueProcedure
 	 * 
 	 * @see gdsc.core.data.procedures.TrivalueProcedure#setX(int, double)
 	 */
-	public boolean setX(int i, double value)
+	public void setX(int i, double value)
 	{
 		x[i] = value;
-		return true;
 	}
 
 	/*
@@ -63,10 +62,9 @@ public class FloatStackTrivalueProcedure implements TrivalueProcedure
 	 * 
 	 * @see gdsc.core.data.procedures.TrivalueProcedure#setY(int, double)
 	 */
-	public boolean setY(int j, double value)
+	public void setY(int j, double value)
 	{
 		y[j] = value;
-		return true;
 	}
 
 	/*
@@ -74,10 +72,9 @@ public class FloatStackTrivalueProcedure implements TrivalueProcedure
 	 * 
 	 * @see gdsc.core.data.procedures.TrivalueProcedure#setZ(int, double)
 	 */
-	public boolean setZ(int k, double value)
+	public void setZ(int k, double value)
 	{
 		z[k] = value;
-		return true;
 	}
 
 	/*
@@ -85,9 +82,8 @@ public class FloatStackTrivalueProcedure implements TrivalueProcedure
 	 * 
 	 * @see gdsc.core.data.procedures.TrivalueProcedure#setValue(int, int, int, double)
 	 */
-	public boolean setValue(int i, int j, int k, double value)
+	public void setValue(int i, int j, int k, double value)
 	{
 		this.value[k][j * maxx + i] = (float) value;
-		return true;
 	}
 }

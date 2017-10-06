@@ -1651,7 +1651,7 @@ public class CustomTricubicInterpolatingFunction
 	/**
 	 * Sample the function.
 	 * <p>
-	 * n samples will be taken per node in each dimension. A final sample is taken at then end of the sample range thus
+	 * n samples will be taken per node in each dimension. A final sample is taken at the end of the sample range thus
 	 * the final range for each axis will be the current axis range.
 	 * <p>
 	 * The procedure setValue(int,int,int,double) method will be executed in ZYX order.
@@ -1688,7 +1688,7 @@ public class CustomTricubicInterpolatingFunction
 		CubicSplinePosition[] s = new CubicSplinePosition[n1];
 		for (int x = 0; x < n; x++)
 			s[x] = new CubicSplinePosition(x * step);
-		// Final interpolation point
+		// Final interpolation point must be exactly 1
 		s[n] = new CubicSplinePosition(1);
 		for (int z = 0, i = 0; z < n1; z++)
 		{
@@ -1719,8 +1719,7 @@ public class CustomTricubicInterpolatingFunction
 			}
 			xt[x] = xtable;
 			xp[x] = xposition;
-			if (!procedure.setX(x, xval[xposition] + xtable * xscale[xposition] / n))
-				return;
+			procedure.setX(x, xval[xposition] + xtable * xscale[xposition] / n);
 		}
 		final int[] yt = new int[maxy + 1];
 		final int[] yp = new int[maxy + 1];
@@ -1736,8 +1735,7 @@ public class CustomTricubicInterpolatingFunction
 			}
 			yt[y] = ytable;
 			yp[y] = yposition;
-			if (!procedure.setY(y, yval[yposition] + ytable * yscale[yposition] / n))
-				return;
+			procedure.setY(y, yval[yposition] + ytable * yscale[yposition] / n);
 		}
 		final int[] zt = new int[maxz + 1];
 		final int[] zp = new int[maxz + 1];
@@ -1753,21 +1751,21 @@ public class CustomTricubicInterpolatingFunction
 			}
 			zt[z] = ztable;
 			zp[z] = zposition;
-			if (!procedure.setZ(z, zval[zposition] + ztable * zscale[zposition] / n))
-				return;
+			procedure.setZ(z, zval[zposition] + ztable * zscale[zposition] / n);
 		}
 
 		// Write interpolated values
 		for (int z = 0; z <= maxz; z++)
 		{
 			ticker.tick();
+			final int zposition = zp[z];
 			for (int y = 0; y <= maxy; y++)
 			{
+				final int yposition = yp[y];
 				final int j = n1 * (yt[y] + n1 * zt[z]);
 				for (int x = 0; x <= maxx; x++)
 				{
-					if (!procedure.setValue(x, y, z, value(xp[x], yp[y], zp[z], tables[j + xt[x]])))
-						return;
+					procedure.setValue(x, y, z, value(xp[x], yposition, zposition, tables[j + xt[x]]));
 				}
 			}
 		}

@@ -14,12 +14,13 @@ package gdsc.core.data.procedures;
  *---------------------------------------------------------------------------*/
 
 /**
- * Interface for accessing a value in three dimensions
+ * Interface for accessing a value in three dimensions.
  */
 public interface TrivalueProcedure
 {
 	/**
-	 * Sets the dimensions.
+	 * Sets the dimensions. This will be called first to allow the procedure to prepare to process the results. If the
+	 * dimensions cannot be processed then return false to abort.
 	 *
 	 * @param maxx
 	 *            the maxx
@@ -38,9 +39,8 @@ public interface TrivalueProcedure
 	 *            the index
 	 * @param value
 	 *            the value
-	 * @return true, if it is OK to continue
 	 */
-	boolean setX(int i, double value);
+	void setX(int i, double value);
 
 	/**
 	 * Sets the Y axis value.
@@ -49,9 +49,8 @@ public interface TrivalueProcedure
 	 *            the index
 	 * @param value
 	 *            the value
-	 * @return true, if it is OK to continue
 	 */
-	boolean setY(int j, double value);
+	void setY(int j, double value);
 
 	/**
 	 * Sets the Z axis value.
@@ -60,9 +59,8 @@ public interface TrivalueProcedure
 	 *            the index
 	 * @param value
 	 *            the value
-	 * @return true, if it is OK to continue
 	 */
-	boolean setZ(int k, double value);
+	void setZ(int k, double value);
 
 	/**
 	 * Set the value.
@@ -75,7 +73,6 @@ public interface TrivalueProcedure
 	 *            the z index
 	 * @param value
 	 *            the value
-	 * @return true, if it is OK to continue
 	 */
-	boolean setValue(int i, int j, int k, double value);
+	void setValue(int i, int j, int k, double value);
 }
