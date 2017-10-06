@@ -560,4 +560,185 @@ public class SimpleArrayUtils
 		for (int i = 0; i < x.length; i++)
 			x[i] += addition;
 	}
+
+	/**
+	 * Multiply the data in-place.
+	 *
+	 * @param x
+	 *            the x
+	 * @param factor
+	 *            the factor
+	 */
+	public static void multiply(double[] x, double factor)
+	{
+		for (int i = 0; i < x.length; i++)
+			x[i] *= factor;
+	}
+
+	/**
+	 * Scale the data in-place.
+	 *
+	 * @param x
+	 *            the x
+	 * @param addition
+	 *            the scale
+	 */
+	public static void add(double[] x, double addition)
+	{
+		for (int i = 0; i < x.length; i++)
+			x[i] += addition;
+	}
+
+	/**
+	 * Find min index
+	 *
+	 * @param data
+	 *            the data
+	 * @return the min index
+	 */
+	public static int findMinIndex(int[] data)
+	{
+		int min = 0;
+		for (int i = 0; i < data.length; i++)
+			if (data[i] < data[min])
+				min = i;
+		return min;
+	}
+
+	/**
+	 * Find max index.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the max index
+	 */
+	public static int findMaxIndex(int[] data)
+	{
+		int max = 0;
+		for (int i = 0; i < data.length; i++)
+			if (data[i] > data[max])
+				max = i;
+		return max;
+	}
+
+	/**
+	 * Find min index
+	 *
+	 * @param data
+	 *            the data
+	 * @return the min/max index
+	 */
+	public static int[] findMinMaxIndex(int[] data)
+	{
+		int min = 0, max = 0;
+
+		for (int i = 0; i < data.length; i++)
+			if (data[i] < data[min])
+				min = i;
+			else if (data[i] > data[min])
+				max = i;
+		return new int[] { min, max };
+	}
+	
+	/**
+	 * Find min index
+	 *
+	 * @param data
+	 *            the data
+	 * @return the min index
+	 */
+	public static int findMinIndex(float[] data)
+	{
+		int min = 0;
+		for (int i = 0; i < data.length; i++)
+			if (data[i] < data[min])
+				min = i;
+		return min;
+	}
+
+	/**
+	 * Find max index.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the max index
+	 */
+	public static int findMaxIndex(float[] data)
+	{
+		int max = 0;
+		for (int i = 0; i < data.length; i++)
+			if (data[i] > data[max])
+				max = i;
+		return max;
+	}
+
+	/**
+	 * Find min index
+	 *
+	 * @param data
+	 *            the data
+	 * @return the min/max index
+	 */
+	public static int[] findMinMaxIndex(float[] data)
+	{
+		int min = 0, max = 0;
+
+		for (int i = 0; i < data.length; i++)
+			if (data[i] < data[min])
+				min = i;
+			else if (data[i] > data[min])
+				max = i;
+		return new int[] { min, max };
+	}
+
+	/**
+	 * Find min index
+	 *
+	 * @param data
+	 *            the data
+	 * @return the min index
+	 */
+	public static int findMinIndex(double[] data)
+	{
+		int min = 0;
+		for (int i = 0; i < data.length; i++)
+			if (data[i] < data[min])
+				min = i;
+		return min;
+	}
+
+	/**
+	 * Find max index.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the max index
+	 */
+	public static int findMaxIndex(double[] data)
+	{
+		int max = 0;
+		for (int i = 0; i < data.length; i++)
+			if (data[i] > data[max])
+				max = i;
+		return max;
+	}
+
+	/**
+	 * Find min index
+	 *
+	 * @param data
+	 *            the data
+	 * @return the min/max index
+	 */
+	public static int[] findMinMaxIndex(double[] data)
+	{
+		int min = 0, max = 0;
+
+		for (int i = 0; i < data.length; i++)
+			if (data[i] < data[min])
+				min = i;
+			else if (data[i] > data[min])
+				max = i;
+		return new int[] { min, max };
+	}
 }
