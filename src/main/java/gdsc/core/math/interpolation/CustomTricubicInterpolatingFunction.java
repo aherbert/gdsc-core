@@ -1631,15 +1631,41 @@ public class CustomTricubicInterpolatingFunction
 	 * <p>
 	 * n samples will be taken per node in each dimension. A final sample is taken at then end of the sample range thus
 	 * the final range for each axis will be the current axis range.
+	 * <p>
+	 * The procedure setValue(int,int,int,double) method will be executed in ZYX order.
 	 *
 	 * @param n
 	 *            the number of samples per spline node
 	 * @param procedure
 	 *            the procedure
+	 * @param progress
+	 *            the progress
 	 * @throws IllegalArgumentException
 	 *             If the number of sample is not positive
 	 */
 	public void sample(int n, TrivalueProcedure procedure) throws IllegalArgumentException
+	{
+		sample(n, procedure, null);
+	}
+
+	/**
+	 * Sample the function.
+	 * <p>
+	 * n samples will be taken per node in each dimension. A final sample is taken at then end of the sample range thus
+	 * the final range for each axis will be the current axis range.
+	 * <p>
+	 * The procedure setValue(int,int,int,double) method will be executed in ZYX order.
+	 *
+	 * @param n
+	 *            the number of samples per spline node
+	 * @param procedure
+	 *            the procedure
+	 * @param progress
+	 *            the progress
+	 * @throws IllegalArgumentException
+	 *             If the number of sample is not positive
+	 */
+	public void sample(int n, TrivalueProcedure procedure, TrackProgress progress) throws IllegalArgumentException
 	{
 		if (n < 1)
 			throw new IllegalArgumentException("Samples must be positive");
@@ -1650,6 +1676,9 @@ public class CustomTricubicInterpolatingFunction
 		final int maxz = (getMaxZSplinePosition() + 1) * n;
 		if (!procedure.setDimensions(maxx + 1, maxy + 1, maxz + 1))
 			return;
+
+		Ticker ticker = Ticker.create(progress, maxz + 1, false);
+		ticker.start();
 
 		// Pre-compute interpolation tables
 		// Use an extra one to have the final x=1 interpolation point.
@@ -1731,6 +1760,7 @@ public class CustomTricubicInterpolatingFunction
 		// Write interpolated values
 		for (int z = 0; z <= maxz; z++)
 		{
+			ticker.tick();
 			for (int y = 0; y <= maxy; y++)
 			{
 				final int j = n1 * (yt[y] + n1 * zt[z]);
@@ -1741,6 +1771,8 @@ public class CustomTricubicInterpolatingFunction
 				}
 			}
 		}
+
+		ticker.stop();
 	}
 
 	//@formatter:off
