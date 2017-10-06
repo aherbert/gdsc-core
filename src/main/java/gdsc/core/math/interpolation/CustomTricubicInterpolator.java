@@ -58,6 +58,168 @@ public class CustomTricubicInterpolator
 	private ExecutorService executorService;
 	private long taskSize = 1000;
 
+	/**
+	 * A builder for the CustomTricubicInterpolator.
+	 */
+	public static class Builder
+	{
+		ValueProvider xval;
+        ValueProvider yval;
+        ValueProvider zval;
+        TrivalueProvider fval;		
+    	TrackProgress progress;
+    	ExecutorService executorService;
+    	long taskSize;
+    	
+    	/**
+	     * Sets the X value.
+	     *
+	     * @param x the x value
+	     * @return the builder
+	     */
+	    public Builder setXValue(double[] x)
+    	{
+    		xval = new DoubleArrayValueProvider(x);
+    		return this;
+    	}
+	    
+    	/**
+	     * Sets the X value.
+	     *
+	     * @param x the x value
+	     * @return the builder
+	     */
+	    public Builder setXValue(ValueProvider x)
+    	{
+    		xval = x;
+    		return this;
+    	}
+	    
+    	/**
+	     * Sets the Y value.
+	     *
+	     * @param y the y value
+	     * @return the builder
+	     */
+	    public Builder setYValue(double[] y)
+    	{
+    		yval = new DoubleArrayValueProvider(y);
+    		return this;
+    	}
+	    
+    	/**
+	     * Sets the Y value.
+	     *
+	     * @param y the y value
+	     * @return the builder
+	     */
+	    public Builder setYValue(ValueProvider y)
+    	{
+    		yval = y;
+    		return this;
+    	}
+	    
+    	/**
+	     * Sets the Z value.
+	     *
+	     * @param z the z value
+	     * @return the builder
+	     */
+	    public Builder setZValue(double[] z)
+    	{
+    		zval = new DoubleArrayValueProvider(z);
+    		return this;
+    	}
+	    
+    	/**
+	     * Sets the Z value.
+	     *
+	     * @param z the z value
+	     * @return the builder
+	     */
+	    public Builder setZValue(ValueProvider z)
+    	{
+    		zval = z;
+    		return this;
+    	}
+
+    	/**
+	     * Sets the function value.
+	     *
+	     * @param z the function value
+	     * @return the builder
+	     */
+	    public Builder setFValue(double[][][] f)
+    	{
+    		fval = new DoubleArrayTrivalueProvider(f);
+    		return this;
+    	}
+	    
+    	/**
+	     * Sets the function value.
+	     *
+	     * @param z the function value
+	     * @return the builder
+	     */
+	    public Builder setFValue(TrivalueProvider f)
+    	{
+    		fval = f;
+    		return this;
+    	}
+	    
+    	/**
+    	 * Sets the progress tracker.
+    	 *
+    	 * @param progress the new progress tracker
+	     * @return the builder
+    	 */
+    	public Builder setProgress(TrackProgress progress)
+    	{
+    		this.progress = progress;
+    		return this;
+    	}
+    	
+    	/**
+    	 * Sets the executor service for interpolating.
+    	 *
+    	 * @param executorService the new executor service
+	     * @return the builder
+    	 */
+    	public Builder setExecutorService(ExecutorService executorService)
+    	{
+    		this.executorService = executorService;
+    		return this;
+    	}
+
+    	/**
+    	 * Sets the task size for multi-threaded interpolation. If the number of interpolation 
+    	 * nodes is less than this then multi-threading is not used.
+    	 *
+    	 * @param taskSize the new task size
+	     * @return the builder
+    	 */
+    	public Builder setTaskSize(long taskSize)
+    	{
+    		this.taskSize = taskSize;
+    		return this;
+    	}
+
+        /**
+         * Compute an interpolating function for the dataset.
+         *
+         * @return the custom tricubic interpolating function
+         */
+        public CustomTricubicInterpolatingFunction interpolate()
+        {
+        	CustomTricubicInterpolator i = new CustomTricubicInterpolator();
+        	i.setProgress(progress);
+        	if (taskSize > 0)
+        		i.setTaskSize(taskSize);
+        	i.setExecutorService(executorService);
+        	return i.interpolate(xval, yval, zval, fval);
+        }  	
+	}
+	
     /**
      * {@inheritDoc}
      */
