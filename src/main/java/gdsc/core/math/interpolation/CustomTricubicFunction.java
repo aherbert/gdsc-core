@@ -41,7 +41,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 * @return the coefficients
 	 */
 	abstract public double[] getA();
-	
+
 	/**
 	 * Pre-compute gradient coefficients for partial derivatives.
 	 *
@@ -603,6 +603,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 * @return the interpolated value.
 	 */
 	abstract public double value000();
+
 	/**
 	 * Compute the value and partial first-order derivatives with no interpolation (i.e. x=0,y=0,z=0).
 	 *
@@ -611,6 +612,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 * @return the interpolated value.
 	 */
 	abstract public double value000(double[] df_da);
+
 	/**
 	 * Compute the value and partial first-order and second-order derivatives with no interpolation (i.e. x=0,y=0,z=0).
 	 *

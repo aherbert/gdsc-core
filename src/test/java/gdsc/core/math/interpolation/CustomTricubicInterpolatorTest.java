@@ -12,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 
+import gdsc.core.data.procedures.StandardTrivalueProcedure;
 import gdsc.core.test.BaseTimingTask;
 import gdsc.core.test.TimingService;
 import gdsc.core.utils.DoubleEquality;
@@ -803,7 +804,7 @@ public class CustomTricubicInterpolatorTest
 	{
 		canComputeWithExecutorService(1, 1, 1);
 	}
-	
+
 	private void canComputeWithExecutorService(double xscale, double yscale, double zscale)
 	{
 		new Well19937c(30051977);
@@ -829,6 +830,54 @@ public class CustomTricubicInterpolatorTest
 					DoubleCustomTricubicFunction n1 = (DoubleCustomTricubicFunction) f1.getSplineNode(i, j, k);
 					DoubleCustomTricubicFunction n2 = (DoubleCustomTricubicFunction) f2.getSplineNode(i, j, k);
 					Assert.assertArrayEquals(n1.getA(), n2.getA(), 0);
+				}
+	}
+
+	@Test
+	public void canSampleInterpolatedFunctionWithN1()
+	{
+		canSampleInterpolatedFunction(1);
+	}
+
+	@Test
+	public void canSampleInterpolatedFunctionWithN2()
+	{
+		canSampleInterpolatedFunction(2);
+	}
+
+	@Test
+	public void canSampleInterpolatedFunctionWithN3()
+	{
+		canSampleInterpolatedFunction(3);
+	}
+
+	private void canSampleInterpolatedFunction(int n)
+	{
+		new Well19937c(30051977);
+		int x = 6, y = 5, z = 4;
+		// Make it easy to have exact matching
+		double xscale = 2.0, yscale = 2.0, zscale = 2.0;
+		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
+		double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
+		double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
+		double[][][] fval = createData(x, y, z, null);
+
+		CustomTricubicInterpolator interpolator = new CustomTricubicInterpolator();
+		CustomTricubicInterpolatingFunction f1 = interpolator.interpolate(xval, yval, zval, fval);
+
+		StandardTrivalueProcedure p = new StandardTrivalueProcedure();
+		f1.sample(n, p);
+
+		Assert.assertArrayEquals(SimpleArrayUtils.newArray((x - 1) * n + 1, 0, xscale / n), p.x, 1e-6);
+		Assert.assertArrayEquals(SimpleArrayUtils.newArray((y - 1) * n + 1, 0, yscale / n), p.y, 1e-6);
+		Assert.assertArrayEquals(SimpleArrayUtils.newArray((z - 1) * n + 1, 0, zscale / n), p.z, 1e-6);
+
+		for (int i = 0; i < p.x.length; i++)
+			for (int j = 0; j < p.y.length; j++)
+				for (int k = 0; k < p.z.length; k++)
+				{
+					// Test original function interpolated value against the sample
+					assertEquals(f1.value(p.x[i], p.y[j], p.z[k]), p.value[i][j][k], 1e-8);
 				}
 	}
 }

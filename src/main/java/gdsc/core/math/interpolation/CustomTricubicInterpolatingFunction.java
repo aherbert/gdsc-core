@@ -39,9 +39,11 @@ import org.apache.commons.math3.util.MathArrays.OrderDirection;
 
 import gdsc.core.data.TrivalueProvider;
 import gdsc.core.data.ValueProvider;
+import gdsc.core.data.procedures.TrivalueProcedure;
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.Ticker;
 import gdsc.core.logging.TrackProgress;
+import gdsc.core.utils.Maths;
 import gdsc.core.utils.SimpleArrayUtils;
 import gdsc.core.utils.TurboList;
 
@@ -1619,6 +1621,123 @@ public class CustomTricubicInterpolatingFunction
 				for (int k = maxk; k-- > 0;)
 				{
 					splines[i][j][k] = splines[i][j][k].toDoublePrecision();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Sample the function.
+	 * <p>
+	 * n samples will be taken per node in each dimension. A final sample is taken at then end of the sample range thus
+	 * the final range for each axis will be the current axis range.
+	 *
+	 * @param n
+	 *            the number of samples per spline node
+	 * @param procedure
+	 *            the procedure
+	 * @throws IllegalArgumentException
+	 *             If the number of sample is not positive
+	 */
+	public void sample(int n, TrivalueProcedure procedure) throws IllegalArgumentException
+	{
+		if (n < 1)
+			throw new IllegalArgumentException("Samples must be positive");
+
+		// We can interpolate all nodes n-times plus a final point at the last node
+		final int maxx = (getMaxXSplinePosition() + 1) * n;
+		final int maxy = (getMaxYSplinePosition() + 1) * n;
+		final int maxz = (getMaxZSplinePosition() + 1) * n;
+		if (!procedure.setDimensions(maxx + 1, maxy + 1, maxz + 1))
+			return;
+
+		// Pre-compute interpolation tables
+		// Use an extra one to have the final x=1 interpolation point.
+		final int n1 = n + 1;
+		final double step = 1.0 / n;
+		double[][] tables = new double[Maths.pow3(n1)][];
+		CubicSplinePosition[] s = new CubicSplinePosition[n1];
+		for (int x = 0; x < n; x++)
+			s[x] = new CubicSplinePosition(x * step);
+		// Final interpolation point
+		s[n] = new CubicSplinePosition(1);
+		for (int z = 0, i = 0; z < n1; z++)
+		{
+			CubicSplinePosition sz = s[z];
+			for (int y = 0; y < n1; y++)
+			{
+				CubicSplinePosition sy = s[y];
+				for (int x = 0; x < n1; x++, i++)
+				{
+					tables[i] = CustomTricubicFunction.computePowerTable(s[x], sy, sz);
+				}
+			}
+		}
+
+		// Write axis values
+		// Cache the table and the spline position to use for each interpolation point 
+		final int[] xt = new int[maxx + 1];
+		final int[] xp = new int[maxx + 1];
+		for (int x = 0; x <= maxx; x++)
+		{
+			int xposition = x / n;
+			int xtable = x % n;
+			if (x == maxx)
+			{
+				// Final interpolation point
+				xposition--;
+				xtable = n;
+			}
+			xt[x] = xtable;
+			xp[x] = xposition;
+			if (!procedure.setX(x, xval[xposition] + xtable * xscale[xposition] / n))
+				return;
+		}
+		final int[] yt = new int[maxy + 1];
+		final int[] yp = new int[maxy + 1];
+		for (int y = 0; y <= maxy; y++)
+		{
+			int yposition = y / n;
+			int ytable = y % n;
+			if (y == maxy)
+			{
+				// Final interpolation point
+				yposition--;
+				ytable = n;
+			}
+			yt[y] = ytable;
+			yp[y] = yposition;
+			if (!procedure.setY(y, yval[yposition] + ytable * yscale[yposition] / n))
+				return;
+		}
+		final int[] zt = new int[maxz + 1];
+		final int[] zp = new int[maxz + 1];
+		for (int z = 0; z <= maxz; z++)
+		{
+			int zposition = z / n;
+			int ztable = z % n;
+			if (z == maxz)
+			{
+				// Final interpolation point
+				zposition--;
+				ztable = n;
+			}
+			zt[z] = ztable;
+			zp[z] = zposition;
+			if (!procedure.setZ(z, zval[zposition] + ztable * zscale[zposition] / n))
+				return;
+		}
+
+		// Write interpolated values
+		for (int z = 0; z <= maxz; z++)
+		{
+			for (int y = 0; y <= maxy; y++)
+			{
+				final int j = n1 * (yt[y] + n1 * zt[z]);
+				for (int x = 0; x <= maxx; x++)
+				{
+					if (!procedure.setValue(x, y, z, value(xp[x], yp[y], zp[z], tables[j + xt[x]])))
+						return;
 				}
 			}
 		}
