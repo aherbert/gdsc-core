@@ -32,6 +32,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Label;
 import java.awt.Panel;
+import java.awt.Point;
 import java.awt.ScrollPane;
 import java.awt.Scrollbar;
 import java.awt.TextField;
@@ -1190,7 +1191,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	{
 		if (resetRecorder && Recorder.record)
 			resetRecorder();
-		super.showDialog();
+		showDialog();
 	}
 
 	/**
@@ -1408,5 +1409,16 @@ public class ExtendedGenericDialog extends GenericDialog
 		if (getMessage() != null)
 			return true;
 		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.awt.Window#setLocation(java.awt.Point)
+	 */
+	public void setLocation(Point location)
+	{
+		if (location != null)
+			setLocation(location.x, location.y);
 	}
 }
