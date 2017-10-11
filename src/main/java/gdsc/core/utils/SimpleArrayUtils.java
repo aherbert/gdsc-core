@@ -548,6 +548,20 @@ public class SimpleArrayUtils
 	}
 
 	/**
+	 * Multiply the data in-place.
+	 *
+	 * @param x
+	 *            the x
+	 * @param factor
+	 *            the factor
+	 */
+	public static void multiply(float[] x, double factor)
+	{
+		for (int i = 0; i < x.length; i++)
+			x[i] *= factor;
+	}
+
+	/**
 	 * Scale the data in-place.
 	 *
 	 * @param x
