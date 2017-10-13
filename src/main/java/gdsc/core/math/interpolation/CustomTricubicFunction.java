@@ -43,14 +43,6 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	abstract public double[] getA();
 
 	/**
-	 * Pre-compute gradient coefficients for partial derivatives.
-	 *
-	 * @param order
-	 *            the order (<=2)
-	 */
-	abstract void precomputeGradientCoefficients(int order);
-
-	/**
 	 * Convert this instance to single precision.
 	 *
 	 * @return the custom tricubic function
@@ -349,6 +341,55 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	}
 
 	/**
+	 * Convert a length 64 array to a double
+	 *
+	 * @param f
+	 *            the array
+	 * @return the double array
+	 */
+	protected static double[] toDouble(float[] f)
+	{
+		final double[] d = new double[64];
+		for (int i = 0; i < 64; i++)
+			d[i] = f[i];
+		return d;
+	}
+
+	/**
+	 * Scale the power table. The scaled table can be used for fast computation of the gradients.
+	 *
+	 * @param table
+	 *            the table
+	 * @param n
+	 *            the scale
+	 * @return the scaled table
+	 */
+	public static double[] scalePowerTable(double[] table, int n)
+	{
+		final double[] tableN = new double[64];
+		for (int i = 0; i < 64; i++)
+			tableN[i] = n * table[i];
+		return tableN;
+	}
+
+	/**
+	 * Scale the power table. The scaled table can be used for fast computation of the gradients.
+	 *
+	 * @param table
+	 *            the table
+	 * @param n
+	 *            the scale
+	 * @return the scaled table
+	 */
+	public static float[] scalePowerTable(float[] table, int n)
+	{
+		final float[] tableN = new float[64];
+		for (int i = 0; i < 64; i++)
+			tableN[i] = n * table[i];
+		return tableN;
+	}
+
+	/**
 	 * Get the value using a pre-computed power table.
 	 *
 	 * @param table
@@ -476,6 +517,36 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	abstract public double value(float[] table, double[] df_da);
 
 	/**
+	 * Compute the value and partial first-order derivatives using pre-computed power table.
+	 *
+	 * @param table
+	 *            the power table
+	 * @param table2
+	 *            the power table multiplied by 2
+	 * @param table3
+	 *            the power table multiplied by 3
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 * @return the interpolated value.
+	 */
+	abstract public double value(double[] table, double[] table2, double[] table3, double[] df_da);
+
+	/**
+	 * Compute the value and partial first-order derivatives using pre-computed power table.
+	 *
+	 * @param table
+	 *            the power table
+	 * @param table2
+	 *            the power table multiplied by 2
+	 * @param table3
+	 *            the power table multiplied by 2
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 * @return the interpolated value.
+	 */
+	abstract public double value(float[] table, float[] table2, float[] table3, double[] df_da);
+
+	/**
 	 * Compute the value and partial first-order and second-order derivatives
 	 * <p>
 	 * WARNING: The gradients will be unscaled.
@@ -596,6 +667,46 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 * @return the interpolated value.
 	 */
 	abstract public double value(float[] table, double[] df_da, double[] d2f_da2);
+
+	/**
+	 * Compute the value and partial first-order and second-order derivatives using pre-computed power table.
+	 *
+	 * @param table
+	 *            the power table
+	 * @param table2
+	 *            the power table multiplied by 2
+	 * @param table3
+	 *            the power table multiplied by 3
+	 * @param table6
+	 *            the power table multiplied by 6
+	 * @param df_da
+	 *            the partial second order derivatives with respect to x,y,z
+	 * @param d2f_da2
+	 *            the partial second order derivatives with respect to x,y,z
+	 * @return the interpolated value.
+	 */
+	abstract public double value(double[] table, double[] table2, double[] table3, double[] table6, double[] df_da,
+			double[] d2f_da2);
+
+	/**
+	 * Compute the value and partial first-order and second-order derivatives using pre-computed power table.
+	 *
+	 * @param table
+	 *            the power table
+	 * @param table2
+	 *            the power table multiplied by 2
+	 * @param table3
+	 *            the power table multiplied by 3
+	 * @param table6
+	 *            the power table multiplied by 6
+	 * @param df_da
+	 *            the partial second order derivatives with respect to x,y,z
+	 * @param d2f_da2
+	 *            the partial second order derivatives with respect to x,y,z
+	 * @return the interpolated value.
+	 */
+	abstract public double value(float[] table, float[] table2, float[] table3, float[] table6, double[] df_da,
+			double[] d2f_da2);
 
 	/**
 	 * Compute the value with no interpolation (i.e. x=0,y=0,z=0).

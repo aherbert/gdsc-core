@@ -64,6 +64,15 @@ public class CustomTricubicInterpolatingFunction
 	/** The tolerance for checking the spline points are uniform */
 	public static final double UNIFORM_TOLERANCE = 1e-6;
 	
+	/** The tolerance for checking the spline point spacing is integer */
+	public static final double INTEGER_TOLERANCE = 1e-6;
+	
+	/** The upper tolerance for checking the spline point spacing is integer */
+	private static final double ONE_UPPER  = 1.0 + INTEGER_TOLERANCE;
+	
+	/** The lower tolerance for checking the spline point spacing is integer */
+	private static final double ONE_LOWER  = 1.0 - INTEGER_TOLERANCE;
+
 	/** 
 	 * Set to true if the x,y,z spline points are uniformly spaced. 
 	 * <p>
@@ -73,7 +82,8 @@ public class CustomTricubicInterpolatingFunction
 	final boolean isUniform;
 	
 	/** 
-	 * Set to true if the x,y,z spline points have integer values with a grid spacing of 1.
+	 * Set to true if the x,y,z spline points have a grid spacing of 1. 
+	 * Note that the spline points may not be integer values, only the spacing between them.
 	 * <p>
 	 * This allows faster computation with no scaling.
 	 */
@@ -239,9 +249,9 @@ public class CustomTricubicInterpolatingFunction
     			SimpleArrayUtils.isUniform(yval, (yval[1]-yval[0])*UNIFORM_TOLERANCE) && 
     			SimpleArrayUtils.isUniform(zval, (zval[1]-zval[0])*UNIFORM_TOLERANCE);
         isInteger = isUniform &&
-        		(SimpleArrayUtils.isInteger(xval) && (xval[1]-xval[0])==1) &&  
-        		(SimpleArrayUtils.isInteger(yval) && (yval[1]-yval[0])==1) && 
-        		(SimpleArrayUtils.isInteger(zval) && (zval[1]-zval[0])==1); 
+        		(isInteger(xval)) &&  
+           		(isInteger(yval)) &&  
+           		(isInteger(zval)); 
 
         xscale = createScale(xval);
         yscale = createScale(yval);
@@ -571,7 +581,7 @@ public class CustomTricubicInterpolatingFunction
         ticker.stop();
     }
 
-    private static void checkDimensions(int xLen, int yLen, int zLen, TrivalueProvider f)
+	private static void checkDimensions(int xLen, int yLen, int zLen, TrivalueProvider f)
 	{
         if (xLen != f.getMaxX())
             throw new DimensionMismatchException(xLen, f.getMaxX());
@@ -603,6 +613,18 @@ public class CustomTricubicInterpolatingFunction
             previous = current;
         }
     }
+
+	private boolean isInteger(double[] x)
+	{
+		// Test the full range can be divided into integer steps
+		int upper = x.length-1;
+		return isOne(Math.abs(x[0] - x[upper]) / upper);
+	}
+
+    private static boolean isOne(double abs)
+	{
+		return abs > ONE_LOWER && abs < ONE_UPPER;
+	}  
     
     private static double[] createScale(double[] x)
 	{
@@ -1204,6 +1226,78 @@ public class CustomTricubicInterpolatingFunction
 	}
 
 	/**
+	 * Get the interpolated value and partial first-order derivatives using pre-computed spline coefficient power table.
+	 *
+	 * @param xindex
+	 *            the x spline position
+	 * @param yindex
+	 *            the y spline position
+	 * @param zindex
+	 *            the z spline position
+	 * @param table
+	 *            the power table
+	 * @param table2
+	 *            the power table scaled by 2
+	 * @param table3
+	 *            the power table scaled by 3
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 * @return the value
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if the spline node does not exist
+	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
+	 */
+	public double value(int xindex, int yindex, int zindex, double[] table, double[] table2, double[] table3,
+			double[] df_da)
+	{
+		if (isInteger)
+		{
+			return splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
+		}
+		double value = splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
+		df_da[0] /= xscale[xindex];
+		df_da[1] /= yscale[yindex];
+		df_da[2] /= zscale[zindex];
+		return value;
+	}
+
+	/**
+	 * Get the interpolated value and partial first-order derivatives using pre-computed spline coefficient power table.
+	 *
+	 * @param xindex
+	 *            the x spline position
+	 * @param yindex
+	 *            the y spline position
+	 * @param zindex
+	 *            the z spline position
+	 * @param table
+	 *            the power table
+	 * @param table2
+	 *            the power table scaled by 2
+	 * @param table3
+	 *            the power table scaled by 3
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 * @return the value
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if the spline node does not exist
+	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
+	 */
+	public double value(int xindex, int yindex, int zindex, float[] table, float[] table2, float[] table3,
+			double[] df_da)
+	{
+		if (isInteger)
+		{
+			return splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
+		}
+		double value = splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
+		df_da[0] /= xscale[xindex];
+		df_da[1] /= yscale[yindex];
+		df_da[2] /= zscale[zindex];
+		return value;
+	}
+
+	/**
 	 * Get the interpolated value and partial first-order and second-order derivatives.
 	 *
 	 * @param x
@@ -1334,6 +1428,94 @@ public class CustomTricubicInterpolatingFunction
 			return splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
 		}
 		double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
+		df_da[0] /= xscale[xindex];
+		df_da[1] /= yscale[yindex];
+		df_da[2] /= zscale[zindex];
+		d2f_da2[0] /= xscale[xindex] * xscale[xindex];
+		d2f_da2[1] /= yscale[yindex] * yscale[yindex];
+		d2f_da2[2] /= zscale[zindex] * zscale[zindex];
+		return value;
+	}
+
+	/**
+	 * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
+	 * coefficient power table.
+	 *
+	 * @param xindex
+	 *            the x spline position
+	 * @param yindex
+	 *            the y spline position
+	 * @param zindex
+	 *            the z spline position
+	 * @param table
+	 *            the power table
+	 * @param table2
+	 *            the power table scaled by 2
+	 * @param table3
+	 *            the power table scaled by 3
+	 * @param table6
+	 *            the power table scaled by 6
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 * @param d2f_da2
+	 *            the partial second order derivatives with respect to x,y,z
+	 * @return the value
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if the spline node does not exist
+	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
+	 */
+	public double value(int xindex, int yindex, int zindex, double[] table, double[] table2, double[] table3,
+			double[] table6, double[] df_da, double[] d2f_da2)
+	{
+		if (isInteger)
+		{
+			return splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
+		}
+		double value = splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
+		df_da[0] /= xscale[xindex];
+		df_da[1] /= yscale[yindex];
+		df_da[2] /= zscale[zindex];
+		d2f_da2[0] /= xscale[xindex] * xscale[xindex];
+		d2f_da2[1] /= yscale[yindex] * yscale[yindex];
+		d2f_da2[2] /= zscale[zindex] * zscale[zindex];
+		return value;
+	}
+
+	/**
+	 * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
+	 * coefficient power table.
+	 *
+	 * @param xindex
+	 *            the x spline position
+	 * @param yindex
+	 *            the y spline position
+	 * @param zindex
+	 *            the z spline position
+	 * @param table
+	 *            the power table
+	 * @param table2
+	 *            the power table scaled by 2
+	 * @param table3
+	 *            the power table scaled by 3
+	 * @param table6
+	 *            the power table scaled by 6
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 * @param d2f_da2
+	 *            the partial second order derivatives with respect to x,y,z
+	 * @return the value
+	 * @throws ArrayIndexOutOfBoundsException
+	 *             if the spline node does not exist
+	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
+	 */
+	public double value(int xindex, int yindex, int zindex, float[] table, float[] table2, float[] table3,
+			float[] table6, double[] df_da, double[] d2f_da2)
+	{
+		if (isInteger)
+		{
+			return splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
+		}
+		double value = splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
 		df_da[2] /= zscale[zindex];
@@ -1533,28 +1715,6 @@ public class CustomTricubicInterpolatingFunction
 		else
 		{
 			return true;
-		}
-	}
-
-	/**
-	 * Pre-compute gradient coefficients for partial derivatives.
-	 *
-	 * @param order
-	 *            the order (<=2)
-	 */
-	public void precomputeGradientCoefficients(int order)
-	{
-		int maxj = getMaxYSplinePosition() + 1;
-		int maxk = getMaxZSplinePosition() + 1;
-		for (int i = getMaxXSplinePosition() + 1; i-- > 0;)
-		{
-			for (int j = maxj; j-- > 0;)
-			{
-				for (int k = maxk; k-- > 0;)
-				{
-					splines[i][j][k].precomputeGradientCoefficients(order);
-				}
-			}
 		}
 	}
 

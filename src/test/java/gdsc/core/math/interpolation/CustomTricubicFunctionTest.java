@@ -93,8 +93,6 @@ public class CustomTricubicFunctionTest
 			result = result.replace("pZ" + was, "pZ" + now);
 		}
 
-		result = result.replace("a1[", "a[");
-
 		return result;
 	}
 
@@ -166,9 +164,6 @@ public class CustomTricubicFunctionTest
 		String _pXpYpZ;
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("final double[] a2 = getA2();\n");
-		sb.append("final double[] a3 = getA3();\n");
-
 		// Gradients are described in:
 		// Babcock & Zhuang (2017) 
 		// Analyzing Single Molecule Localization Microscopy Data Using Cubic Splines
@@ -186,11 +181,11 @@ public class CustomTricubicFunctionTest
 					//@formatter:off
 					sb.append(String.format("result += a[%d] * %s;\n", ai, _pXpYpZ));
 					if (i < N_1)
-						sb.append(String.format("df_da[0] += a%d[%d] * %s;\n", i+1, getIndex(i+1, j, k), _pXpYpZ));
+						sb.append(String.format("df_da[0] += %d * a[%d] * %s;\n", i+1, getIndex(i+1, j, k), _pXpYpZ));
 					if (j < N_1)
-						sb.append(String.format("df_da[1] += a%d[%d] * %s;\n", j+1, getIndex(i, j+1, k), _pXpYpZ));
+						sb.append(String.format("df_da[1] += %d * a[%d] * %s;\n", j+1, getIndex(i, j+1, k), _pXpYpZ));
 					if (k < N_1)
-						sb.append(String.format("df_da[2] += a%d[%d] * %s;\n", k+1, getIndex(i, j, k+1), _pXpYpZ));
+						sb.append(String.format("df_da[2] += %d * a[%d] * %s;\n", k+1, getIndex(i, j, k+1), _pXpYpZ));
 					//@formatter:on
 
 					// Formal computation
@@ -238,8 +233,6 @@ public class CustomTricubicFunctionTest
 		TObjectIntHashMap<String> map = new TObjectIntHashMap<String>(64);
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("final double[] a2 = getA2();\n");
-		sb.append("final double[] a3 = getA3();\n");
 		// Inline each gradient array in order.
 		// Maybe it will help the optimiser?
 		sb.append("df_da[0] =");
@@ -314,7 +307,96 @@ public class CustomTricubicFunctionTest
 			n *= nh;
 			nh--;
 		}
-		String sum = String.format("a%d[%d] * table[%d]\n", n, before, after);
+		String sum = String.format("%d * a[%d] * table[%d]\n", n, before, after);
+		map.adjustOrPutValue(sum, 1, 1);
+		sb.append("+ ").append(sum);
+	}
+
+	/**
+	 * Used to create the inline value function for first-order gradients with power table
+	 * 
+	 * @return the function text.
+	 */
+	static String inlineValue1WithPowerTableN()
+	{
+		TObjectIntHashMap<String> map = new TObjectIntHashMap<String>(64);
+
+		StringBuilder sb = new StringBuilder();
+		// Inline each gradient array in order.
+		// Maybe it will help the optimiser?
+		sb.append("df_da[0] =");
+		for (int k = 0; k < N; k++)
+			for (int j = 0; j < N; j++)
+				for (int i = 0; i < N; i++)
+					if (i < N_1)
+						appendPowerN(map, sb, i + 1, j, k, i, j, k);
+		sb.append(";\n");
+		sb.append("df_da[1] =");
+		for (int k = 0; k < N; k++)
+			for (int j = 0; j < N; j++)
+				for (int i = 0; i < N; i++)
+					if (j < N_1)
+						appendPowerN(map, sb, i, j + 1, k, i, j, k);
+		sb.append(";\n");
+		sb.append("df_da[2] =");
+		for (int k = 0; k < N; k++)
+			for (int j = 0; j < N; j++)
+				for (int i = 0; i < N; i++)
+					if (k < N_1)
+						appendPowerN(map, sb, i, j, k + 1, i, j, k);
+		sb.append(";\n");
+		sb.append("return ");
+		for (int k = 0; k < N; k++)
+			for (int j = 0; j < N; j++)
+				for (int i = 0; i < N; i++)
+					appendPowerN(map, sb, i, j, k, i, j, k);
+		sb.append(";\n");
+
+		// Each entry should be unique indicating that the result is optimal 
+		map.forEachEntry(new TObjectIntProcedure<String>()
+		{
+			public boolean execute(String a, int b)
+			{
+				if (b > 1)
+				{
+					System.out.printf("%s = %d\n", a, b);
+					return false;
+				}
+				return true;
+			}
+		});
+
+		return finaliseInlinePowerTableFunction(sb);
+	}
+
+	static void appendPowerN(TObjectIntHashMap<String> map, StringBuilder sb, int i1, int j1, int k1, int i2, int j2,
+			int k2)
+	{
+		int after = getIndex(i2, j2, k2);
+		int before = getIndex(i1, j1, k1);
+		int nh, nl;
+		if (i1 != i2)
+		{
+			nh = i1;
+			nl = i2;
+		}
+		else if (j1 != j2)
+		{
+			nh = j1;
+			nl = j2;
+		}
+		else
+		{
+			nh = k1;
+			nl = k2;
+		}
+		int n = 1;
+		while (nh > nl)
+		{
+			n *= nh;
+			nh--;
+		}
+		String sum = String.format("a[%d] * table%d[%d]\n", before, n, after);
 		map.adjustOrPutValue(sum, 1, 1);
 		sb.append("+ ").append(sum);
 	}
@@ -324,7 +406,8 @@ public class CustomTricubicFunctionTest
 		String result = sb.toString();
 		result = result.replace("return +", "return ");
 		result = result.replace("=+", "=");
-		result = result.replace("a1[", "a[");
+		result = result.replace("1 * ", "");
+		result = result.replace("table1", "table");
 		return result;
 	}
 
@@ -338,10 +421,6 @@ public class CustomTricubicFunctionTest
 		String _pYpZ;
 		String _pXpYpZ;
 		StringBuilder sb = new StringBuilder();
-
-		sb.append("final double[] a2 = getA2();\n");
-		sb.append("final double[] a3 = getA3();\n");
-		sb.append("final double[] a6 = getA6();\n");
 
 		// Gradients are described in:
 		// Babcock & Zhuang (2017) 
@@ -361,21 +440,21 @@ public class CustomTricubicFunctionTest
 					sb.append(String.format("result += a[%d] * %s;\n", ai, _pXpYpZ));
 					if (i < N_1)
 					{
-						sb.append(String.format("df_da[0] += a%d[%d] * %s;\n", i+1, getIndex(i+1, j, k), _pXpYpZ));
+						sb.append(String.format("df_da[0] += %d * a[%d] * %s;\n", i+1, getIndex(i+1, j, k), _pXpYpZ));
 						if (i < N_2)
-							sb.append(String.format("d2f_da2[0] += a%d[%d] * %s;\n", (i+1)*(i+2), getIndex(i+2, j, k), _pXpYpZ));
+							sb.append(String.format("d2f_da2[0] += %d * d[%d] * %s;\n", (i+1)*(i+2), getIndex(i+2, j, k), _pXpYpZ));
 					}
 					if (j < N_1)
 					{
-						sb.append(String.format("df_da[1] += a%d[%d] * %s;\n", j+1, getIndex(i, j+1, k), _pXpYpZ));
+						sb.append(String.format("df_da[1] += %d * a[%d] * %s;\n", j+1, getIndex(i, j+1, k), _pXpYpZ));
 						if (j < N_2)
-							sb.append(String.format("d2f_da2[1] += a%d[%d] * %s;\n", (j+1)*(j+2), getIndex(i, j+2, k), _pXpYpZ));
+							sb.append(String.format("d2f_da2[1] += %d * a[%d] * %s;\n", (j+1)*(j+2), getIndex(i, j+2, k), _pXpYpZ));
 					}						
 					if (k < N_1)
 					{
-						sb.append(String.format("df_da[2] += a%d[%d] * %s;\n", k+1, getIndex(i, j, k+1), _pXpYpZ));
+						sb.append(String.format("df_da[2] += %d * a[%d] * %s;\n", k+1, getIndex(i, j, k+1), _pXpYpZ));
 						if (k < N_2)
-							sb.append(String.format("d2f_da2[2] += a%d[%d] * %s;\n", (k+1)*(k+2), getIndex(i, j, k+2), _pXpYpZ));
+							sb.append(String.format("d2f_da2[2] += %d * a[%d] * %s;\n", (k+1)*(k+2), getIndex(i, j, k+2), _pXpYpZ));
 					}
 					//@formatter:on
 
@@ -416,9 +495,6 @@ public class CustomTricubicFunctionTest
 	{
 		TObjectIntHashMap<String> map = new TObjectIntHashMap<String>(64);
 		StringBuilder sb = new StringBuilder();
-		sb.append("final double[] a2 = getA2();\n");
-		sb.append("final double[] a3 = getA3();\n");
-		sb.append("final double[] a6 = getA6();\n");
 		// Inline each gradient array in order.
 		// Maybe it will help the optimiser?
 		sb.append("df_da[0] =");
@@ -486,6 +562,82 @@ public class CustomTricubicFunctionTest
 
 		return finaliseInlinePowerTableFunction(sb);
 	}
+	/**
+	 * Used to create the inline value function for second-order gradients with power table
+	 * 
+	 * @return the function text.
+	 */
+	static String inlineValue2WithPowerTableN()
+	{
+		TObjectIntHashMap<String> map = new TObjectIntHashMap<String>(64);
+		StringBuilder sb = new StringBuilder();
+		// Inline each gradient array in order.
+		// Maybe it will help the optimiser?
+		sb.append("df_da[0] =");
+		for (int k = 0; k < N; k++)
+			for (int j = 0; j < N; j++)
+				for (int i = 0; i < N; i++)
+					if (i < N_1)
+						appendPowerN(map, sb, i + 1, j, k, i, j, k);
+		sb.append(";\n");
+		sb.append("df_da[1] =");
+		for (int k = 0; k < N; k++)
+			for (int j = 0; j < N; j++)
+				for (int i = 0; i < N; i++)
+					if (j < N_1)
+						appendPowerN(map, sb, i, j + 1, k, i, j, k);
+		sb.append(";\n");
+		sb.append("df_da[2] =");
+		for (int k = 0; k < N; k++)
+			for (int j = 0; j < N; j++)
+				for (int i = 0; i < N; i++)
+					if (k < N_1)
+						appendPowerN(map, sb, i, j, k + 1, i, j, k);
+		sb.append(";\n");
+		sb.append("d2f_da2[0] =");
+		for (int k = 0; k < N; k++)
+			for (int j = 0; j < N; j++)
+				for (int i = 0; i < N; i++)
+					if (i < N_2)
+						appendPowerN(map, sb, i + 2, j, k, i, j, k);
+		sb.append(";\n");
+		sb.append("d2f_da2[1] =");
+		for (int k = 0; k < N; k++)
+			for (int j = 0; j < N; j++)
+				for (int i = 0; i < N; i++)
+					if (j < N_2)
+						appendPowerN(map, sb, i, j + 2, k, i, j, k);
+		sb.append(";\n");
+		sb.append("d2f_da2[2] =");
+		for (int k = 0; k < N; k++)
+			for (int j = 0; j < N; j++)
+				for (int i = 0; i < N; i++)
+					if (k < N_2)
+						appendPowerN(map, sb, i, j, k + 2, i, j, k);
+		sb.append(";\n");
+		sb.append("return ");
+		for (int k = 0; k < N; k++)
+			for (int j = 0; j < N; j++)
+				for (int i = 0; i < N; i++)
+					appendPowerN(map, sb, i, j, k, i, j, k);
+		sb.append(";\n");
+
+		// Each entry should be unique indicating that the result is optimal 
+		map.forEachEntry(new TObjectIntProcedure<String>()
+		{
+			public boolean execute(String a, int b)
+			{
+				if (b > 1)
+				{
+					System.out.printf("%s = %d\n", a, b);
+					return false;
+				}
+				return true;
+			}
+		});
+
+		return finaliseInlinePowerTableFunction(sb);
+	}
 
 	@Test
 	public void canConstructInlineValue()
@@ -504,28 +656,42 @@ public class CustomTricubicFunctionTest
 	@Test
 	public void canConstructInlineValue1()
 	{
-		Assume.assumeTrue(false);
+		Assume.assumeTrue(true);
 		System.out.println(inlineValue1());
 	}
 
 	@Test
 	public void canConstructInlineValue1WithPowerTable()
 	{
-		Assume.assumeTrue(false);
+		Assume.assumeTrue(true);
 		System.out.println(inlineValue1WithPowerTable());
+	}
+
+	@Test
+	public void canConstructInlineValue1WithPowerTableN()
+	{
+		Assume.assumeTrue(true);
+		System.out.println(inlineValue1WithPowerTableN());
 	}
 
 	@Test
 	public void canConstructInlineValue2()
 	{
-		Assume.assumeTrue(false);
+		Assume.assumeTrue(true);
 		System.out.println(inlineValue2());
 	}
 
 	@Test
 	public void canConstructInlineValue2WithPowerTable()
 	{
-		Assume.assumeTrue(false);
+		Assume.assumeTrue(true);
 		System.out.println(inlineValue2WithPowerTable());
+	}
+
+	@Test
+	public void canConstructInlineValue2WithPowerTableN()
+	{
+		Assume.assumeTrue(true);
+		System.out.println(inlineValue2WithPowerTableN());
 	}
 }

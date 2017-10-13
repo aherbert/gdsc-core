@@ -59,8 +59,6 @@ public class CustomTricubicInterpolatorTest
 				Assert.assertEquals(zval[j], f1.getZSplineValue(j), 0);
 
 			Assert.assertTrue(f1.isUniform);
-
-			f1.precomputeGradientCoefficients(1);
 		}
 	}
 
@@ -133,13 +131,13 @@ public class CustomTricubicInterpolatorTest
 	{
 		int x = 3, y = 3, z = 3;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
-		double[] yval = SimpleArrayUtils.newArray(y, 4, 1.0);
-		double[] zval = SimpleArrayUtils.newArray(z, 17, 1.0);
+		double[] yval = SimpleArrayUtils.newArray(y, 4.2345, 1.0);
+		double[] zval = SimpleArrayUtils.newArray(z, 17.5, 1.0);
 		double[][][] fval = new double[x][y][z];
 		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
 		Assert.assertTrue(f1.isUniform);
 		Assert.assertTrue(f1.isInteger);
-		double[] bad = SimpleArrayUtils.newArray(x, 0, 2.0);
+		double[] bad = SimpleArrayUtils.newArray(x, 0, 1.0 + CustomTricubicInterpolatingFunction.INTEGER_TOLERANCE);
 		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(bad, yval, zval, fval).isUniform);
 		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, bad, zval, fval).isUniform);
 		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, yval, bad, fval).isUniform);
@@ -397,6 +395,9 @@ public class CustomTricubicInterpolatorTest
 
 			// This is done unscaled
 			double[] table = DoubleCustomTricubicFunction.computePowerTable(xx, yy, zz);
+			double[] table2 = CustomTricubicFunction.scalePowerTable(table, 2);
+			double[] table3 = CustomTricubicFunction.scalePowerTable(table, 3);
+			double[] table6 = CustomTricubicFunction.scalePowerTable(table, 6);
 
 			xx *= xscale;
 			yy *= yscale;
@@ -413,11 +414,20 @@ public class CustomTricubicInterpolatorTest
 						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
 						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
 
+						o = f1.value(xi, yi, zi, table, table2, table3, df_daB);
+						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
+
 						o = f1.value(a[0], a[1], a[2], df_daB, d2f_da2A);
 						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
 						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
 
 						o = f1.value(xi, yi, zi, table, df_daB, d2f_da2B);
+						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
+						Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 1e-10);
+
+						o = f1.value(xi, yi, zi, table, table2, table3, table6, df_daB, d2f_da2B);
 						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
 						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
 						Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 1e-10);
@@ -455,7 +465,6 @@ public class CustomTricubicInterpolatorTest
 				for (int xi = 1; xi < 3; xi++, i++)
 				{
 					nodes[i] = f1.getSplineNode(zi, yi, xi);
-					nodes[i].precomputeGradientCoefficients(2);
 					fnodes[i] = nodes[i].toSinglePrecision();
 				}
 
@@ -467,13 +476,16 @@ public class CustomTricubicInterpolatorTest
 
 			double[] table = CustomTricubicFunction.computePowerTable(xx, yy, zz);
 			float[] ftable = CustomTricubicFunction.computeFloatPowerTable(xx, yy, zz);
+			float[] ftable2 = CustomTricubicFunction.scalePowerTable(ftable, 2);
+			float[] ftable3 = CustomTricubicFunction.scalePowerTable(ftable, 3);
+			float[] ftable6 = CustomTricubicFunction.scalePowerTable(ftable, 6);
 
 			for (int ii = 0; ii < nodes.length; ii++)
 			{
 				CustomTricubicFunction n1 = nodes[ii];
 				CustomTricubicFunction n2 = fnodes[ii];
 
-				// Just check relative to the non-table version
+				// Just check relative to the double-table version
 				e = n1.value(table);
 				o = n2.value(ftable);
 				assertEquals(e, o, valueTolerance);
@@ -490,6 +502,22 @@ public class CustomTricubicInterpolatorTest
 				Assert.assertEquals(e, e2, 0);
 				Assert.assertEquals(o, o2, 0);
 				Assert.assertArrayEquals(df_daA, df_daA2, 0);
+				Assert.assertArrayEquals(df_daB, df_daB2, 0);
+				assertEquals(e2, o2, valueTolerance);
+				for (int j = 0; j < 3; j++)
+				{
+					assertEquals(df_daA[j], df_daB[j], gradientTolerance);
+					assertEquals(d2f_da2A[j], d2f_da2B[j], gradientTolerance);
+				}
+
+				o = n2.value(ftable, ftable2, ftable3, df_daB);
+				assertEquals(e, o, valueTolerance);
+				for (int j = 0; j < 3; j++)
+					assertEquals(df_daA[j], df_daB[j], gradientTolerance);
+
+				o2 = n2.value(ftable, ftable2, ftable3, ftable6, df_daB2, d2f_da2B);
+				// Should be the same as the first-order gradient 
+				Assert.assertEquals(o, o2, 0);
 				Assert.assertArrayEquals(df_daB, df_daB2, 0);
 				assertEquals(e2, o2, valueTolerance);
 				for (int j = 0; j < 3; j++)
@@ -744,7 +772,6 @@ public class CustomTricubicInterpolatorTest
 				for (int xi = 1; xi < z - 1; xi++, i++)
 				{
 					nodes[i] = f1.getSplineNode(zi, yi, xi);
-					nodes[i].precomputeGradientCoefficients(2);
 					fnodes[i] = nodes[i].toSinglePrecision();
 				}
 
