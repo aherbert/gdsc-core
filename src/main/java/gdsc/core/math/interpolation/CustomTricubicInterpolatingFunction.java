@@ -43,7 +43,6 @@ import gdsc.core.data.procedures.TrivalueProcedure;
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.Ticker;
 import gdsc.core.logging.TrackProgress;
-import gdsc.core.utils.Maths;
 import gdsc.core.utils.SimpleArrayUtils;
 import gdsc.core.utils.TurboList;
 
@@ -1827,38 +1826,64 @@ public class CustomTricubicInterpolatingFunction
 	 */
 	public void sample(int n, TrivalueProcedure procedure, TrackProgress progress) throws IllegalArgumentException
 	{
-		if (n < 1)
+		sample(n, n, n, procedure, progress);
+	}
+
+	/**
+	 * Sample the function.
+	 * <p>
+	 * n samples will be taken per node in each dimension. A final sample is taken at the end of the sample range thus
+	 * the final range for each axis will be the current axis range.
+	 * <p>
+	 * The procedure setValue(int,int,int,double) method will be executed in ZYX order.
+	 *
+	 * @param nx
+	 *            the number of samples per spline node in the x dimension
+	 * @param ny
+	 *            the number of samples per spline node in the y dimension
+	 * @param ny
+	 *            the number of samples per spline node in the z dimension
+	 * @param procedure
+	 *            the procedure
+	 * @param progress
+	 *            the progress
+	 * @throws IllegalArgumentException
+	 *             If the number of sample is not positive
+	 */
+	public void sample(int nx, int ny, int nz, TrivalueProcedure procedure, TrackProgress progress)
+			throws IllegalArgumentException
+	{
+		if (nx < 1 || ny < 1 || nz < 1)
 			throw new IllegalArgumentException("Samples must be positive");
 
 		// We can interpolate all nodes n-times plus a final point at the last node
-		final int maxx = (getMaxXSplinePosition() + 1) * n;
-		final int maxy = (getMaxYSplinePosition() + 1) * n;
-		final int maxz = (getMaxZSplinePosition() + 1) * n;
+		final int maxx = (getMaxXSplinePosition() + 1) * nx;
+		final int maxy = (getMaxYSplinePosition() + 1) * ny;
+		final int maxz = (getMaxZSplinePosition() + 1) * nz;
 		if (!procedure.setDimensions(maxx + 1, maxy + 1, maxz + 1))
 			return;
 
-		Ticker ticker = Ticker.create(progress, maxz + 1, false);
+		Ticker ticker = Ticker.create(progress, (long) (maxx + 1) * (maxy + 1) * (maxz + 1), false);
 		ticker.start();
 
 		// Pre-compute interpolation tables
-		// Use an extra one to have the final x=1 interpolation point.
-		final int n1 = n + 1;
-		final double step = 1.0 / n;
-		double[][] tables = new double[Maths.pow3(n1)][];
-		CubicSplinePosition[] s = new CubicSplinePosition[n1];
-		for (int x = 0; x < n; x++)
-			s[x] = new CubicSplinePosition(x * step);
-		// Final interpolation point must be exactly 1
-		s[n] = new CubicSplinePosition(1);
-		for (int z = 0, i = 0; z < n1; z++)
+		final CubicSplinePosition[] sx = createCubicSplinePosition(nx);
+		final CubicSplinePosition[] sy = createCubicSplinePosition(ny);
+		final CubicSplinePosition[] sz = createCubicSplinePosition(nz);
+		final int nx1 = nx + 1;
+		final int ny1 = ny + 1;
+		final int nz1 = nz + 1;
+
+		final double[][] tables = new double[nx1 * ny1 * nz1][];
+		for (int z = 0, i = 0; z < nz1; z++)
 		{
-			CubicSplinePosition sz = s[z];
-			for (int y = 0; y < n1; y++)
+			CubicSplinePosition szz = sz[z];
+			for (int y = 0; y < ny1; y++)
 			{
-				CubicSplinePosition sy = s[y];
-				for (int x = 0; x < n1; x++, i++)
+				CubicSplinePosition syy = sy[y];
+				for (int x = 0; x < nx1; x++, i++)
 				{
-					tables[i] = CustomTricubicFunction.computePowerTable(s[x], sy, sz);
+					tables[i] = CustomTricubicFunction.computePowerTable(sx[x], syy, szz);
 				}
 			}
 		}
@@ -1869,62 +1894,62 @@ public class CustomTricubicInterpolatingFunction
 		final int[] xp = new int[maxx + 1];
 		for (int x = 0; x <= maxx; x++)
 		{
-			int xposition = x / n;
-			int xtable = x % n;
+			int xposition = x / nx;
+			int xtable = x % nx;
 			if (x == maxx)
 			{
 				// Final interpolation point
 				xposition--;
-				xtable = n;
+				xtable = nx;
 			}
 			xt[x] = xtable;
 			xp[x] = xposition;
-			procedure.setX(x, xval[xposition] + xtable * xscale[xposition] / n);
+			procedure.setX(x, xval[xposition] + xtable * xscale[xposition] / nx);
 		}
 		final int[] yt = new int[maxy + 1];
 		final int[] yp = new int[maxy + 1];
 		for (int y = 0; y <= maxy; y++)
 		{
-			int yposition = y / n;
-			int ytable = y % n;
+			int yposition = y / ny;
+			int ytable = y % ny;
 			if (y == maxy)
 			{
 				// Final interpolation point
 				yposition--;
-				ytable = n;
+				ytable = ny;
 			}
 			yt[y] = ytable;
 			yp[y] = yposition;
-			procedure.setY(y, yval[yposition] + ytable * yscale[yposition] / n);
+			procedure.setY(y, yval[yposition] + ytable * yscale[yposition] / ny);
 		}
 		final int[] zt = new int[maxz + 1];
 		final int[] zp = new int[maxz + 1];
 		for (int z = 0; z <= maxz; z++)
 		{
-			int zposition = z / n;
-			int ztable = z % n;
+			int zposition = z / nz;
+			int ztable = z % nz;
 			if (z == maxz)
 			{
 				// Final interpolation point
 				zposition--;
-				ztable = n;
+				ztable = nz;
 			}
 			zt[z] = ztable;
 			zp[z] = zposition;
-			procedure.setZ(z, zval[zposition] + ztable * zscale[zposition] / n);
+			procedure.setZ(z, zval[zposition] + ztable * zscale[zposition] / nz);
 		}
 
 		// Write interpolated values
 		for (int z = 0; z <= maxz; z++)
 		{
-			ticker.tick();
 			final int zposition = zp[z];
 			for (int y = 0; y <= maxy; y++)
 			{
 				final int yposition = yp[y];
-				final int j = n1 * (yt[y] + n1 * zt[z]);
+				final int j = nx1 * (yt[y] + ny1 * zt[z]);
 				for (int x = 0; x <= maxx; x++)
 				{
+					ticker.tick();
 					procedure.setValue(x, y, z, value(xp[x], yposition, zposition, tables[j + xt[x]]));
 				}
 			}
@@ -1935,7 +1960,20 @@ public class CustomTricubicInterpolatingFunction
 
 	//@formatter:off
     
-    /**
+    private static CubicSplinePosition[] createCubicSplinePosition(int n)
+	{
+		// Use an extra one to have the final x=1 interpolation point.
+		final int n1 = n + 1;
+		final double step = 1.0 / n;
+		CubicSplinePosition[] s = new CubicSplinePosition[n1];
+		for (int x = 0; x < n; x++)
+			s[x] = new CubicSplinePosition(x * step);
+		// Final interpolation point must be exactly 1
+		s[n] = new CubicSplinePosition(1);
+		return s;
+	}
+
+	/**
      * Compute the spline coefficients from the list of function values and
      * function partial derivatives values at the four corners of a grid
      * element. They must be specified in the following order:
