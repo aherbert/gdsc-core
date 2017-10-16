@@ -2030,9 +2030,7 @@ public class CustomTricubicInterpolatingFunction
 		ticker.stop();
 	}
 
-	//@formatter:off
-    
-    private static CubicSplinePosition[] createCubicSplinePosition(int n)
+	private static CubicSplinePosition[] createCubicSplinePosition(int n)
 	{
 		// Use an extra one to have the final x=1 interpolation point.
 		final int n1 = n + 1;
@@ -2044,6 +2042,126 @@ public class CustomTricubicInterpolatingFunction
 		s[n] = new CubicSplinePosition(1);
 		return s;
 	}
+
+	/**
+	 * Class to hold information about the size of an interpolating function
+	 */
+	public static class Size
+	{
+		private int[] dimensions;
+
+		Size(int maxx, int maxy, int maxz)
+		{
+			if (maxx < 2 || maxy < 2 || maxz < 2)
+				throw new IllegalArgumentException("Interpolating function requires minimum length 2 on each axis");
+			this.dimensions = new int[] { maxx, maxy, maxz };
+		}
+
+		/**
+		 * Gets the function points in a given dimension.
+		 *
+		 * @param dimension
+		 *            the dimension
+		 * @return the function points
+		 */
+		public int getFunctionPoints(int dimension)
+		{
+			return dimensions[dimension];
+		}
+
+		/**
+		 * Gets the spline points in a given dimension.
+		 *
+		 * @param dimension
+		 *            the dimension
+		 * @return the spline points
+		 */
+		public int getSplinePoints(int dimension)
+		{
+			return dimensions[dimension] - 1;
+		}
+
+		/**
+		 * Gets the total function points.
+		 *
+		 * @return the total function points
+		 */
+		public long getTotalFunctionPoints()
+		{
+			return (long) dimensions[0] * dimensions[1] * dimensions[2];
+		}
+
+		/**
+		 * Gets the total spline points.
+		 *
+		 * @return the total spline points
+		 */
+		public long getTotalSplinePoints()
+		{
+			return (long) (dimensions[0] - 1) * (dimensions[1] - 1) * (dimensions[2] - 1);
+		}
+
+		/**
+		 * Gets the memory footprint.
+		 *
+		 * @param singlePrecision
+		 *            the single precision flag
+		 * @return the memory footprint
+		 */
+		public long getMemoryFootprint(boolean singlePrecision)
+		{
+			// Each table is 64 long
+			long total = getTotalSplinePoints() * 64;
+			// TODO - what is the pointer size for each of the spline points?
+
+			// Convert spline point tables to their correct size
+			total *= ((singlePrecision) ? 4 : 8);
+			// Add the size of each axis and scale in double precision
+			for (int i = 0; i < 3; i++)
+				total += 8 * (dimensions[i] + dimensions[i] - 1);
+			return total;
+		}
+
+		public Size enlarge(int n)
+		{
+			int maxx = 1 + getSplinePoints(0) * n;
+			int maxy = 1 + getSplinePoints(1) * n;
+			int maxz = 1 + getSplinePoints(2) * n;
+			return new Size(maxx, maxy, maxz);
+		}
+	}
+
+	/**
+	 * Estimate the size of an interpolating function.
+	 *
+	 * @param maxx
+	 *            the maxx
+	 * @param maxy
+	 *            the maxy
+	 * @param maxz
+	 *            the maxz
+	 * @return the size
+	 */
+	public static Size estimateSize(int maxx, int maxy, int maxz)
+	{
+		return new Size(maxx, maxy, maxz);
+	}
+
+	/**
+	 * Estimate the size of an interpolating function.
+	 *
+	 * @param dimensions
+	 *            the dimensions
+	 * @return the size
+	 */
+	public static Size estimateSize(int[] dimensions)
+	{
+		if (dimensions == null || dimensions.length != 3)
+			throw new IllegalArgumentException("Dimension must be length 3");
+		return new Size(dimensions[0], dimensions[1], dimensions[2]);
+	}
+
+	//@formatter:off
 
 	/**
      * Compute the spline coefficients from the list of function values and
