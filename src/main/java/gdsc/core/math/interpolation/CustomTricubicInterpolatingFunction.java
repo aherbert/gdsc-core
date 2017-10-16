@@ -2483,7 +2483,17 @@ public class CustomTricubicInterpolatingFunction
 
 	public void write(OutputStream outputStream) throws IOException
 	{
+		write(outputStream, null);
+	}
+
+	public void write(OutputStream outputStream, TrackProgress progress) throws IOException
+	{
 		// Write dimensions
+		final int lastI = xval.length - 1;
+		final int lastJ = yval.length - 1;
+		final int lastK = zval.length - 1;
+		Ticker ticker = Ticker.create(progress, (long) lastI * lastJ * lastK, false);
+		ticker.start();
 		DataOutput out = new DataOutputStream(outputStream);
 		out.writeInt(xval.length);
 		out.writeInt(yval.length);
@@ -2496,19 +2506,18 @@ public class CustomTricubicInterpolatingFunction
 		boolean singlePrecision = isSinglePrecision();
 		out.writeBoolean(singlePrecision);
 		SplineWriter writer = (singlePrecision) ? new FloatSplineWriter() : new DoubleSplineWriter();
-		final int lastI = xval.length - 1;
-		final int lastJ = yval.length - 1;
-		final int lastK = zval.length - 1;
 		for (int i = 0; i < lastI; i++)
 		{
 			for (int j = 0; j < lastJ; j++)
 			{
 				for (int k = 0; k < lastK; k++)
 				{
+					ticker.tick();
 					writer.write(out, splines[i][j][k]);
 				}
 			}
 		}
+		ticker.stop();
 	}
 
 	private void write(DataOutput out, double[] x) throws IOException
@@ -2520,11 +2529,22 @@ public class CustomTricubicInterpolatingFunction
 	public static CustomTricubicInterpolatingFunction read(InputStream inputStream)
 			throws IOException, ClassNotFoundException
 	{
+		return read(inputStream, null);
+	}
+
+	public static CustomTricubicInterpolatingFunction read(InputStream inputStream, TrackProgress progress)
+			throws IOException, ClassNotFoundException
+	{
 		// Read dimensions
 		DataInput in = new DataInputStream(inputStream);
 		int maxx = in.readInt();
 		int maxy = in.readInt();
 		int maxz = in.readInt();
+		final int lastI = maxx - 1;
+		final int lastJ = maxy - 1;
+		final int lastK = maxz - 1;
+		Ticker ticker = Ticker.create(progress, (long) lastI * lastJ * lastK, false);
+		ticker.start();		
 		// Read axis values
 		double[] xval = read(in, maxx);
 		double[] yval = read(in, maxy);
@@ -2532,9 +2552,6 @@ public class CustomTricubicInterpolatingFunction
 		// Read precision
 		boolean singlePrecision = in.readBoolean();
 		SplineReader reader = (singlePrecision) ? new FloatSplineReader() : new DoubleSplineReader();
-		final int lastI = xval.length - 1;
-		final int lastJ = yval.length - 1;
-		final int lastK = zval.length - 1;
 		CustomTricubicFunction[][][] splines = new CustomTricubicFunction[lastI][lastJ][lastK];
 		for (int i = 0; i < lastI; i++)
 		{
@@ -2542,10 +2559,12 @@ public class CustomTricubicInterpolatingFunction
 			{
 				for (int k = 0; k < lastK; k++)
 				{
+					ticker.tick();
 					splines[i][j][k] = reader.read(in);
 				}
 			}
 		}
+		ticker.stop();
 		// Pass the data to a constructor for validation
 		return new CustomTricubicInterpolatingFunction(new DoubleArrayValueProvider(xval),
 				new DoubleArrayValueProvider(yval), new DoubleArrayValueProvider(zval), splines);
