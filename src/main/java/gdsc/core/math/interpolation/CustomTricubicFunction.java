@@ -36,12 +36,30 @@ import org.apache.commons.math3.exception.OutOfRangeException;
 public abstract class CustomTricubicFunction implements TrivariateFunction
 {
 	/**
-	 * Get a copy of he 64 coefficients for the tricubic function.
+	 * Get a copy of the 64 coefficients for the tricubic function.
 	 *
 	 * @return the coefficients
 	 */
 	abstract public double[] getA();
 
+	/**
+	 * Get coefficient at index i for the tricubic function.
+	 *
+	 * @param i
+	 *            the index
+	 * @return the coefficient
+	 */
+	abstract public double get(int i);
+
+	/**
+	 * Get coefficient at index i for the tricubic function.
+	 *
+	 * @param i
+	 *            the index
+	 * @return the coefficient
+	 */
+	abstract public float getf(int i);
+	
 	/**
 	 * Convert this instance to single precision.
 	 *
@@ -766,7 +784,8 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	/**
 	 * Scale the coefficients by the given value.
 	 *
-	 * @param scale the scale
+	 * @param scale
+	 *            the scale
 	 */
 	abstract public void scale(double scale);
 }

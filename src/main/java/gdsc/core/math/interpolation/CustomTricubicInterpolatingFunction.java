@@ -1,5 +1,9 @@
 package gdsc.core.math.interpolation;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -58,7 +62,7 @@ import gdsc.core.utils.TurboList;
  */
 //@formatter:off
 public class CustomTricubicInterpolatingFunction
-    implements TrivariateFunction {
+    implements TrivariateFunction, Externalizable {
 	
 	/** The tolerance for checking the spline points are uniform */
 	public static final double UNIFORM_TOLERANCE = 1e-6;
@@ -162,20 +166,20 @@ public class CustomTricubicInterpolatingFunction
     };
 
     /** Samples x-coordinates */
-    private final double[] xval;
+    private double[] xval;
     /** Samples y-coordinates */
-    private final double[] yval;
+    private double[] yval;
     /** Samples z-coordinates */
-    private final double[] zval;
+    private double[] zval;
     /** Set of cubic splines patching the whole data grid */
-    private final CustomTricubicFunction[][][] splines;
+    private CustomTricubicFunction[][][] splines;
     
 	/** The scale for x. This is the interval between x[i+1] and x[i] */
-	private final double[] xscale;
+	private double[] xscale;
 	/** The scale for y. This is the interval between y[i+1] and y[i] */
-	private final double[] yscale;
+	private double[] yscale;
 	/** The scale for z. This is the interval between z[i+1] and z[i] */
-	private final double[] zscale;    
+	private double[] zscale;    
 
     /**
      * Instantiates a new custom tricubic interpolating function.
@@ -2395,5 +2399,133 @@ public class CustomTricubicInterpolatingFunction
     	a[63]=8*(beta[0]-beta[1]-beta[2]+beta[3]-beta[4]+beta[5]+beta[6]-beta[7])+4*(beta[8]+beta[9]-beta[10]-beta[11]-beta[12]-beta[13]+beta[14]+beta[15]+beta[16]-beta[17]+beta[18]-beta[19]-beta[20]+beta[21]-beta[22]+beta[23]+beta[24]-beta[25]-beta[26]+beta[27]+beta[28]-beta[29]-beta[30]+beta[31])+2*(beta[32]+beta[33]+beta[34]+beta[35]-beta[36]-beta[37]-beta[38]-beta[39]+beta[40]+beta[41]-beta[42]-beta[43]+beta[44]+beta[45]-beta[46]-beta[47]+beta[48]-beta[49]+beta[50]-beta[51]+beta[52]-beta[53]+beta[54]-beta[55])+(beta[56]+beta[57]+beta[58]+beta[59]+beta[60]+beta[61]+beta[62]+beta[63]);
     	return a;
     }
+
+    //@formatter:on
+
+	private static interface SplineWriter
+	{
+		void write(ObjectOutput out, CustomTricubicFunction f) throws IOException;
+	}
+
+	private static class FloatSplineWriter implements SplineWriter
+	{
+		public void write(ObjectOutput out, CustomTricubicFunction f) throws IOException
+		{
+			for (int i = 0; i < 64; i++)
+				out.writeFloat(f.getf(i));
+		}
+	}
+
+	private static class DoubleSplineWriter implements SplineWriter
+	{
+		public void write(ObjectOutput out, CustomTricubicFunction f) throws IOException
+		{
+			for (int i = 0; i < 64; i++)
+				out.writeDouble(f.get(i));
+		}
+	}
+
+	private static interface SplineReader
+	{
+		CustomTricubicFunction read(ObjectInput in) throws IOException;
+	}
+
+	private static class FloatSplineReader implements SplineReader
+	{
+		float[] data = new float[64];
+
+		public CustomTricubicFunction read(ObjectInput in) throws IOException
+		{
+			for (int i = 0; i < 64; i++)
+				data[i] = in.readFloat();
+			return new FloatCustomTricubicFunction(data.clone());
+		}
+	}
+
+	private static class DoubleSplineReader implements SplineReader
+	{
+		double[] data = new double[64];
+
+		public CustomTricubicFunction read(ObjectInput in) throws IOException
+		{
+			for (int i = 0; i < 64; i++)
+				data[i] = in.readDouble();
+			return new DoubleCustomTricubicFunction(data.clone());
+		}
+	}
+
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		// Write dimensions
+		out.writeInt(xval.length);
+		out.writeInt(yval.length);
+		out.writeInt(zval.length);
+		// Write axis values
+		write(out, xval);
+		write(out, yval);
+		write(out, zval);
+		// Write precision
+		boolean singlePrecision = isSinglePrecision();
+		out.writeBoolean(singlePrecision);
+		SplineWriter writer = (singlePrecision) ? new FloatSplineWriter() : new DoubleSplineWriter();
+		final int lastI = xval.length - 1;
+		final int lastJ = yval.length - 1;
+		final int lastK = zval.length - 1;
+		for (int i = 0; i < lastI; i++)
+		{
+			for (int j = 0; j < lastJ; j++)
+			{
+				for (int k = 0; k < lastK; k++)
+				{
+					writer.write(out, splines[i][j][k]);
+				}
+			}
+		}
+	}
+
+	private void write(ObjectOutput out, double[] x) throws IOException
+	{
+		for (int i = 0; i < x.length; i++)
+			out.writeDouble(x[i]);
+	}
+
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		// Read dimensions
+		int maxx = in.readInt();
+		int maxy = in.readInt();
+		int maxz = in.readInt();
+		// Read axis values
+		xval = read(in, maxx);
+		yval = read(in, maxy);
+		zval = read(in, maxz);
+		// Recreate the scale
+        xscale = createScale(xval);
+        yscale = createScale(yval);
+        zscale = createScale(zval);
+		// Read precision
+		boolean singlePrecision = in.readBoolean();
+		SplineReader reader = (singlePrecision) ? new FloatSplineReader() : new DoubleSplineReader();
+		final int lastI = xval.length - 1;
+		final int lastJ = yval.length - 1;
+		final int lastK = zval.length - 1;
+		for (int i = 0; i < lastI; i++)
+		{
+			for (int j = 0; j < lastJ; j++)
+			{
+				for (int k = 0; k < lastK; k++)
+				{
+					splines[i][j][k] = reader.read(in);
+				}
+			}
+		}
+	}
+
+	private double[] read(ObjectInput in, int max) throws IOException
+	{
+		double[] x = new double[max];
+		for (int i = 0; i < x.length; i++)
+			x[i] = in.readDouble();
+		return x;
+	}
 }
-//@formatter:on

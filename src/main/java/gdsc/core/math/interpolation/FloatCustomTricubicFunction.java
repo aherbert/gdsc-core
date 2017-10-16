@@ -21,6 +21,18 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	{
 		return toDouble(a);
 	}
+	
+	@Override
+	public double get(int i)
+	{
+		return a[i];
+	}
+	
+	@Override
+	public float getf(int i)
+	{
+		return a[i];
+	}
 
 	/*
 	 * (non-Javadoc)

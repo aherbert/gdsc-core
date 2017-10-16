@@ -46,6 +46,18 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 		return a.clone();
 	}
 
+	@Override
+	public double get(int i)
+	{
+		return a[i];
+	}
+
+	@Override
+	public float getf(int i)
+	{
+		return (float) a[i];
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
