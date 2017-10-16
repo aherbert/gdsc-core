@@ -1,8 +1,12 @@
 package gdsc.core.math.interpolation;
 
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -811,6 +815,30 @@ public class CustomTricubicInterpolatingFunction
 		ticker.tick();
 	}
 
+	/**
+	 * Instantiates a new custom tricubic interpolating function.
+	 *
+     * @param x Sample values of the x-coordinate, in increasing order.
+     * @param y Sample values of the y-coordinate, in increasing order.
+     * @param z Sample values of the z-coordinate, in increasing order.
+	 * @param splines the splines
+	 * @throws NoDataException if any of the arrays has zero length.
+	 * @throws DimensionMismatchException if the various arrays do not contain the expected number of elements.
+	 * @throws NonMonotonicSequenceException if {@code x}, {@code y} or {@code z} are not strictly increasing.
+	 */
+	public CustomTricubicInterpolatingFunction(double[] x, 
+											   double[] y, 
+											   double[] z,
+											   CustomTricubicFunction[][][] splines)
+			        throws NoDataException,
+		               DimensionMismatchException,
+		               NonMonotonicSequenceException {
+		this(new DoubleArrayValueProvider(x),
+			 new DoubleArrayValueProvider(y),
+			 new DoubleArrayValueProvider(z),
+			 splines);
+	}
+	
 	/**
 	 * Instantiates a new custom tricubic interpolating function.
 	 *
@@ -2453,9 +2481,10 @@ public class CustomTricubicInterpolatingFunction
 		}
 	}
 
-	public void writeExternal(DataOutput out) throws IOException
+	public void writeExternal(OutputStream outputStream) throws IOException
 	{
 		// Write dimensions
+		DataOutput out = new DataOutputStream(outputStream);
 		out.writeInt(xval.length);
 		out.writeInt(yval.length);
 		out.writeInt(zval.length);
@@ -2488,10 +2517,11 @@ public class CustomTricubicInterpolatingFunction
 			out.writeDouble(x[i]);
 	}
 
-	public static CustomTricubicInterpolatingFunction readExternal(DataInput in)
+	public static CustomTricubicInterpolatingFunction readExternal(InputStream inputStream)
 			throws IOException, ClassNotFoundException
 	{
 		// Read dimensions
+		DataInput in = new DataInputStream(inputStream);
 		int maxx = in.readInt();
 		int maxy = in.readInt();
 		int maxz = in.readInt();

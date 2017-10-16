@@ -2,8 +2,6 @@ package gdsc.core.math.interpolation;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -941,13 +939,13 @@ public class CustomTricubicInterpolatorTest
 			f1.toSinglePrecision();
 
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
-		f1.writeExternal(new DataOutputStream(b));
+		f1.writeExternal(b);
 
 		byte[] bytes = b.toByteArray();
 		System.out.printf("Single precision = %b, size = %d, memory estimate = %d\n", singlePrecision, bytes.length,
 				CustomTricubicInterpolatingFunction.estimateSize(new int[] { x, y, z }).getMemoryFootprint(singlePrecision));
 		CustomTricubicInterpolatingFunction f2 = CustomTricubicInterpolatingFunction
-				.readExternal(new DataInputStream(new ByteArrayInputStream(bytes)));
+				.readExternal(new ByteArrayInputStream(bytes));
 
 		int n = 2;
 		StandardTrivalueProcedure p1 = new StandardTrivalueProcedure();
