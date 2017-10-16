@@ -762,4 +762,11 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 			throw new IllegalArgumentException("Require 64 coefficients");
 		return new FloatCustomTricubicFunction(a);
 	}
+
+	/**
+	 * Scale the coefficients by the given value.
+	 *
+	 * @param scale the scale
+	 */
+	abstract public void scale(double scale);
 }

@@ -22,6 +22,18 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		return toDouble(a);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#scale(double)
+	 */
+	@Override
+	public void scale(double scale)
+	{
+		for (int i = 0; i < 64; i++)
+			a[i] *= scale;
+	}
+	
 	/**
 	 * Instantiates a new float custom tricubic function.
 	 * 

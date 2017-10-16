@@ -46,6 +46,18 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 		return a.clone();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#scale(double)
+	 */
+	@Override
+	public void scale(double scale)
+	{
+		for (int i = 0; i < 64; i++)
+			a[i] *= scale;
+	}
+
 	/**
 	 * Instantiates a new double custom tricubic function.
 	 *
