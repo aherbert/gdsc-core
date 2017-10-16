@@ -748,4 +748,18 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 			throw new IllegalArgumentException("Require 64 coefficients");
 		return new DoubleCustomTricubicFunction(a);
 	}
+
+	/**
+	 * Creates the tricubic function. The function will store single precision coefficients.
+	 *
+	 * @param a
+	 *            the 64 coefficients
+	 * @return the custom tricubic function
+	 */
+	public static CustomTricubicFunction create(float[] a)
+	{
+		if (a == null || a.length != 64)
+			throw new IllegalArgumentException("Require 64 coefficients");
+		return new FloatCustomTricubicFunction(a);
+	}
 }
