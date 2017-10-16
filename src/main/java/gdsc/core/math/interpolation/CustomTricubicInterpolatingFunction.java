@@ -808,6 +808,80 @@ public class CustomTricubicInterpolatingFunction
 	}
 
 	/**
+	 * Instantiates a new custom tricubic interpolating function.
+	 *
+     * @param x Sample values of the x-coordinate, in increasing order.
+     * @param y Sample values of the y-coordinate, in increasing order.
+     * @param z Sample values of the z-coordinate, in increasing order.
+	 * @param splines the splines
+	 * @throws NoDataException if any of the arrays has zero length.
+	 * @throws DimensionMismatchException if the various arrays do not contain the expected number of elements.
+	 * @throws NonMonotonicSequenceException if {@code x}, {@code y} or {@code z} are not strictly increasing.
+	 */
+	public CustomTricubicInterpolatingFunction(ValueProvider x, 
+											   ValueProvider y, 
+											   ValueProvider z,
+											   CustomTricubicFunction[][][] splines)
+			        throws NoDataException,
+		               DimensionMismatchException,
+		               NonMonotonicSequenceException {
+		final int xLen = x.getMaxX();
+		final int yLen = y.getMaxX();
+		final int zLen = z.getMaxX();
+
+		// The original only failed if the length was zero. However
+		// this function requires two points to interpolate between so 
+		// check the length is at least 2.
+		if (xLen <= 1 || yLen <= 1 || zLen <= 1)
+		{
+			throw new NoDataException();
+		}
+
+		final int lastI = xLen - 1;
+		final int lastJ = yLen - 1;
+		final int lastK = zLen - 1;
+
+		if (lastI != splines.length)
+			throw new DimensionMismatchException(lastI, splines.length);
+		for (int i = 0; i < lastI; i++)
+		{
+			if (lastJ != splines[i].length)
+				throw new DimensionMismatchException(lastJ, splines[i].length);
+			for (int j = 0; j < lastJ; j++)
+			{
+				if (lastK != splines[i][j].length)
+					throw new DimensionMismatchException(lastK, splines[i][j].length);
+			}
+		}
+
+		checkOrder(x);
+		checkOrder(y);
+		checkOrder(z);
+
+		xval = x.toArray();
+		yval = y.toArray();
+		zval = z.toArray();
+
+    	isUniform = 
+    			SimpleArrayUtils.isUniform(xval, (xval[1]-xval[0])*UNIFORM_TOLERANCE) && 
+    			SimpleArrayUtils.isUniform(yval, (yval[1]-yval[0])*UNIFORM_TOLERANCE) && 
+    			SimpleArrayUtils.isUniform(zval, (zval[1]-zval[0])*UNIFORM_TOLERANCE);
+        isInteger = isUniform &&
+        		(isInteger(xval)) &&  
+           		(isInteger(yval)) &&  
+           		(isInteger(zval)); 
+
+		xscale = createScale(xval);
+		yscale = createScale(yval);
+		zscale = createScale(zval);
+
+		this.splines = splines;
+
+	}
+
+	//@formatter:on
+
+	/**
 	 * {@inheritDoc}
 	 *
 	 * @throws OutOfRangeException
@@ -825,8 +899,6 @@ public class CustomTricubicInterpolatingFunction
 
 		return splines[i][j][k].value(xN, yN, zN);
 	}
-
-	//@formatter:on
 
 	/**
 	 * @param c
