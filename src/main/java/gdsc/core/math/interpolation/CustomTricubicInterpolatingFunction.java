@@ -2481,7 +2481,7 @@ public class CustomTricubicInterpolatingFunction
 		}
 	}
 
-	public void writeExternal(OutputStream outputStream) throws IOException
+	public void write(OutputStream outputStream) throws IOException
 	{
 		// Write dimensions
 		DataOutput out = new DataOutputStream(outputStream);
@@ -2517,7 +2517,7 @@ public class CustomTricubicInterpolatingFunction
 			out.writeDouble(x[i]);
 	}
 
-	public static CustomTricubicInterpolatingFunction readExternal(InputStream inputStream)
+	public static CustomTricubicInterpolatingFunction read(InputStream inputStream)
 			throws IOException, ClassNotFoundException
 	{
 		// Read dimensions

@@ -939,13 +939,13 @@ public class CustomTricubicInterpolatorTest
 			f1.toSinglePrecision();
 
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
-		f1.writeExternal(b);
+		f1.write(b);
 
 		byte[] bytes = b.toByteArray();
 		System.out.printf("Single precision = %b, size = %d, memory estimate = %d\n", singlePrecision, bytes.length,
 				CustomTricubicInterpolatingFunction.estimateSize(new int[] { x, y, z }).getMemoryFootprint(singlePrecision));
 		CustomTricubicInterpolatingFunction f2 = CustomTricubicInterpolatingFunction
-				.readExternal(new ByteArrayInputStream(bytes));
+				.read(new ByteArrayInputStream(bytes));
 
 		int n = 2;
 		StandardTrivalueProcedure p1 = new StandardTrivalueProcedure();
