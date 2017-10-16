@@ -1,5 +1,10 @@
 package gdsc.core.math.interpolation;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -58,7 +63,7 @@ public class CustomTricubicInterpolatorTest
 			for (int j = 0; j < zval.length; j++)
 				Assert.assertEquals(zval[j], f1.getZSplineValue(j), 0);
 
-			Assert.assertTrue(f1.isUniform);
+			Assert.assertTrue(f1.isUniform());
 		}
 	}
 
@@ -105,18 +110,18 @@ public class CustomTricubicInterpolatorTest
 		double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
 		double[][][] fval = new double[x][y][z];
 		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
-		Assert.assertTrue(f1.isUniform);
+		Assert.assertTrue(f1.isUniform());
 		double[] bad = xval.clone();
 		bad[1] *= 1.001;
-		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(bad, yval, zval, fval).isUniform);
-		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(xval, bad, zval, fval).isUniform);
-		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(xval, yval, bad, fval).isUniform);
+		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(bad, yval, zval, fval).isUniform());
+		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(xval, bad, zval, fval).isUniform());
+		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(xval, yval, bad, fval).isUniform());
 		double[] good = xval.clone();
 		// The tolerance is relative but we have steps of size 1 so use as an absolute
 		good[1] += CustomTricubicInterpolatingFunction.UNIFORM_TOLERANCE / 2;
-		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(good, yval, zval, fval).isUniform);
-		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, good, zval, fval).isUniform);
-		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, yval, good, fval).isUniform);
+		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(good, yval, zval, fval).isUniform());
+		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, good, zval, fval).isUniform());
+		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, yval, good, fval).isUniform());
 
 		// Check scale. This can be used to map an interpolation point x to the 
 		// range 0-1 for power tables 
@@ -135,15 +140,15 @@ public class CustomTricubicInterpolatorTest
 		double[] zval = SimpleArrayUtils.newArray(z, 17.5, 1.0);
 		double[][][] fval = new double[x][y][z];
 		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
-		Assert.assertTrue(f1.isUniform);
-		Assert.assertTrue(f1.isInteger);
+		Assert.assertTrue(f1.isUniform());
+		Assert.assertTrue(f1.isInteger());
 		double[] bad = SimpleArrayUtils.newArray(x, 0, 1.0 + CustomTricubicInterpolatingFunction.INTEGER_TOLERANCE);
-		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(bad, yval, zval, fval).isUniform);
-		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, bad, zval, fval).isUniform);
-		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, yval, bad, fval).isUniform);
-		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(bad, yval, zval, fval).isInteger);
-		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(xval, bad, zval, fval).isInteger);
-		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(xval, yval, bad, fval).isInteger);
+		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(bad, yval, zval, fval).isUniform());
+		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, bad, zval, fval).isUniform());
+		Assert.assertTrue(new CustomTricubicInterpolator().interpolate(xval, yval, bad, fval).isUniform());
+		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(bad, yval, zval, fval).isInteger());
+		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(xval, bad, zval, fval).isInteger());
+		Assert.assertFalse(new CustomTricubicInterpolator().interpolate(xval, yval, bad, fval).isInteger());
 
 		// Check scale. This can be used to map an interpolation point x to the 
 		// range 0-1 for power tables 
@@ -904,6 +909,61 @@ public class CustomTricubicInterpolatorTest
 				{
 					// Test original function interpolated value against the sample
 					assertEquals(f1.value(p.x[i], p.y[j], p.z[k]), p.value[i][j][k], 1e-8);
+				}
+	}
+
+	@Test
+	public void canExternaliseDoubleFunction() throws IOException, ClassNotFoundException
+	{
+		canExternaliseFunction(false);
+	}
+
+	@Test
+	public void canExternaliseFloatFunction() throws IOException, ClassNotFoundException
+	{
+		canExternaliseFunction(true);
+	}
+
+	private void canExternaliseFunction(boolean singlePrecision) throws IOException, ClassNotFoundException
+	{
+		new Well19937c(30051977);
+		int x = 6, y = 5, z = 4;
+		double xscale = 1, yscale = 0.5, zscale = 2.0;
+		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
+		double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
+		double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
+		double[][][] fval = createData(x, y, z, null);
+
+		CustomTricubicInterpolator interpolator = new CustomTricubicInterpolator();
+		CustomTricubicInterpolatingFunction f1 = interpolator.interpolate(xval, yval, zval, fval);
+
+		if (singlePrecision)
+			f1.toSinglePrecision();
+
+		ByteArrayOutputStream b = new ByteArrayOutputStream();
+		f1.writeExternal(new DataOutputStream(b));
+
+		byte[] bytes = b.toByteArray();
+		System.out.printf("Single precision = %b, size = %d, memory estimate = %d\n", singlePrecision, bytes.length,
+				CustomTricubicInterpolatingFunction.estimateSize(new int[] { x, y, z }).getMemoryFootprint(singlePrecision));
+		CustomTricubicInterpolatingFunction f2 = CustomTricubicInterpolatingFunction
+				.readExternal(new DataInputStream(new ByteArrayInputStream(bytes)));
+
+		int n = 2;
+		StandardTrivalueProcedure p1 = new StandardTrivalueProcedure();
+		f1.sample(n, p1);
+		StandardTrivalueProcedure p2 = new StandardTrivalueProcedure();
+		f2.sample(n, p2);
+
+		Assert.assertArrayEquals(p1.x, p2.x, 0);
+		Assert.assertArrayEquals(p1.y, p2.y, 0);
+		Assert.assertArrayEquals(p1.z, p2.z, 0);
+
+		for (int i = 0; i < p1.x.length; i++)
+			for (int j = 0; j < p1.y.length; j++)
+				for (int k = 0; k < p1.z.length; k++)
+				{
+					Assert.assertEquals(f1.value(p1.x[i], p1.y[j], p1.z[k]), f2.value(p1.x[i], p1.y[j], p1.z[k]), 0);
 				}
 	}
 }

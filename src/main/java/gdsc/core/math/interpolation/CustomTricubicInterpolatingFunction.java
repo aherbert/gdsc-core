@@ -1,9 +1,8 @@
 package gdsc.core.math.interpolation;
 
-import java.io.Externalizable;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -41,6 +40,7 @@ import org.apache.commons.math3.exception.NonMonotonicSequenceException;
 import org.apache.commons.math3.exception.OutOfRangeException;
 import org.apache.commons.math3.util.MathArrays.OrderDirection;
 
+import gdsc.core.data.DoubleArrayValueProvider;
 import gdsc.core.data.TrivalueProvider;
 import gdsc.core.data.ValueProvider;
 import gdsc.core.data.procedures.TrivalueProcedure;
@@ -62,7 +62,7 @@ import gdsc.core.utils.TurboList;
  */
 //@formatter:off
 public class CustomTricubicInterpolatingFunction
-    implements TrivariateFunction, Externalizable {
+    implements TrivariateFunction {
 	
 	/** The tolerance for checking the spline points are uniform */
 	public static final double UNIFORM_TOLERANCE = 1e-6;
@@ -82,7 +82,7 @@ public class CustomTricubicInterpolatingFunction
 	 * This allows the function to be efficiently sampled using precomputed 
 	 * spline coefficients (see {@link #value(int, int, int, double[])})
 	 */
-	final boolean isUniform;
+	private final boolean isUniform;
 	
 	/** 
 	 * Set to true if the x,y,z spline points have a grid spacing of 1. 
@@ -90,7 +90,7 @@ public class CustomTricubicInterpolatingFunction
 	 * <p>
 	 * This allows faster computation with no scaling.
 	 */
-	final boolean isInteger;
+	private final boolean isInteger;
 	
 	private double[] scale;
 	
@@ -166,20 +166,20 @@ public class CustomTricubicInterpolatingFunction
     };
 
     /** Samples x-coordinates */
-    private double[] xval;
+    private final double[] xval;
     /** Samples y-coordinates */
-    private double[] yval;
+    private final double[] yval;
     /** Samples z-coordinates */
-    private double[] zval;
+    private final double[] zval;
     /** Set of cubic splines patching the whole data grid */
-    private CustomTricubicFunction[][][] splines;
+    private final CustomTricubicFunction[][][] splines;
     
 	/** The scale for x. This is the interval between x[i+1] and x[i] */
-	private double[] xscale;
+	private final double[] xscale;
 	/** The scale for y. This is the interval between y[i+1] and y[i] */
-	private double[] yscale;
+	private final double[] yscale;
 	/** The scale for z. This is the interval between z[i+1] and z[i] */
-	private double[] zscale;    
+	private final double[] zscale;    
 
     /**
      * Instantiates a new custom tricubic interpolating function.
@@ -880,9 +880,8 @@ public class CustomTricubicInterpolatingFunction
 		zscale = createScale(zval);
 
 		this.splines = splines;
-
 	}
-
+	
 	//@formatter:on
 
 	/**
@@ -2404,12 +2403,12 @@ public class CustomTricubicInterpolatingFunction
 
 	private static interface SplineWriter
 	{
-		void write(ObjectOutput out, CustomTricubicFunction f) throws IOException;
+		void write(DataOutput out, CustomTricubicFunction f) throws IOException;
 	}
 
 	private static class FloatSplineWriter implements SplineWriter
 	{
-		public void write(ObjectOutput out, CustomTricubicFunction f) throws IOException
+		public void write(DataOutput out, CustomTricubicFunction f) throws IOException
 		{
 			for (int i = 0; i < 64; i++)
 				out.writeFloat(f.getf(i));
@@ -2418,7 +2417,7 @@ public class CustomTricubicInterpolatingFunction
 
 	private static class DoubleSplineWriter implements SplineWriter
 	{
-		public void write(ObjectOutput out, CustomTricubicFunction f) throws IOException
+		public void write(DataOutput out, CustomTricubicFunction f) throws IOException
 		{
 			for (int i = 0; i < 64; i++)
 				out.writeDouble(f.get(i));
@@ -2427,14 +2426,14 @@ public class CustomTricubicInterpolatingFunction
 
 	private static interface SplineReader
 	{
-		CustomTricubicFunction read(ObjectInput in) throws IOException;
+		CustomTricubicFunction read(DataInput in) throws IOException;
 	}
 
 	private static class FloatSplineReader implements SplineReader
 	{
 		float[] data = new float[64];
 
-		public CustomTricubicFunction read(ObjectInput in) throws IOException
+		public CustomTricubicFunction read(DataInput in) throws IOException
 		{
 			for (int i = 0; i < 64; i++)
 				data[i] = in.readFloat();
@@ -2446,7 +2445,7 @@ public class CustomTricubicInterpolatingFunction
 	{
 		double[] data = new double[64];
 
-		public CustomTricubicFunction read(ObjectInput in) throws IOException
+		public CustomTricubicFunction read(DataInput in) throws IOException
 		{
 			for (int i = 0; i < 64; i++)
 				data[i] = in.readDouble();
@@ -2454,7 +2453,7 @@ public class CustomTricubicInterpolatingFunction
 		}
 	}
 
-	public void writeExternal(ObjectOutput out) throws IOException
+	public void writeExternal(DataOutput out) throws IOException
 	{
 		// Write dimensions
 		out.writeInt(xval.length);
@@ -2483,32 +2482,30 @@ public class CustomTricubicInterpolatingFunction
 		}
 	}
 
-	private void write(ObjectOutput out, double[] x) throws IOException
+	private void write(DataOutput out, double[] x) throws IOException
 	{
 		for (int i = 0; i < x.length; i++)
 			out.writeDouble(x[i]);
 	}
 
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	public static CustomTricubicInterpolatingFunction readExternal(DataInput in)
+			throws IOException, ClassNotFoundException
 	{
 		// Read dimensions
 		int maxx = in.readInt();
 		int maxy = in.readInt();
 		int maxz = in.readInt();
 		// Read axis values
-		xval = read(in, maxx);
-		yval = read(in, maxy);
-		zval = read(in, maxz);
-		// Recreate the scale
-        xscale = createScale(xval);
-        yscale = createScale(yval);
-        zscale = createScale(zval);
+		double[] xval = read(in, maxx);
+		double[] yval = read(in, maxy);
+		double[] zval = read(in, maxz);
 		// Read precision
 		boolean singlePrecision = in.readBoolean();
 		SplineReader reader = (singlePrecision) ? new FloatSplineReader() : new DoubleSplineReader();
 		final int lastI = xval.length - 1;
 		final int lastJ = yval.length - 1;
 		final int lastK = zval.length - 1;
+		CustomTricubicFunction[][][] splines = new CustomTricubicFunction[lastI][lastJ][lastK];
 		for (int i = 0; i < lastI; i++)
 		{
 			for (int j = 0; j < lastJ; j++)
@@ -2519,13 +2516,38 @@ public class CustomTricubicInterpolatingFunction
 				}
 			}
 		}
+		// Pass the data to a constructor for validation
+		return new CustomTricubicInterpolatingFunction(new DoubleArrayValueProvider(xval),
+				new DoubleArrayValueProvider(yval), new DoubleArrayValueProvider(zval), splines);
 	}
 
-	private double[] read(ObjectInput in, int max) throws IOException
+	private static double[] read(DataInput in, int max) throws IOException
 	{
 		double[] x = new double[max];
 		for (int i = 0; i < x.length; i++)
 			x[i] = in.readDouble();
 		return x;
+	}
+
+	/**
+	 * Set to true if the x,y,z spline points are uniformly spaced.
+	 * <p>
+	 * This allows the function to be efficiently sampled using precomputed
+	 * spline coefficients (see {@link #value(int, int, int, double[])})
+	 */
+	public boolean isUniform()
+	{
+		return isUniform;
+	}
+
+	/**
+	 * Set to true if the x,y,z spline points have a grid spacing of 1.
+	 * Note that the spline points may not be integer values, only the spacing between them.
+	 * <p>
+	 * This allows faster computation with no scaling.
+	 */
+	public boolean isInteger()
+	{
+		return isInteger;
 	}
 }
