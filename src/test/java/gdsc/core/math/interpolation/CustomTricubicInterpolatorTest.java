@@ -834,7 +834,6 @@ public class CustomTricubicInterpolatorTest
 
 	private void canComputeWithExecutorService(double xscale, double yscale, double zscale)
 	{
-		new Well19937c(30051977);
 		int x = 6, y = 5, z = 4;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
 		double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);

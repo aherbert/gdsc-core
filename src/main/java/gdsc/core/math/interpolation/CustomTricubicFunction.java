@@ -734,4 +734,18 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 * @return the interpolated value.
 	 */
 	abstract public double value000(double[] df_da, double[] d2f_da2);
+
+	/**
+	 * Creates the tricubic function.
+	 *
+	 * @param a
+	 *            the 64 coefficients
+	 * @return the custom tricubic function
+	 */
+	public static CustomTricubicFunction create(double[] a)
+	{
+		if (a == null || a.length != 64)
+			throw new IllegalArgumentException("Require 64 coefficients");
+		return new DoubleCustomTricubicFunction(a);
+	}
 }

@@ -2161,6 +2161,22 @@ public class CustomTricubicInterpolatingFunction
 		return new Size(dimensions[0], dimensions[1], dimensions[2]);
 	}
 
+	/**
+	 * Gets the coefficients for the given spline node.
+	 *
+	 * @param xindex
+	 *            the x spline position
+	 * @param yindex
+	 *            the y spline position
+	 * @param zindex
+	 *            the z spline position
+	 * @return the coefficients
+	 */
+	public double[] getCoefficients(int xindex, int yindex, int zindex)
+	{
+		return splines[xindex][yindex][zindex].getA().clone();
+	}
+
 	//@formatter:off
 
 	/**
