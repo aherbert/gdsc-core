@@ -1860,7 +1860,7 @@ public class CustomTricubicInterpolatingFunction
 	 */
 	public boolean isSinglePrecision()
 	{
-		return splines[0][0][0] instanceof FloatCustomTricubicFunction;
+		return splines[0][0][0].isSinglePrecision();
 	}
 
 	/**

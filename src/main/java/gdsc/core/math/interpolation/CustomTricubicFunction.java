@@ -59,7 +59,14 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 * @return the coefficient
 	 */
 	abstract public float getf(int i);
-	
+
+	/**
+	 * Checks if is single precision.
+	 *
+	 * @return true, if is single precision
+	 */
+	abstract public boolean isSinglePrecision();
+
 	/**
 	 * Convert this instance to single precision.
 	 *

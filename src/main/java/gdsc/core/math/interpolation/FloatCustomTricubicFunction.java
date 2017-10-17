@@ -21,13 +21,13 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	{
 		return toDouble(a);
 	}
-	
+
 	@Override
 	public double get(int i)
 	{
 		return a[i];
 	}
-	
+
 	@Override
 	public float getf(int i)
 	{
@@ -45,7 +45,7 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 		for (int i = 0; i < 64; i++)
 			a[i] *= scale;
 	}
-	
+
 	/**
 	 * Instantiates a new float custom tricubic function.
 	 * 
@@ -66,6 +66,17 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	FloatCustomTricubicFunction(float[] aV)
 	{
 		a = aV;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#isSinglePrecision()
+	 */
+	@Override
+	public boolean isSinglePrecision()
+	{
+		return false;
 	}
 
 	/*

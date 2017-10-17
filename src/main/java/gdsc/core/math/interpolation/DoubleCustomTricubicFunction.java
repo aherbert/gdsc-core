@@ -96,6 +96,17 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#isSinglePrecision()
+	 */
+	@Override
+	public boolean isSinglePrecision()
+	{
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#toSinglePrecision()
 	 */
 	@Override
