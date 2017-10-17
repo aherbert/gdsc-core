@@ -1,5 +1,7 @@
 package gdsc.core.math.interpolation;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -2494,7 +2496,7 @@ public class CustomTricubicInterpolatingFunction
 		final int lastK = zval.length - 1;
 		Ticker ticker = Ticker.create(progress, (long) lastI * lastJ * lastK, false);
 		ticker.start();
-		DataOutput out = new DataOutputStream(outputStream);
+		DataOutput out = new DataOutputStream(new BufferedOutputStream(outputStream));
 		out.writeInt(xval.length);
 		out.writeInt(yval.length);
 		out.writeInt(zval.length);
@@ -2527,16 +2529,16 @@ public class CustomTricubicInterpolatingFunction
 	}
 
 	public static CustomTricubicInterpolatingFunction read(InputStream inputStream)
-			throws IOException, ClassNotFoundException
+			throws IOException
 	{
 		return read(inputStream, null);
 	}
 
 	public static CustomTricubicInterpolatingFunction read(InputStream inputStream, TrackProgress progress)
-			throws IOException, ClassNotFoundException
+			throws IOException
 	{
 		// Read dimensions
-		DataInput in = new DataInputStream(inputStream);
+		DataInput in = new DataInputStream(new BufferedInputStream(inputStream));
 		int maxx = in.readInt();
 		int maxy = in.readInt();
 		int maxz = in.readInt();
