@@ -2484,7 +2484,7 @@ public class CustomTricubicInterpolatingFunction
 	}
 
 	/**
-	 * Write a tricubic function to the output stream.
+	 * Write a tricubic function to the output stream. The output will be buffered for performance.
 	 *
 	 * @param outputStream
 	 *            the output stream
@@ -2497,7 +2497,7 @@ public class CustomTricubicInterpolatingFunction
 	}
 
 	/**
-	 * Write a tricubic function to the output stream.
+	 * Write a tricubic function to the output stream. The output will be buffered for performance.
 	 *
 	 * @param outputStream
 	 *            the output stream
