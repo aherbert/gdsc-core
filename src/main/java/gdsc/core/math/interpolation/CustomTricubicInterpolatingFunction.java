@@ -926,9 +926,14 @@ public class CustomTricubicInterpolatingFunction
 		final int j = searchIndex(y, yval);
 		final int k = searchIndex(z, zval);
 
-		final double xN = (x - xval[i]) / (xval[i + 1] - xval[i]);
-		final double yN = (y - yval[j]) / (yval[j + 1] - yval[j]);
-		final double zN = (z - zval[k]) / (zval[k + 1] - zval[k]);
+		if (isInteger)
+		{
+			return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k]);
+		}
+		
+		final double xN = (x - xval[i]) / (xscale[i]);
+		final double yN = (y - yval[j]) / (yscale[j]);
+		final double zN = (z - zval[k]) / (zscale[k]);
 
 		return splines[i][j][k].value(xN, yN, zN);
 	}
@@ -943,8 +948,18 @@ public class CustomTricubicInterpolatingFunction
 	 * @throws OutOfRangeException
 	 *             if any of the variables is outside its interpolation range.
 	 */
-	private static int searchIndex(double c, double[] val) throws OutOfRangeException
+	private int searchIndex(double c, double[] val) throws OutOfRangeException
 	{
+		if (isInteger)
+		{
+			int high = val.length - 1;
+
+			if (c < val[0] || c > val[high])
+				throw new OutOfRangeException(c, val[0], val[high]);
+
+			return (int) Math.floor(c - val[0]);
+		}
+
 		return searchIndexBinarySearch(c, val);
 
 		//// TODO - remove this after testing the binary search
