@@ -924,7 +924,6 @@ public class CustomTricubicInterpolatorTest
 
 	private void canExternaliseFunction(boolean singlePrecision) throws IOException, ClassNotFoundException
 	{
-		new Well19937c(30051977);
 		int x = 6, y = 5, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
