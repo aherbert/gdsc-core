@@ -2483,11 +2483,29 @@ public class CustomTricubicInterpolatingFunction
 		}
 	}
 
+	/**
+	 * Write a tricubic function to the output stream.
+	 *
+	 * @param outputStream
+	 *            the output stream
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	public void write(OutputStream outputStream) throws IOException
 	{
 		write(outputStream, null);
 	}
 
+	/**
+	 * Write a tricubic function to the output stream.
+	 *
+	 * @param outputStream
+	 *            the output stream
+	 * @param progress
+	 *            the progress
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	public void write(OutputStream outputStream, TrackProgress progress) throws IOException
 	{
 		// Write dimensions
@@ -2496,7 +2514,8 @@ public class CustomTricubicInterpolatingFunction
 		final int lastK = zval.length - 1;
 		Ticker ticker = Ticker.create(progress, (long) lastI * lastJ * lastK, false);
 		ticker.start();
-		DataOutput out = new DataOutputStream(new BufferedOutputStream(outputStream));
+		BufferedOutputStream buffer = new BufferedOutputStream(outputStream);
+		DataOutput out = new DataOutputStream(buffer);
 		out.writeInt(xval.length);
 		out.writeInt(yval.length);
 		out.writeInt(zval.length);
@@ -2520,6 +2539,7 @@ public class CustomTricubicInterpolatingFunction
 			}
 		}
 		ticker.stop();
+		buffer.flush();
 	}
 
 	private void write(DataOutput out, double[] x) throws IOException
@@ -2528,17 +2548,41 @@ public class CustomTricubicInterpolatingFunction
 			out.writeDouble(x[i]);
 	}
 
-	public static CustomTricubicInterpolatingFunction read(InputStream inputStream)
-			throws IOException
+	/**
+	 * Read a tricubic function from the input stream.
+	 * <p>
+	 * Note: For best performance a buffered input stream should be used.
+	 *
+	 * @param inputStream
+	 *            the input stream
+	 * @return the custom tricubic interpolating function
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	public static CustomTricubicInterpolatingFunction read(InputStream inputStream) throws IOException
 	{
 		return read(inputStream, null);
 	}
 
+	/**
+	 * Read a tricubic function from the input stream.
+	 * <p>
+	 * Note: For best performance a buffered input stream should be used.
+	 *
+	 * @param inputStream
+	 *            the input stream
+	 * @param progress
+	 *            the progress
+	 * @return the custom tricubic interpolating function
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	public static CustomTricubicInterpolatingFunction read(InputStream inputStream, TrackProgress progress)
 			throws IOException
 	{
 		// Read dimensions
-		DataInput in = new DataInputStream(new BufferedInputStream(inputStream));
+		BufferedInputStream buffer = new BufferedInputStream(inputStream);
+		DataInput in = new DataInputStream(buffer);
 		int maxx = in.readInt();
 		int maxy = in.readInt();
 		int maxz = in.readInt();
@@ -2546,7 +2590,7 @@ public class CustomTricubicInterpolatingFunction
 		final int lastJ = maxy - 1;
 		final int lastK = maxz - 1;
 		Ticker ticker = Ticker.create(progress, (long) lastI * lastJ * lastK, false);
-		ticker.start();		
+		ticker.start();
 		// Read axis values
 		double[] xval = read(in, maxx);
 		double[] yval = read(in, maxy);
