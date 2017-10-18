@@ -256,12 +256,32 @@ public class Utils
 	 */
 	public static ImagePlus display(String title, double[] data, int w, int h)
 	{
+		return display(title, data, w, h, 0);
+	}
+
+	/**
+	 * Show the image. Replace a currently open image with the specified title or else create a new image.
+	 *
+	 * @param title
+	 *            the title
+	 * @param data
+	 *            the data
+	 * @param w
+	 *            the w
+	 * @param h
+	 *            the h
+	 * @param flags
+	 *            the flags
+	 * @return the image
+	 */
+	public static ImagePlus display(String title, double[] data, int w, int h, int flags)
+	{
 		if (data == null || data.length < w * h)
 			return null;
 		float[] f = new float[w * h];
 		for (int i = 0; i < f.length; i++)
 			f[i] = (float) data[i];
-		return Utils.display(title, new FloatProcessor(w, h, f));
+		return Utils.display(title, new FloatProcessor(w, h, f), flags);
 	}
 
 	/**
@@ -274,6 +294,26 @@ public class Utils
 	 * @return the image
 	 */
 	public static ImagePlus display(String title, double[][] data, int w, int h)
+	{
+		return display(title, data, w, h, 0);
+	}
+
+	/**
+	 * Show the image. Replace a currently open image with the specified title or else create a new image.
+	 *
+	 * @param title
+	 *            the title
+	 * @param data
+	 *            the data
+	 * @param w
+	 *            the w
+	 * @param h
+	 *            the h
+	 * @param flags
+	 *            the flags
+	 * @return the image
+	 */
+	public static ImagePlus display(String title, double[][] data, int w, int h, int flags)
 	{
 		if (data == null || data.length < 1)
 			return null;
@@ -289,7 +329,7 @@ public class Utils
 				f[i] = (float) data[s][i];
 			stack.setPixels(f, s + 1);
 		}
-		return Utils.display(title, stack);
+		return Utils.display(title, stack, flags);
 	}
 
 	/**
