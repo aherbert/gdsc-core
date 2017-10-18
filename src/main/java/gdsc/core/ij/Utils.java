@@ -172,7 +172,17 @@ public class Utils
 		else
 		{
 			final boolean resized = imp.getWidth() != ip.getWidth() || imp.getHeight() != ip.getHeight();
-			imp.setProcessor(ip);
+			// This works only if it is not a stack
+			if (imp.getStackSize() == 1)
+			{
+				imp.setProcessor(ip);
+			}
+			else
+			{
+				ImageStack stack = new ImageStack(ip.getWidth(), ip.getHeight());
+				stack.addSlice(ip);
+				imp.setStack(stack);
+			}
 			if (resized)
 				// Assume overlay is no longer valid
 				imp.setOverlay(null);
