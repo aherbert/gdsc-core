@@ -82,6 +82,13 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	abstract public CustomTricubicFunction toDoublePrecision();
 
 	/**
+	 * Copy the function.
+	 *
+	 * @return the custom tricubic function
+	 */
+	abstract public CustomTricubicFunction copy();
+
+	/**
 	 * Gets the index in the table for the specified position.
 	 *
 	 * @param i

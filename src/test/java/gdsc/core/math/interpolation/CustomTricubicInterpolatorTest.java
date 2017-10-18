@@ -467,7 +467,7 @@ public class CustomTricubicInterpolatorTest
 			for (int yi = 1; yi < 3; yi++)
 				for (int xi = 1; xi < 3; xi++, i++)
 				{
-					nodes[i] = f1.getSplineNode(zi, yi, xi);
+					nodes[i] = f1.getSplineNodeReference(zi, yi, xi);
 					fnodes[i] = nodes[i].toSinglePrecision();
 				}
 
@@ -550,7 +550,7 @@ public class CustomTricubicInterpolatorTest
 		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
 
 		// Extract node for testing
-		CustomTricubicFunction n1 = f1.getSplineNode(1, 1, 1);
+		CustomTricubicFunction n1 = f1.getSplineNodeReference(1, 1, 1);
 		CustomTricubicFunction n2 = n1.toSinglePrecision();
 
 		double[] table = CustomTricubicFunction.computePowerTable(0, 0, 0);
@@ -774,7 +774,7 @@ public class CustomTricubicInterpolatorTest
 			for (int yi = 1; yi < y - 1; yi++)
 				for (int xi = 1; xi < z - 1; xi++, i++)
 				{
-					nodes[i] = f1.getSplineNode(zi, yi, xi);
+					nodes[i] = f1.getSplineNodeReference(zi, yi, xi);
 					fnodes[i] = nodes[i].toSinglePrecision();
 				}
 
@@ -856,8 +856,8 @@ public class CustomTricubicInterpolatorTest
 			for (int j = 0; j < f1.getMaxYSplinePosition(); j++)
 				for (int k = 0; k < f1.getMaxZSplinePosition(); k++)
 				{
-					DoubleCustomTricubicFunction n1 = (DoubleCustomTricubicFunction) f1.getSplineNode(i, j, k);
-					DoubleCustomTricubicFunction n2 = (DoubleCustomTricubicFunction) f2.getSplineNode(i, j, k);
+					DoubleCustomTricubicFunction n1 = (DoubleCustomTricubicFunction) f1.getSplineNodeReference(i, j, k);
+					DoubleCustomTricubicFunction n2 = (DoubleCustomTricubicFunction) f2.getSplineNodeReference(i, j, k);
 					Assert.assertArrayEquals(n1.getA(), n2.getA(), 0);
 				}
 	}

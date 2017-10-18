@@ -104,6 +104,17 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#copy()
+	 */
+	@Override
+	public CustomTricubicFunction copy()
+	{
+		return new DoubleCustomTricubicFunction(a.clone());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value000()
 	 */
 	@Override

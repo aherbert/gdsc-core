@@ -1848,9 +1848,25 @@ public class CustomTricubicInterpolatingFunction
 	 *            the k
 	 * @return the spline node
 	 */
-	CustomTricubicFunction getSplineNode(int i, int j, int k)
+	CustomTricubicFunction getSplineNodeReference(int i, int j, int k)
 	{
 		return splines[i][j][k];
+	}
+
+	/**
+	 * Gets a copy of the spline node.
+	 *
+	 * @param i
+	 *            the i
+	 * @param j
+	 *            the j
+	 * @param k
+	 *            the k
+	 * @return the spline node
+	 */
+	public CustomTricubicFunction getSplineNode(int i, int j, int k)
+	{
+		return splines[i][j][k].copy();
 	}
 
 	/**
