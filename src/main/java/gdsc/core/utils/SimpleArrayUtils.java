@@ -211,8 +211,27 @@ public class SimpleArrayUtils
 	public static double[] newArray(int length, double start, double increment)
 	{
 		double[] data = new double[length];
-		for (int i = 0; i < length; i++, start += increment)
-			data[i] = start;
+		for (int i = 0; i < length; i++)
+			data[i] = start + i * increment;
+		return data;
+	}
+
+	/**
+	 * Create and fill an array
+	 * 
+	 * @param length
+	 *            The length of the array
+	 * @param start
+	 *            The start
+	 * @param increment
+	 *            The increment
+	 * @return The new array
+	 */
+	public static float[] newArray(int length, float start, float increment)
+	{
+		float[] data = new float[length];
+		for (int i = 0; i < length; i++)
+			data[i] = start + i * increment;
 		return data;
 	}
 
@@ -653,7 +672,7 @@ public class SimpleArrayUtils
 				max = i;
 		return new int[] { min, max };
 	}
-	
+
 	/**
 	 * Find min index
 	 *
