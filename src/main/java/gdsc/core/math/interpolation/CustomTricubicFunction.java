@@ -321,6 +321,42 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	}
 
 	/**
+	 * Checks if the power table is at the boundary of the interpolation range, i.e. x==0 or 1; y==0 or 1; z==0 or 1.
+	 *
+	 * @param table
+	 *            the table
+	 * @return true, if at the boundary
+	 */
+	public static boolean isBoundary(double[] table)
+	{
+		return isBoundary(table[1]) || isBoundary(table[4]) || isBoundary(table[16]);
+	}
+
+	/**
+	 * Checks if the power table is at the boundary of the interpolation range, i.e. x==0 or 1; y==0 or 1; z==0 or 1.
+	 *
+	 * @param table
+	 *            the table
+	 * @return true, if at the boundary
+	 */
+	public static boolean isBoundary(float[] table)
+	{
+		return isBoundary(table[1]) || isBoundary(table[4]) || isBoundary(table[16]);
+	}
+
+	/**
+	 * Checks if the value is 0 or 1
+	 *
+	 * @param d
+	 *            the value
+	 * @return true, if 0 or 1
+	 */
+	private static boolean isBoundary(double d)
+	{
+		return d == 0 || d == 1;
+	}
+
+	/**
 	 * Compute the power table.
 	 *
 	 * @param x
