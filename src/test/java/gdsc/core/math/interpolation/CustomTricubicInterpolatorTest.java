@@ -21,6 +21,7 @@ import gdsc.core.test.TimingService;
 import gdsc.core.utils.DoubleEquality;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.SimpleArrayUtils;
+import gdsc.core.utils.Statistics;
 
 public class CustomTricubicInterpolatorTest
 {
@@ -942,7 +943,8 @@ public class CustomTricubicInterpolatorTest
 
 		byte[] bytes = b.toByteArray();
 		System.out.printf("Single precision = %b, size = %d, memory estimate = %d\n", singlePrecision, bytes.length,
-				CustomTricubicInterpolatingFunction.estimateSize(new int[] { x, y, z }).getMemoryFootprint(singlePrecision));
+				CustomTricubicInterpolatingFunction.estimateSize(new int[] { x, y, z })
+						.getMemoryFootprint(singlePrecision));
 		CustomTricubicInterpolatingFunction f2 = CustomTricubicInterpolatingFunction
 				.read(new ByteArrayInputStream(bytes));
 
@@ -962,5 +964,136 @@ public class CustomTricubicInterpolatorTest
 				{
 					Assert.assertEquals(f1.value(p1.x[i], p1.y[j], p1.z[k]), f2.value(p1.x[i], p1.y[j], p1.z[k]), 0);
 				}
+	}
+
+	@Test
+	public void canInterpolateAcrossNodesForValueAndGradient1()
+	{
+		RandomGenerator r = new Well19937c(30051977);
+		int x = 4, y = 4, z = 4;
+		// Difference scales
+		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
+		double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
+		double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
+		double[] df_daA = new double[3];
+		double[] df_daB = new double[3];
+		for (int ii = 0; ii < 3; ii++)
+		{
+			double[][][] fval = createData(x, y, z, (ii == 0) ? null : r);
+			CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval,
+					fval);
+			for (int zz = f1.getMaxZSplinePosition(); zz > 0; zz--)
+			{
+				for (int yy = f1.getMaxYSplinePosition(); yy > 0; yy--)
+				{
+					for (int xx = f1.getMaxXSplinePosition(); xx > 0; xx--)
+					{
+						CustomTricubicFunction next = f1.getSplineNodeReference(xx, yy, zz);
+
+						// Test that interpolating at x=1 equals x=0 for the next node
+						for (int k = 0; k < 2; k++)
+						{
+							int zzz = zz - k;
+							for (int j = 0; j < 2; j++)
+							{
+								int yyy = yy - j;
+								for (int i = 0; i < 2; i++)
+								{
+									int xxx = xx - i;
+									if (i + j + k == 0)
+										continue;
+
+									CustomTricubicFunction previous = f1.getSplineNodeReference(xxx, yyy, zzz);
+
+									double e = next.value(0, 0, 0, df_daA);
+									double o = previous.value(i, j, k, df_daB);
+									Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+
+									for (int c = 0; c < 3; c++)
+									{
+										Assert.assertEquals(df_daA[c], df_daB[c], Math.abs(df_daA[c] * 1e-8));
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@Test
+	public void cannotInterpolateAcrossNodesForGradient2()
+	{
+		RandomGenerator r = new Well19937c(30051977);
+		int x = 4, y = 4, z = 4;
+		// Difference scales
+		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
+		double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
+		double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
+		double[] df_daA = new double[3];
+		double[] df_daB = new double[3];
+		double[] d2f_da2A = new double[3];
+		double[] d2f_da2B = new double[3];
+		for (int ii = 0; ii < 3; ii++)
+		{
+			Statistics[] value = new Statistics[3];
+			for (int i = 0; i < value.length; i++)
+				value[i] = new Statistics();
+
+			double[][][] fval = createData(x, y, z, (ii == 0) ? null : r);
+			CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval,
+					fval);
+			for (int zz = f1.getMaxZSplinePosition(); zz > 0; zz--)
+			{
+				for (int yy = f1.getMaxYSplinePosition(); yy > 0; yy--)
+				{
+					for (int xx = f1.getMaxXSplinePosition(); xx > 0; xx--)
+					{
+						CustomTricubicFunction next = f1.getSplineNodeReference(xx, yy, zz);
+
+						// Test that interpolating at x=1 equals x=0 for the next node
+						for (int k = 0; k < 2; k++)
+						{
+							int zzz = zz - k;
+							for (int j = 0; j < 2; j++)
+							{
+								int yyy = yy - j;
+								for (int i = 0; i < 2; i++)
+								{
+									int xxx = xx - i;
+									if (i + j + k == 0)
+										continue;
+
+									CustomTricubicFunction previous = f1.getSplineNodeReference(xxx, yyy, zzz);
+
+									next.value(0, 0, 0, df_daA, d2f_da2A);
+									previous.value(i, j, k, df_daB, d2f_da2B);
+
+									for (int c = 0; c < 3; c++)
+									{
+										// The function may change direction so check the 2nd derivative magnitude is similar
+										//System.out.printf("[%d] %f vs %f\n", c, d2f_da2A[c], d2f_da2B[c], DoubleEquality.relativeError(d2f_da2A[c], d2f_da2B[c]));
+										d2f_da2A[c] = Math.abs(d2f_da2A[c]);
+										d2f_da2B[c] = Math.abs(d2f_da2B[c]);
+										value[c].add(DoubleEquality.relativeError(d2f_da2A[c], d2f_da2B[c]));
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			boolean same = true;
+			for (int c = 0; c < 3; c++)
+			{
+				// The second gradients are so different that this should fail
+				same = same && value[c].getMean() < 0.01;
+				System.out.printf("d2yda2[%d] Error = %f +/- %f\n", c, value[c].getMean(),
+						value[c].getStandardDeviation());
+			}
+			Assert.assertFalse(same);
+		}
 	}
 }
