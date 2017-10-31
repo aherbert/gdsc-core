@@ -49,9 +49,9 @@ public class DoubleArrayBivalueProvider implements BivalueProvider
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see gdsc.core.data.TrivalueProvider#getMaxX()
+	 * @see gdsc.core.data.BivalueProvider#getLengthX()
 	 */
-	public int getMaxX()
+	public int getLengthX()
 	{
 		return maxx;
 	}
@@ -59,9 +59,9 @@ public class DoubleArrayBivalueProvider implements BivalueProvider
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see gdsc.core.data.TrivalueProvider#getMaxY()
+	 * @see gdsc.core.data.BivalueProvider#getLengthY()
 	 */
-	public int getMaxY()
+	public int getLengthY()
 	{
 		return maxy;
 	}

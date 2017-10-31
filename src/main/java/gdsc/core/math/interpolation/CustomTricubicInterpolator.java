@@ -46,6 +46,7 @@ import gdsc.core.data.ValueProvider;
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.Ticker;
 import gdsc.core.logging.TrackProgress;
+import gdsc.core.utils.SimpleArrayUtils;
 import gdsc.core.utils.TurboList;
 
 /**
@@ -70,6 +71,7 @@ public class CustomTricubicInterpolator
     	TrackProgress progress;
     	ExecutorService executorService;
     	long taskSize;
+    	boolean integerAxisValues;
     	
     	/**
 	     * Sets the X value.
@@ -190,6 +192,18 @@ public class CustomTricubicInterpolator
     		this.executorService = executorService;
     		return this;
     	}
+    	
+    	/**
+	     * Set to true to create integer axis values stating from zero.
+	     *
+	     * @param integerAxisValues the integer axis values flag
+	     * @return the builder
+	     */
+	    public Builder setIntegerAxisValues(boolean integerAxisValues)
+    	{
+    		this.integerAxisValues = integerAxisValues;
+    		return this;
+    	}
 
     	/**
     	 * Sets the task size for multi-threaded interpolation. If the number of interpolation 
@@ -216,6 +230,12 @@ public class CustomTricubicInterpolator
         	if (taskSize > 0)
         		i.setTaskSize(taskSize);
         	i.setExecutorService(executorService);
+        	if (integerAxisValues)
+        	{
+        		setXValue(SimpleArrayUtils.newArray(fval.getLengthX(), 0, 1.0));
+        		setYValue(SimpleArrayUtils.newArray(fval.getLengthY(), 0, 1.0));
+        		setZValue(SimpleArrayUtils.newArray(fval.getLengthZ(), 0, 1.0));
+        	}
         	return i.interpolate(xval, yval, zval, fval);
         }  	
 	}
@@ -261,32 +281,32 @@ public class CustomTricubicInterpolator
                                                            final TrivalueProvider fval)
         throws NoDataException, NumberIsTooSmallException,
                DimensionMismatchException, NonMonotonicSequenceException {
-        if (xval.getMaxX() < 2) {
-            throw new NumberIsTooSmallException(xval.getMaxX(), 2, true);
+        if (xval.getLength() < 2) {
+            throw new NumberIsTooSmallException(xval.getLength(), 2, true);
         }
-        if (yval.getMaxX() < 2) {
-            throw new NumberIsTooSmallException(yval.getMaxX(), 2, true);
+        if (yval.getLength() < 2) {
+            throw new NumberIsTooSmallException(yval.getLength(), 2, true);
         }
-        if (zval.getMaxX() < 2) {
-            throw new NumberIsTooSmallException(zval.getMaxX(), 2, true);
+        if (zval.getLength() < 2) {
+            throw new NumberIsTooSmallException(zval.getLength(), 2, true);
         }
-        if (xval.getMaxX() != fval.getMaxX()) {
-            throw new DimensionMismatchException(xval.getMaxX(), fval.getMaxX());
+        if (xval.getLength() != fval.getLengthX()) {
+            throw new DimensionMismatchException(xval.getLength(), fval.getLengthX());
         }
-        if (yval.getMaxX() != fval.getMaxY()) {
-            throw new DimensionMismatchException(yval.getMaxX(), fval.getMaxY());
+        if (yval.getLength() != fval.getLengthY()) {
+            throw new DimensionMismatchException(yval.getLength(), fval.getLengthY());
         }
-        if (zval.getMaxX() != fval.getMaxZ()) {
-            throw new DimensionMismatchException(zval.getMaxX(), fval.getMaxZ());
+        if (zval.getLength() != fval.getLengthZ()) {
+            throw new DimensionMismatchException(zval.getLength(), fval.getLengthZ());
         }
         
         CustomTricubicInterpolatingFunction.checkOrder(xval);
         CustomTricubicInterpolatingFunction.checkOrder(yval);
         CustomTricubicInterpolatingFunction.checkOrder(zval);
 
-        final int xLen = xval.getMaxX();
-        final int yLen = yval.getMaxX();
-        final int zLen = zval.getMaxX();
+        final int xLen = xval.getLength();
+        final int yLen = yval.getLength();
+        final int zLen = zval.getLength();
         
         // Approximation to the partial derivatives using finite differences.
         final double[][][] dFdX = new double[xLen][yLen][zLen];

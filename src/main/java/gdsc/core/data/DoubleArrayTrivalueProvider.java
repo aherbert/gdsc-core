@@ -58,9 +58,9 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see gdsc.core.data.TrivalueProvider#getMaxX()
+	 * @see gdsc.core.data.TrivalueProvider#getLengthX()
 	 */
-	public int getMaxX()
+	public int getLengthX()
 	{
 		return maxx;
 	}
@@ -68,9 +68,9 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see gdsc.core.data.TrivalueProvider#getMaxY()
+	 * @see gdsc.core.data.TrivalueProvider#getLengthY()
 	 */
-	public int getMaxY()
+	public int getLengthY()
 	{
 		return maxy;
 	}
@@ -78,9 +78,9 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see gdsc.core.data.TrivalueProvider#getMaxZ()
+	 * @see gdsc.core.data.TrivalueProvider#getLengthZ()
 	 */
-	public int getMaxZ()
+	public int getLengthZ()
 	{
 		return maxz;
 	}

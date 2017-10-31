@@ -28,9 +28,9 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider
 	 * @param val
 	 *            the stack of values. Each array is packed in yx order.
 	 * @param maxx
-	 *            the maxx
+	 *            the length in the x-dimension
 	 * @param maxy
-	 *            the maxy
+	 *            the length in the y-dimension
 	 * @throws DataException
 	 *             If the stack is missing data
 	 */
@@ -52,9 +52,9 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see gdsc.core.data.TrivalueProvider#getMaxX()
+	 * @see gdsc.core.data.TrivalueProvider#getLengthX()
 	 */
-	public int getMaxX()
+	public int getLengthX()
 	{
 		return maxx;
 	}
@@ -62,9 +62,9 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see gdsc.core.data.TrivalueProvider#getMaxY()
+	 * @see gdsc.core.data.TrivalueProvider#getLengthY()
 	 */
-	public int getMaxY()
+	public int getLengthY()
 	{
 		return maxy;
 	}
@@ -72,9 +72,9 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see gdsc.core.data.TrivalueProvider#getMaxZ()
+	 * @see gdsc.core.data.TrivalueProvider#getLengthZ()
 	 */
-	public int getMaxZ()
+	public int getLengthZ()
 	{
 		return val.length;
 	}
@@ -159,7 +159,7 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider
 	 */
 	public double[][][] toArray()
 	{
-		double[][][] xyz = new double[maxx][maxy][getMaxZ()];
+		double[][][] xyz = new double[maxx][maxy][getLengthZ()];
 		for (int z = 0; z < val.length; z++)
 		{
 			double[] data = val[z];

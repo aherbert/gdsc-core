@@ -226,9 +226,9 @@ public class CustomTricubicInterpolatingFunction
         throws NoDataException,
                DimensionMismatchException,
                NonMonotonicSequenceException {
-        final int xLen = x.getMaxX();
-        final int yLen = y.getMaxX();
-        final int zLen = z.getMaxX();
+        final int xLen = x.getLength();
+        final int yLen = y.getLength();
+        final int zLen = z.getLength();
 
         // The original only failed if the length was zero. However
         // this function requires two points to interpolate between so 
@@ -592,12 +592,12 @@ public class CustomTricubicInterpolatingFunction
 
 	private static void checkDimensions(int xLen, int yLen, int zLen, TrivalueProvider f)
 	{
-        if (xLen != f.getMaxX())
-            throw new DimensionMismatchException(xLen, f.getMaxX());
-        if (yLen != f.getMaxY())
-            throw new DimensionMismatchException(yLen, f.getMaxY());
-        if (zLen != f.getMaxZ())
-            throw new DimensionMismatchException(zLen, f.getMaxZ());
+        if (xLen != f.getLengthX())
+            throw new DimensionMismatchException(xLen, f.getLengthX());
+        if (yLen != f.getLengthY())
+            throw new DimensionMismatchException(yLen, f.getLengthY());
+        if (zLen != f.getLengthZ())
+            throw new DimensionMismatchException(zLen, f.getLengthZ());
 	}
 
 	/**
@@ -611,7 +611,7 @@ public class CustomTricubicInterpolatingFunction
 	static void checkOrder(ValueProvider val) throws NonMonotonicSequenceException 
 	{
         double previous = val.get(0);
-        final int max = val.getMaxX();
+        final int max = val.getLength();
 
         for (int index = 1; index < max; index++) {
         	double current = val.get(index);
@@ -859,9 +859,9 @@ public class CustomTricubicInterpolatingFunction
 			        throws NoDataException,
 		               DimensionMismatchException,
 		               NonMonotonicSequenceException {
-		final int xLen = x.getMaxX();
-		final int yLen = y.getMaxX();
-		final int zLen = z.getMaxX();
+		final int xLen = x.getLength();
+		final int yLen = y.getLength();
+		final int zLen = z.getLength();
 
 		// The original only failed if the length was zero. However
 		// this function requires two points to interpolate between so 

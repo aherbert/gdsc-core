@@ -20,18 +20,18 @@ package gdsc.core.data;
 public interface BivalueProvider
 {
 	/**
-	 * Gets the max X index.
+	 * Gets the length of the X-dimension.
 	 *
-	 * @return the max X index
+	 * @return the length
 	 */
-	public int getMaxX();
+	public int getLengthX();
 
 	/**
-	 * Gets the max Y index.
+	 * Gets the length of the Y-dimension.
 	 *
-	 * @return the max Y index
+	 * @return the length
 	 */
-	public int getMaxY();
+	public int getLengthY();
 
 	/**
 	 * Gets the value.

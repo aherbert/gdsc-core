@@ -20,11 +20,11 @@ package gdsc.core.data;
 public interface ValueProvider
 {
 	/**
-	 * Gets the max X index.
+	 * Gets the length.
 	 *
-	 * @return the max X index
+	 * @return the length
 	 */
-	public int getMaxX();
+	public int getLength();
 
 	/**
 	 * Gets the value.

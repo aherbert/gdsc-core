@@ -18,7 +18,6 @@ package gdsc.core.data;
  */
 public class DoubleArrayValueProvider implements ValueProvider
 {
-	private final int maxx;
 	private final double[] val;
 
 	/**
@@ -32,19 +31,18 @@ public class DoubleArrayValueProvider implements ValueProvider
 	public DoubleArrayValueProvider(double[] val) throws DataException
 	{
 		if (val.length == 0)
-			throw new DataException("No X data");
+			throw new DataException("No data");
 		this.val = val;
-		maxx = val.length;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see gdsc.core.data.ValueProvider#getMaxX()
+	 * @see gdsc.core.data.ValueProvider#getLength()
 	 */
-	public int getMaxX()
+	public int getLength()
 	{
-		return maxx;
+		return val.length;
 	}
 
 	/*

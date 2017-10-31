@@ -20,25 +20,25 @@ package gdsc.core.data;
 public interface TrivalueProvider
 {
 	/**
-	 * Gets the max X index.
+	 * Gets the length of the X-dimension.
 	 *
-	 * @return the max X index
+	 * @return the length
 	 */
-	public int getMaxX();
+	public int getLengthX();
 
 	/**
-	 * Gets the max Y index.
+	 * Gets the length of the Y-dimension.
 	 *
-	 * @return the max Y index
+	 * @return the length
 	 */
-	public int getMaxY();
+	public int getLengthY();
 
 	/**
-	 * Gets the max Z index.
+	 * Gets the length of the Z-dimension.
 	 *
-	 * @return the max Z index
+	 * @return the length
 	 */
-	public int getMaxZ();
+	public int getLengthZ();
 
 	/**
 	 * Gets the value.
