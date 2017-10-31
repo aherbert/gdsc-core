@@ -321,27 +321,51 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	}
 
 	/**
-	 * Checks if the power table is at the boundary of the interpolation range, i.e. x==0 or 1; y==0 or 1; z==0 or 1.
+	 * Checks if the power table is at the boundary of the interpolation range for the given dimension, i.e. 0 or 1
 	 *
+	 * @param dimension
+	 *            the dimension [x=0,y=1,z=2]
 	 * @param table
 	 *            the table
 	 * @return true, if at the boundary
 	 */
-	public static boolean isBoundary(double[] table)
+	public static boolean isBoundary(int dimension, double[] table)
 	{
-		return isBoundary(table[1]) || isBoundary(table[4]) || isBoundary(table[16]);
+		switch (dimension)
+		{
+			case 0:
+				return isBoundary(table[1]);
+			case 1:
+				return isBoundary(table[4]);
+			case 2:
+				return isBoundary(table[16]);
+			default:
+				return false;
+		}
 	}
 
 	/**
-	 * Checks if the power table is at the boundary of the interpolation range, i.e. x==0 or 1; y==0 or 1; z==0 or 1.
+	 * Checks if the power table is at the boundary of the interpolation range for the given dimension, i.e. 0 or 1
 	 *
+	 * @param dimension
+	 *            the dimension [x=0,y=1,z=2]
 	 * @param table
 	 *            the table
 	 * @return true, if at the boundary
 	 */
-	public static boolean isBoundary(float[] table)
+	public static boolean isBoundary(int dimension, float[] table)
 	{
-		return isBoundary(table[1]) || isBoundary(table[4]) || isBoundary(table[16]);
+		switch (dimension)
+		{
+			case 0:
+				return isBoundary(table[1]);
+			case 1:
+				return isBoundary(table[4]);
+			case 2:
+				return isBoundary(table[16]);
+			default:
+				return false;
+		}
 	}
 
 	/**
