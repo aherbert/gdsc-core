@@ -3,6 +3,7 @@ package gdsc.core.math.interpolation;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -291,11 +292,15 @@ public class CustomTricubicInterpolatorTest
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
 		double[] yval = SimpleArrayUtils.newArray(y, 0, 0.5);
 		double[] zval = SimpleArrayUtils.newArray(z, 0, 2.0);
-		// Gradients on the node points are not numerically evaluated correctly as 
-		// the function switches to a new cubic polynomial. So evaluate off the node points.
-		double[] testx = SimpleArrayUtils.newArray(9, xval[1] + 0.01, (xval[2] - xval[1]) / 5);
-		double[] testy = SimpleArrayUtils.newArray(9, yval[1] + 0.01, (yval[2] - yval[1]) / 5);
-		double[] testz = SimpleArrayUtils.newArray(9, zval[1] + 0.01, (zval[2] - zval[1]) / 5);
+
+		// Gradients on the node points are evaluated using different polynomials 
+		// as the function switches to a new cubic polynomial.
+		// First-order gradients should be OK across nodes.
+		// Second-order gradients will be incorrect.
+
+		double[] testx = SimpleArrayUtils.newArray(9, xval[1], (xval[2] - xval[1]) / 5);
+		double[] testy = SimpleArrayUtils.newArray(9, yval[1], (yval[2] - yval[1]) / 5);
+		double[] testz = SimpleArrayUtils.newArray(9, zval[1], (zval[2] - zval[1]) / 5);
 		double[] df_daH = new double[3];
 		double[] df_daL = new double[3];
 		double[] df_daA = new double[3];
@@ -310,13 +315,18 @@ public class CustomTricubicInterpolatorTest
 					fval);
 			for (double zz : testz)
 			{
+				boolean onNode = Arrays.binarySearch(zval, zz) >= 0;
 				IndexedCubicSplinePosition sz = f1.getZSplinePosition(zz);
+
 				for (double yy : testy)
 				{
+					onNode = onNode || Arrays.binarySearch(yval, yy) >= 0;
 					IndexedCubicSplinePosition sy = f1.getYSplinePosition(yy);
 
 					for (double xx : testx)
 					{
+						onNode = onNode || Arrays.binarySearch(xval, xx) >= 0;
+
 						double e = f1.value(xx, yy, zz);
 						double o = f1.value(xx, yy, zz, df_daA);
 						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
@@ -357,18 +367,21 @@ public class CustomTricubicInterpolatorTest
 									eq.almostEqualRelativeOrAbsolute(firstOrder, df_daA[j]));
 
 							double secondOrder = (df_daH[j] - df_daL[j]) / (2 * h);
-							Assert.assertTrue(secondOrder + " sign != " + d2f_da2A[j],
-									(secondOrder * d2f_da2A[j]) >= 0);
-							//boolean ok = eq.almostEqualRelativeOrAbsolute(secondOrder, d2f_da2A[j]);
-							//System.out.printf("%d [%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", j, xx, yy, zz, secondOrder,
-							//		j, d2f_da2A[j], ok);
-							//if (!ok)
-							//{
-							//System.out.printf("%d [%.1f,%.1f,%.1f] %f == [%d] %f?\n", j, xx, yy, zz, secondOrder, j,
-							//		d2f_da2A[j]);
-							//}
-							Assert.assertTrue(secondOrder + " != " + d2f_da2A[j],
-									eq.almostEqualRelativeOrAbsolute(secondOrder, d2f_da2A[j]));
+							if (!onNode)
+							{
+								Assert.assertTrue(secondOrder + " sign != " + d2f_da2A[j],
+										(secondOrder * d2f_da2A[j]) >= 0);
+								//boolean ok = eq.almostEqualRelativeOrAbsolute(secondOrder, d2f_da2A[j]);
+								//System.out.printf("%d [%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", j, xx, yy, zz, secondOrder,
+								//		j, d2f_da2A[j], ok);
+								//if (!ok)
+								//{
+								//System.out.printf("%d [%.1f,%.1f,%.1f] %f == [%d] %f?\n", j, xx, yy, zz, secondOrder, j,
+								//		d2f_da2A[j]);
+								//}
+								Assert.assertTrue(secondOrder + " != " + d2f_da2A[j],
+										eq.almostEqualRelativeOrAbsolute(secondOrder, d2f_da2A[j]));
+							}
 						}
 					}
 				}
@@ -942,9 +955,9 @@ public class CustomTricubicInterpolatorTest
 		f1.write(b);
 
 		byte[] bytes = b.toByteArray();
-		System.out.printf("Single precision = %b, size = %d, memory estimate = %d\n", singlePrecision, bytes.length,
-				CustomTricubicInterpolatingFunction.estimateSize(new int[] { x, y, z })
-						.getMemoryFootprint(singlePrecision));
+		//System.out.printf("Single precision = %b, size = %d, memory estimate = %d\n", singlePrecision, bytes.length,
+		//		CustomTricubicInterpolatingFunction.estimateSize(new int[] { x, y, z })
+		//				.getMemoryFootprint(singlePrecision));
 		CustomTricubicInterpolatingFunction f2 = CustomTricubicInterpolatingFunction
 				.read(new ByteArrayInputStream(bytes));
 
@@ -1090,8 +1103,8 @@ public class CustomTricubicInterpolatorTest
 			{
 				// The second gradients are so different that this should fail
 				same = same && value[c].getMean() < 0.01;
-				System.out.printf("d2yda2[%d] Error = %f +/- %f\n", c, value[c].getMean(),
-						value[c].getStandardDeviation());
+				//System.out.printf("d2yda2[%d] Error = %f +/- %f\n", c, value[c].getMean(),
+				//		value[c].getStandardDeviation());
 			}
 			Assert.assertFalse(same);
 		}
