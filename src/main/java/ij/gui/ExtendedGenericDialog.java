@@ -84,6 +84,9 @@ public class ExtendedGenericDialog extends GenericDialog
 	// Max unscrolled height - Set to a reasonable value for current screen resolution.
 	private int maxHeight = screenDimension.height - 150;
 
+	/** The silent flag. The call to {@link #setVisible(boolean)} will be ignored. */
+	private boolean silent;
+
 	/**
 	 * Instantiates a new extended generic dialog.
 	 *
@@ -578,8 +581,9 @@ public class ExtendedGenericDialog extends GenericDialog
 		 * <p>
 		 * This will be called when the parent field is read using the appropriate getNext(...) method. It allows macros
 		 * to be supported by either recording the options in the Recorder or reading the options from the Macro
-		 * options. The simple implementation is to construct an ExtendedGenericDialog to collect the options but do not
-		 * present the dialog using the showDialog() method, just proceed direct to reading the fields..
+		 * options. The simple implementation is to construct an ExtendedGenericDialog to collect the options and set
+		 * the silent flag to true. The dialog will not be presented in the showDialog() method and the method can
+		 * proceed direct to reading the fields.
 		 * 
 		 * @return true, if new options were collected
 		 */
@@ -1230,6 +1234,9 @@ public class ExtendedGenericDialog extends GenericDialog
 	@Override
 	public void setVisible(boolean b)
 	{
+		if (silent)
+			return;
+
 		// Allow positioning relative to a parent component
 		if (positionComponent != null && positionComponent.isVisible())
 			setLocationRelativeTo(positionComponent);
@@ -1420,5 +1427,19 @@ public class ExtendedGenericDialog extends GenericDialog
 	{
 		if (location != null)
 			setLocation(location.x, location.y);
+	}
+
+	/**
+	 * Sets the silent flag. The call to {@link #setVisible(boolean)} will be ignored.
+	 * <p>
+	 * Use this to not show the dialog in a call to {@link #showDialog()}. However the dialog can still be read and will
+	 * record in macros if necessary.
+	 *
+	 * @param silent
+	 *            the new silent flag
+	 */
+	public void setSilent(boolean silent)
+	{
+		this.silent = silent;
 	}
 }
