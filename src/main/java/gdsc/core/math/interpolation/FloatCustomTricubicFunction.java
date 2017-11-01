@@ -76,7 +76,7 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	@Override
 	public boolean isSinglePrecision()
 	{
-		return false;
+		return true;
 	}
 
 	/*
@@ -109,7 +109,7 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	@Override
 	public CustomTricubicFunction copy()
 	{
-		return new DoubleCustomTricubicFunction(a.clone());
+		return new FloatCustomTricubicFunction(a.clone());
 	}
 
 	/*
@@ -242,6 +242,10 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	@Override
 	public double value(float[] table)
 	{
+		//double v = 0;
+		//for (int i = 0; i < 64; i++)
+		//	v += a[i] * table[i];
+		//return v;
 		return a[0] * table[0] + a[1] * table[1] + a[2] * table[2] + a[3] * table[3] + a[4] * table[4] +
 				a[5] * table[5] + a[6] * table[6] + a[7] * table[7] + a[8] * table[8] + a[9] * table[9] +
 				a[10] * table[10] + a[11] * table[11] + a[12] * table[12] + a[13] * table[13] + a[14] * table[14] +
