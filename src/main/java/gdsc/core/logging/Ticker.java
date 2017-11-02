@@ -24,7 +24,8 @@ import gdsc.core.ij.Utils;
 public abstract class Ticker
 {
 	/**
-	 * Increment the current ticks and report the progress.
+	 * Increment the current ticks and report the progress. Ideally this should be called after the work has been done
+	 * as the progress is reported as completed.
 	 */
 	public abstract void tick();
 

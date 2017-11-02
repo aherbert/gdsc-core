@@ -2085,8 +2085,8 @@ public class CustomTricubicInterpolatingFunction
 				final int j = nx1 * (yt[y] + ny1 * zt[z]);
 				for (int x = 0; x <= maxx; x++)
 				{
-					ticker.tick();
 					procedure.setValue(x, y, z, value(xp[x], yposition, zposition, tables[j + xt[x]]));
+					ticker.tick();
 				}
 			}
 		}
@@ -2564,8 +2564,8 @@ public class CustomTricubicInterpolatingFunction
 			{
 				for (int k = 0; k < lastK; k++)
 				{
-					ticker.tick();
 					writer.write(out, splines[i][j][k]);
+					ticker.tick();
 				}
 			}
 		}
@@ -2636,8 +2636,8 @@ public class CustomTricubicInterpolatingFunction
 			{
 				for (int k = 0; k < lastK; k++)
 				{
-					ticker.tick();
 					splines[i][j][k] = reader.read(in);
+					ticker.tick();
 				}
 			}
 		}
