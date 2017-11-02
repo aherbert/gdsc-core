@@ -82,7 +82,7 @@ public abstract class Ticker
 	public static Ticker create(TrackProgress trackProgress, long total, boolean threadSafe)
 	{
 		if (trackProgress == null || trackProgress instanceof NullTrackProgress || total < 1)
-			return new NullTicker();
+			return INSTANCE;
 		if (total < Integer.MAX_VALUE)
 		{
 			return (threadSafe) ? new ConcurrentIntTicker(trackProgress, (int) total)
@@ -124,6 +124,9 @@ public abstract class Ticker
 
 		}
 	}
+	
+	/** An instance that ignores all calls to the Ticker interface */
+	public static final Ticker INSTANCE = new NullTicker();
 
 	private static abstract class BaseTicker extends Ticker
 	{
