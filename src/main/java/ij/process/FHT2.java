@@ -1,5 +1,18 @@
 package ij.process;
 
+/*----------------------------------------------------------------------------- 
+ * GDSC Software
+ * 
+ * Copyright (C) 2017 Alex Herbert
+ * Genome Damage and Stability Centre
+ * University of Sussex, UK
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *---------------------------------------------------------------------------*/
+
 import ij.ImageStack;
 
 /**
@@ -7,26 +20,93 @@ import ij.ImageStack;
  */
 public class FHT2 extends FHT
 {
-	public FHT2(ImageProcessor ip)
+	/**
+	 * Simple wrapper to allow the input float data to be passed up to the FHT without duplication
+	 */
+	private static class NonDuplicatingFloatProcessor extends FloatProcessor
 	{
-		super(ip);
+		/**
+		 * Instantiates a new non duplicating float processor.
+		 *
+		 * @param width
+		 *            the width
+		 * @param height
+		 *            the height
+		 * @param data
+		 *            the data
+		 */
+		public NonDuplicatingFloatProcessor(int width, int height, float[] data)
+		{
+			super(width, height, data);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ij.process.FloatProcessor#duplicate()
+		 */
+		@Override
+		public ImageProcessor duplicate()
+		{
+			// No duplication
+			return this;
+		}
 	}
 
+	/**
+	 * Instantiates a new fht2.
+	 *
+	 * @param imageProcessor the image processor
+	 */
+	public FHT2(ImageProcessor imageProcessor)
+	{
+		super(imageProcessor);
+	}
+
+	/**
+	 * Instantiates a new fht2.
+	 */
 	public FHT2()
 	{
 		super();
 	}
 
-	public FHT2(ImageProcessor floatProcessor, boolean isFrequencyDomain)
+	/**
+	 * Instantiates a new fht2.
+	 *
+	 * @param imageProcessor
+	 *            the image processor
+	 * @param isFrequencyDomain
+	 *            True if in the frequency domain
+	 */
+	public FHT2(ImageProcessor imageProcessor, boolean isFrequencyDomain)
 	{
-		super(floatProcessor, isFrequencyDomain);
+		super(imageProcessor, isFrequencyDomain);
 	}
 
-	public FHT2(float[] data, int maxN, boolean isFrequencyDomain)
+	/**
+	 * Instantiates a new fht2.
+	 *
+	 * @param pixels
+	 *            the pixels
+	 * @param maxN
+	 *            the max N
+	 * @param isFrequencyDomain
+	 *            True if in the frequency domain
+	 */
+	public FHT2(float[] pixels, int maxN, boolean isFrequencyDomain)
 	{
-		super(new FloatProcessor(maxN, maxN, data, null), isFrequencyDomain);
+		super(new NonDuplicatingFloatProcessor(maxN, maxN, pixels), isFrequencyDomain);
 	}
 
+	/**
+	 * Transpose R.
+	 *
+	 * @param x
+	 *            the x
+	 * @param maxN
+	 *            the max N
+	 */
 	@Override
 	void transposeR(float[] x, int maxN)
 	{
@@ -72,6 +152,10 @@ public class FHT2 extends FHT
 	 * of this image and the specified image. Both images are assumed to be in
 	 * the frequency domain. Multiplication in the frequency domain is equivalent
 	 * to convolution in the space domain.
+	 *
+	 * @param fht
+	 *            the fht
+	 * @return the fht2
 	 */
 	public FHT2 multiply(FHT2 fht)
 	{
@@ -87,7 +171,7 @@ public class FHT2 extends FHT
 	 * @param fht
 	 *            the fht
 	 * @param tmp
-	 *            the tmp buffer for the result (can be null)
+	 *            the buffer for the result (can be null)
 	 * @return the fht2
 	 */
 	public FHT2 multiply(FHT2 fht, float[] tmp)
@@ -110,7 +194,7 @@ public class FHT2 extends FHT
 				tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e + h1[rowMod * maxN + colMod] * h2o);
 			}
 		}
-		return new FHT2(new FloatProcessor(maxN, maxN, tmp, null), true);
+		return new FHT2(tmp, maxN, true);
 	}
 
 	/**
@@ -118,6 +202,10 @@ public class FHT2 extends FHT
 	 * multiplication of this image and the specified image. Both images are
 	 * assumed to be in the frequency domain. Conjugate multiplication in
 	 * the frequency domain is equivalent to correlation in the space domain.
+	 *
+	 * @param fht
+	 *            the fht
+	 * @return the fht2
 	 */
 	public FHT2 conjugateMultiply(FHT2 fht)
 	{
@@ -133,7 +221,7 @@ public class FHT2 extends FHT
 	 * @param fht
 	 *            the fht
 	 * @param tmp
-	 *            the tmp buffer for the result (can be null)
+	 *            the buffer for the result (can be null)
 	 * @return the fht2
 	 */
 	public FHT2 conjugateMultiply(FHT2 fht, float[] tmp)
@@ -156,7 +244,7 @@ public class FHT2 extends FHT
 				tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o);
 			}
 		}
-		return new FHT2(new FloatProcessor(maxN, maxN, tmp, null), true);
+		return new FHT2(tmp, maxN, true);
 	}
 
 	/**
@@ -166,6 +254,8 @@ public class FHT2 extends FHT
 	 * parts of the transform at the same time.
 	 * 
 	 * Author: Joachim Wesner, Alex Herbert
+	 *
+	 * @return the complex transform 2
 	 */
 	public ImageStack getComplexTransform2()
 	{
@@ -191,6 +281,17 @@ public class FHT2 extends FHT
 	 * FFT real & imaginary value of one row from 2D Hartley Transform.
 	 * Author: Joachim Wesner
 	 * Adapted by Alex Herbert to compute both together
+	 *
+	 * @param row
+	 *            the row
+	 * @param maxN
+	 *            the max N
+	 * @param fht
+	 *            the fht
+	 * @param real
+	 *            the real
+	 * @param imag
+	 *            the imag
 	 */
 	void FHTboth(int row, int maxN, float[] fht, float[] real, float[] imag)
 	{
@@ -205,6 +306,11 @@ public class FHT2 extends FHT
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ij.process.FHT#swapQuadrants()
+	 */
 	@Override
 	public void swapQuadrants()
 	{
@@ -245,6 +351,22 @@ public class FHT2 extends FHT
 		insert(pixels, width, a, size, size, size);
 	}
 
+	/**
+	 * Crop.
+	 *
+	 * @param pixels
+	 *            the pixels
+	 * @param width
+	 *            the width
+	 * @param pixels2
+	 *            the pixels 2
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @param size
+	 *            the size
+	 */
 	private static void crop(float[] pixels, int width, float[] pixels2, int x, int y, int size)
 	{
 		for (int ys = y + size; ys-- > y;)
@@ -257,6 +379,22 @@ public class FHT2 extends FHT
 		}
 	}
 
+	/**
+	 * Insert.
+	 *
+	 * @param pixels
+	 *            the pixels
+	 * @param width
+	 *            the width
+	 * @param pixels2
+	 *            the pixels 2
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @param size
+	 *            the size
+	 */
 	private static void insert(float[] pixels, int width, float[] pixels2, int x, int y, int size)
 	{
 		for (int ys = y + size; ys-- > y;)
@@ -269,6 +407,24 @@ public class FHT2 extends FHT
 		}
 	}
 
+	/**
+	 * Copy.
+	 *
+	 * @param pixels
+	 *            the pixels
+	 * @param width
+	 *            the width
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @param size
+	 *            the size
+	 * @param x2
+	 *            the x 2
+	 * @param y2
+	 *            the y 2
+	 */
 	private static void copy(float[] pixels, int width, int x, int y, int size, int x2, int y2)
 	{
 		for (int ys = y + size, ys2 = y2 + size - 1; ys-- > y; ys2--)
