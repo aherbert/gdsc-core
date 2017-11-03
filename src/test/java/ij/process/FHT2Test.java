@@ -52,11 +52,11 @@ public class FHT2Test
 		FloatProcessor fp1 = new FloatProcessor(size, size, SimpleArrayUtils.newArray(size * size, 0, 1f));
 		FloatProcessor fp2 = (FloatProcessor) fp1.duplicate();
 
-		FHT fht1 = new FHT();
-		FHT2 fht2 = new FHT2();
+		FHT fht1 = new FHT(fp1);
+		FHT2 fht2 = new FHT2(fp2);
 
-		fht1.swapQuadrants(fp1);
-		fht2.swapQuadrants(fp2);
+		fht1.swapQuadrants();
+		fht2.swapQuadrants();
 
 		Assert.assertArrayEquals((float[]) fp1.getPixels(), (float[]) fp2.getPixels(), 0);
 	}

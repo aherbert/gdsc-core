@@ -169,6 +169,12 @@ public class FHT2 extends FHT
 		}
 	}
 
+	@Override
+	public void swapQuadrants()
+	{
+		swapQuadrants(this);
+	}
+
 	/**
 	 * Swap quadrants 1 and 3 and 2 and 4 of the specified ImageProcessor
 	 * so the power spectrum origin is at the center of the image.
