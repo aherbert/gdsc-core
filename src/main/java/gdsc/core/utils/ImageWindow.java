@@ -128,6 +128,42 @@ public class ImageWindow
 	}
 
 	/**
+	 * Apply a window function to reduce edge artifacts.
+	 * <p>
+	 * Applied as two 1-dimensional window functions. Faster than the nonseparable form but has direction dependent
+	 * corners.
+	 *
+	 * @param image
+	 *            the image
+	 * @param maxx
+	 *            the maxx
+	 * @param maxy
+	 *            the maxy
+	 * @param wx
+	 *            the window for x
+	 * @param wy
+	 *            the window for y
+	 * @return the float[]
+	 */
+	public static float[] applyWindowSeparable(float[] image, final int maxx, final int maxy, double[] wx, double[] wy)
+	{
+		if (wx == null || wx.length != maxx || wy == null || wy.length != maxy)
+			throw new IllegalArgumentException("Window function must match image dimensions");
+
+		float[] data = new float[image.length];
+
+		for (int y = 0, i = 0; y < maxy; y++)
+		{
+			for (int x = 0; x < maxx; x++, i++)
+			{
+				data[i] = (float) (image[i] * wx[x] * wy[y]);
+			}
+		}
+
+		return data;
+	}
+
+	/**
 	 * Apply a window function to reduce edge artifacts
 	 * <p>
 	 * Applied as a nonseparable form.
