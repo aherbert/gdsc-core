@@ -126,8 +126,8 @@ public class FHT2 extends FHT
 	/**
 	 * Converts this FHT to a complex Fourier transform and returns it as a two slice stack.
 	 * Assumes this is in the frequency domain since that cannot be checked as the super-class isFrequencyDomain flag is
-	 * hidden. This has been adapted from the routine {@link #getComplexTransform()} to compute the real and imaginary 
-	 * parts of the transform at the same time.  
+	 * hidden. This has been adapted from the routine {@link #getComplexTransform()} to compute the real and imaginary
+	 * parts of the transform at the same time.
 	 * 
 	 * Author: Joachim Wesner, Alex Herbert
 	 */
@@ -151,10 +151,11 @@ public class FHT2 extends FHT
 		return stack;
 	}
 
-	/**	 FFT real & imaginary value of one row from 2D Hartley Transform.
-	*	Author: Joachim Wesner
-	*   Adapted by Alex Herbert to compute both together 
-	*/
+	/**
+	 * FFT real & imaginary value of one row from 2D Hartley Transform.
+	 * Author: Joachim Wesner
+	 * Adapted by Alex Herbert to compute both together
+	 */
 	void FHTboth(int row, int maxN, float[] fht, float[] real, float[] imag)
 	{
 		int base = row * maxN;
@@ -165,6 +166,77 @@ public class FHT2 extends FHT
 			final float b = fht[offs + ((maxN - c) % maxN)];
 			real[base + c] = (a + b) * 0.5f;
 			imag[base + c] = (-a + b) * 0.5f;
+		}
+	}
+
+	/**
+	 * Swap quadrants 1 and 3 and 2 and 4 of the specified ImageProcessor
+	 * so the power spectrum origin is at the center of the image.
+	 * 
+	 * <pre>
+	    2 1
+	    3 4
+	 * </pre>
+	 * 
+	 * @param ip
+	 *            The processor (must be an even square, i.e. width==height and width is even)
+	 */
+	public void swapQuadrants(FloatProcessor ip)
+	{
+		// This is a specialised version to allow reusing the float buffers and 
+		// optimised for square images
+
+		int width = ip.getWidth();
+		float[] pixels = (float[]) ip.getPixels();
+		int size = width / 2;
+		float[] a = new float[size * size];
+		//float[] b = new float[size * size];
+		crop(pixels, width, a, size, 0, size);
+		//crop(pixels, width, b, 0, size, size);
+		//insert(pixels, width, b, size, 0, size);
+		copy(pixels, width, 0, size, size, size, 0);
+		insert(pixels, width, a, 0, size, size);
+		crop(pixels, width, a, 0, 0, size);
+		//crop(pixels, width, b, size, size, size);
+		//insert(pixels, width, b, 0, 0, size);
+		copy(pixels, width, size, size, size, 0, 0);
+		insert(pixels, width, a, size, size, size);
+	}
+
+	private static void crop(float[] pixels, int width, float[] pixels2, int x, int y, int size)
+	{
+		for (int ys = y + size; ys-- > y;)
+		{
+			int offset = ys * width + x;
+			int offset2 = (ys - y) * size;
+			System.arraycopy(pixels, offset, pixels2, offset2, size);
+			//for (int xs = 0; xs < size; xs++)
+			//	pixels2[offset2++] = pixels[offset++];
+		}
+	}
+
+	private static void insert(float[] pixels, int width, float[] pixels2, int x, int y, int size)
+	{
+		for (int ys = y + size; ys-- > y;)
+		{
+			int offset = ys * width + x;
+			int offset2 = (ys - y) * size;
+			System.arraycopy(pixels2, offset2, pixels, offset, size);
+			//for (int xs = 0; xs < size; xs++)
+			//	pixels[offset++] = pixels2[offset2++];
+		}
+	}
+
+	private static void copy(float[] pixels, int width, int x, int y, int size, int x2, int y2)
+	{
+		for (int ys = y + size, ys2 = y2 + size - 1; ys-- > y; ys2--)
+		//for (int ys = y, ys2 = y2; ys < y + size; ys++, ys2++)
+		{
+			int offset = ys * width + x;
+			int offset2 = ys2 * width + x2;
+			System.arraycopy(pixels, offset, pixels, offset2, size);
+			//for (int xs = 0; xs < size; xs++)
+			//	pixels[offset2++] = pixels[offset++];
 		}
 	}
 }

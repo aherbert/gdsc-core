@@ -44,4 +44,20 @@ public class FHT2Test
 		EDM e = new EDM();
 		return e.makeFloatEDM(bp, 0, true);
 	}
+
+	@Test
+	public void canSwapQuadrants()
+	{
+		int size = 16;
+		FloatProcessor fp1 = new FloatProcessor(size, size, SimpleArrayUtils.newArray(size * size, 0, 1f));
+		FloatProcessor fp2 = (FloatProcessor) fp1.duplicate();
+
+		FHT fht1 = new FHT();
+		FHT2 fht2 = new FHT2();
+
+		fht1.swapQuadrants(fp1);
+		fht2.swapQuadrants(fp2);
+
+		Assert.assertArrayEquals((float[]) fp1.getPixels(), (float[]) fp2.getPixels(), 0);
+	}
 }
