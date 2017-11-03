@@ -1182,4 +1182,30 @@ public class Maths
 	{
 		return pow2(pow2(d));
 	}
+	
+
+	/**
+	 * Returns the closest power-of-two number greater than or equal to x.
+	 * <p>
+	 * Copied from the JTransforms library class edu.emory.mathcs.utils.ConcurrencyUtils.
+	 *
+	 * @param x the x
+	 * @return the closest power-of-two number greater than or equal to x
+	 */
+	public static int nextPow2(int x)
+	{
+		if (x < 1)
+			throw new IllegalArgumentException("x must be greater or equal 1");
+		if ((x & (x - 1)) == 0)
+		{
+			return x; // x is already a power-of-two number 
+		}
+		x |= (x >>> 1);
+		x |= (x >>> 2);
+		x |= (x >>> 4);
+		x |= (x >>> 8);
+		x |= (x >>> 16);
+		x |= (x >>> 32);
+		return x + 1;
+	}	
 }
