@@ -75,12 +75,30 @@ public class FHT2 extends FHT
 	 */
 	public FHT2 multiply(FHT2 fht)
 	{
+		return multiply(fht, null);
+	}
+
+	/**
+	 * Returns the image resulting from the point by point Hartley multiplication
+	 * of this image and the specified image. Both images are assumed to be in
+	 * the frequency domain. Multiplication in the frequency domain is equivalent
+	 * to convolution in the space domain.
+	 *
+	 * @param fht
+	 *            the fht
+	 * @param tmp
+	 *            the tmp buffer for the result (can be null)
+	 * @return the fht2
+	 */
+	public FHT2 multiply(FHT2 fht, float[] tmp)
+	{
 		int rowMod, colMod;
 		double h2e, h2o;
 		float[] h1 = (float[]) getPixels();
 		float[] h2 = (float[]) fht.getPixels();
 		final int maxN = getWidth();
-		float[] tmp = new float[maxN * maxN];
+		if (tmp == null || tmp.length != maxN * maxN)
+			tmp = new float[maxN * maxN];
 		for (int r = 0; r < maxN; r++)
 		{
 			rowMod = (maxN - r) % maxN;
@@ -103,12 +121,30 @@ public class FHT2 extends FHT
 	 */
 	public FHT2 conjugateMultiply(FHT2 fht)
 	{
+		return conjugateMultiply(fht, null);
+	}
+
+	/**
+	 * Returns the image resulting from the point by point Hartley conjugate
+	 * multiplication of this image and the specified image. Both images are
+	 * assumed to be in the frequency domain. Conjugate multiplication in
+	 * the frequency domain is equivalent to correlation in the space domain.
+	 *
+	 * @param fht
+	 *            the fht
+	 * @param tmp
+	 *            the tmp buffer for the result (can be null)
+	 * @return the fht2
+	 */
+	public FHT2 conjugateMultiply(FHT2 fht, float[] tmp)
+	{
 		int rowMod, colMod;
 		double h2e, h2o;
 		float[] h1 = (float[]) getPixels();
 		float[] h2 = (float[]) fht.getPixels();
 		final int maxN = getWidth();
-		float[] tmp = new float[maxN * maxN];
+		if (tmp == null || tmp.length != maxN * maxN)
+			tmp = new float[maxN * maxN];
 		for (int r = 0; r < maxN; r++)
 		{
 			rowMod = (maxN - r) % maxN;
