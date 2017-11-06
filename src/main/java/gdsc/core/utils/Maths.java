@@ -1182,14 +1182,28 @@ public class Maths
 	{
 		return pow2(pow2(d));
 	}
-	
+
+	/**
+	 * Checks if is a power of 2. Note a value of 1 will return true (as this is 2^0).
+	 * <p>
+	 * Adapted from the JTransforms library class org.jtransforms.utils.CommonUtils.
+	 *
+	 * @param x
+	 *            the x
+	 * @return true, if is a power of 2
+	 */
+	public static boolean isPow2(int x)
+	{
+		return ((x & (x - 1)) == 0);
+	}
 
 	/**
 	 * Returns the closest power-of-two number greater than or equal to x.
 	 * <p>
-	 * Copied from the JTransforms library class edu.emory.mathcs.utils.ConcurrencyUtils.
+	 * Copied from the JTransforms library class org.jtransforms.utils.CommonUtils.
 	 *
-	 * @param x the x
+	 * @param x
+	 *            the x
 	 * @return the closest power-of-two number greater than or equal to x
 	 */
 	public static int nextPow2(int x)
@@ -1207,5 +1221,5 @@ public class Maths
 		x |= (x >>> 16);
 		x |= (x >>> 32);
 		return x + 1;
-	}	
+	}
 }

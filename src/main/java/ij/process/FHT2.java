@@ -1,5 +1,7 @@
 package ij.process;
 
+import gdsc.core.utils.Maths;
+
 /*----------------------------------------------------------------------------- 
  * GDSC Software
  * 
@@ -16,87 +18,304 @@ package ij.process;
 import ij.ImageStack;
 
 /**
- * Extends the ImageJ FHT class to increase the speed where possible.
+ * Copy implementation of ij.process.FHT to increase the speed where possible.
  */
-public class FHT2 extends FHT
+public class FHT2 extends FloatProcessor
 {
-	/**
-	 * Simple wrapper to allow the input float data to be passed up to the FHT without duplication
-	 */
-	private static class NonDuplicatingFloatProcessor extends FloatProcessor
-	{
-		/**
-		 * Instantiates a new non duplicating float processor.
-		 *
-		 * @param width
-		 *            the width
-		 * @param height
-		 *            the height
-		 * @param data
-		 *            the data
-		 */
-		public NonDuplicatingFloatProcessor(int width, int height, float[] data)
-		{
-			super(width, height, data);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see ij.process.FloatProcessor#duplicate()
-		 */
-		@Override
-		public ImageProcessor duplicate()
-		{
-			// No duplication
-			return this;
-		}
-	}
+	private boolean isFrequencyDomain;
+	private int maxN;
+	private float[] C;
+	private float[] S;
+	private int[] bitrev;
+	private float[] tempArr;
 
 	/**
-	 * Instantiates a new fht2.
+	 * Constructs a FHT object from an ImageProcessor. Byte, short and RGB images
+	 * are converted to float. Float images are duplicated.
 	 *
-	 * @param imageProcessor the image processor
+	 * @param ip
+	 *            the image processor
+	 * @throws IllegalArgumentException
+	 *             If the processor is not square and a power of 2
 	 */
-	public FHT2(ImageProcessor imageProcessor)
+	public FHT2(ImageProcessor ip) throws IllegalArgumentException
 	{
-		super(imageProcessor);
+		this(ip, false);
 	}
 
 	/**
-	 * Instantiates a new fht2.
-	 */
-	public FHT2()
-	{
-		super();
-	}
-
-	/**
-	 * Instantiates a new fht2.
+	 * Constructs a FHT object from an ImageProcessor. Byte, short and RGB images
+	 * are converted to float. Float images are duplicated.
 	 *
-	 * @param imageProcessor
+	 * @param ip
 	 *            the image processor
 	 * @param isFrequencyDomain
 	 *            True if in the frequency domain
+	 * @throws IllegalArgumentException
+	 *             If the processor is not square and a power of 2
 	 */
-	public FHT2(ImageProcessor imageProcessor, boolean isFrequencyDomain)
+	public FHT2(ImageProcessor ip, boolean isFrequencyDomain) throws IllegalArgumentException
 	{
-		super(imageProcessor, isFrequencyDomain);
+		super(ip.getWidth(), ip.getHeight(), (float[]) ((ip instanceof FloatProcessor) ? ip.duplicate().getPixels()
+				: ip.convertToFloat().getPixels()), null);
+		if (!powerOf2Size())
+			throw new IllegalArgumentException("Image not power of 2 size or not square: " + width + "x" + height);
+		this.isFrequencyDomain = isFrequencyDomain;
+		maxN = getWidth();
+		resetRoi();
 	}
 
 	/**
-	 * Instantiates a new fht2.
+	 * Constructs a FHT object.
 	 *
 	 * @param pixels
-	 *            the pixels
+	 *            the pixels (this is not duplicated)
 	 * @param maxN
 	 *            the max N
 	 * @param isFrequencyDomain
 	 *            True if in the frequency domain
+	 * @throws IllegalArgumentException
+	 *             If the processor is not square and a power of 2
 	 */
-	public FHT2(float[] pixels, int maxN, boolean isFrequencyDomain)
+	public FHT2(float[] pixels, int maxN, boolean isFrequencyDomain) throws IllegalArgumentException
 	{
-		super(new NonDuplicatingFloatProcessor(maxN, maxN, pixels), isFrequencyDomain);
+		super(maxN, maxN, pixels);
+		if (!powerOf2Size())
+			throw new IllegalArgumentException("Image not power of 2 size or not square: " + width + "x" + height);
+		this.isFrequencyDomain = isFrequencyDomain;
+		maxN = getWidth();
+	}
+
+	/**
+	 * Gets the data.
+	 *
+	 * @return the data
+	 */
+	public float[] getData()
+	{
+		return (float[]) getPixels();
+	}
+
+	/** Returns true of this FHT contains a square image with a width that is a power of two. */
+	public boolean powerOf2Size()
+	{
+		return width == height && isPowerOf2(width);
+	}
+
+	/**
+	 * Performs a forward transform, converting this image into the frequency domain.
+	 * The image contained in this FHT must be square and its width must be a power of 2.
+	 */
+	public void transform()
+	{
+		transform(false);
+	}
+
+	/**
+	 * Performs an inverse transform, converting this image into the space domain.
+	 * The image contained in this FHT must be square and its width must be a power of 2.
+	 */
+	public void inverseTransform()
+	{
+		transform(true);
+	}
+
+	private void transform(boolean inverse)
+	{
+		maxN = width;
+		if (S == null)
+			initializeTables(maxN);
+		float[] fht = (float[]) getPixels();
+		rc2DFHT(fht, inverse, maxN);
+		isFrequencyDomain = !inverse;
+	}
+
+	private void initializeTables(int maxN)
+	{
+		if (maxN > 0x40000000)
+			throw new IllegalArgumentException("Too large for FHT:  " + maxN + " >2^30");
+		makeSinCosTables(maxN);
+		makeBitReverseTable(maxN);
+		tempArr = new float[maxN];
+	}
+
+	/**
+	 * Copy the computation tables from the initialised FHT.
+	 *
+	 * @param fht
+	 *            the fht
+	 */
+	public void copyTables(FHT2 fht)
+	{
+		if (fht.S != null && fht.maxN == maxN)
+		{
+			// No need to clone as the tables are only read
+			S = fht.S;
+			C = fht.C;
+			bitrev = fht.bitrev;
+			// Initialise the temp array
+			tempArr = new float[maxN];
+		}
+	}
+
+	private void makeSinCosTables(int maxN)
+	{
+		int n = maxN / 4;
+		C = new float[n];
+		S = new float[n];
+		double theta = 0.0;
+		double dTheta = 2.0 * Math.PI / maxN;
+		for (int i = 0; i < n; i++)
+		{
+			C[i] = (float) Math.cos(theta);
+			S[i] = (float) Math.sin(theta);
+			theta += dTheta;
+		}
+	}
+
+	private void makeBitReverseTable(int maxN)
+	{
+		bitrev = new int[maxN];
+		int nLog2 = log2(maxN);
+		for (int i = 0; i < maxN; i++)
+			bitrev[i] = bitRevX(i, nLog2);
+	}
+
+	private static int bitRevX(int x, int bitlen)
+	{
+		int temp = 0;
+		for (int i = 0; i <= bitlen; i++)
+			if ((x & (1 << i)) != 0)
+				temp |= (1 << (bitlen - i - 1));
+		return temp;
+	}
+
+	/** Performs a 2D FHT (Fast Hartley Transform). */
+	private void rc2DFHT(float[] x, boolean inverse, int maxN)
+	{
+		for (int row = 0; row < maxN; row++)
+			dfht3(x, row * maxN, inverse, maxN);
+		transposeR(x, maxN);
+		for (int row = 0; row < maxN; row++)
+			dfht3(x, row * maxN, inverse, maxN);
+		transposeR(x, maxN);
+
+		int mRow, mCol;
+		float A, B, C, D, E;
+		for (int row = 0; row <= maxN / 2; row++)
+		{ // Now calculate actual Hartley transform
+			for (int col = 0; col <= maxN / 2; col++)
+			{
+				mRow = (maxN - row) % maxN;
+				mCol = (maxN - col) % maxN;
+				A = x[row * maxN + col]; //  see Bracewell, 'Fast 2D Hartley Transf.' IEEE Procs. 9/86
+				B = x[mRow * maxN + col];
+				C = x[row * maxN + mCol];
+				D = x[mRow * maxN + mCol];
+				E = ((A + D) - (B + C)) / 2;
+				x[row * maxN + col] = A - E;
+				x[mRow * maxN + col] = B + E;
+				x[row * maxN + mCol] = C + E;
+				x[mRow * maxN + mCol] = D - E;
+			}
+		}
+	}
+
+	/**
+	 * Performs an optimized 1D FHT of an array or part of an array.
+	 * 
+	 * @param x
+	 *            Input array; will be overwritten by the output in the range given by base and maxN.
+	 * @param base
+	 *            First index from where data of the input array should be read.
+	 * @param inverse
+	 *            True for inverse transform.
+	 * @param maxN
+	 *            Length of data that should be transformed; this must be always
+	 *            the same for a given FHT object.
+	 *            Note that all amplitudes in the output 'x' are multiplied by maxN.
+	 */
+	private void dfht3(float[] x, int base, boolean inverse, int maxN)
+	{
+		int i, stage, gpNum, gpSize, numGps, Nlog2;
+		int bfNum, numBfs;
+		int Ad0, Ad1, Ad2, Ad3, Ad4, CSAd;
+		float rt1, rt2, rt3, rt4;
+
+		//if (S == null)
+		//	initializeTables(maxN);
+		Nlog2 = log2(maxN);
+		bitRevRArr(x, base, Nlog2, maxN); //bitReverse the input array
+		gpSize = 2; //first & second stages - do radix 4 butterflies once thru
+		numGps = maxN / 4;
+		for (gpNum = 0; gpNum < numGps; gpNum++)
+		{
+			Ad1 = gpNum * 4;
+			Ad2 = Ad1 + 1;
+			Ad3 = Ad1 + gpSize;
+			Ad4 = Ad2 + gpSize;
+			rt1 = x[base + Ad1] + x[base + Ad2]; // a + b
+			rt2 = x[base + Ad1] - x[base + Ad2]; // a - b
+			rt3 = x[base + Ad3] + x[base + Ad4]; // c + d
+			rt4 = x[base + Ad3] - x[base + Ad4]; // c - d
+			x[base + Ad1] = rt1 + rt3; // a + b + (c + d)
+			x[base + Ad2] = rt2 + rt4; // a - b + (c - d)
+			x[base + Ad3] = rt1 - rt3; // a + b - (c + d)
+			x[base + Ad4] = rt2 - rt4; // a - b - (c - d)
+		}
+
+		if (Nlog2 > 2)
+		{
+			// third + stages computed here
+			gpSize = 4;
+			numBfs = 2;
+			numGps = numGps / 2;
+			//IJ.write("FFT: dfht3 "+Nlog2+" "+numGps+" "+numBfs);
+			for (stage = 2; stage < Nlog2; stage++)
+			{
+				for (gpNum = 0; gpNum < numGps; gpNum++)
+				{
+					Ad0 = gpNum * gpSize * 2;
+					Ad1 = Ad0; // 1st butterfly is different from others - no mults needed
+					Ad2 = Ad1 + gpSize;
+					Ad3 = Ad1 + gpSize / 2;
+					Ad4 = Ad3 + gpSize;
+					rt1 = x[base + Ad1];
+					x[base + Ad1] = x[base + Ad1] + x[base + Ad2];
+					x[base + Ad2] = rt1 - x[base + Ad2];
+					rt1 = x[base + Ad3];
+					x[base + Ad3] = x[base + Ad3] + x[base + Ad4];
+					x[base + Ad4] = rt1 - x[base + Ad4];
+					for (bfNum = 1; bfNum < numBfs; bfNum++)
+					{
+						// subsequent BF's dealt with together
+						Ad1 = bfNum + Ad0;
+						Ad2 = Ad1 + gpSize;
+						Ad3 = gpSize - bfNum + Ad0;
+						Ad4 = Ad3 + gpSize;
+
+						CSAd = bfNum * numGps;
+						rt1 = x[base + Ad2] * C[CSAd] + x[base + Ad4] * S[CSAd];
+						rt2 = x[base + Ad4] * C[CSAd] - x[base + Ad2] * S[CSAd];
+
+						x[base + Ad2] = x[base + Ad1] - rt1;
+						x[base + Ad1] = x[base + Ad1] + rt1;
+						x[base + Ad4] = x[base + Ad3] + rt2;
+						x[base + Ad3] = x[base + Ad3] - rt2;
+
+					} /* end bfNum loop */
+				} /* end gpNum loop */
+				gpSize *= 2;
+				numBfs *= 2;
+				numGps = numGps / 2;
+			} /* end for all stages */
+		} /* end if Nlog2 > 2 */
+
+		if (inverse)
+		{
+			for (i = 0; i < maxN; i++)
+				x[base + i] = x[base + i] / maxN;
+		}
 	}
 
 	/**
@@ -107,35 +326,8 @@ public class FHT2 extends FHT
 	 * @param maxN
 	 *            the max N
 	 */
-	@Override
-	void transposeR(float[] x, int maxN)
+	private static void transposeR(float[] x, int maxN)
 	{
-		//		int r, c;
-		//		float rTemp;
-		//
-		//		for (r = 0; r < maxN; r++)
-		//		{
-		//			for (c = r; c < maxN; c++)
-		//			{
-		//				if (r != c)
-		//				{
-		//					rTemp = x[r * maxN + c];
-		//					x[r * maxN + c] = x[c * maxN + r];
-		//					x[c * maxN + r] = rTemp;
-		//				}
-		//			}
-		//		}
-
-		//		for (int r = 0; r < maxN; r++)
-		//		{
-		//			for (int c = r + 1; c < maxN; c++)
-		//			{
-		//				final float rTemp = x[r * maxN + c];
-		//				x[r * maxN + c] = x[c * maxN + r];
-		//				x[c * maxN + r] = rTemp;
-		//			}
-		//		}
-
 		for (int r = 0; r < maxN; r++)
 		{
 			for (int c = r + 1, i = r * maxN + r + 1, ii = (r + 1) * maxN + r; c < maxN; c++, i++, ii += maxN)
@@ -147,122 +339,42 @@ public class FHT2 extends FHT
 		}
 	}
 
-	/**
-	 * Returns the image resulting from the point by point Hartley multiplication
-	 * of this image and the specified image. Both images are assumed to be in
-	 * the frequency domain. Multiplication in the frequency domain is equivalent
-	 * to convolution in the space domain.
-	 *
-	 * @param fht
-	 *            the fht
-	 * @return the fht2
-	 */
-	public FHT2 multiply(FHT2 fht)
+	private static int log2(int x)
 	{
-		return multiply(fht, null);
+		int count = 31;
+		while (!btst(x, count))
+			count--;
+		return count;
 	}
 
-	/**
-	 * Returns the image resulting from the point by point Hartley multiplication
-	 * of this image and the specified image. Both images are assumed to be in
-	 * the frequency domain. Multiplication in the frequency domain is equivalent
-	 * to convolution in the space domain.
-	 *
-	 * @param fht
-	 *            the fht
-	 * @param tmp
-	 *            the buffer for the result (can be null)
-	 * @return the fht2
-	 */
-	public FHT2 multiply(FHT2 fht, float[] tmp)
+	private static boolean btst(int x, int bit)
 	{
-		int rowMod, colMod;
-		double h2e, h2o;
-		float[] h1 = (float[]) getPixels();
-		float[] h2 = (float[]) fht.getPixels();
-		final int maxN = getWidth();
-		if (tmp == null || tmp.length != maxN * maxN)
-			tmp = new float[maxN * maxN];
-		for (int r = 0; r < maxN; r++)
-		{
-			rowMod = (maxN - r) % maxN;
-			for (int c = 0; c < maxN; c++)
-			{
-				colMod = (maxN - c) % maxN;
-				h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]) / 2;
-				h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]) / 2;
-				tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e + h1[rowMod * maxN + colMod] * h2o);
-			}
-		}
-		return new FHT2(tmp, maxN, true);
+		return ((x & (1 << bit)) != 0);
 	}
 
-	/**
-	 * Returns the image resulting from the point by point Hartley conjugate
-	 * multiplication of this image and the specified image. Both images are
-	 * assumed to be in the frequency domain. Conjugate multiplication in
-	 * the frequency domain is equivalent to correlation in the space domain.
-	 *
-	 * @param fht
-	 *            the fht
-	 * @return the fht2
-	 */
-	public FHT2 conjugateMultiply(FHT2 fht)
+	private void bitRevRArr(float[] x, int base, int bitlen, int maxN)
 	{
-		return conjugateMultiply(fht, null);
-	}
-
-	/**
-	 * Returns the image resulting from the point by point Hartley conjugate
-	 * multiplication of this image and the specified image. Both images are
-	 * assumed to be in the frequency domain. Conjugate multiplication in
-	 * the frequency domain is equivalent to correlation in the space domain.
-	 *
-	 * @param fht
-	 *            the fht
-	 * @param tmp
-	 *            the buffer for the result (can be null)
-	 * @return the fht2
-	 */
-	public FHT2 conjugateMultiply(FHT2 fht, float[] tmp)
-	{
-		int rowMod, colMod;
-		double h2e, h2o;
-		float[] h1 = (float[]) getPixels();
-		float[] h2 = (float[]) fht.getPixels();
-		final int maxN = getWidth();
-		if (tmp == null || tmp.length != maxN * maxN)
-			tmp = new float[maxN * maxN];
-		for (int r = 0; r < maxN; r++)
-		{
-			rowMod = (maxN - r) % maxN;
-			for (int c = 0; c < maxN; c++)
-			{
-				colMod = (maxN - c) % maxN;
-				h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]) / 2;
-				h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]) / 2;
-				tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o);
-			}
-		}
-		return new FHT2(tmp, maxN, true);
+		for (int i = 0; i < maxN; i++)
+			tempArr[i] = x[base + bitrev[i]];
+		for (int i = 0; i < maxN; i++)
+			x[base + i] = tempArr[i];
 	}
 
 	/**
 	 * Converts this FHT to a complex Fourier transform and returns it as a two slice stack.
-	 * Assumes this is in the frequency domain since that cannot be checked as the super-class isFrequencyDomain flag is
-	 * hidden. This has been adapted from the routine {@link #getComplexTransform()} to compute the real and imaginary
+	 * This has been adapted from the routine {@link #getComplexTransform()} to compute the real and imaginary
 	 * parts of the transform at the same time.
 	 * 
 	 * Author: Joachim Wesner, Alex Herbert
 	 *
-	 * @return the complex transform 2
+	 * @return the complex transform
 	 */
-	public ImageStack getComplexTransform2()
+	public ImageStack getComplexTransform()
 	{
-		//if (!isFrequencyDomain)
-		//	throw new  IllegalArgumentException("Frequency domain image required");
+		if (!isFrequencyDomain)
+			throw new IllegalArgumentException("Frequency domain image required");
 		int maxN = getWidth();
-		float[] fht = (float[]) getPixels();
+		float[] fht = getData();
 		float[] re = new float[maxN * maxN];
 		float[] im = new float[maxN * maxN];
 		for (int i = 0; i < maxN; i++)
@@ -275,6 +387,34 @@ public class FHT2 extends FHT
 		stack.addSlice("Real", re);
 		stack.addSlice("Imaginary", im);
 		return stack;
+	}
+
+	/**
+	 * Converts this FHT to a complex Fourier transform and returns it as a two slice stack.
+	 * This has been adapted from the routine {@link #getComplexTransform()} to compute the real and imaginary
+	 * parts of the transform at the same time.
+	 * 
+	 * Author: Joachim Wesner, Alex Herbert
+	 *
+	 * @return the complex transform real and imaginary processors
+	 */
+	public FloatProcessor[] getComplexTransformProcessors()
+	{
+		if (!isFrequencyDomain)
+			throw new IllegalArgumentException("Frequency domain image required");
+		int maxN = getWidth();
+		float[] fht = getData();
+		float[] re = new float[maxN * maxN];
+		float[] im = new float[maxN * maxN];
+		for (int i = 0; i < maxN; i++)
+		{
+			FHTboth(i, maxN, fht, re, im);
+		}
+		FloatProcessor[] out = new FloatProcessor[] { new FloatProcessor(maxN, maxN, re, null),
+				new FloatProcessor(maxN, maxN, im, null) };
+		swapQuadrants(out[0]);
+		swapQuadrants(out[1]);
+		return out;
 	}
 
 	/**
@@ -293,7 +433,7 @@ public class FHT2 extends FHT
 	 * @param imag
 	 *            the imag
 	 */
-	void FHTboth(int row, int maxN, float[] fht, float[] real, float[] imag)
+	private void FHTboth(int row, int maxN, float[] fht, float[] real, float[] imag)
 	{
 		int base = row * maxN;
 		int offs = ((maxN - row) % maxN) * maxN;
@@ -306,12 +446,44 @@ public class FHT2 extends FHT
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Swap quadrants 1 and 3 and 2 and 4 of the specified ImageProcessor
+	 * so the power spectrum origin is at the center of the image.
 	 * 
-	 * @see ij.process.FHT#swapQuadrants()
+	 * <pre>
+	    2 1
+	    3 4
+	 * </pre>
 	 */
-	@Override
+	public void swapQuadrants(ImageProcessor ip)
+	{
+		//IJ.log("swap");
+		ImageProcessor t1, t2;
+		int size = ip.getWidth() / 2;
+		ip.setRoi(size, 0, size, size);
+		t1 = ip.crop();
+		ip.setRoi(0, size, size, size);
+		t2 = ip.crop();
+		ip.insert(t1, 0, size);
+		ip.insert(t2, size, 0);
+		ip.setRoi(0, 0, size, size);
+		t1 = ip.crop();
+		ip.setRoi(size, size, size, size);
+		t2 = ip.crop();
+		ip.insert(t1, size, size);
+		ip.insert(t2, 0, 0);
+		ip.resetRoi();
+	}
+
+	/**
+	 * Swap quadrants 1 and 3 and 2 and 4 of image
+	 * so the power spectrum origin is at the center of the image.
+	 * 
+	 * <pre>
+	    2 1
+	    3 4
+	 * </pre>
+	 */
 	public void swapQuadrants()
 	{
 		swapQuadrants(this);
@@ -329,7 +501,7 @@ public class FHT2 extends FHT
 	 * @param ip
 	 *            The processor (must be an even square, i.e. width==height and width is even)
 	 */
-	public void swapQuadrants(FloatProcessor ip)
+	public static void swapQuadrants(FloatProcessor ip)
 	{
 		// This is a specialised version to allow reusing the float buffers and 
 		// optimised for square images
@@ -436,5 +608,184 @@ public class FHT2 extends FHT
 			//for (int xs = 0; xs < size; xs++)
 			//	pixels[offset2++] = pixels[offset++];
 		}
+	}
+
+	/**
+	 * Returns the image resulting from the point by point Hartley multiplication
+	 * of this image and the specified image. Both images are assumed to be in
+	 * the frequency domain. Multiplication in the frequency domain is equivalent
+	 * to convolution in the space domain.
+	 *
+	 * @param fht
+	 *            the fht
+	 * @return the fht2
+	 */
+	public FHT2 multiply(FHT2 fht)
+	{
+		return multiply(fht.getData(), null);
+	}
+
+	/**
+	 * Returns the image resulting from the point by point Hartley multiplication
+	 * of this image and the specified image. Both images are assumed to be in
+	 * the frequency domain. Multiplication in the frequency domain is equivalent
+	 * to convolution in the space domain.
+	 *
+	 * @param h2
+	 *            the second FHT
+	 * @param tmp
+	 *            the buffer for the result (can be null)
+	 * @return the fht2
+	 */
+	public FHT2 multiply(float[] h2, float[] tmp)
+	{
+		int rowMod, colMod;
+		double h2e, h2o;
+		float[] h1 = getData();
+		final int maxN = getWidth();
+		if (tmp == null || tmp.length != maxN * maxN)
+			tmp = new float[maxN * maxN];
+		for (int r = 0; r < maxN; r++)
+		{
+			rowMod = (maxN - r) % maxN;
+			for (int c = 0; c < maxN; c++)
+			{
+				colMod = (maxN - c) % maxN;
+				h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]) / 2;
+				h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]) / 2;
+				tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e + h1[rowMod * maxN + colMod] * h2o);
+			}
+		}
+		return new FHT2(tmp, maxN, true);
+	}
+
+	/**
+	 * Returns the image resulting from the point by point Hartley conjugate
+	 * multiplication of this image and the specified image. Both images are
+	 * assumed to be in the frequency domain. Conjugate multiplication in
+	 * the frequency domain is equivalent to correlation in the space domain.
+	 *
+	 * @param fht
+	 *            the fht
+	 * @return the fht2
+	 */
+	public FHT2 conjugateMultiply(FHT2 fht)
+	{
+		return conjugateMultiply(fht.getData(), null);
+	}
+
+	/**
+	 * Returns the image resulting from the point by point Hartley conjugate
+	 * multiplication of this image and the specified image. Both images are
+	 * assumed to be in the frequency domain. Conjugate multiplication in
+	 * the frequency domain is equivalent to correlation in the space domain.
+	 *
+	 * @param h2
+	 *            the second FHT
+	 * @param tmp
+	 *            the buffer for the result (can be null)
+	 * @return the fht2
+	 */
+	public FHT2 conjugateMultiply(float[] h2, float[] tmp)
+	{
+		int rowMod, colMod;
+		double h2e, h2o;
+		float[] h1 = getData();
+		final int maxN = getWidth();
+		if (tmp == null || tmp.length != maxN * maxN)
+			tmp = new float[maxN * maxN];
+		for (int r = 0; r < maxN; r++)
+		{
+			rowMod = (maxN - r) % maxN;
+			for (int c = 0; c < maxN; c++)
+			{
+				colMod = (maxN - c) % maxN;
+				h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]) / 2;
+				h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]) / 2;
+				tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o);
+			}
+		}
+		return new FHT2(tmp, maxN, true);
+	}
+
+	/**
+	 * Returns the image resulting from the point by point Hartley division
+	 * of this image by the specified image. Both images are assumed to be in
+	 * the frequency domain. Division in the frequency domain is equivalent
+	 * to deconvolution in the space domain.
+	 *
+	 * @param fht
+	 *            the fht
+	 * @return the fht2
+	 */
+	public FHT2 divide(FHT2 fht)
+	{
+		return divide(fht.getData(), null);
+	}
+
+	/**
+	 * Returns the image resulting from the point by point Hartley division
+	 * of this image by the specified image. Both images are assumed to be in
+	 * the frequency domain. Division in the frequency domain is equivalent
+	 * to deconvolution in the space domain.
+	 * 
+	 * @param h2
+	 *            the second FHT
+	 * @param tmp
+	 *            the buffer for the result (can be null)
+	 */
+	public FHT2 divide(float[] h2, float[] tmp)
+	{
+		int rowMod, colMod;
+		double mag, h2e, h2o;
+		float[] h1 = (float[]) getPixels();
+		if (tmp == null || tmp.length != maxN * maxN)
+			tmp = new float[maxN * maxN];
+		for (int r = 0; r < maxN; r++)
+		{
+			rowMod = (maxN - r) % maxN;
+			for (int c = 0; c < maxN; c++)
+			{
+				colMod = (maxN - c) % maxN;
+				mag = h2[r * maxN + c] * h2[r * maxN + c] + h2[rowMod * maxN + colMod] * h2[rowMod * maxN + colMod];
+				if (mag < 1e-20)
+					mag = 1e-20;
+				h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]);
+				h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]);
+				tmp[r * maxN + c] = (float) ((h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o) / mag);
+			}
+		}
+		return new FHT2(tmp, maxN, true);
+	}
+
+	/** Returns a clone of this FHT. */
+	public FHT2 getCopy()
+	{
+		FHT2 fht = new FHT2(getData().clone(), maxN, isFrequencyDomain);
+		fht.copyTables(this);
+		return fht;
+	}
+
+	/**
+	 * Checks if is power of 2 above zero (i.e. not 2^0 == 1).
+	 *
+	 * @param n
+	 *            the n
+	 * @return true, if is power of 2 above zero
+	 */
+	public static boolean isPowerOf2(int n)
+	{
+		//int i = 2;
+		//while (i < n)
+		//	i *= 2;
+		//return i == n;
+		// Avoid 2^0 returning true
+		return n > 1 && Maths.isPow2(n);
+	}
+
+	/** Returns a string containing information about this FHT. */
+	public String toString()
+	{
+		return "FHT2, " + getWidth() + "x" + getHeight() + ", fd=" + isFrequencyDomain;
 	}
 }
