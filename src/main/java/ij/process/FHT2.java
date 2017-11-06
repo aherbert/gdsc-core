@@ -656,7 +656,15 @@ public class FHT2 extends FloatProcessor
 				tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e + h1[rowMod * maxN + colMod] * h2o);
 			}
 		}
-		return new FHT2(tmp, maxN, true);
+		return createFHTResult(tmp, maxN);
+	}
+
+	private FHT2 createFHTResult(float[] tmp, final int maxN)
+	{
+		FHT2 result = new FHT2(tmp, maxN, true);
+		// For faster inverse transform copy the tables
+		result.copyTables(this);
+		return result;
 	}
 
 	/**
@@ -705,7 +713,7 @@ public class FHT2 extends FloatProcessor
 				tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o);
 			}
 		}
-		return new FHT2(tmp, maxN, true);
+		return createFHTResult(tmp, maxN);
 	}
 
 	/**
@@ -755,7 +763,7 @@ public class FHT2 extends FloatProcessor
 				tmp[r * maxN + c] = (float) ((h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o) / mag);
 			}
 		}
-		return new FHT2(tmp, maxN, true);
+		return createFHTResult(tmp, maxN);
 	}
 
 	/** Returns a clone of this FHT. */
