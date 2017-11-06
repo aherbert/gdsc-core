@@ -1235,8 +1235,8 @@ public class AlignImagesFFT
 		if (pad)
 		{
 			// Place into middle of image => Correlation is centre-to-centre alignment
-			int x = (maxN - ip.getWidth()) / 2;
-			int y = (maxN - ip.getHeight()) / 2;
+			int x = getInsert(maxN, ip.getWidth());
+			int y = getInsert(maxN, ip.getHeight());
 
 			padBounds.x = x;
 			padBounds.y = y;
@@ -1261,6 +1261,15 @@ public class AlignImagesFFT
 		return ip2;
 	}
 
+	private static int getInsert(int maxN, int width)
+	{
+		// Note the FHT power spectrum centre is at n/2 of an even sized image.
+		// So we must insert the centre at that point. To do this we check for odd/even
+		// and offset if necessary.  
+		int diff = maxN - width;
+		return ((diff & 1) == 1) ? (diff + 1) / 2 : diff / 2;
+	}
+	
 	/**
 	 * @return the lastXOffset
 	 */
