@@ -28,6 +28,9 @@ public class FHT2 extends FloatProcessor
 	private float[] S;
 	private int[] bitrev;
 	private float[] tempArr;
+	// Used for fast multiply operations
+	private double[] h2e, h2o, mag;
+	private int[] jj;
 
 	/**
 	 * Constructs a FHT object from an ImageProcessor. Byte, short and RGB images
@@ -128,6 +131,7 @@ public class FHT2 extends FloatProcessor
 		float[] fht = (float[]) getPixels();
 		rc2DFHT(fht, inverse, maxN);
 		isFrequencyDomain = !inverse;
+		resetFastOperations();
 	}
 
 	private void initializeTables(int maxN)
@@ -487,6 +491,7 @@ public class FHT2 extends FloatProcessor
 	public void swapQuadrants()
 	{
 		swapQuadrants(this);
+		resetFastOperations();
 	}
 
 	/**
@@ -611,6 +616,99 @@ public class FHT2 extends FloatProcessor
 	}
 
 	/**
+	 * Initialise fast operations for {@link #multiply(FHT2)} and {@link #conjugateMultiply(FHT2)}. This pre-computes
+	 * the values needed for the operations.
+	 * <p>
+	 * Note: This initialises the FHT object for use as the argument to the operation, for example if a convolution
+	 * kernel is to be applied to many FHT objects.
+	 */
+	public void initialiseFastMultiply()
+	{
+		if (h2e == null)
+		{
+			// Do this on new arrays for thread safety (i.e. concurrent initialisation)
+			double[] h2e = new double[maxN * maxN];
+			double[] h2o = new double[h2e.length];
+			int[] jj = new int[h2e.length];
+			float[] h2 = getData();
+			for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r)
+			{
+				for (int c = 0, colMod = 0; c < maxN; c++, colMod = maxN - c, i++)
+				{
+					int j = rowMod * maxN + colMod;
+					h2e[i] = (h2[i] + h2[j]) / 2;
+					h2o[i] = (h2[i] - h2[j]) / 2;
+					jj[i] = j;
+				}
+			}
+			this.h2o = h2o;
+			this.jj = jj;
+			// Assign at the end for thread safety (i.e. concurrent initialisation)
+			this.h2e = h2e;
+		}
+	}
+
+	/**
+	 * Initialise fast operations for {@link #multiply(FHT2)}, {@link #conjugateMultiply(FHT2)} and
+	 * {@link #divide(FHT2)}. This pre-computes the values needed for the operations.
+	 * <p>
+	 * Note: This initialises the FHT object for use as the argument to the operation, for example if a deconvolution
+	 * kernel is to be applied to many FHT objects.
+	 */
+	public void initialiseFastOperations()
+	{
+		initialiseFastMultiply();
+		if (mag == null)
+		{
+			// Do this on new arrays for thread safety (i.e. concurrent initialisation)
+			double[] mag = new double[h2e.length];
+			float[] h2 = getData();
+			for (int i = 0; i < h2.length; i++)
+				// Note that pre-computed h2e and h2o are divided by 2 so we also
+				// divide the magnitude by 2 to allow reuse of the pre-computed values
+				// in the divide operation (which does not require h2e/2 and h2o/2)
+				mag[i] = Math.max(1e-20, h2[i] * h2[i] + h2[jj[i]] * h2[jj[i]]) / 2;
+			this.mag = mag;
+		}
+	}
+
+	/**
+	 * Checks if is initialised for fast multiply.
+	 *
+	 * @return true, if is fast multiply
+	 */
+	public boolean isFastMultiply()
+	{
+		return h2e != null;
+	}
+
+	/**
+	 * Checks if is initialised for fast operations.
+	 *
+	 * @return true, if is fast operations
+	 */
+	public boolean isFastOperations()
+	{
+		return mag != null;
+	}
+
+	private void resetFastOperations()
+	{
+		h2e = null;
+		h2o = null;
+		jj = null;
+		mag = null;
+	}
+
+	private FHT2 createFHTResult(float[] tmp, final int maxN)
+	{
+		FHT2 result = new FHT2(tmp, maxN, true);
+		// For faster inverse transform copy the tables
+		result.copyTables(this);
+		return result;
+	}
+
+	/**
 	 * Returns the image resulting from the point by point Hartley multiplication
 	 * of this image and the specified image. Both images are assumed to be in
 	 * the frequency domain. Multiplication in the frequency domain is equivalent
@@ -622,7 +720,24 @@ public class FHT2 extends FloatProcessor
 	 */
 	public FHT2 multiply(FHT2 fht)
 	{
-		return multiply(fht.getData(), null);
+		return multiply(fht, null);
+	}
+
+	/**
+	 * Returns the image resulting from the point by point Hartley multiplication
+	 * of this image and the specified image. Both images are assumed to be in
+	 * the frequency domain. Multiplication in the frequency domain is equivalent
+	 * to convolution in the space domain.
+	 *
+	 * @param fht
+	 *            the fht
+	 * @param tmp
+	 *            the buffer for the result (can be null)
+	 * @return the fht2
+	 */
+	public FHT2 multiply(FHT2 fht, float[] tmp)
+	{
+		return (fht.isFastMultiply()) ? multiply(fht.h2e, fht.h2o, fht.jj, tmp) : multiply(fht.getData(), tmp);
 	}
 
 	/**
@@ -637,34 +752,54 @@ public class FHT2 extends FloatProcessor
 	 *            the buffer for the result (can be null)
 	 * @return the fht2
 	 */
-	public FHT2 multiply(float[] h2, float[] tmp)
+	private FHT2 multiply(float[] h2, float[] tmp)
 	{
-		int rowMod, colMod;
-		double h2e, h2o;
 		float[] h1 = getData();
 		final int maxN = getWidth();
-		if (tmp == null || tmp.length != maxN * maxN)
-			tmp = new float[maxN * maxN];
-		for (int r = 0; r < maxN; r++)
+		if (tmp == null || tmp.length != h1.length)
+			tmp = new float[h1.length];
+		for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r)
 		{
-			rowMod = (maxN - r) % maxN;
-			for (int c = 0; c < maxN; c++)
+			//rowMod = (maxN - r) % maxN;
+			for (int c = 0, colMod = 0; c < maxN; c++, colMod = maxN - c, i++)
 			{
-				colMod = (maxN - c) % maxN;
-				h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]) / 2;
-				h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]) / 2;
-				tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e + h1[rowMod * maxN + colMod] * h2o);
+				//colMod = (maxN - c) % maxN;
+				//h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]) / 2;
+				//h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]) / 2;
+				//tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e + h1[rowMod * maxN + colMod] * h2o);
+				int j = rowMod * maxN + colMod;
+				double h2e = (h2[i] + h2[j]) / 2;
+				double h2o = (h2[i] - h2[j]) / 2;
+				tmp[i] = (float) (h1[i] * h2e + h1[j] * h2o);
 			}
 		}
 		return createFHTResult(tmp, maxN);
 	}
 
-	private FHT2 createFHTResult(float[] tmp, final int maxN)
+	/**
+	 * Returns the image resulting from the point by point Hartley multiplication
+	 * of this image and the specified image. Both images are assumed to be in
+	 * the frequency domain. Multiplication in the frequency domain is equivalent
+	 * to convolution in the space domain.
+	 *
+	 * @param h2e
+	 *            the pre-initialised h2e value
+	 * @param h2o
+	 *            the pre-initialised h2o value
+	 * @param jj
+	 *            the pre-initialised j index
+	 * @param tmp
+	 *            the buffer for the result (can be null)
+	 * @return the fht2
+	 */
+	private FHT2 multiply(double[] h2e, double[] h2o, int[] jj, float[] tmp)
 	{
-		FHT2 result = new FHT2(tmp, maxN, true);
-		// For faster inverse transform copy the tables
-		result.copyTables(this);
-		return result;
+		float[] h1 = getData();
+		if (tmp == null || tmp.length != h1.length)
+			tmp = new float[h1.length];
+		for (int i = 0; i < h1.length; i++)
+			tmp[i] = (float) (h1[i] * h2e[i] + h1[jj[i]] * h2o[i]);
+		return createFHTResult(tmp, maxN);
 	}
 
 	/**
@@ -679,7 +814,25 @@ public class FHT2 extends FloatProcessor
 	 */
 	public FHT2 conjugateMultiply(FHT2 fht)
 	{
-		return conjugateMultiply(fht.getData(), null);
+		return conjugateMultiply(fht, null);
+	}
+
+	/**
+	 * Returns the image resulting from the point by point Hartley conjugate
+	 * multiplication of this image and the specified image. Both images are
+	 * assumed to be in the frequency domain. Conjugate multiplication in
+	 * the frequency domain is equivalent to correlation in the space domain.
+	 *
+	 * @param fht
+	 *            the fht
+	 * @param tmp
+	 *            the buffer for the result (can be null)
+	 * @return the fht2
+	 */
+	public FHT2 conjugateMultiply(FHT2 fht, float[] tmp)
+	{
+		return (fht.isFastMultiply()) ? conjugateMultiply(fht.h2e, fht.h2o, fht.jj, tmp)
+				: conjugateMultiply(fht.getData(), tmp);
 	}
 
 	/**
@@ -694,25 +847,53 @@ public class FHT2 extends FloatProcessor
 	 *            the buffer for the result (can be null)
 	 * @return the fht2
 	 */
-	public FHT2 conjugateMultiply(float[] h2, float[] tmp)
+	private FHT2 conjugateMultiply(float[] h2, float[] tmp)
 	{
-		int rowMod, colMod;
-		double h2e, h2o;
 		float[] h1 = getData();
 		final int maxN = getWidth();
-		if (tmp == null || tmp.length != maxN * maxN)
-			tmp = new float[maxN * maxN];
-		for (int r = 0; r < maxN; r++)
+		if (tmp == null || tmp.length != h1.length)
+			tmp = new float[h1.length];
+		for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r)
 		{
-			rowMod = (maxN - r) % maxN;
-			for (int c = 0; c < maxN; c++)
+			//rowMod = (maxN - r) % maxN;
+			for (int c = 0, colMod = 0; c < maxN; c++, colMod = maxN - c, i++)
 			{
-				colMod = (maxN - c) % maxN;
-				h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]) / 2;
-				h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]) / 2;
-				tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o);
+				//colMod = (maxN - c) % maxN;
+				//h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]) / 2;
+				//h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]) / 2;
+				//tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o);
+				int j = rowMod * maxN + colMod;
+				double h2e = (h2[i] + h2[j]) / 2;
+				double h2o = (h2[i] - h2[j]) / 2;
+				tmp[i] = (float) (h1[i] * h2e - h1[j] * h2o);
 			}
 		}
+		return createFHTResult(tmp, maxN);
+	}
+
+	/**
+	 * Returns the image resulting from the point by point Hartley conjugate
+	 * multiplication of this image and the specified image. Both images are
+	 * assumed to be in the frequency domain. Conjugate multiplication in
+	 * the frequency domain is equivalent to correlation in the space domain.
+	 *
+	 * @param h2e
+	 *            the pre-initialised h2e value
+	 * @param h2o
+	 *            the pre-initialised h2o value
+	 * @param jj
+	 *            the pre-initialised j index
+	 * @param tmp
+	 *            the buffer for the result (can be null)
+	 * @return the fht2
+	 */
+	private FHT2 conjugateMultiply(double[] h2e, double[] h2o, int[] jj, float[] tmp)
+	{
+		float[] h1 = getData();
+		if (tmp == null || tmp.length != h1.length)
+			tmp = new float[h1.length];
+		for (int i = 0; i < h1.length; i++)
+			tmp[i] = (float) (h1[i] * h2e[i] - h1[jj[i]] * h2o[i]);
 		return createFHTResult(tmp, maxN);
 	}
 
@@ -728,7 +909,24 @@ public class FHT2 extends FloatProcessor
 	 */
 	public FHT2 divide(FHT2 fht)
 	{
-		return divide(fht.getData(), null);
+		return divide(fht, null);
+	}
+
+	/**
+	 * Returns the image resulting from the point by point Hartley division
+	 * of this image by the specified image. Both images are assumed to be in
+	 * the frequency domain. Division in the frequency domain is equivalent
+	 * to deconvolution in the space domain.
+	 *
+	 * @param fht
+	 *            the fht
+	 * @param tmp
+	 *            the buffer for the result (can be null)
+	 * @return the fht2
+	 */
+	public FHT2 divide(FHT2 fht, float[] tmp)
+	{
+		return (fht.isFastOperations()) ? divide(fht.h2e, fht.h2o, fht.jj, fht.mag, tmp) : divide(fht.getData(), tmp);
 	}
 
 	/**
@@ -742,27 +940,60 @@ public class FHT2 extends FloatProcessor
 	 * @param tmp
 	 *            the buffer for the result (can be null)
 	 */
-	public FHT2 divide(float[] h2, float[] tmp)
+	private FHT2 divide(float[] h2, float[] tmp)
 	{
-		int rowMod, colMod;
 		double mag, h2e, h2o;
 		float[] h1 = (float[]) getPixels();
-		if (tmp == null || tmp.length != maxN * maxN)
-			tmp = new float[maxN * maxN];
-		for (int r = 0; r < maxN; r++)
+		if (tmp == null || tmp.length != h1.length)
+			tmp = new float[h1.length];
+		for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r)
 		{
-			rowMod = (maxN - r) % maxN;
-			for (int c = 0; c < maxN; c++)
+			//rowMod = (maxN - r) % maxN;
+			for (int c = 0, colMod = 0; c < maxN; c++, colMod = maxN - c, i++)
 			{
-				colMod = (maxN - c) % maxN;
-				mag = h2[r * maxN + c] * h2[r * maxN + c] + h2[rowMod * maxN + colMod] * h2[rowMod * maxN + colMod];
+				//colMod = (maxN - c) % maxN;
+				//mag = h2[r * maxN + c] * h2[r * maxN + c] + h2[rowMod * maxN + colMod] * h2[rowMod * maxN + colMod];
+				//if (mag < 1e-20)
+				//	mag = 1e-20;
+				//h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]);
+				//h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]);
+				//tmp[r * maxN + c] = (float) ((h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o) / mag);
+				int j = rowMod * maxN + colMod;
+				mag = h2[i] * h2[i] + h2[j] * h2[j];
 				if (mag < 1e-20)
 					mag = 1e-20;
-				h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]);
-				h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]);
-				tmp[r * maxN + c] = (float) ((h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o) / mag);
+				h2e = (h2[i] + h2[j]);
+				h2o = (h2[i] - h2[j]);
+				tmp[i] = (float) ((h1[i] * h2e - h1[j] * h2o) / mag);
 			}
 		}
+		return createFHTResult(tmp, maxN);
+	}
+
+	/**
+	 * Returns the image resulting from the point by point Hartley division
+	 * of this image by the specified image. Both images are assumed to be in
+	 * the frequency domain. Division in the frequency domain is equivalent
+	 * to deconvolution in the space domain.
+	 * 
+	 * @param h2e
+	 *            the pre-initialised h2e value
+	 * @param h2o
+	 *            the pre-initialised h2o value
+	 * @param jj
+	 *            the pre-initialised j index
+	 * @param h2o
+	 *            the pre-initialised magnitude value
+	 * @param tmp
+	 *            the buffer for the result (can be null)
+	 */
+	private FHT2 divide(double[] h2e, double[] h2o, int[] jj, double[] mag, float[] tmp)
+	{
+		float[] h1 = getData();
+		if (tmp == null || tmp.length != h1.length)
+			tmp = new float[h1.length];
+		for (int i = 0; i < h1.length; i++)
+			tmp[i] = (float) ((h1[i] * h2e[i] - h1[jj[i]] * h2o[i]) / mag[i]);
 		return createFHTResult(tmp, maxN);
 	}
 

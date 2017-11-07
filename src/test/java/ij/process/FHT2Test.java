@@ -26,22 +26,40 @@ public class FHT2Test
 	@Test
 	public void canConjugateMultiply()
 	{
-		canCompute(0);
+		canCompute(0, false);
 	}
 
 	@Test
 	public void canMultiply()
 	{
-		canCompute(1);
+		canCompute(1, false);
 	}
 
 	@Test
 	public void canDivide()
 	{
-		canCompute(2);
+		canCompute(2, false);
 	}
 
-	private void canCompute(int mode)
+	@Test
+	public void canFastConjugateMultiply()
+	{
+		canCompute(0, true);
+	}
+
+	@Test
+	public void canFastMultiply()
+	{
+		canCompute(1, true);
+	}
+
+	@Test
+	public void canFastDivide()
+	{
+		canCompute(2, true);
+	}
+
+	private void canCompute(int mode, boolean fast)
 	{
 		int size = 16;
 		int ex = 5, ey = 7;
@@ -66,14 +84,20 @@ public class FHT2Test
 		{
 			case 2:
 				fhtE = fhtA.divide(fhtB);
+				if (fast)
+					fht2.initialiseFastOperations();
 				fhtO = fht1.divide(fht2);
 				break;
 			case 1:
 				fhtE = fhtA.multiply(fhtB);
+				if (fast)
+					fht2.initialiseFastMultiply();
 				fhtO = fht1.multiply(fht2);
 				break;
 			default:
 				fhtE = fhtA.conjugateMultiply(fhtB);
+				if (fast)
+					fht2.initialiseFastMultiply();
 				fhtO = fht1.conjugateMultiply(fht2);
 				break;
 		}
