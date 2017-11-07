@@ -23,7 +23,6 @@ import ij.ImageStack;
 public class FHT2 extends FloatProcessor
 {
 	private boolean isFrequencyDomain;
-	private int maxN;
 	private float[] C;
 	private float[] S;
 	private int[] bitrev;
@@ -64,7 +63,6 @@ public class FHT2 extends FloatProcessor
 		if (!powerOf2Size())
 			throw new IllegalArgumentException("Image not power of 2 size or not square: " + width + "x" + height);
 		this.isFrequencyDomain = isFrequencyDomain;
-		maxN = getWidth();
 		resetRoi();
 	}
 
@@ -86,7 +84,6 @@ public class FHT2 extends FloatProcessor
 		if (!powerOf2Size())
 			throw new IllegalArgumentException("Image not power of 2 size or not square: " + width + "x" + height);
 		this.isFrequencyDomain = isFrequencyDomain;
-		maxN = getWidth();
 	}
 
 	/**
@@ -125,11 +122,10 @@ public class FHT2 extends FloatProcessor
 
 	private void transform(boolean inverse)
 	{
-		maxN = width;
 		if (S == null)
-			initializeTables(maxN);
+			initializeTables(width);
 		float[] fht = (float[]) getPixels();
-		rc2DFHT(fht, inverse, maxN);
+		rc2DFHT(fht, inverse, width);
 		isFrequencyDomain = !inverse;
 		resetFastOperations();
 	}
@@ -151,14 +147,14 @@ public class FHT2 extends FloatProcessor
 	 */
 	public void copyTables(FHT2 fht)
 	{
-		if (fht.S != null && fht.maxN == maxN)
+		if (fht.S != null && fht.width == width)
 		{
 			// No need to clone as the tables are only read
 			S = fht.S;
 			C = fht.C;
 			bitrev = fht.bitrev;
 			// Initialise the temp array
-			tempArr = new float[maxN];
+			tempArr = new float[width];
 		}
 	}
 
@@ -627,10 +623,11 @@ public class FHT2 extends FloatProcessor
 		if (h2e == null)
 		{
 			// Do this on new arrays for thread safety (i.e. concurrent initialisation)
-			double[] h2e = new double[maxN * maxN];
+			float[] h2 = getData();
+			final int maxN = getWidth();
+			double[] h2e = new double[h2.length];
 			double[] h2o = new double[h2e.length];
 			int[] jj = new int[h2e.length];
-			float[] h2 = getData();
 			for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r)
 			{
 				for (int c = 0, colMod = 0; c < maxN; c++, colMod = maxN - c, i++)
@@ -767,6 +764,14 @@ public class FHT2 extends FloatProcessor
 				//h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]) / 2;
 				//h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]) / 2;
 				//tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e + h1[rowMod * maxN + colMod] * h2o);
+				
+				// This is actually doing for 2D data stored as x[rows][columns]
+				// x==column, y==row (this is row-major order as per JTransforms notation)
+				// https://en.wikipedia.org/wiki/Discrete_Hartley_transform
+				//h2e = (h2[r][c] + h2[N-r][N-c]) / 2;
+				//h2o = (h2[r][c] - h2[N-r][N-c]) / 2;
+				//tmp[r][c] = (float) (h1[r][c] * h2e + h1[N-r][N-c] * h2o);
+				
 				int j = rowMod * maxN + colMod;
 				double h2e = (h2[i] + h2[j]) / 2;
 				double h2o = (h2[i] - h2[j]) / 2;
@@ -799,7 +804,7 @@ public class FHT2 extends FloatProcessor
 			tmp = new float[h1.length];
 		for (int i = 0; i < h1.length; i++)
 			tmp[i] = (float) (h1[i] * h2e[i] + h1[jj[i]] * h2o[i]);
-		return createFHTResult(tmp, maxN);
+		return createFHTResult(tmp, width);
 	}
 
 	/**
@@ -894,7 +899,7 @@ public class FHT2 extends FloatProcessor
 			tmp = new float[h1.length];
 		for (int i = 0; i < h1.length; i++)
 			tmp[i] = (float) (h1[i] * h2e[i] - h1[jj[i]] * h2o[i]);
-		return createFHTResult(tmp, maxN);
+		return createFHTResult(tmp, width);
 	}
 
 	/**
@@ -943,7 +948,8 @@ public class FHT2 extends FloatProcessor
 	private FHT2 divide(float[] h2, float[] tmp)
 	{
 		double mag, h2e, h2o;
-		float[] h1 = (float[]) getPixels();
+		float[] h1 = getData();
+		final int maxN = getWidth();
 		if (tmp == null || tmp.length != h1.length)
 			tmp = new float[h1.length];
 		for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r)
@@ -994,13 +1000,13 @@ public class FHT2 extends FloatProcessor
 			tmp = new float[h1.length];
 		for (int i = 0; i < h1.length; i++)
 			tmp[i] = (float) ((h1[i] * h2e[i] - h1[jj[i]] * h2o[i]) / mag[i]);
-		return createFHTResult(tmp, maxN);
+		return createFHTResult(tmp, width);
 	}
 
 	/** Returns a clone of this FHT. */
 	public FHT2 getCopy()
 	{
-		FHT2 fht = new FHT2(getData().clone(), maxN, isFrequencyDomain);
+		FHT2 fht = new FHT2(getData().clone(), width, isFrequencyDomain);
 		fht.copyTables(this);
 		return fht;
 	}
