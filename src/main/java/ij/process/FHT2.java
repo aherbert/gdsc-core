@@ -501,113 +501,69 @@ public class FHT2 extends FloatProcessor
 	 * 
 	 * @param ip
 	 *            The processor (must be an even square, i.e. width==height and width is even)
+	 * @throws IllegalArgumentException
+	 *             If not even dimensions
 	 */
-	public static void swapQuadrants(FloatProcessor ip)
+	public static void swapQuadrants(FloatProcessor ip)throws IllegalArgumentException
 	{
-		// This is a specialised version to allow reusing the float buffers and 
-		// optimised for square images
+		// This is a specialised version to allow using a float buffer and 
+		// optimised for even sized images
 
-		int width = ip.getWidth();
-		float[] pixels = (float[]) ip.getPixels();
-		int size = width / 2;
-		float[] a = new float[size * size];
-		//float[] b = new float[size * size];
-		crop(pixels, width, a, size, 0, size);
-		//crop(pixels, width, b, 0, size, size);
-		//insert(pixels, width, b, size, 0, size);
-		copy(pixels, width, 0, size, size, size, 0);
-		insert(pixels, width, a, 0, size, size);
-		crop(pixels, width, a, 0, 0, size);
-		//crop(pixels, width, b, size, size, size);
-		//insert(pixels, width, b, 0, 0, size);
-		copy(pixels, width, size, size, size, 0, 0);
-		insert(pixels, width, a, size, size, size);
+		int ny = ip.getHeight();
+		int nx = ip.getWidth();
+		if ((ny & 1) == 1 || (nx & 1) == 1)
+			throw new IllegalArgumentException("Require even dimensions");
+
+		int ny_2 = ny / 2;
+		int nx_2 = nx / 2;
+
+		float[] tmp = new float[nx];
+		float[] a = (float[]) ip.getPixels();
+		
+		//@formatter:off
+		// We swap: 0 <=> nx_2, 0 <=> ny_2
+		// 1 <=> 3 
+		FHT2.swap(a, a, nx, nx_2,    0,    0, ny_2, nx_2, ny_2, tmp);
+		// 2 <=> 4
+		FHT2.swap(a, a, nx,    0,    0, nx_2, ny_2, nx_2, ny_2, tmp);
+		//@formatter:on
 	}
 
 	/**
-	 * Crop.
+	 * Swap the rectangle pixel values from a with b.
+	 * <p>
+	 * No bounds checks are performed so use with care!
 	 *
-	 * @param pixels
-	 *            the pixels
+	 * @param a
+	 *            the a pixels
+	 * @param b
+	 *            the b pixels (must match a.length)
 	 * @param width
-	 *            the width
-	 * @param pixels2
-	 *            the pixels 2
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 * @param size
-	 *            the size
+	 *            the width of each set of pixels
+	 * @param ax
+	 *            the x origin from a
+	 * @param ay
+	 *            the y origin from a
+	 * @param bx
+	 *            the x origin from b
+	 * @param by
+	 *            the b origin from b
+	 * @param w
+	 *            the width of the rectangle to swap
+	 * @param h
+	 *            the height of the rectangle to swap
+	 * @param tmp
+	 *            the tmp buffer (must be at least width in length)
 	 */
-	private static void crop(float[] pixels, int width, float[] pixels2, int x, int y, int size)
+	public static void swap(float[] a, float[] b, int width, int ax, int ay, int bx, int by, int w, int h, float[] tmp)
 	{
-		for (int ys = y + size; ys-- > y;)
+		for (int ayy = ay + h, byy = by + h - 1; ayy-- > ay; byy--)
 		{
-			int offset = ys * width + x;
-			int offset2 = (ys - y) * size;
-			System.arraycopy(pixels, offset, pixels2, offset2, size);
-			//for (int xs = 0; xs < size; xs++)
-			//	pixels2[offset2++] = pixels[offset++];
-		}
-	}
-
-	/**
-	 * Insert.
-	 *
-	 * @param pixels
-	 *            the pixels
-	 * @param width
-	 *            the width
-	 * @param pixels2
-	 *            the pixels 2
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 * @param size
-	 *            the size
-	 */
-	private static void insert(float[] pixels, int width, float[] pixels2, int x, int y, int size)
-	{
-		for (int ys = y + size; ys-- > y;)
-		{
-			int offset = ys * width + x;
-			int offset2 = (ys - y) * size;
-			System.arraycopy(pixels2, offset2, pixels, offset, size);
-			//for (int xs = 0; xs < size; xs++)
-			//	pixels[offset++] = pixels2[offset2++];
-		}
-	}
-
-	/**
-	 * Copy.
-	 *
-	 * @param pixels
-	 *            the pixels
-	 * @param width
-	 *            the width
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 * @param size
-	 *            the size
-	 * @param x2
-	 *            the x 2
-	 * @param y2
-	 *            the y 2
-	 */
-	private static void copy(float[] pixels, int width, int x, int y, int size, int x2, int y2)
-	{
-		for (int ys = y + size, ys2 = y2 + size - 1; ys-- > y; ys2--)
-		//for (int ys = y, ys2 = y2; ys < y + size; ys++, ys2++)
-		{
-			int offset = ys * width + x;
-			int offset2 = ys2 * width + x2;
-			System.arraycopy(pixels, offset, pixels, offset2, size);
-			//for (int xs = 0; xs < size; xs++)
-			//	pixels[offset2++] = pixels[offset++];
+			int ai = ayy * width + ax;
+			int bi = byy * width + bx;
+			System.arraycopy(a, ai, tmp, 0, w);
+			System.arraycopy(b, bi, a, ai, w);
+			System.arraycopy(tmp, 0, b, bi, w);
 		}
 	}
 
@@ -764,14 +720,14 @@ public class FHT2 extends FloatProcessor
 				//h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]) / 2;
 				//h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]) / 2;
 				//tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e + h1[rowMod * maxN + colMod] * h2o);
-				
+
 				// This is actually doing for 2D data stored as x[rows][columns]
 				// x==column, y==row (this is row-major order as per JTransforms notation)
 				// https://en.wikipedia.org/wiki/Discrete_Hartley_transform
 				//h2e = (h2[r][c] + h2[N-r][N-c]) / 2;
 				//h2o = (h2[r][c] - h2[N-r][N-c]) / 2;
 				//tmp[r][c] = (float) (h1[r][c] * h2e + h1[N-r][N-c] * h2o);
-				
+
 				int j = rowMod * maxN + colMod;
 				double h2e = (h2[i] + h2[j]) / 2;
 				double h2o = (h2[i] - h2[j]) / 2;
