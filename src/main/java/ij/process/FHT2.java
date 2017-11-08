@@ -193,11 +193,14 @@ public class FHT2 extends FloatProcessor
 	/** Performs a 2D FHT (Fast Hartley Transform). */
 	private void rc2DFHT(float[] x, boolean inverse, int maxN)
 	{
+		float[] tmp = new float[maxN];
 		for (int row = 0; row < maxN; row++)
-			dfht3(x, row * maxN, inverse, maxN);
+			//dfht3(x, row * maxN, inverse, maxN);
+			dfht3(x, row * maxN, inverse, maxN, tmp);
 		transposeR(x, maxN);
 		for (int row = 0; row < maxN; row++)
-			dfht3(x, row * maxN, inverse, maxN);
+			//dfht3(x, row * maxN, inverse, maxN);
+			dfht3(x, row * maxN, inverse, maxN, tmp);
 		transposeR(x, maxN);
 
 		int mRow, mCol;
@@ -235,9 +238,10 @@ public class FHT2 extends FloatProcessor
 	 *            the same for a given FHT object.
 	 *            Note that all amplitudes in the output 'x' are multiplied by maxN.
 	 */
+	@SuppressWarnings("unused")
 	private void dfht3(float[] x, int base, boolean inverse, int maxN)
 	{
-		int i, stage, gpNum, gpSize, numGps, Nlog2;
+		int stage, gpNum, gpSize, numGps, Nlog2;
 		int bfNum, numBfs;
 		int Ad0, Ad1, Ad2, Ad3, Ad4, CSAd;
 		float rt1, rt2, rt3, rt4;
@@ -245,7 +249,7 @@ public class FHT2 extends FloatProcessor
 		//if (S == null)
 		//	initializeTables(maxN);
 		Nlog2 = log2(maxN);
-		bitRevRArr(x, base, Nlog2, maxN); //bitReverse the input array
+		bitRevRArr(x, base, maxN); //bitReverse the input array
 		gpSize = 2; //first & second stages - do radix 4 butterflies once thru
 		numGps = maxN / 4;
 		for (gpNum = 0; gpNum < numGps; gpNum++)
@@ -313,9 +317,114 @@ public class FHT2 extends FloatProcessor
 
 		if (inverse)
 		{
-			for (i = 0; i < maxN; i++)
+			for (int i = 0; i < maxN; i++)
 				x[base + i] = x[base + i] / maxN;
 		}
+	}
+
+	/**
+	 * Performs an optimized 1D FHT of an array or part of an array.
+	 *
+	 * @param x
+	 *            Input array; will be overwritten by the output in the range given by base and maxN.
+	 * @param base
+	 *            First index from where data of the input array should be read.
+	 * @param inverse
+	 *            True for inverse transform.
+	 * @param maxN
+	 *            Length of data that should be transformed; this must be always
+	 *            the same for a given FHT object.
+	 *            Note that all amplitudes in the output 'x' are multiplied by maxN.
+	 * @param x2
+	 *            the working data buffer
+	 */
+	private void dfht3(float[] x, int base, boolean inverse, int maxN, float[] x2)
+	{
+		int stage, gpNum, gpSize, numGps, Nlog2;
+		int bfNum, numBfs;
+		int Ad0, Ad1, Ad2, Ad3, Ad4, CSAd;
+		float rt1, rt2, rt3, rt4;
+
+		// Extract data
+		System.arraycopy(x, base, x2, 0, maxN);
+
+		//if (S == null)
+		//	initializeTables(maxN);
+		Nlog2 = log2(maxN);
+		bitRevRArr(x2, maxN); //bitReverse the input array
+		gpSize = 2; //first & second stages - do radix 4 butterflies once thru
+		numGps = maxN / 4;
+		for (gpNum = 0; gpNum < numGps; gpNum++)
+		{
+			Ad1 = gpNum * 4;
+			Ad2 = Ad1 + 1;
+			Ad3 = Ad1 + gpSize;
+			Ad4 = Ad2 + gpSize;
+			rt1 = x2[Ad1] + x2[Ad2]; // a + b
+			rt2 = x2[Ad1] - x2[Ad2]; // a - b
+			rt3 = x2[Ad3] + x2[Ad4]; // c + d
+			rt4 = x2[Ad3] - x2[Ad4]; // c - d
+			x2[Ad1] = rt1 + rt3; // a + b + (c + d)
+			x2[Ad2] = rt2 + rt4; // a - b + (c - d)
+			x2[Ad3] = rt1 - rt3; // a + b - (c + d)
+			x2[Ad4] = rt2 - rt4; // a - b - (c - d)
+		}
+
+		if (Nlog2 > 2)
+		{
+			// third + stages computed here
+			gpSize = 4;
+			numBfs = 2;
+			numGps = numGps / 2;
+			//IJ.write("FFT: dfht3 "+Nlog2+" "+numGps+" "+numBfs);
+			for (stage = 2; stage < Nlog2; stage++)
+			{
+				for (gpNum = 0; gpNum < numGps; gpNum++)
+				{
+					Ad0 = gpNum * gpSize * 2;
+					Ad1 = Ad0; // 1st butterfly is different from others - no mults needed
+					Ad2 = Ad1 + gpSize;
+					Ad3 = Ad1 + gpSize / 2;
+					Ad4 = Ad3 + gpSize;
+					rt1 = x2[Ad1];
+					x2[Ad1] = x2[Ad1] + x2[Ad2];
+					x2[Ad2] = rt1 - x2[Ad2];
+					rt1 = x2[Ad3];
+					x2[Ad3] = x2[Ad3] + x2[Ad4];
+					x2[Ad4] = rt1 - x2[Ad4];
+					for (bfNum = 1; bfNum < numBfs; bfNum++)
+					{
+						// subsequent BF's dealt with together
+						Ad1 = bfNum + Ad0;
+						Ad2 = Ad1 + gpSize;
+						Ad3 = gpSize - bfNum + Ad0;
+						Ad4 = Ad3 + gpSize;
+
+						CSAd = bfNum * numGps;
+						rt1 = x2[Ad2] * C[CSAd] + x2[Ad4] * S[CSAd];
+						rt2 = x2[Ad4] * C[CSAd] - x2[Ad2] * S[CSAd];
+
+						x2[Ad2] = x2[Ad1] - rt1;
+						x2[Ad1] = x2[Ad1] + rt1;
+						x2[Ad4] = x2[Ad3] + rt2;
+						x2[Ad3] = x2[Ad3] - rt2;
+
+					} /* end bfNum loop */
+				} /* end gpNum loop */
+				gpSize *= 2;
+				numBfs *= 2;
+				numGps = numGps / 2;
+			} /* end for all stages */
+		} /* end if Nlog2 > 2 */
+
+		if (inverse)
+		{
+			for (int i = 0; i < maxN; i++)
+				x2[i] = x2[i] / maxN;
+		}
+
+		// Copy back
+		System.arraycopy(x2, 0, x, base, maxN);
 	}
 
 	/**
@@ -352,12 +461,20 @@ public class FHT2 extends FloatProcessor
 		return ((x & (1 << bit)) != 0);
 	}
 
-	private void bitRevRArr(float[] x, int base, int bitlen, int maxN)
+	private void bitRevRArr(float[] x, int base, int maxN)
 	{
 		for (int i = 0; i < maxN; i++)
 			tempArr[i] = x[base + bitrev[i]];
 		for (int i = 0; i < maxN; i++)
 			x[base + i] = tempArr[i];
+	}
+
+	private void bitRevRArr(float[] x, int maxN)
+	{
+		for (int i = 0; i < maxN; i++)
+			tempArr[i] = x[bitrev[i]];
+		for (int i = 0; i < maxN; i++)
+			x[i] = tempArr[i];
 	}
 
 	/**
@@ -504,7 +621,7 @@ public class FHT2 extends FloatProcessor
 	 * @throws IllegalArgumentException
 	 *             If not even dimensions
 	 */
-	public static void swapQuadrants(FloatProcessor ip)throws IllegalArgumentException
+	public static void swapQuadrants(FloatProcessor ip) throws IllegalArgumentException
 	{
 		// This is a specialised version to allow using a float buffer and 
 		// optimised for even sized images
@@ -519,7 +636,7 @@ public class FHT2 extends FloatProcessor
 
 		float[] tmp = new float[nx];
 		float[] a = (float[]) ip.getPixels();
-		
+
 		//@formatter:off
 		// We swap: 0 <=> nx_2, 0 <=> ny_2
 		// 1 <=> 3 
