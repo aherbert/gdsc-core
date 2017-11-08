@@ -11,6 +11,7 @@ import org.apache.commons.math3.analysis.interpolation.TricubicInterpolatingFunc
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
+import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Precision;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -250,36 +251,100 @@ public class CustomTricubicInterpolatorTest
 
 	double[][][] createData(int x, int y, int z, RandomGenerator r)
 	{
-		double[][][] fval = new double[x][y][z];
 		// Create a 2D Gaussian
 		double s = 1.0;
 		double cx = x / 2.0;
 		double cy = y / 2.0;
+		double cz = z / 2.0;
 		if (r != null)
 		{
 			s += r.nextDouble() - 0.5;
 			cx += r.nextDouble() - 0.5;
 			cy += r.nextDouble() - 0.5;
+			cz += r.nextDouble() - 0.5;
 		}
+		else
+		{
+			// Prevent symmetry which breaks the evaluation of gradients
+			cx += 0.01;
+			cy += 0.01;
+			cz += 0.01;
+		}
+		return createData(x, y, z, cx, cy, cz, s);
+
+		//      double[][][] fval = new double[x][y][z];
+		//		double[] otherx = new double[x];
+		//		for (int zz = 0; zz < z; zz++)
+		//		{
+		//			double s2 = 2 * s * s;
+		//			for (int xx = 0; xx < x; xx++)
+		//				otherx[xx] = Maths.pow2(xx - cx) / s2;
+		//			for (int yy = 0; yy < y; yy++)
+		//			{
+		//				double othery = Maths.pow2(yy - cy) / s2;
+		//				for (int xx = 0; xx < x; xx++)
+		//				{
+		//					fval[xx][yy][zz] = Math.exp(otherx[xx] + othery);
+		//				}
+		//			}
+		//			// Move Gaussian
+		//			s += 0.1;
+		//			cx += 0.1;
+		//			cy -= 0.05;
+		//		}
+		//		return fval;
+	}
+
+	double amplitude;
+
+	double[][][] createData(int x, int y, int z, double cx, double cy, double cz, double s)
+	{
+		double[][][] fval = new double[x][y][z];
+		// Create a 2D Gaussian with astigmatism
 		double[] otherx = new double[x];
+		double zDepth = cz / 2;
+		double gamma = 1;
+
+		// Compute the maximum amplitude 
+		double sx = s * (1.0 + Maths.pow2((gamma) / zDepth) * 0.5);
+		double sy = s * (1.0 + Maths.pow2((-gamma) / zDepth) * 0.5);
+		amplitude = 1.0 / (2 * Math.PI * sx * sy);
+
+		//ImageStack stack = new ImageStack(x, y);
 		for (int zz = 0; zz < z; zz++)
 		{
-			double s2 = 2 * s * s;
+			//float[] pixels = new float[x * y];
+			//int i=0;
+
+			// Astigmatism based on cz.
+			// Width will be 1.5 at zDepth.
+			double dz = cz - zz;
+			sx = s * (1.0 + Maths.pow2((dz + gamma) / zDepth) * 0.5);
+			sy = s * (1.0 + Maths.pow2((dz - gamma) / zDepth) * 0.5);
+
+			//System.out.printf("%d = %f,%f\n", zz, sx, sy);
+
+			double norm = 1.0 / (2 * Math.PI * sx * sy);
+
+			double sx2 = 2 * sx * sx;
+			double sy2 = 2 * sy * sy;
 			for (int xx = 0; xx < x; xx++)
-				otherx[xx] = Maths.pow2(xx - cx) / s2;
+				otherx[xx] = -Maths.pow2(xx - cx) / sx2;
 			for (int yy = 0; yy < y; yy++)
 			{
-				double othery = Maths.pow2(yy - cy) / s2;
+				double othery = Maths.pow2(yy - cy) / sy2;
 				for (int xx = 0; xx < x; xx++)
 				{
-					fval[xx][yy][zz] = Math.exp(otherx[xx] + othery);
+					double value = norm * FastMath.exp(otherx[xx] - othery);
+					fval[xx][yy][zz] = value;
+					//pixels[i++] = (float) value;
 				}
 			}
-			// Move Gaussian
-			s += 0.1;
-			cx += 0.1;
-			cy -= 0.05;
+			//stack.addSlice(null, pixels);
 		}
+		//ImagePlus imp = Utils.display("Test", stack);
+		//for (int i = 9; i-- > 0;)
+		//	imp.getCanvas().zoomIn(0, 0);
 		return fval;
 	}
 
@@ -307,7 +372,7 @@ public class CustomTricubicInterpolatorTest
 		double[] df_daB = new double[3];
 		double[] d2f_da2A = new double[3];
 		double[] d2f_da2B = new double[3];
-		DoubleEquality eq = new DoubleEquality(1e-2, 1e-3);
+		DoubleEquality eq = new DoubleEquality(1e-6, 1e-3);
 		for (int i = 0; i < 3; i++)
 		{
 			double[][][] fval = createData(x, y, z, (i == 0) ? null : r);
@@ -354,33 +419,33 @@ public class CustomTricubicInterpolatorTest
 							a[j] = old - h;
 							double low = f1.value(a[0], a[1], a[2], df_daL);
 							a[j] = old;
-							double firstOrder = (high - low) / (2 * h);
-							Assert.assertTrue(firstOrder + " sign != " + df_daA[j], (firstOrder * df_daA[j]) >= 0);
-							//boolean ok = eq.almostEqualRelativeOrAbsolute(firstOrder, df_daA[j]);
-							//System.out.printf("[%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", xx, yy, zz, firstOrder, j,
+							//double df_da = (high - e) / h;
+							double df_da = (high - low) / (2 * h);
+							boolean signOK = (df_da * df_daA[j]) >= 0;
+							boolean ok = eq.almostEqualRelativeOrAbsolute(df_da, df_daA[j]);
+							Assert.assertTrue(df_da + " sign != " + df_daA[j], signOK);
+							//System.out.printf("[%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", xx, yy, zz, df_da2, j,
 							//		df_daA[j], ok);
 							//if (!ok)
 							//{
-							//	System.out.printf("[%.1f,%.1f,%.1f] %f == [%d] %f?\n", xx, yy, zz, firstOrder, j, df_daA[j]);
+							//	System.out.printf("[%.1f,%.1f,%.1f] %f == [%d] %f?\n", xx, yy, zz, df_da2, j, df_daA[j]);
 							//}
-							Assert.assertTrue(firstOrder + " != " + df_daA[j],
-									eq.almostEqualRelativeOrAbsolute(firstOrder, df_daA[j]));
+							Assert.assertTrue(df_da + " != " + df_daA[j], ok);
 
-							double secondOrder = (df_daH[j] - df_daL[j]) / (2 * h);
+							double d2f_da2 = (df_daH[j] - df_daL[j]) / (2 * h);
 							if (!onNode)
 							{
-								Assert.assertTrue(secondOrder + " sign != " + d2f_da2A[j],
-										(secondOrder * d2f_da2A[j]) >= 0);
-								//boolean ok = eq.almostEqualRelativeOrAbsolute(secondOrder, d2f_da2A[j]);
-								//System.out.printf("%d [%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", j, xx, yy, zz, secondOrder,
+								Assert.assertTrue(d2f_da2 + " sign != " + d2f_da2A[j], (d2f_da2 * d2f_da2A[j]) >= 0);
+								//boolean ok = eq.almostEqualRelativeOrAbsolute(d2f_da2, d2f_da2A[j]);
+								//System.out.printf("%d [%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", j, xx, yy, zz, d2f_da2,
 								//		j, d2f_da2A[j], ok);
 								//if (!ok)
 								//{
-								//System.out.printf("%d [%.1f,%.1f,%.1f] %f == [%d] %f?\n", j, xx, yy, zz, secondOrder, j,
+								//System.out.printf("%d [%.1f,%.1f,%.1f] %f == [%d] %f?\n", j, xx, yy, zz, d2f_da2, j,
 								//		d2f_da2A[j]);
 								//}
-								Assert.assertTrue(secondOrder + " != " + d2f_da2A[j],
-										eq.almostEqualRelativeOrAbsolute(secondOrder, d2f_da2A[j]));
+								Assert.assertTrue(d2f_da2 + " != " + d2f_da2A[j],
+										eq.almostEqualRelativeOrAbsolute(d2f_da2, d2f_da2A[j]));
 							}
 						}
 					}
@@ -1024,7 +1089,9 @@ public class CustomTricubicInterpolatorTest
 
 									for (int c = 0; c < 3; c++)
 									{
-										Assert.assertEquals(df_daA[c], df_daB[c], Math.abs(df_daA[c] * 1e-8));
+										//Assert.assertEquals(df_daA[c], df_daB[c], Math.abs(df_daA[c] * 1e-8));
+										Assert.assertTrue(DoubleEquality.almostEqualRelativeOrAbsolute(df_daA[c],
+												df_daB[c], 1e-8, 1e-12));
 									}
 								}
 							}
@@ -1107,6 +1174,80 @@ public class CustomTricubicInterpolatorTest
 				//		value[c].getStandardDeviation());
 			}
 			Assert.assertFalse(same);
+		}
+	}
+
+	@Test
+	public void searchSplineImprovesFunctionValue()
+	{
+		// Skip this as it is for testing the binary search works
+		Assume.assumeTrue(false);
+		
+		RandomGenerator r = new Well19937c(30051977);
+		// Bigger depth of field to capture astigmatism centre
+		int x = 10, y = 10, z = 10;
+		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
+		double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
+		double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
+		for (int ii = 0; ii < 3; ii++)
+		{
+			double cx = (x - 1) / 2.0 + r.nextDouble() / 2;
+			double cy = (y - 1) / 2.0 + r.nextDouble() / 2;
+			double cz = (z - 1) / 2.0 + r.nextDouble() / 2;
+			double[][][] fval = createData(x, y, z, cx, cy, cz, 2);
+
+			CustomTricubicInterpolator interpolator = new CustomTricubicInterpolator();
+			CustomTricubicInterpolatingFunction f1 = interpolator.interpolate(xval, yval, zval, fval);
+
+			// Check the search approaches the actual function value
+			double[] last = null;
+			for (int i = 0; i <= 10; i++)
+			{
+				double[] optimum = f1.search(true, i, 0, 0);
+				//double d = Maths.distance(cx, cy, cz, optimum[0], optimum[1], optimum[2]);
+				//System.out.printf("[%d] %f,%f,%f %d = %s : dist = %f : error = %f\n", ii, cx, cy, cz, i,
+				//		Arrays.toString(optimum), d, DoubleEquality.relativeError(amplitude, optimum[3]));
+
+				// Skip 0 to 1 as it moves from an exact node value to interpolation
+				// which may use a different node depending on the gradient
+				if (i > 1)
+				{
+					double d = Maths.distance(last[0], last[1], last[2], optimum[0], optimum[1], optimum[2]);
+					System.out.printf("[%d] %f,%f,%f %d = %s : dist = %f : change = %g\n", ii, cx, cy, cz, i,
+							Arrays.toString(optimum), d, DoubleEquality.relativeError(last[3], optimum[3]));
+					Assert.assertTrue(optimum[3] >= last[3]);
+				}
+				last = optimum;
+			}
+		}
+	}
+	
+	@Test
+	public void canFindOptimum()
+	{
+		RandomGenerator r = new Well19937c(30051977);
+		// Bigger depth of field to capture astigmatism centre
+		int x = 10, y = 10, z = 10;
+		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
+		double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
+		double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
+		for (int ii = 0; ii < 10; ii++)
+		{
+			double cx = (x - 1) / 2.0 + r.nextDouble() / 2;
+			double cy = (y - 1) / 2.0 + r.nextDouble() / 2;
+			double cz = (z - 1) / 2.0 + r.nextDouble() / 2;
+			double[][][] fval = createData(x, y, z, cx, cy, cz, 2);
+
+			CustomTricubicInterpolator interpolator = new CustomTricubicInterpolator();
+			CustomTricubicInterpolatingFunction f1 = interpolator.interpolate(xval, yval, zval, fval);
+
+			double[] last = f1.search(true, 10, 1e-6, 0);
+
+			// Since the cubic function is not the same as the input we cannot be too precise here
+			Assert.assertEquals(cx, last[0], 1e-1);
+			Assert.assertEquals(cy, last[1], 1e-1);
+			Assert.assertEquals(cz, last[2], 1e-1);
+			Assert.assertEquals(amplitude, last[3], amplitude * 1e-2);
 		}
 	}
 }

@@ -30,6 +30,8 @@ package gdsc.core.math.interpolation;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.exception.OutOfRangeException;
 
+import gdsc.core.utils.SimpleArrayUtils;
+
 /**
  * 3D-spline function.
  */
@@ -862,4 +864,130 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 *            the scale
 	 */
 	abstract public void scale(double scale);
+
+	/**
+	 * Perform n refinements of a binary search to find the optimum value. 8 vertices of a cube are evaluated per
+	 * refinement and the optimum value selected. The bounds of the cube are then reduced by 2.
+	 * <p>
+	 * The search starts with the bounds at 0,1 for each dimension. This search works because the function is a cubic
+	 * polynomial and so the peak at the optimum is closest-in-distance to the closest-in-value bounding point.
+	 * <p>
+	 * The optimum will be found within error +/- 1/(2^refinements), e.g. 5 refinements will have an error of +/- 1/32.
+	 * <p>
+	 * An optional tolerance for improvement can be specified. This is applied only if the optimum vertex has changed,
+	 * otherwise the value would be the same. If it has changed then the maximum error will be greater than if the
+	 * maximum refinements was achieved.
+	 *
+	 * @param maximum
+	 *            Set to true to find the maximum
+	 * @param refinements
+	 *            the refinements (this is set to 1 if below 1)
+	 * @param relativeError
+	 *            relative tolerance threshold (set to negative to ignore)
+	 * @param absoluteError
+	 *            absolute tolerance threshold (set to negative to ignore)
+	 * @return [x, y, z, value]
+	 */
+	public double[] search(boolean maximum, int refinements, double relativeError, double absoluteError)
+	{
+		if (refinements < 1)
+			refinements = 1;
+
+		boolean checkValue = relativeError > 0 || absoluteError > 0;
+
+		CubicSplinePosition[] sx = new CubicSplinePosition[] { new CubicSplinePosition(0), new CubicSplinePosition(1) };
+		CubicSplinePosition[] sy = sx.clone();
+		CubicSplinePosition[] sz = sx.clone();
+		// 8 cube vertices packed as z*4 + y*2 + x
+		double[] values = new double[8];
+		// We can initialise the default node value
+		int lastI = 0;
+		double lastValue = value000();
+		for (;;)
+		{
+			// Evaluate the 8 flanking positions
+			for (int z = 0, i = 0; z < 2; z++)
+				for (int y = 0; y < 2; y++)
+					for (int x = 0; x < 2; x++, i++)
+					{
+						// We can skip the value we know
+						values[i] = (i == lastI) ? lastValue : value(sx[x], sy[y], sz[z]);
+					}
+
+			int i = (maximum) ? SimpleArrayUtils.findMaxIndex(values) : SimpleArrayUtils.findMinIndex(values);
+			int z = i / 4;
+			int j = i % 4;
+			int y = j / 2;
+			int x = j % 2;
+
+			double value = values[i];
+
+			boolean converged = (--refinements == 0);
+			if (!converged && checkValue && lastI != i)
+			{
+				// Check convergence on value if the cube vertex has changed.
+				// If it hasn't changed then the value will be the same and we continue
+				// reducing the cube size.
+				converged = areEqual(lastValue, value, absoluteError, relativeError);
+			}
+
+			if (converged)
+			{
+				// Terminate
+				return new double[] { sx[x].getX(), sy[y].getX(), sz[z].getX(), value };
+			}
+
+			lastI = i;
+			lastValue = value;
+
+			// Update bounds
+			update(sx, x);
+			update(sy, y);
+			update(sz, z);
+		}
+	}
+
+	/**
+	 * Check if the pair of values are equal.
+	 *
+	 * @param p
+	 *            Previous
+	 * @param c
+	 *            Current
+	 * @param relativeError
+	 *            relative tolerance threshold (set to negative to ignore)
+	 * @param absoluteError
+	 *            absolute tolerance threshold (set to negative to ignore)
+	 * @return True if equal
+	 */
+	public static boolean areEqual(final double p, final double c, double relativeError, double absoluteError)
+	{
+		final double difference = Math.abs(p - c);
+		if (difference <= absoluteError)
+			return true;
+		final double size = max(Math.abs(p), Math.abs(c));
+		return (difference <= size * relativeError);
+	}
+
+	private static double max(final double a, final double b)
+	{
+		// Ignore NaN
+		return (a > b) ? a : b;
+	}
+
+	/**
+	 * Update the bounds by fixing the last spline position that was optimum and moving the other position to the
+	 * midpoint.
+	 *
+	 * @param s
+	 *            the pair of spline positions defining the bounds
+	 * @param i
+	 *            the index of the optimum
+	 */
+	private static void update(CubicSplinePosition[] s, int i)
+	{
+		double mid = (s[0].getX() + s[1].getX()) / 2;
+		// Move opposite bound
+		s[(i + 1) % 2] = new CubicSplinePosition(mid);
+	}
 }

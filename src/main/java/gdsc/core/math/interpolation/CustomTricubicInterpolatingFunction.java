@@ -930,7 +930,7 @@ public class CustomTricubicInterpolatingFunction
 		{
 			return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k]);
 		}
-		
+
 		final double xN = (x - xval[i]) / (xscale[i]);
 		final double yN = (y - yval[j]) / (yscale[j]);
 		final double zN = (z - zval[k]) / (zscale[k]);
@@ -2675,5 +2675,83 @@ public class CustomTricubicInterpolatingFunction
 	public boolean isInteger()
 	{
 		return isInteger;
+	}
+
+	/**
+	 * Perform n refinements of a binary search to find the optimum value. The search finds the spline node that has the
+	 * optimum value. If refinements are performed then 8 vertices of the node cube are evaluated per refinement and the
+	 * optimum value selected. The bounds of the cube are then reduced by 2.
+	 * <p>
+	 * The search starts with the bounds at 0,1 for each dimension. This search works because the function is a cubic
+	 * polynomial and so the peak at the optimum is closest-in-distance to the closest-in-value bounding point.
+	 * <p>
+	 * The optimum will be found within error +/- scale/(2^refinements), e.g. 5 refinements will have an error of +/-
+	 * scale/32, with scale the distance between the node and the next node point in each axis.
+	 * <p>
+	 * An optional tolerance for improvement can be specified. This is applied only if the optimum vertex has changed,
+	 * otherwise the value would be the same. If it has changed then the maximum error will be greater than if the
+	 * maximum refinements was achieved.
+	 *
+	 * @param maximum
+	 *            Set to true to find the maximum
+	 * @param refinements
+	 *            the refinements (if below 1 then no interpolation between node points is performed)
+	 * @param relativeError
+	 *            relative tolerance threshold (set to negative to ignore)
+	 * @param absoluteError
+	 *            absolute tolerance threshold (set to negative to ignore)
+	 * @return [x, y, z, value]
+	 */
+	public double[] search(boolean maximum, int refinements, double relativeError, double absoluteError)
+	{
+		// Find the optimum node
+		final int maxx = getMaxXSplinePosition();
+		final int maxy = getMaxYSplinePosition();
+		final int maxz = getMaxZSplinePosition();
+		double value = splines[0][0][0].value000();
+		int ox = 0, oy = 0, oz = 0;
+		int dir = (maximum) ? 1 : -1;
+		//int dir = (maximum) ? Double.compare(2, 1) : Double.compare(1, 2);
+		for (int x = 0; x < maxx; x++)
+			for (int y = 0; y < maxy; y++)
+				for (int z = 0; z < maxz; z++)
+				{
+					double v = splines[x][y][z].value000();
+					if (Double.compare(v, value) == dir)
+					{
+						value = v;
+						ox = x;
+						oy = y;
+						oz = z;
+					}
+				}
+
+		if (refinements < 1)
+			return new double[] { xval[ox], yval[oy], zval[oz], value };
+
+		// We want to do refinement within the cube of the optimum node
+		// Evaluate the gradient at the node position so we pick the correct node
+		double[] df_da = new double[3];
+		splines[ox][oy][oz].value000(df_da);
+
+		// Check if moving in the wrong direction. 
+		// If the gradient is zero then keep the same node as we already know this is the 
+		// optimum point. A cubic polynomial between this and the next node with zero gradient
+		// would require a lower neighbour node or a flat line between them making them equal
+		// for interpolation.
+		if (Double.compare(df_da[0], 0) == -dir)
+			ox = Math.max(0, ox - 1);
+		if (Double.compare(df_da[1], 0) == -dir)
+			oy = Math.max(0, oy - 1);
+		if (Double.compare(df_da[2], 0) == -dir)
+			oz = Math.max(0, oz - 1);
+
+		double[] optimum = splines[ox][oy][oz].search(maximum, refinements, relativeError, absoluteError);
+
+		// Scale the coordinates
+		optimum[0] = xval[ox] + xscale[ox] * optimum[0];
+		optimum[1] = xval[oy] + xscale[oy] * optimum[1];
+		optimum[2] = xval[oz] + xscale[oz] * optimum[2];
+		return optimum;
 	}
 }

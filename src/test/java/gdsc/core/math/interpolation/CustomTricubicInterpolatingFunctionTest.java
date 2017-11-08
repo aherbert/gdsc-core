@@ -18,7 +18,6 @@ import gnu.trove.procedure.TIntObjectProcedure;
  */
 public class CustomTricubicInterpolatingFunctionTest
 {
-
 	static String inlineComputeCoefficients()
 	{
 		StringBuilder sb = new StringBuilder();
