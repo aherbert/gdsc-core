@@ -1182,7 +1182,7 @@ public class CustomTricubicInterpolatorTest
 	{
 		// Skip this as it is for testing the binary search works
 		Assume.assumeTrue(false);
-		
+
 		RandomGenerator r = new Well19937c(30051977);
 		// Bigger depth of field to capture astigmatism centre
 		int x = 10, y = 10, z = 10;
@@ -1221,7 +1221,7 @@ public class CustomTricubicInterpolatorTest
 			}
 		}
 	}
-	
+
 	@Test
 	public void canFindOptimum()
 	{
@@ -1238,16 +1238,28 @@ public class CustomTricubicInterpolatorTest
 			double cz = (z - 1) / 2.0 + r.nextDouble() / 2;
 			double[][][] fval = createData(x, y, z, cx, cy, cz, 2);
 
+			// Test max and min search
+			boolean maximum = (ii % 2 == 1);
+			if (!maximum)
+			{
+				// Invert
+				for (int xx = 0; xx < x; xx++)
+					for (int yy = 0; yy < y; yy++)
+						for (int zz = 0; zz < z; zz++)
+							fval[xx][yy][zz] = -fval[xx][yy][zz];
+				amplitude = -amplitude;
+			}
+
 			CustomTricubicInterpolator interpolator = new CustomTricubicInterpolator();
 			CustomTricubicInterpolatingFunction f1 = interpolator.interpolate(xval, yval, zval, fval);
 
-			double[] last = f1.search(true, 10, 1e-6, 0);
+			double[] last = f1.search(maximum, 10, 1e-6, 0);
 
 			// Since the cubic function is not the same as the input we cannot be too precise here
 			Assert.assertEquals(cx, last[0], 1e-1);
 			Assert.assertEquals(cy, last[1], 1e-1);
 			Assert.assertEquals(cz, last[2], 1e-1);
-			Assert.assertEquals(amplitude, last[3], amplitude * 1e-2);
+			Assert.assertEquals(amplitude, last[3], Math.abs(amplitude) * 1e-2);
 		}
 	}
 }
