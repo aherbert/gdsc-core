@@ -618,6 +618,52 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#gradient(double[], double[])
+	 */
+	@Override
+	public void gradient(double[] table, double[] df_da)
+	{
+		df_da[0] = a[1] * table[0] + 2 * a[2] * table[1] + 3 * a[3] * table[2] + a[5] * table[4] + 2 * a[6] * table[5] +
+				3 * a[7] * table[6] + a[9] * table[8] + 2 * a[10] * table[9] + 3 * a[11] * table[10] +
+				a[13] * table[12] + 2 * a[14] * table[13] + 3 * a[15] * table[14] + a[17] * table[16] +
+				2 * a[18] * table[17] + 3 * a[19] * table[18] + a[21] * table[20] + 2 * a[22] * table[21] +
+				3 * a[23] * table[22] + a[25] * table[24] + 2 * a[26] * table[25] + 3 * a[27] * table[26] +
+				a[29] * table[28] + 2 * a[30] * table[29] + 3 * a[31] * table[30] + a[33] * table[32] +
+				2 * a[34] * table[33] + 3 * a[35] * table[34] + a[37] * table[36] + 2 * a[38] * table[37] +
+				3 * a[39] * table[38] + a[41] * table[40] + 2 * a[42] * table[41] + 3 * a[43] * table[42] +
+				a[45] * table[44] + 2 * a[46] * table[45] + 3 * a[47] * table[46] + a[49] * table[48] +
+				2 * a[50] * table[49] + 3 * a[51] * table[50] + a[53] * table[52] + 2 * a[54] * table[53] +
+				3 * a[55] * table[54] + a[57] * table[56] + 2 * a[58] * table[57] + 3 * a[59] * table[58] +
+				a[61] * table[60] + 2 * a[62] * table[61] + 3 * a[63] * table[62];
+		df_da[1] = a[4] * table[0] + a[5] * table[1] + a[6] * table[2] + a[7] * table[3] + 2 * a[8] * table[4] +
+				2 * a[9] * table[5] + 2 * a[10] * table[6] + 2 * a[11] * table[7] + 3 * a[12] * table[8] +
+				3 * a[13] * table[9] + 3 * a[14] * table[10] + 3 * a[15] * table[11] + a[20] * table[16] +
+				a[21] * table[17] + a[22] * table[18] + a[23] * table[19] + 2 * a[24] * table[20] +
+				2 * a[25] * table[21] + 2 * a[26] * table[22] + 2 * a[27] * table[23] + 3 * a[28] * table[24] +
+				3 * a[29] * table[25] + 3 * a[30] * table[26] + 3 * a[31] * table[27] + a[36] * table[32] +
+				a[37] * table[33] + a[38] * table[34] + a[39] * table[35] + 2 * a[40] * table[36] +
+				2 * a[41] * table[37] + 2 * a[42] * table[38] + 2 * a[43] * table[39] + 3 * a[44] * table[40] +
+				3 * a[45] * table[41] + 3 * a[46] * table[42] + 3 * a[47] * table[43] + a[52] * table[48] +
+				a[53] * table[49] + a[54] * table[50] + a[55] * table[51] + 2 * a[56] * table[52] +
+				2 * a[57] * table[53] + 2 * a[58] * table[54] + 2 * a[59] * table[55] + 3 * a[60] * table[56] +
+				3 * a[61] * table[57] + 3 * a[62] * table[58] + 3 * a[63] * table[59];
+		df_da[2] = a[16] * table[0] + a[17] * table[1] + a[18] * table[2] + a[19] * table[3] + a[20] * table[4] +
+				a[21] * table[5] + a[22] * table[6] + a[23] * table[7] + a[24] * table[8] + a[25] * table[9] +
+				a[26] * table[10] + a[27] * table[11] + a[28] * table[12] + a[29] * table[13] + a[30] * table[14] +
+				a[31] * table[15] + 2 * a[32] * table[16] + 2 * a[33] * table[17] + 2 * a[34] * table[18] +
+				2 * a[35] * table[19] + 2 * a[36] * table[20] + 2 * a[37] * table[21] + 2 * a[38] * table[22] +
+				2 * a[39] * table[23] + 2 * a[40] * table[24] + 2 * a[41] * table[25] + 2 * a[42] * table[26] +
+				2 * a[43] * table[27] + 2 * a[44] * table[28] + 2 * a[45] * table[29] + 2 * a[46] * table[30] +
+				2 * a[47] * table[31] + 3 * a[48] * table[32] + 3 * a[49] * table[33] + 3 * a[50] * table[34] +
+				3 * a[51] * table[35] + 3 * a[52] * table[36] + 3 * a[53] * table[37] + 3 * a[54] * table[38] +
+				3 * a[55] * table[39] + 3 * a[56] * table[40] + 3 * a[57] * table[41] + 3 * a[58] * table[42] +
+				3 * a[59] * table[43] + 3 * a[60] * table[44] + 3 * a[61] * table[45] + 3 * a[62] * table[46] +
+				3 * a[63] * table[47];
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value(float[], double[])
 	 */
 	@Override
@@ -672,6 +718,52 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 				a[50] * table[50] + a[51] * table[51] + a[52] * table[52] + a[53] * table[53] + a[54] * table[54] +
 				a[55] * table[55] + a[56] * table[56] + a[57] * table[57] + a[58] * table[58] + a[59] * table[59] +
 				a[60] * table[60] + a[61] * table[61] + a[62] * table[62] + a[63] * table[63];
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#gradient(float[], double[])
+	 */
+	@Override
+	public void gradient(float[] table, double[] df_da)
+	{
+		df_da[0] = a[1] * table[0] + 2 * a[2] * table[1] + 3 * a[3] * table[2] + a[5] * table[4] + 2 * a[6] * table[5] +
+				3 * a[7] * table[6] + a[9] * table[8] + 2 * a[10] * table[9] + 3 * a[11] * table[10] +
+				a[13] * table[12] + 2 * a[14] * table[13] + 3 * a[15] * table[14] + a[17] * table[16] +
+				2 * a[18] * table[17] + 3 * a[19] * table[18] + a[21] * table[20] + 2 * a[22] * table[21] +
+				3 * a[23] * table[22] + a[25] * table[24] + 2 * a[26] * table[25] + 3 * a[27] * table[26] +
+				a[29] * table[28] + 2 * a[30] * table[29] + 3 * a[31] * table[30] + a[33] * table[32] +
+				2 * a[34] * table[33] + 3 * a[35] * table[34] + a[37] * table[36] + 2 * a[38] * table[37] +
+				3 * a[39] * table[38] + a[41] * table[40] + 2 * a[42] * table[41] + 3 * a[43] * table[42] +
+				a[45] * table[44] + 2 * a[46] * table[45] + 3 * a[47] * table[46] + a[49] * table[48] +
+				2 * a[50] * table[49] + 3 * a[51] * table[50] + a[53] * table[52] + 2 * a[54] * table[53] +
+				3 * a[55] * table[54] + a[57] * table[56] + 2 * a[58] * table[57] + 3 * a[59] * table[58] +
+				a[61] * table[60] + 2 * a[62] * table[61] + 3 * a[63] * table[62];
+		df_da[1] = a[4] * table[0] + a[5] * table[1] + a[6] * table[2] + a[7] * table[3] + 2 * a[8] * table[4] +
+				2 * a[9] * table[5] + 2 * a[10] * table[6] + 2 * a[11] * table[7] + 3 * a[12] * table[8] +
+				3 * a[13] * table[9] + 3 * a[14] * table[10] + 3 * a[15] * table[11] + a[20] * table[16] +
+				a[21] * table[17] + a[22] * table[18] + a[23] * table[19] + 2 * a[24] * table[20] +
+				2 * a[25] * table[21] + 2 * a[26] * table[22] + 2 * a[27] * table[23] + 3 * a[28] * table[24] +
+				3 * a[29] * table[25] + 3 * a[30] * table[26] + 3 * a[31] * table[27] + a[36] * table[32] +
+				a[37] * table[33] + a[38] * table[34] + a[39] * table[35] + 2 * a[40] * table[36] +
+				2 * a[41] * table[37] + 2 * a[42] * table[38] + 2 * a[43] * table[39] + 3 * a[44] * table[40] +
+				3 * a[45] * table[41] + 3 * a[46] * table[42] + 3 * a[47] * table[43] + a[52] * table[48] +
+				a[53] * table[49] + a[54] * table[50] + a[55] * table[51] + 2 * a[56] * table[52] +
+				2 * a[57] * table[53] + 2 * a[58] * table[54] + 2 * a[59] * table[55] + 3 * a[60] * table[56] +
+				3 * a[61] * table[57] + 3 * a[62] * table[58] + 3 * a[63] * table[59];
+		df_da[2] = a[16] * table[0] + a[17] * table[1] + a[18] * table[2] + a[19] * table[3] + a[20] * table[4] +
+				a[21] * table[5] + a[22] * table[6] + a[23] * table[7] + a[24] * table[8] + a[25] * table[9] +
+				a[26] * table[10] + a[27] * table[11] + a[28] * table[12] + a[29] * table[13] + a[30] * table[14] +
+				a[31] * table[15] + 2 * a[32] * table[16] + 2 * a[33] * table[17] + 2 * a[34] * table[18] +
+				2 * a[35] * table[19] + 2 * a[36] * table[20] + 2 * a[37] * table[21] + 2 * a[38] * table[22] +
+				2 * a[39] * table[23] + 2 * a[40] * table[24] + 2 * a[41] * table[25] + 2 * a[42] * table[26] +
+				2 * a[43] * table[27] + 2 * a[44] * table[28] + 2 * a[45] * table[29] + 2 * a[46] * table[30] +
+				2 * a[47] * table[31] + 3 * a[48] * table[32] + 3 * a[49] * table[33] + 3 * a[50] * table[34] +
+				3 * a[51] * table[35] + 3 * a[52] * table[36] + 3 * a[53] * table[37] + 3 * a[54] * table[38] +
+				3 * a[55] * table[39] + 3 * a[56] * table[40] + 3 * a[57] * table[41] + 3 * a[58] * table[42] +
+				3 * a[59] * table[43] + 3 * a[60] * table[44] + 3 * a[61] * table[45] + 3 * a[62] * table[46] +
+				3 * a[63] * table[47];
 	}
 
 	/*

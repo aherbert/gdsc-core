@@ -600,6 +600,17 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	abstract public double value(double[] table, double[] df_da);
 
 	/**
+	 * Compute the partial first-order derivatives using pre-computed power table. Provides separability between
+	 * computing the value and the derivative.
+	 *
+	 * @param table
+	 *            the power table
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 */
+	abstract public void gradient(double[] table, double[] df_da);
+
+	/**
 	 * Compute the value and partial first-order derivatives using pre-computed power table.
 	 *
 	 * @param table
@@ -609,6 +620,17 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 * @return the interpolated value.
 	 */
 	abstract public double value(float[] table, double[] df_da);
+
+	/**
+	 * Compute the partial first-order derivatives using pre-computed power table. Provides separability between
+	 * computing the value and the derivative.
+	 *
+	 * @param table
+	 *            the power table
+	 * @param df_da
+	 *            the partial first order derivatives with respect to x,y,z
+	 */
+	abstract public void gradient(float[] table, double[] df_da);
 
 	/**
 	 * Compute the value and partial first-order derivatives using pre-computed power table.
