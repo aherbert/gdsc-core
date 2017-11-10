@@ -164,7 +164,8 @@ public class AlignImagesFFT
 		// ---
 		// The effectively normalises the numerator of the correlation but does not address the denominator.
 		// The denominator should be calculated using rolling sums for each offset position.
-		// See: http://www.idiom.com/~zilla/Papers/nvisionInterface/nip.html
+		// See: Fast Normalized Cross-Correlation by J. P. Lewis
+		// http://scribblethink.org/Work/nvisionInterface/nip.html
 		// Following the computation of the correlation each offset (u,v) position should then be divided
 		// by the energy of the reference image under the target image. This equates to:
 		//   Sum(x,y) [ f(x,y) - f_(u,v) ]^2
