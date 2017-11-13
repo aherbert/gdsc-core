@@ -21,8 +21,12 @@ import java.awt.Rectangle;
 public class ImageExtractor
 {
 	private float[] data;
-	private int width;
-	private int height;
+	
+	/** The width of the image. */
+	public final int width;
+	
+	/** The height of the image. */
+	public final int height;
 
 	/**
 	 * Constructor
