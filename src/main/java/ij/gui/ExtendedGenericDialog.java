@@ -427,6 +427,23 @@ public class ExtendedGenericDialog extends GenericDialog
 	}
 
 	/**
+	 * Adds and then gets a choice.
+	 *
+	 * @param label
+	 *            the label
+	 * @param items
+	 *            the items
+	 * @param defaultIndex
+	 *            the default index
+	 * @return the choice
+	 */
+	public Choice addAndGetChoice(String label, String[] items, int defaultIndex)
+	{
+		addChoice(label, items, defaultIndex);
+		return (Choice) tail(getChoices());
+	}
+
+	/**
 	 * Adds and then gets a string field.
 	 *
 	 * @param label
@@ -497,7 +514,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	}
 
 	/**
-	 * Adds and then gets a slider.
+	 * Adds and then gets the text field associated with the slider.
 	 *
 	 * @param label
 	 *            the label
@@ -507,12 +524,12 @@ public class ExtendedGenericDialog extends GenericDialog
 	 *            the max value
 	 * @param defaultValue
 	 *            the default value
-	 * @return the scrollbar
+	 * @return the text field
 	 */
-	public Scrollbar addAndGetSlider(String label, double minValue, double maxValue, double defaultValue)
+	public TextField addAndGetSlider(String label, double minValue, double maxValue, double defaultValue)
 	{
 		addSlider(label, minValue, maxValue, defaultValue);
-		return (Scrollbar) tail(getSliders());
+		return (TextField) tail(getNumericFields());
 	}
 
 	/**
