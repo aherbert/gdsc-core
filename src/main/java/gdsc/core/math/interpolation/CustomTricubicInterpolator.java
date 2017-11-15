@@ -58,6 +58,7 @@ public class CustomTricubicInterpolator
 	private TrackProgress progress;
 	private ExecutorService executorService;
 	private long taskSize = 1000;
+	private boolean singlePrecision;
 
 	/**
 	 * A builder for the CustomTricubicInterpolator.
@@ -72,6 +73,7 @@ public class CustomTricubicInterpolator
     	ExecutorService executorService;
     	long taskSize;
     	boolean integerAxisValues;
+    	boolean singlePrecision;
     	
     	/**
 	     * Sets the X value.
@@ -218,6 +220,18 @@ public class CustomTricubicInterpolator
     		return this;
     	}
 
+		/**
+		 * Sets the single precision.
+		 *
+		 * @param singlePrecision the single precision
+		 * @return the builder
+		 */
+		public Builder setSinglePrecision(boolean singlePrecision)
+		{
+			this.singlePrecision = singlePrecision;
+			return this;
+		}  	
+    	
         /**
          * Compute an interpolating function for the dataset.
          *
@@ -230,6 +244,7 @@ public class CustomTricubicInterpolator
         	if (taskSize > 0)
         		i.setTaskSize(taskSize);
         	i.setExecutorService(executorService);
+        	i.setSinglePrecision(singlePrecision);
         	if (integerAxisValues)
         	{
         		setXValue(SimpleArrayUtils.newArray(fval.getLengthX(), 0, 1.0));
@@ -237,7 +252,7 @@ public class CustomTricubicInterpolator
         		setZValue(SimpleArrayUtils.newArray(fval.getLengthZ(), 0, 1.0));
         	}
         	return i.interpolate(xval, yval, zval, fval);
-        }  	
+        }
 	}
 	
     /**
@@ -450,7 +465,7 @@ public class CustomTricubicInterpolator
         		new DoubleArrayTrivalueProvider(d2FdXdZ),
         		new DoubleArrayTrivalueProvider(d2FdYdZ),
         		new DoubleArrayTrivalueProvider(d3FdXdYdZ),
-        		progress, executorService, taskSize);
+        		progress, executorService, taskSize, singlePrecision);
     }
  	
     private static void build(long index,
@@ -567,5 +582,25 @@ public class CustomTricubicInterpolator
 	public void setTaskSize(long taskSize)
 	{
 		this.taskSize = taskSize;
+	}
+
+	/**
+	 * Checks if is single precision.
+	 *
+	 * @return true, if is single precision
+	 */
+	public boolean isSinglePrecision()
+	{
+		return singlePrecision;
+	}
+
+	/**
+	 * Sets the single precision flag. A single precision tricubic function will require half the memory.
+	 *
+	 * @param singlePrecision the new single precision flag
+	 */
+	public void setSinglePrecision(boolean singlePrecision)
+	{
+		this.singlePrecision = singlePrecision;
 	}
 }

@@ -205,6 +205,7 @@ public class CustomTricubicInterpolatingFunction
      * @param executorService the executor service
      * @param taskSize the task size (If the number of interpolation
      *        nodes is less than this then multi-threading is not used)
+     * @param singlePrecision the single precision flag
      * @throws NoDataException if any of the arrays has zero length.
      * @throws DimensionMismatchException if the various arrays do not contain the expected number of elements.
      * @throws NonMonotonicSequenceException if {@code x}, {@code y} or {@code z} are not strictly increasing.
@@ -222,7 +223,8 @@ public class CustomTricubicInterpolatingFunction
                                                final TrivalueProvider d3FdXdYdZ,
                                                TrackProgress progress, 
                                                ExecutorService executorService, 
-                                               long taskSize)
+                                               long taskSize,
+                                               final boolean singlePrecision)
         throws NoDataException,
                DimensionMismatchException,
                NonMonotonicSequenceException {
@@ -299,14 +301,13 @@ public class CustomTricubicInterpolatingFunction
 				{
 					public void run()
 					{
-			        	final double[] beta = new double[64];
 						if (isInteger)
 						{
     						for (long index = from_; index < to; index++)
     						{
     							buildInteger(f, dFdX, dFdY, dFdZ, 
     									d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ, 
-    									lastI, lastI_lastJ, index, ticker, beta);									
+    									lastI, lastI_lastJ, index, ticker, singlePrecision);									
     						}
 						}
 						else
@@ -315,7 +316,7 @@ public class CustomTricubicInterpolatingFunction
     						{
     							build(f, dFdX, dFdY, dFdZ, 
     									d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ, 
-    									lastI, lastI_lastJ, index, ticker, beta);									
+    									lastI, lastI_lastJ, index, ticker, singlePrecision);									
     						}
 						}
 					}
@@ -447,8 +448,7 @@ public class CustomTricubicInterpolatingFunction
                             //    d3FdXdYdZ.get(i,jp1,kp1), d3FdXdYdZ.get(ip1,jp1,kp1),
                             //};
         
-                            // Q. Option to create as single precision?
-                            splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
+                    		setSpline(i, j, k, beta, singlePrecision);
                             ticker.tick();
                         }
                     }
@@ -579,8 +579,7 @@ public class CustomTricubicInterpolatingFunction
                             //    d3FdXdYdZ.get(i,jp1,kp1) * xRyRzR, d3FdXdYdZ.get(ip1,jp1,kp1) * xRyRzR,
                             //};
         
-                            // Q. Option to create as single precision?
-                            splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
+                    		setSpline(i, j, k, beta, singlePrecision);
                             ticker.tick();
                         }
                     }
@@ -648,7 +647,7 @@ public class CustomTricubicInterpolatingFunction
 			final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
 			final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ,
 			final TrivalueProvider d3FdXdYdZ, final int lastI,
-			final long lastI_lastJ, long index, final Ticker ticker, double[] beta)
+			final long lastI_lastJ, long index, final Ticker ticker, boolean singlePrecision)
 	{
 		int k = (int) (index / lastI_lastJ);
 		long mod = index % lastI_lastJ;
@@ -657,6 +656,7 @@ public class CustomTricubicInterpolatingFunction
 		final int ip1 = i + 1;
 		final int jp1 = j + 1;
 		final int kp1 = k + 1;
+    	final double[] beta = new double[64];
 
 		beta[0] = f.get(i, j, k);
 		beta[1] = f.get(ip1, j, k);
@@ -731,7 +731,7 @@ public class CustomTricubicInterpolatingFunction
 			final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
 			final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ,
 			final TrivalueProvider d3FdXdYdZ, final int lastI, 
-			final long lastI_lastJ, long index, final Ticker ticker, double[] beta)
+			final long lastI_lastJ, long index, final Ticker ticker, boolean singlePrecision)
 	{
 		int k = (int) (index / lastI_lastJ);
 		long mod = index % lastI_lastJ;
@@ -748,6 +748,7 @@ public class CustomTricubicInterpolatingFunction
         final double yRzR = yR * zR;
         final double xRyRzR = xR * yRzR;
 		
+    	final double[] beta = new double[64];
 		beta[0] = f.get(i, j, k);
 		beta[1] = f.get(ip1, j, k);
 		beta[2] = f.get(i, jp1, k);
@@ -813,8 +814,14 @@ public class CustomTricubicInterpolatingFunction
 		beta[62] = d3FdXdYdZ.get(i, jp1, kp1) * xRyRzR;
 		beta[63] = d3FdXdYdZ.get(ip1, jp1, kp1) * xRyRzR;
 
-		splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
+		setSpline(i, j, k, beta, singlePrecision);
 		ticker.tick();
+	}
+	
+	private void setSpline(int i, int j, int k, double[] beta, boolean singlePrecision)
+	{
+		double[] a = computeCoefficientsInlineCollectTerms(beta);
+		splines[i][j][k] = (singlePrecision) ? new FloatCustomTricubicFunction(a) : new DoubleCustomTricubicFunction(a);
 	}
 
 	/**
