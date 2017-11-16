@@ -56,7 +56,7 @@ public class AlignImagesFFT
 		COSINE{ public String getName() { return "Cosine"; }}, 
 		TUKEY{ public String getName() { return "Tukey"; }};
 		//@formatter:on
-		
+
 		@Override
 		public String toString()
 		{
@@ -78,7 +78,7 @@ public class AlignImagesFFT
 		CUBIC{ public String getName() { return "Cubic"; }}, 
 		GAUSSIAN{ public String getName() { return "Gaussian"; }};
 		//@formatter:on
-		
+
 		@Override
 		public String toString()
 		{
@@ -195,10 +195,8 @@ public class AlignImagesFFT
 		for (int slice = 1; slice <= stack.getSize(); slice++)
 		{
 			ImageProcessor targetIp = stack.getProcessor(slice);
-			outStack.addSlice(
-					null,
-					alignImages(refFHT, s, ss, targetIp, slice, windowMethod, bounds, fpCorrelation, fpNormalised,
-							subPixelMethod, interpolationMethod, clipOutput));
+			outStack.addSlice(null, alignImages(refFHT, s, ss, targetIp, slice, windowMethod, bounds, fpCorrelation,
+					fpNormalised, subPixelMethod, interpolationMethod, clipOutput));
 			if (showCorrelationImage)
 				correlationStack.addSlice(null, fpCorrelation.duplicate());
 			if (showNormalisedImage)
@@ -329,10 +327,8 @@ public class AlignImagesFFT
 		for (int slice = 1; slice <= stack.getSize(); slice++)
 		{
 			ImageProcessor targetIp = stack.getProcessor(slice);
-			outStack.addSlice(
-					null,
-					alignImages(refFHT, s, ss, targetIp, slice, windowMethod, bounds, null, null, subPixelMethod,
-							interpolationMethod, clipOutput));
+			outStack.addSlice(null, alignImages(refFHT, s, ss, targetIp, slice, windowMethod, bounds, null, null,
+					subPixelMethod, interpolationMethod, clipOutput));
 			if (Utils.isInterrupted())
 				return null;
 		}
@@ -363,7 +359,8 @@ public class AlignImagesFFT
 
 		if (bounds == null)
 		{
-			bounds = createHalfMaxBounds(refIp.getWidth(), refIp.getHeight(), targetIp.getWidth(), targetIp.getHeight());
+			bounds = createHalfMaxBounds(refIp.getWidth(), refIp.getHeight(), targetIp.getWidth(),
+					targetIp.getHeight());
 		}
 
 		return alignImages(refFHT, s, ss, targetIp, windowMethod, bounds, subPixelMethod);
@@ -661,8 +658,8 @@ public class AlignImagesFFT
 		if (bounds != null)
 		{
 			// Restrict bounds to image limits
-			intersect = intersect.intersection(new Rectangle(originX + bounds.x, originY + bounds.y, bounds.width,
-					bounds.height));
+			intersect = intersect
+					.intersection(new Rectangle(originX + bounds.x, originY + bounds.y, bounds.width, bounds.height));
 		}
 
 		int[] iCoord = getPeak(subCorrMat, intersect.x, intersect.y, intersect.width, intersect.height);
@@ -682,7 +679,8 @@ public class AlignImagesFFT
 				// Perform sub-peak analysis using the method taken from Jpiv
 				centre = performGaussianFit(subCorrMat, iCoord[0], iCoord[1]);
 				// Check the centre has not moved too far
-				if (!(Math.abs(dCoord[0] - iCoord[0]) < intersect.width / 2 && Math.abs(dCoord[1] - iCoord[1]) < intersect.height / 2))
+				if (!(Math.abs(dCoord[0] - iCoord[0]) < intersect.width / 2 &&
+						Math.abs(dCoord[1] - iCoord[1]) < intersect.height / 2))
 				{
 					centre = null;
 				}
@@ -785,8 +783,8 @@ public class AlignImagesFFT
 		if (bounds != null)
 		{
 			// Restrict bounds to image limits
-			intersect = intersect.intersection(new Rectangle(originX + bounds.x, originY + bounds.y, bounds.width,
-					bounds.height));
+			intersect = intersect
+					.intersection(new Rectangle(originX + bounds.x, originY + bounds.y, bounds.width, bounds.height));
 		}
 
 		int[] iCoord = getPeak(subCorrMat, intersect.x, intersect.y, intersect.width, intersect.height);
@@ -803,7 +801,8 @@ public class AlignImagesFFT
 				// Perform sub-peak analysis using the method taken from Jpiv
 				centre = performGaussianFit(subCorrMat, iCoord[0], iCoord[1]);
 				// Check the centre has not moved too far
-				if (!(Math.abs(dCoord[0] - iCoord[0]) < intersect.width / 2 && Math.abs(dCoord[1] - iCoord[1]) < intersect.height / 2))
+				if (!(Math.abs(dCoord[0] - iCoord[0]) < intersect.width / 2 &&
+						Math.abs(dCoord[1] - iCoord[1]) < intersect.height / 2))
 				{
 					centre = null;
 				}
@@ -963,36 +962,45 @@ public class AlignImagesFFT
 	public static double[] performCubicFit(FloatProcessor fp, int i, int j)
 	{
 		double[] centre = new double[] { i, j };
+		// Working space
+		double[] xrange = new double[3];
+		double[] yrange = new double[3];
 		// This value will be progressively halved. 
 		// Start with a value that allows the number of iterations to fully cover the region +/- 1 pixel
 		// TODO - Test if 0.67 is better as this can cover +/- 1 pixel in 2 iterations
+		// 0.5 will result in an minimum range of 0.5 / 2^9 = 0.000976
 		double range = 0.5;
 		for (int c = 10; c-- > 0;)
 		{
-			centre = performCubicFit(fp, centre[0], centre[1], range);
+			performCubicFit(fp, range, centre, xrange, yrange);
 			range /= 2;
 		}
 		return centre;
 	}
 
-	private static double[] performCubicFit(FloatProcessor fp, double x, double y, double range)
+	private static void performCubicFit(FloatProcessor fp, double range, double[] centre, double[] xrange,
+			double[] yrange)
 	{
-		double[] centre = new double[2];
 		double peakValue = Double.NEGATIVE_INFINITY;
-		for (double x0 : new double[] { x - range, x, x + range })
+		xrange[0] = centre[0] - range;
+		xrange[1] = centre[0];
+		xrange[2] = centre[0] + range;
+		yrange[0] = centre[1] - range;
+		yrange[1] = centre[1];
+		yrange[2] = centre[1] + range;
+		for (int i = 0; i < 3; i++)
 		{
-			for (double y0 : new double[] { y - range, y, y + range })
+			for (int j = 0; j < 3; j++)
 			{
-				double v = fp.getBicubicInterpolatedPixel(x0, y0, fp);
+				double v = fp.getBicubicInterpolatedPixel(xrange[i], yrange[j], fp);
 				if (peakValue < v)
 				{
 					peakValue = v;
-					centre[0] = x0;
-					centre[1] = y0;
+					centre[0] = xrange[i];
+					centre[1] = yrange[j];
 				}
 			}
 		}
-		return centre;
 	}
 
 	/**
@@ -1138,14 +1146,12 @@ public class AlignImagesFFT
 		}
 		else
 		{
-			coord[0] = x +
-					(Math.log(subCorrMat[y][x - 1]) - Math.log(subCorrMat[y][x + 1])) /
-					(2 * Math.log(subCorrMat[y][x - 1]) - 4 * Math.log(subCorrMat[y][x]) + 2 * Math
-							.log(subCorrMat[y][x + 1]));
-			coord[1] = y +
-					(Math.log(subCorrMat[y - 1][x]) - Math.log(subCorrMat[y + 1][x])) /
-					(2 * Math.log(subCorrMat[y - 1][x]) - 4 * Math.log(subCorrMat[y][x]) + 2 * Math
-							.log(subCorrMat[y + 1][x]));
+			coord[0] = x + (Math.log(subCorrMat[y][x - 1]) - Math.log(subCorrMat[y][x + 1])) /
+					(2 * Math.log(subCorrMat[y][x - 1]) - 4 * Math.log(subCorrMat[y][x]) +
+							2 * Math.log(subCorrMat[y][x + 1]));
+			coord[1] = y + (Math.log(subCorrMat[y - 1][x]) - Math.log(subCorrMat[y + 1][x])) /
+					(2 * Math.log(subCorrMat[y - 1][x]) - 4 * Math.log(subCorrMat[y][x]) +
+							2 * Math.log(subCorrMat[y + 1][x]));
 		}
 		return (coord);
 	}
@@ -1270,7 +1276,7 @@ public class AlignImagesFFT
 		int diff = maxN - width;
 		return ((diff & 1) == 1) ? (diff + 1) / 2 : diff / 2;
 	}
-	
+
 	/**
 	 * @return the lastXOffset
 	 */
@@ -1399,7 +1405,7 @@ public class AlignImagesFFT
 		double[] dx2 = new double[maxx];
 		for (int x = 0; x < maxx; x++)
 			dx2[x] = (x - cx) * (x - cx);
-		
+
 		// Calculate total signal of window function applied to image (t1).
 		// Calculate total signal of window function applied to a flat signal of intensity 1 (t2).
 		// Divide t1/t2 => Result is the mean shift for image so that the average is zero.
