@@ -603,4 +603,207 @@ public class CustomTricubicInterpolator
 	{
 		this.singlePrecision = singlePrecision;
 	}
+	
+    /**
+     * Compute an interpolating function for the data. Creates a single tricubic function for 
+     * interpolation between 0 and 1 assuming that the input value is a 4x4x4 cube of values 
+     * representing the value at [-1,0,1,2] for each axis.
+     *
+     * @param fval the values of the interpolation points on all the grid knots
+     * @return a tricubic function that interpolates the data.
+     * @throws DimensionMismatchException if the array lengths are inconsistent.
+     */
+    public static CustomTricubicFunction create(final TrivalueProvider fval)
+        throws NoDataException, NumberIsTooSmallException,
+               DimensionMismatchException, NonMonotonicSequenceException {
+        if (4 != fval.getLengthX()) {
+            throw new DimensionMismatchException(4, fval.getLengthX());
+        }
+        if (4 != fval.getLengthY()) {
+            throw new DimensionMismatchException(4, fval.getLengthY());
+        }
+        if (4 != fval.getLengthZ()) {
+            throw new DimensionMismatchException(4, fval.getLengthZ());
+        }
+        
+        // Approximation to the partial derivatives using finite differences.
+        final double[][][] f = new double[2][2][2];
+        final double[][][] dFdX = new double[2][2][2];
+        final double[][][] dFdY = new double[2][2][2];
+        final double[][][] dFdZ = new double[2][2][2];
+        final double[][][] d2FdXdY = new double[2][2][2];
+        final double[][][] d2FdXdZ = new double[2][2][2];
+        final double[][][] d2FdYdZ = new double[2][2][2];
+        final double[][][] d3FdXdYdZ = new double[2][2][2];
+
+        final double[][][] values = new double[3][3][3];
+    	
+        for (int i = 0; i < 2; i++) {
+        	
+            for (int j = 0; j < 2; j++) {
+
+                for (int k = 0; k < 2; k++) {
+                    
+                    fval.get(i+1, j+1, k+1, values);
+
+                    f[i][j][k] = values[i+1][j+1][k+1];
+                    
+                    dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / 2;
+                    dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / 2;
+                    dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / 2;
+                      
+                    d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / 4;
+                    d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / 4;
+                    d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / 4;
+                      
+                    d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
+                                          values[0][2][2] + values[0][0][2] -
+                                          values[2][2][0] + values[2][0][0] +
+                                          values[0][2][0] - values[0][0][0]) / 8;
+                }
+            }
+        }
+
+        // Create the interpolating function.
+        return CustomTricubicInterpolatingFunction.createFunction(
+        		new DoubleArrayTrivalueProvider(f),
+        		new DoubleArrayTrivalueProvider(dFdX),
+        		new DoubleArrayTrivalueProvider(dFdY),
+        		new DoubleArrayTrivalueProvider(dFdZ),
+        		new DoubleArrayTrivalueProvider(d2FdXdY),
+        		new DoubleArrayTrivalueProvider(d2FdXdZ),
+        		new DoubleArrayTrivalueProvider(d2FdYdZ),
+        		new DoubleArrayTrivalueProvider(d3FdXdYdZ));
+    }
+    
+	
+    /**
+     * Compute an interpolating function for the data. Creates a single tricubic function for 
+     * interpolation between [1] and [2] assuming that the input value is a 4x4x4 cube of values 
+     * representing the value at [0,1,2,3] for each axis.
+	 * <p>
+	 * To use the function to create an interpolated value in the range [1] and [2]:
+	 * 
+	 * <pre>
+	 * double x1 = xval.get(1);
+	 * double y1 = yval.get(1);
+	 * double z1 = zval.get(1);
+	 * double x2 = xval.get(2);
+	 * double y2 = yval.get(2);
+	 * double z2 = zval.get(2);
+	 * double xscale = x2 - x1;
+	 * double yscale = y2 - y1
+	 * double zscale = z2 - y2
+	 * // x>=x1 && x<=x2 && y>=y1 && y<=y2 && z>=z1 && z<=z2 
+	 * double value = f.value((x-x1) / xscale, (y-y1) / yscale, (z-z1) / zscale);
+	 * </pre>
+     *
+     * @param xval All the x-coordinates of the interpolation points, sorted
+     * in increasing order.
+     * @param yval All the y-coordinates of the interpolation points, sorted
+     * in increasing order.
+     * @param zval All the z-coordinates of the interpolation points, sorted
+     * in increasing order.
+     * @param fval the values of the interpolation points on all the grid knots
+     * @return a tricubic function that interpolates the data.
+     * @throws DimensionMismatchException if the array lengths are inconsistent.
+     */
+    public static CustomTricubicFunction create(final ValueProvider xval,
+            final ValueProvider yval,
+            final ValueProvider zval,
+            final TrivalueProvider fval)
+        throws NumberIsTooSmallException,
+               DimensionMismatchException, NonMonotonicSequenceException {
+        if (4 != fval.getLengthX()) {
+            throw new DimensionMismatchException(4, fval.getLengthX());
+        }
+        if (4 != fval.getLengthY()) {
+            throw new DimensionMismatchException(4, fval.getLengthY());
+        }
+        if (4 != fval.getLengthZ()) {
+            throw new DimensionMismatchException(4, fval.getLengthZ());
+        }
+        if (xval.getLength() != fval.getLengthX()) {
+            throw new DimensionMismatchException(xval.getLength(), fval.getLengthX());
+        }
+        if (yval.getLength() != fval.getLengthY()) {
+            throw new DimensionMismatchException(yval.getLength(), fval.getLengthY());
+        }
+        if (zval.getLength() != fval.getLengthZ()) {
+            throw new DimensionMismatchException(zval.getLength(), fval.getLengthZ());
+        }
+        
+        // Approximation to the partial derivatives using finite differences.
+        final double[][][] f = new double[2][2][2];
+        final double[][][] dFdX = new double[2][2][2];
+        final double[][][] dFdY = new double[2][2][2];
+        final double[][][] dFdZ = new double[2][2][2];
+        final double[][][] d2FdXdY = new double[2][2][2];
+        final double[][][] d2FdXdZ = new double[2][2][2];
+        final double[][][] d2FdYdZ = new double[2][2][2];
+        final double[][][] d3FdXdYdZ = new double[2][2][2];
+
+        final double[][][] values = new double[3][3][3];
+    	
+        for (int i = 0; i < 2; i++) {
+        	
+            final double nX = xval.get(i+2);
+            final double pX = xval.get(i);
+
+            final double deltaX = nX - pX;
+        	
+            for (int j = 0; j < 2; j++) {
+
+                final double nY = yval.get(j+2);
+                final double pY = yval.get(j);
+
+                final double deltaY = nY - pY;
+                final double deltaXY = deltaX * deltaY;
+            	
+                for (int k = 0; k < 2; k++) {
+                    
+                    final double nZ = zval.get(k+2);
+                    final double pZ = zval.get(k);
+
+                    final double deltaZ = nZ - pZ;
+                	
+                    fval.get(i+1, j+1, k+1, values);
+                    
+                    f[i][j][k] = values[i+1][j+1][k+1]; 
+
+                    dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / deltaX;
+                    dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / deltaY;
+                    dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / deltaZ;
+                      
+                    final double deltaXZ = deltaX * deltaZ;
+                    final double deltaYZ = deltaY * deltaZ;
+                      
+                    d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / deltaXY;
+                    d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / deltaXZ;
+                    d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / deltaYZ;
+                      
+                    final double deltaXYZ = deltaXY * deltaZ;
+                      
+                    d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
+                                          values[0][2][2] + values[0][0][2] -
+                                          values[2][2][0] + values[2][0][0] +
+                                          values[0][2][0] - values[0][0][0]) / deltaXYZ;
+                }
+            }
+        }
+
+        // Create the interpolating function.
+        return CustomTricubicInterpolatingFunction.createFunction(
+        		xval.get(2) - xval.get(1),
+        		yval.get(2) - yval.get(1),
+        		zval.get(2) - zval.get(1),
+        		new DoubleArrayTrivalueProvider(f),
+        		new DoubleArrayTrivalueProvider(dFdX),
+        		new DoubleArrayTrivalueProvider(dFdY),
+        		new DoubleArrayTrivalueProvider(dFdZ),
+        		new DoubleArrayTrivalueProvider(d2FdXdY),
+        		new DoubleArrayTrivalueProvider(d2FdXdZ),
+        		new DoubleArrayTrivalueProvider(d2FdYdZ),
+        		new DoubleArrayTrivalueProvider(d3FdXdYdZ));
+    }	    
 }

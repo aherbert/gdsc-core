@@ -2760,4 +2760,308 @@ public class CustomTricubicInterpolatingFunction
 		optimum[2] = xval[oz] + xscale[oz] * optimum[2];
 		return optimum;
 	}
+
+	/**
+	 * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
+	 * and derivatives for each vertex of the cube [2x2x2].
+	 * 
+	 * @param f
+	 *            Values of the function on every grid point.
+	 * @param dFdX
+	 *            Values of the partial derivative of function with respect to x on every grid point.
+	 * @param dFdY
+	 *            Values of the partial derivative of function with respect to y on every grid point.
+	 * @param dFdZ
+	 *            Values of the partial derivative of function with respect to z on every grid point.
+	 * @param d2FdXdY
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @param d2FdXdZ
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @param d2FdYdZ
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @param d3FdXdYdZ
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @return tricubic interpolating function
+	 * @throws DimensionMismatchException
+	 *             if the array lengths are inconsistent.
+	 */
+	public static CustomTricubicFunction create(final TrivalueProvider f, final TrivalueProvider dFdX,
+			final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
+			final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ, final TrivalueProvider d3FdXdYdZ)
+			throws DimensionMismatchException
+	{
+		checkDimensions(2, 2, 2, f);
+		checkDimensions(2, 2, 2, dFdX);
+		checkDimensions(2, 2, 2, dFdY);
+		checkDimensions(2, 2, 2, dFdZ);
+		checkDimensions(2, 2, 2, d2FdXdY);
+		checkDimensions(2, 2, 2, d2FdXdZ);
+		checkDimensions(2, 2, 2, d2FdYdZ);
+		checkDimensions(2, 2, 2, d3FdXdYdZ);
+		return createFunction(f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ);
+	}
+
+	/**
+	 * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
+	 * and derivatives for each vertex of the cube [2x2x2].
+	 * 
+	 * @param f
+	 *            Values of the function on every grid point.
+	 * @param dFdX
+	 *            Values of the partial derivative of function with respect to x on every grid point.
+	 * @param dFdY
+	 *            Values of the partial derivative of function with respect to y on every grid point.
+	 * @param dFdZ
+	 *            Values of the partial derivative of function with respect to z on every grid point.
+	 * @param d2FdXdY
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @param d2FdXdZ
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @param d2FdYdZ
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @param d3FdXdYdZ
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @return tricubic interpolating function
+	 */
+	static CustomTricubicFunction createFunction(final TrivalueProvider f, final TrivalueProvider dFdX,
+			final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
+			final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ, final TrivalueProvider d3FdXdYdZ)
+	{
+		double[] beta = new double[64];
+		beta[0] = f.get(0, 0, 0);
+		beta[1] = f.get(1, 0, 0);
+		beta[2] = f.get(0, 1, 0);
+		beta[3] = f.get(1, 1, 0);
+		beta[4] = f.get(0, 0, 1);
+		beta[5] = f.get(1, 0, 1);
+		beta[6] = f.get(0, 1, 1);
+		beta[7] = f.get(1, 1, 1);
+		beta[8] = dFdX.get(0, 0, 0);
+		beta[9] = dFdX.get(1, 0, 0);
+		beta[10] = dFdX.get(0, 1, 0);
+		beta[11] = dFdX.get(1, 1, 0);
+		beta[12] = dFdX.get(0, 0, 1);
+		beta[13] = dFdX.get(1, 0, 1);
+		beta[14] = dFdX.get(0, 1, 1);
+		beta[15] = dFdX.get(1, 1, 1);
+		beta[16] = dFdY.get(0, 0, 0);
+		beta[17] = dFdY.get(1, 0, 0);
+		beta[18] = dFdY.get(0, 1, 0);
+		beta[19] = dFdY.get(1, 1, 0);
+		beta[20] = dFdY.get(0, 0, 1);
+		beta[21] = dFdY.get(1, 0, 1);
+		beta[22] = dFdY.get(0, 1, 1);
+		beta[23] = dFdY.get(1, 1, 1);
+		beta[24] = dFdZ.get(0, 0, 0);
+		beta[25] = dFdZ.get(1, 0, 0);
+		beta[26] = dFdZ.get(0, 1, 0);
+		beta[27] = dFdZ.get(1, 1, 0);
+		beta[28] = dFdZ.get(0, 0, 1);
+		beta[29] = dFdZ.get(1, 0, 1);
+		beta[30] = dFdZ.get(0, 1, 1);
+		beta[31] = dFdZ.get(1, 1, 1);
+		beta[32] = d2FdXdY.get(0, 0, 0);
+		beta[33] = d2FdXdY.get(1, 0, 0);
+		beta[34] = d2FdXdY.get(0, 1, 0);
+		beta[35] = d2FdXdY.get(1, 1, 0);
+		beta[36] = d2FdXdY.get(0, 0, 1);
+		beta[37] = d2FdXdY.get(1, 0, 1);
+		beta[38] = d2FdXdY.get(0, 1, 1);
+		beta[39] = d2FdXdY.get(1, 1, 1);
+		beta[40] = d2FdXdZ.get(0, 0, 0);
+		beta[41] = d2FdXdZ.get(1, 0, 0);
+		beta[42] = d2FdXdZ.get(0, 1, 0);
+		beta[43] = d2FdXdZ.get(1, 1, 0);
+		beta[44] = d2FdXdZ.get(0, 0, 1);
+		beta[45] = d2FdXdZ.get(1, 0, 1);
+		beta[46] = d2FdXdZ.get(0, 1, 1);
+		beta[47] = d2FdXdZ.get(1, 1, 1);
+		beta[48] = d2FdYdZ.get(0, 0, 0);
+		beta[49] = d2FdYdZ.get(1, 0, 0);
+		beta[50] = d2FdYdZ.get(0, 1, 0);
+		beta[51] = d2FdYdZ.get(1, 1, 0);
+		beta[52] = d2FdYdZ.get(0, 0, 1);
+		beta[53] = d2FdYdZ.get(1, 0, 1);
+		beta[54] = d2FdYdZ.get(0, 1, 1);
+		beta[55] = d2FdYdZ.get(1, 1, 1);
+		beta[56] = d3FdXdYdZ.get(0, 0, 0);
+		beta[57] = d3FdXdYdZ.get(1, 0, 0);
+		beta[58] = d3FdXdYdZ.get(0, 1, 0);
+		beta[59] = d3FdXdYdZ.get(1, 1, 0);
+		beta[60] = d3FdXdYdZ.get(0, 0, 1);
+		beta[61] = d3FdXdYdZ.get(1, 0, 1);
+		beta[62] = d3FdXdYdZ.get(0, 1, 1);
+		beta[63] = d3FdXdYdZ.get(1, 1, 1);
+		double[] a = computeCoefficientsInlineCollectTerms(beta);
+		return new DoubleCustomTricubicFunction(a);
+	}
+
+	/**
+	 * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
+	 * and derivatives for each vertex of the cube [2x2x2]. The input gradients are assumed to require normalisation by
+	 * the scale for each dimension.
+	 * <p>
+	 * To use the function to create an interpolated value in the range [0-xscale,0-yscale,0-zscale]:
+	 * 
+	 * <pre>
+	 * double value = f.value(x / xscale, y / yscale, z / zscale);
+	 * </pre>
+	 *
+	 * @param xscale
+	 *            the xscale
+	 * @param yscale
+	 *            the yscale
+	 * @param zscale
+	 *            the zscale
+	 * @param f
+	 *            Values of the function on every grid point.
+	 * @param dFdX
+	 *            Values of the partial derivative of function with respect to x on every grid point.
+	 * @param dFdY
+	 *            Values of the partial derivative of function with respect to y on every grid point.
+	 * @param dFdZ
+	 *            Values of the partial derivative of function with respect to z on every grid point.
+	 * @param d2FdXdY
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @param d2FdXdZ
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @param d2FdYdZ
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @param d3FdXdYdZ
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @return tricubic interpolating function
+	 * @throws DimensionMismatchException
+	 *             if the array lengths are inconsistent.
+	 */
+	public static CustomTricubicFunction create(double xscale, double yscale, double zscale, final TrivalueProvider f,
+			final TrivalueProvider dFdX, final TrivalueProvider dFdY, final TrivalueProvider dFdZ,
+			final TrivalueProvider d2FdXdY, final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ,
+			final TrivalueProvider d3FdXdYdZ) throws DimensionMismatchException
+	{
+		checkDimensions(2, 2, 2, f);
+		checkDimensions(2, 2, 2, dFdX);
+		checkDimensions(2, 2, 2, dFdY);
+		checkDimensions(2, 2, 2, dFdZ);
+		checkDimensions(2, 2, 2, d2FdXdY);
+		checkDimensions(2, 2, 2, d2FdXdZ);
+		checkDimensions(2, 2, 2, d2FdYdZ);
+		checkDimensions(2, 2, 2, d3FdXdYdZ);
+		return createFunction(xscale, yscale, zscale, f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ);
+	}
+
+	/**
+	 * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
+	 * and derivatives for each vertex of the cube [2x2x2]. The input gradients are assumed to require normalisation by
+	 * the scale for each dimension.
+	 * <p>
+	 * To use the function to create an interpolated value in the range [0-xscale,0-yscale,0-zscale]:
+	 * 
+	 * <pre>
+	 * double value = f.value(x / xscale, y / yscale, z / zscale);
+	 * </pre>
+	 *
+	 * @param xscale
+	 *            the xscale
+	 * @param yscale
+	 *            the yscale
+	 * @param zscale
+	 *            the zscale
+	 * @param f
+	 *            Values of the function on every grid point.
+	 * @param dFdX
+	 *            Values of the partial derivative of function with respect to x on every grid point.
+	 * @param dFdY
+	 *            Values of the partial derivative of function with respect to y on every grid point.
+	 * @param dFdZ
+	 *            Values of the partial derivative of function with respect to z on every grid point.
+	 * @param d2FdXdY
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @param d2FdXdZ
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @param d2FdYdZ
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @param d3FdXdYdZ
+	 *            Values of the cross partial derivative of function on every grid point.
+	 * @return tricubic interpolating function
+	 */
+	static CustomTricubicFunction createFunction(double xscale, double yscale, double zscale, final TrivalueProvider f,
+			final TrivalueProvider dFdX, final TrivalueProvider dFdY, final TrivalueProvider dFdZ,
+			final TrivalueProvider d2FdXdY, final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ,
+			final TrivalueProvider d3FdXdYdZ)
+	{
+		double[] beta = new double[64];
+		final double xR = xscale;
+		final double yR = yscale;
+		final double xRyR = xR * yR;
+		final double zR = zscale;
+		final double xRzR = xR * zR;
+		final double yRzR = yR * zR;
+		final double xRyRzR = xR * yRzR;
+		beta[0] = f.get(0, 0, 0);
+		beta[1] = f.get(1, 0, 0);
+		beta[2] = f.get(0, 1, 0);
+		beta[3] = f.get(1, 1, 0);
+		beta[4] = f.get(0, 0, 1);
+		beta[5] = f.get(1, 0, 1);
+		beta[6] = f.get(0, 1, 1);
+		beta[7] = f.get(1, 1, 1);
+		beta[8] = dFdX.get(0, 0, 0) * xR;
+		beta[9] = dFdX.get(1, 0, 0) * xR;
+		beta[10] = dFdX.get(0, 1, 0) * xR;
+		beta[11] = dFdX.get(1, 1, 0) * xR;
+		beta[12] = dFdX.get(0, 0, 1) * xR;
+		beta[13] = dFdX.get(1, 0, 1) * xR;
+		beta[14] = dFdX.get(0, 1, 1) * xR;
+		beta[15] = dFdX.get(1, 1, 1) * xR;
+		beta[16] = dFdY.get(0, 0, 0) * yR;
+		beta[17] = dFdY.get(1, 0, 0) * yR;
+		beta[18] = dFdY.get(0, 1, 0) * yR;
+		beta[19] = dFdY.get(1, 1, 0) * yR;
+		beta[20] = dFdY.get(0, 0, 1) * yR;
+		beta[21] = dFdY.get(1, 0, 1) * yR;
+		beta[22] = dFdY.get(0, 1, 1) * yR;
+		beta[23] = dFdY.get(1, 1, 1) * yR;
+		beta[24] = dFdZ.get(0, 0, 0) * zR;
+		beta[25] = dFdZ.get(1, 0, 0) * zR;
+		beta[26] = dFdZ.get(0, 1, 0) * zR;
+		beta[27] = dFdZ.get(1, 1, 0) * zR;
+		beta[28] = dFdZ.get(0, 0, 1) * zR;
+		beta[29] = dFdZ.get(1, 0, 1) * zR;
+		beta[30] = dFdZ.get(0, 1, 1) * zR;
+		beta[31] = dFdZ.get(1, 1, 1) * zR;
+		beta[32] = d2FdXdY.get(0, 0, 0) * xRyR;
+		beta[33] = d2FdXdY.get(1, 0, 0) * xRyR;
+		beta[34] = d2FdXdY.get(0, 1, 0) * xRyR;
+		beta[35] = d2FdXdY.get(1, 1, 0) * xRyR;
+		beta[36] = d2FdXdY.get(0, 0, 1) * xRyR;
+		beta[37] = d2FdXdY.get(1, 0, 1) * xRyR;
+		beta[38] = d2FdXdY.get(0, 1, 1) * xRyR;
+		beta[39] = d2FdXdY.get(1, 1, 1) * xRyR;
+		beta[40] = d2FdXdZ.get(0, 0, 0) * xRzR;
+		beta[41] = d2FdXdZ.get(1, 0, 0) * xRzR;
+		beta[42] = d2FdXdZ.get(0, 1, 0) * xRzR;
+		beta[43] = d2FdXdZ.get(1, 1, 0) * xRzR;
+		beta[44] = d2FdXdZ.get(0, 0, 1) * xRzR;
+		beta[45] = d2FdXdZ.get(1, 0, 1) * xRzR;
+		beta[46] = d2FdXdZ.get(0, 1, 1) * xRzR;
+		beta[47] = d2FdXdZ.get(1, 1, 1) * xRzR;
+		beta[48] = d2FdYdZ.get(0, 0, 0) * yRzR;
+		beta[49] = d2FdYdZ.get(1, 0, 0) * yRzR;
+		beta[50] = d2FdYdZ.get(0, 1, 0) * yRzR;
+		beta[51] = d2FdYdZ.get(1, 1, 0) * yRzR;
+		beta[52] = d2FdYdZ.get(0, 0, 1) * yRzR;
+		beta[53] = d2FdYdZ.get(1, 0, 1) * yRzR;
+		beta[54] = d2FdYdZ.get(0, 1, 1) * yRzR;
+		beta[55] = d2FdYdZ.get(1, 1, 1) * yRzR;
+		beta[56] = d3FdXdYdZ.get(0, 0, 0) * xRyRzR;
+		beta[57] = d3FdXdYdZ.get(1, 0, 0) * xRyRzR;
+		beta[58] = d3FdXdYdZ.get(0, 1, 0) * xRyRzR;
+		beta[59] = d3FdXdYdZ.get(1, 1, 0) * xRyRzR;
+		beta[60] = d3FdXdYdZ.get(0, 0, 1) * xRyRzR;
+		beta[61] = d3FdXdYdZ.get(1, 0, 1) * xRyRzR;
+		beta[62] = d3FdXdYdZ.get(0, 1, 1) * xRyRzR;
+		beta[63] = d3FdXdYdZ.get(1, 1, 1) * xRyRzR;
+		double[] a = computeCoefficientsInlineCollectTerms(beta);
+		return new DoubleCustomTricubicFunction(a);
+	}
 }
