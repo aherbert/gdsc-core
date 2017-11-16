@@ -1487,10 +1487,35 @@ public class Utils
 
 	/**
 	 * Waits for all threads to complete computation.
-	 * 
+	 * <p>
+	 * Catches ExecutionException and InterruptedException and re-throws them as a RuntimeException. This is a
+	 * convenience method to allow a simple wait for futures without explicit try/catch blocks.
+	 *
 	 * @param futures
+	 *            the futures
+	 * @throws RuntimeException
+	 *             a runtime exception that is the cause or a new exception wrapping the cause of the the error
 	 */
-	public static void waitForCompletion(List<Future<?>> futures)
+	public static void waitForCompletion(List<Future<?>> futures) throws RuntimeException
+	{
+		waitForCompletion(futures, false);
+	}
+
+	/**
+	 * Waits for all threads to complete computation.
+	 * <p>
+	 * Catches ExecutionException and InterruptedException and re-throws them as a RuntimeException. This is a
+	 * convenience method to allow a simple wait for futures without explicit try/catch blocks.
+	 *
+	 * @param futures
+	 *            the futures
+	 * @param print
+	 *            flag to indicate that the stack trace should be printed
+	 * @throws RuntimeException
+	 *             a runtime exception that is the cause or a new exception wrapping the cause of the the error
+	 */
+	public static void waitForCompletion(List<Future<?>> futures, boolean print)
+			throws RuntimeException, OutOfMemoryError
 	{
 		try
 		{
@@ -1501,11 +1526,31 @@ public class Utils
 		}
 		catch (ExecutionException ex)
 		{
-			ex.printStackTrace();
+			if (print)
+				ex.printStackTrace();
+			Throwable t = ex.getCause();
+			if (t != null)
+			{
+				if (t instanceof RuntimeException)
+					throw (RuntimeException) t;
+				if (t instanceof OutOfMemoryError)
+					throw (OutOfMemoryError) t;
+			}
+			throw new RuntimeException((t != null) ? t : ex);
 		}
-		catch (InterruptedException e)
+		catch (InterruptedException ex)
 		{
-			e.printStackTrace();
+			if (print)
+				ex.printStackTrace();
+			Throwable t = ex.getCause();
+			if (t != null)
+			{
+				if (t instanceof RuntimeException)
+					throw (RuntimeException) t;
+				if (t instanceof OutOfMemoryError)
+					throw (OutOfMemoryError) t;
+			}
+			throw new RuntimeException((t != null) ? t : ex);
 		}
 	}
 
