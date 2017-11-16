@@ -1020,7 +1020,6 @@ public class FHT2 extends FloatProcessor
 	 */
 	private FHT2 divide(float[] h2, float[] tmp)
 	{
-		double mag, h2e, h2o;
 		float[] h1 = getData();
 		final int maxN = getWidth();
 		if (tmp == null || tmp.length != h1.length)
@@ -1038,11 +1037,13 @@ public class FHT2 extends FloatProcessor
 				//h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]);
 				//tmp[r * maxN + c] = (float) ((h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o) / mag);
 				int j = rowMod * maxN + colMod;
-				mag = h2[i] * h2[i] + h2[j] * h2[j];
+				double h2i = (double) h2[i];
+				double h2j = (double) h2[j];
+				double mag = h2i * h2i + h2j * h2j;
 				if (mag < 1e-20)
 					mag = 1e-20;
-				h2e = (h2[i] + h2[j]);
-				h2o = (h2[i] - h2[j]);
+				double h2e = (h2i + h2j);
+				double h2o = (h2i - h2j);
 				tmp[i] = (float) ((h1[i] * h2e - h1[j] * h2o) / mag);
 			}
 		}
