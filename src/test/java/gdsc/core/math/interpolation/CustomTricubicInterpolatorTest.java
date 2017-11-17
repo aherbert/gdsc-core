@@ -18,6 +18,7 @@ import org.junit.Assume;
 import org.junit.Test;
 
 import gdsc.core.data.DoubleArrayTrivalueProvider;
+import gdsc.core.data.DoubleArrayValueProvider;
 import gdsc.core.data.procedures.StandardTrivalueProcedure;
 import gdsc.core.test.BaseTimingTask;
 import gdsc.core.test.TimingService;
@@ -268,12 +269,32 @@ public class CustomTricubicInterpolatorTest
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
 		double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
 		double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
+		// If the scales are uniform then the version with the scale is identical to the
+		// version without as it just packs and then unpacks the gradients.
+		boolean noScale = xscale == 1 && yscale == 1 && zscale == 1;
+		if (!noScale)
+		{
+			// Create non-linear scale
+			for (int i = 0, n = 2; i < 4; i++, n *= 2)
+			{
+				xval[i] *= n;
+				yval[i] *= n;
+				zval[i] *= n;
+			}
+		}
 		double[][][] fval = createData(x, y, z, null);
 		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
 
 		double[] e = f1.getSplineNode(1, 1, 1).getA();
 
-		double[] o = CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval)).getA();
+		double[] o;
+		if (noScale)
+			o = CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval)).getA();
+		else
+			o = CustomTricubicInterpolator
+					.create(new DoubleArrayValueProvider(xval), new DoubleArrayValueProvider(yval),
+							new DoubleArrayValueProvider(zval), new DoubleArrayTrivalueProvider(fval))
+					.getA();
 
 		Assert.assertArrayEquals(e, o, 0);
 	}
