@@ -53,6 +53,39 @@ public class CachedBicubicInterpolator
 	 * just zero the gradient at x=0. Likewise for the gradient at x=1 = ((x=2)-(x=0))/2. Similar arguments apply to y.
 	 *
 	 * @param p
+	 *            the value of the function at x=-1 to x=2 and y=-1 to y=2
+	 * @return the value
+	 */
+	public void updateCoefficients(float[][] p)
+	{
+		//@formatter:off
+		a00 = p[1][1];
+		a01 = -.5*p[1][0] + .5*p[1][2];
+		a02 = p[1][0] - 2.5*p[1][1] + 2*p[1][2] - .5*p[1][3];
+		a03 = -.5*p[1][0] + 1.5*p[1][1] - 1.5*p[1][2] + .5*p[1][3];
+		a10 = -.5*p[0][1] + .5*p[2][1];
+		a11 = .25*p[0][0] - .25*p[0][2] - .25*p[2][0] + .25*p[2][2];
+		a12 = -.5*p[0][0] + 1.25*p[0][1] - p[0][2] + .25*p[0][3] + .5*p[2][0] - 1.25*p[2][1] + p[2][2] - .25*p[2][3];
+		a13 = .25*p[0][0] - .75*p[0][1] + .75*p[0][2] - .25*p[0][3] - .25*p[2][0] + .75*p[2][1] - .75*p[2][2] + .25*p[2][3];
+		a20 = p[0][1] - 2.5*p[1][1] + 2*p[2][1] - .5*p[3][1];
+		a21 = -.5*p[0][0] + .5*p[0][2] + 1.25*p[1][0] - 1.25*p[1][2] - p[2][0] + p[2][2] + .25*p[3][0] - .25*p[3][2];
+		a22 = p[0][0] - 2.5*p[0][1] + 2*p[0][2] - .5*p[0][3] - 2.5*p[1][0] + 6.25*p[1][1] - 5*p[1][2] + 1.25*p[1][3] + 2*p[2][0] - 5*p[2][1] + 4*p[2][2] - p[2][3] - .5*p[3][0] + 1.25*p[3][1] - p[3][2] + .25*p[3][3];
+		a23 = -.5*p[0][0] + 1.5*p[0][1] - 1.5*p[0][2] + .5*p[0][3] + 1.25*p[1][0] - 3.75*p[1][1] + 3.75*p[1][2] - 1.25*p[1][3] - p[2][0] + 3*p[2][1] - 3*p[2][2] + p[2][3] + .25*p[3][0] - .75*p[3][1] + .75*p[3][2] - .25*p[3][3];
+		a30 = -.5*p[0][1] + 1.5*p[1][1] - 1.5*p[2][1] + .5*p[3][1];
+		a31 = .25*p[0][0] - .25*p[0][2] - .75*p[1][0] + .75*p[1][2] + .75*p[2][0] - .75*p[2][2] - .25*p[3][0] + .25*p[3][2];
+		a32 = -.5*p[0][0] + 1.25*p[0][1] - p[0][2] + .25*p[0][3] + 1.5*p[1][0] - 3.75*p[1][1] + 3*p[1][2] - .75*p[1][3] - 1.5*p[2][0] + 3.75*p[2][1] - 3*p[2][2] + .75*p[2][3] + .5*p[3][0] - 1.25*p[3][1] + p[3][2] - .25*p[3][3];
+		a33 = .25*p[0][0] - .75*p[0][1] + .75*p[0][2] - .25*p[0][3] - .75*p[1][0] + 2.25*p[1][1] - 2.25*p[1][2] + .75*p[1][3] + .75*p[2][0] - 2.25*p[2][1] + 2.25*p[2][2] - .75*p[2][3] - .25*p[3][0] + .75*p[3][1] - .75*p[3][2] + .25*p[3][3];
+		//@formatter:on
+	}
+
+	/**
+	 * Update coefficients.
+	 * <p>
+	 * Note that if x=-1 and x=2 are not available then they can be replaced with x=1 and x=0. This is because the cubic
+	 * interpolation uses the points to construct the gradient at x=0 as ((x=1)-(x=-1)) / 2. Setting x=-1 to x=1 will
+	 * just zero the gradient at x=0. Likewise for the gradient at x=1 = ((x=2)-(x=0))/2. Similar arguments apply to y.
+	 *
+	 * @param p
 	 *            the value of the function at x=-1 to x=2 and y=-1 to y=2, packed in yx order.
 	 * @return the value
 	 */
@@ -77,7 +110,40 @@ public class CachedBicubicInterpolator
 		a33 = .25*p[0] - .75*p[4] + .75*p[8] - .25*p[12] - .75*p[1] + 2.25*p[5] - 2.25*p[9] + .75*p[13] + .75*p[2] - 2.25*p[6] + 2.25*p[10] - .75*p[14] - .25*p[3] + .75*p[7] - .75*p[11] + .25*p[15];
 		//@formatter:on
 	}
-	
+
+	/**
+	 * Update coefficients.
+	 * <p>
+	 * Note that if x=-1 and x=2 are not available then they can be replaced with x=1 and x=0. This is because the cubic
+	 * interpolation uses the points to construct the gradient at x=0 as ((x=1)-(x=-1)) / 2. Setting x=-1 to x=1 will
+	 * just zero the gradient at x=0. Likewise for the gradient at x=1 = ((x=2)-(x=0))/2. Similar arguments apply to y.
+	 *
+	 * @param p
+	 *            the value of the function at x=-1 to x=2 and y=-1 to y=2, packed in yx order.
+	 * @return the value
+	 */
+	public void updateCoefficients(float[] p)
+	{
+		//@formatter:off
+		a00 = p[5];
+		a01 = -.5*p[1] + .5*p[9];
+		a02 = p[1] - 2.5*p[5] + 2*p[9] - .5*p[13];
+		a03 = -.5*p[1] + 1.5*p[5] - 1.5*p[9] + .5*p[13];
+		a10 = -.5*p[4] + .5*p[6];
+		a11 = .25*p[0] - .25*p[8] - .25*p[2] + .25*p[10];
+		a12 = -.5*p[0] + 1.25*p[4] - p[8] + .25*p[12] + .5*p[2] - 1.25*p[6] + p[10] - .25*p[14];
+		a13 = .25*p[0] - .75*p[4] + .75*p[8] - .25*p[12] - .25*p[2] + .75*p[6] - .75*p[10] + .25*p[14];
+		a20 = p[4] - 2.5*p[5] + 2*p[6] - .5*p[7];
+		a21 = -.5*p[0] + .5*p[8] + 1.25*p[1] - 1.25*p[9] - p[2] + p[10] + .25*p[3] - .25*p[11];
+		a22 = p[0] - 2.5*p[4] + 2*p[8] - .5*p[12] - 2.5*p[1] + 6.25*p[5] - 5*p[9] + 1.25*p[13] + 2*p[2] - 5*p[6] + 4*p[10] - p[14] - .5*p[3] + 1.25*p[7] - p[11] + .25*p[15];
+		a23 = -.5*p[0] + 1.5*p[4] - 1.5*p[8] + .5*p[12] + 1.25*p[1] - 3.75*p[5] + 3.75*p[9] - 1.25*p[13] - p[2] + 3*p[6] - 3*p[10] + p[14] + .25*p[3] - .75*p[7] + .75*p[11] - .25*p[15];
+		a30 = -.5*p[4] + 1.5*p[5] - 1.5*p[6] + .5*p[7];
+		a31 = .25*p[0] - .25*p[8] - .75*p[1] + .75*p[9] + .75*p[2] - .75*p[10] - .25*p[3] + .25*p[11];
+		a32 = -.5*p[0] + 1.25*p[4] - p[8] + .25*p[12] + 1.5*p[1] - 3.75*p[5] + 3*p[9] - .75*p[13] - 1.5*p[2] + 3.75*p[6] - 3*p[10] + .75*p[14] + .5*p[3] - 1.25*p[7] + p[11] - .25*p[15];
+		a33 = .25*p[0] - .75*p[4] + .75*p[8] - .25*p[12] - .75*p[1] + 2.25*p[5] - 2.25*p[9] + .75*p[13] + .75*p[2] - 2.25*p[6] + 2.25*p[10] - .75*p[14] - .25*p[3] + .75*p[7] - .75*p[11] + .25*p[15];
+		//@formatter:on
+	}
+
 	/**
 	 * Gets the interpolated value.
 	 *
