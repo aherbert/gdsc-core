@@ -646,7 +646,7 @@ public class CustomTricubicInterpolator
                     
                     fval.get(i+1, j+1, k+1, values);
 
-                    f[i][j][k] = values[i+1][j+1][k+1];
+                    f[i][j][k] = values[1][1][1];
                     
                     dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / 2;
                     dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / 2;
@@ -769,7 +769,7 @@ public class CustomTricubicInterpolator
                 	
                     fval.get(i+1, j+1, k+1, values);
                     
-                    f[i][j][k] = values[i+1][j+1][k+1]; 
+                    f[i][j][k] = values[1][1][1]; 
 
                     dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / deltaX;
                     dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / deltaY;
