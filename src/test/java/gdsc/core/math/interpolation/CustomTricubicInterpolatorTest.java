@@ -18,7 +18,6 @@ import org.junit.Assume;
 import org.junit.Test;
 
 import gdsc.core.data.DoubleArrayTrivalueProvider;
-import gdsc.core.data.DoubleArrayValueProvider;
 import gdsc.core.data.procedures.StandardTrivalueProcedure;
 import gdsc.core.test.BaseTimingTask;
 import gdsc.core.test.TimingService;
@@ -254,27 +253,18 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolateSingleNode()
 	{
-		int x = 4, y = 4, z = 4;
-		double xscale = 1, yscale = 0.5, zscale = 2.0;
-		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
-		double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
-		double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
-		double[][][] fval = createData(x, y, z, null);
-		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
-
-		double[] e = f1.getSplineNode(1, 1, 1).getA();
-
-		double[] o = CustomTricubicInterpolator.create(new DoubleArrayValueProvider(xval), new DoubleArrayValueProvider(yval),
-				new DoubleArrayValueProvider(zval), new DoubleArrayTrivalueProvider(fval)).getA();
-
-		Assert.assertArrayEquals(e, o, 0);
+		canInterpolateSingleNode(0.5, 1, 2);
 	}
 
 	@Test
 	public void canInterpolateSingleNodeWithNoScale()
 	{
+		canInterpolateSingleNode(1, 1, 1);
+	}
+
+	private void canInterpolateSingleNode(double xscale, double yscale, double zscale)
+	{
 		int x = 4, y = 4, z = 4;
-		double xscale = 1, yscale = 1, zscale = 1;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
 		double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
 		double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
@@ -287,7 +277,7 @@ public class CustomTricubicInterpolatorTest
 
 		Assert.assertArrayEquals(e, o, 0);
 	}
-	
+
 	double[][][] createData(int x, int y, int z, RandomGenerator r)
 	{
 		// Create a 2D Gaussian
