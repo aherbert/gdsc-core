@@ -299,6 +299,65 @@ public class CustomTricubicInterpolatorTest
 		Assert.assertArrayEquals(e, o, 0);
 	}
 
+	@Test
+	public void canInterpolateIndividualNode()
+	{
+		canInterpolateIndividualNode(0.5, 1, 2);
+	}
+
+	@Test
+	public void canInterpolateIndividualNodeWithNoScale()
+	{
+		canInterpolateIndividualNode(1, 1, 1);
+	}
+
+	private void canInterpolateIndividualNode(double xscale, double yscale, double zscale)
+	{
+		int x = 6, y = 6, z = 6;
+		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
+		double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
+		double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
+		// If the scales are uniform then the version with the scale is identical to the
+		// version without as it just packs and then unpacks the gradients.
+		boolean noScale = xscale == 1 && yscale == 1 && zscale == 1;
+		if (!noScale)
+		{
+			// Create non-linear scale
+			for (int i = 0, n = 2; i < x; i++, n *= 2)
+			{
+				xval[i] *= n;
+				yval[i] *= n;
+				zval[i] *= n;
+			}
+		}
+		double[][][] fval = createData(x, y, z, null);
+		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
+
+		check(f1, xval, yval, zval, fval, noScale, 1, 1, 1);
+		check(f1, xval, yval, zval, fval, noScale, 2, 1, 1);
+		check(f1, xval, yval, zval, fval, noScale, 2, 3, 2);
+	}
+
+	private void check(CustomTricubicInterpolatingFunction f1, double[] xval, double[] yval, double[] zval,
+			double[][][] fval, boolean noScale, int i, int j, int k)
+	{
+		double[] e = f1.getSplineNode(i, j, k).getA();
+		i--;
+		j--;
+		k--;
+
+		double[] o;
+		if (noScale)
+			o = CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval), i, j, k).getA();
+		else
+			o = CustomTricubicInterpolator
+					.create(new DoubleArrayValueProvider(xval), new DoubleArrayValueProvider(yval),
+							new DoubleArrayValueProvider(zval), new DoubleArrayTrivalueProvider(fval), i, j, k)
+					.getA();
+
+		Assert.assertArrayEquals(e, o, 0);
+	}
+
 	double[][][] createData(int x, int y, int z, RandomGenerator r)
 	{
 		// Create a 2D Gaussian
@@ -1074,7 +1133,7 @@ public class CustomTricubicInterpolatorTest
 		Assert.assertArrayEquals(p.x, p2.x, 1e-10);
 		Assert.assertArrayEquals(p.y, p2.y, 1e-10);
 		Assert.assertArrayEquals(p.z, p2.z, 1e-10);
-		
+
 		for (int i = 0; i < p.x.length; i++)
 			for (int j = 0; j < p.y.length; j++)
 			{
