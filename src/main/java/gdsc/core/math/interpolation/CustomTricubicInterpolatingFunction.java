@@ -656,8 +656,8 @@ public class CustomTricubicInterpolatingFunction
 		final int ip1 = i + 1;
 		final int jp1 = j + 1;
 		final int kp1 = k + 1;
-    	final double[] beta = new double[64];
 
+    	final double[] beta = new double[64];
 		beta[0] = f.get(i, j, k);
 		beta[1] = f.get(ip1, j, k);
 		beta[2] = f.get(i, jp1, k);
@@ -683,6 +683,7 @@ public class CustomTricubicInterpolatingFunction
 		beta[22] = dFdY.get(i, jp1, kp1);
 		beta[23] = dFdY.get(ip1, jp1, kp1);
 		beta[24] = dFdZ.get(i, j, k);
+		beta[25] = dFdZ.get(ip1, j, k);
 		beta[26] = dFdZ.get(i, jp1, k);
 		beta[27] = dFdZ.get(ip1, jp1, k);
 		beta[28] = dFdZ.get(i, j, kp1);
@@ -720,9 +721,9 @@ public class CustomTricubicInterpolatingFunction
 		beta[60] = d3FdXdYdZ.get(i, j, kp1);
 		beta[61] = d3FdXdYdZ.get(ip1, j, kp1);
 		beta[62] = d3FdXdYdZ.get(i, jp1, kp1);
-		beta[63] = d3FdXdYdZ.get(ip1, jp1, kp1);		
-
-		splines[i][j][k] = new DoubleCustomTricubicFunction(computeCoefficientsInlineCollectTerms(beta));
+		beta[63] = d3FdXdYdZ.get(ip1, jp1, kp1);
+		
+		setSpline(i, j, k, beta, singlePrecision);
 		ticker.tick();
 	}	
     
