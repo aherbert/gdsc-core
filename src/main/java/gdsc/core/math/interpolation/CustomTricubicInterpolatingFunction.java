@@ -1939,8 +1939,6 @@ public class CustomTricubicInterpolatingFunction
 	 *            the number of samples per spline node
 	 * @param procedure
 	 *            the procedure
-	 * @param progress
-	 *            the progress
 	 * @throws IllegalArgumentException
 	 *             If the number of sample is not positive
 	 */
@@ -2103,9 +2101,8 @@ public class CustomTricubicInterpolatingFunction
 	private static CubicSplinePosition[] createCubicSplinePosition(int n)
 	{
 		// Use an extra one to have the final x=1 interpolation point.
-		final int n1 = n + 1;
 		final double step = 1.0 / n;
-		CubicSplinePosition[] s = new CubicSplinePosition[n1];
+		CubicSplinePosition[] s = new CubicSplinePosition[n + 1];
 		for (int x = 0; x < n; x++)
 			s[x] = new CubicSplinePosition(x * step);
 		// Final interpolation point must be exactly 1
@@ -2798,13 +2795,15 @@ public class CustomTricubicInterpolatingFunction
 		checkDimensions(2, 2, 2, d2FdXdZ);
 		checkDimensions(2, 2, 2, d2FdYdZ);
 		checkDimensions(2, 2, 2, d3FdXdYdZ);
-		return createFunction(f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ);
+		return createFunction(new double[64], f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ);
 	}
 
 	/**
 	 * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
 	 * and derivatives for each vertex of the cube [2x2x2].
 	 * 
+	 * @param beta
+	 *            the beta array working space (must be a double[64])
 	 * @param f
 	 *            Values of the function on every grid point.
 	 * @param dFdX
@@ -2823,11 +2822,10 @@ public class CustomTricubicInterpolatingFunction
 	 *            Values of the cross partial derivative of function on every grid point.
 	 * @return tricubic interpolating function
 	 */
-	static CustomTricubicFunction createFunction(final TrivalueProvider f, final TrivalueProvider dFdX,
+	static CustomTricubicFunction createFunction(double[] beta, final TrivalueProvider f, final TrivalueProvider dFdX,
 			final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
 			final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ, final TrivalueProvider d3FdXdYdZ)
 	{
-		double[] beta = new double[64];
 		beta[0] = f.get(0, 0, 0);
 		beta[1] = f.get(1, 0, 0);
 		beta[2] = f.get(0, 1, 0);
@@ -2946,7 +2944,8 @@ public class CustomTricubicInterpolatingFunction
 		checkDimensions(2, 2, 2, d2FdXdZ);
 		checkDimensions(2, 2, 2, d2FdYdZ);
 		checkDimensions(2, 2, 2, d3FdXdYdZ);
-		return createFunction(xscale, yscale, zscale, f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ);
+		return createFunction(new double[64], xscale, yscale, zscale, f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ,
+				d3FdXdYdZ);
 	}
 
 	/**
@@ -2960,6 +2959,8 @@ public class CustomTricubicInterpolatingFunction
 	 * double value = f.value(x / xscale, y / yscale, z / zscale);
 	 * </pre>
 	 *
+	 * @param beta
+	 *            the beta array working space (must be a double[64])
 	 * @param xscale
 	 *            the xscale
 	 * @param yscale
@@ -2984,12 +2985,11 @@ public class CustomTricubicInterpolatingFunction
 	 *            Values of the cross partial derivative of function on every grid point.
 	 * @return tricubic interpolating function
 	 */
-	static CustomTricubicFunction createFunction(double xscale, double yscale, double zscale, final TrivalueProvider f,
-			final TrivalueProvider dFdX, final TrivalueProvider dFdY, final TrivalueProvider dFdZ,
-			final TrivalueProvider d2FdXdY, final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ,
-			final TrivalueProvider d3FdXdYdZ)
+	static CustomTricubicFunction createFunction(double[] beta, double xscale, double yscale, double zscale,
+			final TrivalueProvider f, final TrivalueProvider dFdX, final TrivalueProvider dFdY,
+			final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY, final TrivalueProvider d2FdXdZ,
+			final TrivalueProvider d2FdYdZ, final TrivalueProvider d3FdXdYdZ)
 	{
-		double[] beta = new double[64];
 		final double xR = xscale;
 		final double yR = yscale;
 		final double xRyR = xR * yR;

@@ -664,7 +664,6 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canComputeNoInterpolation()
 	{
-		new Well19937c(30051977);
 		int x = 4, y = 4, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -1011,7 +1010,6 @@ public class CustomTricubicInterpolatorTest
 
 	private void canSampleInterpolatedFunction(int n)
 	{
-		new Well19937c(30051977);
 		int x = 6, y = 5, z = 4;
 		// Make it easy to have exact matching
 		double xscale = 2.0, yscale = 2.0, zscale = 2.0;
@@ -1037,6 +1035,51 @@ public class CustomTricubicInterpolatorTest
 					// Test original function interpolated value against the sample
 					assertEquals(f1.value(p.x[i], p.y[j], p.z[k]), p.value[i][j][k], 1e-8);
 				}
+	}
+
+	@Test
+	public void canDynamicallySampleFunctionWithN2()
+	{
+		canDynamicallySampleFunction(2);
+	}
+
+	@Test
+	public void canDynamicallySampleFunctionWithN3()
+	{
+		canDynamicallySampleFunction(3);
+	}
+
+	private void canDynamicallySampleFunction(int n)
+	{
+		// This assumes that the sample method of the CustomTricubicInterpolatingFunction works!
+
+		int x = 6, y = 5, z = 4;
+		// No scale for this test
+		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
+		double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
+		double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
+		double[][][] fval = createData(x, y, z, null);
+
+		CustomTricubicInterpolator interpolator = new CustomTricubicInterpolator();
+		DoubleArrayTrivalueProvider f = new DoubleArrayTrivalueProvider(fval);
+		CustomTricubicInterpolatingFunction f1 = interpolator.interpolate(new DoubleArrayValueProvider(xval),
+				new DoubleArrayValueProvider(yval), new DoubleArrayValueProvider(zval), f);
+
+		StandardTrivalueProcedure p = new StandardTrivalueProcedure();
+		f1.sample(n, p);
+
+		StandardTrivalueProcedure p2 = new StandardTrivalueProcedure();
+		CustomTricubicInterpolator.sample(f, n, p2);
+
+		Assert.assertArrayEquals(p.x, p2.x, 1e-10);
+		Assert.assertArrayEquals(p.y, p2.y, 1e-10);
+		Assert.assertArrayEquals(p.z, p2.z, 1e-10);
+		
+		for (int i = 0; i < p.x.length; i++)
+			for (int j = 0; j < p.y.length; j++)
+			{
+				Assert.assertArrayEquals(p.value[i][j], p2.value[i][j], 0);
+			}
 	}
 
 	@Test

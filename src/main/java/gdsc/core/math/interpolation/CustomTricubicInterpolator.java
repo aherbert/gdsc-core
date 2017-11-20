@@ -43,6 +43,7 @@ import gdsc.core.data.DoubleArrayTrivalueProvider;
 import gdsc.core.data.DoubleArrayValueProvider;
 import gdsc.core.data.TrivalueProvider;
 import gdsc.core.data.ValueProvider;
+import gdsc.core.data.procedures.TrivalueProcedure;
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.Ticker;
 import gdsc.core.logging.TrackProgress;
@@ -666,6 +667,7 @@ public class CustomTricubicInterpolator
 
         // Create the interpolating function.
         return CustomTricubicInterpolatingFunction.createFunction(
+        		new double[64],
         		new DoubleArrayTrivalueProvider(f),
         		new DoubleArrayTrivalueProvider(dFdX),
         		new DoubleArrayTrivalueProvider(dFdY),
@@ -794,6 +796,7 @@ public class CustomTricubicInterpolator
 
         // Create the interpolating function.
         return CustomTricubicInterpolatingFunction.createFunction(
+        		new double[64],
         		xval.get(2) - xval.get(1),
         		yval.get(2) - yval.get(1),
         		zval.get(2) - zval.get(1),
@@ -806,4 +809,269 @@ public class CustomTricubicInterpolator
         		new DoubleArrayTrivalueProvider(d2FdYdZ),
         		new DoubleArrayTrivalueProvider(d3FdXdYdZ));
     }	    
+
+    //@formatter:on
+
+	/**
+	 * Sample the function.
+	 * <p>
+	 * n samples will be taken per node in each dimension. A final sample is taken at then end of the sample range thus
+	 * the final range for each axis will be the current axis range.
+	 *
+	 * @param fval
+	 *            the function value
+	 * @param n
+	 *            the number of samples per spline node
+	 * @param procedure
+	 *            the procedure
+	 * @param progress
+	 *            the progress
+	 * @throws IllegalArgumentException
+	 *             If the number of samples is not at least 2
+	 * @throws NumberIsTooSmallException
+	 *             if the number of points in any dimension is less than 2
+	 */
+	public static void sample(final TrivalueProvider fval, int n, TrivalueProcedure procedure)
+			throws IllegalArgumentException
+	{
+		sample(fval, n, procedure, null);
+	}
+
+	/**
+	 * Sample the function.
+	 * <p>
+	 * n samples will be taken per node in each dimension. A final sample is taken at the end of the sample range thus
+	 * the final range for each axis will be the current axis range.
+	 *
+	 * @param fval
+	 *            the function value
+	 * @param n
+	 *            the number of samples per spline node
+	 * @param procedure
+	 *            the procedure
+	 * @param progress
+	 *            the progress
+	 * @throws IllegalArgumentException
+	 *             If the number of samples is not at least 2
+	 * @throws NumberIsTooSmallException
+	 *             if the number of points in any dimension is less than 2
+	 */
+	public static void sample(final TrivalueProvider fval, int n, TrivalueProcedure procedure, TrackProgress progress)
+			throws IllegalArgumentException
+	{
+		if (n < 2)
+			throw new IllegalArgumentException("Samples must be at least 2");
+		sample(fval, n, n, n, procedure, progress);
+	}
+
+	/**
+	 * Sample the function.
+	 * <p>
+	 * n samples will be taken per node in each dimension. A final sample is taken at the end of the sample range thus
+	 * the final range for each axis will be the current axis range.
+	 *
+	 * @param fval
+	 *            the function value
+	 * @param nx
+	 *            the number of samples per spline node in the x dimension
+	 * @param ny
+	 *            the number of samples per spline node in the z dimension
+	 * @param nz
+	 *            the nz
+	 * @param procedure
+	 *            the procedure
+	 * @param progress
+	 *            the progress
+	 * @throws IllegalArgumentException
+	 *             If the number of samples is not positive and at least 2 in one dimension
+	 * @throws NumberIsTooSmallException
+	 *             if the number of points in any dimension is less than 2
+	 */
+	public static void sample(final TrivalueProvider fval, int nx, int ny, int nz, TrivalueProcedure procedure,
+			TrackProgress progress) throws IllegalArgumentException
+	{
+		if (nx < 1 || ny < 1 || nz < 1)
+			throw new IllegalArgumentException("Samples must be positive");
+		if (nx == 1 && ny == 1 && nz == 1)
+			throw new IllegalArgumentException("Samples must be at least 2 in one dimension");
+
+		final int xLen = fval.getLengthX();
+		final int yLen = fval.getLengthY();
+		final int zLen = fval.getLengthZ();
+
+		if (xLen < 2)
+			throw new NumberIsTooSmallException(xLen, 2, true);
+		if (yLen < 2)
+			throw new NumberIsTooSmallException(yLen, 2, true);
+		if (zLen < 2)
+			throw new NumberIsTooSmallException(zLen, 2, true);
+
+		final int xLen_1 = xLen - 1;
+		final int yLen_1 = yLen - 1;
+		final int zLen_1 = zLen - 1;
+		final int xLen_2 = xLen - 2;
+		final int yLen_2 = yLen - 2;
+		final int zLen_2 = zLen - 2;
+
+		// We can interpolate all nodes n-times plus a final point at the last node
+		final int maxx = (xLen_1) * nx;
+		final int maxy = (yLen_1) * ny;
+		final int maxz = (zLen_1) * nz;
+		if (!procedure.setDimensions(maxx + 1, maxy + 1, maxz + 1))
+			return;
+
+		Ticker ticker = Ticker.create(progress, (long) (maxx + 1) * (maxy + 1) * (maxz + 1), false);
+		ticker.start();
+
+		// Pre-compute interpolation tables
+		final CubicSplinePosition[] sx = createCubicSplinePosition(nx);
+		final CubicSplinePosition[] sy = createCubicSplinePosition(ny);
+		final CubicSplinePosition[] sz = createCubicSplinePosition(nz);
+		final int nx1 = nx + 1;
+		final int ny1 = ny + 1;
+		final int nz1 = nz + 1;
+
+		final double[][] tables = new double[nx1 * ny1 * nz1][];
+		for (int z = 0, i = 0; z < nz1; z++)
+		{
+			CubicSplinePosition szz = sz[z];
+			for (int y = 0; y < ny1; y++)
+			{
+				CubicSplinePosition syy = sy[y];
+				for (int x = 0; x < nx1; x++, i++)
+				{
+					tables[i] = CustomTricubicFunction.computePowerTable(sx[x], syy, szz);
+				}
+			}
+		}
+
+		// Write axis values
+		for (int x = 0; x <= maxx; x++)
+		{
+			procedure.setX(x, (double) x / nx);
+		}
+		for (int y = 0; y <= maxy; y++)
+		{
+			procedure.setY(y, (double) y / ny);
+		}
+		for (int z = 0; z <= maxz; z++)
+		{
+			procedure.setZ(z, (double) z / nz);
+		}
+
+		// Approximation to the partial derivatives using finite differences.
+		final double[][][] f = new double[2][2][2];
+		final double[][][] dFdX = new double[2][2][2];
+		final double[][][] dFdY = new double[2][2][2];
+		final double[][][] dFdZ = new double[2][2][2];
+		final double[][][] d2FdXdY = new double[2][2][2];
+		final double[][][] d2FdXdZ = new double[2][2][2];
+		final double[][][] d2FdYdZ = new double[2][2][2];
+		final double[][][] d3FdXdYdZ = new double[2][2][2];
+
+		final double[][][] values = new double[3][3][3];
+		final double[] beta = new double[64];
+
+		// Dynamically interpolate each node
+		for (int x = 0; x < xLen_1; x++)
+		{
+			for (int y = 0; y < yLen_1; y++)
+			{
+				for (int z = 0; z < zLen_1; z++)
+				{
+					//@formatter:off
+                    for (int i = 0; i < 2; i++) {
+                    	int xx = x+i;
+            			boolean edgex = xx == 0 || xx == xLen_1;
+                        for (int j = 0; j < 2; j++) {
+                        	int yy = y+j;
+            				boolean edgexy = edgex || yy == 0 || yy == yLen_1;
+                            for (int k = 0; k < 2; k++) {
+                            	int zz = z+k;
+                				boolean edge = edgexy || zz == 0 || zz == zLen_1;
+                				
+                				if (edge)
+                				{
+                					// No gradients at the edge
+                                    f[i][j][k] = fval.get(xx, yy, zz);
+                                    
+                                    dFdX[i][j][k] = 0;
+                                    dFdY[i][j][k] = 0;
+                                    dFdZ[i][j][k] = 0;
+                                      
+                                    d2FdXdY[i][j][k] = 0;
+                                    d2FdXdZ[i][j][k] = 0;
+                                    d2FdYdZ[i][j][k] = 0;
+                                      
+                                    d3FdXdYdZ[i][j][k] = 0;
+                				}
+                				else
+                				{
+                                    fval.get(xx, yy, zz, values);
+    
+                                    f[i][j][k] = values[1][1][1];
+                                    
+                                    dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / 2;
+                                    dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / 2;
+                                    dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / 2;
+                                      
+                                    d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / 4;
+                                    d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / 4;
+                                    d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / 4;
+                                      
+                                    d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
+                                                          values[0][2][2] + values[0][0][2] -
+                                                          values[2][2][0] + values[2][0][0] +
+                                                          values[0][2][0] - values[0][0][0]) / 8;
+                				}
+                            }
+                        }
+                    }
+        
+                    // Create the interpolating function.
+                    CustomTricubicFunction cf = CustomTricubicInterpolatingFunction.createFunction(
+                    		beta,
+                    		new DoubleArrayTrivalueProvider(f),
+                    		new DoubleArrayTrivalueProvider(dFdX),
+                    		new DoubleArrayTrivalueProvider(dFdY),
+                    		new DoubleArrayTrivalueProvider(dFdZ),
+                    		new DoubleArrayTrivalueProvider(d2FdXdY),
+                    		new DoubleArrayTrivalueProvider(d2FdXdZ),
+                    		new DoubleArrayTrivalueProvider(d2FdYdZ),
+                    		new DoubleArrayTrivalueProvider(d3FdXdYdZ));
+                	//@formatter:on
+
+					// Write interpolated values. For the final position we use the extra table to 
+					// get the value at x=1 in the range [0-1].
+					for (int k = 0, maxk = (z == zLen_2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++)
+					{
+						for (int j = 0, maxj = (y == yLen_2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++)
+						{
+							// Position in the interpolation tables
+							int pos = nx1 * (j + ny1 * k);
+							for (int i = 0, maxi = (x == xLen_2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++)
+							{
+								procedure.setValue(xx, yy, zz, cf.value(tables[pos++]));
+								ticker.tick();
+							}
+						}
+					}
+				}
+			}
+		}
+
+		ticker.stop();
+	}
+
+	private static CubicSplinePosition[] createCubicSplinePosition(int n)
+	{
+		// Use an extra one to have the final x=1 interpolation point.
+		final double step = 1.0 / n;
+		CubicSplinePosition[] s = new CubicSplinePosition[n + 1];
+		for (int x = 0; x < n; x++)
+			s[x] = new CubicSplinePosition(x * step);
+		// Final interpolation point must be exactly 1
+		s[n] = new CubicSplinePosition(1);
+		return s;
+	}
 }
