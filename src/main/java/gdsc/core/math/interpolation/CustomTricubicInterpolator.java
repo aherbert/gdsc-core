@@ -875,9 +875,9 @@ public class CustomTricubicInterpolator
 	 * @param nx
 	 *            the number of samples per spline node in the x dimension
 	 * @param ny
-	 *            the number of samples per spline node in the z dimension
+	 *            the number of samples per spline node in the y dimension
 	 * @param nz
-	 *            the nz
+	 *            the number of samples per spline node in the z dimension
 	 * @param procedure
 	 *            the procedure
 	 * @param progress
