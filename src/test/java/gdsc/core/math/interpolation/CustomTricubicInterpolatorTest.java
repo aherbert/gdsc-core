@@ -333,18 +333,18 @@ public class CustomTricubicInterpolatorTest
 		double[][][] fval = createData(x, y, z, null);
 		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
 
+		check(f1, xval, yval, zval, fval, noScale, 0, 0, 0);
+		check(f1, xval, yval, zval, fval, noScale, 0, 1, 0);
 		check(f1, xval, yval, zval, fval, noScale, 1, 1, 1);
 		check(f1, xval, yval, zval, fval, noScale, 2, 1, 1);
 		check(f1, xval, yval, zval, fval, noScale, 2, 3, 2);
+		check(f1, xval, yval, zval, fval, noScale, 4, 4, 4);
 	}
 
 	private void check(CustomTricubicInterpolatingFunction f1, double[] xval, double[] yval, double[] zval,
 			double[][][] fval, boolean noScale, int i, int j, int k)
 	{
 		double[] e = f1.getSplineNode(i, j, k).getA();
-		i--;
-		j--;
-		k--;
 
 		double[] o;
 		if (noScale)
