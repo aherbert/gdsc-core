@@ -1099,16 +1099,28 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canDynamicallySampleFunctionWithN2()
 	{
-		canDynamicallySampleFunction(2);
+		canDynamicallySampleFunction(2, false);
 	}
 
 	@Test
 	public void canDynamicallySampleFunctionWithN3()
 	{
-		canDynamicallySampleFunction(3);
+		canDynamicallySampleFunction(3, false);
 	}
 
-	private void canDynamicallySampleFunction(int n)
+	@Test
+	public void canDynamicallySampleFunctionWithN2WithExecutorService()
+	{
+		canDynamicallySampleFunction(2, true);
+	}
+
+	@Test
+	public void canDynamicallySampleFunctionWithN3WithExecutorService()
+	{
+		canDynamicallySampleFunction(3, true);
+	}
+	
+	private void canDynamicallySampleFunction(int n, boolean threaded)
 	{
 		// This assumes that the sample method of the CustomTricubicInterpolatingFunction works!
 
@@ -1127,9 +1139,20 @@ public class CustomTricubicInterpolatorTest
 		StandardTrivalueProcedure p = new StandardTrivalueProcedure();
 		f1.sample(n, p);
 
-		StandardTrivalueProcedure p2 = new StandardTrivalueProcedure();
-		CustomTricubicInterpolator.sample(f, n, p2);
+		ExecutorService es = null;
+		if (threaded)
+		{
+			es = Executors.newFixedThreadPool(4);
+			interpolator.setExecutorService(es);
+			interpolator.setTaskSize(5);
+		}
 
+		StandardTrivalueProcedure p2 = new StandardTrivalueProcedure();
+		interpolator.sample(f, n, p2);
+
+		if (threaded)
+			es.shutdown();
+		
 		Assert.assertArrayEquals(p.x, p2.x, 1e-10);
 		Assert.assertArrayEquals(p.y, p2.y, 1e-10);
 		Assert.assertArrayEquals(p.z, p2.z, 1e-10);
