@@ -391,18 +391,18 @@ public class CustomTricubicInterpolatorTest
 	}
 
 	@Test
-	public void canInterpolateIndividualNode()
+	public void canInterpolateSingleNodeWithOffset()
 	{
-		canInterpolateIndividualNode(0.5, 1, 2);
+		canInterpolateSingleNodeWithOffset(0.5, 1, 2);
 	}
 
 	@Test
-	public void canInterpolateIndividualNodeWithNoScale()
+	public void canInterpolateSingleNodeWithOffsetWithNoScale()
 	{
-		canInterpolateIndividualNode(1, 1, 1);
+		canInterpolateSingleNodeWithOffset(1, 1, 1);
 	}
 
-	private void canInterpolateIndividualNode(double xscale, double yscale, double zscale)
+	private void canInterpolateSingleNodeWithOffset(double xscale, double yscale, double zscale)
 	{
 		int x = 6, y = 6, z = 6;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);

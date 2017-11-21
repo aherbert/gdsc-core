@@ -578,7 +578,7 @@ public class CustomTricubicInterpolatingFunction
                             //    d3FdXdYdZ.get(i,j,kp1) * xRyRzR, d3FdXdYdZ.get(ip1,j,kp1) * xRyRzR,
                             //    d3FdXdYdZ.get(i,jp1,kp1) * xRyRzR, d3FdXdYdZ.get(ip1,jp1,kp1) * xRyRzR,
                             //};
-        
+
                     		setSpline(i, j, k, beta, singlePrecision);
                             ticker.tick();
                         }
