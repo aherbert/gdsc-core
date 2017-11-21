@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.commons.math3.analysis.interpolation.TricubicInterpolatingFunction;
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
@@ -165,22 +164,26 @@ public class CustomTricubicInterpolatorTest
 	public void canInterpolate()
 	{
 		RandomGenerator r = new Well19937c(30051977);
-		// Test verses the original
 		int x = 4, y = 4, z = 4;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
 		double[] yval = SimpleArrayUtils.newArray(y, 0, 0.5);
 		double[] zval = SimpleArrayUtils.newArray(z, 0, 2.0);
-		double[] testx = SimpleArrayUtils.newArray(9, xval[1], (xval[2] - xval[1]) / 5);
-		double[] testy = SimpleArrayUtils.newArray(9, yval[1], (yval[2] - yval[1]) / 5);
-		double[] testz = SimpleArrayUtils.newArray(9, zval[1], (zval[2] - zval[1]) / 5);
+		double[] testx = SimpleArrayUtils.newArray(6, xval[1], (xval[2] - xval[1]) / 5);
+		double[] testy = SimpleArrayUtils.newArray(6, yval[1], (yval[2] - yval[1]) / 5);
+		double[] testz = SimpleArrayUtils.newArray(6, zval[1], (zval[2] - zval[1]) / 5);
 		TricubicInterpolator f3 = new TricubicInterpolator();
+		BicubicInterpolator bi = new BicubicInterpolator();
+		double[] face, face2;
+		double o, e;
 		for (int i = 0; i < 3; i++)
 		{
 			double[][][] fval = createData(x, y, z, (i == 0) ? null : r);
+
 			CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval,
 					fval);
-			TricubicInterpolatingFunction f2 = new org.apache.commons.math3.analysis.interpolation.TricubicInterpolator()
-					.interpolate(xval, yval, zval, fval);
+			// No longer possible to test verses the original as we handle edges differently
+			//TricubicInterpolatingFunction f2 = new org.apache.commons.math3.analysis.interpolation.TricubicInterpolator()
+			//		.interpolate(xval, yval, zval, fval);
 			for (double zz : testz)
 			{
 				IndexedCubicSplinePosition sz = f1.getZSplinePosition(zz);
@@ -190,30 +193,118 @@ public class CustomTricubicInterpolatorTest
 
 					for (double xx : testx)
 					{
-						double o = f1.value(xx, yy, zz);
-						double e = f2.value(xx, yy, zz);
-						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+						o = f1.value(xx, yy, zz);
+						//double e = f2.value(xx, yy, zz);
+						//Assert.assertEquals(e, o, Math.abs(e * 1e-8));
 						IndexedCubicSplinePosition sx = f1.getXSplinePosition(xx);
 						double o2 = f1.value(sx, sy, sz);
 						Assert.assertEquals(o, o2, 0);
 
 						// Test against simple tricubic spline
-						// Which requires x,y,z in the range 0-1 for function values
+						// which requires x,y,z in the range 0-1 for function values
 						// x=-1 to x=2; y=-1 to y=2; and z=-1 to z=2
-						if (zz < zval[2] && yy < yval[2] && xx < xval[2])
-						{
-							// @formatter:off
+						// @formatter:off
 							double e2 = f3.getValue(fval, 
 									(xx - xval[1]) / (xval[2] - xval[1]),
 									(yy - yval[1]) / (yval[2] - yval[1]), 
 									(zz - zval[1]) / (zval[2] - zval[1]));
 							// @formatter:on
-							Assert.assertEquals(e2, o, Math.abs(e2 * 1e-8));
-						}
+						Assert.assertEquals(e2, o, Math.abs(e2 * 1e-8));
 					}
 				}
 			}
+
+			// Each face of the cube should interpolate as a Bicubic function
+			face = extractXYFace(fval, 0);
+			face2 = extractXYFace(fval, z - 1);
+			for (double xx : testx)
+				for (double yy : testy)
+				{
+					o = f1.value(xx, yy, 0);
+					e = bi.getValue(face, (xx - xval[1]) / (xval[2] - xval[1]), (yy - yval[1]) / (yval[2] - yval[1]));
+					Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+					o = f1.value(xx, yy, zval[z - 1]);
+					e = bi.getValue(face2, (xx - xval[1]) / (xval[2] - xval[1]), (yy - yval[1]) / (yval[2] - yval[1]));
+					Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+				}
+
+			face = extractXZFace(fval, 0);
+			face2 = extractXZFace(fval, y - 1);
+			for (double xx : testx)
+				for (double zz : testz)
+				{
+					o = f1.value(xx, 0, zz);
+					e = bi.getValue(face, (xx - xval[1]) / (xval[2] - xval[1]), (zz - zval[1]) / (zval[2] - zval[1]));
+					Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+					o = f1.value(xx, yval[y - 1], zz);
+					e = bi.getValue(face2, (xx - xval[1]) / (xval[2] - xval[1]), (zz - zval[1]) / (zval[2] - zval[1]));
+					Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+				}
+
+			face = extractYZFace(fval, 0);
+			face2 = extractYZFace(fval, z - 1);
+			for (double yy : testy)
+				for (double zz : testz)
+				{
+					o = f1.value(0, yy, zz);
+					e = bi.getValue(face, (yy - yval[1]) / (yval[2] - yval[1]), (zz - zval[1]) / (zval[2] - zval[1]));
+					Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+					o = f1.value(xval[x - 1], yy, zz);
+					e = bi.getValue(face2, (yy - yval[1]) / (yval[2] - yval[1]), (zz - zval[1]) / (zval[2] - zval[1]));
+					Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+				}
 		}
+	}
+
+	private double[] extractXYFace(double[][][] fval, int o)
+	{
+		int maxx = fval.length;
+		int maxy = fval[0].length;
+
+		double[] f = new double[maxx * maxy];
+		int i = 0;
+		for (int y = 0; y < maxy; y++)
+		{
+			for (int x = 0; x < maxx; x++)
+			{
+				f[i++] = fval[x][y][o];
+			}
+		}
+		return f;
+	}
+
+	private double[] extractXZFace(double[][][] fval, int o)
+	{
+		int maxx = fval.length;
+		int maxz = fval[0][0].length;
+
+		double[] f = new double[maxx * maxz];
+		int i = 0;
+		for (int z = 0; z < maxz; z++)
+		{
+			for (int x = 0; x < maxx; x++)
+			{
+				f[i++] = fval[x][o][z];
+			}
+		}
+		return f;
+	}
+
+	private double[] extractYZFace(double[][][] fval, int o)
+	{
+		int maxy = fval[0].length;
+		int maxz = fval[0][0].length;
+
+		double[] f = new double[maxy * maxz];
+		int i = 0;
+		for (int z = 0; z < maxz; z++)
+		{
+			for (int y = 0; y < maxy; y++)
+			{
+				f[i++] = fval[o][y][z];
+			}
+		}
+		return f;
 	}
 
 	@Test
@@ -1119,7 +1210,7 @@ public class CustomTricubicInterpolatorTest
 	{
 		canDynamicallySampleFunction(3, true);
 	}
-	
+
 	private void canDynamicallySampleFunction(int n, boolean threaded)
 	{
 		// This assumes that the sample method of the CustomTricubicInterpolatingFunction works!
@@ -1152,7 +1243,7 @@ public class CustomTricubicInterpolatorTest
 
 		if (threaded)
 			es.shutdown();
-		
+
 		Assert.assertArrayEquals(p.x, p2.x, 1e-10);
 		Assert.assertArrayEquals(p.y, p2.y, 1e-10);
 		Assert.assertArrayEquals(p.z, p2.z, 1e-10);

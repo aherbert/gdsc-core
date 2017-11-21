@@ -333,6 +333,9 @@ public class CustomTricubicInterpolator
         final int xLen = xval.getLength();
         final int yLen = yval.getLength();
         final int zLen = zval.getLength();
+		final int xLen_1 = xLen - 1;
+		final int yLen_1 = yLen - 1;
+		final int zLen_1 = zLen - 1;
         
         // Approximation to the partial derivatives using finite differences.
         final double[][][] dFdX = new double[xLen][yLen][zLen];
@@ -343,7 +346,7 @@ public class CustomTricubicInterpolator
         final double[][][] d2FdYdZ = new double[xLen][yLen][zLen];
         final double[][][] d3FdXdYdZ = new double[xLen][yLen][zLen];
 
-        final long total = (long)(xLen-2) * (yLen-2) * (zLen-2);
+        final long total = (long)xLen * yLen * zLen;
         
         ExecutorService executorService = this.executorService;
 		long taskSize = Math.max(1, this.taskSize);
@@ -354,8 +357,7 @@ public class CustomTricubicInterpolator
         
         if (threaded)
         {
-    		final int xLen_2 = xLen - 2;
-    		final long xLen_2_yLen_2 = (long)xLen_2 * (yLen-2);
+    		final long xLen_yLen = (long)xLen * yLen;
     		
         	// Break this up into reasonable tasks, ensuring we can hold all the futures
         	long nTasks = (long) Math.ceil((double) total / taskSize);
@@ -375,11 +377,12 @@ public class CustomTricubicInterpolator
 					{
 				        final double[][][] values = new double[3][3][3];
 						for (long index = from_; index < to; index++)
-							build(index, xLen_2, xLen_2_yLen_2, 
-									xval, yval, zval, fval, 
-									dFdX, dFdY, dFdZ, d2FdXdY, 
-									d2FdXdZ, d2FdYdZ, d3FdXdYdZ, 
-									values, ticker);
+							build(index, xLen, xLen_yLen, 
+								  xLen_1, yLen_1, zLen_1,
+								  xval, yval, zval, fval, 
+								  dFdX, dFdY, dFdZ, d2FdXdY, 
+								  d2FdXdZ, d2FdYdZ, d3FdXdYdZ, 
+								  values, ticker);
 					}
 				}));
 				from = to;
@@ -390,74 +393,98 @@ public class CustomTricubicInterpolator
         else
         {
             final double[][][] values = new double[3][3][3];
-        	
-            for (int i = 1; i < xLen - 1; i++) {
+
+            // Updated to handle edges
+            
+            for (int i = 0; i < xLen; i++) {
             	
-                final int nI = i + 1;
-                final int pI = i - 1;
+    			boolean edgeX = i == 0 || i == xLen_1;
+                final int nI, pI;
+                final double deltaX;
+                if (edgeX)
+            	{
+                	// Ignored
+            		nI = pI = 0;
+            		deltaX = 0;
+            	}
+            	else
+            	{
+            		nI = i + 1;
+            		pI = i - 1;
+            		deltaX = xval.get(nI) - xval.get(pI);
+            	}
     
-                final double nX = xval.get(nI);
-                final double pX = xval.get(pI);
-    
-                final double deltaX = nX - pX;
-    
-                for (int j = 1; j < yLen - 1; j++) {
+                for (int j = 0; j < yLen; j++) {
                 	
-                    final int nJ = j + 1;
-                    final int pJ = j - 1;
-    
-                    final double nY = yval.get(nJ);
-                    final double pY = yval.get(pJ);
-    
-                    final double deltaY = nY - pY;
+        			boolean edgeY = j == 0 || j == yLen_1;
+                    final int nJ, pJ;
+                    final double deltaY;
+                    if (edgeY)
+                	{
+                    	// Ignored
+                		nJ = pJ = 0;
+                    	deltaY = 0;
+                	}
+                	else
+                	{
+                		nJ = j + 1;
+                		pJ = j - 1;
+                		deltaY = yval.get(nJ) - yval.get(pJ);
+                	}
+
+                    final boolean edgeXY = edgeX || edgeY;
                     final double deltaXY = deltaX * deltaY;
     
-                    for (int k = 1; k < zLen - 1; k++) {
-                        final int nK = k + 1;
-                        final int pK = k - 1;
-    
-                        final double nZ = zval.get(nK);
-                        final double pZ = zval.get(pK);
-    
-                        final double deltaZ = nZ - pZ;
+                    for (int k = 0; k < zLen; k++) {
+
+            			boolean edgeZ = k == 0 || k == zLen_1;
+                        final int nK, pK;
+                        final double deltaZ;
+                        if (edgeZ)
+                    	{
+                        	// Ignored
+                    		nK = pK = 0;
+                    		deltaZ = 0;
+                    	}
+                    	else
+                    	{
+                    		nK = k + 1;
+                    		pK = k - 1;
+                    		deltaZ = zval.get(nK) - zval.get(pK);
+                    	}
                         
-                        fval.get(i, j, k, values);
-    
-                        dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / deltaX;
-                        dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / deltaY;
-                        dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / deltaZ;
-                          
                         final double deltaXZ = deltaX * deltaZ;
                         final double deltaYZ = deltaY * deltaZ;
-                          
-                        d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / deltaXY;
-                        d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / deltaXZ;
-                        d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / deltaYZ;
-                          
                         final double deltaXYZ = deltaXY * deltaZ;
-                          
-                        d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
-                                              values[0][2][2] + values[0][0][2] -
-                                              values[2][2][0] + values[2][0][0] +
-                                              values[0][2][0] - values[0][0][0]) / deltaXYZ;
-                      
-                        //dFdX[i][j][k] = (fval.get[nI][j][k] - fval.get[pI][j][k]) / deltaX;
-                        //dFdY[i][j][k] = (fval.get[i][nJ][k] - fval.get[i][pJ][k]) / deltaY;
-                        //dFdZ[i][j][k] = (fval.get[i][j][nK] - fval.get[i][j][pK]) / deltaZ;
-                        //
-                        //final double deltaXZ = deltaX * deltaZ;
-                        //final double deltaYZ = deltaY * deltaZ;
-                        //
-                        //d2FdXdY[i][j][k] = (fval.get[nI][nJ][k] - fval.get[nI][pJ][k] - fval.get[pI][nJ][k] + fval.get[pI][pJ][k]) / deltaXY;
-                        //d2FdXdZ[i][j][k] = (fval.get[nI][j][nK] - fval.get[nI][j][pK] - fval.get[pI][j][nK] + fval.get[pI][j][pK]) / deltaXZ;
-                        //d2FdYdZ[i][j][k] = (fval.get[i][nJ][nK] - fval.get[i][nJ][pK] - fval.get[i][pJ][nK] + fval.get[i][pJ][pK]) / deltaYZ;
-                        //
-                        //final double deltaXYZ = deltaXY * deltaZ;
-                        //
-                        //d3FdXdYdZ[i][j][k] = (fval.get[nI][nJ][nK] - fval.get[nI][pJ][nK] -
-                        //                      fval.get[pI][nJ][nK] + fval.get[pI][pJ][nK] -
-                        //                      fval.get[nI][nJ][pK] + fval.get[nI][pJ][pK] +
-                        //                      fval.get[pI][nJ][pK] - fval.get[pI][pJ][pK]) / deltaXYZ;
+                        
+                        if (edgeXY || edgeZ)
+                        {
+                            // No gradients at the edge
+                            dFdX[i][j][k] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / deltaX;
+                            dFdY[i][j][k] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / deltaY;
+                            dFdZ[i][j][k] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / deltaZ;
+                            
+                            d2FdXdY[i][j][k] = (edgeXY) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / deltaXY;
+                            d2FdXdZ[i][j][k] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / deltaXZ;
+                            d2FdYdZ[i][j][k] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / deltaYZ;
+                        }
+                        else
+                        {
+                            fval.get(i, j, k, values);
+        
+                            dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / deltaX;
+                            dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / deltaY;
+                            dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / deltaZ;
+                              
+                            d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / deltaXY;
+                            d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / deltaXZ;
+                            d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / deltaYZ;
+                              
+                            d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
+                                                  values[0][2][2] + values[0][0][2] -
+                                                  values[2][2][0] + values[2][0][0] +
+                                                  values[0][2][0] - values[0][0][0]) / deltaXYZ;
+                        }
                         
                     	ticker.tick();
                     }
@@ -480,8 +507,11 @@ public class CustomTricubicInterpolator
     }
  	
     private static void build(long index,
-    		final int xLen_2,
-    		final long xLen_2_yLen_2,
+    		final int xLen,
+    		final long xLen_yLen,
+    		final int xLen_1,
+    		final int yLen_1,
+    		final int zLen_1,
             final ValueProvider xval,
             final ValueProvider yval,
             final ValueProvider zval,
@@ -498,58 +528,94 @@ public class CustomTricubicInterpolator
     		)
     {
     	// Convert position to the indices
-    	// Add 1 since the packing into the index is for the (lengths-2)
-		int k = 1 + (int) (index / xLen_2_yLen_2);
-		long mod = index % xLen_2_yLen_2;
-		int j = 1 + (int) (mod / xLen_2);
-		int i = 1 + (int) (mod % xLen_2);
+		int k = (int) (index / xLen_yLen);
+		long mod = index % xLen_yLen;
+		int j = (int) (mod / xLen);
+		int i = (int) (mod % xLen);
 		
 		//System.out.printf("%d => [%d][%d][%d]\n", index, i, j, k);
+		boolean edgeX = i == 0 || i == xLen_1;
+        final int nI, pI;
+        final double deltaX;
+        if (edgeX)
+    	{
+        	// Ignored
+    		nI = pI = 0;
+    		deltaX = 0;
+    	}
+    	else
+    	{
+    		nI = i + 1;
+    		pI = i - 1;
+    		deltaX = xval.get(nI) - xval.get(pI);
+    	}
     	
-        final int nI = i + 1;
-        final int pI = i - 1;
+		boolean edgeY = j == 0 || j == yLen_1;
+        final int nJ, pJ;
+        final double deltaY;
+        if (edgeY)
+    	{
+        	// Ignored
+    		nJ = pJ = 0;
+        	deltaY = 0;
+    	}
+    	else
+    	{
+    		nJ = j + 1;
+    		pJ = j - 1;
+    		deltaY = yval.get(nJ) - yval.get(pJ);
+    	}
 
-        final double nX = xval.get(nI);
-        final double pX = xval.get(pI);
-
-        final double deltaX = nX - pX;
-    	
-        final int nJ = j + 1;
-        final int pJ = j - 1;
-
-        final double nY = yval.get(nJ);
-        final double pY = yval.get(pJ);
-
-        final double deltaY = nY - pY;
         final double deltaXY = deltaX * deltaY;
-
-        final int nK = k + 1;
-        final int pK = k - 1;
         
-        final double nZ = zval.get(nK);
-        final double pZ = zval.get(pK);
-
-        final double deltaZ = nZ - pZ;
+		boolean edgeZ = k == 0 || k == zLen_1;
+        final int nK, pK;
+        final double deltaZ;
+        if (edgeZ)
+    	{
+        	// Ignored
+    		nK = pK = 0;
+    		deltaZ = 0;
+    	}
+    	else
+    	{
+    		nK = k + 1;
+    		pK = k - 1;
+    		deltaZ = zval.get(nK) - zval.get(pK);
+    	}
         
-        fval.get(i, j, k, values);
-
-        dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / deltaX;
-        dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / deltaY;
-        dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / deltaZ;
-          
         final double deltaXZ = deltaX * deltaZ;
         final double deltaYZ = deltaY * deltaZ;
-          
-        d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / deltaXY;
-        d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / deltaXZ;
-        d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / deltaYZ;
-          
-        final double deltaXYZ = deltaXY * deltaZ;
-          
-        d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
-                              values[0][2][2] + values[0][0][2] -
-                              values[2][2][0] + values[2][0][0] +
-                              values[0][2][0] - values[0][0][0]) / deltaXYZ;
+        final double deltaXYZ = deltaXY * deltaZ; 
+        
+        if (edgeX || edgeY || edgeZ)
+        {
+            // No gradients at the edge
+            dFdX[i][j][k] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / deltaX;
+            dFdY[i][j][k] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / deltaY;
+            dFdZ[i][j][k] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / deltaZ;
+            
+            d2FdXdY[i][j][k] = (edgeX||edgeY) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / deltaXY;
+            d2FdXdZ[i][j][k] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / deltaXZ;
+            d2FdYdZ[i][j][k] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / deltaYZ;
+        }
+        else
+        {
+            fval.get(i, j, k, values);
+
+            dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / deltaX;
+            dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / deltaY;
+            dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / deltaZ;
+              
+            d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / deltaXY;
+            d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / deltaXZ;
+            d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / deltaYZ;
+              
+            d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
+                                  values[0][2][2] + values[0][0][2] -
+                                  values[2][2][0] + values[2][0][0] +
+                                  values[0][2][0] - values[0][0][0]) / deltaXYZ;
+        }
         
     	ticker.tick();    	
     }
@@ -869,18 +935,18 @@ public class CustomTricubicInterpolator
         for (int i = 0; i < 2; i++) {
         	
         	int xx = x + i;
-			boolean edgex = xx == 0 || xx == xLen_1;
+			boolean edgeX = xx == 0 || xx == xLen_1;
 			
             for (int j = 0; j < 2; j++) {
             	
             	int yy = y + j;
-				boolean edgexy = edgex || yy == 0 || yy == yLen_1;
+				boolean edgeXY = edgeX || yy == 0 || yy == yLen_1;
 				
                 for (int k = 0; k < 2; k++) {
                 	
                 	int zz = z + k;
                 	
-    				if (edgexy || zz == 0 || zz == zLen_1)
+    				if (edgeXY || zz == 0 || zz == zLen_1)
     				{
     					// No gradients at the edge
                         f[i][j][k] = fval.get(xx, yy, zz);
@@ -1019,21 +1085,21 @@ public class CustomTricubicInterpolator
         for (int i = 0; i < 2; i++) {
         	
         	int xx = x + i;
-			boolean edgex = xx == 0 || xx == xLen_1;
-            final double deltaX = (edgex) ? 0 : xval.get(xx+1) - xval.get(xx-1);
+			boolean edgeX = xx == 0 || xx == xLen_1;
+            final double deltaX = (edgeX) ? 0 : xval.get(xx+1) - xval.get(xx-1);
         	
             for (int j = 0; j < 2; j++) {
 
             	int yy = y + j;
-				boolean edgexy = edgex || yy == 0 || yy == yLen_1;
-	            final double deltaY = (edgexy) ? 0 : yval.get(yy+1) - yval.get(yy-1);
+				boolean edgeXY = edgeX || yy == 0 || yy == yLen_1;
+	            final double deltaY = (edgeXY) ? 0 : yval.get(yy+1) - yval.get(yy-1);
                 final double deltaXY = deltaX * deltaY;
             	
                 for (int k = 0; k < 2; k++) {
                     
                 	int zz = z + k;
     				
-    				if (edgexy || zz == 0 || zz == zLen_1)
+    				if (edgeXY || zz == 0 || zz == zLen_1)
     				{
     					// No gradients at the edge
                         f[i][j][k] = fval.get(xx, yy, zz);
@@ -1269,14 +1335,14 @@ public class CustomTricubicInterpolator
 							//@formatter:off
 	                        for (int i = 0; i < 2; i++) {
 	                        	int xx = x+i;
-	                			boolean edgex = xx == 0 || xx == xLen_1;
+	                			boolean edgeX = xx == 0 || xx == xLen_1;
 	                            for (int j = 0; j < 2; j++) {
 	                            	int yy = y+j;
-	                				boolean edgexy = edgex || yy == 0 || yy == yLen_1;
+	                				boolean edgeXY = edgeX || yy == 0 || yy == yLen_1;
 	                                for (int k = 0; k < 2; k++) {
 	                                	int zz = z+k;
 	                    				
-	                    				if (edgexy || zz == 0 || zz == zLen_1)
+	                    				if (edgeXY || zz == 0 || zz == zLen_1)
 	                    				{
 	                    					// No gradients at the edge
 	                                        f[i][j][k] = fval.get(xx, yy, zz);
@@ -1375,14 +1441,14 @@ public class CustomTricubicInterpolator
 						//@formatter:off
                         for (int i = 0; i < 2; i++) {
                         	int xx = x+i;
-                			boolean edgex = xx == 0 || xx == xLen_1;
+                			boolean edgeX = xx == 0 || xx == xLen_1;
                             for (int j = 0; j < 2; j++) {
                             	int yy = y+j;
-                				boolean edgexy = edgex || yy == 0 || yy == yLen_1;
+                				boolean edgeXY = edgeX || yy == 0 || yy == yLen_1;
                                 for (int k = 0; k < 2; k++) {
                                 	int zz = z+k;
                     				
-                    				if (edgexy || zz == 0 || zz == zLen_1)
+                    				if (edgeXY || zz == 0 || zz == zLen_1)
                     				{
                     					// No gradients at the edge
                                         f[i][j][k] = fval.get(xx, yy, zz);
