@@ -66,8 +66,8 @@ public class IJDigest
 			for (int i = 0; i < data.length; i++)
 			{
 				int v = data[i];
-				buffer[1] = (byte) ((v >>> 8) & 0xFF);
-				buffer[0] = (byte) ((v >>> 0) & 0xFF);
+				buffer[0] = (byte) ((v >>> 8) & 0xFF);
+				buffer[1] = (byte) ((v >>> 0) & 0xFF);
 				digest.update(buffer);
 			}
 		}
@@ -89,10 +89,10 @@ public class IJDigest
 			for (int i = 0; i < data.length; i++)
 			{
 				int v = data[i];
-				buffer[3] = (byte) ((v >>> 24) & 0xFF);
-				buffer[2] = (byte) ((v >>> 16) & 0xFF);
-				buffer[1] = (byte) ((v >>> 8) & 0xFF);
-				buffer[0] = (byte) ((v >>> 0) & 0xFF);
+				buffer[0] = (byte) ((v >>> 24) & 0xFF);
+				buffer[1] = (byte) ((v >>> 16) & 0xFF);
+				buffer[2] = (byte) ((v >>> 8) & 0xFF);
+				buffer[3] = (byte) ((v >>> 0) & 0xFF);
 				digest.update(buffer);
 			}
 		}
@@ -114,10 +114,10 @@ public class IJDigest
 			for (int i = 0; i < data.length; i++)
 			{
 				int v = Float.floatToIntBits(data[i]);
-				buffer[3] = (byte) ((v >>> 24) & 0xFF);
-				buffer[2] = (byte) ((v >>> 16) & 0xFF);
-				buffer[1] = (byte) ((v >>> 8) & 0xFF);
-				buffer[0] = (byte) ((v >>> 0) & 0xFF);
+				buffer[0] = (byte) ((v >>> 24) & 0xFF);
+				buffer[1] = (byte) ((v >>> 16) & 0xFF);
+				buffer[2] = (byte) ((v >>> 8) & 0xFF);
+				buffer[3] = (byte) ((v >>> 0) & 0xFF);
 				digest.update(buffer);
 			}
 		}
