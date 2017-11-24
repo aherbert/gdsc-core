@@ -3,12 +3,13 @@ package gdsc.core.ij;
 import java.security.MessageDigest;
 
 import gdsc.core.utils.Digest;
+import ij.ImageStack;
 import ij.process.ImageProcessor;
 
 /*----------------------------------------------------------------------------- 
  * GDSC Plugins for ImageJ
  * 
- * Copyright (C) 2016 Alex Herbert
+ * Copyright (C) 2017 Alex Herbert
  * Genome Damage and Stability Centre
  * University of Sussex, UK
  * 
@@ -19,7 +20,7 @@ import ij.process.ImageProcessor;
  *---------------------------------------------------------------------------*/
 
 /**
- * Provide digest functionality for ImageJ images
+ * Provide digest functionality for ImageJ images to digest the pixels array
  */
 public class IJDigest
 {
@@ -143,6 +144,14 @@ public class IJDigest
 		return Digest.toHex(digester.digest.digest());
 	}
 
+	public String digest(ImageStack stack)
+	{
+		PixelsDigester digester = getPixelsDigester(stack.getPixels(1));
+		for (int i = 1; i <= stack.getSize(); i++)
+			digester.update(stack.getPixels(i));
+		return Digest.toHex(digester.digest.digest());
+	}
+
 	private PixelsDigester getPixelsDigester(Object pixels)
 	{
 		if (pixels instanceof byte[])
@@ -153,7 +162,6 @@ public class IJDigest
 			return new FloatPixelsDigester(digest);
 		if (pixels instanceof int[])
 			return new IntegerPixelsDigester(digest);
-
 		throw new IllegalArgumentException("Unrecognised pixels type");
 	}
 }
