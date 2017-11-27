@@ -1238,18 +1238,21 @@ public class Utils
 		return newWindow;
 	}
 
+	private static int PROGRESS_BAR_STATUS = 0;
 	private static ProgressBar progressBar = null;
 
 	/**
 	 * Gets the ImageJ GUI progress bar.
 	 *
-	 * @return the progress bar
+	 * @return the progress bar (or null if there is no ImageJ instance)
 	 */
 	public static ProgressBar getProgressBar()
 	{
-		if (progressBar == null)
+		if (PROGRESS_BAR_STATUS == 0)
 		{
-			progressBar = IJ.getInstance().getProgressBar();
+			if (IJ.getInstance() != null)
+				progressBar = IJ.getInstance().getProgressBar();
+			PROGRESS_BAR_STATUS = (progressBar == null) ? -1 : 1;
 		}
 		return progressBar;
 	}
@@ -1263,6 +1266,9 @@ public class Utils
 	public static void setShowProgress(boolean showProgress)
 	{
 		getProgressBar();
+
+		if (PROGRESS_BAR_STATUS == -1)
+			return;
 
 		ProgressBar newProgressBar;
 		if (showProgress)
@@ -1286,7 +1292,7 @@ public class Utils
 		}
 	}
 
-	private static boolean NULL_STATUS_LINE = false;
+	private static int STATUS_LINE_STATUS = 0;
 	private static JLabel statusLine = null;
 
 	/**
@@ -1296,18 +1302,21 @@ public class Utils
 	 */
 	public static JLabel getStatusLine()
 	{
-		if (statusLine == null && !NULL_STATUS_LINE)
+		if (STATUS_LINE_STATUS == 0)
 		{
-			Panel statusBar = IJ.getInstance().getStatusBar();
-			for (Component c : statusBar.getComponents())
+			if (IJ.getInstance() != null)
 			{
-				if (c instanceof JLabel)
+				Panel statusBar = IJ.getInstance().getStatusBar();
+				for (Component c : statusBar.getComponents())
 				{
-					statusLine = (JLabel) statusBar.getComponent(0);
-					break;
+					if (c instanceof JLabel)
+					{
+						statusLine = (JLabel) statusBar.getComponent(0);
+						break;
+					}
 				}
 			}
-			NULL_STATUS_LINE = statusLine == null;
+			STATUS_LINE_STATUS = (statusLine == null) ? -1 : 1;
 		}
 		return statusLine;
 	}
@@ -1321,7 +1330,8 @@ public class Utils
 	public static void setShowStatus(boolean showStatus)
 	{
 		getStatusLine();
-		if (NULL_STATUS_LINE)
+		
+		if (STATUS_LINE_STATUS == -1)
 			return;
 
 		JLabel newStatusLine;
