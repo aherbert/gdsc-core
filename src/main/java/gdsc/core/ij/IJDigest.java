@@ -67,8 +67,8 @@ public class IJDigest
 			for (int i = 0; i < data.length; i++)
 			{
 				int v = data[i];
-				buffer[0] = (byte) ((v >>> 8) & 0xFF);
-				buffer[1] = (byte) ((v >>> 0) & 0xFF);
+				buffer[0] = (byte) (v >>> 8);
+				buffer[1] = (byte) (v >>> 0);
 				digest.update(buffer);
 			}
 		}
@@ -90,10 +90,10 @@ public class IJDigest
 			for (int i = 0; i < data.length; i++)
 			{
 				int v = data[i];
-				buffer[0] = (byte) ((v >>> 24) & 0xFF);
-				buffer[1] = (byte) ((v >>> 16) & 0xFF);
-				buffer[2] = (byte) ((v >>> 8) & 0xFF);
-				buffer[3] = (byte) ((v >>> 0) & 0xFF);
+				buffer[0] = (byte) (v >>> 24);
+				buffer[1] = (byte) (v >>> 16);
+				buffer[2] = (byte) (v >>> 8);
+				buffer[3] = (byte) (v >>> 0);
 				digest.update(buffer);
 			}
 		}
@@ -115,10 +115,10 @@ public class IJDigest
 			for (int i = 0; i < data.length; i++)
 			{
 				int v = Float.floatToIntBits(data[i]);
-				buffer[0] = (byte) ((v >>> 24) & 0xFF);
-				buffer[1] = (byte) ((v >>> 16) & 0xFF);
-				buffer[2] = (byte) ((v >>> 8) & 0xFF);
-				buffer[3] = (byte) ((v >>> 0) & 0xFF);
+				buffer[0] = (byte) (v >>> 24);
+				buffer[1] = (byte) (v >>> 16);
+				buffer[2] = (byte) (v >>> 8);
+				buffer[3] = (byte) (v >>> 0);
 				digest.update(buffer);
 			}
 		}
@@ -126,16 +126,32 @@ public class IJDigest
 
 	MessageDigest digest;
 
+	/**
+	 * Instantiates a new IJ digest.
+	 */
 	public IJDigest()
 	{
 		this(Digest.MD5);
 	}
 
+	/**
+	 * Instantiates a new IJ digest.
+	 *
+	 * @param algorithm
+	 *            the algorithm
+	 */
 	public IJDigest(String algorithm)
 	{
 		digest = Digest.getDigest(algorithm);
 	}
 
+	/**
+	 * Digest the processor.
+	 *
+	 * @param ip
+	 *            the ip
+	 * @return the string
+	 */
 	public String digest(ImageProcessor ip)
 	{
 		Object pixels = ip.getPixels();
@@ -144,6 +160,13 @@ public class IJDigest
 		return Digest.toHex(digester.digest.digest());
 	}
 
+	/**
+	 * Digest the stack.
+	 *
+	 * @param stack
+	 *            the stack
+	 * @return the string
+	 */
 	public String digest(ImageStack stack)
 	{
 		PixelsDigester digester = getPixelsDigester(stack.getPixels(1));
@@ -152,6 +175,13 @@ public class IJDigest
 		return Digest.toHex(digester.digest.digest());
 	}
 
+	/**
+	 * Gets the pixels digester.
+	 *
+	 * @param pixels
+	 *            the pixels
+	 * @return the pixels digester
+	 */
 	private PixelsDigester getPixelsDigester(Object pixels)
 	{
 		if (pixels instanceof byte[])

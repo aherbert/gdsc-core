@@ -34,7 +34,7 @@ public class IJDigestTest
 		RandomGenerator r = new Well19937c(30051977);
 		short[] data = new short[size];
 		for (int i = 0; i < size; i++)
-			data[i] = (short) (r.nextDouble() * Short.MAX_VALUE);
+			data[i] = (short) ((r.nextDouble() - 0.5) * 2 * Short.MAX_VALUE);
 
 		String o = new IJDigest().digest(new ShortProcessor(size, 1, data, null));
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(size);
@@ -51,7 +51,7 @@ public class IJDigestTest
 		RandomGenerator r = new Well19937c(30051977);
 		float[] data = new float[size];
 		for (int i = 0; i < size; i++)
-			data[i] = r.nextFloat();
+			data[i] = (r.nextFloat() - 0.5f) * 2f;
 
 		String o = new IJDigest().digest(new FloatProcessor(size, 1, data, null));
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(size);
