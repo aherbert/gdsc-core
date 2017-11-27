@@ -65,8 +65,11 @@ import ij.io.OpenDialog;
 import ij.plugin.HyperStackReducer;
 import ij.plugin.ZProjector;
 import ij.plugin.frame.Recorder;
+import ij.process.ByteProcessor;
+import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
 
@@ -1330,7 +1333,7 @@ public class Utils
 	public static void setShowStatus(boolean showStatus)
 	{
 		getStatusLine();
-		
+
 		if (STATUS_LINE_STATUS == -1)
 			return;
 
@@ -2161,5 +2164,53 @@ public class Utils
 					return i;
 		}
 		return -1;
+	}
+
+	/**
+	 * Gets the bit depth.
+	 *
+	 * @param pixels
+	 *            the pixels
+	 * @return the bit depth
+	 * @throws IllegalArgumentException
+	 *             If the pixesl array is an unrecognised type
+	 */
+	public static int getBitDepth(Object pixels) throws IllegalArgumentException
+	{
+		if (pixels instanceof float[])
+			return 32;
+		if (pixels instanceof short[])
+			return 16;
+		if (pixels instanceof byte[])
+			return 8;
+		if (pixels instanceof int[])
+			return 24;
+		throw new IllegalArgumentException("Unrecognised pixels array");
+	}
+
+	/**
+	 * Creates the processor.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 * @param pixels
+	 *            the pixels
+	 * @return the image processor
+	 * @throws IllegalArgumentException
+	 *             If the pixesl array is an unrecognised type
+	 */
+	public static ImageProcessor createProcessor(int width, int height, Object pixels) throws IllegalArgumentException
+	{
+		if (pixels instanceof float[])
+			return new FloatProcessor(width, height, (float[]) pixels);
+		if (pixels instanceof short[])
+			return new ShortProcessor(width, height, (short[]) pixels, null);
+		if (pixels instanceof byte[])
+			return new ByteProcessor(width, height, (byte[]) pixels);
+		if (pixels instanceof int[])
+			return new ColorProcessor(width, height, (int[]) pixels);
+		throw new IllegalArgumentException("Unrecognised pixels array");
 	}
 }
