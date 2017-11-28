@@ -54,6 +54,42 @@ public interface ArrayMoment
 	public void add(int[] data);
 
 	/**
+	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
+	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * 
+	 * @param data
+	 *            the data
+	 */
+	public void add(short[] data);
+
+	/**
+	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
+	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * 
+	 * @param data
+	 *            the data
+	 */
+	public void add(byte[] data);
+
+	/**
+	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
+	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * 
+	 * @param data
+	 *            the data
+	 */
+	public void addUnsigned(short[] data);
+
+	/**
+	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
+	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * 
+	 * @param data
+	 *            the data
+	 */
+	public void addUnsigned(byte[] data);
+
+	/**
 	 * Gets the first moment (the sample mean).
 	 *
 	 * @return the first moment (null if no data has been added)

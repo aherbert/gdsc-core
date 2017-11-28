@@ -259,6 +259,226 @@ public class RollingArrayMoment implements ArrayMoment
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
+	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
+	 * <p>
+	 * <li>For each additional value, update the first moment using:<br>
+	 * <code>m = m + (new value - m) / (number of observations)</code></li>
+	 * </ol>
+	 * </p>
+	 * <p>
+	 * The following recursive updating formula is used for the second moment:
+	 * </p>
+	 * <p>
+	 * Let
+	 * <ul>
+	 * <li>dev = (current obs - previous mean)</li>
+	 * <li>n = number of observations (including current obs)</li>
+	 * </ul>
+	 * Then
+	 * </p>
+	 * <p>
+	 * new value = old value + dev^2 * (n -1) / n.
+	 * </p>
+	 *
+	 * @param data
+	 *            the data
+	 */
+	public void add(short[] data)
+	{
+		if (n == 0)
+		{
+			n = 1;
+			// Initialise the first moment to the input value
+			m1 = new double[data.length];
+			for (int i = 0; i < data.length; i++)
+				m1[i] = data[i];
+			// Initialise sum-of-squared differences to zero
+			m2 = new double[data.length];
+		}
+		else
+		{
+			final double n_1 = n;
+			n++;
+			final double n0 = n;
+			for (int i = 0; i < data.length; i++)
+			{
+				final double dev = data[i] - m1[i];
+				final double nDev = dev / n0;
+				m1[i] += nDev;
+				m2[i] += n_1 * dev * nDev;
+			}
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
+	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
+	 * <p>
+	 * <li>For each additional value, update the first moment using:<br>
+	 * <code>m = m + (new value - m) / (number of observations)</code></li>
+	 * </ol>
+	 * </p>
+	 * <p>
+	 * The following recursive updating formula is used for the second moment:
+	 * </p>
+	 * <p>
+	 * Let
+	 * <ul>
+	 * <li>dev = (current obs - previous mean)</li>
+	 * <li>n = number of observations (including current obs)</li>
+	 * </ul>
+	 * Then
+	 * </p>
+	 * <p>
+	 * new value = old value + dev^2 * (n -1) / n.
+	 * </p>
+	 *
+	 * @param data
+	 *            the data
+	 */
+	public void add(byte[] data)
+	{
+		if (n == 0)
+		{
+			n = 1;
+			// Initialise the first moment to the input value
+			m1 = new double[data.length];
+			for (int i = 0; i < data.length; i++)
+				m1[i] = data[i];
+			// Initialise sum-of-squared differences to zero
+			m2 = new double[data.length];
+		}
+		else
+		{
+			final double n_1 = n;
+			n++;
+			final double n0 = n;
+			for (int i = 0; i < data.length; i++)
+			{
+				final double dev = data[i] - m1[i];
+				final double nDev = dev / n0;
+				m1[i] += nDev;
+				m2[i] += n_1 * dev * nDev;
+			}
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
+	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
+	 * <p>
+	 * <li>For each additional value, update the first moment using:<br>
+	 * <code>m = m + (new value - m) / (number of observations)</code></li>
+	 * </ol>
+	 * </p>
+	 * <p>
+	 * The following recursive updating formula is used for the second moment:
+	 * </p>
+	 * <p>
+	 * Let
+	 * <ul>
+	 * <li>dev = (current obs - previous mean)</li>
+	 * <li>n = number of observations (including current obs)</li>
+	 * </ul>
+	 * Then
+	 * </p>
+	 * <p>
+	 * new value = old value + dev^2 * (n -1) / n.
+	 * </p>
+	 *
+	 * @param data
+	 *            the data
+	 */
+	public void addUnsigned(short[] data)
+	{
+		if (n == 0)
+		{
+			n = 1;
+			// Initialise the first moment to the input value
+			m1 = new double[data.length];
+			for (int i = 0; i < data.length; i++)
+				m1[i] = data[i] & 0xffff;
+			// Initialise sum-of-squared differences to zero
+			m2 = new double[data.length];
+		}
+		else
+		{
+			final double n_1 = n;
+			n++;
+			final double n0 = n;
+			for (int i = 0; i < data.length; i++)
+			{
+				final double dev = (data[i] & 0xffff) - m1[i];
+				final double nDev = dev / n0;
+				m1[i] += nDev;
+				m2[i] += n_1 * dev * nDev;
+			}
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
+	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
+	 * <p>
+	 * <li>For each additional value, update the first moment using:<br>
+	 * <code>m = m + (new value - m) / (number of observations)</code></li>
+	 * </ol>
+	 * </p>
+	 * <p>
+	 * The following recursive updating formula is used for the second moment:
+	 * </p>
+	 * <p>
+	 * Let
+	 * <ul>
+	 * <li>dev = (current obs - previous mean)</li>
+	 * <li>n = number of observations (including current obs)</li>
+	 * </ul>
+	 * Then
+	 * </p>
+	 * <p>
+	 * new value = old value + dev^2 * (n -1) / n.
+	 * </p>
+	 *
+	 * @param data
+	 *            the data
+	 */
+	public void addUnsigned(byte[] data)
+	{
+		if (n == 0)
+		{
+			n = 1;
+			// Initialise the first moment to the input value
+			m1 = new double[data.length];
+			for (int i = 0; i < data.length; i++)
+				m1[i] = data[i] & 0xff;
+			// Initialise sum-of-squared differences to zero
+			m2 = new double[data.length];
+		}
+		else
+		{
+			final double n_1 = n;
+			n++;
+			final double n0 = n;
+			for (int i = 0; i < data.length; i++)
+			{
+				final double dev = (data[i] & 0xff) - m1[i];
+				final double nDev = dev / n0;
+				m1[i] += nDev;
+				m2[i] += n_1 * dev * nDev;
+			}
+		}
+	}
+
+	/**
 	 * Adds the data in the array moment.
 	 *
 	 * @param arrayMoment

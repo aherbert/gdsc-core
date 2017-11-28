@@ -77,23 +77,13 @@ public class SimpleArrayMoment implements ArrayMoment
 	{
 		if (n == 0)
 		{
-			n = 1;
-			// Initialise the sum to the input value
-			// Initialise sum-of-squares
-			s = new double[] { data };
-			ss = new double[] { data * data };
+			// Initialise the array lengths
+			s = new double[1];
+			ss = new double[1];
 		}
-		else
-		{
-			n++;
-			add(0, data);
-		}
-	}
-
-	private void add(int i, final double d)
-	{
-		s[i] += d;
-		ss[i] += d * d;
+		n++;
+		s[0] += data;
+		ss[0] += data * data;
 	}
 
 	/*
@@ -105,22 +95,15 @@ public class SimpleArrayMoment implements ArrayMoment
 	{
 		if (n == 0)
 		{
-			n = 1;
-			// Initialise the sum to the input value
-			// Initialise sum-of-squares
+			// Initialise the array lengths
 			s = new double[data.length];
 			ss = new double[data.length];
-			for (int i = 0; i < data.length; i++)
-			{
-				s[i] = data[i];
-				ss[i] = data[i] * data[i];
-			}
 		}
-		else
+		n++;
+		for (int i = 0; i < data.length; i++)
 		{
-			n++;
-			for (int i = 0; i < data.length; i++)
-				add(i, data[i]);
+			s[i] += data[i];
+			ss[i] += data[i] * data[i];
 		}
 	}
 
@@ -133,22 +116,15 @@ public class SimpleArrayMoment implements ArrayMoment
 	{
 		if (n == 0)
 		{
-			n = 1;
-			// Initialise the sum to the input value
-			// Initialise sum-of-squares
+			// Initialise the array lengths
 			s = new double[data.length];
 			ss = new double[data.length];
-			for (int i = 0; i < data.length; i++)
-			{
-				s[i] = data[i];
-				ss[i] = data[i] * data[i];
-			}
 		}
-		else
+		n++;
+		for (int i = 0; i < data.length; i++)
 		{
-			n++;
-			for (int i = 0; i < data.length; i++)
-				add(i, data[i]);
+			s[i] += data[i];
+			ss[i] += data[i] * data[i];
 		}
 	}
 
@@ -161,22 +137,96 @@ public class SimpleArrayMoment implements ArrayMoment
 	{
 		if (n == 0)
 		{
-			n = 1;
-			// Initialise the sum to the input value
-			// Initialise sum-of-squares
+			// Initialise the array lengths
 			s = new double[data.length];
 			ss = new double[data.length];
-			for (int i = 0; i < data.length; i++)
-			{
-				s[i] = data[i];
-				ss[i] = data[i] * data[i];
-			}
 		}
-		else
+		n++;
+		for (int i = 0; i < data.length; i++)
 		{
-			n++;
-			for (int i = 0; i < data.length; i++)
-				add(i, data[i]);
+			s[i] += data[i];
+			ss[i] += data[i] * data[i];
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#add(short[])
+	 */
+	public void add(short[] data)
+	{
+		if (n == 0)
+		{
+			// Initialise the array lengths
+			s = new double[data.length];
+			ss = new double[data.length];
+		}
+		n++;
+		for (int i = 0; i < data.length; i++)
+		{
+			s[i] += data[i];
+			ss[i] += data[i] * data[i];
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#add(byte[])
+	 */
+	public void add(byte[] data)
+	{
+		if (n == 0)
+		{
+			// Initialise the array lengths
+			s = new double[data.length];
+			ss = new double[data.length];
+		}
+		n++;
+		for (int i = 0; i < data.length; i++)
+		{
+			s[i] += data[i];
+			ss[i] += data[i] * data[i];
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#addUnsigned(short[])
+	 */
+	public void addUnsigned(short[] data)
+	{
+		if (n == 0)
+		{
+			// Initialise the array lengths
+			s = new double[data.length];
+			ss = new double[data.length];
+		}
+		n++;
+		for (int i = 0; i < data.length; i++)
+		{
+			int v = data[i] & 0xffff;
+			s[i] += v;
+			ss[i] += v * v;
+		}
+	}
+
+	public void addUnsigned(byte[] data)
+	{
+		if (n == 0)
+		{
+			// Initialise the array lengths
+			s = new double[data.length];
+			ss = new double[data.length];
+		}
+		n++;
+		for (int i = 0; i < data.length; i++)
+		{
+			int v = data[i] & 0xff;
+			s[i] += v;
+			ss[i] += v * v;
 		}
 	}
 
