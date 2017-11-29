@@ -6,12 +6,14 @@ import org.apache.commons.math3.stat.descriptive.moment.SecondMoment;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.core.data.IntegerType;
 import gdsc.core.math.RollingArrayMoment;
 import gdsc.core.utils.Statistics;
 
 public class ArrayMomentTest
 {
 	final double DELTA = 1e-8;
+	final int MAX_INT = 65335; // Unsigned 16-bit int
 
 	@Test
 	public void canComputeRollingMomentDouble()
@@ -64,7 +66,7 @@ public class ArrayMomentTest
 		int[] d = new int[1000];
 
 		for (int i = 0; i < d.length; i++)
-			d[i] = rand.nextInt(1024);
+			d[i] = rand.nextInt(MAX_INT);
 		canComputeMoment("Uniform", d, new RollingArrayMoment());
 
 		for (int i = 0; i < d.length; i++)
@@ -181,7 +183,7 @@ public class ArrayMomentTest
 		int[] d = new int[1000];
 
 		for (int i = 0; i < d.length; i++)
-			d[i] = rand.nextInt(1024);
+			d[i] = rand.nextInt(MAX_INT);
 		canComputeMoment("Uniform", d, new SimpleArrayMoment());
 
 		for (int i = 0; i < d.length; i++)
@@ -196,7 +198,7 @@ public class ArrayMomentTest
 		int[][] d = new int[3][];
 
 		for (int i = d.length; i-- > 0;)
-			d[i] = new int[] { rand.nextInt(1024) };
+			d[i] = new int[] { rand.nextInt(MAX_INT) };
 		canComputeArrayMoment("Single", d, new SimpleArrayMoment());
 
 		int n = 1000;
@@ -254,7 +256,7 @@ public class ArrayMomentTest
 		int[] d = new int[1000];
 
 		for (int i = 0; i < d.length; i++)
-			d[i] = rand.nextInt(1024);
+			d[i] = rand.nextInt(MAX_INT);
 		canComputeMoment("Uniform", d, new IntegerArrayMoment());
 
 		for (int i = 0; i < d.length; i++)
@@ -269,7 +271,7 @@ public class ArrayMomentTest
 		int[][] d = new int[3][];
 
 		for (int i = d.length; i-- > 0;)
-			d[i] = new int[] { rand.nextInt(1024) };
+			d[i] = new int[] { rand.nextInt(MAX_INT) };
 		canComputeArrayMoment("Single", d, new IntegerArrayMoment());
 
 		int n = 1000;
@@ -317,6 +319,21 @@ public class ArrayMomentTest
 		assertArrayEquals("2nd Moment", em2, om2, 0);
 		assertArrayEquals("Variance", ev, ov, 0);
 		assertArrayEquals("SD", esd, osd, 0);
+	}
+	
+	@Test
+	public void canTestIfValidIntegerData()
+	{
+		// 2^16^2 * 2^31-1 ~ 2^63 : This is OK
+		Assert.assertTrue(IntegerArrayMoment.isValid(IntegerType.UNSIGNED_16, Integer.MAX_VALUE));
+		
+		// (2^31-1)^2 ~ 2^62 : We should be able to 2 of these but not 3
+		Assert.assertTrue(IntegerArrayMoment.isValid(IntegerType.SIGNED_32, 1));
+		Assert.assertTrue(IntegerArrayMoment.isValid(IntegerType.SIGNED_32, 2));
+		Assert.assertFalse(IntegerArrayMoment.isValid(IntegerType.SIGNED_32, 3));
+		
+		// 2^32^2 == 2^64 : We cannot do this as 
+		Assert.assertFalse(IntegerArrayMoment.isValid(IntegerType.UNSIGNED_32, 1));
 	}
 
 	private void canComputeMoment(String title, double[] d, ArrayMoment r2)
@@ -389,7 +406,7 @@ public class ArrayMomentTest
 	{
 		int[] d = new int[n];
 		for (int i = 0; i < d.length; i++)
-			d[i] = rand.nextInt(1024);
+			d[i] = rand.nextInt(MAX_INT);
 		return d;
 	}
 

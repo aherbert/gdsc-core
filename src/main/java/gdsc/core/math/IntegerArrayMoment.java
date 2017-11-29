@@ -1,7 +1,9 @@
 package gdsc.core.math;
 
+import gdsc.core.data.IntegerType;
 import gdsc.core.utils.NotImplementedException;
 
+// TODO: Auto-generated Javadoc
 /*----------------------------------------------------------------------------- 
  * GDSC Software
  * 
@@ -21,15 +23,21 @@ import gdsc.core.utils.NotImplementedException;
  * where the mean is far from zero due to floating point round-off error.
  * <p>
  * Only supports integer data types (byte, short, integer). A NotImplementedException is thrown for floating point data.
+ * <p>
+ * This class is only suitable if the user is assured that overflow of Long.MAX_VALUE will not occur. The sum
+ * accumulates the input value squared. So each datum can have a value of (2^b)^2 where b is the bit-depth of the
+ * integer data. A check can be made for potential overflow if the bit-depth and number of inputs is known.
  */
 public class IntegerArrayMoment implements ArrayMoment
 {
+
+	/** The n. */
 	private long n = 0;
 
-	/** The sum of values that have been added */
+	/** The sum of values that have been added. */
 	private long[] s;
 
-	/** The sum of squared values that have been added */
+	/** The sum of squared values that have been added. */
 	private long[] ss;
 
 	/**
@@ -119,7 +127,7 @@ public class IntegerArrayMoment implements ArrayMoment
 		for (int i = 0; i < data.length; i++)
 		{
 			s[i] += data[i];
-			ss[i] += data[i] * data[i];
+			ss[i] += (long) data[i] * data[i];
 		}
 	}
 
@@ -140,7 +148,7 @@ public class IntegerArrayMoment implements ArrayMoment
 		for (int i = 0; i < data.length; i++)
 		{
 			s[i] += data[i];
-			ss[i] += data[i] * data[i];
+			ss[i] += (long) data[i] * data[i];
 		}
 	}
 
@@ -161,7 +169,7 @@ public class IntegerArrayMoment implements ArrayMoment
 		for (int i = 0; i < data.length; i++)
 		{
 			s[i] += data[i];
-			ss[i] += data[i] * data[i];
+			ss[i] += (long) data[i] * data[i];
 		}
 	}
 
@@ -181,12 +189,17 @@ public class IntegerArrayMoment implements ArrayMoment
 		n++;
 		for (int i = 0; i < data.length; i++)
 		{
-			int v = data[i] & 0xffff;
+			long v = data[i] & 0xffff;
 			s[i] += v;
 			ss[i] += v * v;
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.math.ArrayMoment#addUnsigned(byte[])
+	 */
 	public void addUnsigned(byte[] data)
 	{
 		if (n == 0)
@@ -198,7 +211,7 @@ public class IntegerArrayMoment implements ArrayMoment
 		n++;
 		for (int i = 0; i < data.length; i++)
 		{
-			int v = data[i] & 0xff;
+			long v = data[i] & 0xff;
 			s[i] += v;
 			ss[i] += v * v;
 		}
@@ -234,9 +247,26 @@ public class IntegerArrayMoment implements ArrayMoment
 		n += nb;
 		for (int i = 0; i < s.length; i++)
 		{
-			s[i] += sb[i];
-			ss[i] += ssb[i];
+			s[i] = add(s[i], sb[i]);
+			ss[i] = add(ss[i], ssb[i]);
 		}
+	}
+
+	/**
+	 * Adds the.
+	 *
+	 * @param a
+	 *            the a
+	 * @param b
+	 *            the b
+	 * @return the long
+	 */
+	private static long add(long a, long b)
+	{
+		long c = a + b;
+		if (c < 0)
+			throw new IllegalStateException(String.format("Adding the moments results in overflow: %d + %d", a, b));
+		return c;
 	}
 
 	/*
@@ -310,6 +340,13 @@ public class IntegerArrayMoment implements ArrayMoment
 		return v;
 	}
 
+	/**
+	 * Positive.
+	 *
+	 * @param d
+	 *            the d
+	 * @return the double
+	 */
 	private static double positive(final double d)
 	{
 		return (d > 0) ? d : 0;
@@ -343,6 +380,13 @@ public class IntegerArrayMoment implements ArrayMoment
 		return v;
 	}
 
+	/**
+	 * Positive sqrt.
+	 *
+	 * @param d
+	 *            the d
+	 * @return the double
+	 */
 	private static double positiveSqrt(final double d)
 	{
 		return (d > 0) ? Math.sqrt(d) : 0;
@@ -371,5 +415,29 @@ public class IntegerArrayMoment implements ArrayMoment
 			add((IntegerArrayMoment) arrayMoment);
 		else
 			throw new IllegalArgumentException("Not compatible: " + arrayMoment.getClass());
+	}
+
+	/**
+	 * Checks if it is valid to use this class for the expected data size.
+	 * <p>
+	 * This class is only suitable if the user is assured that overflow of Long.MAX_VALUE will not occur. The sum
+	 * accumulates the input value squared. So each datum can have a value of (2^b)^2 where b is the bit-depth of the
+	 * integer data. A check can be made for potential overflow if the bit-depth and number of inputs is known.
+	 *
+	 * @param integerType
+	 *            the integer type
+	 * @param size
+	 *            the number of inputs
+	 * @return true, if is valid
+	 */
+	public static boolean isValid(IntegerType integerType, int size)
+	{
+		long max = integerType.getAbsoluteMax();
+		long l2 = max * max;
+		if (l2 < 0)
+			return false;
+		if (l2 * (double) size > Long.MAX_VALUE)
+			return false;
+		return true;
 	}
 }

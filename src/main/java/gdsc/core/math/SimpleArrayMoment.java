@@ -124,7 +124,7 @@ public class SimpleArrayMoment implements ArrayMoment
 		for (int i = 0; i < data.length; i++)
 		{
 			s[i] += data[i];
-			ss[i] += data[i] * data[i];
+			ss[i] += (double) data[i] * data[i];
 		}
 	}
 
@@ -145,7 +145,7 @@ public class SimpleArrayMoment implements ArrayMoment
 		for (int i = 0; i < data.length; i++)
 		{
 			s[i] += data[i];
-			ss[i] += data[i] * data[i];
+			ss[i] += (double) data[i] * data[i];
 		}
 	}
 
@@ -166,7 +166,7 @@ public class SimpleArrayMoment implements ArrayMoment
 		for (int i = 0; i < data.length; i++)
 		{
 			s[i] += data[i];
-			ss[i] += data[i] * data[i];
+			ss[i] += (double) data[i] * data[i];
 		}
 	}
 
@@ -187,7 +187,7 @@ public class SimpleArrayMoment implements ArrayMoment
 		for (int i = 0; i < data.length; i++)
 		{
 			s[i] += data[i];
-			ss[i] += data[i] * data[i];
+			ss[i] += (double) data[i] * data[i];
 		}
 	}
 
@@ -207,7 +207,7 @@ public class SimpleArrayMoment implements ArrayMoment
 		n++;
 		for (int i = 0; i < data.length; i++)
 		{
-			int v = data[i] & 0xffff;
+			double v = data[i] & 0xffff;
 			s[i] += v;
 			ss[i] += v * v;
 		}
@@ -224,7 +224,7 @@ public class SimpleArrayMoment implements ArrayMoment
 		n++;
 		for (int i = 0; i < data.length; i++)
 		{
-			int v = data[i] & 0xff;
+			double v = data[i] & 0xff;
 			s[i] += v;
 			ss[i] += v * v;
 		}
