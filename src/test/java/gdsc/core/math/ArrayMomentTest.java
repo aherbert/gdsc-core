@@ -12,7 +12,7 @@ import gdsc.core.utils.Statistics;
 public class ArrayMomentTest
 {
 	final double DELTA = 1e-8;
-	
+
 	@Test
 	public void canComputeRollingMomentDouble()
 	{
@@ -64,7 +64,7 @@ public class ArrayMomentTest
 		int[] d = new int[1000];
 
 		for (int i = 0; i < d.length; i++)
-			d[i] = rand.nextInt();
+			d[i] = rand.nextInt(1024);
 		canComputeMoment("Uniform", d, new RollingArrayMoment());
 
 		for (int i = 0; i < d.length; i++)
@@ -84,7 +84,7 @@ public class ArrayMomentTest
 
 		int n = 1000;
 		for (int i = d.length; i-- > 0;)
-			d[i] = uniform(rand, n);
+			d[i] = uniformDouble(rand, n);
 		canComputeArrayMoment("Uniform", d, new RollingArrayMoment());
 	}
 
@@ -96,7 +96,7 @@ public class ArrayMomentTest
 
 		int n = 1000;
 		for (int i = d.length; i-- > 0;)
-			d[i] = uniform(rand, n);
+			d[i] = uniformDouble(rand, n);
 
 		RollingArrayMoment r1 = new RollingArrayMoment();
 		int size = 6;
@@ -129,7 +129,7 @@ public class ArrayMomentTest
 	}
 
 	// Copy to here
-	
+
 	@Test
 	public void canComputeSimpleMomentDouble()
 	{
@@ -181,7 +181,7 @@ public class ArrayMomentTest
 		int[] d = new int[1000];
 
 		for (int i = 0; i < d.length; i++)
-			d[i] = rand.nextInt();
+			d[i] = rand.nextInt(1024);
 		canComputeMoment("Uniform", d, new SimpleArrayMoment());
 
 		for (int i = 0; i < d.length; i++)
@@ -190,30 +190,30 @@ public class ArrayMomentTest
 	}
 
 	@Test
-	public void canComputeSimpleArrayMomentDouble()
+	public void canComputeSimpleArrayMomentInt()
 	{
 		RandomGenerator rand = new Well19937c();
-		double[][] d = new double[3][];
+		int[][] d = new int[3][];
 
 		for (int i = d.length; i-- > 0;)
-			d[i] = new double[] { rand.nextDouble() };
+			d[i] = new int[] { rand.nextInt(1024) };
 		canComputeArrayMoment("Single", d, new SimpleArrayMoment());
 
 		int n = 1000;
 		for (int i = d.length; i-- > 0;)
-			d[i] = uniform(rand, n);
+			d[i] = uniformInt(rand, n);
 		canComputeArrayMoment("Uniform", d, new SimpleArrayMoment());
 	}
 
 	@Test
-	public void canCombineSimpleArrayMomentDouble()
+	public void canCombineSimpleArrayMomentInt()
 	{
 		RandomGenerator rand = new Well19937c();
-		double[][] d = new double[50][];
+		int[][] d = new int[50][];
 
 		int n = 1000;
 		for (int i = d.length; i-- > 0;)
-			d[i] = uniform(rand, n);
+			d[i] = uniformInt(rand, n);
 
 		SimpleArrayMoment r1 = new SimpleArrayMoment();
 		int size = 6;
@@ -244,7 +244,81 @@ public class ArrayMomentTest
 		assertArrayEquals("Variance", ev, ov, DELTA);
 		assertArrayEquals("SD", esd, osd, DELTA);
 	}
-	
+
+	@Test
+	public void canComputeIntegerMomentInt()
+	{
+		canComputeMoment("Single", new int[] { 42 }, new IntegerArrayMoment());
+
+		RandomGenerator rand = new Well19937c();
+		int[] d = new int[1000];
+
+		for (int i = 0; i < d.length; i++)
+			d[i] = rand.nextInt(1024);
+		canComputeMoment("Uniform", d, new IntegerArrayMoment());
+
+		for (int i = 0; i < d.length; i++)
+			d[i] = i;
+		canComputeMoment("Series", d, new IntegerArrayMoment());
+	}
+
+	@Test
+	public void canComputeIntegerArrayMomentInt()
+	{
+		RandomGenerator rand = new Well19937c();
+		int[][] d = new int[3][];
+
+		for (int i = d.length; i-- > 0;)
+			d[i] = new int[] { rand.nextInt(1024) };
+		canComputeArrayMoment("Single", d, new IntegerArrayMoment());
+
+		int n = 1000;
+		for (int i = d.length; i-- > 0;)
+			d[i] = uniformInt(rand, n);
+		canComputeArrayMoment("Uniform", d, new IntegerArrayMoment());
+	}
+
+	@Test
+	public void canCombineIntegerArrayMomentInt()
+	{
+		RandomGenerator rand = new Well19937c();
+		int[][] d = new int[50][];
+
+		int n = 1000;
+		for (int i = d.length; i-- > 0;)
+			d[i] = uniformInt(rand, n);
+
+		IntegerArrayMoment r1 = new IntegerArrayMoment();
+		int size = 6;
+		IntegerArrayMoment[] r2 = new IntegerArrayMoment[size];
+		for (int i = 0; i < size; i++)
+			r2[i] = new IntegerArrayMoment();
+		for (int i = 0; i < d.length; i++)
+		{
+			r1.add(d[i]);
+			r2[i % size].add(d[i]);
+		}
+
+		double[] em1 = r1.getFirstMoment();
+		double[] em2 = r1.getSecondMoment();
+		double[] ev = r1.getVariance();
+		double[] esd = r1.getStandardDeviation();
+
+		for (int i = 1; i < size; i++)
+			r2[0].add(r2[i]);
+
+		double[] om1 = r2[0].getFirstMoment();
+		double[] om2 = r2[0].getSecondMoment();
+		double[] ov = r2[0].getVariance();
+		double[] osd = r2[0].getStandardDeviation();
+
+		// No delta as integer math should be exact
+		assertArrayEquals("Mean", em1, om1, 0);
+		assertArrayEquals("2nd Moment", em2, om2, 0);
+		assertArrayEquals("Variance", ev, ov, 0);
+		assertArrayEquals("SD", esd, osd, 0);
+	}
+
 	private void canComputeMoment(String title, double[] d, ArrayMoment r2)
 	{
 		Statistics m1 = new Statistics();
@@ -280,7 +354,7 @@ public class ArrayMomentTest
 			d[i] = in[i];
 		return d;
 	}
-	
+
 	private void canComputeMoment(String title, int[] d, ArrayMoment r2)
 	{
 		Statistics m1 = new Statistics();
@@ -288,7 +362,7 @@ public class ArrayMomentTest
 		SecondMoment m2 = new SecondMoment();
 		m2.incrementAll(toDouble(d));
 		for (int i = 0; i < d.length; i++)
-			r2.add(new double[] { d[i] });
+			r2.add(new int[] { d[i] });
 		assertEquals(title + " Mean", m1.getMean(), r2.getFirstMoment()[0], DELTA);
 		assertEquals(title + " 2nd Moment", m2.getResult(), r2.getSecondMoment()[0], DELTA);
 		assertEquals(title + " Variance", m1.getVariance(), r2.getVariance()[0], DELTA);
@@ -303,7 +377,7 @@ public class ArrayMomentTest
 		return d;
 	}
 
-	private double[] uniform(RandomGenerator rand, int n)
+	private double[] uniformDouble(RandomGenerator rand, int n)
 	{
 		double[] d = new double[n];
 		for (int i = 0; i < d.length; i++)
@@ -311,7 +385,40 @@ public class ArrayMomentTest
 		return d;
 	}
 
+	private int[] uniformInt(RandomGenerator rand, int n)
+	{
+		int[] d = new int[n];
+		for (int i = 0; i < d.length; i++)
+			d[i] = rand.nextInt(1024);
+		return d;
+	}
+
 	private void canComputeArrayMoment(String title, double[][] d, ArrayMoment r2)
+	{
+		for (int i = 0; i < d.length; i++)
+			r2.add(d[i]);
+		double[] om1 = r2.getFirstMoment();
+		double[] om2 = r2.getSecondMoment();
+		double[] ov = r2.getVariance();
+		double[] osd = r2.getStandardDeviation();
+
+		for (int n = d[0].length; n-- > 0;)
+		{
+			Statistics m1 = new Statistics();
+			SecondMoment m2 = new SecondMoment();
+			for (int i = 0; i < d.length; i++)
+			{
+				m1.add(d[i][n]);
+				m2.increment(d[i][n]);
+			}
+			assertEquals(title + " Mean", m1.getMean(), om1[n], DELTA);
+			assertEquals(title + " 2nd Moment", m2.getResult(), om2[n], DELTA);
+			assertEquals(title + " Variance", m1.getVariance(), ov[n], DELTA);
+			assertEquals(title + " SD", m1.getStandardDeviation(), osd[n], DELTA);
+		}
+	}
+
+	private void canComputeArrayMoment(String title, int[][] d, ArrayMoment r2)
 	{
 		for (int i = 0; i < d.length; i++)
 			r2.add(d[i]);
@@ -344,7 +451,7 @@ public class ArrayMomentTest
 		SimpleArrayMoment m1 = new SimpleArrayMoment();
 		SecondMoment m2 = new SecondMoment();
 		RollingArrayMoment r2 = new RollingArrayMoment();
-		
+
 		// Test if the standard Statistics object is good enough for 
 		// computing the mean and variance of sCMOS data from 60,000 frames. It seems it is.
 		for (int i = 600000; i-- > 0;)
