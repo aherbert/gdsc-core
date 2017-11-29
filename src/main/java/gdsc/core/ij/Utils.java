@@ -1242,6 +1242,7 @@ public class Utils
 	}
 
 	private static int PROGRESS_BAR_STATUS = 0;
+	private static int IS_SHOW_PROGRESS = 0;
 	private static ProgressBar progressBar = null;
 
 	/**
@@ -1258,6 +1259,16 @@ public class Utils
 			PROGRESS_BAR_STATUS = (progressBar == null) ? -1 : 1;
 		}
 		return progressBar;
+	}
+
+	/**
+	 * Checks if the ImageJ status bar is not null.
+	 *
+	 * @return true, if is show progress
+	 */
+	public static boolean isShowProgress()
+	{
+		return IS_SHOW_PROGRESS != -1;
 	}
 
 	/**
@@ -1288,14 +1299,17 @@ public class Utils
 			Field f = IJ.class.getDeclaredField("progressBar");
 			f.setAccessible(true);
 			f.set(IJ.class, newProgressBar);
+			IS_SHOW_PROGRESS = (showProgress) ? 1 : -1;
 		}
 		catch (Exception e)
 		{
-			// Ignore
+			IS_SHOW_PROGRESS = 0;
+			PROGRESS_BAR_STATUS = -1;
 		}
 	}
 
 	private static int STATUS_LINE_STATUS = 0;
+	private static int IS_SHOW_STATUS_LINE = 0;
 	private static JLabel statusLine = null;
 
 	/**
@@ -1322,6 +1336,16 @@ public class Utils
 			STATUS_LINE_STATUS = (statusLine == null) ? -1 : 1;
 		}
 		return statusLine;
+	}
+
+	/**
+	 * Checks if the ImageJ status bar label is not null.
+	 *
+	 * @return true, if is show status
+	 */
+	public static boolean isShowStatus()
+	{
+		return IS_SHOW_STATUS_LINE != -1;
 	}
 
 	/**
@@ -1354,10 +1378,12 @@ public class Utils
 			Field f = ij.getClass().getDeclaredField("statusLine");
 			f.setAccessible(true);
 			f.set(ij, newStatusLine);
+			IS_SHOW_STATUS_LINE = (showStatus) ? 1 : -1;
 		}
 		catch (Exception e)
 		{
-			// Ignore
+			IS_SHOW_STATUS_LINE = 0;
+			STATUS_LINE_STATUS = -1;
 		}
 	}
 
