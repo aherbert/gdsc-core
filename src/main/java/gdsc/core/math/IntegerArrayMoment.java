@@ -187,12 +187,14 @@ public class IntegerArrayMoment implements ArrayMoment
 			ss = new long[data.length];
 		}
 		n++;
+		//long t = System.nanoTime();
 		for (int i = 0; i < data.length; i++)
 		{
 			long v = data[i] & 0xffff;
 			s[i] += v;
 			ss[i] += v * v;
 		}
+		//System.out.printf("Analysis Time = %f ms\n", (System.nanoTime()-t)/1e6);
 	}
 
 	/*
