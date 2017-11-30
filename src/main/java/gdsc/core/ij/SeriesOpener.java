@@ -87,6 +87,8 @@ public class SeriesOpener
 		for (int i = 0; i < list.length; i++)
 			if (fileList[i].isFile())
 				list[c++] = fileList[i].getName();
+		if (c == 0)
+			return;
 		list = Arrays.copyOf(list, c);
 
 		// Now exclude non-image files as per the ImageJ FolderOpener
