@@ -41,7 +41,8 @@ public class CustomTiffDecoder extends TiffDecoder
 
 	/**
 	 * Gets the number of images in the TIFF file. The class must have been created with a RandomAccessStream. The
-	 * stream is not closed by calling this method.
+	 * stream is not closed by calling this method. The stream will need to be reset to position 0 to use for reading
+	 * IFDs.
 	 *
 	 * @param progress
 	 *            the progress
@@ -61,7 +62,6 @@ public class CustomTiffDecoder extends TiffDecoder
 		if (ifdOffset < 0L)
 		{
 			//System.out.println("No IFD offset");
-			in.seek(0);
 			return 0;
 		}
 
@@ -71,7 +71,7 @@ public class CustomTiffDecoder extends TiffDecoder
 
 		//System.out.println("first IFD = " + ifdOffset);
 		in.seek(ifdOffset);
-		FileInfo fi = scanFirstIFD();
+		int ifdCount = scanFirstIFD();
 
 		//		// This should be the same for nImages
 		//		in.seek(0);
@@ -79,22 +79,20 @@ public class CustomTiffDecoder extends TiffDecoder
 		//		in.seek(ifdOffset);
 		//		FileInfo fi2 = OpenIFD();
 
-		if (fi == null)
+		if (ifdCount < 0)
 		{
 			//System.out.println("No first IFD");
-			in.seek(0);
 			return 0;
 		}
 
 		// If an ImageJ image then the nImages is written to the description
-		if (fi.nImages > 1)
+		if (ifdCount > 1)
 		{
-			in.seek(0);
-			return fi.nImages;
+			return ifdCount;
 		}
 
 		// If not an ImageJ image then we have to read each IFD
-		int ifdCount = 1;
+		ifdCount = 1;
 		ifdOffset = ((long) getInt2()) & 0xffffffffL;
 
 		while (ifdOffset > 0L)
@@ -110,8 +108,6 @@ public class CustomTiffDecoder extends TiffDecoder
 			ifdCount++;
 			ifdOffset = ((long) getInt2()) & 0xffffffffL;
 		}
-
-		in.seek(0);
 
 		return ifdCount;
 	}
@@ -166,58 +162,62 @@ public class CustomTiffDecoder extends TiffDecoder
 			return ((b1 << 8) + b2);
 	}
 
-	private final static int INDEX_SIZE = 2 + 2 + 4 + 4;// short+short+int+int
+	/** The size of the IFD index standard data in bytes (short+short+int+int) */
+	private final static int INDEX_SIZE = 2 + 2 + 4 + 4; // 
 
-	private FileInfo scanFirstIFD() throws IOException
+	/**
+	 * Scan the first IFD for the number of images written by ImageJ to a tiff description tag
+	 *
+	 * @return the number of images (-1 on error)
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	private int scanFirstIFD() throws IOException
 	{
 		// Get Image File Directory data
-		int tag, fieldType, count, value;
 		int nEntries = getShort2();
 		if (nEntries < 1 || nEntries > 1000)
-			return null;
-		FileInfo fi = new FileInfo();
+			return -1;
 
 		// Read the index data in one operation. 
 		// Any tag data is read by using a seek operation and then reset to the current position.
 		byte[] buffer = new byte[nEntries * INDEX_SIZE];
 		int read = in.read(buffer);
 		if (read != buffer.length)
-			return null;
+			return -1;
 
-		for (int i = 0, j = 0; i < nEntries; i++)
+		for (int i = 0, j = 0; i < nEntries; i++, j += INDEX_SIZE)
 		{
-			tag = getShort(buffer[j++] & 0xff, buffer[j++] & 0xff);
-			fieldType = getShort(buffer[j++] & 0xff, buffer[j++] & 0xff);
-			count = getInt(buffer[j++] & 0xff, buffer[j++] & 0xff, buffer[j++] & 0xff, buffer[j++] & 0xff);
-			value = getValue(fieldType, count, buffer[j++] & 0xff, buffer[j++] & 0xff, buffer[j++] & 0xff,
-					buffer[j++] & 0xff);
+			// We are only interested in any fields that specify the nImages
+			int tag = getShort(buffer[j] & 0xff, buffer[j + 1] & 0xff);
 
-			// We are only interested in any field that specify the nImages
-			switch (tag)
+			// Note: 
+			// NIH_IMAGE_HDR does contain nImages for GRAY8 or COLOR8.
+			// We don't read those tags so don't support this.
+
+			// METAMORPH2 contains the nImages if compression is FileInfo.COMPRESSION_NONE
+			// but we don't bother reading that tag
+
+			// IPLAB contains the nImages. We will not encounter those.
+
+			// Just support extracting the nImages from the description
+			if (tag == IMAGE_DESCRIPTION)
 			{
-				// Note: 
-				// NIH_IMAGE_HDR does contain nImages for GRAY8 or COLOR8.
-				// We don't read those tags so don't support this
-
-				// METAMORPH2 contains the nImages if compression is FileInfo.COMPRESSION_NONE
-
-				// IPLAB contains the nImages. We will not encounter those.
-
-				// Just support extracting the nImages from the description
-				case IMAGE_DESCRIPTION:
-					long lvalue = ((long) value) & 0xffffffffL;
-					byte[] s = getString(count, lvalue);
-					if (s != null)
-						saveImageJnImages(s, fi);
-
-					// This is all we need
-					return fi;
+				int fieldType = getShort(buffer[j + 2] & 0xff, buffer[j + 3] & 0xff);
+				int count = getInt(buffer[j + 4] & 0xff, buffer[j + 5] & 0xff, buffer[j + 6] & 0xff,
+						buffer[j + 7] & 0xff);
+				int value = getValue(fieldType, count, buffer[j + 8] & 0xff, buffer[j + 9] & 0xff,
+						buffer[j + 10] & 0xff, buffer[j + 11] & 0xff);
+				long lvalue = ((long) value) & 0xffffffffL;
+				byte[] s = getString(count, lvalue);
+				// This is all we need so either return the number or zero
+				return (s != null) ? getImageJnImages(new String(s)) : 0;
 			}
 		}
-		return fi;
+		return 0;
 	}
 
-	private int getShort(int b1, int b2) throws IOException
+	private int getShort(int b1, int b2)
 	{
 		if (littleEndian)
 			return ((b2 << 8) + b1);
@@ -225,7 +225,7 @@ public class CustomTiffDecoder extends TiffDecoder
 			return ((b1 << 8) + b2);
 	}
 
-	private int getInt(int b1, int b2, int b3, int b4) throws IOException
+	private int getInt(int b1, int b2, int b3, int b4)
 	{
 		if (littleEndian)
 			return ((b4 << 24) + (b3 << 16) + (b2 << 8) + (b1 << 0));
@@ -233,7 +233,7 @@ public class CustomTiffDecoder extends TiffDecoder
 			return ((b1 << 24) + (b2 << 16) + (b3 << 8) + b4);
 	}
 
-	private int getValue(int fieldType, int count, int b1, int b2, int b3, int b4) throws IOException
+	private int getValue(int fieldType, int count, int b1, int b2, int b3, int b4)
 	{
 		int value = 0;
 		if (fieldType == SHORT && count == 1)
@@ -243,6 +243,13 @@ public class CustomTiffDecoder extends TiffDecoder
 		return value;
 	}
 
+	/**
+	 * Scan the IFD.
+	 *
+	 * @return true, if a valid IFD
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	private boolean scanIFD() throws IOException
 	{
 		// Get Image File Directory data
@@ -263,22 +270,39 @@ public class CustomTiffDecoder extends TiffDecoder
 	{
 		String id = new String(description);
 		fi.description = id;
-		if (id.length() < 7)
-			return;
-		int index1 = id.indexOf("images=");
-		if (index1 > 0)
+		int n = getImageJnImages(id);
+		if (n > 1)
+			fi.nImages = n;
+	}
+
+	/**
+	 * ImageJ saves the number of images for stacks in the TIFF description tag to avoid having to
+	 * decode an IFD for each image.
+	 *
+	 * @param id
+	 *            the description tage
+	 * @return the number of images (if above 1) else 0
+	 */
+	public static int getImageJnImages(String id)
+	{
+		if (id.length() > 7)
 		{
-			int index2 = id.indexOf("\n", index1);
-			if (index2 > 0)
+			int index1 = id.indexOf("images=");
+			if (index1 > 0)
 			{
-				String images = id.substring(index1 + 7, index2);
-				int n = (int) Tools.parseDouble(images, 0.0);
-				if (n > 1)
-					fi.nImages = n;
+				int index2 = id.indexOf("\n", index1);
+				if (index2 > 0)
+				{
+					String images = id.substring(index1 + 7, index2);
+					int n = (int) Tools.parseDouble(images, 0.0);
+					if (n > 1)
+						return n;
+				}
 			}
 		}
+		return 0;
 	}
-	
+
 	// TODO - re-implement getTiffInfo() so that we can use buffering when reading the IFDs
 	// It may be easiest to just re-implement the entire class
 }
