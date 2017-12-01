@@ -258,7 +258,8 @@ public class CustomTiffDecoder extends TiffDecoder
 		if (nEntries < 1 || nEntries > 1000)
 			return false;
 		// Skip all the index data: tag, fieldType, count, value
-		in.skip(nEntries * INDEX_SIZE);
+		//in.skip(nEntries * INDEX_SIZE);
+		in.seek(in.getLongFilePointer() + nEntries * INDEX_SIZE);
 		return true;
 	}
 
