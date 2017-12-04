@@ -86,6 +86,7 @@ public class FastTiffDecoder
 	private int[] metaDataCounts;
 	private String tiffMetadata;
 	private int photoInterp;
+	private int nEntries;
 	private byte[] buffer;
 
 	public FastTiffDecoder(String directory, String name)
@@ -453,7 +454,7 @@ public class FastTiffDecoder
 	private FileInfo openIFD() throws IOException
 	{
 		// Get Image File Directory data
-		int nEntries = getShort();
+		nEntries = getShort();
 		if (nEntries < 1 || nEntries > 1000)
 			return null;
 		ifdCount++;
@@ -472,7 +473,6 @@ public class FastTiffDecoder
 
 		for (int i = 0, j = 0; i < nEntries; i++, j += INDEX_SIZE)
 		{
-			// We are only interested in any fields that specify the nImages
 			int tag = getShort(buffer[j] & 0xff, buffer[j + 1] & 0xff);
 			int fieldType = getShort(buffer[j + 2] & 0xff, buffer[j + 3] & 0xff);
 			int count = getInt(buffer[j + 4] & 0xff, buffer[j + 5] & 0xff, buffer[j + 6] & 0xff, buffer[j + 7] & 0xff);
@@ -1016,12 +1016,9 @@ public class FastTiffDecoder
 	}
 
 	/**
-	 * Gets the number of images in the TIFF file. The class must have been created with a RandomAccessStream. The
-	 * stream is not closed by calling this method. The stream will need to be reset to position 0 to use for reading
-	 * IFDs.
+	 * Gets the number of images in the TIFF file. The stream is not closed by calling this method. The stream will need
+	 * to be reset to position 0 to use for reading IFDs.
 	 *
-	 * @param progress
-	 *            the progress
 	 * @return the number of images
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
@@ -1101,7 +1098,7 @@ public class FastTiffDecoder
 	private int scanFirstIFD() throws IOException
 	{
 		// Get Image File Directory data
-		int nEntries = getShort();
+		nEntries = getShort();
 		if (nEntries < 1 || nEntries > 1000)
 			return -1;
 
@@ -1147,6 +1144,10 @@ public class FastTiffDecoder
 						return n;
 				}
 			}
+
+			// Tags are sorted in order
+			if (tag > IMAGE_DESCRIPTION)
+				break;
 		}
 		return 0;
 	}
@@ -1236,6 +1237,329 @@ public class FastTiffDecoder
 			}
 		}
 		return 0;
+	}
+
+	/**
+	 * Guess the number of images in the TIFF file. The stream is not closed by calling this method. The stream will
+	 * need
+	 * to be reset to position 0 to use for reading IFDs.
+	 *
+	 * @param size
+	 *            the file size
+	 * @return the number of images
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	public int guessNumberOfImages() throws IOException
+	{
+		if (in == null)
+			throw new NullPointerException("No random access stream");
+
+		in.seek(0);
+
+		// Find the first IFD
+		long ifdOffset = openImageFileHeader();
+		if (ifdOffset < 0L)
+		{
+			//System.out.println("No IFD offset");
+			return 0;
+		}
+
+		// We do not care about the actual IFD contents. Just the count.
+
+		// Open the first IFD looking for information about the number of images
+
+		//System.out.println("first IFD = " + ifdOffset);
+		in.seek(ifdOffset);
+		int ifdCount = scanFirstIFD();
+
+		//		// This should be the same for nImages
+		//		in.seek(0);
+		//		OpenImageFileHeader();
+		//		in.seek(ifdOffset);
+		//		FileInfo fi2 = OpenIFD();
+
+		if (ifdCount < 0)
+		{
+			//System.out.println("No first IFD");
+			return 0;
+		}
+
+		// If an ImageJ image then the nImages is written to the description
+		if (ifdCount > 1)
+		{
+			return ifdCount;
+		}
+
+		ifdOffset = ((long) getInt()) & 0xffffffffL;
+
+		if (ifdOffset <= 0L)
+			return 1;
+
+		// If not an ImageJ image then we get the first and next IFD size and the 
+		// size of the raw pixels
+
+		int imageSize = getPixelSize();
+
+		// The IFD table entries were read into the buffer so don't re-read.
+		long ifdSize1 = getIFDSize(false);
+
+		// Read the next IFD size
+		in.seek(ifdOffset);
+		long ifdSize2 = getIFDSize(true);
+
+		long fileSize = new File(directory, name).length();
+
+		// Get an estimate of the number of frames.
+		// The 8 bytes is for the image file header data
+		return (int) Math.round((double) (fileSize - imageSize - ifdSize1 - 8) / (imageSize + ifdSize2));
+	}
+
+	/**
+	 * Get the size of the Image File Directory data.
+	 * http://www.fileformat.info/format/tiff/corion.htm
+	 *
+	 * @param readTable
+	 *            the read table
+	 * @return the IFD size
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	private long getIFDSize(boolean readTable) throws IOException
+	{
+		if (readTable)
+		{
+			nEntries = getShort();
+			if (nEntries < 1 || nEntries > 1000)
+				return 0;
+
+			// Read the index data in one operation. 
+			// Any tag data is read by using a seek operation and then reset to the current position.
+			int size = nEntries * INDEX_SIZE;
+			byte[] buffer = allocateBuffer(size);
+			int read = in.readFully(buffer, size);
+			if (read != size)
+				return 0;
+		}
+
+		// Includes (number of entries) + (next offset)
+		long total = 2 + nEntries * INDEX_SIZE + 4;
+		for (int i = 0, j = 0; i < nEntries; i++, j += INDEX_SIZE)
+		{
+			int tag = getShort(buffer[j] & 0xff, buffer[j + 1] & 0xff);
+			int fieldType = getShort(buffer[j + 2] & 0xff, buffer[j + 3] & 0xff);
+			int count = getInt(buffer[j + 4] & 0xff, buffer[j + 5] & 0xff, buffer[j + 6] & 0xff, buffer[j + 7] & 0xff);
+
+			if (count > 1)
+				total += getFieldSize(fieldType) * count;
+
+			// Special case to count the size of all the metadata
+			if (tag == META_DATA_BYTE_COUNTS)
+			{
+				long saveLoc = in.getFilePointer();
+				int value = getValue(fieldType, count, buffer[j + 8] & 0xff, buffer[j + 9] & 0xff,
+						buffer[j + 10] & 0xff, buffer[j + 11] & 0xff);
+				long lvalue = ((long) value) & 0xffffffffL;
+				in.seek(lvalue);
+				for (int c = 0; c < count; c++)
+					total += getInt();
+				in.seek(saveLoc);
+			}
+		}
+
+		return total;
+	}
+
+	private int getFieldSize(int fieldType)
+	{
+		switch (fieldType)
+		{
+			case 1:
+				return 1; // byte
+			case 2:
+				return 1; // ASCII String
+			case 3:
+				return 2; // word
+			case 4:
+				return 4; // dword / uword
+			case 5:
+				return 8; // rational (2 dwords, numerator and denominator)
+		}
+		if (debugMode)
+			System.out.printf("unknown IFD field size for field type: %d\n", fieldType);
+		return 1; // It has to have some size
+	}
+
+	/**
+	 * Gets the pixel size. This assumes 1 IFD has been read into the IFD buffer.
+	 *
+	 * @return the pixel size
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	private int getPixelSize() throws IOException
+	{
+		int width = 0, height = 0, samplesPerPixel = 0, fileType = 0, compression = 0;
+
+		for (int i = 0, j = 0; i < nEntries; i++, j += INDEX_SIZE)
+		{
+			// We are only interested in any fields that specify the nImages
+			int tag = getShort(buffer[j] & 0xff, buffer[j + 1] & 0xff);
+			int fieldType = getShort(buffer[j + 2] & 0xff, buffer[j + 3] & 0xff);
+			int count = getInt(buffer[j + 4] & 0xff, buffer[j + 5] & 0xff, buffer[j + 6] & 0xff, buffer[j + 7] & 0xff);
+			int value = getValue(fieldType, count, buffer[j + 8] & 0xff, buffer[j + 9] & 0xff, buffer[j + 10] & 0xff,
+					buffer[j + 11] & 0xff);
+			long lvalue = ((long) value) & 0xffffffffL;
+
+			switch (tag)
+			{
+				case IMAGE_WIDTH:
+					width = value;
+					break;
+				case IMAGE_LENGTH:
+					height = value;
+					break;
+				case BITS_PER_SAMPLE:
+					if (count == 1)
+					{
+						if (value == 8)
+							fileType = FileInfo.GRAY8;
+						else if (value == 16)
+							fileType = FileInfo.GRAY16_UNSIGNED;
+						else if (value == 32)
+							fileType = FileInfo.GRAY32_INT;
+						else if (value == 12)
+							fileType = FileInfo.GRAY12_UNSIGNED;
+						else if (value == 1)
+							fileType = FileInfo.BITMAP;
+						else
+							error("Unsupported BitsPerSample: " + value);
+					}
+					else if (count > 1)
+					{
+						long saveLoc = in.getFilePointer();
+						in.seek(lvalue);
+						int bitDepth = getShort();
+						if (bitDepth == 8)
+							fileType = FileInfo.GRAY8;
+						else if (bitDepth == 16)
+							fileType = FileInfo.GRAY16_UNSIGNED;
+						else
+							error("ImageJ can only open 8 and 16 bit/channel images (" + bitDepth + ")");
+						in.seek(saveLoc);
+					}
+					break;
+				case SAMPLES_PER_PIXEL:
+					samplesPerPixel = value;
+					if (value == 3 && fileType == FileInfo.GRAY8)
+						fileType = FileInfo.RGB;
+					else if (value == 3 && fileType == FileInfo.GRAY16_UNSIGNED)
+						fileType = FileInfo.RGB48;
+					else if (value == 4 && fileType == FileInfo.GRAY8)
+						fileType = photoInterp == 5 ? FileInfo.CMYK : FileInfo.ARGB;
+					else if (value == 4 && fileType == FileInfo.GRAY16_UNSIGNED)
+					{
+						fileType = FileInfo.RGB48;
+					}
+					break;
+
+				case PLANAR_CONFIGURATION: // 1=chunky, 2=planar
+					if (value == 2 && fileType == FileInfo.RGB48)
+						fileType = FileInfo.RGB48_PLANAR;
+					else if (value == 2 && fileType == FileInfo.RGB)
+						fileType = FileInfo.RGB_PLANAR;
+					else if (value != 2 && !(samplesPerPixel == 1 || samplesPerPixel == 3 || samplesPerPixel == 4))
+					{
+						String msg = "Unsupported SamplesPerPixel: " + samplesPerPixel;
+						error(msg);
+					}
+					break;
+				case COMPRESSION:
+					if (value == 5)
+					{// LZW compression
+						compression = FileInfo.LZW;
+						if (fileType == FileInfo.GRAY12_UNSIGNED)
+							error("ImageJ cannot open 12-bit LZW-compressed TIFFs");
+					}
+					else if (value == 32773) // PackBits compression
+						compression = FileInfo.PACK_BITS;
+					else if (value == 32946 || value == 8)
+						compression = FileInfo.ZIP;
+					else if (value != 1 && value != 0 && !(value == 7 && width < 500))
+					{
+						// don't abort with Spot camera compressed (7) thumbnails
+						// otherwise, this is an unknown compression type
+						compression = FileInfo.COMPRESSION_UNKNOWN;
+						error("ImageJ cannot open TIFF files " + "compressed in this fashion (" + value + ")");
+					}
+					break;
+				case TILE_WIDTH:
+					error("ImageJ cannot open tiled TIFFs.\nTry using the Bio-Formats plugin.");
+					break;
+				case SAMPLE_FORMAT:
+					if (fileType == FileInfo.GRAY32_INT && value == FLOATING_POINT)
+						fileType = FileInfo.GRAY32_FLOAT;
+					if (fileType == FileInfo.GRAY16_UNSIGNED)
+					{
+						if (value == SIGNED)
+							fileType = FileInfo.GRAY16_SIGNED;
+						if (value == FLOATING_POINT)
+							error("ImageJ cannot open 16-bit float TIFFs");
+					}
+					break;
+				case JPEG_TABLES:
+					if (compression == FileInfo.JPEG)
+						error("Cannot open JPEG-compressed TIFFs with separate tables");
+					break;
+			}
+		}
+		int size = getBytesPerImage(width, height, fileType);
+		if (size != 0 && compression == FileInfo.COMPRESSION_NONE)
+		{
+			return size;
+		}
+		error("Cannot estimate TIFF image size");
+		return 0; // 
+	}
+
+	public static int getBytesPerImage(int width, int height, int fileType)
+	{
+		int size = width * height;
+		switch (fileType)
+		{
+			case FileInfo.GRAY8:
+			case FileInfo.COLOR8:
+			case FileInfo.BITMAP:
+				return size;
+			case FileInfo.GRAY12_UNSIGNED:
+				return (int) (1.5 * size);
+			case FileInfo.GRAY16_SIGNED:
+			case FileInfo.GRAY16_UNSIGNED:
+				return 2 * size;
+			case FileInfo.GRAY24_UNSIGNED:
+				return 3 * size;
+			case FileInfo.GRAY32_INT:
+			case FileInfo.GRAY32_UNSIGNED:
+			case FileInfo.GRAY32_FLOAT:
+				return 4 * size;
+			case FileInfo.GRAY64_FLOAT:
+				return 8 * size;
+			case FileInfo.ARGB:
+			case FileInfo.BARG:
+			case FileInfo.ABGR:
+			case FileInfo.CMYK:
+				return 4 * size;
+			case FileInfo.RGB:
+			case FileInfo.RGB_PLANAR:
+			case FileInfo.BGR:
+				return 3 * size;
+			case FileInfo.RGB48:
+				return 6 * size;
+			case FileInfo.RGB48_PLANAR:
+				return 2 * size;
+			default:
+				return 0;
+		}
 	}
 
 }
