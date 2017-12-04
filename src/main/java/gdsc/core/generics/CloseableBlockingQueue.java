@@ -72,9 +72,13 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 				clear();
 			}
 
-			// Release anything waiting 
+			// Release anything waiting to put items in the queue.
+			// Nothing can be added when it is closed.
 			while (lock.hasWaiters(notFull))
 				notFull.signal();
+			// Release anything waiting for the queue. 
+			// This is because the queue will never fill when closed
+			// and prevents stale threads waiting forever.
 			while (lock.hasWaiters(notEmpty))
 				notEmpty.signal();
 		}
