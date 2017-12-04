@@ -87,6 +87,19 @@ public abstract class SeekableStream extends InputStream
 	public abstract void seek(long loc) throws IOException;
 
 	/**
+	 * Seek to a position in the stream.
+	 *
+	 * @param loc
+	 *            the location (used as an unsigned int)
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	public void seek(int loc) throws IOException
+	{
+		seek(((long) loc) & 0xffffffffL);
+	}
+
+	/**
 	 * Read an int value from the stream.
 	 *
 	 * @return the int
