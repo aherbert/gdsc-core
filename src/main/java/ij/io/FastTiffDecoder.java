@@ -1241,8 +1241,10 @@ public class FastTiffDecoder
 
 	/**
 	 * Guess the number of images in the TIFF file. The stream is not closed by calling this method. The stream will
-	 * need
-	 * to be reset to position 0 to use for reading IFDs.
+	 * need to be reset to position 0 to use for reading IFDs.
+	 * <p>
+	 * This assumes that all the IFDs after the first one are the same size and all the images are the same pixel type
+	 * and size as the first.
 	 *
 	 * @param size
 	 *            the file size
@@ -1310,9 +1312,10 @@ public class FastTiffDecoder
 
 		long fileSize = new File(directory, name).length();
 
-		// Get an estimate of the number of frames.
-		// The 8 bytes is for the image file header data
-		return (int) Math.round((double) (fileSize - imageSize - ifdSize1 - 8) / (imageSize + ifdSize2));
+		// Get an estimate of the number of frames after the first frame which has the biggest IFD.
+		// This assumes all the remaining IFDs (and images) are the same size.
+		// The 8 bytes is for the image file header data.
+		return 1 + (int) Math.round((double) (fileSize - imageSize - ifdSize1 - 8) / (imageSize + ifdSize2));
 	}
 
 	/**
@@ -1514,7 +1517,7 @@ public class FastTiffDecoder
 			}
 		}
 		int size = getBytesPerImage(width, height, fileType);
-		if (size != 0 && compression == FileInfo.COMPRESSION_NONE)
+		if (size != 0 && compression <= FileInfo.COMPRESSION_NONE)
 		{
 			return size;
 		}
