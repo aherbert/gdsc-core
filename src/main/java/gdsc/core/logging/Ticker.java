@@ -92,6 +92,29 @@ public abstract class Ticker
 				: new LongTicker(trackProgress, (int) total);
 	}
 
+	/**
+	 * Creates a starter ticker. If the track progress is null, or the total is not positive, then a ticker that does
+	 * nothing
+	 * will be returned.
+	 * <p>
+	 * The tickers returned will only report progress to the track progress object incrementally. This prevents
+	 * excessive calls to the track progress object.
+	 *
+	 * @param trackProgress
+	 *            the track progress to report progress to
+	 * @param total
+	 *            the total amount of ticks
+	 * @param threadSafe
+	 *            Set to true to create a thread safe ticker
+	 * @return the started ticker
+	 */
+	public static Ticker createStarted(TrackProgress trackProgress, long total, boolean threadSafe)
+	{
+		Ticker ticker = create(trackProgress, total, threadSafe);
+		ticker.start();
+		return ticker;
+	}
+
 	private static class NullTicker extends Ticker
 	{
 		@Override
@@ -124,7 +147,7 @@ public abstract class Ticker
 
 		}
 	}
-	
+
 	/** An instance that ignores all calls to the Ticker interface */
 	public static final Ticker INSTANCE = new NullTicker();
 
