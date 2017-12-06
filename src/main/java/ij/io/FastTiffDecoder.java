@@ -1730,21 +1730,30 @@ public class FastTiffDecoder
 
 		// This should contain only digits and 3 commas
 		int[] index = new int[3];
+		int digits = 0;
 		int count = 0;
 		for (int k = 0; k < chars.length; k++)
 		{
 			if (Character.isDigit(chars[k]))
+			{
+				digits++;
 				continue;
+			}
 			if (chars[k] == ',')
 			{
-				if (count == 3)
+				if (digits == 0 || count == 3)
+					// No digits before the comma or too many commas
 					return null;
 				index[count++] = k;
+				digits = 0;
 				continue;
 			}
 			// Anything else is not allowed
 			return null;
 		}
+		// Must have 3 commas and a digit after the last comma 
+		if (count != 3 || digits == 0)
+			return null;
 
 		// We have the indices of the commas to extract the ROI
 		int x = Integer.parseInt(new String(chars, 0, index[0]));
