@@ -37,6 +37,16 @@ public final class ByteArraySeekableStream extends SeekableStream
 		this.buffer = bytes;
 		length = bytes.length;
 	}
+	
+	/**
+	 * Copy the stream reusing the underlying byte buffer.
+	 *
+	 * @return the byte array seekable stream
+	 */
+	public ByteArraySeekableStream copy()
+	{
+		return new ByteArraySeekableStream(buffer);
+	}
 
 	/*
 	 * (non-Javadoc)
