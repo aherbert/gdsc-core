@@ -2,6 +2,7 @@ package ij.io;
 
 import java.awt.Rectangle;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -30,7 +31,7 @@ import ij.util.Tools;
  * <p>
  * Added support for MicroManager TIFF format which uses the OME-TIFF specification.
  */
-public class FastTiffDecoder
+public abstract class FastTiffDecoder
 {
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 
@@ -96,7 +97,6 @@ public class FastTiffDecoder
 	private String name;
 	protected SeekableStream in;
 	protected boolean debugMode;
-	private boolean littleEndian;
 	private String dInfo;
 	private int ifdCount;
 	private int[] metaDataCounts;
@@ -113,97 +113,192 @@ public class FastTiffDecoder
 	 */
 	public int ifdCountForMicroManagerMetadata = 0;
 
-	public FastTiffDecoder(String directory, String name)
+	/**
+	 * Instantiates a new fast tiff decoder.
+	 *
+	 * @param in
+	 *            the seekable stream, ready to read the first IFD (at 4 bytes into the stream)
+	 * @param file
+	 *            the file (or the name of the stream)
+	 */
+	protected FastTiffDecoder(SeekableStream in, File file)
 	{
-		this.directory = directory;
-		this.name = name;
-	}
-
-	public FastTiffDecoder(InputStream in, String name)
-	{
-		if (in == null)
-			throw new NullPointerException();
-		directory = "";
-		this.name = name;
-		this.in = new MemoryCacheSeekableStream(in);
-	}
-
-	public FastTiffDecoder(SeekableStream in, String name)
-	{
-		if (in == null)
-			throw new NullPointerException();
-		directory = "";
-		this.name = name;
+		directory = file.getParent();
+		if (directory == null)
+			directory = "";
+		this.name = file.getName();
 		this.in = in;
 	}
 
-	public FastTiffDecoder(File file) throws IOException
+	/**
+	 * Checks if is little endian.
+	 *
+	 * @return true, if is little endian
+	 */
+	public abstract boolean isLittleEndian();
+
+	/**
+	 * Creates the Tiff Decoder with an opened seekable stream set in the position to read the first IFD offset (i.e.
+	 * the first 4 bytes of the TIFF file have been read to identify the file type).
+	 *
+	 * @param directory
+	 *            the directory
+	 * @param name
+	 *            the name
+	 * @return the fast tiff decoder
+	 * @throws IOException
+	 *             If an I/O exception has occurred, or this is not a TIFF file.
+	 * @throws NullPointerException
+	 *             If name is null
+	 */
+	public static FastTiffDecoder create(String directory, String name) throws IOException, NullPointerException
 	{
-		if (file == null)
-			throw new NullPointerException();
-		this.name = file.getCanonicalPath();
+		File file = new File(directory, name);
+		return create(file);
 	}
 
-	final int getInt() throws IOException
+	/**
+	 * Creates the Tiff Decoder with an opened seekable stream set in the position to read the first IFD offset (i.e.
+	 * the first 4 bytes of the TIFF file have been read to identify the file type).
+	 *
+	 * @param in
+	 *            the inpout stream
+	 * @param name
+	 *            the name
+	 * @return the fast tiff decoder
+	 * @throws IOException
+	 *             If an I/O exception has occurred, or this is not a TIFF file.
+	 * @throws NullPointerException
+	 *             If either argument is null
+	 */
+	public static FastTiffDecoder create(InputStream in, String name) throws IOException, NullPointerException
+	{
+		if (in == null)
+			throw new NullPointerException();
+		return createTiffDecoder(new MemoryCacheSeekableStream(in), new File(name));
+	}
+
+	/**
+	 * Creates the Tiff Decoder with an opened seekable stream set in the position to read the first IFD offset (i.e.
+	 * the first 4 bytes of the TIFF file have been read to identify the file type).
+	 *
+	 * @param ss
+	 *            the ss
+	 * @param name
+	 *            the name
+	 * @return the fast tiff decoder
+	 * @throws IOException
+	 *             If an I/O exception has occurred, or this is not a TIFF file.
+	 * @throws NullPointerException
+	 *             If either argument is null
+	 */
+	public static FastTiffDecoder create(SeekableStream ss, String name) throws IOException, NullPointerException
+	{
+		if (ss == null)
+			throw new NullPointerException();
+		ss.seek(0);
+		return createTiffDecoder(ss, new File(name));
+	}
+
+	/**
+	 * Creates the Tiff Decoder with an opened seekable stream set in the position to read the first IFD offset (i.e.
+	 * the first 4 bytes of the TIFF file have been read to identify the file type).
+	 *
+	 * @param file
+	 *            the file
+	 * @return the fast tiff decoder
+	 * @throws IOException
+	 *             If an I/O exception has occurred, or this is not a TIFF file.
+	 * @throws NullPointerException
+	 *             If the file argument is null
+	 * @throws FileNotFoundException
+	 *             the file not found exception
+	 * @throws SecurityException
+	 *             the security exception
+	 */
+	public static FastTiffDecoder create(File file)
+			throws IOException, NullPointerException, FileNotFoundException, SecurityException
+	{
+		return createTiffDecoder(new FileSeekableStream(file), file);
+	}
+
+	/**
+	 * Creates the tiff decoder. Read the TIFF header and create a little/big-endian decoder.
+	 *
+	 * @param ss
+	 *            the seekable stream at position 0
+	 * @param file
+	 *            the file (or the name of the stream)
+	 * @return the fast tiff decoder
+	 * @throws IOException
+	 *             If an I/O exception has occurred, or this is not a TIFF file.
+	 */
+	private static FastTiffDecoder createTiffDecoder(SeekableStream ss, File file) throws IOException
+	{
+		// Read the 4-byte TIFF header
+		byte[] hdr = new byte[4];
+		ss.read(hdr);
+		// "II" (Intel byte order)
+		if (hdr[0] == 73 && hdr[1] == 73)
+		{
+			// Magic number is 42
+			if (hdr[2] == 42 && hdr[3] == 0)
+				return new FastTiffDecoderLE(ss, file);
+			throw new IOException("Incorrect magic number for little-endian (Intel) byte order");
+		}
+		// "MM" (Motorola byte order)
+		if (hdr[0] == 77 && hdr[1] == 77)
+		{
+			// Magic number is 42
+			if (hdr[2] == 0 && hdr[3] == 42)
+				return new FastTiffDecoderBE(ss, file);
+			throw new IOException("Incorrect magic number of big-endian (Motorola) byte order");
+		}
+		throw new IOException("Not a TIFF file");
+	}
+
+	/**
+	 * Reset the stream. This sets the stream to 4-bytes into the TIFF file after the TIFF magic number has been read
+	 * from the header. It is in the position to read the location of the first TIF IFD.
+	 *
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	public final void reset() throws IOException
+	{
+		in.seek(4L);
+	}
+
+	final int readInt() throws IOException
 	{
 		int b1 = in.read();
 		int b2 = in.read();
 		int b3 = in.read();
 		int b4 = in.read();
-		if (littleEndian)
-			return ((b4 << 24) + (b3 << 16) + (b2 << 8) + (b1 << 0));
-		else
-			return ((b1 << 24) + (b2 << 16) + (b3 << 8) + b4);
+		return getInt(b1, b2, b3, b4);
 	}
 
-	final long getUnsignedInt() throws IOException
+	protected abstract int getInt(int b1, int b2, int b3, int b4);
+
+	final long readUnsignedInt() throws IOException
 	{
-		return (long) getInt() & 0xffffffffL;
+		return (long) readInt() & 0xffffffffL;
 	}
 
-	final int getShort() throws IOException
+	final int readShort() throws IOException
 	{
 		int b1 = in.read();
 		int b2 = in.read();
-		if (littleEndian)
-			return ((b2 << 8) + b1);
-		else
-			return ((b1 << 8) + b2);
+		return getShort(b1, b2);
 	}
 
-	private final long readLong() throws IOException
-	{
-		if (littleEndian)
-			return ((long) getInt() & 0xffffffffL) + ((long) getInt() << 32);
-		else
-			return ((long) getInt() << 32) + ((long) getInt() & 0xffffffffL);
-		//return in.read()+(in.read()<<8)+(in.read()<<16)+(in.read()<<24)+(in.read()<<32)+(in.read()<<40)+(in.read()<<48)+(in.read()<<56);
-	}
+	protected abstract int getShort(int b1, int b2);
+
+	protected abstract long readLong() throws IOException;
 
 	private final double readDouble() throws IOException
 	{
 		return Double.longBitsToDouble(readLong());
-	}
-
-	private long openImageFileHeader() throws IOException
-	{
-		// Open 8-byte Image File Header at start of file.
-		// Returns the offset in bytes to the first IFD or -1
-		// if this is not a valid tiff file.
-		int byteOrder = in.readShort();
-		if (byteOrder == 0x4949) // "II"
-			littleEndian = true;
-		else if (byteOrder == 0x4d4d) // "MM"
-			littleEndian = false;
-		else
-		{
-			in.close();
-			return -1;
-		}
-		// Magic number
-		if (getShort() != 42)
-			return -1; // Not a TIFF
-		return getUnsignedInt();
 	}
 
 	void getColorMap(long offset, ExtendedFileInfo fi) throws IOException
@@ -218,7 +313,7 @@ public class FastTiffDecoder
 		fi.greens = new byte[256];
 		fi.blues = new byte[256];
 		int j = 0;
-		if (littleEndian)
+		if (isLittleEndian())
 			j++;
 		int sum = 0;
 		for (int i = 0; i < 256; i++)
@@ -466,8 +561,8 @@ public class FastTiffDecoder
 	{
 		long saveLoc = in.getFilePointer();
 		in.seek(loc);
-		double numerator = getUnsignedInt();
-		double denominator = getUnsignedInt();
+		double numerator = readUnsignedInt();
+		double denominator = readUnsignedInt();
 		in.seek(saveLoc);
 		if (denominator != 0.0)
 			return numerator / denominator;
@@ -478,7 +573,7 @@ public class FastTiffDecoder
 	private ExtendedFileInfo openIFD() throws IOException
 	{
 		// Get Image File Directory data
-		nEntries = getShort();
+		nEntries = readShort();
 		if (nEntries < 1 || nEntries > 1000)
 			return null;
 		ifdCount++;
@@ -511,7 +606,7 @@ public class FastTiffDecoder
 			{
 				case IMAGE_WIDTH:
 					fi.width = value;
-					fi.intelByteOrder = littleEndian;
+					fi.intelByteOrder = isLittleEndian();
 					break;
 				case IMAGE_LENGTH:
 					fi.height = value;
@@ -525,7 +620,7 @@ public class FastTiffDecoder
 						in.seek(lvalue);
 						fi.stripOffsets = new int[count];
 						for (int c = 0; c < count; c++)
-							fi.stripOffsets[c] = getInt();
+							fi.stripOffsets[c] = readInt();
 						in.seek(saveLoc);
 					}
 					fi.offset = count > 0 ? fi.stripOffsets[0] : value;
@@ -544,9 +639,9 @@ public class FastTiffDecoder
 						for (int c = 0; c < count; c++)
 						{
 							if (fieldType == SHORT)
-								fi.stripLengths[c] = getShort();
+								fi.stripLengths[c] = readShort();
 							else
-								fi.stripLengths[c] = getInt();
+								fi.stripLengths[c] = readInt();
 						}
 						in.seek(saveLoc);
 					}
@@ -575,7 +670,7 @@ public class FastTiffDecoder
 					{
 						long saveLoc = in.getFilePointer();
 						in.seek(lvalue);
-						int bitDepth = getShort();
+						int bitDepth = readShort();
 						if (bitDepth == 8)
 							fi.fileType = ExtendedFileInfo.GRAY8;
 						else if (bitDepth == 16)
@@ -731,7 +826,7 @@ public class FastTiffDecoder
 					in.seek(lvalue);
 					metaDataCounts = new int[count];
 					for (int c = 0; c < count; c++)
-						metaDataCounts[c] = getInt();
+						metaDataCounts[c] = readInt();
 					in.seek(saveLoc);
 					break;
 				case META_DATA:
@@ -776,7 +871,7 @@ public class FastTiffDecoder
 			in.seek(saveLoc);
 			return;
 		}
-		int magicNumber = getInt();
+		int magicNumber = readInt();
 		if (magicNumber != MAGIC_NUMBER) // "IJIJ"
 		{
 			in.seek(saveLoc);
@@ -791,8 +886,8 @@ public class FastTiffDecoder
 		int extraMetaDataEntries = 0;
 		for (int i = 0; i < nTypes; i++)
 		{
-			types[i] = getInt();
-			counts[i] = getInt();
+			types[i] = readInt();
+			counts[i] = readInt();
 			if (types[i] < 0xffffff)
 				extraMetaDataEntries += counts[i];
 			if (debugMode)
@@ -856,7 +951,7 @@ public class FastTiffDecoder
 		in.readFully(buffer, len);
 		len /= 2;
 		char[] chars = new char[len];
-		if (littleEndian)
+		if (isLittleEndian())
 		{
 			for (int j = 0, k = 0; j < len; j++)
 				chars[j] = (char) (buffer[k++] & 255 + ((buffer[k++] & 255) << 8));
@@ -884,7 +979,7 @@ public class FastTiffDecoder
 				in.readFully(buffer, len);
 				len /= 2;
 				char[] chars = new char[len];
-				if (littleEndian)
+				if (isLittleEndian())
 				{
 					for (int j = 0, k = 0; j < len; j++)
 						chars[j] = (char) (buffer[k++] & 255 + ((buffer[k++] & 255) << 8));
@@ -966,18 +1061,25 @@ public class FastTiffDecoder
 		debugMode = true;
 	}
 
+	/**
+	 * Gets the tiff info.
+	 * <p>
+	 * The stream will need to be reset before calling this method if the decoder has not just been created.
+	 *
+	 * @return the tiff info
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 * @see #reset()
+	 */
 	public ExtendedFileInfo[] getTiffInfo() throws IOException
 	{
-		long ifdOffset;
-		TurboList<ExtendedFileInfo> list = new TurboList<ExtendedFileInfo>();
-		if (in == null)
-			in = new FileSeekableStream(new File(directory, name));
-		ifdOffset = openImageFileHeader();
-		if (ifdOffset < 0L)
+		long ifdOffset = readUnsignedInt();
+		if (ifdOffset < 8L)
 		{
 			in.close();
 			return null;
 		}
+		TurboList<ExtendedFileInfo> list = new TurboList<ExtendedFileInfo>();
 		if (debugMode)
 			dInfo = "\n  " + name + ": opening\n";
 		while (ifdOffset > 0L)
@@ -987,7 +1089,7 @@ public class FastTiffDecoder
 			if (fi != null)
 			{
 				list.add(fi);
-				ifdOffset = getUnsignedInt();
+				ifdOffset = readUnsignedInt();
 			}
 			else
 				ifdOffset = 0L;
@@ -1031,10 +1133,10 @@ public class FastTiffDecoder
 
 	private void readMicroManagerSummaryMetadata(ExtendedFileInfo fi) throws IOException
 	{
-		in.seek(32);
-		if (getInt() == 2355492)
+		in.seek(32L);
+		if (readInt() == 2355492)
 		{
-			int count = getInt();
+			int count = readInt();
 			byte[] bytes = new byte[count];
 			in.readFully(bytes);
 			fi.summaryMetaData = new String(bytes, UTF8);
@@ -1100,26 +1202,22 @@ public class FastTiffDecoder
 	private static final NumberOfImages ONE_IMAGE = new NumberOfImages(1);
 
 	/**
-	 * Gets the number of images in the TIFF file. The class must have been created using a stream (not a file directory
-	 * and name) since the stream is not opened or closed by calling this method. The stream will need
-	 * to be reset to position 0 to use for reading IFDs.
+	 * Gets the number of images in the TIFF file. The stream is not opened or closed by calling this method.
+	 * <p>
+	 * The stream will need to be reset before calling this method if the decoder has not just been created.
 	 *
 	 * @param estimate
 	 *            Flag to indicate that an estimate using file sizes is OK. The default is to read all the IFDs.
 	 * @return the number of images
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
+	 * @see #reset()
 	 */
 	public NumberOfImages getNumberOfImages(boolean estimate) throws IOException
 	{
-		if (in == null)
-			throw new NullPointerException("No random access stream");
-
-		in.seek(0);
-
 		// Find the first IFD
-		long ifdOffset = openImageFileHeader();
-		if (ifdOffset < 0L)
+		long ifdOffset = readUnsignedInt();
+		if (ifdOffset < 8L)
 			return NO_IMAGES;
 
 		// Try and read the Index map offset header.
@@ -1143,7 +1241,7 @@ public class FastTiffDecoder
 		if (ifdCount > 1)
 			return new NumberOfImages(ifdCount);
 
-		ifdOffset = getUnsignedInt();
+		ifdOffset = readUnsignedInt();
 
 		if (ifdOffset <= 0L)
 			return ONE_IMAGE;
@@ -1193,7 +1291,7 @@ public class FastTiffDecoder
 				}
 
 				ifdCount++;
-				ifdOffset = getUnsignedInt();
+				ifdOffset = readUnsignedInt();
 			}
 
 			return new NumberOfImages(ifdCount);
@@ -1210,18 +1308,18 @@ public class FastTiffDecoder
 	 */
 	private int readIndexMapNumberOfEntries() throws IOException
 	{
-		int indexOffsetHeader = getInt();
+		int indexOffsetHeader = readInt();
 		if (indexOffsetHeader == 54773648)
 		{
-			long indexOffset = getUnsignedInt();
+			long indexOffset = readUnsignedInt();
 			try
 			{
 				in.seek(indexOffset);
 				// Check the header
-				if (getInt() == 3453623)
+				if (readInt() == 3453623)
 				{
 					// This is the index map
-					int n = getInt();
+					int n = readInt();
 					//System.out.printf("Index map entries = %d\n", n);
 					return n;
 				}
@@ -1247,7 +1345,7 @@ public class FastTiffDecoder
 	private int scanFirstIFD() throws IOException
 	{
 		// Get Image File Directory data
-		nEntries = getShort();
+		nEntries = readShort();
 		if (nEntries < 1 || nEntries > 1000)
 			return -1;
 
@@ -1301,22 +1399,6 @@ public class FastTiffDecoder
 		return 0;
 	}
 
-	private int getShort(int b1, int b2)
-	{
-		if (littleEndian)
-			return ((b2 << 8) + b1);
-		else
-			return ((b1 << 8) + b2);
-	}
-
-	private int getInt(int b1, int b2, int b3, int b4)
-	{
-		if (littleEndian)
-			return ((b4 << 24) + (b3 << 16) + (b2 << 8) + (b1 << 0));
-		else
-			return ((b1 << 24) + (b2 << 16) + (b3 << 8) + b4);
-	}
-
 	private int getValue(int fieldType, int count, int b1, int b2, int b3, int b4)
 	{
 		int value = 0;
@@ -1337,7 +1419,7 @@ public class FastTiffDecoder
 	private boolean scanIFD() throws IOException
 	{
 		// Get Image File Directory data
-		int nEntries = getShort();
+		int nEntries = readShort();
 		//System.out.println("nEntries = " + nEntries);
 		if (nEntries < 1 || nEntries > 1000)
 			return false;
@@ -1402,7 +1484,7 @@ public class FastTiffDecoder
 	{
 		if (readTable)
 		{
-			nEntries = getShort();
+			nEntries = readShort();
 			if (nEntries < 1 || nEntries > 1000)
 				return 0;
 
@@ -1466,7 +1548,7 @@ public class FastTiffDecoder
 				long lvalue = ((long) value) & 0xffffffffL;
 				in.seek(lvalue);
 				for (int c = 0; c < count; c++)
-					total += getInt();
+					total += readInt();
 				in.seek(saveLoc);
 			}
 		}
@@ -1574,7 +1656,7 @@ public class FastTiffDecoder
 					{
 						long saveLoc = in.getFilePointer();
 						in.seek(lvalue);
-						int bitDepth = getShort();
+						int bitDepth = readShort();
 						if (bitDepth == 8)
 							fileType = ExtendedFileInfo.GRAY8;
 						else if (bitDepth == 16)
