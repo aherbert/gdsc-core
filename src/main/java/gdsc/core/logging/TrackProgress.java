@@ -32,7 +32,7 @@ public interface TrackProgress
 	 * @param total
 	 */
 	public void progress(long position, long total);
-	
+
 	/**
 	 * Specify an increment to the progress as a fraction
 	 * 
@@ -64,4 +64,25 @@ public interface TrackProgress
 	 * @return True if ended
 	 */
 	public boolean isEnded();
+
+	/**
+	 * Checks if the progress methods are active.
+	 *
+	 * @return true, if progress methods are active.
+	 */
+	public boolean isProgress();
+
+	/**
+	 * Checks if the {@link #log(String, Object...)}. method is active
+	 *
+	 * @return true, if the {@link #log(String, Object...)}. method is active
+	 */
+	public boolean isLog();
+
+	/**
+	 * Checks if the {@link #status(String, Object...)} method is active.
+	 *
+	 * @return true, if is {@link #status(String, Object...)} method is active.
+	 */
+	public boolean isStatus();
 }

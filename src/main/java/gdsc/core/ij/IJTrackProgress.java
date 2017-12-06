@@ -88,4 +88,34 @@ public class IJTrackProgress implements TrackProgress
 	{
 		return Utils.isInterrupted();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.logging.TrackProgress#isProgress()
+	 */
+	public boolean isProgress()
+	{
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.logging.TrackProgress#isLogging()
+	 */
+	public boolean isLog()
+	{
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.logging.TrackProgress#isStatus()
+	 */
+	public boolean isStatus()
+	{
+		return true;
+	}
 }

@@ -14,11 +14,12 @@ package gdsc.core.logging;
  *---------------------------------------------------------------------------*/
 
 /**
- * Ignore all method calls from the {@link TrackProgress} interface
+ * Ignore all method calls from the {@link TrackProgress} interface.
  */
 public class NullTrackProgress implements TrackProgress
 {
-	/** An instance to ignore progress reporting */
+
+	/** An instance to ignore progress reporting. */
 	public static final NullTrackProgress INSTANCE = new NullTrackProgress();
 
 	/**
@@ -84,6 +85,36 @@ public class NullTrackProgress implements TrackProgress
 	 * @see gdsc.core.logging.TrackProgress#isEnded()
 	 */
 	public boolean isEnded()
+	{
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.logging.TrackProgress#isProgress()
+	 */
+	public boolean isProgress()
+	{
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.logging.TrackProgress#isLogging()
+	 */
+	public boolean isLog()
+	{
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.logging.TrackProgress#isStatus()
+	 */
+	public boolean isStatus()
 	{
 		return false;
 	}
