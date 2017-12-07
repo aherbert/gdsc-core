@@ -1552,11 +1552,11 @@ public abstract class FastTiffDecoder
 							limits[j][1] = map[k];
 					}
 				}
-				System.out.printf("Z=%d, C=%d, T=%d, P=%d\n", 
-						limits[0][1] - limits[0][0] + 1, 
-						limits[1][1] - limits[1][0] + 1, 
-						limits[2][1] - limits[2][0] + 1,
-						limits[3][1] - limits[3][0] + 1);
+				//System.out.printf("Z=%d, C=%d, T=%d, P=%d\n", 
+				//		limits[0][1] - limits[0][0] + 1, 
+				//		limits[1][1] - limits[1][0] + 1, 
+				//		limits[2][1] - limits[2][0] + 1,
+				//i		limits[3][1] - limits[3][0] + 1);
 				this.limits = limits;
 			}
 		}
