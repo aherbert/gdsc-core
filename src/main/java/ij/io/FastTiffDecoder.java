@@ -109,9 +109,9 @@ public abstract class FastTiffDecoder
 
 	/**
 	 * This is a count of the number of IFDs for which the micro manager metadata will be read. This metadata can be
-	 * large and so by default the count is 0 to prevent reading it when it is not wanted.
+	 * large and so by default the count is 1 to only do this for the first IFD. Set to 0 if not wanted.
 	 */
-	public int ifdCountForMicroManagerMetadata = 0;
+	public int ifdCountForMicroManagerMetadata = 1;
 
 	/**
 	 * This is a count of the number of IFDs for which the debug info is recorded.
@@ -626,7 +626,7 @@ public abstract class FastTiffDecoder
 			//		buffer[j + 11] & 0xff);
 			int value = getValue(fieldType, count, buffer, j + 8);
 			long lvalue = ((long) value) & 0xffffffffL;
-			if (debugMode && ifdCount < ifdCountForDebugData)
+			if (debugMode && ifdCount <= ifdCountForDebugData)
 				dumpTag(tag, count, value, fi);
 			//ij.IJ.write(i+"/"+nEntries+" "+tag + ", count=" + count + ", value=" + value);
 			//if (tag==0) return null;
@@ -861,7 +861,7 @@ public abstract class FastTiffDecoder
 					getMetaData(value, fi);
 					break;
 				case MICRO_MANAGER_META_DATA:
-					if (ifdCount < ifdCountForMicroManagerMetadata)
+					if (ifdCount <= ifdCountForMicroManagerMetadata)
 					{
 						// Only read if desired
 						byte[] bytes = getString(count, lvalue);
@@ -1074,14 +1074,21 @@ public abstract class FastTiffDecoder
 
 	void skipUnknownType(int first, int last) throws IOException
 	{
-		byte[] buffer = new byte[metaDataCounts[first]];
+		long skip = 0;
 		for (int i = first; i <= last; i++)
 		{
-			int len = metaDataCounts[i];
-			if (len > buffer.length)
-				buffer = new byte[len];
-			ss.readFully(buffer, len);
+			skip += metaDataCounts[i];
 		}
+		ss.skip(skip);
+
+		//byte[] buffer = new byte[metaDataCounts[first]];
+		//for (int i = first; i <= last; i++)
+		//{
+		//	int len = metaDataCounts[i];
+		//	if (len > buffer.length)
+		//		buffer = new byte[len];
+		//	ss.readFully(buffer, len);
+		//}
 	}
 
 	public void enableDebugging()
@@ -1101,6 +1108,8 @@ public abstract class FastTiffDecoder
 	 */
 	public ExtendedFileInfo[] getTiffInfo() throws IOException
 	{
+		//debugMode = true;
+
 		ifdCount = 0;
 		long ifdOffset = readUnsignedInt();
 		if (ifdOffset < 8L)
@@ -1122,7 +1131,7 @@ public abstract class FastTiffDecoder
 			}
 			else
 				ifdOffset = 0L;
-			if (debugMode && ifdCount < ifdCountForDebugData)
+			if (debugMode && ifdCount <= ifdCountForDebugData)
 				dInfo += "  nextIFD=" + ifdOffset + "\n";
 			if (fi != null && fi.nImages > 1)
 				ifdOffset = 0L; // ignore extra IFDs in ImageJ and NIH Image stacks
@@ -1156,6 +1165,13 @@ public abstract class FastTiffDecoder
 				fi.debugInfo += "gap between images: " + getGapInfo(info) + "\n";
 				fi.debugInfo += "little-endian byte order: " + fi.intelByteOrder + "\n";
 			}
+
+			//System.out.println(dInfo);
+			//System.out.println(tiffMetadata);
+			//System.out.println(fi.summaryMetaData);
+			//System.out.println(fi.extendedMetaData);
+			//System.out.println(fi.info);
+
 			return info;
 		}
 	}
@@ -1175,6 +1191,8 @@ public abstract class FastTiffDecoder
 	 */
 	public ExtendedFileInfo getTiffInfo(IndexMap indexMap, int i) throws IOException
 	{
+		//debugMode = true;
+
 		// Note: Special processing for the first IFD so that the result of reading all
 		// IFDs from the IndexMap should be the same as using getTiffInfo(). This is 
 		// with the exception of the debugInfo field.
@@ -1198,6 +1216,13 @@ public abstract class FastTiffDecoder
 			if (fi.fileType == ExtendedFileInfo.GRAY16_UNSIGNED && fi.description == null)
 				fi.lutSize = 0; // ignore troublesome non-ImageJ 16-bit LUTs
 		}
+
+		//System.out.println(dInfo);
+		//System.out.println(tiffMetadata);
+		//System.out.println(fi.summaryMetaData);
+		//System.out.println(fi.extendedMetaData);
+		//System.out.println(fi.info);
+
 		return fi;
 	}
 
@@ -2063,11 +2088,10 @@ public abstract class FastTiffDecoder
 		}
 	}
 
-	private static final String ROI_TAG = "ROI\":[";
-
 	/**
-	 * Gets the origin from the FileInfo. This is read using the summary meta-data looking for a JSON tag of
-	 * "ROI":"[x,y,w,h]".
+	 * Gets the origin from the FileInfo. This is read using the summaryMetaData field looking for a JSON tag of
+	 * "ROI": [x,y,w,h] or the info or extendedMetaData fields using a tag of "ROI": "x-y-w-h". These tags are used by
+	 * MircoManager and saved to the appropriate fields of the ExtendedFileInfo object by this decoder.
 	 *
 	 * @param fi
 	 *            the file info
@@ -2075,26 +2099,69 @@ public abstract class FastTiffDecoder
 	 */
 	public static Rectangle getOrigin(ExtendedFileInfo fi)
 	{
-		if (fi.summaryMetaData == null)
+		Rectangle r = getOrigin(fi.summaryMetaData, '[', ',', ']');
+		if (r != null)
+			return r;
+		r = getOrigin(fi.info, '"', '-', '"');
+		if (r != null)
+			return r;
+		return getOrigin(fi.extendedMetaData, '"', '-', '"');
+	}
+
+	/**
+	 * Gets the origin from the text. This looks for a tag of "ROI": AxByBwBhC where A is the start character, B is the
+	 * delimiter and C is the end character, x=x-origin, y=y-origin, w=width, h=height. Only [ :] are allowed between
+	 * the "ROI" tag and the start character.
+	 * <p>
+	 * This tag is used by MicroManager IFD description metadata. This is saved in to the FileInfo.info field by this
+	 * decoder.
+	 *
+	 * @param text
+	 *            the summary meta data
+	 * @return the origin
+	 */
+	public static Rectangle getOrigin(String text, char start, char delimiter, char end)
+	{
+		if (text == null)
 			return null;
 
-		int tagLength = ROI_TAG.length();
-		if (fi.summaryMetaData.length() < tagLength)
+		// The tag is length 5
+		if (text.length() < 5)
 			return null;
 
-		int i = fi.summaryMetaData.indexOf(ROI_TAG);
-		if (i < 0)
-			return null;
-		int j = fi.summaryMetaData.indexOf(']', i);
-		if (j < 0)
+		int tagIndex = text.indexOf("\"ROI\"");
+		if (tagIndex < 0)
 			return null;
 
-		// Extract the x,y,w,h from with the [] square brackets 
-		i += tagLength;
-		char[] chars = new char[j - i];
-		fi.summaryMetaData.getChars(i, j, chars, 0);
+		// Skip over the tag
+		tagIndex += 5;
+		int startIndex = text.indexOf(start, tagIndex);
+		if (startIndex < 0)
+			return null;
 
-		// This should contain only digits and 3 commas
+		// Check that between index and i there is only space/colon
+		for (int k = tagIndex; k < startIndex; k++)
+		{
+			// This has index checking which could be avoided by extracting the chars
+			// in a single call. However we expect the tag match to be fairly unique to 
+			// this situation and so the number of chars to the start character will be 
+			// small.
+			char c = text.charAt(k);
+			if (!(c == ':' || c == ' '))
+				return null;
+		}
+
+		// Skip the actual start character
+		startIndex++;
+		int endIndex = text.indexOf(end, startIndex);
+		if (endIndex < 0)
+			return null;
+
+		// Extract the x,y,w,h from with the start and end characters
+		char[] chars = new char[endIndex - startIndex];
+		text.getChars(startIndex, endIndex, chars, 0);
+
+		// This should contain only digits and 3 delimiters
 		int[] index = new int[3];
 		int digits = 0;
 		int count = 0;
@@ -2105,7 +2172,7 @@ public abstract class FastTiffDecoder
 				digits++;
 				continue;
 			}
-			if (chars[k] == ',')
+			if (chars[k] == delimiter)
 			{
 				if (digits == 0 || count == 3)
 					// No digits before the comma or too many commas
