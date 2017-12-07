@@ -108,10 +108,15 @@ public abstract class FastTiffDecoder
 	private TrackProgress trackProgress = NullTrackProgress.INSTANCE;
 
 	/**
-	 * This is a count of the number of IFD for which the micro manager metadata will be read. This metadata can be
+	 * This is a count of the number of IFDs for which the micro manager metadata will be read. This metadata can be
 	 * large and so by default the count is 0 to prevent reading it when it is not wanted.
 	 */
 	public int ifdCountForMicroManagerMetadata = 0;
+
+	/**
+	 * This is a count of the number of IFDs for which the debug info is recorded.
+	 */
+	public int ifdCountForDebugData = 10;
 
 	/**
 	 * Instantiates a new fast tiff decoder.
@@ -621,7 +626,7 @@ public abstract class FastTiffDecoder
 			//		buffer[j + 11] & 0xff);
 			int value = getValue(fieldType, count, buffer, j + 8);
 			long lvalue = ((long) value) & 0xffffffffL;
-			if (debugMode && ifdCount < 10)
+			if (debugMode && ifdCount < ifdCountForDebugData)
 				dumpTag(tag, count, value, fi);
 			//ij.IJ.write(i+"/"+nEntries+" "+tag + ", count=" + count + ", value=" + value);
 			//if (tag==0) return null;
@@ -1117,7 +1122,7 @@ public abstract class FastTiffDecoder
 			}
 			else
 				ifdOffset = 0L;
-			if (debugMode && ifdCount < 10)
+			if (debugMode && ifdCount < ifdCountForDebugData)
 				dInfo += "  nextIFD=" + ifdOffset + "\n";
 			if (fi != null && fi.nImages > 1)
 				ifdOffset = 0L; // ignore extra IFDs in ImageJ and NIH Image stacks
@@ -1157,6 +1162,8 @@ public abstract class FastTiffDecoder
 
 	/**
 	 * Gets the tiff info for the index map entry. The seekable stream is not closed.
+	 * <p>
+	 * This method also sets {@link #ifdCountForDebugData} to 1, i.e. debug data is only recorded for the first IFD.
 	 *
 	 * @param indexMap
 	 *            the index map
@@ -1166,14 +1173,31 @@ public abstract class FastTiffDecoder
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public ExtendedFileInfo getTiffInfo(IndexMapEntry[] indexMap, int i) throws IOException
+	public ExtendedFileInfo getTiffInfo(IndexMap indexMap, int i) throws IOException
 	{
+		// Note: Special processing for the first IFD so that the result of reading all
+		// IFDs from the IndexMap should be the same as using getTiffInfo(). This is 
+		// with the exception of the debugInfo field.
+		ss.seek(indexMap.getOffset(i));
 		ifdCount = i;
-		ss.seek(indexMap[i].getOffset());
-		ExtendedFileInfo fi = openIFD();
-		// Attempt to read the Micro-Manager summary metadata
+		ifdCountForDebugData = 1; // Only record debugging info for the first IFD
 		if (i == 0)
+		{
+			if (debugMode)
+				dInfo = "\n  " + name + ": opening\n";
+			tiffMetadata = null;
+		}
+		ExtendedFileInfo fi = openIFD();
+		if (i == 0)
+		{
 			readMicroManagerSummaryMetadata(fi);
+			if (debugMode)
+				fi.debugInfo = dInfo;
+			if (fi.info == null)
+				fi.info = tiffMetadata;
+			if (fi.fileType == ExtendedFileInfo.GRAY16_UNSIGNED && fi.description == null)
+				fi.lutSize = 0; // ignore troublesome non-ImageJ 16-bit LUTs
+		}
 		return fi;
 	}
 
@@ -1379,40 +1403,174 @@ public abstract class FastTiffDecoder
 	}
 
 	/**
-	 * A class for holding the index map entry for a single image in an OME-TIFF file.
+	 * A class for holding the index map for images in an OME-TIFF file.
 	 */
-	public class IndexMapEntry
+	public class IndexMap
 	{
-		final public int channelIndex;
-		final public int sliceIndex;
-		final public int frameIndex;
-		final public int positionIndex;
-		final int ifdOffset;
+		private final int[] map;
 
-		private IndexMapEntry(byte[] buffer, int offset)
+		/** The size of the map. */
+		public final int size;
+
+		private int[][] limits;
+
+		private IndexMap(int[] map)
 		{
-			channelIndex = getInt(buffer, offset);
-			sliceIndex = getInt(buffer, offset + 4);
-			frameIndex = getInt(buffer, offset + 8);
-			positionIndex = getInt(buffer, offset + 12);
-			ifdOffset = getInt(buffer, offset + 16);
+			this.map = map;
+			size = map.length / 5;
 		}
 
-		public long getOffset()
+		public int getChannelIndex(int i)
 		{
-			return (long) ifdOffset & 0xffffffffL;
+			checkIndex(i);
+			return map[i * 5];
+		}
+
+		public int getSliceIndex(int i)
+		{
+			checkIndex(i);
+			return map[i * 5 + 1];
+		}
+
+		public int getFrameIndex(int i)
+		{
+			checkIndex(i);
+			return map[i * 5 + 2];
+		}
+
+		public int getPositionIndex(int i)
+		{
+			checkIndex(i);
+			return map[i * 5 + 3];
+		}
+
+		public long getOffset(int i)
+		{
+			checkIndex(i);
+			return (long) map[i * 5 + 4] & 0xffffffffL;
+		}
+
+		private void checkIndex(int i)
+		{
+			if (i < 0 || i >= size)
+				throw new ArrayIndexOutOfBoundsException(i);
+		}
+
+		public int getMinChannelIndex()
+		{
+			createLimits();
+			return limits[0][0];
+		}
+
+		public int getMaxChannelIndex()
+		{
+			createLimits();
+			return limits[0][1];
+		}
+
+		public int getNChannels()
+		{
+			createLimits();
+			return limits[0][1] - limits[0][0] + 1;
+		}
+
+		public int getMinSliceIndex()
+		{
+			createLimits();
+			return limits[1][0];
+		}
+
+		public int getMaxSliceIndex()
+		{
+			createLimits();
+			return limits[1][1];
+		}
+
+		public int getNSlices()
+		{
+			createLimits();
+			return limits[1][1] - limits[1][0] + 1;
+		}
+
+		public int getMinFrameIndex()
+		{
+			createLimits();
+			return limits[2][0];
+		}
+
+		public int getMaxFrameIndex()
+		{
+			createLimits();
+			return limits[2][1];
+		}
+
+		public int getNFrames()
+		{
+			createLimits();
+			return limits[2][1] - limits[2][0] + 1;
+		}
+
+		public int getMinPositionIndex()
+		{
+			createLimits();
+			return limits[3][0];
+		}
+
+		public int getMaxPositionIndex()
+		{
+			createLimits();
+			return limits[3][1];
+		}
+
+		public int getNPositions()
+		{
+			createLimits();
+			return limits[3][1] - limits[3][0] + 1;
+		}
+
+		private void createLimits()
+		{
+			if (limits == null)
+			{
+				// Ignore the offset as finding the min/max and range of this
+				// is of little value
+				int[][] limits = new int[4][2];
+				for (int j = 0; j < 4; j++)
+				{
+					limits[j][0] = limits[j][1] = map[j];
+				}
+				for (int i = 0; i < size; i++)
+				{
+					for (int j = 0, k = i * 5; j < 4; j++, k++)
+					{
+						// Min
+						if (limits[j][0] > map[k])
+							limits[j][0] = map[k];
+						else
+						// Max
+						if (limits[j][1] < map[k])
+							limits[j][1] = map[k];
+					}
+				}
+				System.out.printf("Z=%d, C=%d, T=%d, P=%d\n", 
+						limits[0][1] - limits[0][0] + 1, 
+						limits[1][1] - limits[1][0] + 1, 
+						limits[2][1] - limits[2][0] + 1,
+						limits[3][1] - limits[3][0] + 1);
+				this.limits = limits;
+			}
 		}
 	}
 
 	/**
 	 * Gets the index map.
 	 *
-	 * @return the index map
+	 * @return the index map (or null)
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 * @see https://micro-manager.org/wiki/Micro-Manager_File_Formats
 	 */
-	public IndexMapEntry[] getIndexMap() throws IOException
+	public IndexMap getIndexMap() throws IOException
 	{
 		ss.seek(8L);
 		if (readInt() != 54773648)
@@ -1427,17 +1585,24 @@ public abstract class FastTiffDecoder
 
 		// This is the index map so get the number of entries
 		int n = readInt();
-
-		int size = n * 20; // 20 bytes per entry
-		byte[] buffer = allocateBuffer(size);
-		int read = ss.readFully(buffer, size);
-		if (read != size)
+		if (n <= 0)
 			return null;
 
-		IndexMapEntry[] indexMap = new IndexMapEntry[n];
-		for (int i = 0; i < n; i++)
-			indexMap[i] = new IndexMapEntry(buffer, i * 20);
-		return indexMap;
+		int[] map = new int[n * 5]; // 5 integers per entry
+
+		// Do this in chunks
+		byte[] buffer = allocateBuffer(4096);
+		int i = 0;
+		while (i < map.length)
+		{
+			int toRead = Math.min(4096, (map.length - i) * 4);
+			int read = ss.readFully(buffer, toRead);
+			if (read != toRead)
+				return null;
+			for (int j = 0; j < read; j += 4)
+				map[i++] = getInt(buffer, j);
+		}
+		return new IndexMap(map);
 	}
 
 	/** The size of the IFD index standard data in bytes (short+short+int+int) */
