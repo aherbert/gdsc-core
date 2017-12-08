@@ -632,11 +632,11 @@ public abstract class FastTiffDecoder
 		for (int i = 0, j = 0; i < nEntries; i++, j += INDEX_SIZE)
 		{
 			int tag = getShort(buffer, j);
-			
+
 			// Allow skipping non-essential tags
 			if (pixelDataOnly && tag > 279)
 				break;
-			
+
 			int fieldType = getShort(buffer, j + 2);
 			int count = getInt(buffer, j + 4);
 			//int value = getValue(fieldType, count, buffer[j + 8] & 0xff, buffer[j + 9] & 0xff, buffer[j + 10] & 0xff,
@@ -1187,14 +1187,17 @@ public abstract class FastTiffDecoder
 			ExtendedFileInfo[] info = list.toArray(new ExtendedFileInfo[list.size()]);
 
 			// Attempt to read the Micro-Manager summary metadata
-			readMicroManagerSummaryMetadata(info[0]);
-
+			if (!pixelDataOnly)
+			{
+				readMicroManagerSummaryMetadata(info[0]);
+				if (info[0].info == null)
+					info[0].info = tiffMetadata;
+			}
+			
 			ss.close();
 
 			if (debugMode)
 				info[0].debugInfo = dInfo;
-			if (info[0].info == null)
-				info[0].info = tiffMetadata;
 			fi = info[0];
 			if (fi.fileType == ExtendedFileInfo.GRAY16_UNSIGNED && fi.description == null)
 				fi.lutSize = 0; // ignore troublesome non-ImageJ 16-bit LUTs
@@ -1237,14 +1240,14 @@ public abstract class FastTiffDecoder
 	 */
 	public ExtendedFileInfo getTiffInfo(IndexMap indexMap, int i, boolean pixelDataOnly) throws IOException
 	{
-		debugMode = true;
+		//debugMode = true;
 
 		// Note: Special processing for the first IFD so that the result of reading all
 		// IFDs from the IndexMap should be the same as using getTiffInfo(). This is 
 		// with the exception of the debugInfo field.
 		ss.seek(indexMap.getOffset(i));
 		ifdCount = i;
-		ifdCountForDebugData = 3; // Only record debugging info for the first IFD
+		ifdCountForDebugData = 1; // Only record debugging info for the first IFD
 		if (i == 0)
 		{
 			if (debugMode)
@@ -1254,16 +1257,19 @@ public abstract class FastTiffDecoder
 		ExtendedFileInfo fi = openIFD(pixelDataOnly);
 		if (i == 0)
 		{
-			readMicroManagerSummaryMetadata(fi);
+			if (!pixelDataOnly)
+			{
+				readMicroManagerSummaryMetadata(fi);
+				if (fi.info == null)
+					fi.info = tiffMetadata;
+			}
 			if (debugMode)
 				fi.debugInfo = dInfo;
-			if (fi.info == null)
-				fi.info = tiffMetadata;
 			if (fi.fileType == ExtendedFileInfo.GRAY16_UNSIGNED && fi.description == null)
 				fi.lutSize = 0; // ignore troublesome non-ImageJ 16-bit LUTs
 		}
 
-		System.out.println(dInfo);
+		//System.out.println(dInfo);
 		//System.out.println(tiffMetadata);
 		//System.out.println(fi.summaryMetaData);
 		//System.out.println(fi.extendedMetaData);
