@@ -35,8 +35,14 @@ import java.util.Spliterator;
  */
 public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>, java.io.Serializable
 {
-	/** The closed flag. */
+	/** The closed flag. Should only be modified when holding lock. */
 	private boolean closed = false;
+
+	/**
+	 * The closed and empty flag. This is used to avoid synchronisation when closed. Should only be modified when
+	 * holding lock.
+	 */
+	private boolean closedAndEmpty = false;
 
 	/** Flag specifying the behaviour if closed. */
 	private boolean throwIfClosed = false;
@@ -49,6 +55,20 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	public boolean isClosed()
 	{
 		return closed;
+	}
+
+	/**
+	 * Checks if is closed. No additions are possible when the queue is closed. Items cannot be removed when the queue
+	 * is empty.
+	 * <p>
+	 * If the queue is closed and empty then synchronisation is avoided on all methods that use the queue since it
+	 * cannot change.
+	 *
+	 * @return true, if is closed and empty
+	 */
+	public boolean isClosedAndEmpty()
+	{
+		return closedAndEmpty;
 	}
 
 	/**
@@ -66,10 +86,11 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		lock.lock();
 		try
 		{
-			this.closed = true;
+			closed = true;
 			if (clear)
 			{
 				clear();
+				closedAndEmpty = true;
 			}
 
 			// Release anything waiting to put items in the queue.
@@ -100,7 +121,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		lock.lock();
 		try
 		{
-			this.closed = false;
+			closed = false;
+			closedAndEmpty = false;
 		}
 		finally
 		{
@@ -252,6 +274,9 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		if (itrs != null)
 			itrs.elementDequeued();
 		notFull.signal();
+		// Set the closedAndEmpty flag to avoid synchronisation in a further dequeue methods
+		if (closed && count == 0)
+			closedAndEmpty = true;
 		return x;
 	}
 
@@ -616,6 +641,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 
 	public E poll()
 	{
+		// Avoid synchronisation if this is closed and empty (since nothing can be added)
+		if (closedAndEmpty)
+			return null;
+
 		final ReentrantLock lock = this.lock;
 		lock.lock();
 		try
@@ -642,6 +671,14 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 */
 	public E take() throws InterruptedException, IllegalStateException
 	{
+		// Avoid synchronisation if this is closed and empty (since nothing can be added)
+		if (closedAndEmpty)
+		{
+			if (throwIfClosed)
+				throw new IllegalStateException("Empty closed queue");
+			return null;
+		}
+
 		final ReentrantLock lock = this.lock;
 		lock.lockInterruptibly();
 		try
@@ -669,6 +706,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 
 	public E poll(long timeout, TimeUnit unit) throws InterruptedException
 	{
+		// Avoid synchronisation if this is closed and empty (since nothing can be added)
+		if (closedAndEmpty)
+			return null;
+
 		long nanos = unit.toNanos(timeout);
 		final ReentrantLock lock = this.lock;
 		lock.lockInterruptibly();
@@ -692,6 +733,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 
 	public E peek()
 	{
+		// Avoid synchronisation if this is closed and empty (since nothing can be added)
+		if (closedAndEmpty)
+			return null;
+
 		final ReentrantLock lock = this.lock;
 		lock.lock();
 		try
@@ -713,6 +758,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 */
 	public int size()
 	{
+		// Avoid synchronisation if this is closed and empty (since nothing can be added)
+		if (closedAndEmpty)
+			return 0;
+
 		final ReentrantLock lock = this.lock;
 		lock.lock();
 		try
@@ -741,6 +790,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 */
 	public int remainingCapacity()
 	{
+		// Avoid synchronisation if this is closed and empty (since nothing can be added)
+		if (closedAndEmpty)
+			return items.length;
+
 		final ReentrantLock lock = this.lock;
 		lock.lock();
 		try
@@ -774,7 +827,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 */
 	public boolean remove(Object o)
 	{
-		if (o == null)
+		// Avoid synchronisation if this is closed and empty (since nothing can be added)
+		if (o == null || closedAndEmpty)
 			return false;
 		final Object[] items = this.items;
 		final ReentrantLock lock = this.lock;
@@ -815,7 +869,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 */
 	public boolean contains(Object o)
 	{
-		if (o == null)
+		// Avoid synchronisation if this is closed and empty (since nothing can be added)
+		if (o == null || closedAndEmpty)
 			return false;
 		final Object[] items = this.items;
 		final ReentrantLock lock = this.lock;
@@ -859,6 +914,9 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 */
 	public Object[] toArray()
 	{
+		// Avoid synchronisation if this is closed and empty (since nothing can be added)
+		if (closedAndEmpty)
+			return new Object[0];
 		Object[] a;
 		final ReentrantLock lock = this.lock;
 		lock.lock();
@@ -931,6 +989,13 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	@SuppressWarnings("unchecked")
 	public <T> T[] toArray(T[] a)
 	{
+		// Avoid synchronisation if this is closed and empty (since nothing can be added)
+		if (closedAndEmpty)
+		{
+			a[0] = null;
+			return a;
+		}
+
 		final Object[] items = this.items;
 		final ReentrantLock lock = this.lock;
 		lock.lock();
@@ -960,6 +1025,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 
 	public String toString()
 	{
+		// Avoid synchronisation if this is closed and empty (since nothing can be added)
+		if (closedAndEmpty)
+			return "[]";
+
 		final ReentrantLock lock = this.lock;
 		lock.lock();
 		try
@@ -994,6 +1063,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 */
 	public void clear()
 	{
+		// Avoid synchronisation if this is closed and empty (since nothing can be added)
+		if (closedAndEmpty)
+			return;
+
 		final Object[] items = this.items;
 		final ReentrantLock lock = this.lock;
 		lock.lock();
@@ -1054,8 +1127,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		checkNotNull(c);
 		if (c == this)
 			throw new IllegalArgumentException();
-		if (maxElements <= 0)
+		// Avoid synchronisation if this is closed and empty (since nothing can be added)
+		if (maxElements <= 0 || closedAndEmpty)
 			return 0;
+
 		final Object[] items = this.items;
 		final ReentrantLock lock = this.lock;
 		lock.lock();
@@ -1171,7 +1246,6 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 */
 	class Itrs
 	{
-
 		/**
 		 * Node in a linked list of weak iterator references.
 		 */
