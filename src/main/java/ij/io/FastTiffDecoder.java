@@ -597,7 +597,19 @@ public abstract class FastTiffDecoder
 			return 0.0;
 	}
 
-	private ExtendedFileInfo openIFD() throws IOException
+	/**
+	 * Open IFD.
+	 * <p>
+	 * Optionally the IFD entry can be read for only the data needed to read the pixels. This means skipping the
+	 * X/YResolution, ResolutionUnit, ImageDescription and any meta-data tags for faster reading.
+	 *
+	 * @param pixelDataOnly
+	 *            the pixel data only flag
+	 * @return the extended file info
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	private ExtendedFileInfo openIFD(boolean pixelDataOnly) throws IOException
 	{
 		// Get Image File Directory data
 		nEntries = readShort();
@@ -620,6 +632,11 @@ public abstract class FastTiffDecoder
 		for (int i = 0, j = 0; i < nEntries; i++, j += INDEX_SIZE)
 		{
 			int tag = getShort(buffer, j);
+			
+			// Allow skipping non-essential tags
+			if (pixelDataOnly && tag > 279)
+				break;
+			
 			int fieldType = getShort(buffer, j + 2);
 			int count = getInt(buffer, j + 4);
 			//int value = getValue(fieldType, count, buffer[j + 8] & 0xff, buffer[j + 9] & 0xff, buffer[j + 10] & 0xff,
@@ -821,6 +838,9 @@ public abstract class FastTiffDecoder
 						error("Cannot open JPEG-compressed TIFFs with separate tables");
 					break;
 				case IMAGE_DESCRIPTION:
+					if (pixelDataOnly)
+						// Skip this
+						break;
 					if (ifdCount == 1)
 					{
 						byte[] s = getString(count, lvalue);
@@ -1100,13 +1120,19 @@ public abstract class FastTiffDecoder
 	 * Gets the tiff info.
 	 * <p>
 	 * The stream will need to be reset before calling this method if the decoder has not just been created.
+	 * <p>
+	 * Optionally the IFD entry can be read for only the data needed to read the pixels. This means skipping the
+	 * X/YResolution, ResolutionUnit, ImageDescription and any meta-data tags for faster reading. The full infomation is
+	 * always read for the first IFD.
 	 *
+	 * @param pixelDataOnly
+	 *            the pixel data only flag
 	 * @return the tiff info
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 * @see #reset()
 	 */
-	public ExtendedFileInfo[] getTiffInfo() throws IOException
+	public ExtendedFileInfo[] getTiffInfo(boolean pixelDataOnly) throws IOException
 	{
 		//debugMode = true;
 
@@ -1120,22 +1146,37 @@ public abstract class FastTiffDecoder
 		TurboList<ExtendedFileInfo> list = new TurboList<ExtendedFileInfo>();
 		if (debugMode)
 			dInfo = "\n  " + name + ": opening\n";
-		while (ifdOffset > 0L)
+
+		// Read the first IFD. This is read entirely.
+		ss.seek(ifdOffset);
+		ExtendedFileInfo fi = openIFD(true);
+		if (fi != null)
 		{
-			ss.seek(ifdOffset);
-			ExtendedFileInfo fi = openIFD();
-			if (fi != null)
-			{
-				list.add(fi);
-				ifdOffset = readUnsignedInt();
-			}
-			else
-				ifdOffset = 0L;
+			list.add(fi);
+			ifdOffset = readUnsignedInt();
 			if (debugMode && ifdCount <= ifdCountForDebugData)
 				dInfo += "  nextIFD=" + ifdOffset + "\n";
-			if (fi != null && fi.nImages > 1)
-				ifdOffset = 0L; // ignore extra IFDs in ImageJ and NIH Image stacks
+			// ignore extra IFDs in ImageJ and NIH Image stacks
+			if (fi.nImages <= 1)
+			{
+				// Read the remaining IFDs
+				while (ifdOffset > 0L)
+				{
+					ss.seek(ifdOffset);
+					fi = openIFD(pixelDataOnly);
+					if (fi != null)
+					{
+						list.add(fi);
+						ifdOffset = readUnsignedInt();
+					}
+					else
+						ifdOffset = 0L;
+					if (debugMode && ifdCount <= ifdCountForDebugData)
+						dInfo += "  nextIFD=" + ifdOffset + "\n";
+				}
+			}
 		}
+
 		if (list.size() == 0)
 		{
 			ss.close();
@@ -1154,7 +1195,7 @@ public abstract class FastTiffDecoder
 				info[0].debugInfo = dInfo;
 			if (info[0].info == null)
 				info[0].info = tiffMetadata;
-			ExtendedFileInfo fi = info[0];
+			fi = info[0];
 			if (fi.fileType == ExtendedFileInfo.GRAY16_UNSIGNED && fi.description == null)
 				fi.lutSize = 0; // ignore troublesome non-ImageJ 16-bit LUTs
 			if (debugMode)
@@ -1180,32 +1221,37 @@ public abstract class FastTiffDecoder
 	 * Gets the tiff info for the index map entry. The seekable stream is not closed.
 	 * <p>
 	 * This method also sets {@link #ifdCountForDebugData} to 1, i.e. debug data is only recorded for the first IFD.
+	 * <p>
+	 * Optionally the IFD entry can be read for only the data needed to read the pixels. This means skipping the
+	 * X/YResolution, ResolutionUnit, ImageDescription and any meta-data tags for faster reading.
 	 *
 	 * @param indexMap
 	 *            the index map
 	 * @param i
 	 *            the entry index
+	 * @param pixelDataOnly
+	 *            the pixel data only flag
 	 * @return the tiff info
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public ExtendedFileInfo getTiffInfo(IndexMap indexMap, int i) throws IOException
+	public ExtendedFileInfo getTiffInfo(IndexMap indexMap, int i, boolean pixelDataOnly) throws IOException
 	{
-		//debugMode = true;
+		debugMode = true;
 
 		// Note: Special processing for the first IFD so that the result of reading all
 		// IFDs from the IndexMap should be the same as using getTiffInfo(). This is 
 		// with the exception of the debugInfo field.
 		ss.seek(indexMap.getOffset(i));
 		ifdCount = i;
-		ifdCountForDebugData = 1; // Only record debugging info for the first IFD
+		ifdCountForDebugData = 3; // Only record debugging info for the first IFD
 		if (i == 0)
 		{
 			if (debugMode)
 				dInfo = "\n  " + name + ": opening\n";
 			tiffMetadata = null;
 		}
-		ExtendedFileInfo fi = openIFD();
+		ExtendedFileInfo fi = openIFD(pixelDataOnly);
 		if (i == 0)
 		{
 			readMicroManagerSummaryMetadata(fi);
@@ -1217,7 +1263,7 @@ public abstract class FastTiffDecoder
 				fi.lutSize = 0; // ignore troublesome non-ImageJ 16-bit LUTs
 		}
 
-		//System.out.println(dInfo);
+		System.out.println(dInfo);
 		//System.out.println(tiffMetadata);
 		//System.out.println(fi.summaryMetaData);
 		//System.out.println(fi.extendedMetaData);
