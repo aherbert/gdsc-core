@@ -1269,7 +1269,7 @@ public abstract class FastTiffDecoder
 			tiffMetadata = null;
 		}
 		ExtendedFileInfo fi = openIFD(pixelDataOnly);
-		if (i == 0)
+		if (i == 0 && fi != null)
 		{
 			if (!pixelDataOnly)
 			{
@@ -1377,7 +1377,7 @@ public abstract class FastTiffDecoder
 	public NumberOfImages getNumberOfImages(boolean estimate) throws IOException
 	{
 		// Find the first IFD
-		final long ifdOffset = readUnsignedInt();
+		long ifdOffset = readUnsignedInt();
 		if (ifdOffset < 8L)
 			return NO_IMAGES;
 
@@ -1402,9 +1402,9 @@ public abstract class FastTiffDecoder
 		if (ifdCount > 1)
 			return new NumberOfImages(ifdCount);
 
-		long nextIfdOffset = readUnsignedInt();
+		ifdOffset = readUnsignedInt();
 
-		if (nextIfdOffset <= 0L)
+		if (ifdOffset <= 0L)
 			return ONE_IMAGE;
 
 		if (estimate)
@@ -1414,21 +1414,11 @@ public abstract class FastTiffDecoder
 
 			int imageSize = getPixelSize();
 
-			long ifdSize1;
-			if (bss != null)
-			{
-				// Currently we do not support using the buffer direct so re-read
-				ss.seek(ifdOffset);
-				ifdSize1 = getIFDSize(true);
-			}
-			else
-			{
-				// The IFD table entries were read into the buffer so don't re-read.
-				ifdSize1 = getIFDSize(false);
-			}			
+			// The IFD table entries were read into the buffer so don't re-read.
+			long ifdSize1 = getIFDSize(false);
 
 			// Read the next IFD size
-			ss.seek(nextIfdOffset);
+			ss.seek(ifdOffset);
 			long ifdSize2 = getIFDSize(true);
 
 			long fileSize = new File(directory, name).length();
@@ -1451,9 +1441,9 @@ public abstract class FastTiffDecoder
 			// If not an ImageJ image then we have to read each IFD
 			ifdCount = 1;
 
-			while (nextIfdOffset > 0L)
+			while (ifdOffset > 0L)
 			{
-				ss.seek(nextIfdOffset);
+				ss.seek(ifdOffset);
 
 				if (!scanIFD())
 				{
@@ -1462,7 +1452,7 @@ public abstract class FastTiffDecoder
 				}
 
 				ifdCount++;
-				nextIfdOffset = readUnsignedInt();
+				ifdOffset = readUnsignedInt();
 			}
 
 			return new NumberOfImages(ifdCount);
@@ -1734,7 +1724,7 @@ public abstract class FastTiffDecoder
 				return null;
 			byte[] buffer = bss.buffer;
 			for (int i = 0; i < map.length; i++, j += 4)
-				map[i++] = getInt(buffer, j);
+				map[i] = getInt(buffer, j);
 		}
 		else
 		{
@@ -1792,24 +1782,11 @@ public abstract class FastTiffDecoder
 		// Read the index data in one operation. 
 		// Any tag data is read by using a seek operation and then reset to the current position.
 		int size = nEntries * INDEX_SIZE;
-		int j;
-		byte[] buffer;
-		if (bss != null)
-		{
-			j = getPositionAndSkipBytes(bss, size);
-			if (j < 0)
-				return -1;
-			buffer = bss.buffer;
-		}
-		else
-		{
-			j = 0;
-			buffer = allocateBuffer(size);
-			if (ss.readBytes(buffer, size) != size)
-				return -1;
-		}
+		byte[] buffer = allocateBuffer(size);
+		if (ss.readBytes(buffer, size) != size)
+			return -1;
 
-		for (int i = 0; i < nEntries; i++, j += INDEX_SIZE)
+		for (int i = 0, j = 0; i < nEntries; i++, j += INDEX_SIZE)
 		{
 			// We are only interested in any fields that specify the nImages
 			int tag = getShort(buffer, j);
