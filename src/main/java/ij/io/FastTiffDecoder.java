@@ -96,6 +96,7 @@ public abstract class FastTiffDecoder
 	private String directory;
 	private String name;
 	protected SeekableStream ss;
+	protected final ByteArraySeekableStream bss;
 	protected boolean debugMode;
 	private String dInfo;
 	private int ifdCount;
@@ -133,6 +134,7 @@ public abstract class FastTiffDecoder
 			directory = "";
 		this.name = file.getName();
 		this.ss = in;
+		bss = (in instanceof ByteArraySeekableStream) ? (ByteArraySeekableStream) in : null;
 	}
 
 	/**
@@ -624,11 +626,24 @@ public abstract class FastTiffDecoder
 		// Read the index data in one operation. 
 		// Any tag data is read by using a seek operation and then reset to the current position.
 		int size = nEntries * INDEX_SIZE;
-		byte[] buffer = allocateBuffer(size);
-		if (ss.readBytes(buffer, size) != size)
-			return null;
+		int j;
+		byte[] buffer;
+		if (bss != null)
+		{
+			j = getPositionAndSkipBytes(bss, size);
+			if (j < 0)
+				return null;
+			buffer = bss.buffer;
+		}
+		else
+		{
+			j = 0;
+			buffer = allocateBuffer(size);
+			if (ss.readBytes(buffer, size) != size)
+				return null;
+		}
 
-		for (int i = 0, j = 0; i < nEntries; i++, j += INDEX_SIZE)
+		for (int i = 0; i < nEntries; i++, j += INDEX_SIZE)
 		{
 			int tag = getShort(buffer, j);
 
@@ -1362,7 +1377,7 @@ public abstract class FastTiffDecoder
 	public NumberOfImages getNumberOfImages(boolean estimate) throws IOException
 	{
 		// Find the first IFD
-		long ifdOffset = readUnsignedInt();
+		final long ifdOffset = readUnsignedInt();
 		if (ifdOffset < 8L)
 			return NO_IMAGES;
 
@@ -1387,9 +1402,9 @@ public abstract class FastTiffDecoder
 		if (ifdCount > 1)
 			return new NumberOfImages(ifdCount);
 
-		ifdOffset = readUnsignedInt();
+		long nextIfdOffset = readUnsignedInt();
 
-		if (ifdOffset <= 0L)
+		if (nextIfdOffset <= 0L)
 			return ONE_IMAGE;
 
 		if (estimate)
@@ -1399,11 +1414,21 @@ public abstract class FastTiffDecoder
 
 			int imageSize = getPixelSize();
 
-			// The IFD table entries were read into the buffer so don't re-read.
-			long ifdSize1 = getIFDSize(false);
+			long ifdSize1;
+			if (bss != null)
+			{
+				// Currently we do not support using the buffer direct so re-read
+				ss.seek(ifdOffset);
+				ifdSize1 = getIFDSize(true);
+			}
+			else
+			{
+				// The IFD table entries were read into the buffer so don't re-read.
+				ifdSize1 = getIFDSize(false);
+			}			
 
 			// Read the next IFD size
-			ss.seek(ifdOffset);
+			ss.seek(nextIfdOffset);
 			long ifdSize2 = getIFDSize(true);
 
 			long fileSize = new File(directory, name).length();
@@ -1426,9 +1451,9 @@ public abstract class FastTiffDecoder
 			// If not an ImageJ image then we have to read each IFD
 			ifdCount = 1;
 
-			while (ifdOffset > 0L)
+			while (nextIfdOffset > 0L)
 			{
-				ss.seek(ifdOffset);
+				ss.seek(nextIfdOffset);
 
 				if (!scanIFD())
 				{
@@ -1437,7 +1462,7 @@ public abstract class FastTiffDecoder
 				}
 
 				ifdCount++;
-				ifdOffset = readUnsignedInt();
+				nextIfdOffset = readUnsignedInt();
 			}
 
 			return new NumberOfImages(ifdCount);
@@ -1702,18 +1727,49 @@ public abstract class FastTiffDecoder
 
 		int[] map = new int[n * 5]; // 5 integers per entry
 
-		// Do this in chunks
-		byte[] buffer = allocateBuffer(4096);
-		int i = 0;
-		while (i < map.length)
+		if (bss != null)
 		{
-			int read = Math.min(4096, (map.length - i) * 4);
-			if (ss.readBytes(buffer, read) != read)
+			int j = getPositionAndSkipBytes(bss, map.length * 4);
+			if (j < 0)
 				return null;
-			for (int j = 0; j < read; j += 4)
+			byte[] buffer = bss.buffer;
+			for (int i = 0; i < map.length; i++, j += 4)
 				map[i++] = getInt(buffer, j);
 		}
+		else
+		{
+			// Do this in chunks
+			byte[] buffer = allocateBuffer(4096);
+			int i = 0;
+			while (i < map.length)
+			{
+				int read = Math.min(4096, (map.length - i) * 4);
+				if (ss.readBytes(buffer, read) != read)
+					return null;
+				for (int j = 0; j < read; j += 4)
+					map[i++] = getInt(buffer, j);
+			}
+		}
 		return new IndexMap(map);
+	}
+
+	/**
+	 * Gets the position and skips all of the data.
+	 *
+	 * @param in
+	 *            the input stream
+	 * @param count
+	 *            the count
+	 * @return the position before the skip (-1 if EOF)
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	private int getPositionAndSkipBytes(ByteArraySeekableStream in, long skip) throws IOException
+	{
+		int position = in.p;
+		if (in.skip(skip) != skip)
+			return -1;
+		return position;
 	}
 
 	/** The size of the IFD index standard data in bytes (short+short+int+int) */
@@ -1736,11 +1792,24 @@ public abstract class FastTiffDecoder
 		// Read the index data in one operation. 
 		// Any tag data is read by using a seek operation and then reset to the current position.
 		int size = nEntries * INDEX_SIZE;
-		byte[] buffer = allocateBuffer(size);
-		if (ss.readBytes(buffer, size) != size)
-			return -1;
+		int j;
+		byte[] buffer;
+		if (bss != null)
+		{
+			j = getPositionAndSkipBytes(bss, size);
+			if (j < 0)
+				return -1;
+			buffer = bss.buffer;
+		}
+		else
+		{
+			j = 0;
+			buffer = allocateBuffer(size);
+			if (ss.readBytes(buffer, size) != size)
+				return -1;
+		}
 
-		for (int i = 0, j = 0; i < nEntries; i++, j += INDEX_SIZE)
+		for (int i = 0; i < nEntries; i++, j += INDEX_SIZE)
 		{
 			// We are only interested in any fields that specify the nImages
 			int tag = getShort(buffer, j);
