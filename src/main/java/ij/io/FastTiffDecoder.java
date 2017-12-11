@@ -625,8 +625,7 @@ public abstract class FastTiffDecoder
 		// Any tag data is read by using a seek operation and then reset to the current position.
 		int size = nEntries * INDEX_SIZE;
 		byte[] buffer = allocateBuffer(size);
-		int read = ss.readFully(buffer, size);
-		if (read != size)
+		if (ss.readBytes(buffer, size) != size)
 			return null;
 
 		for (int i = 0, j = 0; i < nEntries; i++, j += INDEX_SIZE)
@@ -1708,9 +1707,8 @@ public abstract class FastTiffDecoder
 		int i = 0;
 		while (i < map.length)
 		{
-			int toRead = Math.min(4096, (map.length - i) * 4);
-			int read = ss.readFully(buffer, toRead);
-			if (read != toRead)
+			int read = Math.min(4096, (map.length - i) * 4);
+			if (ss.readBytes(buffer, read) != read)
 				return null;
 			for (int j = 0; j < read; j += 4)
 				map[i++] = getInt(buffer, j);
@@ -1739,8 +1737,7 @@ public abstract class FastTiffDecoder
 		// Any tag data is read by using a seek operation and then reset to the current position.
 		int size = nEntries * INDEX_SIZE;
 		byte[] buffer = allocateBuffer(size);
-		int read = ss.readFully(buffer, size);
-		if (read != size)
+		if (ss.readBytes(buffer, size) != size)
 			return -1;
 
 		for (int i = 0, j = 0; i < nEntries; i++, j += INDEX_SIZE)
@@ -1886,8 +1883,7 @@ public abstract class FastTiffDecoder
 			// Any tag data is read by using a seek operation and then reset to the current position.
 			int size = nEntries * INDEX_SIZE;
 			byte[] buffer = allocateBuffer(size);
-			int read = ss.readFully(buffer, size);
-			if (read != size)
+			if (ss.readBytes(buffer, size) != size)
 				return 0;
 		}
 

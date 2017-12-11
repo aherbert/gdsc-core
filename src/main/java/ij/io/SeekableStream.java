@@ -42,38 +42,189 @@ public abstract class SeekableStream extends InputStream
 	 * Read the full length of the buffer into the byte buffer.
 	 *
 	 * @param bytes
-	 *            the bytes
-	 * @return the number of bytes read
+	 *            the buffer into which the data is read
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
+	 * @exception EOFException
+	 *                if this input stream reaches the end before
+	 *                reading all the bytes.
+	 * @exception IOException
+	 *                the stream has been closed and the contained
+	 *                input stream does not support reading after close, or
+	 *                another I/O error occurs.
 	 */
-	public final int readFully(byte[] bytes) throws IOException
+	public final void readFully(byte[] bytes) throws IOException
 	{
-		return readFully(bytes, bytes.length);
+		readFullyInternal(bytes, 0, bytes.length);
 	}
 
 	/**
 	 * Read the set length into the byte buffer.
 	 *
 	 * @param bytes
-	 *            the bytes
+	 *            the buffer into which the data is read
 	 * @param len
-	 *            the length
-	 * @return the number of bytes read
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 *            the number of bytes to read.
+	 * @exception EOFException
+	 *                if this input stream reaches the end before
+	 *                reading all the bytes.
+	 * @exception IOException
+	 *                the stream has been closed and the contained
+	 *                input stream does not support reading after close, or
+	 *                another I/O error occurs.
 	 */
-	public final int readFully(byte[] bytes, int len) throws IOException
+	public final void readFully(byte[] bytes, int len) throws IOException
 	{
-		int read = 0;
-		do
+		if (len < 0)
+			throw new IndexOutOfBoundsException();
+		readFullyInternal(bytes, 0, len);
+	}
+
+	/**
+	 * Read the set length into the byte buffer.
+	 *
+	 * @param bytes
+	 *            the buffer into which the data is read
+	 * @param off
+	 *            the start offset of the data.
+	 * @param len
+	 *            the number of bytes to read.
+	 * @exception EOFException
+	 *                if this input stream reaches the end before
+	 *                reading all the bytes.
+	 * @exception IOException
+	 *                the stream has been closed and the contained
+	 *                input stream does not support reading after close, or
+	 *                another I/O error occurs.
+	 */
+	public final void readFully(byte[] bytes, int off, int len) throws IOException
+	{
+		if (len < 0)
+			throw new IndexOutOfBoundsException();
+		readFullyInternal(bytes, off, len);
+	}
+
+	/**
+	 * Read the set length into the byte buffer.
+	 *
+	 * @param bytes
+	 *            the buffer into which the data is read
+	 * @param off
+	 *            the start offset of the data.
+	 * @param len
+	 *            the number of bytes to read.
+	 * @exception EOFException
+	 *                if this input stream reaches the end before
+	 *                reading all the bytes.
+	 * @exception IOException
+	 *                the stream has been closed and the contained
+	 *                input stream does not support reading after close, or
+	 *                another I/O error occurs.
+	 */
+	public final void readFullyInternal(byte[] bytes, int off, int len) throws IOException
+	{
+		int n = 0;
+		while (n < len)
 		{
-			int l = read(bytes, read, len - read);
-			if (l < 0)
+			int count = read(bytes, off + n, len - n);
+			if (count < 0)
+				throw new EOFException();
+			n += count;
+		}
+	}
+
+	/**
+	 * Read the full length of the buffer into the byte buffer.
+	 * <p>
+	 * If this input stream reaches the end before reading all the bytes then the number of bytes read is returned.
+	 *
+	 * @param bytes
+	 *            the buffer into which the data is read
+	 * @return the number of bytes read
+	 * @exception IOException
+	 *                the stream has been closed and the contained
+	 *                input stream does not support reading after close, or
+	 *                another I/O error occurs.
+	 */
+	public final int readBytes(byte[] bytes) throws IOException
+	{
+		return readBytesInternal(bytes, 0, bytes.length);
+	}
+
+	/**
+	 * Read the set length into the byte buffer.
+	 * <p>
+	 * If this input stream reaches the end before reading all the bytes then the number of bytes read is returned.
+	 *
+	 * @param bytes
+	 *            the buffer into which the data is read
+	 * @param len
+	 *            the number of bytes to read.
+	 * @return the number of bytes read
+	 * @exception IOException
+	 *                the stream has been closed and the contained
+	 *                input stream does not support reading after close, or
+	 *                another I/O error occurs.
+	 */
+	public final int readBytes(byte[] bytes, int len) throws IOException
+	{
+		if (len < 0)
+			throw new IndexOutOfBoundsException();
+		return readBytesInternal(bytes, 0, len);
+	}
+
+	/**
+	 * Read the set length into the byte buffer.
+	 * <p>
+	 * If this input stream reaches the end before reading all the bytes then the number of bytes read is returned.
+	 * 
+	 * @param bytes
+	 *            the buffer into which the data is read
+	 * @param off
+	 *            the start offset of the data.
+	 * @param len
+	 *            the number of bytes to read.
+	 * @return the number of bytes read
+	 * @exception IOException
+	 *                the stream has been closed and the contained
+	 *                input stream does not support reading after close, or
+	 *                another I/O error occurs.
+	 */
+	public final int readBytes(byte[] bytes, int off, int len) throws IOException
+	{
+		if (len < 0)
+			throw new IndexOutOfBoundsException();
+		return readBytesInternal(bytes, off, len);
+	}
+
+	/**
+	 * Read the set length into the byte buffer.
+	 * <p>
+	 * If this input stream reaches the end before reading all the bytes then the number of bytes read is returned.
+	 *
+	 * @param bytes
+	 *            the buffer into which the data is read
+	 * @param off
+	 *            the start offset of the data.
+	 * @param len
+	 *            the number of bytes to read.
+	 * @return the number of bytes read
+	 * @exception IOException
+	 *                the stream has been closed and the contained
+	 *                input stream does not support reading after close, or
+	 *                another I/O error occurs.
+	 */
+	public final int readBytesInternal(byte[] bytes, int off, int len) throws IOException
+	{
+		int n = 0;
+		while (n < len)
+		{
+			int count = read(bytes, off + n, len - n);
+			if (count < 0)
 				break;
-			read += l;
-		} while (read < len);
-		return read;
+			n += count;
+		}
+		return n;
 	}
 
 	/**
