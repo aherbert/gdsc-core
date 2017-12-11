@@ -2,7 +2,6 @@ package ij.io;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.zip.DataFormatException;
@@ -588,14 +587,13 @@ public class FastImageReader
 	{
 		if (fi.compression > FileInfo.COMPRESSION_NONE)
 			return readCompressedPlanarRGBImage(in);
-		DataInputStream dis = new DataInputStream(in);
 		int planeSize = nPixels; // 1/3 image size
 		byte[] buffer = new byte[planeSize];
 		int[] pixels = new int[nPixels];
 		int r, g, b;
 
 		//showProgress(10, 100);
-		dis.readFully(buffer);
+		in.readFully(buffer);
 		for (int i = 0; i < planeSize; i++)
 		{
 			r = buffer[i] & 0xff;
@@ -603,7 +601,7 @@ public class FastImageReader
 		}
 
 		//showProgress(40, 100);
-		dis.readFully(buffer);
+		in.readFully(buffer);
 		for (int i = 0; i < planeSize; i++)
 		{
 			g = buffer[i] & 0xff;
@@ -611,7 +609,7 @@ public class FastImageReader
 		}
 
 		//showProgress(70, 100);
-		dis.readFully(buffer);
+		in.readFully(buffer);
 		for (int i = 0; i < planeSize; i++)
 		{
 			b = buffer[i] & 0xff;
@@ -653,7 +651,6 @@ public class FastImageReader
 			return readCompressedRGB48(in);
 		int channels = fi.samplesPerPixel;
 		short[][] stack = new short[channels][nPixels];
-		DataInputStream dis = new DataInputStream(in);
 		int pixel = 0;
 		int min = 65535, max = 0;
 		if (fi.stripLengths == null)
@@ -668,14 +665,14 @@ public class FastImageReader
 				long skip = (fi.stripOffsets[i] & 0xffffffffL) - (fi.stripOffsets[i - 1] & 0xffffffffL) -
 						fi.stripLengths[i - 1];
 				if (skip > 0L)
-					dis.skip(skip);
+					in.skip(skip);
 			}
 			int len = fi.stripLengths[i];
 			int bytesToGo = (nPixels - pixel) * channels * 2;
 			if (len > bytesToGo)
 				len = bytesToGo;
 			byte[] buffer = new byte[len];
-			dis.readFully(buffer);
+			in.readFully(buffer);
 			int value;
 			int channel = 0;
 			boolean intel = fi.intelByteOrder;
@@ -710,7 +707,6 @@ public class FastImageReader
 			throw new IOException("ImageJ cannot open 48-bit LZW compressed TIFFs with predictor");
 		int channels = 3;
 		short[][] stack = new short[channels][nPixels];
-		DataInputStream dis = new DataInputStream(in);
 		int pixel = 0;
 		int min = 65535, max = 0;
 		for (int i = 0; i < fi.stripOffsets.length; i++)
@@ -720,11 +716,11 @@ public class FastImageReader
 				long skip = (fi.stripOffsets[i] & 0xffffffffL) - (fi.stripOffsets[i - 1] & 0xffffffffL) -
 						fi.stripLengths[i - 1];
 				if (skip > 0L)
-					dis.skip(skip);
+					in.skip(skip);
 			}
 			int len = fi.stripLengths[i];
 			byte[] buffer = new byte[len];
-			dis.readFully(buffer);
+			in.readFully(buffer);
 			buffer = uncompress(buffer);
 			len = buffer.length;
 			if (len % 2 != 0)
@@ -773,8 +769,7 @@ public class FastImageReader
 			bytesPerLine++; // add 1 if odd
 		byte[] buffer = new byte[bytesPerLine * height];
 		short[] pixels = new short[nPixels];
-		DataInputStream dis = new DataInputStream(in);
-		dis.readFully(buffer);
+		in.readFully(buffer);
 		for (int y = 0; y < height; y++)
 		{
 			int index1 = y * bytesPerLine;
@@ -799,10 +794,9 @@ public class FastImageReader
 		byte[] buffer = new byte[width * 3];
 		float[] pixels = new float[nPixels];
 		int b1, b2, b3;
-		DataInputStream dis = new DataInputStream(in);
 		for (int y = 0; y < height; y++)
 		{
-			dis.readFully(buffer);
+			in.readFully(buffer);
 			int b = 0;
 			for (int x = 0; x < width; x++)
 			{
@@ -823,8 +817,7 @@ public class FastImageReader
 		int len = scan * height;
 		byte[] buffer = new byte[len];
 		byte[] pixels = new byte[nPixels];
-		DataInputStream dis = new DataInputStream(in);
-		dis.readFully(buffer);
+		in.readFully(buffer);
 		int value1, value2, offset, index;
 		for (int y = 0; y < height; y++)
 		{
@@ -1104,6 +1097,275 @@ public class FastImageReader
 			}
 		}
 		return output.toByteArray();
+	}
+
+	// Specialised version to read using an in-memory byte buffer
+
+	byte[] read8bitImage(ByteArraySeekableStream in) throws IOException
+	{
+		if (fi.compression > FileInfo.COMPRESSION_NONE)
+			return readCompressed8bitImage(in);
+
+		int j = getPositionAndSkipPixelBytes(in, 1);
+		byte[] pixels = new byte[nPixels];
+		System.arraycopy(in.buffer, j, pixels, 0, nPixels);
+		return pixels;
+	}
+
+	/** Reads a 16-bit image. Signed pixels are converted to unsigned by adding 32768. */
+	short[] read16bitImage(ByteArraySeekableStream in) throws IOException
+	{
+		if (fi.compression > FileInfo.COMPRESSION_NONE ||
+				(fi.stripOffsets != null && fi.stripOffsets.length > 1) && fi.fileType != FileInfo.RGB48_PLANAR)
+			return readCompressed16bitImage(in);
+
+		// We use the bytes direct
+		int j = getPositionAndSkipPixelBytes(in, 2);
+		byte[] buffer = in.buffer;
+		short[] pixels = new short[nPixels];
+
+		if (fi.intelByteOrder)
+		{
+			if (fi.fileType == FileInfo.GRAY16_SIGNED)
+				for (int i = 0; i < nPixels; i++, j += 2)
+					pixels[i] = (short) ((((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff)) + 32768);
+			else
+				for (int i = 0; i < nPixels; i++, j += 2)
+					pixels[i] = (short) (((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff));
+		}
+		else
+		{
+			if (fi.fileType == FileInfo.GRAY16_SIGNED)
+				for (int i = 0; i < nPixels; i++, j += 2)
+					pixels[i] = (short) ((((buffer[j] & 0xff) << 8) | (buffer[j + 1] & 0xff)) + 32768);
+			else
+				for (int i = 0; i < nPixels; i++, j += 2)
+					pixels[i] = (short) (((buffer[j] & 0xff) << 8) | (buffer[j + 1] & 0xff));
+		}
+
+		return pixels;
+	}
+
+	float[] read32bitImage(ByteArraySeekableStream in) throws IOException
+	{
+		if (fi.compression > FileInfo.COMPRESSION_NONE || (fi.stripOffsets != null && fi.stripOffsets.length > 1))
+			return readCompressed32bitImage(in);
+
+		// We use the bytes direct
+		int j = getPositionAndSkipPixelBytes(in, 4);
+		byte[] buffer = in.buffer;
+		float[] pixels = new float[nPixels];
+
+		if (fi.intelByteOrder)
+		{
+			//for (int i = 0; i < nPixels; i++, j += 4)
+			//{
+			//	int tmp = (int) (((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16) |
+			//			((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff));
+			//	if (fi.fileType == FileInfo.GRAY32_FLOAT)
+			//		pixels[i] = Float.intBitsToFloat(tmp);
+			//	else if (fi.fileType == FileInfo.GRAY32_UNSIGNED)
+			//		pixels[i] = (float) (tmp & 0xffffffffL);
+			//	else
+			//		pixels[i] = tmp;
+			//}
+			if (fi.fileType == FileInfo.GRAY32_FLOAT)
+			{
+				for (int i = 0; i < nPixels; i++, j += 4)
+					pixels[i] = Float.intBitsToFloat((int) (((buffer[j + 3] & 0xff) << 24) |
+							((buffer[j + 2] & 0xff) << 16) | ((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff)));
+			}
+			else if (fi.fileType == FileInfo.GRAY32_UNSIGNED)
+			{
+				int tmp = (int) (((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16) |
+						((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff));
+				for (int i = 0; i < nPixels; i++, j += 4)
+					pixels[i] = (float) (tmp & 0xffffffffL);
+			}
+			else
+			{
+				for (int i = 0; i < nPixels; i++, j += 4)
+					pixels[i] = (int) (((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16) |
+							((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff));
+			}
+		}
+		else
+		{
+			//for (int i = 0; i < nPixels; i++, j += 4)
+			//{
+			//	int tmp = (int) (((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16) |
+			//			((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff));
+			//	if (fi.fileType == FileInfo.GRAY32_FLOAT)
+			//		pixels[i] = Float.intBitsToFloat(tmp);
+			//	else if (fi.fileType == FileInfo.GRAY32_UNSIGNED)
+			//		pixels[i] = (float) (tmp & 0xffffffffL);
+			//	else
+			//		pixels[i] = tmp;
+			//}
+			if (fi.fileType == FileInfo.GRAY32_FLOAT)
+			{
+				for (int i = 0; i < nPixels; i++, j += 4)
+					pixels[i] = Float.intBitsToFloat((int) (((buffer[j] & 0xff) << 24) |
+							((buffer[j + 1] & 0xff) << 16) | ((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff)));
+			}
+			else if (fi.fileType == FileInfo.GRAY32_UNSIGNED)
+			{
+				int tmp = (int) (((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16) |
+						((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff));
+				for (int i = 0; i < nPixels; i++, j += 4)
+					pixels[i] = (float) (tmp & 0xffffffffL);
+			}
+			else
+			{
+				for (int i = 0; i < nPixels; i++, j += 4)
+					pixels[i] = (int) (((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16) |
+							((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff));
+			}
+		}
+
+		return pixels;
+	}
+
+	float[] read64bitImage(ByteArraySeekableStream in) throws IOException
+	{
+		// We use the bytes direct
+		int j = getPositionAndSkipPixelBytes(in, 8);
+		byte[] buffer = in.buffer;
+		float[] pixels = new float[nPixels];
+		long tmp;
+		long b1, b2, b3, b4, b5, b6, b7, b8;
+
+		for (int i = 0; i < nPixels; i++)
+		{
+			b1 = buffer[j + 7] & 0xff;
+			b2 = buffer[j + 6] & 0xff;
+			b3 = buffer[j + 5] & 0xff;
+			b4 = buffer[j + 4] & 0xff;
+			b5 = buffer[j + 3] & 0xff;
+			b6 = buffer[j + 2] & 0xff;
+			b7 = buffer[j + 1] & 0xff;
+			b8 = buffer[j] & 0xff;
+			if (fi.intelByteOrder)
+				tmp = (long) ((b1 << 56) | (b2 << 48) | (b3 << 40) | (b4 << 32) | (b5 << 24) | (b6 << 16) | (b7 << 8) |
+						b8);
+			else
+				tmp = (long) ((b8 << 56) | (b7 << 48) | (b6 << 40) | (b5 << 32) | (b4 << 24) | (b3 << 16) | (b2 << 8) |
+						b1);
+			pixels[i] = (float) Double.longBitsToDouble(tmp);
+			j += 8;
+		}
+		return pixels;
+	}
+
+	/**
+	 * Gets the position and skips the number of bytes covering all of the pixel data.
+	 *
+	 * @param in
+	 *            the input stream
+	 * @param bytesPerPixel
+	 *            the bytes per pixel
+	 * @return the position before the skip
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	private int getPositionAndSkipPixelBytes(ByteArraySeekableStream in, int bytesPerPixel) throws IOException
+	{
+		int position = in.p;
+		long skip = bytesPerPixel * ((long) nPixels);
+		if (in.skip(skip) != skip)
+			throw new EOFException();
+		return position;
+	}
+
+	/**
+	 * Reads the image from the SeekableStream and returns the pixel
+	 * array (byte, short, int or float).
+	 * Does not close the SeekableStream.
+	 */
+	public Object readPixels(ByteArraySeekableStream in) throws IOException
+	{
+		Object pixels;
+		switch (fi.fileType)
+		{
+			case FileInfo.GRAY8:
+			case FileInfo.COLOR8:
+				bytesPerPixel = 1;
+				skip(in);
+				pixels = (Object) read8bitImage(in);
+				break;
+			case FileInfo.GRAY16_SIGNED:
+			case FileInfo.GRAY16_UNSIGNED:
+				bytesPerPixel = 2;
+				skip(in);
+				pixels = (Object) read16bitImage(in);
+				break;
+			case FileInfo.GRAY32_INT:
+			case FileInfo.GRAY32_UNSIGNED:
+			case FileInfo.GRAY32_FLOAT:
+				bytesPerPixel = 4;
+				skip(in);
+				pixels = (Object) read32bitImage(in);
+				break;
+			case FileInfo.GRAY64_FLOAT:
+				bytesPerPixel = 8;
+				skip(in);
+				pixels = (Object) read64bitImage(in);
+				break;
+			case FileInfo.RGB:
+			case FileInfo.BGR:
+			case FileInfo.ARGB:
+			case FileInfo.ABGR:
+			case FileInfo.BARG:
+			case FileInfo.CMYK:
+				bytesPerPixel = fi.getBytesPerPixel();
+				skip(in);
+				pixels = (Object) readChunkyRGB(in);
+				break;
+			case FileInfo.RGB_PLANAR:
+				bytesPerPixel = 3;
+				skip(in);
+				pixels = (Object) readPlanarRGB(in);
+				break;
+			case FileInfo.BITMAP:
+				bytesPerPixel = 1;
+				skip(in);
+				pixels = (Object) read1bitImage(in);
+				break;
+			case FileInfo.RGB48:
+				bytesPerPixel = 6;
+				skip(in);
+				pixels = (Object) readRGB48(in);
+				break;
+			case FileInfo.RGB48_PLANAR:
+				bytesPerPixel = 2;
+				skip(in);
+				pixels = (Object) readRGB48Planar(in);
+				break;
+			case FileInfo.GRAY12_UNSIGNED:
+				skip(in);
+				short[] data = read12bitImage(in);
+				pixels = (Object) data;
+				break;
+			case FileInfo.GRAY24_UNSIGNED:
+				skip(in);
+				pixels = (Object) read24bitImage(in);
+				break;
+			default:
+				pixels = null;
+		}
+		//showProgress(1, 1);
+		return pixels;
+	}
+
+	/**
+	 * Skips the specified number of bytes, then reads an image and
+	 * returns the pixel array (byte, short, int or float).
+	 * Does not close the SeekableStream.
+	 */
+	public Object readPixels(ByteArraySeekableStream in, long skipCount) throws IOException
+	{
+		this.skipCount = skipCount;
+		return readPixels(in);
 	}
 }
 
