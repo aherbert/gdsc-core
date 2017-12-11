@@ -634,7 +634,7 @@ public abstract class FastTiffDecoder
 			int tag = getShort(buffer, j);
 
 			// Allow skipping non-essential tags
-			if (pixelDataOnly && tag > 279)
+			if (pixelDataOnly && tag > JPEG_TABLES)
 				break;
 
 			int fieldType = getShort(buffer, j + 2);
@@ -645,7 +645,7 @@ public abstract class FastTiffDecoder
 			long lvalue = ((long) value) & 0xffffffffL;
 			if (debugMode && ifdCount <= ifdCountForDebugData)
 				dumpTag(tag, count, value, fi);
-			//ij.IJ.write(i+"/"+nEntries+" "+tag + ", count=" + count + ", value=" + value);
+			//System.out.println(i+"/"+nEntries+" "+tag + ", count=" + count + ", value=" + value);
 			//if (tag==0) return null;
 			switch (tag)
 			{
@@ -1149,7 +1149,7 @@ public abstract class FastTiffDecoder
 
 		// Read the first IFD. This is read entirely.
 		ss.seek(ifdOffset);
-		ExtendedFileInfo fi = openIFD(true);
+		ExtendedFileInfo fi = openIFD(false);
 		if (fi != null)
 		{
 			list.add(fi);
@@ -1193,7 +1193,7 @@ public abstract class FastTiffDecoder
 				if (info[0].info == null)
 					info[0].info = tiffMetadata;
 			}
-			
+
 			ss.close();
 
 			if (debugMode)
@@ -1636,6 +1636,42 @@ public abstract class FastTiffDecoder
 				//i		limits[3][1] - limits[3][0] + 1);
 				this.limits = limits;
 			}
+		}
+
+		public boolean isSingleChannel()
+		{
+			final int test = map[0];
+			for (int i = 5; i < map.length; i += 5)
+				if (map[i] != test)
+					return false;
+			return true;
+		}
+
+		public boolean isSingleSlice()
+		{
+			final int test = map[1];
+			for (int i = 6; i < map.length; i += 5)
+				if (map[i] != test)
+					return false;
+			return true;
+		}
+
+		public boolean isSingleFrame()
+		{
+			final int test = map[2];
+			for (int i = 7; i < map.length; i += 5)
+				if (map[i] != test)
+					return false;
+			return true;
+		}
+
+		public boolean isSinglePosition()
+		{
+			final int test = map[3];
+			for (int i = 8; i < map.length; i += 5)
+				if (map[i] != test)
+					return false;
+			return true;
 		}
 	}
 
