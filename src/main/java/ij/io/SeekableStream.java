@@ -177,4 +177,26 @@ public abstract class SeekableStream extends InputStream
 	 * @see java.io.InputStream#close()
 	 */
 	public abstract void close() throws IOException;
+
+	/**
+	 * Check if this resource can be copied.
+	 *
+	 * @return true, if this resource can be copied
+	 */
+	public boolean canCopy()
+	{
+		return false;
+	}
+
+	/**
+	 * Copy the resource for reading. It will be set to position 0.
+	 *
+	 * @return the copy
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	public SeekableStream copy() throws IOException
+	{
+		throw new IOException("Cannot copy");
+	}
 }

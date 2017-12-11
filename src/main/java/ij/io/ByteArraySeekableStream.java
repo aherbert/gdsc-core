@@ -37,16 +37,6 @@ public final class ByteArraySeekableStream extends SeekableStream
 		this.buffer = bytes;
 		length = bytes.length;
 	}
-	
-	/**
-	 * Copy the stream reusing the underlying byte buffer.
-	 *
-	 * @return the byte array seekable stream
-	 */
-	public ByteArraySeekableStream copy()
-	{
-		return new ByteArraySeekableStream(buffer);
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -127,10 +117,31 @@ public final class ByteArraySeekableStream extends SeekableStream
 		/* return the actual number of bytes skipped */
 		return p - pos;
 	}
-	
+
 	@Override
 	public int available() throws IOException
 	{
 		return length - p;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ij.io.SeekableStream#canCopy()
+	 */
+	@Override
+	public boolean canCopy()
+	{
+		return true;
+	}
+
+	/**
+	 * Copy the stream reusing the underlying byte buffer.
+	 *
+	 * @return the byte array seekable stream
+	 */
+	public ByteArraySeekableStream copy() throws IOException
+	{
+		return new ByteArraySeekableStream(buffer);
 	}
 }
