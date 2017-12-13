@@ -1,5 +1,7 @@
 package gdsc.core.utils;
 
+import java.util.Arrays;
+
 /*----------------------------------------------------------------------------- 
  * GDSC Software
  * 
@@ -14,30 +16,30 @@ package gdsc.core.utils;
  *---------------------------------------------------------------------------*/
 
 /**
- * Provide a rolling array
+ * Provide a rolling array of doubles
  */
 public class RollingArray
 {
 	private final double[] data;
-	private final int size;
+	private final int capacity;
 	private int index, count;
 	private double sum;
 
 	/**
-	 * Create a rolling average
+	 * Create a rolling array
 	 * 
-	 * @param size
+	 * @param capacity
 	 */
-	public RollingArray(int size)
+	public RollingArray(int capacity)
 	{
-		this.size = size;
-		this.data = new double[size];
+		this.capacity = capacity;
+		this.data = new double[capacity];
 	}
 
 	/**
 	 * Remove all the numbers from the array 
 	 */
-	public void reset()
+	public void clear()
 	{
 		sum = 0;
 		index = 0;
@@ -50,8 +52,6 @@ public class RollingArray
 	 */
 	public void add(double d)
 	{
-		// Add to the total
-		sum += d;
 		// If at capacity
 		if (isFull())
 		{
@@ -63,13 +63,40 @@ public class RollingArray
 			// Otherwise increase the count
 			count++;
 		}
+		// Add to the total
+		sum += d;
 		// Replace the item
 		data[index++] = d;
 		// Wrap the index
-		if (index == size)
+		if (index == capacity)
 			index = 0;
 	}
 
+	/**
+	 * Add a number to the array n times.
+	 *
+	 * @param d
+	 *            The number
+	 * @param n
+	 *            the number of times
+	 */
+	public void add(int d, int n)
+	{
+		if (n >= capacity)
+		{
+			// Saturate
+			Arrays.fill(data, d);
+			sum = n * d;
+			index = 0;
+			count = capacity;
+		}
+		else
+		{
+			while (n-- > 0)
+				add(d);
+		}
+	}
+	
 	/**
 	 * @return The count of numbers stored in the array
 	 */
@@ -81,9 +108,9 @@ public class RollingArray
 	/**
 	 * @return The capacity of the array
 	 */
-	public int getSize()
+	public int getCapacity()
 	{
-		return size;
+		return capacity;
 	}
 
 	/**
@@ -132,6 +159,16 @@ public class RollingArray
 	 */
 	public boolean isFull()
 	{
-		return count == size;
+		return count == capacity;
+	}
+
+	/**
+	 * Convert to an array.
+	 *
+	 * @return the array
+	 */
+	public double[] toArray()
+	{
+		return Arrays.copyOf(data, count);
 	}
 }

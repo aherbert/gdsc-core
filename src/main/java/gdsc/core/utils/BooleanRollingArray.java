@@ -16,24 +16,23 @@ import java.util.Arrays;
  *---------------------------------------------------------------------------*/
 
 /**
- * Provide a rolling array of integers
+ * Provide a rolling array of booleans
  */
-public class IntRollingArray
+public class BooleanRollingArray
 {
-	private final int[] data;
+	private final boolean[] data;
 	private final int capacity;
-	private int index, count;
-	private long sum;
+	private int index, count, sum;
 
 	/**
 	 * Create a rolling array
 	 * 
 	 * @param capacity
 	 */
-	public IntRollingArray(int capacity)
+	public BooleanRollingArray(int capacity)
 	{
 		this.capacity = capacity;
-		this.data = new int[capacity];
+		this.data = new boolean[capacity];
 	}
 
 	/**
@@ -52,21 +51,23 @@ public class IntRollingArray
 	 * @param d
 	 *            The number
 	 */
-	public void add(int d)
+	public void add(boolean d)
 	{
 		// If at capacity
 		if (isFull())
 		{
 			// Subtract the item to be replaced
-			sum -= data[index];
+			if (data[index])
+				sum--;
 		}
 		else
 		{
 			// Otherwise increase the count
 			count++;
 		}
-		// Add to the total
-		sum += d;
+		// Add to the true count
+		if (d)
+			sum++;
 		// Replace the item
 		data[index++] = d;
 		// Wrap the index
@@ -82,13 +83,13 @@ public class IntRollingArray
 	 * @param n
 	 *            the number of times
 	 */
-	public void add(int d, int n)
+	public void add(boolean d, int n)
 	{
 		if (n >= capacity)
 		{
 			// Saturate
 			Arrays.fill(data, d);
-			sum = n * d;
+			sum = (d) ? n : 0;
 			index = 0;
 			count = capacity;
 		}
@@ -100,7 +101,7 @@ public class IntRollingArray
 	}
 
 	/**
-	 * @return The count of numbers stored in the array
+	 * @return The count of items stored in the array
 	 */
 	public int getCount()
 	{
@@ -116,19 +117,11 @@ public class IntRollingArray
 	}
 
 	/**
-	 * @return The sum using the rolling sum of the numbers
+	 * @return The number of true items stored in the array
 	 */
-	public long getSum()
+	public int getTrueCount()
 	{
 		return sum;
-	}
-
-	/**
-	 * @return The average using the rolling sum of the numbers
-	 */
-	public double getAverage()
-	{
-		return (double) sum / count;
 	}
 
 	/**
@@ -144,7 +137,7 @@ public class IntRollingArray
 	 *
 	 * @return the array
 	 */
-	public int[] toArray()
+	public boolean[] toArray()
 	{
 		return Arrays.copyOf(data, count);
 	}
