@@ -63,6 +63,7 @@ import ij.gui.ProgressBar;
 import ij.io.DirectoryChooser;
 import ij.io.OpenDialog;
 import ij.plugin.HyperStackReducer;
+import ij.plugin.WindowOrganiser;
 import ij.plugin.ZProjector;
 import ij.plugin.frame.Recorder;
 import ij.process.ByteProcessor;
@@ -164,6 +165,24 @@ public class Utils
 	 */
 	public static ImagePlus display(String title, ImageProcessor ip, int flags)
 	{
+		return display(title, ip, flags, null);
+	}
+
+	/**
+	 * Show the image. Replace a currently open image with the specified title or else create a new image.
+	 *
+	 * @param title
+	 *            the title
+	 * @param ip
+	 *            the ip
+	 * @param flags
+	 *            the flags
+	 * @param windowOrganiser
+	 *            the window organiser. New images are added to this.
+	 * @return the
+	 */
+	public static ImagePlus display(String title, ImageProcessor ip, int flags, WindowOrganiser windowOrganiser)
+	{
 		newWindow = false;
 		ImagePlus imp = WindowManager.getImage(title);
 		if (imp == null)
@@ -171,6 +190,8 @@ public class Utils
 			imp = new ImagePlus(title, ip);
 			imp.show();
 			newWindow = true;
+			if (windowOrganiser != null)
+				windowOrganiser.add(imp);
 		}
 		else
 		{
@@ -220,9 +241,29 @@ public class Utils
 	 *            the slices
 	 * @param flags
 	 *            the flags
+	 *            the window organiser. New images are added to this.
 	 * @return the image
 	 */
 	public static ImagePlus display(String title, ImageStack slices, int flags)
+	{
+		return display(title, slices, flags, null);
+	}
+
+	/**
+	 * Show the image. Replace a currently open image with the specified title or else create a new image.
+	 *
+	 * @param title
+	 *            the title
+	 * @param slices
+	 *            the slices
+	 * @param flags
+	 *            the flags
+	 *            the window organiser. New images are added to this.
+	 * @param windowOrganiser
+	 *            the window organiser
+	 * @return the image
+	 */
+	public static ImagePlus display(String title, ImageStack slices, int flags, WindowOrganiser windowOrganiser)
 	{
 		newWindow = false;
 		ImagePlus imp = WindowManager.getImage(title);
@@ -231,6 +272,8 @@ public class Utils
 			imp = new ImagePlus(title, slices);
 			imp.show();
 			newWindow = true;
+			if (windowOrganiser != null)
+				windowOrganiser.add(imp);
 		}
 		else
 		{
@@ -349,6 +392,22 @@ public class Utils
 		return display(title, plot, 0);
 	}
 
+	/**
+	 * Show the plot. Replace a currently open plot with the specified title or else create a new plot window.
+	 *
+	 * @param title
+	 *            the title
+	 * @param plot
+	 *            the plot
+	 * @param flags
+	 *            Option flags, e.g. to preserve the current limits of an existing plot
+	 * @return the plot window
+	 */
+	public static PlotWindow display(String title, Plot plot, int flags)
+	{
+		return display(title, plot, flags, null);
+	}
+
 	public static final int PRESERVE_X_MIN = 0x01;
 	public static final int PRESERVE_X_MAX = 0x02;
 	public static final int PRESERVE_Y_MIN = 0x04;
@@ -365,9 +424,11 @@ public class Utils
 	 *            the plot
 	 * @param flags
 	 *            Option flags, e.g. to preserve the current limits of an existing plot
+	 * @param windowOrganiser
+	 *            the window organiser. New plots are added to this.
 	 * @return the plot window
 	 */
-	public static PlotWindow display(String title, Plot plot, int flags)
+	public static PlotWindow display(String title, Plot plot, int flags, WindowOrganiser windowOrganiser)
 	{
 		newWindow = false;
 		Frame plotWindow = null;
@@ -389,6 +450,8 @@ public class Utils
 		if (plotWindow == null)
 		{
 			p = plot.show();
+			if (windowOrganiser != null)
+				windowOrganiser.add(p);
 			newWindow = true;
 		}
 		else
@@ -466,6 +529,8 @@ public class Utils
 				{
 					preserveLimits(plot, flags, limits);
 				}
+				if (windowOrganiser != null)
+					windowOrganiser.add(p);
 				newWindow = true;
 			}
 		}
