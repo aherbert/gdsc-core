@@ -89,7 +89,7 @@ public class IntRollingArray
 	}
 
 	/**
-	 * @return The sum using the rolling sum of the numbers (may accumulate errors)
+	 * @return The sum using the rolling sum of the numbers
 	 */
 	public int getSum()
 	{
