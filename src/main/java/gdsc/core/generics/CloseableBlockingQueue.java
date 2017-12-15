@@ -273,10 +273,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		count--;
 		if (itrs != null)
 			itrs.elementDequeued();
-		notFull.signal();
 		// Set the closedAndEmpty flag to avoid synchronisation in a further dequeue methods
 		if (closed && count == 0)
 			closedAndEmpty = true;
+		notFull.signal();
 		return x;
 	}
 
