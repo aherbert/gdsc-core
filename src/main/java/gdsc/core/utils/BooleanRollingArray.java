@@ -125,6 +125,14 @@ public class BooleanRollingArray
 	}
 
 	/**
+	 * @return The number of false items stored in the array
+	 */
+	public int getFalseCount()
+	{
+		return count - sum;
+	}
+
+	/**
 	 * @return True if full
 	 */
 	public boolean isFull()
