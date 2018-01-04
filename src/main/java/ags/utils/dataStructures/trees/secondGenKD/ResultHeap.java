@@ -1,9 +1,11 @@
 package ags.utils.dataStructures.trees.secondGenKD;
 
+import java.util.Arrays;
+
 /**
  * Class for tracking up to 'size' closest values
  */
-public class ResultHeap
+public class ResultHeap<T>
 {
 	final Object[] data;
 	final double[] distance;
@@ -20,7 +22,29 @@ public class ResultHeap
 		this.values = 0;
 	}
 
-	public void addValue(double dist, Object value)
+	public void addValue(double dist, T value)
+	{
+		// If there is still room in the heap
+		if (values < size)
+		{
+			// Insert new value at the end
+			data[values] = value;
+			distance[values] = dist;
+			upHeapify(values);
+			values++;
+		}
+		// If there is no room left in the heap, and the new entry is lower
+		// than the max entry
+		else if (dist < distance[0])
+		{
+			// Replace the max entry with the new entry
+			data[0] = value;
+			distance[0] = dist;
+			downHeapify(0);
+		}
+	}
+
+	void addValueFast(double dist, Object value)
 	{
 		// If there is still room in the heap
 		if (values < size)
@@ -111,5 +135,37 @@ public class ResultHeap
 			return Double.POSITIVE_INFINITY;
 		}
 		return distance[0];
+	}
+
+	public int getSize()
+	{
+		return values;
+	}
+
+	public int getCapacity()
+	{
+		return size;
+	}
+
+	public double[] getDistance()
+	{
+		return Arrays.copyOf(distance, values);
+	}
+
+	public Object[] getData()
+	{
+		return Arrays.copyOf(data, values);
+	}
+
+	@SuppressWarnings("unchecked")
+	public T[] getData(T[] a)
+	{
+		if (a.length < values)
+			// Make a new array of a's runtime type, but my contents:
+			return (T[]) Arrays.copyOf(data, values, a.getClass());
+		System.arraycopy(data, 0, a, 0, values);
+		if (a.length > values)
+			a[values] = null;
+		return a;
 	}
 }

@@ -5,24 +5,24 @@ import java.util.Arrays;
 /**
  * Class for tracking up to 'size' closest values
  */
-public class FloatIntResultHeap
+public class IntResultHeap
 {
 	final int[] data;
-	final float[] distance;
+	final double[] distance;
 	private final int size;
 	int values;
 	public int removedData;
-	public float removedDist;
+	public double removedDist;
 
-	public FloatIntResultHeap(int size)
+	public IntResultHeap(int size)
 	{
 		this.data = new int[size];
-		this.distance = new float[size];
+		this.distance = new double[size];
 		this.size = size;
 		this.values = 0;
 	}
 
-	public void addValue(float dist, int value)
+	public void addValue(double dist, int value)
 	{
 		// If there is still room in the heap
 		if (values < size)
@@ -67,7 +67,7 @@ public class FloatIntResultHeap
 			if (distance[c] > distance[p])
 			{
 				int pData = data[p];
-				float pDist = distance[p];
+				double pDist = distance[p];
 				data[p] = data[c];
 				distance[p] = distance[c];
 				data[c] = pData;
@@ -93,7 +93,7 @@ public class FloatIntResultHeap
 			{
 				// Swap the points
 				int pData = data[p];
-				float pDist = distance[p];
+				double pDist = distance[p];
 				data[p] = data[c];
 				distance[p] = distance[c];
 				data[c] = pData;
@@ -106,7 +106,7 @@ public class FloatIntResultHeap
 		}
 	}
 
-	public float getMaxDist()
+	public double getMaxDist()
 	{
 		if (values < size)
 		{
@@ -125,7 +125,7 @@ public class FloatIntResultHeap
 		return size;
 	}
 
-	public float[] getDistance()
+	public double[] getDistance()
 	{
 		return Arrays.copyOf(distance, values);
 	}

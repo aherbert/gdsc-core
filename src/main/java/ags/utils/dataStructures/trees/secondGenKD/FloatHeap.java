@@ -1,5 +1,7 @@
 package ags.utils.dataStructures.trees.secondGenKD;
 
+import java.util.Arrays;
+
 /**
  * Class for tracking up to 'size' closest values
  */
@@ -99,9 +101,19 @@ public class FloatHeap
 		}
 		return distance[0];
 	}
-	
-	public float[] values()
+
+	public int getSize()
 	{
-		return distance;
+		return values;
+	}
+
+	public int getCapacity()
+	{
+		return size;
+	}
+
+	public float[] getDistance()
+	{
+		return Arrays.copyOf(distance, values);
 	}
 }

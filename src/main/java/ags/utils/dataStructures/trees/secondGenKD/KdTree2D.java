@@ -167,7 +167,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 		KdTreeNode2D<T> cursor = this;
 		cursor.status = Status.NONE;
 		double range = Double.POSITIVE_INFINITY;
-		ResultHeap resultHeap = new ResultHeap(count);
+		ResultHeap<T> resultHeap = new ResultHeap<T>(count);
 
 		do
 		{
@@ -190,7 +190,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 						{
 							for (int i = 0; i < cursor.locationCount; i++)
 							{
-								resultHeap.addValue(dist, cursor.data[i]);
+								resultHeap.addValueFast(dist, cursor.data[i]);
 							}
 						}
 					}
@@ -199,7 +199,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 						for (int i = 0; i < cursor.locationCount; i++)
 						{
 							double dist = pointDist(cursor.locations[i], location);
-							resultHeap.addValue(dist, cursor.data[i]);
+							resultHeap.addValueFast(dist, cursor.data[i]);
 						}
 					}
 					range = resultHeap.getMaxDist();
@@ -289,7 +289,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 		KdTreeNode2D<T> cursor = this;
 		cursor.status = Status.NONE;
 		double range = Double.POSITIVE_INFINITY;
-		ResultHeap resultHeap = new ResultHeap(count);
+		ResultHeap<T> resultHeap = new ResultHeap<T>(count);
 
 		do
 		{
@@ -312,7 +312,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 						{
 							for (int i = 0; i < cursor.locationCount; i++)
 							{
-								resultHeap.addValue(dist, cursor.data[i]);
+								resultHeap.addValueFast(dist, cursor.data[i]);
 							}
 						}
 					}
@@ -321,7 +321,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 						for (int i = 0; i < cursor.locationCount; i++)
 						{
 							double dist = pointDist(cursor.locations[i], location);
-							resultHeap.addValue(dist, cursor.data[i]);
+							resultHeap.addValueFast(dist, cursor.data[i]);
 						}
 					}
 					range = resultHeap.getMaxDist();

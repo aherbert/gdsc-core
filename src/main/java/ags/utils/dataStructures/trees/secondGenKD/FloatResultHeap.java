@@ -1,9 +1,11 @@
 package ags.utils.dataStructures.trees.secondGenKD;
 
+import java.util.Arrays;
+
 /**
  * Class for tracking up to 'size' closest values
  */
-public class FloatResultHeap
+public class FloatResultHeap<T>
 {
 	final Object[] data;
 	final float[] distance;
@@ -111,5 +113,37 @@ public class FloatResultHeap
 			return Float.POSITIVE_INFINITY;
 		}
 		return distance[0];
+	}
+	
+	public int getSize()
+	{
+		return values;
+	}
+	
+	public int getCapacity()
+	{
+		return size;
+	}
+	
+	public float[] getDistance()
+	{
+		return Arrays.copyOf(distance, values);
+	}
+
+	public Object[] getData()
+	{
+		return Arrays.copyOf(data, values);
+	}
+
+	@SuppressWarnings("unchecked")
+	public T[] getData(T[] a)
+	{
+		if (a.length < values)
+			// Make a new array of a's runtime type, but my contents:
+			return (T[]) Arrays.copyOf(data, values, a.getClass());
+		System.arraycopy(data, 0, a, 0, values);
+		if (a.length > values)
+			a[values] = null;
+		return a;
 	}
 }

@@ -158,7 +158,7 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
 		SimpleKdTreeNode2D cursor = this;
 		cursor.status = Status.NONE;
 		double range = Double.POSITIVE_INFINITY;
-		ResultHeap resultHeap = new ResultHeap(count);
+		ResultHeap<double[]> resultHeap = new ResultHeap<double[]>(count);
 
 		do
 		{
