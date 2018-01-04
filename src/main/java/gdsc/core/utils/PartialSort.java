@@ -55,7 +55,9 @@ public class PartialSort
 	/**
 	 * Provide partial sort of double arrays
 	 * <p>
-	 * This class is based on ags.utils.dataStructures.trees.secondGenKD.ResultHeap
+	 * This class is based on ags.utils.dataStructures.trees.secondGenKD.ResultHeap.
+	 * Ideas have been taken from:
+	 * http://sites.fas.harvard.edu/~libs111/code/heaps/Heap.java
 	 */
 	public static class DoubleHeap
 	{
@@ -166,14 +168,15 @@ public class PartialSort
 			//	queue[c] = pDist;
 			//}
 
+			// Reference to the sifted element
+			final double toSift = queue[c];
 			while (c > 0)
 			{
 				final int p = (c - 1) >>> 1;
-				if (queue[c] > queue[p])
+				if (toSift > queue[p])
 				{
-					final double pDist = queue[p];
-					queue[p] = queue[c];
-					queue[c] = pDist;
+					// Move parent down and move up one level in the tree.
+					queue[c] = queue[p];
 					c = p;
 				}
 				else
@@ -181,28 +184,35 @@ public class PartialSort
 					break;
 				}
 			}
+			queue[c] = toSift;
 		}
 
 		private void bottomDownHeapify(int p)
 		{
-			for (int c = p * 2 + 1; c < n; p = c, c = p * 2 + 1)
+			// Reference to the sifted element
+			final double toSift = queue[p];
+			int c = p * 2 + 1;
+			while (c < n)
 			{
+				// If the right child is bigger, compare with it.
 				if (c + 1 < n && queue[c] < queue[c + 1])
 				{
 					c++;
 				}
-				if (queue[p] < queue[c])
+				if (toSift < queue[c])
 				{
-					// Swap the points
-					double pDist = queue[p];
+					// Move child up and move down one level in the tree.
 					queue[p] = queue[c];
-					queue[c] = pDist;
+					p = c;
+					c = p * 2 + 1;
 				}
 				else
 				{
+					// Done
 					break;
 				}
 			}
+			queue[p] = toSift;
 		}
 
 		/**
@@ -289,14 +299,15 @@ public class PartialSort
 			//	queue[c] = pDist;
 			//}
 
+			// Reference to the sifted element
+			final double toSift = queue[c];
 			while (c > 0)
 			{
 				final int p = (c - 1) >>> 1;
-				if (queue[c] < queue[p])
+				if (toSift < queue[p])
 				{
-					final double pDist = queue[p];
-					queue[p] = queue[c];
-					queue[c] = pDist;
+					// Move parent down and move up one level in the tree.
+					queue[c] = queue[p];
 					c = p;
 				}
 				else
@@ -304,28 +315,35 @@ public class PartialSort
 					break;
 				}
 			}
+			queue[c] = toSift;
 		}
 
 		private void topDownHeapify(int p)
 		{
-			for (int c = p * 2 + 1; c < n; p = c, c = p * 2 + 1)
+			// Reference to the sifted element
+			final double toSift = queue[p];
+			int c = p * 2 + 1;
+			while (c < n)
 			{
+				// If the right child is bigger, compare with it.
 				if (c + 1 < n && queue[c] > queue[c + 1])
 				{
 					c++;
 				}
-				if (queue[p] > queue[c])
+				if (toSift > queue[c])
 				{
-					// Swap the points
-					double pDist = queue[p];
+					// Move child up and move down one level in the tree.
 					queue[p] = queue[c];
-					queue[c] = pDist;
+					p = c;
+					c = p * 2 + 1;
 				}
 				else
 				{
+					// Done
 					break;
 				}
 			}
+			queue[p] = toSift;
 		}
 	}
 
@@ -610,7 +628,9 @@ public class PartialSort
 	/**
 	 * Provide partial sort of float arrays
 	 * <p>
-	 * This class is based on ags.utils.dataStructures.trees.secondGenKD.ResultHeap
+	 * This class is based on ags.utils.dataStructures.trees.secondGenKD.ResultHeap.
+	 * Ideas have been taken from:
+	 * http://sites.fas.harvard.edu/~libs111/code/heaps/Heap.java
 	 */
 	public static class FloatHeap
 	{
@@ -721,14 +741,15 @@ public class PartialSort
 			//	queue[c] = pDist;
 			//}
 
+			// Reference to the sifted element
+			final float toSift = queue[c];
 			while (c > 0)
 			{
 				final int p = (c - 1) >>> 1;
-				if (queue[c] > queue[p])
+				if (toSift > queue[p])
 				{
-					final float pDist = queue[p];
-					queue[p] = queue[c];
-					queue[c] = pDist;
+					// Move parent down and move up one level in the tree.
+					queue[c] = queue[p];
 					c = p;
 				}
 				else
@@ -736,28 +757,35 @@ public class PartialSort
 					break;
 				}
 			}
+			queue[c] = toSift;
 		}
 
 		private void bottomDownHeapify(int p)
 		{
-			for (int c = p * 2 + 1; c < n; p = c, c = p * 2 + 1)
+			// Reference to the sifted element
+			final float toSift = queue[p];
+			int c = p * 2 + 1;
+			while (c < n)
 			{
+				// If the right child is bigger, compare with it.
 				if (c + 1 < n && queue[c] < queue[c + 1])
 				{
 					c++;
 				}
-				if (queue[p] < queue[c])
+				if (toSift < queue[c])
 				{
-					// Swap the points
-					float pDist = queue[p];
+					// Move child up and move down one level in the tree.
 					queue[p] = queue[c];
-					queue[c] = pDist;
+					p = c;
+					c = p * 2 + 1;
 				}
 				else
 				{
+					// Done
 					break;
 				}
 			}
+			queue[p] = toSift;
 		}
 
 		/**
@@ -843,15 +871,16 @@ public class PartialSort
 			//	queue[p] = queue[c];
 			//	queue[c] = pDist;
 			//}
-			
+
+			// Reference to the sifted element
+			final float toSift = queue[c];
 			while (c > 0)
 			{
 				final int p = (c - 1) >>> 1;
-				if (queue[c] < queue[p])
+				if (toSift < queue[p])
 				{
-					final float pDist = queue[p];
-					queue[p] = queue[c];
-					queue[c] = pDist;
+					// Move parent down and move up one level in the tree.
+					queue[c] = queue[p];
 					c = p;
 				}
 				else
@@ -859,28 +888,35 @@ public class PartialSort
 					break;
 				}
 			}
+			queue[c] = toSift;
 		}
 
 		private void topDownHeapify(int p)
 		{
-			for (int c = p * 2 + 1; c < n; p = c, c = p * 2 + 1)
+			// Reference to the sifted element
+			final float toSift = queue[p];
+			int c = p * 2 + 1;
+			while (c < n)
 			{
+				// If the right child is bigger, compare with it.
 				if (c + 1 < n && queue[c] > queue[c + 1])
 				{
 					c++;
 				}
-				if (queue[p] > queue[c])
+				if (toSift > queue[c])
 				{
-					// Swap the points
-					float pDist = queue[p];
+					// Move child up and move down one level in the tree.
 					queue[p] = queue[c];
-					queue[c] = pDist;
+					p = c;
+					c = p * 2 + 1;
 				}
 				else
 				{
+					// Done
 					break;
 				}
 			}
+			queue[p] = toSift;
 		}
 	}
 
