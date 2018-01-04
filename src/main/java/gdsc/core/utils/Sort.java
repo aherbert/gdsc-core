@@ -207,7 +207,7 @@ public class Sort
 	 */
 	public static int[] sortAscending(int[] indices, final int[] values)
 	{
-		return sort(indices, values, false);
+		return sortAscending(indices, values, false);
 	}
 
 	/**
@@ -266,7 +266,7 @@ public class Sort
 	 */
 	public static int[] sortAscending(int[] indices, final float[] values)
 	{
-		return sort(indices, values, false);
+		return sortAscending(indices, values, false);
 	}
 
 	/**
@@ -325,7 +325,7 @@ public class Sort
 	 */
 	public static int[] sortAscending(int[] indices, final double[] values)
 	{
-		return sort(indices, values, false);
+		return sortAscending(indices, values, false);
 	}
 
 	/**
