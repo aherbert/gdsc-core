@@ -37,7 +37,7 @@ public class SimpleLock
 	/**
 	 * Acquire the lock. This method is synchronized. The lock should be released when finished.
 	 *
-	 * @return true, if the lock was aquired, else false if already locked
+	 * @return true, if the lock was acquired, else false if already locked
 	 */
 	public synchronized boolean acquire()
 	{
@@ -57,7 +57,7 @@ public class SimpleLock
 	}
 
 	/**
-	 * Release the lock. This is not synchronized and sbould be called by the owner of the lock.
+	 * Release the lock. This is not synchronized and should be called by the owner of the lock.
 	 */
 	public void release()
 	{
