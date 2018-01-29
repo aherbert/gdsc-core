@@ -509,7 +509,7 @@ public abstract class FastTiffDecoder
 			}
 			ss.seek(offset + 234);
 			int size = ss.read();
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			if (size >= 1 && size <= 16)
 			{
 				for (int i = 0; i < size; i++)

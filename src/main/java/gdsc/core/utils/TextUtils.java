@@ -94,7 +94,7 @@ public class TextUtils
 		}
 		int inputLineLength = str.length();
 		int offset = 0;
-		StringBuffer wrappedLine = new StringBuffer(inputLineLength + 32);
+		StringBuilder wrappedLine = new StringBuilder(inputLineLength + 32);
 
 		while ((inputLineLength - offset) > wrapLength)
 		{

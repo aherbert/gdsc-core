@@ -1533,15 +1533,18 @@ public class Utils
 		{
 			if (!textWindow.getTextPanel().getColumnHeadings().equals(headings))
 			{
-				StringBuffer sb = new StringBuffer();
+				TextPanel tp = textWindow.getTextPanel();
+				String text = null;
 				if (preserve)
-					for (int i = 0; i < textWindow.getTextPanel().getLineCount(); i++)
-						sb.append(textWindow.getTextPanel().getLine(i)).append("\n");
+				{
+					tp.setColumnHeadings("");
+					text = tp.getText();
+				}
 
-				textWindow.getTextPanel().setColumnHeadings(headings);
+				tp.setColumnHeadings(headings);
 
 				if (preserve)
-					textWindow.append(sb.toString());
+					tp.append(text);
 
 				return true;
 			}
