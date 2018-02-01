@@ -107,7 +107,10 @@ public class Sort
 		for (int i = indices.length; i-- > 0;)
 		{
 			data[i][0] = values[indices[i]];
-			data[i][1] = indices[i];
+			//data[i][1] = indices[i];
+			// This is required to handle integers that do not fit in a float.
+			// Speed test shows it is also faster than the cast.
+			data[i][1] = Float.intBitsToFloat(indices[i]);
 		}
 
 		Arrays.sort(data, new Comparator<float[]>()
@@ -126,7 +129,8 @@ public class Sort
 		// Copy back
 		for (int i = indices.length; i-- > 0;)
 		{
-			indices[i] = (int) data[i][1];
+			//indices[i] = (int) data[i][1];
+			indices[i] = Float.floatToRawIntBits(data[i][1]);
 		}
 		if (sortValues)
 		{
@@ -284,7 +288,10 @@ public class Sort
 		for (int i = indices.length; i-- > 0;)
 		{
 			data[i][0] = values[indices[i]];
-			data[i][1] = indices[i];
+			//data[i][1] = indices[i];
+			// This is required to handle integers that do not fit in a float.
+			// Speed test shows it is also faster than the cast.
+			data[i][1] = Float.intBitsToFloat(indices[i]);
 		}
 
 		Arrays.sort(data, new Comparator<float[]>()
@@ -303,7 +310,8 @@ public class Sort
 		// Copy back
 		for (int i = indices.length; i-- > 0;)
 		{
-			indices[i] = (int) data[i][1];
+			//indices[i] = (int) data[i][1];
+			indices[i] = Float.floatToRawIntBits(data[i][1]);
 		}
 		if (sortValues)
 		{
