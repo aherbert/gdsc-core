@@ -136,7 +136,7 @@ public class PDF2DGSL
 
 		while (upper - lower > 1)
 		{
-			final int mid = (upper + lower) / 2;
+			final int mid = (upper + lower) >>> 1;
 
 			if (x >= sum[mid])
 			{

@@ -1569,7 +1569,7 @@ public class PartialSort
 			}
 			else
 			{
-				mid = (l + ir) >> 1;
+				mid = (l + ir) >>> 1;
 				SWAP(arr, mid, l + 1);
 				if (arr[l] > arr[ir])
 				{
@@ -1647,7 +1647,7 @@ public class PartialSort
 			}
 			else
 			{
-				mid = (l + ir) >> 1;
+				mid = (l + ir) >>> 1;
 				SWAP(arr, mid, l + 1);
 				if (arr[l] > arr[ir])
 				{
