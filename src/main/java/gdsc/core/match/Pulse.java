@@ -62,8 +62,11 @@ public class Pulse extends BasePoint implements Comparable<Pulse>
 	@Override
 	public int hashCode()
 	{
-		return (41 * (41 * (41 * (41 * (41 + Float.floatToIntBits(x)) + Float.floatToIntBits(y)) + Float
-				.floatToIntBits(z)) + start) + end);
+		// Note: floatToRawIntBits does not unify all possible NaN values
+		// However since the equals() will fail for NaN values we are not
+		// breaking the java contract.
+		return (41 * (41 * (41 * (41 * (41 + Float.floatToRawIntBits(x)) + Float.floatToRawIntBits(y)) +
+				Float.floatToRawIntBits(z)) + start) + end);
 	}
 
 	/**
@@ -103,7 +106,8 @@ public class Pulse extends BasePoint implements Comparable<Pulse>
 	/**
 	 * Calculate the number of overlapping frames using the start and end times
 	 * 
-	 * @param that The other pulse
+	 * @param that
+	 *            The other pulse
 	 * @return the number of frames
 	 */
 	public int calculateOverlap(final Pulse that)

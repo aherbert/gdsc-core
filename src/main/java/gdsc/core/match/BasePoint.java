@@ -68,7 +68,10 @@ public class BasePoint implements Coordinate
 	@Override
 	public int hashCode()
 	{
-		return (41 * (41 * (41 + Float.floatToIntBits(x)) + Float.floatToIntBits(y)) + Float.floatToIntBits(z));
+		// Note: floatToRawIntBits does not unify all possible NaN values
+		// However since the equals() will fail for NaN values we are not
+		// breaking the java contract.
+		return (41 * (41 * (41 + Float.floatToRawIntBits(x)) + Float.floatToRawIntBits(y)) + Float.floatToRawIntBits(z));
 	}
 
 	/*

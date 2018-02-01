@@ -114,7 +114,7 @@ public class IJDigest
 			float[] data = (float[]) pixels;
 			for (int i = 0; i < data.length; i++)
 			{
-				int v = Float.floatToIntBits(data[i]);
+				int v = Float.floatToRawIntBits(data[i]);
 				buffer[0] = (byte) (v >>> 24);
 				buffer[1] = (byte) (v >>> 16);
 				buffer[2] = (byte) (v >>> 8);
