@@ -1,5 +1,12 @@
 package gdsc.core.generics;
 
+import java.lang.ref.WeakReference;
+import java.util.AbstractQueue;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.concurrent.BlockingQueue;
+
 /*----------------------------------------------------------------------------- 
  * GDSC Software
  * 
@@ -14,16 +21,8 @@ package gdsc.core.generics;
  *---------------------------------------------------------------------------*/
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.AbstractQueue;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.lang.ref.WeakReference;
-import java.util.Spliterators;
-import java.util.Spliterator;
 
 /**
  * A blocking queue that can be closed.
@@ -1898,26 +1897,27 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		//         }
 	}
 
-	/**
-	 * Returns a {@link Spliterator} over the elements in this queue.
-	 *
-	 * <p>
-	 * The returned spliterator is
-	 * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
-	 *
-	 * <p>
-	 * The {@code Spliterator} reports {@link Spliterator#CONCURRENT},
-	 * {@link Spliterator#ORDERED}, and {@link Spliterator#NONNULL}.
-	 *
-	 * @implNote
-	 * 		  The {@code Spliterator} implements {@code trySplit} to permit limited
-	 *           parallelism.
-	 *
-	 * @return a {@code Spliterator} over the elements in this queue
-	 * @since 1.8
-	 */
-	public Spliterator<E> spliterator()
-	{
-		return Spliterators.spliterator(this, Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.CONCURRENT);
-	}
+	// Only when we move the Java version to 1.8
+	//	/**
+	//	 * Returns a {@link Spliterator} over the elements in this queue.
+	//	 *
+	//	 * <p>
+	//	 * The returned spliterator is
+	//	 * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
+	//	 *
+	//	 * <p>
+	//	 * The {@code Spliterator} reports {@link Spliterator#CONCURRENT},
+	//	 * {@link Spliterator#ORDERED}, and {@link Spliterator#NONNULL}.
+	//	 *
+	//	 * @implNote
+	//	 * 		  The {@code Spliterator} implements {@code trySplit} to permit limited
+	//	 *           parallelism.
+	//	 *
+	//	 * @return a {@code Spliterator} over the elements in this queue
+	//	 * @since 1.8
+	//	 */
+	//	public Spliterator<E> spliterator()
+	//	{
+	//		return Spliterators.spliterator(this, Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.CONCURRENT);
+	//	}
 }
