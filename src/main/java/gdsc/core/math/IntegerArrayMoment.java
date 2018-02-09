@@ -3,7 +3,6 @@ package gdsc.core.math;
 import gdsc.core.data.IntegerType;
 import gdsc.core.utils.NotImplementedException;
 
-// TODO: Auto-generated Javadoc
 /*----------------------------------------------------------------------------- 
  * GDSC Software
  * 

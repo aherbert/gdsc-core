@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import gdsc.core.threshold.AutoThreshold.Method;
 
-// TODO: Auto-generated Javadoc
 /*----------------------------------------------------------------------------- 
  * GDSC Plugins for ImageJ
  * 

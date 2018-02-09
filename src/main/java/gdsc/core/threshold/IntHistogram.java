@@ -1,6 +1,5 @@
 package gdsc.core.threshold;
 
-// TODO: Auto-generated Javadoc
 /*----------------------------------------------------------------------------- 
  * GDSC Plugins for ImageJ
  * 

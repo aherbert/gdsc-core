@@ -3,7 +3,6 @@ package gdsc.core.threshold;
 import gdsc.core.threshold.AutoThreshold.Method;
 import gdsc.core.utils.Maths;
 
-// TODO: Auto-generated Javadoc
 /*----------------------------------------------------------------------------- 
  * GDSC Plugins for ImageJ
  * 

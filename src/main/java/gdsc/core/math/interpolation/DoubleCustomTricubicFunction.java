@@ -1,6 +1,5 @@
 package gdsc.core.math.interpolation;
 
-// TODO: Auto-generated Javadoc
 /*----------------------------------------------------------------------------- 
  * GDSC Software
  * 
