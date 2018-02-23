@@ -15,45 +15,47 @@ package ij;
 
 import java.awt.image.ColorModel;
 
-import ij.ImageStack;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
-import ij.process.MappedFloatProcessor;
+import ij.process.InfinityMappedFloatProcessor;
 
 /**
- * Extends the ImageJ ImageStack class to support a mapped float processor for float data.
+ * Extends the ImageJ ImageStack class to support an inifnity mapped float processor for float data.
  * 
  * @author Alex Herbert
  */
-public class MappedImageStack extends ImageStack
+public class InfinityMappedImageStack extends ImageStack
 {
-	private boolean mapZero = false;
+	private boolean mapPositiveInfinity = false;
 
 	/**
-	 * If set to true positive zero is mapped to 1 in the LUT. The default maps the first value above zero to 1 in the LUT.
+	 * Checks if positive infinity is mapped to zero.
 	 *
-	 * @return true, if is map zero
+	 * @return true, if positive infinity is mapped to zero
 	 */
-	public boolean isMapZero()
+	public boolean isMapPositiveInfinity()
 	{
-		return mapZero;
+		return mapPositiveInfinity;
 	}
 
 	/**
-	 * Set to true to map positive zero to 1 in the LUT. The default maps the first value above zero to 1 in the LUT.
+	 * Set to true to map positive infinity to zero.
 	 *
-	 * @param mapZero the new map zero value
+	 * @param mapPositiveInfinity
+	 *            the new map positive infinity flag
 	 */
-	public void setMapZero(boolean mapZero)
+	public void setMapPositiveInfinity(boolean mapPositiveInfinity)
 	{
-		this.mapZero = mapZero;
+		this.mapPositiveInfinity = mapPositiveInfinity;
 	}
 
 	/** Default constructor. */
-	public MappedImageStack() { }
+	public InfinityMappedImageStack()
+	{
+	}
 
 	/** Creates a new, empty image stack. */
-	public MappedImageStack(int width, int height)
+	public InfinityMappedImageStack(int width, int height)
 	{
 		this(width, height, null);
 	}
@@ -62,13 +64,13 @@ public class MappedImageStack extends ImageStack
 	 * Creates a new, empty image stack with a capacity of 'size'. All
 	 * 'size' slices and labels of this image stack are initially null.
 	 */
-	public MappedImageStack(int width, int height, int size)
+	public InfinityMappedImageStack(int width, int height, int size)
 	{
 		super(width, height, size);
 	}
 
 	/** Creates a new, empty image stack using the specified color model. */
-	public MappedImageStack(int width, int height, ColorModel cm)
+	public InfinityMappedImageStack(int width, int height, ColorModel cm)
 	{
 		super(width, height, cm);
 	}
@@ -79,9 +81,9 @@ public class MappedImageStack extends ImageStack
 		ImageProcessor ip = super.getProcessor(n);
 		if (ip instanceof FloatProcessor)
 		{
-			MappedFloatProcessor fp = new MappedFloatProcessor(getWidth(), getHeight(), (float[]) ip.getPixels(),
-					ip.getColorModel());
-			fp.setMapZero(mapZero);
+			InfinityMappedFloatProcessor fp = new InfinityMappedFloatProcessor(getWidth(), getHeight(),
+					(float[]) ip.getPixels(), ip.getColorModel());
+			fp.setMapPositiveInfinity(mapPositiveInfinity);
 			fp.setMinAndMax(ip.getMin(), ip.getMax());
 			if (ip.getCalibrationTable() != null)
 				fp.setCalibrationTable(ip.getCalibrationTable());
