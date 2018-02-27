@@ -16,6 +16,7 @@ import java.awt.Color;
  *---------------------------------------------------------------------------*/
 
 import ij.process.LUT;
+import ij.process.LUTHelper.LutColour;
 
 /**
  * Contains functions for ImageJ LUTs
@@ -72,6 +73,21 @@ public class LUTHelper
 		public boolean isDistinct()
 		{
 			return false;
+		}
+
+		/**
+		 * Get the LUT colour for the given number.
+		 *
+		 * @param lut
+		 *            the lut number
+		 * @return the lut colour
+		 */
+		public static LutColour forNumber(int lut)
+		{
+			LutColour[] values = LutColour.values();
+			if (lut >= 0 && lut < values.length)
+				return values[lut];
+			return null;
 		}
 	}
 
