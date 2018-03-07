@@ -2,22 +2,6 @@ package ij.process;
 
 import java.awt.Color;
 
-/*----------------------------------------------------------------------------- 
- * GDSC Software
- * 
- * Copyright (C) 2016 Alex Herbert
- * Genome Damage and Stability Centre
- * University of Sussex, UK
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *---------------------------------------------------------------------------*/
-
-import ij.process.LUT;
-import ij.process.LUTHelper.LutColour;
-
 /**
  * Contains functions for ImageJ LUTs
  */
@@ -594,7 +578,7 @@ public class LUTHelper
 	}
 
 	/**
-	 * Copied from ij.plugin.LutLoader.
+	 * Adapted from ij.plugin.LutLoader.
 	 * 
 	 * @param reds
 	 * @param greens
@@ -603,13 +587,19 @@ public class LUTHelper
 	 */
 	private static void interpolate(byte[] reds, byte[] greens, byte[] blues, int nColors)
 	{
+		// nColors should be at least 2. 
+		// Interpolate so that 0 it the first colour and 255 is the final colour.
+		
 		byte[] r = new byte[nColors];
 		byte[] g = new byte[nColors];
 		byte[] b = new byte[nColors];
 		System.arraycopy(reds, 0, r, 0, nColors);
 		System.arraycopy(greens, 0, g, 0, nColors);
 		System.arraycopy(blues, 0, b, 0, nColors);
-		double scale = nColors / 256.0;
+		// Bug fix
+		// ij.plugin.LutLoader used nColors / 256.0;
+		// This made all the colours from 128-255 the same for 2 colour interpolation as i1==i2 
+		double scale = (nColors - 1) / 256.0;
 		int i1, i2;
 		double fraction;
 		for (int i = 0; i < 256; i++)
@@ -619,7 +609,7 @@ public class LUTHelper
 			if (i2 == nColors)
 				i2 = nColors - 1;
 			fraction = i * scale - i1;
-			//IJ.write(i+" "+i1+" "+i2+" "+fraction);
+			//IJ.log(i+" "+i1+" "+i2+" "+fraction);
 			reds[i] = (byte) ((1.0 - fraction) * (r[i1] & 255) + fraction * (r[i2] & 255));
 			greens[i] = (byte) ((1.0 - fraction) * (g[i1] & 255) + fraction * (g[i2] & 255));
 			blues[i] = (byte) ((1.0 - fraction) * (b[i1] & 255) + fraction * (b[i2] & 255));
