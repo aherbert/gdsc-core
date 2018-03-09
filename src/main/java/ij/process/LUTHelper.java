@@ -405,10 +405,7 @@ public class LUTHelper
 				nColors = grays(reds, greens, blues);
 				break;
 		}
-		if (nColors < 256)
-			interpolate(reds, greens, blues, nColors);
-		if (includeBlack)
-			reds[0] = greens[0] = blues[0] = 0;
+		interpolate(reds, greens, blues, nColors, includeBlack);
 		return new LUT(reds, greens, blues);
 	}
 
@@ -584,25 +581,49 @@ public class LUTHelper
 	 * @param greens
 	 * @param blues
 	 * @param nColors
+	 * @param includeBlack
 	 */
-	private static void interpolate(byte[] reds, byte[] greens, byte[] blues, int nColors)
+	private static void interpolate(byte[] reds, byte[] greens, byte[] blues, int nColors, boolean includeBlack)
 	{
-		// nColors should be at least 2. 
-		// Interpolate so that 0 it the first colour and 255 is the final colour.
-		
+		// nColors should be at least 2 and max 256.
+		if (nColors == 256)
+		{
+			if (includeBlack)
+				reds[0] = greens[0] = blues[0] = 0;
+			return;
+		}
+
+		// Interpolate so that 0/1 is the first colour (depending on black) 
+		// and 255 is the final colour.
+
+		// Copy the original input colours
 		byte[] r = new byte[nColors];
 		byte[] g = new byte[nColors];
 		byte[] b = new byte[nColors];
 		System.arraycopy(reds, 0, r, 0, nColors);
 		System.arraycopy(greens, 0, g, 0, nColors);
 		System.arraycopy(blues, 0, b, 0, nColors);
+
+		int total = 256, j = 0;
+		if (includeBlack)
+		{
+			// Check if the input already has black
+			if (reds[0] != 0 || greens[0] != 0 || blues[0] != 0)
+			{
+				// Not black so reduce the interpolation range and make an explicit black.
+				total = 255;
+				j = 1;
+				reds[0] = greens[0] = blues[0] = 0;
+			}
+		}
+
 		// Bug fix
 		// ij.plugin.LutLoader used nColors / 256.0;
 		// This made all the colours from 128-255 the same for 2 colour interpolation as i1==i2 
-		double scale = (nColors - 1) / 256.0;
+		double scale = (double) (nColors - 1) / total;
 		int i1, i2;
 		double fraction;
-		for (int i = 0; i < 256; i++)
+		for (int i = 0; i < total; i++, j++)
 		{
 			i1 = (int) (i * scale);
 			i2 = i1 + 1;
@@ -610,9 +631,9 @@ public class LUTHelper
 				i2 = nColors - 1;
 			fraction = i * scale - i1;
 			//IJ.log(i+" "+i1+" "+i2+" "+fraction);
-			reds[i] = (byte) ((1.0 - fraction) * (r[i1] & 255) + fraction * (r[i2] & 255));
-			greens[i] = (byte) ((1.0 - fraction) * (g[i1] & 255) + fraction * (g[i2] & 255));
-			blues[i] = (byte) ((1.0 - fraction) * (b[i1] & 255) + fraction * (b[i2] & 255));
+			reds[j] = (byte) ((1.0 - fraction) * (r[i1] & 255) + fraction * (r[i2] & 255));
+			greens[j] = (byte) ((1.0 - fraction) * (g[i1] & 255) + fraction * (g[i2] & 255));
+			blues[j] = (byte) ((1.0 - fraction) * (b[i1] & 255) + fraction * (b[i2] & 255));
 		}
 	}
 
