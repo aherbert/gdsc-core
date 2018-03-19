@@ -31,8 +31,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Label;
+import java.awt.MenuComponent;
 import java.awt.Panel;
 import java.awt.Point;
+import java.awt.PopupMenu;
 import java.awt.ScrollPane;
 import java.awt.Scrollbar;
 import java.awt.TextField;
@@ -1347,13 +1349,55 @@ public class ExtendedGenericDialog extends GenericDialog
 	{
 		return panel.add(comp);
 	}
+	
+	@Override
+	public void add(Component comp, Object constraints)
+	{
+		panel.add(comp, constraints);
+	}
+	
+	@Override
+	public Component add(Component comp, int index)
+	{
+		return panel.add(comp, index);
+	}
+	
+	@Override
+	public Component add(String name, Component comp)
+	{
+		return panel.add(name, comp);
+	}
+	
+	@Override
+	public void add(Component comp, Object constraints, int index)
+	{
+		panel.add(comp, constraints, index);
+	}
+	
+	@Override
+	public void add(PopupMenu popup)
+	{
+		panel.add(popup);
+	}
 
 	@Override
 	public void remove(Component comp)
 	{
 		panel.remove(comp);
 	}
-
+	
+	@Override
+	public void remove(int index)
+	{
+		panel.remove(index);
+	}
+	
+	@Override
+	public void remove(MenuComponent popup)
+	{
+		panel.remove(popup);
+	}
+	
 	/**
 	 * This method is called just before the dialog is set visible. Determine the preferred size of the panel
 	 * contents and appropriately size the scroll pane to fit.
