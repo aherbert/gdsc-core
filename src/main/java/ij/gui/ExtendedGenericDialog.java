@@ -1,6 +1,3 @@
-/*
- * 
- */
 package ij.gui;
 
 import java.awt.BorderLayout;
@@ -74,17 +71,10 @@ public class ExtendedGenericDialog extends GenericDialog
 	private GridBagLayout grid;
 	private JPanel panel = new JPanel();
 
-	// Store the screen dimension
-	private static Dimension screenDimension;
-	static
-	{
-		screenDimension = IJ.getScreenSize();
-	}
-
-	// Max unscrolled width - Set to a reasonable value for current screen resolution.
-	private int maxWidth = screenDimension.width - 100;
-	// Max unscrolled height - Set to a reasonable value for current screen resolution.
-	private int maxHeight = screenDimension.height - 150;
+	// Max unscrolled width
+	private int maxWidth = 0;
+	// Max unscrolled height
+	private int maxHeight = 0;
 
 	/** The silent flag. The call to {@link #setVisible(boolean)} will be ignored. */
 	private boolean silent;
@@ -1410,44 +1400,15 @@ public class ExtendedGenericDialog extends GenericDialog
 		if (!Utils.isShowGenericDialog())
 			return;
 
-		// This is how to set the preferred size on the JScrollPane.
-		// This is not used as the java.awt components are not repainted.
-		//		if (maxWidth <= 0 && maxHeight <= 0)
-		//			return;
-		//		JScrollPane scroll = (JScrollPane) getComponent(0);
-		//		JViewport viewport = scroll.getViewport();
-		//		Dimension d = viewport.getViewSize();
-		//		if (maxWidth > 0)
-		//			d.width = Math.min(d.width, maxWidth);
-		//		if (maxHeight > 0)
-		//			d.height = Math.min(d.height, maxHeight);
-		//		viewport.setPreferredSize(d);
-
 		// Appropriately size the scrollpane
+		ScreenDimensionHelper helper = new ScreenDimensionHelper();
+		helper.setMaxSize(maxWidth, maxHeight);
+		
 		Dimension d = panel.getPreferredSize();
-
 		ScrollPane scroll = (ScrollPane) getComponent(0);
 
-		if (maxWidth > 0)
-			d.width = Math.min(d.width, maxWidth);
-		if (maxHeight > 0)
-			d.height = Math.min(d.height, maxHeight);
-
-		Insets insets = scroll.getInsets();
-		d.width += insets.left + insets.right;
-		d.height += insets.top + insets.bottom;
-
-		if (IJ.isMacintosh())
-		{
-			// This is needed as the OSX scroll pane adds scrollbars when the panel 
-			// is close in size to the scroll pane
-			int padding = 15;
-			d.width += padding;
-			d.height += padding;
-		}
-
-		scroll.setPreferredSize(d);
-		scroll.setSize(d);
+		helper.setup(scroll, d);
+		
 		pack();
 	}
 
