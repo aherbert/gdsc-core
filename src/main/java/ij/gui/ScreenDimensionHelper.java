@@ -49,8 +49,8 @@ public class ScreenDimensionHelper
 	// Max height - Set to a reasonable value for current screen resolution.
 	private int maxHeight = screenDimension.height - 150;
 
-	private int minWidth = Math.min(600, screenDimension.width);
-	private int minHeight = Math.min(400, screenDimension.height);
+	private int minWidth = 0;
+	private int minHeight = 0;
 
 	/**
 	 * Setup the scroll pane using the preferred size. For example this can be the preferred size of the first component
