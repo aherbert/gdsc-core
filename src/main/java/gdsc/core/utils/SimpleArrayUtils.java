@@ -774,4 +774,39 @@ public class SimpleArrayUtils
 				max = i;
 		return new int[] { min, max };
 	}
+
+	/**
+	 * Gets the ranges of continuous ascending indices in pairs, e.g [0,1,3,4,5,7] returns [0,1,3,5,7,7] (pairs 0-1, 3-5
+	 * and 7-7).
+	 *
+	 * @param indices
+	 *            the indices
+	 * @return the ranges
+	 */
+	public static int[] getRanges(int[] indices)
+	{
+		if (indices == null || indices.length == 0)
+			return new int[0];
+
+		if (indices.length == 1)
+			return new int[] { indices[0], indices[0] };
+
+		// Sort and look for continuous ranges
+		Arrays.sort(indices);
+
+		TIntArrayList list = new TIntArrayList(indices.length);
+		for (int i = 0; i < indices.length; i++)
+		{
+			int start = indices[i];
+			int end = start;
+			while (i + 1 < indices.length && end + 1 == indices[i + 1])
+			{
+				end = indices[++i];
+			}
+			list.add(start);
+			list.add(end);
+		}
+
+		return list.toArray();
+	}
 }

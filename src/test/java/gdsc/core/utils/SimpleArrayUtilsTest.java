@@ -220,4 +220,27 @@ public class SimpleArrayUtilsTest
 		ts.repeat(ts.getSize());
 		ts.report();
 	}
+
+	@Test
+	public void canGetRanges()
+	{
+		testGetRanges(null, new int[0]);
+		testGetRanges(new int[0], new int[0]);
+		testGetRanges(new int[] { 0 }, new int[] { 0, 0 });
+		testGetRanges(new int[] { 1 }, new int[] { 1, 1 });
+		testGetRanges(new int[] { 0, 1 }, new int[] { 0, 1 });
+		testGetRanges(new int[] { 0, 1, 2, 3 }, new int[] { 0, 3 });
+		testGetRanges(new int[] { 0, 1, 3, 4, 5, 7 }, new int[] { 0, 1, 3, 5, 7, 7 });
+		testGetRanges(new int[] { 0, 3, 5, 7 }, new int[] { 0, 0, 3, 3, 5, 5, 7, 7 });
+		testGetRanges(new int[] { -1, 0, 1 }, new int[] { -1, 1 });
+		testGetRanges(new int[] { -2, -1, 1 }, new int[] { -2, -1, 1, 1 });
+	}
+
+	private void testGetRanges(int[] in, int[] e)
+	{
+		int[] o = SimpleArrayUtils.getRanges(in);
+		System.out.printf("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
+		Assert.assertArrayEquals(e, o);
+	}
+
 }
