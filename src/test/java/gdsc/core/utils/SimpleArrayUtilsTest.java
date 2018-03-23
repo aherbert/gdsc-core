@@ -234,6 +234,29 @@ public class SimpleArrayUtilsTest
 		testGetRanges(new int[] { 0, 3, 5, 7 }, new int[] { 0, 0, 3, 3, 5, 5, 7, 7 });
 		testGetRanges(new int[] { -1, 0, 1 }, new int[] { -1, 1 });
 		testGetRanges(new int[] { -2, -1, 1 }, new int[] { -2, -1, 1, 1 });
+
+		// With duplicates
+		testGetRanges(new int[] { 0 }, new int[] { 0, 0 });
+		testGetRanges(new int[] { 1 }, new int[] { 1, 1 });
+		testGetRanges(new int[] { 0, 1 }, new int[] { 0, 1 });
+		testGetRanges(new int[] { 0, 1, 2, 3 }, new int[] { 0, 3 });
+		testGetRanges(new int[] { 0, 1, 3, 4, 5, 7 }, new int[] { 0, 1, 3, 5, 7, 7 });
+		testGetRanges(new int[] { 0, 3, 5, 7 }, new int[] { 0, 0, 3, 3, 5, 5, 7, 7 });
+		testGetRanges(new int[] { -1, 0, 1 }, new int[] { -1, 1 });
+		testGetRanges(new int[] { -2, -1, 1 }, new int[] { -2, -1, 1, 1 });
+	}
+
+	@Test
+	public void canGetRangesWithDuplicates()
+	{
+		testGetRanges(new int[] { 0, 0, 0 }, new int[] { 0, 0 });
+		testGetRanges(new int[] { 1, 1 }, new int[] { 1, 1 });
+		testGetRanges(new int[] { 0, 1, 1 }, new int[] { 0, 1 });
+		testGetRanges(new int[] { 0, 1, 2, 2, 2, 3, 3 }, new int[] { 0, 3 });
+		testGetRanges(new int[] { 0, 1, 1, 3, 3, 4, 5, 7, 7 }, new int[] { 0, 1, 3, 5, 7, 7 });
+		testGetRanges(new int[] { 0, 3, 5, 5, 5, 7 }, new int[] { 0, 0, 3, 3, 5, 5, 7, 7 });
+		testGetRanges(new int[] { -1, 0, 0, 0, 1, 1 }, new int[] { -1, 1 });
+		testGetRanges(new int[] { -2, -2, -1, 1 }, new int[] { -2, -1, 1, 1 });
 	}
 
 	private void testGetRanges(int[] in, int[] e)

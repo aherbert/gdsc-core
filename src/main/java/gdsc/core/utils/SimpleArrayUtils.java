@@ -778,6 +778,9 @@ public class SimpleArrayUtils
 	/**
 	 * Gets the ranges of continuous ascending indices in pairs, e.g [0,1,3,4,5,7] returns [0,1,3,5,7,7] (pairs 0-1, 3-5
 	 * and 7-7).
+	 * <p>
+	 * This method will eliminate duplicate indices as it returns the start and end of the range, e.g. [0,1,2,2,3]
+	 * returns [0,3].
 	 *
 	 * @param indices
 	 *            the indices
@@ -799,7 +802,8 @@ public class SimpleArrayUtils
 		{
 			int start = indices[i];
 			int end = start;
-			while (i + 1 < indices.length && end + 1 == indices[i + 1])
+			// Allow eliminating duplicates
+			while (i + 1 < indices.length && indices[i + 1] <= end + 1)
 			{
 				end = indices[++i];
 			}
