@@ -262,8 +262,7 @@ public class SimpleArrayUtilsTest
 	private void testGetRanges(int[] in, int[] e)
 	{
 		int[] o = SimpleArrayUtils.getRanges(in);
-		System.out.printf("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
+		//System.out.printf("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
 		Assert.assertArrayEquals(e, o);
 	}
-
 }
