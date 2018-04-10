@@ -110,7 +110,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 			return new PseudoRandomGenerator(sequence);
 		}
 	}
-	
+
 	/**
 	 * Gets the sequence of random numbers.
 	 *
@@ -119,6 +119,16 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	public double[] getSequence()
 	{
 		return sequence.clone();
+	}
+
+	/**
+	 * Gets the length of the sequence of random numbers.
+	 *
+	 * @return the length
+	 */
+	public int getLength()
+	{
+		return sequence.length;
 	}
 
 	/**
