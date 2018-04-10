@@ -63,6 +63,8 @@ public class Geometry
 	/**
 	 * Gets the area of a polygon using the Shoelace formula (https://en.wikipedia.org/wiki/Shoelace_formula)
 	 * <p>
+	 * The area formula is valid for any non-self-intersecting (simple) polygon, which can be convex or concave.
+	 * <p>
 	 * Note: The float values are cast up to double precision for the computation.
 	 * 
 	 * @param x
@@ -90,6 +92,8 @@ public class Geometry
 
 	/**
 	 * Gets the area of a polygon using the Shoelace formula (https://en.wikipedia.org/wiki/Shoelace_formula)
+	 * <p>
+	 * The area formula is valid for any non-self-intersecting (simple) polygon, which can be convex or concave.
 	 *
 	 * @param x
 	 *            the x
@@ -112,5 +116,68 @@ public class Geometry
 			sum2 += x[j] * y[i];
 		}
 		return (sum1 - sum2) / 2;
+	}
+
+	/**
+	 * Gets the intersection between the line x1,y1 to x2,y2 and x3,y3 to x4,y4.
+	 * <p>
+	 * http://en.wikipedia.org/wiki/Line-line_intersection
+	 *
+	 * @param x1            the x 1
+	 * @param y1            the y 1
+	 * @param x2            the x 2
+	 * @param y2            the y 2
+	 * @param x3            the x 3
+	 * @param y3            the y 3
+	 * @param x4            the x 4
+	 * @param y4            the y 4
+	 * @param intersection            the intersection
+	 * @return true if an intersection was found
+	 */
+	public static boolean getIntersection(double x1, double y1, double x2, double y2, double x3, double y3, double x4,
+			double y4, double[] intersection)
+	{
+		// http://en.wikipedia.org/wiki/Line-line_intersection
+		//
+		//     x1,y1            x4,y4      
+		//         **        ++ 
+		//           **    ++
+		//             **++ P(x,y)
+		//            ++ **
+		//          ++     **
+		//        ++         **
+		//    x3,y3            ** 
+		//                       x2,y2  
+
+		final double x1_m_x2 = x1 - x2;
+		final double x3_m_x4 = x3 - x4;
+		final double y1_m_y2 = y1 - y2;
+		final double y3_m_y4 = y3 - y4;
+
+		// Check if lines are parallel
+		double d = x1_m_x2 * y3_m_y4 - y1_m_y2 * x3_m_x4;
+		if (d == 0)
+		{
+			if (y1 == y3)
+			{
+				// The lines are the same
+				intersection[0] = x1;
+				intersection[1] = y1;
+				return true;
+			}
+		}
+		else
+		{
+			// Find intersection
+			double x1_by_y2_m_y1_by_x2 = x1 * y2 - y1 * x2;
+			double x3_by_y4_m_y3_by_x4 = x3 * y4 - y3 * x4;
+			double px = (x1_by_y2_m_y1_by_x2 * x3_m_x4 - x1_m_x2 * x3_by_y4_m_y3_by_x4) / d;
+			double py = (x1_by_y2_m_y1_by_x2 * y3_m_y4 - y1_m_y2 * x3_by_y4_m_y3_by_x4) / d;
+			intersection[0] = px;
+			intersection[1] = py;
+			return true;
+		}
+		
+		return false;
 	}
 }
