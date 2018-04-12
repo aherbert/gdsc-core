@@ -326,4 +326,12 @@ public class StoredData implements Iterable<Double>, DoubleData
 	{
 		return getValues();
 	}
+
+	/**
+	 * Clear the store (but keep the capacity).
+	 */
+	public void clear()
+	{
+		n = 0;
+	}
 }

@@ -32,11 +32,13 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 			// Ignore
 		}
 	}
+
 	private final static NullStoredData NULL_STORE = new NullStoredData();
 
 	protected final StoredData sequence;
 	protected StoredData store;
 	protected final RandomGenerator source;
+	protected int pos = 0;
 
 	/**
 	 * Instantiates a new cached random generator.
@@ -68,15 +70,39 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 		this.source = source;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Set the seed in the source random generator. This may not have the expected result of resetting the random
+	 * numbers if the current position is behind the sequence. To ensure a new set of number is generated with the seed
+	 * also call {@link #clearCache()}.
+	 * 
+	 * {@inheritDoc}
 	 * 
 	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#setSeed(long)
+	 * @see #reset()
+	 * @see #clearCache()
 	 */
 	@Override
 	public void setSeed(long seed)
 	{
 		source.setSeed(seed);
+	}
+
+	/**
+	 * Reset the current position in the cached sequence. Any cached random numbers will be reused before new numbers
+	 * are generated.
+	 */
+	public void reset()
+	{
+		pos = 0;
+	}
+
+	/**
+	 * Clear the cached sequence.
+	 */
+	public void clearCache()
+	{
+		pos = 0;
+		sequence.clear();
 	}
 
 	/*
