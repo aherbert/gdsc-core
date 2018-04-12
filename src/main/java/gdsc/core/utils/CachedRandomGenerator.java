@@ -157,7 +157,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 	{
 		return sequence.size();
 	}
-	
+
 	/**
 	 * Gets the capacity.
 	 *
@@ -172,10 +172,12 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 	 * Gets the pseudo random generator using the current sequence.
 	 *
 	 * @return the pseudo random generator
+	 * @throws IllegalArgumentException
+	 *             If no numbers are in the sequence
 	 */
-	public PseudoRandomGenerator getPseudoRandomGenerator()
+	public PseudoRandomGenerator getPseudoRandomGenerator() throws IllegalArgumentException
 	{
-		return new PseudoRandomGenerator(sequence.getValuesRef(), sequence.size());
+		return new PseudoRandomGenerator(sequence.getValuesRef(), sequence.size(), false);
 	}
 
 	/**

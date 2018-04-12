@@ -63,6 +63,24 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	}
 
 	/**
+	 * Instantiates a new pseudo random generator with no checks on the numbers.
+	 *
+	 * @param sequence
+	 *            the sequence (must contains numbers in the interval 0 to 1)
+	 * @param length
+	 *            the length (if greater than sequence.length it is set to length)
+	 * @param dummy
+	 *            the dummy parameter flag
+	 */
+	PseudoRandomGenerator(double[] sequence, int length, boolean dummy)
+	{
+		if (sequence == null || length < 1)
+			throw new IllegalArgumentException("Sequence must have a positive length");
+		this.sequence = sequence;
+		this.length = length;
+	}
+
+	/**
 	 * Instantiates a new pseudo random generator of the given size.
 	 *
 	 * @param size
