@@ -22,11 +22,12 @@ import org.apache.commons.math3.random.RandomGenerator;
 public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cloneable
 {
 	protected final double[] sequence;
+	protected final int length;
 
 	private int position = 0;
 
 	/**
-	 * Instantiates a new pseudo random generator. The input sequence is cloned.
+	 * Instantiates a new pseudo random generator.
 	 *
 	 * @param sequence
 	 *            the sequence (must contains numbers in the interval 0 to 1)
@@ -35,12 +36,30 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	 */
 	public PseudoRandomGenerator(double[] sequence)
 	{
-		if (sequence == null || sequence.length < 1)
+		this(sequence, sequence.length);
+	}
+
+	/**
+	 * Instantiates a new pseudo random generator.
+	 *
+	 * @param sequence
+	 *            the sequence (must contains numbers in the interval 0 to 1)
+	 * @param length
+	 *            the length (if greater than sequence.length it is set to length)
+	 * @throw {@link IllegalArgumentException} if the sequence is not positive in length and contains numbers outside
+	 *        the interval 0 to 1.
+	 */
+	public PseudoRandomGenerator(double[] sequence, int length)
+	{
+		if (sequence == null || length < 1)
 			throw new IllegalArgumentException("Sequence must have a positive length");
-		for (int i = sequence.length; i-- > 0;)
+		if (length > sequence.length)
+			length = sequence.length;
+		for (int i = length; i-- > 0;)
 			if (sequence[i] < 0 || sequence[i] > 1)
 				throw new IllegalArgumentException("Sequence must contain numbers between 0 and 1 inclusive");
-		this.sequence = sequence.clone();
+		this.sequence = sequence;
+		this.length = length;
 	}
 
 	/**
@@ -64,6 +83,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 		{
 			sequence[size] = source.nextDouble();
 		}
+		length = size;
 	}
 
 	/*
@@ -75,7 +95,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	public void setSeed(long seed)
 	{
 		clear();
-		position = (int) (Math.abs(seed) % sequence.length);
+		position = (int) (Math.abs(seed) % length);
 	}
 
 	/*
@@ -87,7 +107,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	public double nextDouble()
 	{
 		double d = sequence[position++];
-		if (position == sequence.length)
+		if (position == length)
 			position = 0;
 		return d;
 	}
@@ -107,12 +127,12 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 		catch (CloneNotSupportedException e)
 		{
 			// This should not happen
-			return new PseudoRandomGenerator(sequence);
+			return new PseudoRandomGenerator(sequence, length);
 		}
 	}
 
 	/**
-	 * Gets the sequence of random numbers.
+	 * Gets a copy of the sequence of random numbers.
 	 *
 	 * @return the sequence
 	 */
@@ -128,7 +148,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	 */
 	public int getLength()
 	{
-		return sequence.length;
+		return length;
 	}
 
 	/**

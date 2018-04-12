@@ -26,7 +26,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 public class TurboRandomGenerator extends PseudoRandomGenerator
 {
 	/**
-	 * Instantiates a new turbo random generator. The input sequence is cloned.
+	 * Instantiates a new turbo random generator. The input sequence may be modified: any 1 is set to 1-ulp.
 	 *
 	 * @param sequence
 	 *            the sequence (must contains numbers in the interval 0 to 1)
@@ -39,6 +39,20 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
 		update();
 	}
 
+	/**
+	 * Instantiates a new turbo random generator. The input sequence may be modified: any 1 is set to 1-ulp.
+	 *
+	 * @param sequence            the sequence (must contains numbers in the interval 0 to 1)
+	 * @param length the length
+	 * @throw {@link IllegalArgumentException} if the sequence is not positive in length and contains numbers outside
+	 *        the interval 0 to 1.
+	 */
+	public TurboRandomGenerator(double[] sequence, int length)
+	{
+		super(sequence, length);
+		update();
+	}
+	
 	/**
 	 * Instantiates a new pseudo random generator of the given size.
 	 *
@@ -60,7 +74,7 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
 
 	private void update()
 	{
-		for (int i = sequence.length; i-- > 0;)
+		for (int i = length; i-- > 0;)
 		{
 			if (sequence[i] >= MAX_VALUE)
 				sequence[i] = MAX_VALUE;

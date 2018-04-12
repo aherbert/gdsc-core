@@ -211,6 +211,16 @@ public class StoredData implements Iterable<Double>, DoubleData
 	}
 
 	/**
+	 * Gets the current values array. This may be larger than the current size.
+	 *
+	 * @return The values array
+	 */
+	public double[] getValuesRef()
+	{
+		return values;
+	}
+
+	/**
 	 * Gets the value.
 	 *
 	 * @param i
@@ -333,5 +343,15 @@ public class StoredData implements Iterable<Double>, DoubleData
 	public void clear()
 	{
 		n = 0;
+	}
+
+	/**
+	 * Get the capacity of the store.
+	 *
+	 * @return the capacity
+	 */
+	public int capacity()
+	{
+		return values.length;
 	}
 }
