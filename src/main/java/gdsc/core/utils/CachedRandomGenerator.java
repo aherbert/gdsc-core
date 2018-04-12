@@ -103,6 +103,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 	{
 		pos = 0;
 		sequence.clear();
+		store = sequence;
 	}
 
 	/*
@@ -113,16 +114,27 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 	@Override
 	public double nextDouble()
 	{
-		double d = source.nextDouble();
-		try
+		double d;
+		if (pos < sequence.size())
 		{
-			store.add(d);
+			d = sequence.getValue(pos);
 		}
-		catch (NegativeArraySizeException e)
+		else
 		{
-			// No more capacity
-			store = NULL_STORE;
+			d = source.nextDouble();
+			try
+			{
+				store.add(d);
+			}
+			catch (NegativeArraySizeException e)
+			{
+				// No more capacity
+				store = NULL_STORE;
+			}
 		}
+		// Safe increment of position to avoid overflow
+		if (pos != Integer.MAX_VALUE)
+			pos++;
 		return d;
 	}
 
