@@ -1144,7 +1144,8 @@ public class Maths
 	 */
 	public static double pow4(double d)
 	{
-		return pow2(pow2(d));
+		d = d * d;
+		return d * d;
 	}
 
 	/**
@@ -1180,7 +1181,8 @@ public class Maths
 	 */
 	public static int pow4(int d)
 	{
-		return pow2(pow2(d));
+		d = d * d;
+		return d * d;
 	}
 
 	/**
