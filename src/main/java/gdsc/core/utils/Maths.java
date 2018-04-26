@@ -1222,4 +1222,46 @@ public class Maths
 		x |= (x >>> 32);
 		return x + 1;
 	}
+
+	/**
+	 * Check if a is zero and return zero else divide a by b.
+	 *
+	 * @param a
+	 *            the a
+	 * @param b
+	 *            the b
+	 * @return a/b
+	 */
+	public static double div0(double a, double b)
+	{
+		return (a == 0) ? 0 : a / b;
+	}
+
+	/**
+	 * Check if a is zero and return zero else divide a by b.
+	 *
+	 * @param a
+	 *            the a
+	 * @param b
+	 *            the b
+	 * @return a/b
+	 */
+	public static double div0(int a, int b)
+	{
+		return (a == 0) ? 0 : (double) a / b;
+	}
+
+	/**
+	 * Check if a is zero and return zero else divide a by b.
+	 *
+	 * @param a
+	 *            the a
+	 * @param b
+	 *            the b
+	 * @return a/b
+	 */
+	public static double div0(long a, long b)
+	{
+		return (a == 0) ? 0 : (double) a / b;
+	}
 }
