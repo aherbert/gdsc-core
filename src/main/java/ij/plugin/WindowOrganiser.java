@@ -23,6 +23,7 @@ import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.PlotWindow;
 
+// TODO: Auto-generated Javadoc
 /**
  * Extend the standard ImageJ window organiser plugin and make the methods public
  * <p>
@@ -30,20 +31,29 @@ import ij.gui.PlotWindow;
  */
 public class WindowOrganiser extends ij.plugin.WindowOrganizer
 {
+	
+	/** The Constant GAP. */
 	private static final int XSTART = 4, YSTART = 80, XOFFSET = 8, YOFFSET = 24, MAXSTEP = 200, GAP = 2;
+	
+	/** The titlebar height. */
 	private int titlebarHeight = IJ.isMacintosh() ? 40 : 20;
 
+	/** The list. */
 	private int[] list = new int[10];
+	
+	/** The count. */
 	private int count = 0;
 
 	/** Set to true to ignore any added window. */
 	private boolean ignore = false;
+	
+	/** Set to true to unfreeze plots after layout. */
+	private boolean unfreeze = true;
 
 	/**
-	 * Adds the window ID to the instance
+	 * Adds the window ID to the instance.
 	 *
-	 * @param id
-	 *            the window id
+	 * @param id            the window id
 	 */
 	public void add(int id)
 	{
@@ -55,10 +65,9 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	}
 
 	/**
-	 * Adds the window ID to the instance
+	 * Adds the window ID to the instance.
 	 *
-	 * @param imp
-	 *            the image
+	 * @param imp            the image
 	 */
 	public void add(ImagePlus imp)
 	{
@@ -67,10 +76,9 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	}
 
 	/**
-	 * Adds the window ID to the instance
+	 * Adds the window ID to the instance.
 	 *
-	 * @param pw
-	 *            the plot window
+	 * @param pw            the plot window
 	 */
 	public void add(PlotWindow pw)
 	{
@@ -97,6 +105,26 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	{
 		this.ignore = ignore;
 	}
+
+	/**
+	 * Checks if unfreezing plots after layout.
+	 *
+	 * @return true, if unfreezing
+	 */
+	public boolean isUnfreeze()
+	{
+		return unfreeze;
+	}
+
+	/**
+	 * Set to true to unfreeze plots after layout
+	 *
+	 * @param unfreeze the new unfreeze flag
+	 */
+	public void setUnfreeze(boolean unfreeze)
+	{
+		this.unfreeze = unfreeze;
+	}
 	
 	/**
 	 * The number of windows that have been added.
@@ -109,31 +137,35 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	}
 	
 	/**
-	 * Tile all the windows added to this instance
+	 * Tile all the windows added to this instance.
 	 */
 	public void tile()
 	{
-		if (count == 0)
+		if (count <= 1)
 			return;
 		tileWindows(Arrays.copyOf(list, count));
 	}
 
 	/**
-	 * Cascade all the windows added to this instance
+	 * Cascade all the windows added to this instance.
 	 */
 	public void cascade()
 	{
-		if (count == 0)
+		if (count <= 1)
 			return;
 		cascadeWindows(Arrays.copyOf(list, count));
 	}
 
+	/**
+	 * Tile windows.
+	 *
+	 * @param wList the w list
+	 */
 	@Override
 	public void tileWindows(int[] wList)
 	{
 		// As of ImageJ 1.50 plot windows must be frozen to allow tiling.
 		// This is because they are dynamically resized.
-		@SuppressWarnings("unused")
 		final boolean[] unfreeze = freezePlotWindows(wList);
 		try
 		{
@@ -149,14 +181,15 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 			// TODO - Determine how to deal with freeze and unfreeze
 			// Since you can unfreeze a plot within the plot window (using the More>> menu) 
 			// for now it is left to the user to unfreeze plots for dynamic resizing
-			//unfreezePlotWindows(wList, unfreeze);
+			if (isUnfreeze())
+				unfreezePlotWindows(wList, unfreeze);
 		}
 	}
 
 	/**
-	 * Freeze any plot windows to allow them to be tiled
-	 * 
-	 * @param wList
+	 * Freeze any plot windows to allow them to be tiled.
+	 *
+	 * @param wList the w list
 	 * @return The windows that should be unfrozen
 	 */
 	private boolean[] freezePlotWindows(int[] wList)
@@ -181,13 +214,11 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	}
 
 	/**
-	 * Unfreeze any marked plot windows
-	 * 
-	 * @param wList
-	 * @param unfreeze
-	 *            The windows that should be unfrozen
+	 * Unfreeze any marked plot windows.
+	 *
+	 * @param wList the w list
+	 * @param unfreeze            The windows that should be unfrozen
 	 */
-	@SuppressWarnings("unused")
 	private void unfreezePlotWindows(int[] wList, boolean[] unfreeze)
 	{
 		for (int i = 0; i < wList.length; i++)
@@ -205,6 +236,11 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 		}
 	}
 
+	/**
+	 * Cascade windows.
+	 *
+	 * @param wList the w list
+	 */
 	@Override
 	public void cascadeWindows(int[] wList)
 	{
@@ -219,6 +255,11 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 		}
 	}
 
+	/**
+	 * Copy of tile windows.
+	 *
+	 * @param wList the w list
+	 */
 	void copyOfTileWindows(int[] wList)
 	{
 		Dimension screen = IJ.getScreenSize();
@@ -308,6 +349,12 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 		}
 	}
 
+	/**
+	 * Gets the window.
+	 *
+	 * @param id the id
+	 * @return the window
+	 */
 	ImageWindow getWindow(int id)
 	{
 		ImageWindow win = null;
@@ -317,6 +364,11 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 		return win;
 	}
 
+	/**
+	 * Copy of cascade windows.
+	 *
+	 * @param wList the w list
+	 */
 	void copyOfCascadeWindows(int[] wList)
 	{
 		Dimension screen = IJ.getScreenSize();
