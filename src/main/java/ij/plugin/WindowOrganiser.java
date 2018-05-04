@@ -23,7 +23,6 @@ import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.PlotWindow;
 
-// TODO: Auto-generated Javadoc
 /**
  * Extend the standard ImageJ window organiser plugin and make the methods public
  * <p>
@@ -31,8 +30,6 @@ import ij.gui.PlotWindow;
  */
 public class WindowOrganiser extends ij.plugin.WindowOrganizer
 {
-	
-	/** The Constant GAP. */
 	private static final int XSTART = 4, YSTART = 80, XOFFSET = 8, YOFFSET = 24, MAXSTEP = 200, GAP = 2;
 	
 	/** The titlebar height. */
