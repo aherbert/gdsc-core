@@ -1226,6 +1226,27 @@ public class Maths
 	}
 
 	/**
+	 * Return the log2 of x rounded down to a power of 2. This is done by scanning for the most significant bit of the
+	 * value.
+	 * <p>
+	 * If x is negative or zero this will return Integer.MIN_VALUE (as negative infinity).
+	 *
+	 * @param x
+	 *            the x (must be positive)
+	 * @return log2(x)
+	 */
+	public static int log2(int x)
+	{
+		if (x <= 0)
+			return Integer.MIN_VALUE;
+		// Max value is 2^31 -1 so start at bit 30 for rounded down
+		int bit = 30;
+		while ((x & (1 << bit)) == 0)
+			bit--;
+		return bit;
+	}
+
+	/**
 	 * Check if a is zero and return zero else divide a by b.
 	 *
 	 * @param a
