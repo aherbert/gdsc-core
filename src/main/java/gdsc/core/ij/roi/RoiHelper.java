@@ -2,6 +2,8 @@ package gdsc.core.ij.roi;
 
 import java.awt.Rectangle;
 
+import gdsc.core.data.procedures.FValueProcedure;
+import gdsc.core.data.procedures.IValueProcedure;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
@@ -26,34 +28,6 @@ import ij.process.ImageProcessor;
  */
 public class RoiHelper
 {
-	/**
-	 * Interface for accessing the pixels
-	 */
-	public interface IPixelProcedure
-	{
-		/**
-		 * Executes this procedure.
-		 *
-		 * @param value
-		 *            the pixel value
-		 */
-		void execute(int value);
-	}
-
-	/**
-	 * Interface for accessing the pixels
-	 */
-	public interface FPixelProcedure
-	{
-		/**
-		 * Executes this procedure.
-		 *
-		 * @param value
-		 *            the pixel value
-		 */
-		void execute(float value);
-	}
-
 	/**
 	 * Build a byte mask of all pixels in an ROI. If no area ROI is present then the mask
 	 * will be null.
@@ -96,7 +70,7 @@ public class RoiHelper
 	 * @param p
 	 *            the procedure
 	 */
-	public static void forEach(Roi roi, ImageProcessor ip, FPixelProcedure p)
+	public static void forEach(Roi roi, ImageProcessor ip, FValueProcedure p)
 	{
 		if (roi == null)
 		{
@@ -150,7 +124,7 @@ public class RoiHelper
 	 * @param p
 	 *            the procedure
 	 */
-	public static void forEach(Roi roi, ImageStack stack, FPixelProcedure p)
+	public static void forEach(Roi roi, ImageStack stack, FValueProcedure p)
 	{
 		if (roi == null)
 		{
@@ -215,7 +189,7 @@ public class RoiHelper
 	 * @param p
 	 *            the procedure
 	 */
-	public static void forEach(Roi roi, ImageProcessor ip, IPixelProcedure p)
+	public static void forEach(Roi roi, ImageProcessor ip, IValueProcedure p)
 	{
 		if (roi == null)
 		{
@@ -269,7 +243,7 @@ public class RoiHelper
 	 * @param p
 	 *            the procedure
 	 */
-	public static void forEach(Roi roi, ImageStack stack, IPixelProcedure p)
+	public static void forEach(Roi roi, ImageStack stack, IValueProcedure p)
 	{
 		if (roi == null)
 		{
