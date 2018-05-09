@@ -396,6 +396,22 @@ public class SimpleArrayUtils
 	}
 
 	/**
+	 * Create a new byte array with the given value.
+	 *
+	 * @param length
+	 *            the length
+	 * @param value
+	 *            the value
+	 * @return the byte array
+	 */
+	public static byte[] newByteArray(int length, byte value)
+	{
+		byte[] data = new byte[length];
+		Arrays.fill(data, value);
+		return data;
+	}
+
+	/**
 	 * Reverse the array order
 	 * 
 	 * @param data
