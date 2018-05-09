@@ -147,10 +147,11 @@ public class FloatHistogram extends Histogram
 		{
 			int bin = (int) ((getValue(i) - min) / binSize + 0.5);
 			if (bin < 0)
-				bin = 0;
-			if (bin >= size)
-				bin = size_1;
-			newH[bin] += h[i];
+				newH[0] += h[i];
+			else if (bin >= size)
+				newH[size_1] += h[i];
+			else
+				newH[bin] += h[i];
 		}
 		// Create the new values
 		final float[] newValue = new float[size];
