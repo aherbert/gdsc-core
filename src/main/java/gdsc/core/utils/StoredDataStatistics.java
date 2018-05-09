@@ -37,30 +37,26 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 
 	public StoredDataStatistics(float[] data)
 	{
-		add(data);
+		super(data);
 	}
 
 	public StoredDataStatistics(double[] data)
 	{
-		add(data);
+		super(data);
 	}
 
 	public StoredDataStatistics(int[] data)
 	{
-		add(data);
+		super(data);
 	}
 
-	/**
-	 * Add the data
-	 * 
-	 * @param data
-	 */
-	public void add(float[] data)
+	@Override
+	protected void addInternal(float[] data, int from, int to)
 	{
 		if (data == null)
 			return;
-		checkCapacity(data.length);
-		for (int i = 0; i < data.length; i++)
+		checkCapacity(from - to);
+		for (int i = from; i < to; i++)
 		{
 			final double value = data[i];
 			values[n++] = value;
@@ -93,17 +89,13 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		}
 	}
 
-	/**
-	 * Add the data
-	 * 
-	 * @param data
-	 */
-	public void add(double[] data)
+	@Override
+	protected void addInternal(double[] data, int from, int to)
 	{
 		if (data == null)
 			return;
-		checkCapacity(data.length);
-		for (int i = 0; i < data.length; i++)
+		checkCapacity(from - to);
+		for (int i = from; i < to; i++)
 		{
 			final double value = data[i];
 			values[n++] = value;
@@ -112,17 +104,13 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		}
 	}
 
-	/**
-	 * Add the data
-	 * 
-	 * @param data
-	 */
-	public void add(int[] data)
+	@Override
+	protected void addInternal(int[] data, int from, int to)
 	{
 		if (data == null)
 			return;
-		checkCapacity(data.length);
-		for (int i = 0; i < data.length; i++)
+		checkCapacity(from - to);
+		for (int i = from; i < to; i++)
 		{
 			final double value = data[i];
 			values[n++] = value;
@@ -136,6 +124,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	 * 
 	 * @param value
 	 */
+	@Override
 	public void add(final double value)
 	{
 		checkCapacity(1);
@@ -152,6 +141,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	 * @param value
 	 *            The value
 	 */
+	@Override
 	public void add(int n, double value)
 	{
 		checkCapacity(n);
@@ -159,60 +149,6 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 			values[this.n++] = value;
 		s += n * value;
 		ss += n * value * value;
-	}
-
-	/**
-	 * Add the data. Synchronized for thread safety. (Multiple threads must all use the same safeAdd method to ensure
-	 * thread safety.)
-	 * 
-	 * @param data
-	 */
-	synchronized public void safeAdd(float[] data)
-	{
-		if (data == null)
-			return;
-		checkCapacity(data.length);
-		for (int i = 0; i < data.length; i++)
-		{
-			final double value = data[i];
-			values[n++] = value;
-			s += value;
-			ss += value * value;
-		}
-	}
-
-	/**
-	 * Add the data. Synchronized for thread safety. (Multiple threads must all use the same safeAdd method to ensure
-	 * thread safety.)
-	 * 
-	 * @param data
-	 */
-	synchronized public void safeAdd(double[] data)
-	{
-		if (data == null)
-			return;
-		checkCapacity(data.length);
-		for (int i = 0; i < data.length; i++)
-		{
-			final double value = data[i];
-			values[n++] = value;
-			s += value;
-			ss += value * value;
-		}
-	}
-
-	/**
-	 * Add the value. Synchronized for thread safety. (Multiple threads must all use the same safeAdd method to ensure
-	 * thread safety.)
-	 * 
-	 * @param value
-	 */
-	synchronized public void safeAdd(final double value)
-	{
-		checkCapacity(1);
-		values[n++] = value;
-		s += value;
-		ss += value * value;
 	}
 
 	/**

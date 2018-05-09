@@ -51,13 +51,7 @@ public class Statistics
 	{
 		if (data == null)
 			return;
-		for (int i = 0; i < data.length; i++)
-		{
-			final double value = data[i];
-			s += value;
-			ss += value * value;
-		}
-		n += data.length;
+		addInternal(data, 0, data.length);
 	}
 
 	/**
@@ -69,13 +63,7 @@ public class Statistics
 	{
 		if (data == null)
 			return;
-		for (int i = 0; i < data.length; i++)
-		{
-			final double value = data[i];
-			s += value;
-			ss += value * value;
-		}
-		n += data.length;
+		addInternal(data, 0, data.length);
 	}
 
 	/**
@@ -87,13 +75,148 @@ public class Statistics
 	{
 		if (data == null)
 			return;
-		for (int i = 0; i < data.length; i++)
+		addInternal(data, 0, data.length);
+	}
+
+	/**
+	 * Checks that {@code fromIndex} and {@code toIndex} are in
+	 * the range and throws an exception if they aren't.
+	 */
+	private static void rangeCheck(int arrayLength, int fromIndex, int toIndex)
+	{
+		if (fromIndex > toIndex)
+		{
+			throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ")");
+		}
+		if (fromIndex < 0)
+		{
+			throw new ArrayIndexOutOfBoundsException(fromIndex);
+		}
+		if (toIndex > arrayLength)
+		{
+			throw new ArrayIndexOutOfBoundsException(toIndex);
+		}
+	}
+
+	/**
+	 * Add the data.
+	 *
+	 * @param data
+	 *            the data
+	 * @param from
+	 *            the from index (inclusive)
+	 * @param to
+	 *            the to index (exclusive)
+	 */
+	public void add(float[] data, int from, int to)
+	{
+		if (data == null)
+			return;
+		rangeCheck(data.length, from, to);
+		addInternal(data, from, to);
+	}
+
+	/**
+	 * Add the data
+	 *
+	 * @param data
+	 *            the data
+	 * @param from
+	 *            the from index (inclusive)
+	 * @param to
+	 *            the to index (exclusive)
+	 */
+	public void add(double[] data, int from, int to)
+	{
+		if (data == null)
+			return;
+		rangeCheck(data.length, from, to);
+		addInternal(data, from, to);
+	}
+
+	/**
+	 * Add the data
+	 * 
+	 *
+	 * @param data
+	 *            the data
+	 * @param from
+	 *            the from index (inclusive)
+	 * @param to
+	 *            the to index (exclusive)
+	 */
+	public void add(int[] data, int from, int to)
+	{
+		if (data == null)
+			return;
+		rangeCheck(data.length, from, to);
+		addInternal(data, from, to);
+	}
+
+	/**
+	 * Add the data
+	 * 
+	 *
+	 * @param data
+	 *            the data
+	 * @param from
+	 *            the from index (inclusive)
+	 * @param to
+	 *            the to index (exclusive)
+	 */
+	protected void addInternal(float[] data, int from, int to)
+	{
+		for (int i = from; i < to; i++)
 		{
 			final double value = data[i];
 			s += value;
 			ss += value * value;
 		}
-		n += data.length;
+		n += (to - from);
+	}
+
+	/**
+	 * Add the data
+	 * 
+	 *
+	 * @param data
+	 *            the data
+	 * @param from
+	 *            the from index (inclusive)
+	 * @param to
+	 *            the to index (exclusive)
+	 */
+	protected void addInternal(double[] data, int from, int to)
+	{
+		for (int i = from; i < to; i++)
+		{
+			final double value = data[i];
+			s += value;
+			ss += value * value;
+		}
+		n += (to - from);
+	}
+
+	/**
+	 * Add the data
+	 * 
+	 *
+	 * @param data
+	 *            the data
+	 * @param from
+	 *            the from index (inclusive)
+	 * @param to
+	 *            the to index (exclusive)
+	 */
+	protected void addInternal(int[] data, int from, int to)
+	{
+		for (int i = from; i < to; i++)
+		{
+			final double value = data[i];
+			s += value;
+			ss += value * value;
+		}
+		n += (to - from);
 	}
 
 	/**
@@ -130,15 +253,7 @@ public class Statistics
 	 */
 	synchronized public void safeAdd(float[] data)
 	{
-		if (data == null)
-			return;
-		for (int i = 0; i < data.length; i++)
-		{
-			final double value = data[i];
-			s += value;
-			ss += value * value;
-		}
-		n += data.length;
+		add(data);
 	}
 
 	/**
@@ -148,15 +263,17 @@ public class Statistics
 	 */
 	synchronized public void safeAdd(double[] data)
 	{
-		if (data == null)
-			return;
-		for (int i = 0; i < data.length; i++)
-		{
-			final double value = data[i];
-			s += value;
-			ss += value * value;
-		}
-		n += data.length;
+		add(data);
+	}
+
+	/**
+	 * Add the data. Synchronized for thread safety.
+	 * 
+	 * @param data
+	 */
+	synchronized public void safeAdd(int[] data)
+	{
+		add(data);
 	}
 
 	/**
@@ -166,9 +283,7 @@ public class Statistics
 	 */
 	synchronized public void safeAdd(final double value)
 	{
-		n++;
-		s += value;
-		ss += value * value;
+		add(value);
 	}
 
 	/**
