@@ -95,7 +95,7 @@ public class RoiHelper
 		{
 			for (int y = 0; y < rheight; y++)
 			{
-				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++)
+				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
 				{
 					p.execute(ip.getf(i));
 				}
@@ -105,9 +105,9 @@ public class RoiHelper
 		{
 			for (int y = 0, j = 0; y < rheight; y++)
 			{
-				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++)
+				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
 				{
-					if (mask.get(j++) != 0)
+					if (mask.get(j) != 0)
 						p.execute(ip.getf(i));
 				}
 			}
@@ -156,7 +156,7 @@ public class RoiHelper
 				ImageProcessor ip = stack.getProcessor(slice);
 				for (int y = 0; y < rheight; y++)
 				{
-					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++)
+					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
 					{
 						p.execute(ip.getf(i));
 					}
@@ -170,9 +170,9 @@ public class RoiHelper
 				ImageProcessor ip = stack.getProcessor(slice);
 				for (int y = 0, j = 0; y < rheight; y++)
 				{
-					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++)
+					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
 					{
-						if (mask.get(j++) != 0)
+						if (mask.get(j) != 0)
 							p.execute(ip.getf(i));
 					}
 				}
@@ -214,7 +214,7 @@ public class RoiHelper
 		{
 			for (int y = 0; y < rheight; y++)
 			{
-				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++)
+				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
 				{
 					p.execute(ip.get(i));
 				}
@@ -224,9 +224,9 @@ public class RoiHelper
 		{
 			for (int y = 0, j = 0; y < rheight; y++)
 			{
-				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++)
+				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
 				{
-					if (mask.get(j++) != 0)
+					if (mask.get(j) != 0)
 						p.execute(ip.get(i));
 				}
 			}
@@ -275,7 +275,7 @@ public class RoiHelper
 				ImageProcessor ip = stack.getProcessor(slice);
 				for (int y = 0; y < rheight; y++)
 				{
-					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++)
+					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
 					{
 						p.execute(ip.get(i));
 					}
@@ -289,9 +289,9 @@ public class RoiHelper
 				ImageProcessor ip = stack.getProcessor(slice);
 				for (int y = 0, j = 0; y < rheight; y++)
 				{
-					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++)
+					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
 					{
-						if (mask.get(j++) != 0)
+						if (mask.get(j) != 0)
 							p.execute(ip.get(i));
 					}
 				}
