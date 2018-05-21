@@ -142,11 +142,11 @@ public class Correlator
 	{
 		if (n == 0)
 			return Double.NaN;
-		
+
 		final double ux = sumX / (double) n;
 		final double uy = sumY / (double) n;
 		return doCorrelation(x, y, n, ux, uy);
-		
+
 		//return correlation(x, y, n);
 	}
 
@@ -157,11 +157,11 @@ public class Correlator
 	{
 		if (n == 0)
 			return Double.NaN;
-		
+
 		long sumXY = 0;
 		long sumXX = 0;
 		long sumYY = 0;
-		
+
 		for (int i = n; i-- > 0;)
 		{
 			sumXY += (x[i] * y[i]);
@@ -276,8 +276,9 @@ public class Correlator
 
 		final double ux = sx / (double) n;
 		final double uy = sy / (double) n;
-		
-		return doCorrelation(x, y, n, ux, uy);	}
+
+		return doCorrelation(x, y, n, ux, uy);
+	}
 
 	/**
 	 * Calculate the correlation
@@ -315,7 +316,8 @@ public class Correlator
 			p3 += d1 * d2;
 		}
 
-		return p3 / Math.sqrt(p1 * p2);
+		final double p1_m_p2 = p1 * p2;
+		return (p1_m_p2 == 0) ? 0 : p3 / Math.sqrt(p1_m_p2);
 	}
 
 	/**
