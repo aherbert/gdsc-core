@@ -129,7 +129,8 @@ public class ExtendedGenericDialog extends GenericDialog
 
 			// The ScrollPanel must be sized from the default of 100x100 when
 			// displayed. This is done in setup()
-			ScrollPane scroll = new ScrollPane();
+			int policy = ScrollPane.SCROLLBARS_AS_NEEDED;
+			ScrollPane scroll = new ScrollPane(policy);
 			scroll.getHAdjustable().setUnitIncrement(16);
 			scroll.getVAdjustable().setUnitIncrement(16);
 			scroll.add(panel);
@@ -1339,31 +1340,31 @@ public class ExtendedGenericDialog extends GenericDialog
 	{
 		return panel.add(comp);
 	}
-	
+
 	@Override
 	public void add(Component comp, Object constraints)
 	{
 		panel.add(comp, constraints);
 	}
-	
+
 	@Override
 	public Component add(Component comp, int index)
 	{
 		return panel.add(comp, index);
 	}
-	
+
 	@Override
 	public Component add(String name, Component comp)
 	{
 		return panel.add(name, comp);
 	}
-	
+
 	@Override
 	public void add(Component comp, Object constraints, int index)
 	{
 		panel.add(comp, constraints, index);
 	}
-	
+
 	@Override
 	public void add(PopupMenu popup)
 	{
@@ -1375,19 +1376,19 @@ public class ExtendedGenericDialog extends GenericDialog
 	{
 		panel.remove(comp);
 	}
-	
+
 	@Override
 	public void remove(int index)
 	{
 		panel.remove(index);
 	}
-	
+
 	@Override
 	public void remove(MenuComponent popup)
 	{
 		panel.remove(popup);
 	}
-	
+
 	/**
 	 * This method is called just before the dialog is set visible. Determine the preferred size of the panel
 	 * contents and appropriately size the scroll pane to fit.
@@ -1402,13 +1403,17 @@ public class ExtendedGenericDialog extends GenericDialog
 
 		// Appropriately size the scrollpane
 		ScreenDimensionHelper helper = new ScreenDimensionHelper();
-		helper.setMaxSize(maxWidth, maxHeight);
-		
+		if (maxWidth > 0)
+			helper.setMaxWidth(maxWidth);
+		if (maxHeight > 0)
+			helper.setMaxHeight(maxHeight);
+		//helper.setMaxSize(maxWidth, maxHeight);
+
 		Dimension d = panel.getPreferredSize();
 		ScrollPane scroll = (ScrollPane) getComponent(0);
 
 		helper.setup(scroll, d);
-		
+
 		pack();
 	}
 
