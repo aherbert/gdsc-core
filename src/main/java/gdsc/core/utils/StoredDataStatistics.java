@@ -55,7 +55,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	{
 		if (data == null)
 			return;
-		checkCapacity(from - to);
+		checkCapacity(to - from);
 		for (int i = from; i < to; i++)
 		{
 			final double value = data[i];
@@ -94,7 +94,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	{
 		if (data == null)
 			return;
-		checkCapacity(from - to);
+		checkCapacity(to - from);
 		for (int i = from; i < to; i++)
 		{
 			final double value = data[i];
@@ -109,7 +109,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	{
 		if (data == null)
 			return;
-		checkCapacity(from - to);
+		checkCapacity(to - from);
 		for (int i = from; i < to; i++)
 		{
 			final double value = data[i];
