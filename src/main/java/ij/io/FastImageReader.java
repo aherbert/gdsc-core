@@ -1367,73 +1367,62 @@ public class FastImageReader
 		this.skipCount = skipCount;
 		return readPixels(in);
 	}
-}
 
-/** A growable array of bytes. */
-class ByteVector
-{
-	private byte[] data;
-	private int size;
-
-	public ByteVector()
+	/** A growable array of bytes. */
+	private class ByteVector
 	{
-		data = new byte[10];
-		size = 0;
-	}
+		private byte[] data;
+		private int size;
 
-	public ByteVector(int initialSize)
-	{
-		data = new byte[initialSize];
-		size = 0;
-	}
-
-	public ByteVector(byte[] byteBuffer)
-	{
-		data = byteBuffer;
-		size = 0;
-	}
-
-	public void add(byte x)
-	{
-		if (size >= data.length)
+		public ByteVector(int initialSize)
 		{
-			doubleCapacity();
-			add(x);
+			data = new byte[initialSize];
+			size = 0;
 		}
-		else
-			data[size++] = x;
-	}
 
-	public int size()
-	{
-		return size;
-	}
+		public ByteVector(byte[] byteBuffer)
+		{
+			data = byteBuffer;
+			size = 0;
+		}
 
-	public void add(byte[] array)
-	{
-		int length = array.length;
-		while (data.length - size < length)
-			doubleCapacity();
-		System.arraycopy(array, 0, data, size, length);
-		size += length;
-	}
+		public void add(byte x)
+		{
+			if (size >= data.length)
+			{
+				doubleCapacity();
+				add(x);
+			}
+			else
+				data[size++] = x;
+		}
 
-	void doubleCapacity()
-	{
-		byte[] tmp = new byte[data.length * 2 + 1];
-		System.arraycopy(data, 0, tmp, 0, data.length);
-		data = tmp;
-	}
+		public int size()
+		{
+			return size;
+		}
 
-	public void clear()
-	{
-		size = 0;
-	}
+		public void add(byte[] array)
+		{
+			int length = array.length;
+			while (data.length - size < length)
+				doubleCapacity();
+			System.arraycopy(array, 0, data, size, length);
+			size += length;
+		}
 
-	public byte[] toByteArray()
-	{
-		byte[] bytes = new byte[size];
-		System.arraycopy(data, 0, bytes, 0, size);
-		return bytes;
+		void doubleCapacity()
+		{
+			byte[] tmp = new byte[data.length * 2 + 1];
+			System.arraycopy(data, 0, tmp, 0, data.length);
+			data = tmp;
+		}
+
+		public byte[] toByteArray()
+		{
+			byte[] bytes = new byte[size];
+			System.arraycopy(data, 0, bytes, 0, size);
+			return bytes;
+		}
 	}
 }
