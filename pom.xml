@@ -1,6 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>22.2.0</version>
+		<relativePath />
+	</parent>
 
 	<groupId>gdsc</groupId>
 	<artifactId>gdsc-core</artifactId>
@@ -18,6 +26,25 @@
 		</license>
 	</licenses>
 
+	<inceptionYear>2013</inceptionYear>
+	<contributors>
+		<contributor>
+			<name>Alex Herbert</name>
+		</contributor>
+	</contributors>
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ Forum</name>
+			<archive>http://forum.imagej.net/</archive>
+		</mailingList>
+	</mailingLists>
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/aherbert/GDSC-Core/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>None</system>
+	</ciManagement>
 	<scm>
 		<url>https://github.com/aherbert/GDSC-Core</url>
 	</scm>
@@ -28,51 +55,23 @@
 			<name>Alex Herbert</name>
 			<email>a.herbert@sussex.ac.uk</email>
 			<roles>
-				<role>architect</role>
 				<role>developer</role>
 			</roles>
 		</developer>
 	</developers>
 
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.build.timestamp.format>yyyy/MM/dd HH:mm</maven.build.timestamp.format>
-		<build.date>${maven.build.timestamp}</build.date>
+		<license.licenseName>gpl_v3</license.licenseName>
+        <license.copyrightOwners>N/A</license.copyrightOwners>
 	</properties>
 
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>2.1</version>
-					<configuration>
-						<source>1.5</source>
-						<target>1.5</target>
-					</configuration>
-				</plugin>
 				<plugin>
 					<!-- NOTE: We don't need a groupId specification because the group is 
 						org.apache.maven.plugins ...which is assumed by default. -->
 					<artifactId>maven-assembly-plugin</artifactId>
-					<version>2.4</version>
 					<configuration>
 						<descriptorRefs>
 							<descriptorRef>jar-with-dependencies</descriptorRef>
@@ -133,23 +132,19 @@
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
-			<version>1.50a</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
-			<version>3.6.1</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/net.sf.trove4j/trove4j -->
 		<dependency>
 			<groupId>net.sf.trove4j</groupId>
 			<artifactId>trove4j</artifactId>
-			<version>3.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/de.lmu.ifi.dbs.elki/elki -->
@@ -165,7 +160,6 @@
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
-			<version>1.11</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -191,14 +185,20 @@
 	</organization>
 	<description>Genome Damage and Stability Centre ImageJ Core Package
 
-The GDSC ImageJ Core package contains core code used by the GDSC ImageJ Plugins and GDSC SMLM ImageJ Plugins. The packages contain many plugins for image analysis and may be used independently or together. This codebase contains core code used by both packages.
+					The GDSC ImageJ Core package contains core code used by the GDSC
+					ImageJ Plugins and GDSC SMLM ImageJ Plugins. The packages contain
+					many plugins for image analysis and may be used independently or
+					together. This codebase contains core code used by both packages.
 
-GDSC ImageJ Plugins
+					GDSC ImageJ Plugins
 
-Software for image analysis
+					Software for image analysis
 
-GDSC SMLM ImageJ Plugins
+					GDSC SMLM ImageJ
+					Plugins
 
-Software for use in single molecule localisation microscopy (SMLM), e.g. STORM, PALM.
-</description>
+					Software for use in single molecule localisation microscopy
+					(SMLM), e.g.
+					STORM, PALM.
+				</description>
 </project>
