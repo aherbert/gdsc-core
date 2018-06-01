@@ -7,18 +7,18 @@ import org.apache.commons.math3.util.MathArrays;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class StatisticsTest
+public class RollingStatisticsTest
 {
 	@Test
 	public void canComputeStatistics()
 	{
 		RandomGenerator r = new Well19937c(30051977);
 		DescriptiveStatistics e;
-		Statistics o;
+		RollingStatistics o;
 		for (int i = 0; i < 10; i++)
 		{
 			e = new DescriptiveStatistics();
-			o = new Statistics();
+			o = new RollingStatistics();
 			for (int j = 0; j < 100; j++)
 			{
 				double d = r.nextDouble();
@@ -29,7 +29,7 @@ public class StatisticsTest
 		}
 
 		e = new DescriptiveStatistics();
-		o = new Statistics();
+		o = new RollingStatistics();
 		int[] idata = SimpleArrayUtils.newArray(100, 0, 1);
 		MathArrays.shuffle(idata, r);
 		for (double v : idata)
@@ -38,7 +38,7 @@ public class StatisticsTest
 		check(e, o);
 
 		e = new DescriptiveStatistics();
-		o = new Statistics();
+		o = new RollingStatistics();
 		double[] ddata = new double[idata.length];
 		for (int i = 0; i < idata.length; i++)
 		{
@@ -49,7 +49,7 @@ public class StatisticsTest
 		check(e, o);
 
 		e = new DescriptiveStatistics();
-		o = new Statistics();
+		o = new RollingStatistics();
 		float[] fdata = new float[idata.length];
 		for (int i = 0; i < idata.length; i++)
 		{
@@ -60,7 +60,7 @@ public class StatisticsTest
 		check(e, o);
 	}
 
-	private void check(DescriptiveStatistics e, Statistics o)
+	private void check(DescriptiveStatistics e, RollingStatistics o)
 	{
 		Assert.assertEquals("N", e.getN(), o.getN(), 0);
 		Assert.assertEquals("Mean", e.getMean(), o.getMean(), 1e-10);
@@ -73,14 +73,14 @@ public class StatisticsTest
 	{
 		int[] d1 = SimpleArrayUtils.newArray(100, 0, 1);
 		int[] d2 = SimpleArrayUtils.newArray(100, 4, 1);
-		Statistics o = new Statistics();
+		RollingStatistics o = new RollingStatistics();
 		o.add(d1);
-		Statistics o2 = new Statistics();
+		RollingStatistics o2 = new RollingStatistics();
 		o2.add(d2);
-		Statistics o3 = new Statistics();
+		RollingStatistics o3 = new RollingStatistics();
 		o3.add(o);
 		o3.add(o2);
-		Statistics o4 = new Statistics();
+		RollingStatistics o4 = new RollingStatistics();
 		o4.add(d1);
 		o4.add(d2);
 
@@ -88,23 +88,21 @@ public class StatisticsTest
 	}
 
 	@Test
-	public void cannotComputeWithLargeNumbers()
+	public void canComputeWithLargeNumbers()
 	{
 		// https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Example
 		double[] v = new double[] { 4, 7, 13, 16 };
-		Statistics o = new Statistics();
+		RollingStatistics o = new RollingStatistics();
 		o.add(v);
-		Assert.assertEquals("Mean",  10, o.getMean(), 0);
-		Assert.assertEquals("Variance", 30, o.getVariance(), 0);
-	
+		Assert.assertEquals("Mean", o.getMean(), 10, 0);
+		Assert.assertEquals("Variance", o.getVariance(), 30, 0);
+
 		double add = Math.pow(10, 9);
 		for (int i = 0; i < v.length; i++)
 			v[i] += add;
-		o = new Statistics();
+		o = new RollingStatistics();
 		o.add(v);
-		Assert.assertEquals("Mean", add + 10, o.getMean(), 0);
-		
-		// Expect this to be totally wrong
-		Assert.assertNotEquals("Variance", 30, o.getVariance(), 5);
+		Assert.assertEquals("Mean", o.getMean(), add + 10, 0);
+		Assert.assertEquals("Variance", o.getVariance(), 30, 0);
 	}
 }

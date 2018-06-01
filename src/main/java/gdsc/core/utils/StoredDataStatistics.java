@@ -119,11 +119,6 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		}
 	}
 
-	/**
-	 * Add the value
-	 * 
-	 * @param value
-	 */
 	@Override
 	public void add(final double value)
 	{
@@ -133,14 +128,6 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		ss += value * value;
 	}
 
-	/**
-	 * Add the value n times
-	 * 
-	 * @param n
-	 *            The number of times
-	 * @param value
-	 *            The value
-	 */
 	@Override
 	public void add(int n, double value)
 	{
@@ -193,11 +180,6 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		return stats;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see gdsc.core.utils.Statistics#add(gdsc.core.utils.Statistics)
-	 */
 	@Override
 	public void add(Statistics statistics)
 	{
@@ -211,17 +193,6 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 			}
 		}
 		super.add(statistics);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see gdsc.core.utils.Statistics#safeAdd(gdsc.core.utils.Statistics)
-	 */
-	@Override
-	synchronized public void safeAdd(Statistics statistics)
-	{
-		this.add(statistics);
 	}
 
 	/**

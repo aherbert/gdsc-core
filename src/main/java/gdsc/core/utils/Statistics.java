@@ -379,9 +379,7 @@ public class Statistics
 	 */
 	synchronized public void safeAdd(Statistics statistics)
 	{
-		n += statistics.n;
-		s += statistics.s;
-		ss += statistics.ss;
+		add(statistics);
 	}
 
 	/**
