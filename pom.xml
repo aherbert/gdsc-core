@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -62,7 +61,7 @@
 
 	<properties>
 		<license.licenseName>gpl_v3</license.licenseName>
-        <license.copyrightOwners>N/A</license.copyrightOwners>
+		<license.copyrightOwners>N/A</license.copyrightOwners>
 	</properties>
 
 	<build>
@@ -99,7 +98,7 @@
 		<dependency>
 			<groupId>gdsc</groupId>
 			<artifactId>gdsc-analytics</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>net.imagej</groupId>
@@ -157,20 +156,16 @@
 	</organization>
 	<description>Genome Damage and Stability Centre ImageJ Core Package
 
-					The GDSC ImageJ Core package contains core code used by the GDSC
-					ImageJ Plugins and GDSC SMLM ImageJ Plugins. The packages contain
-					many plugins for image analysis and may be used independently or
-					together. This codebase contains core code used by both packages.
+The GDSC ImageJ Core package contains core code used by the GDSC
+ImageJ Plugins and GDSC SMLM ImageJ Plugins. The packages contain
+many plugins for image analysis and may be used independently or
+together. This codebase contains core code used by both packages.
 
-					GDSC ImageJ Plugins
+GDSC ImageJ Plugins:
+Software for image analysis
 
-					Software for image analysis
-
-					GDSC SMLM ImageJ
-					Plugins
-
-					Software for use in single molecule localisation microscopy
-					(SMLM), e.g.
-					STORM, PALM.
-				</description>
+GDSC SMLM ImageJ Plugins:
+Software for use in single molecule localisation microscopy
+(SMLM), e.g. STORM, PALM.
+</description>
 </project>
