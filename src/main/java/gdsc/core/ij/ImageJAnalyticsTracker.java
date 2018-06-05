@@ -249,8 +249,8 @@ public class ImageJAnalyticsTracker
 
 				// Following GDPR all personal data is removed so nothing
 				// that is sent to Google can be used to identify a data
-				// subjectr (an individual)
-				tracker.setAnonymised(true);
+				// subject (an individual)
+				tracker.setAnonymised(isAnonymized());
 
 				// XXX - Disable in production code
 				// DEBUG: Enable logging
