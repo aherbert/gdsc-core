@@ -101,8 +101,18 @@ public class ImageJAnalyticsTracker
 	 */
 	private static int state = (int) Prefs.get(PROPERTY_GA_STATE, UNKNOWN);
 	/**
-	 * Flag indicating that the IP address of the sender will be anonymized
+	 * A flag indicating if the anonymise option is available.
+	 * If set to false then all personal data is anonymised by default.
+	 * <p>
+	 * Note: To comply with GDPR any personal data should be anonymised
 	 */
+	private static boolean anonymiseOption = false;
+	/**
+	 * Flag indicating that the IP address of the sender will be anonymized
+	 * 
+	 * @deprecated To comply with GDPR any personal data should be anonymized
+	 */
+	@Deprecated
 	private static int anonymized = (int) Prefs.get(PROPERTY_GA_ANONYMIZE, UNKNOWN);
 
 	/**
@@ -167,7 +177,7 @@ public class ImageJAnalyticsTracker
 				clientParameters.addCustomDimension(3, System.getProperty("os.name"));
 				clientParameters.addCustomDimension(4, System.getProperty("os.version"));
 				clientParameters.addCustomDimension(5, System.getProperty("os.arch"));
-				
+
 				// Versions
 				clientParameters.addCustomDimension(9, gdsc.core.Version.getVersion());
 			}
@@ -182,7 +192,7 @@ public class ImageJAnalyticsTracker
 		// Avoid ImageJ throwing a HeadlessException
 		if (java.awt.GraphicsEnvironment.isHeadless())
 			return "Headless"; //+ ImageJ.VERSION+ImageJ.BUILD;
-		
+
 		ImageJ ij = IJ.getInstance();
 		if (ij == null)
 		{
@@ -237,7 +247,10 @@ public class ImageJAnalyticsTracker
 				tracker = new JGoogleAnalyticsTracker(clientParameters, MeasurementProtocolVersion.V_1,
 						DispatchMode.SINGLE_THREAD);
 
-				tracker.setAnonymised(isAnonymized());
+				// Following GDPR all personal data is removed so nothing
+				// that is sent to Google can be used to identify a data
+				// subjectr (an individual)
+				tracker.setAnonymised(true);
 
 				// XXX - Disable in production code
 				// DEBUG: Enable logging
@@ -401,23 +414,64 @@ public class ImageJAnalyticsTracker
 	}
 
 	/**
-	 * @return True if the IP address of the sender will be anonymized
+	 * Check if the anonymise option is available.
+	 * If set to false then all personal data is anonymised by default and
+	 * any use of the anonymised flag will throw an IllegalStateException.
+	 * <p>
+	 * Note: To comply with GDPR any personal data should be anonymised
+	 *
+	 * @return true, if is anonymise option
 	 */
-	public static boolean isAnonymized()
+	public static boolean isAnonymiseOption()
 	{
-		return (anonymized == ENABLED);
+		return anonymiseOption;
 	}
 
 	/**
-	 * Set the state of IP anonymization
-	 * 
+	 * Sets the anonymise option.
+	 * If set to false then all personal data is anonymised by default and
+	 * any use of the anonymised flag will throw an IllegalStateException.
+	 * <p>
+	 * Note: To comply with GDPR any personal data should be anonymised
+	 *
+	 * @param anonymiseOption
+	 *            the new anonymise option
+	 */
+	public static void setAnonymiseOption(boolean anonymiseOption)
+	{
+		ImageJAnalyticsTracker.anonymiseOption = anonymiseOption;
+	}
+
+	/**
+	 * @return True if the IP address of the sender will be anonymized
+	 * @deprecated To comply with GDPR any personal data should be anonymised
+	 */
+	@Deprecated()
+	public static boolean isAnonymized()
+	{
+		return anonymiseOption ? (anonymized == ENABLED) : true;
+	}
+
+	/**
+	 * Set the state of IP anonymization.
+	 * <p>
+	 * This can only be set if the anonymise option is available.
+	 *
 	 * @param anonymize
 	 *            True if the IP address of the sender will be anonymized
+	 * @throws IllegalStateException
+	 *             if the option to anonymise data is not configured
+	 * @deprecated To comply with GDPR any personal data should be anonymised
+	 * @see #isAnonymiseOption()
 	 */
-	public static void setAnonymized(boolean anonymize)
+	@Deprecated
+	public static void setAnonymized(boolean anonymize) throws IllegalStateException
 	{
+		if (!anonymiseOption)
+			throw new IllegalStateException("Optional anonymisation is not available");
+
 		final int oldAnonymized = anonymized;
-		ImageJAnalyticsTracker.anonymized = (anonymize) ? ENABLED : DISABLED;
+		anonymized = (anonymize) ? ENABLED : DISABLED;
 
 		Prefs.set(PROPERTY_GA_LAST_VERSION, getVersion());
 
@@ -446,7 +500,11 @@ public class ImageJAnalyticsTracker
 	{
 		String lastVersion = Prefs.get(PROPERTY_GA_LAST_VERSION, "");
 		String thisVersion = getVersion();
-		return (state == UNKNOWN || anonymized == UNKNOWN || !lastVersion.equals(thisVersion));
+		if (state == UNKNOWN || !lastVersion.equals(thisVersion))
+			return true;
+		if (isAnonymiseOption() && anonymized == UNKNOWN)
+			return true;
+		return false;
 	}
 
 	/**
@@ -493,34 +551,43 @@ public class ImageJAnalyticsTracker
 			}
 		});
 
+		boolean anonymiseOption = isAnonymiseOption();
+		
 		// Get the preferences
 		boolean disabled = isDisabled();
 		boolean anonymize = isAnonymized();
 
-		gd.addCheckbox("Disabled", disabled);
-		gd.addCheckbox("Anonymise IP", anonymize);
+		// Use Opt-in to make the wording clear
+		gd.addCheckbox("Opt in", !disabled);
+		if (anonymiseOption)
+		{
+			gd.addCheckbox("Anonymise IP", anonymize);
+		}
 		if (autoMessage)
 		{
 			gd.addMessage(
-					"Note: This message is shown when we don't know\n" + 
-					"your preferences\n");
+					"Note: This message is shown when your\n" + 
+					"preferences are unknown\n");
 		}
 		// @formatter:on
 		gd.hideCancelButton();
 
 		// Add event listener to disable anonymous checkbox when the user opts out
-		@SuppressWarnings("rawtypes")
-		Vector checkboxes = gd.getCheckboxes();
-		final Checkbox cb1 = (Checkbox) checkboxes.get(0);
-		final Checkbox cb2 = (Checkbox) checkboxes.get(1);
-		cb2.setEnabled(!disabled);
-		cb1.addItemListener(new ItemListener()
+		if (anonymiseOption)
 		{
-			public void itemStateChanged(ItemEvent e)
+			@SuppressWarnings("rawtypes")
+			Vector checkboxes = gd.getCheckboxes();
+			final Checkbox cb1 = (Checkbox) checkboxes.get(0);
+			final Checkbox cb2 = (Checkbox) checkboxes.get(1);
+			cb2.setEnabled(!disabled);
+			cb1.addItemListener(new ItemListener()
 			{
-				cb2.setEnabled(!cb1.getState());
-			}
-		});
+				public void itemStateChanged(ItemEvent e)
+				{
+					cb2.setEnabled(!cb1.getState());
+				}
+			});
+		}
 
 		gd.showDialog();
 
@@ -528,7 +595,8 @@ public class ImageJAnalyticsTracker
 		{
 			// This will happen if the user clicks OK. 
 			disabled = gd.getNextBoolean();
-			anonymize = gd.getNextBoolean();
+			if (anonymiseOption)
+				anonymize = gd.getNextBoolean();
 		}
 		else
 		{
@@ -540,8 +608,11 @@ public class ImageJAnalyticsTracker
 			// using the unknownStatus() method.
 		}
 
-		// Anonymize first to respect the user choice if they still have tracking on
-		setAnonymized(anonymize);
+		if (anonymiseOption)
+		{
+			// Anonymize first to respect the user choice if they still have tracking on
+			setAnonymized(anonymize);
+		}
 		setDisabled(disabled);
 	}
 
@@ -557,9 +628,13 @@ public class ImageJAnalyticsTracker
 		if (loggedPreferrences && !force)
 			return;
 		loggedPreferrences = true;
+		String onOrOff = (isDisabled()) ? "Off" : "On";
 		// Get the preferences
-		IJ.log(String.format("%s - Google Analytics settings: Disabled=%b; Anonymise IP=%b", APPLICATION_NAME,
-				isDisabled(), isAnonymized()));
+		if (isAnonymiseOption())
+			IJ.log(String.format("%s - Google Analytics: %s; Anonymise IP=%b", APPLICATION_NAME, onOrOff,
+					isAnonymized()));
+		else
+			IJ.log(String.format("%s - Google Analytics: %s", APPLICATION_NAME, onOrOff));
 		IJ.log("You can change these at any time by running the Usage Tracker plugin");
 	}
 }
