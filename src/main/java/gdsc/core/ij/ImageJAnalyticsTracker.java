@@ -250,9 +250,8 @@ public class ImageJAnalyticsTracker
 				// Following GDPR all personal data is removed so nothing
 				// that is sent to Google can be used to identify a data
 				// subject (an individual)
-				tracker.setAnonymised(isAnonymized());
+				setTrackerAnonymised(isAnonymized());
 
-				// XXX - Disable in production code
 				// DEBUG: Enable logging
 				if (Boolean.parseBoolean(System.getProperty("gdsc-analytics-logger", "false")))
 					tracker.setLogger(new gdsc.analytics.ConsoleLogger());
@@ -456,6 +455,9 @@ public class ImageJAnalyticsTracker
 	 * Set the state of IP anonymization.
 	 * <p>
 	 * This can only be set if the anonymise option is available.
+	 * <p>
+	 * If data is not anonymised then a secure connection is used (HTTPS) to send
+	 * the personal data.
 	 *
 	 * @param anonymize
 	 *            True if the IP address of the sender will be anonymized
@@ -481,8 +483,15 @@ public class ImageJAnalyticsTracker
 
 			// Make sure the tracker is informed
 			if (tracker != null)
-				tracker.setAnonymised(isAnonymized());
+				setTrackerAnonymised(isAnonymized());
 		}
+	}
+	
+	private static void setTrackerAnonymised(boolean anonymize)
+	{
+		tracker.setAnonymised(anonymize);
+		// If not anonymising the IP address then use a secure connection
+		tracker.setSecure(!anonymize);
 	}
 
 	/**
@@ -594,7 +603,7 @@ public class ImageJAnalyticsTracker
 		if (!gd.wasCanceled())
 		{
 			// This will happen if the user clicks OK. 
-			disabled = gd.getNextBoolean();
+			disabled = !gd.getNextBoolean();
 			if (anonymiseOption)
 				anonymize = gd.getNextBoolean();
 		}
