@@ -112,30 +112,34 @@ public class AreaStatisticsTest
 	@Test
 	public void canComputeStatisticsWithinClippedBounds()
 	{
-		float[] data = new float[] { 0.1234f };
-		AreaStatistics a = new AreaStatistics(data, 1, 1);
+		float[] data = new float[] { 1, 2, 3, 4 };
+		AreaStatistics a = new AreaStatistics(data, 2, 2);
+		Statistics stats = new Statistics(data);
+		int c = stats.getN();
+		double u = stats.getMean();
+		double s = stats.getStandardDeviation();
 		for (boolean r : rolling)
 		{
 			a.setRollingSums(r);
 			for (int n : boxSizes)
 			{
 				double[] o = a.getStatistics(0, 0, n);
-				Assert.assertEquals(1, o[AreaStatistics.N], 0);
-				Assert.assertEquals(data[0], o[AreaStatistics.MEAN], 1e-6);
-				Assert.assertEquals(0, o[AreaStatistics.SD], 1e-6);
+				Assert.assertEquals(c, o[AreaStatistics.N], 0);
+				Assert.assertEquals(u, o[AreaStatistics.MEAN], 1e-6);
+				Assert.assertEquals(s, o[AreaStatistics.SD], 1e-6);
 
 				Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
 				o = a.getStatistics(bounds);
-				Assert.assertEquals(1, o[AreaStatistics.N], 0);
-				Assert.assertEquals(data[0], o[AreaStatistics.MEAN], 1e-6);
-				Assert.assertEquals(0, o[AreaStatistics.SD], 1e-6);
+				Assert.assertEquals(c, o[AreaStatistics.N], 0);
+				Assert.assertEquals(u, o[AreaStatistics.MEAN], 1e-6);
+				Assert.assertEquals(s, o[AreaStatistics.SD], 1e-6);
 
 				bounds.x--;
 				bounds.y--;
 				o = a.getStatistics(bounds);
-				Assert.assertEquals(1, o[AreaStatistics.N], 0);
-				Assert.assertEquals(data[0], o[AreaStatistics.MEAN], 1e-6);
-				Assert.assertEquals(0, o[AreaStatistics.SD], 1e-6);
+				Assert.assertEquals(c, o[AreaStatistics.N], 0);
+				Assert.assertEquals(u, o[AreaStatistics.MEAN], 1e-6);
+				Assert.assertEquals(s, o[AreaStatistics.SD], 1e-6);
 			}
 		}
 	}
@@ -178,10 +182,18 @@ public class AreaStatisticsTest
 	}
 
 	@Test
-	public void simpleIsfasterAtLowDensity()
+	public void simpleIsfasterAtLowDensityAndNLessThan10()
 	{
 		// Test the speed for computing the noise around spots at a density of roughly 1 / 100 pixels.
-		speedTest(1.0 / 100, false, 1);
+		speedTest(1.0 / 100, false, 1, 10);
+	}
+
+	@Test
+	public void simpleIsfasterAtMediumDensityAndNLessThan6()
+	{
+		// Test the speed for computing the noise around each 3x3 box 
+		// using a region of 5x5 (n=2) to 7x7 (n=3)		
+		speedTest(1.0 / 9, false, 1, 5);
 	}
 
 	@Test
@@ -191,10 +203,10 @@ public class AreaStatisticsTest
 		Assume.assumeTrue(TestSettings.RUN_SPEED_TESTS);
 
 		// Test for sampling half the pixels. Ignore the very small box size
-		speedTest(0.5, true, 2);
+		speedTest(0.5, true, 2, Integer.MAX_VALUE);
 	}
 
-	private void speedTest(double density, boolean rollingIsFaster, int minN)
+	private void speedTest(double density, boolean rollingIsFaster, int minN, int maxN)
 	{
 		RandomGenerator r = new Well19937c();
 
@@ -215,14 +227,15 @@ public class AreaStatisticsTest
 		TimingService ts = new TimingService();
 		for (int n : boxSizes)
 		{
-			if (n < minN)
+			if (n < minN || n > maxN)
 				continue;
 			ts.execute(new MyTimingtask(true, n, data, sample));
 			ts.execute(new MyTimingtask(false, n, data, sample));
 		}
-		ts.report();
 		int size = ts.getSize();
-		for (int i = size; i > 0; i -= 2)
+		ts.repeat();
+		ts.report(size);
+		for (int i = ts.getSize(); i > 0; i -= 2)
 		{
 			Assert.assertEquals(ts.get(i - 2).getMean() < ts.get(i - 1).getMean(), rollingIsFaster);
 		}
