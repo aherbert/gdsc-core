@@ -25,9 +25,9 @@ public class Random extends AbstractRandomGenerator
 {
 	private static int IA = 16807, IM = 2147483647, IQ = 127773, IR = 2836, NTAB = 32;
 	private static int NDIV = (1 + (IM - 1) / NTAB);
-	private static double EPS = 3.0e-16;
 	private static float AM = (float) (1.0 / (float) (IM));
-	private static float RNMX = (float) (1.0 - EPS);
+	/** The float before 1f. */
+	private static float RNMX = Math.nextDown(1f);
 
 	private int idum;
 	private int iy = 0;
@@ -345,25 +345,25 @@ public class Random extends AbstractRandomGenerator
 	public double nextDouble()
 	{
 		// 0 to 1 inclusive
-		return next(true);
+		return next(1f);
 	}
 
 	@Override
 	public float nextFloat()
 	{
 		// 0 to 1 inclusive
-		return next(true);
+		return next(1f);
 	}
 
 	@Override
 	public int nextInt()
 	{
-		return (int) ((2d * next(true) - 1d) * Integer.MAX_VALUE);
+		return (int) ((2d * next(1f) - 1d) * Integer.MAX_VALUE);
 	}
 
 	@Override
 	public int nextInt(int upper)
 	{
-		return (int) (next() * upper);
+		return (int) (next(RNMX) * upper);
 	}
 }
