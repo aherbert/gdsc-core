@@ -2,6 +2,8 @@ package gdsc.core.filters;
 
 import java.awt.Rectangle;
 
+import gdsc.core.utils.SimpleArrayUtils;
+
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
  * 
@@ -27,9 +29,19 @@ public class AreaStatistics
 	/** The index of the standard deviation in the results. */
 	public final static int SD = 2;
 
+	private final static double[] EMPTY;
+	static
+	{
+		EMPTY = new double[3];
+		EMPTY[N] = 0;
+		EMPTY[SUM] = Double.NaN;
+		EMPTY[SD] = Double.NaN;
+	}
+	
 	private boolean rollingSums = false;
 
-	private final int maxx, maxy;
+	public final int maxx;
+	public final int maxy;
 	private final float[] data;
 	private double[] s_ = null;
 	private double[] ss = null;
@@ -43,9 +55,12 @@ public class AreaStatistics
 	 *            the maxx
 	 * @param maxy
 	 *            the maxy
+	 * @throws IllegalArgumentException
+	 *             if maxx * maxy != data.length or data is null or length zero
 	 */
-	public AreaStatistics(float[] data, int maxx, int maxy)
+	public AreaStatistics(float[] data, int maxx, int maxy) throws IllegalArgumentException
 	{
+		SimpleArrayUtils.hasData2D(maxx, maxy, data);
 		this.maxx = maxx;
 		this.maxy = maxy;
 		this.data = data;
@@ -306,7 +321,7 @@ public class AreaStatistics
 	{
 		// Bounds check
 		if (x < 0 || y < 0 || x >= maxx || y >= maxy || n < 0)
-			return new double[3];
+			return EMPTY.clone();
 		// Special case for 1 data point
 		if (n == 0)
 			return new double[] { 1, data[getIndex(x, y)], 0 };
@@ -352,7 +367,7 @@ public class AreaStatistics
 	{
 		// Bounds check
 		if (x < 0 || y < 0 || x >= maxx || y >= maxy || nx < 0 || ny < 0)
-			return new double[3];
+			return EMPTY.clone();
 		// Special case for 1 data point
 		if (nx == 0 && ny == 0)
 			return new double[] { 1, data[getIndex(x, y)], 0 };
@@ -380,8 +395,8 @@ public class AreaStatistics
 		int maxU = region.x + region.width - 1;
 		int maxV = region.y + region.height - 1;
 		// Bounds check
-		if (region.width < 0 || region.height < 0 || region.x >= maxx || region.y >= maxy || maxU < 0 || maxV < 0)
-			return new double[3];
+		if (region.width <= 0 || region.height <= 0 || region.x >= maxx || region.y >= maxy || maxU < 0 || maxV < 0)
+			return EMPTY.clone();
 		// Lower bounds inclusive
 		int minU = region.x;
 		int minV = region.y;
