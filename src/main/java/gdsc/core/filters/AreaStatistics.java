@@ -22,8 +22,8 @@ public class AreaStatistics
 {
 	/** The index of the count in the results. */
 	public final static int N = 0;
-	/** The index of the mean in the results. */
-	public final static int MEAN = 1;
+	/** The index of the sum in the results. */
+	public final static int SUM = 1;
 	/** The index of the standard deviation in the results. */
 	public final static int SD = 2;
 
@@ -114,7 +114,7 @@ public class AreaStatistics
 	 *            the max V
 	 * @return the statistics
 	 */
-	private double[] getStatistics(int minU, int maxU, int minV, int maxV)
+	private double[] getStatisticsInternal(int minU, int maxU, int minV, int maxV)
 	{
 		// Note that the two methods use different bounds for their implementation
 		return (rollingSums)
@@ -197,7 +197,7 @@ public class AreaStatistics
 		{
 			// Reset to bounds to calculate the number of pixels
 			minU = -1;
-			
+
 			if (minV >= 0)
 			{
 				// - s(u+N-1,v-1)
@@ -218,13 +218,24 @@ public class AreaStatistics
 		return getResults(sum, sumSquares, n);
 	}
 
+	/**
+	 * Gets the results.
+	 *
+	 * @param sum
+	 *            the sum
+	 * @param sumSquares
+	 *            the sum squares
+	 * @param n
+	 *            the n
+	 * @return the results
+	 */
 	private double[] getResults(double sum, double sumSquares, int n)
 	{
 		double[] stats = new double[3];
-		
+
 		stats[N] = n;
 		// Note: We do not consider n==0 since the methods are not called with an empty region 
-		stats[MEAN] = sum / n;
+		stats[SUM] = sum;
 
 		if (n > 1)
 		{
@@ -280,6 +291,8 @@ public class AreaStatistics
 
 	/**
 	 * Gets the statistics within a region +/- n.
+	 * <p>
+	 * Statistics can be accessed using the static properties in this class.
 	 *
 	 * @param x
 	 *            the x
@@ -303,7 +316,7 @@ public class AreaStatistics
 		// Upper bounds inclusive
 		int maxU = x + n;
 		int maxV = y + n;
-		return getStatistics(minU, maxU, minV, maxV);
+		return getStatisticsInternal(minU, maxU, minV, maxV);
 	}
 
 	/**
@@ -321,7 +334,41 @@ public class AreaStatistics
 	}
 
 	/**
+	 * Gets the statistics within a region +/- n.
+	 * <p>
+	 * Statistics can be accessed using the static properties in this class.
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @param nx
+	 *            the nx
+	 * @param ny
+	 *            the ny
+	 * @return the statistics
+	 */
+	public double[] getStatistics(int x, int y, int nx, int ny)
+	{
+		// Bounds check
+		if (x < 0 || y < 0 || x >= maxx || y >= maxy || nx < 0 || ny < 0)
+			return new double[3];
+		// Special case for 1 data point
+		if (nx == 0 && ny == 0)
+			return new double[] { 1, data[getIndex(x, y)], 0 };
+		// Lower bounds inclusive
+		int minU = x - nx;
+		int minV = y - ny;
+		// Upper bounds inclusive
+		int maxU = x + nx;
+		int maxV = y + ny;
+		return getStatisticsInternal(minU, maxU, minV, maxV);
+	}
+
+	/**
 	 * Gets the statistics within a region.
+	 * <p>
+	 * Statistics can be accessed using the static properties in this class.
 	 *
 	 * @param region
 	 *            the region
@@ -338,7 +385,7 @@ public class AreaStatistics
 		// Lower bounds inclusive
 		int minU = region.x;
 		int minV = region.y;
-		return getStatistics(minU, maxU, minV, maxV);
+		return getStatisticsInternal(minU, maxU, minV, maxV);
 	}
 
 	/**

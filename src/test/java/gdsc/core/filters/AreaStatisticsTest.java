@@ -33,18 +33,18 @@ public class AreaStatisticsTest
 			a.setRollingSums(r);
 			double[] o = a.getStatistics(0, 0, maxy);
 			Assert.assertEquals(s.getN(), o[AreaStatistics.N], 0);
-			Assert.assertEquals(s.getMean(), o[AreaStatistics.MEAN], 1e-6);
+			Assert.assertEquals(s.getSum(), o[AreaStatistics.SUM], 1e-6);
 			Assert.assertEquals(s.getStandardDeviation(), o[AreaStatistics.SD], 1e-6);
 
 			o = a.getStatistics(new Rectangle(maxx, maxy));
 			Assert.assertEquals(s.getN(), o[AreaStatistics.N], 0);
-			Assert.assertEquals(s.getMean(), o[AreaStatistics.MEAN], 1e-6);
+			Assert.assertEquals(s.getSum(), o[AreaStatistics.SUM], 1e-6);
 			Assert.assertEquals(s.getStandardDeviation(), o[AreaStatistics.SD], 1e-6);
 		}
 	}
 
 	@Test
-	public void canComputeBoxStatistics()
+	public void canComputeNxNRegionStatistics()
 	{
 		RandomGenerator r = new Well19937c();
 		float[] data = createData(r);
@@ -69,13 +69,13 @@ public class AreaStatisticsTest
 					ImageStatistics s = fp.getStatistics();
 
 					Assert.assertEquals(s.area, o[AreaStatistics.N], 0);
-					Assert.assertEquals(s.mean, o[AreaStatistics.MEAN], 1e-6);
+					Assert.assertEquals(s.mean * s.area, o[AreaStatistics.SUM], 1e-6);
 					Assert.assertEquals(s.stdDev, o[AreaStatistics.SD], 1e-6);
 				}
 	}
 
 	@Test
-	public void canComputeRegionStatistics()
+	public void canComputeNxMRegionStatistics()
 	{
 		RandomGenerator r = new Well19937c();
 		float[] data = createData(r);
@@ -84,13 +84,45 @@ public class AreaStatisticsTest
 		AreaStatistics a2 = new AreaStatistics(data, maxx, maxy);
 		a2.setRollingSums(false);
 
-		int width = 10;
-		Rectangle roi = new Rectangle(width, width);
+		FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
+
+		for (int x : Random.sample(10, maxx, r))
+			for (int y : Random.sample(10, maxy, r))
+				for (int nx : boxSizes)
+					for (int ny : boxSizes)
+					{
+						double[] e = a1.getStatistics(x, y, nx, ny);
+						double[] o = a2.getStatistics(x, y, nx, ny);
+						Assert.assertArrayEquals(e, o, 1e-6);
+						//System.out.printf("%s vs %s\n", toString(e), toString(o));
+
+						// Check with ImageJ
+						fp.setRoi(new Rectangle(x - nx, y - ny, 2 * nx + 1, 2 * ny + 1));
+						ImageStatistics s = fp.getStatistics();
+
+						Assert.assertEquals(s.area, o[AreaStatistics.N], 0);
+						Assert.assertEquals(s.mean * s.area, o[AreaStatistics.SUM], 1e-6);
+						Assert.assertEquals(s.stdDev, o[AreaStatistics.SD], 1e-6);
+					}
+	}
+
+	@Test
+	public void canComputeRectangleRegionStatistics()
+	{
+		RandomGenerator r = new Well19937c();
+		float[] data = createData(r);
+		AreaStatistics a1 = new AreaStatistics(data, maxx, maxy);
+		a1.setRollingSums(true);
+		AreaStatistics a2 = new AreaStatistics(data, maxx, maxy);
+		a2.setRollingSums(false);
+
+		int width = 10, height = 12;
+		Rectangle roi = new Rectangle(width, height);
 
 		FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
 
 		for (int x : Random.sample(10, maxx - width, r))
-			for (int y : Random.sample(10, maxy - width, r))
+			for (int y : Random.sample(10, maxy - height, r))
 			{
 				roi.x = x;
 				roi.y = y;
@@ -104,7 +136,7 @@ public class AreaStatisticsTest
 				ImageStatistics s = fp.getStatistics();
 
 				Assert.assertEquals(s.area, o[AreaStatistics.N], 0);
-				Assert.assertEquals(s.mean, o[AreaStatistics.MEAN], 1e-6);
+				Assert.assertEquals(s.mean * s.area, o[AreaStatistics.SUM], 1e-6);
 				Assert.assertEquals(s.stdDev, o[AreaStatistics.SD], 1e-6);
 			}
 	}
@@ -116,7 +148,7 @@ public class AreaStatisticsTest
 		AreaStatistics a = new AreaStatistics(data, 2, 2);
 		Statistics stats = new Statistics(data);
 		int c = stats.getN();
-		double u = stats.getMean();
+		double u = stats.getSum();
 		double s = stats.getStandardDeviation();
 		for (boolean r : rolling)
 		{
@@ -125,20 +157,20 @@ public class AreaStatisticsTest
 			{
 				double[] o = a.getStatistics(0, 0, n);
 				Assert.assertEquals(c, o[AreaStatistics.N], 0);
-				Assert.assertEquals(u, o[AreaStatistics.MEAN], 1e-6);
+				Assert.assertEquals(u, o[AreaStatistics.SUM], 1e-6);
 				Assert.assertEquals(s, o[AreaStatistics.SD], 1e-6);
 
 				Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
 				o = a.getStatistics(bounds);
 				Assert.assertEquals(c, o[AreaStatistics.N], 0);
-				Assert.assertEquals(u, o[AreaStatistics.MEAN], 1e-6);
+				Assert.assertEquals(u, o[AreaStatistics.SUM], 1e-6);
 				Assert.assertEquals(s, o[AreaStatistics.SD], 1e-6);
 
 				bounds.x--;
 				bounds.y--;
 				o = a.getStatistics(bounds);
 				Assert.assertEquals(c, o[AreaStatistics.N], 0);
-				Assert.assertEquals(u, o[AreaStatistics.MEAN], 1e-6);
+				Assert.assertEquals(u, o[AreaStatistics.SUM], 1e-6);
 				Assert.assertEquals(s, o[AreaStatistics.SD], 1e-6);
 			}
 		}
@@ -189,11 +221,11 @@ public class AreaStatisticsTest
 	}
 
 	@Test
-	public void simpleIsfasterAtMediumDensityAndNLessThan6()
+	public void simpleIsfasterAtMediumDensityAndNLessThan5()
 	{
 		// Test the speed for computing the noise around each 3x3 box 
-		// using a region of 5x5 (n=2) to 7x7 (n=3)		
-		speedTest(1.0 / 9, false, 1, 5);
+		// using a region of 3x3 (n=1) to 9x9 (n=4)		
+		speedTest(1.0 / 9, false, 1, 4);
 	}
 
 	@Test
