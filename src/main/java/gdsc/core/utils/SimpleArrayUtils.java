@@ -861,4 +861,145 @@ public class SimpleArrayUtils
 
 		return list.toArray();
 	}
+
+	/**
+	 * Check the 2D size (width * height) is within the limits of an integer (so suitable for an array index).
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 * @return the size
+	 * @throws IllegalArgumentException
+	 *             If width or height are not positive
+	 * @throws IllegalArgumentException
+	 *             If width * height is too large for an integer
+	 */
+	public static int check2DSize(int width, int height) throws IllegalArgumentException
+	{
+		if (width < 0)
+			throw new IllegalArgumentException("Width cannot be less than 1");
+		if (height < 0)
+			throw new IllegalArgumentException("Height cannot be less than 1");
+		long size = (long) width * height;
+		if (size > Integer.MAX_VALUE)
+			throw new IllegalArgumentException("width*height is too large");
+		return (int) size;
+	}
+
+	/**
+	 * Check the 2D array can contain data. The array must not be length zero and (width * height) is the same as
+	 * data.length. The contents of the array are not checked.
+	 * <p>
+	 * Note that data.length == 0 will cause an exception.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 * @param data
+	 *            the data
+	 * @return the size
+	 * @throws IllegalArgumentException
+	 *             If width or height are not strictly positive
+	 * @throws IllegalArgumentException
+	 *             If width * height is too large for an integer
+	 * @throws NullPointerException
+	 *             If the data is null
+	 */
+	public static void hasData2D(int width, int height, float[] data)
+			throws IllegalArgumentException, NullPointerException
+	{
+		if (data == null || data.length == 0)
+			throw new IllegalArgumentException("data is empty");
+		if (check2DSize(width, height) != data.length)
+			throw new IllegalArgumentException("data is not the correct array size");
+	}
+
+	/**
+	 * Check the 2D array can contain data. The array must not be length zero and (width * height) is the same as
+	 * data.length. The contents of the array are not checked.
+	 * <p>
+	 * Note that data.length == 0 will cause an exception.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 * @param data
+	 *            the data
+	 * @return the size
+	 * @throws IllegalArgumentException
+	 *             If width or height are not strictly positive
+	 * @throws IllegalArgumentException
+	 *             If width * height is too large for an integer
+	 * @throws NullPointerException
+	 *             If the data is null
+	 */
+	public static void hasData2D(int width, int height, double[] data)
+			throws IllegalArgumentException, NullPointerException
+	{
+		if (data == null || data.length == 0)
+			throw new IllegalArgumentException("data is empty");
+		if (check2DSize(width, height) != data.length)
+			throw new IllegalArgumentException("data is not the correct array size");
+	}
+
+	/**
+	 * Check the 2D array can contain data. The array must not be length zero and (width * height) is the same as
+	 * data.length. The contents of the array are not checked.
+	 * <p>
+	 * Note that data.length == 0 will cause an exception.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 * @param data
+	 *            the data
+	 * @return the size
+	 * @throws IllegalArgumentException
+	 *             If width or height are not strictly positive
+	 * @throws IllegalArgumentException
+	 *             If width * height is too large for an integer
+	 * @throws NullPointerException
+	 *             If the data is null
+	 */
+	public static void hasData2D(int width, int height, int[] data)
+			throws IllegalArgumentException, NullPointerException
+	{
+		if (data == null || data.length == 0)
+			throw new IllegalArgumentException("data is empty");
+		if (check2DSize(width, height) != data.length)
+			throw new IllegalArgumentException("data is not the correct array size");
+	}
+
+	/**
+	 * Check the 2D array can contain data. The array must not be length zero and (width * height) is the same as
+	 * data.length. The contents of the array are not checked.
+	 * <p>
+	 * Note that data.length == 0 will cause an exception.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 * @param data
+	 *            the data
+	 * @return the size
+	 * @throws IllegalArgumentException
+	 *             If width or height are not strictly positive
+	 * @throws IllegalArgumentException
+	 *             If width * height is too large for an integer
+	 * @throws NullPointerException
+	 *             If the data is null
+	 */
+	public static void hasData2D(int width, int height, byte[] data)
+			throws IllegalArgumentException, NullPointerException
+	{
+		if (data == null || data.length == 0)
+			throw new IllegalArgumentException("data is empty");
+		if (check2DSize(width, height) != data.length)
+			throw new IllegalArgumentException("data is not the correct array size");
+	}
 }
