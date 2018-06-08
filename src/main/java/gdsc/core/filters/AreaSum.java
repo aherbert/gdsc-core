@@ -258,8 +258,7 @@ public class AreaSum
 		for (int y = minV; y < maxV; y++)
 			for (int x = minU, i = getIndex(minU, y); x < maxU; x++, i++)
 			{
-				double d = data[i];
-				sum += d;
+				sum += data[i];
 			}
 
 		int n = (maxU - minU) * (maxV - minV);
