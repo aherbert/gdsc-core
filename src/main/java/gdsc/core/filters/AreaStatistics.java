@@ -1,9 +1,5 @@
 package gdsc.core.filters;
 
-import java.awt.Rectangle;
-
-import gdsc.core.utils.SimpleArrayUtils;
-
 /*----------------------------------------------------------------------------- 
  * GDSC SMLM Software
  * 
@@ -20,12 +16,8 @@ import gdsc.core.utils.SimpleArrayUtils;
 /**
  * Compute statistics using an area region of an 2D data frame.
  */
-public class AreaStatistics
+public class AreaStatistics extends AreaSum
 {
-	/** The index of the count in the results. */
-	public final static int N = 0;
-	/** The index of the sum in the results. */
-	public final static int SUM = 1;
 	/** The index of the standard deviation in the results. */
 	public final static int SD = 2;
 
@@ -38,12 +30,6 @@ public class AreaStatistics
 		EMPTY[SD] = Double.NaN;
 	}
 	
-	private boolean rollingSums = false;
-
-	public final int maxx;
-	public final int maxy;
-	private final float[] data;
-	private double[] s_ = null;
 	private double[] ss = null;
 
 	/**
@@ -60,16 +46,11 @@ public class AreaStatistics
 	 */
 	public AreaStatistics(float[] data, int maxx, int maxy) throws IllegalArgumentException
 	{
-		SimpleArrayUtils.hasData2D(maxx, maxy, data);
-		this.maxx = maxx;
-		this.maxy = maxy;
-		this.data = data;
+		super(data,maxx,maxy);
 	}
 
-	/**
-	 * Calculate the rolling sum tables.
-	 */
-	private void calculateRollingSums()
+	@Override
+	protected void calculateRollingSums()
 	{
 		if (s_ != null)
 			return;
@@ -115,50 +96,9 @@ public class AreaStatistics
 		}
 	}
 
-	/**
-	 * Gets the statistics within a region from minU to maxU and minV to maxV. Lower bounds inclusive and upper bounds
-	 * inclusive.
-	 *
-	 * @param minU
-	 *            the min U
-	 * @param maxU
-	 *            the max U
-	 * @param minV
-	 *            the min V
-	 * @param maxV
-	 *            the max V
-	 * @return the statistics
-	 */
-	private double[] getStatisticsInternal(int minU, int maxU, int minV, int maxV)
+	@Override
+	protected double[] getStatisticsRollingSums(int minU, int maxU, int minV, int maxV)
 	{
-		// Note that the two methods use different bounds for their implementation
-		return (rollingSums)
-				// Lower bounds exclusive, Upper inclusive
-				? getStatisticsRollingSums(minU - 1, maxU, minV - 1, maxV)
-				// Lower bounds inclusive, Upper exclusive
-				: getStatisticsSimple(minU, maxU + 1, minV, maxV + 1);
-	}
-
-	/**
-	 * Gets the statistics within a region from minU to maxU and minV to maxV. Lower bounds exclusive and upper bounds
-	 * inclusive.
-	 * <p>
-	 * Use the rolling sum table.
-	 *
-	 * @param minU
-	 *            the min U
-	 * @param maxU
-	 *            the max U
-	 * @param minV
-	 *            the min V
-	 * @param maxV
-	 *            the max V
-	 * @return the statistics
-	 */
-	private double[] getStatisticsRollingSums(int minU, int maxU, int minV, int maxV)
-	{
-		calculateRollingSums();
-
 		// Compute sum from rolling sum using:
 		// sum(u,v) = 
 		// + s(u+N,v+N) 
@@ -263,21 +203,8 @@ public class AreaStatistics
 		return stats;
 	}
 
-	/**
-	 * Gets the statistics within a region from minU to maxU and minV to maxV. Lower bounds inclusive and upper bounds
-	 * exclusive.
-	 *
-	 * @param minU
-	 *            the min U
-	 * @param maxU
-	 *            the max U
-	 * @param minV
-	 *            the min V
-	 * @param maxV
-	 *            the max V
-	 * @return the statistics
-	 */
-	private double[] getStatisticsSimple(int minU, int maxU, int minV, int maxV)
+	@Override
+	protected double[] getStatisticsSimple(int minU, int maxU, int minV, int maxV)
 	{
 		// Clip to limits
 		if (minU < 0)
@@ -302,125 +229,5 @@ public class AreaStatistics
 		int n = (maxU - minU) * (maxV - minV);
 
 		return getResults(sum, sumSquares, n);
-	}
-
-	/**
-	 * Gets the statistics within a region +/- n.
-	 * <p>
-	 * Statistics can be accessed using the static properties in this class.
-	 *
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 * @param n
-	 *            the n
-	 * @return the statistics
-	 */
-	public double[] getStatistics(int x, int y, int n)
-	{
-		// Bounds check
-		if (x < 0 || y < 0 || x >= maxx || y >= maxy || n < 0)
-			return EMPTY.clone();
-		// Special case for 1 data point
-		if (n == 0)
-			return new double[] { 1, data[getIndex(x, y)], 0 };
-		// Lower bounds inclusive
-		int minU = x - n;
-		int minV = y - n;
-		// Upper bounds inclusive
-		int maxU = x + n;
-		int maxV = y + n;
-		return getStatisticsInternal(minU, maxU, minV, maxV);
-	}
-
-	/**
-	 * Gets the index in the data.
-	 *
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 * @return the index
-	 */
-	private int getIndex(int x, int y)
-	{
-		return y * maxx + x;
-	}
-
-	/**
-	 * Gets the statistics within a region +/- n.
-	 * <p>
-	 * Statistics can be accessed using the static properties in this class.
-	 *
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 * @param nx
-	 *            the nx
-	 * @param ny
-	 *            the ny
-	 * @return the statistics
-	 */
-	public double[] getStatistics(int x, int y, int nx, int ny)
-	{
-		// Bounds check
-		if (x < 0 || y < 0 || x >= maxx || y >= maxy || nx < 0 || ny < 0)
-			return EMPTY.clone();
-		// Special case for 1 data point
-		if (nx == 0 && ny == 0)
-			return new double[] { 1, data[getIndex(x, y)], 0 };
-		// Lower bounds inclusive
-		int minU = x - nx;
-		int minV = y - ny;
-		// Upper bounds inclusive
-		int maxU = x + nx;
-		int maxV = y + ny;
-		return getStatisticsInternal(minU, maxU, minV, maxV);
-	}
-
-	/**
-	 * Gets the statistics within a region.
-	 * <p>
-	 * Statistics can be accessed using the static properties in this class.
-	 *
-	 * @param region
-	 *            the region
-	 * @return the statistics
-	 */
-	public double[] getStatistics(Rectangle region)
-	{
-		// Upper bounds inclusive
-		int maxU = region.x + region.width - 1;
-		int maxV = region.y + region.height - 1;
-		// Bounds check
-		if (region.width <= 0 || region.height <= 0 || region.x >= maxx || region.y >= maxy || maxU < 0 || maxV < 0)
-			return EMPTY.clone();
-		// Lower bounds inclusive
-		int minU = region.x;
-		int minV = region.y;
-		return getStatisticsInternal(minU, maxU, minV, maxV);
-	}
-
-	/**
-	 * Checks if using a rolling sum table. This is faster for repeat calls over large areas.
-	 *
-	 * @return true, if using a rolling sum table
-	 */
-	public boolean isRollingSums()
-	{
-		return rollingSums;
-	}
-
-	/**
-	 * Set to true to use a rolling sum table. This is faster for repeat calls over large areas.
-	 *
-	 * @param rollingSums
-	 *            the new rolling sums
-	 */
-	public void setRollingSums(boolean rollingSums)
-	{
-		this.rollingSums = rollingSums;
 	}
 }
