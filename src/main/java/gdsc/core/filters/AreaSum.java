@@ -286,7 +286,7 @@ public class AreaSum
 			return EMPTY.clone();
 		// Special case for 1 data point
 		if (n == 0)
-			return new double[] { 1, data[getIndex(x, y)], 0 };
+			return getSingleResult(x, y);
 		// Lower bounds inclusive
 		int minU = x - n;
 		int minV = y - n;
@@ -294,6 +294,20 @@ public class AreaSum
 		int maxU = x + n;
 		int maxV = y + n;
 		return getStatisticsInternal(minU, maxU, minV, maxV);
+	}
+
+	/**
+	 * Gets the result for an area covering only 1 pixel.
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @return the single result
+	 */
+	protected double[] getSingleResult(int x, int y)
+	{
+		return new double[] { 1, data[getIndex(x, y)] };
 	}
 
 	/**
@@ -332,7 +346,7 @@ public class AreaSum
 			return EMPTY.clone();
 		// Special case for 1 data point
 		if (nx == 0 && ny == 0)
-			return new double[] { 1, data[getIndex(x, y)], 0 };
+			return getSingleResult(x, y);
 		// Lower bounds inclusive
 		int minU = x - nx;
 		int minV = y - ny;

@@ -202,6 +202,12 @@ public class AreaStatistics extends AreaSum
 
 		return stats;
 	}
+	
+	@Override
+	protected double[] getSingleResult(int x, int y)
+	{
+		return new double[] { 1, data[getIndex(x, y)], 0 };
+	}
 
 	@Override
 	protected double[] getStatisticsSimple(int minU, int maxU, int minV, int maxV)
