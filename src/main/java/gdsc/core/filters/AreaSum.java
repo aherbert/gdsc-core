@@ -168,24 +168,20 @@ public class AreaSum
 			maxV = maxy - 1;
 
 		// + s(u+N-1,v+N-1) 
-		int index = maxV * maxx + maxU;
-		double sum = s_[index];
+		double sum = s_[maxV * maxx + maxU];
 
 		if (minU >= 0)
 		{
 			// - s(u-1,v+N-1)
-			index = maxV * maxx + minU;
-			sum -= s_[index];
+			sum -= s_[maxV * maxx + minU];
 
 			if (minV >= 0)
 			{
 				// - s(u+N-1,v-1)
-				index = minV * maxx + maxU;
-				sum -= s_[index];
+				sum -= s_[minV * maxx + maxU];
 
 				// + s(u-1,v-1)
-				index = minV * maxx + minU;
-				sum += s_[index];
+				sum += s_[minV * maxx + minU];
 			}
 			else
 			{
@@ -201,8 +197,7 @@ public class AreaSum
 			if (minV >= 0)
 			{
 				// - s(u+N-1,v-1)
-				index = minV * maxx + maxU;
-				sum -= s_[index];
+				sum -= s_[minV * maxx + maxU];
 			}
 			else
 			{
