@@ -142,7 +142,6 @@ public class AreaSumTest
 		Statistics stats = new Statistics(data);
 		int c = stats.getN();
 		double u = stats.getSum();
-		double s = stats.getStandardDeviation();
 		for (boolean r : rolling)
 		{
 			a.setRollingSums(r);
