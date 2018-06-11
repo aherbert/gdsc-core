@@ -33,7 +33,6 @@ import gdsc.core.utils.Digest;
 import ij.ImageStack;
 import ij.process.ImageProcessor;
 
-
 /**
  * Provide digest functionality for ImageJ images to digest the pixels array
  */

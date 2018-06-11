@@ -27,7 +27,6 @@
  */
 package ij.io;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -73,6 +72,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#getFilePointer()
 	 */
+	@Override
 	public long getFilePointer() throws IOException
 	{
 		return pointer;
@@ -83,6 +83,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#read()
 	 */
+	@Override
 	public int read() throws IOException
 	{
 		long l = pointer + 1L;
@@ -101,6 +102,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#read(byte[], int, int)
 	 */
+	@Override
 	public int read(byte[] bytes, int off, int len) throws IOException
 	{
 		if (bytes == null)
@@ -166,6 +168,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#seek(long)
 	 */
+	@Override
 	public void seek(long loc) throws IOException
 	{
 		if (loc < 0L)
@@ -178,6 +181,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#close()
 	 */
+	@Override
 	public void close() throws IOException
 	{
 		data.clear();

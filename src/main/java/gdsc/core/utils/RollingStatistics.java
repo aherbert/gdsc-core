@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 /**
  * Simple class to calculate the mean and standard deviation of data using a rolling algorithm. This should be used when
  * the numbers are large, e.g. 10^9 + 4, 10^9 + 7, 10^9 + 13, 10^9 + 16.

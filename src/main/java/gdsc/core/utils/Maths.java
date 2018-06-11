@@ -32,7 +32,6 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Arrays;
 
-
 /**
  * Simple class to calculate statistics of data
  */

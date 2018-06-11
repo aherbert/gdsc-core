@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 import org.apache.commons.math3.random.RandomGenerator;
 
 /**
@@ -82,7 +81,8 @@ public class PseudoRandomSequence implements Cloneable
 	/**
 	 * Sets the seed for the sequence.
 	 *
-	 * @param seed the new seed
+	 * @param seed
+	 *            the new seed
 	 */
 	public void setSeed(long seed)
 	{

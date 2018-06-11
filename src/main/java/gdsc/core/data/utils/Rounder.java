@@ -27,7 +27,6 @@
  */
 package gdsc.core.data.utils;
 
-
 /**
  * Interface for rounding
  */
@@ -50,7 +49,7 @@ public interface Rounder
 	 * @return the rounded string value
 	 */
 	public String toString(double value);
-	
+
 	/**
 	 * Round the value.
 	 *

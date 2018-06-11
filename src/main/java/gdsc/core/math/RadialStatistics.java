@@ -30,7 +30,6 @@
  */
 package gdsc.core.math;
 
-
 /**
  * Compute the radial statistics of 2D data.
  */

@@ -27,6 +27,6 @@
  */
 
 /**
- * Contains data utilities such as unit converters and rounding 
+ * Contains data utilities such as unit converters and rounding
  */
 package gdsc.core.data.utils;

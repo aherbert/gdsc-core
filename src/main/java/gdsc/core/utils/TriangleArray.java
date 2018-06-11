@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 /**
  * Specify data in a 2D upper triangular array of size n in 1 dimension.
  * <p>
@@ -37,41 +36,41 @@ package gdsc.core.utils;
  * The following syntax is valid:
  * 
  * <pre>
-    int n;
-    TriangleArray a = new TriangleArray(n);
-    
-    // fast iteration over the data
-    for (int i = 0; i<n; i++)
-        for (int j = i + 1, index = a.toIndex(i, j); j<n; j++, index++)
-        {
-        }
-
-	// Iterate over all NxN values 
-	for (int i = 0; i<n; i++)
-	{
-		for (int j = 0, precursor = a.toPrecursorIndex(i); j < i; j++)
-		{
-			int k = a.toSafeIndex(i, j);
-			int index = a.precursorToIndex(precursor, j);
-			// k == index
-		}
-		for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
-		{
-			int k = a.toSafeIndex(i, j);
-			// k == index
-		}
-	}
-
-	// Comparing any index j to index i 
-	a.setup(i);
-	for (int j = 0; j < n; j++)
-	{
-		if (i == j)
-			continue;
-		int k = a.toSafeIndex(i, j);
-		int index = a.toIndex(j);
-		// k == index
-	}
+ * int n;
+ * TriangleArray a = new TriangleArray(n);
+ * 
+ * // fast iteration over the data
+ * for (int i = 0; i < n; i++)
+ * 	for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
+ * 	{
+ * 	}
+ * 
+ * // Iterate over all NxN values 
+ * for (int i = 0; i < n; i++)
+ * {
+ * 	for (int j = 0, precursor = a.toPrecursorIndex(i); j < i; j++)
+ * 	{
+ * 		int k = a.toSafeIndex(i, j);
+ * 		int index = a.precursorToIndex(precursor, j);
+ * 		// k == index
+ * 	}
+ * 	for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
+ * 	{
+ * 		int k = a.toSafeIndex(i, j);
+ * 		// k == index
+ * 	}
+ * }
+ * 
+ * // Comparing any index j to index i 
+ * a.setup(i);
+ * for (int j = 0; j < n; j++)
+ * {
+ * 	if (i == j)
+ * 		continue;
+ * 	int k = a.toSafeIndex(i, j);
+ * 	int index = a.toIndex(j);
+ * 	// k == index
+ * }
  * </pre>
  * 
  * @author Alex Herbert

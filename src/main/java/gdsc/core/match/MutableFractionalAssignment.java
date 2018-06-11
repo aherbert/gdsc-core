@@ -27,7 +27,6 @@
  */
 package gdsc.core.match;
 
-
 /**
  * Stores an assignment between two identified points, the distance between them and the score for the match
  */
@@ -73,6 +72,7 @@ public class MutableFractionalAssignment extends MutableAssignment implements Fr
 	 * 
 	 * @see gdsc.core.match.FractionalAssignment#getScore()
 	 */
+	@Override
 	public double getScore()
 	{
 		return score;

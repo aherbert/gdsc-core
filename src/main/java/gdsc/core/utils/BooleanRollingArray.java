@@ -29,7 +29,6 @@ package gdsc.core.utils;
 
 import java.util.Arrays;
 
-
 /**
  * Provide a rolling array of booleans
  */

@@ -44,7 +44,7 @@ public class MathsTest
 		BigDecimal bd = new BigDecimal(d);
 		Assert.assertNotEquals("0.1", bd.toPlainString());
 		Assert.assertEquals("0.1", Maths.roundUsingDecimalPlacesToBigDecimal(d, 1).toPlainString());
-		
+
 		// Random test that rounding does the same as String.format
 		RandomGenerator r = new Well19937c(30051977);
 		for (int i = 0; i < 10; i++)

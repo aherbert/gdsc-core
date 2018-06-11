@@ -27,7 +27,6 @@
  */
 package ij.io;
 
-
 import java.io.IOException;
 
 /**
@@ -58,6 +57,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#getFilePointer()
 	 */
+	@Override
 	public long getFilePointer() throws IOException
 	{
 		return p;
@@ -68,6 +68,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#read()
 	 */
+	@Override
 	public int read() throws IOException
 	{
 		if (p < length)
@@ -80,6 +81,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#read(byte[], int, int)
 	 */
+	@Override
 	public int read(byte[] bytes, int off, int len) throws IOException
 	{
 		if (p < length)
@@ -101,6 +103,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#seek(long)
 	 */
+	@Override
 	public void seek(long loc) throws IOException
 	{
 		if (loc < 0)
@@ -155,6 +158,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 	 *
 	 * @return the byte array seekable stream
 	 */
+	@Override
 	public ByteArraySeekableStream copy() throws IOException
 	{
 		return new ByteArraySeekableStream(buffer);

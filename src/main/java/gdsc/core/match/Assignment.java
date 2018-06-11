@@ -27,7 +27,6 @@
  */
 package gdsc.core.match;
 
-
 /**
  * Stores an assignment between two identified points and the distance between them
  */

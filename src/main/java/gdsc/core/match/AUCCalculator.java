@@ -27,7 +27,6 @@
  */
 package gdsc.core.match;
 
-
 /**
  * Calculates the precision and recall for a set of assignments.
  */

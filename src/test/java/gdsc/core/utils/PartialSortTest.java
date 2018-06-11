@@ -51,11 +51,13 @@ public class PartialSortTest
 			this.data = data;
 		}
 
+		@Override
 		public int getSize()
 		{
 			return data.length;
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			return data[i].clone();
@@ -125,6 +127,7 @@ public class PartialSortTest
 
 		final MyTimingTask expected = new MyTimingTask("Sort" + msg, data)
 		{
+			@Override
 			public Object run(Object data)
 			{
 				return bottom(n, (double[]) data);
@@ -136,7 +139,9 @@ public class PartialSortTest
 		ts.execute(expected);
 		ts.execute(new MyTimingTask("bottomSort" + msg, data)
 		{
+			@Override
 			public Object run(Object data) { return PartialSort.bottom((double[]) data, n); }
+			@Override
 			public void check(int i, Object result)
 			{
 				double[] e = (double[])expected.run(expected.getData(i));
@@ -146,7 +151,9 @@ public class PartialSortTest
 		});
 		ts.execute(new MyTimingTask("bottomHead" + msg, data)
 		{
+			@Override
 			public Object run(Object data) { return PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, (double[]) data, n); }
+			@Override
 			public void check(int i, Object result)
 			{
 				double[] e = (double[])expected.run(expected.getData(i));
@@ -156,7 +163,9 @@ public class PartialSortTest
 		});
 		ts.execute(new MyTimingTask("bottom" + msg, data)
 		{
+			@Override
 			public Object run(Object data) { return PartialSort.bottom(0, (double[]) data, n); }
+			@Override
 			public void check(int i, Object result)
 			{
 				double[] e = (double[])expected.run(expected.getData(i));
@@ -168,7 +177,9 @@ public class PartialSortTest
 		final PartialSort.DoubleSelector ps = new PartialSort.DoubleSelector(n);
 		ts.execute(new MyTimingTask("DoubleSelector" + msg, data)
 		{
+			@Override
 			public Object run(Object data) { return ps.bottom(0, (double[]) data); }
+			@Override
 			public void check(int i, Object result)
 			{
 				double[] e = (double[])expected.run(expected.getData(i));
@@ -181,7 +192,9 @@ public class PartialSortTest
 		final PartialSort.DoubleHeap heap = new PartialSort.DoubleHeap(n);
 		ts.execute(new MyTimingTask("DoubleHeap" + msg, data)
 		{
+			@Override
 			public Object run(Object data) { return heap.bottom(0, (double[]) data); }
+			@Override
 			public void check(int i, Object result)
 			{
 				double[] e = (double[])expected.run(expected.getData(i));
@@ -192,11 +205,13 @@ public class PartialSortTest
 		});
 		ts.execute(new MyTimingTask("select" + msg, data)
 		{
+			@Override
 			public Object run(Object data) { 
 				double[] arr = (double[]) data;
 				PartialSort.select(n-1, arr.length, arr);
 				return Arrays.copyOf(arr, n);
 			}
+			@Override
 			public void check(int i, Object result)
 			{
 				double[] e = (double[])expected.run(expected.getData(i));
@@ -279,6 +294,7 @@ public class PartialSortTest
 
 		final MyTimingTask expected = new MyTimingTask("Sort" + msg, data)
 		{
+			@Override
 			public Object run(Object data)
 			{
 				return top(n, (double[]) data);
@@ -290,7 +306,9 @@ public class PartialSortTest
 		ts.execute(expected);
 		ts.execute(new MyTimingTask("topSort" + msg, data)
 		{
+			@Override
 			public Object run(Object data) { return PartialSort.top((double[]) data, n); }
+			@Override
 			public void check(int i, Object result)
 			{
 				double[] e = (double[])expected.run(expected.getData(i));
@@ -300,7 +318,9 @@ public class PartialSortTest
 		});
 		ts.execute(new MyTimingTask("topHead" + msg, data)
 		{
+			@Override
 			public Object run(Object data) { return PartialSort.top(PartialSort.OPTION_HEAD_FIRST, (double[]) data, n); }
+			@Override
 			public void check(int i, Object result)
 			{
 				double[] e = (double[])expected.run(expected.getData(i));
@@ -310,7 +330,9 @@ public class PartialSortTest
 		});
 		ts.execute(new MyTimingTask("top" + msg, data)
 		{
+			@Override
 			public Object run(Object data) { return PartialSort.top(0, (double[]) data, n); }
+			@Override
 			public void check(int i, Object result)
 			{
 				double[] e = (double[])expected.run(expected.getData(i));
@@ -322,7 +344,9 @@ public class PartialSortTest
 		final PartialSort.DoubleSelector ps = new PartialSort.DoubleSelector(n);
 		ts.execute(new MyTimingTask("DoubleSelector" + msg, data)
 		{
+			@Override
 			public Object run(Object data) { return ps.top(0, (double[]) data); }
+			@Override
 			public void check(int i, Object result)
 			{
 				double[] e = (double[])expected.run(expected.getData(i));
@@ -335,7 +359,9 @@ public class PartialSortTest
 		final PartialSort.DoubleHeap heap = new PartialSort.DoubleHeap(n);
 		ts.execute(new MyTimingTask("DoubleHeap" + msg, data)
 		{
+			@Override
 			public Object run(Object data) { return heap.top(0, (double[]) data); }
+			@Override
 			public void check(int i, Object result)
 			{
 				double[] e = (double[])expected.run(expected.getData(i));

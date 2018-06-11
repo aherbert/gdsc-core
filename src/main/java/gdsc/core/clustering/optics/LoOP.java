@@ -37,7 +37,6 @@ import ags.utils.dataStructures.trees.secondGenKD.IntNeighbourStore;
 import ags.utils.dataStructures.trees.secondGenKD.Status;
 import gdsc.core.utils.TurboList;
 
-
 /**
  * LoOP: Local Outlier Probabilities
  * <p>
@@ -115,6 +114,7 @@ public class LoOP
 			this.neighbours = neighbours;
 		}
 
+		@Override
 		public void add(double distance, int neighbour)
 		{
 			if (i == neighbour)
@@ -155,6 +155,7 @@ public class LoOP
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
+		@Override
 		public void run()
 		{
 			// Note: The k-nearest neighbour search will include the actual 
@@ -195,6 +196,7 @@ public class LoOP
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
+		@Override
 		public void run()
 		{
 			for (int i = from; i < to; i++)
@@ -244,6 +246,7 @@ public class LoOP
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
+		@Override
 		public void run()
 		{
 			for (int i = from; i < to; i++)

@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-
 /**
  * Logs messages to memory
  */
@@ -44,6 +43,7 @@ public class MemoryLogger implements Logger
 	 * 
 	 * @param message
 	 */
+	@Override
 	public void info(String message)
 	{
 		messages.add(message);
@@ -55,26 +55,31 @@ public class MemoryLogger implements Logger
 	 * @param format
 	 * @param args
 	 */
+	@Override
 	public void info(String format, Object... args)
 	{
 		messages.add(String.format(format, args));
 	}
 
+	@Override
 	public void debug(String message)
 	{
 		info(message);
 	}
 
+	@Override
 	public void debug(String format, Object... args)
 	{
 		info(format, args);
 	}
 
+	@Override
 	public void error(String message)
 	{
 		info(message);
 	}
 
+	@Override
 	public void error(String format, Object... args)
 	{
 		info(format, args);

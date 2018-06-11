@@ -31,7 +31,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.Comparator;
 
-
 /**
  * Class to compute collision detections between a point and a set of rectangles
  */
@@ -79,6 +78,7 @@ public class BinarySearchDetectionGrid implements DetectionGrid
 	 * 
 	 * @see gdsc.core.data.detection.DetectionGrid#size()
 	 */
+	@Override
 	public int size()
 	{
 		return size;
@@ -103,6 +103,7 @@ public class BinarySearchDetectionGrid implements DetectionGrid
 
 		Arrays.sort(data, new Comparator<double[]>()
 		{
+			@Override
 			public int compare(double[] o1, double[] o2)
 			{
 				// Smallest first
@@ -132,6 +133,7 @@ public class BinarySearchDetectionGrid implements DetectionGrid
 	 * 
 	 * @see gdsc.core.data.detection.DetectionGrid#find(double, double)
 	 */
+	@Override
 	public int[] find(double x, double y)
 	{
 		// Perform a binary search to find the insert location of the index

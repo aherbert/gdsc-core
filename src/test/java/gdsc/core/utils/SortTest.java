@@ -45,16 +45,19 @@ public class SortTest
 			this.n = n;
 		}
 
+		@Override
 		public int getSize()
 		{
 			return 1;
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			return null;
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			for (int i = n; i-- > 0;)
@@ -77,11 +80,13 @@ public class SortTest
 			super("float cast", n);
 		}
 
+		@Override
 		float convert(int i)
 		{
 			return i;
 		}
 
+		@Override
 		int convertBack(float f)
 		{
 			return (int) f;
@@ -95,11 +100,13 @@ public class SortTest
 			super("float bit", n);
 		}
 
+		@Override
 		float convert(int i)
 		{
 			return Float.intBitsToFloat(i);
 		}
 
+		@Override
 		int convertBack(float f)
 		{
 			return Float.floatToRawIntBits(f);
@@ -110,7 +117,7 @@ public class SortTest
 	public void canTestFloatBitConversionSpeed()
 	{
 		Assume.assumeTrue(false);
-		
+
 		// Q. Is it faster to use:
 		// int i;
 		// float f = i;
@@ -123,7 +130,7 @@ public class SortTest
 		// stored in a float mantissa then the casting case is invalid.
 
 		int[] n = new int[] { 100, 10000, 1000000 };
-		int maxn = n[n.length-1];
+		int maxn = n[n.length - 1];
 
 		for (int i = 0; i < n.length; i++)
 		{
@@ -136,6 +143,7 @@ public class SortTest
 			ts.report(size);
 		}
 	}
+
 	private abstract class DoubleConversionTimingTask extends BaseTimingTask
 	{
 		final int n;
@@ -146,16 +154,19 @@ public class SortTest
 			this.n = n;
 		}
 
+		@Override
 		public int getSize()
 		{
 			return 1;
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			return null;
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			for (int i = n; i-- > 0;)
@@ -178,11 +189,13 @@ public class SortTest
 			super("double cast", n);
 		}
 
+		@Override
 		double convert(int i)
 		{
 			return i;
 		}
 
+		@Override
 		int convertBack(double f)
 		{
 			return (int) f;
@@ -196,11 +209,13 @@ public class SortTest
 			super("double bit", n);
 		}
 
+		@Override
 		double convert(int i)
 		{
 			return Double.longBitsToDouble(i);
 		}
 
+		@Override
 		int convertBack(double f)
 		{
 			return (int) Double.doubleToRawLongBits(f);
@@ -211,7 +226,7 @@ public class SortTest
 	public void canTestDoubleBitConversionSpeed()
 	{
 		Assume.assumeTrue(false);
-		
+
 		// Q. Is it faster to use:
 		// int i;
 		// double f = i;
@@ -225,7 +240,7 @@ public class SortTest
 
 		// 1 << 30 takes too long to run
 		int[] n = new int[] { 100, 10000, 1000000, 1 << 25 };
-		int maxn = n[n.length-1];
+		int maxn = n[n.length - 1];
 
 		for (int i = 0; i < n.length; i++)
 		{

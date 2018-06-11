@@ -30,14 +30,13 @@ package gdsc.core.utils;
 import java.util.Arrays;
 import java.util.Iterator;
 
-
 /**
  * Expandable store for boolean data backed by an array
  */
 public class BooleanArray implements Iterable<Boolean>
 {
 	// TODO - Copy the functionality from Trove TArrayList (which does not have TBoolArrayList)
-	
+
 	private boolean[] values;
 	private int n = 0;
 
@@ -223,6 +222,7 @@ public class BooleanArray implements Iterable<Boolean>
 	 * @return a list iterator over the elements in this list (in proper
 	 *         sequence)
 	 */
+	@Override
 	public Iterator<Boolean> iterator()
 	{
 		return new Itr();
@@ -235,11 +235,13 @@ public class BooleanArray implements Iterable<Boolean>
 	{
 		int cursor; // index of next element to return
 
+		@Override
 		public boolean hasNext()
 		{
 			return cursor != n;
 		}
 
+		@Override
 		public Boolean next()
 		{
 			// Simple implementation. Will throw index-out-of-bounds eventually
@@ -256,6 +258,7 @@ public class BooleanArray implements Iterable<Boolean>
 			//return elementData[i];
 		}
 
+		@Override
 		public void remove()
 		{
 			throw new UnsupportedOperationException("remove");

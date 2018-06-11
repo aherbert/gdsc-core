@@ -445,6 +445,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 * @throws NullPointerException
 	 *             if the specified element is null
 	 */
+	@Override
 	public boolean add(E e)
 	{
 		return super.add(e);
@@ -462,6 +463,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 * @throws NullPointerException
 	 *             if the specified element is null
 	 */
+	@Override
 	public boolean offer(E e)
 	{
 		// Don't lock if closed
@@ -509,6 +511,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 * @throws NullPointerException
 	 *             {@inheritDoc}
 	 */
+	@Override
 	public void put(E e) throws InterruptedException, IllegalStateException
 	{
 		// Don't lock if closed
@@ -620,6 +623,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 * @throws NullPointerException
 	 *             {@inheritDoc}
 	 */
+	@Override
 	public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException
 	{
 		// Don't lock if closed
@@ -651,6 +655,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		}
 	}
 
+	@Override
 	public E poll()
 	{
 		// Avoid synchronisation if this is closed and empty (since nothing can be added)
@@ -681,6 +686,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 * @throws IllegalStateException
 	 *             If closed while waiting and {@link #isThrowIfClosed()} is true
 	 */
+	@Override
 	public E take() throws InterruptedException, IllegalStateException
 	{
 		// Avoid synchronisation if this is closed and empty (since nothing can be added)
@@ -716,6 +722,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		}
 	}
 
+	@Override
 	public E poll(long timeout, TimeUnit unit) throws InterruptedException
 	{
 		// Avoid synchronisation if this is closed and empty (since nothing can be added)
@@ -743,6 +750,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		}
 	}
 
+	@Override
 	public E peek()
 	{
 		// Avoid synchronisation if this is closed and empty (since nothing can be added)
@@ -768,6 +776,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 *
 	 * @return the number of elements in this queue
 	 */
+	@Override
 	public int size()
 	{
 		// Avoid synchronisation if this is closed and empty (since nothing can be added)
@@ -800,6 +809,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 * because it may be the case that another thread is about to
 	 * insert or remove an element.
 	 */
+	@Override
 	public int remainingCapacity()
 	{
 		// Avoid synchronisation if this is closed and empty (since nothing can be added)
@@ -837,6 +847,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 *            element to be removed from this queue, if present
 	 * @return {@code true} if this queue changed as a result of the call
 	 */
+	@Override
 	public boolean remove(Object o)
 	{
 		// Avoid synchronisation if this is closed and empty (since nothing can be added)
@@ -879,6 +890,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 *            object to be checked for containment in this queue
 	 * @return {@code true} if this queue contains the specified element
 	 */
+	@Override
 	public boolean contains(Object o)
 	{
 		// Avoid synchronisation if this is closed and empty (since nothing can be added)
@@ -924,6 +936,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 *
 	 * @return an array containing all of the elements in this queue
 	 */
+	@Override
 	public Object[] toArray()
 	{
 		// Avoid synchronisation if this is closed and empty (since nothing can be added)
@@ -998,6 +1011,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 * @throws NullPointerException
 	 *             if the specified array is null
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T[] toArray(T[] a)
 	{
@@ -1035,6 +1049,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		return a;
 	}
 
+	@Override
 	public String toString()
 	{
 		// Avoid synchronisation if this is closed and empty (since nothing can be added)
@@ -1073,6 +1088,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 * Atomically removes all of the elements from this queue.
 	 * The queue will be empty after this call returns.
 	 */
+	@Override
 	public void clear()
 	{
 		// Avoid synchronisation if this is closed and empty (since nothing can be added)
@@ -1119,6 +1135,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 * @throws IllegalArgumentException
 	 *             {@inheritDoc}
 	 */
+	@Override
 	public int drainTo(Collection<? super E> c)
 	{
 		return drainTo(c, Integer.MAX_VALUE);
@@ -1134,6 +1151,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 * @throws IllegalArgumentException
 	 *             {@inheritDoc}
 	 */
+	@Override
 	public int drainTo(Collection<? super E> c, int maxElements)
 	{
 		checkNotNull(c);
@@ -1200,6 +1218,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 *
 	 * @return an iterator over the elements in this queue in proper sequence
 	 */
+	@Override
 	public Iterator<E> iterator()
 	{
 		return new Itr();
@@ -1669,6 +1688,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		 * fields (i.e. nextItem) that are not modified by update operations
 		 * triggered by queue modifications.
 		 */
+		@Override
 		public boolean hasNext()
 		{
 			// assert lock.getHoldCount() == 0;
@@ -1706,6 +1726,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 			}
 		}
 
+		@Override
 		public E next()
 		{
 			// assert lock.getHoldCount() == 0;
@@ -1741,6 +1762,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 			return x;
 		}
 
+		@Override
 		public void remove()
 		{
 			// assert lock.getHoldCount() == 0;

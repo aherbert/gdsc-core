@@ -269,7 +269,8 @@ public class CustomTricubicInterpolator
     /**
      * {@inheritDoc}
      */
-    public CustomTricubicInterpolatingFunction interpolate(final double[] xval,
+    @Override
+	public CustomTricubicInterpolatingFunction interpolate(final double[] xval,
             final double[] yval,
             final double[] zval,
             final double[][][] fval)
@@ -372,6 +373,7 @@ public class CustomTricubicInterpolator
 				final long to = Math.min(from + taskSize, total);
 				futures.add(executorService.submit(new Runnable()
 				{
+					@Override
 					public void run()
 					{
 				        final double[][][] values = new double[3][3][3];
@@ -1367,6 +1369,7 @@ public class CustomTricubicInterpolator
 				final long to = Math.min(from + taskSize, nNodes);
 				futures.add(executorService.submit(new Runnable()
 				{
+					@Override
 					public void run()
 					{
 						// Approximation to the partial derivatives using finite differences.

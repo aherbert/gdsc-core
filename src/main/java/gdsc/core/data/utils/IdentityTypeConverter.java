@@ -27,7 +27,6 @@
  */
 package gdsc.core.data.utils;
 
-
 /**
  * Perform no conversion
  */
@@ -49,6 +48,7 @@ public class IdentityTypeConverter<T> extends AbstractTypeConverter<T>
 	 * 
 	 * @see gdsc.smlm.units.UnitConverter#convert(double)
 	 */
+	@Override
 	public double convert(double value)
 	{
 		return value;
@@ -59,6 +59,7 @@ public class IdentityTypeConverter<T> extends AbstractTypeConverter<T>
 	 * 
 	 * @see gdsc.smlm.data.utils.Converter#convert(float)
 	 */
+	@Override
 	public float convert(float value)
 	{
 		return value;
@@ -69,6 +70,7 @@ public class IdentityTypeConverter<T> extends AbstractTypeConverter<T>
 	 * 
 	 * @see gdsc.core.data.utils.Converter#convertBack(double)
 	 */
+	@Override
 	public double convertBack(double value)
 	{
 		return value;
@@ -79,6 +81,7 @@ public class IdentityTypeConverter<T> extends AbstractTypeConverter<T>
 	 * 
 	 * @see gdsc.core.data.utils.Converter#convertBack(float)
 	 */
+	@Override
 	public float convertBack(float value)
 	{
 		return value;
@@ -89,6 +92,7 @@ public class IdentityTypeConverter<T> extends AbstractTypeConverter<T>
 	 * 
 	 * @see gdsc.smlm.data.utils.Converter#getFunction()
 	 */
+	@Override
 	public String getFunction()
 	{
 		return "x";

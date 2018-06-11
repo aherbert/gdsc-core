@@ -42,7 +42,7 @@ public class KdTreeND<T> extends KdTree<T>
 	public KdTreeND(int dimensions, int bucketCapacity)
 	{
 		super(bucketCapacity);
-		this.dimensions=dimensions;
+		this.dimensions = dimensions;
 	}
 
 	@Override

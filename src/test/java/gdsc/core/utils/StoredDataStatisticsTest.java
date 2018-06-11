@@ -64,7 +64,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 	public void forLoopIsSlowerThanValuesIterator()
 	{
 		// This fails. Perhaps change the test to use the TimingService for repeat testing.
-		
+
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
 		{
@@ -80,7 +80,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 		long start2 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
 		{
-			double total = 0; 
+			double total = 0;
 			for (double d : stats.getValues())
 			{
 				total += d;

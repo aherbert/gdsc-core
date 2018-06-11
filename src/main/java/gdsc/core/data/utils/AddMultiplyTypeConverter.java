@@ -29,7 +29,6 @@ package gdsc.core.data.utils;
 
 import gdsc.core.utils.Maths;
 
-
 /**
  * Perform conversion by addition then multiplication
  */
@@ -68,6 +67,7 @@ public class AddMultiplyTypeConverter<T> extends MultiplyTypeConverter<T>
 	 * 
 	 * @see gdsc.core.data.utils.MultiplyTypeConverter#convert(double)
 	 */
+	@Override
 	public double convert(double value)
 	{
 		return (value + addition) * multiplication;
@@ -78,6 +78,7 @@ public class AddMultiplyTypeConverter<T> extends MultiplyTypeConverter<T>
 	 * 
 	 * @see gdsc.core.data.utils.MultiplyTypeConverter#convertBack(double)
 	 */
+	@Override
 	public double convertBack(double value)
 	{
 		return (value / multiplication) - addition;
@@ -88,6 +89,7 @@ public class AddMultiplyTypeConverter<T> extends MultiplyTypeConverter<T>
 	 * 
 	 * @see gdsc.smlm.data.utils.Converter#getFunction()
 	 */
+	@Override
 	public String getFunction()
 	{
 		return "(x + " + addition + ") * " + multiplication;

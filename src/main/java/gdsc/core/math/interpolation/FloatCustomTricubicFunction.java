@@ -45,6 +45,7 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
 	 * 
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#getA()
 	 */
+	@Override
 	public double[] getA()
 	{
 		return toDouble(a);

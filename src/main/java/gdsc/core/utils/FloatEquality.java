@@ -29,7 +29,6 @@ package gdsc.core.utils;
 
 import java.math.BigDecimal;
 
-
 /**
  * Provides equality functions for floating point numbers
  * <p>
@@ -365,7 +364,7 @@ public class FloatEquality
 	{
 		int value1 = (int) Math.pow(10.0, significantDigits - 1);
 		int value2 = value1 + 1;
-		int ulps = Float.floatToRawIntBits((float) value2) - Float.floatToRawIntBits((float) value1);
+		int ulps = Float.floatToRawIntBits(value2) - Float.floatToRawIntBits(value1);
 		return (ulps < 0) ? 0 : ulps;
 	}
 

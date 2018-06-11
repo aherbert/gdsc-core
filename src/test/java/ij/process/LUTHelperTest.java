@@ -43,7 +43,7 @@ public class LUTHelperTest
 		mapTo0to255(0, 1);
 		mapTo0to255(0, 255);
 		mapTo0to255(0, 1000);
-		
+
 		mapTo0to255(4.3f, 32.5f);
 		mapTo0to255(-4.3f, 0f);
 		mapTo0to255(-4.3f, 32.5f);
@@ -57,7 +57,7 @@ public class LUTHelperTest
 		mapTo1to255(1, 2);
 		mapTo1to255(1, 255);
 		mapTo1to255(1, 1000);
-		
+
 		mapTo1to255(4.3f, 32.5f);
 		mapTo1to255(-4.3f, 0f);
 		mapTo1to255(-4.3f, 32.5f);

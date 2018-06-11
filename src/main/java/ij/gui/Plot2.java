@@ -247,7 +247,7 @@ public class Plot2 extends Plot
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Gets the current min and max.
 	 *

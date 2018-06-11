@@ -32,7 +32,6 @@ import java.util.Arrays;
 
 import gdsc.core.utils.ConvexHull;
 
-
 /**
  * Provide space for storing cluster coordinates
  * 

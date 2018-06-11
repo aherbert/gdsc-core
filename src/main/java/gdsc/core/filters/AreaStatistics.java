@@ -27,7 +27,6 @@
  */
 package gdsc.core.filters;
 
-
 /**
  * Compute statistics using an area region of an 2D data frame.
  */

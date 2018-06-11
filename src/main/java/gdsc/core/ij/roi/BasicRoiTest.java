@@ -33,7 +33,6 @@ import java.awt.geom.RoundRectangle2D;
 
 import ij.gui.Roi;
 
-
 /**
  * Class for testing if coordinates are within a rectangle/oval ROI.
  */

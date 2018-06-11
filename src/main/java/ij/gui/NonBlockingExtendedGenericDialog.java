@@ -50,6 +50,7 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog
 		setModal(false);
 	}
 
+	@Override
 	public synchronized void showDialog()
 	{
 		super.showDialog();
@@ -60,6 +61,7 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog
 			final NonBlockingExtendedGenericDialog thisDialog = this;
 			EventQueue.invokeLater(new Runnable()
 			{
+				@Override
 				public void run()
 				{
 					WindowManager.addWindow(thisDialog);
@@ -75,6 +77,7 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog
 		}
 	}
 
+	@Override
 	public synchronized void actionPerformed(ActionEvent e)
 	{
 		super.actionPerformed(e);
@@ -82,6 +85,7 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog
 			notify();
 	}
 
+	@Override
 	public synchronized void keyPressed(KeyEvent e)
 	{
 		super.keyPressed(e);
@@ -89,6 +93,7 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog
 			notify();
 	}
 
+	@Override
 	public synchronized void windowClosing(WindowEvent e)
 	{
 		super.windowClosing(e);
@@ -96,6 +101,7 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog
 			notify();
 	}
 
+	@Override
 	public void dispose()
 	{
 		super.dispose();

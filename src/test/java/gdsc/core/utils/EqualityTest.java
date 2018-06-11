@@ -216,7 +216,7 @@ public class EqualityTest
 
 		for (int i = 0; i < 100; i++)
 		{
-			double f = (double) (i / 10000.0);
+			double f = i / 10000.0;
 			double f2 = f * (1.00f + maxRelativeError - 1e-3f);
 			double f3 = f * (1.0f + 2.0f * maxRelativeError);
 			Assert.assertTrue("not equal " + f, equality.almostEqualRelativeOrAbsolute(f, f));
@@ -289,7 +289,7 @@ public class EqualityTest
 		Assert.assertEquals(-2, DoubleEquality.signedComplement(-Double.MIN_VALUE, Double.MIN_VALUE));
 		Assert.assertEquals(Long.MAX_VALUE, DoubleEquality.signedComplement(Double.MAX_VALUE, -Double.MAX_VALUE));
 		Assert.assertEquals(Long.MIN_VALUE, DoubleEquality.signedComplement(-Double.MAX_VALUE, Double.MAX_VALUE));
-		
+
 		Assert.assertEquals(1, FloatEquality.complement(0, Float.MIN_VALUE));
 		Assert.assertEquals(1, FloatEquality.complement(0, -Float.MIN_VALUE));
 		Assert.assertEquals(2, FloatEquality.complement(-Float.MIN_VALUE, Float.MIN_VALUE));
@@ -411,16 +411,19 @@ public class EqualityTest
 		TimingService ts = new TimingService(20);
 		ts.execute(new BaseTimingTask("FloatEquality")
 		{
+			@Override
 			public int getSize()
 			{
 				return 1;
 			}
 
+			@Override
 			public Object getData(int i)
 			{
 				return null;
 			}
 
+			@Override
 			public Object run(Object data)
 			{
 				relative(equality, data1, data2);
@@ -429,16 +432,19 @@ public class EqualityTest
 		});
 		ts.execute(new BaseTimingTask("DoubleEquality")
 		{
+			@Override
 			public int getSize()
 			{
 				return 1;
 			}
 
+			@Override
 			public Object getData(int i)
 			{
 				return null;
 			}
 
+			@Override
 			public Object run(Object data)
 			{
 				relative(equality2, data3, data4);

@@ -29,7 +29,6 @@ package gdsc.core.utils;
 
 import java.util.Arrays;
 
-
 /**
  * Provides functionality to partially sort an array
  * 

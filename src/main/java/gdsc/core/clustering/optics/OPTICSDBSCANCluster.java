@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering.optics;
 
-
 /**
  * Represents a cluster from the OPTICS algorithm when the reachability profile is used to extract DBSCAN-like
  * clustering

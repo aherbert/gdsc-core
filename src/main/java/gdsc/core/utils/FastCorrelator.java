@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 import java.math.BigInteger;
 
 /**

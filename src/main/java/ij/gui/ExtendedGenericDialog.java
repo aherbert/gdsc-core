@@ -722,6 +722,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				if (optionListener.collectOptions(tf.getText()))
@@ -831,6 +832,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		JButton button = createOptionButton("Select a file");
 		button.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				boolean record = Recorder.record;
@@ -889,6 +891,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		JButton button = createOptionButton("Select a directory");
 		button.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				boolean record = Recorder.record;
@@ -960,6 +963,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				if (optionListener.collectOptions(choice.getSelectedIndex()))
@@ -1001,6 +1005,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				if (optionListener.collectOptions(cb.getState()))
@@ -1053,6 +1058,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				String theText = tf.getText();
@@ -1169,6 +1175,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				String theText = tf.getText();
@@ -1463,6 +1470,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * 
 	 * @see java.awt.Window#setLocation(java.awt.Point)
 	 */
+	@Override
 	public void setLocation(Point location)
 	{
 		if (location != null)

@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering.optics;
 
-
 /**
  * Contains the ordered result of the OPTICS algorithm
  */

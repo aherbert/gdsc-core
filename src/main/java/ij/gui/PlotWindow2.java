@@ -118,7 +118,7 @@ public class PlotWindow2 extends PlotWindow
 				precision = Math.max(0, Math.min(p, 9));
 
 				Analyzer.setPrecision(p);
-				Analyzer.setMeasurement(Analyzer.SCIENTIFIC_NOTATION, scientific);
+				Analyzer.setMeasurement(Measurements.SCIENTIFIC_NOTATION, scientific);
 
 				// Reset the global settings if an update was not requested
 				reset = !update;
@@ -131,7 +131,7 @@ public class PlotWindow2 extends PlotWindow
 		if (reset)
 		{
 			Analyzer.setPrecision(currentPrecision);
-			Analyzer.setMeasurement(Analyzer.SCIENTIFIC_NOTATION, currentScientific);
+			Analyzer.setMeasurement(Measurements.SCIENTIFIC_NOTATION, currentScientific);
 		}
 	}
 }

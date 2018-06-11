@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 import java.awt.Rectangle;
 
 /**
@@ -36,10 +35,10 @@ import java.awt.Rectangle;
 public class ImageExtractor
 {
 	private float[] data;
-	
+
 	/** The width of the image. */
 	public final int width;
-	
+
 	/** The height of the image. */
 	public final int height;
 
@@ -136,7 +135,7 @@ public class ImageExtractor
 	{
 		return crop(regionBounds, (double[]) null);
 	}
-	
+
 	/**
 	 * Extract a region from the image. The output array can be truncated
 	 * using the {@link #truncate(double[], int)} method.

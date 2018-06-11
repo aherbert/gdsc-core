@@ -300,6 +300,7 @@ public class CustomTricubicInterpolatingFunction
 				final long to = Math.min(from + taskSize, total);
 				futures.add(executorService.submit(new Runnable()
 				{
+					@Override
 					public void run()
 					{
 						if (isInteger)
@@ -928,6 +929,7 @@ public class CustomTricubicInterpolatingFunction
 	 * @throws OutOfRangeException
 	 *             if any of the variables is outside its interpolation range.
 	 */
+	@Override
 	public double value(double x, double y, double z) throws OutOfRangeException
 	{
 		final int i = searchIndex(x, xval);
@@ -2474,6 +2476,7 @@ public class CustomTricubicInterpolatingFunction
 
 	private static class FloatSplineWriter implements SplineWriter
 	{
+		@Override
 		public void write(DataOutput out, CustomTricubicFunction f) throws IOException
 		{
 			for (int i = 0; i < 64; i++)
@@ -2483,6 +2486,7 @@ public class CustomTricubicInterpolatingFunction
 
 	private static class DoubleSplineWriter implements SplineWriter
 	{
+		@Override
 		public void write(DataOutput out, CustomTricubicFunction f) throws IOException
 		{
 			for (int i = 0; i < 64; i++)
@@ -2499,6 +2503,7 @@ public class CustomTricubicInterpolatingFunction
 	{
 		float[] data = new float[64];
 
+		@Override
 		public CustomTricubicFunction read(DataInput in) throws IOException
 		{
 			for (int i = 0; i < 64; i++)
@@ -2511,6 +2516,7 @@ public class CustomTricubicInterpolatingFunction
 	{
 		double[] data = new double[64];
 
+		@Override
 		public CustomTricubicFunction read(DataInput in) throws IOException
 		{
 			for (int i = 0; i < 64; i++)

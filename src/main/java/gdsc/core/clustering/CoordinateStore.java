@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering;
 
-
 import java.awt.Rectangle;
 
 import gdsc.core.logging.TrackProgress;
@@ -44,7 +43,7 @@ public class CoordinateStore implements Cloneable
 	public final float originx;
 	/** The origin for the y coordinate. Add this to y to get the original coordinates. */
 	public final float originy;
-	
+
 	/** The min X coord. */
 	public final float minXCoord;
 	/** The min Y coord. */
@@ -53,7 +52,7 @@ public class CoordinateStore implements Cloneable
 	public final float maxXCoord;
 	/** The max Y coord. */
 	public final float maxYCoord;
-	
+
 	/** The area. This is the product of the constructor bounds width multiplied by the height. */
 	public final int area;
 
@@ -211,6 +210,7 @@ public class CoordinateStore implements Cloneable
 	 * 
 	 * @see java.lang.Object#clone()
 	 */
+	@Override
 	public CoordinateStore clone()
 	{
 		try

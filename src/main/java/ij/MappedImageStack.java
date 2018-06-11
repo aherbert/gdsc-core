@@ -27,7 +27,6 @@
  */
 package ij;
 
-
 import java.awt.image.ColorModel;
 
 import ij.process.FloatProcessor;
@@ -44,7 +43,8 @@ public class MappedImageStack extends ImageStack
 	private boolean mapZero = false;
 
 	/**
-	 * If set to true positive zero is mapped to 1 in the LUT. The default maps the first value above zero to 1 in the LUT.
+	 * If set to true positive zero is mapped to 1 in the LUT. The default maps the first value above zero to 1 in the
+	 * LUT.
 	 *
 	 * @return true, if is map zero
 	 */
@@ -56,7 +56,8 @@ public class MappedImageStack extends ImageStack
 	/**
 	 * Set to true to map positive zero to 1 in the LUT. The default maps the first value above zero to 1 in the LUT.
 	 *
-	 * @param mapZero the new map zero value
+	 * @param mapZero
+	 *            the new map zero value
 	 */
 	public void setMapZero(boolean mapZero)
 	{
@@ -64,7 +65,9 @@ public class MappedImageStack extends ImageStack
 	}
 
 	/** Default constructor. */
-	public MappedImageStack() { }
+	public MappedImageStack()
+	{
+	}
 
 	/** Creates a new, empty image stack. */
 	public MappedImageStack(int width, int height)

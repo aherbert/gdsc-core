@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering.optics;
 
-
 /**
  * The sample mode to sample neighbours in FastOPTICS
  */

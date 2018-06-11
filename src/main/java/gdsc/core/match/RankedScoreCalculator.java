@@ -27,7 +27,6 @@
  */
 package gdsc.core.match;
 
-
 import java.util.Arrays;
 
 import gdsc.core.utils.TurboList;
@@ -416,9 +415,9 @@ public class RankedScoreCalculator
 				fp += (1.0 - score[i]);
 			}
 			i++; // Increment since the arrays are offset by 1
-			r[i] = (double) tp / nActual;
-			p[i] = (double) tp / (tp + fp);
-			j[i] = (double) tp / (fp + nActual); // (tp+fp+fn) == (fp+n) since tp+fn=n;
+			r[i] = tp / nActual;
+			p[i] = tp / (tp + fp);
+			j[i] = tp / (fp + nActual); // (tp+fp+fn) == (fp+n) since tp+fn=n;
 		}
 		return new double[][] { p, r, j };
 	}

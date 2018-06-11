@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 import org.apache.commons.math3.util.FastMath;
 
 /**
@@ -403,7 +402,7 @@ public class MedianWindowDLLFloat
 		int end = data.length - 1;
 		return getMedian(end - n + 1, end);
 	}
-	
+
 	/**
 	 * @return The size of the rolling window
 	 */

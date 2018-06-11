@@ -37,7 +37,6 @@ import ij.gui.Roi;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 
-
 /**
  * Class for working with image ROIs.
  */
@@ -194,6 +193,7 @@ public class RoiHelper
 			}
 		}
 	}
+
 	/**
 	 * For each pixel inside the ROI execute the procedure. If the ROI is null then all pixels will be sampled.
 	 *

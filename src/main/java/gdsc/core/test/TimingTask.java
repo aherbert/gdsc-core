@@ -27,7 +27,6 @@
  */
 package gdsc.core.test;
 
-
 /**
  * Defines a task to run
  */

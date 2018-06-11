@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering.optics;
 
-
 /**
  * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules.
  */
@@ -42,12 +41,14 @@ class DistanceMolecule extends Molecule
 	{
 		super(id, x, y);
 	}
-	
+
+	@Override
 	float getD()
 	{
 		return d;
 	}
 
+	@Override
 	void setD(float d)
 	{
 		this.d = d;

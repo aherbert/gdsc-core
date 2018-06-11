@@ -27,7 +27,6 @@
  */
 package gdsc.core.data;
 
-
 /**
  * Exception to throw if data is invalid
  */

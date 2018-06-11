@@ -27,7 +27,6 @@
  */
 package gdsc.core.ij;
 
-
 import java.awt.Rectangle;
 
 import org.apache.commons.math3.util.FastMath;
@@ -66,10 +65,14 @@ public class AlignImagesFFT
 	public enum WindowMethod
 	{
 		//@formatter:off
-		NONE{ public String getName() { return "None"; }}, 
-		HANNING{ public String getName() { return "Hanning"; }}, 
-		COSINE{ public String getName() { return "Cosine"; }}, 
-		TUKEY{ public String getName() { return "Tukey"; }};
+		NONE{ @Override
+		public String getName() { return "None"; }}, 
+		HANNING{ @Override
+		public String getName() { return "Hanning"; }}, 
+		COSINE{ @Override
+		public String getName() { return "Cosine"; }}, 
+		TUKEY{ @Override
+		public String getName() { return "Tukey"; }};
 		//@formatter:on
 
 		@Override
@@ -89,9 +92,12 @@ public class AlignImagesFFT
 	public enum SubPixelMethod
 	{
 		//@formatter:off
-		NONE{ public String getName() { return "None"; }}, 
-		CUBIC{ public String getName() { return "Cubic"; }}, 
-		GAUSSIAN{ public String getName() { return "Gaussian"; }};
+		NONE{ @Override
+		public String getName() { return "None"; }}, 
+		CUBIC{ @Override
+		public String getName() { return "Cubic"; }}, 
+		GAUSSIAN{ @Override
+		public String getName() { return "Gaussian"; }};
 		//@formatter:on
 
 		@Override
@@ -1474,6 +1480,7 @@ public class AlignImagesFFT
 
 	static class Hanning implements WindowFunction
 	{
+		@Override
 		public double weight(double fractionDistance)
 		{
 			return 0.5 * (1 - Math.cos(Math.PI * 2 * fractionDistance));
@@ -1482,6 +1489,7 @@ public class AlignImagesFFT
 
 	static class Cosine implements WindowFunction
 	{
+		@Override
 		public double weight(double fractionDistance)
 		{
 			return Math.sin(Math.PI * fractionDistance);
@@ -1497,6 +1505,7 @@ public class AlignImagesFFT
 			this.alpha = alpha;
 		}
 
+		@Override
 		public double weight(double fractionDistance)
 		{
 			if (fractionDistance < alpha / 2)

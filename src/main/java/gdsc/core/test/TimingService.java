@@ -33,7 +33,6 @@ import java.util.Arrays;
 
 import gdsc.core.utils.Maths;
 
-
 /**
  * Class to run timing tasks.
  */

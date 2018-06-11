@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering;
 
-
 /**
  * Used to store all the information about a cluster in the clustering analysis
  */
@@ -180,7 +179,7 @@ public class Cluster implements Comparable<Cluster>
 	{
 		neighbour++;
 	}
-	
+
 	/**
 	 * Link the two clusters as potential merge candidates only if the squared distance is smaller than the other
 	 * cluster's current closest.
@@ -217,6 +216,7 @@ public class Cluster implements Comparable<Cluster>
 	 * 
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
+	@Override
 	public int compareTo(Cluster o)
 	{
 		// Sort by size, then centroid x then y, then the total weight. 

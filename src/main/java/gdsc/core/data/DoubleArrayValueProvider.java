@@ -27,7 +27,6 @@
  */
 package gdsc.core.data;
 
-
 /**
  * Provide data on 1-axis from an array of doubles.
  */
@@ -55,6 +54,7 @@ public class DoubleArrayValueProvider implements ValueProvider
 	 * 
 	 * @see gdsc.core.data.ValueProvider#getLength()
 	 */
+	@Override
 	public int getLength()
 	{
 		return val.length;
@@ -65,6 +65,7 @@ public class DoubleArrayValueProvider implements ValueProvider
 	 * 
 	 * @see gdsc.core.data.ValueProvider#get(int)
 	 */
+	@Override
 	public double get(int x)
 	{
 		return val[x];
@@ -75,6 +76,7 @@ public class DoubleArrayValueProvider implements ValueProvider
 	 * 
 	 * @see gdsc.core.data.ValueProvider#get(int, double[])
 	 */
+	@Override
 	public void get(int x, double[] values)
 	{
 		values[0] = val[x - 1];
@@ -87,6 +89,7 @@ public class DoubleArrayValueProvider implements ValueProvider
 	 * 
 	 * @see gdsc.core.data.ValueProvider#toArray()
 	 */
+	@Override
 	public double[] toArray()
 	{
 		return val;

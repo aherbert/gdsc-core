@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering;
 
-
 import java.awt.Rectangle;
 
 import org.apache.commons.math3.util.FastMath;
@@ -918,7 +917,7 @@ public class DensityManager extends CoordinateStore
 	 */
 	public int calculateSum(float radius)
 	{
-		final float r2 = (float) (radius * radius);
+		final float r2 = radius * radius;
 		int sum = 0;
 		for (int i = 0; i < xcoord.length; i++)
 		{
@@ -982,7 +981,7 @@ public class DensityManager extends CoordinateStore
 			{
 				if (grid[xBin][yBin] == null)
 					continue;
-				
+
 				// Build a list of which cells to compare up to a maximum of 4
 				//      | 0,0  |  1,0
 				// ------------+-----
@@ -1002,7 +1001,7 @@ public class DensityManager extends CoordinateStore
 					if (yBin < nYBins - 1)
 						neighbours[count++] = grid[xBin + 1][yBin + 1];
 				}
-				
+
 				for (Molecule m1 = grid[xBin][yBin]; m1 != null; m1 = m1.next)
 				{
 					neighbours[0] = m1.next;

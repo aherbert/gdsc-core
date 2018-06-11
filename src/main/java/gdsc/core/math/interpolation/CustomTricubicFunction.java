@@ -121,6 +121,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 *             if {@code x}, {@code y} or
 	 *             {@code z} are not in the interval {@code [0, 1]}.
 	 */
+	@Override
 	public double value(double x, double y, double z) throws OutOfRangeException
 	{
 		if (x < 0 || x > 1)

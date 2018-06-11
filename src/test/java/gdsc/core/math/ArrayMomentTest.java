@@ -346,18 +346,18 @@ public class ArrayMomentTest
 		assertArrayEquals("Variance", ev, ov, 0);
 		assertArrayEquals("SD", esd, osd, 0);
 	}
-	
+
 	@Test
 	public void canTestIfValidIntegerData()
 	{
 		// 2^16^2 * 2^31-1 ~ 2^63 : This is OK
 		Assert.assertTrue(IntegerArrayMoment.isValid(IntegerType.UNSIGNED_16, Integer.MAX_VALUE));
-		
+
 		// (2^31-1)^2 ~ 2^62 : We should be able to 2 of these but not 3
 		Assert.assertTrue(IntegerArrayMoment.isValid(IntegerType.SIGNED_32, 1));
 		Assert.assertTrue(IntegerArrayMoment.isValid(IntegerType.SIGNED_32, 2));
 		Assert.assertFalse(IntegerArrayMoment.isValid(IntegerType.SIGNED_32, 3));
-		
+
 		// 2^32^2 == 2^64 : We cannot do this as 
 		Assert.assertFalse(IntegerArrayMoment.isValid(IntegerType.UNSIGNED_32, 1));
 	}

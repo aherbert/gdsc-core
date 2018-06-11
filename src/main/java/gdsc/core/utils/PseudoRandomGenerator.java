@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 

@@ -27,7 +27,6 @@
  */
 package gdsc.core.logging;
 
-
 /**
  * Ignore all method calls from the {@link TrackProgress} interface.
  */
@@ -54,6 +53,7 @@ public class NullTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.utils.fitting.results.TrackProgress#progress(double)
 	 */
+	@Override
 	public void progress(double fraction)
 	{
 	}
@@ -63,6 +63,7 @@ public class NullTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.utils.fitting.results.TrackProgress#progress(long, long)
 	 */
+	@Override
 	public void progress(long position, long total)
 	{
 	}
@@ -72,6 +73,7 @@ public class NullTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#incrementProgress(double)
 	 */
+	@Override
 	public void incrementProgress(double fraction)
 	{
 	}
@@ -81,6 +83,7 @@ public class NullTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#log(java.lang.String, java.lang.Object[])
 	 */
+	@Override
 	public void log(String format, Object... args)
 	{
 	}
@@ -90,6 +93,7 @@ public class NullTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#status(java.lang.String, java.lang.Object[])
 	 */
+	@Override
 	public void status(String format, Object... args)
 	{
 	}
@@ -99,6 +103,7 @@ public class NullTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#isEnded()
 	 */
+	@Override
 	public boolean isEnded()
 	{
 		return false;
@@ -109,6 +114,7 @@ public class NullTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#isProgress()
 	 */
+	@Override
 	public boolean isProgress()
 	{
 		return false;
@@ -119,6 +125,7 @@ public class NullTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#isLogging()
 	 */
+	@Override
 	public boolean isLog()
 	{
 		return false;
@@ -129,6 +136,7 @@ public class NullTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#isStatus()
 	 */
+	@Override
 	public boolean isStatus()
 	{
 		return false;

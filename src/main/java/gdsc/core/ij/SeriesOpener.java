@@ -27,7 +27,6 @@
  */
 package gdsc.core.ij;
 
-
 import java.awt.Label;
 import java.awt.TextField;
 import java.awt.event.ItemEvent;
@@ -327,15 +326,18 @@ class FolderOpenerDialog extends GenericDialog
 		this.fileCount = list.length;
 	}
 
+	@Override
 	protected void setup()
 	{
 		setStackInfo();
 	}
 
+	@Override
 	public void itemStateChanged(ItemEvent e)
 	{
 	}
 
+	@Override
 	public void textValueChanged(TextEvent e)
 	{
 		setStackInfo();

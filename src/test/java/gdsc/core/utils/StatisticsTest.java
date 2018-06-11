@@ -121,16 +121,16 @@ public class StatisticsTest
 		double[] v = new double[] { 4, 7, 13, 16 };
 		Statistics o = new Statistics();
 		o.add(v);
-		Assert.assertEquals("Mean",  10, o.getMean(), 0);
+		Assert.assertEquals("Mean", 10, o.getMean(), 0);
 		Assert.assertEquals("Variance", 30, o.getVariance(), 0);
-	
+
 		double add = Math.pow(10, 9);
 		for (int i = 0; i < v.length; i++)
 			v[i] += add;
 		o = new Statistics();
 		o.add(v);
 		Assert.assertEquals("Mean", add + 10, o.getMean(), 0);
-		
+
 		// Expect this to be totally wrong
 		Assert.assertNotEquals("Variance", 30, o.getVariance(), 5);
 	}

@@ -27,7 +27,6 @@
  */
 package gdsc.core.math;
 
-
 /**
  * Contains methods for standard geometry computations
  * 
@@ -138,15 +137,24 @@ public class Geometry
 	 * <p>
 	 * http://en.wikipedia.org/wiki/Line-line_intersection
 	 *
-	 * @param x1            the x 1
-	 * @param y1            the y 1
-	 * @param x2            the x 2
-	 * @param y2            the y 2
-	 * @param x3            the x 3
-	 * @param y3            the y 3
-	 * @param x4            the x 4
-	 * @param y4            the y 4
-	 * @param intersection            the intersection
+	 * @param x1
+	 *            the x 1
+	 * @param y1
+	 *            the y 1
+	 * @param x2
+	 *            the x 2
+	 * @param y2
+	 *            the y 2
+	 * @param x3
+	 *            the x 3
+	 * @param y3
+	 *            the y 3
+	 * @param x4
+	 *            the x 4
+	 * @param y4
+	 *            the y 4
+	 * @param intersection
+	 *            the intersection
 	 * @return true if an intersection was found
 	 */
 	public static boolean getIntersection(double x1, double y1, double x2, double y2, double x3, double y3, double x4,
@@ -192,7 +200,7 @@ public class Geometry
 			intersection[1] = py;
 			return true;
 		}
-		
+
 		return false;
 	}
 }

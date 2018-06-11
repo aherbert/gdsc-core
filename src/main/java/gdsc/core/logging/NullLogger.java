@@ -27,7 +27,6 @@
  */
 package gdsc.core.logging;
 
-
 /**
  * Logs messages to nowhere
  */
@@ -47,12 +46,13 @@ public class NullLogger implements Logger
 	{
 		return (logger == null) ? INSTANCE : logger;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see gdsc.smlm.utils.logging.Logger#info(java.lang.String)
 	 */
+	@Override
 	public void info(String message)
 	{
 	}
@@ -62,6 +62,7 @@ public class NullLogger implements Logger
 	 * 
 	 * @see gdsc.smlm.utils.logging.Logger#info(java.lang.String, java.lang.Object[])
 	 */
+	@Override
 	public void info(String format, Object... args)
 	{
 	}
@@ -71,6 +72,7 @@ public class NullLogger implements Logger
 	 * 
 	 * @see gdsc.smlm.utils.logging.Logger#debug(java.lang.String)
 	 */
+	@Override
 	public void debug(String message)
 	{
 	}
@@ -80,6 +82,7 @@ public class NullLogger implements Logger
 	 * 
 	 * @see gdsc.smlm.utils.logging.Logger#debug(java.lang.String, java.lang.Object[])
 	 */
+	@Override
 	public void debug(String format, Object... args)
 	{
 	}
@@ -89,6 +92,7 @@ public class NullLogger implements Logger
 	 * 
 	 * @see gdsc.smlm.utils.logging.Logger#error(java.lang.String)
 	 */
+	@Override
 	public void error(String message)
 	{
 	}
@@ -98,6 +102,7 @@ public class NullLogger implements Logger
 	 * 
 	 * @see gdsc.smlm.utils.logging.Logger#error(java.lang.String, java.lang.Object[])
 	 */
+	@Override
 	public void error(String format, Object... args)
 	{
 	}

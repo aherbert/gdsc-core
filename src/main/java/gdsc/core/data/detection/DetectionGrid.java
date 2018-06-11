@@ -27,7 +27,6 @@
  */
 package gdsc.core.data.detection;
 
-
 /**
  * Interface to compute collision detections between a 2D point and a set of objects
  */

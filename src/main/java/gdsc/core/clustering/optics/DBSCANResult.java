@@ -38,7 +38,6 @@ import gdsc.core.utils.SimpleArrayUtils;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 
-
 /**
  * Contains the result of the DBSCAN algorithm
  */
@@ -144,6 +143,7 @@ public class DBSCANResult implements ClusteringResult
 	 * @see
 	 * gdsc.core.clustering.optics.ClusteringResult#scrambleClusters(org.apache.commons.math3.random.RandomGenerator)
 	 */
+	@Override
 	public void scrambleClusters(RandomGenerator rng)
 	{
 		clusters = null;
@@ -190,6 +190,7 @@ public class DBSCANResult implements ClusteringResult
 	 *
 	 * @see gdsc.core.clustering.optics.ClusteringResult#getClusters()
 	 */
+	@Override
 	public int[] getClusters()
 	{
 		return clusters;
@@ -232,6 +233,7 @@ public class DBSCANResult implements ClusteringResult
 	 * 
 	 * @see gdsc.core.clustering.optics.ClusteringResult#hasConvexHulls()
 	 */
+	@Override
 	public boolean hasConvexHulls()
 	{
 		return hulls != null;
@@ -242,6 +244,7 @@ public class DBSCANResult implements ClusteringResult
 	 * 
 	 * @see gdsc.core.clustering.optics.ClusteringResult#computeConvexHulls()
 	 */
+	@Override
 	public void computeConvexHulls()
 	{
 		if (hasConvexHulls())
@@ -292,6 +295,7 @@ public class DBSCANResult implements ClusteringResult
 	 * 
 	 * @see gdsc.core.clustering.optics.ClusteringResult#getConvexHull(int)
 	 */
+	@Override
 	public ConvexHull getConvexHull(int clusterId)
 	{
 		if (hulls == null || clusterId <= 0 || clusterId > hulls.length)
@@ -304,6 +308,7 @@ public class DBSCANResult implements ClusteringResult
 	 * 
 	 * @see gdsc.core.clustering.optics.ClusteringResult#getBounds(int)
 	 */
+	@Override
 	public Rectangle2D getBounds(int clusterId)
 	{
 		if (bounds == null || clusterId <= 0 || clusterId > bounds.length)
@@ -316,6 +321,7 @@ public class DBSCANResult implements ClusteringResult
 	 * 
 	 * @see gdsc.core.clustering.optics.ClusteringResult#getParents(int[])
 	 */
+	@Override
 	public int[] getParents(int[] clusterIds)
 	{
 		if (clusterIds == null)

@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering.optics;
 
-
 import java.util.LinkedList;
 
 /**
@@ -108,7 +107,7 @@ public class OPTICSCluster
 	{
 		return end - start + 1;
 	}
-	
+
 	/**
 	 * Get the size of the cluster
 	 *
@@ -118,7 +117,7 @@ public class OPTICSCluster
 	{
 		return length();
 	}
-	
+
 	/**
 	 * Gets the cluster id.
 	 *

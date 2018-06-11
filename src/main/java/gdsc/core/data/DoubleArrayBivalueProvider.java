@@ -27,7 +27,6 @@
  */
 package gdsc.core.data;
 
-
 /**
  * Provide data on 2-axes from an array of doubles.
  */
@@ -66,6 +65,7 @@ public class DoubleArrayBivalueProvider implements BivalueProvider
 	 * 
 	 * @see gdsc.core.data.BivalueProvider#getLengthX()
 	 */
+	@Override
 	public int getLengthX()
 	{
 		return maxx;
@@ -76,6 +76,7 @@ public class DoubleArrayBivalueProvider implements BivalueProvider
 	 * 
 	 * @see gdsc.core.data.BivalueProvider#getLengthY()
 	 */
+	@Override
 	public int getLengthY()
 	{
 		return maxy;
@@ -86,6 +87,7 @@ public class DoubleArrayBivalueProvider implements BivalueProvider
 	 * 
 	 * @see gdsc.core.data.BivalueProvider#get(int, int)
 	 */
+	@Override
 	public double get(int x, int y)
 	{
 		return val[x][y];
@@ -96,6 +98,7 @@ public class DoubleArrayBivalueProvider implements BivalueProvider
 	 * 
 	 * @see gdsc.core.data.BivalueProvider#get(int, int, double[][])
 	 */
+	@Override
 	public void get(int x, int y, double[][] values)
 	{
 		final int nX = x + 1;
@@ -119,6 +122,7 @@ public class DoubleArrayBivalueProvider implements BivalueProvider
 	 * 
 	 * @see gdsc.core.data.BivalueProvider#toArray()
 	 */
+	@Override
 	public double[][] toArray()
 	{
 		return val;

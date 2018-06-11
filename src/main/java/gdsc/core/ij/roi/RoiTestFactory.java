@@ -29,7 +29,6 @@ package gdsc.core.ij.roi;
 
 import ij.gui.Roi;
 
-
 /**
  * Class for creating an RoiTest from an ROI.
  */
@@ -61,7 +60,7 @@ public class RoiTestFactory
 		{
 			return new PolygonRoiTest(roi);
 		}
-		
+
 		return null;
 	}
 }

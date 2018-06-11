@@ -31,7 +31,6 @@ import java.awt.geom.Rectangle2D;
 
 import gnu.trove.list.array.TIntArrayList;
 
-
 /**
  * Class to compute collision detections between a point and a set of rectangles
  */
@@ -52,11 +51,13 @@ public class SimpleDetectionGrid implements DetectionGrid
 	 * 
 	 * @see gdsc.core.data.detection.DetectionGrid#size()
 	 */
+	@Override
 	public int size()
 	{
 		return rectangles.length;
 	}
 
+	@Override
 	public int[] find(double x, double y)
 	{
 		TIntArrayList list = new TIntArrayList();

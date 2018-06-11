@@ -27,7 +27,6 @@
  */
 package gdsc.core.logging;
 
-
 /**
  * Track the progress of processing results
  */

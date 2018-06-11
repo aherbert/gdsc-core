@@ -27,7 +27,6 @@
  */
 package gdsc.core.ij;
 
-
 import gdsc.core.logging.TrackProgress;
 import ij.IJ;
 
@@ -43,6 +42,7 @@ public class IJTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.utils.fitting.results.TrackProgress#progress(double)
 	 */
+	@Override
 	public void progress(double fraction)
 	{
 		if (fraction == 0)
@@ -55,6 +55,7 @@ public class IJTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.utils.fitting.results.TrackProgress#progress(long, long)
 	 */
+	@Override
 	public void progress(long position, long total)
 	{
 		if (position == 0)
@@ -68,6 +69,7 @@ public class IJTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#incrementProgress(double)
 	 */
+	@Override
 	public void incrementProgress(double fraction)
 	{
 		done += fraction;
@@ -79,6 +81,7 @@ public class IJTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#log(java.lang.String, java.lang.Object[])
 	 */
+	@Override
 	public void log(String format, Object... args)
 	{
 		IJ.log(String.format(format, args));
@@ -89,6 +92,7 @@ public class IJTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#status(java.lang.String, java.lang.Object[])
 	 */
+	@Override
 	public void status(String format, Object... args)
 	{
 		IJ.showStatus(String.format(format, args));
@@ -99,6 +103,7 @@ public class IJTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#isEnded()
 	 */
+	@Override
 	public boolean isEnded()
 	{
 		return Utils.isInterrupted();
@@ -109,6 +114,7 @@ public class IJTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#isProgress()
 	 */
+	@Override
 	public boolean isProgress()
 	{
 		return true;
@@ -119,6 +125,7 @@ public class IJTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#isLogging()
 	 */
+	@Override
 	public boolean isLog()
 	{
 		return true;
@@ -129,6 +136,7 @@ public class IJTrackProgress implements TrackProgress
 	 * 
 	 * @see gdsc.core.logging.TrackProgress#isStatus()
 	 */
+	@Override
 	public boolean isStatus()
 	{
 		return true;

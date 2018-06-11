@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 /**
  * Compares primitives for equality
  */

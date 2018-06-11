@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering.optics;
 
-
 import java.awt.Rectangle;
 import java.util.EnumSet;
 
@@ -171,6 +170,7 @@ public class OPTICSManager extends CoordinateStore
 			add(m);
 		}
 
+		@Override
 		void clear()
 		{
 			size = next = 0;
@@ -278,6 +278,7 @@ public class OPTICSManager extends CoordinateStore
 			super(capacity);
 		}
 
+		@Override
 		public void push(Molecule m)
 		{
 			set(m, size++);
@@ -290,17 +291,20 @@ public class OPTICSManager extends CoordinateStore
 			m.setQueueIndex(index);
 		}
 
+		@Override
 		public void moveUp(Molecule object)
 		{
 			if (lower(object, list[next]))
 				swap(next, object.getQueueIndex());
 		}
 
+		@Override
 		public boolean hasNext()
 		{
 			return next < size;
 		}
 
+		@Override
 		public Molecule next()
 		{
 			Molecule m = list[next++];
@@ -325,6 +329,7 @@ public class OPTICSManager extends CoordinateStore
 			set(m, j);
 		}
 
+		@Override
 		public void clear()
 		{
 			size = next = 0;
@@ -394,6 +399,7 @@ public class OPTICSManager extends CoordinateStore
 			super(capacity);
 		}
 
+		@Override
 		public void push(Molecule m)
 		{
 			set(m, size++);
@@ -406,11 +412,13 @@ public class OPTICSManager extends CoordinateStore
 			m.setQueueIndex(index);
 		}
 
+		@Override
 		public boolean hasNext()
 		{
 			return size != 0;
 		}
 
+		@Override
 		public Molecule next()
 		{
 			Molecule m = list[0];
@@ -419,6 +427,7 @@ public class OPTICSManager extends CoordinateStore
 			return m;
 		}
 
+		@Override
 		public void moveUp(Molecule object)
 		{
 			siftUp(object.getQueueIndex());
@@ -474,6 +483,7 @@ public class OPTICSManager extends CoordinateStore
 			}
 		}
 
+		@Override
 		public void clear()
 		{
 			super.clear();
@@ -894,7 +904,7 @@ public class OPTICSManager extends CoordinateStore
 				area = xrange * yrange;
 			}
 
-			double nMoleculesInPixel = (double) getSize() / area;
+			double nMoleculesInPixel = getSize() / area;
 			double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 
 			// TODO - JUnit test to show when to use a circle to avoid distance comparisons. 
@@ -929,7 +939,7 @@ public class OPTICSManager extends CoordinateStore
 				area = xrange * yrange;
 			}
 
-			double nMoleculesInPixel = (double) getSize() / area;
+			double nMoleculesInPixel = getSize() / area;
 			double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 
 			if (nMoleculesInCircle > RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_INNER)

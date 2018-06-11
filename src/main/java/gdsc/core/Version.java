@@ -27,7 +27,6 @@
  */
 package gdsc.core;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -43,11 +42,11 @@ import java.util.regex.Pattern;
  */
 public class Version
 {
-	public static final String UNKNOWN = "unknown"; 
+	public static final String UNKNOWN = "unknown";
 	private static String version = null;
 	private static String buildDate = null;
-	
-	static 
+
+	static
 	{
 		// Locate the version file
 		Class<Version> resourceClass = Version.class;
@@ -59,19 +58,19 @@ public class Version
 			Properties props = new Properties();
 			props.load(propertiesStream);
 			version = props.getProperty("version");
-			buildDate = props.getProperty("build.date"); 
+			buildDate = props.getProperty("build.date");
 		}
 		catch (IOException e)
 		{
 			// Ignore
 		}
-		
+
 		if (version == null || version.length() == 0)
 			version = UNKNOWN;
 		if (buildDate == null || buildDate.length() == 0)
 			buildDate = UNKNOWN;
 	}
-	
+
 	public static void main(String[] args)
 	{
 		StringBuilder msg = new StringBuilder();
@@ -80,7 +79,7 @@ public class Version
 		msg.append("Build Date : ").append(buildDate).append(newLine);
 		System.out.print(msg.toString());
 	}
-	
+
 	/**
 	 * Get the GDSC Core version
 	 * 
@@ -90,7 +89,7 @@ public class Version
 	{
 		return version;
 	}
-	
+
 	/**
 	 * Get the GDSC Core package build date
 	 * 
@@ -142,7 +141,7 @@ public class Version
 			return Integer.parseInt(m.group(1));
 		return 0;
 	}
-	
+
 	/**
 	 * Get a string with the major, minor and patch versions
 	 * 

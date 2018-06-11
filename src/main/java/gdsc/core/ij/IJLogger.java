@@ -27,7 +27,6 @@
  */
 package gdsc.core.ij;
 
-
 import ij.IJ;
 
 /**
@@ -53,6 +52,7 @@ public class IJLogger implements gdsc.core.logging.Logger
 	 * 
 	 * @see gdsc.smlm.fitting.logging.Logger#info(java.lang.String)
 	 */
+	@Override
 	public void info(String message)
 	{
 		IJ.log(message);
@@ -63,29 +63,34 @@ public class IJLogger implements gdsc.core.logging.Logger
 	 * 
 	 * @see gdsc.smlm.fitting.logging.Logger#info(java.lang.String, java.lang.Object[])
 	 */
+	@Override
 	public void info(String format, Object... args)
 	{
 		IJ.log(String.format(format, args));
 	}
 
+	@Override
 	public void debug(String message)
 	{
 		if (showDebug)
 			info(message);
 	}
 
+	@Override
 	public void debug(String format, Object... args)
 	{
 		if (showDebug)
 			info(format, args);
 	}
 
+	@Override
 	public void error(String message)
 	{
 		if (showError)
 			info(message);
 	}
 
+	@Override
 	public void error(String format, Object... args)
 	{
 		if (showError)

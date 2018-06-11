@@ -30,7 +30,6 @@ package gdsc.core.math;
 import gdsc.core.data.IntegerType;
 import gdsc.core.utils.NotImplementedException;
 
-
 /**
  * Simple class to calculate the mean and variance of arrayed integer data using a fast summation algorithm that tracks
  * the sum of input values and the sum of squared input values. This may not be suitable for a large series of data
@@ -99,6 +98,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#add(double)
 	 */
+	@Override
 	public void add(double data)
 	{
 		throw new NotImplementedException();
@@ -109,6 +109,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#add(double[])
 	 */
+	@Override
 	public void add(double[] data)
 	{
 		throw new NotImplementedException();
@@ -119,6 +120,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#add(float[])
 	 */
+	@Override
 	public void add(float[] data)
 	{
 		throw new NotImplementedException();
@@ -129,6 +131,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#add(int[])
 	 */
+	@Override
 	public void add(int[] data)
 	{
 		if (n == 0)
@@ -150,6 +153,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#add(short[])
 	 */
+	@Override
 	public void add(short[] data)
 	{
 		if (n == 0)
@@ -171,6 +175,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#add(byte[])
 	 */
+	@Override
 	public void add(byte[] data)
 	{
 		if (n == 0)
@@ -192,6 +197,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#addUnsigned(short[])
 	 */
+	@Override
 	public void addUnsigned(short[] data)
 	{
 		if (n == 0)
@@ -216,6 +222,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#addUnsigned(byte[])
 	 */
+	@Override
 	public void addUnsigned(byte[] data)
 	{
 		if (n == 0)
@@ -290,6 +297,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getFirstMoment()
 	 */
+	@Override
 	public double[] getFirstMoment()
 	{
 		if (n == 0)
@@ -306,6 +314,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getSecondMoment()
 	 */
+	@Override
 	public double[] getSecondMoment()
 	{
 		if (n == 0)
@@ -323,6 +332,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getN()
 	 */
+	@Override
 	public long getN()
 	{
 		return n;
@@ -333,6 +343,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getVariance()
 	 */
+	@Override
 	public double[] getVariance()
 	{
 		return getVariance(true);
@@ -343,6 +354,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getVariance(boolean)
 	 */
+	@Override
 	public double[] getVariance(boolean isBiasCorrected)
 	{
 		if (n == 0)
@@ -373,6 +385,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getStandardDeviation()
 	 */
+	@Override
 	public double[] getStandardDeviation()
 	{
 		return getStandardDeviation(true);
@@ -383,6 +396,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getStandardDeviation(boolean)
 	 */
+	@Override
 	public double[] getStandardDeviation(boolean isBiasCorrected)
 	{
 		if (n == 0)
@@ -413,6 +427,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#newInstance()
 	 */
+	@Override
 	public IntegerArrayMoment newInstance()
 	{
 		return new IntegerArrayMoment();
@@ -423,6 +438,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#add(gdsc.core.math.ArrayMoment)
 	 */
+	@Override
 	public void add(ArrayMoment arrayMoment)
 	{
 		if (arrayMoment == null)

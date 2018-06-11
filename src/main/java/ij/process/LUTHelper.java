@@ -37,30 +37,54 @@ public class LUTHelper
 	public enum LutColour
 	{
 		//@formatter:off
-		RED_HOT{ public String getName() { return "Red-Hot"; }}, 
-		ICE{ public String getName() { return "Ice";}}, 
-		RAINBOW{ public String getName() { return "Rainbow"; }}, 
-		FIRE{ public String getName() { return "Fire"; }}, 
-		FIRE_LIGHT{ public String getName() { return "FireLight"; }}, 
-		FIRE_GLOW{ public String getName() { return "FireGlow"; }}, 
-		RED_YELLOW{ public String getName() { return "Red-Yellow"; }}, 
-		RED{ public String getName() { return "Red"; }},
-		GREEN{ public String getName() { return "Green"; }}, 
-		BLUE{ public String getName() { return "Blue"; }}, 
-		CYAN{ public String getName() { return "Cyan"; }}, 
-		MAGENTA{ public String getName() { return "Magenta"; }}, 
-		YELLOW{ public String getName() { return "Yellow"; }},
-		RED_BLUE{ public String getName() { return "Red-Blue"; }}, 
-		INTENSE{ public String getName() { return "Intense"; }
+		RED_HOT{ @Override
+		public String getName() { return "Red-Hot"; }}, 
+		ICE{ @Override
+		public String getName() { return "Ice";}}, 
+		RAINBOW{ @Override
+		public String getName() { return "Rainbow"; }}, 
+		FIRE{ @Override
+		public String getName() { return "Fire"; }}, 
+		FIRE_LIGHT{ @Override
+		public String getName() { return "FireLight"; }}, 
+		FIRE_GLOW{ @Override
+		public String getName() { return "FireGlow"; }}, 
+		RED_YELLOW{ @Override
+		public String getName() { return "Red-Yellow"; }}, 
+		RED{ @Override
+		public String getName() { return "Red"; }},
+		GREEN{ @Override
+		public String getName() { return "Green"; }}, 
+		BLUE{ @Override
+		public String getName() { return "Blue"; }}, 
+		CYAN{ @Override
+		public String getName() { return "Cyan"; }}, 
+		MAGENTA{ @Override
+		public String getName() { return "Magenta"; }}, 
+		YELLOW{ @Override
+		public String getName() { return "Yellow"; }},
+		RED_BLUE{ @Override
+		public String getName() { return "Red-Blue"; }}, 
+		INTENSE{ @Override
+		public String getName() { return "Intense"; }
+			@Override
 			public boolean isDistinct() { return true;}},
-		PIMP{ public String getName() { return "Pimp"; }
+		PIMP{ @Override
+		public String getName() { return "Pimp"; }
+			@Override
 			public boolean isDistinct() { return true;}},
-		PIMP_LIGHT{ public String getName() { return "PimpLight"; }
+		PIMP_LIGHT{ @Override
+		public String getName() { return "PimpLight"; }
+			@Override
 			public boolean isDistinct() { return true;}},
-		DISTINCT{ public String getName() { return "Distinct"; }
+		DISTINCT{ @Override
+		public String getName() { return "Distinct"; }
+			@Override
 			public boolean isDistinct() { return true;}},
-		RED_CYAN{ public String getName() { return "Red-Cyan"; }},
-		GRAYS{ public String getName() { return "Grays"; }};
+		RED_CYAN{ @Override
+		public String getName() { return "Red-Cyan"; }},
+		GRAYS{ @Override
+		public String getName() { return "Grays"; }};
 		//@formatter:on
 
 		@Override
@@ -916,13 +940,14 @@ public class LUTHelper
 		 * 
 		 * @see ij.process.LUTHelper.LUTMapper#map(float)
 		 */
+		@Override
 		public int map(float value)
 		{
 			if (value < 0f)
 				return 0;
 			if (value > 255f)
 				return 255;
-			return (int) Math.round(value);
+			return Math.round(value);
 		}
 
 		/**
@@ -930,6 +955,7 @@ public class LUTHelper
 		 * 
 		 * @see ij.process.LUTHelper.LUTMapper#mapf(float)
 		 */
+		@Override
 		public float mapf(float value)
 		{
 			return value;
@@ -940,6 +966,7 @@ public class LUTHelper
 		 * 
 		 * @see ij.process.LUTHelper.LUTMapper#getColour(ij.process.LUT, float)
 		 */
+		@Override
 		public Color getColour(LUT lut, float value)
 		{
 			return new Color(lut.getRGB(map(value)));
@@ -950,6 +977,7 @@ public class LUTHelper
 		 * 
 		 * @see ij.process.LUTHelper.LUTMapper#getMin()
 		 */
+		@Override
 		public int getMin()
 		{
 			return 0;
@@ -960,6 +988,7 @@ public class LUTHelper
 		 * 
 		 * @see ij.process.LUTHelper.LUTMapper#getMax()
 		 */
+		@Override
 		public int getMax()
 		{
 			return 255;
@@ -993,6 +1022,7 @@ public class LUTHelper
 		 * 
 		 * @see ij.process.LUTHelper.LUTMapper#map(float)
 		 */
+		@Override
 		public int map(float value)
 		{
 			value = value - minimum;
@@ -1009,6 +1039,7 @@ public class LUTHelper
 		 * 
 		 * @see ij.process.LUTHelper.LUTMapper#mapf(float)
 		 */
+		@Override
 		public float mapf(float value)
 		{
 			return map(value);
@@ -1042,6 +1073,7 @@ public class LUTHelper
 		 * 
 		 * @see ij.process.LUTHelper.LUTMapper#map(float)
 		 */
+		@Override
 		public int map(float value)
 		{
 			value = value - minimum;
@@ -1058,6 +1090,7 @@ public class LUTHelper
 		 * 
 		 * @see ij.process.LUTHelper.LUTMapper#mapf(float)
 		 */
+		@Override
 		public float mapf(float value)
 		{
 			return map(value);

@@ -33,7 +33,6 @@ import gdsc.core.utils.SimpleArrayUtils;
 import ij.gui.Roi;
 import ij.process.FloatPolygon;
 
-
 /**
  * Class for testing if coordinates are within a polygon/free/traced ROI.
  */

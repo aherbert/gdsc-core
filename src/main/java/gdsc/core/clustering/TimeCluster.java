@@ -29,7 +29,6 @@ package gdsc.core.clustering;
 
 import org.apache.commons.math3.util.FastMath;
 
-
 /**
  * Used to store all the information about a cluster in the clustering analysis
  */

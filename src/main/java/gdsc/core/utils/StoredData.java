@@ -30,7 +30,6 @@ package gdsc.core.utils;
 import java.util.Arrays;
 import java.util.Iterator;
 
-
 /**
  * Expandable store for data backed by a double array
  */
@@ -293,6 +292,7 @@ public class StoredData implements Iterable<Double>, DoubleData
 	 * @return a list iterator over the elements in this list (in proper
 	 *         sequence)
 	 */
+	@Override
 	public Iterator<Double> iterator()
 	{
 		return new Itr();
@@ -305,11 +305,13 @@ public class StoredData implements Iterable<Double>, DoubleData
 	{
 		int cursor; // index of next element to return
 
+		@Override
 		public boolean hasNext()
 		{
 			return cursor != n;
 		}
 
+		@Override
 		public Double next()
 		{
 			// Simple implementation. Will throw index-out-of-bounds eventually
@@ -326,6 +328,7 @@ public class StoredData implements Iterable<Double>, DoubleData
 			//return elementData[i];
 		}
 
+		@Override
 		public void remove()
 		{
 			throw new UnsupportedOperationException("remove");
@@ -337,6 +340,7 @@ public class StoredData implements Iterable<Double>, DoubleData
 	 * 
 	 * @see gdsc.core.utils.DoubleData#size()
 	 */
+	@Override
 	public int size()
 	{
 		return n;
@@ -347,6 +351,7 @@ public class StoredData implements Iterable<Double>, DoubleData
 	 * 
 	 * @see gdsc.core.utils.DoubleData#values()
 	 */
+	@Override
 	public double[] values()
 	{
 		return getValues();

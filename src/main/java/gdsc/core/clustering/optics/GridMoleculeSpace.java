@@ -64,6 +64,7 @@ class GridMoleculeSpace extends MoleculeSpace
 				resolution);
 	}
 
+	@Override
 	Molecule[] generate()
 	{
 		final float minXCoord = opticsManager.getMinimumX();
@@ -150,7 +151,7 @@ class GridMoleculeSpace extends MoleculeSpace
 			// Free memory
 			linkedListGrid[yBin] = null;
 		}
-		
+
 		// Traverse the grid and store the index to the next position that contains data
 		int count = 0;
 		int index = grid.length;
@@ -323,6 +324,7 @@ class GridMoleculeSpace extends MoleculeSpace
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
+	@Override
 	void findNeighbours(int minPts, Molecule object, float e)
 	{
 		//boolean noFF = true;
@@ -468,6 +470,7 @@ class GridMoleculeSpace extends MoleculeSpace
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
+	@Override
 	void findNeighboursAndDistances(int minPts, Molecule object, float e)
 	{
 		//boolean noFF = true;

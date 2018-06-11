@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-
 /**
  * Compares assignments
  */
@@ -45,6 +44,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 	 * 
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
+	@Override
 	public int compare(Assignment o1, Assignment o2)
 	{
 		if (o1.getDistance() < o2.getDistance())
@@ -105,6 +105,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 
 		Arrays.sort(data, new Comparator<double[]>()
 		{
+			@Override
 			public int compare(double[] o1, double[] o2)
 			{
 				if (o1[0] < o2[0])
@@ -134,6 +135,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 			this.a = a;
 		}
 
+		@Override
 		public int compareTo(DoubleSortObject o2)
 		{
 			if (d < o2.d)
@@ -194,6 +196,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 			this.a = a;
 		}
 
+		@Override
 		public int compareTo(FloatSortObject o2)
 		{
 			if (d < o2.d)

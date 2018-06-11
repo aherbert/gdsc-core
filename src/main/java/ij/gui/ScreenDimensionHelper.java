@@ -36,7 +36,6 @@ import javax.swing.JViewport;
 
 import ij.IJ;
 
-
 /**
  * Allows resizing of window components for the current screen dimensions
  */
@@ -48,7 +47,7 @@ public class ScreenDimensionHelper
 	{
 		screenDimension = IJ.getScreenSize();
 	}
-	
+
 	/**
 	 * Gets the screen size.
 	 *

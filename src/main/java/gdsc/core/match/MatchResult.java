@@ -27,7 +27,6 @@
  */
 package gdsc.core.match;
 
-
 /**
  * Class to store the result of a binary scoring analysis.
  * 

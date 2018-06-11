@@ -402,7 +402,7 @@ public class MedianWindowDLL
 		int end = data.length - 1;
 		return getMedian(end - n + 1, end);
 	}
-	
+
 	/**
 	 * @return The size of the rolling window
 	 */

@@ -27,7 +27,6 @@
  */
 package gdsc.core.data.utils;
 
-
 /**
  * Define conversion of a type
  */
@@ -39,7 +38,7 @@ public interface TypeConverter<T> extends Converter
 	 * @return the source unit
 	 */
 	public T from();
-	
+
 	/**
 	 * Specify the destination unit to be converted to
 	 *

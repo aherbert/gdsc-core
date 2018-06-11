@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering.optics;
 
-
 /**
  * Used in the OPTICS/DBSCAN algorithms
  */
@@ -53,7 +52,7 @@ abstract class MoleculeSpace
 		this.size = size;
 		neighbours = new MoleculeList(size);
 	}
-	
+
 	@Override
 	public String toString()
 	{

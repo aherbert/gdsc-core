@@ -27,7 +27,6 @@
  */
 package gdsc.core.match;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -272,7 +271,7 @@ public class MatchCalculator
 		clear(FN);
 		clear(matches);
 	}
-	
+
 	private static <T> void clear(List<T> list)
 	{
 		if (list != null)

@@ -55,8 +55,10 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
 	/**
 	 * Instantiates a new turbo random generator. The input sequence may be modified: any 1 is set to 1-ulp.
 	 *
-	 * @param sequence            the sequence (must contains numbers in the interval 0 to 1)
-	 * @param length the length
+	 * @param sequence
+	 *            the sequence (must contains numbers in the interval 0 to 1)
+	 * @param length
+	 *            the length
 	 * @throw {@link IllegalArgumentException} if the sequence is not positive in length and contains numbers outside
 	 *        the interval 0 to 1.
 	 */
@@ -65,7 +67,7 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
 		super(sequence, length);
 		update();
 	}
-	
+
 	/**
 	 * Instantiates a new pseudo random generator of the given size.
 	 *
@@ -103,6 +105,7 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
 	 * 
 	 * @see gdsc.core.utils.PseudoRandomGenerator#nextDouble()
 	 */
+	@Override
 	public double nextDouble()
 	{
 		return super.nextDouble();
@@ -142,6 +145,7 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
 	 * @return a pseudorandom, uniformly distributed {@code int}
 	 *         value between 0 (inclusive) and n (exclusive).
 	 */
+	@Override
 	public int nextIntFast(int n)
 	{
 		return (int) (nextDouble() * n);

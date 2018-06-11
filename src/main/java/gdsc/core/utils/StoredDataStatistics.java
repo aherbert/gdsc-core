@@ -32,7 +32,6 @@ import java.util.Iterator;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-
 /**
  * Calculate the mean and standard deviation of data. Stores the data for later retrieval.
  */
@@ -243,6 +242,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	 * @return a list iterator over the elements in this list (in proper
 	 *         sequence)
 	 */
+	@Override
 	public Iterator<Double> iterator()
 	{
 		return new Itr();
@@ -255,11 +255,13 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	{
 		int cursor; // index of next element to return
 
+		@Override
 		public boolean hasNext()
 		{
 			return cursor != n;
 		}
 
+		@Override
 		public Double next()
 		{
 			// Simple implementation. Will throw index-out-of-bounds eventually
@@ -276,6 +278,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 			//return elementData[i];
 		}
 
+		@Override
 		public void remove()
 		{
 			throw new UnsupportedOperationException("remove");
@@ -287,6 +290,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	 * 
 	 * @see gdsc.core.utils.DoubleData#size()
 	 */
+	@Override
 	public int size()
 	{
 		return n;
@@ -297,6 +301,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	 * 
 	 * @see gdsc.core.utils.DoubleData#values()
 	 */
+	@Override
 	public double[] values()
 	{
 		return getValues();

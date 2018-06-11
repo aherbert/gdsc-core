@@ -59,6 +59,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 				binWidth, resolution, useInternal);
 	}
 
+	@Override
 	Molecule[] generate()
 	{
 		// Generate the grid
@@ -160,6 +161,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		resolution = Math.min(newResolution, resolution);
 	}
 
+	@Override
 	void findNeighbours(int minPts, Molecule object, float e)
 	{
 		//			if (true)
@@ -475,6 +477,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace
 		}
 	}
 
+	@Override
 	void findNeighboursAndDistances(int minPts, Molecule object, float e)
 	{
 		// TODO - could this be implemented to use concentric rings around the current pixel

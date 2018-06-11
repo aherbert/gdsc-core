@@ -27,7 +27,6 @@
  */
 package ij.text;
 
-
 import java.awt.AWTEvent;
 import java.awt.CheckboxMenuItem;
 import java.awt.Font;
@@ -250,6 +249,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 		}
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent evt)
 	{
 		String cmd = evt.getActionCommand();
@@ -263,6 +263,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 			textPanel.doCommand(cmd);
 	}
 
+	@Override
 	public void processWindowEvent(WindowEvent e)
 	{
 		super.processWindowEvent(e);
@@ -273,6 +274,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 			WindowManager.setWindow(this);
 	}
 
+	@Override
 	public void itemStateChanged(ItemEvent e)
 	{
 		setFont();
@@ -353,11 +355,13 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 		IJ.showStatus("Font settings saved (size=" + sizes[fontSize] + ", antialiased=" + antialiased.getState() + ")");
 	}
 
+	@Override
 	public void focusGained(FocusEvent e)
 	{
 		WindowManager.setWindow(this);
 	}
 
+	@Override
 	public void focusLost(FocusEvent e)
 	{
 	}

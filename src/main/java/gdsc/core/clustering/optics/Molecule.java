@@ -29,7 +29,6 @@ package gdsc.core.clustering.optics;
 
 import gdsc.core.utils.NotImplementedException;
 
-
 /**
  * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules.
  */
@@ -106,7 +105,8 @@ class Molecule
 
 	public OPTICSOrder toOPTICSResult()
 	{
-		double actualCoreDistance = (coreDistance == OPTICSManager.UNDEFINED) ? Double.POSITIVE_INFINITY : getCoreDistance();
+		double actualCoreDistance = (coreDistance == OPTICSManager.UNDEFINED) ? Double.POSITIVE_INFINITY
+				: getCoreDistance();
 		double actualReachabilityDistance = (reachabilityDistance == OPTICSManager.UNDEFINED) ? Double.POSITIVE_INFINITY
 				: getReachabilityDistance();
 		return new OPTICSOrder(id, predecessor, actualCoreDistance, actualReachabilityDistance);

@@ -121,11 +121,13 @@ public class SimpleArrayUtilsTest
 			this.data = data;
 		}
 
+		@Override
 		public int getSize()
 		{
 			return data.length;
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			return new int[][] { data[i][0].clone(), data[i][1].clone() };
@@ -160,6 +162,7 @@ public class SimpleArrayUtilsTest
 		TimingService ts = new TimingService();
 		ts.execute(new MyTimingTask("SortMerge" + msg, data)
 		{
+			@Override
 			@SuppressWarnings("deprecation")
 			public Object run(Object data)
 			{
@@ -169,6 +172,7 @@ public class SimpleArrayUtilsTest
 		});
 		ts.execute(new MyTimingTask("merge+sort" + msg, data)
 		{
+			@Override
 			public Object run(Object data)
 			{
 				int[][] d = (int[][]) data;
@@ -179,6 +183,7 @@ public class SimpleArrayUtilsTest
 		});
 		ts.execute(new MyTimingTask("merge+sort unique" + msg, data)
 		{
+			@Override
 			public Object run(Object data)
 			{
 				int[][] d = (int[][]) data;
@@ -226,6 +231,7 @@ public class SimpleArrayUtilsTest
 		TimingService ts = new TimingService();
 		ts.execute(new MyTimingTask("SortMerge" + msg, data)
 		{
+			@Override
 			@SuppressWarnings("deprecation")
 			public Object run(Object data)
 			{
@@ -235,6 +241,7 @@ public class SimpleArrayUtilsTest
 		});
 		ts.execute(new MyTimingTask("merge+sort" + msg, data)
 		{
+			@Override
 			public Object run(Object data)
 			{
 				int[][] d = (int[][]) data;
@@ -314,7 +321,7 @@ public class SimpleArrayUtilsTest
 		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new Object[] { 2, 1 }));
 		Assert.assertEquals("[foo, bar]", SimpleArrayUtils.toString(new Object[] { "foo", "bar" }));
 		Assert.assertEquals("[foo, 1]", SimpleArrayUtils.toString(new Object[] { "foo", 1 }));
-		
+
 		// Check recursion
 		Assert.assertEquals("[[2, 1], [3, 4]]", SimpleArrayUtils.toString(new int[][] { { 2, 1 }, { 3, 4 } }));
 	}

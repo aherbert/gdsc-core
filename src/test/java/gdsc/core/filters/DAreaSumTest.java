@@ -209,16 +209,19 @@ public class DAreaSumTest
 			this.sample = sample;
 		}
 
+		@Override
 		public int getSize()
 		{
 			return data.length;
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			return data[i];
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			double[] d = (double[]) data;

@@ -30,7 +30,6 @@ package gdsc.core.threshold;
 import gdsc.core.threshold.AutoThreshold.Method;
 import gdsc.core.utils.Maths;
 
-
 /**
  * Contains a histogram.
  * <p>

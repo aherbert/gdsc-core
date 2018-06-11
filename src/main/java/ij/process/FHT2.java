@@ -1050,8 +1050,8 @@ public class FHT2 extends FloatProcessor
 				//h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]);
 				//tmp[r * maxN + c] = (float) ((h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o) / mag);
 				int j = rowMod * maxN + colMod;
-				double h2i = (double) h2[i];
-				double h2j = (double) h2[j];
+				double h2i = h2[i];
+				double h2j = h2[j];
 				double mag = h2i * h2i + h2j * h2j;
 				if (mag < 1e-20)
 					mag = 1e-20;
@@ -1116,6 +1116,7 @@ public class FHT2 extends FloatProcessor
 	}
 
 	/** Returns a string containing information about this FHT. */
+	@Override
 	public String toString()
 	{
 		return "FHT2, " + getWidth() + "x" + getHeight() + ", fd=" + isFrequencyDomain;

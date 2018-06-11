@@ -27,7 +27,6 @@
  */
 package gdsc.core.logging;
 
-
 /**
  * Logs messages to the Java console
  */
@@ -38,6 +37,7 @@ public class ConsoleLogger implements Logger
 	 * 
 	 * @param message
 	 */
+	@Override
 	public void info(String message)
 	{
 		System.out.println(message);
@@ -50,6 +50,7 @@ public class ConsoleLogger implements Logger
 	 * @param format
 	 * @param args
 	 */
+	@Override
 	public void info(String format, Object... args)
 	{
 		System.out.printf(format, args);
@@ -57,21 +58,25 @@ public class ConsoleLogger implements Logger
 			System.out.println();
 	}
 
+	@Override
 	public void debug(String message)
 	{
 		info(message);
 	}
 
+	@Override
 	public void debug(String format, Object... args)
 	{
 		info(format, args);
 	}
 
+	@Override
 	public void error(String message)
 	{
 		info(message);
 	}
 
+	@Override
 	public void error(String format, Object... args)
 	{
 		info(format, args);

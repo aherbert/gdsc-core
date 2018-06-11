@@ -36,7 +36,7 @@ public class RecorderUtilsTest
 {
 	// We need an instance to allow recording
 	Recorder recorder = new Recorder(false);
-	
+
 	@Test
 	public void canResetRecorder()
 	{

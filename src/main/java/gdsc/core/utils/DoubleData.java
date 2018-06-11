@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 /**
  * Specify double data
  */
@@ -39,7 +38,7 @@ public interface DoubleData
 	 * @return the number of values
 	 */
 	public int size();
-	
+
 	/**
 	 * Get the values.
 	 *

@@ -27,7 +27,6 @@
  */
 package ij.process;
 
-
 import java.awt.image.ColorModel;
 
 /**

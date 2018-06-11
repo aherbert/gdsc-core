@@ -27,7 +27,6 @@
  */
 package gdsc.core.data.utils;
 
-
 /**
  * Class to the Rounder interface that does not perform rounding
  */
@@ -38,6 +37,7 @@ public class NonRounder implements Rounder
 	 * 
 	 * @see gdsc.smlm.data.Rounder#round(double)
 	 */
+	@Override
 	public double round(double value)
 	{
 		return value;
@@ -48,6 +48,7 @@ public class NonRounder implements Rounder
 	 * 
 	 * @see gdsc.smlm.data.Rounder#toString(double)
 	 */
+	@Override
 	public String toString(double value)
 	{
 		return Double.toString(value);
@@ -58,6 +59,7 @@ public class NonRounder implements Rounder
 	 * 
 	 * @see gdsc.smlm.data.Rounder#round(float)
 	 */
+	@Override
 	public float round(float value)
 	{
 		return value;
@@ -68,6 +70,7 @@ public class NonRounder implements Rounder
 	 * 
 	 * @see gdsc.smlm.data.Rounder#toString(float)
 	 */
+	@Override
 	public String toString(float value)
 	{
 		return Float.toString(value);

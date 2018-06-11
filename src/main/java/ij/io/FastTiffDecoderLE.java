@@ -30,7 +30,6 @@ package ij.io;
 import java.io.File;
 import java.io.IOException;
 
-
 /**
  * A little-endian FastTiffDecoder
  */
@@ -62,7 +61,7 @@ public class FastTiffDecoderLE extends FastTiffDecoder
 	@Override
 	protected long readLong() throws IOException
 	{
-		return ((long) readInt() & 0xffffffffL) + ((long) readInt() << 32);
+		return (readInt() & 0xffffffffL) + ((long) readInt() << 32);
 	}
 
 	/**

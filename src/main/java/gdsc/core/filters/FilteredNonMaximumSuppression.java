@@ -33,11 +33,10 @@ import org.apache.commons.math3.util.FastMath;
 
 import gdsc.core.utils.FixedIntList;
 
-
 /**
  * Computes the local maxima. Allows filtering of the maxima using simple height and width checks.
  * <p>
- * Note: The neighbour check within the block find algorithm does not match that in the NonMaximumSuppression class. 
+ * Note: The neighbour check within the block find algorithm does not match that in the NonMaximumSuppression class.
  */
 // TODO: Update to use the same block find algorithm as NonMaximumSuppression
 public class FilteredNonMaximumSuppression extends NonMaximumSuppression
@@ -71,6 +70,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The block size
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] maxFind(float[] data, int maxx, int maxy, int n)
 	{
 		FixedIntList results = getResultsBuffer(data.length / 4);
@@ -97,8 +97,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 				}
 
 		// Compare all points
-		float heightThreshold = (float) getHeightThreshold();
-		float floatBackground = (float) background;
+		float heightThreshold = getHeightThreshold();
+		float floatBackground = background;
 
 		int index = 0;
 		for (int y = 0; y < maxy; y++)
@@ -212,6 +212,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The block size
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] maxFindInternal(float[] data, int maxx, int maxy, int n)
 	{
 		FixedIntList results = getResultsBuffer(data.length / 4);
@@ -232,8 +233,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 				}
 
 		// Compare all points
-		float heightThreshold = (float) getHeightThreshold();
-		float floatBackground = (float) background;
+		float heightThreshold = getHeightThreshold();
+		float floatBackground = background;
 
 		for (int y = n; y < maxy - n; y++)
 		{
@@ -325,6 +326,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The internal border
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] maxFindInternal(float[] data, int maxx, int maxy, int n, int border)
 	{
 		if (n == border)
@@ -358,8 +360,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 		boolean inner = (n < border);
 
 		// Compare all points
-		float heightThreshold = (float) getHeightThreshold();
-		float floatBackground = (float) background;
+		float heightThreshold = getHeightThreshold();
+		float floatBackground = background;
 
 		for (int y = border; y < maxy - border; y++)
 		{
@@ -478,6 +480,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The block size
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] blockFind(float[] data, int maxx, int maxy, int n)
 	{
 		if (n == 1)
@@ -509,6 +512,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The internal border
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] blockFindInternal(float[] data, int maxx, int maxy, int n, int border)
 	{
 		if (n == 1)
@@ -537,12 +541,13 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The block size
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] blockFindNxN(float[] data, int maxx, int maxy, int n)
 	{
 		int[] blockMaxima = findBlockMaximaNxN(data, maxx, maxy, n);
 		int nMaxima = 0;
-		float heightThreshold = (float) getHeightThreshold();
-		float floatBackground = (float) background;
+		float heightThreshold = getHeightThreshold();
+		float floatBackground = background;
 
 		boolean[] maximaFlag = null;
 		if (isNeighbourCheck())
@@ -777,12 +782,13 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The internal border
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] blockFindNxNInternal(float[] data, int maxx, int maxy, int n, int border)
 	{
 		int[] blockMaxima = findBlockMaximaNxNInternal(data, maxx, maxy, n, border);
 		int nMaxima = 0;
-		float heightThreshold = (float) getHeightThreshold();
-		float floatBackground = (float) background;
+		float heightThreshold = getHeightThreshold();
+		float floatBackground = background;
 
 		boolean[] maximaFlag = null;
 		if (isNeighbourCheck())
@@ -1014,6 +1020,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The height of the data
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] blockFind3x3(float[] data, int maxx, int maxy)
 	{
 		// The number of blocks in x and y
@@ -1032,8 +1039,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 
 		int[] maxima = new int[xblocks * yblocks];
 
-		float heightThreshold = (float) getHeightThreshold();
-		float floatBackground = (float) background;
+		float heightThreshold = getHeightThreshold();
+		float floatBackground = background;
 		boolean validations = (heightThreshold > 0 || minimumWidth > 0 || isNeighbourCheck());
 
 		boolean[] maximaFlag = null;
@@ -1185,6 +1192,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The internal border
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] blockFind3x3Internal(float[] data, int maxx, int maxy, int border)
 	{
 		if (border < 1)
@@ -1196,8 +1204,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 
 		int[] maxima = new int[xblocks * yblocks];
 
-		float heightThreshold = (float) getHeightThreshold();
-		float floatBackground = (float) background;
+		float heightThreshold = getHeightThreshold();
+		float floatBackground = background;
 		boolean validations = (heightThreshold > 0 || minimumWidth > 0 || isNeighbourCheck());
 
 		boolean[] maximaFlag = null;
@@ -1604,6 +1612,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 * @param neighbourCheck
 	 *            Enable neighbour checking
 	 */
+	@Override
 	public void setNeighbourCheck(boolean neighbourCheck)
 	{
 		this.neighbourCheck = neighbourCheck;
@@ -1612,6 +1621,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	/**
 	 * @return True if neighbour checking is enabled
 	 */
+	@Override
 	public boolean isNeighbourCheck()
 	{
 		return neighbourCheck;
@@ -1623,6 +1633,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 * @param dataBuffer
 	 *            Enable the data buffer
 	 */
+	@Override
 	public void setDataBuffer(boolean dataBuffer)
 	{
 		this.dataBuffer = dataBuffer;
@@ -1633,6 +1644,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	/**
 	 * @return True if the data buffer is enabled
 	 */
+	@Override
 	public boolean isBufferData()
 	{
 		return dataBuffer;
@@ -1661,6 +1673,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The block size
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] maxFind(int[] data, int maxx, int maxy, int n)
 	{
 		FixedIntList results = getResultsBuffer(data.length / 4);
@@ -1802,6 +1815,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The block size
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] maxFindInternal(int[] data, int maxx, int maxy, int n)
 	{
 		FixedIntList results = getResultsBuffer(data.length / 4);
@@ -1915,6 +1929,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The internal border
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] maxFindInternal(int[] data, int maxx, int maxy, int n, int border)
 	{
 		if (n == border)
@@ -2067,6 +2082,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The block size
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] blockFind(int[] data, int maxx, int maxy, int n)
 	{
 		if (n == 1)
@@ -2098,6 +2114,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The internal border
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] blockFindInternal(int[] data, int maxx, int maxy, int n, int border)
 	{
 		if (n == 1)
@@ -2126,6 +2143,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The block size
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] blockFindNxN(int[] data, int maxx, int maxy, int n)
 	{
 		int[] blockMaxima = findBlockMaximaNxN(data, maxx, maxy, n);
@@ -2365,6 +2383,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The internal border
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] blockFindNxNInternal(int[] data, int maxx, int maxy, int n, int border)
 	{
 		int[] blockMaxima = findBlockMaximaNxNInternal(data, maxx, maxy, n, border);
@@ -2602,6 +2621,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The height of the data
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] blockFind3x3(int[] data, int maxx, int maxy)
 	{
 		// The number of blocks in x and y
@@ -2773,6 +2793,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 *            The internal border
 	 * @return Indices to the local maxima (index = maxx * y + x)
 	 */
+	@Override
 	public int[] blockFind3x3Internal(int[] data, int maxx, int maxy, int border)
 	{
 		if (border < 1)
@@ -2916,6 +2937,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	 * 
 	 * @see java.lang.Object#clone()
 	 */
+	@Override
 	public FilteredNonMaximumSuppression clone()
 	{
 		FilteredNonMaximumSuppression o = (FilteredNonMaximumSuppression) super.clone();

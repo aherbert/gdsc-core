@@ -27,7 +27,6 @@
  */
 package gdsc.core.math;
 
-
 /**
  * Contains methods for number computations
  * 

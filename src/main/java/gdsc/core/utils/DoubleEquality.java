@@ -29,7 +29,6 @@ package gdsc.core.utils;
 
 import java.math.BigDecimal;
 
-
 /**
  * Provides equality functions for floating point numbers
  * <p>
@@ -365,7 +364,7 @@ public class DoubleEquality
 	{
 		long value1 = (long) Math.pow(10.0, significantDigits - 1);
 		long value2 = value1 + 1;
-		long ulps = Double.doubleToRawLongBits((double) value2) - Double.doubleToRawLongBits((double) value1);
+		long ulps = Double.doubleToRawLongBits(value2) - Double.doubleToRawLongBits(value1);
 		return (ulps < 0) ? 0 : ulps;
 	}
 

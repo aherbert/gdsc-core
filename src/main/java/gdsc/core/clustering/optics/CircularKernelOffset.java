@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering.optics;
 
-
 /**
  * Represent a circular kernel around a central pixel with size 2 * resolution + 1.
  */
@@ -52,6 +51,7 @@ public class CircularKernelOffset
 	 * Create the offsets for a circular kernel. This represents a circular kernel around a central pixel with size 2 *
 	 * resolution + 1. The centre pixel is (0,0), returned as row index [resolution] in the final array. The offsets are
 	 * returned so that the following is valid to iterate over all the pixels in a row of the kernel:
+	 * 
 	 * <pre>
 	 * int x,y = ...;
 	 * for (int yy=-resolution, i=0; i&lt;offset.length; yy++, i++) {

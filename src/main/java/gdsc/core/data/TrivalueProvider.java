@@ -27,7 +27,6 @@
  */
 package gdsc.core.data;
 
-
 /**
  * Provide data on 3-axes. This is a simple interface to allow passing XYZ data stored in a different layout without
  * rewriting the data.
@@ -81,7 +80,7 @@ public interface TrivalueProvider
 	 *            the values
 	 */
 	public void get(int x, int y, int z, double[][][] values);
-	
+
 	/**
 	 * Convert to an array.
 	 *

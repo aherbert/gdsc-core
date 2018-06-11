@@ -27,7 +27,6 @@
  */
 package gdsc.core.data.utils;
 
-
 /**
  * Create a Rounder interface implementation
  */

@@ -261,6 +261,7 @@ public class OPTICSResult implements ClusteringResult
 	 * @see
 	 * gdsc.core.clustering.optics.ClusteringResult#scrambleClusters(org.apache.commons.math3.random.RandomGenerator)
 	 */
+	@Override
 	public void scrambleClusters(RandomGenerator rng)
 	{
 		hulls = null;
@@ -354,6 +355,7 @@ public class OPTICSResult implements ClusteringResult
 	 *
 	 * @return true, if successful
 	 */
+	@Override
 	public boolean hasConvexHulls()
 	{
 		return hulls != null;
@@ -362,6 +364,7 @@ public class OPTICSResult implements ClusteringResult
 	/**
 	 * Compute convex hulls for each cluster.
 	 */
+	@Override
 	public void computeConvexHulls()
 	{
 		if (hasConvexHulls())
@@ -520,6 +523,7 @@ public class OPTICSResult implements ClusteringResult
 	 *            the cluster id
 	 * @return the convex hull (or null if not available)
 	 */
+	@Override
 	public ConvexHull getConvexHull(int clusterId)
 	{
 		if (hulls == null || clusterId <= 0 || clusterId > hulls.length)
@@ -532,6 +536,7 @@ public class OPTICSResult implements ClusteringResult
 	 * 
 	 * @see gdsc.core.clustering.optics.ClusteringResult#getBounds(int)
 	 */
+	@Override
 	public Rectangle2D getBounds(int clusterId)
 	{
 		if (bounds == null || clusterId <= 0 || clusterId > bounds.length)
@@ -544,6 +549,7 @@ public class OPTICSResult implements ClusteringResult
 	 * 
 	 * @see gdsc.core.clustering.optics.ClusteringResult#getClusters()
 	 */
+	@Override
 	public int[] getClusters()
 	{
 		return getClusters(false);
@@ -667,6 +673,7 @@ public class OPTICSResult implements ClusteringResult
 	 * 
 	 * @see gdsc.core.clustering.optics.ClusteringResult#getParents(int[])
 	 */
+	@Override
 	public int[] getParents(int[] clusterIds)
 	{
 		if (clusterIds == null)
@@ -1017,6 +1024,7 @@ public class OPTICSResult implements ClusteringResult
 			this.remove = remove;
 		}
 
+		@Override
 		public boolean test(OPTICSCluster t)
 		{
 			return remove[counter++];
@@ -1390,6 +1398,7 @@ public class OPTICSResult implements ClusteringResult
 			 * 
 			 * @see java.util.TurboList.SimplePredicate#test(java.lang.Object)
 			 */
+			@Override
 			public boolean test(SteepArea sda)
 			{
 				// Return true to remove.

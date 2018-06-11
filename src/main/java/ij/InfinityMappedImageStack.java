@@ -27,7 +27,6 @@
  */
 package ij;
 
-
 import java.awt.image.ColorModel;
 
 import ij.process.FloatProcessor;

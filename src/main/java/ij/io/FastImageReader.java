@@ -39,7 +39,6 @@ import javax.imageio.ImageIO;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
 
-
 /**
  * Reads raw 8-bit, 16-bit or 32-bit (float or RGB) images from a stream.
  * <p>
@@ -287,12 +286,12 @@ public class FastImageReader
 			if (fi.intelByteOrder)
 				for (int i = base; i < pmax; i++)
 				{
-					tmp = (int) (((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16) |
-							((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff));
+					tmp = ((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16) |
+							((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff);
 					if (fi.fileType == FileInfo.GRAY32_FLOAT)
 						pixels[i] = Float.intBitsToFloat(tmp);
 					else if (fi.fileType == FileInfo.GRAY32_UNSIGNED)
-						pixels[i] = (float) (tmp & 0xffffffffL);
+						pixels[i] = tmp & 0xffffffffL;
 					else
 						pixels[i] = tmp;
 					j += 4;
@@ -300,12 +299,12 @@ public class FastImageReader
 			else
 				for (int i = base; i < pmax; i++)
 				{
-					tmp = (int) (((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16) |
-							((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff));
+					tmp = ((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16) | ((buffer[j + 2] & 0xff) << 8) |
+							(buffer[j + 3] & 0xff);
 					if (fi.fileType == FileInfo.GRAY32_FLOAT)
 						pixels[i] = Float.intBitsToFloat(tmp);
 					else if (fi.fileType == FileInfo.GRAY32_UNSIGNED)
-						pixels[i] = (float) (tmp & 0xffffffffL);
+						pixels[i] = tmp & 0xffffffffL;
 					else
 						pixels[i] = tmp;
 					j += 4;
@@ -344,12 +343,12 @@ public class FastImageReader
 			{
 				for (int i = base, j = 0; i < pmax; i++, j += 4)
 				{
-					tmp = (int) (((byteArray[j + 3] & 0xff) << 24) | ((byteArray[j + 2] & 0xff) << 16) |
-							((byteArray[j + 1] & 0xff) << 8) | (byteArray[j] & 0xff));
+					tmp = ((byteArray[j + 3] & 0xff) << 24) | ((byteArray[j + 2] & 0xff) << 16) |
+							((byteArray[j + 1] & 0xff) << 8) | (byteArray[j] & 0xff);
 					if (fi.fileType == FileInfo.GRAY32_FLOAT)
 						pixels[i] = Float.intBitsToFloat(tmp);
 					else if (fi.fileType == FileInfo.GRAY32_UNSIGNED)
-						pixels[i] = (float) (tmp & 0xffffffffL);
+						pixels[i] = tmp & 0xffffffffL;
 					else
 						pixels[i] = tmp;
 				}
@@ -358,12 +357,12 @@ public class FastImageReader
 			{
 				for (int i = base, j = 0; i < pmax; i++, j += 4)
 				{
-					tmp = (int) (((byteArray[j] & 0xff) << 24) | ((byteArray[j + 1] & 0xff) << 16) |
-							((byteArray[j + 2] & 0xff) << 8) | (byteArray[j + 3] & 0xff));
+					tmp = ((byteArray[j] & 0xff) << 24) | ((byteArray[j + 1] & 0xff) << 16) |
+							((byteArray[j + 2] & 0xff) << 8) | (byteArray[j + 3] & 0xff);
 					if (fi.fileType == FileInfo.GRAY32_FLOAT)
 						pixels[i] = Float.intBitsToFloat(tmp);
 					else if (fi.fileType == FileInfo.GRAY32_UNSIGNED)
-						pixels[i] = (float) (tmp & 0xffffffffL);
+						pixels[i] = tmp & 0xffffffffL;
 					else
 						pixels[i] = tmp;
 				}
@@ -421,11 +420,9 @@ public class FastImageReader
 				b7 = buffer[j + 1] & 0xff;
 				b8 = buffer[j] & 0xff;
 				if (fi.intelByteOrder)
-					tmp = (long) ((b1 << 56) | (b2 << 48) | (b3 << 40) | (b4 << 32) | (b5 << 24) | (b6 << 16) |
-							(b7 << 8) | b8);
+					tmp = (b1 << 56) | (b2 << 48) | (b3 << 40) | (b4 << 32) | (b5 << 24) | (b6 << 16) | (b7 << 8) | b8;
 				else
-					tmp = (long) ((b8 << 56) | (b7 << 48) | (b6 << 40) | (b5 << 32) | (b4 << 24) | (b3 << 16) |
-							(b2 << 8) | b1);
+					tmp = (b8 << 56) | (b7 << 48) | (b6 << 40) | (b5 << 32) | (b4 << 24) | (b3 << 16) | (b2 << 8) | b1;
 				pixels[i] = (float) Double.longBitsToDouble(tmp);
 				j += 8;
 			}
@@ -888,25 +885,25 @@ public class FastImageReader
 			case FileInfo.COLOR8:
 				bytesPerPixel = 1;
 				skip(in);
-				pixels = (Object) read8bitImage(in);
+				pixels = read8bitImage(in);
 				break;
 			case FileInfo.GRAY16_SIGNED:
 			case FileInfo.GRAY16_UNSIGNED:
 				bytesPerPixel = 2;
 				skip(in);
-				pixels = (Object) read16bitImage(in);
+				pixels = read16bitImage(in);
 				break;
 			case FileInfo.GRAY32_INT:
 			case FileInfo.GRAY32_UNSIGNED:
 			case FileInfo.GRAY32_FLOAT:
 				bytesPerPixel = 4;
 				skip(in);
-				pixels = (Object) read32bitImage(in);
+				pixels = read32bitImage(in);
 				break;
 			case FileInfo.GRAY64_FLOAT:
 				bytesPerPixel = 8;
 				skip(in);
-				pixels = (Object) read64bitImage(in);
+				pixels = read64bitImage(in);
 				break;
 			case FileInfo.RGB:
 			case FileInfo.BGR:
@@ -916,36 +913,36 @@ public class FastImageReader
 			case FileInfo.CMYK:
 				bytesPerPixel = fi.getBytesPerPixel();
 				skip(in);
-				pixels = (Object) readChunkyRGB(in);
+				pixels = readChunkyRGB(in);
 				break;
 			case FileInfo.RGB_PLANAR:
 				bytesPerPixel = 3;
 				skip(in);
-				pixels = (Object) readPlanarRGB(in);
+				pixels = readPlanarRGB(in);
 				break;
 			case FileInfo.BITMAP:
 				bytesPerPixel = 1;
 				skip(in);
-				pixels = (Object) read1bitImage(in);
+				pixels = read1bitImage(in);
 				break;
 			case FileInfo.RGB48:
 				bytesPerPixel = 6;
 				skip(in);
-				pixels = (Object) readRGB48(in);
+				pixels = readRGB48(in);
 				break;
 			case FileInfo.RGB48_PLANAR:
 				bytesPerPixel = 2;
 				skip(in);
-				pixels = (Object) readRGB48Planar(in);
+				pixels = readRGB48Planar(in);
 				break;
 			case FileInfo.GRAY12_UNSIGNED:
 				skip(in);
 				short[] data = read12bitImage(in);
-				pixels = (Object) data;
+				pixels = data;
 				break;
 			case FileInfo.GRAY24_UNSIGNED:
 				skip(in);
-				pixels = (Object) read24bitImage(in);
+				pixels = read24bitImage(in);
 				break;
 			default:
 				pixels = null;
@@ -1187,21 +1184,21 @@ public class FastImageReader
 			if (fi.fileType == FileInfo.GRAY32_FLOAT)
 			{
 				for (int i = 0; i < nPixels; i++, j += 4)
-					pixels[i] = Float.intBitsToFloat((int) (((buffer[j + 3] & 0xff) << 24) |
-							((buffer[j + 2] & 0xff) << 16) | ((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff)));
+					pixels[i] = Float.intBitsToFloat(((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16) |
+							((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff));
 			}
 			else if (fi.fileType == FileInfo.GRAY32_UNSIGNED)
 			{
-				int tmp = (int) (((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16) |
-						((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff));
+				int tmp = ((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16) |
+						((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff);
 				for (int i = 0; i < nPixels; i++, j += 4)
-					pixels[i] = (float) (tmp & 0xffffffffL);
+					pixels[i] = tmp & 0xffffffffL;
 			}
 			else
 			{
 				for (int i = 0; i < nPixels; i++, j += 4)
-					pixels[i] = (int) (((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16) |
-							((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff));
+					pixels[i] = ((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16) |
+							((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff);
 			}
 		}
 		else
@@ -1220,21 +1217,21 @@ public class FastImageReader
 			if (fi.fileType == FileInfo.GRAY32_FLOAT)
 			{
 				for (int i = 0; i < nPixels; i++, j += 4)
-					pixels[i] = Float.intBitsToFloat((int) (((buffer[j] & 0xff) << 24) |
-							((buffer[j + 1] & 0xff) << 16) | ((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff)));
+					pixels[i] = Float.intBitsToFloat(((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16) |
+							((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff));
 			}
 			else if (fi.fileType == FileInfo.GRAY32_UNSIGNED)
 			{
-				int tmp = (int) (((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16) |
-						((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff));
+				int tmp = ((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16) | ((buffer[j + 2] & 0xff) << 8) |
+						(buffer[j + 3] & 0xff);
 				for (int i = 0; i < nPixels; i++, j += 4)
-					pixels[i] = (float) (tmp & 0xffffffffL);
+					pixels[i] = tmp & 0xffffffffL;
 			}
 			else
 			{
 				for (int i = 0; i < nPixels; i++, j += 4)
-					pixels[i] = (int) (((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16) |
-							((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff));
+					pixels[i] = ((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16) |
+							((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff);
 			}
 		}
 
@@ -1261,11 +1258,9 @@ public class FastImageReader
 			b7 = buffer[j + 1] & 0xff;
 			b8 = buffer[j] & 0xff;
 			if (fi.intelByteOrder)
-				tmp = (long) ((b1 << 56) | (b2 << 48) | (b3 << 40) | (b4 << 32) | (b5 << 24) | (b6 << 16) | (b7 << 8) |
-						b8);
+				tmp = (b1 << 56) | (b2 << 48) | (b3 << 40) | (b4 << 32) | (b5 << 24) | (b6 << 16) | (b7 << 8) | b8;
 			else
-				tmp = (long) ((b8 << 56) | (b7 << 48) | (b6 << 40) | (b5 << 32) | (b4 << 24) | (b3 << 16) | (b2 << 8) |
-						b1);
+				tmp = (b8 << 56) | (b7 << 48) | (b6 << 40) | (b5 << 32) | (b4 << 24) | (b3 << 16) | (b2 << 8) | b1;
 			pixels[i] = (float) Double.longBitsToDouble(tmp);
 			j += 8;
 		}
@@ -1306,25 +1301,25 @@ public class FastImageReader
 			case FileInfo.COLOR8:
 				bytesPerPixel = 1;
 				skip(in);
-				pixels = (Object) read8bitImage(in);
+				pixels = read8bitImage(in);
 				break;
 			case FileInfo.GRAY16_SIGNED:
 			case FileInfo.GRAY16_UNSIGNED:
 				bytesPerPixel = 2;
 				skip(in);
-				pixels = (Object) read16bitImage(in);
+				pixels = read16bitImage(in);
 				break;
 			case FileInfo.GRAY32_INT:
 			case FileInfo.GRAY32_UNSIGNED:
 			case FileInfo.GRAY32_FLOAT:
 				bytesPerPixel = 4;
 				skip(in);
-				pixels = (Object) read32bitImage(in);
+				pixels = read32bitImage(in);
 				break;
 			case FileInfo.GRAY64_FLOAT:
 				bytesPerPixel = 8;
 				skip(in);
-				pixels = (Object) read64bitImage(in);
+				pixels = read64bitImage(in);
 				break;
 			case FileInfo.RGB:
 			case FileInfo.BGR:
@@ -1334,36 +1329,36 @@ public class FastImageReader
 			case FileInfo.CMYK:
 				bytesPerPixel = fi.getBytesPerPixel();
 				skip(in);
-				pixels = (Object) readChunkyRGB(in);
+				pixels = readChunkyRGB(in);
 				break;
 			case FileInfo.RGB_PLANAR:
 				bytesPerPixel = 3;
 				skip(in);
-				pixels = (Object) readPlanarRGB(in);
+				pixels = readPlanarRGB(in);
 				break;
 			case FileInfo.BITMAP:
 				bytesPerPixel = 1;
 				skip(in);
-				pixels = (Object) read1bitImage(in);
+				pixels = read1bitImage(in);
 				break;
 			case FileInfo.RGB48:
 				bytesPerPixel = 6;
 				skip(in);
-				pixels = (Object) readRGB48(in);
+				pixels = readRGB48(in);
 				break;
 			case FileInfo.RGB48_PLANAR:
 				bytesPerPixel = 2;
 				skip(in);
-				pixels = (Object) readRGB48Planar(in);
+				pixels = readRGB48Planar(in);
 				break;
 			case FileInfo.GRAY12_UNSIGNED:
 				skip(in);
 				short[] data = read12bitImage(in);
-				pixels = (Object) data;
+				pixels = data;
 				break;
 			case FileInfo.GRAY24_UNSIGNED:
 				skip(in);
-				pixels = (Object) read24bitImage(in);
+				pixels = read24bitImage(in);
 				break;
 			default:
 				pixels = null;

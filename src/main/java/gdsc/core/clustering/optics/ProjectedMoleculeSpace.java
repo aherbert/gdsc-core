@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering.optics;
 
-
 import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -203,6 +202,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 * 
 	 * @see gdsc.core.clustering.optics.MoleculeSpace#generate()
 	 */
+	@Override
 	Molecule[] generate()
 	{
 		final float[] xcoord = opticsManager.getXData();
@@ -225,6 +225,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
+	@Override
 	void findNeighbours(int minPts, Molecule object, float e)
 	{
 		// Return the neighbours found in {@link #computeAverageDistInSetAndNeighbours()}.
@@ -241,6 +242,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
+	@Override
 	void findNeighboursAndDistances(int minPts, Molecule object, float e)
 	{
 		// Return the neighbours found in {@link #computeAverageDistInSetAndNeighbours()}.
@@ -404,6 +406,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
+		@Override
 		public void run()
 		{
 			try
@@ -496,6 +499,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
+		@Override
 		public void run()
 		{
 			try
@@ -538,7 +542,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			showProgress();
 
 			final TurboList<int[]> sets = new TurboList<int[]>();
-			splitupNoSort(sets, job.projectedPoints, SimpleArrayUtils.newArray(size, 0, 1), 0, size, 0, job.rand, minSplitSize);
+			splitupNoSort(sets, job.projectedPoints, SimpleArrayUtils.newArray(size, 0, 1), 0, size, 0, job.rand,
+					minSplitSize);
 			splitSets.add(new Split(job.index, sets));
 		}
 	}
@@ -599,6 +604,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
+		@Override
 		public void run()
 		{
 			sampleNeighbours(sumDistances, nDistances, neighbours, sets, from, to);

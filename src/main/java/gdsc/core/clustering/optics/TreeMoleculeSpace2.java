@@ -59,12 +59,13 @@ class TreeMoleculeSpace2 extends MoleculeSpace
 	//	{
 	//		return this.getClass().getSimpleName();
 	//	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see gdsc.core.clustering.optics.MoleculeSpace#generate()
 	 */
+	@Override
 	Molecule[] generate()
 	{
 		final float[] xcoord = opticsManager.getXData();
@@ -91,6 +92,7 @@ class TreeMoleculeSpace2 extends MoleculeSpace
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
+	@Override
 	void findNeighbours(int minPts, Molecule object, float e)
 	{
 		NearestNeighborIterator<Molecule> iter = tree.getNearestNeighborIterator(new double[] { object.x, object.y },
@@ -113,6 +115,7 @@ class TreeMoleculeSpace2 extends MoleculeSpace
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
+	@Override
 	void findNeighboursAndDistances(int minPts, Molecule object, float e)
 	{
 		NearestNeighborIterator<Molecule> iter = tree.getNearestNeighborIterator(new double[] { object.x, object.y },

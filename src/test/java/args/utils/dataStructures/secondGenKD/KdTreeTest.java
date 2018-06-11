@@ -347,7 +347,7 @@ public class KdTreeTest
 		{
 			super(name);
 			// Convert to float
-			double[][] d = (double[][]) data;
+			double[][] d = data;
 			int n = d.length;
 			float[][] d2 = new float[n][];
 			for (int i = 0; i < n; i++)
@@ -359,16 +359,19 @@ public class KdTreeTest
 			this.eps = eps;
 		}
 
+		@Override
 		public int getSize()
 		{
 			return 1;
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			return data;
 		}
 
+		@Override
 		public void check(int i, Object result)
 		{
 			double[] observed = (double[]) result;
@@ -401,6 +404,7 @@ public class KdTreeTest
 
 		ts.execute(new NNTimingTask("Second", data, expected)
 		{
+			@Override
 			public Object run(Object oData)
 			{
 				ags.utils.dataStructures.trees.secondGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.secondGenKD.KdTree.SqrEuclid2D<Object>(
@@ -419,6 +423,7 @@ public class KdTreeTest
 
 		ts.execute(new NNTimingTask("Second2D", data, expected)
 		{
+			@Override
 			public Object run(Object oData)
 			{
 				ags.utils.dataStructures.trees.secondGenKD.KdTree2D<Object> tree = new ags.utils.dataStructures.trees.secondGenKD.KdTree2D.SqrEuclid2D<Object>();
@@ -436,6 +441,7 @@ public class KdTreeTest
 
 		ts.execute(new NNTimingTask("SecondSimple2D", data, expected)
 		{
+			@Override
 			public Object run(Object oData)
 			{
 				ags.utils.dataStructures.trees.secondGenKD.SimpleKdTree2D tree = new ags.utils.dataStructures.trees.secondGenKD.SimpleKdTree2D.SqrEuclid2D();
@@ -453,6 +459,7 @@ public class KdTreeTest
 
 		ts.execute(new NNTimingTask("SecondSimpleFloat2D", data, expected, 1e-3)
 		{
+			@Override
 			public Object run(Object oData)
 			{
 				ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D tree = new ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D.SqrEuclid2D();
@@ -470,6 +477,7 @@ public class KdTreeTest
 
 		ts.execute(new NNTimingTask("Third", data, expected)
 		{
+			@Override
 			public Object run(Object oData)
 			{
 				ags.utils.dataStructures.trees.thirdGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.thirdGenKD.KdTreeND<Object>(
@@ -489,6 +497,7 @@ public class KdTreeTest
 
 		ts.execute(new NNTimingTask("Third2D", data, expected)
 		{
+			@Override
 			public Object run(Object oData)
 			{
 				ags.utils.dataStructures.trees.thirdGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object>();
@@ -528,13 +537,14 @@ public class KdTreeTest
 			this.buckectSize = buckectSize;
 		}
 
+		@Override
 		public Object run(Object oData)
 		{
 			// The following tests the bucket size is optimal. It requires the bucketSize be set to public non-final.
 			// This prevents some code optimisation and so is not the default. The default uses a final bucket size of 24.
 			//int b = ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D.bucketSize;
 			//ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D.bucketSize = buckectSize;
-			
+
 			ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D tree = new ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D.SqrEuclid2D();
 			float[][] data = (float[][]) oData;
 			for (float[] location : data)

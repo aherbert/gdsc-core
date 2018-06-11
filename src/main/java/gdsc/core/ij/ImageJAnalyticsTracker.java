@@ -501,7 +501,7 @@ public class ImageJAnalyticsTracker
 				setTrackerAnonymised(isAnonymized());
 		}
 	}
-	
+
 	private static void setTrackerAnonymised(boolean anonymize)
 	{
 		tracker.setAnonymised(anonymize);
@@ -557,6 +557,7 @@ public class ImageJAnalyticsTracker
 		gd.addHelp("");
 		gd.addDialogListener(new DialogListener()
 		{
+			@Override
 			public boolean dialogItemChanged(GenericDialog gd, AWTEvent e)
 			{
 				if (e != null && e.getSource() instanceof Button)
@@ -606,6 +607,7 @@ public class ImageJAnalyticsTracker
 			cb2.setEnabled(!disabled);
 			cb1.addItemListener(new ItemListener()
 			{
+				@Override
 				public void itemStateChanged(ItemEvent e)
 				{
 					cb2.setEnabled(!cb1.getState());

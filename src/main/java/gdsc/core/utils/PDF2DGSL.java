@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 /**
  * Provides sampling from a 2D histogram
  * <p>
@@ -45,9 +44,12 @@ public class PDF2DGSL
 	/**
 	 * Default constructor. Assumes the x-range and y-range increment from zero in integers.
 	 * 
-	 * @param data The data (packed in XY order, i = nx*y + x) 
-	 * @param nx The X-dimension size
-	 * @param ny The y-dimension size
+	 * @param data
+	 *            The data (packed in XY order, i = nx*y + x)
+	 * @param nx
+	 *            The X-dimension size
+	 * @param ny
+	 *            The y-dimension size
 	 * @throws InvalidArgumentException
 	 *             if the dimensions are not above zero
 	 * @throws InvalidArgumentException
@@ -74,12 +76,12 @@ public class PDF2DGSL
 		{
 			if (data[i] < 0)
 				throw new IllegalArgumentException("Histogram bins must be non-negative");
-			mean += (data[i] - mean) / ((double) (i + 1));
+			mean += (data[i] - mean) / (i + 1);
 			c += data[i];
 		}
 
 		cumulative = c;
-		
+
 		this.sum[0] = 0;
 
 		for (int i = 0; i < n; i++)
@@ -175,6 +177,7 @@ public class PDF2DGSL
 
 	/**
 	 * Return the cumulative probability for the given coordinates
+	 * 
 	 * @param x
 	 * @param y
 	 * @return p

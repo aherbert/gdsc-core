@@ -31,7 +31,6 @@ import java.util.Arrays;
 
 import gdsc.core.threshold.AutoThreshold.Method;
 
-
 /**
  * Contains a histogram.
  * <p>
@@ -209,7 +208,7 @@ public class FloatHistogram extends Histogram
 		}
 
 		// Build with offset
-		
+
 		// No need to check size since this has been done already
 		int[] h = new int[size];
 		for (int i = 0; i < value.length; i++)
@@ -223,6 +222,7 @@ public class FloatHistogram extends Histogram
 	 * 
 	 * @see gdsc.core.threshold.Histogram#getValue(int)
 	 */
+	@Override
 	public float getValue(int i)
 	{
 		return value[i];

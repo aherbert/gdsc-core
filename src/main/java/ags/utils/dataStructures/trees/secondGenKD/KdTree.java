@@ -380,7 +380,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 
 		return results;
 	}
-	
+
 	/**
 	 * Calculates the neighbour points within 'range' to 'location' and puts them in the results store
 	 */
@@ -483,7 +483,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 			cursor.status = Status.NONE;
 		} while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 	}
-	
+
 	/**
 	 * Internal class for child nodes
 	 */
@@ -495,11 +495,13 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 		}
 
 		// Distance measurements are always called from the root node
+		@Override
 		protected double pointDist(double[] p1, double[] p2)
 		{
 			throw new IllegalStateException();
 		}
 
+		@Override
 		protected double pointRegionDist(double[] point, double[] min, double[] max)
 		{
 			throw new IllegalStateException();
@@ -525,11 +527,13 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 			this.weights = weights;
 		}
 
+		@Override
 		protected double getAxisWeightHint(int i)
 		{
 			return weights[i];
 		}
 
+		@Override
 		protected double pointDist(double[] p1, double[] p2)
 		{
 			double d = 0;
@@ -546,6 +550,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 			return d;
 		}
 
+		@Override
 		protected double pointRegionDist(double[] point, double[] min, double[] max)
 		{
 			double d = 0;
@@ -582,6 +587,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 			super(dimensions, sizeLimit);
 		}
 
+		@Override
 		protected double pointDist(double[] p1, double[] p2)
 		{
 			double d = 0;
@@ -598,6 +604,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 			return d;
 		}
 
+		@Override
 		protected double pointRegionDist(double[] point, double[] min, double[] max)
 		{
 			double d = 0;
@@ -638,6 +645,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 			super(2, sizeLimit);
 		}
 
+		@Override
 		protected double pointDist(double[] p1, double[] p2)
 		{
 			double dx = p1[0] - p2[0];
@@ -645,6 +653,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 			return dx * dx + dy * dy;
 		}
 
+		@Override
 		protected double pointRegionDist(double[] point, double[] min, double[] max)
 		{
 			double dx = (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? min[0] - point[0] : 0;
@@ -672,11 +681,13 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 			this.weights = weights;
 		}
 
+		@Override
 		protected double getAxisWeightHint(int i)
 		{
 			return weights[i];
 		}
 
+		@Override
 		protected double pointDist(double[] p1, double[] p2)
 		{
 			double d = 0;
@@ -693,6 +704,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 			return d;
 		}
 
+		@Override
 		protected double pointRegionDist(double[] point, double[] min, double[] max)
 		{
 			double d = 0;
@@ -729,6 +741,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 			super(dimensions, sizeLimit);
 		}
 
+		@Override
 		protected double pointDist(double[] p1, double[] p2)
 		{
 			double d = 0;
@@ -745,6 +758,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
 			return d;
 		}
 
+		@Override
 		protected double pointRegionDist(double[] point, double[] min, double[] max)
 		{
 			double d = 0;

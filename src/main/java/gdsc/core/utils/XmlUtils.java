@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 import java.io.StringReader;
 import java.io.StringWriter;
 

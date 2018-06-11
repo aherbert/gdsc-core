@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 /**
  * Exception to throw if a method is not implemented
  */

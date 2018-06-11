@@ -27,7 +27,6 @@
  */
 package gdsc.core.data;
 
-
 /**
  * Provide data on 3-axes from a stack of XY double data
  */
@@ -69,6 +68,7 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider
 	 * 
 	 * @see gdsc.core.data.TrivalueProvider#getLengthX()
 	 */
+	@Override
 	public int getLengthX()
 	{
 		return maxx;
@@ -79,6 +79,7 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider
 	 * 
 	 * @see gdsc.core.data.TrivalueProvider#getLengthY()
 	 */
+	@Override
 	public int getLengthY()
 	{
 		return maxy;
@@ -89,6 +90,7 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider
 	 * 
 	 * @see gdsc.core.data.TrivalueProvider#getLengthZ()
 	 */
+	@Override
 	public int getLengthZ()
 	{
 		return val.length;
@@ -99,6 +101,7 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider
 	 * 
 	 * @see gdsc.core.data.TrivalueProvider#get(int, int, int)
 	 */
+	@Override
 	public double get(int x, int y, int z)
 	{
 		return val[z][getIndex(x, y)];
@@ -123,6 +126,7 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider
 	 * 
 	 * @see gdsc.core.data.TrivalueProvider#getCube(int, int, int, double[][])
 	 */
+	@Override
 	public void get(int x, int y, int z, double[][][] values)
 	{
 		final int cXcY = getIndex(x, y);
@@ -172,6 +176,7 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider
 	 * 
 	 * @see gdsc.core.data.TrivalueProvider#toArray()
 	 */
+	@Override
 	public double[][][] toArray()
 	{
 		double[][][] xyz = new double[maxx][maxy][getLengthZ()];

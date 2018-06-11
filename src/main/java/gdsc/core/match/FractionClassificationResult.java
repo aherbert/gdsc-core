@@ -27,7 +27,6 @@
  */
 package gdsc.core.match;
 
-
 /**
  * Class to store the result of a binary scoring analysis when true and false positive and negatives are available. This
  * class allows fractional counts.
@@ -301,10 +300,10 @@ public class FractionClassificationResult
 	 */
 	public double getMCC()
 	{
-		final double d = (double) (tp + fp) * (double) (tp + fn) * (double) (tn + fp) * (double) (tn + fn);
+		final double d = (tp + fp) * (tp + fn) * (tn + fp) * (tn + fn);
 		double mcc = 0;
 		if (d != 0)
-			mcc = ((double) (tp * tn) - (double) (fp * fn)) / Math.sqrt(d);
+			mcc = (tp * tn - fp * fn) / Math.sqrt(d);
 		return Math.max(-1, Math.min(1, mcc));
 	}
 

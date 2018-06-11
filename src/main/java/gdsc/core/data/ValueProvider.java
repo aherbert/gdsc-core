@@ -27,7 +27,6 @@
  */
 package gdsc.core.data;
 
-
 /**
  * Provide data on 1-axis. This is a simple interface to allow passing XY data stored in a different layout without
  * rewriting the data.
@@ -59,7 +58,7 @@ public interface ValueProvider
 	 *            the values
 	 */
 	public void get(int x, double[] values);
-	
+
 	/**
 	 * Convert to an array.
 	 *

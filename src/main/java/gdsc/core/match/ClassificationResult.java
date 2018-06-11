@@ -27,7 +27,6 @@
  */
 package gdsc.core.match;
 
-
 /**
  * Class to store the result of a binary scoring analysis when true and false positive and negatives are available.
  * 
@@ -270,7 +269,7 @@ public class ClassificationResult
 	 */
 	public double getMCC()
 	{
-		final double d = (double) (tp + fp) * (double) (tp + fn) * (double) (tn + fp) * (double) (tn + fn);
+		final double d = (double) (tp + fp) * (double) (tp + fn) * (tn + fp) * (tn + fn);
 		double mcc = 0;
 		if (d != 0)
 			mcc = ((double) (tp * tn) - (double) (fp * fn)) / Math.sqrt(d);

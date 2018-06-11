@@ -382,12 +382,12 @@ public class ClusteringEngineTest
 	private ArrayList<ClusterPoint> createPoints(int n, int size)
 	{
 		ArrayList<ClusterPoint> points = new ArrayList<ClusterPoint>(n);
-		RandomGenerator rand = getRandomGenerator();		
+		RandomGenerator rand = getRandomGenerator();
 		while (n-- > 0)
 			points.add(ClusterPoint.newClusterPoint(n, rand.nextDouble() * size, rand.nextDouble() * size));
 		return points;
 	}
-	
+
 	private RandomGenerator getRandomGenerator()
 	{
 		//return new Well19937c(System.currentTimeMillis() + System.identityHashCode(this));
@@ -451,7 +451,7 @@ public class ClusteringEngineTest
 				throw new RuntimeException("Input time array must be at least as large as the number of points");
 			random = new Random();
 		}
-		RandomGenerator rand = getRandomGenerator();		
+		RandomGenerator rand = getRandomGenerator();
 		while (n-- > 0)
 		{
 			double x = rand.nextDouble() * size;
@@ -469,8 +469,8 @@ public class ClusteringEngineTest
 			{
 				for (int i = m; i-- > 0;)
 				{
-					points.add(ClusterPoint.newClusterPoint(id++, x + rand.nextDouble() * radius, y +
-							rand.nextDouble() * radius));
+					points.add(ClusterPoint.newClusterPoint(id++, x + rand.nextDouble() * radius,
+							y + rand.nextDouble() * radius));
 				}
 			}
 		}

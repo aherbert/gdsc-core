@@ -27,7 +27,6 @@
  */
 package gdsc.core.ij.roi;
 
-
 /**
  * Base class for testing if coordinates are within an ROI.
  */

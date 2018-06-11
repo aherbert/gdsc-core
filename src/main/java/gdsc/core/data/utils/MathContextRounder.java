@@ -30,7 +30,6 @@ package gdsc.core.data.utils;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-
 /**
  * Class for rounding
  */
@@ -72,6 +71,7 @@ public class MathContextRounder implements Rounder
 	 * 
 	 * @see gdsc.smlm.data.Rounder#round(double)
 	 */
+	@Override
 	public double round(double value)
 	{
 		if (Math.abs(value) <= Double.MAX_VALUE)
@@ -84,6 +84,7 @@ public class MathContextRounder implements Rounder
 	 * 
 	 * @see gdsc.smlm.data.Rounder#toString(double)
 	 */
+	@Override
 	public String toString(double value)
 	{
 		if (Math.abs(value) <= Double.MAX_VALUE)
@@ -100,6 +101,7 @@ public class MathContextRounder implements Rounder
 	 * 
 	 * @see gdsc.smlm.data.Rounder#round(float)
 	 */
+	@Override
 	public float round(float value)
 	{
 		if (Math.abs(value) <= Float.MAX_VALUE)
@@ -112,6 +114,7 @@ public class MathContextRounder implements Rounder
 	 * 
 	 * @see gdsc.smlm.data.Rounder#toString(float)
 	 */
+	@Override
 	public String toString(float value)
 	{
 		if (Math.abs(value) <= Float.MAX_VALUE)

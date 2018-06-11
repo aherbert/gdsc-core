@@ -27,7 +27,6 @@
  */
 package gdsc.core.math;
 
-
 /**
  * Simple class to calculate the mean and variance of arrayed data using a rolling algorithm.
  * <p>
@@ -88,6 +87,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#add(double)
 	 */
+	@Override
 	public void add(double data)
 	{
 		if (n == 0)
@@ -138,6 +138,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * @param data
 	 *            the data
 	 */
+	@Override
 	public void add(double[] data)
 	{
 		if (n == 0)
@@ -191,6 +192,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * @param data
 	 *            the data
 	 */
+	@Override
 	public void add(float[] data)
 	{
 		if (n == 0)
@@ -246,6 +248,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * @param data
 	 *            the data
 	 */
+	@Override
 	public void add(int[] data)
 	{
 		if (n == 0)
@@ -301,6 +304,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * @param data
 	 *            the data
 	 */
+	@Override
 	public void add(short[] data)
 	{
 		if (n == 0)
@@ -356,6 +360,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * @param data
 	 *            the data
 	 */
+	@Override
 	public void add(byte[] data)
 	{
 		if (n == 0)
@@ -411,6 +416,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * @param data
 	 *            the data
 	 */
+	@Override
 	public void addUnsigned(short[] data)
 	{
 		if (n == 0)
@@ -466,6 +472,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * @param data
 	 *            the data
 	 */
+	@Override
 	public void addUnsigned(byte[] data)
 	{
 		if (n == 0)
@@ -537,6 +544,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getFirstMoment()
 	 */
+	@Override
 	public double[] getFirstMoment()
 	{
 		return m1;
@@ -547,6 +555,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getSecondMoment()
 	 */
+	@Override
 	public double[] getSecondMoment()
 	{
 		return m2;
@@ -557,6 +566,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getN()
 	 */
+	@Override
 	public long getN()
 	{
 		return n;
@@ -567,6 +577,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getVariance()
 	 */
+	@Override
 	public double[] getVariance()
 	{
 		return getVariance(true);
@@ -577,6 +588,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getVariance(boolean)
 	 */
+	@Override
 	public double[] getVariance(boolean isBiasCorrected)
 	{
 		if (n == 0)
@@ -600,6 +612,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getStandardDeviation()
 	 */
+	@Override
 	public double[] getStandardDeviation()
 	{
 		return getStandardDeviation(true);
@@ -610,6 +623,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#getStandardDeviation(boolean)
 	 */
+	@Override
 	public double[] getStandardDeviation(boolean isBiasCorrected)
 	{
 		if (n == 0)
@@ -633,6 +647,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#newInstance()
 	 */
+	@Override
 	public RollingArrayMoment newInstance()
 	{
 		return new RollingArrayMoment();
@@ -643,6 +658,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * 
 	 * @see gdsc.core.math.ArrayMoment#add(gdsc.core.math.ArrayMoment)
 	 */
+	@Override
 	public void add(ArrayMoment arrayMoment)
 	{
 		if (arrayMoment == null)

@@ -27,7 +27,6 @@
  */
 package gdsc.core.data.utils;
 
-
 /**
  * Base class for converters
  */
@@ -82,6 +81,7 @@ public abstract class AbstractTypeConverter<T> implements TypeConverter<T>
 	 * 
 	 * @see gdsc.smlm.data.utils.Converter#convert(float)
 	 */
+	@Override
 	public float convert(float value)
 	{
 		return (float) convert((double) value);
@@ -92,6 +92,7 @@ public abstract class AbstractTypeConverter<T> implements TypeConverter<T>
 	 * 
 	 * @see gdsc.core.data.utils.Converter#convertBack(float)
 	 */
+	@Override
 	public float convertBack(float value)
 	{
 		return (float) convertBack((double) value);
@@ -102,6 +103,7 @@ public abstract class AbstractTypeConverter<T> implements TypeConverter<T>
 	 * 
 	 * @see gdsc.smlm.units.UnitConverter#from()
 	 */
+	@Override
 	public T from()
 	{
 		return from;
@@ -112,6 +114,7 @@ public abstract class AbstractTypeConverter<T> implements TypeConverter<T>
 	 * 
 	 * @see gdsc.smlm.units.UnitConverter#to()
 	 */
+	@Override
 	public T to()
 	{
 		return to;

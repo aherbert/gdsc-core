@@ -27,7 +27,6 @@
  */
 package gdsc.core.data.utils;
 
-
 /**
  * Define conversion of a value
  */
@@ -41,7 +40,7 @@ public interface Converter
 	 * @return the new value
 	 */
 	public double convert(double value);
-	
+
 	/**
 	 * Convert the value.
 	 *
@@ -59,7 +58,7 @@ public interface Converter
 	 * @return the new value
 	 */
 	public double convertBack(double value);
-	
+
 	/**
 	 * Convert the value back. This performs the opposite of {@link #convert(float)}.
 	 *
@@ -68,7 +67,7 @@ public interface Converter
 	 * @return the new value
 	 */
 	public float convertBack(float value);
-	
+
 	/**
 	 * Gets the conversion function, f(x). The function should represent what conversion is performed on the function
 	 * input value x.

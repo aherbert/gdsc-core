@@ -1577,6 +1577,7 @@ public class Utils
 	 * @return The new array
 	 * @deprecated This method has been moved to gdsc.core.utils.SimpleArrayUtils
 	 */
+	@Deprecated
 	public static double[] newArray(int length, double start, double increment)
 	{
 		double[] data = new double[length];
@@ -1597,6 +1598,7 @@ public class Utils
 	 * @return The new array
 	 * @deprecated This method has been moved to gdsc.core.utils.SimpleArrayUtils
 	 */
+	@Deprecated
 	public static int[] newArray(int length, int start, int increment)
 	{
 		int[] data = new int[length];
@@ -1743,6 +1745,7 @@ public class Utils
 	 * @return The new array
 	 * @deprecated This method has been moved to gdsc.core.utils.SimpleArrayUtils
 	 */
+	@Deprecated
 	public static double[] toDouble(float[] a)
 	{
 		if (a == null)
@@ -1760,6 +1763,7 @@ public class Utils
 	 * @return The new array
 	 * @deprecated This method has been moved to gdsc.core.utils.SimpleArrayUtils
 	 */
+	@Deprecated
 	public static float[] toFloat(double[] a)
 	{
 		if (a == null)
@@ -1783,6 +1787,7 @@ public class Utils
 	 * @return "s" or empty string
 	 * @deprecated This method has been moved to gdsc.core.utils.TextUtils
 	 */
+	@Deprecated
 	public static String pleural(int n)
 	{
 		return (Math.abs(n) == 1) ? "" : "s";
@@ -1803,6 +1808,7 @@ public class Utils
 	 * @return "s" or empty string
 	 * @deprecated This method has been moved to gdsc.core.utils.TextUtils
 	 */
+	@Deprecated
 	public static String pleural(int n, String name)
 	{
 		return n + " " + name + ((Math.abs(n) == 1) ? "" : "s");
@@ -1815,6 +1821,7 @@ public class Utils
 	 * @return true if the string is null or length zero
 	 * @deprecated This method has been moved to gdsc.core.utils.TextUtils
 	 */
+	@Deprecated
 	public static boolean isNullOrEmpty(String string)
 	{
 		return string == null || string.length() == 0;
@@ -2123,6 +2130,7 @@ public class Utils
 	 * @return true, if successful
 	 * @deprecated This method has been moved to gdsc.core.utils.TextUtils
 	 */
+	@Deprecated
 	public static boolean write(String filename, String text)
 	{
 		FileOutputStream fs = null;

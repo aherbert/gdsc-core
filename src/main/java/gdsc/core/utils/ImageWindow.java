@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 /**
  * Apply a window function to reduce edge artifacts
  */
@@ -280,6 +279,7 @@ public class ImageWindow
 
 	private static class Hanning implements WindowMethod
 	{
+		@Override
 		public double weight(double fractionDistance)
 		{
 			return 0.5 * (1 - Math.cos(Math.PI * 2 * fractionDistance));
@@ -288,6 +288,7 @@ public class ImageWindow
 
 	private static class Cosine implements WindowMethod
 	{
+		@Override
 		public double weight(double fractionDistance)
 		{
 			return Math.sin(Math.PI * fractionDistance);
@@ -306,6 +307,7 @@ public class ImageWindow
 			a2 = 1 - alpha / 2;
 		}
 
+		@Override
 		public double weight(double fractionDistance)
 		{
 			if (fractionDistance < a1)

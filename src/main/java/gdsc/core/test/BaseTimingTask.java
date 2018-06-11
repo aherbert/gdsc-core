@@ -27,7 +27,6 @@
  */
 package gdsc.core.test;
 
-
 /**
  * Defines a task to run
  */
@@ -51,6 +50,7 @@ public abstract class BaseTimingTask implements TimingTask
 	 * 
 	 * @see gdsc.core.test.TimingTask#getName()
 	 */
+	@Override
 	public String getName()
 	{
 		return name;
@@ -61,6 +61,7 @@ public abstract class BaseTimingTask implements TimingTask
 	 * 
 	 * @see gdsc.core.test.TimingTask#check(int, java.lang.Object)
 	 */
+	@Override
 	public void check(int i, Object result)
 	{
 

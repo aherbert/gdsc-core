@@ -31,7 +31,6 @@ import java.awt.Rectangle;
 
 import gdsc.core.utils.SimpleArrayUtils;
 
-
 /**
  * Compute sum using an area region of an 2D data frame.
  */

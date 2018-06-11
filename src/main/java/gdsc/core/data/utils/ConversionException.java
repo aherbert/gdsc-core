@@ -29,7 +29,6 @@ package gdsc.core.data.utils;
 
 import gdsc.core.data.DataException;
 
-
 /**
  * Exception to throw if conversion is not possible
  */

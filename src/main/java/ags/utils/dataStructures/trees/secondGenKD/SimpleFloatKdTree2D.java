@@ -417,11 +417,13 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 		}
 
 		// Distance measurements are always called from the root node
+		@Override
 		protected float pointDist(float[] p1, float[] p2)
 		{
 			throw new IllegalStateException();
 		}
 
+		@Override
 		protected float pointRegionDist(float[] point, float[] min, float[] max)
 		{
 			throw new IllegalStateException();
@@ -437,6 +439,7 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 	 */
 	public static class SqrEuclid2D extends SimpleFloatKdTree2D
 	{
+		@Override
 		protected float pointDist(float[] p1, float[] p2)
 		{
 			float dx = p1[0] - p2[0];
@@ -444,6 +447,7 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 			return dx * dx + dy * dy;
 		}
 
+		@Override
 		protected float pointRegionDist(float[] point, float[] min, float[] max)
 		{
 			float dx = (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? min[0] - point[0] : 0;

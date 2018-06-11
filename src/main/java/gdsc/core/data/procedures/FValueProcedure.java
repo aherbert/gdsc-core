@@ -27,7 +27,6 @@
  */
 package gdsc.core.data.procedures;
 
-
 /**
  * Interface for accessing float values
  */

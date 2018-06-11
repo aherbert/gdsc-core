@@ -89,6 +89,7 @@ public final class FileSeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#getFilePointer()
 	 */
+	@Override
 	public long getFilePointer() throws IOException
 	{
 		return ras.getFilePointer();
@@ -99,6 +100,7 @@ public final class FileSeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#read()
 	 */
+	@Override
 	public int read() throws IOException
 	{
 		return ras.read();
@@ -109,6 +111,7 @@ public final class FileSeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#read(byte[], int, int)
 	 */
+	@Override
 	public int read(byte[] bytes, int off, int len) throws IOException
 	{
 		return ras.read(bytes, off, len);
@@ -119,6 +122,7 @@ public final class FileSeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#seek(long)
 	 */
+	@Override
 	public void seek(long loc) throws IOException
 	{
 		ras.seek(loc);
@@ -129,6 +133,7 @@ public final class FileSeekableStream extends SeekableStream
 	 * 
 	 * @see ij.io.SeekableStream#close()
 	 */
+	@Override
 	public void close() throws IOException
 	{
 		ras.close();

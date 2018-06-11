@@ -27,18 +27,18 @@
  */
 package gdsc.core.utils;
 
-
 /**
  * Class for simple lock acquisition for threaded applications. Allows multiple threads to view the same lock and only
  * execute code if another thread is not currently in possession of the lock so supporting a type of non-blocking
  * synchronised block execution.
+ * 
  * <pre>
  * SimpleLock lock = new SimpleLock();
  * 
  * if (lock.acquire())
  * {
- *     // Do something
- *     lock.release();
+ * 	// Do something
+ * 	lock.release();
  * }
  * // else fall through
  * </pre>

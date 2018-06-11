@@ -43,7 +43,7 @@ public class DigestTest
 	{
 		RandomDataGenerator rdg = new RandomDataGenerator();
 		RandomGenerator r = rdg.getRandomGenerator();
-		
+
 		byte[] testBytes = new byte[50];
 
 		for (int i = 0; i < 10; i++)
@@ -52,7 +52,7 @@ public class DigestTest
 			Assert.assertEquals(DigestUtils.md5Hex(testString), Digest.md5Hex(testString));
 			r.nextBytes(testBytes);
 			Assert.assertEquals(DigestUtils.md5Hex(testBytes), Digest.md5Hex(testBytes));
-			Assert.assertEquals(DigestUtils.md5Hex(new ByteArrayInputStream(testBytes)), 
+			Assert.assertEquals(DigestUtils.md5Hex(new ByteArrayInputStream(testBytes)),
 					Digest.md5Hex(new ByteArrayInputStream(testBytes)));
 		}
 	}

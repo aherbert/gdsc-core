@@ -29,7 +29,6 @@ package gdsc.core.utils;
 
 import java.util.Arrays;
 
-
 /**
  * Provide a rolling array of doubles
  */
@@ -52,7 +51,7 @@ public class RollingArray
 	}
 
 	/**
-	 * Remove all the numbers from the array 
+	 * Remove all the numbers from the array
 	 */
 	public void clear()
 	{
@@ -63,7 +62,9 @@ public class RollingArray
 
 	/**
 	 * Add a number to the array
-	 * @param d The number
+	 * 
+	 * @param d
+	 *            The number
 	 */
 	public void add(double d)
 	{
@@ -111,7 +112,7 @@ public class RollingArray
 				add(d);
 		}
 	}
-	
+
 	/**
 	 * @return The count of numbers stored in the array
 	 */

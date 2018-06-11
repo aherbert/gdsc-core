@@ -45,26 +45,27 @@ import ij.gui.PlotWindow;
 public class WindowOrganiser extends ij.plugin.WindowOrganizer
 {
 	private static final int XSTART = 4, YSTART = 80, XOFFSET = 8, YOFFSET = 24, MAXSTEP = 200, GAP = 2;
-	
+
 	/** The titlebar height. */
 	private int titlebarHeight = IJ.isMacintosh() ? 40 : 20;
 
 	/** The list. */
 	private int[] list = new int[10];
-	
+
 	/** The count. */
 	private int count = 0;
 
 	/** Set to true to ignore any added window. */
 	private boolean ignore = false;
-	
+
 	/** Set to true to unfreeze plots after layout. */
 	private boolean unfreeze = true;
 
 	/**
 	 * Adds the window ID to the instance.
 	 *
-	 * @param id            the window id
+	 * @param id
+	 *            the window id
 	 */
 	public void add(int id)
 	{
@@ -78,7 +79,8 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	/**
 	 * Adds the window ID to the instance.
 	 *
-	 * @param imp            the image
+	 * @param imp
+	 *            the image
 	 */
 	public void add(ImagePlus imp)
 	{
@@ -89,7 +91,8 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	/**
 	 * Adds the window ID to the instance.
 	 *
-	 * @param pw            the plot window
+	 * @param pw
+	 *            the plot window
 	 */
 	public void add(PlotWindow pw)
 	{
@@ -110,7 +113,8 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	/**
 	 * Sets the ignore flag.
 	 *
-	 * @param ignore Set to true to ignore any added window.
+	 * @param ignore
+	 *            Set to true to ignore any added window.
 	 */
 	public void setIgnore(boolean ignore)
 	{
@@ -130,13 +134,14 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	/**
 	 * Set to true to unfreeze plots after layout
 	 *
-	 * @param unfreeze the new unfreeze flag
+	 * @param unfreeze
+	 *            the new unfreeze flag
 	 */
 	public void setUnfreeze(boolean unfreeze)
 	{
 		this.unfreeze = unfreeze;
 	}
-	
+
 	/**
 	 * The number of windows that have been added.
 	 *
@@ -146,7 +151,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	{
 		return count;
 	}
-	
+
 	/**
 	 * Tile all the windows added to this instance.
 	 */
@@ -170,7 +175,8 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	/**
 	 * Tile windows.
 	 *
-	 * @param wList the w list
+	 * @param wList
+	 *            the w list
 	 */
 	@Override
 	public void tileWindows(int[] wList)
@@ -200,7 +206,8 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	/**
 	 * Freeze any plot windows to allow them to be tiled.
 	 *
-	 * @param wList the w list
+	 * @param wList
+	 *            the w list
 	 * @return The windows that should be unfrozen
 	 */
 	private boolean[] freezePlotWindows(int[] wList)
@@ -227,8 +234,10 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	/**
 	 * Unfreeze any marked plot windows.
 	 *
-	 * @param wList the w list
-	 * @param unfreeze            The windows that should be unfrozen
+	 * @param wList
+	 *            the w list
+	 * @param unfreeze
+	 *            The windows that should be unfrozen
 	 */
 	private void unfreezePlotWindows(int[] wList, boolean[] unfreeze)
 	{
@@ -250,7 +259,8 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	/**
 	 * Cascade windows.
 	 *
-	 * @param wList the w list
+	 * @param wList
+	 *            the w list
 	 */
 	@Override
 	public void cascadeWindows(int[] wList)
@@ -269,7 +279,8 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	/**
 	 * Copy of tile windows.
 	 *
-	 * @param wList the w list
+	 * @param wList
+	 *            the w list
 	 */
 	void copyOfTileWindows(int[] wList)
 	{
@@ -363,9 +374,11 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	/**
 	 * Gets the window.
 	 *
-	 * @param id the id
+	 * @param id
+	 *            the id
 	 * @return the window
 	 */
+	@Override
 	ImageWindow getWindow(int id)
 	{
 		ImageWindow win = null;
@@ -378,7 +391,8 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	/**
 	 * Copy of cascade windows.
 	 *
-	 * @param wList the w list
+	 * @param wList
+	 *            the w list
 	 */
 	void copyOfCascadeWindows(int[] wList)
 	{

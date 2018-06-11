@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 /**
  * Provides sampling from a 2D histogram
  */
@@ -101,7 +100,7 @@ public class PDF2D
 		point[1] = sum.sample(r1);
 		if (point[1] < 0)
 			return false;
-		
+
 		// Sample within the specific row to find the x-coordinate
 		point[0] = rows[(int) point[1]].sample(r2);
 		if (point[0] < 0)

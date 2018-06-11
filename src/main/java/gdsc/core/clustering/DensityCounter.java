@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering;
 
-
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -113,6 +112,7 @@ public class DensityCounter
 		 * 
 		 * @see gdsc.core.clustering.DensityCounter.Molecule#getX()
 		 */
+		@Override
 		public float getX()
 		{
 			return x;
@@ -123,6 +123,7 @@ public class DensityCounter
 		 * 
 		 * @see gdsc.core.clustering.DensityCounter.Molecule#getY()
 		 */
+		@Override
 		public float getY()
 		{
 			return y;
@@ -133,6 +134,7 @@ public class DensityCounter
 		 * 
 		 * @see gdsc.core.clustering.DensityCounter.Molecule#getID()
 		 */
+		@Override
 		public int getID()
 		{
 			return id;
@@ -182,6 +184,7 @@ public class DensityCounter
 		 *
 		 * @return the x
 		 */
+		@Override
 		public float getX()
 		{
 			return molecule.getX();
@@ -192,6 +195,7 @@ public class DensityCounter
 		 *
 		 * @return the y
 		 */
+		@Override
 		public float getY()
 		{
 			return molecule.getY();
@@ -202,6 +206,7 @@ public class DensityCounter
 		 *
 		 * @return the id
 		 */
+		@Override
 		public int getID()
 		{
 			return molecule.getID();
@@ -228,7 +233,7 @@ public class DensityCounter
 
 	/** The radius. */
 	public final float radius;
-	
+
 	private final float r2;
 	private final float xmin, ymin, binWidth;
 	private final int nXBins, nYBins, nMolecules;
@@ -618,7 +623,7 @@ public class DensityCounter
 	{
 		return countAllSimple(getMolecules(), molecules2, r2, maxID);
 	}
-	
+
 	/**
 	 * Count the density of each class of molecule around each input molecule. Counts are returned using the original
 	 * input order of molecules.
@@ -937,6 +942,7 @@ public class DensityCounter
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
+		@Override
 		public void run()
 		{
 			// Temp storage
@@ -1041,6 +1047,7 @@ public class DensityCounter
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
+		@Override
 		public void run()
 		{
 			int[] neighbours = new int[8];
@@ -1323,7 +1330,7 @@ public class DensityCounter
 				futures.add(executor.submit(new MoleculeCountWorker(molecules2, maxID, results, from, to)));
 				from = to;
 			}
-			
+
 			// Wait for all to finish
 			for (int t = futures.size(); t-- > 0;)
 			{
@@ -1371,6 +1378,7 @@ public class DensityCounter
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
+		@Override
 		public void run()
 		{
 			int[] neighbours = new int[9];

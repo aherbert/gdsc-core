@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering.optics;
 
-
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -706,7 +705,7 @@ public class OPTICSManagerTest
 
 					// Should be similar
 					ri.compute(expClusters, obsClusters);
-					
+
 					double r = ri.getRandIndex();
 					System.out.printf("%d,%d : [%d] r=%f (%f)\n", n, minPts, loop, r, ri.getAdjustedRandIndex());
 					Assert.assertTrue(ri.getAdjustedRandIndex() > 0);
@@ -1512,11 +1511,13 @@ public class OPTICSManagerTest
 			this.options = options;
 		}
 
+		@Override
 		public int getSize()
 		{
 			return om.length;
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			// Create the molecule space
@@ -1582,6 +1583,7 @@ public class OPTICSManagerTest
 			super(ms, false, om, minPts, generatingDistanceE, resolution, options);
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			MoleculeSpace space = (MoleculeSpace) data;
@@ -1618,6 +1620,7 @@ public class OPTICSManagerTest
 
 		ts.execute(new FindNeighboursTimingTask(MS.SIMPLE, om, minPts, generatingDistanceE, 0)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				// Store these as the correct results
@@ -1626,6 +1629,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.GRID, om, minPts, generatingDistanceE, 0)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1637,6 +1641,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.GRID, om, minPts, generatingDistanceE, 10)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1648,6 +1653,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, om, minPts, generatingDistanceE, 0)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1659,6 +1665,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.INNER_RADIAL, om, minPts, generatingDistanceE, 0)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1670,6 +1677,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, om, minPts, generatingDistanceE, 10)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1681,6 +1689,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.INNER_RADIAL, om, minPts, generatingDistanceE, 10)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1692,6 +1701,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.TREE, om, minPts, generatingDistanceE, 0)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1703,6 +1713,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.TREE2, om, minPts, generatingDistanceE, 0)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1734,6 +1745,7 @@ public class OPTICSManagerTest
 
 		ts.execute(new FindNeighboursTimingTask(MS.SIMPLE, true, om, minPts, generatingDistanceE, 0)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				// Store these as the correct results
@@ -1742,6 +1754,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.GRID, true, om, minPts, generatingDistanceE, 0)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1753,6 +1766,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.GRID, true, om, minPts, generatingDistanceE, 10)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1764,6 +1778,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, true, om, minPts, generatingDistanceE, 0)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1775,6 +1790,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.INNER_RADIAL, true, om, minPts, generatingDistanceE, 0)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1786,6 +1802,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, true, om, minPts, generatingDistanceE, 10)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1797,6 +1814,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.INNER_RADIAL, true, om, minPts, generatingDistanceE, 10)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1808,6 +1826,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.TREE, true, om, minPts, generatingDistanceE, 0)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1819,6 +1838,7 @@ public class OPTICSManagerTest
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.TREE2, true, om, minPts, generatingDistanceE, 0)
 		{
+			@Override
 			public void check(int i, Object result)
 			{
 				String name = getName() + ":" + i + ":";
@@ -1875,6 +1895,7 @@ public class OPTICSManagerTest
 			int resolution = 0;
 			ts.execute(new FindNeighboursTimingTask(MS.GRID, om, minPts, generatingDistanceE, resolution)
 			{
+				@Override
 				public void check(int i, Object result)
 				{
 					n[i] = format(result);
@@ -1882,6 +1903,7 @@ public class OPTICSManagerTest
 			}, check);
 			ts.execute(new FindNeighboursTimingTask(MS.RADIAL, om, minPts, generatingDistanceE, resolution)
 			{
+				@Override
 				public void check(int i, Object result)
 				{
 					String name = getName() + ":" + i + ":";
@@ -1893,6 +1915,7 @@ public class OPTICSManagerTest
 			}, check);
 			ts.execute(new FindNeighboursTimingTask(MS.INNER_RADIAL, om, minPts, generatingDistanceE, resolution)
 			{
+				@Override
 				public void check(int i, Object result)
 				{
 					String name = getName() + ":" + i + ":";
@@ -1955,6 +1978,7 @@ public class OPTICSManagerTest
 				double last = best[0];
 				r = ts.execute(new FindNeighboursTimingTask(MS.GRID, om, minPts, generatingDistanceE, resolution)
 				{
+					@Override
 					public void check(int i, Object result)
 					{
 						n[i] = format(result);
@@ -2023,6 +2047,7 @@ public class OPTICSManagerTest
 				double last = best[0];
 				r = ts.execute(new FindNeighboursTimingTask(MS.RADIAL, om, minPts, generatingDistanceE, resolution)
 				{
+					@Override
 					public void check(int i, Object result)
 					{
 						n[i] = format(result);
@@ -2093,6 +2118,7 @@ public class OPTICSManagerTest
 				r = ts.execute(
 						new FindNeighboursTimingTask(MS.INNER_RADIAL, om, minPts, generatingDistanceE, resolution)
 						{
+							@Override
 							public void check(int i, Object result)
 							{
 								n[i] = format(result);
@@ -2147,16 +2173,19 @@ public class OPTICSManagerTest
 			name = sb.toString();
 		}
 
+		@Override
 		public int getSize()
 		{
 			return om.length;
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			return om[i];
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			OPTICSManager om = (OPTICSManager) data;
@@ -2300,7 +2329,7 @@ public class OPTICSManagerTest
 			}
 		}
 	}
-	
+
 	/**
 	 * Test the results of LoOP using the ELKI framework
 	 */
@@ -2329,7 +2358,7 @@ public class OPTICSManagerTest
 				Assert.assertEquals("Database size does not match.", n, rel.size());
 
 				double lambda = 1;
-				
+
 				// Use max range
 				long t1 = System.nanoTime();
 				float[] r1 = om.loop(minPts, lambda, false);
@@ -2340,8 +2369,11 @@ public class OPTICSManagerTest
 				params.addParameter(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP.Parameterizer.KCOMP_ID, minPts);
 				params.addParameter(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP.Parameterizer.KREACH_ID, minPts);
 				params.addParameter(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP.Parameterizer.LAMBDA_ID, lambda);
-				params.addParameter(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP.Parameterizer.COMPARISON_DISTANCE_FUNCTION_ID, EuclideanDistanceFunction.STATIC);
-				Class<de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP<DoubleVector>> clz = ClassGenericsUtil.uglyCastIntoSubclass(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP.class);
+				params.addParameter(
+						de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP.Parameterizer.COMPARISON_DISTANCE_FUNCTION_ID,
+						EuclideanDistanceFunction.STATIC);
+				Class<de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP<DoubleVector>> clz = ClassGenericsUtil
+						.uglyCastIntoSubclass(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP.class);
 				de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP<DoubleVector> loop = params.tryInstantiate(clz);
 				long t2 = System.nanoTime();
 				OutlierResult or = loop.run(db);
@@ -2359,8 +2391,8 @@ public class OPTICSManagerTest
 					int obsId = i;
 
 					double expL = scores.doubleValue(it);
-					double obsL = r1[i]; 
-					
+					double obsL = r1[i];
+
 					//System.out.printf("%s %d %d : %f = %f\n", prefix, expId, obsId, expL, obsL);
 
 					Assert.assertEquals(prefix + "Id", expId, obsId);
@@ -2368,7 +2400,7 @@ public class OPTICSManagerTest
 				}
 			}
 		}
-	}	
+	}
 
 	private void update(TimingResult r, double[] best)
 	{

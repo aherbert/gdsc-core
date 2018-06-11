@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 /**
  * Class for manipulating bit flags
  * 

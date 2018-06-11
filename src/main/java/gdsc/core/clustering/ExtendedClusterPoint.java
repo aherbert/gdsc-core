@@ -27,9 +27,9 @@
  */
 package gdsc.core.clustering;
 
-
 /**
- * Extends the {@link gdsc.core.clustering.smlm.results.clustering.ClusterPoint } class to hold additional information for use in
+ * Extends the {@link gdsc.core.clustering.smlm.results.clustering.ClusterPoint } class to hold additional information
+ * for use in
  * clustering
  */
 public class ExtendedClusterPoint extends ClusterPoint

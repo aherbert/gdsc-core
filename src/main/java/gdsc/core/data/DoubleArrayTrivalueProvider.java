@@ -27,7 +27,6 @@
  */
 package gdsc.core.data;
 
-
 /**
  * Provide data on 3-axes from an array of doubles.
  */
@@ -75,6 +74,7 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider
 	 * 
 	 * @see gdsc.core.data.TrivalueProvider#getLengthX()
 	 */
+	@Override
 	public int getLengthX()
 	{
 		return maxx;
@@ -85,6 +85,7 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider
 	 * 
 	 * @see gdsc.core.data.TrivalueProvider#getLengthY()
 	 */
+	@Override
 	public int getLengthY()
 	{
 		return maxy;
@@ -95,6 +96,7 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider
 	 * 
 	 * @see gdsc.core.data.TrivalueProvider#getLengthZ()
 	 */
+	@Override
 	public int getLengthZ()
 	{
 		return maxz;
@@ -105,6 +107,7 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider
 	 * 
 	 * @see gdsc.core.data.TrivalueProvider#get(int, int, int)
 	 */
+	@Override
 	public double get(int x, int y, int z)
 	{
 		return val[x][y][z];
@@ -115,6 +118,7 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider
 	 * 
 	 * @see gdsc.core.data.TrivalueProvider#getCube(int, int, int, double[][])
 	 */
+	@Override
 	public void get(int x, int y, int z, double[][][] values)
 	{
 		final int nX = x + 1;
@@ -158,6 +162,7 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider
 	 * 
 	 * @see gdsc.core.data.TrivalueProvider#toArray()
 	 */
+	@Override
 	public double[][][] toArray()
 	{
 		return val;

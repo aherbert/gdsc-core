@@ -529,11 +529,13 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 		}
 
 		// Distance measurements are always called from the root node
+		@Override
 		protected double pointDist(double[] p1, double[] p2)
 		{
 			throw new IllegalStateException();
 		}
 
+		@Override
 		protected double pointRegionDist(double[] point, double[] min, double[] max)
 		{
 			throw new IllegalStateException();
@@ -549,6 +551,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	 */
 	public static class SqrEuclid2D<T> extends KdTree2D<T>
 	{
+		@Override
 		protected double pointDist(double[] p1, double[] p2)
 		{
 			double dx = p1[0] - p2[0];
@@ -556,6 +559,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 			return dx * dx + dy * dy;
 		}
 
+		@Override
 		protected double pointRegionDist(double[] point, double[] min, double[] max)
 		{
 			double dx = (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? min[0] - point[0] : 0;

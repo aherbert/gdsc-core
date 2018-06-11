@@ -27,7 +27,6 @@
  */
 package ij.io;
 
-
 /**
  * Extend the FileInfo to add extra fields for the FastTiffDecoder
  */

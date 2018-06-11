@@ -244,11 +244,13 @@ public class DensityCounterTest
 			super(name);
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			return i;
 		}
 
+		@Override
 		public int getSize()
 		{
 			return speedTestSize;
@@ -299,12 +301,14 @@ public class DensityCounterTest
 //		});
 		ts.execute(new MyTimingTask("countAll single thread")
 		{
+			@Override
 			public Object run(Object data) { int i = (Integer) data;
 				c[i].setNumberOfThreads(1);
 				return c[i].countAll(nChannels - 1); }
 		});		
 		ts.execute(new MyTimingTask("countAll single thread + constructor")
 		{
+			@Override
 			public Object run(Object data) { int i = (Integer) data;
     			DensityCounter c = new DensityCounter(molecules[i], radius, true);
     			c.setNumberOfThreads(1);
@@ -312,6 +316,7 @@ public class DensityCounterTest
 		});		
 		ts.execute(new MyTimingTask("countAll multi thread")
 		{
+			@Override
 			public Object run(Object data) { int i = (Integer) data;
 				c[i].setNumberOfThreads(nThreads);
 				//c[i].gridPriority = null;
@@ -320,6 +325,7 @@ public class DensityCounterTest
 		});		
 		ts.execute(new MyTimingTask("countAll multi thread + constructor")
 		{
+			@Override
 			public Object run(Object data) { int i = (Integer) data;
     			DensityCounter c = new DensityCounter(molecules[i], radius, true);
     			c.setNumberOfThreads(nThreads);
@@ -329,6 +335,7 @@ public class DensityCounterTest
 		});		
 		ts.execute(new MyTimingTask("countAll multi thread non-sync")
 		{
+			@Override
 			public Object run(Object data) { int i = (Integer) data;
 				c[i].setNumberOfThreads(nThreads);
 				//c[i].gridPriority = null;
@@ -337,6 +344,7 @@ public class DensityCounterTest
 		});		
 		ts.execute(new MyTimingTask("countAll multi thread non-sync + constructor")
 		{
+			@Override
 			public Object run(Object data) { int i = (Integer) data;
     			DensityCounter c = new DensityCounter(molecules[i], radius, true);
     			c.setNumberOfThreads(nThreads);
@@ -394,12 +402,14 @@ public class DensityCounterTest
 //		});
 		ts.execute(new MyTimingTask("countAllAroundMolecules single thread")
 		{
+			@Override
 			public Object run(Object data) { int i = (Integer) data;
 				c[i].setNumberOfThreads(1);
 				return c[i].countAll(molecules2[i], nChannels - 1); }
 		});		
 		ts.execute(new MyTimingTask("countAllAroundMolecules single thread + constructor")
 		{
+			@Override
 			public Object run(Object data) { int i = (Integer) data;
     			DensityCounter c = new DensityCounter(molecules[i], radius, true);
     			c.setNumberOfThreads(1);
@@ -407,12 +417,14 @@ public class DensityCounterTest
 		});		
 		ts.execute(new MyTimingTask("countAllAroundMolecules multi thread")
 		{
+			@Override
 			public Object run(Object data) { int i = (Integer) data;
 				c[i].setNumberOfThreads(nThreads);
 				return c[i].countAll(molecules2[i], nChannels - 1); }
 		});		
 		ts.execute(new MyTimingTask("countAllAroundMolecules multi thread + constructor")
 		{
+			@Override
 			public Object run(Object data) { int i = (Integer) data;
     			DensityCounter c = new DensityCounter(molecules[i], radius, true);
     			c.setNumberOfThreads(nThreads);

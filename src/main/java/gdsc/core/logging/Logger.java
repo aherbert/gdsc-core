@@ -27,7 +27,6 @@
  */
 package gdsc.core.logging;
 
-
 /**
  * Defines a simple interface for logging information
  */
@@ -35,38 +34,44 @@ public interface Logger
 {
 	/**
 	 * Log the message
+	 * 
 	 * @param message
 	 */
 	void info(String message);
-	
+
 	/**
 	 * Log the arguments using the given format
+	 * 
 	 * @param format
 	 * @param args
 	 */
 	void info(String format, Object... args);
-	
+
 	/**
 	 * Log the message
+	 * 
 	 * @param message
 	 */
 	void debug(String message);
-	
+
 	/**
 	 * Log the arguments using the given format
+	 * 
 	 * @param format
 	 * @param args
 	 */
 	void debug(String format, Object... args);
-	
+
 	/**
 	 * Log the message
+	 * 
 	 * @param message
 	 */
 	void error(String message);
-	
+
 	/**
 	 * Log the arguments using the given format
+	 * 
 	 * @param format
 	 * @param args
 	 */

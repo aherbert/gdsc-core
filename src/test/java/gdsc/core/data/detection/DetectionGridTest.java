@@ -223,16 +223,19 @@ public class DetectionGridTest
 			this.points = points;
 		}
 
+		@Override
 		public int getSize()
 		{
 			return 1;
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			return points;
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			double[][] points = (double[][]) data;

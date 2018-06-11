@@ -27,7 +27,6 @@
  */
 package gdsc.core.match;
 
-
 /**
  * Stores a 2D/3D point
  */

@@ -37,13 +37,14 @@ class TreeMoleculeSpace extends MoleculeSpace
 {
 	private class MoleculeStore implements NeighbourStore<Molecule>
 	{
+		@Override
 		public void add(double distance, Molecule m)
 		{
 			m.setD((float) distance);
 			neighbours.add(m);
 		}
 	}
-	
+
 	/**
 	 * Used for access to the raw coordinates
 	 */
@@ -72,6 +73,7 @@ class TreeMoleculeSpace extends MoleculeSpace
 	 * 
 	 * @see gdsc.core.clustering.optics.MoleculeSpace#generate()
 	 */
+	@Override
 	Molecule[] generate()
 	{
 		final float[] xcoord = opticsManager.getXData();
@@ -98,6 +100,7 @@ class TreeMoleculeSpace extends MoleculeSpace
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
+	@Override
 	void findNeighbours(int minPts, Molecule object, float e)
 	{
 		neighbours.clear();
@@ -110,6 +113,7 @@ class TreeMoleculeSpace extends MoleculeSpace
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
+	@Override
 	void findNeighboursAndDistances(int minPts, Molecule object, float e)
 	{
 		neighbours.clear();

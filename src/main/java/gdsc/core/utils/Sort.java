@@ -30,7 +30,6 @@ package gdsc.core.utils;
 import java.util.Arrays;
 import java.util.Comparator;
 
-
 /**
  * Provides sorting functionality
  */
@@ -68,6 +67,7 @@ public class Sort
 
 		Arrays.sort(data, new Comparator<int[]>()
 		{
+			@Override
 			public int compare(int[] o1, int[] o2)
 			{
 				// Largest first
@@ -130,6 +130,7 @@ public class Sort
 
 		Arrays.sort(data, new Comparator<float[]>()
 		{
+			@Override
 			public int compare(float[] o1, float[] o2)
 			{
 				// Largest first
@@ -190,6 +191,7 @@ public class Sort
 
 		Arrays.sort(data, new Comparator<double[]>()
 		{
+			@Override
 			public int compare(double[] o1, double[] o2)
 			{
 				// Largest first
@@ -249,6 +251,7 @@ public class Sort
 
 		Arrays.sort(data, new Comparator<int[]>()
 		{
+			@Override
 			public int compare(int[] o1, int[] o2)
 			{
 				// Smallest first
@@ -311,6 +314,7 @@ public class Sort
 
 		Arrays.sort(data, new Comparator<float[]>()
 		{
+			@Override
 			public int compare(float[] o1, float[] o2)
 			{
 				// Smallest first
@@ -371,6 +375,7 @@ public class Sort
 
 		Arrays.sort(data, new Comparator<double[]>()
 		{
+			@Override
 			public int compare(double[] o1, double[] o2)
 			{
 				// Smallest first
@@ -404,6 +409,7 @@ public class Sort
 	 * @param data
 	 * @deprecated Moved to SimpleArrayUtils
 	 */
+	@Deprecated
 	public static void reverse(int[] data)
 	{
 		int left = 0;
@@ -428,6 +434,7 @@ public class Sort
 	 * @param data
 	 * @deprecated Moved to SimpleArrayUtils
 	 */
+	@Deprecated
 	public static void reverse(float[] data)
 	{
 		int left = 0;
@@ -452,6 +459,7 @@ public class Sort
 	 * @param data
 	 * @deprecated Moved to SimpleArrayUtils
 	 */
+	@Deprecated
 	public static void reverse(double[] data)
 	{
 		int left = 0;

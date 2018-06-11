@@ -33,7 +33,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-
 /**
  * Logs messages to a file.
  */
@@ -56,6 +55,7 @@ public class FileLogger implements Logger
 	 * 
 	 * @param message
 	 */
+	@Override
 	public void info(String message)
 	{
 		if (os == null)
@@ -81,26 +81,31 @@ public class FileLogger implements Logger
 	 * @param format
 	 * @param args
 	 */
+	@Override
 	public void info(String format, Object... args)
 	{
 		info(String.format(format, args));
 	}
 
+	@Override
 	public void debug(String message)
 	{
 		info(message);
 	}
 
+	@Override
 	public void debug(String format, Object... args)
 	{
 		info(format, args);
 	}
 
+	@Override
 	public void error(String message)
 	{
 		info(message);
 	}
 
+	@Override
 	public void error(String format, Object... args)
 	{
 		info(format, args);

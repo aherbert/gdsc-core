@@ -352,7 +352,7 @@ public class CustomTricubicInterpolatorTest
 			double zz = r.nextDouble();
 
 			// This is done unscaled
-			double[] table = DoubleCustomTricubicFunction.computePowerTable(xx, yy, zz);
+			double[] table = CustomTricubicFunction.computePowerTable(xx, yy, zz);
 
 			xx *= xscale;
 			yy *= yscale;
@@ -703,7 +703,7 @@ public class CustomTricubicInterpolatorTest
 			double zz = r.nextDouble();
 
 			// This is done unscaled
-			double[] table = DoubleCustomTricubicFunction.computePowerTable(xx, yy, zz);
+			double[] table = CustomTricubicFunction.computePowerTable(xx, yy, zz);
 			double[] table2 = CustomTricubicFunction.scalePowerTable(table, 2);
 			double[] table3 = CustomTricubicFunction.scalePowerTable(table, 3);
 			double[] table6 = CustomTricubicFunction.scalePowerTable(table, 6);
@@ -911,11 +911,13 @@ public class CustomTricubicInterpolatorTest
 			this.nodes = nodes;
 		}
 
+		@Override
 		public int getSize()
 		{
 			return 1;
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			return null;
@@ -951,6 +953,7 @@ public class CustomTricubicInterpolatorTest
 			super(Double0TimingTask.class.getSimpleName(), tables, nodes);
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			double v = 0;
@@ -970,6 +973,7 @@ public class CustomTricubicInterpolatorTest
 			super(Float0TimingTask.class.getSimpleName(), tables, nodes);
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			double v = 0;
@@ -989,6 +993,7 @@ public class CustomTricubicInterpolatorTest
 			super(Double1TimingTask.class.getSimpleName(), tables, nodes);
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			double v = 0;
@@ -1008,6 +1013,7 @@ public class CustomTricubicInterpolatorTest
 			super(Float1TimingTask.class.getSimpleName(), tables, nodes);
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			double v = 0;
@@ -1027,6 +1033,7 @@ public class CustomTricubicInterpolatorTest
 			super(Double2TimingTask.class.getSimpleName(), tables, nodes);
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			double v = 0;
@@ -1046,6 +1053,7 @@ public class CustomTricubicInterpolatorTest
 			super(Float2TimingTask.class.getSimpleName(), tables, nodes);
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			double v = 0;

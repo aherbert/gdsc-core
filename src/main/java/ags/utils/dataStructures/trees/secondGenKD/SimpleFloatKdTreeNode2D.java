@@ -147,7 +147,7 @@ abstract class SimpleFloatKdTreeNode2D
 		float width = (maxLimit[0] - minLimit[0]);
 		if (Float.isNaN(width))
 			width = 0;
-		
+
 		float nwidth = (maxLimit[1] - minLimit[1]);
 		if (Float.isNaN(nwidth))
 			nwidth = 0;
@@ -155,7 +155,7 @@ abstract class SimpleFloatKdTreeNode2D
 		{
 			return 1;
 		}
-		
+
 		return 0;
 	}
 

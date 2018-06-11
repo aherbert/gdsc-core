@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 /**
  * Provides sampling from a 1D histogram
  * <p>
@@ -66,7 +65,7 @@ public class PDF
 		{
 			if (data[i] < 0)
 				throw new IllegalArgumentException("Histogram bins must be non-negative");
-			mean += (data[i] - mean) / ((double) (i + 1));
+			mean += (data[i] - mean) / (i + 1);
 			c += data[i];
 		}
 

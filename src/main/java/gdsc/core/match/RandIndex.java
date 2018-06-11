@@ -31,7 +31,6 @@ import java.math.BigInteger;
 
 import gdsc.core.utils.Maths;
 
-
 /**
  * Compute the Rand index for two classifications of a set of data.
  * <p>
@@ -464,7 +463,7 @@ public class RandIndex
 			this.n = n;
 			return;
 		}
-		
+
 		// TP will only overflow after TP+FP
 		long tp = 0;
 		// Note: The following could overflow. 

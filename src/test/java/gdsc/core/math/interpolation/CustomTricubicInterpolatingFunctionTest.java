@@ -137,6 +137,7 @@ public class CustomTricubicInterpolatingFunctionTest
 			// Collect terms
 			map.forEachEntry(new TIntObjectProcedure<TIntArrayList>()
 			{
+				@Override
 				public boolean execute(int key, TIntArrayList value)
 				{
 					int[] js = value.toArray(); // Signed j
@@ -229,11 +230,13 @@ public class CustomTricubicInterpolatingFunctionTest
 			this.a = a;
 		}
 
+		@Override
 		public int getSize()
 		{
 			return 1;
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			return null;
@@ -245,7 +248,7 @@ public class CustomTricubicInterpolatingFunctionTest
 			double[][] b = (double[][]) result;
 			for (int j = 0; j < a.length; j++)
 			{
-				for (int k=0; k<a[j].length; k++)
+				for (int k = 0; k < a[j].length; k++)
 					Assert.assertEquals(getName(), a[j][k], b[j][k], Math.abs(a[j][k]) * 1e-6);
 			}
 		}
@@ -272,6 +275,7 @@ public class CustomTricubicInterpolatingFunctionTest
 
 		ts.execute(new MyTimingTask("Standard", a)
 		{
+			@Override
 			public Object run(Object data)
 			{
 				double[][] a = new double[N][];
@@ -282,6 +286,7 @@ public class CustomTricubicInterpolatingFunctionTest
 		});
 		ts.execute(new MyTimingTask("Inline", a)
 		{
+			@Override
 			public Object run(Object data)
 			{
 				double[][] a = new double[N][];
@@ -292,6 +297,7 @@ public class CustomTricubicInterpolatingFunctionTest
 		});
 		ts.execute(new MyTimingTask("InlineCollectTerms", a)
 		{
+			@Override
 			public Object run(Object data)
 			{
 				double[][] a = new double[N][];

@@ -288,7 +288,7 @@ public class AutoThreshold
 		int iter = 0;
 		int threshold = -1;
 		for (int i = 0; i < data.length; i++)
-			iHisto[i] = (double) data[i];
+			iHisto[i] = data[i];
 
 		while (!bimodalTest(iHisto))
 		{
@@ -809,7 +809,7 @@ public class AutoThreshold
 
 		for (int i = 0; i < data.length; i++)
 		{
-			iHisto[i] = (double) data[i];
+			iHisto[i] = data[i];
 			if (data[i] > 0)
 				max = i;
 		}
@@ -861,7 +861,7 @@ public class AutoThreshold
 			total += data[i];
 
 		for (int i = 0; i < data.length; i++)
-			histo[i] = (double) (data[i] / total); //normalised histogram
+			histo[i] = data[i] / total; //normalised histogram
 
 		/* Calculate the first, second, and third order moments */
 		for (int i = 0; i < data.length; i++)
@@ -1030,7 +1030,7 @@ public class AutoThreshold
 			sum += data[i];
 			// Fraction of the data
 			double f = sum / total;
-			
+
 			// Get closest fraction to the target fraction			
 			if (f < ptile)
 			{

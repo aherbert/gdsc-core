@@ -40,7 +40,6 @@ import gdsc.core.utils.DoubleEquality;
 import gdsc.core.utils.TurboList;
 import ij.util.Tools;
 
-
 /**
  * Re-implement the TiffDecoder to allow it to use a SeekableStream interface.
  * <p>
@@ -321,7 +320,7 @@ public abstract class FastTiffDecoder
 
 	final long readUnsignedInt() throws IOException
 	{
-		return (long) readInt() & 0xffffffffL;
+		return readInt() & 0xffffffffL;
 	}
 
 	final int readShort() throws IOException
@@ -370,8 +369,8 @@ public abstract class FastTiffDecoder
 			sum += fi.blues[i];
 			j += 2;
 		}
-		if (sum != 0 && fi.fileType == ExtendedFileInfo.GRAY8)
-			fi.fileType = ExtendedFileInfo.COLOR8;
+		if (sum != 0 && fi.fileType == FileInfo.GRAY8)
+			fi.fileType = FileInfo.COLOR8;
 	}
 
 	byte[] getString(int count, long offset) throws IOException
@@ -537,7 +536,7 @@ public abstract class FastTiffDecoder
 
 		ss.seek(offset + 260);
 		int nImages = ss.readShort();
-		if (nImages >= 2 && (fi.fileType == ExtendedFileInfo.GRAY8 || fi.fileType == ExtendedFileInfo.COLOR8))
+		if (nImages >= 2 && (fi.fileType == FileInfo.GRAY8 || fi.fileType == FileInfo.COLOR8))
 		{
 			fi.nImages = nImages;
 			fi.pixelDepth = ss.readFloat(); //SliceSpacing
@@ -557,7 +556,7 @@ public abstract class FastTiffDecoder
 
 	void dumpTag(int tag, int count, int value, ExtendedFileInfo fi)
 	{
-		long lvalue = ((long) value) & 0xffffffffL;
+		long lvalue = (value) & 0xffffffffL;
 		String name = getName(tag);
 		String cs = (count == 1) ? "" : ", count=" + count;
 		dInfo += "    " + tag + ", \"" + name + "\", value=" + lvalue + cs + "\n";
@@ -636,7 +635,7 @@ public abstract class FastTiffDecoder
 		if ((ifdCount % 50) == 0)
 			trackProgress.status("Opening IFDs: %d", ifdCount);
 		ExtendedFileInfo fi = new ExtendedFileInfo();
-		fi.fileType = ExtendedFileInfo.BITMAP; //BitsPerSample defaults to 1
+		fi.fileType = FileInfo.BITMAP; //BitsPerSample defaults to 1
 
 		// Read the index data in one operation. 
 		// Any tag data is read by using a seek operation and then reset to the current position.
@@ -671,7 +670,7 @@ public abstract class FastTiffDecoder
 			//int value = getValue(fieldType, count, buffer[j + 8] & 0xff, buffer[j + 9] & 0xff, buffer[j + 10] & 0xff,
 			//		buffer[j + 11] & 0xff);
 			int value = getValue(fieldType, count, buffer, j + 8);
-			long lvalue = ((long) value) & 0xffffffffL;
+			long lvalue = (value) & 0xffffffffL;
 			if (debugMode && ifdCount <= ifdCountForDebugData)
 				dumpTag(tag, count, value, fi);
 			//System.out.println(i+"/"+nEntries+" "+tag + ", count=" + count + ", value=" + value);
@@ -698,8 +697,8 @@ public abstract class FastTiffDecoder
 						ss.seek(saveLoc);
 					}
 					fi.offset = count > 0 ? fi.stripOffsets[0] : value;
-					if (count > 1 && (((long) fi.stripOffsets[count - 1]) &
-							0xffffffffL) < (((long) fi.stripOffsets[0]) & 0xffffffffL))
+					if (count > 1 &&
+							((fi.stripOffsets[count - 1]) & 0xffffffffL) < ((fi.stripOffsets[0]) & 0xffffffffL))
 						fi.offset = fi.stripOffsets[count - 1];
 					break;
 				case STRIP_BYTE_COUNT:
@@ -728,15 +727,15 @@ public abstract class FastTiffDecoder
 					if (count == 1)
 					{
 						if (value == 8)
-							fi.fileType = ExtendedFileInfo.GRAY8;
+							fi.fileType = FileInfo.GRAY8;
 						else if (value == 16)
-							fi.fileType = ExtendedFileInfo.GRAY16_UNSIGNED;
+							fi.fileType = FileInfo.GRAY16_UNSIGNED;
 						else if (value == 32)
-							fi.fileType = ExtendedFileInfo.GRAY32_INT;
+							fi.fileType = FileInfo.GRAY32_INT;
 						else if (value == 12)
-							fi.fileType = ExtendedFileInfo.GRAY12_UNSIGNED;
+							fi.fileType = FileInfo.GRAY12_UNSIGNED;
 						else if (value == 1)
-							fi.fileType = ExtendedFileInfo.BITMAP;
+							fi.fileType = FileInfo.BITMAP;
 						else
 							error("Unsupported BitsPerSample: " + value);
 					}
@@ -746,9 +745,9 @@ public abstract class FastTiffDecoder
 						ss.seek(lvalue);
 						int bitDepth = readShort();
 						if (bitDepth == 8)
-							fi.fileType = ExtendedFileInfo.GRAY8;
+							fi.fileType = FileInfo.GRAY8;
 						else if (bitDepth == 16)
-							fi.fileType = ExtendedFileInfo.GRAY16_UNSIGNED;
+							fi.fileType = FileInfo.GRAY16_UNSIGNED;
 						else
 							error("ImageJ can only open 8 and 16 bit/channel images (" + bitDepth + ")");
 						ss.seek(saveLoc);
@@ -756,15 +755,15 @@ public abstract class FastTiffDecoder
 					break;
 				case SAMPLES_PER_PIXEL:
 					fi.samplesPerPixel = value;
-					if (value == 3 && fi.fileType == ExtendedFileInfo.GRAY8)
-						fi.fileType = ExtendedFileInfo.RGB;
-					else if (value == 3 && fi.fileType == ExtendedFileInfo.GRAY16_UNSIGNED)
-						fi.fileType = ExtendedFileInfo.RGB48;
-					else if (value == 4 && fi.fileType == ExtendedFileInfo.GRAY8)
-						fi.fileType = photoInterp == 5 ? ExtendedFileInfo.CMYK : ExtendedFileInfo.ARGB;
-					else if (value == 4 && fi.fileType == ExtendedFileInfo.GRAY16_UNSIGNED)
+					if (value == 3 && fi.fileType == FileInfo.GRAY8)
+						fi.fileType = FileInfo.RGB;
+					else if (value == 3 && fi.fileType == FileInfo.GRAY16_UNSIGNED)
+						fi.fileType = FileInfo.RGB48;
+					else if (value == 4 && fi.fileType == FileInfo.GRAY8)
+						fi.fileType = photoInterp == 5 ? FileInfo.CMYK : FileInfo.ARGB;
+					else if (value == 4 && fi.fileType == FileInfo.GRAY16_UNSIGNED)
 					{
-						fi.fileType = ExtendedFileInfo.RGB48;
+						fi.fileType = FileInfo.RGB48;
 						if (photoInterp == 5) //assume cmyk
 							fi.whiteIsZero = true;
 					}
@@ -799,10 +798,10 @@ public abstract class FastTiffDecoder
 						fi.unit = "cm";
 					break;
 				case PLANAR_CONFIGURATION: // 1=chunky, 2=planar
-					if (value == 2 && fi.fileType == ExtendedFileInfo.RGB48)
-						fi.fileType = ExtendedFileInfo.RGB48_PLANAR;
-					else if (value == 2 && fi.fileType == ExtendedFileInfo.RGB)
-						fi.fileType = ExtendedFileInfo.RGB_PLANAR;
+					if (value == 2 && fi.fileType == FileInfo.RGB48)
+						fi.fileType = FileInfo.RGB48_PLANAR;
+					else if (value == 2 && fi.fileType == FileInfo.RGB)
+						fi.fileType = FileInfo.RGB_PLANAR;
 					else if (value != 2 &&
 							!(fi.samplesPerPixel == 1 || fi.samplesPerPixel == 3 || fi.samplesPerPixel == 4))
 					{
@@ -813,19 +812,19 @@ public abstract class FastTiffDecoder
 				case COMPRESSION:
 					if (value == 5)
 					{// LZW compression
-						fi.compression = ExtendedFileInfo.LZW;
-						if (fi.fileType == ExtendedFileInfo.GRAY12_UNSIGNED)
+						fi.compression = FileInfo.LZW;
+						if (fi.fileType == FileInfo.GRAY12_UNSIGNED)
 							error("ImageJ cannot open 12-bit LZW-compressed TIFFs");
 					}
 					else if (value == 32773) // PackBits compression
-						fi.compression = ExtendedFileInfo.PACK_BITS;
+						fi.compression = FileInfo.PACK_BITS;
 					else if (value == 32946 || value == 8)
-						fi.compression = ExtendedFileInfo.ZIP;
+						fi.compression = FileInfo.ZIP;
 					else if (value != 1 && value != 0 && !(value == 7 && fi.width < 500))
 					{
 						// don't abort with Spot camera compressed (7) thumbnails
 						// otherwise, this is an unknown compression type
-						fi.compression = ExtendedFileInfo.COMPRESSION_UNKNOWN;
+						fi.compression = FileInfo.COMPRESSION_UNKNOWN;
 						error("ImageJ cannot open TIFF files " + "compressed in this fashion (" + value + ")");
 					}
 					break;
@@ -841,8 +840,8 @@ public abstract class FastTiffDecoder
 					}
 					break;
 				case PREDICTOR:
-					if (value == 2 && fi.compression == ExtendedFileInfo.LZW)
-						fi.compression = ExtendedFileInfo.LZW_WITH_DIFFERENCING;
+					if (value == 2 && fi.compression == FileInfo.LZW)
+						fi.compression = FileInfo.LZW_WITH_DIFFERENCING;
 					break;
 				case COLOR_MAP:
 					if (count == 768)
@@ -852,18 +851,18 @@ public abstract class FastTiffDecoder
 					error("ImageJ cannot open tiled TIFFs.\nTry using the Bio-Formats plugin.");
 					break;
 				case SAMPLE_FORMAT:
-					if (fi.fileType == ExtendedFileInfo.GRAY32_INT && value == FLOATING_POINT)
-						fi.fileType = ExtendedFileInfo.GRAY32_FLOAT;
-					if (fi.fileType == ExtendedFileInfo.GRAY16_UNSIGNED)
+					if (fi.fileType == FileInfo.GRAY32_INT && value == FLOATING_POINT)
+						fi.fileType = FileInfo.GRAY32_FLOAT;
+					if (fi.fileType == FileInfo.GRAY16_UNSIGNED)
 					{
 						if (value == SIGNED)
-							fi.fileType = ExtendedFileInfo.GRAY16_SIGNED;
+							fi.fileType = FileInfo.GRAY16_SIGNED;
 						if (value == FLOATING_POINT)
 							error("ImageJ cannot open 16-bit float TIFFs");
 					}
 					break;
 				case JPEG_TABLES:
-					if (fi.compression == ExtendedFileInfo.JPEG)
+					if (fi.compression == FileInfo.JPEG)
 						error("Cannot open JPEG-compressed TIFFs with separate tables");
 					break;
 				case IMAGE_DESCRIPTION:
@@ -883,7 +882,7 @@ public abstract class FastTiffDecoder
 				case METAMORPH1:
 				case METAMORPH2:
 					if ((name.indexOf(".STK") > 0 || name.indexOf(".stk") > 0) &&
-							fi.compression == ExtendedFileInfo.COMPRESSION_NONE)
+							fi.compression == FileInfo.COMPRESSION_NONE)
 					{
 						if (tag == METAMORPH2)
 							fi.nImages = count;
@@ -923,7 +922,7 @@ public abstract class FastTiffDecoder
 						return null;
 			}
 		}
-		fi.fileFormat = ExtendedFileInfo.TIFF;
+		fi.fileFormat = FileInfo.TIFF;
 		fi.fileName = name;
 		fi.directory = directory;
 		return fi;
@@ -1228,7 +1227,7 @@ public abstract class FastTiffDecoder
 			if (debugMode)
 				info[0].debugInfo = dInfo;
 			fi = info[0];
-			if (fi.fileType == ExtendedFileInfo.GRAY16_UNSIGNED && fi.description == null)
+			if (fi.fileType == FileInfo.GRAY16_UNSIGNED && fi.description == null)
 				fi.lutSize = 0; // ignore troublesome non-ImageJ 16-bit LUTs
 			if (debugMode)
 			{
@@ -1294,7 +1293,7 @@ public abstract class FastTiffDecoder
 			}
 			if (debugMode)
 				fi.debugInfo = dInfo;
-			if (fi.fileType == ExtendedFileInfo.GRAY16_UNSIGNED && fi.description == null)
+			if (fi.fileType == FileInfo.GRAY16_UNSIGNED && fi.description == null)
 				fi.lutSize = 0; // ignore troublesome non-ImageJ 16-bit LUTs
 		}
 
@@ -1553,7 +1552,7 @@ public abstract class FastTiffDecoder
 		public long getOffset(int i)
 		{
 			checkIndex(i);
-			return (long) map[i * 5 + 4] & 0xffffffffL;
+			return map[i * 5 + 4] & 0xffffffffL;
 		}
 
 		private void checkIndex(int i)
@@ -1821,7 +1820,7 @@ public abstract class FastTiffDecoder
 				int fieldType = getShort(buffer, j + 2);
 				int count = getInt(buffer, j + 4);
 				int value = getValue(fieldType, count, buffer, j + 8);
-				long lvalue = ((long) value) & 0xffffffffL;
+				long lvalue = (value) & 0xffffffffL;
 				byte[] s = getString(count, lvalue);
 
 				// It is possible that there are multiple IMAGE_DESCRIPTION tags
@@ -2000,7 +1999,7 @@ public abstract class FastTiffDecoder
 			{
 				long saveLoc = ss.getFilePointer();
 				int value = getValue(fieldType, count, buffer, j + 8);
-				long lvalue = ((long) value) & 0xffffffffL;
+				long lvalue = (value) & 0xffffffffL;
 				ss.seek(lvalue);
 				for (int c = 0; c < count; c++)
 					total += readInt();
@@ -2080,7 +2079,7 @@ public abstract class FastTiffDecoder
 			int fieldType = getShort(buffer, j + 2);
 			int count = getInt(buffer, j + 4);
 			int value = getValue(fieldType, count, buffer, j + 8);
-			long lvalue = ((long) value) & 0xffffffffL;
+			long lvalue = (value) & 0xffffffffL;
 
 			switch (tag)
 			{
@@ -2094,15 +2093,15 @@ public abstract class FastTiffDecoder
 					if (count == 1)
 					{
 						if (value == 8)
-							fileType = ExtendedFileInfo.GRAY8;
+							fileType = FileInfo.GRAY8;
 						else if (value == 16)
-							fileType = ExtendedFileInfo.GRAY16_UNSIGNED;
+							fileType = FileInfo.GRAY16_UNSIGNED;
 						else if (value == 32)
-							fileType = ExtendedFileInfo.GRAY32_INT;
+							fileType = FileInfo.GRAY32_INT;
 						else if (value == 12)
-							fileType = ExtendedFileInfo.GRAY12_UNSIGNED;
+							fileType = FileInfo.GRAY12_UNSIGNED;
 						else if (value == 1)
-							fileType = ExtendedFileInfo.BITMAP;
+							fileType = FileInfo.BITMAP;
 						else
 							error("Unsupported BitsPerSample: " + value);
 					}
@@ -2112,9 +2111,9 @@ public abstract class FastTiffDecoder
 						ss.seek(lvalue);
 						int bitDepth = readShort();
 						if (bitDepth == 8)
-							fileType = ExtendedFileInfo.GRAY8;
+							fileType = FileInfo.GRAY8;
 						else if (bitDepth == 16)
-							fileType = ExtendedFileInfo.GRAY16_UNSIGNED;
+							fileType = FileInfo.GRAY16_UNSIGNED;
 						else
 							error("ImageJ can only open 8 and 16 bit/channel images (" + bitDepth + ")");
 						ss.seek(saveLoc);
@@ -2122,23 +2121,23 @@ public abstract class FastTiffDecoder
 					break;
 				case SAMPLES_PER_PIXEL:
 					samplesPerPixel = value;
-					if (value == 3 && fileType == ExtendedFileInfo.GRAY8)
-						fileType = ExtendedFileInfo.RGB;
-					else if (value == 3 && fileType == ExtendedFileInfo.GRAY16_UNSIGNED)
-						fileType = ExtendedFileInfo.RGB48;
-					else if (value == 4 && fileType == ExtendedFileInfo.GRAY8)
-						fileType = photoInterp == 5 ? ExtendedFileInfo.CMYK : ExtendedFileInfo.ARGB;
-					else if (value == 4 && fileType == ExtendedFileInfo.GRAY16_UNSIGNED)
+					if (value == 3 && fileType == FileInfo.GRAY8)
+						fileType = FileInfo.RGB;
+					else if (value == 3 && fileType == FileInfo.GRAY16_UNSIGNED)
+						fileType = FileInfo.RGB48;
+					else if (value == 4 && fileType == FileInfo.GRAY8)
+						fileType = photoInterp == 5 ? FileInfo.CMYK : FileInfo.ARGB;
+					else if (value == 4 && fileType == FileInfo.GRAY16_UNSIGNED)
 					{
-						fileType = ExtendedFileInfo.RGB48;
+						fileType = FileInfo.RGB48;
 					}
 					break;
 
 				case PLANAR_CONFIGURATION: // 1=chunky, 2=planar
-					if (value == 2 && fileType == ExtendedFileInfo.RGB48)
-						fileType = ExtendedFileInfo.RGB48_PLANAR;
-					else if (value == 2 && fileType == ExtendedFileInfo.RGB)
-						fileType = ExtendedFileInfo.RGB_PLANAR;
+					if (value == 2 && fileType == FileInfo.RGB48)
+						fileType = FileInfo.RGB48_PLANAR;
+					else if (value == 2 && fileType == FileInfo.RGB)
+						fileType = FileInfo.RGB_PLANAR;
 					else if (value != 2 && !(samplesPerPixel == 1 || samplesPerPixel == 3 || samplesPerPixel == 4))
 					{
 						String msg = "Unsupported SamplesPerPixel: " + samplesPerPixel;
@@ -2148,19 +2147,19 @@ public abstract class FastTiffDecoder
 				case COMPRESSION:
 					if (value == 5)
 					{// LZW compression
-						compression = ExtendedFileInfo.LZW;
-						if (fileType == ExtendedFileInfo.GRAY12_UNSIGNED)
+						compression = FileInfo.LZW;
+						if (fileType == FileInfo.GRAY12_UNSIGNED)
 							error("ImageJ cannot open 12-bit LZW-compressed TIFFs");
 					}
 					else if (value == 32773) // PackBits compression
-						compression = ExtendedFileInfo.PACK_BITS;
+						compression = FileInfo.PACK_BITS;
 					else if (value == 32946 || value == 8)
-						compression = ExtendedFileInfo.ZIP;
+						compression = FileInfo.ZIP;
 					else if (value != 1 && value != 0 && !(value == 7 && width < 500))
 					{
 						// don't abort with Spot camera compressed (7) thumbnails
 						// otherwise, this is an unknown compression type
-						compression = ExtendedFileInfo.COMPRESSION_UNKNOWN;
+						compression = FileInfo.COMPRESSION_UNKNOWN;
 						error("ImageJ cannot open TIFF files " + "compressed in this fashion (" + value + ")");
 					}
 					break;
@@ -2168,24 +2167,24 @@ public abstract class FastTiffDecoder
 					error("ImageJ cannot open tiled TIFFs.\nTry using the Bio-Formats plugin.");
 					break;
 				case SAMPLE_FORMAT:
-					if (fileType == ExtendedFileInfo.GRAY32_INT && value == FLOATING_POINT)
-						fileType = ExtendedFileInfo.GRAY32_FLOAT;
-					if (fileType == ExtendedFileInfo.GRAY16_UNSIGNED)
+					if (fileType == FileInfo.GRAY32_INT && value == FLOATING_POINT)
+						fileType = FileInfo.GRAY32_FLOAT;
+					if (fileType == FileInfo.GRAY16_UNSIGNED)
 					{
 						if (value == SIGNED)
-							fileType = ExtendedFileInfo.GRAY16_SIGNED;
+							fileType = FileInfo.GRAY16_SIGNED;
 						if (value == FLOATING_POINT)
 							error("ImageJ cannot open 16-bit float TIFFs");
 					}
 					break;
 				case JPEG_TABLES:
-					if (compression == ExtendedFileInfo.JPEG)
+					if (compression == FileInfo.JPEG)
 						error("Cannot open JPEG-compressed TIFFs with separate tables");
 					break;
 			}
 		}
 		int size = getBytesPerImage(width, height, fileType);
-		if (size != 0 && compression <= ExtendedFileInfo.COMPRESSION_NONE)
+		if (size != 0 && compression <= FileInfo.COMPRESSION_NONE)
 		{
 			return size;
 		}
@@ -2198,35 +2197,35 @@ public abstract class FastTiffDecoder
 		int size = width * height;
 		switch (fileType)
 		{
-			case ExtendedFileInfo.GRAY8:
-			case ExtendedFileInfo.COLOR8:
-			case ExtendedFileInfo.BITMAP:
+			case FileInfo.GRAY8:
+			case FileInfo.COLOR8:
+			case FileInfo.BITMAP:
 				return size;
-			case ExtendedFileInfo.GRAY12_UNSIGNED:
+			case FileInfo.GRAY12_UNSIGNED:
 				return (int) (1.5 * size);
-			case ExtendedFileInfo.GRAY16_SIGNED:
-			case ExtendedFileInfo.GRAY16_UNSIGNED:
+			case FileInfo.GRAY16_SIGNED:
+			case FileInfo.GRAY16_UNSIGNED:
 				return 2 * size;
-			case ExtendedFileInfo.GRAY24_UNSIGNED:
+			case FileInfo.GRAY24_UNSIGNED:
 				return 3 * size;
-			case ExtendedFileInfo.GRAY32_INT:
-			case ExtendedFileInfo.GRAY32_UNSIGNED:
-			case ExtendedFileInfo.GRAY32_FLOAT:
+			case FileInfo.GRAY32_INT:
+			case FileInfo.GRAY32_UNSIGNED:
+			case FileInfo.GRAY32_FLOAT:
 				return 4 * size;
-			case ExtendedFileInfo.GRAY64_FLOAT:
+			case FileInfo.GRAY64_FLOAT:
 				return 8 * size;
-			case ExtendedFileInfo.ARGB:
-			case ExtendedFileInfo.BARG:
-			case ExtendedFileInfo.ABGR:
-			case ExtendedFileInfo.CMYK:
+			case FileInfo.ARGB:
+			case FileInfo.BARG:
+			case FileInfo.ABGR:
+			case FileInfo.CMYK:
 				return 4 * size;
-			case ExtendedFileInfo.RGB:
-			case ExtendedFileInfo.RGB_PLANAR:
-			case ExtendedFileInfo.BGR:
+			case FileInfo.RGB:
+			case FileInfo.RGB_PLANAR:
+			case FileInfo.BGR:
 				return 3 * size;
-			case ExtendedFileInfo.RGB48:
+			case FileInfo.RGB48:
 				return 6 * size;
-			case ExtendedFileInfo.RGB48_PLANAR:
+			case FileInfo.RGB48_PLANAR:
 				return 2 * size;
 			default:
 				return 0;

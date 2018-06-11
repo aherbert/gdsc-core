@@ -28,7 +28,8 @@
 package gdsc.core.clustering.optics;
 
 /**
- * Store molecules in a 2D grid and perform distance computation using cells within the radius from the centre. Forces the use of the internal region of the circle.  
+ * Store molecules in a 2D grid and perform distance computation using cells within the radius from the centre. Forces
+ * the use of the internal region of the circle.
  */
 class InnerRadialMoleculeSpace extends RadialMoleculeSpace
 {

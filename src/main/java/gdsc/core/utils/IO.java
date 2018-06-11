@@ -31,7 +31,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-
 /**
  * Simple Input/Output class
  */
@@ -102,7 +101,7 @@ public class IO
 	{
 		return save(null, data, filename);
 	}
-	
+
 	/**
 	 * Save an array to file
 	 * 
@@ -168,7 +167,7 @@ public class IO
 	{
 		return save(null, data, filename);
 	}
-	
+
 	/**
 	 * Save an array to file
 	 * 
@@ -233,5 +232,5 @@ public class IO
 	public static boolean save(float[] data, String filename)
 	{
 		return save(null, data, filename);
-	}	
+	}
 }

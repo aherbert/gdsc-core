@@ -27,7 +27,6 @@
  */
 package gdsc.core.match;
 
-
 /**
  * Stores an assignment between two identified points and the distance between them
  */
@@ -59,6 +58,7 @@ public class MutableAssignment implements Assignment
 	 * 
 	 * @see gdsc.core.match.Assignment#getTargetId()
 	 */
+	@Override
 	public int getTargetId()
 	{
 		return targetId;
@@ -69,6 +69,7 @@ public class MutableAssignment implements Assignment
 	 * 
 	 * @see gdsc.core.match.Assignment#getPredictedId()
 	 */
+	@Override
 	public int getPredictedId()
 	{
 		return predictedId;
@@ -79,6 +80,7 @@ public class MutableAssignment implements Assignment
 	 * 
 	 * @see gdsc.core.match.Assignment#getDistance()
 	 */
+	@Override
 	public double getDistance()
 	{
 		return distance;

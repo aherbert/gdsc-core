@@ -31,7 +31,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
-
 /**
  * Base class implementing functionality to seek within a stream.
  */
@@ -44,6 +43,7 @@ public abstract class SeekableStream extends InputStream
 	 * 
 	 * @see java.io.InputStream#read()
 	 */
+	@Override
 	public abstract int read() throws IOException;
 
 	/*
@@ -51,6 +51,7 @@ public abstract class SeekableStream extends InputStream
 	 * 
 	 * @see java.io.InputStream#read(byte[], int, int)
 	 */
+	@Override
 	public abstract int read(byte[] bytes, int off, int len) throws IOException;
 
 	/**
@@ -262,7 +263,7 @@ public abstract class SeekableStream extends InputStream
 	 */
 	public void seek(int loc) throws IOException
 	{
-		seek(((long) loc) & 0xffffffffL);
+		seek((loc) & 0xffffffffL);
 	}
 
 	/**
@@ -293,7 +294,7 @@ public abstract class SeekableStream extends InputStream
 	 */
 	public final long readLong() throws IOException
 	{
-		return ((long) readInt() << 32) + ((long) readInt() & 0xffffffffL);
+		return ((long) readInt() << 32) + (readInt() & 0xffffffffL);
 	}
 
 	/**
@@ -342,6 +343,7 @@ public abstract class SeekableStream extends InputStream
 	 * 
 	 * @see java.io.InputStream#close()
 	 */
+	@Override
 	public abstract void close() throws IOException;
 
 	/**

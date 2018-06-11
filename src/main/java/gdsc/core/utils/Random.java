@@ -32,7 +32,6 @@ import java.util.Arrays;
 import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 
-
 /**
  * Random number generator.
  */
@@ -40,7 +39,7 @@ public class Random extends AbstractRandomGenerator
 {
 	private static int IA = 16807, IM = 2147483647, IQ = 127773, IR = 2836, NTAB = 32;
 	private static int NDIV = (1 + (IM - 1) / NTAB);
-	private static float AM = (float) (1.0 / (float) (IM));
+	private static float AM = (float) (1.0 / (IM));
 	/** The float before 1f. */
 	private static float RNMX = Math.nextDown(1f);
 

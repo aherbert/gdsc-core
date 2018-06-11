@@ -32,7 +32,6 @@ import java.util.Arrays;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.apache.commons.math3.util.FastMath;
 
-
 /**
  * Contains methods to find the noise in the provided image data.
  * <p>
@@ -48,37 +47,93 @@ public class NoiseEstimator
 		/**
 		 * Use all pixels
 		 */
-		ALL_PIXELS{ public String getName() { return "All pixels";}},
+		ALL_PIXELS
+		{
+			@Override
+			public String getName()
+			{
+				return "All pixels";
+			}
+		},
 		/**
 		 * Use a range around the lowest pixel in the image
 		 */
-		LOWEST_PIXELS{ public String getName() { return "Lowest pixels";}},
+		LOWEST_PIXELS
+		{
+			@Override
+			public String getName()
+			{
+				return "Lowest pixels";
+			}
+		},
 		/**
 		 * Use the psuedo-residuals and calculate the least median of squares
 		 */
-		RESIDUALS_LEAST_MEDIAN_OF_SQUARES{ public String getName() { return "Residuals least-median-of-squares";}},
+		RESIDUALS_LEAST_MEDIAN_OF_SQUARES
+		{
+			@Override
+			public String getName()
+			{
+				return "Residuals least-median-of-squares";
+			}
+		},
 		/**
 		 * Use the psuedo-residuals and calculate the least trimmed of squares
 		 */
-		RESIDUALS_LEAST_TRIMMED_OF_SQUARES{ public String getName() { return "Residuals least-trimmed-of-squares";}},
+		RESIDUALS_LEAST_TRIMMED_OF_SQUARES
+		{
+			@Override
+			public String getName()
+			{
+				return "Residuals least-trimmed-of-squares";
+			}
+		},
 		/**
 		 * Use the psuedo-residuals and calculate the least mean of squares
 		 */
-		RESIDUALS_LEAST_MEAN_OF_SQUARES{ public String getName() { return "Residuals least-mean-of-squares";}},
+		RESIDUALS_LEAST_MEAN_OF_SQUARES
+		{
+			@Override
+			public String getName()
+			{
+				return "Residuals least-mean-of-squares";
+			}
+		},
 		/**
 		 * Use the psuedo-residuals ignoring image border and calculate the least median of squares
 		 */
-		QUICK_RESIDUALS_LEAST_MEDIAN_OF_SQUARES{ public String getName() { return "Quick residuals least-median-of-squares";}},
+		QUICK_RESIDUALS_LEAST_MEDIAN_OF_SQUARES
+		{
+			@Override
+			public String getName()
+			{
+				return "Quick residuals least-median-of-squares";
+			}
+		},
 		/**
 		 * Use the psuedo-residuals ignoring image border and calculate the least trimmed of squares
 		 */
-		QUICK_RESIDUALS_LEAST_TRIMMED_OF_SQUARES{ public String getName() { return "Quick residuals least-trimmed-of-squares";}},
+		QUICK_RESIDUALS_LEAST_TRIMMED_OF_SQUARES
+		{
+			@Override
+			public String getName()
+			{
+				return "Quick residuals least-trimmed-of-squares";
+			}
+		},
 		/**
 		 * Use the psuedo-residuals ignoring image border and calculate the least mean of squares
 		 */
-		QUICK_RESIDUALS_LEAST_MEAN_OF_SQUARES{ public String getName() { return "Quick residuals least-mean-of-squares";}};
+		QUICK_RESIDUALS_LEAST_MEAN_OF_SQUARES
+		{
+			@Override
+			public String getName()
+			{
+				return "Quick residuals least-mean-of-squares";
+			}
+		};
 		//@formatter:on
-		
+
 		@Override
 		public String toString()
 		{
@@ -257,11 +312,11 @@ public class NoiseEstimator
 			if (preserveResiduals)
 				buf = Arrays.copyOf(buf, buf.length);
 			Arrays.sort(buf);
-			float med_i = buf[(int) (.5 * (float) n)];
+			float med_i = buf[(int) (.5 * n)];
 			for (int j = 0; j < n; j++)
 				buf[j] = Math.abs(buf[j] - med_i);
 			Arrays.sort(buf);
-			double sig = 1.4828 * buf[(int) (.5 * (float) n)];
+			double sig = 1.4828 * buf[(int) (.5 * n)];
 			if (!preserveResiduals)
 			{
 				// Residuals have been destroyed
@@ -332,8 +387,8 @@ public class NoiseEstimator
 				a += buf[i];
 				b += buf[i] * buf[i];
 			}
-			a /= (double) buf.length;
-			b /= (double) buf.length;
+			a /= buf.length;
+			b /= buf.length;
 			b -= a * a;
 			return (b > 0) ? Math.sqrt(b) : 0;
 		}
@@ -375,7 +430,7 @@ public class NoiseEstimator
 						t2 += data[index + maxx];
 
 					// 0.223606798 = 1 / sqrt(20)
-					residuals[index] = (float) (0.223606798 * (4. * (double) data[index] - t2));
+					residuals[index] = (float) (0.223606798 * (4. * data[index] - t2));
 				}
 		}
 
@@ -405,7 +460,7 @@ public class NoiseEstimator
 				{
 					double t2 = data[index - 1] + data[index + 1] + data[index - maxx] + data[index + maxx];
 					// 0.223606798 = 1 / sqrt(20)
-					quickResiduals[i] = (float) (0.223606798 * (4. * (double) data[index] - t2));
+					quickResiduals[i] = (float) (0.223606798 * (4. * data[index] - t2));
 				}
 		}
 

@@ -27,7 +27,6 @@
  */
 package gdsc.core.utils;
 
-
 /**
  * Provide a score function that ramps smoothly between the configured limits
  */

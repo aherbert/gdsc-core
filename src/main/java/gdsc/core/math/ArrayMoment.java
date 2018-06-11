@@ -27,7 +27,6 @@
  */
 package gdsc.core.math;
 
-
 /**
  * Interface to calculate the mean and variance of arrayed data.
  */

@@ -41,6 +41,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 	 * 
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#getA()
 	 */
+	@Override
 	public double[] getA()
 	{
 		return a.clone();

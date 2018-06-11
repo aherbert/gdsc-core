@@ -34,6 +34,7 @@ package ags.utils.dataStructures.trees.thirdGenKD;
  */
 public class SquareEuclideanDistanceFunction2D implements DistanceFunction
 {
+	@Override
 	public double distance(double[] p1, double[] p2)
 	{
 		double dx = p1[0] - p2[0];
@@ -41,6 +42,7 @@ public class SquareEuclideanDistanceFunction2D implements DistanceFunction
 		return dx * dx + dy * dy;
 	}
 
+	@Override
 	public double distanceToRect(double[] point, double[] min, double[] max)
 	{
 		double dx = (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? point[0] - min[0] : 0;

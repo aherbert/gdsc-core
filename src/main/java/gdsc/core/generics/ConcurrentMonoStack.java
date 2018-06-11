@@ -30,7 +30,6 @@ package gdsc.core.generics;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-
 /**
  * Allow work to be added to a LIFO stack of size 1 in a synchronised manner.
  * <p>
@@ -313,8 +312,8 @@ public class ConcurrentMonoStack<E>
 		{
 			if (closed || item != null)
 				return false;
-				enqueue(e);
-				return true;
+			enqueue(e);
+			return true;
 		}
 		finally
 		{

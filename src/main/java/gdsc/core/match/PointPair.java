@@ -27,7 +27,6 @@
  */
 package gdsc.core.match;
 
-
 /**
  * Class to store a pair of coordinates.
  */
@@ -61,7 +60,7 @@ public class PointPair
 	{
 		return point2;
 	}
-	
+
 	/**
 	 * @return the distance (or -1 if either point is null)
 	 */
@@ -69,10 +68,10 @@ public class PointPair
 	{
 		if (point1 == null || point2 == null)
 			return -1;
-		
+
 		return point1.distanceXYZ(point2);
 	}
-	
+
 	/**
 	 * @return the squared distance (or -1 if either point is null)
 	 */
@@ -80,10 +79,10 @@ public class PointPair
 	{
 		if (point1 == null || point2 == null)
 			return -1;
-		
+
 		return point1.distanceXYZ2(point2);
 	}
-	
+
 	/**
 	 * @return the XY distance (or -1 if either point is null)
 	 */
@@ -91,10 +90,10 @@ public class PointPair
 	{
 		if (point1 == null || point2 == null)
 			return -1;
-		
+
 		return point1.distanceXY(point2);
 	}
-	
+
 	/**
 	 * @return the squared XY distance (or -1 if either point is null)
 	 */
@@ -102,7 +101,7 @@ public class PointPair
 	{
 		if (point1 == null || point2 == null)
 			return -1;
-		
+
 		return point1.distanceXY2(point2);
 	}
 }

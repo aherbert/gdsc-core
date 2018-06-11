@@ -27,7 +27,6 @@
  */
 package gdsc.core.data.procedures;
 
-
 /**
  * Standard implementation for accessing a value in three dimensions.
  */
@@ -50,6 +49,7 @@ public class StandardTrivalueProcedure implements TrivalueProcedure
 	 * 
 	 * @see gdsc.core.data.procedures.TrivalueProcedure#setDimensions(int, int, int)
 	 */
+	@Override
 	public boolean setDimensions(int maxx, int maxy, int maxz)
 	{
 		x = new double[maxx];
@@ -64,6 +64,7 @@ public class StandardTrivalueProcedure implements TrivalueProcedure
 	 * 
 	 * @see gdsc.core.data.procedures.TrivalueProcedure#setX(int, double)
 	 */
+	@Override
 	public void setX(int i, double value)
 	{
 		x[i] = value;
@@ -74,6 +75,7 @@ public class StandardTrivalueProcedure implements TrivalueProcedure
 	 * 
 	 * @see gdsc.core.data.procedures.TrivalueProcedure#setY(int, double)
 	 */
+	@Override
 	public void setY(int j, double value)
 	{
 		y[j] = value;
@@ -84,6 +86,7 @@ public class StandardTrivalueProcedure implements TrivalueProcedure
 	 * 
 	 * @see gdsc.core.data.procedures.TrivalueProcedure#setZ(int, double)
 	 */
+	@Override
 	public void setZ(int k, double value)
 	{
 		z[k] = value;
@@ -94,6 +97,7 @@ public class StandardTrivalueProcedure implements TrivalueProcedure
 	 * 
 	 * @see gdsc.core.data.procedures.TrivalueProcedure#setValue(int, int, int, double)
 	 */
+	@Override
 	public void setValue(int i, int j, int k, double value)
 	{
 		this.value[i][j][k] = value;

@@ -33,7 +33,6 @@ import java.awt.Shape;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
 
-
 /**
  * Class for testing if coordinates are within a composite ROI.
  */

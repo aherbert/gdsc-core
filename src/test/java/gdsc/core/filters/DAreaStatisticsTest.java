@@ -59,13 +59,13 @@ public class DAreaStatisticsTest
 		{
 			a.setRollingSums(r);
 			double[] o = a.getStatistics(0, 0, maxy);
-			Assert.assertEquals(s.getN(), o[DAreaStatistics.N], 0);
-			Assert.assertEquals(s.getSum(), o[DAreaStatistics.SUM], 1e-6);
+			Assert.assertEquals(s.getN(), o[DAreaSum.N], 0);
+			Assert.assertEquals(s.getSum(), o[DAreaSum.SUM], 1e-6);
 			Assert.assertEquals(s.getStandardDeviation(), o[DAreaStatistics.SD], 1e-6);
 
 			o = a.getStatistics(new Rectangle(maxx, maxy));
-			Assert.assertEquals(s.getN(), o[DAreaStatistics.N], 0);
-			Assert.assertEquals(s.getSum(), o[DAreaStatistics.SUM], 1e-6);
+			Assert.assertEquals(s.getN(), o[DAreaSum.N], 0);
+			Assert.assertEquals(s.getSum(), o[DAreaSum.SUM], 1e-6);
 			Assert.assertEquals(s.getStandardDeviation(), o[DAreaStatistics.SD], 1e-6);
 		}
 	}
@@ -95,9 +95,9 @@ public class DAreaStatisticsTest
 					fp.setRoi(new Rectangle(x - n, y - n, 2 * n + 1, 2 * n + 1));
 					ImageStatistics s = fp.getStatistics();
 
-					Assert.assertEquals(s.area, o[DAreaStatistics.N], 0);
+					Assert.assertEquals(s.area, o[DAreaSum.N], 0);
 					double sum = s.mean * s.area;
-					Assert.assertEquals(sum, o[DAreaStatistics.SUM], sum * 1e-6);
+					Assert.assertEquals(sum, o[DAreaSum.SUM], sum * 1e-6);
 					Assert.assertEquals(s.stdDev, o[DAreaStatistics.SD], s.stdDev * 1e-6);
 				}
 	}
@@ -128,9 +128,9 @@ public class DAreaStatisticsTest
 						fp.setRoi(new Rectangle(x - nx, y - ny, 2 * nx + 1, 2 * ny + 1));
 						ImageStatistics s = fp.getStatistics();
 
-						Assert.assertEquals(s.area, o[DAreaStatistics.N], 0);
+						Assert.assertEquals(s.area, o[DAreaSum.N], 0);
 						double sum = s.mean * s.area;
-						Assert.assertEquals(sum, o[DAreaStatistics.SUM], sum * 1e-6);
+						Assert.assertEquals(sum, o[DAreaSum.SUM], sum * 1e-6);
 						Assert.assertEquals(s.stdDev, o[DAreaStatistics.SD], s.stdDev * 1e-6);
 					}
 	}
@@ -164,8 +164,8 @@ public class DAreaStatisticsTest
 				fp.setRoi(roi);
 				ImageStatistics s = fp.getStatistics();
 
-				Assert.assertEquals(s.area, o[DAreaStatistics.N], 0);
-				Assert.assertEquals(s.mean * s.area, o[DAreaStatistics.SUM], 1e-6);
+				Assert.assertEquals(s.area, o[DAreaSum.N], 0);
+				Assert.assertEquals(s.mean * s.area, o[DAreaSum.SUM], 1e-6);
 				Assert.assertEquals(s.stdDev, o[DAreaStatistics.SD], 1e-6);
 			}
 	}
@@ -185,21 +185,21 @@ public class DAreaStatisticsTest
 			for (int n : boxSizes)
 			{
 				double[] o = a.getStatistics(0, 0, n);
-				Assert.assertEquals(c, o[DAreaStatistics.N], 0);
-				Assert.assertEquals(u, o[DAreaStatistics.SUM], 1e-6);
+				Assert.assertEquals(c, o[DAreaSum.N], 0);
+				Assert.assertEquals(u, o[DAreaSum.SUM], 1e-6);
 				Assert.assertEquals(s, o[DAreaStatistics.SD], 1e-6);
 
 				Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
 				o = a.getStatistics(bounds);
-				Assert.assertEquals(c, o[DAreaStatistics.N], 0);
-				Assert.assertEquals(u, o[DAreaStatistics.SUM], 1e-6);
+				Assert.assertEquals(c, o[DAreaSum.N], 0);
+				Assert.assertEquals(u, o[DAreaSum.SUM], 1e-6);
 				Assert.assertEquals(s, o[DAreaStatistics.SD], 1e-6);
 
 				bounds.x--;
 				bounds.y--;
 				o = a.getStatistics(bounds);
-				Assert.assertEquals(c, o[DAreaStatistics.N], 0);
-				Assert.assertEquals(u, o[DAreaStatistics.SUM], 1e-6);
+				Assert.assertEquals(c, o[DAreaSum.N], 0);
+				Assert.assertEquals(u, o[DAreaSum.SUM], 1e-6);
 				Assert.assertEquals(s, o[DAreaStatistics.SD], 1e-6);
 			}
 		}
@@ -221,16 +221,19 @@ public class DAreaStatisticsTest
 			this.sample = sample;
 		}
 
+		@Override
 		public int getSize()
 		{
 			return data.length;
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			return data[i];
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			double[] d = (double[]) data;

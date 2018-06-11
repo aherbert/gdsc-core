@@ -141,17 +141,17 @@ public class FloatResultHeap<T>
 		}
 		return distance[0];
 	}
-	
+
 	public int getSize()
 	{
 		return values;
 	}
-	
+
 	public int getCapacity()
 	{
 		return size;
 	}
-	
+
 	public float[] getDistance()
 	{
 		return Arrays.copyOf(distance, values);

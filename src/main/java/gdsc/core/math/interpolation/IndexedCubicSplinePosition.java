@@ -29,7 +29,6 @@ package gdsc.core.math.interpolation;
 
 import org.apache.commons.math3.exception.OutOfRangeException;
 
-
 /**
  * Contains the cubic spline position for a value within the interpolation range. Used to pre-compute values to evaluate
  * the spline value.

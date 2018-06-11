@@ -32,7 +32,6 @@ import java.util.Arrays;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 
-
 /**
  * Class for manipulating arrays
  * 
@@ -240,7 +239,7 @@ public class SimpleArrayUtils
 			return null;
 		float[] b = new float[a.length];
 		for (int i = 0; i < a.length; i++)
-			b[i] = (float) a[i];
+			b[i] = a[i];
 		return b;
 	}
 

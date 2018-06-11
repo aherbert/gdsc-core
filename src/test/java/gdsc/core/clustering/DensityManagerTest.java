@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering;
 
-
 import java.awt.Rectangle;
 
 import org.junit.Assert;

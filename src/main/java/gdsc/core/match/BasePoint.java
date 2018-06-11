@@ -27,7 +27,6 @@
  */
 package gdsc.core.match;
 
-
 /**
  * <p>
  * Stores a 2D/3D point.
@@ -86,7 +85,8 @@ public class BasePoint implements Coordinate
 		// Note: floatToRawIntBits does not unify all possible NaN values
 		// However since the equals() will fail for NaN values we are not
 		// breaking the java contract.
-		return (41 * (41 * (41 + Float.floatToRawIntBits(x)) + Float.floatToRawIntBits(y)) + Float.floatToRawIntBits(z));
+		return (41 * (41 * (41 + Float.floatToRawIntBits(x)) + Float.floatToRawIntBits(y)) +
+				Float.floatToRawIntBits(z));
 	}
 
 	/*
@@ -94,6 +94,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#getX()
 	 */
+	@Override
 	public float getX()
 	{
 		return x;
@@ -104,6 +105,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#getY()
 	 */
+	@Override
 	public float getY()
 	{
 		return y;
@@ -114,6 +116,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#getZ()
 	 */
+	@Override
 	public float getZ()
 	{
 		return z;
@@ -124,6 +127,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#getXint()
 	 */
+	@Override
 	public int getXint()
 	{
 		return (int) x;
@@ -134,6 +138,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#getYint()
 	 */
+	@Override
 	public int getYint()
 	{
 		return (int) y;
@@ -144,6 +149,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#getZint()
 	 */
+	@Override
 	public int getZint()
 	{
 		return (int) z;
@@ -154,6 +160,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#distance(float, float, float)
 	 */
+	@Override
 	public double distance(float x, float y, float z)
 	{
 		return Math.sqrt(distance2(x, y, z));
@@ -164,6 +171,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#distance(float, float)
 	 */
+	@Override
 	public double distance(float x, float y)
 	{
 		return Math.sqrt(distance2(x, y));
@@ -174,6 +182,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#distance2(float, float, float)
 	 */
+	@Override
 	public double distance2(float x, float y, float z)
 	{
 		return (this.x - x) * (this.x - x) + (this.y - y) * (this.y - y) + (this.z - z) * (this.z - z);
@@ -184,6 +193,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#distance2(float, float)
 	 */
+	@Override
 	public double distance2(float x, float y)
 	{
 		return (this.x - x) * (this.x - x) + (this.y - y) * (this.y - y);
@@ -194,6 +204,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#distanceXY(gdsc.core.match.Coordinate)
 	 */
+	@Override
 	public double distanceXY(Coordinate other)
 	{
 		return distance(other.getX(), other.getY());
@@ -204,6 +215,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#distanceXY2(gdsc.core.match.Coordinate)
 	 */
+	@Override
 	public double distanceXY2(Coordinate other)
 	{
 		return distance2(other.getX(), other.getY());
@@ -214,6 +226,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#distanceXYZ(gdsc.core.match.Coordinate)
 	 */
+	@Override
 	public double distanceXYZ(Coordinate other)
 	{
 		return distance(other.getX(), other.getY(), other.getZ());
@@ -224,6 +237,7 @@ public class BasePoint implements Coordinate
 	 * 
 	 * @see gdsc.core.match.Coordinate#distanceXYZ2(gdsc.core.match.Coordinate)
 	 */
+	@Override
 	public double distanceXYZ2(Coordinate other)
 	{
 		return distance2(other.getX(), other.getY(), other.getZ());

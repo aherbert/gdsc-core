@@ -31,7 +31,6 @@ import java.util.Arrays;
 
 import org.apache.commons.math3.util.FastMath;
 
-
 /**
  * Provides a rolling median window on a data array.
  */

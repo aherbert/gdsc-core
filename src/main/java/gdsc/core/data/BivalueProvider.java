@@ -27,7 +27,6 @@
  */
 package gdsc.core.data;
 
-
 /**
  * Provide data on 2-axes. This is a simple interface to allow passing XY data stored in a different layout without
  * rewriting the data.
@@ -70,7 +69,7 @@ public interface BivalueProvider
 	 *            the values
 	 */
 	public void get(int x, int y, double[][] values);
-	
+
 	/**
 	 * Convert to an array.
 	 *

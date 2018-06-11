@@ -27,7 +27,6 @@
  */
 package gdsc.core.test;
 
-
 /**
  * Class to store results of running a timing task
  */

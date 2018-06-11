@@ -32,7 +32,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import gdsc.core.ij.Utils;
 
-
 /**
  * Track the progress of processing results in incremental updates to a progress tracker
  */

@@ -33,7 +33,6 @@ import org.apache.commons.math3.util.FastMath;
 
 import gdsc.core.utils.FixedIntList;
 
-
 /**
  * Computes the local maxima.
  */
@@ -2070,6 +2069,7 @@ public class NonMaximumSuppression implements Cloneable
 	 * 
 	 * @see java.lang.Object#clone()
 	 */
+	@Override
 	public NonMaximumSuppression clone()
 	{
 		try

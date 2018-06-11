@@ -209,16 +209,19 @@ public class AreaSumTest
 			this.sample = sample;
 		}
 
+		@Override
 		public int getSize()
 		{
 			return data.length;
 		}
 
+		@Override
 		public Object getData(int i)
 		{
 			return data[i];
 		}
 
+		@Override
 		public Object run(Object data)
 		{
 			float[] d = (float[]) data;

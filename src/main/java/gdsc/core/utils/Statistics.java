@@ -29,7 +29,6 @@ package gdsc.core.utils;
 
 import org.apache.commons.math3.distribution.TDistribution;
 
-
 /**
  * Simple class to calculate the mean and standard deviation of data
  */
@@ -338,7 +337,7 @@ public class Statistics
 	 */
 	public double getStandardDeviation()
 	{
-		double stdDev = ss - ((double) s * s) / n;
+		double stdDev = ss - (s * s) / n;
 		if (stdDev > 0.0)
 			stdDev = Math.sqrt(stdDev / (n - 1));
 		else
@@ -351,7 +350,7 @@ public class Statistics
 	 */
 	public double getVariance()
 	{
-		double variance = ss - ((double) s * s) / n;
+		double variance = ss - (s * s) / n;
 		if (variance > 0.0)
 			variance = variance / (n - 1);
 		else

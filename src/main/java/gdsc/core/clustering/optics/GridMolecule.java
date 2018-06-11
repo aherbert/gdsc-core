@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering.optics;
 
-
 /**
  * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules.
  */
@@ -47,6 +46,7 @@ class GridMolecule extends DistanceMolecule
 		this.yBin = yBin;
 	}
 
+	@Override
 	public GridMolecule getNext()
 	{
 		return next;
@@ -57,11 +57,13 @@ class GridMolecule extends DistanceMolecule
 		this.next = next;
 	}
 
+	@Override
 	int getXBin()
 	{
 		return xBin;
 	}
 
+	@Override
 	int getYBin()
 	{
 		return yBin;

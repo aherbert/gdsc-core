@@ -27,7 +27,6 @@
  */
 package ij.process;
 
-
 import java.awt.image.ColorModel;
 
 /**
@@ -114,6 +113,7 @@ public class MappedFloatProcessor extends FloatProcessor
 	private static int NEGATIVE_ZERO = Float.floatToRawIntBits(-0.0f);
 
 	// scale from float to 8-bits
+	@Override
 	protected byte[] create8BitImage()
 	{
 		/*

@@ -27,7 +27,6 @@
  */
 package gdsc.core.threshold;
 
-
 /**
  * Contains a histogram.
  * <p>
@@ -75,6 +74,7 @@ public class IntHistogram extends Histogram
 	 * 
 	 * @see gdsc.core.threshold.Histogram#getValue(int)
 	 */
+	@Override
 	public float getValue(int i)
 	{
 		return offset + i;

@@ -293,6 +293,7 @@ public class CustomTricubicFunctionTest
 		// Each entry should be unique indicating that the result is optimal 
 		map.forEachEntry(new TObjectIntProcedure<String>()
 		{
+			@Override
 			public boolean execute(String a, int b)
 			{
 				if (b > 1)
@@ -382,6 +383,7 @@ public class CustomTricubicFunctionTest
 		// Each entry should be unique indicating that the result is optimal 
 		map.forEachEntry(new TObjectIntProcedure<String>()
 		{
+			@Override
 			public boolean execute(String a, int b)
 			{
 				if (b > 1)
@@ -576,6 +578,7 @@ public class CustomTricubicFunctionTest
 		// Each entry should be unique indicating that the result is optimal 
 		map.forEachEntry(new TObjectIntProcedure<String>()
 		{
+			@Override
 			public boolean execute(String a, int b)
 			{
 				if (b > 1)
@@ -589,6 +592,7 @@ public class CustomTricubicFunctionTest
 
 		return finaliseInlinePowerTableFunction(sb);
 	}
+
 	/**
 	 * Used to create the inline value function for second-order gradients with power table
 	 * 
@@ -652,6 +656,7 @@ public class CustomTricubicFunctionTest
 		// Each entry should be unique indicating that the result is optimal 
 		map.forEachEntry(new TObjectIntProcedure<String>()
 		{
+			@Override
 			public boolean execute(String a, int b)
 			{
 				if (b > 1)

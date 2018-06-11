@@ -27,7 +27,6 @@
  */
 package gdsc.core.clustering;
 
-
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,8 +94,8 @@ public class ClusteringEngine
 		int startYBin;
 		int endYBin;
 
-		public ParticleLinkageWorker(ClosestPair pair, ExtendedClusterPoint[][] grid, int nXBins, int nYBins,
-				double r2, double minx, double miny, int startXBin, int endXBin, int startYBin, int endYBin)
+		public ParticleLinkageWorker(ClosestPair pair, ExtendedClusterPoint[][] grid, int nXBins, int nYBins, double r2,
+				double minx, double miny, int startXBin, int endXBin, int startYBin, int endYBin)
 		{
 			this.pair = pair;
 			this.grid = grid;
@@ -116,6 +115,7 @@ public class ClusteringEngine
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
+		@Override
 		public void run()
 		{
 			ClosestPair result = findClosestParticle(grid, nXBins, nYBins, r2, minx, miny, startXBin, endXBin,
@@ -166,6 +166,7 @@ public class ClusteringEngine
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
+		@Override
 		public void run()
 		{
 			ClosestPair result;
@@ -224,20 +225,25 @@ public class ClusteringEngine
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
+		@Override
 		public void run()
 		{
 			ClosestPair result = null;
 			if (timePriority)
 			{
-				result = (single) ? findClosestParticleTimePriority(grid, nXBins, nYBins, r2, time, startXBin, endXBin,
-						startYBin, endYBin) : findClosestTimePriority(grid, nXBins, nYBins, r2, time, startXBin,
-						endXBin, startYBin, endYBin);
+				result = (single)
+						? findClosestParticleTimePriority(grid, nXBins, nYBins, r2, time, startXBin, endXBin, startYBin,
+								endYBin)
+						: findClosestTimePriority(grid, nXBins, nYBins, r2, time, startXBin, endXBin, startYBin,
+								endYBin);
 			}
 			else
 			{
-				result = (single) ? findClosestParticleDistancePriority(grid, nXBins, nYBins, r2, time, startXBin,
-						endXBin, startYBin, endYBin) : findClosestDistancePriority(grid, nXBins, nYBins, r2, time,
-						startXBin, endXBin, startYBin, endYBin);
+				result = (single)
+						? findClosestParticleDistancePriority(grid, nXBins, nYBins, r2, time, startXBin, endXBin,
+								startYBin, endYBin)
+						: findClosestDistancePriority(grid, nXBins, nYBins, r2, time, startXBin, endXBin, startYBin,
+								endYBin);
 			}
 
 			if (result != null)
@@ -284,6 +290,7 @@ public class ClusteringEngine
 		 * 
 		 * @see java.lang.Runnable#run()
 		 */
+		@Override
 		public void run()
 		{
 			links = findLinksAndCountNeighbours(grid, nXBins, nYBins, r2, startXBin, endXBin, startYBin, endYBin);
@@ -1528,8 +1535,8 @@ public class ClusteringEngine
 	 *            True if only singles can be joined to another cluster
 	 * @return
 	 */
-	private ArrayList<Cluster> runClosest(Cluster[][] grid, int nXBins, int nYBins, double r2, double minx,
-			double miny, double xBinWidth, double yBinWidth, ArrayList<Cluster> candidates, ArrayList<Cluster> singles,
+	private ArrayList<Cluster> runClosest(Cluster[][] grid, int nXBins, int nYBins, double r2, double minx, double miny,
+			double xBinWidth, double yBinWidth, ArrayList<Cluster> candidates, ArrayList<Cluster> singles,
 			boolean single)
 	{
 		int N = candidates.size();
@@ -1577,8 +1584,8 @@ public class ClusteringEngine
 
 		if (threadPool == null)
 		{
-			closest = (single) ? findClosestParticle(grid, nXBins, nYBins, r2, 0, nXBins, 0, nYBins) : findClosest(
-					grid, nXBins, nYBins, r2, 0, nXBins, 0, nYBins);
+			closest = (single) ? findClosestParticle(grid, nXBins, nYBins, r2, 0, nXBins, 0, nYBins)
+					: findClosest(grid, nXBins, nYBins, r2, 0, nXBins, 0, nYBins);
 		}
 		else
 		{
@@ -2345,8 +2352,8 @@ public class ClusteringEngine
 	 *            True if only singles can be joined to another cluster
 	 * @return
 	 */
-	private ArrayList<Cluster> runClosestDistancePriority(Cluster[][] grid, int nXBins, int nYBins, double r2,
-			int time, double minx, double miny, double xBinWidth, double yBinWidth, ArrayList<Cluster> candidates,
+	private ArrayList<Cluster> runClosestDistancePriority(Cluster[][] grid, int nXBins, int nYBins, double r2, int time,
+			double minx, double miny, double xBinWidth, double yBinWidth, ArrayList<Cluster> candidates,
 			ArrayList<Cluster> singles, boolean single)
 	{
 		int N = candidates.size();
@@ -2355,8 +2362,8 @@ public class ClusteringEngine
 		final boolean trackProgress = (tracker.getClass() != NullTrackProgress.class);
 		TimeCluster[][] newGrid = convertGrid(grid, nXBins, nYBins);
 		initialiseMultithreading(nXBins, nYBins);
-		while (joinClosestDistancePriority(newGrid, nXBins, nYBins, r2, time, minx, miny, xBinWidth, yBinWidth,
-				singles, single))
+		while (joinClosestDistancePriority(newGrid, nXBins, nYBins, r2, time, minx, miny, xBinWidth, yBinWidth, singles,
+				single))
 		{
 			if (tracker.isEnded())
 				return null;
@@ -2402,8 +2409,9 @@ public class ClusteringEngine
 
 		if (threadPool == null)
 		{
-			closest = (single) ? findClosestParticleDistancePriority(grid, nXBins, nYBins, r2, time, 0, nXBins, 0,
-					nYBins) : findClosestDistancePriority(grid, nXBins, nYBins, r2, time, 0, nXBins, 0, nYBins);
+			closest = (single)
+					? findClosestParticleDistancePriority(grid, nXBins, nYBins, r2, time, 0, nXBins, 0, nYBins)
+					: findClosestDistancePriority(grid, nXBins, nYBins, r2, time, 0, nXBins, 0, nYBins);
 		}
 		else
 		{
@@ -2420,8 +2428,8 @@ public class ClusteringEngine
 
 					ClosestPair pair = new ClosestPair();
 					results.add(pair);
-					futures.add(threadPool.submit(new ClosestPriorityWorker(false, pair, grid, nXBins, nYBins, r2,
-							time, startXBin, endXBin, startYBin, endYBin, single)));
+					futures.add(threadPool.submit(new ClosestPriorityWorker(false, pair, grid, nXBins, nYBins, r2, time,
+							startXBin, endXBin, startYBin, endYBin, single)));
 				}
 			}
 
