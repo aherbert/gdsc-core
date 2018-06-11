@@ -1018,6 +1018,9 @@ public class SimpleArrayUtils
 	/**
 	 * Returns a string representation of the object. If an array then the appropriate Arrays.toString(...) method is
 	 * called depending on the array type.
+	 * <p>
+	 * Note: If an instance of Object[] then {@link Arrays#deepToString(Object[])} is called allowing recursion for
+	 * nested arrays, e.g. int[][].
 	 *
 	 * @param o
 	 *            the object
@@ -1025,20 +1028,43 @@ public class SimpleArrayUtils
 	 */
 	public static String toString(Object o)
 	{
+		return toString(o, true);
+	}
+
+	/**
+	 * Returns a string representation of the object. If an array then the appropriate Arrays.toString(...) method is
+	 * called depending on the array type.
+	 * <p>
+	 * Note: If an instance of Object[] then optionally {@link Arrays#deepToString(Object[])} is called allowing
+	 * recursion for nested arrays, e.g. int[][].
+	 *
+	 * @param o
+	 *            the object
+	 * @param deepToString
+	 *            Set to true to call Arrays#deepToString(Object[]) for Object arrays
+	 * @return the string
+	 */
+	public static String toString(Object o, boolean deepToString)
+	{
 		if (o != null)
 		{
-			if (o.getClass().isArray())
+			Class<?> eClass = o.getClass();
+			if (eClass.isArray())
 			{
+				// Check primitive types
 				//@formatter:off
-				if (o instanceof int      []) return Arrays.toString((int       []) o);
-				if (o instanceof double   []) return Arrays.toString((double    []) o);
-				if (o instanceof float    []) return Arrays.toString((float     []) o);
-				if (o instanceof Object   []) return Arrays.toString((Object    []) o);
-				if (o instanceof boolean  []) return Arrays.toString((boolean   []) o);
-				if (o instanceof byte     []) return Arrays.toString((byte      []) o);
-				if (o instanceof long     []) return Arrays.toString((long      []) o);
-				if (o instanceof short    []) return Arrays.toString((short     []) o);
-				if (o instanceof char     []) return Arrays.toString((char      []) o);
+				if (eClass ==  int      [].class) return Arrays.toString((int       []) o);
+				if (eClass ==  double   [].class) return Arrays.toString((double    []) o);
+				if (eClass ==  float    [].class) return Arrays.toString((float     []) o);
+				if (eClass ==  boolean  [].class) return Arrays.toString((boolean   []) o);
+				if (eClass ==  byte     [].class) return Arrays.toString((byte      []) o);
+				if (eClass ==  long     [].class) return Arrays.toString((long      []) o);
+				if (eClass ==  short    [].class) return Arrays.toString((short     []) o);
+				if (eClass ==  char     [].class) return Arrays.toString((char      []) o);
+				// Support optional recursion
+				return (deepToString) 
+						? Arrays.deepToString((Object[]) o) 
+						: Arrays.toString(    (Object[]) o);
 				//@formatter:on
 			}
 			return o.toString();

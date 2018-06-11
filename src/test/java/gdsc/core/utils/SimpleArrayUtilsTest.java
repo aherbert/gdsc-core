@@ -265,4 +265,30 @@ public class SimpleArrayUtilsTest
 		//System.out.printf("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
 		Assert.assertArrayEquals(e, o);
 	}
+
+	@Test
+	public void canToString()
+	{
+		Assert.assertEquals("null", SimpleArrayUtils.toString(null));
+
+		Assert.assertEquals("[0.5, 1.0]", SimpleArrayUtils.toString(new float[] { 0.5f, 1f }));
+		Assert.assertEquals("[0.5, 1.0]", SimpleArrayUtils.toString(new double[] { 0.5, 1 }));
+
+		Assert.assertEquals("[c, a]", SimpleArrayUtils.toString(new char[] { 'c', 'a' }));
+
+		Assert.assertEquals("[true, false]", SimpleArrayUtils.toString(new boolean[] { true, false }));
+
+		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new byte[] { 2, 1 }));
+		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new short[] { 2, 1 }));
+		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new int[] { 2, 1 }));
+		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new long[] { 2, 1 }));
+
+		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new Object[] { 2, 1 }));
+
+		// Check objects
+		Assert.assertEquals("[foo, bar]", SimpleArrayUtils.toString(new Object[] { "foo", "bar" }));
+		
+		// Check recursion
+		Assert.assertEquals("[[2, 1], [3, 4]]", SimpleArrayUtils.toString(new int[][] { { 2, 1 }, { 3, 4 } }));
+	}
 }
