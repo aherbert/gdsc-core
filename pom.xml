@@ -65,6 +65,11 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
 			</roles>
 		</developer>
 	</developers>
+	<contributors>
+		<contributor>
+			<name>Alex Herbert</name>
+		</contributor>
+	</contributors>
 
 	<properties>
 		<license.licenseName>gpl_v3</license.licenseName>
