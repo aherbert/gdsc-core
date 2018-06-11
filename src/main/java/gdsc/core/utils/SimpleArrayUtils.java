@@ -1002,4 +1002,47 @@ public class SimpleArrayUtils
 		if (check2DSize(width, height) != data.length)
 			throw new IllegalArgumentException("data is not the correct array size");
 	}
+
+	/**
+	 * Checks if the object is an array.
+	 *
+	 * @param o
+	 *            the object
+	 * @return true, if is array
+	 */
+	public static boolean isArray(Object o)
+	{
+		return o != null && o.getClass().isArray();
+	}
+
+	/**
+	 * Returns a string representation of the object. If an array then the appropriate Arrays.toString(...) method is
+	 * called depending on the array type.
+	 *
+	 * @param o
+	 *            the object
+	 * @return the string
+	 */
+	public static String toString(Object o)
+	{
+		if (o != null)
+		{
+			if (o.getClass().isArray())
+			{
+				//@formatter:off
+				if (o instanceof int      []) return Arrays.toString((int       []) o);
+				if (o instanceof double   []) return Arrays.toString((double    []) o);
+				if (o instanceof float    []) return Arrays.toString((float     []) o);
+				if (o instanceof Object   []) return Arrays.toString((Object    []) o);
+				if (o instanceof boolean  []) return Arrays.toString((boolean   []) o);
+				if (o instanceof byte     []) return Arrays.toString((byte      []) o);
+				if (o instanceof long     []) return Arrays.toString((long      []) o);
+				if (o instanceof short    []) return Arrays.toString((short     []) o);
+				if (o instanceof char     []) return Arrays.toString((char      []) o);
+				//@formatter:on
+			}
+			return o.toString();
+		}
+		return "null";
+	}
 }
