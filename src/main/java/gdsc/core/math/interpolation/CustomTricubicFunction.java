@@ -1,13 +1,13 @@
-package gdsc.core.math.interpolation;
-
-/*----------------------------------------------------------------------------- 
+/*- 
+ * %%Ignore-License
+ * 
  * GDSC Software
  * 
  * This is an extension of the 
  * org.apache.commons.math3.analysis.interpolation.TricubicFunction
  * 
  * Modifications have been made to allow computation of gradients and computation
- * with pre-computated x,y,z powers using single/floating precision.
+ * with pre-computed x,y,z powers using single/floating precision.
  * 
  * The code is released under the original Apache licence: 
  * 
@@ -26,6 +26,7 @@ package gdsc.core.math.interpolation;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package gdsc.core.math.interpolation;
 
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.exception.OutOfRangeException;

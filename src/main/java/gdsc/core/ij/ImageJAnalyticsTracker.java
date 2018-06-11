@@ -1,15 +1,30 @@
-/*----------------------------------------------------------------------------- 
- * GDSC Core for ImageJ
+/*-
+ * #%L
+ * Genome Damage and Stability Centre ImageJ Core Package
  * 
- * Copyright (C) 2016 Alex Herbert
- * Genome Damage and Stability Centre
- * University of Sussex, UK
+ * Contains code used by:
  * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *---------------------------------------------------------------------------*/
+ * GDSC ImageJ Plugins - Microscopy image analysis
+ * 
+ * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
+ * %%
+ * Copyright (C) 2011 - 2018 Alex Herbert
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
 package gdsc.core.ij;
 
 import java.awt.AWTEvent;
@@ -28,9 +43,9 @@ import gdsc.analytics.ClientParameters;
 import gdsc.analytics.ClientParametersManager;
 import gdsc.analytics.HitType;
 import gdsc.analytics.JGoogleAnalyticsTracker;
-import gdsc.analytics.RequestParameters;
 import gdsc.analytics.JGoogleAnalyticsTracker.DispatchMode;
 import gdsc.analytics.JGoogleAnalyticsTracker.MeasurementProtocolVersion;
+import gdsc.analytics.RequestParameters;
 import ij.IJ;
 import ij.ImageJ;
 import ij.Prefs;

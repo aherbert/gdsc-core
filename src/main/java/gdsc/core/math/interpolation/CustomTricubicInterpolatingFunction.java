@@ -1,18 +1,6 @@
-package gdsc.core.math.interpolation;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-
-/*----------------------------------------------------------------------------- 
+/*-
+ * %%Ignore-License
+ *
  * GDSC Software
  * 
  * This is an extension of the 
@@ -38,6 +26,19 @@ import java.util.concurrent.Future;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package gdsc.core.math.interpolation;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.exception.DimensionMismatchException;

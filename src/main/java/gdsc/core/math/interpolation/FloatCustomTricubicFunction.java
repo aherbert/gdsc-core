@@ -1,3 +1,31 @@
+/*- 
+ * %%Ignore-License
+ * 
+ * GDSC Software
+ * 
+ * This is an extension of the 
+ * org.apache.commons.math3.analysis.interpolation.TricubicFunction
+ * 
+ * Modifications have been made to allow computation of gradients and computation
+ * with pre-computed x,y,z powers.
+ * 
+ * The code is released under the original Apache licence: 
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package gdsc.core.math.interpolation;
 
 /**
