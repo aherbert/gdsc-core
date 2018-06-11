@@ -14,7 +14,7 @@
 	<version>1.2.0</version>
 	<packaging>jar</packaging>
 
-	<name>GDSC Core</name>
+	<name>GDSC Core library for ImageJ</name>
 	<url>http://www.sussex.ac.uk/gdsc/intranet/microscopy/imagej/gdsc_plugins</url>
 
 	<licenses>
@@ -61,7 +61,7 @@
 
 	<properties>
 		<license.licenseName>gpl_v3</license.licenseName>
-		<license.copyrightOwners>N/A</license.copyrightOwners>
+		<license.copyrightOwners>Alex Herbert</license.copyrightOwners>
 	</properties>
 
 	<build>
