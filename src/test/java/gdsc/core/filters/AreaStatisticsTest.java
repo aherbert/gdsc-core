@@ -69,8 +69,9 @@ public class AreaStatisticsTest
 					ImageStatistics s = fp.getStatistics();
 
 					Assert.assertEquals(s.area, o[AreaStatistics.N], 0);
-					Assert.assertEquals(s.mean * s.area, o[AreaStatistics.SUM], 1e-6);
-					Assert.assertEquals(s.stdDev, o[AreaStatistics.SD], 1e-6);
+					double sum = s.mean * s.area;
+					Assert.assertEquals(sum, o[AreaStatistics.SUM], sum * 1e-6);
+					Assert.assertEquals(s.stdDev, o[AreaStatistics.SD], s.stdDev * 1e-6);
 				}
 	}
 

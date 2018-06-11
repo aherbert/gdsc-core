@@ -16,7 +16,7 @@ package gdsc.core.filters;
 /**
  * Compute statistics using an area region of an 2D data frame.
  */
-public class AreaStatistics extends AreaSum
+public class DAreaStatistics extends DAreaSum
 {
 	/** The index of the standard deviation in the results. */
 	public final static int SD = 2;
@@ -44,7 +44,7 @@ public class AreaStatistics extends AreaSum
 	 * @throws IllegalArgumentException
 	 *             if maxx * maxy != data.length or data is null or length zero
 	 */
-	public AreaStatistics(float[] data, int maxx, int maxy) throws IllegalArgumentException
+	public DAreaStatistics(double[] data, int maxx, int maxy) throws IllegalArgumentException
 	{
 		super(data, maxx, maxy);
 	}

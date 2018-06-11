@@ -14,7 +14,7 @@ import gdsc.core.utils.Statistics;
 import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
 
-public class AreaSumTest
+public class DAreaSumTest
 {
 	boolean[] rolling = new boolean[] { true, false };
 	int[] boxSizes = new int[] { 15, 9, 5, 3, 2, 1 };
@@ -23,19 +23,19 @@ public class AreaSumTest
 	@Test
 	public void canComputeGlobalStatistics()
 	{
-		float[] data = createData(new Well19937c());
+		double[] data = createData(new Well19937c());
 		Statistics s = new Statistics(data);
-		AreaSum a = new AreaSum(data, maxx, maxy);
+		DAreaSum a = new DAreaSum(data, maxx, maxy);
 		for (boolean r : rolling)
 		{
 			a.setRollingSums(r);
 			double[] o = a.getStatistics(0, 0, maxy);
-			Assert.assertEquals(s.getN(), o[AreaSum.N], 0);
-			Assert.assertEquals(s.getSum(), o[AreaSum.SUM], 1e-6);
+			Assert.assertEquals(s.getN(), o[DAreaSum.N], 0);
+			Assert.assertEquals(s.getSum(), o[DAreaSum.SUM], 1e-6);
 
 			o = a.getStatistics(new Rectangle(maxx, maxy));
-			Assert.assertEquals(s.getN(), o[AreaSum.N], 0);
-			Assert.assertEquals(s.getSum(), o[AreaSum.SUM], 1e-6);
+			Assert.assertEquals(s.getN(), o[DAreaSum.N], 0);
+			Assert.assertEquals(s.getSum(), o[DAreaSum.SUM], 1e-6);
 		}
 	}
 
@@ -43,10 +43,10 @@ public class AreaSumTest
 	public void canComputeNxNRegionStatistics()
 	{
 		RandomGenerator r = new Well19937c();
-		float[] data = createData(r);
-		AreaSum a1 = new AreaSum(data, maxx, maxy);
+		double[] data = createData(r);
+		DAreaSum a1 = new DAreaSum(data, maxx, maxy);
 		a1.setRollingSums(true);
-		AreaSum a2 = new AreaSum(data, maxx, maxy);
+		DAreaSum a2 = new DAreaSum(data, maxx, maxy);
 		a2.setRollingSums(false);
 
 		FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
@@ -64,9 +64,8 @@ public class AreaSumTest
 					fp.setRoi(new Rectangle(x - n, y - n, 2 * n + 1, 2 * n + 1));
 					ImageStatistics s = fp.getStatistics();
 
-					Assert.assertEquals(s.area, o[AreaSum.N], 0);
-					double sum = s.mean * s.area;
-					Assert.assertEquals(sum, o[AreaSum.SUM], sum * 1e-6);
+					Assert.assertEquals(s.area, o[DAreaSum.N], 0);
+					Assert.assertEquals(s.mean * s.area, o[DAreaSum.SUM], 1e-6);
 				}
 	}
 
@@ -74,10 +73,10 @@ public class AreaSumTest
 	public void canComputeNxMRegionStatistics()
 	{
 		RandomGenerator r = new Well19937c();
-		float[] data = createData(r);
-		AreaSum a1 = new AreaSum(data, maxx, maxy);
+		double[] data = createData(r);
+		DAreaSum a1 = new DAreaSum(data, maxx, maxy);
 		a1.setRollingSums(true);
-		AreaSum a2 = new AreaSum(data, maxx, maxy);
+		DAreaSum a2 = new DAreaSum(data, maxx, maxy);
 		a2.setRollingSums(false);
 
 		FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
@@ -96,8 +95,9 @@ public class AreaSumTest
 						fp.setRoi(new Rectangle(x - nx, y - ny, 2 * nx + 1, 2 * ny + 1));
 						ImageStatistics s = fp.getStatistics();
 
-						Assert.assertEquals(s.area, o[AreaSum.N], 0);
-						Assert.assertEquals(s.mean * s.area, o[AreaSum.SUM], 1e-6);
+						Assert.assertEquals(s.area, o[DAreaSum.N], 0);
+						double sum = s.mean * s.area;
+						Assert.assertEquals(sum, o[DAreaSum.SUM], sum * 1e-6);
 					}
 	}
 
@@ -105,10 +105,10 @@ public class AreaSumTest
 	public void canComputeRectangleRegionStatistics()
 	{
 		RandomGenerator r = new Well19937c();
-		float[] data = createData(r);
-		AreaSum a1 = new AreaSum(data, maxx, maxy);
+		double[] data = createData(r);
+		DAreaSum a1 = new DAreaSum(data, maxx, maxy);
 		a1.setRollingSums(true);
-		AreaSum a2 = new AreaSum(data, maxx, maxy);
+		DAreaSum a2 = new DAreaSum(data, maxx, maxy);
 		a2.setRollingSums(false);
 
 		int width = 10, height = 12;
@@ -130,16 +130,16 @@ public class AreaSumTest
 				fp.setRoi(roi);
 				ImageStatistics s = fp.getStatistics();
 
-				Assert.assertEquals(s.area, o[AreaSum.N], 0);
-				Assert.assertEquals(s.mean * s.area, o[AreaSum.SUM], 1e-6);
+				Assert.assertEquals(s.area, o[DAreaSum.N], 0);
+				Assert.assertEquals(s.mean * s.area, o[DAreaSum.SUM], 1e-6);
 			}
 	}
 
 	@Test
 	public void canComputeStatisticsWithinClippedBounds()
 	{
-		float[] data = new float[] { 1, 2, 3, 4 };
-		AreaSum a = new AreaSum(data, 2, 2);
+		double[] data = new double[] { 1, 2, 3, 4 };
+		DAreaSum a = new DAreaSum(data, 2, 2);
 		Statistics stats = new Statistics(data);
 		int c = stats.getN();
 		double u = stats.getSum();
@@ -149,19 +149,19 @@ public class AreaSumTest
 			for (int n : boxSizes)
 			{
 				double[] o = a.getStatistics(0, 0, n);
-				Assert.assertEquals(c, o[AreaSum.N], 0);
-				Assert.assertEquals(u, o[AreaSum.SUM], 1e-6);
+				Assert.assertEquals(c, o[DAreaSum.N], 0);
+				Assert.assertEquals(u, o[DAreaSum.SUM], 1e-6);
 
 				Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
 				o = a.getStatistics(bounds);
-				Assert.assertEquals(c, o[AreaSum.N], 0);
-				Assert.assertEquals(u, o[AreaSum.SUM], 1e-6);
+				Assert.assertEquals(c, o[DAreaSum.N], 0);
+				Assert.assertEquals(u, o[DAreaSum.SUM], 1e-6);
 
 				bounds.x--;
 				bounds.y--;
 				o = a.getStatistics(bounds);
-				Assert.assertEquals(c, o[AreaSum.N], 0);
-				Assert.assertEquals(u, o[AreaSum.SUM], 1e-6);
+				Assert.assertEquals(c, o[DAreaSum.N], 0);
+				Assert.assertEquals(u, o[DAreaSum.SUM], 1e-6);
 			}
 		}
 	}
@@ -170,10 +170,10 @@ public class AreaSumTest
 	{
 		boolean rolling;
 		int n;
-		float[][] data;
+		double[][] data;
 		int[] sample;
 
-		public MyTimingtask(boolean rolling, int n, float[][] data, int[] sample)
+		public MyTimingtask(boolean rolling, int n, double[][] data, int[] sample)
 		{
 			super(((rolling) ? "Rolling" : "Simple") + n);
 			this.rolling = rolling;
@@ -194,8 +194,8 @@ public class AreaSumTest
 
 		public Object run(Object data)
 		{
-			float[] d = (float[]) data;
-			AreaSum a = new AreaSum(d, maxx, maxy);
+			double[] d = (double[]) data;
+			DAreaSum a = new DAreaSum(d, maxx, maxy);
 			a.setRollingSums(rolling);
 			for (int i = 0; i < sample.length; i += 2)
 				a.getStatistics(sample[i], sample[i + 1], n);
@@ -242,7 +242,7 @@ public class AreaSumTest
 			sample[j++] = y[i];
 		}
 
-		float[][] data = new float[10][];
+		double[][] data = new double[10][];
 		for (int i = 0; i < data.length; i++)
 			data[i] = createData(r);
 
@@ -263,11 +263,11 @@ public class AreaSumTest
 		}
 	}
 
-	private float[] createData(RandomGenerator r)
+	private double[] createData(RandomGenerator r)
 	{
-		float[] d = new float[maxx * maxy];
+		double[] d = new double[maxx * maxy];
 		for (int i = 0; i < d.length; i++)
-			d[i] = r.nextFloat();
+			d[i] = r.nextDouble();
 		return d;
 	}
 
