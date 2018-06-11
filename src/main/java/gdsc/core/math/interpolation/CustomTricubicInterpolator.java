@@ -30,8 +30,6 @@ package gdsc.core.math.interpolation;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-//@formatter:off
-
 import org.apache.commons.math3.analysis.interpolation.TrivariateGridInterpolator;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NoDataException;
@@ -52,6 +50,7 @@ import gdsc.core.utils.TurboList;
 /**
  * Generates a tricubic interpolating function.
  */
+//@formatter:off
 public class CustomTricubicInterpolator
     implements TrivariateGridInterpolator {
 	
