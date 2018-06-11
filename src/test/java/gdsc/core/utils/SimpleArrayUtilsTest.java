@@ -283,10 +283,10 @@ public class SimpleArrayUtilsTest
 		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new int[] { 2, 1 }));
 		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new long[] { 2, 1 }));
 
-		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new Object[] { 2, 1 }));
-
 		// Check objects
+		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new Object[] { 2, 1 }));
 		Assert.assertEquals("[foo, bar]", SimpleArrayUtils.toString(new Object[] { "foo", "bar" }));
+		Assert.assertEquals("[foo, 1]", SimpleArrayUtils.toString(new Object[] { "foo", 1 }));
 		
 		// Check recursion
 		Assert.assertEquals("[[2, 1], [3, 4]]", SimpleArrayUtils.toString(new int[][] { { 2, 1 }, { 3, 4 } }));
