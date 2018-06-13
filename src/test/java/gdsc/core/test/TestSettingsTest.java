@@ -29,6 +29,8 @@ package gdsc.core.test;
 
 import org.junit.Test;
 
+import gdsc.core.test.TestSettings.LogLevel;
+
 public class TestSettingsTest
 {
 	@Test
@@ -123,5 +125,14 @@ public class TestSettingsTest
 		for (int i = 0; i < o.length; i++)
 			o[i] = Math.nextUp((float) (e[i] + e[i] * error));
 		TestSettings.assertArrayEquals(e, o, error);
+	}
+	
+	@Test
+	public void printSettings()
+	{
+		TestSettings.assume(LogLevel.WARN);
+		TestSettings.warn("TestSettings Log Level = %d\n", TestSettings.getLogLevel());
+		TestSettings.warn("TestSettings Test Complexity = %d\n", TestSettings.getTestComplexity());
+		TestSettings.warn("TestSettings Seed = %d\n", TestSettings.getSeed());
 	}
 }

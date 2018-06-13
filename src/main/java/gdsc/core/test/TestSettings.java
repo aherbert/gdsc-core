@@ -50,7 +50,7 @@ public class TestSettings
 			@Override
 			int getValue()
 			{
-				return -1;
+				return 0;
 			}
 		},
 
@@ -63,7 +63,7 @@ public class TestSettings
 			@Override
 			int getValue()
 			{
-				return 0;
+				return 1;
 			}
 		},
 
@@ -73,7 +73,7 @@ public class TestSettings
 			@Override
 			int getValue()
 			{
-				return 1;
+				return 2;
 			}
 		},
 
@@ -83,7 +83,7 @@ public class TestSettings
 			@Override
 			int getValue()
 			{
-				return 2;
+				return 3;
 			}
 		};
 
@@ -106,7 +106,7 @@ public class TestSettings
 			@Override
 			int getValue()
 			{
-				return -1;
+				return 0;
 			}
 		},
 
@@ -116,7 +116,7 @@ public class TestSettings
 			@Override
 			int getValue()
 			{
-				return 0;
+				return 1;
 			}
 		},
 
@@ -126,7 +126,7 @@ public class TestSettings
 			@Override
 			int getValue()
 			{
-				return 1;
+				return 2;
 			}
 		},
 
@@ -136,7 +136,7 @@ public class TestSettings
 			@Override
 			int getValue()
 			{
-				return 2;
+				return 3;
 			}
 		};
 
@@ -258,6 +258,36 @@ public class TestSettings
 	static void setTextComplexity(TestComplexity complexity)
 	{
 		testComplexity = complexity.getValue();
+	}
+
+	/**
+	 * Gets the log level. This is setting using the system property gdsc.test.logging.
+	 *
+	 * @return the log level
+	 */
+	public static int getLogLevel()
+	{
+		return logLevel;
+	}
+
+	/**
+	 * Gets the test complexity. This is setting using the system property gdsc.test.level.
+	 *
+	 * @return the test complexity
+	 */
+	public static int getTestComplexity()
+	{
+		return testComplexity;
+	}
+
+	/**
+	 * Gets the seed. This is setting using the system property gdsc.test.seed.
+	 *
+	 * @return the seed
+	 */
+	public static long getSeed()
+	{
+		return seed;
 	}
 
 	/**
@@ -451,6 +481,9 @@ public class TestSettings
 
 	/**
 	 * Assume logging is allowed at the given level.
+	 * <p>
+	 * Use this at the start of a test that only produces logging output (no assertions) to skip
+	 * the test as logging will be ignored.
 	 *
 	 * @param level
 	 *            the level
@@ -462,6 +495,9 @@ public class TestSettings
 
 	/**
 	 * Assume testing is allowed at the given complexity.
+	 * <p>
+	 * Use this at the start of a test that has a long run time or is otherwise complex
+	 * enough to warrant skipping the test if not testing at that level of complexity.
 	 *
 	 * @param complexity
 	 *            the complexity
