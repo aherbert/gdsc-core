@@ -32,11 +32,10 @@ import java.awt.Rectangle;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Test;
 
-import gdsc.core.TestSettings;
 import gdsc.core.test.BaseTimingTask;
+import gdsc.core.test.TestSettings;
 import gdsc.core.test.TimingService;
 import gdsc.core.utils.Random;
 import gdsc.core.utils.Statistics;
@@ -89,7 +88,7 @@ public class AreaStatisticsTest
 					double[] e = a1.getStatistics(x, y, n);
 					double[] o = a2.getStatistics(x, y, n);
 					Assert.assertArrayEquals(e, o, 1e-6);
-					//System.out.printf("%s vs %s\n", toString(e), toString(o));
+					//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 					// Check with ImageJ
 					fp.setRoi(new Rectangle(x - n, y - n, 2 * n + 1, 2 * n + 1));
@@ -122,7 +121,7 @@ public class AreaStatisticsTest
 						double[] e = a1.getStatistics(x, y, nx, ny);
 						double[] o = a2.getStatistics(x, y, nx, ny);
 						Assert.assertArrayEquals(e, o, 1e-6);
-						//System.out.printf("%s vs %s\n", toString(e), toString(o));
+						//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 						// Check with ImageJ
 						fp.setRoi(new Rectangle(x - nx, y - ny, 2 * nx + 1, 2 * ny + 1));
@@ -157,7 +156,7 @@ public class AreaStatisticsTest
 				double[] e = a1.getStatistics(roi);
 				double[] o = a2.getStatistics(roi);
 				Assert.assertArrayEquals(e, o, 1e-6);
-				//System.out.printf("%s vs %s\n", toString(e), toString(o));
+				//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 				// Check with ImageJ
 				fp.setRoi(roi);
@@ -263,7 +262,7 @@ public class AreaStatisticsTest
 	public void rollingIsfasterAtHighDensity()
 	{
 		// Since this is a slow test
-		Assume.assumeTrue(TestSettings.RUN_SPEED_TESTS);
+		TestSettings.assumeMediumComplexity();
 
 		// Test for sampling half the pixels. Ignore the very small box size
 		speedTest(0.5, true, 2, Integer.MAX_VALUE);

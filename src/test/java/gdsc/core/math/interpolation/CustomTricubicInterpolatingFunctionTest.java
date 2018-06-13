@@ -34,6 +34,7 @@ import org.junit.Assume;
 import org.junit.Test;
 
 import gdsc.core.test.BaseTimingTask;
+import gdsc.core.test.TestSettings;
 import gdsc.core.test.TimingService;
 import gdsc.core.utils.Sort;
 import gnu.trove.list.array.TIntArrayList;
@@ -210,14 +211,14 @@ public class CustomTricubicInterpolatingFunctionTest
 	public void canConstructInlineComputeCoefficients()
 	{
 		Assume.assumeTrue(true);
-		System.out.println(inlineComputeCoefficients());
+		TestSettings.infoln(inlineComputeCoefficients());
 	}
 
 	@Test
 	public void canConstructInlineComputeCoefficientsCollectTerms()
 	{
 		Assume.assumeTrue(true);
-		System.out.println(inlineComputeCoefficientsCollectTerms());
+		TestSettings.infoln(inlineComputeCoefficientsCollectTerms());
 	}
 
 	private abstract class MyTimingTask extends BaseTimingTask

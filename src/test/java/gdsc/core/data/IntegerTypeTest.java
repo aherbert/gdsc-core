@@ -31,6 +31,8 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 
+import gdsc.core.test.TestSettings;
+
 public class IntegerTypeTest
 {
 	@Test
@@ -42,7 +44,7 @@ public class IntegerTypeTest
 			add(sb, true, bitDepth);
 		for (int bitDepth = 1; bitDepth <= 63; bitDepth++)
 			add(sb, false, bitDepth);
-		System.out.println(sb.toString());
+		TestSettings.infoln(sb.toString());
 	}
 
 	private void add(StringBuilder sb, boolean signed, int bitDepth)

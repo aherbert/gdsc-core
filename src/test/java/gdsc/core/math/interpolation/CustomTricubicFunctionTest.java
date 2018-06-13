@@ -30,6 +30,7 @@ package gdsc.core.math.interpolation;
 import org.junit.Assume;
 import org.junit.Test;
 
+import gdsc.core.test.TestSettings;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectIntProcedure;
 
@@ -298,7 +299,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					System.out.printf("%s = %d\n", a, b);
+					TestSettings.info("%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -388,7 +389,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					System.out.printf("%s = %d\n", a, b);
+					TestSettings.info("%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -583,7 +584,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					System.out.printf("%s = %d\n", a, b);
+					TestSettings.info("%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -661,7 +662,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					System.out.printf("%s = %d\n", a, b);
+					TestSettings.info("%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -675,55 +676,55 @@ public class CustomTricubicFunctionTest
 	public void canConstructInlineValue()
 	{
 		Assume.assumeTrue(false);
-		System.out.println(inlineValue());
+		TestSettings.infoln(inlineValue());
 	}
 
 	@Test
 	public void canConstructInlineComputePowerTable()
 	{
 		Assume.assumeTrue(false);
-		System.out.println(inlineComputePowerTable());
+		TestSettings.infoln(inlineComputePowerTable());
 	}
 
 	@Test
 	public void canConstructInlineValue1()
 	{
 		Assume.assumeTrue(true);
-		System.out.println(inlineValue1());
+		TestSettings.infoln(inlineValue1());
 	}
 
 	@Test
 	public void canConstructInlineValue1WithPowerTable()
 	{
 		Assume.assumeTrue(true);
-		System.out.println(inlineValue1WithPowerTable());
+		TestSettings.infoln(inlineValue1WithPowerTable());
 	}
 
 	@Test
 	public void canConstructInlineValue1WithPowerTableN()
 	{
 		Assume.assumeTrue(true);
-		System.out.println(inlineValue1WithPowerTableN());
+		TestSettings.infoln(inlineValue1WithPowerTableN());
 	}
 
 	@Test
 	public void canConstructInlineValue2()
 	{
 		Assume.assumeTrue(true);
-		System.out.println(inlineValue2());
+		TestSettings.infoln(inlineValue2());
 	}
 
 	@Test
 	public void canConstructInlineValue2WithPowerTable()
 	{
 		Assume.assumeTrue(true);
-		System.out.println(inlineValue2WithPowerTable());
+		TestSettings.infoln(inlineValue2WithPowerTable());
 	}
 
 	@Test
 	public void canConstructInlineValue2WithPowerTableN()
 	{
 		Assume.assumeTrue(true);
-		System.out.println(inlineValue2WithPowerTableN());
+		TestSettings.infoln(inlineValue2WithPowerTableN());
 	}
 }

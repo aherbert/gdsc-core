@@ -35,8 +35,8 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.TestSettings;
 import gdsc.core.test.BaseTimingTask;
+import gdsc.core.test.TestSettings;
 import gdsc.core.test.TimingService;
 
 @SuppressWarnings("deprecation")
@@ -48,7 +48,7 @@ public class EqualityTest
 	public void doubleRelativeErrorIsCorrectUntilULPSIsSmall()
 	{
 		int precision = new BigDecimal(Double.toString(Double.MAX_VALUE)).precision();
-		//System.out.printf("Double max precision = %d\n", precision);
+		//TestSettings.debug("Double max precision = %d\n", precision);
 		for (int sig = 1; sig <= precision; sig++)
 		{
 			BigDecimal error = new BigDecimal("1e-" + sig);
@@ -57,7 +57,7 @@ public class EqualityTest
 			BigDecimal one_m_error = BigDecimal.ONE.subtract(error);
 			BigDecimal one_one_m_error = BigDecimal.ONE.divide(one_m_error, sig * 10, RoundingMode.HALF_UP);
 
-			//System.out.printf("Error = %s  %s  %s\n", error, one_m_error, one_one_m_error);
+			//TestSettings.debug("Error = %s  %s  %s\n", error, one_m_error, one_one_m_error);
 			int same = 0, total = 0;
 			for (int leadingDigit = 1; leadingDigit <= 9; leadingDigit++)
 			{
@@ -80,7 +80,7 @@ public class EqualityTest
 					long ulps2 = Double.doubleToLongBits(d2) - Double.doubleToLongBits(d);
 					double rel1 = DoubleEquality.relativeError(d, d1);
 					double rel2 = DoubleEquality.relativeError(d, d2);
-					//System.out.printf("%d  %s < %s < %s = %d  %d  %g  %g\n", sig, BLow, A, BHigh, ulps1, ulps2, rel1,	rel2);
+					//TestSettings.debug("%d  %s < %s < %s = %d  %d  %g  %g\n", sig, BLow, A, BHigh, ulps1, ulps2, rel1,	rel2);
 					if (ulps1 > 100)
 					{
 						Assert.assertEquals(e, rel1, tolerance);
@@ -99,7 +99,7 @@ public class EqualityTest
 	public void floatRelativeErrorIsCorrectUntilULPSIsSmall()
 	{
 		int precision = new BigDecimal(Float.toString(Float.MAX_VALUE)).precision();
-		//System.out.printf("Float max precision = %d\n", precision);
+		//TestSettings.debug("Float max precision = %d\n", precision);
 		for (int sig = 1; sig <= precision; sig++)
 		{
 			BigDecimal error = new BigDecimal("1e-" + sig);
@@ -108,7 +108,7 @@ public class EqualityTest
 			BigDecimal one_m_error = BigDecimal.ONE.subtract(error);
 			BigDecimal one_one_m_error = BigDecimal.ONE.divide(one_m_error, sig * 10, RoundingMode.HALF_UP);
 
-			//System.out.printf("Error = %s  %s  %s\n", error, one_m_error, one_one_m_error);
+			//TestSettings.debug("Error = %s  %s  %s\n", error, one_m_error, one_one_m_error);
 			int same = 0, total = 0;
 			for (int leadingDigit = 1; leadingDigit <= 9; leadingDigit++)
 			{
@@ -131,7 +131,7 @@ public class EqualityTest
 					int ulps2 = Float.floatToIntBits(d2) - Float.floatToIntBits(d);
 					float rel1 = FloatEquality.relativeError(d, d1);
 					float rel2 = FloatEquality.relativeError(d, d2);
-					//System.out.printf("%d  %s < %s < %s = %d  %d  %g  %g\n", sig, BLow, A, BHigh, ulps1, ulps2, rel1,	rel2);
+					//TestSettings.debug("%d  %s < %s < %s = %d  %d  %g  %g\n", sig, BLow, A, BHigh, ulps1, ulps2, rel1,	rel2);
 					if (ulps1 > 100)
 					{
 						Assert.assertEquals(e, rel1, tolerance);
@@ -169,7 +169,7 @@ public class EqualityTest
 			double max = DoubleEquality.getMaxRelativeError(s);
 			Assert.assertEquals(e, max, e * 0.01);
 			//double rel = DoubleEquality.relativeError(a, b);
-			//System.out.printf("[%d] %s -> %s : %g  %g\n", s, A, BLow, max, rel);
+			//TestSettings.debug("[%d] %s -> %s : %g  %g\n", s, A, BLow, max, rel);
 			DoubleEquality eq = new DoubleEquality(s, 0);
 			Assert.assertTrue(eq.almostEqualRelativeOrAbsolute(a, b));
 			Assert.assertFalse(eq.almostEqualRelativeOrAbsolute(a, BLower.doubleValue()));
@@ -199,7 +199,7 @@ public class EqualityTest
 			float max = FloatEquality.getMaxRelativeError(s);
 			Assert.assertEquals(e, max, e * 0.01);
 			//float rel = FloatEquality.relativeError(a, b);
-			//System.out.printf("[%d] %s -> %s : %g  %g\n", s, A, BLow, max, rel);
+			//TestSettings.debug("[%d] %s -> %s : %g  %g\n", s, A, BLow, max, rel);
 			FloatEquality eq = new FloatEquality(s, 0);
 			Assert.assertTrue(eq.almostEqualRelativeOrAbsolute(a, b));
 			Assert.assertFalse(eq.almostEqualRelativeOrAbsolute(a, BLower.floatValue()));
@@ -374,10 +374,10 @@ public class EqualityTest
 	{
 		float f3 = f + f * 1e-2f;
 		float f4 = f - f * 1e-2f;
-		System.out.printf("%g -> %g = %d : %d (%g : %g)\n", f, f3, FloatEquality.complement(f3, f),
+		TestSettings.info("%g -> %g = %d : %d (%g : %g)\n", f, f3, FloatEquality.complement(f3, f),
 				DoubleEquality.complement(f3, f), FloatEquality.relativeError(f, f3),
 				DoubleEquality.relativeError(f, f3));
-		System.out.printf("%g -> %g = %d : %d (%g : %g)\n", f, f4, FloatEquality.complement(f4, f),
+		TestSettings.info("%g -> %g = %d : %d (%g : %g)\n", f, f4, FloatEquality.complement(f4, f),
 				DoubleEquality.complement(f4, f), FloatEquality.relativeError(f, f4),
 				DoubleEquality.relativeError(f, f4));
 	}
@@ -385,7 +385,7 @@ public class EqualityTest
 	@Test
 	public void floatRelativeIsSameSpeedAsDoubleRelative()
 	{
-		org.junit.Assume.assumeTrue(TestSettings.RUN_SPEED_TESTS);
+		TestSettings.assumeLowComplexity();
 
 		float maxRelativeError = 1e-2f;
 		float maxAbsoluteError = 1e-16f;
@@ -454,8 +454,9 @@ public class EqualityTest
 		ts.repeat();
 		ts.report();
 
-		if (TestSettings.ASSERT_SPEED_TESTS)
-			Assert.assertTrue(DoubleEquality.relativeError(ts.get(3).getMean(), ts.get(2).getMean()) < 0.2);
+		double error = DoubleEquality.relativeError(ts.get(-1).getMean(), ts.get(-2).getMean());
+		TestSettings.logSpeedTestResult(error < 0.2,
+				"Float and Double relative equality not the same speed: Error=" + error);
 	}
 
 	private void relative(FloatEquality equality, float[] data, float[] data2)
@@ -472,6 +473,6 @@ public class EqualityTest
 
 	void log(String format, Object... args)
 	{
-		System.out.printf(format, args);
+		TestSettings.info(format, args);
 	}
 }

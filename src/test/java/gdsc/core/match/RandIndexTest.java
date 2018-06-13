@@ -33,6 +33,8 @@ import org.apache.commons.math3.util.MathArrays;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.core.test.TestSettings;
+
 public class RandIndexTest
 {
 	@Test
@@ -298,9 +300,9 @@ public class RandIndexTest
 		long table1 = t3 - t2;
 		long table2 = t4 - t3;
 
-		System.out.printf("[%d,%d,%d] simple=%d (%f), table1=%d (%f), %f\n", n, n1, n2, simple, e, table1, o1,
+		TestSettings.info("[%d,%d,%d] simple=%d (%f), table1=%d (%f), %f\n", n, n1, n2, simple, e, table1, o1,
 				simple / (double) table1);
-		System.out.printf("[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f\n", n, n1, n2, simple, e, table2, o2,
+		TestSettings.info("[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f\n", n, n1, n2, simple, e, table2, o2,
 				simple / (double) table2);
 
 		Assert.assertEquals(e, o1, e * 1e-10);
@@ -337,7 +339,7 @@ public class RandIndexTest
 		}
 
 		sum /= loops;
-		System.out.printf("[%d,%d,%d,%d] %f\n", n, n1, n2, loops, sum);
+		TestSettings.info("[%d,%d,%d,%d] %f\n", n, n1, n2, loops, sum);
 
 		double delta = 0.1;
 		Assert.assertTrue(sum < delta && sum > -delta);
@@ -403,7 +405,7 @@ public class RandIndexTest
 		long table1 = t2 - t1;
 		long table2 = t3 - t2;
 
-		System.out.printf("[%d,%d,%d] table1=%d (%f [%f]), table2=%d (%f), %f\n", n, n1, n2, table1, o1, r, table2, o2,
+		TestSettings.info("[%d,%d,%d] table1=%d (%f [%f]), table2=%d (%f), %f\n", n, n1, n2, table1, o1, r, table2, o2,
 				table1 / (double) table2);
 
 		Assert.assertEquals(o2, o1, 0);

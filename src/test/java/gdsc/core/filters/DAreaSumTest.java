@@ -85,7 +85,7 @@ public class DAreaSumTest
 					double[] e = a1.getStatistics(x, y, n);
 					double[] o = a2.getStatistics(x, y, n);
 					Assert.assertArrayEquals(e, o, 1e-6);
-					//System.out.printf("%s vs %s\n", toString(e), toString(o));
+					//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 					// Check with ImageJ
 					fp.setRoi(new Rectangle(x - n, y - n, 2 * n + 1, 2 * n + 1));
@@ -116,7 +116,7 @@ public class DAreaSumTest
 						double[] e = a1.getStatistics(x, y, nx, ny);
 						double[] o = a2.getStatistics(x, y, nx, ny);
 						Assert.assertArrayEquals(e, o, 1e-6);
-						//System.out.printf("%s vs %s\n", toString(e), toString(o));
+						//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 						// Check with ImageJ
 						fp.setRoi(new Rectangle(x - nx, y - ny, 2 * nx + 1, 2 * ny + 1));
@@ -151,7 +151,7 @@ public class DAreaSumTest
 				double[] e = a1.getStatistics(roi);
 				double[] o = a2.getStatistics(roi);
 				Assert.assertArrayEquals(e, o, 1e-6);
-				//System.out.printf("%s vs %s\n", toString(e), toString(o));
+				//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 				// Check with ImageJ
 				fp.setRoi(roi);

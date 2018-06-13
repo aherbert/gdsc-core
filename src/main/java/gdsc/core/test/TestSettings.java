@@ -48,7 +48,7 @@ public class TestSettings
 		SILENT
 		{
 			@Override
-			int getValue()
+			public int getValue()
 			{
 				return 0;
 			}
@@ -61,7 +61,7 @@ public class TestSettings
 		WARN
 		{
 			@Override
-			int getValue()
+			public int getValue()
 			{
 				return 1;
 			}
@@ -71,7 +71,7 @@ public class TestSettings
 		INFO
 		{
 			@Override
-			int getValue()
+			public int getValue()
 			{
 				return 2;
 			}
@@ -81,7 +81,7 @@ public class TestSettings
 		DEBUG
 		{
 			@Override
-			int getValue()
+			public int getValue()
 			{
 				return 3;
 			}
@@ -92,7 +92,7 @@ public class TestSettings
 		 *
 		 * @return the value
 		 */
-		abstract int getValue();
+		public abstract int getValue();
 	}
 
 	/**
@@ -104,7 +104,7 @@ public class TestSettings
 		NONE
 		{
 			@Override
-			int getValue()
+			public int getValue()
 			{
 				return 0;
 			}
@@ -114,7 +114,7 @@ public class TestSettings
 		LOW
 		{
 			@Override
-			int getValue()
+			public int getValue()
 			{
 				return 1;
 			}
@@ -124,7 +124,7 @@ public class TestSettings
 		MEDIUM
 		{
 			@Override
-			int getValue()
+			public int getValue()
 			{
 				return 2;
 			}
@@ -134,7 +134,7 @@ public class TestSettings
 		HIGH
 		{
 			@Override
-			int getValue()
+			public int getValue()
 			{
 				return 3;
 			}
@@ -145,7 +145,7 @@ public class TestSettings
 		 *
 		 * @return the value
 		 */
-		abstract int getValue();
+		public abstract int getValue();
 	}
 
 	/**
@@ -291,112 +291,7 @@ public class TestSettings
 	}
 
 	/**
-	 * Log at the warn level.
-	 *
-	 * @param format
-	 *            the format
-	 * @param args
-	 *            the arguments
-	 */
-	public static void warn(String format, Object... args)
-	{
-		log(LogLevel.WARN, format, args);
-	}
-
-	/**
-	 * Log at the warn level.
-	 *
-	 * @param msg
-	 *            the message
-	 */
-	public static void warn(MessageProvider msg)
-	{
-		log(LogLevel.WARN, msg);
-	}
-
-	/**
-	 * Log at the warn level.
-	 *
-	 * @param msg
-	 *            the message
-	 */
-	public static void warn(Message msg)
-	{
-		log(LogLevel.WARN, msg);
-	}
-
-	/**
-	 * Log at the info level.
-	 *
-	 * @param format
-	 *            the format
-	 * @param args
-	 *            the arguments
-	 */
-	public static void info(String format, Object... args)
-	{
-		log(LogLevel.INFO, format, args);
-	}
-
-	/**
-	 * Log at the info level.
-	 *
-	 * @param msg
-	 *            the message
-	 */
-	public static void info(MessageProvider msg)
-	{
-		log(LogLevel.INFO, msg);
-	}
-
-	/**
-	 * Log at the info level.
-	 *
-	 * @param msg
-	 *            the message
-	 */
-	public static void info(Message msg)
-	{
-		log(LogLevel.INFO, msg);
-	}
-
-	/**
-	 * Log at the debug level.
-	 *
-	 * @param format
-	 *            the format
-	 * @param args
-	 *            the arguments
-	 */
-	public static void debug(String format, Object... args)
-	{
-		log(LogLevel.DEBUG, format, args);
-	}
-
-	/**
-	 * Log at the debug level.
-	 *
-	 * @param msg
-	 *            the message
-	 */
-	public static void debug(MessageProvider msg)
-	{
-		log(LogLevel.DEBUG, msg);
-	}
-
-	/**
-	 * Log at the debug level.
-	 *
-	 * @param msg
-	 *            the message
-	 */
-	public static void debug(Message msg)
-	{
-		log(LogLevel.DEBUG, msg);
-	}
-
-	/**
-	 * Log.
+	 * Log the message using the format and arguments.
 	 *
 	 * @param level
 	 *            the level
@@ -412,7 +307,7 @@ public class TestSettings
 	}
 
 	/**
-	 * Log.
+	 * Log the message.
 	 *
 	 * @param level
 	 *            the level
@@ -426,7 +321,7 @@ public class TestSettings
 	}
 
 	/**
-	 * Log.
+	 * Log the message using the format and arguments.
 	 *
 	 * @param level
 	 *            the level
@@ -437,6 +332,48 @@ public class TestSettings
 	{
 		if (allow(level))
 			System.out.printf(msg.format, msg.getArgs());
+	}
+
+	/**
+	 * Log the string value of the object.
+	 *
+	 * @param level
+	 *            the level
+	 * @param object
+	 *            the object
+	 */
+	public static void log(LogLevel level, Object object)
+	{
+		if (allow(level))
+			System.out.print(object);
+	}
+
+	/**
+	 * Log with newline the string value of the object.
+	 *
+	 * @param level
+	 *            the level
+	 * @param object
+	 *            the object
+	 */
+	public static void logln(LogLevel level, String object)
+	{
+		if (allow(level))
+			System.out.println(object);
+	}
+
+	/**
+	 * Log with newline the string value of the object.
+	 *
+	 * @param level
+	 *            the level
+	 * @param object
+	 *            the object
+	 */
+	public static void logln(LogLevel level, Object object)
+	{
+		if (allow(level))
+			System.out.println(object);
 	}
 
 	/**
@@ -477,6 +414,253 @@ public class TestSettings
 		return allow(level) && allow(complexity);
 	}
 
+	///////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Log at the debug level the message using the format and arguments.
+	 *
+	 * @param level
+	 *            the level
+	 * @param format
+	 *            the format
+	 * @param args
+	 *            the arguments
+	 */
+	public static void debug(String format, Object... args)
+	{
+		log(LogLevel.DEBUG, format, args);
+	}
+
+	/**
+	 * Log at the debug level the message.
+	 *
+	 * @param level
+	 *            the level
+	 * @param msg
+	 *            the message
+	 */
+	public static void debug(MessageProvider msg)
+	{
+		log(LogLevel.DEBUG, msg);
+	}
+
+	/**
+	 * Log at the debug level the message using the format and arguments.
+	 *
+	 * @param level
+	 *            the level
+	 * @param msg
+	 *            the message
+	 */
+	public static void debug(Message msg)
+	{
+		log(LogLevel.DEBUG, msg);
+	}
+
+	/**
+	 * Log at the debug level the string value of the object.
+	 *
+	 * @param level
+	 *            the level
+	 * @param object
+	 *            the object
+	 */
+	public static void debug(Object object)
+	{
+		log(LogLevel.DEBUG, object);
+	}
+
+	/**
+	 * Log at the debug level with newline the string value of the object.
+	 *
+	 * @param level
+	 *            the level
+	 * @param object
+	 *            the object
+	 */
+	public static void debugln(String object)
+	{
+		logln(LogLevel.DEBUG, object);
+	}
+
+	/**
+	 * Log at the debug level with newline the string value of the object.
+	 *
+	 * @param level
+	 *            the level
+	 * @param object
+	 *            the object
+	 */
+	public static void debugln(Object object)
+	{
+		logln(LogLevel.DEBUG, object);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Log at the info level the message using the format and arguments.
+	 *
+	 * @param level
+	 *            the level
+	 * @param format
+	 *            the format
+	 * @param args
+	 *            the arguments
+	 */
+	public static void info(String format, Object... args)
+	{
+		log(LogLevel.INFO, format, args);
+	}
+
+	/**
+	 * Log at the info level the message.
+	 *
+	 * @param level
+	 *            the level
+	 * @param msg
+	 *            the message
+	 */
+	public static void info(MessageProvider msg)
+	{
+		log(LogLevel.INFO, msg);
+	}
+
+	/**
+	 * Log at the info level the message using the format and arguments.
+	 *
+	 * @param level
+	 *            the level
+	 * @param msg
+	 *            the message
+	 */
+	public static void info(Message msg)
+	{
+		log(LogLevel.INFO, msg);
+	}
+
+	/**
+	 * Log at the info level the string value of the object.
+	 *
+	 * @param level
+	 *            the level
+	 * @param object
+	 *            the object
+	 */
+	public static void info(Object object)
+	{
+		log(LogLevel.INFO, object);
+	}
+
+	/**
+	 * Log at the info level with newline the string value of the object.
+	 *
+	 * @param level
+	 *            the level
+	 * @param object
+	 *            the object
+	 */
+	public static void infoln(String object)
+	{
+		logln(LogLevel.INFO, object);
+	}
+
+	/**
+	 * Log at the info level with newline the string value of the object.
+	 *
+	 * @param level
+	 *            the level
+	 * @param object
+	 *            the object
+	 */
+	public static void infoln(Object object)
+	{
+		logln(LogLevel.INFO, object);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Log at the warn level the message using the format and arguments.
+	 *
+	 * @param level
+	 *            the level
+	 * @param format
+	 *            the format
+	 * @param args
+	 *            the arguments
+	 */
+	public static void warn(String format, Object... args)
+	{
+		log(LogLevel.WARN, format, args);
+	}
+
+	/**
+	 * Log at the warn level the message.
+	 *
+	 * @param level
+	 *            the level
+	 * @param msg
+	 *            the message
+	 */
+	public static void warn(MessageProvider msg)
+	{
+		log(LogLevel.WARN, msg);
+	}
+
+	/**
+	 * Log at the warn level the message using the format and arguments.
+	 *
+	 * @param level
+	 *            the level
+	 * @param msg
+	 *            the message
+	 */
+	public static void warn(Message msg)
+	{
+		log(LogLevel.WARN, msg);
+	}
+
+	/**
+	 * Log at the warn level the string value of the object.
+	 *
+	 * @param level
+	 *            the level
+	 * @param object
+	 *            the object
+	 */
+	public static void warn(Object object)
+	{
+		log(LogLevel.WARN, object);
+	}
+
+	/**
+	 * Log at the warn level with newline the string value of the object.
+	 *
+	 * @param level
+	 *            the level
+	 * @param object
+	 *            the object
+	 */
+	public static void warnln(String object)
+	{
+		logln(LogLevel.WARN, object);
+	}
+
+	/**
+	 * Log at the warn level with newline the string value of the object.
+	 *
+	 * @param level
+	 *            the level
+	 * @param object
+	 *            the object
+	 */
+	public static void warnln(Object object)
+	{
+		logln(LogLevel.WARN, object);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
 	// Helper methods for testing
 
 	/**
@@ -505,6 +689,30 @@ public class TestSettings
 	public static void assume(TestComplexity complexity)
 	{
 		Assume.assumeTrue(allow(complexity));
+	}
+
+	/**
+	 * Assume testing is allowed at low complexity.
+	 */
+	public static void assumeLowComplexity()
+	{
+		assume(TestComplexity.LOW);
+	}
+
+	/**
+	 * Assume testing is allowed at medium complexity.
+	 */
+	public static void assumeMediumComplexity()
+	{
+		assume(TestComplexity.MEDIUM);
+	}
+
+	/**
+	 * Assume testing is allowed at high complexity.
+	 */
+	public static void assumeHighComplexity()
+	{
+		assume(TestComplexity.HIGH);
 	}
 
 	/**
@@ -678,5 +886,41 @@ public class TestSettings
 	public static void assertArrayEquals(String message, float[] expecteds, float[] actuals, double relativeError)
 	{
 		new FloatRelativeComparisonCriteria(relativeError).arrayEquals(message, expecteds, actuals);
+	}
+
+	/**
+	 * Log the speed test result. If true the message will be written at the info level. If false the message will be
+	 * written at the warn level.
+	 * <p>
+	 * This is a helper method for speed tests that may not always pass.
+	 *
+	 * @param result
+	 *            the result
+	 * @param message
+	 *            the message
+	 */
+	public static void logSpeedTestResult(boolean result, String message)
+	{
+		LogLevel l = (result) ? LogLevel.INFO : LogLevel.WARN;
+		logln(l, message);
+	}
+
+	/**
+	 * Log the speed test result. If true the message will be written at the info level. If false the message will be
+	 * written at the warn level.
+	 * <p>
+	 * This is a helper method for speed tests that may not always pass.
+	 *
+	 * @param result
+	 *            the result
+	 * @param format
+	 *            the format
+	 * @param args
+	 *            the arguments
+	 */
+	public static void logSpeedTestResult(boolean result, String format, Object... args)
+	{
+		LogLevel l = (result) ? LogLevel.INFO : LogLevel.WARN;
+		log(l, format, args);
 	}
 }

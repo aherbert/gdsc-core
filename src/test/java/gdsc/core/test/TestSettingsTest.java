@@ -126,7 +126,7 @@ public class TestSettingsTest
 			o[i] = Math.nextUp((float) (e[i] + e[i] * error));
 		TestSettings.assertArrayEquals(e, o, error);
 	}
-	
+
 	@Test
 	public void printSettings()
 	{

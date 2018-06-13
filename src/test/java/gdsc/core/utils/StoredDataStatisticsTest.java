@@ -32,7 +32,8 @@ import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.TestSettings;
+import gdsc.core.test.TestSettings;
+import gdsc.core.test.TestSettings.LogLevel;
 
 public class StoredDataStatisticsTest extends StatisticsTest
 {
@@ -64,6 +65,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 	public void forLoopIsSlowerThanValuesIterator()
 	{
 		// This fails. Perhaps change the test to use the TimingService for repeat testing.
+		TestSettings.assume(LogLevel.WARN);
 
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
@@ -88,15 +90,15 @@ public class StoredDataStatisticsTest extends StatisticsTest
 		}
 		start2 = System.nanoTime() - start2;
 
-		log("getValues = %d : values for loop = %d : %fx\n", start1, start2, (1.0 * start2) / start1);
-		if (TestSettings.ASSERT_SPEED_TESTS)
-			Assert.assertTrue(start1 < start2);
+		TestSettings.logSpeedTestResult(start1 < start2, "getValues = %d : values for loop = %d : %fx\n", start1,
+				start2, (1.0 * start2) / start1);
 	}
 
 	@SuppressWarnings("unused")
 	@Test
 	public void iteratorIsSlowerUsingdouble()
 	{
+		TestSettings.assume(LogLevel.WARN);
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
 		{
@@ -115,15 +117,15 @@ public class StoredDataStatisticsTest extends StatisticsTest
 		}
 		start2 = System.nanoTime() - start2;
 
-		log("getValues = %d : iterator<double> = %d : %fx\n", start1, start2, (1.0 * start2) / start1);
-		if (TestSettings.ASSERT_SPEED_TESTS)
-			Assert.assertTrue(start1 < start2);
+		TestSettings.logSpeedTestResult(start1 < start2, "getValues = %d : iterator<double> = %d : %fx\n", start1,
+				start2, (1.0 * start2) / start1);
 	}
 
 	@SuppressWarnings("unused")
 	@Test
 	public void iteratorIsSlowerUsingDouble()
 	{
+		TestSettings.assume(LogLevel.WARN);
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
 		{
@@ -142,13 +144,12 @@ public class StoredDataStatisticsTest extends StatisticsTest
 		}
 		start2 = System.nanoTime() - start2;
 
-		log("getValues = %d : iterator<Double> = %d : %fx\n", start1, start2, (1.0 * start2) / start1);
-		if (TestSettings.ASSERT_SPEED_TESTS)
-			Assert.assertTrue(start1 < start2);
+		TestSettings.logSpeedTestResult(start1 < start2, "getValues = %d : iterator<Double> = %d : %fx\n", start1,
+				start2, (1.0 * start2) / start1);
 	}
 
 	void log(String format, Object... args)
 	{
-		System.out.printf(format, args);
+		TestSettings.info(format, args);
 	}
 }

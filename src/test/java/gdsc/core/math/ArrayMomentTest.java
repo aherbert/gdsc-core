@@ -34,6 +34,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.core.data.IntegerType;
+import gdsc.core.test.TestSettings;
 import gdsc.core.utils.Statistics;
 
 public class ArrayMomentTest
@@ -504,7 +505,7 @@ public class ArrayMomentTest
 			m2.increment(d);
 			r2.add(d);
 		}
-		System.out.printf("Mean %s vs %s, SD %s vs %s\n", Double.toString(m1.getFirstMoment()[0]),
+		TestSettings.info("Mean %s vs %s, SD %s vs %s\n", Double.toString(m1.getFirstMoment()[0]),
 				Double.toString(r2.getFirstMoment()[0]), Double.toString(m1.getStandardDeviation()[0]),
 				Double.toString(r2.getStandardDeviation()[0]));
 		assertEquals("Mean", m1.getFirstMoment()[0], r2.getFirstMoment()[0], DELTA);

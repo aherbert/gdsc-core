@@ -34,6 +34,8 @@ import org.apache.commons.math3.util.FastMath;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.core.test.TestSettings;
+
 public class MedianWindowTest
 {
 	int dataSize = 2000;
@@ -99,7 +101,7 @@ public class MedianWindowTest
 				double median = mw.getMedian();
 				mw.add(data[j]);
 				double median2 = calculateMedian(data, i, radius);
-				System.out.printf("Position %d, Radius %d : %g vs %g\n", i, radius, median2, median);
+				TestSettings.info("Position %d, Radius %d : %g vs %g\n", i, radius, median2, median);
 				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
 			}
 		}
@@ -177,7 +179,7 @@ public class MedianWindowTest
 				double median = mw.getMedian();
 				mw.increment();
 				double median2 = calculateMedian(data, i, radius);
-				//System.out.printf("%f vs %f\n", median, median2);
+				//TestSettings.debug("%f vs %f\n", median, median2);
 				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
 			}
 		}
@@ -400,7 +402,7 @@ public class MedianWindowTest
 		long t2 = System.nanoTime() - s2;
 
 		Assert.assertArrayEquals(m1, m2, 1e-6);
-		System.out.printf("Radius %d, Increment %d : window %d : standard %d = %fx faster\n", radius, increment, t1, t2,
+		TestSettings.info("Radius %d, Increment %d : window %d : standard %d = %fx faster\n", radius, increment, t1, t2,
 				(double) t2 / t1);
 
 		// Only test the largest radii 
@@ -522,7 +524,7 @@ public class MedianWindowTest
 		}
 
 		Assert.assertArrayEquals(m1, m2, 1e-3);
-		System.out.printf("Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius, increment, t1, t2,
+		TestSettings.info("Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius, increment, t1, t2,
 				(double) t1 / t2);
 
 		// Only test the largest radii 
@@ -638,7 +640,7 @@ public class MedianWindowTest
 			t2 = System.nanoTime() - s2;
 		}
 
-		System.out.printf("Radius %d, Increment %d : double %d : int %d = %fx faster\n", radius, increment, t1, t2,
+		TestSettings.info("Radius %d, Increment %d : double %d : int %d = %fx faster\n", radius, increment, t1, t2,
 				(double) t1 / t2);
 
 		// Only test the largest radii 
@@ -653,7 +655,7 @@ public class MedianWindowTest
 		double[] cache = new double[end - start];
 		for (int i = start, j = 0; i < end; i++, j++)
 			cache[j] = data[i];
-		//System.out.println(Arrays.toString(cache));
+		//TestSettings.debugln(Arrays.toString(cache));
 		Arrays.sort(cache);
 		return (cache[(cache.length - 1) / 2] + cache[cache.length / 2]) * 0.5;
 	}

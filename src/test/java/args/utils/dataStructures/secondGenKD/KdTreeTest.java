@@ -38,6 +38,7 @@ import ags.utils.dataStructures.trees.secondGenKD.KdTree.Entry;
 import ags.utils.dataStructures.trees.thirdGenKD.DistanceFunction;
 import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction2D;
 import gdsc.core.test.BaseTimingTask;
+import gdsc.core.test.TestSettings;
 import gdsc.core.test.TimingService;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.PartialSort;
@@ -92,7 +93,7 @@ public class KdTreeTest
 					}
 
 					double[] expected = Arrays.copyOf(d2, k);
-					//System.out.printf("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestSettings.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assert.assertArrayEquals(expected, observed, 0);
@@ -141,7 +142,7 @@ public class KdTreeTest
 					}
 
 					double[] expected = Arrays.copyOf(d2, k);
-					//System.out.printf("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestSettings.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assert.assertArrayEquals(expected, observed, 0);
@@ -230,7 +231,7 @@ public class KdTreeTest
 					}
 
 					double[] expected = Arrays.copyOf(d2, k);
-					//System.out.printf("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestSettings.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assert.assertArrayEquals(expected, observed, 0);
@@ -281,7 +282,7 @@ public class KdTreeTest
 					}
 
 					double[] expected = Arrays.copyOf(d2, k);
-					//System.out.printf("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestSettings.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assert.assertArrayEquals(expected, observed, 0);
@@ -519,7 +520,7 @@ public class KdTreeTest
 		ts.repeat(number);
 		ts.repeat(number);
 
-		System.out.printf("All-vs-all = %d\n", time);
+		TestSettings.info("All-vs-all = %d\n", time);
 		ts.report();
 
 		// No assertions are made since the timings are similar

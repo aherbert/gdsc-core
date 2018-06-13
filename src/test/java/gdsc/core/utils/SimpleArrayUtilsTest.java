@@ -65,7 +65,7 @@ public class SimpleArrayUtilsTest
 		Arrays.sort(e);
 
 		int[] o = SimpleArrayUtils.flatten(s1);
-		//System.out.printf("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
+		//TestSettings.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
 		Assert.assertArrayEquals(e, o);
 	}
 
@@ -99,7 +99,7 @@ public class SimpleArrayUtilsTest
 		Arrays.sort(e);
 
 		int[] o = SimpleArrayUtils.sortMerge(s1, s2);
-		//System.out.printf("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
+		//TestSettings.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
 		Assert.assertArrayEquals(e, o);
 	}
 
@@ -296,7 +296,7 @@ public class SimpleArrayUtilsTest
 	private void testGetRanges(int[] in, int[] e)
 	{
 		int[] o = SimpleArrayUtils.getRanges(in);
-		//System.out.printf("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
+		//TestSettings.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
 		Assert.assertArrayEquals(e, o);
 	}
 

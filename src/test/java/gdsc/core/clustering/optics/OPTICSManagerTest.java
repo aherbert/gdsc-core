@@ -82,6 +82,7 @@ import gdsc.core.logging.NullTrackProgress;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.match.RandIndex;
 import gdsc.core.test.BaseTimingTask;
+import gdsc.core.test.TestSettings;
 import gdsc.core.test.TimingResult;
 import gdsc.core.test.TimingService;
 import gdsc.core.utils.Maths;
@@ -378,7 +379,7 @@ public class OPTICSManagerTest
 				//{
 				//	double[] dd = d[i].clone();
 				//	Arrays.sort(dd);
-				//	System.out.printf("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
+				//	TestSettings.info("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
 				//}
 
 				// Use max range
@@ -397,7 +398,7 @@ public class OPTICSManagerTest
 				{
 					if (i == 0)
 					{
-						//System.out.printf("[%d] %d\n", i, r1.get(i).parent);
+						//TestSettings.debug("[%d] %d\n", i, r1.get(i).parent);
 
 						// No predecessor or reachability distance
 						continue;
@@ -415,7 +416,7 @@ public class OPTICSManagerTest
 					double expR = order.getReachability(it);
 					double obsR = r1.get(i).reachabilityDistance;
 
-					//System.out.printf("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
+					//TestSettings.debug("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
 					//		r1.get(i).coreDistance, expPre, obsPre);
 
 					Assert.assertEquals(prefix + "Id", expId, obsId);
@@ -467,7 +468,7 @@ public class OPTICSManagerTest
 				//{
 				//	double[] dd = d[i].clone();
 				//	Arrays.sort(dd);
-				//	System.out.printf("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
+				//	TestSettings.info("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
 				//}
 
 				OPTICSResult r1 = om.fastOptics(minPts);
@@ -485,7 +486,7 @@ public class OPTICSManagerTest
 				{
 					if (i == 0)
 					{
-						//System.out.printf("[%d] %d\n", i, r1.get(i).parent);
+						//TestSettings.debug("[%d] %d\n", i, r1.get(i).parent);
 
 						// No predecessor or reachability distance
 						continue;
@@ -503,7 +504,7 @@ public class OPTICSManagerTest
 					double expR = order.getReachability(it);
 					double obsR = r1.get(i).reachabilityDistance;
 
-					//System.out.printf("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
+					//TestSettings.debug("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
 					//		r1.get(i).coreDistance, expPre, obsPre);
 
 					Assert.assertEquals(prefix + "Id", expId, obsId);
@@ -551,7 +552,7 @@ public class OPTICSManagerTest
 				//{
 				//	double[] dd = d[i].clone();
 				//	Arrays.sort(dd);
-				//	System.out.printf("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
+				//	TestSettings.info("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
 				//}
 
 				// Use max range
@@ -573,7 +574,7 @@ public class OPTICSManagerTest
 				int clusterId = 0;
 				for (de.lmu.ifi.dbs.elki.data.Cluster<OPTICSModel> c : allClusters)
 				{
-					//System.out.printf("%d-%d\n", c.getModel().getStartIndex(), c.getModel().getEndIndex());
+					//TestSettings.debug("%d-%d\n", c.getModel().getStartIndex(), c.getModel().getEndIndex());
 
 					// Add the cluster Id to the expClusters
 					clusterId++;
@@ -588,7 +589,7 @@ public class OPTICSManagerTest
 				int[] obsClusters = r1.getClusters();
 
 				//for (int i = 0; i < n; i++)
-				//	System.out.printf("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
+				//	TestSettings.info("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
 
 				Assert.assertEquals(1, RandIndex.randIndex(expClusters, obsClusters), 0);
 			}
@@ -617,11 +618,11 @@ public class OPTICSManagerTest
 
 				Assert.assertTrue(o1.size() >= o2.size());
 
-				//System.out.printf("%d : %d\n", n, minPts);
+				//TestSettings.debug("%d : %d\n", n, minPts);
 				for (OPTICSCluster cluster : o2)
 				{
 					Assert.assertTrue(cluster.getLevel() == 0);
-					//System.out.println(cluster);
+					//TestSettings.debug(cluster);
 				}
 			}
 		}
@@ -701,19 +702,19 @@ public class OPTICSManagerTest
 					int[] obsClusters = r1.getClusters();
 
 					//for (int i = 0; i < n; i++)
-					//	System.out.printf("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
+					//	TestSettings.info("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
 
 					// Should be similar
 					ri.compute(expClusters, obsClusters);
 
 					double r = ri.getRandIndex();
-					System.out.printf("%d,%d : [%d] r=%f (%f)\n", n, minPts, loop, r, ri.getAdjustedRandIndex());
+					TestSettings.info("%d,%d : [%d] r=%f (%f)\n", n, minPts, loop, r, ri.getAdjustedRandIndex());
 					Assert.assertTrue(ri.getAdjustedRandIndex() > 0);
 					sum += r;
 				}
 
 				sum /= nLoops;
-				System.out.printf("%d,%d : r=%f\n", n, minPts, sum);
+				TestSettings.info("%d,%d : r=%f\n", n, minPts, sum);
 				Assert.assertTrue(sum > 0.6);
 			}
 		}
@@ -777,8 +778,8 @@ public class OPTICSManagerTest
 				long elki = t2 - t1;
 				long smlm1 = t3 - t2;
 				long smlm2 = t4 - t3;
-				System.out.printf("ELKI = %d, SMLM = %d = %f\n", elki, smlm1, elki / (double) smlm1);
-				System.out.printf("ELKI = %d, SMLM (default) = %d = %f\n", elki, smlm2, elki / (double) smlm2);
+				TestSettings.info("ELKI = %d, SMLM = %d = %f\n", elki, smlm1, elki / (double) smlm1);
+				TestSettings.info("ELKI = %d, SMLM (default) = %d = %f\n", elki, smlm2, elki / (double) smlm2);
 				Assert.assertTrue(smlm1 < elki);
 				Assert.assertTrue(smlm2 < elki);
 			}
@@ -826,7 +827,7 @@ public class OPTICSManagerTest
 					// Should be similar
 					double r = ri.getRandIndex(c1, c2);
 					double ari = ri.getAdjustedRandIndex();
-					System.out.printf(
+					TestSettings.info(
 							"xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s : r=%f (%f)\n",
 							xi, n, minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode, r, ari);
 					Assert.assertTrue(randMin < r);
@@ -965,7 +966,7 @@ public class OPTICSManagerTest
 			double expR = r1.get(i).reachabilityDistance;
 			double obsR = r2.get(i).reachabilityDistance;
 
-			//System.out.printf("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
+			//TestSettings.debug("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
 			//		r1.get(i).coreDistance, expPre, obsPre);
 
 			Assert.assertEquals(title + " C " + i, expC, obsC, expC * 1e-5);
@@ -1088,11 +1089,11 @@ public class OPTICSManagerTest
 		//				}
 		//			}
 		//			time = System.nanoTime() - time;
-		//			System.out.printf("Time = %d\n", time);
+		//			TestSettings.info("Time = %d\n", time);
 		//			if (i < 5)
 		//				time2 += time;
 		//		}
-		//		System.out.printf("Time = %d\n", time2);
+		//		TestSettings.info("Time = %d\n", time2);
 	}
 
 	@Test
@@ -1126,7 +1127,7 @@ public class OPTICSManagerTest
 				k = 1;
 			for (int i = 0; i < n; i++)
 				e[i] = (float) Math.sqrt(PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, d2[i], n, k + 1)[0]);
-			//System.out.printf("e=%s, o=%s\n", Arrays.toString(e), Arrays.toString(o));
+			//TestSettings.debug("e=%s, o=%s\n", Arrays.toString(e), Arrays.toString(o));
 			Assert.assertArrayEquals(e, o, 0);
 		}
 	}
@@ -1173,7 +1174,7 @@ public class OPTICSManagerTest
 			{
 				//float d = 
 				OPTICSManager.computeGeneratingDistance(minPts, area, n);
-				//System.out.printf("k=%d, volumeDS=%.1f, N=%d, d=%f\n", minPts, area, n, d);
+				//TestSettings.debug("k=%d, volumeDS=%.1f, N=%d, d=%f\n", minPts, area, n, d);
 			}
 		}
 	}
@@ -1220,7 +1221,7 @@ public class OPTICSManagerTest
 			for (float radius : new float[] { 0.01f })
 			{
 				om.optics(radius, minPts);
-				//System.out.printf("OPTICS %d @ %.1f,%d\n", n, radius, minPts);
+				//TestSettings.debug("OPTICS %d @ %.1f,%d\n", n, radius, minPts);
 			}
 		}
 	}
@@ -1326,7 +1327,7 @@ public class OPTICSManagerTest
 
 		//for (int i = 0; i < c1.length; i++)
 		//{
-		//	System.out.printf("[%d] %d == %d\n", i, c1[i], c2[i]);
+		//	TestSettings.info("[%d] %d == %d\n", i, c1[i], c2[i]);
 		//}
 
 		Assert.assertArrayEquals(c1, c2);
@@ -1356,7 +1357,7 @@ public class OPTICSManagerTest
 		// - unrealistic data
 		// - The optimised DBSCAN implementation not computing distances if not needed.
 
-		System.out.printf("dBSCANIsFasterThanOPTICS %d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
+		TestSettings.info("dBSCANIsFasterThanOPTICS %d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
 	}
 
 	@Test
@@ -1430,7 +1431,7 @@ public class OPTICSManagerTest
 		t3 = t3 - t2;
 		t2 = t2 - t1;
 
-		System.out.printf("dBSCANInnerCircularIsFasterWhenComparisonsIsHigh %d < %d (%.2f)\n", t3, t2,
+		TestSettings.info("dBSCANInnerCircularIsFasterWhenComparisonsIsHigh %d < %d (%.2f)\n", t3, t2,
 				(double) t2 / t3);
 
 		// This sometimes fails due to JVM warm-up so add a factor.
@@ -1475,7 +1476,7 @@ public class OPTICSManagerTest
 		t3 = t3 - t2;
 		t2 = t2 - t1;
 
-		System.out.printf("oPTICSCircularIsFasterWhenDensityIsHigh %d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
+		TestSettings.info("oPTICSCircularIsFasterWhenDensityIsHigh %d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
 
 		// This sometimes fails due to JVM warm-up so add a factor.
 		Assert.assertTrue(t3 < t2 * 2);
@@ -1880,7 +1881,7 @@ public class OPTICSManagerTest
 			double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			int maxResolution = (int) Math.ceil(nMoleculesInSquare);
 
-			System.out.printf("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
+			TestSettings.info("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
 					generatingDistanceE, maxResolution);
 
 			OPTICSManager[] om = new OPTICSManager[3];
@@ -1957,7 +1958,7 @@ public class OPTICSManagerTest
 			double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			int maxResolution = (int) Math.ceil(nMoleculesInSquare);
 
-			System.out.printf("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
+			TestSettings.info("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
 					generatingDistanceE, maxResolution);
 
 			OPTICSManager[] om = new OPTICSManager[3];
@@ -2026,7 +2027,7 @@ public class OPTICSManagerTest
 			double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			int maxResolution = (int) Math.ceil(nMoleculesInCircle);
 
-			System.out.printf("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
+			TestSettings.info("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
 					generatingDistanceE, maxResolution);
 
 			OPTICSManager[] om = new OPTICSManager[3];
@@ -2096,7 +2097,7 @@ public class OPTICSManagerTest
 			double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			int maxResolution = (int) Math.ceil(nMoleculesInCircle);
 
-			System.out.printf("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
+			TestSettings.info("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
 					generatingDistanceE, maxResolution);
 
 			OPTICSManager[] om = new OPTICSManager[3];
@@ -2290,7 +2291,7 @@ public class OPTICSManagerTest
 			double outerArea = outer * pixelArea;
 			double innerArea = inner * pixelArea;
 			int skip = size - outer;
-			System.out.printf("R=%d, outer=%d  %f (%f), Skip=%d  (%f), inner=%d  %f (%f)\n", r, outer, outerArea,
+			TestSettings.info("R=%d, outer=%d  %f (%f), Skip=%d  (%f), inner=%d  %f (%f)\n", r, outer, outerArea,
 					outerArea / Math.PI, skip, (double) skip / size, inner, innerArea, innerArea / outerArea);
 
 			// Test for symmetry
@@ -2380,7 +2381,7 @@ public class OPTICSManagerTest
 				t2 = System.nanoTime() - t2;
 
 				// Check 
-				//System.out.printf("LoOP %d vs %d (ELKI) %f\n", t1, t2, (double)t2 / t1);
+				//TestSettings.debug("LoOP %d vs %d (ELKI) %f\n", t1, t2, (double)t2 / t1);
 				int i = 0;
 				DoubleRelation scores = or.getScores();
 				for (DBIDIter it = scores.iterDBIDs(); it.valid(); it.advance(), i++)
@@ -2393,7 +2394,7 @@ public class OPTICSManagerTest
 					double expL = scores.doubleValue(it);
 					double obsL = r1[i];
 
-					//System.out.printf("%s %d %d : %f = %f\n", prefix, expId, obsId, expL, obsL);
+					//TestSettings.debug("%s %d %d : %f = %f\n", prefix, expId, obsId, expL, obsL);
 
 					Assert.assertEquals(prefix + "Id", expId, obsId);
 					Assert.assertEquals(prefix + "LoOP", expL, obsL, expL * 1e-3);

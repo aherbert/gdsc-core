@@ -82,7 +82,7 @@ public class ConvexHullTest
 
 		//for (int i = 0; i < ex.length; i++)
 		//{
-		//	System.out.printf("[%d] %f==%f (%f), %f==%f (%f)\n", i, ex[i], hull.x[i],
+		//	TestSettings.info("[%d] %f==%f (%f), %f==%f (%f)\n", i, ex[i], hull.x[i],
 		//			hull.x[i] - ex[i], ey[i], hull.y[i], hull.y[i] - ey[i]);
 		//}
 
@@ -136,11 +136,11 @@ public class ConvexHullTest
 		{
 			// Debug
 			//for (int i = 0; i < size; i++)
-			//	System.out.printf("[%d] %f,%f\n", i, data[0][i], data[1][i]);
+			//	TestSettings.info("[%d] %f,%f\n", i, data[0][i], data[1][i]);
 			//if (hull != null)
 			//{
 			//	for (int i = 0; i < hull.x.length; i++)
-			//		System.out.printf("H[%d] %f,%f\n", i, hull.x[i], hull.y[i]);
+			//		TestSettings.info("H[%d] %f,%f\n", i, hull.x[i], hull.y[i]);
 			//}
 			throw e;
 		}

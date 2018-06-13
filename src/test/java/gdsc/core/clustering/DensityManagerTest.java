@@ -29,16 +29,15 @@ package gdsc.core.clustering;
 
 import java.awt.Rectangle;
 
+import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.utils.Random;
+import gdsc.core.test.TestSettings;
+import gdsc.core.test.TestSettings.TestComplexity;
 
 public class DensityManagerTest
 {
-	boolean skipSpeedTest = true;
-	private gdsc.core.utils.Random rand = new Random(30051977);
-
 	int size = 256;
 	float[] radii = new float[] { 2, 4, 8, 16 };
 	int[] N = new int[] { 1000, 2000, 4000, 8000 };
@@ -80,8 +79,7 @@ public class DensityManagerTest
 	@Test
 	public void densityWithGridFasterThanDensityTriangle()
 	{
-		if (skipSpeedTest)
-			return;
+		TestSettings.assume(TestComplexity.MEDIUM);
 		for (int n : N)
 		{
 			DensityManager dm = createDensityManager(size, n);
@@ -98,7 +96,7 @@ public class DensityManagerTest
 				long t2 = System.nanoTime() - start;
 
 				String msg = String.format("Grid vs Triangle. N=%d, R=%f : %fx faster", n, radius, (double) t1 / t2);
-				System.out.println(msg);
+				TestSettings.info(msg);
 				Assert.assertTrue(msg, t2 < t1);
 			}
 		}
@@ -107,8 +105,7 @@ public class DensityManagerTest
 	@Test
 	public void densityWithGridFasterThanDensity()
 	{
-		if (skipSpeedTest)
-			return;
+		TestSettings.assume(TestComplexity.MEDIUM);
 		for (int n : N)
 		{
 			DensityManager dm = createDensityManager(size, n);
@@ -125,7 +122,7 @@ public class DensityManagerTest
 				long t2 = System.nanoTime() - start;
 
 				String msg = String.format("Grid vs Standard. N=%d, R=%f : %fx faster", n, radius, (double) t1 / t2);
-				System.out.println(msg);
+				TestSettings.info(msg);
 				Assert.assertTrue(msg, t2 < t1);
 			}
 		}
@@ -151,8 +148,7 @@ public class DensityManagerTest
 	@Test
 	public void sumWithGridFasterThanSum()
 	{
-		if (skipSpeedTest)
-			return;
+		TestSettings.assume(TestComplexity.MEDIUM);
 		for (int n : N)
 		{
 			DensityManager dm = createDensityManager(size, n);
@@ -170,7 +166,7 @@ public class DensityManagerTest
 
 				String msg = String.format("Sum Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
-				System.out.println(msg);
+				TestSettings.info(msg);
 				Assert.assertTrue(msg, t2 < t1);
 			}
 		}
@@ -214,8 +210,7 @@ public class DensityManagerTest
 	//@Test
 	public void blockDensityFasterThanBlockDensity2()
 	{
-		if (skipSpeedTest)
-			return;
+		TestSettings.assume(TestComplexity.MEDIUM);
 		for (int n : N)
 		{
 			DensityManager dm = createDensityManager(size, n);
@@ -233,7 +228,7 @@ public class DensityManagerTest
 
 				String msg = String.format("calculateBlockDensity2 vs calculateBlockDensity. N=%d, R=%f : %fx faster",
 						n, radius, (double) t1 / t2);
-				System.out.println(msg);
+				TestSettings.info(msg);
 				Assert.assertTrue(msg, t2 < t1);
 			}
 		}
@@ -242,8 +237,7 @@ public class DensityManagerTest
 	@Test
 	public void blockDensity2FasterThanBlockDensity3()
 	{
-		if (skipSpeedTest)
-			return;
+		TestSettings.assume(TestComplexity.MEDIUM);
 		for (int n : N)
 		{
 			DensityManager dm = createDensityManager(size, n);
@@ -261,7 +255,7 @@ public class DensityManagerTest
 
 				String msg = String.format("calculateBlockDensity2 vs calculateBlockDensity3. N=%d, R=%f : %fx faster",
 						n, radius, (double) t1 / t2);
-				System.out.println(msg);
+				TestSettings.info(msg);
 				Assert.assertTrue(msg, t2 < t1);
 			}
 		}
@@ -271,10 +265,11 @@ public class DensityManagerTest
 	{
 		float[] xcoord = new float[n];
 		float[] ycoord = new float[xcoord.length];
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		for (int i = 0; i < xcoord.length; i++)
 		{
-			xcoord[i] = rand.next() * size;
-			ycoord[i] = rand.next() * size;
+			xcoord[i] = rand.nextFloat() * size;
+			ycoord[i] = rand.nextFloat() * size;
 		}
 		DensityManager dm = new DensityManager(xcoord, ycoord, new Rectangle(size, size));
 		return dm;

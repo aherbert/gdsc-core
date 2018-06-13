@@ -130,7 +130,7 @@ public class DetectionGridTest
 		Assert.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(5, 5));
 		Assert.assertArrayEquals(new int[0], g.find(-5, 5));
 
-		// Respect the insdieness definition
+		// Respect the insideness definition
 		Assert.assertArrayEquals(new int[0], g.find(10, 10));
 	}
 
@@ -152,8 +152,8 @@ public class DetectionGridTest
 			int[] o = g2.find(p[0], p[1]);
 			Arrays.sort(e);
 			Arrays.sort(o);
-			//System.out.println(Arrays.toString(e));
-			//System.out.println(Arrays.toString(o));
+			//TestSettings.debugln(Arrays.toString(e));
+			//TestSettings.debugln(Arrays.toString(o));
 			Assert.assertArrayEquals(e, o);
 		}
 	}
@@ -289,7 +289,7 @@ public class DetectionGridTest
 		{
 			double t1 = ts.get(i1).getMean();
 			double t2 = ts.get(i2).getMean();
-			//System.out.printf("%f < %f\n", t1, t2);
+			//TestSettings.debug("%f < %f\n", t1, t2);
 			Assert.assertTrue(String.format("%f < %f\n", t1, t2), t1 < t2);
 		}
 	}

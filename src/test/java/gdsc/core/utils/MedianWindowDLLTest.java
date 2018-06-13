@@ -32,6 +32,8 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.core.test.TestSettings;
+
 public class MedianWindowDLLTest
 {
 	MedianWindowTest mwt = new MedianWindowTest();
@@ -139,7 +141,7 @@ public class MedianWindowDLLTest
 			{
 				double median = mw.getMedianOldest(i + 1 + radius);
 				double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-				//System.out.printf("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+				//TestSettings.debug("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
 				Assert.assertEquals(String.format("Position %d, Radius %d", p, radius), median2, median, 1e-6);
 			}
 			for (int j = startData.length; j < data.length; j++, p++)
@@ -147,14 +149,14 @@ public class MedianWindowDLLTest
 				double median = mw.getMedian();
 				mw.add(data[j]);
 				double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-				//System.out.printf("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+				//TestSettings.debug("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
 				Assert.assertEquals(String.format("Position %d, Radius %d", p, radius), median2, median, 1e-6);
 			}
 			for (int i = 2 * radius + 1; i-- > 0; p++)
 			{
 				double median = mw.getMedianYoungest(i + 1);
 				double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-				//System.out.printf("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+				//TestSettings.debug("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
 				Assert.assertEquals(String.format("Position %d, Radius %d", p, radius), median2, median, 1e-6);
 			}
 		}
@@ -175,7 +177,7 @@ public class MedianWindowDLLTest
 				{
 					double median = mw.getMedianOldest(i + 1 + radius);
 					double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-					//System.out.printf("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+					//TestSettings.debug("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
 					Assert.assertEquals(String.format("Position %d, Radius %d", p, radius), median2, median, 1e-6);
 				}
 				for (int j = startData.length; j < data.length; j++, p++)
@@ -183,14 +185,14 @@ public class MedianWindowDLLTest
 					double median = mw.getMedian();
 					mw.add(data[j]);
 					double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-					//System.out.printf("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+					//TestSettings.debug("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
 					Assert.assertEquals(String.format("Position %d, Radius %d", p, radius), median2, median, 1e-6);
 				}
 				for (int i = 2 * radius + 1; i-- > 0; p++)
 				{
 					double median = mw.getMedianYoungest(i + 1);
 					double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-					//System.out.printf("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+					//TestSettings.debug("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
 					Assert.assertEquals(String.format("Position %d, Radius %d", p, radius), median2, median, 1e-6);
 				}
 			}
@@ -212,7 +214,7 @@ public class MedianWindowDLLTest
 				{
 					double median = mw.getMedianOldest(i + 1 + radius);
 					double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-					//System.out.printf("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+					//TestSettings.debug("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
 					Assert.assertEquals(String.format("Position %d, Radius %d", p, radius), median2, median, 1e-6);
 				}
 				for (int j = startData.length; j < data.length; j++, p++)
@@ -220,14 +222,14 @@ public class MedianWindowDLLTest
 					double median = mw.getMedian();
 					mw.add(data[j]);
 					double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-					//System.out.printf("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+					//TestSettings.debug("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
 					Assert.assertEquals(String.format("Position %d, Radius %d", p, radius), median2, median, 1e-6);
 				}
 				for (int i = 2 * radius + 1; i-- > 0; p++)
 				{
 					double median = mw.getMedianYoungest(i + 1);
 					double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-					//System.out.printf("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+					//TestSettings.debug("Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
 					Assert.assertEquals(String.format("Position %d, Radius %d", p, radius), median2, median, 1e-6);
 				}
 			}
@@ -361,7 +363,7 @@ public class MedianWindowDLLTest
 		}
 
 		Assert.assertArrayEquals(String.format("Radius %d, Increment %d", radius, increment), m1, m2, 1e-6);
-		System.out.printf("Radius %d, Increment %d : Cached %d : DLL %d = %fx faster\n", radius, increment, t1, t2,
+		TestSettings.info("Radius %d, Increment %d : Cached %d : DLL %d = %fx faster\n", radius, increment, t1, t2,
 				(double) t1 / t2);
 
 		// Only test when the increment is small.

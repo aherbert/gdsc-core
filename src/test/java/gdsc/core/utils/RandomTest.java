@@ -60,7 +60,7 @@ public class RandomTest
 	private void canComputeSample(Random r, int k, int n)
 	{
 		int[] sample = r.sample(k, n);
-		//System.out.printf("%d from %d = %s\n", k, n, java.util.Arrays.toString(sample));
+		//TestSettings.debug("%d from %d = %s\n", k, n, java.util.Arrays.toString(sample));
 		Assert.assertEquals(Math.min(k, n), sample.length);
 		for (int i = 0; i < sample.length; i++)
 			for (int j = i + 1; j < sample.length; j++)
