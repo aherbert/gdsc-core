@@ -135,9 +135,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	RandomGenerator rand;
 
-	/** The pseudo random. */
-	private TurboRandomGenerator pseudoRandom = null;
-
 	/** The neighbours of each point. */
 	int[][] allNeighbours;
 
@@ -737,7 +734,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		// numbers for all the splits.
 		double expectedSetSize = (1 + minSplitSize) * 0.5;
 		int expectedSets = (int) Math.round(size / expectedSetSize);
-		pseudoRandom = new TurboRandomGenerator(Math.max(200, minSplitSize + 2 * expectedSets), rand);
+		TurboRandomGenerator pseudoRandom = new TurboRandomGenerator(Math.max(200, minSplitSize + 2 * expectedSets), rand);
 
 		// Multi-thread this for speed
 		final BlockingQueue<SplitJob> splitJobs = new ArrayBlockingQueue<SplitJob>(nThreads * 2);
