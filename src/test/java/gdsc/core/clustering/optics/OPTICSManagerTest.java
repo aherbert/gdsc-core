@@ -37,6 +37,7 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 import de.lmu.ifi.dbs.elki.algorithm.clustering.optics.AbstractOPTICS;
@@ -84,6 +85,8 @@ import gdsc.core.utils.Maths;
 import gdsc.core.utils.PartialSort;
 import gdsc.test.BaseTimingTask;
 import gdsc.test.TestSettings;
+import gdsc.test.TestSettings.LogLevel;
+import gdsc.test.TestSettings.TestComplexity;
 import gdsc.test.TimingResult;
 import gdsc.test.TimingService;
 
@@ -1652,7 +1655,9 @@ public class OPTICSManagerTest
 		// Results
 		final int[][][] n = new int[om.length][][];
 
-		TimingService ts = new TimingService(5);
+		int loops = (TestSettings.allow(LogLevel.INFO)) ? 5 : 1;
+
+		TimingService ts = new TimingService(loops);
 		boolean check = true;
 
 		ts.execute(new FindNeighboursTimingTask(MS.SIMPLE, om, minPts, generatingDistanceE, 0)
@@ -1761,7 +1766,8 @@ public class OPTICSManagerTest
 			}
 		}, check);
 
-		ts.report();
+		if (loops > 1)
+			ts.report();
 	}
 
 	@Test
@@ -1778,7 +1784,9 @@ public class OPTICSManagerTest
 		// Results
 		final int[][][] n = new int[om.length][][];
 
-		TimingService ts = new TimingService(5);
+		int loops = (TestSettings.allow(LogLevel.INFO)) ? 5 : 1;
+
+		TimingService ts = new TimingService(loops);
 		boolean check = true;
 
 		ts.execute(new FindNeighboursTimingTask(MS.SIMPLE, true, om, minPts, generatingDistanceE, 0)
@@ -1887,15 +1895,19 @@ public class OPTICSManagerTest
 			}
 		}, check);
 
-		ts.report();
+		if (loops > 1)
+			ts.report();
 	}
 
 	/**
 	 * This test uses the auto-resolution. It is mainly used to determine when to switch inner circle processing on.
 	 */
-	//@Test
+	@Test
 	public void canTestMoleculeSpaceFindNeighboursWithAutoResolution()
 	{
+		//TestSettings.assumeHighComplexity();
+		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.MEDIUM));
+
 		RandomGenerator rg = TestSettings.getRandomGenerator();
 		int molecules = 20000;
 		float generatingDistanceE = 0;
@@ -1904,7 +1916,8 @@ public class OPTICSManagerTest
 		double nMoleculesInPixel = (double) molecules / (size * size);
 		int[] moleculesInArea = new int[] { 64, 128, 256, 512, 1024 };
 
-		boolean check = false; // This is slow as the number of sorts in the check method is very large
+		// Should this ever be done?
+		boolean check = TestSettings.allow(TestComplexity.HIGH); // This is slow as the number of sorts in the check method is very large
 
 		for (int m : moleculesInArea)
 		{
