@@ -28,7 +28,6 @@
 package gdsc.core.math;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.stat.descriptive.moment.SecondMoment;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,7 +46,7 @@ public class ArrayMomentTest
 	{
 		canComputeMoment("Single", new double[] { Math.PI }, new RollingArrayMoment());
 
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		double[] d = new double[1000];
 
 		for (int i = 0; i < d.length; i++)
@@ -68,7 +67,7 @@ public class ArrayMomentTest
 	{
 		canComputeMoment("Single", new float[] { (float) Math.PI }, new RollingArrayMoment());
 
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		float[] d = new float[1000];
 
 		for (int i = 0; i < d.length; i++)
@@ -89,7 +88,7 @@ public class ArrayMomentTest
 	{
 		canComputeMoment("Single", new int[] { 42 }, new RollingArrayMoment());
 
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		int[] d = new int[1000];
 
 		for (int i = 0; i < d.length; i++)
@@ -104,7 +103,7 @@ public class ArrayMomentTest
 	@Test
 	public void canComputeRollingArrayMomentDouble()
 	{
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		double[][] d = new double[3][];
 
 		for (int i = d.length; i-- > 0;)
@@ -120,7 +119,7 @@ public class ArrayMomentTest
 	@Test
 	public void canCombineRollingArrayMomentDouble()
 	{
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		double[][] d = new double[50][];
 
 		int n = 1000;
@@ -164,7 +163,7 @@ public class ArrayMomentTest
 	{
 		canComputeMoment("Single", new double[] { Math.PI }, new SimpleArrayMoment());
 
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		double[] d = new double[1000];
 
 		for (int i = 0; i < d.length; i++)
@@ -185,7 +184,7 @@ public class ArrayMomentTest
 	{
 		canComputeMoment("Single", new float[] { (float) Math.PI }, new SimpleArrayMoment());
 
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		float[] d = new float[1000];
 
 		for (int i = 0; i < d.length; i++)
@@ -206,7 +205,7 @@ public class ArrayMomentTest
 	{
 		canComputeMoment("Single", new int[] { 42 }, new SimpleArrayMoment());
 
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		int[] d = new int[1000];
 
 		for (int i = 0; i < d.length; i++)
@@ -221,7 +220,7 @@ public class ArrayMomentTest
 	@Test
 	public void canComputeSimpleArrayMomentInt()
 	{
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		int[][] d = new int[3][];
 
 		for (int i = d.length; i-- > 0;)
@@ -237,7 +236,7 @@ public class ArrayMomentTest
 	@Test
 	public void canCombineSimpleArrayMomentInt()
 	{
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		int[][] d = new int[50][];
 
 		int n = 1000;
@@ -279,7 +278,7 @@ public class ArrayMomentTest
 	{
 		canComputeMoment("Single", new int[] { 42 }, new IntegerArrayMoment());
 
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		int[] d = new int[1000];
 
 		for (int i = 0; i < d.length; i++)
@@ -294,7 +293,7 @@ public class ArrayMomentTest
 	@Test
 	public void canComputeIntegerArrayMomentInt()
 	{
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		int[][] d = new int[3][];
 
 		for (int i = d.length; i-- > 0;)
@@ -310,7 +309,7 @@ public class ArrayMomentTest
 	@Test
 	public void canCombineIntegerArrayMomentInt()
 	{
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		int[][] d = new int[50][];
 
 		int n = 1000;
@@ -490,7 +489,7 @@ public class ArrayMomentTest
 	//@Test
 	public void canComputeMomentForLargeSeries()
 	{
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 
 		SimpleArrayMoment m1 = new SimpleArrayMoment();
 		SecondMoment m2 = new SecondMoment();

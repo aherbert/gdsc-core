@@ -36,7 +36,6 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Precision;
 import org.junit.Assert;
@@ -62,7 +61,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canConstructInterpolatingFunction()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 
 		int x = 4, y = 5, z = 6;
 		double[][][] fval = createData(x, y, z, null);
@@ -191,7 +190,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolate()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
 		double[] yval = SimpleArrayUtils.newArray(y, 0, 0.5);
@@ -338,7 +337,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolateUsingPrecomputedTable()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -579,7 +578,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolateWithGradients()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		// Difference scales
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -685,7 +684,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolateWithGradientsUsingPrecomputedTable()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -748,7 +747,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -1072,7 +1071,7 @@ public class CustomTricubicInterpolatorTest
 	{
 		Assume.assumeTrue(false);
 
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 6, y = 5, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -1349,7 +1348,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolateAcrossNodesForValueAndGradient1()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		// Difference scales
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -1407,7 +1406,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void cannotInterpolateAcrossNodesForGradient2()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		// Difference scales
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -1485,7 +1484,7 @@ public class CustomTricubicInterpolatorTest
 		// Skip this as it is for testing the binary search works
 		Assume.assumeTrue(false);
 
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		// Bigger depth of field to capture astigmatism centre
 		int x = 10, y = 10, z = 10;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -1527,7 +1526,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canFindOptimum()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		// Bigger depth of field to capture astigmatism centre
 		int x = 10, y = 10, z = 10;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);

@@ -28,7 +28,6 @@
 package gdsc.core.utils;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,7 +43,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 	static
 	{
 		stats = new StoredDataStatistics(n);
-		RandomGenerator rand = new Well19937c();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		for (int i = 0; i < n; i++)
 			stats.add(rand.nextDouble());
 	}

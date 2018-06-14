@@ -30,13 +30,13 @@ package gdsc.core.filters;
 import java.awt.Rectangle;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.core.utils.Random;
 import gdsc.core.utils.Statistics;
 import gdsc.test.BaseTimingTask;
+import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
 import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
@@ -50,7 +50,7 @@ public class DAreaSumTest
 	@Test
 	public void canComputeGlobalStatistics()
 	{
-		double[] data = createData(new Well19937c());
+		double[] data = createData(TestSettings.getRandomGenerator());
 		Statistics s = new Statistics(data);
 		DAreaSum a = new DAreaSum(data, maxx, maxy);
 		for (boolean r : rolling)
@@ -69,7 +69,7 @@ public class DAreaSumTest
 	@Test
 	public void canComputeNxNRegionStatistics()
 	{
-		RandomGenerator r = new Well19937c();
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		double[] data = createData(r);
 		DAreaSum a1 = new DAreaSum(data, maxx, maxy);
 		a1.setRollingSums(true);
@@ -99,7 +99,7 @@ public class DAreaSumTest
 	@Test
 	public void canComputeNxMRegionStatistics()
 	{
-		RandomGenerator r = new Well19937c();
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		double[] data = createData(r);
 		DAreaSum a1 = new DAreaSum(data, maxx, maxy);
 		a1.setRollingSums(true);
@@ -131,7 +131,7 @@ public class DAreaSumTest
 	@Test
 	public void canComputeRectangleRegionStatistics()
 	{
-		RandomGenerator r = new Well19937c();
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		double[] data = createData(r);
 		DAreaSum a1 = new DAreaSum(data, maxx, maxy);
 		a1.setRollingSums(true);
@@ -260,7 +260,7 @@ public class DAreaSumTest
 
 	private void speedTest(double density, boolean rollingIsFaster, int minN, int maxN)
 	{
-		RandomGenerator r = new Well19937c();
+		RandomGenerator r = TestSettings.getRandomGenerator();
 
 		int k = (int) Math.round(maxx * maxy * density);
 		int[] x = Random.sample(k, maxx, r);

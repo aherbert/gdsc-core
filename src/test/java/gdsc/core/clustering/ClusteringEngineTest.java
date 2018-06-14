@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -385,17 +384,10 @@ public class ClusteringEngineTest
 	private ArrayList<ClusterPoint> createPoints(int n, int size)
 	{
 		ArrayList<ClusterPoint> points = new ArrayList<ClusterPoint>(n);
-		RandomGenerator rand = getRandomGenerator();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		while (n-- > 0)
 			points.add(ClusterPoint.newClusterPoint(n, rand.nextDouble() * size, rand.nextDouble() * size));
 		return points;
-	}
-
-	private RandomGenerator getRandomGenerator()
-	{
-		//return new Well19937c(System.currentTimeMillis() + System.identityHashCode(this));
-		// Use static seed for the same JUnit test each time
-		return new Well19937c(30051977);
 	}
 
 	/**
@@ -454,7 +446,7 @@ public class ClusteringEngineTest
 				throw new RuntimeException("Input time array must be at least as large as the number of points");
 			random = new Random();
 		}
-		RandomGenerator rand = getRandomGenerator();
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		while (n-- > 0)
 		{
 			double x = rand.nextDouble() * size;

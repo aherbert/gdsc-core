@@ -32,12 +32,12 @@ import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.core.utils.SimpleArrayUtils;
 import gdsc.test.BaseTimingTask;
+import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
 
 public class DetectionGridTest
@@ -138,7 +138,7 @@ public class DetectionGridTest
 	public void canDetectTheSameCollisions()
 	{
 		int size = 512;
-		RandomDataGenerator rdg = new RandomDataGenerator(new Well19937c(30051977));
+		RandomDataGenerator rdg = new RandomDataGenerator(TestSettings.getRandomGenerator());
 		Rectangle2D[] r = generateRectangles(rdg, 1000, size);
 
 		SimpleDetectionGrid g1 = new SimpleDetectionGrid(r);
@@ -267,7 +267,7 @@ public class DetectionGridTest
 
 	private void speedTest(int size, int width, int n, int np)
 	{
-		RandomDataGenerator rdg = new RandomDataGenerator(new Well19937c(30051977));
+		RandomDataGenerator rdg = new RandomDataGenerator(TestSettings.getRandomGenerator());
 
 		TimingService ts = new TimingService();
 		while (n > 500)

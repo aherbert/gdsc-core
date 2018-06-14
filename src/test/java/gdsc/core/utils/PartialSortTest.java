@@ -30,16 +30,16 @@ package gdsc.core.utils;
 import java.util.Arrays;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.test.BaseTimingTask;
+import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
 
 public class PartialSortTest
 {
-	RandomGenerator r = new Well19937c(30051977);
+	RandomGenerator r = TestSettings.getRandomGenerator();
 
 	private abstract class MyTimingTask extends BaseTimingTask
 	{

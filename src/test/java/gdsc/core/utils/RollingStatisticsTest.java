@@ -28,18 +28,19 @@
 package gdsc.core.utils;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.util.MathArrays;
 import org.junit.Assert;
 import org.junit.Test;
+
+import gdsc.test.TestSettings;
 
 public class RollingStatisticsTest
 {
 	@Test
 	public void canComputeStatistics()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		DescriptiveStatistics e;
 		RollingStatistics o;
 		for (int i = 0; i < 10; i++)

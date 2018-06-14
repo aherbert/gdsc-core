@@ -36,13 +36,15 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.test.TestSettings;
+
 public class DigestTest
 {
 	@Test
 	public void canComputeMD5Hex() throws IOException
 	{
-		RandomDataGenerator rdg = new RandomDataGenerator();
-		RandomGenerator r = rdg.getRandomGenerator();
+		RandomGenerator r = TestSettings.getRandomGenerator();
+		RandomDataGenerator rdg = new RandomDataGenerator(r);
 
 		byte[] testBytes = new byte[50];
 

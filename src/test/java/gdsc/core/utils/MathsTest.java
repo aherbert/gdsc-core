@@ -30,9 +30,10 @@ package gdsc.core.utils;
 import java.math.BigDecimal;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
+
+import gdsc.test.TestSettings;
 
 public class MathsTest
 {
@@ -46,7 +47,7 @@ public class MathsTest
 		Assert.assertEquals("0.1", Maths.roundUsingDecimalPlacesToBigDecimal(d, 1).toPlainString());
 
 		// Random test that rounding does the same as String.format
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int i = 0; i < 10; i++)
 		{
 			String format = "%." + i + "f";

@@ -28,7 +28,6 @@
 package gdsc.core.match;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.util.MathArrays;
 import org.junit.Assert;
 import org.junit.Test;
@@ -285,7 +284,7 @@ public class RandIndexTest
 			c1[size] = size % n1;
 			c2[size] = size % n2;
 		}
-		RandomGenerator rand = new Well19937c(30051977);
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		MathArrays.shuffle(c1, rand);
 
 		long t1 = System.nanoTime();
@@ -328,7 +327,7 @@ public class RandIndexTest
 			c1[size] = size % n1;
 			c2[size] = size % n2;
 		}
-		RandomGenerator rand = new Well19937c(30051977);
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		RandIndex ri = new RandIndex();
 
 		double sum = 0;
@@ -389,7 +388,7 @@ public class RandIndexTest
 			c1[size] = size % n1;
 			c2[size] = size % n2;
 		}
-		RandomGenerator rand = new Well19937c(30051977);
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		MathArrays.shuffle(c1, rand);
 
 		RandIndex ri = new RandIndex();

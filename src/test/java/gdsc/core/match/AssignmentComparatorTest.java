@@ -31,10 +31,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.junit.Test;
 
 import gdsc.test.BaseTimingTask;
+import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
 
 public class AssignmentComparatorTest
@@ -88,7 +88,7 @@ public class AssignmentComparatorTest
 	static Assignment[][] aData;
 	static
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int size = 100;
 		// The assignment data will be concatenated blocks of sorted arrays
 		int blocks = 50;

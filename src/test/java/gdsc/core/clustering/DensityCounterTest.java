@@ -29,7 +29,6 @@ package gdsc.core.clustering;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -452,7 +451,7 @@ public class DensityCounterTest
 	 */
 	private SimpleMolecule[] createMolecules(int size, int n)
 	{
-		RandomGenerator r = new Well19937c();
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		RandomDataGenerator rdg = new RandomDataGenerator(r);
 
 		float precision = 0.1f; // pixels

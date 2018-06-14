@@ -30,7 +30,6 @@ package gdsc.core.filters;
 import java.awt.Rectangle;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -51,7 +50,7 @@ public class DAreaStatisticsTest
 	@Test
 	public void canComputeGlobalStatistics()
 	{
-		double[] data = createData(new Well19937c());
+		double[] data = createData(TestSettings.getRandomGenerator());
 		Statistics s = new Statistics(data);
 		DAreaStatistics a = new DAreaStatistics(data, maxx, maxy);
 		for (boolean r : rolling)
@@ -72,7 +71,7 @@ public class DAreaStatisticsTest
 	@Test
 	public void canComputeNxNRegionStatistics()
 	{
-		RandomGenerator r = new Well19937c();
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		double[] data = createData(r);
 		DAreaStatistics a1 = new DAreaStatistics(data, maxx, maxy);
 		a1.setRollingSums(true);
@@ -104,7 +103,7 @@ public class DAreaStatisticsTest
 	@Test
 	public void canComputeNxMRegionStatistics()
 	{
-		RandomGenerator r = new Well19937c();
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		double[] data = createData(r);
 		DAreaStatistics a1 = new DAreaStatistics(data, maxx, maxy);
 		a1.setRollingSums(true);
@@ -137,7 +136,7 @@ public class DAreaStatisticsTest
 	@Test
 	public void canComputeRectangleRegionStatistics()
 	{
-		RandomGenerator r = new Well19937c();
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		double[] data = createData(r);
 		DAreaStatistics a1 = new DAreaStatistics(data, maxx, maxy);
 		a1.setRollingSums(true);
@@ -271,7 +270,7 @@ public class DAreaStatisticsTest
 
 	private void speedTest(double density, boolean rollingIsFaster, int minN, int maxN)
 	{
-		RandomGenerator r = new Well19937c();
+		RandomGenerator r = TestSettings.getRandomGenerator();
 
 		int k = (int) Math.round(maxx * maxy * density);
 		int[] x = Random.sample(k, maxx, r);
