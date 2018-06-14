@@ -38,6 +38,7 @@ import gdsc.core.utils.Statistics;
 import gdsc.test.BaseTimingTask;
 import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
+import gdsc.test.TestSettings.LogLevel;
 import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
 
@@ -58,13 +59,13 @@ public class DAreaStatisticsTest
 			a.setRollingSums(r);
 			double[] o = a.getStatistics(0, 0, maxy);
 			Assert.assertEquals(s.getN(), o[DAreaSum.N], 0);
-			Assert.assertEquals(s.getSum(), o[DAreaSum.SUM], 1e-6);
-			Assert.assertEquals(s.getStandardDeviation(), o[DAreaStatistics.SD], 1e-6);
+			TestSettings.assertEquals(s.getSum(), o[DAreaSum.SUM], 1e-6);
+			TestSettings.assertEquals(s.getStandardDeviation(), o[DAreaStatistics.SD], 1e-6);
 
 			o = a.getStatistics(new Rectangle(maxx, maxy));
 			Assert.assertEquals(s.getN(), o[DAreaSum.N], 0);
-			Assert.assertEquals(s.getSum(), o[DAreaSum.SUM], 1e-6);
-			Assert.assertEquals(s.getStandardDeviation(), o[DAreaStatistics.SD], 1e-6);
+			TestSettings.assertEquals(s.getSum(), o[DAreaSum.SUM], 1e-6);
+			TestSettings.assertEquals(s.getStandardDeviation(), o[DAreaStatistics.SD], 1e-6);
 		}
 	}
 
@@ -86,7 +87,7 @@ public class DAreaStatisticsTest
 				{
 					double[] e = a1.getStatistics(x, y, n);
 					double[] o = a2.getStatistics(x, y, n);
-					Assert.assertArrayEquals(e, o, 1e-6);
+					TestSettings.assertArrayEquals(e, o, 1e-6);
 					//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 					// Check with ImageJ
@@ -95,8 +96,8 @@ public class DAreaStatisticsTest
 
 					Assert.assertEquals(s.area, o[DAreaSum.N], 0);
 					double sum = s.mean * s.area;
-					Assert.assertEquals(sum, o[DAreaSum.SUM], sum * 1e-6);
-					Assert.assertEquals(s.stdDev, o[DAreaStatistics.SD], s.stdDev * 1e-6);
+					TestSettings.assertEquals(sum, o[DAreaSum.SUM], 1e-6);
+					TestSettings.assertEquals(s.stdDev, o[DAreaStatistics.SD], 1e-6);
 				}
 	}
 
@@ -119,7 +120,7 @@ public class DAreaStatisticsTest
 					{
 						double[] e = a1.getStatistics(x, y, nx, ny);
 						double[] o = a2.getStatistics(x, y, nx, ny);
-						Assert.assertArrayEquals(e, o, 1e-6);
+						TestSettings.assertArrayEquals(e, o, 1e-6);
 						//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 						// Check with ImageJ
@@ -128,8 +129,8 @@ public class DAreaStatisticsTest
 
 						Assert.assertEquals(s.area, o[DAreaSum.N], 0);
 						double sum = s.mean * s.area;
-						Assert.assertEquals(sum, o[DAreaSum.SUM], sum * 1e-6);
-						Assert.assertEquals(s.stdDev, o[DAreaStatistics.SD], s.stdDev * 1e-6);
+						TestSettings.assertEquals(sum, o[DAreaSum.SUM], 1e-6);
+						TestSettings.assertEquals(s.stdDev, o[DAreaStatistics.SD], 1e-6);
 					}
 	}
 
@@ -155,7 +156,7 @@ public class DAreaStatisticsTest
 				roi.y = y;
 				double[] e = a1.getStatistics(roi);
 				double[] o = a2.getStatistics(roi);
-				Assert.assertArrayEquals(e, o, 1e-6);
+				TestSettings.assertArrayEquals(e, o, 1e-6);
 				//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 				// Check with ImageJ
@@ -163,8 +164,8 @@ public class DAreaStatisticsTest
 				ImageStatistics s = fp.getStatistics();
 
 				Assert.assertEquals(s.area, o[DAreaSum.N], 0);
-				Assert.assertEquals(s.mean * s.area, o[DAreaSum.SUM], 1e-6);
-				Assert.assertEquals(s.stdDev, o[DAreaStatistics.SD], 1e-6);
+				TestSettings.assertEquals(s.mean * s.area, o[DAreaSum.SUM], 1e-6);
+				TestSettings.assertEquals(s.stdDev, o[DAreaStatistics.SD], 1e-6);
 			}
 	}
 
@@ -184,21 +185,21 @@ public class DAreaStatisticsTest
 			{
 				double[] o = a.getStatistics(0, 0, n);
 				Assert.assertEquals(c, o[DAreaSum.N], 0);
-				Assert.assertEquals(u, o[DAreaSum.SUM], 1e-6);
-				Assert.assertEquals(s, o[DAreaStatistics.SD], 1e-6);
+				TestSettings.assertEquals(u, o[DAreaSum.SUM], 1e-6);
+				TestSettings.assertEquals(s, o[DAreaStatistics.SD], 1e-6);
 
 				Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
 				o = a.getStatistics(bounds);
 				Assert.assertEquals(c, o[DAreaSum.N], 0);
-				Assert.assertEquals(u, o[DAreaSum.SUM], 1e-6);
-				Assert.assertEquals(s, o[DAreaStatistics.SD], 1e-6);
+				TestSettings.assertEquals(u, o[DAreaSum.SUM], 1e-6);
+				TestSettings.assertEquals(s, o[DAreaStatistics.SD], 1e-6);
 
 				bounds.x--;
 				bounds.y--;
 				o = a.getStatistics(bounds);
 				Assert.assertEquals(c, o[DAreaSum.N], 0);
-				Assert.assertEquals(u, o[DAreaSum.SUM], 1e-6);
-				Assert.assertEquals(s, o[DAreaStatistics.SD], 1e-6);
+				TestSettings.assertEquals(u, o[DAreaSum.SUM], 1e-6);
+				TestSettings.assertEquals(s, o[DAreaStatistics.SD], 1e-6);
 			}
 		}
 	}
@@ -296,11 +297,12 @@ public class DAreaStatisticsTest
 		}
 		int size = ts.getSize();
 		ts.repeat();
-		ts.report(size);
-		for (int i = ts.getSize(); i > 0; i -= 2)
-		{
-			Assert.assertEquals(ts.get(i - 2).getMean() < ts.get(i - 1).getMean(), rollingIsFaster);
-		}
+		if (TestSettings.allow(LogLevel.INFO))
+			ts.report(size);
+		Assert.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
+		// The first run is not always faster
+		//for (int i = ts.getSize(); i > 0; i -= 2)
+		//	Assert.assertEquals(ts.get(i - 2).getMean() < ts.get(i - 1).getMean(), rollingIsFaster);
 	}
 
 	private double[] createData(RandomGenerator r)

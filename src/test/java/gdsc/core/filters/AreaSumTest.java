@@ -38,6 +38,7 @@ import gdsc.core.utils.Statistics;
 import gdsc.test.BaseTimingTask;
 import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
+import gdsc.test.TestSettings.LogLevel;
 import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
 
@@ -58,11 +59,11 @@ public class AreaSumTest
 			a.setRollingSums(r);
 			double[] o = a.getStatistics(0, 0, maxy);
 			Assert.assertEquals(s.getN(), o[AreaSum.N], 0);
-			Assert.assertEquals(s.getSum(), o[AreaSum.SUM], 1e-6);
+			TestSettings.assertEquals(s.getSum(), o[AreaSum.SUM], 1e-6);
 
 			o = a.getStatistics(new Rectangle(maxx, maxy));
 			Assert.assertEquals(s.getN(), o[AreaSum.N], 0);
-			Assert.assertEquals(s.getSum(), o[AreaSum.SUM], 1e-6);
+			TestSettings.assertEquals(s.getSum(), o[AreaSum.SUM], 1e-6);
 		}
 	}
 
@@ -84,7 +85,7 @@ public class AreaSumTest
 				{
 					double[] e = a1.getStatistics(x, y, n);
 					double[] o = a2.getStatistics(x, y, n);
-					Assert.assertArrayEquals(e, o, 1e-6);
+					TestSettings.assertArrayEquals(e, o, 1e-6);
 					//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 					// Check with ImageJ
@@ -93,7 +94,7 @@ public class AreaSumTest
 
 					Assert.assertEquals(s.area, o[AreaSum.N], 0);
 					double sum = s.mean * s.area;
-					Assert.assertEquals(sum, o[AreaSum.SUM], sum * 1e-6);
+					TestSettings.assertEquals(sum, o[AreaSum.SUM], 1e-6);
 				}
 	}
 
@@ -116,7 +117,7 @@ public class AreaSumTest
 					{
 						double[] e = a1.getStatistics(x, y, nx, ny);
 						double[] o = a2.getStatistics(x, y, nx, ny);
-						Assert.assertArrayEquals(e, o, 1e-6);
+						TestSettings.assertArrayEquals(e, o, 1e-6);
 						//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 						// Check with ImageJ
@@ -124,7 +125,7 @@ public class AreaSumTest
 						ImageStatistics s = fp.getStatistics();
 
 						Assert.assertEquals(s.area, o[AreaSum.N], 0);
-						Assert.assertEquals(s.mean * s.area, o[AreaSum.SUM], 1e-6);
+						TestSettings.assertEquals(s.mean * s.area, o[AreaSum.SUM], 1e-6);
 					}
 	}
 
@@ -150,7 +151,7 @@ public class AreaSumTest
 				roi.y = y;
 				double[] e = a1.getStatistics(roi);
 				double[] o = a2.getStatistics(roi);
-				Assert.assertArrayEquals(e, o, 1e-6);
+				TestSettings.assertArrayEquals(e, o, 1e-6);
 				//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 				// Check with ImageJ
@@ -158,7 +159,7 @@ public class AreaSumTest
 				ImageStatistics s = fp.getStatistics();
 
 				Assert.assertEquals(s.area, o[AreaSum.N], 0);
-				Assert.assertEquals(s.mean * s.area, o[AreaSum.SUM], 1e-6);
+				TestSettings.assertEquals(s.mean * s.area, o[AreaSum.SUM], 1e-6);
 			}
 	}
 
@@ -177,18 +178,18 @@ public class AreaSumTest
 			{
 				double[] o = a.getStatistics(0, 0, n);
 				Assert.assertEquals(c, o[AreaSum.N], 0);
-				Assert.assertEquals(u, o[AreaSum.SUM], 1e-6);
+				TestSettings.assertEquals(u, o[AreaSum.SUM], 1e-6);
 
 				Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
 				o = a.getStatistics(bounds);
 				Assert.assertEquals(c, o[AreaSum.N], 0);
-				Assert.assertEquals(u, o[AreaSum.SUM], 1e-6);
+				TestSettings.assertEquals(u, o[AreaSum.SUM], 1e-6);
 
 				bounds.x--;
 				bounds.y--;
 				o = a.getStatistics(bounds);
 				Assert.assertEquals(c, o[AreaSum.N], 0);
-				Assert.assertEquals(u, o[AreaSum.SUM], 1e-6);
+				TestSettings.assertEquals(u, o[AreaSum.SUM], 1e-6);
 			}
 		}
 	}
@@ -252,7 +253,7 @@ public class AreaSumTest
 	public void rollingIsfasterAtHighDensity()
 	{
 		// Since this is a slow test
-		//Assume.assumeTrue(TestSettings.RUN_SPEED_TESTS);
+		TestSettings.assumeMediumComplexity();
 
 		// Test for sampling half the pixels. Ignore the very small box size
 		speedTest(0.5, true, 2, Integer.MAX_VALUE);
@@ -286,11 +287,12 @@ public class AreaSumTest
 		}
 		int size = ts.getSize();
 		ts.repeat();
-		ts.report(size);
-		for (int i = ts.getSize(); i > 0; i -= 2)
-		{
-			Assert.assertEquals(ts.get(i - 2).getMean() < ts.get(i - 1).getMean(), rollingIsFaster);
-		}
+		if (TestSettings.allow(LogLevel.INFO))
+			ts.report(size);
+		Assert.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
+		// The first run is not always faster
+		//for (int i = ts.getSize(); i > 0; i -= 2)
+		//	Assert.assertEquals(ts.get(i - 2).getMean() < ts.get(i - 1).getMean(), rollingIsFaster);
 	}
 
 	private float[] createData(RandomGenerator r)
