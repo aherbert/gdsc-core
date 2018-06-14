@@ -81,12 +81,12 @@ import gdsc.core.logging.ConsoleLogger;
 import gdsc.core.logging.NullTrackProgress;
 import gdsc.core.logging.TrackProgress;
 import gdsc.core.match.RandIndex;
-import gdsc.core.test.BaseTimingTask;
-import gdsc.core.test.TestSettings;
-import gdsc.core.test.TimingResult;
-import gdsc.core.test.TimingService;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.PartialSort;
+import gdsc.test.BaseTimingTask;
+import gdsc.test.TestSettings;
+import gdsc.test.TimingResult;
+import gdsc.test.TimingService;
 
 public class OPTICSManagerTest
 {

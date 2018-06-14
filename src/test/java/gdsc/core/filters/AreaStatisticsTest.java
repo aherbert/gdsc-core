@@ -34,11 +34,11 @@ import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.test.BaseTimingTask;
-import gdsc.core.test.TestSettings;
-import gdsc.core.test.TimingService;
 import gdsc.core.utils.Random;
 import gdsc.core.utils.Statistics;
+import gdsc.test.BaseTimingTask;
+import gdsc.test.TestSettings;
+import gdsc.test.TimingService;
 import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
 

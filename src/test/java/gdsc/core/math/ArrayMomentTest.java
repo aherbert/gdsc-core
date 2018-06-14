@@ -34,8 +34,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.core.data.IntegerType;
-import gdsc.core.test.TestSettings;
 import gdsc.core.utils.Statistics;
+import gdsc.test.TestSettings;
 
 public class ArrayMomentTest
 {

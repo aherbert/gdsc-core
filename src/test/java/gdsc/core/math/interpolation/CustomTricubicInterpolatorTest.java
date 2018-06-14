@@ -46,13 +46,13 @@ import org.junit.Test;
 import gdsc.core.data.DoubleArrayTrivalueProvider;
 import gdsc.core.data.DoubleArrayValueProvider;
 import gdsc.core.data.procedures.StandardTrivalueProcedure;
-import gdsc.core.test.BaseTimingTask;
-import gdsc.core.test.TestSettings;
-import gdsc.core.test.TimingService;
 import gdsc.core.utils.DoubleEquality;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.SimpleArrayUtils;
 import gdsc.core.utils.Statistics;
+import gdsc.test.BaseTimingTask;
+import gdsc.test.TestSettings;
+import gdsc.test.TimingService;
 
 public class CustomTricubicInterpolatorTest
 {

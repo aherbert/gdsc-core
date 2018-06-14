@@ -33,7 +33,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.test.TestSettings;
+import gdsc.test.TestSettings;
 
 public class PseudoRandomGeneratorTest
 {

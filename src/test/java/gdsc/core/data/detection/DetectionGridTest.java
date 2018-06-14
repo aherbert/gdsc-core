@@ -36,9 +36,9 @@ import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.test.BaseTimingTask;
-import gdsc.core.test.TimingService;
 import gdsc.core.utils.SimpleArrayUtils;
+import gdsc.test.BaseTimingTask;
+import gdsc.test.TimingService;
 
 public class DetectionGridTest
 {

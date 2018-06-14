@@ -35,10 +35,10 @@ import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.test.TestSettings;
-import gdsc.core.test.TestSettings.LogLevel;
-import gdsc.core.test.TestSettings.TestComplexity;
 import gdsc.core.utils.Random;
+import gdsc.test.TestSettings;
+import gdsc.test.TestSettings.LogLevel;
+import gdsc.test.TestSettings.TestComplexity;
 
 public class ClusteringEngineTest
 {

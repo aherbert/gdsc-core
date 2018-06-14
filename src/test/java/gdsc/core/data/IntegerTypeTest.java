@@ -31,7 +31,7 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 
-import gdsc.core.test.TestSettings;
+import gdsc.test.TestSettings;
 
 public class IntegerTypeTest
 {

@@ -37,13 +37,13 @@ import ags.utils.dataStructures.MaxHeap;
 import ags.utils.dataStructures.trees.secondGenKD.KdTree.Entry;
 import ags.utils.dataStructures.trees.thirdGenKD.DistanceFunction;
 import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction2D;
-import gdsc.core.test.BaseTimingTask;
-import gdsc.core.test.TestSettings;
-import gdsc.core.test.TimingService;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.PartialSort;
 import gdsc.core.utils.Random;
 import gdsc.core.utils.SimpleArrayUtils;
+import gdsc.test.BaseTimingTask;
+import gdsc.test.TestSettings;
+import gdsc.test.TimingService;
 
 public class KdTreeTest
 {

@@ -35,8 +35,8 @@ import org.apache.commons.math3.util.MathArrays;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.test.BaseTimingTask;
-import gdsc.core.test.TimingService;
+import gdsc.test.BaseTimingTask;
+import gdsc.test.TimingService;
 import gnu.trove.set.hash.TIntHashSet;
 
 public class SimpleArrayUtilsTest

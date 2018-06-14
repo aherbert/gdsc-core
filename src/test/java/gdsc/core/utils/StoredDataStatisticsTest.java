@@ -32,8 +32,8 @@ import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.test.TestSettings;
-import gdsc.core.test.TestSettings.LogLevel;
+import gdsc.test.TestSettings;
+import gdsc.test.TestSettings.LogLevel;
 
 public class StoredDataStatisticsTest extends StatisticsTest
 {

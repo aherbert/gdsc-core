@@ -33,10 +33,10 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 
-import gdsc.core.test.BaseTimingTask;
-import gdsc.core.test.TestSettings;
-import gdsc.core.test.TimingService;
 import gdsc.core.utils.Sort;
+import gdsc.test.BaseTimingTask;
+import gdsc.test.TestSettings;
+import gdsc.test.TimingService;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.procedure.TIntObjectProcedure;
