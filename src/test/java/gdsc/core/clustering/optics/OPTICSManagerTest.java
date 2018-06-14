@@ -90,7 +90,6 @@ import gdsc.test.TimingService;
 public class OPTICSManagerTest
 {
 	boolean skipSpeedTest = true;
-	RandIndex ri = new RandIndex();
 
 	int size = 256;
 	float[] radii = new float[] { 2, 4, 8, 16 };
@@ -637,6 +636,7 @@ public class OPTICSManagerTest
 	public void canComputeSimilarFastOPTICSToELKI()
 	{
 		RandomGenerator rg = TestSettings.getRandomGenerator();
+		RandIndex ri = new RandIndex();
 		TrackProgress tracker = null; //new SimpleTrackProgress();
 		for (int n : new int[] { 500 })
 		{
@@ -654,6 +654,7 @@ public class OPTICSManagerTest
 				int nLoops = 5;
 				for (int loop = 0; loop < nLoops; loop++)
 				{
+					long seed = TestSettings.getSeed() + loop + 1;
 					// Reset starting Id to 1
 					DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data, null, 0);
 					ListParameterization params = new ListParameterization();
@@ -671,13 +672,14 @@ public class OPTICSManagerTest
 					boolean useRandomVectors = true;
 					boolean saveApproximateSets = true;
 					SampleMode sampleMode = SampleMode.MEDIAN;
+					om.setRandomSeed(seed);
 					OPTICSResult r1 = om.fastOptics(minPts, nSplits, nProjections, useRandomVectors,
 							saveApproximateSets, sampleMode);
 
 					// Test verses the ELKI frame work
 					params = new ListParameterization();
 					params.addParameter(AbstractOPTICS.Parameterizer.MINPTS_ID, minPts);
-					params.addParameter(RandomProjectedNeighborsAndDensities.Parameterizer.RANDOM_ID, loop + 1);
+					params.addParameter(RandomProjectedNeighborsAndDensities.Parameterizer.RANDOM_ID, seed);
 					Class<FastOPTICS<DoubleVector>> clz = ClassGenericsUtil.uglyCastIntoSubclass(FastOPTICS.class);
 					FastOPTICS<DoubleVector> fo = params.tryInstantiate(clz);
 
@@ -705,7 +707,7 @@ public class OPTICSManagerTest
 					int[] obsClusters = r1.getClusters();
 
 					//for (int i = 0; i < n; i++)
-					//	TestSettings.info("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
+					//	TestSettings.debug("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
 
 					// Should be similar
 					ri.compute(expClusters, obsClusters);
@@ -805,6 +807,7 @@ public class OPTICSManagerTest
 	private void canComputeSimilarFastOPTICS(double xi, double randMin)
 	{
 		RandomGenerator rg = TestSettings.getRandomGenerator();
+		RandIndex ri = new RandIndex();
 		TrackProgress tracker = null; //new SimpleTrackProgress();
 		boolean[] both = new boolean[] { true, false };
 
@@ -813,6 +816,7 @@ public class OPTICSManagerTest
 			OPTICSManager om = createOPTICSManager(size, n, rg);
 			om.setTracker(tracker);
 			om.setOptions(Option.OPTICS_STRICT_ID_ORDER);
+			om.setRandomSeed(TestSettings.getSeed());
 
 			for (int minPts : new int[] { 5, 10 })
 			{
@@ -822,21 +826,31 @@ public class OPTICSManagerTest
 				int nSplits = 0;
 				int nProjections = 0;
 				// @formatter:off
-				for (boolean useRandomVectors : both)
-				for (boolean saveApproximateSets : both)
 				for (SampleMode sampleMode : SampleMode.values())
 				{
-					int[] c2 = runFastOPTICS(om, xi, minPts, nSplits, nProjections, useRandomVectors,
-							saveApproximateSets, sampleMode);
-
-					// Should be similar
-					double r = ri.getRandIndex(c1, c2);
-					double ari = ri.getAdjustedRandIndex();
+					double sum = 0;
+					int c = 0;
+    				for (boolean useRandomVectors : both)
+    				for (boolean saveApproximateSets : both)
+    				{
+    					int[] c2 = runFastOPTICS(om, xi, minPts, nSplits, nProjections, useRandomVectors,
+    							saveApproximateSets, sampleMode);
+    
+    					// Should be similar
+    					double r = ri.getRandIndex(c1, c2);
+    					sum += r;
+    					c++;
+    					double ari = ri.getAdjustedRandIndex();
+    					TestSettings.info(
+    							"xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s : r=%f (%f)\n",
+    							xi, n, minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode, r, ari);
+    					Assert.assertTrue(0 < ari); // This should always be true, i.e. better than chance
+    				}
+    				double r = sum / c;
 					TestSettings.info(
-							"xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s : r=%f (%f)\n",
-							xi, n, minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode, r, ari);
-					Assert.assertTrue(randMin < r);
-					Assert.assertTrue(0 < ari);
+							"xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, sampleMode=%s : r=%f\n",
+							xi, n, minPts, nSplits, nProjections, sampleMode, r);
+					Assert.assertTrue("Failed " + sampleMode, randMin < r);
 				}
 				// @formatter:on
 			}
