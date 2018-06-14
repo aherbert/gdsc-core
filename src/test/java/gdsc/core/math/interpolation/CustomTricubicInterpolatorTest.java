@@ -797,13 +797,13 @@ public class CustomTricubicInterpolatorTest
 				// Just check relative to the double-table version
 				e = n1.value(table);
 				o = n2.value(ftable);
-				assertEquals(e, o, valueTolerance);
+				TestSettings.assertEquals(e, o, valueTolerance);
 
 				e = n1.value(table, df_daA);
 				o = n2.value(ftable, df_daB);
-				assertEquals(e, o, valueTolerance);
+				TestSettings.assertEquals(e, o, valueTolerance);
 				for (int j = 0; j < 3; j++)
-					assertEquals(df_daA[j], df_daB[j], gradientTolerance);
+					TestSettings.assertEquals(df_daA[j], df_daB[j], gradientTolerance);
 
 				e2 = n1.value(table, df_daA2, d2f_da2A);
 				o2 = n2.value(ftable, df_daB2, d2f_da2B);
@@ -812,27 +812,27 @@ public class CustomTricubicInterpolatorTest
 				Assert.assertEquals(o, o2, 0);
 				Assert.assertArrayEquals(df_daA, df_daA2, 0);
 				Assert.assertArrayEquals(df_daB, df_daB2, 0);
-				assertEquals(e2, o2, valueTolerance);
+				TestSettings.assertEquals(e2, o2, valueTolerance);
 				for (int j = 0; j < 3; j++)
 				{
-					assertEquals(df_daA[j], df_daB[j], gradientTolerance);
-					assertEquals(d2f_da2A[j], d2f_da2B[j], gradientTolerance);
+					TestSettings.assertEquals(df_daA[j], df_daB[j], gradientTolerance);
+					TestSettings.assertEquals(d2f_da2A[j], d2f_da2B[j], gradientTolerance);
 				}
 
 				o = n2.value(ftable, ftable2, ftable3, df_daB);
-				assertEquals(e, o, valueTolerance);
+				TestSettings.assertEquals(e, o, valueTolerance);
 				for (int j = 0; j < 3; j++)
-					assertEquals(df_daA[j], df_daB[j], gradientTolerance);
+					TestSettings.assertEquals(df_daA[j], df_daB[j], gradientTolerance);
 
 				o2 = n2.value(ftable, ftable2, ftable3, ftable6, df_daB2, d2f_da2B);
 				// Should be the same as the first-order gradient 
 				Assert.assertEquals(o, o2, 0);
 				Assert.assertArrayEquals(df_daB, df_daB2, 0);
-				assertEquals(e2, o2, valueTolerance);
+				TestSettings.assertEquals(e2, o2, valueTolerance);
 				for (int j = 0; j < 3; j++)
 				{
-					assertEquals(df_daA[j], df_daB[j], gradientTolerance);
-					assertEquals(d2f_da2A[j], d2f_da2B[j], gradientTolerance);
+					TestSettings.assertEquals(df_daA[j], df_daB[j], gradientTolerance);
+					TestSettings.assertEquals(d2f_da2A[j], d2f_da2B[j], gradientTolerance);
 				}
 			}
 		}
@@ -892,11 +892,6 @@ public class CustomTricubicInterpolatorTest
 		Assert.assertEquals(e, o, 0);
 		Assert.assertArrayEquals(df_daA, df_daB, 0);
 		Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 0);
-	}
-
-	private static void assertEquals(double e, double o, double tolerance)
-	{
-		Assert.assertEquals(e, o, Math.abs(e * tolerance));
 	}
 
 	private abstract class MyTimingTask extends BaseTimingTask
@@ -1218,7 +1213,7 @@ public class CustomTricubicInterpolatorTest
 				for (int k = 0; k < p.z.length; k++)
 				{
 					// Test original function interpolated value against the sample
-					assertEquals(f1.value(p.x[i], p.y[j], p.z[k]), p.value[i][j][k], 1e-8);
+					TestSettings.assertEquals(f1.value(p.x[i], p.y[j], p.z[k]), p.value[i][j][k], 1e-8);
 				}
 	}
 
