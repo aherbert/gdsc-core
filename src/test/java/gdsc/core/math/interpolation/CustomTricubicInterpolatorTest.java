@@ -1557,10 +1557,10 @@ public class CustomTricubicInterpolatorTest
 			double[] last = f1.search(maximum, 10, 1e-6, 0);
 
 			// Since the cubic function is not the same as the input we cannot be too precise here
-			Assert.assertEquals(cx, last[0], 1e-1);
-			Assert.assertEquals(cy, last[1], 1e-1);
-			Assert.assertEquals(cz, last[2], 1e-1);
-			Assert.assertEquals(amplitude, last[3], Math.abs(amplitude) * 1e-2);
+			TestSettings.assertEquals(cx, last[0], 5e-2);
+			TestSettings.assertEquals(cy, last[1], 5e-2);
+			TestSettings.assertEquals(cz, last[2], 5e-2);
+			TestSettings.assertEquals(amplitude, last[3], 5e-2);
 		}
 	}
 }
