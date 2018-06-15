@@ -27,8 +27,6 @@
  */
 package gdsc.core.filters;
 
-import java.util.Arrays;
-
 import org.apache.commons.math3.util.FastMath;
 
 import gdsc.core.utils.FixedIntList;
@@ -2000,7 +1998,9 @@ public class NonMaximumSuppression implements Cloneable
 			return array;
 		if (size == 0)
 			return new int[0];
-		return Arrays.copyOf(array, size);
+		int[] copy = new int[size];
+		System.arraycopy(array, 0, copy, 0, size);
+		return copy;
 	}
 
 	/**
@@ -2016,7 +2016,9 @@ public class NonMaximumSuppression implements Cloneable
 			return array;
 		if (size == 0)
 			return new int[0][0];
-		return Arrays.copyOf(array, size);
+		int[][] copy = new int[size][];
+		System.arraycopy(array, 0, copy, 0, size);
+		return copy;
 	}
 
 	/**
