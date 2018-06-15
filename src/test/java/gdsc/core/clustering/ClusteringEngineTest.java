@@ -50,7 +50,7 @@ public class ClusteringEngineTest
 		RandomGenerator rg = TestSettings.getRandomGenerator();
 		for (double radius : new double[] { 5, 10, 20 })
 		{
-			for (int size : new int[] { 2000, 1000, 500, 400, 300, 200, 100 })
+			for (int size : new int[] { 1000, 500, 300, 100 })
 			{
 				testClusting(rg, ClusteringAlgorithm.CENTROID_LINKAGE, radius, 100, size);
 			}
@@ -63,7 +63,7 @@ public class ClusteringEngineTest
 		RandomGenerator rg = TestSettings.getRandomGenerator();
 		for (double radius : new double[] { 5, 10, 20 })
 		{
-			for (int size : new int[] { 2000, 1000, 500, 400, 300, 200, 100 })
+			for (int size : new int[] { 1000, 500, 300, 100 })
 			{
 				testClusting(rg, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius, 100, size);
 			}

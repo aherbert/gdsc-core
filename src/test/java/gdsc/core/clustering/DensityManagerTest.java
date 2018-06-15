@@ -40,7 +40,7 @@ public class DensityManagerTest
 {
 	int size = 256;
 	float[] radii = new float[] { 2, 4, 8, 16 };
-	int[] N = new int[] { 1000, 2000, 4000, 8000 };
+	int[] N = new int[] { 1000, 2000, 4000 };
 
 	@Test
 	public void densityWithTriangleMatchesDensity()
