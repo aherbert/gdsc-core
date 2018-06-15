@@ -30,16 +30,28 @@ package gdsc.core.ij;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.test.TestSettings;
 import ij.plugin.frame.Recorder;
 
 public class RecorderUtilsTest
 {
-	// We need an instance to allow recording
-	Recorder recorder = new Recorder(false);
+	// We need an instance otherwise the static method calls to 
+	// Recorder.setCommand() are ignored.
+	static Recorder recorder = null;
+
+	private synchronized void createRecorder()
+	{
+		// This test is slow as creating the recorder involves spinning up a lot
+		// ImageJ and Java AWT classes. So only run if asked for. 
+		TestSettings.assumeLowComplexity();
+		if (recorder == null)
+			recorder = new Recorder(false);
+	}
 
 	@Test
 	public void canResetRecorder()
 	{
+		createRecorder();
 		canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"), null);
 		canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"), null);
 		canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", ""), null);
@@ -51,6 +63,7 @@ public class RecorderUtilsTest
 	@Test
 	public void canResetRecorderWithQuotedValues()
 	{
+		createRecorder();
 		canResetRecorder(toArray("a", "b"), toArray("1 1", "2 2"), toArray("c", "d"), toArray("3 3", "4 4"), null);
 		canResetRecorder(toArray("a", "b"), toArray("1 1", "2 2"), toArray("c", "d"), toArray("3 3", "4"), null);
 		canResetRecorder(toArray("a", "b"), toArray("1 1", "2 2"), toArray("c", "d"), toArray("3 3", ""), null);
@@ -97,6 +110,7 @@ public class RecorderUtilsTest
 	@Test
 	public void resetRecorderIgnoresInvalidKeys()
 	{
+		createRecorder();
 		canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"), toArray("e", "f"));
 		canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"), toArray("e", "f"));
 		canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", ""), toArray("e", "f"));

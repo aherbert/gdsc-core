@@ -123,8 +123,9 @@ public class RecorderUtils
 		Recorder.saveCommand();
 		// Re-record all the remaining pairs
 		Recorder.setCommand(commandName);
-		for (String[] pair : pairs)
+		for (int i = 0; i < pairs.size(); i++)
 		{
+			String[] pair = pairs.getf(i);
 			if (pair[1] == null)
 				Recorder.recordOption(pair[0]);
 			else
@@ -147,8 +148,8 @@ public class RecorderUtils
 
 	private static boolean ignore(String key, String[] keys)
 	{
-		for (String k : keys)
-			if (k.equalsIgnoreCase(key))
+		for (int i = 0; i < keys.length; i++)
+			if (keys[i].equalsIgnoreCase(key))
 				return true;
 		return false;
 	}
