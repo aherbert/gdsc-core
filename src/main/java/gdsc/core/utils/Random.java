@@ -144,9 +144,44 @@ public class Random extends AbstractRandomGenerator
 	 */
 	public void shuffle(double[] data)
 	{
+		shuffle(data, this);
+	}
+
+	/**
+	 * Perform a Fisher-Yates shuffle on the data
+	 * 
+	 * @param data
+	 *            the data
+	 */
+	public void shuffle(float[] data)
+	{
+		shuffle(data, this);
+	}
+
+	/**
+	 * Perform a Fisher-Yates shuffle on the data
+	 * 
+	 * @param data
+	 *            the data
+	 */
+	public void shuffle(int[] data)
+	{
+		shuffle(data, this);
+	}
+
+	/**
+	 * Perform a Fisher-Yates shuffle on the data
+	 * 
+	 * @param data
+	 *            the data
+	 * @param r
+	 *            the random generator
+	 */
+	public static void shuffle(double[] data, RandomGenerator r)
+	{
 		for (int i = data.length; i-- > 1;)
 		{
-			int j = nextInt(i + 1);
+			int j = r.nextInt(i + 1);
 			double tmp = data[i];
 			data[i] = data[j];
 			data[j] = tmp;
@@ -158,12 +193,14 @@ public class Random extends AbstractRandomGenerator
 	 * 
 	 * @param data
 	 *            the data
+	 * @param r
+	 *            the random generator
 	 */
-	public void shuffle(float[] data)
+	public static void shuffle(float[] data, RandomGenerator r)
 	{
 		for (int i = data.length; i-- > 1;)
 		{
-			int j = nextInt(i + 1);
+			int j = r.nextInt(i + 1);
 			float tmp = data[i];
 			data[i] = data[j];
 			data[j] = tmp;
@@ -175,12 +212,14 @@ public class Random extends AbstractRandomGenerator
 	 * 
 	 * @param data
 	 *            the data
+	 * @param r
+	 *            the random generator
 	 */
-	public void shuffle(int[] data)
+	public static void shuffle(int[] data, RandomGenerator r)
 	{
 		for (int i = data.length; i-- > 1;)
 		{
-			int j = nextInt(i + 1);
+			int j = r.nextInt(i + 1);
 			int tmp = data[i];
 			data[i] = data[j];
 			data[j] = tmp;
