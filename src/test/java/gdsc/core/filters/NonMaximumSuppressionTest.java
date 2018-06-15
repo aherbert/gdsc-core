@@ -35,8 +35,8 @@ import org.junit.Test;
 import org.junit.internal.ArrayComparisonFailure;
 
 import gdsc.core.ij.Utils;
-import gdsc.core.test.TestSettings;
-import gdsc.core.test.TestSettings.LogLevel;
+import gdsc.test.TestSettings;
+import gdsc.test.TestSettings.LogLevel;
 import ij.ImagePlus;
 import ij.gui.PointRoi;
 import ij.process.FloatProcessor;

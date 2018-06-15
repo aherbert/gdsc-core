@@ -28,15 +28,14 @@
 package gdsc.core.math.interpolation;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 
-import gdsc.core.test.BaseTimingTask;
-import gdsc.core.test.TestSettings;
-import gdsc.core.test.TimingService;
 import gdsc.core.utils.Sort;
+import gdsc.test.BaseTimingTask;
+import gdsc.test.TestSettings;
+import gdsc.test.TimingService;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.procedure.TIntObjectProcedure;
@@ -258,7 +257,7 @@ public class CustomTricubicInterpolatingFunctionTest
 	@Test
 	public void inlineComputeCoefficientsIsFaster()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 
 		final int N = 3000;
 		final double[][] tables = new double[N][];

@@ -176,9 +176,10 @@ public class RadialStatisticsTest
 
 		// The radial sum is meant to match the computation of the Matlab DIPimage toolbox.
 		// However RadialSum truncates the computation at the max in one dimension so only go up to the size of o.
-		msg += "@";
-		for (int i = 0; i < o.length; i++)
-			Assert.assertEquals(msg + i, e[i], o[i], 0);
+		Assert.assertArrayEquals(msg, Arrays.copyOf(e, o.length), o, 0);
+		//msg += "@";
+		//for (int i = 0; i < o.length; i++)
+		//	Assert.assertEquals(msg + i, e[i], o[i], 0);
 	}
 
 	private void assertEquals(String msg, int[] e, int[] o)
@@ -187,8 +188,9 @@ public class RadialStatisticsTest
 
 		// The radial sum is meant to match the computation of the Matlab DIPimage toolbox.
 		// However RadialSum truncates the computation at the max in one dimension so only go up to the size of o.
-		msg += "@";
-		for (int i = 0; i < o.length; i++)
-			Assert.assertEquals(msg + i, e[i], o[i]);
+		Assert.assertArrayEquals(msg, Arrays.copyOf(e, o.length), o);
+		//msg += "@";
+		//for (int i = 0; i < o.length; i++)
+		//	Assert.assertEquals(msg + i, e[i], o[i], 0);
 	}
 }

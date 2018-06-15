@@ -30,13 +30,14 @@ package gdsc.core.utils;
 import java.awt.geom.Rectangle2D;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.test.TestSettings;
+
 public class ConvexHullTest
 {
-	RandomGenerator r = new Well19937c(30051977);
+	RandomGenerator r = TestSettings.getRandomGenerator();
 
 	@Test
 	public void canComputeConvexHullFromSquare()

@@ -11,32 +11,28 @@ Maven Installation
 This package is used by other GDSC packages. It is only necessary to perform an 
 install if you are building the other packages from the source code.
 
-The code depends on the GDSC-Analytics artifact so you will have to install this to
-your local Maven repository before building:
+The code depends on the GDSC-Analytics and GDSC-Test artifacts so you will have 
+to install this to your local Maven repository before building:
 
-1. Clone the GDSC Analytics repository
+1. Clone the required repositories
 
         git clone https://github.com/aherbert/GDSC-Analytics.git
+        git clone https://github.com/aherbert/GDSC-Test.git
+        git clone https://github.com/aherbert/GDSC-Core.git
 
 2. Build the code and install using Maven
 
         cd GDSC-Analytics
         mvn install
         cd ..
-
-	This will produce a gdsc-analytics-[VERSION].jar file in the local Maven
-	repository. You can now build this package.
- 
-3. Clone the GDSC-Core repository
-
-        git clone https://github.com/aherbert/GDSC-Core.git
-
-4. Build the code and install using Maven
-
+        cd GDSC-Test
+        mvn install
+        cd ..
         cd GDSC-Core
         mvn install
+        cd ..
 
-	This will produce a gdsc-core-[VERSION].jar file in the local Maven
+	This will produce gdsc-[artifact]-[VERSION].jar files in the local Maven
 	repository. You can now build the other GDSC packages that depend on this
 	code.
 

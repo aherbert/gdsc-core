@@ -31,6 +31,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.core.utils.SimpleArrayUtils;
+import gdsc.test.TestSettings;
 import ij.plugin.filter.EDM;
 
 public class FHT2Test
@@ -134,7 +135,11 @@ public class FHT2Test
 		float[] e = (float[]) fhtE.getPixels();
 		float[] o = (float[]) fhtO.getPixels();
 
-		Assert.assertArrayEquals(e, o, 0);
+		// This is not exact for the divide since the FHT2 magnitude is computed 
+		// using double*double + double*double rather than float*float + float*float,
+		// i.e. the float are converted to double before multiplication.
+		double error = (mode == 2) ? 1e-5 : 0;
+		TestSettings.assertArrayEquals(e, o, error);
 	}
 
 	private FloatProcessor createProcessor(int size, int x, int y, int w, int h)

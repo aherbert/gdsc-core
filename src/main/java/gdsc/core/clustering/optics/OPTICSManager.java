@@ -31,6 +31,7 @@ import java.awt.Rectangle;
 import java.util.EnumSet;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 
 import ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D;
@@ -152,6 +153,8 @@ public class OPTICSManager extends CoordinateStore
 	}
 
 	private int nThreads = -1;
+
+	private long seed = 0;
 
 	/**
 	 * Used in the DBSCAN algorithm to store a queue of molecules to process
@@ -995,7 +998,7 @@ public class OPTICSManager extends CoordinateStore
 
 			// Control the type of space we use to store the data
 			if (clazz == ProjectedMoleculeSpace.class)
-				grid = new ProjectedMoleculeSpace(this, generatingDistanceE, new Well19937c());
+				grid = new ProjectedMoleculeSpace(this, generatingDistanceE, getRandomGenerator());
 			else if (clazz == InnerRadialMoleculeSpace.class)
 				grid = new InnerRadialMoleculeSpace(this, generatingDistanceE);
 			else if (clazz == RadialMoleculeSpace.class)
@@ -2039,6 +2042,39 @@ public class OPTICSManager extends CoordinateStore
 			this.nThreads = nThreads;
 		else
 			this.nThreads = 1;
+	}
+
+	/**
+	 * Gets (or creates) the random generator used for FastOPTICS.
+	 *
+	 * @return the random generator
+	 */
+	private RandomGenerator getRandomGenerator()
+	{
+		if (seed == 0)
+			return new Well19937c();
+		return new Well19937c(seed);
+	}
+
+	/**
+	 * Gets the random seed used for FastOPTICS.
+	 *
+	 * @return the random seed
+	 */
+	public long getRandomSeed()
+	{
+		return seed;
+	}
+
+	/**
+	 * Sets the random seed used for FastOPTICS.
+	 *
+	 * @param seed
+	 *            the new random seed
+	 */
+	public void setRandomSeed(long seed)
+	{
+		this.seed = seed;
 	}
 
 	private LoOP loop = null;

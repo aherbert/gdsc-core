@@ -30,7 +30,7 @@ package gdsc.core.math.interpolation;
 import org.junit.Assume;
 import org.junit.Test;
 
-import gdsc.core.test.TestSettings;
+import gdsc.test.TestSettings;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectIntProcedure;
 

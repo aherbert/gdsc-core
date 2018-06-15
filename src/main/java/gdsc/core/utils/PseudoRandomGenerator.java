@@ -111,11 +111,22 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 		if (source == null)
 			throw new NullPointerException("Source generator must not be null");
 		sequence = new double[size];
-		while (size-- > 0)
-		{
-			sequence[size] = source.nextDouble();
-		}
 		length = size;
+		// Preserve order
+		for (int i = 0; i < size; i++)
+			sequence[i] = source.nextDouble();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#setSeed(int)
+	 */
+	@Override
+	public void setSeed(int seed)
+	{
+		clear();
+		position = Math.abs(seed) % length;
 	}
 
 	/*
@@ -127,7 +138,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	public void setSeed(long seed)
 	{
 		clear();
-		position = (int) (Math.abs(seed) % length);
+		position = Math.abs(Long.hashCode(seed)) % length;
 	}
 
 	/*
@@ -154,7 +165,13 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	{
 		try
 		{
-			return (PseudoRandomGenerator) super.clone();
+			PseudoRandomGenerator r = (PseudoRandomGenerator) super.clone();
+			// In case cloning when being used. This is probably not necessary
+			// as the class is not thread safe so cloning should not happen when 
+			// another thread is using the generator			
+			if (r.position >= length)
+				r.position = 0;
+			return r;
 		}
 		catch (CloneNotSupportedException e)
 		{

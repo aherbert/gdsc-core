@@ -32,11 +32,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.core.utils.Digest;
+import gdsc.test.TestSettings;
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
@@ -49,7 +49,7 @@ public class IJDigestTest
 	@Test
 	public void canDigestByteProcessor()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		byte[] data = new byte[size];
 		r.nextBytes(data);
 
@@ -61,7 +61,7 @@ public class IJDigestTest
 	@Test
 	public void canDigestShortProcessor() throws IOException
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		short[] data = new short[size];
 		for (int i = 0; i < size; i++)
 			data[i] = (short) ((r.nextDouble() - 0.5) * 2 * Short.MAX_VALUE);
@@ -78,7 +78,7 @@ public class IJDigestTest
 	@Test
 	public void canDigestFloatProcessor() throws IOException
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		float[] data = new float[size];
 		for (int i = 0; i < size; i++)
 			data[i] = (r.nextFloat() - 0.5f) * 2f;
@@ -95,7 +95,7 @@ public class IJDigestTest
 	@Test
 	public void canDigestColorProcessor() throws IOException
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int[] data = new int[size];
 		for (int i = 0; i < size; i++)
 			data[i] = r.nextInt();

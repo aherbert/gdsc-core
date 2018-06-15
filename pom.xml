@@ -113,6 +113,12 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
 			<version>1.0.1</version>
 		</dependency>
 		<dependency>
+			<groupId>gdsc</groupId>
+			<artifactId>gdsc-test</artifactId>
+			<version>1.0.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
 		</dependency>

@@ -36,7 +36,6 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Precision;
 import org.junit.Assert;
@@ -46,13 +45,13 @@ import org.junit.Test;
 import gdsc.core.data.DoubleArrayTrivalueProvider;
 import gdsc.core.data.DoubleArrayValueProvider;
 import gdsc.core.data.procedures.StandardTrivalueProcedure;
-import gdsc.core.test.BaseTimingTask;
-import gdsc.core.test.TestSettings;
-import gdsc.core.test.TimingService;
 import gdsc.core.utils.DoubleEquality;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.SimpleArrayUtils;
 import gdsc.core.utils.Statistics;
+import gdsc.test.BaseTimingTask;
+import gdsc.test.TestSettings;
+import gdsc.test.TimingService;
 
 public class CustomTricubicInterpolatorTest
 {
@@ -62,7 +61,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canConstructInterpolatingFunction()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 
 		int x = 4, y = 5, z = 6;
 		double[][][] fval = createData(x, y, z, null);
@@ -191,7 +190,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolate()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
 		double[] yval = SimpleArrayUtils.newArray(y, 0, 0.5);
@@ -338,7 +337,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolateUsingPrecomputedTable()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -579,7 +578,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolateWithGradients()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		// Difference scales
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -685,7 +684,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolateWithGradientsUsingPrecomputedTable()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -748,7 +747,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -798,13 +797,13 @@ public class CustomTricubicInterpolatorTest
 				// Just check relative to the double-table version
 				e = n1.value(table);
 				o = n2.value(ftable);
-				assertEquals(e, o, valueTolerance);
+				TestSettings.assertEquals(e, o, valueTolerance);
 
 				e = n1.value(table, df_daA);
 				o = n2.value(ftable, df_daB);
-				assertEquals(e, o, valueTolerance);
+				TestSettings.assertEquals(e, o, valueTolerance);
 				for (int j = 0; j < 3; j++)
-					assertEquals(df_daA[j], df_daB[j], gradientTolerance);
+					TestSettings.assertEquals(df_daA[j], df_daB[j], gradientTolerance);
 
 				e2 = n1.value(table, df_daA2, d2f_da2A);
 				o2 = n2.value(ftable, df_daB2, d2f_da2B);
@@ -813,27 +812,27 @@ public class CustomTricubicInterpolatorTest
 				Assert.assertEquals(o, o2, 0);
 				Assert.assertArrayEquals(df_daA, df_daA2, 0);
 				Assert.assertArrayEquals(df_daB, df_daB2, 0);
-				assertEquals(e2, o2, valueTolerance);
+				TestSettings.assertEquals(e2, o2, valueTolerance);
 				for (int j = 0; j < 3; j++)
 				{
-					assertEquals(df_daA[j], df_daB[j], gradientTolerance);
-					assertEquals(d2f_da2A[j], d2f_da2B[j], gradientTolerance);
+					TestSettings.assertEquals(df_daA[j], df_daB[j], gradientTolerance);
+					TestSettings.assertEquals(d2f_da2A[j], d2f_da2B[j], gradientTolerance);
 				}
 
 				o = n2.value(ftable, ftable2, ftable3, df_daB);
-				assertEquals(e, o, valueTolerance);
+				TestSettings.assertEquals(e, o, valueTolerance);
 				for (int j = 0; j < 3; j++)
-					assertEquals(df_daA[j], df_daB[j], gradientTolerance);
+					TestSettings.assertEquals(df_daA[j], df_daB[j], gradientTolerance);
 
 				o2 = n2.value(ftable, ftable2, ftable3, ftable6, df_daB2, d2f_da2B);
 				// Should be the same as the first-order gradient 
 				Assert.assertEquals(o, o2, 0);
 				Assert.assertArrayEquals(df_daB, df_daB2, 0);
-				assertEquals(e2, o2, valueTolerance);
+				TestSettings.assertEquals(e2, o2, valueTolerance);
 				for (int j = 0; j < 3; j++)
 				{
-					assertEquals(df_daA[j], df_daB[j], gradientTolerance);
-					assertEquals(d2f_da2A[j], d2f_da2B[j], gradientTolerance);
+					TestSettings.assertEquals(df_daA[j], df_daB[j], gradientTolerance);
+					TestSettings.assertEquals(d2f_da2A[j], d2f_da2B[j], gradientTolerance);
 				}
 			}
 		}
@@ -893,11 +892,6 @@ public class CustomTricubicInterpolatorTest
 		Assert.assertEquals(e, o, 0);
 		Assert.assertArrayEquals(df_daA, df_daB, 0);
 		Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 0);
-	}
-
-	private static void assertEquals(double e, double o, double tolerance)
-	{
-		Assert.assertEquals(e, o, Math.abs(e * tolerance));
 	}
 
 	private abstract class MyTimingTask extends BaseTimingTask
@@ -1072,7 +1066,7 @@ public class CustomTricubicInterpolatorTest
 	{
 		Assume.assumeTrue(false);
 
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 6, y = 5, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -1219,7 +1213,7 @@ public class CustomTricubicInterpolatorTest
 				for (int k = 0; k < p.z.length; k++)
 				{
 					// Test original function interpolated value against the sample
-					assertEquals(f1.value(p.x[i], p.y[j], p.z[k]), p.value[i][j][k], 1e-8);
+					TestSettings.assertEquals(f1.value(p.x[i], p.y[j], p.z[k]), p.value[i][j][k], 1e-8);
 				}
 	}
 
@@ -1349,7 +1343,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolateAcrossNodesForValueAndGradient1()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		// Difference scales
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -1407,7 +1401,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void cannotInterpolateAcrossNodesForGradient2()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		// Difference scales
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -1485,7 +1479,7 @@ public class CustomTricubicInterpolatorTest
 		// Skip this as it is for testing the binary search works
 		Assume.assumeTrue(false);
 
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		// Bigger depth of field to capture astigmatism centre
 		int x = 10, y = 10, z = 10;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -1527,7 +1521,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canFindOptimum()
 	{
-		RandomGenerator r = new Well19937c(30051977);
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		// Bigger depth of field to capture astigmatism centre
 		int x = 10, y = 10, z = 10;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -1558,10 +1552,10 @@ public class CustomTricubicInterpolatorTest
 			double[] last = f1.search(maximum, 10, 1e-6, 0);
 
 			// Since the cubic function is not the same as the input we cannot be too precise here
-			Assert.assertEquals(cx, last[0], 1e-1);
-			Assert.assertEquals(cy, last[1], 1e-1);
-			Assert.assertEquals(cz, last[2], 1e-1);
-			Assert.assertEquals(amplitude, last[3], Math.abs(amplitude) * 1e-2);
+			TestSettings.assertEquals(cx, last[0], 5e-2);
+			TestSettings.assertEquals(cy, last[1], 5e-2);
+			TestSettings.assertEquals(cz, last[2], 5e-2);
+			TestSettings.assertEquals(amplitude, last[3], 5e-2);
 		}
 	}
 }

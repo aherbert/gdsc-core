@@ -41,6 +41,7 @@ import org.apache.commons.math3.random.UnitSphereRandomVectorGenerator;
 
 import gdsc.core.ij.Utils;
 import gdsc.core.logging.TrackProgress;
+import gdsc.core.utils.Maths;
 import gdsc.core.utils.NotImplementedException;
 import gdsc.core.utils.PseudoRandomGenerator;
 import gdsc.core.utils.SimpleArrayUtils;
@@ -134,9 +135,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 * Random factory.
 	 */
 	RandomGenerator rand;
-
-	/** The pseudo random. */
-	private TurboRandomGenerator pseudoRandom = null;
 
 	/** The neighbours of each point. */
 	int[][] allNeighbours;
@@ -737,7 +735,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		// numbers for all the splits.
 		double expectedSetSize = (1 + minSplitSize) * 0.5;
 		int expectedSets = (int) Math.round(size / expectedSetSize);
-		pseudoRandom = new TurboRandomGenerator(Math.max(200, minSplitSize + 2 * expectedSets), rand);
+		TurboRandomGenerator pseudoRandom = new TurboRandomGenerator(
+				Maths.max(nPointSetSplits, 200, minSplitSize + 2 * expectedSets), rand);
 
 		// Multi-thread this for speed
 		final BlockingQueue<SplitJob> splitJobs = new ArrayBlockingQueue<SplitJob>(nThreads * 2);
