@@ -30,13 +30,14 @@ package gdsc.core.utils;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.Random;
 
+import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.test.BaseTimingTask;
 import gdsc.test.TestSettings;
+import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TimingService;
 
 @SuppressWarnings("deprecation")
@@ -393,7 +394,7 @@ public class EqualityTest
 		final DoubleEquality equality2 = new DoubleEquality(maxRelativeError, maxAbsoluteError);
 
 		// Create data
-		Random rand = new Random(30051977);
+		RandomGenerator rand = TestSettings.getRandomGenerator();
 		final float[] data1 = new float[MAX_ITER];
 		final float[] data2 = new float[data1.length];
 		final double[] data3 = new double[data1.length];
@@ -452,7 +453,7 @@ public class EqualityTest
 			}
 		});
 		ts.repeat();
-		ts.report();
+		if (TestSettings.allow(LogLevel.INFO)) ts.report();			
 
 		double error = DoubleEquality.relativeError(ts.get(-1).getMean(), ts.get(-2).getMean());
 		TestSettings.logSpeedTestResult(error < 0.2,

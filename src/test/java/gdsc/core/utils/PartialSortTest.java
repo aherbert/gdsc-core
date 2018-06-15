@@ -35,12 +35,11 @@ import org.junit.Test;
 
 import gdsc.test.BaseTimingTask;
 import gdsc.test.TestSettings;
+import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TimingService;
 
 public class PartialSortTest
 {
-	RandomGenerator r = TestSettings.getRandomGenerator();
-
 	private abstract class MyTimingTask extends BaseTimingTask
 	{
 		double[][] data;
@@ -70,10 +69,11 @@ public class PartialSortTest
 	@Test
 	public void bottomNofMIsCorrect()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : testN)
 			for (int m : testM)
 			{
-				bottomCompute(100, n, m);
+				bottomCompute(r, 100, n, m);
 			}
 	}
 
@@ -120,9 +120,9 @@ public class PartialSortTest
 		Assert.assertArrayEquals(e, o, 0);
 	}
 
-	public void bottomCompute(int length, final int n, final int m)
+	private void bottomCompute(RandomGenerator r, int length, final int n, final int m)
 	{
-		double[][] data = createData(length, m);
+		double[][] data = createData(r, length, m);
 		String msg = String.format(" %d of %d", n, m);
 
 		final MyTimingTask expected = new MyTimingTask("Sort" + msg, data)
@@ -134,8 +134,9 @@ public class PartialSortTest
 			}
 		};
 
+		int runs = (TestSettings.allow(LogLevel.INFO)) ? 5 : 1;
 		//@formatter:off
-		TimingService ts = new TimingService();
+		TimingService ts = new TimingService(runs);
 		ts.execute(expected);
 		ts.execute(new MyTimingTask("bottomSort" + msg, data)
 		{
@@ -230,16 +231,18 @@ public class PartialSortTest
 
 		ts.check();
 
-		ts.report();
+		if (runs > 1)
+			ts.report();
 	}
 
 	@Test
 	public void topNofMIsCorrect()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : testN)
 			for (int m : testM)
 			{
-				topCompute(100, n, m);
+				topCompute(r, 100, n, m);
 			}
 	}
 
@@ -287,9 +290,9 @@ public class PartialSortTest
 		Assert.assertArrayEquals(e, o, 0);
 	}
 
-	public void topCompute(int length, final int n, final int m)
+	private void topCompute(RandomGenerator r, int length, final int n, final int m)
 	{
-		double[][] data = createData(length, m);
+		double[][] data = createData(r, length, m);
 		String msg = String.format(" %d of %d", n, m);
 
 		final MyTimingTask expected = new MyTimingTask("Sort" + msg, data)
@@ -301,8 +304,9 @@ public class PartialSortTest
 			}
 		};
 
+		int runs = (TestSettings.allow(LogLevel.INFO)) ? 5 : 1;
 		//@formatter:off
-		TimingService ts = new TimingService();
+		TimingService ts = new TimingService(runs);
 		ts.execute(expected);
 		ts.execute(new MyTimingTask("topSort" + msg, data)
 		{
@@ -380,10 +384,11 @@ public class PartialSortTest
 
 		ts.check();
 
-		ts.report();
+		if (runs > 1)
+			ts.report();
 	}
 
-	private double[][] createData(int size, int m)
+	private double[][] createData(RandomGenerator r, int size, int m)
 	{
 		double[][] data = new double[size][];
 		for (int i = 0; i < size; i++)

@@ -35,6 +35,7 @@ import org.junit.Test;
 
 import gdsc.test.BaseTimingTask;
 import gdsc.test.TestSettings;
+import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TimingService;
 
 public class AssignmentComparatorTest
@@ -181,8 +182,10 @@ public class AssignmentComparatorTest
 	@Test
 	public void canComputeSortSpeed()
 	{
+		int n = TestSettings.allow(LogLevel.INFO) ? 5 : 1;
+
 		//@formatter:off
-		TimingService ts = new TimingService();
+		TimingService ts = new TimingService(n);
 		ts.execute(new MyTimingTask("int[]")
 		{
 			@Override
@@ -443,9 +446,13 @@ public class AssignmentComparatorTest
 
 		ts.check();
 
+		if (n == 1)
+			return;
+
 		int size = ts.repeat();
 		ts.repeat(size);
 
-		ts.report();
+		if (TestSettings.allow(LogLevel.INFO))
+			ts.report();
 	}
 }

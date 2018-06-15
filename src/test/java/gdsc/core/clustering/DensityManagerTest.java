@@ -45,9 +45,10 @@ public class DensityManagerTest
 	@Test
 	public void densityWithTriangleMatchesDensity()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			DensityManager dm = createDensityManager(size, n);
+			DensityManager dm = createDensityManager(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -62,9 +63,10 @@ public class DensityManagerTest
 	@Test
 	public void densityWithGridMatchesDensity()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			DensityManager dm = createDensityManager(size, n);
+			DensityManager dm = createDensityManager(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -80,9 +82,11 @@ public class DensityManagerTest
 	public void densityWithGridFasterThanDensityTriangle()
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
+		
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			DensityManager dm = createDensityManager(size, n);
+			DensityManager dm = createDensityManager(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -106,9 +110,11 @@ public class DensityManagerTest
 	public void densityWithGridFasterThanDensity()
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
+		
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			DensityManager dm = createDensityManager(size, n);
+			DensityManager dm = createDensityManager(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -131,9 +137,10 @@ public class DensityManagerTest
 	@Test
 	public void sumWithGridMatchesSum()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			DensityManager dm = createDensityManager(size, n);
+			DensityManager dm = createDensityManager(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -149,9 +156,11 @@ public class DensityManagerTest
 	public void sumWithGridFasterThanSum()
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
+		
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			DensityManager dm = createDensityManager(size, n);
+			DensityManager dm = createDensityManager(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -175,9 +184,10 @@ public class DensityManagerTest
 	@Test
 	public void blockDensityMatchesBlockDensity2()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			DensityManager dm = createDensityManager(size, n);
+			DensityManager dm = createDensityManager(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -192,9 +202,10 @@ public class DensityManagerTest
 	@Test
 	public void blockDensity2MatchesBlockDensity3()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			DensityManager dm = createDensityManager(size, n);
+			DensityManager dm = createDensityManager(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -211,9 +222,11 @@ public class DensityManagerTest
 	public void blockDensityFasterThanBlockDensity2()
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
+		
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			DensityManager dm = createDensityManager(size, n);
+			DensityManager dm = createDensityManager(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -238,9 +251,11 @@ public class DensityManagerTest
 	public void blockDensity2FasterThanBlockDensity3()
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
+		
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			DensityManager dm = createDensityManager(size, n);
+			DensityManager dm = createDensityManager(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -261,15 +276,14 @@ public class DensityManagerTest
 		}
 	}
 
-	private DensityManager createDensityManager(int size, int n)
+	private DensityManager createDensityManager(RandomGenerator r, int size, int n)
 	{
 		float[] xcoord = new float[n];
 		float[] ycoord = new float[xcoord.length];
-		RandomGenerator rand = TestSettings.getRandomGenerator();
 		for (int i = 0; i < xcoord.length; i++)
 		{
-			xcoord[i] = rand.nextFloat() * size;
-			ycoord[i] = rand.nextFloat() * size;
+			xcoord[i] = r.nextFloat() * size;
+			ycoord[i] = r.nextFloat() * size;
 		}
 		DensityManager dm = new DensityManager(xcoord, ycoord, new Rectangle(size, size));
 		return dm;

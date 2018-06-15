@@ -146,9 +146,4 @@ public class StoredDataStatisticsTest extends StatisticsTest
 		TestSettings.logSpeedTestResult(start1 < start2, "getValues = %d : iterator<Double> = %d : %fx\n", start1,
 				start2, (1.0 * start2) / start1);
 	}
-
-	void log(String format, Object... args)
-	{
-		TestSettings.info(format, args);
-	}
 }

@@ -33,12 +33,15 @@ import java.util.Arrays;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 import gdsc.core.utils.SimpleArrayUtils;
 import gdsc.test.BaseTimingTask;
 import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
+import gdsc.test.TestSettings.LogLevel;
+import gdsc.test.TestSettings.TestComplexity;
 
 public class DetectionGridTest
 {
@@ -267,6 +270,8 @@ public class DetectionGridTest
 
 	private void speedTest(int size, int width, int n, int np)
 	{
+		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.MEDIUM));
+		
 		RandomDataGenerator rdg = new RandomDataGenerator(TestSettings.getRandomGenerator());
 
 		TimingService ts = new TimingService();

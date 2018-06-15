@@ -29,12 +29,14 @@ package gdsc.core.utils;
 
 import java.util.Arrays;
 
+import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.util.FastMath;
 import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.test.TestSettings;
+import gdsc.test.TestSettings.LogLevel;
 
 public class MedianWindowTest
 {
@@ -42,14 +44,17 @@ public class MedianWindowTest
 	int[] radii = new int[] { 0, 1, 2, 4, 8, 16 };
 	double[] values = new double[] { 0, -1.1, 2.2 };
 	int[] speedRadii = new int[] { 16, 32, 64 };
+	int testSpeedRadius = speedRadii[speedRadii.length - 1];
 	int[] speedIncrement = new int[] { 1, 2, 4, 8, 16 };
 
 	@Test
 	public void testClassCanComputeActualMedian()
 	{
+		RandomGenerator rg = TestSettings.getRandomGenerator();
+
 		// Verify the internal median method using the Apache commons maths library
 
-		double[] data = createRandomData(dataSize);
+		double[] data = createRandomData(rg, dataSize);
 		for (int radius : radii)
 		{
 			for (int i = 0; i < data.length; i++)
@@ -59,7 +64,7 @@ public class MedianWindowTest
 				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
 			}
 		}
-		data = createRandomData(dataSize + 1);
+		data = createRandomData(rg, dataSize + 1);
 		for (int radius : radii)
 		{
 			for (int i = 0; i < data.length; i++)
@@ -91,7 +96,8 @@ public class MedianWindowTest
 	@Test
 	public void canComputeMedianForRandomDataUsingDynamicLinkedList()
 	{
-		double[] data = createRandomData(dataSize);
+		RandomGenerator rg = TestSettings.getRandomGenerator();
+		double[] data = createRandomData(rg, dataSize);
 		for (int radius : radii)
 		{
 			double[] startData = Arrays.copyOf(data, 2 * radius + 1);
@@ -110,19 +116,22 @@ public class MedianWindowTest
 	@Test
 	public void canComputeMedianForRandomDataUsingSingleIncrement()
 	{
-		canComputeMedianForDataUsingSingleIncrement(createRandomData(dataSize));
+		RandomGenerator rg = TestSettings.getRandomGenerator();
+		canComputeMedianForDataUsingSingleIncrement(createRandomData(rg, dataSize));
 	}
 
 	@Test
 	public void canComputeMedianForRandomDataUsingSetPosition()
 	{
-		canComputeMedianForDataUsingSetPosition(createRandomData(dataSize));
+		RandomGenerator rg = TestSettings.getRandomGenerator();
+		canComputeMedianForDataUsingSetPosition(createRandomData(rg, dataSize));
 	}
 
 	@Test
 	public void canComputeMedianForRandomDataUsingBigIncrement()
 	{
-		canComputeMedianForDataUsingBigIncrement(createRandomData(dataSize));
+		RandomGenerator rg = TestSettings.getRandomGenerator();
+		canComputeMedianForDataUsingBigIncrement(createRandomData(rg, dataSize));
 	}
 
 	@Test
@@ -244,7 +253,8 @@ public class MedianWindowTest
 	@Test
 	public void canIncrementThroughTheDataArray()
 	{
-		double[] data = createRandomData(300);
+		RandomGenerator rg = TestSettings.getRandomGenerator();
+		double[] data = createRandomData(rg, 300);
 		for (int radius : radii)
 		{
 			MedianWindow mw = new MedianWindow(data, radius);
@@ -277,7 +287,8 @@ public class MedianWindowTest
 	@Test
 	public void canIncrementThroughTheDataArrayUsingBigIncrement()
 	{
-		double[] data = createRandomData(300);
+		RandomGenerator rg = TestSettings.getRandomGenerator();
+		double[] data = createRandomData(rg, 300);
 		int increment = 10;
 		for (int radius : radii)
 		{
@@ -298,7 +309,8 @@ public class MedianWindowTest
 	@Test
 	public void returnNaNForInvalidPositions()
 	{
-		double[] data = createRandomData(300);
+		RandomGenerator rg = TestSettings.getRandomGenerator();
+		double[] data = createRandomData(rg, 300);
 		for (int radius : radii)
 		{
 			MedianWindow mw = new MedianWindow(data, radius);
@@ -322,23 +334,26 @@ public class MedianWindowTest
 	}
 
 	@Test
-	public void isFaster()
+	public void isFasterThanLocalSort()
 	{
-		for (int radius : speedRadii)
+		TestSettings.assumeLowComplexity();
+		int[] speedRadii2 = (TestSettings.allow(LogLevel.INFO)) ? speedRadii : new int[] { testSpeedRadius };
+		for (int radius : speedRadii2)
 		{
 			for (int increment : speedIncrement)
 			{
-				isFaster(radius, increment);
+				isFasterThanLocalSort(radius, increment);
 			}
 		}
 	}
 
-	private void isFaster(int radius, int increment)
+	private void isFasterThanLocalSort(int radius, int increment)
 	{
+		RandomGenerator rg = TestSettings.getRandomGenerator();
 		int iterations = 20;
 		double[][] data = new double[iterations][];
 		for (int i = 0; i < iterations; i++)
-			data[i] = createRandomData(dataSize);
+			data[i] = createRandomData(rg, dataSize);
 
 		double[] m1 = new double[dataSize];
 		// Initialise class
@@ -406,14 +421,16 @@ public class MedianWindowTest
 				(double) t2 / t1);
 
 		// Only test the largest radii 
-		if (radius == speedRadii[speedRadii.length - 1])
+		if (radius == testSpeedRadius)
 			Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t1 < t2);
 	}
 
 	@Test
 	public void floatVersionIsFasterThanDoubleVersion()
 	{
-		for (int radius : speedRadii)
+		TestSettings.assumeLowComplexity();
+		int[] speedRadii2 = (TestSettings.allow(LogLevel.INFO)) ? speedRadii : new int[] { testSpeedRadius };
+		for (int radius : speedRadii2)
 		{
 			for (int increment : speedIncrement)
 			{
@@ -424,12 +441,13 @@ public class MedianWindowTest
 
 	private void floatVersionIsFasterThanDoubleVersion(int radius, int increment)
 	{
+		RandomGenerator rg = TestSettings.getRandomGenerator();
 		int iterations = 20;
 		double[][] data = new double[iterations][];
 		float[][] data2 = new float[iterations][];
 		for (int i = 0; i < iterations; i++)
 		{
-			data[i] = createRandomData(dataSize);
+			data[i] = createRandomData(rg, dataSize);
 			data2[i] = copyData(data[i]);
 		}
 
@@ -528,7 +546,7 @@ public class MedianWindowTest
 				(double) t1 / t2);
 
 		// Only test the largest radii 
-		if (radius == speedRadii[speedRadii.length - 1])
+		if (radius == testSpeedRadius)
 			// Allow a margin of error
 			Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1 * 1.1);
 	}
@@ -536,6 +554,8 @@ public class MedianWindowTest
 	@Test
 	public void intVersionIsFasterThanDoubleVersion()
 	{
+		TestSettings.assumeWarn();
+		TestSettings.assumeLowComplexity();
 		for (int radius : speedRadii)
 		{
 			for (int increment : speedIncrement)
@@ -547,12 +567,13 @@ public class MedianWindowTest
 
 	private void intVersionIsFasterThanDoubleVersion(int radius, int increment)
 	{
+		RandomGenerator rg = TestSettings.getRandomGenerator();
 		int iterations = 20;
 		double[][] data = new double[iterations][];
 		int[][] data2 = new int[iterations][];
 		for (int i = 0; i < iterations; i++)
 		{
-			data[i] = createRandomData(dataSize);
+			data[i] = createRandomData(rg, dataSize);
 			data2[i] = copyDataInt(data[i]);
 		}
 
@@ -640,12 +661,16 @@ public class MedianWindowTest
 			t2 = System.nanoTime() - s2;
 		}
 
-		TestSettings.info("Radius %d, Increment %d : double %d : int %d = %fx faster\n", radius, increment, t1, t2,
-				(double) t1 / t2);
-
 		// Only test the largest radii 
 		if (radius == speedRadii[speedRadii.length - 1])
-			Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1);
+		{
+			//Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1);
+			TestSettings.logSpeedTestResult(t2 < t1, "Radius %d, Increment %d : double %d : int %d = %fx faster\n",
+					radius, increment, t1, t2, (double) t1 / t2);
+		}
+		else
+			TestSettings.info("Radius %d, Increment %d : double %d : int %d = %fx faster\n", radius, increment, t1, t2,
+					(double) t1 / t2);
 	}
 
 	static double calculateMedian(double[] data, int position, int radius)
@@ -671,16 +696,11 @@ public class MedianWindowTest
 		return stats.getPercentile(50);
 	}
 
-	double[] createRandomData(int size)
-	{
-		return createRandomData(new Random(30051977), size);
-	}
-
-	static double[] createRandomData(Random random, int size)
+	static double[] createRandomData(RandomGenerator random, int size)
 	{
 		double[] data = new double[size];
 		for (int i = 0; i < data.length; i++)
-			data[i] = random.next() * size;
+			data[i] = random.nextDouble() * size;
 		return data;
 	}
 

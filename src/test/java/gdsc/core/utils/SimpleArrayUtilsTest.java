@@ -37,23 +37,25 @@ import org.junit.Test;
 import gdsc.test.BaseTimingTask;
 import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
+import gdsc.test.TestSettings.LogLevel;
+import gdsc.test.TestSettings.TestComplexity;
 import gnu.trove.set.hash.TIntHashSet;
 
 public class SimpleArrayUtilsTest
 {
-	RandomGenerator r = TestSettings.getRandomGenerator();
 	TIntHashSet set = new TIntHashSet();
 
 	@Test
 	public void canFlatten()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		testFlatten(new int[0]);
 		testFlatten(new int[10]);
 		for (int i = 0; i < 10; i++)
 		{
-			testFlatten(next(1, 10));
-			testFlatten(next(10, 10));
-			testFlatten(next(100, 10));
+			testFlatten(next(r, 1, 10));
+			testFlatten(next(r, 10, 10));
+			testFlatten(next(r, 100, 10));
 		}
 	}
 
@@ -72,20 +74,21 @@ public class SimpleArrayUtilsTest
 	@Test
 	public void canSortMerge()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		testSortMerge(new int[0], new int[10]);
 		testSortMerge(new int[10], new int[10]);
-		testSortMerge(new int[10], next(10, 10));
+		testSortMerge(new int[10], next(r, 10, 10));
 		for (int i = 0; i < 10; i++)
 		{
-			testSortMerge(next(1, 10), next(1, 10));
-			testSortMerge(next(10, 10), next(1, 10));
-			testSortMerge(next(100, 10), next(1, 10));
-			testSortMerge(next(1, 10), next(10, 10));
-			testSortMerge(next(10, 10), next(10, 10));
-			testSortMerge(next(100, 10), next(10, 10));
-			testSortMerge(next(1, 10), next(100, 10));
-			testSortMerge(next(10, 10), next(100, 10));
-			testSortMerge(next(100, 10), next(100, 10));
+			testSortMerge(next(r, 1, 10), next(r, 1, 10));
+			testSortMerge(next(r, 10, 10), next(r, 1, 10));
+			testSortMerge(next(r, 100, 10), next(r, 1, 10));
+			testSortMerge(next(r, 1, 10), next(r, 10, 10));
+			testSortMerge(next(r, 10, 10), next(r, 10, 10));
+			testSortMerge(next(r, 100, 10), next(r, 10, 10));
+			testSortMerge(next(r, 1, 10), next(r, 100, 10));
+			testSortMerge(next(r, 10, 10), next(r, 100, 10));
+			testSortMerge(next(r, 100, 10), next(r, 100, 10));
 		}
 	}
 
@@ -103,7 +106,7 @@ public class SimpleArrayUtilsTest
 		Assert.assertArrayEquals(e, o);
 	}
 
-	private int[] next(int size, int max)
+	private int[] next(RandomGenerator r, int size, int max)
 	{
 		int[] a = new int[size];
 		for (int i = 0; i < size; i++)
@@ -135,26 +138,29 @@ public class SimpleArrayUtilsTest
 	}
 
 	@Test
-	public void testOnIndexData()
+	public void testMergeOnIndexData()
 	{
+		TestSettings.assume(LogLevel.INFO, TestComplexity.MEDIUM);
+		RandomGenerator r = TestSettings.getRandomGenerator();
+
 		double[] f = new double[] { 0.1, 0.5, 0.75 };
 		for (int size : new int[] { 100, 1000, 10000 })
 			for (int i = 0; i < f.length; i++)
 				for (int j = i; j < f.length; j++)
 				{
-					testOnIndexData(100, size, (int) (size * f[i]), (int) (size * f[j]));
+					testMergeOnIndexData(r, 100, size, (int) (size * f[i]), (int) (size * f[j]));
 				}
 	}
 
-	public void testOnIndexData(int length, final int size, final int n1, final int n2)
+	private void testMergeOnIndexData(RandomGenerator r, int length, final int size, final int n1, final int n2)
 	{
 		int[][][] data = new int[length][2][];
 		int[] s1 = SimpleArrayUtils.newArray(size, 0, 1);
 		for (int i = 0; i < length; i++)
 		{
-			MathArrays.shuffle(s1, r);
+			Random.shuffle(s1, r);
 			data[i][0] = Arrays.copyOf(s1, n1);
-			MathArrays.shuffle(s1, r);
+			Random.shuffle(s1, r);
 			data[i][1] = Arrays.copyOf(s1, n2);
 		}
 		String msg = String.format("[%d] %d vs %d", size, n1, n2);
@@ -198,8 +204,11 @@ public class SimpleArrayUtilsTest
 	}
 
 	@Test
-	public void testOnRedundantData()
+	public void testMergeOnRedundantData()
 	{
+		TestSettings.assume(LogLevel.INFO, TestComplexity.MEDIUM);
+		RandomGenerator r = TestSettings.getRandomGenerator();
+
 		int[] n = new int[] { 2, 4, 8 };
 		int[] size = new int[] { 100, 1000, 10000 };
 
@@ -207,10 +216,11 @@ public class SimpleArrayUtilsTest
 			for (int j = i; j < n.length; j++)
 				for (int ii = 0; ii < size.length; ii++)
 					for (int jj = ii; jj < size.length; jj++)
-						testOnRedundantData(50, size[ii], n[i], size[jj], n[j]);
+						testMergeOnRedundantData(r, 50, size[ii], n[i], size[jj], n[j]);
 	}
 
-	public void testOnRedundantData(int length, final int n1, final int r1, final int n2, final int r2)
+	public void testMergeOnRedundantData(RandomGenerator r, int length, final int n1, final int r1, final int n2,
+			final int r2)
 	{
 		int[][][] data = new int[length][2][];
 		int[] s1 = new int[n1];

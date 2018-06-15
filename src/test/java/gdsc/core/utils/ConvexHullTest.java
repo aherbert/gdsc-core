@@ -34,11 +34,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.test.TestSettings;
+import gdsc.test.TestSettings.LogLevel;
 
 public class ConvexHullTest
 {
-	RandomGenerator r = TestSettings.getRandomGenerator();
-
 	@Test
 	public void canComputeConvexHullFromSquare()
 	{
@@ -97,30 +96,32 @@ public class ConvexHullTest
 	@Test
 	public void canComputeConvexHullFromOrigin00()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int size : new int[] { 10 })
 			for (float w : new float[] { 10, 5 })
 				for (float h : new float[] { 10, 5 })
 				{
-					compute(size, 0, 0, w, h);
+					compute(r, size, 0, 0, w, h);
 				}
 	}
 
 	@Test
 	public void canComputeConvexHullFromOriginXY()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int size : new int[] { 10 })
 			for (float ox : new float[] { -5, 5 })
 				for (float oy : new float[] { -5, 5 })
 					for (float w : new float[] { 10, 5 })
 						for (float h : new float[] { 10, 5 })
 						{
-							compute(size, ox, oy, w, h);
+							compute(r, size, ox, oy, w, h);
 						}
 	}
 
-	private void compute(int size, float ox, float oy, float w, float h)
+	private void compute(RandomGenerator r, int size, float ox, float oy, float w, float h)
 	{
-		float[][] data = createData(size, ox, oy, w, h);
+		float[][] data = createData(r, size, ox, oy, w, h);
 		ConvexHull hull = ConvexHull.create(data[0], data[1]);
 
 		// Simple check of the bounds
@@ -136,18 +137,21 @@ public class ConvexHullTest
 		catch (AssertionError e)
 		{
 			// Debug
-			//for (int i = 0; i < size; i++)
-			//	TestSettings.info("[%d] %f,%f\n", i, data[0][i], data[1][i]);
-			//if (hull != null)
-			//{
-			//	for (int i = 0; i < hull.x.length; i++)
-			//		TestSettings.info("H[%d] %f,%f\n", i, hull.x[i], hull.y[i]);
-			//}
+			if (TestSettings.allow(LogLevel.DEBUG))
+			{
+				for (int i = 0; i < size; i++)
+					TestSettings.info("[%d] %f,%f\n", i, data[0][i], data[1][i]);
+				if (hull != null)
+				{
+					for (int i = 0; i < hull.x.length; i++)
+						TestSettings.info("H[%d] %f,%f\n", i, hull.x[i], hull.y[i]);
+				}
+			}
 			throw e;
 		}
 	}
 
-	private float[][] createData(int size, float ox, float oy, float w, float h)
+	private float[][] createData(RandomGenerator r, int size, float ox, float oy, float w, float h)
 	{
 		float[][] data = new float[2][size];
 		for (int i = 0; i < size; i++)
@@ -168,35 +172,32 @@ public class ConvexHullTest
 	@Test
 	public void canCreateWithOnePoint()
 	{
-		canCreateWithNPoints(1);
+		float[] x = new float[] { 1.2345f };
+		ConvexHull hull = ConvexHull.create(x, x);
+		Assert.assertEquals(1, hull.size());
+		Assert.assertTrue(hull.getLength() == 0);
+		Assert.assertTrue(hull.getArea() == 0);
 	}
 
 	@Test
 	public void canCreateWithTwoPoints()
 	{
-		canCreateWithNPoints(2);
+		float[] x = new float[] { 1.5f, 2.5f };
+		ConvexHull hull = ConvexHull.create(x, x);
+		Assert.assertEquals(2, hull.size());
+		Assert.assertEquals(2 * Math.sqrt(2), hull.getLength(), 1e-10);
+		Assert.assertTrue(hull.getArea() == 0);
 	}
 
 	@Test
 	public void canCreateWithThreePoints()
 	{
-		canCreateWithNPoints(3);
-	}
-
-	public void canCreateWithNPoints(int n)
-	{
-		// Assumes that no random points will be colinear
-		float[][] data = createData(n, 0, 0, 10, 10);
-		ConvexHull hull = ConvexHull.create(data[0], data[1]);
-		Assert.assertEquals(n, hull.size());
-		if (n > 1)
-			Assert.assertTrue(hull.getLength() > 0);
-		else
-			Assert.assertTrue(hull.getLength() == 0);
-		if (n > 2)
-			Assert.assertTrue(hull.getArea() > 0);
-		else
-			Assert.assertTrue(hull.getArea() == 0);
+		float[] x = new float[] { 1, 2, 2 };
+		float[] y = new float[] { 1, 1, 2 };
+		ConvexHull hull = ConvexHull.create(x, y);
+		Assert.assertEquals(3, hull.size());
+		Assert.assertEquals(2 + Math.sqrt(2), hull.getLength(), 1e-10);
+		Assert.assertEquals(hull.getArea(), 0.5, 1e-10);
 	}
 
 	@Test

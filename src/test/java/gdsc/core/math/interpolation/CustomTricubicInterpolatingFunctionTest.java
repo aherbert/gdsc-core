@@ -36,6 +36,8 @@ import gdsc.core.utils.Sort;
 import gdsc.test.BaseTimingTask;
 import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
+import gdsc.test.TestSettings.LogLevel;
+import gdsc.test.TestSettings.TestComplexity;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.procedure.TIntObjectProcedure;
@@ -257,6 +259,8 @@ public class CustomTricubicInterpolatingFunctionTest
 	@Test
 	public void inlineComputeCoefficientsIsFaster()
 	{
+		TestSettings.assume(TestComplexity.MEDIUM);
+		
 		RandomGenerator r = TestSettings.getRandomGenerator();
 
 		final int N = 3000;
@@ -310,8 +314,9 @@ public class CustomTricubicInterpolatingFunctionTest
 		int n = ts.getSize();
 		ts.check();
 		ts.repeat();
-		ts.report();
-		//ts.report(n);
+		if (TestSettings.allow(LogLevel.INFO))
+			//ts.report();
+			ts.report(n);
 
 		Assert.assertTrue(String.format("%f vs %f", ts.get(-1).getMean(), ts.get(-n).getMean()),
 				ts.get(-1).getMean() < ts.get(-n).getMean());

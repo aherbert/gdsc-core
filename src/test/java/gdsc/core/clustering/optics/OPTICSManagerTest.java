@@ -1905,7 +1905,6 @@ public class OPTICSManagerTest
 	@Test
 	public void canTestMoleculeSpaceFindNeighboursWithAutoResolution()
 	{
-		//TestSettings.assumeHighComplexity();
 		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.MEDIUM));
 
 		RandomGenerator rg = TestSettings.getRandomGenerator();
@@ -1985,9 +1984,11 @@ public class OPTICSManagerTest
 	/**
 	 * This tests what resolution to use for a GridMoleculeSpace
 	 */
-	//@Test
+	@Test
 	public void canTestGridMoleculeSpaceFindNeighboursWithResolution()
 	{
+		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.HIGH));
+		
 		RandomGenerator rg = TestSettings.getRandomGenerator();
 		int molecules = 50000;
 		float generatingDistanceE = 0;
@@ -2055,9 +2056,11 @@ public class OPTICSManagerTest
 	/**
 	 * This tests what resolution to use for a RadialMoleculeSpace
 	 */
-	//@Test
+	@Test
 	public void canTestRadialMoleculeSpaceFindNeighboursWithResolution()
 	{
+		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.HIGH));
+		
 		RandomGenerator rg = TestSettings.getRandomGenerator();
 		int molecules = 20000;
 		float generatingDistanceE = 0;
@@ -2125,9 +2128,11 @@ public class OPTICSManagerTest
 	/**
 	 * This tests what resolution to use for a InnerRadialMoleculeSpace
 	 */
-	//@Test
+	@Test
 	public void canTestInnerRadialMoleculeSpaceFindNeighboursWithResolution()
 	{
+		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.HIGH));
+		
 		RandomGenerator rg = TestSettings.getRandomGenerator();
 		int molecules = 20000;
 		float generatingDistanceE = 0;
@@ -2269,9 +2274,11 @@ public class OPTICSManagerTest
 	 * the number of molecules within the generating distance is high. When at the default level then the speed is
 	 * similar.
 	 */
-	//@Test
+	@Test
 	public void canTestOPTICSQueue()
 	{
+		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.HIGH));
+		
 		RandomGenerator rg = TestSettings.getRandomGenerator();
 		int molecules = 5000;
 		float generatingDistanceE = 0;

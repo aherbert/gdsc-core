@@ -29,6 +29,7 @@ package gdsc.core.utils;
 
 import java.util.Arrays;
 
+import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,7 +38,6 @@ import gdsc.test.TestSettings;
 public class MedianWindowDLLTest
 {
 	MedianWindowTest mwt = new MedianWindowTest();
-	Random random = new Random();
 	int dataSize = 2000;
 	int[] radii = new int[] { 0, 1, 2, 4, 8, 16 };
 	double[] values = new double[] { 0, -1.1, 2.2 };
@@ -131,7 +131,8 @@ public class MedianWindowDLLTest
 	@Test
 	public void canComputeMedianForRandomDataUsingDynamicLinkedList()
 	{
-		double[] data = mwt.createRandomData(dataSize);
+		RandomGenerator rg = TestSettings.getRandomGenerator();
+		double[] data = MedianWindowTest.createRandomData(rg, dataSize);
 		for (int radius : radii)
 		{
 			double[] startData = Arrays.copyOf(data, 2 * radius + 1);
@@ -239,6 +240,7 @@ public class MedianWindowDLLTest
 	@Test
 	public void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall()
 	{
+		TestSettings.assumeLowComplexity();
 		for (int radius : speedRadii)
 		{
 			for (int increment : speedIncrement)
@@ -252,10 +254,11 @@ public class MedianWindowDLLTest
 
 	private void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(int radius, int increment)
 	{
+		RandomGenerator rg = TestSettings.getRandomGenerator();
 		int iterations = 20;
 		double[][] data = new double[iterations][];
 		for (int i = 0; i < iterations; i++)
-			data[i] = mwt.createRandomData(dataSize);
+			data[i] = MedianWindowTest.createRandomData(rg, dataSize);
 
 		double[] m1 = new double[dataSize];
 		// Initialise class

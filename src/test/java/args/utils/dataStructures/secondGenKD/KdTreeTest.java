@@ -30,6 +30,7 @@ package args.utils.dataStructures.secondGenKD;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,11 +45,11 @@ import gdsc.core.utils.SimpleArrayUtils;
 import gdsc.test.BaseTimingTask;
 import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
+import gdsc.test.TestSettings.LogLevel;
+import gdsc.test.TestSettings.TestComplexity;
 
 public class KdTreeTest
 {
-	private gdsc.core.utils.Random rand = new Random(30051977);
-
 	int size = 256;
 	int[] N = new int[] { 100, 200, 400, 2000 };
 	int[] K = new int[] { 2, 4, 8, 16 };
@@ -56,9 +57,10 @@ public class KdTreeTest
 	@Test
 	public void canComputeKNNSecondGen()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			double[][] data = createData(size, n, false);
+			double[][] data = createData(r, size, n, false);
 
 			// Create the KDtree
 			ags.utils.dataStructures.trees.secondGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.secondGenKD.KdTree.SqrEuclid2D<Object>(
@@ -105,9 +107,10 @@ public class KdTreeTest
 	@Test
 	public void canComputeKNNSecondGenWithDuplicates()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			double[][] data = createData(size, n, true);
+			double[][] data = createData(r, size, n, true);
 
 			// Create the KDtree
 			ags.utils.dataStructures.trees.secondGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.secondGenKD.KdTree.SqrEuclid2D<Object>(
@@ -154,9 +157,10 @@ public class KdTreeTest
 	@Test
 	public void canComputeKNNDistanceSecondGen()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			double[][] data = createData(size, n, true);
+			double[][] data = createData(r, size, n, true);
 
 			// Create the KDtree
 			ags.utils.dataStructures.trees.secondGenKD.KdTree<Object> tree = new ags.utils.dataStructures.trees.secondGenKD.KdTree.SqrEuclid2D<Object>(
@@ -192,9 +196,10 @@ public class KdTreeTest
 	@Test
 	public void canComputeKNNThirdGen()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			double[][] data = createData(size, n, false);
+			double[][] data = createData(r, size, n, false);
 
 			// Create the KDtree
 			ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object> tree = new ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object>(
@@ -243,9 +248,10 @@ public class KdTreeTest
 	@Test
 	public void canComputeKNNThirdGenWithDuplicates()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			double[][] data = createData(size, n, true);
+			double[][] data = createData(r, size, n, true);
 
 			// Create the KDtree
 			ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object> tree = new ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object>(
@@ -294,9 +300,10 @@ public class KdTreeTest
 	@Test
 	public void canComputeKNNDistanceThirdGen()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			double[][] data = createData(size, n, true);
+			double[][] data = createData(r, size, n, true);
 
 			// Create the KDtree
 			ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object> tree = new ags.utils.dataStructures.trees.thirdGenKD.KdTree2D<Object>(
@@ -383,9 +390,13 @@ public class KdTreeTest
 	@Test
 	public void secondGenIsFasterThanThirdGen()
 	{
+		// No assertions are made since the timings are similar
+		TestSettings.assume(LogLevel.INFO, TestComplexity.MEDIUM);
+
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		TimingService ts = new TimingService(15);
 		int n = 5000;
-		double[][] data = createData(size, n, true);
+		double[][] data = createData(r, size, n, true);
 		final int k = 4;
 
 		long time = System.nanoTime();
@@ -522,8 +533,6 @@ public class KdTreeTest
 
 		TestSettings.info("All-vs-all = %d\n", time);
 		ts.report();
-
-		// No assertions are made since the timings are similar
 	}
 
 	class Float2DNNTimingTask extends NNTimingTask
@@ -564,9 +573,12 @@ public class KdTreeTest
 	//@Test
 	public void secondGenBucket24IsFastest()
 	{
+		TestSettings.assumeInfo();
+
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		TimingService ts = new TimingService(15);
 		int n = 5000;
-		double[][] data = createData(size, n, true);
+		double[][] data = createData(r, size, n, true);
 		final int k = 4;
 
 		for (int b : new int[] { 1, 2, 3, 4, 5, 8, 16, 24, 32 })
@@ -576,10 +588,11 @@ public class KdTreeTest
 		ts.repeat(number);
 		ts.repeat(number);
 
-		ts.report();
+		if (TestSettings.allow(LogLevel.INFO))
+			ts.report();
 	}
 
-	private double[][] createData(int size, int n, boolean allowDuplicates)
+	private double[][] createData(RandomGenerator r, int size, int n, boolean allowDuplicates)
 	{
 		double[][] data = new double[n][];
 		if (allowDuplicates)
@@ -587,7 +600,7 @@ public class KdTreeTest
 			int half = n / 2;
 			for (int i = half; i < n; i++)
 			{
-				data[i] = new double[] { rand.next() * size, rand.next() * size };
+				data[i] = new double[] { r.nextDouble() * size, r.nextDouble() * size };
 			}
 			for (int i = 0, j = half; i < half; i++, j++)
 			{
@@ -598,8 +611,8 @@ public class KdTreeTest
 		{
 			double[] x = SimpleArrayUtils.newArray(n, 0, (double) size / n);
 			double[] y = x.clone();
-			rand.shuffle(x);
-			rand.shuffle(y);
+			Random.shuffle(x, r);
+			Random.shuffle(y, r);
 			for (int i = 0; i < n; i++)
 			{
 				data[i] = new double[] { x[i], y[i] };

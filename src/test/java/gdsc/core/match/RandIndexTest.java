@@ -243,38 +243,40 @@ public class RandIndexTest
 	@Test
 	public void canComputeRandIndexWithSimpleData()
 	{
+		RandomGenerator rg = TestSettings.getRandomGenerator();
 		int size = 100;
 		for (int n1 : new int[] { 1, 2, 3, 4, 5 })
 			for (int n2 : new int[] { 1, 2, 3, 4, 5 })
-				canComputeRandIndexWithData(size, n1, n2);
+				canComputeRandIndexWithData(rg, size, n1, n2);
 	}
 
-	// Speed test on large data
 	@Test
 	public void canComputeRandIndexWithBigData()
 	{
+		TestSettings.assumeLowComplexity();
+		RandomGenerator rg = TestSettings.getRandomGenerator();
 		int size = 10000;
 		for (int i : new int[] { 3, 5, 10 })
 		{
 			int n1 = size / i;
 			int n2 = size / i;
-			canComputeRandIndexWithData(size, n1, n2);
+			canComputeRandIndexWithData(rg, size, n1, n2);
 		}
 		for (int i : new int[] { 3, 5, 10 })
 		{
 			int n1 = size / i;
 			int n2 = i;
-			canComputeRandIndexWithData(size, n1, n2);
+			canComputeRandIndexWithData(rg, size, n1, n2);
 		}
 		for (int i : new int[] { 3, 5, 10 })
 		{
 			int n1 = i;
 			int n2 = i;
-			canComputeRandIndexWithData(size, n1, n2);
+			canComputeRandIndexWithData(rg, size, n1, n2);
 		}
 	}
 
-	private void canComputeRandIndexWithData(int size, int n1, int n2)
+	private void canComputeRandIndexWithData(RandomGenerator rg, int size, int n1, int n2)
 	{
 		int n = size;
 		int[] c1 = new int[size];
@@ -284,8 +286,7 @@ public class RandIndexTest
 			c1[size] = size % n1;
 			c2[size] = size % n2;
 		}
-		RandomGenerator rand = TestSettings.getRandomGenerator();
-		MathArrays.shuffle(c1, rand);
+		MathArrays.shuffle(c1, rg);
 
 		long t1 = System.nanoTime();
 		double e = RandIndex.simpleRandIndex(c1, c2);
@@ -311,13 +312,14 @@ public class RandIndexTest
 	@Test
 	public void adjustedRandIndexIsZeroForRandomData()
 	{
+		RandomGenerator rg = TestSettings.getRandomGenerator();
 		int size = 100;
 		for (int n1 : new int[] { 2, 5, 10 })
 			for (int n2 : new int[] { 2, 5 })
-				adjustedRandIndexIsZeroForRandomData(size, n1, n2, 10);
+				adjustedRandIndexIsZeroForRandomData(rg, size, n1, n2, 10);
 	}
 
-	private void adjustedRandIndexIsZeroForRandomData(int size, int n1, int n2, int loops)
+	private void adjustedRandIndexIsZeroForRandomData(RandomGenerator rg, int size, int n1, int n2, int loops)
 	{
 		int n = size;
 		int[] c1 = new int[size];
@@ -327,13 +329,12 @@ public class RandIndexTest
 			c1[size] = size % n1;
 			c2[size] = size % n2;
 		}
-		RandomGenerator rand = TestSettings.getRandomGenerator();
 		RandIndex ri = new RandIndex();
 
 		double sum = 0;
 		for (int i = loops; i-- > 0;)
 		{
-			MathArrays.shuffle(c1, rand);
+			MathArrays.shuffle(c1, rg);
 			sum += ri.getAdjustedRandIndex(c1, n1, c2, n2);
 		}
 

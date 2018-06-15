@@ -30,12 +30,15 @@ package gdsc.core.clustering;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 import gdsc.core.clustering.DensityCounter.SimpleMolecule;
 import gdsc.test.BaseTimingTask;
 import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
+import gdsc.test.TestSettings.LogLevel;
+import gdsc.test.TestSettings.TestComplexity;
 
 /**
  * Test the DensityCounter.
@@ -53,9 +56,10 @@ public class DensityCounterTest
 	@Test
 	public void countAllWithSimpleMatches()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			SimpleMolecule[] molecules = createMolecules(size, n);
+			SimpleMolecule[] molecules = createMolecules(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -79,9 +83,10 @@ public class DensityCounterTest
 	@Test
 	public void countAllWithSingleThreadMatches()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			SimpleMolecule[] molecules = createMolecules(size, n);
+			SimpleMolecule[] molecules = createMolecules(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -105,9 +110,10 @@ public class DensityCounterTest
 	@Test
 	public void countAllWithMultiThreadSycnMatches()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			SimpleMolecule[] molecules = createMolecules(size, n);
+			SimpleMolecule[] molecules = createMolecules(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -132,9 +138,10 @@ public class DensityCounterTest
 	@Test
 	public void countAllWithMultiThreadNonSyncMatches()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			SimpleMolecule[] molecules = createMolecules(size, n);
+			SimpleMolecule[] molecules = createMolecules(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -159,10 +166,11 @@ public class DensityCounterTest
 	@Test
 	public void countAllAroundMoleculesWithSimpleMatches()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			SimpleMolecule[] molecules = createMolecules(size, n / 2);
-			SimpleMolecule[] molecules2 = createMolecules(size, n);
+			SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
+			SimpleMolecule[] molecules2 = createMolecules(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -186,10 +194,11 @@ public class DensityCounterTest
 	@Test
 	public void countAllAroundMoleculesWithSingleThreadMatches()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			SimpleMolecule[] molecules = createMolecules(size, n / 2);
-			SimpleMolecule[] molecules2 = createMolecules(size, n);
+			SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
+			SimpleMolecule[] molecules2 = createMolecules(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -213,10 +222,11 @@ public class DensityCounterTest
 	@Test
 	public void countAllAroundMoleculesWithMultiThreadMatches()
 	{
+		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
-			SimpleMolecule[] molecules = createMolecules(size, n / 2);
-			SimpleMolecule[] molecules2 = createMolecules(size, n);
+			SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
+			SimpleMolecule[] molecules2 = createMolecules(r, size, n);
 
 			for (float radius : radii)
 			{
@@ -260,6 +270,10 @@ public class DensityCounterTest
 	@Test
 	public void countAllSpeedTest()
 	{
+		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.MEDIUM));
+
+		RandomGenerator r = TestSettings.getRandomGenerator();
+
 		// The single thread mode is faster when the radius is small.
 		// The multi-thread mode is faster when the radius is large (>4).
 		// The non-synchronised multi-thread mode is faster than the synchronised mode.
@@ -276,7 +290,7 @@ public class DensityCounterTest
 		final DensityCounter[] c = new DensityCounter[molecules.length];
 		for (int i = 0; i < molecules.length; i++)
 		{
-			molecules[i] = createMolecules(size, 20000);
+			molecules[i] = createMolecules(r, size, 20000);
 			c[i] = new DensityCounter(molecules[i], radius, true);
 		}
 
@@ -365,6 +379,9 @@ public class DensityCounterTest
 	@Test
 	public void countAllAroundMoleculesSpeedTest()
 	{
+		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.MEDIUM));
+		RandomGenerator r = TestSettings.getRandomGenerator();
+
 		// The multi-thread mode is faster when the number of molecules is large.
 
 		// However both will be fast enough when the data size is small so it is 
@@ -380,8 +397,8 @@ public class DensityCounterTest
 		final DensityCounter[] c = new DensityCounter[molecules.length];
 		for (int i = 0; i < molecules.length; i++)
 		{
-			molecules[i] = createMolecules(size, 20000);
-			molecules2[i] = createMolecules(size, 20000);
+			molecules[i] = createMolecules(r, size, 20000);
+			molecules2[i] = createMolecules(r, size, 20000);
 			c[i] = new DensityCounter(molecules[i], radius, true);
 		}
 
@@ -449,9 +466,8 @@ public class DensityCounterTest
 	 *            the number of molecules
 	 * @return the simple molecule[]
 	 */
-	private SimpleMolecule[] createMolecules(int size, int n)
+	private SimpleMolecule[] createMolecules(RandomGenerator r, int size, int n)
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
 		RandomDataGenerator rdg = new RandomDataGenerator(r);
 
 		float precision = 0.1f; // pixels
