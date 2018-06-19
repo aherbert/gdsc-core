@@ -36,6 +36,7 @@ import org.junit.Test;
 import gdsc.core.utils.Random;
 import gdsc.core.utils.Statistics;
 import gdsc.test.BaseTimingTask;
+import gdsc.test.TestAssert;
 import gdsc.test.TestSettings;
 import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TimingService;
@@ -59,11 +60,11 @@ public class DAreaSumTest
 			a.setRollingSums(r);
 			double[] o = a.getStatistics(0, 0, maxy);
 			Assert.assertEquals(s.getN(), o[DAreaSum.N], 0);
-			TestSettings.assertEquals(s.getSum(), o[DAreaSum.SUM], 1e-6);
+			TestAssert.assertEquals(s.getSum(), o[DAreaSum.SUM], 1e-6);
 
 			o = a.getStatistics(new Rectangle(maxx, maxy));
 			Assert.assertEquals(s.getN(), o[DAreaSum.N], 0);
-			TestSettings.assertEquals(s.getSum(), o[DAreaSum.SUM], 1e-6);
+			TestAssert.assertEquals(s.getSum(), o[DAreaSum.SUM], 1e-6);
 		}
 	}
 
@@ -93,7 +94,7 @@ public class DAreaSumTest
 					ImageStatistics s = fp.getStatistics();
 
 					Assert.assertEquals(s.area, o[DAreaSum.N], 0);
-					TestSettings.assertEquals(s.mean * s.area, o[DAreaSum.SUM], 1e-6);
+					TestAssert.assertEquals(s.mean * s.area, o[DAreaSum.SUM], 1e-6);
 				}
 	}
 
@@ -125,7 +126,7 @@ public class DAreaSumTest
 
 						Assert.assertEquals(s.area, o[DAreaSum.N], 0);
 						double sum = s.mean * s.area;
-						TestSettings.assertEquals(sum, o[DAreaSum.SUM], 1e-6);
+						TestAssert.assertEquals(sum, o[DAreaSum.SUM], 1e-6);
 					}
 	}
 
@@ -159,7 +160,7 @@ public class DAreaSumTest
 				ImageStatistics s = fp.getStatistics();
 
 				Assert.assertEquals(s.area, o[DAreaSum.N], 0);
-				TestSettings.assertEquals(s.mean * s.area, o[DAreaSum.SUM], 1e-6);
+				TestAssert.assertEquals(s.mean * s.area, o[DAreaSum.SUM], 1e-6);
 			}
 	}
 
@@ -178,18 +179,18 @@ public class DAreaSumTest
 			{
 				double[] o = a.getStatistics(0, 0, n);
 				Assert.assertEquals(c, o[DAreaSum.N], 0);
-				TestSettings.assertEquals(u, o[DAreaSum.SUM], 1e-6);
+				TestAssert.assertEquals(u, o[DAreaSum.SUM], 1e-6);
 
 				Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
 				o = a.getStatistics(bounds);
 				Assert.assertEquals(c, o[DAreaSum.N], 0);
-				TestSettings.assertEquals(u, o[DAreaSum.SUM], 1e-6);
+				TestAssert.assertEquals(u, o[DAreaSum.SUM], 1e-6);
 
 				bounds.x--;
 				bounds.y--;
 				o = a.getStatistics(bounds);
 				Assert.assertEquals(c, o[DAreaSum.N], 0);
-				TestSettings.assertEquals(u, o[DAreaSum.SUM], 1e-6);
+				TestAssert.assertEquals(u, o[DAreaSum.SUM], 1e-6);
 			}
 		}
 	}

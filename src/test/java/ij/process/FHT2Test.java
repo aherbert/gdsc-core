@@ -31,7 +31,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.core.utils.SimpleArrayUtils;
-import gdsc.test.TestSettings;
+import gdsc.test.TestAssert;
 import ij.plugin.filter.EDM;
 
 public class FHT2Test
@@ -139,7 +139,7 @@ public class FHT2Test
 		// using double*double + double*double rather than float*float + float*float,
 		// i.e. the float are converted to double before multiplication.
 		double error = (mode == 2) ? 1e-5 : 0;
-		TestSettings.assertArrayEquals(e, o, error);
+		TestAssert.assertArrayEquals(e, o, error);
 	}
 
 	private FloatProcessor createProcessor(int size, int x, int y, int w, int h)
