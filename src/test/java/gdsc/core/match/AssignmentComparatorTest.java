@@ -72,11 +72,7 @@ public class AssignmentComparatorTest
 		@Override
 		public int compareTo(DoubleSortData o)
 		{
-			if (data < o.data)
-				return -1;
-			if (data > o.data)
-				return 1;
-			return 0;
+			return Double.compare(data, o.data);
 		}
 	}
 

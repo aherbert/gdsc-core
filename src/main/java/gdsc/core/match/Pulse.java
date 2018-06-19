@@ -163,9 +163,9 @@ public class Pulse extends BasePoint implements Comparable<Pulse>
 	{
 		if (start == o.start)
 		{
-			return end - o.end;
+			return Integer.compare(end, o.end);
 		}
-		return start - o.start;
+		return (start < o.start) ? -1 : 1;
 	}
 
 	/**
