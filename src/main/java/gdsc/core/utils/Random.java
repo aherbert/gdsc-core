@@ -174,6 +174,17 @@ public class Random extends AbstractRandomGenerator
 	 * 
 	 * @param data
 	 *            the data
+	 */
+	public void shuffle(Object[] data)
+	{
+		shuffle(data, this);
+	}
+
+	/**
+	 * Perform a Fisher-Yates shuffle on the data
+	 * 
+	 * @param data
+	 *            the data
 	 * @param r
 	 *            the random generator
 	 */
@@ -221,6 +232,25 @@ public class Random extends AbstractRandomGenerator
 		{
 			int j = r.nextInt(i + 1);
 			int tmp = data[i];
+			data[i] = data[j];
+			data[j] = tmp;
+		}
+	}
+
+	/**
+	 * Perform a Fisher-Yates shuffle on the data
+	 * 
+	 * @param data
+	 *            the data
+	 * @param r
+	 *            the random generator
+	 */
+	public static void shuffle(Object[] data, RandomGenerator r)
+	{
+		for (int i = data.length; i-- > 1;)
+		{
+			int j = r.nextInt(i + 1);
+			Object tmp = data[i];
 			data[i] = data[j];
 			data[j] = tmp;
 		}
