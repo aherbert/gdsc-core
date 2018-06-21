@@ -60,13 +60,13 @@ public class AreaStatisticsTest
 			a.setRollingSums(r);
 			double[] o = a.getStatistics(0, 0, maxy);
 			Assert.assertEquals(s.getN(), o[AreaSum.N], 0);
-			TestAssert.assertEquals(s.getSum(), o[AreaSum.SUM], 1e-6);
-			TestAssert.assertEquals(s.getStandardDeviation(), o[AreaStatistics.SD], 1e-6);
+			TestAssert.assertEqualsRelative(s.getSum(), o[AreaSum.SUM], 1e-6);
+			TestAssert.assertEqualsRelative(s.getStandardDeviation(), o[AreaStatistics.SD], 1e-6);
 
 			o = a.getStatistics(new Rectangle(maxx, maxy));
 			Assert.assertEquals(s.getN(), o[AreaSum.N], 0);
-			TestAssert.assertEquals(s.getSum(), o[AreaSum.SUM], 1e-6);
-			TestAssert.assertEquals(s.getStandardDeviation(), o[AreaStatistics.SD], 1e-6);
+			TestAssert.assertEqualsRelative(s.getSum(), o[AreaSum.SUM], 1e-6);
+			TestAssert.assertEqualsRelative(s.getStandardDeviation(), o[AreaStatistics.SD], 1e-6);
 		}
 	}
 
@@ -88,7 +88,7 @@ public class AreaStatisticsTest
 				{
 					double[] e = a1.getStatistics(x, y, n);
 					double[] o = a2.getStatistics(x, y, n);
-					TestAssert.assertArrayEquals(e, o, 1e-6);
+					TestAssert.assertArrayEqualsRelative(e, o, 1e-6);
 					//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 					// Check with ImageJ
@@ -97,8 +97,8 @@ public class AreaStatisticsTest
 
 					Assert.assertEquals(s.area, o[AreaSum.N], 0);
 					double sum = s.mean * s.area;
-					TestAssert.assertEquals(sum, o[AreaSum.SUM], 1e-6);
-					TestAssert.assertEquals(s.stdDev, o[AreaStatistics.SD], 1e-6);
+					TestAssert.assertEqualsRelative(sum, o[AreaSum.SUM], 1e-6);
+					TestAssert.assertEqualsRelative(s.stdDev, o[AreaStatistics.SD], 1e-6);
 				}
 	}
 
@@ -121,7 +121,7 @@ public class AreaStatisticsTest
 					{
 						double[] e = a1.getStatistics(x, y, nx, ny);
 						double[] o = a2.getStatistics(x, y, nx, ny);
-						TestAssert.assertArrayEquals(e, o, 1e-6);
+						TestAssert.assertArrayEqualsRelative(e, o, 1e-6);
 						//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 						// Check with ImageJ
@@ -129,8 +129,8 @@ public class AreaStatisticsTest
 						ImageStatistics s = fp.getStatistics();
 
 						Assert.assertEquals(s.area, o[AreaSum.N], 0);
-						TestAssert.assertEquals(s.mean * s.area, o[AreaSum.SUM], 1e-6);
-						TestAssert.assertEquals(s.stdDev, o[AreaStatistics.SD], 1e-6);
+						TestAssert.assertEqualsRelative(s.mean * s.area, o[AreaSum.SUM], 1e-6);
+						TestAssert.assertEqualsRelative(s.stdDev, o[AreaStatistics.SD], 1e-6);
 					}
 	}
 
@@ -156,7 +156,7 @@ public class AreaStatisticsTest
 				roi.y = y;
 				double[] e = a1.getStatistics(roi);
 				double[] o = a2.getStatistics(roi);
-				TestAssert.assertArrayEquals(e, o, 1e-6);
+				TestAssert.assertArrayEqualsRelative(e, o, 1e-6);
 				//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 				// Check with ImageJ
@@ -164,8 +164,8 @@ public class AreaStatisticsTest
 				ImageStatistics s = fp.getStatistics();
 
 				Assert.assertEquals(s.area, o[AreaSum.N], 0);
-				TestAssert.assertEquals(s.mean * s.area, o[AreaSum.SUM], 1e-6);
-				TestAssert.assertEquals(s.stdDev, o[AreaStatistics.SD], 1e-6);
+				TestAssert.assertEqualsRelative(s.mean * s.area, o[AreaSum.SUM], 1e-6);
+				TestAssert.assertEqualsRelative(s.stdDev, o[AreaStatistics.SD], 1e-6);
 			}
 	}
 
@@ -185,21 +185,21 @@ public class AreaStatisticsTest
 			{
 				double[] o = a.getStatistics(0, 0, n);
 				Assert.assertEquals(c, o[AreaSum.N], 0);
-				TestAssert.assertEquals(u, o[AreaSum.SUM], 1e-6);
-				TestAssert.assertEquals(s, o[AreaStatistics.SD], 1e-6);
+				TestAssert.assertEqualsRelative(u, o[AreaSum.SUM], 1e-6);
+				TestAssert.assertEqualsRelative(s, o[AreaStatistics.SD], 1e-6);
 
 				Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
 				o = a.getStatistics(bounds);
 				Assert.assertEquals(c, o[AreaSum.N], 0);
-				TestAssert.assertEquals(u, o[AreaSum.SUM], 1e-6);
-				TestAssert.assertEquals(s, o[AreaStatistics.SD], 1e-6);
+				TestAssert.assertEqualsRelative(u, o[AreaSum.SUM], 1e-6);
+				TestAssert.assertEqualsRelative(s, o[AreaStatistics.SD], 1e-6);
 
 				bounds.x--;
 				bounds.y--;
 				o = a.getStatistics(bounds);
 				Assert.assertEquals(c, o[AreaSum.N], 0);
-				TestAssert.assertEquals(u, o[AreaSum.SUM], 1e-6);
-				TestAssert.assertEquals(s, o[AreaStatistics.SD], 1e-6);
+				TestAssert.assertEqualsRelative(u, o[AreaSum.SUM], 1e-6);
+				TestAssert.assertEqualsRelative(s, o[AreaStatistics.SD], 1e-6);
 			}
 		}
 	}
