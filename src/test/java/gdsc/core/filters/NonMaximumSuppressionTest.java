@@ -49,7 +49,8 @@ public class NonMaximumSuppressionTest
 	private boolean debug = TestSettings.getLogLevel() >= LogLevel.DEBUG.getValue();
 
 	//int[] primes = new int[] { 113, 97, 53, 29, 17, 7 };
-	int[] primes = new int[] { 509, 251 };
+	//int[] primes = new int[] { 509, 251 };
+	int[] primes = new int[] { 113, 29 };
 	//int[] primes = new int[] { 17 };
 	//int[] smallPrimes = new int[] { 113, 97, 53, 29, 17, 7 };
 	int[] smallPrimes = new int[] { 17 };
