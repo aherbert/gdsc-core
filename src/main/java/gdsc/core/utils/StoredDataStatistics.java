@@ -306,4 +306,18 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	{
 		return getValues();
 	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Note: This does not reset the allocated storage.
+	 * 
+	 * @see gdsc.core.utils.Statistics#reset()
+	 */
+	@Override
+	public void reset()
+	{
+		super.reset();
+		stats = null;
+	}
 }

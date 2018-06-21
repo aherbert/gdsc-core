@@ -424,4 +424,14 @@ public class Statistics
 		TDistribution t = new TDistribution(degreesOfFreedom);
 		return t.inverseCumulativeProbability(alpha) * se;
 	}
+
+	/**
+	 * Reset the statistics
+	 */
+	public void reset()
+	{
+		n = 0;
+		s = 0;
+		ss = 0;
+	}
 }
