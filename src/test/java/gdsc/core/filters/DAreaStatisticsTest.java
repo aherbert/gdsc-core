@@ -47,7 +47,7 @@ public class DAreaStatisticsTest
 {
 	boolean[] rolling = new boolean[] { true, false };
 	int[] boxSizes = new int[] { 15, 9, 5, 3, 2, 1 };
-	int maxx = 200, maxy = 300;
+	int maxx = 97, maxy = 101;
 
 	@Test
 	public void canComputeGlobalStatistics()
@@ -82,8 +82,8 @@ public class DAreaStatisticsTest
 
 		FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
 
-		for (int x : Random.sample(10, maxx, r))
-			for (int y : Random.sample(10, maxy, r))
+		for (int x : Random.sample(5, maxx, r))
+			for (int y : Random.sample(5, maxy, r))
 				for (int n : boxSizes)
 				{
 					double[] e = a1.getStatistics(x, y, n);
@@ -114,8 +114,8 @@ public class DAreaStatisticsTest
 
 		FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
 
-		for (int x : Random.sample(10, maxx, r))
-			for (int y : Random.sample(10, maxy, r))
+		for (int x : Random.sample(5, maxx, r))
+			for (int y : Random.sample(5, maxy, r))
 				for (int nx : boxSizes)
 					for (int ny : boxSizes)
 					{
@@ -150,8 +150,8 @@ public class DAreaStatisticsTest
 
 		FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
 
-		for (int x : Random.sample(10, maxx - width, r))
-			for (int y : Random.sample(10, maxy - height, r))
+		for (int x : Random.sample(5, maxx - width, r))
+			for (int y : Random.sample(5, maxy - height, r))
 			{
 				roi.x = x;
 				roi.y = y;
