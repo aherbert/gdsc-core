@@ -63,8 +63,8 @@ public class PartialSortTest
 		}
 	}
 
-	int[] testN = new int[] { 2, 3, 5, 10, 20, 30, 40, 50 };
-	int[] testM = new int[] { 50, 100, 500 };
+	int[] testN = new int[] { 2, 3, 5, 10, 30, 50 };
+	int[] testM = new int[] { 50, 100 };
 
 	@Test
 	public void bottomNofMIsCorrect()
