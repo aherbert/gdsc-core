@@ -38,7 +38,9 @@ public class SIPrefixTest
 	@Test
 	public void canGenerateSIPrefix()
 	{
+		// This is not a test. It generates the Enum.
 		Assume.assumeTrue(false);
+		
 		//@formatter:off
 		String[] data = {
             "24","yotta","Y",
@@ -141,7 +143,7 @@ public class SIPrefixTest
 	{
 		value *= sign;
 		SIPrefix o = SIPrefix.getPrefix(value);
-		TestSettings.info("Value %s = %s %s (%s)\n", value, value / o.getFactor(), o.getName(), o.getSymbol());
+		TestSettings.info("Value %s = %s %s (%s)\n", value, o.convert(value), o.getName(), o.getSymbol());
 		Assert.assertEquals(e, o);
 	}
 }
