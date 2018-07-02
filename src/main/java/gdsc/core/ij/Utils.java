@@ -1269,7 +1269,8 @@ public class Utils
 
 			case FD:
 				DescriptiveStatistics descriptiveStats = (data instanceof StoredDataStatistics)
-						? ((StoredDataStatistics) data).getStatistics() : new DescriptiveStatistics(data.values());
+						? ((StoredDataStatistics) data).getStatistics()
+						: new DescriptiveStatistics(data.values());
 				double lower = descriptiveStats.getPercentile(25);
 				double upper = descriptiveStats.getPercentile(75);
 				width = getBinWidthFreedmanDiaconisRule(upper, lower, data.size());
@@ -1469,7 +1470,7 @@ public class Utils
 	 * Convert time in milliseconds into a nice string
 	 * 
 	 * @param time
-	 * @return
+	 * @return The string
 	 */
 	public static String timeToString(double time)
 	{
