@@ -436,7 +436,7 @@ public class NonMaximumSuppressionTest
 		// times for the internal method. 
 		// This test should be changed to repeat until the times converge.
 
-		TestSettings.assume(LogLevel.WARN, TestComplexity.MEDIUM);
+		TestSettings.assumeSpeedTest();
 
 		RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -709,7 +709,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFind3x3WithBufferIsFasterThanBlockFind3x3()
 	{
-		TestSettings.assume(LogLevel.WARN, TestComplexity.MEDIUM);
+		TestSettings.assumeSpeedTest();
 
 		RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -1248,7 +1248,7 @@ public class NonMaximumSuppressionTest
 		// times for the internal method. 
 		// This test should be changed to repeat until the times converge.
 
-		TestSettings.assume(LogLevel.WARN, TestComplexity.MEDIUM);
+		TestSettings.assumeSpeedTest();
 
 		RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -1521,7 +1521,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFind3x3WithBufferIsFasterThanBlockFind3x3()
 	{
-		TestSettings.assume(LogLevel.WARN, TestComplexity.MEDIUM);
+		TestSettings.assumeSpeedTest();
 
 		RandomGenerator rg = TestSettings.getRandomGenerator();
 

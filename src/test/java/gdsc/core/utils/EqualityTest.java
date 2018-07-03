@@ -386,7 +386,7 @@ public class EqualityTest
 	@Test
 	public void floatRelativeIsSameSpeedAsDoubleRelative()
 	{
-		TestSettings.assumeLowComplexity();
+		TestSettings.assumeSpeedTest();
 
 		float maxRelativeError = 1e-2f;
 		float maxAbsoluteError = 1e-16f;
@@ -453,7 +453,8 @@ public class EqualityTest
 			}
 		});
 		ts.repeat();
-		if (TestSettings.allow(LogLevel.INFO)) ts.report();			
+		if (TestSettings.allow(LogLevel.INFO))
+			ts.report();
 
 		double error = DoubleEquality.relativeError(ts.get(-1).getMean(), ts.get(-2).getMean());
 		TestSettings.logSpeedTestResult(error < 0.2,

@@ -37,6 +37,7 @@ import org.junit.Test;
 
 import gdsc.test.TestSettings;
 import gdsc.test.TestSettings.LogLevel;
+import gdsc.test.TestSettings.TestComplexity;
 
 public class MedianWindowTest
 {
@@ -554,8 +555,7 @@ public class MedianWindowTest
 	@Test
 	public void intVersionIsFasterThanDoubleVersion()
 	{
-		TestSettings.assumeWarn();
-		TestSettings.assumeLowComplexity();
+		TestSettings.assumeSpeedTest(TestComplexity.LOW);
 		for (int radius : speedRadii)
 		{
 			for (int increment : speedIncrement)

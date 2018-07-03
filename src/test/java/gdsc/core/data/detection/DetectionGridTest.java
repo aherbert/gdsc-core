@@ -271,7 +271,7 @@ public class DetectionGridTest
 	private void speedTest(int size, int width, int n, int np)
 	{
 		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.MEDIUM));
-		
+
 		RandomDataGenerator rdg = new RandomDataGenerator(TestSettings.getRandomGenerator());
 
 		TimingService ts = new TimingService();

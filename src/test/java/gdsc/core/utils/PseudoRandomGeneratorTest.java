@@ -66,7 +66,7 @@ public class PseudoRandomGeneratorTest
 		PseudoRandomGenerator r = new PseudoRandomGenerator(length, TestSettings.getRandomGenerator());
 		canConstructPseudoRandomGenerator(r, e);
 	}
-	
+
 	private void canConstructPseudoRandomGenerator(PseudoRandomGenerator r, double[] e)
 	{
 		for (int i = 0; i < e.length; i++)

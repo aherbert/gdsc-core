@@ -40,7 +40,7 @@ public class SIPrefixTest
 	{
 		// This is not a test. It generates the Enum.
 		Assume.assumeTrue(false);
-		
+
 		//@formatter:off
 		String[] data = {
             "24","yotta","Y",

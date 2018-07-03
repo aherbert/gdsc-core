@@ -260,7 +260,7 @@ public class CustomTricubicInterpolatingFunctionTest
 	public void inlineComputeCoefficientsIsFaster()
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
-		
+
 		RandomGenerator r = TestSettings.getRandomGenerator();
 
 		final int N = 3000;

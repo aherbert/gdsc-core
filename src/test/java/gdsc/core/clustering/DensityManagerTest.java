@@ -82,7 +82,7 @@ public class DensityManagerTest
 	public void densityWithGridFasterThanDensityTriangle()
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
-		
+
 		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
@@ -110,7 +110,7 @@ public class DensityManagerTest
 	public void densityWithGridFasterThanDensity()
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
-		
+
 		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
@@ -156,7 +156,7 @@ public class DensityManagerTest
 	public void sumWithGridFasterThanSum()
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
-		
+
 		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
@@ -222,7 +222,7 @@ public class DensityManagerTest
 	public void blockDensityFasterThanBlockDensity2()
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
-		
+
 		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
@@ -251,7 +251,7 @@ public class DensityManagerTest
 	public void blockDensity2FasterThanBlockDensity3()
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
-		
+
 		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
 		{
