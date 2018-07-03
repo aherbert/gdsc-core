@@ -264,7 +264,7 @@ public class DAreaStatisticsTest
 	public void rollingIsfasterAtHighDensity()
 	{
 		// Since this is a slow test
-		TestSettings.assumeMediumComplexity();
+		TestSettings.assumeSpeedTest();
 
 		// Test for sampling half the pixels. Ignore the very small box size
 		speedTest(0.5, true, 2, Integer.MAX_VALUE);
@@ -300,7 +300,11 @@ public class DAreaStatisticsTest
 		ts.repeat();
 		if (TestSettings.allow(LogLevel.INFO))
 			ts.report(size);
-		Assert.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
+
+		double t1 = ts.get(-2).getMean();
+		double t2 = ts.get(-1).getMean();
+		TestSettings.logSpeedTestResult((t1 < t2) == rollingIsFaster,
+				"Rolling %s => Non-rolling %s : %.2fx : Expected rollingFaster=%b", t1, t2, t1 / t2, rollingIsFaster);
 		// The first run is not always faster
 		//for (int i = ts.getSize(); i > 0; i -= 2)
 		//	Assert.assertEquals(ts.get(i - 2).getMean() < ts.get(i - 1).getMean(), rollingIsFaster);

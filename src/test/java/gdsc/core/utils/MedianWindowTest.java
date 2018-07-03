@@ -543,13 +543,18 @@ public class MedianWindowTest
 		}
 
 		Assert.assertArrayEquals(m1, m2, 1e-3);
-		TestSettings.info("Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius, increment, t1, t2,
-				(double) t1 / t2);
 
 		// Only test the largest radii 
 		if (radius == testSpeedRadius)
+		{
 			// Allow a margin of error
-			Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1 * 1.1);
+			//Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1 * 1.1);
+			TestSettings.logSpeedTestResult(t2 < t1, "Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius, increment, t1, t2,
+					(double) t1 / t2);
+		}
+		else
+			TestSettings.info("Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius, increment, t1, t2,
+					(double) t1 / t2);
 	}
 
 	@Test
@@ -662,7 +667,7 @@ public class MedianWindowTest
 		}
 
 		// Only test the largest radii 
-		if (radius == speedRadii[speedRadii.length - 1])
+		if (radius == testSpeedRadius)
 		{
 			//Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1);
 			TestSettings.logSpeedTestResult(t2 < t1, "Radius %d, Increment %d : double %d : int %d = %fx faster\n",

@@ -221,7 +221,7 @@ public class DensityManagerTest
 	//@Test
 	public void blockDensityFasterThanBlockDensity2()
 	{
-		TestSettings.assume(TestComplexity.MEDIUM);
+		TestSettings.assumeSpeedTest();
 
 		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
@@ -250,7 +250,7 @@ public class DensityManagerTest
 	@Test
 	public void blockDensity2FasterThanBlockDensity3()
 	{
-		TestSettings.assume(TestComplexity.MEDIUM);
+		TestSettings.assumeSpeedTest();
 
 		RandomGenerator r = TestSettings.getRandomGenerator();
 		for (int n : N)
@@ -270,8 +270,10 @@ public class DensityManagerTest
 
 				String msg = String.format("calculateBlockDensity2 vs calculateBlockDensity3. N=%d, R=%f : %fx faster",
 						n, radius, (double) t1 / t2);
-				TestSettings.info(msg);
-				Assert.assertTrue(msg, t2 < t1);
+				// This is not always faster
+				//TestSettings.info(msg);
+				//Assert.assertTrue(msg, t2 < t1);
+				TestSettings.logSpeedTestResult(t2 < t1, msg);
 			}
 		}
 	}
