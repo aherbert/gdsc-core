@@ -33,11 +33,12 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.test.TestAssert;
 import gdsc.test.TestSettings;
+import gdsc.test.TestSettings.TestComplexity;
 
 public class MedianWindowDLLTest
 {
-	MedianWindowTest mwt = new MedianWindowTest();
 	int dataSize = 2000;
 	int[] radii = new int[] { 0, 1, 2, 4, 8, 16 };
 	double[] values = new double[] { 0, -1.1, 2.2 };
@@ -203,6 +204,7 @@ public class MedianWindowDLLTest
 	@Test
 	public void canComputeMedianForDuplicateDataUsingDynamicLinkedList()
 	{
+		MedianWindowTest mwt = new MedianWindowTest();
 		for (double value : values)
 		{
 			double[] data = mwt.createDuplicateData(dataSize, value);
@@ -240,7 +242,7 @@ public class MedianWindowDLLTest
 	@Test
 	public void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall()
 	{
-		TestSettings.assumeLowComplexity();
+		TestSettings.assumeSpeedTest(TestComplexity.LOW);
 		for (int radius : speedRadii)
 		{
 			for (int increment : speedIncrement)
@@ -365,14 +367,16 @@ public class MedianWindowDLLTest
 			t2 = System.nanoTime() - s2;
 		}
 
-		Assert.assertArrayEquals(String.format("Radius %d, Increment %d", radius, increment), m1, m2, 1e-6);
-		TestSettings.info("Radius %d, Increment %d : Cached %d : DLL %d = %fx faster\n", radius, increment, t1, t2,
-				(double) t1 / t2);
+		TestAssert.assertArrayEquals(m1, m2, 1e-6, "Radius %d, Increment %d", radius, increment);
 
 		// Only test when the increment is small.
 		// When the increment is large then the linked list is doing too many operations
 		// verses the full array sort of the cache median window. 
 		if (increment <= 4)
-			Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1);
+			TestSettings.logSpeedTestResult(t2 < t1, "Radius %d, Increment %d : Cached %d : DLL %d = %fx faster\n",
+					radius, increment, t1, t2, (double) t1 / t2);
+		else
+			TestSettings.info("Radius %d, Increment %d : Cached %d : DLL %d = %fx faster\n", radius, increment, t1, t2,
+					(double) t1 / t2);
 	}
 }
