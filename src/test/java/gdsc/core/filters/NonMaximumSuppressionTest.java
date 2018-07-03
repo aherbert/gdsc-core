@@ -39,7 +39,6 @@ import gdsc.core.ij.Utils;
 import gdsc.core.utils.Random;
 import gdsc.test.TestSettings;
 import gdsc.test.TestSettings.LogLevel;
-import gdsc.test.TestSettings.TestComplexity;
 import ij.ImagePlus;
 import ij.gui.PointRoi;
 import ij.process.FloatProcessor;

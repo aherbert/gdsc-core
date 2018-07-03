@@ -32,7 +32,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.test.TestSettings;
-import gdsc.test.TestSettings.LogLevel;
 
 public class StoredDataStatisticsTest extends StatisticsTest
 {
