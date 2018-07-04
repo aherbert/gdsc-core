@@ -200,6 +200,21 @@ public class FloatEquality
 	}
 
 	/**
+	 * Compute the maximum relative error between two float arrays.
+	 * 
+	 * @param A
+	 * @param B
+	 * @return The relative error
+	 */
+	public static float relativeError(float[] A, float[] B)
+	{
+		float max = 0;
+		for (int i = 0; i < A.length; i++)
+			max = Math.max(max, relativeError(A[i], B[i]));
+		return max;
+	}
+
+	/**
 	 * Compares two floats are within the specified number of bits variation using int comparisons.
 	 * 
 	 * @param A

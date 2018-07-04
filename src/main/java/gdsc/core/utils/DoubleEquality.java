@@ -200,6 +200,21 @@ public class DoubleEquality
 	}
 
 	/**
+	 * Compute the maximum relative error between two double arrays.
+	 * 
+	 * @param A
+	 * @param B
+	 * @return The relative error
+	 */
+	public static double relativeError(double[] A, double[] B)
+	{
+		double max = 0;
+		for (int i = 0; i < A.length; i++)
+			max = Math.max(max, relativeError(A[i], B[i]));
+		return max;
+	}
+
+	/**
 	 * Compares two doubles are within the specified number of bits variation using long comparisons.
 	 * 
 	 * @param A
