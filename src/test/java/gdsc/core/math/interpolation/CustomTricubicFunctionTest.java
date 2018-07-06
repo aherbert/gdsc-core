@@ -31,11 +31,18 @@ import org.junit.Assume;
 import org.junit.Test;
 
 import gdsc.test.TestSettings;
+import gdsc.test.TestSettings.LogLevel;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectIntProcedure;
 
 /**
- * This class is used to in-line the computation for the CustomTricubicFunction
+ * This class is used to in-line the computation for the CustomTricubicFunction.
+ * <p>
+ * The ordering of the computation is set to multiply by the power ZYX and the cubic coefficient last.
+ * <p>
+ * This allows the power table to be precomputed and the result should match the
+ * non-precomputed version. This includes scaling the power table by 2,3,6 for
+ * computation of the gradients.
  */
 public class CustomTricubicFunctionTest
 {
@@ -58,18 +65,18 @@ public class CustomTricubicFunctionTest
 	 */
 	static String inlineValue()
 	{
-		String _pYpZ;
+		String _pZpY;
 		StringBuilder sb = new StringBuilder();
 
 		for (int k = 0, ai = 0; k < N; k++)
 		{
 			for (int j = 0; j < N; j++)
 			{
-				_pYpZ = append_pYpZ(sb, k, j);
+				_pZpY = append_pZpY(sb, k, j);
 
 				for (int i = 0; i < N; i++, ai++)
 				{
-					sb.append(String.format("result += a[%d] * pX[%d] * %s;\n", ai, i, _pYpZ));
+					sb.append(String.format("result += %s * pX[%d] * a[%d];\n", _pZpY, i, ai));
 				}
 			}
 		}
@@ -77,30 +84,30 @@ public class CustomTricubicFunctionTest
 		return finaliseInlineFunction(sb);
 	}
 
-	static String append_pYpZ(StringBuilder sb, int k, int j)
+	static String append_pZpY(StringBuilder sb, int k, int j)
 	{
-		String _pYpZ;
+		String _pZpY;
 		if (k == 0)
 		{
 			if (j == 0)
 			{
-				_pYpZ = "1";
+				_pZpY = "1";
 			}
 			else
 			{
-				_pYpZ = String.format("pY[%d]", j);
+				_pZpY = String.format("pY[%d]", j);
 			}
 		}
 		else if (j == 0)
 		{
-			_pYpZ = String.format("pZ[%d]", k);
+			_pZpY = String.format("pZ[%d]", k);
 		}
 		else
 		{
-			sb.append(String.format("pYpZ = pY[%d] * pZ[%d];\n", j, k));
-			_pYpZ = "pYpZ";
+			sb.append(String.format("pZpY = pZ[%d] * pY[%d];\n", k, j));
+			_pZpY = "pZpY";
 		}
-		return _pYpZ;
+		return _pZpY;
 	}
 
 	static String finaliseInlineFunction(StringBuilder sb)
@@ -125,6 +132,42 @@ public class CustomTricubicFunctionTest
 	}
 
 	/**
+	 * Used to create the inline value function for first-order gradients with power table
+	 * 
+	 * @return the function text.
+	 */
+	static String inlineValueWithPowerTable()
+	{
+		TObjectIntHashMap<String> map = new TObjectIntHashMap<String>(64);
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("return ");
+		for (int k = 0; k < N; k++)
+			for (int j = 0; j < N; j++)
+				for (int i = 0; i < N; i++)
+					appendPower(map, sb, i, j, k, i, j, k);
+		sb.append(";\n");
+
+		// Each entry should be unique indicating that the result is optimal 
+		map.forEachEntry(new TObjectIntProcedure<String>()
+		{
+			@Override
+			public boolean execute(String a, int b)
+			{
+				if (b > 1)
+				{
+					TestSettings.info("%s = %d\n", a, b);
+					return false;
+				}
+				return true;
+			}
+		});
+
+		return finaliseInlinePowerTableFunction(sb);
+	}
+
+	/**
 	 * Used to create the inline power table function
 	 * 
 	 * @return the function text.
@@ -142,7 +185,7 @@ public class CustomTricubicFunctionTest
 
 				for (int i = 1; i < N; i++, ai++)
 				{
-					sb.append(String.format("table[%d] = pX[%d] * %s;\n", ai, i, table0jk));
+					sb.append(String.format("table[%d] = %s * pX[%d];\n", ai, table0jk, i));
 				}
 			}
 		}
@@ -152,33 +195,33 @@ public class CustomTricubicFunctionTest
 
 	static String appendTableijk(StringBuilder sb, int k, int j, int i, int ai)
 	{
-		String pYpZ;
+		String pZpY;
 		boolean compound = true;
 		if (k == 0)
 		{
 			compound = false;
 			if (j == 0)
 			{
-				pYpZ = "1";
+				pZpY = "1";
 			}
 			else
 			{
-				pYpZ = String.format("pY[%d]", j);
+				pZpY = String.format("pY[%d]", j);
 			}
 		}
 		else if (j == 0)
 		{
 			compound = false;
-			pYpZ = String.format("pZ[%d]", k);
+			pZpY = String.format("pZ[%d]", k);
 		}
 		else
 		{
-			pYpZ = String.format("pY[%d] * pZ[%d]", j, k);
+			pZpY = String.format("pZ[%d] * pY[%d]", k, j);
 		}
 
 		String tableijk = String.format("table[%d]", ai);
-		sb.append(String.format("%s = pX[%d] * %s;\n", tableijk, i, pYpZ));
-		return (compound) ? tableijk : pYpZ;
+		sb.append(String.format("%s = %s * pX[%d];\n", tableijk, pZpY, i));
+		return (compound) ? tableijk : pZpY;
 	}
 
 	/**
@@ -188,8 +231,8 @@ public class CustomTricubicFunctionTest
 	 */
 	static String inlineValue1()
 	{
-		String _pYpZ;
-		String _pXpYpZ;
+		String _pZpY;
+		String _pZpYpX;
 		StringBuilder sb = new StringBuilder();
 
 		// Gradients are described in:
@@ -200,31 +243,31 @@ public class CustomTricubicFunctionTest
 		{
 			for (int j = 0; j < N; j++)
 			{
-				_pYpZ = append_pYpZ(sb, k, j);
+				_pZpY = append_pZpY(sb, k, j);
 
 				for (int i = 0; i < N; i++, ai++)
 				{
-					_pXpYpZ = append_pXpYpZ(sb, _pYpZ, i);
+					_pZpYpX = append_pZpYpX(sb, _pZpY, i);
 
 					//@formatter:off
-					sb.append(String.format("result += a[%d] * %s;\n", ai, _pXpYpZ));
+					sb.append(String.format("result += %s * a[%d];\n", _pZpYpX, ai));
 					if (i < N_1)
-						sb.append(String.format("df_da[0] += %d * a[%d] * %s;\n", i+1, getIndex(i+1, j, k), _pXpYpZ));
+						sb.append(String.format("df_da[0] += %d * %s * a[%d];\n", i+1, _pZpYpX, getIndex(i+1, j, k)));
 					if (j < N_1)
-						sb.append(String.format("df_da[1] += %d * a[%d] * %s;\n", j+1, getIndex(i, j+1, k), _pXpYpZ));
+						sb.append(String.format("df_da[1] += %d * %s * a[%d];\n", j+1, _pZpYpX, getIndex(i, j+1, k)));
 					if (k < N_1)
-						sb.append(String.format("df_da[2] += %d * a[%d] * %s;\n", k+1, getIndex(i, j, k+1), _pXpYpZ));
+						sb.append(String.format("df_da[2] += %d * %s * a[%d];\n", k+1, _pZpYpX, getIndex(i, j, k+1)));
 					//@formatter:on
 
 					// Formal computation
-					//pXpYpZ = pX[i] * pY[j] * pZ[k];
-					//result += a[ai] * pXpYpZ;
+					//pZpYpX = pZ[k] * pY[j] * pX[i];
+					//result += pZpYpX * a[ai];
 					//if (i < N_1)
-					//	df_da[0] += (i+1) * a[getIndex(i+1, j, k)] * pXpYpZ;
+					//	df_da[0] += (i+1) * pZpYpX * a[getIndex(i+1, j, k)];
 					//if (j < N_1)
-					//	df_da[1] += (j+1) * a[getIndex(i, j+1, k)] * pXpYpZ;
+					//	df_da[1] += (j+1) * pZpYpX * a[getIndex(i, j+1, k)];
 					//if (k < N_1)
-					//	df_da[2] += (k+1) * a[getIndex(i, j, k+1)] * pXpYpZ;
+					//	df_da[2] += (k+1) * pZpYpX * a[getIndex(i, j, k+1)];
 				}
 			}
 		}
@@ -232,23 +275,23 @@ public class CustomTricubicFunctionTest
 		return finaliseInlineFunction(sb);
 	}
 
-	static String append_pXpYpZ(StringBuilder sb, String _pYpZ, int i)
+	static String append_pZpYpX(StringBuilder sb, String _pZpY, int i)
 	{
-		String _pXpYpZ;
+		String _pZpYpX;
 		if (i == 0)
 		{
-			_pXpYpZ = _pYpZ;
+			_pZpYpX = _pZpY;
 		}
-		else if (_pYpZ.equals("1"))
+		else if (_pZpY.equals("1"))
 		{
-			_pXpYpZ = String.format("pX[%d]", i);
+			_pZpYpX = String.format("pX[%d]", i);
 		}
 		else
 		{
-			sb.append(String.format("pXpYpZ = pX[%d] * %s;\n", i, _pYpZ));
-			_pXpYpZ = "pXpYpZ";
+			sb.append(String.format("pZpYpX = %s * pX[%d];\n", _pZpY, i));
+			_pZpYpX = "pZpYpX";
 		}
-		return _pXpYpZ;
+		return _pZpYpX;
 	}
 
 	/**
@@ -336,7 +379,7 @@ public class CustomTricubicFunctionTest
 			n *= nh;
 			nh--;
 		}
-		String sum = String.format("%d * a[%d] * table[%d]\n", n, before, after);
+		String sum = String.format("%d * table[%d] * a[%d]\n", n, after, before);
 		map.adjustOrPutValue(sum, 1, 1);
 		sb.append("+ ").append(sum);
 	}
@@ -426,7 +469,7 @@ public class CustomTricubicFunctionTest
 			n *= nh;
 			nh--;
 		}
-		String sum = String.format("a[%d] * table%d[%d]\n", before, n, after);
+		String sum = String.format("table%d[%d] * a[%d]\n", n, after, before);
 		map.adjustOrPutValue(sum, 1, 1);
 		sb.append("+ ").append(sum);
 	}
@@ -448,8 +491,8 @@ public class CustomTricubicFunctionTest
 	 */
 	static String inlineValue2()
 	{
-		String _pYpZ;
-		String _pXpYpZ;
+		String _pZpY;
+		String _pZpYpX;
 		StringBuilder sb = new StringBuilder();
 
 		// Gradients are described in:
@@ -460,54 +503,54 @@ public class CustomTricubicFunctionTest
 		{
 			for (int j = 0; j < N; j++)
 			{
-				_pYpZ = append_pYpZ(sb, k, j);
+				_pZpY = append_pZpY(sb, k, j);
 
 				for (int i = 0; i < N; i++, ai++)
 				{
-					_pXpYpZ = append_pXpYpZ(sb, _pYpZ, i);
+					_pZpYpX = append_pZpYpX(sb, _pZpY, i);
 
 					//@formatter:off
-					sb.append(String.format("result += a[%d] * %s;\n", ai, _pXpYpZ));
+					sb.append(String.format("result += %s * a[%d];\n", _pZpYpX, ai));
 					if (i < N_1)
 					{
-						sb.append(String.format("df_da[0] += %d * a[%d] * %s;\n", i+1, getIndex(i+1, j, k), _pXpYpZ));
+						sb.append(String.format("df_da[0] += %d * %s * a[%d];\n", i+1, _pZpYpX, getIndex(i+1, j, k)));
 						if (i < N_2)
-							sb.append(String.format("d2f_da2[0] += %d * d[%d] * %s;\n", (i+1)*(i+2), getIndex(i+2, j, k), _pXpYpZ));
+							sb.append(String.format("d2f_da2[0] += %d * %s * a[%d];\n", (i+1)*(i+2), _pZpYpX, getIndex(i+2, j, k)));
 					}
 					if (j < N_1)
 					{
-						sb.append(String.format("df_da[1] += %d * a[%d] * %s;\n", j+1, getIndex(i, j+1, k), _pXpYpZ));
+						sb.append(String.format("df_da[1] += %d * %s * a[%d];\n", j+1, _pZpYpX, getIndex(i, j+1, k)));
 						if (j < N_2)
-							sb.append(String.format("d2f_da2[1] += %d * a[%d] * %s;\n", (j+1)*(j+2), getIndex(i, j+2, k), _pXpYpZ));
+							sb.append(String.format("d2f_da2[1] += %d * %s * a[%d];\n", (j+1)*(j+2), _pZpYpX, getIndex(i, j+2, k)));
 					}						
 					if (k < N_1)
 					{
-						sb.append(String.format("df_da[2] += %d * a[%d] * %s;\n", k+1, getIndex(i, j, k+1), _pXpYpZ));
+						sb.append(String.format("df_da[2] += %d * %s * a[%d];\n", k+1, _pZpYpX, getIndex(i, j, k+1)));
 						if (k < N_2)
-							sb.append(String.format("d2f_da2[2] += %d * a[%d] * %s;\n", (k+1)*(k+2), getIndex(i, j, k+2), _pXpYpZ));
+							sb.append(String.format("d2f_da2[2] += %d * %s * a[%d];\n", (k+1)*(k+2), _pZpYpX, getIndex(i, j, k+2)));
 					}
 					//@formatter:on
 
 					//// Formal computation
-					//pXpYpZ = pX[i] * pYpZ;
-					//result += a[ai] * pXpYpZ;
+					//pZpYpX = pZpY * pX[i];
+					//result += pZpYpX * a[ai];
 					//if (i < N_1)
 					//{
-					//	df_da[0] += (i+1) * a[getIndex(i+1, j, k)] * pXpYpZ;
+					//	df_da[0] += (i+1) * pZpYpX * a[getIndex(i+1, j, k)];
 					//	if (i < N_2)
-					//		d2f_da2[0] += (i+1) * (i + 2) * a[getIndex(i + 2, j, k)] * pXpYpZ;
+					//		d2f_da2[0] += (i+1) * (i + 2) * pZpYpX * a[getIndex(i + 2, j, k)];
 					//}
 					//if (j < N_1)
 					//{
-					//	df_da[1] += (j+1) * a[getIndex(i, j+1, k)] * pXpYpZ;
+					//	df_da[1] += (j+1) * pZpYpX * a[getIndex(i, j+1, k)];
 					//	if (j < N_2)
-					//		d2f_da2[1] += (j+1) * (j + 2) * a[getIndex(i, j + 2, k)] * pXpYpZ;
+					//		d2f_da2[1] += (j+1) * (j + 2) * pZpYpX * a[getIndex(i, j + 2, k)];
 					//}
 					//if (k < N_1)
 					//{
-					//	df_da[2] += (k+1) * a[getIndex(i, j, k+1)] * pXpYpZ;
+					//	df_da[2] += (k+1) * pZpYpX * a[getIndex(i, j, k+1)];
 					//	if (k < N_2)
-					//		d2f_da2[2] += (k+1) * (k + 2) * a[getIndex(i, j, k + 2)] * pXpYpZ;
+					//		d2f_da2[2] += (k+1) * (k + 2) * pZpYpX * a[getIndex(i, j, k + 2)];
 					//}
 				}
 			}
@@ -672,59 +715,84 @@ public class CustomTricubicFunctionTest
 		return finaliseInlinePowerTableFunction(sb);
 	}
 
+	private LogLevel level = LogLevel.INFO;
+
 	@Test
 	public void canConstructInlineValue()
 	{
-		Assume.assumeTrue(false);
-		TestSettings.infoln(inlineValue());
+		// DoubleCustomTricubicFunction#value0(double[], double[], double[])
+		Assume.assumeTrue(TestSettings.allow(level));
+		TestSettings.log(level, inlineValue());
+	}
+
+	@Test
+	public void canConstructInlineValueWithPowerTable()
+	{
+		// DoubleCustomTricubicFunction#value(double[])
+		// DoubleCustomTricubicFunction#value(float[])
+		Assume.assumeTrue(TestSettings.allow(level));
+		TestSettings.log(level, inlineValueWithPowerTable());
 	}
 
 	@Test
 	public void canConstructInlineComputePowerTable()
 	{
-		Assume.assumeTrue(false);
-		TestSettings.infoln(inlineComputePowerTable());
+		// CustomTricubicFunction.computePowerTable		
+		Assume.assumeTrue(TestSettings.allow(level));
+		TestSettings.log(level, inlineComputePowerTable());
 	}
 
 	@Test
 	public void canConstructInlineValue1()
 	{
-		Assume.assumeTrue(true);
-		TestSettings.infoln(inlineValue1());
+		// DoubleCustomTricubicFunction#value1(double[], double[], double[], double[])
+		Assume.assumeTrue(TestSettings.allow(level));
+		TestSettings.log(level, inlineValue1());
 	}
 
 	@Test
 	public void canConstructInlineValue1WithPowerTable()
 	{
-		Assume.assumeTrue(true);
-		TestSettings.infoln(inlineValue1WithPowerTable());
+		// DoubleCustomTricubicFunction#value(double[], double[])
+		// DoubleCustomTricubicFunction#gradient(double[], double[])
+		// DoubleCustomTricubicFunction#value(float[], double[])
+		// DoubleCustomTricubicFunction#gradient(float[], double[])
+		Assume.assumeTrue(TestSettings.allow(level));
+		TestSettings.log(level, inlineValue1WithPowerTable());
 	}
 
 	@Test
 	public void canConstructInlineValue1WithPowerTableN()
 	{
-		Assume.assumeTrue(true);
-		TestSettings.infoln(inlineValue1WithPowerTableN());
+		// DoubleCustomTricubicFunction#value(double[], double[], double[], double[])
+		// DoubleCustomTricubicFunction#value(float[], float[], float[], double[])
+		Assume.assumeTrue(TestSettings.allow(level));
+		TestSettings.log(level, inlineValue1WithPowerTableN());
 	}
 
 	@Test
 	public void canConstructInlineValue2()
 	{
-		Assume.assumeTrue(true);
-		TestSettings.infoln(inlineValue2());
+		// DoubleCustomTricubicFunction#value2(double[], double[], double[], double[], double[])
+		Assume.assumeTrue(TestSettings.allow(level));
+		TestSettings.log(level, inlineValue2());
 	}
 
 	@Test
 	public void canConstructInlineValue2WithPowerTable()
 	{
-		Assume.assumeTrue(true);
-		TestSettings.infoln(inlineValue2WithPowerTable());
+		// DoubleCustomTricubicFunction#value(double[], double[], double[])
+		// DoubleCustomTricubicFunction#value(float[], double[], double[])
+		Assume.assumeTrue(TestSettings.allow(level));
+		TestSettings.log(level, inlineValue2WithPowerTable());
 	}
 
 	@Test
 	public void canConstructInlineValue2WithPowerTableN()
 	{
-		Assume.assumeTrue(true);
-		TestSettings.infoln(inlineValue2WithPowerTableN());
+		// DoubleCustomTricubicFunction#value(double[], double[], double[], double[], double[],
+		// DoubleCustomTricubicFunction#value(float[], float[], float[], float[], double[],
+		Assume.assumeTrue(TestSettings.allow(level));
+		TestSettings.log(level, inlineValue2WithPowerTableN());
 	}
 }
