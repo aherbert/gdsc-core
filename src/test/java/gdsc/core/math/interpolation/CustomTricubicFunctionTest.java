@@ -715,7 +715,7 @@ public class CustomTricubicFunctionTest
 		return finaliseInlinePowerTableFunction(sb);
 	}
 
-	private LogLevel level = LogLevel.INFO;
+	private LogLevel level = LogLevel.DEBUG;
 
 	@Test
 	public void canConstructInlineValue()

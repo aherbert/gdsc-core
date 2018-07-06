@@ -207,19 +207,21 @@ public class CustomTricubicInterpolatingFunctionTest
 		result = result.replaceAll("=\\-", "=-");
 		return result;
 	}
+	
+	private LogLevel level = LogLevel.DEBUG;
 
 	@Test
 	public void canConstructInlineComputeCoefficients()
 	{
-		Assume.assumeTrue(true);
-		TestSettings.infoln(inlineComputeCoefficients());
+		Assume.assumeTrue(TestSettings.allow(level));
+		TestSettings.log(level, inlineComputeCoefficients());
 	}
 
 	@Test
 	public void canConstructInlineComputeCoefficientsCollectTerms()
 	{
-		Assume.assumeTrue(true);
-		TestSettings.infoln(inlineComputeCoefficientsCollectTerms());
+		Assume.assumeTrue(TestSettings.allow(level));
+		TestSettings.log(level, inlineComputeCoefficientsCollectTerms());
 	}
 
 	private abstract class MyTimingTask extends BaseTimingTask
