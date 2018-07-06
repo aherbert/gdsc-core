@@ -1934,7 +1934,7 @@ public class CustomTricubicInterpolatingFunction
 	/**
 	 * Sample the function.
 	 * <p>
-	 * n samples will be taken per node in each dimension. A final sample is taken at then end of the sample range thus
+	 * n samples will be taken per node in each dimension. A final sample is taken at the end of the sample range thus
 	 * the final range for each axis will be the current axis range.
 	 * <p>
 	 * The procedure setValue(int,int,int,double) method will be executed in ZYX order.

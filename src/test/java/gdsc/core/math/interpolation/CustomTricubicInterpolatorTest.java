@@ -223,7 +223,7 @@ public class CustomTricubicInterpolatorTest
 					{
 						o = f1.value(xx, yy, zz);
 						//double e = f2.value(xx, yy, zz);
-						//Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+						//TestAssert.assertEqualsRelative(e, o, 1e-8);
 						IndexedCubicSplinePosition sx = f1.getXSplinePosition(xx);
 						double o2 = f1.value(sx, sy, sz);
 						Assert.assertEquals(o, o2, 0);
@@ -237,7 +237,7 @@ public class CustomTricubicInterpolatorTest
 									(yy - yval[1]) / (yval[2] - yval[1]), 
 									(zz - zval[1]) / (zval[2] - zval[1]));
 							// @formatter:on
-						Assert.assertEquals(e2, o, Math.abs(e2 * 1e-8));
+						TestAssert.assertEqualsRelative(e2, o, 1e-8);
 					}
 				}
 			}
@@ -250,10 +250,10 @@ public class CustomTricubicInterpolatorTest
 				{
 					o = f1.value(xx, yy, 0);
 					e = bi.getValue(face, (xx - xval[1]) / (xval[2] - xval[1]), (yy - yval[1]) / (yval[2] - yval[1]));
-					Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+					TestAssert.assertEqualsRelative(e, o, 1e-8);
 					o = f1.value(xx, yy, zval[z - 1]);
 					e = bi.getValue(face2, (xx - xval[1]) / (xval[2] - xval[1]), (yy - yval[1]) / (yval[2] - yval[1]));
-					Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+					TestAssert.assertEqualsRelative(e, o, 1e-8);
 				}
 
 			face = extractXZFace(fval, 0);
@@ -263,10 +263,10 @@ public class CustomTricubicInterpolatorTest
 				{
 					o = f1.value(xx, 0, zz);
 					e = bi.getValue(face, (xx - xval[1]) / (xval[2] - xval[1]), (zz - zval[1]) / (zval[2] - zval[1]));
-					Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+					TestAssert.assertEqualsRelative(e, o, 1e-8);
 					o = f1.value(xx, yval[y - 1], zz);
 					e = bi.getValue(face2, (xx - xval[1]) / (xval[2] - xval[1]), (zz - zval[1]) / (zval[2] - zval[1]));
-					Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+					TestAssert.assertEqualsRelative(e, o, 1e-8);
 				}
 
 			face = extractYZFace(fval, 0);
@@ -276,10 +276,10 @@ public class CustomTricubicInterpolatorTest
 				{
 					o = f1.value(0, yy, zz);
 					e = bi.getValue(face, (yy - yval[1]) / (yval[2] - yval[1]), (zz - zval[1]) / (zval[2] - zval[1]));
-					Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+					TestAssert.assertEqualsRelative(e, o, 1e-8);
 					o = f1.value(xval[x - 1], yy, zz);
 					e = bi.getValue(face2, (yy - yval[1]) / (yval[2] - yval[1]), (zz - zval[1]) / (zval[2] - zval[1]));
-					Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+					TestAssert.assertEqualsRelative(e, o, 1e-8);
 				}
 		}
 	}
@@ -365,7 +365,7 @@ public class CustomTricubicInterpolatorTest
 					{
 						double o = f1.value(xval[xi] + xx, yval[yi] + yy, zval[zi] + zz);
 						double e = f1.value(xi, yi, zi, table);
-						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+						TestAssert.assertEqualsRelative(e, o, 1e-8);
 					}
 		}
 	}
@@ -622,17 +622,17 @@ public class CustomTricubicInterpolatorTest
 
 						double e = f1.value(xx, yy, zz);
 						double o = f1.value(xx, yy, zz, df_daA);
-						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+						TestAssert.assertEqualsRelative(e, o, 1e-8);
 						double o2 = f1.value(xx, yy, zz, df_daB, d2f_da2A);
-						Assert.assertEquals(e, o2, Math.abs(e * 1e-8));
+						TestAssert.assertEqualsRelative(e, o2, 1e-8);
 						Assert.assertArrayEquals(df_daA, df_daB, 0);
 
 						IndexedCubicSplinePosition sx = f1.getXSplinePosition(xx);
 						o2 = f1.value(sx, sy, sz, df_daB);
-						Assert.assertEquals(e, o2, Math.abs(e * 1e-8));
+						TestAssert.assertEqualsRelative(e, o2, 1e-8);
 						Assert.assertArrayEquals(df_daA, df_daB, 0);
 						o2 = f1.value(sx, sy, sz, df_daB, d2f_da2B);
-						Assert.assertEquals(e, o2, Math.abs(e * 1e-8));
+						TestAssert.assertEqualsRelative(e, o2, 1e-8);
 						Assert.assertArrayEquals(df_daA, df_daB, 0);
 						Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 0);
 
@@ -721,26 +721,26 @@ public class CustomTricubicInterpolatorTest
 						double[] a = new double[] { xval[xi] + xx, yval[yi] + yy, zval[zi] + zz };
 						double e = f1.value(a[0], a[1], a[2], df_daA);
 						double o = f1.value(xi, yi, zi, table, df_daB);
-						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
-						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
+						TestAssert.assertEqualsRelative(e, o, 1e-8);
+						TestAssert.assertArrayEqualsRelative(df_daA, df_daB, 1e-8);
 
 						o = f1.value(xi, yi, zi, table, table2, table3, df_daB);
-						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
-						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
+						TestAssert.assertEqualsRelative(e, o, 1e-8);
+						TestAssert.assertArrayEqualsRelative(df_daA, df_daB, 1e-8);
 
 						o = f1.value(a[0], a[1], a[2], df_daB, d2f_da2A);
-						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
-						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
+						TestAssert.assertEqualsRelative(e, o, 1e-8);
+						TestAssert.assertArrayEqualsRelative(df_daA, df_daB, 1e-8);
 
 						o = f1.value(xi, yi, zi, table, df_daB, d2f_da2B);
-						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
-						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
-						Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 1e-10);
+						TestAssert.assertEqualsRelative(e, o, 1e-8);
+						TestAssert.assertArrayEqualsRelative(df_daA, df_daB, 1e-8);
+						TestAssert.assertArrayEqualsRelative(d2f_da2A, d2f_da2B, 1e-8);
 
 						o = f1.value(xi, yi, zi, table, table2, table3, table6, df_daB, d2f_da2B);
-						Assert.assertEquals(e, o, Math.abs(e * 1e-8));
-						Assert.assertArrayEquals(df_daA, df_daB, 1e-10);
-						Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 1e-10);
+						TestAssert.assertEqualsRelative(e, o, 1e-8);
+						TestAssert.assertArrayEqualsRelative(df_daA, df_daB, 1e-8);
+						TestAssert.assertArrayEqualsRelative(d2f_da2A, d2f_da2B, 1e-8);
 					}
 		}
 	}
@@ -766,6 +766,7 @@ public class CustomTricubicInterpolatorTest
 
 		double valueTolerance = 1e-5;
 		double gradientTolerance = 1e-3;
+		double gradientTolerance2 = 1e-2;
 
 		// Extract nodes for testing
 		CustomTricubicFunction[] nodes = new CustomTricubicFunction[2 * 2 * 2];
@@ -808,17 +809,14 @@ public class CustomTricubicInterpolatorTest
 
 				e2 = n1.value(table, df_daA2, d2f_da2A);
 				o2 = n2.value(ftable, df_daB2, d2f_da2B);
-				// Should be the same as the first-order gradient 
+				// Should be the same as the first-order gradient (which has already passed) 
 				Assert.assertEquals(e, e2, 0);
 				Assert.assertEquals(o, o2, 0);
 				Assert.assertArrayEquals(df_daA, df_daA2, 0);
 				Assert.assertArrayEquals(df_daB, df_daB2, 0);
-				TestAssert.assertEqualsRelative(e2, o2, valueTolerance);
+				// Check 2nd order gradient
 				for (int j = 0; j < 3; j++)
-				{
-					TestAssert.assertEqualsRelative(df_daA[j], df_daB[j], gradientTolerance);
-					TestAssert.assertEqualsRelative(d2f_da2A[j], d2f_da2B[j], gradientTolerance);
-				}
+					TestAssert.assertEqualsRelative(d2f_da2A[j], d2f_da2B[j], gradientTolerance2);
 
 				o = n2.value(ftable, ftable2, ftable3, df_daB);
 				TestAssert.assertEqualsRelative(e, o, valueTolerance);
@@ -826,15 +824,12 @@ public class CustomTricubicInterpolatorTest
 					TestAssert.assertEqualsRelative(df_daA[j], df_daB[j], gradientTolerance);
 
 				o2 = n2.value(ftable, ftable2, ftable3, ftable6, df_daB2, d2f_da2B);
-				// Should be the same as the first-order gradient 
+				// Should be the same as the first-order gradient (which has already passed)
 				Assert.assertEquals(o, o2, 0);
 				Assert.assertArrayEquals(df_daB, df_daB2, 0);
-				TestAssert.assertEqualsRelative(e2, o2, valueTolerance);
+				// Check 2nd order gradient
 				for (int j = 0; j < 3; j++)
-				{
-					TestAssert.assertEqualsRelative(df_daA[j], df_daB[j], gradientTolerance);
-					TestAssert.assertEqualsRelative(d2f_da2A[j], d2f_da2B[j], gradientTolerance);
-				}
+					TestAssert.assertEqualsRelative(d2f_da2A[j], d2f_da2B[j], gradientTolerance2);
 			}
 		}
 	}
@@ -1382,13 +1377,13 @@ public class CustomTricubicInterpolatorTest
 
 									double e = next.value(0, 0, 0, df_daA);
 									double o = previous.value(i, j, k, df_daB);
-									Assert.assertEquals(e, o, Math.abs(e * 1e-8));
+									TestAssert.assertEqualsRelative(e, o, 1e-8);
 
 									for (int c = 0; c < 3; c++)
 									{
-										//Assert.assertEquals(df_daA[c], df_daB[c], Math.abs(df_daA[c] * 1e-8));
-										Assert.assertTrue(DoubleEquality.almostEqualRelativeOrAbsolute(df_daA[c],
-												df_daB[c], 1e-8, 1e-12));
+										TestAssert.assertEqualsRelative(df_daA[c], df_daB[c], 1e-8);
+										//Assert.assertTrue(DoubleEquality.almostEqualRelativeOrAbsolute(df_daA[c],
+										//		df_daB[c], 1e-8, 1e-12));
 									}
 								}
 							}
