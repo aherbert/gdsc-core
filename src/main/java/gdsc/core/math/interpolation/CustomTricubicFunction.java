@@ -657,7 +657,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 * @param table2
 	 *            the power table multiplied by 2
 	 * @param table3
-	 *            the power table multiplied by 2
+	 *            the power table multiplied by 3
 	 * @param df_da
 	 *            the partial first order derivatives with respect to x,y,z
 	 * @return the interpolated value.
