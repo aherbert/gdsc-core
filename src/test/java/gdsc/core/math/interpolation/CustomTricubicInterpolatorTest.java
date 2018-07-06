@@ -52,6 +52,8 @@ import gdsc.core.utils.Statistics;
 import gdsc.test.BaseTimingTask;
 import gdsc.test.TestAssert;
 import gdsc.test.TestSettings;
+import gdsc.test.TestSettings.LogLevel;
+import gdsc.test.TimingResult;
 import gdsc.test.TimingService;
 
 public class CustomTricubicInterpolatorTest
@@ -623,16 +625,18 @@ public class CustomTricubicInterpolatorTest
 						double e = f1.value(xx, yy, zz);
 						double o = f1.value(xx, yy, zz, df_daA);
 						TestAssert.assertEqualsRelative(e, o, 1e-8);
+						
 						double o2 = f1.value(xx, yy, zz, df_daB, d2f_da2A);
-						TestAssert.assertEqualsRelative(e, o2, 1e-8);
+						Assert.assertEquals(o, o2, 0);
 						Assert.assertArrayEquals(df_daA, df_daB, 0);
 
 						IndexedCubicSplinePosition sx = f1.getXSplinePosition(xx);
 						o2 = f1.value(sx, sy, sz, df_daB);
-						TestAssert.assertEqualsRelative(e, o2, 1e-8);
+						Assert.assertEquals(o, o2, 0);
 						Assert.assertArrayEquals(df_daA, df_daB, 0);
+						
 						o2 = f1.value(sx, sy, sz, df_daB, d2f_da2B);
-						TestAssert.assertEqualsRelative(e, o2, 1e-8);
+						Assert.assertEquals(o, o2, 0);
 						Assert.assertArrayEquals(df_daA, df_daB, 0);
 						Assert.assertArrayEquals(d2f_da2A, d2f_da2B, 0);
 
@@ -685,6 +689,8 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolateWithGradientsUsingPrecomputedTable()
 	{
+		// TODO - fix test so precompute table2, table3, table6 should test the result is exactly the same as with just the original table
+
 		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 4, y = 4, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
@@ -695,6 +701,9 @@ public class CustomTricubicInterpolatorTest
 		double[] df_daB = new double[3];
 		double[] d2f_da2A = new double[3];
 		double[] d2f_da2B = new double[3];
+		double e, o, o2;
+		double[] e1A, e1B, e2B;
+
 		double[][][] fval = createData(x, y, z, null);
 		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
 		for (int i = 0; i < 3; i++)
@@ -719,28 +728,44 @@ public class CustomTricubicInterpolatorTest
 					{
 						// Just check relative to the non-table version
 						double[] a = new double[] { xval[xi] + xx, yval[yi] + yy, zval[zi] + zz };
-						double e = f1.value(a[0], a[1], a[2], df_daA);
-						double o = f1.value(xi, yi, zi, table, df_daB);
+						
+						e = f1.value(a[0], a[1], a[2]);
+						o = f1.value(xi, yi, zi, table);
+						TestAssert.assertEqualsRelative(e, o, 1e-8);
+						
+						e = f1.value(a[0], a[1], a[2], df_daA);
+						o = f1.value(xi, yi, zi, table, df_daB);
 						TestAssert.assertEqualsRelative(e, o, 1e-8);
 						TestAssert.assertArrayEqualsRelative(df_daA, df_daB, 1e-8);
 
-						o = f1.value(xi, yi, zi, table, table2, table3, df_daB);
-						TestAssert.assertEqualsRelative(e, o, 1e-8);
-						TestAssert.assertArrayEqualsRelative(df_daA, df_daB, 1e-8);
+						// Store result
+						e1A = df_daA.clone();
+						e1B = df_daB.clone();
 
-						o = f1.value(a[0], a[1], a[2], df_daB, d2f_da2A);
-						TestAssert.assertEqualsRelative(e, o, 1e-8);
-						TestAssert.assertArrayEqualsRelative(df_daA, df_daB, 1e-8);
+						// Pre-computed table should be the same
+						o2 = f1.value(xi, yi, zi, table, table2, table3, df_daB);
 
-						o = f1.value(xi, yi, zi, table, df_daB, d2f_da2B);
-						TestAssert.assertEqualsRelative(e, o, 1e-8);
-						TestAssert.assertArrayEqualsRelative(df_daA, df_daB, 1e-8);
+						Assert.assertEquals(o, o2, 0);
+						Assert.assertArrayEquals(e1B, df_daB, 0);
+
+						// 2nd order gradient
+						
+						o2 = f1.value(a[0], a[1], a[2], df_daA, d2f_da2A);
+						Assert.assertEquals(e, o2, 0);
+						Assert.assertArrayEquals(e1A, df_daA, 0);
+
+						o2 = f1.value(xi, yi, zi, table, df_daB, d2f_da2B);
+						Assert.assertEquals(o, o2, 0);
+						Assert.assertArrayEquals(e1B, df_daB, 0);
 						TestAssert.assertArrayEqualsRelative(d2f_da2A, d2f_da2B, 1e-8);
+						
+						// Store result
+						e2B = d2f_da2B.clone();
 
-						o = f1.value(xi, yi, zi, table, table2, table3, table6, df_daB, d2f_da2B);
-						TestAssert.assertEqualsRelative(e, o, 1e-8);
-						TestAssert.assertArrayEqualsRelative(df_daA, df_daB, 1e-8);
-						TestAssert.assertArrayEqualsRelative(d2f_da2A, d2f_da2B, 1e-8);
+						o2 = f1.value(xi, yi, zi, table, table2, table3, table6, df_daB, d2f_da2B);
+						Assert.assertEquals(o, o2, 0);
+						Assert.assertArrayEquals(e1B, df_daB, 0);
+						Assert.assertArrayEquals(e2B, d2f_da2B, 0);
 					}
 		}
 	}
@@ -748,7 +773,9 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision()
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
+		// TODO - fix test so precompute table2, table3, table6 should test the result is exactly the same as with just the original table
+
+		RandomGenerator r = TestSettings.getRandomGenerator(24); // XXX currently failing seed
 		int x = 4, y = 4, z = 4;
 		double xscale = 1, yscale = 0.5, zscale = 2.0;
 		double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -756,11 +783,10 @@ public class CustomTricubicInterpolatorTest
 		double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
 		double[] df_daA = new double[3];
 		double[] df_daB = new double[3];
-		double[] df_daA2 = new double[3];
-		double[] df_daB2 = new double[3];
 		double[] d2f_da2A = new double[3];
 		double[] d2f_da2B = new double[3];
-		double e, o, e2, o2;
+		double e, o, o2;
+		double[] e1B, e2B;
 		double[][][] fval = createData(x, y, z, null);
 		CustomTricubicInterpolatingFunction f1 = new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
 
@@ -801,35 +827,34 @@ public class CustomTricubicInterpolatorTest
 				o = n2.value(ftable);
 				TestAssert.assertEqualsRelative(e, o, valueTolerance);
 
-				e = n1.value(table, df_daA);
-				o = n2.value(ftable, df_daB);
-				TestAssert.assertEqualsRelative(e, o, valueTolerance);
-				for (int j = 0; j < 3; j++)
-					TestAssert.assertEqualsRelative(df_daA[j], df_daB[j], gradientTolerance);
+				n1.value(table, df_daA);
+				o2 = n2.value(ftable, df_daB);
+				Assert.assertEquals(o, o2, 0);
+				TestAssert.assertArrayEqualsRelative(df_daA, df_daB, gradientTolerance);
 
-				e2 = n1.value(table, df_daA2, d2f_da2A);
-				o2 = n2.value(ftable, df_daB2, d2f_da2B);
+				// Store result
+				e1B = df_daB.clone();
+
+				n1.value(table, df_daA, d2f_da2A);
+				o2 = n2.value(ftable, df_daB, d2f_da2B);
 				// Should be the same as the first-order gradient (which has already passed) 
-				Assert.assertEquals(e, e2, 0);
 				Assert.assertEquals(o, o2, 0);
-				Assert.assertArrayEquals(df_daA, df_daA2, 0);
-				Assert.assertArrayEquals(df_daB, df_daB2, 0);
+				Assert.assertArrayEquals(e1B, df_daB, 0);
 				// Check 2nd order gradient
-				for (int j = 0; j < 3; j++)
-					TestAssert.assertEqualsRelative(d2f_da2A[j], d2f_da2B[j], gradientTolerance2);
+				TestAssert.assertArrayEqualsRelative(d2f_da2A, d2f_da2B, gradientTolerance2);
 
-				o = n2.value(ftable, ftable2, ftable3, df_daB);
-				TestAssert.assertEqualsRelative(e, o, valueTolerance);
-				for (int j = 0; j < 3; j++)
-					TestAssert.assertEqualsRelative(df_daA[j], df_daB[j], gradientTolerance);
+				// Store result
+				e2B = d2f_da2B.clone();
 
-				o2 = n2.value(ftable, ftable2, ftable3, ftable6, df_daB2, d2f_da2B);
-				// Should be the same as the first-order gradient (which has already passed)
+				o2 = n2.value(ftable, ftable2, ftable3, df_daB);
 				Assert.assertEquals(o, o2, 0);
-				Assert.assertArrayEquals(df_daB, df_daB2, 0);
-				// Check 2nd order gradient
-				for (int j = 0; j < 3; j++)
-					TestAssert.assertEqualsRelative(d2f_da2A[j], d2f_da2B[j], gradientTolerance2);
+				Assert.assertArrayEquals(e1B, df_daB, 0);
+
+				o2 = n2.value(ftable, ftable2, ftable3, ftable6, df_daB, d2f_da2B);
+				// Should be the same as the second-order gradient (which has already passed)
+				Assert.assertEquals(o, o2, 0);
+				Assert.assertArrayEquals(e1B, df_daB, 0);
+				Assert.assertArrayEquals(e2B, d2f_da2B, 0);
 			}
 		}
 	}
@@ -1060,7 +1085,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable()
 	{
-		Assume.assumeTrue(false);
+		TestSettings.assumeSpeedTest();
 
 		RandomGenerator r = TestSettings.getRandomGenerator();
 		int x = 6, y = 5, z = 4;
@@ -1118,13 +1143,18 @@ public class CustomTricubicInterpolatorTest
 
 		int n = ts.getSize();
 		ts.repeat();
-		ts.report(n);
+		if (TestSettings.allow(LogLevel.INFO))
+			ts.report(n);
 
-		// Sometimes this fails for the Float0TimingTask so add a margin for error
-		double margin = 1.1;
 		for (int i = 1; i < n; i += 2)
-			Assert.assertTrue(String.format("%f vs %f", ts.get(-i).getMean(), ts.get(-i - 1).getMean()),
-					ts.get(-i).getMean() < ts.get(-i - 1).getMean() * margin);
+		{
+			TimingResult r1 = ts.get(-i);
+			TimingResult r2 = ts.get(-i - 1);
+			double t1 = r1.getMean();
+			double t2 = r2.getMean();
+			TestSettings.logSpeedTestResult(t1 < t2, "%s  %f vs %  %f : %.2fx", r1.getTask().getName(), t1,
+					r2.getTask().getName(), t2, t2 / t1);
+		}
 	}
 
 	@Test
