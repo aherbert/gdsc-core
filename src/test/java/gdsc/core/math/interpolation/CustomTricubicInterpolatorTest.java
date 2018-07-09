@@ -56,7 +56,7 @@ import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TimingResult;
 import gdsc.test.TimingService;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class CustomTricubicInterpolatorTest
 {
 	// Delta for numerical gradients
@@ -626,7 +626,7 @@ public class CustomTricubicInterpolatorTest
 						double e = f1.value(xx, yy, zz);
 						double o = f1.value(xx, yy, zz, df_daA);
 						TestAssert.assertEqualsRelative(e, o, 1e-8);
-						
+
 						double o2 = f1.value(xx, yy, zz, df_daB, d2f_da2A);
 						Assert.assertEquals(o, o2, 0);
 						Assert.assertArrayEquals(df_daA, df_daB, 0);
@@ -635,7 +635,7 @@ public class CustomTricubicInterpolatorTest
 						o2 = f1.value(sx, sy, sz, df_daB);
 						Assert.assertEquals(o, o2, 0);
 						Assert.assertArrayEquals(df_daA, df_daB, 0);
-						
+
 						o2 = f1.value(sx, sy, sz, df_daB, d2f_da2B);
 						Assert.assertEquals(o, o2, 0);
 						Assert.assertArrayEquals(df_daA, df_daB, 0);
@@ -727,13 +727,13 @@ public class CustomTricubicInterpolatorTest
 					{
 						// Just check relative to the non-table version
 						double[] a = new double[] { xval[xi] + xx, yval[yi] + yy, zval[zi] + zz };
-						
+
 						e = f1.value(a[0], a[1], a[2]);
 						o = f1.value(xi, yi, zi, table);
 						TestAssert.assertEqualsRelative(e, o, 1e-8);
-						
+
 						// 1st order gradient
-						
+
 						e = f1.value(a[0], a[1], a[2], df_daA);
 						o = f1.value(xi, yi, zi, table, df_daB);
 						TestAssert.assertEqualsRelative(e, o, 1e-8);
@@ -750,7 +750,7 @@ public class CustomTricubicInterpolatorTest
 						Assert.assertArrayEquals(e1B, df_daB, 0);
 
 						// 2nd order gradient
-						
+
 						o2 = f1.value(a[0], a[1], a[2], df_daA, d2f_da2A);
 						Assert.assertEquals(e, o2, 0);
 						Assert.assertArrayEquals(e1A, df_daA, 0);
@@ -759,7 +759,7 @@ public class CustomTricubicInterpolatorTest
 						Assert.assertEquals(o, o2, 0);
 						Assert.assertArrayEquals(e1B, df_daB, 0);
 						TestAssert.assertArrayEqualsRelative(d2f_da2A, d2f_da2B, 1e-8);
-						
+
 						// Store result
 						e2B = d2f_da2B.clone();
 
@@ -829,7 +829,7 @@ public class CustomTricubicInterpolatorTest
 				TestAssert.assertEqualsRelative(e, o, valueTolerance);
 
 				// 1st order gradient
-				
+
 				n1.value(table, df_daA);
 				o2 = n2.value(ftable, df_daB);
 				Assert.assertEquals(o, o2, 0);
@@ -837,7 +837,7 @@ public class CustomTricubicInterpolatorTest
 
 				// Store result
 				e1B = df_daB.clone();
-				
+
 				// 2nd order gradient
 
 				n1.value(table, df_daA, d2f_da2A);

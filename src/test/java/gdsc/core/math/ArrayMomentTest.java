@@ -37,7 +37,7 @@ import gdsc.core.utils.Statistics;
 import gdsc.test.TestAssert;
 import gdsc.test.TestSettings;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class ArrayMomentTest
 {
 	final double DELTA = 1e-8;

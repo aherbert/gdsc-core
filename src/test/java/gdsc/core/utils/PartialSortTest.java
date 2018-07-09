@@ -38,7 +38,7 @@ import gdsc.test.TestSettings;
 import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TimingService;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class PartialSortTest
 {
 	private abstract class MyTimingTask extends BaseTimingTask

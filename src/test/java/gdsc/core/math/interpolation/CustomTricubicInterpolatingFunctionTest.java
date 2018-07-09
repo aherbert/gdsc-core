@@ -43,7 +43,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.procedure.TIntObjectProcedure;
 
 /**
-@SuppressWarnings({"javadoc"})
+ * @SuppressWarnings({"javadoc"})
  * This class is used to in-line the computation for the CustomTricubicInterpolatingFunction
  */
 public class CustomTricubicInterpolatingFunctionTest
@@ -208,7 +208,7 @@ public class CustomTricubicInterpolatingFunctionTest
 		result = result.replaceAll("=\\-", "=-");
 		return result;
 	}
-	
+
 	private LogLevel level = LogLevel.DEBUG;
 
 	@Test

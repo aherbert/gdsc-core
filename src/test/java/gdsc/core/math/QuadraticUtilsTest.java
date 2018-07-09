@@ -35,7 +35,7 @@ import gdsc.core.data.DataException;
 import gdsc.test.TestAssert;
 import gdsc.test.TestSettings;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class QuadraticUtilsTest
 {
 	@Test
@@ -78,7 +78,7 @@ public class QuadraticUtilsTest
 			double x3 = -5 + r.nextDouble() * 10;
 			while (x3 == x1 || x3 == x2)
 				x3 = -5 + r.nextDouble() * 10;
-			
+
 			// Order invariant
 			canSolveQuadratic(a, b, c, e, x1, x2, x3);
 			canSolveQuadratic(a, b, c, e, x1, x3, x2);
@@ -104,7 +104,7 @@ public class QuadraticUtilsTest
 		double y3 = a * x3 * x3 + b * x3 + c;
 		return QuadraticUtils.solve(x1, y1, x2, y2, x3, y3);
 	}
-	
+
 	@Test
 	public void solveUsingColocatedPointsReturnsNull()
 	{
@@ -132,8 +132,8 @@ public class QuadraticUtilsTest
 		double y3 = a * x3 * x3 + b * x3 + c;
 		return QuadraticUtils.findMinMax(x1, y1, x2, y2, x3, y3);
 	}
-	
-	@Test(expected=DataException.class)
+
+	@Test(expected = DataException.class)
 	public void findMinMaxUsingColocatedPointsThrows()
 	{
 		double a = 3;
@@ -141,8 +141,8 @@ public class QuadraticUtilsTest
 		double c = -4;
 		findMinMaxQuadratic(a, b, c, -1, 0, 0);
 	}
-	
-	@Test(expected=DataException.class)
+
+	@Test(expected = DataException.class)
 	public void findMinMaxUsingColinearPointsThrows()
 	{
 		double a = 0;

@@ -33,7 +33,7 @@ import org.junit.Test;
 import gdsc.test.TestSettings;
 import ij.plugin.frame.Recorder;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class RecorderUtilsTest
 {
 	// We need an instance otherwise the static method calls to 

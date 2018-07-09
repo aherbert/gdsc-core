@@ -33,7 +33,7 @@ import org.junit.Test;
 import gdsc.core.utils.SimpleArrayUtils;
 import ij.process.FloatProcessor;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class DoubleStackTrivalueProviderTest
 {
 	@Test

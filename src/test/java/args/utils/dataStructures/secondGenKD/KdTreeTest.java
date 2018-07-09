@@ -48,7 +48,7 @@ import gdsc.test.TimingService;
 import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TestSettings.TestComplexity;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class KdTreeTest
 {
 	int size = 256;

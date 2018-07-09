@@ -30,7 +30,7 @@ package gdsc.core.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class RandomTest
 {
 	@Test

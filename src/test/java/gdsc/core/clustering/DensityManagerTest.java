@@ -36,7 +36,7 @@ import org.junit.Test;
 import gdsc.test.TestSettings;
 import gdsc.test.TestSettings.TestComplexity;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class DensityManagerTest
 {
 	int size = 256;

@@ -33,7 +33,7 @@ import org.junit.Test;
 import gdsc.test.BaseTimingTask;
 import gdsc.test.TimingService;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class SortTest
 {
 	private abstract class FloatConversionTimingTask extends BaseTimingTask

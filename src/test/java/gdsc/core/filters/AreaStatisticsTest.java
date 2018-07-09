@@ -43,7 +43,7 @@ import gdsc.test.TestSettings.LogLevel;
 import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class AreaStatisticsTest
 {
 	boolean[] rolling = new boolean[] { true, false };
@@ -303,8 +303,8 @@ public class AreaStatisticsTest
 		// Do not let this fail the test suite
 		//Assert.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
 		TestSettings.logSpeedTestResult(ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
-				"AreaStatistics Density=%g RollingIsFaster=%b N=%d:%d: rolling %s vs simple %s", density, rollingIsFaster, minN, maxN,
-				ts.get(-2).getMean(), ts.get(-1).getMean());
+				"AreaStatistics Density=%g RollingIsFaster=%b N=%d:%d: rolling %s vs simple %s", density,
+				rollingIsFaster, minN, maxN, ts.get(-2).getMean(), ts.get(-1).getMean());
 	}
 
 	private float[] createData(RandomGenerator r)

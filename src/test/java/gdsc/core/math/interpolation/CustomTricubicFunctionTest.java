@@ -36,7 +36,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectIntProcedure;
 
 /**
-@SuppressWarnings({"javadoc"})
+ * @SuppressWarnings({"javadoc"})
  * This class is used to in-line the computation for the CustomTricubicFunction.
  * <p>
  * The ordering of the computation is set to multiply by the power ZYX and the cubic coefficient last.

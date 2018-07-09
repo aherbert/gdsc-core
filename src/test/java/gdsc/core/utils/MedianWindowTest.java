@@ -39,7 +39,7 @@ import gdsc.test.TestSettings;
 import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TestSettings.TestComplexity;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class MedianWindowTest
 {
 	int dataSize = 2000;
@@ -550,12 +550,12 @@ public class MedianWindowTest
 		{
 			// Allow a margin of error
 			//Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1 * 1.1);
-			TestSettings.logSpeedTestResult(t2 < t1, "Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius, increment, t1, t2,
-					(double) t1 / t2);
+			TestSettings.logSpeedTestResult(t2 < t1, "Radius %d, Increment %d : double %d : float %d = %fx faster\n",
+					radius, increment, t1, t2, (double) t1 / t2);
 		}
 		else
-			TestSettings.info("Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius, increment, t1, t2,
-					(double) t1 / t2);
+			TestSettings.info("Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius, increment, t1,
+					t2, (double) t1 / t2);
 	}
 
 	@Test

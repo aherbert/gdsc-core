@@ -34,7 +34,7 @@ import ij.process.LUTHelper.DefaultLUTMapper;
 import ij.process.LUTHelper.LUTMapper;
 import ij.process.LUTHelper.NonZeroLUTMapper;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class LUTHelperTest
 {
 	@Test

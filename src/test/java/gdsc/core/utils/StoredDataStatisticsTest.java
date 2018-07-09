@@ -33,7 +33,7 @@ import org.junit.Test;
 
 import gdsc.test.TestSettings;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class StoredDataStatisticsTest extends StatisticsTest
 {
 	static StoredDataStatistics stats;

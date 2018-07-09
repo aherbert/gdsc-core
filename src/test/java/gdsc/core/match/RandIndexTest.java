@@ -34,7 +34,7 @@ import org.junit.Test;
 
 import gdsc.test.TestSettings;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class RandIndexTest
 {
 	@Test

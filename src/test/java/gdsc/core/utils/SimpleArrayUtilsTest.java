@@ -41,7 +41,7 @@ import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TestSettings.TestComplexity;
 import gnu.trove.set.hash.TIntHashSet;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class SimpleArrayUtilsTest
 {
 	TIntHashSet set = new TIntHashSet();

@@ -43,7 +43,7 @@ import gdsc.test.TimingService;
 import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class DAreaSumTest
 {
 	boolean[] rolling = new boolean[] { true, false };
@@ -294,8 +294,8 @@ public class DAreaSumTest
 		// Do not let this fail the test suite
 		//Assert.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
 		TestSettings.logSpeedTestResult(ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
-				"DAreaSum Density=%g RollingIsFaster=%b N=%d:%d: rolling %s vs simple %s", density, rollingIsFaster, minN, maxN,
-				ts.get(-2).getMean(), ts.get(-1).getMean());
+				"DAreaSum Density=%g RollingIsFaster=%b N=%d:%d: rolling %s vs simple %s", density, rollingIsFaster,
+				minN, maxN, ts.get(-2).getMean(), ts.get(-1).getMean());
 	}
 
 	private double[] createData(RandomGenerator r)

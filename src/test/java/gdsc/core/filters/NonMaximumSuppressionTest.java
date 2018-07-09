@@ -43,7 +43,7 @@ import ij.ImagePlus;
 import ij.gui.PointRoi;
 import ij.process.FloatProcessor;
 
-@SuppressWarnings({"javadoc"})
+@SuppressWarnings({ "javadoc" })
 public class NonMaximumSuppressionTest
 {
 	private boolean debug = TestSettings.getLogLevel() >= LogLevel.DEBUG.getValue();
