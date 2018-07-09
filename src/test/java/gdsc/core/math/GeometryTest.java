@@ -30,6 +30,7 @@ package gdsc.core.math;
 import org.junit.Assert;
 import org.junit.Test;
 
+@SuppressWarnings({"javadoc"})
 public class GeometryTest
 {
 	@Test

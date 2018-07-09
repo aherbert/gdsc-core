@@ -34,6 +34,7 @@ import gdsc.core.utils.SimpleArrayUtils;
 import gdsc.test.TestAssert;
 import ij.plugin.filter.EDM;
 
+@SuppressWarnings({"javadoc"})
 public class FHT2Test
 {
 	@Test

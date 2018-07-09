@@ -30,6 +30,7 @@ package gdsc.core.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
+@SuppressWarnings({"javadoc"})
 public class TriangleArrayTest
 {
 	int[] testN = new int[] { 0, 1, 2, 5 };

@@ -35,6 +35,7 @@ import gdsc.core.data.DataException;
 import gdsc.test.TestAssert;
 import gdsc.test.TestSettings;
 
+@SuppressWarnings({"javadoc"})
 public class QuadraticUtilsTest
 {
 	@Test

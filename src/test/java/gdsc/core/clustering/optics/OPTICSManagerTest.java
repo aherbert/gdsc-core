@@ -91,6 +91,7 @@ import gdsc.test.TestSettings.TestComplexity;
 import gdsc.test.TimingResult;
 import gdsc.test.TimingService;
 
+@SuppressWarnings({"javadoc"})
 public class OPTICSManagerTest
 {
 	int size = 256;

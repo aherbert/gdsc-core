@@ -35,6 +35,7 @@ import org.junit.Test;
 
 import gdsc.test.TestSettings;
 
+@SuppressWarnings({"javadoc"})
 public class RollingStatisticsTest
 {
 	@Test

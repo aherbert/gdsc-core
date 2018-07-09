@@ -34,6 +34,7 @@ import gdsc.core.utils.Maths;
 import gdsc.test.TestSettings;
 import gdsc.test.TestSettings.TestComplexity;
 
+@SuppressWarnings({"javadoc"})
 public class CircularKernelOffsetTest
 {
 	@Test

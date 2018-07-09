@@ -43,6 +43,7 @@ import gdsc.test.TimingService;
 import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
 
+@SuppressWarnings({"javadoc"})
 public class DAreaSumTest
 {
 	boolean[] rolling = new boolean[] { true, false };

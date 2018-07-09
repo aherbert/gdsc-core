@@ -56,6 +56,7 @@ import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TimingResult;
 import gdsc.test.TimingService;
 
+@SuppressWarnings({"javadoc"})
 public class CustomTricubicInterpolatorTest
 {
 	// Delta for numerical gradients

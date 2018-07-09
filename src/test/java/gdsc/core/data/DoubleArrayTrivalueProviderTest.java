@@ -30,6 +30,7 @@ package gdsc.core.data;
 import org.junit.Assert;
 import org.junit.Test;
 
+@SuppressWarnings({"javadoc"})
 public class DoubleArrayTrivalueProviderTest
 {
 	@Test

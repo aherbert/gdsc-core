@@ -43,6 +43,7 @@ import gdsc.test.TestSettings.TestComplexity;
 /**
  * Test the DensityCounter.
  */
+@SuppressWarnings({"javadoc"})
 public class DensityCounterTest
 {
 	boolean skipSpeedTest = true;

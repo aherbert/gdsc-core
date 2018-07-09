@@ -43,6 +43,7 @@ import gdsc.test.TestSettings.LogLevel;
 import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
 
+@SuppressWarnings({"javadoc"})
 public class DAreaStatisticsTest
 {
 	boolean[] rolling = new boolean[] { true, false };

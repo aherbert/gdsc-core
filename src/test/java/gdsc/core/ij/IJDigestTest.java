@@ -42,6 +42,7 @@ import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ShortProcessor;
 
+@SuppressWarnings({"javadoc"})
 public class IJDigestTest
 {
 	int size = 50;

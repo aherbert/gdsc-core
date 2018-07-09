@@ -39,6 +39,7 @@ import gdsc.test.TestSettings;
 import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TestSettings.TestComplexity;
 
+@SuppressWarnings({"javadoc"})
 public class MedianWindowTest
 {
 	int dataSize = 2000;

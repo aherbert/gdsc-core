@@ -43,6 +43,7 @@ import gdsc.test.TimingService;
 import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TestSettings.TestComplexity;
 
+@SuppressWarnings({"javadoc"})
 public class DetectionGridTest
 {
 	@Test
