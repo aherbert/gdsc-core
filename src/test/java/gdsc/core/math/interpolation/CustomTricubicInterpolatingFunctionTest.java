@@ -43,9 +43,9 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.procedure.TIntObjectProcedure;
 
 /**
- * @SuppressWarnings({"javadoc"})
  * This class is used to in-line the computation for the CustomTricubicInterpolatingFunction
  */
+@SuppressWarnings({ "javadoc" })
 public class CustomTricubicInterpolatingFunctionTest
 {
 	static String inlineComputeCoefficients()
