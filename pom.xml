@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -9,13 +10,13 @@
 		<relativePath />
 	</parent>
 
-	<groupId>gdsc</groupId>
+	<groupId>uk.ac.sussex.gdsc</groupId>
 	<artifactId>gdsc-core</artifactId>
 	<version>1.2.0</version>
 	<packaging>jar</packaging>
 
 	<name>GDSC Core library for ImageJ</name>
-	<url>http://www.sussex.ac.uk/gdsc/intranet/microscopy/imagej/gdsc_plugins</url>
+	<url>http:///github.com/aherbert/GDSC-Core</url>
 	<organization>
 		<name>Genome Damage and Stability Centre</name>
 		<url>http://www.sussex.ac.uk/gdsc/</url>
@@ -80,8 +81,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<!-- NOTE: We don't need a groupId specification because the group is 
-						org.apache.maven.plugins ...which is assumed by default. -->
+					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
 					<configuration>
 						<descriptorRefs>
@@ -98,6 +98,33 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
 				</plugin>
 			</plugins>
 		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -108,12 +135,12 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
 
 	<dependencies>
 		<dependency>
-			<groupId>gdsc</groupId>
+			<groupId>uk.ac.sussex.gdsc</groupId>
 			<artifactId>gdsc-analytics</artifactId>
 			<version>1.0.1</version>
 		</dependency>
 		<dependency>
-			<groupId>gdsc</groupId>
+			<groupId>uk.ac.sussex.gdsc</groupId>
 			<artifactId>gdsc-test</artifactId>
 			<version>1.0.0</version>
 			<scope>test</scope>
@@ -167,5 +194,65 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
 			<url>http://repo.maven.apache.org/maven2</url>
 		</repository>
 	</repositories>
+	
+	<profiles>
+		<profile>
+			<id>ossrh</id>
+			<properties>
+				<gpg.executable>gpg</gpg.executable>
+				<gpg.keyname>${env.GPG_KEYNAME}</gpg.keyname>
+				<gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+				<gpg.defaultKeyring>false</gpg.defaultKeyring>
+				<gpg.publicKeyring>${env.GPG_DIR}/pubring.gpg</gpg.publicKeyring>
+				<gpg.secretKeyring>${env.GPG_DIR}/secring.gpg</gpg.secretKeyring>
+			</properties>
+			<activation>
+				<property>
+					<name>performRelease</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.2</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>ossrh</serverId>
+							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>	
 
 </project>
