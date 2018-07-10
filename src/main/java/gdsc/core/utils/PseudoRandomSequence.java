@@ -43,10 +43,11 @@ public class PseudoRandomSequence implements Cloneable
 	 *
 	 * @param sequence
 	 *            the sequence (must contains numbers in the interval 0 to 1)
-	 * @throw {@link IllegalArgumentException} if the sequence is not positive in length and contains numbers outside
-	 *        the interval 0 to 1.
+	 * @throws IllegalArgumentException
+	 *             if the sequence is not positive in length and contains numbers outside
+	 *             the interval 0 to 1.
 	 */
-	public PseudoRandomSequence(double[] sequence)
+	public PseudoRandomSequence(double[] sequence) throws IllegalArgumentException
 	{
 		if (sequence == null || sequence.length < 1)
 			throw new IllegalArgumentException("Sequence must have a positive length");
@@ -62,10 +63,13 @@ public class PseudoRandomSequence implements Cloneable
 	 *            the random source
 	 * @param scale
 	 *            the scale
-	 * @throw {@link IllegalArgumentException} if the size is not positive
-	 * @throw {@link NullPointerException} if the generator is null
+	 * @throws IllegalArgumentException
+	 *             if the size is not positive
+	 * @throws NullPointerException
+	 *             if the generator is null
 	 */
 	public PseudoRandomSequence(int size, RandomGenerator source, double scale)
+			throws IllegalArgumentException, NullPointerException
 	{
 		if (size < 1)
 			throw new IllegalArgumentException("Sequence must have a positive length");

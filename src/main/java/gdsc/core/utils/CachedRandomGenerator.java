@@ -59,9 +59,10 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 	 *
 	 * @param source
 	 *            the random source
-	 * @throw {@link NullPointerException} if the generator is null
+	 * @throws NullPointerException
+	 *             if the generator is null
 	 */
-	public CachedRandomGenerator(RandomGenerator source)
+	public CachedRandomGenerator(RandomGenerator source) throws NullPointerException
 	{
 		this(100, source);
 	}
@@ -73,9 +74,10 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 	 *            the size
 	 * @param source
 	 *            the random source
-	 * @throw {@link NullPointerException} if the generator is null
+	 * @throws NullPointerException
+	 *             if the generator is null
 	 */
-	public CachedRandomGenerator(int size, RandomGenerator source)
+	public CachedRandomGenerator(int size, RandomGenerator source) throws NullPointerException
 	{
 		if (source == null)
 			throw new NullPointerException("Source generator must not be null");

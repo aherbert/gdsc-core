@@ -45,10 +45,11 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	 *
 	 * @param sequence
 	 *            the sequence (must contains numbers in the interval 0 to 1)
-	 * @throw {@link IllegalArgumentException} if the sequence is not positive in length and contains numbers outside
-	 *        the interval 0 to 1.
+	 * @throws IllegalArgumentException
+	 *             if the sequence is not positive in length and contains numbers outside
+	 *             the interval 0 to 1.
 	 */
-	public PseudoRandomGenerator(double[] sequence)
+	public PseudoRandomGenerator(double[] sequence) throws IllegalArgumentException
 	{
 		this(sequence, sequence.length);
 	}
@@ -60,10 +61,11 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	 *            the sequence (must contains numbers in the interval 0 to 1)
 	 * @param length
 	 *            the length (if greater than sequence.length it is set to length)
-	 * @throw {@link IllegalArgumentException} if the sequence is not positive in length and contains numbers outside
-	 *        the interval 0 to 1.
+	 * @throws IllegalArgumentException
+	 *             if the sequence is not positive in length and contains numbers outside
+	 *             the interval 0 to 1.
 	 */
-	public PseudoRandomGenerator(double[] sequence, int length)
+	public PseudoRandomGenerator(double[] sequence, int length) throws IllegalArgumentException
 	{
 		if (sequence == null || length < 1)
 			throw new IllegalArgumentException("Sequence must have a positive length");
@@ -85,8 +87,10 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	 *            the length (if greater than sequence.length it is set to length)
 	 * @param dummy
 	 *            the dummy parameter flag
+	 * @throws IllegalArgumentException
+	 *             if the size is not positive
 	 */
-	PseudoRandomGenerator(double[] sequence, int length, boolean dummy)
+	PseudoRandomGenerator(double[] sequence, int length, boolean dummy) throws IllegalArgumentException
 	{
 		if (sequence == null || length < 1)
 			throw new IllegalArgumentException("Sequence must have a positive length");
@@ -101,10 +105,12 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	 *            the size
 	 * @param source
 	 *            the random source
-	 * @throw {@link IllegalArgumentException} if the size is not positive
-	 * @throw {@link NullPointerException} if the generator is null
+	 * @throws IllegalArgumentException
+	 *             if the size is not positive
+	 * @throws NullPointerException
+	 *             if the generator is null
 	 */
-	public PseudoRandomGenerator(int size, RandomGenerator source)
+	public PseudoRandomGenerator(int size, RandomGenerator source) throws IllegalArgumentException, NullPointerException
 	{
 		if (size < 1)
 			throw new IllegalArgumentException("Sequence must have a positive length");

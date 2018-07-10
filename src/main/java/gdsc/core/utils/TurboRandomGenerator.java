@@ -43,10 +43,11 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
 	 *
 	 * @param sequence
 	 *            the sequence (must contains numbers in the interval 0 to 1)
-	 * @throw {@link IllegalArgumentException} if the sequence is not positive in length and contains numbers outside
-	 *        the interval 0 to 1.
+	 * @throws IllegalArgumentException
+	 *             if the sequence is not positive in length and contains numbers outside
+	 *             the interval 0 to 1.
 	 */
-	public TurboRandomGenerator(double[] sequence)
+	public TurboRandomGenerator(double[] sequence) throws IllegalArgumentException
 	{
 		super(sequence);
 		update();
@@ -59,10 +60,11 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
 	 *            the sequence (must contains numbers in the interval 0 to 1)
 	 * @param length
 	 *            the length
-	 * @throw {@link IllegalArgumentException} if the sequence is not positive in length and contains numbers outside
-	 *        the interval 0 to 1.
+	 * @throws IllegalArgumentException
+	 *             if the sequence is not positive in length and contains numbers outside
+	 *             the interval 0 to 1.
 	 */
-	public TurboRandomGenerator(double[] sequence, int length)
+	public TurboRandomGenerator(double[] sequence, int length) throws IllegalArgumentException
 	{
 		super(sequence, length);
 		update();
@@ -75,10 +77,12 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
 	 *            the size
 	 * @param source
 	 *            the random source
-	 * @throw {@link IllegalArgumentException} if the size is not positive
-	 * @throw {@link NullPointerException} if the generator is null
+	 * @throws IllegalArgumentException
+	 *             if the size is not positive
+	 * @throws NullPointerException
+	 *             if the generator is null
 	 */
-	public TurboRandomGenerator(int size, RandomGenerator source)
+	public TurboRandomGenerator(int size, RandomGenerator source) throws IllegalArgumentException, NullPointerException
 	{
 		super(size, source);
 		update();
