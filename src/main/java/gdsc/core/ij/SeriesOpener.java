@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -47,7 +47,7 @@ import ij.plugin.FolderOpener;
  */
 public class SeriesOpener
 {
-	private String path;
+	private final String path;
 	private String[] imageList = new String[0];
 	private int currentImage = 0;
 	private int width = -1, height = -1;
@@ -88,12 +88,12 @@ public class SeriesOpener
 
 	private void buildImageList()
 	{
-		String directory = path;
+		final String directory = path;
 		if (directory == null)
 			return;
 
 		// Get a list of files
-		File[] fileList = (new File(directory)).listFiles();
+		final File[] fileList = (new File(directory)).listFiles();
 		if (fileList == null)
 			return;
 
@@ -108,7 +108,7 @@ public class SeriesOpener
 		list = Arrays.copyOf(list, c);
 
 		// Now exclude non-image files as per the ImageJ FolderOpener
-		FolderOpener fo = new FolderOpener();
+		final FolderOpener fo = new FolderOpener();
 		list = fo.trimFileList(list);
 		if (list == null)
 			return;
@@ -119,7 +119,7 @@ public class SeriesOpener
 	/**
 	 * Returns the number of images in the series. Note that the number is based on a list of filenames; each image is
 	 * only opened with the nextImage() function.
-	 * 
+	 *
 	 * @return The number of images in the series
 	 */
 	public int getNumberOfImages()
@@ -129,7 +129,7 @@ public class SeriesOpener
 
 	/**
 	 * Returns the path to the directory containing the images
-	 * 
+	 *
 	 * @return the path
 	 */
 	public String getPath()
@@ -139,7 +139,7 @@ public class SeriesOpener
 
 	/**
 	 * Returns the names of the images in the series
-	 * 
+	 *
 	 * @return The names of the image files
 	 */
 	public String[] getImageList()
@@ -151,30 +151,28 @@ public class SeriesOpener
 	 * Get the next image in the series (or null if no more images)
 	 * <p>
 	 * Only images that match the width and height of the first image are returned.
-	 * 
+	 *
 	 * @return The next image in the series
 	 */
 	public ImagePlus nextImage()
 	{
 		ImagePlus imp = null;
 		while (currentImage < imageList.length && imp == null)
-		{
 			imp = openImage(imageList[currentImage++]);
-		}
 		return imp;
 	}
 
 	private ImagePlus openImage(String filename)
 	{
 		//System.out.printf("Opening %s %s\n", path, filename);
-		Opener opener = new Opener();
+		final Opener opener = new Opener();
 		opener.setSilentMode(true);
 		Utils.setShowProgress(false);
 		ImagePlus imp = opener.openImage(path, filename);
 		Utils.setShowProgress(true);
 		if (imp != null)
 		{
-			// Initialise dimensions using first image 
+			// Initialise dimensions using first image
 			if (width == -1)
 			{
 				width = imp.getWidth();
@@ -183,10 +181,8 @@ public class SeriesOpener
 
 			// Check dimensions
 			if (!variableSize)
-			{
 				if (width != imp.getWidth() || height != imp.getHeight())
 					imp = null;
-			}
 		}
 		return imp;
 	}
@@ -201,7 +197,7 @@ public class SeriesOpener
 	{
 		String[] list = imageList;
 
-		ImagePlus imp = nextImage();
+		final ImagePlus imp = nextImage();
 
 		// Reset image list
 		currentImage = 0;
@@ -216,14 +212,12 @@ public class SeriesOpener
 			{
 				int filteredImages = 0;
 				for (int i = 0; i < list.length; i++)
-				{
 					if (isRegex && list[i].matches(filter))
 						filteredImages++;
 					else if (list[i].indexOf(filter) >= 0)
 						filteredImages++;
 					else
 						list[i] = null;
-				}
 				if (filteredImages == 0)
 				{
 					if (isRegex)
@@ -233,13 +227,11 @@ public class SeriesOpener
 								filter + "' in their name.");
 					return;
 				}
-				String[] list2 = new String[filteredImages];
+				final String[] list2 = new String[filteredImages];
 				int j = 0;
 				for (int i = 0; i < list.length; i++)
-				{
 					if (list[i] != null)
 						list2[j++] = list[i];
-				}
 				list = list2;
 			}
 
@@ -251,9 +243,7 @@ public class SeriesOpener
 			imageList = new String[list.length];
 			int count = 0;
 			for (int i = start - 1; i < list.length && count < n; i += increment, count++)
-			{
 				imageList[count] = list[i];
-			}
 
 			imageList = Arrays.copyOf(imageList, count);
 		}
@@ -261,8 +251,8 @@ public class SeriesOpener
 
 	private boolean showDialog(ImagePlus imp, String[] list)
 	{
-		int fileCount = list.length;
-		FolderOpenerDialog gd = new FolderOpenerDialog("Sequence Options", imp, list);
+		final int fileCount = list.length;
+		final FolderOpenerDialog gd = new FolderOpenerDialog("Sequence Options", imp, list);
 		gd.addMessage("Folder: " + path + "\nFirst image: " + imp.getOriginalFileInfo().fileName + "\nWidth: " +
 				imp.getWidth() + "\nHeight: " + imp.getHeight() + "\nFrames: " + imp.getStackSize());
 		gd.addNumericField("Number of images:", fileCount, 0);
@@ -282,7 +272,7 @@ public class SeriesOpener
 		if (increment < 1)
 			increment = 1;
 		filter = gd.getNextString();
-		String regex = gd.getNextString();
+		final String regex = gd.getNextString();
 		if (!regex.equals(""))
 		{
 			filter = regex;
@@ -295,7 +285,7 @@ public class SeriesOpener
 
 	/**
 	 * Set to true to allow subsequent images after the first to have different XY dimensions
-	 * 
+	 *
 	 * @param variableSize
 	 *            True for vairable size images
 	 */
@@ -355,7 +345,7 @@ class FolderOpenerDialog extends GenericDialog
 		TextField tf = (TextField) stringField.elementAt(0);
 		String filter = tf.getText();
 		tf = (TextField) stringField.elementAt(1);
-		String regex = tf.getText();
+		final String regex = tf.getText();
 		java.util.regex.Pattern p = null;
 		if (!regex.equals(""))
 		{
@@ -367,12 +357,10 @@ class FolderOpenerDialog extends GenericDialog
 		{
 			int n2 = 0;
 			for (int i = 0; i < list.length; i++)
-			{
 				if (p != null && p.matcher(list[i]).matches())
 					n2++;
 				else if (list[i].indexOf(filter) >= 0)
 					n2++;
-			}
 			if (n2 < n)
 				n = n2;
 		}
@@ -385,23 +373,24 @@ class FolderOpenerDialog extends GenericDialog
 
 		int count = 0;
 		for (int i = start - 1; i < list.length && count < n; i += inc, count++)
-			;
+		{
+		}
 
-		int frames = imp.getStackSize() * count;
+		final int frames = imp.getStackSize() * count;
 		((Label) theLabel).setText(String.format("%d image%s (%d frame%s)", count, (count == 1) ? "" : "s", frames,
 				(frames == 1) ? "" : "s"));
 	}
 
 	public int getNumber(Object field)
 	{
-		TextField tf = (TextField) field;
-		String theText = tf.getText();
+		final TextField tf = (TextField) field;
+		final String theText = tf.getText();
 		Double d;
 		try
 		{
 			d = new Double(theText);
 		}
-		catch (NumberFormatException e)
+		catch (final NumberFormatException e)
 		{
 			d = null;
 		}

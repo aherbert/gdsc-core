@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -111,7 +111,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 			// Nothing can be added when it is closed.
 			while (lock.hasWaiters(notFull))
 				notFull.signal();
-			// Release anything waiting for the queue. 
+			// Release anything waiting for the queue.
 			// This is because the queue will never fill when closed
 			// and prevents stale threads waiting forever.
 			while (lock.hasWaiters(notEmpty))
@@ -280,6 +280,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		// assert items[takeIndex] != null;
 		final Object[] items = this.items;
 		@SuppressWarnings("unchecked")
+		final
 		E x = (E) items[takeIndex];
 		items[takeIndex] = null;
 		if (++takeIndex == items.length)
@@ -414,13 +415,13 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 			int i = 0;
 			try
 			{
-				for (E e : c)
+				for (final E e : c)
 				{
 					checkNotNull(e);
 					items[i++] = e;
 				}
 			}
-			catch (ArrayIndexOutOfBoundsException ex)
+			catch (final ArrayIndexOutOfBoundsException ex)
 			{
 				throw new IllegalArgumentException();
 			}
@@ -684,7 +685,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 * <p>
 	 * Callers should check if the return value is null and appropriately handle a closed empty queue, i.e. do not
 	 * continue to call this method as it will no longer block but will have locking synchronisation overhead.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             If closed while waiting and {@link #isThrowIfClosed()} is true
 	 */
@@ -951,7 +952,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		{
 			final int count = this.count;
 			a = new Object[count];
-			int n = items.length - takeIndex;
+			final int n = items.length - takeIndex;
 			if (count <= n)
 				System.arraycopy(items, takeIndex, a, 0, count);
 			else
@@ -1033,7 +1034,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 			final int len = a.length;
 			if (len < count)
 				a = (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), count);
-			int n = items.length - takeIndex;
+			final int n = items.length - takeIndex;
 			if (count <= n)
 				System.arraycopy(items, takeIndex, a, 0, count);
 			else
@@ -1067,11 +1068,11 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 				return "[]";
 
 			final Object[] items = this.items;
-			StringBuilder sb = new StringBuilder();
+			final StringBuilder sb = new StringBuilder();
 			sb.append('[');
 			for (int i = takeIndex;;)
 			{
-				Object e = items[i];
+				final Object e = items[i];
 				sb.append(e == this ? "(this Collection)" : e);
 				if (--k == 0)
 					return sb.append(']').toString();
@@ -1168,7 +1169,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		lock.lock();
 		try
 		{
-			int n = Math.min(maxElements, count);
+			final int n = Math.min(maxElements, count);
 			int take = takeIndex;
 			int i = 0;
 			try
@@ -1176,6 +1177,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 				while (i < n)
 				{
 					@SuppressWarnings("unchecked")
+					final
 					E x = (E) items[take];
 					c.add(x);
 					items[take] = null;
@@ -1193,12 +1195,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 					count -= i;
 					takeIndex = take;
 					if (itrs != null)
-					{
 						if (count == 0)
 							itrs.queueIsEmpty();
 						else if (i > take)
 							itrs.takeIndexWrapped();
-					}
 					for (; i > 0 && lock.hasWaiters(notFull); i--)
 						notFull.signal();
 				}
@@ -1374,9 +1374,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 						o.next = next;
 				}
 				else
-				{
 					o = p;
-				}
 				p = next;
 			}
 
@@ -1417,9 +1415,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 						o.next = next;
 				}
 				else
-				{
 					o = p;
-				}
 				p = next;
 			}
 			if (head == null) // no more iterators to track
@@ -1449,9 +1445,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 						o.next = next;
 				}
 				else
-				{
 					o = p;
-				}
 				p = next;
 			}
 			if (head == null) // no more iterators to track
@@ -1469,7 +1463,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 			// assert lock.getHoldCount() == 1;
 			for (Node p = head; p != null; p = p.next)
 			{
-				Itr it = p.get();
+				final Itr it = p.get();
 				if (it != null)
 				{
 					p.clear();
@@ -1568,9 +1562,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 					nextItem = itemAt(nextIndex = takeIndex);
 					cursor = incCursor(takeIndex);
 					if (itrs == null)
-					{
 						itrs = new Itrs(this);
-					}
 					else
 					{
 						itrs.register(this); // in this order
@@ -1640,7 +1632,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 				final int len = items.length;
 				// how far takeIndex has advanced since the previous
 				// operation of this iterator
-				long dequeues = (cycles - prevCycles) * len + (takeIndex - prevTakeIndex);
+				final long dequeues = (cycles - prevCycles) * len + (takeIndex - prevTakeIndex);
 
 				// Check indices for invalidation
 				if (invalidated(lastRet, prevTakeIndex, dequeues, len))
@@ -1862,22 +1854,20 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 			int cursor = this.cursor;
 			if (cursor >= 0)
 			{
-				int x = distance(cursor, prevTakeIndex, len);
+				final int x = distance(cursor, prevTakeIndex, len);
 				if (x == removedDistance)
 				{
 					if (cursor == putIndex)
 						this.cursor = cursor = NONE;
 				}
 				else if (x > removedDistance)
-				{
 					// assert cursor != prevTakeIndex;
 					this.cursor = cursor = dec(cursor);
-				}
 			}
 			int lastRet = this.lastRet;
 			if (lastRet >= 0)
 			{
-				int x = distance(lastRet, prevTakeIndex, len);
+				final int x = distance(lastRet, prevTakeIndex, len);
 				if (x == removedDistance)
 					this.lastRet = lastRet = REMOVED;
 				else if (x > removedDistance)
@@ -1886,7 +1876,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 			int nextIndex = this.nextIndex;
 			if (nextIndex >= 0)
 			{
-				int x = distance(nextIndex, prevTakeIndex, len);
+				final int x = distance(nextIndex, prevTakeIndex, len);
 				if (x == removedDistance)
 					this.nextIndex = nextIndex = REMOVED;
 				else if (x > removedDistance)

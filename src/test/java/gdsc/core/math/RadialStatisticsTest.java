@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -132,7 +132,7 @@ public class RadialStatisticsTest
 	@Test
 	public void canComputeRadialSumAndCount32()
 	{
-		double[][] sum = RadialStatistics.radialSumAndCount(32, sequence(32), sequence(32, 43));
+		final double[][] sum = RadialStatistics.radialSumAndCount(32, sequence(32), sequence(32, 43));
 		assertEquals("sum1", new double[] { 529, 4232, 8464, 10580, 12696, 21160, 19044, 25392, 29624, 29624, 35972,
 				33856, 42320, 48668, 46552, 50784, 33338, 28572, 16932, 15872, 6352, 4236, 1 }, sum[0]);
 		assertEquals("sum2", new double[] { 571, 4568, 9136, 11420, 13704, 22840, 20556, 27408, 31976, 31976, 38828,
@@ -144,34 +144,34 @@ public class RadialStatisticsTest
 	@Test
 	public void canComputeRadialSumAndCountMulti32()
 	{
-		double[][] sum = RadialStatistics.radialSum(32, sequence(32), sequence(32, 43));
+		final double[][] sum = RadialStatistics.radialSum(32, sequence(32), sequence(32, 43));
 		assertEquals("sum1", new double[] { 529, 4232, 8464, 10580, 12696, 21160, 19044, 25392, 29624, 29624, 35972,
 				33856, 42320, 48668, 46552, 50784, 33338, 28572, 16932, 15872, 6352, 4236, 1 }, sum[0]);
 		assertEquals("sum2", new double[] { 571, 4568, 9136, 11420, 13704, 22840, 20556, 27408, 31976, 31976, 38828,
 				36544, 45680, 52532, 50248, 54816, 36446, 31092, 18444, 17216, 7024, 4740, 43 }, sum[1]);
 	}
 
-	private float[] ones(int size)
+	private static float[] ones(int size)
 	{
-		float[] data = new float[size * size];
+		final float[] data = new float[size * size];
 		Arrays.fill(data, 1);
 		return data;
 	}
 
-	private float[] sequence(int size)
+	private static float[] sequence(int size)
 	{
 		return sequence(size, 1);
 	}
 
-	private float[] sequence(int size, int start)
+	private static float[] sequence(int size, int start)
 	{
-		float[] data = new float[size * size];
+		final float[] data = new float[size * size];
 		for (int i = 0; i < data.length; i++)
 			data[i] = start++;
 		return data;
 	}
 
-	private void assertEquals(String msg, double[] e, double[] o)
+	private static void assertEquals(String msg, double[] e, double[] o)
 	{
 		//TestSettings.debug("%s vs %s\n", Arrays.toString(e), Arrays.toString(o));
 
@@ -183,7 +183,7 @@ public class RadialStatisticsTest
 		//	Assert.assertEquals(msg + i, e[i], o[i], 0);
 	}
 
-	private void assertEquals(String msg, int[] e, int[] o)
+	private static void assertEquals(String msg, int[] e, int[] o)
 	{
 		//TestSettings.debug("%s vs %s\n", Arrays.toString(e), Arrays.toString(o));
 

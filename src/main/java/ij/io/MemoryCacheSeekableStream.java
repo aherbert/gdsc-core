@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -43,9 +43,9 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 	private static final int BLOCK_SIZE = 1024;
 	private static final int BLOCK_MASK = 1023;
 	private static final int BLOCK_SHIFT = 10;
-	private InputStream src;
+	private final InputStream src;
 	private long pointer;
-	private TurboList<byte[]> data;
+	private final TurboList<byte[]> data;
 	private long length;
 	private boolean foundEOS;
 
@@ -61,7 +61,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 		if (inputstream == null)
 			throw new NullPointerException();
 		pointer = 0L;
-		data = new TurboList<byte[]>();
+		data = new TurboList<>();
 		length = 0L;
 		foundEOS = false;
 		src = inputstream;
@@ -69,7 +69,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ij.io.SeekableStream#getFilePointer()
 	 */
 	@Override
@@ -80,17 +80,17 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ij.io.SeekableStream#read()
 	 */
 	@Override
 	public int read() throws IOException
 	{
-		long l = pointer + 1L;
-		long l1 = readUntil(l);
+		final long l = pointer + 1L;
+		final long l1 = readUntil(l);
 		if (l1 >= l)
 		{
-			byte abyte0[] = data.get((int) (pointer >> BLOCK_SHIFT));
+			final byte abyte0[] = data.get((int) (pointer >> BLOCK_SHIFT));
 			return abyte0[(int) (pointer++ & BLOCK_MASK)] & 0xff;
 		}
 		else
@@ -99,7 +99,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ij.io.SeekableStream#read(byte[], int, int)
 	 */
 	@Override
@@ -111,13 +111,13 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 			throw new IndexOutOfBoundsException();
 		if (len == 0)
 			return 0;
-		long l = readUntil(pointer + len);
+		final long l = readUntil(pointer + len);
 		if (l <= pointer)
 			return -1;
 		else
 		{
-			byte abyte1[] = data.get((int) (pointer >> BLOCK_SHIFT));
-			int k = Math.min(len, BLOCK_SIZE - (int) (pointer & BLOCK_MASK));
+			final byte abyte1[] = data.get((int) (pointer >> BLOCK_SHIFT));
+			final int k = Math.min(len, BLOCK_SIZE - (int) (pointer & BLOCK_MASK));
 			System.arraycopy(abyte1, (int) (pointer & BLOCK_MASK), bytes, off, k);
 			pointer += k;
 			return k;
@@ -139,17 +139,17 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 			return l;
 		if (foundEOS)
 			return length;
-		int i = (int) (l >> BLOCK_SHIFT);
-		int j = (int) (length >> BLOCK_SHIFT);
+		final int i = (int) (l >> BLOCK_SHIFT);
+		final int j = (int) (length >> BLOCK_SHIFT);
 		for (int k = j; k <= i; k++)
 		{
-			byte abyte0[] = new byte[BLOCK_SIZE];
+			final byte abyte0[] = new byte[BLOCK_SIZE];
 			data.add(abyte0);
 			int i1 = BLOCK_SIZE;
 			int j1 = 0;
 			while (i1 > 0)
 			{
-				int k1 = src.read(abyte0, j1, i1);
+				final int k1 = src.read(abyte0, j1, i1);
 				if (k1 == -1)
 				{
 					foundEOS = true;
@@ -165,7 +165,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ij.io.SeekableStream#seek(long)
 	 */
 	@Override
@@ -178,7 +178,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ij.io.SeekableStream#close()
 	 */
 	@Override

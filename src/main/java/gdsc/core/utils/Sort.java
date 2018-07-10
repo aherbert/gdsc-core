@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -63,7 +63,7 @@ public class Sort
 	public static int[] sort(int[] indices, final int[] values, boolean sortValues)
 	{
 		// Convert data for sorting
-		int[][] data = new int[indices.length][2];
+		final int[][] data = new int[indices.length][2];
 		for (int i = indices.length; i-- > 0;)
 		{
 			data[i][0] = values[indices[i]];
@@ -86,16 +86,10 @@ public class Sort
 
 		// Copy back
 		for (int i = indices.length; i-- > 0;)
-		{
 			indices[i] = data[i][1];
-		}
 		if (sortValues)
-		{
 			for (int i = indices.length; i-- > 0;)
-			{
 				values[i] = data[i][0];
-			}
-		}
 
 		return indices;
 	}
@@ -128,7 +122,7 @@ public class Sort
 	public static int[] sort(int[] indices, final float[] values, boolean sortValues)
 	{
 		// Convert data for sorting
-		float[][] data = new float[indices.length][2];
+		final float[][] data = new float[indices.length][2];
 		for (int i = indices.length; i-- > 0;)
 		{
 			data[i][0] = values[indices[i]];
@@ -154,17 +148,11 @@ public class Sort
 
 		// Copy back
 		for (int i = indices.length; i-- > 0;)
-		{
 			//indices[i] = (int) data[i][1];
 			indices[i] = Float.floatToRawIntBits(data[i][1]);
-		}
 		if (sortValues)
-		{
 			for (int i = indices.length; i-- > 0;)
-			{
 				values[i] = data[i][0];
-			}
-		}
 
 		return indices;
 	}
@@ -197,7 +185,7 @@ public class Sort
 	public static int[] sort(int[] indices, final double[] values, boolean sortValues)
 	{
 		// Convert data for sorting
-		double[][] data = new double[indices.length][2];
+		final double[][] data = new double[indices.length][2];
 		for (int i = indices.length; i-- > 0;)
 		{
 			data[i][0] = values[indices[i]];
@@ -220,16 +208,10 @@ public class Sort
 
 		// Copy back
 		for (int i = indices.length; i-- > 0;)
-		{
 			indices[i] = (int) data[i][1];
-		}
 		if (sortValues)
-		{
 			for (int i = indices.length; i-- > 0;)
-			{
 				values[i] = data[i][0];
-			}
-		}
 
 		return indices;
 	}
@@ -262,7 +244,7 @@ public class Sort
 	public static int[] sortAscending(int[] indices, final int[] values, boolean sortValues)
 	{
 		// Convert data for sorting
-		int[][] data = new int[indices.length][2];
+		final int[][] data = new int[indices.length][2];
 		for (int i = indices.length; i-- > 0;)
 		{
 			data[i][0] = values[indices[i]];
@@ -285,16 +267,10 @@ public class Sort
 
 		// Copy back
 		for (int i = indices.length; i-- > 0;)
-		{
 			indices[i] = data[i][1];
-		}
 		if (sortValues)
-		{
 			for (int i = indices.length; i-- > 0;)
-			{
 				values[i] = data[i][0];
-			}
-		}
 
 		return indices;
 	}
@@ -327,7 +303,7 @@ public class Sort
 	public static int[] sortAscending(int[] indices, final float[] values, boolean sortValues)
 	{
 		// Convert data for sorting
-		float[][] data = new float[indices.length][2];
+		final float[][] data = new float[indices.length][2];
 		for (int i = indices.length; i-- > 0;)
 		{
 			data[i][0] = values[indices[i]];
@@ -353,17 +329,11 @@ public class Sort
 
 		// Copy back
 		for (int i = indices.length; i-- > 0;)
-		{
 			//indices[i] = (int) data[i][1];
 			indices[i] = Float.floatToRawIntBits(data[i][1]);
-		}
 		if (sortValues)
-		{
 			for (int i = indices.length; i-- > 0;)
-			{
 				values[i] = data[i][0];
-			}
-		}
 
 		return indices;
 	}
@@ -396,7 +366,7 @@ public class Sort
 	public static int[] sortAscending(int[] indices, final double[] values, boolean sortValues)
 	{
 		// Convert data for sorting
-		double[][] data = new double[indices.length][2];
+		final double[][] data = new double[indices.length][2];
 		for (int i = indices.length; i-- > 0;)
 		{
 			data[i][0] = values[indices[i]];
@@ -419,16 +389,10 @@ public class Sort
 
 		// Copy back
 		for (int i = indices.length; i-- > 0;)
-		{
 			indices[i] = (int) data[i][1];
-		}
 		if (sortValues)
-		{
 			for (int i = indices.length; i-- > 0;)
-			{
 				values[i] = data[i][0];
-			}
-		}
 
 		return indices;
 	}
@@ -449,7 +413,7 @@ public class Sort
 		while (left < right)
 		{
 			// swap the values at the left and right indices
-			int temp = data[left];
+			final int temp = data[left];
 			data[left] = data[right];
 			data[right] = temp;
 
@@ -475,7 +439,7 @@ public class Sort
 		while (left < right)
 		{
 			// swap the values at the left and right indices
-			float temp = data[left];
+			final float temp = data[left];
 			data[left] = data[right];
 			data[right] = temp;
 
@@ -501,7 +465,7 @@ public class Sort
 		while (left < right)
 		{
 			// swap the values at the left and right indices
-			double temp = data[left];
+			final double temp = data[left];
 			data[left] = data[right];
 			data[right] = temp;
 
@@ -524,11 +488,9 @@ public class Sort
 	public static void sortArrays(int[] values1, final double[] values2, boolean ascending)
 	{
 		// Extract indices
-		int[] indices = new int[values1.length];
+		final int[] indices = new int[values1.length];
 		for (int i = values1.length; i-- > 0;)
-		{
 			indices[i] = i;
-		}
 
 		if (ascending)
 			sortAscending(indices, values2, false);
@@ -536,8 +498,8 @@ public class Sort
 			sort(indices, values2, false);
 
 		// Copy back
-		int[] v1 = Arrays.copyOf(values1, values1.length);
-		double[] v2 = Arrays.copyOf(values2, values2.length);
+		final int[] v1 = Arrays.copyOf(values1, values1.length);
+		final double[] v2 = Arrays.copyOf(values2, values2.length);
 
 		for (int i = values1.length; i-- > 0;)
 		{
@@ -559,11 +521,9 @@ public class Sort
 	public static void sortArrays(int[] values1, final float[] values2, boolean ascending)
 	{
 		// Extract indices
-		int[] indices = new int[values1.length];
+		final int[] indices = new int[values1.length];
 		for (int i = values1.length; i-- > 0;)
-		{
 			indices[i] = i;
-		}
 
 		if (ascending)
 			sortAscending(indices, values2, false);
@@ -571,8 +531,8 @@ public class Sort
 			sort(indices, values2, false);
 
 		// Copy back
-		int[] v1 = Arrays.copyOf(values1, values1.length);
-		float[] v2 = Arrays.copyOf(values2, values2.length);
+		final int[] v1 = Arrays.copyOf(values1, values1.length);
+		final float[] v2 = Arrays.copyOf(values2, values2.length);
 
 		for (int i = values1.length; i-- > 0;)
 		{
@@ -594,11 +554,9 @@ public class Sort
 	public static void sortArrays(int[] values1, final int[] values2, boolean ascending)
 	{
 		// Extract indices
-		int[] indices = new int[values1.length];
+		final int[] indices = new int[values1.length];
 		for (int i = values1.length; i-- > 0;)
-		{
 			indices[i] = i;
-		}
 
 		if (ascending)
 			sortAscending(indices, values2, false);
@@ -606,8 +564,8 @@ public class Sort
 			sort(indices, values2, false);
 
 		// Copy back
-		int[] v1 = Arrays.copyOf(values1, values1.length);
-		int[] v2 = Arrays.copyOf(values2, values2.length);
+		final int[] v1 = Arrays.copyOf(values1, values1.length);
+		final int[] v2 = Arrays.copyOf(values2, values2.length);
 
 		for (int i = values1.length; i-- > 0;)
 		{
@@ -629,11 +587,9 @@ public class Sort
 	public static void sortArrays(float[] values1, final float[] values2, boolean ascending)
 	{
 		// Extract indices
-		int[] indices = new int[values1.length];
+		final int[] indices = new int[values1.length];
 		for (int i = values1.length; i-- > 0;)
-		{
 			indices[i] = i;
-		}
 
 		if (ascending)
 			sortAscending(indices, values2, false);
@@ -641,8 +597,8 @@ public class Sort
 			sort(indices, values2, false);
 
 		// Copy back
-		float[] v1 = Arrays.copyOf(values1, values1.length);
-		float[] v2 = Arrays.copyOf(values2, values2.length);
+		final float[] v1 = Arrays.copyOf(values1, values1.length);
+		final float[] v2 = Arrays.copyOf(values2, values2.length);
 
 		for (int i = values1.length; i-- > 0;)
 		{
@@ -664,11 +620,9 @@ public class Sort
 	public static void sortArrays(double[] values1, final double[] values2, boolean ascending)
 	{
 		// Extract indices
-		int[] indices = new int[values1.length];
+		final int[] indices = new int[values1.length];
 		for (int i = values1.length; i-- > 0;)
-		{
 			indices[i] = i;
-		}
 
 		if (ascending)
 			sortAscending(indices, values2, false);
@@ -676,8 +630,8 @@ public class Sort
 			sort(indices, values2, false);
 
 		// Copy back
-		double[] v1 = Arrays.copyOf(values1, values1.length);
-		double[] v2 = Arrays.copyOf(values2, values2.length);
+		final double[] v1 = Arrays.copyOf(values1, values1.length);
+		final double[] v2 = Arrays.copyOf(values2, values2.length);
 
 		for (int i = values1.length; i-- > 0;)
 		{

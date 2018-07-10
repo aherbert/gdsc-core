@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -125,7 +125,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#setSeed(int)
 	 */
 	@Override
@@ -137,7 +137,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#setSeed(long)
 	 */
 	@Override
@@ -149,13 +149,13 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#nextDouble()
 	 */
 	@Override
 	public double nextDouble()
 	{
-		double d = sequence[position++];
+		final double d = sequence[position++];
 		if (position == length)
 			position = 0;
 		return d;
@@ -163,7 +163,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -171,15 +171,15 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	{
 		try
 		{
-			PseudoRandomGenerator r = (PseudoRandomGenerator) super.clone();
+			final PseudoRandomGenerator r = (PseudoRandomGenerator) super.clone();
 			// In case cloning when being used. This is probably not necessary
-			// as the class is not thread safe so cloning should not happen when 
-			// another thread is using the generator			
+			// as the class is not thread safe so cloning should not happen when
+			// another thread is using the generator
 			if (r.position >= length)
 				r.position = 0;
 			return r;
 		}
-		catch (CloneNotSupportedException e)
+		catch (final CloneNotSupportedException e)
 		{
 			// This should not happen
 			return new PseudoRandomGenerator(sequence, length);
@@ -212,7 +212,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	 * this random number generator's sequence.
 	 * <p>
 	 * The default implementation returns:
-	 * 
+	 *
 	 * <pre>
 	 * <code>(int) (nextDouble() * n</code>
 	 * </pre>
@@ -227,7 +227,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	 */
 	public int nextIntFast(int n)
 	{
-		int result = (int) (nextDouble() * n);
+		final int result = (int) (nextDouble() * n);
 		return result < n ? result : n - 1;
 	}
 
@@ -241,8 +241,8 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	{
 		for (int i = data.length; i-- > 1;)
 		{
-			int j = nextIntFast(i + 1);
-			int tmp = data[i];
+			final int j = nextIntFast(i + 1);
+			final int tmp = data[i];
 			data[i] = data[j];
 			data[j] = tmp;
 		}

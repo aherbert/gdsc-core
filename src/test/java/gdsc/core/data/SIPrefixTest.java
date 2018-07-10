@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -43,7 +43,7 @@ public class SIPrefixTest
 		Assume.assumeTrue(false);
 
 		//@formatter:off
-		String[] data = {
+		final String[] data = {
             "24","yotta","Y",
             "21","zetta","Z",
             "18","exa","E",
@@ -67,15 +67,15 @@ public class SIPrefixTest
             "-24","yocto","y"
 		};
 		//@formatter:on
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < data.length; i += 3)
 			add(sb, data[i], data[i + 1], data[i + 2]);
 		System.out.println(sb.toString());
 	}
 
-	private void add(StringBuilder sb, String pow, String name, String symbol)
+	private static void add(StringBuilder sb, String pow, String name, String symbol)
 	{
-		String name2 = (name.length() == 0) ? "none" : name;
+		final String name2 = (name.length() == 0) ? "none" : name;
 		sb.append("    /** ").append(name2.substring(0, 1).toUpperCase()).append(name2.substring(1)).append(" */\n");
 		sb.append("    ").append(name2.toUpperCase()).append(" {\n");
 		sb.append("    @Override public double getFactor() { return 1e").append(pow).append("; }\n");
@@ -93,15 +93,14 @@ public class SIPrefixTest
 		canGetPrefix(Double.NEGATIVE_INFINITY, SIPrefix.NONE);
 		canGetPrefix(Double.NaN, SIPrefix.NONE);
 
-		for (int sign : new int[] { -1, 1 })
+		for (final int sign : new int[] { -1, 1 })
 		{
 			// Edge case high
 			canGetPrefix(sign, SIPrefix.YOTTA.getFactor() * 10, SIPrefix.YOTTA);
 
 			// Above 1
-			SIPrefix[] values = SIPrefix.values();
+			final SIPrefix[] values = SIPrefix.values();
 			for (int i = 0; i < values.length; i++)
-			{
 				if (values[i].getFactor() > 1)
 				{
 					if (i > 0)
@@ -110,7 +109,6 @@ public class SIPrefixTest
 					if (i + 1 < values.length)
 						canGetPrefix(sign, (values[i].getFactor() + values[i + 1].getFactor()) / 2, values[i + 1]);
 				}
-			}
 
 			// 1
 			canGetPrefix(sign, 0.5, SIPrefix.DECI);
@@ -119,7 +117,6 @@ public class SIPrefixTest
 
 			// Below 1
 			for (int i = 0; i < values.length; i++)
-			{
 				if (values[i].getFactor() < 1)
 				{
 					if (i > 0)
@@ -128,22 +125,21 @@ public class SIPrefixTest
 					if (i + 1 < values.length)
 						canGetPrefix(sign, (values[i].getFactor() + values[i + 1].getFactor()) / 2, values[i + 1]);
 				}
-			}
 
 			// Edge case low
 			canGetPrefix(sign, SIPrefix.YOCTO.getFactor() / 10, SIPrefix.YOCTO);
 		}
 	}
 
-	private void canGetPrefix(double value, SIPrefix e)
+	private static void canGetPrefix(double value, SIPrefix e)
 	{
 		canGetPrefix(1, value, e);
 	}
 
-	private void canGetPrefix(int sign, double value, SIPrefix e)
+	private static void canGetPrefix(int sign, double value, SIPrefix e)
 	{
 		value *= sign;
-		SIPrefix o = SIPrefix.getPrefix(value);
+		final SIPrefix o = SIPrefix.getPrefix(value);
 		TestSettings.info("Value %s = %s %s (%s)\n", value, o.convert(value), o.getName(), o.getSymbol());
 		Assert.assertEquals(e, o);
 	}

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -35,7 +35,7 @@ import java.security.MessageDigest;
 
 /**
  * Class for computing digests
- * 
+ *
  * @author Alex Herbert
  */
 public class Digest
@@ -93,11 +93,11 @@ public class Digest
 	{
 		try
 		{
-			MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
+			final MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
 			messageDigest.reset();
 			return messageDigest;
 		}
-		catch (java.security.NoSuchAlgorithmException e)
+		catch (final java.security.NoSuchAlgorithmException e)
 		{
 			throw new IllegalArgumentException("Invalid algorithm: " + algorithm);
 		}
@@ -211,7 +211,7 @@ public class Digest
 
 	/**
 	 * Create an MD5 digest from a string.
-	 * 
+	 *
 	 * @param data
 	 *            the data
 	 * @return the digest
@@ -261,7 +261,7 @@ public class Digest
 
 	/**
 	 * Create an MD5 hex digest from a string.
-	 * 
+	 *
 	 * @param data
 	 *            the data
 	 * @return the MD5 string

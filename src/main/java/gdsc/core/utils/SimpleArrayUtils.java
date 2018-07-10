@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -34,7 +34,7 @@ import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * Class for manipulating arrays
- * 
+ *
  * @author Alex Herbert
  */
 public class SimpleArrayUtils
@@ -97,26 +97,21 @@ public class SimpleArrayUtils
 
 		int i = 0;
 		int j = 0;
-		TIntArrayList list = new TIntArrayList(Math.max(s1.length, s2.length));
+		final TIntArrayList list = new TIntArrayList(Math.max(s1.length, s2.length));
 		while (i < s1.length && j < s2.length)
-		{
 			if (s1[i] < s2[j])
 			{
 				// Advance s1
 				list.add(s1[i++]);
 				while (i < s1.length && s1[i] < s2[j])
-				{
 					list.add(s1[i++]);
-				}
 			}
 			else if (s1[i] > s2[j])
 			{
 				// Advance s2
 				list.add(s2[j++]);
 				while (j < s2.length && s2[j] < s1[i])
-				{
 					list.add(s2[j++]);
-				}
 			}
 			else
 			{
@@ -129,24 +124,19 @@ public class SimpleArrayUtils
 					j++;
 				}
 			}
-		}
 
 		// Add the remaining data
 		if (i != s1.length)
 		{
 			list.ensureCapacity(s1.length - i + list.size());
 			while (i < s1.length)
-			{
 				list.add(s1[i++]);
-			}
 		}
 		else if (j != s2.length)
 		{
 			list.ensureCapacity(s2.length - j + list.size());
 			while (j < s2.length)
-			{
 				list.add(s2[j++]);
-			}
 		}
 
 		return list.toArray();
@@ -170,18 +160,14 @@ public class SimpleArrayUtils
 		Arrays.sort(s);
 		int c = 0;
 		for (int i = 1; i < s.length; i++)
-		{
 			if (s[i] != s[c])
-			{
 				s[++c] = s[i];
-			}
-		}
 		return Arrays.copyOf(s, c + 1);
 	}
 
 	/**
 	 * Convert the input array to a double
-	 * 
+	 *
 	 * @param a
 	 *            the array
 	 * @return The new array
@@ -190,7 +176,7 @@ public class SimpleArrayUtils
 	{
 		if (a == null)
 			return null;
-		double[] b = new double[a.length];
+		final double[] b = new double[a.length];
 		for (int i = 0; i < a.length; i++)
 			b[i] = a[i];
 		return b;
@@ -198,7 +184,7 @@ public class SimpleArrayUtils
 
 	/**
 	 * Convert the input array to a double
-	 * 
+	 *
 	 * @param a
 	 *            the array
 	 * @return The new array
@@ -207,7 +193,7 @@ public class SimpleArrayUtils
 	{
 		if (a == null)
 			return null;
-		double[] b = new double[a.length];
+		final double[] b = new double[a.length];
 		for (int i = 0; i < a.length; i++)
 			b[i] = a[i];
 		return b;
@@ -215,7 +201,7 @@ public class SimpleArrayUtils
 
 	/**
 	 * Convert the input array to a float
-	 * 
+	 *
 	 * @param a
 	 *            the array
 	 * @return The new array
@@ -224,7 +210,7 @@ public class SimpleArrayUtils
 	{
 		if (a == null)
 			return null;
-		float[] b = new float[a.length];
+		final float[] b = new float[a.length];
 		for (int i = 0; i < a.length; i++)
 			b[i] = (float) a[i];
 		return b;
@@ -232,7 +218,7 @@ public class SimpleArrayUtils
 
 	/**
 	 * Convert the input array to a float
-	 * 
+	 *
 	 * @param a
 	 *            the array
 	 * @return The new array
@@ -241,7 +227,7 @@ public class SimpleArrayUtils
 	{
 		if (a == null)
 			return null;
-		float[] b = new float[a.length];
+		final float[] b = new float[a.length];
 		for (int i = 0; i < a.length; i++)
 			b[i] = a[i];
 		return b;
@@ -249,7 +235,7 @@ public class SimpleArrayUtils
 
 	/**
 	 * Create and fill an array
-	 * 
+	 *
 	 * @param length
 	 *            The length of the array
 	 * @param start
@@ -260,7 +246,7 @@ public class SimpleArrayUtils
 	 */
 	public static double[] newArray(int length, double start, double increment)
 	{
-		double[] data = new double[length];
+		final double[] data = new double[length];
 		for (int i = 0; i < length; i++)
 			data[i] = start + i * increment;
 		return data;
@@ -268,7 +254,7 @@ public class SimpleArrayUtils
 
 	/**
 	 * Create and fill an array
-	 * 
+	 *
 	 * @param length
 	 *            The length of the array
 	 * @param start
@@ -279,7 +265,7 @@ public class SimpleArrayUtils
 	 */
 	public static float[] newArray(int length, float start, float increment)
 	{
-		float[] data = new float[length];
+		final float[] data = new float[length];
 		for (int i = 0; i < length; i++)
 			data[i] = start + i * increment;
 		return data;
@@ -287,7 +273,7 @@ public class SimpleArrayUtils
 
 	/**
 	 * Create and fill an array
-	 * 
+	 *
 	 * @param length
 	 *            The length of the array
 	 * @param start
@@ -298,7 +284,7 @@ public class SimpleArrayUtils
 	 */
 	public static int[] newArray(int length, int start, int increment)
 	{
-		int[] data = new int[length];
+		final int[] data = new int[length];
 		for (int i = 0; i < length; i++, start += increment)
 			data[i] = start;
 		return data;
@@ -316,7 +302,6 @@ public class SimpleArrayUtils
 	public static float[] ensureStrictlyPositive(float[] data)
 	{
 		for (int i = 0, n = data.length; i < n; i++)
-		{
 			if (data[i] <= 0)
 			{
 				// Not strictly positive so create a clone
@@ -327,20 +312,17 @@ public class SimpleArrayUtils
 					System.arraycopy(data, 0, v, 0, i);
 
 				// Find the min above zero
-				float min = minAboveZero(data);
+				final float min = minAboveZero(data);
 				if (min == 0)
 					return v;
 
 				v[i] = min; // We know this was not strictly positive
 
-				// Check and copy the rest 
+				// Check and copy the rest
 				while (++i < n)
-				{
 					v[i] = (data[i] <= 0) ? min : data[i];
-				}
 				return v;
 			}
-		}
 		return data;
 	}
 
@@ -357,10 +339,8 @@ public class SimpleArrayUtils
 	{
 		float min = Float.POSITIVE_INFINITY;
 		for (int i = 0, n = data.length; i < n; i++)
-		{
 			if (data[i] > 0 && min > data[i])
 				min = data[i];
-		}
 		// Check if any values were above zero, else return zero
 		return (min == Float.POSITIVE_INFINITY) ? 0 : min;
 	}
@@ -376,7 +356,7 @@ public class SimpleArrayUtils
 	 */
 	public static double[] newDoubleArray(int length, double value)
 	{
-		double[] data = new double[length];
+		final double[] data = new double[length];
 		Arrays.fill(data, value);
 		return data;
 	}
@@ -392,7 +372,7 @@ public class SimpleArrayUtils
 	 */
 	public static float[] newFloatArray(int length, float value)
 	{
-		float[] data = new float[length];
+		final float[] data = new float[length];
 		Arrays.fill(data, value);
 		return data;
 	}
@@ -408,7 +388,7 @@ public class SimpleArrayUtils
 	 */
 	public static int[] newIntArray(int length, int value)
 	{
-		int[] data = new int[length];
+		final int[] data = new int[length];
 		Arrays.fill(data, value);
 		return data;
 	}
@@ -424,7 +404,7 @@ public class SimpleArrayUtils
 	 */
 	public static byte[] newByteArray(int length, byte value)
 	{
-		byte[] data = new byte[length];
+		final byte[] data = new byte[length];
 		Arrays.fill(data, value);
 		return data;
 	}
@@ -443,7 +423,7 @@ public class SimpleArrayUtils
 		while (left < right)
 		{
 			// swap the values at the left and right indices
-			int temp = data[left];
+			final int temp = data[left];
 			data[left] = data[right];
 			data[right] = temp;
 
@@ -467,7 +447,7 @@ public class SimpleArrayUtils
 		while (left < right)
 		{
 			// swap the values at the left and right indices
-			float temp = data[left];
+			final float temp = data[left];
 			data[left] = data[right];
 			data[right] = temp;
 
@@ -491,7 +471,7 @@ public class SimpleArrayUtils
 		while (left < right)
 		{
 			// swap the values at the left and right indices
-			double temp = data[left];
+			final double temp = data[left];
 			data[left] = data[right];
 			data[right] = temp;
 
@@ -552,46 +532,38 @@ public class SimpleArrayUtils
 			return true;
 		double sum = 0;
 		double reference = 0;
-		double direction = Math.signum(x[1] - x[0]);
+		final double direction = Math.signum(x[1] - x[0]);
 		if (direction == 0.0)
 			return false;
 		for (int i = 1; i < x.length; i++)
 		{
-			double interval = x[i] - x[i - 1];
+			final double interval = x[i] - x[i - 1];
 			if (Math.signum(interval) != direction)
 				return false;
 			sum += interval;
 			// Difference from last. Use this to avoid having to compute the mean if the intervals are very different.
 			if (i != 1)
-			{
 				if (interval > reference)
 				{
 					if (interval - reference > uniformTolerance)
 						return false;
 				}
-				else
-				{
-					if (reference - interval > uniformTolerance)
-						return false;
-				}
-			}
+				else if (reference - interval > uniformTolerance)
+					return false;
 			reference = interval;
 		}
-		// Check against the mean 
+		// Check against the mean
 		reference = sum / (x.length - 1);
 		for (int i = 1; i < x.length; i++)
 		{
-			double interval = x[i] - x[i - 1];
+			final double interval = x[i] - x[i - 1];
 			if (interval > reference)
 			{
 				if (interval - reference > uniformTolerance)
 					return false;
 			}
-			else
-			{
-				if (reference - interval > uniformTolerance)
-					return false;
-			}
+			else if (reference - interval > uniformTolerance)
+				return false;
 		}
 		return true;
 	}
@@ -614,7 +586,7 @@ public class SimpleArrayUtils
 			return false;
 		for (int i = 2; i < x.length; i++)
 		{
-			int interval = x[i] - x[i - 1];
+			final int interval = x[i] - x[i - 1];
 			if (interval != reference)
 				return false;
 		}
@@ -866,16 +838,14 @@ public class SimpleArrayUtils
 		// Sort and look for continuous ranges
 		Arrays.sort(indices);
 
-		TIntArrayList list = new TIntArrayList(indices.length);
+		final TIntArrayList list = new TIntArrayList(indices.length);
 		for (int i = 0; i < indices.length; i++)
 		{
-			int start = indices[i];
+			final int start = indices[i];
 			int end = start;
 			// Allow eliminating duplicates
 			while (i + 1 < indices.length && indices[i + 1] <= end + 1)
-			{
 				end = indices[++i];
-			}
 			list.add(start);
 			list.add(end);
 		}
@@ -902,7 +872,7 @@ public class SimpleArrayUtils
 			throw new IllegalArgumentException("Width cannot be less than 1");
 		if (height < 0)
 			throw new IllegalArgumentException("Height cannot be less than 1");
-		long size = (long) width * height;
+		final long size = (long) width * height;
 		if (size > Integer.MAX_VALUE)
 			throw new IllegalArgumentException("width*height is too large");
 		return (int) size;
@@ -1065,7 +1035,7 @@ public class SimpleArrayUtils
 	{
 		if (o != null)
 		{
-			Class<?> eClass = o.getClass();
+			final Class<?> eClass = o.getClass();
 			if (eClass.isArray())
 			{
 				// Check primitive types
@@ -1079,8 +1049,8 @@ public class SimpleArrayUtils
 				if (eClass ==  short    [].class) return Arrays.toString((short     []) o);
 				if (eClass ==  char     [].class) return Arrays.toString((char      []) o);
 				// Support optional recursion
-				return (deepToString) 
-						? Arrays.deepToString((Object[]) o) 
+				return (deepToString)
+						? Arrays.deepToString((Object[]) o)
 						: Arrays.toString(    (Object[]) o);
 				//@formatter:on
 			}

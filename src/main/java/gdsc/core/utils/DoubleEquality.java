@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR a PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -54,7 +54,7 @@ public class DoubleEquality
 
 	/**
 	 * Instantiates a new double equality.
-	 * 
+	 *
 	 * @param maxRelativeError
 	 *            The relative error allowed between the numbers
 	 * @param maxAbsoluteError
@@ -145,13 +145,13 @@ public class DoubleEquality
 	public long compareComplement(double a, double b)
 	{
 		// Convert the relative error back to significant digits, then to ULPs
-		long maxUlps = getUlps(Math.round(1 - Math.log(maxRelativeError)));
+		final long maxUlps = getUlps(Math.round(1 - Math.log(maxRelativeError)));
 		return compareComplement(a, b, maxUlps);
 	}
 
 	/**
 	 * Compares two double arrays are within the configured errors.
-	 * 
+	 *
 	 * @param a
 	 *            the first value
 	 * @param b
@@ -202,8 +202,8 @@ public class DoubleEquality
 		final double difference = Math.abs(a - b);
 		if (difference <= maxAbsoluteError)
 			return true;
-		// Ignore NaNs. This is OK since if either number is a NaN the difference 
-		// will be NaN and we end up returning false 
+		// Ignore NaNs. This is OK since if either number is a NaN the difference
+		// will be NaN and we end up returning false
 		final double size = max(Math.abs(a), Math.abs(b));
 		if (difference <= size * maxRelativeError)
 			return true;
@@ -300,7 +300,7 @@ public class DoubleEquality
 	 */
 	public static int compareComplement(double a, double b, long maxUlps)
 	{
-		long c = signedComplement(a, b);
+		final long c = signedComplement(a, b);
 		if (c < -maxUlps)
 			return -1;
 		if (c > maxUlps)
@@ -379,12 +379,10 @@ public class DoubleEquality
 	private static double[] RELATIVE_ERROR_TABLE;
 	static
 	{
-		int precision = new BigDecimal(Double.toString(Double.MAX_VALUE)).precision();
+		final int precision = new BigDecimal(Double.toString(Double.MAX_VALUE)).precision();
 		RELATIVE_ERROR_TABLE = new double[precision];
 		for (int p = 0; p < precision; p++)
-		{
 			RELATIVE_ERROR_TABLE[p] = Double.parseDouble("1e-" + p);
-		}
 	}
 
 	/**
@@ -420,7 +418,7 @@ public class DoubleEquality
 
 	/**
 	 * Set the maximum relative error in terms of the number of decimal significant digits
-	 * 
+	 *
 	 * @param significantDigits
 	 *            The number of significant digits for comparisons
 	 * @deprecated The significant digits are used to set the max relative error as 1e^-(n-1), e.g. 3sd => 1e-2
@@ -436,16 +434,16 @@ public class DoubleEquality
 	 * since the ULP depend on the doubles being compared.
 	 * <p>
 	 * The number of doubles are computed between Math.power(10, sig-1) and 1 + Math.power(10, sig-1)
-	 * 
+	 *
 	 * @param significantDigits
 	 *            The significant digits
 	 * @return The number of representable doubles (Units in the Last Place)
 	 */
 	public static long getUlps(long significantDigits)
 	{
-		long value1 = (long) Math.pow(10.0, significantDigits - 1);
-		long value2 = value1 + 1;
-		long ulps = Double.doubleToRawLongBits(value2) - Double.doubleToRawLongBits(value1);
+		final long value1 = (long) Math.pow(10.0, significantDigits - 1);
+		final long value2 = value1 + 1;
+		final long ulps = Double.doubleToRawLongBits(value2) - Double.doubleToRawLongBits(value1);
 		return (ulps < 0) ? 0 : ulps;
 	}
 
@@ -483,7 +481,7 @@ public class DoubleEquality
 
 	private static long difference(long high, long low)
 	{
-		long d = high - low;
+		final long d = high - low;
 		// Check for over-flow
 		return (d < 0) ? Long.MAX_VALUE : d;
 	}
@@ -510,7 +508,7 @@ public class DoubleEquality
 		{
 			// Make aInt lexicographically ordered as a twos-complement long
 			aInt = 0x8000000000000000L - aInt;
-			long d = aInt - bInt;
+			final long d = aInt - bInt;
 			// Check for over-flow. We know a is negative and b positive
 			return (d > 0) ? Long.MIN_VALUE : d;
 		}
@@ -518,7 +516,7 @@ public class DoubleEquality
 		{
 			// Make bInt lexicographically ordered as a twos-complement long
 			bInt = 0x8000000000000000L - bInt;
-			long d = aInt - bInt;
+			final long d = aInt - bInt;
 			// Check for over-flow. We know a is positive and b negative
 			return (d < 0) ? Long.MAX_VALUE : d;
 		}

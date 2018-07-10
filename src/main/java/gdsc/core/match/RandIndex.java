@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -43,7 +43,7 @@ import gdsc.core.utils.Maths;
  * <p>
  * W. M. Rand (1971). "Objective criteria for the evaluation of clustering methods". Journal of the American Statistical
  * Association. American Statistical Association. 66 (336): 846–850. doi:10.2307/2284239. JSTOR 2284239.
- * 
+ *
  * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
  * @author Alex Herbert
  */
@@ -108,7 +108,7 @@ public class RandIndex
 	 * of points and 1 indicating that the data clusters are exactly the same.
 	 * <p>
 	 * Uses a simple method of comparing all possible pairs and counting identical classifications.
-	 * 
+	 *
 	 * @param set1
 	 *            the first set of clusters for the objects
 	 * @param set2
@@ -140,18 +140,13 @@ public class RandIndex
 			final int s1 = set1[i];
 			final int s2 = set2[i];
 			for (int j = i + 1; j < n; j++)
-			{
 				if (s1 == set1[j])
 				{
 					if (s2 == set2[j])
 						a_plus_b++;
 				}
-				else
-				{
-					if (s2 != set2[j])
-						a_plus_b++;
-				}
-			}
+				else if (s2 != set2[j])
+					a_plus_b++;
 		}
 
 		return (double) a_plus_b / binomialCoefficient2(n);
@@ -164,7 +159,7 @@ public class RandIndex
 	 * of points and 1 indicating that the data clusters are exactly the same.
 	 * <p>
 	 * Compute using a contingency table.
-	 * 
+	 *
 	 * @param set1
 	 *            the first set of clusters for the objects
 	 * @param set2
@@ -185,7 +180,7 @@ public class RandIndex
 	 * The adjusted Rand index is the corrected-for-chance version of the Rand index. Though the Rand Index may only
 	 * yield a value between 0 and +1, the adjusted Rand index can yield negative values if the index is less than the
 	 * expected index.
-	 * 
+	 *
 	 * @param set1
 	 *            the first set of clusters for the objects
 	 * @param set2
@@ -230,13 +225,11 @@ public class RandIndex
 				continue;
 			final int value = set[i];
 			for (int j = i; j < set.length; j++)
-			{
 				if (value == set[j])
 				{
 					skip[j] = true;
 					newSet[j] = n;
 				}
-			}
 			n++;
 		}
 
@@ -280,13 +273,11 @@ public class RandIndex
 				continue;
 			final int value = set[i];
 			for (int j = i; j < set.length; j++)
-			{
 				if (value == set[j])
 				{
 					skip[j] = true;
 					newSet[j] = n;
 				}
-			}
 			n++;
 		}
 
@@ -369,7 +360,7 @@ public class RandIndex
 	/**
 	 * Compute the contingency table for two classifications of a set of data and generate the values required to
 	 * produce the Rand index.
-	 * 
+	 *
 	 * @param set1
 	 *            the first set of clusters for the objects
 	 * @param set2
@@ -404,7 +395,7 @@ public class RandIndex
 		// Compute using a contingency table.
 		// Each set should optimally use integers from 0 to n-1 for n clusters.
 		// Check if we need to compact the sets
-		int[] limits1 = Maths.limits(set1);
+		final int[] limits1 = Maths.limits(set1);
 		if (limits1[0] < 0 || limits1[1] == Integer.MAX_VALUE)
 		{
 			set1a = new int[n];
@@ -416,7 +407,7 @@ public class RandIndex
 			max1 = limits1[1] + 1;
 		}
 
-		int[] limits2 = Maths.limits(set2);
+		final int[] limits2 = Maths.limits(set2);
 		if (limits2[0] < 0 || limits2[1] == Integer.MAX_VALUE)
 		{
 			set2a = new int[n];
@@ -466,16 +457,16 @@ public class RandIndex
 
 		// TP will only overflow after TP+FP
 		long tp = 0;
-		// Note: The following could overflow. 
-		// This will happen if the number of clusters is very large (approaching Integer.MAX_VALUE), 
-		// i.e. non-clustered data. Any reasonable clustering comparison will have clustered the data 
+		// Note: The following could overflow.
+		// This will happen if the number of clusters is very large (approaching Integer.MAX_VALUE),
+		// i.e. non-clustered data. Any reasonable clustering comparison will have clustered the data
 		// better than that so we just fail with an exception.
 		long tp_fp = 0;
 		long tp_fn = 0;
 
 		// Note: Using a single array we have an upper limit on the array size of: 2^31 - 1 * 4 bytes ~ 8Gb
 		// This should be enough. Otherwise we use int[][] table.
-		long lSize = (long) n1 * n2;
+		final long lSize = (long) n1 * n2;
 		if (lSize > Integer.MAX_VALUE)
 		{
 			final int[][] table = new int[n1][n2];
@@ -483,11 +474,9 @@ public class RandIndex
 			try
 			{
 				for (int i = 0; i < n; i++)
-				{
 					table[set1[i]][set2[i]]++;
-				}
 			}
-			catch (ArrayIndexOutOfBoundsException e)
+			catch (final ArrayIndexOutOfBoundsException e)
 			{
 				// Probably because the input was not checked ...
 				// This should not cause infinite recursion as the next time all the indices will be OK.
@@ -499,7 +488,7 @@ public class RandIndex
 			{
 				// Note: When we sum the columns or rows we are summing the number of counts
 				// of members of the input array. This can never exceed Integer.MAX_VALUE since
-				// Java uses ints for array allocation.		
+				// Java uses ints for array allocation.
 				int sum = 0;
 				for (int j = 0; j < n2; j++)
 				{
@@ -530,11 +519,9 @@ public class RandIndex
 			try
 			{
 				for (int i = 0; i < n; i++)
-				{
 					table[set1[i] * n2 + set2[i]]++;
-				}
 			}
-			catch (ArrayIndexOutOfBoundsException e)
+			catch (final ArrayIndexOutOfBoundsException e)
 			{
 				// Probably because the input was not checked ...
 				// This should not cause infinite recursion as the next time all the indices will be OK.
@@ -546,7 +533,7 @@ public class RandIndex
 			{
 				// Note: When we sum the columns or rows we are summing the number of counts
 				// of members of the input array. This can never exceed Integer.MAX_VALUE since
-				// Java uses ints for array allocation.		
+				// Java uses ints for array allocation.
 				int sum = 0;
 				for (final int stop = index + n2; index < stop; index++)
 				{
@@ -584,7 +571,7 @@ public class RandIndex
 	 * of points and 1 indicating that the data clusters are exactly the same.
 	 * <p>
 	 * Compute using a contingency table.
-	 * 
+	 *
 	 * @param set1
 	 *            the first set of clusters for the objects
 	 * @param set2
@@ -654,19 +641,14 @@ public class RandIndex
 		// R = (a+b) / nC2
 
 		if (tp == tp_fn && tp == tp_fp)
-		{
 			// No errors
 			return 1;
-		}
 
-		long tn = getTrueNegatives();
+		final long tn = getTrueNegatives();
 
-		long ab = tp + tn;
+		final long ab = tp + tn;
 		if (ab > 0)
-		{
-			return (double) ab / binomialCoefficient2(n);
-		}
-		// Overflow
+		 return (double) ab / binomialCoefficient2(n);
 
 		// Use big integer
 		return BigInteger.valueOf(tp).add(BigInteger.valueOf(tn)).doubleValue() / binomialCoefficient2(n);
@@ -678,7 +660,7 @@ public class RandIndex
 	 * The adjusted Rand index is the corrected-for-chance version of the Rand index. Though the Rand Index may only
 	 * yield a value between 0 and +1, the adjusted Rand index can yield negative values if the index is less than the
 	 * expected index.
-	 * 
+	 *
 	 * @param set1
 	 *            the first set of clusters for the objects
 	 * @param set2
@@ -742,25 +724,23 @@ public class RandIndex
 		// Note:
 		// Use the definitions here:
 		// https://en.wikipedia.org/wiki/Rand_index
-		// 
+		//
 		// Adjusted Rand Index
-		// sum(nij C 2) = tp 
-		// sum(ai C 2)  = tp_fp 
-		// sum(bj C 2)  = tp_fn 
+		// sum(nij C 2) = tp
+		// sum(ai C 2)  = tp_fp
+		// sum(bj C 2)  = tp_fn
 		// ARI = (sum(nij C 2) - (sum(ai C 2) * sum(bj C 2))/ nC2) / ((0.5*(sum(ai C 2)+sum(bj C 2))) - (sum(ai C 2)*sum(bj C 2)) / nC2))
 		//     = (Index - ExpectedIndex) / (MaxIndex - ExpectedIndex)
 
 		if (tp == tp_fn && tp == tp_fp)
-		{
 			// No errors
-			// Note: It also returns 1 if a sample of n=2 is used with only 1 cluster. 
+			// Note: It also returns 1 if a sample of n=2 is used with only 1 cluster.
 			// Q. Is this correct? Perhaps return 0 in that case (i.e. we are no better than random).
 			return 1;
-		}
 
-		long index = tp;
-		double expectedIndex = tp_fp * (double) tp_fn / binomialCoefficient2(n);
-		double maxIndex = 0.5 * (tp_fp + tp_fn);
+		final long index = tp;
+		final double expectedIndex = tp_fp * (double) tp_fn / binomialCoefficient2(n);
+		final double maxIndex = 0.5 * (tp_fp + tp_fn);
 
 		return (index - expectedIndex) / (maxIndex - expectedIndex);
 	}

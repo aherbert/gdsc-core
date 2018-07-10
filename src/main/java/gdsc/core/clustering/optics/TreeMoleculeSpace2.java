@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -62,7 +62,7 @@ class TreeMoleculeSpace2 extends MoleculeSpace
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.MoleculeSpace#generate()
 	 */
 	@Override
@@ -72,7 +72,7 @@ class TreeMoleculeSpace2 extends MoleculeSpace
 		final float[] ycoord = opticsManager.getYData();
 
 		setOfObjects = new Molecule[xcoord.length];
-		tree = new KdTree2D<Molecule>();
+		tree = new KdTree2D<>();
 		for (int i = 0; i < xcoord.length; i++)
 		{
 			final float x = xcoord[i];
@@ -88,20 +88,20 @@ class TreeMoleculeSpace2 extends MoleculeSpace
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
 	@Override
 	void findNeighbours(int minPts, Molecule object, float e)
 	{
-		NearestNeighborIterator<Molecule> iter = tree.getNearestNeighborIterator(new double[] { object.x, object.y },
+		final NearestNeighborIterator<Molecule> iter = tree.getNearestNeighborIterator(new double[] { object.x, object.y },
 				tree.size(), distanceFunction);
 		neighbours.clear();
 		final double e2 = e;
 		while (iter.hasNext())
 		{
-			Molecule m = iter.next();
+			final Molecule m = iter.next();
 			if (iter.distance() <= e2)
 				neighbours.add(m);
 			else
@@ -111,20 +111,20 @@ class TreeMoleculeSpace2 extends MoleculeSpace
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
 	@Override
 	void findNeighboursAndDistances(int minPts, Molecule object, float e)
 	{
-		NearestNeighborIterator<Molecule> iter = tree.getNearestNeighborIterator(new double[] { object.x, object.y },
+		final NearestNeighborIterator<Molecule> iter = tree.getNearestNeighborIterator(new double[] { object.x, object.y },
 				tree.size(), distanceFunction);
 		neighbours.clear();
 		while (iter.hasNext())
 		{
-			Molecule m = iter.next();
-			float d = (float) iter.distance();
+			final Molecule m = iter.next();
+			final float d = (float) iter.distance();
 			if (d <= e)
 			{
 				m.setD(d);

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -125,7 +125,7 @@ public class OPTICSManager extends CoordinateStore
 	{
 		if (options == null)
 			return;
-		for (Option option : options)
+		for (final Option option : options)
 			this.options.add(option);
 	}
 
@@ -310,16 +310,14 @@ public class OPTICSManager extends CoordinateStore
 		@Override
 		public Molecule next()
 		{
-			Molecule m = list[next++];
+			final Molecule m = list[next++];
 			if (hasNext())
 			{
 				// Find the next lowest molecule
 				int lowest = next;
 				for (int i = next + 1; i < size; i++)
-				{
 					if (lower(list[i], list[lowest]))
 						lowest = i;
-				}
 				swap(next, lowest);
 			}
 			return m;
@@ -327,7 +325,7 @@ public class OPTICSManager extends CoordinateStore
 
 		void swap(int i, int j)
 		{
-			Molecule m = list[i];
+			final Molecule m = list[i];
 			set(list[j], i);
 			set(m, j);
 		}
@@ -424,7 +422,7 @@ public class OPTICSManager extends CoordinateStore
 		@Override
 		public Molecule next()
 		{
-			Molecule m = list[0];
+			final Molecule m = list[0];
 			set(list[--size], 0);
 			siftDown(0);
 			return m;
@@ -454,15 +452,13 @@ public class OPTICSManager extends CoordinateStore
 					c = p;
 				}
 				else
-				{
 					break;
-				}
 			}
 		}
 
 		void swap(int i, int j)
 		{
-			Molecule m = list[i];
+			final Molecule m = list[i];
 			set(list[j], i);
 			set(m, j);
 		}
@@ -472,17 +468,11 @@ public class OPTICSManager extends CoordinateStore
 			for (int c = p * 2 + 1; c < size; p = c, c = p * 2 + 1)
 			{
 				if (c + 1 < size && higher(list[c], list[c + 1]))
-				{
 					c++;
-				}
 				if (higher(list[p], list[c]))
-				{
 					swap(p, c);
-				}
 				else
-				{
 					break;
-				}
 			}
 		}
 
@@ -683,15 +673,13 @@ public class OPTICSManager extends CoordinateStore
 				final int p = (c - 1) >>> 1;
 				if (queue[c] > queue[p])
 				{
-					float pDist = queue[p];
+					final float pDist = queue[p];
 					queue[p] = queue[c];
 					queue[c] = pDist;
 					c = p;
 				}
 				else
-				{
 					break;
-				}
 			}
 		}
 
@@ -700,20 +688,16 @@ public class OPTICSManager extends CoordinateStore
 			for (int c = p * 2 + 1; c < n; p = c, c = p * 2 + 1)
 			{
 				if (c + 1 < n && queue[c] < queue[c + 1])
-				{
 					c++;
-				}
 				if (queue[p] < queue[c])
 				{
 					// Swap the points
-					float pDist = queue[p];
+					final float pDist = queue[p];
 					queue[p] = queue[c];
 					queue[c] = pDist;
 				}
 				else
-				{
 					break;
-				}
 			}
 		}
 	}
@@ -775,24 +759,24 @@ public class OPTICSManager extends CoordinateStore
 			tracker.progress(0, xcoord.length);
 		}
 
-		// Note: The method and variable names used in this function are designed to match 
+		// Note: The method and variable names used in this function are designed to match
 		// the pseudocode implementation from the 1999 OPTICS paper.
 		// The generating distance (E) used in the paper is the maximum distance at which cluster
-		// centres will be formed. This implementation uses the squared distance to avoid sqrt() 
+		// centres will be formed. This implementation uses the squared distance to avoid sqrt()
 		// function calls.
 		final float e = generatingDistanceE * generatingDistanceE;
 
 		final int size = xcoord.length;
-		Molecule[] setOfObjects = grid.setOfObjects;
+		final Molecule[] setOfObjects = grid.setOfObjects;
 
 		// Allow different queue implementations.
 		// Note:
 		// The ELKI code de.lmu.ifi.dbs.elki.algorithm.clustering.optics.OPTICSHeapEntry
 		// Returns the opposite of an id comparison:
 		// return -DBIDUtil.compare(objectID, o.objectID);
-		// I do not know why this is but I have added it so the functionality 
-		// is identical in order to pass the JUnit tests		
-		OPTICSPriorityQueue orderSeeds = createQueue(size);
+		// I do not know why this is but I have added it so the functionality
+		// is identical in order to pass the JUnit tests
+		final OPTICSPriorityQueue orderSeeds = createQueue(size);
 
 		// Testing ... Should we use the ID order by default? Nothing in the OPTICS paper mentions it.
 		// Perhaps the reachability distance profile is more consistent when changing the generating distance?
@@ -802,16 +786,14 @@ public class OPTICSManager extends CoordinateStore
 		//orderSeeds = new OPTICSMoleculePriorityQueueIdOrdered(size);
 		//orderSeeds = new OPTICSMoleculeBinaryHeapReverseIdOrdered(size);
 
-		OPTICSResultList results = new OPTICSResultList(size);
+		final OPTICSResultList results = new OPTICSResultList(size);
 
 		for (int i = 0; i < size; i++)
 		{
 			final Molecule object = setOfObjects[i];
 			if (object.isNotProcessed())
-			{
 				if (expandClusterOrder(object, e, minPts, results, orderSeeds))
 					break;
-			}
 		}
 
 		boolean stopped = false;
@@ -854,15 +836,12 @@ public class OPTICSManager extends CoordinateStore
 			else
 				orderSeeds = new OPTICSMoleculePriorityQueue(size);
 		}
+		else if (options.contains(Option.OPTICS_STRICT_ID_ORDER))
+			orderSeeds = new OPTICSMoleculeBinaryHeapIdOrdered(size);
+		else if (options.contains(Option.OPTICS_STRICT_REVERSE_ID_ORDER))
+			orderSeeds = new OPTICSMoleculeBinaryHeapReverseIdOrdered(size);
 		else
-		{
-			if (options.contains(Option.OPTICS_STRICT_ID_ORDER))
-				orderSeeds = new OPTICSMoleculeBinaryHeapIdOrdered(size);
-			else if (options.contains(Option.OPTICS_STRICT_REVERSE_ID_ORDER))
-				orderSeeds = new OPTICSMoleculeBinaryHeapReverseIdOrdered(size);
-			else
-				orderSeeds = new OPTICSMoleculeBinaryHeap(size);
-		}
+			orderSeeds = new OPTICSMoleculeBinaryHeap(size);
 		return orderSeeds;
 	}
 
@@ -894,27 +873,23 @@ public class OPTICSManager extends CoordinateStore
 
 			// OPTICS will benefit from circular processing if the density is high.
 			// This is because we can skip distance computation to molecules outside the circle.
-			// This is roughly pi/4 
+			// This is roughly pi/4
 			// Compute the expected number of molecules in the area.
 
 			final float xrange = maxXCoord - minXCoord;
 			final float yrange = maxYCoord - minYCoord;
 			double area;
 			if (xrange == 0 && yrange == 0)
-			{
 				// Occurs when only 1 point or colocated data. A distance of zero is invalid so set to 1.
 				area = 1;
-			}
 			else
-			{
 				area = xrange * yrange;
-			}
 
-			double nMoleculesInPixel = getSize() / area;
-			double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
+			final double nMoleculesInPixel = getSize() / area;
+			final double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 
-			// TODO - JUnit test to show when to use a circle to avoid distance comparisons. 
-			// We can miss 1 - pi/4 = 21% of the area.  
+			// TODO - JUnit test to show when to use a circle to avoid distance comparisons.
+			// We can miss 1 - pi/4 = 21% of the area.
 			if (nMoleculesInCircle > RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_OUTER)
 				clazz = RadialMoleculeSpace.class;
 		}
@@ -936,17 +911,13 @@ public class OPTICSManager extends CoordinateStore
 			final float yrange = maxYCoord - minYCoord;
 			double area;
 			if (xrange == 0 && yrange == 0)
-			{
 				// Occurs when only 1 point or colocated data. A distance of zero is invalid so set to 1.
 				area = 1;
-			}
 			else
-			{
 				area = xrange * yrange;
-			}
 
-			double nMoleculesInPixel = getSize() / area;
-			double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
+			final double nMoleculesInPixel = getSize() / area;
+			final double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 
 			if (nMoleculesInCircle > RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_INNER)
 				clazz = InnerRadialMoleculeSpace.class;
@@ -956,7 +927,7 @@ public class OPTICSManager extends CoordinateStore
 
 	/**
 	 * Returned the preferred class for the molecule space using the options.
-	 * 
+	 *
 	 * @param allowNull
 	 *            Set to true to return null if no options are set
 	 * @return the preferred class for the molecule space
@@ -1012,10 +983,8 @@ public class OPTICSManager extends CoordinateStore
 			grid.generate();
 		}
 		else
-		{
 			// This is the same distance so the objects can be reused
 			grid.reset();
-		}
 
 		//if (floatArray == null || floatArray.length < minPts)
 		//	floatArray = new float[minPts];
@@ -1059,7 +1028,7 @@ public class OPTICSManager extends CoordinateStore
 			return computeGeneratingDistance(minPts);
 
 		// Compute the upper distance we can expect
-		double maxDistance = Math.sqrt(xrange * xrange + yrange * yrange);
+		final double maxDistance = Math.sqrt(xrange * xrange + yrange * yrange);
 		if (generatingDistanceE > maxDistance)
 			return (float) maxDistance;
 
@@ -1083,9 +1052,7 @@ public class OPTICSManager extends CoordinateStore
 	private void finish()
 	{
 		if (!options.contains(Option.CACHE))
-		{
 			clearMemory();
-		}
 	}
 
 	/**
@@ -1167,30 +1134,24 @@ public class OPTICSManager extends CoordinateStore
 		{
 			float max = list[0].getD();
 			for (int i = 1; i < size; i++)
-			{
 				if (max < list[i].getD())
 					max = list[i].getD();
-			}
 			object.coreDistance = max;
 			return;
 		}
 
-		// Use a heap structure. This should out perform a pointer to the max value when 
-		// minPts is much lower than the number of neighbours. When it is similar then 
+		// Use a heap structure. This should out perform a pointer to the max value when
+		// minPts is much lower than the number of neighbours. When it is similar then
 		// the speed is fast no matter what method is used since minPts is expected to be low
 		// (somewhere around 5 for 2D data).
 
 		heap.start(list[0].getD());
 		int i = 1;
 		while (i < minPts)
-		{
 			heap.put(i, list[i++].getD());
-		}
 		// Scan
 		while (i < size)
-		{
 			heap.push(list[i++].getD());
-		}
 
 		object.coreDistance = heap.getMaxValue();
 
@@ -1200,7 +1161,7 @@ public class OPTICSManager extends CoordinateStore
 		//			final boolean useHeap = true;
 		//			if (useHeap)
 		//			{
-		//				// Fill 
+		//				// Fill
 		//				heap.start(list[0].d);
 		//				i = 1;
 		//				while (i < minPts)
@@ -1212,17 +1173,17 @@ public class OPTICSManager extends CoordinateStore
 		//				{
 		//					heap.push(list[i++].d);
 		//				}
-		//				
+		//
 		//				object.coreDistance = heap.getMaxValue();
 		//			}
 		//			else
 		//			{
 		//				// Avoid a full sort using a priority queue structure.
-		//				// We retain a pointer to the current highest value in the set. 
+		//				// We retain a pointer to the current highest value in the set.
 		//				int max = 0;
 		//				floatArray[0] = list[0].d;
 		//
-		//				// Fill 
+		//				// Fill
 		//				i = 1;
 		//				while (i < minPts)
 		//				{
@@ -1265,7 +1226,7 @@ public class OPTICSManager extends CoordinateStore
 	 * @param centreObject
 	 *            the object
 	 */
-	private void fill(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours, Molecule centreObject)
+	private static void fill(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours, Molecule centreObject)
 	{
 		orderSeeds.clear();
 
@@ -1293,7 +1254,7 @@ public class OPTICSManager extends CoordinateStore
 	 * @param centreObject
 	 *            the object
 	 */
-	private void update(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours, Molecule centreObject)
+	private static void update(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours, Molecule centreObject)
 	{
 		final float c_dist = centreObject.coreDistance;
 		for (int i = neighbours.size; i-- > 0;)
@@ -1309,17 +1270,14 @@ public class OPTICSManager extends CoordinateStore
 					object.predecessor = centreObject.id;
 					orderSeeds.push(object);
 				}
-				else
+				else // This is already in the list
+				// Here is the difference between OPTICS and DBSCAN.
+				// In this case the order of points to process can be changed based on the reachability.
+				if (new_r_dist < object.reachabilityDistance)
 				{
-					// This is already in the list
-					// Here is the difference between OPTICS and DBSCAN.
-					// In this case the order of points to process can be changed based on the reachability.
-					if (new_r_dist < object.reachabilityDistance)
-					{
-						object.reachabilityDistance = new_r_dist;
-						object.predecessor = centreObject.id;
-						orderSeeds.moveUp(object);
-					}
+					object.reachabilityDistance = new_r_dist;
+					object.predecessor = centreObject.id;
+					orderSeeds.moveUp(object);
 				}
 			}
 		}
@@ -1369,15 +1327,15 @@ public class OPTICSManager extends CoordinateStore
 		// Number of dimensions
 		// d = 2;
 		// Volume of the data space (DS)
-		double volumeDS = area;
+		final double volumeDS = area;
 		// Expected k-nearest-neighbours
-		int k = minPts;
+		final int k = minPts;
 
 		// Compute the volume of the hypersphere required to contain k neighbours,
 		// assuming a uniform spread.
 		// VolumeS = (VolumeDS/N) x k
 
-		double volumeS = (volumeDS / N) * k;
+		final double volumeS = (volumeDS / N) * k;
 
 		// Note Volume S(r) for a 2D hypersphere = pi * r^2
 		return (float) Math.sqrt(volumeS / Math.PI);
@@ -1425,25 +1383,23 @@ public class OPTICSManager extends CoordinateStore
 		}
 
 		// The generating distance (E) used in the paper is the maximum distance at which cluster
-		// centres will be formed. This implementation uses the squared distance to avoid sqrt() 
+		// centres will be formed. This implementation uses the squared distance to avoid sqrt()
 		// function calls.
 		final float e = generatingDistanceE * generatingDistanceE;
 
 		final int size = xcoord.length;
-		Molecule[] setOfObjects = grid.setOfObjects;
+		final Molecule[] setOfObjects = grid.setOfObjects;
 
 		// Working storage
-		MoleculeQueue seeds = new MoleculeQueue(size);
-		Counter counter = new Counter(size);
+		final MoleculeQueue seeds = new MoleculeQueue(size);
+		final Counter counter = new Counter(size);
 
 		for (int i = 0; i < size; i++)
 		{
 			final Molecule object = setOfObjects[i];
 			if (object.isNotProcessed())
-			{
 				if (expandCluster(object, e, minPts, counter, seeds))
 					break;
-			}
 		}
 
 		boolean stopped = false;
@@ -1460,7 +1416,7 @@ public class OPTICSManager extends CoordinateStore
 		if (!stopped)
 		{
 			// Convert the working data structure to the output
-			DBSCANOrder[] dbscanOrder = new DBSCANOrder[size];
+			final DBSCANOrder[] dbscanOrder = new DBSCANOrder[size];
 			for (int i = 0; i < size; i++)
 				dbscanOrder[i] = setOfObjects[i].toDBSCANResult();
 			dbscanResult = new DBSCANResult(this, minPts, generatingDistanceE, dbscanOrder);
@@ -1488,7 +1444,7 @@ public class OPTICSManager extends CoordinateStore
 		if (grid.neighbours.size >= minPts)
 		{
 			// New cluster
-			int clusterId = counter.nextClusterId();
+			final int clusterId = counter.nextClusterId();
 			object.setClusterOrigin(clusterId);
 
 			// Expand through the grid.neighbours
@@ -1523,7 +1479,7 @@ public class OPTICSManager extends CoordinateStore
 	 * @param clusterId
 	 *            the cluster id
 	 */
-	private void update(MoleculeQueue pointsToSearch, MoleculeList neighbours, int clusterId)
+	private static void update(MoleculeQueue pointsToSearch, MoleculeList neighbours, int clusterId)
 	{
 		for (int i = neighbours.size; i-- > 0;)
 		{
@@ -1536,8 +1492,8 @@ public class OPTICSManager extends CoordinateStore
 				// ---
 				// Note: It is possible to speed up the algorithm by skipping those at zero distance
 				// (since no more points can be found from a second search from the same location).
-				// However we do not currently require that we compute neighbour distances so this 
-				// cannot be done at present. 
+				// However we do not currently require that we compute neighbour distances so this
+				// cannot be done at present.
 				if (object.isNotProcessed())
 					pointsToSearch.push(object);
 			}
@@ -1547,7 +1503,7 @@ public class OPTICSManager extends CoordinateStore
 	@Override
 	public OPTICSManager clone()
 	{
-		OPTICSManager m = (OPTICSManager) super.clone();
+		final OPTICSManager m = (OPTICSManager) super.clone();
 		m.options = options.clone();
 		m.clearMemory();
 		return m;
@@ -1597,7 +1553,7 @@ public class OPTICSManager extends CoordinateStore
 		return ycoord[i] + originy;
 	}
 
-	private SimpleFloatKdTree2D tree = null;;
+	private SimpleFloatKdTree2D tree = null;
 
 	/**
 	 * Compute (a sample of) the k-nearest neighbour distance for objects from the data
@@ -1619,7 +1575,7 @@ public class OPTICSManager extends CoordinateStore
 	 */
 	public float[] nearestNeighbourDistance(int k, int samples, boolean cache)
 	{
-		int size = xcoord.length;
+		final int size = xcoord.length;
 		if (size < 2)
 			return new float[0];
 
@@ -1636,7 +1592,7 @@ public class OPTICSManager extends CoordinateStore
 			k = size - 1;
 
 		final int n = Math.min(samples, size);
-		float[] d = new float[n];
+		final float[] d = new float[n];
 
 		if (tracker != null)
 		{
@@ -1646,14 +1602,12 @@ public class OPTICSManager extends CoordinateStore
 
 		int[] indices;
 		if (n <= size)
-		{
 			// Compute all
 			indices = SimpleArrayUtils.newArray(n, 0, 1);
-		}
 		else
 		{
 			// Random sample
-			RandomDataGenerator r = new RandomDataGenerator();
+			final RandomDataGenerator r = new RandomDataGenerator();
 			indices = r.nextPermutation(size, n);
 		}
 
@@ -1672,8 +1626,8 @@ public class OPTICSManager extends CoordinateStore
 		{
 			if (tracker != null)
 				tracker.progress(i, n);
-			int index = indices[i];
-			float[] location = new float[] { xcoord[index], ycoord[index] };
+			final int index = indices[i];
+			final float[] location = new float[] { xcoord[index], ycoord[index] };
 			// The tree will use the squared distance so compute the root
 			d[i] = (float) (Math.sqrt(tree.nearestNeighbor(location, k)[0]));
 		}
@@ -1790,7 +1744,7 @@ public class OPTICSManager extends CoordinateStore
 		}
 
 		// Compute projections and find neighbours
-		ProjectedMoleculeSpace space = (ProjectedMoleculeSpace) grid;
+		final ProjectedMoleculeSpace space = (ProjectedMoleculeSpace) grid;
 
 		space.nSplits = nSplits;
 		space.nProjections = nProjections;
@@ -1803,7 +1757,7 @@ public class OPTICSManager extends CoordinateStore
 		space.computeSets(minPts); // project points
 		space.computeAverageDistInSetAndNeighbours();
 
-		// Run OPTICS		
+		// Run OPTICS
 		long time2 = 0;
 		if (tracker != null)
 		{
@@ -1812,25 +1766,23 @@ public class OPTICSManager extends CoordinateStore
 			tracker.progress(0, xcoord.length);
 		}
 
-		// Note: The method and variable names used in this function are designed to match 
+		// Note: The method and variable names used in this function are designed to match
 		// the pseudocode implementation from the 1999 OPTICS paper.
 
 		final int size = xcoord.length;
-		Molecule[] setOfObjects = grid.setOfObjects;
+		final Molecule[] setOfObjects = grid.setOfObjects;
 
-		OPTICSPriorityQueue orderSeeds = createQueue(size);
+		final OPTICSPriorityQueue orderSeeds = createQueue(size);
 
-		OPTICSResultList results = new OPTICSResultList(size);
+		final OPTICSResultList results = new OPTICSResultList(size);
 
 		for (int i = 0; i < size; i++)
 		{
 			final Molecule object = setOfObjects[i];
 			if (object.isNotProcessed())
-			{
 				// TODO - specific version using the precomputed neighbours
 				if (expandClusterOrder(object, minPts, results, orderSeeds))
 					break;
-			}
 		}
 
 		boolean stopped = false;
@@ -1850,7 +1802,7 @@ public class OPTICSManager extends CoordinateStore
 			final int nClusters = optics.extractDBSCANClustering(grid.generatingDistanceE);
 			if (tracker != null)
 			{
-				long end = System.currentTimeMillis();
+				final long end = System.currentTimeMillis();
 				time = end - time;
 				time2 = end - time2;
 				tracker.log("Finished OPTICS: %s @ %s (Time = %s)", TextUtils.pleural(nClusters, "Cluster"),
@@ -1928,7 +1880,8 @@ public class OPTICSManager extends CoordinateStore
 	 * @param centreObject
 	 *            the object
 	 */
-	private void fillWithComputeDistance(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours, Molecule centreObject)
+	private static void fillWithComputeDistance(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours,
+			Molecule centreObject)
 	{
 		orderSeeds.clear();
 
@@ -1956,7 +1909,7 @@ public class OPTICSManager extends CoordinateStore
 	 * @param centreObject
 	 *            the object
 	 */
-	private void updateWithComputeDistance(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours,
+	private static void updateWithComputeDistance(OPTICSPriorityQueue orderSeeds, MoleculeList neighbours,
 			Molecule centreObject)
 	{
 		final float c_dist = centreObject.coreDistance;
@@ -1973,17 +1926,14 @@ public class OPTICSManager extends CoordinateStore
 					object.predecessor = centreObject.id;
 					orderSeeds.push(object);
 				}
-				else
+				else // This is already in the list
+				// Here is the difference between OPTICS and DBSCAN.
+				// In this case the order of points to process can be changed based on the reachability.
+				if (new_r_dist < object.reachabilityDistance)
 				{
-					// This is already in the list
-					// Here is the difference between OPTICS and DBSCAN.
-					// In this case the order of points to process can be changed based on the reachability.
-					if (new_r_dist < object.reachabilityDistance)
-					{
-						object.reachabilityDistance = new_r_dist;
-						object.predecessor = centreObject.id;
-						orderSeeds.moveUp(object);
-					}
+					object.reachabilityDistance = new_r_dist;
+					object.predecessor = centreObject.id;
+					orderSeeds.moveUp(object);
 				}
 			}
 		}
@@ -1996,21 +1946,21 @@ public class OPTICSManager extends CoordinateStore
 	 *            the results list
 	 * @return the max reachability distance
 	 */
-	private float getMaxReachability(OPTICSOrder[] list)
+	private static float getMaxReachability(OPTICSOrder[] list)
 	{
 		double max = 0;
 		for (int i = list.length; i-- > 0;)
 			if (list[i].isReachablePoint() && max < list[i].reachabilityDistance)
 				max = list[i].reachabilityDistance;
 
-		// Commented out as it may not matter  
+		// Commented out as it may not matter
 		//if (max == 0)
 		//{
 		//	// Get the max core distance
 		//	for (int i = list.length; i-- > 0;)
 		//		if (list[i].isCorePoint() && max < list[i].coreDistance)
 		//			max = list[i].coreDistance;
-		//	
+		//
 		//	// This will probably never happen
 		//	if (max == 0)
 		//		max = 1;
@@ -2102,7 +2052,7 @@ public class OPTICSManager extends CoordinateStore
 	 */
 	public float[] loop(int k, double lambda, boolean cache)
 	{
-		int size = xcoord.length;
+		final int size = xcoord.length;
 		if (size < 2)
 			return new float[size];
 
@@ -2115,14 +2065,10 @@ public class OPTICSManager extends CoordinateStore
 			k = size - 1;
 
 		if (tracker != null)
-		{
 			tracker.log("Computing Local Outlier Probability scores, k=%d, Lambda=%s", k, Utils.rounded(lambda));
-		}
 
 		if (loop == null)
-		{
 			loop = new LoOP(xcoord, ycoord);
-		}
 		loop.setNumberOfThreads(getNumberOfThreads());
 
 		double[] scores;
@@ -2130,18 +2076,16 @@ public class OPTICSManager extends CoordinateStore
 		{
 			scores = loop.run(k, lambda);
 		}
-		catch (Exception e)
+		catch (final Exception e)
 		{
 			if (tracker != null)
-			{
 				tracker.log("Failed LoOP computation: " + e.getMessage());
-			}
 			e.printStackTrace();
 			return null;
 		}
 
-		// Convert to float 
-		float[] result = new float[scores.length];
+		// Convert to float
+		final float[] result = new float[scores.length];
 		for (int i = 0; i < scores.length; i++)
 			result[i] = (float) scores[i];
 

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -141,7 +141,7 @@ public class FHT2 extends FloatProcessor
 	{
 		if (S == null)
 			initializeTables(width);
-		float[] fht = (float[]) getPixels();
+		final float[] fht = (float[]) getPixels();
 		rc2DFHT(fht, inverse, width);
 		isFrequencyDomain = !inverse;
 		resetFastOperations();
@@ -177,11 +177,11 @@ public class FHT2 extends FloatProcessor
 
 	private void makeSinCosTables(int maxN)
 	{
-		int n = maxN / 4;
+		final int n = maxN / 4;
 		C = new float[n];
 		S = new float[n];
 		double theta = 0.0;
-		double dTheta = 2.0 * Math.PI / maxN;
+		final double dTheta = 2.0 * Math.PI / maxN;
 		for (int i = 0; i < n; i++)
 		{
 			C[i] = (float) Math.cos(theta);
@@ -193,7 +193,7 @@ public class FHT2 extends FloatProcessor
 	private void makeBitReverseTable(int maxN)
 	{
 		bitrev = new int[maxN];
-		int nLog2 = log2(maxN);
+		final int nLog2 = log2(maxN);
 		for (int i = 0; i < maxN; i++)
 			bitrev[i] = bitRevX(i, nLog2);
 	}
@@ -210,7 +210,7 @@ public class FHT2 extends FloatProcessor
 	/** Performs a 2D FHT (Fast Hartley Transform). */
 	private void rc2DFHT(float[] x, boolean inverse, int maxN)
 	{
-		float[] tmp = new float[maxN];
+		final float[] tmp = new float[maxN];
 		for (int row = 0; row < maxN; row++)
 			//dfht3(x, row * maxN, inverse, maxN);
 			dfht3(x, row * maxN, inverse, maxN, tmp);
@@ -223,7 +223,6 @@ public class FHT2 extends FloatProcessor
 		int mRow, mCol;
 		float A, B, C, D, E;
 		for (int row = 0; row <= maxN / 2; row++)
-		{ // Now calculate actual Hartley transform
 			for (int col = 0; col <= maxN / 2; col++)
 			{
 				mRow = (maxN - row) % maxN;
@@ -238,12 +237,11 @@ public class FHT2 extends FloatProcessor
 				x[row * maxN + mCol] = C + E;
 				x[mRow * maxN + mCol] = D - E;
 			}
-		}
 	}
 
 	/**
 	 * Performs an optimized 1D FHT of an array or part of an array.
-	 * 
+	 *
 	 * @param x
 	 *            Input array; will be overwritten by the output in the range given by base and maxN.
 	 * @param base
@@ -333,10 +331,8 @@ public class FHT2 extends FloatProcessor
 		} /* end if Nlog2 > 2 */
 
 		if (inverse)
-		{
 			for (int i = 0; i < maxN; i++)
 				x[base + i] = x[base + i] / maxN;
-		}
 	}
 
 	/**
@@ -435,10 +431,8 @@ public class FHT2 extends FloatProcessor
 		} /* end if Nlog2 > 2 */
 
 		if (inverse)
-		{
 			for (int i = 0; i < maxN; i++)
 				x2[i] = x2[i] / maxN;
-		}
 
 		// Copy back
 		System.arraycopy(x2, 0, x, base, maxN);
@@ -455,14 +449,12 @@ public class FHT2 extends FloatProcessor
 	private static void transposeR(float[] x, int maxN)
 	{
 		for (int r = 0; r < maxN; r++)
-		{
 			for (int c = r + 1, i = r * maxN + r + 1, ii = (r + 1) * maxN + r; c < maxN; c++, i++, ii += maxN)
 			{
 				final float rTemp = x[i];
 				x[i] = x[ii];
 				x[ii] = rTemp;
 			}
-		}
 	}
 
 	private static int log2(int x)
@@ -498,7 +490,7 @@ public class FHT2 extends FloatProcessor
 	 * Converts this FHT to a complex Fourier transform and returns it as a two slice stack.
 	 * This has been adapted from the routine {@link #getComplexTransform()} to compute the real and imaginary
 	 * parts of the transform at the same time.
-	 * 
+	 *
 	 * Author: Joachim Wesner, Alex Herbert
 	 *
 	 * @return the complex transform
@@ -507,17 +499,15 @@ public class FHT2 extends FloatProcessor
 	{
 		if (!isFrequencyDomain)
 			throw new IllegalArgumentException("Frequency domain image required");
-		int maxN = getWidth();
-		float[] fht = getData();
-		float[] re = new float[maxN * maxN];
-		float[] im = new float[maxN * maxN];
+		final int maxN = getWidth();
+		final float[] fht = getData();
+		final float[] re = new float[maxN * maxN];
+		final float[] im = new float[maxN * maxN];
 		for (int i = 0; i < maxN; i++)
-		{
 			FHTboth(i, maxN, fht, re, im);
-		}
 		swapQuadrants(new FloatProcessor(maxN, maxN, re, null));
 		swapQuadrants(new FloatProcessor(maxN, maxN, im, null));
-		ImageStack stack = new ImageStack(maxN, maxN);
+		final ImageStack stack = new ImageStack(maxN, maxN);
 		stack.addSlice("Real", re);
 		stack.addSlice("Imaginary", im);
 		return stack;
@@ -527,7 +517,7 @@ public class FHT2 extends FloatProcessor
 	 * Converts this FHT to a complex Fourier transform and returns it as a two slice stack.
 	 * This has been adapted from the routine {@link #getComplexTransform()} to compute the real and imaginary
 	 * parts of the transform at the same time.
-	 * 
+	 *
 	 * Author: Joachim Wesner, Alex Herbert
 	 *
 	 * @return the complex transform real and imaginary processors
@@ -536,15 +526,13 @@ public class FHT2 extends FloatProcessor
 	{
 		if (!isFrequencyDomain)
 			throw new IllegalArgumentException("Frequency domain image required");
-		int maxN = getWidth();
-		float[] fht = getData();
-		float[] re = new float[maxN * maxN];
-		float[] im = new float[maxN * maxN];
+		final int maxN = getWidth();
+		final float[] fht = getData();
+		final float[] re = new float[maxN * maxN];
+		final float[] im = new float[maxN * maxN];
 		for (int i = 0; i < maxN; i++)
-		{
 			FHTboth(i, maxN, fht, re, im);
-		}
-		FloatProcessor[] out = new FloatProcessor[] { new FloatProcessor(maxN, maxN, re, null),
+		final FloatProcessor[] out = new FloatProcessor[] { new FloatProcessor(maxN, maxN, re, null),
 				new FloatProcessor(maxN, maxN, im, null) };
 		swapQuadrants(out[0]);
 		swapQuadrants(out[1]);
@@ -567,10 +555,10 @@ public class FHT2 extends FloatProcessor
 	 * @param imag
 	 *            the imag
 	 */
-	private void FHTboth(int row, int maxN, float[] fht, float[] real, float[] imag)
+	private static void FHTboth(int row, int maxN, float[] fht, float[] real, float[] imag)
 	{
-		int base = row * maxN;
-		int offs = ((maxN - row) % maxN) * maxN;
+		final int base = row * maxN;
+		final int offs = ((maxN - row) % maxN) * maxN;
 		for (int c = 0; c < maxN; c++)
 		{
 			final float a = fht[base + c];
@@ -583,7 +571,7 @@ public class FHT2 extends FloatProcessor
 	/**
 	 * Swap quadrants 1 and 3 and 2 and 4 of the specified ImageProcessor
 	 * so the power spectrum origin is at the center of the image.
-	 * 
+	 *
 	 * <pre>
 	 * 	    2 1
 	 * 	    3 4
@@ -596,7 +584,7 @@ public class FHT2 extends FloatProcessor
 	{
 		//IJ.log("swap");
 		ImageProcessor t1, t2;
-		int size = ip.getWidth() / 2;
+		final int size = ip.getWidth() / 2;
 		ip.setRoi(size, 0, size, size);
 		t1 = ip.crop();
 		ip.setRoi(0, size, size, size);
@@ -615,7 +603,7 @@ public class FHT2 extends FloatProcessor
 	/**
 	 * Swap quadrants 1 and 3 and 2 and 4 of image
 	 * so the power spectrum origin is at the center of the image.
-	 * 
+	 *
 	 * <pre>
 	    2 1
 	    3 4
@@ -630,12 +618,12 @@ public class FHT2 extends FloatProcessor
 	/**
 	 * Swap quadrants 1 and 3 and 2 and 4 of the specified ImageProcessor
 	 * so the power spectrum origin is at the center of the image.
-	 * 
+	 *
 	 * <pre>
 	    2 1
 	    3 4
 	 * </pre>
-	 * 
+	 *
 	 * @param ip
 	 *            The processor (must be an even square, i.e. width==height and width is even)
 	 * @throws IllegalArgumentException
@@ -643,23 +631,23 @@ public class FHT2 extends FloatProcessor
 	 */
 	public static void swapQuadrants(FloatProcessor ip) throws IllegalArgumentException
 	{
-		// This is a specialised version to allow using a float buffer and 
+		// This is a specialised version to allow using a float buffer and
 		// optimised for even sized images
 
-		int ny = ip.getHeight();
-		int nx = ip.getWidth();
+		final int ny = ip.getHeight();
+		final int nx = ip.getWidth();
 		if ((ny & 1) == 1 || (nx & 1) == 1)
 			throw new IllegalArgumentException("Require even dimensions");
 
-		int ny_2 = ny / 2;
-		int nx_2 = nx / 2;
+		final int ny_2 = ny / 2;
+		final int nx_2 = nx / 2;
 
-		float[] tmp = new float[nx];
-		float[] a = (float[]) ip.getPixels();
+		final float[] tmp = new float[nx];
+		final float[] a = (float[]) ip.getPixels();
 
 		//@formatter:off
 		// We swap: 0 <=> nx_2, 0 <=> ny_2
-		// 1 <=> 3 
+		// 1 <=> 3
 		FHT2.swap(a, a, nx, nx_2,    0,    0, ny_2, nx_2, ny_2, tmp);
 		// 2 <=> 4
 		FHT2.swap(a, a, nx,    0,    0, nx_2, ny_2, nx_2, ny_2, tmp);
@@ -696,8 +684,8 @@ public class FHT2 extends FloatProcessor
 	{
 		for (int ayy = ay + h, byy = by + h - 1; ayy-- > ay; byy--)
 		{
-			int ai = ayy * width + ax;
-			int bi = byy * width + bx;
+			final int ai = ayy * width + ax;
+			final int bi = byy * width + bx;
 			System.arraycopy(a, ai, tmp, 0, w);
 			System.arraycopy(b, bi, a, ai, w);
 			System.arraycopy(tmp, 0, b, bi, w);
@@ -716,21 +704,19 @@ public class FHT2 extends FloatProcessor
 		if (h2e == null)
 		{
 			// Do this on new arrays for thread safety (i.e. concurrent initialisation)
-			float[] h2 = getData();
+			final float[] h2 = getData();
 			final int maxN = getWidth();
-			double[] h2e = new double[h2.length];
-			double[] h2o = new double[h2e.length];
-			int[] jj = new int[h2e.length];
+			final double[] h2e = new double[h2.length];
+			final double[] h2o = new double[h2e.length];
+			final int[] jj = new int[h2e.length];
 			for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r)
-			{
 				for (int c = 0, colMod = 0; c < maxN; c++, colMod = maxN - c, i++)
 				{
-					int j = rowMod * maxN + colMod;
+					final int j = rowMod * maxN + colMod;
 					h2e[i] = (h2[i] + h2[j]) / 2;
 					h2o[i] = (h2[i] - h2[j]) / 2;
 					jj[i] = j;
 				}
-			}
 			this.h2o = h2o;
 			this.jj = jj;
 			// Assign at the end for thread safety (i.e. concurrent initialisation)
@@ -751,8 +737,8 @@ public class FHT2 extends FloatProcessor
 		if (mag == null)
 		{
 			// Do this on new arrays for thread safety (i.e. concurrent initialisation)
-			double[] mag = new double[h2e.length];
-			float[] h2 = getData();
+			final double[] mag = new double[h2e.length];
+			final float[] h2 = getData();
 			for (int i = 0; i < h2.length; i++)
 				// Note that pre-computed h2e and h2o are divided by 2 so we also
 				// divide the magnitude by 2 to allow reuse of the pre-computed values
@@ -792,7 +778,7 @@ public class FHT2 extends FloatProcessor
 
 	private FHT2 createFHTResult(float[] tmp, final int maxN)
 	{
-		FHT2 result = new FHT2(tmp, maxN, true);
+		final FHT2 result = new FHT2(tmp, maxN, true);
 		// For faster inverse transform copy the tables
 		result.copyTables(this);
 		return result;
@@ -844,12 +830,11 @@ public class FHT2 extends FloatProcessor
 	 */
 	private FHT2 multiply(float[] h2, float[] tmp)
 	{
-		float[] h1 = getData();
+		final float[] h1 = getData();
 		final int maxN = getWidth();
 		if (tmp == null || tmp.length != h1.length)
 			tmp = new float[h1.length];
 		for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r)
-		{
 			//rowMod = (maxN - r) % maxN;
 			for (int c = 0, colMod = 0; c < maxN; c++, colMod = maxN - c, i++)
 			{
@@ -865,12 +850,11 @@ public class FHT2 extends FloatProcessor
 				//h2o = (h2[r][c] - h2[N-r][N-c]) / 2;
 				//tmp[r][c] = (float) (h1[r][c] * h2e + h1[N-r][N-c] * h2o);
 
-				int j = rowMod * maxN + colMod;
-				double h2e = (h2[i] + h2[j]) / 2;
-				double h2o = (h2[i] - h2[j]) / 2;
+				final int j = rowMod * maxN + colMod;
+				final double h2e = (h2[i] + h2[j]) / 2;
+				final double h2o = (h2[i] - h2[j]) / 2;
 				tmp[i] = (float) (h1[i] * h2e + h1[j] * h2o);
 			}
-		}
 		return createFHTResult(tmp, maxN);
 	}
 
@@ -892,7 +876,7 @@ public class FHT2 extends FloatProcessor
 	 */
 	private FHT2 multiply(double[] h2e, double[] h2o, int[] jj, float[] tmp)
 	{
-		float[] h1 = getData();
+		final float[] h1 = getData();
 		if (tmp == null || tmp.length != h1.length)
 			tmp = new float[h1.length];
 		for (int i = 0; i < h1.length; i++)
@@ -947,12 +931,11 @@ public class FHT2 extends FloatProcessor
 	 */
 	private FHT2 conjugateMultiply(float[] h2, float[] tmp)
 	{
-		float[] h1 = getData();
+		final float[] h1 = getData();
 		final int maxN = getWidth();
 		if (tmp == null || tmp.length != h1.length)
 			tmp = new float[h1.length];
 		for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r)
-		{
 			//rowMod = (maxN - r) % maxN;
 			for (int c = 0, colMod = 0; c < maxN; c++, colMod = maxN - c, i++)
 			{
@@ -960,12 +943,11 @@ public class FHT2 extends FloatProcessor
 				//h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]) / 2;
 				//h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]) / 2;
 				//tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o);
-				int j = rowMod * maxN + colMod;
-				double h2e = (h2[i] + h2[j]) / 2;
-				double h2o = (h2[i] - h2[j]) / 2;
+				final int j = rowMod * maxN + colMod;
+				final double h2e = (h2[i] + h2[j]) / 2;
+				final double h2o = (h2[i] - h2[j]) / 2;
 				tmp[i] = (float) (h1[i] * h2e - h1[j] * h2o);
 			}
-		}
 		return createFHTResult(tmp, maxN);
 	}
 
@@ -987,7 +969,7 @@ public class FHT2 extends FloatProcessor
 	 */
 	private FHT2 conjugateMultiply(double[] h2e, double[] h2o, int[] jj, float[] tmp)
 	{
-		float[] h1 = getData();
+		final float[] h1 = getData();
 		if (tmp == null || tmp.length != h1.length)
 			tmp = new float[h1.length];
 		for (int i = 0; i < h1.length; i++)
@@ -1032,7 +1014,7 @@ public class FHT2 extends FloatProcessor
 	 * of this image by the specified image. Both images are assumed to be in
 	 * the frequency domain. Division in the frequency domain is equivalent
 	 * to deconvolution in the space domain.
-	 * 
+	 *
 	 * @param h2
 	 *            the second FHT
 	 * @param tmp
@@ -1040,12 +1022,11 @@ public class FHT2 extends FloatProcessor
 	 */
 	private FHT2 divide(float[] h2, float[] tmp)
 	{
-		float[] h1 = getData();
+		final float[] h1 = getData();
 		final int maxN = getWidth();
 		if (tmp == null || tmp.length != h1.length)
 			tmp = new float[h1.length];
 		for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r)
-		{
 			//rowMod = (maxN - r) % maxN;
 			for (int c = 0, colMod = 0; c < maxN; c++, colMod = maxN - c, i++)
 			{
@@ -1056,17 +1037,16 @@ public class FHT2 extends FloatProcessor
 				//h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]);
 				//h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]);
 				//tmp[r * maxN + c] = (float) ((h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o) / mag);
-				int j = rowMod * maxN + colMod;
-				double h2i = h2[i];
-				double h2j = h2[j];
+				final int j = rowMod * maxN + colMod;
+				final double h2i = h2[i];
+				final double h2j = h2[j];
 				double mag = h2i * h2i + h2j * h2j;
 				if (mag < 1e-20)
 					mag = 1e-20;
-				double h2e = (h2i + h2j);
-				double h2o = (h2i - h2j);
+				final double h2e = (h2i + h2j);
+				final double h2o = (h2i - h2j);
 				tmp[i] = (float) ((h1[i] * h2e - h1[j] * h2o) / mag);
 			}
-		}
 		return createFHTResult(tmp, maxN);
 	}
 
@@ -1075,7 +1055,7 @@ public class FHT2 extends FloatProcessor
 	 * of this image by the specified image. Both images are assumed to be in
 	 * the frequency domain. Division in the frequency domain is equivalent
 	 * to deconvolution in the space domain.
-	 * 
+	 *
 	 * @param h2e
 	 *            the pre-initialised h2e value
 	 * @param h2o
@@ -1089,7 +1069,7 @@ public class FHT2 extends FloatProcessor
 	 */
 	private FHT2 divide(double[] h2e, double[] h2o, int[] jj, double[] mag, float[] tmp)
 	{
-		float[] h1 = getData();
+		final float[] h1 = getData();
 		if (tmp == null || tmp.length != h1.length)
 			tmp = new float[h1.length];
 		for (int i = 0; i < h1.length; i++)
@@ -1104,7 +1084,7 @@ public class FHT2 extends FloatProcessor
 	 */
 	public FHT2 getCopy()
 	{
-		FHT2 fht = new FHT2(getData().clone(), width, isFrequencyDomain);
+		final FHT2 fht = new FHT2(getData().clone(), width, isFrequencyDomain);
 		fht.copyTables(this);
 		return fht;
 	}

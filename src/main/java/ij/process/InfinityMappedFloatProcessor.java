@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -36,7 +36,7 @@ import java.awt.image.ColorModel;
  * This allows display of a range of float data using the special marker -Infinity to ignore pixels from display
  * (assuming the LUT has black for 0). -Infinity is ignored by ImageJ for most FloatProcessor functionality (histograms,
  * min/max value, etc). This is not the case for NaN which breaks ImageJ data display.
- * 
+ *
  * @author Alex Herbert
  */
 public class InfinityMappedFloatProcessor extends FloatProcessor
@@ -164,34 +164,31 @@ public class InfinityMappedFloatProcessor extends FloatProcessor
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ij.process.FloatProcessor#create8BitImage()
 	 */
 	@Override
 	protected byte[] create8BitImage()
 	{
 		// Map all values to the range 1-255. Negative infinity maps to zero.
-		int size = width * height;
+		final int size = width * height;
 		if (pixels8 == null)
 			pixels8 = new byte[size];
-		float[] pixels = (float[]) getPixels();
+		final float[] pixels = (float[]) getPixels();
 		float value;
 		int ivalue;
 
 		// Default min/max
-		float min2 = (float) getMin(), max2 = (float) getMax();
+		final float min2 = (float) getMin(), max2 = (float) getMax();
 
-		float scale = 254f / (max2 - min2);
+		final float scale = 254f / (max2 - min2);
 
 		if (mapPositiveInfinity)
 		{
 			for (int i = 0; i < size; i++)
-			{
 				if (Float.isInfinite(pixels[i]))
-				{
 					// Infinity maps to zero.
 					pixels8[i] = (byte) 0;
-				}
 				else
 				{
 					// Map all values to the range 1-255.
@@ -201,17 +198,12 @@ public class InfinityMappedFloatProcessor extends FloatProcessor
 						ivalue = 255;
 					pixels8[i] = (byte) ivalue;
 				}
-			}
 		}
 		else
-		{
 			for (int i = 0; i < size; i++)
-			{
 				if (pixels[i] < min2)
-				{
 					// Below min maps to zero. This is -Infinity.
 					pixels8[i] = (byte) 0;
-				}
 				else
 				{
 					// Map all values to the range 1-255.
@@ -221,8 +213,6 @@ public class InfinityMappedFloatProcessor extends FloatProcessor
 						ivalue = 255;
 					pixels8[i] = (byte) ivalue;
 				}
-			}
-		}
 		return pixels8;
 	}
 }

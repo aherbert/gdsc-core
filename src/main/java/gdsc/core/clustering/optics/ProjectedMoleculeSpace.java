@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -61,7 +61,7 @@ import gnu.trove.set.hash.TIntHashSet;
  * Modifications have been made for multi-threading and different neighbour sampling modes. The partitioning of the sets
  * is
  * essentially unchanged.
- * 
+ *
  * @author Alex Herbert
  */
 class ProjectedMoleculeSpace extends MoleculeSpace
@@ -124,7 +124,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		Split(int number, int[]... sets)
 		{
 			this.number = number;
-			this.sets = new TurboList<int[]>(Arrays.asList(sets));
+			this.sets = new TurboList<>(Arrays.asList(sets));
 		}
 	}
 
@@ -186,7 +186,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.MoleculeSpace#toString()
 	 */
 	@Override
@@ -197,7 +197,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.MoleculeSpace#generate()
 	 */
 	@Override
@@ -219,7 +219,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
@@ -229,14 +229,14 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		// Return the neighbours found in {@link #computeAverageDistInSetAndNeighbours()}.
 		// Assume allNeighbours has been computed.
 		neighbours.clear();
-		int[] list = allNeighbours[object.id];
+		final int[] list = allNeighbours[object.id];
 		for (int i = list.length; i-- > 0;)
 			neighbours.add(setOfObjects[list[i]]);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
@@ -246,10 +246,10 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		// Return the neighbours found in {@link #computeAverageDistInSetAndNeighbours()}.
 		// Assume allNeighbours has been computed.
 		neighbours.clear();
-		int[] list = allNeighbours[object.id];
+		final int[] list = allNeighbours[object.id];
 		for (int i = list.length; i-- > 0;)
 		{
-			Molecule otherObject = setOfObjects[list[i]];
+			final Molecule otherObject = setOfObjects[list[i]];
 			otherObject.setD(object.distance2(otherObject));
 			neighbours.add(otherObject);
 		}
@@ -288,10 +288,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	private synchronized void showProgress()
 	{
 		if (progress % stepProgress == 0)
-		{
 			if (tracker != null)
 				tracker.progress(progress, totalProgress);
-		}
 		progress++;
 	}
 
@@ -401,7 +399,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Runnable#run()
 		 */
 		@Override
@@ -411,7 +409,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			{
 				while (true)
 				{
-					ProjectionJob job = jobs.take();
+					final ProjectionJob job = jobs.take();
 					if (job.index < 0)
 						break;
 					if (!finished)
@@ -419,7 +417,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 						run(job);
 				}
 			}
-			catch (InterruptedException e)
+			catch (final InterruptedException e)
 			{
 				System.out.println(e.toString());
 				throw new RuntimeException(e);
@@ -449,10 +447,10 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			final double[] v = job.v;
 
 			// Project points to the vector and compute the distance along the vector from the origin
-			float[] currPro = new float[size];
+			final float[] currPro = new float[size];
 			for (int it = size; it-- > 0;)
 			{
-				Molecule m = setOfObjects[it];
+				final Molecule m = setOfObjects[it];
 				// Dot product:
 				currPro[it] = (float) (v[0] * m.x + v[1] * m.y);
 			}
@@ -476,7 +474,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		final int minSplitSize;
 
 		/** The split sets. */
-		final TurboList<Split> splitSets = new TurboList<Split>();
+		final TurboList<Split> splitSets = new TurboList<>();
 
 		/**
 		 * Instantiates a new split worker.
@@ -494,7 +492,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Runnable#run()
 		 */
 		@Override
@@ -504,7 +502,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			{
 				while (true)
 				{
-					SplitJob job = jobs.take();
+					final SplitJob job = jobs.take();
 					if (job.index < 0)
 						break;
 					if (!finished)
@@ -512,7 +510,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 						run(job);
 				}
 			}
-			catch (InterruptedException e)
+			catch (final InterruptedException e)
 			{
 				System.out.println(e.toString());
 				throw new RuntimeException(e);
@@ -539,7 +537,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 			showProgress();
 
-			final TurboList<int[]> sets = new TurboList<int[]>();
+			final TurboList<int[]> sets = new TurboList<>();
 			splitupNoSort(sets, job.projectedPoints, SimpleArrayUtils.newArray(size, 0, 1), 0, size, 0, job.rand,
 					minSplitSize);
 			splitSets.add(new Split(job.index, sets));
@@ -599,7 +597,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Runnable#run()
 		 */
 		@Override
@@ -619,7 +617,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	public void computeSets(int minSplitSize)
 	{
-		splitSets = new TurboList<Split>();
+		splitSets = new TurboList<>();
 
 		// Edge cases
 		if (minSplitSize < 2 || size <= 1)
@@ -652,21 +650,19 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			return; // Nothing to do
 
 		// perform projections of points
-		float[][] projectedPoints = new float[nProject1d][];
+		final float[][] projectedPoints = new float[nProject1d][];
 
 		long time = System.currentTimeMillis();
 		setUpProgress(nProject1d);
 		if (tracker != null)
-		{
 			tracker.log("Computing projections ...");
-		}
 
 		// Multi-thread this for speed
-		int nThreads = Math.min(this.nThreads, nPointSetSplits);
-		final TurboList<Thread> threads = new TurboList<Thread>(nThreads);
+		final int nThreads = Math.min(this.nThreads, nPointSetSplits);
+		final TurboList<Thread> threads = new TurboList<>(nThreads);
 
-		final BlockingQueue<ProjectionJob> projectionJobs = new ArrayBlockingQueue<ProjectionJob>(nThreads * 2);
-		final TurboList<ProjectionWorker> projectionWorkers = new TurboList<ProjectionWorker>(nThreads);
+		final BlockingQueue<ProjectionJob> projectionJobs = new ArrayBlockingQueue<>(nThreads * 2);
+		final TurboList<ProjectionWorker> projectionWorkers = new TurboList<>(nThreads);
 		for (int i = 0; i < nThreads; i++)
 		{
 			final ProjectionWorker worker = new ProjectionWorker(projectionJobs, projectedPoints);
@@ -677,21 +673,19 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		}
 
 		// Create random vectors or uniform distribution
-		RandomVectorGenerator vectorGen = (useRandomVectors) ? new UnitSphereRandomVectorGenerator(2, rand) : null;
+		final RandomVectorGenerator vectorGen = (useRandomVectors) ? new UnitSphereRandomVectorGenerator(2, rand) : null;
 		final double increment = Math.PI / nProject1d;
 		for (int i = 0; i < nProject1d; i++)
 		{
 			// Create a random unit vector
 			double[] currRp;
 			if (useRandomVectors)
-			{
 				currRp = vectorGen.nextVector();
-			}
 			else
 			{
 				// For a 2D vector we can just uniformly distribute them around a semi-circle
 				currRp = new double[dim];
-				double a = i * increment;
+				final double a = i * increment;
 				currRp[0] = Math.sin(a);
 				currRp[1] = Math.cos(a);
 			}
@@ -699,48 +693,44 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		}
 		// Finish all the worker threads by passing in a null job
 		for (int i = 0; i < nThreads; i++)
-		{
 			put(projectionJobs, new ProjectionJob(-1, null));
-		}
 
 		// Wait for all to finish
 		for (int i = 0; i < nThreads; i++)
-		{
 			try
 			{
 				threads.get(i).join();
 			}
-			catch (InterruptedException e)
+			catch (final InterruptedException e)
 			{
 				e.printStackTrace();
 			}
-		}
 		threads.clear();
 
 		if (tracker != null)
 		{
 			tracker.progress(1);
-			long time2 = System.currentTimeMillis();
+			final long time2 = System.currentTimeMillis();
 			tracker.log("Computed projections ... " + Utils.timeToString(time2 - time));
 			time = time2;
 			tracker.log("Splitting data ...");
 		}
 
 		// split entire point set, reuse projections by shuffling them
-		int[] proind = SimpleArrayUtils.newArray(nProject1d, 0, 1);
+		final int[] proind = SimpleArrayUtils.newArray(nProject1d, 0, 1);
 		setUpProgress(nPointSetSplits);
 
 		// The splits do not have to be that random so we can use a pseudo random sequence.
-		// The sets will be randomly sized between 1 and minSplitSize. Ensure we have enough 
+		// The sets will be randomly sized between 1 and minSplitSize. Ensure we have enough
 		// numbers for all the splits.
-		double expectedSetSize = (1 + minSplitSize) * 0.5;
-		int expectedSets = (int) Math.round(size / expectedSetSize);
-		TurboRandomGenerator pseudoRandom = new TurboRandomGenerator(
+		final double expectedSetSize = (1 + minSplitSize) * 0.5;
+		final int expectedSets = (int) Math.round(size / expectedSetSize);
+		final TurboRandomGenerator pseudoRandom = new TurboRandomGenerator(
 				Maths.max(nPointSetSplits, 200, minSplitSize + 2 * expectedSets), rand);
 
 		// Multi-thread this for speed
-		final BlockingQueue<SplitJob> splitJobs = new ArrayBlockingQueue<SplitJob>(nThreads * 2);
-		final TurboList<SplitWorker> splitWorkers = new TurboList<SplitWorker>(nThreads);
+		final BlockingQueue<SplitJob> splitJobs = new ArrayBlockingQueue<>(nThreads * 2);
+		final TurboList<SplitWorker> splitWorkers = new TurboList<>(nThreads);
 		for (int i = 0; i < nThreads; i++)
 		{
 			final SplitWorker worker = new SplitWorker(splitJobs, minSplitSize);
@@ -753,15 +743,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		for (int i = 0; i < nPointSetSplits; i++)
 		{
 			// shuffle projections
-			float[][] shuffledProjectedPoints = new float[nProject1d][];
+			final float[][] shuffledProjectedPoints = new float[nProject1d][];
 			pseudoRandom.shuffle(proind);
 			for (int j = 0; j < nProject1d; j++)
-			{
 				shuffledProjectedPoints[j] = projectedPoints[proind[j]];
-			}
 
 			// New random generator
-			TurboRandomGenerator rand = (TurboRandomGenerator) pseudoRandom.clone();
+			final TurboRandomGenerator rand = (TurboRandomGenerator) pseudoRandom.clone();
 			rand.setSeed(i);
 
 			put(splitJobs, new SplitJob(i, shuffledProjectedPoints, rand));
@@ -769,24 +757,20 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 		// Finish all the worker threads by passing in a null job
 		for (int i = 0; i < nThreads; i++)
-		{
 			put(splitJobs, new SplitJob(-1, null, null));
-		}
 
 		// Wait for all to finish
 		int total = 0;
 		for (int i = 0; i < nThreads; i++)
-		{
 			try
 			{
 				threads.get(i).join();
 				total += splitWorkers.get(i).splitSets.size();
 			}
-			catch (InterruptedException e)
+			catch (final InterruptedException e)
 			{
 				e.printStackTrace();
 			}
-		}
 		threads.clear();
 
 		// Merge the split-sets
@@ -813,13 +797,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 * @param job
 	 *            the job
 	 */
-	private <T> void put(BlockingQueue<T> jobs, T job)
+	private static <T> void put(BlockingQueue<T> jobs, T job)
 	{
 		try
 		{
 			jobs.put(job);
 		}
-		catch (InterruptedException e)
+		catch (final InterruptedException e)
 		{
 			throw new RuntimeException("Unexpected interruption", e);
 		}
@@ -900,27 +884,21 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		final int nele = end - begin;
 
 		if (nele < 2)
-		{
 			// Nothing to split. Also ensures we only add to the sets if neighbours can be sampled.
 			return;
-		}
 
 		dim = dim % projectedPoints.length;// choose a projection of points
-		float[] tpro = projectedPoints[dim];
+		final float[] tpro = projectedPoints[dim];
 
 		if (saveApproximateSets)
-		{
 			// save set such that used for density or neighborhood computation
 			// sets should be roughly minSplitSize
 			// -=-=-
-			// Note: This is the method used in ELKI which uses the distance to the median of the set 
-			// (thus no distances are computed that are between points very far apart, e.g. each end 
+			// Note: This is the method used in ELKI which uses the distance to the median of the set
+			// (thus no distances are computed that are between points very far apart, e.g. each end
 			// of the set).
 			if (nele > minSplitSize * (1 - sizeTolerance) && nele < minSplitSize * (1 + sizeTolerance))
-			{
 				saveSet(splitSets, ind, begin, end, rand, tpro);
-			}
-		}
 
 		// compute splitting element
 		// do not store set or even sort set, since it is too large
@@ -931,37 +909,31 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			// outcome is similar
 
 			//int minInd = splitByDistance(ind, begin, end, tpro, rand);
-			int minInd = splitRandomly(ind, begin, end, tpro, rand);
+			final int minInd = splitRandomly(ind, begin, end, tpro, rand);
 
 			// split set recursively
 			// position used for splitting the projected points into two
 			// sets used for recursive splitting
-			int splitpos = minInd + 1;
+			final int splitpos = minInd + 1;
 			splitupNoSort(splitSets, projectedPoints, ind, begin, splitpos, dim + 1, rand, minSplitSize);
 			splitupNoSort(splitSets, projectedPoints, ind, splitpos, end, dim + 1, rand, minSplitSize);
 		}
 		else if (!saveApproximateSets)
-		{
 			// It it wasn't saved as an approximate set then make sure it is saved as it is less than minSplitSize
 			saveSet(splitSets, ind, begin, end, rand, tpro);
-		}
 	}
 
 	private void saveSet(TurboList<int[]> splitSets, int[] ind, int begin, int end, PseudoRandomGenerator rand,
 			float[] tpro)
 	{
-		int[] indices = Arrays.copyOfRange(ind, begin, end);
+		final int[] indices = Arrays.copyOfRange(ind, begin, end);
 		if (sampleMode == SampleMode.RANDOM)
-		{
 			// Ensure the indices are random
 			rand.shuffle(indices);
-		}
 		else if (sampleMode == SampleMode.MEDIAN)
-		{
 			// sort set, since need median element later
 			// (when computing distance to the middle of the set)
 			Sort.sort(indices, tpro);
-		}
 		splitSets.add(indices);
 	}
 
@@ -985,23 +957,19 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		final int nele = end - begin;
 
 		// pick random splitting element based on position
-		float rs = tpro[ind[begin + rand.nextInt(nele)]];
+		final float rs = tpro[ind[begin + rand.nextInt(nele)]];
 		int minInd = begin, maxInd = end - 1;
 		// permute elements such that all points smaller than the splitting
 		// element are on the right and the others on the left in the array
 		while (minInd < maxInd)
 		{
-			float currEle = tpro[ind[minInd]];
+			final float currEle = tpro[ind[minInd]];
 			if (currEle > rs)
 			{
 				while (minInd < maxInd && tpro[ind[maxInd]] > rs)
-				{
 					maxInd--;
-				}
 				if (minInd == maxInd)
-				{
 					break;
-				}
 				swap(ind, minInd, maxInd);
 				maxInd--;
 			}
@@ -1009,9 +977,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		}
 		// if all elements are the same split in the middle
 		if (minInd == end - 1)
-		{
 			minInd = (begin + end) >>> 1;
-		}
 		return minInd;
 	}
 
@@ -1027,7 +993,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	private static void swap(int[] data, int i, int j)
 	{
-		int tmp = data[i];
+		final int tmp = data[i];
 		data[i] = data[j];
 		data[j] = tmp;
 	}
@@ -1053,7 +1019,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		float rmin = tpro[ind[begin]], rmax = rmin;
 		for (int it = begin + 1; it < end; it++)
 		{
-			float currEle = tpro[ind[it]];
+			final float currEle = tpro[ind[it]];
 			if (currEle < rmin)
 				rmin = currEle;
 			else if (currEle > rmax)
@@ -1062,7 +1028,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 		if (rmin != rmax)
 		{ // if not all elements are the same
-			float rs = (float) (rmin + rand.nextDouble() * (rmax - rmin));
+			final float rs = (float) (rmin + rand.nextDouble() * (rmax - rmin));
 
 			int minInd = begin, maxInd = end - 1;
 
@@ -1070,17 +1036,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			// element are on the right and the others on the left in the array
 			while (minInd < maxInd)
 			{
-				float currEle = tpro[ind[minInd]];
+				final float currEle = tpro[ind[minInd]];
 				if (currEle > rs)
 				{
 					while (minInd < maxInd && tpro[ind[maxInd]] > rs)
-					{
 						maxInd--;
-					}
 					if (minInd == maxInd)
-					{
 						break;
-					}
 					swap(ind, minInd, maxInd);
 					maxInd--;
 				}
@@ -1089,10 +1051,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			return minInd;
 		}
 		else
-		{
 			// if all elements are the same split in the middle
 			return (begin + end) >>> 1;
-		}
 	}
 
 	/**
@@ -1104,14 +1064,14 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 *            the count of distances
 	 * @return the squared average core distance
 	 */
-	private float getCoreDistance(double sum, int count)
+	private static float getCoreDistance(double sum, int count)
 	{
 		// it might be that a point does not occur for a certain size of a
 		// projection (likely if too few projections, in this case there is no avg
 		// distance)
 		if (count == 0)
 			return OPTICSManager.UNDEFINED;
-		double d = sum / count;
+		final double d = sum / count;
 		// We actually want the squared distance
 		return (float) (d * d);
 	}
@@ -1131,90 +1091,80 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		// Only those below the merge distance are candidates for a merge.
 		// However in a later discussion of FastOPTICS they state that reachability is only computed for
 		// the sampled neighbours (and these may be above the merge distance).
-		// A. Here we assume that any point-pair in the split set can be neighbours but we do not 
+		// A. Here we assume that any point-pair in the split set can be neighbours but we do not
 		// compute all pairs but only a sub-sample of them.
 
-		// Note: The ELKI implementation computes the neighbours using all items in a set to 
+		// Note: The ELKI implementation computes the neighbours using all items in a set to
 		// the middle of the set, and each item in the set to the middle of the set. The FastOPTICS
 		// paper states that any neighbour is valid but further neighbours can be excluded using an
 		// f-factor (with f 0:1). If f=1 then all neighbours are included. Below this then only some
-		// of the neighbours are included using the projected distance values. Neighbours to be 
+		// of the neighbours are included using the projected distance values. Neighbours to be
 		// included are picked at random.
 
 		final int n = splitSets.size();
 		long time = System.currentTimeMillis();
 		if (tracker != null)
-		{
 			tracker.log("Computing density and neighbourhoods ...");
-		}
 
-		double[] sumDistances = new double[size];
-		int[] nDistances = new int[size];
-		TIntHashSet[] neighbours = new TIntHashSet[size];
+		final double[] sumDistances = new double[size];
+		final int[] nDistances = new int[size];
+		final TIntHashSet[] neighbours = new TIntHashSet[size];
 		for (int it = size; it-- > 0;)
-		{
 			neighbours[it] = new TIntHashSet();
-		}
 
-		// Multi-thread the hash set operations for speed. 
+		// Multi-thread the hash set operations for speed.
 		// We can do this if each split uses each index only once.
-		int nThreads = Math.min(this.nThreads, n);
-		boolean multiThread = (n > 1 && !saveApproximateSets);
+		final int nThreads = Math.min(this.nThreads, n);
+		final boolean multiThread = (n > 1 && !saveApproximateSets);
 
-		// Use an executor service so that we know the entire split has been processed before 
+		// Use an executor service so that we know the entire split has been processed before
 		// doing the next split.
 		ExecutorService executor = null;
 		TurboList<Future<?>> futures = null;
 		if (multiThread)
 		{
 			executor = Executors.newFixedThreadPool(nThreads);
-			futures = new TurboList<Future<?>>(nThreads);
+			futures = new TurboList<>(nThreads);
 		}
 
 		final int interval = Utils.getProgressInterval(n);
 		for (int i = 0; i < n; i++)
 		{
 			if (tracker != null)
-			{
 				if (i % interval == 0)
 					tracker.progress(i, n);
-			}
 
-			Split split = splitSets.get(i);
+			final Split split = splitSets.get(i);
 			if (multiThread)
 			{
-				// If the indices are unique within each split set then we can multi-thread the 
-				// sampling of neighbours (since each index in the cumulative arrays will only 
+				// If the indices are unique within each split set then we can multi-thread the
+				// sampling of neighbours (since each index in the cumulative arrays will only
 				// be accessed concurrently by a single thread).
-				int nPerThread = (int) Math.ceil((double) split.sets.size() / nThreads);
+				final int nPerThread = (int) Math.ceil((double) split.sets.size() / nThreads);
 				for (int from = 0; from < split.sets.size();)
 				{
-					int to = Math.min(from + nPerThread, split.sets.size());
+					final int to = Math.min(from + nPerThread, split.sets.size());
 					futures.add(
 							executor.submit(new SetWorker(sumDistances, nDistances, neighbours, split.sets, from, to)));
 					from = to;
 				}
 				// Wait for all to finish
 				for (int t = futures.size(); t-- > 0;)
-				{
 					try
 					{
 						// The future .get() method will block until completed
 						futures.get(t).get();
 					}
-					catch (Exception e)
+					catch (final Exception e)
 					{
-						// This should not happen. 
-						// Ignore it and allow processing to continue (the number of neighbour samples will just be smaller).  
+						// This should not happen.
+						// Ignore it and allow processing to continue (the number of neighbour samples will just be smaller).
 						e.printStackTrace();
 					}
-				}
 				futures.clear();
 			}
 			else
-			{
 				sampleNeighbours(sumDistances, nDistances, neighbours, split.sets, 0, split.sets.size());
-			}
 		}
 
 		if (multiThread)
@@ -1283,7 +1233,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	/**
 	 * Sample neighbours using median. The distance of each point is computed to the median which is added as a
 	 * neighbour. The median point has all the other points added as a neighbours.
-	 * 
+	 *
 	 * @param sumDistances
 	 *            the neighbour sum of distances
 	 * @param nDistances
@@ -1298,19 +1248,17 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	{
 		final int len = indices.length;
 		final int indoff = len >> 1;
-		int v = indices[indoff];
-		int delta = len - 1;
+		final int v = indices[indoff];
+		final int delta = len - 1;
 		distanceComputations.addAndGet(delta);
 		nDistances[v] += delta;
-		Molecule midpoint = setOfObjects[v];
+		final Molecule midpoint = setOfObjects[v];
 		for (int j = len; j-- > 0;)
 		{
-			int it = indices[j];
+			final int it = indices[j];
 			if (it == v)
-			{
 				continue;
-			}
-			double dist = midpoint.distance(setOfObjects[it]);
+			final double dist = midpoint.distance(setOfObjects[it]);
 			sumDistances[v] += dist;
 			sumDistances[it] += dist;
 			nDistances[it]++;
@@ -1326,7 +1274,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 * input distance arrays and each is added to the set of the other.
 	 * <p>
 	 * This method works for sets of size 2 and above.
-	 * 
+	 *
 	 * @param sumDistances
 	 *            the neighbour sum of distances
 	 * @param nDistances
@@ -1344,10 +1292,10 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			distanceComputations.incrementAndGet();
 
 			// Only one set of neighbours
-			int a = indices[0];
-			int b = indices[1];
+			final int a = indices[0];
+			final int b = indices[1];
 
-			double dist = setOfObjects[a].distance(setOfObjects[b]);
+			final double dist = setOfObjects[a].distance(setOfObjects[b]);
 
 			sumDistances[a] += dist;
 			sumDistances[b] += dist;
@@ -1361,17 +1309,17 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		{
 			distanceComputations.addAndGet(indices.length);
 
-			// For a fast implementation we just pick consecutive 
+			// For a fast implementation we just pick consecutive
 			// points as neighbours since the order is random.
 			// Note: This only works if the set has size 3 or more.
 
 			for (int j = indices.length, k = 0; j-- > 0;)
 			{
-				int a = indices[j];
-				int b = indices[k];
+				final int a = indices[j];
+				final int b = indices[k];
 				k = j;
 
-				double dist = setOfObjects[a].distance(setOfObjects[b]);
+				final double dist = setOfObjects[a].distance(setOfObjects[b]);
 
 				sumDistances[a] += dist;
 				sumDistances[b] += dist;
@@ -1385,7 +1333,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 
 	/**
 	 * Sample neighbours all-vs-all.
-	 * 
+	 *
 	 * @param sumDistances
 	 *            the neighbour sum of distances
 	 * @param nDistances
@@ -1397,25 +1345,25 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 */
 	private void sampleNeighboursAll(double[] sumDistances, int[] nDistances, TIntHashSet[] neighbours, int[] indices)
 	{
-		int n = indices.length;
-		int n1 = n - 1;
+		final int n = indices.length;
+		final int n1 = n - 1;
 
 		// for all-vs-all = n(n-1)/2
 		distanceComputations.addAndGet((n * n1) >>> 1);
 
 		for (int i = 0; i < n1; i++)
 		{
-			int a = indices[i];
+			final int a = indices[i];
 			nDistances[a] += n1;
 			double d = 0;
-			Molecule ma = setOfObjects[a];
-			TIntHashSet na = neighbours[a];
+			final Molecule ma = setOfObjects[a];
+			final TIntHashSet na = neighbours[a];
 
 			for (int j = i + 1; j < n; j++)
 			{
-				int b = indices[j];
+				final int b = indices[j];
 
-				double dist = ma.distance(setOfObjects[b]);
+				final double dist = ma.distance(setOfObjects[b]);
 
 				d += dist;
 				sumDistances[b] += dist;

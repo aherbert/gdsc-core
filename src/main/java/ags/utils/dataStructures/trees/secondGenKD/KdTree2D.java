@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -27,20 +27,20 @@
  */
 /**
  * Copyright 2009 Rednaxela
- * 
+ *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
  * arising from the use of this software.
- * 
+ *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
- * 
+ *
  *    1. The origin of this software must not be misrepresented; you must not
  *    claim that you wrote the original software. If you use this software
  *    in a product, an acknowledgment in the product documentation would be
  *    appreciated but is not required.
- * 
+ *
  *    2. This notice may not be removed or altered from any source
  *    distribution.
  */
@@ -94,26 +94,20 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 
 				// Never split on infinity or NaN
 				if (cursor.splitValue == Double.POSITIVE_INFINITY)
-				{
 					cursor.splitValue = Double.MAX_VALUE;
-				}
 				else if (cursor.splitValue == Double.NEGATIVE_INFINITY)
-				{
 					cursor.splitValue = -Double.MAX_VALUE;
-				}
 				else if (Double.isNaN(cursor.splitValue))
-				{
 					cursor.splitValue = 0;
-				}
 
 				// Don't split node if it has no width in any axis. Double the
 				// bucket size instead
 				if (cursor.minLimit[cursor.splitDimension] == cursor.maxLimit[cursor.splitDimension])
 				{
-					double[][] newLocations = new double[cursor.locations.length * 2][];
+					final double[][] newLocations = new double[cursor.locations.length * 2][];
 					System.arraycopy(cursor.locations, 0, newLocations, 0, cursor.locationCount);
 					cursor.locations = newLocations;
-					Object[] newData = new Object[newLocations.length];
+					final Object[] newData = new Object[newLocations.length];
 					System.arraycopy(cursor.data, 0, newData, 0, cursor.locationCount);
 					cursor.data = newData;
 					break;
@@ -122,19 +116,17 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 				// Don't let the split value be the same as the upper value as
 				// can happen due to rounding errors!
 				if (cursor.splitValue == cursor.maxLimit[cursor.splitDimension])
-				{
 					cursor.splitValue = cursor.minLimit[cursor.splitDimension];
-				}
 
 				// Create child leaves
-				KdTreeNode2D<T> left = new ChildNode(cursor, false);
-				KdTreeNode2D<T> right = new ChildNode(cursor, true);
+				final KdTreeNode2D<T> left = new ChildNode(cursor);
+				final KdTreeNode2D<T> right = new ChildNode(cursor);
 
 				// Move locations into children
 				for (int i = 0; i < cursor.locationCount; i++)
 				{
-					double[] oldLocation = cursor.locations[i];
-					Object oldData = cursor.data[i];
+					final double[] oldLocation = cursor.locations[i];
+					final Object oldData = cursor.data[i];
 					if (oldLocation[cursor.splitDimension] > cursor.splitValue)
 					{
 						// Right
@@ -164,13 +156,9 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 			cursor.extendBounds(location);
 
 			if (location[cursor.splitDimension] > cursor.splitValue)
-			{
 				cursor = cursor.right;
-			}
 			else
-			{
 				cursor = cursor.left;
-			}
 		}
 
 		cursor.locations[cursor.locationCount] = location;
@@ -225,7 +213,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 		KdTreeNode2D<T> cursor = this;
 		cursor.status = Status.NONE;
 		double range = Double.POSITIVE_INFINITY;
-		ResultHeap<T> resultHeap = new ResultHeap<T>(count);
+		final ResultHeap<T> resultHeap = new ResultHeap<>(count);
 
 		do
 		{
@@ -243,30 +231,22 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 				{
 					if (cursor.singularity)
 					{
-						double dist = pointDist(cursor.locations[0], location);
+						final double dist = pointDist(cursor.locations[0], location);
 						if (dist <= range)
-						{
 							for (int i = 0; i < cursor.locationCount; i++)
-							{
 								resultHeap.addValueFast(dist, cursor.data[i]);
-							}
-						}
 					}
 					else
-					{
 						for (int i = 0; i < cursor.locationCount; i++)
 						{
-							double dist = pointDist(cursor.locations[i], location);
+							final double dist = pointDist(cursor.locations[i], location);
 							resultHeap.addValueFast(dist, cursor.data[i]);
 						}
-					}
 					range = resultHeap.getMaxDist();
 				}
 
 				if (cursor.parent == null)
-				{
 					break;
-				}
 				cursor = cursor.parent;
 				continue;
 			}
@@ -305,35 +285,25 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 			// Check if it's worth descending. Assume it is if it's sibling has
 			// not been visited yet.
 			if (cursor.status == Status.ALLVISITED)
-			{
 				if (nextCursor.locationCount == 0 || (!nextCursor.singularity &&
 						pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range))
-				{
 					continue;
-				}
-			}
 
 			// Descend down the tree
 			cursor = nextCursor;
 			cursor.status = Status.NONE;
 		} while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
-		ArrayList<Entry<T>> results = new ArrayList<Entry<T>>(resultHeap.values);
+		final ArrayList<Entry<T>> results = new ArrayList<>(resultHeap.values);
 		if (sequentialSorting)
-		{
 			while (resultHeap.values > 0)
 			{
 				resultHeap.removeLargest();
-				results.add(new Entry<T>(resultHeap.removedDist, (T) resultHeap.removedData));
+				results.add(new Entry<>(resultHeap.removedDist, (T) resultHeap.removedData));
 			}
-		}
 		else
-		{
 			for (int i = 0; i < resultHeap.values; i++)
-			{
-				results.add(new Entry<T>(resultHeap.distance[i], (T) resultHeap.data[i]));
-			}
-		}
+				results.add(new Entry<>(resultHeap.distance[i], (T) resultHeap.data[i]));
 
 		return results;
 	}
@@ -354,7 +324,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 		KdTreeNode2D<T> cursor = this;
 		cursor.status = Status.NONE;
 		double range = Double.POSITIVE_INFINITY;
-		ResultHeap<T> resultHeap = new ResultHeap<T>(count);
+		final ResultHeap<T> resultHeap = new ResultHeap<>(count);
 
 		do
 		{
@@ -372,30 +342,22 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 				{
 					if (cursor.singularity)
 					{
-						double dist = pointDist(cursor.locations[0], location);
+						final double dist = pointDist(cursor.locations[0], location);
 						if (dist <= range)
-						{
 							for (int i = 0; i < cursor.locationCount; i++)
-							{
 								resultHeap.addValueFast(dist, cursor.data[i]);
-							}
-						}
 					}
 					else
-					{
 						for (int i = 0; i < cursor.locationCount; i++)
 						{
-							double dist = pointDist(cursor.locations[i], location);
+							final double dist = pointDist(cursor.locations[i], location);
 							resultHeap.addValueFast(dist, cursor.data[i]);
 						}
-					}
 					range = resultHeap.getMaxDist();
 				}
 
 				if (cursor.parent == null)
-				{
 					break;
-				}
 				cursor = cursor.parent;
 				continue;
 			}
@@ -434,13 +396,9 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 			// Check if it's worth descending. Assume it is if it's sibling has
 			// not been visited yet.
 			if (cursor.status == Status.ALLVISITED)
-			{
 				if (nextCursor.locationCount == 0 || (!nextCursor.singularity &&
 						pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range))
-				{
 					continue;
-				}
-			}
 
 			// Descend down the tree
 			cursor = nextCursor;
@@ -448,9 +406,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 		} while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
 		for (int i = 0; i < resultHeap.values; i++)
-		{
 			results.add(resultHeap.distance[i], (T) resultHeap.data[i]);
-		}
 	}
 
 	/**
@@ -482,35 +438,23 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 			{
 				// At a leaf. Use the data.
 				if (cursor.locationCount > 0)
-				{
 					if (cursor.singularity)
 					{
-						double dist = pointDist(cursor.locations[0], location);
+						final double dist = pointDist(cursor.locations[0], location);
 						if (dist <= range)
-						{
 							for (int i = 0; i < cursor.locationCount; i++)
-							{
 								results.add(dist, (T) cursor.data[i]);
-							}
-						}
 					}
 					else
-					{
 						for (int i = 0; i < cursor.locationCount; i++)
 						{
-							double dist = pointDist(cursor.locations[i], location);
+							final double dist = pointDist(cursor.locations[i], location);
 							if (dist <= range)
-							{
 								results.add(dist, (T) cursor.data[i]);
-							}
 						}
-					}
-				}
 
 				if (cursor.parent == null)
-				{
 					break;
-				}
 				cursor = cursor.parent;
 				continue;
 			}
@@ -549,13 +493,9 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 			// Check if it's worth descending. Assume it is if it's sibling has
 			// not been visited yet.
 			if (cursor.status == Status.ALLVISITED)
-			{
 				if (nextCursor.locationCount == 0 || (!nextCursor.singularity &&
 						pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range))
-				{
 					continue;
-				}
-			}
 
 			// Descend down the tree
 			cursor = nextCursor;
@@ -573,17 +513,15 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 		 *
 		 * @param parent
 		 *            the parent
-		 * @param right
-		 *            the right
 		 */
-		private ChildNode(KdTreeNode2D<T> parent, boolean right)
+		private ChildNode(KdTreeNode2D<T> parent)
 		{
-			super(parent, right);
+			super(parent);
 		}
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode2D#pointDist(double[], double[])
 		 */
 		// Distance measurements are always called from the root node
@@ -595,7 +533,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode2D#pointRegionDist(double[], double[], double[])
 		 */
 		@Override
@@ -618,27 +556,27 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	{
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode2D#pointDist(double[], double[])
 		 */
 		@Override
 		protected double pointDist(double[] p1, double[] p2)
 		{
-			double dx = p1[0] - p2[0];
-			double dy = p1[1] - p2[1];
+			final double dx = p1[0] - p2[0];
+			final double dy = p1[1] - p2[1];
 			return dx * dx + dy * dy;
 		}
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode2D#pointRegionDist(double[], double[], double[])
 		 */
 		@Override
 		protected double pointRegionDist(double[] point, double[] min, double[] max)
 		{
-			double dx = (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? min[0] - point[0] : 0;
-			double dy = (point[1] > max[1]) ? point[1] - max[1] : (point[1] < min[1]) ? min[1] - point[1] : 0;
+			final double dx = (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? min[0] - point[0] : 0;
+			final double dy = (point[1] > max[1]) ? point[1] - max[1] : (point[1] < min[1]) ? min[1] - point[1] : 0;
 			return dx * dx + dy * dy;
 		}
 	}

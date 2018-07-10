@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -77,10 +77,10 @@ public class IJDigest
 		@Override
 		public void update(Object pixels)
 		{
-			short[] data = (short[]) pixels;
+			final short[] data = (short[]) pixels;
 			for (int i = 0; i < data.length; i++)
 			{
-				int v = data[i];
+				final int v = data[i];
 				buffer[0] = (byte) (v >>> 8);
 				buffer[1] = (byte) (v >>> 0);
 				digest.update(buffer);
@@ -100,10 +100,10 @@ public class IJDigest
 		@Override
 		public void update(Object pixels)
 		{
-			int[] data = (int[]) pixels;
+			final int[] data = (int[]) pixels;
 			for (int i = 0; i < data.length; i++)
 			{
-				int v = data[i];
+				final int v = data[i];
 				buffer[0] = (byte) (v >>> 24);
 				buffer[1] = (byte) (v >>> 16);
 				buffer[2] = (byte) (v >>> 8);
@@ -125,10 +125,10 @@ public class IJDigest
 		@Override
 		public void update(Object pixels)
 		{
-			float[] data = (float[]) pixels;
+			final float[] data = (float[]) pixels;
 			for (int i = 0; i < data.length; i++)
 			{
-				int v = Float.floatToRawIntBits(data[i]);
+				final int v = Float.floatToRawIntBits(data[i]);
 				buffer[0] = (byte) (v >>> 24);
 				buffer[1] = (byte) (v >>> 16);
 				buffer[2] = (byte) (v >>> 8);
@@ -168,8 +168,8 @@ public class IJDigest
 	 */
 	public String digest(ImageProcessor ip)
 	{
-		Object pixels = ip.getPixels();
-		PixelsDigester digester = getPixelsDigester(pixels);
+		final Object pixels = ip.getPixels();
+		final PixelsDigester digester = getPixelsDigester(pixels);
 		digester.update(pixels);
 		return Digest.toHex(digester.digest.digest());
 	}
@@ -183,7 +183,7 @@ public class IJDigest
 	 */
 	public String digest(ImageStack stack)
 	{
-		PixelsDigester digester = getPixelsDigester(stack.getPixels(1));
+		final PixelsDigester digester = getPixelsDigester(stack.getPixels(1));
 		for (int i = 1; i <= stack.getSize(); i++)
 			digester.update(stack.getPixels(i));
 		return Digest.toHex(digester.digest.digest());

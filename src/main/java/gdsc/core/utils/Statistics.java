@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -124,17 +124,11 @@ public class Statistics
 	private static void rangeCheck(int arrayLength, int fromIndex, int toIndex)
 	{
 		if (fromIndex > toIndex)
-		{
 			throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ")");
-		}
 		if (fromIndex < 0)
-		{
 			throw new ArrayIndexOutOfBoundsException(fromIndex);
-		}
 		if (toIndex > arrayLength)
-		{
 			throw new ArrayIndexOutOfBoundsException(toIndex);
-		}
 	}
 
 	/**
@@ -400,15 +394,13 @@ public class Statistics
 	 * The standard error is the standard deviation of the sample-mean's estimate of a population mean.
 	 * <p>
 	 * Uses the unbiased standard deviation divided by the square root of the sample size.
-	 * 
+	 *
 	 * @return The standard error
 	 */
 	public double getStandardError()
 	{
 		if (n > 0)
-		{
 			return getStandardDeviation() / Math.sqrt(n);
-		}
 		return 0;
 	}
 
@@ -439,7 +431,7 @@ public class Statistics
 	/**
 	 * Gets the confidence interval around the mean using the given confidence level. This is computed using the
 	 * critical value from the two-sided T-distribution multiplied by the standard error.
-	 * 
+	 *
 	 * <p>
 	 * If the number of samples is less than 2 then the result is positive infinity. If the confidence level is one then
 	 * the result is positive infinity. If the confidence level is zero then the result is 0.
@@ -457,10 +449,10 @@ public class Statistics
 			return Double.POSITIVE_INFINITY;
 		if (c < 0 || c > 1)
 			throw new IllegalArgumentException("Confidence level must be in the range 0-1");
-		double se = getStandardError();
-		double alpha = 1 - (1 - c) * 0.5; // Two-sided, e.g. 0.95 -> 0.975
-		int degreesOfFreedom = n - 1;
-		TDistribution t = new TDistribution(degreesOfFreedom);
+		final double se = getStandardError();
+		final double alpha = 1 - (1 - c) * 0.5; // Two-sided, e.g. 0.95 -> 0.975
+		final int degreesOfFreedom = n - 1;
+		final TDistribution t = new TDistribution(degreesOfFreedom);
 		return t.inverseCumulativeProbability(alpha) * se;
 	}
 

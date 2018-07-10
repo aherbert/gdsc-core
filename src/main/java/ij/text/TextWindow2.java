@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -61,7 +61,7 @@ import ij.macro.Interpreter;
  * Uses a TextPanel to displays text in a window.
  * <p>
  * Copied from ij.text.TextWindow. Add functionality to allow the window to be configured before display.
- * 
+ *
  * @see TextPanel
  */
 public class TextWindow2 extends Frame implements ActionListener, FocusListener, ItemListener
@@ -78,7 +78,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 
 	/**
 	 * Opens a new single-column text window.
-	 * 
+	 *
 	 * @param title
 	 *            the title of the window
 	 * @param text
@@ -95,7 +95,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 
 	/**
 	 * Opens a new multi-column text window.
-	 * 
+	 *
 	 * @param title
 	 *            title of the window
 	 * @param headings
@@ -114,12 +114,12 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 		textPanel.setColumnHeadings(headings);
 		if (text != null && !text.equals(""))
 			textPanel.append(text);
-		create(title, textPanel, width, height);
+		create(textPanel, width, height);
 	}
 
 	/**
 	 * Opens a new multi-column text window.
-	 * 
+	 *
 	 * @param title
 	 *            title of the window
 	 * @param headings
@@ -138,29 +138,29 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 		textPanel.setColumnHeadings(headings);
 		if (text != null)
 			textPanel.append(text);
-		create(title, textPanel, width, height);
+		create(textPanel, width, height);
 	}
 
-	private void create(String title, TextPanel textPanel, int width, int height)
+	private void create(TextPanel textPanel, int width, int height)
 	{
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		if (IJ.isLinux())
 			setBackground(ImageJ.backgroundColor);
 		add("Center", textPanel);
 		addKeyListener(textPanel);
-		ImageJ ij = IJ.getInstance();
+		final ImageJ ij = IJ.getInstance();
 		if (ij != null)
 		{
 			textPanel.addKeyListener(ij);
 			if (!IJ.isMacOSX())
 			{
-				Image img = ij.getIconImage();
+				final Image img = ij.getIconImage();
 				if (img != null)
 					try
 					{
 						setIconImage(img);
 					}
-					catch (Exception e)
+					catch (final Exception e)
 					{
 					}
 			}
@@ -216,7 +216,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 
 	/**
 	 * Adds one or lines of text to the window.
-	 * 
+	 *
 	 * @param text
 	 *            The text to be appended. Multiple
 	 *            lines should be separated by \n.
@@ -253,7 +253,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 	{
 		while (true)
 		{
-			String s = in.readLine();
+			final String s = in.readLine();
 			if (s == null)
 				break;
 			textPanel.appendLine(s);
@@ -263,7 +263,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 	@Override
 	public void actionPerformed(ActionEvent evt)
 	{
-		String cmd = evt.getActionCommand();
+		final String cmd = evt.getActionCommand();
 		if (cmd.equals("Make Text Larger"))
 			changeFontSize(true);
 		else if (cmd.equals("Make Text Smaller"))
@@ -278,7 +278,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 	public void processWindowEvent(WindowEvent e)
 	{
 		super.processWindowEvent(e);
-		int id = e.getID();
+		final int id = e.getID();
 		if (id == WindowEvent.WINDOW_CLOSING)
 			close();
 		else if (id == WindowEvent.WINDOW_ACTIVATED)
@@ -310,10 +310,8 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 	public void close(boolean showDialog)
 	{
 		if (textPanel != null && textPanel.rt != null)
-		{
 			if (!saveContents())
 				return;
-		}
 		//setVisible(false);
 		dispose();
 		WindowManager.removeWindow(this);
@@ -336,19 +334,17 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 		int lineCount = textPanel.getLineCount();
 		if (!textPanel.unsavedLines)
 			lineCount = 0;
-		ImageJ ij = IJ.getInstance();
-		boolean macro = IJ.macroRunning() || Interpreter.isBatchMode();
-		boolean isResults = getTitle().contains("Results");
+		final ImageJ ij = IJ.getInstance();
+		final boolean macro = IJ.macroRunning() || Interpreter.isBatchMode();
+		final boolean isResults = getTitle().contains("Results");
 		if (lineCount > 0 && !macro && ij != null && !ij.quitting() && isResults)
 		{
-			YesNoCancelDialog d = new YesNoCancelDialog(this, getTitle(), "Save " + lineCount + " measurements?");
+			final YesNoCancelDialog d = new YesNoCancelDialog(this, getTitle(), "Save " + lineCount + " measurements?");
 			if (d.cancelPressed())
 				return false;
 			else if (d.yesPressed())
-			{
 				if (!textPanel.saveAs(""))
 					return false;
-			}
 		}
 		textPanel.rt.reset();
 		return true;

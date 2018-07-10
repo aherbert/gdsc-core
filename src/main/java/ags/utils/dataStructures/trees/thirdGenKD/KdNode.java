@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -87,13 +87,9 @@ abstract class KdNode<T>
 			cursor.extendBounds(point);
 			cursor.size++;
 			if (point[cursor.splitDimension] > cursor.splitValue)
-			{
 				cursor = cursor.right;
-			}
 			else
-			{
 				cursor = cursor.left;
-			}
 		}
 		cursor.addLeafPoint(point, value);
 	}
@@ -109,19 +105,13 @@ abstract class KdNode<T>
 		size++;
 
 		if (size == points.length - 1)
-		{
 			// If the node is getting too large
 			if (calculateSplit())
-			{
 				// If the node successfully had it's split value calculated, split node
 				splitLeafNode();
-			}
 			else
-			{
 				// If the node could not be split, enlarge node
 				increaseLeafCapacity();
-			}
-		}
 	}
 
 	@SuppressWarnings("unused")
@@ -147,13 +137,10 @@ abstract class KdNode<T>
 		}
 
 		for (int i = getDimensions(); i-- > 0;)
-		{
 			if (Double.isNaN(point[i]))
 			{
 				if (!Double.isNaN(minBound[i]) || !Double.isNaN(maxBound[i]))
-				{
 					singlePoint = false;
-				}
 				minBound[i] = Double.NaN;
 				maxBound[i] = Double.NaN;
 			}
@@ -167,7 +154,6 @@ abstract class KdNode<T>
 				maxBound[i] = point[i];
 				singlePoint = false;
 			}
-		}
 	}
 
 	private void increaseLeafCapacity()
@@ -195,29 +181,21 @@ abstract class KdNode<T>
 		}
 
 		if (width == 0)
-		{
 			return false;
-		}
 
 		// Start the split in the middle of the variance
 		splitValue = (minBound[splitDimension] + maxBound[splitDimension]) * 0.5;
 
 		// Never split on infinity or NaN
 		if (splitValue == Double.POSITIVE_INFINITY)
-		{
 			splitValue = Double.MAX_VALUE;
-		}
 		else if (splitValue == Double.NEGATIVE_INFINITY)
-		{
 			splitValue = -Double.MAX_VALUE;
-		}
 
 		// Don't let the split value be the same as the upper value as
 		// can happen due to rounding errors!
 		if (splitValue == maxBound[splitDimension])
-		{
 			splitValue = minBound[splitDimension];
-		}
 
 		// Success
 		return true;
@@ -232,16 +210,12 @@ abstract class KdNode<T>
 		// Move locations into children
 		for (int i = 0; i < size; i++)
 		{
-			double[] oldLocation = points[i];
-			Object oldData = data[i];
+			final double[] oldLocation = points[i];
+			final Object oldData = data[i];
 			if (oldLocation[splitDimension] > splitValue)
-			{
 				right.addLeafPoint(oldLocation, (T) oldData);
-			}
 			else
-			{
 				left.addLeafPoint(oldLocation, (T) oldData);
-			}
 		}
 
 		points = null;

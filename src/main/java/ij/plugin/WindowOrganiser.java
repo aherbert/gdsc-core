@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -47,7 +47,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	private static final int XSTART = 4, YSTART = 80, XOFFSET = 8, YOFFSET = 24, MAXSTEP = 200, GAP = 2;
 
 	/** The titlebar height. */
-	private int titlebarHeight = IJ.isMacintosh() ? 40 : 20;
+	private final int titlebarHeight = IJ.isMacintosh() ? 40 : 20;
 
 	/** The list. */
 	private int[] list = new int[10];
@@ -188,7 +188,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 		{
 			super.tileWindows(wList);
 		}
-		catch (Throwable t)
+		catch (final Throwable t)
 		{
 			// Some versions of ImageJ / Java do not allow this so call the duplicated function
 			copyOfTileWindows(wList);
@@ -196,7 +196,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 		finally
 		{
 			// TODO - Determine how to deal with freeze and unfreeze
-			// Since you can unfreeze a plot within the plot window (using the More>> menu) 
+			// Since you can unfreeze a plot within the plot window (using the More>> menu)
 			// for now it is left to the user to unfreeze plots for dynamic resizing
 			if (isUnfreeze())
 				unfreezePlotWindows(wList, unfreeze);
@@ -212,15 +212,15 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	 */
 	private boolean[] freezePlotWindows(int[] wList)
 	{
-		boolean[] unfreeze = new boolean[wList.length];
+		final boolean[] unfreeze = new boolean[wList.length];
 		for (int i = 0; i < wList.length; i++)
 		{
-			ImageWindow win = getWindow(wList[i]);
+			final ImageWindow win = getWindow(wList[i]);
 			if (win == null)
 				continue;
 			if (win instanceof PlotWindow)
 			{
-				PlotWindow pw = (PlotWindow) win;
+				final PlotWindow pw = (PlotWindow) win;
 				if (!pw.getPlot().isFrozen())
 				{
 					unfreeze[i] = true;
@@ -245,12 +245,12 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 		{
 			if (!unfreeze[i])
 				continue;
-			ImageWindow win = getWindow(wList[i]);
+			final ImageWindow win = getWindow(wList[i]);
 			if (win == null)
 				continue;
 			if (win instanceof PlotWindow)
 			{
-				PlotWindow pw = (PlotWindow) win;
+				final PlotWindow pw = (PlotWindow) win;
 				pw.getPlot().setFrozen(false);
 			}
 		}
@@ -269,7 +269,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 		{
 			super.cascadeWindows(wList);
 		}
-		catch (Throwable t)
+		catch (final Throwable t)
 		{
 			// Some versions of ImageJ / Java do not allow this so call the duplicated function
 			copyOfCascadeWindows(wList);
@@ -284,14 +284,14 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	 */
 	void copyOfTileWindows(int[] wList)
 	{
-		Dimension screen = IJ.getScreenSize();
+		final Dimension screen = IJ.getScreenSize();
 		int minWidth = Integer.MAX_VALUE;
 		int minHeight = Integer.MAX_VALUE;
 		double totalWidth = 0;
 		double totalHeight = 0;
 		for (int i = 0; i < wList.length; i++)
 		{
-			ImageWindow win = getWindow(wList[i]);
+			final ImageWindow win = getWindow(wList[i]);
 			if (win == null)
 				continue;
 			if (win instanceof PlotWindow && !((PlotWindow) win).getPlot().isFrozen())
@@ -299,9 +299,9 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 				IJ.error("Tile", "Unfrozen plot windows cannot be tiled.");
 				return;
 			}
-			Dimension d = win.getSize();
-			int w = d.width;
-			int h = d.height + titlebarHeight;
+			final Dimension d = win.getSize();
+			final int w = d.width;
+			final int h = d.height + titlebarHeight;
 			if (w < minWidth)
 				minWidth = w;
 			if (h < minHeight)
@@ -309,16 +309,16 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 			totalWidth += w;
 			totalHeight += h;
 		}
-		int nPics = wList.length;
-		double averageWidth = totalWidth / nPics;
-		double averageHeight = totalHeight / nPics;
+		final int nPics = wList.length;
+		final double averageWidth = totalWidth / nPics;
+		final double averageHeight = totalHeight / nPics;
 		int tileWidth = (int) averageWidth;
 		int tileHeight = (int) averageHeight;
 		//IJ.write("tileWidth, tileHeight: "+tileWidth+" "+tileHeight);
-		int hspace = screen.width - 2 * GAP;
+		final int hspace = screen.width - 2 * GAP;
 		if (tileWidth > hspace)
 			tileWidth = hspace;
-		int vspace = screen.height - YSTART;
+		final int vspace = screen.height - YSTART;
 		if (tileHeight > vspace)
 			tileHeight = vspace;
 		int hloc, vloc;
@@ -357,12 +357,12 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 				hloc = XSTART;
 				vloc = vloc + tileHeight;
 			}
-			ImageWindow win = getWindow(wList[i]);
+			final ImageWindow win = getWindow(wList[i]);
 			if (win != null)
 			{
 				win.setLocation(hloc, vloc);
 				//IJ.write(i+" "+w+" "+tileWidth+" "+mag+" "+IJ.d2s(zoomFactor,2)+" "+zoomCount);
-				ImageCanvas canvas = win.getCanvas();
+				final ImageCanvas canvas = win.getCanvas();
 				while (win.getSize().width * 0.85 >= tileWidth && canvas.getMagnification() > 0.03125)
 					canvas.zoomOut(0, 0);
 				win.toFront();
@@ -382,7 +382,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	ImageWindow getWindow(int id)
 	{
 		ImageWindow win = null;
-		ImagePlus imp = WindowManager.getImage(id);
+		final ImagePlus imp = WindowManager.getImage(id);
 		if (imp != null)
 			win = imp.getWindow();
 		return win;
@@ -396,17 +396,17 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer
 	 */
 	void copyOfCascadeWindows(int[] wList)
 	{
-		Dimension screen = IJ.getScreenSize();
+		final Dimension screen = IJ.getScreenSize();
 		int x = XSTART;
 		int y = YSTART;
 		int xstep = 0;
 		int xstart = XSTART;
 		for (int i = 0; i < wList.length; i++)
 		{
-			ImageWindow win = getWindow(wList[i]);
+			final ImageWindow win = getWindow(wList[i]);
 			if (win == null)
 				continue;
-			Dimension d = win.getSize();
+			final Dimension d = win.getSize();
 			if (i == 0)
 			{
 				xstep = (int) (d.width * 0.8);

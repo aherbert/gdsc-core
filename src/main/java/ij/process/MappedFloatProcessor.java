@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -36,7 +36,7 @@ import java.awt.image.ColorModel;
  * Optionally +0.0f can be set as the min value mapped to 1. In this case -0.0f is still mapped to 0. This allows for
  * example display of the results of a probability calculation where 0 is a valid display value. -0.0f can be used when
  * no probability exists.
- * 
+ *
  * @author Alex Herbert
  */
 public class MappedFloatProcessor extends FloatProcessor
@@ -167,7 +167,7 @@ public class MappedFloatProcessor extends FloatProcessor
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ij.process.FloatProcessor#create8BitImage()
 	 */
 	// scale from float to 8-bits
@@ -176,17 +176,17 @@ public class MappedFloatProcessor extends FloatProcessor
 	{
 		/*
 		 * Map all non zero values to the range 1-255.
-		 * 
+		 *
 		 * Optionally map +zero to the range 1-255 as well.
-		 * 
+		 *
 		 * Must find the minimum value above zero. This will be mapped to 1.
 		 * Or special case is mapping +0f to 1 but -0f to 0.
 		 */
 
-		int size = width * height;
+		final int size = width * height;
 		if (pixels8 == null)
 			pixels8 = new byte[size];
-		float[] pixels = (float[]) getPixels();
+		final float[] pixels = (float[]) getPixels();
 		float value;
 		int ivalue;
 
@@ -202,19 +202,14 @@ public class MappedFloatProcessor extends FloatProcessor
 		{
 			min2 = max2;
 			for (int i = 0; i < size; i++)
-			{
 				if (pixels[i] > 0)
-				{
 					if (min2 > pixels[i])
 						min2 = pixels[i];
-				}
-			}
 		}
 
-		float scale = 254f / (max2 - min2);
+		final float scale = 254f / (max2 - min2);
 
 		if (isMapZero() && min2 == 0)
-		{
 			// We map equal or below -0 to 0.
 			// Special case of mapping +0 to 1.
 			for (int i = 0; i < size; i++)
@@ -228,13 +223,11 @@ public class MappedFloatProcessor extends FloatProcessor
 
 				// Special case where we must check for -0 or +0
 				if (pixels[i] == 0)
-				{
 					if (Float.floatToRawIntBits(pixels[i]) == NEGATIVE_ZERO)
 					{
 						pixels8[i] = (byte) 0;
 						continue;
 					}
-				}
 
 				// +0 or above maps to 1-255
 				ivalue = 1 + (int) ((pixels[i] * scale) + 0.5f);
@@ -242,16 +235,11 @@ public class MappedFloatProcessor extends FloatProcessor
 					ivalue = 255;
 				pixels8[i] = (byte) ivalue;
 			}
-		}
 		else
-		{
 			for (int i = 0; i < size; i++)
-			{
 				if (pixels[i] < min2 || pixels[i] == 0)
-				{
 					// Below min (or zero) maps to zero
 					pixels8[i] = (byte) 0;
-				}
 				else
 				{
 					// Map all non zero values to the range 1-255.
@@ -261,8 +249,6 @@ public class MappedFloatProcessor extends FloatProcessor
 						ivalue = 255;
 					pixels8[i] = (byte) ivalue;
 				}
-			}
-		}
 		return pixels8;
 	}
 }

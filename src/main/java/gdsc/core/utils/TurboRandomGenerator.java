@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -94,19 +94,17 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
 	private void update()
 	{
 		for (int i = length; i-- > 0;)
-		{
 			if (sequence[i] >= MAX_VALUE)
 				sequence[i] = MAX_VALUE;
-		}
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * WARNING: This class violates the contract of
 	 * {@link org.apache.commons.math3.random.RandomGenerator#nextDouble()} by generating numbers in the interval 0
 	 * (inclusive) to 1 (exclusive).
-	 * 
+	 *
 	 * @see gdsc.core.utils.PseudoRandomGenerator#nextDouble()
 	 */
 	@Override
@@ -117,16 +115,14 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#nextInt(int)
 	 */
 	@Override
 	public int nextInt(int n)
 	{
 		if (n <= 0)
-		{
 			throw new NotStrictlyPositiveException(n);
-		}
 		return nextIntFast(n);
 	}
 
@@ -136,7 +132,7 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
 	 * this random number generator's sequence.
 	 * <p>
 	 * The default implementation returns:
-	 * 
+	 *
 	 * <pre>
 	 * <code>(int) (nextDouble() * n</code>
 	 * </pre>

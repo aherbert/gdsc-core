@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -64,7 +64,7 @@ public class Maths
 	{
 		if (data == null || data.length == 0)
 			return min;
-		for (double d : data)
+		for (final double d : data)
 			if (min > d)
 				min = d;
 		return min;
@@ -97,7 +97,7 @@ public class Maths
 	{
 		if (data == null || data.length == 0)
 			return max;
-		for (double d : data)
+		for (final double d : data)
 			if (max < d)
 				max = d;
 		return max;
@@ -141,17 +141,15 @@ public class Maths
 		double max = limits[1];
 		if (min > max)
 		{
-			double tmp = min;
+			final double tmp = min;
 			min = max;
 			max = tmp;
 		}
-		for (double d : data)
-		{
+		for (final double d : data)
 			if (min > d)
 				min = d;
 			else if (max < d)
 				max = d;
-		}
 		limits[0] = min;
 		limits[1] = max;
 		return limits;
@@ -184,7 +182,7 @@ public class Maths
 	{
 		if (data == null || data.length == 0)
 			return min;
-		for (float d : data)
+		for (final float d : data)
 			if (min > d)
 				min = d;
 		return min;
@@ -217,7 +215,7 @@ public class Maths
 	{
 		if (data == null || data.length == 0)
 			return max;
-		for (float d : data)
+		for (final float d : data)
 			if (max < d)
 				max = d;
 		return max;
@@ -261,17 +259,15 @@ public class Maths
 		float max = limits[1];
 		if (min > max)
 		{
-			float tmp = min;
+			final float tmp = min;
 			min = max;
 			max = tmp;
 		}
-		for (float d : data)
-		{
+		for (final float d : data)
 			if (min > d)
 				min = d;
 			else if (max < d)
 				max = d;
-		}
 		limits[0] = min;
 		limits[1] = max;
 		return limits;
@@ -302,7 +298,7 @@ public class Maths
 	{
 		if (data == null || data.length == 0)
 			return min;
-		for (int d : data)
+		for (final int d : data)
 			if (min > d)
 				min = d;
 		return min;
@@ -333,7 +329,7 @@ public class Maths
 	{
 		if (data == null || data.length == 0)
 			return max;
-		for (int d : data)
+		for (final int d : data)
 			if (max < d)
 				max = d;
 		return max;
@@ -377,11 +373,11 @@ public class Maths
 		int max = limits[1];
 		if (min > max)
 		{
-			int tmp = min;
+			final int tmp = min;
 			min = max;
 			max = tmp;
 		}
-		for (int d : data)
+		for (final int d : data)
 		{
 			if (min > d)
 				min = d;
@@ -418,7 +414,7 @@ public class Maths
 	{
 		if (data == null || data.length == 0)
 			return min;
-		for (short d : data)
+		for (final short d : data)
 			if (min > d)
 				min = d;
 		return min;
@@ -449,7 +445,7 @@ public class Maths
 	{
 		if (data == null || data.length == 0)
 			return max;
-		for (short d : data)
+		for (final short d : data)
 			if (max < d)
 				max = d;
 		return max;
@@ -493,17 +489,15 @@ public class Maths
 		short max = limits[1];
 		if (min > max)
 		{
-			short tmp = min;
+			final short tmp = min;
 			min = max;
 			max = tmp;
 		}
-		for (short d : data)
-		{
+		for (final short d : data)
 			if (min > d)
 				min = d;
 			else if (max < d)
 				max = d;
-		}
 		limits[0] = min;
 		limits[1] = max;
 		return limits;
@@ -534,7 +528,7 @@ public class Maths
 	{
 		if (data == null || data.length == 0)
 			return min;
-		for (long d : data)
+		for (final long d : data)
 			if (min > d)
 				min = d;
 		return min;
@@ -565,7 +559,7 @@ public class Maths
 	{
 		if (data == null || data.length == 0)
 			return max;
-		for (long d : data)
+		for (final long d : data)
 			if (max < d)
 				max = d;
 		return max;
@@ -609,17 +603,15 @@ public class Maths
 		long max = limits[1];
 		if (min > max)
 		{
-			long tmp = min;
+			final long tmp = min;
 			min = max;
 			max = tmp;
 		}
-		for (long d : data)
-		{
+		for (final long d : data)
 			if (min > d)
 				min = d;
 			else if (max < d)
 				max = d;
-		}
 		limits[0] = min;
 		limits[1] = max;
 		return limits;
@@ -681,12 +673,8 @@ public class Maths
 
 		// Normalise
 		if (normalise)
-		{
 			for (int i = 0; i < sum.length; i++)
-			{
 				sum[i] /= count;
-			}
-		}
 
 		return new double[][] { values, sum };
 	}
@@ -746,9 +734,9 @@ public class Maths
 	 */
 	public static double getAkaikeInformationCriterion(double logLikelihood, int n, int p)
 	{
-		// Note: The true bias corrected AIC is derived from the 2nd, 3rd and 4th derivatives of the 
+		// Note: The true bias corrected AIC is derived from the 2nd, 3rd and 4th derivatives of the
 		// negative log-likelihood function. This is complex and so is not implemented.
-		// See: 
+		// See:
 		// http://www.math.sci.hiroshima-u.ac.jp/stat/TR/TR11/TR11-06.pdf
 		// http://www.sciencedirect.com/science/article/pii/S0024379512000821#
 
@@ -763,7 +751,7 @@ public class Maths
 		// Assumes a univariate linear model.
 		//aic = aic + (2.0 * p * (p + 1)) / (n - p - 1);
 
-		// Optimised 
+		// Optimised
 		final double ic = 2.0 * (p - logLikelihood) + (2.0 * p * (p + 1)) / (n - p - 1);
 		return ic;
 	}
@@ -859,7 +847,7 @@ public class Maths
 		if (data == null)
 			return 0;
 		double sum = 0;
-		for (double d : data)
+		for (final double d : data)
 			sum += d;
 		return sum;
 	}
@@ -876,7 +864,7 @@ public class Maths
 		if (data == null)
 			return 0;
 		double sum = 0;
-		for (float d : data)
+		for (final float d : data)
 			sum += d;
 		return sum;
 	}
@@ -893,7 +881,7 @@ public class Maths
 		if (data == null)
 			return 0;
 		long sum = 0;
-		for (long d : data)
+		for (final long d : data)
 			sum += d;
 		return sum;
 	}
@@ -910,7 +898,7 @@ public class Maths
 		if (data == null)
 			return 0;
 		long sum = 0;
-		for (int d : data)
+		for (final int d : data)
 			sum += d;
 		return sum;
 	}
@@ -974,7 +962,7 @@ public class Maths
 	 */
 	public static BigDecimal roundToBigDecimal(double d, int significantDigits)
 	{
-		BigDecimal bd = new BigDecimal(d);
+		final BigDecimal bd = new BigDecimal(d);
 		return bd.round(new MathContext(significantDigits));
 	}
 
@@ -991,7 +979,7 @@ public class Maths
 	{
 		if (Double.isInfinite(d) || Double.isNaN(d))
 			return d;
-		BigDecimal bd = new BigDecimal(d);
+		final BigDecimal bd = new BigDecimal(d);
 		if (decimalPlaces > bd.scale())
 			return d;
 		return bd.setScale(decimalPlaces, RoundingMode.HALF_UP).doubleValue();
@@ -1008,7 +996,7 @@ public class Maths
 	 */
 	public static BigDecimal roundUsingDecimalPlacesToBigDecimal(double d, int decimalPlaces)
 	{
-		BigDecimal bd = new BigDecimal(d);
+		final BigDecimal bd = new BigDecimal(d);
 		if (decimalPlaces > bd.scale())
 			return bd;
 		return bd.setScale(decimalPlaces, RoundingMode.HALF_UP);
@@ -1428,9 +1416,7 @@ public class Maths
 		if (x < 1)
 			throw new IllegalArgumentException("x must be greater or equal 1");
 		if ((x & (x - 1)) == 0)
-		{
-			return x; // x is already a power-of-two number 
-		}
+			return x; // x is already a power-of-two number
 		x |= (x >>> 1);
 		x |= (x >>> 2);
 		x |= (x >>> 4);

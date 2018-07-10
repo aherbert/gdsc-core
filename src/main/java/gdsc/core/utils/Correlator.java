@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -42,7 +42,7 @@ public class Correlator
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param capacity
 	 *            The initial capacity
 	 */
@@ -78,7 +78,7 @@ public class Correlator
 
 	/**
 	 * Ensure that the specified number of elements can be added to the arrays.
-	 * 
+	 *
 	 * @param length
 	 */
 	private void checkCapacity(int length)
@@ -100,7 +100,7 @@ public class Correlator
 
 	/**
 	 * Add a pair of data points to the sums
-	 * 
+	 *
 	 * @param v1
 	 * @param v2
 	 */
@@ -115,7 +115,7 @@ public class Correlator
 
 	/**
 	 * Add a set of paired data points
-	 * 
+	 *
 	 * @param v1
 	 *            the first values
 	 * @param v2
@@ -128,14 +128,12 @@ public class Correlator
 		final int length = Math.min(v1.length, v2.length);
 		checkCapacity(length);
 		for (int i = 0; i < length; i++)
-		{
 			addData(v1[i], v2[i]);
-		}
 	}
 
 	/**
 	 * Add a set of paired data points
-	 * 
+	 *
 	 * @param v1
 	 *            the first values
 	 * @param v2
@@ -150,9 +148,7 @@ public class Correlator
 		length = Math.min(Math.min(v1.length, v2.length), length);
 		checkCapacity(length);
 		for (int i = 0; i < length; i++)
-		{
 			addData(v1[i], v2[i]);
-		}
 	}
 
 	/**
@@ -234,7 +230,7 @@ public class Correlator
 
 	/**
 	 * Calculate the correlation
-	 * 
+	 *
 	 * @param x
 	 *            The X data
 	 * @param y
@@ -251,7 +247,7 @@ public class Correlator
 
 	/**
 	 * Calculate the correlation
-	 * 
+	 *
 	 * @param x
 	 *            The X data
 	 * @param y
@@ -270,7 +266,7 @@ public class Correlator
 
 	/**
 	 * Calculate the correlation
-	 * 
+	 *
 	 * @param x
 	 *            The X data
 	 * @param y
@@ -302,7 +298,7 @@ public class Correlator
 
 	/**
 	 * Calculate the correlation
-	 * 
+	 *
 	 * @param x
 	 *            The X data
 	 * @param y
@@ -319,9 +315,9 @@ public class Correlator
 	{
 		// TODO - Add a check to ensure that the sum will not lose precision as the total aggregates.
 		// This could be done by keeping a BigDecimal to store the overall sums. When the rolling total
-		// reaches the specified precision limit for a double then it should be added to the 
-		// BigDecimal and reset. The precision limit could be set using the value of the mean, 
-		// e.g. 1e10 times bigger than the mean. 
+		// reaches the specified precision limit for a double then it should be added to the
+		// BigDecimal and reset. The precision limit could be set using the value of the mean,
+		// e.g. 1e10 times bigger than the mean.
 
 		// Calculate variances
 		double p1 = 0;

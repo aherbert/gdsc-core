@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -147,11 +147,9 @@ public class FloatHistogram extends Histogram
 		final float max = getValue(maxBin);
 
 		if ((int) min == min && (int) max == max && (max - min) <= size)
-		{
 			// Check if we can convert to integer histogram
 			if (integerData())
 				return integerHistogram(size);
-		}
 
 		// Compress non-integer data
 		final int size_1 = size - 1;
@@ -159,7 +157,7 @@ public class FloatHistogram extends Histogram
 		final int[] newH = new int[size];
 		for (int i = 0; i < h.length; i++)
 		{
-			int bin = (int) ((getValue(i) - min) / binSize + 0.5);
+			final int bin = (int) ((getValue(i) - min) / binSize + 0.5);
 			if (bin < 0)
 				newH[0] += h[i];
 			else if (bin >= size)
@@ -181,7 +179,7 @@ public class FloatHistogram extends Histogram
 	 */
 	private boolean integerData()
 	{
-		for (float f : value)
+		for (final float f : value)
 			if ((int) f != f)
 				return false;
 		return true;
@@ -201,7 +199,7 @@ public class FloatHistogram extends Histogram
 		if (min >= 0 && max < size)
 		{
 			// Pure integer histogram. Do a direct conversion.
-			int[] h = new int[size];
+			final int[] h = new int[size];
 			for (int i = minBin; i <= maxBin; i++)
 				h[(int) value[i]] += this.h[i];
 			return new Histogram(h);
@@ -210,7 +208,7 @@ public class FloatHistogram extends Histogram
 		// Build with offset
 
 		// No need to check size since this has been done already
-		int[] h = new int[size];
+		final int[] h = new int[size];
 		for (int i = 0; i < value.length; i++)
 			h[(int) value[i] - min] += this.h[i];
 
@@ -219,7 +217,7 @@ public class FloatHistogram extends Histogram
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.threshold.Histogram#getValue(int)
 	 */
 	@Override
@@ -230,7 +228,7 @@ public class FloatHistogram extends Histogram
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.threshold.Histogram#clone()
 	 */
 	@Override
@@ -244,7 +242,7 @@ public class FloatHistogram extends Histogram
 	 * <p>
 	 * Compacts the histogram to evenly spaced bin widths and then runs the threshold method. If the compaction does not
 	 * work (e.g. if minBin == maxBin) then thresholding is not possible and -Infinity is returned.
-	 * 
+	 *
 	 * @see gdsc.core.threshold.Histogram#getThreshold(gdsc.core.threshold.AutoThreshold.Method)
 	 */
 	@Override
@@ -266,7 +264,7 @@ public class FloatHistogram extends Histogram
 	public float getThreshold(Method method, int bins)
 	{
 		// Convert to a histogram with even bin widths
-		Histogram histogram = this.compact(bins);
+		final Histogram histogram = this.compact(bins);
 		if (histogram == this)
 			// Cannot compact
 			return Float.NEGATIVE_INFINITY;

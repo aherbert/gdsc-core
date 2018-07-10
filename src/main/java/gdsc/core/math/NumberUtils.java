@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -29,7 +29,7 @@ package gdsc.core.math;
 
 /**
  * Contains methods for number computations
- * 
+ *
  * @author Alex Herbert
  */
 public class NumberUtils
@@ -56,7 +56,7 @@ public class NumberUtils
 		// Then the floating-point result equals the value of the mathematical
 		// expression s x m x 2^(e-150):
 		// e-127 is the unbiased exponent. 23 is the mantissa precision
-		// = s x m x 2^(e-127-23) 
+		// = s x m x 2^(e-127-23)
 
 		// Get the unbiased exponent
 		return ((bits >> 23) & 0xff);
@@ -84,7 +84,7 @@ public class NumberUtils
 		// Then the floating-point result equals the value of the mathematical
 		// expression s x m x 2^(e-1075):
 		// e-1023 is the unbiased exponent. 52 is the mantissa precision
-		// = s x m x 2^(e-1023-52) 
+		// = s x m x 2^(e-1023-52)
 
 		// Get the unbiased exponent
 		return ((int) ((bits >>> 52) & 0x7ffL));
@@ -141,7 +141,7 @@ public class NumberUtils
 		// Then the floating-point result equals the value of the mathematical
 		// expression s x m x 2^(e-150):
 		// e-127 is the unbiased exponent. 23 is the mantissa precision
-		// = s x m x 2^(e-127-23) 
+		// = s x m x 2^(e-127-23)
 
 		// raw mantissa
 		final int m = (bits & 0x7fffff);
@@ -176,7 +176,7 @@ public class NumberUtils
 		// Then the floating-point result equals the value of the mathematical
 		// expression s x m x 2^(e-1075):
 		// e-1023 is the unbiased exponent. 52 is the mantissa precision
-		// = s x m x 2^(e-1023-52) 
+		// = s x m x 2^(e-1023-52)
 
 		// raw mantissa
 		final long m = (bits & 0xfffffffffffffL);

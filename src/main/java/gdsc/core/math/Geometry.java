@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -29,7 +29,7 @@ package gdsc.core.math;
 
 /**
  * Contains methods for standard geometry computations
- * 
+ *
  * @author Alex Herbert
  */
 public class Geometry
@@ -80,7 +80,7 @@ public class Geometry
 	 * The area formula is valid for any non-self-intersecting (simple) polygon, which can be convex or concave.
 	 * <p>
 	 * Note: The float values are cast up to double precision for the computation.
-	 * 
+	 *
 	 * @param x
 	 *            the x
 	 * @param y
@@ -162,15 +162,15 @@ public class Geometry
 	{
 		// http://en.wikipedia.org/wiki/Line-line_intersection
 		//
-		//     x1,y1            x4,y4      
-		//         **        ++ 
+		//     x1,y1            x4,y4
+		//         **        ++
 		//           **    ++
 		//             **++ P(x,y)
 		//            ++ **
 		//          ++     **
 		//        ++         **
-		//    x3,y3            ** 
-		//                       x2,y2  
+		//    x3,y3            **
+		//                       x2,y2
 
 		final double x1_m_x2 = x1 - x2;
 		final double x3_m_x4 = x3 - x4;
@@ -178,7 +178,7 @@ public class Geometry
 		final double y3_m_y4 = y3 - y4;
 
 		// Check if lines are parallel
-		double d = x1_m_x2 * y3_m_y4 - y1_m_y2 * x3_m_x4;
+		final double d = x1_m_x2 * y3_m_y4 - y1_m_y2 * x3_m_x4;
 		if (d == 0)
 		{
 			if (y1 == y3)
@@ -192,10 +192,10 @@ public class Geometry
 		else
 		{
 			// Find intersection
-			double x1_by_y2_m_y1_by_x2 = x1 * y2 - y1 * x2;
-			double x3_by_y4_m_y3_by_x4 = x3 * y4 - y3 * x4;
-			double px = (x1_by_y2_m_y1_by_x2 * x3_m_x4 - x1_m_x2 * x3_by_y4_m_y3_by_x4) / d;
-			double py = (x1_by_y2_m_y1_by_x2 * y3_m_y4 - y1_m_y2 * x3_by_y4_m_y3_by_x4) / d;
+			final double x1_by_y2_m_y1_by_x2 = x1 * y2 - y1 * x2;
+			final double x3_by_y4_m_y3_by_x4 = x3 * y4 - y3 * x4;
+			final double px = (x1_by_y2_m_y1_by_x2 * x3_m_x4 - x1_m_x2 * x3_by_y4_m_y3_by_x4) / d;
+			final double py = (x1_by_y2_m_y1_by_x2 * y3_m_y4 - y1_m_y2 * x3_by_y4_m_y3_by_x4) / d;
 			intersection[0] = px;
 			intersection[1] = py;
 			return true;

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -63,13 +63,11 @@ public class ConvexHull
 		this.x = x;
 		this.y = y;
 		if (xbase != 0 || ybase != 0)
-		{
 			for (int i = x.length; i-- > 0;)
 			{
 				x[i] += xbase;
 				y[i] += ybase;
 			}
-		}
 	}
 
 	/**
@@ -145,8 +143,8 @@ public class ConvexHull
 	public static ConvexHull create(float xbase, float ybase, float[] xCoordinates, float[] yCoordinates, int n)
 	{
 		// Use Apache Math to do this
-		MonotoneChain chain = new MonotoneChain(false, DEFAULT_TOLERANCE);
-		TurboList<Vector2D> points = new TurboList<Vector2D>(n);
+		final MonotoneChain chain = new MonotoneChain(false, DEFAULT_TOLERANCE);
+		final TurboList<Vector2D> points = new TurboList<>(n);
 		for (int i = 0; i < n; i++)
 			points.add(new Vector2D(xbase + xCoordinates[i], ybase + yCoordinates[i]));
 		ConvexHull2D hull = null;
@@ -154,20 +152,20 @@ public class ConvexHull
 		{
 			hull = chain.generate(points);
 		}
-		catch (ConvergenceException e)
+		catch (final ConvergenceException e)
 		{
 		}
 
 		if (hull == null)
 			return null;
 
-		Vector2D[] v = hull.getVertices();
+		final Vector2D[] v = hull.getVertices();
 		if (v.length == 0)
 			return null;
 
-		int size = v.length;
-		float[] xx = new float[size];
-		float[] yy = new float[size];
+		final int size = v.length;
+		final float[] xx = new float[size];
+		final float[] yy = new float[size];
 		int n2 = 0;
 		for (int i = 0; i < size; i++)
 		{
@@ -195,15 +193,13 @@ public class ConvexHull
 	 */
 	public boolean contains(float x, float y)
 	{
-		float[] xpoints = this.x;
-		float[] ypoints = this.y;
+		final float[] xpoints = this.x;
+		final float[] ypoints = this.y;
 		boolean inside = false;
 		for (int i = xpoints.length, j = 0; i-- > 0; j = i)
-		{
 			if (((ypoints[i] > y) != (ypoints[j] > y)) &&
 					(x < (xpoints[j] - xpoints[i]) * (y - ypoints[i]) / (ypoints[j] - ypoints[i]) + xpoints[i]))
 				inside = !inside;
-		}
 		return inside;
 	}
 
@@ -214,7 +210,7 @@ public class ConvexHull
 	 */
 	public Rectangle getBounds()
 	{
-		int npoints = size();
+		final int npoints = size();
 		if (npoints == 0)
 			return new Rectangle();
 		if (bounds == null)
@@ -229,9 +225,9 @@ public class ConvexHull
 	 */
 	public Rectangle2D.Double getFloatBounds()
 	{
-		int npoints = size();
-		float[] xpoints = this.x;
-		float[] ypoints = this.y;
+		final int npoints = size();
+		final float[] xpoints = this.x;
+		final float[] ypoints = this.y;
 		if (npoints == 0)
 			return new Rectangle2D.Double();
 		if (bounds == null)
@@ -247,19 +243,19 @@ public class ConvexHull
 		maxY = minY;
 		for (int i = 1; i < npoints; i++)
 		{
-			float x = xpoints[i];
+			final float x = xpoints[i];
 			if (maxX < x)
 				maxX = x;
 			else if (minX > x)
 				minX = x;
-			float y = ypoints[i];
+			final float y = ypoints[i];
 			if (maxY < y)
 				maxY = y;
 			else if (minY > y)
 				minY = y;
 		}
-		int iMinX = (int) Math.floor(minX);
-		int iMinY = (int) Math.floor(minY);
+		final int iMinX = (int) Math.floor(minX);
+		final int iMinY = (int) Math.floor(minY);
 		bounds = new Rectangle(iMinX, iMinY, (int) (maxX - iMinX + 0.5), (int) (maxY - iMinY + 0.5));
 	}
 
@@ -274,9 +270,7 @@ public class ConvexHull
 			return 0;
 		double length = 0;
 		for (int i = x.length, j = 0; i-- > 0; j = i)
-		{
 			length += distance(x[i], y[i], x[j], y[j]);
-		}
 		return length;
 	}
 

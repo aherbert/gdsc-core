@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -87,7 +87,7 @@ public class DAreaSum
 			return;
 
 		// Compute the rolling sum and sum of squares
-		// s(u,v) = f(u,v) + s(u-1,v) + s(u,v-1) - s(u-1,v-1) 
+		// s(u,v) = f(u,v) + s(u-1,v) + s(u,v-1) - s(u-1,v-1)
 		// where s(u,v) = 0 when either u,v < 0
 
 		s_ = new double[data.length];
@@ -96,7 +96,7 @@ public class DAreaSum
 		double cs_ = 0; // Column sum
 		for (int i = 0; i < maxx; i++)
 		{
-			double d = data[i];
+			final double d = data[i];
 			cs_ += d;
 			s_[i] = cs_;
 		}
@@ -111,7 +111,7 @@ public class DAreaSum
 			// Remaining columns
 			for (int x = 0; x < maxx; x++, i++)
 			{
-				double d = data[i];
+				final double d = data[i];
 				cs_ += d;
 
 				s_[i] = s_[i - maxx] + cs_;
@@ -165,12 +165,12 @@ public class DAreaSum
 	protected double[] getStatisticsRollingSums(int minU, int maxU, int minV, int maxV)
 	{
 		// Compute sum from rolling sum using:
-		// sum(u,v) = 
-		// + s(u+N,v+N) 
+		// sum(u,v) =
+		// + s(u+N,v+N)
 		// - s(u-N-1,v+N)
 		// - s(u+N,v-N-1)
 		// + s(u-N-1,v-N-1)
-		// Note: 
+		// Note:
 		// s(u,v) = 0 when either u,v < 0
 		// s(u,v) = s(umax,v) when u>umax
 		// s(u,v) = s(u,vmax) when v>vmax
@@ -183,7 +183,7 @@ public class DAreaSum
 		if (maxV >= maxy)
 			maxV = maxy - 1;
 
-		// + s(u+N-1,v+N-1) 
+		// + s(u+N-1,v+N-1)
 		double sum = s_[maxV * maxx + maxU];
 
 		if (minU >= 0)
@@ -200,10 +200,8 @@ public class DAreaSum
 				sum += s_[minV * maxx + minU];
 			}
 			else
-			{
 				// Reset to bounds to calculate the number of pixels
 				minV = -1;
-			}
 		}
 		else
 		{
@@ -211,18 +209,14 @@ public class DAreaSum
 			minU = -1;
 
 			if (minV >= 0)
-			{
 				// - s(u+N-1,v-1)
 				sum -= s_[minV * maxx + maxU];
-			}
 			else
-			{
 				// Reset to bounds to calculate the number of pixels
 				minV = -1;
-			}
 		}
 
-		int n = (maxU - minU) * (maxV - minV);
+		final int n = (maxU - minU) * (maxV - minV);
 
 		return getResults(sum, n);
 	}
@@ -236,9 +230,9 @@ public class DAreaSum
 	 *            the n
 	 * @return the results
 	 */
-	private double[] getResults(double sum, int n)
+	private static double[] getResults(double sum, int n)
 	{
-		double[] stats = new double[2];
+		final double[] stats = new double[2];
 		stats[N] = n;
 		stats[SUM] = sum;
 		return stats;
@@ -273,11 +267,9 @@ public class DAreaSum
 		double sum = 0;
 		for (int y = minV; y < maxV; y++)
 			for (int x = minU, i = getIndex(minU, y); x < maxU; x++, i++)
-			{
 				sum += data[i];
-			}
 
-		int n = (maxU - minU) * (maxV - minV);
+		final int n = (maxU - minU) * (maxV - minV);
 
 		return getResults(sum, n);
 	}
@@ -304,11 +296,11 @@ public class DAreaSum
 		if (n == 0)
 			return getSingleResult(x, y);
 		// Lower bounds inclusive
-		int minU = x - n;
-		int minV = y - n;
+		final int minU = x - n;
+		final int minV = y - n;
 		// Upper bounds inclusive
-		int maxU = x + n;
-		int maxV = y + n;
+		final int maxU = x + n;
+		final int maxV = y + n;
 		return getStatisticsInternal(minU, maxU, minV, maxV);
 	}
 
@@ -364,11 +356,11 @@ public class DAreaSum
 		if (nx == 0 && ny == 0)
 			return getSingleResult(x, y);
 		// Lower bounds inclusive
-		int minU = x - nx;
-		int minV = y - ny;
+		final int minU = x - nx;
+		final int minV = y - ny;
 		// Upper bounds inclusive
-		int maxU = x + nx;
-		int maxV = y + ny;
+		final int maxU = x + nx;
+		final int maxV = y + ny;
 		return getStatisticsInternal(minU, maxU, minV, maxV);
 	}
 
@@ -384,14 +376,14 @@ public class DAreaSum
 	public double[] getStatistics(Rectangle region)
 	{
 		// Upper bounds inclusive
-		int maxU = region.x + region.width - 1;
-		int maxV = region.y + region.height - 1;
+		final int maxU = region.x + region.width - 1;
+		final int maxV = region.y + region.height - 1;
 		// Bounds check
 		if (region.width <= 0 || region.height <= 0 || region.x >= maxx || region.y >= maxy || maxU < 0 || maxV < 0)
 			return EMPTY.clone();
 		// Lower bounds inclusive
-		int minU = region.x;
-		int minV = region.y;
+		final int minU = region.x;
+		final int minV = region.y;
 		return getStatisticsInternal(minU, maxU, minV, maxV);
 	}
 

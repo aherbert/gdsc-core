@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -123,7 +123,7 @@ public class Utils
 	 */
 	public static String[] decodePath(String path)
 	{
-		String[] result = new String[2];
+		final String[] result = new String[2];
 		if (path == null)
 			path = "";
 		int i = path.lastIndexOf('/');
@@ -228,12 +228,10 @@ public class Utils
 			final boolean resized = imp.getWidth() != ip.getWidth() || imp.getHeight() != ip.getHeight();
 			// This works only if it is not a stack
 			if (imp.getStackSize() == 1)
-			{
 				imp.setProcessor(ip);
-			}
 			else
 			{
-				ImageStack stack = new ImageStack(ip.getWidth(), ip.getHeight());
+				final ImageStack stack = new ImageStack(ip.getWidth(), ip.getHeight());
 				stack.addSlice(ip);
 				imp.setStack(stack);
 			}
@@ -358,7 +356,7 @@ public class Utils
 	{
 		if (data == null || data.length < w * h)
 			return null;
-		float[] f = new float[w * h];
+		final float[] f = new float[w * h];
 		for (int i = 0; i < f.length; i++)
 			f[i] = (float) data[i];
 		return Utils.display(title, new FloatProcessor(w, h, f), flags);
@@ -405,10 +403,10 @@ public class Utils
 		for (int s = 0; s < data.length; s++)
 			if (data[s] == null || data[s].length < n)
 				return null;
-		ImageStack stack = new ImageStack(w, h, data.length);
+		final ImageStack stack = new ImageStack(w, h, data.length);
 		for (int s = 0; s < data.length; s++)
 		{
-			float[] f = new float[n];
+			final float[] f = new float[n];
 			for (int i = 0; i < n; i++)
 				f[i] = (float) data[s][i];
 			stack.setPixels(f, s + 1);
@@ -494,19 +492,17 @@ public class Utils
 	{
 		newWindow = false;
 		Frame plotWindow = null;
-		int[] wList = WindowManager.getIDList();
-		int len = wList != null ? wList.length : 0;
+		final int[] wList = WindowManager.getIDList();
+		final int len = wList != null ? wList.length : 0;
 		for (int i = 0; i < len; i++)
 		{
-			ImagePlus imp = WindowManager.getImage(wList[i]);
+			final ImagePlus imp = WindowManager.getImage(wList[i]);
 			if (imp != null && imp.getWindow() instanceof PlotWindow)
-			{
 				if (imp.getTitle().equals(title))
 				{
 					plotWindow = imp.getWindow();
 					break;
 				}
-			}
 		}
 		PlotWindow p = null;
 		if (plotWindow == null)
@@ -517,14 +513,13 @@ public class Utils
 			newWindow = true;
 		}
 		else
-		{
 			// Since the new IJ 1.50 plot functionality to have scalable plots this can sometimes error
 			try
 			{
 				p = (PlotWindow) plotWindow;
-				Plot oldPlot = p.getPlot();
-				Dimension d = oldPlot.getSize();
-				double[] limits = oldPlot.getLimits();
+				final Plot oldPlot = p.getPlot();
+				final Dimension d = oldPlot.getSize();
+				final double[] limits = oldPlot.getLimits();
 				plot.setSize(d.width, d.height);
 				if ((flags & PRESERVE_ALL) == PRESERVE_ALL)
 				{
@@ -533,12 +528,12 @@ public class Utils
 					flags = 0;
 				}
 				// If only some of the limits are to be preserved then we must get the current default min/max.
-				// This cannot be done for a Plot class but we can do it for Plot2 (which makes public extra 
+				// This cannot be done for a Plot class but we can do it for Plot2 (which makes public extra
 				// functionality).
 				if ((flags & PRESERVE_ALL) != 0 && plot instanceof Plot2)
 				{
-					Plot2 p2 = (Plot2) plot;
-					double[] currentLimits = p2.getDefaultMinAndMax();
+					final Plot2 p2 = (Plot2) plot;
+					final double[] currentLimits = p2.getDefaultMinAndMax();
 					if (currentLimits != null)
 					{
 						preserveLimits(plot, flags, limits, currentLimits);
@@ -552,7 +547,7 @@ public class Utils
 				else if ((flags & NO_TO_FRONT) == 0)
 					p.toFront();
 			}
-			catch (Throwable t)
+			catch (final Throwable t)
 			{
 				// Allow debugging
 				t.printStackTrace();
@@ -564,14 +559,14 @@ public class Utils
 				if (p != null)
 				{
 					location = p.getLocation();
-					Plot oldPlot = p.getPlot();
+					final Plot oldPlot = p.getPlot();
 					d = oldPlot.getSize();
 					limits = oldPlot.getLimits();
 					try
 					{
 						p.close();
 					}
-					catch (Throwable tt)
+					catch (final Throwable tt)
 					{
 						// Ignore
 					}
@@ -579,23 +574,16 @@ public class Utils
 
 				// Show a new window
 				if (d != null)
-				{
 					plot.setSize(d.width, d.height);
-				}
 				p = plot.show();
 				if (location != null)
-				{
 					p.setLocation(location);
-				}
 				if (limits != null)
-				{
 					preserveLimits(plot, flags, limits);
-				}
 				if (windowOrganiser != null)
 					windowOrganiser.add(p);
 				newWindow = true;
 			}
-		}
 		return p;
 	}
 
@@ -653,19 +641,17 @@ public class Utils
 	 */
 	public static boolean hide(String title)
 	{
-		int[] wList = WindowManager.getIDList();
-		int len = wList != null ? wList.length : 0;
+		final int[] wList = WindowManager.getIDList();
+		final int len = wList != null ? wList.length : 0;
 		for (int i = 0; i < len; i++)
 		{
-			ImagePlus imp = WindowManager.getImage(wList[i]);
+			final ImagePlus imp = WindowManager.getImage(wList[i]);
 			if (imp != null)
-			{
 				if (imp.getTitle().equals(title))
 				{
 					imp.getWindow().setVisible(false);
 					return true;
 				}
-			}
 		}
 		return false;
 	}
@@ -678,9 +664,8 @@ public class Utils
 	 */
 	public static void close(String name)
 	{
-		Window w = WindowManager.getWindow(name);
+		final Window w = WindowManager.getWindow(name);
 		if (w != null)
-		{
 			if (w instanceof ImageWindow)
 				((ImageWindow) w).close();
 			else if (w instanceof Frame)
@@ -688,7 +673,6 @@ public class Utils
 				WindowManager.removeWindow(w);
 				w.dispose();
 			}
-		}
 	}
 
 	/**
@@ -704,7 +688,7 @@ public class Utils
 	{
 		float min = Float.POSITIVE_INFINITY;
 		float max = Float.NEGATIVE_INFINITY;
-		for (float f : data)
+		for (final float f : data)
 		{
 			if (min > f)
 				min = f;
@@ -738,7 +722,7 @@ public class Utils
 			numBins = 2;
 		if (max < min)
 		{
-			double tmp = max;
+			final double tmp = max;
 			max = min;
 			min = tmp;
 		}
@@ -749,21 +733,17 @@ public class Utils
 			binSize = 1;
 		}
 		else
-		{
 			binSize = (max - min) / (numBins - 1);
-		}
 
 		final float[] value = new float[numBins];
 		final float[] frequency = new float[numBins];
 
 		for (int i = 0; i < numBins; i++)
-		{
 			value[i] = (float) (min + i * binSize);
-		}
 
-		for (double d : data)
+		for (final double d : data)
 		{
-			int bin = (int) ((d - min) / binSize);
+			final int bin = (int) ((d - min) / binSize);
 			if (bin < 0)
 			{ /* this data is smaller than min */
 			}
@@ -771,9 +751,7 @@ public class Utils
 			{ /* this data point is bigger than max */
 			}
 			else
-			{
 				frequency[bin]++;
-			}
 		}
 
 		return new float[][] { value, frequency };
@@ -792,7 +770,7 @@ public class Utils
 	{
 		double min = Double.POSITIVE_INFINITY;
 		double max = Double.NEGATIVE_INFINITY;
-		for (double f : data)
+		for (final double f : data)
 		{
 			if (min > f)
 				min = f;
@@ -826,7 +804,7 @@ public class Utils
 			numBins = 2;
 		if (max < min)
 		{
-			double tmp = max;
+			final double tmp = max;
 			max = min;
 			min = tmp;
 		}
@@ -837,21 +815,17 @@ public class Utils
 			binSize = 1;
 		}
 		else
-		{
 			binSize = (max - min) / (numBins - 1);
-		}
 
 		final double[] value = new double[numBins];
 		final double[] frequency = new double[numBins];
 
 		for (int i = 0; i < numBins; i++)
-		{
 			value[i] = (min + i * binSize);
-		}
 
-		for (double d : data)
+		for (final double d : data)
 		{
-			int bin = (int) ((d - min) / binSize);
+			final int bin = (int) ((d - min) / binSize);
 			if (bin < 0)
 			{ /* this data is smaller than min */
 			}
@@ -859,9 +833,7 @@ public class Utils
 			{ /* this data point is bigger than max */
 			}
 			else
-			{
 				frequency[bin]++;
-			}
 		}
 
 		return new double[][] { value, frequency };
@@ -877,7 +849,7 @@ public class Utils
 	 */
 	public static float[] createHistogramAxis(float[] histogramX)
 	{
-		float[] axis = new float[histogramX.length * 2 + 2];
+		final float[] axis = new float[histogramX.length * 2 + 2];
 		int index = 0;
 		for (int i = 0; i < histogramX.length; ++i)
 		{
@@ -886,7 +858,7 @@ public class Utils
 		}
 		if (histogramX.length > 0)
 		{
-			float dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
+			final float dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
 			axis[index++] = histogramX[histogramX.length - 1] + dx;
 			axis[index++] = histogramX[histogramX.length - 1] + dx;
 		}
@@ -903,7 +875,7 @@ public class Utils
 	 */
 	public static float[] createHistogramValues(float[] histogramY)
 	{
-		float[] axis = new float[histogramY.length * 2 + 2];
+		final float[] axis = new float[histogramY.length * 2 + 2];
 
 		int index = 0;
 		axis[index++] = 0;
@@ -925,7 +897,7 @@ public class Utils
 	 */
 	public static double[] createHistogramAxis(double[] histogramX)
 	{
-		double[] axis = new double[histogramX.length * 2 + 2];
+		final double[] axis = new double[histogramX.length * 2 + 2];
 		int index = 0;
 		for (int i = 0; i < histogramX.length; ++i)
 		{
@@ -934,7 +906,7 @@ public class Utils
 		}
 		if (histogramX.length > 0)
 		{
-			double dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
+			final double dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
 			axis[index++] = histogramX[histogramX.length - 1] + dx;
 			axis[index++] = histogramX[histogramX.length - 1] + dx;
 		}
@@ -951,7 +923,7 @@ public class Utils
 	 */
 	public static double[] createHistogramValues(double[] histogramY)
 	{
-		double[] axis = new double[histogramY.length * 2 + 2];
+		final double[] axis = new double[histogramY.length * 2 + 2];
 
 		int index = 0;
 		axis[index++] = 0;
@@ -979,23 +951,21 @@ public class Utils
 		double sum = 0.0;
 		double sum2 = 0.0;
 		for (int i = 0; i < x.length; i++)
-		{
 			if (y[i] > 0)
 			{
-				float count = y[i];
-				float value = x[i];
+				final float count = y[i];
+				final float value = x[i];
 				n += count;
 				sum += value * count;
 				sum2 += (value * value) * count;
 			}
-		}
-		double av = sum / n;
+		final double av = sum / n;
 
 		// Get the Std.Dev
 		double stdDev;
 		if (n > 0)
 		{
-			double d = n;
+			final double d = n;
 			stdDev = (d * sum2 - sum * sum) / d;
 			if (stdDev > 0.0)
 				stdDev = Math.sqrt(stdDev / (d - 1.0));
@@ -1023,7 +993,7 @@ public class Utils
 
 	/**
 	 * Check if the escape key has been pressed. Show a status aborted message if true.
-	 * 
+	 *
 	 * @return True if aborted
 	 */
 	public static boolean isInterrupted()
@@ -1137,11 +1107,11 @@ public class Utils
 	public static int showHistogram(String title, DoubleData data, String name, double minWidth, int removeOutliers,
 			int bins, int shape, String label)
 	{
-		double[] values = data.values();
+		final double[] values = data.values();
 		// If we have +/- Infinity in here it will break
 		if (values == null || values.length < 2)
 			return 0;
-		double[] limits = Maths.limits(values);
+		final double[] limits = Maths.limits(values);
 		double yMin = limits[0];
 		double yMax = limits[1];
 		double width;
@@ -1178,7 +1148,7 @@ public class Utils
 				default:
 					bins = getBinsSqrtRule(data.size());
 			}
-			// In case of error (N=0, Infinity in the data range) 
+			// In case of error (N=0, Infinity in the data range)
 			if (bins == Integer.MAX_VALUE)
 				bins = getBinsSqrtRule(data.size());
 		}
@@ -1195,7 +1165,7 @@ public class Utils
 					lower = stats.getStatistics().getPercentile(25);
 					upper = stats.getStatistics().getPercentile(75);
 				}
-				double iqr = 1.5 * (upper - lower);
+				final double iqr = 1.5 * (upper - lower);
 				yMin = FastMath.max(lower - iqr, yMin);
 				yMax = FastMath.min(upper + iqr, yMax);
 				break;
@@ -1212,12 +1182,10 @@ public class Utils
 
 		if (minWidth > 0)
 		{
-			double binSize = (yMax - yMin) / ((bins < 2) ? 1 : bins - 1);
+			final double binSize = (yMax - yMin) / ((bins < 2) ? 1 : bins - 1);
 			if (binSize < minWidth)
-			{
 				bins = (int) ((yMax - yMin) / minWidth) + 1;
-				//yMax = bins * minWidth + yMin;
-			}
+			//yMax = bins * minWidth + yMin;
 		}
 		//		else
 		//		{
@@ -1231,8 +1199,8 @@ public class Utils
 		//						resolution = values[i] - values[i-1];
 		//				}
 		//			}
-		//			
-		//			// Set the number of bins as the most needed to separate the data points. 
+		//
+		//			// Set the number of bins as the most needed to separate the data points.
 		//			// This prevents gaps in the histogram
 		//			if (resolution != Double.POSITIVE_INFINITY)
 		//			{
@@ -1244,9 +1212,9 @@ public class Utils
 
 		title += " " + name;
 
-		double[][] hist = Utils.calcHistogram(values, yMin, yMax, bins);
+		final double[][] hist = Utils.calcHistogram(values, yMin, yMax, bins);
 
-		boolean barChart = (shape & Plot2.BAR) == Plot2.BAR;
+		final boolean barChart = (shape & Plot2.BAR) == Plot2.BAR;
 		if (barChart)
 		{
 			// Standard histogram
@@ -1260,14 +1228,12 @@ public class Utils
 			xValues = new double[hist[0].length];
 			yValues = new double[xValues.length];
 			for (int i = 0; i < xValues.length; i++)
-			{
 				if (hist[1][i] != 0)
 				{
 					xValues[c] = hist[0][i];
 					yValues[c] = hist[1][i];
 					c++;
 				}
-			}
 			xValues = Arrays.copyOf(xValues, c);
 			yValues = Arrays.copyOf(yValues, c);
 		}
@@ -1279,8 +1245,8 @@ public class Utils
 			double dx = 0;
 			if (barChart)
 				dx = (xValues.length == 1) ? 1 : (xValues[1] - xValues[0]);
-			double xMax = xValues[xValues.length - 1] + dx;
-			double xPadding = 0.05 * (xMax - xValues[0]);
+			final double xMax = xValues[xValues.length - 1] + dx;
+			final double xPadding = 0.05 * (xMax - xValues[0]);
 			Utils.xMin = xValues[0] - xPadding;
 			Utils.xMax = xMax + xPadding;
 			Utils.yMax = Maths.max(yValues) * 1.05;
@@ -1289,7 +1255,7 @@ public class Utils
 		plot.addPoints(xValues, yValues, shape);
 		if (label != null)
 			plot.addLabel(0, 0, label);
-		PlotWindow window = Utils.display(title, plot);
+		final PlotWindow window = Utils.display(title, plot);
 		return window.getImagePlus().getID();
 	}
 
@@ -1333,17 +1299,18 @@ public class Utils
 		switch (method)
 		{
 			case SCOTT:
-				Statistics stats = (data instanceof Statistics) ? (Statistics) data : new Statistics(data.values());
+				final Statistics stats = (data instanceof Statistics) ? (Statistics) data
+						: new Statistics(data.values());
 				width = getBinWidthScottsRule(stats.getStandardDeviation(), data.size());
 				limits = Maths.limits(data.values());
 				return (int) Math.ceil((limits[1] - limits[0]) / width);
 
 			case FD:
-				DescriptiveStatistics descriptiveStats = (data instanceof StoredDataStatistics)
+				final DescriptiveStatistics descriptiveStats = (data instanceof StoredDataStatistics)
 						? ((StoredDataStatistics) data).getStatistics()
 						: new DescriptiveStatistics(data.values());
-				double lower = descriptiveStats.getPercentile(25);
-				double upper = descriptiveStats.getPercentile(75);
+				final double lower = descriptiveStats.getPercentile(25);
+				final double upper = descriptiveStats.getPercentile(75);
 				width = getBinWidthFreedmanDiaconisRule(upper, lower, data.size());
 				limits = Maths.limits(data.values());
 				return (int) Math.ceil((limits[1] - limits[0]) / width);
@@ -1359,7 +1326,7 @@ public class Utils
 
 	/**
 	 * Gets the bin width using Scott's rule:
-	 * 
+	 *
 	 * <pre>
 	 * 3.5 * sd / cubeRoot(n)
 	 * </pre>
@@ -1377,7 +1344,7 @@ public class Utils
 
 	/**
 	 * Gets the bin width using the Freedman-Diaconis rule.
-	 * 
+	 *
 	 * <pre>
 	 * 2 * IQR / cubeRoot(n)
 	 * </pre>
@@ -1392,13 +1359,13 @@ public class Utils
 	 */
 	public static double getBinWidthFreedmanDiaconisRule(double upper, double lower, int n)
 	{
-		double iqr = upper - lower;
+		final double iqr = upper - lower;
 		return 2 * iqr / FastMath.cbrt(n);
 	}
 
 	/**
 	 * Gets the bins using the Sturges' rule.
-	 * 
+	 *
 	 * <pre>
 	 * ceil(1 + log2(n)
 	 * </pre>
@@ -1414,7 +1381,7 @@ public class Utils
 
 	/**
 	 * Gets the bins using the square root rule.
-	 * 
+	 *
 	 * <pre>
 	 * ceil(squareRoot(n))
 	 * </pre>
@@ -1498,22 +1465,18 @@ public class Utils
 
 		ProgressBar newProgressBar;
 		if (showProgress)
-		{
 			newProgressBar = progressBar;
-		}
 		else
-		{
 			newProgressBar = null;
-		}
 
 		try
 		{
-			Field f = IJ.class.getDeclaredField("progressBar");
+			final Field f = IJ.class.getDeclaredField("progressBar");
 			f.setAccessible(true);
 			f.set(IJ.class, newProgressBar);
 			IS_SHOW_PROGRESS = (showProgress) ? 1 : -1;
 		}
-		catch (Exception e)
+		catch (final Exception e)
 		{
 			IS_SHOW_PROGRESS = 0;
 			PROGRESS_BAR_STATUS = -1;
@@ -1535,15 +1498,13 @@ public class Utils
 		{
 			if (IJ.getInstance() != null)
 			{
-				Panel statusBar = IJ.getInstance().getStatusBar();
-				for (Component c : statusBar.getComponents())
-				{
+				final Panel statusBar = IJ.getInstance().getStatusBar();
+				for (final Component c : statusBar.getComponents())
 					if (c instanceof JLabel)
 					{
 						statusLine = (JLabel) statusBar.getComponent(0);
 						break;
 					}
-				}
 			}
 			STATUS_LINE_STATUS = (statusLine == null) ? -1 : 1;
 		}
@@ -1575,24 +1536,20 @@ public class Utils
 
 		JLabel newStatusLine;
 		if (showStatus)
-		{
 			newStatusLine = statusLine;
-		}
 		else
-		{
 			// Provide a label that will swallow method calls to setText()
 			newStatusLine = new JLabel();
-		}
 
 		try
 		{
-			ImageJ ij = IJ.getInstance();
-			Field f = ij.getClass().getDeclaredField("statusLine");
+			final ImageJ ij = IJ.getInstance();
+			final Field f = ij.getClass().getDeclaredField("statusLine");
 			f.setAccessible(true);
 			f.set(ij, newStatusLine);
 			IS_SHOW_STATUS_LINE = (showStatus) ? 1 : -1;
 		}
-		catch (Exception e)
+		catch (final Exception e)
 		{
 			IS_SHOW_STATUS_LINE = 0;
 			STATUS_LINE_STATUS = -1;
@@ -1636,12 +1593,10 @@ public class Utils
 	{
 		if (filename != null)
 		{
-			int index = filename.lastIndexOf('.');
-			int index2 = filename.lastIndexOf(File.separatorChar);
+			final int index = filename.lastIndexOf('.');
+			final int index2 = filename.lastIndexOf(File.separatorChar);
 			if (index > index2)
-			{
 				filename = filename.substring(0, index);
-			}
 			filename += (extension.startsWith(".")) ? extension : "." + extension;
 		}
 		return filename;
@@ -1658,12 +1613,10 @@ public class Utils
 	{
 		if (filename != null)
 		{
-			int index = filename.lastIndexOf('.');
-			int index2 = filename.lastIndexOf(File.separatorChar);
+			final int index = filename.lastIndexOf('.');
+			final int index2 = filename.lastIndexOf(File.separatorChar);
 			if (index > index2)
-			{
 				filename = filename.substring(0, index);
-			}
 		}
 		return filename;
 	}
@@ -1683,10 +1636,9 @@ public class Utils
 	public static boolean refreshHeadings(TextWindow textWindow, String headings, boolean preserve)
 	{
 		if (textWindow != null && textWindow.isShowing())
-		{
 			if (!textWindow.getTextPanel().getColumnHeadings().equals(headings))
 			{
-				TextPanel tp = textWindow.getTextPanel();
+				final TextPanel tp = textWindow.getTextPanel();
 				String text = null;
 				if (preserve)
 				{
@@ -1701,7 +1653,6 @@ public class Utils
 
 				return true;
 			}
-		}
 		return false;
 	}
 
@@ -1720,7 +1671,7 @@ public class Utils
 	@Deprecated
 	public static double[] newArray(int length, double start, double increment)
 	{
-		double[] data = new double[length];
+		final double[] data = new double[length];
 		for (int i = 0; i < length; i++, start += increment)
 			data[i] = start;
 		return data;
@@ -1741,7 +1692,7 @@ public class Utils
 	@Deprecated
 	public static int[] newArray(int length, int start, int increment)
 	{
-		int[] data = new int[length];
+		final int[] data = new int[length];
 		for (int i = 0; i < length; i++, start += increment)
 			data[i] = start;
 		return data;
@@ -1784,16 +1735,14 @@ public class Utils
 	{
 		try
 		{
-			for (Future<?> f : futures)
-			{
+			for (final Future<?> f : futures)
 				f.get();
-			}
 		}
-		catch (ExecutionException ex)
+		catch (final ExecutionException ex)
 		{
 			if (print)
 				ex.printStackTrace();
-			Throwable t = ex.getCause();
+			final Throwable t = ex.getCause();
 			if (t != null)
 			{
 				if (t instanceof RuntimeException)
@@ -1803,11 +1752,11 @@ public class Utils
 			}
 			throw new RuntimeException((t != null) ? t : ex);
 		}
-		catch (InterruptedException ex)
+		catch (final InterruptedException ex)
 		{
 			if (print)
 				ex.printStackTrace();
-			Throwable t = ex.getCause();
+			final Throwable t = ex.getCause();
 			if (t != null)
 			{
 				if (t instanceof RuntimeException)
@@ -1830,10 +1779,10 @@ public class Utils
 	 */
 	public static String getDirectory(String title, String directory)
 	{
-		String defaultDir = OpenDialog.getDefaultDirectory();
+		final String defaultDir = OpenDialog.getDefaultDirectory();
 		if (!TextUtils.isNullOrEmpty(directory))
 			OpenDialog.setDefaultDirectory(directory);
-		DirectoryChooser chooser = new DirectoryChooser(title);
+		final DirectoryChooser chooser = new DirectoryChooser(title);
 		directory = chooser.getDirectory();
 		if (!TextUtils.isNullOrEmpty(defaultDir))
 			OpenDialog.setDefaultDirectory(defaultDir);
@@ -1851,12 +1800,10 @@ public class Utils
 	 */
 	public static String getFilename(String title, String filename)
 	{
-		String[] path = Utils.decodePath(filename);
-		OpenDialog chooser = new OpenDialog(title, path[0], path[1]);
+		final String[] path = Utils.decodePath(filename);
+		final OpenDialog chooser = new OpenDialog(title, path[0], path[1]);
 		if (chooser.getFileName() != null)
-		{
 			return chooser.getDirectory() + chooser.getFileName();
-		}
 		return null;
 	}
 
@@ -1865,7 +1812,7 @@ public class Utils
 	 * running in a macro then searches the options string for the 'extraoptions' flag.
 	 * <p>
 	 * If the extra options are required then adds the 'extraoptions' flag to the macro recorder options.
-	 * 
+	 *
 	 * @return True if extra options are required
 	 */
 	public static boolean isExtraOptions()
@@ -1873,9 +1820,7 @@ public class Utils
 		final String EXTRA = "extraoptions";
 		boolean extraOptions = IJ.altKeyDown() || IJ.shiftKeyDown();
 		if (!extraOptions && IJ.isMacro())
-		{
 			extraOptions = (Macro.getOptions() != null && Macro.getOptions().contains(EXTRA));
-		}
 		if (extraOptions)
 			Recorder.recordOption(EXTRA);
 		return extraOptions;
@@ -1894,7 +1839,7 @@ public class Utils
 	{
 		if (a == null)
 			return null;
-		double[] b = new double[a.length];
+		final double[] b = new double[a.length];
 		for (int i = 0; i < a.length; i++)
 			b[i] = a[i];
 		return b;
@@ -1913,7 +1858,7 @@ public class Utils
 	{
 		if (a == null)
 			return null;
-		float[] b = new float[a.length];
+		final float[] b = new float[a.length];
 		for (int i = 0; i < a.length; i++)
 			b[i] = (float) a[i];
 		return b;
@@ -1922,11 +1867,11 @@ public class Utils
 	/**
 	 * Return "s" if the size is not 1 otherwise returns an empty string. This can be used to add an s where necessary
 	 * to adjectives:
-	 * 
+	 *
 	 * <pre>
 	 * System.out.printf(&quot;Created %d thing%s\n&quot;, n, TextUtils.pleural(n));
 	 * </pre>
-	 * 
+	 *
 	 * @param n
 	 *            The number of things
 	 * @return "s" or empty string
@@ -1941,11 +1886,11 @@ public class Utils
 	/**
 	 * Return "s" if the size is not 1 otherwise returns an empty string. This can be used to add an s where necessary
 	 * to adjectives:
-	 * 
+	 *
 	 * <pre>
 	 * System.out.printf(&quot;Created %s\n&quot;, TextUtils.pleural(n, &quot;thing&quot;));
 	 * </pre>
-	 * 
+	 *
 	 * @param n
 	 *            The number of things
 	 * @param name
@@ -1984,7 +1929,7 @@ public class Utils
 	 */
 	public static boolean showStatus(String message)
 	{
-		long time = System.currentTimeMillis();
+		final long time = System.currentTimeMillis();
 		if (time - lastTime > 150)
 		{
 			lastTime = time;
@@ -1996,9 +1941,9 @@ public class Utils
 
 	/**
 	 * Set the current source rectangle to centre the view on the given coordinates
-	 * 
+	 *
 	 * Adapted from ij.gui.ImageCanvas.adjustSourceRect(double newMag, int x, int y)
-	 * 
+	 *
 	 * @param imp
 	 *            The image
 	 * @param newMag
@@ -2010,12 +1955,12 @@ public class Utils
 	 */
 	public static void adjustSourceRect(ImagePlus imp, double newMag, int x, int y)
 	{
-		ImageCanvas ic = imp.getCanvas();
+		final ImageCanvas ic = imp.getCanvas();
 		if (ic == null)
 			return;
-		Dimension d = ic.getPreferredSize();
-		int dstWidth = d.width, dstHeight = d.height;
-		int imageWidth = imp.getWidth(), imageHeight = imp.getHeight();
+		final Dimension d = ic.getPreferredSize();
+		final int dstWidth = d.width, dstHeight = d.height;
+		final int imageWidth = imp.getWidth(), imageHeight = imp.getHeight();
 		if (newMag <= 0)
 			newMag = ic.getMagnification();
 		int w = (int) Math.round(dstWidth / newMag);
@@ -2026,7 +1971,7 @@ public class Utils
 			h++;
 		//x = ic.offScreenX(x);
 		//y = ic.offScreenY(y);
-		Rectangle r = new Rectangle(x - w / 2, y - h / 2, w, h);
+		final Rectangle r = new Rectangle(x - w / 2, y - h / 2, w, h);
 		if (r.x < 0)
 			r.x = 0;
 		if (r.y < 0)
@@ -2049,13 +1994,13 @@ public class Utils
 	 */
 	public static int[] getIDList()
 	{
-		int[] list = WindowManager.getIDList();
+		final int[] list = WindowManager.getIDList();
 		return (list != null) ? list : new int[0];
 	}
 
 	/**
 	 * Build a list of all the image names.
-	 * 
+	 *
 	 * @param flags
 	 *            Specify the types of image to collate
 	 * @return The list of images
@@ -2067,7 +2012,7 @@ public class Utils
 
 	/**
 	 * Build a list of all the image names.
-	 * 
+	 *
 	 * @param flags
 	 *            Specify the types of image to collate
 	 * @param ignoreSuffix
@@ -2076,14 +2021,14 @@ public class Utils
 	 */
 	public static String[] getImageList(final int flags, String[] ignoreSuffix)
 	{
-		ArrayList<String> newImageList = new ArrayList<String>();
+		final ArrayList<String> newImageList = new ArrayList<>();
 
 		if ((flags & NO_IMAGE) == NO_IMAGE)
 			newImageList.add(NO_IMAGE_TITLE);
 
-		for (int id : getIDList())
+		for (final int id : getIDList())
 		{
-			ImagePlus imp = WindowManager.getImage(id);
+			final ImagePlus imp = WindowManager.getImage(id);
 			if (imp == null)
 				continue;
 			// Check flags
@@ -2116,18 +2061,16 @@ public class Utils
 	public static boolean ignoreImage(String[] ignoreSuffix, String title)
 	{
 		if (ignoreSuffix != null)
-		{
-			for (String suffix : ignoreSuffix)
+			for (final String suffix : ignoreSuffix)
 				if (title.endsWith(suffix))
 					return true;
-		}
 		return false;
 	}
 
 	/**
 	 * Return the interval for reporting progress to the ImageJ progress bar given the total number of steps. Code
 	 * should use the following prototype: <br/>
-	 * 
+	 *
 	 * <pre>
 	 * final int interval = Utils.getProgressInterval(total);
 	 * for (int i = 0; i &lt; total; i++)
@@ -2172,9 +2115,7 @@ public class Utils
 		File file = new File(paths[0]);
 
 		for (int i = 1; i < paths.length; i++)
-		{
 			file = new File(file, paths[i]);
-		}
 
 		return file.getPath();
 	}
@@ -2209,20 +2150,20 @@ public class Utils
 	 */
 	public static ImageProcessor extractTile(ImagePlus imp, int frame, int channel, int projectionMethod)
 	{
-		int c = imp.getChannel();
-		int s = imp.getSlice();
-		int f = imp.getFrame();
+		final int c = imp.getChannel();
+		final int s = imp.getSlice();
+		final int f = imp.getFrame();
 
 		imp.setPositionWithoutUpdate(channel, 1, frame);
 
 		// Extract the timepoint/channel z-stack
-		HyperStackReducer reducer = new HyperStackReducer(imp);
-		int slices = imp.getNSlices();
-		ImagePlus imp1 = imp.createHyperStack("", 1, slices, 1, imp.getBitDepth());
+		final HyperStackReducer reducer = new HyperStackReducer(imp);
+		final int slices = imp.getNSlices();
+		final ImagePlus imp1 = imp.createHyperStack("", 1, slices, 1, imp.getBitDepth());
 		reducer.reduce(imp1);
 
 		// Perform projectionMethod
-		ZProjector projector = new ZProjector(imp1);
+		final ZProjector projector = new ZProjector(imp1);
 		projector.setMethod(projectionMethod);
 		projector.doProjection();
 
@@ -2282,34 +2223,18 @@ public class Utils
 	@Deprecated
 	public static boolean write(String filename, String text)
 	{
-		FileOutputStream fs = null;
-		try
+		try (FileOutputStream fs = new FileOutputStream(filename))
 		{
-			fs = new FileOutputStream(filename);
 			fs.write(text.getBytes());
 			return true;
 		}
-		catch (FileNotFoundException e)
+		catch (final FileNotFoundException e)
 		{
 			//e.printStackTrace();
 		}
-		catch (IOException e)
+		catch (final IOException e)
 		{
 			//e.printStackTrace();
-		}
-		finally
-		{
-			if (fs != null)
-			{
-				try
-				{
-					fs.close();
-				}
-				catch (IOException e)
-				{
-					//e.printStackTrace();
-				}
-			}
 		}
 		return false;
 	}
@@ -2333,16 +2258,16 @@ public class Utils
 		if (rowsPerColumn.length < 1)
 			return;
 
-		LayoutManager manager = gd.getLayout();
+		final LayoutManager manager = gd.getLayout();
 		if (manager != null && manager instanceof GridBagLayout)
 		{
-			GridBagLayout grid = (GridBagLayout) gd.getLayout();
+			final GridBagLayout grid = (GridBagLayout) gd.getLayout();
 
 			// We assume the generic dialog has been constructed normally
 			// and consists of a layout with pairs of items in ascending y
-			// in the grid layout. We will extract all of these and put them 
+			// in the grid layout. We will extract all of these and put them
 			// into columns on a panel. The panels can then be added to the dialog.
-			ArrayList<Panel> panels = new ArrayList<Panel>();
+			final ArrayList<Panel> panels = new ArrayList<>();
 
 			Panel current = null;
 			GridBagLayout currentGrid = null;
@@ -2351,9 +2276,9 @@ public class Utils
 			int nextColumnY = 0;
 			int yOffset = 0;
 
-			for (Component comp : gd.getComponents())
+			for (final Component comp : gd.getComponents())
 			{
-				GridBagConstraints c = grid.getConstraints(comp);
+				final GridBagConstraints c = grid.getConstraints(comp);
 
 				// Check if this should be a new column
 				if (c.gridy >= nextColumnY)
@@ -2368,13 +2293,9 @@ public class Utils
 
 					counter++;
 					if (counter < rowsPerColumn.length)
-					{
 						nextColumnY += rowsPerColumn[counter];
-					}
 					else
-					{
 						nextColumnY = Integer.MAX_VALUE;
-					}
 				}
 
 				// Reposition in the current column
@@ -2391,12 +2312,12 @@ public class Utils
 			// Replace the components with columns
 			gd.removeAll();
 
-			GridBagConstraints c = new GridBagConstraints();
+			final GridBagConstraints c = new GridBagConstraints();
 			c.gridy = 0;
 			c.anchor = GridBagConstraints.NORTH;
 			for (int i = 0; i < panels.size(); i++)
 			{
-				Panel p = panels.get(i);
+				final Panel p = panels.get(i);
 				c.gridx = i;
 				gd.add(p);
 				grid.setConstraints(p, c);
@@ -2422,7 +2343,7 @@ public class Utils
 	{
 		if (tp != null)
 		{
-			String[] headings = tp.getColumnHeadings().split("\t");
+			final String[] headings = tp.getColumnHeadings().split("\t");
 			for (int i = 0; i < headings.length; i++)
 				if (headings[i].equals(heading))
 					return i;

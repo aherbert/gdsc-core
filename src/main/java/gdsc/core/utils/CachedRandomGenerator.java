@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -90,9 +90,9 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 	 * Set the seed in the source random generator. This may not have the expected result of resetting the random
 	 * numbers if the current position is behind the sequence. To ensure a new set of number is generated with the seed
 	 * also call {@link #clearCache()}.
-	 * 
+	 *
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#setSeed(long)
 	 * @see #reset()
 	 * @see #clearCache()
@@ -124,7 +124,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#nextDouble()
 	 */
 	@Override
@@ -132,9 +132,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 	{
 		double d;
 		if (pos < sequence.size())
-		{
 			d = sequence.getValue(pos);
-		}
 		else
 		{
 			d = source.nextDouble();
@@ -142,7 +140,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 			{
 				store.add(d);
 			}
-			catch (NegativeArraySizeException e)
+			catch (final NegativeArraySizeException e)
 			{
 				// No more capacity
 				store = NULL_STORE;
@@ -202,7 +200,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 	 * this random number generator's sequence.
 	 * <p>
 	 * The default implementation returns:
-	 * 
+	 *
 	 * <pre>
 	 * <code>(int) (nextDouble() * n</code>
 	 * </pre>
@@ -217,7 +215,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 	 */
 	public int nextIntFast(int n)
 	{
-		int result = (int) (nextDouble() * n);
+		final int result = (int) (nextDouble() * n);
 		return result < n ? result : n - 1;
 	}
 

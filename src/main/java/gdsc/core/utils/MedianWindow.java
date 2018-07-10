@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -36,8 +36,11 @@ import org.apache.commons.math3.util.FastMath;
  */
 public class MedianWindow
 {
-	private int radius, position = 0, cachePosition = -1;
-	private double[] data, cache = null;
+	private final int radius;
+	private int position = 0;
+	private int cachePosition = -1;
+	private final double[] data;
+	private double[] cache = null;
 	private double median = Double.NaN;
 	private boolean invalid = true;
 	private boolean sortedScan = false;
@@ -47,7 +50,7 @@ public class MedianWindow
 	 * <p>
 	 * Note that if the median must be written back to a different array,
 	 * i.e. the input data should be cloned if the array is to be reused.
-	 * 
+	 *
 	 * @param data
 	 *            the data
 	 * @param radius
@@ -67,7 +70,7 @@ public class MedianWindow
 
 	/**
 	 * Move the current position along the data array
-	 * 
+	 *
 	 * @return True if the position is valid, False if the position is beyond the end of the array
 	 */
 	public boolean increment()
@@ -109,7 +112,7 @@ public class MedianWindow
 
 	/**
 	 * Set the position. Negative positions are set to zero.
-	 * 
+	 *
 	 * @param position
 	 *            Set the current position
 	 */
@@ -146,7 +149,7 @@ public class MedianWindow
 	 * <p>
 	 * The default is to search the window data for each value to replace directly resulting in N scans for the N
 	 * replacements. This avoids an additional sort method. Speed tests show the direct method is marginally faster.
-	 * 
+	 *
 	 * @param sortedScan
 	 *            the sortedScan to set
 	 */
@@ -161,9 +164,7 @@ public class MedianWindow
 	public double getMedian()
 	{
 		if (invalid)
-		{
 			median = updateMedian();
-		}
 		return median;
 	}
 
@@ -189,7 +190,7 @@ public class MedianWindow
 		// a set of the data that requires updating:
 		//                cachePosition
 		//                     |   Position
-		//                     |     |  
+		//                     |     |
 		// Old     -------------------------
 		// New           =========================
 		// Remove  ------
@@ -200,7 +201,7 @@ public class MedianWindow
 		final int newEnd = FastMath.min(position + radius + 1, data.length);
 		final int newLength = newEnd - newStart;
 
-		// Speed tests have shown that if the total increment is more than half the radius it 
+		// Speed tests have shown that if the total increment is more than half the radius it
 		// is faster to recompute
 		if (cache == null || position - cachePosition > radius / 2 || cache.length != newLength)
 		{
@@ -210,7 +211,7 @@ public class MedianWindow
 		}
 		else
 		{
-			// This point is only reached when we have a set of sorted numbers in the cache 
+			// This point is only reached when we have a set of sorted numbers in the cache
 			// and we want to replace N of them with N new numbers.
 
 			final int cacheStart = FastMath.max(0, cachePosition - radius);
@@ -223,7 +224,7 @@ public class MedianWindow
 				// Method using search of the cached array with sorted numbers to remove
 
 				// Extract numbers to remove
-				double[] dataToRemove = new double[position - cachePosition];
+				final double[] dataToRemove = new double[position - cachePosition];
 				for (int remove = cacheStart, i = 0; remove < newStart; remove++, i++)
 					dataToRemove[i] = data[remove];
 				Arrays.sort(dataToRemove);
@@ -235,14 +236,12 @@ public class MedianWindow
 
 					// Find the number in the cache
 					for (; cachePosition < cache.length; cachePosition++)
-					{
 						if (cache[cachePosition] == toRemove)
 						{
-							// Replace with new data 
+							// Replace with new data
 							cache[cachePosition++] = data[add++];
 							break;
 						}
-					}
 
 					if (add == add2)
 					{
@@ -256,9 +255,6 @@ public class MedianWindow
 				}
 			}
 			else
-			{
-				// Method using direct search of the cached array
-
 				// Iterate over numbers to remove
 				for (int remove = cacheStart, add = cacheEnd; remove < newStart; remove++)
 				{
@@ -268,27 +264,21 @@ public class MedianWindow
 					if (toRemove > middleValue)
 					{
 						for (int i = cache.length; i-- > 0;)
-						{
 							if (cache[i] == toRemove)
 							{
-								// Replace with new data 
+								// Replace with new data
 								cache[i] = data[add++];
 								break;
 							}
-						}
 					}
 					else
-					{
 						for (int i = 0; i < cache.length; i++)
-						{
 							if (cache[i] == toRemove)
 							{
-								// Replace with new data 
+								// Replace with new data
 								cache[i] = data[add++];
 								break;
 							}
-						}
-					}
 
 					if (add == add2)
 					{
@@ -300,7 +290,6 @@ public class MedianWindow
 						break;
 					}
 				}
-			}
 		}
 
 		Arrays.sort(cache);

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -45,7 +45,7 @@ public class Random extends AbstractRandomGenerator
 
 	private int idum;
 	private int iy = 0;
-	private int[] iv = new int[NTAB];
+	private final int[] iv = new int[NTAB];
 
 	/**
 	 * Default constructor
@@ -53,13 +53,13 @@ public class Random extends AbstractRandomGenerator
 	public Random()
 	{
 		// Require an integer seed
-		int seed = (int) (System.currentTimeMillis() & 0xffffffff);
+		final int seed = (int) (System.currentTimeMillis() & 0xffffffff);
 		init(seed);
 	}
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param seed
 	 *            The seed to use for the random number generator
 	 */
@@ -77,7 +77,7 @@ public class Random extends AbstractRandomGenerator
 
 	/**
 	 * Returns a random number between 0 (included) and 1 (excluded)
-	 * 
+	 *
 	 * @return Random number
 	 */
 	public float next()
@@ -138,7 +138,7 @@ public class Random extends AbstractRandomGenerator
 
 	/**
 	 * Perform a Fisher-Yates shuffle on the data
-	 * 
+	 *
 	 * @param data
 	 *            the data
 	 */
@@ -149,7 +149,7 @@ public class Random extends AbstractRandomGenerator
 
 	/**
 	 * Perform a Fisher-Yates shuffle on the data
-	 * 
+	 *
 	 * @param data
 	 *            the data
 	 */
@@ -160,7 +160,7 @@ public class Random extends AbstractRandomGenerator
 
 	/**
 	 * Perform a Fisher-Yates shuffle on the data
-	 * 
+	 *
 	 * @param data
 	 *            the data
 	 */
@@ -171,7 +171,7 @@ public class Random extends AbstractRandomGenerator
 
 	/**
 	 * Perform a Fisher-Yates shuffle on the data
-	 * 
+	 *
 	 * @param data
 	 *            the data
 	 */
@@ -182,7 +182,7 @@ public class Random extends AbstractRandomGenerator
 
 	/**
 	 * Perform a Fisher-Yates shuffle on the data
-	 * 
+	 *
 	 * @param data
 	 *            the data
 	 * @param r
@@ -192,8 +192,8 @@ public class Random extends AbstractRandomGenerator
 	{
 		for (int i = data.length; i-- > 1;)
 		{
-			int j = r.nextInt(i + 1);
-			double tmp = data[i];
+			final int j = r.nextInt(i + 1);
+			final double tmp = data[i];
 			data[i] = data[j];
 			data[j] = tmp;
 		}
@@ -201,7 +201,7 @@ public class Random extends AbstractRandomGenerator
 
 	/**
 	 * Perform a Fisher-Yates shuffle on the data
-	 * 
+	 *
 	 * @param data
 	 *            the data
 	 * @param r
@@ -211,8 +211,8 @@ public class Random extends AbstractRandomGenerator
 	{
 		for (int i = data.length; i-- > 1;)
 		{
-			int j = r.nextInt(i + 1);
-			float tmp = data[i];
+			final int j = r.nextInt(i + 1);
+			final float tmp = data[i];
 			data[i] = data[j];
 			data[j] = tmp;
 		}
@@ -220,7 +220,7 @@ public class Random extends AbstractRandomGenerator
 
 	/**
 	 * Perform a Fisher-Yates shuffle on the data
-	 * 
+	 *
 	 * @param data
 	 *            the data
 	 * @param r
@@ -230,8 +230,8 @@ public class Random extends AbstractRandomGenerator
 	{
 		for (int i = data.length; i-- > 1;)
 		{
-			int j = r.nextInt(i + 1);
-			int tmp = data[i];
+			final int j = r.nextInt(i + 1);
+			final int tmp = data[i];
 			data[i] = data[j];
 			data[j] = tmp;
 		}
@@ -239,7 +239,7 @@ public class Random extends AbstractRandomGenerator
 
 	/**
 	 * Perform a Fisher-Yates shuffle on the data
-	 * 
+	 *
 	 * @param data
 	 *            the data
 	 * @param r
@@ -249,8 +249,8 @@ public class Random extends AbstractRandomGenerator
 	{
 		for (int i = data.length; i-- > 1;)
 		{
-			int j = r.nextInt(i + 1);
-			Object tmp = data[i];
+			final int j = r.nextInt(i + 1);
+			final Object tmp = data[i];
 			data[i] = data[j];
 			data[j] = tmp;
 		}
@@ -320,7 +320,7 @@ public class Random extends AbstractRandomGenerator
 			// No sub-sample needed
 			return data;
 
-		// If k>n/2 then we can sample (n-k) and then construct the result 
+		// If k>n/2 then we can sample (n-k) and then construct the result
 		// by removing the selection from the original range.
 		if (k > n / 2)
 		{
@@ -348,13 +348,13 @@ public class Random extends AbstractRandomGenerator
 		final int[] result = new int[k];
 		for (int i = data.length - 1; k-- > 0; i--)
 		{
-			int j = r.nextInt(i + 1);
+			final int j = r.nextInt(i + 1);
 			// In a standard shuffle we swap i and j:
 			// int tmp = data[i];
 			// data[i] = data[j];
 			// data[j] = tmp;
 			// i then becomes fixed (with a random sample) as we descend the array.
-			// This method is modified to write i into j and write what we would put into i into the result array. 
+			// This method is modified to write i into j and write what we would put into i into the result array.
 			result[k] = data[j];
 			data[j] = data[i];
 		}
@@ -376,7 +376,7 @@ public class Random extends AbstractRandomGenerator
 	 */
 	public static int[] sample(final int k, final int[] data, RandomGenerator r)
 	{
-		int[] sample = sample(k, data.length, r);
+		final int[] sample = sample(k, data.length, r);
 		// Convert indices to values
 		for (int i = sample.length; i-- > 0;)
 			sample[i] = data[sample[i]];
@@ -396,7 +396,6 @@ public class Random extends AbstractRandomGenerator
 	{
 		final int max = (upper - lower) + 1;
 		if (max <= 0)
-		{
 			// The range is too wide to fit in a positive int (larger
 			// than 2^31); as it covers more than half the integer range,
 			// we use a simple rejection method.
@@ -404,16 +403,11 @@ public class Random extends AbstractRandomGenerator
 			{
 				final int r = nextInt();
 				if (r >= lower && r <= upper)
-				{
 					return r;
-				}
 			}
-		}
 		else
-		{
 			// We can shift the range and directly generate a positive int.
 			return lower + nextInt(max);
-		}
 	}
 
 	// Apache commons random generator methods

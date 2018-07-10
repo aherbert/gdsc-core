@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -94,16 +94,14 @@ public class Histogram implements Cloneable
 	 */
 	public static Histogram buildHistogram(int[] data)
 	{
-		int[] limits = Maths.limits(data);
+		final int[] limits = Maths.limits(data);
 		// Limits will be [0,0] if data is null or empty so the rest of the code is OK
 		final int min = limits[0];
 		final int max = limits[1];
 		final int size = max - min + 1;
 		final int[] h = new int[size];
-		for (int i : data)
-		{
+		for (final int i : data)
 			h[i - min]++;
-		}
 		return new IntHistogram(h, min);
 	}
 
@@ -118,7 +116,7 @@ public class Histogram implements Cloneable
 	 */
 	public Histogram compact(int size)
 	{
-		// Ignore 
+		// Ignore
 		return this;
 	}
 
@@ -136,7 +134,7 @@ public class Histogram implements Cloneable
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -176,9 +174,7 @@ public class Histogram implements Cloneable
 			System.arraycopy(h, minBin, statsHistogram, 0, size);
 		}
 		else
-		{
 			statsHistogram = h;
-		}
 
 		final int t = AutoThreshold.getThreshold(method, statsHistogram);
 

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -41,7 +41,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
 	@Override
@@ -56,7 +56,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 
 	/**
 	 * Sort the assignments
-	 * 
+	 *
 	 * @param assignments
 	 *            the assignments
 	 */
@@ -78,7 +78,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 
 	/**
 	 * Sort the assignments using the native object comparator
-	 * 
+	 *
 	 * @param assignments
 	 *            the assignments
 	 */
@@ -89,7 +89,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 
 	/**
 	 * Sort the assignments using a custom comparator
-	 * 
+	 *
 	 * @param assignments
 	 *            the assignments
 	 */
@@ -123,9 +123,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 		// Copy back
 		final Assignment[] tmp = Arrays.copyOf(assignments, size);
 		for (int i = size; i-- > 0;)
-		{
 			assignments[i] = tmp[(int) data[i][1]];
-		}
 	}
 
 	private static class DoubleSortObject implements Comparable<DoubleSortObject>
@@ -152,7 +150,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 
 	/**
 	 * Sort the assignments using a custom sort object with double precision
-	 * 
+	 *
 	 * @param assignments
 	 *            the assignments
 	 */
@@ -165,9 +163,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 		// Convert data for sorting
 		final DoubleSortObject[] data = new DoubleSortObject[size];
 		for (int i = size; i-- > 0;)
-		{
 			data[i] = new DoubleSortObject(assignments[i].getDistance(), assignments[i]);
-		}
 
 		Arrays.sort(data);
 
@@ -185,9 +181,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 
 		// Copy back
 		for (int i = size; i-- > 0;)
-		{
 			assignments[i] = data[i].a;
-		}
 	}
 
 	private static class FloatSortObject implements Comparable<FloatSortObject>
@@ -214,7 +208,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 
 	/**
 	 * Sort the assignments using a custom sort object with float precision
-	 * 
+	 *
 	 * @param assignments
 	 *            the assignments
 	 */
@@ -227,9 +221,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 		// Convert data for sorting
 		final FloatSortObject[] data = new FloatSortObject[size];
 		for (int i = size; i-- > 0;)
-		{
 			data[i] = new FloatSortObject((float) assignments[i].getDistance(), assignments[i]);
-		}
 
 		Arrays.sort(data);
 
@@ -247,8 +239,6 @@ public class AssignmentComparator implements Comparator<Assignment>
 
 		// Copy back
 		for (int i = size; i-- > 0;)
-		{
 			assignments[i] = data[i].a;
-		}
 	}
 }

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -131,7 +131,7 @@ public class DBSCANResult implements ClusteringResult
 	 */
 	public int[] getOrder()
 	{
-		int[] data = new int[size()];
+		final int[] data = new int[size()];
 		for (int i = size(); i-- > 0;)
 			data[results[i].parent] = i + 1;
 		return data;
@@ -139,7 +139,7 @@ public class DBSCANResult implements ClusteringResult
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * gdsc.core.clustering.optics.ClusteringResult#scrambleClusters(org.apache.commons.math3.random.RandomGenerator)
 	 */
@@ -152,21 +152,17 @@ public class DBSCANResult implements ClusteringResult
 
 		int max = 0;
 		for (int i = size(); i-- > 0;)
-		{
 			if (max < results[i].clusterId)
 				max = results[i].clusterId;
-		}
 		if (max == 0)
 			return;
 
-		int[] map = SimpleArrayUtils.newArray(max, 1, 1);
+		final int[] map = SimpleArrayUtils.newArray(max, 1, 1);
 		MathArrays.shuffle(map, rng);
 
 		for (int i = size(); i-- > 0;)
-		{
 			if (results[i].clusterId > 0)
 				results[i].clusterId = map[results[i].clusterId - 1];
-		}
 	}
 
 	/**
@@ -205,32 +201,28 @@ public class DBSCANResult implements ClusteringResult
 	 */
 	public int[] getClusters(boolean core)
 	{
-		int[] clusters = new int[size()];
+		final int[] clusters = new int[size()];
 		if (core)
 		{
 			for (int i = size(); i-- > 0;)
-			{
 				if (results[i].nPts >= minPts)
 				{
-					int id = results[i].parent;
+					final int id = results[i].parent;
 					clusters[id] = results[i].clusterId;
 				}
-			}
 		}
 		else
-		{
 			for (int i = size(); i-- > 0;)
 			{
-				int id = results[i].parent;
+				final int id = results[i].parent;
 				clusters[id] = results[i].clusterId;
 			}
-		}
 		return clusters;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.ClusteringResult#hasConvexHulls()
 	 */
 	@Override
@@ -241,7 +233,7 @@ public class DBSCANResult implements ClusteringResult
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.ClusteringResult#computeConvexHulls()
 	 */
 	@Override
@@ -254,12 +246,12 @@ public class DBSCANResult implements ClusteringResult
 			return;
 
 		// Get the number of clusters
-		int nClusters = Maths.max(clusters);
+		final int nClusters = Maths.max(clusters);
 		hulls = new ConvexHull[nClusters];
 		bounds = new Rectangle2D[nClusters];
 
 		// Descend the hierarchy and compute the hulls, smallest first
-		ScratchSpace scratch = new ScratchSpace(100);
+		final ScratchSpace scratch = new ScratchSpace(100);
 		for (int clusterId = 1; clusterId <= nClusters; clusterId++)
 			computeConvexHull(clusterId, scratch);
 	}
@@ -268,18 +260,14 @@ public class DBSCANResult implements ClusteringResult
 	{
 		scratch.n = 0;
 		for (int i = size(); i-- > 0;)
-		{
 			if (clusterId == clusters[i])
-			{
 				scratch.safeAdd(opticsManager.getOriginalX(results[i].parent),
 						opticsManager.getOriginalY(results[i].parent));
-			}
-		}
 
 		bounds[clusterId - 1] = scratch.getBounds();
 
 		// Compute the hull
-		ConvexHull h = scratch.getConvexHull();
+		final ConvexHull h = scratch.getConvexHull();
 		if (h != null)
 			hulls[clusterId - 1] = h;
 		else
@@ -292,7 +280,7 @@ public class DBSCANResult implements ClusteringResult
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.ClusteringResult#getConvexHull(int)
 	 */
 	@Override
@@ -305,7 +293,7 @@ public class DBSCANResult implements ClusteringResult
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.ClusteringResult#getBounds(int)
 	 */
 	@Override
@@ -314,11 +302,11 @@ public class DBSCANResult implements ClusteringResult
 		if (bounds == null || clusterId <= 0 || clusterId > bounds.length)
 			return null;
 		return bounds[clusterId - 1];
-	};
+	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.ClusteringResult#getParents(int[])
 	 */
 	@Override
@@ -328,41 +316,27 @@ public class DBSCANResult implements ClusteringResult
 			return new int[0];
 		final TIntArrayList parents = new TIntArrayList();
 
-		// Stupid implementation processes each cluster in turn. 
+		// Stupid implementation processes each cluster in turn.
 		if (clusterIds.length == 1)
 		{
 			final int clusterId = clusterIds[0];
 			for (int i = size(); i-- > 0;)
-			{
 				if (clusterId == clusters[i])
-				{
 					parents.add(results[i].parent);
-				}
-			}
 		}
 		else
 		{
-			// Multiple clusters selected. Prevent double counting by 
-			// using a hash set to store each cluster we have processed 
-			int nClusters = Maths.max(clusters);
-			TIntHashSet ids = new TIntHashSet(clusterIds.length);
+			// Multiple clusters selected. Prevent double counting by
+			// using a hash set to store each cluster we have processed
+			final int nClusters = Maths.max(clusters);
+			final TIntHashSet ids = new TIntHashSet(clusterIds.length);
 
-			for (int clusterId : clusterIds)
-			{
+			for (final int clusterId : clusterIds)
 				if (clusterId > 0 && clusterId <= nClusters)
-				{
 					if (ids.add(clusterId))
-					{
 						for (int i = size(); i-- > 0;)
-						{
 							if (clusterId == clusters[i])
-							{
 								parents.add(results[i].parent);
-							}
-						}
-					}
-				}
-			}
 		}
 
 		return parents.toArray();

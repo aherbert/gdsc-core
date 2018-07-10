@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -34,18 +34,18 @@ package gdsc.core.utils;
  * computed for i==j.
  * <p>
  * The following syntax is valid:
- * 
+ *
  * <pre>
  * int n;
  * TriangleArray a = new TriangleArray(n);
- * 
+ *
  * // fast iteration over the data
  * for (int i = 0; i < n; i++)
  * 	for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
  * 	{
  * 	}
- * 
- * // Iterate over all NxN values 
+ *
+ * // Iterate over all NxN values
  * for (int i = 0; i < n; i++)
  * {
  * 	for (int j = 0, precursor = a.toPrecursorIndex(i); j < i; j++)
@@ -60,8 +60,8 @@ package gdsc.core.utils;
  * 		// k == index
  * 	}
  * }
- * 
- * // Comparing any index j to index i 
+ *
+ * // Comparing any index j to index i
  * a.setup(i);
  * for (int j = 0; j < n; j++)
  * {
@@ -72,7 +72,7 @@ package gdsc.core.utils;
  * 	// k == index
  * }
  * </pre>
- * 
+ *
  * @author Alex Herbert
  */
 public class TriangleArray
@@ -134,8 +134,8 @@ public class TriangleArray
 	 */
 	public static int[] fromIndex(int n, int k)
 	{
-		int i = n - 2 - (int) Math.floor(Math.sqrt(-8 * k + 4 * n * (n - 1) - 7) / 2.0 - 0.5);
-		int j = k + i + 1 - (n * (n - 1) / 2) + (n - i) * ((n - i) - 1) / 2;
+		final int i = n - 2 - (int) Math.floor(Math.sqrt(-8 * k + 4 * n * (n - 1) - 7) / 2.0 - 0.5);
+		final int j = k + i + 1 - (n * (n - 1) / 2) + (n - i) * ((n - i) - 1) / 2;
 		return new int[] { i, j };
 	}
 
@@ -176,7 +176,7 @@ public class TriangleArray
 
 		this.n = n;
 
-		// Pre-compute conversion constants 
+		// Pre-compute conversion constants
 		toIndex1 = getLength() - 1;
 		fromIndex1 = 4 * n * (n - 1) - 7;
 		fromIndex2 = n - 2;
@@ -210,7 +210,7 @@ public class TriangleArray
 
 	/**
 	 * Setup to generate the linear index for any index i and target index j
-	 * 
+	 *
 	 * @param j
 	 *            the index j
 	 */
@@ -223,7 +223,7 @@ public class TriangleArray
 
 	/**
 	 * Generate the linear index for any index i and target index j (initialised with {@link #setup(int)})
-	 * 
+	 *
 	 * @param i
 	 *            the index i
 	 * @return the linear index
@@ -233,13 +233,9 @@ public class TriangleArray
 	public int toIndex(int i)
 	{
 		if (j > i)
-		{
 			return precursorToIndex(precursor, i);
-		}
 		if (j < i)
-		{
 			return rootIndex + i;
-		}
 		throw new IllegalArgumentException("i cannot equal j");
 	}
 

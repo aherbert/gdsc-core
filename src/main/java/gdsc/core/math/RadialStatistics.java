@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,19 +14,19 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
 /*
- * 
+ *
  */
 package gdsc.core.math;
 
@@ -63,42 +63,36 @@ public class RadialStatistics
 		// Squared distance
 		final int[] d2 = new int[max + 1];
 		for (int i = 1; i < d2.length; i++)
-		{
 			d2[i] = i * i;
-		}
 
 		final double[] sum = new double[max];
 
 		// Centre
-		int cxi = size * cx + cx;
+		final int cxi = size * cx + cx;
 		sum[0] = data[cxi];
 
 		// Do the central row
 		for (int xi = 1, i1 = cxi - 1, i2 = cxi + 1; xi < max; xi++, i1++, i2--)
-		{
 			sum[xi] = data[i1] + data[i2];
-		}
 		// Do the central column
 		for (int xi = 1, i1 = cxi + size, i2 = cxi - size; xi < max; xi++, i1 += size, i2 -= size)
-		{
 			sum[xi] += data[i1] + data[i2];
-		}
 
 		// Sweep out from centre
 		Y: for (int y1 = cx + 1, y2 = cx - 1, yi = 1; yi < max; y1++, y2--, yi++)
 		{
 			final int d2y = d2[yi];
 			//@formatter:off
-			// Initialise for sweep of 2 rows (below (y1) and above (y2)) 
+			// Initialise for sweep of 2 rows (below (y1) and above (y2))
 			// from the centre outwards in both directions. missing the initial column.
-			for (int xi = 1, 
+			for (int xi = 1,
 					xyi = yi, // This will be the initial squared distance index
-					i1 = size * y1 + cx - 1, 
-					i2 = i1 + 2, 
-					i3 = size * y2 + cx - 1, 
+					i1 = size * y1 + cx - 1,
+					i2 = i1 + 2,
+					i3 = size * y2 + cx - 1,
 					i4 = i3 + 2;
 					// Condition
-					xi < max; 
+					xi < max;
 					// Move indices
 					xi++, i1--, i2++, i3--, i4++)
 				//@formatter:on
@@ -141,9 +135,7 @@ public class RadialStatistics
 		// Squared distance
 		final int[] d2 = new int[max + 1];
 		for (int i = 1; i < d2.length; i++)
-		{
 			d2[i] = i * i;
-		}
 
 		final int[] sum = new int[max];
 
@@ -152,21 +144,19 @@ public class RadialStatistics
 
 		// Do the central row. This is mirrored to the column
 		for (int xi = 1; xi < max; xi++)
-		{
 			sum[xi] = 4;
-		}
 
 		// Sweep out from centre
 		Y: for (int yi = 1; yi < max; yi++)
 		{
 			final int d2y = d2[yi];
 			//@formatter:off
-			// Initialise for sweep of 2 rows (below (y1) and above (y2)) 
+			// Initialise for sweep of 2 rows (below (y1) and above (y2))
 			// from the centre outwards in both directions. missing the initial column.
-			for (int xi = 1, 
+			for (int xi = 1,
 					xyi = yi; // This will be the initial squared distance index
 					// Condition
-					xi < max; 
+					xi < max;
 					// Move indices
 					xi++)
 				//@formatter:on
@@ -219,45 +209,39 @@ public class RadialStatistics
 		// Squared distance
 		final int[] d2 = new int[max + 1];
 		for (int i = 1; i < d2.length; i++)
-		{
 			d2[i] = i * i;
-		}
 
 		final double[][] sum = new double[m][max];
 
 		// Centre
-		int cxi = size * cx + cx;
+		final int cxi = size * cx + cx;
 		for (int mi = 0; mi < m; mi++)
 			sum[mi][0] = data[mi][cxi];
 
 		// Do the central row
 		for (int xi = 1, i1 = cxi - 1, i2 = cxi + 1; xi < max; xi++, i1++, i2--)
-		{
 			for (int mi = 0; mi < m; mi++)
 				sum[mi][xi] = data[mi][i1] + data[mi][i2];
-		}
 		// Do the central column
 		for (int xi = 1, i1 = cxi + size, i2 = cxi - size; xi < max; xi++, i1 += size, i2 -= size)
-		{
 			for (int mi = 0; mi < m; mi++)
 				sum[mi][xi] += data[mi][i1] + data[mi][i2];
-		}
 
 		// Sweep out from centre
 		Y: for (int y1 = cx + 1, y2 = cx - 1, yi = 1; yi < max; y1++, y2--, yi++)
 		{
 			final int d2y = d2[yi];
 			//@formatter:off
-			// Initialise for sweep of 2 rows (below (y1) and above (y2)) 
+			// Initialise for sweep of 2 rows (below (y1) and above (y2))
 			// from the centre outwards in both directions. missing the initial column.
-			for (int xi = 1, 
+			for (int xi = 1,
 					xyi = yi, // This will be the initial squared distance index
-					i1 = size * y1 + cx - 1, 
-					i2 = i1 + 2, 
-					i3 = size * y2 + cx - 1, 
+					i1 = size * y1 + cx - 1,
+					i2 = i1 + 2,
+					i3 = size * y2 + cx - 1,
 					i4 = i3 + 2;
 					// Condition
-					xi < max; 
+					xi < max;
 					// Move indices
 					xi++, i1--, i2++, i3--, i4++)
 				//@formatter:on
@@ -312,14 +296,12 @@ public class RadialStatistics
 		// Squared distance
 		final int[] d2 = new int[max + 1];
 		for (int i = 1; i < d2.length; i++)
-		{
 			d2[i] = i * i;
-		}
 
 		final double[][] sum = new double[m + 1][max];
 
 		// Centre
-		int cxi = size * cx + cx;
+		final int cxi = size * cx + cx;
 		for (int mi = 0; mi < m; mi++)
 			sum[mi][0] = data[mi][cxi];
 		sum[m][0] = 1;
@@ -344,16 +326,16 @@ public class RadialStatistics
 		{
 			final int d2y = d2[yi];
 			//@formatter:off
-			// Initialise for sweep of 2 rows (below (y1) and above (y2)) 
+			// Initialise for sweep of 2 rows (below (y1) and above (y2))
 			// from the centre outwards in both directions. missing the initial column.
-			for (int xi = 1, 
+			for (int xi = 1,
 					xyi = yi, // This will be the initial squared distance index
-					i1 = size * y1 + cx - 1, 
-					i2 = i1 + 2, 
-					i3 = size * y2 + cx - 1, 
+					i1 = size * y1 + cx - 1,
+					i2 = i1 + 2,
+					i3 = size * y2 + cx - 1,
 					i4 = i3 + 2;
 					// Condition
-					xi < max; 
+					xi < max;
 					// Move indices
 					xi++, i1--, i2++, i3--, i4++)
 				//@formatter:on

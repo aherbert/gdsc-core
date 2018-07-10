@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -124,7 +124,7 @@ public class ImageJAnalyticsTracker
 	private static boolean anonymiseOption = false;
 	/**
 	 * Flag indicating that the IP address of the sender will be anonymized
-	 * 
+	 *
 	 * @deprecated To comply with GDPR any personal data should be anonymized
 	 */
 	@Deprecated
@@ -132,7 +132,7 @@ public class ImageJAnalyticsTracker
 
 	/**
 	 * Track a page view
-	 * 
+	 *
 	 * @param documentPath
 	 *            The document path (must not be null)
 	 * @param documentTitle
@@ -143,9 +143,9 @@ public class ImageJAnalyticsTracker
 		initialiseTracker();
 		if (isDisabled())
 			return;
-		// Get the timestamp. This allows asynchronous hits to be recorded at the correct time 
+		// Get the timestamp. This allows asynchronous hits to be recorded at the correct time
 		final long timestamp = System.currentTimeMillis();
-		RequestParameters data = new RequestParameters(HitType.PAGEVIEW);
+		final RequestParameters data = new RequestParameters(HitType.PAGEVIEW);
 		data.setDocumentPath(documentPath);
 		data.setDocumentTitle(documentTitle);
 		// Add custom dimensions for ImageJ state.
@@ -160,7 +160,6 @@ public class ImageJAnalyticsTracker
 	public static void initialise()
 	{
 		if (clientParameters == null)
-		{
 			synchronized (ImageJAnalyticsTracker.class)
 			{
 				// In case another thread was waiting to do this
@@ -196,7 +195,6 @@ public class ImageJAnalyticsTracker
 				// Versions
 				clientParameters.addCustomDimension(9, gdsc.core.Version.getVersion());
 			}
-		}
 	}
 
 	/**
@@ -210,10 +208,8 @@ public class ImageJAnalyticsTracker
 
 		ImageJ ij = IJ.getInstance();
 		if (ij == null)
-		{
 			// Run embedded without showing
 			ij = new ImageJ(ImageJ.NO_SHOW);
-		}
 
 		// ImageJ version
 		// This call should return a string like:
@@ -229,9 +225,9 @@ public class ImageJAnalyticsTracker
 	 * Add a custom dimension
 	 * <p>
 	 * Note that custom dimensions have to be created for your site before they can be used in analytics reports.
-	 * 
+	 *
 	 * @see "https://support.google.com/analytics/answer/2709829"
-	 * 
+	 *
 	 * @param index
 	 *            The dimension index (1-20 or 1-200 for premium accounts)
 	 * @param value
@@ -249,7 +245,6 @@ public class ImageJAnalyticsTracker
 	private static void initialiseTracker()
 	{
 		if (tracker == null)
-		{
 			synchronized (ImageJAnalyticsTracker.class)
 			{
 				// Check again since this may be a second thread that was waiting
@@ -271,13 +266,12 @@ public class ImageJAnalyticsTracker
 				if (Boolean.parseBoolean(System.getProperty("gdsc-analytics-logger", "false")))
 					tracker.setLogger(new gdsc.analytics.ConsoleLogger());
 			}
-		}
 	}
 
 	/**
 	 * Provide a method to read an ImageJ properties file and create the map between the ImageJ plugin class and
 	 * argument and the ImageJ menu path and plugin title.
-	 * 
+	 *
 	 * @param map
 	 *            The map object to populate
 	 * @param pluginsStream
@@ -294,43 +288,41 @@ public class ImageJAnalyticsTracker
 			{
 				if (line.startsWith("#"))
 					continue;
-				String[] tokens = line.split(",");
+				final String[] tokens = line.split(",");
 				if (tokens.length == 3)
 				{
 					// Plugins have [Menu path, Name, class(argument)], e.g.
 					// Plugins>GDSC>Colocalisation, "CDA (macro)", gdsc.colocalisation.cda.CDA_Plugin("macro")
 
-					String documentTitle = tokens[1].replaceAll("[\"']", "").trim();
-					String documentPath = getDocumentPath(tokens[0], documentTitle);
-					String key = getKey(tokens[2]);
+					final String documentTitle = tokens[1].replaceAll("[\"']", "").trim();
+					final String documentPath = getDocumentPath(tokens[0], documentTitle);
+					final String key = getKey(tokens[2]);
 					map.put(key, new String[] { documentPath, documentTitle });
 				}
 			}
 		}
-		catch (IOException e)
+		catch (final IOException e)
 		{
 			// Ignore
 		}
 		finally
 		{
 			if (input != null)
-			{
 				try
 				{
 					input.close();
 				}
-				catch (IOException e)
+				catch (final IOException e)
 				{
 					// Ignore
 				}
-			}
 		}
 
 	}
 
 	/**
 	 * Split the menu path string and create a document path
-	 * 
+	 *
 	 * @param menuPath
 	 *            The ImageJ menu path string
 	 * @param documentTitle
@@ -338,18 +330,16 @@ public class ImageJAnalyticsTracker
 	 */
 	private static String getDocumentPath(String menuPath, String documentTitle)
 	{
-		StringBuilder sb = new StringBuilder();
-		for (String field : menuPath.split(">"))
-		{
+		final StringBuilder sb = new StringBuilder();
+		for (final String field : menuPath.split(">"))
 			sb.append('/').append(field.trim());
-		}
 		sb.append('/').append(documentTitle);
 		return sb.toString();
 	}
 
 	/**
 	 * Get the raw class name and string argument from the ImageJ 'org.package.Class("argument")' field
-	 * 
+	 *
 	 * @param string
 	 *            The field contents
 	 * @return The hash key
@@ -392,7 +382,7 @@ public class ImageJAnalyticsTracker
 
 	/**
 	 * Set the state of the analytics tracker
-	 * 
+	 *
 	 * @param disabled
 	 *            True to disable analytics
 	 */
@@ -526,8 +516,8 @@ public class ImageJAnalyticsTracker
 	 */
 	public static boolean unknownStatus()
 	{
-		String lastVersion = Prefs.get(PROPERTY_GA_LAST_VERSION, "");
-		String thisVersion = getVersion();
+		final String lastVersion = Prefs.get(PROPERTY_GA_LAST_VERSION, "");
+		final String thisVersion = getVersion();
 		if (state == UNKNOWN || !lastVersion.equals(thisVersion))
 			return true;
 		if (isAnonymiseOption() && anonymized == UNKNOWN)
@@ -537,7 +527,7 @@ public class ImageJAnalyticsTracker
 
 	/**
 	 * Show a dialog allowing users to opt in/out of Google Analytics
-	 * 
+	 *
 	 * @param title
 	 *            The dialog title
 	 * @param autoMessage
@@ -546,30 +536,31 @@ public class ImageJAnalyticsTracker
 	 */
 	public static void showDialog(String title, boolean autoMessage)
 	{
-		GenericDialog gd = new GenericDialog(title);
+		final GenericDialog gd = new GenericDialog(title);
 		// @formatter:off
 		gd.addMessage(
-				APPLICATION_NAME + 
+				APPLICATION_NAME +
 				"\n \n" +
 				"We use tracking code to make our plugins better.");
 
 		// With ImageJ 1.48a hiding the cancel button means the dialog is disposed when pressing 'Help'.
-		// To work around this we add an empty string and our own listener to show the help. ImageJ 
+		// To work around this we add an empty string and our own listener to show the help. ImageJ
 		// should then notify listeners due to the empty help URL.
 		final String helpLabel = "More details...";
 		gd.setHelpLabel(helpLabel);
 		gd.addHelp("");
 		gd.addDialogListener(new DialogListener()
 		{
+			@SuppressWarnings("unused")
 			@Override
 			public boolean dialogItemChanged(GenericDialog gd, AWTEvent e)
 			{
 				if (e != null && e.getSource() instanceof Button)
 				{
-					Button button = (Button) (e.getSource());
+					final Button button = (Button) (e.getSource());
 					if (button.getLabel().equals(helpLabel))
 					{
-						String macro = "run('URL...', 'url=" +
+						final String macro = "run('URL...', 'url=" +
 								// This page describe the usage tracking in more detail
 								"http://www.sussex.ac.uk/gdsc/intranet/microscopy/imagej/tracking" +
 								"');";
@@ -580,8 +571,8 @@ public class ImageJAnalyticsTracker
 			}
 		});
 
-		boolean anonymiseOption = isAnonymiseOption();
-		
+		final boolean anonymiseOption = isAnonymiseOption();
+
 		// Get the preferences
 		boolean disabled = isDisabled();
 		boolean anonymize = isAnonymized();
@@ -589,15 +580,11 @@ public class ImageJAnalyticsTracker
 		// Use Opt-in to make the wording clear
 		gd.addCheckbox("Opt in", !disabled);
 		if (anonymiseOption)
-		{
 			gd.addCheckbox("Anonymise IP", anonymize);
-		}
 		if (autoMessage)
-		{
 			gd.addMessage(
-					"Note: This message is shown when your\n" + 
+					"Note: This message is shown when your\n" +
 					"preferences are unknown\n");
-		}
 		// @formatter:on
 		gd.hideCancelButton();
 
@@ -605,6 +592,7 @@ public class ImageJAnalyticsTracker
 		if (anonymiseOption)
 		{
 			@SuppressWarnings("rawtypes")
+			final
 			Vector checkboxes = gd.getCheckboxes();
 			final Checkbox cb1 = (Checkbox) checkboxes.get(0);
 			final Checkbox cb2 = (Checkbox) checkboxes.get(1);
@@ -623,33 +611,31 @@ public class ImageJAnalyticsTracker
 
 		if (!gd.wasCanceled())
 		{
-			// This will happen if the user clicks OK. 
+			// This will happen if the user clicks OK.
 			disabled = !gd.getNextBoolean();
 			if (anonymiseOption)
 				anonymize = gd.getNextBoolean();
 		}
 		else
 		{
-			// We have hidden the cancel button. 
+			// We have hidden the cancel button.
 			// This code will run if:
 			// - The user closes the dialog by other means (clicks escape/close window).
-			// In this case assume they are happy with the current settings and store 
-			// them. This should prevent the dialog being shown again for any code 
+			// In this case assume they are happy with the current settings and store
+			// them. This should prevent the dialog being shown again for any code
 			// using the unknownStatus() method.
 		}
 
 		if (anonymiseOption)
-		{
 			// Anonymize first to respect the user choice if they still have tracking on
 			setAnonymized(anonymize);
-		}
 		setDisabled(disabled);
 	}
 
 	/**
 	 * Write the current user preferences for analytics to the ImageJ log. This log message is written once only unless
 	 * the force flag is used.
-	 * 
+	 *
 	 * @param force
 	 *            Force the preferences to be logged
 	 */
@@ -658,7 +644,7 @@ public class ImageJAnalyticsTracker
 		if (loggedPreferrences && !force)
 			return;
 		loggedPreferrences = true;
-		String onOrOff = (isDisabled()) ? "Off" : "On";
+		final String onOrOff = (isDisabled()) ? "Off" : "On";
 		// Get the preferences
 		if (isAnonymiseOption())
 			IJ.log(String.format("%s - Google Analytics: %s; Anonymise IP=%b", APPLICATION_NAME, onOrOff,

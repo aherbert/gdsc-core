@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -103,9 +103,7 @@ public abstract class BinaryHeap<T>
 	protected void removeTip()
 	{
 		if (size == 0)
-		{
 			throw new IllegalStateException();
-		}
 
 		size--;
 		data[0] = data[size];
@@ -125,9 +123,7 @@ public abstract class BinaryHeap<T>
 	protected void replaceTip(double key, T value)
 	{
 		if (size == 0)
-		{
 			throw new IllegalStateException();
-		}
 
 		data[0] = value;
 		keys[0] = key;
@@ -143,9 +139,7 @@ public abstract class BinaryHeap<T>
 	protected T getTip()
 	{
 		if (size == 0)
-		{
 			throw new IllegalStateException();
-		}
 
 		return (T) data[0];
 	}
@@ -158,9 +152,7 @@ public abstract class BinaryHeap<T>
 	protected double getTipKey()
 	{
 		if (size == 0)
-		{
 			throw new IllegalStateException();
-		}
 
 		return keys[0];
 	}
@@ -175,8 +167,8 @@ public abstract class BinaryHeap<T>
 	{
 		for (int p = (c - 1) / 2; c != 0 && direction * keys[c] > direction * keys[p]; c = p, p = (c - 1) / 2)
 		{
-			Object pData = data[p];
-			double pDist = keys[p];
+			final Object pData = data[p];
+			final double pDist = keys[p];
 			data[p] = data[c];
 			keys[p] = keys[c];
 			data[c] = pData;
@@ -195,23 +187,19 @@ public abstract class BinaryHeap<T>
 		for (int c = p * 2 + 1; c < size; p = c, c = p * 2 + 1)
 		{
 			if (c + 1 < size && direction * keys[c] < direction * keys[c + 1])
-			{
 				c++;
-			}
 			if (direction * keys[p] < direction * keys[c])
 			{
 				// Swap the points
-				Object pData = data[p];
-				double pDist = keys[p];
+				final Object pData = data[p];
+				final double pDist = keys[p];
 				data[p] = data[c];
 				keys[p] = keys[c];
 				data[c] = pData;
 				keys[c] = pDist;
 			}
 			else
-			{
 				break;
-			}
 		}
 	}
 
@@ -264,7 +252,7 @@ public abstract class BinaryHeap<T>
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ags.utils.dataStructures.MaxHeap#removeMax()
 		 */
 		@Override
@@ -275,7 +263,7 @@ public abstract class BinaryHeap<T>
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ags.utils.dataStructures.MaxHeap#replaceMax(double, java.lang.Object)
 		 */
 		@Override
@@ -286,7 +274,7 @@ public abstract class BinaryHeap<T>
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ags.utils.dataStructures.MaxHeap#getMax()
 		 */
 		@Override
@@ -297,7 +285,7 @@ public abstract class BinaryHeap<T>
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ags.utils.dataStructures.MaxHeap#getMaxKey()
 		 */
 		@Override
@@ -336,7 +324,7 @@ public abstract class BinaryHeap<T>
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ags.utils.dataStructures.MinHeap#removeMin()
 		 */
 		@Override
@@ -347,7 +335,7 @@ public abstract class BinaryHeap<T>
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ags.utils.dataStructures.MinHeap#replaceMin(double, java.lang.Object)
 		 */
 		@Override
@@ -358,7 +346,7 @@ public abstract class BinaryHeap<T>
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ags.utils.dataStructures.MinHeap#getMin()
 		 */
 		@Override
@@ -369,7 +357,7 @@ public abstract class BinaryHeap<T>
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ags.utils.dataStructures.MinHeap#getMinKey()
 		 */
 		@Override

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -48,7 +48,7 @@ public class ImageWindow
 	// Allow cached window weights
 	private double[] wx = null;
 	private double[] wy = null;
-	private WindowFunction windowFunction = null;
+	private final WindowFunction windowFunction = null;
 
 	/**
 	 * Apply a window function to reduce edge artifacts.
@@ -71,7 +71,6 @@ public class ImageWindow
 	public float[] applySeperable(float[] image, final int maxx, final int maxy, WindowFunction windowFunction)
 	{
 		if (this.windowFunction != windowFunction || wx == null || wx.length != maxx || wy == null || wy.length != maxy)
-		{
 			switch (windowFunction)
 			{
 				case HANNING:
@@ -88,17 +87,12 @@ public class ImageWindow
 					wy = tukey(maxy);
 					break;
 			}
-		}
 
-		float[] data = new float[image.length];
+		final float[] data = new float[image.length];
 
 		for (int y = 0, i = 0; y < maxy; y++)
-		{
 			for (int x = 0; x < maxx; x++, i++)
-			{
 				data[i] = (float) (image[i] * wx[x] * wy[y]);
-			}
-		}
 
 		return data;
 	}
@@ -144,15 +138,11 @@ public class ImageWindow
 		if (wx == null)
 			return image;
 
-		float[] data = new float[image.length];
+		final float[] data = new float[image.length];
 
 		for (int y = 0, i = 0; y < maxy; y++)
-		{
 			for (int x = 0; x < maxx; x++, i++)
-			{
 				data[i] = (float) (image[i] * wx[x] * wy[y]);
-			}
-		}
 
 		return data;
 	}
@@ -180,15 +170,11 @@ public class ImageWindow
 		if (wx == null || wx.length != maxx || wy == null || wy.length != maxy)
 			throw new IllegalArgumentException("Window function must match image dimensions");
 
-		float[] data = new float[image.length];
+		final float[] data = new float[image.length];
 
 		for (int y = 0, i = 0; y < maxy; y++)
-		{
 			for (int x = 0; x < maxx; x++, i++)
-			{
 				data[i] = (float) (image[i] * wx[x] * wy[y]);
-			}
-		}
 
 		return data;
 	}
@@ -216,12 +202,8 @@ public class ImageWindow
 			throw new IllegalArgumentException("Window function must match image dimensions");
 
 		for (int y = 0, i = 0; y < maxy; y++)
-		{
 			for (int x = 0; x < maxx; x++, i++)
-			{
 				image[i] *= wx[x] * wy[y];
-			}
-		}
 	}
 
 	/**
@@ -257,14 +239,14 @@ public class ImageWindow
 		if (wf == null)
 			return image;
 
-		float[] data = new float[image.length];
+		final float[] data = new float[image.length];
 
-		double cx = maxx * 0.5;
-		double cy = maxy * 0.5;
-		double maxDistance = Math.sqrt(maxx * maxx + maxy * maxy);
+		final double cx = maxx * 0.5;
+		final double cy = maxy * 0.5;
+		final double maxDistance = Math.sqrt(maxx * maxx + maxy * maxy);
 
 		// Precompute
-		double[] dx2 = new double[maxx];
+		final double[] dx2 = new double[maxx];
 		for (int x = 0; x < maxx; x++)
 			dx2[x] = (x - cx) * (x - cx);
 
@@ -289,7 +271,7 @@ public class ImageWindow
 		/**
 		 * Return the weight for the window at a fraction of the distance from the edge of the
 		 * window.
-		 * 
+		 *
 		 * @param fractionDistance
 		 *            (range 0-1)
 		 * @return the weight
@@ -340,10 +322,10 @@ public class ImageWindow
 
 	private static double[] createWindow(WindowMethod wf, int N)
 	{
-		double N_1 = N - 1;
-		double[] w = new double[N];
+		final double N_1 = N - 1;
+		final double[] w = new double[N];
 		// Assume symmetry
-		int middle = N / 2;
+		final int middle = N / 2;
 		for (int i = 0, j = N - 1; i <= middle; i++, j--)
 			w[i] = w[j] = wf.weight(i / N_1);
 		return w;

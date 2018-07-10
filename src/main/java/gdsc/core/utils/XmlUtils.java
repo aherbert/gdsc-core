@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -82,13 +82,13 @@ public class XmlUtils
 	/**
 	 * XML utility for formatting XML as a pretty-print output.
 	 * Assumes the XML is valid since no DOM conversion is performed.
-	 * 
+	 *
 	 * Taken from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java
 	 */
 	private static class XmlFormatter
 	{
-		private int indentNumChars;
-		private int lineLength;
+		private final int indentNumChars;
+		private final int lineLength;
 		private boolean singleLine;
 
 		public XmlFormatter(int indentNumChars, int lineLength)
@@ -100,13 +100,13 @@ public class XmlUtils
 		public synchronized String format(String s, int initialIndent)
 		{
 			int indent = initialIndent;
-			StringBuilder sb = new StringBuilder();
+			final StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < s.length(); i++)
 			{
-				char currentChar = s.charAt(i);
+				final char currentChar = s.charAt(i);
 				if (currentChar == '<')
 				{
-					char nextChar = s.charAt(i + 1);
+					final char nextChar = s.charAt(i + 1);
 					if (nextChar == '/')
 						indent -= indentNumChars;
 					if (!singleLine) // Don't indent before closing element if we're creating opening and closing elements on a single line.
@@ -117,7 +117,6 @@ public class XmlUtils
 				}
 				sb.append(currentChar);
 				if (currentChar == '>')
-				{
 					if (s.charAt(i - 1) == '/')
 					{
 						indent -= indentNumChars;
@@ -125,17 +124,14 @@ public class XmlUtils
 					}
 					else
 					{
-						int nextStartElementPos = s.indexOf('<', i);
+						final int nextStartElementPos = s.indexOf('<', i);
 						if (nextStartElementPos > i + 1)
 						{
-							String textBetweenElements = s.substring(i + 1, nextStartElementPos);
+							final String textBetweenElements = s.substring(i + 1, nextStartElementPos);
 
 							// If the space between elements is solely newlines, let them through to preserve additional newlines in source document.
 							if (textBetweenElements.replaceAll("\n", "").length() == 0)
-							{
 								sb.append(textBetweenElements + "\n");
-							}
-							// Put tags and text on a single line if the text is short.
 							else if (textBetweenElements.length() <= lineLength * 0.5)
 							{
 								sb.append(textBetweenElements);
@@ -143,17 +139,12 @@ public class XmlUtils
 							}
 							// For larger amounts of text, wrap lines to a maximum line length.
 							else
-							{
 								sb.append("\n" + lineWrap(textBetweenElements, lineLength, indent, null) + "\n");
-							}
 							i = nextStartElementPos - 1;
 						}
 						else
-						{
 							sb.append("\n");
-						}
 					}
-				}
 			}
 			return sb.toString();
 		}
@@ -161,7 +152,7 @@ public class XmlUtils
 
 	private static String buildWhitespace(int numChars)
 	{
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < numChars; i++)
 			sb.append(" ");
 		return sb.toString();
@@ -186,7 +177,7 @@ public class XmlUtils
 		if (s == null)
 			return null;
 
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		int lineStartPos = 0;
 		int lineEndPos;
 		boolean firstLine = true;
@@ -217,7 +208,7 @@ public class XmlUtils
 
 	/**
 	 * Formats an XML string for pretty printing. Requires Java 1.6.
-	 * 
+	 *
 	 * Taken from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java
 	 *
 	 * @param xml
@@ -244,7 +235,7 @@ public class XmlUtils
 
 			return writer.writeToString(document);
 		}
-		catch (Exception e)
+		catch (final Exception e)
 		{
 			throw new RuntimeException(e);
 		}
@@ -268,21 +259,21 @@ public class XmlUtils
 			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 			transformer.setOutputProperty(OutputKeys.INDENT, (indent) ? "yes" : "no");
 
-			StreamResult result = new StreamResult(new StringWriter());
-			DOMSource source = new DOMSource(node);
+			final StreamResult result = new StreamResult(new StringWriter());
+			final DOMSource source = new DOMSource(node);
 			transformer.transform(source, result);
 
 			return result.getWriter().toString();
 		}
-		catch (TransformerConfigurationException e)
+		catch (final TransformerConfigurationException e)
 		{
 			//e.printStackTrace();
 		}
-		catch (TransformerFactoryConfigurationError e)
+		catch (final TransformerFactoryConfigurationError e)
 		{
 			//e.printStackTrace();
 		}
-		catch (TransformerException e)
+		catch (final TransformerException e)
 		{
 			//e.printStackTrace();
 		}

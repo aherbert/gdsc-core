@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -47,14 +47,14 @@ public class RecorderUtils
 			return;
 
 		// Get the Recorder options, remove all the labels, and update the reduced Recorder options
-		String commandName = Recorder.getCommand();
-		String commandOptions = Recorder.getCommandOptions();
+		final String commandName = Recorder.getCommand();
+		final String commandOptions = Recorder.getCommandOptions();
 		if (commandName == null || commandOptions == null)
 			return;
 
 		//System.out.printf("%s - %s\n", commandOptions, java.util.Arrays.toString(keys));
 
-		// We only support labels added with 
+		// We only support labels added with
 		//Recorder.recordOption(String);
 		//Recorder.recordOption(String,String);
 		// These will create a key in the command options of:
@@ -62,7 +62,7 @@ public class RecorderUtils
 		// " "+key+"="+value
 		// " "+key+"=["+value+"]"
 		boolean ignored = false;
-		TurboList<String[]> pairs = new TurboList<String[]>();
+		final TurboList<String[]> pairs = new TurboList<>();
 		for (int current = 0, len = commandOptions.length(); current < len;)
 		{
 			// Find the next non-space character, this will be the start of a key
@@ -73,9 +73,9 @@ public class RecorderUtils
 
 			// Find the end of the key.
 			// This could be a space or an equals.
-			int keyEnd = findKeyEnd(commandOptions, len, current);
+			final int keyEnd = findKeyEnd(commandOptions, len, current);
 
-			String key = commandOptions.substring(current, keyEnd);
+			final String key = commandOptions.substring(current, keyEnd);
 
 			current = keyEnd;
 
@@ -92,9 +92,7 @@ public class RecorderUtils
 					valueEnd = commandOptions.indexOf(']', valueStart);
 				}
 				else
-				{
 					valueEnd = commandOptions.indexOf(' ', valueStart);
-				}
 				if (valueEnd < 0)
 					valueEnd = len;
 				value = commandOptions.substring(valueStart, valueEnd);
@@ -125,7 +123,7 @@ public class RecorderUtils
 		Recorder.setCommand(commandName);
 		for (int i = 0; i < pairs.size(); i++)
 		{
-			String[] pair = pairs.getf(i);
+			final String[] pair = pairs.getf(i);
 			if (pair[1] == null)
 				Recorder.recordOption(pair[0]);
 			else
@@ -138,7 +136,7 @@ public class RecorderUtils
 	{
 		while (index < len)
 		{
-			char c = commandOptions.charAt(index);
+			final char c = commandOptions.charAt(index);
 			if (c == ' ' || c == '=')
 				break;
 			index++;

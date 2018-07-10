@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -95,7 +95,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#add(double)
 	 */
 	@Override
@@ -106,7 +106,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#add(double[])
 	 */
 	@Override
@@ -117,7 +117,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#add(float[])
 	 */
 	@Override
@@ -128,7 +128,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#add(int[])
 	 */
 	@Override
@@ -150,7 +150,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#add(short[])
 	 */
 	@Override
@@ -172,7 +172,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#add(byte[])
 	 */
 	@Override
@@ -194,7 +194,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#addUnsigned(short[])
 	 */
 	@Override
@@ -210,7 +210,7 @@ public class IntegerArrayMoment implements ArrayMoment
 		//long t = System.nanoTime();
 		for (int i = 0; i < data.length; i++)
 		{
-			long v = data[i] & 0xffff;
+			final long v = data[i] & 0xffff;
 			s[i] += v;
 			ss[i] += v * v;
 		}
@@ -219,7 +219,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#addUnsigned(byte[])
 	 */
 	@Override
@@ -234,7 +234,7 @@ public class IntegerArrayMoment implements ArrayMoment
 		n++;
 		for (int i = 0; i < data.length; i++)
 		{
-			long v = data[i] & 0xff;
+			final long v = data[i] & 0xff;
 			s[i] += v;
 			ss[i] += v * v;
 		}
@@ -286,7 +286,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	 */
 	private static long add(long a, long b)
 	{
-		long c = a + b;
+		final long c = a + b;
 		if (c < 0)
 			throw new IllegalStateException(String.format("Adding the moments results in overflow: %d + %d", a, b));
 		return c;
@@ -294,7 +294,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#getFirstMoment()
 	 */
 	@Override
@@ -302,7 +302,7 @@ public class IntegerArrayMoment implements ArrayMoment
 	{
 		if (n == 0)
 			return null;
-		double[] m1 = new double[s.length];
+		final double[] m1 = new double[s.length];
 		final double n = this.n;
 		for (int i = 0; i < s.length; i++)
 			m1[i] = s[i] / n;
@@ -311,7 +311,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#getSecondMoment()
 	 */
 	@Override
@@ -319,17 +319,15 @@ public class IntegerArrayMoment implements ArrayMoment
 	{
 		if (n == 0)
 			return null;
-		double[] m2 = new double[s.length];
+		final double[] m2 = new double[s.length];
 		for (int i = 0; i < s.length; i++)
-		{
 			m2[i] = ss[i] - ((double) s[i] * s[i]) / n;
-		}
 		return m2;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#getN()
 	 */
 	@Override
@@ -340,7 +338,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#getVariance()
 	 */
 	@Override
@@ -351,7 +349,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#getVariance(boolean)
 	 */
 	@Override
@@ -361,7 +359,7 @@ public class IntegerArrayMoment implements ArrayMoment
 			return null;
 		if (n == 1)
 			return new double[s.length];
-		double[] v = getSecondMoment();
+		final double[] v = getSecondMoment();
 		final double n1 = (isBiasCorrected) ? n - 1 : n;
 		for (int i = 0; i < v.length; i++)
 			v[i] = positive(v[i] / n1);
@@ -382,7 +380,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#getStandardDeviation()
 	 */
 	@Override
@@ -393,7 +391,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#getStandardDeviation(boolean)
 	 */
 	@Override
@@ -403,7 +401,7 @@ public class IntegerArrayMoment implements ArrayMoment
 			return null;
 		if (n == 1)
 			return new double[s.length];
-		double[] v = getSecondMoment();
+		final double[] v = getSecondMoment();
 		final double n1 = (isBiasCorrected) ? n - 1 : n;
 		for (int i = 0; i < v.length; i++)
 			v[i] = positiveSqrt(v[i] / n1);
@@ -424,7 +422,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#newInstance()
 	 */
 	@Override
@@ -435,7 +433,7 @@ public class IntegerArrayMoment implements ArrayMoment
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.ArrayMoment#add(gdsc.core.math.ArrayMoment)
 	 */
 	@Override
@@ -464,8 +462,8 @@ public class IntegerArrayMoment implements ArrayMoment
 	 */
 	public static boolean isValid(IntegerType integerType, int size)
 	{
-		long max = integerType.getAbsoluteMax();
-		long l2 = max * max;
+		final long max = integerType.getAbsoluteMax();
+		final long l2 = max * max;
 		if (l2 < 0)
 			return false;
 		if (l2 * (double) size > Long.MAX_VALUE)

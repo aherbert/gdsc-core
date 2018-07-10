@@ -1,16 +1,16 @@
-/*- 
+/*-
  * %%Ignore-License
- * 
+ *
  * GDSC Software
- * 
- * This is an extension of the 
+ *
+ * This is an extension of the
  * org.apache.commons.math3.analysis.interpolation.TricubicFunction
- * 
+ *
  * Modifications have been made to allow computation of gradients and computation
  * with pre-computed x,y,z powers using single/floating precision.
- * 
- * The code is released under the original Apache licence: 
- * 
+ *
+ * The code is released under the original Apache licence:
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -109,7 +109,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 
 	/**
 	 * Get the interpolated value
-	 * 
+	 *
 	 * @param x
 	 *            x-coordinate of the interpolation point.
 	 * @param y
@@ -125,17 +125,11 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	public double value(double x, double y, double z) throws OutOfRangeException
 	{
 		if (x < 0 || x > 1)
-		{
 			throw new OutOfRangeException(x, 0, 1);
-		}
 		if (y < 0 || y > 1)
-		{
 			throw new OutOfRangeException(y, 0, 1);
-		}
 		if (z < 0 || z > 1)
-		{
 			throw new OutOfRangeException(z, 0, 1);
-		}
 
 		final double x2 = x * x;
 		final double x3 = x2 * x;
@@ -154,7 +148,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 
 	/**
 	 * Get the interpolated value
-	 * 
+	 *
 	 * @param x
 	 *            x-coordinate of the interpolation point.
 	 * @param y
@@ -170,7 +164,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 
 	/**
 	 * Get the interpolated value
-	 * 
+	 *
 	 * @param pX
 	 *            x-coordinate powers of the interpolation point.
 	 * @param pY
@@ -198,17 +192,11 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	public static double[] computePowerTable(double x, double y, double z) throws OutOfRangeException
 	{
 		if (x < 0 || x > 1)
-		{
 			throw new OutOfRangeException(x, 0, 1);
-		}
 		if (y < 0 || y > 1)
-		{
 			throw new OutOfRangeException(y, 0, 1);
-		}
 		if (z < 0 || z > 1)
-		{
 			throw new OutOfRangeException(z, 0, 1);
-		}
 
 		final double x2 = x * x;
 		final double x3 = x2 * x;
@@ -254,7 +242,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 */
 	private static double[] computePowerTable(final double[] pX, final double[] pY, final double[] pZ)
 	{
-		double[] table = new double[64];
+		final double[] table = new double[64];
 
 		table[0] = 1;
 		table[1] = pX[0];
@@ -320,7 +308,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 		table[61] = table[60] * pX[0];
 		table[62] = table[60] * pX[1];
 		table[63] = table[60] * pX[2];
-		
+
 		return table;
 	}
 
@@ -524,17 +512,11 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	public double value(double x, double y, double z, double[] df_da) throws OutOfRangeException
 	{
 		if (x < 0 || x > 1)
-		{
 			throw new OutOfRangeException(x, 0, 1);
-		}
 		if (y < 0 || y > 1)
-		{
 			throw new OutOfRangeException(y, 0, 1);
-		}
 		if (z < 0 || z > 1)
-		{
 			throw new OutOfRangeException(z, 0, 1);
-		}
 
 		final double x2 = x * x;
 		final double x3 = x2 * x;
@@ -555,7 +537,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 * Compute the value and partial first-order derivatives
 	 * <p>
 	 * The gradients are scaled
-	 * 
+	 *
 	 * @param x
 	 *            x-coordinate of the interpolation point.
 	 * @param y
@@ -568,7 +550,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 */
 	public double value(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z, double[] df_da)
 	{
-		double value = value1(x.p, y.p, z.p, df_da);
+		final double value = value1(x.p, y.p, z.p, df_da);
 		df_da[0] = x.scaleGradient(df_da[0]);
 		df_da[1] = y.scaleGradient(df_da[1]);
 		df_da[2] = z.scaleGradient(df_da[2]);
@@ -577,7 +559,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 
 	/**
 	 * Compute the value and partial first-order derivatives
-	 * 
+	 *
 	 * @param pX
 	 *            x-coordinate powers of the interpolation point.
 	 * @param pY
@@ -687,17 +669,11 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	public double value(double x, double y, double z, double[] df_da, double[] d2f_da2) throws OutOfRangeException
 	{
 		if (x < 0 || x > 1)
-		{
 			throw new OutOfRangeException(x, 0, 1);
-		}
 		if (y < 0 || y > 1)
-		{
 			throw new OutOfRangeException(y, 0, 1);
-		}
 		if (z < 0 || z > 1)
-		{
 			throw new OutOfRangeException(z, 0, 1);
-		}
 
 		final double x2 = x * x;
 		final double x3 = x2 * x;
@@ -734,7 +710,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	public double value(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z, double[] df_da,
 			double[] d2f_da2)
 	{
-		double value = value2(x.p, y.p, z.p, df_da, d2f_da2);
+		final double value = value2(x.p, y.p, z.p, df_da, d2f_da2);
 		df_da[0] = x.scaleGradient(df_da[0]);
 		df_da[1] = y.scaleGradient(df_da[1]);
 		df_da[2] = z.scaleGradient(df_da[2]);
@@ -746,7 +722,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 
 	/**
 	 * Compute the value and partial first-order and second-order derivatives
-	 * 
+	 *
 	 * @param pX
 	 *            x-coordinate powers of the interpolation point.
 	 * @param pY
@@ -919,13 +895,13 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 		if (refinements < 1)
 			refinements = 1;
 
-		boolean checkValue = relativeError > 0 || absoluteError > 0;
+		final boolean checkValue = relativeError > 0 || absoluteError > 0;
 
-		CubicSplinePosition[] sx = new CubicSplinePosition[] { new CubicSplinePosition(0), new CubicSplinePosition(1) };
-		CubicSplinePosition[] sy = sx.clone();
-		CubicSplinePosition[] sz = sx.clone();
+		final CubicSplinePosition[] sx = new CubicSplinePosition[] { new CubicSplinePosition(0), new CubicSplinePosition(1) };
+		final CubicSplinePosition[] sy = sx.clone();
+		final CubicSplinePosition[] sz = sx.clone();
 		// 8 cube vertices packed as z*4 + y*2 + x
-		double[] values = new double[8];
+		final double[] values = new double[8];
 		// We can initialise the default node value
 		int lastI = 0;
 		double lastValue = value000();
@@ -935,33 +911,27 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 			for (int z = 0, i = 0; z < 2; z++)
 				for (int y = 0; y < 2; y++)
 					for (int x = 0; x < 2; x++, i++)
-					{
 						// We can skip the value we know
 						values[i] = (i == lastI) ? lastValue : value(sx[x], sy[y], sz[z]);
-					}
 
-			int i = (maximum) ? SimpleArrayUtils.findMaxIndex(values) : SimpleArrayUtils.findMinIndex(values);
-			int z = i / 4;
-			int j = i % 4;
-			int y = j / 2;
-			int x = j % 2;
+			final int i = (maximum) ? SimpleArrayUtils.findMaxIndex(values) : SimpleArrayUtils.findMinIndex(values);
+			final int z = i / 4;
+			final int j = i % 4;
+			final int y = j / 2;
+			final int x = j % 2;
 
-			double value = values[i];
+			final double value = values[i];
 
 			boolean converged = (--refinements == 0);
 			if (!converged && checkValue && lastI != i)
-			{
 				// Check convergence on value if the cube vertex has changed.
 				// If it hasn't changed then the value will be the same and we continue
 				// reducing the cube size.
 				converged = areEqual(lastValue, value, absoluteError, relativeError);
-			}
 
 			if (converged)
-			{
 				// Terminate
 				return new double[] { sx[x].getX(), sy[y].getX(), sz[z].getX(), value };
-			}
 
 			lastI = i;
 			lastValue = value;
@@ -1012,7 +982,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 */
 	private static void update(CubicSplinePosition[] s, int i)
 	{
-		double mid = (s[0].getX() + s[1].getX()) / 2;
+		final double mid = (s[0].getX() + s[1].getX()) / 2;
 		// Move opposite bound
 		s[(i + 1) % 2] = new CubicSplinePosition(mid);
 	}

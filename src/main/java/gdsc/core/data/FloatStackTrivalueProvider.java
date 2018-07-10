@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -52,12 +52,10 @@ public class FloatStackTrivalueProvider implements TrivalueProvider
 	{
 		if (val.length == 0)
 			throw new DataException("No data");
-		int size = maxx * maxy;
+		final int size = maxx * maxy;
 		for (int z = 0; z < val.length; z++)
-		{
 			if (size != val[z].length)
 				throw new DataException("XY data must be length " + size);
-		}
 		this.val = val;
 		this.maxx = maxx;
 		this.maxy = maxy;
@@ -65,7 +63,7 @@ public class FloatStackTrivalueProvider implements TrivalueProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.data.TrivalueProvider#getLengthX()
 	 */
 	@Override
@@ -76,7 +74,7 @@ public class FloatStackTrivalueProvider implements TrivalueProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.data.TrivalueProvider#getLengthY()
 	 */
 	@Override
@@ -87,7 +85,7 @@ public class FloatStackTrivalueProvider implements TrivalueProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.data.TrivalueProvider#getLengthZ()
 	 */
 	@Override
@@ -98,7 +96,7 @@ public class FloatStackTrivalueProvider implements TrivalueProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.data.TrivalueProvider#get(int, int, int)
 	 */
 	@Override
@@ -123,7 +121,7 @@ public class FloatStackTrivalueProvider implements TrivalueProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.data.TrivalueProvider#getCube(int, int, int, double[][])
 	 */
 	@Override
@@ -173,16 +171,16 @@ public class FloatStackTrivalueProvider implements TrivalueProvider
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.data.TrivalueProvider#toArray()
 	 */
 	@Override
 	public double[][][] toArray()
 	{
-		double[][][] xyz = new double[maxx][maxy][getLengthZ()];
+		final double[][][] xyz = new double[maxx][maxy][getLengthZ()];
 		for (int z = 0; z < val.length; z++)
 		{
-			float[] data = val[z];
+			final float[] data = val[z];
 			for (int y = 0, i = 0; y < maxy; y++)
 				for (int x = 0; x < maxx; x++, i++)
 					xyz[x][y][z] = data[i];

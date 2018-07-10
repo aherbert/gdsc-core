@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -49,7 +49,7 @@ public class NullLogger implements Logger
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.smlm.utils.logging.Logger#info(java.lang.String)
 	 */
 	@Override
@@ -59,7 +59,7 @@ public class NullLogger implements Logger
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.smlm.utils.logging.Logger#info(java.lang.String, java.lang.Object[])
 	 */
 	@Override
@@ -69,7 +69,7 @@ public class NullLogger implements Logger
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.smlm.utils.logging.Logger#debug(java.lang.String)
 	 */
 	@Override
@@ -79,7 +79,7 @@ public class NullLogger implements Logger
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.smlm.utils.logging.Logger#debug(java.lang.String, java.lang.Object[])
 	 */
 	@Override
@@ -89,7 +89,7 @@ public class NullLogger implements Logger
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.smlm.utils.logging.Logger#error(java.lang.String)
 	 */
 	@Override
@@ -99,7 +99,7 @@ public class NullLogger implements Logger
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.smlm.utils.logging.Logger#error(java.lang.String, java.lang.Object[])
 	 */
 	@Override

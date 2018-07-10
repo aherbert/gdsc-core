@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -30,9 +30,9 @@ package gdsc.core.match;
 /**
  * Class to store the result of a binary scoring analysis when true and false positive and negatives are available. This
  * class allows fractional counts.
- * 
+ *
  * Can calculate the F-score statistic with a given beta weighting between the precision and recall.
- * 
+ *
  * @see "http://en.wikipedia.org/wiki/Precision_and_recall#F-measure"
  */
 public class FractionClassificationResult
@@ -121,7 +121,7 @@ public class FractionClassificationResult
 
 	/**
 	 * Return the F-Score statistic, a weighted combination of the precision and recall
-	 * 
+	 *
 	 * @param beta
 	 *            The weight
 	 * @return The F-Score
@@ -133,7 +133,7 @@ public class FractionClassificationResult
 
 	/**
 	 * Return the F1-Score statistic, a equal weighted combination of the precision and recall
-	 * 
+	 *
 	 * @return The F1-Score
 	 */
 	public double getF1Score()
@@ -297,7 +297,7 @@ public class FractionClassificationResult
 	 * predicted binary classifications; it returns a value between −1 and +1. A coefficient of +1 represents a perfect
 	 * prediction, 0 no better than random prediction and −1 indicates total disagreement between prediction and
 	 * observation. The statistic is also known as the phi coefficient.
-	 * 
+	 *
 	 * @return The Matthews correlation coefficient (MCC)
 	 */
 	public double getMCC()
@@ -328,7 +328,7 @@ public class FractionClassificationResult
 	/**
 	 * Get the number of positives. Note that this may be different from tp+fp. Note this is set in the constructor,
 	 * otherwise zero
-	 * 
+	 *
 	 * @return The number of positives
 	 */
 	public int getPositives()
@@ -339,7 +339,7 @@ public class FractionClassificationResult
 	/**
 	 * Get the number of negatives. Note this may be different from tn+fn. Note this is set in the constructor,
 	 * otherwise zero
-	 * 
+	 *
 	 * @return The number of negatives
 	 */
 	public int getNegatives()

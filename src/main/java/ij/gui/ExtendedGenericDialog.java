@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -78,11 +78,11 @@ public class ExtendedGenericDialog extends GenericDialog
 	private TurboList<OptionListener<?>> listeners;
 
 	/** The labels. Used to reset the recorder. */
-	private TurboList<String> labels = new TurboList<String>();
+	private final TurboList<String> labels = new TurboList<>();
 
 	// We capture all components added to the dialog and put them on a single panel
 	private GridBagLayout grid;
-	private JPanel panel = new JPanel();
+	private final JPanel panel = new JPanel();
 
 	// Max unscrolled width
 	private int maxWidth = 0;
@@ -129,11 +129,11 @@ public class ExtendedGenericDialog extends GenericDialog
 		if (Utils.isShowGenericDialog())
 		{
 			// JScrollPane allows the border to be set to null.
-			// However it does not repaint the contents inside the 
-			// window unless we use a JPanel. Even then some of the 
+			// However it does not repaint the contents inside the
+			// window unless we use a JPanel. Even then some of the
 			// java.awt.Panel components are not always redrawn.
-			// Given the GenericDialog uses a lot of java.awt components 
-			// we stick to use a java.awt.ScrollPane. 
+			// Given the GenericDialog uses a lot of java.awt components
+			// we stick to use a java.awt.ScrollPane.
 			//JScrollPane scroll = new JScrollPane(panel);
 			//scroll.setBorder(BorderFactory.createEmptyBorder());
 			//scroll.getVerticalScrollBar().setUnitIncrement(8);
@@ -142,8 +142,8 @@ public class ExtendedGenericDialog extends GenericDialog
 
 			// The ScrollPanel must be sized from the default of 100x100 when
 			// displayed. This is done in setup()
-			int policy = ScrollPane.SCROLLBARS_AS_NEEDED;
-			ScrollPane scroll = new ScrollPane(policy);
+			final int policy = ScrollPane.SCROLLBARS_AS_NEEDED;
+			final ScrollPane scroll = new ScrollPane(policy);
 			scroll.getHAdjustable().setUnitIncrement(16);
 			scroll.getVAdjustable().setUnitIncrement(16);
 			scroll.add(panel);
@@ -151,10 +151,8 @@ public class ExtendedGenericDialog extends GenericDialog
 			super.add(scroll, BorderLayout.CENTER);
 		}
 		else
-		{
 			// No need for a scroll pane
 			super.add(panel);
-		}
 	}
 
 	// Record all the field names
@@ -169,7 +167,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	@Override
 	public void addCheckboxGroup(int rows, int columns, String[] labels, boolean[] defaultValues)
 	{
-		for (String label : labels)
+		for (final String label : labels)
 			this.labels.add(label);
 		super.addCheckboxGroup(rows, columns, labels, defaultValues);
 	}
@@ -177,7 +175,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	@Override
 	public void addCheckboxGroup(int rows, int columns, String[] labels, boolean[] defaultValues, String[] headings)
 	{
-		for (String label : labels)
+		for (final String label : labels)
 			this.labels.add(label);
 		super.addCheckboxGroup(rows, columns, labels, defaultValues, headings);
 	}
@@ -203,7 +201,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	{
 		if (defaultIndex < 0 || defaultIndex >= items.length)
 			defaultIndex = 0;
-		String defaultItem = items[defaultIndex];
+		final String defaultItem = items[defaultIndex];
 		addChoice(label, items, defaultItem);
 	}
 
@@ -234,7 +232,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * and either minValue or maxValue are non-integer.
 	 * <p>
 	 * Update the min or max value to include the default value if it is outside the slider range.
-	 * 
+	 *
 	 * @param label
 	 *            the label
 	 * @param minValue
@@ -287,7 +285,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Label getLastLabel()
 	{
-		return new ComponentFinder<Label>(getContents(), Label.class).getLast();
+		return new ComponentFinder<>(getContents(), Label.class).getLast();
 	}
 
 	/**
@@ -297,7 +295,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Panel getLastPanel()
 	{
-		return new ComponentFinder<Panel>(getContents(), Panel.class).getLast();
+		return new ComponentFinder<>(getContents(), Panel.class).getLast();
 	}
 
 	/**
@@ -307,7 +305,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Choice getLastChoice()
 	{
-		return new ComponentFinder<Choice>(getContents(), Choice.class).getLast();
+		return new ComponentFinder<>(getContents(), Choice.class).getLast();
 	}
 
 	/**
@@ -317,7 +315,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public TextField getLastTextField()
 	{
-		return new ComponentFinder<TextField>(getContents(), TextField.class).getLast();
+		return new ComponentFinder<>(getContents(), TextField.class).getLast();
 	}
 
 	/**
@@ -327,7 +325,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Checkbox getLastCheckbox()
 	{
-		return new ComponentFinder<Checkbox>(getContents(), Checkbox.class).getLast();
+		return new ComponentFinder<>(getContents(), Checkbox.class).getLast();
 	}
 
 	/**
@@ -337,7 +335,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 */
 	public Scrollbar getLastScrollbar()
 	{
-		return new ComponentFinder<Scrollbar>(getContents(), Scrollbar.class).getLast();
+		return new ComponentFinder<>(getContents(), Scrollbar.class).getLast();
 	}
 
 	private Container getContents()
@@ -373,13 +371,13 @@ public class ExtendedGenericDialog extends GenericDialog
 			int n = container.getComponentCount();
 			while (n-- > 0)
 			{
-				Component c = container.getComponent(n);
+				final Component c = container.getComponent(n);
 				if (type.isInstance(c))
 					return type.cast(c);
 				if (c instanceof Container)
 				{
 					// Traverse containers
-					T t = getLast((Container) c);
+					final T t = getLast((Container) c);
 					if (t != null)
 						return t;
 				}
@@ -410,7 +408,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 *            the v
 	 * @return the object
 	 */
-	private Object tail(Vector<?> v)
+	private static Object tail(Vector<?> v)
 	{
 		return v.get(v.size() - 1);
 	}
@@ -558,16 +556,16 @@ public class ExtendedGenericDialog extends GenericDialog
 		addMessage("-- Empty --");
 
 		// Get the message and 'steal' the constraints so we get the current row
-		Label msg = (Label) getMessage();
-		GridBagConstraints c = grid.getConstraints(msg);
+		final Label msg = (Label) getMessage();
+		final GridBagConstraints c = grid.getConstraints(msg);
 
 		// Remove the dummy message
 		remove(msg);
 
-		// Add a button		
-		Panel buttons = new Panel();
+		// Add a button
+		final Panel buttons = new Panel();
 		buttons.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		Button button = new Button(label);
+		final Button button = new Button(label);
 		button.addActionListener(actionListener);
 		buttons.add(button);
 		c.gridx = 1;
@@ -610,7 +608,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		 * options. The simple implementation is to construct an ExtendedGenericDialog to collect the options and set
 		 * the silent flag to true. The dialog will not be presented in the showDialog() method and the method can
 		 * proceed direct to reading the fields.
-		 * 
+		 *
 		 * @return true, if new options were collected
 		 */
 		public boolean collectOptions();
@@ -678,7 +676,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	public void addOptionCollectedListener(OptionCollectedListener listener)
 	{
 		if (optionCollectedListeners == null)
-			optionCollectedListeners = new TurboList<OptionCollectedListener>();
+			optionCollectedListeners = new TurboList<>();
 		optionCollectedListeners.add(listener);
 	}
 
@@ -686,7 +684,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	{
 		if (optionCollectedListeners == null)
 			return;
-		OptionCollectedEvent e = new OptionCollectedEvent(label);
+		final OptionCollectedEvent e = new OptionCollectedEvent(label);
 		for (int i = 0; i < optionCollectedListeners.size(); i++)
 			optionCollectedListeners.getf(i).optionCollected(e);
 	}
@@ -729,12 +727,12 @@ public class ExtendedGenericDialog extends GenericDialog
 			throw new NullPointerException("Option listener is null");
 
 		final TextField tf = addAndGetStringField(label, defaultText, columns);
-		GridBagConstraints c = grid.getConstraints(tf);
+		final GridBagConstraints c = grid.getConstraints(tf);
 		remove(tf);
 
 		add(optionListener);
 
-		JButton button = createOptionButton();
+		final JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
 			@Override
@@ -745,7 +743,7 @@ public class ExtendedGenericDialog extends GenericDialog
 			}
 		});
 
-		Panel panel = new Panel();
+		final Panel panel = new Panel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		panel.add(tf);
 		panel.add(button);
@@ -793,10 +791,8 @@ public class ExtendedGenericDialog extends GenericDialog
 	private int add(OptionListener<?> optionListener)
 	{
 		if (listeners == null)
-		{
-			listeners = new TurboList<OptionListener<?>>();
-		}
-		int id = listeners.size();
+			listeners = new TurboList<>();
+		final int id = listeners.size();
 		listeners.add(optionListener);
 		return id;
 	}
@@ -841,24 +837,24 @@ public class ExtendedGenericDialog extends GenericDialog
 	public TextField addFilenameField(final String label, String defaultText, int columns)
 	{
 		final TextField tf = addAndGetStringField(label, defaultText, columns);
-		GridBagConstraints c = grid.getConstraints(tf);
+		final GridBagConstraints c = grid.getConstraints(tf);
 		remove(tf);
 
-		JButton button = createOptionButton("Select a file");
+		final JButton button = createOptionButton("Select a file");
 		button.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				boolean record = Recorder.record;
-				String filename = Utils.getFilename(label, tf.getText());
+				final boolean record = Recorder.record;
+				final String filename = Utils.getFilename(label, tf.getText());
 				Recorder.record = record;
 				if (filename != null)
 					tf.setText(filename);
 			}
 		});
 
-		Panel panel = new Panel();
+		final Panel panel = new Panel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		panel.add(tf);
 		panel.add(button);
@@ -900,24 +896,24 @@ public class ExtendedGenericDialog extends GenericDialog
 	public TextField addDirectoryField(final String label, String defaultText, int columns)
 	{
 		final TextField tf = addAndGetStringField(label, defaultText, columns);
-		GridBagConstraints c = grid.getConstraints(tf);
+		final GridBagConstraints c = grid.getConstraints(tf);
 		remove(tf);
 
-		JButton button = createOptionButton("Select a directory");
+		final JButton button = createOptionButton("Select a directory");
 		button.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				boolean record = Recorder.record;
-				String filename = Utils.getDirectory(label, tf.getText());
+				final boolean record = Recorder.record;
+				final String filename = Utils.getDirectory(label, tf.getText());
 				Recorder.record = record;
 				if (filename != null)
 					tf.setText(filename);
 			}
 		});
 
-		Panel panel = new Panel();
+		final Panel panel = new Panel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		panel.add(tf);
 		panel.add(button);
@@ -945,7 +941,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	{
 		if (defaultIndex < 0 || defaultIndex >= items.length)
 			defaultIndex = 0;
-		String defaultItem = items[defaultIndex];
+		final String defaultItem = items[defaultIndex];
 		addChoice(label, items, defaultItem, optionListener);
 	}
 
@@ -970,12 +966,12 @@ public class ExtendedGenericDialog extends GenericDialog
 			throw new NullPointerException("Option listener is null");
 
 		final Choice choice = addAndGetChoice(label, items, defaultItem);
-		GridBagConstraints c = grid.getConstraints(choice);
+		final GridBagConstraints c = grid.getConstraints(choice);
 		remove(choice);
 
 		add(optionListener);
 
-		JButton button = createOptionButton();
+		final JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
 			@Override
@@ -986,7 +982,7 @@ public class ExtendedGenericDialog extends GenericDialog
 			}
 		});
 
-		Panel panel = new Panel();
+		final Panel panel = new Panel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		panel.add(choice);
 		panel.add(button);
@@ -1012,12 +1008,12 @@ public class ExtendedGenericDialog extends GenericDialog
 			throw new NullPointerException("Option listener is null");
 
 		final Checkbox cb = addAndGetCheckbox(label, defaultValue);
-		GridBagConstraints c = grid.getConstraints(cb);
+		final GridBagConstraints c = grid.getConstraints(cb);
 		remove(cb);
 
 		add(optionListener);
 
-		JButton button = createOptionButton();
+		final JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
 			@Override
@@ -1028,7 +1024,7 @@ public class ExtendedGenericDialog extends GenericDialog
 			}
 		});
 
-		Panel panel = new Panel();
+		final Panel panel = new Panel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		panel.add(cb);
 		panel.add(button);
@@ -1064,36 +1060,32 @@ public class ExtendedGenericDialog extends GenericDialog
 			defaultValue = maxValue;
 
 		addSlider(label, minValue, maxValue, defaultValue);
-		Panel p = getLastPanel();
+		final Panel p = getLastPanel();
 
-		final TextField tf = new ComponentFinder<TextField>(p, TextField.class).getLast();
+		final TextField tf = new ComponentFinder<>(p, TextField.class).getLast();
 		final String originalText = tf.getText();
 		final double originalValue = defaultValue;
 
 		add(optionListener);
 
-		JButton button = createOptionButton();
+		final JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				String theText = tf.getText();
+				final String theText = tf.getText();
 				Double value;
 				if (theText.equals(originalText))
-				{
 					value = originalValue;
-				}
 				else
-				{
 					value = convertToDouble(theText);
-				}
 				if (optionListener.collectOptions(value))
 					notifyOptionCollectedListeners(label);
 			}
 		});
 
-		GridBagConstraints pc = new GridBagConstraints();
+		final GridBagConstraints pc = new GridBagConstraints();
 		pc.gridy = 0;
 		pc.gridx = 2;
 		pc.insets = new Insets(5, 5, 0, 0);
@@ -1104,7 +1096,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	private Double convertToDouble(String theText)
 	{
 		// This catches any number format exceptions
-		Double value = getValue(theText);
+		final Double value = getValue(theText);
 		if (value == null)
 			// return NaN and let the downstream code handle this
 			return Double.NaN;
@@ -1130,7 +1122,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		if (optionListener == null)
 			throw new NullPointerException("Option listener is null");
 
-		TextField tf = addAndGetNumericField(label, defaultValue, digits);
+		final TextField tf = addAndGetNumericField(label, defaultValue, digits);
 
 		addNumericFieldListener(tf, label, defaultValue, optionListener);
 	}
@@ -1158,7 +1150,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		if (optionListener == null)
 			throw new NullPointerException("Option listener is null");
 
-		TextField tf = addAndGetNumericField(label, defaultValue, digits, columns, units);
+		final TextField tf = addAndGetNumericField(label, defaultValue, digits, columns, units);
 
 		addNumericFieldListener(tf, label, defaultValue, optionListener);
 	}
@@ -1180,27 +1172,25 @@ public class ExtendedGenericDialog extends GenericDialog
 			final OptionListener<Double> optionListener)
 	{
 		// Numeric fields may have a text field and units in a panel
-		Component lastAdded = getContents().getComponent(getContents().getComponentCount() - 1);
+		final Component lastAdded = getContents().getComponent(getContents().getComponentCount() - 1);
 
-		GridBagConstraints c = grid.getConstraints(lastAdded);
+		final GridBagConstraints c = grid.getConstraints(lastAdded);
 		remove(lastAdded);
 
 		final String originalText = tf.getText();
 
 		add(optionListener);
 
-		JButton button = createOptionButton();
+		final JButton button = createOptionButton();
 		button.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				String theText = tf.getText();
+				final String theText = tf.getText();
 				Double value;
 				if (theText.equals(originalText))
-				{
 					value = originalValue;
-				}
 				else
 				{
 					value = getValue(theText);
@@ -1212,7 +1202,7 @@ public class ExtendedGenericDialog extends GenericDialog
 			}
 		});
 
-		Panel panel = new Panel();
+		final Panel panel = new Panel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		panel.add(lastAdded);
 		panel.add(button);
@@ -1275,7 +1265,7 @@ public class ExtendedGenericDialog extends GenericDialog
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.awt.Dialog#setVisible(boolean)
 	 */
 	@Override
@@ -1308,9 +1298,7 @@ public class ExtendedGenericDialog extends GenericDialog
 		if (!(Recorder.record || Utils.isMacro()))
 			return;
 		for (int i = 0; i < listeners.size(); i++)
-		{
 			listeners.getf(i).collectOptions();
-		}
 	}
 
 	/**
@@ -1429,7 +1417,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	/**
 	 * This method is called just before the dialog is set visible. Determine the preferred size of the panel
 	 * contents and appropriately size the scroll pane to fit.
-	 * 
+	 *
 	 * @see ij.gui.GenericDialog#setup()
 	 */
 	@Override
@@ -1439,15 +1427,15 @@ public class ExtendedGenericDialog extends GenericDialog
 			return;
 
 		// Appropriately size the scrollpane
-		ScreenDimensionHelper helper = new ScreenDimensionHelper();
+		final ScreenDimensionHelper helper = new ScreenDimensionHelper();
 		if (maxWidth > 0)
 			helper.setMaxWidth(maxWidth);
 		if (maxHeight > 0)
 			helper.setMaxHeight(maxHeight);
 		//helper.setMaxSize(maxWidth, maxHeight);
 
-		Dimension d = panel.getPreferredSize();
-		ScrollPane scroll = (ScrollPane) getComponent(0);
+		final Dimension d = panel.getPreferredSize();
+		final ScrollPane scroll = (ScrollPane) getComponent(0);
 
 		helper.setup(scroll, d);
 
@@ -1484,7 +1472,7 @@ public class ExtendedGenericDialog extends GenericDialog
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.awt.Window#setLocation(java.awt.Point)
 	 */
 	@Override

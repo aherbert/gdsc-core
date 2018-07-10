@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -70,16 +70,16 @@ public class AlignImagesFFT
 		//@formatter:off
 		/** The none method. */
 		NONE{ @Override
-		public String getName() { return "None"; }}, 
-		
+		public String getName() { return "None"; }},
+
 		/** The hanning method. */
 		HANNING{ @Override
-		public String getName() { return "Hanning"; }}, 
-		
+		public String getName() { return "Hanning"; }},
+
 		/** The cosine method. */
 		COSINE{ @Override
-		public String getName() { return "Cosine"; }}, 
-		
+		public String getName() { return "Cosine"; }},
+
 		/** The tukey method. */
 		TUKEY{ @Override
 		public String getName() { return "Tukey"; }};
@@ -87,7 +87,7 @@ public class AlignImagesFFT
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Enum#toString()
 		 */
 		@Override
@@ -112,12 +112,12 @@ public class AlignImagesFFT
 		//@formatter:off
 		/** The none method. */
 		NONE{ @Override
-		public String getName() { return "None"; }}, 
-		
+		public String getName() { return "None"; }},
+
 		/** The cubic method. */
 		CUBIC{ @Override
-		public String getName() { return "Cubic"; }}, 
-		
+		public String getName() { return "Cubic"; }},
+
 		/** The gaussian method. */
 		GAUSSIAN{ @Override
 		public String getName() { return "Gaussian"; }};
@@ -125,7 +125,7 @@ public class AlignImagesFFT
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Enum#toString()
 		 */
 		@Override
@@ -155,10 +155,10 @@ public class AlignImagesFFT
 	private FloatProcessor normalisedRefIp;
 
 	/** The ref image bounds. The location where the reference/target was inserted into the normalised FFT image */
-	private Rectangle refImageBounds = new Rectangle();
+	private final Rectangle refImageBounds = new Rectangle();
 
 	/** The target image bounds. */
-	private Rectangle targetImageBounds = new Rectangle();
+	private final Rectangle targetImageBounds = new Rectangle();
 
 	/**
 	 * Aligns all images in the target stack to the current processor in the reference.
@@ -191,7 +191,7 @@ public class AlignImagesFFT
 			SubPixelMethod subPixelMethod, int interpolationMethod, boolean normalised, boolean showCorrelationImage,
 			boolean showNormalisedImage, boolean clipOutput)
 	{
-		ImageProcessor refIp = refImp.getProcessor();
+		final ImageProcessor refIp = refImp.getProcessor();
 		if (targetImp == null)
 			targetImp = refImp;
 
@@ -201,7 +201,7 @@ public class AlignImagesFFT
 
 		// Fourier transforms use the largest power-two dimension that covers both images
 		int maxN = FastMath.max(refIp.getWidth(), refIp.getHeight());
-		int maxM = FastMath.max(targetImp.getWidth(), targetImp.getHeight());
+		final int maxM = FastMath.max(targetImp.getWidth(), targetImp.getHeight());
 		maxN = FastMath.max(maxN, maxM);
 
 		this.normalisedRefIp = padAndZero(refIp, maxN, windowMethod, refImageBounds);
@@ -210,7 +210,7 @@ public class AlignImagesFFT
 		maxN = normalisedRefIp.getWidth(); // Update with the power-two result
 
 		// Set up the output stack
-		ImageStack outStack = new ImageStack(targetImp.getWidth(), targetImp.getHeight());
+		final ImageStack outStack = new ImageStack(targetImp.getWidth(), targetImp.getHeight());
 		ImageStack correlationStack = null;
 		ImageStack normalisedStack = null;
 		FloatProcessor fpCorrelation = null;
@@ -248,19 +248,17 @@ public class AlignImagesFFT
 			calculateRollingSums(normalisedRefIp, s, ss);
 		}
 
-		FHT refFHT = fft(normalisedRefIp, maxN);
+		final FHT refFHT = fft(normalisedRefIp, maxN);
 
 		if (bounds == null)
-		{
 			bounds = createHalfMaxBounds(refImp.getWidth(), refImp.getHeight(), targetImp.getWidth(),
 					targetImp.getHeight());
-		}
 
 		// Process each image in the target stack
-		ImageStack stack = targetImp.getStack();
+		final ImageStack stack = targetImp.getStack();
 		for (int slice = 1; slice <= stack.getSize(); slice++)
 		{
-			ImageProcessor targetIp = stack.getProcessor(slice);
+			final ImageProcessor targetIp = stack.getProcessor(slice);
 			outStack.addSlice(null, alignImages(refFHT, s, ss, targetIp, slice, windowMethod, bounds, fpCorrelation,
 					fpNormalised, subPixelMethod, interpolationMethod, clipOutput));
 			if (showCorrelationImage)
@@ -329,7 +327,7 @@ public class AlignImagesFFT
 			return;
 
 		// Fourier transforms use the largest power-two dimension that covers both images
-		int maxN = FastMath.max(refIp.getWidth(), refIp.getHeight());
+		final int maxN = FastMath.max(refIp.getWidth(), refIp.getHeight());
 
 		this.normalisedRefIp = padAndZero(refIp, maxN, windowMethod, refImageBounds);
 
@@ -381,26 +379,24 @@ public class AlignImagesFFT
 		if (refFHT == null || targetImp == null)
 			return null;
 
-		int maxN = refFHT.getWidth();
+		final int maxN = refFHT.getWidth();
 
 		// Check correct size
 		if (targetImp.getWidth() > maxN || targetImp.getHeight() > maxN)
 			return null;
 
 		// Set up the output stack
-		ImageStack outStack = new ImageStack(targetImp.getWidth(), targetImp.getHeight());
+		final ImageStack outStack = new ImageStack(targetImp.getWidth(), targetImp.getHeight());
 
 		if (bounds == null)
-		{
 			bounds = createHalfMaxBounds(refIp.getWidth(), refIp.getHeight(), targetImp.getWidth(),
 					targetImp.getHeight());
-		}
 
 		// Process each image in the target stack
-		ImageStack stack = targetImp.getStack();
+		final ImageStack stack = targetImp.getStack();
 		for (int slice = 1; slice <= stack.getSize(); slice++)
 		{
-			ImageProcessor targetIp = stack.getProcessor(slice);
+			final ImageProcessor targetIp = stack.getProcessor(slice);
 			outStack.addSlice(null, alignImages(refFHT, s, ss, targetIp, slice, windowMethod, bounds, null, null,
 					subPixelMethod, interpolationMethod, clipOutput));
 			if (Utils.isInterrupted())
@@ -429,17 +425,15 @@ public class AlignImagesFFT
 		if (refFHT == null || targetIp == null)
 			return null;
 
-		int maxN = refFHT.getWidth();
+		final int maxN = refFHT.getWidth();
 
 		// Check correct size
 		if (targetIp.getWidth() > maxN || targetIp.getHeight() > maxN)
 			return null;
 
 		if (bounds == null)
-		{
 			bounds = createHalfMaxBounds(refIp.getWidth(), refIp.getHeight(), targetIp.getWidth(),
 					targetIp.getHeight());
-		}
 
 		return alignImages(refFHT, s, ss, targetIp, windowMethod, bounds, subPixelMethod);
 	}
@@ -454,17 +448,17 @@ public class AlignImagesFFT
 	 * @param ss
 	 *            the ss
 	 */
-	private void calculateRollingSums(FloatProcessor ip, double[] s_, double[] ss)
+	private static void calculateRollingSums(FloatProcessor ip, double[] s_, double[] ss)
 	{
 		// Compute the rolling sum and sum of squares
-		// s(u,v) = f(u,v) + s(u-1,v) + s(u,v-1) - s(u-1,v-1) 
+		// s(u,v) = f(u,v) + s(u-1,v) + s(u,v-1) - s(u-1,v-1)
 		// ss(u,v) = f(u,v) * f(u,v) + ss(u-1,v) + ss(u,v-1) - ss(u-1,v-1)
 		// where s(u,v) = ss(u,v) = 0 when either u,v < 0
 
-		int maxx = ip.getWidth();
-		int maxy = ip.getHeight();
-		float[] originalData = (float[]) ip.getPixels();
-		double[] data = Tools.toDouble(originalData);
+		final int maxx = ip.getWidth();
+		final int maxy = ip.getHeight();
+		final float[] originalData = (float[]) ip.getPixels();
+		final double[] data = Tools.toDouble(originalData);
 
 		// First row
 		double cs_ = 0; // Column sum
@@ -512,37 +506,37 @@ public class AlignImagesFFT
 	 */
 	private void normalise(FloatProcessor subCorrMat, double[] s, double[] ss, ImageProcessor targetIp)
 	{
-		int maxx = subCorrMat.getWidth();
-		int maxy = subCorrMat.getHeight();
-		Rectangle imageBounds = new Rectangle(0, 0, maxx, maxy); //refImageBounds;
+		final int maxx = subCorrMat.getWidth();
+		final int maxy = subCorrMat.getHeight();
+		final Rectangle imageBounds = new Rectangle(0, 0, maxx, maxy); //refImageBounds;
 
-		int NU = targetIp.getWidth();
-		int NV = targetIp.getHeight();
+		final int NU = targetIp.getWidth();
+		final int NV = targetIp.getHeight();
 
 		// Locate where the target image was inserted when padding
-		int x = targetImageBounds.x; // (maxx - NU) / 2;
-		int y = targetImageBounds.y; // (maxy - NV) / 2;
+		final int x = targetImageBounds.x; // (maxx - NU) / 2;
+		final int y = targetImageBounds.y; // (maxy - NV) / 2;
 
 		//IJ.log(String.format("maxx=%d,  maxy=%d, NU=%d, NV=%d, x=%d, y=%d", maxx, maxy, NU, NV, x, y));
 
 		// Calculate overlap:
 		// Assume a full size target image relative to the reference and then compensate with the insert location
-		int halfNU = maxx / 2 - x;
-		int halfNV = maxy / 2 - y;
+		final int halfNU = maxx / 2 - x;
+		final int halfNV = maxy / 2 - y;
 
-		// Normalise within the bounds of the largest image (i.e. only allow translation 
+		// Normalise within the bounds of the largest image (i.e. only allow translation
 		// up to half of the longest edge from the reference or target).
-		// The further the translation from the half-max translation the more likely there 
-		// can be errors in the normalisation score due to floating point summation errors. 
+		// The further the translation from the half-max translation the more likely there
+		// can be errors in the normalisation score due to floating point summation errors.
 		// This is observed mainly at the very last pixel overlap between images.
-		// To see this set: 
+		// To see this set:
 		// union = imageBounds;
 		// TODO - More analysis to determine under what conditions this occurs.
-		Rectangle union = refImageBounds.union(targetImageBounds);
+		final Rectangle union = refImageBounds.union(targetImageBounds);
 
 		// Normalise using the denominator
-		float[] data = (float[]) subCorrMat.getPixels();
-		float[] newData = new float[data.length];
+		final float[] data = (float[]) subCorrMat.getPixels();
+		final float[] newData = new float[data.length];
 		for (int yyy = union.y; yyy < union.y + union.height; yyy++)
 		{
 			int i = yyy * maxx + union.x;
@@ -552,24 +546,24 @@ public class AlignImagesFFT
 				double sumSquares = 0;
 
 				int minU = xxx - halfNU - 1;
-				int maxU = FastMath.min(minU + NU, maxx - 1);
+				final int maxU = FastMath.min(minU + NU, maxx - 1);
 				int minV = yyy - halfNV - 1;
-				int maxV = FastMath.min(minV + NV, maxy - 1);
+				final int maxV = FastMath.min(minV + NV, maxy - 1);
 
 				// Compute sum from rolling sum using:
-				// sum(u,v) = 
-				// + s(u+N-1,v+N-1) 
+				// sum(u,v) =
+				// + s(u+N-1,v+N-1)
 				// - s(u-1,v+N-1)
 				// - s(u+N-1,v-1)
 				// + s(u-1,v-1)
-				// Note: 
+				// Note:
 				// s(u,v) = 0 when either u,v < 0
 				// s(u,v) = s(umax,v) when u>umax
 				// s(u,v) = s(u,vmax) when v>vmax
 				// s(u,v) = s(umax,vmax) when u>umax,v>vmax
 				// Likewise for ss
 
-				// + s(u+N-1,v+N-1) 
+				// + s(u+N-1,v+N-1)
 				int index = maxV * maxx + maxU;
 				sum += s[index];
 				sumSquares += ss[index];
@@ -603,17 +597,17 @@ public class AlignImagesFFT
 				if (minV < 0)
 					minV = 0;
 
-				Rectangle regionBounds = new Rectangle(xxx - halfNU, yyy - halfNV, NU, NV);
-				Rectangle r = imageBounds.intersection(regionBounds);
+				final Rectangle regionBounds = new Rectangle(xxx - halfNU, yyy - halfNV, NU, NV);
+				final Rectangle r = imageBounds.intersection(regionBounds);
 
 				//int n = (maxU - minU + 1) * (maxV - minV + 1);
-				int n = r.width * r.height;
+				final int n = r.width * r.height;
 
 				if (n < 1)
 					continue;
 
 				// Get the sum of squared differences
-				double residuals = sumSquares - sum * sum / n;
+				final double residuals = sumSquares - sum * sum / n;
 
 				//				// Check using the original data
 				//				double sx = 0;
@@ -642,7 +636,7 @@ public class AlignImagesFFT
 				//					residuals = ssx - sx * sx / nn;
 				//				}
 
-				double normalisation = (residuals > 0) ? Math.sqrt(residuals) : 0;
+				final double normalisation = (residuals > 0) ? Math.sqrt(residuals) : 0;
 
 				if (normalisation > 0)
 				{
@@ -673,7 +667,7 @@ public class AlignImagesFFT
 	 */
 	public static Rectangle createHalfMaxBounds(int width1, int height1, int width2, int height2)
 	{
-		// Restrict translation so that at least half of the smaller image width/height 
+		// Restrict translation so that at least half of the smaller image width/height
 		// is within the larger image (half-max translation)
 		int maxx = FastMath.max(width1, width2);
 		int maxy = FastMath.max(height1, height2);
@@ -697,9 +691,9 @@ public class AlignImagesFFT
 	 */
 	public static Rectangle createBounds(int minXShift, int maxXShift, int minYShift, int maxYShift)
 	{
-		int w = maxXShift - minXShift;
-		int h = maxYShift - minYShift;
-		Rectangle bounds = new Rectangle(minXShift, minYShift, w, h);
+		final int w = maxXShift - minXShift;
+		final int h = maxYShift - minYShift;
+		final Rectangle bounds = new Rectangle(minXShift, minYShift, w, h);
 		return bounds;
 	}
 
@@ -712,12 +706,12 @@ public class AlignImagesFFT
 	 *            the target imp
 	 * @return true, if is valid
 	 */
-	private boolean isValid(ImageProcessor refIp, ImagePlus targetImp)
+	private static boolean isValid(ImageProcessor refIp, ImagePlus targetImp)
 	{
 		if (refIp == null || targetImp == null)
 			return false;
 
-		// Check images have values. No correlation is possible with 
+		// Check images have values. No correlation is possible with
 		if (noValue(refIp))
 			return false;
 
@@ -731,7 +725,7 @@ public class AlignImagesFFT
 	 *            the ip
 	 * @return true if the image has not pixels with a value
 	 */
-	private boolean noValue(ImageProcessor ip)
+	private static boolean noValue(ImageProcessor ip)
 	{
 		for (int i = 0; i < ip.getPixelCount(); i++)
 			if (ip.getf(i) != 0)
@@ -785,21 +779,21 @@ public class AlignImagesFFT
 			return targetIp.duplicate();
 		}
 
-		// Perform correlation analysis in Fourier space (A and B transform to F and G) 
+		// Perform correlation analysis in Fourier space (A and B transform to F and G)
 		// using the complex conjugate of G multiplied by F:
-		//   C(u,v) = F(u,v) G*(u,v)		
+		//   C(u,v) = F(u,v) G*(u,v)
 
-		int maxN = refFHT.getWidth();
+		final int maxN = refFHT.getWidth();
 
-		ImageProcessor paddedTargetIp = padAndZero(targetIp, maxN, windowMethod, targetImageBounds);
-		FloatProcessor normalisedTargetIp = normalise(paddedTargetIp);
-		FHT targetFHT = fft(normalisedTargetIp, maxN);
-		FloatProcessor subCorrMat = correlate(refFHT, targetFHT);
+		final ImageProcessor paddedTargetIp = padAndZero(targetIp, maxN, windowMethod, targetImageBounds);
+		final FloatProcessor normalisedTargetIp = normalise(paddedTargetIp);
+		final FHT targetFHT = fft(normalisedTargetIp, maxN);
+		final FloatProcessor subCorrMat = correlate(refFHT, targetFHT);
 
 		//new ImagePlus("Unnormalised correlation", subCorrMat.duplicate()).show();
 
-		int originX = (maxN / 2);
-		int originY = (maxN / 2);
+		final int originX = (maxN / 2);
+		final int originY = (maxN / 2);
 
 		// Normalise using the denominator
 		if (s != null)
@@ -815,24 +809,20 @@ public class AlignImagesFFT
 
 		// Restrict the translation
 		if (bounds != null)
-		{
 			// Restrict bounds to image limits
 			intersect = intersect
 					.intersection(new Rectangle(originX + bounds.x, originY + bounds.y, bounds.width, bounds.height));
-		}
 
-		int[] iCoord = getPeak(subCorrMat, intersect.x, intersect.y, intersect.width, intersect.height);
-		float scoreMax = subCorrMat.getf(iCoord[0], iCoord[1]);
-		double[] dCoord = new double[] { iCoord[0], iCoord[1] };
+		final int[] iCoord = getPeak(subCorrMat, intersect.x, intersect.y, intersect.width, intersect.height);
+		final float scoreMax = subCorrMat.getf(iCoord[0], iCoord[1]);
+		final double[] dCoord = new double[] { iCoord[0], iCoord[1] };
 
 		String estimatedScore = "";
 		if (subPixelMethod != SubPixelMethod.NONE)
 		{
 			double[] centre = null;
 			if (subPixelMethod == SubPixelMethod.CUBIC)
-			{
 				centre = performCubicFit(subCorrMat, iCoord[0], iCoord[1]);
-			}
 			else
 			{
 				// Perform sub-peak analysis using the method taken from Jpiv
@@ -840,9 +830,7 @@ public class AlignImagesFFT
 				// Check the centre has not moved too far
 				if (!(Math.abs(dCoord[0] - iCoord[0]) < intersect.width / 2 &&
 						Math.abs(dCoord[1] - iCoord[1]) < intersect.height / 2))
-				{
 					centre = null;
-				}
 			}
 
 			if (centre != null)
@@ -850,7 +838,7 @@ public class AlignImagesFFT
 				dCoord[0] = centre[0];
 				dCoord[1] = centre[1];
 
-				double score = subCorrMat.getBicubicInterpolatedPixel(centre[0], centre[1], subCorrMat);
+				final double score = subCorrMat.getBicubicInterpolatedPixel(centre[0], centre[1], subCorrMat);
 				//				if (score < -1)
 				//					score = -1;
 				//				if (score > 1)
@@ -860,7 +848,7 @@ public class AlignImagesFFT
 		}
 		else if (IJ.debugMode)
 		{
-			// Used for debugging - Check if interpolation rounds to a different integer 
+			// Used for debugging - Check if interpolation rounds to a different integer
 			double[] centre = performCubicFit(subCorrMat, iCoord[0], iCoord[1]);
 			if (centre != null)
 			{
@@ -896,7 +884,7 @@ public class AlignImagesFFT
 		if (!doTranslation)
 			return targetIp;
 
-		ImageProcessor resultIp = translate(interpolationMethod, targetIp, lastXOffset, lastYOffset, clipOutput);
+		final ImageProcessor resultIp = translate(interpolationMethod, targetIp, lastXOffset, lastYOffset, clipOutput);
 		return resultIp;
 	}
 
@@ -925,31 +913,25 @@ public class AlignImagesFFT
 		lastXOffset = lastYOffset = 0;
 
 		if (noValue(targetIp))
-		{
 			// Zero correlation with empty image
 			return new double[] { 0, 0, 0 };
-		}
 
-		// Perform correlation analysis in Fourier space (A and B transform to F and G) 
+		// Perform correlation analysis in Fourier space (A and B transform to F and G)
 		// using the complex conjugate of G multiplied by F:
-		//   C(u,v) = F(u,v) G*(u,v)		
+		//   C(u,v) = F(u,v) G*(u,v)
 
-		int maxN = refFHT.getWidth();
+		final int maxN = refFHT.getWidth();
 
 		// Allow the input target to be a FHT
 		FHT targetFHT;
 		if (targetIp instanceof FHT && targetIp.getWidth() == maxN)
-		{
 			targetFHT = (FHT) targetIp;
-		}
 		else
-		{
 			targetFHT = transformTarget(targetIp, windowMethod);
-		}
-		FloatProcessor subCorrMat = correlate(refFHT, targetFHT);
+		final FloatProcessor subCorrMat = correlate(refFHT, targetFHT);
 
-		int originX = (maxN / 2);
-		int originY = (maxN / 2);
+		final int originX = (maxN / 2);
+		final int originY = (maxN / 2);
 
 		// Normalise using the denominator
 		if (s != null)
@@ -959,15 +941,13 @@ public class AlignImagesFFT
 
 		// Restrict the translation
 		if (bounds != null)
-		{
 			// Restrict bounds to image limits
 			intersect = intersect
 					.intersection(new Rectangle(originX + bounds.x, originY + bounds.y, bounds.width, bounds.height));
-		}
 
-		int[] iCoord = getPeak(subCorrMat, intersect.x, intersect.y, intersect.width, intersect.height);
+		final int[] iCoord = getPeak(subCorrMat, intersect.x, intersect.y, intersect.width, intersect.height);
 		double scoreMax = subCorrMat.getf(iCoord[0], iCoord[1]);
-		double[] dCoord = new double[] { iCoord[0], iCoord[1] };
+		final double[] dCoord = new double[] { iCoord[0], iCoord[1] };
 
 		double[] centre = null;
 		switch (subPixelMethod)
@@ -981,9 +961,7 @@ public class AlignImagesFFT
 				// Check the centre has not moved too far
 				if (!(Math.abs(dCoord[0] - iCoord[0]) < intersect.width / 2 &&
 						Math.abs(dCoord[1] - iCoord[1]) < intersect.height / 2))
-				{
 					centre = null;
-				}
 				break;
 			default:
 				break;
@@ -1026,10 +1004,10 @@ public class AlignImagesFFT
 	{
 		if (refFHT == null || targetIp == null)
 			return null;
-		int maxN = refFHT.getWidth();
+		final int maxN = refFHT.getWidth();
 		FHT targetFHT;
-		ImageProcessor paddedTargetIp = padAndZero(targetIp, maxN, windowMethod, targetImageBounds);
-		FloatProcessor normalisedTargetIp = normalise(paddedTargetIp);
+		final ImageProcessor paddedTargetIp = padAndZero(targetIp, maxN, windowMethod, targetImageBounds);
+		final FloatProcessor normalisedTargetIp = normalise(paddedTargetIp);
 		targetFHT = fft(normalisedTargetIp, maxN);
 		return targetFHT;
 	}
@@ -1043,21 +1021,17 @@ public class AlignImagesFFT
 	 */
 	public static FloatProcessor normalise(ImageProcessor ip)
 	{
-		float[] pixels = new float[ip.getPixelCount()];
+		final float[] pixels = new float[ip.getPixelCount()];
 
 		// Normalise to unit length and subtract mean
 		double sum = 0;
 		for (int i = 0; i < pixels.length; i++)
-		{
 			sum += ip.getf(i) * ip.getf(i);
-		}
 		if (sum > 0)
 		{
-			double factor = 1.0 / Math.sqrt(sum);
+			final double factor = 1.0 / Math.sqrt(sum);
 			for (int i = 0; i < pixels.length; i++)
-			{
 				pixels[i] = (float) (ip.getf(i) * factor);
-			}
 		}
 
 		return new FloatProcessor(ip.getWidth(), ip.getHeight(), pixels, null);
@@ -1082,7 +1056,7 @@ public class AlignImagesFFT
 	public static ImageProcessor translate(int interpolationMethod, ImageProcessor ip, double xOffset, double yOffset,
 			boolean clipOutput)
 	{
-		ImageProcessor newIp = ip.duplicate();
+		final ImageProcessor newIp = ip.duplicate();
 		translateProcessor(interpolationMethod, newIp, xOffset, yOffset, clipOutput);
 		return newIp;
 	}
@@ -1107,39 +1081,29 @@ public class AlignImagesFFT
 	{
 		// Check if interpolation is needed
 		if (xOffset == (int) xOffset && yOffset == (int) yOffset)
-		{
 			interpolationMethod = ImageProcessor.NONE;
-		}
 
-		// Bicubic interpolation can generate values outside the input range. 
+		// Bicubic interpolation can generate values outside the input range.
 		// Optionally clip these. This is not applicable for ColorProcessors.
 		float max = Float.NEGATIVE_INFINITY;
 		if (interpolationMethod == ImageProcessor.BICUBIC && clipOutput && !(ip instanceof ColorProcessor))
-		{
 			for (int i = ip.getPixelCount(); i-- > 0;)
-			{
 				if (max < ip.getf(i))
 					max = ip.getf(i);
-			}
-		}
 
 		ip.setInterpolationMethod(interpolationMethod);
 		ip.translate(xOffset, yOffset);
 
 		if (interpolationMethod == ImageProcessor.BICUBIC && clipOutput && !(ip instanceof ColorProcessor))
-		{
 			for (int i = ip.getPixelCount(); i-- > 0;)
-			{
 				if (ip.getf(i) > max)
 					ip.setf(i, max);
-			}
-		}
 	}
 
 	/**
 	 * Iteratively search the cubic spline surface around the given pixel
 	 * to maximise the value.
-	 * 
+	 *
 	 * @param fp
 	 *            Float processor containing a peak surface
 	 * @param i
@@ -1150,11 +1114,11 @@ public class AlignImagesFFT
 	 */
 	public static double[] performCubicFit(FloatProcessor fp, int i, int j)
 	{
-		double[] centre = new double[] { i, j };
+		final double[] centre = new double[] { i, j };
 		// Working space
-		double[] xrange = new double[3];
-		double[] yrange = new double[3];
-		// This value will be progressively halved. 
+		final double[] xrange = new double[3];
+		final double[] yrange = new double[3];
+		// This value will be progressively halved.
 		// Start with a value that allows the number of iterations to fully cover the region +/- 1 pixel
 		// TODO - Test if 0.67 is better as this can cover +/- 1 pixel in 2 iterations
 		// 0.5 will result in an minimum range of 0.5 / 2^9 = 0.000976
@@ -1192,10 +1156,9 @@ public class AlignImagesFFT
 		yrange[1] = centre[1];
 		yrange[2] = centre[1] + range;
 		for (int i = 0; i < 3; i++)
-		{
 			for (int j = 0; j < 3; j++)
 			{
-				double v = fp.getBicubicInterpolatedPixel(xrange[i], yrange[j], fp);
+				final double v = fp.getBicubicInterpolatedPixel(xrange[i], yrange[j], fp);
 				if (peakValue < v)
 				{
 					peakValue = v;
@@ -1203,7 +1166,6 @@ public class AlignImagesFFT
 					centre[1] = yrange[j];
 				}
 			}
-		}
 	}
 
 	/**
@@ -1211,7 +1173,7 @@ public class AlignImagesFFT
 	 * <p>
 	 * The following functions for peak finding using Gaussian fitting have been extracted from Jpiv:
 	 * http://www.jpiv.vennemann-online.de/
-	 * 
+	 *
 	 * @param fp
 	 *            Float processor containing a peak surface
 	 * @param i
@@ -1223,24 +1185,16 @@ public class AlignImagesFFT
 	public static double[] performGaussianFit(FloatProcessor fp, int i, int j)
 	{
 		// Extract Pixel block
-		float[][] pixelBlock = new float[fp.getWidth()][fp.getHeight()];
+		final float[][] pixelBlock = new float[fp.getWidth()][fp.getHeight()];
 		for (int x = pixelBlock.length; x-- > 0;)
-		{
 			for (int y = pixelBlock[0].length; y-- > 0;)
-			{
 				if (Float.isNaN(fp.getf(x, y)))
-				{
 					pixelBlock[x][y] = -1;
-				}
 				else
-				{
 					pixelBlock[x][y] = fp.getf(x, y);
-				}
-			}
-		}
 
 		// Extracted as per the code in Jpiv2.PivUtils:
-		int x = 0, y = 0, w = fp.getWidth(), h = fp.getHeight();
+		final int x = 0, y = 0, w = fp.getWidth(), h = fp.getHeight();
 		int[] iCoord = new int[2];
 		double[] dCoord = new double[2];
 		// This will weight the function more towards the centre of the correlation pixels.
@@ -1257,7 +1211,7 @@ public class AlignImagesFFT
 			// Jpiv block is in [Y,X] format (not [X,Y])
 			ret = new double[] { dCoord[1], dCoord[0] };
 
-			//    		IJ.log(String.format("Fitted x %d -> %g   y %d -> %g",  
+			//    		IJ.log(String.format("Fitted x %d -> %g   y %d -> %g",
 			//    				i, ret[0],
 			//    				j, ret[1]));
 		}
@@ -1266,7 +1220,7 @@ public class AlignImagesFFT
 
 	/**
 	 * Divides the correlation matrix by a pyramid weighting function.
-	 * 
+	 *
 	 * @param subCorrMat
 	 *            The biased correlation function
 	 * @param xOffset
@@ -1285,39 +1239,31 @@ public class AlignImagesFFT
 	private static float[][] divideByWeightingFunction(float[][] subCorrMat, int xOffset, int yOffset, int w, int h)
 	{
 		for (int i = 0; i < subCorrMat.length; i++)
-		{
 			for (int j = 0; j < subCorrMat[0].length; j++)
-			{
 				subCorrMat[i][j] = subCorrMat[i][j] *
 						(Math.abs(j + xOffset - w / 2) / w * 2 + Math.abs(i + yOffset - h / 2) / h * 2 + 1);
-			}
-		}
 		return subCorrMat;
 	}
 
 	/**
 	 * Finds the highest value in a correlation matrix.
-	 * 
+	 *
 	 * @param subCorrMat
 	 *            A single correlation matrix.
 	 * @return The indices of the highest value {i,j} or {y,x}.
 	 */
 	private static int[] getPeak(float[][] subCorrMat)
 	{
-		int[] coord = new int[2];
+		final int[] coord = new int[2];
 		float peakValue = 0;
 		for (int i = 0; i < subCorrMat.length; ++i)
-		{
 			for (int j = 0; j < subCorrMat[0].length; ++j)
-			{
 				if (subCorrMat[i][j] > peakValue)
 				{
 					peakValue = subCorrMat[i][j];
 					coord[0] = j;
 					coord[1] = i;
 				}
-			}
-		}
 		return (coord);
 	}
 
@@ -1328,7 +1274,7 @@ public class AlignImagesFFT
 	 * 3rd printing;
 	 * S. 131
 	 * for details
-	 * 
+	 *
 	 * @param subCorrMat
 	 *            some two dimensional data containing a correlation peak
 	 * @param x
@@ -1340,7 +1286,7 @@ public class AlignImagesFFT
 	 */
 	private static double[] gaussianPeakFit(float[][] subCorrMat, int x, int y)
 	{
-		double[] coord = new double[2];
+		final double[] coord = new double[2];
 		// border values
 		if (x == 0 || x == subCorrMat[0].length - 1 || y == 0 || y == subCorrMat.length - 1)
 		{
@@ -1374,21 +1320,19 @@ public class AlignImagesFFT
 	 *            the h
 	 * @return the peak
 	 */
-	private int[] getPeak(FloatProcessor subCorrMat, int minX, int minY, int w, int h)
+	private static int[] getPeak(FloatProcessor subCorrMat, int minX, int minY, int w, int h)
 	{
-		int width = subCorrMat.getWidth();
+		final int width = subCorrMat.getWidth();
 		float max = Float.NEGATIVE_INFINITY;
 		int maxi = 0;
-		float[] data = (float[]) subCorrMat.getPixels();
+		final float[] data = (float[]) subCorrMat.getPixels();
 		for (int y = minY; y < minY + h; y++)
 			for (int x = 0, i = y * width + minX; x < w; x++, i++)
-			{
 				if (max < data[i])
 				{
 					max = data[i];
 					maxi = i;
 				}
-			}
 		return new int[] { maxi % width, maxi / width };
 	}
 
@@ -1401,14 +1345,14 @@ public class AlignImagesFFT
 	 *            the target complex
 	 * @return the float processor
 	 */
-	private FloatProcessor correlate(FHT refComplex, FHT targetComplex)
+	private static FloatProcessor correlate(FHT refComplex, FHT targetComplex)
 	{
-		FHT fht = refComplex.conjugateMultiply(targetComplex);
+		final FHT fht = refComplex.conjugateMultiply(targetComplex);
 		fht.setShowProgress(false);
 		fht.inverseTransform();
 		fht.swapQuadrants();
 		fht.resetMinAndMax();
-		ImageProcessor ip = fht;
+		final ImageProcessor ip = fht;
 		return ip.toFloat(0, null);
 	}
 
@@ -1424,7 +1368,7 @@ public class AlignImagesFFT
 	// The following Fast Fourier Transform routines have been extracted from the ij.plugins.FFT class
 	FHT fft(ImageProcessor ip, int maxN)
 	{
-		FHT fht = new FHT(ip);
+		final FHT fht = new FHT(ip);
 		fht.setShowProgress(false);
 		fht.transform();
 		return fht;
@@ -1452,40 +1396,36 @@ public class AlignImagesFFT
 		while (i < maxN)
 			i *= 2;
 		if (i == maxN && ip.getWidth() == maxN && ip.getHeight() == maxN)
-		{
 			pad = false;
-		}
 		maxN = i;
 
 		// This should shift the image so it smoothly blends with a zero background
 		// Ideally this would window the image so that the result has an average of zero with smooth edges transitions.
 		// However this involves shifting the image and windowing. The average depends on both
-		// and so would have to be solved iteratively.		
+		// and so would have to be solved iteratively.
 
 		if (windowMethod != WindowMethod.NONE)
-		{
-			// Use separable for speed. 
+			// Use separable for speed.
 			//ip = applyWindow(ip, windowMethod);
 			ip = applyWindowSeparable(ip, windowMethod);
-		}
 
 		// Get average
 		double sum = 0;
 		for (int ii = 0; ii < ip.getPixelCount(); ii++)
 			sum += ip.getf(ii);
-		double av = sum / ip.getPixelCount();
+		final double av = sum / ip.getPixelCount();
 
 		// Create the result image
-		FloatProcessor ip2 = new FloatProcessor(maxN, maxN);
-		float[] data = (float[]) ip2.getPixels();
+		final FloatProcessor ip2 = new FloatProcessor(maxN, maxN);
+		final float[] data = (float[]) ip2.getPixels();
 
 		padBounds.width = ip.getWidth();
 		padBounds.height = ip.getHeight();
 		if (pad)
 		{
 			// Place into middle of image => Correlation is centre-to-centre alignment
-			int x = getInsert(maxN, ip.getWidth());
-			int y = getInsert(maxN, ip.getHeight());
+			final int x = getInsert(maxN, ip.getWidth());
+			final int y = getInsert(maxN, ip.getHeight());
 
 			padBounds.x = x;
 			padBounds.y = y;
@@ -1523,8 +1463,8 @@ public class AlignImagesFFT
 	{
 		// Note the FHT power spectrum centre is at n/2 of an even sized image.
 		// So we must insert the centre at that point. To do this we check for odd/even
-		// and offset if necessary.  
-		int diff = maxN - width;
+		// and offset if necessary.
+		final int diff = maxN - width;
 		return ((diff & 1) == 1) ? (diff + 1) / 2 : diff / 2;
 	}
 
@@ -1562,8 +1502,8 @@ public class AlignImagesFFT
 	 */
 	public static FloatProcessor applyWindowSeparable(ImageProcessor ip, WindowMethod windowMethod)
 	{
-		int maxx = ip.getWidth();
-		int maxy = ip.getHeight();
+		final int maxx = ip.getWidth();
+		final int maxy = ip.getHeight();
 		double[] wx = null;
 		double[] wy = null;
 
@@ -1585,7 +1525,7 @@ public class AlignImagesFFT
 				return ip.toFloat(0, null);
 		}
 
-		float[] data = new float[ip.getPixelCount()];
+		final float[] data = new float[ip.getPixelCount()];
 
 		// Calculate total signal of window function applied to image (t1).
 		// Calculate total signal of window function applied to a flat signal of intensity 1 (t2).
@@ -1594,27 +1534,23 @@ public class AlignImagesFFT
 		double sumWindowFunction = 0;
 		double sumImage = 0;
 		for (int y = 0, i = 0; y < maxy; y++)
-		{
 			for (int x = 0; x < maxx; x++, i++)
 			{
-				double w = wx[x] * wy[y];
+				final double w = wx[x] * wy[y];
 				sumWindowFunction += w;
 				sumImage += ip.getf(i) * w;
 			}
-		}
 
 		// Shift to zero
-		double shift = sumImage / sumWindowFunction;
+		final double shift = sumImage / sumWindowFunction;
 		//double sum = 0;
 		for (int y = 0, i = 0; y < maxy; y++)
-		{
 			for (int x = 0; x < maxx; x++, i++)
 			{
-				double value = (ip.getf(i) - shift) * wx[x] * wy[y];
+				final double value = (ip.getf(i) - shift) * wx[x] * wy[y];
 				//sum += value;
 				data[i] = (float) value;
 			}
-		}
 
 		return new FloatProcessor(maxx, maxy, data, null);
 	}
@@ -1635,8 +1571,8 @@ public class AlignImagesFFT
 		//if (true)
 		//	return applyWindowSeparable(ip, windowMethod, duplicate);
 
-		int maxx = ip.getWidth();
-		int maxy = ip.getHeight();
+		final int maxx = ip.getWidth();
+		final int maxy = ip.getHeight();
 
 		WindowFunction wf = null;
 		switch (windowMethod)
@@ -1654,14 +1590,14 @@ public class AlignImagesFFT
 				return ip.toFloat(0, null);
 		}
 
-		float[] data = new float[ip.getPixelCount()];
+		final float[] data = new float[ip.getPixelCount()];
 
-		double cx = maxx * 0.5;
-		double cy = maxy * 0.5;
-		double maxDistance = Math.sqrt(maxx * maxx + maxy * maxy);
+		final double cx = maxx * 0.5;
+		final double cy = maxy * 0.5;
+		final double maxDistance = Math.sqrt(maxx * maxx + maxy * maxy);
 
 		// Precompute
-		double[] dx2 = new double[maxx];
+		final double[] dx2 = new double[maxx];
 		for (int x = 0; x < maxx; x++)
 			dx2[x] = (x - cx) * (x - cx);
 
@@ -1676,24 +1612,24 @@ public class AlignImagesFFT
 			final double dy2 = (y - cy) * (y - cy);
 			for (int x = 0; x < maxx; x++, i++)
 			{
-				double distance = Math.sqrt(dx2[x] + dy2);
-				double w = wf.weight(0.5 - (distance / maxDistance));
+				final double distance = Math.sqrt(dx2[x] + dy2);
+				final double w = wf.weight(0.5 - (distance / maxDistance));
 				sumWindowFunction += w;
 				sumImage += ip.getf(i) * w;
 			}
 		}
 
 		// Shift to zero
-		double shift = sumImage / sumWindowFunction;
+		final double shift = sumImage / sumWindowFunction;
 		//double sum = 0;
 		for (int y = 0, i = 0; y < maxy; y++)
 		{
 			final double dy2 = (y - cy) * (y - cy);
 			for (int x = 0; x < maxx; x++, i++)
 			{
-				double distance = Math.sqrt(dx2[x] + dy2);
-				double w = wf.weight(0.5 - (distance / maxDistance));
-				double value = (ip.getf(i) - shift) * w;
+				final double distance = Math.sqrt(dx2[x] + dy2);
+				final double w = wf.weight(0.5 - (distance / maxDistance));
+				final double value = (ip.getf(i) - shift) * w;
 				//sum += value;
 				data[i] = (float) value;
 			}
@@ -1729,7 +1665,7 @@ public class AlignImagesFFT
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see gdsc.core.ij.AlignImagesFFT.WindowFunction#weight(double)
 		 */
 		@Override
@@ -1747,7 +1683,7 @@ public class AlignImagesFFT
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see gdsc.core.ij.AlignImagesFFT.WindowFunction#weight(double)
 		 */
 		@Override
@@ -1779,7 +1715,7 @@ public class AlignImagesFFT
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see gdsc.core.ij.AlignImagesFFT.WindowFunction#weight(double)
 		 */
 		@Override
@@ -1807,10 +1743,10 @@ public class AlignImagesFFT
 	 */
 	private static double[] window(WindowFunction wf, int N)
 	{
-		double N_1 = N - 1;
-		double[] w = new double[N];
+		final double N_1 = N - 1;
+		final double[] w = new double[N];
 		// Assume symmetry
-		int middle = N / 2;
+		final int middle = N / 2;
 		for (int i = 0, j = N - 1; i <= middle; i++, j--)
 			w[i] = w[j] = wf.weight(i / N_1);
 		return w;
@@ -1867,7 +1803,7 @@ public class AlignImagesFFT
 	/**
 	 * Set to false to prevent the image processor from being translated. The translation can be retrieved using the
 	 * lastOffset properties.
-	 * 
+	 *
 	 * @param doTranslation
 	 *            if false the image will not be translated
 	 */

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -47,7 +47,7 @@ public class RankedScoreCalculator
 
 	/**
 	 * Construct the calculator
-	 * 
+	 *
 	 * @param assignments
 	 *            The assignments
 	 */
@@ -59,7 +59,7 @@ public class RankedScoreCalculator
 		int maxA = 0, maxP = 0;
 		for (int i = 0; i < assignments.length; i++)
 		{
-			FractionalAssignment a = assignments[i];
+			final FractionalAssignment a = assignments[i];
 			if (maxA < a.getTargetId())
 				maxA = a.getTargetId();
 			if (maxP < a.getPredictedId())
@@ -69,7 +69,7 @@ public class RankedScoreCalculator
 		final boolean[] obsP = new boolean[maxP + 1];
 		for (int i = 0; i < assignments.length; i++)
 		{
-			FractionalAssignment a = assignments[i];
+			final FractionalAssignment a = assignments[i];
 			obsA[a.getTargetId()] = true;
 			obsP[a.getPredictedId()] = true;
 		}
@@ -81,7 +81,7 @@ public class RankedScoreCalculator
 
 	/**
 	 * Construct the calculator
-	 * 
+	 *
 	 * @param assignments
 	 *            The assignments
 	 * @param maxA
@@ -102,7 +102,7 @@ public class RankedScoreCalculator
 		final boolean[] obsP = new boolean[maxP + 1];
 		for (int i = 0; i < assignments.length; i++)
 		{
-			FractionalAssignment a = assignments[i];
+			final FractionalAssignment a = assignments[i];
 			obsA[a.getTargetId()] = true;
 			obsP[a.getPredictedId()] = true;
 		}
@@ -159,7 +159,7 @@ public class RankedScoreCalculator
 		int count = 0;
 		for (int i = 0; i < assignments.length; i++)
 		{
-			FractionalAssignment a = assignments[i];
+			final FractionalAssignment a = assignments[i];
 			if (a.getPredictedId() < nPredicted)
 				assignments2[count++] = a;
 		}
@@ -203,13 +203,13 @@ public class RankedScoreCalculator
 	{
 		final FractionalAssignment[] assignments = getAssignmentsInternal(nPredicted);
 		final boolean[] actualAssignment = new boolean[maxA + 1];
-		int sizeP = Math.min(nPredicted, maxP + 1);
-		TurboList<FractionalAssignment> scored = (save)
-				? new TurboList<FractionalAssignment>(Math.min(sizeP, actualAssignment.length)) : null;
+		final int sizeP = Math.min(nPredicted, maxP + 1);
+		final TurboList<FractionalAssignment> scored = (save)
+				? new TurboList<>(Math.min(sizeP, actualAssignment.length)) : null;
 
 		// TODO - update the scoring algorithm to not require a sorted list.
-		// This would mean a creating a different method since this current method may be 
-		// called repeatedly with different nPredicted values. So store the assignments as a raw list 
+		// This would mean a creating a different method since this current method may be
+		// called repeatedly with different nPredicted values. So store the assignments as a raw list
 		// and then if necessary sort them for this method.
 
 		// All we need to do is find the smallest value in the assignment list.
@@ -244,8 +244,8 @@ public class RankedScoreCalculator
 				}
 			}
 
-			// Compute the FP. 
-			// Although a predicted point can accumulate more than 1 for TP matches (due 
+			// Compute the FP.
+			// Although a predicted point can accumulate more than 1 for TP matches (due
 			// to multiple matching), no predicted point can score less than 1.
 			double fp = nPredicted;
 			int p = 0;
@@ -274,7 +274,6 @@ public class RankedScoreCalculator
 			{
 				final FractionalAssignment a = assignments[i];
 				if (!actualAssignment[a.getTargetId()])
-				{
 					if (!predictedAssignment[a.getPredictedId()])
 					{
 						actualAssignment[a.getTargetId()] = true;
@@ -285,7 +284,6 @@ public class RankedScoreCalculator
 						if (--nP == 0 || --nA == 0)
 							break;
 					}
-				}
 			}
 
 			final int p = totalP - nP;
@@ -293,9 +291,7 @@ public class RankedScoreCalculator
 		}
 
 		if (save)
-		{
 			scoredAssignments = scored.toArray(new FractionalAssignment[scored.size()]);
-		}
 
 		return result;
 	}
@@ -364,10 +360,10 @@ public class RankedScoreCalculator
 	public static double[] getMatchScore(FractionalAssignment[] assignments, int nPredicted)
 			throws ArrayIndexOutOfBoundsException
 	{
-		double[] matchScore = new double[nPredicted];
+		final double[] matchScore = new double[nPredicted];
 		for (int i = 0; i < assignments.length; i++)
 		{
-			FractionalAssignment a = assignments[i];
+			final FractionalAssignment a = assignments[i];
 			matchScore[a.getPredictedId()] += a.getScore();
 		}
 		return matchScore;
@@ -393,22 +389,18 @@ public class RankedScoreCalculator
 	 */
 	public static double[][] getPrecisionRecallCurve(FractionalAssignment[] assignments, int nActual, int nPredicted)
 	{
-		double[] score = getMatchScore(assignments, nPredicted);
-		double[] p = new double[nPredicted + 1];
-		double[] r = new double[p.length];
-		double[] j = new double[p.length];
+		final double[] score = getMatchScore(assignments, nPredicted);
+		final double[] p = new double[nPredicted + 1];
+		final double[] r = new double[p.length];
+		final double[] j = new double[p.length];
 		double tp = 0, fp = 0;
 		p[0] = 1;
 		for (int i = 0; i < score.length;)
 		{
 			if (score[i] == 0)
-			{
 				fp += 1.0;
-			}
 			else if (score[i] > 1.0)
-			{
 				tp += score[i];
-			}
 			else
 			{
 				tp += score[i];

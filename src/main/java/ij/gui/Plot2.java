@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -181,7 +181,7 @@ public class Plot2 extends Plot
 	 * Adds a set of points to the plot or adds a curve if shape is set to LINE.
 	 * <p>
 	 * Support Bar plots by adding an extra point to draw a horizontal line and vertical line between points
-	 * 
+	 *
 	 * @param xValues
 	 *            the x coordinates, or null. If null, integers starting at 0 will be used for x.
 	 * @param yValues
@@ -210,15 +210,15 @@ public class Plot2 extends Plot
 						xValues[i] = i;
 				}
 
-				float[] x = createHistogramAxis(xValues);
-				float[] y = createHistogramValues(yValues);
+				final float[] x = createHistogramAxis(xValues);
+				final float[] y = createHistogramValues(yValues);
 
 				// No errors
 				xValues = x;
 				yValues = y;
 			}
 		}
-		catch (Throwable e)
+		catch (final Throwable e)
 		{
 		}
 		finally
@@ -237,7 +237,7 @@ public class Plot2 extends Plot
 	 */
 	public static float[] createHistogramAxis(float[] histogramX)
 	{
-		float[] axis = new float[histogramX.length * 2 + 2];
+		final float[] axis = new float[histogramX.length * 2 + 2];
 		int index = 0;
 		for (int i = 0; i < histogramX.length; ++i)
 		{
@@ -246,7 +246,7 @@ public class Plot2 extends Plot
 		}
 		if (histogramX.length > 0)
 		{
-			float dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
+			final float dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
 			axis[index++] = histogramX[histogramX.length - 1] + dx;
 			axis[index++] = histogramX[histogramX.length - 1] + dx;
 		}
@@ -263,7 +263,7 @@ public class Plot2 extends Plot
 	 */
 	public static float[] createHistogramValues(float[] histogramY)
 	{
-		float[] axis = new float[histogramY.length * 2 + 2];
+		final float[] axis = new float[histogramY.length * 2 + 2];
 
 		int index = 0;
 		axis[index++] = 0;
@@ -277,7 +277,7 @@ public class Plot2 extends Plot
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ij.gui.Plot#show()
 	 */
 	@Override
@@ -293,10 +293,10 @@ public class Plot2 extends Plot
 			if ((IJ.macroRunning() && IJ.getInstance() == null) || Interpreter.isBatchMode())
 			{
 				WindowManager.setTempCurrentImage(imp);
-				float[] x = getXValues();
+				final float[] x = getXValues();
 				if (x != null)
 				{
-					imp.setProperty("XValues", x); // Allows values to be retrieved by 
+					imp.setProperty("XValues", x); // Allows values to be retrieved by
 					imp.setProperty("YValues", getYValues()); // by Plot.getValues() macro function
 				}
 				Interpreter.addBatchModeImage(imp);
@@ -304,14 +304,14 @@ public class Plot2 extends Plot
 			}
 			if (imp != null)
 			{
-				Window win = imp.getWindow();
+				final Window win = imp.getWindow();
 				if (win instanceof PlotWindow && win.isVisible())
 				{
 					updateImage(); // show in existing window
 					return (PlotWindow) win;
 				}
 			}
-			PlotWindow2 pw = new PlotWindow2(this);
+			final PlotWindow2 pw = new PlotWindow2(this);
 			//if (imp == null)
 			imp.setProperty(PROPERTY_KEY, null);
 			imp = pw.getImagePlus();
@@ -320,7 +320,7 @@ public class Plot2 extends Plot
 				IJ.selectWindow(imp.getID());
 			return pw;
 		}
-		catch (Throwable e)
+		catch (final Throwable e)
 		{
 			// Ignore
 			failedOverride = true;
@@ -342,7 +342,7 @@ public class Plot2 extends Plot
 			super.getInitialMinAndMax();
 			return defaultMinMax.clone();
 		}
-		catch (Throwable e)
+		catch (final Throwable e)
 		{
 		}
 		return null;

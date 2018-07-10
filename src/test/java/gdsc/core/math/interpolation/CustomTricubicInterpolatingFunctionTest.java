@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -50,7 +50,7 @@ public class CustomTricubicInterpolatingFunctionTest
 {
 	static String inlineComputeCoefficients()
 	{
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
 		final int sz = 64;
 
@@ -63,12 +63,12 @@ public class CustomTricubicInterpolatingFunctionTest
 			final double[] row = CustomTricubicInterpolatingFunction.AINV[i];
 			for (int j = 0; j < sz; j++)
 			{
-				double d = row[j];
+				final double d = row[j];
 				if (d != 0)
 				{
 					if (d > 0)
 						sb.append('+');
-					int di = (int) Math.floor(d);
+					final int di = (int) Math.floor(d);
 					if (di == d)
 						sb.append(String.format("%d*beta[%d]", di, j));
 					else
@@ -95,10 +95,10 @@ public class CustomTricubicInterpolatingFunctionTest
 			final double[] row = CustomTricubicInterpolatingFunction.AINV[i];
 			for (int j = 0; j < sz; j++)
 			{
-				double d = row[j];
+				final double d = row[j];
 				if (d != 0)
 				{
-					int di = (int) Math.floor(d);
+					final int di = (int) Math.floor(d);
 					if (di != d)
 						return null;
 					if (max < Math.abs(di))
@@ -107,7 +107,7 @@ public class CustomTricubicInterpolatingFunctionTest
 			}
 		}
 
-		TIntObjectHashMap<TIntArrayList> map = new TIntObjectHashMap<TIntArrayList>(max + 1);
+		final TIntObjectHashMap<TIntArrayList> map = new TIntObjectHashMap<>(max + 1);
 
 		sb.append(String.format("final double[] a = new double[%d];\n", sz));
 
@@ -117,11 +117,11 @@ public class CustomTricubicInterpolatingFunctionTest
 			final double[] row = CustomTricubicInterpolatingFunction.AINV[i];
 			for (int j = 0; j < sz; j++)
 			{
-				double d = row[j];
+				final double d = row[j];
 				if (d != 0)
 				{
-					int di = (int) Math.floor(d);
-					int key = Math.abs(di);
+					final int di = (int) Math.floor(d);
+					final int key = Math.abs(di);
 					// Check if contains either positive or negative key
 					TIntArrayList value = map.get(key);
 					if (value == null)
@@ -143,8 +143,8 @@ public class CustomTricubicInterpolatingFunctionTest
 				@Override
 				public boolean execute(int key, TIntArrayList value)
 				{
-					int[] js = value.toArray(); // Signed j
-					int[] j = js.clone(); // Unsigned j
+					final int[] js = value.toArray(); // Signed j
+					final int[] j = js.clone(); // Unsigned j
 					for (int i = 0; i < j.length; i++)
 						j[i] = Math.abs(j[i]);
 
@@ -177,12 +177,10 @@ public class CustomTricubicInterpolatingFunctionTest
 					for (int i = 0; i < js.length; i++)
 					{
 						if (i != 0)
-						{
 							if (js[i] < 0)
 								sb.append(sub);
 							else
 								sb.append(add);
-						}
 						// Convert 1-based index back to 0-based
 						sb.append("beta[").append(Math.abs(js[i]) - 1).append(']');
 					}
@@ -209,7 +207,7 @@ public class CustomTricubicInterpolatingFunctionTest
 		return result;
 	}
 
-	private LogLevel level = LogLevel.DEBUG;
+	private final LogLevel level = LogLevel.DEBUG;
 
 	@Test
 	public void canConstructInlineComputeCoefficients()
@@ -250,12 +248,10 @@ public class CustomTricubicInterpolatingFunctionTest
 		@Override
 		public void check(int i, Object result)
 		{
-			double[][] b = (double[][]) result;
+			final double[][] b = (double[][]) result;
 			for (int j = 0; j < a.length; j++)
-			{
 				for (int k = 0; k < a[j].length; k++)
 					Assert.assertEquals(getName(), a[j][k], b[j][k], Math.abs(a[j][k]) * 1e-6);
-			}
 		}
 	}
 
@@ -264,28 +260,28 @@ public class CustomTricubicInterpolatingFunctionTest
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
 
-		RandomGenerator r = TestSettings.getRandomGenerator();
+		final RandomGenerator r = TestSettings.getRandomGenerator();
 
 		final int N = 3000;
 		final double[][] tables = new double[N][];
 		final double[][] a = new double[N][];
 		for (int i = 0; i < tables.length; i++)
 		{
-			double[] table = new double[64];
+			final double[] table = new double[64];
 			for (int j = 0; j < 64; j++)
 				table[j] = r.nextDouble();
 			tables[i] = table;
 			a[i] = CustomTricubicInterpolatingFunction.computeCoefficients(table);
 		}
 
-		TimingService ts = new TimingService();
+		final TimingService ts = new TimingService();
 
 		ts.execute(new MyTimingTask("Standard", a)
 		{
 			@Override
 			public Object run(Object data)
 			{
-				double[][] a = new double[N][];
+				final double[][] a = new double[N][];
 				for (int i = 0; i < N; i++)
 					a[i] = CustomTricubicInterpolatingFunction.computeCoefficients(tables[i]);
 				return a;
@@ -296,7 +292,7 @@ public class CustomTricubicInterpolatingFunctionTest
 			@Override
 			public Object run(Object data)
 			{
-				double[][] a = new double[N][];
+				final double[][] a = new double[N][];
 				for (int i = 0; i < N; i++)
 					a[i] = CustomTricubicInterpolatingFunction.computeCoefficientsInline(tables[i]);
 				return a;
@@ -307,14 +303,14 @@ public class CustomTricubicInterpolatingFunctionTest
 			@Override
 			public Object run(Object data)
 			{
-				double[][] a = new double[N][];
+				final double[][] a = new double[N][];
 				for (int i = 0; i < N; i++)
 					a[i] = CustomTricubicInterpolatingFunction.computeCoefficientsInlineCollectTerms(tables[i]);
 				return a;
 			}
 		});
 
-		int n = ts.getSize();
+		final int n = ts.getSize();
 		ts.check();
 		ts.repeat();
 		if (TestSettings.allow(LogLevel.INFO))

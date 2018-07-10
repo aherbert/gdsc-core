@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -52,7 +52,7 @@ import gdsc.core.utils.TurboList;
 //@formatter:off
 public class CustomTricubicInterpolator
     implements TrivariateGridInterpolator {
-	
+
 	private TrackProgress progress;
 	private ExecutorService executorService;
 	private long taskSize = 1000;
@@ -66,13 +66,13 @@ public class CustomTricubicInterpolator
 		ValueProvider xval;
         ValueProvider yval;
         ValueProvider zval;
-        TrivalueProvider fval;		
+        TrivalueProvider fval;
     	TrackProgress progress;
     	ExecutorService executorService;
     	long taskSize;
     	boolean integerAxisValues;
     	boolean singlePrecision;
-    	
+
     	/**
 	     * Sets the X value.
 	     *
@@ -84,7 +84,7 @@ public class CustomTricubicInterpolator
     		xval = new DoubleArrayValueProvider(x);
     		return this;
     	}
-	    
+
     	/**
 	     * Sets the X value.
 	     *
@@ -96,7 +96,7 @@ public class CustomTricubicInterpolator
     		xval = x;
     		return this;
     	}
-	    
+
     	/**
 	     * Sets the Y value.
 	     *
@@ -108,7 +108,7 @@ public class CustomTricubicInterpolator
     		yval = new DoubleArrayValueProvider(y);
     		return this;
     	}
-	    
+
     	/**
 	     * Sets the Y value.
 	     *
@@ -120,7 +120,7 @@ public class CustomTricubicInterpolator
     		yval = y;
     		return this;
     	}
-	    
+
     	/**
 	     * Sets the Z value.
 	     *
@@ -132,7 +132,7 @@ public class CustomTricubicInterpolator
     		zval = new DoubleArrayValueProvider(z);
     		return this;
     	}
-	    
+
     	/**
 	     * Sets the Z value.
 	     *
@@ -156,7 +156,7 @@ public class CustomTricubicInterpolator
     		fval = new DoubleArrayTrivalueProvider(f);
     		return this;
     	}
-	    
+
     	/**
 	     * Sets the function value.
 	     *
@@ -168,7 +168,7 @@ public class CustomTricubicInterpolator
     		fval = f;
     		return this;
     	}
-	    
+
     	/**
     	 * Sets the progress tracker.
     	 *
@@ -180,7 +180,7 @@ public class CustomTricubicInterpolator
     		this.progress = progress;
     		return this;
     	}
-    	
+
     	/**
     	 * Sets the executor service for interpolating.
     	 *
@@ -192,7 +192,7 @@ public class CustomTricubicInterpolator
     		this.executorService = executorService;
     		return this;
     	}
-    	
+
     	/**
 	     * Set to true to create integer axis values stating from zero.
 	     *
@@ -206,7 +206,7 @@ public class CustomTricubicInterpolator
     	}
 
     	/**
-    	 * Sets the task size for multi-threaded interpolation. If the number of interpolation 
+    	 * Sets the task size for multi-threaded interpolation. If the number of interpolation
     	 * nodes is less than this then multi-threading is not used.
     	 *
     	 * @param taskSize the new task size
@@ -228,8 +228,8 @@ public class CustomTricubicInterpolator
 		{
 			this.singlePrecision = singlePrecision;
 			return this;
-		}  	
-    	
+		}
+
         /**
          * Compute an interpolating function for the dataset.
          *
@@ -237,7 +237,7 @@ public class CustomTricubicInterpolator
          */
         public CustomTricubicInterpolatingFunction interpolate()
         {
-        	CustomTricubicInterpolator i = build();
+        	final CustomTricubicInterpolator i = build();
         	if (integerAxisValues)
         	{
         		setXValue(SimpleArrayUtils.newArray(fval.getLengthX(), 0, 1.0));
@@ -254,7 +254,7 @@ public class CustomTricubicInterpolator
 		 */
 		public CustomTricubicInterpolator build()
 		{
-        	CustomTricubicInterpolator i = new CustomTricubicInterpolator();
+        	final CustomTricubicInterpolator i = new CustomTricubicInterpolator();
         	i.setProgress(progress);
         	if (taskSize > 0)
         		i.setTaskSize(taskSize);
@@ -263,7 +263,7 @@ public class CustomTricubicInterpolator
 			return i;
 		}
 	}
-	
+
     /**
      * {@inheritDoc}
      */
@@ -274,12 +274,12 @@ public class CustomTricubicInterpolator
             final double[][][] fval)
     {
     	return interpolate(
-    			new DoubleArrayValueProvider(xval), 
-    			new DoubleArrayValueProvider(yval), 
-    			new DoubleArrayValueProvider(zval), 
+    			new DoubleArrayValueProvider(xval),
+    			new DoubleArrayValueProvider(yval),
+    			new DoubleArrayValueProvider(zval),
     			new DoubleArrayTrivalueProvider(fval));
     }
-    
+
     /**
      * Compute an interpolating function for the dataset.
      *
@@ -296,7 +296,7 @@ public class CustomTricubicInterpolator
      * @throws NonMonotonicSequenceException if arrays are not sorted
      * @throws NumberIsTooSmallException if the number of points is too small for
      * the order of the interpolation
-     * 
+     *
      * @see org.apache.commons.math3.analysis.interpolation.TrivariateGridInterpolator#interpolate(double[], double[], double[], double[][][])
      */
     public CustomTricubicInterpolatingFunction interpolate(final ValueProvider xval,
@@ -305,25 +305,19 @@ public class CustomTricubicInterpolator
                                                            final TrivalueProvider fval)
         throws NumberIsTooSmallException,
                DimensionMismatchException, NonMonotonicSequenceException {
-        if (xval.getLength() < 2) {
-            throw new NumberIsTooSmallException(xval.getLength(), 2, true);
-        }
-        if (yval.getLength() < 2) {
-            throw new NumberIsTooSmallException(yval.getLength(), 2, true);
-        }
-        if (zval.getLength() < 2) {
-            throw new NumberIsTooSmallException(zval.getLength(), 2, true);
-        }
-        if (xval.getLength() != fval.getLengthX()) {
-            throw new DimensionMismatchException(xval.getLength(), fval.getLengthX());
-        }
-        if (yval.getLength() != fval.getLengthY()) {
-            throw new DimensionMismatchException(yval.getLength(), fval.getLengthY());
-        }
-        if (zval.getLength() != fval.getLengthZ()) {
-            throw new DimensionMismatchException(zval.getLength(), fval.getLengthZ());
-        }
-        
+        if (xval.getLength() < 2)
+			throw new NumberIsTooSmallException(xval.getLength(), 2, true);
+        if (yval.getLength() < 2)
+			throw new NumberIsTooSmallException(yval.getLength(), 2, true);
+        if (zval.getLength() < 2)
+			throw new NumberIsTooSmallException(zval.getLength(), 2, true);
+        if (xval.getLength() != fval.getLengthX())
+			throw new DimensionMismatchException(xval.getLength(), fval.getLengthX());
+        if (yval.getLength() != fval.getLengthY())
+			throw new DimensionMismatchException(yval.getLength(), fval.getLengthY());
+        if (zval.getLength() != fval.getLengthZ())
+			throw new DimensionMismatchException(zval.getLength(), fval.getLengthZ());
+
         CustomTricubicInterpolatingFunction.checkOrder(xval);
         CustomTricubicInterpolatingFunction.checkOrder(yval);
         CustomTricubicInterpolatingFunction.checkOrder(zval);
@@ -334,7 +328,7 @@ public class CustomTricubicInterpolator
 		final int xLen_1 = xLen - 1;
 		final int yLen_1 = yLen - 1;
 		final int zLen_1 = zLen - 1;
-        
+
         // Approximation to the partial derivatives using finite differences.
         final double[][][] dFdX = new double[xLen][yLen][zLen];
         final double[][][] dFdY = new double[xLen][yLen][zLen];
@@ -345,26 +339,26 @@ public class CustomTricubicInterpolator
         final double[][][] d3FdXdYdZ = new double[xLen][yLen][zLen];
 
         final long total = (long)xLen * yLen * zLen;
-        
-        ExecutorService executorService = this.executorService;
+
+        final ExecutorService executorService = this.executorService;
 		long taskSize = Math.max(1, this.taskSize);
-        boolean threaded = executorService != null && taskSize < total;
-        
+        final boolean threaded = executorService != null && taskSize < total;
+
         final Ticker ticker = Ticker.create(progress, total, threaded);
         ticker.start();
-        
+
         if (threaded)
         {
     		final long xLen_yLen = (long)xLen * yLen;
-    		
+
         	// Break this up into reasonable tasks, ensuring we can hold all the futures
         	long nTasks = (long) Math.ceil((double) total / taskSize);
         	while (nTasks >= Integer.MAX_VALUE)
-        	{	
+        	{
         		taskSize *= 2;
             	nTasks = (long) Math.ceil((double) total / taskSize);
             }
-    		TurboList<Future<?>> futures = new TurboList<Future<?>>((int)nTasks);
+    		final TurboList<Future<?>> futures = new TurboList<>((int)nTasks);
 			for (long from = 0; from < total;)
 			{
 				final long from_ = from;
@@ -376,17 +370,17 @@ public class CustomTricubicInterpolator
 					{
 				        final double[][][] values = new double[3][3][3];
 						for (long index = from_; index < to; index++)
-							build(index, xLen, xLen_yLen, 
+							build(index, xLen, xLen_yLen,
 								  xLen_1, yLen_1, zLen_1,
-								  xval, yval, zval, fval, 
-								  dFdX, dFdY, dFdZ, d2FdXdY, 
-								  d2FdXdZ, d2FdYdZ, d3FdXdYdZ, 
+								  xval, yval, zval, fval,
+								  dFdX, dFdY, dFdZ, d2FdXdY,
+								  d2FdXdZ, d2FdYdZ, d3FdXdYdZ,
 								  values, ticker);
 					}
 				}));
 				from = to;
 			}
-			
+
 			Utils.waitForCompletion(futures);
         }
         else
@@ -394,10 +388,10 @@ public class CustomTricubicInterpolator
             final double[][][] values = new double[3][3][3];
 
             // Updated to handle edges
-            
+
             for (int i = 0; i < xLen; i++) {
-            	
-    			boolean edgeX = i == 0 || i == xLen_1;
+
+    			final boolean edgeX = i == 0 || i == xLen_1;
                 final int nI, pI;
                 final double deltaX;
                 if (edgeX)
@@ -412,10 +406,10 @@ public class CustomTricubicInterpolator
             		pI = i - 1;
             		deltaX = xval.get(nI) - xval.get(pI);
             	}
-    
+
                 for (int j = 0; j < yLen; j++) {
-                	
-        			boolean edgeY = j == 0 || j == yLen_1;
+
+        			final boolean edgeY = j == 0 || j == yLen_1;
                     final int nJ, pJ;
                     final double deltaY;
                     if (edgeY)
@@ -433,10 +427,10 @@ public class CustomTricubicInterpolator
 
                     final boolean edgeXY = edgeX || edgeY;
                     final double deltaXY = deltaX * deltaY;
-    
+
                     for (int k = 0; k < zLen; k++) {
 
-            			boolean edgeZ = k == 0 || k == zLen_1;
+            			final boolean edgeZ = k == 0 || k == zLen_1;
                         final int nK, pK;
                         final double deltaZ;
                         if (edgeZ)
@@ -451,14 +445,14 @@ public class CustomTricubicInterpolator
                     		pK = k - 1;
                     		deltaZ = zval.get(nK) - zval.get(pK);
                     	}
-                        
+
                         if (edgeXY || edgeZ)
                         {
                             // No gradients at the edge
                             dFdX[i][j][k] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / deltaX;
                             dFdY[i][j][k] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / deltaY;
                             dFdZ[i][j][k] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / deltaZ;
-                            
+
                             d2FdXdY[i][j][k] = (edgeXY) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / deltaXY;
                             d2FdXdZ[i][j][k] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / (deltaX * deltaZ);
                             d2FdYdZ[i][j][k] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / (deltaY * deltaZ);
@@ -466,27 +460,27 @@ public class CustomTricubicInterpolator
                         else
                         {
                             fval.get(i, j, k, values);
-        
+
                             dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / deltaX;
                             dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / deltaY;
                             dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / deltaZ;
-                              
+
                             d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / deltaXY;
                             d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / (deltaX * deltaZ);
                             d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / (deltaY * deltaZ);
-                              
+
                             d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
                                                   values[0][2][2] + values[0][0][2] -
                                                   values[2][2][0] + values[2][0][0] +
                                                   values[0][2][0] - values[0][0][0]) / (deltaXY * deltaZ);
                         }
-                        
+
                     	ticker.tick();
                     }
                 }
             }
         }
-        
+
         ticker.stop();
 
         // Create the interpolating function.
@@ -500,7 +494,7 @@ public class CustomTricubicInterpolator
         		new DoubleArrayTrivalueProvider(d3FdXdYdZ),
         		progress, executorService, taskSize, singlePrecision);
     }
- 	
+
     private static void build(long index,
     		final int xLen,
     		final long xLen_yLen,
@@ -510,7 +504,7 @@ public class CustomTricubicInterpolator
             final ValueProvider xval,
             final ValueProvider yval,
             final ValueProvider zval,
-            final TrivalueProvider fval,            
+            final TrivalueProvider fval,
             final double[][][] dFdX,
             final double[][][] dFdY,
             final double[][][] dFdZ,
@@ -523,13 +517,13 @@ public class CustomTricubicInterpolator
     		)
     {
     	// Convert position to the indices
-		int k = (int) (index / xLen_yLen);
-		long mod = index % xLen_yLen;
-		int j = (int) (mod / xLen);
-		int i = (int) (mod % xLen);
-		
+		final int k = (int) (index / xLen_yLen);
+		final long mod = index % xLen_yLen;
+		final int j = (int) (mod / xLen);
+		final int i = (int) (mod % xLen);
+
 		//System.out.printf("%d => [%d][%d][%d]\n", index, i, j, k);
-		boolean edgeX = i == 0 || i == xLen_1;
+		final boolean edgeX = i == 0 || i == xLen_1;
         final int nI, pI;
         final double deltaX;
         if (edgeX)
@@ -544,8 +538,8 @@ public class CustomTricubicInterpolator
     		pI = i - 1;
     		deltaX = xval.get(nI) - xval.get(pI);
     	}
-    	
-		boolean edgeY = j == 0 || j == yLen_1;
+
+		final boolean edgeY = j == 0 || j == yLen_1;
         final int nJ, pJ;
         final double deltaY;
         if (edgeY)
@@ -561,7 +555,7 @@ public class CustomTricubicInterpolator
     		deltaY = yval.get(nJ) - yval.get(pJ);
     	}
 
-		boolean edgeZ = k == 0 || k == zLen_1;
+		final boolean edgeZ = k == 0 || k == zLen_1;
         final int nK, pK;
         final double deltaZ;
         if (edgeZ)
@@ -576,14 +570,14 @@ public class CustomTricubicInterpolator
     		pK = k - 1;
     		deltaZ = zval.get(nK) - zval.get(pK);
     	}
-        
+
         if (edgeX || edgeY || edgeZ)
         {
             // No gradients at the edge
             dFdX[i][j][k] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / deltaX;
             dFdY[i][j][k] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / deltaY;
             dFdZ[i][j][k] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / deltaZ;
-            
+
             d2FdXdY[i][j][k] = (edgeX||edgeY) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / (deltaX * deltaY);
             d2FdXdZ[i][j][k] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / (deltaX * deltaZ);
             d2FdYdZ[i][j][k] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / (deltaY * deltaZ);
@@ -595,20 +589,20 @@ public class CustomTricubicInterpolator
             dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / deltaX;
             dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / deltaY;
             dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / deltaZ;
-              
+
             final double deltaXY = deltaX * deltaY;
-            
+
             d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / deltaXY;
             d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / (deltaX * deltaZ);
             d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / (deltaY * deltaZ);
-              
+
             d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
                                   values[0][2][2] + values[0][0][2] -
                                   values[2][2][0] + values[2][0][0] +
                                   values[0][2][0] - values[0][0][0]) / (deltaXY * deltaZ);
         }
-        
-    	ticker.tick();    	
+
+    	ticker.tick();
     }
 
 	/**
@@ -620,7 +614,7 @@ public class CustomTricubicInterpolator
 	{
 		this.progress = progress;
 	}
-	
+
 	/**
 	 * Sets the executor service for interpolating.
 	 *
@@ -642,7 +636,7 @@ public class CustomTricubicInterpolator
 	}
 
 	/**
-	 * Sets the task size for multi-threaded interpolation. If the number of interpolation 
+	 * Sets the task size for multi-threaded interpolation. If the number of interpolation
 	 * nodes is less than this then multi-threading is not used.
 	 *
 	 * @param taskSize the new task size
@@ -671,10 +665,10 @@ public class CustomTricubicInterpolator
 	{
 		this.singlePrecision = singlePrecision;
 	}
-	
+
     /**
-     * Compute an interpolating function for the data. Creates a single tricubic function for 
-     * interpolation between 0 and 1 assuming that the input value is a 4x4x4 cube of values 
+     * Compute an interpolating function for the data. Creates a single tricubic function for
+     * interpolation between 0 and 1 assuming that the input value is a 4x4x4 cube of values
      * representing the value at [-1,0,1,2] for each axis.
      *
      * @param fval the values of the interpolation points on all the grid knots
@@ -683,16 +677,13 @@ public class CustomTricubicInterpolator
      */
     public static CustomTricubicFunction create(final TrivalueProvider fval)
         throws DimensionMismatchException {
-        if (4 != fval.getLengthX()) {
-            throw new DimensionMismatchException(4, fval.getLengthX());
-        }
-        if (4 != fval.getLengthY()) {
-            throw new DimensionMismatchException(4, fval.getLengthY());
-        }
-        if (4 != fval.getLengthZ()) {
-            throw new DimensionMismatchException(4, fval.getLengthZ());
-        }
-        
+        if (4 != fval.getLengthX())
+			throw new DimensionMismatchException(4, fval.getLengthX());
+        if (4 != fval.getLengthY())
+			throw new DimensionMismatchException(4, fval.getLengthY());
+        if (4 != fval.getLengthZ())
+			throw new DimensionMismatchException(4, fval.getLengthZ());
+
         // Approximation to the partial derivatives using finite differences.
         final double[][][] f = new double[2][2][2];
         final double[][][] dFdX = new double[2][2][2];
@@ -704,32 +695,28 @@ public class CustomTricubicInterpolator
         final double[][][] d3FdXdYdZ = new double[2][2][2];
 
         final double[][][] values = new double[3][3][3];
-    	
-        for (int i = 0; i < 2; i++) {
-        	
-            for (int j = 0; j < 2; j++) {
 
-                for (int k = 0; k < 2; k++) {
-                    
+        for (int i = 0; i < 2; i++)
+			for (int j = 0; j < 2; j++)
+				for (int k = 0; k < 2; k++) {
+
                     fval.get(i+1, j+1, k+1, values);
 
                     f[i][j][k] = values[1][1][1];
-                    
+
                     dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / 2;
                     dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / 2;
                     dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / 2;
-                      
+
                     d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / 4;
                     d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / 4;
                     d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / 4;
-                      
+
                     d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
                                           values[0][2][2] + values[0][0][2] -
                                           values[2][2][0] + values[2][0][0] +
                                           values[0][2][0] - values[0][0][0]) / 8;
                 }
-            }
-        }
 
         // Create the interpolating function.
         return CustomTricubicInterpolatingFunction.createFunction(
@@ -743,15 +730,15 @@ public class CustomTricubicInterpolator
         		new DoubleArrayTrivalueProvider(d2FdYdZ),
         		new DoubleArrayTrivalueProvider(d3FdXdYdZ));
     }
-    
-	
+
+
     /**
-     * Compute an interpolating function for the data. Creates a single tricubic function for 
-     * interpolation between [1] and [2] assuming that the input value is a 4x4x4 cube of values 
+     * Compute an interpolating function for the data. Creates a single tricubic function for
+     * interpolation between [1] and [2] assuming that the input value is a 4x4x4 cube of values
      * representing the value at [0,1,2,3] for each axis.
 	 * <p>
 	 * To use the function to create an interpolated value in the range [1] and [2]:
-	 * 
+	 *
 	 * <pre>
 	 * double x1 = xval.get(1);
 	 * double y1 = yval.get(1);
@@ -762,7 +749,7 @@ public class CustomTricubicInterpolator
 	 * double xscale = x2 - x1;
 	 * double yscale = y2 - y1
 	 * double zscale = z2 - y2
-	 * // x>=x1 && x<=x2 && y>=y1 && y<=y2 && z>=z1 && z<=z2 
+	 * // x>=x1 && x<=x2 && y>=y1 && y<=y2 && z>=z1 && z<=z2
 	 * double value = f.value((x-x1) / xscale, (y-y1) / yscale, (z-z1) / zscale);
 	 * </pre>
      *
@@ -781,25 +768,19 @@ public class CustomTricubicInterpolator
             final ValueProvider zval,
             final TrivalueProvider fval)
         throws DimensionMismatchException {
-        if (4 != fval.getLengthX()) {
-            throw new DimensionMismatchException(4, fval.getLengthX());
-        }
-        if (4 != fval.getLengthY()) {
-            throw new DimensionMismatchException(4, fval.getLengthY());
-        }
-        if (4 != fval.getLengthZ()) {
-            throw new DimensionMismatchException(4, fval.getLengthZ());
-        }
-        if (xval.getLength() != fval.getLengthX()) {
-            throw new DimensionMismatchException(xval.getLength(), fval.getLengthX());
-        }
-        if (yval.getLength() != fval.getLengthY()) {
-            throw new DimensionMismatchException(yval.getLength(), fval.getLengthY());
-        }
-        if (zval.getLength() != fval.getLengthZ()) {
-            throw new DimensionMismatchException(zval.getLength(), fval.getLengthZ());
-        }
-        
+        if (4 != fval.getLengthX())
+			throw new DimensionMismatchException(4, fval.getLengthX());
+        if (4 != fval.getLengthY())
+			throw new DimensionMismatchException(4, fval.getLengthY());
+        if (4 != fval.getLengthZ())
+			throw new DimensionMismatchException(4, fval.getLengthZ());
+        if (xval.getLength() != fval.getLengthX())
+			throw new DimensionMismatchException(xval.getLength(), fval.getLengthX());
+        if (yval.getLength() != fval.getLengthY())
+			throw new DimensionMismatchException(yval.getLength(), fval.getLengthY());
+        if (zval.getLength() != fval.getLengthZ())
+			throw new DimensionMismatchException(zval.getLength(), fval.getLengthZ());
+
         // Approximation to the partial derivatives using finite differences.
         final double[][][] f = new double[2][2][2];
         final double[][][] dFdX = new double[2][2][2];
@@ -811,14 +792,14 @@ public class CustomTricubicInterpolator
         final double[][][] d3FdXdYdZ = new double[2][2][2];
 
         final double[][][] values = new double[3][3][3];
-    	
+
         for (int i = 0; i < 2; i++) {
-        	
+
             final double nX = xval.get(i+2);
             final double pX = xval.get(i);
 
             final double deltaX = nX - pX;
-        	
+
             for (int j = 0; j < 2; j++) {
 
                 final double nY = yval.get(j+2);
@@ -826,31 +807,31 @@ public class CustomTricubicInterpolator
 
                 final double deltaY = nY - pY;
                 final double deltaXY = deltaX * deltaY;
-            	
+
                 for (int k = 0; k < 2; k++) {
-                    
+
                     final double nZ = zval.get(k+2);
                     final double pZ = zval.get(k);
 
                     final double deltaZ = nZ - pZ;
-                	
+
                     fval.get(i+1, j+1, k+1, values);
-                    
-                    f[i][j][k] = values[1][1][1]; 
+
+                    f[i][j][k] = values[1][1][1];
 
                     dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / deltaX;
                     dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / deltaY;
                     dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / deltaZ;
-                      
+
                     final double deltaXZ = deltaX * deltaZ;
                     final double deltaYZ = deltaY * deltaZ;
-                      
+
                     d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / deltaXY;
                     d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / deltaXZ;
                     d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / deltaYZ;
-                      
+
                     final double deltaXYZ = deltaXY * deltaZ;
-                      
+
                     d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
                                           values[0][2][2] + values[0][0][2] -
                                           values[2][2][0] + values[2][0][0] +
@@ -873,14 +854,14 @@ public class CustomTricubicInterpolator
         		new DoubleArrayTrivalueProvider(d2FdXdZ),
         		new DoubleArrayTrivalueProvider(d2FdYdZ),
         		new DoubleArrayTrivalueProvider(d3FdXdYdZ));
-    }	    
+    }
 
-	
+
     /**
-     * Compute an interpolating function for the data. Creates a single tricubic function for 
-     * interpolation between 0 and 1 assuming that the input value contains a 4x4x4 cube of values 
-     * representing the value at [-1,0,1,2] for each axis. If no value is available at the ends of 
-     * the range then the gradients are set to zero. This allows interpolation of data with a minimum 
+     * Compute an interpolating function for the data. Creates a single tricubic function for
+     * interpolation between 0 and 1 assuming that the input value contains a 4x4x4 cube of values
+     * representing the value at [-1,0,1,2] for each axis. If no value is available at the ends of
+     * the range then the gradients are set to zero. This allows interpolation of data with a minimum
      * length of 2 in each dimension.
      * <p>
      * The 4x4x4 cube is extracted from the input value at the given offset for [0,0,0].
@@ -904,11 +885,11 @@ public class CustomTricubicInterpolator
 			throw new NumberIsTooSmallException(fval.getLengthY(), y + 2, true);
 		if (fval.getLengthZ() - z < 2)
 			throw new NumberIsTooSmallException(fval.getLengthZ(), z + 2, true);
-		
+
 		final int xLen_1 = fval.getLengthX() - 1;
 		final int yLen_1 = fval.getLengthY() - 1;
 		final int zLen_1 = fval.getLengthZ() - 1;
-       
+
         // Approximation to the partial derivatives using finite differences.
         final double[][][] f = new double[2][2][2];
         final double[][][] dFdX = new double[2][2][2];
@@ -920,66 +901,60 @@ public class CustomTricubicInterpolator
         final double[][][] d3FdXdYdZ = new double[2][2][2];
 
         final double[][][] values = new double[3][3][3];
-    	
+
         for (int ii = 0; ii < 2; ii++) {
-        	
-        	int i = x + ii;
-    		boolean edgeX = i == 0 || i == xLen_1;
+
+        	final int i = x + ii;
+    		final boolean edgeX = i == 0 || i == xLen_1;
             final int nI, pI;
             if (edgeX)
-        	{
-            	// Ignored
+				// Ignored
         		nI = pI = 0;
-        	}
-        	else
+			else
         	{
         		nI = i + 1;
         		pI = i - 1;
         	}
-			
+
             for (int jj = 0; jj < 2; jj++) {
-            	
-            	int j = y + jj;
-        		boolean edgeY = j == 0 || j == yLen_1;
+
+            	final int j = y + jj;
+        		final boolean edgeY = j == 0 || j == yLen_1;
                 final int nJ, pJ;
                 if (edgeY)
-            	{
-                	// Ignored
+					// Ignored
             		nJ = pJ = 0;
-            	}
-            	else
+				else
             	{
             		nJ = j + 1;
             		pJ = j - 1;
             	}
-            	
-				boolean edgeXY = edgeX || edgeY;
-				
+
+				final boolean edgeXY = edgeX || edgeY;
+
                 for (int kk = 0; kk < 2; kk++) {
-                	
-                	int k = z + kk;
-            		boolean edgeZ = k == 0 || k == zLen_1;
+
+                	final int k = z + kk;
+            		final boolean edgeZ = k == 0 || k == zLen_1;
                     final int nK, pK;
                     if (edgeZ)
-                	{
-                    	// Ignored
+						// Ignored
                 		nK = pK = 0;
-                	}
-                	else
+					else
                 	{
                 		nK = k + 1;
                 		pK = k - 1;
                 	}
-                    
-                    if (edgeXY || edgeZ) 
+
+                    if (edgeXY || edgeZ)
                     {
                         f[ii][jj][kk] = fval.get(i, j, k);
-                        
+
                         // No gradients at the edge
                         dFdX[ii][jj][kk] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / 2;
                         dFdY[ii][jj][kk] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / 2;
                         dFdZ[ii][jj][kk] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / 2;
-                        
+
                         d2FdXdY[ii][jj][kk] = (edgeXY) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / 4;
                         d2FdXdZ[ii][jj][kk] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / 4;
                         d2FdYdZ[ii][jj][kk] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / 4;
@@ -987,17 +962,17 @@ public class CustomTricubicInterpolator
     				else
     				{
                         fval.get(i, j, k, values);
-    
+
                         f[ii][jj][kk] = values[1][1][1];
-                        
+
                         dFdX[ii][jj][kk] = (values[2][1][1] - values[0][1][1]) / 2;
                         dFdY[ii][jj][kk] = (values[1][2][1] - values[1][0][1]) / 2;
                         dFdZ[ii][jj][kk] = (values[1][1][2] - values[1][1][0]) / 2;
-                          
+
                         d2FdXdY[ii][jj][kk] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / 4;
                         d2FdXdZ[ii][jj][kk] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / 4;
                         d2FdYdZ[ii][jj][kk] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / 4;
-                          
+
                         d3FdXdYdZ[ii][jj][kk] = (values[2][2][2] - values[2][0][2] -
                                                  values[0][2][2] + values[0][0][2] -
                                                  values[2][2][0] + values[2][0][0] +
@@ -1019,19 +994,19 @@ public class CustomTricubicInterpolator
         		new DoubleArrayTrivalueProvider(d2FdYdZ),
         		new DoubleArrayTrivalueProvider(d3FdXdYdZ));
     }
-    
-	
+
+
     /**
-     * Compute an interpolating function for the data. Creates a single tricubic function for 
-     * interpolation between [0] and [1] assuming that the input value contains a 4x4x4 cube of values 
-     * representing the value at [-1,0,1,2] for each axis. If no value is available at the ends of 
-     * the range then the gradients are set to zero. This allows interpolation of data with a minimum 
+     * Compute an interpolating function for the data. Creates a single tricubic function for
+     * interpolation between [0] and [1] assuming that the input value contains a 4x4x4 cube of values
+     * representing the value at [-1,0,1,2] for each axis. If no value is available at the ends of
+     * the range then the gradients are set to zero. This allows interpolation of data with a minimum
      * length of 2 in each dimension.
      * <p>
      * The 4x4x4 cube is extracted from the input value at the given offset for [0,0,0].
      * <p>
      * To use the function to create an interpolated value in the range [0] and [1]:
-     * 
+     *
      * <pre>
      * double x1 = xval.get(x);
      * double y1 = yval.get(y);
@@ -1042,7 +1017,7 @@ public class CustomTricubicInterpolator
      * double xscale = x2 - x1;
      * double yscale = y2 - y1
      * double zscale = z2 - y2
-     * // x>=x1 && x<=x2 && y>=y1 && y<=y2 && z>=z1 && z<=z2 
+     * // x>=x1 && x<=x2 && y>=y1 && y<=y2 && z>=z1 && z<=z2
      * double value = f.value((x-x1) / xscale, (y-y1) / yscale, (z-z1) / zscale);
      * </pre>
      *
@@ -1083,11 +1058,11 @@ public class CustomTricubicInterpolator
             throw new DimensionMismatchException(yval.getLength(), fval.getLengthY());
         if (zval.getLength() != fval.getLengthZ())
             throw new DimensionMismatchException(zval.getLength(), fval.getLengthZ());
-        
+
         CustomTricubicInterpolatingFunction.checkOrder(xval);
         CustomTricubicInterpolatingFunction.checkOrder(yval);
         CustomTricubicInterpolatingFunction.checkOrder(zval);
-        
+
 		final int xLen_1 = fval.getLengthX() - 1;
 		final int yLen_1 = fval.getLengthY() - 1;
 		final int zLen_1 = fval.getLengthZ() - 1;
@@ -1103,11 +1078,11 @@ public class CustomTricubicInterpolator
         final double[][][] d3FdXdYdZ = new double[2][2][2];
 
         final double[][][] values = new double[3][3][3];
-      	
+
         for (int ii = 0; ii < 2; ii++) {
-        	
-        	int i = x + ii;
-    		boolean edgeX = i == 0 || i == xLen_1;
+
+        	final int i = x + ii;
+    		final boolean edgeX = i == 0 || i == xLen_1;
             final int nI, pI;
             final double deltaX;
             if (edgeX)
@@ -1122,11 +1097,11 @@ public class CustomTricubicInterpolator
         		pI = i - 1;
         		deltaX = xval.get(nI) - xval.get(pI);
         	}
-        	
+
             for (int jj = 0; jj < 2; jj++) {
 
-            	int j = y + jj;
-        		boolean edgeY = j == 0 || j == yLen_1;
+            	final int j = y + jj;
+        		final boolean edgeY = j == 0 || j == yLen_1;
                 final int nJ, pJ;
                 final double deltaY;
                 if (edgeY)
@@ -1141,14 +1116,14 @@ public class CustomTricubicInterpolator
             		pJ = j - 1;
             		deltaY = yval.get(nJ) - yval.get(pJ);
             	}
-            	
-				boolean edgeXY = edgeX || edgeY;
+
+				final boolean edgeXY = edgeX || edgeY;
                 final double deltaXY = deltaX * deltaY;
-            	
+
                 for (int kk = 0; kk < 2; kk++) {
-                    
-                	int k = z + kk;
-            		boolean edgeZ = k == 0 || k == zLen_1;
+
+                	final int k = z + kk;
+            		final boolean edgeZ = k == 0 || k == zLen_1;
                     final int nK, pK;
                     final double deltaZ;
                     if (edgeZ)
@@ -1163,17 +1138,17 @@ public class CustomTricubicInterpolator
                 		pK = k - 1;
                 		deltaZ = zval.get(nK) - zval.get(pK);
                 	}
-                    
+
                     if (edgeXY || edgeZ)
     				{
     					// No gradients at the edge
                         f[ii][jj][kk] = fval.get(i, j, k);
-                        
+
                         // No gradients at the edge
                         dFdX[ii][jj][kk] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / deltaX;
                         dFdY[ii][jj][kk] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / deltaY;
                         dFdZ[ii][jj][kk] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / deltaZ;
-                        
+
                         d2FdXdY[ii][jj][kk] = (edgeXY) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / deltaXY;
                         d2FdXdZ[ii][jj][kk] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / (deltaX * deltaZ);
                         d2FdYdZ[ii][jj][kk] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / (deltaY * deltaZ);
@@ -1181,17 +1156,17 @@ public class CustomTricubicInterpolator
     				else
     				{
                         fval.get(i, j, k, values);
-                        
-                        f[ii][jj][kk] = values[1][1][1]; 
-    
+
+                        f[ii][jj][kk] = values[1][1][1];
+
                         dFdX[ii][jj][kk] = (values[2][1][1] - values[0][1][1]) / deltaX;
                         dFdY[ii][jj][kk] = (values[1][2][1] - values[1][0][1]) / deltaY;
                         dFdZ[ii][jj][kk] = (values[1][1][2] - values[1][1][0]) / deltaZ;
-                          
+
                         d2FdXdY[ii][jj][kk] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / deltaXY;
                         d2FdXdZ[ii][jj][kk] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / (deltaX * deltaZ);
                         d2FdYdZ[ii][jj][kk] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / (deltaY * deltaZ);
-                          
+
                         d3FdXdYdZ[ii][jj][kk] = (values[2][2][2] - values[2][0][2] -
                                                  values[0][2][2] + values[0][0][2] -
                                                  values[2][2][0] + values[2][0][0] +
@@ -1216,7 +1191,7 @@ public class CustomTricubicInterpolator
         		new DoubleArrayTrivalueProvider(d2FdYdZ),
         		new DoubleArrayTrivalueProvider(d3FdXdYdZ));
     }
-    
+
     //@formatter:on
 
 	/**
@@ -1304,9 +1279,9 @@ public class CustomTricubicInterpolator
 		final long nNodes = xLen_1_yLen_1 * zLen_1;
 		final long total = (long) (maxx + 1) * (maxy + 1) * (maxz + 1);
 
-		ExecutorService executorService = this.executorService;
+		final ExecutorService executorService = this.executorService;
 		long taskSize = Math.max(1, this.taskSize);
-		boolean threaded = executorService != null && taskSize < nNodes;
+		final boolean threaded = executorService != null && taskSize < nNodes;
 
 		final Ticker ticker = Ticker.create(progress, total, threaded);
 		ticker.start();
@@ -1322,30 +1297,22 @@ public class CustomTricubicInterpolator
 		final double[][] tables = new double[nx1 * ny1 * nz1][];
 		for (int z = 0, i = 0; z < nz1; z++)
 		{
-			CubicSplinePosition szz = sz[z];
+			final CubicSplinePosition szz = sz[z];
 			for (int y = 0; y < ny1; y++)
 			{
-				CubicSplinePosition syy = sy[y];
+				final CubicSplinePosition syy = sy[y];
 				for (int x = 0; x < nx1; x++, i++)
-				{
 					tables[i] = CustomTricubicFunction.computePowerTable(sx[x], syy, szz);
-				}
 			}
 		}
 
 		// Write axis values
 		for (int x = 0; x <= maxx; x++)
-		{
 			procedure.setX(x, (double) x / nx);
-		}
 		for (int y = 0; y <= maxy; y++)
-		{
 			procedure.setY(y, (double) y / ny);
-		}
 		for (int z = 0; z <= maxz; z++)
-		{
 			procedure.setZ(z, (double) z / nz);
-		}
 
 		if (threaded)
 		{
@@ -1356,7 +1323,7 @@ public class CustomTricubicInterpolator
 				taskSize *= 2;
 				nTasks = (long) Math.ceil((double) nNodes / taskSize);
 			}
-			TurboList<Future<?>> futures = new TurboList<Future<?>>((int) nTasks);
+			final TurboList<Future<?>> futures = new TurboList<>((int) nTasks);
 			for (long from = 0; from < nNodes;)
 			{
 				final long from_ = from;
@@ -1382,75 +1349,75 @@ public class CustomTricubicInterpolator
 						for (long index = from_; index < to; index++)
 						{
 							// Convert position to the indices for the node
-							int z = (int) (index / xLen_1_yLen_1);
-							long mod = index % xLen_1_yLen_1;
-							int y = (int) (mod / xLen_1);
-							int x = (int) (mod % xLen_1);
+							final int z = (int) (index / xLen_1_yLen_1);
+							final long mod = index % xLen_1_yLen_1;
+							final int y = (int) (mod / xLen_1);
+							final int x = (int) (mod % xLen_1);
 
 							//@formatter:off
 	                        for (int ii = 0; ii < 2; ii++) {
-	                        	int i = x + ii;
-	                    		boolean edgeX = i == 0 || i == xLen_1;
+	                        	final int i = x + ii;
+	                    		final boolean edgeX = i == 0 || i == xLen_1;
 	                            final int nI, pI;
-	                            if (edgeX) {
-	                            	// Ignored
+	                            if (edgeX)
+									// Ignored
 	                        		nI = pI = 0;
-	                        	} else {
+								else {
 	                        		nI = i + 1;
 	                        		pI = i - 1;
 	                        	}
 	                            for (int jj = 0; jj < 2; jj++) {
-	                            	int j = y + jj;
-	                        		boolean edgeY = j == 0 || j == yLen_1;
+	                            	final int j = y + jj;
+	                        		final boolean edgeY = j == 0 || j == yLen_1;
 	                                final int nJ, pJ;
-	                                if (edgeY) {
-	                                	// Ignored
+	                                if (edgeY)
+										// Ignored
 	                            		nJ = pJ = 0;
-	                            	} else {
+									else {
 	                            		nJ = j + 1;
 	                            		pJ = j - 1;
-	                            	}	                            	
-	                				boolean edgeXY = edgeX || edgeY;
+	                            	}
+	                				final boolean edgeXY = edgeX || edgeY;
 	                				for (int kk = 0; kk < 2; kk++) {
-	                                	int k = z + kk;
-	                            		boolean edgeZ = k == 0 || k == zLen_1;
+	                                	final int k = z + kk;
+	                            		final boolean edgeZ = k == 0 || k == zLen_1;
 	                                    final int nK, pK;
-	                                    if (edgeZ) {
-	                                    	// Ignored
+	                                    if (edgeZ)
+											// Ignored
 	                                		nK = pK = 0;
-	                                	} else {
+										else {
 	                                		nK = k + 1;
 	                                		pK = k - 1;
-	                                	}	                                    
-	                                    if (edgeXY || edgeZ) 
+	                                	}
+	                                    if (edgeXY || edgeZ)
 	                                    {
 	                                        f[ii][jj][kk] = fval.get(i, j, k);
-	                                        
+
 	                                        // No gradients at the edge
 	                                        dFdX[ii][jj][kk] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / 2;
 	                                        dFdY[ii][jj][kk] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / 2;
 	                                        dFdZ[ii][jj][kk] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / 2;
-	                                        
+
 	                                        d2FdXdY[ii][jj][kk] = (edgeXY) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / 4;
 	                                        d2FdXdZ[ii][jj][kk] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / 4;
 	                                        d2FdYdZ[ii][jj][kk] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / 4;
-	                                        
+
 	                                        d3FdXdYdZ[ii][jj][kk] = 0;
 	                    				}
 	                    				else
 	                    				{
 	                                        fval.get(i, j, k, values);
-	        
+
 	                                        f[ii][jj][kk] = values[1][1][1];
-	                                        
+
 	                                        dFdX[ii][jj][kk] = (values[2][1][1] - values[0][1][1]) / 2;
 	                                        dFdY[ii][jj][kk] = (values[1][2][1] - values[1][0][1]) / 2;
 	                                        dFdZ[ii][jj][kk] = (values[1][1][2] - values[1][1][0]) / 2;
-	                                          
+
 	                                        d2FdXdY[ii][jj][kk] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / 4;
 	                                        d2FdXdZ[ii][jj][kk] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / 4;
 	                                        d2FdYdZ[ii][jj][kk] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / 4;
-	                                          
+
 	                                        d3FdXdYdZ[ii][jj][kk] = (values[2][2][2] - values[2][0][2] -
 	                                                                 values[0][2][2] + values[0][0][2] -
 	                                                                 values[2][2][0] + values[2][0][0] +
@@ -1459,9 +1426,9 @@ public class CustomTricubicInterpolator
 	                                }
 	                            }
 	                        }
-	            
+
 	                        // Create the interpolating function.
-	                        CustomTricubicFunction cf = CustomTricubicInterpolatingFunction.createFunction(
+	                        final CustomTricubicFunction cf = CustomTricubicInterpolatingFunction.createFunction(
 	                        		beta,
 	                        		new DoubleArrayTrivalueProvider(f),
 	                        		new DoubleArrayTrivalueProvider(dFdX),
@@ -1473,10 +1440,9 @@ public class CustomTricubicInterpolator
 	                        		new DoubleArrayTrivalueProvider(d3FdXdYdZ));
 	                    	//@formatter:on
 
-							// Write interpolated values. For the final position we use the extra table to 
+							// Write interpolated values. For the final position we use the extra table to
 							// get the value at x=1 in the range [0-1].
 							for (int k = 0, maxk = (z == zLen_2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++)
-							{
 								for (int j = 0, maxj = (y == yLen_2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++)
 								{
 									// Position in the interpolation tables
@@ -1487,7 +1453,6 @@ public class CustomTricubicInterpolator
 										ticker.tick();
 									}
 								}
-							}
 						}
 					}
 				}));
@@ -1513,75 +1478,73 @@ public class CustomTricubicInterpolator
 
 			// Dynamically interpolate each node
 			for (int x = 0; x < xLen_1; x++)
-			{
 				for (int y = 0; y < yLen_1; y++)
-				{
 					for (int z = 0; z < zLen_1; z++)
 					{
 						//@formatter:off
                         for (int ii = 0; ii < 2; ii++) {
-                        	int i = x + ii;
-                    		boolean edgeX = i == 0 || i == xLen_1;
+                        	final int i = x + ii;
+                    		final boolean edgeX = i == 0 || i == xLen_1;
                             final int nI, pI;
-                            if (edgeX) {
-                            	// Ignored
+                            if (edgeX)
+								// Ignored
                         		nI = pI = 0;
-                        	} else {
+							else {
                         		nI = i + 1;
                         		pI = i - 1;
                         	}
                             for (int jj = 0; jj < 2; jj++) {
-                            	int j = y + jj;
-                        		boolean edgeY = j == 0 || j == yLen_1;
+                            	final int j = y + jj;
+                        		final boolean edgeY = j == 0 || j == yLen_1;
                                 final int nJ, pJ;
-                                if (edgeY) {
-                                	// Ignored
+                                if (edgeY)
+									// Ignored
                             		nJ = pJ = 0;
-                            	} else {
+								else {
                             		nJ = j + 1;
                             		pJ = j - 1;
-                            	}	                            	
-                				boolean edgeXY = edgeX || edgeY;
+                            	}
+                				final boolean edgeXY = edgeX || edgeY;
                                 for (int kk = 0; kk < 2; kk++) {
-                                	int k = z + kk;
-                            		boolean edgeZ = k == 0 || k == zLen_1;
+                                	final int k = z + kk;
+                            		final boolean edgeZ = k == 0 || k == zLen_1;
                                     final int nK, pK;
-                                    if (edgeZ) {
-                                    	// Ignored
+                                    if (edgeZ)
+										// Ignored
                                 		nK = pK = 0;
-                                	} else {
+									else {
                                 		nK = k + 1;
                                 		pK = k - 1;
-                                	}	                                    
-                                    if (edgeXY || edgeZ) 
+                                	}
+                                    if (edgeXY || edgeZ)
                                     {
                                         f[ii][jj][kk] = fval.get(i, j, k);
-                                        
+
                                         // No gradients at the edge
                                         dFdX[ii][jj][kk] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / 2;
                                         dFdY[ii][jj][kk] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / 2;
                                         dFdZ[ii][jj][kk] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / 2;
-                                        
+
                                         d2FdXdY[ii][jj][kk] = (edgeXY) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / 4;
                                         d2FdXdZ[ii][jj][kk] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / 4;
                                         d2FdYdZ[ii][jj][kk] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / 4;
-                                        
+
                                         d3FdXdYdZ[ii][jj][kk] = 0;
                     				}
                     				else
                     				{
                                         fval.get(i, j, k, values);
-        
+
                                         f[ii][jj][kk] = values[1][1][1];
-                                        
+
                                         dFdX[ii][jj][kk] = (values[2][1][1] - values[0][1][1]) / 2;
                                         dFdY[ii][jj][kk] = (values[1][2][1] - values[1][0][1]) / 2;
                                         dFdZ[ii][jj][kk] = (values[1][1][2] - values[1][1][0]) / 2;
-                                          
+
                                         d2FdXdY[ii][jj][kk] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / 4;
                                         d2FdXdZ[ii][jj][kk] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / 4;
                                         d2FdYdZ[ii][jj][kk] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / 4;
-                                          
+
                                         d3FdXdYdZ[ii][jj][kk] = (values[2][2][2] - values[2][0][2] -
                                                                  values[0][2][2] + values[0][0][2] -
                                                                  values[2][2][0] + values[2][0][0] +
@@ -1590,9 +1553,9 @@ public class CustomTricubicInterpolator
                                 }
                             }
                         }
-            
+
                         // Create the interpolating function.
-                        CustomTricubicFunction cf = CustomTricubicInterpolatingFunction.createFunction(
+                        final CustomTricubicFunction cf = CustomTricubicInterpolatingFunction.createFunction(
                         		beta,
                         		new DoubleArrayTrivalueProvider(f),
                         		new DoubleArrayTrivalueProvider(dFdX),
@@ -1604,10 +1567,9 @@ public class CustomTricubicInterpolator
                         		new DoubleArrayTrivalueProvider(d3FdXdYdZ));
                     	//@formatter:on
 
-						// Write interpolated values. For the final position we use the extra table to 
+						// Write interpolated values. For the final position we use the extra table to
 						// get the value at x=1 in the range [0-1].
 						for (int k = 0, maxk = (z == zLen_2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++)
-						{
 							for (int j = 0, maxj = (y == yLen_2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++)
 							{
 								// Position in the interpolation tables
@@ -1618,10 +1580,7 @@ public class CustomTricubicInterpolator
 									ticker.tick();
 								}
 							}
-						}
 					}
-				}
-			}
 		}
 
 		ticker.stop();
@@ -1631,7 +1590,7 @@ public class CustomTricubicInterpolator
 	{
 		// Use an extra one to have the final x=1 interpolation point.
 		final double step = 1.0 / n;
-		CubicSplinePosition[] s = new CubicSplinePosition[n + 1];
+		final CubicSplinePosition[] s = new CubicSplinePosition[n + 1];
 		for (int x = 0; x < n; x++)
 			s[x] = new CubicSplinePosition(x * step);
 		// Final interpolation point must be exactly 1

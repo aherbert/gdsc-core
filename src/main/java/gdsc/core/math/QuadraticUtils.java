@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -86,19 +86,19 @@ public class QuadraticUtils
 	 */
 	public static double getDeterminant3x3(double[] data)
 	{
-		double a11 = data[0];
-		double a12 = data[1];
-		double a13 = data[2];
-		double a21 = data[3];
-		double a22 = data[4];
-		double a23 = data[5];
-		double a31 = data[6];
-		double a32 = data[7];
-		double a33 = data[8];
+		final double a11 = data[0];
+		final double a12 = data[1];
+		final double a13 = data[2];
+		final double a21 = data[3];
+		final double a22 = data[4];
+		final double a23 = data[5];
+		final double a31 = data[6];
+		final double a32 = data[7];
+		final double a33 = data[8];
 
-		double m11 = a22 * a33 - a23 * a32;
-		double m12 = -(a21 * a33 - a23 * a31);
-		double m13 = a21 * a32 - a22 * a31;
+		final double m11 = a22 * a33 - a23 * a32;
+		final double m12 = -(a21 * a33 - a23 * a31);
+		final double m13 = a21 * a32 - a22 * a31;
 
 		return (a11 * m11 + a12 * m12 + a13 * m13);
 	}
@@ -116,19 +116,19 @@ public class QuadraticUtils
 	{
 		//scale = 1;
 
-		double a11 = data[0] * scale;
-		double a12 = data[1] * scale;
-		double a13 = data[2] * scale;
-		double a21 = data[3] * scale;
-		double a22 = data[4] * scale;
-		double a23 = data[5] * scale;
-		double a31 = data[6] * scale;
-		double a32 = data[7] * scale;
-		double a33 = data[8] * scale;
+		final double a11 = data[0] * scale;
+		final double a12 = data[1] * scale;
+		final double a13 = data[2] * scale;
+		final double a21 = data[3] * scale;
+		final double a22 = data[4] * scale;
+		final double a23 = data[5] * scale;
+		final double a31 = data[6] * scale;
+		final double a32 = data[7] * scale;
+		final double a33 = data[8] * scale;
 
-		double m11 = a22 * a33 - a23 * a32;
-		double m12 = -(a21 * a33 - a23 * a31);
-		double m13 = a21 * a32 - a22 * a31;
+		final double m11 = a22 * a33 - a23 * a32;
+		final double m12 = -(a21 * a33 - a23 * a31);
+		final double m13 = a21 * a32 - a22 * a31;
 
 		return (a11 * m11 + a12 * m12 + a13 * m13) / (scale * scale * scale);
 	}
@@ -173,7 +173,7 @@ public class QuadraticUtils
 		double d3 = y3;
 
 		// Scale data for stability
-		double c_ = 1. / absoluteMax(new double[] { a1, a2, a3, b1, b2, b3, d1, d2, d3 });
+		final double c_ = 1. / absoluteMax(new double[] { a1, a2, a3, b1, b2, b3, d1, d2, d3 });
 		a1 *= c_;
 		a2 *= c_;
 		a3 *= c_;
@@ -187,12 +187,12 @@ public class QuadraticUtils
 		d2 *= c_;
 		d3 *= c_;
 
-		double D_ = getDeterminant3x3(new double[] { a1, b1, c_, a2, b2, c_, a3, b3, c_ });
+		final double D_ = getDeterminant3x3(new double[] { a1, b1, c_, a2, b2, c_, a3, b3, c_ });
 		if (D_ == 0)
 			return null;
-		double Dx = getDeterminant3x3(new double[] { d1, b1, c_, d2, b2, c_, d3, b3, c_ });
-		double Dy = getDeterminant3x3(new double[] { a1, d1, c_, a2, d2, c_, a3, d3, c_ });
-		double Dz = getDeterminant3x3(new double[] { a1, b1, d1, a2, b2, d2, a3, b3, d3 });
+		final double Dx = getDeterminant3x3(new double[] { d1, b1, c_, d2, b2, c_, d3, b3, c_ });
+		final double Dy = getDeterminant3x3(new double[] { a1, d1, c_, a2, d2, c_, a3, d3, c_ });
+		final double Dz = getDeterminant3x3(new double[] { a1, b1, d1, a2, b2, d2, a3, b3, d3 });
 
 		return new double[] {
 				// x  (quadratic constant a)
@@ -245,7 +245,7 @@ public class QuadraticUtils
 		double d3 = y3;
 
 		// Scale data for stability
-		double c_ = 1. / absoluteMax(new double[] { a1, a2, a3, b1, b2, b3, d1, d2, d3 });
+		final double c_ = 1. / absoluteMax(new double[] { a1, a2, a3, b1, b2, b3, d1, d2, d3 });
 		a1 *= c_;
 		a2 *= c_;
 		a3 *= c_;
@@ -259,18 +259,18 @@ public class QuadraticUtils
 		d2 *= c_;
 		d3 *= c_;
 
-		double D_ = getDeterminant3x3(new double[] { a1, b1, c_, a2, b2, c_, a3, b3, c_ });
+		final double D_ = getDeterminant3x3(new double[] { a1, b1, c_, a2, b2, c_, a3, b3, c_ });
 		if (D_ == 0)
 			throw new DataException("No quadratic solution");
-		double Dx = getDeterminant3x3(new double[] { d1, b1, c_, d2, b2, c_, d3, b3, c_ });
+		final double Dx = getDeterminant3x3(new double[] { d1, b1, c_, d2, b2, c_, d3, b3, c_ });
 		if (Dx == 0)
 			throw new DataException("No min/max solution, points are colinear");
 
 		// x  (quadratic constant a)
-		double a = Dx / D_;
+		final double a = Dx / D_;
 
-		double Dy = getDeterminant3x3(new double[] { a1, d1, c_, a2, d2, c_, a3, d3, c_ });
-		double b = Dy / D_;
+		final double Dy = getDeterminant3x3(new double[] { a1, d1, c_, a2, d2, c_, a3, d3, c_ });
+		final double b = Dy / D_;
 
 		// 0 = 2ax + b
 		// x = -b/2a

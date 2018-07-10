@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -27,20 +27,20 @@
  */
 /**
  * Copyright 2009 Rednaxela
- * 
+ *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
  * arising from the use of this software.
- * 
+ *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
- * 
+ *
  *    1. The origin of this software must not be misrepresented; you must not
  *    claim that you wrote the original software. If you use this software
  *    in a product, an acknowledgment in the product documentation would be
  *    appreciated but is not required.
- * 
+ *
  *    2. This notice may not be removed or altered from any source
  *    distribution.
  */
@@ -51,7 +51,7 @@ package ags.utils.dataStructures.trees.secondGenKD;
  * An efficient well-optimized kd-tree
  * <p>
  * This is a basic copy of the KdTree class but limited to 2 dimensions and has no ability to store object data.
- * 
+ *
  * @author Alex Herbert
  */
 abstract class SimpleFloatKdTreeNode2D
@@ -95,7 +95,7 @@ abstract class SimpleFloatKdTreeNode2D
 	/**
 	 * Constructor for child nodes. Internal use only.
 	 */
-	SimpleFloatKdTreeNode2D(SimpleFloatKdTreeNode2D parent, boolean right)
+	SimpleFloatKdTreeNode2D(SimpleFloatKdTreeNode2D parent)
 	{
 		// Init as leaf
 		this.locations = new float[Math.max(bucketSize, parent.locationCount)][];
@@ -119,7 +119,6 @@ abstract class SimpleFloatKdTreeNode2D
 		}
 
 		for (int i = 2; i-- > 0;)
-		{
 			if (Float.isNaN(location[i]))
 			{
 				minLimit[i] = Float.NaN;
@@ -136,7 +135,6 @@ abstract class SimpleFloatKdTreeNode2D
 				maxLimit[i] = location[i];
 				singularity = false;
 			}
-		}
 	}
 
 	/**
@@ -152,9 +150,7 @@ abstract class SimpleFloatKdTreeNode2D
 		if (Float.isNaN(nwidth))
 			nwidth = 0;
 		if (nwidth > width)
-		{
 			return 1;
-		}
 
 		return 0;
 	}

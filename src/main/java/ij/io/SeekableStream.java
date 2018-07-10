@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -47,7 +47,7 @@ public abstract class SeekableStream extends InputStream
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.io.InputStream#read()
 	 */
 	@Override
@@ -55,7 +55,7 @@ public abstract class SeekableStream extends InputStream
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.io.InputStream#read(byte[], int, int)
 	 */
 	@Override
@@ -149,7 +149,7 @@ public abstract class SeekableStream extends InputStream
 		int n = 0;
 		while (n < len)
 		{
-			int count = read(bytes, off + n, len - n);
+			final int count = read(bytes, off + n, len - n);
 			if (count < 0)
 				throw new EOFException();
 			n += count;
@@ -200,7 +200,7 @@ public abstract class SeekableStream extends InputStream
 	 * Read the set length into the byte buffer.
 	 * <p>
 	 * If this input stream reaches the end before reading all the bytes then the number of bytes read is returned.
-	 * 
+	 *
 	 * @param bytes
 	 *            the buffer into which the data is read
 	 * @param off
@@ -242,7 +242,7 @@ public abstract class SeekableStream extends InputStream
 		int n = 0;
 		while (n < len)
 		{
-			int count = read(bytes, off + n, len - n);
+			final int count = read(bytes, off + n, len - n);
 			if (count < 0)
 				break;
 			n += count;
@@ -282,10 +282,10 @@ public abstract class SeekableStream extends InputStream
 	 */
 	public final int readInt() throws IOException
 	{
-		int i = read();
-		int j = read();
-		int k = read();
-		int l = read();
+		final int i = read();
+		final int j = read();
+		final int k = read();
+		final int l = read();
 		if ((i | j | k | l) < 0)
 			throw new EOFException();
 		else
@@ -325,8 +325,8 @@ public abstract class SeekableStream extends InputStream
 	 */
 	public final short readShort() throws IOException
 	{
-		int i = read();
-		int j = read();
+		final int i = read();
+		final int j = read();
 		if ((i | j) < 0)
 			throw new EOFException();
 		else
@@ -347,7 +347,7 @@ public abstract class SeekableStream extends InputStream
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.io.InputStream#close()
 	 */
 	@Override

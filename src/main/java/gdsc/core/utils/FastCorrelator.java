@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -43,7 +43,7 @@ public class FastCorrelator
 
 	/**
 	 * Add a pair of data points
-	 * 
+	 *
 	 * @param v1
 	 *            the first value
 	 * @param v2
@@ -56,7 +56,7 @@ public class FastCorrelator
 
 	/**
 	 * Add a pair of data points to the sums
-	 * 
+	 *
 	 * @param v1
 	 * @param v2
 	 */
@@ -72,7 +72,7 @@ public class FastCorrelator
 
 	/**
 	 * Add a pair of data points
-	 * 
+	 *
 	 * @param v1
 	 *            the first value
 	 * @param v2
@@ -85,7 +85,7 @@ public class FastCorrelator
 
 	/**
 	 * Add a pair of data points to the sums
-	 * 
+	 *
 	 * @param v1
 	 * @param v2
 	 */
@@ -101,7 +101,7 @@ public class FastCorrelator
 
 	/**
 	 * Add a set of paired data points
-	 * 
+	 *
 	 * @param v1
 	 *            the first values
 	 * @param v2
@@ -113,14 +113,12 @@ public class FastCorrelator
 			return;
 		final int length = Math.min(v1.length, v2.length);
 		for (int i = 0; i < length; i++)
-		{
 			addData(v1[i], v2[i]);
-		}
 	}
 
 	/**
 	 * Add a set of paired data points
-	 * 
+	 *
 	 * @param v1
 	 *            the first values
 	 * @param v2
@@ -134,9 +132,7 @@ public class FastCorrelator
 			return;
 		length = Math.min(Math.min(v1.length, v2.length), length);
 		for (int i = 0; i < length; i++)
-		{
 			addData(v1[i], v2[i]);
-		}
 	}
 
 	/**
@@ -199,7 +195,7 @@ public class FastCorrelator
 
 	/**
 	 * Calculate the correlation
-	 * 
+	 *
 	 * @param x
 	 *            The X data
 	 * @param y
@@ -216,7 +212,7 @@ public class FastCorrelator
 
 	/**
 	 * Calculate the correlation using a fast sum
-	 * 
+	 *
 	 * @param x
 	 *            The X data
 	 * @param y
@@ -235,7 +231,7 @@ public class FastCorrelator
 
 	/**
 	 * Calculate the correlation using a fast sum
-	 * 
+	 *
 	 * @param x
 	 *            The X data
 	 * @param y
@@ -267,7 +263,7 @@ public class FastCorrelator
 
 	/**
 	 * Calculate the correlation using BigInteger to avoid precision error
-	 * 
+	 *
 	 * @param sumX
 	 *            The sum of the X values
 	 * @param sumXY
@@ -292,7 +288,7 @@ public class FastCorrelator
 		nSumXX = nSumXX.subtract(BigInteger.valueOf(sumX).multiply(BigInteger.valueOf(sumX)));
 		nSumYY = nSumYY.subtract(BigInteger.valueOf(sumY).multiply(BigInteger.valueOf(sumY)));
 
-		BigInteger product = nSumXX.multiply(nSumYY);
+		final BigInteger product = nSumXX.multiply(nSumYY);
 
 		return nSumXY.doubleValue() / Math.sqrt(product.doubleValue());
 	}

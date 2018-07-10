@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -83,30 +83,25 @@ class GridMoleculeSpace extends MoleculeSpace
 			resolution = 1;
 			binWidth = 1;
 		}
+		else if (resolution > 0)
+			// The resolution was input
+			binWidth = generatingDistanceE / resolution;
 		else
 		{
-			if (resolution > 0)
+			// Use a higher resolution grid to avoid too many distance comparisons
+			resolution = determineMaximumResolution(xrange, yrange);
+
+			if (resolution == 0)
 			{
-				// The resolution was input
-				binWidth = generatingDistanceE / resolution;
+				// Handle a resolution of zero. This will happen when the generating distance is very small.
+				// In this instance we can use a resolution of 1 but change the bin width to something larger.
+				resolution = 1;
+				binWidth = determineBinWidth(xrange, yrange);
 			}
 			else
 			{
-				// Use a higher resolution grid to avoid too many distance comparisons
-				resolution = determineMaximumResolution(xrange, yrange);
-
-				if (resolution == 0)
-				{
-					// Handle a resolution of zero. This will happen when the generating distance is very small.
-					// In this instance we can use a resolution of 1 but change the bin width to something larger.
-					resolution = 1;
-					binWidth = determineBinWidth(xrange, yrange);
-				}
-				else
-				{
-					adjustResolution(xrange, yrange);
-					binWidth = generatingDistanceE / resolution;
-				}
+				adjustResolution(xrange, yrange);
+				binWidth = generatingDistanceE / resolution;
 			}
 		}
 
@@ -115,7 +110,7 @@ class GridMoleculeSpace extends MoleculeSpace
 		yBins = 1 + (int) (yrange / binWidth);
 
 		// Use a transpose grid to allow freeing memory (as we later process in the y then x order)
-		GridMolecule[][] linkedListGrid = new GridMolecule[yBins][];
+		final GridMolecule[][] linkedListGrid = new GridMolecule[yBins][];
 		for (int yBin = 0; yBin < yBins; yBin++)
 			linkedListGrid[yBin] = new GridMolecule[xBins];
 
@@ -184,9 +179,7 @@ class GridMoleculeSpace extends MoleculeSpace
 		// Q. What is a good maximum limit for the memory allocation?
 		while (getBins(xrange, yrange, generatingDistanceE, resolution + 1) < 4096 * 4096 &&
 				(resolution < 2 || nMoleculesInArea / getNBlocks(resolution) > 1))
-		{
 			resolution++;
-		}
 		//System.out.printf("d=%.3f  [%d]\n", generatingDistanceE, resolution);
 		// We handle a resolution of zero in the calling function
 		return resolution;
@@ -194,27 +187,35 @@ class GridMoleculeSpace extends MoleculeSpace
 
 	double getNMoleculesInGeneratingArea(float xrange, float yrange)
 	{
-		// We can easily compute the expected number of molecules in a pixel and from that 
+		// We can easily compute the expected number of molecules in a pixel and from that
 		// the expected number in a square block of the max distance:
-		double nMoleculesInPixel = (double) size / (xrange * yrange);
-		double nMoleculesInArea = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
+		final double nMoleculesInPixel = (double) size / (xrange * yrange);
+		final double nMoleculesInArea = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 		return nMoleculesInArea;
 	}
 
+	/**
+	 * Adjust resolution.
+	 *
+	 * @param xrange
+	 *            the xrange
+	 * @param yrange
+	 *            the yrange
+	 */
 	void adjustResolution(final float xrange, final float yrange)
 	{
 		// This has been optimised using a simple JUnit test to increase the number of molecules in the square region.
 
 		//If the grid is far too small then many of the lists in each cell will be empty.
-		//If the grid is too small then many of the lists in each cell will be empty or contain only 1 item. 
+		//If the grid is too small then many of the lists in each cell will be empty or contain only 1 item.
 		//This leads to setting up a for loop through only 1 item.
 		//If the grid is too large then the outer cells may contain many points that are too far from the
 		//centre, missing the chance to ignore them.
 
-		int newResolution = 2;
+		final int newResolution = 2;
 
 		// We can set the resolution using a simple look-up table.
-		// A JUnit test shows there does not appear to be much benefit from higher resolution as the number 
+		// A JUnit test shows there does not appear to be much benefit from higher resolution as the number
 		// of distance comparisons is the limiting factor.
 		//		double nMoleculesInArea = getNMoleculesInGeneratingArea(xrange, yrange);
 		//		if (nMoleculesInArea < 20)
@@ -224,16 +225,16 @@ class GridMoleculeSpace extends MoleculeSpace
 		//		else if (nMoleculesInArea < 35)
 		//			newResolution = 4;
 		//		else
-		//			// When there are a lot more molecules then the speed is limited by the all-vs-all comparison, 
+		//			// When there are a lot more molecules then the speed is limited by the all-vs-all comparison,
 		//			// not finding the molecules so this is an upper limit.
 		//			newResolution = 5;
 
 		resolution = Math.min(newResolution, resolution);
 
 		//		// Old logic ...
-		//		
+		//
 		//		// Do not increase the resolution so high we have thousands of blocks
-		//		// and not many expected points.		
+		//		// and not many expected points.
 		//		// Determine the number of molecules we would expect in a square block if they are uniform.
 		//		double blockArea = 4 * generatingDistanceE;
 		//		double expected = opticsManager.getSize() * blockArea / (xrange * yrange);
@@ -289,12 +290,10 @@ class GridMoleculeSpace extends MoleculeSpace
 	{
 		float binWidth = generatingDistanceE;
 		while (getBins(xrange, yrange, binWidth, 1) > 100000)
-		{
 			// Dumb implementation that doubles the bin width. A better solution
-			// would be to conduct a search for the value with a number of bins close 
+			// would be to conduct a search for the value with a number of bins close
 			// to the target.
 			binWidth *= 2;
-		}
 		return binWidth;
 	}
 
@@ -315,13 +314,13 @@ class GridMoleculeSpace extends MoleculeSpace
 
 	int getNeighbourBlocks(int resolution)
 	{
-		int size = getNBlocks(resolution);
+		final int size = getNBlocks(resolution);
 		return size * size;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
@@ -417,13 +416,9 @@ class GridMoleculeSpace extends MoleculeSpace
 			{
 				final Molecule[] list = grid[index];
 				for (int i = list.length; i-- > 0;)
-				{
 					if (object.distance2(list[i]) <= e)
-					{
 						// Build a list of all the neighbours
 						neighbours.add(list[i]);
-					}
-				}
 				index = fastForward[index];
 			}
 			//				}
@@ -446,7 +441,7 @@ class GridMoleculeSpace extends MoleculeSpace
 		//					}
 		//				}
 		//			}
-		//			
+		//
 		//			if (neighbours2.size != neighbours.size)
 		//			{
 		//				System.out.printf("Size error %d vs %d @ %d/%d,%d/%d [%d] %f,%f [%d-%d,%d-%d] %f\n", neighbours2.size,
@@ -467,7 +462,7 @@ class GridMoleculeSpace extends MoleculeSpace
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
 	 * gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
 	 */
@@ -509,7 +504,7 @@ class GridMoleculeSpace extends MoleculeSpace
 			int index = getIndex(minx, y);
 			if (grid[index] == null)
 				index = fastForward[index];
-			int endIndex = getIndex(maxx, y);
+			final int endIndex = getIndex(maxx, y);
 			while (index < endIndex)
 			{
 				count -= grid[index].length;
@@ -521,11 +516,9 @@ class GridMoleculeSpace extends MoleculeSpace
 		}
 
 		if (count > 0)
-		{
 			// Not a core point so do not compute distances
 			//System.out.println("Skipping distance computation (not a core point)");
 			return;
-		}
 
 		// Compute distances
 		for (int y = miny; y < maxy; y++)
@@ -557,7 +550,7 @@ class GridMoleculeSpace extends MoleculeSpace
 			int index = getIndex(minx, y);
 			if (grid[index] == null)
 				index = fastForward[index];
-			int endIndex = getIndex(maxx, y);
+			final int endIndex = getIndex(maxx, y);
 			while (index < endIndex)
 			{
 				final Molecule[] list = grid[index];

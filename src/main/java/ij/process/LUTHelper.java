@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -42,88 +42,88 @@ public class LUTHelper
 		//@formatter:off
 		/** The red hot LUT. */
 		RED_HOT{ @Override
-		public String getName() { return "Red-Hot"; }}, 
-		
+		public String getName() { return "Red-Hot"; }},
+
 		/** The ice LUT. */
 		ICE{ @Override
-		public String getName() { return "Ice";}}, 
-		
+		public String getName() { return "Ice";}},
+
 		/** The rainbow LUT. */
 		RAINBOW{ @Override
-		public String getName() { return "Rainbow"; }}, 
-		
+		public String getName() { return "Rainbow"; }},
+
 		/** The fire LUT. */
 		FIRE{ @Override
-		public String getName() { return "Fire"; }}, 
-		
+		public String getName() { return "Fire"; }},
+
 		/** The fire light LUT. */
 		FIRE_LIGHT{ @Override
-		public String getName() { return "FireLight"; }}, 
-		
+		public String getName() { return "FireLight"; }},
+
 		/** The fire glow LUT. */
 		FIRE_GLOW{ @Override
-		public String getName() { return "FireGlow"; }}, 
-		
+		public String getName() { return "FireGlow"; }},
+
 		/** The red yellow LUT. */
 		RED_YELLOW{ @Override
-		public String getName() { return "Red-Yellow"; }}, 
-		
+		public String getName() { return "Red-Yellow"; }},
+
 		/** The red LUT. */
 		RED{ @Override
 		public String getName() { return "Red"; }},
-		
+
 		/** The green LUT. */
 		GREEN{ @Override
-		public String getName() { return "Green"; }}, 
-		
+		public String getName() { return "Green"; }},
+
 		/** The blue LUT. */
 		BLUE{ @Override
-		public String getName() { return "Blue"; }}, 
-		
+		public String getName() { return "Blue"; }},
+
 		/** The cyan LUT. */
 		CYAN{ @Override
-		public String getName() { return "Cyan"; }}, 
-		
+		public String getName() { return "Cyan"; }},
+
 		/** The magenta LUT. */
 		MAGENTA{ @Override
-		public String getName() { return "Magenta"; }}, 
-		
+		public String getName() { return "Magenta"; }},
+
 		/** The yellow LUT. */
 		YELLOW{ @Override
 		public String getName() { return "Yellow"; }},
-		
+
 		/** The red blue LUT. */
 		RED_BLUE{ @Override
-		public String getName() { return "Red-Blue"; }}, 
-		
+		public String getName() { return "Red-Blue"; }},
+
 		/** The intense LUT. */
 		INTENSE{ @Override
 		public String getName() { return "Intense"; }
 			@Override
 			public boolean isDistinct() { return true;}},
-		
+
 		/** The pimp LUT. */
 		PIMP{ @Override
 		public String getName() { return "Pimp"; }
 			@Override
 			public boolean isDistinct() { return true;}},
-		
+
 		/** The pimp light LUT. */
 		PIMP_LIGHT{ @Override
 		public String getName() { return "PimpLight"; }
 			@Override
 			public boolean isDistinct() { return true;}},
-		
+
 		/** The distinct LUT. */
 		DISTINCT{ @Override
 		public String getName() { return "Distinct"; }
 			@Override
 			public boolean isDistinct() { return true;}},
-		
+
 		/** The red cyan LUT. */
 		RED_CYAN{ @Override
 		public String getName() { return "Red-Cyan"; }},
-		
+
 		/** The grays LUT. */
 		GRAYS{ @Override
 		public String getName() { return "Grays"; }};
@@ -164,7 +164,7 @@ public class LUTHelper
 		 */
 		public static LutColour forNumber(int lut)
 		{
-			LutColour[] values = LutColour.values();
+			final LutColour[] values = LutColour.values();
 			if (lut >= 0 && lut < values.length)
 				return values[lut];
 			return null;
@@ -176,9 +176,9 @@ public class LUTHelper
 
 	/** LUTs with distinct colours. */
 
-	// Finding distinct colours using the Hue, Chroma, Lightness scales to set constraints. 
+	// Finding distinct colours using the Hue, Chroma, Lightness scales to set constraints.
 	// http://tools.medialab.sciences-po.fr/iwanthue/
-	// Colours were generated for 256 distinct colours using the force-vector method and then randomly ordered. 
+	// Colours were generated for 256 distinct colours using the force-vector method and then randomly ordered.
 
 	// Intense = H 0:360, C 20-100, L 15-80
 	private static final int[][] intense = new int[][] { { 165, 54, 0 }, { 255, 138, 168 }, { 189, 0, 40 },
@@ -367,7 +367,7 @@ public class LUTHelper
 
 	static
 	{
-		LutColour[] l = LutColour.values();
+		final LutColour[] l = LutColour.values();
 		luts = new String[l.length];
 		for (int i = 0; i < l.length; i++)
 			luts[i] = l[i].getName();
@@ -379,7 +379,7 @@ public class LUTHelper
 			throw new RuntimeException("The LUT colours must have 256 values");
 		for (int i = (includeBlack) ? 1 : 0; i < 256; i++)
 		{
-			int[] rgb = values[i];
+			final int[] rgb = values[i];
 			r[i] = (byte) (rgb[0] & 255);
 			g[i] = (byte) (rgb[1] & 255);
 			b[i] = (byte) (rgb[2] & 255);
@@ -389,7 +389,7 @@ public class LUTHelper
 
 	/**
 	 * Create a colour LUT so that all colours from 1-255 are distinct.
-	 * 
+	 *
 	 * @return The LUT
 	 */
 	public static LUT getColorModel()
@@ -435,9 +435,9 @@ public class LUTHelper
 	 */
 	public static LUT createLUT(LutColour lut, boolean includeBlack)
 	{
-		byte[] reds = new byte[256];
-		byte[] greens = new byte[256];
-		byte[] blues = new byte[256];
+		final byte[] reds = new byte[256];
+		final byte[] greens = new byte[256];
+		final byte[] blues = new byte[256];
 		int nColors;
 		switch (lut)
 		{
@@ -509,7 +509,7 @@ public class LUTHelper
 		int n = 0;
 		for (int h = 300; h >= 0; h -= 2)
 		{
-			Color c = Color.getHSBColor(h / 360.0f, 1, 1);
+			final Color c = Color.getHSBColor(h / 360.0f, 1, 1);
 			reds[n] = (byte) c.getRed();
 			greens[n] = (byte) c.getGreen();
 			blues[n] = (byte) c.getBlue();
@@ -529,7 +529,7 @@ public class LUTHelper
 			n++;
 		}
 
-		for (Color colour : colours)
+		for (final Color colour : colours)
 		{
 			reds[n] = (byte) colour.getRed();
 			greens[n] = (byte) colour.getGreen();
@@ -541,7 +541,7 @@ public class LUTHelper
 
 	/**
 	 * Copied from ij.plugin.LutLoader
-	 * 
+	 *
 	 * @param reds
 	 * @param greens
 	 * @param blues
@@ -549,11 +549,11 @@ public class LUTHelper
 	 */
 	private static int ice(byte[] reds, byte[] greens, byte[] blues)
 	{
-		int[] r = { 0, 0, 0, 0, 0, 0, 19, 29, 50, 48, 79, 112, 134, 158, 186, 201, 217, 229, 242, 250, 250, 250, 250,
+		final int[] r = { 0, 0, 0, 0, 0, 0, 19, 29, 50, 48, 79, 112, 134, 158, 186, 201, 217, 229, 242, 250, 250, 250, 250,
 				251, 250, 250, 250, 250, 251, 251, 243, 230 };
-		int[] g = { 156, 165, 176, 184, 190, 196, 193, 184, 171, 162, 146, 125, 107, 93, 81, 87, 92, 97, 95, 93, 93, 90,
+		final int[] g = { 156, 165, 176, 184, 190, 196, 193, 184, 171, 162, 146, 125, 107, 93, 81, 87, 92, 97, 95, 93, 93, 90,
 				85, 69, 64, 54, 47, 35, 19, 0, 4, 0 };
-		int[] b = { 140, 147, 158, 166, 170, 176, 209, 220, 234, 225, 236, 246, 250, 251, 250, 250, 245, 230, 230, 222,
+		final int[] b = { 140, 147, 158, 166, 170, 176, 209, 220, 234, 225, 236, 246, 250, 251, 250, 250, 245, 230, 230, 222,
 				202, 180, 163, 142, 123, 114, 106, 94, 84, 64, 26, 27 };
 		for (int i = 0; i < r.length; i++)
 		{
@@ -566,7 +566,7 @@ public class LUTHelper
 
 	/**
 	 * Copied from ij.plugin.LutLoader
-	 * 
+	 *
 	 * @param reds
 	 * @param greens
 	 * @param blues
@@ -574,11 +574,11 @@ public class LUTHelper
 	 */
 	private static int fire(byte[] reds, byte[] greens, byte[] blues)
 	{
-		int[] r = { 0, 0, 1, 25, 49, 73, 98, 122, 146, 162, 173, 184, 195, 207, 217, 229, 240, 252, 255, 255, 255, 255,
+		final int[] r = { 0, 0, 1, 25, 49, 73, 98, 122, 146, 162, 173, 184, 195, 207, 217, 229, 240, 252, 255, 255, 255, 255,
 				255, 255, 255, 255, 255, 255, 255, 255, 255, 255 };
-		int[] g = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 35, 57, 79, 101, 117, 133, 147, 161, 175, 190, 205, 219,
+		final int[] g = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 35, 57, 79, 101, 117, 133, 147, 161, 175, 190, 205, 219,
 				234, 248, 255, 255, 255, 255 };
-		int[] b = { 0, 61, 96, 130, 165, 192, 220, 227, 210, 181, 151, 122, 93, 64, 35, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		final int[] b = { 0, 61, 96, 130, 165, 192, 220, 227, 210, 181, 151, 122, 93, 64, 35, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 35, 98, 160, 223, 255 };
 		for (int i = 0; i < r.length; i++)
 		{
@@ -591,7 +591,7 @@ public class LUTHelper
 
 	/**
 	 * Copied from ij.plugin.LutLoader
-	 * 
+	 *
 	 * @param reds
 	 * @param greens
 	 * @param blues
@@ -610,7 +610,7 @@ public class LUTHelper
 
 	/**
 	 * Adapted from ij.plugin.LutLoader to remove the dark colours
-	 * 
+	 *
 	 * @param reds
 	 * @param greens
 	 * @param blues
@@ -618,13 +618,13 @@ public class LUTHelper
 	 */
 	private static int firelight(byte[] reds, byte[] greens, byte[] blues)
 	{
-		int[] r = { //0, 0, 1, 25, 49, 
+		final int[] r = { //0, 0, 1, 25, 49,
 				73, 98, 122, 146, 162, 173, 184, 195, 207, 217, 229, 240, 252, 255, 255, 255, 255, 255, 255, 255, 255,
 				255, 255, 255, 255, 255, 255 };
-		int[] g = { //0, 0, 0, 0, 0, 
+		final int[] g = { //0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 14, 35, 57, 79, 101, 117, 133, 147, 161, 175, 190, 205, 219, 234, 248, 255, 255,
 				255, 255 };
-		int[] b = { //0, 61, 96, 130, 165, 
+		final int[] b = { //0, 61, 96, 130, 165,
 				192, 220, 227, 210, 181, 151, 122, 93, 64, 35, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, 98, 160, 223,
 				255 };
 		for (int i = 0; i < r.length; i++)
@@ -638,7 +638,7 @@ public class LUTHelper
 
 	/**
 	 * Adapted from ij.plugin.LutLoader to remove the dark colours and near white colours
-	 * 
+	 *
 	 * @param reds
 	 * @param greens
 	 * @param blues
@@ -646,18 +646,18 @@ public class LUTHelper
 	 */
 	private static int fireglow(byte[] reds, byte[] greens, byte[] blues)
 	{
-		int[] r = { //0, 0, 1, 25, 49, 
+		final int[] r = { //0, 0, 1, 25, 49,
 				73, 98, 122, 146, 162, 173, 184, 195, 207, 217, 229, 240, 252, 255, 255, 255, 255, 255, 255, 255, 255,
 				255, 255, 255
-				//, 255, 255, 255 
+				//, 255, 255, 255
 		};
-		int[] g = { //0, 0, 0, 0, 0, 
+		final int[] g = { //0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 14, 35, 57, 79, 101, 117, 133, 147, 161, 175, 190, 205, 219, 234, 248, 255
-				//, 255, 255, 255 
+				//, 255, 255, 255
 		};
-		int[] b = { //0, 61, 96, 130, 165, 
+		final int[] b = { //0, 61, 96, 130, 165,
 				192, 220, 227, 210, 181, 151, 122, 93, 64, 35, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, 98
-				//, 160, 223, 255 
+				//, 160, 223, 255
 		};
 		for (int i = 0; i < r.length; i++)
 		{
@@ -670,7 +670,7 @@ public class LUTHelper
 
 	/**
 	 * Adapted from ij.plugin.LutLoader.
-	 * 
+	 *
 	 * @param reds
 	 * @param greens
 	 * @param blues
@@ -687,20 +687,19 @@ public class LUTHelper
 			return;
 		}
 
-		// Interpolate so that 0/1 is the first colour (depending on black) 
+		// Interpolate so that 0/1 is the first colour (depending on black)
 		// and 255 is the final colour.
 
 		// Copy the original input colours
-		byte[] r = new byte[nColors];
-		byte[] g = new byte[nColors];
-		byte[] b = new byte[nColors];
+		final byte[] r = new byte[nColors];
+		final byte[] g = new byte[nColors];
+		final byte[] b = new byte[nColors];
 		System.arraycopy(reds, 0, r, 0, nColors);
 		System.arraycopy(greens, 0, g, 0, nColors);
 		System.arraycopy(blues, 0, b, 0, nColors);
 
 		int total = 256, j = 0;
 		if (includeBlack)
-		{
 			// Check if the input already has black
 			if (reds[0] != 0 || greens[0] != 0 || blues[0] != 0)
 			{
@@ -709,12 +708,11 @@ public class LUTHelper
 				j = 1;
 				reds[0] = greens[0] = blues[0] = 0;
 			}
-		}
 
 		// Bug fix
 		// ij.plugin.LutLoader used nColors / 256.0;
-		// This made all the colours from 128-255 the same for 2 colour interpolation as i1==i2 
-		double scale = (double) (nColors - 1) / total;
+		// This made all the colours from 128-255 the same for 2 colour interpolation as i1==i2
+		final double scale = (double) (nColors - 1) / total;
 		int i1, i2;
 		double fraction;
 		for (int i = 0; i < total; i++, j++)
@@ -765,12 +763,10 @@ public class LUTHelper
 	public static Color getColour(LUT lut, int n, int total)
 	{
 		if (total <= 255)
-		{
 			// Assume 8-bit image
 			return getColour(lut, n);
-		}
 
-		// Use behaviour for 16-bit images 
+		// Use behaviour for 16-bit images
 		return getColour(lut, n, 0, total);
 	}
 
@@ -795,7 +791,7 @@ public class LUTHelper
 		if (maximum > 65535)
 			maximum = 65535;
 
-		double scale = 256.0 / (maximum - minimum + 1);
+		final double scale = 256.0 / (maximum - minimum + 1);
 		value = value - minimum;
 		if (value < 0)
 			value = 0;
@@ -825,7 +821,7 @@ public class LUTHelper
 
 		// No range check on the input min/max
 
-		float scale = 255f / (maximum - minimum);
+		final float scale = 255f / (maximum - minimum);
 		value = value - minimum;
 		if (value < 0f)
 			value = 0f;
@@ -853,12 +849,10 @@ public class LUTHelper
 	public static Color getNonZeroColour(LUT lut, int n, int total)
 	{
 		if (total <= 256)
-		{
 			// Assume 8-bit image
 			return getColour(lut, n);
-		}
 
-		// Use behaviour for 16-bit images 
+		// Use behaviour for 16-bit images
 		return getNonZeroColour(lut, n, 1, total);
 	}
 
@@ -883,7 +877,7 @@ public class LUTHelper
 		if (maximum > 65535)
 			maximum = 65535;
 
-		double scale = 255.0 / (maximum - minimum + 1);
+		final double scale = 255.0 / (maximum - minimum + 1);
 		value = value - minimum;
 		if (value < 0)
 			value = 0;
@@ -913,7 +907,7 @@ public class LUTHelper
 
 		// No range check on the input min/max
 
-		float scale = 254f / (maximum - minimum);
+		final float scale = 254f / (maximum - minimum);
 		value = value - minimum;
 		if (value < 0f)
 			value = 0f;
@@ -978,7 +972,7 @@ public class LUTHelper
 	 */
 	public static class NullLUTMapper implements LUTMapper
 	{
-		
+
 		/**
 		 * Rounds the input to the nearest int and truncates to the range 0-255.
 		 *
@@ -1013,7 +1007,7 @@ public class LUTHelper
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ij.process.LUTHelper.LUTMapper#getColour(ij.process.LUT, float)
 		 */
 		@Override
@@ -1024,7 +1018,7 @@ public class LUTHelper
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ij.process.LUTHelper.LUTMapper#getMin()
 		 */
 		@Override
@@ -1035,7 +1029,7 @@ public class LUTHelper
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ij.process.LUTHelper.LUTMapper#getMax()
 		 */
 		@Override
@@ -1050,7 +1044,7 @@ public class LUTHelper
 	 */
 	public static class DefaultLUTMapper extends NullLUTMapper
 	{
-		
+
 		/** The scale. */
 		final float minimum, maximum, scale;
 
@@ -1071,7 +1065,7 @@ public class LUTHelper
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ij.process.LUTHelper.LUTMapper#map(float)
 		 */
 		@Override
@@ -1088,7 +1082,7 @@ public class LUTHelper
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ij.process.LUTHelper.LUTMapper#mapf(float)
 		 */
 		@Override
@@ -1103,7 +1097,7 @@ public class LUTHelper
 	 */
 	public static class NonZeroLUTMapper extends NullLUTMapper
 	{
-		
+
 		/** The scale. */
 		final float minimum, maximum, scale;
 
@@ -1124,7 +1118,7 @@ public class LUTHelper
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ij.process.LUTHelper.LUTMapper#map(float)
 		 */
 		@Override
@@ -1141,7 +1135,7 @@ public class LUTHelper
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ij.process.LUTHelper.LUTMapper#mapf(float)
 		 */
 		@Override
@@ -1152,7 +1146,7 @@ public class LUTHelper
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see ij.process.LUTHelper.NullLUTMapper#getMin()
 		 */
 		@Override

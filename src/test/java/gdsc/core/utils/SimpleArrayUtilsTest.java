@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -49,7 +49,7 @@ public class SimpleArrayUtilsTest
 	@Test
 	public void canFlatten()
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
+		final RandomGenerator r = TestSettings.getRandomGenerator();
 		testFlatten(new int[0]);
 		testFlatten(new int[10]);
 		for (int i = 0; i < 10; i++)
@@ -64,10 +64,10 @@ public class SimpleArrayUtilsTest
 	{
 		set.clear();
 		set.addAll(s1);
-		int[] e = set.toArray();
+		final int[] e = set.toArray();
 		Arrays.sort(e);
 
-		int[] o = SimpleArrayUtils.flatten(s1);
+		final int[] o = SimpleArrayUtils.flatten(s1);
 		//TestSettings.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
 		Assert.assertArrayEquals(e, o);
 	}
@@ -75,7 +75,7 @@ public class SimpleArrayUtilsTest
 	@Test
 	public void canSortMerge()
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
+		final RandomGenerator r = TestSettings.getRandomGenerator();
 		testSortMerge(new int[0], new int[10]);
 		testSortMerge(new int[10], new int[10]);
 		testSortMerge(new int[10], next(r, 10, 10));
@@ -99,17 +99,17 @@ public class SimpleArrayUtilsTest
 		set.clear();
 		set.addAll(s1);
 		set.addAll(s2);
-		int[] e = set.toArray();
+		final int[] e = set.toArray();
 		Arrays.sort(e);
 
-		int[] o = SimpleArrayUtils.sortMerge(s1, s2);
+		final int[] o = SimpleArrayUtils.sortMerge(s1, s2);
 		//TestSettings.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
 		Assert.assertArrayEquals(e, o);
 	}
 
-	private int[] next(RandomGenerator r, int size, int max)
+	private static int[] next(RandomGenerator r, int size, int max)
 	{
-		int[] a = new int[size];
+		final int[] a = new int[size];
 		for (int i = 0; i < size; i++)
 			a[i] = r.nextInt(max);
 		return a;
@@ -142,21 +142,19 @@ public class SimpleArrayUtilsTest
 	public void testMergeOnIndexData()
 	{
 		TestSettings.assume(LogLevel.INFO, TestComplexity.MEDIUM);
-		RandomGenerator r = TestSettings.getRandomGenerator();
+		final RandomGenerator r = TestSettings.getRandomGenerator();
 
-		double[] f = new double[] { 0.1, 0.5, 0.75 };
-		for (int size : new int[] { 100, 1000, 10000 })
+		final double[] f = new double[] { 0.1, 0.5, 0.75 };
+		for (final int size : new int[] { 100, 1000, 10000 })
 			for (int i = 0; i < f.length; i++)
 				for (int j = i; j < f.length; j++)
-				{
 					testMergeOnIndexData(r, 100, size, (int) (size * f[i]), (int) (size * f[j]));
-				}
 	}
 
 	private void testMergeOnIndexData(RandomGenerator r, int length, final int size, final int n1, final int n2)
 	{
-		int[][][] data = new int[length][2][];
-		int[] s1 = SimpleArrayUtils.newArray(size, 0, 1);
+		final int[][][] data = new int[length][2][];
+		final int[] s1 = SimpleArrayUtils.newArray(size, 0, 1);
 		for (int i = 0; i < length; i++)
 		{
 			Random.shuffle(s1, r);
@@ -164,16 +162,16 @@ public class SimpleArrayUtilsTest
 			Random.shuffle(s1, r);
 			data[i][1] = Arrays.copyOf(s1, n2);
 		}
-		String msg = String.format("[%d] %d vs %d", size, n1, n2);
+		final String msg = String.format("[%d] %d vs %d", size, n1, n2);
 
-		TimingService ts = new TimingService();
+		final TimingService ts = new TimingService();
 		ts.execute(new MyTimingTask("SortMerge" + msg, data)
 		{
 			@Override
 			@SuppressWarnings("deprecation")
 			public Object run(Object data)
 			{
-				int[][] d = (int[][]) data;
+				final int[][] d = (int[][]) data;
 				return SimpleArrayUtils.sortMerge(d[0], d[1]);
 			}
 		});
@@ -182,8 +180,8 @@ public class SimpleArrayUtilsTest
 			@Override
 			public Object run(Object data)
 			{
-				int[][] d = (int[][]) data;
-				int[] a = SimpleArrayUtils.merge(d[0], d[1]);
+				final int[][] d = (int[][]) data;
+				final int[] a = SimpleArrayUtils.merge(d[0], d[1]);
 				Arrays.sort(a);
 				return a;
 			}
@@ -193,8 +191,8 @@ public class SimpleArrayUtilsTest
 			@Override
 			public Object run(Object data)
 			{
-				int[][] d = (int[][]) data;
-				int[] a = SimpleArrayUtils.merge(d[0], d[1], true);
+				final int[][] d = (int[][]) data;
+				final int[] a = SimpleArrayUtils.merge(d[0], d[1], true);
 				Arrays.sort(a);
 				return a;
 			}
@@ -208,10 +206,10 @@ public class SimpleArrayUtilsTest
 	public void testMergeOnRedundantData()
 	{
 		TestSettings.assume(LogLevel.INFO, TestComplexity.MEDIUM);
-		RandomGenerator r = TestSettings.getRandomGenerator();
+		final RandomGenerator r = TestSettings.getRandomGenerator();
 
-		int[] n = new int[] { 2, 4, 8 };
-		int[] size = new int[] { 100, 1000, 10000 };
+		final int[] n = new int[] { 2, 4, 8 };
+		final int[] size = new int[] { 100, 1000, 10000 };
 
 		for (int i = 0; i < n.length; i++)
 			for (int j = i; j < n.length; j++)
@@ -223,11 +221,11 @@ public class SimpleArrayUtilsTest
 	public void testMergeOnRedundantData(RandomGenerator r, int length, final int n1, final int r1, final int n2,
 			final int r2)
 	{
-		int[][][] data = new int[length][2][];
-		int[] s1 = new int[n1];
+		final int[][][] data = new int[length][2][];
+		final int[] s1 = new int[n1];
 		for (int i = 0; i < n1; i++)
 			s1[i] = i % r1;
-		int[] s2 = new int[n2];
+		final int[] s2 = new int[n2];
 		for (int i = 0; i < n2; i++)
 			s2[i] = i % r2;
 		for (int i = 0; i < length; i++)
@@ -237,16 +235,16 @@ public class SimpleArrayUtilsTest
 			MathArrays.shuffle(s2, r);
 			data[i][1] = s2.clone();
 		}
-		String msg = String.format("%d%%%d vs %d%%%d", n1, r1, n2, r2);
+		final String msg = String.format("%d%%%d vs %d%%%d", n1, r1, n2, r2);
 
-		TimingService ts = new TimingService();
+		final TimingService ts = new TimingService();
 		ts.execute(new MyTimingTask("SortMerge" + msg, data)
 		{
 			@Override
 			@SuppressWarnings("deprecation")
 			public Object run(Object data)
 			{
-				int[][] d = (int[][]) data;
+				final int[][] d = (int[][]) data;
 				return SimpleArrayUtils.sortMerge(d[0], d[1]);
 			}
 		});
@@ -255,8 +253,8 @@ public class SimpleArrayUtilsTest
 			@Override
 			public Object run(Object data)
 			{
-				int[][] d = (int[][]) data;
-				int[] a = SimpleArrayUtils.merge(d[0], d[1]);
+				final int[][] d = (int[][]) data;
+				final int[] a = SimpleArrayUtils.merge(d[0], d[1]);
 				Arrays.sort(a);
 				return a;
 			}
@@ -304,9 +302,9 @@ public class SimpleArrayUtilsTest
 		testGetRanges(new int[] { -2, -2, -1, 1 }, new int[] { -2, -1, 1, 1 });
 	}
 
-	private void testGetRanges(int[] in, int[] e)
+	private static void testGetRanges(int[] in, int[] e)
 	{
-		int[] o = SimpleArrayUtils.getRanges(in);
+		final int[] o = SimpleArrayUtils.getRanges(in);
 		//TestSettings.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
 		Assert.assertArrayEquals(e, o);
 	}

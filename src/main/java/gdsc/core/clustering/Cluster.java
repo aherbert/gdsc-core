@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -153,7 +153,7 @@ public class Cluster implements Comparable<Cluster>
 		while (tail.next != null)
 			tail = tail.next;
 
-		// Join the small list to the long list 
+		// Join the small list to the long list
 		tail.next = big;
 		head = small;
 
@@ -186,9 +186,9 @@ public class Cluster implements Comparable<Cluster>
 		sumw += otherSumW;
 		n += otherN;
 
-		// Avoid minor drift during merge. This can effect the particle linkage algorithm when 
-		// merged points have the same coordinates. This is because clusters may have new coordinates 
-		// that are moved slightly and so the remaining points on the original coordinates join to 
+		// Avoid minor drift during merge. This can effect the particle linkage algorithm when
+		// merged points have the same coordinates. This is because clusters may have new coordinates
+		// that are moved slightly and so the remaining points on the original coordinates join to
 		// each other rather than the cluster.
 		// This could be improved by changing the particle linkage algorithm to have a minimum distance
 		// under which it prefers to join to clusters if they exist.
@@ -230,7 +230,7 @@ public class Cluster implements Comparable<Cluster>
 	 * @param other
 	 *            the other cluster
 	 * @param d2
-	 *            the squared distance 
+	 *            the squared distance
 	 */
 	public void link(Cluster other, double d2)
 	{
@@ -266,8 +266,8 @@ public class Cluster implements Comparable<Cluster>
 	 */
 	public synchronized void linkSynchronized(Cluster other, double d2)
 	{
-		// The entire method should be synchronized since the other cluster d2 is checked. 
-		// This may be updated by another thread unless the updates only occur within a 
+		// The entire method should be synchronized since the other cluster d2 is checked.
+		// This may be updated by another thread unless the updates only occur within a
 		// synchronized block
 		link(other, d2);
 	}
@@ -281,22 +281,20 @@ public class Cluster implements Comparable<Cluster>
 	{
 		// Check if the other cluster has an updated link to another candidate
 		if (closest != null)
-		{
 			// Valid if the other cluster links back to this cluster
 			return closest.closest == this;
-		}
 		return false;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	@Override
 	public int compareTo(Cluster o)
 	{
-		// Sort by size, then centroid x then y, then the total weight. 
+		// Sort by size, then centroid x then y, then the total weight.
 		// The sort is arbitrary but allows comparison of two lists after sorting.
 		if (n < o.n)
 			return -1;

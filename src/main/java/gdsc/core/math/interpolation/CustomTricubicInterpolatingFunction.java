@@ -2,15 +2,15 @@
  * %%Ignore-License
  *
  * GDSC Software
- * 
- * This is an extension of the 
+ *
+ * This is an extension of the
  * org.apache.commons.math3.analysis.interpolation.TricubicInterpolatingFunction
- * 
- * Modifications have been made to allow computation of gradients and abstraction 
+ *
+ * Modifications have been made to allow computation of gradients and abstraction
  * of the input data into value providers.
- * 
- * The code is released under the original Apache licence: 
- * 
+ *
+ * The code is released under the original Apache licence:
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -70,37 +70,37 @@ import gdsc.core.utils.TurboList;
 //@formatter:off
 public class CustomTricubicInterpolatingFunction
     implements TrivariateFunction {
-	
+
 	/** The tolerance for checking the spline points are uniform */
 	public static final double UNIFORM_TOLERANCE = 1e-6;
-	
+
 	/** The tolerance for checking the spline point spacing is integer */
 	public static final double INTEGER_TOLERANCE = 1e-6;
-	
+
 	/** The upper tolerance for checking the spline point spacing is integer */
 	private static final double ONE_UPPER  = 1.0 + INTEGER_TOLERANCE;
-	
+
 	/** The lower tolerance for checking the spline point spacing is integer */
 	private static final double ONE_LOWER  = 1.0 - INTEGER_TOLERANCE;
 
-	/** 
-	 * Set to true if the x,y,z spline points are uniformly spaced. 
+	/**
+	 * Set to true if the x,y,z spline points are uniformly spaced.
 	 * <p>
-	 * This allows the function to be efficiently sampled using precomputed 
+	 * This allows the function to be efficiently sampled using precomputed
 	 * spline coefficients (see {@link #value(int, int, int, double[])})
 	 */
 	private final boolean isUniform;
-	
-	/** 
-	 * Set to true if the x,y,z spline points have a grid spacing of 1. 
+
+	/**
+	 * Set to true if the x,y,z spline points have a grid spacing of 1.
 	 * Note that the spline points may not be integer values, only the spacing between them.
 	 * <p>
 	 * This allows faster computation with no scaling.
 	 */
 	private final boolean isInteger;
-	
+
 	private double[] scale;
-	
+
     /**
      * Matrix to compute the spline coefficients from the function values
      * and function derivatives values
@@ -180,13 +180,13 @@ public class CustomTricubicInterpolatingFunction
     private final double[] zval;
     /** Set of cubic splines patching the whole data grid */
     private final CustomTricubicFunction[][][] splines;
-    
+
 	/** The scale for x. This is the interval between x[i+1] and x[i] */
 	private final double[] xscale;
 	/** The scale for y. This is the interval between y[i+1] and y[i] */
 	private final double[] yscale;
 	/** The scale for z. This is the interval between z[i+1] and z[i] */
-	private final double[] zscale;    
+	private final double[] zscale;
 
     /**
      * Instantiates a new custom tricubic interpolating function.
@@ -222,8 +222,8 @@ public class CustomTricubicInterpolatingFunction
                                                final TrivalueProvider d2FdXdZ,
                                                final TrivalueProvider d2FdYdZ,
                                                final TrivalueProvider d3FdXdYdZ,
-                                               TrackProgress progress, 
-                                               ExecutorService executorService, 
+                                               TrackProgress progress,
+                                               ExecutorService executorService,
                                                long taskSize,
                                                final boolean singlePrecision)
         throws NoDataException,
@@ -234,11 +234,10 @@ public class CustomTricubicInterpolatingFunction
         final int zLen = z.getLength();
 
         // The original only failed if the length was zero. However
-        // this function requires two points to interpolate between so 
+        // this function requires two points to interpolate between so
         // check the length is at least 2.
-        if (xLen <= 1 || yLen <= 1 || zLen <= 1) {
-            throw new NoDataException();
-        }
+        if (xLen <= 1 || yLen <= 1 || zLen <= 1)
+			throw new NoDataException();
         checkDimensions(xLen, yLen, zLen, f);
         checkDimensions(xLen, yLen, zLen, dFdX);
         checkDimensions(xLen, yLen, zLen, dFdY);
@@ -255,20 +254,20 @@ public class CustomTricubicInterpolatingFunction
         xval = x.toArray();
         yval = y.toArray();
         zval = z.toArray();
-        
-    	isUniform = 
-    			SimpleArrayUtils.isUniform(xval, (xval[1]-xval[0])*UNIFORM_TOLERANCE) && 
-    			SimpleArrayUtils.isUniform(yval, (yval[1]-yval[0])*UNIFORM_TOLERANCE) && 
+
+    	isUniform =
+    			SimpleArrayUtils.isUniform(xval, (xval[1]-xval[0])*UNIFORM_TOLERANCE) &&
+    			SimpleArrayUtils.isUniform(yval, (yval[1]-yval[0])*UNIFORM_TOLERANCE) &&
     			SimpleArrayUtils.isUniform(zval, (zval[1]-zval[0])*UNIFORM_TOLERANCE);
         isInteger = isUniform &&
-        		(isInteger(xval)) &&  
-           		(isInteger(yval)) &&  
-           		(isInteger(zval)); 
+        		(isInteger(xval)) &&
+           		(isInteger(yval)) &&
+           		(isInteger(zval));
 
         xscale = createScale(xval);
         yscale = createScale(yval);
         zscale = createScale(zval);
-        
+
         final int lastI = xLen - 1;
         final int lastJ = yLen - 1;
         final int lastK = zLen - 1;
@@ -276,24 +275,24 @@ public class CustomTricubicInterpolatingFunction
 
         final long total = lastI * lastJ * lastK;
 		taskSize = Math.max(1, taskSize);
-        
-        boolean threaded = executorService != null && taskSize < total;
-        
+
+        final boolean threaded = executorService != null && taskSize < total;
+
         final Ticker ticker = Ticker.create(progress, total, threaded);
         ticker.start();
-        
+
         if (threaded)
         {
     		final long lastI_lastJ = (long)lastI * lastJ;
-    		
+
         	// Break this up into reasonable tasks, ensuring we can hold all the futures
         	long nTasks = (long) Math.ceil((double) total / taskSize);
         	while (nTasks >= Integer.MAX_VALUE)
-        	{	
+        	{
         		taskSize *= 2;
             	nTasks = (long) Math.ceil((double) total / taskSize);
             }
-    		TurboList<Future<?>> futures = new TurboList<Future<?>>((int)nTasks);
+    		final TurboList<Future<?>> futures = new TurboList<>((int)nTasks);
 			for (long from = 0; from < total;)
 			{
 				final long from_ = from;
@@ -304,45 +303,36 @@ public class CustomTricubicInterpolatingFunction
 					public void run()
 					{
 						if (isInteger)
-						{
-    						for (long index = from_; index < to; index++)
-    						{
-    							buildInteger(f, dFdX, dFdY, dFdZ, 
-    									d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ, 
-    									lastI, lastI_lastJ, index, ticker, singlePrecision);									
-    						}
-						}
+							for (long index = from_; index < to; index++)
+								buildInteger(f, dFdX, dFdY, dFdZ,
+    									d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ,
+    									lastI, lastI_lastJ, index, ticker, singlePrecision);
 						else
-						{
-    						for (long index = from_; index < to; index++)
-    						{
-    							build(f, dFdX, dFdY, dFdZ, 
-    									d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ, 
-    									lastI, lastI_lastJ, index, ticker, singlePrecision);									
-    						}
-						}
+							for (long index = from_; index < to; index++)
+								build(f, dFdX, dFdY, dFdZ,
+    									d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ,
+    									lastI, lastI_lastJ, index, ticker, singlePrecision);
 					}
 				}));
 				from = to;
 			}
-			
+
 			Utils.waitForCompletion(futures);
         }
         else
         {
         	final double[] beta = new double[64];
             if (isInteger)
-            {
-                // We can shortcut if a true integer grid by ignoring the scale
+				// We can shortcut if a true integer grid by ignoring the scale
                 for (int i = 0; i < lastI; i++) {
-                    
+
                     final int ip1 = i + 1;
                     for (int j = 0; j < lastJ; j++) {
-        
+
                         final int jp1 = j + 1;
                         for (int k = 0; k < lastK; k++) {
                             final int kp1 = k + 1;
-        
+
                     		beta[0] = f.get(i, j, k);
                     		beta[1] = f.get(ip1, j, k);
                     		beta[2] = f.get(i, jp1, k);
@@ -406,8 +396,8 @@ public class CustomTricubicInterpolatingFunction
                     		beta[60] = d3FdXdYdZ.get(i, j, kp1);
                     		beta[61] = d3FdXdYdZ.get(ip1, j, kp1);
                     		beta[62] = d3FdXdYdZ.get(i, jp1, kp1);
-                    		beta[63] = d3FdXdYdZ.get(ip1, jp1, kp1);		
-                            
+                    		beta[63] = d3FdXdYdZ.get(ip1, jp1, kp1);
+
                             //final double[] beta = new double[] {
                             //    f.get(i,j,k), f.get(ip1,j,k),
                             //    f.get(i,jp1,k), f.get(ip1,jp1,k),
@@ -449,21 +439,19 @@ public class CustomTricubicInterpolatingFunction
                             //    d3FdXdYdZ.get(i,j,kp1), d3FdXdYdZ.get(ip1,j,kp1),
                             //    d3FdXdYdZ.get(i,jp1,kp1), d3FdXdYdZ.get(ip1,jp1,kp1),
                             //};
-        
+
                     		setSpline(i, j, k, beta, singlePrecision);
                             ticker.tick();
                         }
                     }
-                }        	
-            }
-            else
-            {
-                for (int i = 0; i < lastI; i++) {
-        
+                }
+			else
+				for (int i = 0; i < lastI; i++) {
+
                     final int ip1 = i + 1;
                     final double xR = xscale[i];
                     for (int j = 0; j < lastJ; j++) {
-        
+
                         final int jp1 = j + 1;
                         final double yR = yscale[j];
                         final double xRyR = xR * yR;
@@ -473,7 +461,7 @@ public class CustomTricubicInterpolatingFunction
                             final double xRzR = xR * zR;
                             final double yRzR = yR * zR;
                             final double xRyRzR = xR * yRzR;
-        
+
                     		beta[0] = f.get(i, j, k);
                     		beta[1] = f.get(ip1, j, k);
                     		beta[2] = f.get(i, jp1, k);
@@ -538,7 +526,7 @@ public class CustomTricubicInterpolatingFunction
                     		beta[61] = d3FdXdYdZ.get(ip1, j, kp1) * xRyRzR;
                     		beta[62] = d3FdXdYdZ.get(i, jp1, kp1) * xRyRzR;
                     		beta[63] = d3FdXdYdZ.get(ip1, jp1, kp1) * xRyRzR;
-                    		
+
                             //final double[] beta = new double[] {
                             //    f.get(i,j,k), f.get(ip1,j,k),
                             //    f.get(i,jp1,k), f.get(ip1,jp1,k),
@@ -586,7 +574,6 @@ public class CustomTricubicInterpolatingFunction
                         }
                     }
                 }
-            }
         }
         ticker.stop();
     }
@@ -609,52 +596,51 @@ public class CustomTricubicInterpolatingFunction
      * @param val Values.
      * @throws NonMonotonicSequenceException if the array is not sorted
      */
-	static void checkOrder(ValueProvider val) throws NonMonotonicSequenceException 
+	static void checkOrder(ValueProvider val) throws NonMonotonicSequenceException
 	{
         double previous = val.get(0);
         final int max = val.getLength();
 
         for (int index = 1; index < max; index++) {
-        	double current = val.get(index);
-            if (current <= previous) {
-                throw new NonMonotonicSequenceException(current, previous, index, 
+        	final double current = val.get(index);
+            if (current <= previous)
+				throw new NonMonotonicSequenceException(current, previous, index,
                 		OrderDirection.INCREASING, true);
-            }
             previous = current;
         }
     }
 
-	private boolean isInteger(double[] x)
+	private static boolean isInteger(double[] x)
 	{
 		// Test the full range can be divided into integer steps
-		int upper = x.length-1;
+		final int upper = x.length-1;
 		return isOne(Math.abs(x[0] - x[upper]) / upper);
 	}
 
     private static boolean isOne(double abs)
 	{
 		return abs > ONE_LOWER && abs < ONE_UPPER;
-	}  
-    
+	}
+
     private static double[] createScale(double[] x)
 	{
-    	int n = x.length-1;
-    	double[] scale = new double[n];
+    	final int n = x.length-1;
+    	final double[] scale = new double[n];
     	for (int i=0; i < n; i++)
     		scale[i] = x[i + 1] - x[i];
 		return scale;
 	}
-    
+
 	private void buildInteger(final TrivalueProvider f, final TrivalueProvider dFdX,
 			final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
 			final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ,
 			final TrivalueProvider d3FdXdYdZ, final int lastI,
 			final long lastI_lastJ, long index, final Ticker ticker, boolean singlePrecision)
 	{
-		int k = (int) (index / lastI_lastJ);
-		long mod = index % lastI_lastJ;
-		int j = (int) (mod / lastI);
-		int i = (int) (mod % lastI);
+		final int k = (int) (index / lastI_lastJ);
+		final long mod = index % lastI_lastJ;
+		final int j = (int) (mod / lastI);
+		final int i = (int) (mod % lastI);
 		final int ip1 = i + 1;
 		final int jp1 = j + 1;
 		final int kp1 = k + 1;
@@ -724,21 +710,21 @@ public class CustomTricubicInterpolatingFunction
 		beta[61] = d3FdXdYdZ.get(ip1, j, kp1);
 		beta[62] = d3FdXdYdZ.get(i, jp1, kp1);
 		beta[63] = d3FdXdYdZ.get(ip1, jp1, kp1);
-		
+
 		setSpline(i, j, k, beta, singlePrecision);
 		ticker.tick();
-	}	
-    
+	}
+
 	private void build(final TrivalueProvider f, final TrivalueProvider dFdX,
 			final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
 			final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ,
-			final TrivalueProvider d3FdXdYdZ, final int lastI, 
+			final TrivalueProvider d3FdXdYdZ, final int lastI,
 			final long lastI_lastJ, long index, final Ticker ticker, boolean singlePrecision)
 	{
-		int k = (int) (index / lastI_lastJ);
-		long mod = index % lastI_lastJ;
-		int j = (int) (mod / lastI);
-		int i = (int) (mod % lastI);
+		final int k = (int) (index / lastI_lastJ);
+		final long mod = index % lastI_lastJ;
+		final int j = (int) (mod / lastI);
+		final int i = (int) (mod % lastI);
 		final int ip1 = i + 1;
 		final int jp1 = j + 1;
 		final int kp1 = k + 1;
@@ -749,7 +735,7 @@ public class CustomTricubicInterpolatingFunction
         final double xRzR = xR * zR;
         final double yRzR = yR * zR;
         final double xRyRzR = xR * yRzR;
-		
+
     	final double[] beta = new double[64];
 		beta[0] = f.get(i, j, k);
 		beta[1] = f.get(ip1, j, k);
@@ -819,10 +805,10 @@ public class CustomTricubicInterpolatingFunction
 		setSpline(i, j, k, beta, singlePrecision);
 		ticker.tick();
 	}
-	
+
 	private void setSpline(int i, int j, int k, double[] beta, boolean singlePrecision)
 	{
-		double[] a = computeCoefficientsInlineCollectTerms(beta);
+		final double[] a = computeCoefficientsInlineCollectTerms(beta);
 		splines[i][j][k] = (singlePrecision) ? new FloatCustomTricubicFunction(a) : new DoubleCustomTricubicFunction(a);
 	}
 
@@ -837,8 +823,8 @@ public class CustomTricubicInterpolatingFunction
 	 * @throws DimensionMismatchException if the various arrays do not contain the expected number of elements.
 	 * @throws NonMonotonicSequenceException if {@code x}, {@code y} or {@code z} are not strictly increasing.
 	 */
-	public CustomTricubicInterpolatingFunction(double[] x, 
-											   double[] y, 
+	public CustomTricubicInterpolatingFunction(double[] x,
+											   double[] y,
 											   double[] z,
 											   CustomTricubicFunction[][][] splines)
 			        throws NoDataException,
@@ -849,7 +835,7 @@ public class CustomTricubicInterpolatingFunction
 			 new DoubleArrayValueProvider(z),
 			 splines);
 	}
-	
+
 	/**
 	 * Instantiates a new custom tricubic interpolating function.
 	 *
@@ -861,8 +847,8 @@ public class CustomTricubicInterpolatingFunction
 	 * @throws DimensionMismatchException if the various arrays do not contain the expected number of elements.
 	 * @throws NonMonotonicSequenceException if {@code x}, {@code y} or {@code z} are not strictly increasing.
 	 */
-	public CustomTricubicInterpolatingFunction(ValueProvider x, 
-											   ValueProvider y, 
+	public CustomTricubicInterpolatingFunction(ValueProvider x,
+											   ValueProvider y,
 											   ValueProvider z,
 											   CustomTricubicFunction[][][] splines)
 			        throws NoDataException,
@@ -873,12 +859,10 @@ public class CustomTricubicInterpolatingFunction
 		final int zLen = z.getLength();
 
 		// The original only failed if the length was zero. However
-		// this function requires two points to interpolate between so 
+		// this function requires two points to interpolate between so
 		// check the length is at least 2.
 		if (xLen <= 1 || yLen <= 1 || zLen <= 1)
-		{
 			throw new NoDataException();
-		}
 
 		final int lastI = xLen - 1;
 		final int lastJ = yLen - 1;
@@ -891,10 +875,8 @@ public class CustomTricubicInterpolatingFunction
 			if (lastJ != splines[i].length)
 				throw new DimensionMismatchException(lastJ, splines[i].length);
 			for (int j = 0; j < lastJ; j++)
-			{
 				if (lastK != splines[i][j].length)
 					throw new DimensionMismatchException(lastK, splines[i][j].length);
-			}
 		}
 
 		checkOrder(x);
@@ -905,14 +887,14 @@ public class CustomTricubicInterpolatingFunction
 		yval = y.toArray();
 		zval = z.toArray();
 
-    	isUniform = 
-    			SimpleArrayUtils.isUniform(xval, (xval[1]-xval[0])*UNIFORM_TOLERANCE) && 
-    			SimpleArrayUtils.isUniform(yval, (yval[1]-yval[0])*UNIFORM_TOLERANCE) && 
+    	isUniform =
+    			SimpleArrayUtils.isUniform(xval, (xval[1]-xval[0])*UNIFORM_TOLERANCE) &&
+    			SimpleArrayUtils.isUniform(yval, (yval[1]-yval[0])*UNIFORM_TOLERANCE) &&
     			SimpleArrayUtils.isUniform(zval, (zval[1]-zval[0])*UNIFORM_TOLERANCE);
         isInteger = isUniform &&
-        		(isInteger(xval)) &&  
-           		(isInteger(yval)) &&  
-           		(isInteger(zval)); 
+        		(isInteger(xval)) &&
+           		(isInteger(yval)) &&
+           		(isInteger(zval));
 
 		xscale = createScale(xval);
 		yscale = createScale(yval);
@@ -920,7 +902,7 @@ public class CustomTricubicInterpolatingFunction
 
 		this.splines = splines;
 	}
-	
+
 	//@formatter:on
 
 	/**
@@ -937,9 +919,7 @@ public class CustomTricubicInterpolatingFunction
 		final int k = searchIndex(z, zval);
 
 		if (isInteger)
-		{
 			return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k]);
-		}
 
 		final double xN = (x - xval[i]) / (xscale[i]);
 		final double yN = (y - yval[j]) / (yscale[j]);
@@ -962,7 +942,7 @@ public class CustomTricubicInterpolatingFunction
 	{
 		if (isInteger)
 		{
-			int high = val.length - 1;
+			final int high = val.length - 1;
 
 			if (c < val[0] || c > val[high])
 				throw new OutOfRangeException(c, val[0], val[high]);
@@ -993,19 +973,13 @@ public class CustomTricubicInterpolatingFunction
 	private static int searchIndexOriginal(double c, double[] val) throws OutOfRangeException
 	{
 		if (c < val[0])
-		{
 			throw new OutOfRangeException(c, val[0], val[val.length - 1]);
 			//return -1;
-		}
 
 		final int max = val.length;
 		for (int i = 1; i < max; i++)
-		{
 			if (c <= val[i])
-			{
 				return i - 1;
-			}
-		}
 
 		throw new OutOfRangeException(c, val[0], val[val.length - 1]);
 		//return -1;
@@ -1024,21 +998,19 @@ public class CustomTricubicInterpolatingFunction
 	private static int searchIndexBinarySearch(double c, double[] val) throws OutOfRangeException
 	{
 		// Use a Binary search.
-		// We want to find the index equal to or before the key.  
-		int high = val.length - 1;
+		// We want to find the index equal to or before the key.
+		final int high = val.length - 1;
 
 		if (c < val[0] || c > val[high])
 			throw new OutOfRangeException(c, val[0], val[high]);
 
 		int i = binarySearch0(val, 0, val.length, c);
 		if (i < 0)
-		{
 			// Not found. Convert to the insertion point.
-			// We have already checked the upper bound and so we know the insertion point is 
+			// We have already checked the upper bound and so we know the insertion point is
 			// below 'high'.
 			i = (-i - 1);
-		}
-		// Return the index before. This makes index in the range 0 to high-1. 
+		// Return the index before. This makes index in the range 0 to high-1.
 		return (i > 0) ? i - 1 : i;
 		//return Math.max(0, i - 1);
 	}
@@ -1084,17 +1056,14 @@ public class CustomTricubicInterpolatingFunction
 
 		while (low <= high)
 		{
-			int mid = (low + high) >>> 1;
-			double midVal = a[mid];
+			final int mid = (low + high) >>> 1;
+			final double midVal = a[mid];
 
 			if (midVal < key)
 				low = mid + 1; // Neither val is NaN, thisVal is smaller
 			else if (midVal > key)
 				high = mid - 1; // Neither val is NaN, thisVal is larger
 			else
-			{
-				// Remove the comparison using long bits
-
 				//long midBits = Double.doubleToLongBits(midVal);
 				//long keyBits = Double.doubleToLongBits(key);
 				//if (midBits == keyBits) // Values are equal
@@ -1103,7 +1072,6 @@ public class CustomTricubicInterpolatingFunction
 				//	low = mid + 1;
 				//else // (0.0, -0.0) or (NaN, !NaN)
 				//	high = mid - 1;
-			}
 		}
 		return -(low + 1); // key not found.
 	}
@@ -1255,15 +1223,13 @@ public class CustomTricubicInterpolatingFunction
 		final int k = searchIndex(z, zval);
 
 		if (isInteger)
-		{
 			return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k], df_da);
-		}
 
 		final double xN = (x - xval[i]) / xscale[i];
 		final double yN = (y - yval[j]) / yscale[j];
 		final double zN = (z - zval[k]) / zscale[k];
 
-		double value = splines[i][j][k].value(xN, yN, zN, df_da);
+		final double value = splines[i][j][k].value(xN, yN, zN, df_da);
 		df_da[0] /= xscale[i];
 		df_da[1] /= yscale[j];
 		df_da[2] /= zscale[k];
@@ -1313,10 +1279,8 @@ public class CustomTricubicInterpolatingFunction
 	public double value(int xindex, int yindex, int zindex, double[] table, double[] df_da)
 	{
 		if (isInteger)
-		{
 			return splines[xindex][yindex][zindex].value(table, df_da);
-		}
-		double value = splines[xindex][yindex][zindex].value(table, df_da);
+		final double value = splines[xindex][yindex][zindex].value(table, df_da);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
 		df_da[2] /= zscale[zindex];
@@ -1344,10 +1308,8 @@ public class CustomTricubicInterpolatingFunction
 	public double value(int xindex, int yindex, int zindex, float[] table, double[] df_da)
 	{
 		if (isInteger)
-		{
 			return splines[xindex][yindex][zindex].value(table, df_da);
-		}
-		double value = splines[xindex][yindex][zindex].value(table, df_da);
+		final double value = splines[xindex][yindex][zindex].value(table, df_da);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
 		df_da[2] /= zscale[zindex];
@@ -1380,10 +1342,8 @@ public class CustomTricubicInterpolatingFunction
 			double[] df_da)
 	{
 		if (isInteger)
-		{
 			return splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
-		}
-		double value = splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
+		final double value = splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
 		df_da[2] /= zscale[zindex];
@@ -1416,10 +1376,8 @@ public class CustomTricubicInterpolatingFunction
 			double[] df_da)
 	{
 		if (isInteger)
-		{
 			return splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
-		}
-		double value = splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
+		final double value = splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
 		df_da[2] /= zscale[zindex];
@@ -1450,15 +1408,13 @@ public class CustomTricubicInterpolatingFunction
 		final int k = searchIndex(z, zval);
 
 		if (isInteger)
-		{
 			return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k], df_da, d2f_da2);
-		}
 
 		final double xN = (x - xval[i]) / xscale[i];
 		final double yN = (y - yval[j]) / yscale[j];
 		final double zN = (z - zval[k]) / zscale[k];
 
-		double value = splines[i][j][k].value(xN, yN, zN, df_da, d2f_da2);
+		final double value = splines[i][j][k].value(xN, yN, zN, df_da, d2f_da2);
 		df_da[0] /= xscale[i];
 		df_da[1] /= yscale[j];
 		df_da[2] /= zscale[k];
@@ -1516,10 +1472,8 @@ public class CustomTricubicInterpolatingFunction
 	public double value(int xindex, int yindex, int zindex, double[] table, double[] df_da, double[] d2f_da2)
 	{
 		if (isInteger)
-		{
 			return splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
-		}
-		double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
+		final double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
 		df_da[2] /= zscale[zindex];
@@ -1553,10 +1507,8 @@ public class CustomTricubicInterpolatingFunction
 	public double value(int xindex, int yindex, int zindex, float[] table, double[] df_da, double[] d2f_da2)
 	{
 		if (isInteger)
-		{
 			return splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
-		}
-		double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
+		final double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
 		df_da[2] /= zscale[zindex];
@@ -1597,10 +1549,8 @@ public class CustomTricubicInterpolatingFunction
 			double[] table6, double[] df_da, double[] d2f_da2)
 	{
 		if (isInteger)
-		{
 			return splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
-		}
-		double value = splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
+		final double value = splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
 		df_da[2] /= zscale[zindex];
@@ -1641,10 +1591,8 @@ public class CustomTricubicInterpolatingFunction
 			float[] table6, double[] df_da, double[] d2f_da2)
 	{
 		if (isInteger)
-		{
 			return splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
-		}
-		double value = splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
+		final double value = splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
 		df_da[0] /= xscale[xindex];
 		df_da[1] /= yscale[yindex];
 		df_da[2] /= zscale[zindex];
@@ -1669,7 +1617,7 @@ public class CustomTricubicInterpolatingFunction
 		{
 			if (scale == null)
 			{
-				// We know that the values scale is uniform. Compute the scale using the 
+				// We know that the values scale is uniform. Compute the scale using the
 				// range of values
 				scale = new double[3];
 				scale[0] = getScale(xval);
@@ -1683,7 +1631,7 @@ public class CustomTricubicInterpolatingFunction
 
 	private static double getScale(double[] xval)
 	{
-		int n = xval.length - 1;
+		final int n = xval.length - 1;
 		return (xval[n] - xval[0]) / n;
 	}
 
@@ -1838,13 +1786,9 @@ public class CustomTricubicInterpolatingFunction
 	{
 		if (x < xval[0] || x > xval[xval.length - 1] || y < yval[0] || y > yval[yval.length - 1] || z < zval[0] ||
 				z > zval[zval.length - 1])
-		{
 			return false;
-		}
 		else
-		{
 			return true;
-		}
 	}
 
 	/**
@@ -1896,18 +1840,12 @@ public class CustomTricubicInterpolatingFunction
 	{
 		if (isSinglePrecision())
 			return;
-		int maxj = getMaxYSplinePosition() + 1;
-		int maxk = getMaxZSplinePosition() + 1;
+		final int maxj = getMaxYSplinePosition() + 1;
+		final int maxk = getMaxZSplinePosition() + 1;
 		for (int i = getMaxXSplinePosition() + 1; i-- > 0;)
-		{
 			for (int j = maxj; j-- > 0;)
-			{
 				for (int k = maxk; k-- > 0;)
-				{
 					splines[i][j][k] = splines[i][j][k].toSinglePrecision();
-				}
-			}
-		}
 	}
 
 	/**
@@ -1917,18 +1855,12 @@ public class CustomTricubicInterpolatingFunction
 	{
 		if (!isSinglePrecision())
 			return;
-		int maxj = getMaxYSplinePosition() + 1;
-		int maxk = getMaxZSplinePosition() + 1;
+		final int maxj = getMaxYSplinePosition() + 1;
+		final int maxk = getMaxZSplinePosition() + 1;
 		for (int i = getMaxXSplinePosition() + 1; i-- > 0;)
-		{
 			for (int j = maxj; j-- > 0;)
-			{
 				for (int k = maxk; k-- > 0;)
-				{
 					splines[i][j][k] = splines[i][j][k].toDoublePrecision();
-				}
-			}
-		}
 	}
 
 	/**
@@ -2007,7 +1939,7 @@ public class CustomTricubicInterpolatingFunction
 		if (!procedure.setDimensions(maxx + 1, maxy + 1, maxz + 1))
 			return;
 
-		Ticker ticker = Ticker.create(progress, (long) (maxx + 1) * (maxy + 1) * (maxz + 1), false);
+		final Ticker ticker = Ticker.create(progress, (long) (maxx + 1) * (maxy + 1) * (maxz + 1), false);
 		ticker.start();
 
 		// Pre-compute interpolation tables
@@ -2021,19 +1953,17 @@ public class CustomTricubicInterpolatingFunction
 		final double[][] tables = new double[nx1 * ny1 * nz1][];
 		for (int z = 0, i = 0; z < nz1; z++)
 		{
-			CubicSplinePosition szz = sz[z];
+			final CubicSplinePosition szz = sz[z];
 			for (int y = 0; y < ny1; y++)
 			{
-				CubicSplinePosition syy = sy[y];
+				final CubicSplinePosition syy = sy[y];
 				for (int x = 0; x < nx1; x++, i++)
-				{
 					tables[i] = CustomTricubicFunction.computePowerTable(sx[x], syy, szz);
-				}
 			}
 		}
 
 		// Write axis values
-		// Cache the table and the spline position to use for each interpolation point 
+		// Cache the table and the spline position to use for each interpolation point
 		final int[] xt = new int[maxx + 1];
 		final int[] xp = new int[maxx + 1];
 		for (int x = 0; x <= maxx; x++)
@@ -2106,7 +2036,7 @@ public class CustomTricubicInterpolatingFunction
 	{
 		// Use an extra one to have the final x=1 interpolation point.
 		final double step = 1.0 / n;
-		CubicSplinePosition[] s = new CubicSplinePosition[n + 1];
+		final CubicSplinePosition[] s = new CubicSplinePosition[n + 1];
 		for (int x = 0; x < n; x++)
 			s[x] = new CubicSplinePosition(x * step);
 		// Final interpolation point must be exactly 1
@@ -2119,7 +2049,7 @@ public class CustomTricubicInterpolatingFunction
 	 */
 	public static class Size
 	{
-		private int[] dimensions;
+		private final int[] dimensions;
 
 		Size(int maxx, int maxy, int maxz)
 		{
@@ -2202,9 +2132,9 @@ public class CustomTricubicInterpolatingFunction
 		 */
 		public Size enlarge(int n)
 		{
-			int maxx = 1 + getSplinePoints(0) * n;
-			int maxy = 1 + getSplinePoints(1) * n;
-			int maxz = 1 + getSplinePoints(2) * n;
+			final int maxx = 1 + getSplinePoints(0) * n;
+			final int maxy = 1 + getSplinePoints(1) * n;
+			final int maxz = 1 + getSplinePoints(2) * n;
 			return new Size(maxx, maxy, maxz);
 		}
 	}
@@ -2312,18 +2242,17 @@ public class CustomTricubicInterpolatingFunction
         for (int i = 0; i < sz; i++) {
             double result = 0;
             final double[] row = AINV[i];
-            for (int j = 0; j < sz; j++) {
-                result += row[j] * beta[j];
-            }
+            for (int j = 0; j < sz; j++)
+				result += row[j] * beta[j];
             a[i] = result;
         }
 
         return a;
     }
-    
+
     /**
-     * Compute coefficients inline. This has been created using the same code as 
-     * {@link #computeCoefficients(double[])} but ignoring any entry in AINV that is zero. 
+     * Compute coefficients inline. This has been created using the same code as
+     * {@link #computeCoefficients(double[])} but ignoring any entry in AINV that is zero.
      *
      * @param beta List of function values and function partial derivatives values.
      * @return the spline coefficients.
@@ -2396,11 +2325,11 @@ public class CustomTricubicInterpolatingFunction
     	a[63]=8*beta[0]-8*beta[1]-8*beta[2]+8*beta[3]-8*beta[4]+8*beta[5]+8*beta[6]-8*beta[7]+4*beta[8]+4*beta[9]-4*beta[10]-4*beta[11]-4*beta[12]-4*beta[13]+4*beta[14]+4*beta[15]+4*beta[16]-4*beta[17]+4*beta[18]-4*beta[19]-4*beta[20]+4*beta[21]-4*beta[22]+4*beta[23]+4*beta[24]-4*beta[25]-4*beta[26]+4*beta[27]+4*beta[28]-4*beta[29]-4*beta[30]+4*beta[31]+2*beta[32]+2*beta[33]+2*beta[34]+2*beta[35]-2*beta[36]-2*beta[37]-2*beta[38]-2*beta[39]+2*beta[40]+2*beta[41]-2*beta[42]-2*beta[43]+2*beta[44]+2*beta[45]-2*beta[46]-2*beta[47]+2*beta[48]-2*beta[49]+2*beta[50]-2*beta[51]+2*beta[52]-2*beta[53]+2*beta[54]-2*beta[55]+beta[56]+beta[57]+beta[58]+beta[59]+beta[60]+beta[61]+beta[62]+beta[63];
     	return a;
     }
-    
+
     /**
-     * Compute coefficients inline. This has been created using the same code as 
+     * Compute coefficients inline. This has been created using the same code as
      * {@link #computeCoefficients(double[])} but ignoring any entry in AINV that is zero.
-     * Terms have then been collected to remove multiplications. 
+     * Terms have then been collected to remove multiplications.
      *
      * @param beta List of function values and function partial derivatives values.
      * @return the spline coefficients.
@@ -2561,10 +2490,10 @@ public class CustomTricubicInterpolatingFunction
 		final int lastI = xval.length - 1;
 		final int lastJ = yval.length - 1;
 		final int lastK = zval.length - 1;
-		Ticker ticker = Ticker.create(progress, (long) lastI * lastJ * lastK, false);
+		final Ticker ticker = Ticker.create(progress, (long) lastI * lastJ * lastK, false);
 		ticker.start();
-		BufferedOutputStream buffer = new BufferedOutputStream(outputStream);
-		DataOutput out = new DataOutputStream(buffer);
+		final BufferedOutputStream buffer = new BufferedOutputStream(outputStream);
+		final DataOutput out = new DataOutputStream(buffer);
 		out.writeInt(xval.length);
 		out.writeInt(yval.length);
 		out.writeInt(zval.length);
@@ -2573,25 +2502,21 @@ public class CustomTricubicInterpolatingFunction
 		write(out, yval);
 		write(out, zval);
 		// Write precision
-		boolean singlePrecision = isSinglePrecision();
+		final boolean singlePrecision = isSinglePrecision();
 		out.writeBoolean(singlePrecision);
-		SplineWriter writer = (singlePrecision) ? new FloatSplineWriter() : new DoubleSplineWriter();
+		final SplineWriter writer = (singlePrecision) ? new FloatSplineWriter() : new DoubleSplineWriter();
 		for (int i = 0; i < lastI; i++)
-		{
 			for (int j = 0; j < lastJ; j++)
-			{
 				for (int k = 0; k < lastK; k++)
 				{
 					writer.write(out, splines[i][j][k]);
 					ticker.tick();
 				}
-			}
-		}
 		ticker.stop();
 		buffer.flush();
 	}
 
-	private void write(DataOutput out, double[] x) throws IOException
+	private static void write(DataOutput out, double[] x) throws IOException
 	{
 		for (int i = 0; i < x.length; i++)
 			out.writeDouble(x[i]);
@@ -2630,35 +2555,31 @@ public class CustomTricubicInterpolatingFunction
 			throws IOException
 	{
 		// Read dimensions
-		BufferedInputStream buffer = new BufferedInputStream(inputStream);
-		DataInput in = new DataInputStream(buffer);
-		int maxx = in.readInt();
-		int maxy = in.readInt();
-		int maxz = in.readInt();
+		final BufferedInputStream buffer = new BufferedInputStream(inputStream);
+		final DataInput in = new DataInputStream(buffer);
+		final int maxx = in.readInt();
+		final int maxy = in.readInt();
+		final int maxz = in.readInt();
 		final int lastI = maxx - 1;
 		final int lastJ = maxy - 1;
 		final int lastK = maxz - 1;
-		Ticker ticker = Ticker.create(progress, (long) lastI * lastJ * lastK, false);
+		final Ticker ticker = Ticker.create(progress, (long) lastI * lastJ * lastK, false);
 		ticker.start();
 		// Read axis values
-		double[] xval = read(in, maxx);
-		double[] yval = read(in, maxy);
-		double[] zval = read(in, maxz);
+		final double[] xval = read(in, maxx);
+		final double[] yval = read(in, maxy);
+		final double[] zval = read(in, maxz);
 		// Read precision
-		boolean singlePrecision = in.readBoolean();
-		SplineReader reader = (singlePrecision) ? new FloatSplineReader() : new DoubleSplineReader();
-		CustomTricubicFunction[][][] splines = new CustomTricubicFunction[lastI][lastJ][lastK];
+		final boolean singlePrecision = in.readBoolean();
+		final SplineReader reader = (singlePrecision) ? new FloatSplineReader() : new DoubleSplineReader();
+		final CustomTricubicFunction[][][] splines = new CustomTricubicFunction[lastI][lastJ][lastK];
 		for (int i = 0; i < lastI; i++)
-		{
 			for (int j = 0; j < lastJ; j++)
-			{
 				for (int k = 0; k < lastK; k++)
 				{
 					splines[i][j][k] = reader.read(in);
 					ticker.tick();
 				}
-			}
-		}
 		ticker.stop();
 		// Pass the data to a constructor for validation
 		return new CustomTricubicInterpolatingFunction(new DoubleArrayValueProvider(xval),
@@ -2667,7 +2588,7 @@ public class CustomTricubicInterpolatingFunction
 
 	private static double[] read(DataInput in, int max) throws IOException
 	{
-		double[] x = new double[max];
+		final double[] x = new double[max];
 		for (int i = 0; i < x.length; i++)
 			x[i] = in.readDouble();
 		return x;
@@ -2732,13 +2653,13 @@ public class CustomTricubicInterpolatingFunction
 		final int maxz = getMaxZSplinePosition();
 		double value = splines[0][0][0].value000();
 		int ox = 0, oy = 0, oz = 0;
-		int dir = (maximum) ? 1 : -1;
+		final int dir = (maximum) ? 1 : -1;
 		//int dir = (maximum) ? Double.compare(2, 1) : Double.compare(1, 2);
 		for (int x = 0; x < maxx; x++)
 			for (int y = 0; y < maxy; y++)
 				for (int z = 0; z < maxz; z++)
 				{
-					double v = splines[x][y][z].value000();
+					final double v = splines[x][y][z].value000();
 					if (Double.compare(v, value) == dir)
 					{
 						value = v;
@@ -2753,11 +2674,11 @@ public class CustomTricubicInterpolatingFunction
 
 		// We want to do refinement within the cube of the optimum node
 		// Evaluate the gradient at the node position so we pick the correct node
-		double[] df_da = new double[3];
+		final double[] df_da = new double[3];
 		splines[ox][oy][oz].value000(df_da);
 
-		// Check if moving in the wrong direction. 
-		// If the gradient is zero then keep the same node as we already know this is the 
+		// Check if moving in the wrong direction.
+		// If the gradient is zero then keep the same node as we already know this is the
 		// optimum point. A cubic polynomial between this and the next node with zero gradient
 		// would require a lower neighbour node or a flat line between them making them equal
 		// for interpolation.
@@ -2768,7 +2689,7 @@ public class CustomTricubicInterpolatingFunction
 		if (Double.compare(df_da[2], 0) == -dir)
 			oz = Math.max(0, oz - 1);
 
-		double[] optimum = splines[ox][oy][oz].search(maximum, refinements, relativeError, absoluteError);
+		final double[] optimum = splines[ox][oy][oz].search(maximum, refinements, relativeError, absoluteError);
 
 		// Scale the coordinates
 		optimum[0] = xval[ox] + xscale[ox] * optimum[0];
@@ -2780,7 +2701,7 @@ public class CustomTricubicInterpolatingFunction
 	/**
 	 * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
 	 * and derivatives for each vertex of the cube [2x2x2].
-	 * 
+	 *
 	 * @param f
 	 *            Values of the function on every grid point.
 	 * @param dFdX
@@ -2820,7 +2741,7 @@ public class CustomTricubicInterpolatingFunction
 	/**
 	 * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
 	 * and derivatives for each vertex of the cube [2x2x2].
-	 * 
+	 *
 	 * @param beta
 	 *            the beta array working space (must be a double[64])
 	 * @param f
@@ -2909,7 +2830,7 @@ public class CustomTricubicInterpolatingFunction
 		beta[61] = d3FdXdYdZ.get(1, 0, 1);
 		beta[62] = d3FdXdYdZ.get(0, 1, 1);
 		beta[63] = d3FdXdYdZ.get(1, 1, 1);
-		double[] a = computeCoefficientsInlineCollectTerms(beta);
+		final double[] a = computeCoefficientsInlineCollectTerms(beta);
 		return new DoubleCustomTricubicFunction(a);
 	}
 
@@ -2919,7 +2840,7 @@ public class CustomTricubicInterpolatingFunction
 	 * the scale for each dimension.
 	 * <p>
 	 * To use the function to create an interpolated value in the range [0-xscale,0-yscale,0-zscale]:
-	 * 
+	 *
 	 * <pre>
 	 * double value = f.value(x / xscale, y / yscale, z / zscale);
 	 * </pre>
@@ -2973,7 +2894,7 @@ public class CustomTricubicInterpolatingFunction
 	 * the scale for each dimension.
 	 * <p>
 	 * To use the function to create an interpolated value in the range [0-xscale,0-yscale,0-zscale]:
-	 * 
+	 *
 	 * <pre>
 	 * double value = f.value(x / xscale, y / yscale, z / zscale);
 	 * </pre>
@@ -3080,7 +3001,7 @@ public class CustomTricubicInterpolatingFunction
 		beta[61] = d3FdXdYdZ.get(1, 0, 1) * xRyRzR;
 		beta[62] = d3FdXdYdZ.get(0, 1, 1) * xRyRzR;
 		beta[63] = d3FdXdYdZ.get(1, 1, 1) * xRyRzR;
-		double[] a = computeCoefficientsInlineCollectTerms(beta);
+		final double[] a = computeCoefficientsInlineCollectTerms(beta);
 		return new DoubleCustomTricubicFunction(a);
 	}
 }

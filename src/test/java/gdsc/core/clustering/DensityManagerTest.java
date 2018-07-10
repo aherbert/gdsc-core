@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -46,15 +46,15 @@ public class DensityManagerTest
 	@Test
 	public void densityWithTriangleMatchesDensity()
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		for (int n : N)
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		for (final int n : N)
 		{
-			DensityManager dm = createDensityManager(r, size, n);
+			final DensityManager dm = createDensityManager(r, size, n);
 
-			for (float radius : radii)
+			for (final float radius : radii)
 			{
-				int[] d1 = dm.calculateDensity(radius);
-				int[] d2 = dm.calculateDensityTriangle(radius);
+				final int[] d1 = dm.calculateDensity(radius);
+				final int[] d2 = dm.calculateDensityTriangle(radius);
 
 				Assert.assertArrayEquals(String.format("N=%d, R=%f", n, radius), d1, d2);
 			}
@@ -64,15 +64,15 @@ public class DensityManagerTest
 	@Test
 	public void densityWithGridMatchesDensity()
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		for (int n : N)
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		for (final int n : N)
 		{
-			DensityManager dm = createDensityManager(r, size, n);
+			final DensityManager dm = createDensityManager(r, size, n);
 
-			for (float radius : radii)
+			for (final float radius : radii)
 			{
-				int[] d1 = dm.calculateDensity(radius);
-				int[] d2 = dm.calculateDensityGrid(radius);
+				final int[] d1 = dm.calculateDensity(radius);
+				final int[] d2 = dm.calculateDensityGrid(radius);
 
 				Assert.assertArrayEquals(String.format("N=%d, R=%f", n, radius), d1, d2);
 			}
@@ -84,23 +84,24 @@ public class DensityManagerTest
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
 
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		for (int n : N)
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		for (final int n : N)
 		{
-			DensityManager dm = createDensityManager(r, size, n);
+			final DensityManager dm = createDensityManager(r, size, n);
 
-			for (float radius : radii)
+			for (final float radius : radii)
 			{
 				long start = System.nanoTime();
 				for (int i = 10; i-- > 0;)
 					dm.calculateDensityTriangle(radius);
-				long t1 = System.nanoTime() - start;
+				final long t1 = System.nanoTime() - start;
 				start = System.nanoTime();
 				for (int i = 10; i-- > 0;)
 					dm.calculateDensityGrid(radius);
-				long t2 = System.nanoTime() - start;
+				final long t2 = System.nanoTime() - start;
 
-				String msg = String.format("Grid vs Triangle. N=%d, R=%f : %fx faster", n, radius, (double) t1 / t2);
+				final String msg = String.format("Grid vs Triangle. N=%d, R=%f : %fx faster", n, radius,
+						(double) t1 / t2);
 				TestSettings.info(msg);
 				Assert.assertTrue(msg, t2 < t1);
 			}
@@ -112,23 +113,24 @@ public class DensityManagerTest
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
 
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		for (int n : N)
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		for (final int n : N)
 		{
-			DensityManager dm = createDensityManager(r, size, n);
+			final DensityManager dm = createDensityManager(r, size, n);
 
-			for (float radius : radii)
+			for (final float radius : radii)
 			{
 				long start = System.nanoTime();
 				for (int i = 10; i-- > 0;)
 					dm.calculateDensity(radius);
-				long t1 = System.nanoTime() - start;
+				final long t1 = System.nanoTime() - start;
 				start = System.nanoTime();
 				for (int i = 10; i-- > 0;)
 					dm.calculateDensityGrid(radius);
-				long t2 = System.nanoTime() - start;
+				final long t2 = System.nanoTime() - start;
 
-				String msg = String.format("Grid vs Standard. N=%d, R=%f : %fx faster", n, radius, (double) t1 / t2);
+				final String msg = String.format("Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
+						(double) t1 / t2);
 				TestSettings.info(msg);
 				Assert.assertTrue(msg, t2 < t1);
 			}
@@ -138,15 +140,15 @@ public class DensityManagerTest
 	@Test
 	public void sumWithGridMatchesSum()
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		for (int n : N)
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		for (final int n : N)
 		{
-			DensityManager dm = createDensityManager(r, size, n);
+			final DensityManager dm = createDensityManager(r, size, n);
 
-			for (float radius : radii)
+			for (final float radius : radii)
 			{
-				int s1 = dm.calculateSum(radius);
-				int s2 = dm.calculateSumGrid(radius);
+				final int s1 = dm.calculateSum(radius);
+				final int s2 = dm.calculateSumGrid(radius);
 
 				Assert.assertEquals(String.format("N=%d, R=%f", n, radius), s1, s2);
 			}
@@ -158,23 +160,23 @@ public class DensityManagerTest
 	{
 		TestSettings.assume(TestComplexity.MEDIUM);
 
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		for (int n : N)
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		for (final int n : N)
 		{
-			DensityManager dm = createDensityManager(r, size, n);
+			final DensityManager dm = createDensityManager(r, size, n);
 
-			for (float radius : radii)
+			for (final float radius : radii)
 			{
 				long start = System.nanoTime();
 				for (int i = 10; i-- > 0;)
 					dm.calculateSum(radius);
-				long t1 = System.nanoTime() - start;
+				final long t1 = System.nanoTime() - start;
 				start = System.nanoTime();
 				for (int i = 10; i-- > 0;)
 					dm.calculateSumGrid(radius);
-				long t2 = System.nanoTime() - start;
+				final long t2 = System.nanoTime() - start;
 
-				String msg = String.format("Sum Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
+				final String msg = String.format("Sum Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
 				TestSettings.info(msg);
 				Assert.assertTrue(msg, t2 < t1);
@@ -185,15 +187,15 @@ public class DensityManagerTest
 	@Test
 	public void blockDensityMatchesBlockDensity2()
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		for (int n : N)
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		for (final int n : N)
 		{
-			DensityManager dm = createDensityManager(r, size, n);
+			final DensityManager dm = createDensityManager(r, size, n);
 
-			for (float radius : radii)
+			for (final float radius : radii)
 			{
-				int[] d1 = dm.calculateBlockDensity(radius);
-				int[] d2 = dm.calculateBlockDensity2(radius);
+				final int[] d1 = dm.calculateBlockDensity(radius);
+				final int[] d2 = dm.calculateBlockDensity2(radius);
 
 				Assert.assertArrayEquals(String.format("N=%d, R=%f", n, radius), d1, d2);
 			}
@@ -203,15 +205,15 @@ public class DensityManagerTest
 	@Test
 	public void blockDensity2MatchesBlockDensity3()
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		for (int n : N)
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		for (final int n : N)
 		{
-			DensityManager dm = createDensityManager(r, size, n);
+			final DensityManager dm = createDensityManager(r, size, n);
 
-			for (float radius : radii)
+			for (final float radius : radii)
 			{
-				int[] d1 = dm.calculateBlockDensity2(radius);
-				int[] d2 = dm.calculateBlockDensity3(radius);
+				final int[] d1 = dm.calculateBlockDensity2(radius);
+				final int[] d2 = dm.calculateBlockDensity3(radius);
 
 				Assert.assertArrayEquals(String.format("N=%d, R=%f", n, radius), d1, d2);
 			}
@@ -224,24 +226,25 @@ public class DensityManagerTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		for (int n : N)
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		for (final int n : N)
 		{
-			DensityManager dm = createDensityManager(r, size, n);
+			final DensityManager dm = createDensityManager(r, size, n);
 
-			for (float radius : radii)
+			for (final float radius : radii)
 			{
 				long start = System.nanoTime();
 				for (int i = 10; i-- > 0;)
 					dm.calculateBlockDensity(radius);
-				long t1 = System.nanoTime() - start;
+				final long t1 = System.nanoTime() - start;
 				start = System.nanoTime();
 				for (int i = 10; i-- > 0;)
 					dm.calculateBlockDensity2(radius);
-				long t2 = System.nanoTime() - start;
+				final long t2 = System.nanoTime() - start;
 
-				String msg = String.format("calculateBlockDensity2 vs calculateBlockDensity. N=%d, R=%f : %fx faster",
-						n, radius, (double) t1 / t2);
+				final String msg = String.format(
+						"calculateBlockDensity2 vs calculateBlockDensity. N=%d, R=%f : %fx faster", n, radius,
+						(double) t1 / t2);
 				TestSettings.info(msg);
 				Assert.assertTrue(msg, t2 < t1);
 			}
@@ -253,24 +256,25 @@ public class DensityManagerTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		for (int n : N)
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		for (final int n : N)
 		{
-			DensityManager dm = createDensityManager(r, size, n);
+			final DensityManager dm = createDensityManager(r, size, n);
 
-			for (float radius : radii)
+			for (final float radius : radii)
 			{
 				long start = System.nanoTime();
 				for (int i = 10; i-- > 0;)
 					dm.calculateBlockDensity3(radius);
-				long t1 = System.nanoTime() - start;
+				final long t1 = System.nanoTime() - start;
 				start = System.nanoTime();
 				for (int i = 10; i-- > 0;)
 					dm.calculateBlockDensity2(radius);
-				long t2 = System.nanoTime() - start;
+				final long t2 = System.nanoTime() - start;
 
-				String msg = String.format("calculateBlockDensity2 vs calculateBlockDensity3. N=%d, R=%f : %fx faster",
-						n, radius, (double) t1 / t2);
+				final String msg = String.format(
+						"calculateBlockDensity2 vs calculateBlockDensity3. N=%d, R=%f : %fx faster", n, radius,
+						(double) t1 / t2);
 				// This is not always faster
 				//TestSettings.info(msg);
 				//Assert.assertTrue(msg, t2 < t1);
@@ -279,16 +283,16 @@ public class DensityManagerTest
 		}
 	}
 
-	private DensityManager createDensityManager(RandomGenerator r, int size, int n)
+	private static DensityManager createDensityManager(RandomGenerator r, int size, int n)
 	{
-		float[] xcoord = new float[n];
-		float[] ycoord = new float[xcoord.length];
+		final float[] xcoord = new float[n];
+		final float[] ycoord = new float[xcoord.length];
 		for (int i = 0; i < xcoord.length; i++)
 		{
 			xcoord[i] = r.nextFloat() * size;
 			ycoord[i] = r.nextFloat() * size;
 		}
-		DensityManager dm = new DensityManager(xcoord, ycoord, new Rectangle(size, size));
+		final DensityManager dm = new DensityManager(xcoord, ycoord, new Rectangle(size, size));
 		return dm;
 	}
 }

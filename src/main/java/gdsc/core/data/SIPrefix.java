@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -224,7 +224,7 @@ public enum SIPrefix
 	{
 		if (ordinal < 0)
 			throw new IllegalArgumentException("Negative ordinal");
-		SIPrefix[] values = SIPrefix.values();
+		final SIPrefix[] values = SIPrefix.values();
 		if (ordinal >= values.length)
 			throw new IllegalArgumentException("Ordinal too high");
 		return values[ordinal];
@@ -242,7 +242,7 @@ public enum SIPrefix
 	 */
 	public static SIPrefix forOrdinal(int ordinal, SIPrefix defaultValue)
 	{
-		SIPrefix[] values = SIPrefix.values();
+		final SIPrefix[] values = SIPrefix.values();
 		if (ordinal < 0 || ordinal >= values.length)
 			return (defaultValue == null) ? values[0] : defaultValue;
 		return values[ordinal];
@@ -253,7 +253,7 @@ public enum SIPrefix
 	 * but at least one digit is before the decimal point.
 	 * <p>
 	 * The string representation for value of [unit] for example can be:
-	 * 
+	 *
 	 * <pre>
 	 * double value = ...;
 	 * SIPrefix p = SIPrefix.getPrefix(value);
@@ -275,9 +275,7 @@ public enum SIPrefix
 		final int p_1 = p.length - 1;
 		int i = 0;
 		while (i < p_1 && value < p[i].getFactor())
-		{
 			i++;
-		}
 		return p[i];
 	}
 }

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -218,7 +218,7 @@ public class OPTICSResult implements ClusteringResult
 	 */
 	public int[] getOrder()
 	{
-		int[] data = new int[size()];
+		final int[] data = new int[size()];
 		for (int i = size(); i-- > 0;)
 			data[opticsResults[i].parent] = i + 1;
 		return data;
@@ -231,7 +231,7 @@ public class OPTICSResult implements ClusteringResult
 	 */
 	public int[] getPredecessor()
 	{
-		int[] data = new int[size()];
+		final int[] data = new int[size()];
 		for (int i = size(); i-- > 0;)
 			data[opticsResults[i].parent] = opticsResults[i].predecessor;
 		return data;
@@ -257,7 +257,7 @@ public class OPTICSResult implements ClusteringResult
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * gdsc.core.clustering.optics.ClusteringResult#scrambleClusters(org.apache.commons.math3.random.RandomGenerator)
 	 */
@@ -267,46 +267,44 @@ public class OPTICSResult implements ClusteringResult
 		hulls = null;
 		bounds = null;
 
-		int max = getNumberOfClusters();
+		final int max = getNumberOfClusters();
 		if (max == 0)
 			return;
 
-		// Scramble within levels. 
+		// Scramble within levels.
 		// This makes the cluster number increase with level.
-		int nLevels = getNumberOfLevels();
+		final int nLevels = getNumberOfLevels();
 
 		// Build the clusters Id at each level
-		TIntArrayList[] clusterIds = new TIntArrayList[nLevels];
+		final TIntArrayList[] clusterIds = new TIntArrayList[nLevels];
 		for (int l = 0; l < nLevels; l++)
 			clusterIds[l] = new TIntArrayList();
-		ArrayList<OPTICSCluster> list = getAllClusters();
-		for (OPTICSCluster c : list)
+		final ArrayList<OPTICSCluster> list = getAllClusters();
+		for (final OPTICSCluster c : list)
 			clusterIds[c.getLevel()].add(c.clusterId);
 
 		// Map old Ids to new Ids. Process through the levels.
 		int id = 1;
-		int[] map = new int[max + 1];
+		final int[] map = new int[max + 1];
 		for (int l = 0; l < nLevels; l++)
 		{
-			int[] set = clusterIds[l].toArray();
+			final int[] set = clusterIds[l].toArray();
 			MathArrays.shuffle(set, rng);
-			for (int clusterId : set)
+			for (final int clusterId : set)
 				map[clusterId] = id++;
 		}
 
 		for (int i = size(); i-- > 0;)
-		{
 			if (opticsResults[i].clusterId > 0)
 				opticsResults[i].clusterId = map[opticsResults[i].clusterId];
-		}
 
-		for (OPTICSCluster c : list)
+		for (final OPTICSCluster c : list)
 			c.clusterId = map[c.clusterId];
 	}
 
 	/**
 	 * Gets the clustering hierarchy produced by the OPTICS xi algorithm.
-	 * 
+	 *
 	 * @see #extractClusters(double, int)
 	 *
 	 * @return the clustering hierarchy
@@ -318,14 +316,14 @@ public class OPTICSResult implements ClusteringResult
 
 	/**
 	 * Gets the all clusters produced by the OPTICS xi algorithm in a single list.
-	 * 
+	 *
 	 * @see #extractClusters(double, int)
 	 *
 	 * @return the clusters list
 	 */
 	public ArrayList<OPTICSCluster> getAllClusters()
 	{
-		ArrayList<OPTICSCluster> list = new ArrayList<OPTICSCluster>();
+		final ArrayList<OPTICSCluster> list = new ArrayList<>();
 		addClusters(clustering, list);
 		return list;
 	}
@@ -343,7 +341,7 @@ public class OPTICSResult implements ClusteringResult
 		if (hierarchy == null)
 			return;
 
-		for (OPTICSCluster c : hierarchy)
+		for (final OPTICSCluster c : hierarchy)
 		{
 			addClusters(c.children, list);
 			list.add(c);
@@ -374,12 +372,12 @@ public class OPTICSResult implements ClusteringResult
 			return;
 
 		// Get the number of clusters
-		int nClusters = getNumberOfClusters();
+		final int nClusters = getNumberOfClusters();
 		hulls = new ConvexHull[nClusters];
 		bounds = new Rectangle2D[nClusters];
 
 		// Descend the hierarchy and compute the hulls, smallest first
-		ScratchSpace scratch = new ScratchSpace(100);
+		final ScratchSpace scratch = new ScratchSpace(100);
 		computeConvexHulls(clustering, scratch);
 	}
 
@@ -387,7 +385,7 @@ public class OPTICSResult implements ClusteringResult
 	{
 		if (hierarchy == null)
 			return;
-		for (OPTICSCluster c : hierarchy)
+		for (final OPTICSCluster c : hierarchy)
 		{
 			// Compute the hulls of the children
 			computeConvexHulls(c.children, scratch);
@@ -395,69 +393,49 @@ public class OPTICSResult implements ClusteringResult
 			// Count the unique points at this level of the hierarchy
 			int nPoints = 0;
 			for (int i = c.start; i <= c.end; i++)
-			{
 				if (opticsResults[i].clusterId == c.clusterId)
 					nPoints++;
-			}
 
 			// Add the hull points in the children
 			if (c.children != null)
-			{
-				for (OPTICSCluster child : c.children)
+				for (final OPTICSCluster child : c.children)
 				{
-					ConvexHull h = getConvexHull(child.clusterId);
+					final ConvexHull h = getConvexHull(child.clusterId);
 					if (h != null)
-					{
 						nPoints += h.size();
-					}
 					else
-					{
 						// Count all the points since hull computation failed under this cluster
 						nPoints += child.length();
-					}
 				}
-			}
 
 			// Ensure we have the scratch space
 			scratch.resize(nPoints);
 
 			// Extract all the points
 			for (int i = c.start; i <= c.end; i++)
-			{
 				if (opticsResults[i].clusterId == c.clusterId)
-				{
 					scratch.add(opticsManager.getOriginalX(opticsResults[i].parent),
 							opticsManager.getOriginalY(opticsResults[i].parent));
-				}
-			}
 
 			// Add the hulls from the children
 			if (c.children != null)
-			{
-				for (OPTICSCluster child : c.children)
+				for (final OPTICSCluster child : c.children)
 				{
-					ConvexHull h = getConvexHull(child.clusterId);
+					final ConvexHull h = getConvexHull(child.clusterId);
 					if (h != null)
-					{
 						scratch.add(h.x, h.y);
-					}
 					else
-					{
 						// Add all the points since hull computation failed under this cluster
 						for (int i = child.start; i <= child.end; i++)
-						{
 							scratch.add(opticsManager.getOriginalX(opticsResults[i].parent),
 									opticsManager.getOriginalY(opticsResults[i].parent));
-						}
-					}
 				}
-			}
 
 			// Compute the bounds
 			bounds[c.clusterId - 1] = scratch.getBounds();
 
 			// Compute the hull
-			ConvexHull h = scratch.getConvexHull();
+			final ConvexHull h = scratch.getConvexHull();
 			if (h != null)
 				hulls[c.clusterId - 1] = h;
 			else
@@ -483,7 +461,7 @@ public class OPTICSResult implements ClusteringResult
 	{
 		if (hierarchy == null)
 			return count;
-		for (OPTICSCluster c : hierarchy)
+		for (final OPTICSCluster c : hierarchy)
 		{
 			// Count the children
 			count = getNumberOfClusters(c.children, count);
@@ -507,15 +485,13 @@ public class OPTICSResult implements ClusteringResult
 
 	private int getNumberOfLevels(List<OPTICSCluster> hierarchy, int maxLevel)
 	{
-		for (OPTICSCluster c : hierarchy)
-		{
+		for (final OPTICSCluster c : hierarchy)
 			if (c.children != null)
 				// Process the children
 				maxLevel = getNumberOfLevels(c.children, maxLevel);
 			else
 				// Then use this level
 				maxLevel = Math.max(maxLevel, c.getLevel());
-		}
 		return maxLevel;
 	}
 
@@ -537,7 +513,7 @@ public class OPTICSResult implements ClusteringResult
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.ClusteringResult#getBounds(int)
 	 */
 	@Override
@@ -546,11 +522,11 @@ public class OPTICSResult implements ClusteringResult
 		if (bounds == null || clusterId <= 0 || clusterId > bounds.length)
 			return null;
 		return bounds[clusterId - 1];
-	};
+	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.ClusteringResult#getClusters()
 	 */
 	@Override
@@ -569,24 +545,16 @@ public class OPTICSResult implements ClusteringResult
 	 */
 	public int[] getClusters(boolean core)
 	{
-		int[] clusters = new int[size()];
+		final int[] clusters = new int[size()];
 		if (core)
 		{
 			for (int i = size(); i-- > 0;)
-			{
 				if (opticsResults[i].isCorePoint())
-				{
 					clusters[opticsResults[i].parent] = opticsResults[i].clusterId;
-				}
-			}
 		}
 		else
-		{
 			for (int i = size(); i-- > 0;)
-			{
 				clusters[opticsResults[i].parent] = opticsResults[i].clusterId;
-			}
-		}
 		return clusters;
 	}
 
@@ -619,28 +587,24 @@ public class OPTICSResult implements ClusteringResult
 		if (start > size() || end < 1)
 			return EMPTY;
 
-		// Clip to the range 
+		// Clip to the range
 		start = Math.max(0, start - 1);
 		end = Math.min(size() - 1, end - 1);
 
-		TIntArrayList clusters = new TIntArrayList();
+		final TIntArrayList clusters = new TIntArrayList();
 
-		boolean single = start == end;
+		final boolean single = start == end;
 
 		// Use the hierarchy
-		for (OPTICSCluster cluster : clustering)
-		{
+		for (final OPTICSCluster cluster : clustering)
 			if (overlap(cluster.start, cluster.end, start, end))
 			{
 				clusters.add(cluster.clusterId);
 				if (includeChildren)
-				{
 					addClusters(cluster.children, clusters);
-				}
 				if (single)
 					break;
 			}
-		}
 
 		return clusters.toArray();
 	}
@@ -665,7 +629,7 @@ public class OPTICSResult implements ClusteringResult
 		if (hierarchy == null)
 			return;
 
-		for (OPTICSCluster c : hierarchy)
+		for (final OPTICSCluster c : hierarchy)
 		{
 			addClusters(c.children, clusters);
 			clusters.add(c.clusterId);
@@ -674,7 +638,7 @@ public class OPTICSResult implements ClusteringResult
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.clustering.optics.ClusteringResult#getParents(int[])
 	 */
 	@Override
@@ -690,41 +654,27 @@ public class OPTICSResult implements ClusteringResult
 		if (clustering != null && clustering.get(0) instanceof OPTICSDBSCANCluster)
 		{
 			// No hierarchy.
-			// Stupid implementation processes each cluster in turn. 
+			// Stupid implementation processes each cluster in turn.
 			if (clusterIds.length == 1)
 			{
 				final int clusterId = clusterIds[0];
 				for (int i = size(); i-- > 0;)
-				{
 					if (clusterId == opticsResults[i].clusterId)
-					{
 						parents.add(opticsResults[i].parent);
-					}
-				}
 			}
 			else
 			{
-				// Multiple clusters selected. Prevent double counting by 
-				// using a hash set to store each cluster we have processed 
-				int nClusters = getNumberOfClusters();
-				TIntHashSet ids = new TIntHashSet(clusterIds.length);
+				// Multiple clusters selected. Prevent double counting by
+				// using a hash set to store each cluster we have processed
+				final int nClusters = getNumberOfClusters();
+				final TIntHashSet ids = new TIntHashSet(clusterIds.length);
 
-				for (int clusterId : clusterIds)
-				{
+				for (final int clusterId : clusterIds)
 					if (clusterId > 0 && clusterId <= nClusters)
-					{
 						if (ids.add(clusterId))
-						{
 							for (int i = size(); i-- > 0;)
-							{
 								if (clusterId == opticsResults[i].clusterId)
-								{
 									parents.add(opticsResults[i].parent);
-								}
-							}
-						}
-					}
-				}
 			}
 
 			return parents.toArray();
@@ -732,16 +682,14 @@ public class OPTICSResult implements ClusteringResult
 		else
 		{
 			// Use a map so we know the order for each cluster.
-			// Add all the ids we have yet to process 
-			int nClusters = getNumberOfClusters();
+			// Add all the ids we have yet to process
+			final int nClusters = getNumberOfClusters();
 
-			TIntIntHashMap ids = new TIntIntHashMap(clusterIds.length);
+			final TIntIntHashMap ids = new TIntIntHashMap(clusterIds.length);
 
 			for (int i = 0; i < clusterIds.length; i++)
 				if (clusterIds[i] > 0 && clusterIds[i] <= nClusters)
-				{
 					ids.putIfAbsent(clusterIds[i], i);
-				}
 
 			// Used to maintain the order of the input clusters
 			final TIntArrayList parentsRank = new TIntArrayList();
@@ -750,8 +698,8 @@ public class OPTICSResult implements ClusteringResult
 			addClusters(clustering, ids, parents, parentsRank);
 
 			// Sort
-			int[] parentIds = parents.toArray();
-			int[] rank = parentsRank.toArray();
+			final int[] parentIds = parents.toArray();
+			final int[] rank = parentsRank.toArray();
 			Sort.sortArrays(parentIds, rank, true);
 			return parentIds;
 		}
@@ -762,18 +710,15 @@ public class OPTICSResult implements ClusteringResult
 	{
 		if (hierarchy == null)
 			return;
-		for (OPTICSCluster cluster : hierarchy)
-		{
+		for (final OPTICSCluster cluster : hierarchy)
 			if (ids.contains(cluster.clusterId))
 			{
 				// Include all
-				int rank = ids.get(cluster.clusterId);
+				final int rank = ids.get(cluster.clusterId);
 				for (int i = cluster.start; i <= cluster.end; i++)
-				{
 					parents.add(opticsResults[i].parent);
-				}
-				int fromIndex = parentsRank.size();
-				int toIndex = parents.size();
+				final int fromIndex = parentsRank.size();
+				final int toIndex = parents.size();
 				parentsRank.fill(fromIndex, toIndex, rank);
 
 				if (ids.size() == 1)
@@ -785,11 +730,8 @@ public class OPTICSResult implements ClusteringResult
 					return;
 			}
 			else
-			{
 				// Scan children
 				addClusters(cluster.children, ids, parents, parentsRank);
-			}
-		}
 	}
 
 	/**
@@ -804,7 +746,7 @@ public class OPTICSResult implements ClusteringResult
 	{
 		ids.remove(cluster.clusterId);
 		if (cluster.children != null)
-			for (OPTICSCluster child : cluster.children)
+			for (final OPTICSCluster child : cluster.children)
 				removeIds(child, ids);
 	}
 
@@ -819,19 +761,17 @@ public class OPTICSResult implements ClusteringResult
 	public int[] getTopLevelClusters(boolean core)
 	{
 		// Fill in the top level clusters using the OPTICS order
-		int[] clusters = new int[size()];
-		for (OPTICSCluster c : clustering)
-		{
+		final int[] clusters = new int[size()];
+		for (final OPTICSCluster c : clustering)
 			fill(clusters, c.start, c.end + 1, c.clusterId);
-		}
 
 		// Get the order (zero-based)
-		int[] order = new int[size()];
+		final int[] order = new int[size()];
 		for (int i = size(); i-- > 0;)
 			order[opticsResults[i].parent] = i;
 
 		// Map back to the input order
-		int[] copy = clusters.clone();
+		final int[] copy = clusters.clone();
 		for (int i = size(); i-- > 0;)
 			clusters[i] = copy[order[i]];
 
@@ -882,7 +822,7 @@ public class OPTICSResult implements ClusteringResult
 		int nextClusterId = NOISE;
 		final OPTICSOrder[] clusterOrderedObjects = opticsResults;
 		// Store the clusters
-		ArrayList<OPTICSCluster> setOfClusters = new ArrayList<OPTICSCluster>();
+		final ArrayList<OPTICSCluster> setOfClusters = new ArrayList<>();
 		int start = 0, end = 0, id = 0, size = 0;
 		resetClusterIds();
 		for (int i = 0; i < clusterOrderedObjects.length; i++)
@@ -900,9 +840,7 @@ public class OPTICSResult implements ClusteringResult
 
 					// Record the last cluster
 					if (size != 0)
-					{
 						setOfClusters.add(new OPTICSDBSCANCluster(start, end, id, size));
-					}
 
 					clusterId = ++nextClusterId;
 					object.clusterId = clusterId;
@@ -912,12 +850,10 @@ public class OPTICSResult implements ClusteringResult
 					size = 1;
 				}
 				else
-				{
 					// This is noise. It was reset earlier in resetClusterIds().
-					// Ensure no more objects are assigned to the cluster since we 
+					// Ensure no more objects are assigned to the cluster since we
 					// have exceeded the generating distance.
 					clusterId = NOISE;
-				}
 			}
 			else
 			{
@@ -937,14 +873,12 @@ public class OPTICSResult implements ClusteringResult
 
 		// Add last cluster
 		if (size != 0)
-		{
 			setOfClusters.add(new OPTICSDBSCANCluster(start, end, id, size));
-		}
 
 		// Write clusters.
 		// -=-=-
-		// This is not valid if we are doing 'core' mode since we may have a start and end 
-		// point that contains objects that are not in the cluster (because their 
+		// This is not valid if we are doing 'core' mode since we may have a start and end
+		// point that contains objects that are not in the cluster (because their
 		// coreDistance was above the generating distance).
 		// -=-=-
 
@@ -1097,13 +1031,13 @@ public class OPTICSResult implements ClusteringResult
 		final boolean useLowerLimit = (options & XI_OPTION_LOWER_LIMIT) != 0 && ll > 0;
 
 		// This code is based on the original OPTICS paper and an R-implementation available here:
-		// https://cran.r-project.org/web/packages/dbscan/ 
+		// https://cran.r-project.org/web/packages/dbscan/
 		// There is also a Java implementation within the ELKI project:
 		// https://elki-project.github.io/
 		// The ELKI project is used for JUnit testing this implementation.
 
-		TurboList<SteepDownArea> setOfSteepDownAreas = new TurboList<SteepDownArea>();
-		TurboList<OPTICSCluster> setOfClusters = new TurboList<OPTICSCluster>();
+		final TurboList<SteepDownArea> setOfSteepDownAreas = new TurboList<>();
+		final TurboList<OPTICSCluster> setOfClusters = new TurboList<>();
 		int index = 0;
 		// The maximum value between a certain point and the current index; Maximum-in-between (mib).
 		double mib = 0;
@@ -1120,7 +1054,7 @@ public class OPTICSResult implements ClusteringResult
 			// The last point cannot be the start of a steep area so end.
 			if (!valid(index + 1, size))
 				break;
-			// Test if this is a steep down area 
+			// Test if this is a steep down area
 			if (steepDown(index, r, ixi))
 			{
 				// The first reachable point must have a reachability equal or below the upper limit
@@ -1140,9 +1074,9 @@ public class OPTICSResult implements ClusteringResult
 
 				// Update mib values with current mib and filter
 				updateFilterSDASet(mib, setOfSteepDownAreas, ixi);
-				double startValue = r[index];
+				final double startValue = r[index];
 				mib = 0;
-				int startSteep = index;
+				final int startSteep = index;
 				int endSteep = index + 1;
 				for (index++; valid(index, size); index++)
 				{
@@ -1154,11 +1088,9 @@ public class OPTICSResult implements ClusteringResult
 					}
 					// Stop looking if not going downward or after minPts of non steep area
 					if (!steepDown(index, r, 1) || index - endSteep > minPts)
-					{
 						break;
-					}
 				}
-				SteepDownArea sda = new SteepDownArea(startSteep, endSteep, startValue);
+				final SteepDownArea sda = new SteepDownArea(startSteep, endSteep, startValue);
 				//System.out.println("New " + sda);
 				setOfSteepDownAreas.add(sda);
 				continue;
@@ -1184,29 +1116,19 @@ public class OPTICSResult implements ClusteringResult
 				updateFilterSDASet(mib, setOfSteepDownAreas, ixi);
 				SteepUpArea sua;
 				{
-					int startSteep = index;
+					final int startSteep = index;
 					int endSteep = index + 1;
 					mib = r[index];
 					double eSuccessor = getNextReachability(index, size, r);
 					if (eSuccessor != Double.POSITIVE_INFINITY)
-					{
 						for (index++; valid(index, size); index++)
 						{
 							if (steepUp(index, r, ixi))
 							{
 								// The last reachable point must have a reachability equal or below the upper limit
 								if (useUpperLimit && r[index] > ul)
-								{
 									// Not allowed so end
 									break;
-								}
-								// The last reachable point must have a reachability equal or above the lower limit
-								// This check is not relevant as we are going up and are already above the limit.
-								//if (useLowerLimit && r[index] < ll)
-								//{
-								//	// Not allowed so end
-								//	break;
-								//}
 
 								endSteep = index + 1;
 								mib = r[index];
@@ -1220,11 +1142,8 @@ public class OPTICSResult implements ClusteringResult
 							}
 							// Stop looking if not going upward or after minPts of non steep area
 							if (!steepUp(index, r, 1) || index - endSteep > minPts)
-							{
 								break;
-							}
 						}
-					}
 					else
 					{
 						endSteep--;
@@ -1247,36 +1166,26 @@ public class OPTICSResult implements ClusteringResult
 					if (sda.mib > threshold)
 						continue;
 
-					// Default values 
+					// Default values
 					int cstart = sda.s;
 					int cend = sua.e;
 
 					// Credit to ELKI
-					// NOT in original OPTICS article: never include infinity-reachable 
+					// NOT in original OPTICS article: never include infinity-reachable
 					// points at the end of the cluster.
 					if (!noCorrect)
-					{
 						while (cend > cstart && r[cend] == Double.POSITIVE_INFINITY)
-						{
 							cend--;
-						}
-					}
 
 					// Condition 4
 					{
 						// Case b
 						if (sda.maximum * ixi >= sua.maximum)
-						{
 							while (cstart < cend && r[cstart + 1] > sua.maximum)
 								cstart++;
-						}
-						// Case c
 						else if (sua.maximum * ixi >= sda.maximum)
-						{
 							while (cend > cstart && r[cend - 1] > sda.maximum)
 								cend--;
-						}
-						// Case a is the default
 					}
 
 					// This NOT in the original article - credit to ELKI for finding this.
@@ -1284,32 +1193,28 @@ public class OPTICSResult implements ClusteringResult
 					// Ensure that the predecessor is in the current cluster. This filter
 					// removes common artifacts from the Xi method.
 					if (!noCorrect)
-					{
 						simplify: while (cend > cstart)
 						{
-							int predecessor = get(cend).predecessor;
+							final int predecessor = get(cend).predecessor;
 							for (int c = cstart; c < cend; c++)
-							{
 								if (predecessor == get(c).parent)
 									break simplify;
-							}
 							// Not found.
 							cend--;
 						}
-					}
 
-					// This is the R-code but I do not know why so I leave it out. 
+					// This is the R-code but I do not know why so I leave it out.
 					// Ensure the last steep up point is not included if it's xi significant
 					//if (steepUp(index - 1, r, ixi))
 					//{
 					//	cend--;
 					//}
 
-					// Condition 3A: obey minpts 
+					// Condition 3A: obey minpts
 					if (cend - cstart + 1 < minPts)
 						continue;
 
-					// Build the cluster 
+					// Build the cluster
 					clusterId++;
 					OPTICSCluster cluster;
 					if (topLevel)
@@ -1322,7 +1227,7 @@ public class OPTICSResult implements ClusteringResult
 						final boolean[] remove = new boolean[setOfClusters.size()];
 						for (int ii = 0; ii < setOfClusters.size(); ii++)
 						{
-							OPTICSCluster child = setOfClusters.getf(ii);
+							final OPTICSCluster child = setOfClusters.getf(ii);
 							if (cstart <= child.start && child.end <= cend)
 							{
 								if (lowestId > child.clusterId)
@@ -1338,9 +1243,7 @@ public class OPTICSResult implements ClusteringResult
 
 						// Assign all points
 						for (int ii = cstart; ii <= cend; ii++)
-						{
 							get(ii).clusterId = clusterId;
-						}
 					}
 					else
 					{
@@ -1348,16 +1251,14 @@ public class OPTICSResult implements ClusteringResult
 
 						// Assign all points not currently in a cluster (thus respecting the hierarchy)
 						for (int ii = cstart; ii <= cend; ii++)
-						{
 							if (get(ii).clusterId == NOISE)
 								get(ii).clusterId = clusterId;
-						}
 
 						// Build the hierarchy of clusters
 						final boolean[] remove = new boolean[setOfClusters.size()];
 						for (int ii = 0; ii < setOfClusters.size(); ii++)
 						{
-							OPTICSCluster child = setOfClusters.getf(ii);
+							final OPTICSCluster child = setOfClusters.getf(ii);
 							if (cstart <= child.start && child.end <= cend)
 							{
 								cluster.addChildCluster(child);
@@ -1371,14 +1272,12 @@ public class OPTICSResult implements ClusteringResult
 				}
 			}
 			else
-			{
 				// Not steep so move on
 				index++;
-			}
 		}
 
 		// Finalise
-		setClustering(new ArrayList<OPTICSCluster>(setOfClusters));
+		setClustering(new ArrayList<>(setOfClusters));
 
 		//for (OPTICSCluster cluster : getAllClusters())
 		//	System.out.printf("> %s\n", cluster);
@@ -1394,14 +1293,15 @@ public class OPTICSResult implements ClusteringResult
 	 * @param ixi
 	 *            the ixi
 	 */
-	private void updateFilterSDASet(final double mib, TurboList<SteepDownArea> setOfSteepDownAreas, final double ixi)
+	private static void updateFilterSDASet(final double mib, TurboList<SteepDownArea> setOfSteepDownAreas,
+			final double ixi)
 	{
 		final double threshold = mib / ixi;
 		setOfSteepDownAreas.removeIf(new SimplePredicate<SteepArea>()
 		{
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see java.util.TurboList.SimplePredicate#test(java.lang.Object)
 			 */
 			@Override
@@ -1432,7 +1332,7 @@ public class OPTICSResult implements ClusteringResult
 	 *            the ixi
 	 * @return true, if successful
 	 */
-	private boolean steepUp(int i, double[] r, double ixi)
+	private static boolean steepUp(int i, double[] r, double ixi)
 	{
 		if (r[i] == Double.POSITIVE_INFINITY)
 			return false;
@@ -1453,7 +1353,7 @@ public class OPTICSResult implements ClusteringResult
 	 *            the ixi
 	 * @return true, if successful
 	 */
-	private boolean steepDown(int i, double[] r, double ixi)
+	private static boolean steepDown(int i, double[] r, double ixi)
 	{
 		if (!valid(i + 1, r.length))
 			return false;
@@ -1471,7 +1371,7 @@ public class OPTICSResult implements ClusteringResult
 	 *            the size of the results
 	 * @return true, if valid
 	 */
-	private boolean valid(int index, int size)
+	private static boolean valid(int index, int size)
 	{
 		return index < size;
 	}
@@ -1487,7 +1387,7 @@ public class OPTICSResult implements ClusteringResult
 	 *            the r
 	 * @return the next reachability
 	 */
-	private double getNextReachability(int index, final int size, final double[] r)
+	private static double getNextReachability(int index, final int size, final double[] r)
 	{
 		return (valid(index + 1, size)) ? r[index + 1] : Double.POSITIVE_INFINITY;
 	}

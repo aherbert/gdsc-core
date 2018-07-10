@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -145,7 +145,7 @@ public class FloatEquality
 	public int compareComplement(float A, float B)
 	{
 		// Convert the relative error back to significant digits, then to ULPs
-		int maxUlps = getUlps((int) Math.round(1 - Math.log(maxRelativeError)));
+		final int maxUlps = getUlps((int) Math.round(1 - Math.log(maxRelativeError)));
 		return compareComplement(A, B, maxUlps);
 	}
 
@@ -202,8 +202,8 @@ public class FloatEquality
 		final float difference = Math.abs(A - B);
 		if (difference <= maxAbsoluteError)
 			return true;
-		// Ignore NaNs. This is OK since if either number is a NaN the difference 
-		// will be NaN and we end up returning false 
+		// Ignore NaNs. This is OK since if either number is a NaN the difference
+		// will be NaN and we end up returning false
 		final float size = max(Math.abs(A), Math.abs(B));
 		if (difference <= size * maxRelativeError)
 			return true;
@@ -300,7 +300,7 @@ public class FloatEquality
 	 */
 	public static int compareComplement(float A, float B, int maxUlps)
 	{
-		int c = signedComplement(A, B);
+		final int c = signedComplement(A, B);
 		if (c < -maxUlps)
 			return -1;
 		if (c > maxUlps)
@@ -379,12 +379,10 @@ public class FloatEquality
 	private static float[] RELATIVE_ERROR_TABLE;
 	static
 	{
-		int precision = new BigDecimal(Float.toString(Float.MAX_VALUE)).precision();
+		final int precision = new BigDecimal(Float.toString(Float.MAX_VALUE)).precision();
 		RELATIVE_ERROR_TABLE = new float[precision];
 		for (int p = 0; p < precision; p++)
-		{
 			RELATIVE_ERROR_TABLE[p] = Float.parseFloat("1e-" + p);
-		}
 	}
 
 	/**
@@ -420,7 +418,7 @@ public class FloatEquality
 
 	/**
 	 * Set the maximum relative error in terms of the number of decimal significant digits
-	 * 
+	 *
 	 * @param significantDigits
 	 *            The number of significant digits for comparisons
 	 * @deprecated The significant digits are used to set the max relative error as 1e^-(n-1), e.g. 3sd => 1e-2
@@ -436,16 +434,16 @@ public class FloatEquality
 	 * since the ULP depend on the doubles being compared.
 	 * <p>
 	 * The number of doubles are computed between Math.power(10, sig-1) and 1 + Math.power(10, sig-1)
-	 * 
+	 *
 	 * @param significantDigits
 	 *            The significant digits
 	 * @return The number of representable doubles (Units in the Last Place)
 	 */
 	public static int getUlps(int significantDigits)
 	{
-		int value1 = (int) Math.pow(10.0, significantDigits - 1);
-		int value2 = value1 + 1;
-		int ulps = Float.floatToRawIntBits(value2) - Float.floatToRawIntBits(value1);
+		final int value1 = (int) Math.pow(10.0, significantDigits - 1);
+		final int value2 = value1 + 1;
+		final int ulps = Float.floatToRawIntBits(value2) - Float.floatToRawIntBits(value1);
 		return (ulps < 0) ? 0 : ulps;
 	}
 
@@ -483,7 +481,7 @@ public class FloatEquality
 
 	private static int difference(int high, int low)
 	{
-		int d = high - low;
+		final int d = high - low;
 		// Check for over-flow
 		return (d < 0) ? Integer.MAX_VALUE : d;
 	}
@@ -510,7 +508,7 @@ public class FloatEquality
 		{
 			// Make aInt lexicographically ordered as a twos-complement int
 			aInt = 0x80000000 - aInt;
-			int d = aInt - bInt;
+			final int d = aInt - bInt;
 			// Check for over-flow. We know a is negative and b positive
 			return (d > 0) ? Integer.MIN_VALUE : d;
 		}
@@ -518,7 +516,7 @@ public class FloatEquality
 		{
 			// Make bInt lexicographically ordered as a twos-complement int
 			bInt = 0x80000000 - bInt;
-			int d = aInt - bInt;
+			final int d = aInt - bInt;
 			// Check for over-flow. We know a is positive and b negative
 			return (d < 0) ? Integer.MAX_VALUE : d;
 		}

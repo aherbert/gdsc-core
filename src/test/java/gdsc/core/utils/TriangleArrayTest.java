@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -38,17 +38,17 @@ public class TriangleArrayTest
 	@Test
 	public void canComputeIndex()
 	{
-		for (int n : testN)
+		for (final int n : testN)
 		{
-			TriangleArray a = new TriangleArray(n);
+			final TriangleArray a = new TriangleArray(n);
 
-			int[] count = new int[a.getLength()];
+			final int[] count = new int[a.getLength()];
 			int[] ij = new int[2];
 
 			for (int i = 0; i < n; i++)
 				for (int j = i + 1; j < n; j++)
 				{
-					int k = a.toIndex(i, j);
+					final int k = a.toIndex(i, j);
 					count[k]++;
 
 					ij = a.fromIndex(k);
@@ -75,14 +75,14 @@ public class TriangleArrayTest
 	@Test
 	public void indexNotReversible()
 	{
-		int n = 10;
-		TriangleArray a = new TriangleArray(n);
+		final int n = 10;
+		final TriangleArray a = new TriangleArray(n);
 
 		for (int i = 0; i < n; i++)
 			for (int j = i + 1; j < n; j++)
 			{
-				int k = a.toIndex(i, j);
-				int k2 = a.toIndex(j, i);
+				final int k = a.toIndex(i, j);
+				final int k2 = a.toIndex(j, i);
 				if (k == k2)
 					continue;
 				return;
@@ -94,14 +94,14 @@ public class TriangleArrayTest
 	@Test
 	public void safeIndexIsReversible()
 	{
-		int n = 10;
-		TriangleArray a = new TriangleArray(n);
+		final int n = 10;
+		final TriangleArray a = new TriangleArray(n);
 
 		for (int i = 0; i < n; i++)
 			for (int j = i + 1; j < n; j++)
 			{
-				int k = a.toIndex(i, j);
-				int k2 = a.toSafeIndex(j, i);
+				final int k = a.toIndex(i, j);
+				final int k2 = a.toSafeIndex(j, i);
 				Assert.assertEquals(k, k2);
 			}
 	}
@@ -109,14 +109,14 @@ public class TriangleArrayTest
 	@Test
 	public void canFastComputePostIndex()
 	{
-		for (int n : testN)
+		for (final int n : testN)
 		{
-			TriangleArray a = new TriangleArray(n);
+			final TriangleArray a = new TriangleArray(n);
 
 			for (int i = 0; i < n; i++)
 				for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
 				{
-					int k = a.toIndex(i, j);
+					final int k = a.toIndex(i, j);
 					Assert.assertEquals("i", k, index);
 				}
 		}
@@ -125,15 +125,15 @@ public class TriangleArrayTest
 	@Test
 	public void canFastComputePreIndex()
 	{
-		for (int n : testN)
+		for (final int n : testN)
 		{
-			TriangleArray a = new TriangleArray(n);
+			final TriangleArray a = new TriangleArray(n);
 
 			for (int j = n; j-- > 0;)
 				for (int i = j, index = a.toPrecursorIndex(j); i-- > 0;)
 				{
-					int k = a.toIndex(i, j);
-					int k2 = a.precursorToIndex(index, i);
+					final int k = a.toIndex(i, j);
+					final int k2 = a.precursorToIndex(index, i);
 					Assert.assertEquals("i", k, k2);
 				}
 		}
@@ -142,21 +142,21 @@ public class TriangleArrayTest
 	@Test
 	public void canFastIterateNxN()
 	{
-		for (int n : testN)
+		for (final int n : testN)
 		{
-			TriangleArray a = new TriangleArray(n);
+			final TriangleArray a = new TriangleArray(n);
 
 			for (int i = 0; i < n; i++)
 			{
 				for (int j = 0, precursor = a.toPrecursorIndex(i); j < i; j++)
 				{
-					int k = a.toSafeIndex(i, j);
-					int k2 = a.precursorToIndex(precursor, j);
+					final int k = a.toSafeIndex(i, j);
+					final int k2 = a.precursorToIndex(precursor, j);
 					Assert.assertEquals(k, k2);
 				}
 				for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
 				{
-					int k = a.toSafeIndex(i, j);
+					final int k = a.toSafeIndex(i, j);
 					Assert.assertEquals(k, index);
 				}
 			}
@@ -166,9 +166,9 @@ public class TriangleArrayTest
 	@Test
 	public void canCompareItoAnyJ()
 	{
-		for (int n : testN)
+		for (final int n : testN)
 		{
-			TriangleArray a = new TriangleArray(n);
+			final TriangleArray a = new TriangleArray(n);
 
 			for (int i = 0; i < n; i++)
 			{
@@ -177,8 +177,8 @@ public class TriangleArrayTest
 				{
 					if (i == j)
 						continue;
-					int k = a.toSafeIndex(i, j);
-					int k2 = a.toIndex(j);
+					final int k = a.toSafeIndex(i, j);
+					final int k2 = a.toIndex(j);
 					Assert.assertEquals(k, k2);
 				}
 			}

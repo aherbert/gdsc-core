@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -43,16 +43,16 @@ import ags.utils.dataStructures.MinHeap;
 public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T>
 {
 	/** The distance function. */
-	private DistanceFunction distanceFunction;
+	private final DistanceFunction distanceFunction;
 
 	/** The search point. */
-	private double[] searchPoint;
+	private final double[] searchPoint;
 
 	/** The pending paths. */
-	private MinHeap<KdNode<T>> pendingPaths;
+	private final MinHeap<KdNode<T>> pendingPaths;
 
 	/** The evaluated points. */
-	private IntervalHeap<T> evaluatedPoints;
+	private final IntervalHeap<T> evaluatedPoints;
 
 	/** The points remaining. */
 	private int pointsRemaining;
@@ -78,16 +78,16 @@ public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T>
 		this.searchPoint = Arrays.copyOf(searchPoint, searchPoint.length);
 		this.pointsRemaining = Math.min(maxPointsReturned, treeRoot.size());
 		this.distanceFunction = distanceFunction;
-		this.pendingPaths = new BinaryHeap.Min<KdNode<T>>();
+		this.pendingPaths = new BinaryHeap.Min<>();
 		this.pendingPaths.offer(0, treeRoot);
-		this.evaluatedPoints = new IntervalHeap<T>();
+		this.evaluatedPoints = new IntervalHeap<>();
 	}
 
 	/* -------- INTERFACE IMPLEMENTATION -------- */
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.util.Iterator#hasNext()
 	 */
 	@Override
@@ -98,28 +98,24 @@ public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T>
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.util.Iterator#next()
 	 */
 	@Override
 	public T next()
 	{
 		if (!hasNext())
-		{
 			throw new IllegalStateException("NearestNeighborIterator has reached end!");
-		}
 
 		while (pendingPaths.size() > 0 &&
 				(evaluatedPoints.size() == 0 || (pendingPaths.getMinKey() < evaluatedPoints.getMinKey())))
-		{
 			KdTree.nearestNeighborSearchStep(pendingPaths, evaluatedPoints, pointsRemaining, distanceFunction,
 					searchPoint);
-		}
 
 		// Return the smallest distance point
 		pointsRemaining--;
 		lastDistanceReturned = evaluatedPoints.getMinKey();
-		T value = evaluatedPoints.getMin();
+		final T value = evaluatedPoints.getMin();
 		evaluatedPoints.removeMin();
 		return value;
 	}
@@ -136,7 +132,7 @@ public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T>
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.util.Iterator#remove()
 	 */
 	@Override
@@ -147,7 +143,7 @@ public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T>
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Iterable#iterator()
 	 */
 	@Override

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -52,7 +52,7 @@ public class MedianWindowDLLFloat
 	}
 
 	private int t = 0;
-	private Data[] data;
+	private final Data[] data;
 	private Data median;
 
 	/**
@@ -71,8 +71,8 @@ public class MedianWindowDLLFloat
 			throw new IllegalArgumentException("Input data must not even in length");
 		this.data = new Data[values.length];
 
-		// Store the data and create indices for sorting 
-		int[] indices = new int[values.length];
+		// Store the data and create indices for sorting
+		final int[] indices = new int[values.length];
 
 		for (int i = 0; i < values.length; i++)
 		{
@@ -86,15 +86,11 @@ public class MedianWindowDLLFloat
 		for (int i = 0; i < values.length; i++)
 		{
 			if (i > 0)
-			{
 				// Set the smaller pointer to the data smaller than this
 				data[indices[i]].g = data[indices[i - 1]];
-			}
 			if (i < values.length - 1)
-			{
 				// Set the greater pointer to the data greater than this
 				data[indices[i]].s = data[indices[i + 1]];
-			}
 		}
 
 		// Set the median
@@ -159,15 +155,15 @@ public class MedianWindowDLLFloat
 	 */
 	public void add(final float x)
 	{
-		// Replaces y by x using the latest insertion finger 
-		// after which the s and g chains are updated accordingly. An appro- 
+		// Replaces y by x using the latest insertion finger
+		// after which the s and g chains are updated accordingly. An appro-
 		// priate node is found by comparing x to the previously inserted sam
-		// ple and advancing either s or g chains depending on the comparison. 
-		// Both links and the latest insertion finger are updated. If the median 
-		// is between x and y in the s (and g) chain, it is changed by moving 
-		// the median finger one node towards the inserted sample along the 
-		// s or g chain. The same scheme is followed if the sample to be 
-		// deleted is the median itself. 
+		// ple and advancing either s or g chains depending on the comparison.
+		// Both links and the latest insertion finger are updated. If the median
+		// is between x and y in the s (and g) chain, it is changed by moving
+		// the median finger one node towards the inserted sample along the
+		// s or g chain. The same scheme is followed if the sample to be
+		// deleted is the median itself.
 
 		final Data point = data[t];
 		final float y = point.v;
@@ -188,31 +184,24 @@ public class MedianWindowDLLFloat
 			// Move along the s chain until sorted
 			Data movePast = point;
 			for (Data s = point.s; s != null && s.v > x; s = s.s)
-			{
 				movePast = s;
-			}
 			if (movePast != point)
-			{
 				if (y == m && median != point)
 				{
-					// The value removed matches the median, however it 
+					// The value removed matches the median, however it
 					// could have been below or above the median in the linked list.
 					// The new value is lower. Check if the position is above the median.
-					boolean shift = aboveMedian(point);
+					final boolean shift = aboveMedian(point);
 
 					// Update the sorted list:
 					// 1. Remove the point
 					if (point.g != null)
-					{
 						point.g.s = point.s;
-					}
 					point.s.g = point.g;
 
 					// 2. Insert into new location
 					if (movePast.s != null)
-					{
 						movePast.s.g = point;
-					}
 					point.s = movePast.s;
 					movePast.s = point;
 					point.g = movePast;
@@ -222,37 +211,27 @@ public class MedianWindowDLLFloat
 				}
 				else
 				{
-					Data aboveMedian = median.g;
+					final Data aboveMedian = median.g;
 
 					// Update the sorted list:
 					// 1. Remove the point
 					if (point.g != null)
-					{
 						point.g.s = point.s;
-					}
 					point.s.g = point.g;
 
 					// 2. Insert into new location
 					if (movePast.s != null)
-					{
 						movePast.s.g = point;
-					}
 					point.s = movePast.s;
 					movePast.s = point;
 					point.g = movePast;
 
 					// If we moved the median then update using the unmoved node next to the median
 					if (median == point)
-					{
 						median = aboveMedian.s;
-					}
-					// Update the median if it lies between the new and old values
 					else if (x < m && y > m)
-					{
 						median = median.s;
-					}
 				}
-			}
 		}
 		else
 		// x > y
@@ -260,31 +239,24 @@ public class MedianWindowDLLFloat
 			// Move along the g chain until sorted
 			Data movePast = point;
 			for (Data g = point.g; g != null && g.v < x; g = g.g)
-			{
 				movePast = g;
-			}
 			if (movePast != point)
-			{
 				if (y == m && median != point)
 				{
-					// The value removed matches the median, however it 
+					// The value removed matches the median, however it
 					// could have been below or above the median in the linked list.
 					// The new value is higher. Check if the position is above the median.
-					boolean shift = !aboveMedian(point);
+					final boolean shift = !aboveMedian(point);
 
 					// Update the sorted list:
 					// 1. Remove the point
 					if (point.s != null)
-					{
 						point.s.g = point.g;
-					}
 					point.g.s = point.s;
 
 					// 2. Insert into new location
 					if (movePast.g != null)
-					{
 						movePast.g.s = point;
-					}
 					point.g = movePast.g;
 					movePast.g = point;
 					point.s = movePast;
@@ -294,37 +266,27 @@ public class MedianWindowDLLFloat
 				}
 				else
 				{
-					Data belowMedian = median.s;
+					final Data belowMedian = median.s;
 
 					// Update the sorted list:
 					// 1. Remove the point
 					if (point.s != null)
-					{
 						point.s.g = point.g;
-					}
 					point.g.s = point.s;
 
 					// 2. Insert into new location
 					if (movePast.g != null)
-					{
 						movePast.g.s = point;
-					}
 					point.g = movePast.g;
 					movePast.g = point;
 					point.s = movePast;
 
 					// If we moved the median then update using the unmoved node next to the median
 					if (median == point)
-					{
 						median = belowMedian.g;
-					}
-					// Update the median if it lies between the new and old values
 					else if (x > m && y < m)
-					{
 						median = median.g;
-					}
 				}
-			}
 		}
 
 		// Update the latest insertion finger
@@ -371,7 +333,7 @@ public class MedianWindowDLLFloat
 			head = head.s;
 
 		// Create a list of the data using only the desired time points
-		Data[] list = new Data[length];
+		final Data[] list = new Data[length];
 
 		// Extract the data into a list. This should be sorted.
 		int i = 0;
@@ -407,7 +369,7 @@ public class MedianWindowDLLFloat
 	 */
 	public float getMedianYoungest(int n)
 	{
-		int end = data.length - 1;
+		final int end = data.length - 1;
 		return getMedian(end - n + 1, end);
 	}
 

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -86,12 +86,12 @@ public class AssignmentComparatorTest
 	static Assignment[][] aData;
 	static
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		int size = 100;
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final int size = 100;
 		// The assignment data will be concatenated blocks of sorted arrays
-		int blocks = 50;
-		int blockSize = 10;
-		int length = blocks * blockSize;
+		final int blocks = 50;
+		final int blockSize = 10;
+		final int length = blocks * blockSize;
 
 		intData = new int[size][];
 		doubleData = new double[size][];
@@ -105,9 +105,9 @@ public class AssignmentComparatorTest
 		{
 			int[] idata = new int[length];
 			double[] ddata = new double[length];
-			IntegerSortData[] sdata = new IntegerSortData[length];
-			DoubleSortData[] dsdata = new DoubleSortData[length];
-			Assignment[] adata = new Assignment[length];
+			final IntegerSortData[] sdata = new IntegerSortData[length];
+			final DoubleSortData[] dsdata = new DoubleSortData[length];
+			final Assignment[] adata = new Assignment[length];
 			intData[i] = idata;
 			doubleData[i] = ddata;
 			intSortData[i] = sdata;
@@ -168,8 +168,8 @@ public class AssignmentComparatorTest
 		@Override
 		public void check(int i, Object result)
 		{
-			double[] exp = doubleExp[i];
-			Assignment[] obs = (Assignment[]) result;
+			final double[] exp = doubleExp[i];
+			final Assignment[] obs = (Assignment[]) result;
 			for (int j = 0; j < exp.length; j++)
 				if (exp[j] != obs[j].getDistance())
 					throw new AssertionError(getName());
@@ -179,10 +179,10 @@ public class AssignmentComparatorTest
 	@Test
 	public void canComputeSortSpeed()
 	{
-		int n = TestSettings.allow(LogLevel.INFO) ? 5 : 1;
+		final int n = TestSettings.allow(LogLevel.INFO) ? 5 : 1;
 
 		//@formatter:off
-		TimingService ts = new TimingService(n);
+		final TimingService ts = new TimingService(n);
 		ts.execute(new MyTimingTask("int[]")
 		{
 			@Override
@@ -191,8 +191,8 @@ public class AssignmentComparatorTest
 			public Object run(Object data) { Arrays.sort((int[]) data); return data; }
 			@Override
 			public void check(int i, Object result)	{
-				int[] exp = intExp[i];
-				int[] obs = (int[]) result;
+				final int[] exp = intExp[i];
+				final int[] obs = (int[]) result;
 				for (int j=0; j<exp.length; j++)
 					if (exp[j] != obs[j])
 						throw new AssertionError(getName());
@@ -206,8 +206,8 @@ public class AssignmentComparatorTest
 			public Object run(Object data) { Arrays.sort((double[]) data); return data; }
 			@Override
 			public void check(int i, Object result)	{
-				double[] exp = doubleExp[i];
-				double[] obs = (double[]) result;
+				final double[] exp = doubleExp[i];
+				final double[] obs = (double[]) result;
 				for (int j=0; j<exp.length; j++)
 					if (exp[j] != obs[j])
 						throw new AssertionError(getName());
@@ -216,8 +216,8 @@ public class AssignmentComparatorTest
 		ts.execute(new MyTimingTask("long[]")
 		{
 			@Override
-			public Object getData(int i) {	
-				long[] data = new long[intData[i].length];
+			public Object getData(int i) {
+				final long[] data = new long[intData[i].length];
 				for (int j=data.length; j-- > 0; )
 					data[j] = intData[i][j];
 				return data;
@@ -225,10 +225,10 @@ public class AssignmentComparatorTest
 			@Override
 			public Object run(Object data) { Arrays.sort((long[]) data); return data; }
 		});
-		final Comparator<int[]> c1 = new Comparator<int[]>(){ 
+		final Comparator<int[]> c1 = new Comparator<int[]>(){
 			@Override
-			public int compare(int[] o1, int[] o2) { 
-				if (o1[0]<o2[0]) return -1; 
+			public int compare(int[] o1, int[] o2) {
+				if (o1[0]<o2[0]) return -1;
 				if (o1[0]>o2[0]) return 1;
 				return 0;
 			}};
@@ -236,30 +236,30 @@ public class AssignmentComparatorTest
 		{
 			@Override
 			public Object getData(int i) {
-				int[] d = intData[i];
-				int[][] data = new int[d.length][];
+				final int[] d = intData[i];
+				final int[][] data = new int[d.length][];
 				for (int j=d.length; j-- > 0; )
 					data[j] = new int[]{ d[j] };
-				return data;	
+				return data;
 			}
 			@Override
-			public Object run(Object data) { 
-				Arrays.sort((int[][]) data, c1); 
-				return data; 
+			public Object run(Object data) {
+				Arrays.sort((int[][]) data, c1);
+				return data;
 			}
 			@Override
 			public void check(int i, Object result)	{
-				int[] exp = intExp[i];
-				int[][] obs = (int[][]) result;
+				final int[] exp = intExp[i];
+				final int[][] obs = (int[][]) result;
 				for (int j=0; j<exp.length; j++)
 					if (exp[j] != obs[j][0])
 						throw new AssertionError(getName());
 			}
 		});
-		final Comparator<double[]> c2 = new Comparator<double[]>(){ 
+		final Comparator<double[]> c2 = new Comparator<double[]>(){
 			@Override
-			public int compare(double[] o1, double[] o2) { 
-				if (o1[0]<o2[0]) return -1; 
+			public int compare(double[] o1, double[] o2) {
+				if (o1[0]<o2[0]) return -1;
 				if (o1[0]>o2[0]) return 1;
 				return 0;
 			}};
@@ -267,59 +267,59 @@ public class AssignmentComparatorTest
 		{
 			@Override
 			public Object getData(int i) {
-				double[] d = doubleData[i];
-				double[][] data = new double[d.length][];
+				final double[] d = doubleData[i];
+				final double[][] data = new double[d.length][];
 				for (int j=d.length; j-- > 0; )
 					data[j] = new double[]{ d[j] };
-				return data;	
+				return data;
 			}
 			@Override
-			public Object run(Object data) { 
-				Arrays.sort((double[][]) data, c2); 
-				return data; 
+			public Object run(Object data) {
+				Arrays.sort((double[][]) data, c2);
+				return data;
 			}
 			@Override
 			public void check(int i, Object result)	{
-				double[] exp = doubleExp[i];
-				double[][] obs = (double[][]) result;
+				final double[] exp = doubleExp[i];
+				final double[][] obs = (double[][]) result;
 				for (int j=0; j<exp.length; j++)
 					if (exp[j] != obs[j][0])
 						throw new AssertionError(getName());
 			}
 		});
-		final Comparator<int[]> c3 = new Comparator<int[]>(){ 
+		final Comparator<int[]> c3 = new Comparator<int[]>(){
 			@Override
-			public int compare(int[] o1, int[] o2) { 
+			public int compare(int[] o1, int[] o2) {
 				return o1[0]-o2[0];
 			}};
 		ts.execute(new MyTimingTask("int[][] subtract")
 		{
 			@Override
 			public Object getData(int i) {
-				int[] d = intData[i];
-				int[][] data = new int[d.length][];
+				final int[] d = intData[i];
+				final int[][] data = new int[d.length][];
 				for (int j=d.length; j-- > 0; )
 					data[j] = new int[]{ d[j] };
-				return data;	
+				return data;
 			}
 			@Override
-			public Object run(Object data) { 
-				Arrays.sort((int[][]) data, c3); 
-				return data; 
+			public Object run(Object data) {
+				Arrays.sort((int[][]) data, c3);
+				return data;
 			}
 			@Override
 			public void check(int i, Object result)	{
-				int[] exp = intExp[i];
-				int[][] obs = (int[][]) result;
+				final int[] exp = intExp[i];
+				final int[][] obs = (int[][]) result;
 				for (int j=0; j<exp.length; j++)
 					if (exp[j] != obs[j][0])
 						throw new AssertionError(getName());
 			}
 		});
-		final Comparator<long[]> c4 = new Comparator<long[]>(){ 
+		final Comparator<long[]> c4 = new Comparator<long[]>(){
 			@Override
-			public int compare(long[] o1, long[] o2) { 
-				if (o1[0]<o2[0]) return -1; 
+			public int compare(long[] o1, long[] o2) {
+				if (o1[0]<o2[0]) return -1;
 				if (o1[0]>o2[0]) return 1;
 				return 0;
 			}};
@@ -327,33 +327,33 @@ public class AssignmentComparatorTest
 		{
 			@Override
 			public Object getData(int i) {
-				int[] d = intData[i];
-				long[][] data = new long[d.length][];
+				final int[] d = intData[i];
+				final long[][] data = new long[d.length][];
 				for (int j=d.length; j-- > 0; )
 					data[j] = new long[]{ d[j] };
-				return data;	
+				return data;
 			}
 			@Override
-			public Object run(Object data) { 
-				Arrays.sort((long[][]) data, c4); 
-				return data; 
+			public Object run(Object data) {
+				Arrays.sort((long[][]) data, c4);
+				return data;
 			}
 		});
 		ts.execute(new MyTimingTask("IntegerSortData[]")
 		{
 			@Override
 			public Object getData(int i) {
-				return Arrays.copyOf(intSortData[i], intSortData[i].length);	
+				return Arrays.copyOf(intSortData[i], intSortData[i].length);
 			}
 			@Override
-			public Object run(Object data) { 
-				Arrays.sort((IntegerSortData[]) data); 
-				return data; 
+			public Object run(Object data) {
+				Arrays.sort((IntegerSortData[]) data);
+				return data;
 			}
 			@Override
 			public void check(int i, Object result)	{
-				int[] exp = intExp[i];
-				IntegerSortData[] obs = (IntegerSortData[]) result;
+				final int[] exp = intExp[i];
+				final IntegerSortData[] obs = (IntegerSortData[]) result;
 				for (int j=0; j<exp.length; j++)
 					if (exp[j] != obs[j].data)
 						throw new AssertionError(getName());
@@ -363,17 +363,17 @@ public class AssignmentComparatorTest
 		{
 			@Override
 			public Object getData(int i) {
-				return Arrays.copyOf(doubleSortData[i], doubleSortData[i].length);	
+				return Arrays.copyOf(doubleSortData[i], doubleSortData[i].length);
 			}
 			@Override
-			public Object run(Object data) { 
-				Arrays.sort((DoubleSortData[]) data); 
-				return data; 
+			public Object run(Object data) {
+				Arrays.sort((DoubleSortData[]) data);
+				return data;
 			}
 			@Override
 			public void check(int i, Object result)	{
-				double[] exp = doubleExp[i];
-				DoubleSortData[] obs = (DoubleSortData[]) result;
+				final double[] exp = doubleExp[i];
+				final DoubleSortData[] obs = (DoubleSortData[]) result;
 				for (int j=0; j<exp.length; j++)
 					if (exp[j] != obs[j].data)
 						throw new AssertionError(getName());
@@ -383,60 +383,60 @@ public class AssignmentComparatorTest
 		{
 			@Override
 			public Object getData(int i) {
-				return Arrays.copyOf(aData[i], aData[i].length);	
+				return Arrays.copyOf(aData[i], aData[i].length);
 			}
 			@Override
-			public Object run(Object data) { 
-				AssignmentComparator.sort1((Assignment[]) data); 
-				return data; 
+			public Object run(Object data) {
+				AssignmentComparator.sort1((Assignment[]) data);
+				return data;
 			}
 		});
 		ts.execute(new AssignmentTimingTask("Assignment[] sort2")
 		{
 			@Override
 			public Object getData(int i) {
-				return Arrays.copyOf(aData[i], aData[i].length);	
+				return Arrays.copyOf(aData[i], aData[i].length);
 			}
 			@Override
-			public Object run(Object data) { 
-				AssignmentComparator.sort2((Assignment[]) data); 
-				return data; 
+			public Object run(Object data) {
+				AssignmentComparator.sort2((Assignment[]) data);
+				return data;
 			}
 		});
 		ts.execute(new AssignmentTimingTask("Assignment[] sort3")
 		{
 			@Override
 			public Object getData(int i) {
-				return Arrays.copyOf(aData[i], aData[i].length);	
+				return Arrays.copyOf(aData[i], aData[i].length);
 			}
 			@Override
-			public Object run(Object data) { 
-				AssignmentComparator.sort3((Assignment[]) data); 
-				return data; 
+			public Object run(Object data) {
+				AssignmentComparator.sort3((Assignment[]) data);
+				return data;
 			}
 		});
 		ts.execute(new AssignmentTimingTask("Assignment[] sort4")
 		{
 			@Override
 			public Object getData(int i) {
-				return Arrays.copyOf(aData[i], aData[i].length);	
+				return Arrays.copyOf(aData[i], aData[i].length);
 			}
 			@Override
-			public Object run(Object data) { 
-				AssignmentComparator.sort4((Assignment[]) data); 
-				return data; 
+			public Object run(Object data) {
+				AssignmentComparator.sort4((Assignment[]) data);
+				return data;
 			}
 		});
 		ts.execute(new AssignmentTimingTask("Assignment[] sort")
 		{
 			@Override
 			public Object getData(int i) {
-				return Arrays.copyOf(aData[i], aData[i].length);	
+				return Arrays.copyOf(aData[i], aData[i].length);
 			}
 			@Override
-			public Object run(Object data) { 
-				AssignmentComparator.sort((Assignment[]) data); 
-				return data; 
+			public Object run(Object data) {
+				AssignmentComparator.sort((Assignment[]) data);
+				return data;
 			}
 		});
 		//@formatter:on
@@ -446,7 +446,7 @@ public class AssignmentComparatorTest
 		if (n == 1)
 			return;
 
-		int size = ts.repeat();
+		final int size = ts.repeat();
 		ts.repeat(size);
 
 		if (TestSettings.allow(LogLevel.INFO))

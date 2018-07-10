@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -54,7 +54,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ij.io.SeekableStream#getFilePointer()
 	 */
 	@Override
@@ -65,7 +65,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ij.io.SeekableStream#read()
 	 */
 	@Override
@@ -78,7 +78,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ij.io.SeekableStream#read(byte[], int, int)
 	 */
 	@Override
@@ -88,7 +88,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 		{
 			if (len > 0)
 			{
-				int size = (p + len <= length) ? len : length - p;
+				final int size = (p + len <= length) ? len : length - p;
 				System.arraycopy(buffer, p, bytes, off, size);
 				p += size;
 				return size;
@@ -100,7 +100,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ij.io.SeekableStream#seek(long)
 	 */
 	@Override
@@ -122,11 +122,9 @@ public final class ByteArraySeekableStream extends SeekableStream
 	public long skip(long n) throws IOException
 	{
 		if (n <= 0)
-		{
 			return 0;
-		}
-		int pos = p;
-		long newpos = pos + n;
+		final int pos = p;
+		final long newpos = pos + n;
 		if (newpos > length || newpos < 0) // Check against overflow
 			p = length;
 		else
@@ -144,7 +142,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see ij.io.SeekableStream#canCopy()
 	 */
 	@Override

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -77,9 +77,7 @@ public class PseudoRandomSequence implements Cloneable
 			throw new NullPointerException("Source generator must not be null");
 		sequence = new double[size];
 		while (size-- > 0)
-		{
 			sequence[size] = source.nextDouble() * scale;
-		}
 	}
 
 	/**
@@ -100,7 +98,7 @@ public class PseudoRandomSequence implements Cloneable
 	 */
 	public double nextDouble()
 	{
-		double d = sequence[position++];
+		final double d = sequence[position++];
 		if (position == sequence.length)
 			position = 0;
 		return d;
@@ -108,7 +106,7 @@ public class PseudoRandomSequence implements Cloneable
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -118,7 +116,7 @@ public class PseudoRandomSequence implements Cloneable
 		{
 			return (PseudoRandomSequence) super.clone();
 		}
-		catch (CloneNotSupportedException e)
+		catch (final CloneNotSupportedException e)
 		{
 			// This should not happen
 			return new PseudoRandomSequence(sequence);

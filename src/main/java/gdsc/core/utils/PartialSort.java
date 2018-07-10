@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -31,7 +31,7 @@ import java.util.Arrays;
 
 /**
  * Provides functionality to partially sort an array
- * 
+ *
  * @author Alex Herbert
  */
 public class PartialSort
@@ -102,7 +102,7 @@ public class PartialSort
 		 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
 		 * <p>
 		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
-		 * 
+		 *
 		 * @param list
 		 *            the data list
 		 * @return The bottom N (passed as a reference to internal data structure)
@@ -145,7 +145,7 @@ public class PartialSort
 		{
 			queue[0] = list[0];
 
-			// Fill 
+			// Fill
 			int i = 1;
 			while (i < n)
 			{
@@ -194,9 +194,7 @@ public class PartialSort
 					c = p;
 				}
 				else
-				{
 					break;
-				}
 			}
 			queue[c] = toSift;
 		}
@@ -210,9 +208,7 @@ public class PartialSort
 			{
 				// If the right child is bigger, compare with it.
 				if (c + 1 < n && queue[c] < queue[c + 1])
-				{
 					c++;
-				}
 				if (toSift < queue[c])
 				{
 					// Move child up and move down one level in the tree.
@@ -221,10 +217,8 @@ public class PartialSort
 					c = p * 2 + 1;
 				}
 				else
-				{
 					// Done
 					break;
-				}
 			}
 			queue[p] = toSift;
 		}
@@ -233,7 +227,7 @@ public class PartialSort
 		 * Pick the top N from the data using ascending order, i.e. find the top n largest values.
 		 * <p>
 		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
-		 * 
+		 *
 		 * @param list
 		 *            the data list
 		 * @return The top N (passed as a reference to internal data structure)
@@ -276,7 +270,7 @@ public class PartialSort
 		{
 			queue[0] = list[0];
 
-			// Fill 
+			// Fill
 			int i = 1;
 			while (i < n)
 			{
@@ -325,9 +319,7 @@ public class PartialSort
 					c = p;
 				}
 				else
-				{
 					break;
-				}
 			}
 			queue[c] = toSift;
 		}
@@ -341,9 +333,7 @@ public class PartialSort
 			{
 				// If the right child is bigger, compare with it.
 				if (c + 1 < n && queue[c] > queue[c + 1])
-				{
 					c++;
-				}
 				if (toSift > queue[c])
 				{
 					// Move child up and move down one level in the tree.
@@ -352,10 +342,8 @@ public class PartialSort
 					c = p * 2 + 1;
 				}
 				else
-				{
 					// Done
 					break;
-				}
 			}
 			queue[p] = toSift;
 		}
@@ -377,7 +365,7 @@ public class PartialSort
 
 		/**
 		 * Create a new DoubleSelector
-		 * 
+		 *
 		 * @param n
 		 *            The number N to select
 		 */
@@ -393,7 +381,7 @@ public class PartialSort
 		 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
 		 * <p>
 		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
-		 * 
+		 *
 		 * @param list
 		 *            the data list
 		 * @return The bottom N (passed as a reference to internal data structure)
@@ -434,11 +422,11 @@ public class PartialSort
 		 */
 		public double[] bottom(int options, double[] list, int size)
 		{
-			// We retain a pointer to the current highest value in the set. 
+			// We retain a pointer to the current highest value in the set.
 			int max = 0;
 			queue[0] = list[0];
 
-			// Fill 
+			// Fill
 			int i = 1;
 			while (i < n)
 			{
@@ -474,7 +462,7 @@ public class PartialSort
 		 * Pick the top N from the data using ascending order, i.e. find the top n largest values.
 		 * <p>
 		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
-		 * 
+		 *
 		 * @param list
 		 *            the data list
 		 * @return The top N (passed as a reference to internal data structure)
@@ -515,11 +503,11 @@ public class PartialSort
 		 */
 		public double[] top(int options, double[] list, int size)
 		{
-			// We retain a pointer to the current highest value in the set. 
+			// We retain a pointer to the current highest value in the set.
 			int max = 0;
 			queue[0] = list[0];
 
-			// Fill 
+			// Fill
 			int i = 1;
 			while (i < n)
 			{
@@ -579,9 +567,7 @@ public class PartialSort
 	private static void replaceHead(double[] data, int options)
 	{
 		if ((options & OPTION_HEAD_FIRST) != 0)
-		{
 			swapHead(data, ((options & OPTION_TOP) != 0) ? topMax(data) : bottomMax(data));
-		}
 	}
 
 	private static int bottomMax(double[] data)
@@ -604,7 +590,7 @@ public class PartialSort
 
 	private static void swapHead(double[] data, int max)
 	{
-		double head = data[max];
+		final double head = data[max];
 		data[max] = data[0];
 		data[0] = head;
 	}
@@ -675,7 +661,7 @@ public class PartialSort
 		 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
 		 * <p>
 		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
-		 * 
+		 *
 		 * @param list
 		 *            the data list
 		 * @return The bottom N (passed as a reference to internal data structure)
@@ -718,7 +704,7 @@ public class PartialSort
 		{
 			queue[0] = list[0];
 
-			// Fill 
+			// Fill
 			int i = 1;
 			while (i < n)
 			{
@@ -767,9 +753,7 @@ public class PartialSort
 					c = p;
 				}
 				else
-				{
 					break;
-				}
 			}
 			queue[c] = toSift;
 		}
@@ -783,9 +767,7 @@ public class PartialSort
 			{
 				// If the right child is bigger, compare with it.
 				if (c + 1 < n && queue[c] < queue[c + 1])
-				{
 					c++;
-				}
 				if (toSift < queue[c])
 				{
 					// Move child up and move down one level in the tree.
@@ -794,10 +776,8 @@ public class PartialSort
 					c = p * 2 + 1;
 				}
 				else
-				{
 					// Done
 					break;
-				}
 			}
 			queue[p] = toSift;
 		}
@@ -806,7 +786,7 @@ public class PartialSort
 		 * Pick the top N from the data using ascending order, i.e. find the top n largest values.
 		 * <p>
 		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
-		 * 
+		 *
 		 * @param list
 		 *            the data list
 		 * @return The top N (passed as a reference to internal data structure)
@@ -849,7 +829,7 @@ public class PartialSort
 		{
 			queue[0] = list[0];
 
-			// Fill 
+			// Fill
 			int i = 1;
 			while (i < n)
 			{
@@ -898,9 +878,7 @@ public class PartialSort
 					c = p;
 				}
 				else
-				{
 					break;
-				}
 			}
 			queue[c] = toSift;
 		}
@@ -914,9 +892,7 @@ public class PartialSort
 			{
 				// If the right child is bigger, compare with it.
 				if (c + 1 < n && queue[c] > queue[c + 1])
-				{
 					c++;
-				}
 				if (toSift > queue[c])
 				{
 					// Move child up and move down one level in the tree.
@@ -925,10 +901,8 @@ public class PartialSort
 					c = p * 2 + 1;
 				}
 				else
-				{
 					// Done
 					break;
-				}
 			}
 			queue[p] = toSift;
 		}
@@ -950,7 +924,7 @@ public class PartialSort
 
 		/**
 		 * Create a new FloatSelector
-		 * 
+		 *
 		 * @param n
 		 *            The number N to select
 		 */
@@ -966,7 +940,7 @@ public class PartialSort
 		 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
 		 * <p>
 		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
-		 * 
+		 *
 		 * @param list
 		 *            the data list
 		 * @return The bottom N (passed as a reference to internal data structure)
@@ -1007,11 +981,11 @@ public class PartialSort
 		 */
 		public float[] bottom(int options, float[] list, int size)
 		{
-			// We retain a pointer to the current highest value in the set. 
+			// We retain a pointer to the current highest value in the set.
 			int max = 0;
 			queue[0] = list[0];
 
-			// Fill 
+			// Fill
 			int i = 1;
 			while (i < n)
 			{
@@ -1047,7 +1021,7 @@ public class PartialSort
 		 * Pick the top N from the data using ascending order, i.e. find the top n largest values.
 		 * <p>
 		 * If the input data size is smaller than N then an {@link ArrayIndexOutOfBoundsException} will occur.
-		 * 
+		 *
 		 * @param list
 		 *            the data list
 		 * @return The top N (passed as a reference to internal data structure)
@@ -1088,11 +1062,11 @@ public class PartialSort
 		 */
 		public float[] top(int options, float[] list, int size)
 		{
-			// We retain a pointer to the current highest value in the set. 
+			// We retain a pointer to the current highest value in the set.
 			int max = 0;
 			queue[0] = list[0];
 
-			// Fill 
+			// Fill
 			int i = 1;
 			while (i < n)
 			{
@@ -1170,14 +1144,12 @@ public class PartialSort
 	private static void replaceHead(float[] data, int options)
 	{
 		if ((options & OPTION_HEAD_FIRST) != 0)
-		{
 			swapHead(data, ((options & OPTION_TOP) != 0) ? topMax(data) : bottomMax(data));
-		}
 	}
 
 	private static void swapHead(float[] data, int max)
 	{
-		float head = data[max];
+		final float head = data[max];
 		data[max] = data[0];
 		data[0] = head;
 	}
@@ -1232,7 +1204,7 @@ public class PartialSort
 
 	/**
 	 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
-	 * 
+	 *
 	 * @param list
 	 *            the data list
 	 * @param size
@@ -1283,17 +1255,11 @@ public class PartialSort
 			return new double[0];
 		size = Math.min(size, list.length);
 		if (size <= n)
-		{
 			list = bottomFinish(list.clone(), options);
-		}
 		else if (n < 5)
-		{
 			list = new DoubleSelector(n).bottom(options, list, size);
-		}
 		else
-		{
 			list = new DoubleHeap(n).bottom(options, list, size);
-		}
 		return list;
 	}
 
@@ -1315,7 +1281,7 @@ public class PartialSort
 
 	/**
 	 * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
-	 * 
+	 *
 	 * @param list
 	 *            the data list
 	 * @param size
@@ -1366,17 +1332,11 @@ public class PartialSort
 			return new float[0];
 		size = Math.min(size, list.length);
 		if (size <= n)
-		{
 			list = bottomFinish(list.clone(), options);
-		}
 		else if (n < 5)
-		{
 			list = new FloatSelector(n).bottom(options, list, size);
-		}
 		else
-		{
 			list = new FloatHeap(n).bottom(options, list, size);
-		}
 		return list;
 	}
 
@@ -1400,7 +1360,7 @@ public class PartialSort
 
 	/**
 	 * Pick the top N from the data using ascending order, i.e. find the top n smallest values.
-	 * 
+	 *
 	 * @param list
 	 *            the data list
 	 * @param size
@@ -1451,17 +1411,11 @@ public class PartialSort
 			return new double[0];
 		size = Math.min(size, list.length);
 		if (size <= n)
-		{
 			list = topFinish(list.clone(), options);
-		}
 		else if (n < 5)
-		{
 			list = new DoubleSelector(n).top(options, list, size);
-		}
 		else
-		{
 			list = new DoubleHeap(n).top(options, list, size);
-		}
 		return list;
 	}
 
@@ -1483,7 +1437,7 @@ public class PartialSort
 
 	/**
 	 * Pick the top N from the data using ascending order, i.e. find the top n smallest values.
-	 * 
+	 *
 	 * @param list
 	 *            the data list
 	 * @param size
@@ -1534,21 +1488,15 @@ public class PartialSort
 			return new float[0];
 		size = Math.min(size, list.length);
 		if (size <= n)
-		{
 			list = topFinish(list.clone(), options);
-		}
 		else if (n < 5)
-		{
 			list = new FloatSelector(n).top(options, list, size);
-		}
 		else
-		{
 			list = new FloatHeap(n).top(options, list, size);
-		}
 		return list;
 	}
 
-	// The following select routine is copied from: 
+	// The following select routine is copied from:
 	// Numerical Recipes in C++, The Art of Scientific Computing, 2nd Edition, Cambridge Press.
 
 	/**
@@ -1572,13 +1520,10 @@ public class PartialSort
 		l = 0;
 		ir = n - 1;
 		for (;;)
-		{
 			if (ir <= l + 1)
 			{
 				if (ir == l + 1 && arr[ir] < arr[l])
-				{
 					SWAP(arr, l, ir);
-				}
 				return arr[k];
 			}
 			else
@@ -1586,17 +1531,11 @@ public class PartialSort
 				mid = (l + ir) >>> 1;
 				SWAP(arr, mid, l + 1);
 				if (arr[l] > arr[ir])
-				{
 					SWAP(arr, l, ir);
-				}
 				if (arr[l + 1] > arr[ir])
-				{
 					SWAP(arr, l + 1, ir);
-				}
 				if (arr[l] > arr[l + 1])
-				{
 					SWAP(arr, l, l + 1);
-				}
 				i = l + 1;
 				j = ir;
 				a = arr[l + 1];
@@ -1619,12 +1558,11 @@ public class PartialSort
 				if (j <= k)
 					l = i;
 			}
-		}
 	}
 
 	private static void SWAP(double[] data, int a, int b)
 	{
-		double temp = data[a];
+		final double temp = data[a];
 		data[a] = data[b];
 		data[b] = temp;
 	}
@@ -1650,13 +1588,10 @@ public class PartialSort
 		l = 0;
 		ir = n - 1;
 		for (;;)
-		{
 			if (ir <= l + 1)
 			{
 				if (ir == l + 1 && arr[ir] < arr[l])
-				{
 					SWAP(arr, l, ir);
-				}
 				return arr[k];
 			}
 			else
@@ -1664,17 +1599,11 @@ public class PartialSort
 				mid = (l + ir) >>> 1;
 				SWAP(arr, mid, l + 1);
 				if (arr[l] > arr[ir])
-				{
 					SWAP(arr, l, ir);
-				}
 				if (arr[l + 1] > arr[ir])
-				{
 					SWAP(arr, l + 1, ir);
-				}
 				if (arr[l] > arr[l + 1])
-				{
 					SWAP(arr, l, l + 1);
-				}
 				i = l + 1;
 				j = ir;
 				a = arr[l + 1];
@@ -1697,12 +1626,11 @@ public class PartialSort
 				if (j <= k)
 					l = i;
 			}
-		}
 	}
 
 	private static void SWAP(float[] data, int a, int b)
 	{
-		float temp = data[a];
+		final float temp = data[a];
 		data[a] = data[b];
 		data[b] = temp;
 	}

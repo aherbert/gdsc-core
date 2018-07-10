@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -45,15 +45,15 @@ public class RoiHelper
 	/**
 	 * Build a byte mask of all pixels in an ROI. If no area ROI is present then the mask
 	 * will be null.
-	 * 
+	 *
 	 * @param imp
 	 *            The input image
 	 * @return a byte mask (255 inside the ROI, else 0)
 	 */
 	public static ByteProcessor getMask(ImagePlus imp)
 	{
-		int maxx = imp.getWidth();
-		int maxy = imp.getHeight();
+		final int maxx = imp.getWidth();
+		final int maxy = imp.getHeight();
 
 		final Roi roi = imp.getRoi();
 
@@ -68,7 +68,7 @@ public class RoiHelper
 				return null;
 		}
 
-		ByteProcessor bp = new ByteProcessor(maxx, maxy);
+		final ByteProcessor bp = new ByteProcessor(maxx, maxy);
 		bp.setColor(255);
 		bp.fill(roi);
 		return bp;
@@ -104,28 +104,16 @@ public class RoiHelper
 		if (rwidth == 0 || rheight == 0)
 			return;
 
-		ImageProcessor mask = roi.getMask();
+		final ImageProcessor mask = roi.getMask();
 		if (mask == null)
-		{
 			for (int y = 0; y < rheight; y++)
-			{
 				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
-				{
 					p.execute(ip.getf(i));
-				}
-			}
-		}
 		else
-		{
 			for (int y = 0, j = 0; y < rheight; y++)
-			{
 				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
-				{
 					if (mask.get(j) != 0)
 						p.execute(ip.getf(i));
-				}
-			}
-		}
 	}
 
 	/**
@@ -144,7 +132,7 @@ public class RoiHelper
 		{
 			for (int slice = 1; slice <= stack.getSize(); slice++)
 			{
-				ImageProcessor ip = stack.getProcessor(slice);
+				final ImageProcessor ip = stack.getProcessor(slice);
 				for (int i = 0, n = ip.getPixelCount(); i < n; i++)
 					p.execute(ip.getf(i));
 			}
@@ -162,36 +150,24 @@ public class RoiHelper
 		if (rwidth == 0 || rheight == 0)
 			return;
 
-		ImageProcessor mask = roi.getMask();
+		final ImageProcessor mask = roi.getMask();
 		if (mask == null)
-		{
 			for (int slice = 1; slice <= stack.getSize(); slice++)
 			{
-				ImageProcessor ip = stack.getProcessor(slice);
+				final ImageProcessor ip = stack.getProcessor(slice);
 				for (int y = 0; y < rheight; y++)
-				{
 					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
-					{
 						p.execute(ip.getf(i));
-					}
-				}
 			}
-		}
 		else
-		{
 			for (int slice = 1; slice <= stack.getSize(); slice++)
 			{
-				ImageProcessor ip = stack.getProcessor(slice);
+				final ImageProcessor ip = stack.getProcessor(slice);
 				for (int y = 0, j = 0; y < rheight; y++)
-				{
 					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
-					{
 						if (mask.get(j) != 0)
 							p.execute(ip.getf(i));
-					}
-				}
 			}
-		}
 	}
 
 	/**
@@ -224,28 +200,16 @@ public class RoiHelper
 		if (rwidth == 0 || rheight == 0)
 			return;
 
-		ImageProcessor mask = roi.getMask();
+		final ImageProcessor mask = roi.getMask();
 		if (mask == null)
-		{
 			for (int y = 0; y < rheight; y++)
-			{
 				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
-				{
 					p.execute(ip.get(i));
-				}
-			}
-		}
 		else
-		{
 			for (int y = 0, j = 0; y < rheight; y++)
-			{
 				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
-				{
 					if (mask.get(j) != 0)
 						p.execute(ip.get(i));
-				}
-			}
-		}
 	}
 
 	/**
@@ -264,7 +228,7 @@ public class RoiHelper
 		{
 			for (int slice = 1; slice <= stack.getSize(); slice++)
 			{
-				ImageProcessor ip = stack.getProcessor(slice);
+				final ImageProcessor ip = stack.getProcessor(slice);
 				for (int i = 0, n = ip.getPixelCount(); i < n; i++)
 					p.execute(ip.get(i));
 			}
@@ -282,35 +246,23 @@ public class RoiHelper
 		if (rwidth == 0 || rheight == 0)
 			return;
 
-		ImageProcessor mask = roi.getMask();
+		final ImageProcessor mask = roi.getMask();
 		if (mask == null)
-		{
 			for (int slice = 1; slice <= stack.getSize(); slice++)
 			{
-				ImageProcessor ip = stack.getProcessor(slice);
+				final ImageProcessor ip = stack.getProcessor(slice);
 				for (int y = 0; y < rheight; y++)
-				{
 					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
-					{
 						p.execute(ip.get(i));
-					}
-				}
 			}
-		}
 		else
-		{
 			for (int slice = 1; slice <= stack.getSize(); slice++)
 			{
-				ImageProcessor ip = stack.getProcessor(slice);
+				final ImageProcessor ip = stack.getProcessor(slice);
 				for (int y = 0, j = 0; y < rheight; y++)
-				{
 					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
-					{
 						if (mask.get(j) != 0)
 							p.execute(ip.get(i));
-					}
-				}
 			}
-		}
 	}
 }

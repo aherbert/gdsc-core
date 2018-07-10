@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -88,22 +88,22 @@ public class FHT2Test
 		canCompute(2, true);
 	}
 
-	private void canCompute(int mode, boolean fast)
+	private static void canCompute(int mode, boolean fast)
 	{
-		int size = 16;
-		int ex = 5, ey = 7;
-		int ox = 1, oy = 2;
-		FloatProcessor fp1 = createProcessor(size, ex, ey, 4, 4);
-		FloatProcessor fp2 = createProcessor(size, size / 2 + ox, size / 2 + oy, 4, 4);
+		final int size = 16;
+		final int ex = 5, ey = 7;
+		final int ox = 1, oy = 2;
+		final FloatProcessor fp1 = createProcessor(size, ex, ey, 4, 4);
+		final FloatProcessor fp2 = createProcessor(size, size / 2 + ox, size / 2 + oy, 4, 4);
 
 		// These will duplicate in the constructor
-		FHT fhtA = new FHT(fp1);
-		FHT fhtB = new FHT(fp2);
+		final FHT fhtA = new FHT(fp1);
+		final FHT fhtB = new FHT(fp2);
 		fhtA.transform();
 		fhtB.transform();
 
-		FHT2 fht1 = new FHT2(fp1);
-		FHT2 fht2 = new FHT2(fp2);
+		final FHT2 fht1 = new FHT2(fp1);
+		final FHT2 fht2 = new FHT2(fp2);
 		fht1.transform();
 		fht2.transform();
 
@@ -133,34 +133,34 @@ public class FHT2Test
 		fhtE.inverseTransform();
 		fhtO.inverseTransform();
 
-		float[] e = (float[]) fhtE.getPixels();
-		float[] o = (float[]) fhtO.getPixels();
+		final float[] e = (float[]) fhtE.getPixels();
+		final float[] o = (float[]) fhtO.getPixels();
 
-		// This is not exact for the divide since the FHT2 magnitude is computed 
+		// This is not exact for the divide since the FHT2 magnitude is computed
 		// using double*double + double*double rather than float*float + float*float,
 		// i.e. the float are converted to double before multiplication.
-		double error = (mode == 2) ? 1e-5 : 0;
+		final double error = (mode == 2) ? 1e-5 : 0;
 		TestAssert.assertArrayEqualsRelative(e, o, error);
 	}
 
-	private FloatProcessor createProcessor(int size, int x, int y, int w, int h)
+	private static FloatProcessor createProcessor(int size, int x, int y, int w, int h)
 	{
-		ByteProcessor bp = new ByteProcessor(size, size);
+		final ByteProcessor bp = new ByteProcessor(size, size);
 		bp.setColor(255);
 		bp.fillOval(x, y, w, h);
-		EDM e = new EDM();
+		final EDM e = new EDM();
 		return e.makeFloatEDM(bp, 0, true);
 	}
 
 	@Test
 	public void canSwapQuadrants()
 	{
-		int size = 16;
-		FloatProcessor fp1 = new FloatProcessor(size, size, SimpleArrayUtils.newArray(size * size, 0, 1f));
-		FloatProcessor fp2 = (FloatProcessor) fp1.duplicate();
+		final int size = 16;
+		final FloatProcessor fp1 = new FloatProcessor(size, size, SimpleArrayUtils.newArray(size * size, 0, 1f));
+		final FloatProcessor fp2 = (FloatProcessor) fp1.duplicate();
 
-		FHT fht1 = new FHT(fp1);
-		FHT2 fht2 = new FHT2(fp2);
+		final FHT fht1 = new FHT(fp1);
+		final FHT2 fht2 = new FHT2(fp2);
 
 		fht1.swapQuadrants();
 		fht2.swapQuadrants();

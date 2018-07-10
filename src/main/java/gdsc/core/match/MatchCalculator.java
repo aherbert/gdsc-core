@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -136,17 +136,13 @@ public class MatchCalculator
 		// loop over the two arrays assigning the closest unassigned pair
 		final boolean[] resultAssignment = new boolean[predictedPointsLength];
 		final boolean[] roiAssignment = new boolean[fn];
-		final ArrayList<ImmutableAssignment> assignments = new ArrayList<ImmutableAssignment>(predictedPointsLength);
+		final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
 
 		int[] falsePositives = null, falseNegatives = null;
 		if (FP != null)
-		{
 			falsePositives = ascendingArray(predictedPointsLength);
-		}
 		if (FN != null)
-		{
 			falseNegatives = ascendingArray(actualPointsLength);
-		}
 
 		do
 		{
@@ -169,7 +165,7 @@ public class MatchCalculator
 					if (roiAssignment[actualId])
 						continue; // Already assigned
 
-					Coordinate actualPoint = actualPoints[actualId];
+					final Coordinate actualPoint = actualPoints[actualId];
 
 					// Calculate in steps for increased speed (allows early exit)
 					float dx = actualPoint.getX() - x;
@@ -192,9 +188,7 @@ public class MatchCalculator
 
 				// Store closest ROI point
 				if (targetId > -1)
-				{
 					assignments.add(new ImmutableAssignment(targetId, predictedId, d2Min));
-				}
 			}
 
 			// If there are assignments
@@ -204,10 +198,10 @@ public class MatchCalculator
 				AssignmentComparator.sort(assignments);
 
 				// Process in order
-				for (ImmutableAssignment closest : assignments)
+				for (final ImmutableAssignment closest : assignments)
 				{
 					// Skip those that have already been assigned since this will be a lower score.
-					// Note at least one assignment should be processed as potential assignments are made 
+					// Note at least one assignment should be processed as potential assignments are made
 					// using only unassigned points.
 					if (resultAssignment[closest.getPredictedId()] || roiAssignment[closest.getTargetId()])
 						continue;
@@ -223,26 +217,18 @@ public class MatchCalculator
 						rmsd += closest.getDistance(); // Already a squared distance
 
 						if (TP != null)
-						{
 							TP.add(predictedPoints[closest.getPredictedId()]);
-						}
 						if (FP != null)
-						{
 							falsePositives[closest.getPredictedId()] = -1;
-						}
 						if (FN != null)
-						{
 							falseNegatives[closest.getTargetId()] = -1;
-						}
 						if (matches != null)
 							matches.add(new PointPair(actualPoints[closest.getTargetId()],
 									predictedPoints[closest.getPredictedId()]));
 					}
 					else
-					{
 						// No more assignments within the distance threshold
 						break;
-					}
 				}
 			}
 
@@ -250,21 +236,13 @@ public class MatchCalculator
 
 		// Add to lists
 		if (FP != null)
-		{
 			for (int i = 0; i < predictedPointsLength; i++)
-			{
 				if (falsePositives[i] >= 0)
 					FP.add(predictedPoints[i]);
-			}
-		}
 		if (FN != null)
-		{
 			for (int i = 0; i < actualPointsLength; i++)
-			{
 				if (falseNegatives[i] >= 0)
 					FN.add(actualPoints[i]);
-			}
-		}
 
 		if (tp > 0)
 			rmsd = Math.sqrt(rmsd / tp);
@@ -332,7 +310,7 @@ public class MatchCalculator
 		}
 
 		// loop over the two arrays assigning the closest unassigned pair
-		final ArrayList<ImmutableAssignment> assignments = new ArrayList<ImmutableAssignment>(predictedPointsLength);
+		final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
 
 		for (int predictedId = predictedPointsLength; predictedId-- > 0;)
 		{
@@ -342,9 +320,7 @@ public class MatchCalculator
 			{
 				final double d2 = actualPoints[actualId].distance2(x, y);
 				if (d2 <= dThreshold)
-				{
 					assignments.add(new ImmutableAssignment(actualId, predictedId, d2));
-				}
 			}
 		}
 
@@ -353,10 +329,8 @@ public class MatchCalculator
 		final boolean[] predictedAssignment = new boolean[predictedPointsLength];
 		final boolean[] actualAssignment = new boolean[actualPointsLength];
 
-		for (ImmutableAssignment a : assignments)
-		{
+		for (final ImmutableAssignment a : assignments)
 			if (!actualAssignment[a.getTargetId()])
-			{
 				if (!predictedAssignment[a.getPredictedId()])
 				{
 					actualAssignment[a.getTargetId()] = true;
@@ -370,26 +344,16 @@ public class MatchCalculator
 					if (TP != null)
 						TP.add(predictedPoints[a.getPredictedId()]);
 				}
-			}
-		}
 
 		// Add to lists
 		if (FP != null)
-		{
 			for (int i = 0; i < predictedPointsLength; i++)
-			{
 				if (!predictedAssignment[i])
 					FP.add(predictedPoints[i]);
-			}
-		}
 		if (FN != null)
-		{
 			for (int i = 0; i < actualPointsLength; i++)
-			{
 				if (!actualAssignment[i])
 					FN.add(actualPoints[i]);
-			}
-		}
 
 		if (tp > 0)
 			rmsd = Math.sqrt(rmsd / tp);
@@ -400,7 +364,7 @@ public class MatchCalculator
 	{
 		if (points != null)
 			return Arrays.asList(points);
-		return new ArrayList<Coordinate>(0);
+		return new ArrayList<>(0);
 	}
 
 	/**
@@ -498,17 +462,13 @@ public class MatchCalculator
 		// loop over the two arrays assigning the closest unassigned pair
 		final boolean[] resultAssignment = new boolean[predictedPointsLength];
 		final boolean[] roiAssignment = new boolean[fn];
-		final ArrayList<ImmutableAssignment> assignments = new ArrayList<ImmutableAssignment>(predictedPointsLength);
+		final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
 
 		int[] falsePositives = null, falseNegatives = null;
 		if (FP != null)
-		{
 			falsePositives = ascendingArray(predictedPointsLength);
-		}
 		if (FN != null)
-		{
 			falseNegatives = ascendingArray(actualPointsLength);
-		}
 
 		do
 		{
@@ -532,7 +492,7 @@ public class MatchCalculator
 					if (roiAssignment[actualId])
 						continue; // Already assigned
 
-					Coordinate actualPoint = actualPoints[actualId];
+					final Coordinate actualPoint = actualPoints[actualId];
 
 					// Calculate in steps for increased speed (allows early exit)
 					float dx = actualPoint.getX() - x;
@@ -560,9 +520,7 @@ public class MatchCalculator
 
 				// Store closest ROI point
 				if (targetId > -1)
-				{
 					assignments.add(new ImmutableAssignment(targetId, predictedId, d2Min));
-				}
 			}
 
 			// If there are assignments
@@ -572,10 +530,10 @@ public class MatchCalculator
 				AssignmentComparator.sort(assignments);
 
 				// Process in order
-				for (ImmutableAssignment closest : assignments)
+				for (final ImmutableAssignment closest : assignments)
 				{
 					// Skip those that have already been assigned since this will be a lower score.
-					// Note at least one assignment should be processed as potential assignments are made 
+					// Note at least one assignment should be processed as potential assignments are made
 					// using only unassigned points.
 					if (resultAssignment[closest.getPredictedId()] || roiAssignment[closest.getTargetId()])
 						continue;
@@ -592,26 +550,18 @@ public class MatchCalculator
 						rmsd += closest.getDistance();
 
 						if (TP != null)
-						{
 							TP.add(predictedPoints[closest.getPredictedId()]);
-						}
 						if (FP != null)
-						{
 							falsePositives[closest.getPredictedId()] = -1;
-						}
 						if (FN != null)
-						{
 							falseNegatives[closest.getTargetId()] = -1;
-						}
 						if (matches != null)
 							matches.add(new PointPair(actualPoints[closest.getTargetId()],
 									predictedPoints[closest.getPredictedId()]));
 					}
 					else
-					{
 						// No more assignments within the distance threshold
 						break;
-					}
 				}
 			}
 
@@ -619,21 +569,13 @@ public class MatchCalculator
 
 		// Add to lists
 		if (FP != null)
-		{
 			for (int i = 0; i < predictedPointsLength; i++)
-			{
 				if (falsePositives[i] >= 0)
 					FP.add(predictedPoints[i]);
-			}
-		}
 		if (FN != null)
-		{
 			for (int i = 0; i < actualPointsLength; i++)
-			{
 				if (falseNegatives[i] >= 0)
 					FN.add(actualPoints[i]);
-			}
-		}
 
 		if (tp > 0)
 			rmsd = Math.sqrt(rmsd / tp);
@@ -687,7 +629,7 @@ public class MatchCalculator
 		}
 
 		// loop over the two arrays assigning the closest unassigned pair
-		final ArrayList<ImmutableAssignment> assignments = new ArrayList<ImmutableAssignment>(predictedPointsLength);
+		final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
 
 		for (int predictedId = predictedPointsLength; predictedId-- > 0;)
 		{
@@ -698,9 +640,7 @@ public class MatchCalculator
 			{
 				final double d2 = actualPoints[actualId].distance2(x, y, z);
 				if (d2 <= dThreshold)
-				{
 					assignments.add(new ImmutableAssignment(actualId, predictedId, d2));
-				}
 			}
 		}
 
@@ -709,10 +649,8 @@ public class MatchCalculator
 		final boolean[] predictedAssignment = new boolean[predictedPointsLength];
 		final boolean[] actualAssignment = new boolean[actualPointsLength];
 
-		for (ImmutableAssignment a : assignments)
-		{
+		for (final ImmutableAssignment a : assignments)
 			if (!actualAssignment[a.getTargetId()])
-			{
 				if (!predictedAssignment[a.getPredictedId()])
 				{
 					actualAssignment[a.getTargetId()] = true;
@@ -726,26 +664,16 @@ public class MatchCalculator
 					if (TP != null)
 						TP.add(predictedPoints[a.getPredictedId()]);
 				}
-			}
-		}
 
 		// Add to lists
 		if (FP != null)
-		{
 			for (int i = 0; i < predictedPointsLength; i++)
-			{
 				if (!predictedAssignment[i])
 					FP.add(predictedPoints[i]);
-			}
-		}
 		if (FN != null)
-		{
 			for (int i = 0; i < actualPointsLength; i++)
-			{
 				if (!actualAssignment[i])
 					FN.add(actualPoints[i]);
-			}
-		}
 
 		if (tp > 0)
 			rmsd = Math.sqrt(rmsd / tp);
@@ -754,7 +682,7 @@ public class MatchCalculator
 
 	private static int[] ascendingArray(int length)
 	{
-		int[] array = new int[length];
+		final int[] array = new int[length];
 		for (int i = 0; i < length; i++)
 			array[i] = i;
 		return array;
@@ -811,26 +739,22 @@ public class MatchCalculator
 		}
 
 		// loop over the two arrays assigning the closest unassigned pair
-		boolean[] resultAssignment = new boolean[predictedPointsLength];
-		boolean[] roiAssignment = new boolean[fn];
-		ArrayList<ImmutableAssignment> assignments = new ArrayList<ImmutableAssignment>(predictedPointsLength);
+		final boolean[] resultAssignment = new boolean[predictedPointsLength];
+		final boolean[] roiAssignment = new boolean[fn];
+		final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
 
 		int[] falsePositives = null, falseNegatives = null;
 		if (FP != null)
-		{
 			falsePositives = ascendingArray(predictedPointsLength);
-		}
 		if (FN != null)
-		{
 			falseNegatives = ascendingArray(actualPointsLength);
-		}
 
 		// Sort by time to allow efficient looping
 		Arrays.sort(actualPoints);
 		Arrays.sort(predictedPoints);
 
 		// Pre-calculate all-vs-all distance matrix if it can fit in memory
-		int size = predictedPointsLength * actualPointsLength;
+		final int size = predictedPointsLength * actualPointsLength;
 		float[][] dMatrix = null;
 		if (size < 200 * 200)
 		{
@@ -840,9 +764,7 @@ public class MatchCalculator
 				final float x = predictedPoints[predictedId].getX();
 				final float y = predictedPoints[predictedId].getY();
 				for (int actualId = 0; actualId < actualPointsLength; actualId++)
-				{
 					dMatrix[predictedId][actualId] = (float) actualPoints[actualId].distance2(x, y);
-				}
 			}
 		}
 
@@ -864,9 +786,7 @@ public class MatchCalculator
 				// Find first overlapping pulse
 				int actualId = 0;
 				while (actualId < actualPointsLength && actualPoints[actualId].getEnd() < start)
-				{
 					actualId++;
-				}
 
 				// Find highest scoring point within the distance limit
 				double scoreMax = 0;
@@ -880,18 +800,16 @@ public class MatchCalculator
 
 					double d2;
 					if (dMatrix != null)
-					{
 						d2 = dMatrix[predictedId][actualId];
-					}
 					else
 					{
-						Coordinate actualPoint = actualPoints[actualId];
+						final Coordinate actualPoint = actualPoints[actualId];
 
 						// Calculate in steps for increased speed (allows early exit)
-						float dx = abs(actualPoint.getX() - x);
+						final float dx = abs(actualPoint.getX() - x);
 						if (dx > floatDThreshold)
 							continue;
-						float dy = abs(actualPoint.getY() - y);
+						final float dy = abs(actualPoint.getY() - y);
 						if (dy > floatDThreshold)
 							continue;
 						d2 = dx * dx + dy * dy;
@@ -902,7 +820,7 @@ public class MatchCalculator
 					if (d2 > dThreshold2)
 						continue;
 
-					double s = predictedPoints[predictedId].score(actualPoints[actualId], d2, halfDThreshold2);
+					final double s = predictedPoints[predictedId].score(actualPoints[actualId], d2, halfDThreshold2);
 					if (scoreMax < s)
 					{
 						scoreMax = s;
@@ -912,9 +830,7 @@ public class MatchCalculator
 
 				// Store highest scoring point
 				if (targetId > -1)
-				{
 					assignments.add(new ImmutableAssignment(targetId, predictedId, scoreMax));
-				}
 			}
 
 			// If there are assignments
@@ -925,10 +841,10 @@ public class MatchCalculator
 				Collections.reverse(assignments);
 
 				// Process in order of score
-				for (ImmutableAssignment closest : assignments)
+				for (final ImmutableAssignment closest : assignments)
 				{
 					// Skip those that have already been assigned since this will be a lower score.
-					// Note at least one assignment should be processed as potential assignments are made 
+					// Note at least one assignment should be processed as potential assignments are made
 					// using only unassigned points.
 					if (resultAssignment[closest.getPredictedId()] || roiAssignment[closest.getTargetId()])
 						continue;
@@ -942,17 +858,11 @@ public class MatchCalculator
 					score += closest.getDistance(); // This is the scoreMax (not the distance)
 
 					if (TP != null)
-					{
 						TP.add(predictedPoints[closest.getPredictedId()]);
-					}
 					if (FP != null)
-					{
 						falsePositives[closest.getPredictedId()] = -1;
-					}
 					if (FN != null)
-					{
 						falseNegatives[closest.getTargetId()] = -1;
-					}
 					if (matches != null)
 						matches.add(new PointPair(actualPoints[closest.getTargetId()],
 								predictedPoints[closest.getPredictedId()]));
@@ -963,27 +873,19 @@ public class MatchCalculator
 
 		// Add to lists
 		if (FP != null)
-		{
 			for (int i = 0; i < predictedPointsLength; i++)
-			{
 				if (falsePositives[i] >= 0)
 					FP.add(predictedPoints[i]);
-			}
-		}
 		if (FN != null)
-		{
 			for (int i = 0; i < actualPointsLength; i++)
-			{
 				if (falseNegatives[i] >= 0)
 					FN.add(actualPoints[i]);
-			}
-		}
 
 		// Every time-point has the chance to contribute to the score.
 		// Normalise score by the maximum of the number of actual/predicted time points.
 		// This penalises too few or too many predictions
-		int p1 = countTimePoints(actualPoints);
-		int p2 = countTimePoints(predictedPoints);
+		final int p1 = countTimePoints(actualPoints);
+		final int p2 = countTimePoints(predictedPoints);
 		score /= FastMath.max(p1, p2);
 
 		return new MatchResult(tp, fp, fn, score);
@@ -992,7 +894,7 @@ public class MatchCalculator
 	private static int countTimePoints(Pulse[] actualPoints)
 	{
 		int p1 = 0;
-		for (Pulse p : actualPoints)
+		for (final Pulse p : actualPoints)
 			p1 += p.getEnd() - p.getStart() + 1;
 		return p1;
 	}
@@ -1001,7 +903,7 @@ public class MatchCalculator
 	{
 		if (points != null)
 			return Arrays.asList(points);
-		return new ArrayList<Pulse>(0);
+		return new ArrayList<>(0);
 	}
 
 	private static float abs(final float f)

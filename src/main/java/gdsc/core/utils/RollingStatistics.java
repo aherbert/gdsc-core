@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -77,7 +77,7 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#addInternal(float[], int, int)
 	 */
 	@Override
@@ -89,7 +89,7 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#addInternal(double[], int, int)
 	 */
 	@Override
@@ -101,7 +101,7 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#addInternal(int[], int, int)
 	 */
 	@Override
@@ -114,14 +114,14 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#add(double)
 	 */
 	@Override
 	public void add(final double value)
 	{
 		// This has changed the meaning of the inherited values s and ss
-		// s : sum -> mean 
+		// s : sum -> mean
 		// ss : sum-squares -> sum (x-mean)^2
 		// See https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
 		// This has been adapted from org.apache.commons.math3.stat.descriptive.moment.SecondMoment
@@ -135,7 +135,7 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#add(int, double)
 	 */
 	@Override
@@ -143,7 +143,7 @@ public class RollingStatistics extends Statistics
 	{
 		// Note: for the input mean value the
 		// deviation from mean is 0 (ss=0)
-		double delta = value - s;
+		final double delta = value - s;
 		final int nB = n;
 		n += nA;
 		s = (nA * value + nB * s) / n;
@@ -152,7 +152,7 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#getSum()
 	 */
 	@Override
@@ -163,7 +163,7 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#getSumOfSquares()
 	 */
 	@Override
@@ -174,7 +174,7 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#getMean()
 	 */
 	@Override
@@ -185,7 +185,7 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#getStandardDeviation()
 	 */
 	@Override
@@ -196,7 +196,7 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#getVariance()
 	 */
 	@Override
@@ -207,7 +207,7 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#add(gdsc.core.utils.Statistics)
 	 */
 	@Override
@@ -215,11 +215,11 @@ public class RollingStatistics extends Statistics
 	{
 		if (statistics instanceof RollingStatistics)
 		{
-			RollingStatistics extra = (RollingStatistics) statistics;
+			final RollingStatistics extra = (RollingStatistics) statistics;
 			if (extra.n > 0)
 			{
 				// https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
-				double delta = extra.s - s;
+				final double delta = extra.s - s;
 				final int nA = extra.n;
 				final int nB = n;
 				n += nA;

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -40,7 +40,7 @@ public class IntegerTypeTest
 	public void canGenerateIntegerType()
 	{
 		Assume.assumeTrue(false);
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		for (int bitDepth = 1; bitDepth <= 64; bitDepth++)
 			add(sb, true, bitDepth);
 		for (int bitDepth = 1; bitDepth <= 63; bitDepth++)
@@ -48,7 +48,7 @@ public class IntegerTypeTest
 		TestSettings.infoln(sb.toString());
 	}
 
-	private void add(StringBuilder sb, boolean signed, int bitDepth)
+	private static void add(StringBuilder sb, boolean signed, int bitDepth)
 	{
 		if (signed)
 		{
@@ -77,9 +77,9 @@ public class IntegerTypeTest
 	@Test
 	public void canProvideIntegerTypeData()
 	{
-		for (IntegerType type : IntegerType.values())
+		for (final IntegerType type : IntegerType.values())
 		{
-			int bd = type.getBitDepth();
+			final int bd = type.getBitDepth();
 			Assert.assertTrue(type.getName().contains(Integer.toString(bd) + "-bit"));
 			Assert.assertEquals(type, IntegerType.forOrdinal(type.ordinal()));
 
@@ -102,7 +102,7 @@ public class IntegerTypeTest
 		}
 	}
 
-	private long maxUnsigned(int bd)
+	private static long maxUnsigned(int bd)
 	{
 		long max = 1;
 		while (bd-- > 0)
@@ -110,7 +110,7 @@ public class IntegerTypeTest
 		return max - 1;
 	}
 
-	private long maxSigned(int bd)
+	private static long maxSigned(int bd)
 	{
 		long max = 1;
 		while (bd-- > 1)
@@ -118,7 +118,7 @@ public class IntegerTypeTest
 		return max - 1;
 	}
 
-	private long minSigned(int bd)
+	private static long minSigned(int bd)
 	{
 		long max = 1;
 		while (bd-- > 1)

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -152,13 +152,13 @@ public class LoOP
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Runnable#run()
 		 */
 		@Override
 		public void run()
 		{
-			// Note: The k-nearest neighbour search will include the actual 
+			// Note: The k-nearest neighbour search will include the actual
 			// point so increment by 1
 			final int k1 = k + 1;
 			final Status[] status = new Status[tree.getNumberOfNodes()];
@@ -193,7 +193,7 @@ public class LoOP
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Runnable#run()
 		 */
 		@Override
@@ -204,18 +204,12 @@ public class LoOP
 				double sum = 0;
 				final int[] list = neighbours[i];
 				for (int j = k; j-- > 0;)
-				{
 					sum += pd[list[j]];
-				}
 				double plof = max(pd[i] * k / sum, 1.0);
 				if (Double.isNaN(plof) || Double.isInfinite(plof))
-				{
 					plof = 1.0;
-				}
 				else
-				{
 					nplof += (plof - 1.0) * (plof - 1.0);
-				}
 				plofs[i] = plof;
 			}
 		}
@@ -243,17 +237,15 @@ public class LoOP
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Runnable#run()
 		 */
 		@Override
 		public void run()
 		{
 			for (int i = from; i < to; i++)
-			{
 				// Use an approximation for speed
 				plofs[i] = erf((plofs[i] - 1.0) * norm);
-			}
 		}
 	}
 
@@ -330,17 +322,17 @@ public class LoOP
 		// Multi-thread
 		final int nThreads = getNumberOfThreads();
 		final ExecutorService executor = Executors.newFixedThreadPool(nThreads);
-		final TurboList<Future<?>> futures = new TurboList<Future<?>>(nThreads);
+		final TurboList<Future<?>> futures = new TurboList<>(nThreads);
 		final int nPerThread = (int) Math.ceil((double) size / nThreads);
 
-		// Find neighbours for each point and 
+		// Find neighbours for each point and
 		// compute probabilistic distances
 		final int[][] neighbours = new int[size][k];
 		final double[] pd = new double[size];
 
 		for (int from = 0; from < size;)
 		{
-			int to = Math.min(from + nPerThread, size);
+			final int to = Math.min(from + nPerThread, size);
 			futures.add(executor.submit(new KNNWorker(neighbours, k, pd, from, to)));
 			from = to;
 		}
@@ -348,11 +340,11 @@ public class LoOP
 
 		// Compute Probabilistic Local Outlier Factors (PLOF)
 		final double[] plofs = new double[size];
-		final TurboList<PLOFWorker> workers = new TurboList<PLOFWorker>(nThreads);
+		final TurboList<PLOFWorker> workers = new TurboList<>(nThreads);
 		for (int from = 0; from < size;)
 		{
-			int to = Math.min(from + nPerThread, size);
-			PLOFWorker w = new PLOFWorker(neighbours, k, pd, plofs, from, to);
+			final int to = Math.min(from + nPerThread, size);
+			final PLOFWorker w = new PLOFWorker(neighbours, k, pd, plofs, from, to);
 			workers.add(w);
 			futures.add(executor.submit(w));
 			from = to;
@@ -361,7 +353,7 @@ public class LoOP
 
 		// Get the final normalisation factor
 		double nplof = 0;
-		for (PLOFWorker w : workers)
+		for (final PLOFWorker w : workers)
 			nplof += w.nplof;
 		nplof = lambda * Math.sqrt(nplof / size);
 		if (nplof <= 0)
@@ -371,7 +363,7 @@ public class LoOP
 		final double norm = 1. / (nplof * Math.sqrt(2.));
 		for (int from = 0; from < size;)
 		{
-			int to = Math.min(from + nPerThread, size);
+			final int to = Math.min(from + nPerThread, size);
 			futures.add(executor.submit(new NormWorker(plofs, norm, from, to)));
 			from = to;
 		}
@@ -380,14 +372,12 @@ public class LoOP
 		return plofs;
 	}
 
-	private void wait(TurboList<Future<?>> futures) throws InterruptedException, ExecutionException
+	private static void wait(TurboList<Future<?>> futures) throws InterruptedException, ExecutionException
 	{
 		// Wait for all to finish
 		for (int t = futures.size(); t-- > 0;)
-		{
 			// The future .get() method will block until completed
 			futures.get(t).get();
-		}
 		futures.clear();
 	}
 

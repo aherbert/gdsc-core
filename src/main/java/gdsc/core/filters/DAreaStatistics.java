@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -70,7 +70,7 @@ public class DAreaStatistics extends DAreaSum
 			return;
 
 		// Compute the rolling sum and sum of squares
-		// s(u,v) = f(u,v) + s(u-1,v) + s(u,v-1) - s(u-1,v-1) 
+		// s(u,v) = f(u,v) + s(u-1,v) + s(u,v-1) - s(u-1,v-1)
 		// ss(u,v) = f(u,v) * f(u,v) + ss(u-1,v) + ss(u,v-1) - ss(u-1,v-1)
 		// where s(u,v) = ss(u,v) = 0 when either u,v < 0
 
@@ -82,7 +82,7 @@ public class DAreaStatistics extends DAreaSum
 		double css = 0; // Column sum-squares
 		for (int i = 0; i < maxx; i++)
 		{
-			double d = data[i];
+			final double d = data[i];
 			cs_ += d;
 			css += d * d;
 			s_[i] = cs_;
@@ -100,7 +100,7 @@ public class DAreaStatistics extends DAreaSum
 			// Remaining columns
 			for (int x = 0; x < maxx; x++, i++)
 			{
-				double d = data[i];
+				final double d = data[i];
 				cs_ += d;
 				css += d * d;
 
@@ -114,12 +114,12 @@ public class DAreaStatistics extends DAreaSum
 	protected double[] getStatisticsRollingSums(int minU, int maxU, int minV, int maxV)
 	{
 		// Compute sum from rolling sum using:
-		// sum(u,v) = 
-		// + s(u+N,v+N) 
+		// sum(u,v) =
+		// + s(u+N,v+N)
 		// - s(u-N-1,v+N)
 		// - s(u+N,v-N-1)
 		// + s(u-N-1,v-N-1)
-		// Note: 
+		// Note:
 		// s(u,v) = 0 when either u,v < 0
 		// s(u,v) = s(umax,v) when u>umax
 		// s(u,v) = s(u,vmax) when v>vmax
@@ -132,7 +132,7 @@ public class DAreaStatistics extends DAreaSum
 		if (maxV >= maxy)
 			maxV = maxy - 1;
 
-		// + s(u+N-1,v+N-1) 
+		// + s(u+N-1,v+N-1)
 		int index = maxV * maxx + maxU;
 		double sum = s_[index];
 		double sumSquares = ss[index];
@@ -157,10 +157,8 @@ public class DAreaStatistics extends DAreaSum
 				sumSquares += ss[index];
 			}
 			else
-			{
 				// Reset to bounds to calculate the number of pixels
 				minV = -1;
-			}
 		}
 		else
 		{
@@ -176,13 +174,11 @@ public class DAreaStatistics extends DAreaSum
 
 			}
 			else
-			{
 				// Reset to bounds to calculate the number of pixels
 				minV = -1;
-			}
 		}
 
-		int n = (maxU - minU) * (maxV - minV);
+		final int n = (maxU - minU) * (maxV - minV);
 
 		return getResults(sum, sumSquares, n);
 	}
@@ -198,18 +194,18 @@ public class DAreaStatistics extends DAreaSum
 	 *            the n
 	 * @return the results
 	 */
-	private double[] getResults(double sum, double sumSquares, int n)
+	private static double[] getResults(double sum, double sumSquares, int n)
 	{
-		double[] stats = new double[3];
+		final double[] stats = new double[3];
 
 		stats[N] = n;
-		// Note: We do not consider n==0 since the methods are not called with an empty region 
+		// Note: We do not consider n==0 since the methods are not called with an empty region
 		stats[SUM] = sum;
 
 		if (n > 1)
 		{
 			// Get the sum of squared differences
-			double residuals = sumSquares - (sum * sum) / n;
+			final double residuals = sumSquares - (sum * sum) / n;
 			if (residuals > 0.0)
 				stats[SD] = Math.sqrt(residuals / (n - 1));
 		}
@@ -241,12 +237,12 @@ public class DAreaStatistics extends DAreaSum
 		for (int y = minV; y < maxV; y++)
 			for (int x = minU, i = getIndex(minU, y); x < maxU; x++, i++)
 			{
-				double d = data[i];
+				final double d = data[i];
 				sum += d;
 				sumSquares += d * d;
 			}
 
-		int n = (maxU - minU) * (maxV - minV);
+		final int n = (maxU - minU) * (maxV - minV);
 
 		return getResults(sum, sumSquares, n);
 	}

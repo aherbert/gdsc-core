@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -52,14 +52,12 @@ public class PolygonRoiTest extends RoiTest
 		if (roi.getType() == Roi.POLYGON || roi.getType() == Roi.FREEROI || roi.getType() == Roi.TRACED_ROI)
 		{
 			bounds = roi.getFloatBounds();
-			FloatPolygon poly = roi.getFloatPolygon();
+			final FloatPolygon poly = roi.getFloatPolygon();
 			xpoints = SimpleArrayUtils.toDouble(poly.xpoints);
 			ypoints = SimpleArrayUtils.toDouble(poly.ypoints);
 		}
 		else
-		{
 			throw new IllegalArgumentException("Require polygon/free/traced ROI");
-		}
 	}
 
 	@Override
@@ -83,11 +81,9 @@ public class PolygonRoiTest extends RoiTest
 	{
 		boolean inside = false;
 		for (int i = xpoints.length, j = 0; i-- > 0; j = i)
-		{
 			if (((ypoints[i] > y) != (ypoints[j] > y)) &&
 					(x < (xpoints[j] - xpoints[i]) * (y - ypoints[i]) / (ypoints[j] - ypoints[i]) + xpoints[i]))
 				inside = !inside;
-		}
 		return inside;
 	}
 }

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -46,7 +46,7 @@ import ij.process.FloatProcessor;
 @SuppressWarnings({ "javadoc" })
 public class NonMaximumSuppressionTest
 {
-	private boolean debug = TestSettings.getLogLevel() >= LogLevel.DEBUG.getValue();
+	private final boolean debug = TestSettings.getLogLevel() >= LogLevel.DEBUG.getValue();
 
 	//int[] primes = new int[] { 113, 97, 53, 29, 17, 7 };
 	//int[] primes = new int[] { 509, 251 };
@@ -65,12 +65,12 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFindAndMaxFindReturnSameResult()
 	{
-		RandomGenerator rg = TestSettings.getRandomGenerator();
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		for (int width : primes)
-			for (int height : primes)
-				for (int boxSize : boxSizes)
+		for (final int width : primes)
+			for (final int height : primes)
+				for (final int boxSize : boxSizes)
 					floatCompareBlockFindToMaxFind(rg, nms, width, height, boxSize);
 	}
 
@@ -86,24 +86,24 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFindReturnSameResultWithNeighbourCheck()
 	{
-		RandomGenerator rg = TestSettings.getRandomGenerator();
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		for (int width : primes)
-			for (int height : primes)
-				for (int boxSize : boxSizes)
+		for (final int width : primes)
+			for (final int height : primes)
+				for (final int boxSize : boxSizes)
 					floatCompareBlockFindWithNeighbourCheck(rg, nms, width, height, boxSize);
 	}
 
-	private void floatCompareBlockFindWithNeighbourCheck(RandomGenerator rg, NonMaximumSuppression nms, int width,
-			int height, int boxSize) throws ArrayComparisonFailure
+	private static void floatCompareBlockFindWithNeighbourCheck(RandomGenerator rg, NonMaximumSuppression nms,
+			int width, int height, int boxSize) throws ArrayComparisonFailure
 	{
 		// Random data
-		float[] data = floatCreateData(rg, width, height);
+		final float[] data = floatCreateData(rg, width, height);
 		nms.setNeighbourCheck(false);
-		int[] blockIndices1 = nms.blockFindNxN(data, width, height, boxSize);
+		final int[] blockIndices1 = nms.blockFindNxN(data, width, height, boxSize);
 		nms.setNeighbourCheck(true);
-		int[] blockIndices2 = nms.blockFindNxN(data, width, height, boxSize);
+		final int[] blockIndices2 = nms.blockFindNxN(data, width, height, boxSize);
 
 		Assert.assertArrayEquals(String.format("Indices do not match: [%dx%d] @ %d", width, height, boxSize),
 				blockIndices1, blockIndices2);
@@ -112,12 +112,12 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFindAndMaxFindReturnSameResultOnPatternDataWithNeighbourCheck()
 	{
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 		nms.setNeighbourCheck(true);
 
-		for (int width : smallPrimes)
-			for (int height : smallPrimes)
-				for (int boxSize : boxSizes)
+		for (final int width : smallPrimes)
+			for (final int height : smallPrimes)
+				for (final int boxSize : boxSizes)
 					floatCompareBlockFindToMaxFindWithPatternData(nms, width, height, boxSize);
 	}
 
@@ -127,7 +127,7 @@ public class NonMaximumSuppressionTest
 		// This fails when N=2. Pattern data is problematic given the block find algorithm processes the pixels in a different order
 		// from a linear run across the yx order data. So when the pattern produces a max pixel within the range of all
 		// candidates on the top row of the block, the block algorithm will output a maxima from a subsequent row. Standard
-		// processing will just move further along the row (beyond the block boundary) to find the next maxima. 
+		// processing will just move further along the row (beyond the block boundary) to find the next maxima.
 		if (boxSize <= 2)
 			return;
 
@@ -145,8 +145,8 @@ public class NonMaximumSuppressionTest
 	private void floatCompareBlockFindToMaxFind(NonMaximumSuppression nms, int width, int height, int boxSize,
 			float[] data, String name) throws ArrayComparisonFailure
 	{
-		int[] blockIndices = nms.blockFindNxN(data, width, height, boxSize);
-		int[] maxIndices = nms.maxFind(data, width, height, boxSize);
+		final int[] blockIndices = nms.blockFindNxN(data, width, height, boxSize);
+		final int[] maxIndices = nms.maxFind(data, width, height, boxSize);
 
 		Arrays.sort(blockIndices);
 		Arrays.sort(maxIndices);
@@ -158,7 +158,8 @@ public class NonMaximumSuppressionTest
 				maxIndices, blockIndices);
 	}
 
-	private void floatCompareIndices(int width, int height, float[] data, int boxSize, int[] indices1, int[] indices2)
+	private static void floatCompareIndices(int width, int height, float[] data, int boxSize, int[] indices1,
+			int[] indices2)
 	{
 		TestSettings.info("float [%dx%d@%d] i1 = %d, i2 = %d\n", width, height, boxSize, indices1.length,
 				indices2.length);
@@ -166,8 +167,8 @@ public class NonMaximumSuppressionTest
 		boolean match = true;
 		while (i1 < indices1.length || i2 < indices2.length)
 		{
-			int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
-			int j = (i2 < indices2.length) ? indices2[i2] : Integer.MAX_VALUE;
+			final int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
+			final int j = (i2 < indices2.length) ? indices2[i2] : Integer.MAX_VALUE;
 
 			if (i == j)
 			{
@@ -195,18 +196,18 @@ public class NonMaximumSuppressionTest
 		showImage(width, height, data, indices2, "i2");
 	}
 
-	private void showImage(int width, int height, float[] data, int[] indices, String title)
+	private static void showImage(int width, int height, float[] data, int[] indices, String title)
 	{
-		ImagePlus imp = Utils.display(title, new FloatProcessor(width, height, data));
-		int[] ox = new int[indices.length];
-		int[] oy = new int[indices.length];
+		final ImagePlus imp = Utils.display(title, new FloatProcessor(width, height, data));
+		final int[] ox = new int[indices.length];
+		final int[] oy = new int[indices.length];
 		int points = 0;
-		for (int i : indices)
+		for (final int i : indices)
 		{
 			ox[points] = i % width;
 			oy[points++] = i / width;
 		}
-		PointRoi roi = new PointRoi(ox, oy, points);
+		final PointRoi roi = new PointRoi(ox, oy, points);
 		imp.setRoi(roi);
 		//imp.getWindow().getCanvas().setMagnification(16);
 		for (int i = 7; i-- > 0;)
@@ -216,9 +217,9 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFindNxNAndBlockFind3x3ReturnSameResult()
 	{
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
 		for (int width : primes)
 		{
@@ -229,13 +230,13 @@ public class NonMaximumSuppressionTest
 			{
 				height++;
 
-				float[] data = floatCreateData(rg, width, height);
+				final float[] data = floatCreateData(rg, width, height);
 
-				for (boolean b : new boolean[] { false, true })
+				for (final boolean b : new boolean[] { false, true })
 				{
 					nms.setNeighbourCheck(b);
-					int[] blockNxNIndices = nms.blockFindNxN(data, width, height, 1);
-					int[] block3x3Indices = nms.blockFind3x3(data, width, height);
+					final int[] blockNxNIndices = nms.blockFindNxN(data, width, height, 1);
+					final int[] block3x3Indices = nms.blockFind3x3(data, width, height);
 
 					Arrays.sort(blockNxNIndices);
 					Arrays.sort(block3x3Indices);
@@ -253,9 +254,9 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult()
 	{
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
 		for (int width : primes)
 		{
@@ -266,13 +267,13 @@ public class NonMaximumSuppressionTest
 			{
 				height++;
 
-				float[] data = floatCreateData(rg, width, height);
+				final float[] data = floatCreateData(rg, width, height);
 
-				for (boolean b : new boolean[] { false, true })
+				for (final boolean b : new boolean[] { false, true })
 				{
 					nms.setNeighbourCheck(b);
-					int[] blockNxNIndices = nms.blockFindNxNInternal(data, width, height, 1, 1);
-					int[] block3x3Indices = nms.blockFind3x3Internal(data, width, height, 1);
+					final int[] blockNxNIndices = nms.blockFindNxNInternal(data, width, height, 1, 1);
+					final int[] block3x3Indices = nms.blockFind3x3Internal(data, width, height, 1);
 
 					Arrays.sort(blockNxNIndices);
 					Arrays.sort(block3x3Indices);
@@ -292,23 +293,23 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-		ArrayList<Long> blockTimes = new ArrayList<Long>();
+		final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+		final ArrayList<Long> blockTimes = new ArrayList<>();
 
 		// Initialise
 		nms.blockFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 		nms.maxFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 
-		for (int boxSize : boxSizes)
-			for (int width : primes)
-				for (int height : primes)
+		for (final int boxSize : boxSizes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (float[] data : dataSet)
+					for (final float[] data : dataSet)
 						nms.blockFind(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 					blockTimes.add(time);
@@ -316,18 +317,18 @@ public class NonMaximumSuppressionTest
 
 		long total = 0, blockTotal = 0;
 		int index = 0;
-		for (int boxSize : boxSizes)
+		for (final int boxSize : boxSizes)
 		{
 			long boxTotal = 0, blockBoxTotal = 0;
-			for (int width : primes)
-				for (int height : primes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (float[] data : dataSet)
+					for (final float[] data : dataSet)
 						nms.maxFind(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 
-					long blockTime = blockTimes.get(index++);
+					final long blockTime = blockTimes.get(index++);
 					total += time;
 					blockTotal += blockTime;
 					boxTotal += time;
@@ -355,24 +356,24 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 		nms.setNeighbourCheck(true);
 
-		ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-		ArrayList<Long> blockTimes = new ArrayList<Long>();
+		final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+		final ArrayList<Long> blockTimes = new ArrayList<>();
 
 		// Initialise
 		nms.blockFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 		nms.maxFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 
-		for (int boxSize : boxSizes)
-			for (int width : primes)
-				for (int height : primes)
+		for (final int boxSize : boxSizes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (float[] data : dataSet)
+					for (final float[] data : dataSet)
 						nms.blockFind(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 					blockTimes.add(time);
@@ -380,18 +381,18 @@ public class NonMaximumSuppressionTest
 
 		long total = 0, blockTotal = 0;
 		int index = 0;
-		for (int boxSize : boxSizes)
+		for (final int boxSize : boxSizes)
 		{
 			long boxTotal = 0, blockBoxTotal = 0;
-			for (int width : primes)
-				for (int height : primes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (float[] data : dataSet)
+					for (final float[] data : dataSet)
 						nms.maxFind(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 
-					long blockTime = blockTimes.get(index++);
+					final long blockTime = blockTimes.get(index++);
 					total += time;
 					blockTotal += blockTime;
 					boxTotal += time;
@@ -416,9 +417,9 @@ public class NonMaximumSuppressionTest
 
 	private ArrayList<float[]> floatCreateSpeedData(RandomGenerator rg)
 	{
-		int iter = ITER;
+		final int iter = ITER;
 
-		ArrayList<float[]> dataSet = new ArrayList<float[]>(iter);
+		final ArrayList<float[]> dataSet = new ArrayList<>(iter);
 		for (int i = iter; i-- > 0;)
 			dataSet.add(floatCreateData(rg, primes[0], primes[0]));
 		return dataSet;
@@ -427,33 +428,33 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFindNxNInternalIsFasterThanBlockFindNxNForBigBorders()
 	{
-		// Note: This test is currently failing. The primes used to be: 
+		// Note: This test is currently failing. The primes used to be:
 		// int[] primes = new int[] { 997, 503, 251 };
 		// Now with smaller primes (to increase the speed of running these tests)
-		// this test fails. The time for the JVM to optimise the internal method 
+		// this test fails. The time for the JVM to optimise the internal method
 		// is high.
-		// If all the tests are run then the similar test 
+		// If all the tests are run then the similar test
 		// floatBlockFindInternalIsFasterWithoutNeighbourCheck shows much faster
-		// times for the internal method. 
+		// times for the internal method.
 		// This test should be changed to repeat until the times converge.
 
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-		ArrayList<Long> internalTimes = new ArrayList<Long>();
+		final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+		final ArrayList<Long> internalTimes = new ArrayList<>();
 
-		for (int boxSize : boxSizes)
-			for (int width : primes)
-				for (int height : primes)
+		for (final int boxSize : boxSizes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					// Initialise
 					nms.blockFindNxNInternal(dataSet.get(0), width, height, boxSize, boxSize);
 					long time = System.nanoTime();
-					for (float[] data : dataSet)
+					for (final float[] data : dataSet)
 						nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
 					time = System.nanoTime() - time;
 					internalTimes.add(time);
@@ -462,20 +463,20 @@ public class NonMaximumSuppressionTest
 		long total = 0, internalTotal = 0;
 		long bigTotal = 0, bigInternalTotal = 0;
 		int index = 0;
-		for (int boxSize : boxSizes)
+		for (final int boxSize : boxSizes)
 		{
 			long boxTotal = 0, internalBoxTotal = 0;
-			for (int width : primes)
-				for (int height : primes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					// Initialise
 					nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 					long time = System.nanoTime();
-					for (float[] data : dataSet)
+					for (final float[] data : dataSet)
 						nms.blockFindNxN(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 
-					long internalTime = internalTimes.get(index++);
+					final long internalTime = internalTimes.get(index++);
 					total += time;
 					internalTotal += internalTime;
 					if (boxSize >= 5)
@@ -512,23 +513,23 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-		ArrayList<Long> noCheckTimes = new ArrayList<Long>();
+		final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+		final ArrayList<Long> noCheckTimes = new ArrayList<>();
 
 		// Initialise
 		nms.setNeighbourCheck(false);
 		nms.blockFindNxNInternal(dataSet.get(0), primes[0], primes[0], boxSizes[0], boxSizes[0]);
 
-		for (int boxSize : boxSizes)
-			for (int width : primes)
-				for (int height : primes)
+		for (final int boxSize : boxSizes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (float[] data : dataSet)
+					for (final float[] data : dataSet)
 						nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
 					time = System.nanoTime() - time;
 					noCheckTimes.add(time);
@@ -540,18 +541,18 @@ public class NonMaximumSuppressionTest
 		long checkTotal = 0, noCheckTotal = 0;
 		long bigCheckTotal = 0, bigNoCheckTotal = 0;
 		int index = 0;
-		for (int boxSize : boxSizes)
+		for (final int boxSize : boxSizes)
 		{
 			long checkBoxTotal = 0, noCheckBoxTotal = 0;
-			for (int width : primes)
-				for (int height : primes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (float[] data : dataSet)
+					for (final float[] data : dataSet)
 						nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
 					time = System.nanoTime() - time;
 
-					long noCheckTime = noCheckTimes.get(index++);
+					final long noCheckTime = noCheckTimes.get(index++);
 					checkTotal += time;
 					if (boxSize >= 5)
 					{
@@ -588,23 +589,23 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-		ArrayList<Long> noCheckTimes = new ArrayList<Long>();
+		final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+		final ArrayList<Long> noCheckTimes = new ArrayList<>();
 
 		// Initialise
 		nms.setNeighbourCheck(false);
 		nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 
-		for (int boxSize : boxSizes)
-			for (int width : primes)
-				for (int height : primes)
+		for (final int boxSize : boxSizes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (float[] data : dataSet)
+					for (final float[] data : dataSet)
 						nms.blockFindNxN(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 					noCheckTimes.add(time);
@@ -616,18 +617,18 @@ public class NonMaximumSuppressionTest
 		long checkTotal = 0, noCheckTotal = 0;
 		long bigCheckTotal = 0, bigNoCheckTotal = 0;
 		int index = 0;
-		for (int boxSize : boxSizes)
+		for (final int boxSize : boxSizes)
 		{
 			long checkBoxTotal = 0, noCheckBoxTotal = 0;
-			for (int width : primes)
-				for (int height : primes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (float[] data : dataSet)
+					for (final float[] data : dataSet)
 						nms.blockFindNxN(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 
-					long noCheckTime = noCheckTimes.get(index++);
+					final long noCheckTime = noCheckTimes.get(index++);
 					checkTotal += time;
 					if (boxSize >= 5)
 					{
@@ -663,37 +664,37 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-		ArrayList<Long> blockTimes = new ArrayList<Long>();
+		final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+		final ArrayList<Long> blockTimes = new ArrayList<>();
 
 		// Initialise
 		nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
 		nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], 1);
 
-		for (int width : primes)
-			for (int height : primes)
+		for (final int width : primes)
+			for (final int height : primes)
 			{
-				long time = System.nanoTime();
-				for (float[] data : dataSet)
+				final long time = System.nanoTime();
+				for (final float[] data : dataSet)
 					nms.blockFind3x3(data, width, height);
 				blockTimes.add(System.nanoTime() - time);
 			}
 
 		long total = 0, blockTotal = 0;
 		int index = 0;
-		for (int width : primes)
-			for (int height : primes)
+		for (final int width : primes)
+			for (final int height : primes)
 			{
 				long time = System.nanoTime();
-				for (float[] data : dataSet)
+				for (final float[] data : dataSet)
 					nms.blockFindNxN(data, width, height, 1);
 				time = System.nanoTime() - time;
 
-				long blockTime = blockTimes.get(index++);
+				final long blockTime = blockTimes.get(index++);
 				total += time;
 				blockTotal += blockTime;
 				if (debug)
@@ -712,26 +713,26 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 		nms.setDataBuffer(true);
 
-		NonMaximumSuppression nms2 = new NonMaximumSuppression();
+		final NonMaximumSuppression nms2 = new NonMaximumSuppression();
 		nms2.setDataBuffer(false);
 
-		ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-		ArrayList<Long> blockTimes = new ArrayList<Long>();
+		final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+		final ArrayList<Long> blockTimes = new ArrayList<>();
 
 		// Initialise
 		nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
 		nms2.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
 
-		for (int width : primes)
-			for (int height : primes)
+		for (final int width : primes)
+			for (final int height : primes)
 			{
 				long time = System.nanoTime();
-				for (float[] data : dataSet)
+				for (final float[] data : dataSet)
 					nms.blockFind3x3(data, width, height);
 				time = System.nanoTime() - time;
 				blockTimes.add(time);
@@ -739,15 +740,15 @@ public class NonMaximumSuppressionTest
 
 		long total = 0, blockTotal = 0;
 		int index = 0;
-		for (int width : primes)
-			for (int height : primes)
+		for (final int width : primes)
+			for (final int height : primes)
 			{
 				long time = System.nanoTime();
-				for (float[] data : dataSet)
+				for (final float[] data : dataSet)
 					nms2.blockFind3x3(data, width, height);
 				time = System.nanoTime() - time;
 
-				long blockTime = blockTimes.get(index++);
+				final long blockTime = blockTimes.get(index++);
 				total += time;
 				blockTotal += blockTime;
 				if (debug)
@@ -767,22 +768,22 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-		ArrayList<Long> blockTimes = new ArrayList<Long>();
+		final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+		final ArrayList<Long> blockTimes = new ArrayList<>();
 
 		// Initialise
 		nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
 		nms.maxFind(dataSet.get(0), primes[0], primes[0], 1);
 
-		for (int width : primes)
-			for (int height : primes)
+		for (final int width : primes)
+			for (final int height : primes)
 			{
 				long time = System.nanoTime();
-				for (float[] data : dataSet)
+				for (final float[] data : dataSet)
 					nms.blockFind3x3(data, width, height);
 				time = System.nanoTime() - time;
 				blockTimes.add(time);
@@ -790,15 +791,15 @@ public class NonMaximumSuppressionTest
 
 		long total = 0, blockTotal = 0;
 		int index = 0;
-		for (int width : primes)
-			for (int height : primes)
+		for (final int width : primes)
+			for (final int height : primes)
 			{
 				long time = System.nanoTime();
-				for (float[] data : dataSet)
+				for (final float[] data : dataSet)
 					nms.maxFind(data, width, height, 1);
 				time = System.nanoTime() - time;
 
-				long blockTime = blockTimes.get(index++);
+				final long blockTime = blockTimes.get(index++);
 				total += time;
 				blockTotal += blockTime;
 				if (debug)
@@ -817,21 +818,21 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatAllFindBlockMethodsReturnSameResultForSize1()
 	{
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
-		for (int width : primes)
-			for (int height : primes)
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
+		for (final int width : primes)
+			for (final int height : primes)
 				floatCompareBlockMethodsForSize1(rg, nms, width, height);
 	}
 
-	private void floatCompareBlockMethodsForSize1(RandomGenerator rg, NonMaximumSuppression nms, int width, int height)
-			throws ArrayComparisonFailure
+	private static void floatCompareBlockMethodsForSize1(RandomGenerator rg, NonMaximumSuppression nms, int width,
+			int height) throws ArrayComparisonFailure
 	{
-		float[] data = floatCreateData(rg, width, height);
+		final float[] data = floatCreateData(rg, width, height);
 
-		int[] blockNxNIndices = nms.findBlockMaximaNxN(data, width, height, 1);
-		int[] block2x2Indices = nms.findBlockMaxima2x2(data, width, height);
+		final int[] blockNxNIndices = nms.findBlockMaximaNxN(data, width, height, 1);
+		final int[] block2x2Indices = nms.findBlockMaxima2x2(data, width, height);
 
 		Arrays.sort(blockNxNIndices);
 		Arrays.sort(block2x2Indices);
@@ -840,9 +841,9 @@ public class NonMaximumSuppressionTest
 				block2x2Indices);
 	}
 
-	private float[] floatCreateData(RandomGenerator rg, int width, int height)
+	private static float[] floatCreateData(RandomGenerator rg, int width, int height)
 	{
-		float[] data = new float[width * height];
+		final float[] data = new float[width * height];
 		for (int i = data.length; i-- > 0;)
 			data[i] = i;
 
@@ -851,10 +852,10 @@ public class NonMaximumSuppressionTest
 		return data;
 	}
 
-	private float[] floatCreatePatternData(int width, int height, float a, float b, float c, float d)
+	private static float[] floatCreatePatternData(int width, int height, float a, float b, float c, float d)
 	{
-		float[] row1 = new float[width + 2];
-		float[] row2 = new float[width + 2];
+		final float[] row1 = new float[width + 2];
+		final float[] row2 = new float[width + 2];
 		for (int x = 0; x < width; x += 2)
 		{
 			row1[x] = a;
@@ -863,10 +864,10 @@ public class NonMaximumSuppressionTest
 			row2[x + 1] = d;
 		}
 
-		float[] data = new float[width * height];
+		final float[] data = new float[width * height];
 		for (int y = 0; y < height; y++)
 		{
-			float[] row = (y % 2 == 0) ? row1 : row2;
+			final float[] row = (y % 2 == 0) ? row1 : row2;
 			System.arraycopy(row, 0, data, y * width, width);
 		}
 
@@ -877,12 +878,12 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFindAndMaxFindReturnSameResult()
 	{
-		RandomGenerator rg = TestSettings.getRandomGenerator();
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		for (int width : primes)
-			for (int height : primes)
-				for (int boxSize : boxSizes)
+		for (final int width : primes)
+			for (final int height : primes)
+				for (final int boxSize : boxSizes)
 					intCompareBlockFindToMaxFind(rg, nms, width, height, boxSize);
 	}
 
@@ -898,24 +899,24 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFindReturnSameResultWithNeighbourCheck()
 	{
-		RandomGenerator rg = TestSettings.getRandomGenerator();
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		for (int width : primes)
-			for (int height : primes)
-				for (int boxSize : boxSizes)
+		for (final int width : primes)
+			for (final int height : primes)
+				for (final int boxSize : boxSizes)
 					intCompareBlockFindWithNeighbourCheck(rg, nms, width, height, boxSize);
 	}
 
-	private void intCompareBlockFindWithNeighbourCheck(RandomGenerator rg, NonMaximumSuppression nms, int width,
+	private static void intCompareBlockFindWithNeighbourCheck(RandomGenerator rg, NonMaximumSuppression nms, int width,
 			int height, int boxSize) throws ArrayComparisonFailure
 	{
 		// Random data
-		int[] data = intCreateData(rg, width, height);
+		final int[] data = intCreateData(rg, width, height);
 		nms.setNeighbourCheck(false);
-		int[] blockIndices1 = nms.blockFindNxN(data, width, height, boxSize);
+		final int[] blockIndices1 = nms.blockFindNxN(data, width, height, boxSize);
 		nms.setNeighbourCheck(true);
-		int[] blockIndices2 = nms.blockFindNxN(data, width, height, boxSize);
+		final int[] blockIndices2 = nms.blockFindNxN(data, width, height, boxSize);
 
 		Assert.assertArrayEquals(String.format("Indices do not match: [%dx%d] @ %d", width, height, boxSize),
 				blockIndices1, blockIndices2);
@@ -924,12 +925,12 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFindAndMaxFindReturnSameResultOnPatternDataWithNeighbourCheck()
 	{
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 		nms.setNeighbourCheck(true);
 
-		for (int width : smallPrimes)
-			for (int height : smallPrimes)
-				for (int boxSize : boxSizes)
+		for (final int width : smallPrimes)
+			for (final int height : smallPrimes)
+				for (final int boxSize : boxSizes)
 					intCompareBlockFindToMaxFindWithPatternData(nms, width, height, boxSize);
 	}
 
@@ -939,7 +940,7 @@ public class NonMaximumSuppressionTest
 		// This fails when N=2. Pattern data is problematic given the block find algorithm processes the pixels in a different order
 		// from a linear run across the yx order data. So when the pattern produces a max pixel within the range of all
 		// candidates on the top row of the block, the block algorithm will output a maxima from a subsequent row. Standard
-		// processing will just move further along the row (beyond the block boundary) to find the next maxima. 
+		// processing will just move further along the row (beyond the block boundary) to find the next maxima.
 		if (boxSize <= 2)
 			return;
 
@@ -957,8 +958,8 @@ public class NonMaximumSuppressionTest
 	private void intCompareBlockFindToMaxFind(NonMaximumSuppression nms, int width, int height, int boxSize, int[] data,
 			String name) throws ArrayComparisonFailure
 	{
-		int[] blockIndices = nms.blockFindNxN(data, width, height, boxSize);
-		int[] maxIndices = nms.maxFind(data, width, height, boxSize);
+		final int[] blockIndices = nms.blockFindNxN(data, width, height, boxSize);
+		final int[] maxIndices = nms.maxFind(data, width, height, boxSize);
 
 		Arrays.sort(blockIndices);
 		Arrays.sort(maxIndices);
@@ -970,7 +971,8 @@ public class NonMaximumSuppressionTest
 				maxIndices, blockIndices);
 	}
 
-	private void intCompareIndices(int width, int height, int[] data, int boxSize, int[] indices1, int[] indices2)
+	private static void intCompareIndices(int width, int height, int[] data, int boxSize, int[] indices1,
+			int[] indices2)
 	{
 		TestSettings.info("int [%dx%d@%d] i1 = %d, i2 = %d\n", width, height, boxSize, indices1.length,
 				indices2.length);
@@ -978,8 +980,8 @@ public class NonMaximumSuppressionTest
 		boolean match = true;
 		while (i1 < indices1.length || i2 < indices2.length)
 		{
-			int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
-			int j = (i2 < indices2.length) ? indices2[i2] : Integer.MAX_VALUE;
+			final int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
+			final int j = (i2 < indices2.length) ? indices2[i2] : Integer.MAX_VALUE;
 
 			if (i == j)
 			{
@@ -1007,18 +1009,18 @@ public class NonMaximumSuppressionTest
 		showImage(width, height, data, indices2, "i2");
 	}
 
-	private void showImage(int width, int height, int[] data, int[] indices, String title)
+	private static void showImage(int width, int height, int[] data, int[] indices, String title)
 	{
-		ImagePlus imp = Utils.display(title, new FloatProcessor(width, height, data));
-		int[] ox = new int[indices.length];
-		int[] oy = new int[indices.length];
+		final ImagePlus imp = Utils.display(title, new FloatProcessor(width, height, data));
+		final int[] ox = new int[indices.length];
+		final int[] oy = new int[indices.length];
 		int points = 0;
-		for (int i : indices)
+		for (final int i : indices)
 		{
 			ox[points] = i % width;
 			oy[points++] = i / width;
 		}
-		PointRoi roi = new PointRoi(ox, oy, points);
+		final PointRoi roi = new PointRoi(ox, oy, points);
 		imp.setRoi(roi);
 		//imp.getWindow().getCanvas().setMagnification(16);
 		for (int i = 7; i-- > 0;)
@@ -1028,9 +1030,9 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFindNxNAndBlockFind3x3ReturnSameResult()
 	{
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
 		for (int width : primes)
 		{
@@ -1041,13 +1043,13 @@ public class NonMaximumSuppressionTest
 			{
 				height++;
 
-				int[] data = intCreateData(rg, width, height);
+				final int[] data = intCreateData(rg, width, height);
 
-				for (boolean b : new boolean[] { false, true })
+				for (final boolean b : new boolean[] { false, true })
 				{
 					nms.setNeighbourCheck(b);
-					int[] blockNxNIndices = nms.blockFindNxN(data, width, height, 1);
-					int[] block3x3Indices = nms.blockFind3x3(data, width, height);
+					final int[] blockNxNIndices = nms.blockFindNxN(data, width, height, 1);
+					final int[] block3x3Indices = nms.blockFind3x3(data, width, height);
 
 					Arrays.sort(blockNxNIndices);
 					Arrays.sort(block3x3Indices);
@@ -1065,9 +1067,9 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult()
 	{
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
 		for (int width : primes)
 		{
@@ -1078,13 +1080,13 @@ public class NonMaximumSuppressionTest
 			{
 				height++;
 
-				int[] data = intCreateData(rg, width, height);
+				final int[] data = intCreateData(rg, width, height);
 
-				for (boolean b : new boolean[] { false, true })
+				for (final boolean b : new boolean[] { false, true })
 				{
 					nms.setNeighbourCheck(b);
-					int[] blockNxNIndices = nms.blockFindNxNInternal(data, width, height, 1, 1);
-					int[] block3x3Indices = nms.blockFind3x3Internal(data, width, height, 1);
+					final int[] blockNxNIndices = nms.blockFindNxNInternal(data, width, height, 1, 1);
+					final int[] block3x3Indices = nms.blockFind3x3Internal(data, width, height, 1);
 
 					Arrays.sort(blockNxNIndices);
 					Arrays.sort(block3x3Indices);
@@ -1104,23 +1106,23 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-		ArrayList<Long> blockTimes = new ArrayList<Long>();
+		final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+		final ArrayList<Long> blockTimes = new ArrayList<>();
 
 		// Initialise
 		nms.blockFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 		nms.maxFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 
-		for (int boxSize : boxSizes)
-			for (int width : primes)
-				for (int height : primes)
+		for (final int boxSize : boxSizes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (int[] data : dataSet)
+					for (final int[] data : dataSet)
 						nms.blockFind(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 					blockTimes.add(time);
@@ -1128,18 +1130,18 @@ public class NonMaximumSuppressionTest
 
 		long total = 0, blockTotal = 0;
 		int index = 0;
-		for (int boxSize : boxSizes)
+		for (final int boxSize : boxSizes)
 		{
 			long boxTotal = 0, blockBoxTotal = 0;
-			for (int width : primes)
-				for (int height : primes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (int[] data : dataSet)
+					for (final int[] data : dataSet)
 						nms.maxFind(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 
-					long blockTime = blockTimes.get(index++);
+					final long blockTime = blockTimes.get(index++);
 					total += time;
 					blockTotal += blockTime;
 					boxTotal += time;
@@ -1167,24 +1169,24 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 		nms.setNeighbourCheck(true);
 
-		ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-		ArrayList<Long> blockTimes = new ArrayList<Long>();
+		final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+		final ArrayList<Long> blockTimes = new ArrayList<>();
 
 		// Initialise
 		nms.blockFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 		nms.maxFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 
-		for (int boxSize : boxSizes)
-			for (int width : primes)
-				for (int height : primes)
+		for (final int boxSize : boxSizes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (int[] data : dataSet)
+					for (final int[] data : dataSet)
 						nms.blockFind(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 					blockTimes.add(time);
@@ -1192,18 +1194,18 @@ public class NonMaximumSuppressionTest
 
 		long total = 0, blockTotal = 0;
 		int index = 0;
-		for (int boxSize : boxSizes)
+		for (final int boxSize : boxSizes)
 		{
 			long boxTotal = 0, blockBoxTotal = 0;
-			for (int width : primes)
-				for (int height : primes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (int[] data : dataSet)
+					for (final int[] data : dataSet)
 						nms.maxFind(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 
-					long blockTime = blockTimes.get(index++);
+					final long blockTime = blockTimes.get(index++);
 					total += time;
 					blockTotal += blockTime;
 					boxTotal += time;
@@ -1228,9 +1230,9 @@ public class NonMaximumSuppressionTest
 
 	private ArrayList<int[]> intCreateSpeedData(RandomGenerator rg)
 	{
-		int iter = ITER;
+		final int iter = ITER;
 
-		ArrayList<int[]> dataSet = new ArrayList<int[]>(iter);
+		final ArrayList<int[]> dataSet = new ArrayList<>(iter);
 		for (int i = iter; i-- > 0;)
 			dataSet.add(intCreateData(rg, primes[0], primes[0]));
 		return dataSet;
@@ -1239,33 +1241,33 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFindNxNInternalIsFasterThanBlockFindNxNForBigBorders()
 	{
-		// Note: This test is currently failing. The primes used to be: 
+		// Note: This test is currently failing. The primes used to be:
 		// int[] primes = new int[] { 997, 503, 251 };
 		// Now with smaller primes (to increase the speed of running these tests)
-		// this test fails. The time for the JVM to optimise the internal method 
+		// this test fails. The time for the JVM to optimise the internal method
 		// is high.
-		// If all the tests are run then the similar test 
+		// If all the tests are run then the similar test
 		// intBlockFindInternalIsFasterWithoutNeighbourCheck shows much faster
-		// times for the internal method. 
+		// times for the internal method.
 		// This test should be changed to repeat until the times converge.
 
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-		ArrayList<Long> internalTimes = new ArrayList<Long>();
+		final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+		final ArrayList<Long> internalTimes = new ArrayList<>();
 
-		for (int boxSize : boxSizes)
-			for (int width : primes)
-				for (int height : primes)
+		for (final int boxSize : boxSizes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					// Initialise
 					nms.blockFindNxNInternal(dataSet.get(0), width, height, boxSize, boxSize);
 					long time = System.nanoTime();
-					for (int[] data : dataSet)
+					for (final int[] data : dataSet)
 						nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
 					time = System.nanoTime() - time;
 					internalTimes.add(time);
@@ -1274,20 +1276,20 @@ public class NonMaximumSuppressionTest
 		long total = 0, internalTotal = 0;
 		long bigTotal = 0, bigInternalTotal = 0;
 		int index = 0;
-		for (int boxSize : boxSizes)
+		for (final int boxSize : boxSizes)
 		{
 			long boxTotal = 0, internalBoxTotal = 0;
-			for (int width : primes)
-				for (int height : primes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					// Initialise
 					nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 					long time = System.nanoTime();
-					for (int[] data : dataSet)
+					for (final int[] data : dataSet)
 						nms.blockFindNxN(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 
-					long internalTime = internalTimes.get(index++);
+					final long internalTime = internalTimes.get(index++);
 					total += time;
 					internalTotal += internalTime;
 					if (boxSize >= 5)
@@ -1324,23 +1326,23 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-		ArrayList<Long> noCheckTimes = new ArrayList<Long>();
+		final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+		final ArrayList<Long> noCheckTimes = new ArrayList<>();
 
 		// Initialise
 		nms.setNeighbourCheck(false);
 		nms.blockFindNxNInternal(dataSet.get(0), primes[0], primes[0], boxSizes[0], boxSizes[0]);
 
-		for (int boxSize : boxSizes)
-			for (int width : primes)
-				for (int height : primes)
+		for (final int boxSize : boxSizes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (int[] data : dataSet)
+					for (final int[] data : dataSet)
 						nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
 					time = System.nanoTime() - time;
 					noCheckTimes.add(time);
@@ -1352,18 +1354,18 @@ public class NonMaximumSuppressionTest
 		long checkTotal = 0, noCheckTotal = 0;
 		long bigCheckTotal = 0, bigNoCheckTotal = 0;
 		int index = 0;
-		for (int boxSize : boxSizes)
+		for (final int boxSize : boxSizes)
 		{
 			long checkBoxTotal = 0, noCheckBoxTotal = 0;
-			for (int width : primes)
-				for (int height : primes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (int[] data : dataSet)
+					for (final int[] data : dataSet)
 						nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
 					time = System.nanoTime() - time;
 
-					long noCheckTime = noCheckTimes.get(index++);
+					final long noCheckTime = noCheckTimes.get(index++);
 					checkTotal += time;
 					if (boxSize >= 5)
 					{
@@ -1400,23 +1402,23 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-		ArrayList<Long> noCheckTimes = new ArrayList<Long>();
+		final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+		final ArrayList<Long> noCheckTimes = new ArrayList<>();
 
 		// Initialise
 		nms.setNeighbourCheck(false);
 		nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 
-		for (int boxSize : boxSizes)
-			for (int width : primes)
-				for (int height : primes)
+		for (final int boxSize : boxSizes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (int[] data : dataSet)
+					for (final int[] data : dataSet)
 						nms.blockFindNxN(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 					noCheckTimes.add(time);
@@ -1428,18 +1430,18 @@ public class NonMaximumSuppressionTest
 		long checkTotal = 0, noCheckTotal = 0;
 		long bigCheckTotal = 0, bigNoCheckTotal = 0;
 		int index = 0;
-		for (int boxSize : boxSizes)
+		for (final int boxSize : boxSizes)
 		{
 			long checkBoxTotal = 0, noCheckBoxTotal = 0;
-			for (int width : primes)
-				for (int height : primes)
+			for (final int width : primes)
+				for (final int height : primes)
 				{
 					long time = System.nanoTime();
-					for (int[] data : dataSet)
+					for (final int[] data : dataSet)
 						nms.blockFindNxN(data, width, height, boxSize);
 					time = System.nanoTime() - time;
 
-					long noCheckTime = noCheckTimes.get(index++);
+					final long noCheckTime = noCheckTimes.get(index++);
 					checkTotal += time;
 					if (boxSize >= 5)
 					{
@@ -1475,37 +1477,37 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-		ArrayList<Long> blockTimes = new ArrayList<Long>();
+		final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+		final ArrayList<Long> blockTimes = new ArrayList<>();
 
 		// Initialise
 		nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
 		nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], 1);
 
-		for (int width : primes)
-			for (int height : primes)
+		for (final int width : primes)
+			for (final int height : primes)
 			{
-				long time = System.nanoTime();
-				for (int[] data : dataSet)
+				final long time = System.nanoTime();
+				for (final int[] data : dataSet)
 					nms.blockFind3x3(data, width, height);
 				blockTimes.add(System.nanoTime() - time);
 			}
 
 		long total = 0, blockTotal = 0;
 		int index = 0;
-		for (int width : primes)
-			for (int height : primes)
+		for (final int width : primes)
+			for (final int height : primes)
 			{
 				long time = System.nanoTime();
-				for (int[] data : dataSet)
+				for (final int[] data : dataSet)
 					nms.blockFindNxN(data, width, height, 1);
 				time = System.nanoTime() - time;
 
-				long blockTime = blockTimes.get(index++);
+				final long blockTime = blockTimes.get(index++);
 				total += time;
 				blockTotal += blockTime;
 				if (debug)
@@ -1524,26 +1526,26 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 		nms.setDataBuffer(true);
 
-		NonMaximumSuppression nms2 = new NonMaximumSuppression();
+		final NonMaximumSuppression nms2 = new NonMaximumSuppression();
 		nms2.setDataBuffer(false);
 
-		ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-		ArrayList<Long> blockTimes = new ArrayList<Long>();
+		final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+		final ArrayList<Long> blockTimes = new ArrayList<>();
 
 		// Initialise
 		nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
 		nms2.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
 
-		for (int width : primes)
-			for (int height : primes)
+		for (final int width : primes)
+			for (final int height : primes)
 			{
 				long time = System.nanoTime();
-				for (int[] data : dataSet)
+				for (final int[] data : dataSet)
 					nms.blockFind3x3(data, width, height);
 				time = System.nanoTime() - time;
 				blockTimes.add(time);
@@ -1551,15 +1553,15 @@ public class NonMaximumSuppressionTest
 
 		long total = 0, blockTotal = 0;
 		int index = 0;
-		for (int width : primes)
-			for (int height : primes)
+		for (final int width : primes)
+			for (final int height : primes)
 			{
 				long time = System.nanoTime();
-				for (int[] data : dataSet)
+				for (final int[] data : dataSet)
 					nms2.blockFind3x3(data, width, height);
 				time = System.nanoTime() - time;
 
-				long blockTime = blockTimes.get(index++);
+				final long blockTime = blockTimes.get(index++);
 				total += time;
 				blockTotal += blockTime;
 				if (debug)
@@ -1578,22 +1580,22 @@ public class NonMaximumSuppressionTest
 	{
 		TestSettings.assumeSpeedTest();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-		ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-		ArrayList<Long> blockTimes = new ArrayList<Long>();
+		final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+		final ArrayList<Long> blockTimes = new ArrayList<>();
 
 		// Initialise
 		nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
 		nms.maxFind(dataSet.get(0), primes[0], primes[0], 1);
 
-		for (int width : primes)
-			for (int height : primes)
+		for (final int width : primes)
+			for (final int height : primes)
 			{
 				long time = System.nanoTime();
-				for (int[] data : dataSet)
+				for (final int[] data : dataSet)
 					nms.blockFind3x3(data, width, height);
 				time = System.nanoTime() - time;
 				blockTimes.add(time);
@@ -1601,15 +1603,15 @@ public class NonMaximumSuppressionTest
 
 		long total = 0, blockTotal = 0;
 		int index = 0;
-		for (int width : primes)
-			for (int height : primes)
+		for (final int width : primes)
+			for (final int height : primes)
 			{
 				long time = System.nanoTime();
-				for (int[] data : dataSet)
+				for (final int[] data : dataSet)
 					nms.maxFind(data, width, height, 1);
 				time = System.nanoTime() - time;
 
-				long blockTime = blockTimes.get(index++);
+				final long blockTime = blockTimes.get(index++);
 				total += time;
 				blockTotal += blockTime;
 				if (debug)
@@ -1628,21 +1630,21 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intAllFindBlockMethodsReturnSameResultForSize1()
 	{
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
-		NonMaximumSuppression nms = new NonMaximumSuppression();
-		for (int width : primes)
-			for (int height : primes)
+		final NonMaximumSuppression nms = new NonMaximumSuppression();
+		for (final int width : primes)
+			for (final int height : primes)
 				intCompareBlockMethodsForSize1(rg, nms, width, height);
 	}
 
-	private void intCompareBlockMethodsForSize1(RandomGenerator rg, NonMaximumSuppression nms, int width, int height)
-			throws ArrayComparisonFailure
+	private static void intCompareBlockMethodsForSize1(RandomGenerator rg, NonMaximumSuppression nms, int width,
+			int height) throws ArrayComparisonFailure
 	{
-		int[] data = intCreateData(rg, width, height);
+		final int[] data = intCreateData(rg, width, height);
 
-		int[] blockNxNIndices = nms.findBlockMaximaNxN(data, width, height, 1);
-		int[] block2x2Indices = nms.findBlockMaxima2x2(data, width, height);
+		final int[] blockNxNIndices = nms.findBlockMaximaNxN(data, width, height, 1);
+		final int[] block2x2Indices = nms.findBlockMaxima2x2(data, width, height);
 
 		Arrays.sort(blockNxNIndices);
 		Arrays.sort(block2x2Indices);
@@ -1651,9 +1653,9 @@ public class NonMaximumSuppressionTest
 				block2x2Indices);
 	}
 
-	private int[] intCreateData(RandomGenerator rg, int width, int height)
+	private static int[] intCreateData(RandomGenerator rg, int width, int height)
 	{
-		int[] data = new int[width * height];
+		final int[] data = new int[width * height];
 		for (int i = data.length; i-- > 0;)
 			data[i] = i;
 
@@ -1662,10 +1664,10 @@ public class NonMaximumSuppressionTest
 		return data;
 	}
 
-	private int[] intCreatePatternData(int width, int height, int a, int b, int c, int d)
+	private static int[] intCreatePatternData(int width, int height, int a, int b, int c, int d)
 	{
-		int[] row1 = new int[width + 2];
-		int[] row2 = new int[width + 2];
+		final int[] row1 = new int[width + 2];
+		final int[] row2 = new int[width + 2];
 		for (int x = 0; x < width; x += 2)
 		{
 			row1[x] = a;
@@ -1674,10 +1676,10 @@ public class NonMaximumSuppressionTest
 			row2[x + 1] = d;
 		}
 
-		int[] data = new int[width * height];
+		final int[] data = new int[width * height];
 		for (int y = 0; y < height; y++)
 		{
-			int[] row = (y % 2 == 0) ? row1 : row2;
+			final int[] row = (y % 2 == 0) ? row1 : row2;
 			System.arraycopy(row, 0, data, y * width, width);
 		}
 

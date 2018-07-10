@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -53,10 +53,10 @@ public class DAreaSumTest
 	@Test
 	public void canComputeGlobalStatistics()
 	{
-		double[] data = createData(TestSettings.getRandomGenerator());
-		Statistics s = new Statistics(data);
-		DAreaSum a = new DAreaSum(data, maxx, maxy);
-		for (boolean r : rolling)
+		final double[] data = createData(TestSettings.getRandomGenerator());
+		final Statistics s = new Statistics(data);
+		final DAreaSum a = new DAreaSum(data, maxx, maxy);
+		for (final boolean r : rolling)
 		{
 			a.setRollingSums(r);
 			double[] o = a.getStatistics(0, 0, maxy);
@@ -72,27 +72,27 @@ public class DAreaSumTest
 	@Test
 	public void canComputeNxNRegionStatistics()
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		double[] data = createData(r);
-		DAreaSum a1 = new DAreaSum(data, maxx, maxy);
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final double[] data = createData(r);
+		final DAreaSum a1 = new DAreaSum(data, maxx, maxy);
 		a1.setRollingSums(true);
-		DAreaSum a2 = new DAreaSum(data, maxx, maxy);
+		final DAreaSum a2 = new DAreaSum(data, maxx, maxy);
 		a2.setRollingSums(false);
 
-		FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
+		final FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
 
-		for (int x : Random.sample(5, maxx, r))
-			for (int y : Random.sample(5, maxy, r))
-				for (int n : boxSizes)
+		for (final int x : Random.sample(5, maxx, r))
+			for (final int y : Random.sample(5, maxy, r))
+				for (final int n : boxSizes)
 				{
-					double[] e = a1.getStatistics(x, y, n);
-					double[] o = a2.getStatistics(x, y, n);
+					final double[] e = a1.getStatistics(x, y, n);
+					final double[] o = a2.getStatistics(x, y, n);
 					Assert.assertArrayEquals(e, o, 1e-6);
 					//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 					// Check with ImageJ
 					fp.setRoi(new Rectangle(x - n, y - n, 2 * n + 1, 2 * n + 1));
-					ImageStatistics s = fp.getStatistics();
+					final ImageStatistics s = fp.getStatistics();
 
 					Assert.assertEquals(s.area, o[DAreaSum.N], 0);
 					TestAssert.assertEqualsRelative(s.mean * s.area, o[DAreaSum.SUM], 1e-6);
@@ -102,31 +102,31 @@ public class DAreaSumTest
 	@Test
 	public void canComputeNxMRegionStatistics()
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		double[] data = createData(r);
-		DAreaSum a1 = new DAreaSum(data, maxx, maxy);
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final double[] data = createData(r);
+		final DAreaSum a1 = new DAreaSum(data, maxx, maxy);
 		a1.setRollingSums(true);
-		DAreaSum a2 = new DAreaSum(data, maxx, maxy);
+		final DAreaSum a2 = new DAreaSum(data, maxx, maxy);
 		a2.setRollingSums(false);
 
-		FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
+		final FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
 
-		for (int x : Random.sample(5, maxx, r))
-			for (int y : Random.sample(5, maxy, r))
-				for (int nx : boxSizes)
-					for (int ny : boxSizes)
+		for (final int x : Random.sample(5, maxx, r))
+			for (final int y : Random.sample(5, maxy, r))
+				for (final int nx : boxSizes)
+					for (final int ny : boxSizes)
 					{
-						double[] e = a1.getStatistics(x, y, nx, ny);
-						double[] o = a2.getStatistics(x, y, nx, ny);
+						final double[] e = a1.getStatistics(x, y, nx, ny);
+						final double[] o = a2.getStatistics(x, y, nx, ny);
 						Assert.assertArrayEquals(e, o, 1e-6);
 						//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 						// Check with ImageJ
 						fp.setRoi(new Rectangle(x - nx, y - ny, 2 * nx + 1, 2 * ny + 1));
-						ImageStatistics s = fp.getStatistics();
+						final ImageStatistics s = fp.getStatistics();
 
 						Assert.assertEquals(s.area, o[DAreaSum.N], 0);
-						double sum = s.mean * s.area;
+						final double sum = s.mean * s.area;
 						TestAssert.assertEqualsRelative(sum, o[DAreaSum.SUM], 1e-6);
 					}
 	}
@@ -134,31 +134,31 @@ public class DAreaSumTest
 	@Test
 	public void canComputeRectangleRegionStatistics()
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		double[] data = createData(r);
-		DAreaSum a1 = new DAreaSum(data, maxx, maxy);
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final double[] data = createData(r);
+		final DAreaSum a1 = new DAreaSum(data, maxx, maxy);
 		a1.setRollingSums(true);
-		DAreaSum a2 = new DAreaSum(data, maxx, maxy);
+		final DAreaSum a2 = new DAreaSum(data, maxx, maxy);
 		a2.setRollingSums(false);
 
-		int width = 10, height = 12;
-		Rectangle roi = new Rectangle(width, height);
+		final int width = 10, height = 12;
+		final Rectangle roi = new Rectangle(width, height);
 
-		FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
+		final FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
 
-		for (int x : Random.sample(5, maxx - width, r))
-			for (int y : Random.sample(5, maxy - height, r))
+		for (final int x : Random.sample(5, maxx - width, r))
+			for (final int y : Random.sample(5, maxy - height, r))
 			{
 				roi.x = x;
 				roi.y = y;
-				double[] e = a1.getStatistics(roi);
-				double[] o = a2.getStatistics(roi);
+				final double[] e = a1.getStatistics(roi);
+				final double[] o = a2.getStatistics(roi);
 				Assert.assertArrayEquals(e, o, 1e-6);
 				//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
 
 				// Check with ImageJ
 				fp.setRoi(roi);
-				ImageStatistics s = fp.getStatistics();
+				final ImageStatistics s = fp.getStatistics();
 
 				Assert.assertEquals(s.area, o[DAreaSum.N], 0);
 				TestAssert.assertEqualsRelative(s.mean * s.area, o[DAreaSum.SUM], 1e-6);
@@ -168,21 +168,21 @@ public class DAreaSumTest
 	@Test
 	public void canComputeStatisticsWithinClippedBounds()
 	{
-		double[] data = new double[] { 1, 2, 3, 4 };
-		DAreaSum a = new DAreaSum(data, 2, 2);
-		Statistics stats = new Statistics(data);
-		int c = stats.getN();
-		double u = stats.getSum();
-		for (boolean r : rolling)
+		final double[] data = new double[] { 1, 2, 3, 4 };
+		final DAreaSum a = new DAreaSum(data, 2, 2);
+		final Statistics stats = new Statistics(data);
+		final int c = stats.getN();
+		final double u = stats.getSum();
+		for (final boolean r : rolling)
 		{
 			a.setRollingSums(r);
-			for (int n : boxSizes)
+			for (final int n : boxSizes)
 			{
 				double[] o = a.getStatistics(0, 0, n);
 				Assert.assertEquals(c, o[DAreaSum.N], 0);
 				TestAssert.assertEqualsRelative(u, o[DAreaSum.SUM], 1e-6);
 
-				Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
+				final Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
 				o = a.getStatistics(bounds);
 				Assert.assertEquals(c, o[DAreaSum.N], 0);
 				TestAssert.assertEqualsRelative(u, o[DAreaSum.SUM], 1e-6);
@@ -227,8 +227,8 @@ public class DAreaSumTest
 		@Override
 		public Object run(Object data)
 		{
-			double[] d = (double[]) data;
-			DAreaSum a = new DAreaSum(d, maxx, maxy);
+			final double[] d = (double[]) data;
+			final DAreaSum a = new DAreaSum(d, maxx, maxy);
 			a.setRollingSums(rolling);
 			for (int i = 0; i < sample.length; i += 2)
 				a.getStatistics(sample[i], sample[i + 1], n);
@@ -246,8 +246,8 @@ public class DAreaSumTest
 	@Test
 	public void simpleIsfasterAtMediumDensityAndNLessThan3()
 	{
-		// Test the speed for computing the noise around each 3x3 box 
-		// using a region of 3x3 (n=1) to 5x5 (n=2)		
+		// Test the speed for computing the noise around each 3x3 box
+		// using a region of 3x3 (n=1) to 5x5 (n=2)
 		speedTest(1.0 / 9, false, 1, 2);
 	}
 
@@ -263,31 +263,31 @@ public class DAreaSumTest
 
 	private void speedTest(double density, boolean rollingIsFaster, int minN, int maxN)
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
+		final RandomGenerator r = TestSettings.getRandomGenerator();
 
-		int k = (int) Math.round(maxx * maxy * density);
-		int[] x = Random.sample(k, maxx, r);
-		int[] y = Random.sample(k, maxy, r);
-		int[] sample = new int[k * 2];
+		final int k = (int) Math.round(maxx * maxy * density);
+		final int[] x = Random.sample(k, maxx, r);
+		final int[] y = Random.sample(k, maxy, r);
+		final int[] sample = new int[k * 2];
 		for (int i = 0, j = 0; i < x.length; i++)
 		{
 			sample[j++] = x[i];
 			sample[j++] = y[i];
 		}
 
-		double[][] data = new double[10][];
+		final double[][] data = new double[10][];
 		for (int i = 0; i < data.length; i++)
 			data[i] = createData(r);
 
-		TimingService ts = new TimingService();
-		for (int n : boxSizes)
+		final TimingService ts = new TimingService();
+		for (final int n : boxSizes)
 		{
 			if (n < minN || n > maxN)
 				continue;
 			ts.execute(new MyTimingtask(true, n, data, sample));
 			ts.execute(new MyTimingtask(false, n, data, sample));
 		}
-		int size = ts.getSize();
+		final int size = ts.getSize();
 		ts.repeat();
 		if (TestSettings.allow(LogLevel.INFO))
 			ts.report(size);
@@ -300,7 +300,7 @@ public class DAreaSumTest
 
 	private double[] createData(RandomGenerator r)
 	{
-		double[] d = new double[maxx * maxy];
+		final double[] d = new double[maxx * maxy];
 		for (int i = 0; i < d.length; i++)
 			d[i] = r.nextDouble();
 		return d;

@@ -1,16 +1,16 @@
-/*- 
+/*-
  * %%Ignore-License
- * 
+ *
  * GDSC Software
- * 
- * This is an extension of the 
+ *
+ * This is an extension of the
  * org.apache.commons.math3.analysis.interpolation.TricubicFunction
- * 
+ *
  * Modifications have been made to allow computation of gradients and computation
  * with pre-computed x,y,z powers.
- * 
- * The code is released under the original Apache licence: 
- * 
+ *
+ * The code is released under the original Apache licence:
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -38,7 +38,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#getA()
 	 */
 	@Override
@@ -61,7 +61,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#scale(double)
 	 */
 	@Override
@@ -96,7 +96,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#isSinglePrecision()
 	 */
 	@Override
@@ -107,7 +107,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#toSinglePrecision()
 	 */
 	@Override
@@ -118,7 +118,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#toDoublePrecision()
 	 */
 	@Override
@@ -129,7 +129,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#copy()
 	 */
 	@Override
@@ -142,7 +142,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value000()
 	 */
 	@Override
@@ -153,7 +153,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value0(double[], double[], double[])
 	 */
 	@Override
@@ -241,7 +241,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value(double[])
 	 */
 	@Override
@@ -264,7 +264,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value(float[])
 	 */
 	@Override
@@ -287,7 +287,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value000(double[])
 	 */
 	@Override
@@ -301,7 +301,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value1(double[], double[], double[], double[])
 	 */
 	@Override
@@ -582,7 +582,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value(double[], double[])
 	 */
 	@Override
@@ -641,7 +641,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#gradient(double[], double[])
 	 */
 	@Override
@@ -687,7 +687,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value(float[], double[])
 	 */
 	@Override
@@ -746,7 +746,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#gradient(float[], double[])
 	 */
 	@Override
@@ -792,7 +792,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value(double[], double[], double[], double[])
 	 */
 	@Override
@@ -846,7 +846,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value(float[], float[], float[], double[])
 	 */
 	@Override
@@ -900,7 +900,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value000(double[], double[])
 	 */
 	@Override
@@ -917,7 +917,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value2(double[], double[], double[], double[], double[])
 	 */
 	@Override
@@ -1298,7 +1298,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value(double[], double[], double[])
 	 */
 	@Override
@@ -1382,7 +1382,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value(float[], double[], double[])
 	 */
 	@Override
@@ -1466,7 +1466,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value(double[], double[], double[], double[], double[],
 	 * double[])
 	 */
@@ -1543,7 +1543,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.math.interpolation.CustomTricubicFunction#value(float[], float[], float[], float[], double[],
 	 * double[])
 	 */

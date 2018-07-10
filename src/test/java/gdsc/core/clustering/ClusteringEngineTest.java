@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -48,27 +48,19 @@ public class ClusteringEngineTest
 	@Test
 	public void canClusterClusterPointsAtDifferentDensitiesUsingClosest()
 	{
-		RandomGenerator rg = TestSettings.getRandomGenerator();
-		for (double radius : new double[] { 5, 10, 20 })
-		{
-			for (int size : new int[] { 1000, 500, 300, 100 })
-			{
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		for (final double radius : new double[] { 5, 10, 20 })
+			for (final int size : new int[] { 1000, 500, 300, 100 })
 				testClusting(rg, ClusteringAlgorithm.CENTROID_LINKAGE, radius, 100, size);
-			}
-		}
 	}
 
 	@Test
 	public void canClusterClusterPointsAtDifferentDensitiesUsingPairwiseWithoutNeighbours()
 	{
-		RandomGenerator rg = TestSettings.getRandomGenerator();
-		for (double radius : new double[] { 5, 10, 20 })
-		{
-			for (int size : new int[] { 1000, 500, 300, 100 })
-			{
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		for (final double radius : new double[] { 5, 10, 20 })
+			for (final int size : new int[] { 1000, 500, 300, 100 })
 				testClusting(rg, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius, 100, size);
-			}
-		}
 	}
 
 	@Test
@@ -76,18 +68,18 @@ public class ClusteringEngineTest
 	{
 		TestSettings.assumeMediumComplexity();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		TestSettings.assume(LogLevel.WARN, TestComplexity.LOW);
-		int repeats = 10;
-		double radius = 50;
-		Object[] points = new Object[repeats];
+		final int repeats = 10;
+		final double radius = 50;
+		final Object[] points = new Object[repeats];
 		for (int i = 0; i < repeats; i++)
 			points[i] = createClusters(rg, 20, 1000, 2, radius / 2);
 
-		long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
-		long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
+		final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
+		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
 
-		LogLevel level = (t2 < t1) ? LogLevel.WARN : LogLevel.INFO;
+		final LogLevel level = (t2 < t1) ? LogLevel.WARN : LogLevel.INFO;
 		TestSettings.log(level, "SpeedTest (Low Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1,
 				t2, (double) t1 / t2);
 	}
@@ -97,15 +89,15 @@ public class ClusteringEngineTest
 	{
 		TestSettings.assumeMediumComplexity();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
-		int repeats = 10;
-		double radius = 50;
-		Object[] points = new Object[repeats];
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final int repeats = 10;
+		final double radius = 50;
+		final Object[] points = new Object[repeats];
 		for (int i = 0; i < repeats; i++)
 			points[i] = createClusters(rg, 500, 1000, 2, radius / 2);
 
-		long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
-		long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
+		final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
+		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
 
 		TestSettings.info("SpeedTest (High Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1, t2,
 				(double) t1 / t2);
@@ -117,15 +109,15 @@ public class ClusteringEngineTest
 	{
 		TestSettings.assumeMediumComplexity();
 
-		RandomGenerator rg = TestSettings.getRandomGenerator();
-		int repeats = 20;
-		Object[] points = new Object[repeats];
+		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final int repeats = 20;
+		final Object[] points = new Object[repeats];
 		for (int i = 0; i < repeats; i++)
 			points[i] = createPoints(rg, 500, 1000);
-		double radius = 50;
+		final double radius = 50;
 
-		long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
-		long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE, radius);
+		final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
+		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE, radius);
 
 		TestSettings.info("SpeedTest Closest %d, Pairwise %d = %fx faster\n", t1, t2, (double) t1 / t2);
 		Assert.assertTrue(t2 < t1);
@@ -237,51 +229,52 @@ public class ClusteringEngineTest
 		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(), ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS);
 	}
 
-	private void runMultithreadingAlgorithmTest(RandomGenerator rg, ClusteringAlgorithm algorithm)
+	private static void runMultithreadingAlgorithmTest(RandomGenerator rg, ClusteringAlgorithm algorithm)
 	{
-		double radius = 50;
-		int time = 10;
-		ArrayList<ClusterPoint> points = createClusters(rg, 500, 1000, 2, radius / 2, time);
-		ClusteringEngine engine = new ClusteringEngine(0, algorithm);
-		ArrayList<Cluster> exp = engine.findClusters(points, radius, time);
+		final double radius = 50;
+		final int time = 10;
+		final ArrayList<ClusterPoint> points = createClusters(rg, 500, 1000, 2, radius / 2, time);
+		final ClusteringEngine engine = new ClusteringEngine(0, algorithm);
+		final ArrayList<Cluster> exp = engine.findClusters(points, radius, time);
 		engine.setThreadCount(8);
-		ArrayList<Cluster> obs = engine.findClusters(points, radius, time);
+		final ArrayList<Cluster> obs = engine.findClusters(points, radius, time);
 		compareClusters(exp, obs);
 	}
 
-	private void runMultithreadingSpeedTest(RandomGenerator rg, ClusteringAlgorithm algorithm)
+	private static void runMultithreadingSpeedTest(RandomGenerator rg, ClusteringAlgorithm algorithm)
 	{
 		TestSettings.assumeMediumComplexity();
 
-		int repeats = 5;
-		double radius = 50;
-		int time = 10;
-		Object[] points = new Object[repeats];
+		final int repeats = 5;
+		final double radius = 50;
+		final int time = 10;
+		final Object[] points = new Object[repeats];
 		for (int i = 0; i < repeats; i++)
 			points[i] = createClusters(rg, 1000, 1000, 2, radius / 2, time);
 
-		long t1 = runSpeedTest(points, algorithm, radius, time, 1);
-		long t2 = runSpeedTest(points, algorithm, radius, time, 8);
+		final long t1 = runSpeedTest(points, algorithm, radius, time, 1);
+		final long t2 = runSpeedTest(points, algorithm, radius, time, 8);
 
 		TestSettings.info("Threading SpeedTest %s : Single %d, Multi-threaded %d = %fx faster\n", algorithm.toString(),
 				t1, t2, (double) t1 / t2);
 		Assert.assertTrue(t2 < t1);
 	}
 
-	private long runSpeedTest(Object[] points, ClusteringAlgorithm algorithm, double radius)
+	private static long runSpeedTest(Object[] points, ClusteringAlgorithm algorithm, double radius)
 	{
 		return runSpeedTest(points, algorithm, radius, 0, 1);
 	}
 
 	@SuppressWarnings("unchecked")
-	private long runSpeedTest(Object[] points, ClusteringAlgorithm algorithm, double radius, int time, int threadCount)
+	private static long runSpeedTest(Object[] points, ClusteringAlgorithm algorithm, double radius, int time,
+			int threadCount)
 	{
-		ClusteringEngine engine = new ClusteringEngine(threadCount, algorithm);
+		final ClusteringEngine engine = new ClusteringEngine(threadCount, algorithm);
 
 		// Initialise
 		engine.findClusters((ArrayList<ClusterPoint>) points[0], radius, time);
 
-		long start = System.nanoTime();
+		final long start = System.nanoTime();
 		for (int i = 0; i < points.length; i++)
 			engine.findClusters((ArrayList<ClusterPoint>) points[i], radius, time);
 		return System.nanoTime() - start;
@@ -289,20 +282,20 @@ public class ClusteringEngineTest
 
 	private void testClusting(RandomGenerator rg, ClusteringAlgorithm algorithm, double radius, int n, int size)
 	{
-		ClusteringEngine engine = new ClusteringEngine();
+		final ClusteringEngine engine = new ClusteringEngine();
 		engine.setClusteringAlgorithm(algorithm);
-		ArrayList<ClusterPoint> points = createPoints(rg, n, size);
+		final ArrayList<ClusterPoint> points = createPoints(rg, n, size);
 
 		// Report density of the clustering we are testing. Size/radius are in nm
 		//TestSettings.debug("Testing n=%d, Size=%d, Density=%s um^-2, Radius=%s nm\n", n, size,
 		//		Utils.rounded(n * 1e6 / (size * size)), Utils.rounded(radius));
 
-		ArrayList<Cluster> exp = findClusters(points, radius);
-		ArrayList<Cluster> obs = engine.findClusters(points, radius);
+		final ArrayList<Cluster> exp = findClusters(points, radius);
+		final ArrayList<Cluster> obs = engine.findClusters(points, radius);
 		compareClusters(exp, obs);
 	}
 
-	private void compareClusters(ArrayList<Cluster> exp, ArrayList<Cluster> obs) throws AssertionError
+	private static void compareClusters(ArrayList<Cluster> exp, ArrayList<Cluster> obs) throws AssertionError
 	{
 		Collections.sort(exp);
 		Collections.sort(obs);
@@ -311,11 +304,9 @@ public class ClusteringEngineTest
 		{
 			Assert.assertEquals("# clusters is different", exp.size(), obs.size());
 			for (int i = 0; i < exp.size(); i++)
-			{
 				assertEqual(i, exp.get(i), obs.get(i));
-			}
 		}
-		catch (AssertionError e)
+		catch (final AssertionError e)
 		{
 			print("Expected", exp);
 			print("Observed", obs);
@@ -323,17 +314,17 @@ public class ClusteringEngineTest
 		}
 	}
 
-	private void print(String name, ArrayList<Cluster> clusters)
+	private static void print(String name, ArrayList<Cluster> clusters)
 	{
 		TestSettings.info(name + " : size=%d\n", clusters.size());
 		for (int i = 0; i < clusters.size(); i++)
 		{
-			Cluster c = clusters.get(i);
+			final Cluster c = clusters.get(i);
 			TestSettings.info("[%d] : head=%d, n=%d, cx=%g, cy=%g\n", i, c.head.id, c.n, c.x, c.y);
 		}
 	}
 
-	private void assertEqual(int i, Cluster cluster, Cluster cluster2)
+	private static void assertEqual(int i, Cluster cluster, Cluster cluster2)
 	{
 		Assert.assertEquals(i + " cluster: Size is different", cluster.n, cluster2.n);
 		Assert.assertEquals(i + " cluster: X is different", cluster.x, cluster2.x, 1e-4);
@@ -343,7 +334,7 @@ public class ClusteringEngineTest
 
 	/**
 	 * Perform centroid-linkage clustering up to the given radius
-	 * 
+	 *
 	 * @param points
 	 * @param radius
 	 * @return The clusters
@@ -351,7 +342,7 @@ public class ClusteringEngineTest
 	private ArrayList<Cluster> findClusters(ArrayList<ClusterPoint> points, double radius)
 	{
 		// Initialise all clusters with one molecule
-		ArrayList<Cluster> clusters = new ArrayList<Cluster>(points.size());
+		final ArrayList<Cluster> clusters = new ArrayList<>(points.size());
 		for (int i = 0; i < points.size(); i++)
 		{
 			final ClusterPoint m = points.get(i);
@@ -371,7 +362,7 @@ public class ClusteringEngineTest
 	/**
 	 * Implement and all-vs-all search for the closest pair of clusters within the given radius. Set the class level
 	 * variables ii and jj to the indices of the closest pair.
-	 * 
+	 *
 	 * @param clusters
 	 * @param radius
 	 * @return True if a pair was found
@@ -382,7 +373,7 @@ public class ClusteringEngineTest
 		ii = -1;
 		for (int i = 0; i < clusters.size(); i++)
 		{
-			Cluster c1 = clusters.get(i);
+			final Cluster c1 = clusters.get(i);
 			for (int j = i + 1; j < clusters.size(); j++)
 			{
 				final double d2 = c1.distance2(clusters.get(j));
@@ -409,9 +400,9 @@ public class ClusteringEngineTest
 	 *            the size
 	 * @return The points
 	 */
-	private ArrayList<ClusterPoint> createPoints(RandomGenerator rg, int n, int size)
+	private static ArrayList<ClusterPoint> createPoints(RandomGenerator rg, int n, int size)
 	{
-		ArrayList<ClusterPoint> points = new ArrayList<ClusterPoint>(n);
+		final ArrayList<ClusterPoint> points = new ArrayList<>(n);
 		while (n-- > 0)
 			points.add(ClusterPoint.newClusterPoint(n, rg.nextDouble() * size, rg.nextDouble() * size));
 		return points;
@@ -420,14 +411,14 @@ public class ClusteringEngineTest
 	/**
 	 * Create n clusters of m points in a 2D distribution of size * size. Clusters will be spread in a radius*radius
 	 * square.
-	 * 
+	 *
 	 * @param n
 	 * @param size
 	 * @param m
 	 * @param radius
 	 * @return The points
 	 */
-	private ArrayList<ClusterPoint> createClusters(RandomGenerator rg, int n, int size, int m, double radius)
+	private static ArrayList<ClusterPoint> createClusters(RandomGenerator rg, int n, int size, int m, double radius)
 	{
 		return createClusters(rg, n, size, m, radius, null);
 	}
@@ -435,7 +426,7 @@ public class ClusteringEngineTest
 	/**
 	 * Create n clusters of m points in a 2D distribution of size * size. Clusters will be spread in a radius*radius
 	 * square. Points will be selected randomly from the given number of frames.
-	 * 
+	 *
 	 * @param n
 	 * @param size
 	 * @param m
@@ -443,9 +434,10 @@ public class ClusteringEngineTest
 	 * @param t
 	 * @return The points
 	 */
-	private ArrayList<ClusterPoint> createClusters(RandomGenerator rg, int n, int size, int m, double radius, int t)
+	private static ArrayList<ClusterPoint> createClusters(RandomGenerator rg, int n, int size, int m, double radius,
+			int t)
 	{
-		int[] time = new int[t];
+		final int[] time = new int[t];
 		for (int i = 0; i < t; i++)
 			time[i] = i + 1;
 		return createClusters(rg, n, size, m, radius, time);
@@ -454,7 +446,7 @@ public class ClusteringEngineTest
 	/**
 	 * Create n clusters of m points in a 2D distribution of size * size. Clusters will be spread in a radius*radius
 	 * square. Points will be selected randomly from the given frames.
-	 * 
+	 *
 	 * @param n
 	 * @param size
 	 * @param m
@@ -462,37 +454,29 @@ public class ClusteringEngineTest
 	 * @param time
 	 * @return The points
 	 */
-	private ArrayList<ClusterPoint> createClusters(RandomGenerator rg, int n, int size, int m, double radius,
+	private static ArrayList<ClusterPoint> createClusters(RandomGenerator rg, int n, int size, int m, double radius,
 			int[] time)
 	{
-		ArrayList<ClusterPoint> points = new ArrayList<ClusterPoint>(n);
+		final ArrayList<ClusterPoint> points = new ArrayList<>(n);
 		int id = 0;
 		if (time != null)
-		{
 			if (time.length < m)
 				throw new RuntimeException("Input time array must be at least as large as the number of points");
-		}
 		while (n-- > 0)
 		{
-			double x = rg.nextDouble() * size;
-			double y = rg.nextDouble() * size;
+			final double x = rg.nextDouble() * size;
+			final double y = rg.nextDouble() * size;
 			if (time != null)
 			{
 				Random.shuffle(time, rg);
 				for (int i = m; i-- > 0;)
-				{
 					points.add(ClusterPoint.newTimeClusterPoint(id++, x + rg.nextDouble() * radius,
 							y + rg.nextDouble() * radius, time[i], time[i]));
-				}
 			}
 			else
-			{
 				for (int i = m; i-- > 0;)
-				{
 					points.add(ClusterPoint.newClusterPoint(id++, x + rg.nextDouble() * radius,
 							y + rg.nextDouble() * radius));
-				}
-			}
 		}
 		return points;
 	}

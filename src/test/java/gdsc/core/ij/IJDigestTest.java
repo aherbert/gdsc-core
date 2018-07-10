@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -50,63 +50,63 @@ public class IJDigestTest
 	@Test
 	public void canDigestByteProcessor()
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		byte[] data = new byte[size];
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final byte[] data = new byte[size];
 		r.nextBytes(data);
 
-		String o = new IJDigest().digest(new ByteProcessor(size, 1, data));
-		String e = Digest.md5Hex(data);
+		final String o = new IJDigest().digest(new ByteProcessor(size, 1, data));
+		final String e = Digest.md5Hex(data);
 		Assert.assertEquals(e, o);
 	}
 
 	@Test
 	public void canDigestShortProcessor() throws IOException
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		short[] data = new short[size];
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final short[] data = new short[size];
 		for (int i = 0; i < size; i++)
 			data[i] = (short) ((r.nextDouble() - 0.5) * 2 * Short.MAX_VALUE);
 
-		String o = new IJDigest().digest(new ShortProcessor(size, 1, data, null));
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(size);
-		DataOutputStream out = new DataOutputStream(bos);
+		final String o = new IJDigest().digest(new ShortProcessor(size, 1, data, null));
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream(size);
+		final DataOutputStream out = new DataOutputStream(bos);
 		for (int i = 0; i < size; i++)
 			out.writeShort(data[i]);
-		String e = Digest.md5Hex(bos.toByteArray());
+		final String e = Digest.md5Hex(bos.toByteArray());
 		Assert.assertEquals(e, o);
 	}
 
 	@Test
 	public void canDigestFloatProcessor() throws IOException
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		float[] data = new float[size];
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final float[] data = new float[size];
 		for (int i = 0; i < size; i++)
 			data[i] = (r.nextFloat() - 0.5f) * 2f;
 
-		String o = new IJDigest().digest(new FloatProcessor(size, 1, data, null));
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(size);
-		DataOutputStream out = new DataOutputStream(bos);
+		final String o = new IJDigest().digest(new FloatProcessor(size, 1, data, null));
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream(size);
+		final DataOutputStream out = new DataOutputStream(bos);
 		for (int i = 0; i < size; i++)
 			out.writeFloat(data[i]);
-		String e = Digest.md5Hex(bos.toByteArray());
+		final String e = Digest.md5Hex(bos.toByteArray());
 		Assert.assertEquals(e, o);
 	}
 
 	@Test
 	public void canDigestColorProcessor() throws IOException
 	{
-		RandomGenerator r = TestSettings.getRandomGenerator();
-		int[] data = new int[size];
+		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final int[] data = new int[size];
 		for (int i = 0; i < size; i++)
 			data[i] = r.nextInt();
 
-		String o = new IJDigest().digest(new ColorProcessor(size, 1, data));
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(size);
-		DataOutputStream out = new DataOutputStream(bos);
+		final String o = new IJDigest().digest(new ColorProcessor(size, 1, data));
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream(size);
+		final DataOutputStream out = new DataOutputStream(bos);
 		for (int i = 0; i < size; i++)
 			out.writeInt(data[i]);
-		String e = Digest.md5Hex(bos.toByteArray());
+		final String e = Digest.md5Hex(bos.toByteArray());
 		Assert.assertEquals(e, o);
 	}
 }

@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -43,7 +43,7 @@ public class PDF
 
 	/**
 	 * Default constructor. Assumes the range increments from zero in integers.
-	 * 
+	 *
 	 * @param data
 	 *            The data
 	 * @throws IllegalArgumentException
@@ -96,16 +96,14 @@ public class PDF
 		 */
 
 		if (r1 >= 1.0 || r1 < 0)
-		{
 			r1 = 0.0;
-		}
 
-		int k = find(r1);
+		final int k = find(r1);
 
 		if (k == -1)
 			return -1;
 
-		double delta = (r1 - sum[k]) / (sum[k + 1] - sum[k]);
+		final double delta = (r1 - sum[k]) / (sum[k + 1] - sum[k]);
 
 		// Assume the x-range and y-range increment from zero in integers.
 		// We could extend this class to support non-uniform ranges as per the GSL library:
@@ -117,9 +115,7 @@ public class PDF
 	private int find(double x)
 	{
 		if (x >= sum[sum.length - 1])
-		{
 			return -1;
-		}
 
 		/* perform binary search */
 
@@ -131,28 +127,22 @@ public class PDF
 			final int mid = (upper + lower) >>> 1;
 
 			if (x >= sum[mid])
-			{
 				lower = mid;
-			}
 			else
-			{
 				upper = mid;
-			}
 		}
 
 		/* sanity check the result */
 
 		if (x < sum[lower] || x >= sum[lower + 1])
-		{
 			return -1;
-		}
 
 		return lower;
 	}
 
 	/**
 	 * Return the cumulative probability for the given coordinates
-	 * 
+	 *
 	 * @param x
 	 * @return p
 	 */
