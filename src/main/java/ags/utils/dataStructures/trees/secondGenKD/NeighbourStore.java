@@ -43,5 +43,5 @@ public interface NeighbourStore<T>
 	 * @param neighbour
 	 *            the neighbour
 	 */
-	void add(double distance, T neighbour);
+	public void add(double distance, T neighbour);
 }

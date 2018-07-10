@@ -33,47 +33,56 @@ package gdsc.core.logging;
 public interface Logger
 {
 	/**
-	 * Log the message
+	 * Log the message.
 	 *
 	 * @param message
+	 *            the message
 	 */
-	void info(String message);
+	public void info(String message);
 
 	/**
-	 * Log the arguments using the given format
+	 * Log the arguments using the given format.
 	 *
 	 * @param format
+	 *            the format
 	 * @param args
+	 *            the args
 	 */
-	void info(String format, Object... args);
+	public void info(String format, Object... args);
 
 	/**
-	 * Log the message
+	 * Log the message.
 	 *
 	 * @param message
+	 *            the message
 	 */
-	void debug(String message);
+	public void debug(String message);
 
 	/**
-	 * Log the arguments using the given format
+	 * Log the arguments using the given format.
 	 *
 	 * @param format
+	 *            the format
 	 * @param args
+	 *            the args
 	 */
-	void debug(String format, Object... args);
+	public void debug(String format, Object... args);
 
 	/**
-	 * Log the message
+	 * Log the message.
 	 *
 	 * @param message
+	 *            the message
 	 */
-	void error(String message);
+	public void error(String message);
 
 	/**
-	 * Log the arguments using the given format
+	 * Log the arguments using the given format.
 	 *
 	 * @param format
+	 *            the format
 	 * @param args
+	 *            the args
 	 */
-	void error(String format, Object... args);
+	public void error(String format, Object... args);
 }

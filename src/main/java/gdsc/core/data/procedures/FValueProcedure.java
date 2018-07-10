@@ -38,5 +38,5 @@ public interface FValueProcedure
 	 * @param value
 	 *            the pixel value
 	 */
-	void execute(float value);
+	public void execute(float value);
 }

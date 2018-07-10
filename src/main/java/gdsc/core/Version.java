@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
  * <p>
  * Uses Semantic Versioning.
  *
- * @see "http://semver.org/"
+ * @see <a href="http://semver.org/">http://semver.org/</a>
  */
 public class Version
 {

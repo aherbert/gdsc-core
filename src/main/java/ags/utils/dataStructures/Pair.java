@@ -28,7 +28,7 @@
 package ags.utils.dataStructures;
 
 /**
- * The a generic pair.
+ * A generic pair.
  *
  * @param <T>
  *            the generic type

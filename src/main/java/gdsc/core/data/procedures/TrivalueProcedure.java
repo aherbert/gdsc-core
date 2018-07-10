@@ -44,7 +44,7 @@ public interface TrivalueProcedure
 	 *            the maxz
 	 * @return true, if it is OK to continue
 	 */
-	boolean setDimensions(int maxx, int maxy, int maxz);
+	public boolean setDimensions(int maxx, int maxy, int maxz);
 
 	/**
 	 * Sets the X axis value.
@@ -54,7 +54,7 @@ public interface TrivalueProcedure
 	 * @param value
 	 *            the value
 	 */
-	void setX(int i, double value);
+	public void setX(int i, double value);
 
 	/**
 	 * Sets the Y axis value.
@@ -64,7 +64,7 @@ public interface TrivalueProcedure
 	 * @param value
 	 *            the value
 	 */
-	void setY(int j, double value);
+	public void setY(int j, double value);
 
 	/**
 	 * Sets the Z axis value.
@@ -74,7 +74,7 @@ public interface TrivalueProcedure
 	 * @param value
 	 *            the value
 	 */
-	void setZ(int k, double value);
+	public void setZ(int k, double value);
 
 	/**
 	 * Set the value.
@@ -88,5 +88,5 @@ public interface TrivalueProcedure
 	 * @param value
 	 *            the value
 	 */
-	void setValue(int i, int j, int k, double value);
+	public void setValue(int i, int j, int k, double value);
 }

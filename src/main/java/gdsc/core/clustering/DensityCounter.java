@@ -52,21 +52,21 @@ public class DensityCounter
 		 *
 		 * @return the x
 		 */
-		float getX();
+		public float getX();
 
 		/**
 		 * Gets the y coordinate. This must remain constant for efficient molecule processing.
 		 *
 		 * @return the y
 		 */
-		float getY();
+		public float getY();
 
 		/**
 		 * Gets the id. Must be zero or above.
 		 *
 		 * @return the id
 		 */
-		int getID();
+		public int getID();
 	}
 
 	/**

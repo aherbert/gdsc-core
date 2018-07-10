@@ -1153,7 +1153,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
          * @return {@code true} if the input argument matches the predicate,
          * otherwise {@code false}
          */
-        boolean test(T t);
+    	public boolean test(T t);
     }
 
     /**
