@@ -677,6 +677,8 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
 	 *            z-coordinate of the interpolation point.
 	 * @param df_da
 	 *            the partial first order derivatives with respect to x,y,z
+	 * @param d2f_da2
+	 *            the partial second order derivatives with respect to x,y,z
 	 * @return the interpolated value.
 	 * @throws OutOfRangeException
 	 *             if {@code x}, {@code y} or

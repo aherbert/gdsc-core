@@ -28,13 +28,26 @@
 package gdsc.core.match;
 
 /**
- * <p>
  * Stores a 2D/3D point with a start and end time. Allows scoring the match between two fluorophore pulses.
  */
 public class Pulse extends BasePoint implements Comparable<Pulse>
 {
 	private int start, end;
 
+	/**
+	 * Instantiates a new pulse.
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @param z
+	 *            the z
+	 * @param start
+	 *            the start
+	 * @param end
+	 *            the end
+	 */
 	public Pulse(float x, float y, float z, int start, int end)
 	{
 		super(x, y, z);
@@ -42,6 +55,18 @@ public class Pulse extends BasePoint implements Comparable<Pulse>
 		this.end = end;
 	}
 
+	/**
+	 * Instantiates a new pulse.
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @param start
+	 *            the start
+	 * @param end
+	 *            the end
+	 */
 	public Pulse(float x, float y, int start, int end)
 	{
 		super(x, y);
@@ -87,13 +112,14 @@ public class Pulse extends BasePoint implements Comparable<Pulse>
 	 * Calculate the score for the match to the other pulse. The score computes the number of matching on frames (the
 	 * overlap) and multiplies it by the distance weighted score (from 1 to zero). The threshold distance is the
 	 * squared distance at which the score will be 0.5;
-	 * 
+	 *
 	 * @param other
+	 *            the other
 	 * @param d2
 	 *            The squared distance between the two coordinates
 	 * @param dt
 	 *            The squared distance threshold
-	 * @return
+	 * @return the score
 	 */
 	public double score(final Pulse other, final double d2, final double dt)
 	{
@@ -105,11 +131,12 @@ public class Pulse extends BasePoint implements Comparable<Pulse>
 	 * Calculate the score for the match to the other pulse. The score computes the number of matching on frames (the
 	 * overlap) and multiplies it by the distance weighted score (from 1 to zero). The threshold distance is the
 	 * squared distance at which the score will be 0.5;
-	 * 
+	 *
 	 * @param other
+	 *            the other
 	 * @param dt
 	 *            The squared distance threshold
-	 * @return
+	 * @return the score
 	 */
 	public double score(final Pulse other, final double dt)
 	{

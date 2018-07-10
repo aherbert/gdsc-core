@@ -34,8 +34,8 @@ package gdsc.core.match;
  * Overrides equals and hashCode methods using x,y,z, coordinates for equivalence. Derived classes can optionally
  * override this.
  * 
- * @see {@link java.lang.Object#equals(java.lang.Object) }
- * @see {@link java.lang.Object#hashCode() }
+ * @see java.lang.Object#equals(java.lang.Object) 
+ * @see java.lang.Object#hashCode() 
  */
 public class BasePoint implements Coordinate
 {
@@ -43,6 +43,16 @@ public class BasePoint implements Coordinate
 	protected final float y;
 	protected final float z;
 
+	/**
+	 * Instantiates a new base point.
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @param z
+	 *            the z
+	 */
 	public BasePoint(float x, float y, float z)
 	{
 		this.x = x;
@@ -50,6 +60,14 @@ public class BasePoint implements Coordinate
 		this.z = z;
 	}
 
+	/**
+	 * Instantiates a new base point.
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 */
 	public BasePoint(float x, float y)
 	{
 		this(x, y, 0);

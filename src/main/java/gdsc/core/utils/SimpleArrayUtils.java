@@ -913,7 +913,6 @@ public class SimpleArrayUtils
 	 *            the height
 	 * @param data
 	 *            the data
-	 * @return the size
 	 * @throws IllegalArgumentException
 	 *             If width or height are not strictly positive
 	 * @throws IllegalArgumentException
@@ -942,7 +941,6 @@ public class SimpleArrayUtils
 	 *            the height
 	 * @param data
 	 *            the data
-	 * @return the size
 	 * @throws IllegalArgumentException
 	 *             If width or height are not strictly positive
 	 * @throws IllegalArgumentException
@@ -971,7 +969,6 @@ public class SimpleArrayUtils
 	 *            the height
 	 * @param data
 	 *            the data
-	 * @return the size
 	 * @throws IllegalArgumentException
 	 *             If width or height are not strictly positive
 	 * @throws IllegalArgumentException
@@ -1000,7 +997,6 @@ public class SimpleArrayUtils
 	 *            the height
 	 * @param data
 	 *            the data
-	 * @return the size
 	 * @throws IllegalArgumentException
 	 *             If width or height are not strictly positive
 	 * @throws IllegalArgumentException

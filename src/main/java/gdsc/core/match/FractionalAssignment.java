@@ -39,6 +39,8 @@ public interface FractionalAssignment extends Assignment
 	 * <p>
 	 * A score less than 1 allows partial matches to be computed. This is similar to computing scoring at multiple
 	 * distance thresholds at the same time.
+	 *
+	 * @return the score
 	 */
 	public double getScore();
 }

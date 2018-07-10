@@ -34,7 +34,10 @@ public class PDF2D
 {
 	private final PDF[] rows;
 	private final PDF sum;
-	public final int nx, ny;
+	/** The X-dimension size */
+	public final int nx;
+	/** The Y-dimension size */
+	public final int ny;
 	/**
 	 * The cumulative sum of the original input data
 	 */
@@ -49,11 +52,11 @@ public class PDF2D
 	 *            The X-dimension size
 	 * @param ny
 	 *            The y-dimension size
-	 * @throws InvalidArgumentException
+	 * @throws IllegalArgumentException
 	 *             if the dimensions are not above zero
-	 * @throws InvalidArgumentException
+	 * @throws IllegalArgumentException
 	 *             if the input data length is not at least nx * ny
-	 * @throws InvalidArgumentException
+	 * @throws IllegalArgumentException
 	 *             if the input data contains negatives
 	 */
 	public PDF2D(double[] data, int nx, int ny)

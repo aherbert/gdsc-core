@@ -1791,6 +1791,8 @@ public class NonMaximumSuppression implements Cloneable
 	 *            The width of the data
 	 * @param maxy
 	 *            The height of the data
+	 * @param n
+	 *            the block size
 	 * @return The maxima indices
 	 */
 	public int[] findBlockMaxima(float[] data, int maxx, int maxy, int n)
@@ -1807,13 +1809,15 @@ public class NonMaximumSuppression implements Cloneable
 	 * E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
 	 * <p>
 	 * If multiple indices within the block have the same value then all are returned.
-	 * 
+	 *
 	 * @param data
 	 *            The input data (packed in YX order)
 	 * @param maxx
 	 *            The width of the data
 	 * @param maxy
 	 *            The height of the data
+	 * @param n
+	 *            the block size
 	 * @return The maxima indices
 	 */
 	public int[][] findBlockMaximaCandidates(float[] data, int maxx, int maxy, int n)
@@ -3833,6 +3837,8 @@ public class NonMaximumSuppression implements Cloneable
 	 *            The width of the data
 	 * @param maxy
 	 *            The height of the data
+	 * @param n
+	 *            the block size
 	 * @return The maxima indices
 	 */
 	public int[] findBlockMaxima(int[] data, int maxx, int maxy, int n)
@@ -3856,6 +3862,8 @@ public class NonMaximumSuppression implements Cloneable
 	 *            The width of the data
 	 * @param maxy
 	 *            The height of the data
+	 * @param n
+	 *            the block size
 	 * @return The maxima indices
 	 */
 	public int[][] findBlockMaximaCandidates(int[] data, int maxx, int maxy, int n)

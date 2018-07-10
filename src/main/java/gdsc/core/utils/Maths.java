@@ -33,10 +33,17 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 
 /**
- * Simple class to calculate statistics of data
+ * Simple class to calculate statistics of data.
  */
 public class Maths
 {
+	/**
+	 * Get the min.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the min
+	 */
 	public static double min(double... data)
 	{
 		if (data == null || data.length == 0)
@@ -44,6 +51,15 @@ public class Maths
 		return minDefault(Double.POSITIVE_INFINITY, data);
 	}
 
+	/**
+	 * Get the min using a default value.
+	 *
+	 * @param min
+	 *            the min
+	 * @param data
+	 *            the data
+	 * @return the min
+	 */
 	public static double minDefault(double min, double... data)
 	{
 		if (data == null || data.length == 0)
@@ -54,6 +70,13 @@ public class Maths
 		return min;
 	}
 
+	/**
+	 * Get the max.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the max
+	 */
 	public static double max(double... data)
 	{
 		if (data == null || data.length == 0)
@@ -61,6 +84,15 @@ public class Maths
 		return maxDefault(Double.NEGATIVE_INFINITY, data);
 	}
 
+	/**
+	 * Get the max using a default value.
+	 *
+	 * @param max
+	 *            the max
+	 * @param data
+	 *            the data
+	 * @return the max
+	 */
 	public static double maxDefault(double max, double... data)
 	{
 		if (data == null || data.length == 0)
@@ -72,9 +104,10 @@ public class Maths
 	}
 
 	/**
-	 * Compute the min and max of the data
-	 * 
+	 * Compute the min and max of the data.
+	 *
 	 * @param data
+	 *            the data
 	 * @return [min, max]
 	 */
 	public static double[] limits(double... data)
@@ -90,11 +123,12 @@ public class Maths
 	}
 
 	/**
-	 * Compute the min and max of the data
-	 * 
+	 * Compute the min and max of the data.
+	 *
 	 * @param limits
 	 *            The current [min, max]
 	 * @param data
+	 *            the data
 	 * @return [min, max]
 	 */
 	public static double[] limits(double[] limits, double... data)
@@ -123,6 +157,13 @@ public class Maths
 		return limits;
 	}
 
+	/**
+	 * Get the min.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the min
+	 */
 	public static float min(float... data)
 	{
 		if (data == null || data.length == 0)
@@ -130,6 +171,15 @@ public class Maths
 		return minDefault(Float.POSITIVE_INFINITY, data);
 	}
 
+	/**
+	 * Get the min using a default value.
+	 *
+	 * @param min
+	 *            the min
+	 * @param data
+	 *            the data
+	 * @return the min
+	 */
 	public static float minDefault(float min, float... data)
 	{
 		if (data == null || data.length == 0)
@@ -140,6 +190,13 @@ public class Maths
 		return min;
 	}
 
+	/**
+	 * Get the max.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the max
+	 */
 	public static float max(float... data)
 	{
 		if (data == null || data.length == 0)
@@ -147,6 +204,15 @@ public class Maths
 		return maxDefault(Float.NEGATIVE_INFINITY, data);
 	}
 
+	/**
+	 * Get the max using a default value.
+	 *
+	 * @param max
+	 *            the max
+	 * @param data
+	 *            the data
+	 * @return the max
+	 */
 	public static float maxDefault(float max, float... data)
 	{
 		if (data == null || data.length == 0)
@@ -158,9 +224,10 @@ public class Maths
 	}
 
 	/**
-	 * Compute the min and max of the data
-	 * 
+	 * Compute the min and max of the data.
+	 *
 	 * @param data
+	 *            the data
 	 * @return [min, max]
 	 */
 	public static float[] limits(float... data)
@@ -176,11 +243,12 @@ public class Maths
 	}
 
 	/**
-	 * Compute the min and max of the data
-	 * 
+	 * Compute the min and max of the data.
+	 *
 	 * @param limits
 	 *            The current [min, max]
 	 * @param data
+	 *            the data
 	 * @return [min, max]
 	 */
 	public static float[] limits(float[] limits, float... data)
@@ -209,11 +277,27 @@ public class Maths
 		return limits;
 	}
 
+	/**
+	 * Get the min.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the min
+	 */
 	public static int min(int... data)
 	{
 		return minDefault(Integer.MAX_VALUE, data);
 	}
 
+	/**
+	 * Get the min using a default value.
+	 *
+	 * @param min
+	 *            the min
+	 * @param data
+	 *            the data
+	 * @return the min
+	 */
 	public static int minDefault(int min, int... data)
 	{
 		if (data == null || data.length == 0)
@@ -224,11 +308,27 @@ public class Maths
 		return min;
 	}
 
+	/**
+	 * Get the max.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the max
+	 */
 	public static int max(int... data)
 	{
 		return maxDefault(Integer.MIN_VALUE, data);
 	}
 
+	/**
+	 * Get the max using a default value.
+	 *
+	 * @param max
+	 *            the max
+	 * @param data
+	 *            the data
+	 * @return the max
+	 */
 	public static int maxDefault(int max, int... data)
 	{
 		if (data == null || data.length == 0)
@@ -240,9 +340,10 @@ public class Maths
 	}
 
 	/**
-	 * Compute the min and max of the data
-	 * 
+	 * Compute the min and max of the data.
+	 *
 	 * @param data
+	 *            the data
 	 * @return [min, max]
 	 */
 	public static int[] limits(int... data)
@@ -258,11 +359,12 @@ public class Maths
 	}
 
 	/**
-	 * Compute the min and max of the data
-	 * 
+	 * Compute the min and max of the data.
+	 *
 	 * @param limits
 	 *            The current [min, max]
 	 * @param data
+	 *            the data
 	 * @return [min, max]
 	 */
 	public static int[] limits(int[] limits, int... data)
@@ -291,11 +393,27 @@ public class Maths
 		return limits;
 	}
 
+	/**
+	 * Get the min.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the min
+	 */
 	public static short min(short... data)
 	{
 		return minDefault(Short.MAX_VALUE, data);
 	}
 
+	/**
+	 * Get the min using a default value.
+	 *
+	 * @param min
+	 *            the min
+	 * @param data
+	 *            the data
+	 * @return the min
+	 */
 	public static short minDefault(short min, short... data)
 	{
 		if (data == null || data.length == 0)
@@ -306,11 +424,27 @@ public class Maths
 		return min;
 	}
 
+	/**
+	 * Get the max.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the max
+	 */
 	public static short max(short... data)
 	{
 		return maxDefault(Short.MIN_VALUE, data);
 	}
 
+	/**
+	 * Get the max using a default value.
+	 *
+	 * @param max
+	 *            the max
+	 * @param data
+	 *            the data
+	 * @return the max
+	 */
 	public static short maxDefault(short max, short... data)
 	{
 		if (data == null || data.length == 0)
@@ -322,9 +456,10 @@ public class Maths
 	}
 
 	/**
-	 * Compute the min and max of the data
-	 * 
+	 * Compute the min and max of the data.
+	 *
 	 * @param data
+	 *            the data
 	 * @return [min, max]
 	 */
 	public static short[] limits(short... data)
@@ -340,11 +475,12 @@ public class Maths
 	}
 
 	/**
-	 * Compute the min and max of the data
-	 * 
+	 * Compute the min and max of the data.
+	 *
 	 * @param limits
 	 *            The current [min, max]
 	 * @param data
+	 *            the data
 	 * @return [min, max]
 	 */
 	public static short[] limits(short[] limits, short... data)
@@ -373,11 +509,27 @@ public class Maths
 		return limits;
 	}
 
+	/**
+	 * Get the min.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the min
+	 */
 	public static long min(long... data)
 	{
 		return minDefault(Integer.MAX_VALUE, data);
 	}
 
+	/**
+	 * Get the min using a default value.
+	 *
+	 * @param min
+	 *            the min
+	 * @param data
+	 *            the data
+	 * @return the min
+	 */
 	public static long minDefault(long min, long... data)
 	{
 		if (data == null || data.length == 0)
@@ -388,11 +540,27 @@ public class Maths
 		return min;
 	}
 
+	/**
+	 * Get the max.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the max
+	 */
 	public static long max(long... data)
 	{
 		return maxDefault(Integer.MIN_VALUE, data);
 	}
 
+	/**
+	 * Get the max using a default value.
+	 *
+	 * @param max
+	 *            the max
+	 * @param data
+	 *            the data
+	 * @return the max
+	 */
 	public static long maxDefault(long max, long... data)
 	{
 		if (data == null || data.length == 0)
@@ -404,9 +572,10 @@ public class Maths
 	}
 
 	/**
-	 * Compute the min and max of the data
-	 * 
+	 * Compute the min and max of the data.
+	 *
 	 * @param data
+	 *            the data
 	 * @return [min, max]
 	 */
 	public static long[] limits(long... data)
@@ -422,11 +591,12 @@ public class Maths
 	}
 
 	/**
-	 * Compute the min and max of the data
-	 * 
+	 * Compute the min and max of the data.
+	 *
 	 * @param limits
 	 *            The current [min, max]
 	 * @param data
+	 *            the data
 	 * @return [min, max]
 	 */
 	public static long[] limits(long[] limits, long... data)
@@ -458,8 +628,9 @@ public class Maths
 	/**
 	 * Calculate a cumulative histogram of the input values. The data is sorted and the first value in the returned
 	 * values array will be the lowest value. NaN are ignored.
-	 * 
+	 *
 	 * @param values
+	 *            the values
 	 * @param normalise
 	 *            Normalise so the total is 1
 	 * @return Histogram values and cumulative total
@@ -521,8 +692,8 @@ public class Maths
 	}
 
 	/**
-	 * Get the bias-corrected Akaike Information Criterion (AICc)
-	 * 
+	 * Get the bias-corrected Akaike Information Criterion (AICc).
+	 *
 	 * @param sumOfSquaredResiduals
 	 *            the sum of squared residuals from the nonlinear least-squares fit
 	 * @param n
@@ -561,8 +732,8 @@ public class Maths
 	}
 
 	/**
-	 * Get the bias-corrected Akaike Information Criterion (AICc)
-	 * 
+	 * Get the bias-corrected Akaike Information Criterion (AICc).
+	 *
 	 * @param logLikelihood
 	 *            the log-likelihood of the fit (from Maximum likelihood estimation)
 	 * @param n
@@ -599,8 +770,8 @@ public class Maths
 
 	/**
 	 * Get the Bayesian Information Criterion (BIC), which gives a higher penalty on the number of parameters that the
-	 * AICc
-	 * 
+	 * AICc.
+	 *
 	 * @param sumOfSquaredResiduals
 	 *            the sum of squared residuals from the nonlinear least-squares fit
 	 * @param n
@@ -618,8 +789,8 @@ public class Maths
 
 	/**
 	 * Get the Bayesian Information Criterion (BIC), which gives a higher penalty on the number of parameters that the
-	 * AICc
-	 * 
+	 * AICc.
+	 *
 	 * @param logLikelihood
 	 *            the log-likelihood of the fit (from Maximum likelihood estimation)
 	 * @param n
@@ -639,6 +810,8 @@ public class Maths
 	}
 
 	/**
+	 * Gets the adjusted coefficient of determination.
+	 *
 	 * @param residualSS
 	 *            The sum of squared residuals from the model
 	 * @param totalSS
@@ -674,6 +847,13 @@ public class Maths
 		return sumOfSquares;
 	}
 
+	/**
+	 * Get the sum.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the sum
+	 */
 	public static double sum(double... data)
 	{
 		if (data == null)
@@ -684,6 +864,13 @@ public class Maths
 		return sum;
 	}
 
+	/**
+	 * Get the sum.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the sum
+	 */
 	public static double sum(float... data)
 	{
 		if (data == null)
@@ -694,6 +881,13 @@ public class Maths
 		return sum;
 	}
 
+	/**
+	 * Get the sum.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the sum
+	 */
 	public static long sum(long... data)
 	{
 		if (data == null)
@@ -704,6 +898,13 @@ public class Maths
 		return sum;
 	}
 
+	/**
+	 * Get the sum.
+	 *
+	 * @param data
+	 *            the data
+	 * @return the sum
+	 */
 	public static long sum(int... data)
 	{
 		if (data == null)
@@ -715,8 +916,8 @@ public class Maths
 	}
 
 	/**
-	 * Round the double to the specified significant digits
-	 * 
+	 * Round the double to the specified significant digits.
+	 *
 	 * @param d
 	 *            The double
 	 * @param significantDigits
@@ -733,8 +934,8 @@ public class Maths
 	}
 
 	/**
-	 * Round the double to 4 significant digits
-	 * 
+	 * Round the double to 4 significant digits.
+	 *
 	 * @param d
 	 *            The double
 	 * @return A string containing the rounded double
@@ -745,8 +946,8 @@ public class Maths
 	}
 
 	/**
-	 * Round the double to the specified significant digits
-	 * 
+	 * Round the double to the specified significant digits.
+	 *
 	 * @param d
 	 *            The double
 	 * @param significantDigits
@@ -763,8 +964,8 @@ public class Maths
 	}
 
 	/**
-	 * Round the double to the specified significant digits
-	 * 
+	 * Round the double to the specified significant digits.
+	 *
 	 * @param d
 	 *            The double
 	 * @param significantDigits
@@ -778,8 +979,8 @@ public class Maths
 	}
 
 	/**
-	 * Round the double to the specified decimal places
-	 * 
+	 * Round the double to the specified decimal places.
+	 *
 	 * @param d
 	 *            The double
 	 * @param decimalPlaces
@@ -797,8 +998,8 @@ public class Maths
 	}
 
 	/**
-	 * Round the double to the specified decimal places
-	 * 
+	 * Round the double to the specified decimal places.
+	 *
 	 * @param d
 	 *            The double
 	 * @param decimalPlaces
@@ -814,8 +1015,8 @@ public class Maths
 	}
 
 	/**
-	 * Round the double to 4 significant digits
-	 * 
+	 * Round the double to 4 significant digits.
+	 *
 	 * @param d
 	 *            The double
 	 * @return The rounded double

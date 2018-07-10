@@ -39,41 +39,139 @@ import ij.macro.Interpreter;
  */
 public class Plot2 extends Plot
 {
-	/** Draw a bar plot */
+	/** Draw a bar plot. */
 	public static final int BAR = 999;
 
 	private static boolean failedOverride = false;
 
+	/**
+	 * Instantiates a new plot 2.
+	 *
+	 * @param title
+	 *            the title
+	 * @param xLabel
+	 *            the x label
+	 * @param yLabel
+	 *            the y label
+	 * @param xValues
+	 *            the x values
+	 * @param yValues
+	 *            the y values
+	 */
 	public Plot2(String title, String xLabel, String yLabel, float[] xValues, float[] yValues)
 	{
 		super(title, xLabel, yLabel, xValues, yValues);
 	}
 
+	/**
+	 * Instantiates a new plot 2.
+	 *
+	 * @param title
+	 *            the title
+	 * @param xLabel
+	 *            the x label
+	 * @param yLabel
+	 *            the y label
+	 * @param xValues
+	 *            the x values
+	 * @param yValues
+	 *            the y values
+	 */
 	public Plot2(String title, String xLabel, String yLabel, double[] xValues, double[] yValues)
 	{
 		super(title, xLabel, yLabel, xValues, yValues);
 	}
 
+	/**
+	 * Instantiates a new plot 2.
+	 *
+	 * @param dummy
+	 *            the dummy
+	 * @param title
+	 *            the title
+	 * @param xLabel
+	 *            the x label
+	 * @param yLabel
+	 *            the y label
+	 * @param xValues
+	 *            the x values
+	 * @param yValues
+	 *            the y values
+	 */
 	public Plot2(String dummy, String title, String xLabel, String yLabel, float[] xValues, float[] yValues)
 	{
 		super(title, xLabel, yLabel, xValues, yValues);
 	}
 
+	/**
+	 * Instantiates a new plot 2.
+	 *
+	 * @param title
+	 *            the title
+	 * @param xLabel
+	 *            the x label
+	 * @param yLabel
+	 *            the y label
+	 */
 	public Plot2(String title, String xLabel, String yLabel)
 	{
 		super(title, xLabel, yLabel, (float[]) null, (float[]) null);
 	}
 
+	/**
+	 * Instantiates a new plot 2.
+	 *
+	 * @param title
+	 *            the title
+	 * @param xLabel
+	 *            the x label
+	 * @param yLabel
+	 *            the y label
+	 * @param flags
+	 *            the flags
+	 */
 	public Plot2(String title, String xLabel, String yLabel, int flags)
 	{
 		super(title, xLabel, yLabel, (float[]) null, (float[]) null, flags);
 	}
 
+	/**
+	 * Instantiates a new plot 2.
+	 *
+	 * @param title
+	 *            the title
+	 * @param xLabel
+	 *            the x label
+	 * @param yLabel
+	 *            the y label
+	 * @param xValues
+	 *            the x values
+	 * @param yValues
+	 *            the y values
+	 * @param flags
+	 *            the flags
+	 */
 	public Plot2(String title, String xLabel, String yLabel, float[] xValues, float[] yValues, int flags)
 	{
 		super(title, xLabel, yLabel, xValues, yValues, flags);
 	}
 
+	/**
+	 * Instantiates a new plot 2.
+	 *
+	 * @param title
+	 *            the title
+	 * @param xLabel
+	 *            the x label
+	 * @param yLabel
+	 *            the y label
+	 * @param xValues
+	 *            the x values
+	 * @param yValues
+	 *            the y values
+	 * @param flags
+	 *            the flags
+	 */
 	public Plot2(String title, String xLabel, String yLabel, double[] xValues, double[] yValues, int flags)
 	{
 		super(title, xLabel, yLabel, xValues, yValues, flags);
@@ -132,9 +230,10 @@ public class Plot2 extends Plot
 	/**
 	 * For the provided histogram x-axis bins, produce an x-axis for plotting. This functions doubles up the histogram
 	 * x-positions to allow plotting a square line profile using the ImageJ plot command.
-	 * 
+	 *
 	 * @param histogramX
-	 * @return
+	 *            the histogram X
+	 * @return the x-axis
 	 */
 	public static float[] createHistogramAxis(float[] histogramX)
 	{
@@ -157,9 +256,10 @@ public class Plot2 extends Plot
 	/**
 	 * For the provided histogram y-axis values, produce a y-axis for plotting. This functions doubles up the histogram
 	 * values to allow plotting a square line profile using the ImageJ plot command.
-	 * 
+	 *
 	 * @param histogramY
-	 * @return
+	 *            the histogram Y
+	 * @return the y-axis
 	 */
 	public static float[] createHistogramValues(float[] histogramY)
 	{

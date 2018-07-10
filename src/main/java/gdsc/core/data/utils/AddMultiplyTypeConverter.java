@@ -30,7 +30,9 @@ package gdsc.core.data.utils;
 import gdsc.core.utils.Maths;
 
 /**
- * Perform conversion by addition then multiplication
+ * Perform conversion by addition then multiplication.
+ *
+ * @param <T> the generic type
  */
 public class AddMultiplyTypeConverter<T> extends MultiplyTypeConverter<T>
 {

@@ -46,9 +46,9 @@ public class PDF
 	 * 
 	 * @param data
 	 *            The data
-	 * @throws InvalidArgumentException
+	 * @throws IllegalArgumentException
 	 *             if the input data length is not at least 1
-	 * @throws InvalidArgumentException
+	 * @throws IllegalArgumentException
 	 *             if the input data contains negatives
 	 */
 	public PDF(double[] data)

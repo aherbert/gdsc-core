@@ -31,32 +31,61 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 /**
- * Expandable store for data backed by a double array
+ * Expandable store for data backed by a double array.
  */
 public class StoredData implements Iterable<Double>, DoubleData
 {
 	private double[] values = new double[0];
 	private int n = 0;
 
+	/**
+	 * Instantiates a new stored data.
+	 */
 	public StoredData()
 	{
 	}
 
+	/**
+	 * Instantiates a new stored data.
+	 *
+	 * @param capacity
+	 *            the capacity
+	 */
 	public StoredData(int capacity)
 	{
 		values = new double[capacity];
 	}
 
+	/**
+	 * Instantiates a new stored data.
+	 *
+	 * @param data
+	 *            the data
+	 */
 	public StoredData(float[] data)
 	{
 		add(data);
 	}
 
+	/**
+	 * Instantiates a new stored data.
+	 *
+	 * @param data
+	 *            the data
+	 */
 	public StoredData(double[] data)
 	{
 		this(data, true);
 	}
 
+	/**
+	 * Instantiates a new stored data.
+	 *
+	 * @param data
+	 *            the data
+	 * @param clone
+	 *            the clone
+	 */
 	public StoredData(double[] data, boolean clone)
 	{
 		if (data != null)
@@ -66,15 +95,22 @@ public class StoredData implements Iterable<Double>, DoubleData
 		}
 	}
 
+	/**
+	 * Instantiates a new stored data.
+	 *
+	 * @param data
+	 *            the data
+	 */
 	public StoredData(int[] data)
 	{
 		add(data);
 	}
 
 	/**
-	 * Add the data
-	 * 
+	 * Add the data.
+	 *
 	 * @param data
+	 *            the data
 	 */
 	public void add(float[] data)
 	{
@@ -111,9 +147,10 @@ public class StoredData implements Iterable<Double>, DoubleData
 	}
 
 	/**
-	 * Add the data
-	 * 
+	 * Add the data.
+	 *
 	 * @param data
+	 *            the data
 	 */
 	public void add(double[] data)
 	{
@@ -129,9 +166,10 @@ public class StoredData implements Iterable<Double>, DoubleData
 	}
 
 	/**
-	 * Add the data
-	 * 
+	 * Add the data.
+	 *
 	 * @param data
+	 *            the data
 	 */
 	public void add(int[] data)
 	{
@@ -145,9 +183,10 @@ public class StoredData implements Iterable<Double>, DoubleData
 	}
 
 	/**
-	 * Add the value
-	 * 
+	 * Add the value.
+	 *
 	 * @param value
+	 *            the value
 	 */
 	public void add(final double value)
 	{
@@ -156,8 +195,8 @@ public class StoredData implements Iterable<Double>, DoubleData
 	}
 
 	/**
-	 * Add the value n times
-	 * 
+	 * Add the value n times.
+	 *
 	 * @param n
 	 *            The number of times
 	 * @param value
@@ -173,8 +212,9 @@ public class StoredData implements Iterable<Double>, DoubleData
 	/**
 	 * Add the data. Synchronized for thread safety. (Multiple threads must all use the same safeAdd method to ensure
 	 * thread safety.)
-	 * 
+	 *
 	 * @param data
+	 *            the data
 	 */
 	synchronized public void safeAdd(float[] data)
 	{
@@ -190,8 +230,9 @@ public class StoredData implements Iterable<Double>, DoubleData
 	/**
 	 * Add the data. Synchronized for thread safety. (Multiple threads must all use the same safeAdd method to ensure
 	 * thread safety.)
-	 * 
+	 *
 	 * @param data
+	 *            the data
 	 */
 	synchronized public void safeAdd(double[] data)
 	{
@@ -207,8 +248,9 @@ public class StoredData implements Iterable<Double>, DoubleData
 	/**
 	 * Add the value. Synchronized for thread safety. (Multiple threads must all use the same safeAdd method to ensure
 	 * thread safety.)
-	 * 
+	 *
 	 * @param value
+	 *            the value
 	 */
 	synchronized public void safeAdd(final double value)
 	{
@@ -217,6 +259,8 @@ public class StoredData implements Iterable<Double>, DoubleData
 	}
 
 	/**
+	 * Gets the values.
+	 *
 	 * @return A copy of the values added
 	 */
 	public double[] getValues()
@@ -247,6 +291,8 @@ public class StoredData implements Iterable<Double>, DoubleData
 	}
 
 	/**
+	 * Gets the float values.
+	 *
 	 * @return A copy of the values added
 	 */
 	public float[] getFloatValues()

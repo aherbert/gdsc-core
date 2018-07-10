@@ -31,15 +31,17 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 /**
- * Provides sorting functionality
+ * Provides sorting functionality.
  */
 public class Sort
 {
 	/**
-	 * Sorts the indices in descending order of their values
-	 * 
+	 * Sorts the indices in descending order of their values.
+	 *
 	 * @param indices
+	 *            the indices
 	 * @param values
+	 *            the values
 	 * @return The indices
 	 */
 	public static int[] sort(int[] indices, final int[] values)
@@ -48,11 +50,14 @@ public class Sort
 	}
 
 	/**
-	 * Sorts the indices in descending order of their values
-	 * 
+	 * Sorts the indices in descending order of their values.
+	 *
 	 * @param indices
+	 *            the indices
 	 * @param values
+	 *            the values
 	 * @param sortValues
+	 *            the sort values
 	 * @return The indices
 	 */
 	public static int[] sort(int[] indices, final int[] values, boolean sortValues)
@@ -96,10 +101,12 @@ public class Sort
 	}
 
 	/**
-	 * Sorts the indices in descending order of their values
-	 * 
+	 * Sorts the indices in descending order of their values.
+	 *
 	 * @param indices
+	 *            the indices
 	 * @param values
+	 *            the values
 	 * @return The indices
 	 */
 	public static int[] sort(int[] indices, final float[] values)
@@ -108,11 +115,14 @@ public class Sort
 	}
 
 	/**
-	 * Sorts the indices in descending order of their values
-	 * 
+	 * Sorts the indices in descending order of their values.
+	 *
 	 * @param indices
+	 *            the indices
 	 * @param values
+	 *            the values
 	 * @param sortValues
+	 *            the sort values
 	 * @return The indices
 	 */
 	public static int[] sort(int[] indices, final float[] values, boolean sortValues)
@@ -160,10 +170,12 @@ public class Sort
 	}
 
 	/**
-	 * Sorts the indices in descending order of their values
-	 * 
+	 * Sorts the indices in descending order of their values.
+	 *
 	 * @param indices
+	 *            the indices
 	 * @param values
+	 *            the values
 	 * @return The indices
 	 */
 	public static int[] sort(int[] indices, final double[] values)
@@ -172,11 +184,14 @@ public class Sort
 	}
 
 	/**
-	 * Sorts the indices in descending order of their values
-	 * 
+	 * Sorts the indices in descending order of their values.
+	 *
 	 * @param indices
+	 *            the indices
 	 * @param values
+	 *            the values
 	 * @param sortValues
+	 *            the sort values
 	 * @return The indices
 	 */
 	public static int[] sort(int[] indices, final double[] values, boolean sortValues)
@@ -220,10 +235,12 @@ public class Sort
 	}
 
 	/**
-	 * Sorts the indices in ascending order of their values
-	 * 
+	 * Sorts the indices in ascending order of their values.
+	 *
 	 * @param indices
+	 *            the indices
 	 * @param values
+	 *            the values
 	 * @return The indices
 	 */
 	public static int[] sortAscending(int[] indices, final int[] values)
@@ -232,11 +249,14 @@ public class Sort
 	}
 
 	/**
-	 * Sorts the indices in ascending order of their values
-	 * 
+	 * Sorts the indices in ascending order of their values.
+	 *
 	 * @param indices
+	 *            the indices
 	 * @param values
+	 *            the values
 	 * @param sortValues
+	 *            the sort values
 	 * @return The indices
 	 */
 	public static int[] sortAscending(int[] indices, final int[] values, boolean sortValues)
@@ -280,10 +300,12 @@ public class Sort
 	}
 
 	/**
-	 * Sorts the indices in ascending order of their values
-	 * 
+	 * Sorts the indices in ascending order of their values.
+	 *
 	 * @param indices
+	 *            the indices
 	 * @param values
+	 *            the values
 	 * @return The indices
 	 */
 	public static int[] sortAscending(int[] indices, final float[] values)
@@ -292,11 +314,14 @@ public class Sort
 	}
 
 	/**
-	 * Sorts the indices in ascending order of their values
-	 * 
+	 * Sorts the indices in ascending order of their values.
+	 *
 	 * @param indices
+	 *            the indices
 	 * @param values
+	 *            the values
 	 * @param sortValues
+	 *            the sort values
 	 * @return The indices
 	 */
 	public static int[] sortAscending(int[] indices, final float[] values, boolean sortValues)
@@ -344,10 +369,12 @@ public class Sort
 	}
 
 	/**
-	 * Sorts the indices in ascending order of their values
-	 * 
+	 * Sorts the indices in ascending order of their values.
+	 *
 	 * @param indices
+	 *            the indices
 	 * @param values
+	 *            the values
 	 * @return The indices
 	 */
 	public static int[] sortAscending(int[] indices, final double[] values)
@@ -356,11 +383,14 @@ public class Sort
 	}
 
 	/**
-	 * Sorts the indices in ascending order of their values
-	 * 
+	 * Sorts the indices in ascending order of their values.
+	 *
 	 * @param indices
+	 *            the indices
 	 * @param values
+	 *            the values
 	 * @param sortValues
+	 *            the sort values
 	 * @return The indices
 	 */
 	public static int[] sortAscending(int[] indices, final double[] values, boolean sortValues)
@@ -404,9 +434,10 @@ public class Sort
 	}
 
 	/**
-	 * Reverse the array order
-	 * 
+	 * Reverse the array order.
+	 *
 	 * @param data
+	 *            the data
 	 * @deprecated Moved to SimpleArrayUtils
 	 */
 	@Deprecated
@@ -429,9 +460,10 @@ public class Sort
 	}
 
 	/**
-	 * Reverse the array order
-	 * 
+	 * Reverse the array order.
+	 *
 	 * @param data
+	 *            the data
 	 * @deprecated Moved to SimpleArrayUtils
 	 */
 	@Deprecated
@@ -454,9 +486,10 @@ public class Sort
 	}
 
 	/**
-	 * Reverse the array order
-	 * 
+	 * Reverse the array order.
+	 *
 	 * @param data
+	 *            the data
 	 * @deprecated Moved to SimpleArrayUtils
 	 */
 	@Deprecated
@@ -480,11 +513,13 @@ public class Sort
 
 	/**
 	 * Sorts array 1 using the values in array 2.
-	 * 
+	 *
 	 * @param values1
+	 *            the values 1
 	 * @param values2
+	 *            the values 2
 	 * @param ascending
-	 * @return The two arrays, sorted using array 2
+	 *            the ascending
 	 */
 	public static void sortArrays(int[] values1, final double[] values2, boolean ascending)
 	{
@@ -513,11 +548,13 @@ public class Sort
 
 	/**
 	 * Sorts array 1 using the values in array 2.
-	 * 
+	 *
 	 * @param values1
+	 *            the values 1
 	 * @param values2
+	 *            the values 2
 	 * @param ascending
-	 * @return The two arrays, sorted using array 2
+	 *            the ascending
 	 */
 	public static void sortArrays(int[] values1, final float[] values2, boolean ascending)
 	{
@@ -546,11 +583,13 @@ public class Sort
 
 	/**
 	 * Sorts array 1 using the values in array 2.
-	 * 
+	 *
 	 * @param values1
+	 *            the values 1
 	 * @param values2
+	 *            the values 2
 	 * @param ascending
-	 * @return The two arrays, sorted using array 2
+	 *            the ascending
 	 */
 	public static void sortArrays(int[] values1, final int[] values2, boolean ascending)
 	{
@@ -579,11 +618,13 @@ public class Sort
 
 	/**
 	 * Sorts array 1 using the values in array 2.
-	 * 
+	 *
 	 * @param values1
+	 *            the values 1
 	 * @param values2
+	 *            the values 2
 	 * @param ascending
-	 * @return The two arrays, sorted using array 2
+	 *            the ascending
 	 */
 	public static void sortArrays(float[] values1, final float[] values2, boolean ascending)
 	{
@@ -612,11 +653,13 @@ public class Sort
 
 	/**
 	 * Sorts array 1 using the values in array 2.
-	 * 
+	 *
 	 * @param values1
+	 *            the values 1
 	 * @param values2
+	 *            the values 2
 	 * @param ascending
-	 * @return The two arrays, sorted using array 2
+	 *            the ascending
 	 */
 	public static void sortArrays(double[] values1, final double[] values2, boolean ascending)
 	{

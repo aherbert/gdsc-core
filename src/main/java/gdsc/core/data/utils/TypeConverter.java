@@ -29,6 +29,8 @@ package gdsc.core.data.utils;
 
 /**
  * Define conversion of a type
+ *
+ * @param <T> the generic type
  */
 public interface TypeConverter<T> extends Converter
 {

@@ -51,7 +51,9 @@ public class DAreaSum
 
 	private boolean rollingSums = false;
 
+	/** The max x dimension. */
 	public final int maxx;
+	/** The max y dimension. */
 	public final int maxy;
 	protected final double[] data;
 	protected double[] s_ = null;

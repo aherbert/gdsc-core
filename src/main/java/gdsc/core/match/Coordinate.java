@@ -63,42 +63,86 @@ public interface Coordinate
 	public int getZint();
 
 	/**
-	 * Calculate the XY distance to the given coordinates
+	 * Calculate the XY distance to the given coordinates.
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @return the distance
 	 */
 	public double distance(float x, float y);
 
 	/**
-	 * Calculate the XYZ distance to the given coordinates
+	 * Calculate the XYZ distance to the given coordinates.
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @param z
+	 *            the z
+	 * @return the distance
 	 */
 	public double distance(float x, float y, float z);
 
 	/**
-	 * Calculate the XY squared distance to the given coordinates
+	 * Calculate the XY squared distance to the given coordinates.
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @return the squared distance
 	 */
 	public double distance2(float x, float y);
 
 	/**
-	 * Calculate the XYZ squared distance to the given coordinates
+	 * Calculate the XYZ squared distance to the given coordinates.
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @param z
+	 *            the z
+	 * @return the squared distance
 	 */
 	public double distance2(float x, float y, float z);
 
 	/**
-	 * Calculate the XY distance to the given coordinate
+	 * Calculate the XY distance to the given coordinate.
+	 *
+	 * @param other
+	 *            the other
+	 * @return the distance
 	 */
 	public double distanceXY(Coordinate other);
 
 	/**
-	 * Calculate the XY squared distance to the given coordinate
+	 * Calculate the XY squared distance to the given coordinate.
+	 *
+	 * @param other
+	 *            the other
+	 * @return the squared distance
 	 */
 	public double distanceXY2(Coordinate other);
 
 	/**
-	 * Calculate the XYZ distance to the given coordinate
+	 * Calculate the XYZ distance to the given coordinate.
+	 *
+	 * @param other
+	 *            the other
+	 * @return the distance
 	 */
 	public double distanceXYZ(Coordinate other);
 
 	/**
-	 * Calculate the XYZ squared distance to the given coordinate
+	 * Calculate the XYZ squared distance to the given coordinate.
+	 *
+	 * @param other
+	 *            the other
+	 * @return the squared distance
 	 */
 	public double distanceXYZ2(Coordinate other);
 }

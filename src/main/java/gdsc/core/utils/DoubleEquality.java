@@ -17,7 +17,7 @@
  * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR a PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public
@@ -45,7 +45,7 @@ public class DoubleEquality
 	private double maxAbsoluteError;
 
 	/**
-	 * Default constructor
+	 * Instantiates a new double equality.
 	 */
 	public DoubleEquality()
 	{
@@ -53,10 +53,12 @@ public class DoubleEquality
 	}
 
 	/**
-	 * Override constructor
+	 * Instantiates a new double equality.
 	 * 
 	 * @param maxRelativeError
+	 *            The relative error allowed between the numbers
 	 * @param maxAbsoluteError
+	 *            The absolute error allowed between the numbers. Should be a small number (e.g. 1e-10)
 	 */
 	public DoubleEquality(double maxRelativeError, double maxAbsoluteError)
 	{
@@ -65,6 +67,14 @@ public class DoubleEquality
 	}
 
 	/**
+	 * Instantiates a new double equality.
+	 *
+	 * @param maxRelativeError
+	 *            the max relative error
+	 * @param maxAbsoluteError
+	 *            The absolute error allowed between the numbers. Should be a small number (e.g. 1e-10)
+	 * @param significantDigits
+	 *            the significant digits
 	 * @deprecated The significant digits are ignored
 	 */
 	@Deprecated
@@ -74,12 +84,14 @@ public class DoubleEquality
 	}
 
 	/**
-	 * Override constructor
-	 * 
+	 * Instantiates a new double equality.
+	 *
 	 * @param significantDigits
+	 *            the significant digits
 	 * @param maxAbsoluteError
-	 * @deprecated The significant digits are used to set the max relative error as 1e^-(n-1), e.g. 3sd => 1e-2
+	 *            The absolute error allowed between the numbers. Should be a small number (e.g. 1e-10)
 	 * @see #getMaxRelativeError(int)
+	 * @deprecated The significant digits are used to set the max relative error as 1e^-(n-1), e.g. 3sd => 1e-2
 	 */
 	@Deprecated
 	public DoubleEquality(long significantDigits, double maxAbsoluteError)
@@ -90,92 +102,121 @@ public class DoubleEquality
 
 	/**
 	 * Compares two doubles are within the configured errors.
-	 * 
-	 * @param A
-	 * @param B
+	 *
+	 * @param a
+	 *            the first value
+	 * @param b
+	 *            the second value
 	 * @return True if equal
 	 */
-	public boolean almostEqualRelativeOrAbsolute(double A, double B)
+	public boolean almostEqualRelativeOrAbsolute(double a, double b)
 	{
-		return almostEqualRelativeOrAbsolute(A, B, maxRelativeError, maxAbsoluteError);
+		return almostEqualRelativeOrAbsolute(a, b, maxRelativeError, maxAbsoluteError);
 	}
 
 	/**
 	 * Compares two doubles are within the configured number of bits variation using long comparisons.
-	 * 
-	 * @param A
-	 * @param B
+	 *
+	 * @param a
+	 *            the first value
+	 * @param b
+	 *            the second value
 	 * @return True if equal
 	 * @deprecated This method now calls {@link #almostEqualRelativeOrAbsolute(double, double)}
 	 */
 	@Deprecated
-	public boolean almostEqualComplement(double A, double B)
+	public boolean almostEqualComplement(double a, double b)
 	{
-		return almostEqualRelativeOrAbsolute(A, B);
+		return almostEqualRelativeOrAbsolute(a, b);
 	}
 
 	/**
+	 * Compare complement.
+	 *
+	 * @param a
+	 *            the first value
+	 * @param b
+	 *            the second value
+	 * @return the long
 	 * @deprecated This method now converts the relative error to significant digits and then to ULPs for complement
 	 *             comparison
 	 */
 	@Deprecated
-	public long compareComplement(double A, double B)
+	public long compareComplement(double a, double b)
 	{
 		// Convert the relative error back to significant digits, then to ULPs
 		long maxUlps = getUlps(Math.round(1 - Math.log(maxRelativeError)));
-		return compareComplement(A, B, maxUlps);
+		return compareComplement(a, b, maxUlps);
 	}
 
 	/**
 	 * Compares two double arrays are within the configured errors.
 	 * 
-	 * @param A
-	 * @param B
+	 * @param a
+	 * @param b
 	 * @return True if equal
 	 */
-	public boolean almostEqualRelativeOrAbsolute(double[] A, double[] B)
+	public boolean almostEqualRelativeOrAbsolute(double[] a, double[] b)
 	{
-		for (int i = 0; i < A.length; i++)
-			if (!almostEqualRelativeOrAbsolute(A[i], B[i], maxRelativeError, maxAbsoluteError))
+		for (int i = 0; i < a.length; i++)
+			if (!almostEqualRelativeOrAbsolute(a[i], b[i], maxRelativeError, maxAbsoluteError))
 				return false;
 		return true;
 	}
 
 	/**
+	 * This method now calls {@link #almostEqualRelativeOrAbsolute(double[], double[])}
+	 *
+	 * @param a
+	 *            the first value
+	 * @param b
+	 *            the second value
+	 * @return true, if successful
 	 * @deprecated This method now calls {@link #almostEqualRelativeOrAbsolute(double[], double[])}
 	 */
 	@Deprecated
-	public boolean almostEqualComplement(double[] A, double[] B)
+	public boolean almostEqualComplement(double[] a, double[] b)
 	{
-		return almostEqualRelativeOrAbsolute(A, B);
+		return almostEqualRelativeOrAbsolute(a, b);
 	}
 
 	/**
 	 * Compares two doubles are within the specified errors.
-	 * 
-	 * @param A
-	 * @param B
+	 *
+	 * @param a
+	 *            the first value
+	 * @param b
+	 *            the second value
 	 * @param maxRelativeError
 	 *            The relative error allowed between the numbers
 	 * @param maxAbsoluteError
 	 *            The absolute error allowed between the numbers. Should be a small number (e.g. 1e-10)
 	 * @return True if equal
 	 */
-	public static boolean almostEqualRelativeOrAbsolute(double A, double B, double maxRelativeError,
+	public static boolean almostEqualRelativeOrAbsolute(double a, double b, double maxRelativeError,
 			double maxAbsoluteError)
 	{
 		// Check the two numbers are within an absolute distance.
-		final double difference = Math.abs(A - B);
+		final double difference = Math.abs(a - b);
 		if (difference <= maxAbsoluteError)
 			return true;
 		// Ignore NaNs. This is OK since if either number is a NaN the difference 
 		// will be NaN and we end up returning false 
-		final double size = max(Math.abs(A), Math.abs(B));
+		final double size = max(Math.abs(a), Math.abs(b));
 		if (difference <= size * maxRelativeError)
 			return true;
 		return false;
 	}
 
+	/**
+	 * Get the max.
+	 *
+	 * @param a
+	 *            the first value
+	 * @param b
+	 *            the second value
+	 * @return the max
+	 */
 	private static double max(double a, double b)
 	{
 		return (a >= b) ? a : b;
@@ -183,73 +224,81 @@ public class DoubleEquality
 
 	/**
 	 * Compute the relative error between two doubles.
-	 * 
-	 * @param A
-	 * @param B
+	 *
+	 * @param a
+	 *            the first value
+	 * @param b
+	 *            the second value
 	 * @return The relative error
 	 */
-	public static double relativeError(double A, double B)
+	public static double relativeError(double a, double b)
 	{
-		final double diff = A - B;
+		final double diff = a - b;
 		if (diff == 0)
 			return 0;
-		if (Math.abs(B) > Math.abs(A))
-			return Math.abs(diff / B);
+		if (Math.abs(b) > Math.abs(a))
+			return Math.abs(diff / b);
 		else
-			return Math.abs(diff / A);
+			return Math.abs(diff / a);
 	}
 
 	/**
 	 * Compute the maximum relative error between two double arrays.
-	 * 
-	 * @param A
-	 * @param B
+	 *
+	 * @param a
+	 *            the first value
+	 * @param b
+	 *            the second value
 	 * @return The relative error
 	 */
-	public static double relativeError(double[] A, double[] B)
+	public static double relativeError(double[] a, double[] b)
 	{
 		double max = 0;
-		for (int i = 0; i < A.length; i++)
-			max = Math.max(max, relativeError(A[i], B[i]));
+		for (int i = 0; i < a.length; i++)
+			max = Math.max(max, relativeError(a[i], b[i]));
 		return max;
 	}
 
 	/**
 	 * Compares two doubles are within the specified number of bits variation using long comparisons.
-	 * 
-	 * @param A
-	 * @param B
+	 *
+	 * @param a
+	 *            the first value
+	 * @param b
+	 *            the second value
 	 * @param maxUlps
-	 *            How many representable doubles we are willing to accept between A and B
+	 *            How many representable doubles we are willing to accept between a and b
 	 * @param maxAbsoluteError
 	 *            The absolute error allowed between the numbers. Should be a small number (e.g. 1e-10)
 	 * @return True if equal
 	 */
-	public static boolean almostEqualComplement(double A, double B, long maxUlps, double maxAbsoluteError)
+	public static boolean almostEqualComplement(double a, double b, long maxUlps, double maxAbsoluteError)
 	{
 		// Make sure maxUlps is non-negative and small enough that the
 		// default NAN won't compare as equal to anything.
 		//assert (maxUlps > 0 && maxUlps < 4 * 1024 * 1024);
 
-		if (Math.abs(A - B) < maxAbsoluteError)
+		if (Math.abs(a - b) < maxAbsoluteError)
 			return true;
-		if (complement(A, B) <= maxUlps)
+		if (complement(a, b) <= maxUlps)
 			return true;
 		return false;
 	}
 
 	/**
 	 * Compares two doubles within the specified number of bits variation using long comparisons.
-	 * 
-	 * @param A
-	 * @param B
+	 *
+	 * @param a
+	 *            the first value
+	 * @param b
+	 *            the second value
 	 * @param maxUlps
-	 *            How many representable doubles we are willing to accept between A and B
+	 *            How many representable doubles we are willing to accept between a and b
 	 * @return -1, 0 or 1
 	 */
-	public static int compareComplement(double A, double B, long maxUlps)
+	public static int compareComplement(double a, double b, long maxUlps)
 	{
-		long c = signedComplement(A, B);
+		long c = signedComplement(a, b);
 		if (c < -maxUlps)
 			return -1;
 		if (c > maxUlps)
@@ -258,6 +307,8 @@ public class DoubleEquality
 	}
 
 	/**
+	 * Sets the max relative error.
+	 *
 	 * @param maxRelativeError
 	 *            the maxRelativeError to set
 	 */
@@ -267,6 +318,8 @@ public class DoubleEquality
 	}
 
 	/**
+	 * Gets the max relative error.
+	 *
 	 * @return the maxRelativeError
 	 */
 	public double getMaxRelativeError()
@@ -275,6 +328,8 @@ public class DoubleEquality
 	}
 
 	/**
+	 * Sets the max absolute error.
+	 *
 	 * @param maxAbsoluteError
 	 *            the maxAbsoluteError to set
 	 */
@@ -284,6 +339,8 @@ public class DoubleEquality
 	}
 
 	/**
+	 * Gets the max absolute error.
+	 *
 	 * @return the maxAbsoluteError
 	 */
 	public double getMaxAbsoluteError()
@@ -292,6 +349,10 @@ public class DoubleEquality
 	}
 
 	/**
+	 * Ignored. ULP comparison is no longer supported.
+	 *
+	 * @param maxUlps
+	 *            the new max ulps
 	 * @deprecated ULP comparison is no longer supported
 	 */
 	@Deprecated
@@ -300,6 +361,9 @@ public class DoubleEquality
 	}
 
 	/**
+	 * Ignored. ULP comparison is no longer supported.
+	 *
+	 * @return 0
 	 * @deprecated ULP comparison is no longer supported
 	 */
 	@Deprecated
@@ -387,16 +451,17 @@ public class DoubleEquality
 	 * Compute the number of bits variation using long comparisons.
 	 * <p>
 	 * If the number is too large to fit in a long then Long.MAX_VALUE is returned.
-	 * 
-	 * @param A
-	 * @param B
-	 * 
-	 * @return How many representable doubles we are between A and B
+	 *
+	 * @param a
+	 *            the first value
+	 * @param b
+	 *            the second value
+	 * @return How many representable doubles we are between a and b
 	 */
-	public static long complement(double A, double B)
+	public static long complement(double a, double b)
 	{
-		long aInt = Double.doubleToRawLongBits(A);
-		long bInt = Double.doubleToRawLongBits(B);
+		long aInt = Double.doubleToRawLongBits(a);
+		long bInt = Double.doubleToRawLongBits(b);
 		if (((aInt ^ bInt) & 0x8000000000000000L) == 0l)
 			// Same sign
 			return Math.abs(aInt - bInt);
@@ -425,16 +490,17 @@ public class DoubleEquality
 	 * Compute the number of bits variation using long comparisons.
 	 * <p>
 	 * If the number is too large to fit in a long then Long.MIN_VALUE/MAX_VALUE is returned depending on the sign.
-	 * 
-	 * @param A
-	 * @param B
-	 * 
-	 * @return How many representable doubles we are between A and B
+	 *
+	 * @param a
+	 *            the first value
+	 * @param b
+	 *            the second value
+	 * @return How many representable doubles we are between a and b
 	 */
-	public static long signedComplement(double A, double B)
+	public static long signedComplement(double a, double b)
 	{
-		long aInt = Double.doubleToRawLongBits(A);
-		long bInt = Double.doubleToRawLongBits(B);
+		long aInt = Double.doubleToRawLongBits(a);
+		long bInt = Double.doubleToRawLongBits(b);
 		if (((aInt ^ bInt) & 0x8000000000000000L) == 0l)
 			// Same sign - no overflow
 			return aInt - bInt;

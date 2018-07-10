@@ -41,6 +41,12 @@ public class PolygonRoiTest extends RoiTest
 	final Rectangle2D.Double bounds;
 	final double[] xpoints, ypoints;
 
+	/**
+	 * Instantiates a new polygon roi test.
+	 *
+	 * @param roi
+	 *            the roi
+	 */
 	public PolygonRoiTest(Roi roi)
 	{
 		if (roi.getType() == Roi.POLYGON || roi.getType() == Roi.FREEROI || roi.getType() == Roi.TRACED_ROI)
@@ -66,6 +72,12 @@ public class PolygonRoiTest extends RoiTest
 	 * Returns 'true' if the point (x,y) is inside this polygon. This is a Java
 	 * version of the remarkably small C program by W. Randolph Franklin at
 	 * http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html#The%20C%20Code
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @return true, if successful
 	 */
 	public boolean polygonContains(double x, double y)
 	{

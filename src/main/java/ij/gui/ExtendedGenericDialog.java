@@ -587,6 +587,9 @@ public class ExtendedGenericDialog extends GenericDialog
 
 	/**
 	 * Invoked to collect options for the field value.
+	 *
+	 * @param <T>
+	 *            the generic type
 	 */
 	public interface OptionListener<T>
 	{
@@ -620,6 +623,12 @@ public class ExtendedGenericDialog extends GenericDialog
 	{
 		private final String label;
 
+		/**
+		 * Instantiates a new option collected event.
+		 *
+		 * @param label
+		 *            the label
+		 */
 		public OptionCollectedEvent(String label)
 		{
 			this.label = label;
@@ -660,6 +669,12 @@ public class ExtendedGenericDialog extends GenericDialog
 
 	private TurboList<OptionCollectedListener> optionCollectedListeners = null;
 
+	/**
+	 * Adds the option collected listener.
+	 *
+	 * @param listener
+	 *            the listener
+	 */
 	public void addOptionCollectedListener(OptionCollectedListener listener)
 	{
 		if (optionCollectedListeners == null)
@@ -1025,7 +1040,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * Adds a slider (scroll bar) to the dialog box.
 	 * Floating point values will be used if (maxValue-minValue)<=5.0
 	 * and either minValue or maxValue are non-integer.
-	 * 
+	 *
 	 * @param label
 	 *            the label
 	 * @param minValue
@@ -1034,6 +1049,8 @@ public class ExtendedGenericDialog extends GenericDialog
 	 *            the maximum value of the slider
 	 * @param defaultValue
 	 *            the initial value of the slider
+	 * @param optionListener
+	 *            the option listener
 	 */
 	public void addSlider(final String label, double minValue, double maxValue, double defaultValue,
 			final OptionListener<Double> optionListener)

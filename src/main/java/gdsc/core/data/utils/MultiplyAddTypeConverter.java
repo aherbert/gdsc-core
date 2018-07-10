@@ -31,6 +31,8 @@ import gdsc.core.utils.Maths;
 
 /**
  * Perform conversion by multiplication then addition
+ *
+ * @param <T> the generic type
  */
 public class MultiplyAddTypeConverter<T> extends MultiplyTypeConverter<T>
 {

@@ -32,9 +32,17 @@ package gdsc.core.utils;
  */
 public class ImageWindow
 {
+	/**
+	 * The window function.
+	 */
 	public enum WindowFunction
 	{
-		HANNING, COSINE, TUKEY
+		/** The Hanning window function. */
+		HANNING,
+		/** The cosine window function. */
+		COSINE,
+		/** The Tukey window function. */
+		TUKEY
 	}
 
 	// Allow cached window weights
@@ -49,12 +57,16 @@ public class ImageWindow
 	 * corners.
 	 * <p>
 	 * Instance method allows caching the weight matrices.
-	 * 
+	 *
 	 * @param image
+	 *            the image
 	 * @param maxx
+	 *            the maxx
 	 * @param maxy
+	 *            the maxy
 	 * @param windowFunction
-	 * @return
+	 *            the window function
+	 * @return the image
 	 */
 	public float[] applySeperable(float[] image, final int maxx, final int maxy, WindowFunction windowFunction)
 	{
@@ -96,12 +108,16 @@ public class ImageWindow
 	 * <p>
 	 * Applied as two 1-dimensional window functions. Faster than the nonseparable form but has direction dependent
 	 * corners.
-	 * 
+	 *
 	 * @param image
+	 *            the image
 	 * @param maxx
+	 *            the maxx
 	 * @param maxy
+	 *            the maxy
 	 * @param windowFunction
-	 * @return
+	 *            the window function
+	 * @return the image
 	 */
 	public static float[] applyWindowSeparable(float[] image, final int maxx, final int maxy,
 			WindowFunction windowFunction)
@@ -212,12 +228,16 @@ public class ImageWindow
 	 * Apply a window function to reduce edge artifacts
 	 * <p>
 	 * Applied as a nonseparable form.
-	 * 
+	 *
 	 * @param image
+	 *            the image
 	 * @param maxx
+	 *            the maxx
 	 * @param maxy
+	 *            the maxy
 	 * @param windowFunction
-	 * @return
+	 *            the window function
+	 * @return the image
 	 */
 	public static float[] applyWindow(float[] image, final int maxx, final int maxy, WindowFunction windowFunction)
 	{
@@ -272,7 +292,7 @@ public class ImageWindow
 		 * 
 		 * @param fractionDistance
 		 *            (range 0-1)
-		 * @return
+		 * @return the weight
 		 */
 		double weight(double fractionDistance);
 	}

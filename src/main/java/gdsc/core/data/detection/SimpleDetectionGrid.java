@@ -37,8 +37,22 @@ import gnu.trove.list.array.TIntArrayList;
 public class SimpleDetectionGrid implements DetectionGrid
 {
 	private Rectangle2D[] rectangles;
+
+	/**
+	 * Set to true to include the outer right and lower boundary edge of the rectangle.
+	 * <p>
+	 * This contrasts with {@link Rectangle2D#contains(double, double)} as a point
+	 * on the right or lower boundary will not be within the rectangle since due to the
+	 * definition of "insideness".
+	 */
 	public boolean includeOuterEdge = false;
 
+	/**
+	 * Instantiates a new simple detection grid.
+	 *
+	 * @param rectangles
+	 *            the rectangles
+	 */
 	public SimpleDetectionGrid(Rectangle2D[] rectangles)
 	{
 		if (rectangles == null)

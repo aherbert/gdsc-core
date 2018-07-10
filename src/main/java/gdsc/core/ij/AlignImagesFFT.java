@@ -62,19 +62,34 @@ import ij.util.Tools;
  */
 public class AlignImagesFFT
 {
+	/**
+	 * The Enum WindowMethod.
+	 */
 	public enum WindowMethod
 	{
 		//@formatter:off
+		/** The none method. */
 		NONE{ @Override
 		public String getName() { return "None"; }}, 
+		
+		/** The hanning method. */
 		HANNING{ @Override
 		public String getName() { return "Hanning"; }}, 
+		
+		/** The cosine method. */
 		COSINE{ @Override
 		public String getName() { return "Cosine"; }}, 
+		
+		/** The tukey method. */
 		TUKEY{ @Override
 		public String getName() { return "Tukey"; }};
 		//@formatter:on
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Enum#toString()
+		 */
 		@Override
 		public String toString()
 		{
@@ -89,17 +104,30 @@ public class AlignImagesFFT
 		abstract public String getName();
 	}
 
+	/**
+	 * The Enum SubPixelMethod.
+	 */
 	public enum SubPixelMethod
 	{
 		//@formatter:off
+		/** The none method. */
 		NONE{ @Override
 		public String getName() { return "None"; }}, 
+		
+		/** The cubic method. */
 		CUBIC{ @Override
 		public String getName() { return "Cubic"; }}, 
+		
+		/** The gaussian method. */
 		GAUSSIAN{ @Override
 		public String getName() { return "Gaussian"; }};
 		//@formatter:on
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Enum#toString()
+		 */
 		@Override
 		public String toString()
 		{
@@ -114,33 +142,50 @@ public class AlignImagesFFT
 		abstract public String getName();
 	}
 
+	/** The last X offset. */
 	private double lastXOffset = 0;
+
+	/** The last Y offset. */
 	private double lastYOffset = 0;
+
+	/** The do translation. */
 	private boolean doTranslation = true;
 
-	// This is used for debugging the normalisation
+	/** The normalised ref ip. This is used for debugging the normalisation */
 	private FloatProcessor normalisedRefIp;
-	// The location where the reference/target was inserted into the normalised FFT image
+
+	/** The ref image bounds. The location where the reference/target was inserted into the normalised FFT image */
 	private Rectangle refImageBounds = new Rectangle();
+
+	/** The target image bounds. */
 	private Rectangle targetImageBounds = new Rectangle();
 
 	/**
 	 * Aligns all images in the target stack to the current processor in the reference.
 	 * <p>
 	 * If no target is provided then all slices are aligned to the current processor in the reference.
-	 * 
+	 *
 	 * @param refImp
+	 *            the ref imp
 	 * @param targetImp
+	 *            the target imp
 	 * @param windowMethod
+	 *            the window method
 	 * @param bounds
+	 *            the bounds
 	 * @param subPixelMethod
+	 *            the sub pixel method
 	 * @param interpolationMethod
 	 *            see {@link ij.process.ImageProcessor#getInterpolationMethods() }
 	 * @param normalised
+	 *            the normalised
 	 * @param showCorrelationImage
+	 *            the show correlation image
 	 * @param showNormalisedImage
+	 *            the show normalised image
 	 * @param clipOutput
-	 * @return
+	 *            the clip output
+	 * @return the image plus
 	 */
 	public ImagePlus align(ImagePlus refImp, ImagePlus targetImp, WindowMethod windowMethod, Rectangle bounds,
 			SubPixelMethod subPixelMethod, int interpolationMethod, boolean normalised, boolean showCorrelationImage,
@@ -242,9 +287,11 @@ public class AlignImagesFFT
 	/**
 	 * Initialises the reference image for batch alignment. All target images should be equal or smaller than the
 	 * reference.
-	 * 
+	 *
 	 * @param refImp
+	 *            the ref imp
 	 * @param windowMethod
+	 *            the window method
 	 * @param normalised
 	 *            True if the correlation should be normalised (score of -1 to 1)
 	 */
@@ -264,9 +311,11 @@ public class AlignImagesFFT
 	/**
 	 * Initialises the reference image for batch alignment. All target images should be equal or smaller than the
 	 * reference.
-	 * 
+	 *
 	 * @param refIp
+	 *            the ref ip
 	 * @param windowMethod
+	 *            the window method
 	 * @param normalised
 	 *            True if the correlation should be normalised (score of -1 to 1)
 	 */
@@ -310,17 +359,21 @@ public class AlignImagesFFT
 
 	/**
 	 * Aligns all images in the target stack to the pre-initialised reference.
-	 * 
+	 *
 	 * @param targetImp
+	 *            the target imp
 	 * @param windowMethod
+	 *            the window method
 	 * @param bounds
+	 *            the bounds
 	 * @param subPixelMethod
+	 *            the sub pixel method
 	 * @param interpolationMethod
 	 *            see {@link ij.process.ImageProcessor#getInterpolationMethods() }
 	 * @param clipOutput
 	 *            Set to true to ensure the output image has the same max as the input. Applies to bicubic
 	 *            interpolation
-	 * @return
+	 * @return the image plus
 	 */
 	public ImagePlus align(ImagePlus targetImp, WindowMethod windowMethod, Rectangle bounds,
 			SubPixelMethod subPixelMethod, int interpolationMethod, boolean clipOutput)
@@ -358,12 +411,16 @@ public class AlignImagesFFT
 	}
 
 	/**
-	 * Aligns the target image to the pre-initialised reference and return the shift and score for the alignment
-	 * 
-	 * @param targetImp
+	 * Aligns the target image to the pre-initialised reference and return the shift and score for the alignment.
+	 *
+	 * @param targetIp
+	 *            the target ip
 	 * @param windowMethod
+	 *            the window method
 	 * @param bounds
+	 *            the bounds
 	 * @param subPixelMethod
+	 *            the sub pixel method
 	 * @return [ x_shift, y_shift, score ]
 	 */
 	public double[] align(ImageProcessor targetIp, WindowMethod windowMethod, Rectangle bounds,
@@ -387,6 +444,16 @@ public class AlignImagesFFT
 		return alignImages(refFHT, s, ss, targetIp, windowMethod, bounds, subPixelMethod);
 	}
 
+	/**
+	 * Calculate rolling sums.
+	 *
+	 * @param ip
+	 *            the ip
+	 * @param s_
+	 *            the s
+	 * @param ss
+	 *            the ss
+	 */
 	private void calculateRollingSums(FloatProcessor ip, double[] s_, double[] ss)
 	{
 		// Compute the rolling sum and sum of squares
@@ -432,12 +499,16 @@ public class AlignImagesFFT
 
 	/**
 	 * Normalise the correlation matrix using the standard deviation of the region from the reference that is covered by
-	 * the target
-	 * 
+	 * the target.
+	 *
 	 * @param subCorrMat
+	 *            the sub corr mat
 	 * @param s
+	 *            the s
 	 * @param ss
+	 *            the ss
 	 * @param targetIp
+	 *            the target ip
 	 */
 	private void normalise(FloatProcessor subCorrMat, double[] s, double[] ss, ImageProcessor targetIp)
 	{
@@ -587,6 +658,19 @@ public class AlignImagesFFT
 		subCorrMat.setPixels(newData);
 	}
 
+	/**
+	 * Creates the half max bounds.
+	 *
+	 * @param width1
+	 *            the width 1
+	 * @param height1
+	 *            the height 1
+	 * @param width2
+	 *            the width 2
+	 * @param height2
+	 *            the height 2
+	 * @return the rectangle
+	 */
 	public static Rectangle createHalfMaxBounds(int width1, int height1, int width2, int height2)
 	{
 		// Restrict translation so that at least half of the smaller image width/height 
@@ -598,6 +682,19 @@ public class AlignImagesFFT
 		return new Rectangle(-maxx, -maxy, 2 * maxx, 2 * maxy);
 	}
 
+	/**
+	 * Creates the bounds.
+	 *
+	 * @param minXShift
+	 *            the min X shift
+	 * @param maxXShift
+	 *            the max X shift
+	 * @param minYShift
+	 *            the min Y shift
+	 * @param maxYShift
+	 *            the max Y shift
+	 * @return the rectangle
+	 */
 	public static Rectangle createBounds(int minXShift, int maxXShift, int minYShift, int maxYShift)
 	{
 		int w = maxXShift - minXShift;
@@ -606,6 +703,15 @@ public class AlignImagesFFT
 		return bounds;
 	}
 
+	/**
+	 * Checks if is valid.
+	 *
+	 * @param refIp
+	 *            the ref ip
+	 * @param targetImp
+	 *            the target imp
+	 * @return true, if is valid
+	 */
 	private boolean isValid(ImageProcessor refIp, ImagePlus targetImp)
 	{
 		if (refIp == null || targetImp == null)
@@ -619,7 +725,10 @@ public class AlignImagesFFT
 	}
 
 	/**
+	 * No value.
+	 *
 	 * @param ip
+	 *            the ip
 	 * @return true if the image has not pixels with a value
 	 */
 	private boolean noValue(ImageProcessor ip)
@@ -630,6 +739,35 @@ public class AlignImagesFFT
 		return true;
 	}
 
+	/**
+	 * Align images.
+	 *
+	 * @param refFHT
+	 *            the ref FHT
+	 * @param s
+	 *            the s
+	 * @param ss
+	 *            the ss
+	 * @param targetIp
+	 *            the target ip
+	 * @param slice
+	 *            the slice
+	 * @param windowMethod
+	 *            the window method
+	 * @param bounds
+	 *            the bounds
+	 * @param fpCorrelation
+	 *            the fp correlation
+	 * @param fpNormalised
+	 *            the fp normalised
+	 * @param subPixelMethod
+	 *            the sub pixel method
+	 * @param interpolationMethod
+	 *            the interpolation method
+	 * @param clipOutput
+	 *            the clip output
+	 * @return the image processor
+	 */
 	private ImageProcessor alignImages(FHT refFHT, double[] s, double[] ss, ImageProcessor targetIp, int slice,
 			WindowMethod windowMethod, Rectangle bounds, FloatProcessor fpCorrelation, FloatProcessor fpNormalised,
 			SubPixelMethod subPixelMethod, int interpolationMethod, boolean clipOutput)
@@ -762,6 +900,25 @@ public class AlignImagesFFT
 		return resultIp;
 	}
 
+	/**
+	 * Align images.
+	 *
+	 * @param refFHT
+	 *            the ref FHT
+	 * @param s
+	 *            the s
+	 * @param ss
+	 *            the ss
+	 * @param targetIp
+	 *            the target ip
+	 * @param windowMethod
+	 *            the window method
+	 * @param bounds
+	 *            the bounds
+	 * @param subPixelMethod
+	 *            the sub pixel method
+	 * @return the double[]
+	 */
 	private double[] alignImages(FHT refFHT, double[] s, double[] ss, ImageProcessor targetIp,
 			WindowMethod windowMethod, Rectangle bounds, SubPixelMethod subPixelMethod)
 	{
@@ -858,9 +1015,11 @@ public class AlignImagesFFT
 	 * {@link #align(ImageProcessor, WindowMethod, Rectangle, SubPixelMethod)} method
 	 * <p>
 	 * If the {@link #init(ImageProcessor, WindowMethod, boolean)} method has not been called this returns null.
-	 * 
+	 *
 	 * @param targetIp
+	 *            the target ip
 	 * @param windowMethod
+	 *            the window method
 	 * @return The FHT
 	 */
 	public FHT transformTarget(ImageProcessor targetIp, WindowMethod windowMethod)
@@ -876,10 +1035,11 @@ public class AlignImagesFFT
 	}
 
 	/**
-	 * Convert to unit length, return a float processor
-	 * 
+	 * Convert to unit length, return a float processor.
+	 *
 	 * @param ip
-	 * @return
+	 *            the ip
+	 * @return the float processor
 	 */
 	public static FloatProcessor normalise(ImageProcessor ip)
 	{
@@ -904,12 +1064,16 @@ public class AlignImagesFFT
 	}
 
 	/**
-	 * Duplicate and translate the image processor
-	 * 
+	 * Duplicate and translate the image processor.
+	 *
 	 * @param interpolationMethod
+	 *            the interpolation method
 	 * @param ip
+	 *            the ip
 	 * @param xOffset
+	 *            the x offset
 	 * @param yOffset
+	 *            the y offset
 	 * @param clipOutput
 	 *            Set to true to ensure the output image has the same max as the input. Applies to bicubic
 	 *            interpolation
@@ -924,12 +1088,16 @@ public class AlignImagesFFT
 	}
 
 	/**
-	 * Translate the image processor in place
-	 * 
+	 * Translate the image processor in place.
+	 *
 	 * @param interpolationMethod
+	 *            the interpolation method
 	 * @param ip
+	 *            the ip
 	 * @param xOffset
+	 *            the x offset
 	 * @param yOffset
+	 *            the y offset
 	 * @param clipOutput
 	 *            Set to true to ensure the output image has the same max as the input. Applies to bicubic
 	 *            interpolation
@@ -999,6 +1167,20 @@ public class AlignImagesFFT
 		return centre;
 	}
 
+	/**
+	 * Perform cubic fit.
+	 *
+	 * @param fp
+	 *            the fp
+	 * @param range
+	 *            the range
+	 * @param centre
+	 *            the centre
+	 * @param xrange
+	 *            the xrange
+	 * @param yrange
+	 *            the yrange
+	 */
 	private static void performCubicFit(FloatProcessor fp, double range, double[] centre, double[] xrange,
 			double[] yrange)
 	{
@@ -1177,6 +1359,21 @@ public class AlignImagesFFT
 		return (coord);
 	}
 
+	/**
+	 * Gets the peak.
+	 *
+	 * @param subCorrMat
+	 *            the sub corr mat
+	 * @param minX
+	 *            the min X
+	 * @param minY
+	 *            the min Y
+	 * @param w
+	 *            the w
+	 * @param h
+	 *            the h
+	 * @return the peak
+	 */
 	private int[] getPeak(FloatProcessor subCorrMat, int minX, int minY, int w, int h)
 	{
 		int width = subCorrMat.getWidth();
@@ -1195,6 +1392,15 @@ public class AlignImagesFFT
 		return new int[] { maxi % width, maxi / width };
 	}
 
+	/**
+	 * Correlate.
+	 *
+	 * @param refComplex
+	 *            the ref complex
+	 * @param targetComplex
+	 *            the target complex
+	 * @return the float processor
+	 */
 	private FloatProcessor correlate(FHT refComplex, FHT targetComplex)
 	{
 		FHT fht = refComplex.conjugateMultiply(targetComplex);
@@ -1206,6 +1412,15 @@ public class AlignImagesFFT
 		return ip.toFloat(0, null);
 	}
 
+	/**
+	 * Fft.
+	 *
+	 * @param ip
+	 *            the ip
+	 * @param maxN
+	 *            the max N
+	 * @return the fht
+	 */
 	// The following Fast Fourier Transform routines have been extracted from the ij.plugins.FFT class
 	FHT fft(ImageProcessor ip, int maxN)
 	{
@@ -1219,10 +1434,16 @@ public class AlignImagesFFT
 	 * Centre image on zero, padding if necessary to next square power-two above the given max dimension.
 	 * <p>
 	 * Optionally apply a window function so the image blends smoothly to zero background.
-	 * 
+	 *
 	 * @param ip
+	 *            the ip
 	 * @param maxN
-	 * @return
+	 *            the max N
+	 * @param windowMethod
+	 *            the window method
+	 * @param padBounds
+	 *            the pad bounds
+	 * @return the float processor
 	 */
 	FloatProcessor padAndZero(ImageProcessor ip, int maxN, WindowMethod windowMethod, Rectangle padBounds)
 	{
@@ -1289,6 +1510,15 @@ public class AlignImagesFFT
 		return ip2;
 	}
 
+	/**
+	 * Gets the insert.
+	 *
+	 * @param maxN
+	 *            the max N
+	 * @param width
+	 *            the width
+	 * @return the insert
+	 */
 	private static int getInsert(int maxN, int width)
 	{
 		// Note the FHT power spectrum centre is at n/2 of an even sized image.
@@ -1299,6 +1529,8 @@ public class AlignImagesFFT
 	}
 
 	/**
+	 * Gets the last X offset.
+	 *
 	 * @return the lastXOffset
 	 */
 	public double getLastXOffset()
@@ -1307,6 +1539,8 @@ public class AlignImagesFFT
 	}
 
 	/**
+	 * Gets the last Y offset.
+	 *
 	 * @return the lastYOffset
 	 */
 	public double getLastYOffset()
@@ -1319,10 +1553,12 @@ public class AlignImagesFFT
 	 * <p>
 	 * Applied as two 1-dimensional window functions. Faster than the nonseparable form but has direction dependent
 	 * corners.
-	 * 
+	 *
 	 * @param ip
+	 *            the ip
 	 * @param windowMethod
-	 * @return
+	 *            the window method
+	 * @return the float processor
 	 */
 	public static FloatProcessor applyWindowSeparable(ImageProcessor ip, WindowMethod windowMethod)
 	{
@@ -1387,10 +1623,12 @@ public class AlignImagesFFT
 	 * Apply a window function to reduce edge artifacts
 	 * <p>
 	 * Applied as a nonseparable form.
-	 * 
+	 *
 	 * @param ip
+	 *            the ip
 	 * @param windowMethod
-	 * @return
+	 *            the window method
+	 * @return the float processor
 	 */
 	public static FloatProcessor applyWindow(ImageProcessor ip, WindowMethod windowMethod)
 	{
@@ -1464,22 +1702,36 @@ public class AlignImagesFFT
 		return new FloatProcessor(maxx, maxy, data, null);
 	}
 
+	/** The alpha. */
 	private static double ALPHA = 0.5;
 
+	/**
+	 * The Interface WindowFunction.
+	 */
 	interface WindowFunction
 	{
+
 		/**
 		 * Return the weight for the window at a fraction of the distance from the edge of the window.
-		 * 
+		 *
 		 * @param fractionDistance
 		 *            (range 0-1)
-		 * @return
+		 * @return the double
 		 */
 		double weight(double fractionDistance);
 	}
 
+	/**
+	 * The Class Hanning.
+	 */
 	static class Hanning implements WindowFunction
 	{
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see gdsc.core.ij.AlignImagesFFT.WindowFunction#weight(double)
+		 */
 		@Override
 		public double weight(double fractionDistance)
 		{
@@ -1487,8 +1739,17 @@ public class AlignImagesFFT
 		}
 	}
 
+	/**
+	 * The Class Cosine.
+	 */
 	static class Cosine implements WindowFunction
 	{
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see gdsc.core.ij.AlignImagesFFT.WindowFunction#weight(double)
+		 */
 		@Override
 		public double weight(double fractionDistance)
 		{
@@ -1496,15 +1757,31 @@ public class AlignImagesFFT
 		}
 	}
 
+	/**
+	 * The Class Tukey.
+	 */
 	static class Tukey implements WindowFunction
 	{
+
+		/** The alpha. */
 		final double alpha;
 
+		/**
+		 * Instantiates a new tukey.
+		 *
+		 * @param alpha
+		 *            the alpha
+		 */
 		public Tukey(double alpha)
 		{
 			this.alpha = alpha;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see gdsc.core.ij.AlignImagesFFT.WindowFunction#weight(double)
+		 */
 		@Override
 		public double weight(double fractionDistance)
 		{
@@ -1519,6 +1796,15 @@ public class AlignImagesFFT
 	// Should these be replaced with periodic functions as per use in spectral analysis:
 	// http://en.wikipedia.org/wiki/Window_function
 
+	/**
+	 * Window.
+	 *
+	 * @param wf
+	 *            the wf
+	 * @param N
+	 *            the n
+	 * @return the double[]
+	 */
 	private static double[] window(WindowFunction wf, int N)
 	{
 		double N_1 = N - 1;
@@ -1530,22 +1816,47 @@ public class AlignImagesFFT
 		return w;
 	}
 
+	/**
+	 * Hanning.
+	 *
+	 * @param N
+	 *            the n
+	 * @return the double[]
+	 */
 	private static double[] hanning(int N)
 	{
 		return window(new Hanning(), N);
 	}
 
+	/**
+	 * Cosine.
+	 *
+	 * @param N
+	 *            the n
+	 * @return the double[]
+	 */
 	private static double[] cosine(int N)
 	{
 		return window(new Cosine(), N);
 	}
 
+	/**
+	 * Tukey.
+	 *
+	 * @param N
+	 *            the n
+	 * @param alpha
+	 *            the alpha
+	 * @return the double[]
+	 */
 	private static double[] tukey(int N, double alpha)
 	{
 		return window(new Tukey(alpha), N);
 	}
 
 	/**
+	 * Checks if is do translation.
+	 *
 	 * @return if false the image will not be translated
 	 */
 	public boolean isDoTranslation()

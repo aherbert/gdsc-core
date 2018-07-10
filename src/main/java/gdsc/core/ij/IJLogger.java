@@ -34,13 +34,26 @@ import ij.IJ;
  */
 public class IJLogger implements gdsc.core.logging.Logger
 {
+	/** Set to true to show debug log messages. */
 	public boolean showDebug = false;
+	/** Set to true to show error log messages. */
 	public boolean showError = true;
 
+	/**
+	 * Instantiates a new IJ logger.
+	 */
 	public IJLogger()
 	{
 	}
 
+	/**
+	 * Instantiates a new IJ logger.
+	 *
+	 * @param showDebug
+	 *            Set to true to show debug log messages
+	 * @param showError
+	 *            Set to true to show error log messages
+	 */
 	public IJLogger(boolean showDebug, boolean showError)
 	{
 		this.showDebug = showDebug;

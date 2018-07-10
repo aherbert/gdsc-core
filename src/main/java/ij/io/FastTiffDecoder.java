@@ -49,68 +49,163 @@ public abstract class FastTiffDecoder
 {
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 
-	// tags
+	/** TIFF tag NEW_SUBFILE_TYPE. */
 	public static final int NEW_SUBFILE_TYPE = 254;
+
+	/** TIFF tag IMAGE_WIDTH. */
 	public static final int IMAGE_WIDTH = 256;
+
+	/** TIFF tag IMAGE_LENGTH. */
 	public static final int IMAGE_LENGTH = 257;
+
+	/** TIFF tag BITS_PER_SAMPLE. */
 	public static final int BITS_PER_SAMPLE = 258;
+
+	/** TIFF tag COMPRESSION. */
 	public static final int COMPRESSION = 259;
+
+	/** TIFF tag PHOTO_INTERP. */
 	public static final int PHOTO_INTERP = 262;
+
+	/** TIFF tag IMAGE_DESCRIPTION. */
 	public static final int IMAGE_DESCRIPTION = 270;
+
+	/** TIFF tag STRIP_OFFSETS. */
 	public static final int STRIP_OFFSETS = 273;
+
+	/** TIFF tag ORIENTATION. */
 	public static final int ORIENTATION = 274;
+
+	/** TIFF tag SAMPLES_PER_PIXEL. */
 	public static final int SAMPLES_PER_PIXEL = 277;
+
+	/** TIFF tag ROWS_PER_STRIP. */
 	public static final int ROWS_PER_STRIP = 278;
+
+	/** TIFF tag STRIP_BYTE_COUNT. */
 	public static final int STRIP_BYTE_COUNT = 279;
+
+	/** TIFF tag X_RESOLUTION. */
 	public static final int X_RESOLUTION = 282;
+
+	/** TIFF tag Y_RESOLUTION. */
 	public static final int Y_RESOLUTION = 283;
+
+	/** TIFF tag PLANAR_CONFIGURATION. */
 	public static final int PLANAR_CONFIGURATION = 284;
+
+	/** TIFF tag RESOLUTION_UNIT. */
 	public static final int RESOLUTION_UNIT = 296;
+
+	/** TIFF tag SOFTWARE. */
 	public static final int SOFTWARE = 305;
+
+	/** TIFF tag DATE_TIME. */
 	public static final int DATE_TIME = 306;
+
+	/** TIFF tag ARTEST. */
 	public static final int ARTEST = 315;
+
+	/** TIFF tag HOST_COMPUTER. */
 	public static final int HOST_COMPUTER = 316;
+
+	/** TIFF tag PREDICTOR. */
 	public static final int PREDICTOR = 317;
+
+	/** TIFF tag COLOR_MAP. */
 	public static final int COLOR_MAP = 320;
+
+	/** TIFF tag TILE_WIDTH. */
 	public static final int TILE_WIDTH = 322;
+
+	/** TIFF tag SAMPLE_FORMAT. */
 	public static final int SAMPLE_FORMAT = 339;
+
+	/** TIFF tag JPEG_TABLES. */
 	public static final int JPEG_TABLES = 347;
+
+	/** TIFF tag METAMORPH1. */
 	public static final int METAMORPH1 = 33628;
+
+	/** TIFF tag METAMORPH2. */
 	public static final int METAMORPH2 = 33629;
+
+	/** TIFF tag IPLAB. */
 	public static final int IPLAB = 34122;
+
+	/** TIFF tag NIH_IMAGE_HDR. */
 	public static final int NIH_IMAGE_HDR = 43314;
+
+	/** TIFF tag META_DATA_BYTE_COUNTS. */
 	public static final int META_DATA_BYTE_COUNTS = 50838; // private ImageJ tag registered with Adobe
+
+	/** TIFF tag META_DATA. */
 	public static final int META_DATA = 50839; // private ImageJ tag registered with Adobe
+
+	/** TIFF tag MICRO_MANAGER_META_DATA. */
 	public static final int MICRO_MANAGER_META_DATA = 51123; // MicroManager metadata
 
-	//constants
+	/** TIFF constant UNSIGNED. */
 	static final int UNSIGNED = 1;
+
+	/** TIFF constant SIGNED. */
 	static final int SIGNED = 2;
+
+	/** TIFF constant FLOATING_POINT. */
 	static final int FLOATING_POINT = 3;
 
-	//field types
+	/** TIFF field type SHORT. */
 	static final int SHORT = 3;
+
+	/** TIFF field type LONG. */
 	static final int LONG = 4;
 
+	/** TIFF field type BYTE. */
 	public static final int BYTE = 1;
+
+	/** TIFF field type ASCII_STRING. */
 	public static final int ASCII_STRING = 2;
+
+	/** TIFF field type WORD. */
 	public static final int WORD = 3;
+
+	/** TIFF field type DWORD. */
 	public static final int DWORD = 4;
+
+	/** TIFF field type RATIONAL. */
 	public static final int RATIONAL = 5;
 
-	// metadata types
-	static final int MAGIC_NUMBER = 0x494a494a; // "IJIJ"
-	static final int INFO = 0x696e666f; // "info" (Info image property)
-	static final int LABELS = 0x6c61626c; // "labl" (slice labels)
-	static final int RANGES = 0x72616e67; // "rang" (display ranges)
-	static final int LUTS = 0x6c757473; // "luts" (channel LUTs)
-	static final int ROI = 0x726f6920; // "roi " (ROI)
-	static final int OVERLAY = 0x6f766572; // "over" (overlay)
+	/** TIFF ImageJ Metadata types MAGIC_NUMBER. "IJIJ" */
+	static final int MAGIC_NUMBER = 0x494a494a;
+
+	/** TIFF ImageJ Metadata types INFO. "info" (Info image property) */
+	static final int INFO = 0x696e666f;
+
+	/** TIFF ImageJ Metadata types LABELS. "labl" (slice labels) */
+	static final int LABELS = 0x6c61626c;
+
+	/** TIFF ImageJ Metadata types RANGES. "rang" (display ranges) */
+	static final int RANGES = 0x72616e67;
+
+	/** TIFF ImageJ Metadata types LUTS. "luts" (channel LUTs) */
+	static final int LUTS = 0x6c757473;
+
+	/** TIFF ImageJ Metadata types ROI. "roi " (ROI) */
+	static final int ROI = 0x726f6920;
+
+	/** TIFF ImageJ Metadata types OVERLAY. "over" (overlay) */
+	static final int OVERLAY = 0x6f766572;
 
 	private String directory;
 	private String name;
+
+	/** The ss. */
 	protected SeekableStream ss;
+
+	/** The bss. */
 	protected final ByteArraySeekableStream bss;
+
+	/** The debug mode. */
 	protected boolean debugMode;
 	private String dInfo;
 	private int ifdCount;
@@ -301,6 +396,13 @@ public abstract class FastTiffDecoder
 		ss.seek(4L);
 	}
 
+	/**
+	 * Read int.
+	 *
+	 * @return the int
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	final int readInt() throws IOException
 	{
 		int b1 = ss.read();
@@ -310,19 +412,55 @@ public abstract class FastTiffDecoder
 		return getInt(b1, b2, b3, b4);
 	}
 
+	/**
+	 * Gets the int.
+	 *
+	 * @param buffer
+	 *            the buffer
+	 * @param offset
+	 *            the offset
+	 * @return the int
+	 */
 	final int getInt(byte[] buffer, int offset)
 	{
 		return getInt(buffer[offset] & 0xff, buffer[offset + 1] & 0xff, buffer[offset + 2] & 0xff,
 				buffer[offset + 3] & 0xff);
 	}
 
+	/**
+	 * Gets the int.
+	 *
+	 * @param b1
+	 *            the b 1
+	 * @param b2
+	 *            the b 2
+	 * @param b3
+	 *            the b 3
+	 * @param b4
+	 *            the b 4
+	 * @return the int
+	 */
 	protected abstract int getInt(int b1, int b2, int b3, int b4);
 
+	/**
+	 * Read unsigned int.
+	 *
+	 * @return the long
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	final long readUnsignedInt() throws IOException
 	{
 		return readInt() & 0xffffffffL;
 	}
 
+	/**
+	 * Read short.
+	 *
+	 * @return the int
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	final int readShort() throws IOException
 	{
 		int b1 = ss.read();
@@ -330,13 +468,38 @@ public abstract class FastTiffDecoder
 		return getShort(b1, b2);
 	}
 
+	/**
+	 * Gets the short.
+	 *
+	 * @param buffer
+	 *            the buffer
+	 * @param offset
+	 *            the offset
+	 * @return the short
+	 */
 	final int getShort(byte[] buffer, int offset)
 	{
 		return getShort(buffer[offset] & 0xff, buffer[offset + 1] & 0xff);
 	}
 
+	/**
+	 * Gets the short.
+	 *
+	 * @param b1
+	 *            the b 1
+	 * @param b2
+	 *            the b 2
+	 * @return the short
+	 */
 	protected abstract int getShort(int b1, int b2);
 
+	/**
+	 * Read long.
+	 *
+	 * @return the long
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	protected abstract long readLong() throws IOException;
 
 	private final double readDouble() throws IOException
@@ -344,6 +507,16 @@ public abstract class FastTiffDecoder
 		return Double.longBitsToDouble(readLong());
 	}
 
+	/**
+	 * Gets the color map.
+	 *
+	 * @param offset
+	 *            the offset
+	 * @param fi
+	 *            the fi
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	void getColorMap(long offset, ExtendedFileInfo fi) throws IOException
 	{
 		byte[] colorTable16 = new byte[768 * 2];
@@ -373,6 +546,17 @@ public abstract class FastTiffDecoder
 			fi.fileType = FileInfo.COLOR8;
 	}
 
+	/**
+	 * Gets the string.
+	 *
+	 * @param count
+	 *            the count
+	 * @param offset
+	 *            the offset
+	 * @return the string
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	byte[] getString(int count, long offset) throws IOException
 	{
 		count--; // skip null byte at end of string
@@ -391,6 +575,11 @@ public abstract class FastTiffDecoder
 	 * saves spatial and density calibration data in this string. For
 	 * stacks, it also saves the number of images to avoid having to
 	 * decode an IFD for each image.
+	 *
+	 * @param description
+	 *            the description
+	 * @param fi
+	 *            the fi
 	 */
 	public void saveImageDescription(byte[] description, ExtendedFileInfo fi)
 	{
@@ -414,6 +603,14 @@ public abstract class FastTiffDecoder
 		}
 	}
 
+	/**
+	 * Save metadata.
+	 *
+	 * @param name
+	 *            the name
+	 * @param data
+	 *            the data
+	 */
 	public void saveMetadata(String name, String data)
 	{
 		if (data == null)
@@ -425,6 +622,16 @@ public abstract class FastTiffDecoder
 			tiffMetadata += str;
 	}
 
+	/**
+	 * Decode NIH image header.
+	 *
+	 * @param offset
+	 *            the offset
+	 * @param fi
+	 *            the fi
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	void decodeNIHImageHeader(int offset, ExtendedFileInfo fi) throws IOException
 	{
 		long saveLoc = ss.getFilePointer();
@@ -554,6 +761,18 @@ public abstract class FastTiffDecoder
 		ss.seek(saveLoc);
 	}
 
+	/**
+	 * Dump tag.
+	 *
+	 * @param tag
+	 *            the tag
+	 * @param count
+	 *            the count
+	 * @param value
+	 *            the value
+	 * @param fi
+	 *            the fi
+	 */
 	void dumpTag(int tag, int count, int value, ExtendedFileInfo fi)
 	{
 		long lvalue = (value) & 0xffffffffL;
@@ -562,6 +781,13 @@ public abstract class FastTiffDecoder
 		dInfo += "    " + tag + ", \"" + name + "\", value=" + lvalue + cs + "\n";
 	}
 
+	/**
+	 * Gets the name.
+	 *
+	 * @param tag
+	 *            the tag
+	 * @return the name
+	 */
 	String getName(int tag)
 	{
 		switch (tag)
@@ -935,6 +1161,16 @@ public abstract class FastTiffDecoder
 		return buffer;
 	}
 
+	/**
+	 * Gets the meta data.
+	 *
+	 * @param loc
+	 *            the loc
+	 * @param fi
+	 *            the fi
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	void getMetaData(int loc, ExtendedFileInfo fi) throws IOException
 	{
 		if (metaDataCounts == null || metaDataCounts.length == 0)
@@ -1020,6 +1256,16 @@ public abstract class FastTiffDecoder
 		ss.seek(saveLoc);
 	}
 
+	/**
+	 * Gets the info property.
+	 *
+	 * @param first
+	 *            the first
+	 * @param fi
+	 *            the fi
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	void getInfoProperty(int first, ExtendedFileInfo fi) throws IOException
 	{
 		int len = metaDataCounts[first];
@@ -1040,6 +1286,18 @@ public abstract class FastTiffDecoder
 		fi.info = new String(chars);
 	}
 
+	/**
+	 * Gets the slice labels.
+	 *
+	 * @param first
+	 *            the first
+	 * @param last
+	 *            the last
+	 * @param fi
+	 *            the fi
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	void getSliceLabels(int first, int last, ExtendedFileInfo fi) throws IOException
 	{
 		fi.sliceLabels = new String[last - first + 1];
@@ -1072,6 +1330,16 @@ public abstract class FastTiffDecoder
 		}
 	}
 
+	/**
+	 * Gets the display ranges.
+	 *
+	 * @param first
+	 *            the first
+	 * @param fi
+	 *            the fi
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	void getDisplayRanges(int first, ExtendedFileInfo fi) throws IOException
 	{
 		int n = metaDataCounts[first] / 8;
@@ -1080,6 +1348,18 @@ public abstract class FastTiffDecoder
 			fi.displayRanges[i] = readDouble();
 	}
 
+	/**
+	 * Gets the luts.
+	 *
+	 * @param first
+	 *            the first
+	 * @param last
+	 *            the last
+	 * @param fi
+	 *            the fi
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	void getLuts(int first, int last, ExtendedFileInfo fi) throws IOException
 	{
 		fi.channelLuts = new byte[last - first + 1][];
@@ -1093,6 +1373,16 @@ public abstract class FastTiffDecoder
 		}
 	}
 
+	/**
+	 * Gets the roi.
+	 *
+	 * @param first
+	 *            the first
+	 * @param fi
+	 *            the fi
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	void getRoi(int first, ExtendedFileInfo fi) throws IOException
 	{
 		int len = metaDataCounts[first];
@@ -1100,6 +1390,18 @@ public abstract class FastTiffDecoder
 		ss.readFully(fi.roi, len);
 	}
 
+	/**
+	 * Gets the overlay.
+	 *
+	 * @param first
+	 *            the first
+	 * @param last
+	 *            the last
+	 * @param fi
+	 *            the fi
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	void getOverlay(int first, int last, ExtendedFileInfo fi) throws IOException
 	{
 		fi.overlay = new byte[last - first + 1][];
@@ -1113,6 +1415,14 @@ public abstract class FastTiffDecoder
 		}
 	}
 
+	/**
+	 * Error.
+	 *
+	 * @param message
+	 *            the message
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	void error(String message) throws IOException
 	{
 		if (ss != null)
@@ -1120,6 +1430,16 @@ public abstract class FastTiffDecoder
 		throw new IOException(message);
 	}
 
+	/**
+	 * Skip unknown type.
+	 *
+	 * @param first
+	 *            the first
+	 * @param last
+	 *            the last
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	void skipUnknownType(int first, int last) throws IOException
 	{
 		long skip = 0;
@@ -1139,6 +1459,9 @@ public abstract class FastTiffDecoder
 		//}
 	}
 
+	/**
+	 * Enable debugging.
+	 */
 	public void enableDebugging()
 	{
 		debugMode = true;
@@ -1318,6 +1641,13 @@ public abstract class FastTiffDecoder
 		}
 	}
 
+	/**
+	 * Gets the gap info.
+	 *
+	 * @param fi
+	 *            the fi
+	 * @return the gap info
+	 */
 	String getGapInfo(ExtendedFileInfo[] fi)
 	{
 		if (fi.length < 2)
@@ -1358,6 +1688,14 @@ public abstract class FastTiffDecoder
 		 */
 		public final double error;
 
+		/**
+		 * Instantiates a new number of images.
+		 *
+		 * @param numberOfImages
+		 *            the number of images
+		 * @param error
+		 *            the error
+		 */
 		public NumberOfImages(int numberOfImages, double error)
 		{
 			this.numberOfImages = numberOfImages;
@@ -1365,6 +1703,12 @@ public abstract class FastTiffDecoder
 			exact = false;
 		}
 
+		/**
+		 * Instantiates a new number of images.
+		 *
+		 * @param numberOfImages
+		 *            the number of images
+		 */
 		public NumberOfImages(int numberOfImages)
 		{
 			this.numberOfImages = numberOfImages;
@@ -1525,30 +1869,65 @@ public abstract class FastTiffDecoder
 			size = map.length / 5;
 		}
 
+		/**
+		 * Gets the channel index.
+		 *
+		 * @param i
+		 *            the i
+		 * @return the channel index
+		 */
 		public int getChannelIndex(int i)
 		{
 			checkIndex(i);
 			return map[i * 5];
 		}
 
+		/**
+		 * Gets the slice index.
+		 *
+		 * @param i
+		 *            the i
+		 * @return the slice index
+		 */
 		public int getSliceIndex(int i)
 		{
 			checkIndex(i);
 			return map[i * 5 + 1];
 		}
 
+		/**
+		 * Gets the frame index.
+		 *
+		 * @param i
+		 *            the i
+		 * @return the frame index
+		 */
 		public int getFrameIndex(int i)
 		{
 			checkIndex(i);
 			return map[i * 5 + 2];
 		}
 
+		/**
+		 * Gets the position index.
+		 *
+		 * @param i
+		 *            the i
+		 * @return the position index
+		 */
 		public int getPositionIndex(int i)
 		{
 			checkIndex(i);
 			return map[i * 5 + 3];
 		}
 
+		/**
+		 * Gets the offset.
+		 *
+		 * @param i
+		 *            the i
+		 * @return the offset
+		 */
 		public long getOffset(int i)
 		{
 			checkIndex(i);
@@ -1561,72 +1940,132 @@ public abstract class FastTiffDecoder
 				throw new ArrayIndexOutOfBoundsException(i);
 		}
 
+		/**
+		 * Gets the min channel index.
+		 *
+		 * @return the min channel index
+		 */
 		public int getMinChannelIndex()
 		{
 			createLimits();
 			return limits[0][0];
 		}
 
+		/**
+		 * Gets the max channel index.
+		 *
+		 * @return the max channel index
+		 */
 		public int getMaxChannelIndex()
 		{
 			createLimits();
 			return limits[0][1];
 		}
 
+		/**
+		 * Gets the n channels.
+		 *
+		 * @return the n channels
+		 */
 		public int getNChannels()
 		{
 			createLimits();
 			return limits[0][1] - limits[0][0] + 1;
 		}
 
+		/**
+		 * Gets the min slice index.
+		 *
+		 * @return the min slice index
+		 */
 		public int getMinSliceIndex()
 		{
 			createLimits();
 			return limits[1][0];
 		}
 
+		/**
+		 * Gets the max slice index.
+		 *
+		 * @return the max slice index
+		 */
 		public int getMaxSliceIndex()
 		{
 			createLimits();
 			return limits[1][1];
 		}
 
+		/**
+		 * Gets the n slices.
+		 *
+		 * @return the n slices
+		 */
 		public int getNSlices()
 		{
 			createLimits();
 			return limits[1][1] - limits[1][0] + 1;
 		}
 
+		/**
+		 * Gets the min frame index.
+		 *
+		 * @return the min frame index
+		 */
 		public int getMinFrameIndex()
 		{
 			createLimits();
 			return limits[2][0];
 		}
 
+		/**
+		 * Gets the max frame index.
+		 *
+		 * @return the max frame index
+		 */
 		public int getMaxFrameIndex()
 		{
 			createLimits();
 			return limits[2][1];
 		}
 
+		/**
+		 * Gets the n frames.
+		 *
+		 * @return the n frames
+		 */
 		public int getNFrames()
 		{
 			createLimits();
 			return limits[2][1] - limits[2][0] + 1;
 		}
 
+		/**
+		 * Gets the min position index.
+		 *
+		 * @return the min position index
+		 */
 		public int getMinPositionIndex()
 		{
 			createLimits();
 			return limits[3][0];
 		}
 
+		/**
+		 * Gets the max position index.
+		 *
+		 * @return the max position index
+		 */
 		public int getMaxPositionIndex()
 		{
 			createLimits();
 			return limits[3][1];
 		}
 
+		/**
+		 * Gets the n positions.
+		 *
+		 * @return the n positions
+		 */
 		public int getNPositions()
 		{
 			createLimits();
@@ -1666,6 +2105,11 @@ public abstract class FastTiffDecoder
 			}
 		}
 
+		/**
+		 * Checks if is single channel.
+		 *
+		 * @return true, if is single channel
+		 */
 		public boolean isSingleChannel()
 		{
 			final int test = map[0];
@@ -1675,6 +2119,11 @@ public abstract class FastTiffDecoder
 			return true;
 		}
 
+		/**
+		 * Checks if is single slice.
+		 *
+		 * @return true, if is single slice
+		 */
 		public boolean isSingleSlice()
 		{
 			final int test = map[1];
@@ -1684,6 +2133,11 @@ public abstract class FastTiffDecoder
 			return true;
 		}
 
+		/**
+		 * Checks if is single frame.
+		 *
+		 * @return true, if is single frame
+		 */
 		public boolean isSingleFrame()
 		{
 			final int test = map[2];
@@ -1693,6 +2147,11 @@ public abstract class FastTiffDecoder
 			return true;
 		}
 
+		/**
+		 * Checks if is single position.
+		 *
+		 * @return true, if is single position
+		 */
 		public boolean isSinglePosition()
 		{
 			final int test = map[3];
@@ -1709,7 +2168,7 @@ public abstract class FastTiffDecoder
 	 * @return the index map (or null)
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
-	 * @see https://micro-manager.org/wiki/Micro-Manager_File_Formats
+	 * @see <a href="https://micro-manager.org/wiki/Micro-Manager_File_Formats">Micro-Manager File Formats</a>
 	 */
 	public IndexMap getIndexMap() throws IOException
 	{
@@ -1884,6 +2343,11 @@ public abstract class FastTiffDecoder
 	/**
 	 * ImageJ saves the number of images for stacks in the TIFF description tag to avoid having to
 	 * decode an IFD for each image.
+	 *
+	 * @param description
+	 *            the description
+	 * @param fi
+	 *            the fi
 	 */
 	public static void saveImageJnImages(byte[] description, ExtendedFileInfo fi)
 	{
@@ -2192,6 +2656,17 @@ public abstract class FastTiffDecoder
 		return 0; // 
 	}
 
+	/**
+	 * Gets the bytes per image.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 * @param fileType
+	 *            the file type
+	 * @return the bytes per image
+	 */
 	public static int getBytesPerImage(int width, int height, int fileType)
 	{
 		int size = width * height;
@@ -2262,6 +2737,12 @@ public abstract class FastTiffDecoder
 	 *
 	 * @param text
 	 *            the summary meta data
+	 * @param start
+	 *            the start
+	 * @param delimiter
+	 *            the delimiter
+	 * @param end
+	 *            the end
 	 * @return the origin
 	 */
 	public static Rectangle getOrigin(String text, char start, char delimiter, char end)

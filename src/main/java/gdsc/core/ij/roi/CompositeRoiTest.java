@@ -41,6 +41,12 @@ public class CompositeRoiTest extends RoiTest
 	final Shape shape;
 	final int ox, oy;
 
+	/**
+	 * Instantiates a new composite roi test.
+	 *
+	 * @param roi
+	 *            the roi
+	 */
 	public CompositeRoiTest(Roi roi)
 	{
 		if (roi.getType() == Roi.COMPOSITE)

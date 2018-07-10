@@ -2193,6 +2193,13 @@ public class CustomTricubicInterpolatingFunction
 			return total;
 		}
 
+		/**
+		 * Enlarge by an integer factor.
+		 *
+		 * @param n
+		 *            the factor
+		 * @return the size
+		 */
 		public Size enlarge(int n)
 		{
 			int maxx = 1 + getSplinePoints(0) * n;
@@ -2671,6 +2678,8 @@ public class CustomTricubicInterpolatingFunction
 	 * <p>
 	 * This allows the function to be efficiently sampled using precomputed
 	 * spline coefficients (see {@link #value(int, int, int, double[])})
+	 *
+	 * @return true, if is uniform
 	 */
 	public boolean isUniform()
 	{
@@ -2682,6 +2691,8 @@ public class CustomTricubicInterpolatingFunction
 	 * Note that the spline points may not be integer values, only the spacing between them.
 	 * <p>
 	 * This allows faster computation with no scaling.
+	 *
+	 * @return true, if is integer
 	 */
 	public boolean isInteger()
 	{

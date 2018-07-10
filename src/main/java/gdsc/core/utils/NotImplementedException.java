@@ -28,27 +28,50 @@
 package gdsc.core.utils;
 
 /**
- * Exception to throw if a method is not implemented
+ * Exception to throw if a method is not implemented.
  */
 public class NotImplementedException extends RuntimeException
 {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 7226451080179546585L;
 
+	/**
+	 * Instantiates a new not implemented exception.
+	 */
 	public NotImplementedException()
 	{
 		super();
 	}
 
+	/**
+	 * Instantiates a new not implemented exception.
+	 *
+	 * @param message
+	 *            the message
+	 */
 	public NotImplementedException(String message)
 	{
 		super(message);
 	}
 
+	/**
+	 * Instantiates a new not implemented exception.
+	 *
+	 * @param message
+	 *            the message
+	 * @param cause
+	 *            the cause
+	 */
 	public NotImplementedException(String message, Throwable cause)
 	{
 		super(message, cause);
 	}
 
+	/**
+	 * Instantiates a new not implemented exception.
+	 *
+	 * @param cause
+	 *            the cause
+	 */
 	public NotImplementedException(Throwable cause)
 	{
 		super(cause);

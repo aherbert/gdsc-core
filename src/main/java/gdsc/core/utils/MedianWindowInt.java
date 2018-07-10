@@ -94,7 +94,7 @@ public class MedianWindowInt
 
 	/**
 	 * @return the current position. This may be beyond the end of the array.
-	 * @see {@link #increment()}
+	 * @see #increment()
 	 */
 	public int getPosition()
 	{

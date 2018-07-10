@@ -32,7 +32,6 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.math3.analysis.interpolation.TrivariateGridInterpolator;
 import org.apache.commons.math3.exception.DimensionMismatchException;
-import org.apache.commons.math3.exception.NoDataException;
 import org.apache.commons.math3.exception.NonMonotonicSequenceException;
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
 
@@ -149,7 +148,7 @@ public class CustomTricubicInterpolator
     	/**
 	     * Sets the function value.
 	     *
-	     * @param z the function value
+	     * @param f the function value
 	     * @return the builder
 	     */
 	    public Builder setFValue(double[][][] f)
@@ -161,7 +160,7 @@ public class CustomTricubicInterpolator
     	/**
 	     * Sets the function value.
 	     *
-	     * @param z the function value
+	     * @param f the function value
 	     * @return the builder
 	     */
 	    public Builder setFValue(TrivalueProvider f)
@@ -683,8 +682,7 @@ public class CustomTricubicInterpolator
      * @throws DimensionMismatchException if the array lengths are inconsistent.
      */
     public static CustomTricubicFunction create(final TrivalueProvider fval)
-        throws NoDataException, NumberIsTooSmallException,
-               DimensionMismatchException, NonMonotonicSequenceException {
+        throws DimensionMismatchException {
         if (4 != fval.getLengthX()) {
             throw new DimensionMismatchException(4, fval.getLengthX());
         }
@@ -782,8 +780,7 @@ public class CustomTricubicInterpolator
             final ValueProvider yval,
             final ValueProvider zval,
             final TrivalueProvider fval)
-        throws NumberIsTooSmallException,
-               DimensionMismatchException, NonMonotonicSequenceException {
+        throws DimensionMismatchException {
         if (4 != fval.getLengthX()) {
             throw new DimensionMismatchException(4, fval.getLengthX());
         }
@@ -1234,8 +1231,6 @@ public class CustomTricubicInterpolator
 	 *            the number of samples per spline node
 	 * @param procedure
 	 *            the procedure
-	 * @param progress
-	 *            the progress
 	 * @throws IllegalArgumentException
 	 *             If the number of samples is not at least 2
 	 * @throws NumberIsTooSmallException

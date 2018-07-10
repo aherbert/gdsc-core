@@ -30,36 +30,59 @@ package gdsc.core.utils;
 import org.apache.commons.math3.distribution.TDistribution;
 
 /**
- * Simple class to calculate the mean and standard deviation of data
+ * Simple class to calculate the mean and standard deviation of data.
  */
 public class Statistics
 {
 	protected int n = 0;
-	protected double s = 0, ss = 0;
+	protected double s = 0;
+	protected double ss = 0;
 
+	/**
+	 * Instantiates a new statistics.
+	 */
 	public Statistics()
 	{
 	}
 
+	/**
+	 * Instantiates a new statistics.
+	 *
+	 * @param data
+	 *            the data
+	 */
 	public Statistics(float[] data)
 	{
 		add(data);
 	}
 
+	/**
+	 * Instantiates a new statistics.
+	 *
+	 * @param data
+	 *            the data
+	 */
 	public Statistics(double[] data)
 	{
 		add(data);
 	}
 
+	/**
+	 * Instantiates a new statistics.
+	 *
+	 * @param data
+	 *            the data
+	 */
 	public Statistics(int[] data)
 	{
 		add(data);
 	}
 
 	/**
-	 * Add the data
-	 * 
+	 * Add the data.
+	 *
 	 * @param data
+	 *            the data
 	 */
 	public void add(float[] data)
 	{
@@ -69,9 +92,10 @@ public class Statistics
 	}
 
 	/**
-	 * Add the data
-	 * 
+	 * Add the data.
+	 *
 	 * @param data
+	 *            the data
 	 */
 	public void add(double[] data)
 	{
@@ -81,9 +105,10 @@ public class Statistics
 	}
 
 	/**
-	 * Add the data
-	 * 
+	 * Add the data.
+	 *
 	 * @param data
+	 *            the data
 	 */
 	public void add(int[] data)
 	{
@@ -131,7 +156,7 @@ public class Statistics
 	}
 
 	/**
-	 * Add the data
+	 * Add the data.
 	 *
 	 * @param data
 	 *            the data
@@ -149,8 +174,7 @@ public class Statistics
 	}
 
 	/**
-	 * Add the data
-	 * 
+	 * Add the data.
 	 *
 	 * @param data
 	 *            the data
@@ -168,8 +192,7 @@ public class Statistics
 	}
 
 	/**
-	 * Add the data
-	 * 
+	 * Add the data.
 	 *
 	 * @param data
 	 *            the data
@@ -190,8 +213,7 @@ public class Statistics
 	}
 
 	/**
-	 * Add the data
-	 * 
+	 * Add the data.
 	 *
 	 * @param data
 	 *            the data
@@ -212,8 +234,7 @@ public class Statistics
 	}
 
 	/**
-	 * Add the data
-	 * 
+	 * Add the data.
 	 *
 	 * @param data
 	 *            the data
@@ -234,9 +255,10 @@ public class Statistics
 	}
 
 	/**
-	 * Add the value
-	 * 
+	 * Add the value.
+	 *
 	 * @param value
+	 *            the value
 	 */
 	public void add(final double value)
 	{
@@ -246,8 +268,8 @@ public class Statistics
 	}
 
 	/**
-	 * Add the value n times
-	 * 
+	 * Add the value n times.
+	 *
 	 * @param n
 	 *            The number of times
 	 * @param value
@@ -262,8 +284,9 @@ public class Statistics
 
 	/**
 	 * Add the data. Synchronized for thread safety.
-	 * 
+	 *
 	 * @param data
+	 *            the data
 	 */
 	synchronized public void safeAdd(float[] data)
 	{
@@ -272,8 +295,9 @@ public class Statistics
 
 	/**
 	 * Add the data. Synchronized for thread safety.
-	 * 
+	 *
 	 * @param data
+	 *            the data
 	 */
 	synchronized public void safeAdd(double[] data)
 	{
@@ -282,8 +306,9 @@ public class Statistics
 
 	/**
 	 * Add the data. Synchronized for thread safety.
-	 * 
+	 *
 	 * @param data
+	 *            the data
 	 */
 	synchronized public void safeAdd(int[] data)
 	{
@@ -292,8 +317,9 @@ public class Statistics
 
 	/**
 	 * Add the value. Synchronized for thread safety.
-	 * 
+	 *
 	 * @param value
+	 *            the value
 	 */
 	synchronized public void safeAdd(final double value)
 	{
@@ -301,6 +327,8 @@ public class Statistics
 	}
 
 	/**
+	 * Gets the n.
+	 *
 	 * @return The number of data points
 	 */
 	public int getN()
@@ -309,6 +337,8 @@ public class Statistics
 	}
 
 	/**
+	 * Gets the sum.
+	 *
 	 * @return The sum of the data points
 	 */
 	public double getSum()
@@ -317,6 +347,8 @@ public class Statistics
 	}
 
 	/**
+	 * Gets the sum of squares.
+	 *
 	 * @return The sum of squares of the data points
 	 */
 	public double getSumOfSquares()
@@ -325,6 +357,8 @@ public class Statistics
 	}
 
 	/**
+	 * Gets the mean.
+	 *
 	 * @return The mean of the data points
 	 */
 	public double getMean()
@@ -333,6 +367,8 @@ public class Statistics
 	}
 
 	/**
+	 * Gets the standard deviation.
+	 *
 	 * @return The unbiased standard deviation of the data points
 	 */
 	public double getStandardDeviation()
@@ -346,6 +382,8 @@ public class Statistics
 	}
 
 	/**
+	 * Gets the variance.
+	 *
 	 * @return The unbiased variance of the data points
 	 */
 	public double getVariance()
@@ -375,9 +413,10 @@ public class Statistics
 	}
 
 	/**
-	 * Add the statistics to the data
-	 * 
+	 * Add the statistics to the data.
+	 *
 	 * @param statistics
+	 *            the statistics
 	 */
 	public void add(Statistics statistics)
 	{
@@ -388,8 +427,9 @@ public class Statistics
 
 	/**
 	 * Add the statistics to the data. Synchronized for thread safety.
-	 * 
+	 *
 	 * @param statistics
+	 *            the statistics
 	 */
 	synchronized public void safeAdd(Statistics statistics)
 	{
@@ -403,14 +443,13 @@ public class Statistics
 	 * <p>
 	 * If the number of samples is less than 2 then the result is positive infinity. If the confidence level is one then
 	 * the result is positive infinity. If the confidence level is zero then the result is 0.
-	 * 
-	 * @see https://en.wikipedia.org/wiki/Confidence_interval#Basic_steps.
 	 *
 	 * @param c
 	 *            the confidence level of the test (in the range 0-1)
 	 * @return the confidence interval
 	 * @throws IllegalArgumentException
 	 *             if the confidence level is not in the range 0-1
+	 * @see "https://en.wikipedia.org/wiki/Confidence_interval#Basic_steps"
 	 */
 	public double getConfidenceInterval(double c)
 	{
@@ -426,7 +465,7 @@ public class Statistics
 	}
 
 	/**
-	 * Reset the statistics
+	 * Reset the statistics.
 	 */
 	public void reset()
 	{

@@ -109,7 +109,11 @@ public class FHT2 extends FloatProcessor
 		return (float[]) getPixels();
 	}
 
-	/** Returns true of this FHT contains a square image with a width that is a power of two. */
+	/**
+	 * Returns true of this FHT contains a square image with a width that is a power of two.
+	 *
+	 * @return true, if successful
+	 */
 	public boolean powerOf2Size()
 	{
 		return width == height && isPowerOf2(width);
@@ -581,9 +585,12 @@ public class FHT2 extends FloatProcessor
 	 * so the power spectrum origin is at the center of the image.
 	 * 
 	 * <pre>
-	    2 1
-	    3 4
+	 * 	    2 1
+	 * 	    3 4
 	 * </pre>
+	 *
+	 * @param ip
+	 *            the image
 	 */
 	public void swapQuadrants(ImageProcessor ip)
 	{
@@ -1090,7 +1097,11 @@ public class FHT2 extends FloatProcessor
 		return createFHTResult(tmp, width);
 	}
 
-	/** Returns a clone of this FHT. */
+	/**
+	 * Returns a clone of this FHT.
+	 *
+	 * @return the copy
+	 */
 	public FHT2 getCopy()
 	{
 		FHT2 fht = new FHT2(getData().clone(), width, isFrequencyDomain);

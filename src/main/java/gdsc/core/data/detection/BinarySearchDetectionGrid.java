@@ -42,6 +42,11 @@ public class BinarySearchDetectionGrid implements DetectionGrid
 	private final int[] minxIds, maxxIds, minyIds, maxyIds;
 	private final double[] minx, maxx, miny, maxy;
 
+	/**
+	 * Instantiates a new binary search detection grid.
+	 *
+	 * @param rectangles the rectangles
+	 */
 	public BinarySearchDetectionGrid(Rectangle2D[] rectangles)
 	{
 		if (rectangles == null)

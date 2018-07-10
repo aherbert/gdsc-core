@@ -166,12 +166,17 @@ public class XmlUtils
 
 	/**
 	 * Wraps the supplied text to the specified line length.
-	 * 
-	 * @lineLength the maximum length of each line in the returned string (not including indent if specified).
-	 * @indent optional number of whitespace characters to prepend to each line before the text.
-	 * @linePrefix optional string to append to the indent (before the text).
-	 * @returns the supplied text wrapped so that no line exceeds the specified line length + indent, optionally with
-	 *          indent and prefix applied to each line.
+	 *
+	 * @param s
+	 *            the s
+	 * @param lineLength
+	 *            the maximum length of each line in the returned string (not including indent if specified)
+	 * @param indent
+	 *            optional number of whitespace characters to prepend to each line before the text
+	 * @param linePrefix
+	 *            optional string to append to the indent (before the text)
+	 * @return the supplied text wrapped so that no line exceeds the specified line length + indent, optionally with
+	 *         indent and prefix applied to each line.
 	 */
 	public static String lineWrap(String s, int lineLength, Integer indent, String linePrefix)
 	{

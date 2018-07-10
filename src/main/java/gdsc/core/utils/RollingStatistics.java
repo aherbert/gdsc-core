@@ -35,25 +35,51 @@ package gdsc.core.utils;
  */
 public class RollingStatistics extends Statistics
 {
+	/**
+	 * Instantiates a new rolling statistics.
+	 */
 	public RollingStatistics()
 	{
 	}
 
+	/**
+	 * Instantiates a new rolling statistics.
+	 *
+	 * @param data
+	 *            the data
+	 */
 	public RollingStatistics(float[] data)
 	{
 		super(data);
 	}
 
+	/**
+	 * Instantiates a new rolling statistics.
+	 *
+	 * @param data
+	 *            the data
+	 */
 	public RollingStatistics(double[] data)
 	{
 		super(data);
 	}
 
+	/**
+	 * Instantiates a new rolling statistics.
+	 *
+	 * @param data
+	 *            the data
+	 */
 	public RollingStatistics(int[] data)
 	{
 		super(data);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#addInternal(float[], int, int)
+	 */
 	@Override
 	protected void addInternal(float[] data, int from, int to)
 	{
@@ -61,6 +87,11 @@ public class RollingStatistics extends Statistics
 			add(data[i]);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#addInternal(double[], int, int)
+	 */
 	@Override
 	protected void addInternal(double[] data, int from, int to)
 	{
@@ -68,6 +99,11 @@ public class RollingStatistics extends Statistics
 			add(data[i]);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#addInternal(int[], int, int)
+	 */
 	@Override
 	protected void addInternal(int[] data, int from, int to)
 	{
@@ -76,6 +112,11 @@ public class RollingStatistics extends Statistics
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#add(double)
+	 */
 	@Override
 	public void add(final double value)
 	{
@@ -92,6 +133,11 @@ public class RollingStatistics extends Statistics
 		ss += nB * delta * delta_n;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#add(int, double)
+	 */
 	@Override
 	public void add(int nA, double value)
 	{
@@ -104,36 +150,66 @@ public class RollingStatistics extends Statistics
 		ss += delta * delta * nA * nB / n;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#getSum()
+	 */
 	@Override
 	public double getSum()
 	{
 		return s * n;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#getSumOfSquares()
+	 */
 	@Override
 	public double getSumOfSquares()
 	{
 		throw new NotImplementedException("Sum-of-squares not computed");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#getMean()
+	 */
 	@Override
 	public double getMean()
 	{
 		return s;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#getStandardDeviation()
+	 */
 	@Override
 	public double getStandardDeviation()
 	{
 		return (n > 1) ? Math.sqrt(ss / (n - 1)) : (n == 1) ? 0 : Double.NaN;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#getVariance()
+	 */
 	@Override
 	public double getVariance()
 	{
 		return (n > 1) ? ss / (n - 1) : (n == 1) ? 0 : Double.NaN;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#add(gdsc.core.utils.Statistics)
+	 */
 	@Override
 	public void add(Statistics statistics)
 	{

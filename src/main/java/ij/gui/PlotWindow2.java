@@ -57,12 +57,43 @@ public class PlotWindow2 extends PlotWindow
 		super(plot);
 	}
 
+	/**
+	 * Instantiates a new plot window 2.
+	 *
+	 * @param title
+	 *            the title
+	 * @param xLabel
+	 *            the x label
+	 * @param yLabel
+	 *            the y label
+	 * @param xValues
+	 *            the x values
+	 * @param yValues
+	 *            the y values
+	 * @deprecated
+	 * 			replaced by the Plot2 class.
+	 */
 	@Deprecated
 	public PlotWindow2(String title, String xLabel, String yLabel, double[] xValues, double[] yValues)
 	{
 		super(title, xLabel, yLabel, xValues, yValues);
 	}
 
+	/**
+	 * Instantiates a new plot window 2.
+	 *
+	 * @param title
+	 *            the title
+	 * @param xLabel
+	 *            the x label
+	 * @param yLabel
+	 *            the y label
+	 * @param xValues
+	 *            the x values
+	 * @param yValues
+	 *            the y values
+	 * @deprecated replaced by the Plot2 class.
+	 */
 	@Deprecated
 	public PlotWindow2(String title, String xLabel, String yLabel, float[] xValues, float[] yValues)
 	{

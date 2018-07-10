@@ -72,6 +72,11 @@ public class ConvexHull
 		}
 	}
 
+	/**
+	 * Get the size.
+	 *
+	 * @return the size
+	 */
 	public int size()
 	{
 		return x.length;
@@ -79,7 +84,12 @@ public class ConvexHull
 
 	/**
 	 * Create a new convex hull from the given coordinates.
-	 * 
+	 *
+	 * @param xCoordinates
+	 *            the x coordinates
+	 * @param yCoordinates
+	 *            the y coordinates
+	 * @return the convex hull
 	 * @throws NullPointerException
 	 *             if the inputs are null
 	 * @throws ArrayIndexOutOfBoundsException
@@ -176,6 +186,12 @@ public class ConvexHull
 	 * Returns 'true' if the point (x,y) is inside this polygon. This is a Java
 	 * version of the remarkably small C program by W. Randolph Franklin at
 	 * http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html#The%20C%20Code
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @return true, if successful
 	 */
 	public boolean contains(float x, float y)
 	{
@@ -191,6 +207,11 @@ public class ConvexHull
 		return inside;
 	}
 
+	/**
+	 * Gets the bounds.
+	 *
+	 * @return the bounds
+	 */
 	public Rectangle getBounds()
 	{
 		int npoints = size();
@@ -201,6 +222,11 @@ public class ConvexHull
 		return bounds.getBounds();
 	}
 
+	/**
+	 * Gets the float bounds.
+	 *
+	 * @return the float bounds
+	 */
 	public Rectangle2D.Double getFloatBounds()
 	{
 		int npoints = size();

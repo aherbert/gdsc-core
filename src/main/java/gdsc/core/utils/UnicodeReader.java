@@ -119,6 +119,11 @@ public class UnicodeReader extends Reader
 		}
 	}
 
+	/**
+	 * Gets the encoding.
+	 *
+	 * @return the encoding
+	 */
 	public String getEncoding()
 	{
 		return reader.getEncoding();

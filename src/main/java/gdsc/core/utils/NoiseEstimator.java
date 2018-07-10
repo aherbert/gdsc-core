@@ -41,6 +41,9 @@ import org.apache.commons.math3.util.FastMath;
  */
 public class NoiseEstimator
 {
+	/**
+	 * The noise estimator method.
+	 */
 	public enum Method
 	{
 		//@fomatter:off
@@ -163,9 +166,14 @@ public class NoiseEstimator
 	public boolean preserveResiduals = false;
 
 	/**
+	 * Instantiates a new noise estimator.
+	 *
 	 * @param data
+	 *            the data
 	 * @param maxx
+	 *            the maxx
 	 * @param maxy
+	 *            the maxy
 	 */
 	public NoiseEstimator(float[] data, int maxx, int maxy)
 	{
@@ -180,8 +188,10 @@ public class NoiseEstimator
 
 	/**
 	 * Estimates the noise using random pixels from the image.
-	 * 
+	 *
 	 * @param method
+	 *            the method
+	 * @return the noise
 	 */
 	public double getNoise(Method method)
 	{
@@ -468,6 +478,8 @@ public class NoiseEstimator
 	}
 
 	/**
+	 * Sets the range.
+	 *
 	 * @param range
 	 *            the range for the search around the local minimum. Must be at least 1.
 	 */
@@ -479,6 +491,8 @@ public class NoiseEstimator
 	}
 
 	/**
+	 * Gets the range.
+	 *
 	 * @return the range
 	 */
 	public int getRange()

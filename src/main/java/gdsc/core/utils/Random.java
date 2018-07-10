@@ -281,8 +281,8 @@ public class Random extends AbstractRandomGenerator
 	 *
 	 * @param k
 	 *            the k
-	 * @param n
-	 *            the n
+	 * @param data
+	 *            the data
 	 * @return the sample
 	 */
 	public int[] sample(final int k, final int[] data)

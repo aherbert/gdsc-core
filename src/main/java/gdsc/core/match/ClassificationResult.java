@@ -32,7 +32,7 @@ package gdsc.core.match;
  * 
  * Can calculate the F-score statistic with a given beta weighting between the precision and recall.
  * 
- * @see http://en.wikipedia.org/wiki/Precision_and_recall#F-measure
+ * @see "http://en.wikipedia.org/wiki/Precision_and_recall#F-measure"
  */
 public class ClassificationResult
 {

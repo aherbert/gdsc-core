@@ -94,11 +94,18 @@ public class Utils
 {
 	// Flags for buildImageList
 
-	public final static int SINGLE = 1; // Single plane (2D image)
-	public final static int BINARY = 2; // Binary image
-	public final static int GREY_SCALE = 4; // Greyscale image (8, 16, 32 bit)
-	public final static int GREY_8_16 = 8; // Greyscale image (8, 16 bit)
-	public final static int NO_IMAGE = 16; // Add no image option
+	/** Single plane (2D image) */
+	public final static int SINGLE = 1;
+	/** Binary image */
+	public final static int BINARY = 2;
+	/** Greyscale image (8, 16, 32 bit) */
+	public final static int GREY_SCALE = 4;
+	/** Greyscale image (8, 16 bit) */
+	public final static int GREY_8_16 = 8;
+	/** Add no image option */
+	public final static int NO_IMAGE = 16;
+
+	/** The constant for no image title. */
 	public final static String NO_IMAGE_TITLE = "[None]";
 
 	private static boolean newWindow = false;
@@ -131,11 +138,13 @@ public class Utils
 	}
 
 	/**
-	 * Round the double to the specified significant digits
-	 * 
+	 * Round the double to the specified significant digits.
+	 *
 	 * @param d
+	 *            the d
 	 * @param significantDigits
-	 * @return
+	 *            the significant digits
+	 * @return the string
 	 */
 	public static String rounded(double d, int significantDigits)
 	{
@@ -143,10 +152,11 @@ public class Utils
 	}
 
 	/**
-	 * Round the double to 4 significant digits
-	 * 
+	 * Round the double to 4 significant digits.
+	 *
 	 * @param d
-	 * @return
+	 *            the d
+	 * @return the string
 	 */
 	public static String rounded(double d)
 	{
@@ -421,11 +431,35 @@ public class Utils
 		return display(title, plot, flags, null);
 	}
 
+	/**
+	 * Flag used to preserve the x min when reusing the plot window.
+	 * See {@link #display(String, Plot, int)}.
+	 */
 	public static final int PRESERVE_X_MIN = 0x01;
+	/**
+	 * Flag used to preserve the x max when reusing the plot window.
+	 * See {@link #display(String, Plot, int)}.
+	 */
 	public static final int PRESERVE_X_MAX = 0x02;
+	/**
+	 * Flag used to preserve the y min when reusing the plot window.
+	 * See {@link #display(String, Plot, int)}.
+	 */
 	public static final int PRESERVE_Y_MIN = 0x04;
+	/**
+	 * Flag used to preserve the y max when reusing the plot window.
+	 * See {@link #display(String, Plot, int)}.
+	 */
 	public static final int PRESERVE_Y_MAX = 0x08;
+	/**
+	 * Flag used to preserve all limits when reusing the plot window.
+	 * See {@link #display(String, Plot, int)}.
+	 */
 	public static final int PRESERVE_ALL = 0x0f;
+	/**
+	 * Flag used to not bring the plot to the front when reusing the plot window. See
+	 * {@link #display(String, Plot, int)}.
+	 */
 	public static final int NO_TO_FRONT = 0x10;
 
 	/**
@@ -815,9 +849,10 @@ public class Utils
 	/**
 	 * For the provided histogram x-axis bins, produce an x-axis for plotting. This functions doubles up the histogram
 	 * x-positions to allow plotting a square line profile using the ImageJ plot command.
-	 * 
+	 *
 	 * @param histogramX
-	 * @return
+	 *            the histogram X
+	 * @return the x-axis values
 	 */
 	public static float[] createHistogramAxis(float[] histogramX)
 	{
@@ -840,9 +875,10 @@ public class Utils
 	/**
 	 * For the provided histogram y-axis values, produce a y-axis for plotting. This functions doubles up the histogram
 	 * values to allow plotting a square line profile using the ImageJ plot command.
-	 * 
+	 *
 	 * @param histogramY
-	 * @return
+	 *            the histogram Y
+	 * @return the y-axis values
 	 */
 	public static float[] createHistogramValues(float[] histogramY)
 	{
@@ -861,9 +897,10 @@ public class Utils
 	/**
 	 * For the provided histogram x-axis bins, produce an x-axis for plotting. This functions doubles up the histogram
 	 * x-positions to allow plotting a square line profile using the ImageJ plot command.
-	 * 
+	 *
 	 * @param histogramX
-	 * @return
+	 *            the histogram X
+	 * @return the x-axis values
 	 */
 	public static double[] createHistogramAxis(double[] histogramX)
 	{
@@ -888,7 +925,7 @@ public class Utils
 	 * values to allow plotting a square line profile using the ImageJ plot command.
 	 * 
 	 * @param histogramY
-	 * @return
+	 * @return the y-axis values
 	 */
 	public static double[] createHistogramValues(double[] histogramY)
 	{
@@ -1110,16 +1147,16 @@ public class Utils
 					break;
 
 				case STURGES:
-					bins = getBinsSturges(data.size());
+					bins = getBinsSturgesRule(data.size());
 					break;
 
 				case SQRT:
 				default:
-					bins = getBinsSqrt(data.size());
+					bins = getBinsSqrtRule(data.size());
 			}
 			// In case of error (N=0, Infinity in the data range) 
 			if (bins == Integer.MAX_VALUE)
-				bins = getBinsSqrt(data.size());
+				bins = getBinsSqrtRule(data.size());
 		}
 		//System.out.printf("Bins = %d\n", bins);
 
@@ -1237,7 +1274,17 @@ public class Utils
 	 */
 	public enum BinMethod
 	{
-		SCOTT, FD, STURGES, SQRT
+		/** The Scott's rule bin method. See {@link Utils#getBinWidthScottsRule(double, int)}. */
+		SCOTT,
+		/**
+		 * The Freedman-Diaconis rule bin method. See
+		 * {@link Utils#getBinWidthFreedmanDiaconisRule(double, double, int)}.
+		 */
+		FD,
+		/** The Sturges' rule bin method. See {@link Utils#getBinsSturgesRule(int)}. */
+		STURGES,
+		/** The square root rule bin method. See {@link Utils#getBinsSqrtRule(int)}. */
+		SQRT
 	}
 
 	/** The default method to select the histogram bins. Used if the input number of bins is zero. */
@@ -1253,7 +1300,7 @@ public class Utils
 	 * @param method
 	 *            the method
 	 * @return the bins
-	 * @see http://uk.mathworks.com/help/matlab/ref/histogram.html : BinMethod
+	 * @see "http://uk.mathworks.com/help/matlab/ref/histogram.html"
 	 */
 	public static int getBins(DoubleData data, BinMethod method)
 	{
@@ -1278,38 +1325,98 @@ public class Utils
 				return (int) Math.ceil((limits[1] - limits[0]) / width);
 
 			case STURGES:
-				return getBinsSturges(data.size());
+				return getBinsSturgesRule(data.size());
 
 			case SQRT:
 			default:
-				return getBinsSqrt(data.size());
+				return getBinsSqrtRule(data.size());
 		}
 	}
 
+	/**
+	 * Gets the bin width using Scott's rule:
+	 * 
+	 * <pre>
+	 * 3.5 * sd / cubeRoot(n)
+	 * </pre>
+	 *
+	 * @param sd
+	 *            the sd
+	 * @param n
+	 *            the n
+	 * @return the bin width using Scott's rule
+	 */
 	public static double getBinWidthScottsRule(double sd, int n)
 	{
-		return 3.5 * sd * Math.pow(n, -0.3333333333);
+		return 3.5 * sd / FastMath.cbrt(n);
 	}
 
+	/**
+	 * Gets the bin width using the Freedman-Diaconis rule.
+	 * 
+	 * <pre>
+	 * 2 * IQR / cubeRoot(n)
+	 * </pre>
+	 *
+	 * @param upper
+	 *            the upper of the Inter-Quartile Range (IQR)
+	 * @param lower
+	 *            the lower of the Inter-Quartile Range (IQR)
+	 * @param n
+	 *            the n
+	 * @return the bin width freedman diaconis rule
+	 */
 	public static double getBinWidthFreedmanDiaconisRule(double upper, double lower, int n)
 	{
 		double iqr = upper - lower;
-		return 2 * iqr * Math.pow(n, -0.3333333333);
+		return 2 * iqr / FastMath.cbrt(n);
 	}
 
-	public static int getBinsSturges(int n)
+	/**
+	 * Gets the bins using the Sturges' rule.
+	 * 
+	 * <pre>
+	 * ceil(1 + log2(n)
+	 * </pre>
+	 *
+	 * @param n
+	 *            the n
+	 * @return the number of bins
+	 */
+	public static int getBinsSturgesRule(int n)
 	{
 		return (int) Math.ceil(1 + Math.log(n) / 0.69314718);
 	}
 
-	public static int getBinsSqrt(int n)
+	/**
+	 * Gets the bins using the square root rule.
+	 * 
+	 * <pre>
+	 * ceil(squareRoot(n))
+	 * </pre>
+	 *
+	 * @param n
+	 *            the n
+	 * @return the number of bins
+	 */
+	public static int getBinsSqrtRule(int n)
 	{
 		return (int) Math.ceil(Math.sqrt(n));
 	}
 
-	// Provide direct access to the last histogram plotted
-	public static double[] xValues, yValues;
-	public static double xMin, xMax, yMin, yMax;
+	/** The x values from the last histogram plotted. */
+	public static double[] xValues;
+	/** The y values from the last histogram plotted. */
+	public static double[] yValues;
+	/** The x min from the last histogram plotted. */
+	public static double xMin;
+	/** The x max from the last histogram plotted. */
+	public static double xMax;
+	/** The y min from the last histogram plotted. */
+	public static double yMin;
+	/** The y max from the last histogram plotted. */
+	public static double yMax;
+	/** The last histogram plotted. */
 	public static Plot2 plot;
 
 	/**
@@ -1627,15 +1734,18 @@ public class Utils
 	/**
 	 * Waits for all threads to complete computation.
 	 * <p>
-	 * Catches ExecutionException and InterruptedException and re-throws them as a RuntimeException. This is a
-	 * convenience method to allow a simple wait for futures without explicit try/catch blocks.
+	 * Catches {@link ExecutionException } and {@link InterruptedException} and re-throws them as a RuntimeException.
+	 * This is a convenience method to allow a simple wait for futures without explicit try/catch blocks.
 	 *
 	 * @param futures
 	 *            the futures
 	 * @param print
 	 *            flag to indicate that the stack trace should be printed
 	 * @throws RuntimeException
-	 *             a runtime exception that is the cause or a new exception wrapping the cause of the the error
+	 *             a runtime exception that is the {@link ExecutionException } or a new exception wrapping the cause of
+	 *             the the error
+	 * @throws OutOfMemoryError
+	 *             an out of memory error if this is the {@link ExecutionException }
 	 */
 	public static void waitForCompletion(List<Future<?>> futures, boolean print)
 			throws RuntimeException, OutOfMemoryError
@@ -1899,7 +2009,7 @@ public class Utils
 	 * Returns a list of the IDs of open images. Returns
 	 * an empty array if no windows are open.
 	 * 
-	 * @see {@link ij.WindowManager#getIDList() }
+	 * @see ij.WindowManager#getIDList()
 	 * 
 	 * @return List of IDs
 	 */
@@ -2058,7 +2168,7 @@ public class Utils
 	 * @param projectionMethod
 	 * @return A new image processor
 	 * 
-	 * @see {@link ij.plugin.ZProjector }
+	 * @see ij.plugin.ZProjector
 	 */
 	public static ImageProcessor extractTile(ImagePlus imp, int frame, int channel, int projectionMethod)
 	{

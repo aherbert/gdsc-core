@@ -45,7 +45,7 @@ public class FloatEquality
 	private float maxAbsoluteError;
 
 	/**
-	 * Default constructor
+	 * Instantiates a new float equality.
 	 */
 	public FloatEquality()
 	{
@@ -53,10 +53,12 @@ public class FloatEquality
 	}
 
 	/**
-	 * Override constructor
-	 * 
+	 * Instantiates a new float equality.
+	 *
 	 * @param maxRelativeError
+	 *            The relative error allowed between the numbers
 	 * @param maxAbsoluteError
+	 *            The absolute error allowed between the numbers. Should be a small number (e.g. 1e-10)
 	 */
 	public FloatEquality(float maxRelativeError, float maxAbsoluteError)
 	{
@@ -65,6 +67,14 @@ public class FloatEquality
 	}
 
 	/**
+	 * Instantiates a new float equality.
+	 *
+	 * @param maxRelativeError
+	 *            The relative error allowed between the numbers
+	 * @param maxAbsoluteError
+	 *            The absolute error allowed between the numbers. Should be a small number (e.g. 1e-10)
+	 * @param significantDigits
+	 *            the significant digits
 	 * @deprecated The significant digits are ignored
 	 */
 	@Deprecated
@@ -74,12 +84,14 @@ public class FloatEquality
 	}
 
 	/**
-	 * Override constructor
-	 * 
+	 * Instantiates a new float equality.
+	 *
 	 * @param significantDigits
+	 *            the significant digits
 	 * @param maxAbsoluteError
-	 * @deprecated The significant digits are used to set the max relative error as 1e^-(n-1), e.g. 3sd => 1e-2
+	 *            The absolute error allowed between the numbers. Should be a small number (e.g. 1e-10)
 	 * @see #getMaxRelativeError(int)
+	 * @deprecated The significant digits are used to set the max relative error as 1e^-(n-1), e.g. 3sd => 1e-2
 	 */
 	@Deprecated
 	public FloatEquality(int significantDigits, float maxAbsoluteError)
@@ -90,9 +102,11 @@ public class FloatEquality
 
 	/**
 	 * Compares two floats are within the configured errors.
-	 * 
+	 *
 	 * @param A
+	 *            the first value
 	 * @param B
+	 *            the second value
 	 * @return True if equal
 	 */
 	public boolean almostEqualRelativeOrAbsolute(float A, float B)
@@ -102,9 +116,11 @@ public class FloatEquality
 
 	/**
 	 * Compares two floats are within the configured number of bits variation using int comparisons.
-	 * 
+	 *
 	 * @param A
+	 *            the first value
 	 * @param B
+	 *            the second value
 	 * @return True if equal
 	 * @deprecated This method now calls {@link #almostEqualRelativeOrAbsolute(float, float)}
 	 */
@@ -115,6 +131,13 @@ public class FloatEquality
 	}
 
 	/**
+	 * Compare complement.
+	 *
+	 * @param A
+	 *            the first value
+	 * @param B
+	 *            the second value
+	 * @return the int
 	 * @deprecated This method now converts the relative error to significant digits and then to ULPs for complement
 	 *             comparison
 	 */
@@ -128,9 +151,11 @@ public class FloatEquality
 
 	/**
 	 * Compares two float arrays are within the configured errors.
-	 * 
+	 *
 	 * @param A
+	 *            the first value
 	 * @param B
+	 *            the second value
 	 * @return True if equal
 	 */
 	public boolean almostEqualRelativeOrAbsolute(float[] A, float[] B)
@@ -142,6 +167,13 @@ public class FloatEquality
 	}
 
 	/**
+	 * This method now calls {@link #almostEqualRelativeOrAbsolute(float[], float[])}
+	 *
+	 * @param A
+	 *            the first value
+	 * @param B
+	 *            the second value
+	 * @return true, if successful
 	 * @deprecated This method now calls {@link #almostEqualRelativeOrAbsolute(float[], float[])}
 	 */
 	@Deprecated
@@ -152,9 +184,11 @@ public class FloatEquality
 
 	/**
 	 * Compares two floats are within the specified errors.
-	 * 
+	 *
 	 * @param A
+	 *            the first value
 	 * @param B
+	 *            the second value
 	 * @param maxRelativeError
 	 *            The relative error allowed between the numbers
 	 * @param maxAbsoluteError
@@ -176,6 +210,15 @@ public class FloatEquality
 		return false;
 	}
 
+	/**
+	 * Get the max.
+	 *
+	 * @param a
+	 *            the first value
+	 * @param b
+	 *            the second value
+	 * @return the max
+	 */
 	private static float max(float a, float b)
 	{
 		return (a >= b) ? a : b;
@@ -183,9 +226,11 @@ public class FloatEquality
 
 	/**
 	 * Compute the relative error between two floats.
-	 * 
+	 *
 	 * @param A
+	 *            the first value
 	 * @param B
+	 *            the second value
 	 * @return The relative error
 	 */
 	public static float relativeError(float A, float B)
@@ -201,9 +246,11 @@ public class FloatEquality
 
 	/**
 	 * Compute the maximum relative error between two float arrays.
-	 * 
+	 *
 	 * @param A
+	 *            the first value
 	 * @param B
+	 *            the second value
 	 * @return The relative error
 	 */
 	public static float relativeError(float[] A, float[] B)
@@ -216,9 +263,11 @@ public class FloatEquality
 
 	/**
 	 * Compares two floats are within the specified number of bits variation using int comparisons.
-	 * 
+	 *
 	 * @param A
+	 *            the first value
 	 * @param B
+	 *            the second value
 	 * @param maxUlps
 	 *            How many representable floats we are willing to accept between A and B
 	 * @param maxAbsoluteError
@@ -240,9 +289,11 @@ public class FloatEquality
 
 	/**
 	 * Compares two floats within the specified number of bits variation using int comparisons.
-	 * 
+	 *
 	 * @param A
+	 *            the first value
 	 * @param B
+	 *            the second value
 	 * @param maxUlps
 	 *            How many representable floats we are willing to accept between A and B
 	 * @return -1, 0 or 1
@@ -258,6 +309,8 @@ public class FloatEquality
 	}
 
 	/**
+	 * Sets the max relative error.
+	 *
 	 * @param maxRelativeError
 	 *            the maxRelativeError to set
 	 */
@@ -267,6 +320,8 @@ public class FloatEquality
 	}
 
 	/**
+	 * Gets the max relative error.
+	 *
 	 * @return the maxRelativeError
 	 */
 	public float getMaxRelativeError()
@@ -275,6 +330,8 @@ public class FloatEquality
 	}
 
 	/**
+	 * Sets the max absolute error.
+	 *
 	 * @param maxAbsoluteError
 	 *            the maxAbsoluteError to set
 	 */
@@ -284,6 +341,8 @@ public class FloatEquality
 	}
 
 	/**
+	 * Gets the max absolute error.
+	 *
 	 * @return the maxAbsoluteError
 	 */
 	public float getMaxAbsoluteError()
@@ -292,6 +351,10 @@ public class FloatEquality
 	}
 
 	/**
+	 * Ignored. ULP comparison is no longer supported.
+	 *
+	 * @param maxUlps
+	 *            the new max ulps
 	 * @deprecated ULP comparison is no longer supported
 	 */
 	@Deprecated
@@ -300,6 +363,9 @@ public class FloatEquality
 	}
 
 	/**
+	 * Ignored. ULP comparison is no longer supported.
+	 *
+	 * @return 0
 	 * @deprecated ULP comparison is no longer supported
 	 */
 	@Deprecated
@@ -387,10 +453,11 @@ public class FloatEquality
 	 * Compute the number of bits variation using integer comparisons.
 	 * <p>
 	 * If the number is too large to fit in a int then Integer.MAX_VALUE is returned.
-	 * 
+	 *
 	 * @param A
+	 *            the first value
 	 * @param B
-	 * 
+	 *            the second value
 	 * @return How many representable floats we are between A and B
 	 */
 	public static int complement(float A, float B)
@@ -425,10 +492,11 @@ public class FloatEquality
 	 * Compute the number of bits variation using int comparisons.
 	 * <p>
 	 * If the number is too large to fit in a int then Integer.MIN_VALUE/MAX_VALUE is returned depending on the sign.
-	 * 
+	 *
 	 * @param A
+	 *            the first value
 	 * @param B
-	 * 
+	 *            the second value
 	 * @return How many representable floats we are between A and B
 	 */
 	public static int signedComplement(float A, float B)

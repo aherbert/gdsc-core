@@ -44,7 +44,7 @@ import gdsc.core.utils.Maths;
  * W. M. Rand (1971). "Objective criteria for the evaluation of clustering methods". Journal of the American Statistical
  * Association. American Statistical Association. 66 (336): 846–850. doi:10.2307/2284239. JSTOR 2284239.
  * 
- * @see https://en.wikipedia.org/wiki/Rand_index
+ * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
  * @author Alex Herbert
  */
 public class RandIndex
@@ -114,7 +114,7 @@ public class RandIndex
 	 * @param set2
 	 *            the second set of clusters for the objects
 	 * @return the Rand index
-	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
 	 * @throws IllegalArgumentException
 	 *             if the sets are different lengths
 	 */
@@ -170,7 +170,7 @@ public class RandIndex
 	 * @param set2
 	 *            the second set of clusters for the objects
 	 * @return the Rand index
-	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
 	 * @throws IllegalArgumentException
 	 *             if the sets are different lengths
 	 */
@@ -191,7 +191,7 @@ public class RandIndex
 	 * @param set2
 	 *            the second set of clusters for the objects
 	 * @return the Rand index
-	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
 	 * @throws IllegalArgumentException
 	 *             if the sets are different lengths
 	 */
@@ -332,7 +332,7 @@ public class RandIndex
 	 * @param n2
 	 *            the number of clusters (max cluster number + 1) in set 2
 	 * @return the Rand index
-	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
 	 */
 	public static double randIndex(int[] set1, int n1, int[] set2, int n2)
 	{
@@ -359,7 +359,7 @@ public class RandIndex
 	 * @param n2
 	 *            the number of clusters (max cluster number + 1) in set 2
 	 * @return the Rand index
-	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
 	 */
 	public static double adjustedRandIndex(int[] set1, int n1, int[] set2, int n2)
 	{
@@ -374,7 +374,7 @@ public class RandIndex
 	 *            the first set of clusters for the objects
 	 * @param set2
 	 *            the second set of clusters for the objects
-	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
 	 * @throws IllegalArgumentException
 	 *             if the sets are different lengths
 	 * @throws RuntimeException
@@ -449,7 +449,7 @@ public class RandIndex
 	 *            the second set of clusters for the objects
 	 * @param n2
 	 *            the number of clusters (max cluster number + 1) in set 2
-	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
 	 * @throws RuntimeException
 	 *             if the sums are larger than Long.MAX_VALUE
 	 */
@@ -590,7 +590,7 @@ public class RandIndex
 	 * @param set2
 	 *            the second set of clusters for the objects
 	 * @return the Rand index
-	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
 	 * @throws IllegalArgumentException
 	 *             if the sets are different lengths
 	 */
@@ -619,7 +619,7 @@ public class RandIndex
 	 * @param n2
 	 *            the number of clusters (max cluster number + 1) in set 2
 	 * @return the Rand index
-	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
 	 */
 	public double getRandIndex(int[] set1, int n1, int[] set2, int n2)
 	{
@@ -636,7 +636,7 @@ public class RandIndex
 	 * Compute using a contingency table.
 	 *
 	 * @return the Rand index
-	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
 	 */
 	public double getRandIndex()
 	{
@@ -684,7 +684,7 @@ public class RandIndex
 	 * @param set2
 	 *            the second set of clusters for the objects
 	 * @return the Rand index
-	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
 	 * @throws IllegalArgumentException
 	 *             if the sets are different lengths
 	 */
@@ -714,7 +714,7 @@ public class RandIndex
 	 * @param n2
 	 *            the number of clusters (max cluster number + 1) in set 2
 	 * @return the Rand index
-	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
 	 */
 	public double getAdjustedRandIndex(int[] set1, int n1, int[] set2, int n2)
 	{
@@ -730,13 +730,9 @@ public class RandIndex
 	 * expected index.
 	 * <p>
 	 * Compute using a contingency table.
-	 * 
-	 * @param set1
-	 *            the first set of clusters for the objects
-	 * @param set2
-	 *            the second set of clusters for the objects
+	 *
 	 * @return the Rand index
-	 * @see https://en.wikipedia.org/wiki/Rand_index
+	 * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
 	 */
 	public double getAdjustedRandIndex()
 	{

@@ -36,6 +36,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * Provides a method to replace the current top of the stack to allow a LIFO functionality when the stack is full.
  * <p>
  * The stack is closeable to prevent further additions. Items can still be removed from a closed stack.
+ *
+ * @param <E> the element type
  */
 public class ConcurrentMonoStack<E>
 {

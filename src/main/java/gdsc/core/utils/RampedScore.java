@@ -32,14 +32,20 @@ package gdsc.core.utils;
  */
 public class RampedScore implements Cloneable
 {
-	public final double lower, upper;
+	/** The lower end of the range. */
+	public final double lower;
+
+	/** The upper end of the range. */
+	public final double upper;
 	private final double range;
 
 	/**
-	 * Create the score function with the specified limits
-	 * 
+	 * Create the score function with the specified limits.
+	 *
 	 * @param lower
+	 *            The lower end of the range
 	 * @param upper
+	 *            The upper end of the range
 	 */
 	public RampedScore(double lower, double upper)
 	{
@@ -57,8 +63,9 @@ public class RampedScore implements Cloneable
 	/**
 	 * Provide a score between 0 and 1 for the value. Return 1 if below the lower limit, 0 if above the upper limit,
 	 * otherwise ramp smoothly from 1 to 0.
-	 * 
+	 *
 	 * @param value
+	 *            the value
 	 * @return the score
 	 */
 	public double score(double value)
@@ -76,9 +83,11 @@ public class RampedScore implements Cloneable
 	 * Provide a score between 0 and 1 for the value. Return 1 if below the lower limit, 0 if above the upper limit,
 	 * otherwise ramp smoothly from 1 to 0. Flatten the score to a new score that will have a maximum number of steps
 	 * between 0 and 1.
-	 * 
+	 *
 	 * @param value
+	 *            the value
 	 * @param steps
+	 *            the steps
 	 * @return the score
 	 */
 	public double scoreAndFlatten(double value, int steps)
@@ -88,9 +97,11 @@ public class RampedScore implements Cloneable
 
 	/**
 	 * Flatten the score to a new score that will have a maximum number of steps between 0 and 1.
-	 * 
+	 *
 	 * @param score
+	 *            the score
 	 * @param steps
+	 *            the steps
 	 * @return The new score
 	 */
 	public static double flatten(double score, int steps)
@@ -100,9 +111,11 @@ public class RampedScore implements Cloneable
 
 	/**
 	 * Flatten the score to a new score that will have a maximum number of steps between 0 and 1.
-	 * 
+	 *
 	 * @param score
+	 *            the score
 	 * @param steps
+	 *            the steps
 	 * @return The new score
 	 */
 	public static float flatten(float score, int steps)

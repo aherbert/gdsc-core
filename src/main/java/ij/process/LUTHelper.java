@@ -30,63 +30,108 @@ package ij.process;
 import java.awt.Color;
 
 /**
- * Contains functions for ImageJ LUTs
+ * Contains functions for ImageJ LUTs.
  */
 public class LUTHelper
 {
+	/**
+	 * The LUT Colour.
+	 */
 	public enum LutColour
 	{
 		//@formatter:off
+		/** The red hot LUT. */
 		RED_HOT{ @Override
 		public String getName() { return "Red-Hot"; }}, 
+		
+		/** The ice LUT. */
 		ICE{ @Override
 		public String getName() { return "Ice";}}, 
+		
+		/** The rainbow LUT. */
 		RAINBOW{ @Override
 		public String getName() { return "Rainbow"; }}, 
+		
+		/** The fire LUT. */
 		FIRE{ @Override
 		public String getName() { return "Fire"; }}, 
+		
+		/** The fire light LUT. */
 		FIRE_LIGHT{ @Override
 		public String getName() { return "FireLight"; }}, 
+		
+		/** The fire glow LUT. */
 		FIRE_GLOW{ @Override
 		public String getName() { return "FireGlow"; }}, 
+		
+		/** The red yellow LUT. */
 		RED_YELLOW{ @Override
 		public String getName() { return "Red-Yellow"; }}, 
+		
+		/** The red LUT. */
 		RED{ @Override
 		public String getName() { return "Red"; }},
+		
+		/** The green LUT. */
 		GREEN{ @Override
 		public String getName() { return "Green"; }}, 
+		
+		/** The blue LUT. */
 		BLUE{ @Override
 		public String getName() { return "Blue"; }}, 
+		
+		/** The cyan LUT. */
 		CYAN{ @Override
 		public String getName() { return "Cyan"; }}, 
+		
+		/** The magenta LUT. */
 		MAGENTA{ @Override
 		public String getName() { return "Magenta"; }}, 
+		
+		/** The yellow LUT. */
 		YELLOW{ @Override
 		public String getName() { return "Yellow"; }},
+		
+		/** The red blue LUT. */
 		RED_BLUE{ @Override
 		public String getName() { return "Red-Blue"; }}, 
+		
+		/** The intense LUT. */
 		INTENSE{ @Override
 		public String getName() { return "Intense"; }
 			@Override
 			public boolean isDistinct() { return true;}},
+		
+		/** The pimp LUT. */
 		PIMP{ @Override
 		public String getName() { return "Pimp"; }
 			@Override
 			public boolean isDistinct() { return true;}},
+		
+		/** The pimp light LUT. */
 		PIMP_LIGHT{ @Override
 		public String getName() { return "PimpLight"; }
 			@Override
 			public boolean isDistinct() { return true;}},
+		
+		/** The distinct LUT. */
 		DISTINCT{ @Override
 		public String getName() { return "Distinct"; }
 			@Override
 			public boolean isDistinct() { return true;}},
+		
+		/** The red cyan LUT. */
 		RED_CYAN{ @Override
 		public String getName() { return "Red-Cyan"; }},
+		
+		/** The grays LUT. */
 		GRAYS{ @Override
 		public String getName() { return "Grays"; }};
 		//@formatter:on
 
+		/* (non-Javadoc)
+		 * @see java.lang.Enum#toString()
+		 */
 		@Override
 		public String toString()
 		{
@@ -126,9 +171,7 @@ public class LUTHelper
 		}
 	}
 
-	/**
-	 * List of the LUT names
-	 */
+	/** List of the LUT names. */
 	public static final String[] luts;
 
 	/** LUTs with distinct colours. */
@@ -356,8 +399,8 @@ public class LUTHelper
 	}
 
 	/**
-	 * Build a custom LUT
-	 * 
+	 * Build a custom LUT.
+	 *
 	 * @param lut
 	 *            The LUT to create
 	 * @return the LUT
@@ -370,8 +413,8 @@ public class LUTHelper
 	}
 
 	/**
-	 * Build a custom LUT
-	 * 
+	 * Build a custom LUT.
+	 *
 	 * @param lut
 	 *            The LUT to create
 	 * @return the LUT
@@ -916,14 +959,14 @@ public class LUTHelper
 		public Color getColour(LUT lut, float value);
 
 		/**
-		 * Gets the min value output by {@link #map(float)}
+		 * Gets the min value output by {@link #map(float)}.
 		 *
 		 * @return the min value
 		 */
 		public int getMin();
 
 		/**
-		 * Gets the max value output by {@link #map(float)}
+		 * Gets the max value output by {@link #map(float)}.
 		 *
 		 * @return the max value
 		 */
@@ -931,13 +974,17 @@ public class LUTHelper
 	}
 
 	/**
-	 * Provide no mapping
+	 * Provide no mapping.
 	 */
 	public static class NullLUTMapper implements LUTMapper
 	{
+		
 		/**
 		 * Rounds the input to the nearest int and truncates to the range 0-255.
-		 * 
+		 *
+		 * @param value
+		 *            the value
+		 * @return the int
 		 * @see ij.process.LUTHelper.LUTMapper#map(float)
 		 */
 		@Override
@@ -951,8 +998,11 @@ public class LUTHelper
 		}
 
 		/**
-		 * Provide no mapping (returns the input value)
-		 * 
+		 * Provide no mapping (returns the input value).
+		 *
+		 * @param value
+		 *            the value
+		 * @return the float
 		 * @see ij.process.LUTHelper.LUTMapper#mapf(float)
 		 */
 		@Override
@@ -1000,6 +1050,8 @@ public class LUTHelper
 	 */
 	public static class DefaultLUTMapper extends NullLUTMapper
 	{
+		
+		/** The scale. */
 		final float minimum, maximum, scale;
 
 		/**
@@ -1047,10 +1099,12 @@ public class LUTHelper
 	}
 
 	/**
-	 * Provide a default map for a value to the range 1-255
+	 * Provide a default map for a value to the range 1-255.
 	 */
 	public static class NonZeroLUTMapper extends NullLUTMapper
 	{
+		
+		/** The scale. */
 		final float minimum, maximum, scale;
 
 		/**

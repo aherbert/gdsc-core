@@ -40,6 +40,12 @@ public class BasicRoiTest extends RoiTest
 {
 	final Shape shape;
 
+	/**
+	 * Instantiates a new basic roi test.
+	 *
+	 * @param roi
+	 *            the roi
+	 */
 	public BasicRoiTest(Roi roi)
 	{
 		if (roi.getType() == Roi.RECTANGLE)

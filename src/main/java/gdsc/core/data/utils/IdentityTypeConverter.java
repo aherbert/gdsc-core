@@ -29,6 +29,8 @@ package gdsc.core.data.utils;
 
 /**
  * Perform no conversion
+ *
+ * @param <T> the generic type
  */
 public class IdentityTypeConverter<T> extends AbstractTypeConverter<T>
 {

@@ -57,11 +57,18 @@ public class FastImageReader
 	private long skipCount;
 	private int bytesPerPixel, bufferSize, nPixels;
 	private long byteCount;
-	public double min, max; // readRGB48() calculates min/max pixel values
+
+	// readRGB48() calculates min/max pixel values
+	/** The min value read for RGB48 images. */
+	public double min;
+	/** The max value read for RGB48 images. */
+	public double max;
 
 	/**
 	 * Constructs a new ImageReader using a FileInfo object to describe the file to be read.
-	 * 
+	 *
+	 * @param fi
+	 *            the file info
 	 * @see ij.io.FileInfo
 	 */
 	public FastImageReader(FileInfo fi)
@@ -875,6 +882,12 @@ public class FastImageReader
 	 * Reads the image from the SeekableStream and returns the pixel
 	 * array (byte, short, int or float).
 	 * Does not close the SeekableStream.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the object
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public Object readPixels(SeekableStream in) throws IOException
 	{
@@ -955,6 +968,14 @@ public class FastImageReader
 	 * Skips the specified number of bytes, then reads an image and
 	 * returns the pixel array (byte, short, int or float).
 	 * Does not close the SeekableStream.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @param skipCount
+	 *            the skip count
+	 * @return the object
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public Object readPixels(SeekableStream in, long skipCount) throws IOException
 	{
@@ -976,8 +997,12 @@ public class FastImageReader
 
 	/**
 	 * TIFF Adobe ZIP support contributed by Jason Newton.
-	 * 
+	 *
+	 * @param input
+	 *            the input bytes
+	 * @return the byte[]
 	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public byte[] zipUncompress(byte[] input) throws IOException
 	{
@@ -1004,8 +1029,12 @@ public class FastImageReader
 	/**
 	 * Utility method for decoding an LZW-compressed image strip.
 	 * Adapted from the TIFF 6.0 Specification:
-	 * http://partners.adobe.com/asn/developer/pdfs/tn/TIFF6.pdf (page 61)
-	 * Author: Curtis Rueden (ctrueden at wisc.edu)
+	 * http://partners.adobe.com/asn/developer/pdfs/tn/TIFF6.pdf (page 61).
+	 * Author: Curtis Rueden (ctrueden at wisc.edu).
+	 *
+	 * @param input
+	 *            the input bytes
+	 * @return the byte[]
 	 */
 	public byte[] lzwUncompress(byte[] input)
 	{
@@ -1082,7 +1111,15 @@ public class FastImageReader
 		return out.toByteArray();
 	}
 
-	/** Based on the Bio-Formats PackbitsCodec written by Melissa Linkert. */
+	/**
+	 * Based on the Bio-Formats PackbitsCodec written by Melissa Linkert.
+	 *
+	 * @param input
+	 *            the input
+	 * @param expected
+	 *            the expected
+	 * @return the byte[]
+	 */
 	public byte[] packBitsUncompress(byte[] input, int expected)
 	{
 		if (expected == 0)
@@ -1291,6 +1328,12 @@ public class FastImageReader
 	 * Reads the image from the SeekableStream and returns the pixel
 	 * array (byte, short, int or float).
 	 * Does not close the SeekableStream.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the object
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public Object readPixels(ByteArraySeekableStream in) throws IOException
 	{
@@ -1371,6 +1414,14 @@ public class FastImageReader
 	 * Skips the specified number of bytes, then reads an image and
 	 * returns the pixel array (byte, short, int or float).
 	 * Does not close the SeekableStream.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @param skipCount
+	 *            the skip count
+	 * @return the object
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public Object readPixels(ByteArraySeekableStream in, long skipCount) throws IOException
 	{

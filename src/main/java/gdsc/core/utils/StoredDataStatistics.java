@@ -40,30 +40,62 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	private double[] values = new double[0];
 	private DescriptiveStatistics stats = null;
 
+	/**
+	 * Instantiates a new stored data statistics.
+	 */
 	public StoredDataStatistics()
 	{
 	}
 
+	/**
+	 * Instantiates a new stored data statistics.
+	 *
+	 * @param capacity
+	 *            the capacity
+	 */
 	public StoredDataStatistics(int capacity)
 	{
 		values = new double[capacity];
 	}
 
+	/**
+	 * Instantiates a new stored data statistics.
+	 *
+	 * @param data
+	 *            the data
+	 */
 	public StoredDataStatistics(float[] data)
 	{
 		super(data);
 	}
 
+	/**
+	 * Instantiates a new stored data statistics.
+	 *
+	 * @param data
+	 *            the data
+	 */
 	public StoredDataStatistics(double[] data)
 	{
 		super(data);
 	}
 
+	/**
+	 * Instantiates a new stored data statistics.
+	 *
+	 * @param data
+	 *            the data
+	 */
 	public StoredDataStatistics(int[] data)
 	{
 		super(data);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#addInternal(float[], int, int)
+	 */
 	@Override
 	protected void addInternal(float[] data, int from, int to)
 	{
@@ -103,6 +135,11 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#addInternal(double[], int, int)
+	 */
 	@Override
 	protected void addInternal(double[] data, int from, int to)
 	{
@@ -118,6 +155,11 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#addInternal(int[], int, int)
+	 */
 	@Override
 	protected void addInternal(int[] data, int from, int to)
 	{
@@ -133,6 +175,11 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#add(double)
+	 */
 	@Override
 	public void add(final double value)
 	{
@@ -142,6 +189,11 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		ss += value * value;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#add(int, double)
+	 */
 	@Override
 	public void add(int n, double value)
 	{
@@ -153,6 +205,8 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	}
 
 	/**
+	 * Gets the values.
+	 *
 	 * @return A copy of the values added
 	 */
 	public double[] getValues()
@@ -173,6 +227,8 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	}
 
 	/**
+	 * Gets the float values.
+	 *
 	 * @return A copy of the values added
 	 */
 	public float[] getFloatValues()
@@ -184,8 +240,10 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	}
 
 	/**
+	 * Gets the statistics.
+	 *
 	 * @return object used to compute descriptive statistics. The object is cached
-	 * @see {@link org.apache.commons.math3.stat.descriptive.DescriptiveStatistics }
+	 * @see org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 	 */
 	public DescriptiveStatistics getStatistics()
 	{
@@ -194,6 +252,11 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 		return stats;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see gdsc.core.utils.Statistics#add(gdsc.core.utils.Statistics)
+	 */
 	@Override
 	public void add(Statistics statistics)
 	{
@@ -210,6 +273,8 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	}
 
 	/**
+	 * Gets the median.
+	 *
 	 * @return The median
 	 */
 	public double getMedian()

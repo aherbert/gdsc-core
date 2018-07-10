@@ -149,9 +149,10 @@ public class MedianWindowDLLFloat
 	}
 
 	/**
-	 * Add a new value to the set
-	 * 
-	 * @param v
+	 * Add a new value to the set.
+	 *
+	 * @param x
+	 *            the value
 	 */
 	public void add(final float x)
 	{

@@ -31,6 +31,8 @@ import gdsc.core.utils.Maths;
 
 /**
  * Perform conversion by multiplication
+ *
+ * @param <T> the generic type
  */
 public class MultiplyTypeConverter<T> extends AbstractTypeConverter<T>
 {

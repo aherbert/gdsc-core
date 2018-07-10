@@ -68,7 +68,14 @@ public class InfinityMappedImageStack extends ImageStack
 	{
 	}
 
-	/** Creates a new, empty image stack. */
+	/**
+	 * Creates a new, empty image stack.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 */
 	public InfinityMappedImageStack(int width, int height)
 	{
 		this(width, height, null);
@@ -77,18 +84,39 @@ public class InfinityMappedImageStack extends ImageStack
 	/**
 	 * Creates a new, empty image stack with a capacity of 'size'. All
 	 * 'size' slices and labels of this image stack are initially null.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 * @param size
+	 *            the size
 	 */
 	public InfinityMappedImageStack(int width, int height, int size)
 	{
 		super(width, height, size);
 	}
 
-	/** Creates a new, empty image stack using the specified color model. */
+	/**
+	 * Creates a new, empty image stack using the specified color model.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 * @param cm
+	 *            the colour model
+	 */
 	public InfinityMappedImageStack(int width, int height, ColorModel cm)
 	{
 		super(width, height, cm);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ij.ImageStack#getProcessor(int)
+	 */
 	@Override
 	public ImageProcessor getProcessor(int n)
 	{

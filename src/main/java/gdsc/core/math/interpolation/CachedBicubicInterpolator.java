@@ -48,7 +48,6 @@ public class CachedBicubicInterpolator
 	 *
 	 * @param p
 	 *            the value of the function at x=-1 to x=2 and y=-1 to y=2
-	 * @return the value
 	 */
 	public void updateCoefficients(double[][] p)
 	{
@@ -81,7 +80,6 @@ public class CachedBicubicInterpolator
 	 *
 	 * @param p
 	 *            the value of the function at x=-1 to x=2 and y=-1 to y=2
-	 * @return the value
 	 */
 	public void updateCoefficients(float[][] p)
 	{
@@ -114,7 +112,6 @@ public class CachedBicubicInterpolator
 	 *
 	 * @param p
 	 *            the value of the function at x=-1 to x=2 and y=-1 to y=2, packed in yx order.
-	 * @return the value
 	 */
 	public void updateCoefficients(double[] p)
 	{
@@ -147,7 +144,6 @@ public class CachedBicubicInterpolator
 	 *
 	 * @param p
 	 *            the value of the function at x=-1 to x=2 and y=-1 to y=2, packed in yx order.
-	 * @return the value
 	 */
 	public void updateCoefficients(float[] p)
 	{

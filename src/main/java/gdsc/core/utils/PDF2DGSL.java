@@ -35,7 +35,12 @@ package gdsc.core.utils;
 public class PDF2DGSL
 {
 	private final double[] sum;
-	public final int nx, ny, n;
+	/** The X-dimension size */
+	public final int nx;
+	/** The Y-dimension size */
+	public final int ny;
+	/** The size ({@link #nx} * {@link #ny}) */
+	public final int n;
 	/**
 	 * The cumulative sum of the original input data
 	 */
@@ -50,11 +55,11 @@ public class PDF2DGSL
 	 *            The X-dimension size
 	 * @param ny
 	 *            The y-dimension size
-	 * @throws InvalidArgumentException
+	 * @throws IllegalArgumentException
 	 *             if the dimensions are not above zero
-	 * @throws InvalidArgumentException
+	 * @throws IllegalArgumentException
 	 *             if the input data length is not at least nx * ny
-	 * @throws InvalidArgumentException
+	 * @throws IllegalArgumentException
 	 *             if the input data contains negatives
 	 */
 	public PDF2DGSL(double[] data, int nx, int ny)

@@ -136,9 +136,9 @@ public class CubicSplinePosition
 	 * Scale the first-order gradient back to the original scale. This can be used if a function axis was compressed to
 	 * the interval 0-1 for cubic interpolation to appropriately scale the gradients (partial derivatives).
 	 *
-	 * @param x
-	 *            the x
-	 * @return the scaled x value
+	 * @param df_dx
+	 *            the first-order gradient
+	 * @return the scaled first-order gradient
 	 */
 	public double scaleGradient(double df_dx)
 	{
@@ -149,9 +149,9 @@ public class CubicSplinePosition
 	 * Scale the second-order gradient back to the original scale. This can be used if a function axis was compressed to
 	 * the interval 0-1 for cubic interpolation to appropriately scale the gradients (partial derivatives).
 	 *
-	 * @param x
-	 *            the x
-	 * @return the scaled x value
+	 * @param d2f_dx2
+	 *            the second-order gradient
+	 * @return the scaled second-order gradient
 	 */
 	public double scaleGradient2(double d2f_dx2)
 	{

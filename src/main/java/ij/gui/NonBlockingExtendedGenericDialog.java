@@ -44,6 +44,12 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog
 {
 	private static final long serialVersionUID = 8535959215385211516L;
 
+	/**
+	 * Instantiates a new non blocking extended generic dialog.
+	 *
+	 * @param title
+	 *            the title
+	 */
 	public NonBlockingExtendedGenericDialog(String title)
 	{
 		super(title, null);

@@ -138,7 +138,7 @@ public class ImageJAnalyticsTracker
 	 * @param documentTitle
 	 *            The document title
 	 */
-	public static void pageview(String pageUrl, String pageTitle)
+	public static void pageview(String documentPath, String documentTitle)
 	{
 		initialiseTracker();
 		if (isDisabled())
@@ -146,8 +146,8 @@ public class ImageJAnalyticsTracker
 		// Get the timestamp. This allows asynchronous hits to be recorded at the correct time 
 		final long timestamp = System.currentTimeMillis();
 		RequestParameters data = new RequestParameters(HitType.PAGEVIEW);
-		data.setDocumentPath(pageUrl);
-		data.setDocumentTitle(pageTitle);
+		data.setDocumentPath(documentPath);
+		data.setDocumentTitle(documentTitle);
 		// Add custom dimensions for ImageJ state.
 		data.addCustomMetric(1, (IJ.isMacro()) ? 1 : 0);
 		data.addCustomDimension(8, Boolean.toString(IJ.isMacro()));
@@ -230,7 +230,7 @@ public class ImageJAnalyticsTracker
 	 * <p>
 	 * Note that custom dimensions have to be created for your site before they can be used in analytics reports.
 	 * 
-	 * @see https://support.google.com/analytics/answer/2709829
+	 * @see "https://support.google.com/analytics/answer/2709829"
 	 * 
 	 * @param index
 	 *            The dimension index (1-20 or 1-200 for premium accounts)
@@ -519,6 +519,8 @@ public class ImageJAnalyticsTracker
 
 	/**
 	 * Check the opt-in/out status. If it is not known for this version of the analytics code then return true.
+	 *
+	 * @return true, if the current opt-in/out status is unknown.
 	 */
 	public static boolean unknownStatus()
 	{

@@ -65,13 +65,33 @@ public class MappedFloatProcessor extends FloatProcessor
 		this.mapZero = mapZero;
 	}
 
-	/** Creates a new MappedFloatProcessor using the specified pixel array. */
+	/**
+	 * Creates a new MappedFloatProcessor using the specified pixel array.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 * @param pixels
+	 *            the pixels
+	 */
 	public MappedFloatProcessor(int width, int height, float[] pixels)
 	{
 		this(width, height, pixels, null);
 	}
 
-	/** Creates a new MappedFloatProcessor using the specified pixel array and ColorModel. */
+	/**
+	 * Creates a new MappedFloatProcessor using the specified pixel array and ColorModel.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 * @param pixels
+	 *            the pixels
+	 * @param cm
+	 *            the colour model
+	 */
 	public MappedFloatProcessor(int width, int height, float[] pixels, ColorModel cm)
 	{
 		super(width, height, pixels, cm);
@@ -80,31 +100,64 @@ public class MappedFloatProcessor extends FloatProcessor
 	/**
 	 * Creates a blank MappedFloatProcessor using the default grayscale LUT that
 	 * displays zero as black. Call invertLut() to display zero as white.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
 	 */
 	public MappedFloatProcessor(int width, int height)
 	{
 		super(width, height, new float[width * height], null);
 	}
 
-	/** Creates a MappedFloatProcessor from an int array using the default grayscale LUT. */
+	/**
+	 * Creates a MappedFloatProcessor from an int array using the default grayscale LUT.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 * @param pixels
+	 *            the pixels
+	 */
 	public MappedFloatProcessor(int width, int height, int[] pixels)
 	{
 		super(width, height, pixels);
 	}
 
-	/** Creates a MappedFloatProcessor from a double array using the default grayscale LUT. */
+	/**
+	 * Creates a MappedFloatProcessor from a double array using the default grayscale LUT.
+	 *
+	 * @param width
+	 *            the width
+	 * @param height
+	 *            the height
+	 * @param pixels
+	 *            the pixels
+	 */
 	public MappedFloatProcessor(int width, int height, double[] pixels)
 	{
 		super(width, height, pixels);
 	}
 
-	/** Creates a MappedFloatProcessor from a 2D float array using the default LUT. */
+	/**
+	 * Creates a MappedFloatProcessor from a 2D float array using the default LUT.
+	 *
+	 * @param array
+	 *            the array
+	 */
 	public MappedFloatProcessor(float[][] array)
 	{
 		super(array);
 	}
 
-	/** Creates a MappedFloatProcessor from a 2D int array. */
+	/**
+	 * Creates a MappedFloatProcessor from a 2D int array.
+	 *
+	 * @param array
+	 *            the array
+	 */
 	public MappedFloatProcessor(int[][] array)
 	{
 		super(array);
@@ -112,6 +165,11 @@ public class MappedFloatProcessor extends FloatProcessor
 
 	private static int NEGATIVE_ZERO = Float.floatToRawIntBits(-0.0f);
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ij.process.FloatProcessor#create8BitImage()
+	 */
 	// scale from float to 8-bits
 	@Override
 	protected byte[] create8BitImage()

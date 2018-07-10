@@ -44,6 +44,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * closed to additions. When closed the behaviour is non-blocking. No additions to the queue are allowed and any
  * blocked removal operations return null or error. Note that returning null objects is in contrast to the
  * ArrayBlockingQueue which does not allow null objects to be removed from the {@link #take()} method.
+ *
+ * @param <E> the element type
  */
 public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>, java.io.Serializable
 {
@@ -564,11 +566,11 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 *            the element to add
 	 * @return true, if successfully added to the queue
 	 * @throws InterruptedException
-	 *             {@inheritDoc}
+	 *             If interrupted while waiting
 	 * @throws IllegalStateException
 	 *             If closed and {@link #isThrowIfClosed()} is true
 	 * @throws NullPointerException
-	 *             {@inheritDoc}
+	 *             If the specified element is null
 	 */
 	public boolean putAndConfirm(E e) throws InterruptedException, IllegalStateException
 	{

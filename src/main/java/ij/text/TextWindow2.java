@@ -231,13 +231,24 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 		textPanel.setFont(new Font("SanSerif", Font.PLAIN, sizes[fontSize]), antialiased.getState());
 	}
 
-	/** Returns a reference to this TextWindow's TextPanel. */
+	/**
+	 * Returns a reference to this TextWindow's TextPanel.
+	 *
+	 * @return the text panel
+	 */
 	public TextPanel getTextPanel()
 	{
 		return textPanel;
 	}
 
-	/** Appends the text in the specified file to the end of this TextWindow. */
+	/**
+	 * Appends the text in the specified file to the end of this TextWindow.
+	 *
+	 * @param in
+	 *            the in
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	public void load(BufferedReader in) throws IOException
 	{
 		while (true)
@@ -280,6 +291,10 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 		setFont();
 	}
 
+	/**
+	 * Closes this TextWindow. Display a "save changes" dialog
+	 * if this is the "Results" window.
+	 */
 	public void close()
 	{
 		close(true);
@@ -288,6 +303,9 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 	/**
 	 * Closes this TextWindow. Display a "save changes" dialog
 	 * if this is the "Results" window and 'showDialog' is true.
+	 *
+	 * @param showDialog
+	 *            the show dialog flag
 	 */
 	public void close(boolean showDialog)
 	{
@@ -302,6 +320,12 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 		textPanel.flush();
 	}
 
+	/**
+	 * Rename the window.
+	 *
+	 * @param title
+	 *            the title
+	 */
 	public void rename(String title)
 	{
 		textPanel.rename(title);

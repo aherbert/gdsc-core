@@ -44,6 +44,9 @@ import java.util.RandomAccess;
 //@formatter:off
 /**
  * Copy of java.util.ArrayList but removing the checks for concurrent modification.
+ *
+ * @param <E>
+ *            the element type
  */
 public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAccess, Cloneable, java.io.Serializable
 {
@@ -339,7 +342,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      *
      * @param  index index of the element to return
      * @return the element at the specified position in this list
-     * @throws IndexOutOfBoundsException {@inheritDoc}
+     * @throws IndexOutOfBoundsException  if the index is out of range (index < 0 || index >= capacity)
      */
     public E getf(int index) {
         return elementData(index);
@@ -369,7 +372,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      *
      * @param index index of the element to replace
      * @param element element to be stored at the specified position
-     * @throws IndexOutOfBoundsException {@inheritDoc}
+     * @throws IndexOutOfBoundsException  if the index is out of range (index < 0 || index >= capacity)
      */
     public void setf(int index, E element) {
         elementData[index] = element;
@@ -1140,14 +1143,15 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
     }
     
     /**
-     * Represents a predicate (boolean-valued function) of one argument.
-     * <p>
-     * This functionality was added in Java 1.8 so for backward compatibility 
-     * to Java 1.5 the required methods from the java.util.function.Predicate 
-     * interface have been duplicated here. 
-     * 
-     *  param <T> the type of the input to the predicate
-     */
+	 * Represents a predicate (boolean-valued function) of one argument.
+	 * <p>
+	 * This functionality was added in Java 1.8 so for backward compatibility
+	 * to Java 1.5 the required methods from the java.util.function.Predicate
+	 * interface have been duplicated here.
+	 * 
+	 * @param <T>
+	 *            the generic type
+	 */
     public interface SimplePredicate<T> {
 
         /**
@@ -1160,6 +1164,13 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         boolean test(T t);
     }
     
+    /**
+	 * Removes from the list the if an element passes the filter.
+	 *
+	 * @param filter
+	 *            the filter
+	 * @return true, if the list was modified
+	 */
     public boolean removeIf(SimplePredicate<? super E> filter) {
         Objects.requireNonNull(filter);
         // figure out which elements are to be removed

@@ -40,16 +40,33 @@ public class BooleanArray implements Iterable<Boolean>
 	private boolean[] values;
 	private int n = 0;
 
+	/**
+	 * Instantiates a new boolean array.
+	 */
 	public BooleanArray()
 	{
 		values = new boolean[10];
 	}
 
+	/**
+	 * Instantiates a new boolean array.
+	 *
+	 * @param capacity
+	 *            the capacity
+	 */
 	public BooleanArray(int capacity)
 	{
 		values = new boolean[capacity];
 	}
 
+	/**
+	 * Instantiates a new boolean array.
+	 *
+	 * @param data
+	 *            the data
+	 * @param clone
+	 *            the clone
+	 */
 	public BooleanArray(boolean[] data, boolean clone)
 	{
 		if (data != null)

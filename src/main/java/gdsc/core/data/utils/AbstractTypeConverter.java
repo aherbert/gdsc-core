@@ -28,7 +28,9 @@
 package gdsc.core.data.utils;
 
 /**
- * Base class for converters
+ * Base class for converters.
+ *
+ * @param <T> the generic type
  */
 public abstract class AbstractTypeConverter<T> implements TypeConverter<T>
 {

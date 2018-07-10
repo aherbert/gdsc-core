@@ -62,8 +62,8 @@ public class FloatHistogram extends Histogram
 	/**
 	 * Instantiates a new float histogram.
 	 *
-	 * @param values
-	 *            the bin values
+	 * @param value
+	 *            the value
 	 * @param h
 	 *            the histogram bin counts
 	 */

@@ -39,18 +39,31 @@ import ij.text.TextWindow2;
  */
 public class BufferedTextWindow
 {
+	/** The text window. */
 	public final Frame textWindow;
 	private final TextPanel textPanel;
 	private int count = 0;
 	private int nextFlush = 10;
 	private int increment = 10;
 
+	/**
+	 * Instantiates a new buffered text window.
+	 *
+	 * @param textWindow
+	 *            the text window
+	 */
 	public BufferedTextWindow(TextWindow textWindow)
 	{
 		this.textWindow = textWindow;
 		textPanel = textWindow.getTextPanel();
 	}
 
+	/**
+	 * Instantiates a new buffered text window.
+	 *
+	 * @param textWindow
+	 *            the text window
+	 */
 	public BufferedTextWindow(TextWindow2 textWindow)
 	{
 		this.textWindow = textWindow;
@@ -98,6 +111,11 @@ public class BufferedTextWindow
 		this.increment = increment;
 	}
 
+	/**
+	 * Checks if is visible.
+	 *
+	 * @return true, if is visible
+	 */
 	public boolean isVisible()
 	{
 		return textWindow.isVisible();
