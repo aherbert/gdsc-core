@@ -369,10 +369,12 @@ public class ImageJAnalyticsTracker
 	}
 
 	/**
-	 * Get the key used for the given name and argument in the plugin map
-	 * 
+	 * Get the key used for the given name and argument in the plugin map.
+	 *
 	 * @param name
+	 *            the name
 	 * @param argument
+	 *            the argument
 	 * @return The key
 	 */
 	public static String getKey(String name, String argument)

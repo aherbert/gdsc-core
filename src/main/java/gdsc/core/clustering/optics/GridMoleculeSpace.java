@@ -272,9 +272,10 @@ class GridMoleculeSpace extends MoleculeSpace
 	}
 
 	/**
-	 * Get the number of distance comparisons
-	 * 
+	 * Get the number of distance comparisons.
+	 *
 	 * @param molecules
+	 *            the molecules
 	 * @return the number of distance comparisons
 	 */
 	public static double comparisons(double molecules)

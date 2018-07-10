@@ -39,9 +39,10 @@ public class BooleanRollingArray
 	private int index, count, sum;
 
 	/**
-	 * Create a rolling array
-	 * 
+	 * Create a rolling array.
+	 *
 	 * @param capacity
+	 *            the capacity
 	 */
 	public BooleanRollingArray(int capacity)
 	{

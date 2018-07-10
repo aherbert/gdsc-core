@@ -40,9 +40,10 @@ public class IntRollingArray
 	private long sum;
 
 	/**
-	 * Create a rolling array
-	 * 
+	 * Create a rolling array.
+	 *
 	 * @param capacity
+	 *            the capacity
 	 */
 	public IntRollingArray(int capacity)
 	{

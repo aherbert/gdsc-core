@@ -88,21 +88,25 @@ import ij.text.TextPanel;
 import ij.text.TextWindow;
 
 /**
- * Contains helper functions
+ * Contains helper functions.
  */
 public class Utils
 {
 	// Flags for buildImageList
 
-	/** Single plane (2D image) */
+	/** Single plane (2D image). */
 	public final static int SINGLE = 1;
-	/** Binary image */
+
+	/** Binary image. */
 	public final static int BINARY = 2;
-	/** Greyscale image (8, 16, 32 bit) */
+
+	/** Greyscale image (8, 16, 32 bit). */
 	public final static int GREY_SCALE = 4;
-	/** Greyscale image (8, 16 bit) */
+
+	/** Greyscale image (8, 16 bit). */
 	public final static int GREY_8_16 = 8;
-	/** Add no image option */
+
+	/** Add no image option. */
 	public final static int NO_IMAGE = 16;
 
 	/** The constant for no image title. */
@@ -111,9 +115,10 @@ public class Utils
 	private static boolean newWindow = false;
 
 	/**
-	 * Splits a full path into the directory and filename
-	 * 
+	 * Splits a full path into the directory and filename.
+	 *
 	 * @param path
+	 *            the path
 	 * @return directory and filename
 	 */
 	public static String[] decodePath(String path)
@@ -165,9 +170,11 @@ public class Utils
 
 	/**
 	 * Show the image. Replace a currently open image with the specified title or else create a new image.
-	 * 
+	 *
 	 * @param title
+	 *            the title
 	 * @param ip
+	 *            the image processor
 	 * @return the
 	 */
 	public static ImagePlus display(String title, ImageProcessor ip)
@@ -181,7 +188,7 @@ public class Utils
 	 * @param title
 	 *            the title
 	 * @param ip
-	 *            the ip
+	 *            the image processor
 	 * @param flags
 	 *            the flags
 	 * @return the
@@ -197,7 +204,7 @@ public class Utils
 	 * @param title
 	 *            the title
 	 * @param ip
-	 *            the ip
+	 *            the image processor
 	 * @param flags
 	 *            the flags
 	 * @param windowOrganiser
@@ -316,11 +323,15 @@ public class Utils
 
 	/**
 	 * Show the image. Replace a currently open image with the specified title or else create a new image.
-	 * 
+	 *
 	 * @param title
+	 *            the title
 	 * @param data
+	 *            the data
 	 * @param w
+	 *            the width
 	 * @param h
+	 *            the height
 	 * @return the image
 	 */
 	public static ImagePlus display(String title, double[] data, int w, int h)
@@ -336,9 +347,9 @@ public class Utils
 	 * @param data
 	 *            the data
 	 * @param w
-	 *            the w
+	 *            the width
 	 * @param h
-	 *            the h
+	 *            the height
 	 * @param flags
 	 *            the flags
 	 * @return the image
@@ -355,11 +366,15 @@ public class Utils
 
 	/**
 	 * Show the image. Replace a currently open image with the specified title or else create a new image.
-	 * 
+	 *
 	 * @param title
+	 *            the title
 	 * @param data
+	 *            the data
 	 * @param w
+	 *            the width
 	 * @param h
+	 *            the height
 	 * @return the image
 	 */
 	public static ImagePlus display(String title, double[][] data, int w, int h)
@@ -375,9 +390,9 @@ public class Utils
 	 * @param data
 	 *            the data
 	 * @param w
-	 *            the w
+	 *            the width
 	 * @param h
-	 *            the h
+	 *            the height
 	 * @param flags
 	 *            the flags
 	 * @return the image
@@ -631,8 +646,9 @@ public class Utils
 
 	/**
 	 * Hide the image window.
-	 * 
+	 *
 	 * @param title
+	 *            the title
 	 * @return True if a window with the title was found
 	 */
 	public static boolean hide(String title)
@@ -655,9 +671,10 @@ public class Utils
 	}
 
 	/**
-	 * Close the named window
-	 * 
+	 * Close the named window.
+	 *
 	 * @param name
+	 *            the name
 	 */
 	public static void close(String name)
 	{
@@ -675,9 +692,10 @@ public class Utils
 	}
 
 	/**
-	 * Calculate a histogram given the provided data
-	 * 
+	 * Calculate a histogram given the provided data.
+	 *
 	 * @param data
+	 *            the data
 	 * @param numBins
 	 *            The number of histogram bins between min and max
 	 * @return The histogram as a pair of arrays: { value[], frequency[] }
@@ -702,8 +720,9 @@ public class Utils
 	 * The histogram will create the specified number of bins to accommodate all data between the minimum and maximum
 	 * inclusive. The number of bins must be above one so that min and max are in different bins. If min and max are the
 	 * same then the number of bins is set to 1.
-	 * 
+	 *
 	 * @param data
+	 *            the data
 	 * @param min
 	 *            The minimum value to include (inclusive)
 	 * @param max
@@ -761,9 +780,10 @@ public class Utils
 	}
 
 	/**
-	 * Calculate a histogram given the provided data
-	 * 
+	 * Calculate a histogram given the provided data.
+	 *
 	 * @param data
+	 *            the data
 	 * @param numBins
 	 *            The number of histogram bins between min and max
 	 * @return The histogram as a pair of arrays: { value[], frequency[] }
@@ -788,8 +808,9 @@ public class Utils
 	 * The histogram will create the specified number of bins to accommodate all data between the minimum and maximum
 	 * inclusive. The number of bins must be above one so that min and max are in different bins. If min and max are the
 	 * same then the number of bins is set to 1.
-	 * 
+	 *
 	 * @param data
+	 *            the data
 	 * @param min
 	 *            The minimum value to include (inclusive)
 	 * @param max
@@ -923,8 +944,9 @@ public class Utils
 	/**
 	 * For the provided histogram y-axis values, produce a y-axis for plotting. This functions doubles up the histogram
 	 * values to allow plotting a square line profile using the ImageJ plot command.
-	 * 
+	 *
 	 * @param histogramY
+	 *            the histogram Y
 	 * @return the y-axis values
 	 */
 	public static double[] createHistogramValues(double[] histogramY)
@@ -942,8 +964,8 @@ public class Utils
 	}
 
 	/**
-	 * Return the histogram statistics
-	 * 
+	 * Return the histogram statistics.
+	 *
 	 * @param x
 	 *            Histogram values
 	 * @param y
@@ -987,10 +1009,12 @@ public class Utils
 	}
 
 	/**
-	 * Logs a message to the ImageJ log
-	 * 
+	 * Logs a message to the ImageJ log.
+	 *
 	 * @param format
+	 *            the format
 	 * @param args
+	 *            the args
 	 */
 	public static void log(String format, Object... args)
 	{
@@ -1270,7 +1294,7 @@ public class Utils
 	}
 
 	/**
-	 * The method to select the number of histogram bins
+	 * The method to select the number of histogram bins.
 	 */
 	public enum BinMethod
 	{
@@ -1420,6 +1444,8 @@ public class Utils
 	public static Plot2 plot;
 
 	/**
+	 * Checks if is new window.
+	 *
 	 * @return True is the last call to display created a new window
 	 */
 	public static boolean isNewWindow()
@@ -1458,8 +1484,8 @@ public class Utils
 	}
 
 	/**
-	 * Use reflection to replace the progress bar with null
-	 * 
+	 * Use reflection to replace the progress bar with null.
+	 *
 	 * @param showProgress
 	 *            Set to true to disable the progress bar
 	 */
@@ -1499,7 +1525,7 @@ public class Utils
 	private static JLabel statusLine = null;
 
 	/**
-	 * Gets the ImageJ GUI status bar label
+	 * Gets the ImageJ GUI status bar label.
 	 *
 	 * @return the status bar label
 	 */
@@ -1535,8 +1561,8 @@ public class Utils
 	}
 
 	/**
-	 * Use reflection to replace the status bar label with null
-	 * 
+	 * Use reflection to replace the status bar label with null.
+	 *
 	 * @param showStatus
 	 *            Set to true to disable the status bar
 	 */
@@ -1574,9 +1600,10 @@ public class Utils
 	}
 
 	/**
-	 * Convert time in milliseconds into a nice string
-	 * 
+	 * Convert time in milliseconds into a nice string.
+	 *
 	 * @param time
+	 *            the time
 	 * @return The string
 	 */
 	public static String timeToString(double time)
@@ -1597,10 +1624,12 @@ public class Utils
 	}
 
 	/**
-	 * Replace the filename extension with the specified extension
-	 * 
+	 * Replace the filename extension with the specified extension.
+	 *
 	 * @param filename
+	 *            the filename
 	 * @param extension
+	 *            the extension
 	 * @return the new filename
 	 */
 	public static String replaceExtension(String filename, String extension)
@@ -1619,9 +1648,10 @@ public class Utils
 	}
 
 	/**
-	 * Remove the filename extension
-	 * 
+	 * Remove the filename extension.
+	 *
 	 * @param filename
+	 *            the filename
 	 * @return the new filename
 	 */
 	public static String removeExtension(String filename)
@@ -1641,9 +1671,11 @@ public class Utils
 	/**
 	 * Check if the current window has the given headings, refreshing the headings if necessary.
 	 * Only works if the window is showing.
-	 * 
+	 *
 	 * @param textWindow
+	 *            the text window
 	 * @param headings
+	 *            the headings
 	 * @param preserve
 	 *            Preserve the current data (note that is may not match the new headings)
 	 * @return True if the window headings were changed
@@ -1674,8 +1706,8 @@ public class Utils
 	}
 
 	/**
-	 * Create and fill an array
-	 * 
+	 * Create and fill an array.
+	 *
 	 * @param length
 	 *            The length of the array
 	 * @param start
@@ -1695,8 +1727,8 @@ public class Utils
 	}
 
 	/**
-	 * Create and fill an array
-	 * 
+	 * Create and fill an array.
+	 *
 	 * @param length
 	 *            The length of the array
 	 * @param start
@@ -1788,8 +1820,8 @@ public class Utils
 	}
 
 	/**
-	 * Open a directory selection dialog using the given title (and optionally the default directory)
-	 * 
+	 * Open a directory selection dialog using the given title (and optionally the default directory).
+	 *
 	 * @param title
 	 *            The dialog title
 	 * @param directory
@@ -1809,8 +1841,8 @@ public class Utils
 	}
 
 	/**
-	 * Open a file selection dialog using the given title (and optionally the default path)
-	 * 
+	 * Open a file selection dialog using the given title (and optionally the default path).
+	 *
 	 * @param title
 	 *            The dialog title
 	 * @param filename
@@ -1850,9 +1882,10 @@ public class Utils
 	}
 
 	/**
-	 * Convert the input array to a double
-	 * 
+	 * Convert the input array to a double.
+	 *
 	 * @param a
+	 *            the a
 	 * @return The new array
 	 * @deprecated This method has been moved to gdsc.core.utils.SimpleArrayUtils
 	 */
@@ -1868,9 +1901,10 @@ public class Utils
 	}
 
 	/**
-	 * Convert the input array to a float
-	 * 
+	 * Convert the input array to a float.
+	 *
 	 * @param a
+	 *            the a
 	 * @return The new array
 	 * @deprecated This method has been moved to gdsc.core.utils.SimpleArrayUtils
 	 */
@@ -1927,8 +1961,9 @@ public class Utils
 
 	/**
 	 * Check if the string is null or length zero. Does not check for a string of whitespace.
-	 * 
+	 *
 	 * @param string
+	 *            the string
 	 * @return true if the string is null or length zero
 	 * @deprecated This method has been moved to gdsc.core.utils.TextUtils
 	 */
@@ -1941,8 +1976,8 @@ public class Utils
 	private static long lastTime = 0;
 
 	/**
-	 * Show a message on the status bar if enough time has passed since the last call
-	 * 
+	 * Show a message on the status bar if enough time has passed since the last call.
+	 *
 	 * @param message
 	 *            The message
 	 * @return True if shown
@@ -2008,10 +2043,9 @@ public class Utils
 	/**
 	 * Returns a list of the IDs of open images. Returns
 	 * an empty array if no windows are open.
-	 * 
-	 * @see ij.WindowManager#getIDList()
-	 * 
+	 *
 	 * @return List of IDs
+	 * @see ij.WindowManager#getIDList()
 	 */
 	public static int[] getIDList()
 	{
@@ -2071,8 +2105,8 @@ public class Utils
 	}
 
 	/**
-	 * Return true if the image title ends with any of the specified suffixes
-	 * 
+	 * Return true if the image title ends with any of the specified suffixes.
+	 *
 	 * @param ignoreSuffix
 	 *            A list of title suffixes to ignore
 	 * @param title
@@ -2115,7 +2149,7 @@ public class Utils
 	}
 
 	/**
-	 * Return the interval for reporting progress to the ImageJ progress bar given the total number of steps
+	 * Return the interval for reporting progress to the ImageJ progress bar given the total number of steps.
 	 *
 	 * @param total
 	 *            the total number of steps
@@ -2127,9 +2161,10 @@ public class Utils
 	}
 
 	/**
-	 * Combine the arguments into a complete file path
-	 * 
+	 * Combine the arguments into a complete file path.
+	 *
 	 * @param paths
+	 *            the paths
 	 * @return The file path
 	 */
 	public static String combinePath(String... paths)
@@ -2145,10 +2180,12 @@ public class Utils
 	}
 
 	/**
-	 * Perform an either/or operator
-	 * 
+	 * Perform an either/or operator.
+	 *
 	 * @param a
+	 *            the a
 	 * @param b
+	 *            the b
 	 * @return true if one or the other is true but not both
 	 */
 	public static boolean xor(boolean a, boolean b)
@@ -2157,8 +2194,8 @@ public class Utils
 	}
 
 	/**
-	 * Extracts a single tile image processor from a hyperstack using the given projection method from the ZProjector
-	 * 
+	 * Extracts a single tile image processor from a hyperstack using the given projection method from the ZProjector.
+	 *
 	 * @param imp
 	 *            Image hyperstack
 	 * @param frame
@@ -2166,8 +2203,8 @@ public class Utils
 	 * @param channel
 	 *            The channel to extract
 	 * @param projectionMethod
+	 *            the projection method
 	 * @return A new image processor
-	 * 
 	 * @see ij.plugin.ZProjector
 	 */
 	public static ImageProcessor extractTile(ImagePlus imp, int frame, int channel, int projectionMethod)
@@ -2195,9 +2232,10 @@ public class Utils
 	}
 
 	/**
-	 * Add the platform specific file separator character to the directory (if missing)
-	 * 
+	 * Add the platform specific file separator character to the directory (if missing).
+	 *
 	 * @param directory
+	 *            the directory
 	 * @return The directory
 	 */
 	public static String addFileSeparator(String directory)

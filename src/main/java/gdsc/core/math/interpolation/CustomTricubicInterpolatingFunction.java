@@ -1657,7 +1657,7 @@ public class CustomTricubicInterpolatingFunction
 	/**
 	 * Gets the scale to convert the cube interval 0-1 back to correctly scaled values.
 	 * <p>
-	 * This is only valid if the function is uniform on each input axis (see {@link #isUniform}).
+	 * This is only valid if the function is uniform on each input axis (see {@link #isUniform()}).
 	 *
 	 * @return the scale
 	 * @throws IllegalStateException

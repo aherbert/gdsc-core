@@ -32,6 +32,7 @@ package gdsc.core.match;
  */
 public class AUCCalculator
 {
+	
 	/**
 	 * Calculates an estimate of the area under the precision-recall curve.
 	 * <p>
@@ -42,7 +43,9 @@ public class AUCCalculator
 	 * If no recall values are above the limit then the full integration is performed.
 	 *
 	 * @param precision
+	 *            the precision
 	 * @param recall
+	 *            the recall
 	 * @param recallLimit
 	 *            Set to 0 to compute the full area.
 	 * @return Area under the PR curve
@@ -111,7 +114,9 @@ public class AUCCalculator
 	 * Assumes the first values in the two arrays are precision 1 at recall 0.
 	 *
 	 * @param precision
+	 *            the precision
 	 * @param recall
+	 *            the recall
 	 * @return Area under the PR curve
 	 */
 	public static double auc(double[] precision, double[] recall)

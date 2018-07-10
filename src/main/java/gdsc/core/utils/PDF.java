@@ -81,9 +81,10 @@ public class PDF
 	}
 
 	/**
-	 * Sample from the PDF using a uniform random number
-	 * 
+	 * Sample from the PDF using a uniform random number (in the range 0-1).
+	 *
 	 * @param r1
+	 *            the random number
 	 * @return the sample (or -1 on error)
 	 */
 	public double sample(double r1)

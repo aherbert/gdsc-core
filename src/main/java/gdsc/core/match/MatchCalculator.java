@@ -40,13 +40,16 @@ import org.apache.commons.math3.util.FastMath;
  */
 public class MatchCalculator
 {
+
 	/**
 	 * Calculate the match results for the given actual and predicted points.
 	 * Points that are within the distance threshold are identified as a match.
 	 * The number of true positives, false positives and false negatives are calculated.
-	 * 
+	 *
 	 * @param actualPoints
+	 *            the actual points
 	 * @param predictedPoints
+	 *            the predicted points
 	 * @param dThreshold
 	 *            The distance threshold
 	 * @return The match results
@@ -61,9 +64,11 @@ public class MatchCalculator
 	 * Calculate the match results for the given actual and predicted points.
 	 * Points that are within the distance threshold are identified as a match.
 	 * The number of true positives, false positives and false negatives are calculated.
-	 * 
+	 *
 	 * @param actualPoints
+	 *            the actual points
 	 * @param predictedPoints
+	 *            the predicted points
 	 * @param dThreshold
 	 *            The distance threshold
 	 * @param TP
@@ -84,9 +89,11 @@ public class MatchCalculator
 	 * Calculate the match results for the given actual and predicted points.
 	 * Points that are within the distance threshold are identified as a match.
 	 * The number of true positives, false positives and false negatives are calculated.
-	 * 
+	 *
 	 * @param actualPoints
+	 *            the actual points
 	 * @param predictedPoints
+	 *            the predicted points
 	 * @param dThreshold
 	 *            The distance threshold
 	 * @param TP
@@ -284,9 +291,11 @@ public class MatchCalculator
 	 * The number of true positives, false positives and false negatives are calculated.
 	 * <p>
 	 * Use a single pass algorithm suitable if the total number of possible pairs is small (<100000)
-	 * 
+	 *
 	 * @param actualPoints
+	 *            the actual points
 	 * @param predictedPoints
+	 *            the predicted points
 	 * @param dThreshold
 	 *            The distance threshold
 	 * @param TP
@@ -398,9 +407,11 @@ public class MatchCalculator
 	 * Calculate the match results for the given actual and predicted points.
 	 * Points that are within the distance threshold are identified as a match.
 	 * The number of true positives, false positives and false negatives are calculated.
-	 * 
+	 *
 	 * @param actualPoints
+	 *            the actual points
 	 * @param predictedPoints
+	 *            the predicted points
 	 * @param dThreshold
 	 *            The distance threshold
 	 * @return The match results
@@ -415,9 +426,11 @@ public class MatchCalculator
 	 * Calculate the match results for the given actual and predicted points.
 	 * Points that are within the distance threshold are identified as a match.
 	 * The number of true positives, false positives and false negatives are calculated.
-	 * 
+	 *
 	 * @param actualPoints
+	 *            the actual points
 	 * @param predictedPoints
+	 *            the predicted points
 	 * @param dThreshold
 	 *            The distance threshold
 	 * @param TP
@@ -438,9 +451,11 @@ public class MatchCalculator
 	 * Calculate the match results for the given actual and predicted points.
 	 * Points that are within the distance threshold are identified as a match.
 	 * The number of true positives, false positives and false negatives are calculated.
-	 * 
+	 *
 	 * @param actualPoints
+	 *            the actual points
 	 * @param predictedPoints
+	 *            the predicted points
 	 * @param dThreshold
 	 *            The distance threshold
 	 * @param TP
@@ -631,9 +646,11 @@ public class MatchCalculator
 	 * The number of true positives, false positives and false negatives are calculated.
 	 * <p>
 	 * Use a single pass algorithm suitable if the total number of possible pairs is small (<100000)
-	 * 
+	 *
 	 * @param actualPoints
+	 *            the actual points
 	 * @param predictedPoints
+	 *            the predicted points
 	 * @param dThreshold
 	 *            The distance threshold
 	 * @param TP
@@ -750,9 +767,11 @@ public class MatchCalculator
 	 * <p>
 	 * The total score is stored in the RMSD field of the MatchResult. The number of true positives, false positives and
 	 * false negatives are calculated.
-	 * 
+	 *
 	 * @param actualPoints
+	 *            the actual points
 	 * @param predictedPoints
+	 *            the predicted points
 	 * @param dThreshold
 	 *            The distance threshold
 	 * @param TP

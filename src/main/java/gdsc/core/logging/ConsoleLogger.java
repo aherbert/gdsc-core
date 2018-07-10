@@ -34,8 +34,9 @@ public class ConsoleLogger implements Logger
 {
 	/**
 	 * Log the message to the Java console. Appends a new line to the message.
-	 * 
+	 *
 	 * @param message
+	 *            the message
 	 */
 	@Override
 	public void info(String message)
@@ -46,9 +47,11 @@ public class ConsoleLogger implements Logger
 	/**
 	 * Log the arguments using the given format to the Java console. Appends a new line to the console if the format is
 	 * missing the \n character.
-	 * 
+	 *
 	 * @param format
+	 *            the format
 	 * @param args
+	 *            the args
 	 */
 	@Override
 	public void info(String format, Object... args)

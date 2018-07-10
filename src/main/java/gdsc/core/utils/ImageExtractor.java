@@ -30,7 +30,7 @@ package gdsc.core.utils;
 import java.awt.Rectangle;
 
 /**
- * Contains methods for extracting parts of an image
+ * Contains methods for extracting parts of an image.
  */
 public class ImageExtractor
 {
@@ -43,8 +43,8 @@ public class ImageExtractor
 	public final int height;
 
 	/**
-	 * Constructor
-	 * 
+	 * Constructor.
+	 *
 	 * @param data
 	 *            The image data
 	 * @param width
@@ -105,9 +105,11 @@ public class ImageExtractor
 
 	/**
 	 * Truncate the input data to the given length. Does nothing if the data is shorter or null.
-	 * 
+	 *
 	 * @param data
+	 *            the data
 	 * @param length
+	 *            the length
 	 * @return The truncated data
 	 */
 	public static float[] truncate(float[] data, int length)
@@ -170,9 +172,11 @@ public class ImageExtractor
 
 	/**
 	 * Truncate the input data to the given length. Does nothing if the data is shorter or null.
-	 * 
+	 *
 	 * @param data
+	 *            the data
 	 * @param length
+	 *            the length
 	 * @return The truncated data
 	 */
 	public static double[] truncate(double[] data, int length)
@@ -192,10 +196,13 @@ public class ImageExtractor
 	/**
 	 * Calculate a square region of size 2n+1 around the given coordinates. Respects the image boundaries and
 	 * so may return a non-square region.
-	 * 
+	 *
 	 * @param x
+	 *            the x
 	 * @param y
+	 *            the y
 	 * @param n
+	 *            the n
 	 * @return The region
 	 */
 	public Rectangle getBoxRegionBounds(int x, int y, int n)

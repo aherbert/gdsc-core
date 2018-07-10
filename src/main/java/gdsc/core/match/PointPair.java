@@ -36,8 +36,12 @@ public class PointPair
 	private Coordinate point2;
 
 	/**
+	 * Instantiates a new point pair.
+	 *
 	 * @param point1
+	 *            the point 1
 	 * @param point2
+	 *            the point 2
 	 */
 	public PointPair(Coordinate point1, Coordinate point2)
 	{

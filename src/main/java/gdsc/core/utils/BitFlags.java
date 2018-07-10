@@ -28,17 +28,19 @@
 package gdsc.core.utils;
 
 /**
- * Class for manipulating bit flags
- * 
+ * Class for manipulating bit flags.
+ *
  * @author Alex Herbert
  */
 public class BitFlags
 {
 	/**
-	 * Check if all of the given bits are set in the flags
-	 * 
+	 * Check if all of the given bits are set in the flags.
+	 *
 	 * @param flags
+	 *            the flags
 	 * @param bits
+	 *            the bits
 	 * @return True if all are set
 	 */
 	public static boolean areSet(final int flags, final int bits)
@@ -47,10 +49,12 @@ public class BitFlags
 	}
 
 	/**
-	 * Check if any of the given bits are set in the flags
-	 * 
+	 * Check if any of the given bits are set in the flags.
+	 *
 	 * @param flags
+	 *            the flags
 	 * @param bits
+	 *            the bits
 	 * @return True if any are set
 	 */
 	public static boolean anySet(final int flags, final int bits)
@@ -59,10 +63,12 @@ public class BitFlags
 	}
 
 	/**
-	 * Check if any of the given bits are not set in the flags
-	 * 
+	 * Check if any of the given bits are not set in the flags.
+	 *
 	 * @param flags
+	 *            the flags
 	 * @param bits
+	 *            the bits
 	 * @return True if any are not set
 	 */
 	public static boolean anyNotSet(final int flags, final int bits)

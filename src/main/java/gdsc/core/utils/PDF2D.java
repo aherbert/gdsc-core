@@ -86,10 +86,12 @@ public class PDF2D
 	}
 
 	/**
-	 * Sample from the histogram using two uniform random numbers
-	 * 
+	 * Sample from the histogram using two uniform random numbers (in the range 0-1).
+	 *
 	 * @param r1
+	 *            the first random number
 	 * @param r2
+	 *            the second random number
 	 * @param point
 	 *            The output coordinates buffer
 	 * @return true if a sample was produced

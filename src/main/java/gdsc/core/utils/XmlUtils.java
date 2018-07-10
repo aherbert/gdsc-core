@@ -47,7 +47,7 @@ import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 
 /**
- * XML Utilities
+ * XML Utilities.
  */
 public class XmlUtils
 {
@@ -55,8 +55,9 @@ public class XmlUtils
 
 	/**
 	 * Pretty print format XML. Assumes XML is valid.
-	 * 
+	 *
 	 * @param xml
+	 *            the xml
 	 * @return pretty-print formatted XML
 	 */
 	public static String formatXml(String xml)
@@ -66,9 +67,11 @@ public class XmlUtils
 
 	/**
 	 * Pretty print format XML. Assumes XML is valid.
-	 * 
+	 *
 	 * @param xml
+	 *            the xml
 	 * @param initialIndent
+	 *            the initial indent
 	 * @return pretty-print formatted XML
 	 */
 	public static String formatXml(String xml, int initialIndent)
@@ -216,8 +219,9 @@ public class XmlUtils
 	 * Formats an XML string for pretty printing. Requires Java 1.6.
 	 * 
 	 * Taken from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java
-	 * 
+	 *
 	 * @param xml
+	 *            the xml
 	 * @return pretty-print formatted XML
 	 */
 	public static String prettyPrintXml(String xml)
@@ -248,8 +252,9 @@ public class XmlUtils
 
 	/**
 	 * Return the contents of the node as a string. Any exceptions are ignored and the method returns null.
-	 * 
+	 *
 	 * @param node
+	 *            the node
 	 * @param indent
 	 *            Indent the XML when formatting
 	 * @return The node contents

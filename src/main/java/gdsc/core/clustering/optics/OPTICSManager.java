@@ -719,11 +719,14 @@ public class OPTICSManager extends CoordinateStore
 	}
 
 	/**
-	 * Input arrays are modified
-	 * 
+	 * Input arrays are modified.
+	 *
 	 * @param xcoord
+	 *            the xcoord
 	 * @param ycoord
+	 *            the ycoord
 	 * @param bounds
+	 *            the bounds
 	 * @throws IllegalArgumentException
 	 *             if results are null or empty
 	 */

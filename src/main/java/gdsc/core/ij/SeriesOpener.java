@@ -55,9 +55,10 @@ public class SeriesOpener
 	private int numberOfThreads = 0;
 
 	/**
-	 * Create an opener with the given path
-	 * 
+	 * Create an opener with the given path.
+	 *
 	 * @param path
+	 *            the path
 	 */
 	public SeriesOpener(String path)
 	{
@@ -66,9 +67,10 @@ public class SeriesOpener
 	}
 
 	/**
-	 * Create an opener with the given path
-	 * 
+	 * Create an opener with the given path.
+	 *
 	 * @param path
+	 *            the path
 	 * @param showDialog
 	 *            Open a dialog and allow the user to filter the images
 	 * @param numberOfThreads

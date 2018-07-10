@@ -57,6 +57,7 @@ public class OPTICSCluster
 	 * @param end
 	 *            the end
 	 * @param clusterId
+	 *            the cluster id
 	 */
 	public OPTICSCluster(int start, int end, int clusterId)
 	{

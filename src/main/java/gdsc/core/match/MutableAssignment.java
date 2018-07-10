@@ -87,9 +87,10 @@ public class MutableAssignment implements Assignment
 	}
 
 	/**
-	 * Set the target Id
-	 * 
+	 * Set the target Id.
+	 *
 	 * @param targetId
+	 *            the new target id
 	 */
 	public void setTargetId(int targetId)
 	{

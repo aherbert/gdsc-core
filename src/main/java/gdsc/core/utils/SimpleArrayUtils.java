@@ -183,6 +183,7 @@ public class SimpleArrayUtils
 	 * Convert the input array to a double
 	 * 
 	 * @param a
+	 *            the array
 	 * @return The new array
 	 */
 	public static double[] toDouble(float[] a)
@@ -199,6 +200,7 @@ public class SimpleArrayUtils
 	 * Convert the input array to a double
 	 * 
 	 * @param a
+	 *            the array
 	 * @return The new array
 	 */
 	public static double[] toDouble(int[] a)
@@ -215,6 +217,7 @@ public class SimpleArrayUtils
 	 * Convert the input array to a float
 	 * 
 	 * @param a
+	 *            the array
 	 * @return The new array
 	 */
 	public static float[] toFloat(double[] a)
@@ -231,6 +234,7 @@ public class SimpleArrayUtils
 	 * Convert the input array to a float
 	 * 
 	 * @param a
+	 *            the array
 	 * @return The new array
 	 */
 	public static float[] toFloat(int[] a)
@@ -426,9 +430,10 @@ public class SimpleArrayUtils
 	}
 
 	/**
-	 * Reverse the array order
-	 * 
+	 * Reverse the array order.
+	 *
 	 * @param data
+	 *            the data
 	 */
 	public static void reverse(int[] data)
 	{
@@ -449,9 +454,10 @@ public class SimpleArrayUtils
 	}
 
 	/**
-	 * Reverse the array order
-	 * 
+	 * Reverse the array order.
+	 *
 	 * @param data
+	 *            the data
 	 */
 	public static void reverse(float[] data)
 	{
@@ -472,9 +478,10 @@ public class SimpleArrayUtils
 	}
 
 	/**
-	 * Reverse the array order
-	 * 
+	 * Reverse the array order.
+	 *
 	 * @param data
+	 *            the data
 	 */
 	public static void reverse(double[] data)
 	{

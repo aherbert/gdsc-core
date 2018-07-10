@@ -61,11 +61,14 @@ public class DensityManager extends CoordinateStore
 	}
 
 	/**
-	 * Input arrays are modified
-	 * 
+	 * Input arrays are modified.
+	 *
 	 * @param xcoord
+	 *            the xcoord
 	 * @param ycoord
+	 *            the ycoord
 	 * @param bounds
+	 *            the bounds
 	 * @throws IllegalArgumentException
 	 *             if results are null or empty
 	 */
@@ -87,9 +90,12 @@ public class DensityManager extends CoordinateStore
 	 * Note that the score is the number of molecules surrounding the given molecule, so the molecule itself is not
 	 * counted.
 	 *
-	 * @param radius the radius
-	 * @param resolution the resolution
-	 * @param adjustForBorder the adjust for border
+	 * @param radius
+	 *            the radius
+	 * @param resolution
+	 *            the resolution
+	 * @param adjustForBorder
+	 *            the adjust for border
 	 * @return the density
 	 */
 	public int[] calculateSquareDensity(float radius, int resolution, boolean adjustForBorder)
@@ -528,8 +534,10 @@ public class DensityManager extends CoordinateStore
 	 * Note that the score is the number of molecules surrounding the given molecule, so the molecule itself is not
 	 * counted.
 	 *
-	 * @param radius the radius
-	 * @param adjustForBorder Set to true to adjust for border
+	 * @param radius
+	 *            the radius
+	 * @param adjustForBorder
+	 *            Set to true to adjust for border
 	 * @return the density
 	 */
 	public int[] calculateDensity(float radius, boolean adjustForBorder)
@@ -653,7 +661,8 @@ public class DensityManager extends CoordinateStore
 	 * Note that the score is the number of molecules surrounding the given molecule, so the molecule itself is not
 	 * counted.
 	 *
-	 * @param radius the radius
+	 * @param radius
+	 *            the radius
 	 * @return the density
 	 */
 	public int[] calculateDensity(float radius)
@@ -692,7 +701,8 @@ public class DensityManager extends CoordinateStore
 	 * Note that the score is the number of molecules surrounding the given molecule, so the molecule itself is not
 	 * counted.
 	 *
-	 * @param radius the radius
+	 * @param radius
+	 *            the radius
 	 * @return the density
 	 */
 	public int[] calculateDensityTriangle(float radius)
@@ -730,7 +740,8 @@ public class DensityManager extends CoordinateStore
 	 * Note that the score is the number of molecules surrounding the given molecule, so the molecule itself is not
 	 * counted.
 	 *
-	 * @param radius the radius
+	 * @param radius
+	 *            the radius
 	 * @return the density
 	 */
 	public int[] calculateDensityGrid(float radius)
@@ -911,7 +922,8 @@ public class DensityManager extends CoordinateStore
 	 * <p>
 	 * The sum is over i<n, j<n, i!=j
 	 *
-	 * @param radius the radius
+	 * @param radius
+	 *            the radius
 	 * @return the pairs
 	 */
 	public int calculateSum(float radius)
@@ -945,7 +957,8 @@ public class DensityManager extends CoordinateStore
 	 * <p>
 	 * The sum is over i<n, j<n, i!=j
 	 *
-	 * @param radius the radius
+	 * @param radius
+	 *            the radius
 	 * @return the pairs
 	 */
 	public int calculateSumGrid(float radius)

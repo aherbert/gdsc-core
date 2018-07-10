@@ -32,7 +32,7 @@ import java.util.Arrays;
 import org.apache.commons.math3.util.FastMath;
 
 /**
- * Provides a rolling median window on a data array
+ * Provides a rolling median window on a data array.
  */
 public class MedianWindowInt
 {
@@ -43,10 +43,12 @@ public class MedianWindowInt
 	private boolean sortedScan = false;
 
 	/**
+	 * Instantiates a new median window int.
+	 *
 	 * @param data
+	 *            the data
 	 * @param radius
-	 * @throws IllegalArgumentException
-	 *             if the input data is null
+	 *            the radius
 	 * @throws IllegalArgumentException
 	 *             if the radius is negative
 	 */
@@ -61,8 +63,8 @@ public class MedianWindowInt
 	}
 
 	/**
-	 * Move the current position along the data array
-	 * 
+	 * Move the current position along the data array.
+	 *
 	 * @return True if the position is valid, False if the position is beyond the end of the array
 	 */
 	public boolean increment()
@@ -72,9 +74,10 @@ public class MedianWindowInt
 	}
 
 	/**
-	 * Move the current position along the data array the specified amount
-	 * 
+	 * Move the current position along the data array the specified amount.
+	 *
 	 * @param size
+	 *            the size
 	 * @return True if the position is valid, False if the position is beyond the end of the array
 	 */
 	public boolean increment(int size)
@@ -85,6 +88,8 @@ public class MedianWindowInt
 	}
 
 	/**
+	 * Gets the radius.
+	 *
 	 * @return the radius
 	 */
 	public int getRadius()
@@ -93,6 +98,8 @@ public class MedianWindowInt
 	}
 
 	/**
+	 * Gets the position.
+	 *
 	 * @return the current position. This may be beyond the end of the array.
 	 * @see #increment()
 	 */
@@ -118,6 +125,8 @@ public class MedianWindowInt
 	}
 
 	/**
+	 * Checks if is valid position.
+	 *
 	 * @return True if the current position is valid
 	 */
 	public boolean isValidPosition()
@@ -126,6 +135,8 @@ public class MedianWindowInt
 	}
 
 	/**
+	 * Checks if is sorted scan.
+	 *
 	 * @return true if using the sorted scan method
 	 */
 	public boolean isSortedScan()
@@ -150,6 +161,8 @@ public class MedianWindowInt
 	}
 
 	/**
+	 * Gets the median.
+	 *
 	 * @return The median (or NaN is the position is invalid)
 	 */
 	public float getMedian()

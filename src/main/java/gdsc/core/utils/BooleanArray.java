@@ -77,9 +77,10 @@ public class BooleanArray implements Iterable<Boolean>
 	}
 
 	/**
-	 * Add the data
-	 * 
+	 * Add the data.
+	 *
 	 * @param data
+	 *            the data
 	 */
 	public void add(boolean[] data)
 	{
@@ -116,9 +117,10 @@ public class BooleanArray implements Iterable<Boolean>
 	}
 
 	/**
-	 * Add the value
-	 * 
+	 * Add the value.
+	 *
 	 * @param value
+	 *            the value
 	 */
 	public void add(final boolean value)
 	{
@@ -144,8 +146,9 @@ public class BooleanArray implements Iterable<Boolean>
 	/**
 	 * Add the data. Synchronized for thread safety. (Multiple threads must all use the same safeAdd method to ensure
 	 * thread safety.)
-	 * 
+	 *
 	 * @param data
+	 *            the data
 	 */
 	synchronized public void safeAdd(boolean[] data)
 	{
@@ -161,8 +164,9 @@ public class BooleanArray implements Iterable<Boolean>
 	/**
 	 * Add the value. Synchronized for thread safety. (Multiple threads must all use the same safeAdd method to ensure
 	 * thread safety.)
-	 * 
+	 *
 	 * @param value
+	 *            the value
 	 */
 	synchronized public void safeAdd(final boolean value)
 	{

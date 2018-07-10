@@ -71,9 +71,10 @@ public class BufferedTextWindow
 	}
 
 	/**
-	 * Append the text, updating the display at the configured interval
-	 * 
+	 * Append the text, updating the display at the configured interval.
+	 *
 	 * @param text
+	 *            the text
 	 */
 	public void append(String text)
 	{

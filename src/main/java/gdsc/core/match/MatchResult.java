@@ -74,10 +74,12 @@ public class MatchResult
 	}
 
 	/**
-	 * Return the F-Score statistic, a weighted combination of the precision and recall
-	 * 
+	 * Return the F-Score statistic, a weighted combination of the precision and recall.
+	 *
 	 * @param precision
+	 *            the precision
 	 * @param recall
+	 *            the recall
 	 * @param beta
 	 *            The weight
 	 * @return The F-Score

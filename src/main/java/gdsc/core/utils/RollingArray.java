@@ -40,9 +40,10 @@ public class RollingArray
 	private double sum;
 
 	/**
-	 * Create a rolling array
-	 * 
+	 * Create a rolling array.
+	 *
 	 * @param capacity
+	 *            the capacity
 	 */
 	public RollingArray(int capacity)
 	{

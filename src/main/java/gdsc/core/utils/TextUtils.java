@@ -200,8 +200,9 @@ public class TextUtils
 
 	/**
 	 * Check if the string is null or length zero. Does not check for a string of whitespace.
-	 * 
+	 *
 	 * @param string
+	 *            the string
 	 * @return true if the string is null or length zero
 	 */
 	public static boolean isNullOrEmpty(String string)

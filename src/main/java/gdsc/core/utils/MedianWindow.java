@@ -77,9 +77,10 @@ public class MedianWindow
 	}
 
 	/**
-	 * Move the current position along the data array the specified amount
-	 * 
+	 * Move the current position along the data array the specified amount.
+	 *
 	 * @param size
+	 *            the size
 	 * @return True if the position is valid, False if the position is beyond the end of the array
 	 */
 	public boolean increment(int size)

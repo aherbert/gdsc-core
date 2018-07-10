@@ -45,7 +45,9 @@ public class FastCorrelator
 	 * Add a pair of data points
 	 * 
 	 * @param v1
+	 *            the first value
 	 * @param v2
+	 *            the second value
 	 */
 	public void add(final int v1, final int v2)
 	{
@@ -72,7 +74,9 @@ public class FastCorrelator
 	 * Add a pair of data points
 	 * 
 	 * @param v1
+	 *            the first value
 	 * @param v2
+	 *            the second value
 	 */
 	public void add(final long v1, final long v2)
 	{
@@ -99,7 +103,9 @@ public class FastCorrelator
 	 * Add a set of paired data points
 	 * 
 	 * @param v1
+	 *            the first values
 	 * @param v2
+	 *            the second values
 	 */
 	public void add(final int[] v1, final int[] v2)
 	{
@@ -116,7 +122,9 @@ public class FastCorrelator
 	 * Add a set of paired data points
 	 * 
 	 * @param v1
+	 *            the first values
 	 * @param v2
+	 *            the second values
 	 * @param length
 	 *            the length of the data set
 	 */

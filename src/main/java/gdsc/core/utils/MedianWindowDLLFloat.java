@@ -56,9 +56,10 @@ public class MedianWindowDLLFloat
 	private Data median;
 
 	/**
+	 * Instantiates a new median window DLL float.
+	 *
 	 * @param values
-	 * @throws IllegalArgumentException
-	 *             if the input data is null of zero length
+	 *            the values
 	 * @throws IllegalArgumentException
 	 *             if the input data is an even size
 	 */
@@ -141,6 +142,8 @@ public class MedianWindowDLLFloat
 	}
 
 	/**
+	 * Gets the median.
+	 *
 	 * @return The median
 	 */
 	public float getMedian()
@@ -346,9 +349,11 @@ public class MedianWindowDLLFloat
 	/**
 	 * Compute the median for the input data using a range of time points. The first time point added is t=0. Time
 	 * points after that have a positive index. The maximum allowed index is the data length-1
-	 * 
+	 *
 	 * @param start
+	 *            the start
 	 * @param end
+	 *            the end
 	 * @return the median
 	 */
 	public float getMedian(int start, int end)
@@ -383,8 +388,9 @@ public class MedianWindowDLLFloat
 
 	/**
 	 * Compute the median for the input data using the oldest n data points.
-	 * 
+	 *
 	 * @param n
+	 *            the n
 	 * @return the median
 	 */
 	public float getMedianOldest(int n)
@@ -394,8 +400,9 @@ public class MedianWindowDLLFloat
 
 	/**
 	 * Compute the median for the input data using the youngest n data points.
-	 * 
+	 *
 	 * @param n
+	 *            the n
 	 * @return the median
 	 */
 	public float getMedianYoungest(int n)
@@ -405,6 +412,8 @@ public class MedianWindowDLLFloat
 	}
 
 	/**
+	 * Gets the size.
+	 *
 	 * @return The size of the rolling window
 	 */
 	public int getSize()

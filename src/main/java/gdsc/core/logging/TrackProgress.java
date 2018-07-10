@@ -33,40 +33,48 @@ package gdsc.core.logging;
 public interface TrackProgress
 {
 	/**
-	 * Specify progress as a fraction
-	 * 
+	 * Specify progress as a fraction.
+	 *
 	 * @param fraction
+	 *            the fraction
 	 */
 	public void progress(double fraction);
 
 	/**
-	 * Specify progress as the position relative to the total
-	 * 
+	 * Specify progress as the position relative to the total.
+	 *
 	 * @param position
+	 *            the position
 	 * @param total
+	 *            the total
 	 */
 	public void progress(long position, long total);
 
 	/**
-	 * Specify an increment to the progress as a fraction
-	 * 
+	 * Specify an increment to the progress as a fraction.
+	 *
 	 * @param fraction
+	 *            the fraction
 	 */
 	public void incrementProgress(double fraction);
 
 	/**
-	 * Logs a message on the progress
-	 * 
+	 * Logs a message on the progress.
+	 *
 	 * @param format
+	 *            the format
 	 * @param args
+	 *            the args
 	 */
 	public void log(String format, Object... args);
 
 	/**
-	 * Sets the status on the progress
-	 * 
+	 * Sets the status on the progress.
+	 *
 	 * @param format
+	 *            the format
 	 * @param args
+	 *            the args
 	 */
 	public void status(String format, Object... args);
 

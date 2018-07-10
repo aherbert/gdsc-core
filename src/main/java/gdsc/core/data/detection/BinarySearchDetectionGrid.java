@@ -90,10 +90,12 @@ public class BinarySearchDetectionGrid implements DetectionGrid
 	}
 
 	/**
-	 * Sorts the indices in ascending order of their values
-	 * 
+	 * Sorts the indices in ascending order of their values.
+	 *
 	 * @param indices
+	 *            the indices
 	 * @param values
+	 *            the values
 	 * @return The indices
 	 */
 	public static int[] sort(int[] indices, final double[] values)

@@ -58,6 +58,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 	 * Sort the assignments
 	 * 
 	 * @param assignments
+	 *            the assignments
 	 */
 	public static void sort(List<? extends Assignment> assignments)
 	{
@@ -65,9 +66,10 @@ public class AssignmentComparator implements Comparator<Assignment>
 	}
 
 	/**
-	 * Sort the assignments using the fastest sort
-	 * 
+	 * Sort the assignments using the fastest sort.
+	 *
 	 * @param assignments
+	 *            the assignments
 	 */
 	public static void sort(Assignment[] assignments)
 	{
@@ -78,6 +80,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 	 * Sort the assignments using the native object comparator
 	 * 
 	 * @param assignments
+	 *            the assignments
 	 */
 	public static void sort1(Assignment[] assignments)
 	{
@@ -88,6 +91,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 	 * Sort the assignments using a custom comparator
 	 * 
 	 * @param assignments
+	 *            the assignments
 	 */
 	public static void sort2(Assignment[] assignments)
 	{
@@ -150,6 +154,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 	 * Sort the assignments using a custom sort object with double precision
 	 * 
 	 * @param assignments
+	 *            the assignments
 	 */
 	public static void sort3(Assignment[] assignments)
 	{
@@ -211,6 +216,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 	 * Sort the assignments using a custom sort object with float precision
 	 * 
 	 * @param assignments
+	 *            the assignments
 	 */
 	public static void sort4(Assignment[] assignments)
 	{

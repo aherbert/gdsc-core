@@ -40,8 +40,9 @@ public class MemoryLogger implements Logger
 
 	/**
 	 * Stores the message in memory.
-	 * 
+	 *
 	 * @param message
+	 *            the message
 	 */
 	@Override
 	public void info(String message)
@@ -51,9 +52,11 @@ public class MemoryLogger implements Logger
 
 	/**
 	 * Stores the message in memory.
-	 * 
+	 *
 	 * @param format
+	 *            the format
 	 * @param args
+	 *            the args
 	 */
 	@Override
 	public void info(String format, Object... args)

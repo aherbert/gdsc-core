@@ -364,10 +364,12 @@ public class ClusteringEngine
 	}
 
 	/**
-	 * Find the clusters of points within the specified radius
-	 * 
+	 * Find the clusters of points within the specified radius.
+	 *
 	 * @param points
+	 *            the points
 	 * @param radius
+	 *            the radius
 	 * @return the clusters
 	 */
 	public ArrayList<Cluster> findClusters(List<ClusterPoint> points, double radius)
@@ -376,11 +378,14 @@ public class ClusteringEngine
 	}
 
 	/**
-	 * Find the clusters of points within the specified radius and time separation
-	 * 
+	 * Find the clusters of points within the specified radius and time separation.
+	 *
 	 * @param points
+	 *            the points
 	 * @param radius
+	 *            the radius
 	 * @param time
+	 *            the time
 	 * @return the clusters
 	 */
 	public ArrayList<Cluster> findClusters(List<ClusterPoint> points, double radius, int time)
@@ -2765,8 +2770,9 @@ public class ClusteringEngine
 
 	/**
 	 * Get the pulse for the specified time. Assumes pulses start at t=1. Returns zero if no pulse interval is defined.
-	 * 
+	 *
 	 * @param time
+	 *            the time
 	 * @return the pulse
 	 */
 	public int getPulse(int time)
@@ -2787,8 +2793,9 @@ public class ClusteringEngine
 	/**
 	 * Set to true to record the distances between particles that were joined. Only applies to the particle linkage
 	 * algorithm. The distances can be retrieved after the {@link #findClusters(List, double)} method has been called.
-	 * 
+	 *
 	 * @param trackJoins
+	 *            the new track joins
 	 */
 	public void setTrackJoins(boolean trackJoins)
 	{

@@ -153,7 +153,9 @@ public class DoubleEquality
 	 * Compares two double arrays are within the configured errors.
 	 * 
 	 * @param a
+	 *            the first value
 	 * @param b
+	 *            the second value
 	 * @return True if equal
 	 */
 	public boolean almostEqualRelativeOrAbsolute(double[] a, double[] b)
