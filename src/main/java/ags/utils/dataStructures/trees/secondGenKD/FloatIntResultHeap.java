@@ -30,17 +30,33 @@ package ags.utils.dataStructures.trees.secondGenKD;
 import java.util.Arrays;
 
 /**
- * Class for tracking up to 'size' closest values
+ * Class for tracking up to 'size' closest values.
  */
 public class FloatIntResultHeap
 {
+	/** The data. */
 	final int[] data;
+
+	/** The distance. */
 	final float[] distance;
+
+	/** The size. */
 	private final int size;
+
+	/** The values. */
 	int values;
+	/** The removed data (see {@link #removeLargest()}). */
 	public int removedData;
+
+	/** The removed distince (see {@link #removeLargest()}). */
 	public float removedDist;
 
+	/**
+	 * Instantiates a new float int result heap.
+	 *
+	 * @param size
+	 *            the size
+	 */
 	public FloatIntResultHeap(int size)
 	{
 		this.data = new int[size];
@@ -49,6 +65,14 @@ public class FloatIntResultHeap
 		this.values = 0;
 	}
 
+	/**
+	 * Adds the value.
+	 *
+	 * @param dist
+	 *            the dist
+	 * @param value
+	 *            the value
+	 */
 	public void addValue(float dist, int value)
 	{
 		// If there is still room in the heap
@@ -71,6 +95,9 @@ public class FloatIntResultHeap
 		}
 	}
 
+	/**
+	 * Removes the largest.
+	 */
 	public void removeLargest()
 	{
 		if (values == 0)
@@ -86,6 +113,12 @@ public class FloatIntResultHeap
 		downHeapify(0);
 	}
 
+	/**
+	 * Up heapify.
+	 *
+	 * @param c
+	 *            the c
+	 */
 	private void upHeapify(int c)
 	{
 		while (c > 0)
@@ -108,6 +141,12 @@ public class FloatIntResultHeap
 		}
 	}
 
+	/**
+	 * Down heapify.
+	 *
+	 * @param p
+	 *            the p
+	 */
 	private void downHeapify(int p)
 	{
 		for (int c = p * 2 + 1; c < values; p = c, c = p * 2 + 1)
@@ -133,6 +172,11 @@ public class FloatIntResultHeap
 		}
 	}
 
+	/**
+	 * Gets the max dist.
+	 *
+	 * @return the max dist
+	 */
 	public float getMaxDist()
 	{
 		if (values < size)
@@ -142,21 +186,41 @@ public class FloatIntResultHeap
 		return distance[0];
 	}
 
+	/**
+	 * Gets the size.
+	 *
+	 * @return the size
+	 */
 	public int getSize()
 	{
 		return values;
 	}
 
+	/**
+	 * Gets the capacity.
+	 *
+	 * @return the capacity
+	 */
 	public int getCapacity()
 	{
 		return size;
 	}
 
+	/**
+	 * Gets the distance.
+	 *
+	 * @return the distance
+	 */
 	public float[] getDistance()
 	{
 		return Arrays.copyOf(distance, values);
 	}
 
+	/**
+	 * Gets the data.
+	 *
+	 * @return the data
+	 */
 	public int[] getData()
 	{
 		return Arrays.copyOf(data, values);

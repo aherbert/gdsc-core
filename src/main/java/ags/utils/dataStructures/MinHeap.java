@@ -28,19 +28,56 @@
 package ags.utils.dataStructures;
 
 /**
+ * The Interface MinHeap.
  *
+ * @param <T>
+ *            the generic type
  */
 public interface MinHeap<T>
 {
+	/**
+	 * Get the size.
+	 *
+	 * @return the size
+	 */
 	public int size();
 
+	/**
+	 * Offer.
+	 *
+	 * @param key
+	 *            the key
+	 * @param value
+	 *            the value
+	 */
 	public void offer(double key, T value);
 
+	/**
+	 * Replace min.
+	 *
+	 * @param key
+	 *            the key
+	 * @param value
+	 *            the value
+	 */
 	public void replaceMin(double key, T value);
 
+	/**
+	 * Removes the min.
+	 */
 	public void removeMin();
 
+	/**
+	 * Gets the min.
+	 *
+	 * @return the min
+	 */
 	public T getMin();
 
+	/**
+	 * Gets the min key.
+	 *
+	 * @return the min key
+	 */
 	public double getMinKey();
 }

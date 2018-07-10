@@ -28,26 +28,42 @@
 package ags.utils.dataStructures.trees.thirdGenKD;
 
 /**
+ * The Class KdTree2D.
  *
+ * @param <T> the generic type
  */
 public class KdTree2D<T> extends KdTree<T>
 {
+	/**
+	 * Instantiates a new kd tree 2 D.
+	 */
 	public KdTree2D()
 	{
 		this(24);
 	}
 
+	/**
+	 * Instantiates a new kd tree 2 D.
+	 *
+	 * @param bucketCapacity the bucket capacity
+	 */
 	public KdTree2D(int bucketCapacity)
 	{
 		super(bucketCapacity);
 	}
 
+	/* (non-Javadoc)
+	 * @see ags.utils.dataStructures.trees.thirdGenKD.KdNode#getDimensions()
+	 */
 	@Override
 	public int getDimensions()
 	{
 		return 2;
 	}
 
+	/* (non-Javadoc)
+	 * @see ags.utils.dataStructures.trees.thirdGenKD.KdNode#newInstance()
+	 */
 	@Override
 	protected KdNode<T> newInstance()
 	{

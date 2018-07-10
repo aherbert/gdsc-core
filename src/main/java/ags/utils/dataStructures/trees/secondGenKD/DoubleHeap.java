@@ -30,15 +30,28 @@ package ags.utils.dataStructures.trees.secondGenKD;
 import java.util.Arrays;
 
 /**
- * Class for tracking up to 'size' closest values
+ * Class for tracking up to 'size' closest values.
  */
 public class DoubleHeap
 {
+	/** The distance. */
 	final double[] distance;
+
+	/** The size. */
 	private final int size;
+
+	/** The values. */
 	int values;
+
+	/** The distance of the last removed item. */
 	public double removedDist;
 
+	/**
+	 * Instantiates a new double heap.
+	 *
+	 * @param size
+	 *            the size
+	 */
 	public DoubleHeap(int size)
 	{
 		this.distance = new double[size];
@@ -46,6 +59,12 @@ public class DoubleHeap
 		this.values = 0;
 	}
 
+	/**
+	 * Adds the value.
+	 *
+	 * @param dist
+	 *            the dist
+	 */
 	public void addValue(double dist)
 	{
 		// If there is still room in the heap
@@ -66,6 +85,9 @@ public class DoubleHeap
 		}
 	}
 
+	/**
+	 * Removes the largest.
+	 */
 	public void removeLargest()
 	{
 		if (values == 0)
@@ -79,6 +101,12 @@ public class DoubleHeap
 		downHeapify(0);
 	}
 
+	/**
+	 * Up heapify.
+	 *
+	 * @param c
+	 *            the c
+	 */
 	private void upHeapify(int c)
 	{
 		while (c > 0)
@@ -98,6 +126,12 @@ public class DoubleHeap
 		}
 	}
 
+	/**
+	 * Down heapify.
+	 *
+	 * @param p
+	 *            the p
+	 */
 	private void downHeapify(int p)
 	{
 		for (int c = p * 2 + 1; c < values; p = c, c = p * 2 + 1)
@@ -120,6 +154,11 @@ public class DoubleHeap
 		}
 	}
 
+	/**
+	 * Gets the max dist.
+	 *
+	 * @return the max dist
+	 */
 	public double getMaxDist()
 	{
 		if (values < size)
@@ -129,16 +168,31 @@ public class DoubleHeap
 		return distance[0];
 	}
 
+	/**
+	 * Gets the size.
+	 *
+	 * @return the size
+	 */
 	public int getSize()
 	{
 		return values;
 	}
 
+	/**
+	 * Gets the capacity.
+	 *
+	 * @return the capacity
+	 */
 	public int getCapacity()
 	{
 		return size;
 	}
 
+	/**
+	 * Gets the distance.
+	 *
+	 * @return the distance
+	 */
 	public double[] getDistance()
 	{
 		return Arrays.copyOf(distance, values);

@@ -55,13 +55,17 @@ import java.util.List;
  * <p>
  * This is a basic copy of the KdTree class but limited to 2 dimensions. Functionality to limit the tree size has been
  * removed.
- * 
+ *
  * @author Alex Herbert
+ * @param <T>
+ *            the generic type
  */
 public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 {
 	/**
-	 * Get the number of points in the tree
+	 * Get the number of points in the tree.
+	 *
+	 * @return the size
 	 */
 	public int size()
 	{
@@ -69,7 +73,12 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	}
 
 	/**
-	 * Add a point and associated value to the tree
+	 * Add a point and associated value to the tree.
+	 *
+	 * @param location
+	 *            the location
+	 * @param value
+	 *            the value
 	 */
 	public void addPoint(double[] location, T value)
 	{
@@ -171,13 +180,27 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	}
 
 	/**
-	 * Stores a distance and value to output
+	 * Stores a distance and value to output.
+	 *
+	 * @param <T>
+	 *            the generic type
 	 */
 	public static class Entry<T>
 	{
+		/** The distance. */
 		public final double distance;
+
+		/** The value. */
 		public final T value;
 
+		/**
+		 * Instantiates a new entry.
+		 *
+		 * @param distance
+		 *            the distance
+		 * @param value
+		 *            the value
+		 */
 		private Entry(double distance, T value)
 		{
 			this.distance = distance;
@@ -186,7 +209,15 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	}
 
 	/**
-	 * Calculates the nearest 'count' points to 'location'
+	 * Calculates the nearest 'count' points to 'location'.
+	 *
+	 * @param location
+	 *            the location
+	 * @param count
+	 *            the count
+	 * @param sequentialSorting
+	 *            the sequential sorting
+	 * @return the list
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Entry<T>> nearestNeighbor(double[] location, int count, boolean sequentialSorting)
@@ -308,7 +339,14 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	}
 
 	/**
-	 * Calculates the nearest 'count' points to 'location'
+	 * Calculates the nearest 'count' points to 'location'.
+	 *
+	 * @param location
+	 *            the location
+	 * @param count
+	 *            the count
+	 * @param results
+	 *            the results
 	 */
 	@SuppressWarnings("unchecked")
 	public void nearestNeighbor(double[] location, int count, NeighbourStore<T> results)
@@ -416,7 +454,14 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	}
 
 	/**
-	 * Calculates the neighbour points within 'range' to 'location' and puts them in the results store
+	 * Calculates the neighbour points within 'range' to 'location' and puts them in the results store.
+	 *
+	 * @param location
+	 *            the location
+	 * @param range
+	 *            the range
+	 * @param results
+	 *            the results
 	 */
 	@SuppressWarnings("unchecked")
 	public void findNeighbor(double[] location, double range, NeighbourStore<T> results)
@@ -519,15 +564,28 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	}
 
 	/**
-	 * Internal class for child nodes
+	 * Internal class for child nodes.
 	 */
 	private class ChildNode extends KdTreeNode2D<T>
 	{
+		/**
+		 * Instantiates a new child node.
+		 *
+		 * @param parent
+		 *            the parent
+		 * @param right
+		 *            the right
+		 */
 		private ChildNode(KdTreeNode2D<T> parent, boolean right)
 		{
 			super(parent, right);
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode2D#pointDist(double[], double[])
+		 */
 		// Distance measurements are always called from the root node
 		@Override
 		protected double pointDist(double[] p1, double[] p2)
@@ -535,6 +593,11 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 			throw new IllegalStateException();
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode2D#pointRegionDist(double[], double[], double[])
+		 */
 		@Override
 		protected double pointRegionDist(double[] point, double[] min, double[] max)
 		{
@@ -546,11 +609,18 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	 * Class for tree with Unweighted Squared Euclidean distancing assuming 2 dimensions with no NaN distance checking
 	 * <p>
 	 * This is an optimised version for use in the GDSC Core project.
-	 * 
+	 *
 	 * @author Alex Herbert
+	 * @param <T>
+	 *            the generic type
 	 */
 	public static class SqrEuclid2D<T> extends KdTree2D<T>
 	{
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode2D#pointDist(double[], double[])
+		 */
 		@Override
 		protected double pointDist(double[] p1, double[] p2)
 		{
@@ -559,6 +629,11 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 			return dx * dx + dy * dy;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode2D#pointRegionDist(double[], double[], double[])
+		 */
 		@Override
 		protected double pointRegionDist(double[] point, double[] min, double[] max)
 		{

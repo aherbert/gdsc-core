@@ -32,26 +32,60 @@ import ags.utils.dataStructures.MaxHeap;
 import ags.utils.dataStructures.MinHeap;
 
 /**
+ * The Class KdTree.
  *
+ * @param <T>
+ *            the generic type
  */
 public abstract class KdTree<T> extends KdNode<T>
 {
+	/**
+	 * Instantiates a new kd tree.
+	 */
 	public KdTree()
 	{
 		super(24);
 	}
 
+	/**
+	 * Instantiates a new kd tree.
+	 *
+	 * @param bucketCapacity
+	 *            the bucket capacity
+	 */
 	public KdTree(int bucketCapacity)
 	{
 		super(bucketCapacity);
 	}
 
+	/**
+	 * Gets the nearest neighbor iterator.
+	 *
+	 * @param searchPoint
+	 *            the search point
+	 * @param maxPointsReturned
+	 *            the max points returned
+	 * @param distanceFunction
+	 *            the distance function
+	 * @return the nearest neighbor iterator
+	 */
 	public NearestNeighborIterator<T> getNearestNeighborIterator(double[] searchPoint, int maxPointsReturned,
 			DistanceFunction distanceFunction)
 	{
 		return new NearestNeighborIterator<T>(this, searchPoint, maxPointsReturned, distanceFunction);
 	}
 
+	/**
+	 * Find nearest neighbors.
+	 *
+	 * @param searchPoint
+	 *            the search point
+	 * @param maxPointsReturned
+	 *            the max points returned
+	 * @param distanceFunction
+	 *            the distance function
+	 * @return the max heap
+	 */
 	public MaxHeap<T> findNearestNeighbors(double[] searchPoint, int maxPointsReturned,
 			DistanceFunction distanceFunction)
 	{

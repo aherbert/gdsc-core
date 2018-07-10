@@ -30,17 +30,35 @@ package ags.utils.dataStructures.trees.secondGenKD;
 import java.util.Arrays;
 
 /**
- * Class for tracking up to 'size' closest values
+ * Class for tracking up to 'size' closest values.
+ *
+ * @param <T>
+ *            the generic type
  */
 public class ResultHeap<T>
 {
+	/** The data. */
 	final Object[] data;
+
+	/** The distance. */
 	final double[] distance;
+
+	/** The size. */
 	private final int size;
+
+	/** The values. */
 	int values;
+	/** The removed data (see {@link #removeLargest()}). */
 	public Object removedData;
+	/** The removed distance (see {@link #removeLargest()}). */
 	public double removedDist;
 
+	/**
+	 * Instantiates a new result heap.
+	 *
+	 * @param size
+	 *            the size
+	 */
 	public ResultHeap(int size)
 	{
 		this.data = new Object[size];
@@ -49,6 +67,14 @@ public class ResultHeap<T>
 		this.values = 0;
 	}
 
+	/**
+	 * Adds the value.
+	 *
+	 * @param dist
+	 *            the dist
+	 * @param value
+	 *            the value
+	 */
 	public void addValue(double dist, T value)
 	{
 		// If there is still room in the heap
@@ -71,6 +97,14 @@ public class ResultHeap<T>
 		}
 	}
 
+	/**
+	 * Adds the value fast.
+	 *
+	 * @param dist
+	 *            the dist
+	 * @param value
+	 *            the value
+	 */
 	void addValueFast(double dist, Object value)
 	{
 		// If there is still room in the heap
@@ -93,6 +127,9 @@ public class ResultHeap<T>
 		}
 	}
 
+	/**
+	 * Removes the largest.
+	 */
 	public void removeLargest()
 	{
 		if (values == 0)
@@ -108,6 +145,12 @@ public class ResultHeap<T>
 		downHeapify(0);
 	}
 
+	/**
+	 * Up heapify.
+	 *
+	 * @param c
+	 *            the c
+	 */
 	private void upHeapify(int c)
 	{
 		while (c > 0)
@@ -130,6 +173,12 @@ public class ResultHeap<T>
 		}
 	}
 
+	/**
+	 * Down heapify.
+	 *
+	 * @param p
+	 *            the p
+	 */
 	private void downHeapify(int p)
 	{
 		for (int c = p * 2 + 1; c < values; p = c, c = p * 2 + 1)
@@ -155,6 +204,11 @@ public class ResultHeap<T>
 		}
 	}
 
+	/**
+	 * Gets the max dist.
+	 *
+	 * @return the max dist
+	 */
 	public double getMaxDist()
 	{
 		if (values < size)
@@ -164,26 +218,53 @@ public class ResultHeap<T>
 		return distance[0];
 	}
 
+	/**
+	 * Gets the size.
+	 *
+	 * @return the size
+	 */
 	public int getSize()
 	{
 		return values;
 	}
 
+	/**
+	 * Gets the capacity.
+	 *
+	 * @return the capacity
+	 */
 	public int getCapacity()
 	{
 		return size;
 	}
 
+	/**
+	 * Gets the distance.
+	 *
+	 * @return the distance
+	 */
 	public double[] getDistance()
 	{
 		return Arrays.copyOf(distance, values);
 	}
 
+	/**
+	 * Gets the data.
+	 *
+	 * @return the data
+	 */
 	public Object[] getData()
 	{
 		return Arrays.copyOf(data, values);
 	}
 
+	/**
+	 * Gets the data.
+	 *
+	 * @param a
+	 *            the a
+	 * @return the data
+	 */
 	@SuppressWarnings("unchecked")
 	public T[] getData(T[] a)
 	{

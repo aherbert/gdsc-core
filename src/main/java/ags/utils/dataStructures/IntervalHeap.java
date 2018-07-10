@@ -31,6 +31,9 @@ import java.util.Arrays;
 
 /**
  * An implementation of an implicit binary interval heap.
+ *
+ * @param <T>
+ *            the generic type
  */
 public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T>
 {
@@ -40,11 +43,20 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T>
 	private int capacity;
 	private int size;
 
+	/**
+	 * Instantiates a new interval heap.
+	 */
 	public IntervalHeap()
 	{
 		this(defaultCapacity);
 	}
 
+	/**
+	 * Instantiates a new interval heap.
+	 *
+	 * @param capacity
+	 *            the capacity
+	 */
 	public IntervalHeap(int capacity)
 	{
 		this.data = new Object[capacity];
@@ -251,7 +263,7 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T>
 				u = swap(u, u - 1); // Swap with it's pair
 				if (keys[u] < keys[p - 1])
 				{ // If smaller than smaller parent pair
-					  // Swap into min-heap side
+				  // Swap into min-heap side
 					u = swap(u, p - 1);
 					siftUpMin(u);
 				}
@@ -260,7 +272,7 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T>
 			{
 				if (keys[u] > keys[p])
 				{ // If larger that larger parent pair
-					  // Swap into max-heap side
+				  // Swap into max-heap side
 					u = swap(u, p);
 					siftUpMax(u);
 				}
@@ -272,13 +284,13 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T>
 			int p = (u / 2 - 1) | 1; // The larger value of the parent pair
 			if (keys[u] > keys[p])
 			{ // If larger that larger parent pair
-				  // Swap into max-heap side
+			  // Swap into max-heap side
 				u = swap(u, p);
 				siftUpMax(u);
 			}
 			else if (keys[u] < keys[p - 1])
 			{ // If smaller than smaller parent pair
-				  // Swap into min-heap side
+			  // Swap into min-heap side
 				u = swap(u, p - 1);
 				siftUpMin(u);
 			}
@@ -382,6 +394,11 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T>
 		return size;
 	}
 
+	/**
+	 * Get the capacity.
+	 *
+	 * @return the capacity
+	 */
 	public int capacity()
 	{
 		return capacity;

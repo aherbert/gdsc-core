@@ -28,12 +28,27 @@
 package ags.utils.dataStructures;
 
 /**
+ * The a generic pair.
  *
+ * @param <T>
+ *            the generic type
  */
 public final class Pair<T>
 {
-	public final T first, second;
+	/** The first. */
+	public final T first;
 
+	/** The second. */
+	public final T second;
+
+	/**
+	 * Instantiates a new pair.
+	 *
+	 * @param first
+	 *            the first
+	 * @param second
+	 *            the second
+	 */
 	public Pair(T first, T second)
 	{
 		this.first = first;

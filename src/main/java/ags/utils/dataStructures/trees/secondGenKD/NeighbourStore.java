@@ -28,7 +28,10 @@
 package ags.utils.dataStructures.trees.secondGenKD;
 
 /**
- * Interface to allow storing neighbours of a location within the KD-tree
+ * Interface to allow storing neighbours of a location within the KD-tree.
+ *
+ * @param <T>
+ *            the generic type
  */
 public interface NeighbourStore<T>
 {

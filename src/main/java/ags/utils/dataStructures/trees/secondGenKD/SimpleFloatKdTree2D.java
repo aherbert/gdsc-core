@@ -62,7 +62,9 @@ import java.util.List;
 public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 {
 	/**
-	 * Get the number of points in the tree
+	 * Get the number of points in the tree.
+	 *
+	 * @return the size
 	 */
 	public int size()
 	{
@@ -70,7 +72,10 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 	}
 
 	/**
-	 * Add a point and associated value to the tree
+	 * Add a point and associated value to the tree.
+	 *
+	 * @param location
+	 *            the location
 	 */
 	public void addPoint(float[] location)
 	{
@@ -164,13 +169,24 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 	}
 
 	/**
-	 * Stores a distance and value to output
+	 * Stores a distance and value to output.
 	 */
 	public static class Entry
 	{
+		/** The distance. */
 		public final float distance;
+
+		/** The value. */
 		public final float[] value;
 
+		/**
+		 * Instantiates a new entry.
+		 *
+		 * @param distance
+		 *            the distance
+		 * @param value
+		 *            the value
+		 */
 		private Entry(float distance, float[] value)
 		{
 			this.distance = distance;
@@ -179,7 +195,15 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 	}
 
 	/**
-	 * Calculates the nearest 'count' points to 'location'
+	 * Calculates the nearest 'count' points to 'location'.
+	 *
+	 * @param location
+	 *            the location
+	 * @param count
+	 *            the count
+	 * @param sequentialSorting
+	 *            the sequential sorting
+	 * @return the list
 	 */
 	public List<Entry> nearestNeighbor(float[] location, int count, boolean sequentialSorting)
 	{
@@ -302,6 +326,12 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 	/**
 	 * Calculates the nearest 'count' point distances to 'location'. Results are unsorted. The first entry in the
 	 * returned results in the max distance.
+	 *
+	 * @param location
+	 *            the location
+	 * @param count
+	 *            the count
+	 * @return the float[]
 	 */
 	public float[] nearestNeighbor(float[] location, int count)
 	{
@@ -407,15 +437,28 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 	}
 
 	/**
-	 * Internal class for child nodes
+	 * Internal class for child nodes.
 	 */
 	private class ChildNode extends SimpleFloatKdTreeNode2D
 	{
+		/**
+		 * Instantiates a new child node.
+		 *
+		 * @param parent
+		 *            the parent
+		 * @param right
+		 *            the right
+		 */
 		private ChildNode(SimpleFloatKdTreeNode2D parent, boolean right)
 		{
 			super(parent, right);
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTreeNode2D#pointDist(float[], float[])
+		 */
 		// Distance measurements are always called from the root node
 		@Override
 		protected float pointDist(float[] p1, float[] p2)
@@ -423,6 +466,12 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 			throw new IllegalStateException();
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTreeNode2D#pointRegionDist(float[], float[],
+		 * float[])
+		 */
 		@Override
 		protected float pointRegionDist(float[] point, float[] min, float[] max)
 		{
@@ -439,6 +488,11 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 	 */
 	public static class SqrEuclid2D extends SimpleFloatKdTree2D
 	{
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTreeNode2D#pointDist(float[], float[])
+		 */
 		@Override
 		protected float pointDist(float[] p1, float[] p2)
 		{
@@ -447,6 +501,12 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 			return dx * dx + dy * dy;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTreeNode2D#pointRegionDist(float[], float[],
+		 * float[])
+		 */
 		@Override
 		protected float pointRegionDist(float[] point, float[] min, float[] max)
 		{

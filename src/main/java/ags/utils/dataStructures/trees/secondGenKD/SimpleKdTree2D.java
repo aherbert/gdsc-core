@@ -61,7 +61,9 @@ import java.util.List;
 public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
 {
 	/**
-	 * Get the number of points in the tree
+	 * Get the number of points in the tree.
+	 *
+	 * @return the size
 	 */
 	public int size()
 	{
@@ -69,7 +71,10 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
 	}
 
 	/**
-	 * Add a point and associated value to the tree
+	 * Add a point and associated value to the tree.
+	 *
+	 * @param location
+	 *            the location
 	 */
 	public void addPoint(double[] location)
 	{
@@ -163,13 +168,24 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
 	}
 
 	/**
-	 * Stores a distance and value to output
+	 * Stores a distance and value to output.
 	 */
 	public static class Entry
 	{
+		/** The distance. */
 		public final double distance;
+
+		/** The value. */
 		public final double[] value;
 
+		/**
+		 * Instantiates a new entry.
+		 *
+		 * @param distance
+		 *            the distance
+		 * @param value
+		 *            the value
+		 */
 		private Entry(double distance, double[] value)
 		{
 			this.distance = distance;
@@ -178,7 +194,15 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
 	}
 
 	/**
-	 * Calculates the nearest 'count' points to 'location'
+	 * Calculates the nearest 'count' points to 'location'.
+	 *
+	 * @param location
+	 *            the location
+	 * @param count
+	 *            the count
+	 * @param sequentialSorting
+	 *            the sequential sorting
+	 * @return the list
 	 */
 	public List<Entry> nearestNeighbor(double[] location, int count, boolean sequentialSorting)
 	{
@@ -299,15 +323,28 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
 	}
 
 	/**
-	 * Internal class for child nodes
+	 * Internal class for child nodes.
 	 */
 	private class ChildNode extends SimpleKdTreeNode2D
 	{
+		/**
+		 * Instantiates a new child node.
+		 *
+		 * @param parent
+		 *            the parent
+		 * @param right
+		 *            the right
+		 */
 		private ChildNode(SimpleKdTreeNode2D parent, boolean right)
 		{
 			super(parent, right);
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ags.utils.dataStructures.trees.secondGenKD.SimpleKdTreeNode2D#pointDist(double[], double[])
+		 */
 		// Distance measurements are always called from the root node
 		@Override
 		protected double pointDist(double[] p1, double[] p2)
@@ -315,6 +352,12 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
 			throw new IllegalStateException();
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ags.utils.dataStructures.trees.secondGenKD.SimpleKdTreeNode2D#pointRegionDist(double[], double[],
+		 * double[])
+		 */
 		@Override
 		protected double pointRegionDist(double[] point, double[] min, double[] max)
 		{
@@ -331,6 +374,11 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
 	 */
 	public static class SqrEuclid2D extends SimpleKdTree2D
 	{
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ags.utils.dataStructures.trees.secondGenKD.SimpleKdTreeNode2D#pointDist(double[], double[])
+		 */
 		@Override
 		protected double pointDist(double[] p1, double[] p2)
 		{
@@ -339,6 +387,12 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
 			return dx * dx + dy * dy;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see ags.utils.dataStructures.trees.secondGenKD.SimpleKdTreeNode2D#pointRegionDist(double[], double[],
+		 * double[])
+		 */
 		@Override
 		protected double pointRegionDist(double[] point, double[] min, double[] max)
 		{

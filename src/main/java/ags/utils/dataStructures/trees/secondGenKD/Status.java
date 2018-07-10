@@ -28,9 +28,16 @@
 package ags.utils.dataStructures.trees.secondGenKD;
 
 /**
- * Enumeration representing the status of a node during the running of a search
+ * Enumeration representing the status of a node during the running of a search.
  */
 public enum Status
 {
-	NONE, LEFTVISITED, RIGHTVISITED, ALLVISITED
+	/** The none status. */
+	NONE,
+	/** The leftvisited status. */
+	LEFTVISITED,
+	/** The rightvisited status. */
+	RIGHTVISITED,
+	/** The allvisited status. */
+	ALLVISITED
 }

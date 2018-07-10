@@ -35,17 +35,43 @@ import ags.utils.dataStructures.IntervalHeap;
 import ags.utils.dataStructures.MinHeap;
 
 /**
+ * The Class NearestNeighborIterator.
  *
+ * @param <T>
+ *            the generic type
  */
 public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T>
 {
+	/** The distance function. */
 	private DistanceFunction distanceFunction;
+
+	/** The search point. */
 	private double[] searchPoint;
+
+	/** The pending paths. */
 	private MinHeap<KdNode<T>> pendingPaths;
+
+	/** The evaluated points. */
 	private IntervalHeap<T> evaluatedPoints;
+
+	/** The points remaining. */
 	private int pointsRemaining;
+
+	/** The last distance returned. */
 	private double lastDistanceReturned;
 
+	/**
+	 * Instantiates a new nearest neighbor iterator.
+	 *
+	 * @param treeRoot
+	 *            the tree root
+	 * @param searchPoint
+	 *            the search point
+	 * @param maxPointsReturned
+	 *            the max points returned
+	 * @param distanceFunction
+	 *            the distance function
+	 */
 	protected NearestNeighborIterator(KdNode<T> treeRoot, double[] searchPoint, int maxPointsReturned,
 			DistanceFunction distanceFunction)
 	{
@@ -59,12 +85,22 @@ public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T>
 
 	/* -------- INTERFACE IMPLEMENTATION -------- */
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.util.Iterator#hasNext()
+	 */
 	@Override
 	public boolean hasNext()
 	{
 		return pointsRemaining > 0;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.util.Iterator#next()
+	 */
 	@Override
 	public T next()
 	{
@@ -88,17 +124,32 @@ public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T>
 		return value;
 	}
 
+	/**
+	 * Distance.
+	 *
+	 * @return the double
+	 */
 	public double distance()
 	{
 		return lastDistanceReturned;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.util.Iterator#remove()
+	 */
 	@Override
 	public void remove()
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Iterable#iterator()
+	 */
 	@Override
 	public Iterator<T> iterator()
 	{
