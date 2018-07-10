@@ -82,11 +82,21 @@ public class OPTICSCluster
 			child.increaseLevel();
 	}
 
+	/**
+	 * Get the number of children.
+	 *
+	 * @return the number of children
+	 */
 	public int nChildren()
 	{
 		return (children == null) ? 0 : children.size();
 	}
 
+	/**
+	 * Gets the level.
+	 *
+	 * @return the level
+	 */
 	public int getLevel()
 	{
 		return level;

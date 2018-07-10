@@ -311,17 +311,34 @@ public class ClusteringEngine
 	private int nextClusterId;
 	private boolean useRange = false;
 
+	/**
+	 * Instantiates a new clustering engine.
+	 */
 	public ClusteringEngine()
 	{
 		setTracker(null);
 	}
 
+	/**
+	 * Instantiates a new clustering engine.
+	 *
+	 * @param threadCount
+	 *            the thread count
+	 */
 	public ClusteringEngine(int threadCount)
 	{
 		this.threadCount = threadCount;
 		setTracker(null);
 	}
 
+	/**
+	 * Instantiates a new clustering engine.
+	 *
+	 * @param threadCount
+	 *            the thread count
+	 * @param custeringAlgorithm
+	 *            the custering algorithm
+	 */
 	public ClusteringEngine(int threadCount, ClusteringAlgorithm custeringAlgorithm)
 	{
 		this.threadCount = threadCount;
@@ -329,6 +346,16 @@ public class ClusteringEngine
 		setTracker(null);
 	}
 
+	/**
+	 * Instantiates a new clustering engine.
+	 *
+	 * @param threadCount
+	 *            the thread count
+	 * @param custeringAlgorithm
+	 *            the custering algorithm
+	 * @param tracker
+	 *            the tracker
+	 */
 	public ClusteringEngine(int threadCount, ClusteringAlgorithm custeringAlgorithm, TrackProgress tracker)
 	{
 		this.threadCount = threadCount;

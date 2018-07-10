@@ -75,6 +75,12 @@ public enum SampleMode
 		return getName();
 	}	
 	
+	/**
+	 * Gets the sample mode.
+	 *
+	 * @param ordinal the ordinal
+	 * @return the sample mode
+	 */
 	public static SampleMode get(int ordinal)
 	{
 		if (ordinal < 0|| ordinal >= values().length)

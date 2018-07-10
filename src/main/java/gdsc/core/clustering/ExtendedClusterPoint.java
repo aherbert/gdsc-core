@@ -28,15 +28,31 @@
 package gdsc.core.clustering;
 
 /**
- * Extends the {@link gdsc.core.clustering.smlm.results.clustering.ClusterPoint } class to hold additional information
- * for use in
- * clustering
+ * Extends the {@link gdsc.core.clustering.ClusterPoint } class to hold additional information
+ * for use in clustering
  */
 public class ExtendedClusterPoint extends ClusterPoint
 {
+	/** The next cluster point. Used for linked lists. */
 	public ExtendedClusterPoint nextE = null;
+
+	/** Flag indicating if this is in a cluster. */
 	public boolean inCluster = false;
 
+	/**
+	 * Instantiates a new extended cluster point.
+	 *
+	 * @param id
+	 *            the id
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @param t
+	 *            the t
+	 * @param other
+	 *            the other cluster point (used to create a linked-list)
+	 */
 	public ExtendedClusterPoint(int id, double x, double y, int t, ClusterPoint other)
 	{
 		super(id, x, y, t, t);

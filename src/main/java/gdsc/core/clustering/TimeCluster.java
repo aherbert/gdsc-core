@@ -30,12 +30,23 @@ package gdsc.core.clustering;
 import org.apache.commons.math3.util.FastMath;
 
 /**
- * Used to store all the information about a cluster in the clustering analysis
+ * Used to store all the information about a cluster in the clustering analysis.
  */
 public class TimeCluster extends Cluster
 {
-	public int start, end, pulse;
+	/** The start. */
+	public int start;
+	/** The end. */
+	public int end;
+	/** The pulse. */
+	public int pulse;
 
+	/**
+	 * Instantiates a new time cluster.
+	 *
+	 * @param point
+	 *            the point
+	 */
 	public TimeCluster(ClusterPoint point)
 	{
 		super(point);
@@ -45,9 +56,10 @@ public class TimeCluster extends Cluster
 
 	/**
 	 * Get the time gap between the two clusters. If the clusters overlap then return 0.
-	 * 
+	 *
 	 * @param other
-	 * @return
+	 *            the other cluster
+	 * @return the time gap
 	 */
 	public int gap(TimeCluster other)
 	{
@@ -65,9 +77,10 @@ public class TimeCluster extends Cluster
 	 * Check if the union of the cluster points has unique time values using the gap between each cluster point.
 	 * <p>
 	 * This check is only relevant if the {@link #gap(TimeCluster)} function returns zero.
-	 * 
+	 *
 	 * @param other
-	 * @return
+	 *            the other cluster
+	 * @return true, if successful
 	 */
 	public boolean validUnionRange(TimeCluster other)
 	{
@@ -82,9 +95,10 @@ public class TimeCluster extends Cluster
 	 * Check if the union of the cluster points has unique time values using the start time of each cluster point.
 	 * <p>
 	 * This check is only relevant if the {@link #gap(TimeCluster)} function returns zero.
-	 * 
+	 *
 	 * @param other
-	 * @return
+	 *            the other cluster
+	 * @return true, if successful
 	 */
 	public boolean validUnion(TimeCluster other)
 	{
@@ -95,6 +109,12 @@ public class TimeCluster extends Cluster
 		return true;
 	}
 
+	/**
+	 * Adds the other cluster.
+	 *
+	 * @param other
+	 *            the other cluster
+	 */
 	public void add(TimeCluster other)
 	{
 		super.add(other);
@@ -109,19 +129,21 @@ public class TimeCluster extends Cluster
 	 * 
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(TimeCluster o)
+	@Override
+	public int compareTo(Cluster o)
 	{
 		final int result = super.compareTo(o);
-		if (result != 0)
+		if (result != 0 || !(o instanceof TimeCluster))
 			return result;
+		TimeCluster tc = (TimeCluster) o;
 		// Compare using the start and end time
-		if (start < o.start)
+		if (start < tc.start)
 			return -1;
-		if (start > o.start)
+		if (start > tc.start)
 			return 1;
-		if (end < o.end)
+		if (end < tc.end)
 			return -1;
-		if (end > o.end)
+		if (end > tc.end)
 			return 1;
 		return 0;
 	}

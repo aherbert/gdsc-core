@@ -307,7 +307,7 @@ public class OPTICSResult implements ClusteringResult
 	/**
 	 * Gets the clustering hierarchy produced by the OPTICS xi algorithm.
 	 * 
-	 * @see {@link #extractClusters(double, boolean, boolean)}
+	 * @see #extractClusters(double, int)
 	 *
 	 * @return the clustering hierarchy
 	 */
@@ -319,7 +319,7 @@ public class OPTICSResult implements ClusteringResult
 	/**
 	 * Gets the all clusters produced by the OPTICS xi algorithm in a single list.
 	 * 
-	 * @see {@link #extractClusters(double, boolean, boolean)}
+	 * @see #extractClusters(double, int)
 	 *
 	 * @return the clusters list
 	 */
@@ -471,6 +471,8 @@ public class OPTICSResult implements ClusteringResult
 
 	/**
 	 * Count the number of clusters in the clustering hierarchy.
+	 *
+	 * @return the number of clusters
 	 */
 	public int getNumberOfClusters()
 	{
@@ -493,6 +495,8 @@ public class OPTICSResult implements ClusteringResult
 
 	/**
 	 * Count the number of levels in the clustering hierarchy.
+	 *
+	 * @return the number of levels
 	 */
 	public int getNumberOfLevels()
 	{
@@ -557,7 +561,7 @@ public class OPTICSResult implements ClusteringResult
 
 	/**
 	 * Gets the cluster Id for each parent object. This can be set by {@link #extractDBSCANClustering(float)} or
-	 * {@link #extractClusters(double, boolean, boolean)}.
+	 * {@link #extractClusters(double, int)}.
 	 *
 	 * @param core
 	 *            Set to true to get the clusters using only the core points
@@ -806,7 +810,7 @@ public class OPTICSResult implements ClusteringResult
 
 	/**
 	 * Gets the cluster Id for each parent object. This can be set by {@link #extractDBSCANClustering(float)} or
-	 * {@link #extractClusters(double, boolean, boolean)}.
+	 * {@link #extractClusters(double, int)}.
 	 *
 	 * @param core
 	 *            Set to true to get the clusters using only the core points
@@ -841,7 +845,8 @@ public class OPTICSResult implements ClusteringResult
 	}
 
 	/**
-	 * Extract DBSCAN clustering from the cluster ordered objects returned from {@link #optics(float, int, boolean)}.
+	 * Extract DBSCAN clustering from the cluster ordered objects returned from
+	 * {@link OPTICSManager#optics(float, int)}.
 	 * <p>
 	 * The generating distance E must be less than or equal to the generating distance used during OPTICS.
 	 *
@@ -855,7 +860,8 @@ public class OPTICSResult implements ClusteringResult
 	}
 
 	/**
-	 * Extract DBSCAN clustering from the cluster ordered objects returned from {@link #optics(float, int, boolean)}.
+	 * Extract DBSCAN clustering from the cluster ordered objects returned from
+	 * {@link OPTICSManager#optics(float, int)}.
 	 * <p>
 	 * The generating distance E must be less than or equal to the generating distance used during OPTICS.
 	 *

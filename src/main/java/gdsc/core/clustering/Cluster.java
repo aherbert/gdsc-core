@@ -28,27 +28,63 @@
 package gdsc.core.clustering;
 
 /**
- * Used to store all the information about a cluster in the clustering analysis
+ * Used to store all the information about a cluster in the clustering analysis.
  */
 public class Cluster implements Comparable<Cluster>
 {
-	public double x, y, sumx, sumy, sumw;
+	/** The x position. */
+	public double x;
+
+	/** The y position. */
+	public double y;
+
+	/** The sum of x. */
+	public double sumx;
+
+	/** The sum of y. */
+	public double sumy;
+
+	/** The sum of the weights. */
+	public double sumw;
+
+	/** The number in the cluster. */
 	public int n;
 
-	// Used to construct a single linked list of clusters
+	/**
+	 * The next cluster.
+	 * Used to construct a single linked list of clusters
+	 */
 	public Cluster next = null;
 
-	// Used to store potential clustering links
+	/**
+	 * The closest. Used to store potential clustering links
+	 */
 	public Cluster closest = null;
+
+	/** The squared distance. */
 	public double d2;
 
-	// Used to indicate this cluster has a neighbour
+	/**
+	 * The neighbour.
+	 * Used to indicate this cluster has a neighbour.
+	 */
 	public int neighbour = 0;
 
-	// Used to construct a single linked list of cluster points
+	/** The head. Used to construct a single linked list of cluster points */
 	public ClusterPoint head = null;
-	public int xBin, yBin;
 
+	/** The x bin for allocating to a grid. */
+	public int xBin;
+
+	/** The y bin for allocating to a grid. */
+	public int yBin;
+
+	/**
+	 * Instantiates a new cluster.
+	 *
+	 * @param point
+	 *            the point
+	 */
 	public Cluster(ClusterPoint point)
 	{
 		point.next = null;
@@ -61,6 +97,13 @@ public class Cluster implements Comparable<Cluster>
 		this.y = point.y;
 	}
 
+	/**
+	 * Get the distance.
+	 *
+	 * @param other
+	 *            the other cluster
+	 * @return the distance
+	 */
 	public double distance(Cluster other)
 	{
 		final double dx = x - other.x;
@@ -68,6 +111,13 @@ public class Cluster implements Comparable<Cluster>
 		return Math.sqrt(dx * dx + dy * dy);
 	}
 
+	/**
+	 * Get the squared distance.
+	 *
+	 * @param other
+	 *            the other cluster
+	 * @return the squared distance
+	 */
 	public double distance2(Cluster other)
 	{
 		final double dx = x - other.x;
@@ -75,6 +125,12 @@ public class Cluster implements Comparable<Cluster>
 		return dx * dx + dy * dy;
 	}
 
+	/**
+	 * Adds the cluster to this one.
+	 *
+	 * @param other
+	 *            the other cluster
+	 */
 	public void add(Cluster other)
 	{
 		// Do not check if the other cluster is null or has no points
@@ -108,14 +164,20 @@ public class Cluster implements Comparable<Cluster>
 	}
 
 	/**
-	 * Find the new centroid when merging with the given parameters
-	 * 
+	 * Find the new centroid when merging with the given parameters.
+	 *
 	 * @param otherX
+	 *            the other X
 	 * @param otherY
+	 *            the other Y
 	 * @param otherSumX
+	 *            the other sum X
 	 * @param otherSumY
+	 *            the other sum Y
 	 * @param otherSumW
+	 *            the other sum W
 	 * @param otherN
+	 *            the other N
 	 */
 	private void merge(double otherX, double otherY, double otherSumX, double otherSumY, double otherSumW, int otherN)
 	{
@@ -136,6 +198,12 @@ public class Cluster implements Comparable<Cluster>
 			y = sumy / sumw;
 	}
 
+	/**
+	 * Adds the point to this cluster.
+	 *
+	 * @param point
+	 *            the point
+	 */
 	public void add(ClusterPoint point)
 	{
 		point.next = null;
@@ -144,6 +212,9 @@ public class Cluster implements Comparable<Cluster>
 		merge(point.x, point.y, point.x * point.weight, point.y * point.weight, point.weight, 1);
 	}
 
+	/**
+	 * Clear the cluster.
+	 */
 	protected void clear()
 	{
 		head = null;
@@ -154,10 +225,12 @@ public class Cluster implements Comparable<Cluster>
 
 	/**
 	 * Link the two clusters as potential merge candidates only if the squared distance is smaller than the other
-	 * cluster's current closest
-	 * 
+	 * cluster's current closest.
+	 *
 	 * @param other
+	 *            the other cluster
 	 * @param d2
+	 *            the squared distance 
 	 */
 	public void link(Cluster other, double d2)
 	{
@@ -173,7 +246,7 @@ public class Cluster implements Comparable<Cluster>
 	}
 
 	/**
-	 * Increment the neighbour counter in a thread safe method
+	 * Increment the neighbour counter in a thread safe method.
 	 */
 	public synchronized void incrementNeighbour()
 	{
@@ -185,9 +258,11 @@ public class Cluster implements Comparable<Cluster>
 	 * cluster's current closest.
 	 * <p>
 	 * Thread safe.
-	 * 
+	 *
 	 * @param other
+	 *            the other cluster
 	 * @param d2
+	 *            the squared distance
 	 */
 	public synchronized void linkSynchronized(Cluster other, double d2)
 	{
@@ -198,6 +273,8 @@ public class Cluster implements Comparable<Cluster>
 	}
 
 	/**
+	 * Valid link.
+	 *
 	 * @return True if the closest cluster links back to this cluster
 	 */
 	public boolean validLink()

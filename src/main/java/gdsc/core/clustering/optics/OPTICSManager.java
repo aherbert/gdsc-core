@@ -740,7 +740,7 @@ public class OPTICSManager extends CoordinateStore
 	 * Sander. Optics: ordering points to identify the clustering structure. In ACM Sigmod Record, volume 28, pages
 	 * 49–60. ACM, 1999.
 	 * <p>
-	 * The returned results are the output of {@link #extractDBSCANClustering(OPTICSOrder[], float)} with the
+	 * The returned results are the output of {@link OPTICSResult#extractDBSCANClustering(float)} with the
 	 * configured generating distance. Note that the generating distance may have been modified if invalid. If it is
 	 * not strictly positive or not finite then it is set using {@link #computeGeneratingDistance(int)}. If it is larger
 	 * than the data range allows it is set to the maximum distance that can be computed for the data range. If the data
@@ -1707,7 +1707,7 @@ public class OPTICSManager extends CoordinateStore
 	 * that of OPTICS. Note that despite the name this is not faster than the OPTICS method implemented here due to the
 	 * low number of dimensions. Speed is significantly faster for high dimensional data.
 	 * <p>
-	 * The returned results are the output of {@link #extractDBSCANClustering(OPTICSOrder[], float)} with the
+	 * The returned results are the output of {@link OPTICSResult#extractDBSCANClustering(float)} with the
 	 * auto-configured generating distance set using {@link #computeGeneratingDistance(int)}. If it is larger
 	 * than the data range allows it is set to the maximum distance that can be computed for the data range. If the data
 	 * are colocated the distance is set to 1. The distance is stored in the results.
@@ -1743,7 +1743,7 @@ public class OPTICSManager extends CoordinateStore
 	 * that of OPTICS. Note that despite the name this is not faster than the OPTICS method implemented here due to the
 	 * low number of dimensions. Speed is significantly faster for high dimensional data.
 	 * <p>
-	 * The returned results are the output of {@link #extractDBSCANClustering(OPTICSOrder[], float)} with the
+	 * The returned results are the output of {@link OPTICSResult#extractDBSCANClustering(float)} with the
 	 * auto-configured generating distance set using {@link #computeGeneratingDistance(int)}. If it is larger
 	 * than the data range allows it is set to the maximum distance that can be computed for the data range. If the data
 	 * are colocated the distance is set to 1. The distance is stored in the results.

@@ -86,11 +86,11 @@ public class DensityManager extends CoordinateStore
 	 * <p>
 	 * Note that the score is the number of molecules surrounding the given molecule, so the molecule itself is not
 	 * counted.
-	 * 
-	 * @param radius
-	 * @param resolution
-	 * @param adjustForBorder
-	 * @return
+	 *
+	 * @param radius the radius
+	 * @param resolution the resolution
+	 * @param adjustForBorder the adjust for border
+	 * @return the density
 	 */
 	public int[] calculateSquareDensity(float radius, int resolution, boolean adjustForBorder)
 	{
@@ -527,10 +527,10 @@ public class DensityManager extends CoordinateStore
 	 * <p>
 	 * Note that the score is the number of molecules surrounding the given molecule, so the molecule itself is not
 	 * counted.
-	 * 
-	 * @param radius
-	 * @param adjustForBorder
-	 * @return
+	 *
+	 * @param radius the radius
+	 * @param adjustForBorder Set to true to adjust for border
+	 * @return the density
 	 */
 	public int[] calculateDensity(float radius, boolean adjustForBorder)
 	{
@@ -652,9 +652,9 @@ public class DensityManager extends CoordinateStore
 	 * <p>
 	 * Note that the score is the number of molecules surrounding the given molecule, so the molecule itself is not
 	 * counted.
-	 * 
-	 * @param radius
-	 * @return
+	 *
+	 * @param radius the radius
+	 * @return the density
 	 */
 	public int[] calculateDensity(float radius)
 	{
@@ -691,9 +691,9 @@ public class DensityManager extends CoordinateStore
 	 * <p>
 	 * Note that the score is the number of molecules surrounding the given molecule, so the molecule itself is not
 	 * counted.
-	 * 
-	 * @param radius
-	 * @return
+	 *
+	 * @param radius the radius
+	 * @return the density
 	 */
 	public int[] calculateDensityTriangle(float radius)
 	{
@@ -729,10 +729,9 @@ public class DensityManager extends CoordinateStore
 	 * <p>
 	 * Note that the score is the number of molecules surrounding the given molecule, so the molecule itself is not
 	 * counted.
-	 * 
-	 * @param radius
-	 * @param adjustForBorder
-	 * @return
+	 *
+	 * @param radius the radius
+	 * @return the density
 	 */
 	public int[] calculateDensityGrid(float radius)
 	{
@@ -911,9 +910,9 @@ public class DensityManager extends CoordinateStore
 	 * Calculate the number of pairs within the given radius.
 	 * <p>
 	 * The sum is over i<n, j<n, i!=j
-	 * 
-	 * @param radius
-	 * @return
+	 *
+	 * @param radius the radius
+	 * @return the pairs
 	 */
 	public int calculateSum(float radius)
 	{
@@ -945,9 +944,9 @@ public class DensityManager extends CoordinateStore
 	 * Calculate the number of pairs within the given radius using a nearest neighbour cell grid analysis.
 	 * <p>
 	 * The sum is over i<n, j<n, i!=j
-	 * 
-	 * @param radius
-	 * @return
+	 *
+	 * @param radius the radius
+	 * @return the pairs
 	 */
 	public int calculateSumGrid(float radius)
 	{
@@ -1049,8 +1048,8 @@ public class DensityManager extends CoordinateStore
 	 * @param radius
 	 *            The radius at which the density was computed
 	 * @return The K-function score
-	 * @see {@link #calculateDensity(float, boolean)}
-	 * @see {@link #calculateSquareDensity(float, int, boolean)}
+	 * @see #calculateDensity(float, boolean)
+	 * @see #calculateSquareDensity(float, int, boolean)
 	 */
 	public double ripleysKFunction(int[] density, double radius)
 	{
@@ -1083,8 +1082,8 @@ public class DensityManager extends CoordinateStore
 	 * @param radius
 	 *            The radius at which the density was computed
 	 * @return The K-function score
-	 * @see {@link #calculateDensity(float, boolean)}
-	 * @see {@link #calculateSquareDensity(float, int, boolean)}
+	 * @see #calculateDensity(float, boolean)
+	 * @see #calculateSquareDensity(float, int, boolean)
 	 */
 	public double ripleysLFunction(int[] density, double radius)
 	{

@@ -51,8 +51,8 @@ public class DBSCANOrder
 	 *
 	 * @param parent
 	 *            the parent
-	 * @param coreDistance
-	 *            the core distance
+	 * @param clusterId
+	 *            the cluster id
 	 * @param nPts
 	 *            The number of points in within the generating distance
 	 */

@@ -69,13 +69,14 @@ public class OPTICSOrder
 	/**
 	 * Instantiates a new OPTICS order result.
 	 *
-	 * @param clusterId
-	 *            the cluster id
+	 * @param parent
+	 *            the parent
+	 * @param predecessor
+	 *            the predecessor
 	 * @param coreDistance
 	 *            the core distance
 	 * @param reachabilityDistance
 	 *            the reachability distance
-	 * @param maxDistance
 	 */
 	public OPTICSOrder(int parent, int predecessor, double coreDistance, double reachabilityDistance)
 	{

@@ -43,6 +43,9 @@ public class OPTICSDBSCANCluster extends OPTICSCluster
 	 * @param end
 	 *            the end
 	 * @param clusterId
+	 *            the cluster id
+	 * @param size
+	 *            the size
 	 */
 	public OPTICSDBSCANCluster(int start, int end, int clusterId, int size)
 	{

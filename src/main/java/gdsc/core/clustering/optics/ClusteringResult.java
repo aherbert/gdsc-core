@@ -82,6 +82,9 @@ public interface ClusteringResult
 	 * <p>
 	 * Since clusters are arbitrary this ensures that clusters close in proximity that are created sequentially will not
 	 * have sequential cluster Ids.
+	 *
+	 * @param rng
+	 *            the random generator
 	 */
 	public void scrambleClusters(RandomGenerator rng);
 

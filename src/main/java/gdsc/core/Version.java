@@ -38,10 +38,11 @@ import java.util.regex.Pattern;
  * <p>
  * Uses Semantic Versioning.
  * 
- * @see http://semver.org/
+ * @see "http://semver.org/"
  */
 public class Version
 {
+	/** Constant for the string "unknown" */
 	public static final String UNKNOWN = "unknown";
 	private static String version = null;
 	private static String buildDate = null;
@@ -71,6 +72,11 @@ public class Version
 			buildDate = UNKNOWN;
 	}
 
+	/**
+	 * The main method. Output the version and build date.
+	 *
+	 * @param args the arguments
+	 */
 	public static void main(String[] args)
 	{
 		StringBuilder msg = new StringBuilder();
