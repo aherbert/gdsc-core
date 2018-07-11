@@ -49,9 +49,16 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 
 	private final static NullStoredData NULL_STORE = new NullStoredData();
 
+	/** The sequence. */
 	protected final StoredData sequence;
+	
+	/** The store. */
 	protected StoredData store;
+	
+	/** The source. */
 	protected final RandomGenerator source;
+	
+	/** The position. */
 	protected int pos = 0;
 
 	/**

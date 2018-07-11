@@ -55,7 +55,9 @@ public class DAreaSum
 	public final int maxx;
 	/** The max y dimension. */
 	public final int maxy;
+	/** The data. */
 	protected final double[] data;
+	/** The rolling sum table. */
 	protected double[] s_ = null;
 
 	/**

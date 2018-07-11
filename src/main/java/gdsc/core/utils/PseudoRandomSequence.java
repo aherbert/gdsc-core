@@ -34,8 +34,10 @@ import org.apache.commons.math3.random.RandomGenerator;
  */
 public class PseudoRandomSequence implements Cloneable
 {
+	/** The sequence. */
 	protected final double[] sequence;
 
+	/** The position. */
 	private int position = 0;
 
 	/**

@@ -36,6 +36,7 @@ import gdsc.core.utils.Maths;
  */
 public class MultiplyTypeConverter<T> extends AbstractTypeConverter<T>
 {
+	/** The multiplication. */
 	protected final double multiplication;
 
 	/**

@@ -35,6 +35,14 @@ import java.io.IOException;
  */
 public class FastTiffDecoderLE extends FastTiffDecoder
 {
+	/**
+	 * Instantiates a new fast tiff decoder LE.
+	 *
+	 * @param in
+	 *            the in
+	 * @param file
+	 *            the file
+	 */
 	protected FastTiffDecoderLE(SeekableStream in, File file)
 	{
 		super(in, file);

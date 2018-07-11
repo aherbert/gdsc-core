@@ -36,8 +36,14 @@ import gdsc.core.logging.TrackProgress;
  */
 public class CoordinateStore implements Cloneable
 {
+	/** The tracker. */
 	protected TrackProgress tracker = null;
-	protected final float[] xcoord, ycoord;
+	
+	/** The xcoords. */
+	protected final float[] xcoord;
+	
+	/** The ycoords. */
+	protected final float[] ycoord;
 
 	/** The origin for the x coordinate. Add this to x to get the original coordinates. */
 	public final float originx;

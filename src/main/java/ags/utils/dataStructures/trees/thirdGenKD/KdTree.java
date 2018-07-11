@@ -101,6 +101,22 @@ public abstract class KdTree<T> extends KdNode<T>
 		return evaluatedPoints;
 	}
 
+	/**
+	 * Perform a nearest neighbor search step.
+	 *
+	 * @param <T>
+	 *            the generic type
+	 * @param pendingPaths
+	 *            the pending paths
+	 * @param evaluatedPoints
+	 *            the evaluated points
+	 * @param desiredPoints
+	 *            the desired points
+	 * @param distanceFunction
+	 *            the distance function
+	 * @param searchPoint
+	 *            the search point
+	 */
 	@SuppressWarnings("unchecked")
 	protected static <T> void nearestNeighborSearchStep(MinHeap<KdNode<T>> pendingPaths, MaxHeap<T> evaluatedPoints,
 			int desiredPoints, DistanceFunction distanceFunction, double[] searchPoint)

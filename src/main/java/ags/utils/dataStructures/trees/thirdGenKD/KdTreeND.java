@@ -35,6 +35,7 @@ package ags.utils.dataStructures.trees.thirdGenKD;
  */
 public class KdTreeND<T> extends KdTree<T>
 {
+	/** The dimensions. */
 	protected int dimensions;
 
 	/**
