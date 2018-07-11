@@ -442,7 +442,7 @@ public class AlignImagesFFT
 	 * Calculate rolling sums.
 	 *
 	 * @param ip
-	 *            the ip
+*            the image
 	 * @param s_
 	 *            the s
 	 * @param ss
@@ -722,7 +722,7 @@ public class AlignImagesFFT
 	 * No value.
 	 *
 	 * @param ip
-	 *            the ip
+*            the image
 	 * @return true if the image has not pixels with a value
 	 */
 	private static boolean noValue(ImageProcessor ip)
@@ -1016,7 +1016,7 @@ public class AlignImagesFFT
 	 * Convert to unit length, return a float processor.
 	 *
 	 * @param ip
-	 *            the ip
+*            the image
 	 * @return the float processor
 	 */
 	public static FloatProcessor normalise(ImageProcessor ip)
@@ -1043,7 +1043,7 @@ public class AlignImagesFFT
 	 * @param interpolationMethod
 	 *            the interpolation method
 	 * @param ip
-	 *            the ip
+*            the image
 	 * @param xOffset
 	 *            the x offset
 	 * @param yOffset
@@ -1067,7 +1067,7 @@ public class AlignImagesFFT
 	 * @param interpolationMethod
 	 *            the interpolation method
 	 * @param ip
-	 *            the ip
+*            the image
 	 * @param xOffset
 	 *            the x offset
 	 * @param yOffset
@@ -1360,7 +1360,7 @@ public class AlignImagesFFT
 	 * Fft.
 	 *
 	 * @param ip
-	 *            the ip
+*            the image
 	 * @param maxN
 	 *            the max N
 	 * @return the fht
@@ -1380,7 +1380,7 @@ public class AlignImagesFFT
 	 * Optionally apply a window function so the image blends smoothly to zero background.
 	 *
 	 * @param ip
-	 *            the ip
+*            the image
 	 * @param maxN
 	 *            the max N
 	 * @param windowMethod
@@ -1495,7 +1495,7 @@ public class AlignImagesFFT
 	 * corners.
 	 *
 	 * @param ip
-	 *            the ip
+*            the image
 	 * @param windowMethod
 	 *            the window method
 	 * @return the float processor
@@ -1561,7 +1561,7 @@ public class AlignImagesFFT
 	 * Applied as a nonseparable form.
 	 *
 	 * @param ip
-	 *            the ip
+*            the image
 	 * @param windowMethod
 	 *            the window method
 	 * @return the float processor

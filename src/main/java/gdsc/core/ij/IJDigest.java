@@ -163,7 +163,7 @@ public class IJDigest
 	 * Digest the processor.
 	 *
 	 * @param ip
-	 *            the ip
+*            the image
 	 * @return the string
 	 */
 	public String digest(ImageProcessor ip)
