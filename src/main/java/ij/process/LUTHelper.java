@@ -129,7 +129,9 @@ public class LUTHelper
 		public String getName() { return "Grays"; }};
 		//@formatter:on
 
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see java.lang.Enum#toString()
 		 */
 		@Override
@@ -543,18 +545,21 @@ public class LUTHelper
 	 * Copied from ij.plugin.LutLoader
 	 *
 	 * @param reds
+	 *            the reds
 	 * @param greens
+	 *            the greens
 	 * @param blues
-	 * @return
+	 *            the blues
+	 * @return the number of colours
 	 */
 	private static int ice(byte[] reds, byte[] greens, byte[] blues)
 	{
-		final int[] r = { 0, 0, 0, 0, 0, 0, 19, 29, 50, 48, 79, 112, 134, 158, 186, 201, 217, 229, 242, 250, 250, 250, 250,
-				251, 250, 250, 250, 250, 251, 251, 243, 230 };
-		final int[] g = { 156, 165, 176, 184, 190, 196, 193, 184, 171, 162, 146, 125, 107, 93, 81, 87, 92, 97, 95, 93, 93, 90,
-				85, 69, 64, 54, 47, 35, 19, 0, 4, 0 };
-		final int[] b = { 140, 147, 158, 166, 170, 176, 209, 220, 234, 225, 236, 246, 250, 251, 250, 250, 245, 230, 230, 222,
-				202, 180, 163, 142, 123, 114, 106, 94, 84, 64, 26, 27 };
+		final int[] r = { 0, 0, 0, 0, 0, 0, 19, 29, 50, 48, 79, 112, 134, 158, 186, 201, 217, 229, 242, 250, 250, 250,
+				250, 251, 250, 250, 250, 250, 251, 251, 243, 230 };
+		final int[] g = { 156, 165, 176, 184, 190, 196, 193, 184, 171, 162, 146, 125, 107, 93, 81, 87, 92, 97, 95, 93,
+				93, 90, 85, 69, 64, 54, 47, 35, 19, 0, 4, 0 };
+		final int[] b = { 140, 147, 158, 166, 170, 176, 209, 220, 234, 225, 236, 246, 250, 251, 250, 250, 245, 230, 230,
+				222, 202, 180, 163, 142, 123, 114, 106, 94, 84, 64, 26, 27 };
 		for (int i = 0; i < r.length; i++)
 		{
 			reds[i] = (byte) r[i];
@@ -568,18 +573,21 @@ public class LUTHelper
 	 * Copied from ij.plugin.LutLoader
 	 *
 	 * @param reds
+	 *            the reds
 	 * @param greens
+	 *            the greens
 	 * @param blues
-	 * @return
+	 *            the blues
+	 * @return the number of colours
 	 */
 	private static int fire(byte[] reds, byte[] greens, byte[] blues)
 	{
-		final int[] r = { 0, 0, 1, 25, 49, 73, 98, 122, 146, 162, 173, 184, 195, 207, 217, 229, 240, 252, 255, 255, 255, 255,
-				255, 255, 255, 255, 255, 255, 255, 255, 255, 255 };
-		final int[] g = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 35, 57, 79, 101, 117, 133, 147, 161, 175, 190, 205, 219,
-				234, 248, 255, 255, 255, 255 };
-		final int[] b = { 0, 61, 96, 130, 165, 192, 220, 227, 210, 181, 151, 122, 93, 64, 35, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				0, 35, 98, 160, 223, 255 };
+		final int[] r = { 0, 0, 1, 25, 49, 73, 98, 122, 146, 162, 173, 184, 195, 207, 217, 229, 240, 252, 255, 255, 255,
+				255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 };
+		final int[] g = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 35, 57, 79, 101, 117, 133, 147, 161, 175, 190, 205,
+				219, 234, 248, 255, 255, 255, 255 };
+		final int[] b = { 0, 61, 96, 130, 165, 192, 220, 227, 210, 181, 151, 122, 93, 64, 35, 5, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 35, 98, 160, 223, 255 };
 		for (int i = 0; i < r.length; i++)
 		{
 			reds[i] = (byte) r[i];
@@ -593,9 +601,12 @@ public class LUTHelper
 	 * Copied from ij.plugin.LutLoader
 	 *
 	 * @param reds
+	 *            the reds
 	 * @param greens
+	 *            the greens
 	 * @param blues
-	 * @return
+	 *            the blues
+	 * @return the number of colours
 	 */
 	private static int grays(byte[] reds, byte[] greens, byte[] blues)
 	{
@@ -612,9 +623,12 @@ public class LUTHelper
 	 * Adapted from ij.plugin.LutLoader to remove the dark colours
 	 *
 	 * @param reds
+	 *            the reds
 	 * @param greens
+	 *            the greens
 	 * @param blues
-	 * @return
+	 *            the blues
+	 * @return the number of colours
 	 */
 	private static int firelight(byte[] reds, byte[] greens, byte[] blues)
 	{
@@ -640,9 +654,13 @@ public class LUTHelper
 	 * Adapted from ij.plugin.LutLoader to remove the dark colours and near white colours
 	 *
 	 * @param reds
+	 *            the reds
 	 * @param greens
+	 *            the greens
 	 * @param blues
-	 * @return
+	 *            the blues
+	 * @return the number of colours
+	 * 
 	 */
 	private static int fireglow(byte[] reds, byte[] greens, byte[] blues)
 	{
@@ -672,10 +690,15 @@ public class LUTHelper
 	 * Adapted from ij.plugin.LutLoader.
 	 *
 	 * @param reds
+	 *            the reds
 	 * @param greens
+	 *            the greens
 	 * @param blues
+	 *            the blues
 	 * @param nColors
+	 *            the number of colours
 	 * @param includeBlack
+	 *            Set to true to include black at index zero
 	 */
 	private static void interpolate(byte[] reds, byte[] greens, byte[] blues, int nColors, boolean includeBlack)
 	{

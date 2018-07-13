@@ -1062,7 +1062,7 @@ public class FHT2 extends FloatProcessor
 	 *            the pre-initialised h2o value
 	 * @param jj
 	 *            the pre-initialised j index
-	 * @param h2o
+	 * @param mag
 	 *            the pre-initialised magnitude value
 	 * @param tmp
 	 *            the buffer for the result (can be null)

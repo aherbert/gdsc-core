@@ -2195,8 +2195,8 @@ public abstract class FastTiffDecoder
 	 *
 	 * @param in
 	 *            the input stream
-	 * @param count
-	 *            the count
+	 * @param skip
+	 *            the skip
 	 * @return the position before the skip (-1 if EOF)
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.

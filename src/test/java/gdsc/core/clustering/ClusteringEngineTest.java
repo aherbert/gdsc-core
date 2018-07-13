@@ -333,10 +333,12 @@ public class ClusteringEngineTest
 	}
 
 	/**
-	 * Perform centroid-linkage clustering up to the given radius
+	 * Perform centroid-linkage clustering up to the given radius.
 	 *
 	 * @param points
+	 *            the points
 	 * @param radius
+	 *            the radius
 	 * @return The clusters
 	 */
 	private ArrayList<Cluster> findClusters(ArrayList<ClusterPoint> points, double radius)
@@ -364,7 +366,9 @@ public class ClusteringEngineTest
 	 * variables ii and jj to the indices of the closest pair.
 	 *
 	 * @param clusters
+	 *            the clusters
 	 * @param radius
+	 *            the radius
 	 * @return True if a pair was found
 	 */
 	private boolean findClosest(ArrayList<Cluster> clusters, double radius)
@@ -412,10 +416,16 @@ public class ClusteringEngineTest
 	 * Create n clusters of m points in a 2D distribution of size * size. Clusters will be spread in a radius*radius
 	 * square.
 	 *
+	 * @param rg
+	 *            the rg
 	 * @param n
+	 *            the n
 	 * @param size
+	 *            the size
 	 * @param m
+	 *            the m
 	 * @param radius
+	 *            the radius
 	 * @return The points
 	 */
 	private static ArrayList<ClusterPoint> createClusters(RandomGenerator rg, int n, int size, int m, double radius)
@@ -427,11 +437,18 @@ public class ClusteringEngineTest
 	 * Create n clusters of m points in a 2D distribution of size * size. Clusters will be spread in a radius*radius
 	 * square. Points will be selected randomly from the given number of frames.
 	 *
+	 * @param rg
+	 *            the rg
 	 * @param n
+	 *            the n
 	 * @param size
+	 *            the size
 	 * @param m
+	 *            the m
 	 * @param radius
+	 *            the radius
 	 * @param t
+	 *            the t
 	 * @return The points
 	 */
 	private static ArrayList<ClusterPoint> createClusters(RandomGenerator rg, int n, int size, int m, double radius,
@@ -447,11 +464,18 @@ public class ClusteringEngineTest
 	 * Create n clusters of m points in a 2D distribution of size * size. Clusters will be spread in a radius*radius
 	 * square. Points will be selected randomly from the given frames.
 	 *
+	 * @param rg
+	 *            the rg
 	 * @param n
+	 *            the n
 	 * @param size
+	 *            the size
 	 * @param m
+	 *            the m
 	 * @param radius
+	 *            the radius
 	 * @param time
+	 *            the time
 	 * @return The points
 	 */
 	private static ArrayList<ClusterPoint> createClusters(RandomGenerator rg, int n, int size, int m, double radius,

@@ -58,7 +58,9 @@ public class FastCorrelator
 	 * Add a pair of data points to the sums
 	 *
 	 * @param v1
+	 *            the first value
 	 * @param v2
+	 *            the second value
 	 */
 	private void addData(final int v1, final int v2)
 	{
@@ -87,7 +89,9 @@ public class FastCorrelator
 	 * Add a pair of data points to the sums
 	 *
 	 * @param v1
+	 *            the first value
 	 * @param v2
+	 *            the second value
 	 */
 	private void addData(final long v1, final long v2)
 	{

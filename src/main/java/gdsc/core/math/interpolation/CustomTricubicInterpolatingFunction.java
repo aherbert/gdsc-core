@@ -1022,7 +1022,7 @@ public class CustomTricubicInterpolatingFunction
 	 * the specified array of doubles for the specified value using
 	 * the binary search algorithm.
 	 * The range must be sorted
-	 * (as by the {@link #sort(double[], int, int)} method)
+	 * (as by the {@link java.util.Arrays#sort(double[], int, int)} method)
 	 * prior to making this call.
 	 * If it is not sorted, the results are undefined. If the range contains
 	 * multiple elements with the specified value, there is no guarantee which

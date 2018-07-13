@@ -80,6 +80,7 @@ public class Correlator
 	 * Ensure that the specified number of elements can be added to the arrays.
 	 *
 	 * @param length
+	 *            the length
 	 */
 	private void checkCapacity(int length)
 	{
@@ -99,10 +100,12 @@ public class Correlator
 	}
 
 	/**
-	 * Add a pair of data points to the sums
+	 * Add a pair of data points to the sums.
 	 *
 	 * @param v1
+	 *            the first value
 	 * @param v2
+	 *            the second value
 	 */
 	private void addData(final int v1, final int v2)
 	{

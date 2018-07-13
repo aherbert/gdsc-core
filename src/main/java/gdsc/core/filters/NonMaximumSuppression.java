@@ -1861,10 +1861,12 @@ public class NonMaximumSuppression implements Cloneable
 	}
 
 	/**
-	 * Truncate the array to the specified size
+	 * Truncate the array to the specified size.
 	 *
 	 * @param array
+	 *            the array
 	 * @param size
+	 *            the size
 	 * @return The truncated array
 	 */
 	private static int[] truncate(int[] array, int size)
@@ -1879,10 +1881,12 @@ public class NonMaximumSuppression implements Cloneable
 	}
 
 	/**
-	 * Truncate the array to the specified size
+	 * Truncate the array to the specified size.
 	 *
 	 * @param array
+	 *            the array
 	 * @param size
+	 *            the size
 	 * @return The truncated array
 	 */
 	private static int[][] truncate(int[][] array, int size)

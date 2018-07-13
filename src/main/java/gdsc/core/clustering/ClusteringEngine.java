@@ -534,10 +534,12 @@ public class ClusteringEngine
 	}
 
 	/**
-	 * Join the closest unlinked particle to its neighbour particle/cluster
+	 * Join the closest unlinked particle to its neighbour particle/cluster.
 	 *
 	 * @param points
+	 *            the points
 	 * @param radius
+	 *            the radius
 	 * @return The clusters
 	 */
 	private ArrayList<Cluster> runParticleSingleLinkage(List<ClusterPoint> points, double radius)
@@ -732,16 +734,22 @@ public class ClusteringEngine
 
 	/**
 	 * Search for the closest pair of particles, one of which is not in a cluster, below the squared radius distance and
-	 * join them
+	 * join them.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
-	 * @param miny
 	 * @param minx
+	 *            the minx
+	 * @param miny
+	 *            the miny
 	 * @param clusterId
+	 *            the cluster id
 	 * @return The number of points assigned to clusters (either 0, 1, or 2)
 	 */
 	private int joinClosestParticle(ExtendedClusterPoint[][] grid, final int nXBins, final int nYBins, final double r2,
@@ -831,19 +839,28 @@ public class ClusteringEngine
 
 	/**
 	 * Search for the closest pair of particles, one of which is not in a cluster, below the squared radius
-	 * distance
+	 * distance.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
-	 * @param miny
 	 * @param minx
+	 *            the minx
+	 * @param miny
+	 *            the miny
 	 * @param startXBin
+	 *            the start X bin
 	 * @param endXBin
+	 *            the end X bin
 	 * @param startYBin
+	 *            the start Y bin
 	 * @param endYBin
+	 *            the end Y bin
 	 * @return The pair of closest points (or null)
 	 */
 	private ClosestPair findClosestParticle(ExtendedClusterPoint[][] grid, final int nXBins, final int nYBins,
@@ -954,7 +971,9 @@ public class ClusteringEngine
 	 * Count the number of points around each point.
 	 *
 	 * @param points
+	 *            the points
 	 * @param radius
+	 *            the radius
 	 * @return The density count
 	 */
 	private static int[] calculateDensity(List<ClusterPoint> points, double radius)
@@ -979,6 +998,7 @@ public class ClusteringEngine
 	 * start and end time.
 	 *
 	 * @param candidates
+	 *            the candidates
 	 * @return true if there are no different time points
 	 */
 	private boolean noTimeInformation(ArrayList<Cluster> candidates)
@@ -1005,10 +1025,11 @@ public class ClusteringEngine
 	}
 
 	/**
-	 * Check if any of the candidates have a different start and end time
+	 * Check if any of the candidates have a different start and end time.
 	 *
 	 * @param candidates
-	 * @return
+	 *            the candidates
+	 * @return true, if successful
 	 */
 	private static boolean checkForTimeRange(ArrayList<Cluster> candidates)
 	{
@@ -1024,15 +1045,25 @@ public class ClusteringEngine
 	 * Then join all the links into clusters.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
+	 *            the r 2
 	 * @param minx
+	 *            the minx
 	 * @param miny
+	 *            the miny
 	 * @param xBinWidth
+	 *            the x bin width
 	 * @param yBinWidth
+	 *            the y bin width
 	 * @param candidates
+	 *            the candidates
 	 * @param singles
+	 *            the singles
 	 * @return The clusters
 	 */
 	private ArrayList<Cluster> runPairwise(Cluster[][] grid, final int nXBins, final int nYBins, final double r2,
@@ -1066,8 +1097,11 @@ public class ClusteringEngine
 	 * have any neighbours within 2*r^2.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
 	 * @return True if any links were made
@@ -1131,8 +1165,11 @@ public class ClusteringEngine
 	 * Join valid links between clusters. Resets the link candidates.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param candidates
 	 *            Re-populate will all the remaining clusters
 	 */
@@ -1167,16 +1204,26 @@ public class ClusteringEngine
 	 * pair.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
+	 *            the r 2
 	 * @param minx
+	 *            the minx
 	 * @param miny
+	 *            the miny
 	 * @param xBinWidth
+	 *            the x bin width
 	 * @param yBinWidth
+	 *            the y bin width
 	 * @param candidates
+	 *            the candidates
 	 * @param singles
-	 * @return
+	 *            the singles
+	 * @return the list of clusters
 	 */
 	private ArrayList<Cluster> runPairwiseWithoutNeighbours(Cluster[][] grid, final int nXBins, final int nYBins,
 			final double r2, final double minx, final double miny, final double xBinWidth, final double yBinWidth,
@@ -1261,8 +1308,11 @@ public class ClusteringEngine
 	 * have any neighbours within 2*r^2.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
 	 * @param singles
@@ -1310,10 +1360,21 @@ public class ClusteringEngine
 	 * have any neighbours within 2*r^2.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
+	 * @param startXBin
+	 *            the start X bin
+	 * @param endXBin
+	 *            the end X bin
+	 * @param startYBin
+	 *            the start Y bin
+	 * @param endYBin
+	 *            the end Y bin
 	 * @return True if any links were made
 	 */
 	private static boolean findLinksAndCountNeighbours(Cluster[][] grid, final int nXBins, final int nYBins,
@@ -1384,11 +1445,17 @@ public class ClusteringEngine
 	 * candidate was joined to another cluster.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
+	 *            the r 2
 	 * @param candidates
 	 *            Re-populate will all the remaining clusters
+	 * @param joined
+	 *            the joined
 	 * @param singles
 	 *            Add any clusters with no neighbours
 	 * @return The number of joins that were made
@@ -1473,18 +1540,28 @@ public class ClusteringEngine
 	 * The iterative process of joining the closest pair will be slow. Hopefully it will be manageable.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
+	 *            the r 2
 	 * @param minx
+	 *            the minx
 	 * @param miny
+	 *            the miny
 	 * @param xBinWidth
+	 *            the x bin width
 	 * @param yBinWidth
+	 *            the y bin width
 	 * @param candidates
+	 *            the candidates
 	 * @param singles
+	 *            the singles
 	 * @param single
 	 *            True if only singles can be joined to another cluster
-	 * @return
+	 * @return the list of clusters
 	 */
 	private ArrayList<Cluster> runClosest(Cluster[][] grid, int nXBins, int nYBins, double r2, double minx, double miny,
 			double xBinWidth, double yBinWidth, ArrayList<Cluster> candidates, ArrayList<Cluster> singles,
@@ -1513,17 +1590,24 @@ public class ClusteringEngine
 	}
 
 	/**
-	 * Search for the closest pair of clusters that are below the squared radius distance and join them
+	 * Search for the closest pair of clusters that are below the squared radius distance and join them.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
-	 * @param yBinWidth
-	 * @param xBinWidth
-	 * @param miny
 	 * @param minx
+	 *            the minx
+	 * @param miny
+	 *            the miny
+	 * @param xBinWidth
+	 *            the x bin width
+	 * @param yBinWidth
+	 *            the y bin width
 	 * @param single
 	 *            True if only singles can be joined to another cluster
 	 * @return True if a join was made
@@ -1615,17 +1699,24 @@ public class ClusteringEngine
 	}
 
 	/**
-	 * Search for the closest pair of clusters that are below the squared radius distance
+	 * Search for the closest pair of clusters that are below the squared radius distance.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
 	 * @param startXBin
+	 *            the start X bin
 	 * @param endXBin
+	 *            the end X bin
 	 * @param startYBin
+	 *            the start Y bin
 	 * @param endYBin
+	 *            the end Y bin
 	 * @return The closest pair
 	 */
 	private ClosestPair findClosest(Cluster[][] grid, final int nXBins, final int nYBins, final double r2,
@@ -1715,10 +1806,12 @@ public class ClusteringEngine
 	}
 
 	/**
-	 * Remove cluster from the grid by sweeping the linked list grid position
+	 * Remove cluster from the grid by sweeping the linked list grid position.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param cluster
+	 *            the cluster
 	 */
 	private static void remove(Cluster[][] grid, Cluster cluster)
 	{
@@ -1737,12 +1830,16 @@ public class ClusteringEngine
 	}
 
 	/**
-	 * Add the clusters in the grid to the existing singles
+	 * Add the clusters in the grid to the existing singles.
 	 *
 	 * @param singles
+	 *            the singles
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @return The combined clusters
 	 */
 	private static ArrayList<Cluster> combine(ArrayList<Cluster> singles, Cluster[][] grid, int nXBins, int nYBins)
@@ -1757,17 +1854,24 @@ public class ClusteringEngine
 
 	/**
 	 * Search for the closest pair of a single particle and any existing single/cluster that are below the squared
-	 * radius distance
+	 * radius distance.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
 	 * @param startXBin
+	 *            the start X bin
 	 * @param endXBin
+	 *            the end X bin
 	 * @param startYBin
+	 *            the start Y bin
 	 * @param endYBin
+	 *            the end Y bin
 	 * @return The closest pair
 	 */
 	private ClosestPair findClosestParticle(Cluster[][] grid, final int nXBins, final int nYBins, final double r2,
@@ -1873,18 +1977,30 @@ public class ClusteringEngine
 	 * time and then distance.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
+	 *            the r 2
+	 * @param time
+	 *            the time
 	 * @param minx
+	 *            the minx
 	 * @param miny
+	 *            the miny
 	 * @param xBinWidth
+	 *            the x bin width
 	 * @param yBinWidth
+	 *            the y bin width
 	 * @param candidates
+	 *            the candidates
 	 * @param singles
+	 *            the singles
 	 * @param single
 	 *            True if only singles can be joined to another cluster
-	 * @return
+	 * @return the list of clusters
 	 */
 	private ArrayList<Cluster> runClosestTimePriority(Cluster[][] grid, int nXBins, int nYBins, double r2, int time,
 			double minx, double miny, double xBinWidth, double yBinWidth, ArrayList<Cluster> candidates,
@@ -1937,16 +2053,23 @@ public class ClusteringEngine
 	 * time and then distance.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
 	 * @param time
 	 *            The time threshold
-	 * @param yBinWidth
-	 * @param xBinWidth
-	 * @param miny
 	 * @param minx
+	 *            the minx
+	 * @param miny
+	 *            the miny
+	 * @param xBinWidth
+	 *            the x bin width
+	 * @param yBinWidth
+	 *            the y bin width
 	 * @param singles
 	 *            Add remaining clusters that have no neighbours
 	 * @param single
@@ -2031,15 +2154,23 @@ public class ClusteringEngine
 	 * time and then distance.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
 	 * @param time
+	 *            the time
 	 * @param startXBin
+	 *            the start X bin
 	 * @param endXBin
+	 *            the end X bin
 	 * @param startYBin
+	 *            the start Y bin
 	 * @param endYBin
+	 *            the end Y bin
 	 * @return True if a join was made
 	 */
 	private ClosestPair findClosestTimePriority(TimeCluster[][] grid, final int nXBins, final int nYBins,
@@ -2120,18 +2251,19 @@ public class ClusteringEngine
 	}
 
 	/**
-	 * Check if the union of two clusters is valid
+	 * Check if the union of two clusters is valid.
 	 *
 	 * @param c1
+	 *            the c 1
 	 * @param c2
-	 * @return
+	 *            the c 2
+	 * @return true, if successful
 	 */
 	private boolean validUnion(TimeCluster c1, TimeCluster c2)
 	{
 		if (useRange)
 			return c1.validUnionRange(c2);
-		else
-			return c1.validUnion(c2);
+		return c1.validUnion(c2);
 	}
 
 	/**
@@ -2139,15 +2271,23 @@ public class ClusteringEngine
 	 * radius distance. Find the closest in time and then distance.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
 	 * @param time
+	 *            the time
 	 * @param startXBin
+	 *            the start X bin
 	 * @param endXBin
+	 *            the end X bin
 	 * @param startYBin
+	 *            the start Y bin
 	 * @param endYBin
+	 *            the end Y bin
 	 * @return True if a join was made
 	 */
 	private ClosestPair findClosestParticleTimePriority(TimeCluster[][] grid, final int nXBins, final int nYBins,
@@ -2236,18 +2376,30 @@ public class ClusteringEngine
 	 * distance and then time.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
+	 *            the r 2
+	 * @param time
+	 *            the time
 	 * @param minx
+	 *            the minx
 	 * @param miny
+	 *            the miny
 	 * @param xBinWidth
+	 *            the x bin width
 	 * @param yBinWidth
+	 *            the y bin width
 	 * @param candidates
+	 *            the candidates
 	 * @param singles
+	 *            the singles
 	 * @param single
 	 *            True if only singles can be joined to another cluster
-	 * @return
+	 * @return the list of clusters
 	 */
 	private ArrayList<Cluster> runClosestDistancePriority(Cluster[][] grid, int nXBins, int nYBins, double r2, int time,
 			double minx, double miny, double xBinWidth, double yBinWidth, ArrayList<Cluster> candidates,
@@ -2282,16 +2434,23 @@ public class ClusteringEngine
 	 * distance and then time.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
 	 * @param time
 	 *            The time threshold
-	 * @param yBinWidth
-	 * @param xBinWidth
-	 * @param miny
 	 * @param minx
+	 *            the minx
+	 * @param miny
+	 *            the miny
+	 * @param xBinWidth
+	 *            the x bin width
+	 * @param yBinWidth
+	 *            the y bin width
 	 * @param singles
 	 *            Add remaining clusters that have no neighbours
 	 * @param single
@@ -2376,15 +2535,23 @@ public class ClusteringEngine
 	 * distance and then time.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
 	 * @param time
+	 *            the time
 	 * @param startXBin
+	 *            the start X bin
 	 * @param endXBin
+	 *            the end X bin
 	 * @param startYBin
+	 *            the start Y bin
 	 * @param endYBin
+	 *            the end Y bin
 	 * @return True if a join was made
 	 */
 	private ClosestPair findClosestDistancePriority(TimeCluster[][] grid, final int nXBins, final int nYBins,
@@ -2468,15 +2635,23 @@ public class ClusteringEngine
 	 * radius distance. Find the closest in distance and then time.
 	 *
 	 * @param grid
+	 *            the grid
 	 * @param nXBins
+	 *            the n X bins
 	 * @param nYBins
+	 *            the n Y bins
 	 * @param r2
 	 *            The squared radius distance
 	 * @param time
+	 *            the time
 	 * @param startXBin
+	 *            the start X bin
 	 * @param endXBin
+	 *            the end X bin
 	 * @param startYBin
+	 *            the start Y bin
 	 * @param endYBin
+	 *            the end Y bin
 	 * @return True if a join was made
 	 */
 	private ClosestPair findClosestParticleDistancePriority(TimeCluster[][] grid, final int nXBins, final int nYBins,

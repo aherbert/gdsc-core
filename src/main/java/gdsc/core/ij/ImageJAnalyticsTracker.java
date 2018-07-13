@@ -321,11 +321,12 @@ public class ImageJAnalyticsTracker
 	}
 
 	/**
-	 * Split the menu path string and create a document path
+	 * Split the menu path string and create a document path.
 	 *
 	 * @param menuPath
 	 *            The ImageJ menu path string
 	 * @param documentTitle
+	 *            the document title
 	 * @return The document path
 	 */
 	private static String getDocumentPath(String menuPath, String documentTitle)

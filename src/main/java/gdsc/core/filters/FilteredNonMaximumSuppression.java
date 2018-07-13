@@ -1426,10 +1426,12 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	}
 
 	/**
-	 * Truncate the array to the specified size
+	 * Truncate the array to the specified size.
 	 *
 	 * @param array
+	 *            the array
 	 * @param size
+	 *            the size
 	 * @return The truncated array
 	 */
 	private static int[] truncate(int[] array, int size)
@@ -1442,8 +1444,12 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	}
 
 	/**
+	 * Float half maximum.
+	 *
 	 * @param background
+	 *            the background
 	 * @param maximum
+	 *            the maximum
 	 * @return The half-maximum value (accounting for background)
 	 */
 	private static float floatHalfMaximum(float background, float maximum)
@@ -1452,8 +1458,12 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 	}
 
 	/**
+	 * Int half maximum.
+	 *
 	 * @param background
+	 *            the background
 	 * @param maximum
+	 *            the maximum
 	 * @return The half-maximum value (accounting for background)
 	 */
 	private static int intHalfMaximum(int background, int maximum)

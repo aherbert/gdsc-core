@@ -60,8 +60,6 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
 
     /**
      * The size of the ArrayList (the number of elements it contains).
-     *
-     * @serial
      */
     private int size;
 

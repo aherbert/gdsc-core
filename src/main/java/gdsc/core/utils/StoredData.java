@@ -128,6 +128,7 @@ public class StoredData implements Iterable<Double>, DoubleData
 	 * same synchronized method to add data thus this method will be within synchronized code.
 	 *
 	 * @param length
+	 *            the length
 	 */
 	private void checkCapacity(int length)
 	{

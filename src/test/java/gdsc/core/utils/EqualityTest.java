@@ -361,10 +361,10 @@ public class EqualityTest
 	}
 
 	/**
-	 * Used to check what the int difference between float actually is
+	 * Used to check what the int difference between float actually is.
 	 *
 	 * @param f
-	 * @param f2
+	 *            the f
 	 */
 	@SuppressWarnings("unused")
 	private static void computeComplement(float f)
