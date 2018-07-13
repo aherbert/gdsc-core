@@ -84,7 +84,7 @@ public class RollingStatistics extends Statistics
 	protected void addInternal(float[] data, int from, int to)
 	{
 		for (int i = from; i < to; i++)
-			add(data[i]);
+			addInternal(data[i]);
 	}
 
 	/*
@@ -96,7 +96,7 @@ public class RollingStatistics extends Statistics
 	protected void addInternal(double[] data, int from, int to)
 	{
 		for (int i = from; i < to; i++)
-			add(data[i]);
+			addInternal(data[i]);
 	}
 
 	/*
@@ -108,17 +108,16 @@ public class RollingStatistics extends Statistics
 	protected void addInternal(int[] data, int from, int to)
 	{
 		for (int i = from; i < to; i++)
-			add(data[i]);
-
+			addInternal(data[i]);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
-	 * @see gdsc.core.utils.Statistics#add(double)
+	 * 
+	 * @see gdsc.core.utils.Statistics#addInternal(double)
 	 */
 	@Override
-	public void add(final double value)
+	protected void addInternal(final double value)
 	{
 		// This has changed the meaning of the inherited values s and ss
 		// s : sum -> mean
@@ -135,11 +134,11 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 *
-	 * @see gdsc.core.utils.Statistics#add(int, double)
+	 * 
+	 * @see gdsc.core.utils.Statistics#addInternal(int, double)
 	 */
 	@Override
-	public void add(int nA, double value)
+	protected void addInternal(int nA, double value)
 	{
 		// Note: for the input mean value the
 		// deviation from mean is 0 (ss=0)

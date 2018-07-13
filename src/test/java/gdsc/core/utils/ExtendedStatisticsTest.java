@@ -33,22 +33,21 @@ import org.apache.commons.math3.util.MathArrays;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.test.TestAssert;
 import gdsc.test.TestSettings;
 
 @SuppressWarnings({ "javadoc" })
-public class RollingStatisticsTest
+public class ExtendedStatisticsTest
 {
 	@Test
 	public void canComputeStatistics()
 	{
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		DescriptiveStatistics e;
-		RollingStatistics o;
+		ExtendedStatistics o;
 		for (int i = 0; i < 10; i++)
 		{
 			e = new DescriptiveStatistics();
-			o = new RollingStatistics();
+			o = new ExtendedStatistics();
 			for (int j = 0; j < 100; j++)
 			{
 				final double d = r.nextDouble();
@@ -59,7 +58,7 @@ public class RollingStatisticsTest
 		}
 
 		e = new DescriptiveStatistics();
-		o = new RollingStatistics();
+		o = new ExtendedStatistics();
 		final int[] idata = SimpleArrayUtils.newArray(100, 0, 1);
 		MathArrays.shuffle(idata, r);
 		for (final double v : idata)
@@ -68,7 +67,7 @@ public class RollingStatisticsTest
 		check(e, o);
 
 		e = new DescriptiveStatistics();
-		o = new RollingStatistics();
+		o = new ExtendedStatistics();
 		final double[] ddata = new double[idata.length];
 		for (int i = 0; i < idata.length; i++)
 		{
@@ -79,7 +78,7 @@ public class RollingStatisticsTest
 		check(e, o);
 
 		e = new DescriptiveStatistics();
-		o = new RollingStatistics();
+		o = new ExtendedStatistics();
 		final float[] fdata = new float[idata.length];
 		for (int i = 0; i < idata.length; i++)
 		{
@@ -90,12 +89,14 @@ public class RollingStatisticsTest
 		check(e, o);
 	}
 
-	private static void check(DescriptiveStatistics e, RollingStatistics o)
+	private static void check(DescriptiveStatistics e, ExtendedStatistics o)
 	{
 		Assert.assertEquals("N", e.getN(), o.getN(), 0);
 		Assert.assertEquals("Mean", e.getMean(), o.getMean(), 1e-10);
 		Assert.assertEquals("Variance", e.getVariance(), o.getVariance(), 1e-10);
 		Assert.assertEquals("SD", e.getStandardDeviation(), o.getStandardDeviation(), 1e-10);
+		Assert.assertEquals("Min", e.getMin(), o.getMin(), 0);
+		Assert.assertEquals("Max", e.getMax(), o.getMax(), 0);
 	}
 
 	@Test
@@ -103,39 +104,22 @@ public class RollingStatisticsTest
 	{
 		final int[] d1 = SimpleArrayUtils.newArray(100, 0, 1);
 		final int[] d2 = SimpleArrayUtils.newArray(100, 4, 1);
-		final RollingStatistics o = new RollingStatistics();
+		final ExtendedStatistics o = new ExtendedStatistics();
 		o.add(d1);
-		final RollingStatistics o2 = new RollingStatistics();
+		final ExtendedStatistics o2 = new ExtendedStatistics();
 		o2.add(d2);
-		final RollingStatistics o3 = new RollingStatistics();
+		final ExtendedStatistics o3 = new ExtendedStatistics();
 		o3.add(o);
 		o3.add(o2);
-		final RollingStatistics o4 = new RollingStatistics();
+		final ExtendedStatistics o4 = new ExtendedStatistics();
 		o4.add(d1);
 		o4.add(d2);
 
 		Assert.assertEquals("N", o3.getN(), o4.getN(), 0);
-		TestAssert.assertEqualsRelative("Mean", o3.getMean(), o4.getMean(), 1e-10);
-		TestAssert.assertEqualsRelative("Variance", o3.getVariance(), o4.getVariance(), 1e-10);
-		TestAssert.assertEqualsRelative("SD", o3.getStandardDeviation(), o4.getStandardDeviation(), 1e-10);
-	}
-
-	@Test
-	public void canComputeWithLargeNumbers()
-	{
-		// https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Example
-		final double[] v = new double[] { 4, 7, 13, 16 };
-		RollingStatistics o = new RollingStatistics();
-		o.add(v);
-		Assert.assertEquals("Mean", o.getMean(), 10, 0);
-		Assert.assertEquals("Variance", o.getVariance(), 30, 0);
-
-		final double add = Math.pow(10, 9);
-		for (int i = 0; i < v.length; i++)
-			v[i] += add;
-		o = new RollingStatistics();
-		o.add(v);
-		Assert.assertEquals("Mean", o.getMean(), add + 10, 0);
-		Assert.assertEquals("Variance", o.getVariance(), 30, 0);
+		Assert.assertEquals("Mean", o3.getMean(), o4.getMean(), 0);
+		Assert.assertEquals("Variance", o3.getVariance(), o4.getVariance(), 0);
+		Assert.assertEquals("SD", o3.getStandardDeviation(), o4.getStandardDeviation(), 0);
+		Assert.assertEquals("Min", o3.getMin(), o4.getMin(), 0);
+		Assert.assertEquals("Max", o3.getMax(), o4.getMax(), 0);
 	}
 }

@@ -191,6 +191,30 @@ public class Statistics
 	}
 
 	/**
+	 * Add the value.
+	 *
+	 * @param value
+	 *            the value
+	 */
+	public void add(final double value)
+	{
+		addInternal(value);
+	}
+
+	/**
+	 * Add the value n times.
+	 *
+	 * @param n
+	 *            The number of times
+	 * @param value
+	 *            The value
+	 */
+	public void add(int n, double value)
+	{
+		addInternal(n, value);
+	}
+
+	/**
 	 * Add the data.
 	 *
 	 * @param data
@@ -259,7 +283,7 @@ public class Statistics
 	 * @param value
 	 *            the value
 	 */
-	public void add(final double value)
+	protected void addInternal(final double value)
 	{
 		n++;
 		s += value;
@@ -274,7 +298,7 @@ public class Statistics
 	 * @param value
 	 *            The value
 	 */
-	public void add(int n, double value)
+	protected void addInternal(int n, double value)
 	{
 		this.n += n;
 		s += n * value;
@@ -322,7 +346,20 @@ public class Statistics
 	 */
 	synchronized public void safeAdd(final double value)
 	{
-		add(value);
+		addInternal(value);
+	}
+
+	/**
+	 * Add the value n times. Synchronized for thread safety.
+	 *
+	 * @param n
+	 *            the n
+	 * @param value
+	 *            the value
+	 */
+	synchronized public void safeAdd(int n, final double value)
+	{
+		addInternal(n, value);
 	}
 
 	/**

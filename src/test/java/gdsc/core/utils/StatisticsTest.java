@@ -113,7 +113,10 @@ public class StatisticsTest
 		o4.add(d1);
 		o4.add(d2);
 
+		Assert.assertEquals("N", o3.getN(), o4.getN(), 0);
+		Assert.assertEquals("Mean", o3.getMean(), o4.getMean(), 0);
 		Assert.assertEquals("Variance", o3.getVariance(), o4.getVariance(), 0);
+		Assert.assertEquals("SD", o3.getStandardDeviation(), o4.getStandardDeviation(), 0);
 	}
 
 	@Test
