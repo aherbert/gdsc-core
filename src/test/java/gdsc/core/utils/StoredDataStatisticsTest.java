@@ -136,4 +136,15 @@ public class StoredDataStatisticsTest extends StatisticsTest
 		TestSettings.logSpeedTestResult(start1 < start2, "getValues = %d : iterator<Double> = %d : %fx\n", start1,
 				start2, (1.0 * start2) / start1);
 	}
+
+	@Test
+	public void canConstructWithData()
+	{
+		// This requires that the constructor correctly initialises the storage
+		@SuppressWarnings("unused")
+		StoredDataStatistics s;
+		s = new StoredDataStatistics(new double[] { 1, 2, 3 });
+		s = new StoredDataStatistics(new float[] { 1, 2, 3 });
+		s = new StoredDataStatistics(new int[] { 1, 2, 3 });
+	}
 }

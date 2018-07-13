@@ -66,7 +66,8 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	 */
 	public StoredDataStatistics(float[] data)
 	{
-		super(data);
+		super();
+		add(data);
 	}
 
 	/**
@@ -77,7 +78,8 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	 */
 	public StoredDataStatistics(double[] data)
 	{
-		super(data);
+		super();
+		add(data);
 	}
 
 	/**
@@ -88,7 +90,8 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
 	 */
 	public StoredDataStatistics(int[] data)
 	{
-		super(data);
+		super();
+		add(data);
 	}
 
 	/*
