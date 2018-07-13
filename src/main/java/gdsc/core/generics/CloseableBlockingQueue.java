@@ -480,11 +480,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		{
 			if (closed || count == items.length)
 				return false;
-			else
-			{
-				enqueue(e);
-				return true;
-			}
+			enqueue(e);
+			return true;
 		}
 		finally
 		{

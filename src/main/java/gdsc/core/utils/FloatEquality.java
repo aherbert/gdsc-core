@@ -240,8 +240,7 @@ public class FloatEquality
 			return 0;
 		if (Math.abs(B) > Math.abs(A))
 			return Math.abs(diff / B);
-		else
-			return Math.abs(diff / A);
+		return Math.abs(diff / A);
 	}
 
 	/**
@@ -471,12 +470,9 @@ public class FloatEquality
 			aInt = 0x80000000 - aInt;
 			return difference(bInt, aInt);
 		}
-		else
-		{
-			// Make bInt lexicographically ordered as a twos-complement int
-			bInt = 0x80000000 - bInt;
-			return difference(aInt, bInt);
-		}
+		// Make bInt lexicographically ordered as a twos-complement int
+		bInt = 0x80000000 - bInt;
+		return difference(aInt, bInt);
 	}
 
 	private static int difference(int high, int low)
@@ -512,14 +508,11 @@ public class FloatEquality
 			// Check for over-flow. We know a is negative and b positive
 			return (d > 0) ? Integer.MIN_VALUE : d;
 		}
-		else
-		{
-			// Make bInt lexicographically ordered as a twos-complement int
-			bInt = 0x80000000 - bInt;
-			final int d = aInt - bInt;
-			// Check for over-flow. We know a is positive and b negative
-			return (d < 0) ? Integer.MAX_VALUE : d;
-		}
+		// Make bInt lexicographically ordered as a twos-complement int
+		bInt = 0x80000000 - bInt;
+		final int d = aInt - bInt;
+		// Check for over-flow. We know a is positive and b negative
+		return (d < 0) ? Integer.MAX_VALUE : d;
 	}
 
 }

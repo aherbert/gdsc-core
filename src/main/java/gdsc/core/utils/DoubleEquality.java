@@ -240,8 +240,7 @@ public class DoubleEquality
 			return 0;
 		if (Math.abs(b) > Math.abs(a))
 			return Math.abs(diff / b);
-		else
-			return Math.abs(diff / a);
+		return Math.abs(diff / a);
 	}
 
 	/**
@@ -471,12 +470,9 @@ public class DoubleEquality
 			aInt = 0x8000000000000000L - aInt;
 			return difference(bInt, aInt);
 		}
-		else
-		{
-			// Make bInt lexicographically ordered as a twos-complement long
-			bInt = 0x8000000000000000L - bInt;
-			return difference(aInt, bInt);
-		}
+		// Make bInt lexicographically ordered as a twos-complement long
+		bInt = 0x8000000000000000L - bInt;
+		return difference(aInt, bInt);
 	}
 
 	private static long difference(long high, long low)
@@ -512,13 +508,10 @@ public class DoubleEquality
 			// Check for over-flow. We know a is negative and b positive
 			return (d > 0) ? Long.MIN_VALUE : d;
 		}
-		else
-		{
-			// Make bInt lexicographically ordered as a twos-complement long
-			bInt = 0x8000000000000000L - bInt;
-			final long d = aInt - bInt;
-			// Check for over-flow. We know a is positive and b negative
-			return (d < 0) ? Long.MAX_VALUE : d;
-		}
+		// Make bInt lexicographically ordered as a twos-complement long
+		bInt = 0x8000000000000000L - bInt;
+		final long d = aInt - bInt;
+		// Check for over-flow. We know a is positive and b negative
+		return (d < 0) ? Long.MAX_VALUE : d;
 	}
 }

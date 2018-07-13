@@ -93,8 +93,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 			final byte abyte0[] = data.get((int) (pointer >> BLOCK_SHIFT));
 			return abyte0[(int) (pointer++ & BLOCK_MASK)] & 0xff;
 		}
-		else
-			return -1;
+		return -1;
 	}
 
 	/*
@@ -114,14 +113,11 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 		final long l = readUntil(pointer + len);
 		if (l <= pointer)
 			return -1;
-		else
-		{
-			final byte abyte1[] = data.get((int) (pointer >> BLOCK_SHIFT));
-			final int k = Math.min(len, BLOCK_SIZE - (int) (pointer & BLOCK_MASK));
-			System.arraycopy(abyte1, (int) (pointer & BLOCK_MASK), bytes, off, k);
-			pointer += k;
-			return k;
-		}
+		final byte abyte1[] = data.get((int) (pointer >> BLOCK_SHIFT));
+		final int k = Math.min(len, BLOCK_SIZE - (int) (pointer & BLOCK_MASK));
+		System.arraycopy(abyte1, (int) (pointer & BLOCK_MASK), bytes, off, k);
+		pointer += k;
+		return k;
 	}
 
 	/**

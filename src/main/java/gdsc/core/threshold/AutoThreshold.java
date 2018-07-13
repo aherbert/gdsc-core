@@ -1633,8 +1633,7 @@ public class AutoThreshold
 			}
 			return (data.length - 1 - split);
 		}
-		else
-			return split;
+		return split;
 	}
 
 	/**

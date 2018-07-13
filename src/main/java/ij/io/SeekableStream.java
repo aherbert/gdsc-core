@@ -288,8 +288,7 @@ public abstract class SeekableStream extends InputStream
 		final int l = read();
 		if ((i | j | k | l) < 0)
 			throw new EOFException();
-		else
-			return (i << 24) + (j << 16) + (k << 8) + l;
+		return (i << 24) + (j << 16) + (k << 8) + l;
 	}
 
 	/**
@@ -329,8 +328,7 @@ public abstract class SeekableStream extends InputStream
 		final int j = read();
 		if ((i | j) < 0)
 			throw new EOFException();
-		else
-			return (short) ((i << 8) + j);
+		return (short) ((i << 8) + j);
 	}
 
 	/**

@@ -835,8 +835,7 @@ public abstract class FastTiffDecoder
 		ss.seek(saveLoc);
 		if (denominator != 0.0)
 			return numerator / denominator;
-		else
-			return 0.0;
+		return 0.0;
 	}
 
 	/**
@@ -1515,42 +1514,39 @@ public abstract class FastTiffDecoder
 			ss.close();
 			return null;
 		}
-		else
+		final ExtendedFileInfo[] info = list.toArray(new ExtendedFileInfo[list.size()]);
+
+		// Attempt to read the Micro-Manager summary metadata
+		if (!pixelDataOnly)
 		{
-			final ExtendedFileInfo[] info = list.toArray(new ExtendedFileInfo[list.size()]);
-
-			// Attempt to read the Micro-Manager summary metadata
-			if (!pixelDataOnly)
-			{
-				readMicroManagerSummaryMetadata(info[0]);
-				if (info[0].info == null)
-					info[0].info = tiffMetadata;
-			}
-
-			ss.close();
-
-			if (debugMode)
-				info[0].debugInfo = dInfo;
-			fi = info[0];
-			if (fi.fileType == FileInfo.GRAY16_UNSIGNED && fi.description == null)
-				fi.lutSize = 0; // ignore troublesome non-ImageJ 16-bit LUTs
-			if (debugMode)
-			{
-				final int n = info.length;
-				fi.debugInfo += "number of IFDs: " + n + "\n";
-				fi.debugInfo += "offset to first image: " + fi.getOffset() + "\n";
-				fi.debugInfo += "gap between images: " + getGapInfo(info) + "\n";
-				fi.debugInfo += "little-endian byte order: " + fi.intelByteOrder + "\n";
-			}
-
-			//System.out.println(dInfo);
-			//System.out.println(tiffMetadata);
-			//System.out.println(fi.summaryMetaData);
-			//System.out.println(fi.extendedMetaData);
-			//System.out.println(fi.info);
-
-			return info;
+			readMicroManagerSummaryMetadata(info[0]);
+			if (info[0].info == null)
+				info[0].info = tiffMetadata;
 		}
+
+		ss.close();
+
+		if (debugMode)
+			info[0].debugInfo = dInfo;
+		fi = info[0];
+		if (fi.fileType == FileInfo.GRAY16_UNSIGNED && fi.description == null)
+			fi.lutSize = 0; // ignore troublesome non-ImageJ 16-bit LUTs
+		if (debugMode)
+		{
+			final int n = info.length;
+			fi.debugInfo += "number of IFDs: " + n + "\n";
+			fi.debugInfo += "offset to first image: " + fi.getOffset() + "\n";
+			fi.debugInfo += "gap between images: " + getGapInfo(info) + "\n";
+			fi.debugInfo += "little-endian byte order: " + fi.intelByteOrder + "\n";
+		}
+
+		//System.out.println(dInfo);
+		//System.out.println(tiffMetadata);
+		//System.out.println(fi.summaryMetaData);
+		//System.out.println(fi.extendedMetaData);
+		//System.out.println(fi.info);
+
+		return info;
 	}
 
 	/**
@@ -1649,8 +1645,7 @@ public abstract class FastTiffDecoder
 		maxGap -= imageSize;
 		if (minGap == maxGap)
 			return "" + minGap;
-		else
-			return "varies (" + minGap + " to " + maxGap + ")";
+		return "varies (" + minGap + " to " + maxGap + ")";
 	}
 
 	/**
@@ -1776,25 +1771,22 @@ public abstract class FastTiffDecoder
 			//		e);
 			return new NumberOfImages(n, e);
 		}
-		else
+		// If not an ImageJ image then we have to read each IFD
+		ifdCount = 1;
+
+		while (ifdOffset > 0L)
 		{
-			// If not an ImageJ image then we have to read each IFD
-			ifdCount = 1;
+			ss.seek(ifdOffset);
 
-			while (ifdOffset > 0L)
-			{
-				ss.seek(ifdOffset);
+			if (!scanIFD())
+				//System.out.println("No more IFDs");
+				break;
 
-				if (!scanIFD())
-					//System.out.println("No more IFDs");
-					break;
-
-				ifdCount++;
-				ifdOffset = readUnsignedInt();
-			}
-
-			return new NumberOfImages(ifdCount);
+			ifdCount++;
+			ifdOffset = readUnsignedInt();
 		}
+
+		return new NumberOfImages(ifdCount);
 	}
 
 	/**

@@ -673,7 +673,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		}
 
 		// Create random vectors or uniform distribution
-		final RandomVectorGenerator vectorGen = (useRandomVectors) ? new UnitSphereRandomVectorGenerator(2, rand) : null;
+		final RandomVectorGenerator vectorGen = (useRandomVectors) ? new UnitSphereRandomVectorGenerator(2, rand)
+				: null;
 		final double increment = Math.PI / nProject1d;
 		for (int i = 0; i < nProject1d; i++)
 		{
@@ -1050,9 +1051,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 			}
 			return minInd;
 		}
-		else
-			// if all elements are the same split in the middle
-			return (begin + end) >>> 1;
+		// if all elements are the same split in the middle
+		return (begin + end) >>> 1;
 	}
 
 	/**

@@ -1787,8 +1787,7 @@ public class CustomTricubicInterpolatingFunction
 		if (x < xval[0] || x > xval[xval.length - 1] || y < yval[0] || y > yval[yval.length - 1] || z < zval[0] ||
 				z > zval[zval.length - 1])
 			return false;
-		else
-			return true;
+		return true;
 	}
 
 	/**

@@ -1324,35 +1324,32 @@ public class ClusteringEngine
 	{
 		if (threadPool == null)
 			return findLinksAndCountNeighbours(grid, nXBins, nYBins, r2, 0, nXBins, 0, nYBins);
-		else
+		// Use threads to find the closest pairs in blocks
+		final List<Future<?>> futures = new LinkedList<>();
+		final List<FindLinksWorker> results = new LinkedList<>();
+
+		for (int startYBin = 0; startYBin < nYBins; startYBin += yBlock)
 		{
-			// Use threads to find the closest pairs in blocks
-			final List<Future<?>> futures = new LinkedList<>();
-			final List<FindLinksWorker> results = new LinkedList<>();
-
-			for (int startYBin = 0; startYBin < nYBins; startYBin += yBlock)
+			final int endYBin = FastMath.min(nYBins, startYBin + yBlock);
+			for (int startXBin = 0; startXBin < nXBins; startXBin += xBlock)
 			{
-				final int endYBin = FastMath.min(nYBins, startYBin + yBlock);
-				for (int startXBin = 0; startXBin < nXBins; startXBin += xBlock)
-				{
-					final int endXBin = FastMath.min(nXBins, startXBin + xBlock);
+				final int endXBin = FastMath.min(nXBins, startXBin + xBlock);
 
-					final FindLinksWorker worker = new FindLinksWorker(grid, nXBins, nYBins, r2, startXBin, endXBin,
-							startYBin, endYBin);
-					results.add(worker);
-					futures.add(threadPool.submit(worker));
-				}
+				final FindLinksWorker worker = new FindLinksWorker(grid, nXBins, nYBins, r2, startXBin, endXBin,
+						startYBin, endYBin);
+				results.add(worker);
+				futures.add(threadPool.submit(worker));
 			}
-
-			// Finish processing data
-			Utils.waitForCompletion(futures);
-			futures.clear();
-
-			for (final FindLinksWorker worker : results)
-				if (worker.links)
-					return true;
-			return false;
 		}
+
+		// Finish processing data
+		Utils.waitForCompletion(futures);
+		futures.clear();
+
+		for (final FindLinksWorker worker : results)
+			if (worker.links)
+				return true;
+		return false;
 	}
 
 	/**
@@ -1817,6 +1814,7 @@ public class ClusteringEngine
 	{
 		Cluster previous = null;
 		for (Cluster c1 = grid[cluster.xBin][cluster.yBin]; c1 != null; c1 = c1.next)
+		{
 			if (c1 == cluster)
 			{
 				if (previous == null)
@@ -1825,8 +1823,8 @@ public class ClusteringEngine
 					previous.next = c1.next;
 				return;
 			}
-			else
-				previous = c1;
+			previous = c1;
+		}
 	}
 
 	/**

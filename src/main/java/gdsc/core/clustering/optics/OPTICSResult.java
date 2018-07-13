@@ -679,30 +679,27 @@ public class OPTICSResult implements ClusteringResult
 
 			return parents.toArray();
 		}
-		else
-		{
-			// Use a map so we know the order for each cluster.
-			// Add all the ids we have yet to process
-			final int nClusters = getNumberOfClusters();
+		// Use a map so we know the order for each cluster.
+		// Add all the ids we have yet to process
+		final int nClusters = getNumberOfClusters();
 
-			final TIntIntHashMap ids = new TIntIntHashMap(clusterIds.length);
+		final TIntIntHashMap ids = new TIntIntHashMap(clusterIds.length);
 
-			for (int i = 0; i < clusterIds.length; i++)
-				if (clusterIds[i] > 0 && clusterIds[i] <= nClusters)
-					ids.putIfAbsent(clusterIds[i], i);
+		for (int i = 0; i < clusterIds.length; i++)
+			if (clusterIds[i] > 0 && clusterIds[i] <= nClusters)
+				ids.putIfAbsent(clusterIds[i], i);
 
-			// Used to maintain the order of the input clusters
-			final TIntArrayList parentsRank = new TIntArrayList();
+		// Used to maintain the order of the input clusters
+		final TIntArrayList parentsRank = new TIntArrayList();
 
-			// Use the hierarchy
-			addClusters(clustering, ids, parents, parentsRank);
+		// Use the hierarchy
+		addClusters(clustering, ids, parents, parentsRank);
 
-			// Sort
-			final int[] parentIds = parents.toArray();
-			final int[] rank = parentsRank.toArray();
-			Sort.sortArrays(parentIds, rank, true);
-			return parentIds;
-		}
+		// Sort
+		final int[] parentIds = parents.toArray();
+		final int[] rank = parentsRank.toArray();
+		Sort.sortArrays(parentIds, rank, true);
+		return parentIds;
 	}
 
 	private void addClusters(List<OPTICSCluster> hierarchy, TIntIntHashMap ids, TIntArrayList parents,
