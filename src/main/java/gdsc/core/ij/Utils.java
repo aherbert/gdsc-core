@@ -83,6 +83,7 @@ import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import ij.process.ImageStatistics;
 import ij.process.ShortProcessor;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
@@ -2397,5 +2398,72 @@ public class Utils
 		if (pixels instanceof int[])
 			return new ColorProcessor(width, height, (int[]) pixels);
 		throw new IllegalArgumentException("Unrecognised pixels array");
+	}
+
+	/**
+	 * Get the min/max display range from the image's current {@link ImageProcessor} using the ImageJ Auto adjust method
+	 * (copied from {@link ij.plugin.frame.ContrastAdjuster }).
+	 * <p>
+	 * Although the ContrastAdjuster records its actions as 'run("Enhance Contrast", "saturated=0.35");' it actually
+	 * does something else which makes the image easier to see than the afore mentioned command.
+	 *
+	 * @param imp
+	 *            the image
+	 * @param update
+	 *            Set to true to update the image display range
+	 * @return [min,max]
+	 */
+	public static double[] autoAdjust(ImagePlus imp, boolean update)
+	{
+		ImageStatistics stats = imp.getRawStatistics(); // get uncalibrated stats
+		int limit = stats.pixelCount / 10;
+		int[] histogram = stats.histogram;
+		int autoThreshold = 0;
+		if (autoThreshold < 10)
+			autoThreshold = 5000;
+		else
+			autoThreshold /= 2;
+		int threshold = stats.pixelCount / autoThreshold;
+		int i = -1;
+		boolean found = false;
+		int count;
+		do
+		{
+			i++;
+			count = histogram[i];
+			if (count > limit)
+				count = 0;
+			found = count > threshold;
+		} while (!found && i < 255);
+		int hmin = i;
+		i = 256;
+		do
+		{
+			i--;
+			count = histogram[i];
+			if (count > limit)
+				count = 0;
+			found = count > threshold;
+		} while (!found && i > 0);
+		int hmax = i;
+		double min, max;
+		if (hmax >= hmin)
+		{
+			min = stats.histMin + hmin * stats.binSize;
+			max = stats.histMin + hmax * stats.binSize;
+			if (min == max)
+			{
+				min = stats.min;
+				max = stats.max;
+			}
+		}
+		else
+		{
+			min = stats.min;
+			max = stats.max;
+		}
+		if (update)
+			imp.setDisplayRange(min, max);
+		return new double[] { min, max };
 	}
 }
