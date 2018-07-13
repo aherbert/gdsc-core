@@ -2407,7 +2407,7 @@ public class OPTICSManagerTest
 					//TestSettings.debug("%s %d %d : %f = %f\n", prefix, expId, obsId, expL, obsL);
 
 					Assert.assertEquals(prefix + "Id", expId, obsId);
-					Assert.assertEquals(prefix + "LoOP", expL, obsL, expL * 1e-3);
+					TestAssert.assertEqualsRelative(prefix + "LoOP", expL, obsL, 1e-2);
 				}
 			}
 		}
