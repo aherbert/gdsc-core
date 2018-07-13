@@ -141,9 +141,10 @@ public class PDF
 	}
 
 	/**
-	 * Return the cumulative probability for the given coordinates
+	 * Return the cumulative probability for the given coordinates.
 	 *
 	 * @param x
+	 *            the x
 	 * @return p
 	 */
 	double get(int x)

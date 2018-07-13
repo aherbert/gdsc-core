@@ -197,7 +197,9 @@ public class BinarySearchDetectionGrid implements DetectionGrid
 	 * or below p.
 	 *
 	 * @param sum
+	 *            the sum
 	 * @param p
+	 *            the p
 	 * @return the index (or -1)
 	 */
 	static int findIndexUpToAndIncluding(double[] sum, double p)
@@ -213,13 +215,10 @@ public class BinarySearchDetectionGrid implements DetectionGrid
 			final int insert = -(i + 1);
 			return insert - 1;
 		}
-		else
-		{
-			// We found a match. Ensure we return the last index in the event of equality.
-			while ((i + 1) < sum.length && sum[i + 1] == p)
-				i++;
-			return i;
-		}
+		// We found a match. Ensure we return the last index in the event of equality.
+		while ((i + 1) < sum.length && sum[i + 1] == p)
+			i++;
+		return i;
 	}
 
 	/**
@@ -227,7 +226,9 @@ public class BinarySearchDetectionGrid implements DetectionGrid
 	 * or above p.
 	 *
 	 * @param sum
+	 *            the sum
 	 * @param p
+	 *            the p
 	 * @return the index (or -1)
 	 */
 	static int findIndexIncludingAndAfter(double[] sum, double p)
@@ -243,20 +244,19 @@ public class BinarySearchDetectionGrid implements DetectionGrid
 			final int insert = -(i + 1);
 			return insert;
 		}
-		else
-		{
-			// We found a match. Ensure we return the first index in the event of equality.
-			while (i > 0 && sum[i - 1] == p)
-				i--;
-			return i;
-		}
+		// We found a match. Ensure we return the first index in the event of equality.
+		while (i > 0 && sum[i - 1] == p)
+			i--;
+		return i;
 	}
 
 	/**
 	 * Find the index such that all indices including and after that point have a sum above p.
 	 *
 	 * @param sum
+	 *            the sum
 	 * @param p
+	 *            the p
 	 * @return the index (or -1)
 	 */
 	static int findIndexAfter(double[] sum, double p)
@@ -272,12 +272,9 @@ public class BinarySearchDetectionGrid implements DetectionGrid
 			final int insert = -(i + 1);
 			return insert;
 		}
-		else
-		{
-			// We found a match. Ensure we return the last index in the event of equality.
-			while ((i + 1) < sum.length && sum[i + 1] == p)
-				i++;
-			return i + 1; // After
-		}
+		// We found a match. Ensure we return the last index in the event of equality.
+		while ((i + 1) < sum.length && sum[i + 1] == p)
+			i++;
+		return i + 1; // After
 	}
 }

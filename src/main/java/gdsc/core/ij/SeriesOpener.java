@@ -327,6 +327,7 @@ class FolderOpenerDialog extends GenericDialog
 	@Override
 	public void itemStateChanged(ItemEvent e)
 	{
+		// Do nothing
 	}
 
 	@Override
@@ -372,15 +373,21 @@ class FolderOpenerDialog extends GenericDialog
 			inc = 1;
 
 		int count = 0;
-		for (int i = start - 1; i < list.length && count < n; i += inc, count++)
-		{
-		}
+		for (int i = start - 1; i < list.length && count < n; i += inc)
+			count++;
 
 		final int frames = imp.getStackSize() * count;
 		((Label) theLabel).setText(String.format("%d image%s (%d frame%s)", count, (count == 1) ? "" : "s", frames,
 				(frames == 1) ? "" : "s"));
 	}
 
+	/**
+	 * Gets the number.
+	 *
+	 * @param field
+	 *            the field
+	 * @return the number
+	 */
 	public int getNumber(Object field)
 	{
 		final TextField tf = (TextField) field;
@@ -396,7 +403,6 @@ class FolderOpenerDialog extends GenericDialog
 		}
 		if (d != null)
 			return (int) d.doubleValue();
-		else
-			return 0;
+		return 0;
 	}
 }

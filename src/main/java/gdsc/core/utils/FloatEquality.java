@@ -359,7 +359,7 @@ public class FloatEquality
 	 */
 	@Deprecated
 	public void setMaxUlps(int maxUlps)
-	{
+	{ // Ignore
 	}
 
 	/**

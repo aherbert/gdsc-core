@@ -96,6 +96,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 		for (int i = 0; i < loops; i++)
 			for (final double d : stats.getValues())
 			{
+				// Do nothing
 			}
 		start1 = System.nanoTime() - start1;
 
@@ -103,6 +104,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 		for (int i = 0; i < loops; i++)
 			for (final double d : stats)
 			{
+				// Do nothing
 			}
 		start2 = System.nanoTime() - start2;
 
@@ -119,6 +121,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 		for (int i = 0; i < loops; i++)
 			for (final double d : stats.getValues())
 			{
+				// Do nothing
 			}
 		start1 = System.nanoTime() - start1;
 
@@ -126,6 +129,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 		for (int i = 0; i < loops; i++)
 			for (final Double d : stats)
 			{
+				// Do nothing
 			}
 		start2 = System.nanoTime() - start2;
 

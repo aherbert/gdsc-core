@@ -153,7 +153,7 @@ public class ConvexHull
 			hull = chain.generate(points);
 		}
 		catch (final ConvergenceException e)
-		{
+		{ // Ignore
 		}
 
 		if (hull == null)

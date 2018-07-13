@@ -359,7 +359,7 @@ public class DoubleEquality
 	 */
 	@Deprecated
 	public void setMaxUlps(long maxUlps)
-	{
+	{ // Ignore
 	}
 
 	/**

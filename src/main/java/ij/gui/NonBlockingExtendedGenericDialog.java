@@ -79,7 +79,7 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog
 			wait();
 		}
 		catch (final InterruptedException e)
-		{
+		{ // Ignore
 		}
 	}
 

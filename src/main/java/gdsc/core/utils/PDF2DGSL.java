@@ -171,10 +171,12 @@ public class PDF2DGSL
 	}
 
 	/**
-	 * Return the cumulative probability for the given coordinates
+	 * Return the cumulative probability for the given coordinates.
 	 *
 	 * @param x
+	 *            the x
 	 * @param y
+	 *            the y
 	 * @return p
 	 */
 	double get(int x, int y)

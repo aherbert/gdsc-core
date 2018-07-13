@@ -161,7 +161,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 						setIconImage(img);
 					}
 					catch (final Exception e)
-					{
+					{ // Ignore
 					}
 			}
 		}
@@ -384,6 +384,6 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 	@Override
 	public void focusLost(FocusEvent e)
 	{
+		// Do nothing		
 	}
-
 }

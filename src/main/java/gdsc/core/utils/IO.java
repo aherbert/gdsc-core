@@ -114,7 +114,7 @@ public class IO
 			return true;
 		}
 		catch (final IOException e)
-		{
+		{ // Ignore
 		}
 		return false;
 	}
@@ -162,7 +162,7 @@ public class IO
 			return true;
 		}
 		catch (final IOException e)
-		{
+		{ // Ignore
 		}
 		return false;
 	}

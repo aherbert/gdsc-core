@@ -219,7 +219,7 @@ public class Plot2 extends Plot
 			}
 		}
 		catch (final Throwable e)
-		{
+		{ // Ignore
 		}
 		finally
 		{
@@ -343,7 +343,7 @@ public class Plot2 extends Plot
 			return defaultMinMax.clone();
 		}
 		catch (final Throwable e)
-		{
+		{ // Ignore
 		}
 		return null;
 	}

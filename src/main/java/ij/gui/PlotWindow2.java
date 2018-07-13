@@ -51,6 +51,7 @@ public class PlotWindow2 extends PlotWindow
 	 * This method throws an IllegalAccessError on some platforms since the super constructor is package private.
 	 *
 	 * @param plot
+	 *            the plot
 	 */
 	PlotWindow2(Plot plot)
 	{

@@ -56,6 +56,7 @@ public class NullTrackProgress implements TrackProgress
 	@Override
 	public void progress(double fraction)
 	{
+		// Do nothing
 	}
 
 	/*
@@ -66,6 +67,7 @@ public class NullTrackProgress implements TrackProgress
 	@Override
 	public void progress(long position, long total)
 	{
+		// Do nothing
 	}
 
 	/*
@@ -76,6 +78,7 @@ public class NullTrackProgress implements TrackProgress
 	@Override
 	public void incrementProgress(double fraction)
 	{
+		// Do nothing
 	}
 
 	/*
@@ -86,6 +89,7 @@ public class NullTrackProgress implements TrackProgress
 	@Override
 	public void log(String format, Object... args)
 	{
+		// Do nothing
 	}
 
 	/*
@@ -96,6 +100,7 @@ public class NullTrackProgress implements TrackProgress
 	@Override
 	public void status(String format, Object... args)
 	{
+		// Do nothing
 	}
 
 	/*

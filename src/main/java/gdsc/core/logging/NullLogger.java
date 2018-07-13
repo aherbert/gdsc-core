@@ -54,7 +54,8 @@ public class NullLogger implements Logger
 	 */
 	@Override
 	public void info(String message)
-	{
+	{ 
+		// Do nothing
 	}
 
 	/*
@@ -64,7 +65,8 @@ public class NullLogger implements Logger
 	 */
 	@Override
 	public void info(String format, Object... args)
-	{
+	{ 
+		// Do nothing
 	}
 
 	/*
@@ -75,6 +77,7 @@ public class NullLogger implements Logger
 	@Override
 	public void debug(String message)
 	{
+		// Do nothing
 	}
 
 	/*
@@ -85,6 +88,7 @@ public class NullLogger implements Logger
 	@Override
 	public void debug(String format, Object... args)
 	{
+		// Do nothing
 	}
 
 	/*
@@ -95,6 +99,7 @@ public class NullLogger implements Logger
 	@Override
 	public void error(String message)
 	{
+		// Do nothing
 	}
 
 	/*
@@ -105,5 +110,6 @@ public class NullLogger implements Logger
 	@Override
 	public void error(String format, Object... args)
 	{
+		// Do nothing
 	}
 }

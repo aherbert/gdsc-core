@@ -577,8 +577,6 @@ public class OPTICSManager extends CoordinateStore
 		 *
 		 * @param m
 		 *            the m
-		 * @param clusterId
-		 *            the cluster id
 		 * @return true, if a shutdown signal has been received
 		 */
 		boolean add(Molecule m)

@@ -132,7 +132,7 @@ public abstract class Ticker
 		@Override
 		public void tick()
 		{
-
+			// Do nothing
 		}
 
 		@Override
@@ -150,13 +150,13 @@ public abstract class Ticker
 		@Override
 		public void start()
 		{
-
+			// Do nothing
 		}
 
 		@Override
 		public void stop()
 		{
-
+			// Do nothing
 		}
 	}
 

@@ -163,7 +163,7 @@ public class FileLogger implements Logger
 				os.close();
 			}
 			catch (final IOException e)
-			{
+			{ // Ignore
 			}
 			finally
 			{
