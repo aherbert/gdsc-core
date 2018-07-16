@@ -396,7 +396,6 @@ public class Random extends AbstractRandomGenerator
 	{
 		final int max = (upper - lower) + 1;
 		if (max <= 0)
-		{
 			// The range is too wide to fit in a positive int (larger
 			// than 2^31); as it covers more than half the integer range,
 			// we use a simple rejection method.
@@ -406,7 +405,6 @@ public class Random extends AbstractRandomGenerator
 				if (r >= lower && r <= upper)
 					return r;
 			}
-		}
 		// We can shift the range and directly generate a positive int.
 		return lower + nextInt(max);
 	}

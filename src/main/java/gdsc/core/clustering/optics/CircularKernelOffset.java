@@ -34,16 +34,16 @@ public class CircularKernelOffset
 {
 	/** The start. */
 	final int start;
-	
+
 	/** The start internal. */
 	final int startInternal;
-	
+
 	/** The end internal. */
 	final int endInternal;
-	
+
 	/** The end. */
 	final int end;
-	
+
 	/** The internal. */
 	final boolean internal;
 

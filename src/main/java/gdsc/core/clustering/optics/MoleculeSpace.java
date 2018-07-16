@@ -34,10 +34,10 @@ abstract class MoleculeSpace
 {
 	/** the generating distance (E). */
 	final float generatingDistanceE;
-	
+
 	/** The set of objects. */
 	Molecule[] setOfObjects;
-	
+
 	/** The size. */
 	final int size;
 	/** Working storage for find neighbours */

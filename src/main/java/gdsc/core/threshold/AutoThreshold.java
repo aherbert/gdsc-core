@@ -264,11 +264,11 @@ public class AutoThreshold
 		// find first and last non-empty bin
 		int first, last;
 		for (first = 0; first < data.length && data[first] == 0; first++)
-		{ 
+		{
 			// do nothing
 		}
 		for (last = data.length - 1; last > first && data[last] == 0; last--)
-		{ 
+		{
 			// do nothing
 		}
 		if (first == last)

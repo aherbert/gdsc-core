@@ -70,9 +70,9 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 
 	private static final String FONT_SIZE = "tw.font.size";
 	private static final String FONT_ANTI = "tw.font.anti";
-	private TextPanel textPanel;
+	private final TextPanel textPanel;
 	private CheckboxMenuItem antialiased;
-	private int[] sizes = { 9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 36, 48, 60, 72 };
+	private final int[] sizes = { 9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 36, 48, 60, 72 };
 	private int fontSize = (int) Prefs.get(FONT_SIZE, 5);
 	private MenuBar mb;
 
@@ -384,6 +384,6 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 	@Override
 	public void focusLost(FocusEvent e)
 	{
-		// Do nothing		
+		// Do nothing
 	}
 }

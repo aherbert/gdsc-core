@@ -34,7 +34,7 @@ abstract class MoleculeArray
 {
 	/** The list. */
 	final Molecule[] list;
-	
+
 	/** The size. */
 	int size = 0;
 

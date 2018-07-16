@@ -240,7 +240,7 @@ public class DensityCounter
 	private final IndexMolecule[][] grid;
 
 	private final int nonEmpty, maxCellSize;
-	
+
 	/** The grid priority. */
 	int[] gridPriority = null;
 

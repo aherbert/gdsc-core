@@ -2415,15 +2415,15 @@ public class Utils
 	 */
 	public static double[] autoAdjust(ImagePlus imp, boolean update)
 	{
-		ImageStatistics stats = imp.getRawStatistics(); // get uncalibrated stats
-		int limit = stats.pixelCount / 10;
-		int[] histogram = stats.histogram;
+		final ImageStatistics stats = imp.getRawStatistics(); // get uncalibrated stats
+		final int limit = stats.pixelCount / 10;
+		final int[] histogram = stats.histogram;
 		int autoThreshold = 0;
 		if (autoThreshold < 10)
 			autoThreshold = 5000;
 		else
 			autoThreshold /= 2;
-		int threshold = stats.pixelCount / autoThreshold;
+		final int threshold = stats.pixelCount / autoThreshold;
 		int i = -1;
 		boolean found = false;
 		int count;
@@ -2435,7 +2435,7 @@ public class Utils
 				count = 0;
 			found = count > threshold;
 		} while (!found && i < 255);
-		int hmin = i;
+		final int hmin = i;
 		i = 256;
 		do
 		{
@@ -2445,7 +2445,7 @@ public class Utils
 				count = 0;
 			found = count > threshold;
 		} while (!found && i > 0);
-		int hmax = i;
+		final int hmax = i;
 		double min, max;
 		if (hmax >= hmin)
 		{

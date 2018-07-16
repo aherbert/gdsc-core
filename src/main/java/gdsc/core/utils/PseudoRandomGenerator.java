@@ -37,7 +37,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 {
 	/** The sequence. */
 	protected final double[] sequence;
-	
+
 	/** The length. */
 	protected final int length;
 

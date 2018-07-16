@@ -848,7 +848,7 @@ public class OPTICSManager extends CoordinateStore
 	 * Package level for JUnit testing
 	 */
 	MoleculeSpace grid;
-	
+
 	/** The heap for storing the top n distances. */
 	private FloatHeap heap;
 

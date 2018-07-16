@@ -139,7 +139,7 @@ public class IJDigest
 	}
 
 	/** The message digest. */
-	private MessageDigest digest;
+	private final MessageDigest digest;
 
 	/**
 	 * Instantiates a new IJ digest.

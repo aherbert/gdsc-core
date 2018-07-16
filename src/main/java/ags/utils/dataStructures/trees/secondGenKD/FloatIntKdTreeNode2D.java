@@ -85,7 +85,7 @@ abstract class FloatIntKdTreeNode2D
 	float splitValue;
 
 	// Bounds
-	
+
 	/** The min limit. */
 	float[] minLimit;
 	/** The max limit. */
@@ -187,7 +187,7 @@ abstract class FloatIntKdTreeNode2D
 	}
 
 	// Override in subclasses
-	
+
 	/**
 	 * Compute the point distance.
 	 *

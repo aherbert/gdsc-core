@@ -41,10 +41,10 @@ public class BasePoint implements Coordinate
 {
 	/** The x. */
 	protected final float x;
-	
+
 	/** The y. */
 	protected final float y;
-	
+
 	/** The z. */
 	protected final float z;
 

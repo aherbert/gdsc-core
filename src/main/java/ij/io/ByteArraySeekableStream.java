@@ -36,10 +36,10 @@ public final class ByteArraySeekableStream extends SeekableStream
 {
 	/** The current position in the byte array. */
 	int p = 0;
-	
+
 	/** The buffer of bytes. */
 	byte[] buffer;
-	
+
 	/** The length of the byte array. */
 	final int length;
 

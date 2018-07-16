@@ -131,7 +131,7 @@ public class LUTHelper
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see java.lang.Enum#toString()
 		 */
 		@Override
@@ -660,7 +660,7 @@ public class LUTHelper
 	 * @param blues
 	 *            the blues
 	 * @return the number of colours
-	 * 
+	 *
 	 */
 	private static int fireglow(byte[] reds, byte[] greens, byte[] blues)
 	{

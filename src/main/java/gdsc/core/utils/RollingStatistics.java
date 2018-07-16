@@ -113,7 +113,7 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#addInternal(double)
 	 */
 	@Override
@@ -134,7 +134,7 @@ public class RollingStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#addInternal(int, double)
 	 */
 	@Override

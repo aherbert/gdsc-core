@@ -140,7 +140,7 @@ public class ExtendedStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#addInternal(double)
 	 */
 	@Override
@@ -155,7 +155,7 @@ public class ExtendedStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#addInternal(int, double)
 	 */
 	@Override
@@ -233,7 +233,7 @@ public class ExtendedStatistics extends Statistics
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see gdsc.core.utils.Statistics#reset()
 	 */
 	@Override

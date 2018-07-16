@@ -1440,7 +1440,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 
 		/**
 		 * Called whenever an interior remove (not at takeIndex) occurred.
-		 * 
+		 *
 		 * Notifies all iterators, and expunges any that are now stale.
 		 *
 		 * @param removedIndex

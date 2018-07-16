@@ -38,10 +38,10 @@ public class CoordinateStore implements Cloneable
 {
 	/** The tracker. */
 	protected TrackProgress tracker = null;
-	
+
 	/** The xcoords. */
 	protected final float[] xcoord;
-	
+
 	/** The ycoords. */
 	protected final float[] ycoord;
 

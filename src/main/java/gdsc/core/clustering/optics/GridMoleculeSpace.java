@@ -39,19 +39,19 @@ class GridMoleculeSpace extends MoleculeSpace
 
 	/** The resolution. */
 	int resolution;
-	
+
 	/** The bin width. */
 	float binWidth;
-	
+
 	/** The x bins. */
 	int xBins;
-	
+
 	/** The y bins. */
 	int yBins;
-	
+
 	/** The grid. */
 	Molecule[][] grid;
-	
+
 	/** The fast forward indices (the index to the next position that contains data). */
 	int[] fastForward;
 
