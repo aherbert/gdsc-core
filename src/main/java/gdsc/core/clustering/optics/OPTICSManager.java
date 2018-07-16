@@ -113,7 +113,7 @@ public class OPTICSManager extends CoordinateStore
 		OPTICS_SIMPLE_PRIORITY_QUEUE;
 	}
 
-	EnumSet<Option> options = EnumSet.noneOf(Option.class);
+	private EnumSet<Option> options = EnumSet.noneOf(Option.class);
 
 	/**
 	 * Sets the options.
@@ -272,7 +272,7 @@ public class OPTICSManager extends CoordinateStore
 	/**
 	 * Used in the OPTICS algorithm to store the next seed is a priority queue
 	 */
-	class OPTICSMoleculePriorityQueue extends MoleculeArray implements OPTICSPriorityQueue
+	private class OPTICSMoleculePriorityQueue extends MoleculeArray implements OPTICSPriorityQueue
 	{
 		int next = 0;
 
@@ -347,7 +347,7 @@ public class OPTICSManager extends CoordinateStore
 	 * <p>
 	 * If distances are equal then IDs are used to sort the objects in order.
 	 */
-	class OPTICSMoleculePriorityQueueIdOrdered extends OPTICSMoleculePriorityQueue
+	private class OPTICSMoleculePriorityQueueIdOrdered extends OPTICSMoleculePriorityQueue
 	{
 		OPTICSMoleculePriorityQueueIdOrdered(int capacity)
 		{
@@ -370,7 +370,7 @@ public class OPTICSManager extends CoordinateStore
 	 * <p>
 	 * If distances are equal then IDs are used to sort the objects in reverse order.
 	 */
-	class OPTICSMoleculePriorityQueueReverseIdOrdered extends OPTICSMoleculePriorityQueue
+	private class OPTICSMoleculePriorityQueueReverseIdOrdered extends OPTICSMoleculePriorityQueue
 	{
 		OPTICSMoleculePriorityQueueReverseIdOrdered(int capacity)
 		{
@@ -393,7 +393,7 @@ public class OPTICSManager extends CoordinateStore
 	 * <p>
 	 * This class is based on ags.utils.dataStructures.BinaryHeap
 	 */
-	class OPTICSMoleculeBinaryHeap extends MoleculeArray implements OPTICSPriorityQueue
+	private class OPTICSMoleculeBinaryHeap extends MoleculeArray implements OPTICSPriorityQueue
 	{
 		OPTICSMoleculeBinaryHeap(int capacity)
 		{
@@ -498,7 +498,7 @@ public class OPTICSManager extends CoordinateStore
 	 * <p>
 	 * If distances are equal then IDs are used to sort the objects in order.
 	 */
-	class OPTICSMoleculeBinaryHeapIdOrdered extends OPTICSMoleculeBinaryHeap
+	private class OPTICSMoleculeBinaryHeapIdOrdered extends OPTICSMoleculeBinaryHeap
 	{
 		OPTICSMoleculeBinaryHeapIdOrdered(int capacity)
 		{
@@ -531,7 +531,7 @@ public class OPTICSManager extends CoordinateStore
 	 * <p>
 	 * If distances are equal then IDs are used to sort the objects in reverse order.
 	 */
-	class OPTICSMoleculeBinaryHeapReverseIdOrdered extends OPTICSMoleculeBinaryHeap
+	private class OPTICSMoleculeBinaryHeapReverseIdOrdered extends OPTICSMoleculeBinaryHeap
 	{
 		OPTICSMoleculeBinaryHeapReverseIdOrdered(int capacity)
 		{
@@ -735,7 +735,7 @@ public class OPTICSManager extends CoordinateStore
 	 * points. The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
 	 *
 	 * @param generatingDistanceE
-	 *            the generating distance E (set to zero to auto calibrate)
+	 *            the generating distance (E) (set to zero to auto calibrate)
 	 * @param minPts
 	 *            the min points for a core object (recommended range around 4)
 	 * @return the results (or null if the algorithm was stopped using the tracker)
@@ -843,9 +843,13 @@ public class OPTICSManager extends CoordinateStore
 		return orderSeeds;
 	}
 
-	// Package level for JUnit testing
+	/**
+	 * The grid.
+	 * Package level for JUnit testing
+	 */
 	MoleculeSpace grid;
-	//private float[] floatArray;
+	
+	/** The heap for storing the top n distances. */
 	private FloatHeap heap;
 
 	/**
@@ -853,7 +857,7 @@ public class OPTICSManager extends CoordinateStore
 	 * change.
 	 *
 	 * @param generatingDistanceE
-	 *            the generating distance E
+	 *            the generating distance (E)
 	 * @param minPts
 	 *            the min points for a core object
 	 */
@@ -948,7 +952,7 @@ public class OPTICSManager extends CoordinateStore
 	 * change.
 	 *
 	 * @param generatingDistanceE
-	 *            the generating distance E
+	 *            the generating distance (E)
 	 * @param minPts
 	 *            the min points for a core object
 	 * @param clazz
@@ -1008,7 +1012,7 @@ public class OPTICSManager extends CoordinateStore
 	 * it to the max value if the generating distance is not valid.
 	 *
 	 * @param generatingDistanceE
-	 *            the generating distance E
+	 *            the generating distance (E)
 	 * @param minPts
 	 *            the min points for a core object
 	 * @return the working generating distance
@@ -1357,7 +1361,7 @@ public class OPTICSManager extends CoordinateStore
 	 * points. The tracker can be used to follow progress (see {@link #setTracker(TrackProgress)}).
 	 *
 	 * @param generatingDistanceE
-	 *            the generating distance E (set to zero to auto calibrate)
+	 *            the generating distance (E) (set to zero to auto calibrate)
 	 * @param minPts
 	 *            the min points for a core object
 	 * @return the results (or null if the algorithm was stopped using the tracker)

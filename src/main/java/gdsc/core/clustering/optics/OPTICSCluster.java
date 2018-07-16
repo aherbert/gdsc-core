@@ -66,6 +66,12 @@ public class OPTICSCluster
 		this.clusterId = clusterId;
 	}
 
+	/**
+	 * Adds the child cluster.
+	 *
+	 * @param child
+	 *            the child
+	 */
 	void addChildCluster(OPTICSCluster child)
 	{
 		if (children == null)

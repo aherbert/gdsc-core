@@ -45,7 +45,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * blocked removal operations return null or error. Note that returning null objects is in contrast to the
  * ArrayBlockingQueue which does not allow null objects to be removed from the {@link #take()} method.
  *
- * @param <E> the element type
+ * @param <E>
+ *            the element type
  */
 public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>, java.io.Serializable
 {
@@ -227,6 +228,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 
 	/**
 	 * Circularly decrement i.
+	 *
+	 * @param i
+	 *            the i
+	 * @return the new i
 	 */
 	final int dec(int i)
 	{
@@ -235,6 +240,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 
 	/**
 	 * Returns item at index i.
+	 *
+	 * @param i
+	 *            the index
+	 * @return the e
 	 */
 	@SuppressWarnings("unchecked")
 	final E itemAt(int i)
@@ -280,8 +289,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		// assert items[takeIndex] != null;
 		final Object[] items = this.items;
 		@SuppressWarnings("unchecked")
-		final
-		E x = (E) items[takeIndex];
+		final E x = (E) items[takeIndex];
 		items[takeIndex] = null;
 		if (++takeIndex == items.length)
 			takeIndex = 0;
@@ -299,6 +307,9 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 * Deletes item at array index removeIndex.
 	 * Utility for remove(Object) and iterator.remove.
 	 * Call only when holding lock.
+	 *
+	 * @param removeIndex
+	 *            the remove index
 	 */
 	void removeAt(final int removeIndex)
 	{
@@ -1174,8 +1185,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 				while (i < n)
 				{
 					@SuppressWarnings("unchecked")
-					final
-					E x = (E) items[take];
+					final E x = (E) items[take];
 					c.add(x);
 					items[take] = null;
 					if (++take == items.length)
@@ -1302,6 +1312,12 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		private static final int SHORT_SWEEP_PROBES = 4;
 		private static final int LONG_SWEEP_PROBES = 16;
 
+		/**
+		 * Instantiates a new iterator and adds a new iterator to the linked list of tracked iterators.
+		 *
+		 * @param initial
+		 *            the initial iterator
+		 */
 		Itrs(Itr initial)
 		{
 			register(initial);
@@ -1380,6 +1396,9 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 
 		/**
 		 * Adds a new iterator to the linked list of tracked iterators.
+		 *
+		 * @param itr
+		 *            the itr
 		 */
 		void register(Itr itr)
 		{
@@ -1421,8 +1440,11 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 
 		/**
 		 * Called whenever an interior remove (not at takeIndex) occurred.
-		 *
+		 * 
 		 * Notifies all iterators, and expunges any that are now stale.
+		 *
+		 * @param removedIndex
+		 *            the removed index
 		 */
 		void removedAt(int removedIndex)
 		{
@@ -1830,6 +1852,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 		/**
 		 * Called whenever an interior remove (not at takeIndex) occurred.
 		 *
+		 * @param removedIndex
+		 *            the removed index
 		 * @return true if this iterator should be unlinked from itrs
 		 */
 		boolean removedAt(int removedIndex)

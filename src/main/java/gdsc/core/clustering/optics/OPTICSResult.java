@@ -785,10 +785,10 @@ public class OPTICSResult implements ClusteringResult
 	 * Extract DBSCAN clustering from the cluster ordered objects returned from
 	 * {@link OPTICSManager#optics(float, int)}.
 	 * <p>
-	 * The generating distance E must be less than or equal to the generating distance used during OPTICS.
+	 * the generating distance (E) must be less than or equal to the generating distance used during OPTICS.
 	 *
 	 * @param generatingDistanceE
-	 *            the generating distance E
+	 *            the generating distance (E)
 	 * @return the number of clusters
 	 */
 	public int extractDBSCANClustering(float generatingDistanceE)
@@ -800,10 +800,10 @@ public class OPTICSResult implements ClusteringResult
 	 * Extract DBSCAN clustering from the cluster ordered objects returned from
 	 * {@link OPTICSManager#optics(float, int)}.
 	 * <p>
-	 * The generating distance E must be less than or equal to the generating distance used during OPTICS.
+	 * the generating distance (E) must be less than or equal to the generating distance used during OPTICS.
 	 *
 	 * @param generatingDistanceE
-	 *            the generating distance E
+	 *            the generating distance (E)
 	 * @param core
 	 *            Set to true to get the clusters using only the core points
 	 * @return the number of clusters

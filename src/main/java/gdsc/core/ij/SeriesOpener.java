@@ -301,108 +301,106 @@ public class SeriesOpener
 	{
 		return numberOfThreads;
 	}
-}
 
-class FolderOpenerDialog extends GenericDialog
-{
-	private static final long serialVersionUID = -7650551696737633887L;
-	ImagePlus imp;
-	int fileCount;
-	String[] list;
-
-	public FolderOpenerDialog(String title, ImagePlus imp, String[] list)
+	private class FolderOpenerDialog extends GenericDialog
 	{
-		super(title);
-		this.imp = imp;
-		this.list = list;
-		this.fileCount = list.length;
-	}
+		private static final long serialVersionUID = -7650551696737633887L;
+		ImagePlus imp;
+		String[] list;
 
-	@Override
-	protected void setup()
-	{
-		setStackInfo();
-	}
-
-	@Override
-	public void itemStateChanged(ItemEvent e)
-	{
-		// Do nothing
-	}
-
-	@Override
-	public void textValueChanged(TextEvent e)
-	{
-		setStackInfo();
-	}
-
-	void setStackInfo()
-	{
-		int n = getNumber(numberField.elementAt(0));
-		int start = getNumber(numberField.elementAt(1));
-		int inc = getNumber(numberField.elementAt(2));
-
-		// Filter by name
-		TextField tf = (TextField) stringField.elementAt(0);
-		String filter = tf.getText();
-		tf = (TextField) stringField.elementAt(1);
-		final String regex = tf.getText();
-		java.util.regex.Pattern p = null;
-		if (!regex.equals(""))
+		public FolderOpenerDialog(String title, ImagePlus imp, String[] list)
 		{
-			filter = regex;
-			p = java.util.regex.Pattern.compile(filter);
+			super(title);
+			this.imp = imp;
+			this.list = list;
 		}
 
-		if (!filter.equals("") && !filter.equals("*"))
+		@Override
+		protected void setup()
 		{
-			int n2 = 0;
-			for (int i = 0; i < list.length; i++)
-				if (p != null && p.matcher(list[i]).matches())
-					n2++;
-				else if (list[i].indexOf(filter) >= 0)
-					n2++;
-			if (n2 < n)
-				n = n2;
+			setStackInfo();
 		}
 
-		// Now count using the input settings
-		if (start < 1 || start > n)
-			start = 1;
-		if (inc < 1)
-			inc = 1;
-
-		int count = 0;
-		for (int i = start - 1; i < list.length && count < n; i += inc)
-			count++;
-
-		final int frames = imp.getStackSize() * count;
-		((Label) theLabel).setText(String.format("%d image%s (%d frame%s)", count, (count == 1) ? "" : "s", frames,
-				(frames == 1) ? "" : "s"));
-	}
-
-	/**
-	 * Gets the number.
-	 *
-	 * @param field
-	 *            the field
-	 * @return the number
-	 */
-	public int getNumber(Object field)
-	{
-		final TextField tf = (TextField) field;
-		final String theText = tf.getText();
-		Double d;
-		try
+		@Override
+		public void itemStateChanged(ItemEvent e)
 		{
-			d = new Double(theText);
+			// Do nothing
 		}
-		catch (final NumberFormatException e)
+
+		@Override
+		public void textValueChanged(TextEvent e)
 		{
-			d = null;
+			setStackInfo();
 		}
-		if (d != null)
-			return (int) d.doubleValue();
-		return 0;
+
+		void setStackInfo()
+		{
+			int n = getNumber(numberField.elementAt(0));
+			int start = getNumber(numberField.elementAt(1));
+			int inc = getNumber(numberField.elementAt(2));
+
+			// Filter by name
+			TextField tf = (TextField) stringField.elementAt(0);
+			String filter = tf.getText();
+			tf = (TextField) stringField.elementAt(1);
+			final String regex = tf.getText();
+			java.util.regex.Pattern p = null;
+			if (!regex.equals(""))
+			{
+				filter = regex;
+				p = java.util.regex.Pattern.compile(filter);
+			}
+
+			if (!filter.equals("") && !filter.equals("*"))
+			{
+				int n2 = 0;
+				for (int i = 0; i < list.length; i++)
+					if (p != null && p.matcher(list[i]).matches())
+						n2++;
+					else if (list[i].indexOf(filter) >= 0)
+						n2++;
+				if (n2 < n)
+					n = n2;
+			}
+
+			// Now count using the input settings
+			if (start < 1 || start > n)
+				start = 1;
+			if (inc < 1)
+				inc = 1;
+
+			int count = 0;
+			for (int i = start - 1; i < list.length && count < n; i += inc)
+				count++;
+
+			final int frames = imp.getStackSize() * count;
+			((Label) theLabel).setText(String.format("%d image%s (%d frame%s)", count, (count == 1) ? "" : "s", frames,
+					(frames == 1) ? "" : "s"));
+		}
+
+		/**
+		 * Gets the number.
+		 *
+		 * @param field
+		 *            the field
+		 * @return the number
+		 */
+		public int getNumber(Object field)
+		{
+			final TextField tf = (TextField) field;
+			final String theText = tf.getText();
+			Double d;
+			try
+			{
+				d = new Double(theText);
+			}
+			catch (final NumberFormatException e)
+			{
+				d = null;
+			}
+			if (d != null)
+				return (int) d.doubleValue();
+			return 0;
+		}
 	}
 }

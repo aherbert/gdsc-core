@@ -35,7 +35,8 @@ import ij.IJ;
  */
 public class IJTrackProgress implements TrackProgress
 {
-	double done = 0;
+	/** The current progress (used in {@link #incrementProgress(double)}). */
+	private double done = 0;
 
 	/*
 	 * (non-Javadoc)

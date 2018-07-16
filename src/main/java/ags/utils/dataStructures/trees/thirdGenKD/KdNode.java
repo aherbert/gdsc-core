@@ -30,27 +30,54 @@ package ags.utils.dataStructures.trees.thirdGenKD;
 import java.util.Arrays;
 
 /**
+ * A KD-tree node.
  *
+ * @param <T>
+ *            the generic type
  */
 abstract class KdNode<T>
 {
 	// All types
+
+	/** The bucket capacity. */
 	protected int bucketCapacity;
+	/** The size. */
 	protected int size;
 
 	// Leaf only
+
+	/** The points. */
 	protected double[][] points;
+	/** The data. */
 	protected Object[] data;
 
 	// Stem only
-	protected KdNode<T> left, right;
+
+	/** The left. */
+	protected KdNode<T> left;
+	/** The right. */
+	protected KdNode<T> right;
+	/** The split dimension. */
 	protected int splitDimension;
+	/** The split value. */
 	protected double splitValue;
 
 	// Bounds
-	protected double[] minBound, maxBound;
+
+	/** The min bound. */
+	protected double[] minBound;
+	/** The max bound. */
+	protected double[] maxBound;
+
+	/** The single point. */
 	protected boolean singlePoint;
 
+	/**
+	 * Instantiates a new kd node.
+	 *
+	 * @param bucketCapacity
+	 *            the bucket capacity
+	 */
 	protected KdNode(int bucketCapacity)
 	{
 		// Init base
@@ -65,13 +92,28 @@ abstract class KdNode<T>
 
 	/* -------- SIMPLE GETTERS -------- */
 
+	/**
+	 * Gets the dimensions.
+	 *
+	 * @return the dimensions
+	 */
 	public abstract int getDimensions();
 
+	/**
+	 * Get the size.
+	 *
+	 * @return the size
+	 */
 	public int size()
 	{
 		return size;
 	}
 
+	/**
+	 * Checks if is leaf.
+	 *
+	 * @return true, if is leaf
+	 */
 	public boolean isLeaf()
 	{
 		return points != null;
@@ -79,6 +121,14 @@ abstract class KdNode<T>
 
 	/* -------- OPERATIONS -------- */
 
+	/**
+	 * Adds the point.
+	 *
+	 * @param point
+	 *            the point
+	 * @param value
+	 *            the value
+	 */
 	public void addPoint(double[] point, T value)
 	{
 		KdNode<T> cursor = this;
@@ -96,6 +146,14 @@ abstract class KdNode<T>
 
 	/* -------- INTERNAL OPERATIONS -------- */
 
+	/**
+	 * Adds the leaf point.
+	 *
+	 * @param point
+	 *            the point
+	 * @param value
+	 *            the value
+	 */
 	public void addLeafPoint(double[] point, T value)
 	{
 		// Add the data point
@@ -222,5 +280,10 @@ abstract class KdNode<T>
 		data = null;
 	}
 
+	/**
+	 * Create a new instance.
+	 *
+	 * @return the kd node
+	 */
 	protected abstract KdNode<T> newInstance();
 }

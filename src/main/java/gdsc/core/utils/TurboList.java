@@ -315,8 +315,15 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
 
     // Positional Access Operations
 
+    /**
+	 * Get the element at the specified position.
+	 *
+	 * @param index
+	 *            the index
+	 * @return the element
+	 */
     @SuppressWarnings("unchecked")
-    E elementData(int index) {
+    private E elementData(int index) {
         return (E) elementData[index];
     }
 
@@ -920,7 +927,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         return new SubList(this, 0, fromIndex, toIndex);
     }
 
-    static void subListRangeCheck(int fromIndex, int toIndex, int size) {
+    private static void subListRangeCheck(int fromIndex, int toIndex, int size) {
         if (fromIndex < 0)
             throw new IndexOutOfBoundsException("fromIndex = " + fromIndex);
         if (toIndex > size)

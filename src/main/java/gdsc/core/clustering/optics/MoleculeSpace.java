@@ -32,10 +32,15 @@ package gdsc.core.clustering.optics;
  */
 abstract class MoleculeSpace
 {
+	/** the generating distance (E). */
 	final float generatingDistanceE;
+	
+	/** The set of objects. */
 	Molecule[] setOfObjects;
+	
+	/** The size. */
 	final int size;
-	// Working storage for find neighbours
+	/** Working storage for find neighbours */
 	final MoleculeList neighbours;
 
 	/**
@@ -44,7 +49,7 @@ abstract class MoleculeSpace
 	 * @param size
 	 *            the size
 	 * @param generatingDistanceE
-	 *            the generating distance E
+	 *            the generating distance (E)
 	 */
 	MoleculeSpace(int size, float generatingDistanceE)
 	{

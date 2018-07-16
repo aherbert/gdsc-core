@@ -38,8 +38,8 @@ import ij.gui.ShapeRoi;
  */
 public class CompositeRoiTest extends RoiTest
 {
-	final Shape shape;
-	final int ox, oy;
+	private final Shape shape;
+	private final int ox, oy;
 
 	/**
 	 * Instantiates a new composite roi test.

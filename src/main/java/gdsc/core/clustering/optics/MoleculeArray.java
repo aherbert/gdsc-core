@@ -28,23 +28,41 @@
 package gdsc.core.clustering.optics;
 
 /**
- * Used in the algorithms to store molecules
+ * Used in the algorithms to store molecules.
  */
 abstract class MoleculeArray
 {
+	/** The list. */
 	final Molecule[] list;
+	
+	/** The size. */
 	int size = 0;
 
+	/**
+	 * Instantiates a new molecule array.
+	 *
+	 * @param capacity
+	 *            the capacity
+	 */
 	MoleculeArray(int capacity)
 	{
 		list = new Molecule[capacity];
 	}
 
+	/**
+	 * Adds the molecule.
+	 *
+	 * @param m
+	 *            the molecule
+	 */
 	void add(Molecule m)
 	{
 		list[size++] = m;
 	}
 
+	/**
+	 * Clear.
+	 */
 	void clear()
 	{
 		size = 0;

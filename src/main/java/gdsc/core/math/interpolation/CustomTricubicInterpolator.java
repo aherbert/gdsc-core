@@ -63,15 +63,15 @@ public class CustomTricubicInterpolator
 	 */
 	public static class Builder
 	{
-		ValueProvider xval;
-        ValueProvider yval;
-        ValueProvider zval;
-        TrivalueProvider fval;
-    	TrackProgress progress;
-    	ExecutorService executorService;
-    	long taskSize;
-    	boolean integerAxisValues;
-    	boolean singlePrecision;
+		private ValueProvider xval;
+		private ValueProvider yval;
+		private ValueProvider zval;
+		private TrivalueProvider fval;
+		private TrackProgress progress;
+		private ExecutorService executorService;
+		private long taskSize;
+		private boolean integerAxisValues;
+		private boolean singlePrecision;
 
     	/**
 	     * Sets the X value.

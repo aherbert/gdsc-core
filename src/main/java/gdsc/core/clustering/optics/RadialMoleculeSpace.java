@@ -32,20 +32,51 @@ package gdsc.core.clustering.optics;
  */
 class RadialMoleculeSpace extends GridMoleculeSpace
 {
+	/** The offset. */
 	CircularKernelOffset[] offset;
 	private final boolean useInternal;
 
+	/**
+	 * Instantiates a new radial molecule space.
+	 *
+	 * @param opticsManager
+	 *            the optics manager
+	 * @param generatingDistanceE
+	 *            the generating distance (E)
+	 */
 	RadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE)
 	{
 		this(opticsManager, generatingDistanceE, 0);
 	}
 
+	/**
+	 * Instantiates a new radial molecule space.
+	 *
+	 * @param opticsManager
+	 *            the optics manager
+	 * @param generatingDistanceE
+	 *            the generating distance (E)
+	 * @param resolution
+	 *            the resolution
+	 */
 	RadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, int resolution)
 	{
 		super(opticsManager, generatingDistanceE, resolution);
 		useInternal = opticsManager.getOptions().contains(OPTICSManager.Option.INNER_PROCESSING);
 	}
 
+	/**
+	 * Instantiates a new radial molecule space.
+	 *
+	 * @param opticsManager
+	 *            the optics manager
+	 * @param generatingDistanceE
+	 *            the generating distance (E)
+	 * @param resolution
+	 *            the resolution
+	 * @param useInternal
+	 *            the use internal
+	 */
 	RadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, int resolution, boolean useInternal)
 	{
 		super(opticsManager, generatingDistanceE, resolution);

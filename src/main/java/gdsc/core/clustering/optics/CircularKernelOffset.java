@@ -32,12 +32,33 @@ package gdsc.core.clustering.optics;
  */
 public class CircularKernelOffset
 {
+	/** The start. */
 	final int start;
+	
+	/** The start internal. */
 	final int startInternal;
+	
+	/** The end internal. */
 	final int endInternal;
+	
+	/** The end. */
 	final int end;
+	
+	/** The internal. */
 	final boolean internal;
 
+	/**
+	 * Instantiates a new circular kernel offset.
+	 *
+	 * @param start
+	 *            the start
+	 * @param startInternal
+	 *            the start internal
+	 * @param endInternal
+	 *            the end internal
+	 * @param end
+	 *            the end
+	 */
 	CircularKernelOffset(int start, int startInternal, int endInternal, int end)
 	{
 		this.start = start;

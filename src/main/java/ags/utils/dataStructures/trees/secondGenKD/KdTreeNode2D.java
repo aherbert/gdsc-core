@@ -53,30 +53,52 @@ package ags.utils.dataStructures.trees.secondGenKD;
  * This is a basic copy of the KdTree class but limited to 2 dimensions.
  *
  * @author Alex Herbert
+ * @param <T>
+ *            the generic type
  */
 abstract class KdTreeNode2D<T>
 {
-	// Static variables
+	/** The bucket size. */
 	static final int bucketSize = 24;
 
 	// All types
+
+	/** The parent. */
 	final KdTreeNode2D<T> parent;
 
 	// Leaf only
+
+	/** The locations. */
 	double[][] locations;
+	/** The data. */
 	Object[] data;
+	/** The location count. */
 	int locationCount;
 
 	// Stem only
-	KdTreeNode2D<T> left, right;
+
+	/** The left. */
+	KdTreeNode2D<T> left;
+	/** The right. */
+	KdTreeNode2D<T> right;
+	/** The split dimension. */
 	int splitDimension;
+	/** The split value. */
 	double splitValue;
 
 	// Bounds
-	double[] minLimit, maxLimit;
+
+	/** The min limit. */
+	double[] minLimit;
+	/** The max limit. */
+	double[] maxLimit;
+
+	/** The singularity. */
 	boolean singularity;
 
 	// Temporary
+
+	/** The status. */
 	Status status;
 
 	/**
@@ -96,6 +118,9 @@ abstract class KdTreeNode2D<T>
 
 	/**
 	 * Constructor for child nodes. Internal use only.
+	 *
+	 * @param parent
+	 *            the parent
 	 */
 	KdTreeNode2D(KdTreeNode2D<T> parent)
 	{
@@ -110,7 +135,10 @@ abstract class KdTreeNode2D<T>
 	}
 
 	/**
-	 * Extends the bounds of this node do include a new location
+	 * Extends the bounds of this node do include a new location.
+	 *
+	 * @param location
+	 *            the location
 	 */
 	final void extendBounds(double[] location)
 	{
@@ -141,7 +169,9 @@ abstract class KdTreeNode2D<T>
 	}
 
 	/**
-	 * Find the widest axis of the bounds of this node
+	 * Find the widest axis of the bounds of this node.
+	 *
+	 * @return the axis
 	 */
 	final int findWidestAxis()
 	{
@@ -159,7 +189,28 @@ abstract class KdTreeNode2D<T>
 	}
 
 	// Override in subclasses
+
+	/**
+	 * Compute the point distance.
+	 *
+	 * @param p1
+	 *            the p 1
+	 * @param p2
+	 *            the p 2
+	 * @return the distance
+	 */
 	protected abstract double pointDist(double[] p1, double[] p2);
 
+	/**
+	 * Compute the point region distance.
+	 *
+	 * @param point
+	 *            the point
+	 * @param min
+	 *            the min of the region
+	 * @param max
+	 *            the max of the region
+	 * @return the distance
+	 */
 	protected abstract double pointRegionDist(double[] point, double[] min, double[] max);
 }

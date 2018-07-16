@@ -33,15 +33,25 @@ import java.util.Arrays;
 import gdsc.core.utils.ConvexHull;
 
 /**
- * Provide space for storing cluster coordinates
+ * Provide space for storing cluster coordinates.
  *
  * @author Alex Herbert
  */
 class ScratchSpace
 {
-	float[] x, y;
+	/** The x. */
+	float[] x;
+	/** The y. */
+	float[] y;
+	/** The number of values. */
 	int n;
 
+	/**
+	 * Instantiates a new scratch space.
+	 *
+	 * @param capacity
+	 *            the capacity
+	 */
 	ScratchSpace(int capacity)
 	{
 		x = new float[capacity];
@@ -49,6 +59,12 @@ class ScratchSpace
 		n = 0;
 	}
 
+	/**
+	 * Resize to the given capacity and reset the number of values.
+	 *
+	 * @param capacity
+	 *            the capacity
+	 */
 	void resize(int capacity)
 	{
 		if (x.length < capacity)
@@ -59,6 +75,14 @@ class ScratchSpace
 		n = 0;
 	}
 
+	/**
+	 * Adds the (x,y) value.
+	 *
+	 * @param xx
+	 *            the x
+	 * @param yy
+	 *            the y
+	 */
 	void add(float xx, float yy)
 	{
 		x[n] = xx;
@@ -66,6 +90,14 @@ class ScratchSpace
 		n++;
 	}
 
+	/**
+	 * Adds the (x,y) values.
+	 *
+	 * @param xx
+	 *            the x
+	 * @param yy
+	 *            the y
+	 */
 	void add(float[] xx, float[] yy)
 	{
 		final int size = xx.length;
@@ -74,6 +106,14 @@ class ScratchSpace
 		n += size;
 	}
 
+	/**
+	 * Adds the (x,y) value.
+	 *
+	 * @param xx
+	 *            the x
+	 * @param yy
+	 *            the y
+	 */
 	void safeAdd(float xx, float yy)
 	{
 		if (x.length == n)
@@ -88,6 +128,11 @@ class ScratchSpace
 		n++;
 	}
 
+	/**
+	 * Gets the bounds.
+	 *
+	 * @return the bounds
+	 */
 	Rectangle2D getBounds()
 	{
 		if (n == 0)
@@ -110,6 +155,11 @@ class ScratchSpace
 		return new Rectangle2D.Float(minX, minY, maxX - minX, maxY - minY);
 	}
 
+	/**
+	 * Gets the convex hull.
+	 *
+	 * @return the convex hull
+	 */
 	ConvexHull getConvexHull()
 	{
 		return ConvexHull.create(x, y, n);

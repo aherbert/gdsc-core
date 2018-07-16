@@ -1067,9 +1067,12 @@ public class LUTHelper
 	 */
 	public static class DefaultLUTMapper extends NullLUTMapper
 	{
-
+		/** The minimum. */
+		final float minimum;
+		/** The maximum. */
+		final float maximum;
 		/** The scale. */
-		final float minimum, maximum, scale;
+		final float scale;
 
 		/**
 		 * Instantiates a new default LUT mapper.
@@ -1120,9 +1123,12 @@ public class LUTHelper
 	 */
 	public static class NonZeroLUTMapper extends NullLUTMapper
 	{
-
+		/** The minimum. */
+		final float minimum;
+		/** The maximum. */
+		final float maximum;
 		/** The scale. */
-		final float minimum, maximum, scale;
+		final float scale;
 
 		/**
 		 * Instantiates a new non zero LUT mapper.

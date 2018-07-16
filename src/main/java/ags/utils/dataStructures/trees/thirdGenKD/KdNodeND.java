@@ -27,10 +27,25 @@
  */
 package ags.utils.dataStructures.trees.thirdGenKD;
 
+/**
+ * A ND-tree node
+ *
+ * @param <T>
+ *            the generic type
+ */
 class KdNodeND<T> extends KdNode<T>
 {
+	/** The dimensions. */
 	protected int dimensions;
 
+	/**
+	 * Instantiates a new ND-tree node
+	 *
+	 * @param dimensions
+	 *            the dimensions
+	 * @param bucketCapacity
+	 *            the bucket capacity
+	 */
 	protected KdNodeND(int dimensions, int bucketCapacity)
 	{
 		super(bucketCapacity);

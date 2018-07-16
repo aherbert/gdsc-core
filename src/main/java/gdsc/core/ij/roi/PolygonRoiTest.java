@@ -38,8 +38,8 @@ import ij.process.FloatPolygon;
  */
 public class PolygonRoiTest extends RoiTest
 {
-	final Rectangle2D.Double bounds;
-	final double[] xpoints, ypoints;
+	private final Rectangle2D.Double bounds;
+	private final double[] xpoints, ypoints;
 
 	/**
 	 * Instantiates a new polygon roi test.

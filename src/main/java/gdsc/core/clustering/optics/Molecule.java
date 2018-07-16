@@ -34,11 +34,17 @@ import gdsc.core.utils.NotImplementedException;
  */
 class Molecule
 {
+	/** The id. */
 	final int id;
-	final float x, y;
-
+	/** The x. */
+	final float x;
+	/** The y. */
+	final float y;
+	/** The processed flag. */
 	private boolean processed;
+	/** The core distance. */
 	float coreDistance;
+	/** The reachability distance. */
 	float reachabilityDistance;
 
 	/**
@@ -52,16 +58,37 @@ class Molecule
 	 */
 	private int workingData;
 
+	/**
+	 * Gets the queue index.
+	 *
+	 * @return the queue index
+	 */
 	public int getQueueIndex()
 	{
 		return workingData;
 	}
 
+	/**
+	 * Sets the queue index.
+	 *
+	 * @param index
+	 *            the new queue index
+	 */
 	public void setQueueIndex(int index)
 	{
 		workingData = index;
 	}
 
+	/**
+	 * Instantiates a new molecule.
+	 *
+	 * @param id
+	 *            the id
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 */
 	Molecule(int id, float x, float y)
 	{
 		this.id = id;
@@ -70,6 +97,13 @@ class Molecule
 		reset();
 	}
 
+	/**
+	 * Get the squared distance to the other molecule
+	 *
+	 * @param other
+	 *            the other
+	 * @return the squared distance
+	 */
 	float distance2(Molecule other)
 	{
 		final float dx = x - other.x;
@@ -77,6 +111,13 @@ class Molecule
 		return dx * dx + dy * dy;
 	}
 
+	/**
+	 * Get the distance to the other molecule
+	 *
+	 * @param other
+	 *            the other
+	 * @return the distance
+	 */
 	double distance(Molecule other)
 	{
 		return Math.sqrt(distance2(other));
@@ -93,46 +134,86 @@ class Molecule
 		coreDistance = reachabilityDistance = OPTICSManager.UNDEFINED;
 	}
 
+	/**
+	 * Gets the reachability distance.
+	 *
+	 * @return the reachability distance
+	 */
 	public double getReachabilityDistance()
 	{
 		return Math.sqrt(reachabilityDistance);
 	}
 
+	/**
+	 * Gets the core distance.
+	 *
+	 * @return the core distance
+	 */
 	public double getCoreDistance()
 	{
 		return Math.sqrt(coreDistance);
 	}
 
+	/**
+	 * Convert to an OPTICS result.
+	 *
+	 * @return the OPTICS order
+	 */
 	public OPTICSOrder toOPTICSResult()
 	{
 		final double actualCoreDistance = (coreDistance == OPTICSManager.UNDEFINED) ? Double.POSITIVE_INFINITY
 				: getCoreDistance();
-		final double actualReachabilityDistance = (reachabilityDistance == OPTICSManager.UNDEFINED) ? Double.POSITIVE_INFINITY
+		final double actualReachabilityDistance = (reachabilityDistance == OPTICSManager.UNDEFINED)
+				? Double.POSITIVE_INFINITY
 				: getReachabilityDistance();
 		return new OPTICSOrder(id, predecessor, actualCoreDistance, actualReachabilityDistance);
 	}
 
+	/**
+	 * Checks if is not processed.
+	 *
+	 * @return true, if is not processed
+	 */
 	public boolean isNotProcessed()
 	{
 		return !processed;
 	}
 
+	/**
+	 * Mark processed.
+	 */
 	public void markProcessed()
 	{
 		processed = true;
 	}
 
+	/**
+	 * Sets the number of points.
+	 *
+	 * @param nPts
+	 *            the new number of points
+	 */
 	public void setNumberOfPoints(int nPts)
 	{
 		// Use the core distance to store this
 		coreDistance = nPts;
 	}
 
+	/**
+	 * Gets the number of points.
+	 *
+	 * @return the number of points
+	 */
 	public int getNumberOfPoints()
 	{
 		return (int) coreDistance;
 	}
 
+	/**
+	 * Gets the cluster id.
+	 *
+	 * @return the cluster id
+	 */
 	public int getClusterId()
 	{
 		return workingData;
@@ -160,16 +241,31 @@ class Molecule
 		workingData = clusterId;
 	}
 
+	/**
+	 * Checks if is not in a cluster.
+	 *
+	 * @return true, if is not in a cluster
+	 */
 	public boolean isNotInACluster()
 	{
 		return workingData == 0;
 	}
 
+	/**
+	 * Convert to a DBSCAN result.
+	 *
+	 * @return the DBSCAN order
+	 */
 	public DBSCANOrder toDBSCANResult()
 	{
 		return new DBSCANOrder(id, getClusterId(), getNumberOfPoints());
 	}
 
+	/**
+	 * Gets the next molecule.
+	 *
+	 * @return the next molecule
+	 */
 	public Molecule getNext()
 	{
 		throw new NotImplementedException();
@@ -186,16 +282,31 @@ class Molecule
 		throw new NotImplementedException();
 	}
 
+	/**
+	 * Gets the x bin.
+	 *
+	 * @return the x bin
+	 */
 	int getXBin()
 	{
 		throw new NotImplementedException();
 	}
 
+	/**
+	 * Gets the y bin.
+	 *
+	 * @return the y bin
+	 */
 	int getYBin()
 	{
 		throw new NotImplementedException();
 	}
 
+	/**
+	 * Gets the distance.
+	 *
+	 * @return the distance
+	 */
 	float getD()
 	{
 		throw new NotImplementedException();

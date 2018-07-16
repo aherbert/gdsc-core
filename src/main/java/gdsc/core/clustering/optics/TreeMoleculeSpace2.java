@@ -46,6 +46,14 @@ class TreeMoleculeSpace2 extends MoleculeSpace
 
 	private KdTree2D<Molecule> tree;
 
+	/**
+	 * Instantiates a new tree molecule space 2.
+	 *
+	 * @param opticsManager
+	 *            the optics manager
+	 * @param generatingDistanceE
+	 *            the generating distance (E)
+	 */
 	TreeMoleculeSpace2(OPTICSManager opticsManager, float generatingDistanceE)
 	{
 		super(opticsManager.getSize(), generatingDistanceE);
@@ -95,8 +103,8 @@ class TreeMoleculeSpace2 extends MoleculeSpace
 	@Override
 	void findNeighbours(int minPts, Molecule object, float e)
 	{
-		final NearestNeighborIterator<Molecule> iter = tree.getNearestNeighborIterator(new double[] { object.x, object.y },
-				tree.size(), distanceFunction);
+		final NearestNeighborIterator<Molecule> iter = tree
+				.getNearestNeighborIterator(new double[] { object.x, object.y }, tree.size(), distanceFunction);
 		neighbours.clear();
 		final double e2 = e;
 		while (iter.hasNext())
@@ -118,8 +126,8 @@ class TreeMoleculeSpace2 extends MoleculeSpace
 	@Override
 	void findNeighboursAndDistances(int minPts, Molecule object, float e)
 	{
-		final NearestNeighborIterator<Molecule> iter = tree.getNearestNeighborIterator(new double[] { object.x, object.y },
-				tree.size(), distanceFunction);
+		final NearestNeighborIterator<Molecule> iter = tree
+				.getNearestNeighborIterator(new double[] { object.x, object.y }, tree.size(), distanceFunction);
 		neighbours.clear();
 		while (iter.hasNext())
 		{

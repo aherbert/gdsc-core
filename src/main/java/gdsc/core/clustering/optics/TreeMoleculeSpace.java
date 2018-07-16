@@ -53,6 +53,14 @@ class TreeMoleculeSpace extends MoleculeSpace
 	private KdTree2D<Molecule> tree;
 	private final MoleculeStore store;
 
+	/**
+	 * Instantiates a new tree molecule space.
+	 *
+	 * @param opticsManager
+	 *            the optics manager
+	 * @param generatingDistanceE
+	 *            the generating distance (E)
+	 */
 	TreeMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE)
 	{
 		super(opticsManager.getSize(), generatingDistanceE);

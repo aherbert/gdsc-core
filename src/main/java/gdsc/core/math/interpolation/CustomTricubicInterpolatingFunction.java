@@ -2050,6 +2050,16 @@ public class CustomTricubicInterpolatingFunction
 	{
 		private final int[] dimensions;
 
+		/**
+		 * Instantiates a new size.
+		 *
+		 * @param maxx
+		 *            the maxx
+		 * @param maxy
+		 *            the maxy
+		 * @param maxz
+		 *            the maxz
+		 */
 		Size(int maxx, int maxy, int maxz)
 		{
 			if (maxx < 2 || maxy < 2 || maxz < 2)

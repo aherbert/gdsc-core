@@ -68,13 +68,13 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 {
 	private static final long serialVersionUID = -6164933921278234275L;
 
-	static final String FONT_SIZE = "tw.font.size";
-	static final String FONT_ANTI = "tw.font.anti";
-	TextPanel textPanel;
-	CheckboxMenuItem antialiased;
-	int[] sizes = { 9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 36, 48, 60, 72 };
-	int fontSize = (int) Prefs.get(FONT_SIZE, 5);
-	MenuBar mb;
+	private static final String FONT_SIZE = "tw.font.size";
+	private static final String FONT_ANTI = "tw.font.anti";
+	private TextPanel textPanel;
+	private CheckboxMenuItem antialiased;
+	private int[] sizes = { 9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 36, 48, 60, 72 };
+	private int fontSize = (int) Prefs.get(FONT_SIZE, 5);
+	private MenuBar mb;
 
 	/**
 	 * Opens a new single-column text window.
@@ -176,7 +176,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 		//show();
 	}
 
-	void addMenuBar()
+	private void addMenuBar()
 	{
 		mb = new MenuBar();
 		if (Menus.getFontSize() != 0)
@@ -226,7 +226,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 		textPanel.append(text);
 	}
 
-	void setFont()
+	private void setFont()
 	{
 		textPanel.setFont(new Font("SanSerif", Font.PLAIN, sizes[fontSize]), antialiased.getState());
 	}
@@ -329,7 +329,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 		textPanel.rename(title);
 	}
 
-	boolean saveContents()
+	private boolean saveContents()
 	{
 		int lineCount = textPanel.getLineCount();
 		if (!textPanel.unsavedLines)
@@ -350,7 +350,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 		return true;
 	}
 
-	void changeFontSize(boolean larger)
+	private void changeFontSize(boolean larger)
 	{
 		if (larger)
 		{
@@ -368,7 +368,7 @@ public class TextWindow2 extends Frame implements ActionListener, FocusListener,
 		setFont();
 	}
 
-	void saveSettings()
+	private void saveSettings()
 	{
 		Prefs.set(FONT_SIZE, fontSize);
 		Prefs.set(FONT_ANTI, antialiased.getState());

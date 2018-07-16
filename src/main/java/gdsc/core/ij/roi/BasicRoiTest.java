@@ -38,7 +38,7 @@ import ij.gui.Roi;
  */
 public class BasicRoiTest extends RoiTest
 {
-	final Shape shape;
+	private final Shape shape;
 
 	/**
 	 * Instantiates a new basic roi test.

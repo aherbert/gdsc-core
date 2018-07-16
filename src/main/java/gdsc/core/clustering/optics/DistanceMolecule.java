@@ -37,6 +37,16 @@ class DistanceMolecule extends Molecule
 	 */
 	private float d;
 
+	/**
+	 * Instantiates a new distance molecule.
+	 *
+	 * @param id
+	 *            the id
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 */
 	DistanceMolecule(int id, float x, float y)
 	{
 		super(id, x, y);

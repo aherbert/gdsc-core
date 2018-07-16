@@ -240,6 +240,8 @@ public class DensityCounter
 	private final IndexMolecule[][] grid;
 
 	private final int nonEmpty, maxCellSize;
+	
+	/** The grid priority. */
 	int[] gridPriority = null;
 
 	// Note:
@@ -249,8 +251,11 @@ public class DensityCounter
 	// speed slow-down for multi-threading will likely not be noticed.
 	private int nThreads = -1;
 
+	/** Synchronised mode. */
 	static byte MODE_SYNC = 0;
+	/** Non-synchronised mode. */
 	static byte MODE_NON_SYNC = 1;
+	/** Multi-thread mode. */
 	byte multiThreadMode = MODE_NON_SYNC;
 
 	/**

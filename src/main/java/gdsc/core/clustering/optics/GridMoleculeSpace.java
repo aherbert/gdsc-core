@@ -37,18 +37,47 @@ class GridMoleculeSpace extends MoleculeSpace
 	 */
 	protected final OPTICSManager opticsManager;
 
+	/** The resolution. */
 	int resolution;
+	
+	/** The bin width. */
 	float binWidth;
+	
+	/** The x bins. */
 	int xBins;
+	
+	/** The y bins. */
 	int yBins;
+	
+	/** The grid. */
 	Molecule[][] grid;
+	
+	/** The fast forward indices (the index to the next position that contains data). */
 	int[] fastForward;
 
+	/**
+	 * Instantiates a new grid molecule space.
+	 *
+	 * @param opticsManager
+	 *            the optics manager
+	 * @param generatingDistanceE
+	 *            the generating distance (E)
+	 */
 	GridMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE)
 	{
 		this(opticsManager, generatingDistanceE, 0);
 	}
 
+	/**
+	 * Instantiates a new grid molecule space.
+	 *
+	 * @param opticsManager
+	 *            the optics manager
+	 * @param generatingDistanceE
+	 *            the generating distance (E)
+	 * @param resolution
+	 *            the resolution
+	 */
 	GridMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, int resolution)
 	{
 		super(opticsManager.getSize(), generatingDistanceE);
@@ -166,6 +195,15 @@ class GridMoleculeSpace extends MoleculeSpace
 		return setOfObjects;
 	}
 
+	/**
+	 * Determine maximum resolution.
+	 *
+	 * @param xrange
+	 *            the xrange
+	 * @param yrange
+	 *            the yrange
+	 * @return the resolution
+	 */
 	int determineMaximumResolution(float xrange, float yrange)
 	{
 		int resolution = 0;
@@ -185,6 +223,15 @@ class GridMoleculeSpace extends MoleculeSpace
 		return resolution;
 	}
 
+	/**
+	 * Gets the number of molecules in the generating area.
+	 *
+	 * @param xrange
+	 *            the xrange
+	 * @param yrange
+	 *            the yrange
+	 * @return the number of molecules
+	 */
 	double getNMoleculesInGeneratingArea(float xrange, float yrange)
 	{
 		// We can easily compute the expected number of molecules in a pixel and from that
@@ -297,6 +344,19 @@ class GridMoleculeSpace extends MoleculeSpace
 		return binWidth;
 	}
 
+	/**
+	 * Gets the number of bins.
+	 *
+	 * @param xrange
+	 *            the xrange
+	 * @param yrange
+	 *            the yrange
+	 * @param distance
+	 *            the distance
+	 * @param resolution
+	 *            the resolution
+	 * @return the number of bins
+	 */
 	int getBins(float xrange, float yrange, float distance, int resolution)
 	{
 		final float binWidth = distance / resolution;
@@ -307,11 +367,25 @@ class GridMoleculeSpace extends MoleculeSpace
 		return nBins;
 	}
 
+	/**
+	 * Gets the number of blocks.
+	 *
+	 * @param resolution
+	 *            the resolution
+	 * @return the number of blocks
+	 */
 	int getNBlocks(int resolution)
 	{
 		return 2 * resolution + 1;
 	}
 
+	/**
+	 * Gets the number of neighbour blocks.
+	 *
+	 * @param resolution
+	 *            the resolution
+	 * @return the number of neighbour blocks
+	 */
 	int getNeighbourBlocks(int resolution)
 	{
 		final int size = getNBlocks(resolution);
@@ -455,6 +529,15 @@ class GridMoleculeSpace extends MoleculeSpace
 		//			}
 	}
 
+	/**
+	 * Gets the index.
+	 *
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @return the index
+	 */
 	int getIndex(final int x, final int y)
 	{
 		return y * xBins + x;

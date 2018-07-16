@@ -235,7 +235,7 @@ public class ConvexHull
 		return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
 	}
 
-	void calculateBounds(float[] xpoints, float[] ypoints, int npoints)
+	private void calculateBounds(float[] xpoints, float[] ypoints, int npoints)
 	{
 		minX = xpoints[0];
 		minY = ypoints[0];

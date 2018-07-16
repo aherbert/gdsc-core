@@ -79,6 +79,15 @@ public class FastImageReader
 		skipCount = fi.getOffset();
 	}
 
+	/**
+	 * Read 8 bit image.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the byte[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	byte[] read8bitImage(SeekableStream in) throws IOException
 	{
 		if (fi.compression > FileInfo.COMPRESSION_NONE)
@@ -102,6 +111,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read compressed 8 bit image.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the byte[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	byte[] readCompressed8bitImage(SeekableStream in) throws IOException
 	{
 		final byte[] pixels = new byte[nPixels];
@@ -138,7 +156,15 @@ public class FastImageReader
 		return pixels;
 	}
 
-	/** Reads a 16-bit image. Signed pixels are converted to unsigned by adding 32768. */
+	/**
+	 * Reads a 16-bit image. Signed pixels are converted to unsigned by adding 32768.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the short[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	short[] read16bitImage(SeekableStream in) throws IOException
 	{
 		if (fi.compression > FileInfo.COMPRESSION_NONE ||
@@ -199,6 +225,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read compressed 16 bit image.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the short[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	short[] readCompressed16bitImage(SeekableStream in) throws IOException
 	{
 		final short[] pixels = new short[nPixels];
@@ -245,6 +280,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read 32 bit image.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the float[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	float[] read32bitImage(SeekableStream in) throws IOException
 	{
 		if (fi.compression > FileInfo.COMPRESSION_NONE || (fi.stripOffsets != null && fi.stripOffsets.length > 1))
@@ -308,6 +352,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read compressed 32 bit image.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the float[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	float[] readCompressed32bitImage(SeekableStream in) throws IOException
 	{
 		final float[] pixels = new float[nPixels];
@@ -369,6 +422,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read 64 bit image.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the float[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	float[] read64bitImage(SeekableStream in) throws IOException
 	{
 		int pixelsRead;
@@ -419,6 +481,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read chunky RGB.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the int[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	int[] readChunkyRGB(SeekableStream in) throws IOException
 	{
 		if (fi.compression == FileInfo.JPEG)
@@ -507,6 +578,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read compressed chunky RGB.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the int[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	int[] readCompressedChunkyRGB(SeekableStream in) throws IOException
 	{
 		final int[] pixels = new int[nPixels];
@@ -574,6 +654,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read JPEG.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the int[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	int[] readJPEG(SeekableStream in) throws IOException
 	{
 		final BufferedImage bi = ImageIO.read(in);
@@ -581,6 +670,15 @@ public class FastImageReader
 		return (int[]) ip.getPixels();
 	}
 
+	/**
+	 * Read planar RGB.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the int[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	int[] readPlanarRGB(SeekableStream in) throws IOException
 	{
 		if (fi.compression > FileInfo.COMPRESSION_NONE)
@@ -618,6 +716,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read compressed planar RGB image.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the int[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	int[] readCompressedPlanarRGBImage(SeekableStream in) throws IOException
 	{
 		final int[] pixels = new int[nPixels];
@@ -643,6 +750,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read RGB 48.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the object
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	Object readRGB48(SeekableStream in) throws IOException
 	{
 		if (fi.compression > FileInfo.COMPRESSION_NONE)
@@ -699,6 +815,15 @@ public class FastImageReader
 		return stack;
 	}
 
+	/**
+	 * Read compressed RGB 48.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the object
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	Object readCompressedRGB48(SeekableStream in) throws IOException
 	{
 		if (fi.compression == FileInfo.LZW_WITH_DIFFERENCING)
@@ -751,6 +876,15 @@ public class FastImageReader
 		return stack;
 	}
 
+	/**
+	 * Read RGB 48 planar.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the object
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	Object readRGB48Planar(SeekableStream in) throws IOException
 	{
 		final int channels = fi.samplesPerPixel;
@@ -760,6 +894,15 @@ public class FastImageReader
 		return stack;
 	}
 
+	/**
+	 * Read 12 bit image.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the short[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	short[] read12bitImage(SeekableStream in) throws IOException
 	{
 		int bytesPerLine = (int) (width * 1.5);
@@ -787,6 +930,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read 24 bit image.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the float[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	float[] read24bitImage(SeekableStream in) throws IOException
 	{
 		final byte[] buffer = new byte[width * 3];
@@ -807,6 +959,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read 1 bit image.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the byte[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	byte[] read1bitImage(SeekableStream in) throws IOException
 	{
 		if (fi.compression == FileInfo.LZW)
@@ -835,6 +996,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Skip the input by the current value of skip count and
+	 * then initialise the buffer for reading.
+	 *
+	 * @param in
+	 *            the input seekable streamput
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	void skip(SeekableStream in) throws IOException
 	{
 		if (skipCount > 0)
@@ -961,6 +1131,15 @@ public class FastImageReader
 		return readPixels(in);
 	}
 
+	/**
+	 * Uncompress.
+	 *
+	 * @param input
+	 *            the input seekable streamput
+	 * @return the byte[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	byte[] uncompress(byte[] input) throws IOException
 	{
 		if (fi.compression == FileInfo.PACK_BITS)
@@ -977,8 +1156,8 @@ public class FastImageReader
 	 * TIFF Adobe ZIP support contributed by Jason Newton.
 	 *
 	 * @param input
-	 *            the input bytes
-	 * @return the byte[]
+	 *            the input seekable streamput bytes
+	 * @return the byte[] image
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
@@ -1011,8 +1190,8 @@ public class FastImageReader
 	 * Author: Curtis Rueden (ctrueden at wisc.edu).
 	 *
 	 * @param input
-	 *            the input bytes
-	 * @return the byte[]
+	 *            the input seekable streamput bytes
+	 * @return the byte[] image
 	 */
 	public byte[] lzwUncompress(byte[] input)
 	{
@@ -1087,10 +1266,10 @@ public class FastImageReader
 	 * Based on the Bio-Formats PackbitsCodec written by Melissa Linkert.
 	 *
 	 * @param input
-	 *            the input
+	 *            the input seekable streamput
 	 * @param expected
 	 *            the expected
-	 * @return the byte[]
+	 * @return the byte[] image
 	 */
 	public byte[] packBitsUncompress(byte[] input, int expected)
 	{
@@ -1122,6 +1301,15 @@ public class FastImageReader
 
 	// Specialised version to read using an in-memory byte buffer
 
+	/**
+	 * Read 8 bit image.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the byte[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	byte[] read8bitImage(ByteArraySeekableStream in) throws IOException
 	{
 		if (fi.compression > FileInfo.COMPRESSION_NONE)
@@ -1133,7 +1321,15 @@ public class FastImageReader
 		return pixels;
 	}
 
-	/** Reads a 16-bit image. Signed pixels are converted to unsigned by adding 32768. */
+	/**
+	 * Reads a 16-bit image. Signed pixels are converted to unsigned by adding 32768.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the short[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	short[] read16bitImage(ByteArraySeekableStream in) throws IOException
 	{
 		if (fi.compression > FileInfo.COMPRESSION_NONE ||
@@ -1164,6 +1360,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read 32 bit image.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the float[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	float[] read32bitImage(ByteArraySeekableStream in) throws IOException
 	{
 		if (fi.compression > FileInfo.COMPRESSION_NONE || (fi.stripOffsets != null && fi.stripOffsets.length > 1))
@@ -1220,8 +1425,8 @@ public class FastImageReader
 						((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff));
 		else if (fi.fileType == FileInfo.GRAY32_UNSIGNED)
 		{
-			final int tmp = ((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16) | ((buffer[j + 2] & 0xff) << 8) |
-					(buffer[j + 3] & 0xff);
+			final int tmp = ((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16) |
+					((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff);
 			for (int i = 0; i < nPixels; i++, j += 4)
 				pixels[i] = tmp & 0xffffffffL;
 		}
@@ -1233,6 +1438,15 @@ public class FastImageReader
 		return pixels;
 	}
 
+	/**
+	 * Read 64 bit image.
+	 *
+	 * @param in
+	 *            the input seekable stream
+	 * @return the float[] image
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	float[] read64bitImage(ByteArraySeekableStream in) throws IOException
 	{
 		// We use the bytes direct
@@ -1266,7 +1480,7 @@ public class FastImageReader
 	 * Gets the position and skips the number of bytes covering all of the pixel data.
 	 *
 	 * @param in
-	 *            the input stream
+	 *            the input seekable streamput stream
 	 * @param bytesPerPixel
 	 *            the bytes per pixel
 	 * @return the position before the skip

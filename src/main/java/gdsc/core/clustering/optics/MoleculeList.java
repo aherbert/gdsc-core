@@ -28,20 +28,39 @@
 package gdsc.core.clustering.optics;
 
 /**
- * Used in the algorithms to store molecules in an indexable list
+ * Used in the algorithms to store molecules in an indexable list.
  */
 class MoleculeList extends MoleculeArray
 {
+	/**
+	 * Instantiates a new molecule list.
+	 *
+	 * @param capacity
+	 *            the capacity
+	 */
 	MoleculeList(int capacity)
 	{
 		super(capacity);
 	}
 
+	/**
+	 * Gets the molecule at the index.
+	 *
+	 * @param i
+	 *            the index
+	 * @return the molecule
+	 */
 	Molecule get(int i)
 	{
 		return list[i];
 	}
 
+	/**
+	 * Adds the molecules.
+	 *
+	 * @param molecules
+	 *            the molecules
+	 */
 	void add(Molecule[] molecules)
 	{
 		System.arraycopy(molecules, 0, list, size, molecules.length);

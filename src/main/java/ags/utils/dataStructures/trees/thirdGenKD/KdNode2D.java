@@ -27,8 +27,20 @@
  */
 package ags.utils.dataStructures.trees.thirdGenKD;
 
+/**
+ * A 2D-tree node
+ *
+ * @param <T>
+ *            the generic type
+ */
 class KdNode2D<T> extends KdNode<T>
 {
+	/**
+	 * Instantiates a new 2D-tree node
+	 *
+	 * @param bucketCapacity
+	 *            the bucket capacity
+	 */
 	protected KdNode2D(int bucketCapacity)
 	{
 		super(bucketCapacity);

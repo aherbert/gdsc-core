@@ -172,7 +172,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 * @param opticsManager
 	 *            the optics manager
 	 * @param generatingDistanceE
-	 *            the generating distance E
+	 *            the generating distance (E)
 	 * @param rand
 	 *            the rand
 	 */
@@ -266,8 +266,12 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		this.tracker = tracker;
 	}
 
+	/** The progress. */
+	private int progress;
+	/** The step progress. */
+	private int stepProgress;
 	/** The total progress. */
-	int progress, stepProgress, totalProgress;
+	private int totalProgress;
 
 	/**
 	 * Sets the up progress.

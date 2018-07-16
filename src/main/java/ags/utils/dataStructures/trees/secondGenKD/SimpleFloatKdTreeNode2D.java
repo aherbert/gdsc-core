@@ -56,26 +56,44 @@ package ags.utils.dataStructures.trees.secondGenKD;
  */
 abstract class SimpleFloatKdTreeNode2D
 {
-	// Static variables
+	/** The bucket size. */
 	static final int bucketSize = 24;
 
 	// All types
+
+	/** The parent. */
 	final SimpleFloatKdTreeNode2D parent;
 
 	// Leaf only
+
+	/** The locations. */
 	float[][] locations;
+	/** The location count. */
 	int locationCount;
 
 	// Stem only
-	SimpleFloatKdTreeNode2D left, right;
+
+	/** The left. */
+	SimpleFloatKdTreeNode2D left;
+	/** The right. */
+	SimpleFloatKdTreeNode2D right;
+	/** The split dimension. */
 	int splitDimension;
+	/** The split value. */
 	float splitValue;
 
 	// Bounds
-	float[] minLimit, maxLimit;
+
+	/** The min limit. */
+	float[] minLimit;
+	/** The max limit. */
+	float[] maxLimit;
+	/** The singularity. */
 	boolean singularity;
 
 	// Temporary
+
+	/** The status. */
 	Status status;
 
 	/**
@@ -94,6 +112,9 @@ abstract class SimpleFloatKdTreeNode2D
 
 	/**
 	 * Constructor for child nodes. Internal use only.
+	 *
+	 * @param parent
+	 *            the parent
 	 */
 	SimpleFloatKdTreeNode2D(SimpleFloatKdTreeNode2D parent)
 	{
@@ -107,7 +128,10 @@ abstract class SimpleFloatKdTreeNode2D
 	}
 
 	/**
-	 * Extends the bounds of this node do include a new location
+	 * Extends the bounds of this node do include a new location.
+	 *
+	 * @param location
+	 *            the location
 	 */
 	final void extendBounds(float[] location)
 	{
@@ -138,7 +162,9 @@ abstract class SimpleFloatKdTreeNode2D
 	}
 
 	/**
-	 * Find the widest axis of the bounds of this node
+	 * Find the widest axis of the bounds of this node.
+	 *
+	 * @return the axis
 	 */
 	final int findWidestAxis()
 	{
@@ -156,7 +182,28 @@ abstract class SimpleFloatKdTreeNode2D
 	}
 
 	// Override in subclasses
+
+	/**
+	 * Compute the point distance.
+	 *
+	 * @param p1
+	 *            the p 1
+	 * @param p2
+	 *            the p 2
+	 * @return the distance
+	 */
 	protected abstract float pointDist(float[] p1, float[] p2);
 
+	/**
+	 * Compute the point region distance.
+	 *
+	 * @param point
+	 *            the point
+	 * @param min
+	 *            the min of the region
+	 * @param max
+	 *            the max of the region
+	 * @return the distance
+	 */
 	protected abstract float pointRegionDist(float[] point, float[] min, float[] max);
 }

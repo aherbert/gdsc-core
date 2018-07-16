@@ -35,7 +35,8 @@ import java.math.MathContext;
  */
 public class MathContextRounder implements Rounder
 {
-	final MathContext mathContext;
+	/** The math context. */
+	private final MathContext mathContext;
 
 	/**
 	 * Instantiates a new math context rounder.

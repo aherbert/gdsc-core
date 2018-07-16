@@ -38,6 +38,22 @@ class GridMolecule extends DistanceMolecule
 	private final int xBin;
 	private final int yBin;
 
+	/**
+	 * Instantiates a new grid molecule.
+	 *
+	 * @param id
+	 *            the id
+	 * @param x
+	 *            the x
+	 * @param y
+	 *            the y
+	 * @param xBin
+	 *            the x bin
+	 * @param yBin
+	 *            the y bin
+	 * @param next
+	 *            the next
+	 */
 	GridMolecule(int id, float x, float y, int xBin, int yBin, GridMolecule next)
 	{
 		super(id, x, y);
@@ -52,6 +68,12 @@ class GridMolecule extends DistanceMolecule
 		return next;
 	}
 
+	/**
+	 * Sets the next molecule (used to create a linked-list).
+	 *
+	 * @param next
+	 *            the new next
+	 */
 	public void setNext(GridMolecule next)
 	{
 		this.next = next;
