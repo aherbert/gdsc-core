@@ -1,30 +1,27 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
+/*
+ * Copyright 2009 Rednaxela
  *
- * Contains code used by:
+ * Modifications to the code have been made by Alex Herbert for a smaller 
+ * memory footprint and optimised 2D processing for use with image data
+ * as part of the Genome Damage and Stability Centre ImageJ Core Package.
+ * 
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
  *
- * GDSC ImageJ Plugins - Microscopy image analysis
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ *    1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
+ *    2. This notice may not be removed or altered from any source
+ *    distribution.
  */
+
 /**
  * The code contained here has been taken from <a href="https://bitbucket.org/rednaxela/knn-benchmark">https://bitbucket.org/rednaxela/knn-benchmark</a>.
  * <p>
@@ -34,6 +31,6 @@
  * <p>
  * The code is Copyright 2009 Rednaxela.
  * <p>
- * Modifications to the code have been made by Alex Herbert for a smaller memory footprint and dedicated 2D processing.
+ * Modifications to the code have been made by Alex Herbert for a smaller memory footprint and optimised 2D processing.
  */
 package ags.utils.dataStructures;
