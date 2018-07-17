@@ -183,7 +183,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	 *            the sequential sorting
 	 * @return the list
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "null" })
 	public List<Entry<T>> nearestNeighbor(double[] location, int count, boolean sequentialSorting)
 	{
 		KdTreeNode2D<T> cursor = this;
@@ -294,7 +294,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	 * @param results
 	 *            the results
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "null" })
 	public void nearestNeighbor(double[] location, int count, NeighbourStore<T> results)
 	{
 		KdTreeNode2D<T> cursor = this;
@@ -395,7 +395,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T>
 	 * @param results
 	 *            the results
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "null" })
 	public void findNeighbor(double[] location, double range, NeighbourStore<T> results)
 	{
 		KdTreeNode2D<T> cursor = this;

@@ -36,6 +36,7 @@ import ij.process.FloatProcessor;
 @SuppressWarnings({ "javadoc" })
 public class DoubleStackTrivalueProviderTest
 {
+	@SuppressWarnings("null")
 	@Test
 	public void canProvideData()
 	{

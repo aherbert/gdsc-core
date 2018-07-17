@@ -493,11 +493,9 @@ public class Utils
 	{
 		newWindow = false;
 		Frame plotWindow = null;
-		final int[] wList = WindowManager.getIDList();
-		final int len = wList != null ? wList.length : 0;
-		for (int i = 0; i < len; i++)
+		for (int i : WindowManager.getIDList())
 		{
-			final ImagePlus imp = WindowManager.getImage(wList[i]);
+			final ImagePlus imp = WindowManager.getImage(i);
 			if (imp != null && imp.getWindow() instanceof PlotWindow)
 				if (imp.getTitle().equals(title))
 				{
@@ -642,11 +640,9 @@ public class Utils
 	 */
 	public static boolean hide(String title)
 	{
-		final int[] wList = WindowManager.getIDList();
-		final int len = wList != null ? wList.length : 0;
-		for (int i = 0; i < len; i++)
+		for (int i : WindowManager.getIDList())
 		{
-			final ImagePlus imp = WindowManager.getImage(wList[i]);
+			final ImagePlus imp = WindowManager.getImage(i);
 			if (imp != null)
 				if (imp.getTitle().equals(title))
 				{
@@ -2282,7 +2278,7 @@ public class Utils
 				final GridBagConstraints c = grid.getConstraints(comp);
 
 				// Check if this should be a new column
-				if (c.gridy >= nextColumnY)
+				if (c.gridy >= nextColumnY || current == null || currentGrid == null)
 				{
 					current = new Panel();
 					currentGrid = new GridBagLayout();

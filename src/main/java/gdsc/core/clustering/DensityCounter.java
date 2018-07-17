@@ -1275,6 +1275,7 @@ public class DensityCounter
 	 *            the max ID of molecules
 	 * @return the counts
 	 */
+	@SuppressWarnings("null")
 	public int[][] countAll(Molecule[] molecules2, int maxID)
 	{
 		final int nMolecules = (molecules2 == null) ? 0 : molecules2.length;

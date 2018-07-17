@@ -77,6 +77,13 @@ public abstract class Ticker
 	 * changed allowing the ticking to be continued.
 	 */
 	public abstract void stop();
+	
+	/**
+	 * Checks if the {@link #tick()} method is thread safe.
+	 *
+	 * @return true, if is thread safe
+	 */
+	public abstract boolean isThreadSafe();
 
 	/**
 	 * Creates a ticker. If the track progress is null, or the total is not positive, then a ticker that does nothing
@@ -158,6 +165,12 @@ public abstract class Ticker
 		{
 			// Do nothing
 		}
+		
+		@Override
+		public boolean isThreadSafe()
+		{
+			return true;
+		}
 	}
 
 	/** An instance that ignores all calls to the Ticker interface */
@@ -223,6 +236,12 @@ public abstract class Ticker
 			next = 0;
 			trackProgress.progress(0.0);
 		}
+		
+		@Override
+		public boolean isThreadSafe()
+		{
+			return false;
+		}
 	}
 
 	private static class ConcurrentIntTicker extends BaseTicker
@@ -268,6 +287,12 @@ public abstract class Ticker
 			current.set(0);
 			next = 0;
 			trackProgress.progress(0.0);
+		}
+		
+		@Override
+		public boolean isThreadSafe()
+		{
+			return true;
 		}
 	}
 
@@ -315,6 +340,12 @@ public abstract class Ticker
 			next = 0L;
 			trackProgress.progress(0.0);
 		}
+		
+		@Override
+		public boolean isThreadSafe()
+		{
+			return false;
+		}
 	}
 
 	private static class ConcurrentLongTicker extends BaseTicker
@@ -360,6 +391,12 @@ public abstract class Ticker
 			current.set(0L);
 			next = 0L;
 			trackProgress.progress(0.0);
+		}
+		
+		@Override
+		public boolean isThreadSafe()
+		{
+			return true;
 		}
 	}
 }

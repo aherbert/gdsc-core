@@ -211,6 +211,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 	 *            the status array. Must equal the number of nodes in the tree
 	 * @return the list
 	 */
+	@SuppressWarnings("null")
 	public List<Entry> nearestNeighbor(float[] location, int count, boolean sequentialSorting, Status[] status)
 	{
 		FloatIntKdTreeNode2D cursor = this;
@@ -338,6 +339,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 	 * @param status
 	 *            the status array. Must equal the number of nodes in the tree
 	 */
+	@SuppressWarnings("null")
 	public void nearestNeighbor(float[] location, int count, IntNeighbourStore results, Status[] status)
 	{
 		FloatIntKdTreeNode2D cursor = this;
@@ -455,6 +457,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
 	 * @param status
 	 *            the status array. Must equal the number of nodes in the tree
 	 */
+	@SuppressWarnings("null")
 	public void findNeighbor(float[] location, float range, IntNeighbourStore results, Status[] status)
 	{
 		FloatIntKdTreeNode2D cursor = this;

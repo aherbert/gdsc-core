@@ -211,7 +211,8 @@ public class CustomTricubicInterpolatingFunction
      * @throws DimensionMismatchException if the various arrays do not contain the expected number of elements.
      * @throws NonMonotonicSequenceException if {@code x}, {@code y} or {@code z} are not strictly increasing.
      */
-    public CustomTricubicInterpolatingFunction(ValueProvider x,
+    @SuppressWarnings("null")
+	public CustomTricubicInterpolatingFunction(ValueProvider x,
                                                ValueProvider y,
                                                ValueProvider z,
                                                final TrivalueProvider f,

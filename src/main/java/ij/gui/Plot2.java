@@ -312,8 +312,8 @@ public class Plot2 extends Plot
 				}
 			}
 			final PlotWindow2 pw = new PlotWindow2(this);
-			//if (imp == null)
-			imp.setProperty(PROPERTY_KEY, null);
+			if (imp != null)
+				imp.setProperty(PROPERTY_KEY, null);
 			imp = pw.getImagePlus();
 			imp.setProperty(PROPERTY_KEY, this);
 			if (IJ.isMacro()) // wait for plot to be displayed

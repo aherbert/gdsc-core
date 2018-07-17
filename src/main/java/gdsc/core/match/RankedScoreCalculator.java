@@ -199,6 +199,7 @@ public class RankedScoreCalculator
 	 *            Save the assignments that were selected (accessed using {@link #getScoredAssignments()})
 	 * @return The tp and fp scores, plus integer true positives and false positives [tp, fp, itp, ifp]
 	 */
+	@SuppressWarnings("null")
 	public double[] score(int nPredicted, boolean multipleMatches, boolean save)
 	{
 		final FractionalAssignment[] assignments = getAssignmentsInternal(nPredicted);

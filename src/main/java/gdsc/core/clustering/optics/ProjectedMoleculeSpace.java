@@ -684,7 +684,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 		{
 			// Create a random unit vector
 			double[] currRp;
-			if (useRandomVectors)
+			if (vectorGen != null)
 				currRp = vectorGen.nextVector();
 			else
 			{
@@ -1086,6 +1086,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
 	 *
 	 * @return list of neighbours for each point
 	 */
+	@SuppressWarnings("null")
 	public int[][] computeAverageDistInSetAndNeighbours()
 	{
 		distanceComputations.set(0);

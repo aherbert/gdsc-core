@@ -135,7 +135,7 @@ public class ImageWindow
 				break;
 		}
 
-		if (wx == null)
+		if (wx == null || wy == null)
 			return image;
 
 		final float[] data = new float[image.length];

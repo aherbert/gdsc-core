@@ -635,7 +635,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 			}
 			//System.out.printf("%.2f @ %d,%d. Steps = %d, max = %b\n", v, x, y, steps, isMax);
 
-			if (isNeighbourCheck())
+			if (maximaFlag != null)
 			{
 				// A
 				for (int jj = mj_minus_n; jj < j; jj++)
@@ -728,7 +728,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 
 			// Re-use storage space
 			blockMaxima[nMaxima++] = index;
-			if (isNeighbourCheck())
+			if (maximaFlag != null)
 				maximaFlag[index] = true;
 		} // end FIND_MAXIMA
 		  //System.out.printf("---\n");
@@ -862,7 +862,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 			}
 			//System.out.printf("%.2f @ %d,%d. Steps = %d, max = %b\n", v, x, y, steps, isMax);
 
-			if (isNeighbourCheck())
+			if (maximaFlag != null)
 			{
 				// A
 				for (int jj = mj_minus_n; jj < j; jj++)
@@ -955,7 +955,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 
 			// Re-use storage space
 			blockMaxima[nMaxima++] = index;
-			if (isNeighbourCheck())
+			if (maximaFlag != null)
 				maximaFlag[index] = true;
 		} // end FIND_MAXIMA
 		  //System.out.printf("---\n");
@@ -1057,7 +1057,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 					if (data[maxIndex] < heightThreshold)
 						continue;
 
-					if (isNeighbourCheck())
+					if (maximaFlag != null)
 						for (final int offset : scan)
 							if (maximaFlag[maxIndex + offset])
 								continue FIND_MAXIMUM;
@@ -1109,7 +1109,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 							continue;
 					}
 
-					if (isNeighbourCheck())
+					if (maximaFlag != null)
 						maximaFlag[maxIndex] = true;
 				}
 
@@ -1216,7 +1216,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 					if (data[maxIndex] < heightThreshold)
 						continue;
 
-					if (isNeighbourCheck())
+					if (maximaFlag != null)
 						for (final int offset : scan)
 							if (maximaFlag[maxIndex + offset])
 								continue FIND_MAXIMUM;
@@ -1268,7 +1268,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 							continue;
 					}
 
-					if (isNeighbourCheck())
+					if (maximaFlag != null)
 						maximaFlag[maxIndex] = true;
 				}
 
@@ -2174,7 +2174,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 			}
 			//System.out.printf("%.2f @ %d,%d. Steps = %d, max = %b\n", v, x, y, steps, isMax);
 
-			if (isNeighbourCheck())
+			if (maximaFlag != null)
 			{
 				// A
 				for (int jj = mj_minus_n; jj < j; jj++)
@@ -2267,7 +2267,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 
 			// Re-use storage space
 			blockMaxima[nMaxima++] = index;
-			if (isNeighbourCheck())
+			if (maximaFlag != null)
 				maximaFlag[index] = true;
 		} // end FIND_MAXIMA
 		  //System.out.printf("---\n");
@@ -2401,7 +2401,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 			}
 			//System.out.printf("%.2f @ %d,%d. Steps = %d, max = %b\n", v, x, y, steps, isMax);
 
-			if (isNeighbourCheck())
+			if (maximaFlag != null)
 			{
 				// A
 				for (int jj = mj_minus_n; jj < j; jj++)
@@ -2494,7 +2494,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 
 			// Re-use storage space
 			blockMaxima[nMaxima++] = index;
-			if (isNeighbourCheck())
+			if (maximaFlag != null)
 				maximaFlag[index] = true;
 		} // end FIND_MAXIMA
 		  //System.out.printf("---\n");
@@ -2596,7 +2596,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 					if (data[maxIndex] < heightThreshold)
 						continue;
 
-					if (isNeighbourCheck())
+					if (maximaFlag != null)
 						for (final int offset : scan)
 							if (maximaFlag[maxIndex + offset])
 								continue FIND_MAXIMUM;
@@ -2648,7 +2648,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 							continue;
 					}
 
-					if (isNeighbourCheck())
+					if (maximaFlag != null)
 						maximaFlag[maxIndex] = true;
 				}
 
@@ -2755,7 +2755,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 					if (data[maxIndex] < heightThreshold)
 						continue;
 
-					if (isNeighbourCheck())
+					if (maximaFlag != null)
 						for (final int offset : scan)
 							if (maximaFlag[maxIndex + offset])
 								continue FIND_MAXIMUM;
@@ -2807,7 +2807,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
 							continue;
 					}
 
-					if (isNeighbourCheck())
+					if (maximaFlag != null)
 						maximaFlag[maxIndex] = true;
 				}
 

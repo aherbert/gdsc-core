@@ -168,6 +168,7 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
 	 *            the sequential sorting
 	 * @return the list
 	 */
+	@SuppressWarnings("null")
 	public List<Entry> nearestNeighbor(double[] location, int count, boolean sequentialSorting)
 	{
 		SimpleKdTreeNode2D cursor = this;

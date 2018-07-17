@@ -1254,6 +1254,7 @@ public class CustomTricubicInterpolatorTest
 		canDynamicallySampleFunction(3, true);
 	}
 
+	@SuppressWarnings("null")
 	private void canDynamicallySampleFunction(int n, boolean threaded)
 	{
 		// This assumes that the sample method of the CustomTricubicInterpolatingFunction works!
@@ -1505,6 +1506,7 @@ public class CustomTricubicInterpolatorTest
 				// which may use a different node depending on the gradient
 				if (i > 1)
 				{
+					@SuppressWarnings("null")
 					final double d = Maths.distance(last[0], last[1], last[2], optimum[0], optimum[1], optimum[2]);
 					TestSettings.info("[%d] %f,%f,%f %d = %s : dist = %f : change = %g\n", ii, cx, cy, cz, i,
 							Arrays.toString(optimum), d, DoubleEquality.relativeError(last[3], optimum[3]));

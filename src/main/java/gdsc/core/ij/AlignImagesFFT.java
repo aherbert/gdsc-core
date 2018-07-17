@@ -187,6 +187,7 @@ public class AlignImagesFFT
 	 *            the clip output
 	 * @return the image plus
 	 */
+	@SuppressWarnings("null")
 	public ImagePlus align(ImagePlus refImp, ImagePlus targetImp, WindowMethod windowMethod, Rectangle bounds,
 			SubPixelMethod subPixelMethod, int interpolationMethod, boolean normalised, boolean showCorrelationImage,
 			boolean showNormalisedImage, boolean clipOutput)

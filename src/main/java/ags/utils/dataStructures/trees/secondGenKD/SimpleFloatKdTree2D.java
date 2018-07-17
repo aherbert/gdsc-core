@@ -169,6 +169,7 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 	 *            the sequential sorting
 	 * @return the list
 	 */
+	@SuppressWarnings("null")
 	public List<Entry> nearestNeighbor(float[] location, int count, boolean sequentialSorting)
 	{
 		SimpleFloatKdTreeNode2D cursor = this;
@@ -279,6 +280,7 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D
 	 *            the count
 	 * @return the float[]
 	 */
+	@SuppressWarnings("null")
 	public float[] nearestNeighbor(float[] location, int count)
 	{
 		SimpleFloatKdTreeNode2D cursor = this;

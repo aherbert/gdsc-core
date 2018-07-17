@@ -299,7 +299,8 @@ public class CustomTricubicInterpolator
      *
      * @see org.apache.commons.math3.analysis.interpolation.TrivariateGridInterpolator#interpolate(double[], double[], double[], double[][][])
      */
-    public CustomTricubicInterpolatingFunction interpolate(final ValueProvider xval,
+    @SuppressWarnings("null")
+	public CustomTricubicInterpolatingFunction interpolate(final ValueProvider xval,
                                                            final ValueProvider yval,
                                                            final ValueProvider zval,
                                                            final TrivalueProvider fval)
@@ -1241,6 +1242,7 @@ public class CustomTricubicInterpolator
 	 * @throws NumberIsTooSmallException
 	 *             if the number of points in any dimension is less than 2
 	 */
+	@SuppressWarnings("null")
 	public void sample(final TrivalueProvider fval, final int nx, final int ny, final int nz,
 			final TrivalueProcedure procedure) throws IllegalArgumentException
 	{

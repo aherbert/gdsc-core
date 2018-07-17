@@ -106,6 +106,7 @@ public class MatchCalculator
 	 *            The matched true positives (point1 = actual, point2 = predicted)
 	 * @return The match results
 	 */
+	@SuppressWarnings("null")
 	public static MatchResult analyseResults2D(Coordinate[] actualPoints, Coordinate[] predictedPoints,
 			double dThreshold, List<Coordinate> TP, List<Coordinate> FP, List<Coordinate> FN, List<PointPair> matches)
 	{
@@ -286,6 +287,7 @@ public class MatchCalculator
 	 *            The matched true positives (point1 = actual, point2 = predicted)
 	 * @return The match results
 	 */
+	@SuppressWarnings("null")
 	public static MatchResult analyseResults2DSinglePass(Coordinate[] actualPoints, Coordinate[] predictedPoints,
 			double dThreshold, List<Coordinate> TP, List<Coordinate> FP, List<Coordinate> FN, List<PointPair> matches)
 	{
@@ -432,6 +434,7 @@ public class MatchCalculator
 	 *            The matched true positives (point1 = actual, point2 = predicted)
 	 * @return The match results
 	 */
+	@SuppressWarnings("null")
 	public static MatchResult analyseResults3D(Coordinate[] actualPoints, Coordinate[] predictedPoints,
 			double dThreshold, List<Coordinate> TP, List<Coordinate> FP, List<Coordinate> FN, List<PointPair> matches)
 	{
@@ -605,6 +608,7 @@ public class MatchCalculator
 	 *            The matched true positives (point1 = actual, point2 = predicted)
 	 * @return The match results
 	 */
+	@SuppressWarnings("null")
 	public static MatchResult analyseResults3DSinglePass(Coordinate[] actualPoints, Coordinate[] predictedPoints,
 			double dThreshold, List<Coordinate> TP, List<Coordinate> FP, List<Coordinate> FN, List<PointPair> matches)
 	{
@@ -712,6 +716,7 @@ public class MatchCalculator
 	 *            The matched true positives (point1 = actual, point2 = predicted)
 	 * @return The match results
 	 */
+	@SuppressWarnings("null")
 	public static MatchResult analyseResults2D(Pulse[] actualPoints, Pulse[] predictedPoints, final double dThreshold,
 			List<Pulse> TP, List<Pulse> FP, List<Pulse> FN, List<PointPair> matches)
 	{
