@@ -493,7 +493,7 @@ public class Utils
 	{
 		newWindow = false;
 		Frame plotWindow = null;
-		for (int i : WindowManager.getIDList())
+		for (int i : getIDList())
 		{
 			final ImagePlus imp = WindowManager.getImage(i);
 			if (imp != null && imp.getWindow() instanceof PlotWindow)
@@ -640,7 +640,7 @@ public class Utils
 	 */
 	public static boolean hide(String title)
 	{
-		for (int i : WindowManager.getIDList())
+		for (int i : getIDList())
 		{
 			final ImagePlus imp = WindowManager.getImage(i);
 			if (imp != null)

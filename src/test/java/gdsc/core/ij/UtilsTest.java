@@ -45,4 +45,13 @@ public class UtilsTest
 	{
 		return null;
 	}
+	
+	@Test
+	public void cantIterateOver_getIDList()
+	{
+		for (int i : Utils.getIDList())
+		{
+			System.out.println(i);
+		}		
+	}
 }
