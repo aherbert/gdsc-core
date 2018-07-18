@@ -38,10 +38,10 @@ import org.junit.Test;
 
 import gdsc.core.utils.SimpleArrayUtils;
 import gdsc.test.BaseTimingTask;
+import gdsc.test.LogLevel;
+import gdsc.test.TestComplexity;
 import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
-import gdsc.test.TestSettings.LogLevel;
-import gdsc.test.TestSettings.TestComplexity;
 
 @SuppressWarnings({ "javadoc" })
 public class DetectionGridTest
@@ -156,8 +156,8 @@ public class DetectionGridTest
 			final int[] o = g2.find(p[0], p[1]);
 			Arrays.sort(e);
 			Arrays.sort(o);
-			//TestSettings.debugln(Arrays.toString(e));
-			//TestSettings.debugln(Arrays.toString(o));
+			//TestLog.debugln(Arrays.toString(e));
+			//TestLog.debugln(Arrays.toString(o));
 			Assert.assertArrayEquals(e, o);
 		}
 	}
@@ -293,7 +293,7 @@ public class DetectionGridTest
 		{
 			final double t1 = ts.get(i1).getMean();
 			final double t2 = ts.get(i2).getMean();
-			//TestSettings.debug("%f < %f\n", t1, t2);
+			//TestLog.debug("%f < %f\n", t1, t2);
 			Assert.assertTrue(String.format("%f < %f\n", t1, t2), t1 < t2);
 		}
 	}

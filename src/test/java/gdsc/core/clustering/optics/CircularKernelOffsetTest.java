@@ -31,8 +31,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.core.utils.Maths;
+import gdsc.test.TestComplexity;
+import gdsc.test.TestLog;
 import gdsc.test.TestSettings;
-import gdsc.test.TestSettings.TestComplexity;
 
 @SuppressWarnings({ "javadoc" })
 public class CircularKernelOffsetTest
@@ -62,7 +63,7 @@ public class CircularKernelOffsetTest
 			final double outerArea = outer * pixelArea;
 			final double innerArea = inner * pixelArea;
 			final int skip = size - outer;
-			TestSettings.info("R=%d, outer=%d  %f (%f), Skip=%d  (%f), inner=%d  %f (%f)\n", r, outer, outerArea,
+			TestLog.info("R=%d, outer=%d  %f (%f), Skip=%d  (%f), inner=%d  %f (%f)\n", r, outer, outerArea,
 					outerArea / Math.PI, skip, (double) skip / size, inner, innerArea, innerArea / outerArea);
 
 			// Test for symmetry

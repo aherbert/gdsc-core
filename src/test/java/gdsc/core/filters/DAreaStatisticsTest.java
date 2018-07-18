@@ -36,10 +36,11 @@ import org.junit.Test;
 import gdsc.core.utils.Random;
 import gdsc.core.utils.Statistics;
 import gdsc.test.BaseTimingTask;
+import gdsc.test.LogLevel;
 import gdsc.test.TestAssert;
+import gdsc.test.TestLog;
 import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
-import gdsc.test.TestSettings.LogLevel;
 import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
 
@@ -90,7 +91,7 @@ public class DAreaStatisticsTest
 					final double[] e = a1.getStatistics(x, y, n);
 					final double[] o = a2.getStatistics(x, y, n);
 					TestAssert.assertArrayEqualsRelative(e, o, 1e-6);
-					//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
+					//TestLog.debug("%s vs %s\n", toString(e), toString(o));
 
 					// Check with ImageJ
 					fp.setRoi(new Rectangle(x - n, y - n, 2 * n + 1, 2 * n + 1));
@@ -123,7 +124,7 @@ public class DAreaStatisticsTest
 						final double[] e = a1.getStatistics(x, y, nx, ny);
 						final double[] o = a2.getStatistics(x, y, nx, ny);
 						TestAssert.assertArrayEqualsRelative(e, o, 1e-6);
-						//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
+						//TestLog.debug("%s vs %s\n", toString(e), toString(o));
 
 						// Check with ImageJ
 						fp.setRoi(new Rectangle(x - nx, y - ny, 2 * nx + 1, 2 * ny + 1));
@@ -159,7 +160,7 @@ public class DAreaStatisticsTest
 				final double[] e = a1.getStatistics(roi);
 				final double[] o = a2.getStatistics(roi);
 				TestAssert.assertArrayEqualsRelative(e, o, 1e-6);
-				//TestSettings.debug("%s vs %s\n", toString(e), toString(o));
+				//TestLog.debug("%s vs %s\n", toString(e), toString(o));
 
 				// Check with ImageJ
 				fp.setRoi(roi);
@@ -303,7 +304,7 @@ public class DAreaStatisticsTest
 			ts.report(size);
 		// Do not let this fail the test suite
 		//Assert.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
-		TestSettings.logSpeedTestResult(ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
+		TestLog.logSpeedTestResult(ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
 				"DAreaStatistics Density=%g RollingIsFaster=%b N=%d:%d: rolling %s vs simple %s", density,
 				rollingIsFaster, minN, maxN, ts.get(-2).getMean(), ts.get(-1).getMean());
 	}

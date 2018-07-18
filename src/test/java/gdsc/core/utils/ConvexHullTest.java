@@ -33,8 +33,9 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.test.LogLevel;
+import gdsc.test.TestLog;
 import gdsc.test.TestSettings;
-import gdsc.test.TestSettings.LogLevel;
 
 @SuppressWarnings({ "javadoc" })
 public class ConvexHullTest
@@ -83,7 +84,7 @@ public class ConvexHullTest
 
 		//for (int i = 0; i < ex.length; i++)
 		//{
-		//	TestSettings.info("[%d] %f==%f (%f), %f==%f (%f)\n", i, ex[i], hull.x[i],
+		//	TestLog.info("[%d] %f==%f (%f), %f==%f (%f)\n", i, ex[i], hull.x[i],
 		//			hull.x[i] - ex[i], ey[i], hull.y[i], hull.y[i] - ey[i]);
 		//}
 
@@ -137,10 +138,10 @@ public class ConvexHullTest
 			if (TestSettings.allow(LogLevel.DEBUG))
 			{
 				for (int i = 0; i < size; i++)
-					TestSettings.info("[%d] %f,%f\n", i, data[0][i], data[1][i]);
+					TestLog.info("[%d] %f,%f\n", i, data[0][i], data[1][i]);
 				if (hull != null)
 					for (int i = 0; i < hull.x.length; i++)
-						TestSettings.info("H[%d] %f,%f\n", i, hull.x[i], hull.y[i]);
+						TestLog.info("H[%d] %f,%f\n", i, hull.x[i], hull.y[i]);
 			}
 			throw e;
 		}

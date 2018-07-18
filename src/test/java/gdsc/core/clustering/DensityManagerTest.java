@@ -33,8 +33,9 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.test.TestComplexity;
+import gdsc.test.TestLog;
 import gdsc.test.TestSettings;
-import gdsc.test.TestSettings.TestComplexity;
 
 @SuppressWarnings({ "javadoc" })
 public class DensityManagerTest
@@ -102,7 +103,7 @@ public class DensityManagerTest
 
 				final String msg = String.format("Grid vs Triangle. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
-				TestSettings.info(msg);
+				TestLog.info(msg);
 				Assert.assertTrue(msg, t2 < t1);
 			}
 		}
@@ -131,7 +132,7 @@ public class DensityManagerTest
 
 				final String msg = String.format("Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
-				TestSettings.info(msg);
+				TestLog.info(msg);
 				Assert.assertTrue(msg, t2 < t1);
 			}
 		}
@@ -178,7 +179,7 @@ public class DensityManagerTest
 
 				final String msg = String.format("Sum Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
-				TestSettings.info(msg);
+				TestLog.info(msg);
 				Assert.assertTrue(msg, t2 < t1);
 			}
 		}
@@ -245,7 +246,7 @@ public class DensityManagerTest
 				final String msg = String.format(
 						"calculateBlockDensity2 vs calculateBlockDensity. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
-				TestSettings.info(msg);
+				TestLog.info(msg);
 				Assert.assertTrue(msg, t2 < t1);
 			}
 		}
@@ -276,9 +277,9 @@ public class DensityManagerTest
 						"calculateBlockDensity2 vs calculateBlockDensity3. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
 				// This is not always faster
-				//TestSettings.info(msg);
+				//TestLog.info(msg);
 				//Assert.assertTrue(msg, t2 < t1);
-				TestSettings.logSpeedTestResult(t2 < t1, msg);
+				TestLog.logSpeedTestResult(t2 < t1, msg);
 			}
 		}
 	}

@@ -31,7 +31,7 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 
-import gdsc.test.TestSettings;
+import gdsc.test.TestLog;
 
 @SuppressWarnings({ "javadoc" })
 public class SIPrefixTest
@@ -140,7 +140,7 @@ public class SIPrefixTest
 	{
 		value *= sign;
 		final SIPrefix o = SIPrefix.getPrefix(value);
-		TestSettings.info("Value %s = %s %s (%s)\n", value, o.convert(value), o.getName(), o.getSymbol());
+		TestLog.info("Value %s = %s %s (%s)\n", value, o.convert(value), o.getName(), o.getSymbol());
 		Assert.assertEquals(e, o);
 	}
 }

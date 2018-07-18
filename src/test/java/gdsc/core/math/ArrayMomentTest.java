@@ -35,6 +35,7 @@ import org.junit.Test;
 import gdsc.core.data.IntegerType;
 import gdsc.core.utils.Statistics;
 import gdsc.test.TestAssert;
+import gdsc.test.TestLog;
 import gdsc.test.TestSettings;
 
 @SuppressWarnings({ "javadoc" })
@@ -506,7 +507,7 @@ public class ArrayMomentTest
 			m2.increment(d);
 			r2.add(d);
 		}
-		TestSettings.info("Mean %s vs %s, SD %s vs %s\n", Double.toString(m1.getFirstMoment()[0]),
+		TestLog.info("Mean %s vs %s, SD %s vs %s\n", Double.toString(m1.getFirstMoment()[0]),
 				Double.toString(r2.getFirstMoment()[0]), Double.toString(m1.getStandardDeviation()[0]),
 				Double.toString(r2.getStandardDeviation()[0]));
 		TestAssert.assertEqualsRelative("Mean", m1.getFirstMoment()[0], r2.getFirstMoment()[0], DELTA);

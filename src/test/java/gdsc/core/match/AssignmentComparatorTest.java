@@ -34,8 +34,8 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Test;
 
 import gdsc.test.BaseTimingTask;
+import gdsc.test.LogLevel;
 import gdsc.test.TestSettings;
-import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TimingService;
 
 @SuppressWarnings({ "javadoc" })

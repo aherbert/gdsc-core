@@ -30,8 +30,9 @@ package gdsc.core.math.interpolation;
 import org.junit.Assume;
 import org.junit.Test;
 
+import gdsc.test.LogLevel;
+import gdsc.test.TestLog;
 import gdsc.test.TestSettings;
-import gdsc.test.TestSettings.LogLevel;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectIntProcedure;
 
@@ -148,7 +149,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					TestSettings.info("%s = %d\n", a, b);
+					TestLog.info("%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -317,7 +318,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					TestSettings.info("%s = %d\n", a, b);
+					TestLog.info("%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -407,7 +408,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					TestSettings.info("%s = %d\n", a, b);
+					TestLog.info("%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -600,7 +601,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					TestSettings.info("%s = %d\n", a, b);
+					TestLog.info("%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -678,7 +679,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					TestSettings.info("%s = %d\n", a, b);
+					TestLog.info("%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -695,7 +696,7 @@ public class CustomTricubicFunctionTest
 	{
 		// DoubleCustomTricubicFunction#value0(double[], double[], double[])
 		Assume.assumeTrue(TestSettings.allow(level));
-		TestSettings.log(level, inlineValue());
+		TestLog.log(level, inlineValue());
 	}
 
 	@Test
@@ -704,7 +705,7 @@ public class CustomTricubicFunctionTest
 		// DoubleCustomTricubicFunction#value(double[])
 		// DoubleCustomTricubicFunction#value(float[])
 		Assume.assumeTrue(TestSettings.allow(level));
-		TestSettings.log(level, inlineValueWithPowerTable());
+		TestLog.log(level, inlineValueWithPowerTable());
 	}
 
 	@Test
@@ -712,7 +713,7 @@ public class CustomTricubicFunctionTest
 	{
 		// CustomTricubicFunction.computePowerTable
 		Assume.assumeTrue(TestSettings.allow(level));
-		TestSettings.log(level, inlineComputePowerTable());
+		TestLog.log(level, inlineComputePowerTable());
 	}
 
 	@Test
@@ -720,7 +721,7 @@ public class CustomTricubicFunctionTest
 	{
 		// DoubleCustomTricubicFunction#value1(double[], double[], double[], double[])
 		Assume.assumeTrue(TestSettings.allow(level));
-		TestSettings.log(level, inlineValue1());
+		TestLog.log(level, inlineValue1());
 	}
 
 	@Test
@@ -731,7 +732,7 @@ public class CustomTricubicFunctionTest
 		// DoubleCustomTricubicFunction#value(float[], double[])
 		// DoubleCustomTricubicFunction#gradient(float[], double[])
 		Assume.assumeTrue(TestSettings.allow(level));
-		TestSettings.log(level, inlineValue1WithPowerTable());
+		TestLog.log(level, inlineValue1WithPowerTable());
 	}
 
 	@Test
@@ -740,7 +741,7 @@ public class CustomTricubicFunctionTest
 		// DoubleCustomTricubicFunction#value(double[], double[], double[], double[])
 		// DoubleCustomTricubicFunction#value(float[], float[], float[], double[])
 		Assume.assumeTrue(TestSettings.allow(level));
-		TestSettings.log(level, inlineValue1WithPowerTableN());
+		TestLog.log(level, inlineValue1WithPowerTableN());
 	}
 
 	@Test
@@ -748,7 +749,7 @@ public class CustomTricubicFunctionTest
 	{
 		// DoubleCustomTricubicFunction#value2(double[], double[], double[], double[], double[])
 		Assume.assumeTrue(TestSettings.allow(level));
-		TestSettings.log(level, inlineValue2());
+		TestLog.log(level, inlineValue2());
 	}
 
 	@Test
@@ -757,7 +758,7 @@ public class CustomTricubicFunctionTest
 		// DoubleCustomTricubicFunction#value(double[], double[], double[])
 		// DoubleCustomTricubicFunction#value(float[], double[], double[])
 		Assume.assumeTrue(TestSettings.allow(level));
-		TestSettings.log(level, inlineValue2WithPowerTable());
+		TestLog.log(level, inlineValue2WithPowerTable());
 	}
 
 	@Test
@@ -766,6 +767,6 @@ public class CustomTricubicFunctionTest
 		// DoubleCustomTricubicFunction#value(double[], double[], double[], double[], double[],
 		// DoubleCustomTricubicFunction#value(float[], float[], float[], float[], double[],
 		Assume.assumeTrue(TestSettings.allow(level));
-		TestSettings.log(level, inlineValue2WithPowerTableN());
+		TestLog.log(level, inlineValue2WithPowerTableN());
 	}
 }

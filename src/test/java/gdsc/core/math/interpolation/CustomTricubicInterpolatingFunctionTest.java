@@ -34,10 +34,11 @@ import org.junit.Test;
 
 import gdsc.core.utils.Sort;
 import gdsc.test.BaseTimingTask;
+import gdsc.test.LogLevel;
+import gdsc.test.TestComplexity;
+import gdsc.test.TestLog;
 import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
-import gdsc.test.TestSettings.LogLevel;
-import gdsc.test.TestSettings.TestComplexity;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.procedure.TIntObjectProcedure;
@@ -213,14 +214,14 @@ public class CustomTricubicInterpolatingFunctionTest
 	public void canConstructInlineComputeCoefficients()
 	{
 		Assume.assumeTrue(TestSettings.allow(level));
-		TestSettings.log(level, inlineComputeCoefficients());
+		TestLog.log(level, inlineComputeCoefficients());
 	}
 
 	@Test
 	public void canConstructInlineComputeCoefficientsCollectTerms()
 	{
 		Assume.assumeTrue(TestSettings.allow(level));
-		TestSettings.log(level, inlineComputeCoefficientsCollectTerms());
+		TestLog.log(level, inlineComputeCoefficientsCollectTerms());
 	}
 
 	private abstract class MyTimingTask extends BaseTimingTask

@@ -31,6 +31,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import gdsc.test.TestLog;
 import gdsc.test.TestSettings;
 
 @SuppressWarnings({ "javadoc" })
@@ -83,7 +84,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 		}
 		start2 = System.nanoTime() - start2;
 
-		TestSettings.logSpeedTestResult(start1 < start2, "getValues = %d : values for loop = %d : %fx\n", start1,
+		TestLog.logSpeedTestResult(start1 < start2, "getValues = %d : values for loop = %d : %fx\n", start1,
 				start2, (1.0 * start2) / start1);
 	}
 
@@ -108,7 +109,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 			}
 		start2 = System.nanoTime() - start2;
 
-		TestSettings.logSpeedTestResult(start1 < start2, "getValues = %d : iterator<double> = %d : %fx\n", start1,
+		TestLog.logSpeedTestResult(start1 < start2, "getValues = %d : iterator<double> = %d : %fx\n", start1,
 				start2, (1.0 * start2) / start1);
 	}
 
@@ -133,7 +134,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 			}
 		start2 = System.nanoTime() - start2;
 
-		TestSettings.logSpeedTestResult(start1 < start2, "getValues = %d : iterator<Double> = %d : %fx\n", start1,
+		TestLog.logSpeedTestResult(start1 < start2, "getValues = %d : iterator<Double> = %d : %fx\n", start1,
 				start2, (1.0 * start2) / start1);
 	}
 

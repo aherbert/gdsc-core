@@ -35,9 +35,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.core.utils.Random;
+import gdsc.test.LogLevel;
+import gdsc.test.TestComplexity;
+import gdsc.test.TestLog;
 import gdsc.test.TestSettings;
-import gdsc.test.TestSettings.LogLevel;
-import gdsc.test.TestSettings.TestComplexity;
 
 @SuppressWarnings({ "javadoc" })
 public class ClusteringEngineTest
@@ -80,7 +81,7 @@ public class ClusteringEngineTest
 		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
 
 		final LogLevel level = (t2 < t1) ? LogLevel.WARN : LogLevel.INFO;
-		TestSettings.log(level, "SpeedTest (Low Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1,
+		TestLog.log(level, "SpeedTest (Low Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1,
 				t2, (double) t1 / t2);
 	}
 
@@ -99,7 +100,7 @@ public class ClusteringEngineTest
 		final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
 		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
 
-		TestSettings.info("SpeedTest (High Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1, t2,
+		TestLog.info("SpeedTest (High Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1, t2,
 				(double) t1 / t2);
 		Assert.assertTrue(t1 < t2);
 	}
@@ -119,7 +120,7 @@ public class ClusteringEngineTest
 		final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
 		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE, radius);
 
-		TestSettings.info("SpeedTest Closest %d, Pairwise %d = %fx faster\n", t1, t2, (double) t1 / t2);
+		TestLog.info("SpeedTest Closest %d, Pairwise %d = %fx faster\n", t1, t2, (double) t1 / t2);
 		Assert.assertTrue(t2 < t1);
 	}
 
@@ -255,7 +256,7 @@ public class ClusteringEngineTest
 		final long t1 = runSpeedTest(points, algorithm, radius, time, 1);
 		final long t2 = runSpeedTest(points, algorithm, radius, time, 8);
 
-		TestSettings.info("Threading SpeedTest %s : Single %d, Multi-threaded %d = %fx faster\n", algorithm.toString(),
+		TestLog.info("Threading SpeedTest %s : Single %d, Multi-threaded %d = %fx faster\n", algorithm.toString(),
 				t1, t2, (double) t1 / t2);
 		Assert.assertTrue(t2 < t1);
 	}
@@ -287,7 +288,7 @@ public class ClusteringEngineTest
 		final ArrayList<ClusterPoint> points = createPoints(rg, n, size);
 
 		// Report density of the clustering we are testing. Size/radius are in nm
-		//TestSettings.debug("Testing n=%d, Size=%d, Density=%s um^-2, Radius=%s nm\n", n, size,
+		//TestLog.debug("Testing n=%d, Size=%d, Density=%s um^-2, Radius=%s nm\n", n, size,
 		//		Utils.rounded(n * 1e6 / (size * size)), Utils.rounded(radius));
 
 		final ArrayList<Cluster> exp = findClusters(points, radius);
@@ -316,11 +317,11 @@ public class ClusteringEngineTest
 
 	private static void print(String name, ArrayList<Cluster> clusters)
 	{
-		TestSettings.info(name + " : size=%d\n", clusters.size());
+		TestLog.info(name + " : size=%d\n", clusters.size());
 		for (int i = 0; i < clusters.size(); i++)
 		{
 			final Cluster c = clusters.get(i);
-			TestSettings.info("[%d] : head=%d, n=%d, cx=%g, cy=%g\n", i, c.head.id, c.n, c.x, c.y);
+			TestLog.info("[%d] : head=%d, n=%d, cx=%g, cy=%g\n", i, c.head.id, c.n, c.x, c.y);
 		}
 	}
 

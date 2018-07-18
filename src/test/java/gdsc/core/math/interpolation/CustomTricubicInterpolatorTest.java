@@ -50,9 +50,10 @@ import gdsc.core.utils.Maths;
 import gdsc.core.utils.SimpleArrayUtils;
 import gdsc.core.utils.Statistics;
 import gdsc.test.BaseTimingTask;
+import gdsc.test.LogLevel;
 import gdsc.test.TestAssert;
+import gdsc.test.TestLog;
 import gdsc.test.TestSettings;
-import gdsc.test.TestSettings.LogLevel;
 import gdsc.test.TimingResult;
 import gdsc.test.TimingService;
 
@@ -543,7 +544,7 @@ public class CustomTricubicInterpolatorTest
 			sx = s * (1.0 + Maths.pow2((dz + gamma) / zDepth) * 0.5);
 			sy = s * (1.0 + Maths.pow2((dz - gamma) / zDepth) * 0.5);
 
-			//TestSettings.debug("%d = %f,%f\n", zz, sx, sy);
+			//TestLog.debug("%d = %f,%f\n", zz, sx, sy);
 
 			final double norm = 1.0 / (2 * Math.PI * sx * sy);
 
@@ -647,11 +648,11 @@ public class CustomTricubicInterpolatorTest
 							final boolean signOK = (df_da * df_daA[j]) >= 0;
 							final boolean ok = eq.almostEqualRelativeOrAbsolute(df_da, df_daA[j]);
 							Assert.assertTrue(df_da + " sign != " + df_daA[j], signOK);
-							//TestSettings.debug("[%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", xx, yy, zz, df_da2, j,
+							//TestLog.debug("[%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", xx, yy, zz, df_da2, j,
 							//		df_daA[j], ok);
 							//if (!ok)
 							//{
-							//	TestSettings.info("[%.1f,%.1f,%.1f] %f == [%d] %f?\n", xx, yy, zz, df_da2, j, df_daA[j]);
+							//	TestLog.info("[%.1f,%.1f,%.1f] %f == [%d] %f?\n", xx, yy, zz, df_da2, j, df_daA[j]);
 							//}
 							Assert.assertTrue(df_da + " != " + df_daA[j], ok);
 
@@ -660,11 +661,11 @@ public class CustomTricubicInterpolatorTest
 							{
 								Assert.assertTrue(d2f_da2 + " sign != " + d2f_da2A[j], (d2f_da2 * d2f_da2A[j]) >= 0);
 								//boolean ok = eq.almostEqualRelativeOrAbsolute(d2f_da2, d2f_da2A[j]);
-								//TestSettings.debug("%d [%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", j, xx, yy, zz, d2f_da2,
+								//TestLog.debug("%d [%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", j, xx, yy, zz, d2f_da2,
 								//		j, d2f_da2A[j], ok);
 								//if (!ok)
 								//{
-								//TestSettings.debug("%d [%.1f,%.1f,%.1f] %f == [%d] %f?\n", j, xx, yy, zz, d2f_da2, j,
+								//TestLog.debug("%d [%.1f,%.1f,%.1f] %f == [%d] %f?\n", j, xx, yy, zz, d2f_da2, j,
 								//		d2f_da2A[j]);
 								//}
 								Assert.assertTrue(d2f_da2 + " != " + d2f_da2A[j],
@@ -1139,7 +1140,7 @@ public class CustomTricubicInterpolatorTest
 			final TimingResult r2 = ts.get(-i - 1);
 			final double t1 = r1.getMean();
 			final double t2 = r2.getMean();
-			TestSettings.logSpeedTestResult(t1 < t2, "%s  %f vs %  %f : %.2fx", r1.getTask().getName(), t1,
+			TestLog.logSpeedTestResult(t1 < t2, "%s  %f vs %  %f : %.2fx", r1.getTask().getName(), t1,
 					r2.getTask().getName(), t2, t2 / t1);
 		}
 	}
@@ -1328,7 +1329,7 @@ public class CustomTricubicInterpolatorTest
 		f1.write(b);
 
 		final byte[] bytes = b.toByteArray();
-		//TestSettings.debug("Single precision = %b, size = %d, memory estimate = %d\n", singlePrecision, bytes.length,
+		//TestLog.debug("Single precision = %b, size = %d, memory estimate = %d\n", singlePrecision, bytes.length,
 		//		CustomTricubicInterpolatingFunction.estimateSize(new int[] { x, y, z })
 		//				.getMemoryFootprint(singlePrecision));
 		final CustomTricubicInterpolatingFunction f2 = CustomTricubicInterpolatingFunction
@@ -1451,7 +1452,7 @@ public class CustomTricubicInterpolatorTest
 									for (int c = 0; c < 3; c++)
 									{
 										// The function may change direction so check the 2nd derivative magnitude is similar
-										//TestSettings.debug("[%d] %f vs %f\n", c, d2f_da2A[c], d2f_da2B[c], DoubleEquality.relativeError(d2f_da2A[c], d2f_da2B[c]));
+										//TestLog.debug("[%d] %f vs %f\n", c, d2f_da2A[c], d2f_da2B[c], DoubleEquality.relativeError(d2f_da2A[c], d2f_da2B[c]));
 										d2f_da2A[c] = Math.abs(d2f_da2A[c]);
 										d2f_da2B[c] = Math.abs(d2f_da2B[c]);
 										value[c].add(DoubleEquality.relativeError(d2f_da2A[c], d2f_da2B[c]));
@@ -1465,7 +1466,7 @@ public class CustomTricubicInterpolatorTest
 			for (int c = 0; c < 3; c++)
 				// The second gradients are so different that this should fail
 				same = same && value[c].getMean() < 0.01;
-			//TestSettings.debug("d2yda2[%d] Error = %f +/- %f\n", c, value[c].getMean(),
+			//TestLog.debug("d2yda2[%d] Error = %f +/- %f\n", c, value[c].getMean(),
 			//		value[c].getStandardDeviation());
 			Assert.assertFalse(same);
 		}
@@ -1499,7 +1500,7 @@ public class CustomTricubicInterpolatorTest
 			{
 				final double[] optimum = f1.search(true, i, 0, 0);
 				//double d = Maths.distance(cx, cy, cz, optimum[0], optimum[1], optimum[2]);
-				//TestSettings.debug("[%d] %f,%f,%f %d = %s : dist = %f : error = %f\n", ii, cx, cy, cz, i,
+				//TestLog.debug("[%d] %f,%f,%f %d = %s : dist = %f : error = %f\n", ii, cx, cy, cz, i,
 				//		Arrays.toString(optimum), d, DoubleEquality.relativeError(amplitude, optimum[3]));
 
 				// Skip 0 to 1 as it moves from an exact node value to interpolation
@@ -1508,7 +1509,7 @@ public class CustomTricubicInterpolatorTest
 				{
 					@SuppressWarnings("null")
 					final double d = Maths.distance(last[0], last[1], last[2], optimum[0], optimum[1], optimum[2]);
-					TestSettings.info("[%d] %f,%f,%f %d = %s : dist = %f : change = %g\n", ii, cx, cy, cz, i,
+					TestLog.info("[%d] %f,%f,%f %d = %s : dist = %f : change = %g\n", ii, cx, cy, cz, i,
 							Arrays.toString(optimum), d, DoubleEquality.relativeError(last[3], optimum[3]));
 					Assert.assertTrue(optimum[3] >= last[3]);
 				}

@@ -84,10 +84,11 @@ import gdsc.core.match.RandIndex;
 import gdsc.core.utils.Maths;
 import gdsc.core.utils.PartialSort;
 import gdsc.test.BaseTimingTask;
+import gdsc.test.LogLevel;
 import gdsc.test.TestAssert;
+import gdsc.test.TestComplexity;
+import gdsc.test.TestLog;
 import gdsc.test.TestSettings;
-import gdsc.test.TestSettings.LogLevel;
-import gdsc.test.TestSettings.TestComplexity;
 import gdsc.test.TimingResult;
 import gdsc.test.TimingService;
 
@@ -381,7 +382,7 @@ public class OPTICSManagerTest
 				//{
 				//	double[] dd = d[i].clone();
 				//	Arrays.sort(dd);
-				//	TestSettings.info("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
+				//	TestLog.info("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
 				//}
 
 				// Use max range
@@ -412,7 +413,7 @@ public class OPTICSManagerTest
 					final double expR = order.getReachability(it);
 					final double obsR = r1.get(i).reachabilityDistance;
 
-					//TestSettings.debug("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
+					//TestLog.debug("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
 					//		r1.get(i).coreDistance, expPre, obsPre);
 
 					TestAssert.assertEquals(expId, obsId, "[%d] Id", i);
@@ -466,7 +467,7 @@ public class OPTICSManagerTest
 				//{
 				//	double[] dd = d[i].clone();
 				//	Arrays.sort(dd);
-				//	TestSettings.info("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
+				//	TestLog.info("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
 				//}
 
 				final OPTICSResult r1 = om.fastOptics(minPts);
@@ -498,7 +499,7 @@ public class OPTICSManagerTest
 					final double expR = order.getReachability(it);
 					final double obsR = r1.get(i).reachabilityDistance;
 
-					//TestSettings.debug("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
+					//TestLog.debug("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
 					//		r1.get(i).coreDistance, expPre, obsPre);
 
 					Assert.assertEquals(prefix + "Id", expId, obsId);
@@ -550,7 +551,7 @@ public class OPTICSManagerTest
 				//{
 				//	double[] dd = d[i].clone();
 				//	Arrays.sort(dd);
-				//	TestSettings.info("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
+				//	TestLog.info("%d Core %f, next %f\n", i, dd[minPts - 1], dd[minPts]);
 				//}
 
 				// Use max range
@@ -572,7 +573,7 @@ public class OPTICSManagerTest
 				int clusterId = 0;
 				for (final de.lmu.ifi.dbs.elki.data.Cluster<OPTICSModel> c : allClusters)
 				{
-					//TestSettings.debug("%d-%d\n", c.getModel().getStartIndex(), c.getModel().getEndIndex());
+					//TestLog.debug("%d-%d\n", c.getModel().getStartIndex(), c.getModel().getEndIndex());
 
 					// Add the cluster Id to the expClusters
 					clusterId++;
@@ -585,7 +586,7 @@ public class OPTICSManagerTest
 				final int[] obsClusters = r1.getClusters();
 
 				//for (int i = 0; i < n; i++)
-				//	TestSettings.info("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
+				//	TestLog.info("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
 
 				Assert.assertEquals(1, RandIndex.randIndex(expClusters, obsClusters), 0);
 			}
@@ -616,10 +617,10 @@ public class OPTICSManagerTest
 
 				Assert.assertTrue(o1.size() >= o2.size());
 
-				//TestSettings.debug("%d : %d\n", n, minPts);
+				//TestLog.debug("%d : %d\n", n, minPts);
 				for (final OPTICSCluster cluster : o2)
 					Assert.assertTrue(cluster.getLevel() == 0);
-				//TestSettings.debug(cluster);
+				//TestLog.debug(cluster);
 			}
 		}
 	}
@@ -703,17 +704,17 @@ public class OPTICSManagerTest
 					final int[] obsClusters = r1.getClusters();
 
 					//for (int i = 0; i < n; i++)
-					//	TestSettings.debug("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
+					//	TestLog.debug("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
 
 					// Should be similar
 					ri.compute(expClusters, obsClusters);
 
 					final double r = ri.getRandIndex();
 					if (ri.getAdjustedRandIndex() > 0)
-						TestSettings.info("FastOPTICS vs ELKI : %d,%d : [%d] r=%f (%f)\n", n, minPts, loop, r,
+						TestLog.info("FastOPTICS vs ELKI : %d,%d : [%d] r=%f (%f)\n", n, minPts, loop, r,
 								ri.getAdjustedRandIndex());
 					else
-						TestSettings.log(LogLevel.SILENT, "WARNING : FastOPTICS vs ELKI : %d,%d : [%d] r=%f (%f)\n", n,
+						TestLog.log(LogLevel.SILENT, "WARNING : FastOPTICS vs ELKI : %d,%d : [%d] r=%f (%f)\n", n,
 								minPts, loop, r, ri.getAdjustedRandIndex());
 					//Assert.assertTrue(ri.getAdjustedRandIndex() > 0);
 					sum += r;
@@ -721,9 +722,9 @@ public class OPTICSManagerTest
 
 				sum /= nLoops;
 				if (sum > 0.6)
-					TestSettings.info("FastOPTICS vs ELKI : %d,%d : r=%f\n", n, minPts, sum);
+					TestLog.info("FastOPTICS vs ELKI : %d,%d : r=%f\n", n, minPts, sum);
 				else
-					TestSettings.log(LogLevel.SILENT, "WARNING : FastOPTICS vs ELKI : %d,%d : r=%f\n", n, minPts, sum);
+					TestLog.log(LogLevel.SILENT, "WARNING : FastOPTICS vs ELKI : %d,%d : r=%f\n", n, minPts, sum);
 				//Assert.assertTrue(sum > 0.6);
 			}
 		}
@@ -787,9 +788,9 @@ public class OPTICSManagerTest
 				final long elki = t2 - t1;
 				final long smlm1 = t3 - t2;
 				final long smlm2 = t4 - t3;
-				TestSettings.logSpeedTestResult(smlm1 < elki, "ELKI = %d, SMLM = %d = %f\n", elki, smlm1,
+				TestLog.logSpeedTestResult(smlm1 < elki, "ELKI = %d, SMLM = %d = %f\n", elki, smlm1,
 						elki / (double) smlm1);
-				TestSettings.logSpeedTestResult(smlm2 < elki, "ELKI = %d, SMLM (default) = %d = %f\n", elki, smlm2,
+				TestLog.logSpeedTestResult(smlm2 < elki, "ELKI = %d, SMLM (default) = %d = %f\n", elki, smlm2,
 						elki / (double) smlm2);
 				//Assert.assertTrue(smlm1 < elki);
 				//Assert.assertTrue(smlm2 < elki);
@@ -847,22 +848,22 @@ public class OPTICSManagerTest
     					sum += r;
     					c++;
     					final double ari = ri.getAdjustedRandIndex();
-    					TestSettings.info(
+    					TestLog.info(
     							"xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s : r=%f (%f)\n",
     							xi, n, minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode, r, ari);
     					// This should always be true, i.e. better than chance
     					TestAssert.assertTrue(0 < ari, "Adjusted rand index is below zero: %s", sampleMode);
     				}
     				final double r = sum / c;
-					TestSettings.info(
+					TestLog.info(
 							"xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, sampleMode=%s : r=%f\n",
 							xi, n, minPts, nSplits, nProjections, sampleMode, r);
 					// This may fail with certain random seeds
 					if (randMin < r)
-						TestSettings.info(
+						TestLog.info(
 								"xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, sampleMode=%s : r=%f\n",
 								xi, n, minPts, nSplits, nProjections, sampleMode, r);
-					else TestSettings.log(LogLevel.SILENT,
+					else TestLog.log(LogLevel.SILENT,
 								"WARNING : Not similar fastOPTICS : xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, sampleMode=%s : r=%f\n",
 								xi, n, minPts, nSplits, nProjections, sampleMode, r);
 				}
@@ -1007,7 +1008,7 @@ public class OPTICSManagerTest
 			final double expR = r1.get(i).reachabilityDistance;
 			final double obsR = r2.get(i).reachabilityDistance;
 
-			//TestSettings.debug("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
+			//TestLog.debug("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
 			//		r1.get(i).coreDistance, expPre, obsPre);
 
 			TestAssert.assertEqualsRelative(expC, obsC, 1e-5, "%s C %d", title, i);
@@ -1135,11 +1136,11 @@ public class OPTICSManagerTest
 		//				}
 		//			}
 		//			time = System.nanoTime() - time;
-		//			TestSettings.info("Time = %d\n", time);
+		//			TestLog.info("Time = %d\n", time);
 		//			if (i < 5)
 		//				time2 += time;
 		//		}
-		//		TestSettings.info("Time = %d\n", time2);
+		//		TestLog.info("Time = %d\n", time2);
 	}
 
 	@Test
@@ -1170,7 +1171,7 @@ public class OPTICSManagerTest
 				k = 1;
 			for (int i = 0; i < n; i++)
 				e[i] = (float) Math.sqrt(PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, d2[i], n, k + 1)[0]);
-			//TestSettings.debug("e=%s, o=%s\n", Arrays.toString(e), Arrays.toString(o));
+			//TestLog.debug("e=%s, o=%s\n", Arrays.toString(e), Arrays.toString(o));
 			Assert.assertArrayEquals(e, o, 0);
 		}
 	}
@@ -1218,7 +1219,7 @@ public class OPTICSManagerTest
 			for (final int minPts : points)
 				//float d =
 				OPTICSManager.computeGeneratingDistance(minPts, area, n);
-		//TestSettings.debug("k=%d, volumeDS=%.1f, N=%d, d=%f\n", minPts, area, n, d);
+		//TestLog.debug("k=%d, volumeDS=%.1f, N=%d, d=%f\n", minPts, area, n, d);
 	}
 
 	@Test
@@ -1264,7 +1265,7 @@ public class OPTICSManagerTest
 
 			for (final float radius : new float[] { 0.01f })
 				om.optics(radius, minPts);
-			//TestSettings.debug("OPTICS %d @ %.1f,%d\n", n, radius, minPts);
+			//TestLog.debug("OPTICS %d @ %.1f,%d\n", n, radius, minPts);
 		}
 	}
 
@@ -1371,7 +1372,7 @@ public class OPTICSManagerTest
 
 		//for (int i = 0; i < c1.length; i++)
 		//{
-		//	TestSettings.info("[%d] %d == %d\n", i, c1[i], c2[i]);
+		//	TestLog.info("[%d] %d == %d\n", i, c1[i], c2[i]);
 		//}
 
 		Assert.assertArrayEquals(c1, c2);
@@ -1404,7 +1405,7 @@ public class OPTICSManagerTest
 		// - unrealistic data
 		// - The optimised DBSCAN implementation not computing distances if not needed.
 
-		TestSettings.info("dBSCANIsFasterThanOPTICS %d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
+		TestLog.info("dBSCANIsFasterThanOPTICS %d < %d (%.2f)\n", t3, t2, (double) t2 / t3);
 	}
 
 	@Test
@@ -1480,7 +1481,7 @@ public class OPTICSManagerTest
 		t3 = t3 - t2;
 		t2 = t2 - t1;
 
-		TestSettings.logSpeedTestResult(t3 < t2, "dBSCANInnerCircularIsFasterWhenComparisonsIsHigh %d < %d (%.2f)\n",
+		TestLog.logSpeedTestResult(t3 < t2, "dBSCANInnerCircularIsFasterWhenComparisonsIsHigh %d < %d (%.2f)\n",
 				t3, t2, (double) t2 / t3);
 	}
 
@@ -1525,7 +1526,7 @@ public class OPTICSManagerTest
 		t3 = t3 - t2;
 		t2 = t2 - t1;
 
-		TestSettings.logSpeedTestResult(t3 < t2, "oPTICSCircularIsFasterWhenDensityIsHigh %d < %d (%.2f)\n", t3, t2,
+		TestLog.logSpeedTestResult(t3 < t2, "oPTICSCircularIsFasterWhenDensityIsHigh %d < %d (%.2f)\n", t3, t2,
 				(double) t2 / t3);
 	}
 
@@ -1940,7 +1941,7 @@ public class OPTICSManagerTest
 			final double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			final int maxResolution = (int) Math.ceil(nMoleculesInSquare);
 
-			TestSettings.info("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
+			TestLog.info("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
 					generatingDistanceE, maxResolution);
 
 			final OPTICSManager[] om = new OPTICSManager[3];
@@ -2020,7 +2021,7 @@ public class OPTICSManagerTest
 			final double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			final int maxResolution = (int) Math.ceil(nMoleculesInSquare);
 
-			TestSettings.info("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
+			TestLog.info("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
 					generatingDistanceE, maxResolution);
 
 			final OPTICSManager[] om = new OPTICSManager[3];
@@ -2092,7 +2093,7 @@ public class OPTICSManagerTest
 			final double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			final int maxResolution = (int) Math.ceil(nMoleculesInCircle);
 
-			TestSettings.info("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
+			TestLog.info("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
 					generatingDistanceE, maxResolution);
 
 			final OPTICSManager[] om = new OPTICSManager[3];
@@ -2165,7 +2166,7 @@ public class OPTICSManagerTest
 			final double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
 			final int maxResolution = (int) Math.ceil(nMoleculesInCircle);
 
-			TestSettings.info("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
+			TestLog.info("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d\n", nMoleculesInSquare, nMoleculesInCircle,
 					generatingDistanceE, maxResolution);
 
 			final OPTICSManager[] om = new OPTICSManager[3];
@@ -2391,7 +2392,7 @@ public class OPTICSManagerTest
 				t2 = System.nanoTime() - t2;
 
 				// Check
-				//TestSettings.debug("LoOP %d vs %d (ELKI) %f\n", t1, t2, (double)t2 / t1);
+				//TestLog.debug("LoOP %d vs %d (ELKI) %f\n", t1, t2, (double)t2 / t1);
 				int i = 0;
 				final DoubleRelation scores = or.getScores();
 				for (final DBIDIter it = scores.iterDBIDs(); it.valid(); it.advance(), i++)
@@ -2404,7 +2405,7 @@ public class OPTICSManagerTest
 					final double expL = scores.doubleValue(it);
 					final double obsL = r1[i];
 
-					//TestSettings.debug("%s %d %d : %f = %f\n", prefix, expId, obsId, expL, obsL);
+					//TestLog.debug("%s %d %d : %f = %f\n", prefix, expId, obsId, expL, obsL);
 
 					Assert.assertEquals(prefix + "Id", expId, obsId);
 					TestAssert.assertEqualsRelative(prefix + "LoOP", expL, obsL, 1e-2);

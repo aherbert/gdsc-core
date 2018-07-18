@@ -35,10 +35,11 @@ import org.junit.Test;
 
 import gdsc.core.clustering.DensityCounter.SimpleMolecule;
 import gdsc.test.BaseTimingTask;
+import gdsc.test.LogLevel;
+import gdsc.test.TestComplexity;
+import gdsc.test.TestLog;
 import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
-import gdsc.test.TestSettings.LogLevel;
-import gdsc.test.TestSettings.TestComplexity;
 
 /**
  * Test the DensityCounter.
@@ -301,7 +302,7 @@ public class DensityCounterTest
 		// non-sync multi = nCells * (9 * d * d)
 		final double d = molecules[0].length * radius * radius / (size * size);
 		final double nCells = (size / radius) * (size / radius);
-		TestSettings.info("Expected Comparisons : Single = %f, Multi non-sync = %f\n", nCells * 5 * d * d,
+		TestLog.info("Expected Comparisons : Single = %f, Multi non-sync = %f\n", nCells * 5 * d * d,
 				nCells * 9 * d * d);
 
 		//@formatter:off
@@ -406,7 +407,7 @@ public class DensityCounterTest
 		// How many distance comparison are we expected to make?
 		// Compute mean density per grid cell (d) = nMolecules * 9 * d.
 		final double d = molecules[0].length * radius * radius / (size * size);
-		TestSettings.info("Expected Comparisons = %f\n", molecules2[0].length * 9.0 * d);
+		TestLog.info("Expected Comparisons = %f\n", molecules2[0].length * 9.0 * d);
 
 		//@formatter:off
 		final TimingService ts = new TimingService();

@@ -35,10 +35,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import gdsc.test.BaseTimingTask;
+import gdsc.test.LogLevel;
+import gdsc.test.TestComplexity;
 import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
-import gdsc.test.TestSettings.LogLevel;
-import gdsc.test.TestSettings.TestComplexity;
 import gnu.trove.set.hash.TIntHashSet;
 
 @SuppressWarnings({ "javadoc" })
@@ -68,7 +68,7 @@ public class SimpleArrayUtilsTest
 		Arrays.sort(e);
 
 		final int[] o = SimpleArrayUtils.flatten(s1);
-		//TestSettings.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
+		//TestLog.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
 		Assert.assertArrayEquals(e, o);
 	}
 
@@ -103,7 +103,7 @@ public class SimpleArrayUtilsTest
 		Arrays.sort(e);
 
 		final int[] o = SimpleArrayUtils.sortMerge(s1, s2);
-		//TestSettings.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
+		//TestLog.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
 		Assert.assertArrayEquals(e, o);
 	}
 
@@ -305,7 +305,7 @@ public class SimpleArrayUtilsTest
 	private static void testGetRanges(int[] in, int[] e)
 	{
 		final int[] o = SimpleArrayUtils.getRanges(in);
-		//TestSettings.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
+		//TestLog.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
 		Assert.assertArrayEquals(e, o);
 	}
 

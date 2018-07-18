@@ -55,7 +55,7 @@ public class RandomTest
 	private static void canComputeSample(Random r, int k, int n)
 	{
 		final int[] sample = r.sample(k, n);
-		//TestSettings.debug("%d from %d = %s\n", k, n, java.util.Arrays.toString(sample));
+		//TestLog.debug("%d from %d = %s\n", k, n, java.util.Arrays.toString(sample));
 		Assert.assertEquals(Math.min(k, n), sample.length);
 		for (int i = 0; i < sample.length; i++)
 			for (int j = i + 1; j < sample.length; j++)

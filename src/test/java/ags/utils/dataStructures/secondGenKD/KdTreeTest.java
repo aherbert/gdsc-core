@@ -43,10 +43,11 @@ import gdsc.core.utils.PartialSort;
 import gdsc.core.utils.Random;
 import gdsc.core.utils.SimpleArrayUtils;
 import gdsc.test.BaseTimingTask;
+import gdsc.test.LogLevel;
+import gdsc.test.TestComplexity;
+import gdsc.test.TestLog;
 import gdsc.test.TestSettings;
 import gdsc.test.TimingService;
-import gdsc.test.TestSettings.LogLevel;
-import gdsc.test.TestSettings.TestComplexity;
 
 @SuppressWarnings({ "javadoc" })
 public class KdTreeTest
@@ -92,7 +93,7 @@ public class KdTreeTest
 						observed[--j] = e.distance;
 
 					final double[] expected = Arrays.copyOf(d2, k);
-					//TestSettings.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestLog.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assert.assertArrayEquals(expected, observed, 0);
@@ -138,7 +139,7 @@ public class KdTreeTest
 						observed[--j] = e.distance;
 
 					final double[] expected = Arrays.copyOf(d2, k);
-					//TestSettings.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestLog.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assert.assertArrayEquals(expected, observed, 0);
@@ -225,7 +226,7 @@ public class KdTreeTest
 					}
 
 					final double[] expected = Arrays.copyOf(d2, k);
-					//TestSettings.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestLog.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assert.assertArrayEquals(expected, observed, 0);
@@ -275,7 +276,7 @@ public class KdTreeTest
 					}
 
 					final double[] expected = Arrays.copyOf(d2, k);
-					//TestSettings.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestLog.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assert.assertArrayEquals(expected, observed, 0);
@@ -498,7 +499,7 @@ public class KdTreeTest
 		ts.repeat(number);
 		ts.repeat(number);
 
-		TestSettings.info("All-vs-all = %d\n", time);
+		TestLog.info("All-vs-all = %d\n", time);
 		ts.report();
 	}
 
