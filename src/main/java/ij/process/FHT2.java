@@ -27,8 +27,8 @@
  */
 package ij.process;
 
-import gdsc.core.utils.Maths;
 import ij.ImageStack;
+import uk.ac.sussex.gdsc.core.utils.Maths;
 
 /**
  * Copy implementation of ij.process.FHT to increase the speed where possible.

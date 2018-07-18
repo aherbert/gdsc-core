@@ -30,7 +30,7 @@ package ij.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
  * This class uses a memory cache to allow seeking within

@@ -34,11 +34,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import gdsc.core.logging.NullTrackProgress;
-import gdsc.core.logging.TrackProgress;
-import gdsc.core.utils.DoubleEquality;
-import gdsc.core.utils.TurboList;
 import ij.util.Tools;
+import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
+import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
+import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
  * Re-implement the TiffDecoder to allow it to use a SeekableStream interface.

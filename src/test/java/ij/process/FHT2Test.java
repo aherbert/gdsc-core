@@ -30,9 +30,9 @@ package ij.process;
 import org.junit.Assert;
 import org.junit.Test;
 
-import gdsc.core.utils.SimpleArrayUtils;
-import gdsc.test.TestAssert;
 import ij.plugin.filter.EDM;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+import uk.ac.sussex.gdsc.test.TestAssert;
 
 @SuppressWarnings({ "javadoc" })
 public class FHT2Test

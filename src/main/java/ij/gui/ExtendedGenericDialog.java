@@ -56,12 +56,12 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import gdsc.core.ij.RecorderUtils;
-import gdsc.core.ij.Utils;
-import gdsc.core.utils.Maths;
-import gdsc.core.utils.TurboList;
 import ij.IJ;
 import ij.plugin.frame.Recorder;
+import uk.ac.sussex.gdsc.core.ij.RecorderUtils;
+import uk.ac.sussex.gdsc.core.ij.Utils;
+import uk.ac.sussex.gdsc.core.utils.Maths;
+import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
  * Extension of the ij.gui.GenericDialog class to add functionality.

@@ -38,16 +38,16 @@ import ags.utils.dataStructures.MaxHeap;
 import ags.utils.dataStructures.trees.secondGenKD.KdTree.Entry;
 import ags.utils.dataStructures.trees.thirdGenKD.DistanceFunction;
 import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction2D;
-import gdsc.core.utils.Maths;
-import gdsc.core.utils.PartialSort;
-import gdsc.core.utils.Random;
-import gdsc.core.utils.SimpleArrayUtils;
-import gdsc.test.BaseTimingTask;
-import gdsc.test.LogLevel;
-import gdsc.test.TestComplexity;
-import gdsc.test.TestLog;
-import gdsc.test.TestSettings;
-import gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.core.utils.Maths;
+import uk.ac.sussex.gdsc.core.utils.PartialSort;
+import uk.ac.sussex.gdsc.core.utils.Random;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+import uk.ac.sussex.gdsc.test.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.LogLevel;
+import uk.ac.sussex.gdsc.test.TestComplexity;
+import uk.ac.sussex.gdsc.test.TestLog;
+import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.TimingService;
 
 @SuppressWarnings({ "javadoc" })
 public class KdTreeTest
