@@ -34,7 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Show the version information contained in the gdsc/core/Version.txt file.
+ * Show the version information contained in the /uk/ac/sussex/gdsc/core/Version.txt file.
  * <p>
  * Uses Semantic Versioning.
  *
@@ -51,7 +51,7 @@ public class Version
 	{
 		// Locate the version file
 		final Class<Version> resourceClass = Version.class;
-		try (final InputStream propertiesStream = resourceClass.getResourceAsStream("/gdsc/core/Version.txt"))
+		try (final InputStream propertiesStream = resourceClass.getResourceAsStream("/uk/ac/sussex/gdsc/core/Version.txt"))
 		{
 			// Read the version properties
 			final Properties props = new Properties();
