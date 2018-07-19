@@ -45,8 +45,8 @@ import uk.ac.sussex.gdsc.core.utils.TurboList;
  * <p>
  * Reference:
  * <p>
- * Hans-Peter Kriegel, Peer Kröger, Erich Schubert, Arthur Zimek:<br />
- * LoOP: Local Outlier Probabilities< br /> In Proceedings of the 18th
+ * Hans-Peter Kriegel, Peer Kröger, Erich Schubert, Arthur Zimek:<br>
+ * LoOP: Local Outlier Probabilities<br> In Proceedings of the 18th
  * International Conference on Information and Knowledge Management (CIKM), Hong
  * Kong, China, 2009
  * </p>
@@ -253,7 +253,7 @@ public class LoOP
 	 * Returns the error function.
 	 *
 	 * <p>
-	 * erf(x) = 2/&radic;&pi; <sub>0</sub>&int;<sup>x</sup> e<sup>-t<sup>2</sup></sup>dt
+	 * erf(x) = 2/&radic;&pi; <sub>0</sub>&int;<sup>x</sup> e<sup>-t*t</sup>dt
 	 * </p>
 	 *
 	 * <p>
@@ -276,7 +276,6 @@ public class LoOP
 		final boolean negative = (x < 0);
 		if (negative)
 			x = -x;
-		// Set this to 40 when computing the limit in the JUnit test
 		if (x > 6.183574750897915)
 			return negative ? -1 : 1;
 

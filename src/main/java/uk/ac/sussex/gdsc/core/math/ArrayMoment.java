@@ -42,7 +42,7 @@ public interface ArrayMoment
 
 	/**
 	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
-	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0&lt;=i&lt;n.
 	 *
 	 * @param data
 	 *            the data
@@ -51,7 +51,7 @@ public interface ArrayMoment
 
 	/**
 	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
-	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0&lt;=i&lt;n.
 	 *
 	 * @param data
 	 *            the data
@@ -60,7 +60,7 @@ public interface ArrayMoment
 
 	/**
 	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
-	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0&lt;=i&lt;n.
 	 *
 	 * @param data
 	 *            the data
@@ -69,7 +69,7 @@ public interface ArrayMoment
 
 	/**
 	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
-	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0&lt;=i&lt;n.
 	 *
 	 * @param data
 	 *            the data
@@ -78,7 +78,7 @@ public interface ArrayMoment
 
 	/**
 	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
-	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0&lt;=i&lt;n.
 	 *
 	 * @param data
 	 *            the data
@@ -87,7 +87,7 @@ public interface ArrayMoment
 
 	/**
 	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
-	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0&lt;=i&lt;n.
 	 *
 	 * @param data
 	 *            the data
@@ -96,7 +96,7 @@ public interface ArrayMoment
 
 	/**
 	 * Add the data. The first set of data defines the number of individual moments to compute. All subsequent data must
-	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0<=i<n.
+	 * be the same size, e.g an array of length n will compute n first and second moments for the range 0&lt;=i&lt;n.
 	 *
 	 * @param data
 	 *            the data

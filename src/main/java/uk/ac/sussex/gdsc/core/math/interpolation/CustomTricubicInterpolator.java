@@ -750,7 +750,7 @@ public class CustomTricubicInterpolator
 	 * double xscale = x2 - x1;
 	 * double yscale = y2 - y1
 	 * double zscale = z2 - y2
-	 * // x>=x1 && x<=x2 && y>=y1 && y<=y2 && z>=z1 && z<=z2
+	 * // x&gt;=x1 &amp;&amp; x&lt;=x2 &amp;&amp; y&gt;=y1 &amp;&amp; y&lt;=y2 &amp;&amp; z&gt;=z1 &amp;&amp; z&lt;=z2
 	 * double value = f.value((x-x1) / xscale, (y-y1) / yscale, (z-z1) / zscale);
 	 * </pre>
      *
@@ -1018,8 +1018,8 @@ public class CustomTricubicInterpolator
      * double xscale = x2 - x1;
      * double yscale = y2 - y1
      * double zscale = z2 - y2
-     * // x>=x1 && x<=x2 && y>=y1 && y<=y2 && z>=z1 && z<=z2
-     * double value = f.value((x-x1) / xscale, (y-y1) / yscale, (z-z1) / zscale);
+ 	 * // x&gt;=x1 &amp;&amp; x&lt;=x2 &amp;&amp; y&gt;=y1 &amp;&amp; y&lt;=y2 &amp;&amp; z&gt;=z1 &amp;&amp; z&lt;=z2
+    * double value = f.value((x-x1) / xscale, (y-y1) / yscale, (z-z1) / zscale);
      * </pre>
      *
      * @param xval All the x-coordinates of the interpolation points, sorted

@@ -893,7 +893,7 @@ public class DensityManager extends CoordinateStore
 	/**
 	 * Calculate the number of pairs within the given radius.
 	 * <p>
-	 * The sum is over i<n, j<n, i!=j
+	 * The sum is over i&lt;n, j&lt;n, i!=j
 	 *
 	 * @param radius
 	 *            the radius
@@ -926,7 +926,7 @@ public class DensityManager extends CoordinateStore
 	/**
 	 * Calculate the number of pairs within the given radius using a nearest neighbour cell grid analysis.
 	 * <p>
-	 * The sum is over i<n, j<n, i!=j
+	 * The sum is over i&lt;n, j&lt;n, i!=j
 	 *
 	 * @param radius
 	 *            the radius

@@ -40,21 +40,21 @@ package uk.ac.sussex.gdsc.core.utils;
  * TriangleArray a = new TriangleArray(n);
  *
  * // fast iteration over the data
- * for (int i = 0; i < n; i++)
- * 	for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
+ * for (int i = 0; i &lt; n; i++)
+ * 	for (int j = i + 1, index = a.toIndex(i, j); j &lt; n; j++, index++)
  * 	{
  * 	}
  *
  * // Iterate over all NxN values
- * for (int i = 0; i < n; i++)
+ * for (int i = 0; i &lt; n; i++)
  * {
- * 	for (int j = 0, precursor = a.toPrecursorIndex(i); j < i; j++)
+ * 	for (int j = 0, precursor = a.toPrecursorIndex(i); j &lt; i; j++)
  * 	{
  * 		int k = a.toSafeIndex(i, j);
  * 		int index = a.precursorToIndex(precursor, j);
  * 		// k == index
  * 	}
- * 	for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
+ * 	for (int j = i + 1, index = a.toIndex(i, j); j &lt; n; j++, index++)
  * 	{
  * 		int k = a.toSafeIndex(i, j);
  * 		// k == index
@@ -63,7 +63,7 @@ package uk.ac.sussex.gdsc.core.utils;
  *
  * // Comparing any index j to index i
  * a.setup(i);
- * for (int j = 0; j < n; j++)
+ * for (int j = 0; j &lt; n; j++)
  * {
  * 	if (i == j)
  * 		continue;

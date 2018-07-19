@@ -2066,7 +2066,7 @@ public class Utils
 
 	/**
 	 * Return the interval for reporting progress to the ImageJ progress bar given the total number of steps. Code
-	 * should use the following prototype: <br/>
+	 * should use the following prototype: <br>
 	 *
 	 * <pre>
 	 * final int interval = Utils.getProgressInterval(total);

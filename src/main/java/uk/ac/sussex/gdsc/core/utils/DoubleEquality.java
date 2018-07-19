@@ -91,7 +91,7 @@ public class DoubleEquality
 	 * @param maxAbsoluteError
 	 *            The absolute error allowed between the numbers. Should be a small number (e.g. 1e-10)
 	 * @see #getMaxRelativeError(int)
-	 * @deprecated The significant digits are used to set the max relative error as 1e^-(n-1), e.g. 3sd => 1e-2
+	 * @deprecated The significant digits are used to set the max relative error as 1e<sup>-(n-1)</sup>, e.g. 3sd =&gt; 1e<sup>-2</sup>.
 	 */
 	@Deprecated
 	public DoubleEquality(long significantDigits, double maxAbsoluteError)
@@ -420,7 +420,7 @@ public class DoubleEquality
 	 *
 	 * @param significantDigits
 	 *            The number of significant digits for comparisons
-	 * @deprecated The significant digits are used to set the max relative error as 1e^-(n-1), e.g. 3sd => 1e-2
+	 * @deprecated The significant digits are used to set the max relative error as 1e<sup>-(n-1)</sup>, e.g. 3sd =&gt; 1e<sup>-2</sup>.
 	 */
 	@Deprecated
 	public void setSignificantDigits(long significantDigits)

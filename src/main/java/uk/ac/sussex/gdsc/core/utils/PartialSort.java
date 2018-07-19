@@ -39,7 +39,7 @@ public class PartialSort
 	/**
 	 * Sort the final returned data. This takes precedence over {@link #OPTION_HEAD_FIRST}.
 	 * <p>
-	 * Note that if the number of points to return (n) is above half the total size of the input list (m, e.g. n/m >
+	 * Note that if the number of points to return (n) is above half the total size of the input list (m, e.g. n/m &gt;
 	 * 0.5) then it is probably faster to sort the input list and take the top n.
 	 */
 	public final static int OPTION_SORT = 1;

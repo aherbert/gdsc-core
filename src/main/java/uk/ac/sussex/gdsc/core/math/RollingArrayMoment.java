@@ -115,10 +115,10 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <p>
 	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
 	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
+	 * </p>
 	 * <p>
-	 * <li>For each additional value, update the first moment using:<br>
-	 * <code>m = m + (new value - m) / (number of observations)</code></li>
-	 * </ol>
+	 * For each additional value, update the first moment using:<br>
+	 * <code>m = m + (new value - m) / (number of observations)</code>
 	 * </p>
 	 * <p>
 	 * The following recursive updating formula is used for the second moment:
@@ -129,6 +129,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <li>dev = (current obs - previous mean)</li>
 	 * <li>n = number of observations (including current obs)</li>
 	 * </ul>
+	 * <p>
 	 * Then
 	 * </p>
 	 * <p>
@@ -169,10 +170,10 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <p>
 	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
 	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
+	 * </p>
 	 * <p>
-	 * <li>For each additional value, update the first moment using:<br>
-	 * <code>m = m + (new value - m) / (number of observations)</code></li>
-	 * </ol>
+	 * For each additional value, update the first moment using:<br>
+	 * <code>m = m + (new value - m) / (number of observations)</code>
 	 * </p>
 	 * <p>
 	 * The following recursive updating formula is used for the second moment:
@@ -183,6 +184,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <li>dev = (current obs - previous mean)</li>
 	 * <li>n = number of observations (including current obs)</li>
 	 * </ul>
+	 * <p>
 	 * Then
 	 * </p>
 	 * <p>
@@ -225,10 +227,10 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <p>
 	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
 	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
+	 * </p>
 	 * <p>
-	 * <li>For each additional value, update the first moment using:<br>
-	 * <code>m = m + (new value - m) / (number of observations)</code></li>
-	 * </ol>
+	 * For each additional value, update the first moment using:<br>
+	 * <code>m = m + (new value - m) / (number of observations)</code>
 	 * </p>
 	 * <p>
 	 * The following recursive updating formula is used for the second moment:
@@ -239,6 +241,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <li>dev = (current obs - previous mean)</li>
 	 * <li>n = number of observations (including current obs)</li>
 	 * </ul>
+	 * <p>
 	 * Then
 	 * </p>
 	 * <p>
@@ -281,10 +284,10 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <p>
 	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
 	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
+	 * </p>
 	 * <p>
-	 * <li>For each additional value, update the first moment using:<br>
-	 * <code>m = m + (new value - m) / (number of observations)</code></li>
-	 * </ol>
+	 * For each additional value, update the first moment using:<br>
+	 * <code>m = m + (new value - m) / (number of observations)</code>
 	 * </p>
 	 * <p>
 	 * The following recursive updating formula is used for the second moment:
@@ -295,6 +298,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <li>dev = (current obs - previous mean)</li>
 	 * <li>n = number of observations (including current obs)</li>
 	 * </ul>
+	 * <p>
 	 * Then
 	 * </p>
 	 * <p>
@@ -337,10 +341,10 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <p>
 	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
 	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
+	 * </p>
 	 * <p>
-	 * <li>For each additional value, update the first moment using:<br>
-	 * <code>m = m + (new value - m) / (number of observations)</code></li>
-	 * </ol>
+	 * For each additional value, update the first moment using:<br>
+	 * <code>m = m + (new value - m) / (number of observations)</code>
 	 * </p>
 	 * <p>
 	 * The following recursive updating formula is used for the second moment:
@@ -351,6 +355,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <li>dev = (current obs - previous mean)</li>
 	 * <li>n = number of observations (including current obs)</li>
 	 * </ul>
+	 * <p>
 	 * Then
 	 * </p>
 	 * <p>
@@ -393,10 +398,10 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <p>
 	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
 	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
+	 * </p>
 	 * <p>
-	 * <li>For each additional value, update the first moment using:<br>
-	 * <code>m = m + (new value - m) / (number of observations)</code></li>
-	 * </ol>
+	 * For each additional value, update the first moment using:<br>
+	 * <code>m = m + (new value - m) / (number of observations)</code>
 	 * </p>
 	 * <p>
 	 * The following recursive updating formula is used for the second moment:
@@ -407,6 +412,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <li>dev = (current obs - previous mean)</li>
 	 * <li>n = number of observations (including current obs)</li>
 	 * </ul>
+	 * <p>
 	 * Then
 	 * </p>
 	 * <p>
@@ -449,10 +455,10 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <p>
 	 * Note: If the user desires to maintain just a single moment then it advised to use the Apache class
 	 * org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
+	 * </p>
 	 * <p>
-	 * <li>For each additional value, update the first moment using:<br>
-	 * <code>m = m + (new value - m) / (number of observations)</code></li>
-	 * </ol>
+	 * For each additional value, update the first moment using:<br>
+	 * <code>m = m + (new value - m) / (number of observations)</code>
 	 * </p>
 	 * <p>
 	 * The following recursive updating formula is used for the second moment:
@@ -463,6 +469,7 @@ public class RollingArrayMoment implements ArrayMoment
 	 * <li>dev = (current obs - previous mean)</li>
 	 * <li>n = number of observations (including current obs)</li>
 	 * </ul>
+	 * <p>
 	 * Then
 	 * </p>
 	 * <p>

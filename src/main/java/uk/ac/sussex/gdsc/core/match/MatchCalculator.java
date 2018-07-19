@@ -269,7 +269,7 @@ public class MatchCalculator
 	 * Points that are within the distance threshold are identified as a match.
 	 * The number of true positives, false positives and false negatives are calculated.
 	 * <p>
-	 * Use a single pass algorithm suitable if the total number of possible pairs is small (<100000)
+	 * Use a single pass algorithm suitable if the total number of possible pairs is small (&lt;100000)
 	 *
 	 * @param actualPoints
 	 *            the actual points
@@ -590,7 +590,7 @@ public class MatchCalculator
 	 * Points that are within the distance threshold are identified as a match.
 	 * The number of true positives, false positives and false negatives are calculated.
 	 * <p>
-	 * Use a single pass algorithm suitable if the total number of possible pairs is small (<100000)
+	 * Use a single pass algorithm suitable if the total number of possible pairs is small (&lt;100000)
 	 *
 	 * @param actualPoints
 	 *            the actual points

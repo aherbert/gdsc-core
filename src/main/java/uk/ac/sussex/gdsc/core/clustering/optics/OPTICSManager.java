@@ -1652,7 +1652,7 @@ public class OPTICSManager extends CoordinateStore
 	 * <p>
 	 * This is an implementation of the Fast OPTICS method. J. Schneider and M. Vlachos. Fast parameterless
 	 * density-based clustering via random projections. Proc. 22nd ACM international conference on Conference on
-	 * Information & Knowledge Management (CIKM).
+	 * Information &amp; Knowledge Management (CIKM).
 	 * <p>
 	 * Fast OPTICS uses random projections of the data into a linear space. The linear space is then divided into sets
 	 * until each set is below a minimum size. The process is repeated multiple times to generate many sets of
@@ -1688,7 +1688,7 @@ public class OPTICSManager extends CoordinateStore
 	 * <p>
 	 * This is an implementation of the Fast OPTICS method. J. Schneider and M. Vlachos. Fast parameterless
 	 * density-based clustering via random projections. Proc. 22nd ACM international conference on Conference on
-	 * Information & Knowledge Management (CIKM).
+	 * Information &amp; Knowledge Management (CIKM).
 	 * <p>
 	 * Fast OPTICS uses random projections of the data into a linear space. The linear space is then divided into sets
 	 * until each set is below a minimum size. The process is repeated multiple times to generate many sets of
@@ -2039,8 +2039,8 @@ public class OPTICSManager extends CoordinateStore
 	 * 0 (not an outlier).
 	 * <p>
 	 * See:
-	 * Hans-Peter Kriegel, Peer Kröger, Erich Schubert, Arthur Zimek:<br />
-	 * LoOP: Local Outlier Probabilities< br /> In Proceedings of the 18th
+	 * Hans-Peter Kriegel, Peer Kröger, Erich Schubert, Arthur Zimek:<br>
+	 * LoOP: Local Outlier Probabilities<br> In Proceedings of the 18th
 	 * International Conference on Information and Knowledge Management (CIKM), Hong
 	 * Kong, China, 2009
 	 *

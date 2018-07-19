@@ -27,6 +27,7 @@
  */
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -346,9 +347,9 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      *
      * @param  index index of the element to return
      * @return the element at the specified position in this list
-     * @throws IndexOutOfBoundsException  if the index is out of range (index < 0 || index >= capacity)
+     * @throws IndexOutOfBoundsException  if the index is out of range (index &lt; 0 || index &gt;= capacity)
      */
-    public E getf(int index) {
+    public E getf(int index) throws IndexOutOfBoundsException {
         return elementData(index);
     }
 
@@ -376,9 +377,9 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      *
      * @param index index of the element to replace
      * @param element element to be stored at the specified position
-     * @throws IndexOutOfBoundsException  if the index is out of range (index < 0 || index >= capacity)
+     * @throws IndexOutOfBoundsException  if the index is out of range (index &lt; 0 || index &gt;= capacity)
      */
-    public void setf(int index, E element) {
+    public void setf(int index, E element) throws IndexOutOfBoundsException {
         elementData[index] = element;
     }
 
@@ -715,15 +716,19 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
     }
 
     /**
-     * Save the state of the <tt>TurboList</tt> instance to a stream (that
-     * is, serialize it).
-     *
-     * @serialData The length of the array backing the <tt>TurboList</tt>
-     *             instance is emitted (int), followed by all of its elements
-     *             (each an <tt>Object</tt>) in the proper order.
-     */
+	 * Save the state of the <tt>TurboList</tt> instance to a stream (that
+	 * is, serialize it).
+	 *
+	 * @param s
+	 *            the output stream
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 * @serialData The length of the array backing the <tt>TurboList</tt>
+	 *             instance is emitted (int), followed by all of its elements
+	 *             (each an <tt>Object</tt>) in the proper order.
+	 */
     private void writeObject(java.io.ObjectOutputStream s)
-        throws java.io.IOException{
+        throws IOException{
         // Write out element count, and any hidden stuff
         s.defaultWriteObject();
 
@@ -736,11 +741,18 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
     }
 
     /**
-     * Reconstitute the <tt>TurboList</tt> instance from a stream (that is,
-     * deserialize it).
-     */
+	 * Reconstitute the <tt>TurboList</tt> instance from a stream (that is,
+	 * deserialize it).
+	 *
+	 * @param s
+	 *            the input stream
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 * @throws ClassNotFoundException
+	 *             the class not found exception
+	 */
     private void readObject(java.io.ObjectInputStream s)
-        throws java.io.IOException, ClassNotFoundException {
+        throws IOException, ClassNotFoundException {
         // Read in size, and any hidden stuff
         s.defaultReadObject();
 

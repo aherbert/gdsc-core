@@ -228,7 +228,7 @@ public class ExtendedGenericDialog extends GenericDialog
 
 	/**
 	 * Adds a slider (scroll bar) to the dialog box.
-	 * Floating point values will be used if (maxValue-minValue)<=5.0
+	 * Floating point values will be used if (maxValue-minValue)&lt;=5.0
 	 * and either minValue or maxValue are non-integer.
 	 * <p>
 	 * Update the min or max value to include the default value if it is outside the slider range.
@@ -648,7 +648,7 @@ public class ExtendedGenericDialog extends GenericDialog
 	 * The class that is interested in processing a optionCollected
 	 * event implements this interface, and the object created
 	 * with that class is registered with a component using the
-	 * component's <code>addOptionCollectedListener<code> method. When
+	 * component's <code>addOptionCollectedListener</code> method. When
 	 * the optionCollected event occurs, that object's appropriate
 	 * method is invoked.
 	 *
@@ -1034,7 +1034,7 @@ public class ExtendedGenericDialog extends GenericDialog
 
 	/**
 	 * Adds a slider (scroll bar) to the dialog box.
-	 * Floating point values will be used if (maxValue-minValue)<=5.0
+	 * Floating point values will be used if (maxValue-minValue)&lt;=5.0
 	 * and either minValue or maxValue are non-integer.
 	 *
 	 * @param label

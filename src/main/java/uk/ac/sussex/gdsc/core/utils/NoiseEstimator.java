@@ -36,7 +36,7 @@ import org.apache.commons.math3.util.FastMath;
  * Contains methods to find the noise in the provided image data.
  * <p>
  * Certain noise estimation routines have been copied from the estimation routines of ND-Safir (N-dimensional noise
- * reduction software): <br/>
+ * reduction software): <br>
  * http://raweb.inria.fr/rapportsactivite/RA2011/serpico/uid21.html
  */
 public class NoiseEstimator

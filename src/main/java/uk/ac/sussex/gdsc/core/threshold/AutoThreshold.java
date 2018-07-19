@@ -1031,7 +1031,7 @@ public class AutoThreshold
 
 	/**
 	 * Otsu's threshold algorithm.
-	 * C++ code by Jordan Bevik <Jordan.Bevic@qtiworld.com>
+	 * C++ code by Jordan Bevik &lt;Jordan.Bevic@qtiworld.com&gt;
 	 * ported to ImageJ plugin by G.Landini.
 	 *
 	 * @param data
