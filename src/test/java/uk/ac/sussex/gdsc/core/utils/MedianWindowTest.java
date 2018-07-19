@@ -39,6 +39,7 @@ import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "javadoc" })
 public class MedianWindowTest
@@ -331,7 +332,7 @@ public class MedianWindowTest
 	@Test
 	public void isFasterThanLocalSort()
 	{
-		TestSettings.assumeLowComplexity();
+		TestAssume.assumeLowComplexity();
 		final int[] speedRadii2 = (TestSettings.allow(LogLevel.INFO)) ? speedRadii : new int[] { testSpeedRadius };
 		for (final int radius : speedRadii2)
 			for (final int increment : speedIncrement)
@@ -411,7 +412,7 @@ public class MedianWindowTest
 	@Test
 	public void floatVersionIsFasterThanDoubleVersion()
 	{
-		TestSettings.assumeLowComplexity();
+		TestAssume.assumeLowComplexity();
 		final int[] speedRadii2 = (TestSettings.allow(LogLevel.INFO)) ? speedRadii : new int[] { testSpeedRadius };
 		for (final int radius : speedRadii2)
 			for (final int increment : speedIncrement)
@@ -532,7 +533,7 @@ public class MedianWindowTest
 	@Test
 	public void intVersionIsFasterThanDoubleVersion()
 	{
-		TestSettings.assumeSpeedTest(TestComplexity.LOW);
+		TestAssume.assumeSpeedTest(TestComplexity.LOW);
 		for (final int radius : speedRadii)
 			for (final int increment : speedIncrement)
 				intVersionIsFasterThanDoubleVersion(radius, increment);

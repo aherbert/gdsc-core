@@ -34,6 +34,7 @@ import org.junit.Test;
 
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "javadoc" })
 public class RandIndexTest
@@ -255,7 +256,7 @@ public class RandIndexTest
 	@Test
 	public void canComputeRandIndexWithBigData()
 	{
-		TestSettings.assumeLowComplexity();
+		TestAssume.assumeLowComplexity();
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int size = 10000;
 		for (final int i : new int[] { 3, 5, 10 })

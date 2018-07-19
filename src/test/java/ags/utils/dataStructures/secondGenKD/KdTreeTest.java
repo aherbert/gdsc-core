@@ -48,6 +48,7 @@ import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "javadoc" })
 public class KdTreeTest
@@ -375,7 +376,7 @@ public class KdTreeTest
 	public void secondGenIsFasterThanThirdGen()
 	{
 		// No assertions are made since the timings are similar
-		TestSettings.assume(LogLevel.INFO, TestComplexity.MEDIUM);
+		TestAssume.assume(LogLevel.INFO, TestComplexity.MEDIUM);
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		final TimingService ts = new TimingService(15);
@@ -539,7 +540,7 @@ public class KdTreeTest
 	//@Test
 	public void secondGenBucket24IsFastest()
 	{
-		TestSettings.assumeInfo();
+		TestAssume.assumeInfo();
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		final TimingService ts = new TimingService(15);

@@ -32,8 +32,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import uk.ac.sussex.gdsc.core.data.DataException;
-import uk.ac.sussex.gdsc.test.TestAssert;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit4.TestAssert;
 
 @SuppressWarnings({ "javadoc" })
 public class QuadraticUtilsTest

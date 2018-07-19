@@ -85,12 +85,13 @@ import uk.ac.sussex.gdsc.core.utils.Maths;
 import uk.ac.sussex.gdsc.core.utils.PartialSort;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.LogLevel;
-import uk.ac.sussex.gdsc.test.TestAssert;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingResult;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.junit4.TestAssert;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "javadoc" })
 public class OPTICSManagerTest
@@ -733,7 +734,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canComputeFastOPTICSFasterThanELKI()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final TrackProgress tracker = null; //new SimpleTrackProgress();
@@ -887,28 +888,28 @@ public class OPTICSManagerTest
 	@Test
 	public void canComputeOPTICSWithInnerProcessing()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 		canComputeOPTICSWithOptions(Option.INNER_PROCESSING);
 	}
 
 	@Test
 	public void canComputeOPTICSWithCircularProcessing()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 		canComputeOPTICSWithOptions(Option.CIRCULAR_PROCESSING);
 	}
 
 	@Test
 	public void canComputeOPTICSWithInnerCircularProcessing()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 		canComputeOPTICSWithOptions(Option.INNER_PROCESSING, Option.CIRCULAR_PROCESSING);
 	}
 
 	@Test
 	public void canComputeOPTICSWithSimpleQueue()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 		// This fails as the order is different when we do not use ID to order the objects when reachability distance is equal
 		//canComputeOPTICSWithOptions(Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
 
@@ -920,7 +921,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canComputeOPTICSWithSimpleQueueReverseIdOrderD()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 		canComputeOPTICSWithOptions(new Option[] { Option.OPTICS_STRICT_REVERSE_ID_ORDER },
 				Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
 	}
@@ -928,7 +929,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canComputeOPTICSWithSimpleQueueIdOrder()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 		canComputeOPTICSWithOptions(new Option[] { Option.OPTICS_STRICT_ID_ORDER },
 				Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
 	}
@@ -1035,21 +1036,21 @@ public class OPTICSManagerTest
 	@Test
 	public void canComputeDBSCANWithGridProcessing()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 		canComputeDBSCANWithOptions(Option.GRID_PROCESSING);
 	}
 
 	@Test
 	public void canComputeDBSCANWithCircularProcessing()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 		canComputeDBSCANWithOptions(Option.CIRCULAR_PROCESSING);
 	}
 
 	@Test
 	public void canComputeDBSCANWithInnerProcessingCircular()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 		canComputeDBSCANWithOptions(Option.INNER_PROCESSING, Option.CIRCULAR_PROCESSING);
 	}
 
@@ -1109,7 +1110,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canPerformOPTICSWithLargeData()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final TrackProgress tracker = null; //new SimpleTrackProgress();
 		for (final int n : N)
@@ -1179,7 +1180,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canComputeKNNDistanceWithBigData()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		for (final int n : N)
 		{
@@ -1381,7 +1382,7 @@ public class OPTICSManagerTest
 	@Test
 	public void dBSCANIsFasterThanOPTICS()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final OPTICSManager om1 = createOPTICSManager(size, 5000, rg);
@@ -1443,7 +1444,7 @@ public class OPTICSManagerTest
 	@Test
 	public void dBSCANInnerCircularIsFasterWhenDensityIsHigh()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int molecules = 10000;
@@ -1488,7 +1489,7 @@ public class OPTICSManagerTest
 	@Test
 	public void oPTICSCircularIsFasterWhenDensityIsHigh()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int molecules = 10000;

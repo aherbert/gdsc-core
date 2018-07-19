@@ -39,10 +39,11 @@ import uk.ac.sussex.gdsc.core.utils.Random;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.LogLevel;
-import uk.ac.sussex.gdsc.test.TestAssert;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.junit4.TestAssert;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "javadoc" })
 public class DAreaSumTest
@@ -256,7 +257,7 @@ public class DAreaSumTest
 	public void rollingIsfasterAtHighDensity()
 	{
 		// Since this is a slow test
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 
 		// Test for sampling half the pixels. Ignore the very small box size
 		speedTest(0.5, true, 2, Integer.MAX_VALUE);

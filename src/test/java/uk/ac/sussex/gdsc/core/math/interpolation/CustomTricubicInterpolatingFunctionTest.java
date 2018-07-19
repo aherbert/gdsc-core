@@ -42,6 +42,7 @@ import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 /**
  * This class is used to in-line the computation for the CustomTricubicInterpolatingFunction
@@ -259,7 +260,7 @@ public class CustomTricubicInterpolatingFunctionTest
 	@Test
 	public void inlineComputeCoefficientsIsFaster()
 	{
-		TestSettings.assume(TestComplexity.MEDIUM);
+		TestAssume.assume(TestComplexity.MEDIUM);
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 

@@ -33,10 +33,11 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
-import uk.ac.sussex.gdsc.test.TestAssert;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit4.TestAssert;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "javadoc" })
 public class MedianWindowDLLTest
@@ -244,7 +245,7 @@ public class MedianWindowDLLTest
 	@Test
 	public void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall()
 	{
-		TestSettings.assumeSpeedTest(TestComplexity.LOW);
+		TestAssume.assumeSpeedTest(TestComplexity.LOW);
 		for (final int radius : speedRadii)
 			for (final int increment : speedIncrement)
 			{

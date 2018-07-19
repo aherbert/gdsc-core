@@ -40,6 +40,7 @@ import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "javadoc" })
 public class SimpleArrayUtilsTest
@@ -141,7 +142,7 @@ public class SimpleArrayUtilsTest
 	@Test
 	public void testMergeOnIndexData()
 	{
-		TestSettings.assume(LogLevel.INFO, TestComplexity.MEDIUM);
+		TestAssume.assume(LogLevel.INFO, TestComplexity.MEDIUM);
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 
 		final double[] f = new double[] { 0.1, 0.5, 0.75 };
@@ -205,7 +206,7 @@ public class SimpleArrayUtilsTest
 	@Test
 	public void testMergeOnRedundantData()
 	{
-		TestSettings.assume(LogLevel.INFO, TestComplexity.MEDIUM);
+		TestAssume.assume(LogLevel.INFO, TestComplexity.MEDIUM);
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 
 		final int[] n = new int[] { 2, 4, 8 };

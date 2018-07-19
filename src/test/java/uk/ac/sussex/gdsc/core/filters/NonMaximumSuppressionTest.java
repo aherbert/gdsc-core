@@ -43,6 +43,7 @@ import uk.ac.sussex.gdsc.core.utils.Random;
 import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "javadoc" })
 public class NonMaximumSuppressionTest
@@ -292,7 +293,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFindIsFasterThanMaxFind()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -355,7 +356,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFindWithNeighbourCheckIsFasterThanMaxFind()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -439,7 +440,7 @@ public class NonMaximumSuppressionTest
 		// times for the internal method.
 		// This test should be changed to repeat until the times converge.
 
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -512,7 +513,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFindInternalIsFasterWithoutNeighbourCheck()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -588,7 +589,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFindIsFasterWithoutNeighbourCheck()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -663,7 +664,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFind3x3MethodIsFasterThanBlockFindNxN()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -712,7 +713,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFind3x3WithBufferIsFasterThanBlockFind3x3()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -767,7 +768,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void floatBlockFind3x3MethodIsFasterThanMaxFind3x3()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -1105,7 +1106,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFindIsFasterThanMaxFind()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -1168,7 +1169,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFindWithNeighbourCheckIsFasterThanMaxFind()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -1252,7 +1253,7 @@ public class NonMaximumSuppressionTest
 		// times for the internal method.
 		// This test should be changed to repeat until the times converge.
 
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -1325,7 +1326,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFindInternalIsFasterWithoutNeighbourCheck()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -1401,7 +1402,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFindIsFasterWithoutNeighbourCheck()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -1476,7 +1477,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFind3x3MethodIsFasterThanBlockFindNxN()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -1525,7 +1526,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFind3x3WithBufferIsFasterThanBlockFind3x3()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 
@@ -1579,7 +1580,7 @@ public class NonMaximumSuppressionTest
 	@Test
 	public void intBlockFind3x3MethodIsFasterThanMaxFind3x3()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 

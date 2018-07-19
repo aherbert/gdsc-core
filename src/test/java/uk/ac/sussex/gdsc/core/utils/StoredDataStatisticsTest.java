@@ -33,6 +33,7 @@ import org.junit.Test;
 
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "javadoc" })
 public class StoredDataStatisticsTest extends StatisticsTest
@@ -63,7 +64,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 	public void forLoopIsSlowerThanValuesIterator()
 	{
 		// This fails. Perhaps change the test to use the TimingService for repeat testing.
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
@@ -92,7 +93,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 	@Test
 	public void iteratorIsSlowerUsingdouble()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
 			for (final double d : stats.getValues())
@@ -117,7 +118,7 @@ public class StoredDataStatisticsTest extends StatisticsTest
 	@Test
 	public void iteratorIsSlowerUsingDouble()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
 			for (final double d : stats.getValues())

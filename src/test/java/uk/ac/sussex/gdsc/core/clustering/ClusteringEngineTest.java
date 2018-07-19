@@ -39,6 +39,7 @@ import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "javadoc" })
 public class ClusteringEngineTest
@@ -67,10 +68,10 @@ public class ClusteringEngineTest
 	@Test
 	public void pairwiseWithoutNeighboursIsFasterAtLowDensities()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
-		TestSettings.assume(LogLevel.WARN, TestComplexity.LOW);
+		TestAssume.assume(LogLevel.WARN, TestComplexity.LOW);
 		final int repeats = 10;
 		final double radius = 50;
 		final Object[] points = new Object[repeats];
@@ -88,7 +89,7 @@ public class ClusteringEngineTest
 	@Test
 	public void pairwiseWithoutNeighboursIsSlowerAtHighDensities()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int repeats = 10;
@@ -108,7 +109,7 @@ public class ClusteringEngineTest
 	@Test
 	public void pairwiseIsFaster()
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int repeats = 20;
@@ -244,7 +245,7 @@ public class ClusteringEngineTest
 
 	private static void runMultithreadingSpeedTest(RandomGenerator rg, ClusteringAlgorithm algorithm)
 	{
-		TestSettings.assumeMediumComplexity();
+		TestAssume.assumeMediumComplexity();
 
 		final int repeats = 5;
 		final double radius = 50;

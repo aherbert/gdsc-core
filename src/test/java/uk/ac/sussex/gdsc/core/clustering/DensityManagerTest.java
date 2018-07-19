@@ -36,6 +36,7 @@ import org.junit.Test;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "javadoc" })
 public class DensityManagerTest
@@ -83,7 +84,7 @@ public class DensityManagerTest
 	@Test
 	public void densityWithGridFasterThanDensityTriangle()
 	{
-		TestSettings.assume(TestComplexity.MEDIUM);
+		TestAssume.assume(TestComplexity.MEDIUM);
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		for (final int n : N)
@@ -112,7 +113,7 @@ public class DensityManagerTest
 	@Test
 	public void densityWithGridFasterThanDensity()
 	{
-		TestSettings.assume(TestComplexity.MEDIUM);
+		TestAssume.assume(TestComplexity.MEDIUM);
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		for (final int n : N)
@@ -159,7 +160,7 @@ public class DensityManagerTest
 	@Test
 	public void sumWithGridFasterThanSum()
 	{
-		TestSettings.assume(TestComplexity.MEDIUM);
+		TestAssume.assume(TestComplexity.MEDIUM);
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		for (final int n : N)
@@ -225,7 +226,7 @@ public class DensityManagerTest
 	//@Test
 	public void blockDensityFasterThanBlockDensity2()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		for (final int n : N)
@@ -255,7 +256,7 @@ public class DensityManagerTest
 	@Test
 	public void blockDensity2FasterThanBlockDensity3()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		for (final int n : N)

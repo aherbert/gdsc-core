@@ -40,6 +40,7 @@ import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "deprecation", "javadoc" })
 public class EqualityTest
@@ -383,7 +384,7 @@ public class EqualityTest
 	@Test
 	public void floatRelativeIsSameSpeedAsDoubleRelative()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final float maxRelativeError = 1e-2f;
 		final float maxAbsoluteError = 1e-16f;

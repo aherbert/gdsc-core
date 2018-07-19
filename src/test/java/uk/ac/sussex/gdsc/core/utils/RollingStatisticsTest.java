@@ -33,8 +33,8 @@ import org.apache.commons.math3.util.MathArrays;
 import org.junit.Assert;
 import org.junit.Test;
 
-import uk.ac.sussex.gdsc.test.TestAssert;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit4.TestAssert;
 
 @SuppressWarnings({ "javadoc" })
 public class RollingStatisticsTest

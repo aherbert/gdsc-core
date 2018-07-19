@@ -31,7 +31,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ij.plugin.frame.Recorder;
-import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "javadoc" })
 public class RecorderUtilsTest
@@ -44,7 +44,7 @@ public class RecorderUtilsTest
 	{
 		// This test is slow as creating the recorder involves spinning up a lot
 		// ImageJ and Java AWT classes. So only run if asked for.
-		TestSettings.assumeLowComplexity();
+		TestAssume.assumeLowComplexity();
 		if (recorder == null)
 			recorder = new Recorder(false);
 	}

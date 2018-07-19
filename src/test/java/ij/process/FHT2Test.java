@@ -32,7 +32,7 @@ import org.junit.Test;
 
 import ij.plugin.filter.EDM;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.test.TestAssert;
+import uk.ac.sussex.gdsc.test.junit4.TestAssert;
 
 @SuppressWarnings({ "javadoc" })
 public class FHT2Test

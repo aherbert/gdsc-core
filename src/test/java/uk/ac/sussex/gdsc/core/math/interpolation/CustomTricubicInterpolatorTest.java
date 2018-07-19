@@ -51,11 +51,12 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.LogLevel;
-import uk.ac.sussex.gdsc.test.TestAssert;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingResult;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.junit4.TestAssert;
+import uk.ac.sussex.gdsc.test.junit4.TestAssume;
 
 @SuppressWarnings({ "javadoc" })
 public class CustomTricubicInterpolatorTest
@@ -1072,7 +1073,7 @@ public class CustomTricubicInterpolatorTest
 	@Test
 	public void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable()
 	{
-		TestSettings.assumeSpeedTest();
+		TestAssume.assumeSpeedTest();
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		final int x = 6, y = 5, z = 4;
