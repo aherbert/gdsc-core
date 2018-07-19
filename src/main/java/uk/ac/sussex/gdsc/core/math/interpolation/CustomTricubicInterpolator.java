@@ -741,6 +741,7 @@ public class CustomTricubicInterpolator
 	 * To use the function to create an interpolated value in the range [1] and [2]:
 	 *
 	 * <pre>
+	 * {@code
 	 * double x1 = xval.get(1);
 	 * double y1 = yval.get(1);
 	 * double z1 = zval.get(1);
@@ -750,8 +751,9 @@ public class CustomTricubicInterpolator
 	 * double xscale = x2 - x1;
 	 * double yscale = y2 - y1
 	 * double zscale = z2 - y2
-	 * // x&gt;=x1 &amp;&amp; x&lt;=x2 &amp;&amp; y&gt;=y1 &amp;&amp; y&lt;=y2 &amp;&amp; z&gt;=z1 &amp;&amp; z&lt;=z2
+	 * // x>=x1 && x<=x2 && y>=y1 && y<=y2 && z>=z1 && z<=z2
 	 * double value = f.value((x-x1) / xscale, (y-y1) / yscale, (z-z1) / zscale);
+	 * }
 	 * </pre>
      *
      * @param xval All the x-coordinates of the interpolation points, sorted
@@ -1009,17 +1011,19 @@ public class CustomTricubicInterpolator
      * To use the function to create an interpolated value in the range [0] and [1]:
      *
      * <pre>
-     * double x1 = xval.get(x);
-     * double y1 = yval.get(y);
-     * double z1 = zval.get(z);
-     * double x2 = xval.get(x+1);
-     * double y2 = yval.get(y+1);
-     * double z2 = zval.get(z+1);
-     * double xscale = x2 - x1;
-     * double yscale = y2 - y1
-     * double zscale = z2 - y2
- 	 * // x&gt;=x1 &amp;&amp; x&lt;=x2 &amp;&amp; y&gt;=y1 &amp;&amp; y&lt;=y2 &amp;&amp; z&gt;=z1 &amp;&amp; z&lt;=z2
-    * double value = f.value((x-x1) / xscale, (y-y1) / yscale, (z-z1) / zscale);
+  	 * {@code
+	 * double x1 = xval.get(1);
+	 * double y1 = yval.get(1);
+	 * double z1 = zval.get(1);
+	 * double x2 = xval.get(2);
+	 * double y2 = yval.get(2);
+	 * double z2 = zval.get(2);
+	 * double xscale = x2 - x1;
+	 * double yscale = y2 - y1
+	 * double zscale = z2 - y2
+	 * // x>=x1 && x<=x2 && y>=y1 && y<=y2 && z>=z1 && z<=z2
+	 * double value = f.value((x-x1) / xscale, (y-y1) / yscale, (z-z1) / zscale);
+	 * }
      * </pre>
      *
      * @param xval All the x-coordinates of the interpolation points, sorted

@@ -1001,8 +1001,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements Block
 	 * allocated array of {@code String}:
 	 *
 	 * <pre>
-	 * {
-	 * 	&#64;code
+	 * {@code
 	 * 	String[] y = x.toArray(new String[0]);
 	 * }
 	 * </pre>
