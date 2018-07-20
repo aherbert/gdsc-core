@@ -35,7 +35,7 @@ import ij.WindowManager;
 import ij.macro.Interpreter;
 
 /**
- * Extension of the ij.gui.Plot class to add functionality
+ * Extension of the {@link ij.gui.Plot} class to add functionality.
  */
 public class Plot2 extends Plot
 {

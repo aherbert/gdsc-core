@@ -33,10 +33,10 @@ import java.io.InputStream;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
- * This class uses a memory cache to allow seeking within
- * an InputStream.
+ * This class uses a memory cache to allow seeking within an InputStream.
  * <p>
- * Entirely based on ij.io.RandomAccessStream which is itself based on the JAI MemoryCacheSeekableStream class.
+ * Entirely based on {@link ij.io.RandomAccessStream} which is itself based on 
+ * the JAI MemoryCacheSeekableStream class.
  */
 public final class MemoryCacheSeekableStream extends SeekableStream
 {

@@ -28,7 +28,7 @@
 package ij.io;
 
 /**
- * Extend the FileInfo to add extra fields for the FastTiffDecoder
+ * Extend the {@link ij.io.FileInfo} to add extra fields for the {@link FastTiffDecoder}.
  */
 public class ExtendedFileInfo extends FileInfo
 {

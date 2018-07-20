@@ -41,7 +41,7 @@ import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
- * Re-implement the TiffDecoder to allow it to use a SeekableStream interface.
+ * Re-implement the {@link ij.io.TiffDecoder} to allow it to use a SeekableStream interface.
  * <p>
  * Added support for MicroManager TIFF format which uses the OME-TIFF specification.
  */

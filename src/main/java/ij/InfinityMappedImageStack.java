@@ -34,9 +34,10 @@ import ij.process.ImageProcessor;
 import ij.process.InfinityMappedFloatProcessor;
 
 /**
- * Extends the ImageJ ImageStack class to support an inifnity mapped float processor for float data.
+ * Extends the ImageJ {@link ImageStack} class to support an infinity mapped float processor for float data.
  *
  * @author Alex Herbert
+ * @see InfinityMappedFloatProcessor
  */
 public class InfinityMappedImageStack extends ImageStack
 {

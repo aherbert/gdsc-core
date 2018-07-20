@@ -34,9 +34,10 @@ import ij.process.ImageProcessor;
 import ij.process.MappedFloatProcessor;
 
 /**
- * Extends the ImageJ ImageStack class to support a mapped float processor for float data.
+ * Extends the ImageJ {@link ImageStack} class to support a mapped float processor for float data.
  *
  * @author Alex Herbert
+ * @see MappedFloatProcessor
  */
 public class MappedImageStack extends ImageStack
 {

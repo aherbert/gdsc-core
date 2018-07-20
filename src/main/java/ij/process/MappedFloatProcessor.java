@@ -30,7 +30,7 @@ package ij.process;
 import java.awt.image.ColorModel;
 
 /**
- * Extends the ImageJ FloatProcess class to map the min-max range to 1-255 in the 8-bit image. The min is set to the
+ * Extends the ImageJ {@link FloatProcessor} class to map the min-max range to 1-255 in the 8-bit image. The min is set to the
  * first value above zero. All values below min are mapped to 0 in the LUT.
  * <p>
  * Optionally +0.0f can be set as the min value mapped to 1. In this case -0.0f is still mapped to 0. This allows for
@@ -38,6 +38,7 @@ import java.awt.image.ColorModel;
  * no probability exists.
  *
  * @author Alex Herbert
+ * @see FloatProcessor
  */
 public class MappedFloatProcessor extends FloatProcessor
 {

@@ -64,10 +64,10 @@ import uk.ac.sussex.gdsc.core.utils.Maths;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
- * Extension of the ij.gui.GenericDialog class to add functionality.
+ * Extension of the {@link ij.gui.GenericDialog} class to add functionality.
  * <p>
- * This dialog adds all components to a panel that is presented in a java.awt.ScrollPane. This allows display of large
- * dialogs on small screens.
+ * This dialog adds all components to a panel that is presented in a {@link java.awt.ScrollPane}. 
+ * This allows display of large dialogs on small screens.
  */
 public class ExtendedGenericDialog extends GenericDialog
 {

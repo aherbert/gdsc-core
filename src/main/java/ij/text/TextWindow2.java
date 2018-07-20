@@ -60,7 +60,8 @@ import ij.macro.Interpreter;
 /**
  * Uses a TextPanel to displays text in a window.
  * <p>
- * Copied from ij.text.TextWindow. Add functionality to allow the window to be configured before display.
+ * Copied from {@link ij.text.TextWindow}. 
+ * Added functionality to allow the window to be configured before display.
  *
  * @see TextPanel
  */

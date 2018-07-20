@@ -31,7 +31,7 @@ import ij.measure.Measurements;
 import ij.plugin.filter.Analyzer;
 
 /**
- * Extension of the ij.gui.PlotWindow class to add functionality
+ * Extension of the {@link ij.gui.PlotWindow} class to add functionality.
  */
 public class PlotWindow2 extends PlotWindow
 {

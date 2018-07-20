@@ -36,9 +36,9 @@ import ij.IJ;
 import ij.WindowManager;
 
 /**
- * This is an extension of ExtendedGenericDialog that is non-model.
+ * This is an extension of {@link ij.gui.ExtendedGenericDialog} that is non-model.
  * <p>
- * The implementation is a copy of ij.gui.NonBlockingDialog.
+ * The implementation is a copy of {@link ij.gui.NonBlockingGenericDialog}.
  */
 public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog
 {

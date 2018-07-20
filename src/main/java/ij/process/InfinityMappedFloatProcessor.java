@@ -30,14 +30,15 @@ package ij.process;
 import java.awt.image.ColorModel;
 
 /**
- * Extends the ImageJ FloatProcess class to map the min-max range to 1-255 in the 8-bit image. Negative infinity is
- * mapped to 0 in the LUT.
+ * Extends the ImageJ {@link FloatProcessor} class to map the min-max range to 1-255 in the 8-bit image. 
+ * Negative infinity is mapped to 0 in the LUT.
  * <p>
  * This allows display of a range of float data using the special marker -Infinity to ignore pixels from display
  * (assuming the LUT has black for 0). -Infinity is ignored by ImageJ for most FloatProcessor functionality (histograms,
  * min/max value, etc). This is not the case for NaN which breaks ImageJ data display.
  *
  * @author Alex Herbert
+ * @see FloatProcessor
  */
 public class InfinityMappedFloatProcessor extends FloatProcessor
 {

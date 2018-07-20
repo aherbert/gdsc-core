@@ -31,6 +31,8 @@ import java.awt.Color;
 
 /**
  * Contains functions for ImageJ LUTs.
+ * 
+ * @see LUT
  */
 public class LUTHelper
 {

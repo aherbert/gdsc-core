@@ -23,7 +23,8 @@
  */
 
 /**
- * Data structures for constructing and searching a <a href="https://en.wikipedia.org/wiki/K-d_tree>KD-Tree</a>. 
+ * Third generation code for constructing and searching a <a href="https://en.wikipedia.org/wiki/K-d_tree>KD-Tree</a>. 
+ * <p>
  * The code contained here has been taken from <a href="https://bitbucket.org/rednaxela/knn-benchmark">https://bitbucket.org/rednaxela/knn-benchmark</a>.
  * <p>
  * The KNN benchmark project contains various implementations of Kd-trees for performing efficient K-Nearest Neighbour
@@ -34,4 +35,4 @@
  * <p>
  * Modifications to the code have been made by Alex Herbert for a smaller memory footprint and optimised 2D processing.
  */
-package ags.utils.dataStructures;
+package ags.utils.dataStructures.trees.thirdGenKD;

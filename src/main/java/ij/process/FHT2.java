@@ -31,7 +31,9 @@ import ij.ImageStack;
 import uk.ac.sussex.gdsc.core.utils.Maths;
 
 /**
- * Copy implementation of ij.process.FHT to increase the speed where possible.
+ * Copy implementation of {@link ij.process.FHT} to increase the speed where possible.
+ * 
+ * @see FHT
  */
 public class FHT2 extends FloatProcessor
 {

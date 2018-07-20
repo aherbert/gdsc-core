@@ -42,8 +42,8 @@ import ij.process.ImageProcessor;
 /**
  * Reads raw 8-bit, 16-bit or 32-bit (float or RGB) images from a stream.
  * <p>
- * This is a re-implementation of the ij.io.TiffDecoder to use a SeekableStream interface. If you want to use an input
- * stream then you can use the original TiffDecoder.
+ * This is a re-implementation of the {@link ij.io.TiffDecoder} to use a {@link SeekableStream} 
+ * interface. If you want to use an input stream then you can use the original TiffDecoder.
  * <p>
  * Removed support for progress tracking. Allow IO Exceptions to be thrown.
  */

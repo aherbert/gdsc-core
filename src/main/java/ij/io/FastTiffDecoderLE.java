@@ -31,7 +31,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * A little-endian FastTiffDecoder
+ * A little-endian {@link FastTiffDecoder}.
  */
 public class FastTiffDecoderLE extends FastTiffDecoder
 {

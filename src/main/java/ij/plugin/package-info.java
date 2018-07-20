@@ -25,12 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-
 /**
- * Contains code to extend the functionality of <a href="https://imagej.nih.gov/ij/">ImageJ</a>.
- * <p>
- * Derived classes can be put in the same package as the base ImageJ class so that they can be extended.
- *
- * @author a.herbert@sussex.ac.uk
+ * Extend the functionality of {@link ij.plugin}.
  */
-package ij;
+package ij.plugin;
