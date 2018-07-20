@@ -73,7 +73,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
 	 * @see ij.io.SeekableStream#getFilePointer()
 	 */
 	@Override
-	public long getFilePointer() throws IOException
+	public long getFilePointer()
 	{
 		return pointer;
 	}
