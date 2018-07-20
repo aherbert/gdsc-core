@@ -12,7 +12,7 @@
 
 	<groupId>uk.ac.sussex.gdsc</groupId>
 	<artifactId>gdsc-core</artifactId>
-	<version>1.2.0</version>
+	<version>1.2.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>GDSC Core library for ImageJ</name>
@@ -185,7 +185,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
 		<dependency>
 			<groupId>uk.ac.sussex.gdsc</groupId>
 			<artifactId>gdsc-test</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.0-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
