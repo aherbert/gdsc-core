@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 /**
  * Extend the functionality of the <a href="https://imagej.nih.gov/ij/">ImageJ</a> {@code ij.gui} package.
  * <p>

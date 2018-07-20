@@ -27,7 +27,7 @@
  */
 
 /**
- * Provides data utilities such as unit converters and rounding
+ * Provides data utilities such as unit converters and rounding.
  * 
  * @since 1.2.0
  */

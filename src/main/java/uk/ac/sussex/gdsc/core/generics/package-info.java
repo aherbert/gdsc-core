@@ -27,7 +27,7 @@
  */
 
 /**
- * Provides generic data structures
+ * Provides generic data structures.
  * 
  * @since 1.2.0
  */
