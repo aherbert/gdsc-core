@@ -203,8 +203,8 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 
 	/**
 	 * Returns a pseudorandom, uniformly distributed {@code int} value
-	 * between 0 (inclusive) and the specified value (exclusive), drawn from
-	 * this random number generator's sequence.
+	 * between {@code 0} (inclusive) and the specified value {@code n} (exclusive), 
+	 * drawn from this random number generator's sequence.
 	 * <p>
 	 * The default implementation returns:
 	 *
@@ -217,7 +217,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 	 * @param n
 	 *            the bound on the random number to be returned. Must be
 	 *            positive.
-	 * @return a pseudorandom, uniformly distributed {@code int}
+	 * @return a pseudorandom, uniformly distributed
 	 *         value between 0 (inclusive) and n (exclusive).
 	 */
 	public int nextIntFast(int n)
