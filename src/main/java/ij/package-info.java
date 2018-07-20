@@ -27,10 +27,9 @@
  */
 
 /**
- * Contains code to extend the functionality of <a href="https://imagej.nih.gov/ij/">ImageJ</a>.
- * <p>
- * Derived classes can be put in the same package as the base ImageJ class so that they can be extended.
+ * Extend the functionality of the <a href="https://imagej.nih.gov/ij/">ImageJ</a> {@code ij} package.
  *
- * @author a.herbert@sussex.ac.uk
+ * @see <a href="https://imagej.nih.gov/ij/">ImageJ</a>
+ * @since 1.2.0
  */
 package ij;

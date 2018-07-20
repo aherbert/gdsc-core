@@ -37,7 +37,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>
  * The stack is closeable to prevent further additions. Items can still be removed from a closed stack.
  *
- * @param <E> the element type
+ * @param <E>
+ *            the element type
+ * @since 1.2.0
  */
 public class ConcurrentMonoStack<E>
 {

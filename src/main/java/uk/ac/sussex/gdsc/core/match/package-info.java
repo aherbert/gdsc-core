@@ -25,10 +25,17 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 /**
- * Extend the functionality of the <a href="https://imagej.nih.gov/ij/">ImageJ</a> {@code ij.io} package.
+ * Provides classes to perform <a href="https://en.wikipedia.org/wiki/Binary_classification">binary classification</a>
+ * match analysis on 2D/3D coordinate data.
  *
- * @see <a href="https://imagej.nih.gov/ij/">ImageJ</a>
+ * @see <a href="https://en.wikipedia.org/wiki/Precision_and_recall">Precision and Recall</a>
+ * @see <a href="https://en.wikipedia.org/wiki/Jaccard_index">Jaccard</a>
+ * @see <a href="https://en.wikipedia.org/wiki/F1_score">F1-score</a>
+ * @see <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic#Area_under_the_curve">Area under the
+ *      curve (AUC)</a>
+ *      
  * @since 1.2.0
  */
-package ij.io;
+package uk.ac.sussex.gdsc.core.match;

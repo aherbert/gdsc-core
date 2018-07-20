@@ -25,10 +25,12 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 /**
- * Extend the functionality of the <a href="https://imagej.nih.gov/ij/">ImageJ</a> {@code ij.io} package.
- *
- * @see <a href="https://imagej.nih.gov/ij/">ImageJ</a>
+ * Provides code to be used by plugins executing within <a href="https://imagej.nih.gov/ij/">ImageJ</a>.
+ * <p>
+ * All code under this package is expected to depend on the ImageJ library (i.e. {@code import ij.*;}).
+ *  
  * @since 1.2.0
  */
-package ij.io;
+package uk.ac.sussex.gdsc.core.ij;

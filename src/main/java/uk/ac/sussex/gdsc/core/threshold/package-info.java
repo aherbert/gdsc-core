@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 /**
- * Extend the functionality of the <a href="https://imagej.nih.gov/ij/">ImageJ</a> {@code ij.io} package.
- *
- * @see <a href="https://imagej.nih.gov/ij/">ImageJ</a>
+ * Provides classes for constructing and thresholding histograms of discrete ({@code int}) and
+ * continuous ({@code float}) data.
+ * 
  * @since 1.2.0
  */
-package ij.io;
+package uk.ac.sussex.gdsc.core.threshold;

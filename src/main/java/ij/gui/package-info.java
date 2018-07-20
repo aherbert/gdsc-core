@@ -26,9 +26,12 @@
  * #L%
  */
 /**
- * Extend the functionality of {@link ij.gui}.
+ * Extend the functionality of the <a href="https://imagej.nih.gov/ij/">ImageJ</a> {@code ij.gui} package.
  * <p>
  * Includes support for dialogs that fit all contents in a {@link java.awt.ScrollPane} and 
  * resizing of dialogs to the current screen dimensions.
+ *
+ * @see <a href="https://imagej.nih.gov/ij/">ImageJ</a>
+ * @since 1.2.0
  */
 package ij.gui;

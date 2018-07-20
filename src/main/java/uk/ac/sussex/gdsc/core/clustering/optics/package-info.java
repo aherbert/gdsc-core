@@ -25,10 +25,13 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 /**
- * Extend the functionality of the <a href="https://imagej.nih.gov/ij/">ImageJ</a> {@code ij.io} package.
- *
- * @see <a href="https://imagej.nih.gov/ij/">ImageJ</a>
+ * Provides algorithms for 2D DBSCAN, OPTICS and FastOPTICS.
+ * 
+ * @see <a href="https://en.wikipedia.org/wiki/DBSCAN">DBSCAN</a>
+ * @see <a href="https://en.wikipedia.org/wiki/OPTICS_algorithm">OPTICS</a>
+ * @see <a href="http://doi.org/10.1145/2505515.2505590">FastOPTICS</a>
  * @since 1.2.0
  */
-package ij.io;
+package uk.ac.sussex.gdsc.core.clustering.optics;

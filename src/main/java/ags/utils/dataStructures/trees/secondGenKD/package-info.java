@@ -23,9 +23,10 @@
  */
 
 /**
- * Second generation code for constructing and searching a <a href="https://en.wikipedia.org/wiki/K-d_tree>KD-Tree</a>. 
+ * Provides classes for constructing and searching a <a href="https://en.wikipedia.org/wiki/K-d_tree">KD-Tree</a>.
  * <p>
- * The code contained here has been taken from <a href="https://bitbucket.org/rednaxela/knn-benchmark">https://bitbucket.org/rednaxela/knn-benchmark</a>.
+ * The code contained here has been taken from
+ * <a href="https://bitbucket.org/rednaxela/knn-benchmark">https://bitbucket.org/rednaxela/knn-benchmark</a>.
  * <p>
  * The KNN benchmark project contains various implementations of Kd-trees for performing efficient K-Nearest Neighbour
  * searches. There are many implementations available, this package contains one of the fastest in the standard
@@ -34,5 +35,8 @@
  * The code is Copyright 2009 Rednaxela.
  * <p>
  * Modifications to the code have been made by Alex Herbert for a smaller memory footprint and optimised 2D processing.
+ * 
+ * @see <a href="https://bitbucket.org/rednaxela/knn-benchmark">KNN benchmark</a>
+ * @since 1.2.0
  */
 package ags.utils.dataStructures.trees.secondGenKD;

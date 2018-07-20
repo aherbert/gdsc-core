@@ -26,6 +26,9 @@
  * #L%
  */
 /**
- * Extend the functionality of {@link ij.process}.
+ * Extend the functionality of the <a href="https://imagej.nih.gov/ij/">ImageJ</a> {@code ij.process} package.
+ * 
+ * @see <a href="https://imagej.nih.gov/ij/">ImageJ</a>
+ * @since 1.2.0
  */
 package ij.process;

@@ -35,6 +35,8 @@ import uk.ac.sussex.gdsc.core.utils.Digest;
 
 /**
  * Provide digest functionality for ImageJ images to digest the pixels array
+ * 
+ * @since 1.2.0
  */
 public class IJDigest
 {
@@ -164,7 +166,7 @@ public class IJDigest
 	 * Digest the processor.
 	 *
 	 * @param ip
-*            the image
+	 *            the image
 	 * @return the string
 	 */
 	public String digest(ImageProcessor ip)

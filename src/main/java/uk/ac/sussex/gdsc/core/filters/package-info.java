@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 /**
- * Extend the functionality of the <a href="https://imagej.nih.gov/ij/">ImageJ</a> {@code ij.io} package.
- *
- * @see <a href="https://imagej.nih.gov/ij/">ImageJ</a>
+ * Provides classes for filtering 2D data including area statistics and
+ * non-maximum suppression (finding local maxima).
+ * 
  * @since 1.2.0
  */
-package ij.io;
+package uk.ac.sussex.gdsc.core.filters;

@@ -225,5 +225,4 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 		final int result = (int) (nextDouble() * n);
 		return result < n ? result : n - 1;
 	}
-
 }

@@ -47,6 +47,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @param <E>
  *            the element type
+ * @since 1.2.0
  */
 public class CloseableBlockingQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>, java.io.Serializable
 {
