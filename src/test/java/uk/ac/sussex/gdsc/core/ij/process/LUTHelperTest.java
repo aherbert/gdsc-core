@@ -25,7 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package ij.process;
+package uk.ac.sussex.gdsc.core.ij.process;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

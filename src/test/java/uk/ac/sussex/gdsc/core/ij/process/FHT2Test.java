@@ -25,12 +25,15 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package ij.process;
+package uk.ac.sussex.gdsc.core.ij.process;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import ij.plugin.filter.EDM;
+import ij.process.ByteProcessor;
+import ij.process.FHT;
+import ij.process.FloatProcessor;
 import uk.ac.sussex.gdsc.core.ij.process.FHT2;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
