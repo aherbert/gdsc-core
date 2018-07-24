@@ -32,8 +32,8 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.util.MathArrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import org.opentest4j.AssertionFailedError;
+
 import uk.ac.sussex.gdsc.test.TestSettings;
 
 @SuppressWarnings({ "javadoc" })
