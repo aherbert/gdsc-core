@@ -32,9 +32,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import ags.utils.dataStructures.trees.secondGenKD.FloatIntKdTree2D;
-import ags.utils.dataStructures.trees.secondGenKD.IntNeighbourStore;
-import ags.utils.dataStructures.trees.secondGenKD.Status;
+import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.FloatIntKdTree2D;
+import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.IntNeighbourStore;
+import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.Status;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**

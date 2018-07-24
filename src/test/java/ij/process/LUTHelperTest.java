@@ -30,9 +30,9 @@ package ij.process;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import ij.process.LUTHelper.DefaultLUTMapper;
-import ij.process.LUTHelper.LUTMapper;
-import ij.process.LUTHelper.NonZeroLUTMapper;
+import uk.ac.sussex.gdsc.core.ij.process.LUTHelper.DefaultLUTMapper;
+import uk.ac.sussex.gdsc.core.ij.process.LUTHelper.LUTMapper;
+import uk.ac.sussex.gdsc.core.ij.process.LUTHelper.NonZeroLUTMapper;
 
 @SuppressWarnings({ "javadoc" })
 public class LUTHelperTest

@@ -31,7 +31,7 @@ import java.awt.Frame;
 
 import ij.text.TextPanel;
 import ij.text.TextWindow;
-import ij.text.TextWindow2;
+import uk.ac.sussex.gdsc.core.ij.text.TextWindow2;
 
 /**
  * Buffer to the ImageJ text window. Updates the display when 10 lines have been reached (to auto-layout columns)_and

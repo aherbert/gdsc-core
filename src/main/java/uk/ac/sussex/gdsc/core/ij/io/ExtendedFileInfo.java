@@ -25,13 +25,20 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+package uk.ac.sussex.gdsc.core.ij.io;
+
+import ij.io.FileInfo;
 
 /**
- * Extend the functionality of the <a href="https://imagej.nih.gov/ij/">ImageJ</a> {@code ij.gui} package.
- * <p>
- * This uses the actual ImageJ package to allow package level methods and variables to be accessed. 
- *
- * @see <a href="https://imagej.nih.gov/ij/">ImageJ</a>
- * @since 1.2.0
+ * Extend the {@link ij.io.FileInfo} to add extra fields for the {@link FastTiffDecoder}.
  */
-package ij.gui;
+public class ExtendedFileInfo extends FileInfo
+{
+	/**
+	 * Contains summary meta data (i.e. for non ImageJ applications such as MicroManager). This is expected to be used
+	 * only for the first IFD in a TIFF file.
+	 */
+	public String summaryMetaData;
+	/** Contains extended meta data for the image (i.e. for non ImageJ applications such as MicroManager) */
+	public String extendedMetaData;
+}

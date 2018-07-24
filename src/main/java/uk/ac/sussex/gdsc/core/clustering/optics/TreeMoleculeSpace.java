@@ -27,8 +27,8 @@
  */
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import ags.utils.dataStructures.trees.secondGenKD.KdTree2D;
-import ags.utils.dataStructures.trees.secondGenKD.NeighbourStore;
+import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.KdTree2D;
+import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.NeighbourStore;
 
 /**
  * Store molecules in a 2D tree

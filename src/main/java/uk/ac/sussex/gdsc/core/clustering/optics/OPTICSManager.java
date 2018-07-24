@@ -34,7 +34,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 
-import ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D;
+import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D;
 import uk.ac.sussex.gdsc.core.clustering.CoordinateStore;
 import uk.ac.sussex.gdsc.core.ij.Utils;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;

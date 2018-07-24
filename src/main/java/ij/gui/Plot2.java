@@ -27,13 +27,6 @@
  */
 package ij.gui;
 
-import java.awt.Window;
-
-import ij.IJ;
-import ij.ImagePlus;
-import ij.WindowManager;
-import ij.macro.Interpreter;
-
 /**
  * Extension of the {@link ij.gui.Plot} class to add functionality.
  */
@@ -41,8 +34,6 @@ public class Plot2 extends Plot
 {
 	/** Draw a bar plot. */
 	public static final int BAR = 999;
-
-	private static boolean failedOverride = false;
 
 	/**
 	 * Instantiates a new plot 2.
@@ -178,25 +169,21 @@ public class Plot2 extends Plot
 	}
 
 	/**
-	 * Adds a set of points to the plot or adds a curve if shape is set to LINE.
+	 * {@inheritDoc}
 	 * <p>
-	 * Support Bar plots by adding an extra point to draw a horizontal line and vertical line between points
-	 *
-	 * @param xValues
-	 *            the x coordinates, or null. If null, integers starting at 0 will be used for x.
-	 * @param yValues
-	 *            the y coordinates (must not be null)
-	 * @param yErrorBars
-	 *            error bars in y, may be null
+	 * Support Bar plots by adding an extra point to draw a horizontal line and vertical line between points.
+	 * <p>
+	 * This is a fudge as the values for the bar will be exported as the duplicated line.
+	 * However if a visual is all that is required then this works fine.
+	 * 
 	 * @param shape
 	 *            CIRCLE, X, BOX, TRIANGLE, CROSS, DOT, LINE, CONNECTED_CIRCLES, or BAR
-	 * @param label
-	 *            Label for this curve or set of points, used for a legend and for listing the plots
 	 */
 	@Override
 	public void addPoints(float[] xValues, float[] yValues, float[] yErrorBars, int shape, String label)
 	{
-		// This only works if the addPoints super method ignores the BAR option but still store the values
+		// This only works if the addPoints super method ignores the 
+		// BAR option but still stores the values.
 		try
 		{
 			if (shape == BAR)
@@ -275,60 +262,9 @@ public class Plot2 extends Plot
 		return axis;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ij.gui.Plot#show()
-	 */
-	@Override
-	public PlotWindow show()
-	{
-		// Override to show a PlotWindow2 object
-		if (failedOverride)
-			return super.show();
-
-		try
-		{
-			ImagePlus imp = getImagePlus();
-			if ((IJ.macroRunning() && IJ.getInstance() == null) || Interpreter.isBatchMode())
-			{
-				WindowManager.setTempCurrentImage(imp);
-				final float[] x = getXValues();
-				if (x != null)
-				{
-					imp.setProperty("XValues", x); // Allows values to be retrieved by
-					imp.setProperty("YValues", getYValues()); // by Plot.getValues() macro function
-				}
-				Interpreter.addBatchModeImage(imp);
-				return null;
-			}
-			if (imp != null)
-			{
-				final Window win = imp.getWindow();
-				if (win instanceof PlotWindow && win.isVisible())
-				{
-					updateImage(); // show in existing window
-					return (PlotWindow) win;
-				}
-			}
-			final PlotWindow2 pw = new PlotWindow2(this);
-			if (imp != null)
-				imp.setProperty(PROPERTY_KEY, null);
-			imp = pw.getImagePlus();
-			imp.setProperty(PROPERTY_KEY, this);
-			if (IJ.isMacro()) // wait for plot to be displayed
-				IJ.selectWindow(imp.getID());
-			return pw;
-		}
-		catch (final Throwable e)
-		{
-			// Ignore
-			failedOverride = true;
-		}
-
-		return super.show();
-	}
-
+	// These methods require that the class is within the ij.gui package so the package level
+	// methods and variable can be used.
+	
 	/**
 	 * Gets the default min and max. This will be the full range of data unless the
 	 * {@link #setLimits(double, double, double, double)} method has been called.
@@ -337,6 +273,10 @@ public class Plot2 extends Plot
 	 */
 	public double[] getDefaultMinAndMax()
 	{
+		// Note: super.getLimits(); returns the limits of the data.
+		// These may have been adjusted using setLimits() to 
+		// change the plotted area.
+		
 		try
 		{
 			super.getInitialMinAndMax();
