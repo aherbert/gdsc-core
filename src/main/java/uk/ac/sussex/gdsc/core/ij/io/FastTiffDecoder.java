@@ -2191,10 +2191,8 @@ public abstract class FastTiffDecoder
 	 * @param skip
 	 *            the skip
 	 * @return the position before the skip (-1 if EOF)
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
 	 */
-	private static int getPositionAndSkipBytes(ByteArraySeekableStream in, long skip) throws IOException
+	private static int getPositionAndSkipBytes(ByteArraySeekableStream in, long skip)
 	{
 		final int position = in.p;
 		if (in.skip(skip) != skip)

@@ -63,7 +63,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 	 * @see ij.io.SeekableStream#getFilePointer()
 	 */
 	@Override
-	public long getFilePointer() throws IOException
+	public long getFilePointer()
 	{
 		return p;
 	}
@@ -74,7 +74,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 	 * @see ij.io.SeekableStream#read()
 	 */
 	@Override
-	public int read() throws IOException
+	public int read()
 	{
 		if (p < length)
 			return buffer[p++] & 0xff;
@@ -87,7 +87,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 	 * @see ij.io.SeekableStream#read(byte[], int, int)
 	 */
 	@Override
-	public int read(byte[] bytes, int off, int len) throws IOException
+	public int read(byte[] bytes, int off, int len)
 	{
 		if (p < length)
 		{
@@ -118,13 +118,13 @@ public final class ByteArraySeekableStream extends SeekableStream
 	}
 
 	@Override
-	public void close() throws IOException
+	public void close()
 	{
 		// Do nothing
 	}
 
 	@Override
-	public long skip(long n) throws IOException
+	public long skip(long n)
 	{
 		if (n <= 0)
 			return 0;
@@ -140,7 +140,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 	}
 
 	@Override
-	public int available() throws IOException
+	public int available()
 	{
 		return length - p;
 	}
@@ -162,7 +162,7 @@ public final class ByteArraySeekableStream extends SeekableStream
 	 * @return the byte array seekable stream
 	 */
 	@Override
-	public ByteArraySeekableStream copy() throws IOException
+	public ByteArraySeekableStream copy()
 	{
 		return new ByteArraySeekableStream(buffer);
 	}
