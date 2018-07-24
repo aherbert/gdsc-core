@@ -31,15 +31,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.utils.Random;
 import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.junit4.TestAssume;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 
 @SuppressWarnings({ "javadoc" })
 public class ClusteringEngineTest
@@ -68,10 +68,10 @@ public class ClusteringEngineTest
 	@Test
 	public void pairwiseWithoutNeighboursIsFasterAtLowDensities()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
-		TestAssume.assume(LogLevel.WARN, TestComplexity.LOW);
+		ExtraAssumptions.assume(LogLevel.WARN, TestComplexity.LOW);
 		final int repeats = 10;
 		final double radius = 50;
 		final Object[] points = new Object[repeats];
@@ -82,14 +82,14 @@ public class ClusteringEngineTest
 		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
 
 		final LogLevel level = (t2 < t1) ? LogLevel.WARN : LogLevel.INFO;
-		TestLog.log(level, "SpeedTest (Low Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1,
-				t2, (double) t1 / t2);
+		TestLog.log(level, "SpeedTest (Low Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1, t2,
+				(double) t1 / t2);
 	}
 
 	@Test
 	public void pairwiseWithoutNeighboursIsSlowerAtHighDensities()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int repeats = 10;
@@ -103,13 +103,13 @@ public class ClusteringEngineTest
 
 		TestLog.info("SpeedTest (High Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1, t2,
 				(double) t1 / t2);
-		Assert.assertTrue(t1 < t2);
+		Assertions.assertTrue(t1 < t2);
 	}
 
 	@Test
 	public void pairwiseIsFaster()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int repeats = 20;
@@ -122,7 +122,7 @@ public class ClusteringEngineTest
 		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE, radius);
 
 		TestLog.info("SpeedTest Closest %d, Pairwise %d = %fx faster\n", t1, t2, (double) t1 / t2);
-		Assert.assertTrue(t2 < t1);
+		Assertions.assertTrue(t2 < t1);
 	}
 
 	@Test
@@ -245,7 +245,7 @@ public class ClusteringEngineTest
 
 	private static void runMultithreadingSpeedTest(RandomGenerator rg, ClusteringAlgorithm algorithm)
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 
 		final int repeats = 5;
 		final double radius = 50;
@@ -257,9 +257,9 @@ public class ClusteringEngineTest
 		final long t1 = runSpeedTest(points, algorithm, radius, time, 1);
 		final long t2 = runSpeedTest(points, algorithm, radius, time, 8);
 
-		TestLog.info("Threading SpeedTest %s : Single %d, Multi-threaded %d = %fx faster\n", algorithm.toString(),
-				t1, t2, (double) t1 / t2);
-		Assert.assertTrue(t2 < t1);
+		TestLog.info("Threading SpeedTest %s : Single %d, Multi-threaded %d = %fx faster\n", algorithm.toString(), t1,
+				t2, (double) t1 / t2);
+		Assertions.assertTrue(t2 < t1);
 	}
 
 	private static long runSpeedTest(Object[] points, ClusteringAlgorithm algorithm, double radius)
@@ -304,7 +304,7 @@ public class ClusteringEngineTest
 
 		try
 		{
-			Assert.assertEquals("# clusters is different", exp.size(), obs.size());
+			Assertions.assertEquals(exp.size(), obs.size(), "# clusters is different");
 			for (int i = 0; i < exp.size(); i++)
 				assertEqual(i, exp.get(i), obs.get(i));
 		}
@@ -328,9 +328,9 @@ public class ClusteringEngineTest
 
 	private static void assertEqual(int i, Cluster cluster, Cluster cluster2)
 	{
-		Assert.assertEquals(i + " cluster: Size is different", cluster.n, cluster2.n);
-		Assert.assertEquals(i + " cluster: X is different", cluster.x, cluster2.x, 1e-4);
-		Assert.assertEquals(i + " cluster: Y is different", cluster.y, cluster2.y, 1e-4);
+		Assertions.assertEquals(cluster.n, cluster2.n, () -> String.format("Cluster %d: Size is different", i));
+		Assertions.assertEquals(cluster.x, cluster2.x, 1e-4, () -> String.format("Cluster %d: X is different", i));
+		Assertions.assertEquals(cluster.y, cluster2.y, 1e-4, () -> String.format("Cluster %d: Y is different", i));
 		// Q. Should we check each cluster member is the same ?
 	}
 

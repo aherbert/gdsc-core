@@ -27,8 +27,8 @@
  */
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.TimingService;
@@ -115,7 +115,7 @@ public class SortTest
 	@Test
 	public void canTestFloatBitConversionSpeed()
 	{
-		Assume.assumeTrue(false);
+		Assumptions.assumeTrue(false);
 
 		// Q. Is it faster to use:
 		// int i;
@@ -222,7 +222,7 @@ public class SortTest
 	@Test
 	public void canTestDoubleBitConversionSpeed()
 	{
-		Assume.assumeTrue(false);
+		Assumptions.assumeTrue(false);
 
 		// Q. Is it faster to use:
 		// int i;

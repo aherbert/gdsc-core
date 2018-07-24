@@ -32,15 +32,16 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
-import uk.ac.sussex.gdsc.test.junit4.TestAssume;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
 
 @SuppressWarnings({ "deprecation", "javadoc" })
 public class EqualityTest
@@ -85,14 +86,14 @@ public class EqualityTest
 					//TestLog.debug("%d  %s < %s < %s = %d  %d  %g  %g\n", sig, BLow, A, BHigh, ulps1, ulps2, rel1,	rel2);
 					if (ulps1 > 100)
 					{
-						Assert.assertEquals(e, rel1, tolerance);
-						Assert.assertEquals(e, rel2, tolerance);
+						Assertions.assertEquals(e, rel1, tolerance);
+						Assertions.assertEquals(e, rel2, tolerance);
 					}
 					if (ulps1 == ulps2)
 						same++;
 					total++;
 				}
-			Assert.assertTrue(same < total);
+			Assertions.assertTrue(same < total);
 		}
 	}
 
@@ -134,14 +135,14 @@ public class EqualityTest
 					//TestLog.debug("%d  %s < %s < %s = %d  %d  %g  %g\n", sig, BLow, A, BHigh, ulps1, ulps2, rel1,	rel2);
 					if (ulps1 > 100)
 					{
-						Assert.assertEquals(e, rel1, tolerance);
-						Assert.assertEquals(e, rel2, tolerance);
+						Assertions.assertEquals(e, rel1, tolerance);
+						Assertions.assertEquals(e, rel2, tolerance);
 					}
 					if (ulps1 == ulps2)
 						same++;
 					total++;
 				}
-			Assert.assertTrue(same < total);
+			Assertions.assertTrue(same < total);
 		}
 	}
 
@@ -166,12 +167,12 @@ public class EqualityTest
 			final double a = A.doubleValue();
 			final double b = BLow.doubleValue();
 			final double max = DoubleEquality.getMaxRelativeError(s);
-			Assert.assertEquals(e, max, e * 0.01);
+			Assertions.assertEquals(e, max, e * 0.01);
 			//double rel = DoubleEquality.relativeError(a, b);
 			//TestLog.debug("[%d] %s -> %s : %g  %g\n", s, A, BLow, max, rel);
 			final DoubleEquality eq = new DoubleEquality(s, 0);
-			Assert.assertTrue(eq.almostEqualRelativeOrAbsolute(a, b));
-			Assert.assertFalse(eq.almostEqualRelativeOrAbsolute(a, BLower.doubleValue()));
+			Assertions.assertTrue(eq.almostEqualRelativeOrAbsolute(a, b));
+			Assertions.assertFalse(eq.almostEqualRelativeOrAbsolute(a, BLower.doubleValue()));
 		}
 	}
 
@@ -196,12 +197,12 @@ public class EqualityTest
 			final float a = A.floatValue();
 			final float b = BLow.floatValue();
 			final float max = FloatEquality.getMaxRelativeError(s);
-			Assert.assertEquals(e, max, e * 0.01);
+			Assertions.assertEquals(e, max, e * 0.01);
 			//float rel = FloatEquality.relativeError(a, b);
 			//TestLog.debug("[%d] %s -> %s : %g  %g\n", s, A, BLow, max, rel);
 			final FloatEquality eq = new FloatEquality(s, 0);
-			Assert.assertTrue(eq.almostEqualRelativeOrAbsolute(a, b));
-			Assert.assertFalse(eq.almostEqualRelativeOrAbsolute(a, BLower.floatValue()));
+			Assertions.assertTrue(eq.almostEqualRelativeOrAbsolute(a, b));
+			Assertions.assertFalse(eq.almostEqualRelativeOrAbsolute(a, BLower.floatValue()));
 		}
 	}
 
@@ -218,15 +219,17 @@ public class EqualityTest
 			final double f = i / 10000.0;
 			final double f2 = f * (1.00f + maxRelativeError - 1e-3f);
 			final double f3 = f * (1.0f + 2.0f * maxRelativeError);
-			Assert.assertTrue("not equal " + f, equality.almostEqualRelativeOrAbsolute(f, f));
-			Assert.assertTrue("not equal " + f, equality.almostEqualRelativeOrAbsolute(f, f2));
+			//@formatter:off
+			Assertions.assertTrue(equality.almostEqualRelativeOrAbsolute(f, f), () -> String.format("not equal %f", f));
+			Assertions.assertTrue(equality.almostEqualRelativeOrAbsolute(f, f2), () -> String.format("not equal %f", f));
 			if (i > 0)
-				Assert.assertFalse("equal " + f, equality.almostEqualRelativeOrAbsolute(f, f3));
+				Assertions.assertFalse(equality.almostEqualRelativeOrAbsolute(f, f3),() -> String.format("equal %f", f));
 
-			Assert.assertTrue("not equal " + f, equality2.almostEqualRelativeOrAbsolute(f, f));
-			Assert.assertTrue("not equal " + f, equality2.almostEqualRelativeOrAbsolute(f, f2));
+			Assertions.assertTrue(equality2.almostEqualRelativeOrAbsolute(f, f),() -> String.format("not equal %f", f));
+			Assertions.assertTrue(equality2.almostEqualRelativeOrAbsolute(f, f2),() -> String.format("not equal %f", f));
 			if (i > 0)
-				Assert.assertFalse("equal " + f, equality2.almostEqualRelativeOrAbsolute(f, f3));
+				Assertions.assertFalse(equality2.almostEqualRelativeOrAbsolute(f, f3),() -> String.format("equal %f", f));
+			//@formatter:on
 		}
 	}
 
@@ -243,15 +246,17 @@ public class EqualityTest
 			final float f = (float) (i / 10000.0);
 			final float f2 = f * (1.00f + maxRelativeError - 1e-3f);
 			final float f3 = f * (1.0f + 2.0f * maxRelativeError);
-			Assert.assertTrue("not equal " + f, equality.almostEqualRelativeOrAbsolute(f, f));
-			Assert.assertTrue("not equal " + f, equality.almostEqualRelativeOrAbsolute(f, f2));
+			//@formatter:off
+			Assertions.assertTrue(equality.almostEqualRelativeOrAbsolute(f, f), () -> String.format("not equal %f", f));
+			Assertions.assertTrue(equality.almostEqualRelativeOrAbsolute(f, f2), () -> String.format("not equal %f", f));
 			if (i > 0)
-				Assert.assertFalse("equal " + f, equality.almostEqualRelativeOrAbsolute(f, f3));
+				Assertions.assertFalse(equality.almostEqualRelativeOrAbsolute(f, f3),() -> String.format("equal %f", f));
 
-			Assert.assertTrue("not equal " + f, equality2.almostEqualRelativeOrAbsolute(f, f));
-			Assert.assertTrue("not equal " + f, equality2.almostEqualRelativeOrAbsolute(f, f2));
+			Assertions.assertTrue(equality2.almostEqualRelativeOrAbsolute(f, f),() -> String.format("not equal %f", f));
+			Assertions.assertTrue(equality2.almostEqualRelativeOrAbsolute(f, f2),() -> String.format("not equal %f", f));
 			if (i > 0)
-				Assert.assertFalse("equal " + f, equality2.almostEqualRelativeOrAbsolute(f, f3));
+				Assertions.assertFalse(equality2.almostEqualRelativeOrAbsolute(f, f3),() -> String.format("equal %f", f));
+			//@formatter:on
 		}
 	}
 
@@ -281,21 +286,21 @@ public class EqualityTest
 		//computeComplement(1e-36f);
 
 		// Simple tests
-		Assert.assertEquals(1, DoubleEquality.complement(0, Double.MIN_VALUE));
-		Assert.assertEquals(1, DoubleEquality.complement(0, -Double.MIN_VALUE));
-		Assert.assertEquals(2, DoubleEquality.complement(-Double.MIN_VALUE, Double.MIN_VALUE));
-		Assert.assertEquals(2, DoubleEquality.signedComplement(Double.MIN_VALUE, -Double.MIN_VALUE));
-		Assert.assertEquals(-2, DoubleEquality.signedComplement(-Double.MIN_VALUE, Double.MIN_VALUE));
-		Assert.assertEquals(Long.MAX_VALUE, DoubleEquality.signedComplement(Double.MAX_VALUE, -Double.MAX_VALUE));
-		Assert.assertEquals(Long.MIN_VALUE, DoubleEquality.signedComplement(-Double.MAX_VALUE, Double.MAX_VALUE));
+		Assertions.assertEquals(1, DoubleEquality.complement(0, Double.MIN_VALUE));
+		Assertions.assertEquals(1, DoubleEquality.complement(0, -Double.MIN_VALUE));
+		Assertions.assertEquals(2, DoubleEquality.complement(-Double.MIN_VALUE, Double.MIN_VALUE));
+		Assertions.assertEquals(2, DoubleEquality.signedComplement(Double.MIN_VALUE, -Double.MIN_VALUE));
+		Assertions.assertEquals(-2, DoubleEquality.signedComplement(-Double.MIN_VALUE, Double.MIN_VALUE));
+		Assertions.assertEquals(Long.MAX_VALUE, DoubleEquality.signedComplement(Double.MAX_VALUE, -Double.MAX_VALUE));
+		Assertions.assertEquals(Long.MIN_VALUE, DoubleEquality.signedComplement(-Double.MAX_VALUE, Double.MAX_VALUE));
 
-		Assert.assertEquals(1, FloatEquality.complement(0, Float.MIN_VALUE));
-		Assert.assertEquals(1, FloatEquality.complement(0, -Float.MIN_VALUE));
-		Assert.assertEquals(2, FloatEquality.complement(-Float.MIN_VALUE, Float.MIN_VALUE));
-		Assert.assertEquals(2, FloatEquality.signedComplement(Float.MIN_VALUE, -Float.MIN_VALUE));
-		Assert.assertEquals(-2, FloatEquality.signedComplement(-Float.MIN_VALUE, Float.MIN_VALUE));
-		Assert.assertEquals(Integer.MAX_VALUE, FloatEquality.signedComplement(Float.MAX_VALUE, -Float.MAX_VALUE));
-		Assert.assertEquals(Integer.MIN_VALUE, FloatEquality.signedComplement(-Float.MAX_VALUE, Float.MAX_VALUE));
+		Assertions.assertEquals(1, FloatEquality.complement(0, Float.MIN_VALUE));
+		Assertions.assertEquals(1, FloatEquality.complement(0, -Float.MIN_VALUE));
+		Assertions.assertEquals(2, FloatEquality.complement(-Float.MIN_VALUE, Float.MIN_VALUE));
+		Assertions.assertEquals(2, FloatEquality.signedComplement(Float.MIN_VALUE, -Float.MIN_VALUE));
+		Assertions.assertEquals(-2, FloatEquality.signedComplement(-Float.MIN_VALUE, Float.MIN_VALUE));
+		Assertions.assertEquals(Integer.MAX_VALUE, FloatEquality.signedComplement(Float.MAX_VALUE, -Float.MAX_VALUE));
+		Assertions.assertEquals(Integer.MIN_VALUE, FloatEquality.signedComplement(-Float.MAX_VALUE, Float.MAX_VALUE));
 
 		// Check the complement is correct around a change of sign
 		test(-Double.MAX_VALUE, Double.MAX_VALUE);
@@ -337,12 +342,12 @@ public class EqualityTest
 		else
 		{
 			final long c = DoubleEquality.signedComplement(lower, upper);
-			Assert.assertTrue(c < 0);
-			Assert.assertEquals(d, -c);
-			Assert.assertEquals(d, DoubleEquality.signedComplement(upper, lower));
+			Assertions.assertTrue(c < 0);
+			Assertions.assertEquals(d, -c);
+			Assertions.assertEquals(d, DoubleEquality.signedComplement(upper, lower));
 		}
 		//log("%g - %g = %d\n", upper, lower, d);
-		Assert.assertEquals(d, DoubleEquality.complement(lower, upper));
+		Assertions.assertEquals(d, DoubleEquality.complement(lower, upper));
 	}
 
 	private static void test(float lower, float upper)
@@ -359,7 +364,7 @@ public class EqualityTest
 		if (d < 0)
 			d = Integer.MAX_VALUE;
 		//log("%g - %g = %d\n", upper, lower, d);
-		Assert.assertEquals(d, FloatEquality.complement(lower, upper));
+		Assertions.assertEquals(d, FloatEquality.complement(lower, upper));
 	}
 
 	/**
@@ -381,10 +386,10 @@ public class EqualityTest
 				DoubleEquality.relativeError(f, f4));
 	}
 
-	@Test
+	@SpeedTest
 	public void floatRelativeIsSameSpeedAsDoubleRelative()
 	{
-		TestAssume.assumeSpeedTest();
+		ExtraAssumptions.assumeSpeedTest();
 
 		final float maxRelativeError = 1e-2f;
 		final float maxAbsoluteError = 1e-16f;

@@ -30,8 +30,8 @@ package uk.ac.sussex.gdsc.core.filters;
 import java.awt.Rectangle;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
@@ -42,8 +42,9 @@ import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
-import uk.ac.sussex.gdsc.test.junit4.TestAssert;
-import uk.ac.sussex.gdsc.test.junit4.TestAssume;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
 
 @SuppressWarnings({ "javadoc" })
 public class AreaStatisticsTest
@@ -62,14 +63,14 @@ public class AreaStatisticsTest
 		{
 			a.setRollingSums(r);
 			double[] o = a.getStatistics(0, 0, maxy);
-			Assert.assertEquals(s.getN(), o[AreaSum.N], 0);
-			TestAssert.assertEqualsRelative(s.getSum(), o[AreaSum.SUM], 1e-6);
-			TestAssert.assertEqualsRelative(s.getStandardDeviation(), o[AreaStatistics.SD], 1e-6);
+			Assertions.assertEquals(s.getN(), o[AreaSum.N]);
+			ExtraAssertions.assertEqualsRelative(s.getSum(), o[AreaSum.SUM], 1e-6);
+			ExtraAssertions.assertEqualsRelative(s.getStandardDeviation(), o[AreaStatistics.SD], 1e-6);
 
 			o = a.getStatistics(new Rectangle(maxx, maxy));
-			Assert.assertEquals(s.getN(), o[AreaSum.N], 0);
-			TestAssert.assertEqualsRelative(s.getSum(), o[AreaSum.SUM], 1e-6);
-			TestAssert.assertEqualsRelative(s.getStandardDeviation(), o[AreaStatistics.SD], 1e-6);
+			Assertions.assertEquals(s.getN(), o[AreaSum.N]);
+			ExtraAssertions.assertEqualsRelative(s.getSum(), o[AreaSum.SUM], 1e-6);
+			ExtraAssertions.assertEqualsRelative(s.getStandardDeviation(), o[AreaStatistics.SD], 1e-6);
 		}
 	}
 
@@ -91,17 +92,17 @@ public class AreaStatisticsTest
 				{
 					final double[] e = a1.getStatistics(x, y, n);
 					final double[] o = a2.getStatistics(x, y, n);
-					TestAssert.assertArrayEqualsRelative(e, o, 1e-6);
+					ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
 					//TestLog.debug("%s vs %s\n", toString(e), toString(o));
 
 					// Check with ImageJ
 					fp.setRoi(new Rectangle(x - n, y - n, 2 * n + 1, 2 * n + 1));
 					final ImageStatistics s = fp.getStatistics();
 
-					Assert.assertEquals(s.area, o[AreaSum.N], 0);
+					Assertions.assertEquals(s.area, o[AreaSum.N]);
 					final double sum = s.mean * s.area;
-					TestAssert.assertEqualsRelative(sum, o[AreaSum.SUM], 1e-6);
-					TestAssert.assertEqualsRelative(s.stdDev, o[AreaStatistics.SD], 1e-6);
+					ExtraAssertions.assertEqualsRelative(sum, o[AreaSum.SUM], 1e-6);
+					ExtraAssertions.assertEqualsRelative(s.stdDev, o[AreaStatistics.SD], 1e-6);
 				}
 	}
 
@@ -124,16 +125,16 @@ public class AreaStatisticsTest
 					{
 						final double[] e = a1.getStatistics(x, y, nx, ny);
 						final double[] o = a2.getStatistics(x, y, nx, ny);
-						TestAssert.assertArrayEqualsRelative(e, o, 1e-6);
+						ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
 						//TestLog.debug("%s vs %s\n", toString(e), toString(o));
 
 						// Check with ImageJ
 						fp.setRoi(new Rectangle(x - nx, y - ny, 2 * nx + 1, 2 * ny + 1));
 						final ImageStatistics s = fp.getStatistics();
 
-						Assert.assertEquals(s.area, o[AreaSum.N], 0);
-						TestAssert.assertEqualsRelative(s.mean * s.area, o[AreaSum.SUM], 1e-6);
-						TestAssert.assertEqualsRelative(s.stdDev, o[AreaStatistics.SD], 1e-6);
+						Assertions.assertEquals(s.area, o[AreaSum.N]);
+						ExtraAssertions.assertEqualsRelative(s.mean * s.area, o[AreaSum.SUM], 1e-6);
+						ExtraAssertions.assertEqualsRelative(s.stdDev, o[AreaStatistics.SD], 1e-6);
 					}
 	}
 
@@ -159,16 +160,16 @@ public class AreaStatisticsTest
 				roi.y = y;
 				final double[] e = a1.getStatistics(roi);
 				final double[] o = a2.getStatistics(roi);
-				TestAssert.assertArrayEqualsRelative(e, o, 1e-6);
+				ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
 				//TestLog.debug("%s vs %s\n", toString(e), toString(o));
 
 				// Check with ImageJ
 				fp.setRoi(roi);
 				final ImageStatistics s = fp.getStatistics();
 
-				Assert.assertEquals(s.area, o[AreaSum.N], 0);
-				TestAssert.assertEqualsRelative(s.mean * s.area, o[AreaSum.SUM], 1e-6);
-				TestAssert.assertEqualsRelative(s.stdDev, o[AreaStatistics.SD], 1e-6);
+				Assertions.assertEquals(s.area, o[AreaSum.N]);
+				ExtraAssertions.assertEqualsRelative(s.mean * s.area, o[AreaSum.SUM], 1e-6);
+				ExtraAssertions.assertEqualsRelative(s.stdDev, o[AreaStatistics.SD], 1e-6);
 			}
 	}
 
@@ -187,22 +188,22 @@ public class AreaStatisticsTest
 			for (final int n : boxSizes)
 			{
 				double[] o = a.getStatistics(0, 0, n);
-				Assert.assertEquals(c, o[AreaSum.N], 0);
-				TestAssert.assertEqualsRelative(u, o[AreaSum.SUM], 1e-6);
-				TestAssert.assertEqualsRelative(s, o[AreaStatistics.SD], 1e-6);
+				Assertions.assertEquals(c, o[AreaSum.N]);
+				ExtraAssertions.assertEqualsRelative(u, o[AreaSum.SUM], 1e-6);
+				ExtraAssertions.assertEqualsRelative(s, o[AreaStatistics.SD], 1e-6);
 
 				final Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
 				o = a.getStatistics(bounds);
-				Assert.assertEquals(c, o[AreaSum.N], 0);
-				TestAssert.assertEqualsRelative(u, o[AreaSum.SUM], 1e-6);
-				TestAssert.assertEqualsRelative(s, o[AreaStatistics.SD], 1e-6);
+				Assertions.assertEquals(c, o[AreaSum.N]);
+				ExtraAssertions.assertEqualsRelative(u, o[AreaSum.SUM], 1e-6);
+				ExtraAssertions.assertEqualsRelative(s, o[AreaStatistics.SD], 1e-6);
 
 				bounds.x--;
 				bounds.y--;
 				o = a.getStatistics(bounds);
-				Assert.assertEquals(c, o[AreaSum.N], 0);
-				TestAssert.assertEqualsRelative(u, o[AreaSum.SUM], 1e-6);
-				TestAssert.assertEqualsRelative(s, o[AreaStatistics.SD], 1e-6);
+				Assertions.assertEquals(c, o[AreaSum.N]);
+				ExtraAssertions.assertEqualsRelative(u, o[AreaSum.SUM], 1e-6);
+				ExtraAssertions.assertEqualsRelative(s, o[AreaStatistics.SD], 1e-6);
 			}
 		}
 	}
@@ -247,14 +248,14 @@ public class AreaStatisticsTest
 		}
 	}
 
-	@Test
+	@SpeedTest
 	public void simpleIsfasterAtLowDensityAndNLessThan10()
 	{
 		// Test the speed for computing the noise around spots at a density of roughly 1 / 100 pixels.
 		speedTest(1.0 / 100, false, 1, 10);
 	}
 
-	@Test
+	@SpeedTest
 	public void simpleIsfasterAtMediumDensityAndNLessThan5()
 	{
 		// Test the speed for computing the noise around each 3x3 box
@@ -262,11 +263,11 @@ public class AreaStatisticsTest
 		speedTest(1.0 / 9, false, 1, 4);
 	}
 
-	@Test
+	@SpeedTest
 	public void rollingIsfasterAtHighDensity()
 	{
 		// Since this is a slow test
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 
 		// Test for sampling half the pixels. Ignore the very small box size
 		speedTest(0.5, true, 2, Integer.MAX_VALUE);
@@ -303,7 +304,7 @@ public class AreaStatisticsTest
 		if (TestSettings.allow(LogLevel.INFO))
 			ts.report(size);
 		// Do not let this fail the test suite
-		//Assert.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
+		//Assertions.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
 		TestLog.logSpeedTestResult(ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
 				"AreaStatistics Density=%g RollingIsFaster=%b N=%d:%d: rolling %s vs simple %s", density,
 				rollingIsFaster, minN, maxN, ts.get(-2).getMean(), ts.get(-1).getMean());

@@ -27,14 +27,13 @@
  */
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectIntProcedure;
 import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestLog;
-import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 
 /**
  * This class is used to in-line the computation for the CustomTricubicFunction.
@@ -695,7 +694,7 @@ public class CustomTricubicFunctionTest
 	public void canConstructInlineValue()
 	{
 		// DoubleCustomTricubicFunction#value0(double[], double[], double[])
-		Assume.assumeTrue(TestSettings.allow(level));
+		ExtraAssumptions.assume(level);
 		TestLog.log(level, inlineValue());
 	}
 
@@ -704,7 +703,7 @@ public class CustomTricubicFunctionTest
 	{
 		// DoubleCustomTricubicFunction#value(double[])
 		// DoubleCustomTricubicFunction#value(float[])
-		Assume.assumeTrue(TestSettings.allow(level));
+		ExtraAssumptions.assume(level);
 		TestLog.log(level, inlineValueWithPowerTable());
 	}
 
@@ -712,7 +711,7 @@ public class CustomTricubicFunctionTest
 	public void canConstructInlineComputePowerTable()
 	{
 		// CustomTricubicFunction.computePowerTable
-		Assume.assumeTrue(TestSettings.allow(level));
+		ExtraAssumptions.assume(level);
 		TestLog.log(level, inlineComputePowerTable());
 	}
 
@@ -720,7 +719,7 @@ public class CustomTricubicFunctionTest
 	public void canConstructInlineValue1()
 	{
 		// DoubleCustomTricubicFunction#value1(double[], double[], double[], double[])
-		Assume.assumeTrue(TestSettings.allow(level));
+		ExtraAssumptions.assume(level);
 		TestLog.log(level, inlineValue1());
 	}
 
@@ -731,7 +730,7 @@ public class CustomTricubicFunctionTest
 		// DoubleCustomTricubicFunction#gradient(double[], double[])
 		// DoubleCustomTricubicFunction#value(float[], double[])
 		// DoubleCustomTricubicFunction#gradient(float[], double[])
-		Assume.assumeTrue(TestSettings.allow(level));
+		ExtraAssumptions.assume(level);
 		TestLog.log(level, inlineValue1WithPowerTable());
 	}
 
@@ -740,7 +739,7 @@ public class CustomTricubicFunctionTest
 	{
 		// DoubleCustomTricubicFunction#value(double[], double[], double[], double[])
 		// DoubleCustomTricubicFunction#value(float[], float[], float[], double[])
-		Assume.assumeTrue(TestSettings.allow(level));
+		ExtraAssumptions.assume(level);
 		TestLog.log(level, inlineValue1WithPowerTableN());
 	}
 
@@ -748,7 +747,7 @@ public class CustomTricubicFunctionTest
 	public void canConstructInlineValue2()
 	{
 		// DoubleCustomTricubicFunction#value2(double[], double[], double[], double[], double[])
-		Assume.assumeTrue(TestSettings.allow(level));
+		ExtraAssumptions.assume(level);
 		TestLog.log(level, inlineValue2());
 	}
 
@@ -757,7 +756,7 @@ public class CustomTricubicFunctionTest
 	{
 		// DoubleCustomTricubicFunction#value(double[], double[], double[])
 		// DoubleCustomTricubicFunction#value(float[], double[], double[])
-		Assume.assumeTrue(TestSettings.allow(level));
+		ExtraAssumptions.assume(level);
 		TestLog.log(level, inlineValue2WithPowerTable());
 	}
 
@@ -766,7 +765,7 @@ public class CustomTricubicFunctionTest
 	{
 		// DoubleCustomTricubicFunction#value(double[], double[], double[], double[], double[],
 		// DoubleCustomTricubicFunction#value(float[], float[], float[], float[], double[],
-		Assume.assumeTrue(TestSettings.allow(level));
+		ExtraAssumptions.assume(level);
 		TestLog.log(level, inlineValue2WithPowerTableN());
 	}
 }

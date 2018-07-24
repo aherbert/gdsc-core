@@ -30,9 +30,10 @@ package uk.ac.sussex.gdsc.core.utils;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.util.MathArrays;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
+import org.opentest4j.AssertionFailedError;
 import uk.ac.sussex.gdsc.test.TestSettings;
 
 @SuppressWarnings({ "javadoc" })
@@ -91,10 +92,10 @@ public class StatisticsTest
 
 	private static void check(DescriptiveStatistics e, Statistics o)
 	{
-		Assert.assertEquals("N", e.getN(), o.getN(), 0);
-		Assert.assertEquals("Mean", e.getMean(), o.getMean(), 1e-10);
-		Assert.assertEquals("Variance", e.getVariance(), o.getVariance(), 1e-10);
-		Assert.assertEquals("SD", e.getStandardDeviation(), o.getStandardDeviation(), 1e-10);
+		Assertions.assertEquals(e.getN(), o.getN(), "N");
+		Assertions.assertEquals(e.getMean(), o.getMean(), 1e-10, "Mean");
+		Assertions.assertEquals(e.getVariance(), o.getVariance(), 1e-10, "Variance");
+		Assertions.assertEquals(e.getStandardDeviation(), o.getStandardDeviation(), 1e-10, "SD");
 	}
 
 	@Test
@@ -113,10 +114,10 @@ public class StatisticsTest
 		o4.add(d1);
 		o4.add(d2);
 
-		Assert.assertEquals("N", o3.getN(), o4.getN(), 0);
-		Assert.assertEquals("Mean", o3.getMean(), o4.getMean(), 0);
-		Assert.assertEquals("Variance", o3.getVariance(), o4.getVariance(), 0);
-		Assert.assertEquals("SD", o3.getStandardDeviation(), o4.getStandardDeviation(), 0);
+		Assertions.assertEquals(o3.getN(), o4.getN(), "N");
+		Assertions.assertEquals(o3.getMean(), o4.getMean(), "Mean");
+		Assertions.assertEquals(o3.getVariance(), o4.getVariance(), "Variance");
+		Assertions.assertEquals(o3.getStandardDeviation(), o4.getStandardDeviation(), "SD");
 	}
 
 	@Test
@@ -126,17 +127,20 @@ public class StatisticsTest
 		final double[] v = new double[] { 4, 7, 13, 16 };
 		Statistics o = new Statistics();
 		o.add(v);
-		Assert.assertEquals("Mean", 10, o.getMean(), 0);
-		Assert.assertEquals("Variance", 30, o.getVariance(), 0);
+		Assertions.assertEquals(10, o.getMean(), "Mean");
+		Assertions.assertEquals(30, o.getVariance(), "Variance");
 
 		final double add = Math.pow(10, 9);
 		for (int i = 0; i < v.length; i++)
 			v[i] += add;
-		o = new Statistics();
-		o.add(v);
-		Assert.assertEquals("Mean", add + 10, o.getMean(), 0);
+
+		final Statistics o2 = new Statistics();
+		o2.add(v);
+		Assertions.assertEquals(10 + add, o2.getMean(), "Mean");
 
 		// Expect this to be totally wrong
-		Assert.assertNotEquals("Variance", 30, o.getVariance(), 5);
+		Assertions.assertThrows(AssertionFailedError.class, () -> {
+			Assertions.assertEquals(30, o2.getVariance(), 5, "Variance");
+		});
 	}
 }

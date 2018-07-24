@@ -27,8 +27,8 @@
  */
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({ "javadoc" })
 public class RandomTest
@@ -56,9 +56,9 @@ public class RandomTest
 	{
 		final int[] sample = r.sample(k, n);
 		//TestLog.debug("%d from %d = %s\n", k, n, java.util.Arrays.toString(sample));
-		Assert.assertEquals(Math.min(k, n), sample.length);
+		Assertions.assertEquals(Math.min(k, n), sample.length);
 		for (int i = 0; i < sample.length; i++)
 			for (int j = i + 1; j < sample.length; j++)
-				Assert.assertNotEquals(sample[i], sample[j]);
+				Assertions.assertNotEquals(sample[i], sample[j]);
 	}
 }

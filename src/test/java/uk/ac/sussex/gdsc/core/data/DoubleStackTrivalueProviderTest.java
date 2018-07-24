@@ -27,8 +27,8 @@
  */
 package uk.ac.sussex.gdsc.core.data;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import ij.process.FloatProcessor;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
@@ -66,7 +66,7 @@ public class DoubleStackTrivalueProviderTest
 			for (int y = 0; y < maxy; y++)
 				for (int x = 0; x < maxx; x++)
 				{
-					Assert.assertEquals(fp.getPixelValue(x, y), f.get(x, y, z), 0);
+					Assertions.assertEquals(fp.getPixelValue(x, y), f.get(x, y, z));
 
 					if (x > 0 && x < maxx - 1 && y > 0 && y < maxy - 1 && fpp != null)
 					{
@@ -75,9 +75,9 @@ public class DoubleStackTrivalueProviderTest
 						for (final int i : test)
 							for (final int j : test)
 							{
-								Assert.assertEquals(fpp.getPixelValue(x + i, y + j), values[i + 1][j + 1][0], 0);
-								Assert.assertEquals(fp.getPixelValue(x + i, y + j), values[i + 1][j + 1][1], 0);
-								Assert.assertEquals(fpn.getPixelValue(x + i, y + j), values[i + 1][j + 1][2], 0);
+								Assertions.assertEquals(fpp.getPixelValue(x + i, y + j), values[i + 1][j + 1][0]);
+								Assertions.assertEquals(fp.getPixelValue(x + i, y + j), values[i + 1][j + 1][1]);
+								Assertions.assertEquals(fpn.getPixelValue(x + i, y + j), values[i + 1][j + 1][2]);
 							}
 					}
 				}
@@ -102,6 +102,6 @@ public class DoubleStackTrivalueProviderTest
 		for (int x = 0; x < maxx; x++)
 			for (int y = 0; y < maxy; y++)
 				for (int z = 0; z < maxz; z++)
-					Assert.assertEquals(e[x][y][z], o[x][y][z], 0);
+					Assertions.assertEquals(e[x][y][z], o[x][y][z]);
 	}
 }

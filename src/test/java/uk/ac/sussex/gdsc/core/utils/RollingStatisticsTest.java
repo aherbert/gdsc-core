@@ -30,11 +30,11 @@ package uk.ac.sussex.gdsc.core.utils;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.util.MathArrays;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.junit4.TestAssert;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 
 @SuppressWarnings({ "javadoc" })
 public class RollingStatisticsTest
@@ -92,10 +92,10 @@ public class RollingStatisticsTest
 
 	private static void check(DescriptiveStatistics e, RollingStatistics o)
 	{
-		Assert.assertEquals("N", e.getN(), o.getN(), 0);
-		Assert.assertEquals("Mean", e.getMean(), o.getMean(), 1e-10);
-		Assert.assertEquals("Variance", e.getVariance(), o.getVariance(), 1e-10);
-		Assert.assertEquals("SD", e.getStandardDeviation(), o.getStandardDeviation(), 1e-10);
+		Assertions.assertEquals(e.getN(), o.getN(), "N");
+		Assertions.assertEquals(e.getMean(), o.getMean(), 1e-10, "Mean");
+		Assertions.assertEquals(e.getVariance(), o.getVariance(), 1e-10, "Variance");
+		Assertions.assertEquals(e.getStandardDeviation(), o.getStandardDeviation(), 1e-10, "SD");
 	}
 
 	@Test
@@ -114,10 +114,10 @@ public class RollingStatisticsTest
 		o4.add(d1);
 		o4.add(d2);
 
-		Assert.assertEquals("N", o3.getN(), o4.getN(), 0);
-		TestAssert.assertEqualsRelative("Mean", o3.getMean(), o4.getMean(), 1e-10);
-		TestAssert.assertEqualsRelative("Variance", o3.getVariance(), o4.getVariance(), 1e-10);
-		TestAssert.assertEqualsRelative("SD", o3.getStandardDeviation(), o4.getStandardDeviation(), 1e-10);
+		Assertions.assertEquals(o3.getN(), o4.getN(), "N");
+		ExtraAssertions.assertEqualsRelative(o3.getMean(), o4.getMean(), 1e-10, "Mean");
+		ExtraAssertions.assertEqualsRelative(o3.getVariance(), o4.getVariance(), 1e-10, "Variance");
+		ExtraAssertions.assertEqualsRelative(o3.getStandardDeviation(), o4.getStandardDeviation(), 1e-10, "SD");
 	}
 
 	@Test
@@ -127,15 +127,15 @@ public class RollingStatisticsTest
 		final double[] v = new double[] { 4, 7, 13, 16 };
 		RollingStatistics o = new RollingStatistics();
 		o.add(v);
-		Assert.assertEquals("Mean", o.getMean(), 10, 0);
-		Assert.assertEquals("Variance", o.getVariance(), 30, 0);
+		Assertions.assertEquals(10, o.getMean(), "Mean");
+		Assertions.assertEquals(30, o.getVariance(), "Variance");
 
 		final double add = Math.pow(10, 9);
 		for (int i = 0; i < v.length; i++)
 			v[i] += add;
-		o = new RollingStatistics();
-		o.add(v);
-		Assert.assertEquals("Mean", o.getMean(), add + 10, 0);
-		Assert.assertEquals("Variance", o.getVariance(), 30, 0);
+		final Statistics o2 = new RollingStatistics();
+		o2.add(v);
+		Assertions.assertEquals(10 + add, o2.getMean(), "Mean");
+		Assertions.assertEquals(30, o2.getVariance(), "Variance");
 	}
 }

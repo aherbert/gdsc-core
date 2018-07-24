@@ -27,31 +27,34 @@
  */
 package uk.ac.sussex.gdsc.core.ij;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({ "javadoc" })
 public class UtilsTest
 {
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void cannotIterateOverNullList()
 	{
-		for (int i : getIDList())
-		{
-			System.out.println(i);
-		}		
+		Assertions.assertThrows(NullPointerException.class, () -> {
+			for (int i : getIDList())
+			{
+				System.out.println(i);
+			}
+		});
 	}
 
 	private static int[] getIDList()
 	{
 		return null;
 	}
-	
+
 	@Test
 	public void cantIterateOver_getIDList()
 	{
 		for (int i : Utils.getIDList())
 		{
 			System.out.println(i);
-		}		
+		}
 	}
 }

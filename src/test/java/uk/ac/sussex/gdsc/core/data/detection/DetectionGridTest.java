@@ -32,9 +32,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
@@ -42,6 +41,7 @@ import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 
 @SuppressWarnings({ "javadoc" })
 public class DetectionGridTest
@@ -54,14 +54,14 @@ public class DetectionGridTest
 		r[1] = new Rectangle(0, 5, 10, 5);
 		r[2] = new Rectangle(5, 5, 5, 5);
 		final SimpleDetectionGrid g = new SimpleDetectionGrid(r);
-		Assert.assertArrayEquals(new int[] { 0 }, g.find(0, 0));
-		Assert.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(5, 5));
-		Assert.assertArrayEquals(new int[0], g.find(-5, 5));
+		Assertions.assertArrayEquals(new int[] { 0 }, g.find(0, 0));
+		Assertions.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(5, 5));
+		Assertions.assertArrayEquals(new int[0], g.find(-5, 5));
 
 		// Definition of insideness
-		Assert.assertArrayEquals(new int[0], g.find(10, 10));
+		Assertions.assertArrayEquals(new int[0], g.find(10, 10));
 		g.includeOuterEdge = true;
-		Assert.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(10, 10));
+		Assertions.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(10, 10));
 	}
 
 	@Test
@@ -72,25 +72,25 @@ public class DetectionGridTest
 		for (int i = 0; i < data.length; i++)
 		{
 			i1 = BinarySearchDetectionGrid.findIndexUpToAndIncluding(data, data[i]);
-			Assert.assertEquals(i, i1);
+			Assertions.assertEquals(i, i1);
 			i1 = BinarySearchDetectionGrid.findIndexUpToAndIncluding(data, data[i] + 0.1);
-			Assert.assertEquals(i, i1);
+			Assertions.assertEquals(i, i1);
 			i1 = BinarySearchDetectionGrid.findIndexUpToAndIncluding(data, data[i] - 0.1);
-			Assert.assertEquals(i - 1, i1);
+			Assertions.assertEquals(i - 1, i1);
 
 			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i]);
-			Assert.assertEquals(i, i2);
+			Assertions.assertEquals(i, i2);
 			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i] - 0.1);
-			Assert.assertEquals(i, i2);
+			Assertions.assertEquals(i, i2);
 			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i] + 0.1);
-			Assert.assertEquals(i + 1, i2);
+			Assertions.assertEquals(i + 1, i2);
 
 			i2 = BinarySearchDetectionGrid.findIndexAfter(data, data[i]);
-			Assert.assertEquals(i + 1, i2);
+			Assertions.assertEquals(i + 1, i2);
 			i2 = BinarySearchDetectionGrid.findIndexAfter(data, data[i] - 0.1);
-			Assert.assertEquals(i, i2);
+			Assertions.assertEquals(i, i2);
 			i2 = BinarySearchDetectionGrid.findIndexAfter(data, data[i] + 0.1);
-			Assert.assertEquals(i + 1, i2);
+			Assertions.assertEquals(i + 1, i2);
 		}
 
 		// Handle identity by testing with duplicates
@@ -100,25 +100,25 @@ public class DetectionGridTest
 		for (int i = 0; i < data.length; i++)
 		{
 			i1 = BinarySearchDetectionGrid.findIndexUpToAndIncluding(data, data[i]);
-			Assert.assertEquals(i + (i + 1) % 2, i1);
+			Assertions.assertEquals(i + (i + 1) % 2, i1);
 			i1 = BinarySearchDetectionGrid.findIndexUpToAndIncluding(data, data[i] + 0.1);
-			Assert.assertEquals(i + (i + 1) % 2, i1);
+			Assertions.assertEquals(i + (i + 1) % 2, i1);
 			i1 = BinarySearchDetectionGrid.findIndexUpToAndIncluding(data, data[i] - 0.1);
-			Assert.assertEquals(i - i % 2 - 1, i1);
+			Assertions.assertEquals(i - i % 2 - 1, i1);
 
 			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i]);
-			Assert.assertEquals(i - i % 2, i2);
+			Assertions.assertEquals(i - i % 2, i2);
 			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i] - 0.1);
-			Assert.assertEquals(i - i % 2, i2);
+			Assertions.assertEquals(i - i % 2, i2);
 			i2 = BinarySearchDetectionGrid.findIndexIncludingAndAfter(data, data[i] + 0.1);
-			Assert.assertEquals(i - i % 2 + 2, i2);
+			Assertions.assertEquals(i - i % 2 + 2, i2);
 
 			i2 = BinarySearchDetectionGrid.findIndexAfter(data, data[i]);
-			Assert.assertEquals(i - i % 2 + 2, i2);
+			Assertions.assertEquals(i - i % 2 + 2, i2);
 			i2 = BinarySearchDetectionGrid.findIndexAfter(data, data[i] - 0.1);
-			Assert.assertEquals(i - i % 2, i2);
+			Assertions.assertEquals(i - i % 2, i2);
 			i2 = BinarySearchDetectionGrid.findIndexAfter(data, data[i] + 0.1);
-			Assert.assertEquals(i - i % 2 + 2, i2);
+			Assertions.assertEquals(i - i % 2 + 2, i2);
 		}
 	}
 
@@ -130,12 +130,12 @@ public class DetectionGridTest
 		r[1] = new Rectangle(0, 5, 10, 5);
 		r[2] = new Rectangle(5, 5, 5, 5);
 		final BinarySearchDetectionGrid g = new BinarySearchDetectionGrid(r);
-		Assert.assertArrayEquals(new int[] { 0 }, g.find(0, 0));
-		Assert.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(5, 5));
-		Assert.assertArrayEquals(new int[0], g.find(-5, 5));
+		Assertions.assertArrayEquals(new int[] { 0 }, g.find(0, 0));
+		Assertions.assertArrayEquals(new int[] { 0, 1, 2 }, g.find(5, 5));
+		Assertions.assertArrayEquals(new int[0], g.find(-5, 5));
 
 		// Respect the insideness definition
-		Assert.assertArrayEquals(new int[0], g.find(10, 10));
+		Assertions.assertArrayEquals(new int[0], g.find(10, 10));
 	}
 
 	@Test
@@ -158,7 +158,7 @@ public class DetectionGridTest
 			Arrays.sort(o);
 			//TestLog.debugln(Arrays.toString(e));
 			//TestLog.debugln(Arrays.toString(o));
-			Assert.assertArrayEquals(e, o);
+			Assertions.assertArrayEquals(e, o);
 		}
 	}
 
@@ -269,7 +269,7 @@ public class DetectionGridTest
 
 	private void speedTest(int size, int width, int n, int np)
 	{
-		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.MEDIUM));
+		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
 
 		final RandomDataGenerator rdg = new RandomDataGenerator(TestSettings.getRandomGenerator());
 
@@ -294,7 +294,7 @@ public class DetectionGridTest
 			final double t1 = ts.get(i1).getMean();
 			final double t2 = ts.get(i2).getMean();
 			//TestLog.debug("%f < %f\n", t1, t2);
-			Assert.assertTrue(String.format("%f < %f\n", t1, t2), t1 < t2);
+			Assertions.assertTrue(t1 < t2, () -> String.format("%f < %f\n", t1, t2));
 		}
 	}
 }

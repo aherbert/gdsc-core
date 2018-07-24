@@ -27,11 +27,11 @@
  */
 package uk.ac.sussex.gdsc.core.ij;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import ij.plugin.frame.Recorder;
-import uk.ac.sussex.gdsc.test.junit4.TestAssume;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 
 @SuppressWarnings({ "javadoc" })
 public class RecorderUtilsTest
@@ -42,9 +42,9 @@ public class RecorderUtilsTest
 
 	private synchronized static void createRecorder()
 	{
-		// This test is slow as creating the recorder involves spinning up a lot
+		// This test is slow as creating the recorder involves spinning up a lot of
 		// ImageJ and Java AWT classes. So only run if asked for.
-		TestAssume.assumeLowComplexity();
+		ExtraAssumptions.assumeLowComplexity();
 		if (recorder == null)
 			recorder = new Recorder(false);
 	}
@@ -140,21 +140,21 @@ public class RecorderUtilsTest
 		final String e3 = Recorder.getCommandOptions();
 		RecorderUtils.resetRecorder(keys2);
 		final String o1 = Recorder.getCommandOptions();
-		Assert.assertNotEquals("-keys2 did not change", e3, o1);
-		Assert.assertEquals("-keys2", e1, o1);
+		Assertions.assertNotEquals(e3, o1, "-keys2 did not change");
+		Assertions.assertEquals(e1, o1, "-keys2");
 		RecorderUtils.resetRecorder(badKeys);
 		final String o1b = Recorder.getCommandOptions();
-		Assert.assertEquals("-badkeys2", o1, o1b);
+		Assertions.assertEquals(o1, o1b, "-badkeys2");
 		clearRecorder();
 		record(keys1, values1);
 		record(keys2, values2);
 		RecorderUtils.resetRecorder(keys1);
 		final String o2 = Recorder.getCommandOptions();
-		Assert.assertNotEquals("-keys1 did not change", e3, o2);
-		Assert.assertEquals("-keys1", e2, o2);
+		Assertions.assertNotEquals(e3, o2, "-keys1 did not change");
+		Assertions.assertEquals(e2, o2, "-keys1");
 		RecorderUtils.resetRecorder(badKeys);
 		final String o2b = Recorder.getCommandOptions();
-		Assert.assertEquals("-badkeys1", o2, o2b);
+		Assertions.assertEquals(o2, o2b, "-badkeys1");
 	}
 
 	private static void clearRecorder()

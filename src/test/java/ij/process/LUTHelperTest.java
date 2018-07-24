@@ -27,8 +27,8 @@
  */
 package ij.process;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import ij.process.LUTHelper.DefaultLUTMapper;
 import ij.process.LUTHelper.LUTMapper;
@@ -68,16 +68,16 @@ public class LUTHelperTest
 	private static void mapTo0to255(float min, float max)
 	{
 		final LUTMapper map = new DefaultLUTMapper(min, max);
-		Assert.assertEquals(0, map.map(min));
+		Assertions.assertEquals(0, map.map(min));
 		if (max != min)
-			Assert.assertEquals(255, map.map(max));
+			Assertions.assertEquals(255, map.map(max));
 	}
 
 	private static void mapTo1to255(float min, float max)
 	{
 		final LUTMapper map = new NonZeroLUTMapper(min, max);
-		Assert.assertEquals(1, map.map(min));
+		Assertions.assertEquals(1, map.map(min));
 		if (max != min)
-			Assert.assertEquals(255, map.map(max));
+			Assertions.assertEquals(255, map.map(max));
 	}
 }

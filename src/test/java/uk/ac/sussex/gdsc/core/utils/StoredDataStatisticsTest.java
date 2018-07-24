@@ -28,12 +28,13 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.junit4.TestAssume;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
 
 @SuppressWarnings({ "javadoc" })
 public class StoredDataStatisticsTest extends StatisticsTest
@@ -56,15 +57,15 @@ public class StoredDataStatisticsTest extends StatisticsTest
 		final double[] values = stats.getValues();
 		int i = 0;
 		for (final double d : stats)
-			Assert.assertEquals(d, values[i++], 0);
+			Assertions.assertEquals(d, values[i++]);
 	}
 
 	@SuppressWarnings("unused")
-	//@Test
+	//@SpeedTest
 	public void forLoopIsSlowerThanValuesIterator()
 	{
 		// This fails. Perhaps change the test to use the TimingService for repeat testing.
-		TestAssume.assumeSpeedTest();
+		ExtraAssumptions.assumeSpeedTest();
 
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
@@ -90,10 +91,10 @@ public class StoredDataStatisticsTest extends StatisticsTest
 	}
 
 	@SuppressWarnings("unused")
-	@Test
+	@SpeedTest
 	public void iteratorIsSlowerUsingdouble()
 	{
-		TestAssume.assumeSpeedTest();
+		ExtraAssumptions.assumeSpeedTest();
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
 			for (final double d : stats.getValues())
@@ -115,10 +116,10 @@ public class StoredDataStatisticsTest extends StatisticsTest
 	}
 
 	@SuppressWarnings("unused")
-	@Test
+	@SpeedTest
 	public void iteratorIsSlowerUsingDouble()
 	{
-		TestAssume.assumeSpeedTest();
+		ExtraAssumptions.assumeSpeedTest();
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
 			for (final double d : stats.getValues())

@@ -30,12 +30,13 @@ package uk.ac.sussex.gdsc.core.utils;
 import java.awt.geom.Rectangle2D;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 
 @SuppressWarnings({ "javadoc" })
 public class ConvexHullTest
@@ -75,12 +76,12 @@ public class ConvexHullTest
 	{
 		if (ex == null)
 		{
-			Assert.assertTrue(hull == null);
+			Assertions.assertTrue(hull == null);
 			return;
 		}
 		final int n = ex.length;
 
-		Assert.assertEquals(n, hull.x.length);
+		Assertions.assertEquals(n, hull.x.length);
 
 		//for (int i = 0; i < ex.length; i++)
 		//{
@@ -90,8 +91,8 @@ public class ConvexHullTest
 
 		for (int i = 0; i < n; i++)
 		{
-			Assert.assertEquals(ex[i], hull.x[i], 0);
-			Assert.assertEquals(ey[i], hull.y[i], 0);
+			Assertions.assertEquals(ex[i], hull.x[i]);
+			Assertions.assertEquals(ey[i], hull.y[i]);
 		}
 	}
 
@@ -125,12 +126,13 @@ public class ConvexHullTest
 		// Simple check of the bounds
 		try
 		{
-			Assert.assertNotNull(hull);
+			Assertions.assertNotNull(hull);
 			final Rectangle2D.Double bounds = hull.getFloatBounds();
-			Assert.assertTrue("xmin " + ox + " " + bounds.getX(), ox <= bounds.getX());
-			Assert.assertTrue("ymin " + oy + " " + bounds.getY(), oy <= bounds.getY());
-			Assert.assertTrue("xmax " + (ox + w) + " " + bounds.getMaxX(), ox + w >= bounds.getMaxX());
-			Assert.assertTrue("ymax " + (ox + h) + " " + bounds.getMaxY(), oy + h >= bounds.getMaxY());
+			ExtraAssertions.assertTrue(ox <= bounds.getX(), "xmin %d <= %d", ox, bounds.getX());
+			ExtraAssertions.assertTrue(oy <= bounds.getY(), "ymin %d <= %d", oy, bounds.getY());
+
+			ExtraAssertions.assertTrue(ox + w >= bounds.getMaxX(), "xmax %d >= %d", ox + w, bounds.getMaxX());
+			ExtraAssertions.assertTrue(oy + h >= bounds.getMaxY(), "ymax %d >= %d", oy + h, bounds.getMaxY());
 		}
 		catch (final AssertionError e)
 		{
@@ -162,7 +164,7 @@ public class ConvexHullTest
 	public void canCreateWithNoPoints()
 	{
 		final float[] x = new float[0];
-		Assert.assertNull(ConvexHull.create(x, x));
+		Assertions.assertNull(ConvexHull.create(x, x));
 	}
 
 	@Test
@@ -170,9 +172,9 @@ public class ConvexHullTest
 	{
 		final float[] x = new float[] { 1.2345f };
 		final ConvexHull hull = ConvexHull.create(x, x);
-		Assert.assertEquals(1, hull.size());
-		Assert.assertTrue(hull.getLength() == 0);
-		Assert.assertTrue(hull.getArea() == 0);
+		Assertions.assertEquals(1, hull.size());
+		Assertions.assertTrue(hull.getLength() == 0);
+		Assertions.assertTrue(hull.getArea() == 0);
 	}
 
 	@Test
@@ -180,9 +182,9 @@ public class ConvexHullTest
 	{
 		final float[] x = new float[] { 1.5f, 2.5f };
 		final ConvexHull hull = ConvexHull.create(x, x);
-		Assert.assertEquals(2, hull.size());
-		Assert.assertEquals(2 * Math.sqrt(2), hull.getLength(), 1e-10);
-		Assert.assertTrue(hull.getArea() == 0);
+		Assertions.assertEquals(2, hull.size());
+		Assertions.assertEquals(2 * Math.sqrt(2), hull.getLength(), 1e-10);
+		Assertions.assertTrue(hull.getArea() == 0);
 	}
 
 	@Test
@@ -191,9 +193,9 @@ public class ConvexHullTest
 		final float[] x = new float[] { 1, 2, 2 };
 		final float[] y = new float[] { 1, 1, 2 };
 		final ConvexHull hull = ConvexHull.create(x, y);
-		Assert.assertEquals(3, hull.size());
-		Assert.assertEquals(2 + Math.sqrt(2), hull.getLength(), 1e-10);
-		Assert.assertEquals(hull.getArea(), 0.5, 1e-10);
+		Assertions.assertEquals(3, hull.size());
+		Assertions.assertEquals(2 + Math.sqrt(2), hull.getLength(), 1e-10);
+		Assertions.assertEquals(hull.getArea(), 0.5, 1e-10);
 	}
 
 	@Test
@@ -203,16 +205,16 @@ public class ConvexHullTest
 		float[] x = new float[] { 0, 10, 11, 1 };
 		float[] y = new float[] { 0, 0, 10, 10 };
 		ConvexHull hull = ConvexHull.create(x, y);
-		Assert.assertEquals(2 * 10 + 2 * Math.sqrt(1 * 1 + 10 * 10), hull.getLength(), 1e-6);
-		Assert.assertEquals(100, hull.getArea(), 1e-6);
+		Assertions.assertEquals(2 * 10 + 2 * Math.sqrt(1 * 1 + 10 * 10), hull.getLength(), 1e-6);
+		Assertions.assertEquals(100, hull.getArea(), 1e-6);
 
 		// Rotated square
 		x = new float[] { 0, 10, 9, -1 };
 		y = new float[] { 0, 1, 11, 10 };
 		hull = ConvexHull.create(x, y);
 		final double edgeLengthSquared = 1 * 1 + 10 * 10;
-		Assert.assertEquals(4 * Math.sqrt(edgeLengthSquared), hull.getLength(), 1e-6);
-		Assert.assertEquals(edgeLengthSquared, hull.getArea(), 1e-6);
+		Assertions.assertEquals(4 * Math.sqrt(edgeLengthSquared), hull.getLength(), 1e-6);
+		Assertions.assertEquals(edgeLengthSquared, hull.getArea(), 1e-6);
 
 		// Polygon circle
 		final int n = 1000;
@@ -226,8 +228,8 @@ public class ConvexHullTest
 			y[i] = (float) (Math.cos(a) * r);
 		}
 		hull = ConvexHull.create(x, y);
-		Assert.assertEquals(2 * Math.PI * r, hull.getLength(), 1e-2);
-		Assert.assertEquals(Math.PI * r * r, hull.getArea(), 1e-2);
+		Assertions.assertEquals(2 * Math.PI * r, hull.getLength(), 1e-2);
+		Assertions.assertEquals(Math.PI * r * r, hull.getArea(), 1e-2);
 	}
 
 	@Test
@@ -237,11 +239,11 @@ public class ConvexHullTest
 		final float[] y = new float[] { 0, 0, 10, 10 };
 		final ConvexHull hull = ConvexHull.create(x, y);
 		// Contains does not match outer bounds on right or bottom
-		Assert.assertTrue(hull.contains(x[0], y[0]));
+		Assertions.assertTrue(hull.contains(x[0], y[0]));
 		for (int i = 1; i < x.length; i++)
-			Assert.assertFalse(hull.contains(x[i], y[i]));
-		Assert.assertTrue(hull.contains(5, 5));
-		Assert.assertFalse(hull.contains(-5, 5));
-		Assert.assertFalse(hull.contains(5, -5));
+			Assertions.assertFalse(hull.contains(x[i], y[i]));
+		Assertions.assertTrue(hull.contains(5, 5));
+		Assertions.assertFalse(hull.contains(-5, 5));
+		Assertions.assertFalse(hull.contains(5, -5));
 	}
 }

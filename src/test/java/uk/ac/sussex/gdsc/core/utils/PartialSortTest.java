@@ -30,8 +30,8 @@ package uk.ac.sussex.gdsc.core.utils;
 import java.util.Arrays;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.LogLevel;
@@ -76,13 +76,13 @@ public class PartialSortTest
 				bottomCompute(r, 100, n, m);
 	}
 
-	private static double[] bottom(int n, double[] d)
+	static double[] bottom(int n, double[] d)
 	{
 		bottomSort(d);
 		return Arrays.copyOf(d, n);
 	}
 
-	private static void bottomSort(double[] d)
+	static void bottomSort(double[] d)
 	{
 		Arrays.sort(d);
 	}
@@ -91,14 +91,14 @@ public class PartialSortTest
 	public void bottomCanHandleNullData()
 	{
 		final double[] o = PartialSort.bottom((double[]) null, 5);
-		Assert.assertEquals(0, o.length);
+		Assertions.assertEquals(0, o.length);
 	}
 
 	@Test
 	public void bottomCanHandleEmptyData()
 	{
 		final double[] o = PartialSort.bottom(new double[0], 5);
-		Assert.assertEquals(0, o.length);
+		Assertions.assertEquals(0, o.length);
 	}
 
 	@Test
@@ -107,7 +107,7 @@ public class PartialSortTest
 		final double[] d = { 1, 3, 2 };
 		final double[] e = { 1, 2, 3 };
 		final double[] o = PartialSort.bottom(d, 5);
-		Assert.assertArrayEquals(e, o, 0);
+		Assertions.assertArrayEquals(e, o);
 	}
 
 	@Test
@@ -116,7 +116,7 @@ public class PartialSortTest
 		final double[] d = { 1, 2, Double.NaN, 3 };
 		final double[] e = { 1, 2, 3 };
 		final double[] o = PartialSort.bottom(d, 5);
-		Assert.assertArrayEquals(e, o, 0);
+		Assertions.assertArrayEquals(e, o);
 	}
 
 	private void bottomCompute(RandomGenerator r, int length, final int n, final int m)
@@ -146,7 +146,7 @@ public class PartialSortTest
 			{
 				final double[] e = (double[])expected.run(expected.getData(i));
 				final double[] o = (double[])result;
-				Assert.assertArrayEquals(e, o, 0);
+				Assertions.assertArrayEquals(e, o);
 			}
 		});
 		ts.execute(new MyTimingTask("bottomHead" + msg, data)
@@ -158,7 +158,7 @@ public class PartialSortTest
 			{
 				final double[] e = (double[])expected.run(expected.getData(i));
 				final double[] o = (double[])result;
-				Assert.assertEquals(e[n-1], o[0], 0);
+				Assertions.assertEquals(e[n-1], o[0]);
 			}
 		});
 		ts.execute(new MyTimingTask("bottom" + msg, data)
@@ -171,7 +171,7 @@ public class PartialSortTest
 				final double[] e = (double[])expected.run(expected.getData(i));
 				final double[] o = (double[])result;
 				bottomSort(o);
-				Assert.assertArrayEquals(e, o, 0);
+				Assertions.assertArrayEquals(e, o);
 			}
 		});
 		final PartialSort.DoubleSelector ps = new PartialSort.DoubleSelector(n);
@@ -185,7 +185,7 @@ public class PartialSortTest
 				final double[] e = (double[])expected.run(expected.getData(i));
 				final double[] o = (double[])result;
 				bottomSort(o);
-				Assert.assertArrayEquals(e, o, 0);
+				Assertions.assertArrayEquals(e, o);
 			}
 		});
 
@@ -200,7 +200,7 @@ public class PartialSortTest
 				final double[] e = (double[])expected.run(expected.getData(i));
 				final double[] o = (double[])result;
 				bottomSort(o);
-				Assert.assertArrayEquals(e, o, 0);
+				Assertions.assertArrayEquals(e, o);
 			}
 		});
 		ts.execute(new MyTimingTask("select" + msg, data)
@@ -217,7 +217,7 @@ public class PartialSortTest
 				final double[] e = (double[])expected.run(expected.getData(i));
 				final double[] o = (double[])result;
 				bottomSort(o);
-				Assert.assertArrayEquals(e, o, 0);
+				Assertions.assertArrayEquals(e, o);
 			}
 		});
 
@@ -225,7 +225,7 @@ public class PartialSortTest
 
 		// Sometimes this fails
 		//		if ((double) n / m > 0.5)
-		//			Assert.assertTrue(String.format("%f vs %f" + msg, ts.get(0).getMean(), ts.get(1).getMean()),
+		//			Assertions.assertTrue(String.format("%f vs %f" + msg, ts.get(0).getMean(), ts.get(1).getMean()),
 		//					ts.get(0).getMean() > ts.get(1).getMean() * 0.5);
 
 		ts.check();
@@ -243,13 +243,13 @@ public class PartialSortTest
 				topCompute(r, 100, n, m);
 	}
 
-	private static double[] top(int n, double[] d)
+	static double[] top(int n, double[] d)
 	{
 		topSort(d);
 		return Arrays.copyOf(d, n);
 	}
 
-	private static void topSort(double[] d)
+	static void topSort(double[] d)
 	{
 		Arrays.sort(d);
 		SimpleArrayUtils.reverse(d);
@@ -259,14 +259,14 @@ public class PartialSortTest
 	public void topCanHandleNullData()
 	{
 		final double[] o = PartialSort.top((double[]) null, 5);
-		Assert.assertEquals(0, o.length);
+		Assertions.assertEquals(0, o.length);
 	}
 
 	@Test
 	public void topCanHandleEmptyData()
 	{
 		final double[] o = PartialSort.top(new double[0], 5);
-		Assert.assertEquals(0, o.length);
+		Assertions.assertEquals(0, o.length);
 	}
 
 	@Test
@@ -275,7 +275,7 @@ public class PartialSortTest
 		final double[] d = { 1, 3, 2 };
 		final double[] e = { 3, 2, 1 };
 		final double[] o = PartialSort.top(d, 5);
-		Assert.assertArrayEquals(e, o, 0);
+		Assertions.assertArrayEquals(e, o);
 	}
 
 	@Test
@@ -284,7 +284,7 @@ public class PartialSortTest
 		final double[] d = { 1, 2, Double.NaN, 3 };
 		final double[] e = { 3, 2, 1 };
 		final double[] o = PartialSort.top(d, 5);
-		Assert.assertArrayEquals(e, o, 0);
+		Assertions.assertArrayEquals(e, o);
 	}
 
 	private void topCompute(RandomGenerator r, int length, final int n, final int m)
@@ -314,7 +314,7 @@ public class PartialSortTest
 			{
 				final double[] e = (double[])expected.run(expected.getData(i));
 				final double[] o = (double[])result;
-				Assert.assertArrayEquals(e, o, 0);
+				Assertions.assertArrayEquals(e, o);
 			}
 		});
 		ts.execute(new MyTimingTask("topHead" + msg, data)
@@ -326,7 +326,7 @@ public class PartialSortTest
 			{
 				final double[] e = (double[])expected.run(expected.getData(i));
 				final double[] o = (double[])result;
-				Assert.assertEquals(e[n-1], o[0], 0);
+				Assertions.assertEquals(e[n-1], o[0]);
 			}
 		});
 		ts.execute(new MyTimingTask("top" + msg, data)
@@ -339,7 +339,7 @@ public class PartialSortTest
 				final double[] e = (double[])expected.run(expected.getData(i));
 				final double[] o = (double[])result;
 				topSort(o);
-				Assert.assertArrayEquals(e, o, 0);
+				Assertions.assertArrayEquals(e, o);
 			}
 		});
 		final PartialSort.DoubleSelector ps = new PartialSort.DoubleSelector(n);
@@ -353,7 +353,7 @@ public class PartialSortTest
 				final double[] e = (double[])expected.run(expected.getData(i));
 				final double[] o = (double[])result;
 				topSort(o);
-				Assert.assertArrayEquals(e, o, 0);
+				Assertions.assertArrayEquals(e, o);
 			}
 		});
 
@@ -368,7 +368,7 @@ public class PartialSortTest
 				final double[] e = (double[])expected.run(expected.getData(i));
 				final double[] o = (double[])result;
 				topSort(o);
-				Assert.assertArrayEquals(e, o, 0);
+				Assertions.assertArrayEquals(e, o);
 			}
 		});
 
@@ -376,7 +376,7 @@ public class PartialSortTest
 
 		//		// Sometimes this fails
 		//		if ((double) n / m > 0.5)
-		//			Assert.assertTrue(String.format("%f vs %f" + msg, ts.get(0).getMean(), ts.get(1).getMean()),
+		//			Assertions.assertTrue(String.format("%f vs %f" + msg, ts.get(0).getMean(), ts.get(1).getMean()),
 		//					ts.get(0).getMean() > ts.get(1).getMean() * 0.5);
 
 		ts.check();

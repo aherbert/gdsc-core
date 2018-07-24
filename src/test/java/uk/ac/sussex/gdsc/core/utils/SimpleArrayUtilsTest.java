@@ -31,8 +31,8 @@ import java.util.Arrays;
 
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.MathArrays;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import gnu.trove.set.hash.TIntHashSet;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
@@ -40,7 +40,7 @@ import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
-import uk.ac.sussex.gdsc.test.junit4.TestAssume;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 
 @SuppressWarnings({ "javadoc" })
 public class SimpleArrayUtilsTest
@@ -70,7 +70,7 @@ public class SimpleArrayUtilsTest
 
 		final int[] o = SimpleArrayUtils.flatten(s1);
 		//TestLog.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
-		Assert.assertArrayEquals(e, o);
+		Assertions.assertArrayEquals(e, o);
 	}
 
 	@Test
@@ -105,7 +105,7 @@ public class SimpleArrayUtilsTest
 
 		final int[] o = SimpleArrayUtils.sortMerge(s1, s2);
 		//TestLog.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
-		Assert.assertArrayEquals(e, o);
+		Assertions.assertArrayEquals(e, o);
 	}
 
 	private static int[] next(RandomGenerator r, int size, int max)
@@ -142,7 +142,7 @@ public class SimpleArrayUtilsTest
 	@Test
 	public void testMergeOnIndexData()
 	{
-		TestAssume.assume(LogLevel.INFO, TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 
 		final double[] f = new double[] { 0.1, 0.5, 0.75 };
@@ -206,7 +206,7 @@ public class SimpleArrayUtilsTest
 	@Test
 	public void testMergeOnRedundantData()
 	{
-		TestAssume.assume(LogLevel.INFO, TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 
 		final int[] n = new int[] { 2, 4, 8 };
@@ -307,32 +307,32 @@ public class SimpleArrayUtilsTest
 	{
 		final int[] o = SimpleArrayUtils.getRanges(in);
 		//TestLog.debug("%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
-		Assert.assertArrayEquals(e, o);
+		Assertions.assertArrayEquals(e, o);
 	}
 
 	@Test
 	public void canToString()
 	{
-		Assert.assertEquals("null", SimpleArrayUtils.toString(null));
+		Assertions.assertEquals("null", SimpleArrayUtils.toString(null));
 
-		Assert.assertEquals("[0.5, 1.0]", SimpleArrayUtils.toString(new float[] { 0.5f, 1f }));
-		Assert.assertEquals("[0.5, 1.0]", SimpleArrayUtils.toString(new double[] { 0.5, 1 }));
+		Assertions.assertEquals("[0.5, 1.0]", SimpleArrayUtils.toString(new float[] { 0.5f, 1f }));
+		Assertions.assertEquals("[0.5, 1.0]", SimpleArrayUtils.toString(new double[] { 0.5, 1 }));
 
-		Assert.assertEquals("[c, a]", SimpleArrayUtils.toString(new char[] { 'c', 'a' }));
+		Assertions.assertEquals("[c, a]", SimpleArrayUtils.toString(new char[] { 'c', 'a' }));
 
-		Assert.assertEquals("[true, false]", SimpleArrayUtils.toString(new boolean[] { true, false }));
+		Assertions.assertEquals("[true, false]", SimpleArrayUtils.toString(new boolean[] { true, false }));
 
-		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new byte[] { 2, 1 }));
-		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new short[] { 2, 1 }));
-		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new int[] { 2, 1 }));
-		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new long[] { 2, 1 }));
+		Assertions.assertEquals("[2, 1]", SimpleArrayUtils.toString(new byte[] { 2, 1 }));
+		Assertions.assertEquals("[2, 1]", SimpleArrayUtils.toString(new short[] { 2, 1 }));
+		Assertions.assertEquals("[2, 1]", SimpleArrayUtils.toString(new int[] { 2, 1 }));
+		Assertions.assertEquals("[2, 1]", SimpleArrayUtils.toString(new long[] { 2, 1 }));
 
 		// Check objects
-		Assert.assertEquals("[2, 1]", SimpleArrayUtils.toString(new Object[] { 2, 1 }));
-		Assert.assertEquals("[foo, bar]", SimpleArrayUtils.toString(new Object[] { "foo", "bar" }));
-		Assert.assertEquals("[foo, 1]", SimpleArrayUtils.toString(new Object[] { "foo", 1 }));
+		Assertions.assertEquals("[2, 1]", SimpleArrayUtils.toString(new Object[] { 2, 1 }));
+		Assertions.assertEquals("[foo, bar]", SimpleArrayUtils.toString(new Object[] { "foo", "bar" }));
+		Assertions.assertEquals("[foo, 1]", SimpleArrayUtils.toString(new Object[] { "foo", 1 }));
 
 		// Check recursion
-		Assert.assertEquals("[[2, 1], [3, 4]]", SimpleArrayUtils.toString(new int[][] { { 2, 1 }, { 3, 4 } }));
+		Assertions.assertEquals("[[2, 1], [3, 4]]", SimpleArrayUtils.toString(new int[][] { { 2, 1 }, { 3, 4 } }));
 	}
 }

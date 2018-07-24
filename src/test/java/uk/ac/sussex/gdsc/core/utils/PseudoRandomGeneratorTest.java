@@ -30,8 +30,8 @@ package uk.ac.sussex.gdsc.core.utils;
 import java.util.Arrays;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.TestSettings;
 
@@ -71,9 +71,9 @@ public class PseudoRandomGeneratorTest
 	private static void canConstructPseudoRandomGenerator(PseudoRandomGenerator r, double[] e)
 	{
 		for (int i = 0; i < e.length; i++)
-			Assert.assertEquals(e[i], r.nextDouble(), 0);
+			Assertions.assertEquals(e[i], r.nextDouble());
 		// Repeat
 		for (int i = 0; i < e.length; i++)
-			Assert.assertEquals(e[i], r.nextDouble(), 0);
+			Assertions.assertEquals(e[i], r.nextDouble());
 	}
 }

@@ -32,8 +32,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
@@ -56,7 +56,7 @@ public class IJDigestTest
 
 		final String o = new IJDigest().digest(new ByteProcessor(size, 1, data));
 		final String e = Digest.md5Hex(data);
-		Assert.assertEquals(e, o);
+		Assertions.assertEquals(e, o);
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class IJDigestTest
 		for (int i = 0; i < size; i++)
 			out.writeShort(data[i]);
 		final String e = Digest.md5Hex(bos.toByteArray());
-		Assert.assertEquals(e, o);
+		Assertions.assertEquals(e, o);
 	}
 
 	@Test
@@ -90,7 +90,7 @@ public class IJDigestTest
 		for (int i = 0; i < size; i++)
 			out.writeFloat(data[i]);
 		final String e = Digest.md5Hex(bos.toByteArray());
-		Assert.assertEquals(e, o);
+		Assertions.assertEquals(e, o);
 	}
 
 	@Test
@@ -107,6 +107,6 @@ public class IJDigestTest
 		for (int i = 0; i < size; i++)
 			out.writeInt(data[i]);
 		final String e = Digest.md5Hex(bos.toByteArray());
-		Assert.assertEquals(e, o);
+		Assertions.assertEquals(e, o);
 	}
 }

@@ -28,9 +28,8 @@
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -42,7 +41,8 @@ import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
-import uk.ac.sussex.gdsc.test.junit4.TestAssume;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 
 /**
  * This class is used to in-line the computation for the CustomTricubicInterpolatingFunction
@@ -214,14 +214,14 @@ public class CustomTricubicInterpolatingFunctionTest
 	@Test
 	public void canConstructInlineComputeCoefficients()
 	{
-		Assume.assumeTrue(TestSettings.allow(level));
+		ExtraAssumptions.assume(level);
 		TestLog.log(level, inlineComputeCoefficients());
 	}
 
 	@Test
 	public void canConstructInlineComputeCoefficientsCollectTerms()
 	{
-		Assume.assumeTrue(TestSettings.allow(level));
+		ExtraAssumptions.assume(level);
 		TestLog.log(level, inlineComputeCoefficientsCollectTerms());
 	}
 
@@ -251,16 +251,14 @@ public class CustomTricubicInterpolatingFunctionTest
 		public void check(int i, Object result)
 		{
 			final double[][] b = (double[][]) result;
-			for (int j = 0; j < a.length; j++)
-				for (int k = 0; k < a[j].length; k++)
-					Assert.assertEquals(getName(), a[j][k], b[j][k], Math.abs(a[j][k]) * 1e-6);
+			ExtraAssertions.assertArrayEqualsRelative(a, b, 1e-6, getName());
 		}
 	}
 
 	@Test
 	public void inlineComputeCoefficientsIsFaster()
 	{
-		TestAssume.assume(TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 
@@ -319,7 +317,7 @@ public class CustomTricubicInterpolatingFunctionTest
 			//ts.report();
 			ts.report(n);
 
-		Assert.assertTrue(String.format("%f vs %f", ts.get(-1).getMean(), ts.get(-n).getMean()),
-				ts.get(-1).getMean() < ts.get(-n).getMean());
+		Assertions.assertTrue(ts.get(-1).getMean() < ts.get(-n).getMean(),
+				() -> String.format("%f vs %f", ts.get(-1).getMean(), ts.get(-n).getMean()));
 	}
 }

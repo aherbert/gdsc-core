@@ -30,8 +30,8 @@ package uk.ac.sussex.gdsc.core.utils;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.util.MathArrays;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.TestSettings;
 
@@ -91,12 +91,12 @@ public class ExtendedStatisticsTest
 
 	private static void check(DescriptiveStatistics e, ExtendedStatistics o)
 	{
-		Assert.assertEquals("N", e.getN(), o.getN(), 0);
-		Assert.assertEquals("Mean", e.getMean(), o.getMean(), 1e-10);
-		Assert.assertEquals("Variance", e.getVariance(), o.getVariance(), 1e-10);
-		Assert.assertEquals("SD", e.getStandardDeviation(), o.getStandardDeviation(), 1e-10);
-		Assert.assertEquals("Min", e.getMin(), o.getMin(), 0);
-		Assert.assertEquals("Max", e.getMax(), o.getMax(), 0);
+		Assertions.assertEquals(e.getN(), o.getN(), "N");
+		Assertions.assertEquals(e.getMean(), o.getMean(), 1e-10, "Mean");
+		Assertions.assertEquals(e.getVariance(), o.getVariance(), 1e-10, "Variance");
+		Assertions.assertEquals(e.getStandardDeviation(), o.getStandardDeviation(), 1e-10, "SD");
+		Assertions.assertEquals(e.getMin(), o.getMin(), "Min");
+		Assertions.assertEquals(e.getMax(), o.getMax(), "Max");
 	}
 
 	@Test
@@ -115,11 +115,11 @@ public class ExtendedStatisticsTest
 		o4.add(d1);
 		o4.add(d2);
 
-		Assert.assertEquals("N", o3.getN(), o4.getN(), 0);
-		Assert.assertEquals("Mean", o3.getMean(), o4.getMean(), 0);
-		Assert.assertEquals("Variance", o3.getVariance(), o4.getVariance(), 0);
-		Assert.assertEquals("SD", o3.getStandardDeviation(), o4.getStandardDeviation(), 0);
-		Assert.assertEquals("Min", o3.getMin(), o4.getMin(), 0);
-		Assert.assertEquals("Max", o3.getMax(), o4.getMax(), 0);
+		Assertions.assertEquals(o3.getN(), o4.getN(), "N");
+		Assertions.assertEquals(o3.getMean(), o4.getMean(), "Mean");
+		Assertions.assertEquals(o3.getVariance(), o4.getVariance(), "Variance");
+		Assertions.assertEquals(o3.getStandardDeviation(), o4.getStandardDeviation(), "SD");
+		Assertions.assertEquals(o3.getMin(), o4.getMin(), "Min");
+		Assertions.assertEquals(o3.getMax(), o4.getMax(), "Max");
 	}
 }

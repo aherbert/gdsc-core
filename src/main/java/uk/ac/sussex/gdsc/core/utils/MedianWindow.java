@@ -48,7 +48,7 @@ public class MedianWindow
 	/**
 	 * Instantiates a new median window.
 	 * <p>
-	 * Note that if the median must be written back to a different array,
+	 * Note that the median must be written back to a different array,
 	 * i.e. the input data should be cloned if the array is to be reused.
 	 *
 	 * @param data

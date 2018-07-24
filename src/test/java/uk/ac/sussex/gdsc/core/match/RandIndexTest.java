@@ -29,12 +29,12 @@ package uk.ac.sussex.gdsc.core.match;
 
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.MathArrays;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.junit4.TestAssume;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 
 @SuppressWarnings({ "javadoc" })
 public class RandIndexTest
@@ -47,7 +47,7 @@ public class RandIndexTest
 			final double e = (size == 0) ? 0 : 1;
 			final int[] clusters = new int[size];
 			final double r = RandIndex.simpleRandIndex(clusters, clusters);
-			Assert.assertEquals(e, r, 0);
+			Assertions.assertEquals(e, r);
 		}
 	}
 
@@ -59,7 +59,7 @@ public class RandIndexTest
 			final double e = (size == 0) ? 0 : 1;
 			final int[] clusters = new int[size];
 			final double r = RandIndex.randIndex(clusters, clusters);
-			Assert.assertEquals(e, r, 0);
+			Assertions.assertEquals(e, r);
 		}
 	}
 
@@ -71,7 +71,7 @@ public class RandIndexTest
 			final double e = (size == 0) ? 0 : 1;
 			final int[] clusters = new int[size];
 			final double r = RandIndex.randIndex(clusters, 1, clusters, 1);
-			Assert.assertEquals(e, r, 0);
+			Assertions.assertEquals(e, r);
 		}
 	}
 
@@ -83,7 +83,7 @@ public class RandIndexTest
 			final double e = (size == 0) ? 0 : 1;
 			final int[] clusters = new int[size];
 			final double r = RandIndex.adjustedRandIndex(clusters, 1, clusters, 1);
-			Assert.assertEquals(e, r, 0);
+			Assertions.assertEquals(e, r);
 		}
 	}
 
@@ -96,7 +96,7 @@ public class RandIndexTest
 		final int[] clusters = new int[2];
 		clusters[1] = 1;
 		final double r = RandIndex.adjustedRandIndex(clusters, 2, clusters, 2);
-		Assert.assertEquals(e, r, 0);
+		Assertions.assertEquals(e, r);
 	}
 
 	// The example data and answer are from:
@@ -108,7 +108,7 @@ public class RandIndexTest
 		final int[] clusters = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 };
 		final int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0 };
 		final double r = RandIndex.simpleRandIndex(clusters, classes);
-		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		Assertions.assertEquals(0.67647058823529416, r, 1e-10);
 	}
 
 	@Test
@@ -117,7 +117,7 @@ public class RandIndexTest
 		final int[] clusters = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 };
 		final int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0 };
 		final double r = RandIndex.randIndex(clusters, classes);
-		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		Assertions.assertEquals(0.67647058823529416, r, 1e-10);
 	}
 
 	@Test
@@ -143,7 +143,7 @@ public class RandIndexTest
 			final int[] c2 = new int[classes.length];
 			for (int i = 0; i < c2.length; i++)
 				c2[i] = map[classes[i]];
-			Assert.assertEquals(r, ri.getRandIndex(clusters, 3, c2, 3), 0);
+			Assertions.assertEquals(r, ri.getRandIndex(clusters, 3, c2, 3));
 		}
 	}
 
@@ -153,7 +153,7 @@ public class RandIndexTest
 		final int[] clusters = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 };
 		final int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0 };
 		final double r = RandIndex.randIndex(clusters, 3, classes, 3);
-		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		Assertions.assertEquals(0.67647058823529416, r, 1e-10);
 	}
 
 	@Test
@@ -162,7 +162,7 @@ public class RandIndexTest
 		final int[] clusters = { 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, 2, 2, 2, 2, 2 };
 		final int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, -2, 1, 0, -2, -2, -2, 0 };
 		final double r = RandIndex.simpleRandIndex(clusters, classes);
-		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		Assertions.assertEquals(0.67647058823529416, r, 1e-10);
 	}
 
 	@Test
@@ -171,7 +171,7 @@ public class RandIndexTest
 		final int[] clusters = { 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, 2, 2, 2, 2, 2 };
 		final int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, -2, 1, 0, -2, -2, -2, 0 };
 		final double r = RandIndex.randIndex(clusters, classes);
-		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		Assertions.assertEquals(0.67647058823529416, r, 1e-10);
 	}
 
 	@Test
@@ -180,7 +180,7 @@ public class RandIndexTest
 		final int[] clusters = { 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, 2, 2, 2, 2, 2 };
 		final int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, -2, 1, 0, -2, -2, -2, 0 };
 		final double r = RandIndex.randIndex(clusters, 3, classes, 3);
-		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		Assertions.assertEquals(0.67647058823529416, r, 1e-10);
 	}
 
 	@Test
@@ -189,7 +189,7 @@ public class RandIndexTest
 		final int[] clusters = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 };
 		final int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0 };
 		final double r = RandIndex.randIndex(clusters, 2, classes, 3);
-		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		Assertions.assertEquals(0.67647058823529416, r, 1e-10);
 	}
 
 	@Test
@@ -199,7 +199,7 @@ public class RandIndexTest
 		final int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 2, 2, 2, 0 };
 		final double e = RandIndex.adjustedRandIndex(clusters, 3, classes, 3);
 		final double o = RandIndex.adjustedRandIndex(clusters, 2, classes, 3);
-		Assert.assertEquals(e, o, 0);
+		Assertions.assertEquals(e, o);
 	}
 
 	@Test
@@ -208,7 +208,7 @@ public class RandIndexTest
 		final int[] clusters = { 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6 };
 		final int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 9, 1, 0, 9, 9, 9, 0 };
 		final double r = RandIndex.simpleRandIndex(clusters, classes);
-		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		Assertions.assertEquals(0.67647058823529416, r, 1e-10);
 	}
 
 	@Test
@@ -217,7 +217,7 @@ public class RandIndexTest
 		final int[] clusters = { 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6 };
 		final int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 9, 1, 0, 9, 9, 9, 0 };
 		final double r = RandIndex.randIndex(clusters, classes);
-		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		Assertions.assertEquals(0.67647058823529416, r, 1e-10);
 	}
 
 	@Test
@@ -226,21 +226,25 @@ public class RandIndexTest
 		final int[] clusters = { 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6 };
 		final int[] classes = { 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 9, 1, 0, 9, 9, 9, 0 };
 		final double r = RandIndex.randIndex(clusters, 7, classes, 10);
-		Assert.assertEquals(0.67647058823529416, r, 1e-10);
+		Assertions.assertEquals(0.67647058823529416, r, 1e-10);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void getRandIndexThrowsWhenNotComputed()
 	{
-		final RandIndex ri = new RandIndex();
-		ri.getRandIndex();
+		Assertions.assertThrows(IllegalStateException.class, () -> {
+			final RandIndex ri = new RandIndex();
+			ri.getRandIndex();
+		});
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void getAdjustedRandIndexThrowsWhenNotComputed()
 	{
-		final RandIndex ri = new RandIndex();
-		ri.getAdjustedRandIndex();
+		Assertions.assertThrows(IllegalStateException.class, () -> {
+			final RandIndex ri = new RandIndex();
+			ri.getAdjustedRandIndex();
+		});
 	}
 
 	@Test
@@ -256,7 +260,7 @@ public class RandIndexTest
 	@Test
 	public void canComputeRandIndexWithBigData()
 	{
-		TestAssume.assumeLowComplexity();
+		ExtraAssumptions.assumeLowComplexity();
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int size = 10000;
 		for (final int i : new int[] { 3, 5, 10 })
@@ -308,8 +312,8 @@ public class RandIndexTest
 		TestLog.info("[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f\n", n, n1, n2, simple, e, table2, o2,
 				simple / (double) table2);
 
-		Assert.assertEquals(e, o1, e * 1e-10);
-		Assert.assertEquals(o2, o1, 0);
+		Assertions.assertEquals(e, o1, e * 1e-10);
+		Assertions.assertEquals(o2, o1);
 	}
 
 	@Test
@@ -345,7 +349,7 @@ public class RandIndexTest
 		TestLog.info("[%d,%d,%d,%d] %f\n", n, n1, n2, loops, sum);
 
 		final double delta = 0.1;
-		Assert.assertTrue(sum < delta && sum > -delta);
+		Assertions.assertTrue(sum < delta && sum > -delta);
 	}
 
 	@Test
@@ -411,6 +415,6 @@ public class RandIndexTest
 		TestLog.info("[%d,%d,%d] table1=%d (%f [%f]), table2=%d (%f), %f\n", n, n1, n2, table1, o1, r, table2, o2,
 				table1 / (double) table2);
 
-		Assert.assertEquals(o2, o1, 0);
+		Assertions.assertEquals(o2, o1);
 	}
 }

@@ -27,8 +27,8 @@
  */
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.utils.Maths;
 import uk.ac.sussex.gdsc.test.TestComplexity;
@@ -80,15 +80,15 @@ public class CircularKernelOffsetTest
 				}
 			for (int y = 0, k = 0; y < w; y++)
 				for (int x = 0; x < w; x++, k++)
-					Assert.assertTrue("No outer symmetry", outerMask[k] == outerMask[x * w + y]);
+					Assertions.assertTrue(outerMask[k] == outerMask[x * w + y], "No outer symmetry");
 			final double e = r * r;
 			for (int y = 0, k = 0; y < w; y++)
 				for (int x = 0; x < w; x++, k++)
 				{
-					Assert.assertTrue("No inner symmetry", innerMask[k] == innerMask[x * w + y]);
+					Assertions.assertTrue(innerMask[k] == innerMask[x * w + y], "No inner symmetry");
 					// Test distance to centre (r,r)
 					if (innerMask[k])
-						Assert.assertTrue("Bad inner", Maths.distance2(x, y, r, r) <= e);
+						Assertions.assertTrue(Maths.distance2(x, y, r, r) <= e, "Bad inner");
 				}
 		}
 	}

@@ -27,9 +27,9 @@
  */
 package uk.ac.sussex.gdsc.core.data;
 
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.TestLog;
 
@@ -39,7 +39,7 @@ public class IntegerTypeTest
 	@Test
 	public void canGenerateIntegerType()
 	{
-		Assume.assumeTrue(false);
+		Assumptions.assumeTrue(false);
 		final StringBuilder sb = new StringBuilder();
 		for (int bitDepth = 1; bitDepth <= 64; bitDepth++)
 			add(sb, true, bitDepth);
@@ -80,24 +80,24 @@ public class IntegerTypeTest
 		for (final IntegerType type : IntegerType.values())
 		{
 			final int bd = type.getBitDepth();
-			Assert.assertTrue(type.getName().contains(Integer.toString(bd) + "-bit"));
-			Assert.assertEquals(type, IntegerType.forOrdinal(type.ordinal()));
+			Assertions.assertTrue(type.getName().contains(Integer.toString(bd) + "-bit"));
+			Assertions.assertEquals(type, IntegerType.forOrdinal(type.ordinal()));
 
 			if (type.isSigned())
 			{
 				// Signed
-				Assert.assertTrue(type.getName().contains("Signed"));
-				Assert.assertEquals(type.getName(), minSigned(bd), type.getMin());
-				Assert.assertEquals(type.getName(), maxSigned(bd), type.getMax());
-				Assert.assertEquals(type.getName(), -minSigned(bd), type.getAbsoluteMax());
+				Assertions.assertTrue(type.getName().contains("Signed"));
+				Assertions.assertEquals(minSigned(bd), type.getMin(), type.getName());
+				Assertions.assertEquals(maxSigned(bd), type.getMax(), type.getName());
+				Assertions.assertEquals(-minSigned(bd), type.getAbsoluteMax(), type.getName());
 			}
 			else
 			{
 				// Unsigned
-				Assert.assertTrue(type.getName().contains("Unsigned"));
-				Assert.assertEquals(type.getName(), 0l, type.getMin());
-				Assert.assertEquals(type.getName(), maxUnsigned(bd), type.getMax());
-				Assert.assertEquals(type.getName(), maxUnsigned(bd), type.getAbsoluteMax());
+				Assertions.assertTrue(type.getName().contains("Unsigned"));
+				Assertions.assertEquals(0l, type.getMin(), type.getName());
+				Assertions.assertEquals(maxUnsigned(bd), type.getMax(), type.getName());
+				Assertions.assertEquals(maxUnsigned(bd), type.getAbsoluteMax(), type.getName());
 			}
 		}
 	}

@@ -30,13 +30,14 @@ package uk.ac.sussex.gdsc.core.clustering;
 import java.awt.Rectangle;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.junit4.TestAssume;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
 
 @SuppressWarnings({ "javadoc" })
 public class DensityManagerTest
@@ -58,7 +59,7 @@ public class DensityManagerTest
 				final int[] d1 = dm.calculateDensity(radius);
 				final int[] d2 = dm.calculateDensityTriangle(radius);
 
-				Assert.assertArrayEquals(String.format("N=%d, R=%f", n, radius), d1, d2);
+				Assertions.assertArrayEquals(d1, d2, () -> String.format("N=%d, R=%f", n, radius));
 			}
 		}
 	}
@@ -76,7 +77,7 @@ public class DensityManagerTest
 				final int[] d1 = dm.calculateDensity(radius);
 				final int[] d2 = dm.calculateDensityGrid(radius);
 
-				Assert.assertArrayEquals(String.format("N=%d, R=%f", n, radius), d1, d2);
+				Assertions.assertArrayEquals(d1, d2, () -> String.format("N=%d, R=%f", n, radius));
 			}
 		}
 	}
@@ -84,7 +85,7 @@ public class DensityManagerTest
 	@Test
 	public void densityWithGridFasterThanDensityTriangle()
 	{
-		TestAssume.assume(TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		for (final int n : N)
@@ -105,7 +106,7 @@ public class DensityManagerTest
 				final String msg = String.format("Grid vs Triangle. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
 				TestLog.info(msg);
-				Assert.assertTrue(msg, t2 < t1);
+				Assertions.assertTrue(t2 < t1, msg);
 			}
 		}
 	}
@@ -113,7 +114,7 @@ public class DensityManagerTest
 	@Test
 	public void densityWithGridFasterThanDensity()
 	{
-		TestAssume.assume(TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		for (final int n : N)
@@ -134,7 +135,7 @@ public class DensityManagerTest
 				final String msg = String.format("Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
 				TestLog.info(msg);
-				Assert.assertTrue(msg, t2 < t1);
+				Assertions.assertTrue(t2 < t1, msg);
 			}
 		}
 	}
@@ -152,7 +153,7 @@ public class DensityManagerTest
 				final int s1 = dm.calculateSum(radius);
 				final int s2 = dm.calculateSumGrid(radius);
 
-				Assert.assertEquals(String.format("N=%d, R=%f", n, radius), s1, s2);
+				Assertions.assertEquals(s1, s2, () -> String.format("N=%d, R=%f", n, radius));
 			}
 		}
 	}
@@ -160,7 +161,7 @@ public class DensityManagerTest
 	@Test
 	public void sumWithGridFasterThanSum()
 	{
-		TestAssume.assume(TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		for (final int n : N)
@@ -181,7 +182,7 @@ public class DensityManagerTest
 				final String msg = String.format("Sum Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
 				TestLog.info(msg);
-				Assert.assertTrue(msg, t2 < t1);
+				Assertions.assertTrue(t2 < t1, msg);
 			}
 		}
 	}
@@ -199,7 +200,7 @@ public class DensityManagerTest
 				final int[] d1 = dm.calculateBlockDensity(radius);
 				final int[] d2 = dm.calculateBlockDensity2(radius);
 
-				Assert.assertArrayEquals(String.format("N=%d, R=%f", n, radius), d1, d2);
+				Assertions.assertArrayEquals(d1, d2, () -> String.format("N=%d, R=%f", n, radius));
 			}
 		}
 	}
@@ -217,7 +218,7 @@ public class DensityManagerTest
 				final int[] d1 = dm.calculateBlockDensity2(radius);
 				final int[] d2 = dm.calculateBlockDensity3(radius);
 
-				Assert.assertArrayEquals(String.format("N=%d, R=%f", n, radius), d1, d2);
+				Assertions.assertArrayEquals(d1, d2, () -> String.format("N=%d, R=%f", n, radius));
 			}
 		}
 	}
@@ -226,7 +227,7 @@ public class DensityManagerTest
 	//@Test
 	public void blockDensityFasterThanBlockDensity2()
 	{
-		TestAssume.assumeSpeedTest();
+		ExtraAssumptions.assumeSpeedTest();
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		for (final int n : N)
@@ -248,15 +249,15 @@ public class DensityManagerTest
 						"calculateBlockDensity2 vs calculateBlockDensity. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
 				TestLog.info(msg);
-				Assert.assertTrue(msg, t2 < t1);
+				Assertions.assertTrue(t2 < t1, msg);
 			}
 		}
 	}
 
-	@Test
+	@SpeedTest
 	public void blockDensity2FasterThanBlockDensity3()
 	{
-		TestAssume.assumeSpeedTest();
+		ExtraAssumptions.assumeSpeedTest();
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		for (final int n : N)
@@ -279,7 +280,7 @@ public class DensityManagerTest
 						(double) t1 / t2);
 				// This is not always faster
 				//TestLog.info(msg);
-				//Assert.assertTrue(msg, t2 < t1);
+				//Assertions.assertTrue(t2 < t1, msg);
 				TestLog.logSpeedTestResult(t2 < t1, msg);
 			}
 		}

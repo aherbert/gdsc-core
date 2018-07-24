@@ -27,12 +27,12 @@
  */
 package ij.process;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import ij.plugin.filter.EDM;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.test.junit4.TestAssert;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 
 @SuppressWarnings({ "javadoc" })
 public class FHT2Test
@@ -40,14 +40,14 @@ public class FHT2Test
 	@Test
 	public void canCheckPowerOf2()
 	{
-		Assert.assertFalse("1", FHT2.isPowerOf2(1));
-		Assert.assertFalse("" + Integer.MAX_VALUE, FHT2.isPowerOf2(Integer.MAX_VALUE));
+		Assertions.assertFalse(FHT2.isPowerOf2(1), "1");
+		Assertions.assertFalse(FHT2.isPowerOf2(Integer.MAX_VALUE), "" + Integer.MAX_VALUE);
 		int i = 2;
 		while (i > 0) // Until overflow
 		{
-			Assert.assertTrue("" + i, FHT2.isPowerOf2(i));
-			Assert.assertFalse("" + (i - 1), FHT2.isPowerOf2(i - 1));
-			Assert.assertFalse("" + (i + 1), FHT2.isPowerOf2(i + 1));
+			ExtraAssertions.assertTrue(FHT2.isPowerOf2(i), "%d", i);
+			ExtraAssertions.assertFalse(FHT2.isPowerOf2(i - 1), "%d", (i - 1));
+			ExtraAssertions.assertFalse(FHT2.isPowerOf2(i + 1), "%d", (i + 1));
 			i *= 2;
 		}
 	}
@@ -139,8 +139,10 @@ public class FHT2Test
 		// This is not exact for the divide since the FHT2 magnitude is computed
 		// using double*double + double*double rather than float*float + float*float,
 		// i.e. the float are converted to double before multiplication.
-		final double error = (mode == 2) ? 1e-5 : 0;
-		TestAssert.assertArrayEqualsRelative(e, o, error);
+		if (mode == 2)
+			ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-5);
+		else
+			Assertions.assertArrayEquals(e, o);
 	}
 
 	private static FloatProcessor createProcessor(int size, int x, int y, int w, int h)
@@ -165,6 +167,6 @@ public class FHT2Test
 		fht1.swapQuadrants();
 		fht2.swapQuadrants();
 
-		Assert.assertArrayEquals((float[]) fp1.getPixels(), (float[]) fp2.getPixels(), 0);
+		Assertions.assertArrayEquals((float[]) fp1.getPixels(), (float[]) fp2.getPixels());
 	}
 }

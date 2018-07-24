@@ -28,12 +28,12 @@
 package uk.ac.sussex.gdsc.core.math;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.data.DataException;
 import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.junit4.TestAssert;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 
 @SuppressWarnings({ "javadoc" })
 public class QuadraticUtilsTest
@@ -54,7 +54,7 @@ public class QuadraticUtilsTest
 				final double scale = r.nextDouble() * 100;
 				final double o = QuadraticUtils.getDeterminant3x3(m, scale);
 				//System.out.printf("[%d] scale %.2f = %s vs %s\n", i, scale, e, o);
-				TestAssert.assertEqualsRelative(e, o, 1e-6);
+				ExtraAssertions.assertEqualsRelative(e, o, 1e-6);
 			}
 		}
 	}
@@ -92,9 +92,9 @@ public class QuadraticUtilsTest
 	private static void canSolveQuadratic(double a, double b, double c, double[] e, double x1, double x2, double x3)
 	{
 		final double[] o = solveQuadratic(a, b, c, x1, x2, x3);
-		Assert.assertNotNull(o);
+		Assertions.assertNotNull(o);
 		//System.out.println(java.util.Arrays.toString(o));
-		TestAssert.assertDoubleArrayEqualsRelative(e, o, 1e-6);
+		ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
 	}
 
 	private static double[] solveQuadratic(double a, double b, double c, double x1, double x2, double x3)
@@ -111,18 +111,18 @@ public class QuadraticUtilsTest
 		final double a = 3;
 		final double b = -2;
 		final double c = -4;
-		Assert.assertNull(solveQuadratic(a, b, c, -1, 0, 0));
-		Assert.assertNull(solveQuadratic(a, b, c, -1, -1, 0));
-		Assert.assertNull(solveQuadratic(a, b, c, 0, -1, 0));
+		Assertions.assertNull(solveQuadratic(a, b, c, -1, 0, 0));
+		Assertions.assertNull(solveQuadratic(a, b, c, -1, -1, 0));
+		Assertions.assertNull(solveQuadratic(a, b, c, 0, -1, 0));
 	}
 
 	@Test
 	public void canFindMinMaxQuadratic()
 	{
-		TestAssert.assertEqualsRelative(0, findMinMaxQuadratic(1, 0, 0, -1, 0, 1), 1e-6);
-		TestAssert.assertEqualsRelative(0, findMinMaxQuadratic(1, 0, -10, -1, 0, 1), 1e-6);
-		TestAssert.assertEqualsRelative(-1, findMinMaxQuadratic(1, 2, 0, -1, 0, 1), 1e-6);
-		TestAssert.assertEqualsRelative(-1, findMinMaxQuadratic(1, 2, -10, -1, 0, 1), 1e-6);
+		ExtraAssertions.assertEqualsRelative(0, findMinMaxQuadratic(1, 0, 0, -1, 0, 1), 1e-6);
+		ExtraAssertions.assertEqualsRelative(0, findMinMaxQuadratic(1, 0, -10, -1, 0, 1), 1e-6);
+		ExtraAssertions.assertEqualsRelative(-1, findMinMaxQuadratic(1, 2, 0, -1, 0, 1), 1e-6);
+		ExtraAssertions.assertEqualsRelative(-1, findMinMaxQuadratic(1, 2, -10, -1, 0, 1), 1e-6);
 	}
 
 	private static double findMinMaxQuadratic(double a, double b, double c, double x1, double x2, double x3)
@@ -133,21 +133,25 @@ public class QuadraticUtilsTest
 		return QuadraticUtils.findMinMax(x1, y1, x2, y2, x3, y3);
 	}
 
-	@Test(expected = DataException.class)
+	@Test
 	public void findMinMaxUsingColocatedPointsThrows()
 	{
 		final double a = 3;
 		final double b = -2;
 		final double c = -4;
-		findMinMaxQuadratic(a, b, c, -1, 0, 0);
+		Assertions.assertThrows(DataException.class, () -> {
+			findMinMaxQuadratic(a, b, c, -1, 0, 0);
+		});
 	}
 
-	@Test(expected = DataException.class)
+	@Test
 	public void findMinMaxUsingColinearPointsThrows()
 	{
 		final double a = 0;
 		final double b = 1;
 		final double c = 0;
-		findMinMaxQuadratic(a, b, c, -1, 0, 1);
+		Assertions.assertThrows(DataException.class, () -> {
+			findMinMaxQuadratic(a, b, c, -1, 0, 1);
+		});
 	}
 }

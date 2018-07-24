@@ -27,8 +27,8 @@
  */
 package uk.ac.sussex.gdsc.core.math;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({ "javadoc" })
 public class GeometryTest
@@ -56,7 +56,7 @@ public class GeometryTest
 		double o = Geometry.getArea(x, y);
 		if (!signed)
 			o = Math.abs(o);
-		Assert.assertEquals(e, o, 1e-10);
+		Assertions.assertEquals(e, o, 1e-10);
 	}
 
 	@Test
@@ -73,11 +73,11 @@ public class GeometryTest
 		final double[] o = new double[2];
 		final boolean result = Geometry.getIntersection(x1, y1, x2, y2, x3, y3, x4, y4, o);
 		if (e == null)
-			Assert.assertFalse(result);
+			Assertions.assertFalse(result);
 		else
 		{
-			Assert.assertTrue(result);
-			Assert.assertArrayEquals(e, o, 1e-10);
+			Assertions.assertTrue(result);
+			Assertions.assertArrayEquals(e, o, 1e-10);
 		}
 	}
 }

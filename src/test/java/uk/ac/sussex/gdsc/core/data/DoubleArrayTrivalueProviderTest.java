@@ -27,8 +27,8 @@
  */
 package uk.ac.sussex.gdsc.core.data;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({ "javadoc" })
 public class DoubleArrayTrivalueProviderTest
@@ -53,7 +53,7 @@ public class DoubleArrayTrivalueProviderTest
 			for (int y = 0; y < maxy; y++)
 				for (int z = 0; z < maxz; z++)
 				{
-					Assert.assertEquals(data[x][y][z], f.get(x, y, z), 0);
+					Assertions.assertEquals(data[x][y][z], f.get(x, y, z));
 
 					if (x > 0 && x < x - 1 && y > 0 && y < y - 1 && z > 0 && z < maxz - 1)
 					{
@@ -62,7 +62,7 @@ public class DoubleArrayTrivalueProviderTest
 						for (final int i : test)
 							for (final int j : test)
 								for (final int k : test)
-									Assert.assertEquals(data[x + i][y + j][z + k], values[i + 1][j + 1][k + 1], 0);
+									Assertions.assertEquals(data[x + i][y + j][z + k], values[i + 1][j + 1][k + 1]);
 					}
 				}
 	}

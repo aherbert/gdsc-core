@@ -31,8 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import ags.utils.dataStructures.MaxHeap;
 import ags.utils.dataStructures.trees.secondGenKD.KdTree.Entry;
@@ -48,7 +48,7 @@ import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
-import uk.ac.sussex.gdsc.test.junit4.TestAssume;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 
 @SuppressWarnings({ "javadoc" })
 public class KdTreeTest
@@ -97,7 +97,7 @@ public class KdTreeTest
 					//TestLog.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
-					Assert.assertArrayEquals(expected, observed, 0);
+					Assertions.assertArrayEquals(expected, observed);
 				}
 			}
 		}
@@ -143,7 +143,7 @@ public class KdTreeTest
 					//TestLog.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
-					Assert.assertArrayEquals(expected, observed, 0);
+					Assertions.assertArrayEquals(expected, observed);
 				}
 			}
 		}
@@ -180,7 +180,7 @@ public class KdTreeTest
 				{
 					final List<Entry<Object>> neighbours = tree.nearestNeighbor(data[i], k, false);
 
-					Assert.assertEquals(d2[k - 1], neighbours.get(0).distance, 0);
+					Assertions.assertEquals(d2[k - 1], neighbours.get(0).distance);
 				}
 			}
 		}
@@ -230,7 +230,7 @@ public class KdTreeTest
 					//TestLog.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
-					Assert.assertArrayEquals(expected, observed, 0);
+					Assertions.assertArrayEquals(expected, observed);
 				}
 			}
 		}
@@ -280,7 +280,7 @@ public class KdTreeTest
 					//TestLog.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
-					Assert.assertArrayEquals(expected, observed, 0);
+					Assertions.assertArrayEquals(expected, observed);
 				}
 			}
 		}
@@ -318,7 +318,7 @@ public class KdTreeTest
 					final MaxHeap<Object> neighbours = tree.findNearestNeighbors(data[i], k,
 							new SquareEuclideanDistanceFunction2D());
 
-					Assert.assertEquals(d2[k - 1], neighbours.getMaxKey(), 0);
+					Assertions.assertEquals(d2[k - 1], neighbours.getMaxKey());
 				}
 			}
 		}
@@ -368,7 +368,7 @@ public class KdTreeTest
 		public void check(int i, Object result)
 		{
 			final double[] observed = (double[]) result;
-			Assert.assertArrayEquals(expected, observed, eps);
+			Assertions.assertArrayEquals(expected, observed, eps);
 		}
 	}
 
@@ -376,7 +376,7 @@ public class KdTreeTest
 	public void secondGenIsFasterThanThirdGen()
 	{
 		// No assertions are made since the timings are similar
-		TestAssume.assume(LogLevel.INFO, TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		final TimingService ts = new TimingService(15);
@@ -540,7 +540,7 @@ public class KdTreeTest
 	//@Test
 	public void secondGenBucket24IsFastest()
 	{
-		TestAssume.assumeInfo();
+		ExtraAssumptions.assumeInfo();
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 		final TimingService ts = new TimingService(15);

@@ -32,14 +32,16 @@ import java.util.Arrays;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.util.FastMath;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.junit4.TestAssume;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
 
 @SuppressWarnings({ "javadoc" })
 public class MedianWindowTest
@@ -64,7 +66,7 @@ public class MedianWindowTest
 			{
 				final double median = calculateMedian(data, i, radius);
 				final double median2 = calculateMedian2(data, i, radius);
-				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
+				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
 			}
 		data = createRandomData(rg, dataSize + 1);
 		for (final int radius : radii)
@@ -72,7 +74,7 @@ public class MedianWindowTest
 			{
 				final double median = calculateMedian(data, i, radius);
 				final double median2 = calculateMedian2(data, i, radius);
-				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
+				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
 			}
 	}
 
@@ -84,13 +86,13 @@ public class MedianWindowTest
 		final MedianWindowDLL mw = new MedianWindowDLL(data);
 		double median = mw.getMedian();
 		double median2 = calculateMedian(data, 2, 2);
-		Assert.assertEquals("Before insert", median2, median, 1e-6);
+		Assertions.assertEquals(median2, median, 1e-6, "Before insert");
 
 		mw.add(6);
 		median = mw.getMedian();
 		data[0] = 6;
 		median2 = calculateMedian(data, 2, 2);
-		Assert.assertEquals("After insert", median2, median, 1e-6);
+		Assertions.assertEquals(median2, median, 1e-6, "After insert");
 	}
 
 	@Test
@@ -108,7 +110,7 @@ public class MedianWindowTest
 				mw.add(data[j]);
 				final double median2 = calculateMedian(data, i, radius);
 				TestLog.info("Position %d, Radius %d : %g vs %g\n", i, radius, median2, median);
-				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
+				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
 			}
 		}
 	}
@@ -189,7 +191,7 @@ public class MedianWindowTest
 				mw.increment();
 				final double median2 = calculateMedian(data, i, radius);
 				//TestLog.debug("%f vs %f\n", median, median2);
-				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
+				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
 			}
 		}
 	}
@@ -204,7 +206,7 @@ public class MedianWindowTest
 				mw.setPosition(i);
 				final double median = mw.getMedian();
 				final double median2 = calculateMedian(data, i, radius);
-				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
+				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
 			}
 		}
 	}
@@ -220,17 +222,20 @@ public class MedianWindowTest
 				final double median = mw.getMedian();
 				mw.increment(increment);
 				final double median2 = calculateMedian(data, i, radius);
-				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
+				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
 			}
 		}
 	}
 
-	@Test(expected = AssertionError.class)
+	@Test
 	public void cannotComputeMedianBackToInputArrayUsingSingleIncrement()
 	{
 		final double[] data = SimpleArrayUtils.newArray(dataSize, 0.0, 1);
 		for (final int radius : radii)
 		{
+			if (radius <= 1)
+				continue;
+			
 			final double[] in = data.clone();
 			final double[] e = new double[in.length];
 			MedianWindow mw = new MedianWindow(in, radius);
@@ -243,10 +248,13 @@ public class MedianWindowTest
 			mw = new MedianWindow(in, radius);
 			for (int i = 0; i < data.length; i++)
 			{
+				// Write back to the input array
 				in[i] = mw.getMedian();
 				mw.increment();
 			}
-			Assert.assertArrayEquals(e, in, 0);
+			Assertions.assertThrows(AssertionError.class, () -> {
+				Assertions.assertArrayEquals(e, in);
+			}, () -> String.format("Radius = %s", radius));
 		}
 	}
 
@@ -263,12 +271,12 @@ public class MedianWindowTest
 			{
 				final double median = mw.getMedian();
 				final double median2 = calculateMedian(data, i, radius);
-				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
+				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
 
 				mw.increment();
 				i++;
 			}
-			Assert.assertEquals("Not all data interated", i, data.length);
+			Assertions.assertEquals(i, data.length, "Not all data interated");
 
 			mw = new MedianWindow(data, radius);
 			i = 0;
@@ -276,11 +284,11 @@ public class MedianWindowTest
 			{
 				final double median = mw.getMedian();
 				final double median2 = calculateMedian(data, i, radius);
-				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
+				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
 
 				i++;
 			} while (mw.increment());
-			Assert.assertEquals("Not all data interated", i, data.length);
+			Assertions.assertEquals(i, data.length, "Not all data interated");
 		}
 	}
 
@@ -298,7 +306,7 @@ public class MedianWindowTest
 			{
 				final double median = mw.getMedian();
 				final double median2 = calculateMedian(data, i, radius);
-				Assert.assertEquals(String.format("Position %d, Radius %d", i, radius), median2, median, 1e-6);
+				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
 
 				mw.increment(increment);
 				i += increment;
@@ -316,23 +324,23 @@ public class MedianWindowTest
 			MedianWindow mw = new MedianWindow(data, radius);
 			for (int i = 0; i < data.length; i++)
 				mw.increment();
-			Assert.assertEquals(Double.NaN, mw.getMedian(), 1e-6);
+			Assertions.assertEquals(Double.NaN, mw.getMedian(), 1e-6);
 
 			mw = new MedianWindow(data, radius);
 			while (mw.isValidPosition())
 				mw.increment();
-			Assert.assertEquals(Double.NaN, mw.getMedian(), 1e-6);
+			Assertions.assertEquals(Double.NaN, mw.getMedian(), 1e-6);
 
 			mw = new MedianWindow(data, radius);
 			mw.setPosition(data.length + 10);
-			Assert.assertEquals(Double.NaN, mw.getMedian(), 1e-6);
+			Assertions.assertEquals(Double.NaN, mw.getMedian(), 1e-6);
 		}
 	}
 
 	@Test
 	public void isFasterThanLocalSort()
 	{
-		TestAssume.assumeLowComplexity();
+		ExtraAssumptions.assumeLowComplexity();
 		final int[] speedRadii2 = (TestSettings.allow(LogLevel.INFO)) ? speedRadii : new int[] { testSpeedRadius };
 		for (final int radius : speedRadii2)
 			for (final int increment : speedIncrement)
@@ -400,19 +408,19 @@ public class MedianWindowTest
 				m2[j++] = calculateMedian(data[iter], i, radius);
 		final long t2 = System.nanoTime() - s2;
 
-		Assert.assertArrayEquals(m1, m2, 1e-6);
+		Assertions.assertArrayEquals(m1, m2, 1e-6);
 		TestLog.info("Radius %d, Increment %d : window %d : standard %d = %fx faster\n", radius, increment, t1, t2,
 				(double) t2 / t1);
 
 		// Only test the largest radii
 		if (radius == testSpeedRadius)
-			Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t1 < t2);
+			ExtraAssertions.assertTrue(t1 < t2, "Radius %d, Increment %d", radius, increment);
 	}
 
-	@Test
+	@SpeedTest
 	public void floatVersionIsFasterThanDoubleVersion()
 	{
-		TestAssume.assumeLowComplexity();
+		ExtraAssumptions.assumeLowComplexity();
 		final int[] speedRadii2 = (TestSettings.allow(LogLevel.INFO)) ? speedRadii : new int[] { testSpeedRadius };
 		for (final int radius : speedRadii2)
 			for (final int increment : speedIncrement)
@@ -517,23 +525,23 @@ public class MedianWindowTest
 			t2 = System.nanoTime() - s2;
 		}
 
-		Assert.assertArrayEquals(m1, m2, 1e-3);
+		Assertions.assertArrayEquals(m1, m2, 1e-3);
 
 		// Only test the largest radii
 		if (radius == testSpeedRadius)
 			// Allow a margin of error
-			//Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1 * 1.1);
-			TestLog.logSpeedTestResult(t2 < t1, "Radius %d, Increment %d : double %d : float %d = %fx faster\n",
-					radius, increment, t1, t2, (double) t1 / t2);
+			//Assertions.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1 * 1.1);
+			TestLog.logSpeedTestResult(t2 < t1, "Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius,
+					increment, t1, t2, (double) t1 / t2);
 		else
-			TestLog.info("Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius, increment, t1,
-					t2, (double) t1 / t2);
+			TestLog.info("Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius, increment, t1, t2,
+					(double) t1 / t2);
 	}
 
-	@Test
+	@SpeedTest
 	public void intVersionIsFasterThanDoubleVersion()
 	{
-		TestAssume.assumeSpeedTest(TestComplexity.LOW);
+		ExtraAssumptions.assumeSpeedTest(TestComplexity.LOW);
 		for (final int radius : speedRadii)
 			for (final int increment : speedIncrement)
 				intVersionIsFasterThanDoubleVersion(radius, increment);
@@ -633,9 +641,9 @@ public class MedianWindowTest
 
 		// Only test the largest radii
 		if (radius == testSpeedRadius)
-			//Assert.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1);
-			TestLog.logSpeedTestResult(t2 < t1, "Radius %d, Increment %d : double %d : int %d = %fx faster\n",
-					radius, increment, t1, t2, (double) t1 / t2);
+			//Assertions.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1);
+			TestLog.logSpeedTestResult(t2 < t1, "Radius %d, Increment %d : double %d : int %d = %fx faster\n", radius,
+					increment, t1, t2, (double) t1 / t2);
 		else
 			TestLog.info("Radius %d, Increment %d : double %d : int %d = %fx faster\n", radius, increment, t1, t2,
 					(double) t1 / t2);

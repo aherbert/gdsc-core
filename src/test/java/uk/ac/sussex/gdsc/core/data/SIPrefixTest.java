@@ -27,9 +27,9 @@
  */
 package uk.ac.sussex.gdsc.core.data;
 
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.TestLog;
 
@@ -40,7 +40,7 @@ public class SIPrefixTest
 	public void canGenerateSIPrefix()
 	{
 		// This is not a test. It generates the Enum.
-		Assume.assumeTrue(false);
+		Assumptions.assumeTrue(false);
 
 		//@formatter:off
 		final String[] data = {
@@ -141,6 +141,6 @@ public class SIPrefixTest
 		value *= sign;
 		final SIPrefix o = SIPrefix.getPrefix(value);
 		TestLog.info("Value %s = %s %s (%s)\n", value, o.convert(value), o.getName(), o.getSymbol());
-		Assert.assertEquals(e, o);
+		Assertions.assertEquals(e, o);
 	}
 }

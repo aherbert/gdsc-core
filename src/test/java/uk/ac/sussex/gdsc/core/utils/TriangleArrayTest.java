@@ -27,8 +27,10 @@
  */
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 
 @SuppressWarnings({ "javadoc" })
 public class TriangleArrayTest
@@ -52,23 +54,23 @@ public class TriangleArrayTest
 					count[k]++;
 
 					ij = a.fromIndex(k);
-					Assert.assertEquals("i", i, ij[0]);
-					Assert.assertEquals("j", j, ij[1]);
+					ExtraAssertions.assertEquals(i, ij[0], "fromIndex(int) [%d]", k);
+					ExtraAssertions.assertEquals(j, ij[1], "fromIndex(int) [%d]", k);
 
 					a.fromIndex(k, ij);
-					Assert.assertEquals("i", i, ij[0]);
-					Assert.assertEquals("j", j, ij[1]);
+					ExtraAssertions.assertEquals(i, ij[0], "fromIndex(int,int[]) [%d]", k);
+					ExtraAssertions.assertEquals(j, ij[1], "fromIndex(int,int[]) [%d]", k);
 
 					ij = TriangleArray.fromIndex(n, k);
-					Assert.assertEquals("i", i, ij[0]);
-					Assert.assertEquals("j", j, ij[1]);
+					ExtraAssertions.assertEquals(i, ij[0], "static fromIndex(int) [%d]", k);
+					ExtraAssertions.assertEquals(j, ij[1], "static fromIndex(int) [%d]", k);
 
 					TriangleArray.fromIndex(n, k, ij);
-					Assert.assertEquals("i", i, ij[0]);
-					Assert.assertEquals("j", j, ij[1]);
+					ExtraAssertions.assertEquals(i, ij[0], "static fromIndex(int,int[]) [%d]", k);
+					ExtraAssertions.assertEquals(j, ij[1], "static fromIndex(int,int[]) [%d]", k);
 				}
 			for (int i = count.length; i-- > 0;)
-				Assert.assertEquals("count", 1, count[i]);
+				Assertions.assertEquals(1, count[i], "count");
 		}
 	}
 
@@ -88,7 +90,7 @@ public class TriangleArrayTest
 				return;
 			}
 
-		Assert.fail();
+		Assertions.fail();
 	}
 
 	@Test
@@ -102,7 +104,7 @@ public class TriangleArrayTest
 			{
 				final int k = a.toIndex(i, j);
 				final int k2 = a.toSafeIndex(j, i);
-				Assert.assertEquals(k, k2);
+				Assertions.assertEquals(k, k2);
 			}
 	}
 
@@ -117,7 +119,7 @@ public class TriangleArrayTest
 				for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
 				{
 					final int k = a.toIndex(i, j);
-					Assert.assertEquals("i", k, index);
+					ExtraAssertions.assertEquals(k, index, "[%d][%d]", i, j);
 				}
 		}
 	}
@@ -134,7 +136,7 @@ public class TriangleArrayTest
 				{
 					final int k = a.toIndex(i, j);
 					final int k2 = a.precursorToIndex(index, i);
-					Assert.assertEquals("i", k, k2);
+					ExtraAssertions.assertEquals(k, k2, "[%d][%d]", i, j);
 				}
 		}
 	}
@@ -152,12 +154,12 @@ public class TriangleArrayTest
 				{
 					final int k = a.toSafeIndex(i, j);
 					final int k2 = a.precursorToIndex(precursor, j);
-					Assert.assertEquals(k, k2);
+					Assertions.assertEquals(k, k2);
 				}
 				for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
 				{
 					final int k = a.toSafeIndex(i, j);
-					Assert.assertEquals(k, index);
+					Assertions.assertEquals(k, index);
 				}
 			}
 		}
@@ -179,7 +181,7 @@ public class TriangleArrayTest
 						continue;
 					final int k = a.toSafeIndex(i, j);
 					final int k2 = a.toIndex(j);
-					Assert.assertEquals(k, k2);
+					Assertions.assertEquals(k, k2);
 				}
 			}
 

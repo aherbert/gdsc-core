@@ -33,8 +33,8 @@ import java.io.IOException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.TestSettings;
 
@@ -52,10 +52,10 @@ public class DigestTest
 		for (int i = 0; i < 10; i++)
 		{
 			final String testString = rdg.nextHexString(50);
-			Assert.assertEquals(DigestUtils.md5Hex(testString), Digest.md5Hex(testString));
+			Assertions.assertEquals(DigestUtils.md5Hex(testString), Digest.md5Hex(testString));
 			r.nextBytes(testBytes);
-			Assert.assertEquals(DigestUtils.md5Hex(testBytes), Digest.md5Hex(testBytes));
-			Assert.assertEquals(DigestUtils.md5Hex(new ByteArrayInputStream(testBytes)),
+			Assertions.assertEquals(DigestUtils.md5Hex(testBytes), Digest.md5Hex(testBytes));
+			Assertions.assertEquals(DigestUtils.md5Hex(new ByteArrayInputStream(testBytes)),
 					Digest.md5Hex(new ByteArrayInputStream(testBytes)));
 		}
 	}

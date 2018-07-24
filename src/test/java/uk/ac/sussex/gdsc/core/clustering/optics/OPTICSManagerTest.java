@@ -36,9 +36,8 @@ import java.util.List;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import de.lmu.ifi.dbs.elki.algorithm.clustering.optics.AbstractOPTICS;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.optics.ClusterOrder;
@@ -90,8 +89,9 @@ import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingResult;
 import uk.ac.sussex.gdsc.test.TimingService;
-import uk.ac.sussex.gdsc.test.junit4.TestAssert;
-import uk.ac.sussex.gdsc.test.junit4.TestAssume;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
 
 @SuppressWarnings({ "javadoc" })
 public class OPTICSManagerTest
@@ -376,7 +376,7 @@ public class OPTICSManagerTest
 				final Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
 				db.initialize();
 				final Relation<?> rel = db.getRelation(TypeUtil.ANY);
-				Assert.assertEquals("Database size does not match.", n, rel.size());
+				Assertions.assertEquals(n, rel.size(), "Database size does not match.");
 
 				// Debug: Print the core distance for each point
 				//for (int i = 0; i < n; i++)
@@ -417,9 +417,9 @@ public class OPTICSManagerTest
 					//TestLog.debug("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
 					//		r1.get(i).coreDistance, expPre, obsPre);
 
-					TestAssert.assertEquals(expId, obsId, "[%d] Id", i);
-					TestAssert.assertEquals(expPre, obsPre, "[%d] Pre", i);
-					TestAssert.assertEqualsRelative(expR, obsR, 1e-5, "[%d] R", i);
+					ExtraAssertions.assertEquals(expId, obsId, "[%d] Id", i);
+					ExtraAssertions.assertEquals(expPre, obsPre, "[%d] Pre", i);
+					ExtraAssertions.assertEqualsRelative(expR, obsR, 1e-5, "[%d] R", i);
 				}
 			}
 		}
@@ -461,7 +461,7 @@ public class OPTICSManagerTest
 				final Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
 				db.initialize();
 				final Relation<?> rel = db.getRelation(TypeUtil.ANY);
-				Assert.assertEquals("Database size does not match.", n, rel.size());
+				Assertions.assertEquals(n, rel.size(), "Database size does not match.");
 
 				// Debug: Print the core distance for each point
 				//for (int i = 0; i < n; i++)
@@ -488,8 +488,6 @@ public class OPTICSManagerTest
 						// No predecessor or reachability distance
 						continue;
 
-					final String prefix = "[" + i + "] ";
-
 					final int expId = asInteger(it);
 					final int obsId = r1.get(i).parent;
 
@@ -503,9 +501,9 @@ public class OPTICSManagerTest
 					//TestLog.debug("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
 					//		r1.get(i).coreDistance, expPre, obsPre);
 
-					Assert.assertEquals(prefix + "Id", expId, obsId);
-					Assert.assertEquals(prefix + "Pre", expPre, obsPre);
-					Assert.assertEquals(prefix + "R", expR, obsR, expR * 1e-5);
+					ExtraAssertions.assertEquals(expId, obsId, "Id %d", i);
+					ExtraAssertions.assertEquals(expPre, obsPre, "Pre %d", i);
+					ExtraAssertions.assertEqualsRelative(expR, obsR, 1e-5, "R %d", i);
 				}
 			}
 		}
@@ -545,7 +543,7 @@ public class OPTICSManagerTest
 				final Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
 				db.initialize();
 				final Relation<?> rel = db.getRelation(TypeUtil.ANY);
-				Assert.assertEquals("Database size does not match.", n, rel.size());
+				Assertions.assertEquals(n, rel.size(), "Database size does not match.");
 
 				// Debug: Print the core distance for each point
 				//for (int i = 0; i < n; i++)
@@ -589,7 +587,7 @@ public class OPTICSManagerTest
 				//for (int i = 0; i < n; i++)
 				//	TestLog.info("%d = %d %d\n", i, expClusters[i], obsClusters[i]);
 
-				Assert.assertEquals(1, RandIndex.randIndex(expClusters, obsClusters), 0);
+				Assertions.assertEquals(1, RandIndex.randIndex(expClusters, obsClusters));
 			}
 		}
 	}
@@ -616,11 +614,11 @@ public class OPTICSManagerTest
 				r1.extractClusters(xi, OPTICSResult.XI_OPTION_TOP_LEVEL);
 				final ArrayList<OPTICSCluster> o2 = r1.getAllClusters();
 
-				Assert.assertTrue(o1.size() >= o2.size());
+				Assertions.assertTrue(o1.size() >= o2.size());
 
 				//TestLog.debug("%d : %d\n", n, minPts);
 				for (final OPTICSCluster cluster : o2)
-					Assert.assertTrue(cluster.getLevel() == 0);
+					Assertions.assertTrue(cluster.getLevel() == 0);
 				//TestLog.debug(cluster);
 			}
 		}
@@ -661,7 +659,7 @@ public class OPTICSManagerTest
 					final Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
 					db.initialize();
 					final Relation<?> rel = db.getRelation(TypeUtil.ANY);
-					Assert.assertEquals("Database size does not match.", n, rel.size());
+					Assertions.assertEquals(n, rel.size(), "Database size does not match.");
 
 					// Use the same settings as ELKI
 					final int logOProjectionConst = 20;
@@ -717,7 +715,7 @@ public class OPTICSManagerTest
 					else
 						TestLog.log(LogLevel.SILENT, "WARNING : FastOPTICS vs ELKI : %d,%d : [%d] r=%f (%f)\n", n,
 								minPts, loop, r, ri.getAdjustedRandIndex());
-					//Assert.assertTrue(ri.getAdjustedRandIndex() > 0);
+					//Assertions.assertTrue(ri.getAdjustedRandIndex() > 0);
 					sum += r;
 				}
 
@@ -726,15 +724,15 @@ public class OPTICSManagerTest
 					TestLog.info("FastOPTICS vs ELKI : %d,%d : r=%f\n", n, minPts, sum);
 				else
 					TestLog.log(LogLevel.SILENT, "WARNING : FastOPTICS vs ELKI : %d,%d : r=%f\n", n, minPts, sum);
-				//Assert.assertTrue(sum > 0.6);
+				//Assertions.assertTrue(sum > 0.6);
 			}
 		}
 	}
 
-	@Test
+	@SpeedTest
 	public void canComputeFastOPTICSFasterThanELKI()
 	{
-		TestAssume.assumeSpeedTest();
+		ExtraAssumptions.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final TrackProgress tracker = null; //new SimpleTrackProgress();
@@ -757,7 +755,7 @@ public class OPTICSManagerTest
 				final Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
 				db.initialize();
 				final Relation<?> rel = db.getRelation(TypeUtil.ANY);
-				Assert.assertEquals("Database size does not match.", n, rel.size());
+				Assertions.assertEquals(n, rel.size(), "Database size does not match.");
 
 				// Use same settings as ELKI
 				final int logOProjectionConst = 20;
@@ -793,8 +791,8 @@ public class OPTICSManagerTest
 						elki / (double) smlm1);
 				TestLog.logSpeedTestResult(smlm2 < elki, "ELKI = %d, SMLM (default) = %d = %f\n", elki, smlm2,
 						elki / (double) smlm2);
-				//Assert.assertTrue(smlm1 < elki);
-				//Assert.assertTrue(smlm2 < elki);
+				//Assertions.assertTrue(smlm1 < elki);
+				//Assertions.assertTrue(smlm2 < elki);
 			}
 		}
 	}
@@ -853,7 +851,7 @@ public class OPTICSManagerTest
     							"xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s : r=%f (%f)\n",
     							xi, n, minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode, r, ari);
     					// This should always be true, i.e. better than chance
-    					TestAssert.assertTrue(0 < ari, "Adjusted rand index is below zero: %s", sampleMode);
+    					Assertions.assertTrue(0 < ari, () -> { return String.format("Adjusted rand index is below zero: %s", sampleMode); });
     				}
     				final double r = sum / c;
 					TestLog.info(
@@ -888,28 +886,28 @@ public class OPTICSManagerTest
 	@Test
 	public void canComputeOPTICSWithInnerProcessing()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 		canComputeOPTICSWithOptions(Option.INNER_PROCESSING);
 	}
 
 	@Test
 	public void canComputeOPTICSWithCircularProcessing()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 		canComputeOPTICSWithOptions(Option.CIRCULAR_PROCESSING);
 	}
 
 	@Test
 	public void canComputeOPTICSWithInnerCircularProcessing()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 		canComputeOPTICSWithOptions(Option.INNER_PROCESSING, Option.CIRCULAR_PROCESSING);
 	}
 
 	@Test
 	public void canComputeOPTICSWithSimpleQueue()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 		// This fails as the order is different when we do not use ID to order the objects when reachability distance is equal
 		//canComputeOPTICSWithOptions(Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
 
@@ -921,7 +919,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canComputeOPTICSWithSimpleQueueReverseIdOrderD()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 		canComputeOPTICSWithOptions(new Option[] { Option.OPTICS_STRICT_REVERSE_ID_ORDER },
 				Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
 	}
@@ -929,7 +927,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canComputeOPTICSWithSimpleQueueIdOrder()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 		canComputeOPTICSWithOptions(new Option[] { Option.OPTICS_STRICT_ID_ORDER },
 				Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
 	}
@@ -1012,10 +1010,10 @@ public class OPTICSManagerTest
 			//TestLog.debug("[%d] %d %d : %f = %f (%f) : %s = %d\n", i, expId, obsId, expR, obsR,
 			//		r1.get(i).coreDistance, expPre, obsPre);
 
-			TestAssert.assertEqualsRelative(expC, obsC, 1e-5, "%s C %d", title, i);
-			TestAssert.assertEquals(expId, obsId, "%s Id %d", title, i);
-			TestAssert.assertEquals(expPre, obsPre, 1e-5, "%s Pre %d", title, i);
-			TestAssert.assertEqualsRelative(expR, obsR, 1e-5, "%s R %d", title, i);
+			ExtraAssertions.assertEqualsRelative(expC, obsC, 1e-5, "%s C %d", title, i);
+			ExtraAssertions.assertEquals(expId, obsId, "%s Id %d", title, i);
+			ExtraAssertions.assertEquals(expPre, obsPre, "%s Pre %d", title, i);
+			ExtraAssertions.assertEqualsRelative(expR, obsR, 1e-5, "%s R %d", title, i);
 		}
 	}
 
@@ -1025,32 +1023,32 @@ public class OPTICSManagerTest
 		final double[] core1 = r1.getCoreDistance(false);
 		final double[] core2 = r2.getCoreDistance(false);
 
-		Assert.assertArrayEquals("Core", core1, core2, 0);
+		Assertions.assertArrayEquals(core1, core2, "Core");
 
 		final int[] cluster1 = r1.getClusters();
 		final int[] cluster2 = r2.getClusters();
 
-		Assert.assertArrayEquals("Cluster", cluster1, cluster2);
+		Assertions.assertArrayEquals(cluster1, cluster2, "Cluster");
 	}
 
 	@Test
 	public void canComputeDBSCANWithGridProcessing()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 		canComputeDBSCANWithOptions(Option.GRID_PROCESSING);
 	}
 
 	@Test
 	public void canComputeDBSCANWithCircularProcessing()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 		canComputeDBSCANWithOptions(Option.CIRCULAR_PROCESSING);
 	}
 
 	@Test
 	public void canComputeDBSCANWithInnerProcessingCircular()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 		canComputeDBSCANWithOptions(Option.INNER_PROCESSING, Option.CIRCULAR_PROCESSING);
 	}
 
@@ -1087,7 +1085,7 @@ public class OPTICSManagerTest
 			if (expPts < minPts || obsPts < minPts)
 				continue;
 
-			Assert.assertEquals(title + " Pts " + i, expPts, obsPts);
+			ExtraAssertions.assertEquals(expPts, obsPts, "%s Pts %d", title, i);
 
 			final int expId = r1.get(i).parent;
 			final int obsId = r2.get(i).parent;
@@ -1095,8 +1093,8 @@ public class OPTICSManagerTest
 			final int expCId = r1.get(i).getClusterId();
 			final int obsCId = r2.get(i).getClusterId();
 
-			Assert.assertEquals(title + " Id " + i, expId, obsId);
-			Assert.assertEquals(title + " CId " + i, expCId, obsCId);
+			ExtraAssertions.assertEquals(expId, obsId, "%s Id %d", title, i);
+			ExtraAssertions.assertEquals(expCId, obsCId, "%s CId %d", title, i);
 		}
 	}
 
@@ -1110,7 +1108,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canPerformOPTICSWithLargeData()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final TrackProgress tracker = null; //new SimpleTrackProgress();
 		for (final int n : N)
@@ -1173,14 +1171,14 @@ public class OPTICSManagerTest
 			for (int i = 0; i < n; i++)
 				e[i] = (float) Math.sqrt(PartialSort.bottom(PartialSort.OPTION_HEAD_FIRST, d2[i], n, k + 1)[0]);
 			//TestLog.debug("e=%s, o=%s\n", Arrays.toString(e), Arrays.toString(o));
-			Assert.assertArrayEquals(e, o, 0);
+			Assertions.assertArrayEquals(e, o);
 		}
 	}
 
 	@Test
 	public void canComputeKNNDistanceWithBigData()
 	{
-		TestAssume.assumeMediumComplexity();
+		ExtraAssumptions.assumeMediumComplexity();
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		for (final int n : N)
 		{
@@ -1189,7 +1187,7 @@ public class OPTICSManagerTest
 			for (final int k : new int[] { 3, 5 })
 			{
 				final float[] d = om.nearestNeighbourDistance(k, -1, true);
-				Assert.assertEquals(d.length, n);
+				Assertions.assertEquals(d.length, n);
 			}
 		}
 	}
@@ -1206,7 +1204,7 @@ public class OPTICSManagerTest
 			for (final int k : new int[] { 3, 5 })
 			{
 				final float[] d = om.nearestNeighbourDistance(k, samples, true);
-				Assert.assertEquals(d.length, samples);
+				Assertions.assertEquals(d.length, samples);
 			}
 		}
 	}
@@ -1233,25 +1231,25 @@ public class OPTICSManagerTest
 		final float radius = 0;
 
 		final int minPts = 10;
-		Assert.assertFalse(om.hasMemory());
+		Assertions.assertFalse(om.hasMemory());
 
 		final EnumSet<Option> opt = om.getOptions();
 
 		opt.add(OPTICSManager.Option.CACHE);
 		final OPTICSResult r1 = om.optics(radius, minPts);
-		Assert.assertTrue(om.hasMemory());
+		Assertions.assertTrue(om.hasMemory());
 
 		opt.remove(OPTICSManager.Option.CACHE);
 		final OPTICSResult r2 = om.optics(radius, minPts);
-		Assert.assertFalse(om.hasMemory());
+		Assertions.assertFalse(om.hasMemory());
 
-		Assert.assertEquals(r1.size(), r2.size());
+		Assertions.assertEquals(r1.size(), r2.size());
 		for (int i = r1.size(); i-- > 0;)
 		{
-			Assert.assertEquals(r1.get(i).parent, r2.get(i).parent);
-			Assert.assertEquals(r1.get(i).clusterId, r2.get(i).clusterId);
-			Assert.assertEquals(r1.get(i).coreDistance, r2.get(i).coreDistance, 0);
-			Assert.assertEquals(r1.get(i).reachabilityDistance, r2.get(i).reachabilityDistance, 0);
+			Assertions.assertEquals(r1.get(i).parent, r2.get(i).parent);
+			Assertions.assertEquals(r1.get(i).clusterId, r2.get(i).clusterId);
+			Assertions.assertEquals(r1.get(i).coreDistance, r2.get(i).coreDistance);
+			Assertions.assertEquals(r1.get(i).reachabilityDistance, r2.get(i).reachabilityDistance);
 		}
 	}
 
@@ -1281,12 +1279,12 @@ public class OPTICSManagerTest
 			{
 				final OPTICSResult r1 = om.optics(radius, minPts);
 				// Should be 1 cluster
-				Assert.assertEquals(1, r1.get(0).clusterId);
+				Assertions.assertEquals(1, r1.get(0).clusterId);
 			}
 
 		final OPTICSResult r1 = om.optics(1, 2);
 		// Should be 0 clusters as the min size is too high
-		Assert.assertEquals(0, r1.get(0).clusterId);
+		Assertions.assertEquals(0, r1.get(0).clusterId);
 	}
 
 	@Test
@@ -1299,7 +1297,7 @@ public class OPTICSManagerTest
 			{
 				final OPTICSResult r1 = om.optics(radius, minPts);
 				// All should be in the same cluster
-				Assert.assertEquals(1, r1.get(0).clusterId);
+				Assertions.assertEquals(1, r1.get(0).clusterId);
 			}
 	}
 
@@ -1330,13 +1328,13 @@ public class OPTICSManagerTest
 			if (max < r1.get(i).clusterId)
 				max = r1.get(i).clusterId;
 			//clusterId2[i] = r1.get(i).clusterId;
-			Assert.assertNotEquals(r1.get(i).clusterId, -1);
+			Assertions.assertNotEquals(r1.get(i).clusterId, -1);
 		}
-		Assert.assertEquals(nClusters, max);
+		Assertions.assertEquals(nClusters, max);
 		// Same distance
 		nClusters = r1.extractDBSCANClustering(radius);
 		for (int i = r1.size(); i-- > 0;)
-			Assert.assertEquals(r1.get(i).clusterId, clusterId[i]);
+			Assertions.assertEquals(r1.get(i).clusterId, clusterId[i]);
 	}
 
 	/**
@@ -1376,13 +1374,13 @@ public class OPTICSManagerTest
 		//	TestLog.info("[%d] %d == %d\n", i, c1[i], c2[i]);
 		//}
 
-		Assert.assertArrayEquals(c1, c2);
+		Assertions.assertArrayEquals(c1, c2);
 	}
 
 	@Test
 	public void dBSCANIsFasterThanOPTICS()
 	{
-		TestAssume.assumeSpeedTest();
+		ExtraAssumptions.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final OPTICSManager om1 = createOPTICSManager(size, 5000, rg);
@@ -1399,7 +1397,7 @@ public class OPTICSManagerTest
 		t3 = t3 - t2;
 		t2 = t2 - t1;
 
-		Assert.assertTrue(t3 < t2);
+		Assertions.assertTrue(t3 < t2);
 
 		// Note: The OPTICS paper reports that it should be about 1.6x slower than DBSCAN
 		// This test shows a different value due to:
@@ -1435,16 +1433,16 @@ public class OPTICSManagerTest
 						final int[] c1 = r1.getClusters();
 						final int[] c2 = r2.getClusters(true);
 
-						Assert.assertEquals(1, RandIndex.randIndex(c1, c2), 0);
+						Assertions.assertEquals(1, RandIndex.randIndex(c1, c2));
 					}
 				}
 		}
 	}
 
-	@Test
+	@SpeedTest
 	public void dBSCANInnerCircularIsFasterWhenDensityIsHigh()
 	{
-		TestAssume.assumeSpeedTest();
+		ExtraAssumptions.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int molecules = 10000;
@@ -1482,14 +1480,14 @@ public class OPTICSManagerTest
 		t3 = t3 - t2;
 		t2 = t2 - t1;
 
-		TestLog.logSpeedTestResult(t3 < t2, "dBSCANInnerCircularIsFasterWhenComparisonsIsHigh %d < %d (%.2f)\n",
-				t3, t2, (double) t2 / t3);
+		TestLog.logSpeedTestResult(t3 < t2, "dBSCANInnerCircularIsFasterWhenComparisonsIsHigh %d < %d (%.2f)\n", t3, t2,
+				(double) t2 / t3);
 	}
 
-	@Test
+	@SpeedTest
 	public void oPTICSCircularIsFasterWhenDensityIsHigh()
 	{
-		TestAssume.assumeSpeedTest();
+		ExtraAssumptions.assumeSpeedTest();
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int molecules = 10000;
@@ -1685,11 +1683,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name + j, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.GRID, om, minPts, generatingDistanceE, 10)
@@ -1697,11 +1693,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name + j, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, om, minPts, generatingDistanceE, 0)
@@ -1712,8 +1706,7 @@ public class OPTICSManagerTest
 				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, name);
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.INNER_RADIAL, om, minPts, generatingDistanceE, 0)
@@ -1721,11 +1714,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, om, minPts, generatingDistanceE, 10)
@@ -1733,11 +1724,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.INNER_RADIAL, om, minPts, generatingDistanceE, 10)
@@ -1745,11 +1734,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.TREE, om, minPts, generatingDistanceE, 0)
@@ -1757,11 +1744,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.TREE2, om, minPts, generatingDistanceE, 0)
@@ -1769,11 +1754,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 
@@ -1814,11 +1797,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name + j, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.GRID, true, om, minPts, generatingDistanceE, 10)
@@ -1826,11 +1807,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name + j, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, true, om, minPts, generatingDistanceE, 0)
@@ -1838,11 +1817,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.INNER_RADIAL, true, om, minPts, generatingDistanceE, 0)
@@ -1850,11 +1827,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.RADIAL, true, om, minPts, generatingDistanceE, 10)
@@ -1862,11 +1837,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.INNER_RADIAL, true, om, minPts, generatingDistanceE, 10)
@@ -1874,11 +1847,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.TREE, true, om, minPts, generatingDistanceE, 0)
@@ -1886,11 +1857,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 		ts.execute(new FindNeighboursTimingTask(MS.TREE2, true, om, minPts, generatingDistanceE, 0)
@@ -1898,11 +1867,9 @@ public class OPTICSManagerTest
 			@Override
 			public void check(int i, Object result)
 			{
-				final String name = getName() + ":" + i + ":";
 				final int[][] e = n[i];
 				final int[][] o = format(result);
-				for (int j = 0; j < e.length; j++)
-					Assert.assertArrayEquals(name, e[j], o[j]);
+				Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 			}
 		}, check);
 
@@ -1916,7 +1883,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canTestMoleculeSpaceFindNeighboursWithAutoResolution()
 	{
-		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.MEDIUM));
+		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int molecules = 20000;
@@ -1968,11 +1935,9 @@ public class OPTICSManagerTest
 				@Override
 				public void check(int i, Object result)
 				{
-					final String name = getName() + ":" + i + ":";
 					final int[][] e = n[i];
 					final int[][] o = format(result);
-					for (int j = 0; j < e.length; j++)
-						Assert.assertArrayEquals(name, e[j], o[j]);
+					Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 				}
 			}, check);
 			ts.execute(new FindNeighboursTimingTask(MS.INNER_RADIAL, om, minPts, generatingDistanceE, resolution)
@@ -1980,11 +1945,9 @@ public class OPTICSManagerTest
 				@Override
 				public void check(int i, Object result)
 				{
-					final String name = getName() + ":" + i + ":";
 					final int[][] e = n[i];
 					final int[][] o = format(result);
-					for (int j = 0; j < e.length; j++)
-						Assert.assertArrayEquals(name, e[j], o[j]);
+					Assertions.assertArrayEquals(e, o, () -> String.format("%s:%d:", getName(), i));
 				}
 			}, check);
 
@@ -1998,7 +1961,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canTestGridMoleculeSpaceFindNeighboursWithResolution()
 	{
-		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.HIGH));
+		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.HIGH);
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int molecules = 50000;
@@ -2070,7 +2033,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canTestRadialMoleculeSpaceFindNeighboursWithResolution()
 	{
-		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.HIGH));
+		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.HIGH);
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int molecules = 20000;
@@ -2142,7 +2105,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canTestInnerRadialMoleculeSpaceFindNeighboursWithResolution()
 	{
-		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.HIGH));
+		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.HIGH);
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int molecules = 20000;
@@ -2288,7 +2251,7 @@ public class OPTICSManagerTest
 	@Test
 	public void canTestOPTICSQueue()
 	{
-		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.HIGH));
+		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.HIGH);
 
 		final RandomGenerator rg = TestSettings.getRandomGenerator();
 		final int molecules = 5000;
@@ -2368,7 +2331,7 @@ public class OPTICSManagerTest
 				final Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
 				db.initialize();
 				final Relation<?> rel = db.getRelation(TypeUtil.ANY);
-				Assert.assertEquals("Database size does not match.", n, rel.size());
+				Assertions.assertEquals(n, rel.size(), "Database size does not match.");
 
 				final double lambda = 1;
 
@@ -2398,8 +2361,6 @@ public class OPTICSManagerTest
 				final DoubleRelation scores = or.getScores();
 				for (final DBIDIter it = scores.iterDBIDs(); it.valid(); it.advance(), i++)
 				{
-					final String prefix = "[" + i + "] ";
-
 					final int expId = asInteger(it);
 					final int obsId = i;
 
@@ -2408,8 +2369,8 @@ public class OPTICSManagerTest
 
 					//TestLog.debug("%s %d %d : %f = %f\n", prefix, expId, obsId, expL, obsL);
 
-					Assert.assertEquals(prefix + "Id", expId, obsId);
-					TestAssert.assertEqualsRelative(prefix + "LoOP", expL, obsL, 1e-2);
+					ExtraAssertions.assertEquals(expId, obsId, "[%d] Id", i);
+					ExtraAssertions.assertEqualsRelative(expL, obsL, 1e-2, "[%d] LoOP", i);
 				}
 			}
 		}

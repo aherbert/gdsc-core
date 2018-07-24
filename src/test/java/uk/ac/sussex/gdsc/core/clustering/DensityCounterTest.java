@@ -29,9 +29,8 @@ package uk.ac.sussex.gdsc.core.clustering;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.clustering.DensityCounter.SimpleMolecule;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
@@ -40,6 +39,7 @@ import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 
 /**
  * Test the DensityCounter.
@@ -71,13 +71,7 @@ public class DensityCounterTest
 				final int[][] d1 = DensityCounter.countAll(molecules, radius, nChannels - 1);
 				final int[][] d2 = c.countAllSimple(nChannels - 1);
 
-				final String name = String.format("N=%d, R=%f", n, radius);
-				Assert.assertNotNull(name, d1);
-				Assert.assertNotNull(name, d2);
-				Assert.assertEquals(name, d1.length, n);
-				Assert.assertEquals(name, d2.length, n);
-				for (int i = 0; i < n; i++)
-					Assert.assertArrayEquals(name, d1[i], d2[i]);
+				check(n, radius, d1, d2);
 			}
 		}
 	}
@@ -98,13 +92,7 @@ public class DensityCounterTest
 				final int[][] d1 = DensityCounter.countAll(molecules, radius, nChannels - 1);
 				final int[][] d2 = c.countAll(nChannels - 1);
 
-				final String name = String.format("N=%d, R=%f", n, radius);
-				Assert.assertNotNull(name, d1);
-				Assert.assertNotNull(name, d2);
-				Assert.assertEquals(name, d1.length, n);
-				Assert.assertEquals(name, d2.length, n);
-				for (int i = 0; i < n; i++)
-					Assert.assertArrayEquals(name, d1[i], d2[i]);
+				check(n, radius, d1, d2);
 			}
 		}
 	}
@@ -126,13 +114,7 @@ public class DensityCounterTest
 				final int[][] d1 = DensityCounter.countAll(molecules, radius, nChannels - 1);
 				final int[][] d2 = c.countAll(nChannels - 1);
 
-				final String name = String.format("N=%d, R=%f", n, radius);
-				Assert.assertNotNull(name, d1);
-				Assert.assertNotNull(name, d2);
-				Assert.assertEquals(name, d1.length, n);
-				Assert.assertEquals(name, d2.length, n);
-				for (int i = 0; i < n; i++)
-					Assert.assertArrayEquals(name, d1[i], d2[i]);
+				check(n, radius, d1, d2);
 			}
 		}
 	}
@@ -154,13 +136,7 @@ public class DensityCounterTest
 				final int[][] d1 = DensityCounter.countAll(molecules, radius, nChannels - 1);
 				final int[][] d2 = c.countAll(nChannels - 1);
 
-				final String name = String.format("N=%d, R=%f", n, radius);
-				Assert.assertNotNull(name, d1);
-				Assert.assertNotNull(name, d2);
-				Assert.assertEquals(name, d1.length, n);
-				Assert.assertEquals(name, d2.length, n);
-				for (int i = 0; i < n; i++)
-					Assert.assertArrayEquals(name, d1[i], d2[i]);
+				check(n, radius, d1, d2);
 			}
 		}
 	}
@@ -182,13 +158,7 @@ public class DensityCounterTest
 				final int[][] d1 = DensityCounter.countAll(molecules, molecules2, radius, nChannels - 1);
 				final int[][] d2 = c.countAllSimple(molecules2, nChannels - 1);
 
-				final String name = String.format("N=%d, R=%f", n, radius);
-				Assert.assertNotNull(name, d1);
-				Assert.assertNotNull(name, d2);
-				Assert.assertEquals(name, d1.length, n);
-				Assert.assertEquals(name, d2.length, n);
-				for (int i = 0; i < n; i++)
-					Assert.assertArrayEquals(name, d1[i], d2[i]);
+				check(n, radius, d1, d2);
 			}
 		}
 	}
@@ -210,13 +180,7 @@ public class DensityCounterTest
 				final int[][] d1 = DensityCounter.countAll(molecules, molecules2, radius, nChannels - 1);
 				final int[][] d2 = c.countAll(molecules2, nChannels - 1);
 
-				final String name = String.format("N=%d, R=%f", n, radius);
-				Assert.assertNotNull(name, d1);
-				Assert.assertNotNull(name, d2);
-				Assert.assertEquals(name, d1.length, n);
-				Assert.assertEquals(name, d2.length, n);
-				for (int i = 0; i < n; i++)
-					Assert.assertArrayEquals(name, d1[i], d2[i]);
+				check(n, radius, d1, d2);
 			}
 		}
 	}
@@ -238,15 +202,15 @@ public class DensityCounterTest
 				final int[][] d1 = DensityCounter.countAll(molecules, molecules2, radius, nChannels - 1);
 				final int[][] d2 = c.countAll(molecules2, nChannels - 1);
 
-				final String name = String.format("N=%d, R=%f", n, radius);
-				Assert.assertNotNull(name, d1);
-				Assert.assertNotNull(name, d2);
-				Assert.assertEquals(name, d1.length, n);
-				Assert.assertEquals(name, d2.length, n);
-				for (int i = 0; i < n; i++)
-					Assert.assertArrayEquals(name, d1[i], d2[i]);
+				check(n, radius, d1, d2);
 			}
 		}
+	}
+	
+	private static void check(final int n, final float radius, final int[][] d1, final int[][] d2)
+	{
+		Assertions.assertArrayEquals(d1, d2, () -> String.format("N=%d, R=%f", n, radius));
+		Assertions.assertEquals(d1.length, n, () -> String.format("N=%d, R=%f", n, radius));
 	}
 
 	private abstract class MyTimingTask extends BaseTimingTask
@@ -272,7 +236,7 @@ public class DensityCounterTest
 	@Test
 	public void countAllSpeedTest()
 	{
-		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.MEDIUM));
+		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
 
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 
@@ -381,7 +345,7 @@ public class DensityCounterTest
 	@Test
 	public void countAllAroundMoleculesSpeedTest()
 	{
-		Assume.assumeTrue(TestSettings.allow(LogLevel.INFO, TestComplexity.MEDIUM));
+		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
 		final RandomGenerator r = TestSettings.getRandomGenerator();
 
 		// The multi-thread mode is faster when the number of molecules is large.
