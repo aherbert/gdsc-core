@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 
 @SuppressWarnings({ "javadoc" })
@@ -312,7 +313,7 @@ public class RandIndexTest
 		TestLog.info("[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f\n", n, n1, n2, simple, e, table2, o2,
 				simple / (double) table2);
 
-		Assertions.assertEquals(e, o1, e * 1e-10);
+		ExtraAssertions.assertEqualsRelative(e, o1, 1e-10);
 		Assertions.assertEquals(o2, o1);
 	}
 
