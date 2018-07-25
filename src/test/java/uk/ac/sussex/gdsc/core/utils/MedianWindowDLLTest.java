@@ -38,7 +38,7 @@ import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
 public class MedianWindowDLLTest
@@ -243,7 +243,8 @@ public class MedianWindowDLLTest
 		}
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall()
 	{
 		ExtraAssumptions.assumeSpeedTest(TestComplexity.LOW);

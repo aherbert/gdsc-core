@@ -41,7 +41,7 @@ import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
 public class MedianWindowTest
@@ -417,7 +417,8 @@ public class MedianWindowTest
 			ExtraAssertions.assertTrue(t1 < t2, "Radius %d, Increment %d", radius, increment);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void floatVersionIsFasterThanDoubleVersion()
 	{
 		ExtraAssumptions.assumeLowComplexity();
@@ -538,7 +539,8 @@ public class MedianWindowTest
 					(double) t1 / t2);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void intVersionIsFasterThanDoubleVersion()
 	{
 		ExtraAssumptions.assumeSpeedTest(TestComplexity.LOW);

@@ -37,7 +37,7 @@ import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
 public class DensityManagerTest
@@ -254,7 +254,8 @@ public class DensityManagerTest
 		}
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void blockDensity2FasterThanBlockDensity3()
 	{
 		ExtraAssumptions.assumeSpeedTest();

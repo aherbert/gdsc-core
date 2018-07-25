@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
 public class StoredDataStatisticsTest extends StatisticsTest
@@ -91,7 +91,8 @@ public class StoredDataStatisticsTest extends StatisticsTest
 	}
 
 	@SuppressWarnings("unused")
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void iteratorIsSlowerUsingdouble()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -116,7 +117,8 @@ public class StoredDataStatisticsTest extends StatisticsTest
 	}
 
 	@SuppressWarnings("unused")
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void iteratorIsSlowerUsingDouble()
 	{
 		ExtraAssumptions.assumeSpeedTest();

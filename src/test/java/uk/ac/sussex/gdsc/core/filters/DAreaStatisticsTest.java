@@ -44,7 +44,7 @@ import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
 public class DAreaStatisticsTest
@@ -249,14 +249,16 @@ public class DAreaStatisticsTest
 		}
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void simpleIsfasterAtLowDensityAndNLessThan10()
 	{
 		// Test the speed for computing the noise around spots at a density of roughly 1 / 100 pixels.
 		speedTest(1.0 / 100, false, 1, 10);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void simpleIsfasterAtMediumDensityAndNLessThan5()
 	{
 		// Test the speed for computing the noise around each 3x3 box
@@ -264,7 +266,8 @@ public class DAreaStatisticsTest
 		speedTest(1.0 / 9, false, 1, 4);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void rollingIsfasterAtHighDensity()
 	{
 		// Since this is a slow test

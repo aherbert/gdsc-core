@@ -41,7 +41,7 @@ import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "deprecation", "javadoc" })
 public class EqualityTest
@@ -386,7 +386,8 @@ public class EqualityTest
 				DoubleEquality.relativeError(f, f4));
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void floatRelativeIsSameSpeedAsDoubleRelative()
 	{
 		ExtraAssumptions.assumeSpeedTest();

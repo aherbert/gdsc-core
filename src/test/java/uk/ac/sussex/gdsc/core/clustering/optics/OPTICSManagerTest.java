@@ -91,7 +91,7 @@ import uk.ac.sussex.gdsc.test.TimingResult;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
 public class OPTICSManagerTest
@@ -729,7 +729,8 @@ public class OPTICSManagerTest
 		}
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void canComputeFastOPTICSFasterThanELKI()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -1439,7 +1440,8 @@ public class OPTICSManagerTest
 		}
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void dBSCANInnerCircularIsFasterWhenDensityIsHigh()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -1484,7 +1486,8 @@ public class OPTICSManagerTest
 				(double) t2 / t3);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void oPTICSCircularIsFasterWhenDensityIsHigh()
 	{
 		ExtraAssumptions.assumeSpeedTest();

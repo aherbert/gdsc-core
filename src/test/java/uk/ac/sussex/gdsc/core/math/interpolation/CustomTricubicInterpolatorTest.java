@@ -57,7 +57,7 @@ import uk.ac.sussex.gdsc.test.TimingResult;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
 public class CustomTricubicInterpolatorTest
@@ -1080,7 +1080,8 @@ public class CustomTricubicInterpolatorTest
 		}
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable()
 	{
 		ExtraAssumptions.assumeSpeedTest();

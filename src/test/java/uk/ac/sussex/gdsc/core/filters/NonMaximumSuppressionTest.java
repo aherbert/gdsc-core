@@ -44,7 +44,7 @@ import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
 public class NonMaximumSuppressionTest
@@ -290,7 +290,8 @@ public class NonMaximumSuppressionTest
 		}
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void floatBlockFindIsFasterThanMaxFind()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -352,7 +353,8 @@ public class NonMaximumSuppressionTest
 				(1.0 * total) / blockTotal);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void floatBlockFindWithNeighbourCheckIsFasterThanMaxFind()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -426,7 +428,8 @@ public class NonMaximumSuppressionTest
 		return dataSet;
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void floatBlockFindNxNInternalIsFasterThanBlockFindNxNForBigBorders()
 	{
 		// Note: This test is currently failing. The primes used to be:
@@ -509,7 +512,8 @@ public class NonMaximumSuppressionTest
 				String.format("Internal not faster: %d > %d", bigInternalTotal, bigTotal));
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void floatBlockFindInternalIsFasterWithoutNeighbourCheck()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -585,7 +589,8 @@ public class NonMaximumSuppressionTest
 				bigNoCheckTotal, (1.0 * bigCheckTotal) / bigNoCheckTotal);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void floatBlockFindIsFasterWithoutNeighbourCheck()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -660,7 +665,8 @@ public class NonMaximumSuppressionTest
 				(1.0 * bigCheckTotal) / bigNoCheckTotal);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void floatBlockFind3x3MethodIsFasterThanBlockFindNxN()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -709,7 +715,8 @@ public class NonMaximumSuppressionTest
 				blockTotal, (1.0 * total) / blockTotal);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void floatBlockFind3x3WithBufferIsFasterThanBlockFind3x3()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -763,7 +770,8 @@ public class NonMaximumSuppressionTest
 				total, blockTotal, (double) total / blockTotal);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void floatBlockFind3x3MethodIsFasterThanMaxFind3x3()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -1100,7 +1108,8 @@ public class NonMaximumSuppressionTest
 		}
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void intBlockFindIsFasterThanMaxFind()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -1162,7 +1171,8 @@ public class NonMaximumSuppressionTest
 				(1.0 * total) / blockTotal);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void intBlockFindWithNeighbourCheckIsFasterThanMaxFind()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -1236,7 +1246,8 @@ public class NonMaximumSuppressionTest
 		return dataSet;
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void intBlockFindNxNInternalIsFasterThanBlockFindNxNForBigBorders()
 	{
 		// Note: This test is currently failing. The primes used to be:
@@ -1319,7 +1330,8 @@ public class NonMaximumSuppressionTest
 				String.format("Internal not faster: %d > %d", bigInternalTotal, bigTotal));
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void intBlockFindInternalIsFasterWithoutNeighbourCheck()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -1394,7 +1406,8 @@ public class NonMaximumSuppressionTest
 				bigNoCheckTotal, (1.0 * bigCheckTotal) / bigNoCheckTotal);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void intBlockFindIsFasterWithoutNeighbourCheck()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -1469,7 +1482,8 @@ public class NonMaximumSuppressionTest
 				(1.0 * bigCheckTotal) / bigNoCheckTotal);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void intBlockFind3x3MethodIsFasterThanBlockFindNxN()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -1518,7 +1532,8 @@ public class NonMaximumSuppressionTest
 				blockTotal, (1.0 * total) / blockTotal);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void intBlockFind3x3WithBufferIsFasterThanBlockFind3x3()
 	{
 		ExtraAssumptions.assumeSpeedTest();
@@ -1572,7 +1587,8 @@ public class NonMaximumSuppressionTest
 				total, blockTotal, (double) total / blockTotal);
 	}
 
-	@SpeedTest
+	@SpeedTag
+	@Test
 	public void intBlockFind3x3MethodIsFasterThanMaxFind3x3()
 	{
 		ExtraAssumptions.assumeSpeedTest();
