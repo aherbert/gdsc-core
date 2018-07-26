@@ -30,7 +30,7 @@ package uk.ac.sussex.gdsc.core.utils;
 /**
  * Exception to throw if a method is not implemented.
  */
-public class NotImplementedException extends RuntimeException
+public class NotImplementedException extends UnsupportedOperationException
 {
 	private static final long serialVersionUID = 7226451080179546585L;
 
