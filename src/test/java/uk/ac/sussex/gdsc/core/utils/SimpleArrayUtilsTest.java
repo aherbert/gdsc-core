@@ -29,8 +29,8 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
 
-import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -41,16 +41,18 @@ import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
 public class SimpleArrayUtilsTest
 {
 	TIntHashSet set = new TIntHashSet();
 
-	@Test
-	public void canFlatten()
+	@SeededTest
+	public void canFlatten(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		testFlatten(new int[0]);
 		testFlatten(new int[10]);
 		for (int i = 0; i < 10; i++)
@@ -73,10 +75,10 @@ public class SimpleArrayUtilsTest
 		Assertions.assertArrayEquals(e, o);
 	}
 
-	@Test
-	public void canSortMerge()
+	@SeededTest
+	public void canSortMerge(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		testSortMerge(new int[0], new int[10]);
 		testSortMerge(new int[10], new int[10]);
 		testSortMerge(new int[10], next(r, 10, 10));
@@ -108,7 +110,7 @@ public class SimpleArrayUtilsTest
 		Assertions.assertArrayEquals(e, o);
 	}
 
-	private static int[] next(RandomGenerator r, int size, int max)
+	private static int[] next(UniformRandomProvider r, int size, int max)
 	{
 		final int[] a = new int[size];
 		for (int i = 0; i < size; i++)
@@ -139,11 +141,11 @@ public class SimpleArrayUtilsTest
 		}
 	}
 
-	@Test
-	public void testMergeOnIndexData()
+	@SeededTest
+	public void testMergeOnIndexData(RandomSeed seed)
 	{
 		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final double[] f = new double[] { 0.1, 0.5, 0.75 };
 		for (final int size : new int[] { 100, 1000, 10000 })
@@ -152,15 +154,15 @@ public class SimpleArrayUtilsTest
 					testMergeOnIndexData(r, 100, size, (int) (size * f[i]), (int) (size * f[j]));
 	}
 
-	private void testMergeOnIndexData(RandomGenerator r, int length, final int size, final int n1, final int n2)
+	private void testMergeOnIndexData(UniformRandomProvider r, int length, final int size, final int n1, final int n2)
 	{
 		final int[][][] data = new int[length][2][];
 		final int[] s1 = SimpleArrayUtils.newArray(size, 0, 1);
 		for (int i = 0; i < length; i++)
 		{
-			Random.shuffle(s1, r);
+			PermutationSampler.shuffle(r, s1);
 			data[i][0] = Arrays.copyOf(s1, n1);
-			Random.shuffle(s1, r);
+			PermutationSampler.shuffle(r, s1);
 			data[i][1] = Arrays.copyOf(s1, n2);
 		}
 		final String msg = String.format("[%d] %d vs %d", size, n1, n2);
@@ -203,11 +205,11 @@ public class SimpleArrayUtilsTest
 		ts.report();
 	}
 
-	@Test
-	public void testMergeOnRedundantData()
+	@SeededTest
+	public void testMergeOnRedundantData(RandomSeed seed)
 	{
 		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final int[] n = new int[] { 2, 4, 8 };
 		final int[] size = new int[] { 100, 1000, 10000 };
@@ -219,7 +221,7 @@ public class SimpleArrayUtilsTest
 						testMergeOnRedundantData(r, 50, size[ii], n[i], size[jj], n[j]);
 	}
 
-	public void testMergeOnRedundantData(RandomGenerator r, int length, final int n1, final int r1, final int n2,
+	public void testMergeOnRedundantData(UniformRandomProvider r, int length, final int n1, final int r1, final int n2,
 			final int r2)
 	{
 		final int[][][] data = new int[length][2][];
@@ -231,9 +233,9 @@ public class SimpleArrayUtilsTest
 			s2[i] = i % r2;
 		for (int i = 0; i < length; i++)
 		{
-			MathArrays.shuffle(s1, r);
+			PermutationSampler.shuffle(r, s1);
 			data[i][0] = s1.clone();
-			MathArrays.shuffle(s2, r);
+			PermutationSampler.shuffle(r, s2);
 			data[i][1] = s2.clone();
 		}
 		final String msg = String.format("%d%%%d vs %d%%%d", n1, r1, n2, r2);

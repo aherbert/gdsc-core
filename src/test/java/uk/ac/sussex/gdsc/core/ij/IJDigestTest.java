@@ -31,9 +31,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
@@ -41,16 +40,18 @@ import ij.process.FloatProcessor;
 import ij.process.ShortProcessor;
 import uk.ac.sussex.gdsc.core.utils.Digest;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
 public class IJDigestTest
 {
 	int size = 50;
 
-	@Test
-	public void canDigestByteProcessor()
+	@SeededTest
+	public void canDigestByteProcessor(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final byte[] data = new byte[size];
 		r.nextBytes(data);
 
@@ -59,10 +60,10 @@ public class IJDigestTest
 		Assertions.assertEquals(e, o);
 	}
 
-	@Test
-	public void canDigestShortProcessor() throws IOException
+	@SeededTest
+	public void canDigestShortProcessor(RandomSeed seed) throws IOException
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final short[] data = new short[size];
 		for (int i = 0; i < size; i++)
 			data[i] = (short) ((r.nextDouble() - 0.5) * 2 * Short.MAX_VALUE);
@@ -76,10 +77,10 @@ public class IJDigestTest
 		Assertions.assertEquals(e, o);
 	}
 
-	@Test
-	public void canDigestFloatProcessor() throws IOException
+	@SeededTest
+	public void canDigestFloatProcessor(RandomSeed seed) throws IOException
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final float[] data = new float[size];
 		for (int i = 0; i < size; i++)
 			data[i] = (r.nextFloat() - 0.5f) * 2f;
@@ -93,10 +94,10 @@ public class IJDigestTest
 		Assertions.assertEquals(e, o);
 	}
 
-	@Test
-	public void canDigestColorProcessor() throws IOException
+	@SeededTest
+	public void canDigestColorProcessor(RandomSeed seed) throws IOException
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final int[] data = new int[size];
 		for (int i = 0; i < size; i++)
 			data[i] = r.nextInt();

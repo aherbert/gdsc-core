@@ -30,9 +30,8 @@ package uk.ac.sussex.gdsc.core.clustering;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.utils.Random;
 import uk.ac.sussex.gdsc.test.LogLevel;
@@ -40,6 +39,8 @@ import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
 public class ClusteringEngineTest
@@ -47,30 +48,30 @@ public class ClusteringEngineTest
 	// Store the closest pair of clusters
 	int ii, jj;
 
-	@Test
-	public void canClusterClusterPointsAtDifferentDensitiesUsingClosest()
+	@SeededTest
+	public void canClusterClusterPointsAtDifferentDensitiesUsingClosest(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		for (final double radius : new double[] { 5, 10, 20 })
 			for (final int size : new int[] { 1000, 500, 300, 100 })
 				testClusting(rg, ClusteringAlgorithm.CENTROID_LINKAGE, radius, 100, size);
 	}
 
-	@Test
-	public void canClusterClusterPointsAtDifferentDensitiesUsingPairwiseWithoutNeighbours()
+	@SeededTest
+	public void canClusterClusterPointsAtDifferentDensitiesUsingPairwiseWithoutNeighbours(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		for (final double radius : new double[] { 5, 10, 20 })
 			for (final int size : new int[] { 1000, 500, 300, 100 })
 				testClusting(rg, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius, 100, size);
 	}
 
-	@Test
-	public void pairwiseWithoutNeighboursIsFasterAtLowDensities()
+	@SeededTest
+	public void pairwiseWithoutNeighboursIsFasterAtLowDensities(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeMediumComplexity();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		ExtraAssumptions.assume(LogLevel.WARN, TestComplexity.LOW);
 		final int repeats = 10;
 		final double radius = 50;
@@ -86,12 +87,12 @@ public class ClusteringEngineTest
 				(double) t1 / t2);
 	}
 
-	@Test
-	public void pairwiseWithoutNeighboursIsSlowerAtHighDensities()
+	@SeededTest
+	public void pairwiseWithoutNeighboursIsSlowerAtHighDensities(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeMediumComplexity();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final int repeats = 10;
 		final double radius = 50;
 		final Object[] points = new Object[repeats];
@@ -106,12 +107,12 @@ public class ClusteringEngineTest
 		Assertions.assertTrue(t1 < t2);
 	}
 
-	@Test
-	public void pairwiseIsFaster()
+	@SeededTest
+	public void pairwiseIsFaster(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeMediumComplexity();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final int repeats = 20;
 		final Object[] points = new Object[repeats];
 		for (int i = 0; i < repeats; i++)
@@ -125,113 +126,119 @@ public class ClusteringEngineTest
 		Assertions.assertTrue(t2 < t1);
 	}
 
-	@Test
-	public void canMultithreadParticleSingleLinkage()
+	@SeededTest
+	public void canMultithreadParticleSingleLinkage(RandomSeed seed)
 	{
-		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(), ClusteringAlgorithm.PARTICLE_SINGLE_LINKAGE);
+		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(seed.getSeed()),
+				ClusteringAlgorithm.PARTICLE_SINGLE_LINKAGE);
 	}
 
-	@Test
-	public void multithreadedParticleSingleLinkageIsFaster()
+	@SeededTest
+	public void multithreadedParticleSingleLinkageIsFaster(RandomSeed seed)
 	{
-		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(), ClusteringAlgorithm.PARTICLE_SINGLE_LINKAGE);
+		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(seed.getSeed()),
+				ClusteringAlgorithm.PARTICLE_SINGLE_LINKAGE);
 	}
 
-	@Test
-	public void canMultithreadClosest()
+	@SeededTest
+	public void canMultithreadClosest(RandomSeed seed)
 	{
-		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(), ClusteringAlgorithm.CENTROID_LINKAGE);
+		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(seed.getSeed()),
+				ClusteringAlgorithm.CENTROID_LINKAGE);
 	}
 
-	@Test
-	public void multithreadedClosestIsFaster()
+	@SeededTest
+	public void multithreadedClosestIsFaster(RandomSeed seed)
 	{
-		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(), ClusteringAlgorithm.CENTROID_LINKAGE);
+		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(seed.getSeed()),
+				ClusteringAlgorithm.CENTROID_LINKAGE);
 	}
 
-	@Test
-	public void canMultithreadClosestParticle()
+	@SeededTest
+	public void canMultithreadClosestParticle(RandomSeed seed)
 	{
-		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(),
+		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(seed.getSeed()),
 				ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE);
 	}
 
-	@Test
-	public void multithreadedClosestParticleIsFaster()
+	@SeededTest
+	public void multithreadedClosestParticleIsFaster(RandomSeed seed)
 	{
-		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(), ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE);
+		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(seed.getSeed()),
+				ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE);
 	}
 
-	@Test
-	public void canMultithreadClosestDistancePriority()
+	@SeededTest
+	public void canMultithreadClosestDistancePriority(RandomSeed seed)
 	{
-		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(),
+		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(seed.getSeed()),
 				ClusteringAlgorithm.CENTROID_LINKAGE_DISTANCE_PRIORITY);
 	}
 
-	@Test
-	public void multithreadedClosestDistancePriorityIsFaster()
+	@SeededTest
+	public void multithreadedClosestDistancePriorityIsFaster(RandomSeed seed)
 	{
-		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(),
+		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(seed.getSeed()),
 				ClusteringAlgorithm.CENTROID_LINKAGE_DISTANCE_PRIORITY);
 	}
 
-	@Test
-	public void canMultithreadClosestTimePriority()
+	@SeededTest
+	public void canMultithreadClosestTimePriority(RandomSeed seed)
 	{
-		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(),
+		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(seed.getSeed()),
 				ClusteringAlgorithm.CENTROID_LINKAGE_TIME_PRIORITY);
 	}
 
-	@Test
-	public void multithreadedClosestTimePriorityIsFaster()
+	@SeededTest
+	public void multithreadedClosestTimePriorityIsFaster(RandomSeed seed)
 	{
-		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(),
+		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(seed.getSeed()),
 				ClusteringAlgorithm.CENTROID_LINKAGE_TIME_PRIORITY);
 	}
 
-	@Test
-	public void canMultithreadClosestParticleDistancePriority()
+	@SeededTest
+	public void canMultithreadClosestParticleDistancePriority(RandomSeed seed)
 	{
-		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(),
+		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(seed.getSeed()),
 				ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY);
 	}
 
-	@Test
-	public void multithreadedClosestParticleDistancePriorityIsFaster()
+	@SeededTest
+	public void multithreadedClosestParticleDistancePriorityIsFaster(RandomSeed seed)
 	{
-		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(),
+		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(seed.getSeed()),
 				ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY);
 	}
 
-	@Test
-	public void canMultithreadClosestParticleTimePriority()
+	@SeededTest
+	public void canMultithreadClosestParticleTimePriority(RandomSeed seed)
 	{
-		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(),
+		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(seed.getSeed()),
 				ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY);
 	}
 
-	@Test
-	public void multithreadedClosestParticleTimePriorityIsFaster()
+	@SeededTest
+	public void multithreadedClosestParticleTimePriorityIsFaster(RandomSeed seed)
 	{
-		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(),
+		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(seed.getSeed()),
 				ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY);
 	}
 
-	@Test
-	public void canMultithreadPairwiseWithoutNeighbours()
+	@SeededTest
+	public void canMultithreadPairwiseWithoutNeighbours(RandomSeed seed)
 	{
-		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(),
+		runMultithreadingAlgorithmTest(TestSettings.getRandomGenerator(seed.getSeed()),
 				ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS);
 	}
 
-	@Test
-	public void multithreadedPairwiseWithoutNeighboursIsFaster()
+	@SeededTest
+	public void multithreadedPairwiseWithoutNeighboursIsFaster(RandomSeed seed)
 	{
-		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(), ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS);
+		runMultithreadingSpeedTest(TestSettings.getRandomGenerator(seed.getSeed()),
+				ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS);
 	}
 
-	private static void runMultithreadingAlgorithmTest(RandomGenerator rg, ClusteringAlgorithm algorithm)
+	private static void runMultithreadingAlgorithmTest(UniformRandomProvider rg, ClusteringAlgorithm algorithm)
 	{
 		final double radius = 50;
 		final int time = 10;
@@ -243,7 +250,7 @@ public class ClusteringEngineTest
 		compareClusters(exp, obs);
 	}
 
-	private static void runMultithreadingSpeedTest(RandomGenerator rg, ClusteringAlgorithm algorithm)
+	private static void runMultithreadingSpeedTest(UniformRandomProvider rg, ClusteringAlgorithm algorithm)
 	{
 		ExtraAssumptions.assumeMediumComplexity();
 
@@ -282,7 +289,7 @@ public class ClusteringEngineTest
 		return System.nanoTime() - start;
 	}
 
-	private void testClusting(RandomGenerator rg, ClusteringAlgorithm algorithm, double radius, int n, int size)
+	private void testClusting(UniformRandomProvider rg, ClusteringAlgorithm algorithm, double radius, int n, int size)
 	{
 		final ClusteringEngine engine = new ClusteringEngine();
 		engine.setClusteringAlgorithm(algorithm);
@@ -406,7 +413,7 @@ public class ClusteringEngineTest
 	 *            the size
 	 * @return The points
 	 */
-	private static ArrayList<ClusterPoint> createPoints(RandomGenerator rg, int n, int size)
+	private static ArrayList<ClusterPoint> createPoints(UniformRandomProvider rg, int n, int size)
 	{
 		final ArrayList<ClusterPoint> points = new ArrayList<>(n);
 		while (n-- > 0)
@@ -430,7 +437,8 @@ public class ClusteringEngineTest
 	 *            the radius
 	 * @return The points
 	 */
-	private static ArrayList<ClusterPoint> createClusters(RandomGenerator rg, int n, int size, int m, double radius)
+	private static ArrayList<ClusterPoint> createClusters(UniformRandomProvider rg, int n, int size, int m,
+			double radius)
 	{
 		return createClusters(rg, n, size, m, radius, null);
 	}
@@ -453,8 +461,8 @@ public class ClusteringEngineTest
 	 *            the t
 	 * @return The points
 	 */
-	private static ArrayList<ClusterPoint> createClusters(RandomGenerator rg, int n, int size, int m, double radius,
-			int t)
+	private static ArrayList<ClusterPoint> createClusters(UniformRandomProvider rg, int n, int size, int m,
+			double radius, int t)
 	{
 		final int[] time = new int[t];
 		for (int i = 0; i < t; i++)
@@ -480,8 +488,8 @@ public class ClusteringEngineTest
 	 *            the time
 	 * @return The points
 	 */
-	private static ArrayList<ClusterPoint> createClusters(RandomGenerator rg, int n, int size, int m, double radius,
-			int[] time)
+	private static ArrayList<ClusterPoint> createClusters(UniformRandomProvider rg, int n, int size, int m,
+			double radius, int[] time)
 	{
 		final ArrayList<ClusterPoint> points = new ArrayList<>(n);
 		int id = 0;

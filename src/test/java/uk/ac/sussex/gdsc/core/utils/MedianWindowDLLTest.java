@@ -29,7 +29,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -38,6 +38,8 @@ import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
@@ -133,10 +135,10 @@ public class MedianWindowDLLTest
 		}
 	}
 
-	@Test
-	public void canComputeMedianForRandomDataUsingDynamicLinkedList()
+	@SeededTest
+	public void canComputeMedianForRandomDataUsingDynamicLinkedList(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final double[] data = MedianWindowTest.createRandomData(rg, dataSize);
 		for (final int radius : radii)
 		{
@@ -244,8 +246,8 @@ public class MedianWindowDLLTest
 	}
 
 	@SpeedTag
-	@Test
-	public void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall()
+	@SeededTest
+	public void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest(TestComplexity.LOW);
 		for (final int radius : speedRadii)
@@ -253,13 +255,13 @@ public class MedianWindowDLLTest
 			{
 				if (increment > radius)
 					continue;
-				isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(radius, increment);
+				isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(seed, radius, increment);
 			}
 	}
 
-	private void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(int radius, int increment)
+	private void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(RandomSeed seed, int radius, int increment)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final int iterations = 20;
 		final double[][] data = new double[iterations][];
 		for (int i = 0; i < iterations; i++)

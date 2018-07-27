@@ -31,9 +31,9 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test;import uk.ac.sussex.gdsc.test.junit5.SeededTest;import uk.ac.sussex.gdsc.test.junit5.RandomSeed;import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.LogLevel;
@@ -387,8 +387,8 @@ public class EqualityTest
 	}
 
 	@SpeedTag
-	@Test
-	public void floatRelativeIsSameSpeedAsDoubleRelative()
+	@SeededTest
+	public void floatRelativeIsSameSpeedAsDoubleRelative(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
@@ -398,7 +398,7 @@ public class EqualityTest
 		final DoubleEquality equality2 = new DoubleEquality(maxRelativeError, maxAbsoluteError);
 
 		// Create data
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final float[] data1 = new float[MAX_ITER];
 		final float[] data2 = new float[data1.length];
 		final double[] data3 = new double[data1.length];

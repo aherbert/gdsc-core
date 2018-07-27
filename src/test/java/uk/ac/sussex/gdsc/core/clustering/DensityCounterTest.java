@@ -27,10 +27,10 @@
  */
 package uk.ac.sussex.gdsc.core.clustering;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.distribution.BoxMullerGaussianSampler;
+import org.apache.commons.rng.sampling.distribution.PoissonSampler;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.clustering.DensityCounter.SimpleMolecule;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
@@ -40,6 +40,8 @@ import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 /**
  * Test the DensityCounter.
@@ -55,10 +57,10 @@ public class DensityCounterTest
 	int nChannels = 3;
 	int speedTestSize = 5;
 
-	@Test
-	public void countAllWithSimpleMatches()
+	@SeededTest
+	public void countAllWithSimpleMatches(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (final int n : N)
 		{
 			final SimpleMolecule[] molecules = createMolecules(r, size, n);
@@ -76,10 +78,10 @@ public class DensityCounterTest
 		}
 	}
 
-	@Test
-	public void countAllWithSingleThreadMatches()
+	@SeededTest
+	public void countAllWithSingleThreadMatches(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (final int n : N)
 		{
 			final SimpleMolecule[] molecules = createMolecules(r, size, n);
@@ -97,10 +99,10 @@ public class DensityCounterTest
 		}
 	}
 
-	@Test
-	public void countAllWithMultiThreadSycnMatches()
+	@SeededTest
+	public void countAllWithMultiThreadSycnMatches(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (final int n : N)
 		{
 			final SimpleMolecule[] molecules = createMolecules(r, size, n);
@@ -119,10 +121,10 @@ public class DensityCounterTest
 		}
 	}
 
-	@Test
-	public void countAllWithMultiThreadNonSyncMatches()
+	@SeededTest
+	public void countAllWithMultiThreadNonSyncMatches(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (final int n : N)
 		{
 			final SimpleMolecule[] molecules = createMolecules(r, size, n);
@@ -141,10 +143,10 @@ public class DensityCounterTest
 		}
 	}
 
-	@Test
-	public void countAllAroundMoleculesWithSimpleMatches()
+	@SeededTest
+	public void countAllAroundMoleculesWithSimpleMatches(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (final int n : N)
 		{
 			final SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
@@ -163,10 +165,10 @@ public class DensityCounterTest
 		}
 	}
 
-	@Test
-	public void countAllAroundMoleculesWithSingleThreadMatches()
+	@SeededTest
+	public void countAllAroundMoleculesWithSingleThreadMatches(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (final int n : N)
 		{
 			final SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
@@ -185,10 +187,10 @@ public class DensityCounterTest
 		}
 	}
 
-	@Test
-	public void countAllAroundMoleculesWithMultiThreadMatches()
+	@SeededTest
+	public void countAllAroundMoleculesWithMultiThreadMatches(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (final int n : N)
 		{
 			final SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
@@ -206,7 +208,7 @@ public class DensityCounterTest
 			}
 		}
 	}
-	
+
 	private static void check(final int n, final float radius, final int[][] d1, final int[][] d2)
 	{
 		Assertions.assertArrayEquals(d1, d2, () -> String.format("N=%d, R=%f", n, radius));
@@ -233,12 +235,12 @@ public class DensityCounterTest
 		}
 	}
 
-	@Test
-	public void countAllSpeedTest()
+	@SeededTest
+	public void countAllSpeedTest(RandomSeed seed)
 	{
 		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
 
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 
 		// The single thread mode is faster when the radius is small.
 		// The multi-thread mode is faster when the radius is large (>4).
@@ -342,11 +344,11 @@ public class DensityCounterTest
 		ts.report();
 	}
 
-	@Test
-	public void countAllAroundMoleculesSpeedTest()
+	@SeededTest
+	public void countAllAroundMoleculesSpeedTest(RandomSeed seed)
 	{
 		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 
 		// The multi-thread mode is faster when the number of molecules is large.
 
@@ -432,12 +434,11 @@ public class DensityCounterTest
 	 *            the number of molecules
 	 * @return the simple molecule[]
 	 */
-	private SimpleMolecule[] createMolecules(RandomGenerator r, int size, int n)
+	private SimpleMolecule[] createMolecules(UniformRandomProvider r, int size, int n)
 	{
-		final RandomDataGenerator rdg = new RandomDataGenerator(r);
-
-		final float precision = 0.1f; // pixels
+		final double precision = 0.1; // pixels
 		final int meanClusterSize = 5;
+		final PoissonSampler p = new PoissonSampler(r, meanClusterSize);
 
 		final SimpleMolecule[] molecules = new SimpleMolecule[n];
 		for (int i = 0; i < n;)
@@ -445,11 +446,12 @@ public class DensityCounterTest
 			final float x = r.nextFloat() * size;
 			final float y = r.nextFloat() * size;
 			final int id = r.nextInt(nChannels);
+			BoxMullerGaussianSampler gx = new BoxMullerGaussianSampler(r, x, precision);
+			BoxMullerGaussianSampler gy = new BoxMullerGaussianSampler(r, y, precision);
 
-			int c = (int) rdg.nextPoisson(meanClusterSize);
+			int c = p.sample();
 			while (i < n && c-- > 0)
-				molecules[i++] = new SimpleMolecule((float) rdg.nextGaussian(x, precision),
-						(float) rdg.nextGaussian(y, precision), id);
+				molecules[i++] = new SimpleMolecule((float) gx.sample(), (float) gy.sample(), id);
 		}
 		return molecules;
 	}

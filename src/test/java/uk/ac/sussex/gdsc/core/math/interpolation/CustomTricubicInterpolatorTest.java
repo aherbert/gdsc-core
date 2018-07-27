@@ -35,9 +35,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
-import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Precision;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
@@ -57,6 +57,8 @@ import uk.ac.sussex.gdsc.test.TimingResult;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
@@ -65,10 +67,10 @@ public class CustomTricubicInterpolatorTest
 	// Delta for numerical gradients
 	private final double h_ = 0.00001;
 
-	@Test
-	public void canConstructInterpolatingFunction()
+	@SeededTest
+	public void canConstructInterpolatingFunction(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final int x = 4, y = 5, z = 6;
 		final double[][][] fval = createData(x, y, z, null);
@@ -203,10 +205,10 @@ public class CustomTricubicInterpolatorTest
 		Assertions.assertEquals(1, scale[2]);
 	}
 
-	@Test
-	public void canInterpolate()
+	@SeededTest
+	public void canInterpolate(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final int x = 4, y = 4, z = 4;
 		final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
 		final double[] yval = SimpleArrayUtils.newArray(y, 0, 0.5);
@@ -338,10 +340,10 @@ public class CustomTricubicInterpolatorTest
 		return f;
 	}
 
-	@Test
-	public void canInterpolateUsingPrecomputedTable()
+	@SeededTest
+	public void canInterpolateUsingPrecomputedTable(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final int x = 4, y = 4, z = 4;
 		final double xscale = 1, yscale = 0.5, zscale = 2.0;
 		final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -479,7 +481,7 @@ public class CustomTricubicInterpolatorTest
 		Assertions.assertArrayEquals(e, o);
 	}
 
-	double[][][] createData(int x, int y, int z, RandomGenerator r)
+	double[][][] createData(int x, int y, int z, UniformRandomProvider r)
 	{
 		// Create a 2D Gaussian
 		double s = 1.0;
@@ -578,10 +580,10 @@ public class CustomTricubicInterpolatorTest
 		return fval;
 	}
 
-	@Test
-	public void canInterpolateWithGradients()
+	@SeededTest
+	public void canInterpolateWithGradients(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final int x = 4, y = 4, z = 4;
 		// Difference scales
 		final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -689,10 +691,10 @@ public class CustomTricubicInterpolatorTest
 		}
 	}
 
-	@Test
-	public void canInterpolateWithGradientsUsingPrecomputedTable()
+	@SeededTest
+	public void canInterpolateWithGradientsUsingPrecomputedTable(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final int x = 4, y = 4, z = 4;
 		final double xscale = 1, yscale = 0.5, zscale = 2.0;
 		final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -775,10 +777,10 @@ public class CustomTricubicInterpolatorTest
 		}
 	}
 
-	@Test
-	public void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision()
+	@SeededTest
+	public void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final int x = 4, y = 4, z = 4;
 		final double xscale = 1, yscale = 0.5, zscale = 2.0;
 		final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -1081,12 +1083,12 @@ public class CustomTricubicInterpolatorTest
 	}
 
 	@SpeedTag
-	@Test
-	public void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable()
+	@SeededTest
+	public void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final int x = 6, y = 5, z = 4;
 		final double xscale = 1, yscale = 0.5, zscale = 2.0;
 		final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -1363,10 +1365,10 @@ public class CustomTricubicInterpolatorTest
 					Assertions.assertEquals(f1.value(p1.x[i], p1.y[j], p1.z[k]), f2.value(p1.x[i], p1.y[j], p1.z[k]));
 	}
 
-	@Test
-	public void canInterpolateAcrossNodesForValueAndGradient1()
+	@SeededTest
+	public void canInterpolateAcrossNodesForValueAndGradient1(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final int x = 4, y = 4, z = 4;
 		// Difference scales
 		final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -1415,10 +1417,10 @@ public class CustomTricubicInterpolatorTest
 		}
 	}
 
-	@Test
-	public void cannotInterpolateAcrossNodesForGradient2()
+	@SeededTest
+	public void cannotInterpolateAcrossNodesForGradient2(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final int x = 4, y = 4, z = 4;
 		// Difference scales
 		final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -1484,13 +1486,13 @@ public class CustomTricubicInterpolatorTest
 		}
 	}
 
-	@Test
-	public void searchSplineImprovesFunctionValue()
+	@SeededTest
+	public void searchSplineImprovesFunctionValue(RandomSeed seed)
 	{
 		// Skip this as it is for testing the binary search works
 		Assumptions.assumeTrue(false);
 
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		// Bigger depth of field to capture astigmatism centre
 		final int x = 10, y = 10, z = 10;
 		final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -1530,10 +1532,10 @@ public class CustomTricubicInterpolatorTest
 		}
 	}
 
-	@Test
-	public void canFindOptimum()
+	@SeededTest
+	public void canFindOptimum(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		// Bigger depth of field to capture astigmatism centre
 		final int x = 10, y = 10, z = 10;
 		final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);

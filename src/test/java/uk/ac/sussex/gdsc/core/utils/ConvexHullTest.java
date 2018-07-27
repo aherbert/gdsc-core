@@ -29,7 +29,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.awt.geom.Rectangle2D;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +37,8 @@ import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
 public class ConvexHullTest
@@ -96,20 +98,20 @@ public class ConvexHullTest
 		}
 	}
 
-	@Test
-	public void canComputeConvexHullFromOrigin00()
+	@SeededTest
+	public void canComputeConvexHullFromOrigin00(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (final int size : new int[] { 10 })
 			for (final float w : new float[] { 10, 5 })
 				for (final float h : new float[] { 10, 5 })
 					compute(r, size, 0, 0, w, h);
 	}
 
-	@Test
-	public void canComputeConvexHullFromOriginXY()
+	@SeededTest
+	public void canComputeConvexHullFromOriginXY(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (final int size : new int[] { 10 })
 			for (final float ox : new float[] { -5, 5 })
 				for (final float oy : new float[] { -5, 5 })
@@ -118,7 +120,7 @@ public class ConvexHullTest
 							compute(r, size, ox, oy, w, h);
 	}
 
-	private static void compute(RandomGenerator r, int size, float ox, float oy, float w, float h)
+	private static void compute(UniformRandomProvider r, int size, float ox, float oy, float w, float h)
 	{
 		final float[][] data = createData(r, size, ox, oy, w, h);
 		final ConvexHull hull = ConvexHull.create(data[0], data[1]);
@@ -149,7 +151,7 @@ public class ConvexHullTest
 		}
 	}
 
-	private static float[][] createData(RandomGenerator r, int size, float ox, float oy, float w, float h)
+	private static float[][] createData(UniformRandomProvider r, int size, float ox, float oy, float w, float h)
 	{
 		final float[][] data = new float[2][size];
 		for (int i = 0; i < size; i++)

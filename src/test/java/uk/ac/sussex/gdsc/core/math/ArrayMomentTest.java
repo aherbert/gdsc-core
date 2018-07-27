@@ -27,18 +27,22 @@
  */
 package uk.ac.sussex.gdsc.core.math;
 
-import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.stat.descriptive.moment.SecondMoment;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.distribution.BoxMullerGaussianSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.data.IntegerType;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
+import uk.ac.sussex.gdsc.core.utils.rng.BoxMullerUnitGaussianSampler;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
 public class ArrayMomentTest
@@ -46,20 +50,21 @@ public class ArrayMomentTest
 	final double DELTA = 1e-8;
 	final int MAX_INT = 65335; // Unsigned 16-bit int
 
-	@Test
-	public void canComputeRollingMomentDouble()
+	@SeededTest
+	public void canComputeRollingMomentDouble(RandomSeed seed)
 	{
 		canComputeMoment("Single", new double[] { Math.PI }, new RollingArrayMoment());
 
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final double[] d = new double[1000];
 
 		for (int i = 0; i < d.length; i++)
 			d[i] = rand.nextDouble();
 		canComputeMoment("Uniform", d, new RollingArrayMoment());
 
+		BoxMullerUnitGaussianSampler g = new BoxMullerUnitGaussianSampler(rand);
 		for (int i = 0; i < d.length; i++)
-			d[i] = rand.nextGaussian();
+			d[i] = (float) g.sample();
 		canComputeMoment("Gaussian", d, new RollingArrayMoment());
 
 		for (int i = 0; i < d.length; i++)
@@ -67,20 +72,21 @@ public class ArrayMomentTest
 		canComputeMoment("Series", d, new RollingArrayMoment());
 	}
 
-	@Test
-	public void canComputeRollingMomentFloat()
+	@SeededTest
+	public void canComputeRollingMomentFloat(RandomSeed seed)
 	{
 		canComputeMoment("Single", new float[] { (float) Math.PI }, new RollingArrayMoment());
 
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final float[] d = new float[1000];
 
 		for (int i = 0; i < d.length; i++)
 			d[i] = rand.nextFloat();
 		canComputeMoment("Uniform", d, new RollingArrayMoment());
 
+		BoxMullerUnitGaussianSampler g = new BoxMullerUnitGaussianSampler(rand);
 		for (int i = 0; i < d.length; i++)
-			d[i] = (float) rand.nextGaussian();
+			d[i] = (float) g.sample();
 		canComputeMoment("Gaussian", d, new RollingArrayMoment());
 
 		for (int i = 0; i < d.length; i++)
@@ -88,12 +94,12 @@ public class ArrayMomentTest
 		canComputeMoment("Series", d, new RollingArrayMoment());
 	}
 
-	@Test
-	public void canComputeRollingMomentInt()
+	@SeededTest
+	public void canComputeRollingMomentInt(RandomSeed seed)
 	{
 		canComputeMoment("Single", new int[] { 42 }, new RollingArrayMoment());
 
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final int[] d = new int[1000];
 
 		for (int i = 0; i < d.length; i++)
@@ -105,10 +111,10 @@ public class ArrayMomentTest
 		canComputeMoment("Series", d, new RollingArrayMoment());
 	}
 
-	@Test
-	public void canComputeRollingArrayMomentDouble()
+	@SeededTest
+	public void canComputeRollingArrayMomentDouble(RandomSeed seed)
 	{
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final double[][] d = new double[3][];
 
 		for (int i = d.length; i-- > 0;)
@@ -121,10 +127,10 @@ public class ArrayMomentTest
 		canComputeArrayMoment("Uniform", d, new RollingArrayMoment());
 	}
 
-	@Test
-	public void canCombineRollingArrayMomentDouble()
+	@SeededTest
+	public void canCombineRollingArrayMomentDouble(RandomSeed seed)
 	{
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final double[][] d = new double[50][];
 
 		final int n = 1000;
@@ -163,20 +169,21 @@ public class ArrayMomentTest
 
 	// Copy to here
 
-	@Test
-	public void canComputeSimpleMomentDouble()
+	@SeededTest
+	public void canComputeSimpleMomentDouble(RandomSeed seed)
 	{
 		canComputeMoment("Single", new double[] { Math.PI }, new SimpleArrayMoment());
 
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final double[] d = new double[1000];
 
 		for (int i = 0; i < d.length; i++)
 			d[i] = rand.nextDouble();
 		canComputeMoment("Uniform", d, new SimpleArrayMoment());
 
+		BoxMullerUnitGaussianSampler g = new BoxMullerUnitGaussianSampler(rand);
 		for (int i = 0; i < d.length; i++)
-			d[i] = rand.nextGaussian();
+			d[i] = (float) g.sample();
 		canComputeMoment("Gaussian", d, new SimpleArrayMoment());
 
 		for (int i = 0; i < d.length; i++)
@@ -184,20 +191,21 @@ public class ArrayMomentTest
 		canComputeMoment("Series", d, new SimpleArrayMoment());
 	}
 
-	@Test
-	public void canComputeSimpleMomentFloat()
+	@SeededTest
+	public void canComputeSimpleMomentFloat(RandomSeed seed)
 	{
 		canComputeMoment("Single", new float[] { (float) Math.PI }, new SimpleArrayMoment());
 
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final float[] d = new float[1000];
 
 		for (int i = 0; i < d.length; i++)
 			d[i] = rand.nextFloat();
 		canComputeMoment("Uniform", d, new SimpleArrayMoment());
 
+		BoxMullerUnitGaussianSampler g = new BoxMullerUnitGaussianSampler(rand);
 		for (int i = 0; i < d.length; i++)
-			d[i] = (float) rand.nextGaussian();
+			d[i] = (float) g.sample();
 		canComputeMoment("Gaussian", d, new SimpleArrayMoment());
 
 		for (int i = 0; i < d.length; i++)
@@ -205,12 +213,12 @@ public class ArrayMomentTest
 		canComputeMoment("Series", d, new SimpleArrayMoment());
 	}
 
-	@Test
-	public void canComputeSimpleMomentInt()
+	@SeededTest
+	public void canComputeSimpleMomentInt(RandomSeed seed)
 	{
 		canComputeMoment("Single", new int[] { 42 }, new SimpleArrayMoment());
 
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final int[] d = new int[1000];
 
 		for (int i = 0; i < d.length; i++)
@@ -222,10 +230,10 @@ public class ArrayMomentTest
 		canComputeMoment("Series", d, new SimpleArrayMoment());
 	}
 
-	@Test
-	public void canComputeSimpleArrayMomentInt()
+	@SeededTest
+	public void canComputeSimpleArrayMomentInt(RandomSeed seed)
 	{
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final int[][] d = new int[3][];
 
 		for (int i = d.length; i-- > 0;)
@@ -238,10 +246,10 @@ public class ArrayMomentTest
 		canComputeArrayMoment("Uniform", d, new SimpleArrayMoment());
 	}
 
-	@Test
-	public void canCombineSimpleArrayMomentInt()
+	@SeededTest
+	public void canCombineSimpleArrayMomentInt(RandomSeed seed)
 	{
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final int[][] d = new int[50][];
 
 		final int n = 1000;
@@ -278,12 +286,12 @@ public class ArrayMomentTest
 		ExtraAssertions.assertArrayEqualsRelative(esd, osd, DELTA, "SD");
 	}
 
-	@Test
-	public void canComputeIntegerMomentInt()
+	@SeededTest
+	public void canComputeIntegerMomentInt(RandomSeed seed)
 	{
 		canComputeMoment("Single", new int[] { 42 }, new IntegerArrayMoment());
 
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final int[] d = new int[1000];
 
 		for (int i = 0; i < d.length; i++)
@@ -295,10 +303,10 @@ public class ArrayMomentTest
 		canComputeMoment("Series", d, new IntegerArrayMoment());
 	}
 
-	@Test
-	public void canComputeIntegerArrayMomentInt()
+	@SeededTest
+	public void canComputeIntegerArrayMomentInt(RandomSeed seed)
 	{
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final int[][] d = new int[3][];
 
 		for (int i = d.length; i-- > 0;)
@@ -311,10 +319,10 @@ public class ArrayMomentTest
 		canComputeArrayMoment("Uniform", d, new IntegerArrayMoment());
 	}
 
-	@Test
-	public void canCombineIntegerArrayMomentInt()
+	@SeededTest
+	public void canCombineIntegerArrayMomentInt(RandomSeed seed)
 	{
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 		final int[][] d = new int[50][];
 
 		final int n = 1000;
@@ -428,7 +436,7 @@ public class ArrayMomentTest
 		return d;
 	}
 
-	private static double[] uniformDouble(RandomGenerator rand, int n)
+	private static double[] uniformDouble(UniformRandomProvider rand, int n)
 	{
 		final double[] d = new double[n];
 		for (int i = 0; i < d.length; i++)
@@ -436,7 +444,7 @@ public class ArrayMomentTest
 		return d;
 	}
 
-	private int[] uniformInt(RandomGenerator rand, int n)
+	private int[] uniformInt(UniformRandomProvider rand, int n)
 	{
 		final int[] d = new int[n];
 		for (int i = 0; i < d.length; i++)
@@ -494,12 +502,12 @@ public class ArrayMomentTest
 		}
 	}
 
-	@Test
-	public void canComputeMomentForLargeSeries()
+	@SeededTest
+	public void canComputeMomentForLargeSeries(RandomSeed seed)
 	{
 		ExtraAssumptions.assume(TestComplexity.MEDIUM);
-		
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final SimpleArrayMoment m1 = new SimpleArrayMoment();
 		final SecondMoment m2 = new SecondMoment();
@@ -507,9 +515,10 @@ public class ArrayMomentTest
 
 		// Test if the standard Statistics object is good enough for
 		// computing the mean and variance of sCMOS data from 60,000 frames. It seems it is.
+		BoxMullerGaussianSampler g = new BoxMullerGaussianSampler(rand, 100.345, Math.PI);
 		for (int i = 600000; i-- > 0;)
 		{
-			final double d = 100.345 + rand.nextGaussian() * Math.PI;
+			final double d = g.sample();
 			m1.add(d);
 			m2.increment(d);
 			r2.add(d);

@@ -27,8 +27,8 @@
  */
 package uk.ac.sussex.gdsc.core.match;
 
-import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +36,8 @@ import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
 public class RandIndexTest
@@ -248,10 +250,10 @@ public class RandIndexTest
 		});
 	}
 
-	@Test
-	public void canComputeRandIndexWithSimpleData()
+	@SeededTest
+	public void canComputeRandIndexWithSimpleData(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final int size = 100;
 		for (final int n1 : new int[] { 1, 2, 3, 4, 5 })
 			for (final int n2 : new int[] { 1, 2, 3, 4, 5 })
@@ -259,10 +261,10 @@ public class RandIndexTest
 	}
 
 	@Test
-	public void canComputeRandIndexWithBigData()
+	public void canComputeRandIndexWithBigData(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeLowComplexity();
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final int size = 10000;
 		for (final int i : new int[] { 3, 5, 10 })
 		{
@@ -284,7 +286,7 @@ public class RandIndexTest
 		}
 	}
 
-	private static void canComputeRandIndexWithData(RandomGenerator rg, int size, int n1, int n2)
+	private static void canComputeRandIndexWithData(UniformRandomProvider rg, int size, int n1, int n2)
 	{
 		final int n = size;
 		final int[] c1 = new int[size];
@@ -294,7 +296,7 @@ public class RandIndexTest
 			c1[size] = size % n1;
 			c2[size] = size % n2;
 		}
-		MathArrays.shuffle(c1, rg);
+		PermutationSampler.shuffle(rg, c1);
 
 		final long t1 = System.nanoTime();
 		final double e = RandIndex.simpleRandIndex(c1, c2);
@@ -317,17 +319,18 @@ public class RandIndexTest
 		Assertions.assertEquals(o2, o1);
 	}
 
-	@Test
-	public void adjustedRandIndexIsZeroForRandomData()
+	@SeededTest
+	public void adjustedRandIndexIsZeroForRandomData(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final int size = 100;
 		for (final int n1 : new int[] { 2, 5, 10 })
 			for (final int n2 : new int[] { 2, 5 })
 				adjustedRandIndexIsZeroForRandomData(rg, size, n1, n2, 10);
 	}
 
-	private static void adjustedRandIndexIsZeroForRandomData(RandomGenerator rg, int size, int n1, int n2, int loops)
+	private static void adjustedRandIndexIsZeroForRandomData(UniformRandomProvider rg, int size, int n1, int n2,
+			int loops)
 	{
 		final int n = size;
 		final int[] c1 = new int[size];
@@ -342,7 +345,7 @@ public class RandIndexTest
 		double sum = 0;
 		for (int i = loops; i-- > 0;)
 		{
-			MathArrays.shuffle(c1, rg);
+			PermutationSampler.shuffle(rg, c1);
 			sum += ri.getAdjustedRandIndex(c1, n1, c2, n2);
 		}
 
@@ -353,41 +356,41 @@ public class RandIndexTest
 		Assertions.assertTrue(sum < delta && sum > -delta);
 	}
 
-	@Test
-	public void canComputeAdjustedRandIndexWithSimpleData()
+	@SeededTest
+	public void canComputeAdjustedRandIndexWithSimpleData(RandomSeed seed)
 	{
 		final int size = 100;
 		for (final int n1 : new int[] { 1, 2, 3, 4, 5 })
 			for (final int n2 : new int[] { 1, 2, 3, 4, 5 })
-				canComputeAdjustedRandIndexWithData(size, n1, n2);
+				canComputeAdjustedRandIndexWithData(seed, size, n1, n2);
 	}
 
 	// Speed test on large data
-	@Test
-	public void canComputeAdjustedRandIndexWithBigData()
+	@SeededTest
+	public void canComputeAdjustedRandIndexWithBigData(RandomSeed seed)
 	{
 		final int size = 10000;
 		for (final int i : new int[] { 3, 5, 10 })
 		{
 			final int n1 = size / i;
 			final int n2 = size / i;
-			canComputeAdjustedRandIndexWithData(size, n1, n2);
+			canComputeAdjustedRandIndexWithData(seed, size, n1, n2);
 		}
 		for (final int i : new int[] { 3, 5, 10 })
 		{
 			final int n1 = size / i;
 			final int n2 = i;
-			canComputeAdjustedRandIndexWithData(size, n1, n2);
+			canComputeAdjustedRandIndexWithData(seed, size, n1, n2);
 		}
 		for (final int i : new int[] { 3, 5, 10 })
 		{
 			final int n1 = i;
 			final int n2 = i;
-			canComputeAdjustedRandIndexWithData(size, n1, n2);
+			canComputeAdjustedRandIndexWithData(seed, size, n1, n2);
 		}
 	}
 
-	private static void canComputeAdjustedRandIndexWithData(int size, int n1, int n2)
+	private static void canComputeAdjustedRandIndexWithData(RandomSeed seed, int size, int n1, int n2)
 	{
 		final int n = size;
 		final int[] c1 = new int[size];
@@ -397,8 +400,8 @@ public class RandIndexTest
 			c1[size] = size % n1;
 			c2[size] = size % n2;
 		}
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
-		MathArrays.shuffle(c1, rand);
+		final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+		PermutationSampler.shuffle(rand, c1);
 
 		final RandIndex ri = new RandIndex();
 

@@ -29,7 +29,7 @@ package uk.ac.sussex.gdsc.core.filters;
 
 import java.awt.Rectangle;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -44,6 +44,8 @@ import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
@@ -53,10 +55,10 @@ public class DAreaStatisticsTest
 	int[] boxSizes = new int[] { 15, 9, 5, 3, 2, 1 };
 	int maxx = 97, maxy = 101;
 
-	@Test
-	public void canComputeGlobalStatistics()
+	@SeededTest
+	public void canComputeGlobalStatistics(RandomSeed seed)
 	{
-		final double[] data = createData(TestSettings.getRandomGenerator());
+		final double[] data = createData(TestSettings.getRandomGenerator(seed.getSeed()));
 		final Statistics s = new Statistics(data);
 		final DAreaStatistics a = new DAreaStatistics(data, maxx, maxy);
 		for (final boolean r : rolling)
@@ -74,10 +76,10 @@ public class DAreaStatisticsTest
 		}
 	}
 
-	@Test
-	public void canComputeNxNRegionStatistics()
+	@SeededTest
+	public void canComputeNxNRegionStatistics(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final double[] data = createData(r);
 		final DAreaStatistics a1 = new DAreaStatistics(data, maxx, maxy);
 		a1.setRollingSums(true);
@@ -106,10 +108,10 @@ public class DAreaStatisticsTest
 				}
 	}
 
-	@Test
-	public void canComputeNxMRegionStatistics()
+	@SeededTest
+	public void canComputeNxMRegionStatistics(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final double[] data = createData(r);
 		final DAreaStatistics a1 = new DAreaStatistics(data, maxx, maxy);
 		a1.setRollingSums(true);
@@ -139,10 +141,10 @@ public class DAreaStatisticsTest
 					}
 	}
 
-	@Test
-	public void canComputeRectangleRegionStatistics()
+	@SeededTest
+	public void canComputeRectangleRegionStatistics(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final double[] data = createData(r);
 		final DAreaStatistics a1 = new DAreaStatistics(data, maxx, maxy);
 		a1.setRollingSums(true);
@@ -250,36 +252,36 @@ public class DAreaStatisticsTest
 	}
 
 	@SpeedTag
-	@Test
-	public void simpleIsfasterAtLowDensityAndNLessThan10()
+	@SeededTest
+	public void simpleIsfasterAtLowDensityAndNLessThan10(RandomSeed seed)
 	{
 		// Test the speed for computing the noise around spots at a density of roughly 1 / 100 pixels.
-		speedTest(1.0 / 100, false, 1, 10);
+		speedTest(seed, 1.0 / 100, false, 1, 10);
 	}
 
 	@SpeedTag
-	@Test
-	public void simpleIsfasterAtMediumDensityAndNLessThan5()
+	@SeededTest
+	public void simpleIsfasterAtMediumDensityAndNLessThan5(RandomSeed seed)
 	{
 		// Test the speed for computing the noise around each 3x3 box
 		// using a region of 3x3 (n=1) to 9x9 (n=4)
-		speedTest(1.0 / 9, false, 1, 4);
+		speedTest(seed, 1.0 / 9, false, 1, 4);
 	}
 
 	@SpeedTag
-	@Test
-	public void rollingIsfasterAtHighDensity()
+	@SeededTest
+	public void rollingIsfasterAtHighDensity(RandomSeed seed)
 	{
 		// Since this is a slow test
 		ExtraAssumptions.assumeSpeedTest();
 
 		// Test for sampling half the pixels. Ignore the very small box size
-		speedTest(0.5, true, 2, Integer.MAX_VALUE);
+		speedTest(seed, 0.5, true, 2, Integer.MAX_VALUE);
 	}
 
-	private void speedTest(double density, boolean rollingIsFaster, int minN, int maxN)
+	private void speedTest(RandomSeed seed, double density, boolean rollingIsFaster, int minN, int maxN)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final int k = (int) Math.round(maxx * maxy * density);
 		final int[] x = Random.sample(k, maxx, r);
@@ -314,7 +316,7 @@ public class DAreaStatisticsTest
 				rollingIsFaster, minN, maxN, ts.get(-2).getMean(), ts.get(-1).getMean());
 	}
 
-	private double[] createData(RandomGenerator r)
+	private double[] createData(UniformRandomProvider r)
 	{
 		final double[] d = new double[maxx * maxy];
 		for (int i = 0; i < d.length; i++)

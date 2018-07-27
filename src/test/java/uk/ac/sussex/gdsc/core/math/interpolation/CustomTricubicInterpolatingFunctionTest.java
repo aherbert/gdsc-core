@@ -27,7 +27,7 @@
  */
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -43,6 +43,8 @@ import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 /**
  * This class is used to in-line the computation for the CustomTricubicInterpolatingFunction
@@ -255,12 +257,12 @@ public class CustomTricubicInterpolatingFunctionTest
 		}
 	}
 
-	@Test
-	public void inlineComputeCoefficientsIsFaster()
+	@SeededTest
+	public void inlineComputeCoefficientsIsFaster(RandomSeed seed)
 	{
 		ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final int N = 3000;
 		final double[][] tables = new double[N][];

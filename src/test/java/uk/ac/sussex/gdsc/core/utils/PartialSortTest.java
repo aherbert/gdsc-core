@@ -29,7 +29,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +37,8 @@ import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
 public class PartialSortTest
@@ -67,10 +69,10 @@ public class PartialSortTest
 	int[] testN = new int[] { 2, 3, 5, 10, 30, 50 };
 	int[] testM = new int[] { 50, 100 };
 
-	@Test
-	public void bottomNofMIsCorrect()
+	@SeededTest
+	public void bottomNofMIsCorrect(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (final int n : testN)
 			for (final int m : testM)
 				bottomCompute(r, 100, n, m);
@@ -119,7 +121,7 @@ public class PartialSortTest
 		Assertions.assertArrayEquals(e, o);
 	}
 
-	private void bottomCompute(RandomGenerator r, int length, final int n, final int m)
+	private void bottomCompute(UniformRandomProvider r, int length, final int n, final int m)
 	{
 		final double[][] data = createData(r, length, m);
 		final String msg = String.format(" %d of %d", n, m);
@@ -234,10 +236,10 @@ public class PartialSortTest
 			ts.report();
 	}
 
-	@Test
-	public void topNofMIsCorrect()
+	@SeededTest
+	public void topNofMIsCorrect(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (final int n : testN)
 			for (final int m : testM)
 				topCompute(r, 100, n, m);
@@ -287,7 +289,7 @@ public class PartialSortTest
 		Assertions.assertArrayEquals(e, o);
 	}
 
-	private void topCompute(RandomGenerator r, int length, final int n, final int m)
+	private void topCompute(UniformRandomProvider r, int length, final int n, final int m)
 	{
 		final double[][] data = createData(r, length, m);
 		final String msg = String.format(" %d of %d", n, m);
@@ -385,7 +387,7 @@ public class PartialSortTest
 			ts.report();
 	}
 
-	private static double[][] createData(RandomGenerator r, int size, int m)
+	private static double[][] createData(UniformRandomProvider r, int size, int m)
 	{
 		final double[][] data = new double[size][];
 		for (int i = 0; i < size; i++)

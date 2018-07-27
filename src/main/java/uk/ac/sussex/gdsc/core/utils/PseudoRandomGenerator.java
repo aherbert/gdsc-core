@@ -29,6 +29,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 
 /**
  * Contains a set of random numbers that are reused in sequence
@@ -114,6 +115,32 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 	 *             if the generator is null
 	 */
 	public PseudoRandomGenerator(int size, RandomGenerator source) throws IllegalArgumentException, NullPointerException
+	{
+		if (size < 1)
+			throw new IllegalArgumentException("Sequence must have a positive length");
+		if (source == null)
+			throw new NullPointerException("Source generator must not be null");
+		sequence = new double[size];
+		length = size;
+		// Preserve order
+		for (int i = 0; i < size; i++)
+			sequence[i] = source.nextDouble();
+	}
+
+	/**
+	 * Instantiates a new pseudo random generator of the given size.
+	 *
+	 * @param size
+	 *            the size
+	 * @param source
+	 *            the random source
+	 * @throws IllegalArgumentException
+	 *             if the size is not positive
+	 * @throws NullPointerException
+	 *             if the generator is null
+	 */
+	public PseudoRandomGenerator(int size, UniformRandomProvider source)
+			throws IllegalArgumentException, NullPointerException
 	{
 		if (size < 1)
 			throw new IllegalArgumentException("Sequence must have a positive length");

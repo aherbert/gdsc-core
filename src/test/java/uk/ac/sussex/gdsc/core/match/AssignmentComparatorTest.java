@@ -30,16 +30,19 @@ package uk.ac.sussex.gdsc.core.match;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import org.apache.commons.math3.random.RandomGenerator;
-import org.junit.jupiter.api.Test;
+import org.apache.commons.rng.UniformRandomProvider;
 
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.DataCache;
+import uk.ac.sussex.gdsc.test.DataProvider;
 import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
-public class AssignmentComparatorTest
+public class AssignmentComparatorTest implements DataProvider<RandomSeed, Object>
 {
 	private static class IntegerSortData implements Comparable<IntegerSortData>
 	{
@@ -77,29 +80,37 @@ public class AssignmentComparatorTest
 		}
 	}
 
-	static int[][] intData;
-	static double[][] doubleData;
-	static int[][] intExp;
-	static double[][] doubleExp;
-	static IntegerSortData[][] intSortData;
-	static DoubleSortData[][] doubleSortData;
-	static Assignment[][] aData;
-	static
+	private static class AssignmentComparatorTestData
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		int[][] intData;
+		double[][] doubleData;
+		int[][] intExp;
+		double[][] doubleExp;
+		IntegerSortData[][] intSortData;
+		DoubleSortData[][] doubleSortData;
+		Assignment[][] aData;
+	}
+
+	private static DataCache<RandomSeed, Object> dataCache = new DataCache<>();
+
+	@Override
+	public Object getData(RandomSeed seed)
+	{
+		UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final int size = 100;
 		// The assignment data will be concatenated blocks of sorted arrays
 		final int blocks = 50;
 		final int blockSize = 10;
 		final int length = blocks * blockSize;
 
-		intData = new int[size][];
-		doubleData = new double[size][];
-		intExp = new int[size][];
-		doubleExp = new double[size][];
-		intSortData = new IntegerSortData[size][];
-		doubleSortData = new DoubleSortData[size][];
-		aData = new Assignment[size][];
+		AssignmentComparatorTestData data = new AssignmentComparatorTestData();
+		data.intData = new int[size][];
+		data.doubleData = new double[size][];
+		data.intExp = new int[size][];
+		data.doubleExp = new double[size][];
+		data.intSortData = new IntegerSortData[size][];
+		data.doubleSortData = new DoubleSortData[size][];
+		data.aData = new Assignment[size][];
 		final int upper = 65536;
 		for (int i = size; i-- > 0;)
 		{
@@ -108,11 +119,11 @@ public class AssignmentComparatorTest
 			final IntegerSortData[] sdata = new IntegerSortData[length];
 			final DoubleSortData[] dsdata = new DoubleSortData[length];
 			final Assignment[] adata = new Assignment[length];
-			intData[i] = idata;
-			doubleData[i] = ddata;
-			intSortData[i] = sdata;
-			doubleSortData[i] = dsdata;
-			aData[i] = adata;
+			data.intData[i] = idata;
+			data.doubleData[i] = ddata;
+			data.intSortData[i] = sdata;
+			data.doubleSortData[i] = dsdata;
+			data.aData[i] = adata;
 
 			// Build the data of sorted blocks
 			for (int b = 0; b < blocks; b++)
@@ -137,18 +148,35 @@ public class AssignmentComparatorTest
 
 			idata = idata.clone();
 			Arrays.sort(idata);
-			intExp[i] = idata;
+			data.intExp[i] = idata;
 			ddata = ddata.clone();
 			Arrays.sort(ddata);
-			doubleExp[i] = ddata;
+			data.doubleExp[i] = ddata;
 		}
+
+		return data;
 	}
 
 	private abstract class MyTimingTask extends BaseTimingTask
 	{
-		public MyTimingTask(String name)
+		int[][] intData;
+		double[][] doubleData;
+		int[][] intExp;
+		double[][] doubleExp;
+		IntegerSortData[][] intSortData;
+		DoubleSortData[][] doubleSortData;
+		Assignment[][] aData;
+
+		public MyTimingTask(String name, AssignmentComparatorTestData data)
 		{
 			super(name);
+			intData = data.intData;
+			doubleData = data.doubleData;
+			intExp = data.intExp;
+			doubleExp = data.doubleExp;
+			intSortData = data.intSortData;
+			doubleSortData = data.doubleSortData;
+			aData = data.aData;
 		}
 
 		@Override
@@ -160,9 +188,9 @@ public class AssignmentComparatorTest
 
 	private abstract class AssignmentTimingTask extends MyTimingTask
 	{
-		public AssignmentTimingTask(String name)
+		public AssignmentTimingTask(String name, AssignmentComparatorTestData data)
 		{
-			super(name);
+			super(name, data);
 		}
 
 		@Override
@@ -176,14 +204,16 @@ public class AssignmentComparatorTest
 		}
 	}
 
-	@Test
-	public void canComputeSortSpeed()
+	@SeededTest
+	public void canComputeSortSpeed(RandomSeed seed)
 	{
 		final int n = TestSettings.allow(LogLevel.INFO) ? 5 : 1;
 
+		final AssignmentComparatorTestData data = (AssignmentComparatorTestData) dataCache.getData(seed, this);
+
 		//@formatter:off
 		final TimingService ts = new TimingService(n);
-		ts.execute(new MyTimingTask("int[]")
+		ts.execute(new MyTimingTask("int[]", data)
 		{
 			@Override
 			public Object getData(int i) {	return intData[i].clone();	}
@@ -198,7 +228,7 @@ public class AssignmentComparatorTest
 						throw new AssertionError(getName());
 			}
 		});
-		ts.execute(new MyTimingTask("double[]")
+		ts.execute(new MyTimingTask("double[]", data)
 		{
 			@Override
 			public Object getData(int i) {	return doubleData[i].clone();	}
@@ -213,7 +243,7 @@ public class AssignmentComparatorTest
 						throw new AssertionError(getName());
 			}
 		});
-		ts.execute(new MyTimingTask("long[]")
+		ts.execute(new MyTimingTask("long[]", data)
 		{
 			@Override
 			public Object getData(int i) {
@@ -232,7 +262,7 @@ public class AssignmentComparatorTest
 				if (o1[0]>o2[0]) return 1;
 				return 0;
 			}};
-		ts.execute(new MyTimingTask("int[][]")
+		ts.execute(new MyTimingTask("int[][]", data)
 		{
 			@Override
 			public Object getData(int i) {
@@ -263,7 +293,7 @@ public class AssignmentComparatorTest
 				if (o1[0]>o2[0]) return 1;
 				return 0;
 			}};
-		ts.execute(new MyTimingTask("double[][]")
+		ts.execute(new MyTimingTask("double[][]", data)
 		{
 			@Override
 			public Object getData(int i) {
@@ -292,7 +322,7 @@ public class AssignmentComparatorTest
 			public int compare(int[] o1, int[] o2) {
 				return o1[0]-o2[0];
 			}};
-		ts.execute(new MyTimingTask("int[][] subtract")
+		ts.execute(new MyTimingTask("int[][] subtract", data)
 		{
 			@Override
 			public Object getData(int i) {
@@ -323,7 +353,7 @@ public class AssignmentComparatorTest
 				if (o1[0]>o2[0]) return 1;
 				return 0;
 			}};
-		ts.execute(new MyTimingTask("long[][]")
+		ts.execute(new MyTimingTask("long[][]", data)
 		{
 			@Override
 			public Object getData(int i) {
@@ -339,7 +369,7 @@ public class AssignmentComparatorTest
 				return data;
 			}
 		});
-		ts.execute(new MyTimingTask("IntegerSortData[]")
+		ts.execute(new MyTimingTask("IntegerSortData[]", data)
 		{
 			@Override
 			public Object getData(int i) {
@@ -359,7 +389,7 @@ public class AssignmentComparatorTest
 						throw new AssertionError(getName());
 			}
 		});
-		ts.execute(new MyTimingTask("DoubleSortData[]")
+		ts.execute(new MyTimingTask("DoubleSortData[]", data)
 		{
 			@Override
 			public Object getData(int i) {
@@ -379,7 +409,7 @@ public class AssignmentComparatorTest
 						throw new AssertionError(getName());
 			}
 		});
-		ts.execute(new AssignmentTimingTask("Assignment[] sort1")
+		ts.execute(new AssignmentTimingTask("Assignment[] sort1", data)
 		{
 			@Override
 			public Object getData(int i) {
@@ -391,7 +421,7 @@ public class AssignmentComparatorTest
 				return data;
 			}
 		});
-		ts.execute(new AssignmentTimingTask("Assignment[] sort2")
+		ts.execute(new AssignmentTimingTask("Assignment[] sort2", data)
 		{
 			@Override
 			public Object getData(int i) {
@@ -403,7 +433,7 @@ public class AssignmentComparatorTest
 				return data;
 			}
 		});
-		ts.execute(new AssignmentTimingTask("Assignment[] sort3")
+		ts.execute(new AssignmentTimingTask("Assignment[] sort3", data)
 		{
 			@Override
 			public Object getData(int i) {
@@ -415,7 +445,7 @@ public class AssignmentComparatorTest
 				return data;
 			}
 		});
-		ts.execute(new AssignmentTimingTask("Assignment[] sort4")
+		ts.execute(new AssignmentTimingTask("Assignment[] sort4", data)
 		{
 			@Override
 			public Object getData(int i) {
@@ -427,7 +457,7 @@ public class AssignmentComparatorTest
 				return data;
 			}
 		});
-		ts.execute(new AssignmentTimingTask("Assignment[] sort")
+		ts.execute(new AssignmentTimingTask("Assignment[] sort", data)
 		{
 			@Override
 			public Object getData(int i) {
@@ -449,7 +479,7 @@ public class AssignmentComparatorTest
 		final int size = ts.repeat();
 		ts.repeat(size);
 
-		if (TestSettings.allow(LogLevel.INFO))
-			ts.report();
+		//if (TestSettings.allow(LogLevel.INFO))
+		ts.report(size);
 	}
 }

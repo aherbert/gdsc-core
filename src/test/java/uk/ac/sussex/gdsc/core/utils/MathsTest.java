@@ -29,17 +29,19 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.math.BigDecimal;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
 public class MathsTest
 {
-	@Test
-	public void canRoundToDecimalPlaces()
+	@SeededTest
+	public void canRoundToDecimalPlaces(RandomSeed seed)
 	{
 		// 0.1 cannot be an exact double (see constructor documentation for BigDecimal)
 		double d = 0.1;
@@ -48,7 +50,7 @@ public class MathsTest
 		Assertions.assertEquals("0.1", Maths.roundUsingDecimalPlacesToBigDecimal(d, 1).toPlainString());
 
 		// Random test that rounding does the same as String.format
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (int i = 0; i < 10; i++)
 		{
 			final String format = "%." + i + "f";

@@ -29,11 +29,13 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test;import uk.ac.sussex.gdsc.test.junit5.SeededTest;import uk.ac.sussex.gdsc.test.junit5.RandomSeed;import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 
 @SuppressWarnings({ "javadoc" })
 public class PseudoRandomGeneratorTest
@@ -56,15 +58,16 @@ public class PseudoRandomGeneratorTest
 		canConstructPseudoRandomGenerator(r, e);
 	}
 
-	@Test
-	public void canConstructPseudoRandomGeneratorFromSource()
+	@SeededTest
+	public void canConstructPseudoRandomGeneratorFromSource(RandomSeed seed)
 	{
-		final RandomGenerator source = TestSettings.getRandomGenerator();
+		final UniformRandomProvider source = TestSettings.getRandomGenerator(seed.getSeed());
 		final int length = 5;
 		final double[] e = new double[length];
 		for (int i = 0; i < e.length; i++)
 			e[i] = source.nextDouble();
-		final PseudoRandomGenerator r = new PseudoRandomGenerator(length, TestSettings.getRandomGenerator());
+		final PseudoRandomGenerator r = new PseudoRandomGenerator(length, 
+				new RandomGeneratorAdapter(TestSettings.getRandomGenerator(seed.getSeed())));
 		canConstructPseudoRandomGenerator(r, e);
 	}
 

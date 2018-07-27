@@ -29,7 +29,11 @@ import org.apache.commons.rng.sampling.distribution.SamplerBase;
  * This is a copy implementation of 
  * {@link org.apache.commons.rng.sampling.distribution.BoxMullerGaussianSampler} with
  * the mean and standard deviation removed.
+
+ * @deprecated It will be superceded when V1.1 of the library is released by implementations of the 
+ * {@code NormalizedGaussianSampler} interface.
  */
+@Deprecated
 public class BoxMullerUnitGaussianSampler
     extends SamplerBase
     implements ContinuousSampler {

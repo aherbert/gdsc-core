@@ -27,22 +27,24 @@
  */
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
 public class StatisticsTest
 {
-	@Test
-	public void canComputeStatistics()
+	@SeededTest
+	public void canComputeStatistics(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		DescriptiveStatistics e;
 		Statistics o;
 		for (int i = 0; i < 10; i++)
@@ -61,7 +63,7 @@ public class StatisticsTest
 		e = new DescriptiveStatistics();
 		o = new Statistics();
 		final int[] idata = SimpleArrayUtils.newArray(100, 0, 1);
-		MathArrays.shuffle(idata, r);
+		PermutationSampler.shuffle(r, idata);
 		for (final double v : idata)
 			e.addValue(v);
 		o.add(idata);

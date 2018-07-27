@@ -29,9 +29,9 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
 
-import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +41,8 @@ import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
@@ -53,10 +55,10 @@ public class MedianWindowTest
 	int testSpeedRadius = speedRadii[speedRadii.length - 1];
 	int[] speedIncrement = new int[] { 1, 2, 4, 8, 16 };
 
-	@Test
-	public void testClassCanComputeActualMedian()
+	@SeededTest
+	public void testClassCanComputeActualMedian(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		// Verify the internal median method using the Apache commons maths library
 
@@ -95,10 +97,10 @@ public class MedianWindowTest
 		Assertions.assertEquals(median2, median, 1e-6, "After insert");
 	}
 
-	@Test
-	public void canComputeMedianForRandomDataUsingDynamicLinkedList()
+	@SeededTest
+	public void canComputeMedianForRandomDataUsingDynamicLinkedList(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final double[] data = createRandomData(rg, dataSize);
 		for (final int radius : radii)
 		{
@@ -115,24 +117,24 @@ public class MedianWindowTest
 		}
 	}
 
-	@Test
-	public void canComputeMedianForRandomDataUsingSingleIncrement()
+	@SeededTest
+	public void canComputeMedianForRandomDataUsingSingleIncrement(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		canComputeMedianForDataUsingSingleIncrement(createRandomData(rg, dataSize));
 	}
 
-	@Test
-	public void canComputeMedianForRandomDataUsingSetPosition()
+	@SeededTest
+	public void canComputeMedianForRandomDataUsingSetPosition(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		canComputeMedianForDataUsingSetPosition(createRandomData(rg, dataSize));
 	}
 
-	@Test
-	public void canComputeMedianForRandomDataUsingBigIncrement()
+	@SeededTest
+	public void canComputeMedianForRandomDataUsingBigIncrement(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		canComputeMedianForDataUsingBigIncrement(createRandomData(rg, dataSize));
 	}
 
@@ -258,10 +260,10 @@ public class MedianWindowTest
 		}
 	}
 
-	@Test
-	public void canIncrementThroughTheDataArray()
+	@SeededTest
+	public void canIncrementThroughTheDataArray(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final double[] data = createRandomData(rg, 300);
 		for (final int radius : radii)
 		{
@@ -292,10 +294,10 @@ public class MedianWindowTest
 		}
 	}
 
-	@Test
-	public void canIncrementThroughTheDataArrayUsingBigIncrement()
+	@SeededTest
+	public void canIncrementThroughTheDataArrayUsingBigIncrement(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final double[] data = createRandomData(rg, 300);
 		final int increment = 10;
 		for (final int radius : radii)
@@ -314,10 +316,10 @@ public class MedianWindowTest
 		}
 	}
 
-	@Test
-	public void returnNaNForInvalidPositions()
+	@SeededTest
+	public void returnNaNForInvalidPositions(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final double[] data = createRandomData(rg, 300);
 		for (final int radius : radii)
 		{
@@ -337,19 +339,19 @@ public class MedianWindowTest
 		}
 	}
 
-	@Test
-	public void isFasterThanLocalSort()
+	@SeededTest
+	public void isFasterThanLocalSort(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeLowComplexity();
 		final int[] speedRadii2 = (TestSettings.allow(LogLevel.INFO)) ? speedRadii : new int[] { testSpeedRadius };
 		for (final int radius : speedRadii2)
 			for (final int increment : speedIncrement)
-				isFasterThanLocalSort(radius, increment);
+				isFasterThanLocalSort(seed, radius, increment);
 	}
 
-	private void isFasterThanLocalSort(int radius, int increment)
+	private void isFasterThanLocalSort(RandomSeed seed, int radius, int increment)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final int iterations = 20;
 		final double[][] data = new double[iterations][];
 		for (int i = 0; i < iterations; i++)
@@ -418,19 +420,19 @@ public class MedianWindowTest
 	}
 
 	@SpeedTag
-	@Test
-	public void floatVersionIsFasterThanDoubleVersion()
+	@SeededTest
+	public void floatVersionIsFasterThanDoubleVersion(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeLowComplexity();
 		final int[] speedRadii2 = (TestSettings.allow(LogLevel.INFO)) ? speedRadii : new int[] { testSpeedRadius };
 		for (final int radius : speedRadii2)
 			for (final int increment : speedIncrement)
-				floatVersionIsFasterThanDoubleVersion(radius, increment);
+				floatVersionIsFasterThanDoubleVersion(seed, radius, increment);
 	}
 
-	private void floatVersionIsFasterThanDoubleVersion(int radius, int increment)
+	private void floatVersionIsFasterThanDoubleVersion(RandomSeed seed, int radius, int increment)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final int iterations = 20;
 		final double[][] data = new double[iterations][];
 		final float[][] data2 = new float[iterations][];
@@ -540,18 +542,18 @@ public class MedianWindowTest
 	}
 
 	@SpeedTag
-	@Test
-	public void intVersionIsFasterThanDoubleVersion()
+	@SeededTest
+	public void intVersionIsFasterThanDoubleVersion(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest(TestComplexity.LOW);
 		for (final int radius : speedRadii)
 			for (final int increment : speedIncrement)
-				intVersionIsFasterThanDoubleVersion(radius, increment);
+				intVersionIsFasterThanDoubleVersion(seed, radius, increment);
 	}
 
-	private void intVersionIsFasterThanDoubleVersion(int radius, int increment)
+	private void intVersionIsFasterThanDoubleVersion(RandomSeed seed, int radius, int increment)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final int iterations = 20;
 		final double[][] data = new double[iterations][];
 		final int[][] data2 = new int[iterations][];
@@ -674,7 +676,7 @@ public class MedianWindowTest
 		return stats.getPercentile(50);
 	}
 
-	static double[] createRandomData(RandomGenerator random, int size)
+	static double[] createRandomData(UniformRandomProvider random, int size)
 	{
 		final double[] data = new double[size];
 		for (int i = 0; i < data.length; i++)

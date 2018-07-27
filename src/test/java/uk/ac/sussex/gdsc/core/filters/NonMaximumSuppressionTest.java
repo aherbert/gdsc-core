@@ -30,7 +30,7 @@ package uk.ac.sussex.gdsc.core.filters;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.internal.ArrayComparisonFailure;
 import org.junit.jupiter.api.Test;
 
@@ -44,6 +44,8 @@ import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
@@ -66,9 +68,9 @@ public class NonMaximumSuppressionTest
 
 	// XXX: Copy from here...
 	@Test
-	public void floatBlockFindAndMaxFindReturnSameResult()
+	public void floatBlockFindAndMaxFindReturnSameResult(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
 		for (final int width : primes)
@@ -77,8 +79,8 @@ public class NonMaximumSuppressionTest
 					floatCompareBlockFindToMaxFind(rg, nms, width, height, boxSize);
 	}
 
-	private void floatCompareBlockFindToMaxFind(RandomGenerator rg, NonMaximumSuppression nms, int width, int height,
-			int boxSize) throws ArrayComparisonFailure
+	private void floatCompareBlockFindToMaxFind(UniformRandomProvider rg, NonMaximumSuppression nms, int width,
+			int height, int boxSize) throws ArrayComparisonFailure
 	{
 		floatCompareBlockFindToMaxFind(nms, width, height, boxSize, floatCreateData(rg, width, height), "Random");
 
@@ -86,10 +88,10 @@ public class NonMaximumSuppressionTest
 		floatCompareBlockFindToMaxFind(nms, width, height, boxSize, new float[width * height], "Empty");
 	}
 
-	@Test
-	public void floatBlockFindReturnSameResultWithNeighbourCheck()
+	@SeededTest
+	public void floatBlockFindReturnSameResultWithNeighbourCheck(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
 		for (final int width : primes)
@@ -98,7 +100,7 @@ public class NonMaximumSuppressionTest
 					floatCompareBlockFindWithNeighbourCheck(rg, nms, width, height, boxSize);
 	}
 
-	private static void floatCompareBlockFindWithNeighbourCheck(RandomGenerator rg, NonMaximumSuppression nms,
+	private static void floatCompareBlockFindWithNeighbourCheck(UniformRandomProvider rg, NonMaximumSuppression nms,
 			int width, int height, int boxSize) throws ArrayComparisonFailure
 	{
 		// Random data
@@ -216,10 +218,10 @@ public class NonMaximumSuppressionTest
 			imp.getWindow().getCanvas().zoomIn(0, 0);
 	}
 
-	@Test
-	public void floatBlockFindNxNAndBlockFind3x3ReturnSameResult()
+	@SeededTest
+	public void floatBlockFindNxNAndBlockFind3x3ReturnSameResult(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -253,10 +255,10 @@ public class NonMaximumSuppressionTest
 		}
 	}
 
-	@Test
-	public void floatBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult()
+	@SeededTest
+	public void floatBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -291,12 +293,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void floatBlockFindIsFasterThanMaxFind()
+	@SeededTest
+	public void floatBlockFindIsFasterThanMaxFind(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -354,12 +356,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void floatBlockFindWithNeighbourCheckIsFasterThanMaxFind()
+	@SeededTest
+	public void floatBlockFindWithNeighbourCheckIsFasterThanMaxFind(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 		nms.setNeighbourCheck(true);
@@ -418,7 +420,7 @@ public class NonMaximumSuppressionTest
 				blockTotal, (1.0 * total) / blockTotal);
 	}
 
-	private ArrayList<float[]> floatCreateSpeedData(RandomGenerator rg)
+	private ArrayList<float[]> floatCreateSpeedData(UniformRandomProvider rg)
 	{
 		final int iter = ITER;
 
@@ -429,8 +431,8 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void floatBlockFindNxNInternalIsFasterThanBlockFindNxNForBigBorders()
+	@SeededTest
+	public void floatBlockFindNxNInternalIsFasterThanBlockFindNxNForBigBorders(RandomSeed seed)
 	{
 		// Note: This test is currently failing. The primes used to be:
 		// int[] primes = new int[] { 997, 503, 251 };
@@ -444,7 +446,7 @@ public class NonMaximumSuppressionTest
 
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -513,12 +515,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void floatBlockFindInternalIsFasterWithoutNeighbourCheck()
+	@SeededTest
+	public void floatBlockFindInternalIsFasterWithoutNeighbourCheck(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -590,12 +592,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void floatBlockFindIsFasterWithoutNeighbourCheck()
+	@SeededTest
+	public void floatBlockFindIsFasterWithoutNeighbourCheck(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -666,12 +668,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void floatBlockFind3x3MethodIsFasterThanBlockFindNxN()
+	@SeededTest
+	public void floatBlockFind3x3MethodIsFasterThanBlockFindNxN(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -716,12 +718,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void floatBlockFind3x3WithBufferIsFasterThanBlockFind3x3()
+	@SeededTest
+	public void floatBlockFind3x3WithBufferIsFasterThanBlockFind3x3(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 		nms.setDataBuffer(true);
@@ -771,12 +773,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void floatBlockFind3x3MethodIsFasterThanMaxFind3x3()
+	@SeededTest
+	public void floatBlockFind3x3MethodIsFasterThanMaxFind3x3(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -823,10 +825,10 @@ public class NonMaximumSuppressionTest
 	/**
 	 * Test the maximum finding algorithms for the same result
 	 */
-	@Test
-	public void floatAllFindBlockMethodsReturnSameResultForSize1()
+	@SeededTest
+	public void floatAllFindBlockMethodsReturnSameResultForSize1(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 		for (final int width : primes)
@@ -834,7 +836,7 @@ public class NonMaximumSuppressionTest
 				floatCompareBlockMethodsForSize1(rg, nms, width, height);
 	}
 
-	private static void floatCompareBlockMethodsForSize1(RandomGenerator rg, NonMaximumSuppression nms, int width,
+	private static void floatCompareBlockMethodsForSize1(UniformRandomProvider rg, NonMaximumSuppression nms, int width,
 			int height) throws ArrayComparisonFailure
 	{
 		final float[] data = floatCreateData(rg, width, height);
@@ -849,7 +851,7 @@ public class NonMaximumSuppressionTest
 				height);
 	}
 
-	private static float[] floatCreateData(RandomGenerator rg, int width, int height)
+	private static float[] floatCreateData(UniformRandomProvider rg, int width, int height)
 	{
 		final float[] data = new float[width * height];
 		for (int i = data.length; i-- > 0;)
@@ -883,10 +885,10 @@ public class NonMaximumSuppressionTest
 	}
 
 	// XXX: Copy methods up to here for 'int' versions
-	@Test
-	public void intBlockFindAndMaxFindReturnSameResult()
+	@SeededTest
+	public void intBlockFindAndMaxFindReturnSameResult(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
 		for (final int width : primes)
@@ -895,8 +897,8 @@ public class NonMaximumSuppressionTest
 					intCompareBlockFindToMaxFind(rg, nms, width, height, boxSize);
 	}
 
-	private void intCompareBlockFindToMaxFind(RandomGenerator rg, NonMaximumSuppression nms, int width, int height,
-			int boxSize) throws ArrayComparisonFailure
+	private void intCompareBlockFindToMaxFind(UniformRandomProvider rg, NonMaximumSuppression nms, int width,
+			int height, int boxSize) throws ArrayComparisonFailure
 	{
 		intCompareBlockFindToMaxFind(nms, width, height, boxSize, intCreateData(rg, width, height), "Random");
 
@@ -904,10 +906,10 @@ public class NonMaximumSuppressionTest
 		intCompareBlockFindToMaxFind(nms, width, height, boxSize, new int[width * height], "Empty");
 	}
 
-	@Test
-	public void intBlockFindReturnSameResultWithNeighbourCheck()
+	@SeededTest
+	public void intBlockFindReturnSameResultWithNeighbourCheck(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
 		for (final int width : primes)
@@ -916,8 +918,8 @@ public class NonMaximumSuppressionTest
 					intCompareBlockFindWithNeighbourCheck(rg, nms, width, height, boxSize);
 	}
 
-	private static void intCompareBlockFindWithNeighbourCheck(RandomGenerator rg, NonMaximumSuppression nms, int width,
-			int height, int boxSize) throws ArrayComparisonFailure
+	private static void intCompareBlockFindWithNeighbourCheck(UniformRandomProvider rg, NonMaximumSuppression nms,
+			int width, int height, int boxSize) throws ArrayComparisonFailure
 	{
 		// Random data
 		final int[] data = intCreateData(rg, width, height);
@@ -1034,10 +1036,10 @@ public class NonMaximumSuppressionTest
 			imp.getWindow().getCanvas().zoomIn(0, 0);
 	}
 
-	@Test
-	public void intBlockFindNxNAndBlockFind3x3ReturnSameResult()
+	@SeededTest
+	public void intBlockFindNxNAndBlockFind3x3ReturnSameResult(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1071,10 +1073,10 @@ public class NonMaximumSuppressionTest
 		}
 	}
 
-	@Test
-	public void intBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult()
+	@SeededTest
+	public void intBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1109,12 +1111,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void intBlockFindIsFasterThanMaxFind()
+	@SeededTest
+	public void intBlockFindIsFasterThanMaxFind(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1172,12 +1174,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void intBlockFindWithNeighbourCheckIsFasterThanMaxFind()
+	@SeededTest
+	public void intBlockFindWithNeighbourCheckIsFasterThanMaxFind(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 		nms.setNeighbourCheck(true);
@@ -1236,7 +1238,7 @@ public class NonMaximumSuppressionTest
 				blockTotal, (1.0 * total) / blockTotal);
 	}
 
-	private ArrayList<int[]> intCreateSpeedData(RandomGenerator rg)
+	private ArrayList<int[]> intCreateSpeedData(UniformRandomProvider rg)
 	{
 		final int iter = ITER;
 
@@ -1247,8 +1249,8 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void intBlockFindNxNInternalIsFasterThanBlockFindNxNForBigBorders()
+	@SeededTest
+	public void intBlockFindNxNInternalIsFasterThanBlockFindNxNForBigBorders(RandomSeed seed)
 	{
 		// Note: This test is currently failing. The primes used to be:
 		// int[] primes = new int[] { 997, 503, 251 };
@@ -1262,7 +1264,7 @@ public class NonMaximumSuppressionTest
 
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1331,12 +1333,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void intBlockFindInternalIsFasterWithoutNeighbourCheck()
+	@SeededTest
+	public void intBlockFindInternalIsFasterWithoutNeighbourCheck(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1407,12 +1409,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void intBlockFindIsFasterWithoutNeighbourCheck()
+	@SeededTest
+	public void intBlockFindIsFasterWithoutNeighbourCheck(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1483,12 +1485,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void intBlockFind3x3MethodIsFasterThanBlockFindNxN()
+	@SeededTest
+	public void intBlockFind3x3MethodIsFasterThanBlockFindNxN(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1533,12 +1535,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void intBlockFind3x3WithBufferIsFasterThanBlockFind3x3()
+	@SeededTest
+	public void intBlockFind3x3WithBufferIsFasterThanBlockFind3x3(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 		nms.setDataBuffer(true);
@@ -1588,12 +1590,12 @@ public class NonMaximumSuppressionTest
 	}
 
 	@SpeedTag
-	@Test
-	public void intBlockFind3x3MethodIsFasterThanMaxFind3x3()
+	@SeededTest
+	public void intBlockFind3x3MethodIsFasterThanMaxFind3x3(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeSpeedTest();
 
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1640,10 +1642,10 @@ public class NonMaximumSuppressionTest
 	/**
 	 * Test the maximum finding algorithms for the same result
 	 */
-	@Test
-	public void intAllFindBlockMethodsReturnSameResultForSize1()
+	@SeededTest
+	public void intAllFindBlockMethodsReturnSameResultForSize1(RandomSeed seed)
 	{
-		final RandomGenerator rg = TestSettings.getRandomGenerator();
+		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final NonMaximumSuppression nms = new NonMaximumSuppression();
 		for (final int width : primes)
@@ -1651,7 +1653,7 @@ public class NonMaximumSuppressionTest
 				intCompareBlockMethodsForSize1(rg, nms, width, height);
 	}
 
-	private static void intCompareBlockMethodsForSize1(RandomGenerator rg, NonMaximumSuppression nms, int width,
+	private static void intCompareBlockMethodsForSize1(UniformRandomProvider rg, NonMaximumSuppression nms, int width,
 			int height) throws ArrayComparisonFailure
 	{
 		final int[] data = intCreateData(rg, width, height);
@@ -1666,7 +1668,7 @@ public class NonMaximumSuppressionTest
 				height);
 	}
 
-	private static int[] intCreateData(RandomGenerator rg, int width, int height)
+	private static int[] intCreateData(UniformRandomProvider rg, int width, int height)
 	{
 		final int[] data = new int[width * height];
 		for (int i = data.length; i-- > 0;)

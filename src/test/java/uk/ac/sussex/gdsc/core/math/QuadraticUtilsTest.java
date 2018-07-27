@@ -27,21 +27,23 @@
  */
 package uk.ac.sussex.gdsc.core.math;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.data.DataException;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
 public class QuadraticUtilsTest
 {
-	@Test
-	public void canGetDeterminant3x3()
+	@SeededTest
+	public void canGetDeterminant3x3(RandomSeed seed)
 	{
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (int i = 0; i < 5; i++)
 		{
 			final double[] m = new double[9];
@@ -59,15 +61,15 @@ public class QuadraticUtilsTest
 		}
 	}
 
-	@Test
-	public void canSolveQuadratic()
+	@SeededTest
+	public void canSolveQuadratic(RandomSeed seed)
 	{
 		final double a = 3;
 		final double b = -2;
 		final double c = -4;
 		final double[] e = new double[] { a, b, c };
 
-		final RandomGenerator r = TestSettings.getRandomGenerator();
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		for (int i = 0; i < 5; i++)
 		{
 			// Avoid identical points

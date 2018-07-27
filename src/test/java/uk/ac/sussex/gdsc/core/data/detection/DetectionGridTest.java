@@ -31,7 +31,7 @@ import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -42,6 +42,8 @@ import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
 public class DetectionGridTest
@@ -138,11 +140,11 @@ public class DetectionGridTest
 		Assertions.assertArrayEquals(new int[0], g.find(10, 10));
 	}
 
-	@Test
-	public void canDetectTheSameCollisions()
+	@SeededTest
+	public void canDetectTheSameCollisions(RandomSeed seed)
 	{
 		final int size = 512;
-		final RandomDataGenerator rdg = new RandomDataGenerator(TestSettings.getRandomGenerator());
+		final UniformRandomProvider rdg = TestSettings.getRandomGenerator(seed.getSeed());
 		final Rectangle2D[] r = generateRectangles(rdg, 1000, size);
 
 		final SimpleDetectionGrid g1 = new SimpleDetectionGrid(r);
@@ -162,7 +164,7 @@ public class DetectionGridTest
 		}
 	}
 
-	private static Rectangle2D[] generateRectangles(RandomDataGenerator rdg, int n, int size)
+	private static Rectangle2D[] generateRectangles(UniformRandomProvider rdg, int n, int size)
 	{
 		final Rectangle2D[] r = new Rectangle2D[n];
 		final double[][] p1 = generatePoints(rdg, n, size);
@@ -190,7 +192,7 @@ public class DetectionGridTest
 		return r;
 	}
 
-	private static Rectangle2D[] generateSmallRectangles(RandomDataGenerator rdg, int n, int size, int width)
+	private static Rectangle2D[] generateSmallRectangles(UniformRandomProvider rdg, int n, int size, int width)
 	{
 		final Rectangle2D[] r = new Rectangle2D[n];
 		final double[][] p1 = generatePoints(rdg, n, size);
@@ -198,18 +200,18 @@ public class DetectionGridTest
 		{
 			final double x1 = p1[i][0];
 			final double y1 = p1[i][1];
-			final double w = rdg.nextUniform(1, width);
-			final double h = rdg.nextUniform(1, width);
+			final double w = 1 + rdg.nextInt(width - 1);
+			final double h = 1 + rdg.nextInt(width - 1);
 			r[i] = new Rectangle2D.Double(x1, y1, w, h);
 		}
 		return r;
 	}
 
-	private static double[][] generatePoints(RandomDataGenerator rdg, int n, int size)
+	private static double[][] generatePoints(UniformRandomProvider rdg, int n, int size)
 	{
 		final double[][] x = new double[n][];
 		while (n-- > 0)
-			x[n] = new double[] { rdg.nextUniform(0, size), rdg.nextUniform(0, size) };
+			x[n] = new double[] { rdg.nextInt(size), rdg.nextInt(size) };
 		return x;
 	}
 
@@ -247,31 +249,31 @@ public class DetectionGridTest
 		}
 	}
 
-	@Test
-	public void binaryTreeIsFasterWithBigRectangles()
+	@SeededTest
+	public void binaryTreeIsFasterWithBigRectangles(RandomSeed seed)
 	{
 		final int size = 512;
 		final int width = 200;
 		final int n = 10000;
 		final int np = 500;
-		speedTest(size, width, n, np);
+		speedTest(seed, size, width, n, np);
 	}
 
-	@Test
-	public void binaryTreeIsFasterWithSmallRectangles()
+	@SeededTest
+	public void binaryTreeIsFasterWithSmallRectangles(RandomSeed seed)
 	{
 		final int size = 512;
 		final int width = 10;
 		final int n = 10000;
 		final int np = 500;
-		speedTest(size, width, n, np);
+		speedTest(seed, size, width, n, np);
 	}
 
-	private void speedTest(int size, int width, int n, int np)
+	private void speedTest(RandomSeed seed, int size, int width, int n, int np)
 	{
 		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
 
-		final RandomDataGenerator rdg = new RandomDataGenerator(TestSettings.getRandomGenerator());
+		final UniformRandomProvider rdg = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final TimingService ts = new TimingService();
 		while (n > 500)

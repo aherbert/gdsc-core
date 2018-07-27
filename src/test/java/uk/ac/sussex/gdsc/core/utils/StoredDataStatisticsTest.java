@@ -27,33 +27,41 @@
  */
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.sussex.gdsc.test.DataCache;
+import uk.ac.sussex.gdsc.test.DataProvider;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
-public class StoredDataStatisticsTest extends StatisticsTest
+public class StoredDataStatisticsTest extends StatisticsTest implements DataProvider<RandomSeed, StoredDataStatistics>
 {
-	static StoredDataStatistics stats;
 	static int n = 10000;
 	static int loops = 100;
+	private static DataCache<RandomSeed, StoredDataStatistics> data = new DataCache<>();
 
-	static
+	@Override
+	public StoredDataStatistics getData(RandomSeed seed)
 	{
-		stats = new StoredDataStatistics(n);
-		final RandomGenerator rand = TestSettings.getRandomGenerator();
+		UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+		StoredDataStatistics stats = new StoredDataStatistics(n);
 		for (int i = 0; i < n; i++)
-			stats.add(rand.nextDouble());
+			stats.add(r.nextDouble());
+		return stats;
 	}
 
-	@Test
-	public void getValuesEqualsIterator()
+	@SeededTest
+	public void getValuesEqualsIterator(RandomSeed seed)
 	{
+		StoredDataStatistics stats = data.getData(seed, this);
+
 		final double[] values = stats.getValues();
 		int i = 0;
 		for (final double d : stats)
@@ -61,11 +69,14 @@ public class StoredDataStatisticsTest extends StatisticsTest
 	}
 
 	@SuppressWarnings("unused")
-	//@SpeedTest
-	public void forLoopIsSlowerThanValuesIterator()
+	//@SpeedTag
+	@SeededTest
+	public void forLoopIsSlowerThanValuesIterator(RandomSeed seed)
 	{
 		// This fails. Perhaps change the test to use the TimingService for repeat testing.
 		ExtraAssumptions.assumeSpeedTest();
+
+		StoredDataStatistics stats = data.getData(seed, this);
 
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
@@ -86,15 +97,17 @@ public class StoredDataStatisticsTest extends StatisticsTest
 		}
 		start2 = System.nanoTime() - start2;
 
-		TestLog.logSpeedTestResult(start1 < start2, "getValues = %d : values for loop = %d : %fx\n", start1,
-				start2, (1.0 * start2) / start1);
+		TestLog.logSpeedTestResult(start1 < start2, "getValues = %d : values for loop = %d : %fx\n", start1, start2,
+				(1.0 * start2) / start1);
 	}
 
 	@SuppressWarnings("unused")
 	@SpeedTag
-	@Test
-	public void iteratorIsSlowerUsingdouble()
+	@SeededTest
+	public void iteratorIsSlowerUsingdouble(RandomSeed seed)
 	{
+		StoredDataStatistics stats = data.getData(seed, this);
+
 		ExtraAssumptions.assumeSpeedTest();
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
@@ -112,15 +125,17 @@ public class StoredDataStatisticsTest extends StatisticsTest
 			}
 		start2 = System.nanoTime() - start2;
 
-		TestLog.logSpeedTestResult(start1 < start2, "getValues = %d : iterator<double> = %d : %fx\n", start1,
-				start2, (1.0 * start2) / start1);
+		TestLog.logSpeedTestResult(start1 < start2, "getValues = %d : iterator<double> = %d : %fx\n", start1, start2,
+				(1.0 * start2) / start1);
 	}
 
 	@SuppressWarnings("unused")
 	@SpeedTag
-	@Test
-	public void iteratorIsSlowerUsingDouble()
+	@SeededTest
+	public void iteratorIsSlowerUsingDouble(RandomSeed seed)
 	{
+		StoredDataStatistics stats = data.getData(seed, this);
+
 		ExtraAssumptions.assumeSpeedTest();
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
@@ -138,18 +153,20 @@ public class StoredDataStatisticsTest extends StatisticsTest
 			}
 		start2 = System.nanoTime() - start2;
 
-		TestLog.logSpeedTestResult(start1 < start2, "getValues = %d : iterator<Double> = %d : %fx\n", start1,
-				start2, (1.0 * start2) / start1);
+		TestLog.logSpeedTestResult(start1 < start2, "getValues = %d : iterator<Double> = %d : %fx\n", start1, start2,
+				(1.0 * start2) / start1);
 	}
 
 	@Test
 	public void canConstructWithData()
 	{
 		// This requires that the constructor correctly initialises the storage
-		@SuppressWarnings("unused")
 		StoredDataStatistics s;
 		s = new StoredDataStatistics(new double[] { 1, 2, 3 });
+		s.add(1d);
 		s = new StoredDataStatistics(new float[] { 1, 2, 3 });
+		s.add(1f);
 		s = new StoredDataStatistics(new int[] { 1, 2, 3 });
+		s.add(1);
 	}
 }

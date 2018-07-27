@@ -29,6 +29,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 
 /**
  * Contains a set of random numbers that are reused in sequence. The sequence is updated to contain numbers in the
@@ -83,6 +84,25 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
 	 *             if the generator is null
 	 */
 	public TurboRandomGenerator(int size, RandomGenerator source) throws IllegalArgumentException, NullPointerException
+	{
+		super(size, source);
+		update();
+	}
+
+	/**
+	 * Instantiates a new pseudo random generator of the given size.
+	 *
+	 * @param size
+	 *            the size
+	 * @param source
+	 *            the random source
+	 * @throws IllegalArgumentException
+	 *             if the size is not positive
+	 * @throws NullPointerException
+	 *             if the generator is null
+	 */
+	public TurboRandomGenerator(int size, UniformRandomProvider source)
+			throws IllegalArgumentException, NullPointerException
 	{
 		super(size, source);
 		update();
