@@ -28,13 +28,12 @@
 package uk.ac.sussex.gdsc.core.ij.process;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;import uk.ac.sussex.gdsc.test.junit5.SeededTest;import uk.ac.sussex.gdsc.test.junit5.RandomSeed;import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
+import org.junit.jupiter.api.Test;
 
 import ij.plugin.filter.EDM;
 import ij.process.ByteProcessor;
 import ij.process.FHT;
 import ij.process.FloatProcessor;
-import uk.ac.sussex.gdsc.core.ij.process.FHT2;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 
