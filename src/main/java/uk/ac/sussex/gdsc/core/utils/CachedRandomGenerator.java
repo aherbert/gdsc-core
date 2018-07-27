@@ -208,9 +208,9 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
 	 * <p>
 	 * The default implementation returns:
 	 *
-	 * <pre>
-	 * {@code(int) (nextDouble() * n}
-	 * </pre>
+	 * <pre><code>
+	 * (int) (nextDouble() * n}
+	 * </code></pre>
 	 * <p>
 	 * Warning: No check is made that n is positive so use with caution.
 	 *
