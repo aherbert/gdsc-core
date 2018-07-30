@@ -40,7 +40,7 @@ to install this to your local Maven repository before building:
 Legal
 -----
 
-See [LICENSE](LICENSE)
+See [LICENSE](LICENSE.txt)
 
 
 # About #
