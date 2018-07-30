@@ -25,7 +25,12 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package ij.gui;
+package uk.ac.sussex.gdsc.core.ij.gui;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
+import ij.gui.Plot;
 
 /**
  * Extension of the {@link ij.gui.Plot} class to add functionality.
@@ -34,6 +39,14 @@ public class Plot2 extends Plot
 {
 	/** Draw a bar plot. */
 	public static final int BAR = 999;
+
+	/** Flag used when accessing the default min/max */
+	private static final int FLAG_DEFAULT_MIN_MAX = 0x01;
+	/** Flag used when accessing the current min/max */
+	private static final int FLAG_CURRENT_MIN_MAX = 0x02;
+
+	/** The reflection status flag. This is updated when reflection fails. */
+	private static int REFLECTION_STATUS = 0;
 
 	/**
 	 * Instantiates a new plot 2.
@@ -264,37 +277,83 @@ public class Plot2 extends Plot
 
 	// These methods require that the class is within the ij.gui package so the package level
 	// methods and variable can be used.
-	
+
 	/**
 	 * Gets the default min and max. This will be the full range of data unless the
 	 * {@link #setLimits(double, double, double, double)} method has been called.
+	 * <p>
+	 * Note: This uses reflection to access inherited methods and fields. 
+	 * Failure will return null.
 	 *
-	 * @return the default min and max
+	 * @return the default min and max (or null)
 	 */
 	public double[] getDefaultMinAndMax()
 	{
 		// Note: super.getLimits(); returns the limits of the data.
 		// These may have been adjusted using setLimits() to 
-		// change the plotted area.
-		
-		try
+		// change the plotted area. So get the limits from the protected methods
+		// and fields used by the Plot class.
+
+		if ((REFLECTION_STATUS & FLAG_DEFAULT_MIN_MAX) == 0)
 		{
-			super.getInitialMinAndMax();
-			return defaultMinMax.clone();
+			try
+			{
+				// If in the same package ...
+				//super.getInitialMinAndMax();
+				//return defaultMinMax.clone();
+
+				Method m = super.getClass().getDeclaredMethod("getInitialMinAndMax");
+				m.setAccessible(true);
+				m.invoke(this);
+
+				Field f = super.getClass().getDeclaredField("defaultMinMax");
+				f.setAccessible(true);
+
+				double[] defaultMinMax = (double[]) f.get(this);
+				return defaultMinMax.clone();
+			}
+			catch (final Throwable e)
+			{
+				// Don't try this again
+				REFLECTION_STATUS |= FLAG_DEFAULT_MIN_MAX;
+			}
 		}
-		catch (final Throwable e)
-		{ // Ignore
-		}
+
 		return null;
+		//return getLimits();
 	}
 
 	/**
 	 * Gets the current min and max.
+	 * <p>
+	 * Note: This uses reflection to access inherited methods and fields. 
+	 * Failure will return null.
 	 *
 	 * @return the current min and max
 	 */
 	public double[] getCurrentMinAndMax()
 	{
-		return currentMinMax;
+		if ((REFLECTION_STATUS & FLAG_CURRENT_MIN_MAX) == 0)
+		{
+			try
+			{
+				// If in the same package ...
+				//return currentMinMax;
+
+				Field f = super.getClass().getDeclaredField("currentMinMax");
+				f.setAccessible(true);
+
+				double[] currentMinMax = (double[]) f.get(this);
+				return currentMinMax.clone();
+			}
+			catch (final Throwable e)
+			{
+				// Don't try this again
+				REFLECTION_STATUS |= FLAG_CURRENT_MIN_MAX;
+			}
+		}
+
+		return null;
+		//return getLimits();
 	}
 }
