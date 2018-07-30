@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,12 +14,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -30,7 +30,9 @@ package uk.ac.sussex.gdsc.core.ij.gui;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import ij.IJ;
 import ij.gui.Plot;
+import uk.ac.sussex.gdsc.core.ij.Utils;
 
 /**
  * Extension of the {@link ij.gui.Plot} class to add functionality.
@@ -188,14 +190,14 @@ public class Plot2 extends Plot
 	 * <p>
 	 * This is a fudge as the values for the bar will be exported as the duplicated line.
 	 * However if a visual is all that is required then this works fine.
-	 * 
+	 *
 	 * @param shape
 	 *            CIRCLE, X, BOX, TRIANGLE, CROSS, DOT, LINE, CONNECTED_CIRCLES, or BAR
 	 */
 	@Override
 	public void addPoints(float[] xValues, float[] yValues, float[] yErrorBars, int shape, String label)
 	{
-		// This only works if the addPoints super method ignores the 
+		// This only works if the addPoints super method ignores the
 		// BAR option but still stores the values.
 		try
 		{
@@ -282,7 +284,7 @@ public class Plot2 extends Plot
 	 * Gets the default min and max. This will be the full range of data unless the
 	 * {@link #setLimits(double, double, double, double)} method has been called.
 	 * <p>
-	 * Note: This uses reflection to access inherited methods and fields. 
+	 * Note: This uses reflection to access inherited methods and fields.
 	 * Failure will return null.
 	 *
 	 * @return the default min and max (or null)
@@ -290,34 +292,35 @@ public class Plot2 extends Plot
 	public double[] getDefaultMinAndMax()
 	{
 		// Note: super.getLimits(); returns the limits of the data.
-		// These may have been adjusted using setLimits() to 
+		// These may have been adjusted using setLimits() to
 		// change the plotted area. So get the limits from the protected methods
 		// and fields used by the Plot class.
 
 		if ((REFLECTION_STATUS & FLAG_DEFAULT_MIN_MAX) == 0)
-		{
 			try
 			{
 				// If in the same package ...
 				//super.getInitialMinAndMax();
 				//return defaultMinMax.clone();
 
-				Method m = super.getClass().getDeclaredMethod("getInitialMinAndMax");
+				final Method m = super.getClass().getDeclaredMethod("getInitialMinAndMax");
 				m.setAccessible(true);
 				m.invoke(this);
 
-				Field f = super.getClass().getDeclaredField("defaultMinMax");
+				final Field f = super.getClass().getDeclaredField("defaultMinMax");
 				f.setAccessible(true);
 
-				double[] defaultMinMax = (double[]) f.get(this);
+				final double[] defaultMinMax = (double[]) f.get(this);
 				return defaultMinMax.clone();
 			}
 			catch (final Throwable e)
 			{
+				Utils.log("%s Failed to get the default min and max: %s", this.getClass().getName(), e.getMessage());
+				if (IJ.debugMode)
+					e.printStackTrace();
 				// Don't try this again
 				REFLECTION_STATUS |= FLAG_DEFAULT_MIN_MAX;
 			}
-		}
 
 		return null;
 		//return getLimits();
@@ -326,7 +329,7 @@ public class Plot2 extends Plot
 	/**
 	 * Gets the current min and max.
 	 * <p>
-	 * Note: This uses reflection to access inherited methods and fields. 
+	 * Note: This uses reflection to access inherited methods and fields.
 	 * Failure will return null.
 	 *
 	 * @return the current min and max
@@ -334,24 +337,25 @@ public class Plot2 extends Plot
 	public double[] getCurrentMinAndMax()
 	{
 		if ((REFLECTION_STATUS & FLAG_CURRENT_MIN_MAX) == 0)
-		{
 			try
 			{
 				// If in the same package ...
 				//return currentMinMax;
 
-				Field f = super.getClass().getDeclaredField("currentMinMax");
+				final Field f = super.getClass().getDeclaredField("currentMinMax");
 				f.setAccessible(true);
 
-				double[] currentMinMax = (double[]) f.get(this);
+				final double[] currentMinMax = (double[]) f.get(this);
 				return currentMinMax.clone();
 			}
 			catch (final Throwable e)
 			{
+				Utils.log("%s Failed to get the current min and max: %s", this.getClass().getName(), e.getMessage());
+				if (IJ.debugMode)
+					e.printStackTrace();
 				// Don't try this again
 				REFLECTION_STATUS |= FLAG_CURRENT_MIN_MAX;
 			}
-		}
 
 		return null;
 		//return getLimits();
