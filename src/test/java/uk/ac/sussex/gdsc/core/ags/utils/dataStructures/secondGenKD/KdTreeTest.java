@@ -370,7 +370,10 @@ public class KdTreeTest
 		public void check(int i, Object result)
 		{
 			final double[] observed = (double[]) result;
-			Assertions.assertArrayEquals(expected, observed, eps);
+			if (eps == 0)
+				Assertions.assertArrayEquals(expected, observed);
+			else
+				Assertions.assertArrayEquals(expected, observed, eps);
 		}
 	}
 
