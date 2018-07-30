@@ -260,7 +260,7 @@ public class RandIndexTest
 				canComputeRandIndexWithData(rg, size, n1, n2);
 	}
 
-	@Test
+	@SeededTest
 	public void canComputeRandIndexWithBigData(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeLowComplexity();

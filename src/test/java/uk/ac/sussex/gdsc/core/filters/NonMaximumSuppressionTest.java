@@ -67,7 +67,7 @@ public class NonMaximumSuppressionTest
 	//int[] boxSizes = new int[] { 1 };
 
 	// XXX: Copy from here...
-	@Test
+	@SeededTest
 	public void floatBlockFindAndMaxFindReturnSameResult(RandomSeed seed)
 	{
 		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
