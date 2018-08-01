@@ -2,6 +2,7 @@ package uk.ac.sussex.gdsc.core.filters;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
@@ -15,7 +16,6 @@ import ij.gui.PointRoi;
 import ij.process.FloatProcessor;
 import uk.ac.sussex.gdsc.core.ij.Utils;
 import uk.ac.sussex.gdsc.core.utils.Random;
-import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
@@ -41,7 +41,7 @@ public class NonMaximumSuppressionTest
         logger = null;
     }
 
-	private final boolean debug = TestSettings.getLogLevel() >= LogLevel.DEBUG.getValue();
+	private final boolean debug = logger.isLoggable(Level.FINER);
 
 	//int[] primes = new int[] { 113, 97, 53, 29, 17, 7 };
 	//int[] primes = new int[] { 509, 251 };

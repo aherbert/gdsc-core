@@ -31,19 +31,19 @@ import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 @SuppressWarnings({ "javadoc" })
 public class KdTreeTest
 {
-    private static Logger logger;
+	private static Logger logger;
 
-    @BeforeAll
-    public static void beforeAll()
-    {
-        logger = Logger.getLogger(KdTreeTest.class.getName());
-    }
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(KdTreeTest.class.getName());
+	}
 
-    @AfterAll
-    public static void afterAll()
-    {
-        logger = null;
-    }
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
 
 	int size = 256;
 	int[] N = new int[] { 100, 200, 400, 2000 };
@@ -372,7 +372,8 @@ public class KdTreeTest
 	public void secondGenIsFasterThanThirdGen(RandomSeed seed)
 	{
 		// No assertions are made since the timings are similar
-		ExtraAssumptions.assume(logger, Level.INFO); ExtraAssumptions.assume(TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(logger, Level.INFO);
+		ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
 		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final TimingService ts = new TimingService(15);
@@ -496,7 +497,7 @@ public class KdTreeTest
 		ts.repeat(number);
 		ts.repeat(number);
 
-		TestLog.info(logger,"All-vs-all = %d\n", time);
+		TestLog.info(logger, "All-vs-all = %d\n", time);
 		ts.report(logger);
 	}
 
@@ -536,7 +537,7 @@ public class KdTreeTest
 	//@SeededTest
 	public void secondGenBucket24IsFastest(RandomSeed seed)
 	{
-		ExtraAssumptions.assumeInfo();
+		logger.isLoggable(Level.INFO);
 
 		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final TimingService ts = new TimingService(15);
@@ -551,8 +552,7 @@ public class KdTreeTest
 		ts.repeat(number);
 		ts.repeat(number);
 
-		if (logger.isLoggable(Level.INFO))
-			ts.report(logger);
+		ts.report(logger);
 	}
 
 	private static double[][] createData(UniformRandomProvider r, int size, int n, boolean allowDuplicates)
