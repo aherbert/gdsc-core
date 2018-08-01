@@ -1,34 +1,12 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import gnu.trove.list.array.TIntArrayList;
@@ -36,7 +14,6 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.procedure.TIntObjectProcedure;
 import uk.ac.sussex.gdsc.core.utils.Sort;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
@@ -52,6 +29,20 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 @SuppressWarnings({ "javadoc" })
 public class CustomTricubicInterpolatingFunctionTest
 {
+	private static Logger logger;
+
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(CustomTricubicInterpolatingFunctionTest.class.getName());
+	}
+
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
+
 	static String inlineComputeCoefficients()
 	{
 		final StringBuilder sb = new StringBuilder();
@@ -211,20 +202,20 @@ public class CustomTricubicInterpolatingFunctionTest
 		return result;
 	}
 
-	private final LogLevel level = LogLevel.DEBUG;
+	private final Level level = Level.FINEST;
 
 	@Test
 	public void canConstructInlineComputeCoefficients()
 	{
-		ExtraAssumptions.assume(level);
-		TestLog.log(level, inlineComputeCoefficients());
+		ExtraAssumptions.assume(logger, level);
+		TestLog.log(logger, level, inlineComputeCoefficients());
 	}
 
 	@Test
 	public void canConstructInlineComputeCoefficientsCollectTerms()
 	{
-		ExtraAssumptions.assume(level);
-		TestLog.log(level, inlineComputeCoefficientsCollectTerms());
+		ExtraAssumptions.assume(logger, level);
+		TestLog.log(logger, level, inlineComputeCoefficientsCollectTerms());
 	}
 
 	private abstract class MyTimingTask extends BaseTimingTask
@@ -315,9 +306,9 @@ public class CustomTricubicInterpolatingFunctionTest
 		final int n = ts.getSize();
 		ts.check();
 		ts.repeat();
-		if (TestSettings.allow(LogLevel.INFO))
-			//ts.report();
-			ts.report(n);
+		if (logger.isLoggable(Level.INFO))
+			//ts.report(logger);
+			ts.report(logger, n);
 
 		Assertions.assertTrue(ts.get(-1).getMean() < ts.get(-n).getMean(),
 				() -> String.format("%f vs %f", ts.get(-1).getMean(), ts.get(-n).getMean()));

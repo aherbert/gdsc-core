@@ -1,43 +1,19 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.data.detection;
 
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
@@ -48,6 +24,20 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 @SuppressWarnings({ "javadoc" })
 public class DetectionGridTest
 {
+	private static Logger logger;
+
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(DetectionGridTest.class.getName());
+	}
+
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
+
 	@Test
 	public void canDetectCollisionsUsingSimpleGrid()
 	{
@@ -158,8 +148,8 @@ public class DetectionGridTest
 			final int[] o = g2.find(p[0], p[1]);
 			Arrays.sort(e);
 			Arrays.sort(o);
-			//TestLog.debugln(Arrays.toString(e));
-			//TestLog.debugln(Arrays.toString(o));
+			//TestLog.debugln(logger,Arrays.toString(e));
+			//TestLog.debugln(logger,Arrays.toString(o));
 			Assertions.assertArrayEquals(e, o);
 		}
 	}
@@ -271,7 +261,8 @@ public class DetectionGridTest
 
 	private void speedTest(RandomSeed seed, int size, int width, int n, int np)
 	{
-		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(logger, Level.INFO);
+		ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
 		final UniformRandomProvider rdg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -290,12 +281,12 @@ public class DetectionGridTest
 		}
 		int i = ts.getSize();
 		ts.repeat();
-		ts.report();
+		ts.report(logger);
 		for (int i1 = -1, i2 = -2; i > 0; i -= 2, i1 -= 2, i2 -= 2)
 		{
 			final double t1 = ts.get(i1).getMean();
 			final double t2 = ts.get(i2).getMean();
-			//TestLog.debug("%f < %f\n", t1, t2);
+			//TestLog.debug(logger,"%f < %f\n", t1, t2);
 			Assertions.assertTrue(t1 < t2, () -> String.format("%f < %f\n", t1, t2));
 		}
 	}

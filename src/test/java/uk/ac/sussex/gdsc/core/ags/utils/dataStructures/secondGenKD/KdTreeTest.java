@@ -1,37 +1,14 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.ags.utils.dataStructures.secondGenKD;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 
 import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.MaxHeap;
 import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.KdTree.Entry;
@@ -42,7 +19,6 @@ import uk.ac.sussex.gdsc.core.utils.PartialSort;
 import uk.ac.sussex.gdsc.core.utils.Random;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
@@ -55,6 +31,20 @@ import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 @SuppressWarnings({ "javadoc" })
 public class KdTreeTest
 {
+    private static Logger logger;
+
+    @BeforeAll
+    public static void beforeAll()
+    {
+        logger = Logger.getLogger(KdTreeTest.class.getName());
+    }
+
+    @AfterAll
+    public static void afterAll()
+    {
+        logger = null;
+    }
+
 	int size = 256;
 	int[] N = new int[] { 100, 200, 400, 2000 };
 	int[] K = new int[] { 2, 4, 8, 16 };
@@ -96,7 +86,7 @@ public class KdTreeTest
 						observed[--j] = e.distance;
 
 					final double[] expected = Arrays.copyOf(d2, k);
-					//TestLog.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestLog.debug(logger,"[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assertions.assertArrayEquals(expected, observed);
@@ -142,7 +132,7 @@ public class KdTreeTest
 						observed[--j] = e.distance;
 
 					final double[] expected = Arrays.copyOf(d2, k);
-					//TestLog.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestLog.debug(logger,"[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assertions.assertArrayEquals(expected, observed);
@@ -229,7 +219,7 @@ public class KdTreeTest
 					}
 
 					final double[] expected = Arrays.copyOf(d2, k);
-					//TestLog.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestLog.debug(logger,"[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assertions.assertArrayEquals(expected, observed);
@@ -279,7 +269,7 @@ public class KdTreeTest
 					}
 
 					final double[] expected = Arrays.copyOf(d2, k);
-					//TestLog.debug("[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestLog.debug(logger,"[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assertions.assertArrayEquals(expected, observed);
@@ -382,7 +372,7 @@ public class KdTreeTest
 	public void secondGenIsFasterThanThirdGen(RandomSeed seed)
 	{
 		// No assertions are made since the timings are similar
-		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(logger, Level.INFO); ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
 		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final TimingService ts = new TimingService(15);
@@ -506,8 +496,8 @@ public class KdTreeTest
 		ts.repeat(number);
 		ts.repeat(number);
 
-		TestLog.info("All-vs-all = %d\n", time);
-		ts.report();
+		TestLog.info(logger,"All-vs-all = %d\n", time);
+		ts.report(logger);
 	}
 
 	class Float2DNNTimingTask extends NNTimingTask
@@ -561,8 +551,8 @@ public class KdTreeTest
 		ts.repeat(number);
 		ts.repeat(number);
 
-		if (TestSettings.allow(LogLevel.INFO))
-			ts.report();
+		if (logger.isLoggable(Level.INFO))
+			ts.report(logger);
 	}
 
 	private static double[][] createData(UniformRandomProvider r, int size, int n, boolean allowDuplicates)

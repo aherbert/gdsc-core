@@ -1,41 +1,17 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.match;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.DataCache;
 import uk.ac.sussex.gdsc.test.DataProvider;
-import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
@@ -44,6 +20,20 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 @SuppressWarnings({ "javadoc" })
 public class AssignmentComparatorTest implements DataProvider<RandomSeed, Object>
 {
+    private static Logger logger;
+
+    @BeforeAll
+    public static void beforeAll()
+    {
+        logger = Logger.getLogger(AssignmentComparatorTest.class.getName());
+    }
+
+    @AfterAll
+    public static void afterAll()
+    {
+        logger = null;
+    }
+
 	private static class IntegerSortData implements Comparable<IntegerSortData>
 	{
 		final int data;
@@ -96,14 +86,14 @@ public class AssignmentComparatorTest implements DataProvider<RandomSeed, Object
 	@Override
 	public Object getData(RandomSeed seed)
 	{
-		UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final int size = 100;
 		// The assignment data will be concatenated blocks of sorted arrays
 		final int blocks = 50;
 		final int blockSize = 10;
 		final int length = blocks * blockSize;
 
-		AssignmentComparatorTestData data = new AssignmentComparatorTestData();
+		final AssignmentComparatorTestData data = new AssignmentComparatorTestData();
 		data.intData = new int[size][];
 		data.doubleData = new double[size][];
 		data.intExp = new int[size][];
@@ -207,7 +197,7 @@ public class AssignmentComparatorTest implements DataProvider<RandomSeed, Object
 	@SeededTest
 	public void canComputeSortSpeed(RandomSeed seed)
 	{
-		final int n = TestSettings.allow(LogLevel.INFO) ? 5 : 1;
+		final int n = logger.isLoggable(Level.INFO) ? 5 : 1;
 
 		final AssignmentComparatorTestData data = (AssignmentComparatorTestData) dataCache.getData(seed, this);
 
@@ -479,7 +469,6 @@ public class AssignmentComparatorTest implements DataProvider<RandomSeed, Object
 		final int size = ts.repeat();
 		ts.repeat(size);
 
-		//if (TestSettings.allow(LogLevel.INFO))
-		ts.report(size);
+		ts.report(logger, size);
 	}
 }

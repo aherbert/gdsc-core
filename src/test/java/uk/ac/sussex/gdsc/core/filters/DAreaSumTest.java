@@ -1,36 +1,12 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.filters;
 
 import java.awt.Rectangle;
+import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import ij.process.FloatProcessor;
@@ -38,7 +14,6 @@ import ij.process.ImageStatistics;
 import uk.ac.sussex.gdsc.core.utils.Random;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
@@ -51,6 +26,20 @@ import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 @SuppressWarnings({ "javadoc" })
 public class DAreaSumTest
 {
+	private static Logger logger;
+
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(DAreaSumTest.class.getName());
+	}
+
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
+
 	boolean[] rolling = new boolean[] { true, false };
 	int[] boxSizes = new int[] { 15, 9, 5, 3, 2, 1 };
 	int maxx = 97, maxy = 101;
@@ -93,7 +82,7 @@ public class DAreaSumTest
 					final double[] e = a1.getStatistics(x, y, n);
 					final double[] o = a2.getStatistics(x, y, n);
 					Assertions.assertArrayEquals(e, o, 1e-6);
-					//TestLog.debug("%s vs %s\n", toString(e), toString(o));
+					//TestLog.debug(logger,"%s vs %s\n", toString(e), toString(o));
 
 					// Check with ImageJ
 					fp.setRoi(new Rectangle(x - n, y - n, 2 * n + 1, 2 * n + 1));
@@ -124,7 +113,7 @@ public class DAreaSumTest
 						final double[] e = a1.getStatistics(x, y, nx, ny);
 						final double[] o = a2.getStatistics(x, y, nx, ny);
 						Assertions.assertArrayEquals(e, o, 1e-6);
-						//TestLog.debug("%s vs %s\n", toString(e), toString(o));
+						//TestLog.debug(logger,"%s vs %s\n", toString(e), toString(o));
 
 						// Check with ImageJ
 						fp.setRoi(new Rectangle(x - nx, y - ny, 2 * nx + 1, 2 * ny + 1));
@@ -159,7 +148,7 @@ public class DAreaSumTest
 				final double[] e = a1.getStatistics(roi);
 				final double[] o = a2.getStatistics(roi);
 				Assertions.assertArrayEquals(e, o, 1e-6);
-				//TestLog.debug("%s vs %s\n", toString(e), toString(o));
+				//TestLog.debug(logger,"%s vs %s\n", toString(e), toString(o));
 
 				// Check with ImageJ
 				fp.setRoi(roi);
@@ -297,11 +286,10 @@ public class DAreaSumTest
 		}
 		final int size = ts.getSize();
 		ts.repeat();
-		if (TestSettings.allow(LogLevel.INFO))
-			ts.report(size);
+		ts.report(logger, size);
 		// Do not let this fail the test suite
 		//Assertions.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
-		TestLog.logSpeedTestResult(ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
+		TestLog.logTestResult(logger, ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
 				"DAreaSum Density=%g RollingIsFaster=%b N=%d:%d: rolling %s vs simple %s", density, rollingIsFaster,
 				minN, maxN, ts.get(-2).getMean(), ts.get(-1).getMean());
 	}

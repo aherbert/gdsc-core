@@ -1,36 +1,12 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.clustering;
 
 import java.awt.Rectangle;
+import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
@@ -43,6 +19,20 @@ import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 @SuppressWarnings({ "javadoc" })
 public class DensityManagerTest
 {
+    private static Logger logger;
+
+    @BeforeAll
+    public static void beforeAll()
+    {
+        logger = Logger.getLogger(DensityManagerTest.class.getName());
+    }
+
+    @AfterAll
+    public static void afterAll()
+    {
+        logger = null;
+    }
+
 	int size = 256;
 	float[] radii = new float[] { 2, 4, 8, 16 };
 	int[] N = new int[] { 1000, 2000, 4000 };
@@ -106,7 +96,7 @@ public class DensityManagerTest
 
 				final String msg = String.format("Grid vs Triangle. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
-				TestLog.info(msg);
+				TestLog.info(logger,msg);
 				Assertions.assertTrue(t2 < t1, msg);
 			}
 		}
@@ -135,7 +125,7 @@ public class DensityManagerTest
 
 				final String msg = String.format("Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
-				TestLog.info(msg);
+				TestLog.info(logger,msg);
 				Assertions.assertTrue(t2 < t1, msg);
 			}
 		}
@@ -182,7 +172,7 @@ public class DensityManagerTest
 
 				final String msg = String.format("Sum Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
-				TestLog.info(msg);
+				TestLog.info(logger,msg);
 				Assertions.assertTrue(t2 < t1, msg);
 			}
 		}
@@ -249,7 +239,7 @@ public class DensityManagerTest
 				final String msg = String.format(
 						"calculateBlockDensity2 vs calculateBlockDensity. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
-				TestLog.info(msg);
+				TestLog.info(logger,msg);
 				Assertions.assertTrue(t2 < t1, msg);
 			}
 		}
@@ -281,9 +271,9 @@ public class DensityManagerTest
 						"calculateBlockDensity2 vs calculateBlockDensity3. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
 				// This is not always faster
-				//TestLog.info(msg);
+				//TestLog.info(logger,msg);
 				//Assertions.assertTrue(t2 < t1, msg);
-				TestLog.logSpeedTestResult(t2 < t1, msg);
+				TestLog.logTestResult(logger,t2 < t1, msg);
 			}
 		}
 	}

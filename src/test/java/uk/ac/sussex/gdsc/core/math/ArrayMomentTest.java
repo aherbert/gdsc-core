@@ -1,41 +1,17 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.math;
+
+import java.util.logging.Logger;
 
 import org.apache.commons.math3.stat.descriptive.moment.SecondMoment;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.BoxMullerGaussianSampler;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.data.IntegerType;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
-import uk.ac.sussex.gdsc.core.utils.rng.BoxMullerUnitGaussianSampler;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
@@ -47,6 +23,20 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 @SuppressWarnings({ "javadoc" })
 public class ArrayMomentTest
 {
+    private static Logger logger;
+
+    @BeforeAll
+    public static void beforeAll()
+    {
+        logger = Logger.getLogger(ArrayMomentTest.class.getName());
+    }
+
+    @AfterAll
+    public static void afterAll()
+    {
+        logger = null;
+    }
+
 	final double DELTA = 1e-8;
 	final int MAX_INT = 65335; // Unsigned 16-bit int
 
@@ -62,7 +52,7 @@ public class ArrayMomentTest
 			d[i] = rand.nextDouble();
 		canComputeMoment("Uniform", d, new RollingArrayMoment());
 
-		BoxMullerUnitGaussianSampler g = new BoxMullerUnitGaussianSampler(rand);
+		final BoxMullerGaussianSampler g = new BoxMullerGaussianSampler(rand, 0, 1);
 		for (int i = 0; i < d.length; i++)
 			d[i] = (float) g.sample();
 		canComputeMoment("Gaussian", d, new RollingArrayMoment());
@@ -84,7 +74,7 @@ public class ArrayMomentTest
 			d[i] = rand.nextFloat();
 		canComputeMoment("Uniform", d, new RollingArrayMoment());
 
-		BoxMullerUnitGaussianSampler g = new BoxMullerUnitGaussianSampler(rand);
+		final BoxMullerGaussianSampler g = new BoxMullerGaussianSampler(rand, 0, 1);
 		for (int i = 0; i < d.length; i++)
 			d[i] = (float) g.sample();
 		canComputeMoment("Gaussian", d, new RollingArrayMoment());
@@ -181,7 +171,7 @@ public class ArrayMomentTest
 			d[i] = rand.nextDouble();
 		canComputeMoment("Uniform", d, new SimpleArrayMoment());
 
-		BoxMullerUnitGaussianSampler g = new BoxMullerUnitGaussianSampler(rand);
+		final BoxMullerGaussianSampler g = new BoxMullerGaussianSampler(rand, 0, 1);
 		for (int i = 0; i < d.length; i++)
 			d[i] = (float) g.sample();
 		canComputeMoment("Gaussian", d, new SimpleArrayMoment());
@@ -203,7 +193,7 @@ public class ArrayMomentTest
 			d[i] = rand.nextFloat();
 		canComputeMoment("Uniform", d, new SimpleArrayMoment());
 
-		BoxMullerUnitGaussianSampler g = new BoxMullerUnitGaussianSampler(rand);
+		final BoxMullerGaussianSampler g = new BoxMullerGaussianSampler(rand, 0, 1);
 		for (int i = 0; i < d.length; i++)
 			d[i] = (float) g.sample();
 		canComputeMoment("Gaussian", d, new SimpleArrayMoment());
@@ -515,7 +505,7 @@ public class ArrayMomentTest
 
 		// Test if the standard Statistics object is good enough for
 		// computing the mean and variance of sCMOS data from 60,000 frames. It seems it is.
-		BoxMullerGaussianSampler g = new BoxMullerGaussianSampler(rand, 100.345, Math.PI);
+		final BoxMullerGaussianSampler g = new BoxMullerGaussianSampler(rand, 100.345, Math.PI);
 		for (int i = 600000; i-- > 0;)
 		{
 			final double d = g.sample();
@@ -523,7 +513,7 @@ public class ArrayMomentTest
 			m2.increment(d);
 			r2.add(d);
 		}
-		TestLog.info("Mean %s vs %s, SD %s vs %s\n", Double.toString(m1.getFirstMoment()[0]),
+		TestLog.info(logger,"Mean %s vs %s, SD %s vs %s\n", Double.toString(m1.getFirstMoment()[0]),
 				Double.toString(r2.getFirstMoment()[0]), Double.toString(m1.getStandardDeviation()[0]),
 				Double.toString(r2.getStandardDeviation()[0]));
 		ExtraAssertions.assertEqualsRelative(m1.getFirstMoment()[0], r2.getFirstMoment()[0], DELTA, "Mean");

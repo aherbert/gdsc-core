@@ -1,35 +1,12 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.match;
+
+import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.TestLog;
@@ -42,6 +19,20 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 @SuppressWarnings({ "javadoc" })
 public class RandIndexTest
 {
+    private static Logger logger;
+
+    @BeforeAll
+    public static void beforeAll()
+    {
+        logger = Logger.getLogger(RandIndexTest.class.getName());
+    }
+
+    @AfterAll
+    public static void afterAll()
+    {
+        logger = null;
+    }
+
 	@Test
 	public void canComputeSimpleRandIndexWithNoData()
 	{
@@ -310,9 +301,9 @@ public class RandIndexTest
 		final long table1 = t3 - t2;
 		final long table2 = t4 - t3;
 
-		TestLog.info("[%d,%d,%d] simple=%d (%f), table1=%d (%f), %f\n", n, n1, n2, simple, e, table1, o1,
+		TestLog.info(logger,"[%d,%d,%d] simple=%d (%f), table1=%d (%f), %f\n", n, n1, n2, simple, e, table1, o1,
 				simple / (double) table1);
-		TestLog.info("[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f\n", n, n1, n2, simple, e, table2, o2,
+		TestLog.info(logger,"[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f\n", n, n1, n2, simple, e, table2, o2,
 				simple / (double) table2);
 
 		ExtraAssertions.assertEqualsRelative(e, o1, 1e-10);
@@ -350,7 +341,7 @@ public class RandIndexTest
 		}
 
 		sum /= loops;
-		TestLog.info("[%d,%d,%d,%d] %f\n", n, n1, n2, loops, sum);
+		TestLog.info(logger,"[%d,%d,%d,%d] %f\n", n, n1, n2, loops, sum);
 
 		final double delta = 0.1;
 		Assertions.assertTrue(sum < delta && sum > -delta);
@@ -416,7 +407,7 @@ public class RandIndexTest
 		final long table1 = t2 - t1;
 		final long table2 = t3 - t2;
 
-		TestLog.info("[%d,%d,%d] table1=%d (%f [%f]), table2=%d (%f), %f\n", n, n1, n2, table1, o1, r, table2, o2,
+		TestLog.info(logger,"[%d,%d,%d] table1=%d (%f [%f]), table2=%d (%f), %f\n", n, n1, n2, table1, o1, r, table2, o2,
 				table1 / (double) table2);
 
 		Assertions.assertEquals(o2, o1);

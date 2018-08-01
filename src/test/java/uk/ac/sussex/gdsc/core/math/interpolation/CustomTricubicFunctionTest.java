@@ -1,37 +1,14 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectIntProcedure;
-import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 
@@ -47,6 +24,20 @@ import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 @SuppressWarnings({ "javadoc" })
 public class CustomTricubicFunctionTest
 {
+	private static Logger logger;
+
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(CustomTricubicFunctionTest.class.getName());
+	}
+
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
+
 	/** Number of points. */
 	private static final short N = 4;
 	/** Number of points - 1. */
@@ -148,7 +139,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					TestLog.info("%s = %d\n", a, b);
+					TestLog.info(logger, "%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -317,7 +308,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					TestLog.info("%s = %d\n", a, b);
+					TestLog.info(logger, "%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -407,7 +398,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					TestLog.info("%s = %d\n", a, b);
+					TestLog.info(logger, "%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -600,7 +591,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					TestLog.info("%s = %d\n", a, b);
+					TestLog.info(logger, "%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -678,7 +669,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					TestLog.info("%s = %d\n", a, b);
+					TestLog.info(logger, "%s = %d\n", a, b);
 					return false;
 				}
 				return true;
@@ -688,14 +679,14 @@ public class CustomTricubicFunctionTest
 		return finaliseInlinePowerTableFunction(sb);
 	}
 
-	private final LogLevel level = LogLevel.DEBUG;
+	private final Level level = Level.FINEST;
 
 	@Test
 	public void canConstructInlineValue()
 	{
 		// DoubleCustomTricubicFunction#value0(double[], double[], double[])
-		ExtraAssumptions.assume(level);
-		TestLog.log(level, inlineValue());
+		ExtraAssumptions.assume(logger, level);
+		TestLog.log(logger, level, inlineValue());
 	}
 
 	@Test
@@ -703,24 +694,24 @@ public class CustomTricubicFunctionTest
 	{
 		// DoubleCustomTricubicFunction#value(double[])
 		// DoubleCustomTricubicFunction#value(float[])
-		ExtraAssumptions.assume(level);
-		TestLog.log(level, inlineValueWithPowerTable());
+		ExtraAssumptions.assume(logger, level);
+		TestLog.log(logger, level, inlineValueWithPowerTable());
 	}
 
 	@Test
 	public void canConstructInlineComputePowerTable()
 	{
 		// CustomTricubicFunction.computePowerTable
-		ExtraAssumptions.assume(level);
-		TestLog.log(level, inlineComputePowerTable());
+		ExtraAssumptions.assume(logger, level);
+		TestLog.log(logger, level, inlineComputePowerTable());
 	}
 
 	@Test
 	public void canConstructInlineValue1()
 	{
 		// DoubleCustomTricubicFunction#value1(double[], double[], double[], double[])
-		ExtraAssumptions.assume(level);
-		TestLog.log(level, inlineValue1());
+		ExtraAssumptions.assume(logger, level);
+		TestLog.log(logger, level, inlineValue1());
 	}
 
 	@Test
@@ -730,8 +721,8 @@ public class CustomTricubicFunctionTest
 		// DoubleCustomTricubicFunction#gradient(double[], double[])
 		// DoubleCustomTricubicFunction#value(float[], double[])
 		// DoubleCustomTricubicFunction#gradient(float[], double[])
-		ExtraAssumptions.assume(level);
-		TestLog.log(level, inlineValue1WithPowerTable());
+		ExtraAssumptions.assume(logger, level);
+		TestLog.log(logger, level, inlineValue1WithPowerTable());
 	}
 
 	@Test
@@ -739,16 +730,16 @@ public class CustomTricubicFunctionTest
 	{
 		// DoubleCustomTricubicFunction#value(double[], double[], double[], double[])
 		// DoubleCustomTricubicFunction#value(float[], float[], float[], double[])
-		ExtraAssumptions.assume(level);
-		TestLog.log(level, inlineValue1WithPowerTableN());
+		ExtraAssumptions.assume(logger, level);
+		TestLog.log(logger, level, inlineValue1WithPowerTableN());
 	}
 
 	@Test
 	public void canConstructInlineValue2()
 	{
 		// DoubleCustomTricubicFunction#value2(double[], double[], double[], double[], double[])
-		ExtraAssumptions.assume(level);
-		TestLog.log(level, inlineValue2());
+		ExtraAssumptions.assume(logger, level);
+		TestLog.log(logger, level, inlineValue2());
 	}
 
 	@Test
@@ -756,8 +747,8 @@ public class CustomTricubicFunctionTest
 	{
 		// DoubleCustomTricubicFunction#value(double[], double[], double[])
 		// DoubleCustomTricubicFunction#value(float[], double[], double[])
-		ExtraAssumptions.assume(level);
-		TestLog.log(level, inlineValue2WithPowerTable());
+		ExtraAssumptions.assume(logger, level);
+		TestLog.log(logger, level, inlineValue2WithPowerTable());
 	}
 
 	@Test
@@ -765,7 +756,7 @@ public class CustomTricubicFunctionTest
 	{
 		// DoubleCustomTricubicFunction#value(double[], double[], double[], double[], double[],
 		// DoubleCustomTricubicFunction#value(float[], float[], float[], float[], double[],
-		ExtraAssumptions.assume(level);
-		TestLog.log(level, inlineValue2WithPowerTableN());
+		ExtraAssumptions.assume(logger, level);
+		TestLog.log(logger, level, inlineValue2WithPowerTableN());
 	}
 }

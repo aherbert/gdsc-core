@@ -1,30 +1,3 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
 import java.io.ByteArrayInputStream;
@@ -33,13 +6,16 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Precision;
 import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.data.DoubleArrayTrivalueProvider;
@@ -50,7 +26,6 @@ import uk.ac.sussex.gdsc.core.utils.Maths;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingResult;
@@ -64,6 +39,20 @@ import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 @SuppressWarnings({ "javadoc" })
 public class CustomTricubicInterpolatorTest
 {
+	private static Logger logger;
+
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(CustomTricubicInterpolatorTest.class.getName());
+	}
+
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
+
 	// Delta for numerical gradients
 	private final double h_ = 0.00001;
 
@@ -554,7 +543,7 @@ public class CustomTricubicInterpolatorTest
 			sx = s * (1.0 + Maths.pow2((dz + gamma) / zDepth) * 0.5);
 			sy = s * (1.0 + Maths.pow2((dz - gamma) / zDepth) * 0.5);
 
-			//TestLog.debug("%d = %f,%f\n", zz, sx, sy);
+			//TestLog.debug(logger,"%d = %f,%f\n", zz, sx, sy);
 
 			final double norm = 1.0 / (2 * Math.PI * sx * sy);
 
@@ -659,11 +648,11 @@ public class CustomTricubicInterpolatorTest
 							final boolean ok = eq.almostEqualRelativeOrAbsolute(df_da, df_daA[j]);
 							if (!signOK)
 								Assertions.fail(df_da + " sign != " + df_daA[j]);
-							//TestLog.debug("[%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", xx, yy, zz, df_da2, j,
+							//TestLog.debug(logger,"[%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", xx, yy, zz, df_da2, j,
 							//		df_daA[j], ok);
 							//if (!ok)
 							//{
-							//	TestLog.info("[%.1f,%.1f,%.1f] %f == [%d] %f?\n", xx, yy, zz, df_da2, j, df_daA[j]);
+							//	TestLog.info(logger,"[%.1f,%.1f,%.1f] %f == [%d] %f?\n", xx, yy, zz, df_da2, j, df_daA[j]);
 							//}
 							if (!ok)
 								Assertions.fail(df_da + " != " + df_daA[j]);
@@ -674,11 +663,11 @@ public class CustomTricubicInterpolatorTest
 								if (!((d2f_da2 * d2f_da2A[j]) >= 0))
 									Assertions.fail(d2f_da2 + " sign != " + d2f_da2A[j]);
 								//boolean ok = eq.almostEqualRelativeOrAbsolute(d2f_da2, d2f_da2A[j]);
-								//TestLog.debug("%d [%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", j, xx, yy, zz, d2f_da2,
+								//TestLog.debug(logger,"%d [%.2f,%.2f,%.2f] %f == [%d] %f  ok=%b\n", j, xx, yy, zz, d2f_da2,
 								//		j, d2f_da2A[j], ok);
 								//if (!ok)
 								//{
-								//TestLog.debug("%d [%.1f,%.1f,%.1f] %f == [%d] %f?\n", j, xx, yy, zz, d2f_da2, j,
+								//TestLog.debug(logger,"%d [%.1f,%.1f,%.1f] %f == [%d] %f?\n", j, xx, yy, zz, d2f_da2, j,
 								//		d2f_da2A[j]);
 								//}
 								ExtraAssertions.assertTrue(eq.almostEqualRelativeOrAbsolute(d2f_da2, d2f_da2A[j]),
@@ -1145,8 +1134,7 @@ public class CustomTricubicInterpolatorTest
 
 		final int n = ts.getSize();
 		ts.repeat();
-		if (TestSettings.allow(LogLevel.INFO))
-			ts.report(n);
+		ts.report(logger, n);
 
 		for (int i = 1; i < n; i += 2)
 		{
@@ -1154,7 +1142,7 @@ public class CustomTricubicInterpolatorTest
 			final TimingResult r2 = ts.get(-i - 1);
 			final double t1 = r1.getMean();
 			final double t2 = r2.getMean();
-			TestLog.logSpeedTestResult(t1 < t2, "%s  %f vs %s  %f : %.2fx", r1.getTask().getName(), t1,
+			TestLog.logTestResult(logger, t1 < t2, "%s  %f vs %s  %f : %.2fx", r1.getTask().getName(), t1,
 					r2.getTask().getName(), t2, t2 / t1);
 		}
 	}
@@ -1343,7 +1331,7 @@ public class CustomTricubicInterpolatorTest
 		f1.write(b);
 
 		final byte[] bytes = b.toByteArray();
-		//TestLog.debug("Single precision = %b, size = %d, memory estimate = %d\n", singlePrecision, bytes.length,
+		//TestLog.debug(logger,"Single precision = %b, size = %d, memory estimate = %d\n", singlePrecision, bytes.length,
 		//		CustomTricubicInterpolatingFunction.estimateSize(new int[] { x, y, z })
 		//				.getMemoryFootprint(singlePrecision));
 		final CustomTricubicInterpolatingFunction f2 = CustomTricubicInterpolatingFunction
@@ -1466,7 +1454,7 @@ public class CustomTricubicInterpolatorTest
 									for (int c = 0; c < 3; c++)
 									{
 										// The function may change direction so check the 2nd derivative magnitude is similar
-										//TestLog.debug("[%d] %f vs %f\n", c, d2f_da2A[c], d2f_da2B[c], DoubleEquality.relativeError(d2f_da2A[c], d2f_da2B[c]));
+										//TestLog.debug(logger,"[%d] %f vs %f\n", c, d2f_da2A[c], d2f_da2B[c], DoubleEquality.relativeError(d2f_da2A[c], d2f_da2B[c]));
 										d2f_da2A[c] = Math.abs(d2f_da2A[c]);
 										d2f_da2B[c] = Math.abs(d2f_da2B[c]);
 										value[c].add(DoubleEquality.relativeError(d2f_da2A[c], d2f_da2B[c]));
@@ -1480,7 +1468,7 @@ public class CustomTricubicInterpolatorTest
 			for (int c = 0; c < 3; c++)
 				// The second gradients are so different that this should fail
 				same = same && value[c].getMean() < 0.01;
-			//TestLog.debug("d2yda2[%d] Error = %f +/- %f\n", c, value[c].getMean(),
+			//TestLog.debug(logger,"d2yda2[%d] Error = %f +/- %f\n", c, value[c].getMean(),
 			//		value[c].getStandardDeviation());
 			Assertions.assertFalse(same);
 		}
@@ -1514,7 +1502,7 @@ public class CustomTricubicInterpolatorTest
 			{
 				final double[] optimum = f1.search(true, i, 0, 0);
 				//double d = Maths.distance(cx, cy, cz, optimum[0], optimum[1], optimum[2]);
-				//TestLog.debug("[%d] %f,%f,%f %d = %s : dist = %f : error = %f\n", ii, cx, cy, cz, i,
+				//TestLog.debug(logger,"[%d] %f,%f,%f %d = %s : dist = %f : error = %f\n", ii, cx, cy, cz, i,
 				//		Arrays.toString(optimum), d, DoubleEquality.relativeError(amplitude, optimum[3]));
 
 				// Skip 0 to 1 as it moves from an exact node value to interpolation
@@ -1523,7 +1511,7 @@ public class CustomTricubicInterpolatorTest
 				{
 					@SuppressWarnings("null")
 					final double d = Maths.distance(last[0], last[1], last[2], optimum[0], optimum[1], optimum[2]);
-					TestLog.info("[%d] %f,%f,%f %d = %s : dist = %f : change = %g\n", ii, cx, cy, cz, i,
+					TestLog.info(logger, "[%d] %f,%f,%f %d = %s : dist = %f : change = %g\n", ii, cx, cy, cz, i,
 							Arrays.toString(optimum), d, DoubleEquality.relativeError(last[3], optimum[3]));
 					Assertions.assertTrue(optimum[3] >= last[3]);
 				}

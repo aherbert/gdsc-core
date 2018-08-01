@@ -1,50 +1,39 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.clustering;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 
 import uk.ac.sussex.gdsc.core.utils.Random;
-import uk.ac.sussex.gdsc.test.LogLevel;
-import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
 public class ClusteringEngineTest
 {
+	private static Logger logger;
+
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(ClusteringEngineTest.class.getName());
+	}
+
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
+
 	// Store the closest pair of clusters
 	int ii, jj;
 
@@ -66,13 +55,13 @@ public class ClusteringEngineTest
 				testClusting(rg, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius, 100, size);
 	}
 
+	@SpeedTag
 	@SeededTest
 	public void pairwiseWithoutNeighboursIsFasterAtLowDensities(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeMediumComplexity();
 
 		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
-		ExtraAssumptions.assume(LogLevel.WARN, TestComplexity.LOW);
 		final int repeats = 10;
 		final double radius = 50;
 		final Object[] points = new Object[repeats];
@@ -82,11 +71,12 @@ public class ClusteringEngineTest
 		final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
 		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
 
-		final LogLevel level = (t2 < t1) ? LogLevel.WARN : LogLevel.INFO;
-		TestLog.log(level, "SpeedTest (Low Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1, t2,
+		TestLog.logTestResult(logger, (t2 < t1),
+				"SpeedTest (Low Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1, t2,
 				(double) t1 / t2);
 	}
 
+	@SpeedTag
 	@SeededTest
 	public void pairwiseWithoutNeighboursIsSlowerAtHighDensities(RandomSeed seed)
 	{
@@ -102,7 +92,7 @@ public class ClusteringEngineTest
 		final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
 		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
 
-		TestLog.info("SpeedTest (High Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1, t2,
+		TestLog.info(logger, "SpeedTest (High Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1, t2,
 				(double) t1 / t2);
 		Assertions.assertTrue(t1 < t2);
 	}
@@ -122,7 +112,7 @@ public class ClusteringEngineTest
 		final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
 		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE, radius);
 
-		TestLog.info("SpeedTest Closest %d, Pairwise %d = %fx faster\n", t1, t2, (double) t1 / t2);
+		TestLog.info(logger, "SpeedTest Closest %d, Pairwise %d = %fx faster\n", t1, t2, (double) t1 / t2);
 		Assertions.assertTrue(t2 < t1);
 	}
 
@@ -133,6 +123,7 @@ public class ClusteringEngineTest
 				ClusteringAlgorithm.PARTICLE_SINGLE_LINKAGE);
 	}
 
+	@SpeedTag
 	@SeededTest
 	public void multithreadedParticleSingleLinkageIsFaster(RandomSeed seed)
 	{
@@ -147,6 +138,7 @@ public class ClusteringEngineTest
 				ClusteringAlgorithm.CENTROID_LINKAGE);
 	}
 
+	@SpeedTag
 	@SeededTest
 	public void multithreadedClosestIsFaster(RandomSeed seed)
 	{
@@ -161,6 +153,7 @@ public class ClusteringEngineTest
 				ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE);
 	}
 
+	@SpeedTag
 	@SeededTest
 	public void multithreadedClosestParticleIsFaster(RandomSeed seed)
 	{
@@ -175,6 +168,7 @@ public class ClusteringEngineTest
 				ClusteringAlgorithm.CENTROID_LINKAGE_DISTANCE_PRIORITY);
 	}
 
+	@SpeedTag
 	@SeededTest
 	public void multithreadedClosestDistancePriorityIsFaster(RandomSeed seed)
 	{
@@ -189,6 +183,7 @@ public class ClusteringEngineTest
 				ClusteringAlgorithm.CENTROID_LINKAGE_TIME_PRIORITY);
 	}
 
+	@SpeedTag
 	@SeededTest
 	public void multithreadedClosestTimePriorityIsFaster(RandomSeed seed)
 	{
@@ -203,6 +198,7 @@ public class ClusteringEngineTest
 				ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY);
 	}
 
+	@SpeedTag
 	@SeededTest
 	public void multithreadedClosestParticleDistancePriorityIsFaster(RandomSeed seed)
 	{
@@ -217,6 +213,7 @@ public class ClusteringEngineTest
 				ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY);
 	}
 
+	@SpeedTag
 	@SeededTest
 	public void multithreadedClosestParticleTimePriorityIsFaster(RandomSeed seed)
 	{
@@ -231,6 +228,7 @@ public class ClusteringEngineTest
 				ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS);
 	}
 
+	@SpeedTag
 	@SeededTest
 	public void multithreadedPairwiseWithoutNeighboursIsFaster(RandomSeed seed)
 	{
@@ -264,8 +262,8 @@ public class ClusteringEngineTest
 		final long t1 = runSpeedTest(points, algorithm, radius, time, 1);
 		final long t2 = runSpeedTest(points, algorithm, radius, time, 8);
 
-		TestLog.info("Threading SpeedTest %s : Single %d, Multi-threaded %d = %fx faster\n", algorithm.toString(), t1,
-				t2, (double) t1 / t2);
+		TestLog.info(logger, "Threading SpeedTest %s : Single %d, Multi-threaded %d = %fx faster\n",
+				algorithm.toString(), t1, t2, (double) t1 / t2);
 		Assertions.assertTrue(t2 < t1);
 	}
 
@@ -296,7 +294,7 @@ public class ClusteringEngineTest
 		final ArrayList<ClusterPoint> points = createPoints(rg, n, size);
 
 		// Report density of the clustering we are testing. Size/radius are in nm
-		//TestLog.debug("Testing n=%d, Size=%d, Density=%s um^-2, Radius=%s nm\n", n, size,
+		//TestLog.debug(logger,"Testing n=%d, Size=%d, Density=%s um^-2, Radius=%s nm\n", n, size,
 		//		Utils.rounded(n * 1e6 / (size * size)), Utils.rounded(radius));
 
 		final ArrayList<Cluster> exp = findClusters(points, radius);
@@ -325,11 +323,11 @@ public class ClusteringEngineTest
 
 	private static void print(String name, ArrayList<Cluster> clusters)
 	{
-		TestLog.info(name + " : size=%d\n", clusters.size());
+		TestLog.info(logger, name + " : size=%d\n", clusters.size());
 		for (int i = 0; i < clusters.size(); i++)
 		{
 			final Cluster c = clusters.get(i);
-			TestLog.info("[%d] : head=%d, n=%d, cx=%g, cy=%g\n", i, c.head.id, c.n, c.x, c.y);
+			TestLog.info(logger, "[%d] : head=%d, n=%d, cx=%g, cy=%g\n", i, c.head.id, c.n, c.x, c.y);
 		}
 	}
 

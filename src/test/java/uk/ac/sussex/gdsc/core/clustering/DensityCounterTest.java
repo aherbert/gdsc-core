@@ -1,40 +1,17 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.clustering;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.BoxMullerGaussianSampler;
 import org.apache.commons.rng.sampling.distribution.PoissonSampler;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 
 import uk.ac.sussex.gdsc.core.clustering.DensityCounter.SimpleMolecule;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
@@ -49,6 +26,20 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 @SuppressWarnings({ "javadoc" })
 public class DensityCounterTest
 {
+    private static Logger logger;
+
+    @BeforeAll
+    public static void beforeAll()
+    {
+        logger = Logger.getLogger(DensityCounterTest.class.getName());
+    }
+
+    @AfterAll
+    public static void afterAll()
+    {
+        logger = null;
+    }
+
 	boolean skipSpeedTest = true;
 
 	int size = 256;
@@ -238,7 +229,7 @@ public class DensityCounterTest
 	@SeededTest
 	public void countAllSpeedTest(RandomSeed seed)
 	{
-		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(logger, Level.INFO); ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
 		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -268,7 +259,7 @@ public class DensityCounterTest
 		// non-sync multi = nCells * (9 * d * d)
 		final double d = molecules[0].length * radius * radius / (size * size);
 		final double nCells = (size / radius) * (size / radius);
-		TestLog.info("Expected Comparisons : Single = %f, Multi non-sync = %f\n", nCells * 5 * d * d,
+		TestLog.info(logger,"Expected Comparisons : Single = %f, Multi non-sync = %f\n", nCells * 5 * d * d,
 				nCells * 9 * d * d);
 
 		//@formatter:off
@@ -341,13 +332,13 @@ public class DensityCounterTest
 		final int size = ts.repeat();
 		//ts.repeat(size);
 
-		ts.report();
+		ts.report(logger);
 	}
 
 	@SeededTest
 	public void countAllAroundMoleculesSpeedTest(RandomSeed seed)
 	{
-		ExtraAssumptions.assume(LogLevel.INFO, TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(logger, Level.INFO); ExtraAssumptions.assume(TestComplexity.MEDIUM);
 		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 
 		// The multi-thread mode is faster when the number of molecules is large.
@@ -373,7 +364,7 @@ public class DensityCounterTest
 		// How many distance comparison are we expected to make?
 		// Compute mean density per grid cell (d) = nMolecules * 9 * d.
 		final double d = molecules[0].length * radius * radius / (size * size);
-		TestLog.info("Expected Comparisons = %f\n", molecules2[0].length * 9.0 * d);
+		TestLog.info(logger,"Expected Comparisons = %f\n", molecules2[0].length * 9.0 * d);
 
 		//@formatter:off
 		final TimingService ts = new TimingService();
@@ -422,7 +413,7 @@ public class DensityCounterTest
 		final int size = ts.repeat();
 		//ts.repeat(size);
 
-		ts.report();
+		ts.report(logger);
 	}
 
 	/**
@@ -446,8 +437,8 @@ public class DensityCounterTest
 			final float x = r.nextFloat() * size;
 			final float y = r.nextFloat() * size;
 			final int id = r.nextInt(nChannels);
-			BoxMullerGaussianSampler gx = new BoxMullerGaussianSampler(r, x, precision);
-			BoxMullerGaussianSampler gy = new BoxMullerGaussianSampler(r, y, precision);
+			final BoxMullerGaussianSampler gx = new BoxMullerGaussianSampler(r, x, precision);
+			final BoxMullerGaussianSampler gy = new BoxMullerGaussianSampler(r, y, precision);
 
 			int c = p.sample();
 			while (i < n && c-- > 0)

@@ -1,39 +1,15 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.awt.geom.Rectangle2D;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
@@ -43,6 +19,20 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 @SuppressWarnings({ "javadoc" })
 public class ConvexHullTest
 {
+	private static Logger logger;
+
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(ConvexHullTest.class.getName());
+	}
+
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
+
 	@Test
 	public void canComputeConvexHullFromSquare()
 	{
@@ -87,7 +77,7 @@ public class ConvexHullTest
 
 		//for (int i = 0; i < ex.length; i++)
 		//{
-		//	TestLog.info("[%d] %f==%f (%f), %f==%f (%f)\n", i, ex[i], hull.x[i],
+		//	TestLog.info(logger,"[%d] %f==%f (%f), %f==%f (%f)\n", i, ex[i], hull.x[i],
 		//			hull.x[i] - ex[i], ey[i], hull.y[i], hull.y[i] - ey[i]);
 		//}
 
@@ -139,13 +129,13 @@ public class ConvexHullTest
 		catch (final AssertionError e)
 		{
 			// Debug
-			if (TestSettings.allow(LogLevel.DEBUG))
+			if (logger.isLoggable(Level.FINE))
 			{
 				for (int i = 0; i < size; i++)
-					TestLog.info("[%d] %f,%f\n", i, data[0][i], data[1][i]);
+					TestLog.fine(logger, "[%d] %f,%f\n", i, data[0][i], data[1][i]);
 				if (hull != null)
 					for (int i = 0; i < hull.x.length; i++)
-						TestLog.info("H[%d] %f,%f\n", i, hull.x[i], hull.y[i]);
+						TestLog.fine(logger, "H[%d] %f,%f\n", i, hull.x[i], hull.y[i]);
 			}
 			throw e;
 		}

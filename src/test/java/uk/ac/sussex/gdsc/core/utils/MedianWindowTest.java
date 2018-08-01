@@ -1,41 +1,17 @@
-/*-
- * #%L
- * Genome Damage and Stability Centre ImageJ Core Package
- * 
- * Contains code used by:
- * 
- * GDSC ImageJ Plugins - Microscopy image analysis
- * 
- * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
- * %%
- * Copyright (C) 2011 - 2018 Alex Herbert
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.LogLevel;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
@@ -48,6 +24,20 @@ import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 @SuppressWarnings({ "javadoc" })
 public class MedianWindowTest
 {
+	private static Logger logger;
+
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(MedianWindowTest.class.getName());
+	}
+
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
+
 	int dataSize = 2000;
 	int[] radii = new int[] { 0, 1, 2, 4, 8, 16 };
 	double[] values = new double[] { 0, -1.1, 2.2 };
@@ -111,7 +101,7 @@ public class MedianWindowTest
 				final double median = mw.getMedian();
 				mw.add(data[j]);
 				final double median2 = calculateMedian(data, i, radius);
-				TestLog.info("Position %d, Radius %d : %g vs %g\n", i, radius, median2, median);
+				TestLog.info(logger, "Position %d, Radius %d : %g vs %g\n", i, radius, median2, median);
 				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
 			}
 		}
@@ -192,7 +182,7 @@ public class MedianWindowTest
 				final double median = mw.getMedian();
 				mw.increment();
 				final double median2 = calculateMedian(data, i, radius);
-				//TestLog.debug("%f vs %f\n", median, median2);
+				//TestLog.debug(logger,"%f vs %f\n", median, median2);
 				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
 			}
 		}
@@ -237,7 +227,7 @@ public class MedianWindowTest
 		{
 			if (radius <= 1)
 				continue;
-			
+
 			final double[] in = data.clone();
 			final double[] e = new double[in.length];
 			MedianWindow mw = new MedianWindow(in, radius);
@@ -339,11 +329,12 @@ public class MedianWindowTest
 		}
 	}
 
+	@SpeedTag
 	@SeededTest
 	public void isFasterThanLocalSort(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeLowComplexity();
-		final int[] speedRadii2 = (TestSettings.allow(LogLevel.INFO)) ? speedRadii : new int[] { testSpeedRadius };
+		final int[] speedRadii2 = (logger.isLoggable(Level.INFO)) ? speedRadii : new int[] { testSpeedRadius };
 		for (final int radius : speedRadii2)
 			for (final int increment : speedIncrement)
 				isFasterThanLocalSort(seed, radius, increment);
@@ -411,8 +402,8 @@ public class MedianWindowTest
 		final long t2 = System.nanoTime() - s2;
 
 		Assertions.assertArrayEquals(m1, m2, 1e-6);
-		TestLog.info("Radius %d, Increment %d : window %d : standard %d = %fx faster\n", radius, increment, t1, t2,
-				(double) t2 / t1);
+		TestLog.info(logger, "Radius %d, Increment %d : window %d : standard %d = %fx faster\n", radius, increment, t1,
+				t2, (double) t2 / t1);
 
 		// Only test the largest radii
 		if (radius == testSpeedRadius)
@@ -424,7 +415,7 @@ public class MedianWindowTest
 	public void floatVersionIsFasterThanDoubleVersion(RandomSeed seed)
 	{
 		ExtraAssumptions.assumeLowComplexity();
-		final int[] speedRadii2 = (TestSettings.allow(LogLevel.INFO)) ? speedRadii : new int[] { testSpeedRadius };
+		final int[] speedRadii2 = (logger.isLoggable(Level.INFO)) ? speedRadii : new int[] { testSpeedRadius };
 		for (final int radius : speedRadii2)
 			for (final int increment : speedIncrement)
 				floatVersionIsFasterThanDoubleVersion(seed, radius, increment);
@@ -534,11 +525,11 @@ public class MedianWindowTest
 		if (radius == testSpeedRadius)
 			// Allow a margin of error
 			//Assertions.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1 * 1.1);
-			TestLog.logSpeedTestResult(t2 < t1, "Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius,
-					increment, t1, t2, (double) t1 / t2);
+			TestLog.logTestResult(logger, t2 < t1, "Radius %d, Increment %d : double %d : float %d = %fx faster\n",
+					radius, increment, t1, t2, (double) t1 / t2);
 		else
-			TestLog.info("Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius, increment, t1, t2,
-					(double) t1 / t2);
+			TestLog.info(logger, "Radius %d, Increment %d : double %d : float %d = %fx faster\n", radius, increment, t1,
+					t2, (double) t1 / t2);
 	}
 
 	@SpeedTag
@@ -646,11 +637,11 @@ public class MedianWindowTest
 		// Only test the largest radii
 		if (radius == testSpeedRadius)
 			//Assertions.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1);
-			TestLog.logSpeedTestResult(t2 < t1, "Radius %d, Increment %d : double %d : int %d = %fx faster\n", radius,
-					increment, t1, t2, (double) t1 / t2);
+			TestLog.logTestResult(logger, t2 < t1, "Radius %d, Increment %d : double %d : int %d = %fx faster\n",
+					radius, increment, t1, t2, (double) t1 / t2);
 		else
-			TestLog.info("Radius %d, Increment %d : double %d : int %d = %fx faster\n", radius, increment, t1, t2,
-					(double) t1 / t2);
+			TestLog.info(logger, "Radius %d, Increment %d : double %d : int %d = %fx faster\n", radius, increment, t1,
+					t2, (double) t1 / t2);
 	}
 
 	static double calculateMedian(double[] data, int position, int radius)
@@ -660,7 +651,7 @@ public class MedianWindowTest
 		final double[] cache = new double[end - start];
 		for (int i = start, j = 0; i < end; i++, j++)
 			cache[j] = data[i];
-		//TestLog.debugln(Arrays.toString(cache));
+		//TestLog.debugln(logger,Arrays.toString(cache));
 		Arrays.sort(cache);
 		return (cache[(cache.length - 1) / 2] + cache[cache.length / 2]) * 0.5;
 	}
