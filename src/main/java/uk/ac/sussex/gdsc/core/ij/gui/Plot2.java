@@ -303,11 +303,11 @@ public class Plot2 extends Plot
 				//super.getInitialMinAndMax();
 				//return defaultMinMax.clone();
 
-				final Method m = super.getClass().getDeclaredMethod("getInitialMinAndMax");
+				final Method m = Plot.class.getDeclaredMethod("getInitialMinAndMax");
 				m.setAccessible(true);
 				m.invoke(this);
 
-				final Field f = super.getClass().getDeclaredField("defaultMinMax");
+				final Field f = Plot.class.getDeclaredField("defaultMinMax");
 				f.setAccessible(true);
 
 				final double[] defaultMinMax = (double[]) f.get(this);
@@ -342,7 +342,7 @@ public class Plot2 extends Plot
 				// If in the same package ...
 				//return currentMinMax;
 
-				final Field f = super.getClass().getDeclaredField("currentMinMax");
+				final Field f = Plot.class.getDeclaredField("currentMinMax");
 				f.setAccessible(true);
 
 				final double[] currentMinMax = (double[]) f.get(this);
