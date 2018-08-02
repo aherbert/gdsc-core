@@ -77,7 +77,7 @@ public class ConvexHullTest
 
 		//for (int i = 0; i < ex.length; i++)
 		//{
-		//	TestLog.info(logger,"[%d] %f==%f (%f), %f==%f (%f)\n", i, ex[i], hull.x[i],
+		//	TestLog.info(logger,"[%d] %f==%f (%f), %f==%f (%f)", i, ex[i], hull.x[i],
 		//			hull.x[i] - ex[i], ey[i], hull.y[i], hull.y[i] - ey[i]);
 		//}
 
@@ -132,10 +132,10 @@ public class ConvexHullTest
 			if (logger.isLoggable(Level.FINE))
 			{
 				for (int i = 0; i < size; i++)
-					TestLog.fine(logger, "[%d] %f,%f\n", i, data[0][i], data[1][i]);
+					TestLog.fine(logger, "[%d] %f,%f", i, data[0][i], data[1][i]);
 				if (hull != null)
 					for (int i = 0; i < hull.x.length; i++)
-						TestLog.fine(logger, "H[%d] %f,%f\n", i, hull.x[i], hull.y[i]);
+						TestLog.fine(logger, "H[%d] %f,%f", i, hull.x[i], hull.y[i]);
 			}
 			throw e;
 		}

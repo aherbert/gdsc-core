@@ -26,19 +26,19 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 @SuppressWarnings({ "javadoc" })
 public class DensityCounterTest
 {
-    private static Logger logger;
+	private static Logger logger;
 
-    @BeforeAll
-    public static void beforeAll()
-    {
-        logger = Logger.getLogger(DensityCounterTest.class.getName());
-    }
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(DensityCounterTest.class.getName());
+	}
 
-    @AfterAll
-    public static void afterAll()
-    {
-        logger = null;
-    }
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
 
 	boolean skipSpeedTest = true;
 
@@ -229,7 +229,7 @@ public class DensityCounterTest
 	@SeededTest
 	public void countAllSpeedTest(RandomSeed seed)
 	{
-		ExtraAssumptions.assume(logger, Level.INFO); ExtraAssumptions.assume(TestComplexity.MEDIUM);
+		//ExtraAssumptions.assume(logger, Level.INFO); ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
 		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -259,7 +259,7 @@ public class DensityCounterTest
 		// non-sync multi = nCells * (9 * d * d)
 		final double d = molecules[0].length * radius * radius / (size * size);
 		final double nCells = (size / radius) * (size / radius);
-		TestLog.info(logger,"Expected Comparisons : Single = %f, Multi non-sync = %f\n", nCells * 5 * d * d,
+		TestLog.info(logger, "Expected Comparisons : Single = %f, Multi non-sync = %f", nCells * 5 * d * d,
 				nCells * 9 * d * d);
 
 		//@formatter:off
@@ -338,7 +338,8 @@ public class DensityCounterTest
 	@SeededTest
 	public void countAllAroundMoleculesSpeedTest(RandomSeed seed)
 	{
-		ExtraAssumptions.assume(logger, Level.INFO); ExtraAssumptions.assume(TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(logger, Level.INFO);
+		ExtraAssumptions.assume(TestComplexity.MEDIUM);
 		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 
 		// The multi-thread mode is faster when the number of molecules is large.
@@ -364,7 +365,7 @@ public class DensityCounterTest
 		// How many distance comparison are we expected to make?
 		// Compute mean density per grid cell (d) = nMolecules * 9 * d.
 		final double d = molecules[0].length * radius * radius / (size * size);
-		TestLog.info(logger,"Expected Comparisons = %f\n", molecules2[0].length * 9.0 * d);
+		TestLog.info(logger, "Expected Comparisons = %f", molecules2[0].length * 9.0 * d);
 
 		//@formatter:off
 		final TimingService ts = new TimingService();

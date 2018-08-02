@@ -19,19 +19,19 @@ import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 @SuppressWarnings({ "javadoc" })
 public class DensityManagerTest
 {
-    private static Logger logger;
+	private static Logger logger;
 
-    @BeforeAll
-    public static void beforeAll()
-    {
-        logger = Logger.getLogger(DensityManagerTest.class.getName());
-    }
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(DensityManagerTest.class.getName());
+	}
 
-    @AfterAll
-    public static void afterAll()
-    {
-        logger = null;
-    }
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
 
 	int size = 256;
 	float[] radii = new float[] { 2, 4, 8, 16 };
@@ -96,7 +96,7 @@ public class DensityManagerTest
 
 				final String msg = String.format("Grid vs Triangle. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
-				TestLog.info(logger,msg);
+				TestLog.info(logger, msg);
 				Assertions.assertTrue(t2 < t1, msg);
 			}
 		}
@@ -125,7 +125,7 @@ public class DensityManagerTest
 
 				final String msg = String.format("Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
-				TestLog.info(logger,msg);
+				TestLog.info(logger, msg);
 				Assertions.assertTrue(t2 < t1, msg);
 			}
 		}
@@ -172,7 +172,7 @@ public class DensityManagerTest
 
 				final String msg = String.format("Sum Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
-				TestLog.info(logger,msg);
+				TestLog.info(logger, msg);
 				Assertions.assertTrue(t2 < t1, msg);
 			}
 		}
@@ -239,7 +239,7 @@ public class DensityManagerTest
 				final String msg = String.format(
 						"calculateBlockDensity2 vs calculateBlockDensity. N=%d, R=%f : %fx faster", n, radius,
 						(double) t1 / t2);
-				TestLog.info(logger,msg);
+				TestLog.info(logger, msg);
 				Assertions.assertTrue(t2 < t1, msg);
 			}
 		}
@@ -273,7 +273,7 @@ public class DensityManagerTest
 				// This is not always faster
 				//TestLog.info(logger,msg);
 				//Assertions.assertTrue(t2 < t1, msg);
-				TestLog.logTestResult(logger,t2 < t1, msg);
+				TestLog.logTestResult(logger, t2 < t1, msg);
 			}
 		}
 	}

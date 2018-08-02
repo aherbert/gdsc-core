@@ -2,6 +2,7 @@ package uk.ac.sussex.gdsc.core.match;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,28 +12,31 @@ import org.junit.jupiter.api.BeforeAll;
 
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.DataCache;
-import uk.ac.sussex.gdsc.test.DataProvider;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
-public class AssignmentComparatorTest implements DataProvider<RandomSeed, Object>
+public class AssignmentComparatorTest implements Function<RandomSeed, Object>
 {
-    private static Logger logger;
+	private static Logger logger;
+	private static DataCache<RandomSeed, Object> dataCache;
 
-    @BeforeAll
-    public static void beforeAll()
-    {
-        logger = Logger.getLogger(AssignmentComparatorTest.class.getName());
-    }
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(AssignmentComparatorTest.class.getName());
+		dataCache = new DataCache<>();
+	}
 
-    @AfterAll
-    public static void afterAll()
-    {
-        logger = null;
-    }
+	@AfterAll
+	public static void afterAll()
+	{
+		dataCache.clear();
+		dataCache = null;
+		logger = null;
+	}
 
 	private static class IntegerSortData implements Comparable<IntegerSortData>
 	{
@@ -81,10 +85,8 @@ public class AssignmentComparatorTest implements DataProvider<RandomSeed, Object
 		Assignment[][] aData;
 	}
 
-	private static DataCache<RandomSeed, Object> dataCache = new DataCache<>();
-
 	@Override
-	public Object getData(RandomSeed seed)
+	public Object apply(RandomSeed seed)
 	{
 		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final int size = 100;
@@ -199,7 +201,8 @@ public class AssignmentComparatorTest implements DataProvider<RandomSeed, Object
 	{
 		final int n = logger.isLoggable(Level.INFO) ? 5 : 1;
 
-		final AssignmentComparatorTestData data = (AssignmentComparatorTestData) dataCache.getData(seed, this);
+		final AssignmentComparatorTestData data = (AssignmentComparatorTestData) dataCache.getOrComputeIfAbsent(seed,
+				this);
 
 		//@formatter:off
 		final TimingService ts = new TimingService(n);

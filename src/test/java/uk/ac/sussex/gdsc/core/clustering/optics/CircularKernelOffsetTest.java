@@ -15,19 +15,19 @@ import uk.ac.sussex.gdsc.test.TestSettings;
 @SuppressWarnings({ "javadoc" })
 public class CircularKernelOffsetTest
 {
-    private static Logger logger;
+	private static Logger logger;
 
-    @BeforeAll
-    public static void beforeAll()
-    {
-        logger = Logger.getLogger(CircularKernelOffsetTest.class.getName());
-    }
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(CircularKernelOffsetTest.class.getName());
+	}
 
-    @AfterAll
-    public static void afterAll()
-    {
-        logger = null;
-    }
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
 
 	@Test
 	public void canBuildCircularKernelAtDifferentResolutions()
@@ -54,7 +54,7 @@ public class CircularKernelOffsetTest
 			final double outerArea = outer * pixelArea;
 			final double innerArea = inner * pixelArea;
 			final int skip = size - outer;
-			TestLog.info(logger,"R=%d, outer=%d  %f (%f), Skip=%d  (%f), inner=%d  %f (%f)\n", r, outer, outerArea,
+			TestLog.info(logger, "R=%d, outer=%d  %f (%f), Skip=%d  (%f), inner=%d  %f (%f)", r, outer, outerArea,
 					outerArea / Math.PI, skip, (double) skip / size, inner, innerArea, innerArea / outerArea);
 
 			// Test for symmetry

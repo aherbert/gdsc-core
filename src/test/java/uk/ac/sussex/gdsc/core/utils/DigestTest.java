@@ -2,11 +2,13 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
+
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;

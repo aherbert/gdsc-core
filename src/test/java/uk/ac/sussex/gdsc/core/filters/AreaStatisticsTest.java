@@ -84,7 +84,7 @@ public class AreaStatisticsTest
 					final double[] e = a1.getStatistics(x, y, n);
 					final double[] o = a2.getStatistics(x, y, n);
 					ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
-					//TestLog.debug(logger,"%s vs %s\n", toString(e), toString(o));
+					//TestLog.debug(logger,"%s vs %s", toString(e), toString(o));
 
 					// Check with ImageJ
 					fp.setRoi(new Rectangle(x - n, y - n, 2 * n + 1, 2 * n + 1));
@@ -117,7 +117,7 @@ public class AreaStatisticsTest
 						final double[] e = a1.getStatistics(x, y, nx, ny);
 						final double[] o = a2.getStatistics(x, y, nx, ny);
 						ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
-						//TestLog.debug(logger,"%s vs %s\n", toString(e), toString(o));
+						//TestLog.debug(logger,"%s vs %s", toString(e), toString(o));
 
 						// Check with ImageJ
 						fp.setRoi(new Rectangle(x - nx, y - ny, 2 * nx + 1, 2 * ny + 1));
@@ -152,7 +152,7 @@ public class AreaStatisticsTest
 				final double[] e = a1.getStatistics(roi);
 				final double[] o = a2.getStatistics(roi);
 				ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
-				//TestLog.debug(logger,"%s vs %s\n", toString(e), toString(o));
+				//TestLog.debug(logger,"%s vs %s", toString(e), toString(o));
 
 				// Check with ImageJ
 				fp.setRoi(roi);

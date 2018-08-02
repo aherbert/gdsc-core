@@ -13,19 +13,19 @@ import uk.ac.sussex.gdsc.test.TimingService;
 @SuppressWarnings({ "javadoc" })
 public class SortTest
 {
-    private static Logger logger;
+	private static Logger logger;
 
-    @BeforeAll
-    public static void beforeAll()
-    {
-        logger = Logger.getLogger(SortTest.class.getName());
-    }
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(SortTest.class.getName());
+	}
 
-    @AfterAll
-    public static void afterAll()
-    {
-        logger = null;
-    }
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
 
 	private abstract class FloatConversionTimingTask extends BaseTimingTask
 	{

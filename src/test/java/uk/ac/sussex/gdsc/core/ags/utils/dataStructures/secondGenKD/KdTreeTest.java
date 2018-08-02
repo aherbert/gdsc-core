@@ -86,7 +86,7 @@ public class KdTreeTest
 						observed[--j] = e.distance;
 
 					final double[] expected = Arrays.copyOf(d2, k);
-					//TestLog.debug(logger,"[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestLog.debug(logger,"[%d] k=%d  E=%s, O=%s", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assertions.assertArrayEquals(expected, observed);
@@ -132,7 +132,7 @@ public class KdTreeTest
 						observed[--j] = e.distance;
 
 					final double[] expected = Arrays.copyOf(d2, k);
-					//TestLog.debug(logger,"[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestLog.debug(logger,"[%d] k=%d  E=%s, O=%s", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assertions.assertArrayEquals(expected, observed);
@@ -219,7 +219,7 @@ public class KdTreeTest
 					}
 
 					final double[] expected = Arrays.copyOf(d2, k);
-					//TestLog.debug(logger,"[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestLog.debug(logger,"[%d] k=%d  E=%s, O=%s", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assertions.assertArrayEquals(expected, observed);
@@ -269,7 +269,7 @@ public class KdTreeTest
 					}
 
 					final double[] expected = Arrays.copyOf(d2, k);
-					//TestLog.debug(logger,"[%d] k=%d  E=%s, O=%s\n", i, k, Arrays.toString(expected),
+					//TestLog.debug(logger,"[%d] k=%d  E=%s, O=%s", i, k, Arrays.toString(expected),
 					//		Arrays.toString(observed));
 
 					Assertions.assertArrayEquals(expected, observed);
@@ -497,7 +497,7 @@ public class KdTreeTest
 		ts.repeat(number);
 		ts.repeat(number);
 
-		TestLog.info(logger, "All-vs-all = %d\n", time);
+		TestLog.info(logger, "All-vs-all = %d", time);
 		ts.report(logger);
 	}
 

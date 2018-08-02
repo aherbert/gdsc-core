@@ -1,5 +1,6 @@
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
@@ -9,7 +10,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.DataCache;
-import uk.ac.sussex.gdsc.test.DataProvider;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
@@ -18,28 +18,31 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 
 @SuppressWarnings({ "javadoc" })
-public class StoredDataStatisticsTest extends StatisticsTest implements DataProvider<RandomSeed, StoredDataStatistics>
+public class StoredDataStatisticsTest extends StatisticsTest implements Function<RandomSeed, StoredDataStatistics>
 {
-    private static Logger logger;
+	private static Logger logger;
+	private static DataCache<RandomSeed, StoredDataStatistics> dataCache;
 
-    @BeforeAll
-    public static void beforeAll()
-    {
-        logger = Logger.getLogger(StoredDataStatisticsTest.class.getName());
-    }
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(StoredDataStatisticsTest.class.getName());
+		dataCache = new DataCache<>();
+	}
 
-    @AfterAll
-    public static void afterAll()
-    {
-        logger = null;
-    }
+	@AfterAll
+	public static void afterAll()
+	{
+		dataCache.clear();
+		dataCache = null;
+		logger = null;
+	}
 
-	static int n = 10000;
-	static int loops = 100;
-	private static DataCache<RandomSeed, StoredDataStatistics> data = new DataCache<>();
+	final int n = 10000;
+	final int loops = 100;
 
 	@Override
-	public StoredDataStatistics getData(RandomSeed seed)
+	public StoredDataStatistics apply(RandomSeed seed)
 	{
 		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 		final StoredDataStatistics stats = new StoredDataStatistics(n);
@@ -51,7 +54,7 @@ public class StoredDataStatisticsTest extends StatisticsTest implements DataProv
 	@SeededTest
 	public void getValuesEqualsIterator(RandomSeed seed)
 	{
-		final StoredDataStatistics stats = data.getData(seed, this);
+		final StoredDataStatistics stats = dataCache.getOrComputeIfAbsent(seed, this);
 
 		final double[] values = stats.getValues();
 		int i = 0;
@@ -67,7 +70,7 @@ public class StoredDataStatisticsTest extends StatisticsTest implements DataProv
 		// This fails. Perhaps change the test to use the TimingService for repeat testing.
 		ExtraAssumptions.assumeSpeedTest();
 
-		final StoredDataStatistics stats = data.getData(seed, this);
+		final StoredDataStatistics stats = dataCache.getOrComputeIfAbsent(seed, this);
 
 		long start1 = System.nanoTime();
 		for (int i = 0; i < loops; i++)
@@ -88,7 +91,7 @@ public class StoredDataStatisticsTest extends StatisticsTest implements DataProv
 		}
 		start2 = System.nanoTime() - start2;
 
-		TestLog.logTestResult(logger,start1 < start2, "getValues = %d : values for loop = %d : %fx\n", start1, start2,
+		TestLog.logTestResult(logger, start1 < start2, "getValues = %d : values for loop = %d : %fx", start1, start2,
 				(1.0 * start2) / start1);
 	}
 
@@ -97,7 +100,7 @@ public class StoredDataStatisticsTest extends StatisticsTest implements DataProv
 	@SeededTest
 	public void iteratorIsSlowerUsingdouble(RandomSeed seed)
 	{
-		final StoredDataStatistics stats = data.getData(seed, this);
+		final StoredDataStatistics stats = dataCache.getOrComputeIfAbsent(seed, this);
 
 		ExtraAssumptions.assumeSpeedTest();
 		long start1 = System.nanoTime();
@@ -116,7 +119,7 @@ public class StoredDataStatisticsTest extends StatisticsTest implements DataProv
 			}
 		start2 = System.nanoTime() - start2;
 
-		TestLog.logTestResult(logger,start1 < start2, "getValues = %d : iterator<double> = %d : %fx\n", start1, start2,
+		TestLog.logTestResult(logger, start1 < start2, "getValues = %d : iterator<double> = %d : %fx", start1, start2,
 				(1.0 * start2) / start1);
 	}
 
@@ -125,7 +128,7 @@ public class StoredDataStatisticsTest extends StatisticsTest implements DataProv
 	@SeededTest
 	public void iteratorIsSlowerUsingDouble(RandomSeed seed)
 	{
-		final StoredDataStatistics stats = data.getData(seed, this);
+		final StoredDataStatistics stats = dataCache.getOrComputeIfAbsent(seed, this);
 
 		ExtraAssumptions.assumeSpeedTest();
 		long start1 = System.nanoTime();
@@ -144,7 +147,7 @@ public class StoredDataStatisticsTest extends StatisticsTest implements DataProv
 			}
 		start2 = System.nanoTime() - start2;
 
-		TestLog.logTestResult(logger,start1 < start2, "getValues = %d : iterator<Double> = %d : %fx\n", start1, start2,
+		TestLog.logTestResult(logger, start1 < start2, "getValues = %d : iterator<Double> = %d : %fx", start1, start2,
 				(1.0 * start2) / start1);
 	}
 

@@ -146,7 +146,7 @@ public class RadialStatisticsTest
 
 	private static void assertEquals(String msg, double[] e, double[] o)
 	{
-		//TestLog.debug(logger,"%s vs %s\n", Arrays.toString(e), Arrays.toString(o));
+		//TestLog.debug(logger,"%s vs %s", Arrays.toString(e), Arrays.toString(o));
 
 		// The radial sum is meant to match the computation of the Matlab DIPimage toolbox.
 		// However RadialSum truncates the computation at the max in one dimension so only go up to the size of o.
@@ -155,7 +155,7 @@ public class RadialStatisticsTest
 
 	private static void assertEquals(String msg, int[] e, int[] o)
 	{
-		//TestLog.debug(logger,"%s vs %s\n", Arrays.toString(e), Arrays.toString(o));
+		//TestLog.debug(logger,"%s vs %s", Arrays.toString(e), Arrays.toString(o));
 
 		// The radial sum is meant to match the computation of the Matlab DIPimage toolbox.
 		// However RadialSum truncates the computation at the max in one dimension so only go up to the size of o.

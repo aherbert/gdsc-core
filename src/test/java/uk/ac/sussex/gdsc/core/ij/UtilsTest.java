@@ -10,19 +10,19 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({ "javadoc" })
 public class UtilsTest
 {
-    private static Logger logger;
+	private static Logger logger;
 
-    @BeforeAll
-    public static void beforeAll()
-    {
-        logger = Logger.getLogger(UtilsTest.class.getName());
-    }
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(UtilsTest.class.getName());
+	}
 
-    @AfterAll
-    public static void afterAll()
-    {
-        logger = null;
-    }
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
 
 	@Test
 	public void cannotIterateOverNullList()
@@ -30,7 +30,7 @@ public class UtilsTest
 		Assertions.assertThrows(NullPointerException.class, () -> {
 			for (final int i : getIDList())
 				// This will not run as an exception should be generated
-				System.out.println(i);
+				logger.info("Window ID = " + i);
 		});
 	}
 

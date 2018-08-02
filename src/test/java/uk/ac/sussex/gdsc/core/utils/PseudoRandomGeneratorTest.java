@@ -1,6 +1,7 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
+
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

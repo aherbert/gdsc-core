@@ -1,5 +1,6 @@
 package uk.ac.sussex.gdsc.core.ij;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +14,14 @@ public class RecorderUtilsTest
 	// Recorder.setCommand() are ignored.
 	static Recorder recorder = null;
 
-	private synchronized static void createRecorder()
+	@AfterAll
+	public static void afterAll()
+	{
+		// Allow GC to do its work
+		recorder = null;
+	}
+
+	private synchronized static void initialise()
 	{
 		// This test is slow as creating the recorder involves spinning up a lot of
 		// ImageJ and Java AWT classes. So only run if asked for.
@@ -25,7 +33,7 @@ public class RecorderUtilsTest
 	@Test
 	public void canResetRecorder()
 	{
-		createRecorder();
+		initialise();
 		canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"), null);
 		canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"), null);
 		canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", ""), null);
@@ -37,7 +45,7 @@ public class RecorderUtilsTest
 	@Test
 	public void canResetRecorderWithQuotedValues()
 	{
-		createRecorder();
+		initialise();
 		canResetRecorder(toArray("a", "b"), toArray("1 1", "2 2"), toArray("c", "d"), toArray("3 3", "4 4"), null);
 		canResetRecorder(toArray("a", "b"), toArray("1 1", "2 2"), toArray("c", "d"), toArray("3 3", "4"), null);
 		canResetRecorder(toArray("a", "b"), toArray("1 1", "2 2"), toArray("c", "d"), toArray("3 3", ""), null);
@@ -84,7 +92,7 @@ public class RecorderUtilsTest
 	@Test
 	public void resetRecorderIgnoresInvalidKeys()
 	{
-		createRecorder();
+		initialise();
 		canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"), toArray("e", "f"));
 		canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"), toArray("e", "f"));
 		canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", ""), toArray("e", "f"));

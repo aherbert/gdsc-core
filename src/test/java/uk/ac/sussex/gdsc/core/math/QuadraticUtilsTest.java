@@ -28,7 +28,6 @@ public class QuadraticUtilsTest
 			{
 				final double scale = r.nextDouble() * 100;
 				final double o = QuadraticUtils.getDeterminant3x3(m, scale);
-				//System.out.printf("[%d] scale %.2f = %s vs %s\n", i, scale, e, o);
 				ExtraAssertions.assertEqualsRelative(e, o, 1e-6);
 			}
 		}
@@ -68,7 +67,6 @@ public class QuadraticUtilsTest
 	{
 		final double[] o = solveQuadratic(a, b, c, x1, x2, x3);
 		Assertions.assertNotNull(o);
-		//System.out.println(java.util.Arrays.toString(o));
 		ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
 	}
 

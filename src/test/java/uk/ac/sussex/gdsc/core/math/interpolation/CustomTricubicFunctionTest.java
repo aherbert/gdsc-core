@@ -39,11 +39,11 @@ public class CustomTricubicFunctionTest
 	}
 
 	/** Number of points. */
-	private static final short N = 4;
+	private final short N = 4;
 	/** Number of points - 1. */
-	private static final short N_1 = 3;
+	private final short N_1 = 3;
 	/** Number of points - 2. */
-	private static final short N_2 = 2;
+	private final short N_2 = 2;
 
 	static int getIndex(int i, int j, int k)
 	{
@@ -55,7 +55,7 @@ public class CustomTricubicFunctionTest
 	 *
 	 * @return the function text.
 	 */
-	static String inlineValue()
+	String inlineValue()
 	{
 		String _pZpY;
 		final StringBuilder sb = new StringBuilder();
@@ -118,7 +118,7 @@ public class CustomTricubicFunctionTest
 	 *
 	 * @return the function text.
 	 */
-	static String inlineValueWithPowerTable()
+	String inlineValueWithPowerTable()
 	{
 		final TObjectIntHashMap<String> map = new TObjectIntHashMap<>(64);
 
@@ -154,7 +154,7 @@ public class CustomTricubicFunctionTest
 	 *
 	 * @return the function text.
 	 */
-	static String inlineComputePowerTable()
+	String inlineComputePowerTable()
 	{
 		String table0jk;
 		final StringBuilder sb = new StringBuilder();
@@ -201,7 +201,7 @@ public class CustomTricubicFunctionTest
 	 *
 	 * @return the function text.
 	 */
-	static String inlineValue1()
+	String inlineValue1()
 	{
 		String _pZpY;
 		String _pZpYpX;
@@ -265,7 +265,7 @@ public class CustomTricubicFunctionTest
 	 *
 	 * @return the function text.
 	 */
-	static String inlineValue1WithPowerTable()
+	String inlineValue1WithPowerTable()
 	{
 		final TObjectIntHashMap<String> map = new TObjectIntHashMap<>(64);
 
@@ -355,7 +355,7 @@ public class CustomTricubicFunctionTest
 	 *
 	 * @return the function text.
 	 */
-	static String inlineValue1WithPowerTableN()
+	String inlineValue1WithPowerTableN()
 	{
 		final TObjectIntHashMap<String> map = new TObjectIntHashMap<>(64);
 
@@ -398,7 +398,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					TestLog.info(logger, "%s = %d\n", a, b);
+					TestLog.info(logger, "%s = %d", a, b);
 					return false;
 				}
 				return true;
@@ -455,7 +455,7 @@ public class CustomTricubicFunctionTest
 	 *
 	 * @return the function text.
 	 */
-	static String inlineValue2()
+	String inlineValue2()
 	{
 		String _pZpY;
 		String _pZpYpX;
@@ -528,7 +528,7 @@ public class CustomTricubicFunctionTest
 	 *
 	 * @return the function text.
 	 */
-	static String inlineValue2WithPowerTable()
+	String inlineValue2WithPowerTable()
 	{
 		final TObjectIntHashMap<String> map = new TObjectIntHashMap<>(64);
 		final StringBuilder sb = new StringBuilder();
@@ -591,7 +591,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					TestLog.info(logger, "%s = %d\n", a, b);
+					TestLog.info(logger, "%s = %d", a, b);
 					return false;
 				}
 				return true;
@@ -606,7 +606,7 @@ public class CustomTricubicFunctionTest
 	 *
 	 * @return the function text.
 	 */
-	static String inlineValue2WithPowerTableN()
+	String inlineValue2WithPowerTableN()
 	{
 		final TObjectIntHashMap<String> map = new TObjectIntHashMap<>(64);
 		final StringBuilder sb = new StringBuilder();
@@ -669,7 +669,7 @@ public class CustomTricubicFunctionTest
 			{
 				if (b > 1)
 				{
-					TestLog.info(logger, "%s = %d\n", a, b);
+					TestLog.info(logger, "%s = %d", a, b);
 					return false;
 				}
 				return true;

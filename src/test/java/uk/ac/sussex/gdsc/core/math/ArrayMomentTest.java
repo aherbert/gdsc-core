@@ -23,19 +23,19 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 @SuppressWarnings({ "javadoc" })
 public class ArrayMomentTest
 {
-    private static Logger logger;
+	private static Logger logger;
 
-    @BeforeAll
-    public static void beforeAll()
-    {
-        logger = Logger.getLogger(ArrayMomentTest.class.getName());
-    }
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(ArrayMomentTest.class.getName());
+	}
 
-    @AfterAll
-    public static void afterAll()
-    {
-        logger = null;
-    }
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
 
 	final double DELTA = 1e-8;
 	final int MAX_INT = 65335; // Unsigned 16-bit int
@@ -513,7 +513,7 @@ public class ArrayMomentTest
 			m2.increment(d);
 			r2.add(d);
 		}
-		TestLog.info(logger,"Mean %s vs %s, SD %s vs %s\n", Double.toString(m1.getFirstMoment()[0]),
+		TestLog.info(logger, "Mean %s vs %s, SD %s vs %s", Double.toString(m1.getFirstMoment()[0]),
 				Double.toString(r2.getFirstMoment()[0]), Double.toString(m1.getStandardDeviation()[0]),
 				Double.toString(r2.getStandardDeviation()[0]));
 		ExtraAssertions.assertEqualsRelative(m1.getFirstMoment()[0], r2.getFirstMoment()[0], DELTA, "Mean");

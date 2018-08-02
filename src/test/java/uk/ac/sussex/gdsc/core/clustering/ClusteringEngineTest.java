@@ -72,7 +72,7 @@ public class ClusteringEngineTest
 		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
 
 		TestLog.logTestResult(logger, (t2 < t1),
-				"SpeedTest (Low Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1, t2,
+				"SpeedTest (Low Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster", t1, t2,
 				(double) t1 / t2);
 	}
 
@@ -92,7 +92,7 @@ public class ClusteringEngineTest
 		final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
 		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
 
-		TestLog.info(logger, "SpeedTest (High Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster\n", t1, t2,
+		TestLog.info(logger, "SpeedTest (High Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster", t1, t2,
 				(double) t1 / t2);
 		Assertions.assertTrue(t1 < t2);
 	}
@@ -112,7 +112,7 @@ public class ClusteringEngineTest
 		final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
 		final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE, radius);
 
-		TestLog.info(logger, "SpeedTest Closest %d, Pairwise %d = %fx faster\n", t1, t2, (double) t1 / t2);
+		TestLog.info(logger, "SpeedTest Closest %d, Pairwise %d = %fx faster", t1, t2, (double) t1 / t2);
 		Assertions.assertTrue(t2 < t1);
 	}
 
@@ -262,8 +262,8 @@ public class ClusteringEngineTest
 		final long t1 = runSpeedTest(points, algorithm, radius, time, 1);
 		final long t2 = runSpeedTest(points, algorithm, radius, time, 8);
 
-		TestLog.info(logger, "Threading SpeedTest %s : Single %d, Multi-threaded %d = %fx faster\n",
-				algorithm.toString(), t1, t2, (double) t1 / t2);
+		TestLog.info(logger, "Threading SpeedTest %s : Single %d, Multi-threaded %d = %fx faster", algorithm.toString(),
+				t1, t2, (double) t1 / t2);
 		Assertions.assertTrue(t2 < t1);
 	}
 
@@ -294,7 +294,7 @@ public class ClusteringEngineTest
 		final ArrayList<ClusterPoint> points = createPoints(rg, n, size);
 
 		// Report density of the clustering we are testing. Size/radius are in nm
-		//TestLog.debug(logger,"Testing n=%d, Size=%d, Density=%s um^-2, Radius=%s nm\n", n, size,
+		//TestLog.debug(logger,"Testing n=%d, Size=%d, Density=%s um^-2, Radius=%s nm", n, size,
 		//		Utils.rounded(n * 1e6 / (size * size)), Utils.rounded(radius));
 
 		final ArrayList<Cluster> exp = findClusters(points, radius);
@@ -323,11 +323,11 @@ public class ClusteringEngineTest
 
 	private static void print(String name, ArrayList<Cluster> clusters)
 	{
-		TestLog.info(logger, name + " : size=%d\n", clusters.size());
+		TestLog.info(logger, name + " : size=%d", clusters.size());
 		for (int i = 0; i < clusters.size(); i++)
 		{
 			final Cluster c = clusters.get(i);
-			TestLog.info(logger, "[%d] : head=%d, n=%d, cx=%g, cy=%g\n", i, c.head.id, c.n, c.x, c.y);
+			TestLog.info(logger, "[%d] : head=%d, n=%d, cx=%g, cy=%g", i, c.head.id, c.n, c.x, c.y);
 		}
 	}
 

@@ -21,19 +21,19 @@ import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 @SuppressWarnings({ "javadoc" })
 public class MedianWindowDLLTest
 {
-    private static Logger logger;
+	private static Logger logger;
 
-    @BeforeAll
-    public static void beforeAll()
-    {
-        logger = Logger.getLogger(MedianWindowDLLTest.class.getName());
-    }
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(MedianWindowDLLTest.class.getName());
+	}
 
-    @AfterAll
-    public static void afterAll()
-    {
-        logger = null;
-    }
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
 
 	int dataSize = 2000;
 	int[] radii = new int[] { 0, 1, 2, 4, 8, 16 };
@@ -139,7 +139,7 @@ public class MedianWindowDLLTest
 			{
 				final double median = mw.getMedianOldest(i + 1 + radius);
 				final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-				//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+				//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g", p, radius, median2, median);
 				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", p, radius);
 			}
 			for (int j = startData.length; j < data.length; j++, p++)
@@ -147,14 +147,14 @@ public class MedianWindowDLLTest
 				final double median = mw.getMedian();
 				mw.add(data[j]);
 				final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-				//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+				//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g", p, radius, median2, median);
 				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", p, radius);
 			}
 			for (int i = 2 * radius + 1; i-- > 0; p++)
 			{
 				final double median = mw.getMedianYoungest(i + 1);
 				final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-				//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+				//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g", p, radius, median2, median);
 				ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", p, radius);
 			}
 		}
@@ -175,7 +175,7 @@ public class MedianWindowDLLTest
 				{
 					final double median = mw.getMedianOldest(i + 1 + radius);
 					final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-					//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+					//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g", p, radius, median2, median);
 					ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", p, radius);
 				}
 				for (int j = startData.length; j < data.length; j++, p++)
@@ -183,14 +183,14 @@ public class MedianWindowDLLTest
 					final double median = mw.getMedian();
 					mw.add(data[j]);
 					final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-					//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+					//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g", p, radius, median2, median);
 					ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", p, radius);
 				}
 				for (int i = 2 * radius + 1; i-- > 0; p++)
 				{
 					final double median = mw.getMedianYoungest(i + 1);
 					final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-					//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+					//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g", p, radius, median2, median);
 					ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", p, radius);
 				}
 			}
@@ -213,7 +213,7 @@ public class MedianWindowDLLTest
 				{
 					final double median = mw.getMedianOldest(i + 1 + radius);
 					final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-					//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+					//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g", p, radius, median2, median);
 					ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", p, radius);
 				}
 				for (int j = startData.length; j < data.length; j++, p++)
@@ -221,14 +221,14 @@ public class MedianWindowDLLTest
 					final double median = mw.getMedian();
 					mw.add(data[j]);
 					final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-					//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+					//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g", p, radius, median2, median);
 					ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", p, radius);
 				}
 				for (int i = 2 * radius + 1; i-- > 0; p++)
 				{
 					final double median = mw.getMedianYoungest(i + 1);
 					final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
-					//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g\n", p, radius, median2, median);
+					//TestLog.debug(logger,"Position %d, Radius %d : %g vs %g", p, radius, median2, median);
 					ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", p, radius);
 				}
 			}
@@ -249,7 +249,8 @@ public class MedianWindowDLLTest
 			}
 	}
 
-	private void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(RandomSeed seed, int radius, int increment)
+	private void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(RandomSeed seed, int radius,
+			int increment)
 	{
 		final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 		final int iterations = 20;
@@ -368,10 +369,10 @@ public class MedianWindowDLLTest
 		// When the increment is large then the linked list is doing too many operations
 		// verses the full array sort of the cache median window.
 		if (increment <= 4)
-			TestLog.logTestResult(logger,t2 < t1, "Radius %d, Increment %d : Cached %d : DLL %d = %fx faster\n", radius,
+			TestLog.logTestResult(logger, t2 < t1, "Radius %d, Increment %d : Cached %d : DLL %d = %fx faster", radius,
 					increment, t1, t2, (double) t1 / t2);
 		else
-			TestLog.info(logger,"Radius %d, Increment %d : Cached %d : DLL %d = %fx faster\n", radius, increment, t1, t2,
+			TestLog.info(logger, "Radius %d, Increment %d : Cached %d : DLL %d = %fx faster", radius, increment, t1, t2,
 					(double) t1 / t2);
 	}
 }

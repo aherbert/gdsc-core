@@ -8,7 +8,7 @@ import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 @SuppressWarnings({ "javadoc" })
 public class TriangleArrayTest
 {
-	int[] testN = new int[] { 0, 1, 2, 5 };
+	final int[] testN = new int[] { 0, 1, 2, 5 };
 
 	@Test
 	public void canComputeIndex()

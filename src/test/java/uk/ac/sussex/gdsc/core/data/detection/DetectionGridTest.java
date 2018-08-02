@@ -286,8 +286,8 @@ public class DetectionGridTest
 		{
 			final double t1 = ts.get(i1).getMean();
 			final double t2 = ts.get(i2).getMean();
-			//TestLog.debug(logger,"%f < %f\n", t1, t2);
-			Assertions.assertTrue(t1 < t2, () -> String.format("%f < %f\n", t1, t2));
+			//TestLog.debug(logger,"%f < %f", t1, t2);
+			Assertions.assertTrue(t1 < t2, () -> String.format("%f < %f", t1, t2));
 		}
 	}
 }

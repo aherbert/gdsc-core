@@ -26,19 +26,19 @@ import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 @SuppressWarnings({ "javadoc" })
 public class DAreaStatisticsTest
 {
-    private static Logger logger;
+	private static Logger logger;
 
-    @BeforeAll
-    public static void beforeAll()
-    {
-        logger = Logger.getLogger(DAreaStatisticsTest.class.getName());
-    }
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(DAreaStatisticsTest.class.getName());
+	}
 
-    @AfterAll
-    public static void afterAll()
-    {
-        logger = null;
-    }
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
 
 	boolean[] rolling = new boolean[] { true, false };
 	int[] boxSizes = new int[] { 15, 9, 5, 3, 2, 1 };
@@ -84,7 +84,7 @@ public class DAreaStatisticsTest
 					final double[] e = a1.getStatistics(x, y, n);
 					final double[] o = a2.getStatistics(x, y, n);
 					ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
-					//TestLog.debug(logger,"%s vs %s\n", toString(e), toString(o));
+					//TestLog.debug(logger,"%s vs %s", toString(e), toString(o));
 
 					// Check with ImageJ
 					fp.setRoi(new Rectangle(x - n, y - n, 2 * n + 1, 2 * n + 1));
@@ -117,7 +117,7 @@ public class DAreaStatisticsTest
 						final double[] e = a1.getStatistics(x, y, nx, ny);
 						final double[] o = a2.getStatistics(x, y, nx, ny);
 						ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
-						//TestLog.debug(logger,"%s vs %s\n", toString(e), toString(o));
+						//TestLog.debug(logger,"%s vs %s", toString(e), toString(o));
 
 						// Check with ImageJ
 						fp.setRoi(new Rectangle(x - nx, y - ny, 2 * nx + 1, 2 * ny + 1));
@@ -153,7 +153,7 @@ public class DAreaStatisticsTest
 				final double[] e = a1.getStatistics(roi);
 				final double[] o = a2.getStatistics(roi);
 				ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
-				//TestLog.debug(logger,"%s vs %s\n", toString(e), toString(o));
+				//TestLog.debug(logger,"%s vs %s", toString(e), toString(o));
 
 				// Check with ImageJ
 				fp.setRoi(roi);
@@ -296,10 +296,10 @@ public class DAreaStatisticsTest
 		}
 		final int size = ts.getSize();
 		ts.repeat();
-			ts.report(logger, size);
+		ts.report(logger, size);
 		// Do not let this fail the test suite
 		//Assertions.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
-		TestLog.logTestResult(logger,ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
+		TestLog.logTestResult(logger, ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
 				"DAreaStatistics Density=%g RollingIsFaster=%b N=%d:%d: rolling %s vs simple %s", density,
 				rollingIsFaster, minN, maxN, ts.get(-2).getMean(), ts.get(-1).getMean());
 	}

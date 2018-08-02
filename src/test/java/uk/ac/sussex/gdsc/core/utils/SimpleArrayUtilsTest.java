@@ -23,37 +23,36 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 @SuppressWarnings({ "javadoc" })
 public class SimpleArrayUtilsTest
 {
-    private static Logger logger;
+	private static Logger logger;
 
-    @BeforeAll
-    public static void beforeAll()
-    {
-        logger = Logger.getLogger(SimpleArrayUtilsTest.class.getName());
-    }
+	@BeforeAll
+	public static void beforeAll()
+	{
+		logger = Logger.getLogger(SimpleArrayUtilsTest.class.getName());
+	}
 
-    @AfterAll
-    public static void afterAll()
-    {
-        logger = null;
-    }
-
-	TIntHashSet set = new TIntHashSet();
+	@AfterAll
+	public static void afterAll()
+	{
+		logger = null;
+	}
 
 	@SeededTest
 	public void canFlatten(RandomSeed seed)
 	{
 		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
-		testFlatten(new int[0]);
-		testFlatten(new int[10]);
+		final TIntHashSet set = new TIntHashSet();
+		testFlatten(set, new int[0]);
+		testFlatten(set, new int[10]);
 		for (int i = 0; i < 10; i++)
 		{
-			testFlatten(next(r, 1, 10));
-			testFlatten(next(r, 10, 10));
-			testFlatten(next(r, 100, 10));
+			testFlatten(set, next(r, 1, 10));
+			testFlatten(set, next(r, 10, 10));
+			testFlatten(set, next(r, 100, 10));
 		}
 	}
 
-	private void testFlatten(int[] s1)
+	private static void testFlatten(TIntHashSet set, int[] s1)
 	{
 		set.clear();
 		set.addAll(s1);
@@ -61,7 +60,7 @@ public class SimpleArrayUtilsTest
 		Arrays.sort(e);
 
 		final int[] o = SimpleArrayUtils.flatten(s1);
-		//TestLog.debug(logger,"%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
+		//TestLog.debug(logger,"%s =? %s", Arrays.toString(e), Arrays.toString(o));
 		Assertions.assertArrayEquals(e, o);
 	}
 
@@ -69,25 +68,26 @@ public class SimpleArrayUtilsTest
 	public void canSortMerge(RandomSeed seed)
 	{
 		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
-		testSortMerge(new int[0], new int[10]);
-		testSortMerge(new int[10], new int[10]);
-		testSortMerge(new int[10], next(r, 10, 10));
+		final TIntHashSet set = new TIntHashSet();
+		testSortMerge(set, new int[0], new int[10]);
+		testSortMerge(set, new int[10], new int[10]);
+		testSortMerge(set, new int[10], next(r, 10, 10));
 		for (int i = 0; i < 10; i++)
 		{
-			testSortMerge(next(r, 1, 10), next(r, 1, 10));
-			testSortMerge(next(r, 10, 10), next(r, 1, 10));
-			testSortMerge(next(r, 100, 10), next(r, 1, 10));
-			testSortMerge(next(r, 1, 10), next(r, 10, 10));
-			testSortMerge(next(r, 10, 10), next(r, 10, 10));
-			testSortMerge(next(r, 100, 10), next(r, 10, 10));
-			testSortMerge(next(r, 1, 10), next(r, 100, 10));
-			testSortMerge(next(r, 10, 10), next(r, 100, 10));
-			testSortMerge(next(r, 100, 10), next(r, 100, 10));
+			testSortMerge(set, next(r, 1, 10), next(r, 1, 10));
+			testSortMerge(set, next(r, 10, 10), next(r, 1, 10));
+			testSortMerge(set, next(r, 100, 10), next(r, 1, 10));
+			testSortMerge(set, next(r, 1, 10), next(r, 10, 10));
+			testSortMerge(set, next(r, 10, 10), next(r, 10, 10));
+			testSortMerge(set, next(r, 100, 10), next(r, 10, 10));
+			testSortMerge(set, next(r, 1, 10), next(r, 100, 10));
+			testSortMerge(set, next(r, 10, 10), next(r, 100, 10));
+			testSortMerge(set, next(r, 100, 10), next(r, 100, 10));
 		}
 	}
 
 	@SuppressWarnings("deprecation")
-	private void testSortMerge(int[] s1, int[] s2)
+	private static void testSortMerge(TIntHashSet set, int[] s1, int[] s2)
 	{
 		set.clear();
 		set.addAll(s1);
@@ -96,7 +96,7 @@ public class SimpleArrayUtilsTest
 		Arrays.sort(e);
 
 		final int[] o = SimpleArrayUtils.sortMerge(s1, s2);
-		//TestLog.debug(logger,"%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
+		//TestLog.debug(logger,"%s =? %s", Arrays.toString(e), Arrays.toString(o));
 		Assertions.assertArrayEquals(e, o);
 	}
 
@@ -134,7 +134,8 @@ public class SimpleArrayUtilsTest
 	@SeededTest
 	public void testMergeOnIndexData(RandomSeed seed)
 	{
-		ExtraAssumptions.assume(logger, Level.INFO); ExtraAssumptions.assume(TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(logger, Level.INFO);
+		ExtraAssumptions.assume(TestComplexity.MEDIUM);
 		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final double[] f = new double[] { 0.1, 0.5, 0.75 };
@@ -198,7 +199,8 @@ public class SimpleArrayUtilsTest
 	@SeededTest
 	public void testMergeOnRedundantData(RandomSeed seed)
 	{
-		ExtraAssumptions.assume(logger, Level.INFO); ExtraAssumptions.assume(TestComplexity.MEDIUM);
+		ExtraAssumptions.assume(logger, Level.INFO);
+		ExtraAssumptions.assume(TestComplexity.MEDIUM);
 		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
 
 		final int[] n = new int[] { 2, 4, 8 };
@@ -298,7 +300,7 @@ public class SimpleArrayUtilsTest
 	private static void testGetRanges(int[] in, int[] e)
 	{
 		final int[] o = SimpleArrayUtils.getRanges(in);
-		//TestLog.debug(logger,"%s =? %s\n", Arrays.toString(e), Arrays.toString(o));
+		//TestLog.debug(logger,"%s =? %s", Arrays.toString(e), Arrays.toString(o));
 		Assertions.assertArrayEquals(e, o);
 	}
 
