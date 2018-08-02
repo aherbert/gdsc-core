@@ -42,97 +42,97 @@ import uk.ac.sussex.gdsc.core.ij.process.InfinityMappedFloatProcessor;
  */
 public class InfinityMappedImageStack extends ImageStack
 {
-	private boolean mapPositiveInfinity = false;
+    private boolean mapPositiveInfinity = false;
 
-	/**
-	 * Checks if positive infinity is mapped to zero.
-	 *
-	 * @return true, if positive infinity is mapped to zero
-	 */
-	public boolean isMapPositiveInfinity()
-	{
-		return mapPositiveInfinity;
-	}
+    /**
+     * Checks if positive infinity is mapped to zero.
+     *
+     * @return true, if positive infinity is mapped to zero
+     */
+    public boolean isMapPositiveInfinity()
+    {
+        return mapPositiveInfinity;
+    }
 
-	/**
-	 * Set to true to map positive infinity to zero.
-	 *
-	 * @param mapPositiveInfinity
-	 *            the new map positive infinity flag
-	 */
-	public void setMapPositiveInfinity(boolean mapPositiveInfinity)
-	{
-		this.mapPositiveInfinity = mapPositiveInfinity;
-	}
+    /**
+     * Set to true to map positive infinity to zero.
+     *
+     * @param mapPositiveInfinity
+     *            the new map positive infinity flag
+     */
+    public void setMapPositiveInfinity(boolean mapPositiveInfinity)
+    {
+        this.mapPositiveInfinity = mapPositiveInfinity;
+    }
 
-	/** Default constructor. */
-	public InfinityMappedImageStack()
-	{
-	}
+    /** Default constructor. */
+    public InfinityMappedImageStack()
+    {
+    }
 
-	/**
-	 * Creates a new, empty image stack.
-	 *
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 */
-	public InfinityMappedImageStack(int width, int height)
-	{
-		this(width, height, null);
-	}
+    /**
+     * Creates a new, empty image stack.
+     *
+     * @param width
+     *            the width
+     * @param height
+     *            the height
+     */
+    public InfinityMappedImageStack(int width, int height)
+    {
+        this(width, height, null);
+    }
 
-	/**
-	 * Creates a new, empty image stack with a capacity of 'size'. All
-	 * 'size' slices and labels of this image stack are initially null.
-	 *
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 * @param size
-	 *            the size
-	 */
-	public InfinityMappedImageStack(int width, int height, int size)
-	{
-		super(width, height, size);
-	}
+    /**
+     * Creates a new, empty image stack with a capacity of 'size'. All
+     * 'size' slices and labels of this image stack are initially null.
+     *
+     * @param width
+     *            the width
+     * @param height
+     *            the height
+     * @param size
+     *            the size
+     */
+    public InfinityMappedImageStack(int width, int height, int size)
+    {
+        super(width, height, size);
+    }
 
-	/**
-	 * Creates a new, empty image stack using the specified color model.
-	 *
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 * @param cm
-	 *            the colour model
-	 */
-	public InfinityMappedImageStack(int width, int height, ColorModel cm)
-	{
-		super(width, height, cm);
-	}
+    /**
+     * Creates a new, empty image stack using the specified color model.
+     *
+     * @param width
+     *            the width
+     * @param height
+     *            the height
+     * @param cm
+     *            the colour model
+     */
+    public InfinityMappedImageStack(int width, int height, ColorModel cm)
+    {
+        super(width, height, cm);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ij.ImageStack#getProcessor(int)
-	 */
-	@Override
-	public ImageProcessor getProcessor(int n)
-	{
-		ImageProcessor ip = super.getProcessor(n);
-		if (ip instanceof FloatProcessor)
-		{
-			final InfinityMappedFloatProcessor fp = new InfinityMappedFloatProcessor(getWidth(), getHeight(),
-					(float[]) ip.getPixels(), ip.getColorModel());
-			fp.setMapPositiveInfinity(mapPositiveInfinity);
-			fp.setMinAndMax(ip.getMin(), ip.getMax());
-			if (ip.getCalibrationTable() != null)
-				fp.setCalibrationTable(ip.getCalibrationTable());
-			ip = fp;
-		}
-		return ip;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see ij.ImageStack#getProcessor(int)
+     */
+    @Override
+    public ImageProcessor getProcessor(int n)
+    {
+        ImageProcessor ip = super.getProcessor(n);
+        if (ip instanceof FloatProcessor)
+        {
+            final InfinityMappedFloatProcessor fp = new InfinityMappedFloatProcessor(getWidth(), getHeight(),
+                    (float[]) ip.getPixels(), ip.getColorModel());
+            fp.setMapPositiveInfinity(mapPositiveInfinity);
+            fp.setMinAndMax(ip.getMin(), ip.getMax());
+            if (ip.getCalibrationTable() != null)
+                fp.setCalibrationTable(ip.getCalibrationTable());
+            ip = fp;
+        }
+        return ip;
+    }
 }

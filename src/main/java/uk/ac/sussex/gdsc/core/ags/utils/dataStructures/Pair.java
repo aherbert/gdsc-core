@@ -31,23 +31,23 @@ package uk.ac.sussex.gdsc.core.ags.utils.dataStructures;
  */
 public final class Pair<T>
 {
-	/** The first. */
-	public final T first;
+    /** The first. */
+    public final T first;
 
-	/** The second. */
-	public final T second;
+    /** The second. */
+    public final T second;
 
-	/**
-	 * Instantiates a new pair.
-	 *
-	 * @param first
-	 *            the first
-	 * @param second
-	 *            the second
-	 */
-	public Pair(T first, T second)
-	{
-		this.first = first;
-		this.second = second;
-	}
+    /**
+     * Instantiates a new pair.
+     *
+     * @param first
+     *            the first
+     * @param second
+     *            the second
+     */
+    public Pair(T first, T second)
+    {
+        this.first = first;
+        this.second = second;
+    }
 }

@@ -32,39 +32,39 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  */
 abstract class MoleculeArray
 {
-	/** The list. */
-	final Molecule[] list;
+    /** The list. */
+    final Molecule[] list;
 
-	/** The size. */
-	int size = 0;
+    /** The size. */
+    int size = 0;
 
-	/**
-	 * Instantiates a new molecule array.
-	 *
-	 * @param capacity
-	 *            the capacity
-	 */
-	MoleculeArray(int capacity)
-	{
-		list = new Molecule[capacity];
-	}
+    /**
+     * Instantiates a new molecule array.
+     *
+     * @param capacity
+     *            the capacity
+     */
+    MoleculeArray(int capacity)
+    {
+        list = new Molecule[capacity];
+    }
 
-	/**
-	 * Adds the molecule.
-	 *
-	 * @param m
-	 *            the molecule
-	 */
-	void add(Molecule m)
-	{
-		list[size++] = m;
-	}
+    /**
+     * Adds the molecule.
+     *
+     * @param m
+     *            the molecule
+     */
+    void add(Molecule m)
+    {
+        list[size++] = m;
+    }
 
-	/**
-	 * Clear.
-	 */
-	void clear()
-	{
-		size = 0;
-	}
+    /**
+     * Clear.
+     */
+    void clear()
+    {
+        size = 0;
+    }
 }

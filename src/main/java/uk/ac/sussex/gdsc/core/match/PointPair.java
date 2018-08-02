@@ -32,80 +32,80 @@ package uk.ac.sussex.gdsc.core.match;
  */
 public class PointPair
 {
-	private final Coordinate point1;
-	private final Coordinate point2;
+    private final Coordinate point1;
+    private final Coordinate point2;
 
-	/**
-	 * Instantiates a new point pair.
-	 *
-	 * @param point1
-	 *            the point 1
-	 * @param point2
-	 *            the point 2
-	 */
-	public PointPair(Coordinate point1, Coordinate point2)
-	{
-		this.point1 = point1;
-		this.point2 = point2;
-	}
+    /**
+     * Instantiates a new point pair.
+     *
+     * @param point1
+     *            the point 1
+     * @param point2
+     *            the point 2
+     */
+    public PointPair(Coordinate point1, Coordinate point2)
+    {
+        this.point1 = point1;
+        this.point2 = point2;
+    }
 
-	/**
-	 * @return the point1
-	 */
-	public Coordinate getPoint1()
-	{
-		return point1;
-	}
+    /**
+     * @return the point1
+     */
+    public Coordinate getPoint1()
+    {
+        return point1;
+    }
 
-	/**
-	 * @return the point2
-	 */
-	public Coordinate getPoint2()
-	{
-		return point2;
-	}
+    /**
+     * @return the point2
+     */
+    public Coordinate getPoint2()
+    {
+        return point2;
+    }
 
-	/**
-	 * @return the distance (or -1 if either point is null)
-	 */
-	public double getXYZDistance()
-	{
-		if (point1 == null || point2 == null)
-			return -1;
+    /**
+     * @return the distance (or -1 if either point is null)
+     */
+    public double getXYZDistance()
+    {
+        if (point1 == null || point2 == null)
+            return -1;
 
-		return point1.distanceXYZ(point2);
-	}
+        return point1.distanceXYZ(point2);
+    }
 
-	/**
-	 * @return the squared distance (or -1 if either point is null)
-	 */
-	public double getXYZDistance2()
-	{
-		if (point1 == null || point2 == null)
-			return -1;
+    /**
+     * @return the squared distance (or -1 if either point is null)
+     */
+    public double getXYZDistance2()
+    {
+        if (point1 == null || point2 == null)
+            return -1;
 
-		return point1.distanceXYZ2(point2);
-	}
+        return point1.distanceXYZ2(point2);
+    }
 
-	/**
-	 * @return the XY distance (or -1 if either point is null)
-	 */
-	public double getXYDistance()
-	{
-		if (point1 == null || point2 == null)
-			return -1;
+    /**
+     * @return the XY distance (or -1 if either point is null)
+     */
+    public double getXYDistance()
+    {
+        if (point1 == null || point2 == null)
+            return -1;
 
-		return point1.distanceXY(point2);
-	}
+        return point1.distanceXY(point2);
+    }
 
-	/**
-	 * @return the squared XY distance (or -1 if either point is null)
-	 */
-	public double getXYDistance2()
-	{
-		if (point1 == null || point2 == null)
-			return -1;
+    /**
+     * @return the squared XY distance (or -1 if either point is null)
+     */
+    public double getXYDistance2()
+    {
+        if (point1 == null || point2 == null)
+            return -1;
 
-		return point1.distanceXY2(point2);
-	}
+        return point1.distanceXY2(point2);
+    }
 }

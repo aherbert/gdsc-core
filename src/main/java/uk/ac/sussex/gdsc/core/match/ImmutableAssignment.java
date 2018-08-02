@@ -32,57 +32,57 @@ package uk.ac.sussex.gdsc.core.match;
  */
 public class ImmutableAssignment implements Assignment
 {
-	final private int targetId;
-	final private int predictedId;
-	final private double distance;
+    final private int targetId;
+    final private int predictedId;
+    final private double distance;
 
-	/**
-	 * Instantiates a new assignment.
-	 *
-	 * @param targetId
-	 *            the target id
-	 * @param predictedId
-	 *            the predicted id
-	 * @param distance
-	 *            the distance (zero is perfect match)
-	 */
-	public ImmutableAssignment(int targetId, int predictedId, double distance)
-	{
-		this.targetId = targetId;
-		this.predictedId = predictedId;
-		this.distance = distance;
-	}
+    /**
+     * Instantiates a new assignment.
+     *
+     * @param targetId
+     *            the target id
+     * @param predictedId
+     *            the predicted id
+     * @param distance
+     *            the distance (zero is perfect match)
+     */
+    public ImmutableAssignment(int targetId, int predictedId, double distance)
+    {
+        this.targetId = targetId;
+        this.predictedId = predictedId;
+        this.distance = distance;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.match.Assignment#getTargetId()
-	 */
-	@Override
-	public int getTargetId()
-	{
-		return targetId;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.match.Assignment#getTargetId()
+     */
+    @Override
+    public int getTargetId()
+    {
+        return targetId;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.match.Assignment#getPredictedId()
-	 */
-	@Override
-	public int getPredictedId()
-	{
-		return predictedId;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.match.Assignment#getPredictedId()
+     */
+    @Override
+    public int getPredictedId()
+    {
+        return predictedId;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.match.Assignment#getDistance()
-	 */
-	@Override
-	public double getDistance()
-	{
-		return distance;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.match.Assignment#getDistance()
+     */
+    @Override
+    public double getDistance()
+    {
+        return distance;
+    }
 }

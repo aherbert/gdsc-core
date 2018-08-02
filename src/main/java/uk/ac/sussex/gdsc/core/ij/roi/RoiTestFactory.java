@@ -35,26 +35,26 @@ import ij.gui.Roi;
 public class RoiTestFactory
 {
 
-	/**
-	 * Creates the RoiTest.
-	 *
-	 * @param roi
-	 *            the roi (must be an area ROI)
-	 * @return the roi test (or null)
-	 */
-	public static RoiTest create(Roi roi)
-	{
-		// Support different ROIs.
-		if (roi == null || !roi.isArea() || !(roi.getFloatWidth() > 0 && roi.getFloatHeight() > 0))
-			return null;
+    /**
+     * Creates the RoiTest.
+     *
+     * @param roi
+     *            the roi (must be an area ROI)
+     * @return the roi test (or null)
+     */
+    public static RoiTest create(Roi roi)
+    {
+        // Support different ROIs.
+        if (roi == null || !roi.isArea() || !(roi.getFloatWidth() > 0 && roi.getFloatHeight() > 0))
+            return null;
 
-		if (roi.getType() == Roi.RECTANGLE || roi.getType() == Roi.OVAL)
-			return new BasicRoiTest(roi);
-		else if (roi.getType() == Roi.COMPOSITE)
-			return new CompositeRoiTest(roi);
-		else if (roi.getType() == Roi.POLYGON || roi.getType() == Roi.FREEROI || roi.getType() == Roi.TRACED_ROI)
-			return new PolygonRoiTest(roi);
+        if (roi.getType() == Roi.RECTANGLE || roi.getType() == Roi.OVAL)
+            return new BasicRoiTest(roi);
+        else if (roi.getType() == Roi.COMPOSITE)
+            return new CompositeRoiTest(roi);
+        else if (roi.getType() == Roi.POLYGON || roi.getType() == Roi.FREEROI || roi.getType() == Roi.TRACED_ROI)
+            return new PolygonRoiTest(roi);
 
-		return null;
-	}
+        return null;
+    }
 }

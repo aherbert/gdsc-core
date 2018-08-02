@@ -32,57 +32,57 @@ package uk.ac.sussex.gdsc.core.logging;
  */
 public interface Logger
 {
-	/**
-	 * Log the message.
-	 *
-	 * @param message
-	 *            the message
-	 */
-	public void info(String message);
+    /**
+     * Log the message.
+     *
+     * @param message
+     *            the message
+     */
+    public void info(String message);
 
-	/**
-	 * Log the arguments using the given format.
-	 *
-	 * @param format
-	 *            the format
-	 * @param args
-	 *            the args
-	 */
-	public void info(String format, Object... args);
+    /**
+     * Log the arguments using the given format.
+     *
+     * @param format
+     *            the format
+     * @param args
+     *            the args
+     */
+    public void info(String format, Object... args);
 
-	/**
-	 * Log the message.
-	 *
-	 * @param message
-	 *            the message
-	 */
-	public void debug(String message);
+    /**
+     * Log the message.
+     *
+     * @param message
+     *            the message
+     */
+    public void debug(String message);
 
-	/**
-	 * Log the arguments using the given format.
-	 *
-	 * @param format
-	 *            the format
-	 * @param args
-	 *            the args
-	 */
-	public void debug(String format, Object... args);
+    /**
+     * Log the arguments using the given format.
+     *
+     * @param format
+     *            the format
+     * @param args
+     *            the args
+     */
+    public void debug(String format, Object... args);
 
-	/**
-	 * Log the message.
-	 *
-	 * @param message
-	 *            the message
-	 */
-	public void error(String message);
+    /**
+     * Log the message.
+     *
+     * @param message
+     *            the message
+     */
+    public void error(String message);
 
-	/**
-	 * Log the arguments using the given format.
-	 *
-	 * @param format
-	 *            the format
-	 * @param args
-	 *            the args
-	 */
-	public void error(String format, Object... args);
+    /**
+     * Log the arguments using the given format.
+     *
+     * @param format
+     *            the format
+     * @param args
+     *            the args
+     */
+    public void error(String format, Object... args);
 }

@@ -37,8 +37,8 @@ package uk.ac.sussex.gdsc.core.utils;
  *
  * if (lock.acquire())
  * {
- * 	// Do something
- * 	lock.release();
+ *     // Do something
+ *     lock.release();
  * }
  * // else fall through
  * </pre>
@@ -47,35 +47,35 @@ package uk.ac.sussex.gdsc.core.utils;
  */
 public class SimpleLock
 {
-	private boolean locked;
+    private boolean locked;
 
-	/**
-	 * Acquire the lock. This method is synchronized. The lock should be released when finished.
-	 *
-	 * @return true, if the lock was acquired, else false if already locked
-	 */
-	public synchronized boolean acquire()
-	{
-		if (locked)
-			return false;
-		return locked = true;
-	}
+    /**
+     * Acquire the lock. This method is synchronized. The lock should be released when finished.
+     *
+     * @return true, if the lock was acquired, else false if already locked
+     */
+    public synchronized boolean acquire()
+    {
+        if (locked)
+            return false;
+        return locked = true;
+    }
 
-	/**
-	 * Checks if is locked.
-	 *
-	 * @return true, if is locked
-	 */
-	public boolean isLocked()
-	{
-		return locked;
-	}
+    /**
+     * Checks if is locked.
+     *
+     * @return true, if is locked
+     */
+    public boolean isLocked()
+    {
+        return locked;
+    }
 
-	/**
-	 * Release the lock. This is not synchronized and should be called by the owner of the lock.
-	 */
-	public void release()
-	{
-		locked = false;
-	}
+    /**
+     * Release the lock. This is not synchronized and should be called by the owner of the lock.
+     */
+    public void release()
+    {
+        locked = false;
+    }
 }

@@ -39,84 +39,84 @@ import uk.ac.sussex.gdsc.core.ij.text.TextWindow2;
  */
 public class BufferedTextWindow
 {
-	/** The text window. */
-	public final Frame textWindow;
-	private final TextPanel textPanel;
-	private int count = 0;
-	private int nextFlush = 10;
-	private int increment = 10;
+    /** The text window. */
+    public final Frame textWindow;
+    private final TextPanel textPanel;
+    private int count = 0;
+    private int nextFlush = 10;
+    private int increment = 10;
 
-	/**
-	 * Instantiates a new buffered text window.
-	 *
-	 * @param textWindow
-	 *            the text window
-	 */
-	public BufferedTextWindow(TextWindow textWindow)
-	{
-		this.textWindow = textWindow;
-		textPanel = textWindow.getTextPanel();
-	}
+    /**
+     * Instantiates a new buffered text window.
+     *
+     * @param textWindow
+     *            the text window
+     */
+    public BufferedTextWindow(TextWindow textWindow)
+    {
+        this.textWindow = textWindow;
+        textPanel = textWindow.getTextPanel();
+    }
 
-	/**
-	 * Instantiates a new buffered text window.
-	 *
-	 * @param textWindow
-	 *            the text window
-	 */
-	public BufferedTextWindow(TextWindow2 textWindow)
-	{
-		this.textWindow = textWindow;
-		textPanel = textWindow.getTextPanel();
-	}
+    /**
+     * Instantiates a new buffered text window.
+     *
+     * @param textWindow
+     *            the text window
+     */
+    public BufferedTextWindow(TextWindow2 textWindow)
+    {
+        this.textWindow = textWindow;
+        textPanel = textWindow.getTextPanel();
+    }
 
-	/**
-	 * Append the text, updating the display at the configured interval.
-	 *
-	 * @param text
-	 *            the text
-	 */
-	public void append(String text)
-	{
-		textPanel.appendWithoutUpdate(text);
-		if (++count == nextFlush)
-			flush();
-	}
+    /**
+     * Append the text, updating the display at the configured interval.
+     *
+     * @param text
+     *            the text
+     */
+    public void append(String text)
+    {
+        textPanel.appendWithoutUpdate(text);
+        if (++count == nextFlush)
+            flush();
+    }
 
-	/**
-	 * Flush the data to update the display and reset the next flush interval
-	 */
-	public void flush()
-	{
-		if (textPanel.isShowing())
-			textPanel.updateDisplay();
-		nextFlush = count + increment;
-	}
+    /**
+     * Flush the data to update the display and reset the next flush interval
+     */
+    public void flush()
+    {
+        if (textPanel.isShowing())
+            textPanel.updateDisplay();
+        nextFlush = count + increment;
+    }
 
-	/**
-	 * @return the increment
-	 */
-	public int getIncrement()
-	{
-		return increment;
-	}
+    /**
+     * @return the increment
+     */
+    public int getIncrement()
+    {
+        return increment;
+    }
 
-	/**
-	 * @param increment
-	 *            the increment to set
-	 */
-	public void setIncrement(int increment)
-	{
-		this.increment = increment;
-	}
+    /**
+     * @param increment
+     *            the increment to set
+     */
+    public void setIncrement(int increment)
+    {
+        this.increment = increment;
+    }
 
-	/**
-	 * Checks if is visible.
-	 *
-	 * @return true, if is visible
-	 */
-	public boolean isVisible()
-	{
-		return textWindow.isVisible();
-	}
+    /**
+     * Checks if is visible.
+     *
+     * @return true, if is visible
+     */
+    public boolean isVisible()
+    {
+        return textWindow.isVisible();
+    }
 }

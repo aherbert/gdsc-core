@@ -42,227 +42,227 @@ import uk.ac.sussex.gdsc.core.data.procedures.IValueProcedure;
  */
 public class RoiHelper
 {
-	/**
-	 * Build a byte mask of all pixels in an ROI. If no area ROI is present then the mask
-	 * will be null.
-	 *
-	 * @param imp
-	 *            The input image
-	 * @return a byte mask (255 inside the ROI, else 0)
-	 */
-	public static ByteProcessor getMask(ImagePlus imp)
-	{
-		final int maxx = imp.getWidth();
-		final int maxy = imp.getHeight();
+    /**
+     * Build a byte mask of all pixels in an ROI. If no area ROI is present then the mask
+     * will be null.
+     *
+     * @param imp
+     *            The input image
+     * @return a byte mask (255 inside the ROI, else 0)
+     */
+    public static ByteProcessor getMask(ImagePlus imp)
+    {
+        final int maxx = imp.getWidth();
+        final int maxy = imp.getHeight();
 
-		final Roi roi = imp.getRoi();
+        final Roi roi = imp.getRoi();
 
-		if (roi == null || !roi.isArea())
-			return null;
+        if (roi == null || !roi.isArea())
+            return null;
 
-		// Check if this is a standard rectangle ROI that covers the entire image
-		if (roi.getType() == Roi.RECTANGLE && roi.getRoundRectArcSize() == 0)
-		{
-			final Rectangle roiBounds = roi.getBounds();
-			if (roiBounds.width == maxx && roiBounds.height == maxy)
-				return null;
-		}
+        // Check if this is a standard rectangle ROI that covers the entire image
+        if (roi.getType() == Roi.RECTANGLE && roi.getRoundRectArcSize() == 0)
+        {
+            final Rectangle roiBounds = roi.getBounds();
+            if (roiBounds.width == maxx && roiBounds.height == maxy)
+                return null;
+        }
 
-		final ByteProcessor bp = new ByteProcessor(maxx, maxy);
-		bp.setColor(255);
-		bp.fill(roi);
-		return bp;
-	}
+        final ByteProcessor bp = new ByteProcessor(maxx, maxy);
+        bp.setColor(255);
+        bp.fill(roi);
+        return bp;
+    }
 
-	/**
-	 * For each pixel inside the ROI execute the procedure. If the ROI is null then all pixels will be sampled.
-	 *
-	 * @param roi
-	 *            the roi
-	 * @param ip
-	 *            the image processor
-	 * @param p
-	 *            the procedure
-	 */
-	public static void forEach(Roi roi, ImageProcessor ip, FValueProcedure p)
-	{
-		if (roi == null)
-		{
-			for (int i = 0, n = ip.getPixelCount(); i < n; i++)
-				p.execute(ip.getf(i));
-			return;
-		}
+    /**
+     * For each pixel inside the ROI execute the procedure. If the ROI is null then all pixels will be sampled.
+     *
+     * @param roi
+     *            the roi
+     * @param ip
+     *            the image processor
+     * @param p
+     *            the procedure
+     */
+    public static void forEach(Roi roi, ImageProcessor ip, FValueProcedure p)
+    {
+        if (roi == null)
+        {
+            for (int i = 0, n = ip.getPixelCount(); i < n; i++)
+                p.execute(ip.getf(i));
+            return;
+        }
 
-		// Ensure the roi bounds fit inside the processor
-		final int maxx = ip.getWidth();
-		final int maxy = ip.getHeight();
-		final Rectangle roiBounds = roi.getBounds().intersection(new Rectangle(maxx, maxy));
-		final int xOffset = roiBounds.x;
-		final int yOffset = roiBounds.y;
-		final int rwidth = roiBounds.width;
-		final int rheight = roiBounds.height;
-		if (rwidth == 0 || rheight == 0)
-			return;
+        // Ensure the roi bounds fit inside the processor
+        final int maxx = ip.getWidth();
+        final int maxy = ip.getHeight();
+        final Rectangle roiBounds = roi.getBounds().intersection(new Rectangle(maxx, maxy));
+        final int xOffset = roiBounds.x;
+        final int yOffset = roiBounds.y;
+        final int rwidth = roiBounds.width;
+        final int rheight = roiBounds.height;
+        if (rwidth == 0 || rheight == 0)
+            return;
 
-		final ImageProcessor mask = roi.getMask();
-		if (mask == null)
-			for (int y = 0; y < rheight; y++)
-				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
-					p.execute(ip.getf(i));
-		else
-			for (int y = 0, j = 0; y < rheight; y++)
-				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
-					if (mask.get(j) != 0)
-						p.execute(ip.getf(i));
-	}
+        final ImageProcessor mask = roi.getMask();
+        if (mask == null)
+            for (int y = 0; y < rheight; y++)
+                for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
+                    p.execute(ip.getf(i));
+        else
+            for (int y = 0, j = 0; y < rheight; y++)
+                for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
+                    if (mask.get(j) != 0)
+                        p.execute(ip.getf(i));
+    }
 
-	/**
-	 * For each pixel inside the ROI execute the procedure. If the ROI is null then all pixels will be sampled.
-	 *
-	 * @param roi
-	 *            the roi
-	 * @param stack
-	 *            the stack
-	 * @param p
-	 *            the procedure
-	 */
-	public static void forEach(Roi roi, ImageStack stack, FValueProcedure p)
-	{
-		if (roi == null)
-		{
-			for (int slice = 1; slice <= stack.getSize(); slice++)
-			{
-				final ImageProcessor ip = stack.getProcessor(slice);
-				for (int i = 0, n = ip.getPixelCount(); i < n; i++)
-					p.execute(ip.getf(i));
-			}
-			return;
-		}
+    /**
+     * For each pixel inside the ROI execute the procedure. If the ROI is null then all pixels will be sampled.
+     *
+     * @param roi
+     *            the roi
+     * @param stack
+     *            the stack
+     * @param p
+     *            the procedure
+     */
+    public static void forEach(Roi roi, ImageStack stack, FValueProcedure p)
+    {
+        if (roi == null)
+        {
+            for (int slice = 1; slice <= stack.getSize(); slice++)
+            {
+                final ImageProcessor ip = stack.getProcessor(slice);
+                for (int i = 0, n = ip.getPixelCount(); i < n; i++)
+                    p.execute(ip.getf(i));
+            }
+            return;
+        }
 
-		// Ensure the roi bounds fit inside the processor
-		final int maxx = stack.getWidth();
-		final int maxy = stack.getHeight();
-		final Rectangle roiBounds = roi.getBounds().intersection(new Rectangle(maxx, maxy));
-		final int xOffset = roiBounds.x;
-		final int yOffset = roiBounds.y;
-		final int rwidth = roiBounds.width;
-		final int rheight = roiBounds.height;
-		if (rwidth == 0 || rheight == 0)
-			return;
+        // Ensure the roi bounds fit inside the processor
+        final int maxx = stack.getWidth();
+        final int maxy = stack.getHeight();
+        final Rectangle roiBounds = roi.getBounds().intersection(new Rectangle(maxx, maxy));
+        final int xOffset = roiBounds.x;
+        final int yOffset = roiBounds.y;
+        final int rwidth = roiBounds.width;
+        final int rheight = roiBounds.height;
+        if (rwidth == 0 || rheight == 0)
+            return;
 
-		final ImageProcessor mask = roi.getMask();
-		if (mask == null)
-			for (int slice = 1; slice <= stack.getSize(); slice++)
-			{
-				final ImageProcessor ip = stack.getProcessor(slice);
-				for (int y = 0; y < rheight; y++)
-					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
-						p.execute(ip.getf(i));
-			}
-		else
-			for (int slice = 1; slice <= stack.getSize(); slice++)
-			{
-				final ImageProcessor ip = stack.getProcessor(slice);
-				for (int y = 0, j = 0; y < rheight; y++)
-					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
-						if (mask.get(j) != 0)
-							p.execute(ip.getf(i));
-			}
-	}
+        final ImageProcessor mask = roi.getMask();
+        if (mask == null)
+            for (int slice = 1; slice <= stack.getSize(); slice++)
+            {
+                final ImageProcessor ip = stack.getProcessor(slice);
+                for (int y = 0; y < rheight; y++)
+                    for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
+                        p.execute(ip.getf(i));
+            }
+        else
+            for (int slice = 1; slice <= stack.getSize(); slice++)
+            {
+                final ImageProcessor ip = stack.getProcessor(slice);
+                for (int y = 0, j = 0; y < rheight; y++)
+                    for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
+                        if (mask.get(j) != 0)
+                            p.execute(ip.getf(i));
+            }
+    }
 
-	/**
-	 * For each pixel inside the ROI execute the procedure. If the ROI is null then all pixels will be sampled.
-	 *
-	 * @param roi
-	 *            the roi
-	 * @param ip
-	 *            the image processor
-	 * @param p
-	 *            the procedure
-	 */
-	public static void forEach(Roi roi, ImageProcessor ip, IValueProcedure p)
-	{
-		if (roi == null)
-		{
-			for (int i = 0, n = ip.getPixelCount(); i < n; i++)
-				p.execute(ip.get(i));
-			return;
-		}
+    /**
+     * For each pixel inside the ROI execute the procedure. If the ROI is null then all pixels will be sampled.
+     *
+     * @param roi
+     *            the roi
+     * @param ip
+     *            the image processor
+     * @param p
+     *            the procedure
+     */
+    public static void forEach(Roi roi, ImageProcessor ip, IValueProcedure p)
+    {
+        if (roi == null)
+        {
+            for (int i = 0, n = ip.getPixelCount(); i < n; i++)
+                p.execute(ip.get(i));
+            return;
+        }
 
-		// Ensure the roi bounds fit inside the processor
-		final int maxx = ip.getWidth();
-		final int maxy = ip.getHeight();
-		final Rectangle roiBounds = roi.getBounds().intersection(new Rectangle(maxx, maxy));
-		final int xOffset = roiBounds.x;
-		final int yOffset = roiBounds.y;
-		final int rwidth = roiBounds.width;
-		final int rheight = roiBounds.height;
-		if (rwidth == 0 || rheight == 0)
-			return;
+        // Ensure the roi bounds fit inside the processor
+        final int maxx = ip.getWidth();
+        final int maxy = ip.getHeight();
+        final Rectangle roiBounds = roi.getBounds().intersection(new Rectangle(maxx, maxy));
+        final int xOffset = roiBounds.x;
+        final int yOffset = roiBounds.y;
+        final int rwidth = roiBounds.width;
+        final int rheight = roiBounds.height;
+        if (rwidth == 0 || rheight == 0)
+            return;
 
-		final ImageProcessor mask = roi.getMask();
-		if (mask == null)
-			for (int y = 0; y < rheight; y++)
-				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
-					p.execute(ip.get(i));
-		else
-			for (int y = 0, j = 0; y < rheight; y++)
-				for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
-					if (mask.get(j) != 0)
-						p.execute(ip.get(i));
-	}
+        final ImageProcessor mask = roi.getMask();
+        if (mask == null)
+            for (int y = 0; y < rheight; y++)
+                for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
+                    p.execute(ip.get(i));
+        else
+            for (int y = 0, j = 0; y < rheight; y++)
+                for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
+                    if (mask.get(j) != 0)
+                        p.execute(ip.get(i));
+    }
 
-	/**
-	 * For each pixel inside the ROI execute the procedure. If the ROI is null then all pixels will be sampled.
-	 *
-	 * @param roi
-	 *            the roi
-	 * @param stack
-	 *            the stack
-	 * @param p
-	 *            the procedure
-	 */
-	public static void forEach(Roi roi, ImageStack stack, IValueProcedure p)
-	{
-		if (roi == null)
-		{
-			for (int slice = 1; slice <= stack.getSize(); slice++)
-			{
-				final ImageProcessor ip = stack.getProcessor(slice);
-				for (int i = 0, n = ip.getPixelCount(); i < n; i++)
-					p.execute(ip.get(i));
-			}
-			return;
-		}
+    /**
+     * For each pixel inside the ROI execute the procedure. If the ROI is null then all pixels will be sampled.
+     *
+     * @param roi
+     *            the roi
+     * @param stack
+     *            the stack
+     * @param p
+     *            the procedure
+     */
+    public static void forEach(Roi roi, ImageStack stack, IValueProcedure p)
+    {
+        if (roi == null)
+        {
+            for (int slice = 1; slice <= stack.getSize(); slice++)
+            {
+                final ImageProcessor ip = stack.getProcessor(slice);
+                for (int i = 0, n = ip.getPixelCount(); i < n; i++)
+                    p.execute(ip.get(i));
+            }
+            return;
+        }
 
-		// Ensure the roi bounds fit inside the processor
-		final int maxx = stack.getWidth();
-		final int maxy = stack.getHeight();
-		final Rectangle roiBounds = roi.getBounds().intersection(new Rectangle(maxx, maxy));
-		final int xOffset = roiBounds.x;
-		final int yOffset = roiBounds.y;
-		final int rwidth = roiBounds.width;
-		final int rheight = roiBounds.height;
-		if (rwidth == 0 || rheight == 0)
-			return;
+        // Ensure the roi bounds fit inside the processor
+        final int maxx = stack.getWidth();
+        final int maxy = stack.getHeight();
+        final Rectangle roiBounds = roi.getBounds().intersection(new Rectangle(maxx, maxy));
+        final int xOffset = roiBounds.x;
+        final int yOffset = roiBounds.y;
+        final int rwidth = roiBounds.width;
+        final int rheight = roiBounds.height;
+        if (rwidth == 0 || rheight == 0)
+            return;
 
-		final ImageProcessor mask = roi.getMask();
-		if (mask == null)
-			for (int slice = 1; slice <= stack.getSize(); slice++)
-			{
-				final ImageProcessor ip = stack.getProcessor(slice);
-				for (int y = 0; y < rheight; y++)
-					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
-						p.execute(ip.get(i));
-			}
-		else
-			for (int slice = 1; slice <= stack.getSize(); slice++)
-			{
-				final ImageProcessor ip = stack.getProcessor(slice);
-				for (int y = 0, j = 0; y < rheight; y++)
-					for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
-						if (mask.get(j) != 0)
-							p.execute(ip.get(i));
-			}
-	}
+        final ImageProcessor mask = roi.getMask();
+        if (mask == null)
+            for (int slice = 1; slice <= stack.getSize(); slice++)
+            {
+                final ImageProcessor ip = stack.getProcessor(slice);
+                for (int y = 0; y < rheight; y++)
+                    for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++)
+                        p.execute(ip.get(i));
+            }
+        else
+            for (int slice = 1; slice <= stack.getSize(); slice++)
+            {
+                final ImageProcessor ip = stack.getProcessor(slice);
+                for (int y = 0, j = 0; y < rheight; y++)
+                    for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++)
+                        if (mask.get(j) != 0)
+                            p.execute(ip.get(i));
+            }
+    }
 }

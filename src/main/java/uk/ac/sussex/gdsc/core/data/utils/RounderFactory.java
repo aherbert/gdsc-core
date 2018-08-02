@@ -32,16 +32,16 @@ package uk.ac.sussex.gdsc.core.data.utils;
  */
 public class RounderFactory
 {
-	/**
-	 * Creates the rounder. If the precision is less than 1 then an instance will be created that does not perform
-	 * rounding.
-	 *
-	 * @param precision
-	 *            the precision
-	 * @return the rounder
-	 */
-	public static Rounder create(int precision)
-	{
-		return (precision > 0) ? new MathContextRounder(precision) : new NonRounder();
-	}
+    /**
+     * Creates the rounder. If the precision is less than 1 then an instance will be created that does not perform
+     * rounding.
+     *
+     * @param precision
+     *            the precision
+     * @return the rounder
+     */
+    public static Rounder create(int precision)
+    {
+        return (precision > 0) ? new MathContextRounder(precision) : new NonRounder();
+    }
 }

@@ -33,47 +33,47 @@ package uk.ac.sussex.gdsc.core.data;
  */
 public interface BivalueProvider
 {
-	/**
-	 * Gets the length of the X-dimension.
-	 *
-	 * @return the length
-	 */
-	public int getLengthX();
+    /**
+     * Gets the length of the X-dimension.
+     *
+     * @return the length
+     */
+    public int getLengthX();
 
-	/**
-	 * Gets the length of the Y-dimension.
-	 *
-	 * @return the length
-	 */
-	public int getLengthY();
+    /**
+     * Gets the length of the Y-dimension.
+     *
+     * @return the length
+     */
+    public int getLengthY();
 
-	/**
-	 * Gets the value.
-	 *
-	 * @param x
-	 *            the x (must be positive)
-	 * @param y
-	 *            the y (must be positive)
-	 * @return the value
-	 */
-	public double get(int x, int y);
+    /**
+     * Gets the value.
+     *
+     * @param x
+     *            the x (must be positive)
+     * @param y
+     *            the y (must be positive)
+     * @return the value
+     */
+    public double get(int x, int y);
 
-	/**
-	 * Gets the 3x3 values around the index. If the index is at the bounds then the result is undefined.
-	 *
-	 * @param x
-	 *            the x (must be positive)
-	 * @param y
-	 *            the y (must be positive)
-	 * @param values
-	 *            the values
-	 */
-	public void get(int x, int y, double[][] values);
+    /**
+     * Gets the 3x3 values around the index. If the index is at the bounds then the result is undefined.
+     *
+     * @param x
+     *            the x (must be positive)
+     * @param y
+     *            the y (must be positive)
+     * @param values
+     *            the values
+     */
+    public void get(int x, int y, double[][] values);
 
-	/**
-	 * Convert to an array.
-	 *
-	 * @return the array
-	 */
-	public double[][] toArray();
+    /**
+     * Convert to an array.
+     *
+     * @return the array
+     */
+    public double[][] toArray();
 }

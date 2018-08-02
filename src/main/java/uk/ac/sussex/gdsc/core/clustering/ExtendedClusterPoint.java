@@ -33,29 +33,29 @@ package uk.ac.sussex.gdsc.core.clustering;
  */
 public class ExtendedClusterPoint extends ClusterPoint
 {
-	/** The next cluster point. Used for linked lists. */
-	public ExtendedClusterPoint nextE = null;
+    /** The next cluster point. Used for linked lists. */
+    public ExtendedClusterPoint nextE = null;
 
-	/** Flag indicating if this is in a cluster. */
-	public boolean inCluster = false;
+    /** Flag indicating if this is in a cluster. */
+    public boolean inCluster = false;
 
-	/**
-	 * Instantiates a new extended cluster point.
-	 *
-	 * @param id
-	 *            the id
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 * @param t
-	 *            the t
-	 * @param other
-	 *            the other cluster point (used to create a linked-list)
-	 */
-	public ExtendedClusterPoint(int id, double x, double y, int t, ClusterPoint other)
-	{
-		super(id, x, y, t, t);
-		super.next = other;
-	}
+    /**
+     * Instantiates a new extended cluster point.
+     *
+     * @param id
+     *            the id
+     * @param x
+     *            the x
+     * @param y
+     *            the y
+     * @param t
+     *            the t
+     * @param other
+     *            the other cluster point (used to create a linked-list)
+     */
+    public ExtendedClusterPoint(int id, double x, double y, int t, ClusterPoint other)
+    {
+        super(id, x, y, t, t);
+        super.next = other;
+    }
 }

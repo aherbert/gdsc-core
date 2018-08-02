@@ -32,38 +32,38 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  */
 class MoleculeList extends MoleculeArray
 {
-	/**
-	 * Instantiates a new molecule list.
-	 *
-	 * @param capacity
-	 *            the capacity
-	 */
-	MoleculeList(int capacity)
-	{
-		super(capacity);
-	}
+    /**
+     * Instantiates a new molecule list.
+     *
+     * @param capacity
+     *            the capacity
+     */
+    MoleculeList(int capacity)
+    {
+        super(capacity);
+    }
 
-	/**
-	 * Gets the molecule at the index.
-	 *
-	 * @param i
-	 *            the index
-	 * @return the molecule
-	 */
-	Molecule get(int i)
-	{
-		return list[i];
-	}
+    /**
+     * Gets the molecule at the index.
+     *
+     * @param i
+     *            the index
+     * @return the molecule
+     */
+    Molecule get(int i)
+    {
+        return list[i];
+    }
 
-	/**
-	 * Adds the molecules.
-	 *
-	 * @param molecules
-	 *            the molecules
-	 */
-	void add(Molecule[] molecules)
-	{
-		System.arraycopy(molecules, 0, list, size, molecules.length);
-		size += molecules.length;
-	}
+    /**
+     * Adds the molecules.
+     *
+     * @param molecules
+     *            the molecules
+     */
+    void add(Molecule[] molecules)
+    {
+        System.arraycopy(molecules, 0, list, size, molecules.length);
+        size += molecules.length;
+    }
 }

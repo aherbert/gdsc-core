@@ -37,109 +37,109 @@ import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.thirdGenKD.SquareEu
  */
 class TreeMoleculeSpace2 extends MoleculeSpace
 {
-	private static final DistanceFunction distanceFunction = new SquareEuclideanDistanceFunction2D();
+    private static final DistanceFunction distanceFunction = new SquareEuclideanDistanceFunction2D();
 
-	/**
-	 * Used for access to the raw coordinates
-	 */
-	protected final OPTICSManager opticsManager;
+    /**
+     * Used for access to the raw coordinates
+     */
+    protected final OPTICSManager opticsManager;
 
-	private KdTree2D<Molecule> tree;
+    private KdTree2D<Molecule> tree;
 
-	/**
-	 * Instantiates a new tree molecule space 2.
-	 *
-	 * @param opticsManager
-	 *            the optics manager
-	 * @param generatingDistanceE
-	 *            the generating distance (E)
-	 */
-	TreeMoleculeSpace2(OPTICSManager opticsManager, float generatingDistanceE)
-	{
-		super(opticsManager.getSize(), generatingDistanceE);
+    /**
+     * Instantiates a new tree molecule space 2.
+     *
+     * @param opticsManager
+     *            the optics manager
+     * @param generatingDistanceE
+     *            the generating distance (E)
+     */
+    TreeMoleculeSpace2(OPTICSManager opticsManager, float generatingDistanceE)
+    {
+        super(opticsManager.getSize(), generatingDistanceE);
 
-		this.opticsManager = opticsManager;
-	}
+        this.opticsManager = opticsManager;
+    }
 
-	// Nothing to add to default toString()
-	//	@Override
-	//	public String toString()
-	//	{
-	//		return this.getClass().getSimpleName();
-	//	}
+    // Nothing to add to default toString()
+    //	@Override
+    //	public String toString()
+    //	{
+    //		return this.getClass().getSimpleName();
+    //	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.clustering.optics.MoleculeSpace#generate()
-	 */
-	@Override
-	Molecule[] generate()
-	{
-		final float[] xcoord = opticsManager.getXData();
-		final float[] ycoord = opticsManager.getYData();
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.clustering.optics.MoleculeSpace#generate()
+     */
+    @Override
+    Molecule[] generate()
+    {
+        final float[] xcoord = opticsManager.getXData();
+        final float[] ycoord = opticsManager.getYData();
 
-		setOfObjects = new Molecule[xcoord.length];
-		tree = new KdTree2D<>();
-		for (int i = 0; i < xcoord.length; i++)
-		{
-			final float x = xcoord[i];
-			final float y = ycoord[i];
-			// Build a single linked list
-			final Molecule m = new DistanceMolecule(i, x, y);
-			setOfObjects[i] = m;
-			tree.addPoint(new double[] { x, y }, m);
-		}
+        setOfObjects = new Molecule[xcoord.length];
+        tree = new KdTree2D<>();
+        for (int i = 0; i < xcoord.length; i++)
+        {
+            final float x = xcoord[i];
+            final float y = ycoord[i];
+            // Build a single linked list
+            final Molecule m = new DistanceMolecule(i, x, y);
+            setOfObjects[i] = m;
+            tree.addPoint(new double[] { x, y }, m);
+        }
 
-		return setOfObjects;
-	}
+        return setOfObjects;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
-	 * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
-	 */
-	@Override
-	void findNeighbours(int minPts, Molecule object, float e)
-	{
-		final NearestNeighborIterator<Molecule> iter = tree
-				.getNearestNeighborIterator(new double[] { object.x, object.y }, tree.size(), distanceFunction);
-		neighbours.clear();
-		final double e2 = e;
-		while (iter.hasNext())
-		{
-			final Molecule m = iter.next();
-			if (iter.distance() <= e2)
-				neighbours.add(m);
-			else
-				break;
-		}
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
+     * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
+     */
+    @Override
+    void findNeighbours(int minPts, Molecule object, float e)
+    {
+        final NearestNeighborIterator<Molecule> iter = tree
+                .getNearestNeighborIterator(new double[] { object.x, object.y }, tree.size(), distanceFunction);
+        neighbours.clear();
+        final double e2 = e;
+        while (iter.hasNext())
+        {
+            final Molecule m = iter.next();
+            if (iter.distance() <= e2)
+                neighbours.add(m);
+            else
+                break;
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
-	 * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
-	 */
-	@Override
-	void findNeighboursAndDistances(int minPts, Molecule object, float e)
-	{
-		final NearestNeighborIterator<Molecule> iter = tree
-				.getNearestNeighborIterator(new double[] { object.x, object.y }, tree.size(), distanceFunction);
-		neighbours.clear();
-		while (iter.hasNext())
-		{
-			final Molecule m = iter.next();
-			final float d = (float) iter.distance();
-			if (d <= e)
-			{
-				m.setD(d);
-				neighbours.add(m);
-			}
-			else
-				break;
-		}
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
+     * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
+     */
+    @Override
+    void findNeighboursAndDistances(int minPts, Molecule object, float e)
+    {
+        final NearestNeighborIterator<Molecule> iter = tree
+                .getNearestNeighborIterator(new double[] { object.x, object.y }, tree.size(), distanceFunction);
+        neighbours.clear();
+        while (iter.hasNext())
+        {
+            final Molecule m = iter.next();
+            final float d = (float) iter.distance();
+            if (d <= e)
+            {
+                m.setD(d);
+                neighbours.add(m);
+            }
+            else
+                break;
+        }
+    }
 }

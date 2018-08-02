@@ -38,52 +38,52 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
  */
 public class PolygonRoiTest extends RoiTest
 {
-	private final Rectangle2D.Double bounds;
-	private final double[] xpoints, ypoints;
+    private final Rectangle2D.Double bounds;
+    private final double[] xpoints, ypoints;
 
-	/**
-	 * Instantiates a new polygon roi test.
-	 *
-	 * @param roi
-	 *            the roi
-	 */
-	public PolygonRoiTest(Roi roi)
-	{
-		if (roi.getType() == Roi.POLYGON || roi.getType() == Roi.FREEROI || roi.getType() == Roi.TRACED_ROI)
-		{
-			bounds = roi.getFloatBounds();
-			final FloatPolygon poly = roi.getFloatPolygon();
-			xpoints = SimpleArrayUtils.toDouble(poly.xpoints);
-			ypoints = SimpleArrayUtils.toDouble(poly.ypoints);
-		}
-		else
-			throw new IllegalArgumentException("Require polygon/free/traced ROI");
-	}
+    /**
+     * Instantiates a new polygon roi test.
+     *
+     * @param roi
+     *            the roi
+     */
+    public PolygonRoiTest(Roi roi)
+    {
+        if (roi.getType() == Roi.POLYGON || roi.getType() == Roi.FREEROI || roi.getType() == Roi.TRACED_ROI)
+        {
+            bounds = roi.getFloatBounds();
+            final FloatPolygon poly = roi.getFloatPolygon();
+            xpoints = SimpleArrayUtils.toDouble(poly.xpoints);
+            ypoints = SimpleArrayUtils.toDouble(poly.ypoints);
+        }
+        else
+            throw new IllegalArgumentException("Require polygon/free/traced ROI");
+    }
 
-	@Override
-	public boolean contains(double x, double y)
-	{
-		return bounds.contains(x, y) && polygonContains(x, y);
-	}
+    @Override
+    public boolean contains(double x, double y)
+    {
+        return bounds.contains(x, y) && polygonContains(x, y);
+    }
 
-	/**
-	 * Returns 'true' if the point (x,y) is inside this polygon. This is a Java
-	 * version of the remarkably small C program by W. Randolph Franklin at
-	 * http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html#The%20C%20Code
-	 *
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 * @return true, if successful
-	 */
-	public boolean polygonContains(double x, double y)
-	{
-		boolean inside = false;
-		for (int i = xpoints.length, j = 0; i-- > 0; j = i)
-			if (((ypoints[i] > y) != (ypoints[j] > y)) &&
-					(x < (xpoints[j] - xpoints[i]) * (y - ypoints[i]) / (ypoints[j] - ypoints[i]) + xpoints[i]))
-				inside = !inside;
-		return inside;
-	}
+    /**
+     * Returns 'true' if the point (x,y) is inside this polygon. This is a Java
+     * version of the remarkably small C program by W. Randolph Franklin at
+     * http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html#The%20C%20Code
+     *
+     * @param x
+     *            the x
+     * @param y
+     *            the y
+     * @return true, if successful
+     */
+    public boolean polygonContains(double x, double y)
+    {
+        boolean inside = false;
+        for (int i = xpoints.length, j = 0; i-- > 0; j = i)
+            if (((ypoints[i] > y) != (ypoints[j] > y)) &&
+                    (x < (xpoints[j] - xpoints[i]) * (y - ypoints[i]) / (ypoints[j] - ypoints[i]) + xpoints[i]))
+                inside = !inside;
+        return inside;
+    }
 }

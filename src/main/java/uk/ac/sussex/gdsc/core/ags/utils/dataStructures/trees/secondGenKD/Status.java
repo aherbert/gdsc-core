@@ -28,12 +28,12 @@ package uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD;
  */
 public enum Status
 {
-	/** The none status. */
-	NONE,
-	/** The leftvisited status. */
-	LEFTVISITED,
-	/** The rightvisited status. */
-	RIGHTVISITED,
-	/** The allvisited status. */
-	ALLVISITED
+    /** The none status. */
+    NONE,
+    /** The leftvisited status. */
+    LEFTVISITED,
+    /** The rightvisited status. */
+    RIGHTVISITED,
+    /** The allvisited status. */
+    ALLVISITED
 }

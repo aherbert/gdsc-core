@@ -32,49 +32,49 @@ package uk.ac.sussex.gdsc.core.match;
  */
 public class ImmutableFractionalAssignment extends ImmutableAssignment implements FractionalAssignment
 {
-	private final double score;
+    private final double score;
 
-	/**
-	 * Instantiates a new fractional assignment.
-	 *
-	 * @param targetId
-	 *            the target id
-	 * @param predictedId
-	 *            the predicted id
-	 * @param distance
-	 *            the distance (zero is perfect match)
-	 * @param score
-	 *            The true positive score (must be 0-1)
-	 */
-	public ImmutableFractionalAssignment(int targetId, int predictedId, double distance, double score)
-	{
-		super(targetId, predictedId, distance);
-		this.score = score;
-	}
+    /**
+     * Instantiates a new fractional assignment.
+     *
+     * @param targetId
+     *            the target id
+     * @param predictedId
+     *            the predicted id
+     * @param distance
+     *            the distance (zero is perfect match)
+     * @param score
+     *            The true positive score (must be 0-1)
+     */
+    public ImmutableFractionalAssignment(int targetId, int predictedId, double distance, double score)
+    {
+        super(targetId, predictedId, distance);
+        this.score = score;
+    }
 
-	/**
-	 * Instantiates a new fractional assignment. The score for a match is 1.
-	 *
-	 * @param targetId
-	 *            the target id
-	 * @param predictedId
-	 *            the predicted id
-	 * @param distance
-	 *            the distance
-	 */
-	public ImmutableFractionalAssignment(int targetId, int predictedId, double distance)
-	{
-		this(targetId, predictedId, distance, 1);
-	}
+    /**
+     * Instantiates a new fractional assignment. The score for a match is 1.
+     *
+     * @param targetId
+     *            the target id
+     * @param predictedId
+     *            the predicted id
+     * @param distance
+     *            the distance
+     */
+    public ImmutableFractionalAssignment(int targetId, int predictedId, double distance)
+    {
+        this(targetId, predictedId, distance, 1);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.match.FractionalAssignment#getScore()
-	 */
-	@Override
-	public double getScore()
-	{
-		return score;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.match.FractionalAssignment#getScore()
+     */
+    @Override
+    public double getScore()
+    {
+        return score;
+    }
 }

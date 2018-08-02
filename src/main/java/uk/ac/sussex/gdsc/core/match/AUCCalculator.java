@@ -33,108 +33,108 @@ package uk.ac.sussex.gdsc.core.match;
 public class AUCCalculator
 {
 
-	/**
-	 * Calculates an estimate of the area under the precision-recall curve.
-	 * <p>
-	 * The estimate is computed using integration above the recall limit. Below the limit a simple linear interpolation
-	 * is used from the given point to precision 1 at recall 0. This avoids noise in the lower recall section of the
-	 * curve.
-	 * <p>
-	 * If no recall values are above the limit then the full integration is performed.
-	 *
-	 * @param precision
-	 *            the precision
-	 * @param recall
-	 *            the recall
-	 * @param recallLimit
-	 *            Set to 0 to compute the full area.
-	 * @return Area under the PR curve
-	 */
-	public static double auc(double[] precision, double[] recall, double recallLimit)
-	{
-		if (precision == null || recall == null)
-			return 0;
+    /**
+     * Calculates an estimate of the area under the precision-recall curve.
+     * <p>
+     * The estimate is computed using integration above the recall limit. Below the limit a simple linear interpolation
+     * is used from the given point to precision 1 at recall 0. This avoids noise in the lower recall section of the
+     * curve.
+     * <p>
+     * If no recall values are above the limit then the full integration is performed.
+     *
+     * @param precision
+     *            the precision
+     * @param recall
+     *            the recall
+     * @param recallLimit
+     *            Set to 0 to compute the full area.
+     * @return Area under the PR curve
+     */
+    public static double auc(double[] precision, double[] recall, double recallLimit)
+    {
+        if (precision == null || recall == null)
+            return 0;
 
-		double area = 0.0;
-		int k;
+        double area = 0.0;
+        int k;
 
-		if (recallLimit > 0)
-		{
-			// Move from high to low recall and find the first point below the limit
-			k = recall.length - 1;
-			while (k > 0 && recall[k] > recallLimit)
-				k--;
+        if (recallLimit > 0)
+        {
+            // Move from high to low recall and find the first point below the limit
+            k = recall.length - 1;
+            while (k > 0 && recall[k] > recallLimit)
+                k--;
 
-			if (k > 0)
-			{
-				// Find the first point where precision was not 1
-				int kk = 0;
-				while (precision[kk + 1] == 1)
-					kk++;
+            if (k > 0)
+            {
+                // Find the first point where precision was not 1
+                int kk = 0;
+                while (precision[kk + 1] == 1)
+                    kk++;
 
-				// Full precision of 1 up to point kk
-				area += (recall[kk] - recall[0]);
+                // Full precision of 1 up to point kk
+                area += (recall[kk] - recall[0]);
 
-				// Interpolate from precision at kk to k
-				area += (precision[k] + precision[kk]) * 0.5 * (recall[k] - recall[kk]);
+                // Interpolate from precision at kk to k
+                area += (precision[k] + precision[kk]) * 0.5 * (recall[k] - recall[kk]);
 
-				// Increment to start the remaining integral
-				k++;
-			}
-		}
-		else
-			// Complete integration from start
-			k = 0;
+                // Increment to start the remaining integral
+                k++;
+            }
+        }
+        else
+            // Complete integration from start
+            k = 0;
 
-		// Integrate the rest
-		double prevR = 0;
-		double prevP = 1;
-		if (recall[0] == 0)
-			k++;
+        // Integrate the rest
+        double prevR = 0;
+        double prevP = 1;
+        if (recall[0] == 0)
+            k++;
 
-		for (; k < precision.length; k++)
-		{
-			final double delta = recall[k] - prevR;
-			if (precision[k] == prevP)
-				area += prevP * delta;
-			else
-				// Interpolate
-				area += (precision[k] + prevP) * 0.5 * delta;
-			prevR = recall[k];
-			prevP = precision[k];
-		}
-		return area;
-	}
+        for (; k < precision.length; k++)
+        {
+            final double delta = recall[k] - prevR;
+            if (precision[k] == prevP)
+                area += prevP * delta;
+            else
+                // Interpolate
+                area += (precision[k] + prevP) * 0.5 * delta;
+            prevR = recall[k];
+            prevP = precision[k];
+        }
+        return area;
+    }
 
-	/**
-	 * Calculates an estimate of the area under the precision-recall curve.
-	 * <p>
-	 * Assumes the first values in the two arrays are precision 1 at recall 0.
-	 *
-	 * @param precision
-	 *            the precision
-	 * @param recall
-	 *            the recall
-	 * @return Area under the PR curve
-	 */
-	public static double auc(double[] precision, double[] recall)
-	{
-		double area = 0.0;
+    /**
+     * Calculates an estimate of the area under the precision-recall curve.
+     * <p>
+     * Assumes the first values in the two arrays are precision 1 at recall 0.
+     *
+     * @param precision
+     *            the precision
+     * @param recall
+     *            the recall
+     * @return Area under the PR curve
+     */
+    public static double auc(double[] precision, double[] recall)
+    {
+        double area = 0.0;
 
-		double prevR = 0;
-		double prevP = 1;
+        double prevR = 0;
+        double prevP = 1;
 
-		for (int k = 1; k < precision.length; k++)
-		{
-			final double delta = recall[k] - prevR;
-			if (precision[k] == prevP)
-				area += prevP * delta;
-			else
-				// Interpolate
-				area += (precision[k] + prevP) * 0.5 * delta;
-			prevR = recall[k];
-			prevP = precision[k];
-		}
-		return area;
-	}
+        for (int k = 1; k < precision.length; k++)
+        {
+            final double delta = recall[k] - prevR;
+            if (precision[k] == prevP)
+                area += prevP * delta;
+            else
+                // Interpolate
+                area += (precision[k] + prevP) * 0.5 * delta;
+            prevR = recall[k];
+            prevP = precision[k];
+        }
+        return area;
+    }
 }

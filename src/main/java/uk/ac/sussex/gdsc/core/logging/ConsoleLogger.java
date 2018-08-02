@@ -32,56 +32,56 @@ package uk.ac.sussex.gdsc.core.logging;
  */
 public class ConsoleLogger implements Logger
 {
-	/**
-	 * Log the message to the Java console. Appends a new line to the message.
-	 *
-	 * @param message
-	 *            the message
-	 */
-	@Override
-	public void info(String message)
-	{
-		System.out.println(message);
-	}
+    /**
+     * Log the message to the Java console. Appends a new line to the message.
+     *
+     * @param message
+     *            the message
+     */
+    @Override
+    public void info(String message)
+    {
+        System.out.println(message);
+    }
 
-	/**
-	 * Log the arguments using the given format to the Java console. Appends a new line to the console if the format is
-	 * missing the \n character.
-	 *
-	 * @param format
-	 *            the format
-	 * @param args
-	 *            the args
-	 */
-	@Override
-	public void info(String format, Object... args)
-	{
-		System.out.printf(format, args);
-		if (!format.endsWith("\n"))
-			System.out.println();
-	}
+    /**
+     * Log the arguments using the given format to the Java console. Appends a new line to the console if the format is
+     * missing the \n character.
+     *
+     * @param format
+     *            the format
+     * @param args
+     *            the args
+     */
+    @Override
+    public void info(String format, Object... args)
+    {
+        System.out.printf(format, args);
+        if (!format.endsWith("\n"))
+            System.out.println();
+    }
 
-	@Override
-	public void debug(String message)
-	{
-		info(message);
-	}
+    @Override
+    public void debug(String message)
+    {
+        info(message);
+    }
 
-	@Override
-	public void debug(String format, Object... args)
-	{
-		info(format, args);
-	}
+    @Override
+    public void debug(String format, Object... args)
+    {
+        info(format, args);
+    }
 
-	@Override
-	public void error(String message)
-	{
-		info(message);
-	}
+    @Override
+    public void error(String message)
+    {
+        info(message);
+    }
 
-	@Override
-	public void error(String format, Object... args)
-	{
-		info(format, args);
-	}
+    @Override
+    public void error(String format, Object... args)
+    {
+        info(format, args);
+    }
 }

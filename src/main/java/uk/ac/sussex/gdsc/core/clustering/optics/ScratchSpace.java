@@ -39,129 +39,129 @@ import uk.ac.sussex.gdsc.core.utils.ConvexHull;
  */
 class ScratchSpace
 {
-	/** The x. */
-	float[] x;
-	/** The y. */
-	float[] y;
-	/** The number of values. */
-	int n;
+    /** The x. */
+    float[] x;
+    /** The y. */
+    float[] y;
+    /** The number of values. */
+    int n;
 
-	/**
-	 * Instantiates a new scratch space.
-	 *
-	 * @param capacity
-	 *            the capacity
-	 */
-	ScratchSpace(int capacity)
-	{
-		x = new float[capacity];
-		y = new float[capacity];
-		n = 0;
-	}
+    /**
+     * Instantiates a new scratch space.
+     *
+     * @param capacity
+     *            the capacity
+     */
+    ScratchSpace(int capacity)
+    {
+        x = new float[capacity];
+        y = new float[capacity];
+        n = 0;
+    }
 
-	/**
-	 * Resize to the given capacity and reset the number of values.
-	 *
-	 * @param capacity
-	 *            the capacity
-	 */
-	void resize(int capacity)
-	{
-		if (x.length < capacity)
-		{
-			x = new float[capacity];
-			y = new float[capacity];
-		}
-		n = 0;
-	}
+    /**
+     * Resize to the given capacity and reset the number of values.
+     *
+     * @param capacity
+     *            the capacity
+     */
+    void resize(int capacity)
+    {
+        if (x.length < capacity)
+        {
+            x = new float[capacity];
+            y = new float[capacity];
+        }
+        n = 0;
+    }
 
-	/**
-	 * Adds the (x,y) value.
-	 *
-	 * @param xx
-	 *            the x
-	 * @param yy
-	 *            the y
-	 */
-	void add(float xx, float yy)
-	{
-		x[n] = xx;
-		y[n] = yy;
-		n++;
-	}
+    /**
+     * Adds the (x,y) value.
+     *
+     * @param xx
+     *            the x
+     * @param yy
+     *            the y
+     */
+    void add(float xx, float yy)
+    {
+        x[n] = xx;
+        y[n] = yy;
+        n++;
+    }
 
-	/**
-	 * Adds the (x,y) values.
-	 *
-	 * @param xx
-	 *            the x
-	 * @param yy
-	 *            the y
-	 */
-	void add(float[] xx, float[] yy)
-	{
-		final int size = xx.length;
-		System.arraycopy(xx, 0, x, n, size);
-		System.arraycopy(yy, 0, y, n, size);
-		n += size;
-	}
+    /**
+     * Adds the (x,y) values.
+     *
+     * @param xx
+     *            the x
+     * @param yy
+     *            the y
+     */
+    void add(float[] xx, float[] yy)
+    {
+        final int size = xx.length;
+        System.arraycopy(xx, 0, x, n, size);
+        System.arraycopy(yy, 0, y, n, size);
+        n += size;
+    }
 
-	/**
-	 * Adds the (x,y) value.
-	 *
-	 * @param xx
-	 *            the x
-	 * @param yy
-	 *            the y
-	 */
-	void safeAdd(float xx, float yy)
-	{
-		if (x.length == n)
-		{
-			final int size = x.length * 2;
-			x = Arrays.copyOf(x, size);
-			y = Arrays.copyOf(y, size);
-		}
+    /**
+     * Adds the (x,y) value.
+     *
+     * @param xx
+     *            the x
+     * @param yy
+     *            the y
+     */
+    void safeAdd(float xx, float yy)
+    {
+        if (x.length == n)
+        {
+            final int size = x.length * 2;
+            x = Arrays.copyOf(x, size);
+            y = Arrays.copyOf(y, size);
+        }
 
-		x[n] = xx;
-		y[n] = yy;
-		n++;
-	}
+        x[n] = xx;
+        y[n] = yy;
+        n++;
+    }
 
-	/**
-	 * Gets the bounds.
-	 *
-	 * @return the bounds
-	 */
-	Rectangle2D getBounds()
-	{
-		if (n == 0)
-			return null;
-		float minX = x[0];
-		float minY = y[0];
-		float maxX = minX;
-		float maxY = minY;
-		for (int i = 1; i < n; i++)
-		{
-			if (maxX < x[i])
-				maxX = x[i];
-			else if (minX > x[i])
-				minX = x[i];
-			if (maxY < y[i])
-				maxY = y[i];
-			else if (minY > y[i])
-				minY = y[i];
-		}
-		return new Rectangle2D.Float(minX, minY, maxX - minX, maxY - minY);
-	}
+    /**
+     * Gets the bounds.
+     *
+     * @return the bounds
+     */
+    Rectangle2D getBounds()
+    {
+        if (n == 0)
+            return null;
+        float minX = x[0];
+        float minY = y[0];
+        float maxX = minX;
+        float maxY = minY;
+        for (int i = 1; i < n; i++)
+        {
+            if (maxX < x[i])
+                maxX = x[i];
+            else if (minX > x[i])
+                minX = x[i];
+            if (maxY < y[i])
+                maxY = y[i];
+            else if (minY > y[i])
+                minY = y[i];
+        }
+        return new Rectangle2D.Float(minX, minY, maxX - minX, maxY - minY);
+    }
 
-	/**
-	 * Gets the convex hull.
-	 *
-	 * @return the convex hull
-	 */
-	ConvexHull getConvexHull()
-	{
-		return ConvexHull.create(x, y, n);
-	}
+    /**
+     * Gets the convex hull.
+     *
+     * @return the convex hull
+     */
+    ConvexHull getConvexHull()
+    {
+        return ConvexHull.create(x, y, n);
+    }
 }

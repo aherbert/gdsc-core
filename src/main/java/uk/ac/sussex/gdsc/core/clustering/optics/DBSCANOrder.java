@@ -32,44 +32,44 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  */
 public class DBSCANOrder
 {
-	/**
-	 * The Id of the parent point object used when generating this result. Can be used to identify the coordinates
-	 * from the original input data.
-	 */
-	public final int parent;
-	/**
-	 * The cluster identifier.
-	 */
-	int clusterId;
-	/**
-	 * The number of points within the generating distance.
-	 */
-	public final int nPts;
+    /**
+     * The Id of the parent point object used when generating this result. Can be used to identify the coordinates
+     * from the original input data.
+     */
+    public final int parent;
+    /**
+     * The cluster identifier.
+     */
+    int clusterId;
+    /**
+     * The number of points within the generating distance.
+     */
+    public final int nPts;
 
-	/**
-	 * Instantiates a new DBSCAN order result.
-	 *
-	 * @param parent
-	 *            the parent
-	 * @param clusterId
-	 *            the cluster id
-	 * @param nPts
-	 *            The number of points in within the generating distance
-	 */
-	public DBSCANOrder(int parent, int clusterId, int nPts)
-	{
-		this.parent = parent;
-		this.clusterId = clusterId;
-		this.nPts = nPts;
-	}
+    /**
+     * Instantiates a new DBSCAN order result.
+     *
+     * @param parent
+     *            the parent
+     * @param clusterId
+     *            the cluster id
+     * @param nPts
+     *            The number of points in within the generating distance
+     */
+    public DBSCANOrder(int parent, int clusterId, int nPts)
+    {
+        this.parent = parent;
+        this.clusterId = clusterId;
+        this.nPts = nPts;
+    }
 
-	/**
-	 * Gets the cluster id.
-	 *
-	 * @return the cluster id
-	 */
-	public int getClusterId()
-	{
-		return clusterId;
-	}
+    /**
+     * Gets the cluster id.
+     *
+     * @return the cluster id
+     */
+    public int getClusterId()
+    {
+        return clusterId;
+    }
 }

@@ -23,8 +23,9 @@
  */
 
 /**
- * Provides data structures for constructing a <a href="https://en.wikipedia.org/wiki/Heap_(data_structure)">Heap</a>. 
- * The code contained here has been taken from <a href="https://bitbucket.org/rednaxela/knn-benchmark">https://bitbucket.org/rednaxela/knn-benchmark</a>.
+ * Provides data structures for constructing a <a href="https://en.wikipedia.org/wiki/Heap_(data_structure)">Heap</a>.
+ * The code contained here has been taken from
+ * <a href="https://bitbucket.org/rednaxela/knn-benchmark">https://bitbucket.org/rednaxela/knn-benchmark</a>.
  * <p>
  * The KNN benchmark project contains various implementations of Kd-trees for performing efficient K-Nearest Neighbour
  * searches. There are many implementations available, this package contains one of the fastest in the standard

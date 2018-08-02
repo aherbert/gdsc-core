@@ -51,247 +51,247 @@ import org.xml.sax.InputSource;
  */
 public class XmlUtils
 {
-	private static XmlFormatter formatter = new XmlFormatter(2, 80);
+    private static XmlFormatter formatter = new XmlFormatter(2, 80);
 
-	/**
-	 * Pretty print format XML. Assumes XML is valid.
-	 *
-	 * @param xml
-	 *            the xml
-	 * @return pretty-print formatted XML
-	 */
-	public static String formatXml(String xml)
-	{
-		return formatter.format(xml, 0);
-	}
+    /**
+     * Pretty print format XML. Assumes XML is valid.
+     *
+     * @param xml
+     *            the xml
+     * @return pretty-print formatted XML
+     */
+    public static String formatXml(String xml)
+    {
+        return formatter.format(xml, 0);
+    }
 
-	/**
-	 * Pretty print format XML. Assumes XML is valid.
-	 *
-	 * @param xml
-	 *            the xml
-	 * @param initialIndent
-	 *            the initial indent
-	 * @return pretty-print formatted XML
-	 */
-	public static String formatXml(String xml, int initialIndent)
-	{
-		return formatter.format(xml, initialIndent);
-	}
+    /**
+     * Pretty print format XML. Assumes XML is valid.
+     *
+     * @param xml
+     *            the xml
+     * @param initialIndent
+     *            the initial indent
+     * @return pretty-print formatted XML
+     */
+    public static String formatXml(String xml, int initialIndent)
+    {
+        return formatter.format(xml, initialIndent);
+    }
 
-	/**
-	 * XML utility for formatting XML as a pretty-print output.
-	 * Assumes the XML is valid since no DOM conversion is performed.
-	 *
-	 * Taken from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java
-	 */
-	private static class XmlFormatter
-	{
-		private final int indentNumChars;
-		private final int lineLength;
-		private boolean singleLine;
+    /**
+     * XML utility for formatting XML as a pretty-print output.
+     * Assumes the XML is valid since no DOM conversion is performed.
+     *
+     * Taken from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java
+     */
+    private static class XmlFormatter
+    {
+        private final int indentNumChars;
+        private final int lineLength;
+        private boolean singleLine;
 
-		public XmlFormatter(int indentNumChars, int lineLength)
-		{
-			this.indentNumChars = indentNumChars;
-			this.lineLength = lineLength;
-		}
+        public XmlFormatter(int indentNumChars, int lineLength)
+        {
+            this.indentNumChars = indentNumChars;
+            this.lineLength = lineLength;
+        }
 
-		public synchronized String format(String s, int initialIndent)
-		{
-			int indent = initialIndent;
-			final StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < s.length(); i++)
-			{
-				final char currentChar = s.charAt(i);
-				if (currentChar == '<')
-				{
-					final char nextChar = s.charAt(i + 1);
-					if (nextChar == '/')
-						indent -= indentNumChars;
-					if (!singleLine) // Don't indent before closing element if we're creating opening and closing elements on a single line.
-						sb.append(buildWhitespace(indent));
-					if (nextChar != '?' && nextChar != '!' && nextChar != '/')
-						indent += indentNumChars;
-					singleLine = false; // Reset flag.
-				}
-				sb.append(currentChar);
-				if (currentChar == '>')
-					if (s.charAt(i - 1) == '/')
-					{
-						indent -= indentNumChars;
-						sb.append("\n");
-					}
-					else
-					{
-						final int nextStartElementPos = s.indexOf('<', i);
-						if (nextStartElementPos > i + 1)
-						{
-							final String textBetweenElements = s.substring(i + 1, nextStartElementPos);
+        public synchronized String format(String s, int initialIndent)
+        {
+            int indent = initialIndent;
+            final StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < s.length(); i++)
+            {
+                final char currentChar = s.charAt(i);
+                if (currentChar == '<')
+                {
+                    final char nextChar = s.charAt(i + 1);
+                    if (nextChar == '/')
+                        indent -= indentNumChars;
+                    if (!singleLine) // Don't indent before closing element if we're creating opening and closing elements on a single line.
+                        sb.append(buildWhitespace(indent));
+                    if (nextChar != '?' && nextChar != '!' && nextChar != '/')
+                        indent += indentNumChars;
+                    singleLine = false; // Reset flag.
+                }
+                sb.append(currentChar);
+                if (currentChar == '>')
+                    if (s.charAt(i - 1) == '/')
+                    {
+                        indent -= indentNumChars;
+                        sb.append("\n");
+                    }
+                    else
+                    {
+                        final int nextStartElementPos = s.indexOf('<', i);
+                        if (nextStartElementPos > i + 1)
+                        {
+                            final String textBetweenElements = s.substring(i + 1, nextStartElementPos);
 
-							// If the space between elements is solely newlines, let them through to preserve additional newlines in source document.
-							if (textBetweenElements.replaceAll("\n", "").length() == 0)
-								sb.append(textBetweenElements + "\n");
-							else if (textBetweenElements.length() <= lineLength * 0.5)
-							{
-								sb.append(textBetweenElements);
-								singleLine = true;
-							}
-							// For larger amounts of text, wrap lines to a maximum line length.
-							else
-								sb.append("\n" + lineWrap(textBetweenElements, lineLength, indent, null) + "\n");
-							i = nextStartElementPos - 1;
-						}
-						else
-							sb.append("\n");
-					}
-			}
-			return sb.toString();
-		}
-	}
+                            // If the space between elements is solely newlines, let them through to preserve additional newlines in source document.
+                            if (textBetweenElements.replaceAll("\n", "").length() == 0)
+                                sb.append(textBetweenElements + "\n");
+                            else if (textBetweenElements.length() <= lineLength * 0.5)
+                            {
+                                sb.append(textBetweenElements);
+                                singleLine = true;
+                            }
+                            // For larger amounts of text, wrap lines to a maximum line length.
+                            else
+                                sb.append("\n" + lineWrap(textBetweenElements, lineLength, indent, null) + "\n");
+                            i = nextStartElementPos - 1;
+                        }
+                        else
+                            sb.append("\n");
+                    }
+            }
+            return sb.toString();
+        }
+    }
 
-	private static String buildWhitespace(int numChars)
-	{
-		final StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < numChars; i++)
-			sb.append(" ");
-		return sb.toString();
-	}
+    private static String buildWhitespace(int numChars)
+    {
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < numChars; i++)
+            sb.append(" ");
+        return sb.toString();
+    }
 
-	/**
-	 * Wraps the supplied text to the specified line length.
-	 *
-	 * @param s
-	 *            the s
-	 * @param lineLength
-	 *            the maximum length of each line in the returned string (not including indent if specified)
-	 * @param indent
-	 *            optional number of whitespace characters to prepend to each line before the text
-	 * @param linePrefix
-	 *            optional string to append to the indent (before the text)
-	 * @return the supplied text wrapped so that no line exceeds the specified line length + indent, optionally with
-	 *         indent and prefix applied to each line.
-	 */
-	public static String lineWrap(String s, int lineLength, Integer indent, String linePrefix)
-	{
-		if (s == null)
-			return null;
+    /**
+     * Wraps the supplied text to the specified line length.
+     *
+     * @param s
+     *            the s
+     * @param lineLength
+     *            the maximum length of each line in the returned string (not including indent if specified)
+     * @param indent
+     *            optional number of whitespace characters to prepend to each line before the text
+     * @param linePrefix
+     *            optional string to append to the indent (before the text)
+     * @return the supplied text wrapped so that no line exceeds the specified line length + indent, optionally with
+     *         indent and prefix applied to each line.
+     */
+    public static String lineWrap(String s, int lineLength, Integer indent, String linePrefix)
+    {
+        if (s == null)
+            return null;
 
-		final StringBuilder sb = new StringBuilder();
-		int lineStartPos = 0;
-		int lineEndPos;
-		boolean firstLine = true;
-		while (lineStartPos < s.length())
-		{
-			if (!firstLine)
-				sb.append("\n");
-			else
-				firstLine = false;
+        final StringBuilder sb = new StringBuilder();
+        int lineStartPos = 0;
+        int lineEndPos;
+        boolean firstLine = true;
+        while (lineStartPos < s.length())
+        {
+            if (!firstLine)
+                sb.append("\n");
+            else
+                firstLine = false;
 
-			if (lineStartPos + lineLength > s.length())
-				lineEndPos = s.length() - 1;
-			else
-			{
-				lineEndPos = lineStartPos + lineLength - 1;
-				while (lineEndPos > lineStartPos && (s.charAt(lineEndPos) != ' ' && s.charAt(lineEndPos) != '\t'))
-					lineEndPos--;
-			}
-			sb.append(buildWhitespace(indent));
-			if (linePrefix != null)
-				sb.append(linePrefix);
+            if (lineStartPos + lineLength > s.length())
+                lineEndPos = s.length() - 1;
+            else
+            {
+                lineEndPos = lineStartPos + lineLength - 1;
+                while (lineEndPos > lineStartPos && (s.charAt(lineEndPos) != ' ' && s.charAt(lineEndPos) != '\t'))
+                    lineEndPos--;
+            }
+            sb.append(buildWhitespace(indent));
+            if (linePrefix != null)
+                sb.append(linePrefix);
 
-			sb.append(s.substring(lineStartPos, lineEndPos + 1));
-			lineStartPos = lineEndPos + 1;
-		}
-		return sb.toString();
-	}
+            sb.append(s.substring(lineStartPos, lineEndPos + 1));
+            lineStartPos = lineEndPos + 1;
+        }
+        return sb.toString();
+    }
 
-	/**
-	 * Formats an XML string for pretty printing. Requires Java 1.6.
-	 *
-	 * Taken from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java
-	 *
-	 * @param xml
-	 *            the xml
-	 * @return pretty-print formatted XML
-	 */
-	public static String prettyPrintXml(String xml)
-	{
-		try
-		{
-			final InputSource src = new InputSource(new StringReader(xml));
-			final Node document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src)
-					.getDocumentElement();
-			final Boolean keepDeclaration = Boolean.valueOf(xml.startsWith("<?xml"));
+    /**
+     * Formats an XML string for pretty printing. Requires Java 1.6.
+     *
+     * Taken from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java
+     *
+     * @param xml
+     *            the xml
+     * @return pretty-print formatted XML
+     */
+    public static String prettyPrintXml(String xml)
+    {
+        try
+        {
+            final InputSource src = new InputSource(new StringReader(xml));
+            final Node document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src)
+                    .getDocumentElement();
+            final Boolean keepDeclaration = Boolean.valueOf(xml.startsWith("<?xml"));
 
-			//May need this: System.setProperty(DOMImplementationRegistry.PROPERTY,"com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
+            //May need this: System.setProperty(DOMImplementationRegistry.PROPERTY,"com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
 
-			final DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
-			final DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
-			final LSSerializer writer = impl.createLSSerializer();
+            final DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+            final DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
+            final LSSerializer writer = impl.createLSSerializer();
 
-			writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE); // Set this to true if the output needs to be beautified.
-			writer.getDomConfig().setParameter("xml-declaration", keepDeclaration); // Set this to true if the declaration is needed to be outputted.
+            writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE); // Set this to true if the output needs to be beautified.
+            writer.getDomConfig().setParameter("xml-declaration", keepDeclaration); // Set this to true if the declaration is needed to be outputted.
 
-			return writer.writeToString(document);
-		}
-		catch (final Exception e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
+            return writer.writeToString(document);
+        }
+        catch (final Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 
-	/**
-	 * Return the contents of the node as a string. Any exceptions are ignored and the method returns null.
-	 *
-	 * @param node
-	 *            the node
-	 * @param indent
-	 *            Indent the XML when formatting
-	 * @return The node contents
-	 */
-	public static String getString(Node node, boolean indent)
-	{
-		Transformer transformer;
-		try
-		{
-			transformer = TransformerFactory.newInstance().newTransformer();
-			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-			transformer.setOutputProperty(OutputKeys.INDENT, (indent) ? "yes" : "no");
+    /**
+     * Return the contents of the node as a string. Any exceptions are ignored and the method returns null.
+     *
+     * @param node
+     *            the node
+     * @param indent
+     *            Indent the XML when formatting
+     * @return The node contents
+     */
+    public static String getString(Node node, boolean indent)
+    {
+        Transformer transformer;
+        try
+        {
+            transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(OutputKeys.INDENT, (indent) ? "yes" : "no");
 
-			final StreamResult result = new StreamResult(new StringWriter());
-			final DOMSource source = new DOMSource(node);
-			transformer.transform(source, result);
+            final StreamResult result = new StreamResult(new StringWriter());
+            final DOMSource source = new DOMSource(node);
+            transformer.transform(source, result);
 
-			return result.getWriter().toString();
-		}
-		catch (final TransformerConfigurationException e)
-		{
-			//e.printStackTrace();
-		}
-		catch (final TransformerFactoryConfigurationError e)
-		{
-			//e.printStackTrace();
-		}
-		catch (final TransformerException e)
-		{
-			//e.printStackTrace();
-		}
-		return "";
-	}
+            return result.getWriter().toString();
+        }
+        catch (final TransformerConfigurationException e)
+        {
+            //e.printStackTrace();
+        }
+        catch (final TransformerFactoryConfigurationError e)
+        {
+            //e.printStackTrace();
+        }
+        catch (final TransformerException e)
+        {
+            //e.printStackTrace();
+        }
+        return "";
+    }
 
-	/**
-	 * Convert double quotes to single quotes.
-	 * <p>
-	 * This method is a simple replace function call. It does not check if the xml contains a mixture of single and
-	 * double quotes. In that instance the returned XML will break.
-	 *
-	 * @param xml
-	 *            the xml
-	 * @return the converted xml
-	 */
-	public static String convertQuotes(String xml)
-	{
-		return xml.replace('"', '\'');
-	}
+    /**
+     * Convert double quotes to single quotes.
+     * <p>
+     * This method is a simple replace function call. It does not check if the xml contains a mixture of single and
+     * double quotes. In that instance the returned XML will break.
+     *
+     * @param xml
+     *            the xml
+     * @return the converted xml
+     */
+    public static String convertQuotes(String xml)
+    {
+        return xml.replace('"', '\'');
+    }
 }

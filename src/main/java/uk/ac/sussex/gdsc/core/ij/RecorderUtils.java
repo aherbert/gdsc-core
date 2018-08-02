@@ -35,127 +35,127 @@ import uk.ac.sussex.gdsc.core.utils.TurboList;
  */
 public class RecorderUtils
 {
-	/**
-	 * Reset the recorder for all the named keys.
-	 *
-	 * @param keys
-	 *            the keys
-	 */
-	public static void resetRecorder(String[] keys)
-	{
-		if (keys == null || keys.length == 0)
-			return;
+    /**
+     * Reset the recorder for all the named keys.
+     *
+     * @param keys
+     *            the keys
+     */
+    public static void resetRecorder(String[] keys)
+    {
+        if (keys == null || keys.length == 0)
+            return;
 
-		// Get the Recorder options, remove all the labels, and update the reduced Recorder options
-		final String commandName = Recorder.getCommand();
-		final String commandOptions = Recorder.getCommandOptions();
-		if (commandName == null || commandOptions == null)
-			return;
+        // Get the Recorder options, remove all the labels, and update the reduced Recorder options
+        final String commandName = Recorder.getCommand();
+        final String commandOptions = Recorder.getCommandOptions();
+        if (commandName == null || commandOptions == null)
+            return;
 
-		//System.out.printf("%s - %s\n", commandOptions, java.util.Arrays.toString(keys));
+        //System.out.printf("%s - %s\n", commandOptions, java.util.Arrays.toString(keys));
 
-		// We only support labels added with
-		//Recorder.recordOption(String);
-		//Recorder.recordOption(String,String);
-		// These will create a key in the command options of:
-		// " "+key
-		// " "+key+"="+value
-		// " "+key+"=["+value+"]"
-		boolean ignored = false;
-		final TurboList<String[]> pairs = new TurboList<>();
-		for (int current = 0, len = commandOptions.length(); current < len;)
-		{
-			// Find the next non-space character, this will be the start of a key
-			while (current < len && commandOptions.charAt(current) == ' ')
-				current++;
-			if (current == len)
-				break;
+        // We only support labels added with
+        //Recorder.recordOption(String);
+        //Recorder.recordOption(String,String);
+        // These will create a key in the command options of:
+        // " "+key
+        // " "+key+"="+value
+        // " "+key+"=["+value+"]"
+        boolean ignored = false;
+        final TurboList<String[]> pairs = new TurboList<>();
+        for (int current = 0, len = commandOptions.length(); current < len;)
+        {
+            // Find the next non-space character, this will be the start of a key
+            while (current < len && commandOptions.charAt(current) == ' ')
+                current++;
+            if (current == len)
+                break;
 
-			// Find the end of the key.
-			// This could be a space or an equals.
-			final int keyEnd = findKeyEnd(commandOptions, len, current);
+            // Find the end of the key.
+            // This could be a space or an equals.
+            final int keyEnd = findKeyEnd(commandOptions, len, current);
 
-			final String key = commandOptions.substring(current, keyEnd);
+            final String key = commandOptions.substring(current, keyEnd);
 
-			current = keyEnd;
+            current = keyEnd;
 
-			// Find the value if present
-			String value = null;
-			if (keyEnd < len && commandOptions.charAt(keyEnd) == '=')
-			{
-				// There is a value. This may be surrounded by brackets
-				int valueStart = keyEnd + 1;
-				int valueEnd;
-				if (valueStart < len && commandOptions.charAt(valueStart) == '[')
-				{
-					valueStart++;
-					valueEnd = commandOptions.indexOf(']', valueStart);
-				}
-				else
-					valueEnd = commandOptions.indexOf(' ', valueStart);
-				if (valueEnd < 0)
-					valueEnd = len;
-				value = commandOptions.substring(valueStart, valueEnd);
+            // Find the value if present
+            String value = null;
+            if (keyEnd < len && commandOptions.charAt(keyEnd) == '=')
+            {
+                // There is a value. This may be surrounded by brackets
+                int valueStart = keyEnd + 1;
+                int valueEnd;
+                if (valueStart < len && commandOptions.charAt(valueStart) == '[')
+                {
+                    valueStart++;
+                    valueEnd = commandOptions.indexOf(']', valueStart);
+                }
+                else
+                    valueEnd = commandOptions.indexOf(' ', valueStart);
+                if (valueEnd < 0)
+                    valueEnd = len;
+                value = commandOptions.substring(valueStart, valueEnd);
 
-				current = valueEnd + 1;
-			}
+                current = valueEnd + 1;
+            }
 
-			// Check key should be ignored
-			if (ignore(key, keys))
-			{
-				//System.out.printf("Ignoring %s %s\n", key, value);
-				ignored = true;
-				continue;
-			}
+            // Check key should be ignored
+            if (ignore(key, keys))
+            {
+                //System.out.printf("Ignoring %s %s\n", key, value);
+                ignored = true;
+                continue;
+            }
 
-			//System.out.printf("Keeping %s %s\n", key, value);
-			pairs.add(new String[] { key, value });
-		}
+            //System.out.printf("Keeping %s %s\n", key, value);
+            pairs.add(new String[] { key, value });
+        }
 
-		if (!ignored)
-			// No keys to remove
-			return;
+        if (!ignored)
+            // No keys to remove
+            return;
 
-		// Reset
-		Recorder.setCommand(null);
-		Recorder.saveCommand();
-		// Re-record all the remaining pairs
-		Recorder.setCommand(commandName);
-		for (int i = 0; i < pairs.size(); i++)
-		{
-			final String[] pair = pairs.getf(i);
-			String key = pair[0];
-			String value = pair[1];
-			if (value == null)
-				Recorder.recordOption(key);
-			else
-			{
-				// As per the GenericDialog ensure that empty strings are wrapped
-				if (value.equals(""))
-					value = "[]";
-				Recorder.recordOption(key, value);
-			}
-		}
-		//System.out.printf("Now %s\n", Recorder.getCommandOptions());
-	}
+        // Reset
+        Recorder.setCommand(null);
+        Recorder.saveCommand();
+        // Re-record all the remaining pairs
+        Recorder.setCommand(commandName);
+        for (int i = 0; i < pairs.size(); i++)
+        {
+            final String[] pair = pairs.getf(i);
+            String key = pair[0];
+            String value = pair[1];
+            if (value == null)
+                Recorder.recordOption(key);
+            else
+            {
+                // As per the GenericDialog ensure that empty strings are wrapped
+                if (value.equals(""))
+                    value = "[]";
+                Recorder.recordOption(key, value);
+            }
+        }
+        //System.out.printf("Now %s\n", Recorder.getCommandOptions());
+    }
 
-	private static int findKeyEnd(String commandOptions, int len, int index)
-	{
-		while (index < len)
-		{
-			final char c = commandOptions.charAt(index);
-			if (c == ' ' || c == '=')
-				break;
-			index++;
-		}
-		return index;
-	}
+    private static int findKeyEnd(String commandOptions, int len, int index)
+    {
+        while (index < len)
+        {
+            final char c = commandOptions.charAt(index);
+            if (c == ' ' || c == '=')
+                break;
+            index++;
+        }
+        return index;
+    }
 
-	private static boolean ignore(String key, String[] keys)
-	{
-		for (int i = 0; i < keys.length; i++)
-			if (keys[i].equalsIgnoreCase(key))
-				return true;
-		return false;
-	}
+    private static boolean ignore(String key, String[] keys)
+    {
+        for (int i = 0; i < keys.length; i++)
+            if (keys[i].equalsIgnoreCase(key))
+                return true;
+        return false;
+    }
 }

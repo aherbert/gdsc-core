@@ -37,121 +37,121 @@ import java.io.RandomAccessFile;
  */
 public final class FileSeekableStream extends SeekableStream
 {
-	private final RandomAccessFile ras;
+    private final RandomAccessFile ras;
 
-	/**
-	 * Instantiates a new file seekable stream. The input file must be opened.
-	 *
-	 * @param ras
-	 *            the random access file
-	 */
-	public FileSeekableStream(RandomAccessFile ras)
-	{
-		if (ras == null)
-			throw new NullPointerException();
-		this.ras = ras;
-	}
+    /**
+     * Instantiates a new file seekable stream. The input file must be opened.
+     *
+     * @param ras
+     *            the random access file
+     */
+    public FileSeekableStream(RandomAccessFile ras)
+    {
+        if (ras == null)
+            throw new NullPointerException();
+        this.ras = ras;
+    }
 
-	/**
-	 * Instantiates a new file seekable stream. The input file will be opened.
-	 *
-	 * @param file
-	 *            the file
-	 * @throws FileNotFoundException
-	 *             if the given file object does not denote an existing regular file
-	 * @throws SecurityException
-	 *             if a security manager exists and its checkRead method denies read access to the file
-	 */
-	public FileSeekableStream(File file) throws FileNotFoundException, SecurityException
-	{
-		if (file == null)
-			throw new NullPointerException();
-		this.ras = new RandomAccessFile(file, "r");
-	}
+    /**
+     * Instantiates a new file seekable stream. The input file will be opened.
+     *
+     * @param file
+     *            the file
+     * @throws FileNotFoundException
+     *             if the given file object does not denote an existing regular file
+     * @throws SecurityException
+     *             if a security manager exists and its checkRead method denies read access to the file
+     */
+    public FileSeekableStream(File file) throws FileNotFoundException, SecurityException
+    {
+        if (file == null)
+            throw new NullPointerException();
+        this.ras = new RandomAccessFile(file, "r");
+    }
 
-	/**
-	 * Instantiates a new file seekable stream. The input file will be opened.
-	 *
-	 * @param path
-	 *            the path
-	 * @throws FileNotFoundException
-	 *             if the given file object does not denote an existing regular file
-	 * @throws SecurityException
-	 *             if a security manager exists and its checkRead method denies read access to the file
-	 */
-	public FileSeekableStream(String path) throws FileNotFoundException, SecurityException
-	{
-		this(new File(path));
-	}
+    /**
+     * Instantiates a new file seekable stream. The input file will be opened.
+     *
+     * @param path
+     *            the path
+     * @throws FileNotFoundException
+     *             if the given file object does not denote an existing regular file
+     * @throws SecurityException
+     *             if a security manager exists and its checkRead method denies read access to the file
+     */
+    public FileSeekableStream(String path) throws FileNotFoundException, SecurityException
+    {
+        this(new File(path));
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ij.io.SeekableStream#getFilePointer()
-	 */
-	@Override
-	public long getFilePointer() throws IOException
-	{
-		return ras.getFilePointer();
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see ij.io.SeekableStream#getFilePointer()
+     */
+    @Override
+    public long getFilePointer() throws IOException
+    {
+        return ras.getFilePointer();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ij.io.SeekableStream#read()
-	 */
-	@Override
-	public int read() throws IOException
-	{
-		return ras.read();
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see ij.io.SeekableStream#read()
+     */
+    @Override
+    public int read() throws IOException
+    {
+        return ras.read();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ij.io.SeekableStream#read(byte[], int, int)
-	 */
-	@Override
-	public int read(byte[] bytes, int off, int len) throws IOException
-	{
-		return ras.read(bytes, off, len);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see ij.io.SeekableStream#read(byte[], int, int)
+     */
+    @Override
+    public int read(byte[] bytes, int off, int len) throws IOException
+    {
+        return ras.read(bytes, off, len);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ij.io.SeekableStream#seek(long)
-	 */
-	@Override
-	public void seek(long loc) throws IOException
-	{
-		ras.seek(loc);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see ij.io.SeekableStream#seek(long)
+     */
+    @Override
+    public void seek(long loc) throws IOException
+    {
+        ras.seek(loc);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ij.io.SeekableStream#close()
-	 */
-	@Override
-	public void close() throws IOException
-	{
-		ras.close();
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see ij.io.SeekableStream#close()
+     */
+    @Override
+    public void close() throws IOException
+    {
+        ras.close();
+    }
 
-	@Override
-	public long skip(long n) throws IOException
-	{
-		if (n <= 0)
-			return 0;
-		final long pos = getFilePointer();
-		final long len = ras.length();
-		long newpos = pos + n;
-		if (newpos > len || newpos < 0)
-			newpos = len;
-		seek(newpos);
+    @Override
+    public long skip(long n) throws IOException
+    {
+        if (n <= 0)
+            return 0;
+        final long pos = getFilePointer();
+        final long len = ras.length();
+        long newpos = pos + n;
+        if (newpos > len || newpos < 0)
+            newpos = len;
+        seek(newpos);
 
-		/* return the actual number of bytes skipped */
-		return newpos - pos;
-	}
+        /* return the actual number of bytes skipped */
+        return newpos - pos;
+    }
 }

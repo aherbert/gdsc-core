@@ -40,38 +40,38 @@ import org.apache.commons.rng.UniformRandomProvider;
  */
 public class RandomGeneratorAdapter extends AbstractRandomGenerator
 {
-	private final UniformRandomProvider rg;
+    private final UniformRandomProvider rg;
 
-	/**
-	 * Instantiates a new random generator adapter.
-	 *
-	 * @param uniformRandomProvider
-	 *            the uniform random provider
-	 */
-	public RandomGeneratorAdapter(UniformRandomProvider uniformRandomProvider)
-	{
-		if (uniformRandomProvider == null)
-			throw new IllegalArgumentException("Uniform random provider must not be null");
-		this.rg = uniformRandomProvider;
-	}
+    /**
+     * Instantiates a new random generator adapter.
+     *
+     * @param uniformRandomProvider
+     *            the uniform random provider
+     */
+    public RandomGeneratorAdapter(UniformRandomProvider uniformRandomProvider)
+    {
+        if (uniformRandomProvider == null)
+            throw new IllegalArgumentException("Uniform random provider must not be null");
+        this.rg = uniformRandomProvider;
+    }
 
-	/**
-	 * Warning: It is not possible to set the seed.
-	 *
-	 * @param seed
-	 *            the new seed (ignored)
-	 * @throws NotImplementedException
-	 *             the not implemented exception
-	 */
-	@Override
-	public void setSeed(long seed) throws NotImplementedException
-	{
-		throw new NotImplementedException("Cannot set the seed");
-	}
+    /**
+     * Warning: It is not possible to set the seed.
+     *
+     * @param seed
+     *            the new seed (ignored)
+     * @throws NotImplementedException
+     *             the not implemented exception
+     */
+    @Override
+    public void setSeed(long seed) throws NotImplementedException
+    {
+        throw new NotImplementedException("Cannot set the seed");
+    }
 
-	@Override
-	public double nextDouble()
-	{
-		return rg.nextDouble();
-	}
+    @Override
+    public double nextDouble()
+    {
+        return rg.nextDouble();
+    }
 }

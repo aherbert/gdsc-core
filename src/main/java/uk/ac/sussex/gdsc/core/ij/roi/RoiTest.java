@@ -32,14 +32,14 @@ package uk.ac.sussex.gdsc.core.ij.roi;
  */
 public abstract class RoiTest
 {
-	/**
-	 * Test if the coordinates are inside the ROI
-	 *
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 * @return true, if successful
-	 */
-	public abstract boolean contains(double x, double y);
+    /**
+     * Test if the coordinates are inside the ROI
+     *
+     * @param x
+     *            the x
+     * @param y
+     *            the y
+     * @return true, if successful
+     */
+    public abstract boolean contains(double x, double y);
 }

@@ -38,101 +38,101 @@ import org.apache.commons.rng.UniformRandomProvider;
  */
 public class UniformRandomProviderAdapter implements UniformRandomProvider
 {
-	private final RandomGenerator rg;
+    private final RandomGenerator rg;
 
-	/**
-	 * Instantiates a new uniform random provider adapter.
-	 *
-	 * @param randomGenerator
-	 *            the random generator
-	 */
-	public UniformRandomProviderAdapter(RandomGenerator randomGenerator)
-	{
-		if (randomGenerator == null)
-			throw new IllegalArgumentException("Random generator must not be null");
-		this.rg = randomGenerator;
-	}
+    /**
+     * Instantiates a new uniform random provider adapter.
+     *
+     * @param randomGenerator
+     *            the random generator
+     */
+    public UniformRandomProviderAdapter(RandomGenerator randomGenerator)
+    {
+        if (randomGenerator == null)
+            throw new IllegalArgumentException("Random generator must not be null");
+        this.rg = randomGenerator;
+    }
 
-	@Override
-	public void nextBytes(byte[] bytes)
-	{
-		rg.nextBytes(bytes);
-	}
+    @Override
+    public void nextBytes(byte[] bytes)
+    {
+        rg.nextBytes(bytes);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * <p>
-	 * <strong>Note:</strong> This is a dumb implementation that create a new byte array of the given length,
-	 * fills that using the underlying {@link RandomGenerator} and then copies it to
-	 * the input.
-	 */
-	@Override
-	public void nextBytes(byte[] bytes, int start, int len)
-	{
-		if (start == 0 && len == bytes.length)
-		{
-			rg.nextBytes(bytes);
-			return;
-		}
-		// Create a tmp byte array
-		byte[] tmp = new byte[len];
-		rg.nextBytes(tmp);
-		System.arraycopy(tmp, 0, bytes, start, len);
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <strong>Note:</strong> This is a dumb implementation that create a new byte array of the given length,
+     * fills that using the underlying {@link RandomGenerator} and then copies it to
+     * the input.
+     */
+    @Override
+    public void nextBytes(byte[] bytes, int start, int len)
+    {
+        if (start == 0 && len == bytes.length)
+        {
+            rg.nextBytes(bytes);
+            return;
+        }
+        // Create a tmp byte array
+        byte[] tmp = new byte[len];
+        rg.nextBytes(tmp);
+        System.arraycopy(tmp, 0, bytes, start, len);
+    }
 
-	@Override
-	public int nextInt()
-	{
-		return rg.nextInt();
-	}
+    @Override
+    public int nextInt()
+    {
+        return rg.nextInt();
+    }
 
-	@Override
-	public int nextInt(int n)
-	{
-		return rg.nextInt(n);
-	}
+    @Override
+    public int nextInt(int n)
+    {
+        return rg.nextInt(n);
+    }
 
-	@Override
-	public long nextLong()
-	{
-		return rg.nextLong();
-	}
+    @Override
+    public long nextLong()
+    {
+        return rg.nextLong();
+    }
 
-	@Override
-	public long nextLong(long n)
-	{
-		// Copied from org.apache.commons.rng.core.BaseProvider
-		if (n <= 0)
-		{
-			throw new IllegalArgumentException("Must be strictly positive: " + n);
-		}
-		
-		long bits;
-		long val;
-		do
-		{
-			bits = nextLong() >>> 1;
-			val = bits % n;
-		} while (bits - val + (n - 1) < 0);
+    @Override
+    public long nextLong(long n)
+    {
+        // Copied from org.apache.commons.rng.core.BaseProvider
+        if (n <= 0)
+        {
+            throw new IllegalArgumentException("Must be strictly positive: " + n);
+        }
 
-		return val;
-	}
+        long bits;
+        long val;
+        do
+        {
+            bits = nextLong() >>> 1;
+            val = bits % n;
+        } while (bits - val + (n - 1) < 0);
 
-	@Override
-	public boolean nextBoolean()
-	{
-		return rg.nextBoolean();
-	}
+        return val;
+    }
 
-	@Override
-	public float nextFloat()
-	{
-		return rg.nextFloat();
-	}
+    @Override
+    public boolean nextBoolean()
+    {
+        return rg.nextBoolean();
+    }
 
-	@Override
-	public double nextDouble()
-	{
-		return rg.nextDouble();
-	}
+    @Override
+    public float nextFloat()
+    {
+        return rg.nextFloat();
+    }
+
+    @Override
+    public double nextDouble()
+    {
+        return rg.nextDouble();
+    }
 }

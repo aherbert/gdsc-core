@@ -36,148 +36,148 @@ import java.io.IOException;
  */
 public class IO
 {
-	/**
-	 * Save an array to file
-	 *
-	 * @param header
-	 *            The header
-	 * @param data
-	 *            The data
-	 * @param filename
-	 *            The filename
-	 * @return true if all OK, false if an error occurred
-	 */
-	public static boolean save(String header, double[] data, String filename)
-	{
-		boolean ok = true;
-		try (BufferedWriter file = new BufferedWriter(new FileWriter(filename)))
-		{
-			if (!TextUtils.isNullOrEmpty(header))
-			{
-				file.write(header);
-				file.newLine();
-			}
-			if (data != null)
-				for (final double d : data)
-				{
-					file.write(Double.toString(d));
-					file.newLine();
-				}
-		}
-		catch (final IOException e)
-		{
-			ok = false;
-		}
-		return ok;
-	}
+    /**
+     * Save an array to file
+     *
+     * @param header
+     *            The header
+     * @param data
+     *            The data
+     * @param filename
+     *            The filename
+     * @return true if all OK, false if an error occurred
+     */
+    public static boolean save(String header, double[] data, String filename)
+    {
+        boolean ok = true;
+        try (BufferedWriter file = new BufferedWriter(new FileWriter(filename)))
+        {
+            if (!TextUtils.isNullOrEmpty(header))
+            {
+                file.write(header);
+                file.newLine();
+            }
+            if (data != null)
+                for (final double d : data)
+                {
+                    file.write(Double.toString(d));
+                    file.newLine();
+                }
+        }
+        catch (final IOException e)
+        {
+            ok = false;
+        }
+        return ok;
+    }
 
-	/**
-	 * Save an array to file
-	 *
-	 * @param data
-	 *            The data
-	 * @param filename
-	 *            The filename
-	 * @return true if all OK, false if an error occurred
-	 */
-	public static boolean save(double[] data, String filename)
-	{
-		return save(null, data, filename);
-	}
+    /**
+     * Save an array to file
+     *
+     * @param data
+     *            The data
+     * @param filename
+     *            The filename
+     * @return true if all OK, false if an error occurred
+     */
+    public static boolean save(double[] data, String filename)
+    {
+        return save(null, data, filename);
+    }
 
-	/**
-	 * Save an array to file
-	 *
-	 * @param header
-	 *            The header
-	 * @param data
-	 *            The data
-	 * @param filename
-	 *            The filename
-	 * @return true if all OK, false if an error occurred
-	 */
-	public static boolean save(String header, int[] data, String filename)
-	{
-		try (BufferedWriter file = new BufferedWriter(new FileWriter(filename)))
-		{
-			if (!TextUtils.isNullOrEmpty(header))
-			{
-				file.write(header);
-				file.newLine();
-			}
-			if (data != null)
-				for (final int d : data)
-				{
-					file.write(Integer.toString(d));
-					file.newLine();
-				}
-			return true;
-		}
-		catch (final IOException e)
-		{ // Ignore
-		}
-		return false;
-	}
+    /**
+     * Save an array to file
+     *
+     * @param header
+     *            The header
+     * @param data
+     *            The data
+     * @param filename
+     *            The filename
+     * @return true if all OK, false if an error occurred
+     */
+    public static boolean save(String header, int[] data, String filename)
+    {
+        try (BufferedWriter file = new BufferedWriter(new FileWriter(filename)))
+        {
+            if (!TextUtils.isNullOrEmpty(header))
+            {
+                file.write(header);
+                file.newLine();
+            }
+            if (data != null)
+                for (final int d : data)
+                {
+                    file.write(Integer.toString(d));
+                    file.newLine();
+                }
+            return true;
+        }
+        catch (final IOException e)
+        { // Ignore
+        }
+        return false;
+    }
 
-	/**
-	 * Save an array to file
-	 *
-	 * @param data
-	 *            The data
-	 * @param filename
-	 *            The filename
-	 * @return true if all OK, false if an error occurred
-	 */
-	public static boolean save(int[] data, String filename)
-	{
-		return save(null, data, filename);
-	}
+    /**
+     * Save an array to file
+     *
+     * @param data
+     *            The data
+     * @param filename
+     *            The filename
+     * @return true if all OK, false if an error occurred
+     */
+    public static boolean save(int[] data, String filename)
+    {
+        return save(null, data, filename);
+    }
 
-	/**
-	 * Save an array to file
-	 *
-	 * @param header
-	 *            The header
-	 * @param data
-	 *            The data
-	 * @param filename
-	 *            The filename
-	 * @return true if all OK, false if an error occurred
-	 */
-	public static boolean save(String header, float[] data, String filename)
-	{
-		try (BufferedWriter file = new BufferedWriter(new FileWriter(filename)))
-		{
-			if (!TextUtils.isNullOrEmpty(header))
-			{
-				file.write(header);
-				file.newLine();
-			}
-			if (data != null)
-				for (final float d : data)
-				{
-					file.write(Float.toString(d));
-					file.newLine();
-				}
-			return true;
-		}
-		catch (final IOException e)
-		{ // Ignore
-		}
-		return false;
-	}
+    /**
+     * Save an array to file
+     *
+     * @param header
+     *            The header
+     * @param data
+     *            The data
+     * @param filename
+     *            The filename
+     * @return true if all OK, false if an error occurred
+     */
+    public static boolean save(String header, float[] data, String filename)
+    {
+        try (BufferedWriter file = new BufferedWriter(new FileWriter(filename)))
+        {
+            if (!TextUtils.isNullOrEmpty(header))
+            {
+                file.write(header);
+                file.newLine();
+            }
+            if (data != null)
+                for (final float d : data)
+                {
+                    file.write(Float.toString(d));
+                    file.newLine();
+                }
+            return true;
+        }
+        catch (final IOException e)
+        { // Ignore
+        }
+        return false;
+    }
 
-	/**
-	 * Save an array to file
-	 *
-	 * @param data
-	 *            The data
-	 * @param filename
-	 *            The filename
-	 * @return true if all OK, false if an error occurred
-	 */
-	public static boolean save(float[] data, String filename)
-	{
-		return save(null, data, filename);
-	}
+    /**
+     * Save an array to file
+     *
+     * @param data
+     *            The data
+     * @param filename
+     *            The filename
+     * @return true if all OK, false if an error occurred
+     */
+    public static boolean save(float[] data, String filename)
+    {
+        return save(null, data, filename);
+    }
 }

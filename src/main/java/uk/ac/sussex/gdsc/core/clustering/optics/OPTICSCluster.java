@@ -34,114 +34,114 @@ import java.util.LinkedList;
  */
 public class OPTICSCluster
 {
-	/** The start of the cluster (inclusive). */
-	public final int start;
+    /** The start of the cluster (inclusive). */
+    public final int start;
 
-	/** The end of the cluster (inclusive). */
-	public final int end;
+    /** The end of the cluster (inclusive). */
+    public final int end;
 
-	/** The cluster id. */
-	int clusterId;
+    /** The cluster id. */
+    int clusterId;
 
-	/** The children. */
-	LinkedList<OPTICSCluster> children = null;
+    /** The children. */
+    LinkedList<OPTICSCluster> children = null;
 
-	/** The level in the hierarchy */
-	private int level;
+    /** The level in the hierarchy */
+    private int level;
 
-	/**
-	 * Instantiates a new cluster.
-	 *
-	 * @param start
-	 *            the start
-	 * @param end
-	 *            the end
-	 * @param clusterId
-	 *            the cluster id
-	 */
-	public OPTICSCluster(int start, int end, int clusterId)
-	{
-		this.start = start;
-		this.end = end;
-		this.clusterId = clusterId;
-	}
+    /**
+     * Instantiates a new cluster.
+     *
+     * @param start
+     *            the start
+     * @param end
+     *            the end
+     * @param clusterId
+     *            the cluster id
+     */
+    public OPTICSCluster(int start, int end, int clusterId)
+    {
+        this.start = start;
+        this.end = end;
+        this.clusterId = clusterId;
+    }
 
-	/**
-	 * Adds the child cluster.
-	 *
-	 * @param child
-	 *            the child
-	 */
-	void addChildCluster(OPTICSCluster child)
-	{
-		if (children == null)
-			children = new LinkedList<>();
-		children.add(child);
-		child.increaseLevel();
-	}
+    /**
+     * Adds the child cluster.
+     *
+     * @param child
+     *            the child
+     */
+    void addChildCluster(OPTICSCluster child)
+    {
+        if (children == null)
+            children = new LinkedList<>();
+        children.add(child);
+        child.increaseLevel();
+    }
 
-	private void increaseLevel()
-	{
-		level++;
-		if (children == null)
-			return;
-		for (final OPTICSCluster child : children)
-			child.increaseLevel();
-	}
+    private void increaseLevel()
+    {
+        level++;
+        if (children == null)
+            return;
+        for (final OPTICSCluster child : children)
+            child.increaseLevel();
+    }
 
-	/**
-	 * Get the number of children.
-	 *
-	 * @return the number of children
-	 */
-	public int nChildren()
-	{
-		return (children == null) ? 0 : children.size();
-	}
+    /**
+     * Get the number of children.
+     *
+     * @return the number of children
+     */
+    public int nChildren()
+    {
+        return (children == null) ? 0 : children.size();
+    }
 
-	/**
-	 * Gets the level.
-	 *
-	 * @return the level
-	 */
-	public int getLevel()
-	{
-		return level;
-	}
+    /**
+     * Gets the level.
+     *
+     * @return the level
+     */
+    public int getLevel()
+    {
+        return level;
+    }
 
-	@Override
-	public String toString()
-	{
-		return String.format("s=%d, e=%d, level=%d, id=%d", start, end, level, clusterId);
-	}
+    @Override
+    public String toString()
+    {
+        return String.format("s=%d, e=%d, level=%d, id=%d", start, end, level, clusterId);
+    }
 
-	/**
-	 * Get the length of the cluster on the reachability profile (start to end inclusive)
-	 *
-	 * @return the length
-	 */
-	public int length()
-	{
-		return end - start + 1;
-	}
+    /**
+     * Get the length of the cluster on the reachability profile (start to end inclusive)
+     *
+     * @return the length
+     */
+    public int length()
+    {
+        return end - start + 1;
+    }
 
-	/**
-	 * Get the size of the cluster
-	 *
-	 * @return the size
-	 */
-	public int size()
-	{
-		return length();
-	}
+    /**
+     * Get the size of the cluster
+     *
+     * @return the size
+     */
+    public int size()
+    {
+        return length();
+    }
 
-	/**
-	 * Gets the cluster id.
-	 *
-	 * @return the cluster id
-	 */
-	public int getClusterId()
-	{
-		return clusterId;
-	}
+    /**
+     * Gets the cluster id.
+     *
+     * @return the cluster id
+     */
+    public int getClusterId()
+    {
+        return clusterId;
+    }
 }

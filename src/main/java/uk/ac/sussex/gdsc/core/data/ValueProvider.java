@@ -33,36 +33,36 @@ package uk.ac.sussex.gdsc.core.data;
  */
 public interface ValueProvider
 {
-	/**
-	 * Gets the length.
-	 *
-	 * @return the length
-	 */
-	public int getLength();
+    /**
+     * Gets the length.
+     *
+     * @return the length
+     */
+    public int getLength();
 
-	/**
-	 * Gets the value.
-	 *
-	 * @param x
-	 *            the x (must be positive)
-	 * @return the value
-	 */
-	public double get(int x);
+    /**
+     * Gets the value.
+     *
+     * @param x
+     *            the x (must be positive)
+     * @return the value
+     */
+    public double get(int x);
 
-	/**
-	 * Gets the 3 values around the index. If the index is at the bounds then the result is undefined.
-	 *
-	 * @param x
-	 *            the x (must be positive)
-	 * @param values
-	 *            the values
-	 */
-	public void get(int x, double[] values);
+    /**
+     * Gets the 3 values around the index. If the index is at the bounds then the result is undefined.
+     *
+     * @param x
+     *            the x (must be positive)
+     * @param values
+     *            the values
+     */
+    public void get(int x, double[] values);
 
-	/**
-	 * Convert to an array.
-	 *
-	 * @return the array
-	 */
-	public double[] toArray();
+    /**
+     * Convert to an array.
+     *
+     * @return the array
+     */
+    public double[] toArray();
 }

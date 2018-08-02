@@ -32,47 +32,47 @@ package uk.ac.sussex.gdsc.core.data.utils;
  */
 public class NonRounder implements Rounder
 {
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.data.Rounder#round(double)
-	 */
-	@Override
-	public double round(double value)
-	{
-		return value;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.data.Rounder#round(double)
+     */
+    @Override
+    public double round(double value)
+    {
+        return value;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.data.Rounder#toString(double)
-	 */
-	@Override
-	public String toString(double value)
-	{
-		return Double.toString(value);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.data.Rounder#toString(double)
+     */
+    @Override
+    public String toString(double value)
+    {
+        return Double.toString(value);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.data.Rounder#round(float)
-	 */
-	@Override
-	public float round(float value)
-	{
-		return value;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.data.Rounder#round(float)
+     */
+    @Override
+    public float round(float value)
+    {
+        return value;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.data.Rounder#toString(float)
-	 */
-	@Override
-	public String toString(float value)
-	{
-		return Float.toString(value);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.data.Rounder#toString(float)
+     */
+    @Override
+    public String toString(float value)
+    {
+        return Float.toString(value);
+    }
 }

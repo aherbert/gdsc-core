@@ -34,79 +34,79 @@ import ij.IJ;
  */
 public class IJLogger implements uk.ac.sussex.gdsc.core.logging.Logger
 {
-	/** Set to true to show debug log messages. */
-	public boolean showDebug = false;
-	/** Set to true to show error log messages. */
-	public boolean showError = true;
+    /** Set to true to show debug log messages. */
+    public boolean showDebug = false;
+    /** Set to true to show error log messages. */
+    public boolean showError = true;
 
-	/**
-	 * Instantiates a new IJ logger.
-	 */
-	public IJLogger()
-	{
-	}
+    /**
+     * Instantiates a new IJ logger.
+     */
+    public IJLogger()
+    {
+    }
 
-	/**
-	 * Instantiates a new IJ logger.
-	 *
-	 * @param showDebug
-	 *            Set to true to show debug log messages
-	 * @param showError
-	 *            Set to true to show error log messages
-	 */
-	public IJLogger(boolean showDebug, boolean showError)
-	{
-		this.showDebug = showDebug;
-		this.showError = showError;
-	}
+    /**
+     * Instantiates a new IJ logger.
+     *
+     * @param showDebug
+     *            Set to true to show debug log messages
+     * @param showError
+     *            Set to true to show error log messages
+     */
+    public IJLogger(boolean showDebug, boolean showError)
+    {
+        this.showDebug = showDebug;
+        this.showError = showError;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.fitting.logging.Logger#info(java.lang.String)
-	 */
-	@Override
-	public void info(String message)
-	{
-		IJ.log(message);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.fitting.logging.Logger#info(java.lang.String)
+     */
+    @Override
+    public void info(String message)
+    {
+        IJ.log(message);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.fitting.logging.Logger#info(java.lang.String, java.lang.Object[])
-	 */
-	@Override
-	public void info(String format, Object... args)
-	{
-		IJ.log(String.format(format, args));
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.fitting.logging.Logger#info(java.lang.String, java.lang.Object[])
+     */
+    @Override
+    public void info(String format, Object... args)
+    {
+        IJ.log(String.format(format, args));
+    }
 
-	@Override
-	public void debug(String message)
-	{
-		if (showDebug)
-			info(message);
-	}
+    @Override
+    public void debug(String message)
+    {
+        if (showDebug)
+            info(message);
+    }
 
-	@Override
-	public void debug(String format, Object... args)
-	{
-		if (showDebug)
-			info(format, args);
-	}
+    @Override
+    public void debug(String format, Object... args)
+    {
+        if (showDebug)
+            info(format, args);
+    }
 
-	@Override
-	public void error(String message)
-	{
-		if (showError)
-			info(message);
-	}
+    @Override
+    public void error(String message)
+    {
+        if (showError)
+            info(message);
+    }
 
-	@Override
-	public void error(String format, Object... args)
-	{
-		if (showError)
-			info(format, args);
-	}
+    @Override
+    public void error(String format, Object... args)
+    {
+        if (showError)
+            info(format, args);
+    }
 }

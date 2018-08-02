@@ -32,112 +32,112 @@ package uk.ac.sussex.gdsc.core.utils;
  */
 public class RampedScore implements Cloneable
 {
-	/** The lower end of the range. */
-	public final double lower;
+    /** The lower end of the range. */
+    public final double lower;
 
-	/** The upper end of the range. */
-	public final double upper;
-	private final double range;
+    /** The upper end of the range. */
+    public final double upper;
+    private final double range;
 
-	/**
-	 * Create the score function with the specified limits.
-	 *
-	 * @param lower
-	 *            The lower end of the range
-	 * @param upper
-	 *            The upper end of the range
-	 */
-	public RampedScore(double lower, double upper)
-	{
-		if (lower > upper)
-		{
-			final double tmp = lower;
-			lower = upper;
-			upper = tmp;
-		}
-		this.upper = upper;
-		this.lower = lower;
-		this.range = upper - lower;
-	}
+    /**
+     * Create the score function with the specified limits.
+     *
+     * @param lower
+     *            The lower end of the range
+     * @param upper
+     *            The upper end of the range
+     */
+    public RampedScore(double lower, double upper)
+    {
+        if (lower > upper)
+        {
+            final double tmp = lower;
+            lower = upper;
+            upper = tmp;
+        }
+        this.upper = upper;
+        this.lower = lower;
+        this.range = upper - lower;
+    }
 
-	/**
-	 * Provide a score between 0 and 1 for the value. Return 1 if below the lower limit, 0 if above the upper limit,
-	 * otherwise ramp smoothly from 1 to 0.
-	 *
-	 * @param value
-	 *            the value
-	 * @return the score
-	 */
-	public double score(double value)
-	{
-		if (value > upper)
-			return 0.0;
-		if (value <= lower)
-			return 1.0;
-		// Interpolate from the minimum to the maximum match distance:
-		// Cosine
-		return (0.5 * (1 + Math.cos(((value - lower) / range) * Math.PI)));
-	}
+    /**
+     * Provide a score between 0 and 1 for the value. Return 1 if below the lower limit, 0 if above the upper limit,
+     * otherwise ramp smoothly from 1 to 0.
+     *
+     * @param value
+     *            the value
+     * @return the score
+     */
+    public double score(double value)
+    {
+        if (value > upper)
+            return 0.0;
+        if (value <= lower)
+            return 1.0;
+        // Interpolate from the minimum to the maximum match distance:
+        // Cosine
+        return (0.5 * (1 + Math.cos(((value - lower) / range) * Math.PI)));
+    }
 
-	/**
-	 * Provide a score between 0 and 1 for the value. Return 1 if below the lower limit, 0 if above the upper limit,
-	 * otherwise ramp smoothly from 1 to 0. Flatten the score to a new score that will have a maximum number of steps
-	 * between 0 and 1.
-	 *
-	 * @param value
-	 *            the value
-	 * @param steps
-	 *            the steps
-	 * @return the score
-	 */
-	public double scoreAndFlatten(double value, int steps)
-	{
-		return flatten(score(value), steps);
-	}
+    /**
+     * Provide a score between 0 and 1 for the value. Return 1 if below the lower limit, 0 if above the upper limit,
+     * otherwise ramp smoothly from 1 to 0. Flatten the score to a new score that will have a maximum number of steps
+     * between 0 and 1.
+     *
+     * @param value
+     *            the value
+     * @param steps
+     *            the steps
+     * @return the score
+     */
+    public double scoreAndFlatten(double value, int steps)
+    {
+        return flatten(score(value), steps);
+    }
 
-	/**
-	 * Flatten the score to a new score that will have a maximum number of steps between 0 and 1.
-	 *
-	 * @param score
-	 *            the score
-	 * @param steps
-	 *            the steps
-	 * @return The new score
-	 */
-	public static double flatten(double score, int steps)
-	{
-		return (Math.round(score * steps)) / (double) steps;
-	}
+    /**
+     * Flatten the score to a new score that will have a maximum number of steps between 0 and 1.
+     *
+     * @param score
+     *            the score
+     * @param steps
+     *            the steps
+     * @return The new score
+     */
+    public static double flatten(double score, int steps)
+    {
+        return (Math.round(score * steps)) / (double) steps;
+    }
 
-	/**
-	 * Flatten the score to a new score that will have a maximum number of steps between 0 and 1.
-	 *
-	 * @param score
-	 *            the score
-	 * @param steps
-	 *            the steps
-	 * @return The new score
-	 */
-	public static float flatten(float score, int steps)
-	{
-		return (Math.round(score * steps)) / (float) steps;
-	}
+    /**
+     * Flatten the score to a new score that will have a maximum number of steps between 0 and 1.
+     *
+     * @param score
+     *            the score
+     * @param steps
+     *            the steps
+     * @return The new score
+     */
+    public static float flatten(float score, int steps)
+    {
+        return (Math.round(score * steps)) / (float) steps;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Object#clone()
-	 */
-	@Override
-	public RampedScore clone()
-	{
-		try
-		{
-			return (RampedScore) super.clone();
-		}
-		catch (final CloneNotSupportedException e)
-		{
-			return new RampedScore(lower, upper);
-		}
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public RampedScore clone()
+    {
+        try
+        {
+            return (RampedScore) super.clone();
+        }
+        catch (final CloneNotSupportedException e)
+        {
+            return new RampedScore(lower, upper);
+        }
+    }
 }

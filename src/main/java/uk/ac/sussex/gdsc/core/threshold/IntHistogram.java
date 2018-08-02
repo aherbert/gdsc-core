@@ -34,60 +34,60 @@ package uk.ac.sussex.gdsc.core.threshold;
  */
 public class IntHistogram extends Histogram
 {
-	/** The offset. */
-	final int offset;
+    /** The offset. */
+    final int offset;
 
-	/**
-	 * Instantiates a new int histogram.
-	 *
-	 * @param h
-	 *            the histogram counts
-	 * @param minBin
-	 *            the min bin
-	 * @param maxBin
-	 *            the max bin
-	 * @param offset
-	 *            the offset
-	 */
-	protected IntHistogram(int[] h, int minBin, int maxBin, int offset)
-	{
-		super(h, minBin, maxBin);
-		this.offset = offset;
-	}
+    /**
+     * Instantiates a new int histogram.
+     *
+     * @param h
+     *            the histogram counts
+     * @param minBin
+     *            the min bin
+     * @param maxBin
+     *            the max bin
+     * @param offset
+     *            the offset
+     */
+    protected IntHistogram(int[] h, int minBin, int maxBin, int offset)
+    {
+        super(h, minBin, maxBin);
+        this.offset = offset;
+    }
 
-	/**
-	 * Instantiates a new int histogram.
-	 *
-	 * @param h
-	 *            the histogram counts
-	 * @param offset
-	 *            the offset
-	 */
-	public IntHistogram(int[] h, int offset)
-	{
-		super(h);
-		this.offset = offset;
-	}
+    /**
+     * Instantiates a new int histogram.
+     *
+     * @param h
+     *            the histogram counts
+     * @param offset
+     *            the offset
+     */
+    public IntHistogram(int[] h, int offset)
+    {
+        super(h);
+        this.offset = offset;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.threshold.Histogram#getValue(int)
-	 */
-	@Override
-	public float getValue(int i)
-	{
-		return offset + i;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.threshold.Histogram#getValue(int)
+     */
+    @Override
+    public float getValue(int i)
+    {
+        return offset + i;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.threshold.Histogram#clone()
-	 */
-	@Override
-	public IntHistogram clone()
-	{
-		return new IntHistogram(this.h.clone(), minBin, maxBin, offset);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.threshold.Histogram#clone()
+     */
+    @Override
+    public IntHistogram clone()
+    {
+        return new IntHistogram(this.h.clone(), minBin, maxBin, offset);
+    }
 }

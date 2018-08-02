@@ -36,30 +36,30 @@ import java.util.List;
  */
 public class Settings extends ArrayList<Object>
 {
-	private static final long serialVersionUID = -4023821382363386047L;
+    private static final long serialVersionUID = -4023821382363386047L;
 
-	/**
-	 * Instantiates a new list of settings.
-	 *
-	 * @param settings
-	 *            the settings
-	 */
-	public Settings(Object... settings)
-	{
-		addAll(Arrays.asList(settings));
-	}
+    /**
+     * Instantiates a new list of settings.
+     *
+     * @param settings
+     *            the settings
+     */
+    public Settings(Object... settings)
+    {
+        addAll(Arrays.asList(settings));
+    }
 
-	/**
-	 * Creates a sublist from index (inclusive) to the end of the list.
-	 *
-	 * @param from
-	 *            the from index (must be less than size
-	 * @return the sublist
-	 * @throws IndexOutOfBoundsException
-	 *             If the from index is invalid
-	 */
-	public List<Object> subList(int from)
-	{
-		return subList(from, size());
-	}
+    /**
+     * Creates a sublist from index (inclusive) to the end of the list.
+     *
+     * @param from
+     *            the from index (must be less than size
+     * @return the sublist
+     * @throws IndexOutOfBoundsException
+     *             If the from index is invalid
+     */
+    public List<Object> subList(int from)
+    {
+        return subList(from, size());
+    }
 }

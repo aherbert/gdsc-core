@@ -32,186 +32,186 @@ package uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD;
  */
 abstract class KdTreeNode<T>
 {
-	/** The Constant bucketSize. */
-	static final int bucketSize = 24;
+    /** The Constant bucketSize. */
+    static final int bucketSize = 24;
 
-	// All types
+    // All types
 
-	/** The dimensions. */
-	final int dimensions;
-	/** The parent. */
-	final KdTreeNode<T> parent;
+    /** The dimensions. */
+    final int dimensions;
+    /** The parent. */
+    final KdTreeNode<T> parent;
 
-	// Leaf only
+    // Leaf only
 
-	/** The locations. */
-	double[][] locations;
-	/** The data. */
-	Object[] data;
-	/** The location count. */
-	int locationCount;
+    /** The locations. */
+    double[][] locations;
+    /** The data. */
+    Object[] data;
+    /** The location count. */
+    int locationCount;
 
-	// Stem only
+    // Stem only
 
-	/** The left. */
-	KdTreeNode<T> left;
-	/** The right. */
-	KdTreeNode<T> right;
-	/** The split dimension. */
-	int splitDimension;
-	/** The split value. */
-	double splitValue;
+    /** The left. */
+    KdTreeNode<T> left;
+    /** The right. */
+    KdTreeNode<T> right;
+    /** The split dimension. */
+    int splitDimension;
+    /** The split value. */
+    double splitValue;
 
-	// Bounds
+    // Bounds
 
-	/** The min limit. */
-	double[] minLimit;
-	/** The max limit. */
-	double[] maxLimit;
-	/** The singularity flag. */
-	boolean singularity;
+    /** The min limit. */
+    double[] minLimit;
+    /** The max limit. */
+    double[] maxLimit;
+    /** The singularity flag. */
+    boolean singularity;
 
-	// Temporary
+    // Temporary
 
-	/** The status. */
-	Status status;
+    /** The status. */
+    Status status;
 
-	/**
-	 * Construct a RTree with a given number of dimensions.
-	 *
-	 * @param dimensions
-	 *            the dimensions
-	 */
-	KdTreeNode(int dimensions)
-	{
-		this.dimensions = dimensions;
+    /**
+     * Construct a RTree with a given number of dimensions.
+     *
+     * @param dimensions
+     *            the dimensions
+     */
+    KdTreeNode(int dimensions)
+    {
+        this.dimensions = dimensions;
 
-		// Init as leaf
-		this.locations = new double[bucketSize][];
-		this.data = new Object[bucketSize];
-		this.locationCount = 0;
-		this.singularity = true;
+        // Init as leaf
+        this.locations = new double[bucketSize][];
+        this.data = new Object[bucketSize];
+        this.locationCount = 0;
+        this.singularity = true;
 
-		// Init as root
-		this.parent = null;
-	}
+        // Init as root
+        this.parent = null;
+    }
 
-	/**
-	 * Constructor for child nodes. Internal use only.
-	 *
-	 * @param parent
-	 *            the parent
-	 */
-	KdTreeNode(KdTreeNode<T> parent)
-	{
-		this.dimensions = parent.dimensions;
+    /**
+     * Constructor for child nodes. Internal use only.
+     *
+     * @param parent
+     *            the parent
+     */
+    KdTreeNode(KdTreeNode<T> parent)
+    {
+        this.dimensions = parent.dimensions;
 
-		// Init as leaf
-		this.locations = new double[Math.max(bucketSize, parent.locationCount)][];
-		this.data = new Object[locations.length];
-		this.locationCount = 0;
-		this.singularity = true;
+        // Init as leaf
+        this.locations = new double[Math.max(bucketSize, parent.locationCount)][];
+        this.data = new Object[locations.length];
+        this.locationCount = 0;
+        this.singularity = true;
 
-		// Init as non-root
-		this.parent = parent;
-	}
+        // Init as non-root
+        this.parent = parent;
+    }
 
-	/**
-	 * Extends the bounds of this node do include a new location.
-	 *
-	 * @param location
-	 *            the location
-	 */
-	final void extendBounds(double[] location)
-	{
-		if (minLimit == null)
-		{
-			minLimit = new double[dimensions];
-			System.arraycopy(location, 0, minLimit, 0, dimensions);
-			maxLimit = new double[dimensions];
-			System.arraycopy(location, 0, maxLimit, 0, dimensions);
-			return;
-		}
+    /**
+     * Extends the bounds of this node do include a new location.
+     *
+     * @param location
+     *            the location
+     */
+    final void extendBounds(double[] location)
+    {
+        if (minLimit == null)
+        {
+            minLimit = new double[dimensions];
+            System.arraycopy(location, 0, minLimit, 0, dimensions);
+            maxLimit = new double[dimensions];
+            System.arraycopy(location, 0, maxLimit, 0, dimensions);
+            return;
+        }
 
-		for (int i = 0; i < dimensions; i++)
-			if (Double.isNaN(location[i]))
-			{
-				minLimit[i] = Double.NaN;
-				maxLimit[i] = Double.NaN;
-				singularity = false;
-			}
-			else if (minLimit[i] > location[i])
-			{
-				minLimit[i] = location[i];
-				singularity = false;
-			}
-			else if (maxLimit[i] < location[i])
-			{
-				maxLimit[i] = location[i];
-				singularity = false;
-			}
-	}
+        for (int i = 0; i < dimensions; i++)
+            if (Double.isNaN(location[i]))
+            {
+                minLimit[i] = Double.NaN;
+                maxLimit[i] = Double.NaN;
+                singularity = false;
+            }
+            else if (minLimit[i] > location[i])
+            {
+                minLimit[i] = location[i];
+                singularity = false;
+            }
+            else if (maxLimit[i] < location[i])
+            {
+                maxLimit[i] = location[i];
+                singularity = false;
+            }
+    }
 
-	/**
-	 * Find the widest axis of the bounds of this node.
-	 *
-	 * @return the int
-	 */
-	final int findWidestAxis()
-	{
-		int widest = 0;
-		double width = (maxLimit[0] - minLimit[0]) * getAxisWeightHint(0);
-		if (Double.isNaN(width))
-			width = 0;
-		for (int i = 1; i < dimensions; i++)
-		{
-			double nwidth = (maxLimit[i] - minLimit[i]) * getAxisWeightHint(i);
-			if (Double.isNaN(nwidth))
-				nwidth = 0;
-			if (nwidth > width)
-			{
-				widest = i;
-				width = nwidth;
-			}
-		}
-		return widest;
-	}
+    /**
+     * Find the widest axis of the bounds of this node.
+     *
+     * @return the int
+     */
+    final int findWidestAxis()
+    {
+        int widest = 0;
+        double width = (maxLimit[0] - minLimit[0]) * getAxisWeightHint(0);
+        if (Double.isNaN(width))
+            width = 0;
+        for (int i = 1; i < dimensions; i++)
+        {
+            double nwidth = (maxLimit[i] - minLimit[i]) * getAxisWeightHint(i);
+            if (Double.isNaN(nwidth))
+                nwidth = 0;
+            if (nwidth > width)
+            {
+                widest = i;
+                width = nwidth;
+            }
+        }
+        return widest;
+    }
 
-	// Override in subclasses
+    // Override in subclasses
 
-	/**
-	 * Compute the point distance.
-	 *
-	 * @param p1
-	 *            the p 1
-	 * @param p2
-	 *            the p 2
-	 * @return the distance
-	 */
-	protected abstract double pointDist(double[] p1, double[] p2);
+    /**
+     * Compute the point distance.
+     *
+     * @param p1
+     *            the p 1
+     * @param p2
+     *            the p 2
+     * @return the distance
+     */
+    protected abstract double pointDist(double[] p1, double[] p2);
 
-	/**
-	 * Compute the point region distance.
-	 *
-	 * @param point
-	 *            the point
-	 * @param min
-	 *            the min of the region
-	 * @param max
-	 *            the max of the region
-	 * @return the distance
-	 */
-	protected abstract double pointRegionDist(double[] point, double[] min, double[] max);
+    /**
+     * Compute the point region distance.
+     *
+     * @param point
+     *            the point
+     * @param min
+     *            the min of the region
+     * @param max
+     *            the max of the region
+     * @return the distance
+     */
+    protected abstract double pointRegionDist(double[] point, double[] min, double[] max);
 
-	/**
-	 * Gets the axis weight hint.
-	 *
-	 * @param i
-	 *            the dimension index
-	 * @return the axis weight hint
-	 */
-	protected double getAxisWeightHint(int i)
-	{
-		return 1.0;
-	}
+    /**
+     * Gets the axis weight hint.
+     *
+     * @param i
+     *            the dimension index
+     * @return the axis weight hint
+     */
+    protected double getAxisWeightHint(int i)
+    {
+        return 1.0;
+    }
 }

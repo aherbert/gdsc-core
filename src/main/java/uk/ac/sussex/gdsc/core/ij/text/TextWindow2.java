@@ -42,85 +42,85 @@ import ij.text.TextWindow;
  */
 public class TextWindow2 extends TextWindow
 {
-	private static final long serialVersionUID = -6164933921278234275L;
+    private static final long serialVersionUID = -6164933921278234275L;
 
-	private boolean constructed = false;
+    private boolean constructed = false;
 
-	/**
-	 * Opens a new single-column text window.
-	 *
-	 * @param title
-	 *            the title of the window
-	 * @param text
-	 *            the text initially displayed in the window
-	 * @param width
-	 *            the width of the window in pixels
-	 * @param height
-	 *            the height of the window in pixels
-	 */
-	public TextWindow2(String title, String text, int width, int height)
-	{
-		this(title, "", text, width, height);
-	}
+    /**
+     * Opens a new single-column text window.
+     *
+     * @param title
+     *            the title of the window
+     * @param text
+     *            the text initially displayed in the window
+     * @param width
+     *            the width of the window in pixels
+     * @param height
+     *            the height of the window in pixels
+     */
+    public TextWindow2(String title, String text, int width, int height)
+    {
+        this(title, "", text, width, height);
+    }
 
-	/**
-	 * Opens a new multi-column text window.
-	 *
-	 * @param title
-	 *            title of the window
-	 * @param headings
-	 *            the tab-delimited column headings
-	 * @param text
-	 *            text initially displayed in the window
-	 * @param width
-	 *            width of the window in pixels
-	 * @param height
-	 *            height of the window in pixels
-	 */
-	public TextWindow2(String title, String headings, String text, int width, int height)
-	{
-		super(title, headings, text, width, height);
-		constructed = true;
-	}
+    /**
+     * Opens a new multi-column text window.
+     *
+     * @param title
+     *            title of the window
+     * @param headings
+     *            the tab-delimited column headings
+     * @param text
+     *            text initially displayed in the window
+     * @param width
+     *            width of the window in pixels
+     * @param height
+     *            height of the window in pixels
+     */
+    public TextWindow2(String title, String headings, String text, int width, int height)
+    {
+        super(title, headings, text, width, height);
+        constructed = true;
+    }
 
-	/**
-	 * Opens a new multi-column text window.
-	 *
-	 * @param title
-	 *            title of the window
-	 * @param headings
-	 *            tab-delimited column headings
-	 * @param text
-	 *            ArrayList containing the text to be displayed in the window
-	 * @param width
-	 *            width of the window in pixels
-	 * @param height
-	 *            height of the window in pixels
-	 */
-	public TextWindow2(String title, String headings, ArrayList<String> text, int width, int height)
-	{
-		super(title, headings, text, width, height);
-		constructed = true;
-	}
-	
-	@SuppressWarnings("deprecation")
-	@Override
-	public void show()
-	{
-		// Do not show upon construction
-		if (constructed)
-			super.show();
-	}
-	
-	@Override
-	public void setVisible(boolean b)
-	{
-		if (b)
-		{
-			// Do not show upon construction
-			if (!constructed)
-				return;
-		}
-		super.setVisible(b);
-	}
+    /**
+     * Opens a new multi-column text window.
+     *
+     * @param title
+     *            title of the window
+     * @param headings
+     *            tab-delimited column headings
+     * @param text
+     *            ArrayList containing the text to be displayed in the window
+     * @param width
+     *            width of the window in pixels
+     * @param height
+     *            height of the window in pixels
+     */
+    public TextWindow2(String title, String headings, ArrayList<String> text, int width, int height)
+    {
+        super(title, headings, text, width, height);
+        constructed = true;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void show()
+    {
+        // Do not show upon construction
+        if (constructed)
+            super.show();
+    }
+
+    @Override
+    public void setVisible(boolean b)
+    {
+        if (b)
+        {
+            // Do not show upon construction
+            if (!constructed)
+                return;
+        }
+        super.setVisible(b);
+    }
 }

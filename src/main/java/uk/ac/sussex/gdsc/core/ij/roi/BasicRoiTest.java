@@ -38,34 +38,34 @@ import ij.gui.Roi;
  */
 public class BasicRoiTest extends RoiTest
 {
-	private final Shape shape;
+    private final Shape shape;
 
-	/**
-	 * Instantiates a new basic roi test.
-	 *
-	 * @param roi
-	 *            the roi
-	 */
-	public BasicRoiTest(Roi roi)
-	{
-		if (roi.getType() == Roi.RECTANGLE)
-		{
-			// Account for corners
-			if (roi.getCornerDiameter() != 0)
-				shape = new RoundRectangle2D.Double(roi.getXBase(), roi.getYBase(), roi.getFloatWidth(),
-						roi.getFloatHeight(), roi.getCornerDiameter(), roi.getCornerDiameter());
-			else
-				shape = roi.getFloatBounds();
-		}
-		else if (roi.getType() == Roi.OVAL)
-			shape = new Ellipse2D.Double(roi.getXBase(), roi.getYBase(), roi.getFloatWidth(), roi.getFloatHeight());
-		else
-			throw new IllegalArgumentException("Require rectangle or oval ROI");
-	}
+    /**
+     * Instantiates a new basic roi test.
+     *
+     * @param roi
+     *            the roi
+     */
+    public BasicRoiTest(Roi roi)
+    {
+        if (roi.getType() == Roi.RECTANGLE)
+        {
+            // Account for corners
+            if (roi.getCornerDiameter() != 0)
+                shape = new RoundRectangle2D.Double(roi.getXBase(), roi.getYBase(), roi.getFloatWidth(),
+                        roi.getFloatHeight(), roi.getCornerDiameter(), roi.getCornerDiameter());
+            else
+                shape = roi.getFloatBounds();
+        }
+        else if (roi.getType() == Roi.OVAL)
+            shape = new Ellipse2D.Double(roi.getXBase(), roi.getYBase(), roi.getFloatWidth(), roi.getFloatHeight());
+        else
+            throw new IllegalArgumentException("Require rectangle or oval ROI");
+    }
 
-	@Override
-	public boolean contains(double x, double y)
-	{
-		return shape.contains(x, y);
-	}
+    @Override
+    public boolean contains(double x, double y)
+    {
+        return shape.contains(x, y);
+    }
 }

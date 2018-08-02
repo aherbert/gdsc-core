@@ -32,62 +32,62 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  */
 class GridMolecule extends DistanceMolecule
 {
-	// Used to construct a single linked list of molecules
-	private GridMolecule next = null;
+    // Used to construct a single linked list of molecules
+    private GridMolecule next = null;
 
-	private final int xBin;
-	private final int yBin;
+    private final int xBin;
+    private final int yBin;
 
-	/**
-	 * Instantiates a new grid molecule.
-	 *
-	 * @param id
-	 *            the id
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 * @param xBin
-	 *            the x bin
-	 * @param yBin
-	 *            the y bin
-	 * @param next
-	 *            the next
-	 */
-	GridMolecule(int id, float x, float y, int xBin, int yBin, GridMolecule next)
-	{
-		super(id, x, y);
-		this.next = next;
-		this.xBin = xBin;
-		this.yBin = yBin;
-	}
+    /**
+     * Instantiates a new grid molecule.
+     *
+     * @param id
+     *            the id
+     * @param x
+     *            the x
+     * @param y
+     *            the y
+     * @param xBin
+     *            the x bin
+     * @param yBin
+     *            the y bin
+     * @param next
+     *            the next
+     */
+    GridMolecule(int id, float x, float y, int xBin, int yBin, GridMolecule next)
+    {
+        super(id, x, y);
+        this.next = next;
+        this.xBin = xBin;
+        this.yBin = yBin;
+    }
 
-	@Override
-	public GridMolecule getNext()
-	{
-		return next;
-	}
+    @Override
+    public GridMolecule getNext()
+    {
+        return next;
+    }
 
-	/**
-	 * Sets the next molecule (used to create a linked-list).
-	 *
-	 * @param next
-	 *            the new next
-	 */
-	public void setNext(GridMolecule next)
-	{
-		this.next = next;
-	}
+    /**
+     * Sets the next molecule (used to create a linked-list).
+     *
+     * @param next
+     *            the new next
+     */
+    public void setNext(GridMolecule next)
+    {
+        this.next = next;
+    }
 
-	@Override
-	int getXBin()
-	{
-		return xBin;
-	}
+    @Override
+    int getXBin()
+    {
+        return xBin;
+    }
 
-	@Override
-	int getYBin()
-	{
-		return yBin;
-	}
+    @Override
+    int getYBin()
+    {
+        return yBin;
+    }
 }

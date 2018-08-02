@@ -32,35 +32,35 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  */
 class DistanceMolecule extends Molecule
 {
-	/**
-	 * Working distance to current centre object
-	 */
-	private float d;
+    /**
+     * Working distance to current centre object
+     */
+    private float d;
 
-	/**
-	 * Instantiates a new distance molecule.
-	 *
-	 * @param id
-	 *            the id
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 */
-	DistanceMolecule(int id, float x, float y)
-	{
-		super(id, x, y);
-	}
+    /**
+     * Instantiates a new distance molecule.
+     *
+     * @param id
+     *            the id
+     * @param x
+     *            the x
+     * @param y
+     *            the y
+     */
+    DistanceMolecule(int id, float x, float y)
+    {
+        super(id, x, y);
+    }
 
-	@Override
-	float getD()
-	{
-		return d;
-	}
+    @Override
+    float getD()
+    {
+        return d;
+    }
 
-	@Override
-	void setD(float d)
-	{
-		this.d = d;
-	}
+    @Override
+    void setD(float d)
+    {
+        this.d = d;
+    }
 }

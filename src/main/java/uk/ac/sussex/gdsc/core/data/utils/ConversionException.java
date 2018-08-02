@@ -34,48 +34,48 @@ import uk.ac.sussex.gdsc.core.data.DataException;
  */
 public class ConversionException extends DataException
 {
-	private static final long serialVersionUID = 2470815639465684383L;
+    private static final long serialVersionUID = 2470815639465684383L;
 
-	/**
-	 * Instantiates a new conversion exception.
-	 */
-	public ConversionException()
-	{
-		super();
-	}
+    /**
+     * Instantiates a new conversion exception.
+     */
+    public ConversionException()
+    {
+        super();
+    }
 
-	/**
-	 * Instantiates a new conversion exception.
-	 *
-	 * @param message
-	 *            the message
-	 */
-	public ConversionException(String message)
-	{
-		super(message);
-	}
+    /**
+     * Instantiates a new conversion exception.
+     *
+     * @param message
+     *            the message
+     */
+    public ConversionException(String message)
+    {
+        super(message);
+    }
 
-	/**
-	 * Instantiates a new conversion exception.
-	 *
-	 * @param message
-	 *            the message
-	 * @param cause
-	 *            the cause
-	 */
-	public ConversionException(String message, Throwable cause)
-	{
-		super(message, cause);
-	}
+    /**
+     * Instantiates a new conversion exception.
+     *
+     * @param message
+     *            the message
+     * @param cause
+     *            the cause
+     */
+    public ConversionException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
 
-	/**
-	 * Instantiates a new conversion exception.
-	 *
-	 * @param cause
-	 *            the cause
-	 */
-	public ConversionException(Throwable cause)
-	{
-		super(cause);
-	}
+    /**
+     * Instantiates a new conversion exception.
+     *
+     * @param cause
+     *            the cause
+     */
+    public ConversionException(Throwable cause)
+    {
+        super(cause);
+    }
 }

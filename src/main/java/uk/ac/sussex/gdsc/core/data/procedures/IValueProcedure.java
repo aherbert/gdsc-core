@@ -32,11 +32,11 @@ package uk.ac.sussex.gdsc.core.data.procedures;
  */
 public interface IValueProcedure
 {
-	/**
-	 * Executes this procedure.
-	 *
-	 * @param value
-	 *            the pixel value
-	 */
-	public void execute(int value);
+    /**
+     * Executes this procedure.
+     *
+     * @param value
+     *            the pixel value
+     */
+    public void execute(int value);
 }

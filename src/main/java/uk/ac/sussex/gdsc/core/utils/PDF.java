@@ -34,123 +34,123 @@ package uk.ac.sussex.gdsc.core.utils;
  */
 public class PDF
 {
-	private final double[] sum;
+    private final double[] sum;
 
-	/**
-	 * The cumulative sum of the original input data
-	 */
-	public final double cumulative;
+    /**
+     * The cumulative sum of the original input data
+     */
+    public final double cumulative;
 
-	/**
-	 * Default constructor. Assumes the range increments from zero in integers.
-	 *
-	 * @param data
-	 *            The data
-	 * @throws IllegalArgumentException
-	 *             if the input data length is not at least 1
-	 * @throws IllegalArgumentException
-	 *             if the input data contains negatives
-	 */
-	public PDF(double[] data)
-	{
-		if (data == null || data.length < 1)
-			throw new IllegalArgumentException("Input data must be at least 1");
+    /**
+     * Default constructor. Assumes the range increments from zero in integers.
+     *
+     * @param data
+     *            The data
+     * @throws IllegalArgumentException
+     *             if the input data length is not at least 1
+     * @throws IllegalArgumentException
+     *             if the input data contains negatives
+     */
+    public PDF(double[] data)
+    {
+        if (data == null || data.length < 1)
+            throw new IllegalArgumentException("Input data must be at least 1");
 
-		this.sum = new double[data.length + 1];
+        this.sum = new double[data.length + 1];
 
-		double mean = 0, sum = 0;
-		double c = 0;
+        double mean = 0, sum = 0;
+        double c = 0;
 
-		for (int i = 0; i < data.length; i++)
-		{
-			if (data[i] < 0)
-				throw new IllegalArgumentException("Histogram bins must be non-negative");
-			mean += (data[i] - mean) / (i + 1);
-			c += data[i];
-		}
+        for (int i = 0; i < data.length; i++)
+        {
+            if (data[i] < 0)
+                throw new IllegalArgumentException("Histogram bins must be non-negative");
+            mean += (data[i] - mean) / (i + 1);
+            c += data[i];
+        }
 
-		cumulative = c;
+        cumulative = c;
 
-		this.sum[0] = 0;
+        this.sum[0] = 0;
 
-		for (int i = 0; i < data.length; i++)
-		{
-			sum += (data[i] / mean) / data.length;
-			this.sum[i + 1] = sum;
-		}
-	}
+        for (int i = 0; i < data.length; i++)
+        {
+            sum += (data[i] / mean) / data.length;
+            this.sum[i + 1] = sum;
+        }
+    }
 
-	/**
-	 * Sample from the PDF using a uniform random number (in the range 0-1).
-	 *
-	 * @param r1
-	 *            the random number
-	 * @return the sample (or -1 on error)
-	 */
-	public double sample(double r1)
-	{
-		/*
-		 * Wrap the exclusive top of the bin down to the inclusive bottom of
-		 * the bin. Since this is a single point it should not affect the
-		 * distribution.
-		 */
+    /**
+     * Sample from the PDF using a uniform random number (in the range 0-1).
+     *
+     * @param r1
+     *            the random number
+     * @return the sample (or -1 on error)
+     */
+    public double sample(double r1)
+    {
+        /*
+         * Wrap the exclusive top of the bin down to the inclusive bottom of
+         * the bin. Since this is a single point it should not affect the
+         * distribution.
+         */
 
-		if (r1 >= 1.0 || r1 < 0)
-			r1 = 0.0;
+        if (r1 >= 1.0 || r1 < 0)
+            r1 = 0.0;
 
-		final int k = find(r1);
+        final int k = find(r1);
 
-		if (k == -1)
-			return -1;
+        if (k == -1)
+            return -1;
 
-		final double delta = (r1 - sum[k]) / (sum[k + 1] - sum[k]);
+        final double delta = (r1 - sum[k]) / (sum[k + 1] - sum[k]);
 
-		// Assume the x-range and y-range increment from zero in integers.
-		// We could extend this class to support non-uniform ranges as per the GSL library:
-		// x = xrange[x] + delta * (xrange[x + 1] - xrange[x]);
+        // Assume the x-range and y-range increment from zero in integers.
+        // We could extend this class to support non-uniform ranges as per the GSL library:
+        // x = xrange[x] + delta * (xrange[x + 1] - xrange[x]);
 
-		return k + delta;
-	}
+        return k + delta;
+    }
 
-	private int find(double x)
-	{
-		if (x >= sum[sum.length - 1])
-			return -1;
+    private int find(double x)
+    {
+        if (x >= sum[sum.length - 1])
+            return -1;
 
-		/* perform binary search */
+        /* perform binary search */
 
-		int upper = sum.length - 1;
-		int lower = 0;
+        int upper = sum.length - 1;
+        int lower = 0;
 
-		while (upper - lower > 1)
-		{
-			final int mid = (upper + lower) >>> 1;
+        while (upper - lower > 1)
+        {
+            final int mid = (upper + lower) >>> 1;
 
-			if (x >= sum[mid])
-				lower = mid;
-			else
-				upper = mid;
-		}
+            if (x >= sum[mid])
+                lower = mid;
+            else
+                upper = mid;
+        }
 
-		/* sanity check the result */
+        /* sanity check the result */
 
-		if (x < sum[lower] || x >= sum[lower + 1])
-			return -1;
+        if (x < sum[lower] || x >= sum[lower + 1])
+            return -1;
 
-		return lower;
-	}
+        return lower;
+    }
 
-	/**
-	 * Return the cumulative probability for the given coordinates.
-	 *
-	 * @param x
-	 *            the x
-	 * @return p
-	 */
-	double get(int x)
-	{
-		if (x < 0 || x >= sum[sum.length - 1])
-			return 0;
-		return sum[x];
-	}
+    /**
+     * Return the cumulative probability for the given coordinates.
+     *
+     * @param x
+     *            the x
+     * @return p
+     */
+    double get(int x)
+    {
+        if (x < 0 || x >= sum[sum.length - 1])
+            return 0;
+        return sum[x];
+    }
 }

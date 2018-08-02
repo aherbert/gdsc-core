@@ -32,61 +32,61 @@ package uk.ac.sussex.gdsc.core.data.procedures;
  */
 public interface TrivalueProcedure
 {
-	/**
-	 * Sets the dimensions. This will be called first to allow the procedure to prepare to process the results. If the
-	 * dimensions cannot be processed then return false to abort.
-	 *
-	 * @param maxx
-	 *            the maxx
-	 * @param maxy
-	 *            the maxy
-	 * @param maxz
-	 *            the maxz
-	 * @return true, if it is OK to continue
-	 */
-	public boolean setDimensions(int maxx, int maxy, int maxz);
+    /**
+     * Sets the dimensions. This will be called first to allow the procedure to prepare to process the results. If the
+     * dimensions cannot be processed then return false to abort.
+     *
+     * @param maxx
+     *            the maxx
+     * @param maxy
+     *            the maxy
+     * @param maxz
+     *            the maxz
+     * @return true, if it is OK to continue
+     */
+    public boolean setDimensions(int maxx, int maxy, int maxz);
 
-	/**
-	 * Sets the X axis value.
-	 *
-	 * @param i
-	 *            the index
-	 * @param value
-	 *            the value
-	 */
-	public void setX(int i, double value);
+    /**
+     * Sets the X axis value.
+     *
+     * @param i
+     *            the index
+     * @param value
+     *            the value
+     */
+    public void setX(int i, double value);
 
-	/**
-	 * Sets the Y axis value.
-	 *
-	 * @param j
-	 *            the index
-	 * @param value
-	 *            the value
-	 */
-	public void setY(int j, double value);
+    /**
+     * Sets the Y axis value.
+     *
+     * @param j
+     *            the index
+     * @param value
+     *            the value
+     */
+    public void setY(int j, double value);
 
-	/**
-	 * Sets the Z axis value.
-	 *
-	 * @param k
-	 *            the index
-	 * @param value
-	 *            the value
-	 */
-	public void setZ(int k, double value);
+    /**
+     * Sets the Z axis value.
+     *
+     * @param k
+     *            the index
+     * @param value
+     *            the value
+     */
+    public void setZ(int k, double value);
 
-	/**
-	 * Set the value.
-	 *
-	 * @param i
-	 *            the x index
-	 * @param j
-	 *            the y index
-	 * @param k
-	 *            the z index
-	 * @param value
-	 *            the value
-	 */
-	public void setValue(int i, int j, int k, double value);
+    /**
+     * Set the value.
+     *
+     * @param i
+     *            the x index
+     * @param j
+     *            the y index
+     * @param k
+     *            the z index
+     * @param value
+     *            the value
+     */
+    public void setValue(int i, int j, int k, double value);
 }

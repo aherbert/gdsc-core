@@ -32,66 +32,66 @@ package uk.ac.sussex.gdsc.core.data;
  */
 public class DoubleArrayValueProvider implements ValueProvider
 {
-	private final double[] val;
+    private final double[] val;
 
-	/**
-	 * Instantiates a new double array trivalue provider.
-	 *
-	 * @param val
-	 *            the val
-	 * @throws DataException
-	 *             If the array is missing data
-	 */
-	public DoubleArrayValueProvider(double[] val) throws DataException
-	{
-		if (val.length == 0)
-			throw new DataException("No data");
-		this.val = val;
-	}
+    /**
+     * Instantiates a new double array trivalue provider.
+     *
+     * @param val
+     *            the val
+     * @throws DataException
+     *             If the array is missing data
+     */
+    public DoubleArrayValueProvider(double[] val) throws DataException
+    {
+        if (val.length == 0)
+            throw new DataException("No data");
+        this.val = val;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.data.ValueProvider#getLength()
-	 */
-	@Override
-	public int getLength()
-	{
-		return val.length;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.data.ValueProvider#getLength()
+     */
+    @Override
+    public int getLength()
+    {
+        return val.length;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.data.ValueProvider#get(int)
-	 */
-	@Override
-	public double get(int x)
-	{
-		return val[x];
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.data.ValueProvider#get(int)
+     */
+    @Override
+    public double get(int x)
+    {
+        return val[x];
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.data.ValueProvider#get(int, double[])
-	 */
-	@Override
-	public void get(int x, double[] values)
-	{
-		values[0] = val[x - 1];
-		values[1] = val[x];
-		values[2] = val[x + 1];
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.data.ValueProvider#get(int, double[])
+     */
+    @Override
+    public void get(int x, double[] values)
+    {
+        values[0] = val[x - 1];
+        values[1] = val[x];
+        values[2] = val[x + 1];
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.data.ValueProvider#toArray()
-	 */
-	@Override
-	public double[] toArray()
-	{
-		return val;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.data.ValueProvider#toArray()
+     */
+    @Override
+    public double[] toArray()
+    {
+        return val;
+    }
 }

@@ -32,7 +32,7 @@ import java.awt.image.ColorModel;
 import ij.process.FloatProcessor;
 
 /**
- * Extends the ImageJ {@link FloatProcessor} class to map the min-max range to 1-255 in the 8-bit image. 
+ * Extends the ImageJ {@link FloatProcessor} class to map the min-max range to 1-255 in the 8-bit image.
  * Negative infinity is mapped to 0 in the LUT.
  * <p>
  * This allows display of a range of float data using the special marker -Infinity to ignore pixels from display
@@ -44,178 +44,178 @@ import ij.process.FloatProcessor;
  */
 public class InfinityMappedFloatProcessor extends FloatProcessor
 {
-	private boolean mapPositiveInfinity = false;
+    private boolean mapPositiveInfinity = false;
 
-	/**
-	 * Checks if positive infinity is mapped to zero.
-	 *
-	 * @return true, if positive infinity is mapped to zero
-	 */
-	public boolean isMapPositiveInfinity()
-	{
-		return mapPositiveInfinity;
-	}
+    /**
+     * Checks if positive infinity is mapped to zero.
+     *
+     * @return true, if positive infinity is mapped to zero
+     */
+    public boolean isMapPositiveInfinity()
+    {
+        return mapPositiveInfinity;
+    }
 
-	/**
-	 * Set to true to map positive infinity to zero.
-	 *
-	 * @param mapPositiveInfinity
-	 *            the new map positive infinity flag
-	 */
-	public void setMapPositiveInfinity(boolean mapPositiveInfinity)
-	{
-		this.mapPositiveInfinity = mapPositiveInfinity;
-	}
+    /**
+     * Set to true to map positive infinity to zero.
+     *
+     * @param mapPositiveInfinity
+     *            the new map positive infinity flag
+     */
+    public void setMapPositiveInfinity(boolean mapPositiveInfinity)
+    {
+        this.mapPositiveInfinity = mapPositiveInfinity;
+    }
 
-	/**
-	 * Creates a new MappedFloatProcessor using the specified pixel array.
-	 *
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 * @param pixels
-	 *            the pixels
-	 */
-	public InfinityMappedFloatProcessor(int width, int height, float[] pixels)
-	{
-		this(width, height, pixels, null);
-	}
+    /**
+     * Creates a new MappedFloatProcessor using the specified pixel array.
+     *
+     * @param width
+     *            the width
+     * @param height
+     *            the height
+     * @param pixels
+     *            the pixels
+     */
+    public InfinityMappedFloatProcessor(int width, int height, float[] pixels)
+    {
+        this(width, height, pixels, null);
+    }
 
-	/**
-	 * Creates a new MappedFloatProcessor using the specified pixel array and ColorModel.
-	 *
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 * @param pixels
-	 *            the pixels
-	 * @param cm
-	 *            the colour model
-	 */
-	public InfinityMappedFloatProcessor(int width, int height, float[] pixels, ColorModel cm)
-	{
-		super(width, height, pixels, cm);
-	}
+    /**
+     * Creates a new MappedFloatProcessor using the specified pixel array and ColorModel.
+     *
+     * @param width
+     *            the width
+     * @param height
+     *            the height
+     * @param pixels
+     *            the pixels
+     * @param cm
+     *            the colour model
+     */
+    public InfinityMappedFloatProcessor(int width, int height, float[] pixels, ColorModel cm)
+    {
+        super(width, height, pixels, cm);
+    }
 
-	/**
-	 * Creates a blank MappedFloatProcessor using the default grayscale LUT that
-	 * displays zero as black. Call invertLut() to display zero as white.
-	 *
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 */
-	public InfinityMappedFloatProcessor(int width, int height)
-	{
-		super(width, height, new float[width * height], null);
-	}
+    /**
+     * Creates a blank MappedFloatProcessor using the default grayscale LUT that
+     * displays zero as black. Call invertLut() to display zero as white.
+     *
+     * @param width
+     *            the width
+     * @param height
+     *            the height
+     */
+    public InfinityMappedFloatProcessor(int width, int height)
+    {
+        super(width, height, new float[width * height], null);
+    }
 
-	/**
-	 * Creates a MappedFloatProcessor from an int array using the default grayscale LUT.
-	 *
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 * @param pixels
-	 *            the pixels
-	 */
-	public InfinityMappedFloatProcessor(int width, int height, int[] pixels)
-	{
-		super(width, height, pixels);
-	}
+    /**
+     * Creates a MappedFloatProcessor from an int array using the default grayscale LUT.
+     *
+     * @param width
+     *            the width
+     * @param height
+     *            the height
+     * @param pixels
+     *            the pixels
+     */
+    public InfinityMappedFloatProcessor(int width, int height, int[] pixels)
+    {
+        super(width, height, pixels);
+    }
 
-	/**
-	 * Creates a MappedFloatProcessor from a double array using the default grayscale LUT.
-	 *
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 * @param pixels
-	 *            the pixels
-	 */
-	public InfinityMappedFloatProcessor(int width, int height, double[] pixels)
-	{
-		super(width, height, pixels);
-	}
+    /**
+     * Creates a MappedFloatProcessor from a double array using the default grayscale LUT.
+     *
+     * @param width
+     *            the width
+     * @param height
+     *            the height
+     * @param pixels
+     *            the pixels
+     */
+    public InfinityMappedFloatProcessor(int width, int height, double[] pixels)
+    {
+        super(width, height, pixels);
+    }
 
-	/**
-	 * Creates a MappedFloatProcessor from a 2D float array using the default LUT.
-	 *
-	 * @param array
-	 *            the array
-	 */
-	public InfinityMappedFloatProcessor(float[][] array)
-	{
-		super(array);
-	}
+    /**
+     * Creates a MappedFloatProcessor from a 2D float array using the default LUT.
+     *
+     * @param array
+     *            the array
+     */
+    public InfinityMappedFloatProcessor(float[][] array)
+    {
+        super(array);
+    }
 
-	/**
-	 * Creates a MappedFloatProcessor from a 2D int array.
-	 *
-	 * @param array
-	 *            the array
-	 */
-	public InfinityMappedFloatProcessor(int[][] array)
-	{
-		super(array);
-	}
+    /**
+     * Creates a MappedFloatProcessor from a 2D int array.
+     *
+     * @param array
+     *            the array
+     */
+    public InfinityMappedFloatProcessor(int[][] array)
+    {
+        super(array);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ij.process.FloatProcessor#create8BitImage()
-	 */
-	@Override
-	protected byte[] create8BitImage()
-	{
-		// Map all values to the range 1-255. Negative infinity maps to zero.
-		final int size = width * height;
-		if (pixels8 == null)
-			pixels8 = new byte[size];
-		final float[] pixels = (float[]) getPixels();
-		float value;
-		int ivalue;
+    /*
+     * (non-Javadoc)
+     *
+     * @see ij.process.FloatProcessor#create8BitImage()
+     */
+    @Override
+    protected byte[] create8BitImage()
+    {
+        // Map all values to the range 1-255. Negative infinity maps to zero.
+        final int size = width * height;
+        if (pixels8 == null)
+            pixels8 = new byte[size];
+        final float[] pixels = (float[]) getPixels();
+        float value;
+        int ivalue;
 
-		// Default min/max
-		final float min2 = (float) getMin(), max2 = (float) getMax();
+        // Default min/max
+        final float min2 = (float) getMin(), max2 = (float) getMax();
 
-		final float scale = 254f / (max2 - min2);
+        final float scale = 254f / (max2 - min2);
 
-		if (mapPositiveInfinity)
-		{
-			for (int i = 0; i < size; i++)
-				if (Float.isInfinite(pixels[i]))
-					// Infinity maps to zero.
-					pixels8[i] = (byte) 0;
-				else
-				{
-					// Map all values to the range 1-255.
-					value = pixels[i] - min2;
-					ivalue = 1 + (int) ((value * scale) + 0.5f);
-					if (ivalue > 255)
-						ivalue = 255;
-					pixels8[i] = (byte) ivalue;
-				}
-		}
-		else
-			for (int i = 0; i < size; i++)
-				if (pixels[i] < min2)
-					// Below min maps to zero. This is -Infinity.
-					pixels8[i] = (byte) 0;
-				else
-				{
-					// Map all values to the range 1-255.
-					value = pixels[i] - min2;
-					ivalue = 1 + (int) ((value * scale) + 0.5f);
-					if (ivalue > 255)
-						ivalue = 255;
-					pixels8[i] = (byte) ivalue;
-				}
-		return pixels8;
-	}
+        if (mapPositiveInfinity)
+        {
+            for (int i = 0; i < size; i++)
+                if (Float.isInfinite(pixels[i]))
+                    // Infinity maps to zero.
+                    pixels8[i] = (byte) 0;
+                else
+                {
+                    // Map all values to the range 1-255.
+                    value = pixels[i] - min2;
+                    ivalue = 1 + (int) ((value * scale) + 0.5f);
+                    if (ivalue > 255)
+                        ivalue = 255;
+                    pixels8[i] = (byte) ivalue;
+                }
+        }
+        else
+            for (int i = 0; i < size; i++)
+                if (pixels[i] < min2)
+                    // Below min maps to zero. This is -Infinity.
+                    pixels8[i] = (byte) 0;
+                else
+                {
+                    // Map all values to the range 1-255.
+                    value = pixels[i] - min2;
+                    ivalue = 1 + (int) ((value * scale) + 0.5f);
+                    if (ivalue > 255)
+                        ivalue = 255;
+                    pixels8[i] = (byte) ivalue;
+                }
+        return pixels8;
+    }
 }

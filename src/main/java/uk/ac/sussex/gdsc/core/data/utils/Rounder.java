@@ -32,39 +32,39 @@ package uk.ac.sussex.gdsc.core.data.utils;
  */
 public interface Rounder
 {
-	/**
-	 * Round the value.
-	 *
-	 * @param value
-	 *            the value
-	 * @return the rounded value
-	 */
-	public double round(double value);
+    /**
+     * Round the value.
+     *
+     * @param value
+     *            the value
+     * @return the rounded value
+     */
+    public double round(double value);
 
-	/**
-	 * Round the value to a string.
-	 *
-	 * @param value
-	 *            the value
-	 * @return the rounded string value
-	 */
-	public String toString(double value);
+    /**
+     * Round the value to a string.
+     *
+     * @param value
+     *            the value
+     * @return the rounded string value
+     */
+    public String toString(double value);
 
-	/**
-	 * Round the value.
-	 *
-	 * @param value
-	 *            the value
-	 * @return the rounded value
-	 */
-	public float round(float value);
+    /**
+     * Round the value.
+     *
+     * @param value
+     *            the value
+     * @return the rounded value
+     */
+    public float round(float value);
 
-	/**
-	 * Round the value to a string.
-	 *
-	 * @param value
-	 *            the value
-	 * @return the rounded string value
-	 */
-	public String toString(float value);
+    /**
+     * Round the value to a string.
+     *
+     * @param value
+     *            the value
+     * @return the rounded string value
+     */
+    public String toString(float value);
 }

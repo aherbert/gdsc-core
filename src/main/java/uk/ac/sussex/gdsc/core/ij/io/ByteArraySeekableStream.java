@@ -34,136 +34,136 @@ import java.io.IOException;
  */
 public final class ByteArraySeekableStream extends SeekableStream
 {
-	/** The current position in the byte array. */
-	int p = 0;
+    /** The current position in the byte array. */
+    int p = 0;
 
-	/** The buffer of bytes. */
-	byte[] buffer;
+    /** The buffer of bytes. */
+    byte[] buffer;
 
-	/** The length of the byte array. */
-	final int length;
+    /** The length of the byte array. */
+    final int length;
 
-	/**
-	 * Instantiates a new byte array seekable stream.
-	 *
-	 * @param bytes
-	 *            the bytes
-	 */
-	public ByteArraySeekableStream(byte[] bytes)
-	{
-		if (bytes == null)
-			throw new NullPointerException();
-		this.buffer = bytes;
-		length = bytes.length;
-	}
+    /**
+     * Instantiates a new byte array seekable stream.
+     *
+     * @param bytes
+     *            the bytes
+     */
+    public ByteArraySeekableStream(byte[] bytes)
+    {
+        if (bytes == null)
+            throw new NullPointerException();
+        this.buffer = bytes;
+        length = bytes.length;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ij.io.SeekableStream#getFilePointer()
-	 */
-	@Override
-	public long getFilePointer()
-	{
-		return p;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see ij.io.SeekableStream#getFilePointer()
+     */
+    @Override
+    public long getFilePointer()
+    {
+        return p;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ij.io.SeekableStream#read()
-	 */
-	@Override
-	public int read()
-	{
-		if (p < length)
-			return buffer[p++] & 0xff;
-		return -1;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see ij.io.SeekableStream#read()
+     */
+    @Override
+    public int read()
+    {
+        if (p < length)
+            return buffer[p++] & 0xff;
+        return -1;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ij.io.SeekableStream#read(byte[], int, int)
-	 */
-	@Override
-	public int read(byte[] bytes, int off, int len)
-	{
-		if (p < length)
-		{
-			if (len > 0)
-			{
-				final int size = (p + len <= length) ? len : length - p;
-				System.arraycopy(buffer, p, bytes, off, size);
-				p += size;
-				return size;
-			}
-			return 0;
-		}
-		return -1;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see ij.io.SeekableStream#read(byte[], int, int)
+     */
+    @Override
+    public int read(byte[] bytes, int off, int len)
+    {
+        if (p < length)
+        {
+            if (len > 0)
+            {
+                final int size = (p + len <= length) ? len : length - p;
+                System.arraycopy(buffer, p, bytes, off, size);
+                p += size;
+                return size;
+            }
+            return 0;
+        }
+        return -1;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ij.io.SeekableStream#seek(long)
-	 */
-	@Override
-	public void seek(long loc) throws IOException
-	{
-		if (loc < 0)
-			throw new IOException("Negative position");
-		// Allow seek to the end
-		p = (loc > length) ? length : (int) loc;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see ij.io.SeekableStream#seek(long)
+     */
+    @Override
+    public void seek(long loc) throws IOException
+    {
+        if (loc < 0)
+            throw new IOException("Negative position");
+        // Allow seek to the end
+        p = (loc > length) ? length : (int) loc;
+    }
 
-	@Override
-	public void close()
-	{
-		// Do nothing
-	}
+    @Override
+    public void close()
+    {
+        // Do nothing
+    }
 
-	@Override
-	public long skip(long n)
-	{
-		if (n <= 0)
-			return 0;
-		final int pos = p;
-		final long newpos = pos + n;
-		if (newpos > length || newpos < 0) // Check against overflow
-			p = length;
-		else
-			p = (int) newpos;
+    @Override
+    public long skip(long n)
+    {
+        if (n <= 0)
+            return 0;
+        final int pos = p;
+        final long newpos = pos + n;
+        if (newpos > length || newpos < 0) // Check against overflow
+            p = length;
+        else
+            p = (int) newpos;
 
-		/* return the actual number of bytes skipped */
-		return p - pos;
-	}
+        /* return the actual number of bytes skipped */
+        return p - pos;
+    }
 
-	@Override
-	public int available()
-	{
-		return length - p;
-	}
+    @Override
+    public int available()
+    {
+        return length - p;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ij.io.SeekableStream#canCopy()
-	 */
-	@Override
-	public boolean canCopy()
-	{
-		return true;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see ij.io.SeekableStream#canCopy()
+     */
+    @Override
+    public boolean canCopy()
+    {
+        return true;
+    }
 
-	/**
-	 * Copy the stream reusing the underlying byte buffer.
-	 *
-	 * @return the byte array seekable stream
-	 */
-	@Override
-	public ByteArraySeekableStream copy()
-	{
-		return new ByteArraySeekableStream(buffer);
-	}
+    /**
+     * Copy the stream reusing the underlying byte buffer.
+     *
+     * @return the byte array seekable stream
+     */
+    @Override
+    public ByteArraySeekableStream copy()
+    {
+        return new ByteArraySeekableStream(buffer);
+    }
 }

@@ -31,49 +31,49 @@ package uk.ac.sussex.gdsc.core.ags.utils.dataStructures;
  */
 public interface MaxHeap<T>
 {
-	/**
-	 * Get the size.
-	 *
-	 * @return the size
-	 */
-	public int size();
+    /**
+     * Get the size.
+     *
+     * @return the size
+     */
+    public int size();
 
-	/**
-	 * Offer.
-	 *
-	 * @param key
-	 *            the key
-	 * @param value
-	 *            the value
-	 */
-	public void offer(double key, T value);
+    /**
+     * Offer.
+     *
+     * @param key
+     *            the key
+     * @param value
+     *            the value
+     */
+    public void offer(double key, T value);
 
-	/**
-	 * Replace max.
-	 *
-	 * @param key
-	 *            the key
-	 * @param value
-	 *            the value
-	 */
-	public void replaceMax(double key, T value);
+    /**
+     * Replace max.
+     *
+     * @param key
+     *            the key
+     * @param value
+     *            the value
+     */
+    public void replaceMax(double key, T value);
 
-	/**
-	 * Removes the max.
-	 */
-	public void removeMax();
+    /**
+     * Removes the max.
+     */
+    public void removeMax();
 
-	/**
-	 * Gets the max.
-	 *
-	 * @return the max
-	 */
-	public T getMax();
+    /**
+     * Gets the max.
+     *
+     * @return the max
+     */
+    public T getMax();
 
-	/**
-	 * Gets the max key.
-	 *
-	 * @return the max key
-	 */
-	public double getMaxKey();
+    /**
+     * Gets the max key.
+     *
+     * @return the max key
+     */
+    public double getMaxKey();
 }

@@ -31,53 +31,53 @@ package uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.thirdGenKD;
  */
 public class KdTreeND<T> extends KdTree<T>
 {
-	/** The dimensions. */
-	protected int dimensions;
+    /** The dimensions. */
+    protected int dimensions;
 
-	/**
-	 * Instantiates a new kd tree ND.
-	 *
-	 * @param dimensions
-	 *            the dimensions
-	 */
-	public KdTreeND(int dimensions)
-	{
-		this(dimensions, 24);
-	}
+    /**
+     * Instantiates a new kd tree ND.
+     *
+     * @param dimensions
+     *            the dimensions
+     */
+    public KdTreeND(int dimensions)
+    {
+        this(dimensions, 24);
+    }
 
-	/**
-	 * Instantiates a new kd tree ND.
-	 *
-	 * @param dimensions
-	 *            the dimensions
-	 * @param bucketCapacity
-	 *            the bucket capacity
-	 */
-	public KdTreeND(int dimensions, int bucketCapacity)
-	{
-		super(bucketCapacity);
-		this.dimensions = dimensions;
-	}
+    /**
+     * Instantiates a new kd tree ND.
+     *
+     * @param dimensions
+     *            the dimensions
+     * @param bucketCapacity
+     *            the bucket capacity
+     */
+    public KdTreeND(int dimensions, int bucketCapacity)
+    {
+        super(bucketCapacity);
+        this.dimensions = dimensions;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ags.utils.dataStructures.trees.thirdGenKD.KdNode#getDimensions()
-	 */
-	@Override
-	public int getDimensions()
-	{
-		return dimensions;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see ags.utils.dataStructures.trees.thirdGenKD.KdNode#getDimensions()
+     */
+    @Override
+    public int getDimensions()
+    {
+        return dimensions;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see ags.utils.dataStructures.trees.thirdGenKD.KdNode#newInstance()
-	 */
-	@Override
-	protected KdNode<T> newInstance()
-	{
-		return new KdTreeND<>(dimensions, bucketCapacity);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see ags.utils.dataStructures.trees.thirdGenKD.KdNode#newInstance()
+     */
+    @Override
+    protected KdNode<T> newInstance()
+    {
+        return new KdTreeND<>(dimensions, bucketCapacity);
+    }
 }

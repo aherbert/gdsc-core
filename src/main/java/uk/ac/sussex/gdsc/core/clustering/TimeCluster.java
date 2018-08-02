@@ -34,117 +34,117 @@ import org.apache.commons.math3.util.FastMath;
  */
 public class TimeCluster extends Cluster
 {
-	/** The start. */
-	public int start;
-	/** The end. */
-	public int end;
-	/** The pulse. */
-	public int pulse;
+    /** The start. */
+    public int start;
+    /** The end. */
+    public int end;
+    /** The pulse. */
+    public int pulse;
 
-	/**
-	 * Instantiates a new time cluster.
-	 *
-	 * @param point
-	 *            the point
-	 */
-	public TimeCluster(ClusterPoint point)
-	{
-		super(point);
-		start = point.start;
-		end = point.end;
-	}
+    /**
+     * Instantiates a new time cluster.
+     *
+     * @param point
+     *            the point
+     */
+    public TimeCluster(ClusterPoint point)
+    {
+        super(point);
+        start = point.start;
+        end = point.end;
+    }
 
-	/**
-	 * Get the time gap between the two clusters. If the clusters overlap then return 0.
-	 *
-	 * @param other
-	 *            the other cluster
-	 * @return the time gap
-	 */
-	public int gap(TimeCluster other)
-	{
-		// Overlap:
-		// |-----------|
-		//         |---------|
-		//
-		// Gap:
-		// |-----------|
-		//                  |---------|
-		return FastMath.max(0, FastMath.max(start, other.start) - FastMath.min(end, other.end));
-	}
+    /**
+     * Get the time gap between the two clusters. If the clusters overlap then return 0.
+     *
+     * @param other
+     *            the other cluster
+     * @return the time gap
+     */
+    public int gap(TimeCluster other)
+    {
+        // Overlap:
+        // |-----------|
+        //         |---------|
+        //
+        // Gap:
+        // |-----------|
+        //                  |---------|
+        return FastMath.max(0, FastMath.max(start, other.start) - FastMath.min(end, other.end));
+    }
 
-	/**
-	 * Check if the union of the cluster points has unique time values using the gap between each cluster point.
-	 * <p>
-	 * This check is only relevant if the {@link #gap(TimeCluster)} function returns zero.
-	 *
-	 * @param other
-	 *            the other cluster
-	 * @return true, if successful
-	 */
-	public boolean validUnionRange(TimeCluster other)
-	{
-		for (ClusterPoint p1 = head; p1 != null; p1 = p1.next)
-			for (ClusterPoint p2 = other.head; p2 != null; p2 = p2.next)
-				if (p1.gap(p2) == 0)
-					return false;
-		return true;
-	}
+    /**
+     * Check if the union of the cluster points has unique time values using the gap between each cluster point.
+     * <p>
+     * This check is only relevant if the {@link #gap(TimeCluster)} function returns zero.
+     *
+     * @param other
+     *            the other cluster
+     * @return true, if successful
+     */
+    public boolean validUnionRange(TimeCluster other)
+    {
+        for (ClusterPoint p1 = head; p1 != null; p1 = p1.next)
+            for (ClusterPoint p2 = other.head; p2 != null; p2 = p2.next)
+                if (p1.gap(p2) == 0)
+                    return false;
+        return true;
+    }
 
-	/**
-	 * Check if the union of the cluster points has unique time values using the start time of each cluster point.
-	 * <p>
-	 * This check is only relevant if the {@link #gap(TimeCluster)} function returns zero.
-	 *
-	 * @param other
-	 *            the other cluster
-	 * @return true, if successful
-	 */
-	public boolean validUnion(TimeCluster other)
-	{
-		for (ClusterPoint p1 = head; p1 != null; p1 = p1.next)
-			for (ClusterPoint p2 = other.head; p2 != null; p2 = p2.next)
-				if (p1.start == p2.start)
-					return false;
-		return true;
-	}
+    /**
+     * Check if the union of the cluster points has unique time values using the start time of each cluster point.
+     * <p>
+     * This check is only relevant if the {@link #gap(TimeCluster)} function returns zero.
+     *
+     * @param other
+     *            the other cluster
+     * @return true, if successful
+     */
+    public boolean validUnion(TimeCluster other)
+    {
+        for (ClusterPoint p1 = head; p1 != null; p1 = p1.next)
+            for (ClusterPoint p2 = other.head; p2 != null; p2 = p2.next)
+                if (p1.start == p2.start)
+                    return false;
+        return true;
+    }
 
-	/**
-	 * Adds the other cluster.
-	 *
-	 * @param other
-	 *            the other cluster
-	 */
-	public void add(TimeCluster other)
-	{
-		super.add(other);
+    /**
+     * Adds the other cluster.
+     *
+     * @param other
+     *            the other cluster
+     */
+    public void add(TimeCluster other)
+    {
+        super.add(other);
 
-		// Update the start and end points
-		start = FastMath.min(start, other.start);
-		end = FastMath.max(end, other.end);
-	}
+        // Update the start and end points
+        start = FastMath.min(start, other.start);
+        end = FastMath.max(end, other.end);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	@Override
-	public int compareTo(Cluster o)
-	{
-		final int result = super.compareTo(o);
-		if (result != 0 || !(o instanceof TimeCluster))
-			return result;
-		final TimeCluster tc = (TimeCluster) o;
-		// Compare using the start and end time
-		if (start < tc.start)
-			return -1;
-		if (start > tc.start)
-			return 1;
-		if (end < tc.end)
-			return -1;
-		if (end > tc.end)
-			return 1;
-		return 0;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    public int compareTo(Cluster o)
+    {
+        final int result = super.compareTo(o);
+        if (result != 0 || !(o instanceof TimeCluster))
+            return result;
+        final TimeCluster tc = (TimeCluster) o;
+        // Compare using the start and end time
+        if (start < tc.start)
+            return -1;
+        if (start > tc.start)
+            return 1;
+        if (end < tc.end)
+            return -1;
+        if (end > tc.end)
+            return 1;
+        return 0;
+    }
 }

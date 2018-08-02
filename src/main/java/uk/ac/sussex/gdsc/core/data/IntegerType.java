@@ -32,7 +32,7 @@ package uk.ac.sussex.gdsc.core.data;
  */
 public enum IntegerType
 {
-	//@formatter:off
+    //@formatter:off
     /** A signed 1-bit integer */
     SIGNED_1 {
     @Override public String getName() { return "Signed 1-bit integer"; }
@@ -1051,144 +1051,144 @@ public enum IntegerType
     };
 	//@formatter:on
 
-	/**
-	 * Gets the name.
-	 *
-	 * @return the name
-	 */
-	public abstract String getName();
+    /**
+     * Gets the name.
+     *
+     * @return the name
+     */
+    public abstract String getName();
 
-	/**
-	 * Gets the min value.
-	 *
-	 * @return the min value
-	 */
-	public abstract long getMin();
+    /**
+     * Gets the min value.
+     *
+     * @return the min value
+     */
+    public abstract long getMin();
 
-	/**
-	 * Gets the max value.
-	 *
-	 * @return the max value
-	 */
-	public abstract long getMax();
+    /**
+     * Gets the max value.
+     *
+     * @return the max value
+     */
+    public abstract long getMax();
 
-	/**
-	 * Checks if is signed.
-	 *
-	 * @return true, if is signed
-	 */
-	public abstract boolean isSigned();
+    /**
+     * Checks if is signed.
+     *
+     * @return true, if is signed
+     */
+    public abstract boolean isSigned();
 
-	/**
-	 * Gets the bit depth.
-	 *
-	 * @return the bit depth
-	 */
-	public abstract int getBitDepth();
+    /**
+     * Gets the bit depth.
+     *
+     * @return the bit depth
+     */
+    public abstract int getBitDepth();
 
-	/**
-	 * Gets the largest absolute integer that can be returned. A signed integer can return a larger absolute value for
-	 * its min value than for its max (as a single bit is used to hold the sign). For an unsigned integer this will be
-	 * the max value.
-	 *
-	 * @return the absolute max
-	 */
-	public long getAbsoluteMax()
-	{
-		return (isSigned()) ? -getMin() : getMax();
-	}
+    /**
+     * Gets the largest absolute integer that can be returned. A signed integer can return a larger absolute value for
+     * its min value than for its max (as a single bit is used to hold the sign). For an unsigned integer this will be
+     * the max value.
+     *
+     * @return the absolute max
+     */
+    public long getAbsoluteMax()
+    {
+        return (isSigned()) ? -getMin() : getMax();
+    }
 
-	/**
-	 * Gets the value for the ordinal.
-	 *
-	 * @param ordinal
-	 *            the ordinal
-	 * @return the integer type
-	 * @throws IllegalArgumentException
-	 *             If the ordinal is invalid
-	 */
-	public static IntegerType forOrdinal(int ordinal) throws IllegalArgumentException
-	{
-		if (ordinal < 0)
-			throw new IllegalArgumentException("Negative ordinal");
-		final IntegerType[] values = IntegerType.values();
-		if (ordinal >= values.length)
-			throw new IllegalArgumentException("Ordinal too high");
-		return values[ordinal];
-	}
+    /**
+     * Gets the value for the ordinal.
+     *
+     * @param ordinal
+     *            the ordinal
+     * @return the integer type
+     * @throws IllegalArgumentException
+     *             If the ordinal is invalid
+     */
+    public static IntegerType forOrdinal(int ordinal) throws IllegalArgumentException
+    {
+        if (ordinal < 0)
+            throw new IllegalArgumentException("Negative ordinal");
+        final IntegerType[] values = IntegerType.values();
+        if (ordinal >= values.length)
+            throw new IllegalArgumentException("Ordinal too high");
+        return values[ordinal];
+    }
 
-	/**
-	 * Gets the value for the ordinal, or a default. If the given default is null then the value with ordinal 0 is
-	 * returned.
-	 *
-	 * @param ordinal
-	 *            the ordinal
-	 * @param defaultValue
-	 *            the default value (if the ordinal is invalid)
-	 * @return the integer type
-	 */
-	public static IntegerType forOrdinal(int ordinal, IntegerType defaultValue)
-	{
-		final IntegerType[] values = IntegerType.values();
-		if (ordinal < 0 || ordinal >= values.length)
-			return (defaultValue == null) ? values[0] : defaultValue;
-		return values[ordinal];
-	}
+    /**
+     * Gets the value for the ordinal, or a default. If the given default is null then the value with ordinal 0 is
+     * returned.
+     *
+     * @param ordinal
+     *            the ordinal
+     * @param defaultValue
+     *            the default value (if the ordinal is invalid)
+     * @return the integer type
+     */
+    public static IntegerType forOrdinal(int ordinal, IntegerType defaultValue)
+    {
+        final IntegerType[] values = IntegerType.values();
+        if (ordinal < 0 || ordinal >= values.length)
+            return (defaultValue == null) ? values[0] : defaultValue;
+        return values[ordinal];
+    }
 
-	/**
-	 * Get the max value of an unsigned integer of the given bit depth.
-	 *
-	 * @param bitDepth
-	 *            the bit depth (range 1-63)
-	 * @return the max value
-	 * @throws IllegalArgumentException
-	 *             If the bit-depth is invalid
-	 */
-	public static long maxUnsigned(int bitDepth) throws IllegalArgumentException
-	{
-		if (bitDepth < 0 || bitDepth > 63)
-			throw new IllegalArgumentException("Invalid bit depth: " + bitDepth);
-		long max = 1;
-		while (bitDepth-- > 0)
-			max = max << 1;
-		return max - 1;
-	}
+    /**
+     * Get the max value of an unsigned integer of the given bit depth.
+     *
+     * @param bitDepth
+     *            the bit depth (range 1-63)
+     * @return the max value
+     * @throws IllegalArgumentException
+     *             If the bit-depth is invalid
+     */
+    public static long maxUnsigned(int bitDepth) throws IllegalArgumentException
+    {
+        if (bitDepth < 0 || bitDepth > 63)
+            throw new IllegalArgumentException("Invalid bit depth: " + bitDepth);
+        long max = 1;
+        while (bitDepth-- > 0)
+            max = max << 1;
+        return max - 1;
+    }
 
-	/**
-	 * Get the max value of a signed integer of the given bit depth.
-	 *
-	 * @param bitDepth
-	 *            the bit depth (range 1-64)
-	 * @return the max value
-	 * @throws IllegalArgumentException
-	 *             If the bit-depth is invalid
-	 */
-	public static long maxSigned(int bitDepth)
-	{
-		if (bitDepth < 0 || bitDepth > 64)
-			throw new IllegalArgumentException("Invalid bit depth: " + bitDepth);
-		long max = 1;
-		while (bitDepth-- > 1)
-			max = max << 1;
-		return max - 1;
-	}
+    /**
+     * Get the max value of a signed integer of the given bit depth.
+     *
+     * @param bitDepth
+     *            the bit depth (range 1-64)
+     * @return the max value
+     * @throws IllegalArgumentException
+     *             If the bit-depth is invalid
+     */
+    public static long maxSigned(int bitDepth)
+    {
+        if (bitDepth < 0 || bitDepth > 64)
+            throw new IllegalArgumentException("Invalid bit depth: " + bitDepth);
+        long max = 1;
+        while (bitDepth-- > 1)
+            max = max << 1;
+        return max - 1;
+    }
 
-	/**
-	 * Get the min value of a signed integer of the given bit depth.
-	 *
-	 * @param bitDepth
-	 *            the bit depth (range 1-64)
-	 * @return the min value
-	 * @throws IllegalArgumentException
-	 *             If the bit-depth is invalid
-	 */
-	public static long minSigned(int bitDepth)
-	{
-		if (bitDepth < 0 || bitDepth > 64)
-			throw new IllegalArgumentException("Invalid bit depth: " + bitDepth);
-		long max = 1;
-		while (bitDepth-- > 1)
-			max = max << 1;
-		return -max;
-	}
+    /**
+     * Get the min value of a signed integer of the given bit depth.
+     *
+     * @param bitDepth
+     *            the bit depth (range 1-64)
+     * @return the min value
+     * @throws IllegalArgumentException
+     *             If the bit-depth is invalid
+     */
+    public static long minSigned(int bitDepth)
+    {
+        if (bitDepth < 0 || bitDepth > 64)
+            throw new IllegalArgumentException("Invalid bit depth: " + bitDepth);
+        long max = 1;
+        while (bitDepth-- > 1)
+            max = max << 1;
+        return -max;
+    }
 }

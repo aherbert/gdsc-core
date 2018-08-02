@@ -35,194 +35,196 @@ import org.apache.commons.math3.random.RandomGenerator;
  */
 public class CachedRandomGenerator extends AbstractRandomGenerator
 {
-	/**
-	 * Class to allow ignoring data when the capacity is full
-	 */
-	private final static class NullStoredData extends StoredData
-	{
-		@Override
-		public void add(double value)
-		{
-			// Ignore
-		}
-	}
+    /**
+     * Class to allow ignoring data when the capacity is full
+     */
+    private final static class NullStoredData extends StoredData
+    {
+        @Override
+        public void add(double value)
+        {
+            // Ignore
+        }
+    }
 
-	private final static NullStoredData NULL_STORE = new NullStoredData();
+    private final static NullStoredData NULL_STORE = new NullStoredData();
 
-	/** The sequence. */
-	protected final StoredData sequence;
+    /** The sequence. */
+    protected final StoredData sequence;
 
-	/** The store. */
-	protected StoredData store;
+    /** The store. */
+    protected StoredData store;
 
-	/** The source. */
-	protected final RandomGenerator source;
+    /** The source. */
+    protected final RandomGenerator source;
 
-	/** The position. */
-	protected int pos = 0;
+    /** The position. */
+    protected int pos = 0;
 
-	/**
-	 * Instantiates a new cached random generator.
-	 *
-	 * @param source
-	 *            the random source
-	 * @throws NullPointerException
-	 *             if the generator is null
-	 */
-	public CachedRandomGenerator(RandomGenerator source) throws NullPointerException
-	{
-		this(100, source);
-	}
+    /**
+     * Instantiates a new cached random generator.
+     *
+     * @param source
+     *            the random source
+     * @throws NullPointerException
+     *             if the generator is null
+     */
+    public CachedRandomGenerator(RandomGenerator source) throws NullPointerException
+    {
+        this(100, source);
+    }
 
-	/**
-	 * Instantiates a new cached random generator of the given size.
-	 *
-	 * @param size
-	 *            the size
-	 * @param source
-	 *            the random source
-	 * @throws NullPointerException
-	 *             if the generator is null
-	 */
-	public CachedRandomGenerator(int size, RandomGenerator source) throws NullPointerException
-	{
-		if (source == null)
-			throw new NullPointerException("Source generator must not be null");
-		sequence = new StoredData(Math.max(0, size));
-		store = sequence;
-		this.source = source;
-	}
+    /**
+     * Instantiates a new cached random generator of the given size.
+     *
+     * @param size
+     *            the size
+     * @param source
+     *            the random source
+     * @throws NullPointerException
+     *             if the generator is null
+     */
+    public CachedRandomGenerator(int size, RandomGenerator source) throws NullPointerException
+    {
+        if (source == null)
+            throw new NullPointerException("Source generator must not be null");
+        sequence = new StoredData(Math.max(0, size));
+        store = sequence;
+        this.source = source;
+    }
 
-	/**
-	 * Set the seed in the source random generator. This may not have the expected result of resetting the random
-	 * numbers if the current position is behind the sequence. To ensure a new set of number is generated with the seed
-	 * also call {@link #clearCache()}.
-	 *
-	 * {@inheritDoc}
-	 *
-	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#setSeed(long)
-	 * @see #reset()
-	 * @see #clearCache()
-	 */
-	@Override
-	public void setSeed(long seed)
-	{
-		source.setSeed(seed);
-	}
+    /**
+     * Set the seed in the source random generator. This may not have the expected result of resetting the random
+     * numbers if the current position is behind the sequence. To ensure a new set of number is generated with the seed
+     * also call {@link #clearCache()}.
+     *
+     * {@inheritDoc}
+     *
+     * @see org.apache.commons.math3.random.AbstractRandomGenerator#setSeed(long)
+     * @see #reset()
+     * @see #clearCache()
+     */
+    @Override
+    public void setSeed(long seed)
+    {
+        source.setSeed(seed);
+    }
 
-	/**
-	 * Reset the current position in the cached sequence. Any cached random numbers will be reused before new numbers
-	 * are generated.
-	 */
-	public void reset()
-	{
-		pos = 0;
-	}
+    /**
+     * Reset the current position in the cached sequence. Any cached random numbers will be reused before new numbers
+     * are generated.
+     */
+    public void reset()
+    {
+        pos = 0;
+    }
 
-	/**
-	 * Clear the cached sequence.
-	 */
-	public void clearCache()
-	{
-		pos = 0;
-		sequence.clear();
-		store = sequence;
-	}
+    /**
+     * Clear the cached sequence.
+     */
+    public void clearCache()
+    {
+        pos = 0;
+        sequence.clear();
+        store = sequence;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.apache.commons.math3.random.AbstractRandomGenerator#nextDouble()
-	 */
-	@Override
-	public double nextDouble()
-	{
-		double d;
-		if (pos < sequence.size())
-			d = sequence.getValue(pos);
-		else
-		{
-			d = source.nextDouble();
-			try
-			{
-				store.add(d);
-			}
-			catch (final NegativeArraySizeException e)
-			{
-				// No more capacity
-				store = NULL_STORE;
-			}
-		}
-		// Safe increment of position to avoid overflow
-		if (pos != Integer.MAX_VALUE)
-			pos++;
-		return d;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.apache.commons.math3.random.AbstractRandomGenerator#nextDouble()
+     */
+    @Override
+    public double nextDouble()
+    {
+        double d;
+        if (pos < sequence.size())
+            d = sequence.getValue(pos);
+        else
+        {
+            d = source.nextDouble();
+            try
+            {
+                store.add(d);
+            }
+            catch (final NegativeArraySizeException e)
+            {
+                // No more capacity
+                store = NULL_STORE;
+            }
+        }
+        // Safe increment of position to avoid overflow
+        if (pos != Integer.MAX_VALUE)
+            pos++;
+        return d;
+    }
 
-	/**
-	 * Gets the sequence of random numbers.
-	 *
-	 * @return the sequence
-	 */
-	public double[] getSequence()
-	{
-		return sequence.getValues();
-	}
+    /**
+     * Gets the sequence of random numbers.
+     *
+     * @return the sequence
+     */
+    public double[] getSequence()
+    {
+        return sequence.getValues();
+    }
 
-	/**
-	 * Gets the length of the sequence of random numbers.
-	 *
-	 * @return the length
-	 */
-	public int getLength()
-	{
-		return sequence.size();
-	}
+    /**
+     * Gets the length of the sequence of random numbers.
+     *
+     * @return the length
+     */
+    public int getLength()
+    {
+        return sequence.size();
+    }
 
-	/**
-	 * Gets the capacity.
-	 *
-	 * @return the capacity
-	 */
-	public int getCapacity()
-	{
-		return sequence.capacity();
-	}
+    /**
+     * Gets the capacity.
+     *
+     * @return the capacity
+     */
+    public int getCapacity()
+    {
+        return sequence.capacity();
+    }
 
-	/**
-	 * Gets the pseudo random generator using the current sequence.
-	 *
-	 * @return the pseudo random generator
-	 * @throws IllegalArgumentException
-	 *             If no numbers are in the sequence
-	 */
-	public PseudoRandomGenerator getPseudoRandomGenerator() throws IllegalArgumentException
-	{
-		return new PseudoRandomGenerator(sequence.getValuesRef(), sequence.size(), false);
-	}
+    /**
+     * Gets the pseudo random generator using the current sequence.
+     *
+     * @return the pseudo random generator
+     * @throws IllegalArgumentException
+     *             If no numbers are in the sequence
+     */
+    public PseudoRandomGenerator getPseudoRandomGenerator() throws IllegalArgumentException
+    {
+        return new PseudoRandomGenerator(sequence.getValuesRef(), sequence.size(), false);
+    }
 
-	/**
-	 * Returns a pseudorandom, uniformly distributed {@code int} value
-	 * between {@code 0} (inclusive) and the specified value {@code n} (exclusive), 
-	 * drawn from this random number generator's sequence.
-	 * <p>
-	 * The default implementation returns:
-	 *
-	 * <pre><code>
-	 * (int) (nextDouble() * n}
-	 * </code></pre>
-	 * <p>
-	 * Warning: No check is made that n is positive so use with caution.
-	 *
-	 * @param n
-	 *            the bound on the random number to be returned. Must be
-	 *            positive.
-	 * @return a pseudorandom, uniformly distributed
-	 *         value between 0 (inclusive) and n (exclusive).
-	 */
-	public int nextIntFast(int n)
-	{
-		final int result = (int) (nextDouble() * n);
-		return result < n ? result : n - 1;
-	}
+    /**
+     * Returns a pseudorandom, uniformly distributed {@code int} value
+     * between {@code 0} (inclusive) and the specified value {@code n} (exclusive),
+     * drawn from this random number generator's sequence.
+     * <p>
+     * The default implementation returns:
+     *
+     * <pre>
+     * <code>
+     * (int) (nextDouble() * n}
+     * </code>
+     * </pre>
+     * <p>
+     * Warning: No check is made that n is positive so use with caution.
+     *
+     * @param n
+     *            the bound on the random number to be returned. Must be
+     *            positive.
+     * @return a pseudorandom, uniformly distributed
+     *         value between 0 (inclusive) and n (exclusive).
+     */
+    public int nextIntFast(int n)
+    {
+        final int result = (int) (nextDouble() * n);
+        return result < n ? result : n - 1;
+    }
 }

@@ -32,84 +32,84 @@ package uk.ac.sussex.gdsc.core.logging;
  */
 public class NullLogger implements Logger
 {
-	/** An instance to ignore progress reporting */
-	public static final NullLogger INSTANCE = new NullLogger();
+    /** An instance to ignore progress reporting */
+    public static final NullLogger INSTANCE = new NullLogger();
 
-	/**
-	 * Creates an instance if the argument is null, else return the argument.
-	 *
-	 * @param logger
-	 *            the logger (may be null)
-	 * @return the logger (not null)
-	 */
-	public static Logger createIfNull(Logger logger)
-	{
-		return (logger == null) ? INSTANCE : logger;
-	}
+    /**
+     * Creates an instance if the argument is null, else return the argument.
+     *
+     * @param logger
+     *            the logger (may be null)
+     * @return the logger (not null)
+     */
+    public static Logger createIfNull(Logger logger)
+    {
+        return (logger == null) ? INSTANCE : logger;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.utils.logging.Logger#info(java.lang.String)
-	 */
-	@Override
-	public void info(String message)
-	{
-		// Do nothing
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.utils.logging.Logger#info(java.lang.String)
+     */
+    @Override
+    public void info(String message)
+    {
+        // Do nothing
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.utils.logging.Logger#info(java.lang.String, java.lang.Object[])
-	 */
-	@Override
-	public void info(String format, Object... args)
-	{
-		// Do nothing
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.utils.logging.Logger#info(java.lang.String, java.lang.Object[])
+     */
+    @Override
+    public void info(String format, Object... args)
+    {
+        // Do nothing
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.utils.logging.Logger#debug(java.lang.String)
-	 */
-	@Override
-	public void debug(String message)
-	{
-		// Do nothing
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.utils.logging.Logger#debug(java.lang.String)
+     */
+    @Override
+    public void debug(String message)
+    {
+        // Do nothing
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.utils.logging.Logger#debug(java.lang.String, java.lang.Object[])
-	 */
-	@Override
-	public void debug(String format, Object... args)
-	{
-		// Do nothing
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.utils.logging.Logger#debug(java.lang.String, java.lang.Object[])
+     */
+    @Override
+    public void debug(String format, Object... args)
+    {
+        // Do nothing
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.utils.logging.Logger#error(java.lang.String)
-	 */
-	@Override
-	public void error(String message)
-	{
-		// Do nothing
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.utils.logging.Logger#error(java.lang.String)
+     */
+    @Override
+    public void error(String message)
+    {
+        // Do nothing
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.utils.logging.Logger#error(java.lang.String, java.lang.Object[])
-	 */
-	@Override
-	public void error(String format, Object... args)
-	{
-		// Do nothing
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.utils.logging.Logger#error(java.lang.String, java.lang.Object[])
+     */
+    @Override
+    public void error(String format, Object... args)
+    {
+        // Do nothing
+    }
 }

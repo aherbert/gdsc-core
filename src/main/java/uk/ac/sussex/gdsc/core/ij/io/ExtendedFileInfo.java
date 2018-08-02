@@ -34,11 +34,11 @@ import ij.io.FileInfo;
  */
 public class ExtendedFileInfo extends FileInfo
 {
-	/**
-	 * Contains summary meta data (i.e. for non ImageJ applications such as MicroManager). This is expected to be used
-	 * only for the first IFD in a TIFF file.
-	 */
-	public String summaryMetaData;
-	/** Contains extended meta data for the image (i.e. for non ImageJ applications such as MicroManager) */
-	public String extendedMetaData;
+    /**
+     * Contains summary meta data (i.e. for non ImageJ applications such as MicroManager). This is expected to be used
+     * only for the first IFD in a TIFF file.
+     */
+    public String summaryMetaData;
+    /** Contains extended meta data for the image (i.e. for non ImageJ applications such as MicroManager) */
+    public String extendedMetaData;
 }

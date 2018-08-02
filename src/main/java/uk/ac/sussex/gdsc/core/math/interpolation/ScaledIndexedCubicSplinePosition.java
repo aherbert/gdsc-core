@@ -35,64 +35,64 @@ import org.apache.commons.math3.exception.OutOfRangeException;
  */
 public class ScaledIndexedCubicSplinePosition extends IndexedCubicSplinePosition
 {
-	/** The scale used to compress the original value to the range 0-1. */
-	public final double scale;
+    /** The scale used to compress the original value to the range 0-1. */
+    public final double scale;
 
-	/**
-	 * Instantiates a new indexed cubic spline position. Only used when x is known to be in the range 0-1 and the index
-	 * is positive..
-	 *
-	 * @param index
-	 *            the index
-	 * @param x
-	 *            the x
-	 * @param scale
-	 *            the scale used to compress the original value to the range 0-1
-	 * @param dummy
-	 *            the dummy flag
-	 */
-	ScaledIndexedCubicSplinePosition(int index, double x, double scale, boolean dummy)
-	{
-		super(index, x, dummy);
-		this.scale = scale;
-	}
+    /**
+     * Instantiates a new indexed cubic spline position. Only used when x is known to be in the range 0-1 and the index
+     * is positive..
+     *
+     * @param index
+     *            the index
+     * @param x
+     *            the x
+     * @param scale
+     *            the scale used to compress the original value to the range 0-1
+     * @param dummy
+     *            the dummy flag
+     */
+    ScaledIndexedCubicSplinePosition(int index, double x, double scale, boolean dummy)
+    {
+        super(index, x, dummy);
+        this.scale = scale;
+    }
 
-	/**
-	 * Instantiates a new spline position.
-	 *
-	 * @param index
-	 *            the index
-	 * @param x
-	 *            the distance along the spline to the next node (range 0 to 1)
-	 * @param scale
-	 *            the scale used to compress the original value to the range 0-1
-	 * @throws IllegalArgumentException
-	 *             If the index is negative
-	 * @throws OutOfRangeException
-	 *             If x is not in the range 0 to 1
-	 */
-	public ScaledIndexedCubicSplinePosition(int index, double x, double scale)
-			throws IllegalArgumentException, OutOfRangeException
-	{
-		super(index, x);
-		this.scale = scale;
-	}
+    /**
+     * Instantiates a new spline position.
+     *
+     * @param index
+     *            the index
+     * @param x
+     *            the distance along the spline to the next node (range 0 to 1)
+     * @param scale
+     *            the scale used to compress the original value to the range 0-1
+     * @throws IllegalArgumentException
+     *             If the index is negative
+     * @throws OutOfRangeException
+     *             If x is not in the range 0 to 1
+     */
+    public ScaledIndexedCubicSplinePosition(int index, double x, double scale)
+            throws IllegalArgumentException, OutOfRangeException
+    {
+        super(index, x);
+        this.scale = scale;
+    }
 
-	@Override
-	public double scale(double x)
-	{
-		return x * scale;
-	}
+    @Override
+    public double scale(double x)
+    {
+        return x * scale;
+    }
 
-	@Override
-	public double scaleGradient(double df_dx)
-	{
-		return df_dx / scale;
-	}
+    @Override
+    public double scaleGradient(double df_dx)
+    {
+        return df_dx / scale;
+    }
 
-	@Override
-	public double scaleGradient2(double d2f_dx2)
-	{
-		return d2f_dx2 / scale / scale;
-	}
+    @Override
+    public double scaleGradient2(double d2f_dx2)
+    {
+        return d2f_dx2 / scale / scale;
+    }
 }

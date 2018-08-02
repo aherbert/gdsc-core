@@ -32,7 +32,7 @@ package uk.ac.sussex.gdsc.core.clustering;
  */
 public enum ClusteringAlgorithm
 {
-	//@formatter:off
+    //@formatter:off
 	/**
 	 * Joins the closest pair of particles, one of which must not be in a cluster. Clusters are not joined and can
 	 * only grow when particles are added.
@@ -102,16 +102,16 @@ public enum ClusteringAlgorithm
 	public String getName() { return "Particle centroid-linkage (Time priority)"; }};
 	//@formatter:on
 
-	@Override
-	public String toString()
-	{
-		return getName();
-	}
+    @Override
+    public String toString()
+    {
+        return getName();
+    }
 
-	/**
-	 * Gets the name.
-	 *
-	 * @return the name
-	 */
-	abstract public String getName();
+    /**
+     * Gets the name.
+     *
+     * @return the name
+     */
+    abstract public String getName();
 }

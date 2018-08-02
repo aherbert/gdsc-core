@@ -33,58 +33,58 @@ package uk.ac.sussex.gdsc.core.data;
  */
 public interface TrivalueProvider
 {
-	/**
-	 * Gets the length of the X-dimension.
-	 *
-	 * @return the length
-	 */
-	public int getLengthX();
+    /**
+     * Gets the length of the X-dimension.
+     *
+     * @return the length
+     */
+    public int getLengthX();
 
-	/**
-	 * Gets the length of the Y-dimension.
-	 *
-	 * @return the length
-	 */
-	public int getLengthY();
+    /**
+     * Gets the length of the Y-dimension.
+     *
+     * @return the length
+     */
+    public int getLengthY();
 
-	/**
-	 * Gets the length of the Z-dimension.
-	 *
-	 * @return the length
-	 */
-	public int getLengthZ();
+    /**
+     * Gets the length of the Z-dimension.
+     *
+     * @return the length
+     */
+    public int getLengthZ();
 
-	/**
-	 * Gets the value.
-	 *
-	 * @param x
-	 *            the x (must be positive)
-	 * @param y
-	 *            the y (must be positive)
-	 * @param z
-	 *            the z (must be positive)
-	 * @return the value
-	 */
-	public double get(int x, int y, int z);
+    /**
+     * Gets the value.
+     *
+     * @param x
+     *            the x (must be positive)
+     * @param y
+     *            the y (must be positive)
+     * @param z
+     *            the z (must be positive)
+     * @return the value
+     */
+    public double get(int x, int y, int z);
 
-	/**
-	 * Gets the 3x3x3 values around the index. If the index is at the bounds then the result is undefined.
-	 *
-	 * @param x
-	 *            the x (must be positive)
-	 * @param y
-	 *            the y (must be positive)
-	 * @param z
-	 *            the z (must be positive)
-	 * @param values
-	 *            the values
-	 */
-	public void get(int x, int y, int z, double[][][] values);
+    /**
+     * Gets the 3x3x3 values around the index. If the index is at the bounds then the result is undefined.
+     *
+     * @param x
+     *            the x (must be positive)
+     * @param y
+     *            the y (must be positive)
+     * @param z
+     *            the z (must be positive)
+     * @param values
+     *            the values
+     */
+    public void get(int x, int y, int z, double[][][] values);
 
-	/**
-	 * Convert to an array.
-	 *
-	 * @return the array
-	 */
-	public double[][][] toArray();
+    /**
+     * Convert to an array.
+     *
+     * @return the array
+     */
+    public double[][][] toArray();
 }

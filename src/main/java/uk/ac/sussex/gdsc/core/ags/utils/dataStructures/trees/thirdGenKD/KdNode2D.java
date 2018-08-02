@@ -31,26 +31,26 @@ package uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.thirdGenKD;
  */
 class KdNode2D<T> extends KdNode<T>
 {
-	/**
-	 * Instantiates a new 2D-tree node
-	 *
-	 * @param bucketCapacity
-	 *            the bucket capacity
-	 */
-	protected KdNode2D(int bucketCapacity)
-	{
-		super(bucketCapacity);
-	}
+    /**
+     * Instantiates a new 2D-tree node
+     *
+     * @param bucketCapacity
+     *            the bucket capacity
+     */
+    protected KdNode2D(int bucketCapacity)
+    {
+        super(bucketCapacity);
+    }
 
-	@Override
-	public int getDimensions()
-	{
-		return 2;
-	}
+    @Override
+    public int getDimensions()
+    {
+        return 2;
+    }
 
-	@Override
-	protected KdNode<T> newInstance()
-	{
-		return new KdNode2D<>(bucketCapacity);
-	}
+    @Override
+    protected KdNode<T> newInstance()
+    {
+        return new KdNode2D<>(bucketCapacity);
+    }
 }

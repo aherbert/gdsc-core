@@ -32,17 +32,17 @@ package uk.ac.sussex.gdsc.core.utils;
  */
 public interface DoubleData
 {
-	/**
-	 * The number of values.
-	 *
-	 * @return the number of values
-	 */
-	public int size();
+    /**
+     * The number of values.
+     *
+     * @return the number of values
+     */
+    public int size();
 
-	/**
-	 * Get the values.
-	 *
-	 * @return the values
-	 */
-	public double[] values();
+    /**
+     * Get the values.
+     *
+     * @return the values
+     */
+    public double[] values();
 }

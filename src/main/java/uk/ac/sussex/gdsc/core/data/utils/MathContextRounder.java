@@ -35,95 +35,95 @@ import java.math.MathContext;
  */
 public class MathContextRounder implements Rounder
 {
-	/** The math context. */
-	private final MathContext mathContext;
+    /** The math context. */
+    private final MathContext mathContext;
 
-	/**
-	 * Instantiates a new math context rounder.
-	 *
-	 * @param mathContext
-	 *            the math context
-	 * @throws IllegalArgumentException
-	 *             if the mathContext is null
-	 */
-	public MathContextRounder(MathContext mathContext)
-	{
-		if (mathContext == null)
-			throw new IllegalArgumentException("MathContext must not be null");
-		this.mathContext = mathContext;
-	}
+    /**
+     * Instantiates a new math context rounder.
+     *
+     * @param mathContext
+     *            the math context
+     * @throws IllegalArgumentException
+     *             if the mathContext is null
+     */
+    public MathContextRounder(MathContext mathContext)
+    {
+        if (mathContext == null)
+            throw new IllegalArgumentException("MathContext must not be null");
+        this.mathContext = mathContext;
+    }
 
-	/**
-	 * Instantiates a new math context rounder.
-	 *
-	 * @param precision
-	 *            The non-negative {@code int} precision setting.
-	 * @throws IllegalArgumentException
-	 *             if the {@code precision} parameter is less
-	 *             than zero.
-	 */
-	public MathContextRounder(int precision)
-	{
-		mathContext = new MathContext(precision);
-	}
+    /**
+     * Instantiates a new math context rounder.
+     *
+     * @param precision
+     *            The non-negative {@code int} precision setting.
+     * @throws IllegalArgumentException
+     *             if the {@code precision} parameter is less
+     *             than zero.
+     */
+    public MathContextRounder(int precision)
+    {
+        mathContext = new MathContext(precision);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.data.Rounder#round(double)
-	 */
-	@Override
-	public double round(double value)
-	{
-		if (Math.abs(value) <= Double.MAX_VALUE)
-			return new BigDecimal(value).round(mathContext).doubleValue();
-		return value; // NaN or infinite
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.data.Rounder#round(double)
+     */
+    @Override
+    public double round(double value)
+    {
+        if (Math.abs(value) <= Double.MAX_VALUE)
+            return new BigDecimal(value).round(mathContext).doubleValue();
+        return value; // NaN or infinite
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.data.Rounder#toString(double)
-	 */
-	@Override
-	public String toString(double value)
-	{
-		if (Math.abs(value) <= Double.MAX_VALUE)
-			return new BigDecimal(value).round(mathContext).toString();
-		if (value == Double.POSITIVE_INFINITY)
-			return "Infinity";
-		if (value == Double.NEGATIVE_INFINITY)
-			return "-Infinity";
-		return "NaN";
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.data.Rounder#toString(double)
+     */
+    @Override
+    public String toString(double value)
+    {
+        if (Math.abs(value) <= Double.MAX_VALUE)
+            return new BigDecimal(value).round(mathContext).toString();
+        if (value == Double.POSITIVE_INFINITY)
+            return "Infinity";
+        if (value == Double.NEGATIVE_INFINITY)
+            return "-Infinity";
+        return "NaN";
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.data.Rounder#round(float)
-	 */
-	@Override
-	public float round(float value)
-	{
-		if (Math.abs(value) <= Float.MAX_VALUE)
-			return new BigDecimal(value).round(mathContext).floatValue();
-		return value; // NaN or infinite
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.data.Rounder#round(float)
+     */
+    @Override
+    public float round(float value)
+    {
+        if (Math.abs(value) <= Float.MAX_VALUE)
+            return new BigDecimal(value).round(mathContext).floatValue();
+        return value; // NaN or infinite
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.data.Rounder#toString(float)
-	 */
-	@Override
-	public String toString(float value)
-	{
-		if (Math.abs(value) <= Float.MAX_VALUE)
-			return new BigDecimal(value).round(mathContext).toString();
-		if (value == Float.POSITIVE_INFINITY)
-			return "Infinity";
-		if (value == Float.NEGATIVE_INFINITY)
-			return "-Infinity";
-		return "NaN";
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.data.Rounder#toString(float)
+     */
+    @Override
+    public String toString(float value)
+    {
+        if (Math.abs(value) <= Float.MAX_VALUE)
+            return new BigDecimal(value).round(mathContext).toString();
+        if (value == Float.POSITIVE_INFINITY)
+            return "Infinity";
+        if (value == Float.NEGATIVE_INFINITY)
+            return "-Infinity";
+        return "NaN";
+    }
 }

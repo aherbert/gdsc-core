@@ -32,90 +32,90 @@ package uk.ac.sussex.gdsc.core.match;
  */
 public class MutableAssignment implements Assignment
 {
-	private int targetId;
-	private int predictedId;
-	private double distance;
+    private int targetId;
+    private int predictedId;
+    private double distance;
 
-	/**
-	 * Instantiates a new assignment.
-	 *
-	 * @param targetId
-	 *            the target id
-	 * @param predictedId
-	 *            the predicted id
-	 * @param distance
-	 *            the distance (zero is perfect match)
-	 */
-	public MutableAssignment(int targetId, int predictedId, double distance)
-	{
-		this.targetId = targetId;
-		this.predictedId = predictedId;
-		this.distance = distance;
-	}
+    /**
+     * Instantiates a new assignment.
+     *
+     * @param targetId
+     *            the target id
+     * @param predictedId
+     *            the predicted id
+     * @param distance
+     *            the distance (zero is perfect match)
+     */
+    public MutableAssignment(int targetId, int predictedId, double distance)
+    {
+        this.targetId = targetId;
+        this.predictedId = predictedId;
+        this.distance = distance;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.match.Assignment#getTargetId()
-	 */
-	@Override
-	public int getTargetId()
-	{
-		return targetId;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.match.Assignment#getTargetId()
+     */
+    @Override
+    public int getTargetId()
+    {
+        return targetId;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.match.Assignment#getPredictedId()
-	 */
-	@Override
-	public int getPredictedId()
-	{
-		return predictedId;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.match.Assignment#getPredictedId()
+     */
+    @Override
+    public int getPredictedId()
+    {
+        return predictedId;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.match.Assignment#getDistance()
-	 */
-	@Override
-	public double getDistance()
-	{
-		return distance;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.match.Assignment#getDistance()
+     */
+    @Override
+    public double getDistance()
+    {
+        return distance;
+    }
 
-	/**
-	 * Set the target Id.
-	 *
-	 * @param targetId
-	 *            the new target id
-	 */
-	public void setTargetId(int targetId)
-	{
-		this.targetId = targetId;
-	}
+    /**
+     * Set the target Id.
+     *
+     * @param targetId
+     *            the new target id
+     */
+    public void setTargetId(int targetId)
+    {
+        this.targetId = targetId;
+    }
 
-	/**
-	 * Set the predicted Id
-	 *
-	 * @param predictedId
-	 *            the predicted Id to set
-	 */
-	public void setPredictedId(int predictedId)
-	{
-		this.predictedId = predictedId;
-	}
+    /**
+     * Set the predicted Id
+     *
+     * @param predictedId
+     *            the predicted Id to set
+     */
+    public void setPredictedId(int predictedId)
+    {
+        this.predictedId = predictedId;
+    }
 
-	/**
-	 * Set the distance
-	 *
-	 * @param distance
-	 *            the distance to set
-	 */
-	public void setDistance(double distance)
-	{
-		this.distance = distance;
-	}
+    /**
+     * Set the distance
+     *
+     * @param distance
+     *            the distance to set
+     */
+    public void setDistance(double distance)
+    {
+        this.distance = distance;
+    }
 }

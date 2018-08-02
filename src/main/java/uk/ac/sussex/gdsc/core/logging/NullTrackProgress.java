@@ -33,117 +33,117 @@ package uk.ac.sussex.gdsc.core.logging;
 public class NullTrackProgress implements TrackProgress
 {
 
-	/** An instance to ignore progress reporting. */
-	public static final NullTrackProgress INSTANCE = new NullTrackProgress();
+    /** An instance to ignore progress reporting. */
+    public static final NullTrackProgress INSTANCE = new NullTrackProgress();
 
-	/**
-	 * Creates an instance if the argument is null, else return the argument.
-	 *
-	 * @param trackProgress
-	 *            the track progress (may be null)
-	 * @return the track progress (not null)
-	 */
-	public static TrackProgress createIfNull(TrackProgress trackProgress)
-	{
-		return (trackProgress == null) ? INSTANCE : trackProgress;
-	}
+    /**
+     * Creates an instance if the argument is null, else return the argument.
+     *
+     * @param trackProgress
+     *            the track progress (may be null)
+     * @return the track progress (not null)
+     */
+    public static TrackProgress createIfNull(TrackProgress trackProgress)
+    {
+        return (trackProgress == null) ? INSTANCE : trackProgress;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.utils.fitting.results.TrackProgress#progress(double)
-	 */
-	@Override
-	public void progress(double fraction)
-	{
-		// Do nothing
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.utils.fitting.results.TrackProgress#progress(double)
+     */
+    @Override
+    public void progress(double fraction)
+    {
+        // Do nothing
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.utils.fitting.results.TrackProgress#progress(long, long)
-	 */
-	@Override
-	public void progress(long position, long total)
-	{
-		// Do nothing
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.utils.fitting.results.TrackProgress#progress(long, long)
+     */
+    @Override
+    public void progress(long position, long total)
+    {
+        // Do nothing
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#incrementProgress(double)
-	 */
-	@Override
-	public void incrementProgress(double fraction)
-	{
-		// Do nothing
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#incrementProgress(double)
+     */
+    @Override
+    public void incrementProgress(double fraction)
+    {
+        // Do nothing
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#log(java.lang.String, java.lang.Object[])
-	 */
-	@Override
-	public void log(String format, Object... args)
-	{
-		// Do nothing
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#log(java.lang.String, java.lang.Object[])
+     */
+    @Override
+    public void log(String format, Object... args)
+    {
+        // Do nothing
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#status(java.lang.String, java.lang.Object[])
-	 */
-	@Override
-	public void status(String format, Object... args)
-	{
-		// Do nothing
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#status(java.lang.String, java.lang.Object[])
+     */
+    @Override
+    public void status(String format, Object... args)
+    {
+        // Do nothing
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#isEnded()
-	 */
-	@Override
-	public boolean isEnded()
-	{
-		return false;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#isEnded()
+     */
+    @Override
+    public boolean isEnded()
+    {
+        return false;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#isProgress()
-	 */
-	@Override
-	public boolean isProgress()
-	{
-		return false;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#isProgress()
+     */
+    @Override
+    public boolean isProgress()
+    {
+        return false;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#isLogging()
-	 */
-	@Override
-	public boolean isLog()
-	{
-		return false;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#isLogging()
+     */
+    @Override
+    public boolean isLog()
+    {
+        return false;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#isStatus()
-	 */
-	@Override
-	public boolean isStatus()
-	{
-		return false;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#isStatus()
+     */
+    @Override
+    public boolean isStatus()
+    {
+        return false;
+    }
 }

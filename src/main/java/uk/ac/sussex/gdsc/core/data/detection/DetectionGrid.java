@@ -32,21 +32,21 @@ package uk.ac.sussex.gdsc.core.data.detection;
  */
 public interface DetectionGrid
 {
-	/**
-	 * List of Ids of the objects that contain the point
-	 *
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 * @return the ids
-	 */
-	public int[] find(double x, double y);
+    /**
+     * List of Ids of the objects that contain the point
+     *
+     * @param x
+     *            the x
+     * @param y
+     *            the y
+     * @return the ids
+     */
+    public int[] find(double x, double y);
 
-	/**
-	 * Get the number of objects in the grid
-	 *
-	 * @return The number of objects
-	 */
-	public int size();
+    /**
+     * Get the number of objects in the grid
+     *
+     * @return The number of objects
+     */
+    public int size();
 }

@@ -32,48 +32,48 @@ package uk.ac.sussex.gdsc.core.data;
  */
 public class DataException extends RuntimeException
 {
-	private static final long serialVersionUID = 3748233784596729168L;
+    private static final long serialVersionUID = 3748233784596729168L;
 
-	/**
-	 * Instantiates a new data exception.
-	 */
-	public DataException()
-	{
-		super();
-	}
+    /**
+     * Instantiates a new data exception.
+     */
+    public DataException()
+    {
+        super();
+    }
 
-	/**
-	 * Instantiates a new data exception.
-	 *
-	 * @param message
-	 *            the message
-	 */
-	public DataException(String message)
-	{
-		super(message);
-	}
+    /**
+     * Instantiates a new data exception.
+     *
+     * @param message
+     *            the message
+     */
+    public DataException(String message)
+    {
+        super(message);
+    }
 
-	/**
-	 * Instantiates a new data exception.
-	 *
-	 * @param message
-	 *            the message
-	 * @param cause
-	 *            the cause
-	 */
-	public DataException(String message, Throwable cause)
-	{
-		super(message, cause);
-	}
+    /**
+     * Instantiates a new data exception.
+     *
+     * @param message
+     *            the message
+     * @param cause
+     *            the cause
+     */
+    public DataException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
 
-	/**
-	 * Instantiates a new data exception.
-	 *
-	 * @param cause
-	 *            the cause
-	 */
-	public DataException(Throwable cause)
-	{
-		super(cause);
-	}
+    /**
+     * Instantiates a new data exception.
+     *
+     * @param cause
+     *            the cause
+     */
+    public DataException(Throwable cause)
+    {
+        super(cause);
+    }
 }

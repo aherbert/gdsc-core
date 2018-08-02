@@ -40,175 +40,175 @@ import uk.ac.sussex.gdsc.core.utils.Digest;
  */
 public class IJDigest
 {
-	private abstract class PixelsDigester
-	{
-		MessageDigest digest;
+    private abstract class PixelsDigester
+    {
+        MessageDigest digest;
 
-		PixelsDigester(MessageDigest digest)
-		{
-			this.digest = digest;
-			digest.reset();
-		}
+        PixelsDigester(MessageDigest digest)
+        {
+            this.digest = digest;
+            digest.reset();
+        }
 
-		public abstract void update(Object pixels);
-	}
+        public abstract void update(Object pixels);
+    }
 
-	private class BytePixelsDigester extends PixelsDigester
-	{
-		BytePixelsDigester(MessageDigest digest)
-		{
-			super(digest);
-		}
+    private class BytePixelsDigester extends PixelsDigester
+    {
+        BytePixelsDigester(MessageDigest digest)
+        {
+            super(digest);
+        }
 
-		@Override
-		public void update(Object pixels)
-		{
-			digest.update((byte[]) pixels);
-		}
-	}
+        @Override
+        public void update(Object pixels)
+        {
+            digest.update((byte[]) pixels);
+        }
+    }
 
-	private class ShortPixelsDigester extends PixelsDigester
-	{
-		byte[] buffer = new byte[2];
+    private class ShortPixelsDigester extends PixelsDigester
+    {
+        byte[] buffer = new byte[2];
 
-		ShortPixelsDigester(MessageDigest digest)
-		{
-			super(digest);
-		}
+        ShortPixelsDigester(MessageDigest digest)
+        {
+            super(digest);
+        }
 
-		@Override
-		public void update(Object pixels)
-		{
-			final short[] data = (short[]) pixels;
-			for (int i = 0; i < data.length; i++)
-			{
-				final int v = data[i];
-				buffer[0] = (byte) (v >>> 8);
-				buffer[1] = (byte) (v >>> 0);
-				digest.update(buffer);
-			}
-		}
-	}
+        @Override
+        public void update(Object pixels)
+        {
+            final short[] data = (short[]) pixels;
+            for (int i = 0; i < data.length; i++)
+            {
+                final int v = data[i];
+                buffer[0] = (byte) (v >>> 8);
+                buffer[1] = (byte) (v >>> 0);
+                digest.update(buffer);
+            }
+        }
+    }
 
-	private class IntegerPixelsDigester extends PixelsDigester
-	{
-		byte[] buffer = new byte[4];
+    private class IntegerPixelsDigester extends PixelsDigester
+    {
+        byte[] buffer = new byte[4];
 
-		IntegerPixelsDigester(MessageDigest digest)
-		{
-			super(digest);
-		}
+        IntegerPixelsDigester(MessageDigest digest)
+        {
+            super(digest);
+        }
 
-		@Override
-		public void update(Object pixels)
-		{
-			final int[] data = (int[]) pixels;
-			for (int i = 0; i < data.length; i++)
-			{
-				final int v = data[i];
-				buffer[0] = (byte) (v >>> 24);
-				buffer[1] = (byte) (v >>> 16);
-				buffer[2] = (byte) (v >>> 8);
-				buffer[3] = (byte) (v >>> 0);
-				digest.update(buffer);
-			}
-		}
-	}
+        @Override
+        public void update(Object pixels)
+        {
+            final int[] data = (int[]) pixels;
+            for (int i = 0; i < data.length; i++)
+            {
+                final int v = data[i];
+                buffer[0] = (byte) (v >>> 24);
+                buffer[1] = (byte) (v >>> 16);
+                buffer[2] = (byte) (v >>> 8);
+                buffer[3] = (byte) (v >>> 0);
+                digest.update(buffer);
+            }
+        }
+    }
 
-	private class FloatPixelsDigester extends PixelsDigester
-	{
-		byte[] buffer = new byte[4];
+    private class FloatPixelsDigester extends PixelsDigester
+    {
+        byte[] buffer = new byte[4];
 
-		FloatPixelsDigester(MessageDigest digest)
-		{
-			super(digest);
-		}
+        FloatPixelsDigester(MessageDigest digest)
+        {
+            super(digest);
+        }
 
-		@Override
-		public void update(Object pixels)
-		{
-			final float[] data = (float[]) pixels;
-			for (int i = 0; i < data.length; i++)
-			{
-				final int v = Float.floatToRawIntBits(data[i]);
-				buffer[0] = (byte) (v >>> 24);
-				buffer[1] = (byte) (v >>> 16);
-				buffer[2] = (byte) (v >>> 8);
-				buffer[3] = (byte) (v >>> 0);
-				digest.update(buffer);
-			}
-		}
-	}
+        @Override
+        public void update(Object pixels)
+        {
+            final float[] data = (float[]) pixels;
+            for (int i = 0; i < data.length; i++)
+            {
+                final int v = Float.floatToRawIntBits(data[i]);
+                buffer[0] = (byte) (v >>> 24);
+                buffer[1] = (byte) (v >>> 16);
+                buffer[2] = (byte) (v >>> 8);
+                buffer[3] = (byte) (v >>> 0);
+                digest.update(buffer);
+            }
+        }
+    }
 
-	/** The message digest. */
-	private final MessageDigest digest;
+    /** The message digest. */
+    private final MessageDigest digest;
 
-	/**
-	 * Instantiates a new IJ digest.
-	 */
-	public IJDigest()
-	{
-		this(Digest.MD5);
-	}
+    /**
+     * Instantiates a new IJ digest.
+     */
+    public IJDigest()
+    {
+        this(Digest.MD5);
+    }
 
-	/**
-	 * Instantiates a new IJ digest.
-	 *
-	 * @param algorithm
-	 *            the algorithm
-	 */
-	public IJDigest(String algorithm)
-	{
-		digest = Digest.getDigest(algorithm);
-	}
+    /**
+     * Instantiates a new IJ digest.
+     *
+     * @param algorithm
+     *            the algorithm
+     */
+    public IJDigest(String algorithm)
+    {
+        digest = Digest.getDigest(algorithm);
+    }
 
-	/**
-	 * Digest the processor.
-	 *
-	 * @param ip
-	 *            the image
-	 * @return the string
-	 */
-	public String digest(ImageProcessor ip)
-	{
-		final Object pixels = ip.getPixels();
-		final PixelsDigester digester = getPixelsDigester(pixels);
-		digester.update(pixels);
-		return Digest.toHex(digester.digest.digest());
-	}
+    /**
+     * Digest the processor.
+     *
+     * @param ip
+     *            the image
+     * @return the string
+     */
+    public String digest(ImageProcessor ip)
+    {
+        final Object pixels = ip.getPixels();
+        final PixelsDigester digester = getPixelsDigester(pixels);
+        digester.update(pixels);
+        return Digest.toHex(digester.digest.digest());
+    }
 
-	/**
-	 * Digest the stack.
-	 *
-	 * @param stack
-	 *            the stack
-	 * @return the string
-	 */
-	public String digest(ImageStack stack)
-	{
-		final PixelsDigester digester = getPixelsDigester(stack.getPixels(1));
-		for (int i = 1; i <= stack.getSize(); i++)
-			digester.update(stack.getPixels(i));
-		return Digest.toHex(digester.digest.digest());
-	}
+    /**
+     * Digest the stack.
+     *
+     * @param stack
+     *            the stack
+     * @return the string
+     */
+    public String digest(ImageStack stack)
+    {
+        final PixelsDigester digester = getPixelsDigester(stack.getPixels(1));
+        for (int i = 1; i <= stack.getSize(); i++)
+            digester.update(stack.getPixels(i));
+        return Digest.toHex(digester.digest.digest());
+    }
 
-	/**
-	 * Gets the pixels digester.
-	 *
-	 * @param pixels
-	 *            the pixels
-	 * @return the pixels digester
-	 */
-	private PixelsDigester getPixelsDigester(Object pixels)
-	{
-		if (pixels instanceof byte[])
-			return new BytePixelsDigester(digest);
-		if (pixels instanceof short[])
-			return new ShortPixelsDigester(digest);
-		if (pixels instanceof float[])
-			return new FloatPixelsDigester(digest);
-		if (pixels instanceof int[])
-			return new IntegerPixelsDigester(digest);
-		throw new IllegalArgumentException("Unrecognised pixels type");
-	}
+    /**
+     * Gets the pixels digester.
+     *
+     * @param pixels
+     *            the pixels
+     * @return the pixels digester
+     */
+    private PixelsDigester getPixelsDigester(Object pixels)
+    {
+        if (pixels instanceof byte[])
+            return new BytePixelsDigester(digest);
+        if (pixels instanceof short[])
+            return new ShortPixelsDigester(digest);
+        if (pixels instanceof float[])
+            return new FloatPixelsDigester(digest);
+        if (pixels instanceof int[])
+            return new IntegerPixelsDigester(digest);
+        throw new IllegalArgumentException("Unrecognised pixels type");
+    }
 }

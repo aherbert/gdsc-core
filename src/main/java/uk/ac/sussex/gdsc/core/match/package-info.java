@@ -35,7 +35,7 @@
  * @see <a href="https://en.wikipedia.org/wiki/F1_score">F1-score</a>
  * @see <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic#Area_under_the_curve">Area under the
  *      curve (AUC)</a>
- *      
+ * 
  * @since 1.2.0
  */
 package uk.ac.sussex.gdsc.core.match;

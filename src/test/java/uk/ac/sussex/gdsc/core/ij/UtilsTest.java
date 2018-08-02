@@ -10,40 +10,40 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({ "javadoc" })
 public class UtilsTest
 {
-	private static Logger logger;
+    private static Logger logger;
 
-	@BeforeAll
-	public static void beforeAll()
-	{
-		logger = Logger.getLogger(UtilsTest.class.getName());
-	}
+    @BeforeAll
+    public static void beforeAll()
+    {
+        logger = Logger.getLogger(UtilsTest.class.getName());
+    }
 
-	@AfterAll
-	public static void afterAll()
-	{
-		logger = null;
-	}
+    @AfterAll
+    public static void afterAll()
+    {
+        logger = null;
+    }
 
-	@Test
-	public void cannotIterateOverNullList()
-	{
-		Assertions.assertThrows(NullPointerException.class, () -> {
-			for (final int i : getIDList())
-				// This will not run as an exception should be generated
-				logger.info("Window ID = " + i);
-		});
-	}
+    @Test
+    public void cannotIterateOverNullList()
+    {
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            for (final int i : getIDList())
+                // This will not run as an exception should be generated
+                logger.info("Window ID = " + i);
+        });
+    }
 
-	private static int[] getIDList()
-	{
-		return null;
-	}
+    private static int[] getIDList()
+    {
+        return null;
+    }
 
-	@Test
-	public void cantIterateOver_getIDList()
-	{
-		for (final int i : Utils.getIDList())
-			// This will not run as the ID list should be empty
-			logger.info("Window ID = " + i);
-	}
+    @Test
+    public void cantIterateOver_getIDList()
+    {
+        for (final int i : Utils.getIDList())
+            // This will not run as the ID list should be empty
+            logger.info("Window ID = " + i);
+    }
 }

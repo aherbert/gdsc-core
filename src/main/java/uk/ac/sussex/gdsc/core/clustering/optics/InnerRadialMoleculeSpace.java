@@ -33,31 +33,31 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  */
 class InnerRadialMoleculeSpace extends RadialMoleculeSpace
 {
-	/**
-	 * Instantiates a new inner radial molecule space.
-	 *
-	 * @param opticsManager
-	 *            the optics manager
-	 * @param generatingDistanceE
-	 *            the generating distance (E)
-	 */
-	InnerRadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE)
-	{
-		this(opticsManager, generatingDistanceE, 0);
-	}
+    /**
+     * Instantiates a new inner radial molecule space.
+     *
+     * @param opticsManager
+     *            the optics manager
+     * @param generatingDistanceE
+     *            the generating distance (E)
+     */
+    InnerRadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE)
+    {
+        this(opticsManager, generatingDistanceE, 0);
+    }
 
-	/**
-	 * Instantiates a new inner radial molecule space.
-	 *
-	 * @param opticsManager
-	 *            the optics manager
-	 * @param generatingDistanceE
-	 *            the generating distance (E)
-	 * @param resolution
-	 *            the resolution
-	 */
-	InnerRadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, int resolution)
-	{
-		super(opticsManager, generatingDistanceE, resolution, true);
-	}
+    /**
+     * Instantiates a new inner radial molecule space.
+     *
+     * @param opticsManager
+     *            the optics manager
+     * @param generatingDistanceE
+     *            the generating distance (E)
+     * @param resolution
+     *            the resolution
+     */
+    InnerRadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, int resolution)
+    {
+        super(opticsManager, generatingDistanceE, resolution, true);
+    }
 }

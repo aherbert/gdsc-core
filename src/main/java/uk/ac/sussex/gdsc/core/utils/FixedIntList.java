@@ -35,167 +35,167 @@ import java.util.Arrays;
  */
 public class FixedIntList
 {
-	/** The data */
-	private final int[] data;
+    /** The data */
+    private final int[] data;
 
-	/** The size */
-	private int size = 0;
+    /** The size */
+    private int size = 0;
 
-	/**
-	 * Instantiates a new fixed int list.
-	 *
-	 * @param capacity
-	 *            the capacity
-	 */
-	public FixedIntList(int capacity)
-	{
-		this.data = new int[capacity];
-	}
+    /**
+     * Instantiates a new fixed int list.
+     *
+     * @param capacity
+     *            the capacity
+     */
+    public FixedIntList(int capacity)
+    {
+        this.data = new int[capacity];
+    }
 
-	/**
-	 * Instantiates a new fixed int list with values. All the input values are stored so the fixed capacity will be
-	 * equal (or greater if specified) than the number of input values.
-	 *
-	 * @param capacity
-	 *            the capacity
-	 * @param values
-	 *            the values
-	 */
-	public FixedIntList(int capacity, int... values)
-	{
-		if (values.length < capacity)
-		{
-			this.data = new int[capacity];
-			add(values);
-		}
-		else
-		{
-			this.data = values;
-			size = values.length;
-		}
-	}
+    /**
+     * Instantiates a new fixed int list with values. All the input values are stored so the fixed capacity will be
+     * equal (or greater if specified) than the number of input values.
+     *
+     * @param capacity
+     *            the capacity
+     * @param values
+     *            the values
+     */
+    public FixedIntList(int capacity, int... values)
+    {
+        if (values.length < capacity)
+        {
+            this.data = new int[capacity];
+            add(values);
+        }
+        else
+        {
+            this.data = values;
+            size = values.length;
+        }
+    }
 
-	/**
-	 * Get the capacity.
-	 *
-	 * @return the capacity
-	 */
-	public int capacity()
-	{
-		return data.length;
-	}
+    /**
+     * Get the capacity.
+     *
+     * @return the capacity
+     */
+    public int capacity()
+    {
+        return data.length;
+    }
 
-	/**
-	 * Get the size.
-	 *
-	 * @return the size
-	 */
-	public int size()
-	{
-		return size;
-	}
+    /**
+     * Get the size.
+     *
+     * @return the size
+     */
+    public int size()
+    {
+        return size;
+    }
 
-	/**
-	 * Adds the value. No bounds checks are made against capacity.
-	 *
-	 * @param value
-	 *            the value
-	 */
-	public void add(int value)
-	{
-		data[size++] = value;
-	}
+    /**
+     * Adds the value. No bounds checks are made against capacity.
+     *
+     * @param value
+     *            the value
+     */
+    public void add(int value)
+    {
+        data[size++] = value;
+    }
 
-	/**
-	 * Adds the values. No bounds checks are made against capacity or for a valid input array.
-	 *
-	 * @param values
-	 *            the values
-	 */
-	public void add(int[] values)
-	{
-		final int length = values.length;
-		System.arraycopy(values, 0, data, size, length);
-		size += length;
-	}
+    /**
+     * Adds the values. No bounds checks are made against capacity or for a valid input array.
+     *
+     * @param values
+     *            the values
+     */
+    public void add(int[] values)
+    {
+        final int length = values.length;
+        System.arraycopy(values, 0, data, size, length);
+        size += length;
+    }
 
-	/**
-	 * Adds the values. No bounds checks are made against capacity or for a valid input array.
-	 *
-	 * @param values
-	 *            the values
-	 */
-	public void addValues(int... values)
-	{
-		add(values);
-	}
+    /**
+     * Adds the values. No bounds checks are made against capacity or for a valid input array.
+     *
+     * @param values
+     *            the values
+     */
+    public void addValues(int... values)
+    {
+        add(values);
+    }
 
-	/**
-	 * Adds the values. No bounds checks are made against capacity or for a valid input array.
-	 *
-	 * @param values
-	 *            the values
-	 */
-	public void add(FixedIntList values)
-	{
-		final int length = values.size;
-		System.arraycopy(values.data, 0, data, size, length);
-		size += length;
-	}
+    /**
+     * Adds the values. No bounds checks are made against capacity or for a valid input array.
+     *
+     * @param values
+     *            the values
+     */
+    public void add(FixedIntList values)
+    {
+        final int length = values.size;
+        System.arraycopy(values.data, 0, data, size, length);
+        size += length;
+    }
 
-	/**
-	 * Gets the value at the given index. No bounds checks are made against the size.
-	 *
-	 * @param index
-	 *            the index
-	 * @return the value
-	 */
-	public int get(int index)
-	{
-		return data[index];
-	}
+    /**
+     * Gets the value at the given index. No bounds checks are made against the size.
+     *
+     * @param index
+     *            the index
+     * @return the value
+     */
+    public int get(int index)
+    {
+        return data[index];
+    }
 
-	/**
-	 * Sets the value at the given index. No bounds checks are made against the size and the size is not increased.
-	 *
-	 * @param index
-	 *            the index
-	 * @param value
-	 *            the value
-	 */
-	public void set(int index, int value)
-	{
-		data[index] = value;
-	}
+    /**
+     * Sets the value at the given index. No bounds checks are made against the size and the size is not increased.
+     *
+     * @param index
+     *            the index
+     * @param value
+     *            the value
+     */
+    public void set(int index, int value)
+    {
+        data[index] = value;
+    }
 
-	/**
-	 * Convert the current values to an array.
-	 *
-	 * @return the int[] array
-	 */
-	public int[] toArray()
-	{
-		return Arrays.copyOf(data, size);
-	}
+    /**
+     * Convert the current values to an array.
+     *
+     * @return the int[] array
+     */
+    public int[] toArray()
+    {
+        return Arrays.copyOf(data, size);
+    }
 
-	/**
-	 * Clear the list.
-	 */
-	public void clear()
-	{
-		size = 0;
-	}
+    /**
+     * Clear the list.
+     */
+    public void clear()
+    {
+        size = 0;
+    }
 
-	/**
-	 * Copy the data into the provided array at the given position.
-	 *
-	 * @param dest
-	 *            the destination
-	 * @param destPos
-	 *            the destination position
-	 */
-	public void copy(int[] dest, int destPos)
-	{
-		System.arraycopy(data, 0, dest, destPos, size);
-	}
+    /**
+     * Copy the data into the provided array at the given position.
+     *
+     * @param dest
+     *            the destination
+     * @param destPos
+     *            the destination position
+     */
+    public void copy(int[] dest, int destPos)
+    {
+        System.arraycopy(data, 0, dest, destPos, size);
+    }
 }

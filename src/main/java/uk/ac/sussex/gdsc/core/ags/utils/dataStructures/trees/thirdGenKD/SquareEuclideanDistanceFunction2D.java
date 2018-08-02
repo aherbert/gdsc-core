@@ -30,19 +30,19 @@ package uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.thirdGenKD;
  */
 public class SquareEuclideanDistanceFunction2D implements DistanceFunction
 {
-	@Override
-	public double distance(double[] p1, double[] p2)
-	{
-		final double dx = p1[0] - p2[0];
-		final double dy = p1[1] - p2[1];
-		return dx * dx + dy * dy;
-	}
+    @Override
+    public double distance(double[] p1, double[] p2)
+    {
+        final double dx = p1[0] - p2[0];
+        final double dy = p1[1] - p2[1];
+        return dx * dx + dy * dy;
+    }
 
-	@Override
-	public double distanceToRect(double[] point, double[] min, double[] max)
-	{
-		final double dx = (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? point[0] - min[0] : 0;
-		final double dy = (point[1] > max[1]) ? point[1] - max[1] : (point[1] < min[1]) ? point[1] - min[1] : 0;
-		return dx * dx + dy * dy;
-	}
+    @Override
+    public double distanceToRect(double[] point, double[] min, double[] max)
+    {
+        final double dx = (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? point[0] - min[0] : 0;
+        final double dy = (point[1] > max[1]) ? point[1] - max[1] : (point[1] < min[1]) ? point[1] - min[1] : 0;
+        return dx * dx + dy * dy;
+    }
 }

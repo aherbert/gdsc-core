@@ -32,80 +32,80 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  */
 public class OPTICSOrder
 {
-	/**
-	 * The Id of the parent point object used when generating this result. Can be used to identify the coordinates
-	 * from the original input data.
-	 */
-	public final int parent;
-	/**
-	 * The Id of the point that set the reachability distance.
-	 */
-	public final int predecessor;
-	/**
-	 * The cluster identifier. This may be modified if clustering is re-performed by OPTICS.
-	 */
-	int clusterId;
+    /**
+     * The Id of the parent point object used when generating this result. Can be used to identify the coordinates
+     * from the original input data.
+     */
+    public final int parent;
+    /**
+     * The Id of the point that set the reachability distance.
+     */
+    public final int predecessor;
+    /**
+     * The cluster identifier. This may be modified if clustering is re-performed by OPTICS.
+     */
+    int clusterId;
 
-	/**
-	 * Gets the cluster id.
-	 *
-	 * @return the cluster id
-	 */
-	public int getClusterId()
-	{
-		return clusterId;
-	}
+    /**
+     * Gets the cluster id.
+     *
+     * @return the cluster id
+     */
+    public int getClusterId()
+    {
+        return clusterId;
+    }
 
-	/**
-	 * The core distance. Set to positive infinity if not a core point.
-	 */
-	public final double coreDistance;
-	/**
-	 * The reachability distance. Set to positive infinity if not a reachable point, or the first core point of a
-	 * new grouping.
-	 */
-	public final double reachabilityDistance;
+    /**
+     * The core distance. Set to positive infinity if not a core point.
+     */
+    public final double coreDistance;
+    /**
+     * The reachability distance. Set to positive infinity if not a reachable point, or the first core point of a
+     * new grouping.
+     */
+    public final double reachabilityDistance;
 
-	/**
-	 * Instantiates a new OPTICS order result.
-	 *
-	 * @param parent
-	 *            the parent
-	 * @param predecessor
-	 *            the predecessor
-	 * @param coreDistance
-	 *            the core distance
-	 * @param reachabilityDistance
-	 *            the reachability distance
-	 */
-	public OPTICSOrder(int parent, int predecessor, double coreDistance, double reachabilityDistance)
-	{
-		this.parent = parent;
-		this.predecessor = predecessor;
-		this.coreDistance = coreDistance;
-		this.reachabilityDistance = reachabilityDistance;
-	}
+    /**
+     * Instantiates a new OPTICS order result.
+     *
+     * @param parent
+     *            the parent
+     * @param predecessor
+     *            the predecessor
+     * @param coreDistance
+     *            the core distance
+     * @param reachabilityDistance
+     *            the reachability distance
+     */
+    public OPTICSOrder(int parent, int predecessor, double coreDistance, double reachabilityDistance)
+    {
+        this.parent = parent;
+        this.predecessor = predecessor;
+        this.coreDistance = coreDistance;
+        this.reachabilityDistance = reachabilityDistance;
+    }
 
-	/**
-	 * Checks if is core point.
-	 *
-	 * @return true, if is core point
-	 */
-	public boolean isCorePoint()
-	{
-		return coreDistance != Double.POSITIVE_INFINITY;
-	}
+    /**
+     * Checks if is core point.
+     *
+     * @return true, if is core point
+     */
+    public boolean isCorePoint()
+    {
+        return coreDistance != Double.POSITIVE_INFINITY;
+    }
 
-	/**
-	 * Checks if is a reachable point.
-	 * <p>
-	 * Note that the first core point of a new grouping will not be labelled as a reachable point as it has no
-	 * reachability distance.
-	 *
-	 * @return true, if is reachable point
-	 */
-	public boolean isReachablePoint()
-	{
-		return reachabilityDistance != Double.POSITIVE_INFINITY;
-	}
+    /**
+     * Checks if is a reachable point.
+     * <p>
+     * Note that the first core point of a new grouping will not be labelled as a reachable point as it has no
+     * reachability distance.
+     *
+     * @return true, if is reachable point
+     */
+    public boolean isReachablePoint()
+    {
+        return reachabilityDistance != Double.POSITIVE_INFINITY;
+    }
 }

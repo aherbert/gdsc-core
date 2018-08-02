@@ -34,159 +34,159 @@ package uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD;
  */
 abstract class KdTreeNode2D<T>
 {
-	/** The bucket size. */
-	static final int bucketSize = 24;
+    /** The bucket size. */
+    static final int bucketSize = 24;
 
-	// All types
+    // All types
 
-	/** The parent. */
-	final KdTreeNode2D<T> parent;
+    /** The parent. */
+    final KdTreeNode2D<T> parent;
 
-	// Leaf only
+    // Leaf only
 
-	/** The locations. */
-	double[][] locations;
-	/** The data. */
-	Object[] data;
-	/** The location count. */
-	int locationCount;
+    /** The locations. */
+    double[][] locations;
+    /** The data. */
+    Object[] data;
+    /** The location count. */
+    int locationCount;
 
-	// Stem only
+    // Stem only
 
-	/** The left. */
-	KdTreeNode2D<T> left;
-	/** The right. */
-	KdTreeNode2D<T> right;
-	/** The split dimension. */
-	int splitDimension;
-	/** The split value. */
-	double splitValue;
+    /** The left. */
+    KdTreeNode2D<T> left;
+    /** The right. */
+    KdTreeNode2D<T> right;
+    /** The split dimension. */
+    int splitDimension;
+    /** The split value. */
+    double splitValue;
 
-	// Bounds
+    // Bounds
 
-	/** The min limit. */
-	double[] minLimit;
-	/** The max limit. */
-	double[] maxLimit;
+    /** The min limit. */
+    double[] minLimit;
+    /** The max limit. */
+    double[] maxLimit;
 
-	/** The singularity. */
-	boolean singularity;
+    /** The singularity. */
+    boolean singularity;
 
-	// Temporary
+    // Temporary
 
-	/** The status. */
-	Status status;
+    /** The status. */
+    Status status;
 
-	/**
-	 * Construct a RTree with 2 dimensions
-	 */
-	KdTreeNode2D()
-	{
-		// Init as leaf
-		this.locations = new double[bucketSize][];
-		this.data = new Object[bucketSize];
-		this.locationCount = 0;
-		this.singularity = true;
+    /**
+     * Construct a RTree with 2 dimensions
+     */
+    KdTreeNode2D()
+    {
+        // Init as leaf
+        this.locations = new double[bucketSize][];
+        this.data = new Object[bucketSize];
+        this.locationCount = 0;
+        this.singularity = true;
 
-		// Init as root
-		this.parent = null;
-	}
+        // Init as root
+        this.parent = null;
+    }
 
-	/**
-	 * Constructor for child nodes. Internal use only.
-	 *
-	 * @param parent
-	 *            the parent
-	 */
-	KdTreeNode2D(KdTreeNode2D<T> parent)
-	{
-		// Init as leaf
-		this.locations = new double[Math.max(bucketSize, parent.locationCount)][];
-		this.data = new Object[locations.length];
-		this.locationCount = 0;
-		this.singularity = true;
+    /**
+     * Constructor for child nodes. Internal use only.
+     *
+     * @param parent
+     *            the parent
+     */
+    KdTreeNode2D(KdTreeNode2D<T> parent)
+    {
+        // Init as leaf
+        this.locations = new double[Math.max(bucketSize, parent.locationCount)][];
+        this.data = new Object[locations.length];
+        this.locationCount = 0;
+        this.singularity = true;
 
-		// Init as non-root
-		this.parent = parent;
-	}
+        // Init as non-root
+        this.parent = parent;
+    }
 
-	/**
-	 * Extends the bounds of this node do include a new location.
-	 *
-	 * @param location
-	 *            the location
-	 */
-	final void extendBounds(double[] location)
-	{
-		if (minLimit == null)
-		{
-			minLimit = new double[] { location[0], location[1] };
-			maxLimit = new double[] { location[0], location[1] };
-			return;
-		}
+    /**
+     * Extends the bounds of this node do include a new location.
+     *
+     * @param location
+     *            the location
+     */
+    final void extendBounds(double[] location)
+    {
+        if (minLimit == null)
+        {
+            minLimit = new double[] { location[0], location[1] };
+            maxLimit = new double[] { location[0], location[1] };
+            return;
+        }
 
-		for (int i = 2; i-- > 0;)
-			if (Double.isNaN(location[i]))
-			{
-				minLimit[i] = Double.NaN;
-				maxLimit[i] = Double.NaN;
-				singularity = false;
-			}
-			else if (minLimit[i] > location[i])
-			{
-				minLimit[i] = location[i];
-				singularity = false;
-			}
-			else if (maxLimit[i] < location[i])
-			{
-				maxLimit[i] = location[i];
-				singularity = false;
-			}
-	}
+        for (int i = 2; i-- > 0;)
+            if (Double.isNaN(location[i]))
+            {
+                minLimit[i] = Double.NaN;
+                maxLimit[i] = Double.NaN;
+                singularity = false;
+            }
+            else if (minLimit[i] > location[i])
+            {
+                minLimit[i] = location[i];
+                singularity = false;
+            }
+            else if (maxLimit[i] < location[i])
+            {
+                maxLimit[i] = location[i];
+                singularity = false;
+            }
+    }
 
-	/**
-	 * Find the widest axis of the bounds of this node.
-	 *
-	 * @return the axis
-	 */
-	final int findWidestAxis()
-	{
-		double width = (maxLimit[0] - minLimit[0]);
-		if (Double.isNaN(width))
-			width = 0;
+    /**
+     * Find the widest axis of the bounds of this node.
+     *
+     * @return the axis
+     */
+    final int findWidestAxis()
+    {
+        double width = (maxLimit[0] - minLimit[0]);
+        if (Double.isNaN(width))
+            width = 0;
 
-		double nwidth = (maxLimit[1] - minLimit[1]);
-		if (Double.isNaN(nwidth))
-			nwidth = 0;
-		if (nwidth > width)
-			return 1;
+        double nwidth = (maxLimit[1] - minLimit[1]);
+        if (Double.isNaN(nwidth))
+            nwidth = 0;
+        if (nwidth > width)
+            return 1;
 
-		return 0;
-	}
+        return 0;
+    }
 
-	// Override in subclasses
+    // Override in subclasses
 
-	/**
-	 * Compute the point distance.
-	 *
-	 * @param p1
-	 *            the p 1
-	 * @param p2
-	 *            the p 2
-	 * @return the distance
-	 */
-	protected abstract double pointDist(double[] p1, double[] p2);
+    /**
+     * Compute the point distance.
+     *
+     * @param p1
+     *            the p 1
+     * @param p2
+     *            the p 2
+     * @return the distance
+     */
+    protected abstract double pointDist(double[] p1, double[] p2);
 
-	/**
-	 * Compute the point region distance.
-	 *
-	 * @param point
-	 *            the point
-	 * @param min
-	 *            the min of the region
-	 * @param max
-	 *            the max of the region
-	 * @return the distance
-	 */
-	protected abstract double pointRegionDist(double[] point, double[] min, double[] max);
+    /**
+     * Compute the point region distance.
+     *
+     * @param point
+     *            the point
+     * @param min
+     *            the min of the region
+     * @param max
+     *            the max of the region
+     * @return the distance
+     */
+    protected abstract double pointRegionDist(double[] point, double[] min, double[] max);
 }

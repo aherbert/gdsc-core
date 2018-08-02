@@ -35,96 +35,96 @@ import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.Neighbo
  */
 class TreeMoleculeSpace extends MoleculeSpace
 {
-	private class MoleculeStore implements NeighbourStore<Molecule>
-	{
-		@Override
-		public void add(double distance, Molecule m)
-		{
-			m.setD((float) distance);
-			neighbours.add(m);
-		}
-	}
+    private class MoleculeStore implements NeighbourStore<Molecule>
+    {
+        @Override
+        public void add(double distance, Molecule m)
+        {
+            m.setD((float) distance);
+            neighbours.add(m);
+        }
+    }
 
-	/**
-	 * Used for access to the raw coordinates
-	 */
-	protected final OPTICSManager opticsManager;
+    /**
+     * Used for access to the raw coordinates
+     */
+    protected final OPTICSManager opticsManager;
 
-	private KdTree2D<Molecule> tree;
-	private final MoleculeStore store;
+    private KdTree2D<Molecule> tree;
+    private final MoleculeStore store;
 
-	/**
-	 * Instantiates a new tree molecule space.
-	 *
-	 * @param opticsManager
-	 *            the optics manager
-	 * @param generatingDistanceE
-	 *            the generating distance (E)
-	 */
-	TreeMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE)
-	{
-		super(opticsManager.getSize(), generatingDistanceE);
+    /**
+     * Instantiates a new tree molecule space.
+     *
+     * @param opticsManager
+     *            the optics manager
+     * @param generatingDistanceE
+     *            the generating distance (E)
+     */
+    TreeMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE)
+    {
+        super(opticsManager.getSize(), generatingDistanceE);
 
-		this.opticsManager = opticsManager;
-		this.store = new MoleculeStore();
-	}
+        this.opticsManager = opticsManager;
+        this.store = new MoleculeStore();
+    }
 
-	// Nothing to add to default toString()
-	//	@Override
-	//	public String toString()
-	//	{
-	//		return this.getClass().getSimpleName();
-	//	}
+    // Nothing to add to default toString()
+    //	@Override
+    //	public String toString()
+    //	{
+    //		return this.getClass().getSimpleName();
+    //	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.clustering.optics.MoleculeSpace#generate()
-	 */
-	@Override
-	Molecule[] generate()
-	{
-		final float[] xcoord = opticsManager.getXData();
-		final float[] ycoord = opticsManager.getYData();
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.clustering.optics.MoleculeSpace#generate()
+     */
+    @Override
+    Molecule[] generate()
+    {
+        final float[] xcoord = opticsManager.getXData();
+        final float[] ycoord = opticsManager.getYData();
 
-		setOfObjects = new Molecule[xcoord.length];
-		tree = new KdTree2D.SqrEuclid2D<>();
-		for (int i = 0; i < xcoord.length; i++)
-		{
-			final float x = xcoord[i];
-			final float y = ycoord[i];
-			// Build a single linked list
-			final Molecule m = new DistanceMolecule(i, x, y);
-			setOfObjects[i] = m;
-			tree.addPoint(new double[] { x, y }, m);
-		}
+        setOfObjects = new Molecule[xcoord.length];
+        tree = new KdTree2D.SqrEuclid2D<>();
+        for (int i = 0; i < xcoord.length; i++)
+        {
+            final float x = xcoord[i];
+            final float y = ycoord[i];
+            // Build a single linked list
+            final Molecule m = new DistanceMolecule(i, x, y);
+            setOfObjects[i] = m;
+            tree.addPoint(new double[] { x, y }, m);
+        }
 
-		return setOfObjects;
-	}
+        return setOfObjects;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
-	 * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
-	 */
-	@Override
-	void findNeighbours(int minPts, Molecule object, float e)
-	{
-		neighbours.clear();
-		tree.findNeighbor(new double[] { object.x, object.y }, e, store);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
+     * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
+     */
+    @Override
+    void findNeighbours(int minPts, Molecule object, float e)
+    {
+        neighbours.clear();
+        tree.findNeighbor(new double[] { object.x, object.y }, e, store);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
-	 * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
-	 */
-	@Override
-	void findNeighboursAndDistances(int minPts, Molecule object, float e)
-	{
-		neighbours.clear();
-		tree.findNeighbor(new double[] { object.x, object.y }, e, store);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
+     * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
+     */
+    @Override
+    void findNeighboursAndDistances(int minPts, Molecule object, float e)
+    {
+        neighbours.clear();
+        tree.findNeighbor(new double[] { object.x, object.y }, e, store);
+    }
 }

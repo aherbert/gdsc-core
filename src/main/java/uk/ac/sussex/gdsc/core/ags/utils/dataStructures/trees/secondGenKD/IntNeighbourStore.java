@@ -28,13 +28,13 @@ package uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD;
  */
 public interface IntNeighbourStore
 {
-	/**
-	 * Adds the neighbour to the store.
-	 *
-	 * @param distance
-	 *            the distance to the location
-	 * @param neighbour
-	 *            the neighbour
-	 */
-	public void add(double distance, int neighbour);
+    /**
+     * Adds the neighbour to the store.
+     *
+     * @param distance
+     *            the distance to the location
+     * @param neighbour
+     *            the neighbour
+     */
+    public void add(double distance, int neighbour);
 }

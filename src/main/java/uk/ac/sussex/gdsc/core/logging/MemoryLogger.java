@@ -36,80 +36,80 @@ import java.util.List;
  */
 public class MemoryLogger implements Logger
 {
-	private final List<String> messages = new LinkedList<>();
+    private final List<String> messages = new LinkedList<>();
 
-	/**
-	 * Stores the message in memory.
-	 *
-	 * @param message
-	 *            the message
-	 */
-	@Override
-	public void info(String message)
-	{
-		messages.add(message);
-	}
+    /**
+     * Stores the message in memory.
+     *
+     * @param message
+     *            the message
+     */
+    @Override
+    public void info(String message)
+    {
+        messages.add(message);
+    }
 
-	/**
-	 * Stores the message in memory.
-	 *
-	 * @param format
-	 *            the format
-	 * @param args
-	 *            the args
-	 */
-	@Override
-	public void info(String format, Object... args)
-	{
-		messages.add(String.format(format, args));
-	}
+    /**
+     * Stores the message in memory.
+     *
+     * @param format
+     *            the format
+     * @param args
+     *            the args
+     */
+    @Override
+    public void info(String format, Object... args)
+    {
+        messages.add(String.format(format, args));
+    }
 
-	@Override
-	public void debug(String message)
-	{
-		info(message);
-	}
+    @Override
+    public void debug(String message)
+    {
+        info(message);
+    }
 
-	@Override
-	public void debug(String format, Object... args)
-	{
-		info(format, args);
-	}
+    @Override
+    public void debug(String format, Object... args)
+    {
+        info(format, args);
+    }
 
-	@Override
-	public void error(String message)
-	{
-		info(message);
-	}
+    @Override
+    public void error(String message)
+    {
+        info(message);
+    }
 
-	@Override
-	public void error(String format, Object... args)
-	{
-		info(format, args);
-	}
+    @Override
+    public void error(String format, Object... args)
+    {
+        info(format, args);
+    }
 
-	/**
-	 * Gets the messages.
-	 *
-	 * @return the messages
-	 */
-	public List<String> getMessages()
-	{
-		return getMessages(false);
-	}
+    /**
+     * Gets the messages.
+     *
+     * @return the messages
+     */
+    public List<String> getMessages()
+    {
+        return getMessages(false);
+    }
 
-	/**
-	 * Gets the messages.
-	 *
-	 * @param clear
-	 *            Set to true to clear current messages
-	 * @return the messages
-	 */
-	public List<String> getMessages(boolean clear)
-	{
-		final List<String> result = new ArrayList<>(messages);
-		if (clear)
-			messages.clear();
-		return result;
-	}
+    /**
+     * Gets the messages.
+     *
+     * @param clear
+     *            Set to true to clear current messages
+     * @return the messages
+     */
+    public List<String> getMessages(boolean clear)
+    {
+        final List<String> result = new ArrayList<>(messages);
+        if (clear)
+            messages.clear();
+        return result;
+    }
 }

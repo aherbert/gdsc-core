@@ -43,302 +43,303 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
  */
 public class DBSCANResult implements ClusteringResult
 {
-	/**
-	 * Used to provide access to the raw coordinates
-	 */
-	private final OPTICSManager opticsManager;
+    /**
+     * Used to provide access to the raw coordinates
+     */
+    private final OPTICSManager opticsManager;
 
-	/**
-	 * A result not part of any cluster
-	 */
-	public static final int NOISE = 0;
+    /**
+     * A result not part of any cluster
+     */
+    public static final int NOISE = 0;
 
-	/**
-	 * The min points for a core object
-	 */
-	public final int minPts;
-	/**
-	 * The generating distance for a core object
-	 */
-	public final float generatingDistance;
+    /**
+     * The min points for a core object
+     */
+    public final int minPts;
+    /**
+     * The generating distance for a core object
+     */
+    public final float generatingDistance;
 
-	/**
-	 * The order results
-	 */
-	final DBSCANOrder[] results;
+    /**
+     * The order results
+     */
+    final DBSCANOrder[] results;
 
-	/**
-	 * Clusters assigned by extractClusters(...)
-	 */
-	private int[] clusters = null;
+    /**
+     * Clusters assigned by extractClusters(...)
+     */
+    private int[] clusters = null;
 
-	/**
-	 * Convex hulls assigned by computeConvexHulls()
-	 */
-	private ConvexHull[] hulls = null;
+    /**
+     * Convex hulls assigned by computeConvexHulls()
+     */
+    private ConvexHull[] hulls = null;
 
-	/**
-	 * Bounds assigned by computeConvexHulls()
-	 */
-	private Rectangle2D[] bounds = null;
+    /**
+     * Bounds assigned by computeConvexHulls()
+     */
+    private Rectangle2D[] bounds = null;
 
-	/**
-	 * Instantiates a new DBSCAN result.
-	 *
-	 * @param opticsManager
-	 *            the optics manager
-	 * @param minPts
-	 *            the min points
-	 * @param generatingDistance
-	 *            the generating distance
-	 * @param dbscanResults
-	 *            the DBSCAN results
-	 */
-	DBSCANResult(OPTICSManager opticsManager, int minPts, float generatingDistance, DBSCANOrder[] dbscanResults)
-	{
-		this.opticsManager = opticsManager;
-		this.minPts = minPts;
-		this.generatingDistance = generatingDistance;
-		this.results = dbscanResults;
-	}
+    /**
+     * Instantiates a new DBSCAN result.
+     *
+     * @param opticsManager
+     *            the optics manager
+     * @param minPts
+     *            the min points
+     * @param generatingDistance
+     *            the generating distance
+     * @param dbscanResults
+     *            the DBSCAN results
+     */
+    DBSCANResult(OPTICSManager opticsManager, int minPts, float generatingDistance, DBSCANOrder[] dbscanResults)
+    {
+        this.opticsManager = opticsManager;
+        this.minPts = minPts;
+        this.generatingDistance = generatingDistance;
+        this.results = dbscanResults;
+    }
 
-	/**
-	 * Get the number of results
-	 *
-	 * @return the number of results
-	 */
-	public int size()
-	{
-		return results.length;
-	}
+    /**
+     * Get the number of results
+     *
+     * @return the number of results
+     */
+    public int size()
+    {
+        return results.length;
+    }
 
-	/**
-	 * Get the result.
-	 *
-	 * @param index
-	 *            the index
-	 * @return the DBSCAN result
-	 */
-	public DBSCANOrder get(int index)
-	{
-		return results[index];
-	}
+    /**
+     * Get the result.
+     *
+     * @param index
+     *            the index
+     * @return the DBSCAN result
+     */
+    public DBSCANOrder get(int index)
+    {
+        return results[index];
+    }
 
-	/**
-	 * Gets the DBSCAN order of the original input points.
-	 *
-	 * @return the order
-	 */
-	public int[] getOrder()
-	{
-		final int[] data = new int[size()];
-		for (int i = size(); i-- > 0;)
-			data[results[i].parent] = i + 1;
-		return data;
-	}
+    /**
+     * Gets the DBSCAN order of the original input points.
+     *
+     * @return the order
+     */
+    public int[] getOrder()
+    {
+        final int[] data = new int[size()];
+        for (int i = size(); i-- > 0;)
+            data[results[i].parent] = i + 1;
+        return data;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#scrambleClusters(org.apache.commons.math3.random.RandomGenerator)
-	 */
-	@Override
-	public void scrambleClusters(RandomGenerator rng)
-	{
-		clusters = null;
-		hulls = null;
-		bounds = null;
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#scrambleClusters(org.apache.commons.math3.random.
+     * RandomGenerator)
+     */
+    @Override
+    public void scrambleClusters(RandomGenerator rng)
+    {
+        clusters = null;
+        hulls = null;
+        bounds = null;
 
-		int max = 0;
-		for (int i = size(); i-- > 0;)
-			if (max < results[i].clusterId)
-				max = results[i].clusterId;
-		if (max == 0)
-			return;
+        int max = 0;
+        for (int i = size(); i-- > 0;)
+            if (max < results[i].clusterId)
+                max = results[i].clusterId;
+        if (max == 0)
+            return;
 
-		final int[] map = SimpleArrayUtils.newArray(max, 1, 1);
-		MathArrays.shuffle(map, rng);
+        final int[] map = SimpleArrayUtils.newArray(max, 1, 1);
+        MathArrays.shuffle(map, rng);
 
-		for (int i = size(); i-- > 0;)
-			if (results[i].clusterId > 0)
-				results[i].clusterId = map[results[i].clusterId - 1];
-	}
+        for (int i = size(); i-- > 0;)
+            if (results[i].clusterId > 0)
+                results[i].clusterId = map[results[i].clusterId - 1];
+    }
 
-	/**
-	 * Extract the clusters and store a reference to them for return by {@link #getClusters()}. Deletes the cached
-	 * convex hulls for previous clusters.
-	 *
-	 * @param core
-	 *            the core
-	 */
-	public void extractClusters(boolean core)
-	{
-		clusters = getClusters(core);
-		hulls = null;
-		bounds = null;
-	}
+    /**
+     * Extract the clusters and store a reference to them for return by {@link #getClusters()}. Deletes the cached
+     * convex hulls for previous clusters.
+     *
+     * @param core
+     *            the core
+     */
+    public void extractClusters(boolean core)
+    {
+        clusters = getClusters(core);
+        hulls = null;
+        bounds = null;
+    }
 
-	/**
-	 * This can be set by {@link #extractClusters(boolean)}.
-	 * <p>
-	 * {@inheritDoc}
-	 *
-	 * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getClusters()
-	 */
-	@Override
-	public int[] getClusters()
-	{
-		return clusters;
-	}
+    /**
+     * This can be set by {@link #extractClusters(boolean)}.
+     * <p>
+     * {@inheritDoc}
+     *
+     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getClusters()
+     */
+    @Override
+    public int[] getClusters()
+    {
+        return clusters;
+    }
 
-	/**
-	 * Gets the cluster Id for each parent object.
-	 *
-	 * @param core
-	 *            Set to true to get the clusters using only the core points
-	 * @return the clusters
-	 */
-	public int[] getClusters(boolean core)
-	{
-		final int[] clusters = new int[size()];
-		if (core)
-		{
-			for (int i = size(); i-- > 0;)
-				if (results[i].nPts >= minPts)
-				{
-					final int id = results[i].parent;
-					clusters[id] = results[i].clusterId;
-				}
-		}
-		else
-			for (int i = size(); i-- > 0;)
-			{
-				final int id = results[i].parent;
-				clusters[id] = results[i].clusterId;
-			}
-		return clusters;
-	}
+    /**
+     * Gets the cluster Id for each parent object.
+     *
+     * @param core
+     *            Set to true to get the clusters using only the core points
+     * @return the clusters
+     */
+    public int[] getClusters(boolean core)
+    {
+        final int[] clusters = new int[size()];
+        if (core)
+        {
+            for (int i = size(); i-- > 0;)
+                if (results[i].nPts >= minPts)
+                {
+                    final int id = results[i].parent;
+                    clusters[id] = results[i].clusterId;
+                }
+        }
+        else
+            for (int i = size(); i-- > 0;)
+            {
+                final int id = results[i].parent;
+                clusters[id] = results[i].clusterId;
+            }
+        return clusters;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#hasConvexHulls()
-	 */
-	@Override
-	public boolean hasConvexHulls()
-	{
-		return hulls != null;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#hasConvexHulls()
+     */
+    @Override
+    public boolean hasConvexHulls()
+    {
+        return hulls != null;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#computeConvexHulls()
-	 */
-	@Override
-	public void computeConvexHulls()
-	{
-		if (hasConvexHulls())
-			return;
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#computeConvexHulls()
+     */
+    @Override
+    public void computeConvexHulls()
+    {
+        if (hasConvexHulls())
+            return;
 
-		if (clusters == null)
-			return;
+        if (clusters == null)
+            return;
 
-		// Get the number of clusters
-		final int nClusters = Maths.max(clusters);
-		hulls = new ConvexHull[nClusters];
-		bounds = new Rectangle2D[nClusters];
+        // Get the number of clusters
+        final int nClusters = Maths.max(clusters);
+        hulls = new ConvexHull[nClusters];
+        bounds = new Rectangle2D[nClusters];
 
-		// Descend the hierarchy and compute the hulls, smallest first
-		final ScratchSpace scratch = new ScratchSpace(100);
-		for (int clusterId = 1; clusterId <= nClusters; clusterId++)
-			computeConvexHull(clusterId, scratch);
-	}
+        // Descend the hierarchy and compute the hulls, smallest first
+        final ScratchSpace scratch = new ScratchSpace(100);
+        for (int clusterId = 1; clusterId <= nClusters; clusterId++)
+            computeConvexHull(clusterId, scratch);
+    }
 
-	private void computeConvexHull(int clusterId, ScratchSpace scratch)
-	{
-		scratch.n = 0;
-		for (int i = size(); i-- > 0;)
-			if (clusterId == clusters[i])
-				scratch.safeAdd(opticsManager.getOriginalX(results[i].parent),
-						opticsManager.getOriginalY(results[i].parent));
+    private void computeConvexHull(int clusterId, ScratchSpace scratch)
+    {
+        scratch.n = 0;
+        for (int i = size(); i-- > 0;)
+            if (clusterId == clusters[i])
+                scratch.safeAdd(opticsManager.getOriginalX(results[i].parent),
+                        opticsManager.getOriginalY(results[i].parent));
 
-		bounds[clusterId - 1] = scratch.getBounds();
+        bounds[clusterId - 1] = scratch.getBounds();
 
-		// Compute the hull
-		final ConvexHull h = scratch.getConvexHull();
-		if (h != null)
-			hulls[clusterId - 1] = h;
-		else
-		{
-			//System.out.printf("No hull: n=%d\n", scratch.n);
-			//for (int i = 0; i < scratch.n; i++)
-			//	System.out.printf("%d: %f,%f\n", i, scratch.x[i], scratch.y[i]);
-		}
-	}
+        // Compute the hull
+        final ConvexHull h = scratch.getConvexHull();
+        if (h != null)
+            hulls[clusterId - 1] = h;
+        else
+        {
+            //System.out.printf("No hull: n=%d\n", scratch.n);
+            //for (int i = 0; i < scratch.n; i++)
+            //	System.out.printf("%d: %f,%f\n", i, scratch.x[i], scratch.y[i]);
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getConvexHull(int)
-	 */
-	@Override
-	public ConvexHull getConvexHull(int clusterId)
-	{
-		if (hulls == null || clusterId <= 0 || clusterId > hulls.length)
-			return null;
-		return hulls[clusterId - 1];
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getConvexHull(int)
+     */
+    @Override
+    public ConvexHull getConvexHull(int clusterId)
+    {
+        if (hulls == null || clusterId <= 0 || clusterId > hulls.length)
+            return null;
+        return hulls[clusterId - 1];
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getBounds(int)
-	 */
-	@Override
-	public Rectangle2D getBounds(int clusterId)
-	{
-		if (bounds == null || clusterId <= 0 || clusterId > bounds.length)
-			return null;
-		return bounds[clusterId - 1];
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getBounds(int)
+     */
+    @Override
+    public Rectangle2D getBounds(int clusterId)
+    {
+        if (bounds == null || clusterId <= 0 || clusterId > bounds.length)
+            return null;
+        return bounds[clusterId - 1];
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getParents(int[])
-	 */
-	@Override
-	public int[] getParents(int[] clusterIds)
-	{
-		if (clusterIds == null)
-			return new int[0];
-		final TIntArrayList parents = new TIntArrayList();
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getParents(int[])
+     */
+    @Override
+    public int[] getParents(int[] clusterIds)
+    {
+        if (clusterIds == null)
+            return new int[0];
+        final TIntArrayList parents = new TIntArrayList();
 
-		// Stupid implementation processes each cluster in turn.
-		if (clusterIds.length == 1)
-		{
-			final int clusterId = clusterIds[0];
-			for (int i = size(); i-- > 0;)
-				if (clusterId == clusters[i])
-					parents.add(results[i].parent);
-		}
-		else
-		{
-			// Multiple clusters selected. Prevent double counting by
-			// using a hash set to store each cluster we have processed
-			final int nClusters = Maths.max(clusters);
-			final TIntHashSet ids = new TIntHashSet(clusterIds.length);
+        // Stupid implementation processes each cluster in turn.
+        if (clusterIds.length == 1)
+        {
+            final int clusterId = clusterIds[0];
+            for (int i = size(); i-- > 0;)
+                if (clusterId == clusters[i])
+                    parents.add(results[i].parent);
+        }
+        else
+        {
+            // Multiple clusters selected. Prevent double counting by
+            // using a hash set to store each cluster we have processed
+            final int nClusters = Maths.max(clusters);
+            final TIntHashSet ids = new TIntHashSet(clusterIds.length);
 
-			for (final int clusterId : clusterIds)
-				if (clusterId > 0 && clusterId <= nClusters)
-					if (ids.add(clusterId))
-						for (int i = size(); i-- > 0;)
-							if (clusterId == clusters[i])
-								parents.add(results[i].parent);
-		}
+            for (final int clusterId : clusterIds)
+                if (clusterId > 0 && clusterId <= nClusters)
+                    if (ids.add(clusterId))
+                        for (int i = size(); i-- > 0;)
+                            if (clusterId == clusters[i])
+                                parents.add(results[i].parent);
+        }
 
-		return parents.toArray();
-	}
+        return parents.toArray();
+    }
 }

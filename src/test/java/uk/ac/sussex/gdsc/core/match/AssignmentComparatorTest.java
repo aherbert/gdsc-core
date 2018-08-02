@@ -20,191 +20,191 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 @SuppressWarnings({ "javadoc" })
 public class AssignmentComparatorTest implements Function<RandomSeed, Object>
 {
-	private static Logger logger;
-	private static DataCache<RandomSeed, Object> dataCache;
+    private static Logger logger;
+    private static DataCache<RandomSeed, Object> dataCache;
 
-	@BeforeAll
-	public static void beforeAll()
-	{
-		logger = Logger.getLogger(AssignmentComparatorTest.class.getName());
-		dataCache = new DataCache<>();
-	}
+    @BeforeAll
+    public static void beforeAll()
+    {
+        logger = Logger.getLogger(AssignmentComparatorTest.class.getName());
+        dataCache = new DataCache<>();
+    }
 
-	@AfterAll
-	public static void afterAll()
-	{
-		dataCache.clear();
-		dataCache = null;
-		logger = null;
-	}
+    @AfterAll
+    public static void afterAll()
+    {
+        dataCache.clear();
+        dataCache = null;
+        logger = null;
+    }
 
-	private static class IntegerSortData implements Comparable<IntegerSortData>
-	{
-		final int data;
+    private static class IntegerSortData implements Comparable<IntegerSortData>
+    {
+        final int data;
 
-		IntegerSortData(int data)
-		{
-			this.data = data;
-		}
+        IntegerSortData(int data)
+        {
+            this.data = data;
+        }
 
-		@Override
-		public int compareTo(IntegerSortData o)
-		{
-			if (data < o.data)
-				return -1;
-			if (data > o.data)
-				return 1;
-			return 0;
-		}
-	}
+        @Override
+        public int compareTo(IntegerSortData o)
+        {
+            if (data < o.data)
+                return -1;
+            if (data > o.data)
+                return 1;
+            return 0;
+        }
+    }
 
-	private static class DoubleSortData implements Comparable<DoubleSortData>
-	{
-		final double data;
+    private static class DoubleSortData implements Comparable<DoubleSortData>
+    {
+        final double data;
 
-		DoubleSortData(double data)
-		{
-			this.data = data;
-		}
+        DoubleSortData(double data)
+        {
+            this.data = data;
+        }
 
-		@Override
-		public int compareTo(DoubleSortData o)
-		{
-			return Double.compare(data, o.data);
-		}
-	}
+        @Override
+        public int compareTo(DoubleSortData o)
+        {
+            return Double.compare(data, o.data);
+        }
+    }
 
-	private static class AssignmentComparatorTestData
-	{
-		int[][] intData;
-		double[][] doubleData;
-		int[][] intExp;
-		double[][] doubleExp;
-		IntegerSortData[][] intSortData;
-		DoubleSortData[][] doubleSortData;
-		Assignment[][] aData;
-	}
+    private static class AssignmentComparatorTestData
+    {
+        int[][] intData;
+        double[][] doubleData;
+        int[][] intExp;
+        double[][] doubleExp;
+        IntegerSortData[][] intSortData;
+        DoubleSortData[][] doubleSortData;
+        Assignment[][] aData;
+    }
 
-	@Override
-	public Object apply(RandomSeed seed)
-	{
-		final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
-		final int size = 100;
-		// The assignment data will be concatenated blocks of sorted arrays
-		final int blocks = 50;
-		final int blockSize = 10;
-		final int length = blocks * blockSize;
+    @Override
+    public Object apply(RandomSeed seed)
+    {
+        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final int size = 100;
+        // The assignment data will be concatenated blocks of sorted arrays
+        final int blocks = 50;
+        final int blockSize = 10;
+        final int length = blocks * blockSize;
 
-		final AssignmentComparatorTestData data = new AssignmentComparatorTestData();
-		data.intData = new int[size][];
-		data.doubleData = new double[size][];
-		data.intExp = new int[size][];
-		data.doubleExp = new double[size][];
-		data.intSortData = new IntegerSortData[size][];
-		data.doubleSortData = new DoubleSortData[size][];
-		data.aData = new Assignment[size][];
-		final int upper = 65536;
-		for (int i = size; i-- > 0;)
-		{
-			int[] idata = new int[length];
-			double[] ddata = new double[length];
-			final IntegerSortData[] sdata = new IntegerSortData[length];
-			final DoubleSortData[] dsdata = new DoubleSortData[length];
-			final Assignment[] adata = new Assignment[length];
-			data.intData[i] = idata;
-			data.doubleData[i] = ddata;
-			data.intSortData[i] = sdata;
-			data.doubleSortData[i] = dsdata;
-			data.aData[i] = adata;
+        final AssignmentComparatorTestData data = new AssignmentComparatorTestData();
+        data.intData = new int[size][];
+        data.doubleData = new double[size][];
+        data.intExp = new int[size][];
+        data.doubleExp = new double[size][];
+        data.intSortData = new IntegerSortData[size][];
+        data.doubleSortData = new DoubleSortData[size][];
+        data.aData = new Assignment[size][];
+        final int upper = 65536;
+        for (int i = size; i-- > 0;)
+        {
+            int[] idata = new int[length];
+            double[] ddata = new double[length];
+            final IntegerSortData[] sdata = new IntegerSortData[length];
+            final DoubleSortData[] dsdata = new DoubleSortData[length];
+            final Assignment[] adata = new Assignment[length];
+            data.intData[i] = idata;
+            data.doubleData[i] = ddata;
+            data.intSortData[i] = sdata;
+            data.doubleSortData[i] = dsdata;
+            data.aData[i] = adata;
 
-			// Build the data of sorted blocks
-			for (int b = 0; b < blocks; b++)
-			{
-				final int[] block = new int[blockSize];
-				for (int j = 0; j < block.length; j++)
-					block[j] = r.nextInt(upper);
-				Arrays.sort(block);
-				System.arraycopy(block, 0, idata, b * blockSize, blockSize);
-			}
+            // Build the data of sorted blocks
+            for (int b = 0; b < blocks; b++)
+            {
+                final int[] block = new int[blockSize];
+                for (int j = 0; j < block.length; j++)
+                    block[j] = r.nextInt(upper);
+                Arrays.sort(block);
+                System.arraycopy(block, 0, idata, b * blockSize, blockSize);
+            }
 
-			// Copy
-			for (int j = length; j-- > 0;)
-			{
-				final int k = idata[j];
-				final double d = k / upper;
-				ddata[j] = d;
-				sdata[j] = new IntegerSortData(k);
-				dsdata[j] = new DoubleSortData(d);
-				adata[j] = new ImmutableAssignment(0, 0, d);
-			}
+            // Copy
+            for (int j = length; j-- > 0;)
+            {
+                final int k = idata[j];
+                final double d = k / upper;
+                ddata[j] = d;
+                sdata[j] = new IntegerSortData(k);
+                dsdata[j] = new DoubleSortData(d);
+                adata[j] = new ImmutableAssignment(0, 0, d);
+            }
 
-			idata = idata.clone();
-			Arrays.sort(idata);
-			data.intExp[i] = idata;
-			ddata = ddata.clone();
-			Arrays.sort(ddata);
-			data.doubleExp[i] = ddata;
-		}
+            idata = idata.clone();
+            Arrays.sort(idata);
+            data.intExp[i] = idata;
+            ddata = ddata.clone();
+            Arrays.sort(ddata);
+            data.doubleExp[i] = ddata;
+        }
 
-		return data;
-	}
+        return data;
+    }
 
-	private abstract class MyTimingTask extends BaseTimingTask
-	{
-		int[][] intData;
-		double[][] doubleData;
-		int[][] intExp;
-		double[][] doubleExp;
-		IntegerSortData[][] intSortData;
-		DoubleSortData[][] doubleSortData;
-		Assignment[][] aData;
+    private abstract class MyTimingTask extends BaseTimingTask
+    {
+        int[][] intData;
+        double[][] doubleData;
+        int[][] intExp;
+        double[][] doubleExp;
+        IntegerSortData[][] intSortData;
+        DoubleSortData[][] doubleSortData;
+        Assignment[][] aData;
 
-		public MyTimingTask(String name, AssignmentComparatorTestData data)
-		{
-			super(name);
-			intData = data.intData;
-			doubleData = data.doubleData;
-			intExp = data.intExp;
-			doubleExp = data.doubleExp;
-			intSortData = data.intSortData;
-			doubleSortData = data.doubleSortData;
-			aData = data.aData;
-		}
+        public MyTimingTask(String name, AssignmentComparatorTestData data)
+        {
+            super(name);
+            intData = data.intData;
+            doubleData = data.doubleData;
+            intExp = data.intExp;
+            doubleExp = data.doubleExp;
+            intSortData = data.intSortData;
+            doubleSortData = data.doubleSortData;
+            aData = data.aData;
+        }
 
-		@Override
-		public int getSize()
-		{
-			return intData.length;
-		}
-	}
+        @Override
+        public int getSize()
+        {
+            return intData.length;
+        }
+    }
 
-	private abstract class AssignmentTimingTask extends MyTimingTask
-	{
-		public AssignmentTimingTask(String name, AssignmentComparatorTestData data)
-		{
-			super(name, data);
-		}
+    private abstract class AssignmentTimingTask extends MyTimingTask
+    {
+        public AssignmentTimingTask(String name, AssignmentComparatorTestData data)
+        {
+            super(name, data);
+        }
 
-		@Override
-		public void check(int i, Object result)
-		{
-			final double[] exp = doubleExp[i];
-			final Assignment[] obs = (Assignment[]) result;
-			for (int j = 0; j < exp.length; j++)
-				if (exp[j] != obs[j].getDistance())
-					throw new AssertionError(getName());
-		}
-	}
+        @Override
+        public void check(int i, Object result)
+        {
+            final double[] exp = doubleExp[i];
+            final Assignment[] obs = (Assignment[]) result;
+            for (int j = 0; j < exp.length; j++)
+                if (exp[j] != obs[j].getDistance())
+                    throw new AssertionError(getName());
+        }
+    }
 
-	@SeededTest
-	public void canComputeSortSpeed(RandomSeed seed)
-	{
-		final int n = logger.isLoggable(Level.INFO) ? 5 : 1;
+    @SeededTest
+    public void canComputeSortSpeed(RandomSeed seed)
+    {
+        final int n = logger.isLoggable(Level.INFO) ? 5 : 1;
 
-		final AssignmentComparatorTestData data = (AssignmentComparatorTestData) dataCache.getOrComputeIfAbsent(seed,
-				this);
+        final AssignmentComparatorTestData data = (AssignmentComparatorTestData) dataCache.getOrComputeIfAbsent(seed,
+                this);
 
-		//@formatter:off
+        //@formatter:off
 		final TimingService ts = new TimingService(n);
 		ts.execute(new MyTimingTask("int[]", data)
 		{
@@ -464,14 +464,14 @@ public class AssignmentComparatorTest implements Function<RandomSeed, Object>
 		});
 		//@formatter:on
 
-		ts.check();
+        ts.check();
 
-		if (n == 1)
-			return;
+        if (n == 1)
+            return;
 
-		final int size = ts.repeat();
-		ts.repeat(size);
+        final int size = ts.repeat();
+        ts.repeat(size);
 
-		ts.report(logger, size);
-	}
+        ts.report(logger, size);
+    }
 }

@@ -35,198 +35,198 @@ package uk.ac.sussex.gdsc.core.utils;
  */
 public class RollingStatistics extends Statistics
 {
-	/**
-	 * Instantiates a new rolling statistics.
-	 */
-	public RollingStatistics()
-	{
-	}
+    /**
+     * Instantiates a new rolling statistics.
+     */
+    public RollingStatistics()
+    {
+    }
 
-	/**
-	 * Instantiates a new rolling statistics.
-	 *
-	 * @param data
-	 *            the data
-	 */
-	public RollingStatistics(float[] data)
-	{
-		super(data);
-	}
+    /**
+     * Instantiates a new rolling statistics.
+     *
+     * @param data
+     *            the data
+     */
+    public RollingStatistics(float[] data)
+    {
+        super(data);
+    }
 
-	/**
-	 * Instantiates a new rolling statistics.
-	 *
-	 * @param data
-	 *            the data
-	 */
-	public RollingStatistics(double[] data)
-	{
-		super(data);
-	}
+    /**
+     * Instantiates a new rolling statistics.
+     *
+     * @param data
+     *            the data
+     */
+    public RollingStatistics(double[] data)
+    {
+        super(data);
+    }
 
-	/**
-	 * Instantiates a new rolling statistics.
-	 *
-	 * @param data
-	 *            the data
-	 */
-	public RollingStatistics(int[] data)
-	{
-		super(data);
-	}
+    /**
+     * Instantiates a new rolling statistics.
+     *
+     * @param data
+     *            the data
+     */
+    public RollingStatistics(int[] data)
+    {
+        super(data);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(float[], int, int)
-	 */
-	@Override
-	protected void addInternal(float[] data, int from, int to)
-	{
-		for (int i = from; i < to; i++)
-			addInternal(data[i]);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(float[], int, int)
+     */
+    @Override
+    protected void addInternal(float[] data, int from, int to)
+    {
+        for (int i = from; i < to; i++)
+            addInternal(data[i]);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(double[], int, int)
-	 */
-	@Override
-	protected void addInternal(double[] data, int from, int to)
-	{
-		for (int i = from; i < to; i++)
-			addInternal(data[i]);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(double[], int, int)
+     */
+    @Override
+    protected void addInternal(double[] data, int from, int to)
+    {
+        for (int i = from; i < to; i++)
+            addInternal(data[i]);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(int[], int, int)
-	 */
-	@Override
-	protected void addInternal(int[] data, int from, int to)
-	{
-		for (int i = from; i < to; i++)
-			addInternal(data[i]);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(int[], int, int)
+     */
+    @Override
+    protected void addInternal(int[] data, int from, int to)
+    {
+        for (int i = from; i < to; i++)
+            addInternal(data[i]);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(double)
-	 */
-	@Override
-	protected void addInternal(final double value)
-	{
-		// This has changed the meaning of the inherited values s and ss
-		// s : sum -> mean
-		// ss : sum-squares -> sum (x-mean)^2
-		// See https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
-		// This has been adapted from org.apache.commons.math3.stat.descriptive.moment.SecondMoment
-		final double delta = value - s;
-		final double nB = n;
-		n++;
-		final double delta_n = delta / n;
-		s += delta_n;
-		ss += nB * delta * delta_n;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(double)
+     */
+    @Override
+    protected void addInternal(final double value)
+    {
+        // This has changed the meaning of the inherited values s and ss
+        // s : sum -> mean
+        // ss : sum-squares -> sum (x-mean)^2
+        // See https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
+        // This has been adapted from org.apache.commons.math3.stat.descriptive.moment.SecondMoment
+        final double delta = value - s;
+        final double nB = n;
+        n++;
+        final double delta_n = delta / n;
+        s += delta_n;
+        ss += nB * delta * delta_n;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(int, double)
-	 */
-	@Override
-	protected void addInternal(int nA, double value)
-	{
-		// Note: for the input mean value the
-		// deviation from mean is 0 (ss=0)
-		final double delta = value - s;
-		final int nB = n;
-		n += nA;
-		s = (nA * value + nB * s) / n;
-		ss += delta * delta * nA * nB / n;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(int, double)
+     */
+    @Override
+    protected void addInternal(int nA, double value)
+    {
+        // Note: for the input mean value the
+        // deviation from mean is 0 (ss=0)
+        final double delta = value - s;
+        final int nB = n;
+        n += nA;
+        s = (nA * value + nB * s) / n;
+        ss += delta * delta * nA * nB / n;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.utils.Statistics#getSum()
-	 */
-	@Override
-	public double getSum()
-	{
-		return s * n;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.utils.Statistics#getSum()
+     */
+    @Override
+    public double getSum()
+    {
+        return s * n;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.utils.Statistics#getSumOfSquares()
-	 */
-	@Override
-	public double getSumOfSquares()
-	{
-		throw new NotImplementedException("Sum-of-squares not computed");
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.utils.Statistics#getSumOfSquares()
+     */
+    @Override
+    public double getSumOfSquares()
+    {
+        throw new NotImplementedException("Sum-of-squares not computed");
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.utils.Statistics#getMean()
-	 */
-	@Override
-	public double getMean()
-	{
-		return s;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.utils.Statistics#getMean()
+     */
+    @Override
+    public double getMean()
+    {
+        return s;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.utils.Statistics#getStandardDeviation()
-	 */
-	@Override
-	public double getStandardDeviation()
-	{
-		return (n > 1) ? Math.sqrt(ss / (n - 1)) : (n == 1) ? 0 : Double.NaN;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.utils.Statistics#getStandardDeviation()
+     */
+    @Override
+    public double getStandardDeviation()
+    {
+        return (n > 1) ? Math.sqrt(ss / (n - 1)) : (n == 1) ? 0 : Double.NaN;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.utils.Statistics#getVariance()
-	 */
-	@Override
-	public double getVariance()
-	{
-		return (n > 1) ? ss / (n - 1) : (n == 1) ? 0 : Double.NaN;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.utils.Statistics#getVariance()
+     */
+    @Override
+    public double getVariance()
+    {
+        return (n > 1) ? ss / (n - 1) : (n == 1) ? 0 : Double.NaN;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.utils.Statistics#add(uk.ac.sussex.gdsc.core.utils.Statistics)
-	 */
-	@Override
-	public void add(Statistics statistics)
-	{
-		if (statistics instanceof RollingStatistics)
-		{
-			final RollingStatistics extra = (RollingStatistics) statistics;
-			if (extra.n > 0)
-			{
-				// https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
-				final double delta = extra.s - s;
-				final int nA = extra.n;
-				final int nB = n;
-				n += nA;
-				s = (nA * extra.s + nB * s) / n;
-				ss += extra.ss + delta * delta * nA * nB / n;
-			}
-			return;
-		}
-		throw new NotImplementedException("Not a RollingStatistics instance");
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.utils.Statistics#add(uk.ac.sussex.gdsc.core.utils.Statistics)
+     */
+    @Override
+    public void add(Statistics statistics)
+    {
+        if (statistics instanceof RollingStatistics)
+        {
+            final RollingStatistics extra = (RollingStatistics) statistics;
+            if (extra.n > 0)
+            {
+                // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
+                final double delta = extra.s - s;
+                final int nA = extra.n;
+                final int nB = n;
+                n += nA;
+                s = (nA * extra.s + nB * s) / n;
+                ss += extra.ss + delta * delta * nA * nB / n;
+            }
+            return;
+        }
+        throw new NotImplementedException("Not a RollingStatistics instance");
+    }
 }

@@ -33,253 +33,253 @@ import java.util.Arrays;
  */
 abstract class KdNode<T>
 {
-	// All types
+    // All types
 
-	/** The bucket capacity. */
-	protected int bucketCapacity;
-	/** The size. */
-	protected int size;
+    /** The bucket capacity. */
+    protected int bucketCapacity;
+    /** The size. */
+    protected int size;
 
-	// Leaf only
+    // Leaf only
 
-	/** The points. */
-	protected double[][] points;
-	/** The data. */
-	protected Object[] data;
+    /** The points. */
+    protected double[][] points;
+    /** The data. */
+    protected Object[] data;
 
-	// Stem only
+    // Stem only
 
-	/** The left. */
-	protected KdNode<T> left;
-	/** The right. */
-	protected KdNode<T> right;
-	/** The split dimension. */
-	protected int splitDimension;
-	/** The split value. */
-	protected double splitValue;
+    /** The left. */
+    protected KdNode<T> left;
+    /** The right. */
+    protected KdNode<T> right;
+    /** The split dimension. */
+    protected int splitDimension;
+    /** The split value. */
+    protected double splitValue;
 
-	// Bounds
+    // Bounds
 
-	/** The min bound. */
-	protected double[] minBound;
-	/** The max bound. */
-	protected double[] maxBound;
+    /** The min bound. */
+    protected double[] minBound;
+    /** The max bound. */
+    protected double[] maxBound;
 
-	/** The single point. */
-	protected boolean singlePoint;
+    /** The single point. */
+    protected boolean singlePoint;
 
-	/**
-	 * Instantiates a new kd node.
-	 *
-	 * @param bucketCapacity
-	 *            the bucket capacity
-	 */
-	protected KdNode(int bucketCapacity)
-	{
-		// Init base
-		this.bucketCapacity = bucketCapacity;
-		this.size = 0;
-		this.singlePoint = true;
+    /**
+     * Instantiates a new kd node.
+     *
+     * @param bucketCapacity
+     *            the bucket capacity
+     */
+    protected KdNode(int bucketCapacity)
+    {
+        // Init base
+        this.bucketCapacity = bucketCapacity;
+        this.size = 0;
+        this.singlePoint = true;
 
-		// Init leaf elements
-		this.points = new double[bucketCapacity + 1][];
-		this.data = new Object[bucketCapacity + 1];
-	}
+        // Init leaf elements
+        this.points = new double[bucketCapacity + 1][];
+        this.data = new Object[bucketCapacity + 1];
+    }
 
-	/* -------- SIMPLE GETTERS -------- */
+    /* -------- SIMPLE GETTERS -------- */
 
-	/**
-	 * Gets the dimensions.
-	 *
-	 * @return the dimensions
-	 */
-	public abstract int getDimensions();
+    /**
+     * Gets the dimensions.
+     *
+     * @return the dimensions
+     */
+    public abstract int getDimensions();
 
-	/**
-	 * Get the size.
-	 *
-	 * @return the size
-	 */
-	public int size()
-	{
-		return size;
-	}
+    /**
+     * Get the size.
+     *
+     * @return the size
+     */
+    public int size()
+    {
+        return size;
+    }
 
-	/**
-	 * Checks if is leaf.
-	 *
-	 * @return true, if is leaf
-	 */
-	public boolean isLeaf()
-	{
-		return points != null;
-	}
+    /**
+     * Checks if is leaf.
+     *
+     * @return true, if is leaf
+     */
+    public boolean isLeaf()
+    {
+        return points != null;
+    }
 
-	/* -------- OPERATIONS -------- */
+    /* -------- OPERATIONS -------- */
 
-	/**
-	 * Adds the point.
-	 *
-	 * @param point
-	 *            the point
-	 * @param value
-	 *            the value
-	 */
-	public void addPoint(double[] point, T value)
-	{
-		KdNode<T> cursor = this;
-		while (!cursor.isLeaf())
-		{
-			cursor.extendBounds(point);
-			cursor.size++;
-			if (point[cursor.splitDimension] > cursor.splitValue)
-				cursor = cursor.right;
-			else
-				cursor = cursor.left;
-		}
-		cursor.addLeafPoint(point, value);
-	}
+    /**
+     * Adds the point.
+     *
+     * @param point
+     *            the point
+     * @param value
+     *            the value
+     */
+    public void addPoint(double[] point, T value)
+    {
+        KdNode<T> cursor = this;
+        while (!cursor.isLeaf())
+        {
+            cursor.extendBounds(point);
+            cursor.size++;
+            if (point[cursor.splitDimension] > cursor.splitValue)
+                cursor = cursor.right;
+            else
+                cursor = cursor.left;
+        }
+        cursor.addLeafPoint(point, value);
+    }
 
-	/* -------- INTERNAL OPERATIONS -------- */
+    /* -------- INTERNAL OPERATIONS -------- */
 
-	/**
-	 * Adds the leaf point.
-	 *
-	 * @param point
-	 *            the point
-	 * @param value
-	 *            the value
-	 */
-	public void addLeafPoint(double[] point, T value)
-	{
-		// Add the data point
-		points[size] = point;
-		data[size] = value;
-		extendBounds(point);
-		size++;
+    /**
+     * Adds the leaf point.
+     *
+     * @param point
+     *            the point
+     * @param value
+     *            the value
+     */
+    public void addLeafPoint(double[] point, T value)
+    {
+        // Add the data point
+        points[size] = point;
+        data[size] = value;
+        extendBounds(point);
+        size++;
 
-		if (size == points.length - 1)
-			// If the node is getting too large
-			if (calculateSplit())
-				// If the node successfully had it's split value calculated, split node
-				splitLeafNode();
-			else
-				// If the node could not be split, enlarge node
-				increaseLeafCapacity();
-	}
+        if (size == points.length - 1)
+            // If the node is getting too large
+            if (calculateSplit())
+                // If the node successfully had it's split value calculated, split node
+                splitLeafNode();
+            else
+                // If the node could not be split, enlarge node
+                increaseLeafCapacity();
+    }
 
-	@SuppressWarnings("unused")
-	private boolean checkBounds(double[] point)
-	{
-		for (int i = getDimensions(); i-- > 0;)
-		{
-			if (point[i] > maxBound[i])
-				return false;
-			if (point[i] < minBound[i])
-				return false;
-		}
-		return true;
-	}
+    @SuppressWarnings("unused")
+    private boolean checkBounds(double[] point)
+    {
+        for (int i = getDimensions(); i-- > 0;)
+        {
+            if (point[i] > maxBound[i])
+                return false;
+            if (point[i] < minBound[i])
+                return false;
+        }
+        return true;
+    }
 
-	private void extendBounds(double[] point)
-	{
-		if (minBound == null)
-		{
-			minBound = Arrays.copyOf(point, getDimensions());
-			maxBound = Arrays.copyOf(point, getDimensions());
-			return;
-		}
+    private void extendBounds(double[] point)
+    {
+        if (minBound == null)
+        {
+            minBound = Arrays.copyOf(point, getDimensions());
+            maxBound = Arrays.copyOf(point, getDimensions());
+            return;
+        }
 
-		for (int i = getDimensions(); i-- > 0;)
-			if (Double.isNaN(point[i]))
-			{
-				if (!Double.isNaN(minBound[i]) || !Double.isNaN(maxBound[i]))
-					singlePoint = false;
-				minBound[i] = Double.NaN;
-				maxBound[i] = Double.NaN;
-			}
-			else if (minBound[i] > point[i])
-			{
-				minBound[i] = point[i];
-				singlePoint = false;
-			}
-			else if (maxBound[i] < point[i])
-			{
-				maxBound[i] = point[i];
-				singlePoint = false;
-			}
-	}
+        for (int i = getDimensions(); i-- > 0;)
+            if (Double.isNaN(point[i]))
+            {
+                if (!Double.isNaN(minBound[i]) || !Double.isNaN(maxBound[i]))
+                    singlePoint = false;
+                minBound[i] = Double.NaN;
+                maxBound[i] = Double.NaN;
+            }
+            else if (minBound[i] > point[i])
+            {
+                minBound[i] = point[i];
+                singlePoint = false;
+            }
+            else if (maxBound[i] < point[i])
+            {
+                maxBound[i] = point[i];
+                singlePoint = false;
+            }
+    }
 
-	private void increaseLeafCapacity()
-	{
-		points = Arrays.copyOf(points, points.length * 2);
-		data = Arrays.copyOf(data, data.length * 2);
-	}
+    private void increaseLeafCapacity()
+    {
+        points = Arrays.copyOf(points, points.length * 2);
+        data = Arrays.copyOf(data, data.length * 2);
+    }
 
-	private boolean calculateSplit()
-	{
-		if (singlePoint)
-			return false;
+    private boolean calculateSplit()
+    {
+        if (singlePoint)
+            return false;
 
-		double width = 0;
-		for (int i = getDimensions(); i-- > 0;)
-		{
-			double dwidth = (maxBound[i] - minBound[i]);
-			if (Double.isNaN(dwidth))
-				dwidth = 0;
-			if (dwidth > width)
-			{
-				splitDimension = i;
-				width = dwidth;
-			}
-		}
+        double width = 0;
+        for (int i = getDimensions(); i-- > 0;)
+        {
+            double dwidth = (maxBound[i] - minBound[i]);
+            if (Double.isNaN(dwidth))
+                dwidth = 0;
+            if (dwidth > width)
+            {
+                splitDimension = i;
+                width = dwidth;
+            }
+        }
 
-		if (width == 0)
-			return false;
+        if (width == 0)
+            return false;
 
-		// Start the split in the middle of the variance
-		splitValue = (minBound[splitDimension] + maxBound[splitDimension]) * 0.5;
+        // Start the split in the middle of the variance
+        splitValue = (minBound[splitDimension] + maxBound[splitDimension]) * 0.5;
 
-		// Never split on infinity or NaN
-		if (splitValue == Double.POSITIVE_INFINITY)
-			splitValue = Double.MAX_VALUE;
-		else if (splitValue == Double.NEGATIVE_INFINITY)
-			splitValue = -Double.MAX_VALUE;
+        // Never split on infinity or NaN
+        if (splitValue == Double.POSITIVE_INFINITY)
+            splitValue = Double.MAX_VALUE;
+        else if (splitValue == Double.NEGATIVE_INFINITY)
+            splitValue = -Double.MAX_VALUE;
 
-		// Don't let the split value be the same as the upper value as
-		// can happen due to rounding errors!
-		if (splitValue == maxBound[splitDimension])
-			splitValue = minBound[splitDimension];
+        // Don't let the split value be the same as the upper value as
+        // can happen due to rounding errors!
+        if (splitValue == maxBound[splitDimension])
+            splitValue = minBound[splitDimension];
 
-		// Success
-		return true;
-	}
+        // Success
+        return true;
+    }
 
-	@SuppressWarnings("unchecked")
-	private void splitLeafNode()
-	{
-		right = newInstance();
-		left = newInstance();
+    @SuppressWarnings("unchecked")
+    private void splitLeafNode()
+    {
+        right = newInstance();
+        left = newInstance();
 
-		// Move locations into children
-		for (int i = 0; i < size; i++)
-		{
-			final double[] oldLocation = points[i];
-			final Object oldData = data[i];
-			if (oldLocation[splitDimension] > splitValue)
-				right.addLeafPoint(oldLocation, (T) oldData);
-			else
-				left.addLeafPoint(oldLocation, (T) oldData);
-		}
+        // Move locations into children
+        for (int i = 0; i < size; i++)
+        {
+            final double[] oldLocation = points[i];
+            final Object oldData = data[i];
+            if (oldLocation[splitDimension] > splitValue)
+                right.addLeafPoint(oldLocation, (T) oldData);
+            else
+                left.addLeafPoint(oldLocation, (T) oldData);
+        }
 
-		points = null;
-		data = null;
-	}
+        points = null;
+        data = null;
+    }
 
-	/**
-	 * Create a new instance.
-	 *
-	 * @return the kd node
-	 */
-	protected abstract KdNode<T> newInstance();
+    /**
+     * Create a new instance.
+     *
+     * @return the kd node
+     */
+    protected abstract KdNode<T> newInstance();
 }

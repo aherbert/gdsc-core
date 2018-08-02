@@ -38,32 +38,32 @@ import ij.gui.ShapeRoi;
  */
 public class CompositeRoiTest extends RoiTest
 {
-	private final Shape shape;
-	private final int ox, oy;
+    private final Shape shape;
+    private final int ox, oy;
 
-	/**
-	 * Instantiates a new composite roi test.
-	 *
-	 * @param roi
-	 *            the roi
-	 */
-	public CompositeRoiTest(Roi roi)
-	{
-		if (roi.getType() == Roi.COMPOSITE)
-		{
-			// The composite shape is offset by the origin
-			final Rectangle bounds = roi.getBounds();
-			shape = ((ShapeRoi) roi).getShape();
-			ox = bounds.x;
-			oy = bounds.y;
-		}
-		else
-			throw new IllegalArgumentException("Require composite ROI");
-	}
+    /**
+     * Instantiates a new composite roi test.
+     *
+     * @param roi
+     *            the roi
+     */
+    public CompositeRoiTest(Roi roi)
+    {
+        if (roi.getType() == Roi.COMPOSITE)
+        {
+            // The composite shape is offset by the origin
+            final Rectangle bounds = roi.getBounds();
+            shape = ((ShapeRoi) roi).getShape();
+            ox = bounds.x;
+            oy = bounds.y;
+        }
+        else
+            throw new IllegalArgumentException("Require composite ROI");
+    }
 
-	@Override
-	public boolean contains(double x, double y)
-	{
-		return shape.contains(x - ox, y - oy);
-	}
+    @Override
+    public boolean contains(double x, double y)
+    {
+        return shape.contains(x - ox, y - oy);
+    }
 }

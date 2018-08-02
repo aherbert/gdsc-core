@@ -906,1296 +906,1296 @@ public class CustomTricubicInterpolatingFunction
 
 	//@formatter:on
 
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @throws OutOfRangeException
-	 *             if any of the variables is outside its interpolation range.
-	 */
-	@Override
-	public double value(double x, double y, double z) throws OutOfRangeException
-	{
-		final int i = searchIndex(x, xval);
-		final int j = searchIndex(y, yval);
-		final int k = searchIndex(z, zval);
-
-		if (isInteger)
-			return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k]);
-
-		final double xN = (x - xval[i]) / (xscale[i]);
-		final double yN = (y - yval[j]) / (yscale[j]);
-		final double zN = (z - zval[k]) / (zscale[k]);
-
-		return splines[i][j][k].value(xN, yN, zN);
-	}
-
-	/**
-	 * @param c
-	 *            Coordinate.
-	 * @param val
-	 *            Coordinate samples.
-	 * @return the index in {@code val} corresponding to the interval containing {@code c}, or {@code -1}
-	 *         if {@code c} is out of the range defined by the end values of {@code val}.
-	 * @throws OutOfRangeException
-	 *             if any of the variables is outside its interpolation range.
-	 */
-	private int searchIndex(double c, double[] val) throws OutOfRangeException
-	{
-		if (isInteger)
-		{
-			final int high = val.length - 1;
-
-			if (c < val[0] || c > val[high])
-				throw new OutOfRangeException(c, val[0], val[high]);
-
-			return (int) Math.floor(c - val[0]);
-		}
-
-		return searchIndexBinarySearch(c, val);
-
-		//// TODO - remove this after testing the binary search
-		//int i = searchIndexOriginal(c, val);
-		//int j = searchIndexBinarySearch(c, val);
-		//if (i != j)
-		//	throw new RuntimeException();
-		//return j;
-	}
-
-	/**
-	 * @param c
-	 *            Coordinate.
-	 * @param val
-	 *            Coordinate samples.
-	 * @return the index in {@code val} corresponding to the interval containing {@code c}
-	 * @throws OutOfRangeException
-	 *             if any of the variables is outside its interpolation range.
-	 */
-	@SuppressWarnings("unused")
-	private static int searchIndexOriginal(double c, double[] val) throws OutOfRangeException
-	{
-		if (c < val[0])
-			throw new OutOfRangeException(c, val[0], val[val.length - 1]);
-			//return -1;
-
-		final int max = val.length;
-		for (int i = 1; i < max; i++)
-			if (c <= val[i])
-				return i - 1;
-
-		throw new OutOfRangeException(c, val[0], val[val.length - 1]);
-		//return -1;
-	}
-
-	/**
-	 * @param c
-	 *            Coordinate.
-	 * @param val
-	 *            Coordinate samples.
-	 * @return the index in {@code val} corresponding to the interval containing {@code c}, or {@code -1}
-	 *         if {@code c} is out of the range defined by the end values of {@code val}.
-	 * @throws OutOfRangeException
-	 *             if any of the variables is outside its interpolation range.
-	 */
-	private static int searchIndexBinarySearch(double c, double[] val) throws OutOfRangeException
-	{
-		// Use a Binary search.
-		// We want to find the index equal to or before the key.
-		final int high = val.length - 1;
-
-		if (c < val[0] || c > val[high])
-			throw new OutOfRangeException(c, val[0], val[high]);
-
-		int i = binarySearch0(val, 0, val.length, c);
-		if (i < 0)
-			// Not found. Convert to the insertion point.
-			// We have already checked the upper bound and so we know the insertion point is
-			// below 'high'.
-			i = (-i - 1);
-		// Return the index before. This makes index in the range 0 to high-1.
-		return (i > 0) ? i - 1 : i;
-		//return Math.max(0, i - 1);
-	}
-
-	/**
-	 * Binary search. Copied from Arrays.binarySearch0(...).
-	 *
-	 * Searches a range of
-	 * the specified array of doubles for the specified value using
-	 * the binary search algorithm.
-	 * The range must be sorted
-	 * (as by the {@link java.util.Arrays#sort(double[], int, int)} method)
-	 * prior to making this call.
-	 * If it is not sorted, the results are undefined. If the range contains
-	 * multiple elements with the specified value, there is no guarantee which
-	 * one will be found. This method considers all NaN values to be
-	 * equivalent and equal.
-	 *
-	 * @param a
-	 *            the array to be searched
-	 * @param fromIndex
-	 *            the index of the first element (inclusive) to be
-	 *            searched
-	 * @param toIndex
-	 *            the index of the last element (exclusive) to be searched
-	 * @param key
-	 *            the value to be searched for
-	 * @return index of the search key, if it is contained in the array
-	 *         within the specified range;
-	 *         otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>. The
-	 *         <i>insertion point</i> is defined as the point at which the
-	 *         key would be inserted into the array: the index of the first
-	 *         element in the range greater than the key,
-	 *         or <tt>toIndex</tt> if all
-	 *         elements in the range are less than the specified key. Note
-	 *         that this guarantees that the return value will be &gt;= 0 if
-	 *         and only if the key is found.
-	 */
-	private static int binarySearch0(double[] a, int fromIndex, int toIndex, double key)
-	{
-		int low = fromIndex;
-		int high = toIndex - 1;
-
-		while (low <= high)
-		{
-			final int mid = (low + high) >>> 1;
-			final double midVal = a[mid];
-
-			if (midVal < key)
-				low = mid + 1; // Neither val is NaN, thisVal is smaller
-			else if (midVal > key)
-				high = mid - 1; // Neither val is NaN, thisVal is larger
-			else
-				//long midBits = Double.doubleToLongBits(midVal);
-				//long keyBits = Double.doubleToLongBits(key);
-				//if (midBits == keyBits) // Values are equal
-				return mid; // Key found
-				//else if (midBits < keyBits) // (-0.0, 0.0) or (!NaN, NaN)
-				//	low = mid + 1;
-				//else // (0.0, -0.0) or (NaN, !NaN)
-				//	high = mid - 1;
-		}
-		return -(low + 1); // key not found.
-	}
-
-	/**
-	 * Gets the spline position.
-	 *
-	 * @param xval
-	 *            the spline values
-	 * @param xscale
-	 *            the scale (xval[i+1] - xval[i])
-	 * @param x
-	 *            the value
-	 * @return the spline position
-	 * @throws OutOfRangeException
-	 *             if the value is outside its interpolation range.
-	 */
-	private IndexedCubicSplinePosition getSplinePosition(double[] xval, double[] xscale, double x)
-	{
-		final int i = searchIndex(x, xval);
-		if (isInteger)
-			return new IndexedCubicSplinePosition(i, x - xval[i], false);
-		final double xN = (x - xval[i]) / xscale[i];
-		return new ScaledIndexedCubicSplinePosition(i, xN, xscale[i], false);
-	}
-
-	/**
-	 * Gets the x spline position.
-	 *
-	 * @param value
-	 *            the x value
-	 * @return the x spline position
-	 * @throws OutOfRangeException
-	 *             if the value is outside its interpolation range.
-	 */
-	public IndexedCubicSplinePosition getXSplinePosition(double value) throws OutOfRangeException
-	{
-		return getSplinePosition(xval, xscale, value);
-	}
-
-	/**
-	 * Gets the y spline position.
-	 *
-	 * @param value
-	 *            the y value
-	 * @return the y spline position
-	 * @throws OutOfRangeException
-	 *             if the value is outside its interpolation range.
-	 */
-	public IndexedCubicSplinePosition getYSplinePosition(double value)
-	{
-		return getSplinePosition(yval, yscale, value);
-	}
-
-	/**
-	 * Gets the z spline position.
-	 *
-	 * @param value
-	 *            the z value
-	 * @return the z spline position
-	 * @throws OutOfRangeException
-	 *             if the value is outside its interpolation range.
-	 */
-	public IndexedCubicSplinePosition getZSplinePosition(double value)
-	{
-		return getSplinePosition(zval, zscale, value);
-	}
-
-	/**
-	 * Get the interpolated value using pre-computed spline positions.
-	 *
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 * @param z
-	 *            the z
-	 * @return the value
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the spline node does not exist
-	 */
-	public double value(IndexedCubicSplinePosition x, IndexedCubicSplinePosition y, IndexedCubicSplinePosition z)
-			throws ArrayIndexOutOfBoundsException
-	{
-		return splines[x.index][y.index][z.index].value(x, y, z);
-	}
-
-	/**
-	 * Get the interpolated value using pre-computed spline coefficient power table.
-	 *
-	 * @param xindex
-	 *            the x spline position
-	 * @param yindex
-	 *            the y spline position
-	 * @param zindex
-	 *            the z spline position
-	 * @param table
-	 *            the table of 64 precomputed power coefficients
-	 * @return the value
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the spline node does not exist
-	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
-	 */
-	public double value(int xindex, int yindex, int zindex, double[] table)
-	{
-		return splines[xindex][yindex][zindex].value(table);
-	}
-
-	/**
-	 * Get the interpolated value using pre-computed spline coefficient power table.
-	 *
-	 * @param xindex
-	 *            the x spline position
-	 * @param yindex
-	 *            the y spline position
-	 * @param zindex
-	 *            the z spline position
-	 * @param table
-	 *            the table of 64 precomputed power coefficients
-	 * @return the value
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the spline node does not exist
-	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
-	 */
-	public double value(int xindex, int yindex, int zindex, float[] table)
-	{
-		return splines[xindex][yindex][zindex].value(table);
-	}
-
-	/**
-	 * Get the interpolated value and partial first-order derivatives.
-	 *
-	 * @param x
-	 *            the x value
-	 * @param y
-	 *            the y value
-	 * @param z
-	 *            the z value
-	 * @param df_da
-	 *            the partial first order derivatives with respect to x,y,z
-	 * @return the value
-	 * @throws OutOfRangeException
-	 *             if any of the variables is outside its interpolation range.
-	 */
-	public double value(double x, double y, double z, double[] df_da) throws OutOfRangeException
-	{
-		final int i = searchIndex(x, xval);
-		final int j = searchIndex(y, yval);
-		final int k = searchIndex(z, zval);
-
-		if (isInteger)
-			return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k], df_da);
-
-		final double xN = (x - xval[i]) / xscale[i];
-		final double yN = (y - yval[j]) / yscale[j];
-		final double zN = (z - zval[k]) / zscale[k];
-
-		final double value = splines[i][j][k].value(xN, yN, zN, df_da);
-		df_da[0] /= xscale[i];
-		df_da[1] /= yscale[j];
-		df_da[2] /= zscale[k];
-		return value;
-	}
-
-	/**
-	 * Get the interpolated value and partial first-order derivatives using pre-computed spline positions. The positions
-	 * must be computed by this function to ensure correct scaling.
-	 *
-	 * @param x
-	 *            the x value
-	 * @param y
-	 *            the y value
-	 * @param z
-	 *            the z value
-	 * @param df_da
-	 *            the partial first order derivatives with respect to x,y,z
-	 * @return the value
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the spline node does not exist
-	 */
-	public double value(IndexedCubicSplinePosition x, IndexedCubicSplinePosition y, IndexedCubicSplinePosition z,
-			double[] df_da) throws ArrayIndexOutOfBoundsException
-	{
-		return splines[x.index][y.index][z.index].value(x, y, z, df_da);
-	}
-
-	/**
-	 * Get the interpolated value and partial first-order derivatives using pre-computed spline coefficient power table.
-	 *
-	 * @param xindex
-	 *            the x spline position
-	 * @param yindex
-	 *            the y spline position
-	 * @param zindex
-	 *            the z spline position
-	 * @param table
-	 *            the power table
-	 * @param df_da
-	 *            the partial first order derivatives with respect to x,y,z
-	 * @return the value
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the spline node does not exist
-	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
-	 */
-	public double value(int xindex, int yindex, int zindex, double[] table, double[] df_da)
-	{
-		if (isInteger)
-			return splines[xindex][yindex][zindex].value(table, df_da);
-		final double value = splines[xindex][yindex][zindex].value(table, df_da);
-		df_da[0] /= xscale[xindex];
-		df_da[1] /= yscale[yindex];
-		df_da[2] /= zscale[zindex];
-		return value;
-	}
-
-	/**
-	 * Get the interpolated value and partial first-order derivatives using pre-computed spline coefficient power table.
-	 *
-	 * @param xindex
-	 *            the x spline position
-	 * @param yindex
-	 *            the y spline position
-	 * @param zindex
-	 *            the z spline position
-	 * @param table
-	 *            the power table
-	 * @param df_da
-	 *            the partial first order derivatives with respect to x,y,z
-	 * @return the value
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the spline node does not exist
-	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
-	 */
-	public double value(int xindex, int yindex, int zindex, float[] table, double[] df_da)
-	{
-		if (isInteger)
-			return splines[xindex][yindex][zindex].value(table, df_da);
-		final double value = splines[xindex][yindex][zindex].value(table, df_da);
-		df_da[0] /= xscale[xindex];
-		df_da[1] /= yscale[yindex];
-		df_da[2] /= zscale[zindex];
-		return value;
-	}
-
-	/**
-	 * Get the interpolated value and partial first-order derivatives using pre-computed spline coefficient power table.
-	 *
-	 * @param xindex
-	 *            the x spline position
-	 * @param yindex
-	 *            the y spline position
-	 * @param zindex
-	 *            the z spline position
-	 * @param table
-	 *            the power table
-	 * @param table2
-	 *            the power table scaled by 2
-	 * @param table3
-	 *            the power table scaled by 3
-	 * @param df_da
-	 *            the partial first order derivatives with respect to x,y,z
-	 * @return the value
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the spline node does not exist
-	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
-	 */
-	public double value(int xindex, int yindex, int zindex, double[] table, double[] table2, double[] table3,
-			double[] df_da)
-	{
-		if (isInteger)
-			return splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
-		final double value = splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
-		df_da[0] /= xscale[xindex];
-		df_da[1] /= yscale[yindex];
-		df_da[2] /= zscale[zindex];
-		return value;
-	}
-
-	/**
-	 * Get the interpolated value and partial first-order derivatives using pre-computed spline coefficient power table.
-	 *
-	 * @param xindex
-	 *            the x spline position
-	 * @param yindex
-	 *            the y spline position
-	 * @param zindex
-	 *            the z spline position
-	 * @param table
-	 *            the power table
-	 * @param table2
-	 *            the power table scaled by 2
-	 * @param table3
-	 *            the power table scaled by 3
-	 * @param df_da
-	 *            the partial first order derivatives with respect to x,y,z
-	 * @return the value
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the spline node does not exist
-	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
-	 */
-	public double value(int xindex, int yindex, int zindex, float[] table, float[] table2, float[] table3,
-			double[] df_da)
-	{
-		if (isInteger)
-			return splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
-		final double value = splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
-		df_da[0] /= xscale[xindex];
-		df_da[1] /= yscale[yindex];
-		df_da[2] /= zscale[zindex];
-		return value;
-	}
-
-	/**
-	 * Get the interpolated value and partial first-order and second-order derivatives.
-	 *
-	 * @param x
-	 *            the x value
-	 * @param y
-	 *            the y value
-	 * @param z
-	 *            the z value
-	 * @param df_da
-	 *            the partial first order derivatives with respect to x,y,z
-	 * @param d2f_da2
-	 *            the partial second order derivatives with respect to x,y,z
-	 * @return the value
-	 * @throws OutOfRangeException
-	 *             if any of the variables is outside its interpolation range.
-	 */
-	public double value(double x, double y, double z, double[] df_da, double[] d2f_da2) throws OutOfRangeException
-	{
-		final int i = searchIndex(x, xval);
-		final int j = searchIndex(y, yval);
-		final int k = searchIndex(z, zval);
-
-		if (isInteger)
-			return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k], df_da, d2f_da2);
-
-		final double xN = (x - xval[i]) / xscale[i];
-		final double yN = (y - yval[j]) / yscale[j];
-		final double zN = (z - zval[k]) / zscale[k];
-
-		final double value = splines[i][j][k].value(xN, yN, zN, df_da, d2f_da2);
-		df_da[0] /= xscale[i];
-		df_da[1] /= yscale[j];
-		df_da[2] /= zscale[k];
-		d2f_da2[0] /= xscale[i] * xscale[i];
-		d2f_da2[1] /= yscale[j] * yscale[j];
-		d2f_da2[2] /= zscale[k] * zscale[k];
-		return value;
-	}
-
-	/**
-	 * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
-	 * positions.
-	 *
-	 * @param x
-	 *            the x value
-	 * @param y
-	 *            the y value
-	 * @param z
-	 *            the z value
-	 * @param df_da
-	 *            the partial first order derivatives with respect to x,y,z
-	 * @param d2f_da2
-	 *            the partial second order derivatives with respect to x,y,z
-	 * @return the value
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the spline node does not exist
-	 */
-	public double value(IndexedCubicSplinePosition x, IndexedCubicSplinePosition y, IndexedCubicSplinePosition z,
-			double[] df_da, double[] d2f_da2) throws ArrayIndexOutOfBoundsException
-	{
-		return splines[x.index][y.index][z.index].value(x, y, z, df_da, d2f_da2);
-	}
-
-	/**
-	 * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
-	 * coefficient power table.
-	 *
-	 * @param xindex
-	 *            the x spline position
-	 * @param yindex
-	 *            the y spline position
-	 * @param zindex
-	 *            the z spline position
-	 * @param table
-	 *            the power table
-	 * @param df_da
-	 *            the partial first order derivatives with respect to x,y,z
-	 * @param d2f_da2
-	 *            the partial second order derivatives with respect to x,y,z
-	 * @return the value
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the spline node does not exist
-	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
-	 */
-	public double value(int xindex, int yindex, int zindex, double[] table, double[] df_da, double[] d2f_da2)
-	{
-		if (isInteger)
-			return splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
-		final double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
-		df_da[0] /= xscale[xindex];
-		df_da[1] /= yscale[yindex];
-		df_da[2] /= zscale[zindex];
-		d2f_da2[0] /= xscale[xindex] * xscale[xindex];
-		d2f_da2[1] /= yscale[yindex] * yscale[yindex];
-		d2f_da2[2] /= zscale[zindex] * zscale[zindex];
-		return value;
-	}
-
-	/**
-	 * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
-	 * coefficient power table.
-	 *
-	 * @param xindex
-	 *            the x spline position
-	 * @param yindex
-	 *            the y spline position
-	 * @param zindex
-	 *            the z spline position
-	 * @param table
-	 *            the power table
-	 * @param df_da
-	 *            the partial first order derivatives with respect to x,y,z
-	 * @param d2f_da2
-	 *            the partial second order derivatives with respect to x,y,z
-	 * @return the value
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the spline node does not exist
-	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
-	 */
-	public double value(int xindex, int yindex, int zindex, float[] table, double[] df_da, double[] d2f_da2)
-	{
-		if (isInteger)
-			return splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
-		final double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
-		df_da[0] /= xscale[xindex];
-		df_da[1] /= yscale[yindex];
-		df_da[2] /= zscale[zindex];
-		d2f_da2[0] /= xscale[xindex] * xscale[xindex];
-		d2f_da2[1] /= yscale[yindex] * yscale[yindex];
-		d2f_da2[2] /= zscale[zindex] * zscale[zindex];
-		return value;
-	}
-
-	/**
-	 * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
-	 * coefficient power table.
-	 *
-	 * @param xindex
-	 *            the x spline position
-	 * @param yindex
-	 *            the y spline position
-	 * @param zindex
-	 *            the z spline position
-	 * @param table
-	 *            the power table
-	 * @param table2
-	 *            the power table scaled by 2
-	 * @param table3
-	 *            the power table scaled by 3
-	 * @param table6
-	 *            the power table scaled by 6
-	 * @param df_da
-	 *            the partial first order derivatives with respect to x,y,z
-	 * @param d2f_da2
-	 *            the partial second order derivatives with respect to x,y,z
-	 * @return the value
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the spline node does not exist
-	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
-	 */
-	public double value(int xindex, int yindex, int zindex, double[] table, double[] table2, double[] table3,
-			double[] table6, double[] df_da, double[] d2f_da2)
-	{
-		if (isInteger)
-			return splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
-		final double value = splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
-		df_da[0] /= xscale[xindex];
-		df_da[1] /= yscale[yindex];
-		df_da[2] /= zscale[zindex];
-		d2f_da2[0] /= xscale[xindex] * xscale[xindex];
-		d2f_da2[1] /= yscale[yindex] * yscale[yindex];
-		d2f_da2[2] /= zscale[zindex] * zscale[zindex];
-		return value;
-	}
-
-	/**
-	 * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
-	 * coefficient power table.
-	 *
-	 * @param xindex
-	 *            the x spline position
-	 * @param yindex
-	 *            the y spline position
-	 * @param zindex
-	 *            the z spline position
-	 * @param table
-	 *            the power table
-	 * @param table2
-	 *            the power table scaled by 2
-	 * @param table3
-	 *            the power table scaled by 3
-	 * @param table6
-	 *            the power table scaled by 6
-	 * @param df_da
-	 *            the partial first order derivatives with respect to x,y,z
-	 * @param d2f_da2
-	 *            the partial second order derivatives with respect to x,y,z
-	 * @return the value
-	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the spline node does not exist
-	 * @see CustomTricubicFunction#computePowerTable(double, double, double)
-	 */
-	public double value(int xindex, int yindex, int zindex, float[] table, float[] table2, float[] table3,
-			float[] table6, double[] df_da, double[] d2f_da2)
-	{
-		if (isInteger)
-			return splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
-		final double value = splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
-		df_da[0] /= xscale[xindex];
-		df_da[1] /= yscale[yindex];
-		df_da[2] /= zscale[zindex];
-		d2f_da2[0] /= xscale[xindex] * xscale[xindex];
-		d2f_da2[1] /= yscale[yindex] * yscale[yindex];
-		d2f_da2[2] /= zscale[zindex] * zscale[zindex];
-		return value;
-	}
-
-	/**
-	 * Gets the scale to convert the cube interval 0-1 back to correctly scaled values.
-	 * <p>
-	 * This is only valid if the function is uniform on each input axis (see {@link #isUniform()}).
-	 *
-	 * @return the scale
-	 * @throws IllegalStateException
-	 *             the illegal state exception
-	 */
-	public double[] getScale() throws IllegalStateException
-	{
-		if (isUniform)
-		{
-			if (scale == null)
-			{
-				// We know that the values scale is uniform. Compute the scale using the
-				// range of values
-				scale = new double[3];
-				scale[0] = getScale(xval);
-				scale[1] = getScale(yval);
-				scale[2] = getScale(zval);
-			}
-			return scale.clone();
-		}
-		throw new IllegalStateException("The function is not uniform");
-	}
-
-	private static double getScale(double[] xval)
-	{
-		final int n = xval.length - 1;
-		return (xval[n] - xval[0]) / n;
-	}
-
-	private static double getMax(double[] xval)
-	{
-		return xval[xval.length - 1];
-	}
-
-	private static int getMaxSplinePosition(double[] xval)
-	{
-		return xval.length - 2;
-	}
-
-	/**
-	 * Gets the max X value for interpolation.
-	 *
-	 * @return the max X value
-	 */
-	public double getMaxX()
-	{
-		return getMax(xval);
-	}
-
-	/**
-	 * Gets the max X spline position for interpolation.
-	 *
-	 * @return the max X spline position
-	 */
-	public int getMaxXSplinePosition()
-	{
-		return getMaxSplinePosition(xval);
-	}
-
-	/**
-	 * Gets the min X value for interpolation.
-	 *
-	 * @return the min X value
-	 */
-	public double getMinX()
-	{
-		return xval[0];
-	}
-
-	/**
-	 * Gets the x spline value for the spline position. Equivalent to the x-value used when constructing the spline
-	 *
-	 * @param position
-	 *            the position
-	 * @return the x spline value
-	 */
-	public double getXSplineValue(int position)
-	{
-		return xval[position];
-	}
-
-	/**
-	 * Gets the max Y value for interpolation.
-	 *
-	 * @return the max Y value
-	 */
-	public double getMaxY()
-	{
-		return getMax(yval);
-	}
-
-	/**
-	 * Gets the max Y spline position for interpolation.
-	 *
-	 * @return the max Y spline position
-	 */
-	public int getMaxYSplinePosition()
-	{
-		return getMaxSplinePosition(yval);
-	}
-
-	/**
-	 * Gets the min Y value for interpolation.
-	 *
-	 * @return the min Y value
-	 */
-	public double getMinY()
-	{
-		return yval[0];
-	}
-
-	/**
-	 * Gets the y spline value for the spline position. Equivalent to the y-value used when constructing the spline
-	 *
-	 * @param position
-	 *            the position
-	 * @return the x spline value
-	 */
-	public double getYSplineValue(int position)
-	{
-		return yval[position];
-	}
-
-	/**
-	 * Gets the max Z value for interpolation.
-	 *
-	 * @return the max Z value
-	 */
-	public double getMaxZ()
-	{
-		return getMax(zval);
-	}
-
-	/**
-	 * Gets the max Z spline position for interpolation.
-	 *
-	 * @return the max Z spline position
-	 */
-	public int getMaxZSplinePosition()
-	{
-		return getMaxSplinePosition(zval);
-	}
-
-	/**
-	 * Gets the min Z value for interpolation.
-	 *
-	 * @return the min Z value
-	 */
-	public double getMinZ()
-	{
-		return zval[0];
-	}
-
-	/**
-	 * Gets the z spline value for the spline position. Equivalent to the z-value used when constructing the spline
-	 *
-	 * @param position
-	 *            the position
-	 * @return the z spline value
-	 */
-	public double getZSplineValue(int position)
-	{
-		return zval[position];
-	}
-
-	/**
-	 * Indicates whether a point is within the interpolation range.
-	 *
-	 * @param x
-	 *            First coordinate.
-	 * @param y
-	 *            Second coordinate.
-	 * @param z
-	 *            Third coordinate.
-	 * @return {@code true} if (x, y, z) is a valid point.
-	 */
-	public boolean isValidPoint(double x, double y, double z)
-	{
-		if (x < xval[0] || x > xval[xval.length - 1] || y < yval[0] || y > yval[yval.length - 1] || z < zval[0] ||
-				z > zval[zval.length - 1])
-			return false;
-		return true;
-	}
-
-	/**
-	 * Gets the spline node. This is package scope and used for testing.
-	 *
-	 * @param i
-	 *            the i
-	 * @param j
-	 *            the j
-	 * @param k
-	 *            the k
-	 * @return the spline node
-	 */
-	CustomTricubicFunction getSplineNodeReference(int i, int j, int k)
-	{
-		return splines[i][j][k];
-	}
-
-	/**
-	 * Gets a copy of the spline node.
-	 *
-	 * @param i
-	 *            the i
-	 * @param j
-	 *            the j
-	 * @param k
-	 *            the k
-	 * @return the spline node
-	 */
-	public CustomTricubicFunction getSplineNode(int i, int j, int k)
-	{
-		return splines[i][j][k].copy();
-	}
-
-	/**
-	 * Checks if is single precision.
-	 *
-	 * @return true, if is single precision
-	 */
-	public boolean isSinglePrecision()
-	{
-		return splines[0][0][0].isSinglePrecision();
-	}
-
-	/**
-	 * Convert to single precision.
-	 */
-	public void toSinglePrecision()
-	{
-		if (isSinglePrecision())
-			return;
-		final int maxj = getMaxYSplinePosition() + 1;
-		final int maxk = getMaxZSplinePosition() + 1;
-		for (int i = getMaxXSplinePosition() + 1; i-- > 0;)
-			for (int j = maxj; j-- > 0;)
-				for (int k = maxk; k-- > 0;)
-					splines[i][j][k] = splines[i][j][k].toSinglePrecision();
-	}
-
-	/**
-	 * Convert to double precision.
-	 */
-	public void toDoublePrecision()
-	{
-		if (!isSinglePrecision())
-			return;
-		final int maxj = getMaxYSplinePosition() + 1;
-		final int maxk = getMaxZSplinePosition() + 1;
-		for (int i = getMaxXSplinePosition() + 1; i-- > 0;)
-			for (int j = maxj; j-- > 0;)
-				for (int k = maxk; k-- > 0;)
-					splines[i][j][k] = splines[i][j][k].toDoublePrecision();
-	}
-
-	/**
-	 * Sample the function.
-	 * <p>
-	 * n samples will be taken per node in each dimension. A final sample is taken at the end of the sample range thus
-	 * the final range for each axis will be the current axis range.
-	 * <p>
-	 * The procedure setValue(int,int,int,double) method will be executed in ZYX order.
-	 *
-	 * @param n
-	 *            the number of samples per spline node
-	 * @param procedure
-	 *            the procedure
-	 * @throws IllegalArgumentException
-	 *             If the number of sample is not positive
-	 */
-	public void sample(int n, TrivalueProcedure procedure) throws IllegalArgumentException
-	{
-		sample(n, procedure, null);
-	}
-
-	/**
-	 * Sample the function.
-	 * <p>
-	 * n samples will be taken per node in each dimension. A final sample is taken at the end of the sample range thus
-	 * the final range for each axis will be the current axis range.
-	 * <p>
-	 * The procedure setValue(int,int,int,double) method will be executed in ZYX order.
-	 *
-	 * @param n
-	 *            the number of samples per spline node
-	 * @param procedure
-	 *            the procedure
-	 * @param progress
-	 *            the progress
-	 * @throws IllegalArgumentException
-	 *             If the number of sample is not positive
-	 */
-	public void sample(int n, TrivalueProcedure procedure, TrackProgress progress) throws IllegalArgumentException
-	{
-		sample(n, n, n, procedure, progress);
-	}
-
-	/**
-	 * Sample the function.
-	 * <p>
-	 * n samples will be taken per node in each dimension. A final sample is taken at the end of the sample range thus
-	 * the final range for each axis will be the current axis range.
-	 * <p>
-	 * The procedure setValue(int,int,int,double) method will be executed in ZYX order.
-	 *
-	 * @param nx
-	 *            the number of samples per spline node in the x dimension
-	 * @param ny
-	 *            the number of samples per spline node in the y dimension
-	 * @param nz
-	 *            the number of samples per spline node in the z dimension
-	 * @param procedure
-	 *            the procedure
-	 * @param progress
-	 *            the progress
-	 * @throws IllegalArgumentException
-	 *             If the number of sample is not positive
-	 */
-	public void sample(int nx, int ny, int nz, TrivalueProcedure procedure, TrackProgress progress)
-			throws IllegalArgumentException
-	{
-		if (nx < 1 || ny < 1 || nz < 1)
-			throw new IllegalArgumentException("Samples must be positive");
-
-		// We can interpolate all nodes n-times plus a final point at the last node
-		final int maxx = (getMaxXSplinePosition() + 1) * nx;
-		final int maxy = (getMaxYSplinePosition() + 1) * ny;
-		final int maxz = (getMaxZSplinePosition() + 1) * nz;
-		if (!procedure.setDimensions(maxx + 1, maxy + 1, maxz + 1))
-			return;
-
-		final Ticker ticker = Ticker.create(progress, (long) (maxx + 1) * (maxy + 1) * (maxz + 1), false);
-		ticker.start();
-
-		// Pre-compute interpolation tables
-		final CubicSplinePosition[] sx = createCubicSplinePosition(nx);
-		final CubicSplinePosition[] sy = createCubicSplinePosition(ny);
-		final CubicSplinePosition[] sz = createCubicSplinePosition(nz);
-		final int nx1 = nx + 1;
-		final int ny1 = ny + 1;
-		final int nz1 = nz + 1;
-
-		final double[][] tables = new double[nx1 * ny1 * nz1][];
-		for (int z = 0, i = 0; z < nz1; z++)
-		{
-			final CubicSplinePosition szz = sz[z];
-			for (int y = 0; y < ny1; y++)
-			{
-				final CubicSplinePosition syy = sy[y];
-				for (int x = 0; x < nx1; x++, i++)
-					tables[i] = CustomTricubicFunction.computePowerTable(sx[x], syy, szz);
-			}
-		}
-
-		// Write axis values
-		// Cache the table and the spline position to use for each interpolation point
-		final int[] xt = new int[maxx + 1];
-		final int[] xp = new int[maxx + 1];
-		for (int x = 0; x <= maxx; x++)
-		{
-			int xposition = x / nx;
-			int xtable = x % nx;
-			if (x == maxx)
-			{
-				// Final interpolation point
-				xposition--;
-				xtable = nx;
-			}
-			xt[x] = xtable;
-			xp[x] = xposition;
-			procedure.setX(x, xval[xposition] + xtable * xscale[xposition] / nx);
-		}
-		final int[] yt = new int[maxy + 1];
-		final int[] yp = new int[maxy + 1];
-		for (int y = 0; y <= maxy; y++)
-		{
-			int yposition = y / ny;
-			int ytable = y % ny;
-			if (y == maxy)
-			{
-				// Final interpolation point
-				yposition--;
-				ytable = ny;
-			}
-			yt[y] = ytable;
-			yp[y] = yposition;
-			procedure.setY(y, yval[yposition] + ytable * yscale[yposition] / ny);
-		}
-		final int[] zt = new int[maxz + 1];
-		final int[] zp = new int[maxz + 1];
-		for (int z = 0; z <= maxz; z++)
-		{
-			int zposition = z / nz;
-			int ztable = z % nz;
-			if (z == maxz)
-			{
-				// Final interpolation point
-				zposition--;
-				ztable = nz;
-			}
-			zt[z] = ztable;
-			zp[z] = zposition;
-			procedure.setZ(z, zval[zposition] + ztable * zscale[zposition] / nz);
-		}
-
-		// Write interpolated values
-		for (int z = 0; z <= maxz; z++)
-		{
-			final int zposition = zp[z];
-			for (int y = 0; y <= maxy; y++)
-			{
-				final int yposition = yp[y];
-				final int j = nx1 * (yt[y] + ny1 * zt[z]);
-				for (int x = 0; x <= maxx; x++)
-				{
-					procedure.setValue(x, y, z, value(xp[x], yposition, zposition, tables[j + xt[x]]));
-					ticker.tick();
-				}
-			}
-		}
-
-		ticker.stop();
-	}
-
-	private static CubicSplinePosition[] createCubicSplinePosition(int n)
-	{
-		// Use an extra one to have the final x=1 interpolation point.
-		final double step = 1.0 / n;
-		final CubicSplinePosition[] s = new CubicSplinePosition[n + 1];
-		for (int x = 0; x < n; x++)
-			s[x] = new CubicSplinePosition(x * step);
-		// Final interpolation point must be exactly 1
-		s[n] = new CubicSplinePosition(1);
-		return s;
-	}
-
-	/**
-	 * Class to hold information about the size of an interpolating function
-	 */
-	public static class Size
-	{
-		private final int[] dimensions;
-
-		/**
-		 * Instantiates a new size.
-		 *
-		 * @param maxx
-		 *            the maxx
-		 * @param maxy
-		 *            the maxy
-		 * @param maxz
-		 *            the maxz
-		 */
-		Size(int maxx, int maxy, int maxz)
-		{
-			if (maxx < 2 || maxy < 2 || maxz < 2)
-				throw new IllegalArgumentException("Interpolating function requires minimum length 2 on each axis");
-			this.dimensions = new int[] { maxx, maxy, maxz };
-		}
-
-		/**
-		 * Gets the function points in a given dimension.
-		 *
-		 * @param dimension
-		 *            the dimension
-		 * @return the function points
-		 */
-		public int getFunctionPoints(int dimension)
-		{
-			return dimensions[dimension];
-		}
-
-		/**
-		 * Gets the spline points in a given dimension.
-		 *
-		 * @param dimension
-		 *            the dimension
-		 * @return the spline points
-		 */
-		public int getSplinePoints(int dimension)
-		{
-			return dimensions[dimension] - 1;
-		}
-
-		/**
-		 * Gets the total function points.
-		 *
-		 * @return the total function points
-		 */
-		public long getTotalFunctionPoints()
-		{
-			return (long) dimensions[0] * dimensions[1] * dimensions[2];
-		}
-
-		/**
-		 * Gets the total spline points.
-		 *
-		 * @return the total spline points
-		 */
-		public long getTotalSplinePoints()
-		{
-			return (long) (dimensions[0] - 1) * (dimensions[1] - 1) * (dimensions[2] - 1);
-		}
-
-		/**
-		 * Gets the memory footprint.
-		 *
-		 * @param singlePrecision
-		 *            the single precision flag
-		 * @return the memory footprint
-		 */
-		public long getMemoryFootprint(boolean singlePrecision)
-		{
-			// Each table is 64 long
-			long total = getTotalSplinePoints() * 64;
-			// TODO - what is the pointer size for each of the spline points?
-
-			// Convert spline point tables to their correct size
-			total *= ((singlePrecision) ? 4 : 8);
-			// Add the size of each axis and scale in double precision
-			for (int i = 0; i < 3; i++)
-				total += 8 * (dimensions[i] + dimensions[i] - 1);
-			return total;
-		}
-
-		/**
-		 * Enlarge by an integer factor.
-		 *
-		 * @param n
-		 *            the factor
-		 * @return the size
-		 */
-		public Size enlarge(int n)
-		{
-			final int maxx = 1 + getSplinePoints(0) * n;
-			final int maxy = 1 + getSplinePoints(1) * n;
-			final int maxz = 1 + getSplinePoints(2) * n;
-			return new Size(maxx, maxy, maxz);
-		}
-	}
-
-	/**
-	 * Estimate the size of an interpolating function.
-	 *
-	 * @param maxx
-	 *            the maxx
-	 * @param maxy
-	 *            the maxy
-	 * @param maxz
-	 *            the maxz
-	 * @return the size
-	 */
-	public static Size estimateSize(int maxx, int maxy, int maxz)
-	{
-		return new Size(maxx, maxy, maxz);
-	}
-
-	/**
-	 * Estimate the size of an interpolating function.
-	 *
-	 * @param dimensions
-	 *            the dimensions
-	 * @return the size
-	 */
-	public static Size estimateSize(int[] dimensions)
-	{
-		if (dimensions == null || dimensions.length != 3)
-			throw new IllegalArgumentException("Dimension must be length 3");
-		return new Size(dimensions[0], dimensions[1], dimensions[2]);
-	}
-
-	/**
-	 * Gets the coefficients for the given spline node.
-	 *
-	 * @param xindex
-	 *            the x spline position
-	 * @param yindex
-	 *            the y spline position
-	 * @param zindex
-	 *            the z spline position
-	 * @return the coefficients
-	 */
-	public double[] getCoefficients(int xindex, int yindex, int zindex)
-	{
-		return splines[xindex][yindex][zindex].getA().clone();
-	}
-
-	//@formatter:off
+    /**
+     * {@inheritDoc}
+     *
+     * @throws OutOfRangeException
+     *             if any of the variables is outside its interpolation range.
+     */
+    @Override
+    public double value(double x, double y, double z) throws OutOfRangeException
+    {
+        final int i = searchIndex(x, xval);
+        final int j = searchIndex(y, yval);
+        final int k = searchIndex(z, zval);
+
+        if (isInteger)
+            return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k]);
+
+        final double xN = (x - xval[i]) / (xscale[i]);
+        final double yN = (y - yval[j]) / (yscale[j]);
+        final double zN = (z - zval[k]) / (zscale[k]);
+
+        return splines[i][j][k].value(xN, yN, zN);
+    }
+
+    /**
+     * @param c
+     *            Coordinate.
+     * @param val
+     *            Coordinate samples.
+     * @return the index in {@code val} corresponding to the interval containing {@code c}, or {@code -1}
+     *         if {@code c} is out of the range defined by the end values of {@code val}.
+     * @throws OutOfRangeException
+     *             if any of the variables is outside its interpolation range.
+     */
+    private int searchIndex(double c, double[] val) throws OutOfRangeException
+    {
+        if (isInteger)
+        {
+            final int high = val.length - 1;
+
+            if (c < val[0] || c > val[high])
+                throw new OutOfRangeException(c, val[0], val[high]);
+
+            return (int) Math.floor(c - val[0]);
+        }
+
+        return searchIndexBinarySearch(c, val);
+
+        //// TODO - remove this after testing the binary search
+        //int i = searchIndexOriginal(c, val);
+        //int j = searchIndexBinarySearch(c, val);
+        //if (i != j)
+        //	throw new RuntimeException();
+        //return j;
+    }
+
+    /**
+     * @param c
+     *            Coordinate.
+     * @param val
+     *            Coordinate samples.
+     * @return the index in {@code val} corresponding to the interval containing {@code c}
+     * @throws OutOfRangeException
+     *             if any of the variables is outside its interpolation range.
+     */
+    @SuppressWarnings("unused")
+    private static int searchIndexOriginal(double c, double[] val) throws OutOfRangeException
+    {
+        if (c < val[0])
+            throw new OutOfRangeException(c, val[0], val[val.length - 1]);
+        //return -1;
+
+        final int max = val.length;
+        for (int i = 1; i < max; i++)
+            if (c <= val[i])
+                return i - 1;
+
+        throw new OutOfRangeException(c, val[0], val[val.length - 1]);
+        //return -1;
+    }
+
+    /**
+     * @param c
+     *            Coordinate.
+     * @param val
+     *            Coordinate samples.
+     * @return the index in {@code val} corresponding to the interval containing {@code c}, or {@code -1}
+     *         if {@code c} is out of the range defined by the end values of {@code val}.
+     * @throws OutOfRangeException
+     *             if any of the variables is outside its interpolation range.
+     */
+    private static int searchIndexBinarySearch(double c, double[] val) throws OutOfRangeException
+    {
+        // Use a Binary search.
+        // We want to find the index equal to or before the key.
+        final int high = val.length - 1;
+
+        if (c < val[0] || c > val[high])
+            throw new OutOfRangeException(c, val[0], val[high]);
+
+        int i = binarySearch0(val, 0, val.length, c);
+        if (i < 0)
+            // Not found. Convert to the insertion point.
+            // We have already checked the upper bound and so we know the insertion point is
+            // below 'high'.
+            i = (-i - 1);
+        // Return the index before. This makes index in the range 0 to high-1.
+        return (i > 0) ? i - 1 : i;
+        //return Math.max(0, i - 1);
+    }
+
+    /**
+     * Binary search. Copied from Arrays.binarySearch0(...).
+     *
+     * Searches a range of
+     * the specified array of doubles for the specified value using
+     * the binary search algorithm.
+     * The range must be sorted
+     * (as by the {@link java.util.Arrays#sort(double[], int, int)} method)
+     * prior to making this call.
+     * If it is not sorted, the results are undefined. If the range contains
+     * multiple elements with the specified value, there is no guarantee which
+     * one will be found. This method considers all NaN values to be
+     * equivalent and equal.
+     *
+     * @param a
+     *            the array to be searched
+     * @param fromIndex
+     *            the index of the first element (inclusive) to be
+     *            searched
+     * @param toIndex
+     *            the index of the last element (exclusive) to be searched
+     * @param key
+     *            the value to be searched for
+     * @return index of the search key, if it is contained in the array
+     *         within the specified range;
+     *         otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>. The
+     *         <i>insertion point</i> is defined as the point at which the
+     *         key would be inserted into the array: the index of the first
+     *         element in the range greater than the key,
+     *         or <tt>toIndex</tt> if all
+     *         elements in the range are less than the specified key. Note
+     *         that this guarantees that the return value will be &gt;= 0 if
+     *         and only if the key is found.
+     */
+    private static int binarySearch0(double[] a, int fromIndex, int toIndex, double key)
+    {
+        int low = fromIndex;
+        int high = toIndex - 1;
+
+        while (low <= high)
+        {
+            final int mid = (low + high) >>> 1;
+            final double midVal = a[mid];
+
+            if (midVal < key)
+                low = mid + 1; // Neither val is NaN, thisVal is smaller
+            else if (midVal > key)
+                high = mid - 1; // Neither val is NaN, thisVal is larger
+            else
+                //long midBits = Double.doubleToLongBits(midVal);
+                //long keyBits = Double.doubleToLongBits(key);
+                //if (midBits == keyBits) // Values are equal
+                return mid; // Key found
+            //else if (midBits < keyBits) // (-0.0, 0.0) or (!NaN, NaN)
+            //	low = mid + 1;
+            //else // (0.0, -0.0) or (NaN, !NaN)
+            //	high = mid - 1;
+        }
+        return -(low + 1); // key not found.
+    }
+
+    /**
+     * Gets the spline position.
+     *
+     * @param xval
+     *            the spline values
+     * @param xscale
+     *            the scale (xval[i+1] - xval[i])
+     * @param x
+     *            the value
+     * @return the spline position
+     * @throws OutOfRangeException
+     *             if the value is outside its interpolation range.
+     */
+    private IndexedCubicSplinePosition getSplinePosition(double[] xval, double[] xscale, double x)
+    {
+        final int i = searchIndex(x, xval);
+        if (isInteger)
+            return new IndexedCubicSplinePosition(i, x - xval[i], false);
+        final double xN = (x - xval[i]) / xscale[i];
+        return new ScaledIndexedCubicSplinePosition(i, xN, xscale[i], false);
+    }
+
+    /**
+     * Gets the x spline position.
+     *
+     * @param value
+     *            the x value
+     * @return the x spline position
+     * @throws OutOfRangeException
+     *             if the value is outside its interpolation range.
+     */
+    public IndexedCubicSplinePosition getXSplinePosition(double value) throws OutOfRangeException
+    {
+        return getSplinePosition(xval, xscale, value);
+    }
+
+    /**
+     * Gets the y spline position.
+     *
+     * @param value
+     *            the y value
+     * @return the y spline position
+     * @throws OutOfRangeException
+     *             if the value is outside its interpolation range.
+     */
+    public IndexedCubicSplinePosition getYSplinePosition(double value)
+    {
+        return getSplinePosition(yval, yscale, value);
+    }
+
+    /**
+     * Gets the z spline position.
+     *
+     * @param value
+     *            the z value
+     * @return the z spline position
+     * @throws OutOfRangeException
+     *             if the value is outside its interpolation range.
+     */
+    public IndexedCubicSplinePosition getZSplinePosition(double value)
+    {
+        return getSplinePosition(zval, zscale, value);
+    }
+
+    /**
+     * Get the interpolated value using pre-computed spline positions.
+     *
+     * @param x
+     *            the x
+     * @param y
+     *            the y
+     * @param z
+     *            the z
+     * @return the value
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the spline node does not exist
+     */
+    public double value(IndexedCubicSplinePosition x, IndexedCubicSplinePosition y, IndexedCubicSplinePosition z)
+            throws ArrayIndexOutOfBoundsException
+    {
+        return splines[x.index][y.index][z.index].value(x, y, z);
+    }
+
+    /**
+     * Get the interpolated value using pre-computed spline coefficient power table.
+     *
+     * @param xindex
+     *            the x spline position
+     * @param yindex
+     *            the y spline position
+     * @param zindex
+     *            the z spline position
+     * @param table
+     *            the table of 64 precomputed power coefficients
+     * @return the value
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the spline node does not exist
+     * @see CustomTricubicFunction#computePowerTable(double, double, double)
+     */
+    public double value(int xindex, int yindex, int zindex, double[] table)
+    {
+        return splines[xindex][yindex][zindex].value(table);
+    }
+
+    /**
+     * Get the interpolated value using pre-computed spline coefficient power table.
+     *
+     * @param xindex
+     *            the x spline position
+     * @param yindex
+     *            the y spline position
+     * @param zindex
+     *            the z spline position
+     * @param table
+     *            the table of 64 precomputed power coefficients
+     * @return the value
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the spline node does not exist
+     * @see CustomTricubicFunction#computePowerTable(double, double, double)
+     */
+    public double value(int xindex, int yindex, int zindex, float[] table)
+    {
+        return splines[xindex][yindex][zindex].value(table);
+    }
+
+    /**
+     * Get the interpolated value and partial first-order derivatives.
+     *
+     * @param x
+     *            the x value
+     * @param y
+     *            the y value
+     * @param z
+     *            the z value
+     * @param df_da
+     *            the partial first order derivatives with respect to x,y,z
+     * @return the value
+     * @throws OutOfRangeException
+     *             if any of the variables is outside its interpolation range.
+     */
+    public double value(double x, double y, double z, double[] df_da) throws OutOfRangeException
+    {
+        final int i = searchIndex(x, xval);
+        final int j = searchIndex(y, yval);
+        final int k = searchIndex(z, zval);
+
+        if (isInteger)
+            return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k], df_da);
+
+        final double xN = (x - xval[i]) / xscale[i];
+        final double yN = (y - yval[j]) / yscale[j];
+        final double zN = (z - zval[k]) / zscale[k];
+
+        final double value = splines[i][j][k].value(xN, yN, zN, df_da);
+        df_da[0] /= xscale[i];
+        df_da[1] /= yscale[j];
+        df_da[2] /= zscale[k];
+        return value;
+    }
+
+    /**
+     * Get the interpolated value and partial first-order derivatives using pre-computed spline positions. The positions
+     * must be computed by this function to ensure correct scaling.
+     *
+     * @param x
+     *            the x value
+     * @param y
+     *            the y value
+     * @param z
+     *            the z value
+     * @param df_da
+     *            the partial first order derivatives with respect to x,y,z
+     * @return the value
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the spline node does not exist
+     */
+    public double value(IndexedCubicSplinePosition x, IndexedCubicSplinePosition y, IndexedCubicSplinePosition z,
+            double[] df_da) throws ArrayIndexOutOfBoundsException
+    {
+        return splines[x.index][y.index][z.index].value(x, y, z, df_da);
+    }
+
+    /**
+     * Get the interpolated value and partial first-order derivatives using pre-computed spline coefficient power table.
+     *
+     * @param xindex
+     *            the x spline position
+     * @param yindex
+     *            the y spline position
+     * @param zindex
+     *            the z spline position
+     * @param table
+     *            the power table
+     * @param df_da
+     *            the partial first order derivatives with respect to x,y,z
+     * @return the value
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the spline node does not exist
+     * @see CustomTricubicFunction#computePowerTable(double, double, double)
+     */
+    public double value(int xindex, int yindex, int zindex, double[] table, double[] df_da)
+    {
+        if (isInteger)
+            return splines[xindex][yindex][zindex].value(table, df_da);
+        final double value = splines[xindex][yindex][zindex].value(table, df_da);
+        df_da[0] /= xscale[xindex];
+        df_da[1] /= yscale[yindex];
+        df_da[2] /= zscale[zindex];
+        return value;
+    }
+
+    /**
+     * Get the interpolated value and partial first-order derivatives using pre-computed spline coefficient power table.
+     *
+     * @param xindex
+     *            the x spline position
+     * @param yindex
+     *            the y spline position
+     * @param zindex
+     *            the z spline position
+     * @param table
+     *            the power table
+     * @param df_da
+     *            the partial first order derivatives with respect to x,y,z
+     * @return the value
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the spline node does not exist
+     * @see CustomTricubicFunction#computePowerTable(double, double, double)
+     */
+    public double value(int xindex, int yindex, int zindex, float[] table, double[] df_da)
+    {
+        if (isInteger)
+            return splines[xindex][yindex][zindex].value(table, df_da);
+        final double value = splines[xindex][yindex][zindex].value(table, df_da);
+        df_da[0] /= xscale[xindex];
+        df_da[1] /= yscale[yindex];
+        df_da[2] /= zscale[zindex];
+        return value;
+    }
+
+    /**
+     * Get the interpolated value and partial first-order derivatives using pre-computed spline coefficient power table.
+     *
+     * @param xindex
+     *            the x spline position
+     * @param yindex
+     *            the y spline position
+     * @param zindex
+     *            the z spline position
+     * @param table
+     *            the power table
+     * @param table2
+     *            the power table scaled by 2
+     * @param table3
+     *            the power table scaled by 3
+     * @param df_da
+     *            the partial first order derivatives with respect to x,y,z
+     * @return the value
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the spline node does not exist
+     * @see CustomTricubicFunction#computePowerTable(double, double, double)
+     */
+    public double value(int xindex, int yindex, int zindex, double[] table, double[] table2, double[] table3,
+            double[] df_da)
+    {
+        if (isInteger)
+            return splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
+        final double value = splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
+        df_da[0] /= xscale[xindex];
+        df_da[1] /= yscale[yindex];
+        df_da[2] /= zscale[zindex];
+        return value;
+    }
+
+    /**
+     * Get the interpolated value and partial first-order derivatives using pre-computed spline coefficient power table.
+     *
+     * @param xindex
+     *            the x spline position
+     * @param yindex
+     *            the y spline position
+     * @param zindex
+     *            the z spline position
+     * @param table
+     *            the power table
+     * @param table2
+     *            the power table scaled by 2
+     * @param table3
+     *            the power table scaled by 3
+     * @param df_da
+     *            the partial first order derivatives with respect to x,y,z
+     * @return the value
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the spline node does not exist
+     * @see CustomTricubicFunction#computePowerTable(double, double, double)
+     */
+    public double value(int xindex, int yindex, int zindex, float[] table, float[] table2, float[] table3,
+            double[] df_da)
+    {
+        if (isInteger)
+            return splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
+        final double value = splines[xindex][yindex][zindex].value(table, table2, table3, df_da);
+        df_da[0] /= xscale[xindex];
+        df_da[1] /= yscale[yindex];
+        df_da[2] /= zscale[zindex];
+        return value;
+    }
+
+    /**
+     * Get the interpolated value and partial first-order and second-order derivatives.
+     *
+     * @param x
+     *            the x value
+     * @param y
+     *            the y value
+     * @param z
+     *            the z value
+     * @param df_da
+     *            the partial first order derivatives with respect to x,y,z
+     * @param d2f_da2
+     *            the partial second order derivatives with respect to x,y,z
+     * @return the value
+     * @throws OutOfRangeException
+     *             if any of the variables is outside its interpolation range.
+     */
+    public double value(double x, double y, double z, double[] df_da, double[] d2f_da2) throws OutOfRangeException
+    {
+        final int i = searchIndex(x, xval);
+        final int j = searchIndex(y, yval);
+        final int k = searchIndex(z, zval);
+
+        if (isInteger)
+            return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k], df_da, d2f_da2);
+
+        final double xN = (x - xval[i]) / xscale[i];
+        final double yN = (y - yval[j]) / yscale[j];
+        final double zN = (z - zval[k]) / zscale[k];
+
+        final double value = splines[i][j][k].value(xN, yN, zN, df_da, d2f_da2);
+        df_da[0] /= xscale[i];
+        df_da[1] /= yscale[j];
+        df_da[2] /= zscale[k];
+        d2f_da2[0] /= xscale[i] * xscale[i];
+        d2f_da2[1] /= yscale[j] * yscale[j];
+        d2f_da2[2] /= zscale[k] * zscale[k];
+        return value;
+    }
+
+    /**
+     * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
+     * positions.
+     *
+     * @param x
+     *            the x value
+     * @param y
+     *            the y value
+     * @param z
+     *            the z value
+     * @param df_da
+     *            the partial first order derivatives with respect to x,y,z
+     * @param d2f_da2
+     *            the partial second order derivatives with respect to x,y,z
+     * @return the value
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the spline node does not exist
+     */
+    public double value(IndexedCubicSplinePosition x, IndexedCubicSplinePosition y, IndexedCubicSplinePosition z,
+            double[] df_da, double[] d2f_da2) throws ArrayIndexOutOfBoundsException
+    {
+        return splines[x.index][y.index][z.index].value(x, y, z, df_da, d2f_da2);
+    }
+
+    /**
+     * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
+     * coefficient power table.
+     *
+     * @param xindex
+     *            the x spline position
+     * @param yindex
+     *            the y spline position
+     * @param zindex
+     *            the z spline position
+     * @param table
+     *            the power table
+     * @param df_da
+     *            the partial first order derivatives with respect to x,y,z
+     * @param d2f_da2
+     *            the partial second order derivatives with respect to x,y,z
+     * @return the value
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the spline node does not exist
+     * @see CustomTricubicFunction#computePowerTable(double, double, double)
+     */
+    public double value(int xindex, int yindex, int zindex, double[] table, double[] df_da, double[] d2f_da2)
+    {
+        if (isInteger)
+            return splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
+        final double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
+        df_da[0] /= xscale[xindex];
+        df_da[1] /= yscale[yindex];
+        df_da[2] /= zscale[zindex];
+        d2f_da2[0] /= xscale[xindex] * xscale[xindex];
+        d2f_da2[1] /= yscale[yindex] * yscale[yindex];
+        d2f_da2[2] /= zscale[zindex] * zscale[zindex];
+        return value;
+    }
+
+    /**
+     * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
+     * coefficient power table.
+     *
+     * @param xindex
+     *            the x spline position
+     * @param yindex
+     *            the y spline position
+     * @param zindex
+     *            the z spline position
+     * @param table
+     *            the power table
+     * @param df_da
+     *            the partial first order derivatives with respect to x,y,z
+     * @param d2f_da2
+     *            the partial second order derivatives with respect to x,y,z
+     * @return the value
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the spline node does not exist
+     * @see CustomTricubicFunction#computePowerTable(double, double, double)
+     */
+    public double value(int xindex, int yindex, int zindex, float[] table, double[] df_da, double[] d2f_da2)
+    {
+        if (isInteger)
+            return splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
+        final double value = splines[xindex][yindex][zindex].value(table, df_da, d2f_da2);
+        df_da[0] /= xscale[xindex];
+        df_da[1] /= yscale[yindex];
+        df_da[2] /= zscale[zindex];
+        d2f_da2[0] /= xscale[xindex] * xscale[xindex];
+        d2f_da2[1] /= yscale[yindex] * yscale[yindex];
+        d2f_da2[2] /= zscale[zindex] * zscale[zindex];
+        return value;
+    }
+
+    /**
+     * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
+     * coefficient power table.
+     *
+     * @param xindex
+     *            the x spline position
+     * @param yindex
+     *            the y spline position
+     * @param zindex
+     *            the z spline position
+     * @param table
+     *            the power table
+     * @param table2
+     *            the power table scaled by 2
+     * @param table3
+     *            the power table scaled by 3
+     * @param table6
+     *            the power table scaled by 6
+     * @param df_da
+     *            the partial first order derivatives with respect to x,y,z
+     * @param d2f_da2
+     *            the partial second order derivatives with respect to x,y,z
+     * @return the value
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the spline node does not exist
+     * @see CustomTricubicFunction#computePowerTable(double, double, double)
+     */
+    public double value(int xindex, int yindex, int zindex, double[] table, double[] table2, double[] table3,
+            double[] table6, double[] df_da, double[] d2f_da2)
+    {
+        if (isInteger)
+            return splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
+        final double value = splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
+        df_da[0] /= xscale[xindex];
+        df_da[1] /= yscale[yindex];
+        df_da[2] /= zscale[zindex];
+        d2f_da2[0] /= xscale[xindex] * xscale[xindex];
+        d2f_da2[1] /= yscale[yindex] * yscale[yindex];
+        d2f_da2[2] /= zscale[zindex] * zscale[zindex];
+        return value;
+    }
+
+    /**
+     * Get the interpolated value and partial first-order and second-order derivatives using pre-computed spline
+     * coefficient power table.
+     *
+     * @param xindex
+     *            the x spline position
+     * @param yindex
+     *            the y spline position
+     * @param zindex
+     *            the z spline position
+     * @param table
+     *            the power table
+     * @param table2
+     *            the power table scaled by 2
+     * @param table3
+     *            the power table scaled by 3
+     * @param table6
+     *            the power table scaled by 6
+     * @param df_da
+     *            the partial first order derivatives with respect to x,y,z
+     * @param d2f_da2
+     *            the partial second order derivatives with respect to x,y,z
+     * @return the value
+     * @throws ArrayIndexOutOfBoundsException
+     *             if the spline node does not exist
+     * @see CustomTricubicFunction#computePowerTable(double, double, double)
+     */
+    public double value(int xindex, int yindex, int zindex, float[] table, float[] table2, float[] table3,
+            float[] table6, double[] df_da, double[] d2f_da2)
+    {
+        if (isInteger)
+            return splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
+        final double value = splines[xindex][yindex][zindex].value(table, table2, table3, table6, df_da, d2f_da2);
+        df_da[0] /= xscale[xindex];
+        df_da[1] /= yscale[yindex];
+        df_da[2] /= zscale[zindex];
+        d2f_da2[0] /= xscale[xindex] * xscale[xindex];
+        d2f_da2[1] /= yscale[yindex] * yscale[yindex];
+        d2f_da2[2] /= zscale[zindex] * zscale[zindex];
+        return value;
+    }
+
+    /**
+     * Gets the scale to convert the cube interval 0-1 back to correctly scaled values.
+     * <p>
+     * This is only valid if the function is uniform on each input axis (see {@link #isUniform()}).
+     *
+     * @return the scale
+     * @throws IllegalStateException
+     *             the illegal state exception
+     */
+    public double[] getScale() throws IllegalStateException
+    {
+        if (isUniform)
+        {
+            if (scale == null)
+            {
+                // We know that the values scale is uniform. Compute the scale using the
+                // range of values
+                scale = new double[3];
+                scale[0] = getScale(xval);
+                scale[1] = getScale(yval);
+                scale[2] = getScale(zval);
+            }
+            return scale.clone();
+        }
+        throw new IllegalStateException("The function is not uniform");
+    }
+
+    private static double getScale(double[] xval)
+    {
+        final int n = xval.length - 1;
+        return (xval[n] - xval[0]) / n;
+    }
+
+    private static double getMax(double[] xval)
+    {
+        return xval[xval.length - 1];
+    }
+
+    private static int getMaxSplinePosition(double[] xval)
+    {
+        return xval.length - 2;
+    }
+
+    /**
+     * Gets the max X value for interpolation.
+     *
+     * @return the max X value
+     */
+    public double getMaxX()
+    {
+        return getMax(xval);
+    }
+
+    /**
+     * Gets the max X spline position for interpolation.
+     *
+     * @return the max X spline position
+     */
+    public int getMaxXSplinePosition()
+    {
+        return getMaxSplinePosition(xval);
+    }
+
+    /**
+     * Gets the min X value for interpolation.
+     *
+     * @return the min X value
+     */
+    public double getMinX()
+    {
+        return xval[0];
+    }
+
+    /**
+     * Gets the x spline value for the spline position. Equivalent to the x-value used when constructing the spline
+     *
+     * @param position
+     *            the position
+     * @return the x spline value
+     */
+    public double getXSplineValue(int position)
+    {
+        return xval[position];
+    }
+
+    /**
+     * Gets the max Y value for interpolation.
+     *
+     * @return the max Y value
+     */
+    public double getMaxY()
+    {
+        return getMax(yval);
+    }
+
+    /**
+     * Gets the max Y spline position for interpolation.
+     *
+     * @return the max Y spline position
+     */
+    public int getMaxYSplinePosition()
+    {
+        return getMaxSplinePosition(yval);
+    }
+
+    /**
+     * Gets the min Y value for interpolation.
+     *
+     * @return the min Y value
+     */
+    public double getMinY()
+    {
+        return yval[0];
+    }
+
+    /**
+     * Gets the y spline value for the spline position. Equivalent to the y-value used when constructing the spline
+     *
+     * @param position
+     *            the position
+     * @return the x spline value
+     */
+    public double getYSplineValue(int position)
+    {
+        return yval[position];
+    }
+
+    /**
+     * Gets the max Z value for interpolation.
+     *
+     * @return the max Z value
+     */
+    public double getMaxZ()
+    {
+        return getMax(zval);
+    }
+
+    /**
+     * Gets the max Z spline position for interpolation.
+     *
+     * @return the max Z spline position
+     */
+    public int getMaxZSplinePosition()
+    {
+        return getMaxSplinePosition(zval);
+    }
+
+    /**
+     * Gets the min Z value for interpolation.
+     *
+     * @return the min Z value
+     */
+    public double getMinZ()
+    {
+        return zval[0];
+    }
+
+    /**
+     * Gets the z spline value for the spline position. Equivalent to the z-value used when constructing the spline
+     *
+     * @param position
+     *            the position
+     * @return the z spline value
+     */
+    public double getZSplineValue(int position)
+    {
+        return zval[position];
+    }
+
+    /**
+     * Indicates whether a point is within the interpolation range.
+     *
+     * @param x
+     *            First coordinate.
+     * @param y
+     *            Second coordinate.
+     * @param z
+     *            Third coordinate.
+     * @return {@code true} if (x, y, z) is a valid point.
+     */
+    public boolean isValidPoint(double x, double y, double z)
+    {
+        if (x < xval[0] || x > xval[xval.length - 1] || y < yval[0] || y > yval[yval.length - 1] || z < zval[0] ||
+                z > zval[zval.length - 1])
+            return false;
+        return true;
+    }
+
+    /**
+     * Gets the spline node. This is package scope and used for testing.
+     *
+     * @param i
+     *            the i
+     * @param j
+     *            the j
+     * @param k
+     *            the k
+     * @return the spline node
+     */
+    CustomTricubicFunction getSplineNodeReference(int i, int j, int k)
+    {
+        return splines[i][j][k];
+    }
+
+    /**
+     * Gets a copy of the spline node.
+     *
+     * @param i
+     *            the i
+     * @param j
+     *            the j
+     * @param k
+     *            the k
+     * @return the spline node
+     */
+    public CustomTricubicFunction getSplineNode(int i, int j, int k)
+    {
+        return splines[i][j][k].copy();
+    }
+
+    /**
+     * Checks if is single precision.
+     *
+     * @return true, if is single precision
+     */
+    public boolean isSinglePrecision()
+    {
+        return splines[0][0][0].isSinglePrecision();
+    }
+
+    /**
+     * Convert to single precision.
+     */
+    public void toSinglePrecision()
+    {
+        if (isSinglePrecision())
+            return;
+        final int maxj = getMaxYSplinePosition() + 1;
+        final int maxk = getMaxZSplinePosition() + 1;
+        for (int i = getMaxXSplinePosition() + 1; i-- > 0;)
+            for (int j = maxj; j-- > 0;)
+                for (int k = maxk; k-- > 0;)
+                    splines[i][j][k] = splines[i][j][k].toSinglePrecision();
+    }
+
+    /**
+     * Convert to double precision.
+     */
+    public void toDoublePrecision()
+    {
+        if (!isSinglePrecision())
+            return;
+        final int maxj = getMaxYSplinePosition() + 1;
+        final int maxk = getMaxZSplinePosition() + 1;
+        for (int i = getMaxXSplinePosition() + 1; i-- > 0;)
+            for (int j = maxj; j-- > 0;)
+                for (int k = maxk; k-- > 0;)
+                    splines[i][j][k] = splines[i][j][k].toDoublePrecision();
+    }
+
+    /**
+     * Sample the function.
+     * <p>
+     * n samples will be taken per node in each dimension. A final sample is taken at the end of the sample range thus
+     * the final range for each axis will be the current axis range.
+     * <p>
+     * The procedure setValue(int,int,int,double) method will be executed in ZYX order.
+     *
+     * @param n
+     *            the number of samples per spline node
+     * @param procedure
+     *            the procedure
+     * @throws IllegalArgumentException
+     *             If the number of sample is not positive
+     */
+    public void sample(int n, TrivalueProcedure procedure) throws IllegalArgumentException
+    {
+        sample(n, procedure, null);
+    }
+
+    /**
+     * Sample the function.
+     * <p>
+     * n samples will be taken per node in each dimension. A final sample is taken at the end of the sample range thus
+     * the final range for each axis will be the current axis range.
+     * <p>
+     * The procedure setValue(int,int,int,double) method will be executed in ZYX order.
+     *
+     * @param n
+     *            the number of samples per spline node
+     * @param procedure
+     *            the procedure
+     * @param progress
+     *            the progress
+     * @throws IllegalArgumentException
+     *             If the number of sample is not positive
+     */
+    public void sample(int n, TrivalueProcedure procedure, TrackProgress progress) throws IllegalArgumentException
+    {
+        sample(n, n, n, procedure, progress);
+    }
+
+    /**
+     * Sample the function.
+     * <p>
+     * n samples will be taken per node in each dimension. A final sample is taken at the end of the sample range thus
+     * the final range for each axis will be the current axis range.
+     * <p>
+     * The procedure setValue(int,int,int,double) method will be executed in ZYX order.
+     *
+     * @param nx
+     *            the number of samples per spline node in the x dimension
+     * @param ny
+     *            the number of samples per spline node in the y dimension
+     * @param nz
+     *            the number of samples per spline node in the z dimension
+     * @param procedure
+     *            the procedure
+     * @param progress
+     *            the progress
+     * @throws IllegalArgumentException
+     *             If the number of sample is not positive
+     */
+    public void sample(int nx, int ny, int nz, TrivalueProcedure procedure, TrackProgress progress)
+            throws IllegalArgumentException
+    {
+        if (nx < 1 || ny < 1 || nz < 1)
+            throw new IllegalArgumentException("Samples must be positive");
+
+        // We can interpolate all nodes n-times plus a final point at the last node
+        final int maxx = (getMaxXSplinePosition() + 1) * nx;
+        final int maxy = (getMaxYSplinePosition() + 1) * ny;
+        final int maxz = (getMaxZSplinePosition() + 1) * nz;
+        if (!procedure.setDimensions(maxx + 1, maxy + 1, maxz + 1))
+            return;
+
+        final Ticker ticker = Ticker.create(progress, (long) (maxx + 1) * (maxy + 1) * (maxz + 1), false);
+        ticker.start();
+
+        // Pre-compute interpolation tables
+        final CubicSplinePosition[] sx = createCubicSplinePosition(nx);
+        final CubicSplinePosition[] sy = createCubicSplinePosition(ny);
+        final CubicSplinePosition[] sz = createCubicSplinePosition(nz);
+        final int nx1 = nx + 1;
+        final int ny1 = ny + 1;
+        final int nz1 = nz + 1;
+
+        final double[][] tables = new double[nx1 * ny1 * nz1][];
+        for (int z = 0, i = 0; z < nz1; z++)
+        {
+            final CubicSplinePosition szz = sz[z];
+            for (int y = 0; y < ny1; y++)
+            {
+                final CubicSplinePosition syy = sy[y];
+                for (int x = 0; x < nx1; x++, i++)
+                    tables[i] = CustomTricubicFunction.computePowerTable(sx[x], syy, szz);
+            }
+        }
+
+        // Write axis values
+        // Cache the table and the spline position to use for each interpolation point
+        final int[] xt = new int[maxx + 1];
+        final int[] xp = new int[maxx + 1];
+        for (int x = 0; x <= maxx; x++)
+        {
+            int xposition = x / nx;
+            int xtable = x % nx;
+            if (x == maxx)
+            {
+                // Final interpolation point
+                xposition--;
+                xtable = nx;
+            }
+            xt[x] = xtable;
+            xp[x] = xposition;
+            procedure.setX(x, xval[xposition] + xtable * xscale[xposition] / nx);
+        }
+        final int[] yt = new int[maxy + 1];
+        final int[] yp = new int[maxy + 1];
+        for (int y = 0; y <= maxy; y++)
+        {
+            int yposition = y / ny;
+            int ytable = y % ny;
+            if (y == maxy)
+            {
+                // Final interpolation point
+                yposition--;
+                ytable = ny;
+            }
+            yt[y] = ytable;
+            yp[y] = yposition;
+            procedure.setY(y, yval[yposition] + ytable * yscale[yposition] / ny);
+        }
+        final int[] zt = new int[maxz + 1];
+        final int[] zp = new int[maxz + 1];
+        for (int z = 0; z <= maxz; z++)
+        {
+            int zposition = z / nz;
+            int ztable = z % nz;
+            if (z == maxz)
+            {
+                // Final interpolation point
+                zposition--;
+                ztable = nz;
+            }
+            zt[z] = ztable;
+            zp[z] = zposition;
+            procedure.setZ(z, zval[zposition] + ztable * zscale[zposition] / nz);
+        }
+
+        // Write interpolated values
+        for (int z = 0; z <= maxz; z++)
+        {
+            final int zposition = zp[z];
+            for (int y = 0; y <= maxy; y++)
+            {
+                final int yposition = yp[y];
+                final int j = nx1 * (yt[y] + ny1 * zt[z]);
+                for (int x = 0; x <= maxx; x++)
+                {
+                    procedure.setValue(x, y, z, value(xp[x], yposition, zposition, tables[j + xt[x]]));
+                    ticker.tick();
+                }
+            }
+        }
+
+        ticker.stop();
+    }
+
+    private static CubicSplinePosition[] createCubicSplinePosition(int n)
+    {
+        // Use an extra one to have the final x=1 interpolation point.
+        final double step = 1.0 / n;
+        final CubicSplinePosition[] s = new CubicSplinePosition[n + 1];
+        for (int x = 0; x < n; x++)
+            s[x] = new CubicSplinePosition(x * step);
+        // Final interpolation point must be exactly 1
+        s[n] = new CubicSplinePosition(1);
+        return s;
+    }
+
+    /**
+     * Class to hold information about the size of an interpolating function
+     */
+    public static class Size
+    {
+        private final int[] dimensions;
+
+        /**
+         * Instantiates a new size.
+         *
+         * @param maxx
+         *            the maxx
+         * @param maxy
+         *            the maxy
+         * @param maxz
+         *            the maxz
+         */
+        Size(int maxx, int maxy, int maxz)
+        {
+            if (maxx < 2 || maxy < 2 || maxz < 2)
+                throw new IllegalArgumentException("Interpolating function requires minimum length 2 on each axis");
+            this.dimensions = new int[] { maxx, maxy, maxz };
+        }
+
+        /**
+         * Gets the function points in a given dimension.
+         *
+         * @param dimension
+         *            the dimension
+         * @return the function points
+         */
+        public int getFunctionPoints(int dimension)
+        {
+            return dimensions[dimension];
+        }
+
+        /**
+         * Gets the spline points in a given dimension.
+         *
+         * @param dimension
+         *            the dimension
+         * @return the spline points
+         */
+        public int getSplinePoints(int dimension)
+        {
+            return dimensions[dimension] - 1;
+        }
+
+        /**
+         * Gets the total function points.
+         *
+         * @return the total function points
+         */
+        public long getTotalFunctionPoints()
+        {
+            return (long) dimensions[0] * dimensions[1] * dimensions[2];
+        }
+
+        /**
+         * Gets the total spline points.
+         *
+         * @return the total spline points
+         */
+        public long getTotalSplinePoints()
+        {
+            return (long) (dimensions[0] - 1) * (dimensions[1] - 1) * (dimensions[2] - 1);
+        }
+
+        /**
+         * Gets the memory footprint.
+         *
+         * @param singlePrecision
+         *            the single precision flag
+         * @return the memory footprint
+         */
+        public long getMemoryFootprint(boolean singlePrecision)
+        {
+            // Each table is 64 long
+            long total = getTotalSplinePoints() * 64;
+            // TODO - what is the pointer size for each of the spline points?
+
+            // Convert spline point tables to their correct size
+            total *= ((singlePrecision) ? 4 : 8);
+            // Add the size of each axis and scale in double precision
+            for (int i = 0; i < 3; i++)
+                total += 8 * (dimensions[i] + dimensions[i] - 1);
+            return total;
+        }
+
+        /**
+         * Enlarge by an integer factor.
+         *
+         * @param n
+         *            the factor
+         * @return the size
+         */
+        public Size enlarge(int n)
+        {
+            final int maxx = 1 + getSplinePoints(0) * n;
+            final int maxy = 1 + getSplinePoints(1) * n;
+            final int maxz = 1 + getSplinePoints(2) * n;
+            return new Size(maxx, maxy, maxz);
+        }
+    }
+
+    /**
+     * Estimate the size of an interpolating function.
+     *
+     * @param maxx
+     *            the maxx
+     * @param maxy
+     *            the maxy
+     * @param maxz
+     *            the maxz
+     * @return the size
+     */
+    public static Size estimateSize(int maxx, int maxy, int maxz)
+    {
+        return new Size(maxx, maxy, maxz);
+    }
+
+    /**
+     * Estimate the size of an interpolating function.
+     *
+     * @param dimensions
+     *            the dimensions
+     * @return the size
+     */
+    public static Size estimateSize(int[] dimensions)
+    {
+        if (dimensions == null || dimensions.length != 3)
+            throw new IllegalArgumentException("Dimension must be length 3");
+        return new Size(dimensions[0], dimensions[1], dimensions[2]);
+    }
+
+    /**
+     * Gets the coefficients for the given spline node.
+     *
+     * @param xindex
+     *            the x spline position
+     * @param yindex
+     *            the y spline position
+     * @param zindex
+     *            the z spline position
+     * @return the coefficients
+     */
+    public double[] getCoefficients(int xindex, int yindex, int zindex)
+    {
+        return splines[xindex][yindex][zindex].getA().clone();
+    }
+
+    //@formatter:off
 
 	/**
      * Compute the spline coefficients from the list of function values and
@@ -2415,603 +2415,603 @@ public class CustomTricubicInterpolatingFunction
 
     //@formatter:on
 
-	private static interface SplineWriter
-	{
-		void write(DataOutput out, CustomTricubicFunction f) throws IOException;
-	}
+    private static interface SplineWriter
+    {
+        void write(DataOutput out, CustomTricubicFunction f) throws IOException;
+    }
 
-	private static class FloatSplineWriter implements SplineWriter
-	{
-		@Override
-		public void write(DataOutput out, CustomTricubicFunction f) throws IOException
-		{
-			for (int i = 0; i < 64; i++)
-				out.writeFloat(f.getf(i));
-		}
-	}
+    private static class FloatSplineWriter implements SplineWriter
+    {
+        @Override
+        public void write(DataOutput out, CustomTricubicFunction f) throws IOException
+        {
+            for (int i = 0; i < 64; i++)
+                out.writeFloat(f.getf(i));
+        }
+    }
 
-	private static class DoubleSplineWriter implements SplineWriter
-	{
-		@Override
-		public void write(DataOutput out, CustomTricubicFunction f) throws IOException
-		{
-			for (int i = 0; i < 64; i++)
-				out.writeDouble(f.get(i));
-		}
-	}
+    private static class DoubleSplineWriter implements SplineWriter
+    {
+        @Override
+        public void write(DataOutput out, CustomTricubicFunction f) throws IOException
+        {
+            for (int i = 0; i < 64; i++)
+                out.writeDouble(f.get(i));
+        }
+    }
 
-	private static interface SplineReader
-	{
-		CustomTricubicFunction read(DataInput in) throws IOException;
-	}
+    private static interface SplineReader
+    {
+        CustomTricubicFunction read(DataInput in) throws IOException;
+    }
 
-	private static class FloatSplineReader implements SplineReader
-	{
-		float[] data = new float[64];
+    private static class FloatSplineReader implements SplineReader
+    {
+        float[] data = new float[64];
 
-		@Override
-		public CustomTricubicFunction read(DataInput in) throws IOException
-		{
-			for (int i = 0; i < 64; i++)
-				data[i] = in.readFloat();
-			return new FloatCustomTricubicFunction(data.clone());
-		}
-	}
+        @Override
+        public CustomTricubicFunction read(DataInput in) throws IOException
+        {
+            for (int i = 0; i < 64; i++)
+                data[i] = in.readFloat();
+            return new FloatCustomTricubicFunction(data.clone());
+        }
+    }
 
-	private static class DoubleSplineReader implements SplineReader
-	{
-		double[] data = new double[64];
+    private static class DoubleSplineReader implements SplineReader
+    {
+        double[] data = new double[64];
 
-		@Override
-		public CustomTricubicFunction read(DataInput in) throws IOException
-		{
-			for (int i = 0; i < 64; i++)
-				data[i] = in.readDouble();
-			return new DoubleCustomTricubicFunction(data.clone());
-		}
-	}
+        @Override
+        public CustomTricubicFunction read(DataInput in) throws IOException
+        {
+            for (int i = 0; i < 64; i++)
+                data[i] = in.readDouble();
+            return new DoubleCustomTricubicFunction(data.clone());
+        }
+    }
 
-	/**
-	 * Write a tricubic function to the output stream. The output will be buffered for performance.
-	 *
-	 * @param outputStream
-	 *            the output stream
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	public void write(OutputStream outputStream) throws IOException
-	{
-		write(outputStream, null);
-	}
+    /**
+     * Write a tricubic function to the output stream. The output will be buffered for performance.
+     *
+     * @param outputStream
+     *            the output stream
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public void write(OutputStream outputStream) throws IOException
+    {
+        write(outputStream, null);
+    }
 
-	/**
-	 * Write a tricubic function to the output stream. The output will be buffered for performance.
-	 *
-	 * @param outputStream
-	 *            the output stream
-	 * @param progress
-	 *            the progress
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	public void write(OutputStream outputStream, TrackProgress progress) throws IOException
-	{
-		// Write dimensions
-		final int lastI = xval.length - 1;
-		final int lastJ = yval.length - 1;
-		final int lastK = zval.length - 1;
-		final Ticker ticker = Ticker.create(progress, (long) lastI * lastJ * lastK, false);
-		ticker.start();
-		final BufferedOutputStream buffer = new BufferedOutputStream(outputStream);
-		final DataOutput out = new DataOutputStream(buffer);
-		out.writeInt(xval.length);
-		out.writeInt(yval.length);
-		out.writeInt(zval.length);
-		// Write axis values
-		write(out, xval);
-		write(out, yval);
-		write(out, zval);
-		// Write precision
-		final boolean singlePrecision = isSinglePrecision();
-		out.writeBoolean(singlePrecision);
-		final SplineWriter writer = (singlePrecision) ? new FloatSplineWriter() : new DoubleSplineWriter();
-		for (int i = 0; i < lastI; i++)
-			for (int j = 0; j < lastJ; j++)
-				for (int k = 0; k < lastK; k++)
-				{
-					writer.write(out, splines[i][j][k]);
-					ticker.tick();
-				}
-		ticker.stop();
-		buffer.flush();
-	}
+    /**
+     * Write a tricubic function to the output stream. The output will be buffered for performance.
+     *
+     * @param outputStream
+     *            the output stream
+     * @param progress
+     *            the progress
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public void write(OutputStream outputStream, TrackProgress progress) throws IOException
+    {
+        // Write dimensions
+        final int lastI = xval.length - 1;
+        final int lastJ = yval.length - 1;
+        final int lastK = zval.length - 1;
+        final Ticker ticker = Ticker.create(progress, (long) lastI * lastJ * lastK, false);
+        ticker.start();
+        final BufferedOutputStream buffer = new BufferedOutputStream(outputStream);
+        final DataOutput out = new DataOutputStream(buffer);
+        out.writeInt(xval.length);
+        out.writeInt(yval.length);
+        out.writeInt(zval.length);
+        // Write axis values
+        write(out, xval);
+        write(out, yval);
+        write(out, zval);
+        // Write precision
+        final boolean singlePrecision = isSinglePrecision();
+        out.writeBoolean(singlePrecision);
+        final SplineWriter writer = (singlePrecision) ? new FloatSplineWriter() : new DoubleSplineWriter();
+        for (int i = 0; i < lastI; i++)
+            for (int j = 0; j < lastJ; j++)
+                for (int k = 0; k < lastK; k++)
+                {
+                    writer.write(out, splines[i][j][k]);
+                    ticker.tick();
+                }
+        ticker.stop();
+        buffer.flush();
+    }
 
-	private static void write(DataOutput out, double[] x) throws IOException
-	{
-		for (int i = 0; i < x.length; i++)
-			out.writeDouble(x[i]);
-	}
+    private static void write(DataOutput out, double[] x) throws IOException
+    {
+        for (int i = 0; i < x.length; i++)
+            out.writeDouble(x[i]);
+    }
 
-	/**
-	 * Read a tricubic function from the input stream.
-	 * <p>
-	 * Note: For best performance a buffered input stream should be used.
-	 *
-	 * @param inputStream
-	 *            the input stream
-	 * @return the custom tricubic interpolating function
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	public static CustomTricubicInterpolatingFunction read(InputStream inputStream) throws IOException
-	{
-		return read(inputStream, null);
-	}
+    /**
+     * Read a tricubic function from the input stream.
+     * <p>
+     * Note: For best performance a buffered input stream should be used.
+     *
+     * @param inputStream
+     *            the input stream
+     * @return the custom tricubic interpolating function
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public static CustomTricubicInterpolatingFunction read(InputStream inputStream) throws IOException
+    {
+        return read(inputStream, null);
+    }
 
-	/**
-	 * Read a tricubic function from the input stream.
-	 * <p>
-	 * Note: For best performance a buffered input stream should be used.
-	 *
-	 * @param inputStream
-	 *            the input stream
-	 * @param progress
-	 *            the progress
-	 * @return the custom tricubic interpolating function
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	public static CustomTricubicInterpolatingFunction read(InputStream inputStream, TrackProgress progress)
-			throws IOException
-	{
-		// Read dimensions
-		final BufferedInputStream buffer = new BufferedInputStream(inputStream);
-		final DataInput in = new DataInputStream(buffer);
-		final int maxx = in.readInt();
-		final int maxy = in.readInt();
-		final int maxz = in.readInt();
-		final int lastI = maxx - 1;
-		final int lastJ = maxy - 1;
-		final int lastK = maxz - 1;
-		final Ticker ticker = Ticker.create(progress, (long) lastI * lastJ * lastK, false);
-		ticker.start();
-		// Read axis values
-		final double[] xval = read(in, maxx);
-		final double[] yval = read(in, maxy);
-		final double[] zval = read(in, maxz);
-		// Read precision
-		final boolean singlePrecision = in.readBoolean();
-		final SplineReader reader = (singlePrecision) ? new FloatSplineReader() : new DoubleSplineReader();
-		final CustomTricubicFunction[][][] splines = new CustomTricubicFunction[lastI][lastJ][lastK];
-		for (int i = 0; i < lastI; i++)
-			for (int j = 0; j < lastJ; j++)
-				for (int k = 0; k < lastK; k++)
-				{
-					splines[i][j][k] = reader.read(in);
-					ticker.tick();
-				}
-		ticker.stop();
-		// Pass the data to a constructor for validation
-		return new CustomTricubicInterpolatingFunction(new DoubleArrayValueProvider(xval),
-				new DoubleArrayValueProvider(yval), new DoubleArrayValueProvider(zval), splines);
-	}
+    /**
+     * Read a tricubic function from the input stream.
+     * <p>
+     * Note: For best performance a buffered input stream should be used.
+     *
+     * @param inputStream
+     *            the input stream
+     * @param progress
+     *            the progress
+     * @return the custom tricubic interpolating function
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public static CustomTricubicInterpolatingFunction read(InputStream inputStream, TrackProgress progress)
+            throws IOException
+    {
+        // Read dimensions
+        final BufferedInputStream buffer = new BufferedInputStream(inputStream);
+        final DataInput in = new DataInputStream(buffer);
+        final int maxx = in.readInt();
+        final int maxy = in.readInt();
+        final int maxz = in.readInt();
+        final int lastI = maxx - 1;
+        final int lastJ = maxy - 1;
+        final int lastK = maxz - 1;
+        final Ticker ticker = Ticker.create(progress, (long) lastI * lastJ * lastK, false);
+        ticker.start();
+        // Read axis values
+        final double[] xval = read(in, maxx);
+        final double[] yval = read(in, maxy);
+        final double[] zval = read(in, maxz);
+        // Read precision
+        final boolean singlePrecision = in.readBoolean();
+        final SplineReader reader = (singlePrecision) ? new FloatSplineReader() : new DoubleSplineReader();
+        final CustomTricubicFunction[][][] splines = new CustomTricubicFunction[lastI][lastJ][lastK];
+        for (int i = 0; i < lastI; i++)
+            for (int j = 0; j < lastJ; j++)
+                for (int k = 0; k < lastK; k++)
+                {
+                    splines[i][j][k] = reader.read(in);
+                    ticker.tick();
+                }
+        ticker.stop();
+        // Pass the data to a constructor for validation
+        return new CustomTricubicInterpolatingFunction(new DoubleArrayValueProvider(xval),
+                new DoubleArrayValueProvider(yval), new DoubleArrayValueProvider(zval), splines);
+    }
 
-	private static double[] read(DataInput in, int max) throws IOException
-	{
-		final double[] x = new double[max];
-		for (int i = 0; i < x.length; i++)
-			x[i] = in.readDouble();
-		return x;
-	}
+    private static double[] read(DataInput in, int max) throws IOException
+    {
+        final double[] x = new double[max];
+        for (int i = 0; i < x.length; i++)
+            x[i] = in.readDouble();
+        return x;
+    }
 
-	/**
-	 * Set to true if the x,y,z spline points are uniformly spaced.
-	 * <p>
-	 * This allows the function to be efficiently sampled using precomputed
-	 * spline coefficients (see {@link #value(int, int, int, double[])})
-	 *
-	 * @return true, if is uniform
-	 */
-	public boolean isUniform()
-	{
-		return isUniform;
-	}
+    /**
+     * Set to true if the x,y,z spline points are uniformly spaced.
+     * <p>
+     * This allows the function to be efficiently sampled using precomputed
+     * spline coefficients (see {@link #value(int, int, int, double[])})
+     *
+     * @return true, if is uniform
+     */
+    public boolean isUniform()
+    {
+        return isUniform;
+    }
 
-	/**
-	 * Set to true if the x,y,z spline points have a grid spacing of 1.
-	 * Note that the spline points may not be integer values, only the spacing between them.
-	 * <p>
-	 * This allows faster computation with no scaling.
-	 *
-	 * @return true, if is integer
-	 */
-	public boolean isInteger()
-	{
-		return isInteger;
-	}
+    /**
+     * Set to true if the x,y,z spline points have a grid spacing of 1.
+     * Note that the spline points may not be integer values, only the spacing between them.
+     * <p>
+     * This allows faster computation with no scaling.
+     *
+     * @return true, if is integer
+     */
+    public boolean isInteger()
+    {
+        return isInteger;
+    }
 
-	/**
-	 * Perform n refinements of a binary search to find the optimum value. The search finds the spline node that has the
-	 * optimum value. If refinements are performed then 8 vertices of the node cube are evaluated per refinement and the
-	 * optimum value selected. The bounds of the cube are then reduced by 2.
-	 * <p>
-	 * The search starts with the bounds at 0,1 for each dimension. This search works because the function is a cubic
-	 * polynomial and so the peak at the optimum is closest-in-distance to the closest-in-value bounding point.
-	 * <p>
-	 * The optimum will be found within error +/- scale/(2^refinements), e.g. 5 refinements will have an error of +/-
-	 * scale/32, with scale the distance between the node and the next node point in each axis.
-	 * <p>
-	 * An optional tolerance for improvement can be specified. This is applied only if the optimum vertex has changed,
-	 * otherwise the value would be the same. If it has changed then the maximum error will be greater than if the
-	 * maximum refinements was achieved.
-	 *
-	 * @param maximum
-	 *            Set to true to find the maximum
-	 * @param refinements
-	 *            the refinements (if below 1 then no interpolation between node points is performed)
-	 * @param relativeError
-	 *            relative tolerance threshold (set to negative to ignore)
-	 * @param absoluteError
-	 *            absolute tolerance threshold (set to negative to ignore)
-	 * @return [x, y, z, value]
-	 */
-	public double[] search(boolean maximum, int refinements, double relativeError, double absoluteError)
-	{
-		// Find the optimum node
-		final int maxx = getMaxXSplinePosition();
-		final int maxy = getMaxYSplinePosition();
-		final int maxz = getMaxZSplinePosition();
-		double value = splines[0][0][0].value000();
-		int ox = 0, oy = 0, oz = 0;
-		final int dir = (maximum) ? 1 : -1;
-		//int dir = (maximum) ? Double.compare(2, 1) : Double.compare(1, 2);
-		for (int x = 0; x < maxx; x++)
-			for (int y = 0; y < maxy; y++)
-				for (int z = 0; z < maxz; z++)
-				{
-					final double v = splines[x][y][z].value000();
-					if (Double.compare(v, value) == dir)
-					{
-						value = v;
-						ox = x;
-						oy = y;
-						oz = z;
-					}
-				}
+    /**
+     * Perform n refinements of a binary search to find the optimum value. The search finds the spline node that has the
+     * optimum value. If refinements are performed then 8 vertices of the node cube are evaluated per refinement and the
+     * optimum value selected. The bounds of the cube are then reduced by 2.
+     * <p>
+     * The search starts with the bounds at 0,1 for each dimension. This search works because the function is a cubic
+     * polynomial and so the peak at the optimum is closest-in-distance to the closest-in-value bounding point.
+     * <p>
+     * The optimum will be found within error +/- scale/(2^refinements), e.g. 5 refinements will have an error of +/-
+     * scale/32, with scale the distance between the node and the next node point in each axis.
+     * <p>
+     * An optional tolerance for improvement can be specified. This is applied only if the optimum vertex has changed,
+     * otherwise the value would be the same. If it has changed then the maximum error will be greater than if the
+     * maximum refinements was achieved.
+     *
+     * @param maximum
+     *            Set to true to find the maximum
+     * @param refinements
+     *            the refinements (if below 1 then no interpolation between node points is performed)
+     * @param relativeError
+     *            relative tolerance threshold (set to negative to ignore)
+     * @param absoluteError
+     *            absolute tolerance threshold (set to negative to ignore)
+     * @return [x, y, z, value]
+     */
+    public double[] search(boolean maximum, int refinements, double relativeError, double absoluteError)
+    {
+        // Find the optimum node
+        final int maxx = getMaxXSplinePosition();
+        final int maxy = getMaxYSplinePosition();
+        final int maxz = getMaxZSplinePosition();
+        double value = splines[0][0][0].value000();
+        int ox = 0, oy = 0, oz = 0;
+        final int dir = (maximum) ? 1 : -1;
+        //int dir = (maximum) ? Double.compare(2, 1) : Double.compare(1, 2);
+        for (int x = 0; x < maxx; x++)
+            for (int y = 0; y < maxy; y++)
+                for (int z = 0; z < maxz; z++)
+                {
+                    final double v = splines[x][y][z].value000();
+                    if (Double.compare(v, value) == dir)
+                    {
+                        value = v;
+                        ox = x;
+                        oy = y;
+                        oz = z;
+                    }
+                }
 
-		if (refinements < 1)
-			return new double[] { xval[ox], yval[oy], zval[oz], value };
+        if (refinements < 1)
+            return new double[] { xval[ox], yval[oy], zval[oz], value };
 
-		// We want to do refinement within the cube of the optimum node
-		// Evaluate the gradient at the node position so we pick the correct node
-		final double[] df_da = new double[3];
-		splines[ox][oy][oz].value000(df_da);
+        // We want to do refinement within the cube of the optimum node
+        // Evaluate the gradient at the node position so we pick the correct node
+        final double[] df_da = new double[3];
+        splines[ox][oy][oz].value000(df_da);
 
-		// Check if moving in the wrong direction.
-		// If the gradient is zero then keep the same node as we already know this is the
-		// optimum point. A cubic polynomial between this and the next node with zero gradient
-		// would require a lower neighbour node or a flat line between them making them equal
-		// for interpolation.
-		if (Double.compare(df_da[0], 0) == -dir)
-			ox = Math.max(0, ox - 1);
-		if (Double.compare(df_da[1], 0) == -dir)
-			oy = Math.max(0, oy - 1);
-		if (Double.compare(df_da[2], 0) == -dir)
-			oz = Math.max(0, oz - 1);
+        // Check if moving in the wrong direction.
+        // If the gradient is zero then keep the same node as we already know this is the
+        // optimum point. A cubic polynomial between this and the next node with zero gradient
+        // would require a lower neighbour node or a flat line between them making them equal
+        // for interpolation.
+        if (Double.compare(df_da[0], 0) == -dir)
+            ox = Math.max(0, ox - 1);
+        if (Double.compare(df_da[1], 0) == -dir)
+            oy = Math.max(0, oy - 1);
+        if (Double.compare(df_da[2], 0) == -dir)
+            oz = Math.max(0, oz - 1);
 
-		final double[] optimum = splines[ox][oy][oz].search(maximum, refinements, relativeError, absoluteError);
+        final double[] optimum = splines[ox][oy][oz].search(maximum, refinements, relativeError, absoluteError);
 
-		// Scale the coordinates
-		optimum[0] = xval[ox] + xscale[ox] * optimum[0];
-		optimum[1] = xval[oy] + xscale[oy] * optimum[1];
-		optimum[2] = xval[oz] + xscale[oz] * optimum[2];
-		return optimum;
-	}
+        // Scale the coordinates
+        optimum[0] = xval[ox] + xscale[ox] * optimum[0];
+        optimum[1] = xval[oy] + xscale[oy] * optimum[1];
+        optimum[2] = xval[oz] + xscale[oz] * optimum[2];
+        return optimum;
+    }
 
-	/**
-	 * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
-	 * and derivatives for each vertex of the cube [2x2x2].
-	 *
-	 * @param f
-	 *            Values of the function on every grid point.
-	 * @param dFdX
-	 *            Values of the partial derivative of function with respect to x on every grid point.
-	 * @param dFdY
-	 *            Values of the partial derivative of function with respect to y on every grid point.
-	 * @param dFdZ
-	 *            Values of the partial derivative of function with respect to z on every grid point.
-	 * @param d2FdXdY
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @param d2FdXdZ
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @param d2FdYdZ
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @param d3FdXdYdZ
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @return tricubic interpolating function
-	 * @throws DimensionMismatchException
-	 *             if the array lengths are inconsistent.
-	 */
-	public static CustomTricubicFunction create(final TrivalueProvider f, final TrivalueProvider dFdX,
-			final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
-			final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ, final TrivalueProvider d3FdXdYdZ)
-			throws DimensionMismatchException
-	{
-		checkDimensions(2, 2, 2, f);
-		checkDimensions(2, 2, 2, dFdX);
-		checkDimensions(2, 2, 2, dFdY);
-		checkDimensions(2, 2, 2, dFdZ);
-		checkDimensions(2, 2, 2, d2FdXdY);
-		checkDimensions(2, 2, 2, d2FdXdZ);
-		checkDimensions(2, 2, 2, d2FdYdZ);
-		checkDimensions(2, 2, 2, d3FdXdYdZ);
-		return createFunction(new double[64], f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ);
-	}
+    /**
+     * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
+     * and derivatives for each vertex of the cube [2x2x2].
+     *
+     * @param f
+     *            Values of the function on every grid point.
+     * @param dFdX
+     *            Values of the partial derivative of function with respect to x on every grid point.
+     * @param dFdY
+     *            Values of the partial derivative of function with respect to y on every grid point.
+     * @param dFdZ
+     *            Values of the partial derivative of function with respect to z on every grid point.
+     * @param d2FdXdY
+     *            Values of the cross partial derivative of function on every grid point.
+     * @param d2FdXdZ
+     *            Values of the cross partial derivative of function on every grid point.
+     * @param d2FdYdZ
+     *            Values of the cross partial derivative of function on every grid point.
+     * @param d3FdXdYdZ
+     *            Values of the cross partial derivative of function on every grid point.
+     * @return tricubic interpolating function
+     * @throws DimensionMismatchException
+     *             if the array lengths are inconsistent.
+     */
+    public static CustomTricubicFunction create(final TrivalueProvider f, final TrivalueProvider dFdX,
+            final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
+            final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ, final TrivalueProvider d3FdXdYdZ)
+            throws DimensionMismatchException
+    {
+        checkDimensions(2, 2, 2, f);
+        checkDimensions(2, 2, 2, dFdX);
+        checkDimensions(2, 2, 2, dFdY);
+        checkDimensions(2, 2, 2, dFdZ);
+        checkDimensions(2, 2, 2, d2FdXdY);
+        checkDimensions(2, 2, 2, d2FdXdZ);
+        checkDimensions(2, 2, 2, d2FdYdZ);
+        checkDimensions(2, 2, 2, d3FdXdYdZ);
+        return createFunction(new double[64], f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ);
+    }
 
-	/**
-	 * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
-	 * and derivatives for each vertex of the cube [2x2x2].
-	 *
-	 * @param beta
-	 *            the beta array working space (must be a double[64])
-	 * @param f
-	 *            Values of the function on every grid point.
-	 * @param dFdX
-	 *            Values of the partial derivative of function with respect to x on every grid point.
-	 * @param dFdY
-	 *            Values of the partial derivative of function with respect to y on every grid point.
-	 * @param dFdZ
-	 *            Values of the partial derivative of function with respect to z on every grid point.
-	 * @param d2FdXdY
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @param d2FdXdZ
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @param d2FdYdZ
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @param d3FdXdYdZ
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @return tricubic interpolating function
-	 */
-	static CustomTricubicFunction createFunction(double[] beta, final TrivalueProvider f, final TrivalueProvider dFdX,
-			final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
-			final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ, final TrivalueProvider d3FdXdYdZ)
-	{
-		beta[0] = f.get(0, 0, 0);
-		beta[1] = f.get(1, 0, 0);
-		beta[2] = f.get(0, 1, 0);
-		beta[3] = f.get(1, 1, 0);
-		beta[4] = f.get(0, 0, 1);
-		beta[5] = f.get(1, 0, 1);
-		beta[6] = f.get(0, 1, 1);
-		beta[7] = f.get(1, 1, 1);
-		beta[8] = dFdX.get(0, 0, 0);
-		beta[9] = dFdX.get(1, 0, 0);
-		beta[10] = dFdX.get(0, 1, 0);
-		beta[11] = dFdX.get(1, 1, 0);
-		beta[12] = dFdX.get(0, 0, 1);
-		beta[13] = dFdX.get(1, 0, 1);
-		beta[14] = dFdX.get(0, 1, 1);
-		beta[15] = dFdX.get(1, 1, 1);
-		beta[16] = dFdY.get(0, 0, 0);
-		beta[17] = dFdY.get(1, 0, 0);
-		beta[18] = dFdY.get(0, 1, 0);
-		beta[19] = dFdY.get(1, 1, 0);
-		beta[20] = dFdY.get(0, 0, 1);
-		beta[21] = dFdY.get(1, 0, 1);
-		beta[22] = dFdY.get(0, 1, 1);
-		beta[23] = dFdY.get(1, 1, 1);
-		beta[24] = dFdZ.get(0, 0, 0);
-		beta[25] = dFdZ.get(1, 0, 0);
-		beta[26] = dFdZ.get(0, 1, 0);
-		beta[27] = dFdZ.get(1, 1, 0);
-		beta[28] = dFdZ.get(0, 0, 1);
-		beta[29] = dFdZ.get(1, 0, 1);
-		beta[30] = dFdZ.get(0, 1, 1);
-		beta[31] = dFdZ.get(1, 1, 1);
-		beta[32] = d2FdXdY.get(0, 0, 0);
-		beta[33] = d2FdXdY.get(1, 0, 0);
-		beta[34] = d2FdXdY.get(0, 1, 0);
-		beta[35] = d2FdXdY.get(1, 1, 0);
-		beta[36] = d2FdXdY.get(0, 0, 1);
-		beta[37] = d2FdXdY.get(1, 0, 1);
-		beta[38] = d2FdXdY.get(0, 1, 1);
-		beta[39] = d2FdXdY.get(1, 1, 1);
-		beta[40] = d2FdXdZ.get(0, 0, 0);
-		beta[41] = d2FdXdZ.get(1, 0, 0);
-		beta[42] = d2FdXdZ.get(0, 1, 0);
-		beta[43] = d2FdXdZ.get(1, 1, 0);
-		beta[44] = d2FdXdZ.get(0, 0, 1);
-		beta[45] = d2FdXdZ.get(1, 0, 1);
-		beta[46] = d2FdXdZ.get(0, 1, 1);
-		beta[47] = d2FdXdZ.get(1, 1, 1);
-		beta[48] = d2FdYdZ.get(0, 0, 0);
-		beta[49] = d2FdYdZ.get(1, 0, 0);
-		beta[50] = d2FdYdZ.get(0, 1, 0);
-		beta[51] = d2FdYdZ.get(1, 1, 0);
-		beta[52] = d2FdYdZ.get(0, 0, 1);
-		beta[53] = d2FdYdZ.get(1, 0, 1);
-		beta[54] = d2FdYdZ.get(0, 1, 1);
-		beta[55] = d2FdYdZ.get(1, 1, 1);
-		beta[56] = d3FdXdYdZ.get(0, 0, 0);
-		beta[57] = d3FdXdYdZ.get(1, 0, 0);
-		beta[58] = d3FdXdYdZ.get(0, 1, 0);
-		beta[59] = d3FdXdYdZ.get(1, 1, 0);
-		beta[60] = d3FdXdYdZ.get(0, 0, 1);
-		beta[61] = d3FdXdYdZ.get(1, 0, 1);
-		beta[62] = d3FdXdYdZ.get(0, 1, 1);
-		beta[63] = d3FdXdYdZ.get(1, 1, 1);
-		final double[] a = computeCoefficientsInlineCollectTerms(beta);
-		return new DoubleCustomTricubicFunction(a);
-	}
+    /**
+     * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
+     * and derivatives for each vertex of the cube [2x2x2].
+     *
+     * @param beta
+     *            the beta array working space (must be a double[64])
+     * @param f
+     *            Values of the function on every grid point.
+     * @param dFdX
+     *            Values of the partial derivative of function with respect to x on every grid point.
+     * @param dFdY
+     *            Values of the partial derivative of function with respect to y on every grid point.
+     * @param dFdZ
+     *            Values of the partial derivative of function with respect to z on every grid point.
+     * @param d2FdXdY
+     *            Values of the cross partial derivative of function on every grid point.
+     * @param d2FdXdZ
+     *            Values of the cross partial derivative of function on every grid point.
+     * @param d2FdYdZ
+     *            Values of the cross partial derivative of function on every grid point.
+     * @param d3FdXdYdZ
+     *            Values of the cross partial derivative of function on every grid point.
+     * @return tricubic interpolating function
+     */
+    static CustomTricubicFunction createFunction(double[] beta, final TrivalueProvider f, final TrivalueProvider dFdX,
+            final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
+            final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ, final TrivalueProvider d3FdXdYdZ)
+    {
+        beta[0] = f.get(0, 0, 0);
+        beta[1] = f.get(1, 0, 0);
+        beta[2] = f.get(0, 1, 0);
+        beta[3] = f.get(1, 1, 0);
+        beta[4] = f.get(0, 0, 1);
+        beta[5] = f.get(1, 0, 1);
+        beta[6] = f.get(0, 1, 1);
+        beta[7] = f.get(1, 1, 1);
+        beta[8] = dFdX.get(0, 0, 0);
+        beta[9] = dFdX.get(1, 0, 0);
+        beta[10] = dFdX.get(0, 1, 0);
+        beta[11] = dFdX.get(1, 1, 0);
+        beta[12] = dFdX.get(0, 0, 1);
+        beta[13] = dFdX.get(1, 0, 1);
+        beta[14] = dFdX.get(0, 1, 1);
+        beta[15] = dFdX.get(1, 1, 1);
+        beta[16] = dFdY.get(0, 0, 0);
+        beta[17] = dFdY.get(1, 0, 0);
+        beta[18] = dFdY.get(0, 1, 0);
+        beta[19] = dFdY.get(1, 1, 0);
+        beta[20] = dFdY.get(0, 0, 1);
+        beta[21] = dFdY.get(1, 0, 1);
+        beta[22] = dFdY.get(0, 1, 1);
+        beta[23] = dFdY.get(1, 1, 1);
+        beta[24] = dFdZ.get(0, 0, 0);
+        beta[25] = dFdZ.get(1, 0, 0);
+        beta[26] = dFdZ.get(0, 1, 0);
+        beta[27] = dFdZ.get(1, 1, 0);
+        beta[28] = dFdZ.get(0, 0, 1);
+        beta[29] = dFdZ.get(1, 0, 1);
+        beta[30] = dFdZ.get(0, 1, 1);
+        beta[31] = dFdZ.get(1, 1, 1);
+        beta[32] = d2FdXdY.get(0, 0, 0);
+        beta[33] = d2FdXdY.get(1, 0, 0);
+        beta[34] = d2FdXdY.get(0, 1, 0);
+        beta[35] = d2FdXdY.get(1, 1, 0);
+        beta[36] = d2FdXdY.get(0, 0, 1);
+        beta[37] = d2FdXdY.get(1, 0, 1);
+        beta[38] = d2FdXdY.get(0, 1, 1);
+        beta[39] = d2FdXdY.get(1, 1, 1);
+        beta[40] = d2FdXdZ.get(0, 0, 0);
+        beta[41] = d2FdXdZ.get(1, 0, 0);
+        beta[42] = d2FdXdZ.get(0, 1, 0);
+        beta[43] = d2FdXdZ.get(1, 1, 0);
+        beta[44] = d2FdXdZ.get(0, 0, 1);
+        beta[45] = d2FdXdZ.get(1, 0, 1);
+        beta[46] = d2FdXdZ.get(0, 1, 1);
+        beta[47] = d2FdXdZ.get(1, 1, 1);
+        beta[48] = d2FdYdZ.get(0, 0, 0);
+        beta[49] = d2FdYdZ.get(1, 0, 0);
+        beta[50] = d2FdYdZ.get(0, 1, 0);
+        beta[51] = d2FdYdZ.get(1, 1, 0);
+        beta[52] = d2FdYdZ.get(0, 0, 1);
+        beta[53] = d2FdYdZ.get(1, 0, 1);
+        beta[54] = d2FdYdZ.get(0, 1, 1);
+        beta[55] = d2FdYdZ.get(1, 1, 1);
+        beta[56] = d3FdXdYdZ.get(0, 0, 0);
+        beta[57] = d3FdXdYdZ.get(1, 0, 0);
+        beta[58] = d3FdXdYdZ.get(0, 1, 0);
+        beta[59] = d3FdXdYdZ.get(1, 1, 0);
+        beta[60] = d3FdXdYdZ.get(0, 0, 1);
+        beta[61] = d3FdXdYdZ.get(1, 0, 1);
+        beta[62] = d3FdXdYdZ.get(0, 1, 1);
+        beta[63] = d3FdXdYdZ.get(1, 1, 1);
+        final double[] a = computeCoefficientsInlineCollectTerms(beta);
+        return new DoubleCustomTricubicFunction(a);
+    }
 
-	/**
-	 * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
-	 * and derivatives for each vertex of the cube [2x2x2]. The input gradients are assumed to require normalisation by
-	 * the scale for each dimension.
-	 * <p>
-	 * To use the function to create an interpolated value in the range [0-xscale,0-yscale,0-zscale]:
-	 *
-	 * <pre>
-	 * double value = f.value(x / xscale, y / yscale, z / zscale);
-	 * </pre>
-	 *
-	 * @param xscale
-	 *            the xscale
-	 * @param yscale
-	 *            the yscale
-	 * @param zscale
-	 *            the zscale
-	 * @param f
-	 *            Values of the function on every grid point.
-	 * @param dFdX
-	 *            Values of the partial derivative of function with respect to x on every grid point.
-	 * @param dFdY
-	 *            Values of the partial derivative of function with respect to y on every grid point.
-	 * @param dFdZ
-	 *            Values of the partial derivative of function with respect to z on every grid point.
-	 * @param d2FdXdY
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @param d2FdXdZ
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @param d2FdYdZ
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @param d3FdXdYdZ
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @return tricubic interpolating function
-	 * @throws DimensionMismatchException
-	 *             if the array lengths are inconsistent.
-	 */
-	public static CustomTricubicFunction create(double xscale, double yscale, double zscale, final TrivalueProvider f,
-			final TrivalueProvider dFdX, final TrivalueProvider dFdY, final TrivalueProvider dFdZ,
-			final TrivalueProvider d2FdXdY, final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ,
-			final TrivalueProvider d3FdXdYdZ) throws DimensionMismatchException
-	{
-		checkDimensions(2, 2, 2, f);
-		checkDimensions(2, 2, 2, dFdX);
-		checkDimensions(2, 2, 2, dFdY);
-		checkDimensions(2, 2, 2, dFdZ);
-		checkDimensions(2, 2, 2, d2FdXdY);
-		checkDimensions(2, 2, 2, d2FdXdZ);
-		checkDimensions(2, 2, 2, d2FdYdZ);
-		checkDimensions(2, 2, 2, d3FdXdYdZ);
-		return createFunction(new double[64], xscale, yscale, zscale, f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ,
-				d3FdXdYdZ);
-	}
+    /**
+     * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
+     * and derivatives for each vertex of the cube [2x2x2]. The input gradients are assumed to require normalisation by
+     * the scale for each dimension.
+     * <p>
+     * To use the function to create an interpolated value in the range [0-xscale,0-yscale,0-zscale]:
+     *
+     * <pre>
+     * double value = f.value(x / xscale, y / yscale, z / zscale);
+     * </pre>
+     *
+     * @param xscale
+     *            the xscale
+     * @param yscale
+     *            the yscale
+     * @param zscale
+     *            the zscale
+     * @param f
+     *            Values of the function on every grid point.
+     * @param dFdX
+     *            Values of the partial derivative of function with respect to x on every grid point.
+     * @param dFdY
+     *            Values of the partial derivative of function with respect to y on every grid point.
+     * @param dFdZ
+     *            Values of the partial derivative of function with respect to z on every grid point.
+     * @param d2FdXdY
+     *            Values of the cross partial derivative of function on every grid point.
+     * @param d2FdXdZ
+     *            Values of the cross partial derivative of function on every grid point.
+     * @param d2FdYdZ
+     *            Values of the cross partial derivative of function on every grid point.
+     * @param d3FdXdYdZ
+     *            Values of the cross partial derivative of function on every grid point.
+     * @return tricubic interpolating function
+     * @throws DimensionMismatchException
+     *             if the array lengths are inconsistent.
+     */
+    public static CustomTricubicFunction create(double xscale, double yscale, double zscale, final TrivalueProvider f,
+            final TrivalueProvider dFdX, final TrivalueProvider dFdY, final TrivalueProvider dFdZ,
+            final TrivalueProvider d2FdXdY, final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ,
+            final TrivalueProvider d3FdXdYdZ) throws DimensionMismatchException
+    {
+        checkDimensions(2, 2, 2, f);
+        checkDimensions(2, 2, 2, dFdX);
+        checkDimensions(2, 2, 2, dFdY);
+        checkDimensions(2, 2, 2, dFdZ);
+        checkDimensions(2, 2, 2, d2FdXdY);
+        checkDimensions(2, 2, 2, d2FdXdZ);
+        checkDimensions(2, 2, 2, d2FdYdZ);
+        checkDimensions(2, 2, 2, d3FdXdYdZ);
+        return createFunction(new double[64], xscale, yscale, zscale, f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ,
+                d3FdXdYdZ);
+    }
 
-	/**
-	 * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
-	 * and derivatives for each vertex of the cube [2x2x2]. The input gradients are assumed to require normalisation by
-	 * the scale for each dimension.
-	 * <p>
-	 * To use the function to create an interpolated value in the range [0-xscale,0-yscale,0-zscale]:
-	 *
-	 * <pre>
-	 * double value = f.value(x / xscale, y / yscale, z / zscale);
-	 * </pre>
-	 *
-	 * @param beta
-	 *            the beta array working space (must be a double[64])
-	 * @param xscale
-	 *            the xscale
-	 * @param yscale
-	 *            the yscale
-	 * @param zscale
-	 *            the zscale
-	 * @param f
-	 *            Values of the function on every grid point.
-	 * @param dFdX
-	 *            Values of the partial derivative of function with respect to x on every grid point.
-	 * @param dFdY
-	 *            Values of the partial derivative of function with respect to y on every grid point.
-	 * @param dFdZ
-	 *            Values of the partial derivative of function with respect to z on every grid point.
-	 * @param d2FdXdY
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @param d2FdXdZ
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @param d2FdYdZ
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @param d3FdXdYdZ
-	 *            Values of the cross partial derivative of function on every grid point.
-	 * @return tricubic interpolating function
-	 */
-	static CustomTricubicFunction createFunction(double[] beta, double xscale, double yscale, double zscale,
-			final TrivalueProvider f, final TrivalueProvider dFdX, final TrivalueProvider dFdY,
-			final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY, final TrivalueProvider d2FdXdZ,
-			final TrivalueProvider d2FdYdZ, final TrivalueProvider d3FdXdYdZ)
-	{
-		final double xR = xscale;
-		final double yR = yscale;
-		final double xRyR = xR * yR;
-		final double zR = zscale;
-		final double xRzR = xR * zR;
-		final double yRzR = yR * zR;
-		final double xRyRzR = xR * yRzR;
-		beta[0] = f.get(0, 0, 0);
-		beta[1] = f.get(1, 0, 0);
-		beta[2] = f.get(0, 1, 0);
-		beta[3] = f.get(1, 1, 0);
-		beta[4] = f.get(0, 0, 1);
-		beta[5] = f.get(1, 0, 1);
-		beta[6] = f.get(0, 1, 1);
-		beta[7] = f.get(1, 1, 1);
-		beta[8] = dFdX.get(0, 0, 0) * xR;
-		beta[9] = dFdX.get(1, 0, 0) * xR;
-		beta[10] = dFdX.get(0, 1, 0) * xR;
-		beta[11] = dFdX.get(1, 1, 0) * xR;
-		beta[12] = dFdX.get(0, 0, 1) * xR;
-		beta[13] = dFdX.get(1, 0, 1) * xR;
-		beta[14] = dFdX.get(0, 1, 1) * xR;
-		beta[15] = dFdX.get(1, 1, 1) * xR;
-		beta[16] = dFdY.get(0, 0, 0) * yR;
-		beta[17] = dFdY.get(1, 0, 0) * yR;
-		beta[18] = dFdY.get(0, 1, 0) * yR;
-		beta[19] = dFdY.get(1, 1, 0) * yR;
-		beta[20] = dFdY.get(0, 0, 1) * yR;
-		beta[21] = dFdY.get(1, 0, 1) * yR;
-		beta[22] = dFdY.get(0, 1, 1) * yR;
-		beta[23] = dFdY.get(1, 1, 1) * yR;
-		beta[24] = dFdZ.get(0, 0, 0) * zR;
-		beta[25] = dFdZ.get(1, 0, 0) * zR;
-		beta[26] = dFdZ.get(0, 1, 0) * zR;
-		beta[27] = dFdZ.get(1, 1, 0) * zR;
-		beta[28] = dFdZ.get(0, 0, 1) * zR;
-		beta[29] = dFdZ.get(1, 0, 1) * zR;
-		beta[30] = dFdZ.get(0, 1, 1) * zR;
-		beta[31] = dFdZ.get(1, 1, 1) * zR;
-		beta[32] = d2FdXdY.get(0, 0, 0) * xRyR;
-		beta[33] = d2FdXdY.get(1, 0, 0) * xRyR;
-		beta[34] = d2FdXdY.get(0, 1, 0) * xRyR;
-		beta[35] = d2FdXdY.get(1, 1, 0) * xRyR;
-		beta[36] = d2FdXdY.get(0, 0, 1) * xRyR;
-		beta[37] = d2FdXdY.get(1, 0, 1) * xRyR;
-		beta[38] = d2FdXdY.get(0, 1, 1) * xRyR;
-		beta[39] = d2FdXdY.get(1, 1, 1) * xRyR;
-		beta[40] = d2FdXdZ.get(0, 0, 0) * xRzR;
-		beta[41] = d2FdXdZ.get(1, 0, 0) * xRzR;
-		beta[42] = d2FdXdZ.get(0, 1, 0) * xRzR;
-		beta[43] = d2FdXdZ.get(1, 1, 0) * xRzR;
-		beta[44] = d2FdXdZ.get(0, 0, 1) * xRzR;
-		beta[45] = d2FdXdZ.get(1, 0, 1) * xRzR;
-		beta[46] = d2FdXdZ.get(0, 1, 1) * xRzR;
-		beta[47] = d2FdXdZ.get(1, 1, 1) * xRzR;
-		beta[48] = d2FdYdZ.get(0, 0, 0) * yRzR;
-		beta[49] = d2FdYdZ.get(1, 0, 0) * yRzR;
-		beta[50] = d2FdYdZ.get(0, 1, 0) * yRzR;
-		beta[51] = d2FdYdZ.get(1, 1, 0) * yRzR;
-		beta[52] = d2FdYdZ.get(0, 0, 1) * yRzR;
-		beta[53] = d2FdYdZ.get(1, 0, 1) * yRzR;
-		beta[54] = d2FdYdZ.get(0, 1, 1) * yRzR;
-		beta[55] = d2FdYdZ.get(1, 1, 1) * yRzR;
-		beta[56] = d3FdXdYdZ.get(0, 0, 0) * xRyRzR;
-		beta[57] = d3FdXdYdZ.get(1, 0, 0) * xRyRzR;
-		beta[58] = d3FdXdYdZ.get(0, 1, 0) * xRyRzR;
-		beta[59] = d3FdXdYdZ.get(1, 1, 0) * xRyRzR;
-		beta[60] = d3FdXdYdZ.get(0, 0, 1) * xRyRzR;
-		beta[61] = d3FdXdYdZ.get(1, 0, 1) * xRyRzR;
-		beta[62] = d3FdXdYdZ.get(0, 1, 1) * xRyRzR;
-		beta[63] = d3FdXdYdZ.get(1, 1, 1) * xRyRzR;
-		final double[] a = computeCoefficientsInlineCollectTerms(beta);
-		return new DoubleCustomTricubicFunction(a);
-	}
+    /**
+     * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have function values
+     * and derivatives for each vertex of the cube [2x2x2]. The input gradients are assumed to require normalisation by
+     * the scale for each dimension.
+     * <p>
+     * To use the function to create an interpolated value in the range [0-xscale,0-yscale,0-zscale]:
+     *
+     * <pre>
+     * double value = f.value(x / xscale, y / yscale, z / zscale);
+     * </pre>
+     *
+     * @param beta
+     *            the beta array working space (must be a double[64])
+     * @param xscale
+     *            the xscale
+     * @param yscale
+     *            the yscale
+     * @param zscale
+     *            the zscale
+     * @param f
+     *            Values of the function on every grid point.
+     * @param dFdX
+     *            Values of the partial derivative of function with respect to x on every grid point.
+     * @param dFdY
+     *            Values of the partial derivative of function with respect to y on every grid point.
+     * @param dFdZ
+     *            Values of the partial derivative of function with respect to z on every grid point.
+     * @param d2FdXdY
+     *            Values of the cross partial derivative of function on every grid point.
+     * @param d2FdXdZ
+     *            Values of the cross partial derivative of function on every grid point.
+     * @param d2FdYdZ
+     *            Values of the cross partial derivative of function on every grid point.
+     * @param d3FdXdYdZ
+     *            Values of the cross partial derivative of function on every grid point.
+     * @return tricubic interpolating function
+     */
+    static CustomTricubicFunction createFunction(double[] beta, double xscale, double yscale, double zscale,
+            final TrivalueProvider f, final TrivalueProvider dFdX, final TrivalueProvider dFdY,
+            final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY, final TrivalueProvider d2FdXdZ,
+            final TrivalueProvider d2FdYdZ, final TrivalueProvider d3FdXdYdZ)
+    {
+        final double xR = xscale;
+        final double yR = yscale;
+        final double xRyR = xR * yR;
+        final double zR = zscale;
+        final double xRzR = xR * zR;
+        final double yRzR = yR * zR;
+        final double xRyRzR = xR * yRzR;
+        beta[0] = f.get(0, 0, 0);
+        beta[1] = f.get(1, 0, 0);
+        beta[2] = f.get(0, 1, 0);
+        beta[3] = f.get(1, 1, 0);
+        beta[4] = f.get(0, 0, 1);
+        beta[5] = f.get(1, 0, 1);
+        beta[6] = f.get(0, 1, 1);
+        beta[7] = f.get(1, 1, 1);
+        beta[8] = dFdX.get(0, 0, 0) * xR;
+        beta[9] = dFdX.get(1, 0, 0) * xR;
+        beta[10] = dFdX.get(0, 1, 0) * xR;
+        beta[11] = dFdX.get(1, 1, 0) * xR;
+        beta[12] = dFdX.get(0, 0, 1) * xR;
+        beta[13] = dFdX.get(1, 0, 1) * xR;
+        beta[14] = dFdX.get(0, 1, 1) * xR;
+        beta[15] = dFdX.get(1, 1, 1) * xR;
+        beta[16] = dFdY.get(0, 0, 0) * yR;
+        beta[17] = dFdY.get(1, 0, 0) * yR;
+        beta[18] = dFdY.get(0, 1, 0) * yR;
+        beta[19] = dFdY.get(1, 1, 0) * yR;
+        beta[20] = dFdY.get(0, 0, 1) * yR;
+        beta[21] = dFdY.get(1, 0, 1) * yR;
+        beta[22] = dFdY.get(0, 1, 1) * yR;
+        beta[23] = dFdY.get(1, 1, 1) * yR;
+        beta[24] = dFdZ.get(0, 0, 0) * zR;
+        beta[25] = dFdZ.get(1, 0, 0) * zR;
+        beta[26] = dFdZ.get(0, 1, 0) * zR;
+        beta[27] = dFdZ.get(1, 1, 0) * zR;
+        beta[28] = dFdZ.get(0, 0, 1) * zR;
+        beta[29] = dFdZ.get(1, 0, 1) * zR;
+        beta[30] = dFdZ.get(0, 1, 1) * zR;
+        beta[31] = dFdZ.get(1, 1, 1) * zR;
+        beta[32] = d2FdXdY.get(0, 0, 0) * xRyR;
+        beta[33] = d2FdXdY.get(1, 0, 0) * xRyR;
+        beta[34] = d2FdXdY.get(0, 1, 0) * xRyR;
+        beta[35] = d2FdXdY.get(1, 1, 0) * xRyR;
+        beta[36] = d2FdXdY.get(0, 0, 1) * xRyR;
+        beta[37] = d2FdXdY.get(1, 0, 1) * xRyR;
+        beta[38] = d2FdXdY.get(0, 1, 1) * xRyR;
+        beta[39] = d2FdXdY.get(1, 1, 1) * xRyR;
+        beta[40] = d2FdXdZ.get(0, 0, 0) * xRzR;
+        beta[41] = d2FdXdZ.get(1, 0, 0) * xRzR;
+        beta[42] = d2FdXdZ.get(0, 1, 0) * xRzR;
+        beta[43] = d2FdXdZ.get(1, 1, 0) * xRzR;
+        beta[44] = d2FdXdZ.get(0, 0, 1) * xRzR;
+        beta[45] = d2FdXdZ.get(1, 0, 1) * xRzR;
+        beta[46] = d2FdXdZ.get(0, 1, 1) * xRzR;
+        beta[47] = d2FdXdZ.get(1, 1, 1) * xRzR;
+        beta[48] = d2FdYdZ.get(0, 0, 0) * yRzR;
+        beta[49] = d2FdYdZ.get(1, 0, 0) * yRzR;
+        beta[50] = d2FdYdZ.get(0, 1, 0) * yRzR;
+        beta[51] = d2FdYdZ.get(1, 1, 0) * yRzR;
+        beta[52] = d2FdYdZ.get(0, 0, 1) * yRzR;
+        beta[53] = d2FdYdZ.get(1, 0, 1) * yRzR;
+        beta[54] = d2FdYdZ.get(0, 1, 1) * yRzR;
+        beta[55] = d2FdYdZ.get(1, 1, 1) * yRzR;
+        beta[56] = d3FdXdYdZ.get(0, 0, 0) * xRyRzR;
+        beta[57] = d3FdXdYdZ.get(1, 0, 0) * xRyRzR;
+        beta[58] = d3FdXdYdZ.get(0, 1, 0) * xRyRzR;
+        beta[59] = d3FdXdYdZ.get(1, 1, 0) * xRyRzR;
+        beta[60] = d3FdXdYdZ.get(0, 0, 1) * xRyRzR;
+        beta[61] = d3FdXdYdZ.get(1, 0, 1) * xRyRzR;
+        beta[62] = d3FdXdYdZ.get(0, 1, 1) * xRyRzR;
+        beta[63] = d3FdXdYdZ.get(1, 1, 1) * xRyRzR;
+        final double[] a = computeCoefficientsInlineCollectTerms(beta);
+        return new DoubleCustomTricubicFunction(a);
+    }
 }

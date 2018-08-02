@@ -41,452 +41,452 @@ import org.apache.commons.math3.util.FastMath;
  */
 public class NoiseEstimator
 {
-	/**
-	 * The noise estimator method.
-	 */
-	public enum Method
-	{
-		//@fomatter:off
-		/**
-		 * Use all pixels
-		 */
-		ALL_PIXELS
-		{
-			@Override
-			public String getName()
-			{
-				return "All pixels";
-			}
-		},
-		/**
-		 * Use a range around the lowest pixel in the image
-		 */
-		LOWEST_PIXELS
-		{
-			@Override
-			public String getName()
-			{
-				return "Lowest pixels";
-			}
-		},
-		/**
-		 * Use the psuedo-residuals and calculate the least median of squares
-		 */
-		RESIDUALS_LEAST_MEDIAN_OF_SQUARES
-		{
-			@Override
-			public String getName()
-			{
-				return "Residuals least-median-of-squares";
-			}
-		},
-		/**
-		 * Use the psuedo-residuals and calculate the least trimmed of squares
-		 */
-		RESIDUALS_LEAST_TRIMMED_OF_SQUARES
-		{
-			@Override
-			public String getName()
-			{
-				return "Residuals least-trimmed-of-squares";
-			}
-		},
-		/**
-		 * Use the psuedo-residuals and calculate the least mean of squares
-		 */
-		RESIDUALS_LEAST_MEAN_OF_SQUARES
-		{
-			@Override
-			public String getName()
-			{
-				return "Residuals least-mean-of-squares";
-			}
-		},
-		/**
-		 * Use the psuedo-residuals ignoring image border and calculate the least median of squares
-		 */
-		QUICK_RESIDUALS_LEAST_MEDIAN_OF_SQUARES
-		{
-			@Override
-			public String getName()
-			{
-				return "Quick residuals least-median-of-squares";
-			}
-		},
-		/**
-		 * Use the psuedo-residuals ignoring image border and calculate the least trimmed of squares
-		 */
-		QUICK_RESIDUALS_LEAST_TRIMMED_OF_SQUARES
-		{
-			@Override
-			public String getName()
-			{
-				return "Quick residuals least-trimmed-of-squares";
-			}
-		},
-		/**
-		 * Use the psuedo-residuals ignoring image border and calculate the least mean of squares
-		 */
-		QUICK_RESIDUALS_LEAST_MEAN_OF_SQUARES
-		{
-			@Override
-			public String getName()
-			{
-				return "Quick residuals least-mean-of-squares";
-			}
-		};
-		//@formatter:on
+    /**
+     * The noise estimator method.
+     */
+    public enum Method
+    {
+    //@fomatter:off
+    /**
+     * Use all pixels
+     */
+    ALL_PIXELS
+    {
+        @Override
+        public String getName()
+        {
+            return "All pixels";
+        }
+    },
+    /**
+     * Use a range around the lowest pixel in the image
+     */
+    LOWEST_PIXELS
+    {
+        @Override
+        public String getName()
+        {
+            return "Lowest pixels";
+        }
+    },
+    /**
+     * Use the psuedo-residuals and calculate the least median of squares
+     */
+    RESIDUALS_LEAST_MEDIAN_OF_SQUARES
+    {
+        @Override
+        public String getName()
+        {
+            return "Residuals least-median-of-squares";
+        }
+    },
+    /**
+     * Use the psuedo-residuals and calculate the least trimmed of squares
+     */
+    RESIDUALS_LEAST_TRIMMED_OF_SQUARES
+    {
+        @Override
+        public String getName()
+        {
+            return "Residuals least-trimmed-of-squares";
+        }
+    },
+    /**
+     * Use the psuedo-residuals and calculate the least mean of squares
+     */
+    RESIDUALS_LEAST_MEAN_OF_SQUARES
+    {
+        @Override
+        public String getName()
+        {
+            return "Residuals least-mean-of-squares";
+        }
+    },
+    /**
+     * Use the psuedo-residuals ignoring image border and calculate the least median of squares
+     */
+    QUICK_RESIDUALS_LEAST_MEDIAN_OF_SQUARES
+    {
+        @Override
+        public String getName()
+        {
+            return "Quick residuals least-median-of-squares";
+        }
+    },
+    /**
+     * Use the psuedo-residuals ignoring image border and calculate the least trimmed of squares
+     */
+    QUICK_RESIDUALS_LEAST_TRIMMED_OF_SQUARES
+    {
+        @Override
+        public String getName()
+        {
+            return "Quick residuals least-trimmed-of-squares";
+        }
+    },
+    /**
+     * Use the psuedo-residuals ignoring image border and calculate the least mean of squares
+     */
+    QUICK_RESIDUALS_LEAST_MEAN_OF_SQUARES
+    {
+        @Override
+        public String getName()
+        {
+            return "Quick residuals least-mean-of-squares";
+        }
+    };
+        //@formatter:on
 
-		@Override
-		public String toString()
-		{
-			return getName();
-		}
+        @Override
+        public String toString()
+        {
+            return getName();
+        }
 
-		/**
-		 * Gets the name.
-		 *
-		 * @return the name
-		 */
-		abstract public String getName();
-	}
+        /**
+         * Gets the name.
+         *
+         * @return the name
+         */
+        abstract public String getName();
+    }
 
-	private final float[] data;
-	private float[] residuals = null;
-	private float[] quickResiduals = null;
-	private final int maxx;
-	private final int maxy;
+    private final float[] data;
+    private float[] residuals = null;
+    private float[] quickResiduals = null;
+    private final int maxx;
+    private final int maxy;
 
-	private int range = 6;
-	/**
-	 * Set this to true if multiple calls will be made to {@link #getNoise(Method)} using methods that modify the
-	 * residuals (LeastMedian or LeastTrimmed). If false these methods destroy the residuals which then have to be
-	 * recomputed.
-	 */
-	public boolean preserveResiduals = false;
+    private int range = 6;
+    /**
+     * Set this to true if multiple calls will be made to {@link #getNoise(Method)} using methods that modify the
+     * residuals (LeastMedian or LeastTrimmed). If false these methods destroy the residuals which then have to be
+     * recomputed.
+     */
+    public boolean preserveResiduals = false;
 
-	/**
-	 * Instantiates a new noise estimator.
-	 *
-	 * @param data
-	 *            the data
-	 * @param maxx
-	 *            the maxx
-	 * @param maxy
-	 *            the maxy
-	 */
-	public NoiseEstimator(float[] data, int maxx, int maxy)
-	{
-		if (maxx < 1 || maxy < 1)
-			throw new IllegalArgumentException("X/Y dimensions must be larger than 0");
-		if (data == null || data.length < maxx * maxy)
-			throw new IllegalArgumentException("Data must be at least as large as the given dimensions");
-		this.data = data;
-		this.maxx = maxx;
-		this.maxy = maxy;
-	}
+    /**
+     * Instantiates a new noise estimator.
+     *
+     * @param data
+     *            the data
+     * @param maxx
+     *            the maxx
+     * @param maxy
+     *            the maxy
+     */
+    public NoiseEstimator(float[] data, int maxx, int maxy)
+    {
+        if (maxx < 1 || maxy < 1)
+            throw new IllegalArgumentException("X/Y dimensions must be larger than 0");
+        if (data == null || data.length < maxx * maxy)
+            throw new IllegalArgumentException("Data must be at least as large as the given dimensions");
+        this.data = data;
+        this.maxx = maxx;
+        this.maxy = maxy;
+    }
 
-	/**
-	 * Estimates the noise using random pixels from the image.
-	 *
-	 * @param method
-	 *            the method
-	 * @return the noise
-	 */
-	public double getNoise(Method method)
-	{
-		Estimator ne;
+    /**
+     * Estimates the noise using random pixels from the image.
+     *
+     * @param method
+     *            the method
+     * @return the noise
+     */
+    public double getNoise(Method method)
+    {
+        Estimator ne;
 
-		switch (method)
-		{
-			case QUICK_RESIDUALS_LEAST_TRIMMED_OF_SQUARES:
-				ne = new ResidualsLeastTrimmedSquareEstimator(true);
-				break;
+        switch (method)
+        {
+            case QUICK_RESIDUALS_LEAST_TRIMMED_OF_SQUARES:
+                ne = new ResidualsLeastTrimmedSquareEstimator(true);
+                break;
 
-			case QUICK_RESIDUALS_LEAST_MEDIAN_OF_SQUARES:
-				ne = new ResidualsLeastMedianSquareEstimator(true);
-				break;
+            case QUICK_RESIDUALS_LEAST_MEDIAN_OF_SQUARES:
+                ne = new ResidualsLeastMedianSquareEstimator(true);
+                break;
 
-			case QUICK_RESIDUALS_LEAST_MEAN_OF_SQUARES:
-				ne = new ResidualsLeastMeanSquareEstimator(true);
-				break;
+            case QUICK_RESIDUALS_LEAST_MEAN_OF_SQUARES:
+                ne = new ResidualsLeastMeanSquareEstimator(true);
+                break;
 
-			case RESIDUALS_LEAST_TRIMMED_OF_SQUARES:
-				ne = new ResidualsLeastTrimmedSquareEstimator(false);
-				break;
+            case RESIDUALS_LEAST_TRIMMED_OF_SQUARES:
+                ne = new ResidualsLeastTrimmedSquareEstimator(false);
+                break;
 
-			case RESIDUALS_LEAST_MEDIAN_OF_SQUARES:
-				ne = new ResidualsLeastMedianSquareEstimator(false);
-				break;
+            case RESIDUALS_LEAST_MEDIAN_OF_SQUARES:
+                ne = new ResidualsLeastMedianSquareEstimator(false);
+                break;
 
-			case RESIDUALS_LEAST_MEAN_OF_SQUARES:
-				ne = new ResidualsLeastMeanSquareEstimator(false);
-				break;
+            case RESIDUALS_LEAST_MEAN_OF_SQUARES:
+                ne = new ResidualsLeastMeanSquareEstimator(false);
+                break;
 
-			case LOWEST_PIXELS:
-				ne = new MinEstimator(range);
-				break;
+            case LOWEST_PIXELS:
+                ne = new MinEstimator(range);
+                break;
 
-			default:
-				ne = new AllEstimator();
-		}
+            default:
+                ne = new AllEstimator();
+        }
 
-		return ne.getNoise();
-	}
+        return ne.getNoise();
+    }
 
-	/**
-	 * Provide the base implementation for all noise estimators
-	 */
-	private abstract class Estimator
-	{
-		abstract double getNoise();
-	}
+    /**
+     * Provide the base implementation for all noise estimators
+     */
+    private abstract class Estimator
+    {
+        abstract double getNoise();
+    }
 
-	/**
-	 * Estimate the noise using standard deviation of all pixels in an image
-	 */
-	private class AllEstimator extends Estimator
-	{
-		@Override
-		double getNoise()
-		{
-			final SummaryStatistics stats = new SummaryStatistics();
-			for (int i = maxx * maxy; i-- > 0;)
-				stats.addValue(data[i]);
-			return stats.getStandardDeviation();
-		}
-	}
+    /**
+     * Estimate the noise using standard deviation of all pixels in an image
+     */
+    private class AllEstimator extends Estimator
+    {
+        @Override
+        double getNoise()
+        {
+            final SummaryStatistics stats = new SummaryStatistics();
+            for (int i = maxx * maxy; i-- > 0;)
+                stats.addValue(data[i]);
+            return stats.getStandardDeviation();
+        }
+    }
 
-	/**
-	 * Estimate noise using region around lowest pixel in image
-	 */
-	private class MinEstimator extends Estimator
-	{
-		final int range;
+    /**
+     * Estimate noise using region around lowest pixel in image
+     */
+    private class MinEstimator extends Estimator
+    {
+        final int range;
 
-		public MinEstimator(int range)
-		{
-			this.range = range;
-		}
+        public MinEstimator(int range)
+        {
+            this.range = range;
+        }
 
-		@Override
-		double getNoise()
-		{
-			// Get the image minimum
-			float min = Float.POSITIVE_INFINITY;
-			int index = 0;
-			for (int i = maxx * maxy; i-- > 0;)
-				if (min > data[i])
-				{
-					min = data[i];
-					index = i;
-				}
+        @Override
+        double getNoise()
+        {
+            // Get the image minimum
+            float min = Float.POSITIVE_INFINITY;
+            int index = 0;
+            for (int i = maxx * maxy; i-- > 0;)
+                if (min > data[i])
+                {
+                    min = data[i];
+                    index = i;
+                }
 
-			final int x = index % maxx;
-			final int y = index / maxx;
-			final int ys = FastMath.max(y - range, 0);
-			final int ye = FastMath.min(y + range, maxy - 1);
-			final int xs = FastMath.max(x - range, 0);
-			final int xe = FastMath.min(x + range, maxx - 1);
+            final int x = index % maxx;
+            final int y = index / maxx;
+            final int ys = FastMath.max(y - range, 0);
+            final int ye = FastMath.min(y + range, maxy - 1);
+            final int xs = FastMath.max(x - range, 0);
+            final int xe = FastMath.min(x + range, maxx - 1);
 
-			final SummaryStatistics stats = new SummaryStatistics();
-			for (int y2 = ys; y2 <= ye; y2++)
-				for (int x2 = xs, i = ys * maxx + xs; x2 <= xe; x2++, i++)
-					stats.addValue(data[i]);
-			return stats.getStandardDeviation();
-		}
-	}
+            final SummaryStatistics stats = new SummaryStatistics();
+            for (int y2 = ys; y2 <= ye; y2++)
+                for (int x2 = xs, i = ys * maxx + xs; x2 <= xe; x2++, i++)
+                    stats.addValue(data[i]);
+            return stats.getStandardDeviation();
+        }
+    }
 
-	private class ResidualsLeastMedianSquareEstimator extends Estimator
-	{
-		public boolean quick = false;
+    private class ResidualsLeastMedianSquareEstimator extends Estimator
+    {
+        public boolean quick = false;
 
-		public ResidualsLeastMedianSquareEstimator(boolean quick)
-		{
-			this.quick = quick;
-		}
+        public ResidualsLeastMedianSquareEstimator(boolean quick)
+        {
+            this.quick = quick;
+        }
 
-		@Override
-		double getNoise()
-		{
-			float[] buf = (quick) ? getQuickPseudoResiduals() : getPseudoResiduals();
-			final int n = buf.length;
-			if (n < 2)
-				return 0;
-			if (preserveResiduals)
-				buf = Arrays.copyOf(buf, buf.length);
-			Arrays.sort(buf);
-			final float med_i = buf[(int) (.5 * n)];
-			for (int j = 0; j < n; j++)
-				buf[j] = Math.abs(buf[j] - med_i);
-			Arrays.sort(buf);
-			final double sig = 1.4828 * buf[(int) (.5 * n)];
-			if (!preserveResiduals)
-				// Residuals have been destroyed
-				if (quick)
-					quickResiduals = null;
-				else
-					residuals = null;
-			return Math.abs(sig);
-		}
-	}
+        @Override
+        double getNoise()
+        {
+            float[] buf = (quick) ? getQuickPseudoResiduals() : getPseudoResiduals();
+            final int n = buf.length;
+            if (n < 2)
+                return 0;
+            if (preserveResiduals)
+                buf = Arrays.copyOf(buf, buf.length);
+            Arrays.sort(buf);
+            final float med_i = buf[(int) (.5 * n)];
+            for (int j = 0; j < n; j++)
+                buf[j] = Math.abs(buf[j] - med_i);
+            Arrays.sort(buf);
+            final double sig = 1.4828 * buf[(int) (.5 * n)];
+            if (!preserveResiduals)
+                // Residuals have been destroyed
+                if (quick)
+                    quickResiduals = null;
+                else
+                    residuals = null;
+            return Math.abs(sig);
+        }
+    }
 
-	private class ResidualsLeastTrimmedSquareEstimator extends Estimator
-	{
-		public boolean quick = false;
+    private class ResidualsLeastTrimmedSquareEstimator extends Estimator
+    {
+        public boolean quick = false;
 
-		public ResidualsLeastTrimmedSquareEstimator(boolean quick)
-		{
-			this.quick = quick;
-		}
+        public ResidualsLeastTrimmedSquareEstimator(boolean quick)
+        {
+            this.quick = quick;
+        }
 
-		@Override
-		double getNoise()
-		{
-			float[] buf = (quick) ? getQuickPseudoResiduals() : getPseudoResiduals();
-			final int n = buf.length;
-			if (n < 2)
-				return 0;
-			if (preserveResiduals)
-				buf = Arrays.copyOf(buf, buf.length);
-			for (int k = 0; k < n; k++)
-				buf[k] = buf[k] * buf[k];
-			Arrays.sort(buf);
-			double a = 0;
-			for (int j = 0; j < (int) (.5 * n); j++)
-				a += buf[j];
-			final double sig = 2.6477 * Math.sqrt(a / (int) (.5 * n));
-			if (!preserveResiduals)
-				// Residuals have been destroyed
-				if (quick)
-					quickResiduals = null;
-				else
-					residuals = null;
-			return Math.abs(sig);
-		}
-	}
+        @Override
+        double getNoise()
+        {
+            float[] buf = (quick) ? getQuickPseudoResiduals() : getPseudoResiduals();
+            final int n = buf.length;
+            if (n < 2)
+                return 0;
+            if (preserveResiduals)
+                buf = Arrays.copyOf(buf, buf.length);
+            for (int k = 0; k < n; k++)
+                buf[k] = buf[k] * buf[k];
+            Arrays.sort(buf);
+            double a = 0;
+            for (int j = 0; j < (int) (.5 * n); j++)
+                a += buf[j];
+            final double sig = 2.6477 * Math.sqrt(a / (int) (.5 * n));
+            if (!preserveResiduals)
+                // Residuals have been destroyed
+                if (quick)
+                    quickResiduals = null;
+                else
+                    residuals = null;
+            return Math.abs(sig);
+        }
+    }
 
-	private class ResidualsLeastMeanSquareEstimator extends Estimator
-	{
-		public boolean quick = false;
+    private class ResidualsLeastMeanSquareEstimator extends Estimator
+    {
+        public boolean quick = false;
 
-		public ResidualsLeastMeanSquareEstimator(boolean quick)
-		{
-			this.quick = quick;
-		}
+        public ResidualsLeastMeanSquareEstimator(boolean quick)
+        {
+            this.quick = quick;
+        }
 
-		@Override
-		double getNoise()
-		{
-			final float[] buf = (quick) ? getQuickPseudoResiduals() : getPseudoResiduals();
-			if (buf.length < 2)
-				return 0;
-			double a = 0, b = 0;
-			for (int i = 0; i < buf.length; i++)
-			{
-				a += buf[i];
-				b += buf[i] * buf[i];
-			}
-			a /= buf.length;
-			b /= buf.length;
-			b -= a * a;
-			return (b > 0) ? Math.sqrt(b) : 0;
-		}
-	}
+        @Override
+        double getNoise()
+        {
+            final float[] buf = (quick) ? getQuickPseudoResiduals() : getPseudoResiduals();
+            if (buf.length < 2)
+                return 0;
+            double a = 0, b = 0;
+            for (int i = 0; i < buf.length; i++)
+            {
+                a += buf[i];
+                b += buf[i] * buf[i];
+            }
+            a /= buf.length;
+            b /= buf.length;
+            b -= a * a;
+            return (b > 0) ? Math.sqrt(b) : 0;
+        }
+    }
 
-	/**
-	 * Compute the pseudo-residuals of the input data.
-	 * <p>
-	 * The pseudo residual \f$ R(x,y) \f$ of the image \f$ I(x,y) \f$ are defined by \f$ R(x,y) = 4 * I(x,y) - (I(x+1,y)
-	 * + I(x-1,y) + I(x,y+1) + I(x,y-1))\f$ and normalized so that \f$ \mathbb{E}[R(x,y)^2] = \mathbb{E}[I(x,y)^2].
-	 *
-	 * @return The pseudo residuals
-	 */
-	public float[] getPseudoResiduals()
-	{
-		if (residuals == null)
-		{
-			residuals = new float[maxx * maxy];
+    /**
+     * Compute the pseudo-residuals of the input data.
+     * <p>
+     * The pseudo residual \f$ R(x,y) \f$ of the image \f$ I(x,y) \f$ are defined by \f$ R(x,y) = 4 * I(x,y) - (I(x+1,y)
+     * + I(x-1,y) + I(x,y+1) + I(x,y-1))\f$ and normalized so that \f$ \mathbb{E}[R(x,y)^2] = \mathbb{E}[I(x,y)^2].
+     *
+     * @return The pseudo residuals
+     */
+    public float[] getPseudoResiduals()
+    {
+        if (residuals == null)
+        {
+            residuals = new float[maxx * maxy];
 
-			for (int y = 0, index = 0; y < maxy; y++)
-				for (int x = 0; x < maxx; x++, index++)
-				{
-					double t2 = 0;
-					if (x == 0)
-						t2 += data[index + 1];
-					else
-						t2 += data[index - 1];
-					if (x == maxx - 1)
-						t2 += data[index - 1];
-					else
-						t2 += data[index + 1];
-					if (y == 0)
-						t2 += data[index + maxx];
-					else
-						t2 += data[index - maxx];
-					if (y == maxy - 1)
-						t2 += data[index - maxx];
-					else
-						t2 += data[index + maxx];
+            for (int y = 0, index = 0; y < maxy; y++)
+                for (int x = 0; x < maxx; x++, index++)
+                {
+                    double t2 = 0;
+                    if (x == 0)
+                        t2 += data[index + 1];
+                    else
+                        t2 += data[index - 1];
+                    if (x == maxx - 1)
+                        t2 += data[index - 1];
+                    else
+                        t2 += data[index + 1];
+                    if (y == 0)
+                        t2 += data[index + maxx];
+                    else
+                        t2 += data[index - maxx];
+                    if (y == maxy - 1)
+                        t2 += data[index - maxx];
+                    else
+                        t2 += data[index + maxx];
 
-					// 0.223606798 = 1 / sqrt(20)
-					residuals[index] = (float) (0.223606798 * (4. * data[index] - t2));
-				}
-		}
+                    // 0.223606798 = 1 / sqrt(20)
+                    residuals[index] = (float) (0.223606798 * (4. * data[index] - t2));
+                }
+        }
 
-		return residuals;
-	}
+        return residuals;
+    }
 
-	/**
-	 * Compute the pseudo-residuals of the input data. Ignore the image border so output will be size = (maxx - 2) *
-	 * (maxy - 2)
-	 *
-	 * @return The pseudo residuals
-	 */
-	public float[] getQuickPseudoResiduals()
-	{
-		if (quickResiduals == null)
-		{
-			if (maxx < 3 || maxy < 3)
-			{
-				quickResiduals = new float[0];
-				return quickResiduals;
-			}
+    /**
+     * Compute the pseudo-residuals of the input data. Ignore the image border so output will be size = (maxx - 2) *
+     * (maxy - 2)
+     *
+     * @return The pseudo residuals
+     */
+    public float[] getQuickPseudoResiduals()
+    {
+        if (quickResiduals == null)
+        {
+            if (maxx < 3 || maxy < 3)
+            {
+                quickResiduals = new float[0];
+                return quickResiduals;
+            }
 
-			quickResiduals = new float[(maxx - 2) * (maxy - 2)];
+            quickResiduals = new float[(maxx - 2) * (maxy - 2)];
 
-			for (int y = 1, i = 0; y < maxy - 1; y++)
-				for (int x = 1, index = y * maxx + 1; x < maxx - 1; x++, index++, i++)
-				{
-					final double t2 = data[index - 1] + data[index + 1] + data[index - maxx] + data[index + maxx];
-					// 0.223606798 = 1 / sqrt(20)
-					quickResiduals[i] = (float) (0.223606798 * (4. * data[index] - t2));
-				}
-		}
+            for (int y = 1, i = 0; y < maxy - 1; y++)
+                for (int x = 1, index = y * maxx + 1; x < maxx - 1; x++, index++, i++)
+                {
+                    final double t2 = data[index - 1] + data[index + 1] + data[index - maxx] + data[index + maxx];
+                    // 0.223606798 = 1 / sqrt(20)
+                    quickResiduals[i] = (float) (0.223606798 * (4. * data[index] - t2));
+                }
+        }
 
-		return quickResiduals;
-	}
+        return quickResiduals;
+    }
 
-	/**
-	 * Sets the range.
-	 *
-	 * @param range
-	 *            the range for the search around the local minimum. Must be at least 1.
-	 */
-	public void setRange(int range)
-	{
-		if (range < 1)
-			range = 1;
-		this.range = range;
-	}
+    /**
+     * Sets the range.
+     *
+     * @param range
+     *            the range for the search around the local minimum. Must be at least 1.
+     */
+    public void setRange(int range)
+    {
+        if (range < 1)
+            range = 1;
+        this.range = range;
+    }
 
-	/**
-	 * Gets the range.
-	 *
-	 * @return the range
-	 */
-	public int getRange()
-	{
-		return range;
-	}
+    /**
+     * Gets the range.
+     *
+     * @return the range
+     */
+    public int getRange()
+    {
+        return range;
+    }
 }

@@ -28,27 +28,27 @@ package uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.thirdGenKD;
  */
 public interface DistanceFunction
 {
-	/**
-	 * Distance.
-	 *
-	 * @param p1
-	 *            point 1
-	 * @param p2
-	 *            point 2
-	 * @return the distance
-	 */
-	public double distance(double[] p1, double[] p2);
+    /**
+     * Distance.
+     *
+     * @param p1
+     *            point 1
+     * @param p2
+     *            point 2
+     * @return the distance
+     */
+    public double distance(double[] p1, double[] p2);
 
-	/**
-	 * Distance to the rectangle.
-	 *
-	 * @param point
-	 *            the point
-	 * @param min
-	 *            the min of the rectangle
-	 * @param max
-	 *            the max of the rectangle
-	 * @return the distance
-	 */
-	public double distanceToRect(double[] point, double[] min, double[] max);
+    /**
+     * Distance to the rectangle.
+     *
+     * @param point
+     *            the point
+     * @param min
+     *            the min of the rectangle
+     * @param max
+     *            the max of the rectangle
+     * @return the distance
+     */
+    public double distanceToRect(double[] point, double[] min, double[] max);
 }

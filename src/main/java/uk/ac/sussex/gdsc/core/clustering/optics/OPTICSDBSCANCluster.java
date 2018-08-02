@@ -33,40 +33,40 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  */
 public class OPTICSDBSCANCluster extends OPTICSCluster
 {
-	private final int size;
+    private final int size;
 
-	/**
-	 * Instantiates a new cluster.
-	 *
-	 * @param start
-	 *            the start
-	 * @param end
-	 *            the end
-	 * @param clusterId
-	 *            the cluster id
-	 * @param size
-	 *            the size
-	 */
-	public OPTICSDBSCANCluster(int start, int end, int clusterId, int size)
-	{
-		super(start, end, clusterId);
-		this.size = size;
-	}
+    /**
+     * Instantiates a new cluster.
+     *
+     * @param start
+     *            the start
+     * @param end
+     *            the end
+     * @param clusterId
+     *            the cluster id
+     * @param size
+     *            the size
+     */
+    public OPTICSDBSCANCluster(int start, int end, int clusterId, int size)
+    {
+        super(start, end, clusterId);
+        this.size = size;
+    }
 
-	@Override
-	public String toString()
-	{
-		return String.format("s=%d, e=%d, level=%d, id=%d, size=%d", start, end, getLevel(), clusterId, size);
-	}
+    @Override
+    public String toString()
+    {
+        return String.format("s=%d, e=%d, level=%d, id=%d, size=%d", start, end, getLevel(), clusterId, size);
+    }
 
-	/**
-	 * Get the size of the cluster
-	 *
-	 * @return the size
-	 */
-	@Override
-	public int size()
-	{
-		return size;
-	}
+    /**
+     * Get the size of the cluster
+     *
+     * @return the size
+     */
+    @Override
+    public int size()
+    {
+        return size;
+    }
 }

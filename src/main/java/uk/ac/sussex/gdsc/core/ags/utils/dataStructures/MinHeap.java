@@ -31,49 +31,49 @@ package uk.ac.sussex.gdsc.core.ags.utils.dataStructures;
  */
 public interface MinHeap<T>
 {
-	/**
-	 * Get the size.
-	 *
-	 * @return the size
-	 */
-	public int size();
+    /**
+     * Get the size.
+     *
+     * @return the size
+     */
+    public int size();
 
-	/**
-	 * Offer.
-	 *
-	 * @param key
-	 *            the key
-	 * @param value
-	 *            the value
-	 */
-	public void offer(double key, T value);
+    /**
+     * Offer.
+     *
+     * @param key
+     *            the key
+     * @param value
+     *            the value
+     */
+    public void offer(double key, T value);
 
-	/**
-	 * Replace min.
-	 *
-	 * @param key
-	 *            the key
-	 * @param value
-	 *            the value
-	 */
-	public void replaceMin(double key, T value);
+    /**
+     * Replace min.
+     *
+     * @param key
+     *            the key
+     * @param value
+     *            the value
+     */
+    public void replaceMin(double key, T value);
 
-	/**
-	 * Removes the min.
-	 */
-	public void removeMin();
+    /**
+     * Removes the min.
+     */
+    public void removeMin();
 
-	/**
-	 * Gets the min.
-	 *
-	 * @return the min
-	 */
-	public T getMin();
+    /**
+     * Gets the min.
+     *
+     * @return the min
+     */
+    public T getMin();
 
-	/**
-	 * Gets the min key.
-	 *
-	 * @return the min key
-	 */
-	public double getMinKey();
+    /**
+     * Gets the min key.
+     *
+     * @return the min key
+     */
+    public double getMinKey();
 }

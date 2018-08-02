@@ -31,32 +31,32 @@ package uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.thirdGenKD;
  */
 class KdNodeND<T> extends KdNode<T>
 {
-	/** The dimensions. */
-	protected int dimensions;
+    /** The dimensions. */
+    protected int dimensions;
 
-	/**
-	 * Instantiates a new ND-tree node
-	 *
-	 * @param dimensions
-	 *            the dimensions
-	 * @param bucketCapacity
-	 *            the bucket capacity
-	 */
-	protected KdNodeND(int dimensions, int bucketCapacity)
-	{
-		super(bucketCapacity);
-		this.dimensions = dimensions;
-	}
+    /**
+     * Instantiates a new ND-tree node
+     *
+     * @param dimensions
+     *            the dimensions
+     * @param bucketCapacity
+     *            the bucket capacity
+     */
+    protected KdNodeND(int dimensions, int bucketCapacity)
+    {
+        super(bucketCapacity);
+        this.dimensions = dimensions;
+    }
 
-	@Override
-	public int getDimensions()
-	{
-		return dimensions;
-	}
+    @Override
+    public int getDimensions()
+    {
+        return dimensions;
+    }
 
-	@Override
-	protected KdNode<T> newInstance()
-	{
-		return new KdNodeND<>(dimensions, bucketCapacity);
-	}
+    @Override
+    protected KdNode<T> newInstance()
+    {
+        return new KdNodeND<>(dimensions, bucketCapacity);
+    }
 }

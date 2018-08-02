@@ -32,68 +32,69 @@ import uk.ac.sussex.gdsc.core.utils.Maths;
 /**
  * Perform conversion by addition then multiplication.
  *
- * @param <T> the generic type
+ * @param <T>
+ *            the generic type
  */
 public class AddMultiplyTypeConverter<T> extends MultiplyTypeConverter<T>
 {
-	private final double addition;
+    private final double addition;
 
-	/**
-	 * Instantiates a new add then multiplication unit converter.
-	 *
-	 * @param from
-	 *            unit to convert from
-	 * @param to
-	 *            unit to convert to
-	 * @param addition
-	 *            the value to add before multiplication
-	 * @param multiplication
-	 *            the multiplication
-	 * @throws ConversionException
-	 *             If the input units are null
-	 * @throws ConversionException
-	 *             If the multiplication is not finite
-	 * @throws ConversionException
-	 *             If the addition is not finite
-	 */
-	public AddMultiplyTypeConverter(T from, T to, double addition, double multiplication)
-	{
-		super(from, to, multiplication);
-		if (!Maths.isFinite(addition))
-			throw new ConversionException("addition must be finite");
-		this.addition = addition;
-	}
+    /**
+     * Instantiates a new add then multiplication unit converter.
+     *
+     * @param from
+     *            unit to convert from
+     * @param to
+     *            unit to convert to
+     * @param addition
+     *            the value to add before multiplication
+     * @param multiplication
+     *            the multiplication
+     * @throws ConversionException
+     *             If the input units are null
+     * @throws ConversionException
+     *             If the multiplication is not finite
+     * @throws ConversionException
+     *             If the addition is not finite
+     */
+    public AddMultiplyTypeConverter(T from, T to, double addition, double multiplication)
+    {
+        super(from, to, multiplication);
+        if (!Maths.isFinite(addition))
+            throw new ConversionException("addition must be finite");
+        this.addition = addition;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.data.utils.MultiplyTypeConverter#convert(double)
-	 */
-	@Override
-	public double convert(double value)
-	{
-		return (value + addition) * multiplication;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.data.utils.MultiplyTypeConverter#convert(double)
+     */
+    @Override
+    public double convert(double value)
+    {
+        return (value + addition) * multiplication;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.data.utils.MultiplyTypeConverter#convertBack(double)
-	 */
-	@Override
-	public double convertBack(double value)
-	{
-		return (value / multiplication) - addition;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.data.utils.MultiplyTypeConverter#convertBack(double)
+     */
+    @Override
+    public double convertBack(double value)
+    {
+        return (value / multiplication) - addition;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.data.utils.Converter#getFunction()
-	 */
-	@Override
-	public String getFunction()
-	{
-		return "(x + " + addition + ") * " + multiplication;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.data.utils.Converter#getFunction()
+     */
+    @Override
+    public String getFunction()
+    {
+        return "(x + " + addition + ") * " + multiplication;
+    }
 }

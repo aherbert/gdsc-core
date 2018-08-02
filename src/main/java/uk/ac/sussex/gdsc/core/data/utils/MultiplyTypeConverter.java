@@ -32,65 +32,66 @@ import uk.ac.sussex.gdsc.core.utils.Maths;
 /**
  * Perform conversion by multiplication
  *
- * @param <T> the generic type
+ * @param <T>
+ *            the generic type
  */
 public class MultiplyTypeConverter<T> extends AbstractTypeConverter<T>
 {
-	/** The multiplication. */
-	protected final double multiplication;
+    /** The multiplication. */
+    protected final double multiplication;
 
-	/**
-	 * Instantiates a new multiplication unit converter.
-	 *
-	 * @param from
-	 *            unit to convert from
-	 * @param to
-	 *            unit to convert to
-	 * @param multiplication
-	 *            the multiplication
-	 * @throws ConversionException
-	 *             If the input units are null
-	 * @throws ConversionException
-	 *             If the multiplication is not finite
-	 */
-	public MultiplyTypeConverter(T from, T to, double multiplication)
-	{
-		super(from, to);
-		if (!Maths.isFinite(multiplication))
-			throw new ConversionException("multiplication must be finite");
-		this.multiplication = multiplication;
-	}
+    /**
+     * Instantiates a new multiplication unit converter.
+     *
+     * @param from
+     *            unit to convert from
+     * @param to
+     *            unit to convert to
+     * @param multiplication
+     *            the multiplication
+     * @throws ConversionException
+     *             If the input units are null
+     * @throws ConversionException
+     *             If the multiplication is not finite
+     */
+    public MultiplyTypeConverter(T from, T to, double multiplication)
+    {
+        super(from, to);
+        if (!Maths.isFinite(multiplication))
+            throw new ConversionException("multiplication must be finite");
+        this.multiplication = multiplication;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.units.UnitConverter#convert(double)
-	 */
-	@Override
-	public double convert(double value)
-	{
-		return value * multiplication;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.units.UnitConverter#convert(double)
+     */
+    @Override
+    public double convert(double value)
+    {
+        return value * multiplication;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.data.utils.Converter#convertBack(double)
-	 */
-	@Override
-	public double convertBack(double value)
-	{
-		return value / multiplication;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.data.utils.Converter#convertBack(double)
+     */
+    @Override
+    public double convertBack(double value)
+    {
+        return value / multiplication;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see gdsc.smlm.data.utils.Converter#getFunction()
-	 */
-	@Override
-	public String getFunction()
-	{
-		return "x * " + multiplication;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see gdsc.smlm.data.utils.Converter#getFunction()
+     */
+    @Override
+    public String getFunction()
+    {
+        return "x * " + multiplication;
+    }
 }

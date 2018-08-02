@@ -42,75 +42,75 @@ import ij.WindowManager;
  */
 public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog
 {
-	private static final long serialVersionUID = 8535959215385211516L;
+    private static final long serialVersionUID = 8535959215385211516L;
 
-	/**
-	 * Instantiates a new non blocking extended generic dialog.
-	 *
-	 * @param title
-	 *            the title
-	 */
-	public NonBlockingExtendedGenericDialog(String title)
-	{
-		super(title, null);
-		setModal(false);
-	}
+    /**
+     * Instantiates a new non blocking extended generic dialog.
+     *
+     * @param title
+     *            the title
+     */
+    public NonBlockingExtendedGenericDialog(String title)
+    {
+        super(title, null);
+        setModal(false);
+    }
 
-	@Override
-	public synchronized void showDialog()
-	{
-		super.showDialog();
-		if (isMacro())
-			return;
-		if (!IJ.macroRunning())
-		{ // add to Window menu on event dispatch thread
-			final NonBlockingExtendedGenericDialog thisDialog = this;
-			EventQueue.invokeLater(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					WindowManager.addWindow(thisDialog);
-				}
-			});
-		}
-		try
-		{
-			wait();
-		}
-		catch (final InterruptedException e)
-		{ // Ignore
-		}
-	}
+    @Override
+    public synchronized void showDialog()
+    {
+        super.showDialog();
+        if (isMacro())
+            return;
+        if (!IJ.macroRunning())
+        { // add to Window menu on event dispatch thread
+            final NonBlockingExtendedGenericDialog thisDialog = this;
+            EventQueue.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    WindowManager.addWindow(thisDialog);
+                }
+            });
+        }
+        try
+        {
+            wait();
+        }
+        catch (final InterruptedException e)
+        { // Ignore
+        }
+    }
 
-	@Override
-	public synchronized void actionPerformed(ActionEvent e)
-	{
-		super.actionPerformed(e);
-		if (!isVisible())
-			notify();
-	}
+    @Override
+    public synchronized void actionPerformed(ActionEvent e)
+    {
+        super.actionPerformed(e);
+        if (!isVisible())
+            notify();
+    }
 
-	@Override
-	public synchronized void keyPressed(KeyEvent e)
-	{
-		super.keyPressed(e);
-		if (wasOKed() || wasCanceled())
-			notify();
-	}
+    @Override
+    public synchronized void keyPressed(KeyEvent e)
+    {
+        super.keyPressed(e);
+        if (wasOKed() || wasCanceled())
+            notify();
+    }
 
-	@Override
-	public synchronized void windowClosing(WindowEvent e)
-	{
-		super.windowClosing(e);
-		if (wasOKed() || wasCanceled())
-			notify();
-	}
+    @Override
+    public synchronized void windowClosing(WindowEvent e)
+    {
+        super.windowClosing(e);
+        if (wasOKed() || wasCanceled())
+            notify();
+    }
 
-	@Override
-	public void dispose()
-	{
-		super.dispose();
-		WindowManager.removeWindow(this);
-	}
+    @Override
+    public void dispose()
+    {
+        super.dispose();
+        WindowManager.removeWindow(this);
+    }
 }

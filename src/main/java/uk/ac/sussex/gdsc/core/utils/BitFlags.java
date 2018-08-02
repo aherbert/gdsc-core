@@ -34,73 +34,73 @@ package uk.ac.sussex.gdsc.core.utils;
  */
 public class BitFlags
 {
-	/**
-	 * Check if all of the given bits are set in the flags.
-	 *
-	 * @param flags
-	 *            the flags
-	 * @param bits
-	 *            the bits
-	 * @return True if all are set
-	 */
-	public static boolean areSet(final int flags, final int bits)
-	{
-		return (flags & bits) == bits;
-	}
+    /**
+     * Check if all of the given bits are set in the flags.
+     *
+     * @param flags
+     *            the flags
+     * @param bits
+     *            the bits
+     * @return True if all are set
+     */
+    public static boolean areSet(final int flags, final int bits)
+    {
+        return (flags & bits) == bits;
+    }
 
-	/**
-	 * Check if any of the given bits are set in the flags.
-	 *
-	 * @param flags
-	 *            the flags
-	 * @param bits
-	 *            the bits
-	 * @return True if any are set
-	 */
-	public static boolean anySet(final int flags, final int bits)
-	{
-		return (flags & bits) != 0;
-	}
+    /**
+     * Check if any of the given bits are set in the flags.
+     *
+     * @param flags
+     *            the flags
+     * @param bits
+     *            the bits
+     * @return True if any are set
+     */
+    public static boolean anySet(final int flags, final int bits)
+    {
+        return (flags & bits) != 0;
+    }
 
-	/**
-	 * Check if any of the given bits are not set in the flags.
-	 *
-	 * @param flags
-	 *            the flags
-	 * @param bits
-	 *            the bits
-	 * @return True if any are not set
-	 */
-	public static boolean anyNotSet(final int flags, final int bits)
-	{
-		return !areSet(flags, bits);
-	}
+    /**
+     * Check if any of the given bits are not set in the flags.
+     *
+     * @param flags
+     *            the flags
+     * @param bits
+     *            the bits
+     * @return True if any are not set
+     */
+    public static boolean anyNotSet(final int flags, final int bits)
+    {
+        return !areSet(flags, bits);
+    }
 
-	/**
-	 * Set the given bits in the flags.
-	 *
-	 * @param flags
-	 *            the flags
-	 * @param bits
-	 *            the bits
-	 * @return the new flags
-	 */
-	public static int set(final int flags, final int bits)
-	{
-		return flags | bits;
-	}
+    /**
+     * Set the given bits in the flags.
+     *
+     * @param flags
+     *            the flags
+     * @param bits
+     *            the bits
+     * @return the new flags
+     */
+    public static int set(final int flags, final int bits)
+    {
+        return flags | bits;
+    }
 
-	/**
-	 * Unset the given bits in the flags.
-	 *
-	 * @param flags
-	 *            the flags
-	 * @param bits
-	 *            the bits
-	 * @return the new flags
-	 */
-	public static int unset(final int flags, final int bits)
-	{
-		return flags & ~bits;
-	}
+    /**
+     * Unset the given bits in the flags.
+     *
+     * @param flags
+     *            the flags
+     * @param bits
+     *            the bits
+     * @return the new flags
+     */
+    public static int unset(final int flags, final int bits)
+    {
+        return flags & ~bits;
+    }
 }

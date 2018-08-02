@@ -32,32 +32,32 @@ package uk.ac.sussex.gdsc.core.match;
  */
 public interface Assignment
 {
-	/**
-	 * @return the target Id
-	 */
-	public int getTargetId();
+    /**
+     * @return the target Id
+     */
+    public int getTargetId();
 
-	/**
-	 * @return the predicted Id
-	 */
-	public int getPredictedId();
+    /**
+     * @return the predicted Id
+     */
+    public int getPredictedId();
 
-	/**
-	 * @return the distance
-	 */
-	public double getDistance();
+    /**
+     * @return the distance
+     */
+    public double getDistance();
 
-	// For Java 1.8
-	///**
-	// * @param o
-	// * @return
-	// */
-	//default public int compareTo(Assignment o)
-	//{
-	//	if (getDistance() < o.getDistance())
-	//		return -1;
-	//	if (getDistance() > o.getDistance())
-	//		return 1;
-	//	return 0;
-	//}
+    // For Java 1.8
+    ///**
+    // * @param o
+    // * @return
+    // */
+    //default public int compareTo(Assignment o)
+    //{
+    //	if (getDistance() < o.getDistance())
+    //		return -1;
+    //	if (getDistance() > o.getDistance())
+    //		return 1;
+    //	return 0;
+    //}
 }

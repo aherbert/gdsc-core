@@ -32,77 +32,77 @@ package uk.ac.sussex.gdsc.core.data.procedures;
  */
 public class FloatStackTrivalueProcedure implements TrivalueProcedure
 {
-	/** The x axis values. */
-	public double[] x;
+    /** The x axis values. */
+    public double[] x;
 
-	/** The y axis values. */
-	public double[] y;
+    /** The y axis values. */
+    public double[] y;
 
-	/** The z axis values. */
-	public double[] z;
+    /** The z axis values. */
+    public double[] z;
 
-	/** The value. This is a stack of z slices of XY data packed in YZ order */
-	public float[][] value;
+    /** The value. This is a stack of z slices of XY data packed in YZ order */
+    public float[][] value;
 
-	private int maxx;
+    private int maxx;
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setDimensions(int, int, int)
-	 */
-	@Override
-	public boolean setDimensions(int maxx, int maxy, int maxz)
-	{
-		x = new double[maxx];
-		y = new double[maxy];
-		z = new double[maxz];
-		value = new float[maxz][maxx * maxy];
-		this.maxx = maxx;
-		return true;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setDimensions(int, int, int)
+     */
+    @Override
+    public boolean setDimensions(int maxx, int maxy, int maxz)
+    {
+        x = new double[maxx];
+        y = new double[maxy];
+        z = new double[maxz];
+        value = new float[maxz][maxx * maxy];
+        this.maxx = maxx;
+        return true;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setX(int, double)
-	 */
-	@Override
-	public void setX(int i, double value)
-	{
-		x[i] = value;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setX(int, double)
+     */
+    @Override
+    public void setX(int i, double value)
+    {
+        x[i] = value;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setY(int, double)
-	 */
-	@Override
-	public void setY(int j, double value)
-	{
-		y[j] = value;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setY(int, double)
+     */
+    @Override
+    public void setY(int j, double value)
+    {
+        y[j] = value;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setZ(int, double)
-	 */
-	@Override
-	public void setZ(int k, double value)
-	{
-		z[k] = value;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setZ(int, double)
+     */
+    @Override
+    public void setZ(int k, double value)
+    {
+        z[k] = value;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setValue(int, int, int, double)
-	 */
-	@Override
-	public void setValue(int i, int j, int k, double value)
-	{
-		this.value[k][j * maxx + i] = (float) value;
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setValue(int, int, int, double)
+     */
+    @Override
+    public void setValue(int i, int j, int k, double value)
+    {
+        this.value[k][j * maxx + i] = (float) value;
+    }
 }
