@@ -124,10 +124,17 @@ public class RecorderUtils
 		for (int i = 0; i < pairs.size(); i++)
 		{
 			final String[] pair = pairs.getf(i);
-			if (pair[1] == null)
-				Recorder.recordOption(pair[0]);
+			String key = pair[0];
+			String value = pair[1];
+			if (value == null)
+				Recorder.recordOption(key);
 			else
-				Recorder.recordOption(pair[0], pair[1]);
+			{
+				// As per the GenericDialog ensure that empty strings are wrapped
+				if (value.equals(""))
+					value = "[]";
+				Recorder.recordOption(key, value);
+			}
 		}
 		//System.out.printf("Now %s\n", Recorder.getCommandOptions());
 	}
