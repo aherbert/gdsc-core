@@ -1511,8 +1511,8 @@ public class CustomTricubicInterpolatorTest
                 {
                     @SuppressWarnings("null")
                     final double d = Maths.distance(last[0], last[1], last[2], optimum[0], optimum[1], optimum[2]);
-                    TestLog.info(logger, "[%d] %f,%f,%f %d = %s : dist = %f : change = %g", ii, cx, cy, cz, i,
-                            Arrays.toString(optimum), d, DoubleEquality.relativeError(last[3], optimum[3]));
+                    logger.info(TestLog.getSupplier("[%d] %f,%f,%f %d = %s : dist = %f : change = %g", ii, cx, cy, cz, i,
+                            Arrays.toString(optimum), d, DoubleEquality.relativeError(last[3], optimum[3])));
                     Assertions.assertTrue(optimum[3] >= last[3]);
                 }
                 last = optimum;

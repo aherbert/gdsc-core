@@ -513,9 +513,9 @@ public class ArrayMomentTest
             m2.increment(d);
             r2.add(d);
         }
-        TestLog.info(logger, "Mean %s vs %s, SD %s vs %s", Double.toString(m1.getFirstMoment()[0]),
+        logger.info(TestLog.getSupplier("Mean %s vs %s, SD %s vs %s", Double.toString(m1.getFirstMoment()[0]),
                 Double.toString(r2.getFirstMoment()[0]), Double.toString(m1.getStandardDeviation()[0]),
-                Double.toString(r2.getStandardDeviation()[0]));
+                Double.toString(r2.getStandardDeviation()[0])));
         ExtraAssertions.assertEqualsRelative(m1.getFirstMoment()[0], r2.getFirstMoment()[0], DELTA, "Mean");
         Assertions.assertEquals(m2.getResult(), r2.getSecondMoment()[0], "2nd Moment");
     }

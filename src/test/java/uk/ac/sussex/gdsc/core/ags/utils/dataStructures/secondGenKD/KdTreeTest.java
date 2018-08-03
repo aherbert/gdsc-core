@@ -497,8 +497,8 @@ public class KdTreeTest
         ts.repeat(number);
         ts.repeat(number);
 
-        TestLog.info(logger, "All-vs-all = %d", time);
-        ts.report(logger);
+        logger.info(TestLog.getSupplier("All-vs-all = %d", time));
+        logger.info(ts.getReport());
     }
 
     class Float2DNNTimingTask extends NNTimingTask

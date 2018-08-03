@@ -1,5 +1,6 @@
 package uk.ac.sussex.gdsc.core.match;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
@@ -301,10 +302,10 @@ public class RandIndexTest
         final long table1 = t3 - t2;
         final long table2 = t4 - t3;
 
-        TestLog.info(logger, "[%d,%d,%d] simple=%d (%f), table1=%d (%f), %f", n, n1, n2, simple, e, table1, o1,
-                simple / (double) table1);
-        TestLog.info(logger, "[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f", n, n1, n2, simple, e, table2, o2,
-                simple / (double) table2);
+        logger.log(TestLog.getRecord(Level.FINE, "[%d,%d,%d] simple=%d (%f), table1=%d (%f), %f", n, n1, n2, simple, e, table1, o1,
+                simple / (double) table1));
+        logger.log(TestLog.getRecord(Level.FINE, "[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f", n, n1, n2, simple, e, table2, o2,
+                simple / (double) table2));
 
         ExtraAssertions.assertEqualsRelative(e, o1, 1e-10);
         Assertions.assertEquals(o2, o1);
@@ -341,7 +342,7 @@ public class RandIndexTest
         }
 
         sum /= loops;
-        TestLog.info(logger, "[%d,%d,%d,%d] %f", n, n1, n2, loops, sum);
+        logger.log(TestLog.getRecord(Level.FINE, "[%d,%d,%d,%d] %f", n, n1, n2, loops, sum));
 
         final double delta = 0.1;
         Assertions.assertTrue(sum < delta && sum > -delta);
@@ -407,8 +408,8 @@ public class RandIndexTest
         final long table1 = t2 - t1;
         final long table2 = t3 - t2;
 
-        TestLog.info(logger, "[%d,%d,%d] table1=%d (%f [%f]), table2=%d (%f), %f", n, n1, n2, table1, o1, r, table2, o2,
-                table1 / (double) table2);
+        logger.log(TestLog.getRecord(Level.FINE, "[%d,%d,%d] table1=%d (%f [%f]), table2=%d (%f), %f", n, n1, n2, table1, o1, r, table2, o2,
+                table1 / (double) table2));
 
         Assertions.assertEquals(o2, o1);
     }

@@ -15,7 +15,6 @@ import gnu.trove.procedure.TIntObjectProcedure;
 import uk.ac.sussex.gdsc.core.utils.Sort;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
@@ -208,14 +207,14 @@ public class CustomTricubicInterpolatingFunctionTest
     public void canConstructInlineComputeCoefficients()
     {
         ExtraAssumptions.assume(logger, level);
-        TestLog.log(logger, level, inlineComputeCoefficients());
+        logger.log(level, inlineComputeCoefficients());
     }
 
     @Test
     public void canConstructInlineComputeCoefficientsCollectTerms()
     {
         ExtraAssumptions.assume(logger, level);
-        TestLog.log(logger, level, inlineComputeCoefficientsCollectTerms());
+        logger.log(level, inlineComputeCoefficientsCollectTerms());
     }
 
     private abstract class MyTimingTask extends BaseTimingTask

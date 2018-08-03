@@ -1,5 +1,6 @@
 package uk.ac.sussex.gdsc.core.data;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.AfterAll;
@@ -131,7 +132,7 @@ public class SIPrefixTest
     {
         value *= sign;
         final SIPrefix o = SIPrefix.getPrefix(value);
-        TestLog.info(logger, "Value %s = %s %s (%s)\n", value, o.convert(value), o.getName(), o.getSymbol());
+        logger.log(TestLog.getRecord(Level.FINE, "Value %s = %s %s (%s)", value, o.convert(value), o.getName(), o.getSymbol()));
         Assertions.assertEquals(e, o);
     }
 }

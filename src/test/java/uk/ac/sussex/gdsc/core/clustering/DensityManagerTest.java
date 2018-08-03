@@ -1,6 +1,7 @@
 package uk.ac.sussex.gdsc.core.clustering;
 
 import java.awt.Rectangle;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
@@ -94,9 +95,9 @@ public class DensityManagerTest
                     dm.calculateDensityGrid(radius);
                 final long t2 = System.nanoTime() - start;
 
-                final String msg = String.format("Grid vs Triangle. N=%d, R=%f : %fx faster", n, radius,
+                final Supplier<String> msg = TestLog.getSupplier("Grid vs Triangle. N=%d, R=%f : %fx faster", n, radius,
                         (double) t1 / t2);
-                TestLog.info(logger, msg);
+                logger.info(msg);                
                 Assertions.assertTrue(t2 < t1, msg);
             }
         }
@@ -123,9 +124,9 @@ public class DensityManagerTest
                     dm.calculateDensityGrid(radius);
                 final long t2 = System.nanoTime() - start;
 
-                final String msg = String.format("Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
+                final Supplier<String> msg = TestLog.getSupplier("Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
                         (double) t1 / t2);
-                TestLog.info(logger, msg);
+                logger.info(msg);                
                 Assertions.assertTrue(t2 < t1, msg);
             }
         }
@@ -170,9 +171,9 @@ public class DensityManagerTest
                     dm.calculateSumGrid(radius);
                 final long t2 = System.nanoTime() - start;
 
-                final String msg = String.format("Sum Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
+                final Supplier<String> msg = TestLog.getSupplier("Sum Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
                         (double) t1 / t2);
-                TestLog.info(logger, msg);
+                logger.info(msg);
                 Assertions.assertTrue(t2 < t1, msg);
             }
         }
@@ -236,10 +237,10 @@ public class DensityManagerTest
                     dm.calculateBlockDensity2(radius);
                 final long t2 = System.nanoTime() - start;
 
-                final String msg = String.format(
+                final Supplier<String> msg = TestLog.getSupplier(
                         "calculateBlockDensity2 vs calculateBlockDensity. N=%d, R=%f : %fx faster", n, radius,
                         (double) t1 / t2);
-                TestLog.info(logger, msg);
+                logger.info(msg);
                 Assertions.assertTrue(t2 < t1, msg);
             }
         }
@@ -267,13 +268,13 @@ public class DensityManagerTest
                     dm.calculateBlockDensity2(radius);
                 final long t2 = System.nanoTime() - start;
 
-                final String msg = String.format(
+                final Supplier<String> msg = TestLog.getSupplier(
                         "calculateBlockDensity2 vs calculateBlockDensity3. N=%d, R=%f : %fx faster", n, radius,
                         (double) t1 / t2);
                 // This is not always faster
                 //TestLog.info(logger,msg);
                 //Assertions.assertTrue(t2 < t1, msg);
-                TestLog.logTestResult(logger, t2 < t1, msg);
+                logger.log(TestLog.getRecord(t2 < t1, msg));
             }
         }
     }

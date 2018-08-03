@@ -259,8 +259,8 @@ public class DensityCounterTest
         // non-sync multi = nCells * (9 * d * d)
         final double d = molecules[0].length * radius * radius / (size * size);
         final double nCells = (size / radius) * (size / radius);
-        TestLog.info(logger, "Expected Comparisons : Single = %f, Multi non-sync = %f", nCells * 5 * d * d,
-                nCells * 9 * d * d);
+        logger.info(TestLog.getSupplier("Expected Comparisons : Single = %f, Multi non-sync = %f", nCells * 5 * d * d,
+                nCells * 9 * d * d));
 
         //@formatter:off
 		final TimingService ts = new TimingService();
@@ -365,7 +365,7 @@ public class DensityCounterTest
         // How many distance comparison are we expected to make?
         // Compute mean density per grid cell (d) = nMolecules * 9 * d.
         final double d = molecules[0].length * radius * radius / (size * size);
-        TestLog.info(logger, "Expected Comparisons = %f", molecules2[0].length * 9.0 * d);
+        logger.info(TestLog.getSupplier("Expected Comparisons = %f", molecules2[0].length * 9.0 * d));
 
         //@formatter:off
 		final TimingService ts = new TimingService();

@@ -94,8 +94,9 @@ public class ClusteringEngineTest
         final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
         final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
 
-        TestLog.info(logger, "SpeedTest (High Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster", t1, t2,
-                (double) t1 / t2);
+        logger.info(
+                TestLog.getSupplier("SpeedTest (High Density) Closest %d, PairwiseWithoutNeighbours %d = %fx faster",
+                        t1, t2, (double) t1 / t2));
         Assertions.assertTrue(t1 <= t2);
     }
 
@@ -114,7 +115,7 @@ public class ClusteringEngineTest
         final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
         final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE, radius);
 
-        TestLog.info(logger, "SpeedTest Closest %d, Pairwise %d = %fx faster", t1, t2, (double) t1 / t2);
+        logger.info(TestLog.getSupplier("SpeedTest Closest %d, Pairwise %d = %fx faster", t1, t2, (double) t1 / t2));
         Assertions.assertTrue(t2 < t1);
     }
 
@@ -264,8 +265,8 @@ public class ClusteringEngineTest
         final long t1 = runSpeedTest(points, algorithm, radius, time, 1);
         final long t2 = runSpeedTest(points, algorithm, radius, time, 8);
 
-        TestLog.info(logger, "Threading SpeedTest %s : Single %d, Multi-threaded %d = %fx faster", algorithm.toString(),
-                t1, t2, (double) t1 / t2);
+        logger.info(TestLog.getSupplier("Threading SpeedTest %s : Single %d, Multi-threaded %d = %fx faster",
+                algorithm.toString(), t1, t2, (double) t1 / t2));
         Assertions.assertTrue(t2 <= t1);
     }
 
@@ -325,11 +326,11 @@ public class ClusteringEngineTest
 
     private static void print(String name, ArrayList<Cluster> clusters)
     {
-        TestLog.info(logger, name + " : size=%d", clusters.size());
+        logger.info(TestLog.getSupplier(name + " : size=%d", clusters.size()));
         for (int i = 0; i < clusters.size(); i++)
         {
             final Cluster c = clusters.get(i);
-            TestLog.info(logger, "[%d] : head=%d, n=%d, cx=%g, cy=%g", i, c.head.id, c.n, c.x, c.y);
+            logger.info(TestLog.getSupplier("[%d] : head=%d, n=%d, cx=%g, cy=%g", i, c.head.id, c.n, c.x, c.y));
         }
     }
 

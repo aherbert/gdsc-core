@@ -372,7 +372,7 @@ public class MedianWindowDLLTest
             TestLog.logTestResult(logger, t2 < t1, "Radius %d, Increment %d : Cached %d : DLL %d = %fx faster", radius,
                     increment, t1, t2, (double) t1 / t2);
         else
-            TestLog.info(logger, "Radius %d, Increment %d : Cached %d : DLL %d = %fx faster", radius, increment, t1, t2,
-                    (double) t1 / t2);
+            logger.info(TestLog.getSupplier("Radius %d, Increment %d : Cached %d : DLL %d = %fx faster", radius, increment, t1, t2,
+                    (double) t1 / t2));
     }
 }

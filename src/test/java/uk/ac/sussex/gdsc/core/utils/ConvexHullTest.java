@@ -132,10 +132,10 @@ public class ConvexHullTest
             if (logger.isLoggable(Level.FINE))
             {
                 for (int i = 0; i < size; i++)
-                    TestLog.fine(logger, "[%d] %f,%f", i, data[0][i], data[1][i]);
+                    logger.fine(TestLog.getSupplier("[%d] %f,%f", i, data[0][i], data[1][i]));
                 if (hull != null)
                     for (int i = 0; i < hull.x.length; i++)
-                        TestLog.fine(logger, "H[%d] %f,%f", i, hull.x[i], hull.y[i]);
+                        logger.fine(TestLog.getSupplier("H[%d] %f,%f", i, hull.x[i], hull.y[i]));
             }
             throw e;
         }

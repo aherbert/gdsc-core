@@ -854,9 +854,9 @@ public class OPTICSManagerTest
 							sum += r;
 							c++;
 							final double ari = ri.getAdjustedRandIndex();
-							TestLog.info(logger,
+							logger.info(TestLog.getSupplier(
 									"xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s : r=%f (%f)",
-									xi, n, minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode, r, ari);
+									xi, n, minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode, r, ari));
 							// This should always be true, i.e. better than chance
 							Assertions.assertTrue(0 < ari, () -> { return String.format("Adjusted rand index is below zero: %s", sampleMode); });
 						}
@@ -1403,7 +1403,7 @@ public class OPTICSManagerTest
         // - unrealistic data
         // - The optimised DBSCAN implementation not computing distances if not needed.
 
-        TestLog.info(logger, "dBSCANIsFasterThanOPTICS %d < %d (%.2f)", t3, t2, (double) t2 / t3);
+        logger.info(TestLog.getSupplier("dBSCANIsFasterThanOPTICS %d < %d (%.2f)", t3, t2, (double) t2 / t3));
     }
 
     @SeededTest
@@ -1911,8 +1911,8 @@ public class OPTICSManagerTest
             final double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
             final int maxResolution = (int) Math.ceil(nMoleculesInSquare);
 
-            TestLog.info(logger, "Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare, nMoleculesInCircle,
-                    generatingDistanceE, maxResolution);
+            logger.info(TestLog.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare,
+                    nMoleculesInCircle, generatingDistanceE, maxResolution));
 
             final OPTICSManager[] om = new OPTICSManager[3];
             for (int i = 0; i < om.length; i++)
@@ -1988,8 +1988,8 @@ public class OPTICSManagerTest
             final double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
             final int maxResolution = (int) Math.ceil(nMoleculesInSquare);
 
-            TestLog.info(logger, "Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare, nMoleculesInCircle,
-                    generatingDistanceE, maxResolution);
+            logger.info(TestLog.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare,
+                    nMoleculesInCircle, generatingDistanceE, maxResolution));
 
             final OPTICSManager[] om = new OPTICSManager[3];
             for (int i = 0; i < om.length; i++)
@@ -2061,8 +2061,8 @@ public class OPTICSManagerTest
             final double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
             final int maxResolution = (int) Math.ceil(nMoleculesInCircle);
 
-            TestLog.info(logger, "Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare, nMoleculesInCircle,
-                    generatingDistanceE, maxResolution);
+            logger.info(TestLog.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare,
+                    nMoleculesInCircle, generatingDistanceE, maxResolution));
 
             final OPTICSManager[] om = new OPTICSManager[3];
             for (int i = 0; i < om.length; i++)
@@ -2135,8 +2135,8 @@ public class OPTICSManagerTest
             final double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
             final int maxResolution = (int) Math.ceil(nMoleculesInCircle);
 
-            TestLog.info(logger, "Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare, nMoleculesInCircle,
-                    generatingDistanceE, maxResolution);
+            logger.info(TestLog.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare,
+                    nMoleculesInCircle, generatingDistanceE, maxResolution));
 
             final OPTICSManager[] om = new OPTICSManager[3];
             for (int i = 0; i < om.length; i++)

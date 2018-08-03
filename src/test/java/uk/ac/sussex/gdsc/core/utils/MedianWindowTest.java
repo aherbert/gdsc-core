@@ -101,7 +101,7 @@ public class MedianWindowTest
                 final double median = mw.getMedian();
                 mw.add(data[j]);
                 final double median2 = calculateMedian(data, i, radius);
-                TestLog.info(logger, "Position %d, Radius %d : %g vs %g", i, radius, median2, median);
+                logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", i, radius, median2, median));
                 ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
             }
         }
@@ -402,8 +402,8 @@ public class MedianWindowTest
         final long t2 = System.nanoTime() - s2;
 
         Assertions.assertArrayEquals(m1, m2, 1e-6);
-        TestLog.info(logger, "Radius %d, Increment %d : window %d : standard %d = %fx faster", radius, increment, t1,
-                t2, (double) t2 / t1);
+        logger.info(TestLog.getSupplier("Radius %d, Increment %d : window %d : standard %d = %fx faster", radius,
+                increment, t1, t2, (double) t2 / t1));
 
         // Only test the largest radii
         if (radius == testSpeedRadius)
@@ -528,8 +528,8 @@ public class MedianWindowTest
             TestLog.logTestResult(logger, t2 < t1, "Radius %d, Increment %d : double %d : float %d = %fx faster",
                     radius, increment, t1, t2, (double) t1 / t2);
         else
-            TestLog.info(logger, "Radius %d, Increment %d : double %d : float %d = %fx faster", radius, increment, t1,
-                    t2, (double) t1 / t2);
+            logger.info(TestLog.getSupplier("Radius %d, Increment %d : double %d : float %d = %fx faster", radius,
+                    increment, t1, t2, (double) t1 / t2));
     }
 
     @SpeedTag
@@ -640,8 +640,8 @@ public class MedianWindowTest
             TestLog.logTestResult(logger, t2 < t1, "Radius %d, Increment %d : double %d : int %d = %fx faster", radius,
                     increment, t1, t2, (double) t1 / t2);
         else
-            TestLog.info(logger, "Radius %d, Increment %d : double %d : int %d = %fx faster", radius, increment, t1, t2,
-                    (double) t1 / t2);
+            logger.info(TestLog.getSupplier("Radius %d, Increment %d : double %d : int %d = %fx faster", radius,
+                    increment, t1, t2, (double) t1 / t2));
     }
 
     static double calculateMedian(double[] data, int position, int radius)

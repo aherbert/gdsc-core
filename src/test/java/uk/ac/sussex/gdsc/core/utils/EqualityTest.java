@@ -369,12 +369,12 @@ public class EqualityTest
     {
         final float f3 = f + f * 1e-2f;
         final float f4 = f - f * 1e-2f;
-        TestLog.info(logger, "%g -> %g = %d : %d (%g : %g)", f, f3, FloatEquality.complement(f3, f),
+        logger.info(TestLog.getSupplier("%g -> %g = %d : %d (%g : %g)", f, f3, FloatEquality.complement(f3, f),
                 DoubleEquality.complement(f3, f), FloatEquality.relativeError(f, f3),
-                DoubleEquality.relativeError(f, f3));
-        TestLog.info(logger, "%g -> %g = %d : %d (%g : %g)", f, f4, FloatEquality.complement(f4, f),
+                DoubleEquality.relativeError(f, f3)));
+        logger.info(TestLog.getSupplier("%g -> %g = %d : %d (%g : %g)", f, f4, FloatEquality.complement(f4, f),
                 DoubleEquality.complement(f4, f), FloatEquality.relativeError(f, f4),
-                DoubleEquality.relativeError(f, f4));
+                DoubleEquality.relativeError(f, f4)));
     }
 
     @SpeedTag

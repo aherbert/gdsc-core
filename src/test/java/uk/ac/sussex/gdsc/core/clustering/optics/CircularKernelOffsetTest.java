@@ -54,8 +54,8 @@ public class CircularKernelOffsetTest
             final double outerArea = outer * pixelArea;
             final double innerArea = inner * pixelArea;
             final int skip = size - outer;
-            TestLog.info(logger, "R=%d, outer=%d  %f (%f), Skip=%d  (%f), inner=%d  %f (%f)", r, outer, outerArea,
-                    outerArea / Math.PI, skip, (double) skip / size, inner, innerArea, innerArea / outerArea);
+            logger.info(TestLog.getSupplier("R=%d, outer=%d  %f (%f), Skip=%d  (%f), inner=%d  %f (%f)", r, outer, outerArea,
+                    outerArea / Math.PI, skip, (double) skip / size, inner, innerArea, innerArea / outerArea));
 
             // Test for symmetry
             final int w = offset.length;
