@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.TimingResult;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
@@ -101,7 +102,8 @@ public class MedianWindowTest
                 final double median = mw.getMedian();
                 mw.add(data[j]);
                 final double median2 = calculateMedian(data, i, radius);
-                logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", i, radius, median2, median));
+                logger.log(
+                        TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", i, radius, median2, median));
                 ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
             }
         }
@@ -333,7 +335,7 @@ public class MedianWindowTest
     @SeededTest
     public void isFasterThanLocalSort(RandomSeed seed)
     {
-        ExtraAssumptions.assumeLowComplexity();
+        ExtraAssumptions.assume(TestComplexity.LOW);
         final int[] speedRadii2 = (logger.isLoggable(Level.INFO)) ? speedRadii : new int[] { testSpeedRadius };
         for (final int radius : speedRadii2)
             for (final int increment : speedIncrement)
@@ -414,7 +416,7 @@ public class MedianWindowTest
     @SeededTest
     public void floatVersionIsFasterThanDoubleVersion(RandomSeed seed)
     {
-        ExtraAssumptions.assumeLowComplexity();
+        ExtraAssumptions.assume(TestComplexity.LOW);
         final int[] speedRadii2 = (logger.isLoggable(Level.INFO)) ? speedRadii : new int[] { testSpeedRadius };
         for (final int radius : speedRadii2)
             for (final int increment : speedIncrement)
@@ -525,8 +527,8 @@ public class MedianWindowTest
         if (radius == testSpeedRadius)
             // Allow a margin of error
             //Assertions.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1 * 1.1);
-            TestLog.logTestResult(logger, t2 < t1, "Radius %d, Increment %d : double %d : float %d = %fx faster",
-                    radius, increment, t1, t2, (double) t1 / t2);
+            logger.log(TestLog.getResultRecord(t2 < t1, "Radius %d, Increment %d : double %d : float %d = %fx faster", radius,
+                    increment, t1, t2, (double) t1 / t2));
         else
             logger.info(TestLog.getSupplier("Radius %d, Increment %d : double %d : float %d = %fx faster", radius,
                     increment, t1, t2, (double) t1 / t2));
@@ -536,7 +538,7 @@ public class MedianWindowTest
     @SeededTest
     public void intVersionIsFasterThanDoubleVersion(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest(TestComplexity.LOW);
+        ExtraAssumptions.assume(TestComplexity.LOW);
         for (final int radius : speedRadii)
             for (final int increment : speedIncrement)
                 intVersionIsFasterThanDoubleVersion(seed, radius, increment);
@@ -635,13 +637,15 @@ public class MedianWindowTest
         }
 
         // Only test the largest radii
+        final TimingResult slow = new TimingResult(String.format("Radius %d, Increment %d : double", radius, increment), t1);
+        final TimingResult fast = new TimingResult("int", t2);
         if (radius == testSpeedRadius)
-            //Assertions.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1);
-            TestLog.logTestResult(logger, t2 < t1, "Radius %d, Increment %d : double %d : int %d = %fx faster", radius,
-                    increment, t1, t2, (double) t1 / t2);
+        {
+            //Assertions.assertTrue(t2 < t1, () -> String.format("Radius %d, Increment %d", radius, increment));
+            logger.log(TestLog.getTimingRecord(slow, fast));
+        }
         else
-            logger.info(TestLog.getSupplier("Radius %d, Increment %d : double %d : int %d = %fx faster", radius,
-                    increment, t1, t2, (double) t1 / t2));
+            logger.log(TestLog.getStageTimingRecord(slow, fast));
     }
 
     static double calculateMedian(double[] data, int position, int radius)

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
@@ -381,7 +382,7 @@ public class EqualityTest
     @SeededTest
     public void floatRelativeIsSameSpeedAsDoubleRelative(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final float maxRelativeError = 1e-2f;
         final float maxAbsoluteError = 1e-16f;
@@ -448,11 +449,11 @@ public class EqualityTest
             }
         });
         ts.repeat();
-        ts.report(logger);
+        logger.info(ts.getReport());
 
         final double error = DoubleEquality.relativeError(ts.get(-1).getMean(), ts.get(-2).getMean());
-        TestLog.logTestResult(logger, error < 0.2,
-                "Float and Double relative equality not the same speed: Error=" + error);
+        logger.log(TestLog.getResultRecord(error < 0.2,
+                "Float and Double relative equality not the same speed: Error=" + error));
     }
 
     private static void relative(FloatEquality equality, float[] data, float[] data2)

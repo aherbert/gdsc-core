@@ -81,12 +81,12 @@ public class OPTICSManagerTest
     @BeforeAll
     public static void beforeAll()
     {
-        // Using ELKI causes the root logger to be changed so 
+        // Using ELKI causes the root logger to be changed so
         // initialise ELKI logging then reset
         de.lmu.ifi.dbs.elki.logging.LoggingConfiguration.assertConfigured();
         try
         {
-            LogManager lm = LogManager.getLogManager();
+            final LogManager lm = LogManager.getLogManager();
             lm.readConfiguration();
 
             // ELKI defaults to warning log level
@@ -720,16 +720,16 @@ public class OPTICSManagerTest
                     ri.compute(expClusters, obsClusters);
 
                     final double r = ri.getRandIndex();
-                    TestLog.logTestResult(logger, ri.getAdjustedRandIndex() > 0,
+                    logger.log(TestLog.getResultRecord(ri.getAdjustedRandIndex() > 0,
                             "FastOPTICS vs ELKI : %d,%d : [%d] r=%f (%f)", n, minPts, loop, r,
-                            ri.getAdjustedRandIndex());
+                            ri.getAdjustedRandIndex()));
                     //Assertions.assertTrue(ri.getAdjustedRandIndex() > 0);
                     sum += r;
                 }
 
                 sum /= nLoops;
 
-                TestLog.logTestResult(logger, sum > 0.6, "FastOPTICS vs ELKI : %d,%d : r=%f", n, minPts, sum);
+                logger.log(TestLog.getResultRecord(sum > 0.6, "FastOPTICS vs ELKI : %d,%d : r=%f", n, minPts, sum));
                 //Assertions.assertTrue(sum > 0.6);
             }
         }
@@ -739,7 +739,7 @@ public class OPTICSManagerTest
     @SeededTest
     public void canComputeFastOPTICSFasterThanELKI(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
         final TrackProgress tracker = null; //new SimpleTrackProgress();
@@ -794,10 +794,10 @@ public class OPTICSManagerTest
                 final long elki = t2 - t1;
                 final long smlm1 = t3 - t2;
                 final long smlm2 = t4 - t3;
-                TestLog.logTestResult(logger, smlm1 < elki, "ELKI = %d, SMLM = %d = %f", elki, smlm1,
-                        elki / (double) smlm1);
-                TestLog.logTestResult(logger, smlm2 < elki, "ELKI = %d, SMLM (default) = %d = %f", elki, smlm2,
-                        elki / (double) smlm2);
+                logger.log(TestLog.getResultRecord(smlm1 < elki, "ELKI = %d, SMLM = %d = %f", elki, smlm1,
+                        elki / (double) smlm1));
+                logger.log(TestLog.getResultRecord(smlm2 < elki, "ELKI = %d, SMLM (default) = %d = %f", elki, smlm2,
+                        elki / (double) smlm2));
                 //Assertions.assertTrue(smlm1 < elki);
                 //Assertions.assertTrue(smlm2 < elki);
             }
@@ -838,34 +838,36 @@ public class OPTICSManagerTest
 
                 final int nSplits = 0;
                 final int nProjections = 0;
-                // @formatter:off
-				for (final SampleMode sampleMode : SampleMode.values())
-				{
-					double sum = 0;
-					int c = 0;
-    				for (final boolean useRandomVectors : both)
-						for (final boolean saveApproximateSets : both)
-						{
-							final int[] c2 = runFastOPTICS(om, xi, minPts, nSplits, nProjections, useRandomVectors,
-									saveApproximateSets, sampleMode);
+                for (final SampleMode sampleMode : SampleMode.values())
+                {
+                    double sum = 0;
+                    int c = 0;
+                    for (final boolean useRandomVectors : both)
+                        for (final boolean saveApproximateSets : both)
+                        {
+                            final int[] c2 = runFastOPTICS(om, xi, minPts, nSplits, nProjections, useRandomVectors,
+                                    saveApproximateSets, sampleMode);
 
-							// Should be similar
-							final double r = ri.getRandIndex(c1, c2);
-							sum += r;
-							c++;
-							final double ari = ri.getAdjustedRandIndex();
-							logger.info(TestLog.getSupplier(
-									"xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s : r=%f (%f)",
-									xi, n, minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets, sampleMode, r, ari));
-							// This should always be true, i.e. better than chance
-							Assertions.assertTrue(0 < ari, () -> { return String.format("Adjusted rand index is below zero: %s", sampleMode); });
-						}
-    				final double r = sum / c;
-					// This may fail with certain random seeds
-					TestLog.logTestResult(logger, randMin < r, "xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, sampleMode=%s : r=%f",
-								xi, n, minPts, nSplits, nProjections, sampleMode, r);
-				}
-				// @formatter:on
+                            // Should be similar
+                            final double r = ri.getRandIndex(c1, c2);
+                            sum += r;
+                            c++;
+                            final double ari = ri.getAdjustedRandIndex();
+                            logger.info(TestLog.getSupplier(
+                                    "xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s : r=%f (%f)",
+                                    xi, n, minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets,
+                                    sampleMode, r, ari));
+                            // This should always be true, i.e. better than chance
+                            Assertions.assertTrue(0 < ari, () -> {
+                                return String.format("Adjusted rand index is below zero: %s", sampleMode);
+                            });
+                        }
+                    final double r = sum / c;
+                    // This may fail with certain random seeds
+                    logger.log(TestLog.getResultRecord(randMin < r,
+                            "xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, sampleMode=%s : r=%f", xi, n, minPts,
+                            nSplits, nProjections, sampleMode, r));
+                }
             }
         }
     }
@@ -885,28 +887,28 @@ public class OPTICSManagerTest
     @SeededTest
     public void canComputeOPTICSWithInnerProcessing(RandomSeed seed)
     {
-        ExtraAssumptions.assumeMediumComplexity();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
         canComputeOPTICSWithOptions(seed, Option.INNER_PROCESSING);
     }
 
     @SeededTest
     public void canComputeOPTICSWithCircularProcessing(RandomSeed seed)
     {
-        ExtraAssumptions.assumeMediumComplexity();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
         canComputeOPTICSWithOptions(seed, Option.CIRCULAR_PROCESSING);
     }
 
     @SeededTest
     public void canComputeOPTICSWithInnerCircularProcessing(RandomSeed seed)
     {
-        ExtraAssumptions.assumeMediumComplexity();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
         canComputeOPTICSWithOptions(seed, Option.INNER_PROCESSING, Option.CIRCULAR_PROCESSING);
     }
 
     @SeededTest
     public void canComputeOPTICSWithSimpleQueue(RandomSeed seed)
     {
-        ExtraAssumptions.assumeMediumComplexity();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
         // This fails as the order is different when we do not use ID to order the objects when reachability distance is equal
         //canComputeOPTICSWithOptions(seed, Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
 
@@ -918,7 +920,7 @@ public class OPTICSManagerTest
     @SeededTest
     public void canComputeOPTICSWithSimpleQueueReverseIdOrderD(RandomSeed seed)
     {
-        ExtraAssumptions.assumeMediumComplexity();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
         canComputeOPTICSWithOptions(seed, new Option[] { Option.OPTICS_STRICT_REVERSE_ID_ORDER },
                 Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
     }
@@ -926,7 +928,7 @@ public class OPTICSManagerTest
     @SeededTest
     public void canComputeOPTICSWithSimpleQueueIdOrder(RandomSeed seed)
     {
-        ExtraAssumptions.assumeMediumComplexity();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
         canComputeOPTICSWithOptions(seed, new Option[] { Option.OPTICS_STRICT_ID_ORDER },
                 Option.OPTICS_SIMPLE_PRIORITY_QUEUE);
     }
@@ -1033,21 +1035,21 @@ public class OPTICSManagerTest
     @SeededTest
     public void canComputeDBSCANWithGridProcessing(RandomSeed seed)
     {
-        ExtraAssumptions.assumeMediumComplexity();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
         canComputeDBSCANWithOptions(seed, Option.GRID_PROCESSING);
     }
 
     @SeededTest
     public void canComputeDBSCANWithCircularProcessing(RandomSeed seed)
     {
-        ExtraAssumptions.assumeMediumComplexity();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
         canComputeDBSCANWithOptions(seed, Option.CIRCULAR_PROCESSING);
     }
 
     @SeededTest
     public void canComputeDBSCANWithInnerProcessingCircular(RandomSeed seed)
     {
-        ExtraAssumptions.assumeMediumComplexity();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
         canComputeDBSCANWithOptions(seed, Option.INNER_PROCESSING, Option.CIRCULAR_PROCESSING);
     }
 
@@ -1107,7 +1109,7 @@ public class OPTICSManagerTest
     @SeededTest
     public void canPerformOPTICSWithLargeData(RandomSeed seed)
     {
-        ExtraAssumptions.assumeMediumComplexity();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
         final TrackProgress tracker = null; //new SimpleTrackProgress();
         for (final int n : N)
@@ -1177,7 +1179,7 @@ public class OPTICSManagerTest
     @SeededTest
     public void canComputeKNNDistanceWithBigData(RandomSeed seed)
     {
-        ExtraAssumptions.assumeMediumComplexity();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
         for (final int n : N)
         {
@@ -1377,9 +1379,9 @@ public class OPTICSManagerTest
     }
 
     @SeededTest
-    public void dBSCANIsFasterThanOPTICS(RandomSeed seed)
+    public void testDBSCANIsFasterThanOPTICS(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
         final OPTICSManager om1 = createOPTICSManager(size, 5000, rg);
@@ -1440,9 +1442,9 @@ public class OPTICSManagerTest
 
     @SpeedTag
     @SeededTest
-    public void dBSCANInnerCircularIsFasterWhenDensityIsHigh(RandomSeed seed)
+    public void testDBSCANInnerCircularIsFasterWhenDensityIsHigh(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
         final int molecules = 10000;
@@ -1480,15 +1482,14 @@ public class OPTICSManagerTest
         t3 = t3 - t2;
         t2 = t2 - t1;
 
-        TestLog.logTestResult(logger, t3 < t2, "dBSCANInnerCircularIsFasterWhenComparisonsIsHigh %d < %d (%.2f)", t3,
-                t2, (double) t2 / t3);
+        logger.log(TestLog.getTimingRecord("DBSCAN Grid High Density", t2, "DBSCAN Inner Cicrular", t3));
     }
 
     @SpeedTag
     @SeededTest
-    public void oPTICSCircularIsFasterWhenDensityIsHigh(RandomSeed seed)
+    public void testOPTICSCircularIsFasterWhenDensityIsHigh(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
         final int molecules = 10000;
@@ -1526,8 +1527,7 @@ public class OPTICSManagerTest
         t3 = t3 - t2;
         t2 = t2 - t1;
 
-        TestLog.logTestResult(logger, t3 < t2, "oPTICSCircularIsFasterWhenDensityIsHigh %d < %d (%.2f)", t3, t2,
-                (double) t2 / t3);
+        logger.log(TestLog.getTimingRecord("OPTICS Grid High Density", t2, "OPTICS Circular", t3));
     }
 
     private enum MS
@@ -1762,7 +1762,7 @@ public class OPTICSManagerTest
         }, check);
 
         if (loops > 1)
-            ts.report(logger);
+            logger.info(ts.getReport());
     }
 
     @SeededTest
@@ -1875,7 +1875,7 @@ public class OPTICSManagerTest
         }, check);
 
         if (loops > 1)
-            ts.report(logger);
+            logger.info(ts.getReport());
     }
 
     /**
@@ -1953,7 +1953,7 @@ public class OPTICSManagerTest
                 }
             }, check);
 
-            ts.report(logger);
+            logger.info(ts.getReport());
         }
     }
 
@@ -2026,7 +2026,7 @@ public class OPTICSManagerTest
 
             //ts.check();
 
-            ts.report(logger);
+            logger.info(ts.getReport());
         }
     }
 
@@ -2099,7 +2099,7 @@ public class OPTICSManagerTest
 
             //ts.check();
 
-            ts.report(logger);
+            logger.info(ts.getReport());
         }
     }
 
@@ -2177,7 +2177,7 @@ public class OPTICSManagerTest
 
             //ts.check();
 
-            ts.report(logger);
+            logger.info(ts.getReport());
         }
     }
 
@@ -2306,7 +2306,7 @@ public class OPTICSManagerTest
 			ts.execute(new OPTICSTimingTask(m, om, minPts, generatingDistanceE, Option.OPTICS_STRICT_REVERSE_ID_ORDER, Option.OPTICS_SIMPLE_PRIORITY_QUEUE));
 			//@formatter:on
 
-            ts.report(logger);
+            logger.info(ts.getReport());
         }
     }
 

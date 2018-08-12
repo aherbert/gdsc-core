@@ -193,7 +193,7 @@ public class SimpleArrayUtilsTest
         });
 
         ts.repeat(ts.getSize());
-        ts.report(logger);
+        logger.info(ts.getReport());
     }
 
     @SeededTest
@@ -256,7 +256,7 @@ public class SimpleArrayUtilsTest
         });
 
         ts.repeat(ts.getSize());
-        ts.report(logger);
+        logger.info(ts.getReport());
     }
 
     @Test

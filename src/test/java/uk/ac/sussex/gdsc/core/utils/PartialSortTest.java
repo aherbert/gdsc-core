@@ -223,7 +223,7 @@ public class PartialSortTest
         ts.check();
 
         if (runs > 1)
-            ts.report(logger);
+            logger.info(ts.getReport());
     }
 
     @SeededTest
@@ -374,7 +374,7 @@ public class PartialSortTest
         ts.check();
 
         if (runs > 1)
-            ts.report(logger);
+            logger.info(ts.getReport());
     }
 
     private static double[][] createData(UniformRandomProvider r, int size, int m)

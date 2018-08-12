@@ -239,7 +239,7 @@ public class MedianWindowDLLTest
     @SeededTest
     public void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest(TestComplexity.LOW);
+        ExtraAssumptions.assume(TestComplexity.LOW);
         for (final int radius : speedRadii)
             for (final int increment : speedIncrement)
             {
@@ -369,8 +369,8 @@ public class MedianWindowDLLTest
         // When the increment is large then the linked list is doing too many operations
         // verses the full array sort of the cache median window.
         if (increment <= 4)
-            TestLog.logTestResult(logger, t2 < t1, "Radius %d, Increment %d : Cached %d : DLL %d = %fx faster", radius,
-                    increment, t1, t2, (double) t1 / t2);
+            logger.log(TestLog.getResultRecord(t2 < t1, "Radius %d, Increment %d : Cached %d : DLL %d = %fx faster", radius,
+                    increment, t1, t2, (double) t1 / t2));
         else
             logger.info(TestLog.getSupplier("Radius %d, Increment %d : Cached %d : DLL %d = %fx faster", radius, increment, t1, t2,
                     (double) t1 / t2));

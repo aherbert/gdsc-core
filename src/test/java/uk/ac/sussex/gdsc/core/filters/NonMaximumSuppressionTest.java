@@ -16,9 +16,9 @@ import ij.gui.PointRoi;
 import ij.process.FloatProcessor;
 import uk.ac.sussex.gdsc.core.ij.Utils;
 import uk.ac.sussex.gdsc.core.utils.Random;
+import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.TimingResult;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
@@ -289,7 +289,7 @@ public class NonMaximumSuppressionTest
     @SeededTest
     public void floatBlockFindIsFasterThanMaxFind(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -338,22 +338,19 @@ public class NonMaximumSuppressionTest
                     //		blockTime, time), blockTime < time);
                 }
             //if (debug)
-            TestLog.logTestStageResult(logger, blockBoxTotal <= boxTotal,
-                    "float maxFind%d : %d => blockFind %d = %.2fx", boxSize, boxTotal, blockBoxTotal,
-                    (1.0 * boxTotal) / blockBoxTotal);
+            logger.log(TestLog.getTimingRecord("float maxFind" + boxSize, boxTotal, "float blockFind", blockBoxTotal));
             //if (boxSize > 1) // Sometimes this fails at small sizes
             //	Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize, blockBoxTotal, boxTotal),
             //			blockBoxTotal < boxTotal);
         }
-        TestLog.logSpeedTestResult(logger, new TimingResult("float maxFind", total),
-                new TimingResult("float blockFind", blockTotal));
+        logger.log(TestLog.getTimingRecord("float maxFind", total, "float blockFind", blockTotal));
     }
 
     @SpeedTag
     @SeededTest
     public void floatBlockFindWithNeighbourCheckIsFasterThanMaxFind(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -404,15 +401,13 @@ public class NonMaximumSuppressionTest
                     //		blockTime, time), blockTime < time);
                 }
             //if (debug)
-            TestLog.logTestStageResult(logger, blockBoxTotal <= boxTotal,
-                    "float maxFind%d : %d => blockFindWithCheck %d = %.2fx", boxSize, boxTotal, blockBoxTotal,
-                    (1.0 * boxTotal) / blockBoxTotal);
+            logger.log(
+                    TestLog.getTimingRecord("float maxFind" + boxSize, boxTotal, "float blockFindWithCheck", blockBoxTotal));
             //if (boxSize > 1) // Sometimes this fails at small sizes
             //	Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize, blockBoxTotal, boxTotal),
             //			blockBoxTotal < boxTotal);
         }
-        TestLog.logSpeedTestResult(logger, new TimingResult("float maxFind", total),
-                new TimingResult("float blockFindWithCheck", blockTotal));
+        logger.log(TestLog.getTimingRecord("float maxFind", total, "float blockFindWithCheck", blockTotal));
     }
 
     private ArrayList<float[]> floatCreateSpeedData(UniformRandomProvider rg)
@@ -439,7 +434,7 @@ public class NonMaximumSuppressionTest
         // times for the internal method.
         // This test should be changed to repeat until the times converge.
 
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -495,24 +490,23 @@ public class NonMaximumSuppressionTest
                     //		blockTime, time), blockTime < time);
                 }
             //if (debug)
-            TestLog.logTestStageResult(logger, internalBoxTotal <= boxTotal,
-                    "float blockFind%d : %d => blockFindInternal %d = %.2fx", boxSize, boxTotal, internalBoxTotal,
-                    (1.0 * boxTotal) / internalBoxTotal);
+            logger.log(TestLog.getTimingRecord("float blockFind" + boxSize, boxTotal, "float blockFindInternal",
+                    internalBoxTotal));
             // This is not always faster for the 15-size block so leave commented out.
             //Assertions.assertTrue(String.format("Internal not faster: Block %d : %d > %d", boxSize,
             //		blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
         }
         logger.info(TestLog.getSupplier("float blockFind %d => blockFindInternal %d = %.2fx", total, internalTotal,
                 (1.0 * total) / internalTotal));
-        TestLog.logSpeedTestResult(logger, new TimingResult("float blockFind (border >= 5)", bigTotal),
-                new TimingResult("float blockFindInternal (border >= 5)", bigInternalTotal));
+        logger.log(TestLog.getTimingRecord("float blockFind (border >= 5)", bigTotal, "float blockFindInternal (border >= 5)",
+                bigInternalTotal));
     }
 
     @SpeedTag
     @SeededTest
     public void floatBlockFindInternalIsFasterWithoutNeighbourCheck(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -571,25 +565,23 @@ public class NonMaximumSuppressionTest
                     //		blockTime, time), blockTime < time);
                 }
             //if (debug)
-            TestLog.logTestStageResult(logger, noCheckBoxTotal <= checkBoxTotal,
-                    "float blockFindInternal check%d : %d => blockFindInternal %d = %.2fx", boxSize, checkBoxTotal,
-                    noCheckBoxTotal, (1.0 * checkBoxTotal) / noCheckBoxTotal);
+            logger.log(TestLog.getTimingRecord("float blockFindInternal check" + boxSize, checkBoxTotal,
+                    "float blockFindInternal", noCheckBoxTotal));
             // This is not always faster for the 15-size block so leave commented out.
             //Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d > %d", boxSize,
             //		blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
         }
         logger.info(TestLog.getSupplier("float blockFindInternal check %d => blockFindInternal %d = %.2fx", checkTotal,
                 noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-        TestLog.logSpeedTestResult(logger,
-                new TimingResult("float blockFindInternal check (border >= 5)", bigCheckTotal),
-                new TimingResult("float blockFindInternal (border >= 5)", bigNoCheckTotal));
+        logger.log(TestLog.getTimingRecord("float blockFindInternal check (border >= 5)", bigCheckTotal,
+                "float blockFindInternal (border >= 5)", bigNoCheckTotal));
     }
 
     @SpeedTag
     @SeededTest
     public void floatBlockFindIsFasterWithoutNeighbourCheck(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -648,25 +640,24 @@ public class NonMaximumSuppressionTest
                     //		blockTime, time), blockTime < time);
                 }
             //if (debug)
-            TestLog.logTestStageResult(logger, noCheckBoxTotal <= checkBoxTotal,
-                    "float blockFind check%d : %d => blockFind %d = %.2fx", boxSize, checkBoxTotal, noCheckBoxTotal,
-                    (1.0 * checkBoxTotal) / noCheckBoxTotal);
+            logger.log(TestLog.getTimingRecord("float blockFind check" + boxSize, checkBoxTotal, "float blockFind",
+                    noCheckBoxTotal));
             // This is not always faster for the 15-size block so leave commented out.
             //Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d > %d", boxSize,
             //		blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
         }
         logger.info(TestLog.getSupplier("float blockFind check %d => blockFind %d = %.2fx", checkTotal, noCheckTotal,
                 (1.0 * checkTotal) / noCheckTotal));
-        TestLog.logTestStageResult(logger, bigNoCheckTotal <= bigCheckTotal,
+        logger.log(TestLog.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
                 "float blockFind check %d  (border >= 5) => blockFind %d = %.2fx", bigCheckTotal, bigNoCheckTotal,
-                (1.0 * bigCheckTotal) / bigNoCheckTotal);
+                (1.0 * bigCheckTotal) / bigNoCheckTotal));
     }
 
     @SpeedTag
     @SeededTest
     public void floatBlockFind3x3MethodIsFasterThanBlockFindNxN(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -708,15 +699,14 @@ public class NonMaximumSuppressionTest
                 //Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height, blockTime, time),
                 //		blockTime < time);
             }
-        TestLog.logSpeedTestResult(logger, new TimingResult("float blockFindNxN", total),
-                new TimingResult("float blockFind3x3", blockTotal));
+        logger.log(TestLog.getTimingRecord("float blockFindNxN", total, "float blockFind3x3", blockTotal));
     }
 
     @SpeedTag
     @SeededTest
     public void floatBlockFind3x3WithBufferIsFasterThanBlockFind3x3(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -764,15 +754,14 @@ public class NonMaximumSuppressionTest
                 //Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height, blockTime, time),
                 //		blockTime < time);
             }
-        TestLog.logSpeedTestResult(logger, new TimingResult("float blockFind3x3", total),
-                new TimingResult("float blockFind3x3 (buffer)", blockTotal));
+        logger.log(TestLog.getTimingRecord("float blockFind3x3", total, "float blockFind3x3 (buffer)", blockTotal));
     }
 
     @SpeedTag
     @SeededTest
     public void floatBlockFind3x3MethodIsFasterThanMaxFind3x3(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -814,8 +803,7 @@ public class NonMaximumSuppressionTest
                 //Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height, blockTime, time),
                 //		blockTime < time);
             }
-        TestLog.logSpeedTestResult(logger, new TimingResult("float maxFind3x3", total),
-                new TimingResult("float blockFind3x3", blockTotal));
+        logger.log(TestLog.getTimingRecord("float maxFind3x3", total, "float blockFind3x3", blockTotal));
     }
 
     /**
@@ -1111,7 +1099,7 @@ public class NonMaximumSuppressionTest
     @SeededTest
     public void intBlockFindIsFasterThanMaxFind(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -1160,21 +1148,19 @@ public class NonMaximumSuppressionTest
                     //      blockTime, time), blockTime < time);
                 }
             //if (debug)
-            TestLog.logTestStageResult(logger, blockBoxTotal <= boxTotal, "int maxFind%d : %d => blockFind %d = %.2fx",
-                    boxSize, boxTotal, blockBoxTotal, (1.0 * boxTotal) / blockBoxTotal);
+            logger.log(TestLog.getTimingRecord("int maxFind" + boxSize, boxTotal, "int blockFind", blockBoxTotal));
             //if (boxSize > 1) // Sometimes this fails at small sizes
             //  Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize, blockBoxTotal, boxTotal),
             //          blockBoxTotal < boxTotal);
         }
-        TestLog.logSpeedTestResult(logger, new TimingResult("int maxFind", total),
-                new TimingResult("int blockFind", blockTotal));
+        logger.log(TestLog.getTimingRecord("int maxFind", total, "int blockFind", blockTotal));
     }
 
     @SpeedTag
     @SeededTest
     public void intBlockFindWithNeighbourCheckIsFasterThanMaxFind(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -1225,15 +1211,12 @@ public class NonMaximumSuppressionTest
                     //      blockTime, time), blockTime < time);
                 }
             //if (debug)
-            TestLog.logTestStageResult(logger, blockBoxTotal <= boxTotal,
-                    "int maxFind%d : %d => blockFindWithCheck %d = %.2fx", boxSize, boxTotal, blockBoxTotal,
-                    (1.0 * boxTotal) / blockBoxTotal);
+            logger.log(TestLog.getTimingRecord("int maxFind" + boxSize, boxTotal, "int blockFindWithCheck", blockBoxTotal));
             //if (boxSize > 1) // Sometimes this fails at small sizes
             //  Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize, blockBoxTotal, boxTotal),
             //          blockBoxTotal < boxTotal);
         }
-        TestLog.logSpeedTestResult(logger, new TimingResult("int maxFind", total),
-                new TimingResult("int blockFindWithCheck", blockTotal));
+        logger.log(TestLog.getTimingRecord("int maxFind", total, "int blockFindWithCheck", blockTotal));
     }
 
     private ArrayList<int[]> intCreateSpeedData(UniformRandomProvider rg)
@@ -1260,7 +1243,7 @@ public class NonMaximumSuppressionTest
         // times for the internal method.
         // This test should be changed to repeat until the times converge.
 
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -1316,24 +1299,23 @@ public class NonMaximumSuppressionTest
                     //      blockTime, time), blockTime < time);
                 }
             //if (debug)
-            TestLog.logTestStageResult(logger, internalBoxTotal <= boxTotal,
-                    "int blockFind%d : %d => blockFindInternal %d = %.2fx", boxSize, boxTotal, internalBoxTotal,
-                    (1.0 * boxTotal) / internalBoxTotal);
+            logger.log(
+                    TestLog.getTimingRecord("int blockFind" + boxSize, boxTotal, "int blockFindInternal", internalBoxTotal));
             // This is not always faster for the 15-size block so leave commented out.
             //Assertions.assertTrue(String.format("Internal not faster: Block %d : %d > %d", boxSize,
             //      blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
         }
         logger.info(TestLog.getSupplier("int blockFind %d => blockFindInternal %d = %.2fx", total, internalTotal,
                 (1.0 * total) / internalTotal));
-        TestLog.logSpeedTestResult(logger, new TimingResult("int blockFind (border >= 5)", bigTotal),
-                new TimingResult("int blockFindInternal (border >= 5)", bigInternalTotal));
+        logger.log(TestLog.getTimingRecord("int blockFind (border >= 5)", bigTotal, "int blockFindInternal (border >= 5)",
+                bigInternalTotal));
     }
 
     @SpeedTag
     @SeededTest
     public void intBlockFindInternalIsFasterWithoutNeighbourCheck(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -1392,24 +1374,23 @@ public class NonMaximumSuppressionTest
                     //      blockTime, time), blockTime < time);
                 }
             //if (debug)
-            TestLog.logTestStageResult(logger, noCheckBoxTotal <= checkBoxTotal,
-                    "int blockFindInternal check%d : %d => blockFindInternal %d = %.2fx", boxSize, checkBoxTotal,
-                    noCheckBoxTotal, (1.0 * checkBoxTotal) / noCheckBoxTotal);
+            logger.log(TestLog.getTimingRecord("int blockFindInternal check" + boxSize, checkBoxTotal,
+                    "int blockFindInternal", noCheckBoxTotal));
             // This is not always faster for the 15-size block so leave commented out.
             //Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d > %d", boxSize,
             //      blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
         }
         logger.info(TestLog.getSupplier("int blockFindInternal check %d => blockFindInternal %d = %.2fx", checkTotal,
                 noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-        TestLog.logSpeedTestResult(logger, new TimingResult("int blockFindInternal check (border >= 5)", bigCheckTotal),
-                new TimingResult("int blockFindInternal (border >= 5)", bigNoCheckTotal));
+        logger.log(TestLog.getTimingRecord("int blockFindInternal check (border >= 5)", bigCheckTotal,
+                "int blockFindInternal (border >= 5)", bigNoCheckTotal));
     }
 
     @SpeedTag
     @SeededTest
     public void intBlockFindIsFasterWithoutNeighbourCheck(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -1467,25 +1448,24 @@ public class NonMaximumSuppressionTest
                     //      blockTime, time), blockTime < time);
                 }
             //if (debug)
-            TestLog.logTestStageResult(logger, noCheckBoxTotal <= checkBoxTotal,
-                    "int blockFind check%d : %d => blockFind %d = %.2fx", boxSize, checkBoxTotal, noCheckBoxTotal,
-                    (1.0 * checkBoxTotal) / noCheckBoxTotal);
+            logger.log(TestLog.getTimingRecord("int blockFind check" + boxSize, checkBoxTotal, "int blockFind",
+                    noCheckBoxTotal));
             // This is not always faster for the 15-size block so leave commented out.
             //Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d > %d", boxSize,
             //      blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
         }
         logger.info(TestLog.getSupplier("int blockFind check %d => blockFind %d = %.2fx", checkTotal, noCheckTotal,
                 (1.0 * checkTotal) / noCheckTotal));
-        TestLog.logTestStageResult(logger, bigNoCheckTotal <= bigCheckTotal,
+        logger.log(TestLog.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
                 "int blockFind check %d  (border >= 5) => blockFind %d = %.2fx", bigCheckTotal, bigNoCheckTotal,
-                (1.0 * bigCheckTotal) / bigNoCheckTotal);
+                (1.0 * bigCheckTotal) / bigNoCheckTotal));
     }
 
     @SpeedTag
     @SeededTest
     public void intBlockFind3x3MethodIsFasterThanBlockFindNxN(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -1527,15 +1507,14 @@ public class NonMaximumSuppressionTest
                 //Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height, blockTime, time),
                 //      blockTime < time);
             }
-        TestLog.logSpeedTestResult(logger, new TimingResult("int blockFindNxN", total),
-                new TimingResult("int blockFind3x3", blockTotal));
+        logger.log(TestLog.getTimingRecord("int blockFindNxN", total, "int blockFind3x3", blockTotal));
     }
 
     @SpeedTag
     @SeededTest
     public void intBlockFind3x3WithBufferIsFasterThanBlockFind3x3(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -1582,15 +1561,14 @@ public class NonMaximumSuppressionTest
                 //Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height, blockTime, time),
                 //      blockTime < time);
             }
-        TestLog.logSpeedTestResult(logger, new TimingResult("int blockFind3x3", total),
-                new TimingResult("int blockFind3x3 (buffer)", blockTotal));
+        logger.log(TestLog.getTimingRecord("int blockFind3x3", total, "int blockFind3x3 (buffer)", blockTotal));
     }
 
     @SpeedTag
     @SeededTest
     public void intBlockFind3x3MethodIsFasterThanMaxFind3x3(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
 
@@ -1632,8 +1610,7 @@ public class NonMaximumSuppressionTest
                 //Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height, blockTime, time),
                 //      blockTime < time);
             }
-        TestLog.logSpeedTestResult(logger, new TimingResult("int maxFind3x3", total),
-                new TimingResult("int blockFind3x3", blockTotal));
+        logger.log(TestLog.getTimingRecord("int maxFind3x3", total, "int blockFind3x3", blockTotal));
     }
 
     /**

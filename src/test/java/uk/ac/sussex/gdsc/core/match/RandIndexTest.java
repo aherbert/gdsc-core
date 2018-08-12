@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
@@ -255,7 +256,7 @@ public class RandIndexTest
     @SeededTest
     public void canComputeRandIndexWithBigData(RandomSeed seed)
     {
-        ExtraAssumptions.assumeLowComplexity();
+        ExtraAssumptions.assume(TestComplexity.LOW);
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
         final int size = 10000;
         for (final int i : new int[] { 3, 5, 10 })

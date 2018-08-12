@@ -97,7 +97,7 @@ public class DensityManagerTest
 
                 final Supplier<String> msg = TestLog.getSupplier("Grid vs Triangle. N=%d, R=%f : %fx faster", n, radius,
                         (double) t1 / t2);
-                logger.info(msg);                
+                logger.info(msg);
                 Assertions.assertTrue(t2 < t1, msg);
             }
         }
@@ -126,7 +126,7 @@ public class DensityManagerTest
 
                 final Supplier<String> msg = TestLog.getSupplier("Grid vs Standard. N=%d, R=%f : %fx faster", n, radius,
                         (double) t1 / t2);
-                logger.info(msg);                
+                logger.info(msg);
                 Assertions.assertTrue(t2 < t1, msg);
             }
         }
@@ -219,7 +219,7 @@ public class DensityManagerTest
     //@SeededTest
     public void blockDensityFasterThanBlockDensity2(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
         for (final int n : N)
@@ -250,7 +250,7 @@ public class DensityManagerTest
     @SeededTest
     public void blockDensity2FasterThanBlockDensity3(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
         for (final int n : N)
@@ -274,7 +274,7 @@ public class DensityManagerTest
                 // This is not always faster
                 //TestLog.info(logger,msg);
                 //Assertions.assertTrue(t2 < t1, msg);
-                logger.log(TestLog.getRecord(t2 < t1, msg));
+                logger.log(TestLog.getResultRecord(t2 < t1, msg));
             }
         }
     }

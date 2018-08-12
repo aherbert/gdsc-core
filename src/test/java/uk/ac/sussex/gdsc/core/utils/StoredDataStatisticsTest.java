@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.test.DataCache;
+import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
@@ -62,93 +63,113 @@ public class StoredDataStatisticsTest extends StatisticsTest implements Function
             Assertions.assertEquals(d, values[i++]);
     }
 
-    @SuppressWarnings("unused")
+    // These speed tests are weak. A JMH benchmark would be better.
+
     @SpeedTag
     @SeededTest
     public void forLoopIsSlowerThanValuesIterator(RandomSeed seed)
     {
         // This fails. Perhaps change the test to use the TimingService for repeat testing.
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final StoredDataStatistics stats = dataCache.getOrComputeIfAbsent(seed, this);
 
+        double total = 0;
         long start1 = System.nanoTime();
         for (int i = 0; i < loops; i++)
         {
-            double total = 0;
+            total = 0;
             final double[] values = stats.getValues();
             for (int j = 0; j < values.length; j++)
                 total += values[j];
         }
         start1 = System.nanoTime() - start1;
+        logger.finest(TestLog.getSupplier("Total = %s", total));
 
         long start2 = System.nanoTime();
         for (int i = 0; i < loops; i++)
         {
-            double total = 0;
+            total = 0;
             for (final double d : stats.getValues())
                 total += d;
         }
         start2 = System.nanoTime() - start2;
+        logger.finest(TestLog.getSupplier("Total = %s", total));
 
-        TestLog.logTestResult(logger, start1 < start2, "getValues = %d : values for loop = %d : %fx", start1, start2,
-                (1.0 * start2) / start1);
+        logger.log(TestLog.getTimingRecord("for (double d : stats.getValues())", start2,
+                "for (int j = 0; j < values.length; j++)", start1));
     }
 
-    @SuppressWarnings("unused")
     @SpeedTag
     @SeededTest
     public void iteratorIsSlowerUsingdouble(RandomSeed seed)
     {
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
+
         final StoredDataStatistics stats = dataCache.getOrComputeIfAbsent(seed, this);
 
-        ExtraAssumptions.assumeSpeedTest();
+        double total = 0;
         long start1 = System.nanoTime();
         for (int i = 0; i < loops; i++)
+        {
+            total = 0;
             for (final double d : stats.getValues())
             {
-                // Do nothing
+                total += d;
             }
+        }
         start1 = System.nanoTime() - start1;
+        logger.finest(TestLog.getSupplier("Total = %s", total));
 
         long start2 = System.nanoTime();
         for (int i = 0; i < loops; i++)
+        {
+            total = 0;
             for (final double d : stats)
             {
-                // Do nothing
+                total += d;
             }
+        }
         start2 = System.nanoTime() - start2;
+        logger.finest(TestLog.getSupplier("Total = %s", total));
 
-        TestLog.logTestResult(logger, start1 < start2, "getValues = %d : iterator<double> = %d : %fx", start1, start2,
-                (1.0 * start2) / start1);
+        logger.log(TestLog.getTimingRecord("for (double d : stats)", start2, "for (double d : stats.getValues)", start1));
     }
 
-    @SuppressWarnings("unused")
     @SpeedTag
     @SeededTest
     public void iteratorIsSlowerUsingDouble(RandomSeed seed)
     {
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
+
         final StoredDataStatistics stats = dataCache.getOrComputeIfAbsent(seed, this);
 
-        ExtraAssumptions.assumeSpeedTest();
+        double total = 0;
         long start1 = System.nanoTime();
         for (int i = 0; i < loops; i++)
+        {
+            total = 0;
             for (final double d : stats.getValues())
             {
-                // Do nothing
+                total += d;
             }
+        }
         start1 = System.nanoTime() - start1;
+        logger.finest(TestLog.getSupplier("Total = %s", total));
 
         long start2 = System.nanoTime();
         for (int i = 0; i < loops; i++)
+        {
+            total = 0;
             for (final Double d : stats)
             {
-                // Do nothing
+                total += d;
             }
+        }
         start2 = System.nanoTime() - start2;
+        logger.finest(TestLog.getSupplier("Total = %s", total));
 
-        TestLog.logTestResult(logger, start1 < start2, "getValues = %d : iterator<Double> = %d : %fx", start1, start2,
-                (1.0 * start2) / start1);
+        logger.log(TestLog.getTimingRecord("for (Double d : stats)", start2, "for (double d : stats.getValues)", start1));
     }
 
     @Test

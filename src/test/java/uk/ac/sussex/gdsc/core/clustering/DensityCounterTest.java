@@ -332,7 +332,7 @@ public class DensityCounterTest
         final int size = ts.repeat();
         //ts.repeat(size);
 
-        ts.report(logger);
+        logger.info(ts.getReport());
     }
 
     @SeededTest
@@ -414,7 +414,7 @@ public class DensityCounterTest
         final int size = ts.repeat();
         //ts.repeat(size);
 
-        ts.report(logger);
+        logger.info(ts.getReport());
     }
 
     /**

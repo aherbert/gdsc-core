@@ -472,6 +472,6 @@ public class AssignmentComparatorTest implements Function<RandomSeed, Object>
         final int size = ts.repeat();
         ts.repeat(size);
 
-        ts.report(logger, size);
+        logger.info(ts.getReport(size));
     }
 }

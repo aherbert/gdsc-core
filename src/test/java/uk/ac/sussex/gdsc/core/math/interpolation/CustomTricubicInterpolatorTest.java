@@ -26,6 +26,7 @@ import uk.ac.sussex.gdsc.core.utils.Maths;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingResult;
@@ -1075,7 +1076,7 @@ public class CustomTricubicInterpolatorTest
     @SeededTest
     public void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable(RandomSeed seed)
     {
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
         final int x = 6, y = 5, z = 4;
@@ -1134,16 +1135,13 @@ public class CustomTricubicInterpolatorTest
 
         final int n = ts.getSize();
         ts.repeat();
-        ts.report(logger, n);
+        logger.info(ts.getReport(n));
 
         for (int i = 1; i < n; i += 2)
         {
-            final TimingResult r1 = ts.get(-i);
-            final TimingResult r2 = ts.get(-i - 1);
-            final double t1 = r1.getMean();
-            final double t2 = r2.getMean();
-            TestLog.logTestResult(logger, t1 < t2, "%s  %f vs %s  %f : %.2fx", r1.getTask().getName(), t1,
-                    r2.getTask().getName(), t2, t2 / t1);
+            final TimingResult fast = ts.get(-i);
+            final TimingResult slow = ts.get(-i - 1);
+            logger.log(TestLog.getTimingRecord(slow, fast));
         }
     }
 
@@ -1511,8 +1509,8 @@ public class CustomTricubicInterpolatorTest
                 {
                     @SuppressWarnings("null")
                     final double d = Maths.distance(last[0], last[1], last[2], optimum[0], optimum[1], optimum[2]);
-                    logger.info(TestLog.getSupplier("[%d] %f,%f,%f %d = %s : dist = %f : change = %g", ii, cx, cy, cz, i,
-                            Arrays.toString(optimum), d, DoubleEquality.relativeError(last[3], optimum[3])));
+                    logger.info(TestLog.getSupplier("[%d] %f,%f,%f %d = %s : dist = %f : change = %g", ii, cx, cy, cz,
+                            i, Arrays.toString(optimum), d, DoubleEquality.relativeError(last[3], optimum[3])));
                     Assertions.assertTrue(optimum[3] >= last[3]);
                 }
                 last = optimum;

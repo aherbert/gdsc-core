@@ -306,8 +306,8 @@ public class CustomTricubicInterpolatingFunctionTest
         ts.check();
         ts.repeat();
         if (logger.isLoggable(Level.INFO))
-            //ts.report(logger);
-            ts.report(logger, n);
+            //logger.info(ts.getReport());
+            logger.info(ts.getReport(n));
 
         Assertions.assertTrue(ts.get(-1).getMean() < ts.get(-n).getMean(),
                 () -> String.format("%f vs %f", ts.get(-1).getMean(), ts.get(-n).getMean()));

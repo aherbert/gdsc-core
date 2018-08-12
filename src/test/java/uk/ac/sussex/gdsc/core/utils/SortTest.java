@@ -130,7 +130,7 @@ public class SortTest
 
             final int size = ts.getSize();
             ts.repeat(size);
-            ts.report(logger, size);
+            logger.info(ts.getReport(size));
         }
     }
 
@@ -238,7 +238,7 @@ public class SortTest
 
             final int size = ts.getSize();
             ts.repeat(size);
-            ts.report(logger, size);
+            logger.info(ts.getReport(size));
         }
     }
 }

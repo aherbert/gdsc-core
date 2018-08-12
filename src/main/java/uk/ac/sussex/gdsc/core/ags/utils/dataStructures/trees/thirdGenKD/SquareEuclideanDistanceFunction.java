@@ -24,11 +24,10 @@
 package uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.thirdGenKD;
 
 /**
- *
+ * Distance function for ND data
  */
 public class SquareEuclideanDistanceFunction implements DistanceFunction
 {
-
     @Override
     public double distance(double[] p1, double[] p2)
     {

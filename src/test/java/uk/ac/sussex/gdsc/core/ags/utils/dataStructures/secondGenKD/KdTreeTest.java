@@ -552,7 +552,7 @@ public class KdTreeTest
         ts.repeat(number);
         ts.repeat(number);
 
-        ts.report(logger);
+        logger.info(ts.getReport());
     }
 
     private static double[][] createData(UniformRandomProvider r, int size, int n, boolean allowDuplicates)

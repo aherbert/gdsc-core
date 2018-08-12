@@ -281,7 +281,7 @@ public class DetectionGridTest
         }
         int i = ts.getSize();
         ts.repeat();
-        ts.report(logger);
+        logger.info(ts.getReport());
         for (int i1 = -1, i2 = -2; i > 0; i -= 2, i1 -= 2, i2 -= 2)
         {
             final double t1 = ts.get(i1).getMean();

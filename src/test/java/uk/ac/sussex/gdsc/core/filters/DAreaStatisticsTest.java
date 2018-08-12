@@ -14,6 +14,7 @@ import ij.process.ImageStatistics;
 import uk.ac.sussex.gdsc.core.utils.Random;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
@@ -262,7 +263,7 @@ public class DAreaStatisticsTest
     public void rollingIsfasterAtHighDensity(RandomSeed seed)
     {
         // Since this is a slow test
-        ExtraAssumptions.assumeSpeedTest();
+        ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         // Test for sampling half the pixels. Ignore the very small box size
         speedTest(seed, 0.5, true, 2, Integer.MAX_VALUE);
@@ -296,12 +297,12 @@ public class DAreaStatisticsTest
         }
         final int size = ts.getSize();
         ts.repeat();
-        ts.report(logger, size);
+        logger.info(ts.getReport(size));
         // Do not let this fail the test suite
         //Assertions.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
-        TestLog.logTestResult(logger, ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
+        logger.log(TestLog.getResultRecord(ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
                 "DAreaStatistics Density=%g RollingIsFaster=%b N=%d:%d: rolling %s vs simple %s", density,
-                rollingIsFaster, minN, maxN, ts.get(-2).getMean(), ts.get(-1).getMean());
+                rollingIsFaster, minN, maxN, ts.get(-2).getMean(), ts.get(-1).getMean()));
     }
 
     private double[] createData(UniformRandomProvider r)

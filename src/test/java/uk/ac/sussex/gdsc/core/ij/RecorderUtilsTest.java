@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import ij.plugin.frame.Recorder;
+import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 
 @SuppressWarnings({ "javadoc" })
@@ -25,7 +26,7 @@ public class RecorderUtilsTest
     {
         // This test is slow as creating the recorder involves spinning up a lot of
         // ImageJ and Java AWT classes. So only run if asked for.
-        ExtraAssumptions.assumeLowComplexity();
+        ExtraAssumptions.assume(TestComplexity.LOW);
         if (recorder == null)
             recorder = new Recorder(false);
     }
