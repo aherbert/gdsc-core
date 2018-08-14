@@ -15,7 +15,9 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.TestComplexity;
+import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.TimingResult;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
@@ -284,10 +286,9 @@ public class DetectionGridTest
         logger.info(ts.getReport());
         for (int i1 = -1, i2 = -2; i > 0; i -= 2, i1 -= 2, i2 -= 2)
         {
-            final double t1 = ts.get(i1).getMean();
-            final double t2 = ts.get(i2).getMean();
-            //TestLog.debug(logger,"%f < %f", t1, t2);
-            Assertions.assertTrue(t1 < t2, () -> String.format("%f < %f", t1, t2));
+            final TimingResult fast = ts.get(i1); 
+            final TimingResult slow = ts.get(i2); 
+            logger.log(TestLog.getTimingRecord(slow, fast));
         }
     }
 }
