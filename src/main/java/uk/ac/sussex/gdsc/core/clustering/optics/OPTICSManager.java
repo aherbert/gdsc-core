@@ -30,9 +30,9 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 import java.awt.Rectangle;
 import java.util.EnumSet;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
-import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.Well19937c;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.PermutationSampler;
+import org.apache.commons.rng.simple.RandomSource;
 
 import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D;
 import uk.ac.sussex.gdsc.core.clustering.CoordinateStore;
@@ -1603,14 +1603,15 @@ public class OPTICSManager extends CoordinateStore
         }
 
         int[] indices;
-        if (n <= size)
+        if (n <= size) 
+        {
             // Compute all
             indices = SimpleArrayUtils.newArray(n, 0, 1);
+        }
         else
         {
             // Random sample
-            final RandomDataGenerator r = new RandomDataGenerator();
-            indices = r.nextPermutation(size, n);
+            indices = new PermutationSampler(RandomSource.create(RandomSource.MWC_256), size, n).sample();
         }
 
         // Use a KDtree to allow search of the space
@@ -2004,11 +2005,11 @@ public class OPTICSManager extends CoordinateStore
      *
      * @return the random generator
      */
-    private RandomGenerator getRandomGenerator()
+    private UniformRandomProvider getRandomGenerator()
     {
         if (seed == 0)
-            return new Well19937c();
-        return new Well19937c(seed);
+            return RandomSource.create(RandomSource.MWC_256);
+        return RandomSource.create(RandomSource.MWC_256, seed);
     }
 
     /**

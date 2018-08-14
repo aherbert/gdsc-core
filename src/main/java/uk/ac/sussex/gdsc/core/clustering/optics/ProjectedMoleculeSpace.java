@@ -36,8 +36,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.random.RandomVectorGenerator;
-import org.apache.commons.math3.random.UnitSphereRandomVectorGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.UnitSphereSampler;
 
 import gnu.trove.set.hash.TIntHashSet;
 import uk.ac.sussex.gdsc.core.ij.Utils;
@@ -66,7 +66,6 @@ import uk.ac.sussex.gdsc.core.utils.TurboRandomGenerator;
  */
 class ProjectedMoleculeSpace extends MoleculeSpace
 {
-
     /** Used for access to the raw coordinates. */
     protected final OPTICSManager opticsManager;
 
@@ -134,7 +133,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
     /**
      * Random factory.
      */
-    RandomGenerator rand;
+    private UniformRandomProvider rand;
 
     /** The neighbours of each point. */
     int[][] allNeighbours;
@@ -174,9 +173,9 @@ class ProjectedMoleculeSpace extends MoleculeSpace
      * @param generatingDistanceE
      *            the generating distance (E)
      * @param rand
-     *            the rand
+     *            the random source
      */
-    ProjectedMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, RandomGenerator rand)
+    ProjectedMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, UniformRandomProvider rand)
     {
         super(opticsManager.getSize(), generatingDistanceE);
 
@@ -677,15 +676,18 @@ class ProjectedMoleculeSpace extends MoleculeSpace
         }
 
         // Create random vectors or uniform distribution
-        final RandomVectorGenerator vectorGen = (useRandomVectors) ? new UnitSphereRandomVectorGenerator(2, rand)
+        
+        final UnitSphereSampler vectorGen = (useRandomVectors) ? new UnitSphereSampler(2, rand)
                 : null;
         final double increment = Math.PI / nProject1d;
         for (int i = 0; i < nProject1d; i++)
         {
             // Create a random unit vector
             double[] currRp;
-            if (vectorGen != null)
+            if (vectorGen != null) 
+            {
                 currRp = vectorGen.nextVector();
+            }
             else
             {
                 // For a 2D vector we can just uniformly distribute them around a semi-circle
