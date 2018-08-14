@@ -62,16 +62,14 @@ public class DigestTest
         // Convert each byte to 2 hex digits
         for (int i = 0; i < randomBytes.length; i++)
         {
-            //final Integer c = Integer.valueOf(randomBytes[i]);
+            final Integer c = Integer.valueOf(randomBytes[i]);
 
             /*
              * Add 128 to byte value to make interval 0-255 before doing hex
              * conversion. This guarantees <= 2 hex digits from toHexString()
              * toHexString would otherwise add 2^32 to negative arguments.
              */
-            //final String hex = Integer.toHexString(c.intValue() + 128);
-
-            final String hex = Integer.toHexString(randomBytes[i] & 0xff);
+            final String hex = Integer.toHexString(c.intValue() + 128);
 
             // Make sure we add 2 hex digits for each byte
             if (hex.length() == 1)
