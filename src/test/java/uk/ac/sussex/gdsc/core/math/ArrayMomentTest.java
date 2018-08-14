@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.data.IntegerType;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
@@ -373,11 +373,10 @@ public class ArrayMomentTest
         m2.incrementAll(d);
         for (int i = 0; i < d.length; i++)
             r2.add(new double[] { d[i] });
-        ExtraAssertions.assertEqualsRelative(m1.getMean(), r2.getFirstMoment()[0], DELTA, "% Mean", title);
-        ExtraAssertions.assertEqualsRelative(m2.getResult(), r2.getSecondMoment()[0], DELTA, "% 2nd Moment", title);
-        ExtraAssertions.assertEqualsRelative(m1.getVariance(), r2.getVariance()[0], DELTA, "% Variance", title);
-        ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), r2.getStandardDeviation()[0], DELTA, "% SD",
-                title);
+        ExtraAssertions.assertEqualsRelative(m1.getMean(), r2.getFirstMoment()[0], DELTA, () -> title + " Mean");
+        ExtraAssertions.assertEqualsRelative(m2.getResult(), r2.getSecondMoment()[0], DELTA, () -> title + " 2nd Moment");
+        ExtraAssertions.assertEqualsRelative(m1.getVariance(), r2.getVariance()[0], DELTA, () -> title + " Variance");
+        ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), r2.getStandardDeviation()[0], DELTA, () -> title + " SD");
     }
 
     private void canComputeMoment(String title, float[] d, ArrayMoment r2)
@@ -388,11 +387,10 @@ public class ArrayMomentTest
         m2.incrementAll(toDouble(d));
         for (int i = 0; i < d.length; i++)
             r2.add(new double[] { d[i] });
-        ExtraAssertions.assertEqualsRelative(m1.getMean(), r2.getFirstMoment()[0], DELTA, "% Mean", title);
-        ExtraAssertions.assertEqualsRelative(m2.getResult(), r2.getSecondMoment()[0], DELTA, "% 2nd Moment", title);
-        ExtraAssertions.assertEqualsRelative(m1.getVariance(), r2.getVariance()[0], DELTA, "% Variance", title);
-        ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), r2.getStandardDeviation()[0], DELTA, "% SD",
-                title);
+        ExtraAssertions.assertEqualsRelative(m1.getMean(), r2.getFirstMoment()[0], DELTA, () -> title + " Mean");
+        ExtraAssertions.assertEqualsRelative(m2.getResult(), r2.getSecondMoment()[0], DELTA, () -> title + " 2nd Moment");
+        ExtraAssertions.assertEqualsRelative(m1.getVariance(), r2.getVariance()[0], DELTA, () -> title + " Variance");
+        ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), r2.getStandardDeviation()[0], DELTA, () -> title + " SD");
     }
 
     private static double[] toDouble(float[] in)
@@ -411,11 +409,10 @@ public class ArrayMomentTest
         m2.incrementAll(toDouble(d));
         for (int i = 0; i < d.length; i++)
             r2.add(new int[] { d[i] });
-        ExtraAssertions.assertEqualsRelative(m1.getMean(), r2.getFirstMoment()[0], DELTA, "% Mean", title);
-        ExtraAssertions.assertEqualsRelative(m2.getResult(), r2.getSecondMoment()[0], DELTA, "% 2nd Moment", title);
-        ExtraAssertions.assertEqualsRelative(m1.getVariance(), r2.getVariance()[0], DELTA, "% Variance", title);
-        ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), r2.getStandardDeviation()[0], DELTA, "% SD",
-                title);
+        ExtraAssertions.assertEqualsRelative(m1.getMean(), r2.getFirstMoment()[0], DELTA, () -> title + " Mean");
+        ExtraAssertions.assertEqualsRelative(m2.getResult(), r2.getSecondMoment()[0], DELTA, () -> title + " 2nd Moment");
+        ExtraAssertions.assertEqualsRelative(m1.getVariance(), r2.getVariance()[0], DELTA, () -> title + " Variance");
+        ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), r2.getStandardDeviation()[0], DELTA, () -> title + " SD");
     }
 
     private static double[] toDouble(int[] in)
@@ -460,10 +457,10 @@ public class ArrayMomentTest
                 m1.add(d[i][n]);
                 m2.increment(d[i][n]);
             }
-            ExtraAssertions.assertEqualsRelative(m1.getMean(), om1[n], DELTA, "% Mean", title);
-            ExtraAssertions.assertEqualsRelative(m2.getResult(), om2[n], DELTA, "% 2nd Moment", title);
-            ExtraAssertions.assertEqualsRelative(m1.getVariance(), ov[n], DELTA, "% Variance", title);
-            ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), osd[n], DELTA, "% SD", title);
+            ExtraAssertions.assertEqualsRelative(m1.getMean(), om1[n], DELTA, () -> title + " Mean");
+            ExtraAssertions.assertEqualsRelative(m2.getResult(), om2[n], DELTA, () -> title + " 2nd Moment");
+            ExtraAssertions.assertEqualsRelative(m1.getVariance(), ov[n], DELTA, () -> title + " Variance");
+            ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), osd[n], DELTA, () -> title + " SD");
         }
     }
 
@@ -485,10 +482,10 @@ public class ArrayMomentTest
                 m1.add(d[i][n]);
                 m2.increment(d[i][n]);
             }
-            ExtraAssertions.assertEqualsRelative(m1.getMean(), om1[n], DELTA, "% Mean", title);
-            ExtraAssertions.assertEqualsRelative(m2.getResult(), om2[n], DELTA, "% 2nd Moment", title);
-            ExtraAssertions.assertEqualsRelative(m1.getVariance(), ov[n], DELTA, "% Variance", title);
-            ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), osd[n], DELTA, "% SD", title);
+            ExtraAssertions.assertEqualsRelative(m1.getMean(), om1[n], DELTA, () -> title + " Mean");
+            ExtraAssertions.assertEqualsRelative(m2.getResult(), om2[n], DELTA, () -> title + " 2nd Moment");
+            ExtraAssertions.assertEqualsRelative(m1.getVariance(), ov[n], DELTA, () -> title + " Variance");
+            ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), osd[n], DELTA, () -> title + " SD");
         }
     }
 
@@ -513,7 +510,7 @@ public class ArrayMomentTest
             m2.increment(d);
             r2.add(d);
         }
-        logger.info(TestLog.getSupplier("Mean %s vs %s, SD %s vs %s", Double.toString(m1.getFirstMoment()[0]),
+        logger.info(FunctionUtils.getSupplier("Mean %s vs %s, SD %s vs %s", Double.toString(m1.getFirstMoment()[0]),
                 Double.toString(r2.getFirstMoment()[0]), Double.toString(m1.getStandardDeviation()[0]),
                 Double.toString(r2.getStandardDeviation()[0])));
         ExtraAssertions.assertEqualsRelative(m1.getFirstMoment()[0], r2.getFirstMoment()[0], DELTA, "Mean");

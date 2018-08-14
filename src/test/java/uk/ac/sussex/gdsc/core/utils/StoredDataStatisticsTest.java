@@ -13,6 +13,7 @@ import uk.ac.sussex.gdsc.test.DataCache;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -84,7 +85,7 @@ public class StoredDataStatisticsTest extends StatisticsTest implements Function
                 total += values[j];
         }
         start1 = System.nanoTime() - start1;
-        logger.finest(TestLog.getSupplier("Total = %s", total));
+        logger.finest(FunctionUtils.getSupplier("Total = %s", total));
 
         long start2 = System.nanoTime();
         for (int i = 0; i < loops; i++)
@@ -94,7 +95,7 @@ public class StoredDataStatisticsTest extends StatisticsTest implements Function
                 total += d;
         }
         start2 = System.nanoTime() - start2;
-        logger.finest(TestLog.getSupplier("Total = %s", total));
+        logger.finest(FunctionUtils.getSupplier("Total = %s", total));
 
         logger.log(TestLog.getTimingRecord("for (double d : stats.getValues())", start2,
                 "for (int j = 0; j < values.length; j++)", start1));
@@ -119,7 +120,7 @@ public class StoredDataStatisticsTest extends StatisticsTest implements Function
             }
         }
         start1 = System.nanoTime() - start1;
-        logger.finest(TestLog.getSupplier("Total = %s", total));
+        logger.finest(FunctionUtils.getSupplier("Total = %s", total));
 
         long start2 = System.nanoTime();
         for (int i = 0; i < loops; i++)
@@ -131,7 +132,7 @@ public class StoredDataStatisticsTest extends StatisticsTest implements Function
             }
         }
         start2 = System.nanoTime() - start2;
-        logger.finest(TestLog.getSupplier("Total = %s", total));
+        logger.finest(FunctionUtils.getSupplier("Total = %s", total));
 
         logger.log(TestLog.getTimingRecord("for (double d : stats)", start2, "for (double d : stats.getValues)", start1));
     }
@@ -155,7 +156,7 @@ public class StoredDataStatisticsTest extends StatisticsTest implements Function
             }
         }
         start1 = System.nanoTime() - start1;
-        logger.finest(TestLog.getSupplier("Total = %s", total));
+        logger.finest(FunctionUtils.getSupplier("Total = %s", total));
 
         long start2 = System.nanoTime();
         for (int i = 0; i < loops; i++)
@@ -167,7 +168,7 @@ public class StoredDataStatisticsTest extends StatisticsTest implements Function
             }
         }
         start2 = System.nanoTime() - start2;
-        logger.finest(TestLog.getSupplier("Total = %s", total));
+        logger.finest(FunctionUtils.getSupplier("Total = %s", total));
 
         logger.log(TestLog.getTimingRecord("for (Double d : stats)", start2, "for (double d : stats.getValues)", start1));
     }

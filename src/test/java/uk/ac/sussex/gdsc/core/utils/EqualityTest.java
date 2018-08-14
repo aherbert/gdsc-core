@@ -16,6 +16,7 @@ import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -370,10 +371,10 @@ public class EqualityTest
     {
         final float f3 = f + f * 1e-2f;
         final float f4 = f - f * 1e-2f;
-        logger.info(TestLog.getSupplier("%g -> %g = %d : %d (%g : %g)", f, f3, FloatEquality.complement(f3, f),
+        logger.info(FunctionUtils.getSupplier("%g -> %g = %d : %d (%g : %g)", f, f3, FloatEquality.complement(f3, f),
                 DoubleEquality.complement(f3, f), FloatEquality.relativeError(f, f3),
                 DoubleEquality.relativeError(f, f3)));
-        logger.info(TestLog.getSupplier("%g -> %g = %d : %d (%g : %g)", f, f4, FloatEquality.complement(f4, f),
+        logger.info(FunctionUtils.getSupplier("%g -> %g = %d : %d (%g : %g)", f, f4, FloatEquality.complement(f4, f),
                 DoubleEquality.complement(f4, f), FloatEquality.relativeError(f, f4),
                 DoubleEquality.relativeError(f, f4)));
     }

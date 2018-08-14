@@ -13,9 +13,9 @@ import org.junit.jupiter.api.BeforeAll;
 import uk.ac.sussex.gdsc.core.clustering.DensityCounter.SimpleMolecule;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -259,7 +259,7 @@ public class DensityCounterTest
         // non-sync multi = nCells * (9 * d * d)
         final double d = molecules[0].length * radius * radius / (size * size);
         final double nCells = (size / radius) * (size / radius);
-        logger.info(TestLog.getSupplier("Expected Comparisons : Single = %f, Multi non-sync = %f", nCells * 5 * d * d,
+        logger.info(FunctionUtils.getSupplier("Expected Comparisons : Single = %f, Multi non-sync = %f", nCells * 5 * d * d,
                 nCells * 9 * d * d));
 
         //@formatter:off
@@ -365,7 +365,7 @@ public class DensityCounterTest
         // How many distance comparison are we expected to make?
         // Compute mean density per grid cell (d) = nMolecules * 9 * d.
         final double d = molecules[0].length * radius * radius / (size * size);
-        logger.info(TestLog.getSupplier("Expected Comparisons = %f", molecules2[0].length * 9.0 * d));
+        logger.info(FunctionUtils.getSupplier("Expected Comparisons = %f", molecules2[0].length * 9.0 * d));
 
         //@formatter:off
 		final TimingService ts = new TimingService();

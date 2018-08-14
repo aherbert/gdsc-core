@@ -31,6 +31,7 @@ import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingResult;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
@@ -671,8 +672,8 @@ public class CustomTricubicInterpolatorTest
                                 //TestLog.debug(logger,"%d [%.1f,%.1f,%.1f] %f == [%d] %f?", j, xx, yy, zz, d2f_da2, j,
                                 //		d2f_da2A[j]);
                                 //}
-                                ExtraAssertions.assertTrue(eq.almostEqualRelativeOrAbsolute(d2f_da2, d2f_da2A[j]),
-                                        "%s != %s", d2f_da2, d2f_da2A[j]);
+                                Assertions.assertTrue(eq.almostEqualRelativeOrAbsolute(d2f_da2, d2f_da2A[j]),
+                                        FunctionUtils.getSupplier("%s != %s", d2f_da2, d2f_da2A[j]));
                             }
                         }
                     }
@@ -1509,7 +1510,7 @@ public class CustomTricubicInterpolatorTest
                 {
                     @SuppressWarnings("null")
                     final double d = Maths.distance(last[0], last[1], last[2], optimum[0], optimum[1], optimum[2]);
-                    logger.info(TestLog.getSupplier("[%d] %f,%f,%f %d = %s : dist = %f : change = %g", ii, cx, cy, cz,
+                    logger.info(FunctionUtils.getSupplier("[%d] %f,%f,%f %d = %s : dist = %f : change = %g", ii, cx, cy, cz,
                             i, Arrays.toString(optimum), d, DoubleEquality.relativeError(last[3], optimum[3])));
                     Assertions.assertTrue(optimum[3] >= last[3]);
                 }

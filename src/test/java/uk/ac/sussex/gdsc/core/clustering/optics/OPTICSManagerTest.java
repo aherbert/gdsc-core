@@ -67,6 +67,7 @@ import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingResult;
 import uk.ac.sussex.gdsc.test.TimingService;
+import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
@@ -428,9 +429,9 @@ public class OPTICSManagerTest
                     //TestLog.debug(logger,"[%d] %d %d : %f = %f (%f) : %s = %d", i, expId, obsId, expR, obsR,
                     //		r1.get(i).coreDistance, expPre, obsPre);
 
-                    ExtraAssertions.assertEquals(expId, obsId, "[%d] Id", i);
-                    ExtraAssertions.assertEquals(expPre, obsPre, "[%d] Pre", i);
-                    ExtraAssertions.assertEqualsRelative(expR, obsR, 1e-5, "[%d] R", i);
+                    Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("[%d] Id", i));
+                    Assertions.assertEquals(expPre, obsPre, FunctionUtils.getSupplier("[%d] Pre", i));
+                    ExtraAssertions.assertEqualsRelative(expR, obsR, 1e-5, FunctionUtils.getSupplier("[%d] R", i));
                 }
             }
         }
@@ -512,9 +513,9 @@ public class OPTICSManagerTest
                     //TestLog.debug(logger,"[%d] %d %d : %f = %f (%f) : %s = %d", i, expId, obsId, expR, obsR,
                     //		r1.get(i).coreDistance, expPre, obsPre);
 
-                    ExtraAssertions.assertEquals(expId, obsId, "Id %d", i);
-                    ExtraAssertions.assertEquals(expPre, obsPre, "Pre %d", i);
-                    ExtraAssertions.assertEqualsRelative(expR, obsR, 1e-5, "R %d", i);
+                    Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("Id %d", i));
+                    Assertions.assertEquals(expPre, obsPre, FunctionUtils.getSupplier("Pre %d", i));
+                    ExtraAssertions.assertEqualsRelative(expR, obsR, 1e-5, FunctionUtils.getSupplier("R %d", i));
                 }
             }
         }
@@ -853,7 +854,7 @@ public class OPTICSManagerTest
                             sum += r;
                             c++;
                             final double ari = ri.getAdjustedRandIndex();
-                            logger.info(TestLog.getSupplier(
+                            logger.info(FunctionUtils.getSupplier(
                                     "xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s : r=%f (%f)",
                                     xi, n, minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets,
                                     sampleMode, r, ari));
@@ -1011,10 +1012,10 @@ public class OPTICSManagerTest
             //TestLog.debug(logger,"[%d] %d %d : %f = %f (%f) : %s = %d", i, expId, obsId, expR, obsR,
             //		r1.get(i).coreDistance, expPre, obsPre);
 
-            ExtraAssertions.assertEqualsRelative(expC, obsC, 1e-5, "%s C %d", title, i);
-            ExtraAssertions.assertEquals(expId, obsId, "%s Id %d", title, i);
-            ExtraAssertions.assertEquals(expPre, obsPre, "%s Pre %d", title, i);
-            ExtraAssertions.assertEqualsRelative(expR, obsR, 1e-5, "%s R %d", title, i);
+            ExtraAssertions.assertEqualsRelative(expC, obsC, 1e-5, FunctionUtils.getSupplier("%s C %d", title, i));
+            Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("%s Id %d", title, i));
+            Assertions.assertEquals(expPre, obsPre, FunctionUtils.getSupplier("%s Pre %d", title, i));
+            ExtraAssertions.assertEqualsRelative(expR, obsR, 1e-5, FunctionUtils.getSupplier("%s R %d", title, i));
         }
     }
 
@@ -1086,7 +1087,7 @@ public class OPTICSManagerTest
             if (expPts < minPts || obsPts < minPts)
                 continue;
 
-            ExtraAssertions.assertEquals(expPts, obsPts, "%s Pts %d", title, i);
+            Assertions.assertEquals(expPts, obsPts, FunctionUtils.getSupplier("%s Pts %d", title, i));
 
             final int expId = r1.get(i).parent;
             final int obsId = r2.get(i).parent;
@@ -1094,8 +1095,8 @@ public class OPTICSManagerTest
             final int expCId = r1.get(i).getClusterId();
             final int obsCId = r2.get(i).getClusterId();
 
-            ExtraAssertions.assertEquals(expId, obsId, "%s Id %d", title, i);
-            ExtraAssertions.assertEquals(expCId, obsCId, "%s CId %d", title, i);
+            Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("%s Id %d", title, i));
+            Assertions.assertEquals(expCId, obsCId, FunctionUtils.getSupplier("%s CId %d", title, i));
         }
     }
 
@@ -1405,7 +1406,7 @@ public class OPTICSManagerTest
         // - unrealistic data
         // - The optimised DBSCAN implementation not computing distances if not needed.
 
-        logger.info(TestLog.getSupplier("dBSCANIsFasterThanOPTICS %d < %d (%.2f)", t3, t2, (double) t2 / t3));
+        logger.info(FunctionUtils.getSupplier("dBSCANIsFasterThanOPTICS %d < %d (%.2f)", t3, t2, (double) t2 / t3));
     }
 
     @SeededTest
@@ -1911,7 +1912,7 @@ public class OPTICSManagerTest
             final double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
             final int maxResolution = (int) Math.ceil(nMoleculesInSquare);
 
-            logger.info(TestLog.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare,
+            logger.info(FunctionUtils.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare,
                     nMoleculesInCircle, generatingDistanceE, maxResolution));
 
             final OPTICSManager[] om = new OPTICSManager[3];
@@ -1988,7 +1989,7 @@ public class OPTICSManagerTest
             final double nMoleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
             final int maxResolution = (int) Math.ceil(nMoleculesInSquare);
 
-            logger.info(TestLog.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare,
+            logger.info(FunctionUtils.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare,
                     nMoleculesInCircle, generatingDistanceE, maxResolution));
 
             final OPTICSManager[] om = new OPTICSManager[3];
@@ -2061,7 +2062,7 @@ public class OPTICSManagerTest
             final double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
             final int maxResolution = (int) Math.ceil(nMoleculesInCircle);
 
-            logger.info(TestLog.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare,
+            logger.info(FunctionUtils.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare,
                     nMoleculesInCircle, generatingDistanceE, maxResolution));
 
             final OPTICSManager[] om = new OPTICSManager[3];
@@ -2135,7 +2136,7 @@ public class OPTICSManagerTest
             final double nMoleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
             final int maxResolution = (int) Math.ceil(nMoleculesInCircle);
 
-            logger.info(TestLog.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare,
+            logger.info(FunctionUtils.getSupplier("Square=%.2f, Circle=%.2f, e=%.1f, r <= %d", nMoleculesInSquare,
                     nMoleculesInCircle, generatingDistanceE, maxResolution));
 
             final OPTICSManager[] om = new OPTICSManager[3];
@@ -2375,8 +2376,8 @@ public class OPTICSManagerTest
 
                     //TestLog.debug(logger,"%s %d %d : %f = %f", prefix, expId, obsId, expL, obsL);
 
-                    ExtraAssertions.assertEquals(expId, obsId, "[%d] Id", i);
-                    ExtraAssertions.assertEqualsRelative(expL, obsL, 1e-2, "[%d] LoOP", i);
+                    Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("[%d] Id", i));
+                    ExtraAssertions.assertEqualsRelative(expL, obsL, 1e-2, FunctionUtils.getSupplier("[%d] LoOP", i));
                 }
             }
         }

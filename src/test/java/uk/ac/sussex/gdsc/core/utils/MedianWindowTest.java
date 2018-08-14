@@ -1,10 +1,11 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
@@ -16,7 +17,7 @@ import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingResult;
-import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
+import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -39,6 +40,25 @@ public class MedianWindowTest
         logger = null;
     }
 
+    private static class UpdateableSupplier implements Supplier<String>
+    {
+        int p;
+        int radius;
+
+        @Override
+        public String get()
+        {
+            return String.format("Position %d, Radius %d", p, radius);
+        }
+
+        Supplier<String> update(int p, int radius)
+        {
+            this.p = p;
+            this.radius = radius;
+            return this;
+        }
+    }
+
     int dataSize = 2000;
     int[] radii = new int[] { 0, 1, 2, 4, 8, 16 };
     double[] values = new double[] { 0, -1.1, 2.2 };
@@ -50,8 +70,7 @@ public class MedianWindowTest
     public void testClassCanComputeActualMedian(RandomSeed seed)
     {
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
-
-        // Verify the internal median method using the Apache commons maths library
+        final UpdateableSupplier msg = new UpdateableSupplier();
 
         double[] data = createRandomData(rg, dataSize);
         for (final int radius : radii)
@@ -59,7 +78,7 @@ public class MedianWindowTest
             {
                 final double median = calculateMedian(data, i, radius);
                 final double median2 = calculateMedian2(data, i, radius);
-                ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
+                Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
             }
         data = createRandomData(rg, dataSize + 1);
         for (final int radius : radii)
@@ -67,7 +86,7 @@ public class MedianWindowTest
             {
                 final double median = calculateMedian(data, i, radius);
                 final double median2 = calculateMedian2(data, i, radius);
-                ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
+                Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
             }
     }
 
@@ -93,6 +112,7 @@ public class MedianWindowTest
     {
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
         final double[] data = createRandomData(rg, dataSize);
+        final UpdateableSupplier msg = new UpdateableSupplier();
         for (final int radius : radii)
         {
             final double[] startData = Arrays.copyOf(data, 2 * radius + 1);
@@ -102,9 +122,8 @@ public class MedianWindowTest
                 final double median = mw.getMedian();
                 mw.add(data[j]);
                 final double median2 = calculateMedian(data, i, radius);
-                logger.log(
-                        TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", i, radius, median2, median));
-                ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
+                //logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", i, radius, median2, median));
+                Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
             }
         }
     }
@@ -176,6 +195,7 @@ public class MedianWindowTest
 
     private void canComputeMedianForDataUsingSingleIncrement(double[] data)
     {
+        final UpdateableSupplier msg = new UpdateableSupplier();
         for (final int radius : radii)
         {
             final MedianWindow mw = new MedianWindow(data, radius);
@@ -184,14 +204,14 @@ public class MedianWindowTest
                 final double median = mw.getMedian();
                 mw.increment();
                 final double median2 = calculateMedian(data, i, radius);
-                //TestLog.debug(logger,"%f vs %f", median, median2);
-                ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
+                Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
             }
         }
     }
 
     private void canComputeMedianForDataUsingSetPosition(double[] data)
     {
+        final UpdateableSupplier msg = new UpdateableSupplier();
         for (final int radius : radii)
         {
             final MedianWindow mw = new MedianWindow(data, radius);
@@ -200,13 +220,14 @@ public class MedianWindowTest
                 mw.setPosition(i);
                 final double median = mw.getMedian();
                 final double median2 = calculateMedian(data, i, radius);
-                ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
+                Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
             }
         }
     }
 
     private void canComputeMedianForDataUsingBigIncrement(double[] data)
     {
+        final UpdateableSupplier msg = new UpdateableSupplier();
         final int increment = 10;
         for (final int radius : radii)
         {
@@ -216,7 +237,7 @@ public class MedianWindowTest
                 final double median = mw.getMedian();
                 mw.increment(increment);
                 final double median2 = calculateMedian(data, i, radius);
-                ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
+                Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
             }
         }
     }
@@ -257,6 +278,7 @@ public class MedianWindowTest
     {
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
         final double[] data = createRandomData(rg, 300);
+        final UpdateableSupplier msg = new UpdateableSupplier();
         for (final int radius : radii)
         {
             MedianWindow mw = new MedianWindow(data, radius);
@@ -265,7 +287,7 @@ public class MedianWindowTest
             {
                 final double median = mw.getMedian();
                 final double median2 = calculateMedian(data, i, radius);
-                ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
+                Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
 
                 mw.increment();
                 i++;
@@ -278,7 +300,7 @@ public class MedianWindowTest
             {
                 final double median = mw.getMedian();
                 final double median2 = calculateMedian(data, i, radius);
-                ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
+                Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
 
                 i++;
             } while (mw.increment());
@@ -291,6 +313,7 @@ public class MedianWindowTest
     {
         final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
         final double[] data = createRandomData(rg, 300);
+        final UpdateableSupplier msg = new UpdateableSupplier();
         final int increment = 10;
         for (final int radius : radii)
         {
@@ -300,7 +323,7 @@ public class MedianWindowTest
             {
                 final double median = mw.getMedian();
                 final double median2 = calculateMedian(data, i, radius);
-                ExtraAssertions.assertEquals(median2, median, 1e-6, "Position %d, Radius %d", i, radius);
+                Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
 
                 mw.increment(increment);
                 i += increment;
@@ -404,12 +427,12 @@ public class MedianWindowTest
         final long t2 = System.nanoTime() - s2;
 
         Assertions.assertArrayEquals(m1, m2, 1e-6);
-        logger.info(TestLog.getSupplier("Radius %d, Increment %d : window %d : standard %d = %fx faster", radius,
+        logger.info(FunctionUtils.getSupplier("Radius %d, Increment %d : window %d : standard %d = %fx faster", radius,
                 increment, t1, t2, (double) t2 / t1));
 
         // Only test the largest radii
         if (radius == testSpeedRadius)
-            ExtraAssertions.assertTrue(t1 < t2, "Radius %d, Increment %d", radius, increment);
+            Assertions.assertTrue(t1 < t2, FunctionUtils.getSupplier("Radius %d, Increment %d", radius, increment));
     }
 
     @SpeedTag
@@ -527,10 +550,10 @@ public class MedianWindowTest
         if (radius == testSpeedRadius)
             // Allow a margin of error
             //Assertions.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1 * 1.1);
-            logger.log(TestLog.getResultRecord(t2 < t1, "Radius %d, Increment %d : double %d : float %d = %fx faster", radius,
-                    increment, t1, t2, (double) t1 / t2));
+            logger.log(TestLog.getResultRecord(t2 < t1, "Radius %d, Increment %d : double %d : float %d = %fx faster",
+                    radius, increment, t1, t2, (double) t1 / t2));
         else
-            logger.info(TestLog.getSupplier("Radius %d, Increment %d : double %d : float %d = %fx faster", radius,
+            logger.info(FunctionUtils.getSupplier("Radius %d, Increment %d : double %d : float %d = %fx faster", radius,
                     increment, t1, t2, (double) t1 / t2));
     }
 
@@ -637,7 +660,8 @@ public class MedianWindowTest
         }
 
         // Only test the largest radii
-        final TimingResult slow = new TimingResult(String.format("Radius %d, Increment %d : double", radius, increment), t1);
+        final TimingResult slow = new TimingResult(String.format("Radius %d, Increment %d : double", radius, increment),
+                t1);
         final TimingResult fast = new TimingResult("int", t2);
         if (radius == testSpeedRadius)
         {
@@ -662,13 +686,14 @@ public class MedianWindowTest
 
     static double calculateMedian2(double[] data, int position, int radius)
     {
+        // Verify the internal median method using the Apache commons maths library
         final int start = FastMath.max(0, position - radius);
         final int end = FastMath.min(position + radius + 1, data.length);
         final double[] cache = new double[end - start];
         for (int i = start, j = 0; i < end; i++, j++)
             cache[j] = data[i];
-        final DescriptiveStatistics stats = new DescriptiveStatistics(cache);
-        return stats.getPercentile(50);
+        final Percentile p = new Percentile();
+        return p.evaluate(cache, 50);
     }
 
     static double[] createRandomData(UniformRandomProvider random, int size)

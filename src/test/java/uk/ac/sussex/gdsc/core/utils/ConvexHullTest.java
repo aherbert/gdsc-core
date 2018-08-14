@@ -10,9 +10,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
+import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
@@ -120,11 +119,11 @@ public class ConvexHullTest
         {
             Assertions.assertNotNull(hull);
             final Rectangle2D.Double bounds = hull.getFloatBounds();
-            ExtraAssertions.assertTrue(ox <= bounds.getX(), "xmin %d <= %d", ox, bounds.getX());
-            ExtraAssertions.assertTrue(oy <= bounds.getY(), "ymin %d <= %d", oy, bounds.getY());
+            Assertions.assertTrue(ox <= bounds.getX(), () -> String.format("xmin %d <= %d", ox, bounds.getX()));
+            Assertions.assertTrue(oy <= bounds.getY(), () -> String.format("ymin %d <= %d", oy, bounds.getY()));
 
-            ExtraAssertions.assertTrue(ox + w >= bounds.getMaxX(), "xmax %d >= %d", ox + w, bounds.getMaxX());
-            ExtraAssertions.assertTrue(oy + h >= bounds.getMaxY(), "ymax %d >= %d", oy + h, bounds.getMaxY());
+            Assertions.assertTrue(ox + w >= bounds.getMaxX(), () -> String.format("xmax %d >= %d", ox + w, bounds.getMaxX()));
+            Assertions.assertTrue(oy + h >= bounds.getMaxY(), () -> String.format("ymax %d >= %d", oy + h, bounds.getMaxY()));
         }
         catch (final AssertionError e)
         {
@@ -132,10 +131,10 @@ public class ConvexHullTest
             if (logger.isLoggable(Level.FINE))
             {
                 for (int i = 0; i < size; i++)
-                    logger.fine(TestLog.getSupplier("[%d] %f,%f", i, data[0][i], data[1][i]));
+                    logger.fine(FunctionUtils.getSupplier("[%d] %f,%f", i, data[0][i], data[1][i]));
                 if (hull != null)
                     for (int i = 0; i < hull.x.length; i++)
-                        logger.fine(TestLog.getSupplier("H[%d] %f,%f", i, hull.x[i], hull.y[i]));
+                        logger.fine(FunctionUtils.getSupplier("H[%d] %f,%f", i, hull.x[i], hull.y[i]));
             }
             throw e;
         }

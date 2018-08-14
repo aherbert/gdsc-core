@@ -3,7 +3,7 @@ package uk.ac.sussex.gdsc.core.utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
+import uk.ac.sussex.gdsc.test.functions.IndexSupplier;
 
 @SuppressWarnings({ "javadoc" })
 public class TriangleArrayTest
@@ -27,20 +27,20 @@ public class TriangleArrayTest
                     count[k]++;
 
                     ij = a.fromIndex(k);
-                    ExtraAssertions.assertEquals(i, ij[0], "fromIndex(int) [%d]", k);
-                    ExtraAssertions.assertEquals(j, ij[1], "fromIndex(int) [%d]", k);
+                    Assertions.assertEquals(i, ij[0], () -> "fromIndex(int) " + k);
+                    Assertions.assertEquals(j, ij[1], () -> "fromIndex(int) " + k);
 
                     a.fromIndex(k, ij);
-                    ExtraAssertions.assertEquals(i, ij[0], "fromIndex(int,int[]) [%d]", k);
-                    ExtraAssertions.assertEquals(j, ij[1], "fromIndex(int,int[]) [%d]", k);
+                    Assertions.assertEquals(i, ij[0], () -> "fromIndex(int,int[]) " + k);
+                    Assertions.assertEquals(j, ij[1], () -> "fromIndex(int,int[]) " + k);
 
                     ij = TriangleArray.fromIndex(n, k);
-                    ExtraAssertions.assertEquals(i, ij[0], "static fromIndex(int) [%d]", k);
-                    ExtraAssertions.assertEquals(j, ij[1], "static fromIndex(int) [%d]", k);
+                    Assertions.assertEquals(i, ij[0], () -> "static fromIndex(int) " + k);
+                    Assertions.assertEquals(j, ij[1], () -> "static fromIndex(int) " + k);
 
                     TriangleArray.fromIndex(n, k, ij);
-                    ExtraAssertions.assertEquals(i, ij[0], "static fromIndex(int,int[]) [%d]", k);
-                    ExtraAssertions.assertEquals(j, ij[1], "static fromIndex(int,int[]) [%d]", k);
+                    Assertions.assertEquals(i, ij[0], () -> "static fromIndex(int,int[]) " + k);
+                    Assertions.assertEquals(j, ij[1], () -> "static fromIndex(int,int[]) " + k);
                 }
             for (int i = count.length; i-- > 0;)
                 Assertions.assertEquals(1, count[i], "count");
@@ -84,33 +84,41 @@ public class TriangleArrayTest
     @Test
     public void canFastComputePostIndex()
     {
+        final IndexSupplier msg = new IndexSupplier(2);
         for (final int n : testN)
         {
             final TriangleArray a = new TriangleArray(n);
 
             for (int i = 0; i < n; i++)
+            {
+                msg.set(0, i);
                 for (int j = i + 1, index = a.toIndex(i, j); j < n; j++, index++)
                 {
                     final int k = a.toIndex(i, j);
-                    ExtraAssertions.assertEquals(k, index, "[%d][%d]", i, j);
+                    Assertions.assertEquals(k, index, msg.set(1, j));
                 }
+            }
         }
     }
 
     @Test
     public void canFastComputePreIndex()
     {
+        final IndexSupplier msg = new IndexSupplier(2);
         for (final int n : testN)
         {
             final TriangleArray a = new TriangleArray(n);
 
             for (int j = n; j-- > 0;)
+            {
+                msg.set(1, j);
                 for (int i = j, index = a.toPrecursorIndex(j); i-- > 0;)
                 {
                     final int k = a.toIndex(i, j);
                     final int k2 = a.precursorToIndex(index, i);
-                    ExtraAssertions.assertEquals(k, k2, "[%d][%d]", i, j);
+                    Assertions.assertEquals(k, k2, msg.set(0, i));
                 }
+            }
         }
     }
 

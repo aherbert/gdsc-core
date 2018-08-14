@@ -14,6 +14,7 @@ import uk.ac.sussex.gdsc.core.utils.Random;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -326,11 +327,11 @@ public class ClusteringEngineTest
 
     private static void print(String name, ArrayList<Cluster> clusters)
     {
-        logger.info(TestLog.getSupplier(name + " : size=%d", clusters.size()));
+        logger.info(FunctionUtils.getSupplier(name + " : size=%d", clusters.size()));
         for (int i = 0; i < clusters.size(); i++)
         {
             final Cluster c = clusters.get(i);
-            logger.info(TestLog.getSupplier("[%d] : head=%d, n=%d, cx=%g, cy=%g", i, c.head.id, c.n, c.x, c.y));
+            logger.info(FunctionUtils.getSupplier("[%d] : head=%d, n=%d, cx=%g, cy=%g", i, c.head.id, c.n, c.x, c.y));
         }
     }
 

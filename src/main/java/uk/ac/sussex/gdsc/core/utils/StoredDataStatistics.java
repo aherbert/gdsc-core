@@ -283,15 +283,15 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
      */
     public double getMedian()
     {
+        if (n == 0)
+            return Double.NaN;
+        if (n == 1)
+            return values[0];
+        
         // Check for negatives
         for (final double d : values)
             if (d < 0)
             {
-                if (n == 0)
-                    return Double.NaN;
-                if (n == 1)
-                    return values[0];
-
                 final double[] data = getValues();
                 Arrays.sort(data);
                 return (data[(data.length - 1) / 2] + data[data.length / 2]) * 0.5;

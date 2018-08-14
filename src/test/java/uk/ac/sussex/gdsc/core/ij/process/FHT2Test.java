@@ -21,9 +21,9 @@ public class FHT2Test
         int i = 2;
         while (i > 0) // Until overflow
         {
-            ExtraAssertions.assertTrue(FHT2.isPowerOf2(i), "%d", i);
-            ExtraAssertions.assertFalse(FHT2.isPowerOf2(i - 1), "%d", (i - 1));
-            ExtraAssertions.assertFalse(FHT2.isPowerOf2(i + 1), "%d", (i + 1));
+            Assertions.assertTrue(FHT2.isPowerOf2(i), Integer.toString(i));
+            Assertions.assertFalse(FHT2.isPowerOf2(i - 1), Integer.toString(i - 1));
+            Assertions.assertFalse(FHT2.isPowerOf2(i + 1), Integer.toString(i + 1));
             i *= 2;
         }
     }

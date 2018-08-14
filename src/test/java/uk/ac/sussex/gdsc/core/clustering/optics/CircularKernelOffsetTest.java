@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.utils.Maths;
 import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestLog;
 import uk.ac.sussex.gdsc.test.TestSettings;
+import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 
 @SuppressWarnings({ "javadoc" })
 public class CircularKernelOffsetTest
@@ -54,7 +54,7 @@ public class CircularKernelOffsetTest
             final double outerArea = outer * pixelArea;
             final double innerArea = inner * pixelArea;
             final int skip = size - outer;
-            logger.info(TestLog.getSupplier("R=%d, outer=%d  %f (%f), Skip=%d  (%f), inner=%d  %f (%f)", r, outer, outerArea,
+            logger.info(FunctionUtils.getSupplier("R=%d, outer=%d  %f (%f), Skip=%d  (%f), inner=%d  %f (%f)", r, outer, outerArea,
                     outerArea / Math.PI, skip, (double) skip / size, inner, innerArea, innerArea / outerArea));
 
             // Test for symmetry

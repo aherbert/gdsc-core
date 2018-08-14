@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectIntProcedure;
-import uk.ac.sussex.gdsc.test.TestLog;
+import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 
 /**
@@ -139,7 +139,7 @@ public class CustomTricubicFunctionTest
             {
                 if (b > 1)
                 {
-                    logger.info(TestLog.getSupplier("%s = %d\n", a, b));
+                    logger.info(FunctionUtils.getSupplier("%s = %d\n", a, b));
                     return false;
                 }
                 return true;
@@ -308,7 +308,7 @@ public class CustomTricubicFunctionTest
             {
                 if (b > 1)
                 {
-                    logger.info(TestLog.getSupplier("%s = %d\n", a, b));
+                    logger.info(FunctionUtils.getSupplier("%s = %d\n", a, b));
                     return false;
                 }
                 return true;
@@ -398,7 +398,7 @@ public class CustomTricubicFunctionTest
             {
                 if (b > 1)
                 {
-                    logger.info(TestLog.getSupplier("%s = %d", a, b));
+                    logger.info(FunctionUtils.getSupplier("%s = %d", a, b));
                     return false;
                 }
                 return true;
@@ -591,7 +591,7 @@ public class CustomTricubicFunctionTest
             {
                 if (b > 1)
                 {
-                    logger.info(TestLog.getSupplier("%s = %d", a, b));
+                    logger.info(FunctionUtils.getSupplier("%s = %d", a, b));
                     return false;
                 }
                 return true;
@@ -669,7 +669,7 @@ public class CustomTricubicFunctionTest
             {
                 if (b > 1)
                 {
-                    logger.info(TestLog.getSupplier("%s = %d", a, b));
+                    logger.info(FunctionUtils.getSupplier("%s = %d", a, b));
                     return false;
                 }
                 return true;
