@@ -26,14 +26,14 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
  * This class is used to in-line the computation for the CustomTricubicInterpolatingFunction
  */
 @SuppressWarnings({ "javadoc" })
-public class CustomTricubicInterpolatingFunctionTest
+public class CustomTricubicInterpolatingFunctionInlineTest
 {
     private static Logger logger;
 
     @BeforeAll
     public static void beforeAll()
     {
-        logger = Logger.getLogger(CustomTricubicInterpolatingFunctionTest.class.getName());
+        logger = Logger.getLogger(CustomTricubicInterpolatingFunctionInlineTest.class.getName());
     }
 
     @AfterAll

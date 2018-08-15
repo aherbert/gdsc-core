@@ -22,14 +22,14 @@ import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
  * computation of the gradients.
  */
 @SuppressWarnings({ "javadoc" })
-public class CustomTricubicFunctionTest
+public class CustomTricubicFunctionInlineTest
 {
     private static Logger logger;
 
     @BeforeAll
     public static void beforeAll()
     {
-        logger = Logger.getLogger(CustomTricubicFunctionTest.class.getName());
+        logger = Logger.getLogger(CustomTricubicFunctionInlineTest.class.getName());
     }
 
     @AfterAll
