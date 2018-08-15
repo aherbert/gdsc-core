@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.distribution.BoxMullerGaussianSampler;
+import org.apache.commons.rng.sampling.distribution.GaussianSampler;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -61,6 +61,7 @@ import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.match.RandIndex;
 import uk.ac.sussex.gdsc.core.utils.Maths;
 import uk.ac.sussex.gdsc.core.utils.PartialSort;
+import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerFactory;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestLog;
@@ -2431,8 +2432,8 @@ public class OPTICSManagerTest
             int m = clusterMin + r.nextInt(range);
             final double x = r.nextDouble() * size;
             final double y = r.nextDouble() * size;
-            final BoxMullerGaussianSampler gx = new BoxMullerGaussianSampler(r, x, radius);
-            final BoxMullerGaussianSampler gy = new BoxMullerGaussianSampler(r, y, radius);
+            final GaussianSampler gx = GaussianSamplerFactory.createGaussianSampler(r, x, radius);
+            final GaussianSampler gy = GaussianSamplerFactory.createGaussianSampler(r, y, radius);
 
             while (m > 0 && i < n)
             {

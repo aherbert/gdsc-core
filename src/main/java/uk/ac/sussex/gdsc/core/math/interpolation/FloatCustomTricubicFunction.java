@@ -114,7 +114,7 @@ public class FloatCustomTricubicFunction extends CustomTricubicFunction
      * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#toSinglePrecision()
      */
     @Override
-    public FloatCustomTricubicFunction toSinglePrecision()
+    public CustomTricubicFunction toSinglePrecision()
     {
         return this;
     }

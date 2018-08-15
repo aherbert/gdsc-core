@@ -35,7 +35,7 @@ import org.apache.commons.math3.exception.OutOfRangeException;
  */
 public class CubicSplinePosition
 {
-    /** The power of the value (1, 2, 3) */
+    /** The power of the value x (x^1, x^2, x^3) */
     final double[] p = new double[3];
 
     /**

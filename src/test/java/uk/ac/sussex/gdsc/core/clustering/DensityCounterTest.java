@@ -4,13 +4,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.distribution.BoxMullerGaussianSampler;
+import org.apache.commons.rng.sampling.distribution.GaussianSampler;
 import org.apache.commons.rng.sampling.distribution.PoissonSampler;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 
 import uk.ac.sussex.gdsc.core.clustering.DensityCounter.SimpleMolecule;
+import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerFactory;
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestSettings;
@@ -438,8 +439,8 @@ public class DensityCounterTest
             final float x = r.nextFloat() * size;
             final float y = r.nextFloat() * size;
             final int id = r.nextInt(nChannels);
-            final BoxMullerGaussianSampler gx = new BoxMullerGaussianSampler(r, x, precision);
-            final BoxMullerGaussianSampler gy = new BoxMullerGaussianSampler(r, y, precision);
+            final GaussianSampler gx = GaussianSamplerFactory.createGaussianSampler(r, x, precision);
+            final GaussianSampler gy = GaussianSamplerFactory.createGaussianSampler(r, y, precision);
 
             int c = p.sample();
             while (i < n && c-- > 0)

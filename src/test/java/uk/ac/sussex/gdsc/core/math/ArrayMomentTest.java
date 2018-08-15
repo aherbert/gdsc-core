@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.math3.stat.descriptive.moment.SecondMoment;
 import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.distribution.BoxMullerGaussianSampler;
+import org.apache.commons.rng.sampling.distribution.GaussianSampler;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.data.IntegerType;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
+import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerFactory;
 import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
@@ -52,7 +53,7 @@ public class ArrayMomentTest
             d[i] = rand.nextDouble();
         canComputeMoment("Uniform", d, new RollingArrayMoment());
 
-        final BoxMullerGaussianSampler g = new BoxMullerGaussianSampler(rand, 0, 1);
+        final GaussianSampler g = GaussianSamplerFactory.createGaussianSampler(rand, 0, 1);
         for (int i = 0; i < d.length; i++)
             d[i] = (float) g.sample();
         canComputeMoment("Gaussian", d, new RollingArrayMoment());
@@ -74,7 +75,7 @@ public class ArrayMomentTest
             d[i] = rand.nextFloat();
         canComputeMoment("Uniform", d, new RollingArrayMoment());
 
-        final BoxMullerGaussianSampler g = new BoxMullerGaussianSampler(rand, 0, 1);
+        final GaussianSampler g = GaussianSamplerFactory.createGaussianSampler(rand, 0, 1);
         for (int i = 0; i < d.length; i++)
             d[i] = (float) g.sample();
         canComputeMoment("Gaussian", d, new RollingArrayMoment());
@@ -171,7 +172,7 @@ public class ArrayMomentTest
             d[i] = rand.nextDouble();
         canComputeMoment("Uniform", d, new SimpleArrayMoment());
 
-        final BoxMullerGaussianSampler g = new BoxMullerGaussianSampler(rand, 0, 1);
+        final GaussianSampler g = GaussianSamplerFactory.createGaussianSampler(rand, 0, 1);
         for (int i = 0; i < d.length; i++)
             d[i] = (float) g.sample();
         canComputeMoment("Gaussian", d, new SimpleArrayMoment());
@@ -193,7 +194,7 @@ public class ArrayMomentTest
             d[i] = rand.nextFloat();
         canComputeMoment("Uniform", d, new SimpleArrayMoment());
 
-        final BoxMullerGaussianSampler g = new BoxMullerGaussianSampler(rand, 0, 1);
+        final GaussianSampler g = GaussianSamplerFactory.createGaussianSampler(rand, 0, 1);
         for (int i = 0; i < d.length; i++)
             d[i] = (float) g.sample();
         canComputeMoment("Gaussian", d, new SimpleArrayMoment());
@@ -502,7 +503,7 @@ public class ArrayMomentTest
 
         // Test if the standard Statistics object is good enough for
         // computing the mean and variance of sCMOS data from 60,000 frames. It seems it is.
-        final BoxMullerGaussianSampler g = new BoxMullerGaussianSampler(rand, 100.345, Math.PI);
+        final GaussianSampler g = GaussianSamplerFactory.createGaussianSampler(rand, 100.345, Math.PI);
         for (int i = 600000; i-- > 0;)
         {
             final double d = g.sample();
