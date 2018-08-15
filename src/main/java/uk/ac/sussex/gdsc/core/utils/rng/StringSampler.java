@@ -177,27 +177,27 @@ public class StringSampler {
      * @param length The length.
      * @return A random hex string.
      */
-    private static String nextHexString(UniformRandomProvider rng, byte[] bytes, int length) {
-        rng.nextBytes(bytes);
-        // Use the upper and lower 4 bits of each byte as an
-        // index in the range 0-15 for each hex character.
-        final char[] out = new char[length];
-        // Run the loop without checking index j by producing characters
-        // up to the size below the desired length.
-        final int loopLimit = length / 2;
-        int i = 0, j = 0;
-        while (i < loopLimit) {
-            final byte b = bytes[i];
-            // 0x0F == 0x01 | 0x02 | 0x04 | 0x08
-            out[j++] = DIGITS_LOWER[(b >>> 4) & 0x0F];
-            out[j++] = DIGITS_LOWER[b & 0x0F];
-            i++;
-        }
-        // The final character
-        if (j < length)
-            out[j++] = DIGITS_LOWER[(bytes[i] >>> 4) & 0x0F];
-        return new String(out);
+private static String nextHexString(UniformRandomProvider rng, byte[] bytes, int length) {
+    rng.nextBytes(bytes);
+    // Use the upper and lower 4 bits of each byte as an
+    // index in the range 0-15 for each hex character.
+    final char[] out = new char[length];
+    // Run the loop without checking index j by producing characters
+    // up to the size below the desired length.
+    final int loopLimit = length / 2;
+    int i = 0, j = 0;
+    while (i < loopLimit) {
+        final byte b = bytes[i];
+        // 0x0F == 0x01 | 0x02 | 0x04 | 0x08
+        out[j++] = DIGITS_LOWER[(b >>> 4) & 0x0F];
+        out[j++] = DIGITS_LOWER[b & 0x0F];
+        i++;
     }
+    // The final character
+    if (j < length)
+        out[j++] = DIGITS_LOWER[(bytes[i] >>> 4) & 0x0F];
+    return new String(out);
+}
 
     /**
      * Generate a random octal string of the given length.
