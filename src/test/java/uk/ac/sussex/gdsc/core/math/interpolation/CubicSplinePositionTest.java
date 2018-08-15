@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
  * computation of the gradients.
  */
 @SuppressWarnings({ "javadoc" })
-public class CustomSplinePositionTest {
+public class CubicSplinePositionTest {
     @Test
     public void testConstructor() {
     }
