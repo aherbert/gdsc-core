@@ -2,7 +2,6 @@ package uk.ac.sussex.gdsc.core.match;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,30 +10,25 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
 import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.DataCache;
 import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 @SuppressWarnings({ "javadoc" })
-public class AssignmentComparatorTest implements Function<RandomSeed, Object>
+public class AssignmentComparatorTest
 {
     private static Logger logger;
-    private static DataCache<RandomSeed, Object> dataCache;
 
     @BeforeAll
     public static void beforeAll()
     {
         logger = Logger.getLogger(AssignmentComparatorTest.class.getName());
-        dataCache = new DataCache<>();
     }
 
     @AfterAll
     public static void afterAll()
     {
-        dataCache.clear();
-        dataCache = null;
         logger = null;
     }
 
@@ -83,10 +77,31 @@ public class AssignmentComparatorTest implements Function<RandomSeed, Object>
         IntegerSortData[][] intSortData;
         DoubleSortData[][] doubleSortData;
         Assignment[][] aData;
+        
+        void clear() {
+            if (intData == null)
+                return;
+            for (int i = 0; i < intData.length; i++)
+            {
+                intData[i] = null;
+                doubleData[i] = null;
+                intExp[i] = null;
+                doubleExp[i] = null;
+                intSortData[i] = null;
+                doubleSortData[i] = null;
+                aData[i] = null;
+            }
+            intData = null;
+            doubleData = null;
+            intExp = null;
+            doubleExp = null;
+            intSortData = null;
+            doubleSortData = null;
+            aData = null;
+        }
     }
 
-    @Override
-    public Object apply(RandomSeed seed)
+    private static AssignmentComparatorTestData getData(RandomSeed seed)
     {
         final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
         final int size = 100;
@@ -201,8 +216,7 @@ public class AssignmentComparatorTest implements Function<RandomSeed, Object>
     {
         final int n = logger.isLoggable(Level.INFO) ? 5 : 1;
 
-        final AssignmentComparatorTestData data = (AssignmentComparatorTestData) dataCache.getOrComputeIfAbsent(seed,
-                this);
+        final AssignmentComparatorTestData data = getData(seed);
 
         //@formatter:off
 		final TimingService ts = new TimingService(n);
@@ -473,5 +487,7 @@ public class AssignmentComparatorTest implements Function<RandomSeed, Object>
         ts.repeat(size);
 
         logger.info(ts.getReport(size));
+        
+        data.clear();
     }
 }
