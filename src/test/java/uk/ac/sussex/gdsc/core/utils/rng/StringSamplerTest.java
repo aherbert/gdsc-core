@@ -1,18 +1,35 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
+import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.apache.commons.rng.RandomProviderState;
 import org.apache.commons.rng.RestorableUniformRandomProvider;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("javadoc")
 public class StringSamplerTest {
+
+    private static Logger logger;
+
+    @BeforeAll
+    public static void beforeAll() {
+        logger = Logger.getLogger(StringSamplerTest.class.getName());
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        logger = null;
+    }
 
     @Test
     public void testConstructor() {
@@ -132,7 +149,7 @@ public class StringSamplerTest {
             final StringSampler s = new StringSampler(rng1, length, 16);
             for (int i = 0; i < 10; i++) {
                 final String string1 = s.sample();
-                final String string2 = nextHexString(rng2, length);
+                final String string2 = nextHexStringModified(rng2, length);
                 Assertions.assertEquals(string2, string1);
             }
         }
@@ -147,7 +164,7 @@ public class StringSamplerTest {
      * @return the random string.
      * @throws NotStrictlyPositiveException if {@code len <= 0}.
      */
-    public String nextHexString(UniformRandomProvider ran, int len) {
+    public String nextHexStringModified(UniformRandomProvider ran, int len) {
 
         // Initialize output buffer
         StringBuilder outBuffer = new StringBuilder();
@@ -181,8 +198,7 @@ public class StringSamplerTest {
     }
 
     /**
-     * Adapted from RandomDataGenerator to match the implementation of the
-     * HexStringSampler. Original code is left commented out.
+     * Adapted from RandomDataGenerator to use a UniformRandomProvider.
      *
      * @param ran a random number generator
      * @param len the desired string length.
@@ -227,21 +243,24 @@ public class StringSamplerTest {
             return () -> s.sample();
         });
         long time2 = time(rng1, (rng) -> {
-            return () -> nextHexString(rng, length);
+            return () -> nextHexStringModified(rng, length);
         });
         long time3 = time(rng1, (rng) -> {
             return () -> nextHexStringOriginal(rng, length);
         });
         long max = Math.max(time1, time2);
         max = Math.max(max, time3);
-        
-        System.out.printf("StringSampler         = %10d   %.3f\n", time1, (double)time1/max);
-        System.out.printf("nextHexString         = %10d   %.3f\n", time2, (double)time2/max);
-        System.out.printf("nextHexStringOriginal = %10d   %.3f\n", time3, (double)time3/max);
 
+        //System.out.printf("||Name                || %10s || Relative ||\n", "Time");
+        //System.out.printf("|StringSampler         | %10d  | %.3f |\n", time1, (double) time1 / max);
+        //System.out.printf("|nextHexStringModified | %10d  | %.3f |\n", time2, (double) time2 / max);
+        //System.out.printf("|nextHexStringOriginal | %10d  | %.3f |\n", time3, (double) time3 / max);
+        
+        Assertions.assertTrue(time1 <= time3);
     }
 
-    private static long time(RestorableUniformRandomProvider rng1, Function<UniformRandomProvider, Supplier<String>> create) {
+    private static long time(RestorableUniformRandomProvider rng1,
+            Function<UniformRandomProvider, Supplier<String>> create) {
         RandomProviderState state = rng1.saveState();
         long min = Long.MAX_VALUE;
         for (int i = 0; i < 5; i++) {
@@ -274,11 +293,11 @@ public class StringSamplerTest {
     }
 
     private void testSamplesAreUniform(int radix) {
-        final int[] h = new int[radix];
+        final long[] h = new long[radix];
 
         final UniformRandomProvider rng = RandomSource.create(RandomSource.MWC_256);
         int length = 1000;
-        int repeats = 100;
+        int repeats = 1000;
         final StringSampler s = new StringSampler(rng, length, radix);
         for (int i = 0; i < repeats; i++) {
             final String hex = s.sample();
@@ -287,13 +306,18 @@ public class StringSamplerTest {
             }
         }
 
-        // TODO - Statistical test: Kolmogorov Smirnov
-        // https://math.stackexchange.com/questions/2435/is-there-a-simple-test-for-uniform-distributions
-        double mean = (double) length * repeats / radix;
-        for (int i = 0; i < h.length; i++) {
-            System.out.printf("%2d = %d  (%.2f)\n", i, h[i], h[i] / mean);
-        }
-    }
+        // double mean = (double) length * repeats / radix;
+        // for (int i = 0; i < h.length; i++) {
+        // System.out.printf("%2d = %d (%.2f)\n", i, h[i], h[i] / mean);
+        // }
 
-    // TODO - Test the static method returns the same strings
+        // Statistical test
+        ChiSquareTest chi = new ChiSquareTest();
+        double[] expected = new double[h.length];
+        Arrays.fill(expected, 1.0 / radix);
+        double p = chi.chiSquareTest(expected, h);
+        boolean reject = p < 0.05;
+        logger.info(() -> String.format("Radix %d, chiSq p = %s  (reject=%b)", radix, p, reject));
+        Assertions.assertFalse(reject);
+    }
 }
