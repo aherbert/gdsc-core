@@ -16,7 +16,7 @@
   <packaging>jar</packaging>
 
   <name>GDSC Core library for ImageJ</name>
-  <url>http:///github.com/aherbert/GDSC-Core</url>
+  <url>http:///github.com/aherbert/gdsc-core</url>
   <organization>
     <name>Genome Damage and Stability Centre</name>
     <url>http://www.sussex.ac.uk/gdsc/</url>
@@ -47,13 +47,13 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
   </mailingLists>
   <issueManagement>
     <system>GitHub Issues</system>
-    <url>https://github.com/aherbert/GDSC-Core/issues</url>
+    <url>https://github.com/aherbert/gdsc-core/issues</url>
   </issueManagement>
   <ciManagement>
     <system>None</system>
   </ciManagement>
   <scm>
-    <url>https://github.com/aherbert/GDSC-Core</url>
+    <url>https://github.com/aherbert/gdsc-core</url>
   </scm>
 
   <developers>
