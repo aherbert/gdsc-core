@@ -46,7 +46,13 @@ import gnu.trove.list.array.TCharArrayList;
  * <li>escape {@code 126}
  * </ul>
  * <p>
- * Methods names are based on {@code org.apache.commons.lang3.RandomStringUtils}.
+ * Methods names are inspired by
+ * {@code org.apache.commons.lang3.RandomStringUtils}. For simple ASCII
+ * character sets (with no support for range of code points) this class will
+ * outperform {@code RandomStringUtils}. For a custom set of characters
+ * {@code char[]} it is recommended to use {@code RandomStringUtils} with a
+ * wrapped {@link java.util.Random} implementing
+ * {@link java.util.Random#nextInt(int)}.
  */
 public class AsciiStringSampler {
 
@@ -105,8 +111,8 @@ public class AsciiStringSampler {
     /**
      * Creates a generator of strings.
      * <p>
-     * The sampling works using the {@code UniformRandomProvider#nextInt(int)} method 
-     * so a native generator of ints is best. 
+     * The sampling works using the {@code UniformRandomProvider#nextInt(int)}
+     * method so a native generator of ints is best.
      *
      * @param rng Generator of uniformly distributed random numbers.
      * @throws NullPointerException If {@code rng} is null.

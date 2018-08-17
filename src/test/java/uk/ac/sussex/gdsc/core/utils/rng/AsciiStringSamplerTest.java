@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import org.apache.commons.rng.RestorableUniformRandomProvider;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
+import org.apache.commons.text.RandomStringGenerator;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -105,21 +106,26 @@ public class AsciiStringSamplerTest {
 
     @Test
     public void testAll() {
-        final Level level = Level.FINE;
+        final Level level = Level.INFO;
         ExtraAssumptions.assume(logger, level);
         final RestorableUniformRandomProvider rng1 = RandomSource.create(RandomSource.MWC_256);
         final AsciiStringSampler s = new AsciiStringSampler(rng1);
         final int count = 200;
-        logger.log(level, s.nextAlphabetic(count));
-        logger.log(level, s.nextAlphanumeric(count));
-        logger.log(level, s.nextAscii(count));
-        logger.log(level, s.nextGraph(count));
-        logger.log(level, s.nextHex(count));
-        logger.log(level, s.nextLower(count));
-        logger.log(level, s.nextLowerAlphanumeric(count));
-        logger.log(level, s.nextNumeric(count));
-        logger.log(level, s.nextPrint(count));
-        logger.log(level, s.nextUpper(count));
+        logger.log(level, () -> "Alphabetic:        " + s.nextAlphabetic(count));
+        logger.log(level, () -> "Alphanumeric:      " + s.nextAlphanumeric(count));
+        logger.log(level, () -> "Ascii:             " + s.nextAscii(count));
+        logger.log(level, () -> "Graph:             " + s.nextGraph(count));
+        logger.log(level, () -> "Hex:               " + s.nextHex(count));
+        logger.log(level, () -> "Lower:             " + s.nextLower(count));
+        logger.log(level, () -> "LowerAlphanumeric: " + s.nextLowerAlphanumeric(count));
+        logger.log(level, () -> "Numeric:           " + s.nextNumeric(count));
+        logger.log(level, () -> "Print:             " + s.nextPrint(count));
+        logger.log(level, () -> "Upper:             " + s.nextUpper(count));
+        
+        // For reference with unicode
+        RandomStringGenerator rss =  new RandomStringGenerator.Builder().usingRandom(rng1::nextInt)
+                .build();
+        logger.log(level, () -> "Unicode:           " +rss.generate(count));
     }
 
     @Test
