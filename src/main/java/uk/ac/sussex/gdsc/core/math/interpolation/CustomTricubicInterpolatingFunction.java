@@ -287,12 +287,9 @@ public class CustomTricubicInterpolatingFunction
     		final long lastI_lastJ = (long)lastI * lastJ;
 
         	// Break this up into reasonable tasks, ensuring we can hold all the futures
-        	long nTasks = (long) Math.ceil((double) total / taskSize);
-        	while (nTasks >= Integer.MAX_VALUE)
-        	{
-        		taskSize *= 2;
-            	nTasks = (long) Math.ceil((double) total / taskSize);
-            }
+            final long[] tmp = CustomTricubicInterpolator.getTaskSizeAndNumberOfTasks(total, taskSize);
+            taskSize = tmp[0];
+            long nTasks = tmp[1];
     		final TurboList<Future<?>> futures = new TurboList<>((int)nTasks);
 			for (long from = 0; from < total;)
 			{
@@ -947,6 +944,9 @@ public class CustomTricubicInterpolatingFunction
 
             if (c < val[0] || c > val[high])
                 throw new OutOfRangeException(c, val[0], val[high]);
+            // Edge case for the final node
+            if (c == val[high])
+                return high - 1;
 
             return (int) Math.floor(c - val[0]);
         }
@@ -961,30 +961,30 @@ public class CustomTricubicInterpolatingFunction
         //return j;
     }
 
-    /**
-     * @param c
-     *            Coordinate.
-     * @param val
-     *            Coordinate samples.
-     * @return the index in {@code val} corresponding to the interval containing {@code c}
-     * @throws OutOfRangeException
-     *             if any of the variables is outside its interpolation range.
-     */
-    @SuppressWarnings("unused")
-    private static int searchIndexOriginal(double c, double[] val) throws OutOfRangeException
-    {
-        if (c < val[0])
-            throw new OutOfRangeException(c, val[0], val[val.length - 1]);
-        //return -1;
-
-        final int max = val.length;
-        for (int i = 1; i < max; i++)
-            if (c <= val[i])
-                return i - 1;
-
-        throw new OutOfRangeException(c, val[0], val[val.length - 1]);
-        //return -1;
-    }
+//    /**
+//     * @param c
+//     *            Coordinate.
+//     * @param val
+//     *            Coordinate samples.
+//     * @return the index in {@code val} corresponding to the interval containing {@code c}
+//     * @throws OutOfRangeException
+//     *             if any of the variables is outside its interpolation range.
+//     */
+//    @SuppressWarnings("unused")
+//    private static int searchIndexOriginal(double c, double[] val) throws OutOfRangeException
+//    {
+//        if (c < val[0])
+//            throw new OutOfRangeException(c, val[0], val[val.length - 1]);
+//        //return -1;
+//
+//        final int max = val.length;
+//        for (int i = 1; i < max; i++)
+//            if (c <= val[i])
+//                return i - 1;
+//
+//        throw new OutOfRangeException(c, val[0], val[val.length - 1]);
+//        //return -1;
+//    }
 
     /**
      * @param c

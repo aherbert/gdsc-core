@@ -67,7 +67,7 @@ public class ScaledIndexedCubicSplinePosition extends IndexedCubicSplinePosition
      * @param scale
      *            the scale used to compress the original value to the range 0-1
      * @throws IllegalArgumentException
-     *             If the index is negative
+     *             If the index is negative or the scale is negative or zero
      * @throws OutOfRangeException
      *             If x is not in the range 0 to 1
      */
@@ -75,6 +75,8 @@ public class ScaledIndexedCubicSplinePosition extends IndexedCubicSplinePosition
             throws IllegalArgumentException, OutOfRangeException
     {
         super(index, x);
+        if (!(scale > 0))
+            throw new IllegalArgumentException("Scale must be strictly positive");
         this.scale = scale;
     }
 

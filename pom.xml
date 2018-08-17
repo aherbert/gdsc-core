@@ -120,8 +120,9 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
             <!-- Set JUL Formatting -->
             <java.util.logging.SimpleFormatter.format><![CDATA[%4$-7s %2$s %5$s%6$s%n]]></java.util.logging.SimpleFormatter.format>
           </systemPropertyVariables>
-          <!--  Ensure the JaCoCo settings are preserved in argLine when ImageJ settings are added -->
-          <argLine>@{argLine} -Xms512m -Xmx512m -Dapple.awt.UIElement="true"</argLine>
+          <!-- Ensure the JaCoCo settings are preserved in argLine when ImageJ 
+            settings are added -->
+          <argLine>@{argLine} -Xms512m -Dapple.awt.UIElement="true"</argLine>
         </configuration>
         <dependencies>
           <dependency>
@@ -132,11 +133,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
           <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.2.0</version>
-          </dependency>
-          <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
             <version>5.2.0</version>
           </dependency>
         </dependencies>
@@ -262,11 +258,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <version>5.2.0</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
     <!-- https://mvnrepository.com/artifact/de.lmu.ifi.dbs.elki/elki -->
     <!-- Used to test the DBSCAN and OPTICS algorithms -->
     <dependency>
@@ -280,6 +271,12 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- Used to test the random string algorithms -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

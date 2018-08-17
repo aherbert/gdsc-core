@@ -23,43 +23,37 @@ import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
 /**
- * This class is used to in-line the computation for the CustomTricubicInterpolatingFunction
+ * This class is used to in-line the computation for the
+ * CustomTricubicInterpolatingFunction
  */
 @SuppressWarnings({ "javadoc" })
-public class CustomTricubicInterpolatingFunctionInlineTest
-{
+public class CustomTricubicInterpolatingFunctionInlineTest {
     private static Logger logger;
 
     @BeforeAll
-    public static void beforeAll()
-    {
+    public static void beforeAll() {
         logger = Logger.getLogger(CustomTricubicInterpolatingFunctionInlineTest.class.getName());
     }
 
     @AfterAll
-    public static void afterAll()
-    {
+    public static void afterAll() {
         logger = null;
     }
 
-    static String inlineComputeCoefficients()
-    {
+    static String inlineComputeCoefficients() {
         final StringBuilder sb = new StringBuilder();
 
         final int sz = 64;
 
         sb.append(String.format("final double[] a = new double[%d];\n", sz));
 
-        for (int i = 0; i < sz; i++)
-        {
+        for (int i = 0; i < sz; i++) {
             sb.append(String.format("a[%d]=", i));
 
             final double[] row = CustomTricubicInterpolatingFunction.AINV[i];
-            for (int j = 0; j < sz; j++)
-            {
+            for (int j = 0; j < sz; j++) {
                 final double d = row[j];
-                if (d != 0)
-                {
+                if (d != 0) {
                     if (d > 0)
                         sb.append('+');
                     final int di = (int) Math.floor(d);
@@ -76,22 +70,18 @@ public class CustomTricubicInterpolatingFunctionInlineTest
         return finialise(sb);
     }
 
-    static String inlineComputeCoefficientsCollectTerms()
-    {
+    static String inlineComputeCoefficientsCollectTerms() {
         final StringBuilder sb = new StringBuilder();
 
         final int sz = 64;
 
         // Require integer coefficients
         int max = 0;
-        for (int i = 0; i < sz; i++)
-        {
+        for (int i = 0; i < sz; i++) {
             final double[] row = CustomTricubicInterpolatingFunction.AINV[i];
-            for (int j = 0; j < sz; j++)
-            {
+            for (int j = 0; j < sz; j++) {
                 final double d = row[j];
-                if (d != 0)
-                {
+                if (d != 0) {
                     final int di = (int) Math.floor(d);
                     if (di != d)
                         return null;
@@ -105,21 +95,17 @@ public class CustomTricubicInterpolatingFunctionInlineTest
 
         sb.append(String.format("final double[] a = new double[%d];\n", sz));
 
-        for (int i = 0; i < sz; i++)
-        {
+        for (int i = 0; i < sz; i++) {
             map.clear();
             final double[] row = CustomTricubicInterpolatingFunction.AINV[i];
-            for (int j = 0; j < sz; j++)
-            {
+            for (int j = 0; j < sz; j++) {
                 final double d = row[j];
-                if (d != 0)
-                {
+                if (d != 0) {
                     final int di = (int) Math.floor(d);
                     final int key = Math.abs(di);
                     // Check if contains either positive or negative key
                     TIntArrayList value = map.get(key);
-                    if (value == null)
-                    {
+                    if (value == null) {
                         value = new TIntArrayList();
                         map.put(key, value);
                     }
@@ -132,11 +118,9 @@ public class CustomTricubicInterpolatingFunctionInlineTest
             sb.append(String.format("a[%d]=", i));
 
             // Collect terms
-            map.forEachEntry(new TIntObjectProcedure<TIntArrayList>()
-            {
+            map.forEachEntry(new TIntObjectProcedure<TIntArrayList>() {
                 @Override
-                public boolean execute(int key, TIntArrayList value)
-                {
+                public boolean execute(int key, TIntArrayList value) {
                     final int[] js = value.toArray(); // Signed j
                     final int[] j = js.clone(); // Unsigned j
                     for (int i = 0; i < j.length; i++)
@@ -148,8 +132,7 @@ public class CustomTricubicInterpolatingFunctionInlineTest
                     char add = '+';
                     char sub = '-';
 
-                    if (js[0] < 0)
-                    {
+                    if (js[0] < 0) {
                         // Subtract the set
                         sb.append('-');
                         if (key > 1)
@@ -157,9 +140,7 @@ public class CustomTricubicInterpolatingFunctionInlineTest
                         // Swap signs
                         add = sub;
                         sub = '+';
-                    }
-                    else
-                    {
+                    } else {
                         // Some positive so add the set
                         sb.append('+');
                         if (key > 1)
@@ -168,8 +149,7 @@ public class CustomTricubicInterpolatingFunctionInlineTest
 
                     if (js.length != 1)
                         sb.append('(');
-                    for (int i = 0; i < js.length; i++)
-                    {
+                    for (int i = 0; i < js.length; i++) {
                         if (i != 0)
                             if (js[i] < 0)
                                 sb.append(sub);
@@ -191,8 +171,7 @@ public class CustomTricubicInterpolatingFunctionInlineTest
         return finialise(sb);
     }
 
-    private static String finialise(final StringBuilder sb)
-    {
+    private static String finialise(final StringBuilder sb) {
         String result = sb.toString();
         result = result.replaceAll("\\+1\\*", "+");
         result = result.replaceAll("-1\\*", "-");
@@ -204,52 +183,44 @@ public class CustomTricubicInterpolatingFunctionInlineTest
     private final Level level = Level.FINEST;
 
     @Test
-    public void canConstructInlineComputeCoefficients()
-    {
+    public void canConstructInlineComputeCoefficients() {
         ExtraAssumptions.assume(logger, level);
         logger.log(level, inlineComputeCoefficients());
     }
 
     @Test
-    public void canConstructInlineComputeCoefficientsCollectTerms()
-    {
+    public void canConstructInlineComputeCoefficientsCollectTerms() {
         ExtraAssumptions.assume(logger, level);
         logger.log(level, inlineComputeCoefficientsCollectTerms());
     }
 
-    private abstract class MyTimingTask extends BaseTimingTask
-    {
+    private abstract class MyTimingTask extends BaseTimingTask {
         double[][] a;
 
-        public MyTimingTask(String name, double[][] a)
-        {
+        public MyTimingTask(String name, double[][] a) {
             super(name);
             this.a = a;
         }
 
         @Override
-        public int getSize()
-        {
+        public int getSize() {
             return 1;
         }
 
         @Override
-        public Object getData(int i)
-        {
+        public Object getData(int i) {
             return null;
         }
 
         @Override
-        public void check(int i, Object result)
-        {
+        public void check(int i, Object result) {
             final double[][] b = (double[][]) result;
             ExtraAssertions.assertArrayEqualsRelative(a, b, 1e-6, getName());
         }
     }
 
     @SeededTest
-    public void inlineComputeCoefficientsIsFaster(RandomSeed seed)
-    {
+    public void inlineComputeCoefficientsIsFaster(RandomSeed seed) {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
         final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
@@ -257,8 +228,7 @@ public class CustomTricubicInterpolatingFunctionInlineTest
         final int N = 3000;
         final double[][] tables = new double[N][];
         final double[][] a = new double[N][];
-        for (int i = 0; i < tables.length; i++)
-        {
+        for (int i = 0; i < tables.length; i++) {
             final double[] table = new double[64];
             for (int j = 0; j < 64; j++)
                 table[j] = r.nextDouble();
@@ -268,33 +238,27 @@ public class CustomTricubicInterpolatingFunctionInlineTest
 
         final TimingService ts = new TimingService();
 
-        ts.execute(new MyTimingTask("Standard", a)
-        {
+        ts.execute(new MyTimingTask("Standard", a) {
             @Override
-            public Object run(Object data)
-            {
+            public Object run(Object data) {
                 final double[][] a = new double[N][];
                 for (int i = 0; i < N; i++)
                     a[i] = CustomTricubicInterpolatingFunction.computeCoefficients(tables[i]);
                 return a;
             }
         });
-        ts.execute(new MyTimingTask("Inline", a)
-        {
+        ts.execute(new MyTimingTask("Inline", a) {
             @Override
-            public Object run(Object data)
-            {
+            public Object run(Object data) {
                 final double[][] a = new double[N][];
                 for (int i = 0; i < N; i++)
                     a[i] = CustomTricubicInterpolatingFunction.computeCoefficientsInline(tables[i]);
                 return a;
             }
         });
-        ts.execute(new MyTimingTask("InlineCollectTerms", a)
-        {
+        ts.execute(new MyTimingTask("InlineCollectTerms", a) {
             @Override
-            public Object run(Object data)
-            {
+            public Object run(Object data) {
                 final double[][] a = new double[N][];
                 for (int i = 0; i < N; i++)
                     a[i] = CustomTricubicInterpolatingFunction.computeCoefficientsInlineCollectTerms(tables[i]);
@@ -306,7 +270,7 @@ public class CustomTricubicInterpolatingFunctionInlineTest
         ts.check();
         ts.repeat();
         if (logger.isLoggable(Level.INFO))
-            //logger.info(ts.getReport());
+            // logger.info(ts.getReport());
             logger.info(ts.getReport(n));
 
         Assertions.assertTrue(ts.get(-1).getMean() < ts.get(-n).getMean(),

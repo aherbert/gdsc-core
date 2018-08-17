@@ -81,8 +81,7 @@ public class CustomTricubicInterpolator
 	     */
 	    public Builder setXValue(double[] x)
     	{
-    		xval = new DoubleArrayValueProvider(x);
-    		return this;
+            return setXValue(new DoubleArrayValueProvider(x));
     	}
 
     	/**
@@ -105,8 +104,7 @@ public class CustomTricubicInterpolator
 	     */
 	    public Builder setYValue(double[] y)
     	{
-    		yval = new DoubleArrayValueProvider(y);
-    		return this;
+            return setYValue(new DoubleArrayValueProvider(y));
     	}
 
     	/**
@@ -129,8 +127,7 @@ public class CustomTricubicInterpolator
 	     */
 	    public Builder setZValue(double[] z)
     	{
-    		zval = new DoubleArrayValueProvider(z);
-    		return this;
+    		return setZValue(new DoubleArrayValueProvider(z));
     	}
 
     	/**
@@ -153,8 +150,7 @@ public class CustomTricubicInterpolator
 	     */
 	    public Builder setFValue(double[][][] f)
     	{
-    		fval = new DoubleArrayTrivalueProvider(f);
-    		return this;
+    		return setFValue(new DoubleArrayTrivalueProvider(f));
     	}
 
     	/**
@@ -353,12 +349,9 @@ public class CustomTricubicInterpolator
     		final long xLen_yLen = (long)xLen * yLen;
 
         	// Break this up into reasonable tasks, ensuring we can hold all the futures
-        	long nTasks = (long) Math.ceil((double) total / taskSize);
-        	while (nTasks >= Integer.MAX_VALUE)
-        	{
-        		taskSize *= 2;
-            	nTasks = (long) Math.ceil((double) total / taskSize);
-            }
+            final long[] tmp = getTaskSizeAndNumberOfTasks(total, taskSize);
+            taskSize = tmp[0];
+            long nTasks = tmp[1];
     		final TurboList<Future<?>> futures = new TurboList<>((int)nTasks);
 			for (long from = 0; from < total;)
 			{
@@ -1202,22 +1195,19 @@ public class CustomTricubicInterpolator
     /**
      * Sample the function.
      * <p>
-     * n samples will be taken per node in each dimension. A final sample is taken at then end of the sample range thus
-     * the final range for each axis will be the current axis range.
+     * n samples will be taken per node in each dimension. A final sample is taken
+     * at then end of the sample range thus the final range for each axis will be
+     * the current axis range.
      *
-     * @param fval
-     *            the function value
-     * @param n
-     *            the number of samples per spline node
-     * @param procedure
-     *            the procedure
-     * @throws IllegalArgumentException
-     *             If the number of samples is not at least 2
-     * @throws NumberIsTooSmallException
-     *             if the number of points in any dimension is less than 2
+     * @param fval      the function value
+     * @param n         the number of samples per spline node
+     * @param procedure the procedure
+     * @throws IllegalArgumentException  If the number of samples is not at least 2
+     * @throws NumberIsTooSmallException if the number of points in any dimension is
+     *                                   less than 2
      */
-    public void sample(final TrivalueProvider fval, int n, TrivalueProcedure procedure) throws IllegalArgumentException
-    {
+    public void sample(final TrivalueProvider fval, int n, TrivalueProcedure procedure)
+            throws IllegalArgumentException {
         if (n < 2)
             throw new IllegalArgumentException("Samples must be at least 2");
         sample(fval, n, n, n, procedure);
@@ -1226,30 +1216,25 @@ public class CustomTricubicInterpolator
     /**
      * Sample the function.
      * <p>
-     * n samples will be taken per node in each dimension. A final sample is taken at the end of the sample range thus
-     * the final range for each axis will be the current axis range.
+     * n samples will be taken per node in each dimension. A final sample is taken
+     * at the end of the sample range thus the final range for each axis will be the
+     * current axis range.
      * <p>
      * Uses the instance track progress and executor service if set.
      *
-     * @param fval
-     *            the function value
-     * @param nx
-     *            the number of samples per spline node in the x dimension
-     * @param ny
-     *            the number of samples per spline node in the y dimension
-     * @param nz
-     *            the number of samples per spline node in the z dimension
-     * @param procedure
-     *            the procedure
-     * @throws IllegalArgumentException
-     *             If the number of samples is not positive and at least 2 in one dimension
-     * @throws NumberIsTooSmallException
-     *             if the number of points in any dimension is less than 2
+     * @param fval      the function value
+     * @param nx        the number of samples per spline node in the x dimension
+     * @param ny        the number of samples per spline node in the y dimension
+     * @param nz        the number of samples per spline node in the z dimension
+     * @param procedure the procedure
+     * @throws IllegalArgumentException  If the number of samples is not positive
+     *                                   and at least 2 in one dimension
+     * @throws NumberIsTooSmallException if the number of points in any dimension is
+     *                                   less than 2
      */
     @SuppressWarnings("null")
     public void sample(final TrivalueProvider fval, final int nx, final int ny, final int nz,
-            final TrivalueProcedure procedure) throws IllegalArgumentException
-    {
+            final TrivalueProcedure procedure) throws IllegalArgumentException {
         if (nx < 1 || ny < 1 || nz < 1)
             throw new IllegalArgumentException("Samples must be positive");
         if (nx == 1 && ny == 1 && nz == 1)
@@ -1301,11 +1286,9 @@ public class CustomTricubicInterpolator
         final int nz1 = nz + 1;
 
         final double[][] tables = new double[nx1 * ny1 * nz1][];
-        for (int z = 0, i = 0; z < nz1; z++)
-        {
+        for (int z = 0, i = 0; z < nz1; z++) {
             final CubicSplinePosition szz = sz[z];
-            for (int y = 0; y < ny1; y++)
-            {
+            for (int y = 0; y < ny1; y++) {
                 final CubicSplinePosition syy = sy[y];
                 for (int x = 0; x < nx1; x++, i++)
                     tables[i] = CustomTricubicFunction.computePowerTable(sx[x], syy, szz);
@@ -1320,25 +1303,18 @@ public class CustomTricubicInterpolator
         for (int z = 0; z <= maxz; z++)
             procedure.setZ(z, (double) z / nz);
 
-        if (threaded)
-        {
+        if (threaded) {
             // Break this up into reasonable tasks, ensuring we can hold all the futures.
-            long nTasks = (long) Math.ceil((double) nNodes / taskSize);
-            while (nTasks >= Integer.MAX_VALUE)
-            {
-                taskSize *= 2;
-                nTasks = (long) Math.ceil((double) nNodes / taskSize);
-            }
+            final long[] tmp = getTaskSizeAndNumberOfTasks(nNodes, taskSize);
+            taskSize = tmp[0];
+            long nTasks = tmp[1];
             final TurboList<Future<?>> futures = new TurboList<>((int) nTasks);
-            for (long from = 0; from < nNodes;)
-            {
+            for (long from = 0; from < nNodes;) {
                 final long from_ = from;
                 final long to = Math.min(from + taskSize, nNodes);
-                futures.add(executorService.submit(new Runnable()
-                {
+                futures.add(executorService.submit(new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         // Approximation to the partial derivatives using finite differences.
                         final double[][][] f = new double[2][2][2];
                         final double[][][] dFdX = new double[2][2][2];
@@ -1352,8 +1328,7 @@ public class CustomTricubicInterpolator
                         final double[][][] values = new double[3][3][3];
                         final double[] beta = new double[64];
 
-                        for (long index = from_; index < to; index++)
-                        {
+                        for (long index = from_; index < to; index++) {
                             // Convert position to the indices for the node
                             final int z = (int) (index / xLen_1_yLen_1);
                             final long mod = index % xLen_1_yLen_1;
@@ -1449,12 +1424,10 @@ public class CustomTricubicInterpolator
                             // Write interpolated values. For the final position we use the extra table to
                             // get the value at x=1 in the range [0-1].
                             for (int k = 0, maxk = (z == zLen_2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++)
-                                for (int j = 0, maxj = (y == yLen_2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++)
-                                {
+                                for (int j = 0, maxj = (y == yLen_2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++) {
                                     // Position in the interpolation tables
                                     int pos = nx1 * (j + ny1 * k);
-                                    for (int i = 0, maxi = (x == xLen_2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++)
-                                    {
+                                    for (int i = 0, maxi = (x == xLen_2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++) {
                                         procedure.setValue(xx, yy, zz, cf.value(tables[pos++]));
                                         ticker.tick();
                                     }
@@ -1466,9 +1439,7 @@ public class CustomTricubicInterpolator
             }
 
             Utils.waitForCompletion(futures);
-        }
-        else
-        {
+        } else {
             // Approximation to the partial derivatives using finite differences.
             final double[][][] f = new double[2][2][2];
             final double[][][] dFdX = new double[2][2][2];
@@ -1485,8 +1456,7 @@ public class CustomTricubicInterpolator
             // Dynamically interpolate each node
             for (int x = 0; x < xLen_1; x++)
                 for (int y = 0; y < yLen_1; y++)
-                    for (int z = 0; z < zLen_1; z++)
-                    {
+                    for (int z = 0; z < zLen_1; z++) {
                         //@formatter:off
                         for (int ii = 0; ii < 2; ii++) {
                         	final int i = x + ii;
@@ -1576,12 +1546,10 @@ public class CustomTricubicInterpolator
                         // Write interpolated values. For the final position we use the extra table to
                         // get the value at x=1 in the range [0-1].
                         for (int k = 0, maxk = (z == zLen_2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++)
-                            for (int j = 0, maxj = (y == yLen_2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++)
-                            {
+                            for (int j = 0, maxj = (y == yLen_2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++) {
                                 // Position in the interpolation tables
                                 int pos = nx1 * (j + ny1 * k);
-                                for (int i = 0, maxi = (x == xLen_2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++)
-                                {
+                                for (int i = 0, maxi = (x == xLen_2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++) {
                                     procedure.setValue(xx, yy, zz, cf.value(tables[pos++]));
                                     ticker.tick();
                                 }
@@ -1592,8 +1560,26 @@ public class CustomTricubicInterpolator
         ticker.stop();
     }
 
-    private static CubicSplinePosition[] createCubicSplinePosition(int n)
-    {
+    /**
+     * Gets the task size and number of tasks.
+     * <p>
+     * The task size is increased to reduce the number of tasks until 
+     * the number of tasks can fit in memory.
+     *
+     * @param total   the total number of tasks
+     * @param taskSize the initial task size
+     * @return [taskSize, nTasks]
+     */
+    static long[] getTaskSizeAndNumberOfTasks(final long total, long taskSize) {
+        long nTasks = (long) Math.ceil((double) total / taskSize);
+        while (nTasks >= Integer.MAX_VALUE) {
+            taskSize *= 2;
+            nTasks = (long) Math.ceil((double) total / taskSize);
+        }
+        return new long[] { taskSize, nTasks };
+    }
+
+    private static CubicSplinePosition[] createCubicSplinePosition(int n) {
         // Use an extra one to have the final x=1 interpolation point.
         final double step = 1.0 / n;
         final CubicSplinePosition[] s = new CubicSplinePosition[n + 1];

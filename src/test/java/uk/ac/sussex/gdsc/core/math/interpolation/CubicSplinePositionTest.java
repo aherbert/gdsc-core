@@ -4,44 +4,35 @@ import org.apache.commons.math3.exception.OutOfRangeException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-/**
- * This class is used to in-line the computation for the CustomTricubicFunction.
- * <p>
- * The ordering of the computation is set to multiply by the power ZYX and the
- * cubic coefficient last.
- * <p>
- * This allows the power table to be precomputed and the result should match the
- * non-precomputed version. This includes scaling the power table by 2,3,6 for
- * computation of the gradients.
- */
 @SuppressWarnings({ "javadoc" })
 public class CubicSplinePositionTest {
     @Test
     public void testConstructor() {
+        final double x = 0.5;
+        Assertions.assertNotNull(new CubicSplinePosition(x));
+
         Assertions.assertThrows(OutOfRangeException.class, () -> {
             @SuppressWarnings("unused")
-            CubicSplinePosition p = new CubicSplinePosition(-1e-6);
+            final CubicSplinePosition p = new CubicSplinePosition(-1e-6);
         });
         Assertions.assertThrows(OutOfRangeException.class, () -> {
             @SuppressWarnings("unused")
-            CubicSplinePosition p = new CubicSplinePosition(1.000001);
+            final CubicSplinePosition p = new CubicSplinePosition(1.000001);
         });
         Assertions.assertThrows(OutOfRangeException.class, () -> {
             @SuppressWarnings("unused")
-            CubicSplinePosition p = new CubicSplinePosition(Double.NaN);
+            final CubicSplinePosition p = new CubicSplinePosition(Double.NaN);
         });
-        CubicSplinePosition p = new CubicSplinePosition(0.5);
-        Assertions.assertNotNull(p);
     }
 
     @Test
     public void testProperties() {
         for (int i = 0; i <= 5; i++) {
-            double x = (double) i / 5;
-            CubicSplinePosition p = new CubicSplinePosition(x);
+            final double x = (double) i / 5;
+            final CubicSplinePosition p = new CubicSplinePosition(x);
             Assertions.assertNotNull(p);
-            double x2 = x * x;
-            double x3 = x * x2;
+            final double x2 = x * x;
+            final double x3 = x * x2;
             Assertions.assertEquals(1, p.getPower(0));
             Assertions.assertEquals(x, p.getPower(1));
             Assertions.assertEquals(x2, p.getPower(2));

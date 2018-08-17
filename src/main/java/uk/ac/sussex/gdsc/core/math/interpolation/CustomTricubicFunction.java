@@ -92,17 +92,17 @@ public abstract class CustomTricubicFunction implements TrivariateFunction
     abstract public CustomTricubicFunction copy();
 
     /**
-     * Gets the index in the table for the specified position.
+     * Gets the index in the table of 64 coefficients for the specified power of each dimension.
      *
      * @param i
-     *            the x index
+     *            the x power
      * @param j
-     *            the x index
+     *            the y power
      * @param k
-     *            the z index
+     *            the z power
      * @return the index
      */
-    public static int getIndex(int i, int j, int k)
+    static int getIndex(int i, int j, int k)
     {
         return i + 4 * (j + 4 * k);
     }
