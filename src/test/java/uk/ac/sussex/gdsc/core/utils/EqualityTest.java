@@ -11,16 +11,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestLog;
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.TimingService;
-import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({ "deprecation", "javadoc" })
 public class EqualityTest
@@ -391,7 +391,7 @@ public class EqualityTest
         final DoubleEquality equality2 = new DoubleEquality(maxRelativeError, maxAbsoluteError);
 
         // Create data
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final float[] data1 = new float[MAX_ITER];
         final float[] data2 = new float[data1.length];
         final double[] data3 = new double[data1.length];

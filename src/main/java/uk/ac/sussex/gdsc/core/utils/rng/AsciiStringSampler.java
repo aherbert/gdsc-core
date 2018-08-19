@@ -39,11 +39,12 @@ import gnu.trove.list.array.TCharArrayList;
  * Characters will be chosen from the set of characters whose ASCII value is
  * between {@code 32} and {@code 126} (inclusive). This is:
  * <ul>
- * <li>0 to 9
- * <li>A to z
- * <li>!"#$%&'()*+,-./:;<=>?@\]^_`{|}
- * <li>space {@code 32}
- * <li>escape {@code 126}
+ * <li>{@code 0} to {@code 0}
+ * <li>{@code A} to {@code Z}
+ * <li>{@code a} to {@code z}
+ * <li><code>!"#$%&amp;'()*+,-./:;&lt;=&gt;?@\]^_`{|}</code>
+ * <li>space (ASCII {@code 32})
+ * <li>escape (ASCII {@code 126})
  * </ul>
  * <p>
  * Methods names are inspired by

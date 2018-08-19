@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.rng.UniformRandomProvider;
-import org.junit.internal.ArrayComparisonFailure;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,14 +16,14 @@ import ij.gui.PointRoi;
 import ij.process.FloatProcessor;
 import uk.ac.sussex.gdsc.core.ij.Utils;
 import uk.ac.sussex.gdsc.core.utils.Random;
-import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestLog;
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({ "javadoc" })
 public class NonMaximumSuppressionTest
@@ -62,7 +61,7 @@ public class NonMaximumSuppressionTest
     @SeededTest
     public void floatBlockFindAndMaxFindReturnSameResult(RandomSeed seed)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
         for (final int width : primes)
@@ -72,7 +71,7 @@ public class NonMaximumSuppressionTest
     }
 
     private void floatCompareBlockFindToMaxFind(UniformRandomProvider rg, NonMaximumSuppression nms, int width,
-            int height, int boxSize) throws ArrayComparisonFailure
+            int height, int boxSize)
     {
         floatCompareBlockFindToMaxFind(nms, width, height, boxSize, floatCreateData(rg, width, height), "Random");
 
@@ -83,7 +82,7 @@ public class NonMaximumSuppressionTest
     @SeededTest
     public void floatBlockFindReturnSameResultWithNeighbourCheck(RandomSeed seed)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
         for (final int width : primes)
@@ -93,7 +92,7 @@ public class NonMaximumSuppressionTest
     }
 
     private static void floatCompareBlockFindWithNeighbourCheck(UniformRandomProvider rg, NonMaximumSuppression nms,
-            int width, int height, int boxSize) throws ArrayComparisonFailure
+            int width, int height, int boxSize)
     {
         // Random data
         final float[] data = floatCreateData(rg, width, height);
@@ -119,7 +118,7 @@ public class NonMaximumSuppressionTest
     }
 
     private void floatCompareBlockFindToMaxFindWithPatternData(NonMaximumSuppression nms, int width, int height,
-            int boxSize) throws ArrayComparisonFailure
+            int boxSize)
     {
         // This fails when N=2. Pattern data is problematic given the block find algorithm processes the pixels in a different order
         // from a linear run across the yx order data. So when the pattern produces a max pixel within the range of all
@@ -140,7 +139,7 @@ public class NonMaximumSuppressionTest
     }
 
     private void floatCompareBlockFindToMaxFind(NonMaximumSuppression nms, int width, int height, int boxSize,
-            float[] data, String name) throws ArrayComparisonFailure
+            float[] data, String name)
     {
         final int[] blockIndices = nms.blockFindNxN(data, width, height, boxSize);
         final int[] maxIndices = nms.maxFind(data, width, height, boxSize);
@@ -215,7 +214,7 @@ public class NonMaximumSuppressionTest
     @SeededTest
     public void floatBlockFindNxNAndBlockFind3x3ReturnSameResult(RandomSeed seed)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -252,7 +251,7 @@ public class NonMaximumSuppressionTest
     @SeededTest
     public void floatBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult(RandomSeed seed)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -292,7 +291,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -353,7 +352,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
         nms.setNeighbourCheck(true);
@@ -437,7 +436,7 @@ public class NonMaximumSuppressionTest
 
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -509,7 +508,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -584,7 +583,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -660,7 +659,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -709,7 +708,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
         nms.setDataBuffer(true);
@@ -764,7 +763,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -813,7 +812,7 @@ public class NonMaximumSuppressionTest
     @SeededTest
     public void floatAllFindBlockMethodsReturnSameResultForSize1(RandomSeed seed)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
         for (final int width : primes)
@@ -822,7 +821,7 @@ public class NonMaximumSuppressionTest
     }
 
     private static void floatCompareBlockMethodsForSize1(UniformRandomProvider rg, NonMaximumSuppression nms, int width,
-            int height) throws ArrayComparisonFailure
+            int height)
     {
         final float[] data = floatCreateData(rg, width, height);
 
@@ -873,7 +872,7 @@ public class NonMaximumSuppressionTest
     @SeededTest
     public void intBlockFindAndMaxFindReturnSameResult(RandomSeed seed)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
         for (final int width : primes)
@@ -883,7 +882,7 @@ public class NonMaximumSuppressionTest
     }
 
     private void intCompareBlockFindToMaxFind(UniformRandomProvider rg, NonMaximumSuppression nms, int width,
-            int height, int boxSize) throws ArrayComparisonFailure
+            int height, int boxSize)
     {
         intCompareBlockFindToMaxFind(nms, width, height, boxSize, intCreateData(rg, width, height), "Random");
 
@@ -894,7 +893,7 @@ public class NonMaximumSuppressionTest
     @SeededTest
     public void intBlockFindReturnSameResultWithNeighbourCheck(RandomSeed seed)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
         for (final int width : primes)
@@ -904,7 +903,7 @@ public class NonMaximumSuppressionTest
     }
 
     private static void intCompareBlockFindWithNeighbourCheck(UniformRandomProvider rg, NonMaximumSuppression nms,
-            int width, int height, int boxSize) throws ArrayComparisonFailure
+            int width, int height, int boxSize)
     {
         // Random data
         final int[] data = intCreateData(rg, width, height);
@@ -930,7 +929,7 @@ public class NonMaximumSuppressionTest
     }
 
     private void intCompareBlockFindToMaxFindWithPatternData(NonMaximumSuppression nms, int width, int height,
-            int boxSize) throws ArrayComparisonFailure
+            int boxSize)
     {
         // This fails when N=2. Pattern data is problematic given the block find algorithm processes the pixels in a different order
         // from a linear run across the yx order data. So when the pattern produces a max pixel within the range of all
@@ -951,7 +950,7 @@ public class NonMaximumSuppressionTest
     }
 
     private void intCompareBlockFindToMaxFind(NonMaximumSuppression nms, int width, int height, int boxSize, int[] data,
-            String name) throws ArrayComparisonFailure
+            String name)
     {
         final int[] blockIndices = nms.blockFindNxN(data, width, height, boxSize);
         final int[] maxIndices = nms.maxFind(data, width, height, boxSize);
@@ -1025,7 +1024,7 @@ public class NonMaximumSuppressionTest
     @SeededTest
     public void intBlockFindNxNAndBlockFind3x3ReturnSameResult(RandomSeed seed)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1062,7 +1061,7 @@ public class NonMaximumSuppressionTest
     @SeededTest
     public void intBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult(RandomSeed seed)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1102,7 +1101,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1163,7 +1162,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
         nms.setNeighbourCheck(true);
@@ -1247,7 +1246,7 @@ public class NonMaximumSuppressionTest
 
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1319,7 +1318,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1394,7 +1393,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1469,7 +1468,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1518,7 +1517,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
         nms.setDataBuffer(true);
@@ -1572,7 +1571,7 @@ public class NonMaximumSuppressionTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
 
@@ -1621,7 +1620,7 @@ public class NonMaximumSuppressionTest
     @SeededTest
     public void intAllFindBlockMethodsReturnSameResultForSize1(RandomSeed seed)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
 
         final NonMaximumSuppression nms = new NonMaximumSuppression();
         for (final int width : primes)
@@ -1630,7 +1629,7 @@ public class NonMaximumSuppressionTest
     }
 
     private static void intCompareBlockMethodsForSize1(UniformRandomProvider rg, NonMaximumSuppression nms, int width,
-            int height) throws ArrayComparisonFailure
+            int height)
     {
         final int[] data = intCreateData(rg, width, height);
 

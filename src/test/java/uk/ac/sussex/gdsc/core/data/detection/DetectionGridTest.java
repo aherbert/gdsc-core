@@ -13,15 +13,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestLog;
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.TimingResult;
-import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TimingResult;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 @SuppressWarnings({ "javadoc" })
 public class DetectionGridTest
@@ -136,7 +136,7 @@ public class DetectionGridTest
     public void canDetectTheSameCollisions(RandomSeed seed)
     {
         final int size = 512;
-        final UniformRandomProvider rdg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rdg = RNGFactory.create(seed.getSeed());
         final Rectangle2D[] r = generateRectangles(rdg, 1000, size);
 
         final SimpleDetectionGrid g1 = new SimpleDetectionGrid(r);
@@ -266,7 +266,7 @@ public class DetectionGridTest
         ExtraAssumptions.assume(logger, Level.INFO);
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rdg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rdg = RNGFactory.create(seed.getSeed());
 
         final TimingService ts = new TimingService();
         while (n > 500)

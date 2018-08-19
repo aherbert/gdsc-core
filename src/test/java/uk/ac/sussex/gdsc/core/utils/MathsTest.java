@@ -6,9 +6,9 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
 
 @SuppressWarnings({ "javadoc" })
 public class MathsTest
@@ -23,7 +23,7 @@ public class MathsTest
         Assertions.assertEquals("0.1", Maths.roundUsingDecimalPlacesToBigDecimal(d, 1).toPlainString());
 
         // Random test that rounding does the same as String.format
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (int i = 0; i < 10; i++)
         {
             final String format = "%." + i + "f";

@@ -13,16 +13,16 @@ import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
 import uk.ac.sussex.gdsc.core.utils.Random;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
-import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestLog;
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 @SuppressWarnings({ "javadoc" })
 public class DAreaStatisticsTest
@@ -48,7 +48,7 @@ public class DAreaStatisticsTest
     @SeededTest
     public void canComputeGlobalStatistics(RandomSeed seed)
     {
-        final double[] data = createData(TestSettings.getRandomGenerator(seed.getSeed()));
+        final double[] data = createData(RNGFactory.create(seed.getSeed()));
         final Statistics s = new Statistics(data);
         final DAreaStatistics a = new DAreaStatistics(data, maxx, maxy);
         for (final boolean r : rolling)
@@ -69,7 +69,7 @@ public class DAreaStatisticsTest
     @SeededTest
     public void canComputeNxNRegionStatistics(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final double[] data = createData(r);
         final DAreaStatistics a1 = new DAreaStatistics(data, maxx, maxy);
         a1.setRollingSums(true);
@@ -101,7 +101,7 @@ public class DAreaStatisticsTest
     @SeededTest
     public void canComputeNxMRegionStatistics(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final double[] data = createData(r);
         final DAreaStatistics a1 = new DAreaStatistics(data, maxx, maxy);
         a1.setRollingSums(true);
@@ -134,7 +134,7 @@ public class DAreaStatisticsTest
     @SeededTest
     public void canComputeRectangleRegionStatistics(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final double[] data = createData(r);
         final DAreaStatistics a1 = new DAreaStatistics(data, maxx, maxy);
         a1.setRollingSums(true);
@@ -271,7 +271,7 @@ public class DAreaStatisticsTest
 
     private void speedTest(RandomSeed seed, double density, boolean rollingIsFaster, int minN, int maxN)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
 
         final int k = (int) Math.round(maxx * maxy * density);
         final int[] x = Random.sample(k, maxx, r);

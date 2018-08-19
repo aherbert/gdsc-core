@@ -12,13 +12,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import gnu.trove.set.hash.TIntHashSet;
-import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 @SuppressWarnings({ "javadoc" })
 public class SimpleArrayUtilsTest
@@ -40,7 +40,7 @@ public class SimpleArrayUtilsTest
     @SeededTest
     public void canFlatten(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final TIntHashSet set = new TIntHashSet();
         testFlatten(set, new int[0]);
         testFlatten(set, new int[10]);
@@ -67,7 +67,7 @@ public class SimpleArrayUtilsTest
     @SeededTest
     public void canSortMerge(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final TIntHashSet set = new TIntHashSet();
         testSortMerge(set, new int[0], new int[10]);
         testSortMerge(set, new int[10], new int[10]);
@@ -136,7 +136,7 @@ public class SimpleArrayUtilsTest
     {
         ExtraAssumptions.assume(logger, Level.INFO);
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
 
         final double[] f = new double[] { 0.1, 0.5, 0.75 };
         for (final int size : new int[] { 100, 1000, 10000 })
@@ -201,7 +201,7 @@ public class SimpleArrayUtilsTest
     {
         ExtraAssumptions.assume(logger, Level.INFO);
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
 
         final int[] n = new int[] { 2, 4, 8 };
         final int[] size = new int[] { 100, 1000, 10000 };

@@ -10,14 +10,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestLog;
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({ "javadoc" })
 public class MedianWindowDLLTest
@@ -148,7 +148,7 @@ public class MedianWindowDLLTest
     @SeededTest
     public void canComputeMedianForRandomDataUsingDynamicLinkedList(RandomSeed seed)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
         final double[] data = MedianWindowTest.createRandomData(rg, dataSize);
         final UpdateableSupplier msg = new UpdateableSupplier();
         for (final int radius : radii)
@@ -275,7 +275,7 @@ public class MedianWindowDLLTest
     private void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(RandomSeed seed, int radius,
             int increment)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
         final int iterations = 20;
         final double[][] data = new double[iterations][];
         for (int i = 0; i < iterations; i++)

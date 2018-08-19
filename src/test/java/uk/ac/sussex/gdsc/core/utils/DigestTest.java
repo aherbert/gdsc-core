@@ -9,9 +9,9 @@ import org.apache.commons.math3.exception.util.LocalizedFormats;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 
-import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
 
 @SuppressWarnings({ "javadoc" })
 public class DigestTest
@@ -19,7 +19,7 @@ public class DigestTest
     @SeededTest
     public void canComputeMD5Hex(RandomSeed seed) throws IOException
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
 
         final byte[] testBytes = new byte[50];
 

@@ -3,8 +3,8 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.UnitSphereSampler;
 import org.apache.commons.rng.simple.RandomSource;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("javadoc")
 public class UnitSphereSamplerTest {
@@ -15,7 +15,7 @@ public class UnitSphereSamplerTest {
         UnitSphereSampler s = new UnitSphereSampler(0, rng);
         Assertions.assertArrayEquals(new double[0], s.nextVector());
     }
-    
+
     @Test
     public void testNegativeLength() {
         final UniformRandomProvider rng = RandomSource.create(RandomSource.MWC_256);

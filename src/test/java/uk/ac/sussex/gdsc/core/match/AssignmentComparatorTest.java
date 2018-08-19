@@ -9,11 +9,11 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
-import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 @SuppressWarnings({ "javadoc" })
 public class AssignmentComparatorTest
@@ -103,7 +103,7 @@ public class AssignmentComparatorTest
 
     private static AssignmentComparatorTestData getData(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final int size = 100;
         // The assignment data will be concatenated blocks of sorted arrays
         final int blocks = 50;

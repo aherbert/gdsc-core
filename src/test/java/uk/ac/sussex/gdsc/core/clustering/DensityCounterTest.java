@@ -12,14 +12,14 @@ import org.junit.jupiter.api.BeforeAll;
 
 import uk.ac.sussex.gdsc.core.clustering.DensityCounter.SimpleMolecule;
 import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerFactory;
-import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.TimingService;
-import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 /**
  * Test the DensityCounter.
@@ -52,7 +52,7 @@ public class DensityCounterTest
     @SeededTest
     public void countAllWithSimpleMatches(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final SimpleMolecule[] molecules = createMolecules(r, size, n);
@@ -73,7 +73,7 @@ public class DensityCounterTest
     @SeededTest
     public void countAllWithSingleThreadMatches(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final SimpleMolecule[] molecules = createMolecules(r, size, n);
@@ -94,7 +94,7 @@ public class DensityCounterTest
     @SeededTest
     public void countAllWithMultiThreadSycnMatches(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final SimpleMolecule[] molecules = createMolecules(r, size, n);
@@ -116,7 +116,7 @@ public class DensityCounterTest
     @SeededTest
     public void countAllWithMultiThreadNonSyncMatches(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final SimpleMolecule[] molecules = createMolecules(r, size, n);
@@ -138,7 +138,7 @@ public class DensityCounterTest
     @SeededTest
     public void countAllAroundMoleculesWithSimpleMatches(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
@@ -160,7 +160,7 @@ public class DensityCounterTest
     @SeededTest
     public void countAllAroundMoleculesWithSingleThreadMatches(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
@@ -182,7 +182,7 @@ public class DensityCounterTest
     @SeededTest
     public void countAllAroundMoleculesWithMultiThreadMatches(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
@@ -232,7 +232,7 @@ public class DensityCounterTest
     {
         //ExtraAssumptions.assume(logger, Level.INFO); ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
 
         // The single thread mode is faster when the radius is small.
         // The multi-thread mode is faster when the radius is large (>4).
@@ -341,7 +341,7 @@ public class DensityCounterTest
     {
         ExtraAssumptions.assume(logger, Level.INFO);
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
 
         // The multi-thread mode is faster when the number of molecules is large.
 

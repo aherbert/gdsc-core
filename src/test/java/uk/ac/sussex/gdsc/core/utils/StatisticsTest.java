@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
-import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
 
 @SuppressWarnings({ "javadoc" })
 public class StatisticsTest
@@ -17,7 +17,7 @@ public class StatisticsTest
     @SeededTest
     public void canComputeStatistics(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         DescriptiveStatistics e;
         Statistics o;
         for (int i = 0; i < 10; i++)

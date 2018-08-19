@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectIntProcedure;
-import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 /**
  * This class is used to in-line the computation for the CustomTricubicFunction.

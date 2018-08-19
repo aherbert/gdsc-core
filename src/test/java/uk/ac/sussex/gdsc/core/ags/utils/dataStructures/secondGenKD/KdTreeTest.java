@@ -18,15 +18,15 @@ import uk.ac.sussex.gdsc.core.utils.Maths;
 import uk.ac.sussex.gdsc.core.utils.PartialSort;
 import uk.ac.sussex.gdsc.core.utils.Random;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.TimingService;
-import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({ "javadoc" })
 public class KdTreeTest
@@ -52,7 +52,7 @@ public class KdTreeTest
     @SeededTest
     public void canComputeKNNSecondGen(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final double[][] data = createData(r, size, n, false);
@@ -98,7 +98,7 @@ public class KdTreeTest
     @SeededTest
     public void canComputeKNNSecondGenWithDuplicates(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final double[][] data = createData(r, size, n, true);
@@ -144,7 +144,7 @@ public class KdTreeTest
     @SeededTest
     public void canComputeKNNDistanceSecondGen(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final double[][] data = createData(r, size, n, true);
@@ -181,7 +181,7 @@ public class KdTreeTest
     @SeededTest
     public void canComputeKNNThirdGen(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final double[][] data = createData(r, size, n, false);
@@ -231,7 +231,7 @@ public class KdTreeTest
     @SeededTest
     public void canComputeKNNThirdGenWithDuplicates(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final double[][] data = createData(r, size, n, true);
@@ -281,7 +281,7 @@ public class KdTreeTest
     @SeededTest
     public void canComputeKNNDistanceThirdGen(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final double[][] data = createData(r, size, n, true);
@@ -375,7 +375,7 @@ public class KdTreeTest
         ExtraAssumptions.assume(logger, Level.INFO);
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final TimingService ts = new TimingService(15);
         final int n = 5000;
         final double[][] data = createData(r, size, n, true);
@@ -539,7 +539,7 @@ public class KdTreeTest
     {
         logger.isLoggable(Level.INFO);
 
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final TimingService ts = new TimingService(15);
         final int n = 5000;
         final double[][] data = createData(r, size, n, true);

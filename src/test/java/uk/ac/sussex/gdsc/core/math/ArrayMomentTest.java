@@ -13,13 +13,13 @@ import org.junit.jupiter.api.Test;
 import uk.ac.sussex.gdsc.core.data.IntegerType;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerFactory;
-import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({ "javadoc" })
 public class ArrayMomentTest
@@ -46,7 +46,7 @@ public class ArrayMomentTest
     {
         canComputeMoment("Single", new double[] { Math.PI }, new RollingArrayMoment());
 
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final double[] d = new double[1000];
 
         for (int i = 0; i < d.length; i++)
@@ -68,7 +68,7 @@ public class ArrayMomentTest
     {
         canComputeMoment("Single", new float[] { (float) Math.PI }, new RollingArrayMoment());
 
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final float[] d = new float[1000];
 
         for (int i = 0; i < d.length; i++)
@@ -90,7 +90,7 @@ public class ArrayMomentTest
     {
         canComputeMoment("Single", new int[] { 42 }, new RollingArrayMoment());
 
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final int[] d = new int[1000];
 
         for (int i = 0; i < d.length; i++)
@@ -105,7 +105,7 @@ public class ArrayMomentTest
     @SeededTest
     public void canComputeRollingArrayMomentDouble(RandomSeed seed)
     {
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final double[][] d = new double[3][];
 
         for (int i = d.length; i-- > 0;)
@@ -121,7 +121,7 @@ public class ArrayMomentTest
     @SeededTest
     public void canCombineRollingArrayMomentDouble(RandomSeed seed)
     {
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final double[][] d = new double[50][];
 
         final int n = 1000;
@@ -165,7 +165,7 @@ public class ArrayMomentTest
     {
         canComputeMoment("Single", new double[] { Math.PI }, new SimpleArrayMoment());
 
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final double[] d = new double[1000];
 
         for (int i = 0; i < d.length; i++)
@@ -187,7 +187,7 @@ public class ArrayMomentTest
     {
         canComputeMoment("Single", new float[] { (float) Math.PI }, new SimpleArrayMoment());
 
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final float[] d = new float[1000];
 
         for (int i = 0; i < d.length; i++)
@@ -209,7 +209,7 @@ public class ArrayMomentTest
     {
         canComputeMoment("Single", new int[] { 42 }, new SimpleArrayMoment());
 
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final int[] d = new int[1000];
 
         for (int i = 0; i < d.length; i++)
@@ -224,7 +224,7 @@ public class ArrayMomentTest
     @SeededTest
     public void canComputeSimpleArrayMomentInt(RandomSeed seed)
     {
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final int[][] d = new int[3][];
 
         for (int i = d.length; i-- > 0;)
@@ -240,7 +240,7 @@ public class ArrayMomentTest
     @SeededTest
     public void canCombineSimpleArrayMomentInt(RandomSeed seed)
     {
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final int[][] d = new int[50][];
 
         final int n = 1000;
@@ -282,7 +282,7 @@ public class ArrayMomentTest
     {
         canComputeMoment("Single", new int[] { 42 }, new IntegerArrayMoment());
 
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final int[] d = new int[1000];
 
         for (int i = 0; i < d.length; i++)
@@ -297,7 +297,7 @@ public class ArrayMomentTest
     @SeededTest
     public void canComputeIntegerArrayMomentInt(RandomSeed seed)
     {
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final int[][] d = new int[3][];
 
         for (int i = d.length; i-- > 0;)
@@ -313,7 +313,7 @@ public class ArrayMomentTest
     @SeededTest
     public void canCombineIntegerArrayMomentInt(RandomSeed seed)
     {
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         final int[][] d = new int[50][];
 
         final int n = 1000;
@@ -495,7 +495,7 @@ public class ArrayMomentTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
 
         final SimpleArrayMoment m1 = new SimpleArrayMoment();
         final SecondMoment m2 = new SecondMoment();

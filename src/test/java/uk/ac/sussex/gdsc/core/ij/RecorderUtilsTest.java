@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import ij.plugin.frame.Recorder;
-import uk.ac.sussex.gdsc.test.TestComplexity;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 
 @SuppressWarnings({ "javadoc" })
 public class RecorderUtilsTest

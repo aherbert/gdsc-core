@@ -12,9 +12,9 @@ import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ShortProcessor;
 import uk.ac.sussex.gdsc.core.utils.Digest;
-import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
 
 @SuppressWarnings({ "javadoc" })
 public class IJDigestTest
@@ -24,7 +24,7 @@ public class IJDigestTest
     @SeededTest
     public void canDigestByteProcessor(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final byte[] data = new byte[size];
         r.nextBytes(data);
 
@@ -36,7 +36,7 @@ public class IJDigestTest
     @SeededTest
     public void canDigestShortProcessor(RandomSeed seed) throws IOException
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final short[] data = new short[size];
         for (int i = 0; i < size; i++)
             data[i] = (short) ((r.nextDouble() - 0.5) * 2 * Short.MAX_VALUE);
@@ -53,7 +53,7 @@ public class IJDigestTest
     @SeededTest
     public void canDigestFloatProcessor(RandomSeed seed) throws IOException
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final float[] data = new float[size];
         for (int i = 0; i < size; i++)
             data[i] = (r.nextFloat() - 0.5f) * 2f;
@@ -70,7 +70,7 @@ public class IJDigestTest
     @SeededTest
     public void canDigestColorProcessor(RandomSeed seed) throws IOException
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final int[] data = new int[size];
         for (int i = 0; i < size; i++)
             data[i] = r.nextInt();

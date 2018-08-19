@@ -6,9 +6,9 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
 
 @SuppressWarnings({ "javadoc" })
 public class PseudoRandomGeneratorTest
@@ -34,13 +34,13 @@ public class PseudoRandomGeneratorTest
     @SeededTest
     public void canConstructPseudoRandomGeneratorFromSource(RandomSeed seed)
     {
-        final UniformRandomProvider source = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider source = RNGFactory.create(seed.getSeed());
         final int length = 5;
         final double[] e = new double[length];
         for (int i = 0; i < e.length; i++)
             e[i] = source.nextDouble();
         final PseudoRandomGenerator r = new PseudoRandomGenerator(length,
-                new RandomGeneratorAdapter(TestSettings.getRandomGenerator(seed.getSeed())));
+                new RandomGeneratorAdapter(RNGFactory.create(seed.getSeed())));
         canConstructPseudoRandomGenerator(r, e);
     }
 

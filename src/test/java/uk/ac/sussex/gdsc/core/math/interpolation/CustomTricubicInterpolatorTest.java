@@ -30,19 +30,19 @@ import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
 import uk.ac.sussex.gdsc.core.utils.Maths;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
-import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestCounter;
-import uk.ac.sussex.gdsc.test.TestLog;
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.TimingResult;
-import uk.ac.sussex.gdsc.test.TimingService;
-import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestCounter;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TimingResult;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({ "javadoc" })
 public class CustomTricubicInterpolatorTest {
@@ -63,7 +63,7 @@ public class CustomTricubicInterpolatorTest {
 
     @SeededTest
     public void canConstructInterpolatingFunction(RandomSeed seed) {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
 
         final int x = 4, y = 5, z = 6;
         final double[][][] fval = createData(x, y, z, null);
@@ -205,7 +205,7 @@ public class CustomTricubicInterpolatorTest {
     }
 
     private void canInterpolate(RandomSeed seed, boolean isInteger) {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final int x = 4, y = 4, z = 4;
         final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
         final double[] yval = SimpleArrayUtils.newArray(y, 0, (isInteger) ? 1 : 0.5);
@@ -330,7 +330,7 @@ public class CustomTricubicInterpolatorTest {
 
     @SeededTest
     public void canInterpolateUsingPrecomputedTable(RandomSeed seed) {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final int x = 4, y = 4, z = 4;
         final double xscale = 1, yscale = 0.5, zscale = 2.0;
         final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -559,7 +559,7 @@ public class CustomTricubicInterpolatorTest {
     }
 
     private void canInterpolateWithGradients(RandomSeed seed, boolean isInteger) {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final int x = 4, y = 4, z = 4;
         // Difference scales
         final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -704,7 +704,7 @@ public class CustomTricubicInterpolatorTest {
     }
 
     private void canInterpolateWithGradientsUsingPrecomputedTable(RandomSeed seed, boolean isInteger) {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final int x = 4, y = 4, z = 4;
         final double xscale = 1, yscale = isInteger ? 1.0 : 0.5, zscale = isInteger ? 1.0 : 2.0;
         final double[] scale = { xscale, yscale, zscale };
@@ -857,7 +857,7 @@ public class CustomTricubicInterpolatorTest {
     }
 
     private void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision(RandomSeed seed, boolean isInteger) {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final int x = 4, y = 4, z = 4;
         final double xscale = 1, yscale = isInteger ? 1.0 : 0.5, zscale = isInteger ? 1.0 : 2.0;
         final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -1134,7 +1134,7 @@ public class CustomTricubicInterpolatorTest {
     public void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable(RandomSeed seed) {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final int x = 6, y = 5, z = 4;
         final double xscale = 1, yscale = 0.5, zscale = 2.0;
         final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
@@ -1391,7 +1391,7 @@ public class CustomTricubicInterpolatorTest {
 
     @SeededTest
     public void canInterpolateAcrossNodesForValueAndGradient1(RandomSeed seed) {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final int x = 4, y = 4, z = 4;
         // Difference scales
         final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -1437,7 +1437,7 @@ public class CustomTricubicInterpolatorTest {
 
     @SeededTest
     public void cannotInterpolateAcrossNodesForGradient2(RandomSeed seed) {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final int x = 4, y = 4, z = 4;
         // Difference scales
         final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -1504,7 +1504,7 @@ public class CustomTricubicInterpolatorTest {
         // Skip this as it is for testing the binary search works
         Assumptions.assumeTrue(false);
 
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         // Bigger depth of field to capture astigmatism centre
         final int x = 10, y = 10, z = 10;
         final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
@@ -1545,7 +1545,7 @@ public class CustomTricubicInterpolatorTest {
 
     @SeededTest
     public void canFindOptimum(RandomSeed seed) {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         // Bigger depth of field to capture astigmatism centre
         final int x = 10, y = 10, z = 10;
         final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);

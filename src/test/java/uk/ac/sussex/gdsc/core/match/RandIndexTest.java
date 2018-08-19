@@ -10,13 +10,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestLog;
-import uk.ac.sussex.gdsc.test.TestSettings;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
 
 @SuppressWarnings({ "javadoc" })
 public class RandIndexTest
@@ -246,7 +246,7 @@ public class RandIndexTest
     @SeededTest
     public void canComputeRandIndexWithSimpleData(RandomSeed seed)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
         final int size = 100;
         for (final int n1 : new int[] { 1, 2, 3, 4, 5 })
             for (final int n2 : new int[] { 1, 2, 3, 4, 5 })
@@ -257,7 +257,7 @@ public class RandIndexTest
     public void canComputeRandIndexWithBigData(RandomSeed seed)
     {
         ExtraAssumptions.assume(TestComplexity.LOW);
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
         final int size = 10000;
         for (final int i : new int[] { 3, 5, 10 })
         {
@@ -315,7 +315,7 @@ public class RandIndexTest
     @SeededTest
     public void adjustedRandIndexIsZeroForRandomData(RandomSeed seed)
     {
-        final UniformRandomProvider rg = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
         final int size = 100;
         for (final int n1 : new int[] { 2, 5, 10 })
             for (final int n2 : new int[] { 2, 5 })
@@ -393,7 +393,7 @@ public class RandIndexTest
             c1[size] = size % n1;
             c2[size] = size % n2;
         }
-        final UniformRandomProvider rand = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider rand = RNGFactory.create(seed.getSeed());
         PermutationSampler.shuffle(rand, c1);
 
         final RandIndex ri = new RandIndex();

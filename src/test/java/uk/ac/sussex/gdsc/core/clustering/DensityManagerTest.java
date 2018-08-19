@@ -9,14 +9,14 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 
-import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestLog;
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({ "javadoc" })
 public class DensityManagerTest
@@ -42,7 +42,7 @@ public class DensityManagerTest
     @SeededTest
     public void densityWithTriangleMatchesDensity(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final DensityManager dm = createDensityManager(r, size, n);
@@ -60,7 +60,7 @@ public class DensityManagerTest
     @SeededTest
     public void densityWithGridMatchesDensity(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final DensityManager dm = createDensityManager(r, size, n);
@@ -80,7 +80,7 @@ public class DensityManagerTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final DensityManager dm = createDensityManager(r, size, n);
@@ -109,7 +109,7 @@ public class DensityManagerTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final DensityManager dm = createDensityManager(r, size, n);
@@ -136,7 +136,7 @@ public class DensityManagerTest
     @SeededTest
     public void sumWithGridMatchesSum(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final DensityManager dm = createDensityManager(r, size, n);
@@ -156,7 +156,7 @@ public class DensityManagerTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final DensityManager dm = createDensityManager(r, size, n);
@@ -183,7 +183,7 @@ public class DensityManagerTest
     @SeededTest
     public void blockDensityMatchesBlockDensity2(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final DensityManager dm = createDensityManager(r, size, n);
@@ -201,7 +201,7 @@ public class DensityManagerTest
     @SeededTest
     public void blockDensity2MatchesBlockDensity3(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final DensityManager dm = createDensityManager(r, size, n);
@@ -222,7 +222,7 @@ public class DensityManagerTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final DensityManager dm = createDensityManager(r, size, n);
@@ -253,7 +253,7 @@ public class DensityManagerTest
     {
         ExtraAssumptions.assume(TestComplexity.MEDIUM);
 
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int n : N)
         {
             final DensityManager dm = createDensityManager(r, size, n);

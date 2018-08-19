@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.functions.FunctionUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({ "javadoc" })
 public class ConvexHullTest
@@ -90,7 +90,7 @@ public class ConvexHullTest
     @SeededTest
     public void canComputeConvexHullFromOrigin00(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int size : new int[] { 10 })
             for (final float w : new float[] { 10, 5 })
                 for (final float h : new float[] { 10, 5 })
@@ -100,7 +100,7 @@ public class ConvexHullTest
     @SeededTest
     public void canComputeConvexHullFromOriginXY(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         for (final int size : new int[] { 10 })
             for (final float ox : new float[] { -5, 5 })
                 for (final float oy : new float[] { -5, 5 })

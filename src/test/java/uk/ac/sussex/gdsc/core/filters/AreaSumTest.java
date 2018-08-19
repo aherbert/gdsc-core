@@ -13,16 +13,16 @@ import ij.process.FloatProcessor;
 import ij.process.ImageStatistics;
 import uk.ac.sussex.gdsc.core.utils.Random;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
-import uk.ac.sussex.gdsc.test.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.TestComplexity;
-import uk.ac.sussex.gdsc.test.TestLog;
-import uk.ac.sussex.gdsc.test.TestSettings;
-import uk.ac.sussex.gdsc.test.TimingService;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssertions;
 import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
+import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 @SuppressWarnings({ "javadoc" })
 public class AreaSumTest
@@ -48,7 +48,7 @@ public class AreaSumTest
     @SeededTest
     public void canComputeGlobalStatistics(RandomSeed seed)
     {
-        final float[] data = createData(TestSettings.getRandomGenerator(seed.getSeed()));
+        final float[] data = createData(RNGFactory.create(seed.getSeed()));
         final Statistics s = new Statistics(data);
         final AreaSum a = new AreaSum(data, maxx, maxy);
         for (final boolean r : rolling)
@@ -67,7 +67,7 @@ public class AreaSumTest
     @SeededTest
     public void canComputeNxNRegionStatistics(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final float[] data = createData(r);
         final AreaSum a1 = new AreaSum(data, maxx, maxy);
         a1.setRollingSums(true);
@@ -98,7 +98,7 @@ public class AreaSumTest
     @SeededTest
     public void canComputeNxMRegionStatistics(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final float[] data = createData(r);
         final AreaSum a1 = new AreaSum(data, maxx, maxy);
         a1.setRollingSums(true);
@@ -129,7 +129,7 @@ public class AreaSumTest
     @SeededTest
     public void canComputeRectangleRegionStatistics(RandomSeed seed)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
         final float[] data = createData(r);
         final AreaSum a1 = new AreaSum(data, maxx, maxy);
         a1.setRollingSums(true);
@@ -261,7 +261,7 @@ public class AreaSumTest
 
     private void speedTest(RandomSeed seed, double density, boolean rollingIsFaster, int minN, int maxN)
     {
-        final UniformRandomProvider r = TestSettings.getRandomGenerator(seed.getSeed());
+        final UniformRandomProvider r = RNGFactory.create(seed.getSeed());
 
         final int k = (int) Math.round(maxx * maxy * density);
         final int[] x = Random.sample(k, maxx, r);
