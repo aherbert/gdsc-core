@@ -33,7 +33,7 @@ public class RadixStringSamplerTest {
     public void testConstructor() {
         final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
         final int length = 1;
-        for (int radix : new int[] { 2, 8, 16 }) {
+        for (int radix : new int[] { 2, 8, 16, 64 }) {
             final RadixStringSampler s = new RadixStringSampler(rng, length, radix);
             Assertions.assertNotNull(s);
         }
@@ -63,9 +63,21 @@ public class RadixStringSamplerTest {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             new RadixStringSampler(rng, length, 32);
         });
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            new RadixStringSampler(rng, length, 64);
-        });
+    }
+
+    @Test
+    public void testZeroLengthSamples() {
+        final RestorableUniformRandomProvider rng2 = null;
+        final int length = 0;
+        Assertions.assertEquals("", RadixStringSampler.nextBase64String(rng2, length), "64");
+        Assertions.assertEquals("", RadixStringSampler.nextHexString(rng2, length), "16");
+        Assertions.assertEquals("", RadixStringSampler.nextOctalString(rng2, length), "8");
+        Assertions.assertEquals("", RadixStringSampler.nextBinaryString(rng2, length), "2");
+    }
+
+    @Test
+    public void testBase64Samples() {
+        testSamples(64);
     }
 
     @Test
@@ -85,15 +97,24 @@ public class RadixStringSamplerTest {
 
     private final int lower1 = '0';
     private final int upper1 = '9';
-    private final int lower2 = 'a';
-    private final int upper2 = 'f';
+    private final int lower2 = 'A';
+    private final int upper2 = 'Z';
     private final int offset2 = lower2 - 10;
+    private final int lower3 = 'a';
+    private final int upper3 = 'z';
+    private final int offset3 = lower3 - 36;
 
     private int map(char c) {
         if (c >= lower1 && c <= upper1)
             return c - lower1;
         if (c >= lower2 && c <= upper2)
             return c - offset2;
+        if (c >= lower3 && c <= upper3)
+            return c - offset3;
+        if (c == '+')
+            return 62;
+        if (c == '/')
+            return 63;
         Assertions.fail("Unsupported character: " + c);
         // For the java compiler
         return 0;
@@ -110,7 +131,7 @@ public class RadixStringSamplerTest {
             for (int i = 0; i < 10; i++) {
                 final String string = s.sample();
                 Assertions.assertNotNull(string);
-                // System.out.println(hex);
+                // System.out.println(string);
                 Assertions.assertEquals(length, string.length());
                 for (int j = 0; j < length; j++) {
                     final char c = string.charAt(j);
@@ -120,6 +141,9 @@ public class RadixStringSamplerTest {
                 // Check the static method does the same
                 final String string2;
                 switch (radix) {
+                case 64:
+                    string2 = RadixStringSampler.nextBase64String(rng2, length);
+                    break;
                 case 16:
                     string2 = RadixStringSampler.nextHexString(rng2, length);
                     break;
@@ -136,6 +160,11 @@ public class RadixStringSamplerTest {
                 Assertions.assertEquals(string, string2);
             }
         }
+    }
+
+    @Test
+    public void testBase64SamplesAreUniform() {
+        testSamplesAreUniform(64);
     }
 
     @Test
