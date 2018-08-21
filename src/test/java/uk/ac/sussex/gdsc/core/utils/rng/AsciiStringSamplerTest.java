@@ -51,14 +51,14 @@ public class AsciiStringSamplerTest {
     private final int digit0 = '0';
     private final int digit9 = '9';
     private final int lettera = 'a';
-    private final int letterf = 'f';
     private final int letterz = 'z';
     private final int letterA = 'A';
+    private final int letterF = 'F';
     private final int letterZ = 'Z';
 
     private final int[] rangeAZ = { letterA, letterZ };
     private final int[] rangeaz = { lettera, letterz };
-    private final int[] rangeaf = { lettera, letterf };
+    private final int[] rangeAF = { letterA, letterF };
     private final int[] range09 = { digit0, digit9 };
     private final int[] rangeAscii = { 32, 126 };
     private final int[] rangePrint = { 32, 125 };
@@ -88,10 +88,6 @@ public class AsciiStringSamplerTest {
         return isAlphabetic(c) || isNumeric(c);
     }
 
-    private boolean isLowerAlphanumeric(int c) {
-        return isLower(c) || isNumeric(c);
-    }
-
     private static boolean isPrint(int c) {
         return c >= 32 && c <= 125;
     }
@@ -101,7 +97,15 @@ public class AsciiStringSamplerTest {
     }
 
     private boolean isHex(int c) {
-        return isNumeric(c) || c >= lettera && c <= letterf;
+        return isNumeric(c) || c >= letterA && c <= letterF;
+    }
+
+    private boolean isBase64(int c) {
+        return isAlphanumeric(c) || c == '+' || c == '/';
+    }
+
+    private boolean isCharacter(int c) {
+        return isUpper(c) || isNumeric(c);
     }
 
     @Test
@@ -114,18 +118,18 @@ public class AsciiStringSamplerTest {
         logger.log(level, () -> "Alphabetic:        " + s.nextAlphabetic(count));
         logger.log(level, () -> "Alphanumeric:      " + s.nextAlphanumeric(count));
         logger.log(level, () -> "Ascii:             " + s.nextAscii(count));
+        logger.log(level, () -> "Base64:            " + s.nextBase64(count));
+        logger.log(level, () -> "Character:         " + s.nextCharacter(count));
         logger.log(level, () -> "Graph:             " + s.nextGraph(count));
         logger.log(level, () -> "Hex:               " + s.nextHex(count));
         logger.log(level, () -> "Lower:             " + s.nextLower(count));
-        logger.log(level, () -> "LowerAlphanumeric: " + s.nextLowerAlphanumeric(count));
         logger.log(level, () -> "Numeric:           " + s.nextNumeric(count));
         logger.log(level, () -> "Print:             " + s.nextPrint(count));
         logger.log(level, () -> "Upper:             " + s.nextUpper(count));
-        
+
         // For reference with unicode
-        RandomStringGenerator rss =  new RandomStringGenerator.Builder().usingRandom(rng1::nextInt)
-                .build();
-        logger.log(level, () -> "Unicode:           " +rss.generate(count));
+        RandomStringGenerator rss = new RandomStringGenerator.Builder().usingRandom(rng1::nextInt).build();
+        logger.log(level, () -> "Unicode:           " + rss.generate(count));
     }
 
     @Test
@@ -165,6 +169,30 @@ public class AsciiStringSamplerTest {
     }
 
     @Test
+    public void testBase64() {
+        testSamples((s, l) -> s.nextBase64(l), (string) -> {
+            for (int i = 0; i < string.length(); i++) {
+                final char c = string.charAt(i);
+                if (!isBase64(c))
+                    return false;
+            }
+            return true;
+        }, rangeAZ);
+    }
+
+    @Test
+    public void testCharacter() {
+        testSamples((s, l) -> s.nextCharacter(l), (string) -> {
+            for (int i = 0; i < string.length(); i++) {
+                final char c = string.charAt(i);
+                if (!isCharacter(c))
+                    return false;
+            }
+            return true;
+        }, rangeAZ);
+    }
+
+    @Test
     public void testGraph() {
         testSamples((s, l) -> s.nextGraph(l), (string) -> {
             for (int i = 0; i < string.length(); i++) {
@@ -185,7 +213,7 @@ public class AsciiStringSamplerTest {
                     return false;
             }
             return true;
-        }, range09, rangeaf);
+        }, range09, rangeAF);
     }
 
     @Test
@@ -198,18 +226,6 @@ public class AsciiStringSamplerTest {
             }
             return true;
         }, rangeaz);
-    }
-
-    @Test
-    public void testLowerAlphanumeric() {
-        testSamples((s, l) -> s.nextLowerAlphanumeric(l), (string) -> {
-            for (int i = 0; i < string.length(); i++) {
-                final char c = string.charAt(i);
-                if (!isLowerAlphanumeric(c))
-                    return false;
-            }
-            return true;
-        }, rangeaz, range09);
     }
 
     @Test

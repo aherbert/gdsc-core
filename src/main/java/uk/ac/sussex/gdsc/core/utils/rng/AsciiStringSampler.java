@@ -62,8 +62,8 @@ public class AsciiStringSampler {
      * ASCII characters in the order:
      * <ul>
      * <li>0-9
-     * <li>a-z
      * <li>A-Z
+     * <li>a-z
      * <li>others except space and escape (code 126)
      * <li>space
      * <li>escape (code 126)
@@ -83,13 +83,13 @@ public class AsciiStringSampler {
         // Numbers
         for (int i = 48; i <= 57; i++)
             list.add((char) i);
-        // Lower case letters
-        START_LOWER_CASE = list.size();
-        for (int i = 97; i <= 122; i++)
-            list.add((char) i);
         // Upper case letters
         START_UPPER_CASE = list.size();
         for (int i = 65; i <= 90; i++)
+            list.add((char) i);
+        // Lower case letters
+        START_LOWER_CASE = list.size();
+        for (int i = 97; i <= 122; i++)
             list.add((char) i);
         START_OTHER = list.size();
         for (int i = 33; i <= 47; i++)
@@ -135,7 +135,7 @@ public class AsciiStringSampler {
      * @return the random string
      */
     public String nextAlphabetic(int count) {
-        return next(count, START_LOWER_CASE, START_OTHER - START_LOWER_CASE);
+        return next(count, START_UPPER_CASE, START_OTHER - START_UPPER_CASE, ASCII);
     }
 
     /**
@@ -151,7 +151,7 @@ public class AsciiStringSampler {
      * @return the random string
      */
     public String nextAlphanumeric(int count) {
-        return next(count, 0, START_OTHER);
+        return next(count, START_OTHER, ASCII);
     }
 
     /**
@@ -167,7 +167,38 @@ public class AsciiStringSampler {
      * @return the random string
      */
     public String nextAscii(int count) {
-        return next(count, 0, ASCII.length);
+        return next(count, ASCII.length, ASCII);
+    }
+
+    /**
+     * <p>
+     * Creates a random string whose length is the number of characters specified.
+     * </p>
+     * <p>
+     * Characters will be chosen from the MIME Base64 table: A-Z, a-z, 0-9, +, /.
+     * </p>
+     *
+     * @param count the length of random string to create
+     * @return the random string
+     */
+    public String nextBase64(int count) {
+        return next(count, 64, RadixStringSampler.TABLE64);
+    }
+
+    /**
+     * <p>
+     * Creates a random string whose length is the number of characters specified.
+     * </p>
+     * <p>
+     * Characters will be chosen from the set of Characters (A-Z) and the digits
+     * 0-9.
+     * </p>
+     *
+     * @param count the length of random string to create
+     * @return the random string
+     */
+    public String nextCharacter(int count) {
+        return next(count, 36, ASCII);
     }
 
     /**
@@ -188,7 +219,7 @@ public class AsciiStringSampler {
      * @return the random string
      */
     public String nextGraph(int count) {
-        return next(count, 0, ASCII.length - 2);
+        return next(count, ASCII.length - 2, ASCII);
     }
 
     /**
@@ -196,7 +227,7 @@ public class AsciiStringSampler {
      * Creates a random string whose length is the number of characters specified.
      * </p>
      * <p>
-     * Characters will be chosen from the set of characters (a-f) and the digits
+     * Characters will be chosen from the set of characters (A-Z) and the digits
      * 0-9.
      * </p>
      *
@@ -204,7 +235,7 @@ public class AsciiStringSampler {
      * @return the random string
      */
     public String nextHex(int count) {
-        return next(count, 0, 16);
+        return next(count, 16, ASCII);
     }
 
     /**
@@ -212,30 +243,14 @@ public class AsciiStringSampler {
      * Creates a random string whose length is the number of characters specified.
      * </p>
      * <p>
-     * Characters will be chosen from the set of characters (a-z).
+     * Characters will be chosen from the set of lower case characters (a-z).
      * </p>
      *
      * @param count the length of random string to create
      * @return the random string
      */
     public String nextLower(int count) {
-        return next(count, START_LOWER_CASE, START_UPPER_CASE - START_LOWER_CASE);
-    }
-
-    /**
-     * <p>
-     * Creates a random string whose length is the number of characters specified.
-     * </p>
-     * <p>
-     * Characters will be chosen from the set of characters (a-z) and the digits
-     * 0-9.
-     * </p>
-     *
-     * @param count the length of random string to create
-     * @return the random string
-     */
-    public String nextLowerAlphanumeric(int count) {
-        return next(count, 0, START_UPPER_CASE);
+        return next(count, START_LOWER_CASE, START_OTHER - START_LOWER_CASE, ASCII);
     }
 
     /**
@@ -250,7 +265,7 @@ public class AsciiStringSampler {
      * @return the random string
      */
     public String nextNumeric(int count) {
-        return next(count, 0, 10);
+        return next(count, 10, ASCII);
     }
 
     /**
@@ -271,7 +286,7 @@ public class AsciiStringSampler {
      * @return the random string
      */
     public String nextPrint(int count) {
-        return next(count, 0, ASCII.length - 1);
+        return next(count, ASCII.length - 1, ASCII);
     }
 
     /**
@@ -279,14 +294,14 @@ public class AsciiStringSampler {
      * Creates a random string whose length is the number of characters specified.
      * </p>
      * <p>
-     * Characters will be chosen from the set of characters (A-Z).
+     * Characters will be chosen from the set of upper case characters (A-Z).
      * </p>
      *
      * @param count the length of random string to create
      * @return the random string
      */
     public String nextUpper(int count) {
-        return next(count, START_UPPER_CASE, START_OTHER - START_UPPER_CASE);
+        return next(count, START_UPPER_CASE, START_LOWER_CASE - START_UPPER_CASE, ASCII);
     }
 
     /**
@@ -298,7 +313,7 @@ public class AsciiStringSampler {
      * @param range the range in the table
      * @return the random string
      */
-    private String next(int count, int start, int range) {
+    private String next(int count, int range, char[] table) {
         if (count == 0) {
             return "";
         }
@@ -307,7 +322,30 @@ public class AsciiStringSampler {
         }
         final char[] chars = new char[count];
         while (count-- != 0) {
-            chars[count] = ASCII[rng.nextInt(range) + start];
+            chars[count] = table[rng.nextInt(range)];
+        }
+        return new String(chars);
+    }
+
+    /**
+     * Creates a random string whose length is the number of characters specified
+     * from the range of the printable ASCII table.
+     *
+     * @param count the length of random string to create
+     * @param start the start index in the table
+     * @param range the range in the table
+     * @return the random string
+     */
+    private String next(int count, int start, int range, char[] table) {
+        if (count == 0) {
+            return "";
+        }
+        if (count < 0) {
+            throw new IllegalArgumentException("Requested random string length " + count + " is less than 0.");
+        }
+        final char[] chars = new char[count];
+        while (count-- != 0) {
+            chars[count] = table[rng.nextInt(range) + start];
         }
         return new String(chars);
     }

@@ -34,6 +34,9 @@ import org.apache.commons.rng.UniformRandomProvider;
 
 /**
  * Class for generating random strings using a given radix, e.g. hex strings.
+ * <p>
+ * Currently supports a radix of 2 (binary string), 8 (octal string), 16 (hex
+ * string) and 64 (using the MIME Base64 table: A-Z, a-z, 0-9, +, /).
  */
 public class RadixStringSampler {
 
@@ -45,18 +48,19 @@ public class RadixStringSampler {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             'A', 'B', 'C', 'D', 'E', 'F'
     };
-    
     //@formatter:on
+
     /**
      * This array is a lookup table that translates 6-bit positive integer index
      * values into their "Base64 Alphabet" equivalents as specified in Table 1 of
      * RFC 2045.
      *
      * Adapted from org.apache.commons.codec.binary.Base64 to directly map to char
-     * so avoiding using {@link new String(bytes[], Charset)} to encode.
+     * so avoiding using {@link String#String(byte[], java.nio.charset.Charset)} to
+     * encode.
      */
     //@formatter:off
-    private static final char[] TABLE64 = {
+    static final char[] TABLE64 = {
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
             'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
@@ -76,7 +80,7 @@ public class RadixStringSampler {
      * Creates a generator of strings of the given length.
      * <p>
      * Currently supports a radix of 2 (binary string), 8 (octal string), 16 (hex
-     * string) and 64 (using the MIME Base64 table A-Z, a-z, 0-9, +, /).
+     * string) and 64 (using the MIME Base64 table: A-Z, a-z, 0-9, +, /).
      *
      * @param rng    Generator of uniformly distributed random numbers.
      * @param length The length.
