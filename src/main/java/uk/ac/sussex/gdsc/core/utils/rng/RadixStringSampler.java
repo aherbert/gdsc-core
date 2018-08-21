@@ -73,6 +73,8 @@ public class RadixStringSampler {
     private final UniformRandomProvider rng;
     /** The length of the output string. */
     private final int length;
+    /** The radix for the output. */
+    private final int radix;
     /** The supplier for generating the random string. */
     private final Supplier<String> supplier;
 
@@ -92,51 +94,91 @@ public class RadixStringSampler {
     public RadixStringSampler(UniformRandomProvider rng, int length, int radix) throws IllegalArgumentException {
         if (length <= 0)
             throw new IllegalArgumentException(length + " <= 0");
-        this.rng = Objects.requireNonNull(rng);
-        this.supplier = createSupplier(radix);
+        checkRadix(radix);
+        this.rng = Objects.requireNonNull(rng, "Random generator must not be null");
         this.length = length;
+        this.radix = radix;
+        this.supplier = createSupplier(radix, length);
+    }
+
+    /**
+     * Check the radix is supported.
+     *
+     * @param radix The radix for the output.
+     * @throws IllegalArgumentException If {@code radix} is not supported.
+     */
+    private static void checkRadix(int radix) throws IllegalArgumentException {
+        switch (radix) {
+        case 64:
+        case 16:
+        case 8:
+        case 2:
+            return;
+        default:
+            throw new IllegalArgumentException("Unsupported radix: " + radix);
+        }
     }
 
     /**
      * Creates the supplier that generates the random string.
      *
-     * @param radix The radix for the output.
+     * @param radix  The radix for the output.
+     * @param length The length.
      * @return the supplier
      * @throws IllegalArgumentException If {@code radix} is not supported.
      */
-    private Supplier<String> createSupplier(int radix) throws IllegalArgumentException {
+    private Supplier<String> createSupplier(int radix, int length) throws IllegalArgumentException {
+        final char[] out = new char[length];
         switch (radix) {
         case 64:
             return new Supplier<String>() {
                 @Override
                 public String get() {
-                    return nextBase64String(rng, length);
+                    return nextBase64String(rng, out);
                 }
             };
         case 16:
             return new Supplier<String>() {
                 @Override
                 public String get() {
-                    return nextHexString(rng, length);
+                    return nextHexString(rng, out);
                 }
             };
         case 8:
             return new Supplier<String>() {
                 @Override
                 public String get() {
-                    return nextOctalString(rng, length);
+                    return nextOctalString(rng, out);
                 }
             };
         case 2:
             return new Supplier<String>() {
                 @Override
                 public String get() {
-                    return nextBinaryString(rng, length);
+                    return nextBinaryString(rng, out);
                 }
             };
         default:
             throw new IllegalArgumentException("Unsupported radix: " + radix);
         }
+    }
+
+    /**
+     * Gets the length of the sample string.
+     *
+     * @return the length
+     */
+    public int getLength() {
+        return length;
+    }
+
+    /**
+     * Gets the radix of the sample string.
+     *
+     * @return the radix
+     */
+    public int getRadix() {
+        return radix;
     }
 
     /**
@@ -158,10 +200,25 @@ public class RadixStringSampler {
      * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045</a>
      */
     public static String nextBase64String(UniformRandomProvider rng, int length) throws NegativeArraySizeException {
+        return nextBase64String(rng, new char[length]);
+    }
+
+    /**
+     * Generate a random Base64 string of the given length.
+     * <p>
+     * The string uses MIME's Base64 table (A-Z, a-z, 0-9, +, /).
+     *
+     * @param rng Generator of uniformly distributed random numbers.
+     * @param out the output buffer.
+     * @return A random Base64 string.
+     * @throws NegativeArraySizeException If length is negative
+     * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045</a>
+     */
+    public static String nextBase64String(UniformRandomProvider rng, char[] out) throws NegativeArraySizeException {
         // Process blocks of 6 bits as an index in the range 0-63
         // for each base64 character.
         // There are 16 samples per 3 ints (16 * 6 = 3 * 32 = 96 bits).
-        final char[] out = new char[length];
+        final int length = out.length;
         // Run the loop without checking index i by producing characters
         // up to the size below the desired length.
         int i = 0;
@@ -215,10 +272,22 @@ public class RadixStringSampler {
      * @throws NegativeArraySizeException If length is negative
      */
     public static String nextHexString(UniformRandomProvider rng, int length) throws NegativeArraySizeException {
+        return nextHexString(rng, new char[length]);
+    }
+
+    /**
+     * Generate a random hex string to the of length of the output array.
+     *
+     * @param rng Generator of uniformly distributed random numbers.
+     * @param out the output buffer.
+     * @return A random hex string.
+     * @throws NegativeArraySizeException If length is negative
+     */
+    private static String nextHexString(UniformRandomProvider rng, char[] out) {
         // Use the upper and lower 4 bits of each byte as an
         // index in the range 0-15 for each hex character.
         // There are 8 samples per int.
-        final char[] out = new char[length];
+        final int length = out.length;
         // Run the loop without checking index i by producing characters
         // up to the size below the desired length.
         int i = 0;
@@ -255,11 +324,23 @@ public class RadixStringSampler {
      * @throws NegativeArraySizeException If length is negative
      */
     public static String nextOctalString(UniformRandomProvider rng, int length) throws NegativeArraySizeException {
+        return nextOctalString(rng, new char[length]);
+    }
+
+    /**
+     * Generate a random octal string of the given length.
+     *
+     * @param rng Generator of uniformly distributed random numbers.
+     * @param out the output buffer.
+     * @return A random octal string.
+     * @throws NegativeArraySizeException If length is negative
+     */
+    public static String nextOctalString(UniformRandomProvider rng, char[] out) throws NegativeArraySizeException {
         // Process blocks of 3 bits as an index in the range 0-7
         // for each octal character.
         // There are 32 samples per 3 ints (32 * 3 = 3 * 32 = 96 bits).
         // For simplicity this is changed to 10 samples per int (with two unused bits).
-        final char[] out = new char[length];
+        final int length = out.length;
         // Run the loop without checking index i by producing characters
         // up to the size below the desired length.
         int i = 0;
@@ -298,10 +379,22 @@ public class RadixStringSampler {
      * @throws NegativeArraySizeException If length is negative
      */
     public static String nextBinaryString(UniformRandomProvider rng, int length) throws NegativeArraySizeException {
+        return nextBinaryString(rng, new char[length]);
+    }
+
+    /**
+     * Generate a random binary string of the given length.
+     *
+     * @param rng Generator of uniformly distributed random numbers.
+     * @param out the output buffer.
+     * @return A random binary string.
+     * @throws NegativeArraySizeException If length is negative
+     */
+    public static String nextBinaryString(UniformRandomProvider rng, char[] out) throws NegativeArraySizeException {
         // Process each bits as an index in the range 0-1
         // for each binary character.
         // There are 32 samples per int.
-        final char[] out = new char[length];
+        final int length = out.length;
         // Run the loop without checking index i by producing characters
         // up to the size below the desired length.
         int i = 0;

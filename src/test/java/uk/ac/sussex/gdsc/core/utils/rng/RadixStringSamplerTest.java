@@ -36,6 +36,8 @@ public class RadixStringSamplerTest {
         for (int radix : new int[] { 2, 8, 16, 64 }) {
             final RadixStringSampler s = new RadixStringSampler(rng, length, radix);
             Assertions.assertNotNull(s);
+            Assertions.assertEquals(radix, s.getRadix());
+            Assertions.assertEquals(length, s.getLength());
         }
     }
 
@@ -128,6 +130,7 @@ public class RadixStringSamplerTest {
         final int[] lengths = new int[] { 1, 2, 3, 4, 5, 10 };
         for (final int length : lengths) {
             final RadixStringSampler s = new RadixStringSampler(rng1, length, radix);
+            Assertions.assertEquals(length, s.getLength());
             for (int i = 0; i < 10; i++) {
                 final String string = s.sample();
                 Assertions.assertNotNull(string);
