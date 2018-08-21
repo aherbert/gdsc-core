@@ -119,7 +119,7 @@ public class AsciiStringSampler {
      * @throws NullPointerException If {@code rng} is null.
      */
     public AsciiStringSampler(UniformRandomProvider rng) throws NullPointerException {
-        this.rng = Objects.requireNonNull(rng);
+        this.rng = Objects.requireNonNull(rng, "Random generator must not be null");
     }
 
     /**
