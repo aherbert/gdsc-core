@@ -53,6 +53,8 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <system>None</system>
   </ciManagement>
   <scm>
+    <connection>scm:git:git://github.com/aherbert/gdsc-core.git</connection>
+    <developerConnection>scm:git:ssh://github.com/aherbert/gdsc-core.git</developerConnection>
     <url>https://github.com/aherbert/gdsc-core</url>
   </scm>
 
