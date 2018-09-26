@@ -35,39 +35,43 @@ import org.apache.commons.rng.UniformRandomProvider;
 /**
  * Class for generating random strings using a given radix, e.g. hex strings.
  * <p>
- * Currently supports a radix of 2 (binary string), 8 (octal string), 16 (hex
- * string) and 64 (using the MIME Base64 table: A-Z, a-z, 0-9, +, /).
+ * Currently supports a radix of 2 to 64 inclusive using the MIME Base64 table
+ * rearranged to [0-9, A-Z, a-z, +, /]. E.g. hex strings (radix 16) will be 
+ * upper-case; radix 36 will return a valid string for character conversion 
+ * as defined by {@link Character#MAX_RADIX}. 
+ * <p>
+ * Specialised fast algorithms are provided for a radix of 2 (binary string), 8 (octal
+ * string), 16 (hex string) and 64.
  */
 public class RadixStringSampler {
 
     /**
-     * The lookup_table for Binary, Octal and Hex encoding. Hex will be uppercase.
-     */
-    //@formatter:off
-    private static final char[] TABLE16 = {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-            'A', 'B', 'C', 'D', 'E', 'F'
-    };
-    //@formatter:on
-
-    /**
-     * This array is a lookup table that translates 6-bit positive integer index
-     * values into their "Base64 Alphabet" equivalents as specified in Table 1 of
+     * The lookup table for sampling [0-9, A-Z, a-z, +, /].
+     * 
+     * <p>This table is based on the "Base64 Alphabet" as specified in Table 1 of
      * RFC 2045.
-     *
-     * Adapted from org.apache.commons.codec.binary.Base64 to directly map to char
-     * so avoiding using {@link String#String(byte[], java.nio.charset.Charset)} to
-     * encode.
+     * 
+     * <p>The table has been rearranged from the MIME specification for encoding 
+     * [A-Z, a-z, 0-9, +, /] to [0-9, A-Z, a-z, +, /] so that it can be used for 
+     * random samples of base 2 upwards and will produce a valid string up to 
+     * {@link Character#MAX_RADIX} and then beyond to base 64.
+     * 
+     * <p>Rearranging the table is allowed since it is not encoding (where a strict
+     * alphabet has a defined byte interpretation for each character) but random
+     * sampling.
+     * 
+     * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045</a>
      */
     //@formatter:off
     static final char[] TABLE64 = {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
             'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
             'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
+            '+', '/'
     };
-    //@formatter:on    
+    //@formatter:on
 
     /** Generator of uniformly distributed random numbers. */
     private final UniformRandomProvider rng;
@@ -81,8 +85,12 @@ public class RadixStringSampler {
     /**
      * Creates a generator of strings of the given length.
      * <p>
-     * Currently supports a radix of 2 (binary string), 8 (octal string), 16 (hex
-     * string) and 64 (using the MIME Base64 table: A-Z, a-z, 0-9, +, /).
+     * Currently supports a radix of 2 to 64 inclusive.
+     * <p>
+     * Fast algorithms are provided for a radix of 2 (binary string), 8 (octal string), 16 (hex
+     * string) and 64.
+     * <p>
+     * Uses a character order of [0-9, A-Z, a-z, +, /].
      *
      * @param rng    Generator of uniformly distributed random numbers.
      * @param length The length.
@@ -91,7 +99,7 @@ public class RadixStringSampler {
      *                                  is not supported.
      * @throws NullPointerException     If {@code rng} is null
      */
-    public RadixStringSampler(UniformRandomProvider rng, int length, int radix) throws IllegalArgumentException {
+    public RadixStringSampler(UniformRandomProvider rng, int length, int radix) {
         if (length <= 0)
             throw new IllegalArgumentException(length + " <= 0");
         checkRadix(radix);
@@ -107,14 +115,8 @@ public class RadixStringSampler {
      * @param radix The radix for the output.
      * @throws IllegalArgumentException If {@code radix} is not supported.
      */
-    private static void checkRadix(int radix) throws IllegalArgumentException {
-        switch (radix) {
-        case 64:
-        case 16:
-        case 8:
-        case 2:
-            return;
-        default:
+    private static void checkRadix(int radix) {
+        if (radix < 2 || radix > 64) {
             throw new IllegalArgumentException("Unsupported radix: " + radix);
         }
     }
@@ -127,7 +129,7 @@ public class RadixStringSampler {
      * @return the supplier
      * @throws IllegalArgumentException If {@code radix} is not supported.
      */
-    private Supplier<String> createSupplier(int radix, int length) throws IllegalArgumentException {
+    private Supplier<String> createSupplier(int radix, int length) {
         final char[] out = new char[length];
         switch (radix) {
         case 64:
@@ -159,7 +161,12 @@ public class RadixStringSampler {
                 }
             };
         default:
-            throw new IllegalArgumentException("Unsupported radix: " + radix);
+            return new Supplier<String>() {
+                @Override
+                public String get() {
+                    return nextString(rng, out, radix);
+                }
+            };
         }
     }
 
@@ -182,6 +189,8 @@ public class RadixStringSampler {
     }
 
     /**
+     * Generate a random sample string.
+     *
      * @return A random string.
      */
     public String sample() {
@@ -192,6 +201,9 @@ public class RadixStringSampler {
      * Generate a random Base64 string of the given length.
      * <p>
      * The string uses MIME's Base64 table (A-Z, a-z, 0-9, +, /).
+     * <p>
+     * This is a fast method that uses 3 calls to {@link UniformRandomProvider#nextInt()}
+     * for 16 characters.
      *
      * @param rng    Generator of uniformly distributed random numbers.
      * @param length The length.
@@ -199,7 +211,7 @@ public class RadixStringSampler {
      * @throws NegativeArraySizeException If length is negative
      * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045</a>
      */
-    public static String nextBase64String(UniformRandomProvider rng, int length) throws NegativeArraySizeException {
+    public static String nextBase64String(UniformRandomProvider rng, int length) {
         return nextBase64String(rng, new char[length]);
     }
 
@@ -209,12 +221,11 @@ public class RadixStringSampler {
      * The string uses MIME's Base64 table (A-Z, a-z, 0-9, +, /).
      *
      * @param rng Generator of uniformly distributed random numbers.
-     * @param out the output buffer.
+     * @param out The output buffer.
      * @return A random Base64 string.
-     * @throws NegativeArraySizeException If length is negative
      * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045</a>
      */
-    public static String nextBase64String(UniformRandomProvider rng, char[] out) throws NegativeArraySizeException {
+    public static String nextBase64String(UniformRandomProvider rng, char[] out) {
         // Process blocks of 6 bits as an index in the range 0-63
         // for each base64 character.
         // There are 16 samples per 3 ints (16 * 6 = 3 * 32 = 96 bits).
@@ -265,23 +276,29 @@ public class RadixStringSampler {
 
     /**
      * Generate a random hex string of the given length.
+     * <p>
+     * The string uses a Base16 table (0-9, A-F), i.e. upper-case hex.
+     * <p>
+     * This is a fast method that uses 1 call to {@link UniformRandomProvider#nextInt()}
+     * for 8 characters.
      *
      * @param rng    Generator of uniformly distributed random numbers.
      * @param length The length.
      * @return A random hex string.
      * @throws NegativeArraySizeException If length is negative
      */
-    public static String nextHexString(UniformRandomProvider rng, int length) throws NegativeArraySizeException {
+    public static String nextHexString(UniformRandomProvider rng, int length) {
         return nextHexString(rng, new char[length]);
     }
 
     /**
      * Generate a random hex string to the of length of the output array.
+     * <p>
+     * The string uses a Base16 table (0-9, A-F), i.e. upper-case hex.
      *
      * @param rng Generator of uniformly distributed random numbers.
-     * @param out the output buffer.
+     * @param out The output buffer.
      * @return A random hex string.
-     * @throws NegativeArraySizeException If length is negative
      */
     private static String nextHexString(UniformRandomProvider rng, char[] out) {
         // Use the upper and lower 4 bits of each byte as an
@@ -294,22 +311,22 @@ public class RadixStringSampler {
         for (int loopLimit = length / 8; loopLimit-- > 0;) {
             final int b = rng.nextInt();
             // 0x0F == 0x01 | 0x02 | 0x04 | 0x08
-            out[i++] = TABLE16[(b >>> 28) & 0x0F];
-            out[i++] = TABLE16[(b >>> 24) & 0x0F];
-            out[i++] = TABLE16[(b >>> 20) & 0x0F];
-            out[i++] = TABLE16[(b >>> 16) & 0x0F];
-            out[i++] = TABLE16[(b >>> 12) & 0x0F];
-            out[i++] = TABLE16[(b >>> 8) & 0x0F];
-            out[i++] = TABLE16[(b >>> 4) & 0x0F];
-            out[i++] = TABLE16[b & 0x0F];
+            out[i++] = TABLE64[(b >>> 28) & 0x0F];
+            out[i++] = TABLE64[(b >>> 24) & 0x0F];
+            out[i++] = TABLE64[(b >>> 20) & 0x0F];
+            out[i++] = TABLE64[(b >>> 16) & 0x0F];
+            out[i++] = TABLE64[(b >>> 12) & 0x0F];
+            out[i++] = TABLE64[(b >>> 8) & 0x0F];
+            out[i++] = TABLE64[(b >>> 4) & 0x0F];
+            out[i++] = TABLE64[b & 0x0F];
         }
         // The final characters
         if (i < length) {
             int b = rng.nextInt();
-            out[i++] = TABLE16[b & 0x0F];
+            out[i++] = TABLE64[b & 0x0F];
             while (i < length) {
                 b >>>= 4;
-                out[i++] = TABLE16[b & 0x0F];
+                out[i++] = TABLE64[b & 0x0F];
             }
         }
         return new String(out);
@@ -317,25 +334,31 @@ public class RadixStringSampler {
 
     /**
      * Generate a random octal string of the given length.
+     * <p>
+     * The string uses a Base8 table (0-7).
      *
      * @param rng    Generator of uniformly distributed random numbers.
      * @param length The length.
      * @return A random octal string.
      * @throws NegativeArraySizeException If length is negative
      */
-    public static String nextOctalString(UniformRandomProvider rng, int length) throws NegativeArraySizeException {
+    public static String nextOctalString(UniformRandomProvider rng, int length) {
         return nextOctalString(rng, new char[length]);
     }
 
     /**
      * Generate a random octal string of the given length.
+     * <p>
+     * The string uses a Base8 table (0-7).
+     * <p>
+     * This is a fast method that uses 1 call to {@link UniformRandomProvider#nextInt()}
+     * for 10 characters. 2 random bits are unused per {@code int} sample.
      *
      * @param rng Generator of uniformly distributed random numbers.
-     * @param out the output buffer.
+     * @param out The output buffer.
      * @return A random octal string.
-     * @throws NegativeArraySizeException If length is negative
      */
-    public static String nextOctalString(UniformRandomProvider rng, char[] out) throws NegativeArraySizeException {
+    private static String nextOctalString(UniformRandomProvider rng, char[] out) {
         // Process blocks of 3 bits as an index in the range 0-7
         // for each octal character.
         // There are 32 samples per 3 ints (32 * 3 = 3 * 32 = 96 bits).
@@ -347,24 +370,24 @@ public class RadixStringSampler {
         for (int loopLimit = length / 10; loopLimit-- > 0;) {
             final int b = rng.nextInt();
             // 0x07 == 0x01 | 0x02 | 0x03
-            out[i++] = TABLE16[(b >>> 27) & 0x07];
-            out[i++] = TABLE16[(b >>> 24) & 0x07];
-            out[i++] = TABLE16[(b >>> 21) & 0x07];
-            out[i++] = TABLE16[(b >>> 18) & 0x07];
-            out[i++] = TABLE16[(b >>> 15) & 0x07];
-            out[i++] = TABLE16[(b >>> 12) & 0x07];
-            out[i++] = TABLE16[(b >>> 9) & 0x07];
-            out[i++] = TABLE16[(b >>> 6) & 0x07];
-            out[i++] = TABLE16[(b >>> 3) & 0x07];
-            out[i++] = TABLE16[b & 0x07];
+            out[i++] = TABLE64[(b >>> 27) & 0x07];
+            out[i++] = TABLE64[(b >>> 24) & 0x07];
+            out[i++] = TABLE64[(b >>> 21) & 0x07];
+            out[i++] = TABLE64[(b >>> 18) & 0x07];
+            out[i++] = TABLE64[(b >>> 15) & 0x07];
+            out[i++] = TABLE64[(b >>> 12) & 0x07];
+            out[i++] = TABLE64[(b >>> 9) & 0x07];
+            out[i++] = TABLE64[(b >>> 6) & 0x07];
+            out[i++] = TABLE64[(b >>> 3) & 0x07];
+            out[i++] = TABLE64[b & 0x07];
         }
         // The final characters
         if (i < length) {
             int b = rng.nextInt();
-            out[i++] = TABLE16[b & 0x07];
+            out[i++] = TABLE64[b & 0x07];
             while (i < length) {
                 b >>>= 3;
-                out[i++] = TABLE16[b & 0x07];
+                out[i++] = TABLE64[b & 0x07];
             }
         }
         return new String(out);
@@ -372,25 +395,31 @@ public class RadixStringSampler {
 
     /**
      * Generate a random binary string of the given length.
+     * <p>
+     * The string uses a Base2 table (0-1).
+     * <p>
+     * This is a fast method that uses 1 call to {@link UniformRandomProvider#nextInt()}
+     * for 32 characters.
      *
      * @param rng    Generator of uniformly distributed random numbers.
      * @param length The length.
      * @return A random binary string.
      * @throws NegativeArraySizeException If length is negative
      */
-    public static String nextBinaryString(UniformRandomProvider rng, int length) throws NegativeArraySizeException {
+    public static String nextBinaryString(UniformRandomProvider rng, int length) {
         return nextBinaryString(rng, new char[length]);
     }
 
     /**
      * Generate a random binary string of the given length.
+     * <p>
+     * The string uses a Base2 table (0-1).
      *
      * @param rng Generator of uniformly distributed random numbers.
-     * @param out the output buffer.
+     * @param out The output buffer.
      * @return A random binary string.
-     * @throws NegativeArraySizeException If length is negative
      */
-    public static String nextBinaryString(UniformRandomProvider rng, char[] out) throws NegativeArraySizeException {
+    private static String nextBinaryString(UniformRandomProvider rng, char[] out) {
         // Process each bits as an index in the range 0-1
         // for each binary character.
         // There are 32 samples per int.
@@ -400,47 +429,98 @@ public class RadixStringSampler {
         int i = 0;
         for (int loopLimit = length / 32; loopLimit-- > 0;) {
             final int b = rng.nextInt();
-            out[i++] = TABLE16[(b >>> 31) & 0x01];
-            out[i++] = TABLE16[(b >>> 30) & 0x01];
-            out[i++] = TABLE16[(b >>> 29) & 0x01];
-            out[i++] = TABLE16[(b >>> 28) & 0x01];
-            out[i++] = TABLE16[(b >>> 27) & 0x01];
-            out[i++] = TABLE16[(b >>> 26) & 0x01];
-            out[i++] = TABLE16[(b >>> 25) & 0x01];
-            out[i++] = TABLE16[(b >>> 24) & 0x01];
-            out[i++] = TABLE16[(b >>> 23) & 0x01];
-            out[i++] = TABLE16[(b >>> 22) & 0x01];
-            out[i++] = TABLE16[(b >>> 21) & 0x01];
-            out[i++] = TABLE16[(b >>> 20) & 0x01];
-            out[i++] = TABLE16[(b >>> 19) & 0x01];
-            out[i++] = TABLE16[(b >>> 18) & 0x01];
-            out[i++] = TABLE16[(b >>> 17) & 0x01];
-            out[i++] = TABLE16[(b >>> 16) & 0x01];
-            out[i++] = TABLE16[(b >>> 15) & 0x01];
-            out[i++] = TABLE16[(b >>> 14) & 0x01];
-            out[i++] = TABLE16[(b >>> 13) & 0x01];
-            out[i++] = TABLE16[(b >>> 12) & 0x01];
-            out[i++] = TABLE16[(b >>> 11) & 0x01];
-            out[i++] = TABLE16[(b >>> 10) & 0x01];
-            out[i++] = TABLE16[(b >>> 9) & 0x01];
-            out[i++] = TABLE16[(b >>> 8) & 0x01];
-            out[i++] = TABLE16[(b >>> 7) & 0x01];
-            out[i++] = TABLE16[(b >>> 6) & 0x01];
-            out[i++] = TABLE16[(b >>> 5) & 0x01];
-            out[i++] = TABLE16[(b >>> 4) & 0x01];
-            out[i++] = TABLE16[(b >>> 3) & 0x01];
-            out[i++] = TABLE16[(b >>> 2) & 0x01];
-            out[i++] = TABLE16[(b >>> 1) & 0x01];
-            out[i++] = TABLE16[b & 0x01];
+            out[i++] = TABLE64[(b >>> 31) & 0x01];
+            out[i++] = TABLE64[(b >>> 30) & 0x01];
+            out[i++] = TABLE64[(b >>> 29) & 0x01];
+            out[i++] = TABLE64[(b >>> 28) & 0x01];
+            out[i++] = TABLE64[(b >>> 27) & 0x01];
+            out[i++] = TABLE64[(b >>> 26) & 0x01];
+            out[i++] = TABLE64[(b >>> 25) & 0x01];
+            out[i++] = TABLE64[(b >>> 24) & 0x01];
+            out[i++] = TABLE64[(b >>> 23) & 0x01];
+            out[i++] = TABLE64[(b >>> 22) & 0x01];
+            out[i++] = TABLE64[(b >>> 21) & 0x01];
+            out[i++] = TABLE64[(b >>> 20) & 0x01];
+            out[i++] = TABLE64[(b >>> 19) & 0x01];
+            out[i++] = TABLE64[(b >>> 18) & 0x01];
+            out[i++] = TABLE64[(b >>> 17) & 0x01];
+            out[i++] = TABLE64[(b >>> 16) & 0x01];
+            out[i++] = TABLE64[(b >>> 15) & 0x01];
+            out[i++] = TABLE64[(b >>> 14) & 0x01];
+            out[i++] = TABLE64[(b >>> 13) & 0x01];
+            out[i++] = TABLE64[(b >>> 12) & 0x01];
+            out[i++] = TABLE64[(b >>> 11) & 0x01];
+            out[i++] = TABLE64[(b >>> 10) & 0x01];
+            out[i++] = TABLE64[(b >>> 9) & 0x01];
+            out[i++] = TABLE64[(b >>> 8) & 0x01];
+            out[i++] = TABLE64[(b >>> 7) & 0x01];
+            out[i++] = TABLE64[(b >>> 6) & 0x01];
+            out[i++] = TABLE64[(b >>> 5) & 0x01];
+            out[i++] = TABLE64[(b >>> 4) & 0x01];
+            out[i++] = TABLE64[(b >>> 3) & 0x01];
+            out[i++] = TABLE64[(b >>> 2) & 0x01];
+            out[i++] = TABLE64[(b >>> 1) & 0x01];
+            out[i++] = TABLE64[b & 0x01];
         }
         // The final characters
         if (i < length) {
             int b = rng.nextInt();
-            out[i++] = TABLE16[b & 0x01];
+            out[i++] = TABLE64[b & 0x01];
             while (i < length) {
                 b >>>= 1;
-                out[i++] = TABLE16[b & 0x01];
+                out[i++] = TABLE64[b & 0x01];
             }
+        }
+        return new String(out);
+    }
+
+    /**
+     * Generate a random string of the given length using the supplied radix.
+     * <p>
+     * Currently supports a radix of 2 to 64 inclusive.
+     * <p>
+     * Uses a character order of [0-9, A-Z, a-z, +, /].
+     * <p>
+     * Fast algorithms are used for radix 2, 8, 16 and 64. The default is to use
+     * 1 call to {@link UniformRandomProvider#nextInt(int)} per character.
+     *
+     * @param rng    Generator of uniformly distributed random numbers.
+     * @param length The length.
+     * @param radix The radix.
+     * @return A random string.
+     * @throws NegativeArraySizeException If length is negative
+     * @throws IllegalArgumentException If {@code radix} is not supported.
+     */
+    public static String nextString(UniformRandomProvider rng, int length, int radix) {
+        checkRadix(radix);
+        final char[] out = new char[length];
+        switch (radix) {
+          case 64:
+              return nextBase64String(rng, out);
+          case 16:
+              return nextHexString(rng, out);
+          case 8:
+              return nextOctalString(rng, out);
+          case 2:
+              return nextBinaryString(rng, out);
+          default:
+              return nextString(rng, out, radix);
+        }
+    }
+
+    /**
+     * Generate a random string of the given length using the supplied radix.
+     * <p>
+     * Uses a character order of [0-9, A-Z, a-z, +, /].
+     *
+     * @param rng Generator of uniformly distributed random numbers.
+     * @param out The output buffer.
+     * @param radix The radix.
+     * @return A random binary string.
+     */
+    private static String nextString(UniformRandomProvider rng, char[] out, int radix) {
+        for (int i = 0; i < out.length; i++) {
+            out[i] = TABLE64[rng.nextInt(radix)];
         }
         return new String(out);
     }

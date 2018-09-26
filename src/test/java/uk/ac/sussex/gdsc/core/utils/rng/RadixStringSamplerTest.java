@@ -33,7 +33,7 @@ public class RadixStringSamplerTest {
     public void testConstructor() {
         final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
         final int length = 1;
-        for (int radix : new int[] { 2, 8, 16, 64 }) {
+        for (int radix = 2; radix <= 64; radix++) {
             final RadixStringSampler s = new RadixStringSampler(rng, length, radix);
             Assertions.assertNotNull(s);
             Assertions.assertEquals(radix, s.getRadix());
@@ -57,13 +57,7 @@ public class RadixStringSamplerTest {
             new RadixStringSampler(rng, length, 0);
         });
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            new RadixStringSampler(rng, length, 4);
-        });
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            new RadixStringSampler(rng, length, 17);
-        });
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            new RadixStringSampler(rng, length, 32);
+            new RadixStringSampler(rng, length, 65);
         });
     }
 
@@ -71,30 +65,18 @@ public class RadixStringSamplerTest {
     public void testZeroLengthSamples() {
         final RestorableUniformRandomProvider rng2 = null;
         final int length = 0;
-        Assertions.assertEquals("", RadixStringSampler.nextBase64String(rng2, length), "64");
-        Assertions.assertEquals("", RadixStringSampler.nextHexString(rng2, length), "16");
-        Assertions.assertEquals("", RadixStringSampler.nextOctalString(rng2, length), "8");
-        Assertions.assertEquals("", RadixStringSampler.nextBinaryString(rng2, length), "2");
+        for (int radix = 2; radix <= 64; radix++) {
+            final int radix_ = radix; 
+            Assertions.assertEquals("", RadixStringSampler.nextString(rng2, length, radix), 
+                () -> Integer.toString(radix_));
+        }
     }
 
     @Test
-    public void testBase64Samples() {
-        testSamples(64);
-    }
-
-    @Test
-    public void testHexSamples() {
-        testSamples(16);
-    }
-
-    @Test
-    public void testOctalSamples() {
-        testSamples(8);
-    }
-
-    @Test
-    public void testBinarySamples() {
-        testSamples(2);
+    public void testSamples() {
+        for (int radix = 2; radix <= 64; radix++) {
+            testSamples(radix);
+        }
     }
 
     private final int lower1 = '0';
@@ -142,47 +124,17 @@ public class RadixStringSamplerTest {
                 }
 
                 // Check the static method does the same
-                final String string2;
-                switch (radix) {
-                case 64:
-                    string2 = RadixStringSampler.nextBase64String(rng2, length);
-                    break;
-                case 16:
-                    string2 = RadixStringSampler.nextHexString(rng2, length);
-                    break;
-                case 8:
-                    string2 = RadixStringSampler.nextOctalString(rng2, length);
-                    break;
-                case 2:
-                    string2 = RadixStringSampler.nextBinaryString(rng2, length);
-                    break;
-                default:
-                    Assertions.fail("Unsupported radix: " + radix);
-                    string2 = null; // For the java compiler
-                }
+                final String string2 = RadixStringSampler.nextString(rng2, length, radix);
                 Assertions.assertEquals(string, string2);
             }
         }
     }
 
     @Test
-    public void testBase64SamplesAreUniform() {
-        testSamplesAreUniform(64);
-    }
-
-    @Test
-    public void testHexSamplesAreUniform() {
-        testSamplesAreUniform(16);
-    }
-
-    @Test
-    public void testOctalSamplesAreUniform() {
-        testSamplesAreUniform(8);
-    }
-
-    @Test
-    public void testBinarySamplesAreUniform() {
-        testSamplesAreUniform(2);
+    public void testSamplesAreUniform() {
+        for (int radix = 2; radix <= 64; radix++) {
+            testSamplesAreUniform(radix);
+        }
     }
 
     private void testSamplesAreUniform(int radix) {
@@ -209,7 +161,7 @@ public class RadixStringSamplerTest {
         double[] expected = new double[h.length];
         Arrays.fill(expected, 1.0 / radix);
         double p = chi.chiSquareTest(expected, h);
-        boolean reject = p < 0.01;
+        boolean reject = p < 0.001;
         logger.log(TestLog.getResultRecord(!reject,
                 () -> String.format("Radix %d, chiSq p = %s  (reject=%b)", radix, p, reject)));
         // This will sometimes fail due to randomness so do not assert
