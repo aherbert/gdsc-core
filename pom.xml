@@ -75,6 +75,8 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
   </contributors>
 
   <properties>
+    <maven.build.timestamp.format>yyyy/MM/dd HH:mm</maven.build.timestamp.format>
+    <build.date>${maven.build.timestamp}</build.date>
     <license.licenseName>gpl_v3</license.licenseName>
     <license.copyrightOwners>Alex Herbert</license.copyrightOwners>
     <org.junit.platform.version>1.2.0</org.junit.platform.version>
@@ -86,14 +88,12 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-assembly-plugin</artifactId>
+          <artifactId>maven-jar-plugin</artifactId>
           <configuration>
-            <descriptorRefs>
-              <descriptorRef>jar-with-dependencies</descriptorRef>
-            </descriptorRefs>
             <archive>
               <manifest>
                 <addClasspath>true</addClasspath>
+                <mainClass>uk.ac.sussex.gdsc.core.Version</mainClass>
                 <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                 <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
               </manifest>
