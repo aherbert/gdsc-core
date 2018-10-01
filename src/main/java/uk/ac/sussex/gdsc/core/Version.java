@@ -95,6 +95,15 @@ public class Version {
   }
 
   /**
+   * Get the GDSC Core package build number
+   *
+   * @return The uk.ac.sussex.gdsc.core package build number
+   */
+  public static String getBuildNumber() {
+    return buildNumber;
+  }
+
+  /**
    * Get the major version
    *
    * @return The major version (or 0 if unknown)
