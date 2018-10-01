@@ -75,55 +75,72 @@ public class FloatHistogram extends Histogram
 
     /**
      * Build a histogram using the input data values.
-     * <p>
-     * Note that the data is modified in-place if sorted.
      *
+     * <p>The input array is unchanged.
+     * 
      * @param data
      *            The data
      * @param doSort
      *            True if the data should be sorted
      * @return The histogram
+     * @see #buildHistogram(float[], boolean, boolean)
      */
     public static FloatHistogram buildHistogram(float[] data, boolean doSort)
+    {
+        return buildHistogram(data, doSort, false);
+    }
+
+    /**
+     * Build a histogram using the input data values.
+     * 
+     * <p>Note that input data array is modified if the in-place option is specified. 
+     * Otherwise the input array is unchanged.
+     *
+     * @param data The data
+     * @param doSort True if the data should be sorted
+     * @param inPlace Set to true to use the data in-place
+     * @return The histogram
+     */
+    public static FloatHistogram buildHistogram(float[] data, boolean doSort, boolean inPlace)
     {
         if (data == null || data.length == 0)
             // Empty histogram
             return new FloatHistogram(new float[1], new int[1]);
 
-        if (doSort)
-            Arrays.sort(data);
+        // Create histogram values (optionally reusing the data in-place)
+        float[] value = (inPlace) ? data : data.clone();
+        int[] h = new int[data.length];
 
-        float lastValue = data[0];
+        if (doSort) {
+            Arrays.sort(value);
+        }
+
+        float lastValue = value[0];
         int count = 0;
 
         int size = 0;
-        float[] value = new float[data.length];
-        int[] h = new int[data.length];
 
-        for (int i = 0; i < data.length; i++)
+        for (int i = 0; i < value.length; i++)
         {
-            if (lastValue != data[i])
+            if (lastValue != value[i])
             {
+                // Re-use the array in-place
                 value[size] = lastValue;
                 h[size++] = count;
                 count = 0;
             }
-            lastValue = data[i];
+            lastValue = value[i];
             count++;
         }
         // Final count
         value[size] = lastValue;
         h[size++] = count;
 
-        h = Arrays.copyOf(h, size);
-        value = Arrays.copyOf(value, size);
-
-        //// Check
-        //int total = 0;
-        //for (int i : h)
-        //	total += i;
-        //if (total != data.length)
-        //	throw new RuntimeException("Failed to compute float histogram");
+        // Truncate
+        if (size < value.length) {
+            h = Arrays.copyOf(h, size);
+            value = Arrays.copyOf(value, size);
+        }
 
         return new FloatHistogram(value, h);
     }
