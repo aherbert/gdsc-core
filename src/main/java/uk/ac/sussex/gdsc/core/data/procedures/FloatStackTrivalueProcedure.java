@@ -46,11 +46,7 @@ public class FloatStackTrivalueProcedure implements TrivalueProcedure
 
     private int maxx;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setDimensions(int, int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean setDimensions(int maxx, int maxy, int maxz)
     {
@@ -62,44 +58,28 @@ public class FloatStackTrivalueProcedure implements TrivalueProcedure
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setX(int, double)
-     */
+    /** {@inheritDoc} */
     @Override
     public void setX(int i, double value)
     {
         x[i] = value;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setY(int, double)
-     */
+    /** {@inheritDoc} */
     @Override
     public void setY(int j, double value)
     {
         y[j] = value;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setZ(int, double)
-     */
+    /** {@inheritDoc} */
     @Override
     public void setZ(int k, double value)
     {
         z[k] = value;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure#setValue(int, int, int, double)
-     */
+    /** {@inheritDoc} */
     @Override
     public void setValue(int i, int j, int k, double value)
     {

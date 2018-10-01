@@ -50,22 +50,14 @@ public class KdTree2D<T> extends KdTree<T>
         super(bucketCapacity);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ags.utils.dataStructures.trees.thirdGenKD.KdNode#getDimensions()
-     */
+    /** {@inheritDoc} */
     @Override
     public int getDimensions()
     {
         return 2;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ags.utils.dataStructures.trees.thirdGenKD.KdNode#newInstance()
-     */
+    /** {@inheritDoc} */
     @Override
     protected KdNode<T> newInstance()
     {

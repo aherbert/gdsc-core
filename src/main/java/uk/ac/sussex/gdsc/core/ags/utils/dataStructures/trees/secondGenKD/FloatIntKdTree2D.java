@@ -559,24 +559,15 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
             super(parent, id);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.FloatIntKdTreeNode2D#pointDist(float[], float[])
-         */
-        // Distance measurements are always called from the root node
+        /** {@inheritDoc} */
         @Override
         protected float pointDist(float[] p1, float[] p2)
         {
+          // Distance measurements are always called from the root node
             throw new IllegalStateException();
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.FloatIntKdTreeNode2D#pointRegionDist(float[], float[],
-         * float[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected float pointRegionDist(float[] point, float[] min, float[] max)
         {
@@ -593,11 +584,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
      */
     public static class SqrEuclid2D extends FloatIntKdTree2D
     {
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.FloatIntKdTreeNode2D#pointDist(float[], float[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected float pointDist(float[] p1, float[] p2)
         {
@@ -606,12 +593,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D
             return dx * dx + dy * dy;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.FloatIntKdTreeNode2D#pointRegionDist(float[], float[],
-         * float[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected float pointRegionDist(float[] point, float[] min, float[] max)
         {

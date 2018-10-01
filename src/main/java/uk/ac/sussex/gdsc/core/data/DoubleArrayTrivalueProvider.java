@@ -67,55 +67,35 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.TrivalueProvider#getLengthX()
-     */
+    /** {@inheritDoc} */
     @Override
     public int getLengthX()
     {
         return maxx;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.TrivalueProvider#getLengthY()
-     */
+    /** {@inheritDoc} */
     @Override
     public int getLengthY()
     {
         return maxy;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.TrivalueProvider#getLengthZ()
-     */
+    /** {@inheritDoc} */
     @Override
     public int getLengthZ()
     {
         return maxz;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.TrivalueProvider#get(int, int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     public double get(int x, int y, int z)
     {
         return val[x][y][z];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.TrivalueProvider#getCube(int, int, int, double[][])
-     */
+    /** {@inheritDoc} */
     @Override
     public void get(int x, int y, int z, double[][][] values)
     {
@@ -155,11 +135,7 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider
         values[2][2][2] = val[nX][nY][nZ];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.TrivalueProvider#toArray()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[][][] toArray()
     {

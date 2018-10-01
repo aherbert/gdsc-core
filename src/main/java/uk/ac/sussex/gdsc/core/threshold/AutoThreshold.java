@@ -109,11 +109,7 @@ public class AutoThreshold
             this.name = name;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.lang.Enum#toString()
-         */
+        /** {@inheritDoc} */
         @Override
         public String toString()
         {

@@ -46,55 +46,35 @@ public class IdentityTypeConverter<T> extends AbstractTypeConverter<T>
         super(units, units, true);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.units.UnitConverter#convert(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public double convert(double value)
     {
         return value;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.data.utils.Converter#convert(float)
-     */
+    /** {@inheritDoc} */
     @Override
     public float convert(float value)
     {
         return value;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.utils.Converter#convertBack(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public double convertBack(double value)
     {
         return value;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.utils.Converter#convertBack(float)
-     */
+    /** {@inheritDoc} */
     @Override
     public float convertBack(float value)
     {
         return value;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.data.utils.Converter#getFunction()
-     */
+    /** {@inheritDoc} */
     @Override
     public String getFunction()
     {

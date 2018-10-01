@@ -45,19 +45,11 @@ public abstract class SeekableStream extends InputStream
      */
     public abstract long getFilePointer() throws IOException;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.io.InputStream#read()
-     */
+    /** {@inheritDoc} */
     @Override
     public abstract int read() throws IOException;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.io.InputStream#read(byte[], int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     public abstract int read(byte[] bytes, int off, int len) throws IOException;
 
@@ -343,11 +335,7 @@ public abstract class SeekableStream extends InputStream
         return Float.intBitsToFloat(readInt());
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.io.InputStream#close()
-     */
+    /** {@inheritDoc} */
     @Override
     public abstract void close() throws IOException;
 

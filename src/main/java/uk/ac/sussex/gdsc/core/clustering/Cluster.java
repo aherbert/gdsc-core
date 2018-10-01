@@ -286,11 +286,7 @@ public class Cluster implements Comparable<Cluster>
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
+    /** {@inheritDoc} */
     @Override
     public int compareTo(Cluster o)
     {

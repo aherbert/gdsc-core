@@ -133,11 +133,7 @@ public class LUTHelper
 		public String getName() { return "Grays"; }};
 		//@formatter:on
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.lang.Enum#toString()
-         */
+        /** {@inheritDoc} */
         @Override
         public String toString()
         {
@@ -1032,33 +1028,21 @@ public class LUTHelper
             return value;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ij.process.LUTHelper.LUTMapper#getColour(ij.process.LUT, float)
-         */
+        /** {@inheritDoc} */
         @Override
         public Color getColour(LUT lut, float value)
         {
             return new Color(lut.getRGB(map(value)));
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ij.process.LUTHelper.LUTMapper#getMin()
-         */
+        /** {@inheritDoc} */
         @Override
         public int getMin()
         {
             return 0;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ij.process.LUTHelper.LUTMapper#getMax()
-         */
+        /** {@inheritDoc} */
         @Override
         public int getMax()
         {
@@ -1093,11 +1077,7 @@ public class LUTHelper
             scale = 255f / (maximum - minimum);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ij.process.LUTHelper.LUTMapper#map(float)
-         */
+        /** {@inheritDoc} */
         @Override
         public int map(float value)
         {
@@ -1110,11 +1090,7 @@ public class LUTHelper
             return ivalue;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ij.process.LUTHelper.LUTMapper#mapf(float)
-         */
+        /** {@inheritDoc} */
         @Override
         public float mapf(float value)
         {
@@ -1149,11 +1125,7 @@ public class LUTHelper
             scale = 254f / (maximum - minimum);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ij.process.LUTHelper.LUTMapper#map(float)
-         */
+        /** {@inheritDoc} */
         @Override
         public int map(float value)
         {
@@ -1166,22 +1138,14 @@ public class LUTHelper
             return ivalue;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ij.process.LUTHelper.LUTMapper#mapf(float)
-         */
+        /** {@inheritDoc} */
         @Override
         public float mapf(float value)
         {
             return map(value);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ij.process.LUTHelper.NullLUTMapper#getMin()
-         */
+        /** {@inheritDoc} */
         @Override
         public int getMin()
         {

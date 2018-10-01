@@ -75,11 +75,7 @@ public class RollingStatistics extends Statistics
         super(data);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(float[], int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     protected void addInternal(float[] data, int from, int to)
     {
@@ -87,11 +83,7 @@ public class RollingStatistics extends Statistics
             addInternal(data[i]);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(double[], int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     protected void addInternal(double[] data, int from, int to)
     {
@@ -99,11 +91,7 @@ public class RollingStatistics extends Statistics
             addInternal(data[i]);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(int[], int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     protected void addInternal(int[] data, int from, int to)
     {
@@ -111,11 +99,7 @@ public class RollingStatistics extends Statistics
             addInternal(data[i]);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(double)
-     */
+    /** {@inheritDoc} */
     @Override
     protected void addInternal(final double value)
     {
@@ -132,11 +116,7 @@ public class RollingStatistics extends Statistics
         ss += nB * delta * delta_n;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(int, double)
-     */
+    /** {@inheritDoc} */
     @Override
     protected void addInternal(int nA, double value)
     {
@@ -149,66 +129,42 @@ public class RollingStatistics extends Statistics
         ss += delta * delta * nA * nB / n;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#getSum()
-     */
+    /** {@inheritDoc} */
     @Override
     public double getSum()
     {
         return s * n;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#getSumOfSquares()
-     */
+    /** {@inheritDoc} */
     @Override
     public double getSumOfSquares()
     {
         throw new NotImplementedException("Sum-of-squares not computed");
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#getMean()
-     */
+    /** {@inheritDoc} */
     @Override
     public double getMean()
     {
         return s;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#getStandardDeviation()
-     */
+    /** {@inheritDoc} */
     @Override
     public double getStandardDeviation()
     {
         return (n > 1) ? Math.sqrt(ss / (n - 1)) : (n == 1) ? 0 : Double.NaN;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#getVariance()
-     */
+    /** {@inheritDoc} */
     @Override
     public double getVariance()
     {
         return (n > 1) ? ss / (n - 1) : (n == 1) ? 0 : Double.NaN;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#add(uk.ac.sussex.gdsc.core.utils.Statistics)
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(Statistics statistics)
     {

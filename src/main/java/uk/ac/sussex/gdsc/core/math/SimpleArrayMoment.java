@@ -82,11 +82,7 @@ public class SimpleArrayMoment implements ArrayMoment
         add(data);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#add(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(double data)
     {
@@ -101,11 +97,7 @@ public class SimpleArrayMoment implements ArrayMoment
         ss[0] += data * data;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#add(double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(double[] data)
     {
@@ -123,11 +115,7 @@ public class SimpleArrayMoment implements ArrayMoment
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#add(float[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(float[] data)
     {
@@ -145,11 +133,7 @@ public class SimpleArrayMoment implements ArrayMoment
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#add(int[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(int[] data)
     {
@@ -167,11 +151,7 @@ public class SimpleArrayMoment implements ArrayMoment
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#add(short[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(short[] data)
     {
@@ -189,11 +169,7 @@ public class SimpleArrayMoment implements ArrayMoment
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#add(byte[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(byte[] data)
     {
@@ -211,11 +187,7 @@ public class SimpleArrayMoment implements ArrayMoment
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#addUnsigned(short[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void addUnsigned(short[] data)
     {
@@ -287,11 +259,7 @@ public class SimpleArrayMoment implements ArrayMoment
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getFirstMoment()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getFirstMoment()
     {
@@ -304,11 +272,7 @@ public class SimpleArrayMoment implements ArrayMoment
         return m1;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getSecondMoment()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getSecondMoment()
     {
@@ -321,33 +285,21 @@ public class SimpleArrayMoment implements ArrayMoment
         return m2;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getN()
-     */
+    /** {@inheritDoc} */
     @Override
     public long getN()
     {
         return n;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getVariance()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getVariance()
     {
         return getVariance(true);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getVariance(boolean)
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getVariance(boolean isBiasCorrected)
     {
@@ -367,22 +319,14 @@ public class SimpleArrayMoment implements ArrayMoment
         return (d > 0) ? d : 0;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getStandardDeviation()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getStandardDeviation()
     {
         return getStandardDeviation(true);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getStandardDeviation(boolean)
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getStandardDeviation(boolean isBiasCorrected)
     {
@@ -402,22 +346,14 @@ public class SimpleArrayMoment implements ArrayMoment
         return (d > 0) ? Math.sqrt(d) : 0;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#newInstance()
-     */
+    /** {@inheritDoc} */
     @Override
     public SimpleArrayMoment newInstance()
     {
         return new SimpleArrayMoment();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#add(uk.ac.sussex.gdsc.core.math.ArrayMoment)
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(ArrayMoment arrayMoment)
     {

@@ -255,13 +255,7 @@ public class OPTICSResult implements ClusteringResult
         this.clustering = clustering;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#scrambleClusters(org.apache.commons.math3.random.
-     * RandomGenerator)
-     */
+    /** {@inheritDoc} */
     @Override
     public void scrambleClusters(RandomGenerator rng)
     {
@@ -512,11 +506,7 @@ public class OPTICSResult implements ClusteringResult
         return hulls[clusterId - 1];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getBounds(int)
-     */
+    /** {@inheritDoc} */
     @Override
     public Rectangle2D getBounds(int clusterId)
     {
@@ -525,11 +515,7 @@ public class OPTICSResult implements ClusteringResult
         return bounds[clusterId - 1];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getClusters()
-     */
+    /** {@inheritDoc} */
     @Override
     public int[] getClusters()
     {
@@ -637,11 +623,7 @@ public class OPTICSResult implements ClusteringResult
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getParents(int[])
-     */
+    /** {@inheritDoc} */
     @Override
     public int[] getParents(int[] clusterIds)
     {
@@ -1297,11 +1279,7 @@ public class OPTICSResult implements ClusteringResult
         final double threshold = mib / ixi;
         setOfSteepDownAreas.removeIf(new SimplePredicate<SteepArea>()
         {
-            /*
-             * (non-Javadoc)
-             *
-             * @see java.util.TurboList.SimplePredicate#test(java.lang.Object)
-             */
+            /** {@inheritDoc} */
             @Override
             public boolean test(SteepArea sda)
             {

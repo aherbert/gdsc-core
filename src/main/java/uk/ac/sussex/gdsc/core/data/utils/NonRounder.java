@@ -32,44 +32,28 @@ package uk.ac.sussex.gdsc.core.data.utils;
  */
 public class NonRounder implements Rounder
 {
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.data.Rounder#round(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public double round(double value)
     {
         return value;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.data.Rounder#toString(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString(double value)
     {
         return Double.toString(value);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.data.Rounder#round(float)
-     */
+    /** {@inheritDoc} */
     @Override
     public float round(float value)
     {
         return value;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.data.Rounder#toString(float)
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString(float value)
     {

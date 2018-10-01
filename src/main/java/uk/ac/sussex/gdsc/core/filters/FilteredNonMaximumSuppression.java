@@ -2818,11 +2818,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression
         return truncate(maxima, nMaxima);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#clone()
-     */
+    /** {@inheritDoc} */
     @Override
     public FilteredNonMaximumSuppression clone()
     {

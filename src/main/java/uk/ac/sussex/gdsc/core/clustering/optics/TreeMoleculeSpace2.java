@@ -68,11 +68,7 @@ class TreeMoleculeSpace2 extends MoleculeSpace
     //		return this.getClass().getSimpleName();
     //	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.MoleculeSpace#generate()
-     */
+    /** {@inheritDoc} */
     @Override
     Molecule[] generate()
     {
@@ -94,12 +90,7 @@ class TreeMoleculeSpace2 extends MoleculeSpace
         return setOfObjects;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
-     * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
-     */
+    /** {@inheritDoc} */
     @Override
     void findNeighbours(int minPts, Molecule object, float e)
     {
@@ -117,12 +108,7 @@ class TreeMoleculeSpace2 extends MoleculeSpace
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
-     * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
-     */
+    /** {@inheritDoc} */
     @Override
     void findNeighboursAndDistances(int minPts, Molecule object, float e)
     {

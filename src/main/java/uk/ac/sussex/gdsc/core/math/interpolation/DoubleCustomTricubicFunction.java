@@ -36,11 +36,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
     /** Coefficients. */
     private final double[] a;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#getA()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getA()
     {
@@ -59,11 +55,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
         return (float) a[i];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#scale(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public void scale(double scale)
     {
@@ -94,44 +86,28 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
         a = toDouble(aV);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#isSinglePrecision()
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isSinglePrecision()
     {
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#toSinglePrecision()
-     */
+    /** {@inheritDoc} */
     @Override
     public CustomTricubicFunction toSinglePrecision()
     {
         return new FloatCustomTricubicFunction(a);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#toDoublePrecision()
-     */
+    /** {@inheritDoc} */
     @Override
     public CustomTricubicFunction toDoublePrecision()
     {
         return this;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#copy()
-     */
+    /** {@inheritDoc} */
     @Override
     public CustomTricubicFunction copy()
     {
@@ -140,22 +116,14 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
     // XXX - Copy from here into the FloatCustomTricubicFunction
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value000()
-     */
+    /** {@inheritDoc} */
     @Override
     public double value000()
     {
         return a[0];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value0(double[], double[], double[])
-     */
+    /** {@inheritDoc} */
     @Override
     protected double value0(final double[] pX, final double[] pY, final double[] pZ)
     {
@@ -239,11 +207,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value(double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public double value(double[] table)
     {
@@ -262,11 +226,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
                 table[60] * a[60] + table[61] * a[61] + table[62] * a[62] + table[63] * a[63];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value(float[])
-     */
+    /** {@inheritDoc} */
     @Override
     public double value(float[] table)
     {
@@ -285,11 +245,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
                 table[60] * a[60] + table[61] * a[61] + table[62] * a[62] + table[63] * a[63];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value000(double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public double value000(double[] df_da)
     {
@@ -299,12 +255,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
         return a[0];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value1(double[], double[], double[],
-     * double[])
-     */
+    /** {@inheritDoc} */
     @Override
     protected double value1(final double[] pX, final double[] pY, final double[] pZ, final double[] df_da)
     {
@@ -581,11 +532,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value(double[], double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public double value(double[] table, double[] df_da)
     {
@@ -640,11 +587,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
                 table[60] * a[60] + table[61] * a[61] + table[62] * a[62] + table[63] * a[63];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#gradient(double[], double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void gradient(double[] table, double[] df_da)
     {
@@ -686,11 +629,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
                 3 * table[47] * a[63];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value(float[], double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public double value(float[] table, double[] df_da)
     {
@@ -745,11 +684,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
                 table[60] * a[60] + table[61] * a[61] + table[62] * a[62] + table[63] * a[63];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#gradient(float[], double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void gradient(float[] table, double[] df_da)
     {
@@ -791,12 +726,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
                 3 * table[47] * a[63];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value(double[], double[], double[],
-     * double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public double value(double[] table, double[] table2, double[] table3, double[] df_da)
     {
@@ -846,11 +776,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value(float[], float[], float[], double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public double value(float[] table, float[] table2, float[] table3, double[] df_da)
     {
@@ -900,11 +826,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value000(double[], double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public double value000(double[] df_da, double[] d2f_da2)
     {
@@ -917,12 +839,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
         return a[0];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value2(double[], double[], double[],
-     * double[], double[])
-     */
+    /** {@inheritDoc} */
     @Override
     protected double value2(final double[] pX, final double[] pY, final double[] pZ, final double[] df_da,
             double[] d2f_da2)
@@ -1299,11 +1216,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value(double[], double[], double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public double value(double[] table, double[] df_da, double[] d2f_da2)
     {
@@ -1383,11 +1296,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value(float[], double[], double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public double value(float[] table, double[] df_da, double[] d2f_da2)
     {
@@ -1467,13 +1376,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value(double[], double[], double[],
-     * double[], double[],
-     * double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public double value(double[] table, double[] table2, double[] table3, double[] table6, double[] df_da,
             double[] d2f_da2)
@@ -1545,13 +1448,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicFunction#value(float[], float[], float[], float[],
-     * double[],
-     * double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public double value(float[] table, float[] table2, float[] table3, float[] table6, double[] df_da, double[] d2f_da2)
     {

@@ -79,55 +79,35 @@ public abstract class AbstractTypeConverter<T> implements TypeConverter<T>
         this.to = to;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.data.utils.Converter#convert(float)
-     */
+    /** {@inheritDoc} */
     @Override
     public float convert(float value)
     {
         return (float) convert((double) value);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.utils.Converter#convertBack(float)
-     */
+    /** {@inheritDoc} */
     @Override
     public float convertBack(float value)
     {
         return (float) convertBack((double) value);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.units.UnitConverter#from()
-     */
+    /** {@inheritDoc} */
     @Override
     public T from()
     {
         return from;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.units.UnitConverter#to()
-     */
+    /** {@inheritDoc} */
     @Override
     public T to()
     {
         return to;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#toString()
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString()
     {

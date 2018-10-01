@@ -1264,11 +1264,7 @@ public class ExtendedGenericDialog extends GenericDialog
         positionComponent = c;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.awt.Dialog#setVisible(boolean)
-     */
+    /** {@inheritDoc} */
     @Override
     public void setVisible(boolean b)
     {
@@ -1471,11 +1467,7 @@ public class ExtendedGenericDialog extends GenericDialog
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.awt.Window#setLocation(java.awt.Point)
-     */
+    /** {@inheritDoc} */
     @Override
     public void setLocation(Point location)
     {

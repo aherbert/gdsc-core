@@ -137,13 +137,7 @@ public class DBSCANResult implements ClusteringResult
         return data;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#scrambleClusters(org.apache.commons.math3.random.
-     * RandomGenerator)
-     */
+    /** {@inheritDoc} */
     @Override
     public void scrambleClusters(RandomGenerator rng)
     {
@@ -221,22 +215,14 @@ public class DBSCANResult implements ClusteringResult
         return clusters;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#hasConvexHulls()
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean hasConvexHulls()
     {
         return hulls != null;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#computeConvexHulls()
-     */
+    /** {@inheritDoc} */
     @Override
     public void computeConvexHulls()
     {
@@ -279,11 +265,7 @@ public class DBSCANResult implements ClusteringResult
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getConvexHull(int)
-     */
+    /** {@inheritDoc} */
     @Override
     public ConvexHull getConvexHull(int clusterId)
     {
@@ -292,11 +274,7 @@ public class DBSCANResult implements ClusteringResult
         return hulls[clusterId - 1];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getBounds(int)
-     */
+    /** {@inheritDoc} */
     @Override
     public Rectangle2D getBounds(int clusterId)
     {
@@ -305,11 +283,7 @@ public class DBSCANResult implements ClusteringResult
         return bounds[clusterId - 1];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getParents(int[])
-     */
+    /** {@inheritDoc} */
     @Override
     public int[] getParents(int[] clusterIds)
     {

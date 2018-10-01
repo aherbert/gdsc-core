@@ -74,11 +74,7 @@ public class Pulse extends BasePoint implements Comparable<Pulse>
         this.end = end;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object aThat)
     {
@@ -93,11 +89,7 @@ public class Pulse extends BasePoint implements Comparable<Pulse>
         return x == that.x && y == that.y && z == that.z && start == that.start && end == that.end;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#hashCode()
-     */
+    /** {@inheritDoc} */
     @Override
     public int hashCode()
     {
@@ -180,11 +172,7 @@ public class Pulse extends BasePoint implements Comparable<Pulse>
         return e - s + 1;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
+    /** {@inheritDoc} */
     @Override
     public int compareTo(Pulse o)
     {

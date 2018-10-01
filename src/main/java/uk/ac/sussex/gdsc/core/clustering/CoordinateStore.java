@@ -214,11 +214,7 @@ public class CoordinateStore implements Cloneable
         this.tracker = tracker;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#clone()
-     */
+    /** {@inheritDoc} */
     @Override
     public CoordinateStore clone()
     {

@@ -67,11 +67,7 @@ public class ImmutableFractionalAssignment extends ImmutableAssignment implement
         this(targetId, predictedId, distance, 1);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.match.FractionalAssignment#getScore()
-     */
+    /** {@inheritDoc} */
     @Override
     public double getScore()
     {

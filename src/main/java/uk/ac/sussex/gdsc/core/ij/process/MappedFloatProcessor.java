@@ -169,11 +169,7 @@ public class MappedFloatProcessor extends FloatProcessor
 
     private static int NEGATIVE_ZERO = Float.floatToRawIntBits(-0.0f);
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.process.FloatProcessor#create8BitImage()
-     */
+    /** {@inheritDoc} */
     // scale from float to 8-bits
     @Override
     protected byte[] create8BitImage()

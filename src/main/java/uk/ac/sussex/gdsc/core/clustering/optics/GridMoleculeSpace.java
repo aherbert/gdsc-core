@@ -392,12 +392,7 @@ class GridMoleculeSpace extends MoleculeSpace
         return size * size;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
-     * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
-     */
+    /** {@inheritDoc} */
     @Override
     void findNeighbours(int minPts, Molecule object, float e)
     {
@@ -543,12 +538,7 @@ class GridMoleculeSpace extends MoleculeSpace
         return y * xBins + x;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
-     * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
-     */
+    /** {@inheritDoc} */
     @Override
     void findNeighboursAndDistances(int minPts, Molecule object, float e)
     {

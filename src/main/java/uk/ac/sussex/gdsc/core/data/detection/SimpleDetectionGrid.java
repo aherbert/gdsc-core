@@ -60,11 +60,7 @@ public class SimpleDetectionGrid implements DetectionGrid
         this.rectangles = rectangles;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.detection.DetectionGrid#size()
-     */
+    /** {@inheritDoc} */
     @Override
     public int size()
     {

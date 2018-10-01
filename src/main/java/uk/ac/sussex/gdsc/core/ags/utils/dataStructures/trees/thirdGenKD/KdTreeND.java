@@ -59,22 +59,14 @@ public class KdTreeND<T> extends KdTree<T>
         this.dimensions = dimensions;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ags.utils.dataStructures.trees.thirdGenKD.KdNode#getDimensions()
-     */
+    /** {@inheritDoc} */
     @Override
     public int getDimensions()
     {
         return dimensions;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ags.utils.dataStructures.trees.thirdGenKD.KdNode#newInstance()
-     */
+    /** {@inheritDoc} */
     @Override
     protected KdNode<T> newInstance()
     {

@@ -123,11 +123,7 @@ public class RampedScore implements Cloneable
         return (Math.round(score * steps)) / (float) steps;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#clone()
-     */
+    /** {@inheritDoc} */
     @Override
     public RampedScore clone()
     {

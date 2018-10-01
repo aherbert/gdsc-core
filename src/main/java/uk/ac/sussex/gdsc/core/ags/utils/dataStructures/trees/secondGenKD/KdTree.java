@@ -461,11 +461,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
             super(parent);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#pointDist(double[], double[])
-         */
+        /** {@inheritDoc} */
         // Distance measurements are always called from the root node
         @Override
         protected double pointDist(double[] p1, double[] p2)
@@ -473,11 +469,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
             throw new IllegalStateException();
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#pointRegionDist(double[], double[], double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointRegionDist(double[] point, double[] min, double[] max)
         {
@@ -522,22 +514,14 @@ public abstract class KdTree<T> extends KdTreeNode<T>
             this.weights = weights;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#getAxisWeightHint(int)
-         */
+        /** {@inheritDoc} */
         @Override
         protected double getAxisWeightHint(int i)
         {
             return weights[i];
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#pointDist(double[], double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointDist(double[] p1, double[] p2)
         {
@@ -553,11 +537,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
             return d;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#pointRegionDist(double[], double[], double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointRegionDist(double[] point, double[] min, double[] max)
         {
@@ -600,11 +580,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
             super(dimensions, sizeLimit);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#pointDist(double[], double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointDist(double[] p1, double[] p2)
         {
@@ -620,11 +596,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
             return d;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#pointRegionDist(double[], double[], double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointRegionDist(double[] point, double[] min, double[] max)
         {
@@ -668,11 +640,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
             super(2, sizeLimit);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#pointDist(double[], double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointDist(double[] p1, double[] p2)
         {
@@ -681,11 +649,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
             return dx * dx + dy * dy;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#pointRegionDist(double[], double[], double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointRegionDist(double[] point, double[] min, double[] max)
         {
@@ -732,22 +696,14 @@ public abstract class KdTree<T> extends KdTreeNode<T>
             this.weights = weights;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#getAxisWeightHint(int)
-         */
+        /** {@inheritDoc} */
         @Override
         protected double getAxisWeightHint(int i)
         {
             return weights[i];
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#pointDist(double[], double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointDist(double[] p1, double[] p2)
         {
@@ -763,11 +719,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
             return d;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#pointRegionDist(double[], double[], double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointRegionDist(double[] point, double[] min, double[] max)
         {
@@ -810,11 +762,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
             super(dimensions, sizeLimit);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#pointDist(double[], double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointDist(double[] p1, double[] p2)
         {
@@ -830,11 +778,7 @@ public abstract class KdTree<T> extends KdTreeNode<T>
             return d;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.KdTreeNode#pointRegionDist(double[], double[], double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointRegionDist(double[] point, double[] min, double[] max)
         {

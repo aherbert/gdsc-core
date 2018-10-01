@@ -78,11 +78,7 @@ public class ExtendedStatistics extends Statistics
         super(data);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(float[], int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     protected void addInternal(float[] data, int from, int to)
     {
@@ -98,11 +94,7 @@ public class ExtendedStatistics extends Statistics
         n += (to - from);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(double[], int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     protected void addInternal(double[] data, int from, int to)
     {
@@ -118,11 +110,7 @@ public class ExtendedStatistics extends Statistics
         n += (to - from);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(int[], int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     protected void addInternal(int[] data, int from, int to)
     {
@@ -138,11 +126,7 @@ public class ExtendedStatistics extends Statistics
         n += (to - from);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(double)
-     */
+    /** {@inheritDoc} */
     @Override
     protected void addInternal(final double value)
     {
@@ -153,11 +137,7 @@ public class ExtendedStatistics extends Statistics
         super.addInternal(value);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(int, double)
-     */
+    /** {@inheritDoc} */
     @Override
     protected void addInternal(int nA, double value)
     {
@@ -205,11 +185,7 @@ public class ExtendedStatistics extends Statistics
         return (n == 0) ? Double.NaN : max;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#add(uk.ac.sussex.gdsc.core.utils.Statistics)
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(Statistics statistics)
     {
@@ -231,11 +207,7 @@ public class ExtendedStatistics extends Statistics
         throw new NotImplementedException("Not a ExtendedStatistics instance");
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#reset()
-     */
+    /** {@inheritDoc} */
     @Override
     public void reset()
     {

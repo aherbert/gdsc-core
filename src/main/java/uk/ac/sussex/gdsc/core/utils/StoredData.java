@@ -374,22 +374,14 @@ public class StoredData implements Iterable<Double>, DoubleData
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.DoubleData#size()
-     */
+    /** {@inheritDoc} */
     @Override
     public int size()
     {
         return n;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.DoubleData#values()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] values()
     {

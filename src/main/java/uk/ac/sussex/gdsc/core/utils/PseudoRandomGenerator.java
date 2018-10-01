@@ -153,11 +153,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
             sequence[i] = source.nextDouble();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.apache.commons.math3.random.AbstractRandomGenerator#setSeed(int)
-     */
+    /** {@inheritDoc} */
     @Override
     public void setSeed(int seed)
     {
@@ -165,11 +161,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
         position = Math.abs(seed) % length;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.apache.commons.math3.random.AbstractRandomGenerator#setSeed(long)
-     */
+    /** {@inheritDoc} */
     @Override
     public void setSeed(long seed)
     {
@@ -177,11 +169,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
         position = Math.abs(Long.hashCode(seed)) % length;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.apache.commons.math3.random.AbstractRandomGenerator#nextDouble()
-     */
+    /** {@inheritDoc} */
     @Override
     public double nextDouble()
     {
@@ -191,11 +179,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
         return d;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#clone()
-     */
+    /** {@inheritDoc} */
     @Override
     public PseudoRandomGenerator clone()
     {

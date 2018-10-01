@@ -129,11 +129,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator
         store = sequence;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.apache.commons.math3.random.AbstractRandomGenerator#nextDouble()
-     */
+    /** {@inheritDoc} */
     @Override
     public double nextDouble()
     {

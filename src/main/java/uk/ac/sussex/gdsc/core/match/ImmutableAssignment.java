@@ -53,33 +53,21 @@ public class ImmutableAssignment implements Assignment
         this.distance = distance;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.match.Assignment#getTargetId()
-     */
+    /** {@inheritDoc} */
     @Override
     public int getTargetId()
     {
         return targetId;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.match.Assignment#getPredictedId()
-     */
+    /** {@inheritDoc} */
     @Override
     public int getPredictedId()
     {
         return predictedId;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.match.Assignment#getDistance()
-     */
+    /** {@inheritDoc} */
     @Override
     public double getDistance()
     {

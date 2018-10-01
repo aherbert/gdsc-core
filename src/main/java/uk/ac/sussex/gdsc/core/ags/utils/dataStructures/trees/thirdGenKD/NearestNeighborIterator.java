@@ -81,22 +81,14 @@ public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T>
 
     /* -------- INTERFACE IMPLEMENTATION -------- */
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.util.Iterator#hasNext()
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean hasNext()
     {
         return pointsRemaining > 0;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.util.Iterator#next()
-     */
+    /** {@inheritDoc} */
     @Override
     public T next()
     {
@@ -126,22 +118,14 @@ public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T>
         return lastDistanceReturned;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.util.Iterator#remove()
-     */
+    /** {@inheritDoc} */
     @Override
     public void remove()
     {
         throw new UnsupportedOperationException();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Iterable#iterator()
-     */
+    /** {@inheritDoc} */
     @Override
     public Iterator<T> iterator()
     {

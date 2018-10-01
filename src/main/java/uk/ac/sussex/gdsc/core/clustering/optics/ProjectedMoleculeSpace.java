@@ -183,22 +183,14 @@ class ProjectedMoleculeSpace extends MoleculeSpace
         this.rand = rand;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.MoleculeSpace#toString()
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString()
     {
         return String.format("%s", this.getClass().getSimpleName());
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.MoleculeSpace#generate()
-     */
+    /** {@inheritDoc} */
     @Override
     Molecule[] generate()
     {
@@ -216,12 +208,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
         return setOfObjects;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighbours(int,
-     * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
-     */
+    /** {@inheritDoc} */
     @Override
     void findNeighbours(int minPts, Molecule object, float e)
     {
@@ -233,12 +220,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
             neighbours.add(setOfObjects[list[i]]);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.MoleculeSpace#findNeighboursAndDistances(int,
-     * uk.ac.sussex.gdsc.core.clustering.optics.OPTICSManager.Molecule, float)
-     */
+    /** {@inheritDoc} */
     @Override
     void findNeighboursAndDistances(int minPts, Molecule object, float e)
     {
@@ -400,11 +382,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
             this.projectedPoints = projectedPoints;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.lang.Runnable#run()
-         */
+        /** {@inheritDoc} */
         @Override
         public void run()
         {
@@ -493,11 +471,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
             this.minSplitSize = minSplitSize;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.lang.Runnable#run()
-         */
+        /** {@inheritDoc} */
         @Override
         public void run()
         {
@@ -598,11 +572,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace
             this.to = to;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.lang.Runnable#run()
-         */
+        /** {@inheritDoc} */
         @Override
         public void run()
         {

@@ -67,11 +67,7 @@ public class MathContextRounder implements Rounder
         mathContext = new MathContext(precision);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.data.Rounder#round(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public double round(double value)
     {
@@ -80,11 +76,7 @@ public class MathContextRounder implements Rounder
         return value; // NaN or infinite
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.data.Rounder#toString(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString(double value)
     {
@@ -97,11 +89,7 @@ public class MathContextRounder implements Rounder
         return "NaN";
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.data.Rounder#round(float)
-     */
+    /** {@inheritDoc} */
     @Override
     public float round(float value)
     {
@@ -110,11 +98,7 @@ public class MathContextRounder implements Rounder
         return value; // NaN or infinite
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.data.Rounder#toString(float)
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString(float value)
     {

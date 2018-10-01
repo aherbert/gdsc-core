@@ -133,11 +133,7 @@ public class TurboRandomGenerator extends PseudoRandomGenerator
         return super.nextDouble();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.apache.commons.math3.random.AbstractRandomGenerator#nextInt(int)
-     */
+    /** {@inheritDoc} */
     @Override
     public int nextInt(int n)
     {

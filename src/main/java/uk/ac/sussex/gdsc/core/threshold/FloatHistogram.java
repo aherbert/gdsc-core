@@ -232,22 +232,14 @@ public class FloatHistogram extends Histogram
         return new IntHistogram(h, min);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.threshold.Histogram#getValue(int)
-     */
+    /** {@inheritDoc} */
     @Override
     public float getValue(int i)
     {
         return value[i];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.threshold.Histogram#clone()
-     */
+    /** {@inheritDoc} */
     @Override
     public FloatHistogram clone()
     {

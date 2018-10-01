@@ -65,33 +65,21 @@ public class MultiplyAddTypeConverter<T> extends MultiplyTypeConverter<T>
         this.addition = addition;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.utils.MultiplyTypeConverter#convert(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public double convert(double value)
     {
         return value * multiplication + addition;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.utils.MultiplyTypeConverter#convertBack(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public double convertBack(double value)
     {
         return (value - addition) / multiplication;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.data.utils.Converter#getFunction()
-     */
+    /** {@inheritDoc} */
     @Override
     public String getFunction()
     {

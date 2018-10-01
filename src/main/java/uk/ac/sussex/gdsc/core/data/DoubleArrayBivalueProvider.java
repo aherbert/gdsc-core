@@ -58,44 +58,28 @@ public class DoubleArrayBivalueProvider implements BivalueProvider
                 throw new DataException("Y data must be the same length");
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.BivalueProvider#getLengthX()
-     */
+    /** {@inheritDoc} */
     @Override
     public int getLengthX()
     {
         return maxx;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.BivalueProvider#getLengthY()
-     */
+    /** {@inheritDoc} */
     @Override
     public int getLengthY()
     {
         return maxy;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.BivalueProvider#get(int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     public double get(int x, int y)
     {
         return val[x][y];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.BivalueProvider#get(int, int, double[][])
-     */
+    /** {@inheritDoc} */
     @Override
     public void get(int x, int y, double[][] values)
     {
@@ -115,11 +99,7 @@ public class DoubleArrayBivalueProvider implements BivalueProvider
         values[2][2] = val[nX][nY];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.BivalueProvider#toArray()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[][] toArray()
     {

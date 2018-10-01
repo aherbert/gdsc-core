@@ -165,11 +165,7 @@ public class InfinityMappedFloatProcessor extends FloatProcessor
         super(array);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.process.FloatProcessor#create8BitImage()
-     */
+    /** {@inheritDoc} */
     @Override
     protected byte[] create8BitImage()
     {

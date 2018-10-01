@@ -114,11 +114,7 @@ public class InfinityMappedImageStack extends ImageStack
         super(width, height, cm);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.ImageStack#getProcessor(int)
-     */
+    /** {@inheritDoc} */
     @Override
     public ImageProcessor getProcessor(int n)
     {

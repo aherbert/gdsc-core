@@ -49,33 +49,21 @@ public class DoubleArrayValueProvider implements ValueProvider
         this.val = val;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.ValueProvider#getLength()
-     */
+    /** {@inheritDoc} */
     @Override
     public int getLength()
     {
         return val.length;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.ValueProvider#get(int)
-     */
+    /** {@inheritDoc} */
     @Override
     public double get(int x)
     {
         return val[x];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.ValueProvider#get(int, double[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void get(int x, double[] values)
     {
@@ -84,11 +72,7 @@ public class DoubleArrayValueProvider implements ValueProvider
         values[2] = val[x + 1];
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.ValueProvider#toArray()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] toArray()
     {

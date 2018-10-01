@@ -67,22 +67,14 @@ public final class MemoryCacheSeekableStream extends SeekableStream
         src = inputstream;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#getFilePointer()
-     */
+    /** {@inheritDoc} */
     @Override
     public long getFilePointer()
     {
         return pointer;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#read()
-     */
+    /** {@inheritDoc} */
     @Override
     public int read() throws IOException
     {
@@ -96,11 +88,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
         return -1;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#read(byte[], int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     public int read(byte[] bytes, int off, int len) throws IOException
     {
@@ -159,11 +147,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
         return length;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#seek(long)
-     */
+    /** {@inheritDoc} */
     @Override
     public void seek(long loc) throws IOException
     {
@@ -172,11 +156,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream
         pointer = loc;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#close()
-     */
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException
     {

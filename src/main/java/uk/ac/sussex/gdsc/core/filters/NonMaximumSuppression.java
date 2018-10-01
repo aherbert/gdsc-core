@@ -1945,11 +1945,7 @@ public class NonMaximumSuppression implements Cloneable
         return dataBuffer;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#clone()
-     */
+    /** {@inheritDoc} */
     @Override
     public NonMaximumSuppression clone()
     {

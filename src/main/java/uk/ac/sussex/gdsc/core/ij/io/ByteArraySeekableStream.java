@@ -57,22 +57,14 @@ public final class ByteArraySeekableStream extends SeekableStream
         length = bytes.length;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#getFilePointer()
-     */
+    /** {@inheritDoc} */
     @Override
     public long getFilePointer()
     {
         return p;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#read()
-     */
+    /** {@inheritDoc} */
     @Override
     public int read()
     {
@@ -81,11 +73,7 @@ public final class ByteArraySeekableStream extends SeekableStream
         return -1;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#read(byte[], int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     public int read(byte[] bytes, int off, int len)
     {
@@ -103,11 +91,7 @@ public final class ByteArraySeekableStream extends SeekableStream
         return -1;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#seek(long)
-     */
+    /** {@inheritDoc} */
     @Override
     public void seek(long loc) throws IOException
     {
@@ -145,11 +129,7 @@ public final class ByteArraySeekableStream extends SeekableStream
         return length - p;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#canCopy()
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean canCopy()
     {

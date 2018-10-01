@@ -105,44 +105,28 @@ public class FileLogger implements Logger
         info(String.format(format, args));
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.logging.Logger#debug(java.lang.String)
-     */
+    /** {@inheritDoc} */
     @Override
     public void debug(String message)
     {
         info(message);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.logging.Logger#debug(java.lang.String, java.lang.Object[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void debug(String format, Object... args)
     {
         info(format, args);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.logging.Logger#error(java.lang.String)
-     */
+    /** {@inheritDoc} */
     @Override
     public void error(String message)
     {
         info(message);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.logging.Logger#error(java.lang.String, java.lang.Object[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void error(String format, Object... args)
     {

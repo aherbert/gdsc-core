@@ -85,11 +85,7 @@ public class AlignImagesFFT
 		public String getName() { return "Tukey"; }};
 		//@formatter:on
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.lang.Enum#toString()
-         */
+        /** {@inheritDoc} */
         @Override
         public String toString()
         {
@@ -123,11 +119,7 @@ public class AlignImagesFFT
 		public String getName() { return "Gaussian"; }};
 		//@formatter:on
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.lang.Enum#toString()
-         */
+        /** {@inheritDoc} */
         @Override
         public String toString()
         {
@@ -1664,11 +1656,7 @@ public class AlignImagesFFT
     static class Hanning implements WindowFunction
     {
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see uk.ac.sussex.gdsc.core.ij.AlignImagesFFT.WindowFunction#weight(double)
-         */
+        /** {@inheritDoc} */
         @Override
         public double weight(double fractionDistance)
         {
@@ -1682,11 +1670,7 @@ public class AlignImagesFFT
     static class Cosine implements WindowFunction
     {
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see uk.ac.sussex.gdsc.core.ij.AlignImagesFFT.WindowFunction#weight(double)
-         */
+        /** {@inheritDoc} */
         @Override
         public double weight(double fractionDistance)
         {
@@ -1714,11 +1698,7 @@ public class AlignImagesFFT
             this.alpha = alpha;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see uk.ac.sussex.gdsc.core.ij.AlignImagesFFT.WindowFunction#weight(double)
-         */
+        /** {@inheritDoc} */
         @Override
         public double weight(double fractionDistance)
         {

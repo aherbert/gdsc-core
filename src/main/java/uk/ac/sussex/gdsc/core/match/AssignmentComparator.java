@@ -39,11 +39,7 @@ public class AssignmentComparator implements Comparator<Assignment>
 {
     private static final AssignmentComparator instance = new AssignmentComparator();
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-     */
+    /** {@inheritDoc} */
     @Override
     public int compare(Assignment o1, Assignment o2)
     {

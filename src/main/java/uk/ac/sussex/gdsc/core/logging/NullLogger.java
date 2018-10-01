@@ -47,66 +47,42 @@ public class NullLogger implements Logger
         return (logger == null) ? INSTANCE : logger;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.utils.logging.Logger#info(java.lang.String)
-     */
+    /** {@inheritDoc} */
     @Override
     public void info(String message)
     {
         // Do nothing
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.utils.logging.Logger#info(java.lang.String, java.lang.Object[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void info(String format, Object... args)
     {
         // Do nothing
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.utils.logging.Logger#debug(java.lang.String)
-     */
+    /** {@inheritDoc} */
     @Override
     public void debug(String message)
     {
         // Do nothing
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.utils.logging.Logger#debug(java.lang.String, java.lang.Object[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void debug(String format, Object... args)
     {
         // Do nothing
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.utils.logging.Logger#error(java.lang.String)
-     */
+    /** {@inheritDoc} */
     @Override
     public void error(String message)
     {
         // Do nothing
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.utils.logging.Logger#error(java.lang.String, java.lang.Object[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void error(String format, Object... args)
     {

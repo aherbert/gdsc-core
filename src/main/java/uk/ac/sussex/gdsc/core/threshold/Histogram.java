@@ -132,11 +132,7 @@ public class Histogram implements Cloneable
         return bin;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#clone()
-     */
+    /** {@inheritDoc} */
     @Override
     public Histogram clone()
     {

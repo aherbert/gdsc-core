@@ -135,11 +135,7 @@ public class PseudoRandomSequence implements Cloneable
         return d;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#clone()
-     */
+    /** {@inheritDoc} */
     @Override
     public PseudoRandomSequence clone()
     {

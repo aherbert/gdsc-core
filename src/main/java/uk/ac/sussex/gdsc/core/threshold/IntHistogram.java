@@ -69,22 +69,14 @@ public class IntHistogram extends Histogram
         this.offset = offset;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.threshold.Histogram#getValue(int)
-     */
+    /** {@inheritDoc} */
     @Override
     public float getValue(int i)
     {
         return offset + i;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.threshold.Histogram#clone()
-     */
+    /** {@inheritDoc} */
     @Override
     public IntHistogram clone()
     {

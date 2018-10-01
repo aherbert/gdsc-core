@@ -285,11 +285,7 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
             super(parent);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.SimpleKdTreeNode2D#pointDist(double[], double[])
-         */
+        /** {@inheritDoc} */
         // Distance measurements are always called from the root node
         @Override
         protected double pointDist(double[] p1, double[] p2)
@@ -297,12 +293,7 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
             throw new IllegalStateException();
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.SimpleKdTreeNode2D#pointRegionDist(double[], double[],
-         * double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointRegionDist(double[] point, double[] min, double[] max)
         {
@@ -319,11 +310,7 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
      */
     public static class SqrEuclid2D extends SimpleKdTree2D
     {
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.SimpleKdTreeNode2D#pointDist(double[], double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointDist(double[] p1, double[] p2)
         {
@@ -332,12 +319,7 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D
             return dx * dx + dy * dy;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.trees.secondGenKD.SimpleKdTreeNode2D#pointRegionDist(double[], double[],
-         * double[])
-         */
+        /** {@inheritDoc} */
         @Override
         protected double pointRegionDist(double[] point, double[] min, double[] max)
         {

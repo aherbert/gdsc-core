@@ -60,22 +60,14 @@ public class IJLogger implements uk.ac.sussex.gdsc.core.logging.Logger
         this.showError = showError;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.fitting.logging.Logger#info(java.lang.String)
-     */
+    /** {@inheritDoc} */
     @Override
     public void info(String message)
     {
         IJ.log(message);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.fitting.logging.Logger#info(java.lang.String, java.lang.Object[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void info(String format, Object... args)
     {

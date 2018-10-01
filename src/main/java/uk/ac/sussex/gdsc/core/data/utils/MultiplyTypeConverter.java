@@ -62,33 +62,21 @@ public class MultiplyTypeConverter<T> extends AbstractTypeConverter<T>
         this.multiplication = multiplication;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.units.UnitConverter#convert(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public double convert(double value)
     {
         return value * multiplication;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.utils.Converter#convertBack(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public double convertBack(double value)
     {
         return value / multiplication;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.smlm.data.utils.Converter#getFunction()
-     */
+    /** {@inheritDoc} */
     @Override
     public String getFunction()
     {

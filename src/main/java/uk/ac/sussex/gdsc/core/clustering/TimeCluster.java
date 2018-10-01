@@ -124,11 +124,7 @@ public class TimeCluster extends Cluster
         end = FastMath.max(end, other.end);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
+    /** {@inheritDoc} */
     @Override
     public int compareTo(Cluster o)
     {

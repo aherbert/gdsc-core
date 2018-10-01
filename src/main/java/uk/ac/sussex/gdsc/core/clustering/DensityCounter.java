@@ -107,33 +107,21 @@ public class DensityCounter
             setID(id);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see uk.ac.sussex.gdsc.core.clustering.DensityCounter.Molecule#getX()
-         */
+        /** {@inheritDoc} */
         @Override
         public float getX()
         {
             return x;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see uk.ac.sussex.gdsc.core.clustering.DensityCounter.Molecule#getY()
-         */
+        /** {@inheritDoc} */
         @Override
         public float getY()
         {
             return y;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see uk.ac.sussex.gdsc.core.clustering.DensityCounter.Molecule#getID()
-         */
+        /** {@inheritDoc} */
         @Override
         public int getID()
         {
@@ -926,11 +914,7 @@ public class DensityCounter
             this.to = to;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.lang.Runnable#run()
-         */
+        /** {@inheritDoc} */
         @Override
         public void run()
         {
@@ -1027,11 +1011,7 @@ public class DensityCounter
             this.to = to;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.lang.Runnable#run()
-         */
+        /** {@inheritDoc} */
         @Override
         public void run()
         {
@@ -1347,11 +1327,7 @@ public class DensityCounter
             this.to = to;
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.lang.Runnable#run()
-         */
+        /** {@inheritDoc} */
         @Override
         public void run()
         {

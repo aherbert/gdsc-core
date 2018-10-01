@@ -82,11 +82,7 @@ public class RollingArrayMoment implements ArrayMoment
         add(data);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#add(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(double data)
     {
@@ -546,55 +542,35 @@ public class RollingArrayMoment implements ArrayMoment
         n += nb;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getFirstMoment()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getFirstMoment()
     {
         return m1;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getSecondMoment()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getSecondMoment()
     {
         return m2;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getN()
-     */
+    /** {@inheritDoc} */
     @Override
     public long getN()
     {
         return n;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getVariance()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getVariance()
     {
         return getVariance(true);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getVariance(boolean)
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getVariance(boolean isBiasCorrected)
     {
@@ -614,22 +590,14 @@ public class RollingArrayMoment implements ArrayMoment
         return (d > 0) ? d : 0;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getStandardDeviation()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getStandardDeviation()
     {
         return getStandardDeviation(true);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#getStandardDeviation(boolean)
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] getStandardDeviation(boolean isBiasCorrected)
     {
@@ -649,22 +617,14 @@ public class RollingArrayMoment implements ArrayMoment
         return (d > 0) ? Math.sqrt(d) : 0;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#newInstance()
-     */
+    /** {@inheritDoc} */
     @Override
     public RollingArrayMoment newInstance()
     {
         return new RollingArrayMoment();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.math.ArrayMoment#add(uk.ac.sussex.gdsc.core.math.ArrayMoment)
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(ArrayMoment arrayMoment)
     {

@@ -246,44 +246,28 @@ public abstract class BinaryHeap<T>
             super(capacity, 1);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.MaxHeap#removeMax()
-         */
+        /** {@inheritDoc} */
         @Override
         public void removeMax()
         {
             removeTip();
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.MaxHeap#replaceMax(double, java.lang.Object)
-         */
+        /** {@inheritDoc} */
         @Override
         public void replaceMax(double key, T value)
         {
             replaceTip(key, value);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.MaxHeap#getMax()
-         */
+        /** {@inheritDoc} */
         @Override
         public T getMax()
         {
             return getTip();
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.MaxHeap#getMaxKey()
-         */
+        /** {@inheritDoc} */
         @Override
         public double getMaxKey()
         {
@@ -318,44 +302,28 @@ public abstract class BinaryHeap<T>
             super(capacity, -1);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.MinHeap#removeMin()
-         */
+        /** {@inheritDoc} */
         @Override
         public void removeMin()
         {
             removeTip();
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.MinHeap#replaceMin(double, java.lang.Object)
-         */
+        /** {@inheritDoc} */
         @Override
         public void replaceMin(double key, T value)
         {
             replaceTip(key, value);
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.MinHeap#getMin()
-         */
+        /** {@inheritDoc} */
         @Override
         public T getMin()
         {
             return getTip();
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see ags.utils.dataStructures.MinHeap#getMinKey()
-         */
+        /** {@inheritDoc} */
         @Override
         public double getMinKey()
         {

@@ -38,11 +38,7 @@ public class IJTrackProgress implements TrackProgress
     /** The current progress (used in {@link #incrementProgress(double)}). */
     private double done = 0;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.utils.fitting.results.TrackProgress#progress(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public void progress(double fraction)
     {
@@ -51,11 +47,7 @@ public class IJTrackProgress implements TrackProgress
         IJ.showProgress(fraction);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see gdsc.utils.fitting.results.TrackProgress#progress(long, long)
-     */
+    /** {@inheritDoc} */
     @Override
     public void progress(long position, long total)
     {
@@ -77,66 +69,42 @@ public class IJTrackProgress implements TrackProgress
         IJ.showProgress(done);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#log(java.lang.String, java.lang.Object[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void log(String format, Object... args)
     {
         IJ.log(String.format(format, args));
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#status(java.lang.String, java.lang.Object[])
-     */
+    /** {@inheritDoc} */
     @Override
     public void status(String format, Object... args)
     {
         IJ.showStatus(String.format(format, args));
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#isEnded()
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isEnded()
     {
         return Utils.isInterrupted();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#isProgress()
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isProgress()
     {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#isLogging()
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isLog()
     {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.logging.TrackProgress#isStatus()
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isStatus()
     {

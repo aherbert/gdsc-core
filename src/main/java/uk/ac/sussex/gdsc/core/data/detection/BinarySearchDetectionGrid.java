@@ -79,11 +79,7 @@ public class BinarySearchDetectionGrid implements DetectionGrid
         sort(maxyIds, maxy);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.detection.DetectionGrid#size()
-     */
+    /** {@inheritDoc} */
     @Override
     public int size()
     {
@@ -136,11 +132,7 @@ public class BinarySearchDetectionGrid implements DetectionGrid
     private final static byte TWO = 0x02;
     private final static byte FOUR = 0x04;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.data.detection.DetectionGrid#find(double, double)
-     */
+    /** {@inheritDoc} */
     @Override
     public int[] find(double x, double y)
     {

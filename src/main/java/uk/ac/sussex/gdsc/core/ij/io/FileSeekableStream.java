@@ -84,55 +84,35 @@ public final class FileSeekableStream extends SeekableStream
         this(new File(path));
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#getFilePointer()
-     */
+    /** {@inheritDoc} */
     @Override
     public long getFilePointer() throws IOException
     {
         return ras.getFilePointer();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#read()
-     */
+    /** {@inheritDoc} */
     @Override
     public int read() throws IOException
     {
         return ras.read();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#read(byte[], int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     public int read(byte[] bytes, int off, int len) throws IOException
     {
         return ras.read(bytes, off, len);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#seek(long)
-     */
+    /** {@inheritDoc} */
     @Override
     public void seek(long loc) throws IOException
     {
         ras.seek(loc);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see ij.io.SeekableStream#close()
-     */
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException
     {

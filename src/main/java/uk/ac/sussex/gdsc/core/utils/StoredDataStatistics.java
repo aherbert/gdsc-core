@@ -94,11 +94,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
         add(data);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(float[], int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     protected void addInternal(float[] data, int from, int to)
     {
@@ -139,11 +135,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(double[], int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     protected void addInternal(double[] data, int from, int to)
     {
@@ -159,11 +151,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#addInternal(int[], int, int)
-     */
+    /** {@inheritDoc} */
     @Override
     protected void addInternal(int[] data, int from, int to)
     {
@@ -179,11 +167,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#add(double)
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(final double value)
     {
@@ -193,11 +177,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
         ss += value * value;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#add(int, double)
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(int n, double value)
     {
@@ -256,11 +236,7 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
         return stats;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.Statistics#add(uk.ac.sussex.gdsc.core.utils.Statistics)
-     */
+    /** {@inheritDoc} */
     @Override
     public void add(Statistics statistics)
     {
@@ -352,22 +328,14 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.DoubleData#size()
-     */
+    /** {@inheritDoc} */
     @Override
     public int size()
     {
         return n;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see uk.ac.sussex.gdsc.core.utils.DoubleData#values()
-     */
+    /** {@inheritDoc} */
     @Override
     public double[] values()
     {
