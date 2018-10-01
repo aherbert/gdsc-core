@@ -39,7 +39,7 @@ import gnu.trove.list.array.TCharArrayList;
  * Characters will be chosen from the set of characters whose ASCII value is
  * between {@code 32} and {@code 126} (inclusive). This is:
  * <ul>
- * <li>{@code 0} to {@code 0}
+ * <li>{@code 0} to {@code 9}
  * <li>{@code A} to {@code Z}
  * <li>{@code a} to {@code z}
  * <li><code>!"#$%&amp;'()*+,-./:;&lt;=&gt;?@\]^_`{|}</code>
