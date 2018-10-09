@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.math;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * Simple class to calculate the mean and variance of arrayed data using a rolling algorithm. <p>
  * Based on org.apache.commons.math3.stat.descriptive.moment.SecondMoment.

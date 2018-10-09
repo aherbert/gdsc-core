@@ -1,20 +1,31 @@
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.core.data.DoubleArrayTrivalueProvider;
+import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
+import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
+import uk.ac.sussex.gdsc.core.data.ValueProvider;
+import uk.ac.sussex.gdsc.core.data.procedures.StandardTrivalueProcedure;
+import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
+import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
+import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
+import uk.ac.sussex.gdsc.core.utils.Maths;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+import uk.ac.sussex.gdsc.core.utils.Statistics;
+import uk.ac.sussex.gdsc.test.api.TestAssertions;
+import uk.ac.sussex.gdsc.test.api.TestHelper;
+import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Logger;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestCounter;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestSettings;
+import uk.ac.sussex.gdsc.test.utils.TimingResult;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
@@ -27,24 +38,13 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.junit5.*;import uk.ac.sussex.gdsc.test.rng.RngFactory;import uk.ac.sussex.gdsc.core.data.DoubleArrayTrivalueProvider;
-import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
-import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
-import uk.ac.sussex.gdsc.core.data.ValueProvider;
-import uk.ac.sussex.gdsc.core.data.procedures.StandardTrivalueProcedure;
-import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
-import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
-import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
-import uk.ac.sussex.gdsc.core.utils.Maths;
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.core.utils.Statistics;
-import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestCounter;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
-import uk.ac.sussex.gdsc.test.utils.TimingResult;
-import uk.ac.sussex.gdsc.test.utils.TimingService;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
 public class CustomTricubicInterpolatorTest {
@@ -251,7 +251,7 @@ public class CustomTricubicInterpolatorTest {
           for (final double xx : testx) {
             o = f1.value(xx, yy, zz);
             // double e = f2.value(xx, yy, zz);
-            // ExtraAssertions.assertEqualsRelative(e, o, 1e-8);
+            // TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-8, 0));
             final IndexedCubicSplinePosition sx = f1.getXSplinePosition(xx);
             final double o2 = f1.value(sx, sy, sz);
             Assertions.assertEquals(o, o2);
@@ -265,7 +265,7 @@ public class CustomTricubicInterpolatorTest {
                                     (yy - yval[1]) / (yval[2] - yval[1]),
                                     (zz - zval[1]) / (zval[2] - zval[1]));
                             // @formatter:on
-            ExtraAssertions.assertEqualsRelative(e2, o, 1e-8);
+            TestAssertions.assertTest(e2, o, TestHelper.almostEqualDoubles(1e-8, 0));
           }
         }
       }
@@ -278,11 +278,11 @@ public class CustomTricubicInterpolatorTest {
           o = f1.value(xx, yy, 0);
           e = bi.getValue(face, (xx - xval[1]) / (xval[2] - xval[1]),
               (yy - yval[1]) / (yval[2] - yval[1]));
-          ExtraAssertions.assertEqualsRelative(e, o, 1e-8);
+          TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-8, 0));
           o = f1.value(xx, yy, zval[z - 1]);
           e = bi.getValue(face2, (xx - xval[1]) / (xval[2] - xval[1]),
               (yy - yval[1]) / (yval[2] - yval[1]));
-          ExtraAssertions.assertEqualsRelative(e, o, 1e-8);
+          TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-8, 0));
         }
       }
 
@@ -293,11 +293,11 @@ public class CustomTricubicInterpolatorTest {
           o = f1.value(xx, 0, zz);
           e = bi.getValue(face, (xx - xval[1]) / (xval[2] - xval[1]),
               (zz - zval[1]) / (zval[2] - zval[1]));
-          ExtraAssertions.assertEqualsRelative(e, o, 1e-8);
+          TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-8, 0));
           o = f1.value(xx, yval[y - 1], zz);
           e = bi.getValue(face2, (xx - xval[1]) / (xval[2] - xval[1]),
               (zz - zval[1]) / (zval[2] - zval[1]));
-          ExtraAssertions.assertEqualsRelative(e, o, 1e-8);
+          TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-8, 0));
         }
       }
 
@@ -308,11 +308,11 @@ public class CustomTricubicInterpolatorTest {
           o = f1.value(0, yy, zz);
           e = bi.getValue(face, (yy - yval[1]) / (yval[2] - yval[1]),
               (zz - zval[1]) / (zval[2] - zval[1]));
-          ExtraAssertions.assertEqualsRelative(e, o, 1e-8);
+          TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-8, 0));
           o = f1.value(xval[x - 1], yy, zz);
           e = bi.getValue(face2, (yy - yval[1]) / (yval[2] - yval[1]),
               (zz - zval[1]) / (zval[2] - zval[1]));
-          ExtraAssertions.assertEqualsRelative(e, o, 1e-8);
+          TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-8, 0));
         }
       }
     }
@@ -388,7 +388,7 @@ public class CustomTricubicInterpolatorTest {
           for (int xi = 1; xi < 3; xi++) {
             final double o = f1.value(xval[xi] + xx, yval[yi] + yy, zval[zi] + zz);
             final double e = f1.value(xi, yi, zi, table);
-            ExtraAssertions.assertEqualsRelative(e, o, 1e-8);
+            TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-8, 0));
           }
         }
       }
@@ -653,7 +653,7 @@ public class CustomTricubicInterpolatorTest {
 
               final double e = f1.value(xx, yy, zz);
               final double o = f1.value(xx, yy, zz, df_daA);
-              ExtraAssertions.assertEqualsRelative(e, o, 1e-8);
+              TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-8, 0));
 
               double o2 = f1.value(xx, yy, zz, df_daB, d2f_da2A);
               Assertions.assertEquals(o, o2);
@@ -800,14 +800,15 @@ public class CustomTricubicInterpolatorTest {
 
               e = f1.value(x_, y_, z_);
               o = f1.value(xi, yi, zi, table);
-              ExtraAssertions.assertEqualsRelative(e, o, 1e-8);
+              TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-8, 0));
 
               // 1st order gradient
 
               e = f1.value(x_, y_, z_, df_daA);
               o = f1.value(xi, yi, zi, table, df_daB);
-              ExtraAssertions.assertEqualsRelative(e, o, 1e-8);
-              ExtraAssertions.assertArrayEqualsRelative(df_daA, df_daB, 1e-8);
+              TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-8, 0));
+              TestAssertions.assertArrayTest(df_daA, df_daB,
+                  TestHelper.almostEqualDoubles(1e-8, 0));
 
               // Store result
               e1A = df_daA.clone();
@@ -820,8 +821,8 @@ public class CustomTricubicInterpolatorTest {
                 df_daA[k] /= scale[k];
                 df_daB[k] /= scale[k];
               }
-              ExtraAssertions.assertArrayEqualsRelative(e1A, df_daA, 1e-8);
-              ExtraAssertions.assertArrayEqualsRelative(e1A, df_daB, 5e-3);
+              TestAssertions.assertArrayTest(e1A, df_daA, TestHelper.almostEqualDoubles(1e-8, 0));
+              TestAssertions.assertArrayTest(e1A, df_daB, TestHelper.almostEqualDoubles(5e-3, 0));
 
               // Pre-scaled table should be the same
               o2 = f1.value(xi, yi, zi, table, table2, table3, df_daB);
@@ -838,7 +839,8 @@ public class CustomTricubicInterpolatorTest {
               o2 = f1.value(xi, yi, zi, table, df_daB, d2f_da2B);
               Assertions.assertEquals(o, o2);
               Assertions.assertArrayEquals(e1B, df_daB);
-              ExtraAssertions.assertArrayEqualsRelative(d2f_da2A, d2f_da2B, 1e-8);
+              TestAssertions.assertArrayTest(d2f_da2A, d2f_da2B,
+                  TestHelper.almostEqualDoubles(1e-8, 0));
 
               // Store result
               e2B = d2f_da2B.clone();
@@ -855,35 +857,35 @@ public class CustomTricubicInterpolatorTest {
                 df_daA[k] /= scale[k];
                 df_daB[k] /= scale[k];
               }
-              ExtraAssertions.assertArrayEqualsRelative(e1A, df_daA, 1e-8);
-              ExtraAssertions.assertArrayEqualsRelative(e1B, df_daA, 1e-8);
+              TestAssertions.assertArrayTest(e1A, df_daA, TestHelper.almostEqualDoubles(1e-8, 0));
+              TestAssertions.assertArrayTest(e1B, df_daA, TestHelper.almostEqualDoubles(1e-8, 0));
               node.value(ftable, df_daA, df_daB);
               for (int k = 0; k < 3; k++) {
                 df_daA[k] /= scale[k];
                 df_daB[k] /= scale[k];
               }
-              ExtraAssertions.assertArrayEqualsRelative(e1A, df_daA, 5e-3);
-              ExtraAssertions.assertArrayEqualsRelative(e1B, df_daA, 5e-3);
+              TestAssertions.assertArrayTest(e1A, df_daA, TestHelper.almostEqualDoubles(5e-3, 0));
+              TestAssertions.assertArrayTest(e1B, df_daA, TestHelper.almostEqualDoubles(5e-3, 0));
 
               // Test the float tables produce the same results.
               // This just exercises the methods. The accuracy of
               // returned values is checked in a separate test
               // with lower tolerance.
               o = f1.value(xi, yi, zi, ftable);
-              ExtraAssertions.assertEqualsRelative(e, o, 1e-4);
+              TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-4, 0));
               o2 = f1.value(xi, yi, zi, ftable, df_daA);
               Assertions.assertEquals(o, o2);
-              ExtraAssertions.assertArrayEqualsRelative(e1A, df_daA, 5e-3);
+              TestAssertions.assertArrayTest(e1A, df_daA, TestHelper.almostEqualDoubles(5e-3, 0));
               o2 = f1.value(xi, yi, zi, ftable, ftable2, ftable3, df_daA);
               Assertions.assertEquals(o, o2);
               o2 = f1.value(xi, yi, zi, ftable, df_daB, d2f_da2B);
               Assertions.assertEquals(o, o2);
               Assertions.assertArrayEquals(df_daA, df_daB);
-              ExtraAssertions.assertArrayEqualsRelative(e2B, d2f_da2B, 5e-3);
+              TestAssertions.assertArrayTest(e2B, d2f_da2B, TestHelper.almostEqualDoubles(5e-3, 0));
               o2 = f1.value(xi, yi, zi, ftable, ftable2, ftable3, ftable6, df_daB, d2f_da2B);
               Assertions.assertEquals(o, o2);
               Assertions.assertArrayEquals(df_daA, df_daB);
-              ExtraAssertions.assertArrayEqualsRelative(e2B, d2f_da2B, 5e-3);
+              TestAssertions.assertArrayTest(e2B, d2f_da2B, TestHelper.almostEqualDoubles(5e-3, 0));
             }
           }
         }
@@ -920,10 +922,10 @@ public class CustomTricubicInterpolatorTest {
     final CustomTricubicInterpolatingFunction f1 =
         new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
 
-    final double valueTolerance = 1e-5;
+    final DoubleDoubleBiPredicate valueTolerance = TestHelper.almostEqualDoubles(1e-5, 0);
     // The gradients are computed using float and the tolerance is low
-    final double gradientTolerance = 5e-3;
-    final double gradientTolerance2 = 1e-2;
+    final DoubleDoubleBiPredicate gradientTolerance = TestHelper.almostEqualDoubles(5e-3, 0);
+    final DoubleDoubleBiPredicate gradientTolerance2 = TestHelper.almostEqualDoubles(1e-2, 0);
 
     // Extract nodes for testing
     final CustomTricubicFunction[] nodes = new CustomTricubicFunction[2 * 2 * 2];
@@ -955,14 +957,14 @@ public class CustomTricubicInterpolatorTest {
         // Just check relative to the double-table version
         e = n1.value(table);
         o = n2.value(ftable);
-        ExtraAssertions.assertEqualsRelative(e, o, valueTolerance);
+        TestAssertions.assertTest(e, o, valueTolerance);
 
         // 1st order gradient
 
         n1.value(table, df_daA);
         o2 = n2.value(ftable, df_daB);
         Assertions.assertEquals(o, o2);
-        ExtraAssertions.assertArrayEqualsRelative(df_daA, df_daB, gradientTolerance);
+        TestAssertions.assertArrayTest(df_daA, df_daB, gradientTolerance);
 
         // Store result
         e1B = df_daB.clone();
@@ -975,7 +977,7 @@ public class CustomTricubicInterpolatorTest {
         Assertions.assertEquals(o, o2);
         Assertions.assertArrayEquals(e1B, df_daB);
         // Check 2nd order gradient
-        ExtraAssertions.assertArrayEqualsRelative(d2f_da2A, d2f_da2B, gradientTolerance2);
+        TestAssertions.assertArrayTest(d2f_da2A, d2f_da2B, gradientTolerance2);
 
         // Store result
         e2B = d2f_da2B.clone();
@@ -1337,12 +1339,13 @@ public class CustomTricubicInterpolatorTest {
     Assertions.assertArrayEquals(SimpleArrayUtils.newArray((z - 1) * n + 1, 0, zscale / n), p.z,
         1e-6);
 
+    final DoubleDoubleBiPredicate equality = TestHelper.almostEqualDoubles(1e-8, 0);
+
     for (int i = 0; i < p.x.length; i++) {
       for (int j = 0; j < p.y.length; j++) {
         for (int k = 0; k < p.z.length; k++) {
           // Test original function interpolated value against the sample
-          ExtraAssertions.assertEqualsRelative(f1.value(p.x[i], p.y[j], p.z[k]), p.value[i][j][k],
-              1e-8);
+          TestAssertions.assertTest(f1.value(p.x[i], p.y[j], p.z[k]), p.value[i][j][k], equality);
         }
       }
     }
@@ -1504,10 +1507,11 @@ public class CustomTricubicInterpolatorTest {
 
                   final double e = next.value(0, 0, 0, df_daA);
                   final double o = previous.value(i, j, k, df_daB);
-                  ExtraAssertions.assertEqualsRelative(e, o, 1e-8);
+                  TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-8, 0));
 
                   for (int c = 0; c < 3; c++) {
-                    ExtraAssertions.assertEqualsRelative(df_daA[c], df_daB[c], 1e-8);
+                    TestAssertions.assertTest(df_daA[c], df_daB[c],
+                        TestHelper.almostEqualDoubles(1e-8, 0));
                     // Assertions.assertTrue(DoubleEquality.almostEqualRelativeOrAbsolute(df_daA[c],
                     // df_daB[c], 1e-8, 1e-12));
                   }
@@ -1672,10 +1676,10 @@ public class CustomTricubicInterpolatorTest {
 
       // Since the cubic function is not the same as the input we cannot be too
       // precise here
-      ExtraAssertions.assertEqualsRelative(cx, last[0], 5e-2);
-      ExtraAssertions.assertEqualsRelative(cy, last[1], 5e-2);
-      ExtraAssertions.assertEqualsRelative(cz, last[2], 5e-2);
-      ExtraAssertions.assertEqualsRelative(amplitude, last[3], 5e-2);
+      TestAssertions.assertTest(cx, last[0], TestHelper.almostEqualDoubles(5e-2, 0));
+      TestAssertions.assertTest(cy, last[1], TestHelper.almostEqualDoubles(5e-2, 0));
+      TestAssertions.assertTest(cz, last[2], TestHelper.almostEqualDoubles(5e-2, 0));
+      TestAssertions.assertTest(amplitude, last[3], TestHelper.almostEqualDoubles(5e-2, 0));
     }
   }
 

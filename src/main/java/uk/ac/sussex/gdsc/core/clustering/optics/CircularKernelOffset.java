@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * Represent a circular kernel around a central pixel with size 2 * resolution + 1.
  */

@@ -19,14 +19,6 @@
  */
 package uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * An efficient well-optimized kd-tree <p> This is a basic copy of the KdTree class but limited to 2
  * dimensions. Stores only integer Ids and not objects.

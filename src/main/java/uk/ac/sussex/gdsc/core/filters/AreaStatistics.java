@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.filters;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * Compute statistics using an area region of an 2D data frame.
  */

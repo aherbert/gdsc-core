@@ -28,13 +28,22 @@
  */
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
+import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
+import uk.ac.sussex.gdsc.core.data.ValueProvider;
+import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
+import uk.ac.sussex.gdsc.core.ij.Utils;
+import uk.ac.sussex.gdsc.core.logging.Ticker;
+import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+import uk.ac.sussex.gdsc.core.utils.TurboList;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import org.apache.commons.math3.analysis.TrivariateFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
+import org.apache.commons.math3.exception.NoDataException;
+import org.apache.commons.math3.exception.NonMonotonicSequenceException;
+import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.commons.math3.util.MathArrays.OrderDirection;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -47,23 +56,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-
-import org.apache.commons.math3.analysis.TrivariateFunction;
-import org.apache.commons.math3.exception.DimensionMismatchException;
-import org.apache.commons.math3.exception.NoDataException;
-import org.apache.commons.math3.exception.NonMonotonicSequenceException;
-import org.apache.commons.math3.exception.OutOfRangeException;
-import org.apache.commons.math3.util.MathArrays.OrderDirection;
-
-import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
-import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
-import uk.ac.sussex.gdsc.core.data.ValueProvider;
-import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
-import uk.ac.sussex.gdsc.core.ij.Utils;
-import uk.ac.sussex.gdsc.core.logging.Ticker;
-import uk.ac.sussex.gdsc.core.logging.TrackProgress;
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
  * Function that implements the <a href="http://en.wikipedia.org/wiki/Tricubic_interpolation">

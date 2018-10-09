@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.thirdGenKD.DistanceFunction;
 import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.thirdGenKD.KdTree2D;
 import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.thirdGenKD.NearestNeighborIterator;

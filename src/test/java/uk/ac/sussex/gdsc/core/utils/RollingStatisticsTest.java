@@ -1,12 +1,11 @@
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.api.TestAssertions;
+import uk.ac.sussex.gdsc.test.api.TestHelper;
+import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.rng.UniformRandomProvider;
@@ -85,11 +84,11 @@ public class RollingStatisticsTest {
     o4.add(d1);
     o4.add(d2);
 
+    final DoubleDoubleBiPredicate equality = TestHelper.almostEqualDoubles(1e-10, 0);
     Assertions.assertEquals(o3.getN(), o4.getN(), "N");
-    ExtraAssertions.assertEqualsRelative(o3.getMean(), o4.getMean(), 1e-10, "Mean");
-    ExtraAssertions.assertEqualsRelative(o3.getVariance(), o4.getVariance(), 1e-10, "Variance");
-    ExtraAssertions.assertEqualsRelative(o3.getStandardDeviation(), o4.getStandardDeviation(),
-        1e-10, "SD");
+    TestAssertions.assertTest(o3.getMean(), o4.getMean(), equality, "Mean");
+    TestAssertions.assertTest(o3.getVariance(), o4.getVariance(), equality, "Variance");
+    TestAssertions.assertTest(o3.getStandardDeviation(), o4.getStandardDeviation(), equality, "SD");
   }
 
   @Test

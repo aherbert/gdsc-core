@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.data;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * Provide data on 3-axes. This is a simple interface to allow passing XYZ data stored in a
  * different layout without rewriting the data.

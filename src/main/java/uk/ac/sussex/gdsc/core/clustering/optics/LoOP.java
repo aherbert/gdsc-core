@@ -27,23 +27,15 @@
  */
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.FloatIntKdTree2D;
+import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.IntNeighbourStore;
+import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.Status;
+import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.FloatIntKdTree2D;
-import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.IntNeighbourStore;
-import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.Status;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
  * LoOP: Local Outlier Probabilities <p> Distance/density based algorithm similar to Local Outlier

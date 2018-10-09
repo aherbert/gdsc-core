@@ -3,6 +3,17 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 import uk.ac.sussex.gdsc.test.junit5.*;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.test.api.*;
+import uk.ac.sussex.gdsc.test.utils.*;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.test.api.*;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
 
 import uk.ac.sussex.gdsc.test.junit5.*;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
@@ -118,7 +129,7 @@ public class AsciiStringSamplerTest {
   @Test
   public void testAll() {
     final Level level = Level.INFO;
-    ExtraAssumptions.assume(logger, level);
+    Assumptions.assumeTrue(logger.isLoggable(level));
     final RestorableUniformRandomProvider rng1 = RandomSource.create(RandomSource.MWC_256);
     final AsciiStringSampler s = new AsciiStringSampler(rng1);
     final int count = 200;

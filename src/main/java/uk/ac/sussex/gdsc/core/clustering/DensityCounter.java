@@ -27,21 +27,13 @@
  */
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.utils.FixedIntList;
+import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import uk.ac.sussex.gdsc.core.utils.FixedIntList;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
  * Calculate the density of classes of molecules around a given position.

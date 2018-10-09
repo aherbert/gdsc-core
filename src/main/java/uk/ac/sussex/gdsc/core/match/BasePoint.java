@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.match;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * <p> Stores a 2D/3D point. <p> Overrides equals and hashCode methods using x,y,z, coordinates for
  * equivalence. Derived classes can optionally override this.

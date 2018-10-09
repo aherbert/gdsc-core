@@ -27,19 +27,12 @@
  */
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.ij.text.TextWindow2;
 
 import java.awt.Frame;
 
 import ij.text.TextPanel;
 import ij.text.TextWindow;
-import uk.ac.sussex.gdsc.core.ij.text.TextWindow2;
 
 /**
  * Buffer to the ImageJ text window. Updates the display when 10 lines have been reached (to

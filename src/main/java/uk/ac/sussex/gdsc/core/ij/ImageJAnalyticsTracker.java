@@ -27,13 +27,13 @@
  */
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.analytics.ClientParameters;
+import uk.ac.sussex.gdsc.analytics.ClientParametersManager;
+import uk.ac.sussex.gdsc.analytics.HitType;
+import uk.ac.sussex.gdsc.analytics.JGoogleAnalyticsTracker;
+import uk.ac.sussex.gdsc.analytics.JGoogleAnalyticsTracker.DispatchMode;
+import uk.ac.sussex.gdsc.analytics.JGoogleAnalyticsTracker.MeasurementProtocolVersion;
+import uk.ac.sussex.gdsc.analytics.RequestParameters;
 
 import java.awt.AWTEvent;
 import java.awt.Button;
@@ -53,13 +53,6 @@ import ij.Prefs;
 import ij.gui.DialogListener;
 import ij.gui.GenericDialog;
 import ij.macro.MacroRunner;
-import uk.ac.sussex.gdsc.analytics.ClientParameters;
-import uk.ac.sussex.gdsc.analytics.ClientParametersManager;
-import uk.ac.sussex.gdsc.analytics.HitType;
-import uk.ac.sussex.gdsc.analytics.JGoogleAnalyticsTracker;
-import uk.ac.sussex.gdsc.analytics.JGoogleAnalyticsTracker.DispatchMode;
-import uk.ac.sussex.gdsc.analytics.JGoogleAnalyticsTracker.MeasurementProtocolVersion;
-import uk.ac.sussex.gdsc.analytics.RequestParameters;
 
 /**
  * Provide a global reference to JGoogleAnalyticsTracker for tracking GDSC ImageJ plugins

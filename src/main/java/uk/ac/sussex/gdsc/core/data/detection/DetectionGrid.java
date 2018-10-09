@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.data.detection;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * Interface to compute collision detections between a 2D point and a set of objects
  */

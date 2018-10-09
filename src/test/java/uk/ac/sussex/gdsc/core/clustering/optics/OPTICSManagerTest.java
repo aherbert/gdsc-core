@@ -3,6 +3,17 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 import uk.ac.sussex.gdsc.test.junit5.*;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.test.api.*;
+import uk.ac.sussex.gdsc.test.utils.*;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.test.api.*;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
 
 import uk.ac.sussex.gdsc.test.junit5.*;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
@@ -413,7 +424,7 @@ public class OPTICSManagerTest {
 
           Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("[%d] Id", i));
           Assertions.assertEquals(expPre, obsPre, FunctionUtils.getSupplier("[%d] Pre", i));
-          ExtraAssertions.assertEqualsRelative(expR, obsR, 1e-5,
+          TestAssertions.assertTest(expR, obsR, TestHelper.almostEqualDoubles(1e-5, 0),
               FunctionUtils.getSupplier("[%d] R", i));
         }
       }
@@ -497,7 +508,7 @@ public class OPTICSManagerTest {
 
           Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("Id %d", i));
           Assertions.assertEquals(expPre, obsPre, FunctionUtils.getSupplier("Pre %d", i));
-          ExtraAssertions.assertEqualsRelative(expR, obsR, 1e-5,
+          TestAssertions.assertTest(expR, obsR, TestHelper.almostEqualDoubles(1e-5, 0),
               FunctionUtils.getSupplier("R %d", i));
         }
       }
@@ -642,7 +653,7 @@ public class OPTICSManagerTest {
       for (final int minPts : new int[] {4}) {
         double sum = 0;
         for (int loop = 0; loop < nLoops; loop++) {
-          final long loopSeed = seed.getSeed() + loop + 1;
+          final long loopSeed = seed.getSeedAsLong() + loop + 1;
           // Reset starting Id to 1
           final DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data, null, 0);
           ListParameterization params = new ListParameterization();
@@ -810,7 +821,7 @@ public class OPTICSManagerTest {
       final OPTICSManager om = createOPTICSManager(size, n, rg);
       om.setTracker(tracker);
       om.setOptions(Option.OPTICS_STRICT_ID_ORDER);
-      om.setRandomSeed(seed.getSeed());
+      om.setRandomSeed(seed.getSeedAsLong());
 
       for (final int minPts : minPoints) {
         // Default using ALL
@@ -983,11 +994,11 @@ public class OPTICSManagerTest {
       // TestLog.debug(logger,"[%d] %d %d : %f = %f (%f) : %s = %d", i, expId, obsId, expR, obsR,
       // r1.get(i).coreDistance, expPre, obsPre);
 
-      ExtraAssertions.assertEqualsRelative(expC, obsC, 1e-5,
+      TestAssertions.assertTest(expC, obsC, TestHelper.almostEqualDoubles(1e-5, 0),
           FunctionUtils.getSupplier("%s C %d", title, i));
       Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("%s Id %d", title, i));
       Assertions.assertEquals(expPre, obsPre, FunctionUtils.getSupplier("%s Pre %d", title, i));
-      ExtraAssertions.assertEqualsRelative(expR, obsR, 1e-5,
+      TestAssertions.assertTest(expR, obsR, TestHelper.almostEqualDoubles(1e-5, 0),
           FunctionUtils.getSupplier("%s R %d", title, i));
     }
   }
@@ -2279,7 +2290,7 @@ public class OPTICSManagerTest {
           // TestLog.debug(logger,"%s %d %d : %f = %f", prefix, expId, obsId, expL, obsL);
 
           Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("[%d] Id", i));
-          ExtraAssertions.assertEqualsRelative(expL, obsL, 1e-2,
+          TestAssertions.assertTest(expL, obsL, TestHelper.almostEqualDoubles(1e-2, 0),
               FunctionUtils.getSupplier("[%d] LoOP", i));
         }
       }

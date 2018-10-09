@@ -1,12 +1,8 @@
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.test.api.TestAssertions;
+import uk.ac.sussex.gdsc.test.api.TestHelper;
+import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 
 import org.junit.jupiter.api.Test;
 
@@ -42,6 +38,8 @@ public class CachedBicubicInterpolatorTest {
       x3[i] = x[i] * x[i] * x[i];
     }
 
+    final DoubleDoubleBiPredicate equality = TestHelper.almostEqualDoubles(1e-5, 0);
+
     for (int i = 0; i < x.length; i++) {
       for (int j = 0; j < x.length; j++) {
 
@@ -50,30 +48,27 @@ public class CachedBicubicInterpolatorTest {
         CachedBicubicInterpolator in = new CachedBicubicInterpolator();
         in.updateCoefficients(fdata);
 
-        ExtraAssertions.assertEqualsRelative(e, in.getValue(x[i], x[j]), 1e-5);
-        ExtraAssertions.assertEqualsRelative(e, in.getValue(x[i], x2[i], x3[i], x[j], x2[j], x3[j]),
-            1e-5);
+
+        TestAssertions.assertTest(e, in.getValue(x[i], x[j]), equality);
+        TestAssertions.assertTest(e, in.getValue(x[i], x2[i], x3[i], x[j], x2[j], x3[j]), equality);
 
         in = new CachedBicubicInterpolator();
         in.updateCoefficients(ddata);
 
-        ExtraAssertions.assertEqualsRelative(e, in.getValue(x[i], x[j]), 1e-5);
-        ExtraAssertions.assertEqualsRelative(e, in.getValue(x[i], x2[i], x3[i], x[j], x2[j], x3[j]),
-            1e-5);
+        TestAssertions.assertTest(e, in.getValue(x[i], x[j]), equality);
+        TestAssertions.assertTest(e, in.getValue(x[i], x2[i], x3[i], x[j], x2[j], x3[j]), equality);
 
         in = new CachedBicubicInterpolator();
         in.updateCoefficients(ffdata);
 
-        ExtraAssertions.assertEqualsRelative(e, in.getValue(x[i], x[j]), 1e-5);
-        ExtraAssertions.assertEqualsRelative(e, in.getValue(x[i], x2[i], x3[i], x[j], x2[j], x3[j]),
-            1e-5);
+        TestAssertions.assertTest(e, in.getValue(x[i], x[j]), equality);
+        TestAssertions.assertTest(e, in.getValue(x[i], x2[i], x3[i], x[j], x2[j], x3[j]), equality);
 
         in = new CachedBicubicInterpolator();
         in.updateCoefficients(dddata);
 
-        ExtraAssertions.assertEqualsRelative(e, in.getValue(x[i], x[j]), 1e-5);
-        ExtraAssertions.assertEqualsRelative(e, in.getValue(x[i], x2[i], x3[i], x[j], x2[j], x3[j]),
-            1e-5);
+        TestAssertions.assertTest(e, in.getValue(x[i], x[j]), equality);
+        TestAssertions.assertTest(e, in.getValue(x[i], x2[i], x3[i], x[j], x2[j], x3[j]), equality);
       }
     }
   }

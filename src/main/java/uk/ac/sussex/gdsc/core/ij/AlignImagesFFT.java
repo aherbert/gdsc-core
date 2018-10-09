@@ -27,17 +27,9 @@
  */
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import org.apache.commons.math3.util.FastMath;
 
 import java.awt.Rectangle;
-
-import org.apache.commons.math3.util.FastMath;
 
 import ij.IJ;
 import ij.ImagePlus;

@@ -27,17 +27,9 @@
  */
 package uk.ac.sussex.gdsc.core.filters;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.utils.FixedIntList;
 
 import org.apache.commons.math3.util.FastMath;
-
-import uk.ac.sussex.gdsc.core.utils.FixedIntList;
 
 /**
  * Computes the local maxima.

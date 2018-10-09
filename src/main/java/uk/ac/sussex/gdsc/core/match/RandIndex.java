@@ -27,17 +27,9 @@
  */
 package uk.ac.sussex.gdsc.core.match;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.utils.Maths;
 
 import java.math.BigInteger;
-
-import uk.ac.sussex.gdsc.core.utils.Maths;
 
 /**
  * Compute the Rand index for two classifications of a set of data. <p> The Rand index has a value

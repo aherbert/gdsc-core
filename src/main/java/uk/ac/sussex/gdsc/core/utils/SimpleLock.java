@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * Class for simple lock acquisition for threaded applications. Allows multiple threads to view the
  * same lock and only execute code if another thread is not currently in possession of the lock so

@@ -28,18 +28,10 @@
  */
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.exception.OutOfRangeException;
-
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 /**
  * 3D-spline function.

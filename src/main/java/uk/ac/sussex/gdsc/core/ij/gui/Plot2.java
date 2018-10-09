@@ -27,20 +27,13 @@
  */
 package uk.ac.sussex.gdsc.core.ij.gui;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.ij.Utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import ij.IJ;
 import ij.gui.Plot;
-import uk.ac.sussex.gdsc.core.ij.Utils;
 
 /**
  * Extension of the {@link ij.gui.Plot} class to add functionality.

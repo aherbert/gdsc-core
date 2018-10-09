@@ -27,16 +27,9 @@
  */
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 import ij.plugin.frame.Recorder;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
  * Contains helper functions for the recorder

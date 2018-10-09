@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.threshold;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 
 // History of the Auto_ThresholdImageJ plugin of G. Landini:

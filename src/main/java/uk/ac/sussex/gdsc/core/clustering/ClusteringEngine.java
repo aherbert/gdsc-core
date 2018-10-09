@@ -27,13 +27,11 @@
  */
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.core.ij.Utils;
+import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
+import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import org.apache.commons.math3.util.FastMath;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -43,12 +41,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import org.apache.commons.math3.util.FastMath;
-
-import uk.ac.sussex.gdsc.core.ij.Utils;
-import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
-import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 
 /**
  * Find clusters of points using a clustering algorithm.

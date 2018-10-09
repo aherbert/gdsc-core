@@ -27,13 +27,8 @@
  */
 package uk.ac.sussex.gdsc.core.ij.roi;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.data.procedures.FValueProcedure;
+import uk.ac.sussex.gdsc.core.data.procedures.IValueProcedure;
 
 import java.awt.Rectangle;
 
@@ -42,8 +37,6 @@ import ij.ImageStack;
 import ij.gui.Roi;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
-import uk.ac.sussex.gdsc.core.data.procedures.FValueProcedure;
-import uk.ac.sussex.gdsc.core.data.procedures.IValueProcedure;
 
 /**
  * Class for working with image ROIs.

@@ -27,27 +27,19 @@
  */
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.awt.Rectangle;
-import java.util.EnumSet;
-
-import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.PermutationSampler;
-import org.apache.commons.rng.simple.RandomSource;
-
 import uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D;
 import uk.ac.sussex.gdsc.core.clustering.CoordinateStore;
 import uk.ac.sussex.gdsc.core.ij.Utils;
 import uk.ac.sussex.gdsc.core.utils.Maths;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
+
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.PermutationSampler;
+import org.apache.commons.rng.simple.RandomSource;
+
+import java.awt.Rectangle;
+import java.util.EnumSet;
 
 /**
  * Compute clustering using OPTICS. <p> This is an implementation of the OPTICS method. Mihael

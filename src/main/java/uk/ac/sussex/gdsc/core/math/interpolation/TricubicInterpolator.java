@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * Tricubic Interpolator using the Catmull-Rom spline. <p> Taken from
  * http://www.paulinternet.nl/?page=bicubic.

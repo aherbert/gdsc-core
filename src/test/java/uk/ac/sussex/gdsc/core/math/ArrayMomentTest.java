@@ -1,28 +1,30 @@
 package uk.ac.sussex.gdsc.core.math;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.core.data.IntegerType;
+import uk.ac.sussex.gdsc.core.utils.Statistics;
+import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerFactory;
+import uk.ac.sussex.gdsc.test.api.TestAssertions;
+import uk.ac.sussex.gdsc.test.api.TestHelper;
+import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.util.logging.Logger;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestSettings;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 import org.apache.commons.math3.stat.descriptive.moment.SecondMoment;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.GaussianSampler;
+import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
+import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSampler;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.junit5.*;import uk.ac.sussex.gdsc.test.rng.RngFactory;import uk.ac.sussex.gdsc.core.data.IntegerType;
-import uk.ac.sussex.gdsc.core.utils.Statistics;
-import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerFactory;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
 public class ArrayMomentTest {
@@ -38,7 +40,7 @@ public class ArrayMomentTest {
     logger = null;
   }
 
-  final double DELTA = 1e-8;
+  final DoubleDoubleBiPredicate DELTA = TestHelper.almostEqualDoubles(1e-8, 0);
   final int MAX_INT = 65335; // Unsigned 16-bit int
 
   @SeededTest
@@ -53,7 +55,7 @@ public class ArrayMomentTest {
     }
     canComputeMoment("Uniform", d, new RollingArrayMoment());
 
-    final GaussianSampler g = GaussianSamplerFactory.createGaussianSampler(rand, 0, 1);
+    final NormalizedGaussianSampler g = new ZigguratNormalizedGaussianSampler(rand);
     for (int i = 0; i < d.length; i++) {
       d[i] = (float) g.sample();
     }
@@ -159,10 +161,10 @@ public class ArrayMomentTest {
     final double[] ov = r2[0].getVariance();
     final double[] osd = r2[0].getStandardDeviation();
 
-    ExtraAssertions.assertArrayEqualsRelative(em1, om1, DELTA, "Mean");
-    ExtraAssertions.assertArrayEqualsRelative(em2, om2, DELTA, "2nd Moment");
-    ExtraAssertions.assertArrayEqualsRelative(ev, ov, DELTA, "Variance");
-    ExtraAssertions.assertArrayEqualsRelative(esd, osd, DELTA, "SD");
+    TestAssertions.assertArrayTest(em1, om1, DELTA, "Mean");
+    TestAssertions.assertArrayTest(em2, om2, DELTA, "2nd Moment");
+    TestAssertions.assertArrayTest(ev, ov, DELTA, "Variance");
+    TestAssertions.assertArrayTest(esd, osd, DELTA, "SD");
   }
 
   // Copy to here
@@ -285,10 +287,10 @@ public class ArrayMomentTest {
     final double[] ov = r2[0].getVariance();
     final double[] osd = r2[0].getStandardDeviation();
 
-    ExtraAssertions.assertArrayEqualsRelative(em1, om1, DELTA, "Mean");
-    ExtraAssertions.assertArrayEqualsRelative(em2, om2, DELTA, "2nd Moment");
-    ExtraAssertions.assertArrayEqualsRelative(ev, ov, DELTA, "Variance");
-    ExtraAssertions.assertArrayEqualsRelative(esd, osd, DELTA, "SD");
+    TestAssertions.assertArrayTest(em1, om1, DELTA, "Mean");
+    TestAssertions.assertArrayTest(em2, om2, DELTA, "2nd Moment");
+    TestAssertions.assertArrayTest(ev, ov, DELTA, "Variance");
+    TestAssertions.assertArrayTest(esd, osd, DELTA, "SD");
   }
 
   @SeededTest
@@ -390,14 +392,13 @@ public class ArrayMomentTest {
     for (int i = 0; i < d.length; i++) {
       r2.add(new double[] {d[i]});
     }
-    ExtraAssertions.assertEqualsRelative(m1.getMean(), r2.getFirstMoment()[0], DELTA,
-        () -> title + " Mean");
-    ExtraAssertions.assertEqualsRelative(m2.getResult(), r2.getSecondMoment()[0], DELTA,
+    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], DELTA, () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], DELTA,
         () -> title + " 2nd Moment");
-    ExtraAssertions.assertEqualsRelative(m1.getVariance(), r2.getVariance()[0], DELTA,
+    TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], DELTA,
         () -> title + " Variance");
-    ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), r2.getStandardDeviation()[0],
-        DELTA, () -> title + " SD");
+    TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], DELTA,
+        () -> title + " SD");
   }
 
   private void canComputeMoment(String title, float[] d, ArrayMoment r2) {
@@ -408,14 +409,13 @@ public class ArrayMomentTest {
     for (int i = 0; i < d.length; i++) {
       r2.add(new double[] {d[i]});
     }
-    ExtraAssertions.assertEqualsRelative(m1.getMean(), r2.getFirstMoment()[0], DELTA,
-        () -> title + " Mean");
-    ExtraAssertions.assertEqualsRelative(m2.getResult(), r2.getSecondMoment()[0], DELTA,
+    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], DELTA, () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], DELTA,
         () -> title + " 2nd Moment");
-    ExtraAssertions.assertEqualsRelative(m1.getVariance(), r2.getVariance()[0], DELTA,
+    TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], DELTA,
         () -> title + " Variance");
-    ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), r2.getStandardDeviation()[0],
-        DELTA, () -> title + " SD");
+    TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], DELTA,
+        () -> title + " SD");
   }
 
   private static double[] toDouble(float[] in) {
@@ -434,14 +434,13 @@ public class ArrayMomentTest {
     for (int i = 0; i < d.length; i++) {
       r2.add(new int[] {d[i]});
     }
-    ExtraAssertions.assertEqualsRelative(m1.getMean(), r2.getFirstMoment()[0], DELTA,
-        () -> title + " Mean");
-    ExtraAssertions.assertEqualsRelative(m2.getResult(), r2.getSecondMoment()[0], DELTA,
+    TestAssertions.assertTest(m1.getMean(), r2.getFirstMoment()[0], DELTA, () -> title + " Mean");
+    TestAssertions.assertTest(m2.getResult(), r2.getSecondMoment()[0], DELTA,
         () -> title + " 2nd Moment");
-    ExtraAssertions.assertEqualsRelative(m1.getVariance(), r2.getVariance()[0], DELTA,
+    TestAssertions.assertTest(m1.getVariance(), r2.getVariance()[0], DELTA,
         () -> title + " Variance");
-    ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), r2.getStandardDeviation()[0],
-        DELTA, () -> title + " SD");
+    TestAssertions.assertTest(m1.getStandardDeviation(), r2.getStandardDeviation()[0], DELTA,
+        () -> title + " SD");
   }
 
   private static double[] toDouble(int[] in) {
@@ -484,13 +483,10 @@ public class ArrayMomentTest {
         m1.add(d[i][n]);
         m2.increment(d[i][n]);
       }
-      ExtraAssertions.assertEqualsRelative(m1.getMean(), om1[n], DELTA, () -> title + " Mean");
-      ExtraAssertions.assertEqualsRelative(m2.getResult(), om2[n], DELTA,
-          () -> title + " 2nd Moment");
-      ExtraAssertions.assertEqualsRelative(m1.getVariance(), ov[n], DELTA,
-          () -> title + " Variance");
-      ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), osd[n], DELTA,
-          () -> title + " SD");
+      TestAssertions.assertTest(m1.getMean(), om1[n], DELTA, () -> title + " Mean");
+      TestAssertions.assertTest(m2.getResult(), om2[n], DELTA, () -> title + " 2nd Moment");
+      TestAssertions.assertTest(m1.getVariance(), ov[n], DELTA, () -> title + " Variance");
+      TestAssertions.assertTest(m1.getStandardDeviation(), osd[n], DELTA, () -> title + " SD");
     }
   }
 
@@ -510,13 +506,10 @@ public class ArrayMomentTest {
         m1.add(d[i][n]);
         m2.increment(d[i][n]);
       }
-      ExtraAssertions.assertEqualsRelative(m1.getMean(), om1[n], DELTA, () -> title + " Mean");
-      ExtraAssertions.assertEqualsRelative(m2.getResult(), om2[n], DELTA,
-          () -> title + " 2nd Moment");
-      ExtraAssertions.assertEqualsRelative(m1.getVariance(), ov[n], DELTA,
-          () -> title + " Variance");
-      ExtraAssertions.assertEqualsRelative(m1.getStandardDeviation(), osd[n], DELTA,
-          () -> title + " SD");
+      TestAssertions.assertTest(m1.getMean(), om1[n], DELTA, () -> title + " Mean");
+      TestAssertions.assertTest(m2.getResult(), om2[n], DELTA, () -> title + " 2nd Moment");
+      TestAssertions.assertTest(m1.getVariance(), ov[n], DELTA, () -> title + " Variance");
+      TestAssertions.assertTest(m1.getStandardDeviation(), osd[n], DELTA, () -> title + " SD");
     }
   }
 
@@ -543,8 +536,7 @@ public class ArrayMomentTest {
         Double.toString(m1.getFirstMoment()[0]), Double.toString(r2.getFirstMoment()[0]),
         Double.toString(m1.getStandardDeviation()[0]),
         Double.toString(r2.getStandardDeviation()[0])));
-    ExtraAssertions.assertEqualsRelative(m1.getFirstMoment()[0], r2.getFirstMoment()[0], DELTA,
-        "Mean");
+    TestAssertions.assertTest(m1.getFirstMoment()[0], r2.getFirstMoment()[0], DELTA, "Mean");
     Assertions.assertEquals(m2.getResult(), r2.getSecondMoment()[0], "2nd Moment");
   }
 }

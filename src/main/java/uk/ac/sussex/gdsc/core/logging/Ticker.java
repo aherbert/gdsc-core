@@ -27,18 +27,10 @@
  */
 package uk.ac.sussex.gdsc.core.logging;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.ij.Utils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
-import uk.ac.sussex.gdsc.core.ij.Utils;
 
 /**
  * Track the progress of processing results in incremental updates to a progress tracker

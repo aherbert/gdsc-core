@@ -1,23 +1,17 @@
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectIntProcedure;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 /**
  * This class is used to in-line the computation for the CustomTricubicFunction. <p> The ordering of
@@ -729,7 +723,7 @@ if (k < N_1)
   @Test
   public void canConstructInlineValue() {
     // DoubleCustomTricubicFunction#value0(double[], double[], double[])
-    ExtraAssumptions.assume(logger, level);
+    Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineValue());
   }
 
@@ -737,21 +731,21 @@ if (k < N_1)
   public void canConstructInlineValueWithPowerTable() {
     // DoubleCustomTricubicFunction#value(double[])
     // DoubleCustomTricubicFunction#value(float[])
-    ExtraAssumptions.assume(logger, level);
+    Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineValueWithPowerTable());
   }
 
   @Test
   public void canConstructInlineComputePowerTable() {
-    // CustomTricubicFunction.computePowerTable
-    ExtraAssumptions.assume(logger, level);
+    // CustomTricubicFunction#computePowerTable
+    Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineComputePowerTable());
   }
 
   @Test
   public void canConstructInlineValue1() {
     // DoubleCustomTricubicFunction#value1(double[], double[], double[], double[])
-    ExtraAssumptions.assume(logger, level);
+    Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineValue1());
   }
 
@@ -761,7 +755,7 @@ if (k < N_1)
     // DoubleCustomTricubicFunction#gradient(double[], double[])
     // DoubleCustomTricubicFunction#value(float[], double[])
     // DoubleCustomTricubicFunction#gradient(float[], double[])
-    ExtraAssumptions.assume(logger, level);
+    Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineValue1WithPowerTable());
   }
 
@@ -769,7 +763,7 @@ if (k < N_1)
   public void canConstructInlineValue1WithPowerTableN() {
     // DoubleCustomTricubicFunction#value(double[], double[], double[], double[])
     // DoubleCustomTricubicFunction#value(float[], float[], float[], double[])
-    ExtraAssumptions.assume(logger, level);
+    Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineValue1WithPowerTableN());
   }
 
@@ -777,7 +771,7 @@ if (k < N_1)
   public void canConstructInlineValue2() {
     // DoubleCustomTricubicFunction#value2(double[], double[], double[], double[],
     // double[])
-    ExtraAssumptions.assume(logger, level);
+    Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineValue2());
   }
 
@@ -785,7 +779,7 @@ if (k < N_1)
   public void canConstructInlineValue2WithPowerTable() {
     // DoubleCustomTricubicFunction#value(double[], double[], double[])
     // DoubleCustomTricubicFunction#value(float[], double[], double[])
-    ExtraAssumptions.assume(logger, level);
+    Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineValue2WithPowerTable());
   }
 
@@ -795,7 +789,7 @@ if (k < N_1)
     // double[],
     // DoubleCustomTricubicFunction#value(float[], float[], float[], float[],
     // double[],
-    ExtraAssumptions.assume(logger, level);
+    Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineValue2WithPowerTableN());
   }
 }

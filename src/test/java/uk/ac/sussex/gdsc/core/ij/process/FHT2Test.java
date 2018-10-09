@@ -1,5 +1,16 @@
 package uk.ac.sussex.gdsc.core.ij.process;
 
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.test.api.*;
+import uk.ac.sussex.gdsc.test.utils.*;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.test.api.*;
+
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.junit5.*;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
@@ -117,8 +128,7 @@ public class FHT2Test {
     // using double*double + double*double rather than float*float + float*float,
     // i.e. the float are converted to double before multiplication.
     if (mode == 2) {
-      ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-5);
-      TestAssertions.assertArrayTest(e,  o, TestHelper.almostEqual(1e-5, 0f));
+      TestAssertions.assertArrayTest(e, o, TestHelper.almostEqualFloats(1e-5, 0));
     } else {
       Assertions.assertArrayEquals(e, o);
     }

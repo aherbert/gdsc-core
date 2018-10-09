@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * Extends the {@link uk.ac.sussex.gdsc.core.clustering.ClusterPoint } class to hold additional
  * information for use in clustering

@@ -3,6 +3,17 @@ package uk.ac.sussex.gdsc.core.filters;
 import uk.ac.sussex.gdsc.test.junit5.*;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.test.api.*;
+import uk.ac.sussex.gdsc.test.utils.*;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.test.api.*;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
 
 import uk.ac.sussex.gdsc.test.junit5.*;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
@@ -53,13 +64,13 @@ public class DAreaStatisticsTest {
       a.setRollingSums(r);
       double[] o = a.getStatistics(0, 0, maxy);
       Assertions.assertEquals(s.getN(), o[DAreaSum.N]);
-      ExtraAssertions.assertEqualsRelative(s.getSum(), o[DAreaSum.SUM], 1e-6);
-      ExtraAssertions.assertEqualsRelative(s.getStandardDeviation(), o[DAreaStatistics.SD], 1e-6);
+      TestAssertions.assertTest(s.getSum(), o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+      TestAssertions.assertTest(s.getStandardDeviation(), o[DAreaStatistics.SD], TestHelper.almostEqualDoubles(1e-6, 0));
 
       o = a.getStatistics(new Rectangle(maxx, maxy));
       Assertions.assertEquals(s.getN(), o[DAreaSum.N]);
-      ExtraAssertions.assertEqualsRelative(s.getSum(), o[DAreaSum.SUM], 1e-6);
-      ExtraAssertions.assertEqualsRelative(s.getStandardDeviation(), o[DAreaStatistics.SD], 1e-6);
+      TestAssertions.assertTest(s.getSum(), o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+      TestAssertions.assertTest(s.getStandardDeviation(), o[DAreaStatistics.SD], TestHelper.almostEqualDoubles(1e-6, 0));
     }
   }
 
@@ -79,7 +90,7 @@ public class DAreaStatisticsTest {
         for (final int n : boxSizes) {
           final double[] e = a1.getStatistics(x, y, n);
           final double[] o = a2.getStatistics(x, y, n);
-          ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
+          TestAssertions.assertArrayTest(e, o, TestHelper.almostEqualDoubles(1e-6, 0));
           // TestLog.debug(logger,"%s vs %s", toString(e), toString(o));
 
           // Check with ImageJ
@@ -88,8 +99,8 @@ public class DAreaStatisticsTest {
 
           Assertions.assertEquals(s.area, o[DAreaSum.N]);
           final double sum = s.mean * s.area;
-          ExtraAssertions.assertEqualsRelative(sum, o[DAreaSum.SUM], 1e-6);
-          ExtraAssertions.assertEqualsRelative(s.stdDev, o[DAreaStatistics.SD], 1e-6);
+          TestAssertions.assertTest(sum, o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+          TestAssertions.assertTest(s.stdDev, o[DAreaStatistics.SD], TestHelper.almostEqualDoubles(1e-6, 0));
         }
       }
     }
@@ -112,7 +123,7 @@ public class DAreaStatisticsTest {
           for (final int ny : boxSizes) {
             final double[] e = a1.getStatistics(x, y, nx, ny);
             final double[] o = a2.getStatistics(x, y, nx, ny);
-            ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
+            TestAssertions.assertArrayTest(e, o, TestHelper.almostEqualDoubles(1e-6, 0));
             // TestLog.debug(logger,"%s vs %s", toString(e), toString(o));
 
             // Check with ImageJ
@@ -121,8 +132,8 @@ public class DAreaStatisticsTest {
 
             Assertions.assertEquals(s.area, o[DAreaSum.N]);
             final double sum = s.mean * s.area;
-            ExtraAssertions.assertEqualsRelative(sum, o[DAreaSum.SUM], 1e-6);
-            ExtraAssertions.assertEqualsRelative(s.stdDev, o[DAreaStatistics.SD], 1e-6);
+            TestAssertions.assertTest(sum, o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+            TestAssertions.assertTest(s.stdDev, o[DAreaStatistics.SD], TestHelper.almostEqualDoubles(1e-6, 0));
           }
         }
       }
@@ -149,7 +160,7 @@ public class DAreaStatisticsTest {
         roi.y = y;
         final double[] e = a1.getStatistics(roi);
         final double[] o = a2.getStatistics(roi);
-        ExtraAssertions.assertArrayEqualsRelative(e, o, 1e-6);
+        TestAssertions.assertArrayTest(e, o, TestHelper.almostEqualDoubles(1e-6, 0));
         // TestLog.debug(logger,"%s vs %s", toString(e), toString(o));
 
         // Check with ImageJ
@@ -157,8 +168,8 @@ public class DAreaStatisticsTest {
         final ImageStatistics s = fp.getStatistics();
 
         Assertions.assertEquals(s.area, o[DAreaSum.N]);
-        ExtraAssertions.assertEqualsRelative(s.mean * s.area, o[DAreaSum.SUM], 1e-6);
-        ExtraAssertions.assertEqualsRelative(s.stdDev, o[DAreaStatistics.SD], 1e-6);
+        TestAssertions.assertTest(s.mean * s.area, o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+        TestAssertions.assertTest(s.stdDev, o[DAreaStatistics.SD], TestHelper.almostEqualDoubles(1e-6, 0));
       }
     }
   }
@@ -176,21 +187,21 @@ public class DAreaStatisticsTest {
       for (final int n : boxSizes) {
         double[] o = a.getStatistics(0, 0, n);
         Assertions.assertEquals(c, o[DAreaSum.N]);
-        ExtraAssertions.assertEqualsRelative(u, o[DAreaSum.SUM], 1e-6);
-        ExtraAssertions.assertEqualsRelative(s, o[DAreaStatistics.SD], 1e-6);
+        TestAssertions.assertTest(u, o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+        TestAssertions.assertTest(s, o[DAreaStatistics.SD], TestHelper.almostEqualDoubles(1e-6, 0));
 
         final Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
         o = a.getStatistics(bounds);
         Assertions.assertEquals(c, o[DAreaSum.N]);
-        ExtraAssertions.assertEqualsRelative(u, o[DAreaSum.SUM], 1e-6);
-        ExtraAssertions.assertEqualsRelative(s, o[DAreaStatistics.SD], 1e-6);
+        TestAssertions.assertTest(u, o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+        TestAssertions.assertTest(s, o[DAreaStatistics.SD], TestHelper.almostEqualDoubles(1e-6, 0));
 
         bounds.x--;
         bounds.y--;
         o = a.getStatistics(bounds);
         Assertions.assertEquals(c, o[DAreaSum.N]);
-        ExtraAssertions.assertEqualsRelative(u, o[DAreaSum.SUM], 1e-6);
-        ExtraAssertions.assertEqualsRelative(s, o[DAreaStatistics.SD], 1e-6);
+        TestAssertions.assertTest(u, o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+        TestAssertions.assertTest(s, o[DAreaStatistics.SD], TestHelper.almostEqualDoubles(1e-6, 0));
       }
     }
   }

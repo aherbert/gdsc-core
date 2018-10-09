@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.data;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * Provide data on 3-axes from a stack of XY float data
  */

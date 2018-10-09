@@ -27,19 +27,11 @@
  */
 package uk.ac.sussex.gdsc.core.filters;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.util.Arrays;
+import uk.ac.sussex.gdsc.core.utils.FixedIntList;
 
 import org.apache.commons.math3.util.FastMath;
 
-import uk.ac.sussex.gdsc.core.utils.FixedIntList;
+import java.util.Arrays;
 
 /**
  * Computes the local maxima. Allows filtering of the maxima using simple height and width checks.

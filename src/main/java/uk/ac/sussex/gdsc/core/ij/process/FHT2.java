@@ -27,18 +27,11 @@
  */
 package uk.ac.sussex.gdsc.core.ij.process;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.utils.Maths;
 
 import ij.ImageStack;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
-import uk.ac.sussex.gdsc.core.utils.Maths;
 
 /**
  * Copy implementation of {@link ij.process.FHT} to increase the speed where possible.

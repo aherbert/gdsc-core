@@ -27,13 +27,10 @@
  */
 package uk.ac.sussex.gdsc.core.ij.gui;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.ij.RecorderUtils;
+import uk.ac.sussex.gdsc.core.ij.Utils;
+import uk.ac.sussex.gdsc.core.utils.Maths;
+import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
@@ -67,10 +64,6 @@ import javax.swing.JPanel;
 import ij.IJ;
 import ij.gui.GenericDialog;
 import ij.plugin.frame.Recorder;
-import uk.ac.sussex.gdsc.core.ij.RecorderUtils;
-import uk.ac.sussex.gdsc.core.ij.Utils;
-import uk.ac.sussex.gdsc.core.utils.Maths;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
  * Extension of the {@link ij.gui.GenericDialog} class to add functionality. <p> This dialog adds

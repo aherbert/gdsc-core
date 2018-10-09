@@ -27,18 +27,10 @@
  */
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.util.Arrays;
 import java.util.Iterator;
-
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /**
  * Calculate the mean and standard deviation of data. Stores the data for later retrieval.

@@ -3,6 +3,17 @@ package uk.ac.sussex.gdsc.core.match;
 import uk.ac.sussex.gdsc.test.junit5.*;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.test.api.*;
+import uk.ac.sussex.gdsc.test.utils.*;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.test.api.*;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
 
 import uk.ac.sussex.gdsc.test.junit5.*;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
@@ -281,7 +292,7 @@ public class RandIndexTest {
     logger.log(TestLog.getRecord(Level.FINE, "[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f", n, n1,
         n2, simple, e, table2, o2, simple / (double) table2));
 
-    ExtraAssertions.assertEqualsRelative(e, o1, 1e-10);
+    TestAssertions.assertTest(e, o1, TestHelper.almostEqualDoubles(1e-10, 0));
     Assertions.assertEquals(o2, o1);
   }
 

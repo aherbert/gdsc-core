@@ -1,36 +1,34 @@
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.util.function.Function;
-import java.util.logging.Logger;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestSettings;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.junit5.*;import uk.ac.sussex.gdsc.test.rng.RngFactory;import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
-public class StoredDataStatisticsTest extends StatisticsTest
-    implements Function<RandomSeed, StoredDataStatistics> {
+public class StoredDataStatisticsTest extends StatisticsTest {
   private static Logger logger;
-  private static DataCache<RandomSeed, StoredDataStatistics> dataCache;
+  private static Map<RandomSeed, StoredDataStatistics> dataCache;
 
   @BeforeAll
   public static void beforeAll() {
     logger = Logger.getLogger(StoredDataStatisticsTest.class.getName());
-    dataCache = new DataCache<>();
+    dataCache = new ConcurrentHashMap<>();
   }
 
   @AfterAll
@@ -40,14 +38,13 @@ public class StoredDataStatisticsTest extends StatisticsTest
     logger = null;
   }
 
-  final int n = 10000;
+  static final int STATISTICS_SIZE = 10000;
   final int loops = 100;
 
-  @Override
-  public StoredDataStatistics apply(RandomSeed seed) {
+  private static StoredDataStatistics createStatistics(RandomSeed seed) {
     final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
-    final StoredDataStatistics stats = new StoredDataStatistics(n);
-    for (int i = 0; i < n; i++) {
+    final StoredDataStatistics stats = new StoredDataStatistics(STATISTICS_SIZE);
+    for (int i = 0; i < STATISTICS_SIZE; i++) {
       stats.add(r.nextDouble());
     }
     return stats;
@@ -55,7 +52,8 @@ public class StoredDataStatisticsTest extends StatisticsTest
 
   @SeededTest
   public void getValuesEqualsIterator(RandomSeed seed) {
-    final StoredDataStatistics stats = dataCache.getOrComputeIfAbsent(seed, this);
+    final StoredDataStatistics stats =
+        dataCache.computeIfAbsent(seed, StoredDataStatisticsTest::createStatistics);
 
     final double[] values = stats.getValues();
     int i = 0;
@@ -72,7 +70,8 @@ public class StoredDataStatisticsTest extends StatisticsTest
     // This fails. Perhaps change the test to use the TimingService for repeat testing.
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final StoredDataStatistics stats = dataCache.getOrComputeIfAbsent(seed, this);
+    final StoredDataStatistics stats =
+        dataCache.computeIfAbsent(seed, StoredDataStatisticsTest::createStatistics);
 
     double total = 0;
     long start1 = System.nanoTime();
@@ -105,7 +104,8 @@ public class StoredDataStatisticsTest extends StatisticsTest
   public void iteratorIsSlowerUsingdouble(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final StoredDataStatistics stats = dataCache.getOrComputeIfAbsent(seed, this);
+    final StoredDataStatistics stats =
+        dataCache.computeIfAbsent(seed, StoredDataStatisticsTest::createStatistics);
 
     double total = 0;
     long start1 = System.nanoTime();
@@ -137,7 +137,8 @@ public class StoredDataStatisticsTest extends StatisticsTest
   public void iteratorIsSlowerUsingDouble(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final StoredDataStatistics stats = dataCache.getOrComputeIfAbsent(seed, this);
+    final StoredDataStatistics stats =
+        dataCache.computeIfAbsent(seed, StoredDataStatisticsTest::createStatistics);
 
     double total = 0;
     long start1 = System.nanoTime();

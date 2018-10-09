@@ -3,6 +3,17 @@ package uk.ac.sussex.gdsc.core.math.interpolation;
 import uk.ac.sussex.gdsc.test.junit5.*;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
 import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.test.api.*;
+import uk.ac.sussex.gdsc.test.utils.*;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
+import uk.ac.sussex.gdsc.test.api.*;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
 
 import uk.ac.sussex.gdsc.test.junit5.*;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
@@ -106,7 +117,7 @@ public class CustomTricubicInterpolatingFunctionTest {
       final double[] o2 =
           CustomTricubicInterpolatingFunction.computeCoefficientsInlineCollectTerms(beta);
       // Almost the same
-      ExtraAssertions.assertArrayEqualsRelative(e, o2, 1e-10);
+      TestAssertions.assertArrayTest(e, o2, TestHelper.almostEqualDoubles(1e-10, 0));
     }
   }
 

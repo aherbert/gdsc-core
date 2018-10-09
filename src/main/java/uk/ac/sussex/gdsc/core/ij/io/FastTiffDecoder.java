@@ -27,13 +27,10 @@
  */
 package uk.ac.sussex.gdsc.core.ij.io;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
+import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
+import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 import java.awt.Rectangle;
 import java.io.File;
@@ -44,10 +41,6 @@ import java.nio.charset.Charset;
 
 import ij.io.FileInfo;
 import ij.util.Tools;
-import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
-import uk.ac.sussex.gdsc.core.logging.TrackProgress;
-import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
-import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 /**
  * Re-implement the {@link ij.io.TiffDecoder} to allow it to use a SeekableStream interface. <p>

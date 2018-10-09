@@ -27,20 +27,13 @@
  */
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.ij.process.InfinityMappedFloatProcessor;
 
 import java.awt.image.ColorModel;
 
 import ij.ImageStack;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
-import uk.ac.sussex.gdsc.core.ij.process.InfinityMappedFloatProcessor;
 
 /**
  * Extends the ImageJ {@link ImageStack} class to support an infinity mapped float processor for

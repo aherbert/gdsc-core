@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.math;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * Simple class to calculate the mean and variance of arrayed data using a fast summation algorithm
  * that tracks the sum of input values and the sum of squared input values. This may not be suitable

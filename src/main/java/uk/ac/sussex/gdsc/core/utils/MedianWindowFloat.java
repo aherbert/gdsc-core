@@ -27,17 +27,9 @@
  */
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import org.apache.commons.math3.util.FastMath;
 
 import java.util.Arrays;
-
-import org.apache.commons.math3.util.FastMath;
 
 /**
  * Provides a rolling median window on a data array.

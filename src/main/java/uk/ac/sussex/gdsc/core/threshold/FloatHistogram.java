@@ -27,17 +27,9 @@
  */
 package uk.ac.sussex.gdsc.core.threshold;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.threshold.AutoThreshold.Method;
 
 import java.util.Arrays;
-
-import uk.ac.sussex.gdsc.core.threshold.AutoThreshold.Method;
 
 /**
  * Contains a histogram. <p> The histogram is implemented in this class using float bin values.

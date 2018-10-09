@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.logging;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;

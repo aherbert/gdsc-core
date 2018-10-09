@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * Specify data in a 2D upper triangular array of size n in 1 dimension. <p> The amount of data will
  * be n*(n-1)/2. The data can be iterated for i in 0:n-1 and for j in i+1:n-1. No index is computed

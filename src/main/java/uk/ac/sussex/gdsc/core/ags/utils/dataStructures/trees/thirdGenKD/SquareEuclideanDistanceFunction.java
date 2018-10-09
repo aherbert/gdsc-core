@@ -19,14 +19,6 @@
  */
 package uk.ac.sussex.gdsc.core.ags.utils.dataStructures.trees.thirdGenKD;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 /**
  * Distance function for ND data
  */

@@ -1,29 +1,29 @@
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.core.utils.Sort;
+import uk.ac.sussex.gdsc.test.api.TestAssertions;
+import uk.ac.sussex.gdsc.test.api.TestHelper;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestSettings;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.procedure.TIntObjectProcedure;
-import uk.ac.sussex.gdsc.core.utils.Sort;
-import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TimingService;
 
 /**
  * This class is used to in-line the computation for the CustomTricubicInterpolatingFunction
@@ -197,13 +197,13 @@ public class CustomTricubicInterpolatingFunctionInlineTest {
 
   @Test
   public void canConstructInlineComputeCoefficients() {
-    ExtraAssumptions.assume(logger, level);
+    Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineComputeCoefficients());
   }
 
   @Test
   public void canConstructInlineComputeCoefficientsCollectTerms() {
-    ExtraAssumptions.assume(logger, level);
+    Assumptions.assumeTrue(logger.isLoggable(level));
     logger.log(level, inlineComputeCoefficientsCollectTerms());
   }
 
@@ -228,7 +228,7 @@ public class CustomTricubicInterpolatingFunctionInlineTest {
     @Override
     public void check(int i, Object result) {
       final double[][] b = (double[][]) result;
-      ExtraAssertions.assertArrayEqualsRelative(a, b, 1e-6, getName());
+      TestAssertions.assertArrayTest(a, b, TestHelper.almostEqualDoubles(1e-6, 0), getName());
     }
   }
 

@@ -27,14 +27,6 @@
  */
 package uk.ac.sussex.gdsc.core.generics;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 import java.lang.ref.WeakReference;
 import java.util.AbstractQueue;
 import java.util.Collection;
