@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,18 +14,26 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
 package uk.ac.sussex.gdsc.core;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,20 +54,23 @@ public class Version {
   private static String buildNumber = null;
 
   static {
-    Manifest manifest = loadManifest(Version.class);
+    final Manifest manifest = loadManifest(Version.class);
     if (manifest != null) {
-      Attributes attributes = manifest.getMainAttributes();
+      final Attributes attributes = manifest.getMainAttributes();
       version = attributes.getValue("Specification-Version");
       buildDate = attributes.getValue("Implementation-Date");
       buildNumber = attributes.getValue("Implementation-Build");
     }
 
-    if (version == null || version.length() == 0)
+    if (version == null || version.length() == 0) {
       version = UNKNOWN;
-    if (buildDate == null || buildDate.length() == 0)
+    }
+    if (buildDate == null || buildDate.length() == 0) {
       buildDate = UNKNOWN;
-    if (buildNumber == null || buildNumber.length() == 0)
+    }
+    if (buildNumber == null || buildNumber.length() == 0) {
       buildNumber = UNKNOWN;
+    }
   }
 
   /**
@@ -111,8 +122,9 @@ public class Version {
   public static int getMajorVersion() {
     final Pattern p = Pattern.compile("^\\d+");
     final Matcher m = p.matcher(version);
-    if (m.find())
+    if (m.find()) {
       return Integer.parseInt(m.group());
+    }
     return 0;
   }
 
@@ -124,8 +136,9 @@ public class Version {
   public static int getMinorVersion() {
     final Pattern p = Pattern.compile("^\\d+\\.(\\d+)");
     final Matcher m = p.matcher(version);
-    if (m.find())
+    if (m.find()) {
       return Integer.parseInt(m.group(1));
+    }
     return 0;
   }
 
@@ -137,8 +150,9 @@ public class Version {
   public static int getPatchVersion() {
     final Pattern p = Pattern.compile("^\\d+\\.\\d+\\.(\\d+)");
     final Matcher m = p.matcher(version);
-    if (m.find())
+    if (m.find()) {
       return Integer.parseInt(m.group(1));
+    }
     return 0;
   }
 
@@ -150,8 +164,9 @@ public class Version {
   public static String getMajorMinorPatch() {
     final Pattern p = Pattern.compile("^\\d+\\.\\d+\\.\\d+");
     final Matcher m = p.matcher(version);
-    if (m.find())
+    if (m.find()) {
       return m.group();
+    }
     return "";
   }
 
@@ -164,19 +179,19 @@ public class Version {
    * @return the manifest (or null)
    */
   public static Manifest loadManifest(Class<?> clazz) {
-    String resource = "/" + clazz.getName().replace(".", "/") + ".class";
-    String classPath = clazz.getResource(resource).toString();
+    final String resource = "/" + clazz.getName().replace(".", "/") + ".class";
+    final String classPath = clazz.getResource(resource).toString();
     if (!classPath.startsWith("jar")) {
       // Class not from JAR
       return null;
     }
-    String manifestPath =
+    final String manifestPath =
         classPath.substring(0, classPath.lastIndexOf('!') + 1) + "/META-INF/MANIFEST.MF";
     try {
       try (InputStream in = new URL(manifestPath).openStream()) {
         return new Manifest(in);
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       // Ignore this
     }
     return null;

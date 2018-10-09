@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,18 +14,26 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
 package uk.ac.sussex.gdsc.core.math.interpolation;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import org.junit.jupiter.api.*;
+
+import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.rng.RngFactory;
+
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -252,8 +260,9 @@ public class CustomTricubicInterpolator
 		{
         	final CustomTricubicInterpolator i = new CustomTricubicInterpolator();
         	i.setProgress(progress);
-        	if (taskSize > 0)
-        		i.setTaskSize(taskSize);
+        	if (taskSize > 0) {
+            i.setTaskSize(taskSize);
+          }
         	i.setExecutorService(executorService);
         	i.setSinglePrecision(singlePrecision);
 			return i;
@@ -302,18 +311,24 @@ public class CustomTricubicInterpolator
                                                            final TrivalueProvider fval)
         throws NumberIsTooSmallException,
                DimensionMismatchException, NonMonotonicSequenceException {
-        if (xval.getLength() < 2)
-			throw new NumberIsTooSmallException(xval.getLength(), 2, true);
-        if (yval.getLength() < 2)
-			throw new NumberIsTooSmallException(yval.getLength(), 2, true);
-        if (zval.getLength() < 2)
-			throw new NumberIsTooSmallException(zval.getLength(), 2, true);
-        if (xval.getLength() != fval.getLengthX())
-			throw new DimensionMismatchException(xval.getLength(), fval.getLengthX());
-        if (yval.getLength() != fval.getLengthY())
-			throw new DimensionMismatchException(yval.getLength(), fval.getLengthY());
-        if (zval.getLength() != fval.getLengthZ())
-			throw new DimensionMismatchException(zval.getLength(), fval.getLengthZ());
+        if (xval.getLength() < 2) {
+          throw new NumberIsTooSmallException(xval.getLength(), 2, true);
+        }
+        if (yval.getLength() < 2) {
+          throw new NumberIsTooSmallException(yval.getLength(), 2, true);
+        }
+        if (zval.getLength() < 2) {
+          throw new NumberIsTooSmallException(zval.getLength(), 2, true);
+        }
+        if (xval.getLength() != fval.getLengthX()) {
+          throw new DimensionMismatchException(xval.getLength(), fval.getLengthX());
+        }
+        if (yval.getLength() != fval.getLengthY()) {
+          throw new DimensionMismatchException(yval.getLength(), fval.getLengthY());
+        }
+        if (zval.getLength() != fval.getLengthZ()) {
+          throw new DimensionMismatchException(zval.getLength(), fval.getLengthZ());
+        }
 
         CustomTricubicInterpolatingFunction.checkOrder(xval);
         CustomTricubicInterpolatingFunction.checkOrder(yval);
@@ -351,7 +366,7 @@ public class CustomTricubicInterpolator
         	// Break this up into reasonable tasks, ensuring we can hold all the futures
             final long[] tmp = getTaskSizeAndNumberOfTasks(total, taskSize);
             taskSize = tmp[0];
-            long nTasks = tmp[1];
+            final long nTasks = tmp[1];
     		final TurboList<Future<?>> futures = new TurboList<>((int)nTasks);
 			for (long from = 0; from < total;)
 			{
@@ -363,13 +378,14 @@ public class CustomTricubicInterpolator
 					public void run()
 					{
 				        final double[][][] values = new double[3][3][3];
-						for (long index = from_; index < to; index++)
-							build(index, xLen, xLen_yLen,
+						for (long index = from_; index < to; index++) {
+              build(index, xLen, xLen_yLen,
 								  xLen_1, yLen_1, zLen_1,
 								  xval, yval, zval, fval,
 								  dFdX, dFdY, dFdZ, d2FdXdY,
 								  d2FdXdZ, d2FdYdZ, d3FdXdYdZ,
 								  values, ticker);
+            }
 					}
 				}));
 				from = to;
@@ -671,12 +687,15 @@ public class CustomTricubicInterpolator
      */
     public static CustomTricubicFunction create(final TrivalueProvider fval)
         throws DimensionMismatchException {
-        if (4 != fval.getLengthX())
-			throw new DimensionMismatchException(4, fval.getLengthX());
-        if (4 != fval.getLengthY())
-			throw new DimensionMismatchException(4, fval.getLengthY());
-        if (4 != fval.getLengthZ())
-			throw new DimensionMismatchException(4, fval.getLengthZ());
+        if (4 != fval.getLengthX()) {
+          throw new DimensionMismatchException(4, fval.getLengthX());
+        }
+        if (4 != fval.getLengthY()) {
+          throw new DimensionMismatchException(4, fval.getLengthY());
+        }
+        if (4 != fval.getLengthZ()) {
+          throw new DimensionMismatchException(4, fval.getLengthZ());
+        }
 
         // Approximation to the partial derivatives using finite differences.
         final double[][][] f = new double[2][2][2];
@@ -690,27 +709,29 @@ public class CustomTricubicInterpolator
 
         final double[][][] values = new double[3][3][3];
 
-        for (int i = 0; i < 2; i++)
-			for (int j = 0; j < 2; j++)
-				for (int k = 0; k < 2; k++) {
+        for (int i = 0; i < 2; i++) {
+          for (int j = 0; j < 2; j++) {
+            for (int k = 0; k < 2; k++) {
 
-                    fval.get(i+1, j+1, k+1, values);
+                        fval.get(i+1, j+1, k+1, values);
 
-                    f[i][j][k] = values[1][1][1];
+                        f[i][j][k] = values[1][1][1];
 
-                    dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / 2;
-                    dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / 2;
-                    dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / 2;
+                        dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / 2;
+                        dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / 2;
+                        dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / 2;
 
-                    d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / 4;
-                    d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / 4;
-                    d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / 4;
+                        d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / 4;
+                        d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / 4;
+                        d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / 4;
 
-                    d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
-                                          values[0][2][2] + values[0][0][2] -
-                                          values[2][2][0] + values[2][0][0] +
-                                          values[0][2][0] - values[0][0][0]) / 8;
-                }
+                        d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
+                                              values[0][2][2] + values[0][0][2] -
+                                              values[2][2][0] + values[2][0][0] +
+                                              values[0][2][0] - values[0][0][0]) / 8;
+                    }
+          }
+        }
 
         // Create the interpolating function.
         return CustomTricubicInterpolatingFunction.createFunction(
@@ -764,18 +785,24 @@ public class CustomTricubicInterpolator
             final ValueProvider zval,
             final TrivalueProvider fval)
         throws DimensionMismatchException {
-        if (4 != fval.getLengthX())
-			throw new DimensionMismatchException(4, fval.getLengthX());
-        if (4 != fval.getLengthY())
-			throw new DimensionMismatchException(4, fval.getLengthY());
-        if (4 != fval.getLengthZ())
-			throw new DimensionMismatchException(4, fval.getLengthZ());
-        if (xval.getLength() != fval.getLengthX())
-			throw new DimensionMismatchException(xval.getLength(), fval.getLengthX());
-        if (yval.getLength() != fval.getLengthY())
-			throw new DimensionMismatchException(yval.getLength(), fval.getLengthY());
-        if (zval.getLength() != fval.getLengthZ())
-			throw new DimensionMismatchException(zval.getLength(), fval.getLengthZ());
+        if (4 != fval.getLengthX()) {
+          throw new DimensionMismatchException(4, fval.getLengthX());
+        }
+        if (4 != fval.getLengthY()) {
+          throw new DimensionMismatchException(4, fval.getLengthY());
+        }
+        if (4 != fval.getLengthZ()) {
+          throw new DimensionMismatchException(4, fval.getLengthZ());
+        }
+        if (xval.getLength() != fval.getLengthX()) {
+          throw new DimensionMismatchException(xval.getLength(), fval.getLengthX());
+        }
+        if (yval.getLength() != fval.getLengthY()) {
+          throw new DimensionMismatchException(yval.getLength(), fval.getLengthY());
+        }
+        if (zval.getLength() != fval.getLengthZ()) {
+          throw new DimensionMismatchException(zval.getLength(), fval.getLengthZ());
+        }
 
         // Approximation to the partial derivatives using finite differences.
         final double[][][] f = new double[2][2][2];
@@ -873,14 +900,18 @@ public class CustomTricubicInterpolator
      */
     public static CustomTricubicFunction create(final TrivalueProvider fval, int x, int y, int z)
         throws NumberIsTooSmallException, IllegalArgumentException {
-    	if (x<0 || y<0 || z<0)
-    		throw new IllegalArgumentException("Offset must be positive");
-		if (fval.getLengthX() - x < 2)
-			throw new NumberIsTooSmallException(fval.getLengthX(), x + 2, true);
-		if (fval.getLengthY() - y < 2)
-			throw new NumberIsTooSmallException(fval.getLengthY(), y + 2, true);
-		if (fval.getLengthZ() - z < 2)
-			throw new NumberIsTooSmallException(fval.getLengthZ(), z + 2, true);
+    	if (x<0 || y<0 || z<0) {
+        throw new IllegalArgumentException("Offset must be positive");
+      }
+		if (fval.getLengthX() - x < 2) {
+      throw new NumberIsTooSmallException(fval.getLengthX(), x + 2, true);
+    }
+		if (fval.getLengthY() - y < 2) {
+      throw new NumberIsTooSmallException(fval.getLengthY(), y + 2, true);
+    }
+		if (fval.getLengthZ() - z < 2) {
+      throw new NumberIsTooSmallException(fval.getLengthZ(), z + 2, true);
+    }
 
 		final int xLen_1 = fval.getLengthX() - 1;
 		final int yLen_1 = fval.getLengthY() - 1;
@@ -903,10 +934,10 @@ public class CustomTricubicInterpolator
         	final int i = x + ii;
     		final boolean edgeX = i == 0 || i == xLen_1;
             final int nI, pI;
-            if (edgeX)
-				// Ignored
-        		nI = pI = 0;
-			else
+            if (edgeX) {
+              // Ignored
+              nI = pI = 0;
+            } else
         	{
         		nI = i + 1;
         		pI = i - 1;
@@ -917,10 +948,10 @@ public class CustomTricubicInterpolator
             	final int j = y + jj;
         		final boolean edgeY = j == 0 || j == yLen_1;
                 final int nJ, pJ;
-                if (edgeY)
-					// Ignored
-            		nJ = pJ = 0;
-				else
+                if (edgeY) {
+                  // Ignored
+                  nJ = pJ = 0;
+                } else
             	{
             		nJ = j + 1;
             		pJ = j - 1;
@@ -933,10 +964,10 @@ public class CustomTricubicInterpolator
                 	final int k = z + kk;
             		final boolean edgeZ = k == 0 || k == zLen_1;
                     final int nK, pK;
-                    if (edgeZ)
-						// Ignored
-                		nK = pK = 0;
-					else
+                    if (edgeZ) {
+                      // Ignored
+                      nK = pK = 0;
+                    } else
                 	{
                 		nK = k + 1;
                 		pK = k - 1;
@@ -1042,20 +1073,27 @@ public class CustomTricubicInterpolator
             final TrivalueProvider fval, int x, int y, int z)
         throws NumberIsTooSmallException, IllegalArgumentException,
                DimensionMismatchException, NonMonotonicSequenceException {
-    	if (x<0 || y<0 || z<0)
-    		throw new IllegalArgumentException("Offset must be positive");
-		if (xval.getLength() - x < 2)
-			throw new NumberIsTooSmallException(xval.getLength(), x + 2, true);
-		if (yval.getLength() - y < 2)
-			throw new NumberIsTooSmallException(yval.getLength(), y + 2, true);
-		if (zval.getLength() - z < 2)
-			throw new NumberIsTooSmallException(zval.getLength(), z + 2, true);
-        if (xval.getLength() != fval.getLengthX())
-            throw new DimensionMismatchException(xval.getLength(), fval.getLengthX());
-        if (yval.getLength() != fval.getLengthY())
-            throw new DimensionMismatchException(yval.getLength(), fval.getLengthY());
-        if (zval.getLength() != fval.getLengthZ())
-            throw new DimensionMismatchException(zval.getLength(), fval.getLengthZ());
+    	if (x<0 || y<0 || z<0) {
+        throw new IllegalArgumentException("Offset must be positive");
+      }
+		if (xval.getLength() - x < 2) {
+      throw new NumberIsTooSmallException(xval.getLength(), x + 2, true);
+    }
+		if (yval.getLength() - y < 2) {
+      throw new NumberIsTooSmallException(yval.getLength(), y + 2, true);
+    }
+		if (zval.getLength() - z < 2) {
+      throw new NumberIsTooSmallException(zval.getLength(), z + 2, true);
+    }
+        if (xval.getLength() != fval.getLengthX()) {
+          throw new DimensionMismatchException(xval.getLength(), fval.getLengthX());
+        }
+        if (yval.getLength() != fval.getLengthY()) {
+          throw new DimensionMismatchException(yval.getLength(), fval.getLengthY());
+        }
+        if (zval.getLength() != fval.getLengthZ()) {
+          throw new DimensionMismatchException(zval.getLength(), fval.getLengthZ());
+        }
 
         CustomTricubicInterpolatingFunction.checkOrder(xval);
         CustomTricubicInterpolatingFunction.checkOrder(yval);
@@ -1192,158 +1230,161 @@ public class CustomTricubicInterpolator
 
     //@formatter:on
 
-    /**
-     * Sample the function.
-     * <p>
-     * n samples will be taken per node in each dimension. A final sample is taken
-     * at then end of the sample range thus the final range for each axis will be
-     * the current axis range.
-     *
-     * @param fval      the function value
-     * @param n         the number of samples per spline node
-     * @param procedure the procedure
-     * @throws IllegalArgumentException  If the number of samples is not at least 2
-     * @throws NumberIsTooSmallException if the number of points in any dimension is
-     *                                   less than 2
-     */
-    public void sample(final TrivalueProvider fval, int n, TrivalueProcedure procedure)
-            throws IllegalArgumentException {
-        if (n < 2)
-            throw new IllegalArgumentException("Samples must be at least 2");
-        sample(fval, n, n, n, procedure);
+  /**
+   * Sample the function. <p> n samples will be taken per node in each dimension. A final sample is
+   * taken at then end of the sample range thus the final range for each axis will be the current
+   * axis range.
+   *
+   * @param fval the function value
+   * @param n the number of samples per spline node
+   * @param procedure the procedure
+   * @throws IllegalArgumentException If the number of samples is not at least 2
+   * @throws NumberIsTooSmallException if the number of points in any dimension is less than 2
+   */
+  public void sample(final TrivalueProvider fval, int n, TrivalueProcedure procedure)
+      throws IllegalArgumentException {
+    if (n < 2) {
+      throw new IllegalArgumentException("Samples must be at least 2");
+    }
+    sample(fval, n, n, n, procedure);
+  }
+
+  /**
+   * Sample the function. <p> n samples will be taken per node in each dimension. A final sample is
+   * taken at the end of the sample range thus the final range for each axis will be the current
+   * axis range. <p> Uses the instance track progress and executor service if set.
+   *
+   * @param fval the function value
+   * @param nx the number of samples per spline node in the x dimension
+   * @param ny the number of samples per spline node in the y dimension
+   * @param nz the number of samples per spline node in the z dimension
+   * @param procedure the procedure
+   * @throws IllegalArgumentException If the number of samples is not positive and at least 2 in one
+   *         dimension
+   * @throws NumberIsTooSmallException if the number of points in any dimension is less than 2
+   */
+  @SuppressWarnings("null")
+  public void sample(final TrivalueProvider fval, final int nx, final int ny, final int nz,
+      final TrivalueProcedure procedure) throws IllegalArgumentException {
+    if (nx < 1 || ny < 1 || nz < 1) {
+      throw new IllegalArgumentException("Samples must be positive");
+    }
+    if (nx == 1 && ny == 1 && nz == 1) {
+      throw new IllegalArgumentException("Samples must be at least 2 in one dimension");
     }
 
-    /**
-     * Sample the function.
-     * <p>
-     * n samples will be taken per node in each dimension. A final sample is taken
-     * at the end of the sample range thus the final range for each axis will be the
-     * current axis range.
-     * <p>
-     * Uses the instance track progress and executor service if set.
-     *
-     * @param fval      the function value
-     * @param nx        the number of samples per spline node in the x dimension
-     * @param ny        the number of samples per spline node in the y dimension
-     * @param nz        the number of samples per spline node in the z dimension
-     * @param procedure the procedure
-     * @throws IllegalArgumentException  If the number of samples is not positive
-     *                                   and at least 2 in one dimension
-     * @throws NumberIsTooSmallException if the number of points in any dimension is
-     *                                   less than 2
-     */
-    @SuppressWarnings("null")
-    public void sample(final TrivalueProvider fval, final int nx, final int ny, final int nz,
-            final TrivalueProcedure procedure) throws IllegalArgumentException {
-        if (nx < 1 || ny < 1 || nz < 1)
-            throw new IllegalArgumentException("Samples must be positive");
-        if (nx == 1 && ny == 1 && nz == 1)
-            throw new IllegalArgumentException("Samples must be at least 2 in one dimension");
+    final int xLen = fval.getLengthX();
+    final int yLen = fval.getLengthY();
+    final int zLen = fval.getLengthZ();
 
-        final int xLen = fval.getLengthX();
-        final int yLen = fval.getLengthY();
-        final int zLen = fval.getLengthZ();
+    if (xLen < 2) {
+      throw new NumberIsTooSmallException(xLen, 2, true);
+    }
+    if (yLen < 2) {
+      throw new NumberIsTooSmallException(yLen, 2, true);
+    }
+    if (zLen < 2) {
+      throw new NumberIsTooSmallException(zLen, 2, true);
+    }
 
-        if (xLen < 2)
-            throw new NumberIsTooSmallException(xLen, 2, true);
-        if (yLen < 2)
-            throw new NumberIsTooSmallException(yLen, 2, true);
-        if (zLen < 2)
-            throw new NumberIsTooSmallException(zLen, 2, true);
+    final int xLen_1 = xLen - 1;
+    final int yLen_1 = yLen - 1;
+    final int zLen_1 = zLen - 1;
+    final int xLen_2 = xLen - 2;
+    final int yLen_2 = yLen - 2;
+    final int zLen_2 = zLen - 2;
 
-        final int xLen_1 = xLen - 1;
-        final int yLen_1 = yLen - 1;
-        final int zLen_1 = zLen - 1;
-        final int xLen_2 = xLen - 2;
-        final int yLen_2 = yLen - 2;
-        final int zLen_2 = zLen - 2;
+    // We can interpolate all nodes n-times plus a final point at the last node
+    final int maxx = (xLen_1) * nx;
+    final int maxy = (yLen_1) * ny;
+    final int maxz = (zLen_1) * nz;
+    if (!procedure.setDimensions(maxx + 1, maxy + 1, maxz + 1)) {
+      return;
+    }
 
-        // We can interpolate all nodes n-times plus a final point at the last node
-        final int maxx = (xLen_1) * nx;
-        final int maxy = (yLen_1) * ny;
-        final int maxz = (zLen_1) * nz;
-        if (!procedure.setDimensions(maxx + 1, maxy + 1, maxz + 1))
-            return;
+    // Allow threading
+    final long xLen_1_yLen_1 = (long) xLen_1 * (yLen_1);
+    final long nNodes = xLen_1_yLen_1 * zLen_1;
+    final long total = (long) (maxx + 1) * (maxy + 1) * (maxz + 1);
 
-        // Allow threading
-        final long xLen_1_yLen_1 = (long) xLen_1 * (yLen_1);
-        final long nNodes = xLen_1_yLen_1 * zLen_1;
-        final long total = (long) (maxx + 1) * (maxy + 1) * (maxz + 1);
+    final ExecutorService executorService = this.executorService;
+    long taskSize = Math.max(1, this.taskSize);
+    final boolean threaded = executorService != null && taskSize < nNodes;
 
-        final ExecutorService executorService = this.executorService;
-        long taskSize = Math.max(1, this.taskSize);
-        final boolean threaded = executorService != null && taskSize < nNodes;
+    final Ticker ticker = Ticker.create(progress, total, threaded);
+    ticker.start();
 
-        final Ticker ticker = Ticker.create(progress, total, threaded);
-        ticker.start();
+    // Pre-compute interpolation tables
+    final CubicSplinePosition[] sx = createCubicSplinePosition(nx);
+    final CubicSplinePosition[] sy = createCubicSplinePosition(ny);
+    final CubicSplinePosition[] sz = createCubicSplinePosition(nz);
+    final int nx1 = nx + 1;
+    final int ny1 = ny + 1;
+    final int nz1 = nz + 1;
 
-        // Pre-compute interpolation tables
-        final CubicSplinePosition[] sx = createCubicSplinePosition(nx);
-        final CubicSplinePosition[] sy = createCubicSplinePosition(ny);
-        final CubicSplinePosition[] sz = createCubicSplinePosition(nz);
-        final int nx1 = nx + 1;
-        final int ny1 = ny + 1;
-        final int nz1 = nz + 1;
-
-        final double[][] tables = new double[nx1 * ny1 * nz1][];
-        for (int z = 0, i = 0; z < nz1; z++) {
-            final CubicSplinePosition szz = sz[z];
-            for (int y = 0; y < ny1; y++) {
-                final CubicSplinePosition syy = sy[y];
-                for (int x = 0; x < nx1; x++, i++)
-                    tables[i] = CustomTricubicFunction.computePowerTable(sx[x], syy, szz);
-            }
+    final double[][] tables = new double[nx1 * ny1 * nz1][];
+    for (int z = 0, i = 0; z < nz1; z++) {
+      final CubicSplinePosition szz = sz[z];
+      for (int y = 0; y < ny1; y++) {
+        final CubicSplinePosition syy = sy[y];
+        for (int x = 0; x < nx1; x++, i++) {
+          tables[i] = CustomTricubicFunction.computePowerTable(sx[x], syy, szz);
         }
+      }
+    }
 
-        // Write axis values
-        for (int x = 0; x <= maxx; x++)
-            procedure.setX(x, (double) x / nx);
-        for (int y = 0; y <= maxy; y++)
-            procedure.setY(y, (double) y / ny);
-        for (int z = 0; z <= maxz; z++)
-            procedure.setZ(z, (double) z / nz);
+    // Write axis values
+    for (int x = 0; x <= maxx; x++) {
+      procedure.setX(x, (double) x / nx);
+    }
+    for (int y = 0; y <= maxy; y++) {
+      procedure.setY(y, (double) y / ny);
+    }
+    for (int z = 0; z <= maxz; z++) {
+      procedure.setZ(z, (double) z / nz);
+    }
 
-        if (threaded) {
-            // Break this up into reasonable tasks, ensuring we can hold all the futures.
-            final long[] tmp = getTaskSizeAndNumberOfTasks(nNodes, taskSize);
-            taskSize = tmp[0];
-            long nTasks = tmp[1];
-            final TurboList<Future<?>> futures = new TurboList<>((int) nTasks);
-            for (long from = 0; from < nNodes;) {
-                final long from_ = from;
-                final long to = Math.min(from + taskSize, nNodes);
-                futures.add(executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Approximation to the partial derivatives using finite differences.
-                        final double[][][] f = new double[2][2][2];
-                        final double[][][] dFdX = new double[2][2][2];
-                        final double[][][] dFdY = new double[2][2][2];
-                        final double[][][] dFdZ = new double[2][2][2];
-                        final double[][][] d2FdXdY = new double[2][2][2];
-                        final double[][][] d2FdXdZ = new double[2][2][2];
-                        final double[][][] d2FdYdZ = new double[2][2][2];
-                        final double[][][] d3FdXdYdZ = new double[2][2][2];
+    if (threaded) {
+      // Break this up into reasonable tasks, ensuring we can hold all the futures.
+      final long[] tmp = getTaskSizeAndNumberOfTasks(nNodes, taskSize);
+      taskSize = tmp[0];
+      final long nTasks = tmp[1];
+      final TurboList<Future<?>> futures = new TurboList<>((int) nTasks);
+      for (long from = 0; from < nNodes;) {
+        final long from_ = from;
+        final long to = Math.min(from + taskSize, nNodes);
+        futures.add(executorService.submit(new Runnable() {
+          @Override
+          public void run() {
+            // Approximation to the partial derivatives using finite differences.
+            final double[][][] f = new double[2][2][2];
+            final double[][][] dFdX = new double[2][2][2];
+            final double[][][] dFdY = new double[2][2][2];
+            final double[][][] dFdZ = new double[2][2][2];
+            final double[][][] d2FdXdY = new double[2][2][2];
+            final double[][][] d2FdXdZ = new double[2][2][2];
+            final double[][][] d2FdYdZ = new double[2][2][2];
+            final double[][][] d3FdXdYdZ = new double[2][2][2];
 
-                        final double[][][] values = new double[3][3][3];
-                        final double[] beta = new double[64];
+            final double[][][] values = new double[3][3][3];
+            final double[] beta = new double[64];
 
-                        for (long index = from_; index < to; index++) {
-                            // Convert position to the indices for the node
-                            final int z = (int) (index / xLen_1_yLen_1);
-                            final long mod = index % xLen_1_yLen_1;
-                            final int y = (int) (mod / xLen_1);
-                            final int x = (int) (mod % xLen_1);
+            for (long index = from_; index < to; index++) {
+              // Convert position to the indices for the node
+              final int z = (int) (index / xLen_1_yLen_1);
+              final long mod = index % xLen_1_yLen_1;
+              final int y = (int) (mod / xLen_1);
+              final int x = (int) (mod % xLen_1);
 
-                            //@formatter:off
+              //@formatter:off
 	                        for (int ii = 0; ii < 2; ii++) {
 	                        	final int i = x + ii;
 	                    		final boolean edgeX = i == 0 || i == xLen_1;
 	                            final int nI, pI;
-	                            if (edgeX)
-									// Ignored
-	                        		nI = pI = 0;
-								else {
+	                            if (edgeX) {
+                                // Ignored
+                                nI = pI = 0;
+                              } else {
 	                        		nI = i + 1;
 	                        		pI = i - 1;
 	                        	}
@@ -1351,10 +1392,10 @@ public class CustomTricubicInterpolator
 	                            	final int j = y + jj;
 	                        		final boolean edgeY = j == 0 || j == yLen_1;
 	                                final int nJ, pJ;
-	                                if (edgeY)
-										// Ignored
-	                            		nJ = pJ = 0;
-									else {
+	                                if (edgeY) {
+                                    // Ignored
+                                    nJ = pJ = 0;
+                                  } else {
 	                            		nJ = j + 1;
 	                            		pJ = j - 1;
 	                            	}
@@ -1363,10 +1404,10 @@ public class CustomTricubicInterpolator
 	                                	final int k = z + kk;
 	                            		final boolean edgeZ = k == 0 || k == zLen_1;
 	                                    final int nK, pK;
-	                                    if (edgeZ)
-											// Ignored
-	                                		nK = pK = 0;
-										else {
+	                                    if (edgeZ) {
+                                        // Ignored
+                                        nK = pK = 0;
+                                      } else {
 	                                		nK = k + 1;
 	                                		pK = k - 1;
 	                                	}
@@ -1421,172 +1462,176 @@ public class CustomTricubicInterpolator
 	                        		new DoubleArrayTrivalueProvider(d3FdXdYdZ));
 	                    	//@formatter:on
 
-                            // Write interpolated values. For the final position we use the extra table to
-                            // get the value at x=1 in the range [0-1].
-                            for (int k = 0, maxk = (z == zLen_2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++)
-                                for (int j = 0, maxj = (y == yLen_2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++) {
-                                    // Position in the interpolation tables
-                                    int pos = nx1 * (j + ny1 * k);
-                                    for (int i = 0, maxi = (x == xLen_2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++) {
-                                        procedure.setValue(xx, yy, zz, cf.value(tables[pos++]));
-                                        ticker.tick();
-                                    }
-                                }
-                        }
-                    }
-                }));
-                from = to;
+              // Write interpolated values. For the final position we use the extra table to
+              // get the value at x=1 in the range [0-1].
+              for (int k = 0, maxk = (z == zLen_2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++) {
+                for (int j = 0, maxj = (y == yLen_2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++) {
+                  // Position in the interpolation tables
+                  int pos = nx1 * (j + ny1 * k);
+                  for (int i = 0, maxi = (x == xLen_2) ? nx1 : nx, xx =
+                      x * nx; i < maxi; i++, xx++) {
+                    procedure.setValue(xx, yy, zz, cf.value(tables[pos++]));
+                    ticker.tick();
+                  }
+                }
+              }
             }
+          }
+        }));
+        from = to;
+      }
 
-            Utils.waitForCompletion(futures);
-        } else {
-            // Approximation to the partial derivatives using finite differences.
-            final double[][][] f = new double[2][2][2];
-            final double[][][] dFdX = new double[2][2][2];
-            final double[][][] dFdY = new double[2][2][2];
-            final double[][][] dFdZ = new double[2][2][2];
-            final double[][][] d2FdXdY = new double[2][2][2];
-            final double[][][] d2FdXdZ = new double[2][2][2];
-            final double[][][] d2FdYdZ = new double[2][2][2];
-            final double[][][] d3FdXdYdZ = new double[2][2][2];
+      Utils.waitForCompletion(futures);
+    } else {
+      // Approximation to the partial derivatives using finite differences.
+      final double[][][] f = new double[2][2][2];
+      final double[][][] dFdX = new double[2][2][2];
+      final double[][][] dFdY = new double[2][2][2];
+      final double[][][] dFdZ = new double[2][2][2];
+      final double[][][] d2FdXdY = new double[2][2][2];
+      final double[][][] d2FdXdZ = new double[2][2][2];
+      final double[][][] d2FdYdZ = new double[2][2][2];
+      final double[][][] d3FdXdYdZ = new double[2][2][2];
 
-            final double[][][] values = new double[3][3][3];
-            final double[] beta = new double[64];
+      final double[][][] values = new double[3][3][3];
+      final double[] beta = new double[64];
 
-            // Dynamically interpolate each node
-            for (int x = 0; x < xLen_1; x++)
-                for (int y = 0; y < yLen_1; y++)
-                    for (int z = 0; z < zLen_1; z++) {
-                        //@formatter:off
-                        for (int ii = 0; ii < 2; ii++) {
-                        	final int i = x + ii;
-                    		final boolean edgeX = i == 0 || i == xLen_1;
-                            final int nI, pI;
-                            if (edgeX)
-								// Ignored
-                        		nI = pI = 0;
-							else {
-                        		nI = i + 1;
-                        		pI = i - 1;
+      // Dynamically interpolate each node
+      for (int x = 0; x < xLen_1; x++) {
+        for (int y = 0; y < yLen_1; y++) {
+          for (int z = 0; z < zLen_1; z++) {
+            //@formatter:off
+                    for (int ii = 0; ii < 2; ii++) {
+                    	final int i = x + ii;
+                		final boolean edgeX = i == 0 || i == xLen_1;
+                        final int nI, pI;
+                        if (edgeX) {
+                          // Ignored
+                          nI = pI = 0;
+                        } else {
+                    		nI = i + 1;
+                    		pI = i - 1;
+                    	}
+                        for (int jj = 0; jj < 2; jj++) {
+                        	final int j = y + jj;
+                    		final boolean edgeY = j == 0 || j == yLen_1;
+                            final int nJ, pJ;
+                            if (edgeY) {
+                              // Ignored
+                              nJ = pJ = 0;
+                            } else {
+                        		nJ = j + 1;
+                        		pJ = j - 1;
                         	}
-                            for (int jj = 0; jj < 2; jj++) {
-                            	final int j = y + jj;
-                        		final boolean edgeY = j == 0 || j == yLen_1;
-                                final int nJ, pJ;
-                                if (edgeY)
-									// Ignored
-                            		nJ = pJ = 0;
-								else {
-                            		nJ = j + 1;
-                            		pJ = j - 1;
+                		final boolean edgeXY = edgeX || edgeY;
+                            for (int kk = 0; kk < 2; kk++) {
+                            	final int k = z + kk;
+                        		final boolean edgeZ = k == 0 || k == zLen_1;
+                                final int nK, pK;
+                                if (edgeZ) {
+                                  // Ignored
+                                  nK = pK = 0;
+                                } else {
+                            		nK = k + 1;
+                            		pK = k - 1;
                             	}
-                				final boolean edgeXY = edgeX || edgeY;
-                                for (int kk = 0; kk < 2; kk++) {
-                                	final int k = z + kk;
-                            		final boolean edgeZ = k == 0 || k == zLen_1;
-                                    final int nK, pK;
-                                    if (edgeZ)
-										// Ignored
-                                		nK = pK = 0;
-									else {
-                                		nK = k + 1;
-                                		pK = k - 1;
-                                	}
-                                    if (edgeXY || edgeZ)
-                                    {
-                                        f[ii][jj][kk] = fval.get(i, j, k);
+                                if (edgeXY || edgeZ)
+                                {
+                                    f[ii][jj][kk] = fval.get(i, j, k);
 
-                                        // No gradients at the edge
-                                        dFdX[ii][jj][kk] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / 2;
-                                        dFdY[ii][jj][kk] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / 2;
-                                        dFdZ[ii][jj][kk] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / 2;
+                                    // No gradients at the edge
+                                    dFdX[ii][jj][kk] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / 2;
+                                    dFdY[ii][jj][kk] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / 2;
+                                    dFdZ[ii][jj][kk] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / 2;
 
-                                        d2FdXdY[ii][jj][kk] = (edgeXY) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / 4;
-                                        d2FdXdZ[ii][jj][kk] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / 4;
-                                        d2FdYdZ[ii][jj][kk] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / 4;
+                                    d2FdXdY[ii][jj][kk] = (edgeXY) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / 4;
+                                    d2FdXdZ[ii][jj][kk] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / 4;
+                                    d2FdYdZ[ii][jj][kk] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / 4;
 
-                                        d3FdXdYdZ[ii][jj][kk] = 0;
-                    				}
-                    				else
-                    				{
-                                        fval.get(i, j, k, values);
+                                    d3FdXdYdZ[ii][jj][kk] = 0;
+                				}
+                				else
+                				{
+                                    fval.get(i, j, k, values);
 
-                                        f[ii][jj][kk] = values[1][1][1];
+                                    f[ii][jj][kk] = values[1][1][1];
 
-                                        dFdX[ii][jj][kk] = (values[2][1][1] - values[0][1][1]) / 2;
-                                        dFdY[ii][jj][kk] = (values[1][2][1] - values[1][0][1]) / 2;
-                                        dFdZ[ii][jj][kk] = (values[1][1][2] - values[1][1][0]) / 2;
+                                    dFdX[ii][jj][kk] = (values[2][1][1] - values[0][1][1]) / 2;
+                                    dFdY[ii][jj][kk] = (values[1][2][1] - values[1][0][1]) / 2;
+                                    dFdZ[ii][jj][kk] = (values[1][1][2] - values[1][1][0]) / 2;
 
-                                        d2FdXdY[ii][jj][kk] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / 4;
-                                        d2FdXdZ[ii][jj][kk] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / 4;
-                                        d2FdYdZ[ii][jj][kk] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / 4;
+                                    d2FdXdY[ii][jj][kk] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / 4;
+                                    d2FdXdZ[ii][jj][kk] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / 4;
+                                    d2FdYdZ[ii][jj][kk] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / 4;
 
-                                        d3FdXdYdZ[ii][jj][kk] = (values[2][2][2] - values[2][0][2] -
-                                                                 values[0][2][2] + values[0][0][2] -
-                                                                 values[2][2][0] + values[2][0][0] +
-                                                                 values[0][2][0] - values[0][0][0]) / 8;
-                    				}
-                                }
+                                    d3FdXdYdZ[ii][jj][kk] = (values[2][2][2] - values[2][0][2] -
+                                                             values[0][2][2] + values[0][0][2] -
+                                                             values[2][2][0] + values[2][0][0] +
+                                                             values[0][2][0] - values[0][0][0]) / 8;
+                				}
                             }
                         }
-
-                        // Create the interpolating function.
-                        final CustomTricubicFunction cf = CustomTricubicInterpolatingFunction.createFunction(
-                        		beta,
-                        		new DoubleArrayTrivalueProvider(f),
-                        		new DoubleArrayTrivalueProvider(dFdX),
-                        		new DoubleArrayTrivalueProvider(dFdY),
-                        		new DoubleArrayTrivalueProvider(dFdZ),
-                        		new DoubleArrayTrivalueProvider(d2FdXdY),
-                        		new DoubleArrayTrivalueProvider(d2FdXdZ),
-                        		new DoubleArrayTrivalueProvider(d2FdYdZ),
-                        		new DoubleArrayTrivalueProvider(d3FdXdYdZ));
-                    	//@formatter:on
-
-                        // Write interpolated values. For the final position we use the extra table to
-                        // get the value at x=1 in the range [0-1].
-                        for (int k = 0, maxk = (z == zLen_2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++)
-                            for (int j = 0, maxj = (y == yLen_2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++) {
-                                // Position in the interpolation tables
-                                int pos = nx1 * (j + ny1 * k);
-                                for (int i = 0, maxi = (x == xLen_2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++) {
-                                    procedure.setValue(xx, yy, zz, cf.value(tables[pos++]));
-                                    ticker.tick();
-                                }
-                            }
                     }
+
+                    // Create the interpolating function.
+                    final CustomTricubicFunction cf = CustomTricubicInterpolatingFunction.createFunction(
+                    		beta,
+                    		new DoubleArrayTrivalueProvider(f),
+                    		new DoubleArrayTrivalueProvider(dFdX),
+                    		new DoubleArrayTrivalueProvider(dFdY),
+                    		new DoubleArrayTrivalueProvider(dFdZ),
+                    		new DoubleArrayTrivalueProvider(d2FdXdY),
+                    		new DoubleArrayTrivalueProvider(d2FdXdZ),
+                    		new DoubleArrayTrivalueProvider(d2FdYdZ),
+                    		new DoubleArrayTrivalueProvider(d3FdXdYdZ));
+                	//@formatter:on
+
+            // Write interpolated values. For the final position we use the extra table to
+            // get the value at x=1 in the range [0-1].
+            for (int k = 0, maxk = (z == zLen_2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++) {
+              for (int j = 0, maxj = (y == yLen_2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++) {
+                // Position in the interpolation tables
+                int pos = nx1 * (j + ny1 * k);
+                for (int i = 0, maxi = (x == xLen_2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++) {
+                  procedure.setValue(xx, yy, zz, cf.value(tables[pos++]));
+                  ticker.tick();
+                }
+              }
+            }
+          }
         }
-
-        ticker.stop();
+      }
     }
 
-    /**
-     * Gets the task size and number of tasks.
-     * <p>
-     * The task size is increased to reduce the number of tasks until 
-     * the number of tasks can fit in memory.
-     *
-     * @param total   the total number of tasks
-     * @param taskSize the initial task size
-     * @return [taskSize, nTasks]
-     */
-    static long[] getTaskSizeAndNumberOfTasks(final long total, long taskSize) {
-        long nTasks = (long) Math.ceil((double) total / taskSize);
-        while (nTasks >= Integer.MAX_VALUE) {
-            taskSize *= 2;
-            nTasks = (long) Math.ceil((double) total / taskSize);
-        }
-        return new long[] { taskSize, nTasks };
-    }
+    ticker.stop();
+  }
 
-    private static CubicSplinePosition[] createCubicSplinePosition(int n) {
-        // Use an extra one to have the final x=1 interpolation point.
-        final double step = 1.0 / n;
-        final CubicSplinePosition[] s = new CubicSplinePosition[n + 1];
-        for (int x = 0; x < n; x++)
-            s[x] = new CubicSplinePosition(x * step);
-        // Final interpolation point must be exactly 1
-        s[n] = new CubicSplinePosition(1);
-        return s;
+  /**
+   * Gets the task size and number of tasks. <p> The task size is increased to reduce the number of
+   * tasks until the number of tasks can fit in memory.
+   *
+   * @param total the total number of tasks
+   * @param taskSize the initial task size
+   * @return [taskSize, nTasks]
+   */
+  static long[] getTaskSizeAndNumberOfTasks(final long total, long taskSize) {
+    long nTasks = (long) Math.ceil((double) total / taskSize);
+    while (nTasks >= Integer.MAX_VALUE) {
+      taskSize *= 2;
+      nTasks = (long) Math.ceil((double) total / taskSize);
     }
+    return new long[] {taskSize, nTasks};
+  }
+
+  private static CubicSplinePosition[] createCubicSplinePosition(int n) {
+    // Use an extra one to have the final x=1 interpolation point.
+    final double step = 1.0 / n;
+    final CubicSplinePosition[] s = new CubicSplinePosition[n + 1];
+    for (int x = 0; x < n; x++) {
+      s[x] = new CubicSplinePosition(x * step);
+    }
+    // Final interpolation point must be exactly 1
+    s[n] = new CubicSplinePosition(1);
+    return s;
+  }
 }

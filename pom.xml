@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
@@ -79,9 +78,120 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <build.date>${maven.build.timestamp}</build.date>
     <license.licenseName>gpl_v3</license.licenseName>
     <license.copyrightOwners>Alex Herbert</license.copyrightOwners>
-    <org.junit.platform.version>1.2.0</org.junit.platform.version>
+    <!-- Versions -->
+    <gdsc.analytics.version>1.0.1</gdsc.analytics.version>
+    <gdsc.test.version>1.0-SNAPSHOT</gdsc.test.version>
     <org.junit.jupiter.version>5.2.0</org.junit.jupiter.version>
+    <org.junit.platform.version>1.2.0</org.junit.platform.version>
+    <org.junit.version>4.12</org.junit.version>
+    <org.opentest4j.version>1.1.0</org.opentest4j.version>
+    <commons.rng.version>1.1</commons.rng.version>
+    <commons.codec.version>1.11</commons.codec.version>
+    <org.jacoco.version>0.8.1</org.jacoco.version>
+    <license-maven-plugin.version>1.16</license-maven-plugin.version>
+    <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+    <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+    <spotbugs.version>3.1.6</spotbugs.version>
+    <pmd.version>6.7.0</pmd.version>
+    <elki.version>0.7.1</elki.version>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>uk.ac.sussex.gdsc</groupId>
+      <artifactId>gdsc-analytics</artifactId>
+      <version>${gdsc.analytics.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.imagej</groupId>
+      <artifactId>ij</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-rng-simple</artifactId>
+      <version>${commons.rng.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-rng-sampling</artifactId>
+      <version>${commons.rng.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/net.sf.trove4j/trove4j -->
+    <dependency>
+      <groupId>net.sf.trove4j</groupId>
+      <artifactId>trove4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>uk.ac.sussex.gdsc</groupId>
+      <artifactId>gdsc-test-api</artifactId>
+      <version>${gdsc.test.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>uk.ac.sussex.gdsc</groupId>
+      <artifactId>gdsc-test-utils</artifactId>
+      <version>${gdsc.test.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>uk.ac.sussex.gdsc</groupId>
+      <artifactId>gdsc-test-junit5</artifactId>
+      <version>${gdsc.test.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>uk.ac.sussex.gdsc</groupId>
+      <artifactId>gdsc-test-rng</artifactId>
+      <version>${gdsc.test.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.2.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/de.lmu.ifi.dbs.elki/elki -->
+    <!-- Used to test the DBSCAN and OPTICS algorithms -->
+    <dependency>
+      <groupId>de.lmu.ifi.dbs.elki</groupId>
+      <artifactId>elki</artifactId>
+      <version>${elki.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+    <!-- Used to test the Digest algorithms -->
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- Used to test the random string algorithms -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>imagej.releases</id>
+      <url>http://maven.imagej.net/content/repositories/releases</url>
+    </repository>
+    <repository>
+      <id>imagej.snapshots</id>
+      <url>http://maven.imagej.net/content/repositories/snapshots</url>
+    </repository>
+    <repository>
+      <id>apache.central</id>
+      <url>http://repo.maven.apache.org/maven2</url>
+    </repository>
+  </repositories>
 
   <build>
     <pluginManagement>
@@ -124,8 +234,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
             <!-- Set JUL Formatting -->
             <java.util.logging.SimpleFormatter.format><![CDATA[%4$-7s %2$s %5$s%6$s%n]]></java.util.logging.SimpleFormatter.format>
           </systemPropertyVariables>
-          <!-- Ensure the JaCoCo settings are preserved in argLine when ImageJ 
-            settings are added -->
+          <!-- Ensure the JaCoCo settings are preserved in argLine when ImageJ settings are added -->
           <argLine>@{argLine} -Xms512m -Dapple.awt.UIElement="true"</argLine>
         </configuration>
         <dependencies>
@@ -159,56 +268,26 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
         <configuration>
           <excludes>
             <exclude>**/main/java/**/ags/utils/**/*.java</exclude>
-            <exclude>**/main/java/**/BoxMullerGaussianSampler.java</exclude>
           </excludes>
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.eluder.coveralls</groupId>
-        <artifactId>coveralls-maven-plugin</artifactId>
-        <version>4.3.0</version>
-      </plugin>
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.1</version>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>${maven-checkstyle-plugin.version}</version>
+        <configuration>
+          <configLocation>${basedir}/src/main/resources/checkstyle/checkstyle.xml</configLocation>
+          <encoding>UTF-8</encoding>
+          <consoleOutput>true</consoleOutput>
+          <failsOnError>true</failsOnError>
+          <linkXRef>true</linkXRef>
+        </configuration>
         <executions>
           <execution>
-            <id>default-prepare-agent</id>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>default-report</id>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>default-check</id>
+            <id>verify</id>
+            <phase>verify</phase>
             <goals>
               <goal>check</goal>
             </goals>
-            <configuration>
-              <rules>
-                <!-- implementation is needed only for Maven 2 -->
-                <rule
-                  implementation="org.jacoco.maven.RuleConfiguration">
-                  <element>BUNDLE</element>
-                  <limits>
-                    <!-- implementation is needed only for Maven 2 -->
-                    <limit
-                      implementation="org.jacoco.report.check.Limit">
-                      <counter>COMPLEXITY</counter>
-                      <value>COVEREDRATIO</value>
-                      <minimum>0.60</minimum>
-                    </limit>
-                  </limits>
-                </rule>
-              </rules>
-              <haltOnFailure>false</haltOnFailure>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -220,97 +299,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       </resource>
     </resources>
   </build>
-
-  <dependencies>
-    <dependency>
-      <groupId>uk.ac.sussex.gdsc</groupId>
-      <artifactId>gdsc-analytics</artifactId>
-      <version>1.0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>net.imagej</groupId>
-      <artifactId>ij</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-math3</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-rng-simple</artifactId>
-      <version>1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-rng-sampling</artifactId>
-      <version>1.1</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/net.sf.trove4j/trove4j -->
-    <dependency>
-      <groupId>net.sf.trove4j</groupId>
-      <artifactId>trove4j</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>uk.ac.sussex.gdsc</groupId>
-      <artifactId>gdsc-test-utils</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>uk.ac.sussex.gdsc</groupId>
-      <artifactId>gdsc-test-junit5</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>uk.ac.sussex.gdsc</groupId>
-      <artifactId>gdsc-test-rng</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.2.0</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/de.lmu.ifi.dbs.elki/elki -->
-    <!-- Used to test the DBSCAN and OPTICS algorithms -->
-    <dependency>
-      <groupId>de.lmu.ifi.dbs.elki</groupId>
-      <artifactId>elki</artifactId>
-      <version>0.7.1</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
-    <!-- Used to test the Digest algorithms -->
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <!-- Used to test the random string algorithms -->
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-text</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <repositories>
-    <repository>
-      <id>imagej.releases</id>
-      <url>http://maven.imagej.net/content/repositories/releases</url>
-    </repository>
-    <repository>
-      <id>imagej.snapshots</id>
-      <url>http://maven.imagej.net/content/repositories/snapshots</url>
-    </repository>
-    <repository>
-      <id>apache.central</id>
-      <url>http://repo.maven.apache.org/maven2</url>
-    </repository>
-  </repositories>
 
   <profiles>
     <profile>
@@ -386,6 +374,55 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
           <artifactId>junit-jupiter-engine</artifactId>
         </dependency>
       </dependencies>
+    </profile>
+    <profile>
+      <id>jacoco</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.1</version>
+            <executions>
+              <execution>
+                <id>default-prepare-agent</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>default-report</id>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>default-check</id>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <!-- implementation is needed only for Maven 2 -->
+                    <rule implementation="org.jacoco.maven.RuleConfiguration">
+                      <element>BUNDLE</element>
+                      <limits>
+                        <!-- implementation is needed only for Maven 2 -->
+                        <limit implementation="org.jacoco.report.check.Limit">
+                          <counter>COMPLEXITY</counter>
+                          <value>COVEREDRATIO</value>
+                          <minimum>0.60</minimum>
+                        </limit>
+                      </limits>
+                    </rule>
+                  </rules>
+                  <haltOnFailure>false</haltOnFailure>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 
