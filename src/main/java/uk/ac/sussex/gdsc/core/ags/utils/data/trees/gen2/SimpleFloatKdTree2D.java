@@ -201,7 +201,7 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D {
           nextCursor = cursor.right;
           cursor.status = Status.RIGHTVISITED;
         } else {
-          // Descend left;
+          // Descend left
           nextCursor = cursor.left;
           cursor.status = Status.LEFTVISITED;
         }
@@ -302,7 +302,7 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D {
           nextCursor = cursor.right;
           cursor.status = Status.RIGHTVISITED;
         } else {
-          // Descend left;
+          // Descend left
           nextCursor = cursor.left;
           cursor.status = Status.LEFTVISITED;
         }

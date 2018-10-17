@@ -199,7 +199,7 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D {
           nextCursor = cursor.right;
           cursor.status = Status.RIGHTVISITED;
         } else {
-          // Descend left;
+          // Descend left
           nextCursor = cursor.left;
           cursor.status = Status.LEFTVISITED;
         }

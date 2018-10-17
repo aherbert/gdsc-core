@@ -278,7 +278,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
           nextCursor = cursor.right;
           cursor.status = Status.RIGHTVISITED;
         } else {
-          // Descend left;
+          // Descend left
           nextCursor = cursor.left;
           cursor.status = Status.LEFTVISITED;
         }
@@ -290,6 +290,8 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
         // Right node visited, descend left.
         nextCursor = cursor.left;
         cursor.status = Status.ALLVISITED;
+      } else {
+        break;
       }
 
       // Check if it's worth descending. Assume it is if it's sibling has
@@ -378,7 +380,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
           nextCursor = cursor.right;
           cursor.status = Status.RIGHTVISITED;
         } else {
-          // Descend left;
+          // Descend left
           nextCursor = cursor.left;
           cursor.status = Status.LEFTVISITED;
         }

@@ -238,7 +238,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D {
           nextCursor = cursor.right;
           status[cursor.id] = Status.RIGHTVISITED;
         } else {
-          // Descend left;
+          // Descend left
           nextCursor = cursor.left;
           status[cursor.id] = Status.LEFTVISITED;
         }
@@ -351,7 +351,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D {
           nextCursor = cursor.right;
           status[cursor.id] = Status.RIGHTVISITED;
         } else {
-          // Descend left;
+          // Descend left
           nextCursor = cursor.left;
           status[cursor.id] = Status.LEFTVISITED;
         }
@@ -455,7 +455,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D {
           nextCursor = cursor.right;
           status[cursor.id] = Status.RIGHTVISITED;
         } else {
-          // Descend left;
+          // Descend left
           nextCursor = cursor.left;
           status[cursor.id] = Status.LEFTVISITED;
         }

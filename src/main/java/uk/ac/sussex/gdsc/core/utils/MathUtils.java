@@ -1275,7 +1275,6 @@ public final class MathUtils {
     value |= (value >>> 4);
     value |= (value >>> 8);
     value |= (value >>> 16);
-    value |= (value >>> 32);
     return value + 1;
   }
 

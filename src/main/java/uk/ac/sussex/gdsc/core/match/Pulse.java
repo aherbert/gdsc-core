@@ -70,7 +70,8 @@ public class Pulse extends BasePoint implements Comparable<Pulse> {
     if (this == object) {
       return true;
     }
-    if (!(object instanceof Pulse)) {
+    // Must be the same class, allowing subtypes their own implementation
+    if (object == null || getClass() != object.getClass()) {
       return false;
     }
 

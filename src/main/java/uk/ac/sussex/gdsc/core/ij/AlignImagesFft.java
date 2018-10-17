@@ -707,7 +707,7 @@ public class AlignImagesFft {
 
     if (noValue(targetIp)) {
       // Zero correlation with empty image
-      IJ.log(String.format("Best Slice %d  x %g  y %g = %g", slice, 0, 0, 0));
+      IJ.log(String.format("Best Slice %d  x 0  y 0 = 0", slice));
       if (fpCorrelation != null) {
         fpCorrelation.setPixels(new float[refFht.getPixelCount()]);
       }

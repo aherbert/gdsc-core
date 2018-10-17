@@ -75,7 +75,8 @@ public class BasePoint implements Coordinate {
     if (this == object) {
       return true;
     }
-    if (!(object instanceof BasePoint)) {
+    // Must be the same class, allowing subtypes their own implementation
+    if (object == null || getClass() != object.getClass()) {
       return false;
     }
 
