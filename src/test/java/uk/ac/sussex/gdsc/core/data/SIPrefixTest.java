@@ -1,26 +1,6 @@
 package uk.ac.sussex.gdsc.core.data;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-import uk.ac.sussex.gdsc.test.utils.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -28,7 +8,8 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.junit5.*;import uk.ac.sussex.gdsc.test.rng.RngFactory;import uk.ac.sussex.gdsc.test.utils.TestLog;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
 public class SIPrefixTest {
@@ -96,17 +77,17 @@ public class SIPrefixTest {
   @Test
   public void canGetPrefix() {
     // Edge cases
-    canGetPrefix(0, SIPrefix.NONE);
-    canGetPrefix(Double.POSITIVE_INFINITY, SIPrefix.NONE);
-    canGetPrefix(Double.NEGATIVE_INFINITY, SIPrefix.NONE);
-    canGetPrefix(Double.NaN, SIPrefix.NONE);
+    canGetPrefix(0, SiPrefix.NONE);
+    canGetPrefix(Double.POSITIVE_INFINITY, SiPrefix.NONE);
+    canGetPrefix(Double.NEGATIVE_INFINITY, SiPrefix.NONE);
+    canGetPrefix(Double.NaN, SiPrefix.NONE);
 
     for (final int sign : new int[] {-1, 1}) {
       // Edge case high
-      canGetPrefix(sign, SIPrefix.YOTTA.getFactor() * 10, SIPrefix.YOTTA);
+      canGetPrefix(sign, SiPrefix.YOTTA.getFactor() * 10, SiPrefix.YOTTA);
 
       // Above 1
-      final SIPrefix[] values = SIPrefix.values();
+      final SiPrefix[] values = SiPrefix.values();
       for (int i = 0; i < values.length; i++) {
         if (values[i].getFactor() > 1) {
           if (i > 0) {
@@ -121,9 +102,9 @@ public class SIPrefixTest {
       }
 
       // 1
-      canGetPrefix(sign, 0.5, SIPrefix.DECI);
-      canGetPrefix(sign, 1, SIPrefix.NONE);
-      canGetPrefix(sign, 2, SIPrefix.NONE);
+      canGetPrefix(sign, 0.5, SiPrefix.DECI);
+      canGetPrefix(sign, 1, SiPrefix.NONE);
+      canGetPrefix(sign, 2, SiPrefix.NONE);
 
       // Below 1
       for (int i = 0; i < values.length; i++) {
@@ -140,17 +121,17 @@ public class SIPrefixTest {
       }
 
       // Edge case low
-      canGetPrefix(sign, SIPrefix.YOCTO.getFactor() / 10, SIPrefix.YOCTO);
+      canGetPrefix(sign, SiPrefix.YOCTO.getFactor() / 10, SiPrefix.YOCTO);
     }
   }
 
-  private static void canGetPrefix(double value, SIPrefix e) {
+  private static void canGetPrefix(double value, SiPrefix e) {
     canGetPrefix(1, value, e);
   }
 
-  private static void canGetPrefix(int sign, double value, SIPrefix e) {
+  private static void canGetPrefix(int sign, double value, SiPrefix e) {
     value *= sign;
-    final SIPrefix o = SIPrefix.getPrefix(value);
+    final SiPrefix o = SiPrefix.getPrefix(value);
     logger.log(TestLog.getRecord(Level.FINE, "Value %s = %s %s (%s)", value, o.convert(value),
         o.getName(), o.getSymbol()));
     Assertions.assertEquals(e, o);

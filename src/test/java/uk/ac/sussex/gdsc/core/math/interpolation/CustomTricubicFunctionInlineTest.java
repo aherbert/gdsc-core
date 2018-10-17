@@ -2,6 +2,9 @@ package uk.ac.sussex.gdsc.core.math.interpolation;
 
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.procedure.TObjectIntProcedure;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
@@ -10,14 +13,14 @@ import org.junit.jupiter.api.Test;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import gnu.trove.map.hash.TObjectIntHashMap;
-import gnu.trove.procedure.TObjectIntProcedure;
-
 /**
- * This class is used to in-line the computation for the CustomTricubicFunction. <p> The ordering of
- * the computation is set to multiply by the power ZYX and the cubic coefficient last. <p> This
- * allows the power table to be precomputed and the result should match the non-precomputed version.
- * This includes scaling the power table by 2,3,6 for computation of the gradients.
+ * This class is used to in-line the computation for the CustomTricubicFunction.
+ *
+ * <p>The ordering of the computation is set to multiply by the power ZYX and the cubic coefficient
+ * last.
+ *
+ * <p>This allows the power table to be precomputed and the result should match the non-precomputed
+ * version. This includes scaling the power table by 2,3,6 for computation of the gradients.
  */
 @SuppressWarnings({"javadoc"})
 public class CustomTricubicFunctionInlineTest {
@@ -45,7 +48,7 @@ public class CustomTricubicFunctionInlineTest {
   }
 
   /**
-   * Used to create the inline value function
+   * Used to create the inline value function.
    *
    * @return the function text.
    */
@@ -103,7 +106,7 @@ public class CustomTricubicFunctionInlineTest {
   }
 
   /**
-   * Used to create the inline value function for first-order gradients with power table
+   * Used to create the inline value function for first-order gradients with power table.
    *
    * @return the function text.
    */
@@ -138,7 +141,7 @@ public class CustomTricubicFunctionInlineTest {
   }
 
   /**
-   * Used to create the inline power table function
+   * Used to create the inline power table function.
    *
    * @return the function text.
    */
@@ -182,7 +185,7 @@ public class CustomTricubicFunctionInlineTest {
   }
 
   /**
-   * Used to create the inline value function for first-order gradients
+   * Used to create the inline value function for first-order gradients.
    *
    * @return the function text.
    */
@@ -246,7 +249,7 @@ if (k < N_1)
   }
 
   /**
-   * Used to create the inline value function for first-order gradients with power table
+   * Used to create the inline value function for first-order gradients with power table.
    *
    * @return the function text.
    */
@@ -340,7 +343,7 @@ if (k < N_1)
   }
 
   /**
-   * Used to create the inline value function for first-order gradients with power table
+   * Used to create the inline value function for first-order gradients with power table.
    *
    * @return the function text.
    */
@@ -443,7 +446,7 @@ if (k < N_1)
   }
 
   /**
-   * Used to create the inline value function for second-order gradients
+   * Used to create the inline value function for second-order gradients.
    *
    * @return the function text.
    */
@@ -517,7 +520,7 @@ if (k < N_1)
   }
 
   /**
-   * Used to create the inline value function for second-order gradients with power table
+   * Used to create the inline value function for second-order gradients with power table.
    *
    * @return the function text.
    */
@@ -618,7 +621,7 @@ if (k < N_1)
   }
 
   /**
-   * Used to create the inline value function for second-order gradients with power table
+   * Used to create the inline value function for second-order gradients with power table.
    *
    * @return the function text.
    */

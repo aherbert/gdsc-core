@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import org.apache.commons.math3.random.AbstractRandomGenerator;
@@ -32,8 +33,9 @@ import org.apache.commons.rng.UniformRandomProvider;
 
 /**
  * Adapts {@link org.apache.commons.rng.UniformRandomProvider} interface for the
- * {@link org.apache.commons.math3.random.RandomGenerator} interface. <p> Warning: It is not
- * possible to set the seed.
+ * {@link org.apache.commons.math3.random.RandomGenerator} interface.
+ *
+ * <p>Warning: It is not possible to set the seed.
  *
  * @author Alex Herbert
  */

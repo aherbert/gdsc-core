@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import org.apache.commons.math3.random.RandomGenerator;
@@ -57,9 +58,11 @@ public class UniformRandomProviderAdapter implements UniformRandomProvider {
   }
 
   /**
-   * {@inheritDoc} <p> <strong>Note:</strong> This is a dumb implementation that create a new byte
-   * array of the given length, fills that using the underlying {@link RandomGenerator} and then
-   * copies it to the input.
+   * {@inheritDoc}
+   *
+   * <p><strong>Note:</strong> This is a dumb implementation that create a new byte array of the
+   * given length, fills that using the underlying {@link RandomGenerator} and then copies it to the
+   * input.
    */
   @Override
   public void nextBytes(byte[] bytes, int start, int len) {
@@ -100,7 +103,8 @@ public class UniformRandomProviderAdapter implements UniformRandomProvider {
     do {
       bits = nextLong() >>> 1;
       val = bits % n;
-    } while (bits - val + (n - 1) < 0);
+    }
+    while (bits - val + (n - 1) < 0);
 
     return val;
   }

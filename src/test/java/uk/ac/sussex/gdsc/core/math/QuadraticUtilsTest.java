@@ -1,29 +1,15 @@
 package uk.ac.sussex.gdsc.core.math;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.core.data.DataException;
+import uk.ac.sussex.gdsc.test.api.TestAssertions;
+import uk.ac.sussex.gdsc.test.api.TestHelper;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-import uk.ac.sussex.gdsc.test.utils.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import uk.ac.sussex.gdsc.test.junit5.*;import uk.ac.sussex.gdsc.test.rng.RngFactory;import uk.ac.sussex.gdsc.core.data.DataException;
 
 @SuppressWarnings({"javadoc"})
 public class QuadraticUtilsTest {
@@ -102,10 +88,14 @@ public class QuadraticUtilsTest {
 
   @Test
   public void canFindMinMaxQuadratic() {
-    TestAssertions.assertTest(0, findMinMaxQuadratic(1, 0, 0, -1, 0, 1), TestHelper.almostEqualDoubles(1e-6, 0));
-    TestAssertions.assertTest(0, findMinMaxQuadratic(1, 0, -10, -1, 0, 1), TestHelper.almostEqualDoubles(1e-6, 0));
-    TestAssertions.assertTest(-1, findMinMaxQuadratic(1, 2, 0, -1, 0, 1), TestHelper.almostEqualDoubles(1e-6, 0));
-    TestAssertions.assertTest(-1, findMinMaxQuadratic(1, 2, -10, -1, 0, 1), TestHelper.almostEqualDoubles(1e-6, 0));
+    TestAssertions.assertTest(0, findMinMaxQuadratic(1, 0, 0, -1, 0, 1),
+        TestHelper.almostEqualDoubles(1e-6, 0));
+    TestAssertions.assertTest(0, findMinMaxQuadratic(1, 0, -10, -1, 0, 1),
+        TestHelper.almostEqualDoubles(1e-6, 0));
+    TestAssertions.assertTest(-1, findMinMaxQuadratic(1, 2, 0, -1, 0, 1),
+        TestHelper.almostEqualDoubles(1e-6, 0));
+    TestAssertions.assertTest(-1, findMinMaxQuadratic(1, 2, -10, -1, 0, 1),
+        TestHelper.almostEqualDoubles(1e-6, 0));
   }
 
   private static double findMinMaxQuadratic(double a, double b, double c, double x1, double x2,

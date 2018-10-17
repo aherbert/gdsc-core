@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.logging;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Logs messages to memory
+ * Logs messages to memory.
  */
 public class MemoryLogger implements Logger {
   private final List<String> messages = new LinkedList<>();

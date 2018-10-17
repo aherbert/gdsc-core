@@ -25,60 +25,57 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 /**
- * The sample mode to sample neighbours in FastOPTICS
+ * The sample mode to sample neighbours in FastOPTICS.
  */
 public enum SampleMode {
-  //@formatter:on
-  /** Randomly sample a maximum of two neighbours from each set */
+  /** Randomly sample a maximum of two neighbours from each set. */
   RANDOM {
     @Override
     public String getName() {
       return "Random";
     }
   },
-  /** The median of the project set is the neighbour of all points in the set */
+  /** The median of the project set is the neighbour of all points in the set. */
   MEDIAN {
     @Override
     public String getName() {
       return "Median";
     }
   },
-  /** Sample all-vs-all from each set */
+  /** Sample all-vs-all from each set. */
   ALL {
     @Override
     public String getName() {
       return "All";
     }
   };
-  //@formatter:off
 
-	/**
-	 * Gets the name.
-	 *
-	 * @return the name
-	 */
-	abstract public String getName();
+  /**
+   * Gets the name.
+   *
+   * @return the name
+   */
+  public abstract String getName();
 
-	@Override
-	public String toString()
-	{
-		return getName();
-	}
+  @Override
+  public String toString() {
+    return getName();
+  }
 
-	/**
-	 * Gets the sample mode.
-	 *
-	 * @param ordinal the ordinal
-	 * @return the sample mode
-	 */
-	public static SampleMode get(int ordinal)
-	{
-		if (ordinal < 0|| ordinal >= values().length) {
+  /**
+   * Gets the sample mode.
+   *
+   * @param ordinal the ordinal
+   * @return the sample mode
+   */
+  public static SampleMode get(int ordinal) {
+    if (ordinal < 0 || ordinal >= values().length) {
       ordinal = 0;
     }
-		return values()[ordinal];
-	}
+    return values()[ordinal];
+  }
 }

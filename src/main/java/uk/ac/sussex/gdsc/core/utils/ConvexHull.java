@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import uk.ac.sussex.gdsc.core.math.Geometry;
@@ -38,21 +39,34 @@ import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
 /**
- * Contains a set of paired coordinates representing the convex hull of a set of points. <p>
- * Functionality of this has been taken from ij.process.FloatPolygon.
+ * Contains a set of paired coordinates representing the convex hull of a set of points.
+ *
+ * <p>Functionality of this has been taken from {@link ij.process.FloatPolygon}.
  */
-public class ConvexHull {
+public final class ConvexHull {
+
+  /** Default value for tolerance. */
+  private static final double DEFAULT_TOLERANCE = 1e-10;
+
   /** The x coordinates. */
   public final float[] x;
 
   /** The y coordinates. */
   public final float[] y;
 
+  private Rectangle bounds;
+  private float minX;
+  private float minY;
+  private float maxX;
+  private float maxY;
+
   /**
    * Instantiates a new convex hull.
    *
-   * @param x the x
-   * @param y the y
+   * @param xbase the x base
+   * @param ybase the y base
+   * @param x the x coordinates
+   * @param y the y coordinates
    */
   private ConvexHull(float xbase, float ybase, float[] x, float[] y) {
     this.x = x;
@@ -77,57 +91,53 @@ public class ConvexHull {
   /**
    * Create a new convex hull from the given coordinates.
    *
-   * @param xCoordinates the x coordinates
-   * @param yCoordinates the y coordinates
+   * @param x the x coordinates
+   * @param y the y coordinates
    * @return the convex hull
    * @throws NullPointerException if the inputs are null
-   * @throws ArrayIndexOutOfBoundsException if the yCoordinates are smaller than the xCoordinates
+   * @throws ArrayIndexOutOfBoundsException if the y are smaller than the x
    */
-  public static ConvexHull create(float[] xCoordinates, float[] yCoordinates) {
-    return create(0, 0, xCoordinates, yCoordinates, xCoordinates.length);
+  public static ConvexHull create(float[] x, float[] y) {
+    return create(0, 0, x, y, x.length);
   }
 
   /**
    * Create a new convex hull from the given coordinates.
    *
-   * @param xCoordinates the x coordinates
-   * @param yCoordinates the y coordinates
+   * @param x the x coordinates
+   * @param y the y coordinates
    * @param n the number of coordinates
    * @return the convex hull
    * @throws NullPointerException if the inputs are null
-   * @throws ArrayIndexOutOfBoundsException if the yCoordinates are smaller than the xCoordinates
+   * @throws ArrayIndexOutOfBoundsException if the y are smaller than the x
    */
-  public static ConvexHull create(float[] xCoordinates, float[] yCoordinates, int n) {
-    return create(0, 0, xCoordinates, yCoordinates, n);
+  public static ConvexHull create(float[] x, float[] y, int n) {
+    return create(0, 0, x, y, n);
   }
-
-  /** Default value for tolerance. */
-  private static final double DEFAULT_TOLERANCE = 1e-10;
 
   /**
    * Create a new convex hull from the given coordinates.
    *
    * @param xbase the x base coordinate (origin)
    * @param ybase the y base coordinate (origin)
-   * @param xCoordinates the x coordinates
-   * @param yCoordinates the y coordinates
+   * @param x the x coordinates
+   * @param y the y coordinates
    * @param n the number of coordinates
    * @return the convex hull
    * @throws NullPointerException if the inputs are null
-   * @throws ArrayIndexOutOfBoundsException if the yCoordinates are smaller than the xCoordinates
+   * @throws ArrayIndexOutOfBoundsException if the y are smaller than the x
    */
-  public static ConvexHull create(float xbase, float ybase, float[] xCoordinates,
-      float[] yCoordinates, int n) {
+  public static ConvexHull create(float xbase, float ybase, float[] x, float[] y, int n) {
     // Use Apache Math to do this
     final MonotoneChain chain = new MonotoneChain(false, DEFAULT_TOLERANCE);
     final TurboList<Vector2D> points = new TurboList<>(n);
     for (int i = 0; i < n; i++) {
-      points.add(new Vector2D(xbase + xCoordinates[i], ybase + yCoordinates[i]));
+      points.add(new Vector2D(xbase + x[i], ybase + y[i]));
     }
     ConvexHull2D hull = null;
     try {
       hull = chain.generate(points);
-    } catch (final ConvergenceException e) { // Ignore
+    } catch (final ConvergenceException ex) { // Ignore
     }
 
     if (hull == null) {
@@ -152,8 +162,6 @@ public class ConvexHull {
   }
 
   // Below is functionality taken from ij.process.FloatPolygon
-  private Rectangle bounds;
-  private float minX, minY, maxX, maxY;
 
   /**
    * Returns 'true' if the point (x,y) is inside this polygon. This is a Java version of the

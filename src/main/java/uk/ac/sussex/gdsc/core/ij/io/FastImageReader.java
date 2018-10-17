@@ -25,7 +25,13 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.io;
+
+import ij.io.BitBuffer;
+import ij.io.FileInfo;
+import ij.process.ColorProcessor;
+import ij.process.ImageProcessor;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -36,31 +42,31 @@ import java.util.zip.Inflater;
 
 import javax.imageio.ImageIO;
 
-import ij.io.BitBuffer;
-import ij.io.FileInfo;
-import ij.process.ColorProcessor;
-import ij.process.ImageProcessor;
-
 /**
- * Reads raw 8-bit, 16-bit or 32-bit (float or RGB) images from a stream. <p> This is a
- * re-implementation of the {@link ij.io.TiffDecoder} to use a {@link SeekableStream} interface. If
- * you want to use an input stream then you can use the original TiffDecoder. <p> Removed support
- * for progress tracking. Allow IO Exceptions to be thrown.
+ * Reads raw 8-bit, 16-bit or 32-bit (float or Rgb) images from a stream.
+ *
+ * <p>This is a re-implementation of the {@link ij.io.TiffDecoder} to use a {@link SeekableStream}
+ * interface. If you want to use an input stream then you can use the original TiffDecoder.
+ *
+ * <p>Removed support for progress tracking. Allow IO Exceptions to be thrown.
  */
 public class FastImageReader {
   private static final int CLEAR_CODE = 256;
   private static final int EOI_CODE = 257;
 
   private final FileInfo fi;
-  private final int width, height;
+  private final int width;
+  private final int height;
   private long skipCount;
-  private int bytesPerPixel, bufferSize, nPixels;
+  private int bytesPerPixel;
+  private int bufferSize;
+  private int numberOfPixels;
   private long byteCount;
 
-  // readRGB48() calculates min/max pixel values
-  /** The min value read for RGB48 images. */
+  // readRgb48() calculates min/max pixel values
+  /** The min value read for Rgb48 images. */
   public double min;
-  /** The max value read for RGB48 images. */
+  /** The max value read for Rgb48 images. */
   public double max;
 
   /**
@@ -87,9 +93,9 @@ public class FastImageReader {
     if (fi.compression > FileInfo.COMPRESSION_NONE) {
       return readCompressed8bitImage(in);
     }
-    final byte[] pixels = new byte[nPixels];
+    final byte[] pixels = new byte[numberOfPixels];
     // assume contiguous strips
-    int count, actuallyRead;
+    int count;
     int totalRead = 0;
     while (totalRead < byteCount) {
       if (totalRead + bufferSize > byteCount) {
@@ -97,14 +103,49 @@ public class FastImageReader {
       } else {
         count = bufferSize;
       }
-      actuallyRead = in.read(pixels, totalRead, count);
+      final int actuallyRead = in.read(pixels, totalRead, count);
       if (actuallyRead < 0) {
         throw new EOFException();
       }
       totalRead += actuallyRead;
-      // showProgress(totalRead, byteCount);
     }
     return pixels;
+  }
+
+  /**
+   * Read 8 bit image.
+   *
+   * @param in the input seekable stream
+   * @return the byte[] image
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  byte[] read8bitImage(ByteArraySeekableStream in) throws IOException {
+    if (fi.compression > FileInfo.COMPRESSION_NONE) {
+      return readCompressed8bitImage(in);
+    }
+
+    final int j = getPositionAndSkipPixelBytes(in, 1);
+    final byte[] pixels = new byte[numberOfPixels];
+    System.arraycopy(in.buffer, j, pixels, 0, numberOfPixels);
+    return pixels;
+  }
+
+  /**
+   * Gets the position and skips the number of bytes covering all of the pixel data.
+   *
+   * @param in the input seekable stream
+   * @param bytesPerPixel the bytes per pixel
+   * @return the position before the skip
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  private int getPositionAndSkipPixelBytes(ByteArraySeekableStream in, int bytesPerPixel)
+      throws IOException {
+    final int position = in.position;
+    final long skip = bytesPerPixel * ((long) numberOfPixels);
+    if (in.skip(skip) != skip) {
+      throw new EOFException();
+    }
+    return position;
   }
 
   /**
@@ -115,13 +156,14 @@ public class FastImageReader {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   byte[] readCompressed8bitImage(SeekableStream in) throws IOException {
-    final byte[] pixels = new byte[nPixels];
+    final byte[] pixels = new byte[numberOfPixels];
     int current = 0;
     byte last = 0;
     for (int i = 0; i < fi.stripOffsets.length; i++) {
       in.seek(fi.stripOffsets[i]);
       byte[] byteArray = new byte[fi.stripLengths[i]];
-      int read = 0, left = byteArray.length;
+      int read = 0;
+      int left = byteArray.length;
       while (left > 0) {
         final int r = in.read(byteArray, read, left);
         if (r < 0) {
@@ -144,7 +186,6 @@ public class FastImageReader {
       }
       System.arraycopy(byteArray, 0, pixels, current, length);
       current += length;
-      // showProgress(i + 1, fi.stripOffsets.length);
     }
     return pixels;
   }
@@ -164,19 +205,13 @@ public class FastImageReader {
     }
     int pixelsRead;
     final byte[] buffer = new byte[bufferSize];
-    final short[] pixels = new short[nPixels];
+    final short[] pixels = new short[numberOfPixels];
     long totalRead = 0L;
     int base = 0;
     int count;
     int bufferCount;
 
-    // Debug what takes the time when reading
-    // long readTime = 0;
-    // long decodeTime = 0;
-    // long stamp1, stamp2;
-
     while (totalRead < byteCount) {
-      // stamp1 = System.nanoTime();
       if ((totalRead + bufferSize) > byteCount) {
         bufferSize = (int) (byteCount - totalRead);
       }
@@ -189,10 +224,7 @@ public class FastImageReader {
         bufferCount += count;
       }
       totalRead += bufferSize;
-      // showProgress(totalRead, byteCount);
       pixelsRead = bufferSize / bytesPerPixel;
-      // stamp2 = System.nanoTime();
-      // readTime += stamp2 - stamp1;
       if (fi.intelByteOrder) {
         if (fi.fileType == FileInfo.GRAY16_SIGNED) {
           for (int i = base, j = 0; i < (base + pixelsRead); i++, j += 2) {
@@ -213,11 +245,50 @@ public class FastImageReader {
         }
       }
       base += pixelsRead;
-      // stamp1 = System.nanoTime();
-      // decodeTime += stamp1 - stamp2;
     }
-    // System.out.printf("Read = %d, Decode = %d (%.2f)\n", readTime, decodeTime,
-    // (double) decodeTime / (readTime + decodeTime));
+    return pixels;
+  }
+
+  /**
+   * Reads a 16-bit image. Signed pixels are converted to unsigned by adding 32768.
+   *
+   * @param in the input seekable stream
+   * @return the short[] image
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  short[] read16bitImage(ByteArraySeekableStream in) throws IOException {
+    if (fi.compression > FileInfo.COMPRESSION_NONE
+        || (fi.stripOffsets != null && fi.stripOffsets.length > 1)
+            && fi.fileType != FileInfo.RGB48_PLANAR) {
+      return readCompressed16bitImage(in);
+    }
+
+    // We use the bytes direct
+    int index = getPositionAndSkipPixelBytes(in, 2);
+    final byte[] buffer = in.buffer;
+    final short[] pixels = new short[numberOfPixels];
+
+    if (fi.intelByteOrder) {
+      if (fi.fileType == FileInfo.GRAY16_SIGNED) {
+        for (int i = 0; i < numberOfPixels; i++, index += 2) {
+          pixels[i] =
+              (short) ((((buffer[index + 1] & 0xff) << 8) | (buffer[index] & 0xff)) + 32768);
+        }
+      } else {
+        for (int i = 0; i < numberOfPixels; i++, index += 2) {
+          pixels[i] = (short) (((buffer[index + 1] & 0xff) << 8) | (buffer[index] & 0xff));
+        }
+      }
+    } else if (fi.fileType == FileInfo.GRAY16_SIGNED) {
+      for (int i = 0; i < numberOfPixels; i++, index += 2) {
+        pixels[i] = (short) ((((buffer[index] & 0xff) << 8) | (buffer[index + 1] & 0xff)) + 32768);
+      }
+    } else {
+      for (int i = 0; i < numberOfPixels; i++, index += 2) {
+        pixels[i] = (short) (((buffer[index] & 0xff) << 8) | (buffer[index + 1] & 0xff));
+      }
+    }
+
     return pixels;
   }
 
@@ -229,13 +300,14 @@ public class FastImageReader {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   short[] readCompressed16bitImage(SeekableStream in) throws IOException {
-    final short[] pixels = new short[nPixels];
+    final short[] pixels = new short[numberOfPixels];
     int base = 0;
     short last = 0;
     for (int k = 0; k < fi.stripOffsets.length; k++) {
       in.seek(fi.stripOffsets[k]);
       byte[] byteArray = new byte[fi.stripLengths[k]];
-      int read = 0, left = byteArray.length;
+      int read = 0;
+      int left = byteArray.length;
       while (left > 0) {
         final int r = in.read(byteArray, read, left);
         if (r < 0) {
@@ -248,8 +320,8 @@ public class FastImageReader {
       int pixelsRead = byteArray.length / bytesPerPixel;
       pixelsRead = pixelsRead - (pixelsRead % fi.width);
       int pmax = base + pixelsRead;
-      if (pmax > nPixels) {
-        pmax = nPixels;
+      if (pmax > numberOfPixels) {
+        pmax = numberOfPixels;
       }
       if (fi.intelByteOrder) {
         for (int i = base, j = 0; i < pmax; i++, j += 2) {
@@ -267,11 +339,10 @@ public class FastImageReader {
         }
       }
       base += pixelsRead;
-      // showProgress(k + 1, fi.stripOffsets.length);
     }
     if (fi.fileType == FileInfo.GRAY16_SIGNED) {
       // convert to unsigned
-      for (int i = 0; i < nPixels; i++) {
+      for (int i = 0; i < numberOfPixels; i++) {
         pixels[i] = (short) (pixels[i] + 32768);
       }
     }
@@ -292,7 +363,7 @@ public class FastImageReader {
     }
     int pixelsRead;
     final byte[] buffer = new byte[bufferSize];
-    final float[] pixels = new float[nPixels];
+    final float[] pixels = new float[numberOfPixels];
     long totalRead = 0L;
     int base = 0;
     int count;
@@ -312,17 +383,16 @@ public class FastImageReader {
         bufferCount += count;
       }
       totalRead += bufferSize;
-      // showProgress(totalRead, byteCount);
       pixelsRead = bufferSize / bytesPerPixel;
       int pmax = base + pixelsRead;
-      if (pmax > nPixels) {
-        pmax = nPixels;
+      if (pmax > numberOfPixels) {
+        pmax = numberOfPixels;
       }
-      int j = 0;
+      int index = 0;
       if (fi.intelByteOrder) {
         for (int i = base; i < pmax; i++) {
-          tmp = ((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16)
-              | ((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff);
+          tmp = ((buffer[index + 3] & 0xff) << 24) | ((buffer[index + 2] & 0xff) << 16)
+              | ((buffer[index + 1] & 0xff) << 8) | (buffer[index] & 0xff);
           if (fi.fileType == FileInfo.GRAY32_FLOAT) {
             pixels[i] = Float.intBitsToFloat(tmp);
           } else if (fi.fileType == FileInfo.GRAY32_UNSIGNED) {
@@ -330,12 +400,12 @@ public class FastImageReader {
           } else {
             pixels[i] = tmp;
           }
-          j += 4;
+          index += 4;
         }
       } else {
         for (int i = base; i < pmax; i++) {
-          tmp = ((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16)
-              | ((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff);
+          tmp = ((buffer[index] & 0xff) << 24) | ((buffer[index + 1] & 0xff) << 16)
+              | ((buffer[index + 2] & 0xff) << 8) | (buffer[index + 3] & 0xff);
           if (fi.fileType == FileInfo.GRAY32_FLOAT) {
             pixels[i] = Float.intBitsToFloat(tmp);
           } else if (fi.fileType == FileInfo.GRAY32_UNSIGNED) {
@@ -343,11 +413,70 @@ public class FastImageReader {
           } else {
             pixels[i] = tmp;
           }
-          j += 4;
+          index += 4;
         }
       }
       base += pixelsRead;
     }
+    return pixels;
+  }
+
+  /**
+   * Read 32 bit image.
+   *
+   * @param in the input seekable stream
+   * @return the float[] image
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  float[] read32bitImage(ByteArraySeekableStream in) throws IOException {
+    if (fi.compression > FileInfo.COMPRESSION_NONE
+        || (fi.stripOffsets != null && fi.stripOffsets.length > 1)) {
+      return readCompressed32bitImage(in);
+    }
+
+    // We use the bytes direct
+    int index = getPositionAndSkipPixelBytes(in, 4);
+    final byte[] buffer = in.buffer;
+    final float[] pixels = new float[numberOfPixels];
+
+    if (fi.intelByteOrder) {
+      if (fi.fileType == FileInfo.GRAY32_FLOAT) {
+        for (int i = 0; i < numberOfPixels; i++, index += 4) {
+          pixels[i] = Float.intBitsToFloat(
+              ((buffer[index + 3] & 0xff) << 24) | ((buffer[index + 2] & 0xff) << 16)
+                  | ((buffer[index + 1] & 0xff) << 8) | (buffer[index] & 0xff));
+        }
+      } else if (fi.fileType == FileInfo.GRAY32_UNSIGNED) {
+        final int tmp = ((buffer[index + 3] & 0xff) << 24) | ((buffer[index + 2] & 0xff) << 16)
+            | ((buffer[index + 1] & 0xff) << 8) | (buffer[index] & 0xff);
+        for (int i = 0; i < numberOfPixels; i++, index += 4) {
+          pixels[i] = tmp & 0xffffffffL;
+        }
+      } else {
+        for (int i = 0; i < numberOfPixels; i++, index += 4) {
+          pixels[i] = ((buffer[index + 3] & 0xff) << 24) | ((buffer[index + 2] & 0xff) << 16)
+              | ((buffer[index + 1] & 0xff) << 8) | (buffer[index] & 0xff);
+        }
+      }
+    } else if (fi.fileType == FileInfo.GRAY32_FLOAT) {
+      for (int i = 0; i < numberOfPixels; i++, index += 4) {
+        pixels[i] =
+            Float.intBitsToFloat(((buffer[index] & 0xff) << 24) | ((buffer[index + 1] & 0xff) << 16)
+                | ((buffer[index + 2] & 0xff) << 8) | (buffer[index + 3] & 0xff));
+      }
+    } else if (fi.fileType == FileInfo.GRAY32_UNSIGNED) {
+      final int tmp = ((buffer[index] & 0xff) << 24) | ((buffer[index + 1] & 0xff) << 16)
+          | ((buffer[index + 2] & 0xff) << 8) | (buffer[index + 3] & 0xff);
+      for (int i = 0; i < numberOfPixels; i++, index += 4) {
+        pixels[i] = tmp & 0xffffffffL;
+      }
+    } else {
+      for (int i = 0; i < numberOfPixels; i++, index += 4) {
+        pixels[i] = ((buffer[index] & 0xff) << 24) | ((buffer[index + 1] & 0xff) << 16)
+            | ((buffer[index + 2] & 0xff) << 8) | (buffer[index + 3] & 0xff);
+      }
+    }
+
     return pixels;
   }
 
@@ -359,13 +488,14 @@ public class FastImageReader {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   float[] readCompressed32bitImage(SeekableStream in) throws IOException {
-    final float[] pixels = new float[nPixels];
+    final float[] pixels = new float[numberOfPixels];
     int base = 0;
     float last = 0;
     for (int k = 0; k < fi.stripOffsets.length; k++) {
       in.seek(fi.stripOffsets[k]);
       byte[] byteArray = new byte[fi.stripLengths[k]];
-      int read = 0, left = byteArray.length;
+      int read = 0;
+      int left = byteArray.length;
       while (left > 0) {
         final int r = in.read(byteArray, read, left);
         if (r < 0) {
@@ -378,8 +508,8 @@ public class FastImageReader {
       int pixelsRead = byteArray.length / bytesPerPixel;
       pixelsRead = pixelsRead - (pixelsRead % fi.width);
       int pmax = base + pixelsRead;
-      if (pmax > nPixels) {
-        pmax = nPixels;
+      if (pmax > numberOfPixels) {
+        pmax = numberOfPixels;
       }
       int tmp;
       if (fi.intelByteOrder) {
@@ -414,7 +544,6 @@ public class FastImageReader {
         }
       }
       base += pixelsRead;
-      // showProgress(k + 1, fi.stripOffsets.length);
     }
     return pixels;
   }
@@ -429,13 +558,12 @@ public class FastImageReader {
   float[] read64bitImage(SeekableStream in) throws IOException {
     int pixelsRead;
     final byte[] buffer = new byte[bufferSize];
-    final float[] pixels = new float[nPixels];
+    final float[] pixels = new float[numberOfPixels];
     long totalRead = 0L;
     int base = 0;
     int count;
     int bufferCount;
     long tmp;
-    long b1, b2, b3, b4, b5, b6, b7, b8;
 
     while (totalRead < byteCount) {
       if ((totalRead + bufferSize) > byteCount) {
@@ -450,18 +578,17 @@ public class FastImageReader {
         bufferCount += count;
       }
       totalRead += bufferSize;
-      // showProgress(totalRead, byteCount);
       pixelsRead = bufferSize / bytesPerPixel;
-      int j = 0;
+      int index = 0;
       for (int i = base; i < (base + pixelsRead); i++) {
-        b1 = buffer[j + 7] & 0xff;
-        b2 = buffer[j + 6] & 0xff;
-        b3 = buffer[j + 5] & 0xff;
-        b4 = buffer[j + 4] & 0xff;
-        b5 = buffer[j + 3] & 0xff;
-        b6 = buffer[j + 2] & 0xff;
-        b7 = buffer[j + 1] & 0xff;
-        b8 = buffer[j] & 0xff;
+        final long b1 = buffer[index + 7] & 0xff;
+        final long b2 = buffer[index + 6] & 0xff;
+        final long b3 = buffer[index + 5] & 0xff;
+        final long b4 = buffer[index + 4] & 0xff;
+        final long b5 = buffer[index + 3] & 0xff;
+        final long b6 = buffer[index + 2] & 0xff;
+        final long b7 = buffer[index + 1] & 0xff;
+        final long b8 = buffer[index] & 0xff;
         if (fi.intelByteOrder) {
           tmp = (b1 << 56) | (b2 << 48) | (b3 << 40) | (b4 << 32) | (b5 << 24) | (b6 << 16)
               | (b7 << 8) | b8;
@@ -470,7 +597,7 @@ public class FastImageReader {
               | (b2 << 8) | b1;
         }
         pixels[i] = (float) Double.longBitsToDouble(tmp);
-        j += 8;
+        index += 8;
       }
       base += pixelsRead;
     }
@@ -478,27 +605,62 @@ public class FastImageReader {
   }
 
   /**
-   * Read chunky RGB.
+   * Read 64 bit image.
+   *
+   * @param in the input seekable stream
+   * @return the float[] image
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  float[] read64bitImage(ByteArraySeekableStream in) throws IOException {
+    // We use the bytes direct
+    int index = getPositionAndSkipPixelBytes(in, 8);
+    final byte[] buffer = in.buffer;
+    final float[] pixels = new float[numberOfPixels];
+
+    for (int i = 0; i < numberOfPixels; i++) {
+      final long b1 = buffer[index + 7] & 0xff;
+      final long b2 = buffer[index + 6] & 0xff;
+      final long b3 = buffer[index + 5] & 0xff;
+      final long b4 = buffer[index + 4] & 0xff;
+      final long b5 = buffer[index + 3] & 0xff;
+      final long b6 = buffer[index + 2] & 0xff;
+      final long b7 = buffer[index + 1] & 0xff;
+      final long b8 = buffer[index] & 0xff;
+      long tmp;
+      if (fi.intelByteOrder) {
+        tmp = (b1 << 56) | (b2 << 48) | (b3 << 40) | (b4 << 32) | (b5 << 24) | (b6 << 16)
+            | (b7 << 8) | b8;
+      } else {
+        tmp = (b8 << 56) | (b7 << 48) | (b6 << 40) | (b5 << 32) | (b4 << 24) | (b3 << 16)
+            | (b2 << 8) | b1;
+      }
+      pixels[i] = (float) Double.longBitsToDouble(tmp);
+      index += 8;
+    }
+    return pixels;
+  }
+
+  /**
+   * Read chunky Rgb.
    *
    * @param in the input seekable stream
    * @return the int[] image
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  int[] readChunkyRGB(SeekableStream in) throws IOException {
+  int[] readChunkyRgb(SeekableStream in) throws IOException {
     if (fi.compression == FileInfo.JPEG) {
-      return readJPEG(in);
+      return readJpeg(in);
     } else if (fi.compression > FileInfo.COMPRESSION_NONE) {
-      return readCompressedChunkyRGB(in);
+      return readCompressedChunkyRgb(in);
     }
     int pixelsRead;
     bufferSize = 24 * width;
     final byte[] buffer = new byte[bufferSize];
-    final int[] pixels = new int[nPixels];
+    final int[] pixels = new int[numberOfPixels];
     long totalRead = 0L;
     int base = 0;
     int count;
     int bufferCount;
-    int r, g, b, a;
 
     while (totalRead < byteCount) {
       if ((totalRead + bufferSize) > byteCount) {
@@ -513,47 +675,49 @@ public class FastImageReader {
         bufferCount += count;
       }
       totalRead += bufferSize;
-      // showProgress(totalRead, byteCount);
       pixelsRead = bufferSize / bytesPerPixel;
       final boolean bgr = fi.fileType == FileInfo.BGR;
-      int j = 0;
+      int index = 0;
       for (int i = base; i < (base + pixelsRead); i++) {
+        int red;
+        int green;
+        int blue;
         if (bytesPerPixel == 4) {
           if (fi.fileType == FileInfo.BARG) { // MCID
-            b = buffer[j++] & 0xff;
-            j++; // ignore alfa byte
-            r = buffer[j++] & 0xff;
-            g = buffer[j++] & 0xff;
+            blue = buffer[index++] & 0xff;
+            index++; // ignore alpha byte
+            red = buffer[index++] & 0xff;
+            green = buffer[index++] & 0xff;
           } else if (fi.fileType == FileInfo.ABGR) {
-            b = buffer[j++] & 0xff;
-            g = buffer[j++] & 0xff;
-            r = buffer[j++] & 0xff;
-            j++; // ignore alfa byte
+            blue = buffer[index++] & 0xff;
+            green = buffer[index++] & 0xff;
+            red = buffer[index++] & 0xff;
+            index++; // ignore alpha byte
           } else if (fi.fileType == FileInfo.CMYK) {
-            r = buffer[j++] & 0xff; // c
-            g = buffer[j++] & 0xff; // m
-            b = buffer[j++] & 0xff; // y
-            a = buffer[j++] & 0xff; // k
-            if (a > 0) { // if k>0 then c=c*(1-k)+k
-              r = ((r * (256 - a)) >> 8) + a;
-              g = ((g * (256 - a)) >> 8) + a;
-              b = ((b * (256 - a)) >> 8) + a;
+            red = buffer[index++] & 0xff; // c
+            green = buffer[index++] & 0xff; // m
+            blue = buffer[index++] & 0xff; // y
+            final int black = buffer[index++] & 0xff; // k
+            if (black > 0) { // if k>0 then c=c*(1-k)+k
+              red = ((red * (256 - black)) >> 8) + black;
+              green = ((green * (256 - black)) >> 8) + black;
+              blue = ((blue * (256 - black)) >> 8) + black;
             } // else r=1-c, g=1-m and b=1-y, which IJ does by inverting image
-          } else { // ARGB
-            r = buffer[j++] & 0xff;
-            g = buffer[j++] & 0xff;
-            b = buffer[j++] & 0xff;
-            j++; // ignore alfa byte
+          } else { // ARgb
+            red = buffer[index++] & 0xff;
+            green = buffer[index++] & 0xff;
+            blue = buffer[index++] & 0xff;
+            index++; // ignore alpha byte
           }
         } else {
-          r = buffer[j++] & 0xff;
-          g = buffer[j++] & 0xff;
-          b = buffer[j++] & 0xff;
+          red = buffer[index++] & 0xff;
+          green = buffer[index++] & 0xff;
+          blue = buffer[index++] & 0xff;
         }
         if (bgr) {
-          pixels[i] = 0xff000000 | (b << 16) | (g << 8) | r;
+          pixels[i] = 0xff000000 | (blue << 16) | (green << 8) | red;
         } else {
-          pixels[i] = 0xff000000 | (r << 16) | (g << 8) | b;
+          pixels[i] = 0xff000000 | (red << 16) | (green << 8) | blue;
         }
       }
       base += pixelsRead;
@@ -562,23 +726,27 @@ public class FastImageReader {
   }
 
   /**
-   * Read compressed chunky RGB.
+   * Read compressed chunky Rgb.
    *
    * @param in the input seekable stream
    * @return the int[] image
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  int[] readCompressedChunkyRGB(SeekableStream in) throws IOException {
-    final int[] pixels = new int[nPixels];
+  int[] readCompressedChunkyRgb(SeekableStream in) throws IOException {
+    final int[] pixels = new int[numberOfPixels];
     int base = 0;
-    int red = 0, green = 0, blue = 0, alpha = 0;
+    int red = 0;
+    int green = 0;
+    int blue = 0;
+    int alpha = 0;
     final boolean bgr = fi.fileType == FileInfo.BGR;
     final boolean cmyk = fi.fileType == FileInfo.CMYK;
     final boolean differencing = fi.compression == FileInfo.LZW_WITH_DIFFERENCING;
     for (int i = 0; i < fi.stripOffsets.length; i++) {
       in.seek(fi.stripOffsets[i]);
       byte[] byteArray = new byte[fi.stripLengths[i]];
-      int read = 0, left = byteArray.length;
+      int read = 0;
+      int left = byteArray.length;
       while (left > 0) {
         final int r = in.read(byteArray, read, left);
         if (r < 0) {
@@ -596,28 +764,28 @@ public class FastImageReader {
           byteArray[b] += byteArray[b - bytesPerPixel];
         }
       }
-      int k = 0;
+      int index = 0;
       int pixelsRead = byteArray.length / bytesPerPixel;
       pixelsRead = pixelsRead - (pixelsRead % fi.width);
       int pmax = base + pixelsRead;
-      if (pmax > nPixels) {
-        pmax = nPixels;
+      if (pmax > numberOfPixels) {
+        pmax = numberOfPixels;
       }
       for (int j = base; j < pmax; j++) {
         if (bytesPerPixel == 4) {
-          red = byteArray[k++] & 0xff;
-          green = byteArray[k++] & 0xff;
-          blue = byteArray[k++] & 0xff;
-          alpha = byteArray[k++] & 0xff;
+          red = byteArray[index++] & 0xff;
+          green = byteArray[index++] & 0xff;
+          blue = byteArray[index++] & 0xff;
+          alpha = byteArray[index++] & 0xff;
           if (cmyk && alpha > 0) {
             red = ((red * (256 - alpha)) >> 8) + alpha;
             green = ((green * (256 - alpha)) >> 8) + alpha;
             blue = ((blue * (256 - alpha)) >> 8) + alpha;
           }
         } else {
-          red = byteArray[k++] & 0xff;
-          green = byteArray[k++] & 0xff;
-          blue = byteArray[k++] & 0xff;
+          red = byteArray[index++] & 0xff;
+          green = byteArray[index++] & 0xff;
+          blue = byteArray[index++] & 0xff;
         }
         if (bgr) {
           pixels[j] = 0xff000000 | (blue << 16) | (green << 8) | red;
@@ -626,7 +794,6 @@ public class FastImageReader {
         }
       }
       base += pixelsRead;
-      // showProgress(i + 1, fi.stripOffsets.length);
     }
     return pixels;
   }
@@ -638,100 +805,95 @@ public class FastImageReader {
    * @return the int[] image
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  int[] readJPEG(SeekableStream in) throws IOException {
+  int[] readJpeg(SeekableStream in) throws IOException {
     final BufferedImage bi = ImageIO.read(in);
     final ImageProcessor ip = new ColorProcessor(bi);
     return (int[]) ip.getPixels();
   }
 
   /**
-   * Read planar RGB.
+   * Read planar Rgb.
    *
    * @param in the input seekable stream
    * @return the int[] image
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  int[] readPlanarRGB(SeekableStream in) throws IOException {
+  int[] readPlanarRgb(SeekableStream in) throws IOException {
     if (fi.compression > FileInfo.COMPRESSION_NONE) {
-      return readCompressedPlanarRGBImage(in);
+      return readCompressedPlanarRgbImage(in);
     }
-    final int planeSize = nPixels; // 1/3 image size
+    final int planeSize = numberOfPixels; // 1/3 image size
     final byte[] buffer = new byte[planeSize];
-    final int[] pixels = new int[nPixels];
-    int r, g, b;
+    final int[] pixels = new int[numberOfPixels];
 
-    // showProgress(10, 100);
     in.readFully(buffer);
     for (int i = 0; i < planeSize; i++) {
-      r = buffer[i] & 0xff;
-      pixels[i] = 0xff000000 | (r << 16);
+      final int red = buffer[i] & 0xff;
+      pixels[i] = 0xff000000 | (red << 16);
     }
 
-    // showProgress(40, 100);
     in.readFully(buffer);
     for (int i = 0; i < planeSize; i++) {
-      g = buffer[i] & 0xff;
-      pixels[i] |= g << 8;
+      final int green = buffer[i] & 0xff;
+      pixels[i] |= green << 8;
     }
 
-    // showProgress(70, 100);
     in.readFully(buffer);
     for (int i = 0; i < planeSize; i++) {
-      b = buffer[i] & 0xff;
-      pixels[i] |= b;
+      final int blue = buffer[i] & 0xff;
+      pixels[i] |= blue;
     }
 
-    // showProgress(90, 100);
     return pixels;
   }
 
   /**
-   * Read compressed planar RGB image.
+   * Read compressed planar Rgb image.
    *
    * @param in the input seekable stream
    * @return the int[] image
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  int[] readCompressedPlanarRGBImage(SeekableStream in) throws IOException {
-    final int[] pixels = new int[nPixels];
-    int r, g, b;
-    nPixels *= 3; // read all 3 planes
+  int[] readCompressedPlanarRgbImage(SeekableStream in) throws IOException {
+    final int[] pixels = new int[numberOfPixels];
+    numberOfPixels *= 3; // read all 3 planes
     final byte[] buffer = readCompressed8bitImage(in);
-    nPixels /= 3;
-    for (int i = 0; i < nPixels; i++) {
-      r = buffer[i] & 0xff;
-      pixels[i] = 0xff000000 | (r << 16);
+    numberOfPixels /= 3;
+    for (int i = 0; i < numberOfPixels; i++) {
+      final int red = buffer[i] & 0xff;
+      pixels[i] = 0xff000000 | (red << 16);
     }
-    for (int i = 0; i < nPixels; i++) {
-      g = buffer[nPixels + i] & 0xff;
-      pixels[i] |= g << 8;
+    for (int i = 0; i < numberOfPixels; i++) {
+      final int green = buffer[numberOfPixels + i] & 0xff;
+      pixels[i] |= green << 8;
     }
-    for (int i = 0; i < nPixels; i++) {
-      b = buffer[nPixels * 2 + i] & 0xff;
-      pixels[i] |= b;
+    for (int i = 0; i < numberOfPixels; i++) {
+      final int blue = buffer[numberOfPixels * 2 + i] & 0xff;
+      pixels[i] |= blue;
     }
     return pixels;
   }
 
   /**
-   * Read RGB 48.
+   * Read Rgb 48.
    *
    * @param in the input seekable stream
    * @return the object
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  Object readRGB48(SeekableStream in) throws IOException {
+  Object readRgb48(SeekableStream in) throws IOException {
     if (fi.compression > FileInfo.COMPRESSION_NONE) {
-      return readCompressedRGB48(in);
+      return readCompressedRgb48(in);
     }
-    final int channels = fi.samplesPerPixel;
-    final short[][] stack = new short[channels][nPixels];
-    int pixel = 0;
-    int min = 65535, max = 0;
     if (fi.stripLengths == null) {
       fi.stripLengths = new int[fi.stripOffsets.length];
       fi.stripLengths[0] = width * height * bytesPerPixel;
     }
+    final int channels = fi.samplesPerPixel;
+    final short[][] stack = new short[channels][numberOfPixels];
+    int pixel = 0;
+    int localMin = 65535;
+    int localMax = 0;
     for (int i = 0; i < fi.stripOffsets.length; i++) {
       if (i > 0) {
         final long skip = (fi.stripOffsets[i] & 0xffffffffL)
@@ -741,7 +903,7 @@ public class FastImageReader {
         }
       }
       int len = fi.stripLengths[i];
-      final int bytesToGo = (nPixels - pixel) * channels * 2;
+      final int bytesToGo = (numberOfPixels - pixel) * channels * 2;
       if (len > bytesToGo) {
         len = bytesToGo;
       }
@@ -756,11 +918,11 @@ public class FastImageReader {
         } else {
           value = ((buffer[base] & 0xff) << 8) | (buffer[base + 1] & 0xff);
         }
-        if (value < min) {
-          min = value;
+        if (value < localMin) {
+          localMin = value;
         }
-        if (value > max) {
-          max = value;
+        if (value > localMax) {
+          localMax = value;
         }
         stack[channel][pixel] = (short) (value);
         channel++;
@@ -769,28 +931,28 @@ public class FastImageReader {
           pixel++;
         }
       }
-      // showProgress(i + 1, fi.stripOffsets.length);
     }
-    this.min = min;
-    this.max = max;
+    this.min = localMin;
+    this.max = localMax;
     return stack;
   }
 
   /**
-   * Read compressed RGB 48.
+   * Read compressed Rgb 48.
    *
    * @param in the input seekable stream
    * @return the object
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  Object readCompressedRGB48(SeekableStream in) throws IOException {
+  Object readCompressedRgb48(SeekableStream in) throws IOException {
     if (fi.compression == FileInfo.LZW_WITH_DIFFERENCING) {
       throw new IOException("ImageJ cannot open 48-bit LZW compressed TIFFs with predictor");
     }
     final int channels = 3;
-    final short[][] stack = new short[channels][nPixels];
+    final short[][] stack = new short[channels][numberOfPixels];
     int pixel = 0;
-    int min = 65535, max = 0;
+    int min = 65535;
+    int max = 0;
     for (int i = 0; i < fi.stripOffsets.length; i++) {
       if (i > 0) {
         final long skip = (fi.stripOffsets[i] & 0xffffffffL)
@@ -810,7 +972,7 @@ public class FastImageReader {
       int value;
       int channel = 0;
       final boolean intel = fi.intelByteOrder;
-      for (int base = 0; base < len && pixel < nPixels; base += 2) {
+      for (int base = 0; base < len && pixel < numberOfPixels; base += 2) {
         if (intel) {
           value = ((buffer[base + 1] & 0xff) << 8) | (buffer[base] & 0xff);
         } else {
@@ -829,7 +991,6 @@ public class FastImageReader {
           pixel++;
         }
       }
-      // showProgress(i + 1, fi.stripOffsets.length);
     }
     this.min = min;
     this.max = max;
@@ -837,13 +998,13 @@ public class FastImageReader {
   }
 
   /**
-   * Read RGB 48 planar.
+   * Read Rgb 48 planar.
    *
    * @param in the input seekable stream
    * @return the object
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  Object readRGB48Planar(SeekableStream in) throws IOException {
+  Object readRgb48Planar(SeekableStream in) throws IOException {
     final int channels = fi.samplesPerPixel;
     final Object[] stack = new Object[channels];
     for (int i = 0; i < channels; i++) {
@@ -865,7 +1026,7 @@ public class FastImageReader {
       bytesPerLine++; // add 1 if odd
     }
     final byte[] buffer = new byte[bytesPerLine * height];
-    final short[] pixels = new short[nPixels];
+    final short[] pixels = new short[numberOfPixels];
     in.readFully(buffer);
     for (int y = 0; y < height; y++) {
       int index1 = y * bytesPerLine;
@@ -896,15 +1057,14 @@ public class FastImageReader {
    */
   float[] read24bitImage(SeekableStream in) throws IOException {
     final byte[] buffer = new byte[width * 3];
-    final float[] pixels = new float[nPixels];
-    int b1, b2, b3;
+    final float[] pixels = new float[numberOfPixels];
     for (int y = 0; y < height; y++) {
       in.readFully(buffer);
-      int b = 0;
+      int count = 0;
       for (int x = 0; x < width; x++) {
-        b1 = buffer[b++] & 0xff;
-        b2 = buffer[b++] & 0xff;
-        b3 = buffer[b++] & 0xff;
+        final int b1 = buffer[count++] & 0xff;
+        final int b2 = buffer[count++] & 0xff;
+        final int b3 = buffer[count++] & 0xff;
         pixels[x + y * width] = (b3 << 16) | (b2 << 8) | b1;
       }
     }
@@ -925,16 +1085,15 @@ public class FastImageReader {
     final int scan = (int) Math.ceil(width / 8.0);
     final int len = scan * height;
     final byte[] buffer = new byte[len];
-    final byte[] pixels = new byte[nPixels];
+    final byte[] pixels = new byte[numberOfPixels];
     in.readFully(buffer);
-    int value1, value2, offset, index;
     for (int y = 0; y < height; y++) {
-      offset = y * scan;
-      index = y * width;
+      final int offset = y * scan;
+      int index = y * width;
       for (int x = 0; x < scan; x++) {
-        value1 = buffer[offset + x] & 0xff;
+        final int value1 = buffer[offset + x] & 0xff;
         for (int i = 7; i >= 0; i--) {
-          value2 = (value1 & (1 << i)) != 0 ? 255 : 0;
+          final int value2 = (value1 & (1 << i)) != 0 ? 255 : 0;
           if (index < pixels.length) {
             pixels[index++] = (byte) value2;
           }
@@ -963,7 +1122,7 @@ public class FastImageReader {
       }
       byteCount = scan * height;
     }
-    nPixels = width * height;
+    numberOfPixels = width * height;
     bufferSize = (int) (byteCount / 25L);
     if (bufferSize < 8192) {
       bufferSize = 8192;
@@ -1015,12 +1174,12 @@ public class FastImageReader {
       case FileInfo.CMYK:
         bytesPerPixel = fi.getBytesPerPixel();
         skip(in);
-        pixels = readChunkyRGB(in);
+        pixels = readChunkyRgb(in);
         break;
       case FileInfo.RGB_PLANAR:
         bytesPerPixel = 3;
         skip(in);
-        pixels = readPlanarRGB(in);
+        pixels = readPlanarRgb(in);
         break;
       case FileInfo.BITMAP:
         bytesPerPixel = 1;
@@ -1030,12 +1189,12 @@ public class FastImageReader {
       case FileInfo.RGB48:
         bytesPerPixel = 6;
         skip(in);
-        pixels = readRGB48(in);
+        pixels = readRgb48(in);
         break;
       case FileInfo.RGB48_PLANAR:
         bytesPerPixel = 2;
         skip(in);
-        pixels = readRGB48Planar(in);
+        pixels = readRgb48Planar(in);
         break;
       case FileInfo.GRAY12_UNSIGNED:
         skip(in);
@@ -1049,7 +1208,6 @@ public class FastImageReader {
       default:
         pixels = null;
     }
-    // showProgress(1, 1);
     return pixels;
   }
 
@@ -1063,6 +1221,100 @@ public class FastImageReader {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   public Object readPixels(SeekableStream in, long skipCount) throws IOException {
+    this.skipCount = skipCount;
+    return readPixels(in);
+  }
+
+  /**
+   * Reads the image from the SeekableStream and returns the pixel array (byte, short, int or
+   * float). Does not close the SeekableStream.
+   *
+   * @param in the input seekable stream
+   * @return the object
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  public Object readPixels(ByteArraySeekableStream in) throws IOException {
+    Object pixels;
+    switch (fi.fileType) {
+      case FileInfo.GRAY8:
+      case FileInfo.COLOR8:
+        bytesPerPixel = 1;
+        skip(in);
+        pixels = read8bitImage(in);
+        break;
+      case FileInfo.GRAY16_SIGNED:
+      case FileInfo.GRAY16_UNSIGNED:
+        bytesPerPixel = 2;
+        skip(in);
+        pixels = read16bitImage(in);
+        break;
+      case FileInfo.GRAY32_INT:
+      case FileInfo.GRAY32_UNSIGNED:
+      case FileInfo.GRAY32_FLOAT:
+        bytesPerPixel = 4;
+        skip(in);
+        pixels = read32bitImage(in);
+        break;
+      case FileInfo.GRAY64_FLOAT:
+        bytesPerPixel = 8;
+        skip(in);
+        pixels = read64bitImage(in);
+        break;
+      case FileInfo.RGB:
+      case FileInfo.BGR:
+      case FileInfo.ARGB:
+      case FileInfo.ABGR:
+      case FileInfo.BARG:
+      case FileInfo.CMYK:
+        bytesPerPixel = fi.getBytesPerPixel();
+        skip(in);
+        pixels = readChunkyRgb(in);
+        break;
+      case FileInfo.RGB_PLANAR:
+        bytesPerPixel = 3;
+        skip(in);
+        pixels = readPlanarRgb(in);
+        break;
+      case FileInfo.BITMAP:
+        bytesPerPixel = 1;
+        skip(in);
+        pixels = read1bitImage(in);
+        break;
+      case FileInfo.RGB48:
+        bytesPerPixel = 6;
+        skip(in);
+        pixels = readRgb48(in);
+        break;
+      case FileInfo.RGB48_PLANAR:
+        bytesPerPixel = 2;
+        skip(in);
+        pixels = readRgb48Planar(in);
+        break;
+      case FileInfo.GRAY12_UNSIGNED:
+        skip(in);
+        final short[] data = read12bitImage(in);
+        pixels = data;
+        break;
+      case FileInfo.GRAY24_UNSIGNED:
+        skip(in);
+        pixels = read24bitImage(in);
+        break;
+      default:
+        pixels = null;
+    }
+    return pixels;
+  }
+
+  /**
+   * Skips the specified number of bytes, then reads an image and returns the pixel array (byte,
+   * short, int or float). Does not close the SeekableStream.
+   *
+   * @param in the input seekable stream
+   * @param skipCount the skip count
+   * @return the object
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  public Object readPixels(ByteArraySeekableStream in, long skipCount) throws IOException {
     this.skipCount = skipCount;
     return readPixels(in);
   }
@@ -1105,8 +1357,8 @@ public class FastImageReader {
       }
       decompressor.end();
       return imageBuffer.toByteArray();
-    } catch (final DataFormatException e) {
-      throw new IOException(e);
+    } catch (final DataFormatException ex) {
+      throw new IOException(ex);
     }
   }
 
@@ -1189,7 +1441,7 @@ public class FastImageReader {
   /**
    * Based on the Bio-Formats PackbitsCodec written by Melissa Linkert.
    *
-   * @param input the input seekable streamput
+   * @param input the input bytes
    * @param expected the expected
    * @return the byte[] image
    */
@@ -1202,12 +1454,11 @@ public class FastImageReader {
     while (output.size() < expected && index < input.length) {
       final byte n = input[index++];
       if (n >= 0) { // 0 <= n <= 127
-        byte[] b = new byte[n + 1];
+        final byte[] data = new byte[n + 1];
         for (int i = 0; i < n + 1; i++) {
-          b[i] = input[index++];
+          data[i] = input[index++];
         }
-        output.add(b);
-        b = null;
+        output.add(data);
       } else if (n != -128) { // -127 <= n <= -1
         final int len = -n + 1;
         final byte inp = input[index++];
@@ -1217,298 +1468,6 @@ public class FastImageReader {
       }
     }
     return output.toByteArray();
-  }
-
-  // Specialised version to read using an in-memory byte buffer
-
-  /**
-   * Read 8 bit image.
-   *
-   * @param in the input seekable stream
-   * @return the byte[] image
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  byte[] read8bitImage(ByteArraySeekableStream in) throws IOException {
-    if (fi.compression > FileInfo.COMPRESSION_NONE) {
-      return readCompressed8bitImage(in);
-    }
-
-    final int j = getPositionAndSkipPixelBytes(in, 1);
-    final byte[] pixels = new byte[nPixels];
-    System.arraycopy(in.buffer, j, pixels, 0, nPixels);
-    return pixels;
-  }
-
-  /**
-   * Reads a 16-bit image. Signed pixels are converted to unsigned by adding 32768.
-   *
-   * @param in the input seekable stream
-   * @return the short[] image
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  short[] read16bitImage(ByteArraySeekableStream in) throws IOException {
-    if (fi.compression > FileInfo.COMPRESSION_NONE
-        || (fi.stripOffsets != null && fi.stripOffsets.length > 1)
-            && fi.fileType != FileInfo.RGB48_PLANAR) {
-      return readCompressed16bitImage(in);
-    }
-
-    // We use the bytes direct
-    int j = getPositionAndSkipPixelBytes(in, 2);
-    final byte[] buffer = in.buffer;
-    final short[] pixels = new short[nPixels];
-
-    if (fi.intelByteOrder) {
-      if (fi.fileType == FileInfo.GRAY16_SIGNED) {
-        for (int i = 0; i < nPixels; i++, j += 2) {
-          pixels[i] = (short) ((((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff)) + 32768);
-        }
-      } else {
-        for (int i = 0; i < nPixels; i++, j += 2) {
-          pixels[i] = (short) (((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff));
-        }
-      }
-    } else if (fi.fileType == FileInfo.GRAY16_SIGNED) {
-      for (int i = 0; i < nPixels; i++, j += 2) {
-        pixels[i] = (short) ((((buffer[j] & 0xff) << 8) | (buffer[j + 1] & 0xff)) + 32768);
-      }
-    } else {
-      for (int i = 0; i < nPixels; i++, j += 2) {
-        pixels[i] = (short) (((buffer[j] & 0xff) << 8) | (buffer[j + 1] & 0xff));
-      }
-    }
-
-    return pixels;
-  }
-
-  /**
-   * Read 32 bit image.
-   *
-   * @param in the input seekable stream
-   * @return the float[] image
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  float[] read32bitImage(ByteArraySeekableStream in) throws IOException {
-    if (fi.compression > FileInfo.COMPRESSION_NONE
-        || (fi.stripOffsets != null && fi.stripOffsets.length > 1)) {
-      return readCompressed32bitImage(in);
-    }
-
-    // We use the bytes direct
-    int j = getPositionAndSkipPixelBytes(in, 4);
-    final byte[] buffer = in.buffer;
-    final float[] pixels = new float[nPixels];
-
-    if (fi.intelByteOrder) {
-      // for (int i = 0; i < nPixels; i++, j += 4)
-      // {
-      // int tmp = (int) (((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16) |
-      // ((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff));
-      // if (fi.fileType == FileInfo.GRAY32_FLOAT)
-      // pixels[i] = Float.intBitsToFloat(tmp);
-      // else if (fi.fileType == FileInfo.GRAY32_UNSIGNED)
-      // pixels[i] = (float) (tmp & 0xffffffffL);
-      // else
-      // pixels[i] = tmp;
-      // }
-      if (fi.fileType == FileInfo.GRAY32_FLOAT) {
-        for (int i = 0; i < nPixels; i++, j += 4) {
-          pixels[i] =
-              Float.intBitsToFloat(((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16)
-                  | ((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff));
-        }
-      } else if (fi.fileType == FileInfo.GRAY32_UNSIGNED) {
-        final int tmp = ((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16)
-            | ((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff);
-        for (int i = 0; i < nPixels; i++, j += 4) {
-          pixels[i] = tmp & 0xffffffffL;
-        }
-      } else {
-        for (int i = 0; i < nPixels; i++, j += 4) {
-          pixels[i] = ((buffer[j + 3] & 0xff) << 24) | ((buffer[j + 2] & 0xff) << 16)
-              | ((buffer[j + 1] & 0xff) << 8) | (buffer[j] & 0xff);
-        }
-      }
-    } else // for (int i = 0; i < nPixels; i++, j += 4)
-    // {
-    // int tmp = (int) (((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16) |
-    // ((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff));
-    // if (fi.fileType == FileInfo.GRAY32_FLOAT)
-    // pixels[i] = Float.intBitsToFloat(tmp);
-    // else if (fi.fileType == FileInfo.GRAY32_UNSIGNED)
-    // pixels[i] = (float) (tmp & 0xffffffffL);
-    // else
-    // pixels[i] = tmp;
-    // }
-    if (fi.fileType == FileInfo.GRAY32_FLOAT) {
-      for (int i = 0; i < nPixels; i++, j += 4) {
-        pixels[i] = Float.intBitsToFloat(((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16)
-            | ((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff));
-      }
-    } else if (fi.fileType == FileInfo.GRAY32_UNSIGNED) {
-      final int tmp = ((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16)
-          | ((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff);
-      for (int i = 0; i < nPixels; i++, j += 4) {
-        pixels[i] = tmp & 0xffffffffL;
-      }
-    } else {
-      for (int i = 0; i < nPixels; i++, j += 4) {
-        pixels[i] = ((buffer[j] & 0xff) << 24) | ((buffer[j + 1] & 0xff) << 16)
-            | ((buffer[j + 2] & 0xff) << 8) | (buffer[j + 3] & 0xff);
-      }
-    }
-
-    return pixels;
-  }
-
-  /**
-   * Read 64 bit image.
-   *
-   * @param in the input seekable stream
-   * @return the float[] image
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  float[] read64bitImage(ByteArraySeekableStream in) throws IOException {
-    // We use the bytes direct
-    int j = getPositionAndSkipPixelBytes(in, 8);
-    final byte[] buffer = in.buffer;
-    final float[] pixels = new float[nPixels];
-    long tmp;
-    long b1, b2, b3, b4, b5, b6, b7, b8;
-
-    for (int i = 0; i < nPixels; i++) {
-      b1 = buffer[j + 7] & 0xff;
-      b2 = buffer[j + 6] & 0xff;
-      b3 = buffer[j + 5] & 0xff;
-      b4 = buffer[j + 4] & 0xff;
-      b5 = buffer[j + 3] & 0xff;
-      b6 = buffer[j + 2] & 0xff;
-      b7 = buffer[j + 1] & 0xff;
-      b8 = buffer[j] & 0xff;
-      if (fi.intelByteOrder) {
-        tmp = (b1 << 56) | (b2 << 48) | (b3 << 40) | (b4 << 32) | (b5 << 24) | (b6 << 16)
-            | (b7 << 8) | b8;
-      } else {
-        tmp = (b8 << 56) | (b7 << 48) | (b6 << 40) | (b5 << 32) | (b4 << 24) | (b3 << 16)
-            | (b2 << 8) | b1;
-      }
-      pixels[i] = (float) Double.longBitsToDouble(tmp);
-      j += 8;
-    }
-    return pixels;
-  }
-
-  /**
-   * Gets the position and skips the number of bytes covering all of the pixel data.
-   *
-   * @param in the input seekable streamput stream
-   * @param bytesPerPixel the bytes per pixel
-   * @return the position before the skip
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  private int getPositionAndSkipPixelBytes(ByteArraySeekableStream in, int bytesPerPixel)
-      throws IOException {
-    final int position = in.p;
-    final long skip = bytesPerPixel * ((long) nPixels);
-    if (in.skip(skip) != skip) {
-      throw new EOFException();
-    }
-    return position;
-  }
-
-  /**
-   * Reads the image from the SeekableStream and returns the pixel array (byte, short, int or
-   * float). Does not close the SeekableStream.
-   *
-   * @param in the input seekable stream
-   * @return the object
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  public Object readPixels(ByteArraySeekableStream in) throws IOException {
-    Object pixels;
-    switch (fi.fileType) {
-      case FileInfo.GRAY8:
-      case FileInfo.COLOR8:
-        bytesPerPixel = 1;
-        skip(in);
-        pixels = read8bitImage(in);
-        break;
-      case FileInfo.GRAY16_SIGNED:
-      case FileInfo.GRAY16_UNSIGNED:
-        bytesPerPixel = 2;
-        skip(in);
-        pixels = read16bitImage(in);
-        break;
-      case FileInfo.GRAY32_INT:
-      case FileInfo.GRAY32_UNSIGNED:
-      case FileInfo.GRAY32_FLOAT:
-        bytesPerPixel = 4;
-        skip(in);
-        pixels = read32bitImage(in);
-        break;
-      case FileInfo.GRAY64_FLOAT:
-        bytesPerPixel = 8;
-        skip(in);
-        pixels = read64bitImage(in);
-        break;
-      case FileInfo.RGB:
-      case FileInfo.BGR:
-      case FileInfo.ARGB:
-      case FileInfo.ABGR:
-      case FileInfo.BARG:
-      case FileInfo.CMYK:
-        bytesPerPixel = fi.getBytesPerPixel();
-        skip(in);
-        pixels = readChunkyRGB(in);
-        break;
-      case FileInfo.RGB_PLANAR:
-        bytesPerPixel = 3;
-        skip(in);
-        pixels = readPlanarRGB(in);
-        break;
-      case FileInfo.BITMAP:
-        bytesPerPixel = 1;
-        skip(in);
-        pixels = read1bitImage(in);
-        break;
-      case FileInfo.RGB48:
-        bytesPerPixel = 6;
-        skip(in);
-        pixels = readRGB48(in);
-        break;
-      case FileInfo.RGB48_PLANAR:
-        bytesPerPixel = 2;
-        skip(in);
-        pixels = readRGB48Planar(in);
-        break;
-      case FileInfo.GRAY12_UNSIGNED:
-        skip(in);
-        final short[] data = read12bitImage(in);
-        pixels = data;
-        break;
-      case FileInfo.GRAY24_UNSIGNED:
-        skip(in);
-        pixels = read24bitImage(in);
-        break;
-      default:
-        pixels = null;
-    }
-    // showProgress(1, 1);
-    return pixels;
-  }
-
-  /**
-   * Skips the specified number of bytes, then reads an image and returns the pixel array (byte,
-   * short, int or float). Does not close the SeekableStream.
-   *
-   * @param in the input seekable stream
-   * @param skipCount the skip count
-   * @return the object
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  public Object readPixels(ByteArraySeekableStream in, long skipCount) throws IOException {
-    this.skipCount = skipCount;
-    return readPixels(in);
   }
 
   /** A growable array of bytes. */
@@ -1526,6 +1485,10 @@ public class FastImageReader {
       size = 0;
     }
 
+    public int size() {
+      return size;
+    }
+
     public void add(byte x) {
       if (size >= data.length) {
         doubleCapacity();
@@ -1533,10 +1496,6 @@ public class FastImageReader {
       } else {
         data[size++] = x;
       }
-    }
-
-    public int size() {
-      return size;
     }
 
     public void add(byte[] array) {

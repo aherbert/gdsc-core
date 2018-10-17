@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.utils.ConvexHull;
@@ -34,7 +35,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 import java.awt.geom.Rectangle2D;
 
 /**
- * Contains the clustering result of the DBSCAN/OPTICS algorithm
+ * Contains the clustering result of the DBSCAN/OPTICS algorithm.
  */
 public interface ClusteringResult {
   /**
@@ -75,9 +76,10 @@ public interface ClusteringResult {
   public int[] getClusters();
 
   /**
-   * Scramble the cluster numbers assigned to the results. <p> Since clusters are arbitrary this
-   * ensures that clusters close in proximity that are created sequentially will not have sequential
-   * cluster Ids.
+   * Scramble the cluster numbers assigned to the results.
+   *
+   * <p>Since clusters are arbitrary this ensures that clusters close in proximity that are created
+   * sequentially will not have sequential cluster Ids.
    *
    * @param rng the random generator
    */

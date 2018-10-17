@@ -28,10 +28,14 @@
 
 /**
  * Provides code to be used by plugins executing within <a
- * href="https://imagej.nih.gov/ij/">ImageJ</a>. <p> All code under this package is expected to
- * depend on the ImageJ library (i.e. {@code import ij.*;}). <p> The sub package tree matches that
- * of the {@code ij} package.
+ * href="https://imagej.nih.gov/ij/">ImageJ</a>.
+ *
+ * <p>All code under this package is expected to depend on the ImageJ library (i.e.
+ * {@code import ij.*;}).
+ *
+ * <p>The sub package tree matches that of the {@code ij} package.
  *
  * @since 1.2.0
  */
+
 package uk.ac.sussex.gdsc.core.ij;

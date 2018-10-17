@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
 import org.apache.commons.math3.exception.OutOfRangeException;
@@ -34,8 +35,16 @@ import org.apache.commons.math3.exception.OutOfRangeException;
  * pre-compute values to evaluate the spline value.
  */
 public class CubicSplinePosition {
-  /** The power of the value x (x^1, x^2, x^3) */
-  final double[] p = new double[3];
+
+  /** The index for the value to the power 1. */
+  private static final int POWER_1 = 0;
+  /** The index for the value to the power 2. */
+  private static final int POWER_2 = 1;
+  /** The index for the value to the power 3. */
+  private static final int POWER_3 = 2;
+
+  /** The power of the value x (x^1, x^2, x^3). */
+  final double[] power = new double[3];
 
   /**
    * Instantiates a new cubic spline position. Only used when x is known to be in the range 0-1.
@@ -49,9 +58,9 @@ public class CubicSplinePosition {
 
   private void createPowers(double x) {
     final double x2 = x * x;
-    p[0] = x;
-    p[1] = x2;
-    p[2] = x2 * x;
+    power[POWER_1] = x;
+    power[POWER_2] = x2;
+    power[POWER_3] = x2 * x;
   }
 
   /**
@@ -76,7 +85,7 @@ public class CubicSplinePosition {
    * @return the power of the value
    */
   public double getPower(int n) {
-    return (n == 0) ? 1.0 : p[n - 1];
+    return (n == 0) ? 1.0 : power[n - 1];
   }
 
   /**
@@ -85,7 +94,7 @@ public class CubicSplinePosition {
    * @return x
    */
   public double getX() {
-    return p[0];
+    return power[POWER_1];
   }
 
   /**
@@ -94,7 +103,7 @@ public class CubicSplinePosition {
    * @return x^2
    */
   public double getX2() {
-    return p[1];
+    return power[POWER_2];
   }
 
   /**
@@ -103,7 +112,7 @@ public class CubicSplinePosition {
    * @return x^3
    */
   public double getX3() {
-    return p[2];
+    return power[POWER_3];
   }
 
   /**
@@ -123,11 +132,11 @@ public class CubicSplinePosition {
    * was compressed to the interval 0-1 for cubic interpolation to appropriately scale the gradients
    * (partial derivatives).
    *
-   * @param df_dx the first-order gradient
+   * @param derivative1 the first-order gradient
    * @return the scaled first-order gradient
    */
-  public double scaleGradient(double df_dx) {
-    return df_dx;
+  public double scaleGradient(double derivative1) {
+    return derivative1;
   }
 
   /**
@@ -135,10 +144,10 @@ public class CubicSplinePosition {
    * was compressed to the interval 0-1 for cubic interpolation to appropriately scale the gradients
    * (partial derivatives).
    *
-   * @param d2f_dx2 the second-order gradient
+   * @param derivative2 the second-order gradient
    * @return the scaled second-order gradient
    */
-  public double scaleGradient2(double d2f_dx2) {
-    return d2f_dx2;
+  public double scaleGradient2(double derivative2) {
+    return derivative2;
   }
 }

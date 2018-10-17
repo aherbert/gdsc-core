@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import org.apache.commons.math3.distribution.TDistribution;
@@ -34,13 +35,13 @@ import org.apache.commons.math3.distribution.TDistribution;
  */
 public class Statistics {
   /** The number. */
-  protected int n = 0;
+  protected int size = 0;
 
   /** The sum. */
-  protected double s = 0;
+  protected double sum = 0;
 
   /** The sum-of-squares. */
-  protected double ss = 0;
+  protected double sumSq = 0;
 
   /**
    * Instantiates a new statistics.
@@ -111,22 +112,6 @@ public class Statistics {
   }
 
   /**
-   * Checks that {@code fromIndex} and {@code toIndex} are in the range and throws an exception if
-   * they aren't.
-   */
-  private static void rangeCheck(int arrayLength, int fromIndex, int toIndex) {
-    if (fromIndex > toIndex) {
-      throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ")");
-    }
-    if (fromIndex < 0) {
-      throw new ArrayIndexOutOfBoundsException(fromIndex);
-    }
-    if (toIndex > arrayLength) {
-      throw new ArrayIndexOutOfBoundsException(toIndex);
-    }
-  }
-
-  /**
    * Add the data.
    *
    * @param data the data
@@ -191,6 +176,33 @@ public class Statistics {
   }
 
   /**
+   * Add the statistics to the data.
+   *
+   * @param statistics the statistics
+   */
+  public void add(Statistics statistics) {
+    size += statistics.size;
+    sum += statistics.sum;
+    sumSq += statistics.sumSq;
+  }
+
+  /**
+   * Checks that {@code fromIndex} and {@code toIndex} are in the range and throws an exception if
+   * they aren't.
+   */
+  private static void rangeCheck(int arrayLength, int fromIndex, int toIndex) {
+    if (fromIndex > toIndex) {
+      throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ")");
+    }
+    if (fromIndex < 0) {
+      throw new ArrayIndexOutOfBoundsException(fromIndex);
+    }
+    if (toIndex > arrayLength) {
+      throw new ArrayIndexOutOfBoundsException(toIndex);
+    }
+  }
+
+  /**
    * Add the data.
    *
    * @param data the data
@@ -200,10 +212,10 @@ public class Statistics {
   protected void addInternal(float[] data, int from, int to) {
     for (int i = from; i < to; i++) {
       final double value = data[i];
-      s += value;
-      ss += value * value;
+      sum += value;
+      sumSq += value * value;
     }
-    n += (to - from);
+    size += (to - from);
   }
 
   /**
@@ -216,10 +228,10 @@ public class Statistics {
   protected void addInternal(double[] data, int from, int to) {
     for (int i = from; i < to; i++) {
       final double value = data[i];
-      s += value;
-      ss += value * value;
+      sum += value;
+      sumSq += value * value;
     }
-    n += (to - from);
+    size += (to - from);
   }
 
   /**
@@ -232,10 +244,10 @@ public class Statistics {
   protected void addInternal(int[] data, int from, int to) {
     for (int i = from; i < to; i++) {
       final double value = data[i];
-      s += value;
-      ss += value * value;
+      sum += value;
+      sumSq += value * value;
     }
-    n += (to - from);
+    size += (to - from);
   }
 
   /**
@@ -244,9 +256,9 @@ public class Statistics {
    * @param value the value
    */
   protected void addInternal(final double value) {
-    n++;
-    s += value;
-    ss += value * value;
+    size++;
+    sum += value;
+    sumSq += value * value;
   }
 
   /**
@@ -256,9 +268,9 @@ public class Statistics {
    * @param value The value
    */
   protected void addInternal(int n, double value) {
-    this.n += n;
-    s += n * value;
-    ss += n * value * value;
+    this.size += n;
+    sum += n * value;
+    sumSq += n * value * value;
   }
 
   /**
@@ -266,7 +278,7 @@ public class Statistics {
    *
    * @param data the data
    */
-  synchronized public void safeAdd(float[] data) {
+  public synchronized void safeAdd(float[] data) {
     add(data);
   }
 
@@ -275,7 +287,7 @@ public class Statistics {
    *
    * @param data the data
    */
-  synchronized public void safeAdd(double[] data) {
+  public synchronized void safeAdd(double[] data) {
     add(data);
   }
 
@@ -284,7 +296,7 @@ public class Statistics {
    *
    * @param data the data
    */
-  synchronized public void safeAdd(int[] data) {
+  public synchronized void safeAdd(int[] data) {
     add(data);
   }
 
@@ -293,7 +305,7 @@ public class Statistics {
    *
    * @param value the value
    */
-  synchronized public void safeAdd(final double value) {
+  public synchronized void safeAdd(final double value) {
     addInternal(value);
   }
 
@@ -303,55 +315,64 @@ public class Statistics {
    * @param n the n
    * @param value the value
    */
-  synchronized public void safeAdd(int n, final double value) {
+  public synchronized void safeAdd(int n, final double value) {
     addInternal(n, value);
   }
 
   /**
-   * Gets the n.
+   * Add the statistics to the data. Synchronized for thread safety.
+   *
+   * @param statistics the statistics
+   */
+  public synchronized void safeAdd(Statistics statistics) {
+    add(statistics);
+  }
+
+  /**
+   * Gets the number of data points.
    *
    * @return The number of data points
    */
   public int getN() {
-    return n;
+    return size;
   }
 
   /**
-   * Gets the sum.
+   * Gets the sum of the data points.
    *
    * @return The sum of the data points
    */
   public double getSum() {
-    return s;
+    return sum;
   }
 
   /**
-   * Gets the sum of squares.
+   * Gets the sum of squares of the data points.
    *
    * @return The sum of squares of the data points
    */
   public double getSumOfSquares() {
-    return ss;
+    return sumSq;
   }
 
   /**
-   * Gets the mean.
+   * Gets the mean of the data points.
    *
    * @return The mean of the data points
    */
   public double getMean() {
-    return s / n;
+    return sum / size;
   }
 
   /**
-   * Gets the standard deviation.
+   * Gets the standard deviation of the data points.
    *
    * @return The unbiased standard deviation of the data points
    */
   public double getStandardDeviation() {
-    double stdDev = ss - (s * s) / n;
+    double stdDev = sumSq - (sum * sum) / size;
     if (stdDev > 0.0) {
-      stdDev = Math.sqrt(stdDev / (n - 1));
+      stdDev = Math.sqrt(stdDev / (size - 1));
     } else {
       stdDev = 0.0;
     }
@@ -359,14 +380,14 @@ public class Statistics {
   }
 
   /**
-   * Gets the variance.
+   * Gets the variance of the data points.
    *
    * @return The unbiased variance of the data points
    */
   public double getVariance() {
-    double variance = ss - (s * s) / n;
+    double variance = sumSq - (sum * sum) / size;
     if (variance > 0.0) {
-      variance = variance / (n - 1);
+      variance = variance / (size - 1);
     } else {
       variance = 0.0;
     }
@@ -375,60 +396,42 @@ public class Statistics {
 
   /**
    * The standard error is the standard deviation of the sample-mean's estimate of a population
-   * mean. <p> Uses the unbiased standard deviation divided by the square root of the sample size.
+   * mean.
+   *
+   * <p>Uses the unbiased standard deviation divided by the square root of the sample size.
    *
    * @return The standard error
    */
   public double getStandardError() {
-    if (n > 0) {
-      return getStandardDeviation() / Math.sqrt(n);
+    if (size > 0) {
+      return getStandardDeviation() / Math.sqrt(size);
     }
     return 0;
-  }
-
-  /**
-   * Add the statistics to the data.
-   *
-   * @param statistics the statistics
-   */
-  public void add(Statistics statistics) {
-    n += statistics.n;
-    s += statistics.s;
-    ss += statistics.ss;
-  }
-
-  /**
-   * Add the statistics to the data. Synchronized for thread safety.
-   *
-   * @param statistics the statistics
-   */
-  synchronized public void safeAdd(Statistics statistics) {
-    add(statistics);
   }
 
   /**
    * Gets the confidence interval around the mean using the given confidence level. This is computed
    * using the critical value from the two-sided T-distribution multiplied by the standard error.
    *
-   * <p> If the number of samples is less than 2 then the result is positive infinity. If the
+   * <p>If the number of samples is less than 2 then the result is positive infinity. If the
    * confidence level is one then the result is positive infinity. If the confidence level is zero
    * then the result is 0.
    *
-   * @param c the confidence level of the test (in the range 0-1)
+   * @param confidenceLevel the confidence level of the test (in the range 0-1)
    * @return the confidence interval
    * @throws IllegalArgumentException if the confidence level is not in the range 0-1
    * @see "https://en.wikipedia.org/wiki/Confidence_interval#Basic_steps"
    */
-  public double getConfidenceInterval(double c) {
-    if (n < 2) {
+  public double getConfidenceInterval(double confidenceLevel) {
+    if (size < 2) {
       return Double.POSITIVE_INFINITY;
     }
-    if (c < 0 || c > 1) {
+    if (confidenceLevel < 0 || confidenceLevel > 1) {
       throw new IllegalArgumentException("Confidence level must be in the range 0-1");
     }
     final double se = getStandardError();
-    final double alpha = 1 - (1 - c) * 0.5; // Two-sided, e.g. 0.95 -> 0.975
-    final int degreesOfFreedom = n - 1;
+    final double alpha = 1 - (1 - confidenceLevel) * 0.5; // Two-sided, e.g. 0.95 -> 0.975
+    final int degreesOfFreedom = size - 1;
     final TDistribution t = new TDistribution(degreesOfFreedom);
     return t.inverseCumulativeProbability(alpha) * se;
   }
@@ -437,8 +440,8 @@ public class Statistics {
    * Reset the statistics.
    */
   public void reset() {
-    n = 0;
-    s = 0;
-    ss = 0;
+    size = 0;
+    sum = 0;
+    sumSq = 0;
   }
 }

@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils.rng;
 
 import org.apache.commons.rng.UniformRandomProvider;
@@ -37,7 +38,7 @@ import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSa
 public class GaussianSamplerFactory {
   /**
    * Creates a new GaussianSampler.
-   * 
+   *
    * @param rng Generator of uniformly distributed random numbers.
    * @param mean Mean of the Gaussian distribution.
    * @param standardDeviation Standard deviation of the Gaussian distribution.

@@ -25,25 +25,27 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
- * Text utilities
+ * Text utilities.
  */
-public class TextUtils {
+public final class TextUtils {
+  // -----------------------------------------------------------------------
   // Wrapping - Taken from apache.commons.lang.WordUtils
   // -----------------------------------------------------------------------
+
   /**
-   * <p> Wraps a single line of text, identifying words by <code>' '</code>. </p>
+   * Wraps a single line of text, identifying words by <code>' '</code>.
    *
-   * <p> New lines will be separated by the system property line separator. Very long words, such as
-   * URLs will <i>not</i> be wrapped. </p>
+   * <p>New lines will be separated by the system property line separator. Very long words, such as
+   * URLs will <i>not</i> be wrapped.
    *
-   * <p> Leading spaces on a new line are stripped. Trailing spaces are not stripped. </p>
+   * <p>Leading spaces on a new line are stripped. Trailing spaces are not stripped.
    *
    * <pre>
    * WordUtils.wrap(null, *) = null
@@ -59,9 +61,9 @@ public class TextUtils {
   }
 
   /**
-   * <p> Wraps a single line of text, identifying words by <code>' '</code>. </p>
+   * Wraps a single line of text, identifying words by <code>' '</code>.
    *
-   * <p> Leading spaces on a new line are stripped. Trailing spaces are not stripped. </p>
+   * <p>Leading spaces on a new line are stripped. Trailing spaces are not stripped.
    *
    * <pre>
    * WordUtils.wrap(null, *, *, *) = null
@@ -102,8 +104,8 @@ public class TextUtils {
         wrappedLine.append(newLineStr);
         offset = spaceToWrapAt + 1;
 
-      } else // really long word or URL
-      if (wrapLongWords) {
+        // really long word or URL
+      } else if (wrapLongWords) {
         // wrap really long word one line at a time
         wrappedLine.append(str.substring(offset, wrapLength + offset));
         wrappedLine.append(newLineStr);
@@ -170,7 +172,7 @@ public class TextUtils {
   }
 
   /**
-   * Write the text to file.
+   * Write the text to file. Catches the IOException and returns false if failed.
    *
    * @param filename the filename
    * @param text the text
@@ -180,10 +182,8 @@ public class TextUtils {
     try (FileOutputStream fs = new FileOutputStream(filename)) {
       fs.write(text.getBytes());
       return true;
-    } catch (final FileNotFoundException e) {
-      // e.printStackTrace();
-    } catch (final IOException e) {
-      // e.printStackTrace();
+    } catch (final IOException ex) {
+      // Ignore
     }
     return false;
   }

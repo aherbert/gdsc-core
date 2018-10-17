@@ -25,24 +25,32 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Calculate the mean and standard deviation of data. Stores the data for later retrieval.
  */
 public class StoredDataStatistics extends Statistics implements Iterable<Double>, DoubleData {
+
+  /** The values. */
   private double[] values = new double[0];
-  private DescriptiveStatistics stats = null;
+
+  /** The cached statistics. */
+  private DescriptiveStatistics stats;
 
   /**
    * Instantiates a new stored data statistics.
    */
-  public StoredDataStatistics() {}
+  public StoredDataStatistics() {
+    // Do nothing
+  }
 
   /**
    * Instantiates a new stored data statistics.
@@ -83,7 +91,30 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
     add(data);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * Ensure that the specified number of elements can be added to the array.
+   *
+   * <p>This is not synchronized. However any class using the safeAdd() methods in different threads
+   * should be using the same synchronized method to add data thus this method will be within
+   * synchronized code.
+   *
+   * @param length the length
+   */
+  private void checkCapacity(int length) {
+    stats = null;
+    final int minCapacity = size + length;
+    final int oldCapacity = values.length;
+    if (minCapacity > oldCapacity) {
+      int newCapacity = (oldCapacity * 3) / 2 + 1;
+      if (newCapacity < minCapacity) {
+        newCapacity = minCapacity;
+      }
+      final double[] newValues = new double[newCapacity];
+      System.arraycopy(values, 0, newValues, 0, size);
+      values = newValues;
+    }
+  }
+
   @Override
   protected void addInternal(float[] data, int from, int to) {
     if (data == null) {
@@ -92,36 +123,12 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
     checkCapacity(to - from);
     for (int i = from; i < to; i++) {
       final double value = data[i];
-      values[n++] = value;
-      s += value;
-      ss += value * value;
+      values[size++] = value;
+      sum += value;
+      sumSq += value * value;
     }
   }
 
-  /**
-   * Ensure that the specified number of elements can be added to the array. <p> This is not
-   * synchronized. However any class using the safeAdd() methods in different threads should be
-   * using the same synchronized method to add data thus this method will be within synchronized
-   * code.
-   *
-   * @param length the length
-   */
-  private void checkCapacity(int length) {
-    stats = null;
-    final int minCapacity = n + length;
-    final int oldCapacity = values.length;
-    if (minCapacity > oldCapacity) {
-      int newCapacity = (oldCapacity * 3) / 2 + 1;
-      if (newCapacity < minCapacity) {
-        newCapacity = minCapacity;
-      }
-      final double[] newValues = new double[newCapacity];
-      System.arraycopy(values, 0, newValues, 0, n);
-      values = newValues;
-    }
-  }
-
-  /** {@inheritDoc} */
   @Override
   protected void addInternal(double[] data, int from, int to) {
     if (data == null) {
@@ -130,13 +137,12 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
     checkCapacity(to - from);
     for (int i = from; i < to; i++) {
       final double value = data[i];
-      values[n++] = value;
-      s += value;
-      ss += value * value;
+      values[size++] = value;
+      sum += value;
+      sumSq += value * value;
     }
   }
 
-  /** {@inheritDoc} */
   @Override
   protected void addInternal(int[] data, int from, int to) {
     if (data == null) {
@@ -145,30 +151,40 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
     checkCapacity(to - from);
     for (int i = from; i < to; i++) {
       final double value = data[i];
-      values[n++] = value;
-      s += value;
-      ss += value * value;
+      values[size++] = value;
+      sum += value;
+      sumSq += value * value;
     }
   }
 
-  /** {@inheritDoc} */
   @Override
   public void add(final double value) {
     checkCapacity(1);
-    values[n++] = value;
-    s += value;
-    ss += value * value;
+    values[size++] = value;
+    sum += value;
+    sumSq += value * value;
   }
 
-  /** {@inheritDoc} */
   @Override
   public void add(int n, double value) {
     checkCapacity(n);
     for (int i = 0; i < n; i++) {
-      values[this.n++] = value;
+      values[this.size++] = value;
     }
-    s += n * value;
-    ss += n * value * value;
+    sum += n * value;
+    sumSq += n * value * value;
+  }
+
+  @Override
+  public void add(Statistics statistics) {
+    if (statistics instanceof StoredDataStatistics) {
+      final StoredDataStatistics extra = (StoredDataStatistics) statistics;
+      if (extra.size > 0) {
+        checkCapacity(extra.size);
+        System.arraycopy(extra.values, 0, values, size, extra.size);
+      }
+    }
+    super.add(statistics);
   }
 
   /**
@@ -177,17 +193,17 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
    * @return A copy of the values added
    */
   public double[] getValues() {
-    return Arrays.copyOf(values, n);
+    return Arrays.copyOf(values, size);
   }
 
   /**
    * Gets the value.
    *
-   * @param i the index
+   * @param index the index
    * @return the value
    */
-  public double getValue(int i) {
-    return values[i];
+  public double getValue(int index) {
+    return values[index];
   }
 
   /**
@@ -196,8 +212,8 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
    * @return A copy of the values added
    */
   public float[] getFloatValues() {
-    final float[] data = new float[n];
-    for (int i = 0; i < n; i++) {
+    final float[] data = new float[size];
+    for (int i = 0; i < size; i++) {
       data[i] = (float) values[i];
     }
     return data;
@@ -216,29 +232,16 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
     return stats;
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public void add(Statistics statistics) {
-    if (statistics instanceof StoredDataStatistics) {
-      final StoredDataStatistics extra = (StoredDataStatistics) statistics;
-      if (extra.n > 0) {
-        checkCapacity(extra.n);
-        System.arraycopy(extra.values, 0, values, n, extra.n);
-      }
-    }
-    super.add(statistics);
-  }
-
   /**
    * Gets the median.
    *
    * @return The median
    */
   public double getMedian() {
-    if (n == 0) {
+    if (size == 0) {
       return Double.NaN;
     }
-    if (n == 1) {
+    if (size == 1) {
       return values[0];
     }
 
@@ -267,30 +270,26 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
   }
 
   /**
-   * Copied from ArrayList and removed unrequired code
+   * Copied from ArrayList and removed unrequired code.
    */
   private class Itr implements Iterator<Double> {
     int cursor; // index of next element to return
 
     @Override
     public boolean hasNext() {
-      return cursor != n;
+      return cursor != size;
     }
 
     @Override
     public Double next() {
-      // Simple implementation. Will throw index-out-of-bounds eventually
-      return StoredDataStatistics.this.values[cursor++];
-
       // Copied from ArrayList and removed unrequired code
-      // int i = cursor;
-      // if (i >= n)
-      // throw new NoSuchElementException();
-      // final double[] elementData = StoredDataStatistics.this.values;
-      // if (i >= elementData.length)
-      // throw new ConcurrentModificationException();
-      // cursor = i + 1;
-      // return elementData[i];
+      final int index = cursor;
+      if (index >= size) {
+        throw new NoSuchElementException();
+      }
+      final double[] elementData = StoredDataStatistics.this.values;
+      cursor = index + 1;
+      return elementData[index];
     }
 
     @Override
@@ -299,20 +298,20 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
     }
   }
 
-  /** {@inheritDoc} */
   @Override
   public int size() {
-    return n;
+    return size;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double[] values() {
     return getValues();
   }
 
   /**
-   * {@inheritDoc} <p> Note: This does not reset the allocated storage.
+   * {@inheritDoc}
+   *
+   * <p>Note: This does not reset the allocated storage.
    *
    * @see uk.ac.sussex.gdsc.core.utils.Statistics#reset()
    */

@@ -1,30 +1,11 @@
 package uk.ac.sussex.gdsc.core.ij.process;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-import uk.ac.sussex.gdsc.test.utils.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import uk.ac.sussex.gdsc.core.ij.process.LutHelper.DefaultLutMapper;
+import uk.ac.sussex.gdsc.core.ij.process.LutHelper.LutMapper;
+import uk.ac.sussex.gdsc.core.ij.process.LutHelper.NonZeroLutMapper;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import uk.ac.sussex.gdsc.test.junit5.*;import uk.ac.sussex.gdsc.test.rng.RngFactory;import uk.ac.sussex.gdsc.core.ij.process.LUTHelper.DefaultLUTMapper;
-import uk.ac.sussex.gdsc.core.ij.process.LUTHelper.LUTMapper;
-import uk.ac.sussex.gdsc.core.ij.process.LUTHelper.NonZeroLUTMapper;
 
 @SuppressWarnings({"javadoc"})
 public class LUTHelperTest {
@@ -55,7 +36,7 @@ public class LUTHelperTest {
   }
 
   private static void mapTo0to255(float min, float max) {
-    final LUTMapper map = new DefaultLUTMapper(min, max);
+    final LutMapper map = new DefaultLutMapper(min, max);
     Assertions.assertEquals(0, map.map(min));
     if (max != min) {
       Assertions.assertEquals(255, map.map(max));
@@ -63,7 +44,7 @@ public class LUTHelperTest {
   }
 
   private static void mapTo1to255(float min, float max) {
-    final LUTMapper map = new NonZeroLUTMapper(min, max);
+    final LutMapper map = new NonZeroLutMapper(min, max);
     Assertions.assertEquals(1, map.map(min));
     if (max != min) {
       Assertions.assertEquals(255, map.map(max));

@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.logging;
 
 /**
- * Defines a simple interface for logging information
+ * Defines a simple interface for logging information.
  */
 public interface Logger {
   /**

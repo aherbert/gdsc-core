@@ -25,29 +25,35 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 /**
- * Used in the algorithms to store molecules in an indexable list.
+ * Used in the algorithms to store molecules in a fixed capacity list.
  */
-class MoleculeList extends MoleculeArray {
+class MoleculeList {
+  /** The list. */
+  final Molecule[] list;
+
+  /** The size. */
+  int size = 0;
+
   /**
-   * Instantiates a new molecule list.
+   * Instantiates a new molecule array.
    *
    * @param capacity the capacity
    */
   MoleculeList(int capacity) {
-    super(capacity);
+    list = new Molecule[capacity];
   }
 
   /**
-   * Gets the molecule at the index.
+   * Adds the molecule.
    *
-   * @param i the index
-   * @return the molecule
+   * @param molecule the molecule
    */
-  Molecule get(int i) {
-    return list[i];
+  void add(Molecule molecule) {
+    list[size++] = molecule;
   }
 
   /**
@@ -58,5 +64,22 @@ class MoleculeList extends MoleculeArray {
   void add(Molecule[] molecules) {
     System.arraycopy(molecules, 0, list, size, molecules.length);
     size += molecules.length;
+  }
+
+  /**
+   * Gets the molecule at the index.
+   *
+   * @param index the index
+   * @return the molecule
+   */
+  Molecule get(int index) {
+    return list[index];
+  }
+
+  /**
+   * Clear.
+   */
+  void clear() {
+    size = 0;
   }
 }

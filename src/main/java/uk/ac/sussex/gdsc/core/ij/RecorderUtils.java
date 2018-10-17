@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij;
 
 import uk.ac.sussex.gdsc.core.utils.TurboList;
@@ -32,7 +33,7 @@ import uk.ac.sussex.gdsc.core.utils.TurboList;
 import ij.plugin.frame.Recorder;
 
 /**
- * Contains helper functions for the recorder
+ * Contains helper functions for the recorder.
  */
 public class RecorderUtils {
   /**

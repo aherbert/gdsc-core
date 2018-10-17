@@ -4,10 +4,10 @@ import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 
-import org.junit.jupiter.api.Test;
-
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
 public class CachedBicubicInterpolatorTest {

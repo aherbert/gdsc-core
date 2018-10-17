@@ -1,39 +1,26 @@
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-import uk.ac.sussex.gdsc.test.utils.*;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestSettings;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import gnu.trove.set.hash.TIntHashSet;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import gnu.trove.set.hash.TIntHashSet;
-import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TimingService;
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
 public class SimpleArrayUtilsTest {
@@ -69,39 +56,6 @@ public class SimpleArrayUtilsTest {
     Arrays.sort(e);
 
     final int[] o = SimpleArrayUtils.flatten(s1);
-    // TestLog.debug(logger,"%s =? %s", Arrays.toString(e), Arrays.toString(o));
-    Assertions.assertArrayEquals(e, o);
-  }
-
-  @SeededTest
-  public void canSortMerge(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
-    final TIntHashSet set = new TIntHashSet();
-    testSortMerge(set, new int[0], new int[10]);
-    testSortMerge(set, new int[10], new int[10]);
-    testSortMerge(set, new int[10], next(r, 10, 10));
-    for (int i = 0; i < 10; i++) {
-      testSortMerge(set, next(r, 1, 10), next(r, 1, 10));
-      testSortMerge(set, next(r, 10, 10), next(r, 1, 10));
-      testSortMerge(set, next(r, 100, 10), next(r, 1, 10));
-      testSortMerge(set, next(r, 1, 10), next(r, 10, 10));
-      testSortMerge(set, next(r, 10, 10), next(r, 10, 10));
-      testSortMerge(set, next(r, 100, 10), next(r, 10, 10));
-      testSortMerge(set, next(r, 1, 10), next(r, 100, 10));
-      testSortMerge(set, next(r, 10, 10), next(r, 100, 10));
-      testSortMerge(set, next(r, 100, 10), next(r, 100, 10));
-    }
-  }
-
-  @SuppressWarnings("deprecation")
-  private static void testSortMerge(TIntHashSet set, int[] s1, int[] s2) {
-    set.clear();
-    set.addAll(s1);
-    set.addAll(s2);
-    final int[] e = set.toArray();
-    Arrays.sort(e);
-
-    final int[] o = SimpleArrayUtils.sortMerge(s1, s2);
     // TestLog.debug(logger,"%s =? %s", Arrays.toString(e), Arrays.toString(o));
     Assertions.assertArrayEquals(e, o);
   }
@@ -162,14 +116,6 @@ public class SimpleArrayUtilsTest {
     final String msg = String.format("[%d] %d vs %d", size, n1, n2);
 
     final TimingService ts = new TimingService();
-    ts.execute(new MyTimingTask("SortMerge" + msg, data) {
-      @Override
-      @SuppressWarnings("deprecation")
-      public Object run(Object data) {
-        final int[][] d = (int[][]) data;
-        return SimpleArrayUtils.sortMerge(d[0], d[1]);
-      }
-    });
     ts.execute(new MyTimingTask("merge+sort" + msg, data) {
       @Override
       public Object run(Object data) {
@@ -233,14 +179,6 @@ public class SimpleArrayUtilsTest {
     final String msg = String.format("%d%%%d vs %d%%%d", n1, r1, n2, r2);
 
     final TimingService ts = new TimingService();
-    ts.execute(new MyTimingTask("SortMerge" + msg, data) {
-      @Override
-      @SuppressWarnings("deprecation")
-      public Object run(Object data) {
-        final int[][] d = (int[][]) data;
-        return SimpleArrayUtils.sortMerge(d[0], d[1]);
-      }
-    });
     ts.execute(new MyTimingTask("merge+sort" + msg, data) {
       @Override
       public Object run(Object data) {

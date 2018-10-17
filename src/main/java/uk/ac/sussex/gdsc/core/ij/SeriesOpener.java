@@ -25,14 +25,8 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package uk.ac.sussex.gdsc.core.ij;
 
-import java.awt.Label;
-import java.awt.TextField;
-import java.awt.event.ItemEvent;
-import java.awt.event.TextEvent;
-import java.io.File;
-import java.util.Arrays;
+package uk.ac.sussex.gdsc.core.ij;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -40,17 +34,34 @@ import ij.gui.GenericDialog;
 import ij.io.Opener;
 import ij.plugin.FolderOpener;
 
+import java.awt.Label;
+import java.awt.TextField;
+import java.awt.event.ItemEvent;
+import java.awt.event.TextEvent;
+import java.io.File;
+import java.util.Arrays;
+import java.util.regex.Pattern;
+
 /**
- * Opens a series of images in a folder. The series is sorted numerically. <p> Adapted from
- * {@link ij.plugin.FolderOpener }
+ * Opens a series of images in a folder. The series is sorted numerically.
+ *
+ * <p>Adapted from {@link ij.plugin.FolderOpener }
  */
 public class SeriesOpener {
   private final String path;
   private String[] imageList = new String[0];
   private int currentImage = 0;
-  private int width = -1, height = -1;
+  private int width = -1;
+  private int height = -1;
   private boolean variableSize = false;
   private int numberOfThreads = 0;
+
+  // Used to filter the image list
+  private int numberOfImages;
+  private int start;
+  private int increment;
+  private String filter;
+  private boolean isRegex;
 
   /**
    * Create an opener with the given path.
@@ -94,16 +105,16 @@ public class SeriesOpener {
 
     // Exclude directories
     String[] list = new String[fileList.length];
-    int c = 0;
+    int count = 0;
     for (int i = 0; i < list.length; i++) {
       if (fileList[i].isFile()) {
-        list[c++] = fileList[i].getName();
+        list[count++] = fileList[i].getName();
       }
     }
-    if (c == 0) {
+    if (count == 0) {
       return;
     }
-    list = Arrays.copyOf(list, c);
+    list = Arrays.copyOf(list, count);
 
     // Now exclude non-image files as per the ImageJ FolderOpener
     final FolderOpener fo = new FolderOpener();
@@ -126,7 +137,7 @@ public class SeriesOpener {
   }
 
   /**
-   * Returns the path to the directory containing the images
+   * Returns the path to the directory containing the images.
    *
    * @return the path
    */
@@ -135,7 +146,7 @@ public class SeriesOpener {
   }
 
   /**
-   * Returns the names of the images in the series
+   * Returns the names of the images in the series.
    *
    * @return The names of the image files
    */
@@ -144,8 +155,9 @@ public class SeriesOpener {
   }
 
   /**
-   * Get the next image in the series (or null if no more images) <p> Only images that match the
-   * width and height of the first image are returned.
+   * Get the next image in the series (or null if no more images).
+   *
+   * <p>Only images that match the width and height of the first image are returned.
    *
    * @return The next image in the series
    */
@@ -180,12 +192,6 @@ public class SeriesOpener {
     }
     return imp;
   }
-
-  // Used to filter the image list
-  private int n, start;
-  private int increment;
-  private String filter;
-  private boolean isRegex;
 
   private void filterImageList() {
     String[] list = imageList;
@@ -222,25 +228,25 @@ public class SeriesOpener {
           return;
         }
         final String[] list2 = new String[filteredImages];
-        int j = 0;
+        int count = 0;
         for (int i = 0; i < list.length; i++) {
           if (list[i] != null) {
-            list2[j++] = list[i];
+            list2[count++] = list[i];
           }
         }
         list = list2;
       }
 
       // Process only the requested number of images
-      if (n < 1) {
-        n = list.length;
+      if (numberOfImages < 1) {
+        numberOfImages = list.length;
       }
       if (start < 1 || start > list.length) {
         start = 1;
       }
       imageList = new String[list.length];
       int count = 0;
-      for (int i = start - 1; i < list.length && count < n; i += increment, count++) {
+      for (int i = start - 1; i < list.length && count < numberOfImages; i += increment, count++) {
         imageList[count] = list[i];
       }
 
@@ -267,7 +273,7 @@ public class SeriesOpener {
     if (gd.wasCanceled()) {
       return false;
     }
-    n = (int) gd.getNextNumber();
+    numberOfImages = (int) gd.getNextNumber();
     start = (int) gd.getNextNumber();
     increment = (int) gd.getNextNumber();
     if (increment < 1) {
@@ -286,7 +292,7 @@ public class SeriesOpener {
   }
 
   /**
-   * Set to true to allow subsequent images after the first to have different XY dimensions
+   * Set to true to allow subsequent images after the first to have different XY dimensions.
    *
    * @param variableSize True for vairable size images
    */
@@ -295,6 +301,8 @@ public class SeriesOpener {
   }
 
   /**
+   * Gets the number of threads specified in the input dialog.
+   *
    * @return The number of threads specified in the input dialog.
    */
   public int getNumberOfThreads() {
@@ -302,8 +310,8 @@ public class SeriesOpener {
   }
 
   private class FolderOpenerDialog extends GenericDialog {
-    private static final long serialVersionUID = -7650551696737633887L;
-    ImagePlus imp;
+    private static final long serialVersionUID = 7944532917923080862L;
+    transient ImagePlus imp;
     String[] list;
 
     public FolderOpenerDialog(String title, ImagePlus imp, String[] list) {
@@ -318,56 +326,54 @@ public class SeriesOpener {
     }
 
     @Override
-    public void itemStateChanged(ItemEvent e) {
+    public void itemStateChanged(ItemEvent event) {
       // Do nothing
     }
 
     @Override
-    public void textValueChanged(TextEvent e) {
+    public void textValueChanged(TextEvent event) {
       setStackInfo();
     }
 
     void setStackInfo() {
-      int n = getNumber(numberField.elementAt(0));
-      int start = getNumber(numberField.elementAt(1));
-      int inc = getNumber(numberField.elementAt(2));
+      int localNumberOfImages = getNumber(numberField.elementAt(0));
 
       // Filter by name
-      TextField tf = (TextField) stringField.elementAt(0);
-      String filter = tf.getText();
-      tf = (TextField) stringField.elementAt(1);
-      final String regex = tf.getText();
-      java.util.regex.Pattern p = null;
+      String localFilter = ((TextField) stringField.elementAt(0)).getText();
+      final String regex = ((TextField) stringField.elementAt(1)).getText();
+      Pattern pattern = null;
       if (!regex.equals("")) {
-        filter = regex;
-        p = java.util.regex.Pattern.compile(filter);
+        localFilter = regex;
+        pattern = Pattern.compile(localFilter);
       }
 
-      if (!filter.equals("") && !filter.equals("*")) {
-        int n2 = 0;
+      if (!localFilter.equals("") && !localFilter.equals("*")) {
+        int count = 0;
         for (int i = 0; i < list.length; i++) {
-          if (p != null && p.matcher(list[i]).matches()) {
-            n2++;
-          } else if (list[i].indexOf(filter) >= 0) {
-            n2++;
+          if ((pattern != null && pattern.matcher(list[i]).matches())
+              || list[i].indexOf(localFilter) >= 0) {
+            count++;
           }
         }
-        if (n2 < n) {
-          n = n2;
+        if (count < localNumberOfImages) {
+          localNumberOfImages = count;
         }
       }
 
       // Now count using the input settings
-      if (start < 1 || start > n) {
-        start = 1;
+      int localStart = getNumber(numberField.elementAt(1));
+      if (localStart < 1 || localStart > localNumberOfImages) {
+        localStart = 1;
       }
-      if (inc < 1) {
-        inc = 1;
+      int localIncrement = getNumber(numberField.elementAt(2));
+      if (localIncrement < 1) {
+        localIncrement = 1;
       }
 
       int count = 0;
-      for (int i = start - 1; i < list.length && count < n; i += inc) {
-        count++;
+      for (int i = localStart - 1; i < list.length && count < localNumberOfImages; i +=
+          localIncrement, count++) {
+        // count increment
       }
 
       final int frames = imp.getStackSize() * count;
@@ -384,14 +390,14 @@ public class SeriesOpener {
     public int getNumber(Object field) {
       final TextField tf = (TextField) field;
       final String theText = tf.getText();
-      Double d;
+      Double value;
       try {
-        d = new Double(theText);
-      } catch (final NumberFormatException e) {
-        d = null;
+        value = new Double(theText);
+      } catch (final NumberFormatException ex) {
+        value = null;
       }
-      if (d != null) {
-        return (int) d.doubleValue();
+      if (value != null) {
+        return (int) value.doubleValue();
       }
       return 0;
     }

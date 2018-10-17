@@ -25,17 +25,23 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.math;
 
 /**
- * Contains methods for number computations
- *
- * @author Alex Herbert
+ * Contains methods for number computations.
  */
-public class NumberUtils {
+public final class NumberUtils {
+
+  private NumberUtils() {
+    throw new IllegalStateException("Utility class");
+  }
+
   /**
-   * Gets the unsigned exponent. This is in the range 0-255. <p> Note that the max value is a
-   * special case indicating either: NaN; positive; or negative infinity.
+   * Gets the unsigned exponent. This is in the range 0-255.
+   *
+   * <p>Note that the max value is a special case indicating either: NaN; positive; or negative
+   * infinity.
    *
    * @param x the x
    * @return the signed exponent
@@ -59,8 +65,10 @@ public class NumberUtils {
   }
 
   /**
-   * Gets the unsigned exponent. This is in the range 0-2047. <p> Note that the max value is a
-   * special case indicating either: NaN; positive; or negative infinity.
+   * Gets the unsigned exponent. This is in the range 0-2047.
+   *
+   * <p>Note that the max value is a special case indicating either: NaN; positive; or negative
+   * infinity.
    *
    * @param x the x
    * @return the signed exponent
@@ -84,8 +92,10 @@ public class NumberUtils {
   }
 
   /**
-   * Gets the signed exponent. This is in the range -127 to 128. <p> Note that the max value is a
-   * special case indicating either: NaN; positive; or negative infinity.
+   * Gets the signed exponent. This is in the range -127 to 128.
+   *
+   * <p>Note that the max value is a special case indicating either: NaN; positive; or negative
+   * infinity.
    *
    * @param x the x
    * @return the signed exponent
@@ -95,8 +105,10 @@ public class NumberUtils {
   }
 
   /**
-   * Gets the signed exponent. This is in the range -1023 to 1024. <p> Note that the max value is a
-   * special case indicating either: NaN; positive; or negative infinity.
+   * Gets the signed exponent. This is in the range -1023 to 1024.
+   *
+   * <p>Note that the max value is a special case indicating either: NaN; positive; or negative
+   * infinity.
    *
    * @param x the x
    * @return the signed exponent

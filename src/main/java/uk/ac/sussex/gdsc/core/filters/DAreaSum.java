@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.filters;
 
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
@@ -36,15 +37,16 @@ import java.awt.Rectangle;
  */
 public class DAreaSum {
   /** The index of the count in the results. */
-  public final static int N = 0;
+  public static final int INDEX_COUNT = 0;
   /** The index of the sum in the results. */
-  public final static int SUM = 1;
+  public static final int INDEX_SUM = 1;
 
-  private final static double[] EMPTY;
+  private static final double[] EMPTY;
+
   static {
     EMPTY = new double[2];
-    EMPTY[N] = 0;
-    EMPTY[SUM] = Double.NaN;
+    EMPTY[INDEX_COUNT] = 0;
+    EMPTY[INDEX_SUM] = Double.NaN;
   }
 
   private boolean rollingSums = false;
@@ -56,7 +58,7 @@ public class DAreaSum {
   /** The data. */
   protected final double[] data;
   /** The rolling sum table. */
-  protected double[] s_ = null;
+  protected double[] rollingSum = null;
 
   /**
    * Instantiates a new area statistics.
@@ -77,7 +79,7 @@ public class DAreaSum {
    * Calculate the rolling sum tables.
    */
   protected void calculateRollingSums() {
-    if (s_ != null) {
+    if (rollingSum != null) {
       return;
     }
 
@@ -85,28 +87,25 @@ public class DAreaSum {
     // s(u,v) = f(u,v) + s(u-1,v) + s(u,v-1) - s(u-1,v-1)
     // where s(u,v) = 0 when either u,v < 0
 
-    s_ = new double[data.length];
+    rollingSum = new double[data.length];
 
     // First row
-    double cs_ = 0; // Column sum
+    double columnSum = 0; // Column sum
     for (int i = 0; i < maxx; i++) {
-      final double d = data[i];
-      cs_ += d;
-      s_[i] = cs_;
+      columnSum += data[i];
+      rollingSum[i] = columnSum;
     }
 
     // Remaining rows:
     // sum = rolling sum of row + sum of row above
     for (int y = 1; y < maxy; y++) {
-      int i = y * maxx;
-      cs_ = 0;
+      int index = y * maxx;
+      columnSum = 0;
 
       // Remaining columns
-      for (int x = 0; x < maxx; x++, i++) {
-        final double d = data[i];
-        cs_ += d;
-
-        s_[i] = s_[i - maxx] + cs_;
+      for (int x = 0; x < maxx; x++, index++) {
+        columnSum += data[index];
+        rollingSum[index] = rollingSum[index - maxx] + columnSum;
       }
     }
   }
@@ -134,7 +133,9 @@ public class DAreaSum {
 
   /**
    * Gets the statistics within a region from minU to maxU and minV to maxV. Lower bounds exclusive
-   * and upper bounds inclusive. <p> Use the rolling sum table.
+   * and upper bounds inclusive.
+   *
+   * <p>Use the rolling sum table.
    *
    * @param minU the min U
    * @param maxU the max U
@@ -165,18 +166,18 @@ public class DAreaSum {
     }
 
     // + s(u+N-1,v+N-1)
-    double sum = s_[maxV * maxx + maxU];
+    double sum = rollingSum[maxV * maxx + maxU];
 
     if (minU >= 0) {
       // - s(u-1,v+N-1)
-      sum -= s_[maxV * maxx + minU];
+      sum -= rollingSum[maxV * maxx + minU];
 
       if (minV >= 0) {
         // - s(u+N-1,v-1)
-        sum -= s_[minV * maxx + maxU];
+        sum -= rollingSum[minV * maxx + maxU];
 
         // + s(u-1,v-1)
-        sum += s_[minV * maxx + minU];
+        sum += rollingSum[minV * maxx + minU];
       } else {
         // Reset to bounds to calculate the number of pixels
         minV = -1;
@@ -187,29 +188,29 @@ public class DAreaSum {
 
       if (minV >= 0) {
         // - s(u+N-1,v-1)
-        sum -= s_[minV * maxx + maxU];
+        sum -= rollingSum[minV * maxx + maxU];
       } else {
         // Reset to bounds to calculate the number of pixels
         minV = -1;
       }
     }
 
-    final int n = (maxU - minU) * (maxV - minV);
+    final int count = (maxU - minU) * (maxV - minV);
 
-    return getResults(sum, n);
+    return getResults(sum, count);
   }
 
   /**
    * Gets the results.
    *
    * @param sum the sum
-   * @param n the n
+   * @param count the count
    * @return the results
    */
-  private static double[] getResults(double sum, int n) {
+  private static double[] getResults(double sum, int count) {
     final double[] stats = new double[2];
-    stats[N] = n;
-    stats[SUM] = sum;
+    stats[INDEX_COUNT] = count;
+    stats[INDEX_SUM] = sum;
     return stats;
   }
 
@@ -245,14 +246,37 @@ public class DAreaSum {
       }
     }
 
-    final int n = (maxU - minU) * (maxV - minV);
+    final int count = (maxU - minU) * (maxV - minV);
 
-    return getResults(sum, n);
+    return getResults(sum, count);
   }
 
   /**
-   * Gets the statistics within a region +/- n. <p> Statistics can be accessed using the static
-   * properties in this class.
+   * Gets the index in the data.
+   *
+   * @param x the x
+   * @param y the y
+   * @return the index
+   */
+  protected int getIndex(int x, int y) {
+    return y * maxx + x;
+  }
+
+  /**
+   * Gets the result for an area covering only 1 pixel.
+   *
+   * @param x the x
+   * @param y the y
+   * @return the single result
+   */
+  protected double[] getSingleResult(int x, int y) {
+    return new double[] {1, data[getIndex(x, y)]};
+  }
+
+  /**
+   * Gets the statistics within a region +/- n.
+   *
+   * <p>Statistics can be accessed using the static properties in this class.
    *
    * @param x the x
    * @param y the y
@@ -278,30 +302,9 @@ public class DAreaSum {
   }
 
   /**
-   * Gets the result for an area covering only 1 pixel.
+   * Gets the statistics within a region +/- n.
    *
-   * @param x the x
-   * @param y the y
-   * @return the single result
-   */
-  protected double[] getSingleResult(int x, int y) {
-    return new double[] {1, data[getIndex(x, y)]};
-  }
-
-  /**
-   * Gets the index in the data.
-   *
-   * @param x the x
-   * @param y the y
-   * @return the index
-   */
-  protected int getIndex(int x, int y) {
-    return y * maxx + x;
-  }
-
-  /**
-   * Gets the statistics within a region +/- n. <p> Statistics can be accessed using the static
-   * properties in this class.
+   * <p>Statistics can be accessed using the static properties in this class.
    *
    * @param x the x
    * @param y the y
@@ -328,8 +331,9 @@ public class DAreaSum {
   }
 
   /**
-   * Gets the statistics within a region. <p> Statistics can be accessed using the static properties
-   * in this class.
+   * Gets the statistics within a region.
+   *
+   * <p>Statistics can be accessed using the static properties in this class.
    *
    * @param region the region
    * @return the statistics

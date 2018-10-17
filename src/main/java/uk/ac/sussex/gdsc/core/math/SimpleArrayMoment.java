@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.math;
 
 /**
@@ -33,13 +34,13 @@ package uk.ac.sussex.gdsc.core.math;
  * for a large series of data where the mean is far from zero due to floating point round-off error.
  */
 public class SimpleArrayMoment implements ArrayMoment {
-  private long n = 0;
+  private long size = 0;
 
-  /** The sum of values that have been added */
-  private double[] s;
+  /** The sum of values that have been added. */
+  private double[] sum;
 
-  /** The sum of squared values that have been added */
-  private double[] ss;
+  /** The sum of squared values that have been added. */
+  private double[] sumSq;
 
   /**
    * Instantiates a new array moment with data.
@@ -73,122 +74,85 @@ public class SimpleArrayMoment implements ArrayMoment {
     add(data);
   }
 
-  /** {@inheritDoc} */
   @Override
   public void add(double data) {
-    if (n == 0) {
+    if (size == 0) {
       // Initialise the array lengths
-      s = new double[1];
-      ss = new double[1];
+      sum = new double[1];
+      sumSq = new double[1];
     }
-    n++;
-    s[0] += data;
-    ss[0] += data * data;
+    size++;
+    sum[0] += data;
+    sumSq[0] += data * data;
   }
 
-  /** {@inheritDoc} */
   @Override
   public void add(double[] data) {
-    if (n == 0) {
+    if (size == 0) {
       // Initialise the array lengths
-      s = new double[data.length];
-      ss = new double[data.length];
+      sum = new double[data.length];
+      sumSq = new double[data.length];
     }
-    n++;
+    size++;
     for (int i = 0; i < data.length; i++) {
-      s[i] += data[i];
-      ss[i] += data[i] * data[i];
+      sum[i] += data[i];
+      sumSq[i] += data[i] * data[i];
     }
   }
 
-  /** {@inheritDoc} */
   @Override
   public void add(float[] data) {
-    if (n == 0) {
+    if (size == 0) {
       // Initialise the array lengths
-      s = new double[data.length];
-      ss = new double[data.length];
+      sum = new double[data.length];
+      sumSq = new double[data.length];
     }
-    n++;
+    size++;
     for (int i = 0; i < data.length; i++) {
-      s[i] += data[i];
-      ss[i] += (double) data[i] * data[i];
+      sum[i] += data[i];
+      sumSq[i] += (double) data[i] * data[i];
     }
   }
 
-  /** {@inheritDoc} */
   @Override
   public void add(int[] data) {
-    if (n == 0) {
+    if (size == 0) {
       // Initialise the array lengths
-      s = new double[data.length];
-      ss = new double[data.length];
+      sum = new double[data.length];
+      sumSq = new double[data.length];
     }
-    n++;
+    size++;
     for (int i = 0; i < data.length; i++) {
-      s[i] += data[i];
-      ss[i] += (double) data[i] * data[i];
+      sum[i] += data[i];
+      sumSq[i] += (double) data[i] * data[i];
     }
   }
 
-  /** {@inheritDoc} */
   @Override
   public void add(short[] data) {
-    if (n == 0) {
+    if (size == 0) {
       // Initialise the array lengths
-      s = new double[data.length];
-      ss = new double[data.length];
+      sum = new double[data.length];
+      sumSq = new double[data.length];
     }
-    n++;
+    size++;
     for (int i = 0; i < data.length; i++) {
-      s[i] += data[i];
-      ss[i] += (double) data[i] * data[i];
+      sum[i] += data[i];
+      sumSq[i] += (double) data[i] * data[i];
     }
   }
 
-  /** {@inheritDoc} */
   @Override
   public void add(byte[] data) {
-    if (n == 0) {
+    if (size == 0) {
       // Initialise the array lengths
-      s = new double[data.length];
-      ss = new double[data.length];
+      sum = new double[data.length];
+      sumSq = new double[data.length];
     }
-    n++;
+    size++;
     for (int i = 0; i < data.length; i++) {
-      s[i] += data[i];
-      ss[i] += (double) data[i] * data[i];
-    }
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public void addUnsigned(short[] data) {
-    if (n == 0) {
-      // Initialise the array lengths
-      s = new double[data.length];
-      ss = new double[data.length];
-    }
-    n++;
-    for (int i = 0; i < data.length; i++) {
-      final double v = data[i] & 0xffff;
-      s[i] += v;
-      ss[i] += v * v;
-    }
-  }
-
-  @Override
-  public void addUnsigned(byte[] data) {
-    if (n == 0) {
-      // Initialise the array lengths
-      s = new double[data.length];
-      ss = new double[data.length];
-    }
-    n++;
-    for (int i = 0; i < data.length; i++) {
-      final double v = data[i] & 0xff;
-      s[i] += v;
-      ss[i] += v * v;
+      sum[i] += data[i];
+      sumSq[i] += (double) data[i] * data[i];
     }
   }
 
@@ -198,129 +162,34 @@ public class SimpleArrayMoment implements ArrayMoment {
    * @param arrayMoment the array moment
    */
   public void add(SimpleArrayMoment arrayMoment) {
-    if (arrayMoment.n == 0) {
+    if (arrayMoment.size == 0) {
       return;
     }
 
-    final long nb = arrayMoment.n;
-    final double[] sb = arrayMoment.s;
-    final double[] ssb = arrayMoment.ss;
+    final long nb = arrayMoment.size;
+    final double[] sb = arrayMoment.sum;
+    final double[] ssb = arrayMoment.sumSq;
 
-    if (n == 0) {
+    if (size == 0) {
       // Copy
-      n = nb;
-      s = sb.clone();
-      ss = ssb.clone();
+      size = nb;
+      sum = sb.clone();
+      sumSq = ssb.clone();
       return;
     }
 
-    if (sb.length != s.length) {
+    if (sb.length != sum.length) {
       throw new IllegalArgumentException(
-          "Different number of moments: " + sb.length + " != " + s.length);
+          "Different number of moments: " + sb.length + " != " + sum.length);
     }
 
-    n += nb;
-    for (int i = 0; i < s.length; i++) {
-      s[i] += sb[i];
-      ss[i] += ssb[i];
+    size += nb;
+    for (int i = 0; i < sum.length; i++) {
+      sum[i] += sb[i];
+      sumSq[i] += ssb[i];
     }
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public double[] getFirstMoment() {
-    if (n == 0) {
-      return null;
-    }
-    final double[] m1 = s.clone();
-    final double n = this.n;
-    for (int i = 0; i < s.length; i++) {
-      m1[i] /= n;
-    }
-    return m1;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public double[] getSecondMoment() {
-    if (n == 0) {
-      return null;
-    }
-    final double[] m2 = new double[s.length];
-    final double n = this.n;
-    for (int i = 0; i < s.length; i++) {
-      m2[i] = ss[i] - (s[i] * s[i]) / n;
-    }
-    return m2;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public long getN() {
-    return n;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public double[] getVariance() {
-    return getVariance(true);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public double[] getVariance(boolean isBiasCorrected) {
-    if (n == 0) {
-      return null;
-    }
-    if (n == 1) {
-      return new double[s.length];
-    }
-    final double[] v = getSecondMoment();
-    final double n1 = (isBiasCorrected) ? n - 1 : n;
-    for (int i = 0; i < v.length; i++) {
-      v[i] = positive(v[i] / n1);
-    }
-    return v;
-  }
-
-  private static double positive(final double d) {
-    return (d > 0) ? d : 0;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public double[] getStandardDeviation() {
-    return getStandardDeviation(true);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public double[] getStandardDeviation(boolean isBiasCorrected) {
-    if (n == 0) {
-      return null;
-    }
-    if (n == 1) {
-      return new double[s.length];
-    }
-    final double[] v = getSecondMoment();
-    final double n1 = (isBiasCorrected) ? n - 1 : n;
-    for (int i = 0; i < v.length; i++) {
-      v[i] = positiveSqrt(v[i] / n1);
-    }
-    return v;
-  }
-
-  private static double positiveSqrt(final double d) {
-    return (d > 0) ? Math.sqrt(d) : 0;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public SimpleArrayMoment newInstance() {
-    return new SimpleArrayMoment();
-  }
-
-  /** {@inheritDoc} */
   @Override
   public void add(ArrayMoment arrayMoment) {
     if (arrayMoment == null) {
@@ -331,5 +200,121 @@ public class SimpleArrayMoment implements ArrayMoment {
     } else {
       throw new IllegalArgumentException("Not compatible: " + arrayMoment.getClass());
     }
+  }
+
+  @Override
+  public void addUnsigned(short[] data) {
+    if (size == 0) {
+      // Initialise the array lengths
+      sum = new double[data.length];
+      sumSq = new double[data.length];
+    }
+    size++;
+    for (int i = 0; i < data.length; i++) {
+      final double v = data[i] & 0xffff;
+      sum[i] += v;
+      sumSq[i] += v * v;
+    }
+  }
+
+  @Override
+  public void addUnsigned(byte[] data) {
+    if (size == 0) {
+      // Initialise the array lengths
+      sum = new double[data.length];
+      sumSq = new double[data.length];
+    }
+    size++;
+    for (int i = 0; i < data.length; i++) {
+      final double v = data[i] & 0xff;
+      sum[i] += v;
+      sumSq[i] += v * v;
+    }
+  }
+
+  @Override
+  public double[] getFirstMoment() {
+    if (size == 0) {
+      return null;
+    }
+    final double[] m1 = sum.clone();
+    final double n = this.size;
+    for (int i = 0; i < sum.length; i++) {
+      m1[i] /= n;
+    }
+    return m1;
+  }
+
+  @Override
+  public double[] getSecondMoment() {
+    if (size == 0) {
+      return null;
+    }
+    final double[] m2 = new double[sum.length];
+    final double n = this.size;
+    for (int i = 0; i < sum.length; i++) {
+      m2[i] = sumSq[i] - (sum[i] * sum[i]) / n;
+    }
+    return m2;
+  }
+
+  @Override
+  public long getN() {
+    return size;
+  }
+
+  @Override
+  public double[] getVariance() {
+    return getVariance(true);
+  }
+
+  @Override
+  public double[] getVariance(boolean isBiasCorrected) {
+    if (size == 0) {
+      return null;
+    }
+    if (size == 1) {
+      return new double[sum.length];
+    }
+    final double[] v = getSecondMoment();
+    final double n1 = (isBiasCorrected) ? size - 1 : size;
+    for (int i = 0; i < v.length; i++) {
+      v[i] = positive(v[i] / n1);
+    }
+    return v;
+  }
+
+  private static double positive(final double value) {
+    return (value > 0) ? value : 0;
+  }
+
+  @Override
+  public double[] getStandardDeviation() {
+    return getStandardDeviation(true);
+  }
+
+  @Override
+  public double[] getStandardDeviation(boolean isBiasCorrected) {
+    if (size == 0) {
+      return null;
+    }
+    if (size == 1) {
+      return new double[sum.length];
+    }
+    final double[] v = getSecondMoment();
+    final double n1 = (isBiasCorrected) ? size - 1 : size;
+    for (int i = 0; i < v.length; i++) {
+      v[i] = positiveSqrt(v[i] / n1);
+    }
+    return v;
+  }
+
+  private static double positiveSqrt(final double value) {
+    return (value > 0) ? Math.sqrt(value) : 0;
+  }
+
+  @Override
+  public SimpleArrayMoment newInstance() {
+    return new SimpleArrayMoment();
   }
 }

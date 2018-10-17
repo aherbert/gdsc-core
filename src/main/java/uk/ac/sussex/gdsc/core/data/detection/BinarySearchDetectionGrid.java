@@ -25,21 +25,29 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.detection;
 
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
-import java.util.Comparator;
 
 /**
- * Class to compute collision detections between a point and a set of rectangles
+ * Class to compute collision detections between a point and a set of rectangles.
  */
 public class BinarySearchDetectionGrid implements DetectionGrid {
+  private static final byte TWO = 0x02;
+  private static final byte FOUR = 0x04;
   private static final int[] EMPTY = new int[0];
 
   private final int size;
-  private final int[] minxIds, maxxIds, minyIds, maxyIds;
-  private final double[] minx, maxx, miny, maxy;
+  private final int[] minxIds;
+  private final int[] maxxIds;
+  private final int[] minyIds;
+  private final int[] maxyIds;
+  private final double[] minx;
+  private final double[] maxx;
+  private final double[] miny;
+  private final double[] maxy;
 
   /**
    * Instantiates a new binary search detection grid.
@@ -76,7 +84,6 @@ public class BinarySearchDetectionGrid implements DetectionGrid {
     sort(maxyIds, maxy);
   }
 
-  /** {@inheritDoc} */
   @Override
   public int size() {
     return size;
@@ -97,18 +104,15 @@ public class BinarySearchDetectionGrid implements DetectionGrid {
       data[i][1] = indices[i];
     }
 
-    Arrays.sort(data, new Comparator<double[]>() {
-      @Override
-      public int compare(double[] o1, double[] o2) {
-        // Smallest first
-        if (o1[0] < o2[0]) {
-          return -1;
-        }
-        if (o1[0] > o2[0]) {
-          return 1;
-        }
-        return 0;
+    Arrays.sort(data, (o1, o2) -> {
+      // Smallest first
+      if (o1[0] < o2[0]) {
+        return -1;
       }
+      if (o1[0] > o2[0]) {
+        return 1;
+      }
+      return 0;
     });
 
     // Copy back
@@ -120,10 +124,6 @@ public class BinarySearchDetectionGrid implements DetectionGrid {
     return indices;
   }
 
-  private final static byte TWO = 0x02;
-  private final static byte FOUR = 0x04;
-
-  /** {@inheritDoc} */
   @Override
   public int[] find(double x, double y) {
     // Perform a binary search to find the insert location of the index
@@ -142,8 +142,6 @@ public class BinarySearchDetectionGrid implements DetectionGrid {
     for (int i = findIndexUpToAndIncluding(miny, y) + 1; i-- > 0;) {
       data[minyIds[i]]++;
     }
-    // if (!contains(data, 0x03))
-    // return EMPTY;
     for (int i = findIndexAfter(maxy, y); i < size; i++) {
       data[maxyIds[i]]++;
     }
@@ -186,78 +184,77 @@ public class BinarySearchDetectionGrid implements DetectionGrid {
 
   /**
    * Find the index such that all indices up to and including that point have a sum equal to or
-   * below p.
+   * below the target sum.
    *
    * @param sum the sum
-   * @param p the p
+   * @param targetSum the target sum
    * @return the index (or -1)
    */
-  static int findIndexUpToAndIncluding(double[] sum, double p) {
-    // index of the search key, if it is contained in the array;
+  static int findIndexUpToAndIncluding(double[] sum, double targetSum) {
+    // index of the search key, if it is contained in the array,
     // otherwise, (-(insertion point) - 1)
-    int i = Arrays.binarySearch(sum, p);
-    if (i < 0) {
+    int index = Arrays.binarySearch(sum, targetSum);
+    if (index < 0) {
       // The insertion point is defined as the point at which the key would be
       // inserted into the array: the index of the first element greater than the key
       // or a.length if all elements in the array are less than the specified key.
-      final int insert = -(i + 1);
+      final int insert = -(index + 1);
       return insert - 1;
     }
     // We found a match. Ensure we return the last index in the event of equality.
-    while ((i + 1) < sum.length && sum[i + 1] == p) {
-      i++;
+    while ((index + 1) < sum.length && sum[index + 1] == targetSum) {
+      index++;
     }
-    return i;
+    return index;
   }
 
   /**
    * Find the index such that all indices including and after that point have a sum equal to or
-   * above p.
+   * above the target sum.
    *
    * @param sum the sum
-   * @param p the p
+   * @param targetSum the target sum
    * @return the index (or -1)
    */
-  static int findIndexIncludingAndAfter(double[] sum, double p) {
-    // index of the search key, if it is contained in the array;
+  static int findIndexIncludingAndAfter(double[] sum, double targetSum) {
+    // index of the search key, if it is contained in the array,
     // otherwise, (-(insertion point) - 1)
-    int i = Arrays.binarySearch(sum, p);
-    if (i < 0) {
+    int index = Arrays.binarySearch(sum, targetSum);
+    if (index < 0) {
       // The insertion point is defined as the point at which the key would be
       // inserted into the array: the index of the first element greater than the key
       // or a.length if all elements in the array are less than the specified key.
-      final int insert = -(i + 1);
-      return insert;
+      return -(index + 1);
     }
     // We found a match. Ensure we return the first index in the event of equality.
-    while (i > 0 && sum[i - 1] == p) {
-      i--;
+    while (index > 0 && sum[index - 1] == targetSum) {
+      index--;
     }
-    return i;
+    return index;
   }
 
   /**
-   * Find the index such that all indices including and after that point have a sum above p.
+   * Find the index such that all indices including and after that point have a sum above the target
+   * sum.
    *
    * @param sum the sum
-   * @param p the p
+   * @param targetSum the target sum
    * @return the index (or -1)
    */
-  static int findIndexAfter(double[] sum, double p) {
-    // index of the search key, if it is contained in the array;
+  static int findIndexAfter(double[] sum, double targetSum) {
+    // index of the search key, if it is contained in the array,
     // otherwise, (-(insertion point) - 1)
-    int i = Arrays.binarySearch(sum, p);
-    if (i < 0) {
+    int index = Arrays.binarySearch(sum, targetSum);
+    if (index < 0) {
       // The insertion point is defined as the point at which the key would be
       // inserted into the array: the index of the first element greater than the key
       // or a.length if all elements in the array are less than the specified key.
-      final int insert = -(i + 1);
-      return insert;
+      return -(index + 1);
     }
     // We found a match. Ensure we return the last index in the event of equality.
-    while ((i + 1) < sum.length && sum[i + 1] == p) {
-      i++;
+    while ((index + 1) < sum.length && sum[index + 1] == targetSum) {
+      index++;
     }
-    return i + 1; // After
+    return index + 1; // After
   }
 }

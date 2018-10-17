@@ -1,46 +1,29 @@
 package uk.ac.sussex.gdsc.core.ij.process;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-import uk.ac.sussex.gdsc.test.utils.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import uk.ac.sussex.gdsc.test.api.TestHelper;
 
 import ij.plugin.filter.EDM;
 import ij.process.ByteProcessor;
 import ij.process.FHT;
 import ij.process.FloatProcessor;
-import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
 public class FHT2Test {
   @Test
   public void canCheckPowerOf2() {
-    Assertions.assertFalse(FHT2.isPowerOf2(1), "1");
-    Assertions.assertFalse(FHT2.isPowerOf2(Integer.MAX_VALUE), "" + Integer.MAX_VALUE);
+    Assertions.assertFalse(Fht.isPowerOf2(1), "1");
+    Assertions.assertFalse(Fht.isPowerOf2(Integer.MAX_VALUE), "" + Integer.MAX_VALUE);
     int i = 2;
     while (i > 0) // Until overflow
     {
-      Assertions.assertTrue(FHT2.isPowerOf2(i), Integer.toString(i));
-      Assertions.assertFalse(FHT2.isPowerOf2(i - 1), Integer.toString(i - 1));
-      Assertions.assertFalse(FHT2.isPowerOf2(i + 1), Integer.toString(i + 1));
+      Assertions.assertTrue(Fht.isPowerOf2(i), Integer.toString(i));
+      Assertions.assertFalse(Fht.isPowerOf2(i - 1), Integer.toString(i - 1));
+      Assertions.assertFalse(Fht.isPowerOf2(i + 1), Integer.toString(i + 1));
       i *= 2;
     }
   }
@@ -88,13 +71,13 @@ public class FHT2Test {
     fhtA.transform();
     fhtB.transform();
 
-    final FHT2 fht1 = new FHT2(fp1);
-    final FHT2 fht2 = new FHT2(fp2);
+    final Fht fht1 = new Fht(fp1);
+    final Fht fht2 = new Fht(fp2);
     fht1.transform();
     fht2.transform();
 
     FHT fhtE;
-    FHT2 fhtO;
+    Fht fhtO;
     switch (mode) {
       case 2:
         fhtE = fhtA.divide(fhtB);
@@ -150,7 +133,7 @@ public class FHT2Test {
     final FloatProcessor fp2 = (FloatProcessor) fp1.duplicate();
 
     final FHT fht1 = new FHT(fp1);
-    final FHT2 fht2 = new FHT2(fp2);
+    final Fht fht2 = new Fht(fp2);
 
     fht1.swapQuadrants();
     fht2.swapQuadrants();

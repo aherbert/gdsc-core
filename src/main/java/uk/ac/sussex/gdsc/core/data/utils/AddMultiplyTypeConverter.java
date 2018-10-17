@@ -25,9 +25,8 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package uk.ac.sussex.gdsc.core.data.utils;
 
-import uk.ac.sussex.gdsc.core.utils.Maths;
+package uk.ac.sussex.gdsc.core.data.utils;
 
 /**
  * Perform conversion by addition then multiplication.
@@ -50,25 +49,22 @@ public class AddMultiplyTypeConverter<T> extends MultiplyTypeConverter<T> {
    */
   public AddMultiplyTypeConverter(T from, T to, double addition, double multiplication) {
     super(from, to, multiplication);
-    if (!Maths.isFinite(addition)) {
+    if (!Double.isFinite(addition)) {
       throw new ConversionException("addition must be finite");
     }
     this.addition = addition;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double convert(double value) {
     return (value + addition) * multiplication;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double convertBack(double value) {
     return (value / multiplication) - addition;
   }
 
-  /** {@inheritDoc} */
   @Override
   public String getFunction() {
     return "(x + " + addition + ") * " + multiplication;

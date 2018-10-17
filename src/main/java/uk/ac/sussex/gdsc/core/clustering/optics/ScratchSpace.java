@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.utils.ConvexHull;
@@ -34,16 +35,14 @@ import java.util.Arrays;
 
 /**
  * Provide space for storing cluster coordinates.
- *
- * @author Alex Herbert
  */
 class ScratchSpace {
   /** The x. */
-  float[] x;
+  private float[] x;
   /** The y. */
-  float[] y;
+  private float[] y;
   /** The number of values. */
-  int n;
+  private int size;
 
   /**
    * Instantiates a new scratch space.
@@ -53,7 +52,7 @@ class ScratchSpace {
   ScratchSpace(int capacity) {
     x = new float[capacity];
     y = new float[capacity];
-    n = 0;
+    size = 0;
   }
 
   /**
@@ -66,7 +65,14 @@ class ScratchSpace {
       x = new float[capacity];
       y = new float[capacity];
     }
-    n = 0;
+    size = 0;
+  }
+
+  /**
+   * Clear the space (but do not free capacity).
+   */
+  void clear() {
+    size = 0;
   }
 
   /**
@@ -76,9 +82,9 @@ class ScratchSpace {
    * @param yy the y
    */
   void add(float xx, float yy) {
-    x[n] = xx;
-    y[n] = yy;
-    n++;
+    x[size] = xx;
+    y[size] = yy;
+    size++;
   }
 
   /**
@@ -88,28 +94,28 @@ class ScratchSpace {
    * @param yy the y
    */
   void add(float[] xx, float[] yy) {
-    final int size = xx.length;
-    System.arraycopy(xx, 0, x, n, size);
-    System.arraycopy(yy, 0, y, n, size);
-    n += size;
+    final int length = xx.length;
+    System.arraycopy(xx, 0, x, size, length);
+    System.arraycopy(yy, 0, y, size, length);
+    size += length;
   }
 
   /**
-   * Adds the (x,y) value.
+   * Safely adds the (x,y) value increasing capacity if required.
    *
    * @param xx the x
    * @param yy the y
    */
   void safeAdd(float xx, float yy) {
-    if (x.length == n) {
-      final int size = x.length * 2;
-      x = Arrays.copyOf(x, size);
-      y = Arrays.copyOf(y, size);
+    if (x.length == size) {
+      final int length = x.length * 2;
+      x = Arrays.copyOf(x, length);
+      y = Arrays.copyOf(y, length);
     }
 
-    x[n] = xx;
-    y[n] = yy;
-    n++;
+    x[size] = xx;
+    y[size] = yy;
+    size++;
   }
 
   /**
@@ -118,14 +124,14 @@ class ScratchSpace {
    * @return the bounds
    */
   Rectangle2D getBounds() {
-    if (n == 0) {
+    if (size == 0) {
       return null;
     }
     float minX = x[0];
     float minY = y[0];
     float maxX = minX;
     float maxY = minY;
-    for (int i = 1; i < n; i++) {
+    for (int i = 1; i < size; i++) {
       if (maxX < x[i]) {
         maxX = x[i];
       } else if (minX > x[i]) {
@@ -146,6 +152,6 @@ class ScratchSpace {
    * @return the convex hull
    */
   ConvexHull getConvexHull() {
-    return ConvexHull.create(x, y, n);
+    return ConvexHull.create(x, y, size);
   }
 }

@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.procedures;
 
 /**
@@ -43,7 +44,6 @@ public class StandardTrivalueProcedure implements TrivalueProcedure {
   /** The value. */
   public double[][][] value;
 
-  /** {@inheritDoc} */
   @Override
   public boolean setDimensions(int maxx, int maxy, int maxz) {
     x = new double[maxx];
@@ -53,27 +53,23 @@ public class StandardTrivalueProcedure implements TrivalueProcedure {
     return true;
   }
 
-  /** {@inheritDoc} */
   @Override
-  public void setX(int i, double value) {
-    x[i] = value;
+  public void setX(int index, double value) {
+    x[index] = value;
   }
 
-  /** {@inheritDoc} */
   @Override
-  public void setY(int j, double value) {
-    y[j] = value;
+  public void setY(int index, double value) {
+    y[index] = value;
   }
 
-  /** {@inheritDoc} */
   @Override
-  public void setZ(int k, double value) {
-    z[k] = value;
+  public void setZ(int index, double value) {
+    z[index] = value;
   }
 
-  /** {@inheritDoc} */
   @Override
-  public void setValue(int i, int j, int k, double value) {
-    this.value[i][j][k] = value;
+  public void setValue(int indexX, int indexY, int indexZ, double value) {
+    this.value[indexX][indexY][indexZ] = value;
   }
 }

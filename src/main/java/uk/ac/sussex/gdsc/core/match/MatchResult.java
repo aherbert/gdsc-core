@@ -25,12 +25,14 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.match;
 
 /**
  * Class to store the result of a binary scoring analysis.
  *
- * Can calculate the F-score statistic with a given beta weighting between the precision and recall.
+ * <p>Can calculate the F-score statistic with a given beta weighting between the precision and
+ * recall.
  *
  * @see "http://en.wikipedia.org/wiki/Precision_and_recall#F-measure"
  */
@@ -44,6 +46,8 @@ public class MatchResult {
   private final double rmsd;
 
   /**
+   * Instantiates a new match result.
+   *
    * @param tp The number of true positives
    * @param fp The number of false positives
    * @param fn The number of false negatives
@@ -82,7 +86,7 @@ public class MatchResult {
   }
 
   /**
-   * Return the F-Score statistic, a weighted combination of the precision and recall
+   * Return the F-Score statistic, a weighted combination of the precision and recall.
    *
    * @param beta The weight
    * @return The F-Score
@@ -92,7 +96,7 @@ public class MatchResult {
   }
 
   /**
-   * Return the F1-Score statistic, a equal weighted combination of the precision and recall
+   * Return the F1-Score statistic, a equal weighted combination of the precision and recall.
    *
    * @return The F1-Score
    */
@@ -102,55 +106,71 @@ public class MatchResult {
   }
 
   /**
-   * @return the n
+   * Gets the number of predicted points.
+   *
+   * @return the number of predicted points
    */
   public int getNumberPredicted() {
     return tp + fp;
   }
 
   /**
-   * @return the number of actual
+   * Gets the number of actual points.
+   *
+   * @return the number of actual points.
    */
   public int getNumberActual() {
     return tp + fn;
   }
 
   /**
-   * @return the tp
+   * Gets the true positives.
+   *
+   * @return the true positives
    */
   public int getTruePositives() {
     return tp;
   }
 
   /**
-   * @return the fp
+   * Gets the false positives.
+   *
+   * @return the false positives
    */
   public int getFalsePositives() {
     return fp;
   }
 
   /**
-   * @return the fn
+   * Gets the false negatives.
+   *
+   * @return the false negatives
    */
   public int getFalseNegatives() {
     return fn;
   }
 
   /**
-   * @return the precision
+   * Gets the precision.
+   *
+   * @return the precision.
    */
   public double getPrecision() {
     return precision;
   }
 
   /**
-   * @return the recall
+   * Gets the recall.
+   *
+   * @return the recall.
    */
   public double getRecall() {
     return recall;
   }
 
   /**
+   * Gets the jaccard.
+   *
    * @return the Jaccard index (defined as the size of the intersection divided by the size of the
    *         union of the sample sets)
    */
@@ -159,9 +179,11 @@ public class MatchResult {
   }
 
   /**
-   * @return the root mean squared distance between true positives
+   * Gets the root mean squared distance between true positives.
+   *
+   * @return the root mean squared distance between true positives.
    */
-  public double getRMSD() {
+  public double getRmsd() {
     return rmsd;
   }
 }

@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.match;
 
 /**
- * Stores an assignment between two identified points and the distance between them
+ * Stores an assignment between two identified points and the distance between them.
  */
 public class MutableAssignment implements Assignment {
   private int targetId;
@@ -48,19 +49,16 @@ public class MutableAssignment implements Assignment {
     this.distance = distance;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int getTargetId() {
     return targetId;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int getPredictedId() {
     return predictedId;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double getDistance() {
     return distance;
@@ -76,7 +74,7 @@ public class MutableAssignment implements Assignment {
   }
 
   /**
-   * Set the predicted Id
+   * Set the predicted Id.
    *
    * @param predictedId the predicted Id to set
    */
@@ -85,7 +83,7 @@ public class MutableAssignment implements Assignment {
   }
 
   /**
-   * Set the distance
+   * Set the distance.
    *
    * @param distance the distance to set
    */

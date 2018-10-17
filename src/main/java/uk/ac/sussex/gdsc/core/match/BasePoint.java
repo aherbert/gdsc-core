@@ -25,11 +25,14 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.match;
 
 /**
- * <p> Stores a 2D/3D point. <p> Overrides equals and hashCode methods using x,y,z, coordinates for
- * equivalence. Derived classes can optionally override this.
+ * Stores a 2D/3D point.
+ *
+ * <p>Overrides equals and hashCode methods using x,y,z, coordinates for equivalence. Derived
+ * classes can optionally override this.
  *
  * @see java.lang.Object#equals(java.lang.Object)
  * @see java.lang.Object#hashCode()
@@ -47,9 +50,9 @@ public class BasePoint implements Coordinate {
   /**
    * Instantiates a new base point.
    *
-   * @param x the x
-   * @param y the y
-   * @param z the z
+   * @param x the x value
+   * @param y the y value
+   * @param z the z value
    */
   public BasePoint(float x, float y, float z) {
     this.x = x;
@@ -67,23 +70,21 @@ public class BasePoint implements Coordinate {
     this(x, y, 0);
   }
 
-  /** {@inheritDoc} */
   @Override
-  public boolean equals(Object aThat) {
-    if (this == aThat) {
+  public boolean equals(Object object) {
+    if (this == object) {
       return true;
     }
-    if (!(aThat instanceof BasePoint)) {
+    if (!(object instanceof BasePoint)) {
       return false;
     }
 
     // cast to native object is now safe
-    final BasePoint that = (BasePoint) aThat;
+    final BasePoint that = (BasePoint) object;
 
     return x == that.x && y == that.y && z == that.z;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int hashCode() {
     // Note: floatToRawIntBits does not unify all possible NaN values
@@ -93,88 +94,74 @@ public class BasePoint implements Coordinate {
         + Float.floatToRawIntBits(z));
   }
 
-  /** {@inheritDoc} */
   @Override
   public float getX() {
     return x;
   }
 
-  /** {@inheritDoc} */
   @Override
   public float getY() {
     return y;
   }
 
-  /** {@inheritDoc} */
   @Override
   public float getZ() {
     return z;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int getXint() {
     return (int) x;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int getYint() {
     return (int) y;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int getZint() {
     return (int) z;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double distance(float x, float y, float z) {
-    return Math.sqrt(distance2(x, y, z));
+    return Math.sqrt(distanceSquared(x, y, z));
   }
 
-  /** {@inheritDoc} */
   @Override
   public double distance(float x, float y) {
-    return Math.sqrt(distance2(x, y));
+    return Math.sqrt(distanceSquared(x, y));
   }
 
-  /** {@inheritDoc} */
   @Override
-  public double distance2(float x, float y, float z) {
+  public double distanceSquared(float x, float y, float z) {
     return (this.x - x) * (this.x - x) + (this.y - y) * (this.y - y) + (this.z - z) * (this.z - z);
   }
 
-  /** {@inheritDoc} */
   @Override
-  public double distance2(float x, float y) {
+  public double distanceSquared(float x, float y) {
     return (this.x - x) * (this.x - x) + (this.y - y) * (this.y - y);
   }
 
-  /** {@inheritDoc} */
   @Override
-  public double distanceXY(Coordinate other) {
+  public double distanceXy(Coordinate other) {
     return distance(other.getX(), other.getY());
   }
 
-  /** {@inheritDoc} */
   @Override
-  public double distanceXY2(Coordinate other) {
-    return distance2(other.getX(), other.getY());
+  public double distanceXySquared(Coordinate other) {
+    return distanceSquared(other.getX(), other.getY());
   }
 
-  /** {@inheritDoc} */
   @Override
-  public double distanceXYZ(Coordinate other) {
+  public double distanceXyz(Coordinate other) {
     return distance(other.getX(), other.getY(), other.getZ());
   }
 
-  /** {@inheritDoc} */
   @Override
-  public double distanceXYZ2(Coordinate other) {
-    return distance2(other.getX(), other.getY(), other.getZ());
+  public double distanceXyzSquared(Coordinate other) {
+    return distanceSquared(other.getX(), other.getY(), other.getZ());
   }
 
   /**

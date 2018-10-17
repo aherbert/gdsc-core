@@ -25,61 +25,68 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.math;
 
 /**
- * Contains methods for standard geometry computations
- *
- * @author Alex Herbert
+ * Contains methods for standard geometry computations.
  */
-public class Geometry {
+public final class Geometry {
+
+  private Geometry() {
+    throw new IllegalStateException("Utility class");
+  }
+
   /**
    * Gets the area of the triangle from its vertices.
    *
-   * @param xA the first vertex x
-   * @param yA the first vertex y
-   * @param xB the second vertex x
-   * @param yB the second vertex y
-   * @param xC the third vertex x
-   * @param yC the third vertex y
+   * @param x1 the first vertex x
+   * @param y1 the first vertex y
+   * @param x2 the second vertex x
+   * @param y2 the second vertex y
+   * @param x3 the third vertex x
+   * @param y3 the third vertex y
    * @return the area
    */
-  public static double getArea(double xA, double yA, double xB, double yB, double xC, double yC) {
-    return Math.abs((xA - xC) * (yB - yA) - (xA - xB) * (yC - yA)) / 2;
+  public static double getArea(double x1, double y1, double x2, double y2, double x3, double y3) {
+    return Math.abs((x1 - x3) * (y2 - y1) - (x1 - x2) * (y3 - y1)) / 2;
   }
 
   /**
    * Gets the area of the triangle from its vertices assuming the third vertex is 0,0.
    *
-   * @param xA the first vertex x
-   * @param yA the first vertex y
-   * @param xB the second vertex x
-   * @param yB the second vertex y
+   * @param x1 the first vertex x
+   * @param y1 the first vertex y
+   * @param x2 the second vertex x
+   * @param y2 the second vertex y
    * @return the area
    */
-  public static double getArea(double xA, double yA, double xB, double yB) {
-    return Math.abs(xA * yB - yA * xB) / 2;
+  public static double getArea(double x1, double y1, double x2, double y2) {
+    return Math.abs(x1 * y2 - y1 * x2) / 2;
   }
 
   /**
    * Gets the area of a polygon using the Shoelace formula
-   * (https://en.wikipedia.org/wiki/Shoelace_formula) <p> The area formula is valid for any
-   * non-self-intersecting (simple) polygon, which can be convex or concave. <p> Note: The float
-   * values are cast up to double precision for the computation.
+   * (https://en.wikipedia.org/wiki/Shoelace_formula).
+   *
+   * <p>The area formula is valid for any non-self-intersecting (simple) polygon, which can be
+   * convex or concave.
+   *
+   * <p>Note: The float values are cast up to double precision for the computation.
    *
    * @param x the x
    * @param y the y
-   * @return the area
-   * @throws IllegalArgumentException If the arrays are not the same length
+   * @return the area @ If the arrays are not the same length
    */
-  public static double getArea(float[] x, float[] y) throws IllegalArgumentException {
+  public static double getArea(float[] x, float[] y) {
     if (x.length < 3) {
       return 0;
     }
     if (x.length != y.length) {
       throw new IllegalArgumentException("Input arrays must be the same length");
     }
-    double sum1 = 0, sum2 = 0;
+    double sum1 = 0;
+    double sum2 = 0;
     for (int i = x.length, j = 0; i-- > 0; j = i) {
       sum1 += (double) x[i] * (double) y[j];
       sum2 += (double) x[j] * (double) y[i];
@@ -89,22 +96,24 @@ public class Geometry {
 
   /**
    * Gets the area of a polygon using the Shoelace formula
-   * (https://en.wikipedia.org/wiki/Shoelace_formula) <p> The area formula is valid for any
-   * non-self-intersecting (simple) polygon, which can be convex or concave.
+   * (https://en.wikipedia.org/wiki/Shoelace_formula).
+   *
+   * <p>The area formula is valid for any non-self-intersecting (simple) polygon, which can be
+   * convex or concave.
    *
    * @param x the x
    * @param y the y
-   * @return the area
-   * @throws IllegalArgumentException If the arrays are not the same length
+   * @return the area @ If the arrays are not the same length
    */
-  public static double getArea(double[] x, double[] y) throws IllegalArgumentException {
+  public static double getArea(double[] x, double[] y) {
     if (x.length < 3) {
       return 0;
     }
     if (x.length != y.length) {
       throw new IllegalArgumentException("Input arrays must be the same length");
     }
-    double sum1 = 0, sum2 = 0;
+    double sum1 = 0;
+    double sum2 = 0;
     for (int i = x.length, j = 0; i-- > 0; j = i) {
       sum1 += x[i] * y[j];
       sum2 += x[j] * y[i];
@@ -113,33 +122,35 @@ public class Geometry {
   }
 
   /**
-   * Gets the intersection between the line x1,y1 to x2,y2 and x3,y3 to x4,y4. <p>
-   * http://en.wikipedia.org/wiki/Line-line_intersection
+   * Gets the intersection between the line x1,y1 to x2,y2 and x3,y3 to x4,y4.
    *
-   * @param x1 the x 1
-   * @param y1 the y 1
-   * @param x2 the x 2
-   * @param y2 the y 2
-   * @param x3 the x 3
-   * @param y3 the y 3
-   * @param x4 the x 4
-   * @param y4 the y 4
+   * @param x1 the first vertex x
+   * @param y1 the first vertex y
+   * @param x2 the second vertex x
+   * @param y2 the second vertex y
+   * @param x3 the third vertex x
+   * @param y3 the third vertex y
+   * @param x4 the forth vertex x
+   * @param y4 the forth vertex y
    * @param intersection the intersection
    * @return true if an intersection was found
+   * @see <a href="http://en.wikipedia.org/wiki/Line-line_intersection">Intersection</a>
    */
   public static boolean getIntersection(double x1, double y1, double x2, double y2, double x3,
       double y3, double x4, double y4, double[] intersection) {
     // http://en.wikipedia.org/wiki/Line-line_intersection
+    //@formatter:off
     //
-    // x1,y1 x4,y4
-    // ** ++
-    // ** ++
-    // **++ P(x,y)
-    // ++ **
-    // ++ **
-    // ++ **
-    // x3,y3 **
-    // x2,y2
+    //     x1,y1            x4,y4
+    //         **        ++
+    //           **    ++
+    //             **++ P(x,y)
+    //            ++ **
+    //          ++     **
+    //        ++         **
+    //    x3,y3            **
+    //                       x2,y2
+    //@formatter:on
 
     final double x1_m_x2 = x1 - x2;
     final double x3_m_x4 = x3 - x4;

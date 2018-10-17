@@ -25,14 +25,15 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij;
 
 import uk.ac.sussex.gdsc.core.ij.text.TextWindow2;
 
-import java.awt.Frame;
-
 import ij.text.TextPanel;
 import ij.text.TextWindow;
+
+import java.awt.Frame;
 
 /**
  * Buffer to the ImageJ text window. Updates the display when 10 lines have been reached (to
@@ -79,7 +80,7 @@ public class BufferedTextWindow {
   }
 
   /**
-   * Flush the data to update the display and reset the next flush interval
+   * Flush the data to update the display and reset the next flush interval.
    */
   public void flush() {
     if (textPanel.isShowing()) {
@@ -89,14 +90,18 @@ public class BufferedTextWindow {
   }
 
   /**
-   * @return the increment
+   * Gets the increment.
+   *
+   * @return the increment.
    */
   public int getIncrement() {
     return increment;
   }
 
   /**
-   * @param increment the increment to set
+   * Sets the increment.
+   *
+   * @param increment the increment to set.
    */
   public void setIncrement(int increment) {
     this.increment = increment;

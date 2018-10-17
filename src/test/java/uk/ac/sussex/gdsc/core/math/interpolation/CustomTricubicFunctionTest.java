@@ -1,24 +1,5 @@
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-import uk.ac.sussex.gdsc.test.utils.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
 import org.apache.commons.math3.exception.OutOfRangeException;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.simple.RandomSource;
@@ -46,8 +27,8 @@ public class CustomTricubicFunctionTest {
       Assertions.assertEquals(fa[i], df.getf(i));
     }
 
-    Assertions.assertArrayEquals(da, ff.getA());
-    Assertions.assertArrayEquals(da, df.getA());
+    Assertions.assertArrayEquals(da, ff.getCoefficients());
+    Assertions.assertArrayEquals(da, df.getCoefficients());
 
     // test scaling
     ff.scale(2);
@@ -80,8 +61,8 @@ public class CustomTricubicFunctionTest {
     final DoubleCustomTricubicFunction df2 = (DoubleCustomTricubicFunction) ff.toDoublePrecision();
     final FloatCustomTricubicFunction ff2 = (FloatCustomTricubicFunction) df.toSinglePrecision();
 
-    Assertions.assertArrayEquals(da, ff2.getA());
-    Assertions.assertArrayEquals(da, df2.getA());
+    Assertions.assertArrayEquals(da, ff2.getCoefficients());
+    Assertions.assertArrayEquals(da, df2.getCoefficients());
   }
 
   @Test

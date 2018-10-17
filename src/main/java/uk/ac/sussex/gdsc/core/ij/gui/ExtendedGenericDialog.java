@@ -25,12 +25,16 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.gui;
 
 import uk.ac.sussex.gdsc.core.ij.RecorderUtils;
 import uk.ac.sussex.gdsc.core.ij.Utils;
-import uk.ac.sussex.gdsc.core.utils.Maths;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
+
+import ij.IJ;
+import ij.gui.GenericDialog;
+import ij.plugin.frame.Recorder;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
@@ -53,26 +57,36 @@ import java.awt.PopupMenu;
 import java.awt.ScrollPane;
 import java.awt.Scrollbar;
 import java.awt.TextField;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Objects;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import ij.IJ;
-import ij.gui.GenericDialog;
-import ij.plugin.frame.Recorder;
-
 /**
- * Extension of the {@link ij.gui.GenericDialog} class to add functionality. <p> This dialog adds
- * all components to a panel that is presented in a {@link java.awt.ScrollPane}. This allows display
- * of large dialogs on small screens.
+ * Extension of the {@link ij.gui.GenericDialog} class to add functionality.
+ *
+ * <p>This dialog adds all components to a panel that is presented in a {@link java.awt.ScrollPane}.
+ * This allows display of large dialogs on small screens.
  */
 public class ExtendedGenericDialog extends GenericDialog {
   /** The Constant serialVersionUID. */
   private static final long serialVersionUID = 2405780565152258007L;
+
+  private static final String OPTION_LISTENER_NULL = "Option listener must not be null";
+
+  private static Color buttonBackgroundColor;
+  private static int buttonRightBorder;
+
+  static {
+    // Try and control the option button appearance across platforms
+    buttonBackgroundColor = new Color(240, 240, 240);
+    // For some reason an extra 2 pixels looks correct on a mac
+    buttonRightBorder = (IJ.isMacOSX()) ? 3 : 1;
+  }
+
   private Component positionComponent = null;
 
   private TurboList<OptionListener<?>> listeners;
@@ -89,7 +103,13 @@ public class ExtendedGenericDialog extends GenericDialog {
   // Max unscrolled height
   private int maxHeight = 0;
 
-  /** The silent flag. The call to {@link #setVisible(boolean)} will be ignored. */
+  private JButton lastOptionButton = null;
+
+  /**
+   * The silent flag.
+   *
+   * <p>The call to {@link #setVisible(boolean)} will be ignored.
+   */
   private boolean silent;
 
   /**
@@ -127,11 +147,11 @@ public class ExtendedGenericDialog extends GenericDialog {
       // java.awt.Panel components are not always redrawn.
       // Given the GenericDialog uses a lot of java.awt components
       // we stick to use a java.awt.ScrollPane.
-      // JScrollPane scroll = new JScrollPane(panel);
-      // scroll.setBorder(BorderFactory.createEmptyBorder());
-      // scroll.getVerticalScrollBar().setUnitIncrement(8);
-      // scroll.getHorizontalScrollBar().setUnitIncrement(8);
-      // scroll.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
+      // JScrollPane scroll = new JScrollPane(panel)
+      // scroll.setBorder(BorderFactory.createEmptyBorder())
+      // scroll.getVerticalScrollBar().setUnitIncrement(8)
+      // scroll.getHorizontalScrollBar().setUnitIncrement(8)
+      // scroll.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE)
 
       // The ScrollPanel must be sized from the default of 100x100 when
       // displayed. This is done in setup()
@@ -154,6 +174,40 @@ public class ExtendedGenericDialog extends GenericDialog {
   public void addCheckbox(String label, boolean defaultValue) {
     labels.add(label);
     super.addCheckbox(label, defaultValue);
+  }
+
+
+  /**
+   * Adds the choice.
+   *
+   * @param label the label
+   * @param defaultValue the default value
+   * @param optionListener the option listener
+   * @throws NullPointerException if the option lister is null
+   */
+  public void addCheckbox(final String label, boolean defaultValue,
+      final OptionListener<Boolean> optionListener) {
+    Objects.requireNonNull(optionListener, OPTION_LISTENER_NULL);
+
+    final Checkbox cb = addAndGetCheckbox(label, defaultValue);
+    final GridBagConstraints c = grid.getConstraints(cb);
+    remove(cb);
+
+    addOptionListener(optionListener);
+
+    final JButton button = createOptionButton();
+    button.addActionListener(event -> {
+      if (optionListener.collectOptions(cb.getState())) {
+        notifyOptionCollectedListeners(label);
+      }
+    });
+
+    final Panel newPanel = new Panel();
+    newPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+    newPanel.add(cb);
+    newPanel.add(button);
+    grid.setConstraints(newPanel, c);
+    add(newPanel);
   }
 
   @Override
@@ -185,6 +239,58 @@ public class ExtendedGenericDialog extends GenericDialog {
    * @param label the label
    * @param items the items
    * @param defaultIndex the default index
+   * @param optionListener the option listener
+   * @throws NullPointerException if the option lister is null
+   */
+  public void addChoice(String label, String[] items, int defaultIndex,
+      final OptionListener<Integer> optionListener) {
+    if (defaultIndex < 0 || defaultIndex >= items.length) {
+      defaultIndex = 0;
+    }
+    final String defaultItem = items[defaultIndex];
+    addChoice(label, items, defaultItem, optionListener);
+  }
+
+  /**
+   * Adds the choice.
+   *
+   * @param label the label
+   * @param items the items
+   * @param defaultItem the default item
+   * @param optionListener the option listener
+   * @throws NullPointerException if the option lister is null
+   */
+  public void addChoice(final String label, String[] items, String defaultItem,
+      final OptionListener<Integer> optionListener) {
+    Objects.requireNonNull(optionListener, OPTION_LISTENER_NULL);
+
+    final Choice choice = addAndGetChoice(label, items, defaultItem);
+    final GridBagConstraints c = grid.getConstraints(choice);
+    remove(choice);
+
+    addOptionListener(optionListener);
+
+    final JButton button = createOptionButton();
+    button.addActionListener(event -> {
+      if (optionListener.collectOptions(choice.getSelectedIndex())) {
+        notifyOptionCollectedListeners(label);
+      }
+    });
+
+    final Panel newPanel = new Panel();
+    newPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+    newPanel.add(choice);
+    newPanel.add(button);
+    grid.setConstraints(newPanel, c);
+    add(newPanel);
+  }
+
+  /**
+   * Adds the choice.
+   *
+   * @param label the label
+   * @param items the items
+   * @param defaultIndex the default index
    */
   public void addChoice(String label, String[] items, int defaultIndex) {
     if (defaultIndex < 0 || defaultIndex >= items.length) {
@@ -207,6 +313,90 @@ public class ExtendedGenericDialog extends GenericDialog {
     super.addNumericField(label, defaultValue, digits, columns, units);
   }
 
+  /**
+   * Adds a numeric field. The first word of the label must be unique or command recording will not
+   * work.
+   *
+   * @param label the label
+   * @param defaultValue value to be initially displayed
+   * @param digits number of digits to right of decimal point
+   * @param optionListener the option listener
+   */
+  public void addNumericField(String label, double defaultValue, int digits,
+      final OptionListener<Double> optionListener) {
+    Objects.requireNonNull(optionListener, OPTION_LISTENER_NULL);
+
+    final TextField tf = addAndGetNumericField(label, defaultValue, digits);
+
+    addNumericFieldListener(tf, label, defaultValue, optionListener);
+  }
+
+  /**
+   * Adds a numeric field. The first word of the label must be unique or command recording will not
+   * work.
+   *
+   * @param label the label
+   * @param defaultValue value to be initially displayed
+   * @param digits number of digits to right of decimal point
+   * @param columns width of field in characters
+   * @param units a string displayed to the right of the field
+   * @param optionListener the option listener
+   */
+  public void addNumericField(String label, double defaultValue, int digits, int columns,
+      String units, final OptionListener<Double> optionListener) {
+    Objects.requireNonNull(optionListener, OPTION_LISTENER_NULL);
+
+    final TextField tf = addAndGetNumericField(label, defaultValue, digits, columns, units);
+
+    addNumericFieldListener(tf, label, defaultValue, optionListener);
+  }
+
+  /**
+   * Adds a numeric field. The first word of the label must be unique or command recording will not
+   * work.
+   *
+   * @param tf the tf
+   * @param label the label
+   * @param originalValue value to be initially displayed
+   * @param optionListener the option listener
+   */
+  private void addNumericFieldListener(final TextField tf, final String label,
+      final double originalValue, final OptionListener<Double> optionListener) {
+    // Numeric fields may have a text field and units in a panel
+    final Component lastAdded = getContents().getComponent(getContents().getComponentCount() - 1);
+
+    final GridBagConstraints c = grid.getConstraints(lastAdded);
+    remove(lastAdded);
+
+    final String originalText = tf.getText();
+
+    addOptionListener(optionListener);
+
+    final JButton button = createOptionButton();
+    button.addActionListener(event -> {
+      final String theText = tf.getText();
+      Double value;
+      if (theText.equals(originalText)) {
+        value = originalValue;
+      } else {
+        value = getValue(theText);
+        if (value == null) {
+          value = Double.NaN;
+        }
+      }
+      if (optionListener.collectOptions(value)) {
+        notifyOptionCollectedListeners(label);
+      }
+    });
+
+    final Panel newPanel = new Panel();
+    newPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+    newPanel.add(lastAdded);
+    newPanel.add(button);
+    grid.setConstraints(newPanel, c);
+    add(newPanel);
+  }
+
   @Override
   public void addSlider(String label, double minValue, double maxValue, double defaultValue) {
     labels.add(label);
@@ -215,8 +405,61 @@ public class ExtendedGenericDialog extends GenericDialog {
 
   /**
    * Adds a slider (scroll bar) to the dialog box. Floating point values will be used if
-   * (maxValue-minValue)&lt;=5.0 and either minValue or maxValue are non-integer. <p> Update the min
-   * or max value to include the default value if it is outside the slider range.
+   * (maxValue-minValue)&lt;=5.0 and either minValue or maxValue are non-integer.
+   *
+   * @param label the label
+   * @param minValue the minimum value of the slider
+   * @param maxValue the maximum value of the slider
+   * @param defaultValue the initial value of the slider
+   * @param optionListener the option listener
+   */
+  public void addSlider(final String label, double minValue, double maxValue, double defaultValue,
+      final OptionListener<Double> optionListener) {
+    Objects.requireNonNull(optionListener, OPTION_LISTENER_NULL);
+
+    if (defaultValue < minValue) {
+      defaultValue = minValue;
+    }
+    if (defaultValue > maxValue) {
+      defaultValue = maxValue;
+    }
+
+    addSlider(label, minValue, maxValue, defaultValue);
+    final Panel p = getLastPanel();
+
+    final TextField tf = new ComponentFinder<>(p, TextField.class).getLast();
+    final String originalText = tf.getText();
+    final double originalValue = defaultValue;
+
+    addOptionListener(optionListener);
+
+    final JButton button = createOptionButton();
+    button.addActionListener(event -> {
+      final String theText = tf.getText();
+      Double value;
+      if (theText.equals(originalText)) {
+        value = originalValue;
+      } else {
+        value = convertToDouble(theText);
+      }
+      if (optionListener.collectOptions(value)) {
+        notifyOptionCollectedListeners(label);
+      }
+    });
+
+    final GridBagConstraints pc = new GridBagConstraints();
+    pc.gridy = 0;
+    pc.gridx = 2;
+    pc.insets = new Insets(5, 5, 0, 0);
+    pc.anchor = GridBagConstraints.EAST;
+    p.add(button, pc);
+  }
+
+  /**
+   * Adds a slider (scroll bar) to the dialog box. Floating point values will be used if
+   * (maxValue-minValue)&lt;=5.0 and either minValue or maxValue are non-integer.
+   *
+   * <p>Update the min or max value to include the default value if it is outside the slider range.
    *
    * @param label the label
    * @param minValue the minimum value of the slider
@@ -226,7 +469,7 @@ public class ExtendedGenericDialog extends GenericDialog {
   public void addSliderIncludeDefault(String label, double minValue, double maxValue,
       double defaultValue) {
     labels.add(label);
-    if (Maths.isFinite(defaultValue)) {
+    if (Double.isFinite(defaultValue)) {
       if (defaultValue < minValue) {
         minValue = defaultValue;
       }
@@ -247,6 +490,53 @@ public class ExtendedGenericDialog extends GenericDialog {
   public void addStringField(String label, String defaultText, int columns) {
     labels.add(label);
     super.addStringField(label, defaultText, columns);
+  }
+
+  /**
+   * Adds the string field.
+   *
+   * @param label the label
+   * @param defaultText the default text
+   * @param optionListener the option listener
+   * @throws NullPointerException if the option lister is null
+   */
+  public void addStringField(String label, String defaultText,
+      final OptionListener<String> optionListener) {
+    addStringField(label, defaultText, 8, optionListener);
+  }
+
+  /**
+   * Adds the string field.
+   *
+   * @param label the label
+   * @param defaultText the default text
+   * @param columns the columns
+   * @param optionListener the option listener
+   * @throws NullPointerException if the option lister is null
+   */
+  public void addStringField(final String label, String defaultText, int columns,
+      final OptionListener<String> optionListener) {
+    Objects.requireNonNull(optionListener, OPTION_LISTENER_NULL);
+
+    final TextField tf = addAndGetStringField(label, defaultText, columns);
+    final GridBagConstraints c = grid.getConstraints(tf);
+    remove(tf);
+
+    addOptionListener(optionListener);
+
+    final JButton button = createOptionButton();
+    button.addActionListener(event -> {
+      if (optionListener.collectOptions(tf.getText())) {
+        notifyOptionCollectedListeners(label);
+      }
+    });
+
+    final Panel newPanel = new Panel();
+    newPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+    newPanel.add(tf);
+    newPanel.add(button);
+    grid.setConstraints(newPanel, c);
+    add(newPanel);
   }
 
   @Override
@@ -337,17 +627,17 @@ public class ExtendedGenericDialog extends GenericDialog {
     }
 
     T getLast(Container container) {
-      int n = container.getComponentCount();
-      while (n-- > 0) {
-        final Component c = container.getComponent(n);
-        if (type.isInstance(c)) {
-          return type.cast(c);
+      int count = container.getComponentCount();
+      while (count-- > 0) {
+        final Component component = container.getComponent(count);
+        if (type.isInstance(component)) {
+          return type.cast(component);
         }
-        if (c instanceof Container) {
+        if (component instanceof Container) {
           // Traverse containers
-          final T t = getLast((Container) c);
-          if (t != null) {
-            return t;
+          final T object = getLast((Container) component);
+          if (object != null) {
+            return object;
           }
         }
       }
@@ -368,13 +658,13 @@ public class ExtendedGenericDialog extends GenericDialog {
   }
 
   /**
-   * Tail.
+   * Get the last object in the vector.
    *
-   * @param v the v
+   * @param vector the vector
    * @return the object
    */
-  private static Object tail(Vector<?> v) {
-    return v.get(v.size() - 1);
+  private static Object tail(Vector<?> vector) {
+    return vector.get(vector.size() - 1);
   }
 
   /**
@@ -531,12 +821,14 @@ public class ExtendedGenericDialog extends GenericDialog {
     public boolean collectOptions(T value);
 
     /**
-     * Gets the options using the previously read value of the field. <p> This will be called when
-     * the parent field is read using the appropriate getNext(...) method. It allows macros to be
-     * supported by either recording the options in the Recorder or reading the options from the
-     * Macro options. The simple implementation is to construct an ExtendedGenericDialog to collect
-     * the options and set the silent flag to true. The dialog will not be presented in the
-     * showDialog() method and the method can proceed direct to reading the fields.
+     * Gets the options using the previously read value of the field.
+     *
+     * <p>This will be called when the parent field is read using the appropriate getNext(...)
+     * method. It allows macros to be supported by either recording the options in the Recorder or
+     * reading the options from the Macro options. The simple implementation is to construct an
+     * ExtendedGenericDialog to collect the options and set the silent flag to true. The dialog will
+     * not be presented in the showDialog() method and the method can proceed direct to reading the
+     * fields.
      *
      * @return true, if new options were collected
      */
@@ -544,7 +836,7 @@ public class ExtendedGenericDialog extends GenericDialog {
   }
 
   /**
-   * An event generated when options are collected
+   * An event generated when options are collected.
    */
   public class OptionCollectedEvent {
     private final String label;
@@ -578,12 +870,13 @@ public class ExtendedGenericDialog extends GenericDialog {
    * @see OptionCollectedEvent
    */
   public interface OptionCollectedListener {
+
     /**
      * Called if options were collected.
      *
-     * @param e the event
+     * @param event the event
      */
-    public void optionCollected(OptionCollectedEvent e);
+    public void optionCollected(OptionCollectedEvent event);
   }
 
   private TurboList<OptionCollectedListener> optionCollectedListeners = null;
@@ -610,73 +903,6 @@ public class ExtendedGenericDialog extends GenericDialog {
     }
   }
 
-  /**
-   * Adds the string field.
-   *
-   * @param label the label
-   * @param defaultText the default text
-   * @param optionListener the option listener
-   * @throws NullPointerException if the option lister is null
-   */
-  public void addStringField(String label, String defaultText,
-      final OptionListener<String> optionListener) {
-    addStringField(label, defaultText, 8, optionListener);
-  }
-
-  /**
-   * Adds the string field.
-   *
-   * @param label the label
-   * @param defaultText the default text
-   * @param columns the columns
-   * @param optionListener the option listener
-   * @throws NullPointerException if the option lister is null
-   */
-  public void addStringField(final String label, String defaultText, int columns,
-      final OptionListener<String> optionListener) {
-    if (optionListener == null) {
-      throw new NullPointerException("Option listener is null");
-    }
-
-    final TextField tf = addAndGetStringField(label, defaultText, columns);
-    final GridBagConstraints c = grid.getConstraints(tf);
-    remove(tf);
-
-    add(optionListener);
-
-    final JButton button = createOptionButton();
-    button.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if (optionListener.collectOptions(tf.getText())) {
-          notifyOptionCollectedListeners(label);
-        }
-      }
-    });
-
-    final Panel panel = new Panel();
-    panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-    panel.add(tf);
-    panel.add(button);
-    grid.setConstraints(panel, c);
-    add(panel);
-  }
-
-  private JButton lastOptionButton = null;
-
-  private JButton createOptionButton() {
-    return createOptionButton("Extra options");
-  }
-
-  // Try and control the button appearance across platforms
-  private static Color buttonBackgroundColor;
-  private static int buttonRightBorder;
-  static {
-    buttonBackgroundColor = new Color(240, 240, 240);
-    // For some reason an extra 2 pixels looks correct on a mac
-    buttonRightBorder = (IJ.isMacOSX()) ? 3 : 1;
-  }
-
   private JButton createOptionButton(String tooltip) {
     lastOptionButton = new JButton("...");
     lastOptionButton.setBackground(buttonBackgroundColor);
@@ -685,6 +911,10 @@ public class ExtendedGenericDialog extends GenericDialog {
         .setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(1),
             BorderFactory.createEmptyBorder(1, 1, 1, buttonRightBorder)));
     return lastOptionButton;
+  }
+
+  private JButton createOptionButton() {
+    return createOptionButton("Extra options");
   }
 
   /**
@@ -696,7 +926,7 @@ public class ExtendedGenericDialog extends GenericDialog {
     return lastOptionButton;
   }
 
-  private int add(OptionListener<?> optionListener) {
+  private int addOptionListener(OptionListener<?> optionListener) {
     if (listeners == null) {
       listeners = new TurboList<>();
     }
@@ -706,8 +936,10 @@ public class ExtendedGenericDialog extends GenericDialog {
   }
 
   /**
-   * Adds the filename field. <p> Note that if the filename is empty then the open dialog within the
-   * action listener will use ij.io.OpenDialog.getDefaultDirectory(). This can be changed using
+   * Adds the filename field.
+   *
+   * <p>Note that if the filename is empty then the open dialog within the action listener will use
+   * ij.io.OpenDialog.getDefaultDirectory(). This can be changed using
    * ij.io.OpenDialog.setDefaultDirectory(String).
    *
    * @param label the label
@@ -720,8 +952,10 @@ public class ExtendedGenericDialog extends GenericDialog {
   }
 
   /**
-   * Adds the filename field. <p> Note that if the filename is empty then the open dialog within the
-   * action listener will use ij.io.OpenDialog.getDefaultDirectory(). This can be changed using
+   * Adds the filename field.
+   *
+   * <p>Note that if the filename is empty then the open dialog within the action listener will use
+   * ij.io.OpenDialog.getDefaultDirectory(). This can be changed using
    * ij.io.OpenDialog.setDefaultDirectory(String).
    *
    * @param label the label
@@ -736,24 +970,21 @@ public class ExtendedGenericDialog extends GenericDialog {
     remove(tf);
 
     final JButton button = createOptionButton("Select a file");
-    button.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        final boolean record = Recorder.record;
-        final String filename = Utils.getFilename(label, tf.getText());
-        Recorder.record = record;
-        if (filename != null) {
-          tf.setText(filename);
-        }
+    button.addActionListener(event -> {
+      final boolean record = Recorder.record;
+      final String filename = Utils.getFilename(label, tf.getText());
+      Recorder.record = record;
+      if (filename != null) {
+        tf.setText(filename);
       }
     });
 
-    final Panel panel = new Panel();
-    panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-    panel.add(tf);
-    panel.add(button);
-    grid.setConstraints(panel, c);
-    add(panel);
+    final Panel newPanel = new Panel();
+    newPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+    newPanel.add(tf);
+    newPanel.add(button);
+    grid.setConstraints(newPanel, c);
+    add(newPanel);
 
     return tf;
   }
@@ -785,178 +1016,23 @@ public class ExtendedGenericDialog extends GenericDialog {
     remove(tf);
 
     final JButton button = createOptionButton("Select a directory");
-    button.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        final boolean record = Recorder.record;
-        final String filename = Utils.getDirectory(label, tf.getText());
-        Recorder.record = record;
-        if (filename != null) {
-          tf.setText(filename);
-        }
+    button.addActionListener(event -> {
+      final boolean record = Recorder.record;
+      final String filename = Utils.getDirectory(label, tf.getText());
+      Recorder.record = record;
+      if (filename != null) {
+        tf.setText(filename);
       }
     });
 
-    final Panel panel = new Panel();
-    panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-    panel.add(tf);
-    panel.add(button);
-    grid.setConstraints(panel, c);
-    add(panel);
+    final Panel newPanel = new Panel();
+    newPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+    newPanel.add(tf);
+    newPanel.add(button);
+    grid.setConstraints(newPanel, c);
+    add(newPanel);
 
     return tf;
-  }
-
-  /**
-   * Adds the choice.
-   *
-   * @param label the label
-   * @param items the items
-   * @param defaultIndex the default index
-   * @param optionListener the option listener
-   * @throws NullPointerException if the option lister is null
-   */
-  public void addChoice(String label, String[] items, int defaultIndex,
-      final OptionListener<Integer> optionListener) {
-    if (defaultIndex < 0 || defaultIndex >= items.length) {
-      defaultIndex = 0;
-    }
-    final String defaultItem = items[defaultIndex];
-    addChoice(label, items, defaultItem, optionListener);
-  }
-
-  /**
-   * Adds the choice.
-   *
-   * @param label the label
-   * @param items the items
-   * @param defaultItem the default item
-   * @param optionListener the option listener
-   * @throws NullPointerException if the option lister is null
-   */
-  public void addChoice(final String label, String[] items, String defaultItem,
-      final OptionListener<Integer> optionListener) {
-    if (optionListener == null) {
-      throw new NullPointerException("Option listener is null");
-    }
-
-    final Choice choice = addAndGetChoice(label, items, defaultItem);
-    final GridBagConstraints c = grid.getConstraints(choice);
-    remove(choice);
-
-    add(optionListener);
-
-    final JButton button = createOptionButton();
-    button.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if (optionListener.collectOptions(choice.getSelectedIndex())) {
-          notifyOptionCollectedListeners(label);
-        }
-      }
-    });
-
-    final Panel panel = new Panel();
-    panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-    panel.add(choice);
-    panel.add(button);
-    grid.setConstraints(panel, c);
-    add(panel);
-  }
-
-  /**
-   * Adds the choice.
-   *
-   * @param label the label
-   * @param defaultValue the default value
-   * @param optionListener the option listener
-   * @throws NullPointerException if the option lister is null
-   */
-  public void addCheckbox(final String label, boolean defaultValue,
-      final OptionListener<Boolean> optionListener) {
-    if (optionListener == null) {
-      throw new NullPointerException("Option listener is null");
-    }
-
-    final Checkbox cb = addAndGetCheckbox(label, defaultValue);
-    final GridBagConstraints c = grid.getConstraints(cb);
-    remove(cb);
-
-    add(optionListener);
-
-    final JButton button = createOptionButton();
-    button.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if (optionListener.collectOptions(cb.getState())) {
-          notifyOptionCollectedListeners(label);
-        }
-      }
-    });
-
-    final Panel panel = new Panel();
-    panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-    panel.add(cb);
-    panel.add(button);
-    grid.setConstraints(panel, c);
-    add(panel);
-  }
-
-  /**
-   * Adds a slider (scroll bar) to the dialog box. Floating point values will be used if
-   * (maxValue-minValue)&lt;=5.0 and either minValue or maxValue are non-integer.
-   *
-   * @param label the label
-   * @param minValue the minimum value of the slider
-   * @param maxValue the maximum value of the slider
-   * @param defaultValue the initial value of the slider
-   * @param optionListener the option listener
-   */
-  public void addSlider(final String label, double minValue, double maxValue, double defaultValue,
-      final OptionListener<Double> optionListener) {
-    if (optionListener == null) {
-      throw new NullPointerException("Option listener is null");
-    }
-
-    if (defaultValue < minValue) {
-      defaultValue = minValue;
-    }
-    if (defaultValue > maxValue) {
-      defaultValue = maxValue;
-    }
-
-    addSlider(label, minValue, maxValue, defaultValue);
-    final Panel p = getLastPanel();
-
-    final TextField tf = new ComponentFinder<>(p, TextField.class).getLast();
-    final String originalText = tf.getText();
-    final double originalValue = defaultValue;
-
-    add(optionListener);
-
-    final JButton button = createOptionButton();
-    button.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        final String theText = tf.getText();
-        Double value;
-        if (theText.equals(originalText)) {
-          value = originalValue;
-        } else {
-          value = convertToDouble(theText);
-        }
-        if (optionListener.collectOptions(value)) {
-          notifyOptionCollectedListeners(label);
-        }
-      }
-    });
-
-    final GridBagConstraints pc = new GridBagConstraints();
-    pc.gridy = 0;
-    pc.gridx = 2;
-    pc.insets = new Insets(5, 5, 0, 0);
-    pc.anchor = GridBagConstraints.EAST;
-    p.add(button, pc);
   }
 
   private Double convertToDouble(String theText) {
@@ -969,96 +1045,6 @@ public class ExtendedGenericDialog extends GenericDialog {
     return value;
   }
 
-  /**
-   * Adds a numeric field. The first word of the label must be unique or command recording will not
-   * work.
-   *
-   * @param label the label
-   * @param defaultValue value to be initially displayed
-   * @param digits number of digits to right of decimal point
-   * @param optionListener the option listener
-   */
-  public void addNumericField(String label, double defaultValue, int digits,
-      final OptionListener<Double> optionListener) {
-    if (optionListener == null) {
-      throw new NullPointerException("Option listener is null");
-    }
-
-    final TextField tf = addAndGetNumericField(label, defaultValue, digits);
-
-    addNumericFieldListener(tf, label, defaultValue, optionListener);
-  }
-
-  /**
-   * Adds a numeric field. The first word of the label must be unique or command recording will not
-   * work.
-   *
-   * @param label the label
-   * @param defaultValue value to be initially displayed
-   * @param digits number of digits to right of decimal point
-   * @param columns width of field in characters
-   * @param units a string displayed to the right of the field
-   * @param optionListener the option listener
-   */
-  public void addNumericField(String label, double defaultValue, int digits, int columns,
-      String units, final OptionListener<Double> optionListener) {
-    if (optionListener == null) {
-      throw new NullPointerException("Option listener is null");
-    }
-
-    final TextField tf = addAndGetNumericField(label, defaultValue, digits, columns, units);
-
-    addNumericFieldListener(tf, label, defaultValue, optionListener);
-  }
-
-  /**
-   * Adds a numeric field. The first word of the label must be unique or command recording will not
-   * work.
-   *
-   * @param tf the tf
-   * @param label the label
-   * @param originalValue value to be initially displayed
-   * @param optionListener the option listener
-   */
-  private void addNumericFieldListener(final TextField tf, final String label,
-      final double originalValue, final OptionListener<Double> optionListener) {
-    // Numeric fields may have a text field and units in a panel
-    final Component lastAdded = getContents().getComponent(getContents().getComponentCount() - 1);
-
-    final GridBagConstraints c = grid.getConstraints(lastAdded);
-    remove(lastAdded);
-
-    final String originalText = tf.getText();
-
-    add(optionListener);
-
-    final JButton button = createOptionButton();
-    button.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        final String theText = tf.getText();
-        Double value;
-        if (theText.equals(originalText)) {
-          value = originalValue;
-        } else {
-          value = getValue(theText);
-          if (value == null) {
-            value = Double.NaN;
-          }
-        }
-        if (optionListener.collectOptions(value)) {
-          notifyOptionCollectedListeners(label);
-        }
-      }
-    });
-
-    final Panel panel = new Panel();
-    panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-    panel.add(lastAdded);
-    panel.add(button);
-    grid.setConstraints(panel, c);
-    add(panel);
-  }
 
   /**
    * Reset the recorder for all the named fields that have been added to the dialog. This should be
@@ -1100,15 +1086,14 @@ public class ExtendedGenericDialog extends GenericDialog {
    * Sets the component that will be used to position this dialog. See
    * {@link #setLocationRelativeTo(Component)}.
    *
-   * @param c the new position component
+   * @param component the new position component
    */
-  public void setPositionComponent(Component c) {
-    positionComponent = c;
+  public void setPositionComponent(Component component) {
+    positionComponent = component;
   }
 
-  /** {@inheritDoc} */
   @Override
-  public void setVisible(boolean b) {
+  public void setVisible(boolean value) {
     if (silent) {
       return;
     }
@@ -1118,16 +1103,19 @@ public class ExtendedGenericDialog extends GenericDialog {
       setLocationRelativeTo(positionComponent);
     }
 
-    super.setVisible(b);
+    super.setVisible(value);
   }
 
   /**
    * Collect the options from all the option listeners silently. Calls all the listeners since the
-   * value may have been changed since they were last called interactively. <p> This should be
-   * called after all the fields have been read. This allows the fields to be read correctly from
-   * Macro option arguments. It also allows the options to be recorded to the Recorder. <p> This
-   * method does nothing if the Recorder is disabled or this is not running in a macro, i.e. there
-   * is no point collecting options again.
+   * value may have been changed since they were last called interactively.
+   *
+   * <p>This should be called after all the fields have been read. This allows the fields to be read
+   * correctly from Macro option arguments. It also allows the options to be recorded to the
+   * Recorder.
+   *
+   * <p>This method does nothing if the Recorder is disabled or this is not running in a macro, i.e.
+   * there is no point collecting options again.
    */
   public void collectOptions() {
     if (listeners == null) {
@@ -1255,7 +1243,6 @@ public class ExtendedGenericDialog extends GenericDialog {
     }
     if (maxHeight > 0) {
       helper.setMaxHeight(maxHeight);
-      // helper.setMaxSize(maxWidth, maxHeight);
     }
 
     final Dimension d = panel.getPreferredSize();
@@ -1296,13 +1283,9 @@ public class ExtendedGenericDialog extends GenericDialog {
     if (getTextArea2() != null) {
       return true;
     }
-    if (getMessage() != null) {
-      return true;
-    }
-    return false;
+    return (getMessage() != null);
   }
 
-  /** {@inheritDoc} */
   @Override
   public void setLocation(Point location) {
     if (location != null) {
@@ -1311,9 +1294,10 @@ public class ExtendedGenericDialog extends GenericDialog {
   }
 
   /**
-   * Sets the silent flag. The call to {@link #setVisible(boolean)} will be ignored. <p> Use this to
-   * not show the dialog in a call to {@link #showDialog()}. However the dialog can still be read
-   * and will record in macros if necessary.
+   * Sets the silent flag. The call to {@link #setVisible(boolean)} will be ignored.
+   *
+   * <p>Use this to not show the dialog in a call to {@link #showDialog()}. However the dialog can
+   * still be read and will record in macros if necessary.
    *
    * @param silent the new silent flag
    */

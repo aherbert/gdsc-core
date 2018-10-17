@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.math;
 
 /**
@@ -82,6 +83,14 @@ public interface ArrayMoment {
    * @param data the data
    */
   public void add(byte[] data);
+
+  /**
+   * Adds the data in the array moment. This can throw an illegal argument exception is the input is
+   * not compatible.
+   *
+   * @param arrayMoment the array moment
+   */
+  public void add(ArrayMoment arrayMoment);
 
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
@@ -158,12 +167,4 @@ public interface ArrayMoment {
    * @return the array moment
    */
   public ArrayMoment newInstance();
-
-  /**
-   * Adds the data in the array moment. This can throw an illegal argument exception is the input is
-   * not compatible.
-   *
-   * @param arrayMoment the array moment
-   */
-  public void add(ArrayMoment arrayMoment);
 }

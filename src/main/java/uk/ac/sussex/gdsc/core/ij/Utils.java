@@ -25,42 +25,16 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij;
 
 import uk.ac.sussex.gdsc.core.ij.gui.Plot2;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.utils.DoubleData;
-import uk.ac.sussex.gdsc.core.utils.Maths;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.core.utils.StoredDataStatistics;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
-
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math3.util.FastMath;
-
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.LayoutManager;
-import java.awt.Panel;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Window;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-import javax.swing.JLabel;
 
 import ij.IJ;
 import ij.ImageJ;
@@ -89,6 +63,33 @@ import ij.process.ShortProcessor;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.util.FastMath;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.LayoutManager;
+import java.awt.Panel;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Window;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+import javax.swing.JLabel;
+
 /**
  * Contains helper functions.
  */
@@ -96,24 +97,61 @@ public class Utils {
   // Flags for buildImageList
 
   /** Single plane (2D image). */
-  public final static int SINGLE = 1;
+  public static final int SINGLE = 1;
 
   /** Binary image. */
-  public final static int BINARY = 2;
+  public static final int BINARY = 2;
 
   /** Greyscale image (8, 16, 32 bit). */
-  public final static int GREY_SCALE = 4;
+  public static final int GREY_SCALE = 4;
 
   /** Greyscale image (8, 16 bit). */
-  public final static int GREY_8_16 = 8;
+  public static final int GREY_8_16 = 8;
 
   /** Add no image option. */
-  public final static int NO_IMAGE = 16;
+  public static final int NO_IMAGE = 16;
 
   /** The constant for no image title. */
-  public final static String NO_IMAGE_TITLE = "[None]";
+  public static final String NO_IMAGE_TITLE = "[None]";
+
+  /**
+   * Flag used to preserve the x min when reusing the plot window. See
+   * {@link #display(String, Plot, int)}.
+   */
+  public static final int PRESERVE_X_MIN = 0x01;
+  /**
+   * Flag used to preserve the x max when reusing the plot window. See
+   * {@link #display(String, Plot, int)}.
+   */
+  public static final int PRESERVE_X_MAX = 0x02;
+  /**
+   * Flag used to preserve the y min when reusing the plot window. See
+   * {@link #display(String, Plot, int)}.
+   */
+  public static final int PRESERVE_Y_MIN = 0x04;
+  /**
+   * Flag used to preserve the y max when reusing the plot window. See
+   * {@link #display(String, Plot, int)}.
+   */
+  public static final int PRESERVE_Y_MAX = 0x08;
+  /**
+   * Flag used to preserve all limits when reusing the plot window. See
+   * {@link #display(String, Plot, int)}.
+   */
+  public static final int PRESERVE_ALL = 0x0f;
+  /**
+   * Flag used to not bring the plot to the front when reusing the plot window. See
+   * {@link #display(String, Plot, int)}.
+   */
+  public static final int NO_TO_FRONT = 0x10;
+
+  /** Used to record extra options in the macro recorder. */
+  private static final String EXTRA_OPTIONS = "extraoptions";
 
   private static boolean newWindow = false;
+
+  /** The last time to status was updated. */
+  private static long lastTime = 0;
 
   /**
    * Splits a full path into the directory and filename.
@@ -126,39 +164,18 @@ public class Utils {
     if (path == null) {
       path = "";
     }
-    int i = path.lastIndexOf('/');
-    if (i == -1) {
-      i = path.lastIndexOf('\\');
+    int index = path.lastIndexOf('/');
+    if (index == -1) {
+      index = path.lastIndexOf('\\');
     }
-    if (i > 0) {
-      result[0] = path.substring(0, i + 1);
-      result[1] = path.substring(i + 1);
+    if (index > 0) {
+      result[0] = path.substring(0, index + 1);
+      result[1] = path.substring(index + 1);
     } else {
       result[0] = OpenDialog.getDefaultDirectory();
       result[1] = path;
     }
     return result;
-  }
-
-  /**
-   * Round the double to the specified significant digits.
-   *
-   * @param d the d
-   * @param significantDigits the significant digits
-   * @return the string
-   */
-  public static String rounded(double d, int significantDigits) {
-    return Maths.rounded(d, significantDigits);
-  }
-
-  /**
-   * Round the double to 4 significant digits.
-   *
-   * @param d the d
-   * @return the string
-   */
-  public static String rounded(double d) {
-    return rounded(d, 4);
   }
 
   /**
@@ -300,12 +317,12 @@ public class Utils {
    *
    * @param title the title
    * @param data the data
-   * @param w the width
-   * @param h the height
+   * @param width the width
+   * @param height the height
    * @return the image
    */
-  public static ImagePlus display(String title, double[] data, int w, int h) {
-    return display(title, data, w, h, 0);
+  public static ImagePlus display(String title, double[] data, int width, int height) {
+    return display(title, data, width, height, 0);
   }
 
   /**
@@ -314,20 +331,20 @@ public class Utils {
    *
    * @param title the title
    * @param data the data
-   * @param w the width
-   * @param h the height
+   * @param width the width
+   * @param height the height
    * @param flags the flags
    * @return the image
    */
-  public static ImagePlus display(String title, double[] data, int w, int h, int flags) {
-    if (data == null || data.length < w * h) {
+  public static ImagePlus display(String title, double[] data, int width, int height, int flags) {
+    if (data == null || data.length < width * height) {
       return null;
     }
-    final float[] f = new float[w * h];
+    final float[] f = new float[width * height];
     for (int i = 0; i < f.length; i++) {
       f[i] = (float) data[i];
     }
-    return Utils.display(title, new FloatProcessor(w, h, f), flags);
+    return Utils.display(title, new FloatProcessor(width, height, f), flags);
   }
 
   /**
@@ -336,12 +353,12 @@ public class Utils {
    *
    * @param title the title
    * @param data the data
-   * @param w the width
-   * @param h the height
+   * @param width the width
+   * @param height the height
    * @return the image
    */
-  public static ImagePlus display(String title, double[][] data, int w, int h) {
-    return display(title, data, w, h, 0);
+  public static ImagePlus display(String title, double[][] data, int width, int height) {
+    return display(title, data, width, height, 0);
   }
 
   /**
@@ -350,22 +367,22 @@ public class Utils {
    *
    * @param title the title
    * @param data the data
-   * @param w the width
-   * @param h the height
+   * @param width the width
+   * @param height the height
    * @param flags the flags
    * @return the image
    */
-  public static ImagePlus display(String title, double[][] data, int w, int h, int flags) {
+  public static ImagePlus display(String title, double[][] data, int width, int height, int flags) {
     if (data == null || data.length < 1) {
       return null;
     }
-    final int n = w * h;
+    final int n = width * height;
     for (int s = 0; s < data.length; s++) {
       if (data[s] == null || data[s].length < n) {
         return null;
       }
     }
-    final ImageStack stack = new ImageStack(w, h, data.length);
+    final ImageStack stack = new ImageStack(width, height, data.length);
     for (int s = 0; s < data.length; s++) {
       final float[] f = new float[n];
       for (int i = 0; i < n; i++) {
@@ -402,37 +419,6 @@ public class Utils {
   }
 
   /**
-   * Flag used to preserve the x min when reusing the plot window. See
-   * {@link #display(String, Plot, int)}.
-   */
-  public static final int PRESERVE_X_MIN = 0x01;
-  /**
-   * Flag used to preserve the x max when reusing the plot window. See
-   * {@link #display(String, Plot, int)}.
-   */
-  public static final int PRESERVE_X_MAX = 0x02;
-  /**
-   * Flag used to preserve the y min when reusing the plot window. See
-   * {@link #display(String, Plot, int)}.
-   */
-  public static final int PRESERVE_Y_MIN = 0x04;
-  /**
-   * Flag used to preserve the y max when reusing the plot window. See
-   * {@link #display(String, Plot, int)}.
-   */
-  public static final int PRESERVE_Y_MAX = 0x08;
-  /**
-   * Flag used to preserve all limits when reusing the plot window. See
-   * {@link #display(String, Plot, int)}.
-   */
-  public static final int PRESERVE_ALL = 0x0f;
-  /**
-   * Flag used to not bring the plot to the front when reusing the plot window. See
-   * {@link #display(String, Plot, int)}.
-   */
-  public static final int NO_TO_FRONT = 0x10;
-
-  /**
    * Show the plot. Replace a currently open plot with the specified title or else create a new plot
    * window.
    *
@@ -445,28 +431,26 @@ public class Utils {
   public static PlotWindow display(String title, Plot plot, int flags,
       WindowOrganiser windowOrganiser) {
     newWindow = false;
-    Frame plotWindow = null;
-    for (final int i : getIDList()) {
+    Frame plotWindowFrame = null;
+    for (final int i : getIdList()) {
       final ImagePlus imp = WindowManager.getImage(i);
-      if (imp != null && imp.getWindow() instanceof PlotWindow) {
-        if (imp.getTitle().equals(title)) {
-          plotWindow = imp.getWindow();
-          break;
-        }
+      if (imp != null && imp.getWindow() instanceof PlotWindow && imp.getTitle().equals(title)) {
+        plotWindowFrame = imp.getWindow();
+        break;
       }
     }
-    PlotWindow p = null;
-    if (plotWindow == null) {
-      p = plot.show();
+    PlotWindow plotWindow = null;
+    if (plotWindowFrame == null) {
+      plotWindow = plot.show();
       if (windowOrganiser != null) {
-        windowOrganiser.add(p);
+        windowOrganiser.add(plotWindow);
       }
       newWindow = true;
     } else {
       // Since the new IJ 1.50 plot functionality to have scalable plots this can sometimes error
       try {
-        p = (PlotWindow) plotWindow;
-        final Plot oldPlot = p.getPlot();
+        plotWindow = (PlotWindow) plotWindowFrame;
+        final Plot oldPlot = plotWindow.getPlot();
         final Dimension d = oldPlot.getSize();
         final double[] limits = oldPlot.getLimits();
         plot.setSize(d.width, d.height);
@@ -487,51 +471,51 @@ public class Utils {
             flags = 0;
           }
         }
-        p.drawPlot(plot);
+        plotWindow.drawPlot(plot);
         preserveLimits(plot, flags, limits);
-        if (!plotWindow.isVisible()) {
-          plotWindow.setVisible(true);
+        if (!plotWindowFrame.isVisible()) {
+          plotWindowFrame.setVisible(true);
         } else if ((flags & NO_TO_FRONT) == 0) {
-          p.toFront();
+          plotWindow.toFront();
         }
-      } catch (final Throwable t) {
+      } catch (final Throwable thrown) {
         // Allow debugging
-        t.printStackTrace();
+        thrown.printStackTrace();
 
         // Get the location and close the error window
         Point location = null;
-        Dimension d = null;
+        Dimension dimension = null;
         double[] limits = null;
-        if (p != null) {
-          location = p.getLocation();
-          final Plot oldPlot = p.getPlot();
-          d = oldPlot.getSize();
+        if (plotWindow != null) {
+          location = plotWindow.getLocation();
+          final Plot oldPlot = plotWindow.getPlot();
+          dimension = oldPlot.getSize();
           limits = oldPlot.getLimits();
           try {
-            p.close();
-          } catch (final Throwable tt) {
+            plotWindow.close();
+          } catch (final Throwable innerThrown) {
             // Ignore
           }
         }
 
         // Show a new window
-        if (d != null) {
-          plot.setSize(d.width, d.height);
+        if (dimension != null) {
+          plot.setSize(dimension.width, dimension.height);
         }
-        p = plot.show();
+        plotWindow = plot.show();
         if (location != null) {
-          p.setLocation(location);
+          plotWindow.setLocation(location);
         }
         if (limits != null) {
           preserveLimits(plot, flags, limits);
         }
         if (windowOrganiser != null) {
-          windowOrganiser.add(p);
+          windowOrganiser.add(plotWindow);
         }
         newWindow = true;
       }
     }
-    return p;
+    return plotWindow;
   }
 
   /**
@@ -583,7 +567,7 @@ public class Utils {
    * @return True if a window with the title was found
    */
   public static boolean hide(String title) {
-    for (final int i : getIDList()) {
+    for (final int i : getIdList()) {
       final ImagePlus imp = WindowManager.getImage(i);
       if (imp != null) {
         if (imp.getTitle().equals(title)) {
@@ -634,10 +618,11 @@ public class Utils {
   }
 
   /**
-   * Calculate a histogram given the provided data. <p> The histogram will create the specified
-   * number of bins to accommodate all data between the minimum and maximum inclusive. The number of
-   * bins must be above one so that min and max are in different bins. If min and max are the same
-   * then the number of bins is set to 1.
+   * Calculate a histogram given the provided data.
+   *
+   * <p>The histogram will create the specified number of bins to accommodate all data between the
+   * minimum and maximum inclusive. The number of bins must be above one so that min and max are in
+   * different bins. If min and max are the same then the number of bins is set to 1.
    *
    * @param data the data
    * @param min The minimum value to include (inclusive)
@@ -704,10 +689,11 @@ public class Utils {
   }
 
   /**
-   * Calculate a histogram given the provided data. <p> The histogram will create the specified
-   * number of bins to accommodate all data between the minimum and maximum inclusive. The number of
-   * bins must be above one so that min and max are in different bins. If min and max are the same
-   * then the number of bins is set to 1.
+   * Calculate a histogram given the provided data.
+   *
+   * <p>The histogram will create the specified number of bins to accommodate all data between the
+   * minimum and maximum inclusive. The number of bins must be above one so that min and max are in
+   * different bins. If min and max are the same then the number of bins is set to 1.
    *
    * @param data the data
    * @param min The minimum value to include (inclusive)
@@ -770,26 +756,7 @@ public class Utils {
     if (histogramX.length > 0) {
       final float dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
       axis[index++] = histogramX[histogramX.length - 1] + dx;
-      axis[index++] = histogramX[histogramX.length - 1] + dx;
-    }
-    return axis;
-  }
-
-  /**
-   * For the provided histogram y-axis values, produce a y-axis for plotting. This functions doubles
-   * up the histogram values to allow plotting a square line profile using the ImageJ plot command.
-   *
-   * @param histogramY the histogram Y
-   * @return the y-axis values
-   */
-  public static float[] createHistogramValues(float[] histogramY) {
-    final float[] axis = new float[histogramY.length * 2 + 2];
-
-    int index = 0;
-    axis[index++] = 0;
-    for (int i = 0; i < histogramY.length; ++i) {
-      axis[index++] = histogramY[i];
-      axis[index++] = histogramY[i];
+      axis[index] = histogramX[histogramX.length - 1] + dx;
     }
     return axis;
   }
@@ -812,7 +779,26 @@ public class Utils {
     if (histogramX.length > 0) {
       final double dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
       axis[index++] = histogramX[histogramX.length - 1] + dx;
-      axis[index++] = histogramX[histogramX.length - 1] + dx;
+      axis[index] = histogramX[histogramX.length - 1] + dx;
+    }
+    return axis;
+  }
+
+  /**
+   * For the provided histogram y-axis values, produce a y-axis for plotting. This functions doubles
+   * up the histogram values to allow plotting a square line profile using the ImageJ plot command.
+   *
+   * @param histogramY the histogram Y
+   * @return the y-axis values
+   */
+  public static float[] createHistogramValues(float[] histogramY) {
+    final float[] axis = new float[histogramY.length * 2 + 2];
+
+    int index = 0;
+    axis[index++] = 0;
+    for (int i = 0; i < histogramY.length; ++i) {
+      axis[index++] = histogramY[i];
+      axis[index++] = histogramY[i];
     }
     return axis;
   }
@@ -845,25 +831,28 @@ public class Utils {
    */
   public static double[] getHistogramStatistics(float[] x, float[] y) {
     // Get the average
-    double n = 0;
+    double total = 0;
     double sum = 0.0;
-    double sum2 = 0.0;
+    double sumSq = 0.0;
     for (int i = 0; i < x.length; i++) {
       if (y[i] > 0) {
         final float count = y[i];
         final float value = x[i];
-        n += count;
+        total += count;
         sum += value * count;
-        sum2 += (value * value) * count;
+        sumSq += (value * value) * count;
       }
     }
-    final double av = sum / n;
+    if (total == 0) {
+      return new double[2];
+    }
+    final double av = sum / total;
 
     // Get the Std.Dev
     double stdDev;
-    if (n > 0) {
-      final double d = n;
-      stdDev = (d * sum2 - sum * sum) / d;
+    if (total > 0) {
+      final double d = total;
+      stdDev = (d * sumSq - sum * sum) / d;
       if (stdDev > 0.0) {
         stdDev = Math.sqrt(stdDev / (d - 1.0));
       } else {
@@ -972,9 +961,9 @@ public class Utils {
     if (values == null || values.length < 2) {
       return 0;
     }
-    final double[] limits = Maths.limits(values);
-    double yMin = limits[0];
-    double yMax = limits[1];
+    final double[] limits = MathUtils.limits(values);
+    double minY = limits[0];
+    double maxY = limits[1];
     double width;
     double lower = Double.NaN;
     double upper = Double.NaN;
@@ -1012,7 +1001,6 @@ public class Utils {
         bins = getBinsSqrtRule(data.size());
       }
     }
-    // System.out.printf("Bins = %d\n", bins);
 
     switch (removeOutliers) {
       case 1:
@@ -1024,8 +1012,8 @@ public class Utils {
           upper = stats.getStatistics().getPercentile(75);
         }
         final double iqr = 1.5 * (upper - lower);
-        yMin = FastMath.max(lower - iqr, yMin);
-        yMax = FastMath.min(upper + iqr, yMax);
+        minY = FastMath.max(lower - iqr, minY);
+        maxY = FastMath.min(upper + iqr, maxY);
         break;
 
       case 2:
@@ -1034,16 +1022,18 @@ public class Utils {
           stats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
               : new StoredDataStatistics(data.values());
         }
-        yMax = stats.getStatistics().getPercentile(98);
+        maxY = stats.getStatistics().getPercentile(98);
         break;
 
+      default:
+        // Nothing to do
     }
 
     if (minWidth > 0) {
-      final double binSize = (yMax - yMin) / ((bins < 2) ? 1 : bins - 1);
+      final double binSize = (maxY - minY) / ((bins < 2) ? 1 : bins - 1);
       if (binSize < minWidth) {
-        bins = (int) ((yMax - yMin) / minWidth) + 1;
-        // yMax = bins * minWidth + yMin;
+        bins = (int) ((maxY - minY) / minWidth) + 1;
+        // yMax = bins * minWidth + yMin
       }
     }
     // else
@@ -1071,7 +1061,7 @@ public class Utils {
 
     title += " " + name;
 
-    final double[][] hist = Utils.calcHistogram(values, yMin, yMax, bins);
+    final double[][] hist = Utils.calcHistogram(values, minY, maxY, bins);
 
     final boolean barChart = (shape & Plot2.BAR) == Plot2.BAR;
     if (barChart) {
@@ -1080,18 +1070,18 @@ public class Utils {
       yValues = hist[1]; // Utils.createHistogramValues(hist[1]);
     } else {
       // Line plot of non-zero values
-      int c = 0;
+      int size = 0;
       xValues = new double[hist[0].length];
       yValues = new double[xValues.length];
       for (int i = 0; i < xValues.length; i++) {
         if (hist[1][i] != 0) {
-          xValues[c] = hist[0][i];
-          yValues[c] = hist[1][i];
-          c++;
+          xValues[size] = hist[0][i];
+          yValues[size] = hist[1][i];
+          size++;
         }
       }
-      xValues = Arrays.copyOf(xValues, c);
-      yValues = Arrays.copyOf(yValues, c);
+      xValues = Arrays.copyOf(xValues, size);
+      yValues = Arrays.copyOf(yValues, size);
     }
 
     plot = new Plot2(title, name, "Frequency");
@@ -1105,7 +1095,7 @@ public class Utils {
       final double xPadding = 0.05 * (xMax - xValues[0]);
       Utils.xMin = xValues[0] - xPadding;
       Utils.xMax = xMax + xPadding;
-      Utils.yMax = Maths.max(yValues) * 1.05;
+      Utils.yMax = MathUtils.max(yValues) * 1.05;
       plot.setLimits(xMin, xMax, Utils.yMin, Utils.yMax);
     }
     plot.addPoints(xValues, yValues, shape);
@@ -1120,16 +1110,29 @@ public class Utils {
    * The method to select the number of histogram bins.
    */
   public enum BinMethod {
-    /** The Scott's rule bin method. See {@link Utils#getBinWidthScottsRule(double, int)}. */
+    /**
+     * The Scott's rule bin method.
+     *
+     * @see #getBinWidthScottsRule(double, int)
+     */
     SCOTT,
     /**
-     * The Freedman-Diaconis rule bin method. See
-     * {@link Utils#getBinWidthFreedmanDiaconisRule(double, double, int)}.
+     * The Freedman-Diaconis rule bin method.
+     *
+     * @see #getBinWidthFreedmanDiaconisRule(double, double, int)
      */
     FD,
-    /** The Sturges' rule bin method. See {@link Utils#getBinsSturgesRule(int)}. */
+    /**
+     * The Sturges' rule bin method.
+     *
+     * @see #getBinsSturgesRule(int)
+     */
     STURGES,
-    /** The square root rule bin method. See {@link Utils#getBinsSqrtRule(int)}. */
+    /**
+     * The square root rule bin method.
+     *
+     * @see #getBinsSqrtRule(int)
+     */
     SQRT
   }
 
@@ -1137,7 +1140,9 @@ public class Utils {
   public static BinMethod defaultMethod = BinMethod.SCOTT;
 
   /**
-   * Gets the bins. <p> Based on the MatLab methods.
+   * Gets the bins.
+   *
+   * <p>Based on the MatLab methods.
    *
    * @param data the data
    * @param method the method
@@ -1152,7 +1157,7 @@ public class Utils {
         final Statistics stats =
             (data instanceof Statistics) ? (Statistics) data : new Statistics(data.values());
         width = getBinWidthScottsRule(stats.getStandardDeviation(), data.size());
-        limits = Maths.limits(data.values());
+        limits = MathUtils.limits(data.values());
         return (int) Math.ceil((limits[1] - limits[0]) / width);
 
       case FD:
@@ -1162,7 +1167,7 @@ public class Utils {
         final double lower = descriptiveStats.getPercentile(25);
         final double upper = descriptiveStats.getPercentile(75);
         width = getBinWidthFreedmanDiaconisRule(upper, lower, data.size());
-        limits = Maths.limits(data.values());
+        limits = MathUtils.limits(data.values());
         return (int) Math.ceil((limits[1] - limits[0]) / width);
 
       case STURGES:
@@ -1175,7 +1180,7 @@ public class Utils {
   }
 
   /**
-   * Gets the bin width using Scott's rule:
+   * Gets the bin width using Scott's rule.
    *
    * <pre>
    * 3.5 * sd / cubeRoot(n)
@@ -1310,7 +1315,7 @@ public class Utils {
       f.setAccessible(true);
       f.set(IJ.class, newProgressBar);
       IS_SHOW_PROGRESS = (showProgress) ? 1 : -1;
-    } catch (final Exception e) {
+    } catch (final Exception ex) {
       IS_SHOW_PROGRESS = 0;
       PROGRESS_BAR_STATUS = -1;
     }
@@ -1376,7 +1381,7 @@ public class Utils {
       f.setAccessible(true);
       f.set(ij, newStatusLine);
       IS_SHOW_STATUS_LINE = (showStatus) ? 1 : -1;
-    } catch (final Exception e) {
+    } catch (final Exception ex) {
       IS_SHOW_STATUS_LINE = 0;
       STATUS_LINE_STATUS = -1;
     }
@@ -1390,18 +1395,18 @@ public class Utils {
    */
   public static String timeToString(double time) {
     String units = " ms";
-    if (time > 1000) // 1 second
-    {
+    if (time > 1000) {
+      // 1 second
       time /= 1000;
       units = " s";
 
-      if (time > 180) // 3 minutes
-      {
+      if (time > 180) {
+        // 3 minutes
         time /= 60;
         units = " min";
       }
     }
-    return Utils.rounded(time, 4) + units;
+    return MathUtils.rounded(time, 4) + units;
   }
 
   /**
@@ -1450,121 +1455,84 @@ public class Utils {
    * @return True if the window headings were changed
    */
   public static boolean refreshHeadings(TextWindow textWindow, String headings, boolean preserve) {
-    if (textWindow != null && textWindow.isShowing()) {
-      if (!textWindow.getTextPanel().getColumnHeadings().equals(headings)) {
-        final TextPanel tp = textWindow.getTextPanel();
-        String text = null;
-        if (preserve) {
-          tp.setColumnHeadings("");
-          text = tp.getText();
-        }
-
-        tp.setColumnHeadings(headings);
-
-        if (preserve) {
-          tp.append(text);
-        }
-
-        return true;
+    if (textWindow != null && textWindow.isShowing()
+        && !textWindow.getTextPanel().getColumnHeadings().equals(headings)) {
+      final TextPanel tp = textWindow.getTextPanel();
+      String text = null;
+      if (preserve) {
+        tp.setColumnHeadings("");
+        text = tp.getText();
       }
+
+      tp.setColumnHeadings(headings);
+
+      if (preserve) {
+        tp.append(text);
+      }
+
+      return true;
     }
     return false;
   }
 
   /**
-   * Create and fill an array.
+   * Waits for all threads to complete computation.
    *
-   * @param length The length of the array
-   * @param start The start
-   * @param increment The increment
-   * @return The new array
-   * @deprecated This method has been moved to uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils
-   */
-  @Deprecated
-  public static double[] newArray(int length, double start, double increment) {
-    final double[] data = new double[length];
-    for (int i = 0; i < length; i++, start += increment) {
-      data[i] = start;
-    }
-    return data;
-  }
-
-  /**
-   * Create and fill an array.
-   *
-   * @param length The length of the array
-   * @param start The start
-   * @param increment The increment
-   * @return The new array
-   * @deprecated This method has been moved to uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils
-   */
-  @Deprecated
-  public static int[] newArray(int length, int start, int increment) {
-    final int[] data = new int[length];
-    for (int i = 0; i < length; i++, start += increment) {
-      data[i] = start;
-    }
-    return data;
-  }
-
-  /**
-   * Waits for all threads to complete computation. <p> Catches ExecutionException and
-   * InterruptedException and re-throws them as a RuntimeException. This is a convenience method to
-   * allow a simple wait for futures without explicit try/catch blocks.
+   * <p>Catches ExecutionException and InterruptedException and re-throws them as a
+   * RuntimeException. This is a convenience method to allow a simple wait for futures without
+   * explicit try/catch blocks.
    *
    * @param futures the futures
    * @throws RuntimeException a runtime exception that is the cause or a new exception wrapping the
    *         cause of the the error
    */
-  public static void waitForCompletion(List<Future<?>> futures) throws RuntimeException {
+  public static void waitForCompletion(List<Future<?>> futures) {
     waitForCompletion(futures, false);
   }
 
   /**
-   * Waits for all threads to complete computation. <p> Catches {@link ExecutionException } and
-   * {@link InterruptedException} and re-throws them as a RuntimeException. This is a convenience
-   * method to allow a simple wait for futures without explicit try/catch blocks.
+   * Waits for all threads to complete computation.
+   *
+   * <p>Catches {@link ExecutionException } and {@link InterruptedException} and re-throws them as a
+   * RuntimeException. This is a convenience method to allow a simple wait for futures without
+   * explicit try/catch blocks.
+   *
+   * <p>If selected the exception will be printed using {@link IJ#handleException(Throwable)}.
    *
    * @param futures the futures
    * @param print flag to indicate that the stack trace should be printed
    * @throws RuntimeException a runtime exception that is the {@link ExecutionException } or a new
-   *         exception wrapping the cause of the the error
+   *         exception wrapping the cause of the error
    * @throws OutOfMemoryError an out of memory error if this is the {@link ExecutionException }
    */
-  public static void waitForCompletion(List<Future<?>> futures, boolean print)
-      throws RuntimeException, OutOfMemoryError {
+  public static void waitForCompletion(List<Future<?>> futures, boolean print) {
+    Exception exception = null;
     try {
       for (final Future<?> f : futures) {
         f.get();
       }
-    } catch (final ExecutionException ex) {
+    } catch (InterruptedException ex) {
+      // Restore interrupted state...
+      Thread.currentThread().interrupt();
+      exception = ex;
+    } catch (ExecutionException ex) {
+      exception = ex;
+    }
+
+    if (exception != null) {
       if (print) {
-        ex.printStackTrace();
+        IJ.handleException(exception);
       }
-      final Throwable t = ex.getCause();
-      if (t != null) {
-        if (t instanceof RuntimeException) {
-          throw (RuntimeException) t;
+      final Throwable cause = exception.getCause();
+      if (cause != null) {
+        if (cause instanceof RuntimeException) {
+          throw (RuntimeException) cause;
         }
-        if (t instanceof OutOfMemoryError) {
-          throw (OutOfMemoryError) t;
-        }
-      }
-      throw new RuntimeException((t != null) ? t : ex);
-    } catch (final InterruptedException ex) {
-      if (print) {
-        ex.printStackTrace();
-      }
-      final Throwable t = ex.getCause();
-      if (t != null) {
-        if (t instanceof RuntimeException) {
-          throw (RuntimeException) t;
-        }
-        if (t instanceof OutOfMemoryError) {
-          throw (OutOfMemoryError) t;
+        if (cause instanceof OutOfMemoryError) {
+          throw (OutOfMemoryError) cause;
         }
       }
-      throw new RuntimeException((t != null) ? t : ex);
+      throw new RuntimeException((cause != null) ? cause : exception);
     }
   }
 
@@ -1607,109 +1575,23 @@ public class Utils {
   /**
    * Determine if the plugin is running with extra options. Checks for the ImageJ shift or alt key
    * down properties. If running in a macro then searches the options string for the 'extraoptions'
-   * flag. <p> If the extra options are required then adds the 'extraoptions' flag to the macro
-   * recorder options.
+   * flag.
+   *
+   * <p>If the extra options are required then adds the 'extraoptions' flag to the macro recorder
+   * options.
    *
    * @return True if extra options are required
    */
   public static boolean isExtraOptions() {
-    final String EXTRA = "extraoptions";
     boolean extraOptions = IJ.altKeyDown() || IJ.shiftKeyDown();
     if (!extraOptions && IJ.isMacro()) {
-      extraOptions = (Macro.getOptions() != null && Macro.getOptions().contains(EXTRA));
+      extraOptions = (Macro.getOptions() != null && Macro.getOptions().contains(EXTRA_OPTIONS));
     }
     if (extraOptions) {
-      Recorder.recordOption(EXTRA);
+      Recorder.recordOption(EXTRA_OPTIONS);
     }
     return extraOptions;
   }
-
-  /**
-   * Convert the input array to a double.
-   *
-   * @param a the a
-   * @return The new array
-   * @deprecated This method has been moved to uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils
-   */
-  @Deprecated
-  public static double[] toDouble(float[] a) {
-    if (a == null) {
-      return null;
-    }
-    final double[] b = new double[a.length];
-    for (int i = 0; i < a.length; i++) {
-      b[i] = a[i];
-    }
-    return b;
-  }
-
-  /**
-   * Convert the input array to a float.
-   *
-   * @param a the a
-   * @return The new array
-   * @deprecated This method has been moved to uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils
-   */
-  @Deprecated
-  public static float[] toFloat(double[] a) {
-    if (a == null) {
-      return null;
-    }
-    final float[] b = new float[a.length];
-    for (int i = 0; i < a.length; i++) {
-      b[i] = (float) a[i];
-    }
-    return b;
-  }
-
-  /**
-   * Return "s" if the size is not 1 otherwise returns an empty string. This can be used to add an s
-   * where necessary to adjectives:
-   *
-   * <pre>
-   * System.out.printf(&quot;Created %d thing%s\n&quot;, n, TextUtils.pleural(n));
-   * </pre>
-   *
-   * @param n The number of things
-   * @return "s" or empty string
-   * @deprecated This method has been moved to uk.ac.sussex.gdsc.core.utils.TextUtils
-   */
-  @Deprecated
-  public static String pleural(int n) {
-    return (Math.abs(n) == 1) ? "" : "s";
-  }
-
-  /**
-   * Return "s" if the size is not 1 otherwise returns an empty string. This can be used to add an s
-   * where necessary to adjectives:
-   *
-   * <pre>
-   * System.out.printf(&quot;Created %s\n&quot;, TextUtils.pleural(n, &quot;thing&quot;));
-   * </pre>
-   *
-   * @param n The number of things
-   * @param name The name of the thing
-   * @return "s" or empty string
-   * @deprecated This method has been moved to uk.ac.sussex.gdsc.core.utils.TextUtils
-   */
-  @Deprecated
-  public static String pleural(int n, String name) {
-    return n + " " + name + ((Math.abs(n) == 1) ? "" : "s");
-  }
-
-  /**
-   * Check if the string is null or length zero. Does not check for a string of whitespace.
-   *
-   * @param string the string
-   * @return true if the string is null or length zero
-   * @deprecated This method has been moved to uk.ac.sussex.gdsc.core.utils.TextUtils
-   */
-  @Deprecated
-  public static boolean isNullOrEmpty(String string) {
-    return string == null || string.length() == 0;
-  }
-
-  private static long lastTime = 0;
 
   /**
    * Show a message on the status bar if enough time has passed since the last call.
@@ -1728,51 +1610,49 @@ public class Utils {
   }
 
   /**
-   * Set the current source rectangle to centre the view on the given coordinates
+   * Set the current source rectangle to centre the view on the given coordinates.
    *
-   * Adapted from ij.gui.ImageCanvas.adjustSourceRect(double newMag, int x, int y)
+   * <p>Adapted from ij.gui.ImageCanvas.adjustSourceRect(double newMag, int x, int y).
    *
    * @param imp The image
-   * @param newMag The new magnification (set to zero to use the current magnification)
+   * @param newMagnification The new magnification (set to zero to use the current magnification)
    * @param x The x coordinate
    * @param y The y coordinate
    */
-  public static void adjustSourceRect(ImagePlus imp, double newMag, int x, int y) {
+  public static void adjustSourceRect(ImagePlus imp, double newMagnification, int x, int y) {
     final ImageCanvas ic = imp.getCanvas();
     if (ic == null) {
       return;
     }
-    final Dimension d = ic.getPreferredSize();
-    final int dstWidth = d.width, dstHeight = d.height;
-    final int imageWidth = imp.getWidth(), imageHeight = imp.getHeight();
-    if (newMag <= 0) {
-      newMag = ic.getMagnification();
+    final Dimension dimension = ic.getPreferredSize();
+    final int canvasWidth = dimension.width;
+    final int canvasHeight = dimension.height;
+    final int imageWidth = imp.getWidth();
+    final int imageHeight = imp.getHeight();
+    final double magnification = (newMagnification <= 0) ? ic.getMagnification() : newMagnification;
+    int width = (int) Math.round(canvasWidth / magnification);
+    if (width * magnification < canvasWidth) {
+      width++;
     }
-    int w = (int) Math.round(dstWidth / newMag);
-    if (w * newMag < dstWidth) {
-      w++;
+    int height = (int) Math.round(canvasHeight / magnification);
+    if (height * magnification < canvasHeight) {
+      height++;
     }
-    int h = (int) Math.round(dstHeight / newMag);
-    if (h * newMag < dstHeight) {
-      h++;
+    final Rectangle rectangle = new Rectangle(x - width / 2, y - height / 2, width, height);
+    if (rectangle.x < 0) {
+      rectangle.x = 0;
     }
-    // x = ic.offScreenX(x);
-    // y = ic.offScreenY(y);
-    final Rectangle r = new Rectangle(x - w / 2, y - h / 2, w, h);
-    if (r.x < 0) {
-      r.x = 0;
+    if (rectangle.y < 0) {
+      rectangle.y = 0;
     }
-    if (r.y < 0) {
-      r.y = 0;
+    if (rectangle.x + width > imageWidth) {
+      rectangle.x = imageWidth - width;
     }
-    if (r.x + w > imageWidth) {
-      r.x = imageWidth - w;
+    if (rectangle.y + height > imageHeight) {
+      rectangle.y = imageHeight - height;
     }
-    if (r.y + h > imageHeight) {
-      r.y = imageHeight - h;
-    }
-    ic.setSourceRect(r);
-    ic.setMagnification(newMag);
+    ic.setSourceRect(rectangle);
+    ic.setMagnification(magnification);
     ic.repaint();
   }
 
@@ -1782,7 +1662,7 @@ public class Utils {
    * @return List of IDs
    * @see ij.WindowManager#getIDList()
    */
-  public static int[] getIDList() {
+  public static int[] getIdList() {
     final int[] list = WindowManager.getIDList();
     return (list != null) ? list : new int[0];
   }
@@ -1811,26 +1691,20 @@ public class Utils {
       newImageList.add(NO_IMAGE_TITLE);
     }
 
-    for (final int id : getIDList()) {
+    for (final int id : getIdList()) {
       final ImagePlus imp = WindowManager.getImage(id);
-      if (imp == null) {
-        continue;
-      }
-      // Check flags
-      if ((flags & SINGLE) == SINGLE && imp.getNDimensions() > 2) {
-        continue;
-      }
-      if ((flags & BINARY) == BINARY && !imp.getProcessor().isBinary()) {
-        continue;
-      }
-      if ((flags & GREY_SCALE) == GREY_SCALE && imp.getBitDepth() == 24) {
-        continue;
-      }
-      if ((flags & GREY_8_16) == GREY_8_16
-          && (imp.getBitDepth() == 24 || imp.getBitDepth() == 32)) {
-        continue;
-      }
-      if (ignoreImage(ignoreSuffix, imp.getTitle())) {
+      if ((imp == null)
+          // Single image
+          || ((flags & SINGLE) == SINGLE && imp.getNDimensions() > 2)
+          // Binary image
+          || ((flags & BINARY) == BINARY && !imp.getProcessor().isBinary())
+          // Greyscale image
+          || ((flags & GREY_SCALE) == GREY_SCALE && imp.getBitDepth() == 24)
+          // 8/16-bit only
+          || ((flags & GREY_8_16) == GREY_8_16
+              && (imp.getBitDepth() != 8 || imp.getBitDepth() != 16))
+          // Ignore image suffix
+          || (ignoreImage(ignoreSuffix, imp.getTitle()))) {
         continue;
       }
 
@@ -1906,17 +1780,6 @@ public class Utils {
   }
 
   /**
-   * Perform an either/or operator.
-   *
-   * @param a the a
-   * @param b the b
-   * @return true if one or the other is true but not both
-   */
-  public static boolean xor(boolean a, boolean b) {
-    return (a && !b) || (b && !a);
-  }
-
-  /**
    * Extracts a single tile image processor from a hyperstack using the given projection method from
    * the ZProjector.
    *
@@ -1989,31 +1852,12 @@ public class Utils {
   }
 
   /**
-   * Write the text to file.
-   *
-   * @param filename the filename
-   * @param text the text
-   * @return true, if successful
-   * @deprecated This method has been moved to uk.ac.sussex.gdsc.core.utils.TextUtils
-   */
-  @Deprecated
-  public static boolean write(String filename, String text) {
-    try (FileOutputStream fs = new FileOutputStream(filename)) {
-      fs.write(text.getBytes());
-      return true;
-    } catch (final FileNotFoundException e) {
-      // e.printStackTrace();
-    } catch (final IOException e) {
-      // e.printStackTrace();
-    }
-    return false;
-  }
-
-  /**
    * Rearrange the columns in the dialog layout so that each column has the configured number of
-   * rows. <p> Assumes the generic dialog has been constructed normally/ and consists of a layout
-   * with pairs of items in ascending y in the grid layout. The components are extracted put into a
-   * panel for each column. The panels are then added to the dialog.
+   * rows.
+   *
+   * <p>Assumes the generic dialog has been constructed normally/ and consists of a layout with
+   * pairs of items in ascending y in the grid layout. The components are extracted put into a panel
+   * for each column. The panels are then added to the dialog.
    *
    * @param gd the dialog
    * @param rowsPerColumn the rows per column, for each column in order
@@ -2027,7 +1871,7 @@ public class Utils {
     }
 
     final LayoutManager manager = gd.getLayout();
-    if (manager != null && manager instanceof GridBagLayout) {
+    if (manager instanceof GridBagLayout) {
       final GridBagLayout grid = (GridBagLayout) gd.getLayout();
 
       // We assume the generic dialog has been constructed normally
@@ -2041,20 +1885,20 @@ public class Utils {
 
       int counter = -1;
       int nextColumnY = 0;
-      int yOffset = 0;
+      int offsetY = 0;
 
       for (final Component comp : gd.getComponents()) {
         final GridBagConstraints c = grid.getConstraints(comp);
 
         // Check if this should be a new column
-        if (c.gridy >= nextColumnY || current == null || currentGrid == null) {
+        if (c.gridy >= nextColumnY || current == null) {
           current = new Panel();
           currentGrid = new GridBagLayout();
           current.setLayout(currentGrid);
           panels.add(current);
 
           // Used to reset the y to the top of the column
-          yOffset = nextColumnY;
+          offsetY = nextColumnY;
 
           counter++;
           if (counter < rowsPerColumn.length) {
@@ -2065,8 +1909,8 @@ public class Utils {
         }
 
         // Reposition in the current column
-        c.gridy = c.gridy - yOffset;
-        // c.insets.left = c.insets.left + 10 * xOffset;
+        c.gridy = c.gridy - offsetY;
+        // c.insets.left = c.insets.left + 10 * xOffset
         c.insets.top = 0;
         c.insets.bottom = 0;
 
@@ -2122,7 +1966,7 @@ public class Utils {
    * @return the bit depth
    * @throws IllegalArgumentException If the pixesl array is an unrecognised type
    */
-  public static int getBitDepth(Object pixels) throws IllegalArgumentException {
+  public static int getBitDepth(Object pixels) {
     if (pixels instanceof float[]) {
       return 32;
     }
@@ -2147,8 +1991,7 @@ public class Utils {
    * @return the image processor
    * @throws IllegalArgumentException If the pixesl array is an unrecognised type
    */
-  public static ImageProcessor createProcessor(int width, int height, Object pixels)
-      throws IllegalArgumentException {
+  public static ImageProcessor createProcessor(int width, int height, Object pixels) {
     if (pixels instanceof float[]) {
       return new FloatProcessor(width, height, (float[]) pixels);
     }
@@ -2166,10 +2009,11 @@ public class Utils {
 
   /**
    * Get the min/max display range from the image's current {@link ImageProcessor} using the ImageJ
-   * Auto adjust method (copied from {@link ij.plugin.frame.ContrastAdjuster }). <p> Although the
-   * ContrastAdjuster records its actions as 'run("Enhance Contrast", "saturated=0.35");' it
-   * actually does something else which makes the image easier to see than the afore mentioned
-   * command.
+   * Auto adjust method (copied from {@link ij.plugin.frame.ContrastAdjuster }).
+   *
+   * <p>Although the ContrastAdjuster records its actions as 'run("Enhance Contrast",
+   * "saturated=0.35");' it actually does something else which makes the image easier to see than
+   * the afore mentioned command.
    *
    * @param imp the image
    * @param update Set to true to update the image display range
@@ -2186,29 +2030,32 @@ public class Utils {
       autoThreshold /= 2;
     }
     final int threshold = stats.pixelCount / autoThreshold;
-    int i = -1;
+    int index = -1;
     boolean found = false;
     int count;
     do {
-      i++;
-      count = histogram[i];
+      index++;
+      count = histogram[index];
       if (count > limit) {
         count = 0;
       }
       found = count > threshold;
-    } while (!found && i < 255);
-    final int hmin = i;
-    i = 256;
+    }
+    while (!found && index < 255);
+    final int hmin = index;
+    index = 256;
     do {
-      i--;
-      count = histogram[i];
+      index--;
+      count = histogram[index];
       if (count > limit) {
         count = 0;
       }
       found = count > threshold;
-    } while (!found && i > 0);
-    final int hmax = i;
-    double min, max;
+    }
+    while (!found && index > 0);
+    final int hmax = index;
+    double min;
+    double max;
     if (hmax >= hmin) {
       min = stats.histMin + hmin * stats.binSize;
       max = stats.histMin + hmax * stats.binSize;

@@ -25,9 +25,10 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.filters;
 
-import uk.ac.sussex.gdsc.core.utils.FixedIntList;
+import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 
 import org.apache.commons.math3.util.FastMath;
 
@@ -43,11 +44,247 @@ public class NonMaximumSuppression implements Cloneable {
 
   private float[] newDataFloat = null;
   private int[] newDataInt = null;
-  private FixedIntList resultsBuffer = null;
+  private IntFixedList resultsBuffer = null;
   private boolean[] maximaFlagBuffer = null;
 
   /**
-   * Compute the local-maxima within a 2n+1 block
+   * Neighbour checking performs an additional comparison between the local maxima within the block
+   * (size n) and the neighbours within the 2n+1 perimeter. If any neighbour is already a maxima
+   * then the local maxima within the block is eliminated. This step is only relevant when neighbour
+   * data points have equal values since the search for maxima uses the &lt; operator.
+   *
+   * <p>Applies to the blockFind algorithms.
+   *
+   * @param neighbourCheck Enable neighbour checking
+   */
+  public void setNeighbourCheck(boolean neighbourCheck) {
+    this.neighbourCheck = neighbourCheck;
+  }
+
+  /**
+   * Checks if if neighbour checking is enabled.
+   *
+   * @return True if neighbour checking is enabled.
+   */
+  public boolean isNeighbourCheck() {
+    return neighbourCheck;
+  }
+
+  /**
+   * Allow the class to keep a data buffer for processing images with the blockFind3x3 algorithm.
+   *
+   * @param dataBuffer Enable the data buffer
+   */
+  public void setDataBuffer(boolean dataBuffer) {
+    this.dataBuffer = dataBuffer;
+    if (!dataBuffer) {
+      newDataFloat = null;
+      newDataInt = null;
+    }
+  }
+
+  /**
+   * Checks if the data buffer is enabled.
+   *
+   * @return True if the data buffer is enabled.
+   */
+  public boolean isBufferData() {
+    return dataBuffer;
+  }
+
+  /**
+   * Expand the image to the new dimensions with a 1-pixel border.
+   */
+  protected float[] expand(float[] data, int maxx, int maxy, int newx, int newy) {
+    final int size = newx * newy;
+
+    if (!dataBuffer || newDataFloat == null || newDataFloat.length < size) {
+      newDataFloat = new float[size];
+    }
+
+    // Zero first row
+    for (int x = 0; x < newx; x++) {
+      newDataFloat[x] = Float.NEGATIVE_INFINITY;
+    }
+    // Zero last rows
+    for (int y = maxy + 1; y < newy; y++) {
+      int newIndex = y * newx;
+      for (int x = 0; x < newx; x++) {
+        newDataFloat[newIndex++] = Float.NEGATIVE_INFINITY;
+      }
+    }
+
+    int index = 0;
+    for (int y = 0; y < maxy; y++) {
+      int newIndex = (y + 1) * newx;
+
+      // Zero first column
+      newDataFloat[newIndex++] = Float.NEGATIVE_INFINITY;
+
+      // Copy data
+      for (int x = 0; x < maxx; x++) {
+        newDataFloat[newIndex++] = data[index++];
+      }
+
+      // Zero remaining columns
+      for (int x = maxx + 1; x < newx; x++) {
+        newDataFloat[newIndex++] = Float.NEGATIVE_INFINITY;
+      }
+    }
+
+    return newDataFloat;
+  }
+
+  /**
+   * Expand the image to the new dimensions with a 1-pixel border.
+   */
+  protected int[] expand(int[] data, int maxx, int maxy, int newx, int newy) {
+    final int size = newx * newy;
+
+    if (!dataBuffer || newDataInt == null || newDataInt.length < size) {
+      newDataInt = new int[size];
+    }
+
+    // Zero first row
+    for (int x = 0; x < newx; x++) {
+      newDataInt[x] = Integer.MIN_VALUE;
+    }
+    // Zero last rows
+    for (int y = maxy + 1; y < newy; y++) {
+      int newIndex = y * newx;
+      for (int x = 0; x < newx; x++) {
+        newDataInt[newIndex++] = Integer.MIN_VALUE;
+      }
+    }
+
+    int index = 0;
+    for (int y = 0; y < maxy; y++) {
+      int newIndex = (y + 1) * newx;
+
+      // Zero first column
+      newDataInt[newIndex++] = Integer.MIN_VALUE;
+
+      // Copy data
+      for (int x = 0; x < maxx; x++) {
+        newDataInt[newIndex++] = data[index++];
+      }
+
+      // Zero remaining columns
+      for (int x = maxx + 1; x < newx; x++) {
+        newDataInt[newIndex++] = Integer.MIN_VALUE;
+      }
+    }
+
+    return newDataInt;
+  }
+
+  /**
+   * Get a buffer for storing result indices.
+   *
+   * @param size the size
+   * @return the results buffer
+   */
+  protected IntFixedList getResultsBuffer(int size) {
+    if (!dataBuffer) {
+      return new IntFixedList(size);
+    }
+
+    if (resultsBuffer == null || resultsBuffer.capacity() < size) {
+      resultsBuffer = new IntFixedList(size);
+    } else {
+      resultsBuffer.clear();
+    }
+
+    return resultsBuffer;
+  }
+
+  /**
+   * Get a buffer for flagging maxima.
+   *
+   * @param size the size
+   * @return the flag buffer
+   */
+  protected boolean[] getFlagBuffer(int size) {
+    if (!dataBuffer) {
+      return new boolean[size];
+    }
+
+    if (maximaFlagBuffer == null || maximaFlagBuffer.length < size) {
+      maximaFlagBuffer = new boolean[size];
+    } else {
+      // Reset flags
+      for (int x = size; x-- > 0;) {
+        maximaFlagBuffer[x] = false;
+      }
+    }
+
+    return maximaFlagBuffer;
+  }
+
+  protected static int getBlocks(int max, int n) {
+    final int blocks = (int) Math.ceil((1.0 * max) / n);
+    return blocks;
+  }
+
+  /**
+   * Truncate the array to the specified size.
+   *
+   * @param array the array
+   * @param size the size
+   * @return The truncated array
+   */
+  protected static int[] truncate(int[] array, int size) {
+    if (array.length == size) {
+      return array;
+    }
+    if (size == 0) {
+      return new int[0];
+    }
+    final int[] copy = new int[size];
+    System.arraycopy(array, 0, copy, 0, size);
+    return copy;
+  }
+
+  /**
+   * Truncate the array to the specified size.
+   *
+   * @param array the array
+   * @param size the size
+   * @return The truncated array
+   */
+  protected static int[][] truncate(int[][] array, int size) {
+    if (array.length == size) {
+      return array;
+    }
+    if (size == 0) {
+      return new int[0][0];
+    }
+    final int[][] copy = new int[size][];
+    System.arraycopy(array, 0, copy, 0, size);
+    return copy;
+  }
+
+  @Override
+  public NonMaximumSuppression clone() {
+    try {
+      final NonMaximumSuppression o = (NonMaximumSuppression) super.clone();
+      o.newDataFloat = null;
+      o.newDataInt = null;
+      o.maximaFlagBuffer = null;
+      return o;
+    } catch (final CloneNotSupportedException ex) {
+      // Ignore
+    }
+    return null;
+  }
+
+  // ----------------------------------------------------
+  // NOTE:
+  // Copy from here to replace 'float' with 'int'
+  // ----------------------------------------------------
+
+  /**
+   * Compute the local-maxima within a 2n+1 block.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -56,7 +293,7 @@ public class NonMaximumSuppression implements Cloneable {
    * @return Indices to the local maxima (index = maxx * y + x)
    */
   public int[] maxFind(float[] data, int maxx, int maxy, int n) {
-    final FixedIntList results = getResultsBuffer(data.length);
+    final IntFixedList results = getResultsBuffer(data.length);
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
@@ -68,14 +305,14 @@ public class NonMaximumSuppression implements Cloneable {
     final int[] offset = new int[(2 * xwidth + 1) * (2 * ywidth + 1) - 1];
     final int[] xoffset = new int[offset.length];
     final int[] yoffset = new int[offset.length];
-    int d = 0;
+    int offsetIndex = 0;
     for (int y = -ywidth; y <= ywidth; y++) {
       for (int x = -xwidth; x <= xwidth; x++) {
         if (x != 0 || y != 0) {
-          offset[d] = maxx * y + x;
-          xoffset[d] = x;
-          yoffset[d] = y;
-          d++;
+          offset[offsetIndex] = maxx * y + x;
+          xoffset[offsetIndex] = x;
+          yoffset[offsetIndex] = y;
+          offsetIndex++;
         }
       }
     }
@@ -87,32 +324,24 @@ public class NonMaximumSuppression implements Cloneable {
         final float v = data[index];
 
         // Flag to indicate this pixels has a complete (2n+1) neighbourhood
-        final boolean isInnerXY = (y >= ywidth && y < ylimit) && (x >= xwidth && x < xlimit);
+        final boolean isInnerXy = (y >= ywidth && y < ylimit) && (x >= xwidth && x < xlimit);
 
         // Sweep neighbourhood
-        if (isInnerXY) {
+        if (isInnerXy) {
           for (int i = 0; i < offset.length; i++) {
-            if (maximaFlag[index + offset[i]]) {
-              continue FIND_MAXIMUM;
-            }
-            if (data[index + offset[i]] > v) {
+            if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
               continue FIND_MAXIMUM;
             }
           }
         } else {
-          for (d = offset.length; d-- > 0;) {
+          for (int i = offset.length; i-- > 0;) {
             // Get the coords and check if it is within the data
-            final int yy = y + yoffset[d];
-            final int xx = x + xoffset[d];
+            final int yy = y + yoffset[i];
+            final int xx = x + xoffset[i];
             final boolean isWithin = (yy >= 0 && yy < maxy) && (xx >= 0 && xx < maxx);
 
-            if (isWithin) {
-              if (maximaFlag[index + offset[d]]) {
-                continue FIND_MAXIMUM;
-              }
-              if (data[index + offset[d]] > v) {
-                continue FIND_MAXIMUM;
-              }
+            if (isWithin && (maximaFlag[index + offset[i]] || data[index + offset[i]] > v)) {
+              continue FIND_MAXIMUM;
             }
           }
         }
@@ -136,7 +365,7 @@ public class NonMaximumSuppression implements Cloneable {
    * @return Indices to the local maxima (index = maxx * y + x)
    */
   public int[] maxFindInternal(float[] data, int maxx, int maxy, int n) {
-    final FixedIntList results = getResultsBuffer(data.length);
+    final IntFixedList results = getResultsBuffer(data.length);
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
@@ -144,12 +373,12 @@ public class NonMaximumSuppression implements Cloneable {
     final int ywidth = FastMath.min(n, maxy - 1);
 
     final int[] offset = new int[(2 * xwidth + 1) * (2 * ywidth + 1) - 1];
-    int d = 0;
+    int offsetIndex = 0;
     for (int y = -ywidth; y <= ywidth; y++) {
       for (int x = -xwidth; x <= xwidth; x++) {
         if (x != 0 || y != 0) {
-          offset[d] = maxx * y + x;
-          d++;
+          offset[offsetIndex] = maxx * y + x;
+          offsetIndex++;
         }
       }
     }
@@ -163,10 +392,7 @@ public class NonMaximumSuppression implements Cloneable {
         // Sweep neighbourhood -
         // No check for boundaries as this should be an internal sweep.
         for (int i = 0; i < offset.length; i++) {
-          if (maximaFlag[index + offset[i]]) {
-            continue FIND_MAXIMUM;
-          }
-          if (data[index + offset[i]] > v) {
+          if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
             continue FIND_MAXIMUM;
           }
         }
@@ -195,7 +421,7 @@ public class NonMaximumSuppression implements Cloneable {
       return maxFindInternal(data, maxx, maxy, n);
     }
 
-    final FixedIntList results = getResultsBuffer(data.length);
+    final IntFixedList results = getResultsBuffer(data.length);
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
@@ -207,14 +433,14 @@ public class NonMaximumSuppression implements Cloneable {
     final int[] offset = new int[(2 * xwidth + 1) * (2 * ywidth + 1) - 1];
     final int[] xoffset = new int[offset.length];
     final int[] yoffset = new int[offset.length];
-    int d = 0;
+    int offsetIndex = 0;
     for (int y = -ywidth; y <= ywidth; y++) {
       for (int x = -xwidth; x <= xwidth; x++) {
         if (x != 0 || y != 0) {
-          offset[d] = maxx * y + x;
-          xoffset[d] = x;
-          yoffset[d] = y;
-          d++;
+          offset[offsetIndex] = maxx * y + x;
+          xoffset[offsetIndex] = x;
+          yoffset[offsetIndex] = y;
+          offsetIndex++;
         }
       }
     }
@@ -230,34 +456,26 @@ public class NonMaximumSuppression implements Cloneable {
 
         if (inner) {
           for (int i = 0; i < offset.length; i++) {
-            if (maximaFlag[index + offset[i]]) {
-              continue FIND_MAXIMUM;
-            }
-            if (data[index + offset[i]] > v) {
+            if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
               continue FIND_MAXIMUM;
             }
           }
         } else {
           // Flag to indicate this pixels has a complete (2n+1) neighbourhood
-          final boolean isInnerXY = (y >= ywidth && y < ylimit) && (x >= xwidth && x < xlimit);
+          final boolean isInnerXy = (y >= ywidth && y < ylimit) && (x >= xwidth && x < xlimit);
 
           // Sweep neighbourhood
-          for (d = offset.length; d-- > 0;) {
-            boolean isWithin = isInnerXY;
+          for (int i = offset.length; i-- > 0;) {
+            boolean isWithin = isInnerXy;
             if (!isWithin) {
               // Get the coords and check if it is within the data
-              final int yy = y + yoffset[d];
-              final int xx = x + xoffset[d];
+              final int yy = y + yoffset[i];
+              final int xx = x + xoffset[i];
               isWithin = (yy >= 0 && yy < maxy) && (xx >= 0 && xx < maxx);
             }
 
-            if (isWithin) {
-              if (maximaFlag[index + offset[d]]) {
-                continue FIND_MAXIMUM;
-              }
-              if (data[index + offset[d]] > v) {
-                continue FIND_MAXIMUM;
-              }
+            if (isWithin && (maximaFlag[index + offset[i]] || data[index + offset[i]] > v)) {
+              continue FIND_MAXIMUM;
             }
           }
         }
@@ -271,8 +489,9 @@ public class NonMaximumSuppression implements Cloneable {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block. <p> Uses the 2D block algorithm of Neubeck and
-   * Van Gool (2006).
+   * Compute the local-maxima within a 2n+1 block.
+   *
+   * <p>Uses the 2D block algorithm of Neubeck and Van Gool (2006).
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -291,7 +510,9 @@ public class NonMaximumSuppression implements Cloneable {
 
   /**
    * Compute the local-maxima within a 2n+1 block. An inner boundary of N is ignored as potential
-   * maxima. <p> Uses the 2D block algorithm of Neubeck and Van Gool (2006).
+   * maxima.
+   *
+   * <p>Uses the 2D block algorithm of Neubeck and Van Gool (2006).
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -310,8 +531,9 @@ public class NonMaximumSuppression implements Cloneable {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block. <p> Uses the 2D block algorithm of Neubeck and
-   * Van Gool (2006).
+   * Compute the local-maxima within a 2n+1 block.
+   *
+   * <p>Uses the 2D block algorithm of Neubeck and Van Gool (2006).
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -321,7 +543,7 @@ public class NonMaximumSuppression implements Cloneable {
    */
   public int[] blockFindNxN(float[] data, int maxx, int maxy, int n) {
     int[] maxima;
-    int nMaxima = 0;
+    int maximaCount = 0;
     final int n1 = n + 1;
 
     if (isNeighbourCheck()) {
@@ -340,29 +562,30 @@ public class NonMaximumSuppression implements Cloneable {
           final int mj = index / maxx;
 
           // Compare the maxima to the surroundings. Ignore the block region already processed.
+          //@formatter:off
           //
-          // .......(mi-n,mj-n)----------------------------------(mi+n,mj-n)
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|bbbbbbbb.(i,j)-------------(i+n,j).ccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|.....(mi,mj)......|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbb.(i,j+n)-----------(i+n,j+n).ccccccc|
-          // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-          // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-          // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-          // ......(mi-n,mj+n)----------------------------------(mi+n,mj+n)
+          //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
+          //             |dddddddddddddddddddddddddddddddddddddddddddd|
+          //             |dddddddddddddddddddddddddddddddddddddddddddd|
+          //             |dddddddddddddddddddddddddddddddddddddddddddd|
+          //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
           //
+          //@formatter:on
           // This must be done without over-running boundaries
-          // int steps = 0;
           final int j = n1 * (mj / n1);
           final int mi_minus_n = FastMath.max(mi - n, 0);
           final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
@@ -373,7 +596,6 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -388,7 +610,6 @@ public class NonMaximumSuppression implements Cloneable {
               int indexStart = jj * maxx + mi_minus_n;
               final int indexEnd = jj * maxx + i;
               for (; indexStart < indexEnd; indexStart++) {
-                // steps++;
                 if (v < data[indexStart]) {
                   continue FIND_MAXIMUM;
                 }
@@ -400,7 +621,6 @@ public class NonMaximumSuppression implements Cloneable {
               int indexStart = jj * maxx + i_plus_n;
               final int indexEnd = jj * maxx + mi_plus_n;
               for (; indexStart <= indexEnd; indexStart++) {
-                // steps++;
                 if (v < data[indexStart]) {
                   continue FIND_MAXIMUM;
                 }
@@ -413,7 +633,6 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -427,7 +646,7 @@ public class NonMaximumSuppression implements Cloneable {
 
           // TODO: We only need to check the maxima of the preceding blocks:
           // This requires iteration over the blockMaximaCandidates as a grid.
-          // - Find the maxima for the preceding blocks...
+          // - Find the maxima for the preceding blocks..
           // - Check if within N distance
           // - Check if equal (higher check has already been done)
 
@@ -436,29 +655,24 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
             }
           }
-          for (int jj = j; jj <= j_plus_n; jj++)
           // B
-          {
+          for (int jj = j; jj <= j_plus_n; jj++) {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + i;
             for (; indexStart < indexEnd; indexStart++) {
-              // steps++;
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
             }
           }
 
-          // System.out.printf("%.2f @ %d,%d. Steps = %d\n", v, x, y, steps);
-
           maximaFlag[index] = true;
-          maxima[nMaxima++] = index;
+          maxima[maximaCount++] = index;
           break;
         } // end FIND_MAXIMA
       }
@@ -475,28 +689,7 @@ public class NonMaximumSuppression implements Cloneable {
 
         // Compare the maxima to the surroundings. Ignore the block region already processed.
         //
-        // .......(mi-n,mj-n)----------------------------------(mi+n,mj-n)
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|bbbbbbbb.(i,j)-------------(i+n,j).ccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|.....(mi,mj)......|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbb.(i,j+n)-----------(i+n,j+n).ccccccc|
-        // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-        // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-        // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-        // ......(mi-n,mj+n)----------------------------------(mi+n,mj+n)
-        //
         // This must be done without over-running boundaries
-        // int steps = 0;
         final int j = n1 * (mj / n1);
         final int mi_minus_n = FastMath.max(mi - n, 0);
         final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
@@ -507,7 +700,6 @@ public class NonMaximumSuppression implements Cloneable {
           int indexStart = jj * maxx + mi_minus_n;
           final int indexEnd = jj * maxx + mi_plus_n;
           for (; indexStart <= indexEnd; indexStart++) {
-            // steps++;
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
@@ -522,7 +714,6 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + i;
             for (; indexStart < indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -534,7 +725,6 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + i_plus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -547,24 +737,24 @@ public class NonMaximumSuppression implements Cloneable {
           int indexStart = jj * maxx + mi_minus_n;
           final int indexEnd = jj * maxx + mi_plus_n;
           for (; indexStart <= indexEnd; indexStart++) {
-            // steps++;
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
           }
         }
-        // System.out.printf("%.2f @ %d,%d. Steps = %d\n", v, x, y, steps);
 
-        maxima[nMaxima++] = index;
+        maxima[maximaCount++] = index;
       } // end FIND_MAXIMA
     }
 
-    return truncate(maxima, nMaxima);
+    return truncate(maxima, maximaCount);
   }
 
   /**
    * Compute the local-maxima within a 2n+1 block. An inner boundary of N is ignored as potential
-   * maxima. <p> Uses the 2D block algorithm of Neubeck and Van Gool (2006).
+   * maxima.
+   *
+   * <p>Uses the 2D block algorithm of Neubeck and Van Gool (2006).
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -575,7 +765,7 @@ public class NonMaximumSuppression implements Cloneable {
    */
   public int[] blockFindNxNInternal(float[] data, int maxx, int maxy, int n, int border) {
     int[] maxima;
-    int nMaxima = 0;
+    int maximaCount = 0;
     final int n1 = n + 1;
 
     if (isNeighbourCheck()) {
@@ -595,43 +785,41 @@ public class NonMaximumSuppression implements Cloneable {
           final int mj = index / maxx;
 
           // Compare the maxima to the surroundings. Ignore the block region already processed.
+          //@formatter:off
           //
-          // .......(mi-n,mj-n)----------------------------------(mi+n,mj-n)
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|bbbbbbbb.(i,j)-------------(i+n,j).ccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|.....(mi,mj)......|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbb.(i,j+n)-----------(i+n,j+n).ccccccc|
-          // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-          // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-          // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-          // ......(mi-n,mj+n)----------------------------------(mi+n,mj+n)
+          //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
+          //             |dddddddddddddddddddddddddddddddddddddddddddd|
+          //             |dddddddddddddddddddddddddddddddddddddddddddd|
+          //             |dddddddddddddddddddddddddddddddddddddddddddd|
+          //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
           //
+          //@formatter:on
           // No check for over-running boundaries since this is the internal version
-          // int steps = 0;
           final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
           // The block boundaries will have been truncated on the final block. Ensure this is swept
           final int mi_minus_n = FastMath.max(mi - n, 0);
           final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
           final int mj_minus_n = FastMath.max(mj - n, 0);
 
-          // System.out.printf("Block [%d,%d] => [%d,%d]\n", x, y, i, j);
-
           // A
           for (int jj = mj_minus_n; jj < j; jj++) {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -646,7 +834,6 @@ public class NonMaximumSuppression implements Cloneable {
               int indexStart = jj * maxx + mi_minus_n;
               final int indexEnd = jj * maxx + i;
               for (; indexStart < indexEnd; indexStart++) {
-                // steps++;
                 if (v < data[indexStart]) {
                   continue FIND_MAXIMUM;
                 }
@@ -658,7 +845,6 @@ public class NonMaximumSuppression implements Cloneable {
               int indexStart = jj * maxx + i_plus_n;
               final int indexEnd = jj * maxx + mi_plus_n;
               for (; indexStart <= indexEnd; indexStart++) {
-                // steps++;
                 if (v < data[indexStart]) {
                   continue FIND_MAXIMUM;
                 }
@@ -671,13 +857,11 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
             }
           }
-          // System.out.printf("%.2f @ %d,%d. Steps = %d, max = %b\n", v, x, y, steps, isMax);
 
           // Neighbour check for existing maxima. This is relevant if the same height.
           // However we cannot just check height as the neighbour may not be the selected maxima
@@ -686,7 +870,7 @@ public class NonMaximumSuppression implements Cloneable {
 
           // TODO: We only need to check the maxima of the preceding blocks:
           // This requires iteration over the blockMaximaCandidates as a grid.
-          // - Find the maxima for the preceding blocks...
+          // - Find the maxima for the preceding blocks..
           // - Check if within N distance
           // - Check if equal (higher check has already been done)
 
@@ -695,29 +879,24 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
             }
           }
-          for (int jj = j; jj <= j_plus_n; jj++)
           // B
-          {
+          for (int jj = j; jj <= j_plus_n; jj++) {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + i;
             for (; indexStart < indexEnd; indexStart++) {
-              // steps++;
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
             }
           }
 
-          // System.out.printf("%.2f @ %d,%d. Steps = %d\n", v, x, y, steps);
-
           maximaFlag[index] = true;
-          maxima[nMaxima++] = index;
+          maxima[maximaCount++] = index;
           break;
         } // end FIND_MAXIMA
       }
@@ -734,42 +913,18 @@ public class NonMaximumSuppression implements Cloneable {
 
         // Compare the maxima to the surroundings. Ignore the block region already processed.
         //
-        // .......(mi-n,mj-n)----------------------------------(mi+n,mj-n)
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|bbbbbbbb.(i,j)-------------(i+n,j).ccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|.....(mi,mj)......|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbb.(i,j+n)-----------(i+n,j+n).ccccccc|
-        // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-        // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-        // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-        // ......(mi-n,mj+n)----------------------------------(mi+n,mj+n)
-        //
         // No check for over-running boundaries since this is the internal version
-        // int steps = 0;
         final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
         // The block boundaries will have been truncated on the final block. Ensure this is swept
         final int mi_minus_n = FastMath.max(mi - n, 0);
         final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
         final int mj_minus_n = FastMath.max(mj - n, 0);
 
-        // System.out.printf("Block [%d,%d] => [%d,%d]\n", x, y, i, j);
-
         // A
         for (int jj = mj_minus_n; jj < j; jj++) {
           int indexStart = jj * maxx + mi_minus_n;
           final int indexEnd = jj * maxx + mi_plus_n;
           for (; indexStart <= indexEnd; indexStart++) {
-            // steps++;
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
@@ -784,7 +939,6 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + i;
             for (; indexStart < indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -796,7 +950,6 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + i_plus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -809,24 +962,23 @@ public class NonMaximumSuppression implements Cloneable {
           int indexStart = jj * maxx + mi_minus_n;
           final int indexEnd = jj * maxx + mi_plus_n;
           for (; indexStart <= indexEnd; indexStart++) {
-            // steps++;
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
           }
         }
-        // System.out.printf("%.2f @ %d,%d. Steps = %d, max = %b\n", v, x, y, steps, isMax);
 
-        maxima[nMaxima++] = index;
+        maxima[maximaCount++] = index;
       } // end FIND_MAXIMA
     }
 
-    return truncate(maxima, nMaxima);
+    return truncate(maxima, maximaCount);
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n. <p> E.g. Max [ (i,i+n)
-   * x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
+   * Search the data for the index of the maximum in each block of size n*n.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -881,8 +1033,9 @@ public class NonMaximumSuppression implements Cloneable {
 
   /**
    * Search the data for the index of the maximum in each block of size n*n. An inner boundary of N
-   * is ignored as potential maxima. <p> E.g. Max [ (i,i+n) x (i,j+n) ] for (i=n; i&lt;maxx-n; i+=n)
-   * x (j=n, j&lt;maxy-n; j+=n)
+   * is ignored as potential maxima.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=n; i&lt;maxx-n; i+=n) x (j=n, j&lt;maxy-n; j+=n)
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -914,7 +1067,6 @@ public class NonMaximumSuppression implements Cloneable {
     int block = 0;
     for (int y = border; y < maxy - border; y += n) {
       for (int x = border; x < maxx - border; x += n) {
-        // System.out.printf("Block [%d,%d]\n", x, y);
 
         // Find the sweep size in each direction
         final int xsize = (x != xfinal) ? n : maxx - xfinal - border;
@@ -943,8 +1095,9 @@ public class NonMaximumSuppression implements Cloneable {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size 2*2. <p> E.g. Max [ (i,i+n)
-   * x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
+   * Search the data for the index of the maximum in each block of size 2*2.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -970,9 +1123,10 @@ public class NonMaximumSuppression implements Cloneable {
     final int[] maxima = new int[xblocks * yblocks];
 
     // Sweep 4 regions:
-    // x.............xfinal
-    // |.............|..maxx
-    // |.............|..|
+    //@formatter:off
+    // x             xfinal
+    // |             |  maxx
+    // |             |  |
     // aaaaaaaaaaaaaaabbb-- y
     // aaaaaaaaaaaaaaabbb
     // aaaaaaaaaaaaaaabbb
@@ -983,6 +1137,7 @@ public class NonMaximumSuppression implements Cloneable {
     // aaaaaaaaaaaaaaabbb--yfinal
     // cccccccccccccccddd
     // cccccccccccccccddd--maxy
+    //@formatter:on
 
     int block = 0;
     for (int y = 0; y < yfinal; y += 2) {
@@ -1024,9 +1179,11 @@ public class NonMaximumSuppression implements Cloneable {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n. <p> E.g. Max [ (i,i+n)
-   * x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n) <p> If multiple indices within
-   * the block have the same value then all are returned.
+   * Search the data for the index of the maximum in each block of size n*n.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n).
+   *
+   * <p>If multiple indices within the block have the same value then all are returned.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -1049,7 +1206,7 @@ public class NonMaximumSuppression implements Cloneable {
     final int yfinal = n * (maxy / n);
 
     final int[][] maxima = new int[xblocks * yblocks][];
-    final FixedIntList list = new FixedIntList(n * n);
+    final IntFixedList list = new IntFixedList(n * n);
 
     int block = 0;
     for (int y = 0; y < maxy; y += n) {
@@ -1084,9 +1241,11 @@ public class NonMaximumSuppression implements Cloneable {
 
   /**
    * Search the data for the index of the maximum in each block of size n*n. An inner boundary of N
-   * is ignored as potential maxima. <p> E.g. Max [ (i,i+n) x (i,j+n) ] for (i=n; i&lt;maxx-n; i+=n)
-   * x (j=n, j&lt;maxy-n; j+=n) <p> If multiple indices within the block have the same value then
-   * all are returned.
+   * is ignored as potential maxima.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=n; i&lt;maxx-n; i+=n) x (j=n, j&lt;maxy-n; j+=n).
+   *
+   * <p>If multiple indices within the block have the same value then all are returned.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -1115,12 +1274,11 @@ public class NonMaximumSuppression implements Cloneable {
     final int yfinal = n * ((maxy - 2 * border) / n) + border;
 
     final int[][] maxima = new int[xblocks * yblocks][];
-    final FixedIntList list = new FixedIntList(n * n);
+    final IntFixedList list = new IntFixedList(n * n);
 
     int block = 0;
     for (int y = border; y < maxy - border; y += n) {
       for (int x = border; x < maxx - border; x += n) {
-        // System.out.printf("Block [%d,%d]\n", x, y);
 
         // Find the sweep size in each direction
         final int xsize = (x != xfinal) ? n : maxx - xfinal - border;
@@ -1151,9 +1309,11 @@ public class NonMaximumSuppression implements Cloneable {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size 2*2. <p> E.g. Max [ (i,i+n)
-   * x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n) <p> If multiple indices within
-   * the block have the same value then all are returned.
+   * Search the data for the index of the maximum in each block of size 2*2.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n).
+   *
+   * <p>If multiple indices within the block have the same value then all are returned.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -1179,9 +1339,10 @@ public class NonMaximumSuppression implements Cloneable {
     final int[][] maxima = new int[xblocks * yblocks][];
 
     // Sweep 4 regions:
-    // x.............xfinal
-    // |.............|..maxx
-    // |.............|..|
+    //@formatter:off
+    // x             xfinal
+    // |             |  maxx
+    // |             |  |
     // aaaaaaaaaaaaaaabbb-- y
     // aaaaaaaaaaaaaaabbb
     // aaaaaaaaaaaaaaabbb
@@ -1192,6 +1353,7 @@ public class NonMaximumSuppression implements Cloneable {
     // aaaaaaaaaaaaaaabbb--yfinal
     // cccccccccccccccddd
     // cccccccccccccccddd--maxy
+    //@formatter:on
 
     int block = 0;
     for (int y = 0; y < yfinal; y += 2) {
@@ -1246,17 +1408,27 @@ public class NonMaximumSuppression implements Cloneable {
     return maxima;
   }
 
-  private static int[] getIndices(float[] data, int i, int j) {
-    if (data[i] > data[j]) {
-      return new int[] {i};
-    } else if (data[i] == data[j]) {
-      return new int[] {i, j};
+  /**
+   * Gets the indices of the maxima within the data from the provided indices.
+   *
+   * <p>Returns an array of 1 or 2 indices if both have the same value.
+   *
+   * @param data the data
+   * @param index1 the first index
+   * @param index2 the second index
+   * @return the indices
+   */
+  private static int[] getIndices(float[] data, int index1, int index2) {
+    if (data[index1] > data[index2]) {
+      return new int[] {index1};
+    } else if (data[index1] == data[index2]) {
+      return new int[] {index1, index2};
     }
-    return new int[] {j};
+    return new int[] {index2};
   }
 
   /**
-   * Compute the local-maxima within a 3x3 block
+   * Compute the local-maxima within a 3x3 block.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -1295,7 +1467,7 @@ public class NonMaximumSuppression implements Cloneable {
     final int[] d = new int[] {-newx + 1, +1, +newx - 1, +newx, +newx + 1};
 
     final int[] maxima = new int[xblocks * yblocks];
-    int nMaxima = 0;
+    int maximaCount = 0;
 
     if (isNeighbourCheck()) {
       final boolean[] maximaFlag = getFlagBuffer(data.length);
@@ -1370,9 +1542,8 @@ public class NonMaximumSuppression implements Cloneable {
             final int xx = maxIndex % newx;
             final int yy = maxIndex / newx;
 
-            // System.out.printf("blockFind3x3 [%d,%d]\n", xx-1, yy-1);
             maximaFlag[maxIndex] = true;
-            maxima[nMaxima++] = (yy - 1) * maxx + xx - 1;
+            maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
             break;
           }
         }
@@ -1407,13 +1578,12 @@ public class NonMaximumSuppression implements Cloneable {
           final int xx = maxIndex % newx;
           final int yy = maxIndex / newx;
 
-          // System.out.printf("blockFind3x3 [%d,%d]\n", xx-1, yy-1);
-          maxima[nMaxima++] = (yy - 1) * maxx + xx - 1;
+          maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
         } // end FIND_MAXIMA
       }
     }
 
-    return truncate(maxima, nMaxima);
+    return truncate(maxima, maximaCount);
   }
 
   /**
@@ -1453,7 +1623,7 @@ public class NonMaximumSuppression implements Cloneable {
     final int[] d = new int[] {-maxx + 1, +1, +maxx - 1, +maxx, +maxx + 1};
 
     final int[] maxima = new int[xblocks * yblocks];
-    int nMaxima = 0;
+    int maximaCount = 0;
 
     if (isNeighbourCheck()) {
       final boolean[] maximaFlag = getFlagBuffer(data.length);
@@ -1525,7 +1695,7 @@ public class NonMaximumSuppression implements Cloneable {
             }
 
             maximaFlag[maxIndex] = true;
-            maxima[nMaxima++] = maxIndex;
+            maxima[maximaCount++] = maxIndex;
             break;
           } // end FIND_MAXIMA
         }
@@ -1556,17 +1726,18 @@ public class NonMaximumSuppression implements Cloneable {
             }
           }
 
-          maxima[nMaxima++] = maxIndex;
+          maxima[maximaCount++] = maxIndex;
         } // end FIND_MAXIMA
       }
     }
 
-    return truncate(maxima, nMaxima);
+    return truncate(maxima, maximaCount);
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n. <p> E.g. Max [ (i,i+n)
-   * x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
+   * Search the data for the index of the maximum in each block of size n*n.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -1583,9 +1754,11 @@ public class NonMaximumSuppression implements Cloneable {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n. <p> E.g. Max [ (i,i+n)
-   * x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n) <p> If multiple indices within
-   * the block have the same value then all are returned.
+   * Search the data for the index of the maximum in each block of size n*n.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n).
+   *
+   * <p>If multiple indices within the block have the same value then all are returned.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -1603,243 +1776,14 @@ public class NonMaximumSuppression implements Cloneable {
 
   // ----------------------------------------------------
   // NOTE:
-  // Copy up to here to replace 'float' with 'int'
-  // ----------------------------------------------------
-
-  /**
-   * Expand the image to the new dimensions with a 1-pixel border
-   */
-  private float[] expand(float[] data, int maxx, int maxy, int newx, int newy) {
-    final int size = newx * newy;
-
-    if (!dataBuffer || newDataFloat == null || newDataFloat.length < size) {
-      newDataFloat = new float[size];
-    }
-
-    // Zero first row
-    for (int x = 0; x < newx; x++) {
-      newDataFloat[x] = Float.NEGATIVE_INFINITY;
-    }
-    // Zero last rows
-    for (int y = maxy + 1; y < newy; y++) {
-      int newIndex = y * newx;
-      for (int x = 0; x < newx; x++) {
-        newDataFloat[newIndex++] = Float.NEGATIVE_INFINITY;
-      }
-    }
-
-    int index = 0;
-    for (int y = 0; y < maxy; y++) {
-      int newIndex = (y + 1) * newx;
-
-      // Zero first column
-      newDataFloat[newIndex++] = Float.NEGATIVE_INFINITY;
-
-      // Copy data
-      for (int x = 0; x < maxx; x++) {
-        newDataFloat[newIndex++] = data[index++];
-      }
-
-      // Zero remaining columns
-      for (int x = maxx + 1; x < newx; x++) {
-        newDataFloat[newIndex++] = Float.NEGATIVE_INFINITY;
-      }
-    }
-
-    return newDataFloat;
-  }
-
-  /**
-   * Expand the image to the new dimensions with a 1-pixel border
-   */
-  private int[] expand(int[] data, int maxx, int maxy, int newx, int newy) {
-    final int size = newx * newy;
-
-    if (!dataBuffer || newDataInt == null || newDataInt.length < size) {
-      newDataInt = new int[size];
-    }
-
-    // Zero first row
-    for (int x = 0; x < newx; x++) {
-      newDataInt[x] = Integer.MIN_VALUE;
-    }
-    // Zero last rows
-    for (int y = maxy + 1; y < newy; y++) {
-      int newIndex = y * newx;
-      for (int x = 0; x < newx; x++) {
-        newDataInt[newIndex++] = Integer.MIN_VALUE;
-      }
-    }
-
-    int index = 0;
-    for (int y = 0; y < maxy; y++) {
-      int newIndex = (y + 1) * newx;
-
-      // Zero first column
-      newDataInt[newIndex++] = Integer.MIN_VALUE;
-
-      // Copy data
-      for (int x = 0; x < maxx; x++) {
-        newDataInt[newIndex++] = data[index++];
-      }
-
-      // Zero remaining columns
-      for (int x = maxx + 1; x < newx; x++) {
-        newDataInt[newIndex++] = Integer.MIN_VALUE;
-      }
-    }
-
-    return newDataInt;
-  }
-
-  /**
-   * Get a buffer for storing result indices.
-   *
-   * @param size the size
-   * @return the results buffer
-   */
-  private FixedIntList getResultsBuffer(int size) {
-    if (!dataBuffer) {
-      return new FixedIntList(size);
-    }
-
-    if (resultsBuffer == null || resultsBuffer.capacity() < size) {
-      resultsBuffer = new FixedIntList(size);
-    } else {
-      resultsBuffer.clear();
-    }
-
-    return resultsBuffer;
-  }
-
-  /**
-   * Get a buffer for flagging maxima.
-   *
-   * @param size the size
-   * @return the flag buffer
-   */
-  private boolean[] getFlagBuffer(int size) {
-    if (!dataBuffer) {
-      return new boolean[size];
-    }
-
-    if (maximaFlagBuffer == null || maximaFlagBuffer.length < size) {
-      maximaFlagBuffer = new boolean[size];
-    } else {
-      // Reset flags
-      for (int x = size; x-- > 0;) {
-        maximaFlagBuffer[x] = false;
-      }
-    }
-
-    return maximaFlagBuffer;
-  }
-
-  private static int getBlocks(int max, int n) {
-    final int blocks = (int) Math.ceil((1.0 * max) / n);
-    return blocks;
-  }
-
-  /**
-   * Truncate the array to the specified size.
-   *
-   * @param array the array
-   * @param size the size
-   * @return The truncated array
-   */
-  private static int[] truncate(int[] array, int size) {
-    if (array.length == size) {
-      return array;
-    }
-    if (size == 0) {
-      return new int[0];
-    }
-    final int[] copy = new int[size];
-    System.arraycopy(array, 0, copy, 0, size);
-    return copy;
-  }
-
-  /**
-   * Truncate the array to the specified size.
-   *
-   * @param array the array
-   * @param size the size
-   * @return The truncated array
-   */
-  private static int[][] truncate(int[][] array, int size) {
-    if (array.length == size) {
-      return array;
-    }
-    if (size == 0) {
-      return new int[0][0];
-    }
-    final int[][] copy = new int[size][];
-    System.arraycopy(array, 0, copy, 0, size);
-    return copy;
-  }
-
-  /**
-   * Neighbour checking performs an additional comparison between the local maxima within the block
-   * (size n) and the neighbours within the 2n+1 perimeter. If any neighbour is already a maxima
-   * then the local maxima within the block is eliminated. This step is only relevant when neighbour
-   * data points have equal values since the search for maxima uses the &lt; operator. <p> Applies
-   * to the blockFind algorithms.
-   *
-   * @param neighbourCheck Enable neighbour checking
-   */
-  public void setNeighbourCheck(boolean neighbourCheck) {
-    this.neighbourCheck = neighbourCheck;
-  }
-
-  /**
-   * @return True if neighbour checking is enabled
-   */
-  public boolean isNeighbourCheck() {
-    return neighbourCheck;
-  }
-
-  /**
-   * Allow the class to keep a data buffer for processing images with the blockFind3x3 algorithm
-   *
-   * @param dataBuffer Enable the data buffer
-   */
-  public void setDataBuffer(boolean dataBuffer) {
-    this.dataBuffer = dataBuffer;
-    if (!dataBuffer) {
-      newDataFloat = null;
-    }
-  }
-
-  /**
-   * @return True if the data buffer is enabled
-   */
-  public boolean isBufferData() {
-    return dataBuffer;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public NonMaximumSuppression clone() {
-    try {
-      final NonMaximumSuppression o = (NonMaximumSuppression) super.clone();
-      o.newDataFloat = null;
-      o.newDataInt = null;
-      o.maximaFlagBuffer = null;
-      return o;
-    } catch (final CloneNotSupportedException e) {
-      // Ignore
-    }
-    return null;
-  }
-
-  // ----------------------------------------------------
-  // NOTE:
   // The following code is copied directly from above.
   // All 'float' have been replaced with 'int'
   // ----------------------------------------------------
 
+  // CHECKSTYLE.OFF: OverloadMethodsDeclarationOrder
+
   /**
-   * Compute the local-maxima within a 2n+1 block
+   * Compute the local-maxima within a 2n+1 block.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -1848,7 +1792,7 @@ public class NonMaximumSuppression implements Cloneable {
    * @return Indices to the local maxima (index = maxx * y + x)
    */
   public int[] maxFind(int[] data, int maxx, int maxy, int n) {
-    final FixedIntList results = getResultsBuffer(data.length);
+    final IntFixedList results = getResultsBuffer(data.length);
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
@@ -1860,14 +1804,14 @@ public class NonMaximumSuppression implements Cloneable {
     final int[] offset = new int[(2 * xwidth + 1) * (2 * ywidth + 1) - 1];
     final int[] xoffset = new int[offset.length];
     final int[] yoffset = new int[offset.length];
-    int d = 0;
+    int offsetIndex = 0;
     for (int y = -ywidth; y <= ywidth; y++) {
       for (int x = -xwidth; x <= xwidth; x++) {
         if (x != 0 || y != 0) {
-          offset[d] = maxx * y + x;
-          xoffset[d] = x;
-          yoffset[d] = y;
-          d++;
+          offset[offsetIndex] = maxx * y + x;
+          xoffset[offsetIndex] = x;
+          yoffset[offsetIndex] = y;
+          offsetIndex++;
         }
       }
     }
@@ -1879,32 +1823,24 @@ public class NonMaximumSuppression implements Cloneable {
         final int v = data[index];
 
         // Flag to indicate this pixels has a complete (2n+1) neighbourhood
-        final boolean isInnerXY = (y >= ywidth && y < ylimit) && (x >= xwidth && x < xlimit);
+        final boolean isInnerXy = (y >= ywidth && y < ylimit) && (x >= xwidth && x < xlimit);
 
         // Sweep neighbourhood
-        if (isInnerXY) {
+        if (isInnerXy) {
           for (int i = 0; i < offset.length; i++) {
-            if (maximaFlag[index + offset[i]]) {
-              continue FIND_MAXIMUM;
-            }
-            if (data[index + offset[i]] > v) {
+            if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
               continue FIND_MAXIMUM;
             }
           }
         } else {
-          for (d = offset.length; d-- > 0;) {
+          for (int i = offset.length; i-- > 0;) {
             // Get the coords and check if it is within the data
-            final int yy = y + yoffset[d];
-            final int xx = x + xoffset[d];
+            final int yy = y + yoffset[i];
+            final int xx = x + xoffset[i];
             final boolean isWithin = (yy >= 0 && yy < maxy) && (xx >= 0 && xx < maxx);
 
-            if (isWithin) {
-              if (maximaFlag[index + offset[d]]) {
-                continue FIND_MAXIMUM;
-              }
-              if (data[index + offset[d]] > v) {
-                continue FIND_MAXIMUM;
-              }
+            if (isWithin && (maximaFlag[index + offset[i]] || data[index + offset[i]] > v)) {
+              continue FIND_MAXIMUM;
             }
           }
         }
@@ -1928,7 +1864,7 @@ public class NonMaximumSuppression implements Cloneable {
    * @return Indices to the local maxima (index = maxx * y + x)
    */
   public int[] maxFindInternal(int[] data, int maxx, int maxy, int n) {
-    final FixedIntList results = getResultsBuffer(data.length);
+    final IntFixedList results = getResultsBuffer(data.length);
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
@@ -1936,12 +1872,12 @@ public class NonMaximumSuppression implements Cloneable {
     final int ywidth = FastMath.min(n, maxy - 1);
 
     final int[] offset = new int[(2 * xwidth + 1) * (2 * ywidth + 1) - 1];
-    int d = 0;
+    int offsetIndex = 0;
     for (int y = -ywidth; y <= ywidth; y++) {
       for (int x = -xwidth; x <= xwidth; x++) {
         if (x != 0 || y != 0) {
-          offset[d] = maxx * y + x;
-          d++;
+          offset[offsetIndex] = maxx * y + x;
+          offsetIndex++;
         }
       }
     }
@@ -1955,10 +1891,7 @@ public class NonMaximumSuppression implements Cloneable {
         // Sweep neighbourhood -
         // No check for boundaries as this should be an internal sweep.
         for (int i = 0; i < offset.length; i++) {
-          if (maximaFlag[index + offset[i]]) {
-            continue FIND_MAXIMUM;
-          }
-          if (data[index + offset[i]] > v) {
+          if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
             continue FIND_MAXIMUM;
           }
         }
@@ -1987,7 +1920,7 @@ public class NonMaximumSuppression implements Cloneable {
       return maxFindInternal(data, maxx, maxy, n);
     }
 
-    final FixedIntList results = getResultsBuffer(data.length);
+    final IntFixedList results = getResultsBuffer(data.length);
     final boolean[] maximaFlag = getFlagBuffer(data.length);
 
     // Boundary control
@@ -1999,14 +1932,14 @@ public class NonMaximumSuppression implements Cloneable {
     final int[] offset = new int[(2 * xwidth + 1) * (2 * ywidth + 1) - 1];
     final int[] xoffset = new int[offset.length];
     final int[] yoffset = new int[offset.length];
-    int d = 0;
+    int offsetIndex = 0;
     for (int y = -ywidth; y <= ywidth; y++) {
       for (int x = -xwidth; x <= xwidth; x++) {
         if (x != 0 || y != 0) {
-          offset[d] = maxx * y + x;
-          xoffset[d] = x;
-          yoffset[d] = y;
-          d++;
+          offset[offsetIndex] = maxx * y + x;
+          xoffset[offsetIndex] = x;
+          yoffset[offsetIndex] = y;
+          offsetIndex++;
         }
       }
     }
@@ -2022,34 +1955,26 @@ public class NonMaximumSuppression implements Cloneable {
 
         if (inner) {
           for (int i = 0; i < offset.length; i++) {
-            if (maximaFlag[index + offset[i]]) {
-              continue FIND_MAXIMUM;
-            }
-            if (data[index + offset[i]] > v) {
+            if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
               continue FIND_MAXIMUM;
             }
           }
         } else {
           // Flag to indicate this pixels has a complete (2n+1) neighbourhood
-          final boolean isInnerXY = (y >= ywidth && y < ylimit) && (x >= xwidth && x < xlimit);
+          final boolean isInnerXy = (y >= ywidth && y < ylimit) && (x >= xwidth && x < xlimit);
 
           // Sweep neighbourhood
-          for (d = offset.length; d-- > 0;) {
-            boolean isWithin = isInnerXY;
+          for (int i = offset.length; i-- > 0;) {
+            boolean isWithin = isInnerXy;
             if (!isWithin) {
               // Get the coords and check if it is within the data
-              final int yy = y + yoffset[d];
-              final int xx = x + xoffset[d];
+              final int yy = y + yoffset[i];
+              final int xx = x + xoffset[i];
               isWithin = (yy >= 0 && yy < maxy) && (xx >= 0 && xx < maxx);
             }
 
-            if (isWithin) {
-              if (maximaFlag[index + offset[d]]) {
-                continue FIND_MAXIMUM;
-              }
-              if (data[index + offset[d]] > v) {
-                continue FIND_MAXIMUM;
-              }
+            if (isWithin && (maximaFlag[index + offset[i]] || data[index + offset[i]] > v)) {
+              continue FIND_MAXIMUM;
             }
           }
         }
@@ -2063,8 +1988,9 @@ public class NonMaximumSuppression implements Cloneable {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block. <p> Uses the 2D block algorithm of Neubeck and
-   * Van Gool (2006).
+   * Compute the local-maxima within a 2n+1 block.
+   *
+   * <p>Uses the 2D block algorithm of Neubeck and Van Gool (2006).
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -2083,7 +2009,9 @@ public class NonMaximumSuppression implements Cloneable {
 
   /**
    * Compute the local-maxima within a 2n+1 block. An inner boundary of N is ignored as potential
-   * maxima. <p> Uses the 2D block algorithm of Neubeck and Van Gool (2006).
+   * maxima.
+   *
+   * <p>Uses the 2D block algorithm of Neubeck and Van Gool (2006).
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -2102,8 +2030,9 @@ public class NonMaximumSuppression implements Cloneable {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block. <p> Uses the 2D block algorithm of Neubeck and
-   * Van Gool (2006).
+   * Compute the local-maxima within a 2n+1 block.
+   *
+   * <p>Uses the 2D block algorithm of Neubeck and Van Gool (2006).
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -2113,7 +2042,7 @@ public class NonMaximumSuppression implements Cloneable {
    */
   public int[] blockFindNxN(int[] data, int maxx, int maxy, int n) {
     int[] maxima;
-    int nMaxima = 0;
+    int maximaCount = 0;
     final int n1 = n + 1;
 
     if (isNeighbourCheck()) {
@@ -2132,29 +2061,30 @@ public class NonMaximumSuppression implements Cloneable {
           final int mj = index / maxx;
 
           // Compare the maxima to the surroundings. Ignore the block region already processed.
+          //@formatter:off
           //
-          // .......(mi-n,mj-n)----------------------------------(mi+n,mj-n)
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|bbbbbbbb.(i,j)-------------(i+n,j).ccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|.....(mi,mj)......|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbb.(i,j+n)-----------(i+n,j+n).ccccccc|
-          // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-          // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-          // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-          // ......(mi-n,mj+n)----------------------------------(mi+n,mj+n)
+          //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
+          //             |dddddddddddddddddddddddddddddddddddddddddddd|
+          //             |dddddddddddddddddddddddddddddddddddddddddddd|
+          //             |dddddddddddddddddddddddddddddddddddddddddddd|
+          //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
           //
+          //@formatter:on
           // This must be done without over-running boundaries
-          // int steps = 0;
           final int j = n1 * (mj / n1);
           final int mi_minus_n = FastMath.max(mi - n, 0);
           final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
@@ -2165,7 +2095,6 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2180,7 +2109,6 @@ public class NonMaximumSuppression implements Cloneable {
               int indexStart = jj * maxx + mi_minus_n;
               final int indexEnd = jj * maxx + i;
               for (; indexStart < indexEnd; indexStart++) {
-                // steps++;
                 if (v < data[indexStart]) {
                   continue FIND_MAXIMUM;
                 }
@@ -2192,7 +2120,6 @@ public class NonMaximumSuppression implements Cloneable {
               int indexStart = jj * maxx + i_plus_n;
               final int indexEnd = jj * maxx + mi_plus_n;
               for (; indexStart <= indexEnd; indexStart++) {
-                // steps++;
                 if (v < data[indexStart]) {
                   continue FIND_MAXIMUM;
                 }
@@ -2205,7 +2132,6 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2219,7 +2145,7 @@ public class NonMaximumSuppression implements Cloneable {
 
           // TODO: We only need to check the maxima of the preceding blocks:
           // This requires iteration over the blockMaximaCandidates as a grid.
-          // - Find the maxima for the preceding blocks...
+          // - Find the maxima for the preceding blocks..
           // - Check if within N distance
           // - Check if equal (higher check has already been done)
 
@@ -2228,29 +2154,24 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
             }
           }
-          for (int jj = j; jj <= j_plus_n; jj++)
           // B
-          {
+          for (int jj = j; jj <= j_plus_n; jj++) {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + i;
             for (; indexStart < indexEnd; indexStart++) {
-              // steps++;
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
             }
           }
 
-          // System.out.printf("%.2f @ %d,%d. Steps = %d\n", v, x, y, steps);
-
           maximaFlag[index] = true;
-          maxima[nMaxima++] = index;
+          maxima[maximaCount++] = index;
           break;
         } // end FIND_MAXIMA
       }
@@ -2267,28 +2188,7 @@ public class NonMaximumSuppression implements Cloneable {
 
         // Compare the maxima to the surroundings. Ignore the block region already processed.
         //
-        // .......(mi-n,mj-n)----------------------------------(mi+n,mj-n)
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|bbbbbbbb.(i,j)-------------(i+n,j).ccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|.....(mi,mj)......|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbb.(i,j+n)-----------(i+n,j+n).ccccccc|
-        // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-        // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-        // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-        // ......(mi-n,mj+n)----------------------------------(mi+n,mj+n)
-        //
         // This must be done without over-running boundaries
-        // int steps = 0;
         final int j = n1 * (mj / n1);
         final int mi_minus_n = FastMath.max(mi - n, 0);
         final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
@@ -2299,7 +2199,6 @@ public class NonMaximumSuppression implements Cloneable {
           int indexStart = jj * maxx + mi_minus_n;
           final int indexEnd = jj * maxx + mi_plus_n;
           for (; indexStart <= indexEnd; indexStart++) {
-            // steps++;
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
@@ -2314,7 +2213,6 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + i;
             for (; indexStart < indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2326,7 +2224,6 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + i_plus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2339,24 +2236,24 @@ public class NonMaximumSuppression implements Cloneable {
           int indexStart = jj * maxx + mi_minus_n;
           final int indexEnd = jj * maxx + mi_plus_n;
           for (; indexStart <= indexEnd; indexStart++) {
-            // steps++;
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
           }
         }
-        // System.out.printf("%.2f @ %d,%d. Steps = %d\n", v, x, y, steps);
 
-        maxima[nMaxima++] = index;
+        maxima[maximaCount++] = index;
       } // end FIND_MAXIMA
     }
 
-    return truncate(maxima, nMaxima);
+    return truncate(maxima, maximaCount);
   }
 
   /**
    * Compute the local-maxima within a 2n+1 block. An inner boundary of N is ignored as potential
-   * maxima. <p> Uses the 2D block algorithm of Neubeck and Van Gool (2006).
+   * maxima.
+   *
+   * <p>Uses the 2D block algorithm of Neubeck and Van Gool (2006).
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -2367,7 +2264,7 @@ public class NonMaximumSuppression implements Cloneable {
    */
   public int[] blockFindNxNInternal(int[] data, int maxx, int maxy, int n, int border) {
     int[] maxima;
-    int nMaxima = 0;
+    int maximaCount = 0;
     final int n1 = n + 1;
 
     if (isNeighbourCheck()) {
@@ -2387,43 +2284,41 @@ public class NonMaximumSuppression implements Cloneable {
           final int mj = index / maxx;
 
           // Compare the maxima to the surroundings. Ignore the block region already processed.
+          //@formatter:off
           //
-          // .......(mi-n,mj-n)----------------------------------(mi+n,mj-n)
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          // ............|bbbbbbbb.(i,j)-------------(i+n,j).ccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|.....(mi,mj)......|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-          // ............|bbbbbbbb.(i,j+n)-----------(i+n,j+n).ccccccc|
-          // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-          // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-          // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-          // ......(mi-n,mj+n)----------------------------------(mi+n,mj+n)
+          //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+          //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbbbbb|                  |ccccccccccccc|
+          //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
+          //             |dddddddddddddddddddddddddddddddddddddddddddd|
+          //             |dddddddddddddddddddddddddddddddddddddddddddd|
+          //             |dddddddddddddddddddddddddddddddddddddddddddd|
+          //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
           //
+          //@formatter:on
           // No check for over-running boundaries since this is the internal version
-          // int steps = 0;
           final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
           // The block boundaries will have been truncated on the final block. Ensure this is swept
           final int mi_minus_n = FastMath.max(mi - n, 0);
           final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
           final int mj_minus_n = FastMath.max(mj - n, 0);
 
-          // System.out.printf("Block [%d,%d] => [%d,%d]\n", x, y, i, j);
-
           // A
           for (int jj = mj_minus_n; jj < j; jj++) {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2438,7 +2333,6 @@ public class NonMaximumSuppression implements Cloneable {
               int indexStart = jj * maxx + mi_minus_n;
               final int indexEnd = jj * maxx + i;
               for (; indexStart < indexEnd; indexStart++) {
-                // steps++;
                 if (v < data[indexStart]) {
                   continue FIND_MAXIMUM;
                 }
@@ -2450,7 +2344,6 @@ public class NonMaximumSuppression implements Cloneable {
               int indexStart = jj * maxx + i_plus_n;
               final int indexEnd = jj * maxx + mi_plus_n;
               for (; indexStart <= indexEnd; indexStart++) {
-                // steps++;
                 if (v < data[indexStart]) {
                   continue FIND_MAXIMUM;
                 }
@@ -2463,13 +2356,11 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
             }
           }
-          // System.out.printf("%.2f @ %d,%d. Steps = %d, max = %b\n", v, x, y, steps, isMax);
 
           // Neighbour check for existing maxima. This is relevant if the same height.
           // However we cannot just check height as the neighbour may not be the selected maxima
@@ -2478,7 +2369,7 @@ public class NonMaximumSuppression implements Cloneable {
 
           // TODO: We only need to check the maxima of the preceding blocks:
           // This requires iteration over the blockMaximaCandidates as a grid.
-          // - Find the maxima for the preceding blocks...
+          // - Find the maxima for the preceding blocks..
           // - Check if within N distance
           // - Check if equal (higher check has already been done)
 
@@ -2487,29 +2378,24 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
             }
           }
-          for (int jj = j; jj <= j_plus_n; jj++)
           // B
-          {
+          for (int jj = j; jj <= j_plus_n; jj++) {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + i;
             for (; indexStart < indexEnd; indexStart++) {
-              // steps++;
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
             }
           }
 
-          // System.out.printf("%.2f @ %d,%d. Steps = %d\n", v, x, y, steps);
-
           maximaFlag[index] = true;
-          maxima[nMaxima++] = index;
+          maxima[maximaCount++] = index;
           break;
         } // end FIND_MAXIMA
       }
@@ -2526,42 +2412,18 @@ public class NonMaximumSuppression implements Cloneable {
 
         // Compare the maxima to the surroundings. Ignore the block region already processed.
         //
-        // .......(mi-n,mj-n)----------------------------------(mi+n,mj-n)
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-        // ............|bbbbbbbb.(i,j)-------------(i+n,j).ccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|.....(mi,mj)......|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbbbbb|..................|ccccccccccccc|
-        // ............|bbbbbbbb.(i,j+n)-----------(i+n,j+n).ccccccc|
-        // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-        // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-        // ............|dddddddddddddddddddddddddddddddddddddddddddd|
-        // ......(mi-n,mj+n)----------------------------------(mi+n,mj+n)
-        //
         // No check for over-running boundaries since this is the internal version
-        // int steps = 0;
         final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
         // The block boundaries will have been truncated on the final block. Ensure this is swept
         final int mi_minus_n = FastMath.max(mi - n, 0);
         final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
         final int mj_minus_n = FastMath.max(mj - n, 0);
 
-        // System.out.printf("Block [%d,%d] => [%d,%d]\n", x, y, i, j);
-
         // A
         for (int jj = mj_minus_n; jj < j; jj++) {
           int indexStart = jj * maxx + mi_minus_n;
           final int indexEnd = jj * maxx + mi_plus_n;
           for (; indexStart <= indexEnd; indexStart++) {
-            // steps++;
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
@@ -2576,7 +2438,6 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + mi_minus_n;
             final int indexEnd = jj * maxx + i;
             for (; indexStart < indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2588,7 +2449,6 @@ public class NonMaximumSuppression implements Cloneable {
             int indexStart = jj * maxx + i_plus_n;
             final int indexEnd = jj * maxx + mi_plus_n;
             for (; indexStart <= indexEnd; indexStart++) {
-              // steps++;
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2601,24 +2461,23 @@ public class NonMaximumSuppression implements Cloneable {
           int indexStart = jj * maxx + mi_minus_n;
           final int indexEnd = jj * maxx + mi_plus_n;
           for (; indexStart <= indexEnd; indexStart++) {
-            // steps++;
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
           }
         }
-        // System.out.printf("%.2f @ %d,%d. Steps = %d, max = %b\n", v, x, y, steps, isMax);
 
-        maxima[nMaxima++] = index;
+        maxima[maximaCount++] = index;
       } // end FIND_MAXIMA
     }
 
-    return truncate(maxima, nMaxima);
+    return truncate(maxima, maximaCount);
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n. <p> E.g. Max [ (i,i+n)
-   * x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
+   * Search the data for the index of the maximum in each block of size n*n.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -2673,8 +2532,9 @@ public class NonMaximumSuppression implements Cloneable {
 
   /**
    * Search the data for the index of the maximum in each block of size n*n. An inner boundary of N
-   * is ignored as potential maxima. <p> E.g. Max [ (i,i+n) x (i,j+n) ] for (i=n; i&lt;maxx-n; i+=n)
-   * x (j=n, j&lt;maxy-n; j+=n)
+   * is ignored as potential maxima.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=n; i&lt;maxx-n; i+=n) x (j=n, j&lt;maxy-n; j+=n)
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -2706,7 +2566,6 @@ public class NonMaximumSuppression implements Cloneable {
     int block = 0;
     for (int y = border; y < maxy - border; y += n) {
       for (int x = border; x < maxx - border; x += n) {
-        // System.out.printf("Block [%d,%d]\n", x, y);
 
         // Find the sweep size in each direction
         final int xsize = (x != xfinal) ? n : maxx - xfinal - border;
@@ -2735,8 +2594,9 @@ public class NonMaximumSuppression implements Cloneable {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size 2*2. <p> E.g. Max [ (i,i+n)
-   * x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
+   * Search the data for the index of the maximum in each block of size 2*2.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -2762,9 +2622,10 @@ public class NonMaximumSuppression implements Cloneable {
     final int[] maxima = new int[xblocks * yblocks];
 
     // Sweep 4 regions:
-    // x.............xfinal
-    // |.............|..maxx
-    // |.............|..|
+    //@formatter:off
+    // x             xfinal
+    // |             |  maxx
+    // |             |  |
     // aaaaaaaaaaaaaaabbb-- y
     // aaaaaaaaaaaaaaabbb
     // aaaaaaaaaaaaaaabbb
@@ -2775,6 +2636,7 @@ public class NonMaximumSuppression implements Cloneable {
     // aaaaaaaaaaaaaaabbb--yfinal
     // cccccccccccccccddd
     // cccccccccccccccddd--maxy
+    //@formatter:on
 
     int block = 0;
     for (int y = 0; y < yfinal; y += 2) {
@@ -2816,9 +2678,11 @@ public class NonMaximumSuppression implements Cloneable {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n. <p> E.g. Max [ (i,i+n)
-   * x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n) <p> If multiple indices within
-   * the block have the same value then all are returned.
+   * Search the data for the index of the maximum in each block of size n*n.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n).
+   *
+   * <p>If multiple indices within the block have the same value then all are returned.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -2841,7 +2705,7 @@ public class NonMaximumSuppression implements Cloneable {
     final int yfinal = n * (maxy / n);
 
     final int[][] maxima = new int[xblocks * yblocks][];
-    final FixedIntList list = new FixedIntList(n * n);
+    final IntFixedList list = new IntFixedList(n * n);
 
     int block = 0;
     for (int y = 0; y < maxy; y += n) {
@@ -2876,9 +2740,11 @@ public class NonMaximumSuppression implements Cloneable {
 
   /**
    * Search the data for the index of the maximum in each block of size n*n. An inner boundary of N
-   * is ignored as potential maxima. <p> E.g. Max [ (i,i+n) x (i,j+n) ] for (i=n; i&lt;maxx-n; i+=n)
-   * x (j=n, j&lt;maxy-n; j+=n) <p> If multiple indices within the block have the same value then
-   * all are returned.
+   * is ignored as potential maxima.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=n; i&lt;maxx-n; i+=n) x (j=n, j&lt;maxy-n; j+=n).
+   *
+   * <p>If multiple indices within the block have the same value then all are returned.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -2907,12 +2773,11 @@ public class NonMaximumSuppression implements Cloneable {
     final int yfinal = n * ((maxy - 2 * border) / n) + border;
 
     final int[][] maxima = new int[xblocks * yblocks][];
-    final FixedIntList list = new FixedIntList(n * n);
+    final IntFixedList list = new IntFixedList(n * n);
 
     int block = 0;
     for (int y = border; y < maxy - border; y += n) {
       for (int x = border; x < maxx - border; x += n) {
-        // System.out.printf("Block [%d,%d]\n", x, y);
 
         // Find the sweep size in each direction
         final int xsize = (x != xfinal) ? n : maxx - xfinal - border;
@@ -2943,9 +2808,11 @@ public class NonMaximumSuppression implements Cloneable {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size 2*2. <p> E.g. Max [ (i,i+n)
-   * x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n) <p> If multiple indices within
-   * the block have the same value then all are returned.
+   * Search the data for the index of the maximum in each block of size 2*2.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n).
+   *
+   * <p>If multiple indices within the block have the same value then all are returned.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -2971,9 +2838,10 @@ public class NonMaximumSuppression implements Cloneable {
     final int[][] maxima = new int[xblocks * yblocks][];
 
     // Sweep 4 regions:
-    // x.............xfinal
-    // |.............|..maxx
-    // |.............|..|
+    //@formatter:off
+    // x             xfinal
+    // |             |  maxx
+    // |             |  |
     // aaaaaaaaaaaaaaabbb-- y
     // aaaaaaaaaaaaaaabbb
     // aaaaaaaaaaaaaaabbb
@@ -2984,6 +2852,7 @@ public class NonMaximumSuppression implements Cloneable {
     // aaaaaaaaaaaaaaabbb--yfinal
     // cccccccccccccccddd
     // cccccccccccccccddd--maxy
+    //@formatter:on
 
     int block = 0;
     for (int y = 0; y < yfinal; y += 2) {
@@ -3038,17 +2907,27 @@ public class NonMaximumSuppression implements Cloneable {
     return maxima;
   }
 
-  private static int[] getIndices(int[] data, int i, int j) {
-    if (data[i] > data[j]) {
-      return new int[] {i};
-    } else if (data[i] == data[j]) {
-      return new int[] {i, j};
+  /**
+   * Gets the indices of the maxima within the data from the provided indices.
+   *
+   * <p>Returns an array of 1 or 2 indices if both have the same value.
+   *
+   * @param data the data
+   * @param index1 the first index
+   * @param index2 the second index
+   * @return the indices
+   */
+  private static int[] getIndices(int[] data, int index1, int index2) {
+    if (data[index1] > data[index2]) {
+      return new int[] {index1};
+    } else if (data[index1] == data[index2]) {
+      return new int[] {index1, index2};
     }
-    return new int[] {j};
+    return new int[] {index2};
   }
 
   /**
-   * Compute the local-maxima within a 3x3 block
+   * Compute the local-maxima within a 3x3 block.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -3087,7 +2966,7 @@ public class NonMaximumSuppression implements Cloneable {
     final int[] d = new int[] {-newx + 1, +1, +newx - 1, +newx, +newx + 1};
 
     final int[] maxima = new int[xblocks * yblocks];
-    int nMaxima = 0;
+    int maximaCount = 0;
 
     if (isNeighbourCheck()) {
       final boolean[] maximaFlag = getFlagBuffer(data.length);
@@ -3162,9 +3041,8 @@ public class NonMaximumSuppression implements Cloneable {
             final int xx = maxIndex % newx;
             final int yy = maxIndex / newx;
 
-            // System.out.printf("blockFind3x3 [%d,%d]\n", xx-1, yy-1);
             maximaFlag[maxIndex] = true;
-            maxima[nMaxima++] = (yy - 1) * maxx + xx - 1;
+            maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
             break;
           }
         }
@@ -3199,13 +3077,12 @@ public class NonMaximumSuppression implements Cloneable {
           final int xx = maxIndex % newx;
           final int yy = maxIndex / newx;
 
-          // System.out.printf("blockFind3x3 [%d,%d]\n", xx-1, yy-1);
-          maxima[nMaxima++] = (yy - 1) * maxx + xx - 1;
+          maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
         } // end FIND_MAXIMA
       }
     }
 
-    return truncate(maxima, nMaxima);
+    return truncate(maxima, maximaCount);
   }
 
   /**
@@ -3245,7 +3122,7 @@ public class NonMaximumSuppression implements Cloneable {
     final int[] d = new int[] {-maxx + 1, +1, +maxx - 1, +maxx, +maxx + 1};
 
     final int[] maxima = new int[xblocks * yblocks];
-    int nMaxima = 0;
+    int maximaCount = 0;
 
     if (isNeighbourCheck()) {
       final boolean[] maximaFlag = getFlagBuffer(data.length);
@@ -3317,7 +3194,7 @@ public class NonMaximumSuppression implements Cloneable {
             }
 
             maximaFlag[maxIndex] = true;
-            maxima[nMaxima++] = maxIndex;
+            maxima[maximaCount++] = maxIndex;
             break;
           } // end FIND_MAXIMA
         }
@@ -3348,17 +3225,18 @@ public class NonMaximumSuppression implements Cloneable {
             }
           }
 
-          maxima[nMaxima++] = maxIndex;
+          maxima[maximaCount++] = maxIndex;
         } // end FIND_MAXIMA
       }
     }
 
-    return truncate(maxima, nMaxima);
+    return truncate(maxima, maximaCount);
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n. <p> E.g. Max [ (i,i+n)
-   * x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
+   * Search the data for the index of the maximum in each block of size n*n.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n)
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data
@@ -3375,9 +3253,11 @@ public class NonMaximumSuppression implements Cloneable {
   }
 
   /**
-   * Search the data for the index of the maximum in each block of size n*n. <p> E.g. Max [ (i,i+n)
-   * x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n) <p> If multiple indices within
-   * the block have the same value then all are returned.
+   * Search the data for the index of the maximum in each block of size n*n.
+   *
+   * <p>E.g. Max [ (i,i+n) x (i,j+n) ] for (i=0; i&lt;maxx; i+=n) x (j=0, j&lt;maxy; j+=n).
+   *
+   * <p>If multiple indices within the block have the same value then all are returned.
    *
    * @param data The input data (packed in YX order)
    * @param maxx The width of the data

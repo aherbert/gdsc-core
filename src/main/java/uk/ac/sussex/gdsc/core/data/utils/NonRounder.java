@@ -25,31 +25,28 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.utils;
 
 /**
- * Class to the Rounder interface that does not perform rounding
+ * Class to implement the {@link Rounder} interface that does not perform rounding.
  */
 public class NonRounder implements Rounder {
-  /** {@inheritDoc} */
   @Override
   public double round(double value) {
     return value;
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public String toString(double value) {
-    return Double.toString(value);
-  }
-
-  /** {@inheritDoc} */
   @Override
   public float round(float value) {
     return value;
   }
 
-  /** {@inheritDoc} */
+  @Override
+  public String toString(double value) {
+    return Double.toString(value);
+  }
+
   @Override
   public String toString(float value) {
     return Float.toString(value);

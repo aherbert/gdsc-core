@@ -25,15 +25,16 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package uk.ac.sussex.gdsc.core.utils;
 
-import java.util.Arrays;
+package uk.ac.sussex.gdsc.core.utils;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 
+import java.util.Arrays;
+
 /**
- * Class for manipulating arrays
+ * Class for manipulating arrays.
  *
  * @author Alex Herbert
  */
@@ -73,158 +74,101 @@ public class SimpleArrayUtils {
   }
 
   /**
-   * Merge the two sets into a single set in ascending order. Both sets are destructively modified.
-   * <p> Note: This is rarely as fast as calling {@link #merge(int[], int[])} and then performing a
-   * sort.
-   *
-   * @param s1 the first set
-   * @param s2 the second set
-   * @return the merged set
-   * @deprecated Use merge and sort instead
-   */
-  @Deprecated
-  public static int[] sortMerge(int[] s1, int[] s2) {
-    s1 = flatten(s1);
-    s2 = flatten(s2);
-    Arrays.sort(s2);
-
-    int i = 0;
-    int j = 0;
-    final TIntArrayList list = new TIntArrayList(Math.max(s1.length, s2.length));
-    while (i < s1.length && j < s2.length) {
-      if (s1[i] < s2[j]) {
-        // Advance s1
-        list.add(s1[i++]);
-        while (i < s1.length && s1[i] < s2[j]) {
-          list.add(s1[i++]);
-        }
-      } else if (s1[i] > s2[j]) {
-        // Advance s2
-        list.add(s2[j++]);
-        while (j < s2.length && s2[j] < s1[i]) {
-          list.add(s2[j++]);
-        }
-      } else {
-        // Advance both
-        list.add(s1[i++]);
-        j++;
-        while (i < s1.length && j < s2.length && s1[i] == s2[j]) {
-          list.add(s1[i++]);
-          j++;
-        }
-      }
-    }
-
-    // Add the remaining data
-    if (i != s1.length) {
-      list.ensureCapacity(s1.length - i + list.size());
-      while (i < s1.length) {
-        list.add(s1[i++]);
-      }
-    } else if (j != s2.length) {
-      list.ensureCapacity(s2.length - j + list.size());
-      while (j < s2.length) {
-        list.add(s2[j++]);
-      }
-    }
-
-    return list.toArray();
-  }
-
-  /**
    * Flatten the array into an ascending array of unique values. Input data are destructively
-   * modified. <p> Inputting null will return a zero sized array.
+   * modified.
    *
-   * @param s the array
+   * <p>Inputting null will return a zero sized array.
+   *
+   * @param array the array
    * @return the new array
    */
-  public static int[] flatten(int[] s) {
-    if (s == null) {
+  public static int[] flatten(int[] array) {
+    if (array == null) {
       return new int[0];
     }
-    if (s.length <= 1) {
-      return s;
+    if (array.length <= 1) {
+      return array;
     }
-    Arrays.sort(s);
-    int c = 0;
-    for (int i = 1; i < s.length; i++) {
-      if (s[i] != s[c]) {
-        s[++c] = s[i];
+    Arrays.sort(array);
+    int count = 0;
+    for (int i = 1; i < array.length; i++) {
+      if (array[i] != array[count]) {
+        array[++count] = array[i];
       }
     }
-    return Arrays.copyOf(s, c + 1);
+    return Arrays.copyOf(array, count + 1);
   }
 
   /**
-   * Convert the input array to a double
+   * Convert the input array to a double.
    *
-   * @param a the array
+   * @param array the array
    * @return The new array
    */
-  public static double[] toDouble(float[] a) {
-    if (a == null) {
-      return null;
+  public static double[] toDouble(float[] array) {
+    if (array == null) {
+      return new double[0];
     }
-    final double[] b = new double[a.length];
-    for (int i = 0; i < a.length; i++) {
-      b[i] = a[i];
+    final double[] out = new double[array.length];
+    for (int i = 0; i < array.length; i++) {
+      out[i] = array[i];
     }
-    return b;
+    return out;
   }
 
   /**
-   * Convert the input array to a double
+   * Convert the input array to a double.
    *
-   * @param a the array
+   * @param array the array
    * @return The new array
    */
-  public static double[] toDouble(int[] a) {
-    if (a == null) {
-      return null;
+  public static double[] toDouble(int[] array) {
+    if (array == null) {
+      return new double[0];
     }
-    final double[] b = new double[a.length];
-    for (int i = 0; i < a.length; i++) {
-      b[i] = a[i];
+    final double[] out = new double[array.length];
+    for (int i = 0; i < array.length; i++) {
+      out[i] = array[i];
     }
-    return b;
+    return out;
   }
 
   /**
-   * Convert the input array to a float
+   * Convert the input array to array float.
    *
-   * @param a the array
+   * @param array the array
    * @return The new array
    */
-  public static float[] toFloat(double[] a) {
-    if (a == null) {
-      return null;
+  public static float[] toFloat(double[] array) {
+    if (array == null) {
+      return new float[0];
     }
-    final float[] b = new float[a.length];
-    for (int i = 0; i < a.length; i++) {
-      b[i] = (float) a[i];
+    final float[] out = new float[array.length];
+    for (int i = 0; i < array.length; i++) {
+      out[i] = (float) array[i];
     }
-    return b;
+    return out;
   }
 
   /**
-   * Convert the input array to a float
+   * Convert the input array to array float.
    *
-   * @param a the array
+   * @param array the array
    * @return The new array
    */
-  public static float[] toFloat(int[] a) {
-    if (a == null) {
-      return null;
+  public static float[] toFloat(int[] array) {
+    if (array == null) {
+      return new float[0];
     }
-    final float[] b = new float[a.length];
-    for (int i = 0; i < a.length; i++) {
-      b[i] = a[i];
+    final float[] out = new float[array.length];
+    for (int i = 0; i < array.length; i++) {
+      out[i] = array[i];
     }
-    return b;
+    return out;
   }
 
   /**
-   * Create and fill an array
+   * Create and fill an array.
    *
    * @param length The length of the array
    * @param start The start
@@ -240,7 +184,7 @@ public class SimpleArrayUtils {
   }
 
   /**
-   * Create and fill an array
+   * Create and fill an array.
    *
    * @param length The length of the array
    * @param start The start
@@ -256,7 +200,7 @@ public class SimpleArrayUtils {
   }
 
   /**
-   * Create and fill an array
+   * Create and fill an array.
    *
    * @param length The length of the array
    * @param start The start
@@ -273,7 +217,9 @@ public class SimpleArrayUtils {
 
   /**
    * Convert the data to strictly positive. Any value that is zero or below is set the minimum value
-   * above zero. <p> If no data is above zero then an array of zero is returned.
+   * above zero.
+   *
+   * <p>If no data is above zero then an array of zero is returned.
    *
    * @param data the data
    * @return the strictly positive variance
@@ -308,7 +254,9 @@ public class SimpleArrayUtils {
   }
 
   /**
-   * Find the minimum above zero. <p> Returns zero if no values are above zero.
+   * Find the minimum above zero.
+   *
+   * <p>Returns zero if no values are above zero.
    *
    * @param data the data
    * @return the minimum above zero
@@ -474,8 +422,9 @@ public class SimpleArrayUtils {
    * successive pair is compared to the mean interval. If the error is greater than the tolerance
    * then return false. If any interval is zero then return false. If any interval reverses
    * direction then return false. This ensures that the function returns true only if the sequence
-   * is monotonic and evenly sampled within the tolerance. <p> Note that the tolerance is absolute.
-   * You can create this from a relative tolerance using:
+   * is monotonic and evenly sampled within the tolerance.
+   *
+   * <p>Note that the tolerance is absolute. You can create this from a relative tolerance using:
    * <code>(x[1]-x[0])*relativeTolerance</code>.
    *
    * @param x the x
@@ -577,18 +526,6 @@ public class SimpleArrayUtils {
   }
 
   /**
-   * Scale the data in-place.
-   *
-   * @param x the x
-   * @param addition the scale
-   */
-  public static void add(float[] x, float addition) {
-    for (int i = 0; i < x.length; i++) {
-      x[i] += addition;
-    }
-  }
-
-  /**
    * Multiply the data in-place.
    *
    * @param x the x
@@ -613,7 +550,19 @@ public class SimpleArrayUtils {
   }
 
   /**
-   * Find min index
+   * Scale the data in-place.
+   *
+   * @param x the x
+   * @param addition the scale
+   */
+  public static void add(float[] x, float addition) {
+    for (int i = 0; i < x.length; i++) {
+      x[i] += addition;
+    }
+  }
+
+  /**
+   * Find min index.
    *
    * @param data the data
    * @return the min index
@@ -629,6 +578,39 @@ public class SimpleArrayUtils {
   }
 
   /**
+   * Find min index.
+   *
+   * @param data the data
+   * @return the min index
+   */
+  public static int findMinIndex(float[] data) {
+    int min = 0;
+    for (int i = 0; i < data.length; i++) {
+      if (data[i] < data[min]) {
+        min = i;
+      }
+    }
+    return min;
+  }
+
+  /**
+   * Find min index.
+   *
+   * @param data the data
+   * @return the min index
+   */
+  public static int findMinIndex(double[] data) {
+    int min = 0;
+    for (int i = 0; i < data.length; i++) {
+      if (data[i] < data[min]) {
+        min = i;
+      }
+    }
+    return min;
+  }
+
+
+  /**
    * Find max index.
    *
    * @param data the data
@@ -642,41 +624,6 @@ public class SimpleArrayUtils {
       }
     }
     return max;
-  }
-
-  /**
-   * Find min index
-   *
-   * @param data the data
-   * @return the min/max index
-   */
-  public static int[] findMinMaxIndex(int[] data) {
-    int min = 0, max = 0;
-
-    for (int i = 0; i < data.length; i++) {
-      if (data[i] < data[min]) {
-        min = i;
-      } else if (data[i] > data[min]) {
-        max = i;
-      }
-    }
-    return new int[] {min, max};
-  }
-
-  /**
-   * Find min index
-   *
-   * @param data the data
-   * @return the min index
-   */
-  public static int findMinIndex(float[] data) {
-    int min = 0;
-    for (int i = 0; i < data.length; i++) {
-      if (data[i] < data[min]) {
-        min = i;
-      }
-    }
-    return min;
   }
 
   /**
@@ -696,41 +643,6 @@ public class SimpleArrayUtils {
   }
 
   /**
-   * Find min index
-   *
-   * @param data the data
-   * @return the min/max index
-   */
-  public static int[] findMinMaxIndex(float[] data) {
-    int min = 0, max = 0;
-
-    for (int i = 0; i < data.length; i++) {
-      if (data[i] < data[min]) {
-        min = i;
-      } else if (data[i] > data[min]) {
-        max = i;
-      }
-    }
-    return new int[] {min, max};
-  }
-
-  /**
-   * Find min index
-   *
-   * @param data the data
-   * @return the min index
-   */
-  public static int findMinIndex(double[] data) {
-    int min = 0;
-    for (int i = 0; i < data.length; i++) {
-      if (data[i] < data[min]) {
-        min = i;
-      }
-    }
-    return min;
-  }
-
-  /**
    * Find max index.
    *
    * @param data the data
@@ -747,13 +659,55 @@ public class SimpleArrayUtils {
   }
 
   /**
-   * Find min index
+   * Find min index.
+   *
+   * @param data the data
+   * @return the min/max index
+   */
+  public static int[] findMinMaxIndex(int[] data) {
+    int min = 0;
+    int max = 0;
+
+    for (int i = 0; i < data.length; i++) {
+      if (data[i] < data[min]) {
+        min = i;
+      } else if (data[i] > data[min]) {
+        max = i;
+      }
+    }
+    return new int[] {min, max};
+  }
+
+  /**
+   * Find min index.
+   *
+   * @param data the data
+   * @return the min/max index
+   */
+  public static int[] findMinMaxIndex(float[] data) {
+    int min = 0;
+    int max = 0;
+
+    for (int i = 0; i < data.length; i++) {
+      if (data[i] < data[min]) {
+        min = i;
+      } else if (data[i] > data[min]) {
+        max = i;
+      }
+    }
+    return new int[] {min, max};
+  }
+
+
+  /**
+   * Find min index.
    *
    * @param data the data
    * @return the min/max index
    */
   public static int[] findMinMaxIndex(double[] data) {
-    int min = 0, max = 0;
+    int min = 0;
+    int max = 0;
 
     for (int i = 0; i < data.length; i++) {
       if (data[i] < data[min]) {
@@ -767,8 +721,10 @@ public class SimpleArrayUtils {
 
   /**
    * Gets the ranges of continuous ascending indices in pairs, e.g [0,1,3,4,5,7] returns
-   * [0,1,3,5,7,7] (pairs 0-1, 3-5 and 7-7). <p> This method will eliminate duplicate indices as it
-   * returns the start and end of the range, e.g. [0,1,2,2,3] returns [0,3].
+   * [0,1,3,5,7,7] (pairs 0-1, 3-5 and 7-7).
+   *
+   * <p>This method will eliminate duplicate indices as it returns the start and end of the range,
+   * e.g. [0,1,2,2,3] returns [0,3].
    *
    * @param indices the indices
    * @return the ranges
@@ -810,7 +766,7 @@ public class SimpleArrayUtils {
    * @throws IllegalArgumentException If width or height are not positive
    * @throws IllegalArgumentException If width * height is too large for an integer
    */
-  public static int check2DSize(int width, int height) throws IllegalArgumentException {
+  public static int check2DSize(int width, int height) {
     if (width < 0) {
       throw new IllegalArgumentException("Width cannot be less than 1");
     }
@@ -826,8 +782,9 @@ public class SimpleArrayUtils {
 
   /**
    * Check the 2D array can contain data. The array must not be length zero and (width * height) is
-   * the same as data.length. The contents of the array are not checked. <p> Note that data.length
-   * == 0 will cause an exception.
+   * the same as data.length. The contents of the array are not checked.
+   *
+   * <p>Note that data.length == 0 will cause an exception.
    *
    * @param width the width
    * @param height the height
@@ -836,8 +793,7 @@ public class SimpleArrayUtils {
    * @throws IllegalArgumentException If width * height is too large for an integer
    * @throws NullPointerException If the data is null
    */
-  public static void hasData2D(int width, int height, float[] data)
-      throws IllegalArgumentException, NullPointerException {
+  public static void hasData2D(int width, int height, float[] data) {
     if (data == null || data.length == 0) {
       throw new IllegalArgumentException("data is empty");
     }
@@ -848,8 +804,9 @@ public class SimpleArrayUtils {
 
   /**
    * Check the 2D array can contain data. The array must not be length zero and (width * height) is
-   * the same as data.length. The contents of the array are not checked. <p> Note that data.length
-   * == 0 will cause an exception.
+   * the same as data.length. The contents of the array are not checked.
+   *
+   * <p>Note that data.length == 0 will cause an exception.
    *
    * @param width the width
    * @param height the height
@@ -858,8 +815,7 @@ public class SimpleArrayUtils {
    * @throws IllegalArgumentException If width * height is too large for an integer
    * @throws NullPointerException If the data is null
    */
-  public static void hasData2D(int width, int height, double[] data)
-      throws IllegalArgumentException, NullPointerException {
+  public static void hasData2D(int width, int height, double[] data) {
     if (data == null || data.length == 0) {
       throw new IllegalArgumentException("data is empty");
     }
@@ -870,8 +826,9 @@ public class SimpleArrayUtils {
 
   /**
    * Check the 2D array can contain data. The array must not be length zero and (width * height) is
-   * the same as data.length. The contents of the array are not checked. <p> Note that data.length
-   * == 0 will cause an exception.
+   * the same as data.length. The contents of the array are not checked.
+   *
+   * <p>Note that data.length == 0 will cause an exception.
    *
    * @param width the width
    * @param height the height
@@ -880,8 +837,7 @@ public class SimpleArrayUtils {
    * @throws IllegalArgumentException If width * height is too large for an integer
    * @throws NullPointerException If the data is null
    */
-  public static void hasData2D(int width, int height, int[] data)
-      throws IllegalArgumentException, NullPointerException {
+  public static void hasData2D(int width, int height, int[] data) {
     if (data == null || data.length == 0) {
       throw new IllegalArgumentException("data is empty");
     }
@@ -892,8 +848,9 @@ public class SimpleArrayUtils {
 
   /**
    * Check the 2D array can contain data. The array must not be length zero and (width * height) is
-   * the same as data.length. The contents of the array are not checked. <p> Note that data.length
-   * == 0 will cause an exception.
+   * the same as data.length. The contents of the array are not checked.
+   *
+   * <p>Note that data.length == 0 will cause an exception.
    *
    * @param width the width
    * @param height the height
@@ -902,8 +859,7 @@ public class SimpleArrayUtils {
    * @throws IllegalArgumentException If width * height is too large for an integer
    * @throws NullPointerException If the data is null
    */
-  public static void hasData2D(int width, int height, byte[] data)
-      throws IllegalArgumentException, NullPointerException {
+  public static void hasData2D(int width, int height, byte[] data) {
     if (data == null || data.length == 0) {
       throw new IllegalArgumentException("data is empty");
     }
@@ -915,74 +871,92 @@ public class SimpleArrayUtils {
   /**
    * Checks if the object is an array.
    *
-   * @param o the object
+   * @param object the object
    * @return true, if is array
    */
-  public static boolean isArray(Object o) {
-    return o != null && o.getClass().isArray();
+  public static boolean isArray(Object object) {
+    return object != null && object.getClass().isArray();
   }
 
   /**
    * Returns a string representation of the object. If an array then the appropriate
-   * Arrays.toString(...) method is called depending on the array type. <p> Note: If an instance of
-   * Object[] then {@link Arrays#deepToString(Object[])} is called allowing recursion for nested
-   * arrays, e.g. int[][].
+   * Arrays.toString(...) method is called depending on the array type.
    *
-   * @param o the object
+   * <p>Note: If an instance of Object[] then {@link Arrays#deepToString(Object[])} is called
+   * allowing recursion for nested arrays, e.g. int[][].
+   *
+   * @param object the object
    * @return the string
    */
-  public static String toString(Object o) {
-    return toString(o, true);
+  public static String toString(Object object) {
+    return toString(object, true);
   }
 
   /**
    * Returns a string representation of the object. If an array then the appropriate
-   * Arrays.toString(...) method is called depending on the array type. <p> Note: If an instance of
-   * Object[] then optionally {@link Arrays#deepToString(Object[])} is called allowing recursion for
-   * nested arrays, e.g. int[][].
+   * Arrays.toString(...) method is called depending on the array type.
    *
-   * @param o the object
+   * <p>Note: If an instance of Object[] then optionally {@link Arrays#deepToString(Object[])} is
+   * called allowing recursion for nested arrays, e.g. int[][].
+   *
+   * @param object the object
    * @param deepToString Set to true to call Arrays#deepToString(Object[]) for Object arrays
    * @return the string
    */
-  public static String toString(Object o, boolean deepToString) {
-    if (o != null) {
-      final Class<?> eClass = o.getClass();
-      if (eClass.isArray()) {
-        // Check primitive types
-        //@formatter:off
-				if (eClass ==  int      [].class) {
-          return Arrays.toString((int       []) o);
-        }
-				if (eClass ==  double   [].class) {
-          return Arrays.toString((double    []) o);
-        }
-				if (eClass ==  float    [].class) {
-          return Arrays.toString((float     []) o);
-        }
-				if (eClass ==  boolean  [].class) {
-          return Arrays.toString((boolean   []) o);
-        }
-				if (eClass ==  byte     [].class) {
-          return Arrays.toString((byte      []) o);
-        }
-				if (eClass ==  long     [].class) {
-          return Arrays.toString((long      []) o);
-        }
-				if (eClass ==  short    [].class) {
-          return Arrays.toString((short     []) o);
-        }
-				if (eClass ==  char     [].class) {
-          return Arrays.toString((char      []) o);
-        }
-				// Support optional recursion
-				return (deepToString)
-						? Arrays.deepToString((Object[]) o)
-						: Arrays.toString(    (Object[]) o);
-				//@formatter:on
-      }
-      return o.toString();
+  public static String toString(Object object, boolean deepToString) {
+    if (object == null) {
+      return "null";
     }
-    return "null";
+    final Class<?> clazz = object.getClass();
+    if (clazz.isArray()) {
+      return arrayToString(object, deepToString, clazz);
+    }
+    return object.toString();
+  }
+
+  /**
+   * Returns a string representation of the array object using the appropriate Arrays.toString(...)
+   * method is called depending on the array type.
+   *
+   * <p>Note: If an instance of Object[] then optionally {@link Arrays#deepToString(Object[])} is
+   * called allowing recursion for nested arrays, e.g. int[][].
+   *
+   * @param object the object
+   * @param deepToString Set to true to call Arrays#deepToString(Object[]) for Object arrays
+   * @param clazz the array class
+   * @return the string
+   */
+  private static String arrayToString(Object object, boolean deepToString, final Class<?> clazz) {
+    // Check primitive types
+    //@formatter:off
+    if (clazz ==  int      [].class) {
+      return Arrays.toString((int       []) object);
+    }
+    if (clazz ==  double   [].class) {
+      return Arrays.toString((double    []) object);
+    }
+    if (clazz ==  float    [].class) {
+      return Arrays.toString((float     []) object);
+    }
+    if (clazz ==  boolean  [].class) {
+      return Arrays.toString((boolean   []) object);
+    }
+    if (clazz ==  byte     [].class) {
+      return Arrays.toString((byte      []) object);
+    }
+    if (clazz ==  long     [].class) {
+      return Arrays.toString((long      []) object);
+    }
+    if (clazz ==  short    [].class) {
+      return Arrays.toString((short     []) object);
+    }
+    if (clazz ==  char     [].class) {
+      return Arrays.toString((char      []) object);
+    }
+    // Support optional recursion
+    return (deepToString)
+        ? Arrays.deepToString((Object[]) object)
+        : Arrays.toString(    (Object[]) object);
+    //@formatter:on
   }
 }

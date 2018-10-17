@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.logging;
 
 /**
@@ -45,55 +46,46 @@ public class NullTrackProgress implements TrackProgress {
     return (trackProgress == null) ? INSTANCE : trackProgress;
   }
 
-  /** {@inheritDoc} */
   @Override
   public void progress(double fraction) {
     // Do nothing
   }
 
-  /** {@inheritDoc} */
   @Override
   public void progress(long position, long total) {
     // Do nothing
   }
 
-  /** {@inheritDoc} */
   @Override
   public void incrementProgress(double fraction) {
     // Do nothing
   }
 
-  /** {@inheritDoc} */
   @Override
   public void log(String format, Object... args) {
     // Do nothing
   }
 
-  /** {@inheritDoc} */
   @Override
   public void status(String format, Object... args) {
     // Do nothing
   }
 
-  /** {@inheritDoc} */
   @Override
   public boolean isEnded() {
     return false;
   }
 
-  /** {@inheritDoc} */
   @Override
   public boolean isProgress() {
     return false;
   }
 
-  /** {@inheritDoc} */
   @Override
   public boolean isLog() {
     return false;
   }
 
-  /** {@inheritDoc} */
   @Override
   public boolean isStatus() {
     return false;

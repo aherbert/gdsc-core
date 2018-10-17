@@ -25,18 +25,18 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering;
 
 /**
- * Extends the {@link uk.ac.sussex.gdsc.core.clustering.ClusterPoint } class to hold additional
- * information for use in clustering
+ * Extends the {@link ClusterPoint} class to hold additional information for use in clustering.
  */
 public class ExtendedClusterPoint extends ClusterPoint {
   /** The next cluster point. Used for linked lists. */
-  public ExtendedClusterPoint nextE = null;
+  private ExtendedClusterPoint next;
 
   /** Flag indicating if this is in a cluster. */
-  public boolean inCluster = false;
+  private boolean inCluster;
 
   /**
    * Instantiates a new extended cluster point.
@@ -44,11 +44,47 @@ public class ExtendedClusterPoint extends ClusterPoint {
    * @param id the id
    * @param x the x
    * @param y the y
-   * @param t the t
+   * @param time the time
    * @param other the other cluster point (used to create a linked-list)
    */
-  public ExtendedClusterPoint(int id, double x, double y, int t, ClusterPoint other) {
-    super(id, x, y, t, t);
-    super.next = other;
+  public ExtendedClusterPoint(int id, double x, double y, int time, ClusterPoint other) {
+    super(id, x, y, time, time);
+    super.setNext(other);
+  }
+
+  /**
+   * Checks if is in a cluster.
+   *
+   * @return true, if is in a cluster
+   */
+  public boolean isInCluster() {
+    return inCluster;
+  }
+
+  /**
+   * Sets the in cluster flag.
+   *
+   * @param inCluster true if is in a cluster
+   */
+  public void setInCluster(boolean inCluster) {
+    this.inCluster = inCluster;
+  }
+
+  /**
+   * Gets the next extended cluster point. Used to construct a single linked list of points.
+   *
+   * @return the next extended cluster point
+   */
+  public ExtendedClusterPoint getNextExtended() {
+    return next;
+  }
+
+  /**
+   * Sets the next extended cluster point. Used to construct a single linked list of points.
+   *
+   * @param next the new next extended cluster point
+   */
+  public void setNextExtended(ExtendedClusterPoint next) {
+    this.next = next;
   }
 }

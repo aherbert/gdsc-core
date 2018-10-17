@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.threshold;
 
 import uk.ac.sussex.gdsc.core.threshold.AutoThreshold.Method;
@@ -32,7 +33,9 @@ import uk.ac.sussex.gdsc.core.threshold.AutoThreshold.Method;
 import java.util.Arrays;
 
 /**
- * Contains a histogram. <p> The histogram is implemented in this class using float bin values.
+ * Contains a histogram.
+ *
+ * <p>The histogram is implemented in this class using float bin values.
  */
 public class FloatHistogram extends Histogram {
   /** The histogram bin values. */
@@ -41,32 +44,29 @@ public class FloatHistogram extends Histogram {
   /**
    * Instantiates a new float histogram.
    *
-   * @param h the histogram
-   * @param value the bin values
-   * @param minBin the min bin
-   * @param maxBin the max bin
+   * @param value the value
+   * @param histogram the histogram bin counts
    */
-  private FloatHistogram(int[] h, float[] value, int minBin, int maxBin) {
-    super(h, minBin, maxBin);
+  public FloatHistogram(float[] value, int[] histogram) {
+    super(histogram);
     this.value = value;
   }
 
   /**
    * Instantiates a new float histogram.
    *
-   * @param value the value
-   * @param h the histogram bin counts
+   * @param source the source
    */
-  public FloatHistogram(float[] value, int[] h) {
-    super(h);
-    this.value = value;
+  protected FloatHistogram(FloatHistogram source) {
+    super(source);
+    this.value = source.value.clone();
   }
 
   /**
    * Build a histogram using the input data values.
    *
    * <p>The input array is unchanged.
-   * 
+   *
    * @param data The data
    * @param doSort True if the data should be sorted
    * @return The histogram
@@ -78,7 +78,7 @@ public class FloatHistogram extends Histogram {
 
   /**
    * Build a histogram using the input data values.
-   * 
+   *
    * <p>Note that input data array is modified if the in-place option is specified. Otherwise the
    * input array is unchanged.
    *
@@ -95,7 +95,7 @@ public class FloatHistogram extends Histogram {
 
     // Create histogram values (optionally reusing the data in-place)
     float[] value = (inPlace) ? data : data.clone();
-    int[] h = new int[data.length];
+    int[] histogram = new int[data.length];
 
     if (doSort) {
       Arrays.sort(value);
@@ -110,7 +110,7 @@ public class FloatHistogram extends Histogram {
       if (lastValue != value[i]) {
         // Re-use the array in-place
         value[size] = lastValue;
-        h[size++] = count;
+        histogram[size++] = count;
         count = 0;
       }
       lastValue = value[i];
@@ -118,15 +118,15 @@ public class FloatHistogram extends Histogram {
     }
     // Final count
     value[size] = lastValue;
-    h[size++] = count;
+    histogram[size++] = count;
 
     // Truncate
     if (size < value.length) {
-      h = Arrays.copyOf(h, size);
+      histogram = Arrays.copyOf(histogram, size);
       value = Arrays.copyOf(value, size);
     }
 
-    return new FloatHistogram(value, h);
+    return new FloatHistogram(value, histogram);
   }
 
   /**
@@ -146,25 +146,23 @@ public class FloatHistogram extends Histogram {
     final float min = getValue(minBin);
     final float max = getValue(maxBin);
 
-    if ((int) min == min && (int) max == max && (max - min) <= size) {
-      // Check if we can convert to integer histogram
-      if (integerData()) {
-        return integerHistogram(size);
-      }
+    // Check if we can convert to integer histogram
+    if ((int) min == min && (int) max == max && (max - min) <= size && integerData()) {
+      return integerHistogram(size);
     }
 
     // Compress non-integer data
     final int size_1 = size - 1;
     final float binSize = (max - min) / size_1;
     final int[] newH = new int[size];
-    for (int i = 0; i < h.length; i++) {
+    for (int i = 0; i < histogramCounts.length; i++) {
       final int bin = (int) ((getValue(i) - min) / binSize + 0.5);
       if (bin < 0) {
-        newH[0] += h[i];
+        newH[0] += histogramCounts[i];
       } else if (bin >= size) {
-        newH[size_1] += h[i];
+        newH[size_1] += histogramCounts[i];
       } else {
-        newH[bin] += h[i];
+        newH[bin] += histogramCounts[i];
       }
     }
     // Create the new values
@@ -202,7 +200,7 @@ public class FloatHistogram extends Histogram {
       // Pure integer histogram. Do a direct conversion.
       final int[] h = new int[size];
       for (int i = minBin; i <= maxBin; i++) {
-        h[(int) value[i]] += this.h[i];
+        h[(int) value[i]] += this.histogramCounts[i];
       }
       return new Histogram(h);
     }
@@ -212,30 +210,31 @@ public class FloatHistogram extends Histogram {
     // No need to check size since this has been done already
     final int[] h = new int[size];
     for (int i = 0; i < value.length; i++) {
-      h[(int) value[i] - min] += this.h[i];
+      h[(int) value[i] - min] += this.histogramCounts[i];
     }
 
     return new IntHistogram(h, min);
   }
 
-  /** {@inheritDoc} */
   @Override
-  public float getValue(int i) {
-    return value[i];
+  public float getValue(int bin) {
+    return value[bin];
   }
 
   /** {@inheritDoc} */
   @Override
-  public FloatHistogram clone() {
-    return new FloatHistogram(this.h.clone(), this.value.clone(), minBin, maxBin);
+  public FloatHistogram copy() {
+    return new FloatHistogram(this);
   }
 
   /**
-   * {@inheritDoc} <p> Compacts the histogram to evenly spaced bin widths and then runs the
-   * threshold method. If the compaction does not work (e.g. if minBin == maxBin) then thresholding
-   * is not possible and -Infinity is returned.
+   * {@inheritDoc}
    *
-   * @see uk.ac.sussex.gdsc.core.threshold.Histogram#getThreshold(uk.ac.sussex.gdsc.core.threshold.AutoThreshold.Method)
+   * <p>Compacts the histogram to evenly spaced bin widths and then runs the threshold method. If
+   * the compaction does not work (e.g. if minBin == maxBin) then thresholding is not possible and
+   * -Infinity is returned.
+   *
+   * @see Histogram#getThreshold(AutoThreshold.Method)
    */
   @Override
   public float getThreshold(Method method) {

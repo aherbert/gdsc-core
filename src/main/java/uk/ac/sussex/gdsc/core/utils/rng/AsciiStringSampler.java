@@ -25,24 +25,28 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils.rng;
+
+import gnu.trove.list.array.TCharArrayList;
 
 import org.apache.commons.rng.UniformRandomProvider;
 
 import java.util.Objects;
 
-import gnu.trove.list.array.TCharArrayList;
-
 /**
- * Class for generating random strings from the printable ASCII character set. <p> Characters will
- * be chosen from the set of characters whose ASCII value is between {@code 32} and {@code 126}
- * (inclusive). This is: <ul> <li>{@code 0} to {@code 9} <li>{@code A} to {@code Z} <li>{@code a} to
- * {@code z} <li><code>!"#$%&amp;'()*+,-./:;&lt;=&gt;?@\]^_`{|}</code> <li>space (ASCII {@code 32})
- * <li>escape (ASCII {@code 126}) </ul> <p> Methods names are inspired by
- * {@code org.apache.commons.lang3.RandomStringUtils}. For simple ASCII character sets (with no
- * support for range of code points) this class will outperform {@code RandomStringUtils}. For a
- * custom set of characters {@code char[]} it is recommended to use {@code RandomStringUtils} with a
- * wrapped {@link java.util.Random} implementing {@link java.util.Random#nextInt(int)}.
+ * Class for generating random strings from the printable ASCII character set.
+ *
+ * <p>Characters will be chosen from the set of characters whose ASCII value is between {@code 32}
+ * and {@code 126} (inclusive). This is: <ul> <li>{@code 0} to {@code 9} <li>{@code A} to {@code Z}
+ * <li>{@code a} to {@code z} <li><code>!"#$%&amp;'()*+,-./:;&lt;=&gt;?@\]^_`{|}</code> <li>space
+ * (ASCII {@code 32}) <li>escape (ASCII {@code 126}) </ul>.
+ *
+ * <p>Methods names are inspired by {@code org.apache.commons.lang3.RandomStringUtils}. For simple
+ * ASCII character sets (with no support for range of code points) this class will outperform
+ * {@code RandomStringUtils}. For a custom set of characters {@code char[]} it is recommended to use
+ * {@code RandomStringUtils} with a wrapped {@link java.util.Random} implementing
+ * {@link java.util.Random#nextInt(int)}.
  */
 public class AsciiStringSampler {
 
@@ -95,12 +99,14 @@ public class AsciiStringSampler {
     ASCII = list.toArray();
   }
 
-  /** The generator of uniformly distributed random numbers */
+  /** The generator of uniformly distributed random numbers. */
   private final UniformRandomProvider rng;
 
   /**
-   * Creates a generator of strings. <p> The sampling works using the
-   * {@code UniformRandomProvider#nextInt(int)} method so a native generator of ints is best.
+   * Creates a generator of strings.
+   *
+   * <p>The sampling works using the {@code UniformRandomProvider#nextInt(int)} method so a native
+   * generator of ints is best.
    *
    * @param rng Generator of uniformly distributed random numbers.
    * @throws NullPointerException If {@code rng} is null.
@@ -110,7 +116,7 @@ public class AsciiStringSampler {
   }
 
   /**
-   * <p> Creates a random string whose length is the number of characters specified. </p> <p>
+   * <p>Creates a random string whose length is the number of characters specified. </p> <p>
    * Characters will be chosen from the set of Latin alphabetic characters (a-z, A-Z). </p>
    *
    * @param count the length of random string to create
@@ -121,7 +127,7 @@ public class AsciiStringSampler {
   }
 
   /**
-   * <p> Creates a random string whose length is the number of characters specified. </p> <p>
+   * <p>Creates a random string whose length is the number of characters specified. </p> <p>
    * Characters will be chosen from the set of Latin alphabetic characters (a-z, A-Z) and the digits
    * 0-9. </p>
    *
@@ -133,7 +139,7 @@ public class AsciiStringSampler {
   }
 
   /**
-   * <p> Creates a random string whose length is the number of characters specified. </p> <p>
+   * <p>Creates a random string whose length is the number of characters specified. </p> <p>
    * Characters will be chosen from the set of characters whose ASCII value is between {@code 32}
    * and {@code 126} (inclusive). </p>
    *
@@ -145,7 +151,7 @@ public class AsciiStringSampler {
   }
 
   /**
-   * <p> Creates a random string whose length is the number of characters specified. </p> <p>
+   * <p>Creates a random string whose length is the number of characters specified. </p> <p>
    * Characters will be chosen from the MIME Base64 table: A-Z, a-z, 0-9, +, /. </p>
    *
    * @param count the length of random string to create
@@ -156,7 +162,7 @@ public class AsciiStringSampler {
   }
 
   /**
-   * <p> Creates a random string whose length is the number of characters specified. </p> <p>
+   * <p>Creates a random string whose length is the number of characters specified. </p> <p>
    * Characters will be chosen from the set of Characters (A-Z) and the digits 0-9. </p>
    *
    * @param count the length of random string to create
@@ -167,11 +173,13 @@ public class AsciiStringSampler {
   }
 
   /**
-   * <p> Creates a random string whose length is the number of characters specified. </p> <p>
+   * <p>Creates a random string whose length is the number of characters specified. </p> <p>
    * Characters will be chosen from the set of characters which match the POSIX [:graph:] regular
    * expression character class. This class contains all visible ASCII characters (i.e. anything
-   * except spaces and control characters). </p> <p> Characters will be chosen from the set of
-   * characters whose ASCII value is between {@code 33} and {@code 125} (inclusive). </p>
+   * except spaces and control characters). </p>.
+   *
+   * <p>Characters will be chosen from the set of characters whose ASCII value is between {@code 33}
+   * and {@code 125} (inclusive). </p>
    *
    * @param count the length of random string to create
    * @return the random string
@@ -181,7 +189,7 @@ public class AsciiStringSampler {
   }
 
   /**
-   * <p> Creates a random string whose length is the number of characters specified. </p> <p>
+   * <p>Creates a random string whose length is the number of characters specified. </p> <p>
    * Characters will be chosen from the set of characters (A-Z) and the digits 0-9. </p>
    *
    * @param count the length of random string to create
@@ -192,7 +200,7 @@ public class AsciiStringSampler {
   }
 
   /**
-   * <p> Creates a random string whose length is the number of characters specified. </p> <p>
+   * <p>Creates a random string whose length is the number of characters specified. </p> <p>
    * Characters will be chosen from the set of lower case characters (a-z). </p>
    *
    * @param count the length of random string to create
@@ -203,7 +211,7 @@ public class AsciiStringSampler {
   }
 
   /**
-   * <p> Creates a random string whose length is the number of characters specified. </p> <p>
+   * <p>Creates a random string whose length is the number of characters specified. </p> <p>
    * Characters will be chosen from the set of numeric characters. </p>
    *
    * @param count the length of random string to create
@@ -214,11 +222,13 @@ public class AsciiStringSampler {
   }
 
   /**
-   * <p> Creates a random string whose length is the number of characters specified. </p> <p>
+   * <p>Creates a random string whose length is the number of characters specified. </p> <p>
    * Characters will be chosen from the set of characters which match the POSIX [:print:] regular
    * expression character class. This class includes all visible ASCII characters and spaces (i.e.
-   * anything except control characters). </p> <p> Characters will be chosen from the set of
-   * characters whose ASCII value is between {@code 32} and {@code 125} (inclusive). </p>
+   * anything except control characters). </p>.
+   *
+   * <p>Characters will be chosen from the set of characters whose ASCII value is between {@code 32}
+   * and {@code 125} (inclusive). </p>
    *
    * @param count the length of random string to create
    * @return the random string
@@ -228,7 +238,7 @@ public class AsciiStringSampler {
   }
 
   /**
-   * <p> Creates a random string whose length is the number of characters specified. </p> <p>
+   * <p>Creates a random string whose length is the number of characters specified. </p> <p>
    * Characters will be chosen from the set of upper case characters (A-Z). </p>
    *
    * @param count the length of random string to create

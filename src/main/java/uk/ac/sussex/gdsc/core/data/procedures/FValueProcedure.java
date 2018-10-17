@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.procedures;
 
 /**
- * Interface for accessing float values
+ * Interface for accessing float values.
  */
 public interface FValueProcedure {
   /**

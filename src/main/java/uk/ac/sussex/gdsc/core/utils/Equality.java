@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 /**
- * Compares primitives for equality
+ * Compares primitives for equality.
  */
 public class Equality {
   /**

@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.utils;
 
 /**
- * Interface for rounding
+ * Interface for rounding.
  */
 public interface Rounder {
   /**
@@ -40,20 +41,20 @@ public interface Rounder {
   public double round(double value);
 
   /**
-   * Round the value to a string.
-   *
-   * @param value the value
-   * @return the rounded string value
-   */
-  public String toString(double value);
-
-  /**
    * Round the value.
    *
    * @param value the value
    * @return the rounded value
    */
   public float round(float value);
+
+  /**
+   * Round the value to a string.
+   *
+   * @param value the value
+   * @return the rounded string value
+   */
+  public String toString(double value);
 
   /**
    * Round the value to a string.

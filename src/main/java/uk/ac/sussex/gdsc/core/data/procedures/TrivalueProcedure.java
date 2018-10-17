@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.procedures;
 
 /**
@@ -45,34 +46,34 @@ public interface TrivalueProcedure {
   /**
    * Sets the X axis value.
    *
-   * @param i the index
+   * @param index the index
    * @param value the value
    */
-  public void setX(int i, double value);
+  public void setX(int index, double value);
 
   /**
    * Sets the Y axis value.
    *
-   * @param j the index
+   * @param index the index
    * @param value the value
    */
-  public void setY(int j, double value);
+  public void setY(int index, double value);
 
   /**
    * Sets the Z axis value.
    *
-   * @param k the index
+   * @param index the index
    * @param value the value
    */
-  public void setZ(int k, double value);
+  public void setZ(int index, double value);
 
   /**
    * Set the value.
    *
-   * @param i the x index
-   * @param j the y index
-   * @param k the z index
+   * @param indexX the index X
+   * @param indexY the index Y
+   * @param indexZ the index Z
    * @param value the value
    */
-  public void setValue(int i, int j, int k, double value);
+  public void setValue(int indexX, int indexY, int indexZ, double value);
 }

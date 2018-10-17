@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.io;
 
 import java.io.EOFException;
@@ -43,11 +44,9 @@ public abstract class SeekableStream extends InputStream {
    */
   public abstract long getFilePointer() throws IOException;
 
-  /** {@inheritDoc} */
   @Override
   public abstract int read() throws IOException;
 
-  /** {@inheritDoc} */
   @Override
   public abstract int read(byte[] bytes, int off, int len) throws IOException;
 
@@ -108,19 +107,21 @@ public abstract class SeekableStream extends InputStream {
    *            support reading after close, or another I/O error occurs.
    */
   public final void readFullyInternal(byte[] bytes, int off, int len) throws IOException {
-    int n = 0;
-    while (n < len) {
-      final int count = read(bytes, off + n, len - n);
+    int bytesRead = 0;
+    while (bytesRead < len) {
+      final int count = read(bytes, off + bytesRead, len - bytesRead);
       if (count < 0) {
         throw new EOFException();
       }
-      n += count;
+      bytesRead += count;
     }
   }
 
   /**
-   * Read the full length of the buffer into the byte buffer. <p> If this input stream reaches the
-   * end before reading all the bytes then the number of bytes read is returned.
+   * Read the full length of the buffer into the byte buffer.
+   *
+   * <p>If this input stream reaches the end before reading all the bytes then the number of bytes
+   * read is returned.
    *
    * @param bytes the buffer into which the data is read
    * @return the number of bytes read
@@ -132,8 +133,10 @@ public abstract class SeekableStream extends InputStream {
   }
 
   /**
-   * Read the set length into the byte buffer. <p> If this input stream reaches the end before
-   * reading all the bytes then the number of bytes read is returned.
+   * Read the set length into the byte buffer.
+   *
+   * <p>If this input stream reaches the end before reading all the bytes then the number of bytes
+   * read is returned.
    *
    * @param bytes the buffer into which the data is read
    * @param len the number of bytes to read.
@@ -149,8 +152,10 @@ public abstract class SeekableStream extends InputStream {
   }
 
   /**
-   * Read the set length into the byte buffer. <p> If this input stream reaches the end before
-   * reading all the bytes then the number of bytes read is returned.
+   * Read the set length into the byte buffer.
+   *
+   * <p>If this input stream reaches the end before reading all the bytes then the number of bytes
+   * read is returned.
    *
    * @param bytes the buffer into which the data is read
    * @param off the start offset of the data.
@@ -167,8 +172,10 @@ public abstract class SeekableStream extends InputStream {
   }
 
   /**
-   * Read the set length into the byte buffer. <p> If this input stream reaches the end before
-   * reading all the bytes then the number of bytes read is returned.
+   * Read the set length into the byte buffer.
+   *
+   * <p>If this input stream reaches the end before reading all the bytes then the number of bytes
+   * read is returned.
    *
    * @param bytes the buffer into which the data is read
    * @param off the start offset of the data.
@@ -178,15 +185,15 @@ public abstract class SeekableStream extends InputStream {
    *            support reading after close, or another I/O error occurs.
    */
   public final int readBytesInternal(byte[] bytes, int off, int len) throws IOException {
-    int n = 0;
-    while (n < len) {
-      final int count = read(bytes, off + n, len - n);
+    int bytesRead = 0;
+    while (bytesRead < len) {
+      final int count = read(bytes, off + bytesRead, len - bytesRead);
       if (count < 0) {
         break;
       }
-      n += count;
+      bytesRead += count;
     }
-    return n;
+    return bytesRead;
   }
 
   /**
@@ -269,7 +276,6 @@ public abstract class SeekableStream extends InputStream {
     return Float.intBitsToFloat(readInt());
   }
 
-  /** {@inheritDoc} */
   @Override
   public abstract void close() throws IOException;
 

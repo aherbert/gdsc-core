@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.logging;
 
 /**
- * Track the progress of processing results
+ * Track the progress of processing results.
  */
 public interface TrackProgress {
   /**
@@ -70,8 +71,9 @@ public interface TrackProgress {
   public void status(String format, Object... args);
 
   /**
-   * Return true if the tracker is ended and the processing of results should stop. <p> This method
-   * can be checked by long running algorithms allowing them to be interrupted.
+   * Return true if the tracker is ended and the processing of results should stop.
+   *
+   * <p>This method can be checked by long running algorithms allowing them to be interrupted.
    *
    * @return True if ended
    */

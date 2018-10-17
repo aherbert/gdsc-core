@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.utils;
 
 /**
@@ -33,7 +34,8 @@ package uk.ac.sussex.gdsc.core.data.utils;
  * @param <T> the generic type
  */
 public abstract class AbstractTypeConverter<T> implements TypeConverter<T> {
-  private final T from, to;
+  private final T from;
+  private final T to;
 
   /**
    * Instantiates a new abstract unit converter.
@@ -72,31 +74,26 @@ public abstract class AbstractTypeConverter<T> implements TypeConverter<T> {
     this.to = to;
   }
 
-  /** {@inheritDoc} */
   @Override
   public float convert(float value) {
     return (float) convert((double) value);
   }
 
-  /** {@inheritDoc} */
   @Override
   public float convertBack(float value) {
     return (float) convertBack((double) value);
   }
 
-  /** {@inheritDoc} */
   @Override
   public T from() {
     return from;
   }
 
-  /** {@inheritDoc} */
   @Override
   public T to() {
     return to;
   }
 
-  /** {@inheritDoc} */
   @Override
   public String toString() {
     return to + " = f(x=" + from + ") = " + getFunction();

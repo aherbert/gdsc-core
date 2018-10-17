@@ -25,13 +25,14 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.utils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 
 /**
- * Class for rounding
+ * Class for rounding.
  */
 public class MathContextRounder implements Rounder {
   /** The math context. */
@@ -60,7 +61,6 @@ public class MathContextRounder implements Rounder {
     mathContext = new MathContext(precision);
   }
 
-  /** {@inheritDoc} */
   @Override
   public double round(double value) {
     if (Math.abs(value) <= Double.MAX_VALUE) {
@@ -69,7 +69,14 @@ public class MathContextRounder implements Rounder {
     return value; // NaN or infinite
   }
 
-  /** {@inheritDoc} */
+  @Override
+  public float round(float value) {
+    if (Math.abs(value) <= Float.MAX_VALUE) {
+      return new BigDecimal(value).round(mathContext).floatValue();
+    }
+    return value; // NaN or infinite
+  }
+
   @Override
   public String toString(double value) {
     if (Math.abs(value) <= Double.MAX_VALUE) {
@@ -84,16 +91,6 @@ public class MathContextRounder implements Rounder {
     return "NaN";
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public float round(float value) {
-    if (Math.abs(value) <= Float.MAX_VALUE) {
-      return new BigDecimal(value).round(mathContext).floatValue();
-    }
-    return value; // NaN or infinite
-  }
-
-  /** {@inheritDoc} */
   @Override
   public String toString(float value) {
     if (Math.abs(value) <= Float.MAX_VALUE) {

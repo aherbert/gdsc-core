@@ -25,13 +25,14 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.roi;
+
+import ij.gui.Roi;
 
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.RoundRectangle2D;
-
-import ij.gui.Roi;
 
 /**
  * Class for testing if coordinates are within a rectangle/oval ROI.

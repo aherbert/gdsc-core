@@ -25,12 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.utils;
 
-import uk.ac.sussex.gdsc.core.utils.Maths;
-
 /**
- * Perform conversion by multiplication
+ * Perform conversion by multiplication.
  *
  * @param <T> the generic type
  */
@@ -49,25 +48,22 @@ public class MultiplyTypeConverter<T> extends AbstractTypeConverter<T> {
    */
   public MultiplyTypeConverter(T from, T to, double multiplication) {
     super(from, to);
-    if (!Maths.isFinite(multiplication)) {
+    if (!Double.isFinite(multiplication)) {
       throw new ConversionException("multiplication must be finite");
     }
     this.multiplication = multiplication;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double convert(double value) {
     return value * multiplication;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double convertBack(double value) {
     return value / multiplication;
   }
 
-  /** {@inheritDoc} */
   @Override
   public String getFunction() {
     return "x * " + multiplication;

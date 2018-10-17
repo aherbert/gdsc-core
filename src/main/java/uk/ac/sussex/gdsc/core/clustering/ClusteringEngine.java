@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering;
 
 import uk.ac.sussex.gdsc.core.ij.Utils;
@@ -46,13 +47,17 @@ import java.util.concurrent.Future;
  * Find clusters of points using a clustering algorithm.
  */
 public class ClusteringEngine {
+  /** The minimum block size for multi-threading. */
+  private static final int MIN_BLOCK_SIZE = 3;
+
   /**
-   * Used for multi-threaded clustering to store the closest pair in a region of the search space
+   * Used for multi-threaded clustering to store the closest pair in a region of the search space.
    */
   private class ClosestPair {
     double distance;
     int time;
-    Object point1, point2;
+    Object point1;
+    Object point2;
 
     public ClosestPair(double distance, Object point1, Object point2) {
       this.distance = distance;
@@ -77,37 +82,36 @@ public class ClusteringEngine {
   private class ParticleLinkageWorker implements Runnable {
     ClosestPair pair;
     ExtendedClusterPoint[][] grid;
-    int nXBins;
-    int nYBins;
+    int nxbins;
+    int nybins;
     double r2;
     double minx;
     double miny;
-    int startXBin;
-    int endXBin;
-    int startYBin;
-    int endYBin;
+    int startxbin;
+    int endxbin;
+    int startybin;
+    int endybin;
 
-    public ParticleLinkageWorker(ClosestPair pair, ExtendedClusterPoint[][] grid, int nXBins,
-        int nYBins, double r2, double minx, double miny, int startXBin, int endXBin, int startYBin,
-        int endYBin) {
+    public ParticleLinkageWorker(ClosestPair pair, ExtendedClusterPoint[][] grid, int nxbins,
+        int nybins, double r2, double minx, double miny, int startxbin, int endxbin, int startybin,
+        int endybin) {
       this.pair = pair;
       this.grid = grid;
-      this.nXBins = nXBins;
-      this.nYBins = nYBins;
+      this.nxbins = nxbins;
+      this.nybins = nybins;
       this.r2 = r2;
       this.minx = minx;
       this.miny = miny;
-      this.startXBin = startXBin;
-      this.endXBin = endXBin;
-      this.startYBin = startYBin;
-      this.endYBin = endYBin;
+      this.startxbin = startxbin;
+      this.endxbin = endxbin;
+      this.startybin = startybin;
+      this.endybin = endybin;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void run() {
-      final ClosestPair result = findClosestParticle(grid, nXBins, nYBins, r2, minx, miny,
-          startXBin, endXBin, startYBin, endYBin);
+      final ClosestPair result = findClosestParticle(grid, nxbins, nybins, r2, minx, miny,
+          startxbin, endxbin, startybin, endybin);
       if (result != null) {
         pair.distance = result.distance;
         pair.point1 = result.point1;
@@ -123,38 +127,37 @@ public class ClusteringEngine {
   private class ClosestWorker implements Runnable {
     ClosestPair pair;
     Cluster[][] grid;
-    int nXBins;
-    int nYBins;
+    int nxbins;
+    int nybins;
     double r2;
-    int startXBin;
-    int endXBin;
-    int startYBin;
-    int endYBin;
+    int startxbin;
+    int endxbin;
+    int startybin;
+    int endybin;
     boolean single;
 
-    public ClosestWorker(ClosestPair pair, Cluster[][] grid, int nXBins, int nYBins, double r2,
-        int startXBin, int endXBin, int startYBin, int endYBin, boolean single) {
+    public ClosestWorker(ClosestPair pair, Cluster[][] grid, int nxbins, int nybins, double r2,
+        int startxbin, int endxbin, int startybin, int endybin, boolean single) {
       this.pair = pair;
       this.grid = grid;
-      this.nXBins = nXBins;
-      this.nYBins = nYBins;
+      this.nxbins = nxbins;
+      this.nybins = nybins;
       this.r2 = r2;
-      this.startXBin = startXBin;
-      this.endXBin = endXBin;
-      this.startYBin = startYBin;
-      this.endYBin = endYBin;
+      this.startxbin = startxbin;
+      this.endxbin = endxbin;
+      this.startybin = startybin;
+      this.endybin = endybin;
       this.single = single;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void run() {
       ClosestPair result;
       if (single) {
         result =
-            findClosestParticle(grid, nXBins, nYBins, r2, startXBin, endXBin, startYBin, endYBin);
+            findClosestSingle(grid, nxbins, nybins, r2, startxbin, endxbin, startybin, endybin);
       } else {
-        result = findClosest(grid, nXBins, nYBins, r2, startXBin, endXBin, startYBin, endYBin);
+        result = findClosest(grid, nxbins, nybins, r2, startxbin, endxbin, startybin, endybin);
       }
 
       if (result != null) {
@@ -173,49 +176,48 @@ public class ClusteringEngine {
     boolean timePriority;
     ClosestPair pair;
     TimeCluster[][] grid;
-    int nXBins;
-    int nYBins;
+    int nxbins;
+    int nybins;
     double r2;
     int time;
-    int startXBin;
-    int endXBin;
-    int startYBin;
-    int endYBin;
+    int startxbin;
+    int endxbin;
+    int startybin;
+    int endybin;
     boolean single;
 
     public ClosestPriorityWorker(boolean timePriority, ClosestPair pair, TimeCluster[][] grid,
-        int nXBins, int nYBins, double r2, int time, int startXBin, int endXBin, int startYBin,
-        int endYBin, boolean single) {
+        int nxbins, int nybins, double r2, int time, int startxbin, int endxbin, int startybin,
+        int endybin, boolean single) {
       this.timePriority = timePriority;
       this.pair = pair;
       this.grid = grid;
-      this.nXBins = nXBins;
-      this.nYBins = nYBins;
+      this.nxbins = nxbins;
+      this.nybins = nybins;
       this.r2 = r2;
       this.time = time;
-      this.startXBin = startXBin;
-      this.endXBin = endXBin;
-      this.startYBin = startYBin;
-      this.endYBin = endYBin;
+      this.startxbin = startxbin;
+      this.endxbin = endxbin;
+      this.startybin = startybin;
+      this.endybin = endybin;
       this.single = single;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void run() {
       ClosestPair result = null;
       if (timePriority) {
         result = (single)
-            ? findClosestParticleTimePriority(grid, nXBins, nYBins, r2, time, startXBin, endXBin,
-                startYBin, endYBin)
-            : findClosestTimePriority(grid, nXBins, nYBins, r2, time, startXBin, endXBin, startYBin,
-                endYBin);
+            ? findClosestParticleTimePriority(grid, nxbins, nybins, r2, time, startxbin, endxbin,
+                startybin, endybin)
+            : findClosestTimePriority(grid, nxbins, nybins, r2, time, startxbin, endxbin, startybin,
+                endybin);
       } else {
         result = (single)
-            ? findClosestParticleDistancePriority(grid, nXBins, nYBins, r2, time, startXBin,
-                endXBin, startYBin, endYBin)
-            : findClosestDistancePriority(grid, nXBins, nYBins, r2, time, startXBin, endXBin,
-                startYBin, endYBin);
+            ? findClosestParticleDistancePriority(grid, nxbins, nybins, r2, time, startxbin,
+                endxbin, startybin, endybin)
+            : findClosestDistancePriority(grid, nxbins, nybins, r2, time, startxbin, endxbin,
+                startybin, endybin);
       }
 
       if (result != null) {
@@ -234,36 +236,36 @@ public class ClusteringEngine {
   private class FindLinksWorker implements Runnable {
     boolean links = false;
     Cluster[][] grid;
-    int nXBins;
-    int nYBins;
+    int nxbins;
+    int nybins;
     double r2;
-    int startXBin;
-    int endXBin;
-    int startYBin;
-    int endYBin;
+    int startxbin;
+    int endxbin;
+    int startybin;
+    int endybin;
 
-    public FindLinksWorker(Cluster[][] grid, int nXBins, int nYBins, double r2, int startXBin,
-        int endXBin, int startYBin, int endYBin) {
+    public FindLinksWorker(Cluster[][] grid, int nxbins, int nybins, double r2, int startxbin,
+        int endxbin, int startybin, int endybin) {
       this.grid = grid;
-      this.nXBins = nXBins;
-      this.nYBins = nYBins;
+      this.nxbins = nxbins;
+      this.nybins = nybins;
       this.r2 = r2;
-      this.startXBin = startXBin;
-      this.endXBin = endXBin;
-      this.startYBin = startYBin;
-      this.endYBin = endYBin;
+      this.startxbin = startxbin;
+      this.endxbin = endxbin;
+      this.startybin = startybin;
+      this.endybin = endybin;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void run() {
-      links = findLinksAndCountNeighbours(grid, nXBins, nYBins, r2, startXBin, endXBin, startYBin,
-          endYBin);
+      links = findLinksAndCountNeighbours(grid, nxbins, nybins, r2, startxbin, endxbin, startybin,
+          endybin);
     }
   }
 
   private ExecutorService threadPool = null;
-  private int xBlock, yBlock;
+  private int xblock;
+  private int yblock;
 
   private ClusteringAlgorithm clusteringAlgorithm = ClusteringAlgorithm.PAIRWISE;
   private TrackProgress tracker = NullTrackProgress.INSTANCE;
@@ -272,7 +274,8 @@ public class ClusteringEngine {
   private int threadCount = 1;
   private double[] intraIdDistances = null;
   private double[] interIdDistances = null;
-  private int intraIdCount, interIdCount;
+  private int intraIdCount;
+  private int interIdCount;
   private int nextClusterId;
   private boolean useRange = false;
 
@@ -352,16 +355,19 @@ public class ClusteringEngine {
     // create a new centroid within the search radius of A. The same is true if joining C to A, the
     // new centroid could be closer to A than distance R. If ACB = 90 then the
     // line C-B cannot intersect A's circle. Distance AB = sqrt(2R^2) = sqrt(2) * R
+    //@formatter:off
     //
-    // ------- ------
-    // / \ / \
-    // / C \
-    // / / \ \
-    // | A | | B |
-    // \ \ / /
-    // \ X /
-    // \ / \ /
-    // ------- -------
+    //        -------   ------
+    //       /       \ /       \
+    //      /         C         \
+    //     /         / \         \
+    //     |     A   | |   B     |
+    //     \         \ /         /
+    //      \         X         /
+    //       \       / \       /
+    //        -------   -------
+    //
+    //@formatter:on
 
     final int[] density = calculateDensity(points, 1.4142 * radius);
 
@@ -369,15 +375,15 @@ public class ClusteringEngine {
     // (All other points cannot be clustered at this radius)
     final ArrayList<Cluster> candidates = new ArrayList<>(density.length);
     final ArrayList<Cluster> singles = new ArrayList<>(density.length);
-    int i = 0;
+    int index = 0;
     for (final ClusterPoint p : points) {
       final Cluster c = new Cluster(p);
-      if (density[i] > 0) {
+      if (density[index] > 0) {
         candidates.add(c);
       } else {
         singles.add(c);
       }
-      i++;
+      index++;
     }
 
     if (candidates.isEmpty()) {
@@ -392,8 +398,9 @@ public class ClusteringEngine {
           tracker.log("No time information among candidates");
           clusteringAlgorithm = ClusteringAlgorithm.CENTROID_LINKAGE;
         }
+        break;
 
-        // All other methods do not use time information
+      // All other methods do not use time information
       default:
         break;
     }
@@ -403,82 +410,79 @@ public class ClusteringEngine {
     tracker.log("Algorithm = %s", clusteringAlgorithm.toString());
 
     // Find the bounds of the candidates
-    double minx = candidates.get(0).x;
-    double miny = candidates.get(0).y;
-    double maxx = minx, maxy = miny;
+    double minx = candidates.get(0).getX();
+    double miny = candidates.get(0).getY();
+    double maxx = minx;
+    double maxy = miny;
     for (final Cluster c : candidates) {
-      if (minx > c.x) {
-        minx = c.x;
-      } else if (maxx < c.x) {
-        maxx = c.x;
+      if (minx > c.getX()) {
+        minx = c.getX();
+      } else if (maxx < c.getX()) {
+        maxx = c.getX();
       }
-      if (miny > c.y) {
-        miny = c.y;
-      } else if (maxy < c.y) {
-        maxy = c.y;
+      if (miny > c.getY()) {
+        miny = c.getY();
+      } else if (maxy < c.getY()) {
+        maxy = c.getY();
       }
     }
 
     // Assign to a grid
-    final int maxBins = 500;
+    final int maxbins = 500;
     // If tracking potential neighbours then the cells must be larger to cover the increased
     // distance
     final double cellSize =
         (clusteringAlgorithm == ClusteringAlgorithm.PAIRWISE) ? radius : radius * 1.4142;
-    final double xBinWidth = FastMath.max(cellSize, (maxx - minx) / maxBins);
-    final double yBinWidth = FastMath.max(cellSize, (maxy - miny) / maxBins);
-    final int nXBins = 1 + (int) ((maxx - minx) / xBinWidth);
-    final int nYBins = 1 + (int) ((maxy - miny) / yBinWidth);
-    final Cluster[][] grid = new Cluster[nXBins][nYBins];
+    final double xbinWidth = FastMath.max(cellSize, (maxx - minx) / maxbins);
+    final double ybinWidth = FastMath.max(cellSize, (maxy - miny) / maxbins);
+    final int nxbins = 1 + (int) ((maxx - minx) / xbinWidth);
+    final int nybins = 1 + (int) ((maxy - miny) / ybinWidth);
+    final Cluster[][] grid = new Cluster[nxbins][nybins];
     for (final Cluster c : candidates) {
-      final int xBin = (int) ((c.x - minx) / xBinWidth);
-      final int yBin = (int) ((c.y - miny) / yBinWidth);
+      final int xbin = (int) ((c.getX() - minx) / xbinWidth);
+      final int ybin = (int) ((c.getY() - miny) / ybinWidth);
       // Build a single linked list
-      c.xBin = xBin;
-      c.yBin = yBin;
-      c.next = grid[xBin][yBin];
-      grid[xBin][yBin] = c;
+      c.setXBin(xbin);
+      c.setYBin(ybin);
+      c.setNext(grid[xbin][ybin]);
+      grid[xbin][ybin] = c;
     }
 
     final double r2 = radius * radius;
 
     tracker.log("Clustering " + clusteringAlgorithm.toString() + " ...");
     ArrayList<Cluster> clusters;
-    boolean single = false;
     switch (clusteringAlgorithm) {
       case PAIRWISE:
-        clusters = runPairwise(grid, nXBins, nYBins, r2, minx, miny, xBinWidth, yBinWidth,
+        clusters = runPairwise(grid, nxbins, nybins, r2, minx, miny, xbinWidth, ybinWidth,
             candidates, singles);
         break;
 
       case PAIRWISE_WITHOUT_NEIGHBOURS:
-        clusters = runPairwiseWithoutNeighbours(grid, nXBins, nYBins, r2, minx, miny, xBinWidth,
-            yBinWidth, candidates, singles);
+        clusters = runPairwiseWithoutNeighbours(grid, nxbins, nybins, r2, minx, miny, xbinWidth,
+            ybinWidth, candidates, singles);
         break;
 
       case PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY:
-        single = true;
-
       case CENTROID_LINKAGE_TIME_PRIORITY:
-        clusters = runClosestTimePriority(grid, nXBins, nYBins, r2, time, minx, miny, xBinWidth,
-            yBinWidth, candidates, singles, single);
+        clusters = runClosestTimePriority(grid, nxbins, nybins, r2, time, minx, miny, xbinWidth,
+            ybinWidth, candidates, singles,
+            clusteringAlgorithm == ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_TIME_PRIORITY);
         break;
 
       case PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY:
-        single = true;
-
       case CENTROID_LINKAGE_DISTANCE_PRIORITY:
-        clusters = runClosestDistancePriority(grid, nXBins, nYBins, r2, time, minx, miny, xBinWidth,
-            yBinWidth, candidates, singles, single);
+        clusters = runClosestDistancePriority(grid, nxbins, nybins, r2, time, minx, miny, xbinWidth,
+            ybinWidth, candidates, singles,
+            clusteringAlgorithm == ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE_DISTANCE_PRIORITY);
         break;
 
       case PARTICLE_CENTROID_LINKAGE:
-        single = true;
-
       case CENTROID_LINKAGE:
       default:
-        clusters = runClosest(grid, nXBins, nYBins, r2, minx, miny, xBinWidth, yBinWidth,
-            candidates, singles, single);
+        clusters =
+            runClosest(grid, nxbins, nybins, r2, minx, miny, xbinWidth, ybinWidth, candidates,
+                singles, clusteringAlgorithm == ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE);
     }
 
     tracker.progress(1);
@@ -503,15 +507,16 @@ public class ClusteringEngine {
     // (All other points cannot be clustered at this radius)
     final ArrayList<ExtendedClusterPoint> candidates = new ArrayList<>(density.length);
     final ArrayList<Cluster> singles = new ArrayList<>(density.length);
-    int i = 0, id = 0;
+    int index = 0;
+    int id = 0;
     for (final ClusterPoint p : points) {
-      if (density[i] > 0) {
+      if (density[index] > 0) {
         // Store the point using the next pointer of a new point which will be used for clustering
-        candidates.add(new ExtendedClusterPoint(id++, p.x, p.y, 0, p));
+        candidates.add(new ExtendedClusterPoint(id++, p.getX(), p.getY(), 0, p));
       } else {
         singles.add(new Cluster(p));
       }
-      i++;
+      index++;
     }
 
     if (candidates.isEmpty()) {
@@ -523,36 +528,37 @@ public class ClusteringEngine {
     tracker.log("Algorithm = %s", clusteringAlgorithm.toString());
 
     // Find the bounds of the candidates
-    double minx = candidates.get(0).x;
-    double miny = candidates.get(0).y;
-    double maxx = minx, maxy = miny;
+    double minx = candidates.get(0).getX();
+    double miny = candidates.get(0).getY();
+    double maxx = minx;
+    double maxy = miny;
     for (final ExtendedClusterPoint c : candidates) {
-      if (minx > c.x) {
-        minx = c.x;
-      } else if (maxx < c.x) {
-        maxx = c.x;
+      if (minx > c.getX()) {
+        minx = c.getX();
+      } else if (maxx < c.getX()) {
+        maxx = c.getX();
       }
-      if (miny > c.y) {
-        miny = c.y;
-      } else if (maxy < c.y) {
-        maxy = c.y;
+      if (miny > c.getY()) {
+        miny = c.getY();
+      } else if (maxy < c.getY()) {
+        maxy = c.getY();
       }
     }
 
     // Assign to a grid
-    final int maxBins = 500;
+    final int maxbins = 500;
     final double cellSize = radius * 1.01; // Add an error margin
-    final double xBinWidth = FastMath.max(cellSize, (maxx - minx) / maxBins);
-    final double yBinWidth = FastMath.max(cellSize, (maxy - miny) / maxBins);
-    final int nXBins = 1 + (int) ((maxx - minx) / xBinWidth);
-    final int nYBins = 1 + (int) ((maxy - miny) / yBinWidth);
-    final ExtendedClusterPoint[][] grid = new ExtendedClusterPoint[nXBins][nYBins];
+    final double xbinWidth = FastMath.max(cellSize, (maxx - minx) / maxbins);
+    final double ybinWidth = FastMath.max(cellSize, (maxy - miny) / maxbins);
+    final int nxbins = 1 + (int) ((maxx - minx) / xbinWidth);
+    final int nybins = 1 + (int) ((maxy - miny) / ybinWidth);
+    final ExtendedClusterPoint[][] grid = new ExtendedClusterPoint[nxbins][nybins];
     for (final ExtendedClusterPoint c : candidates) {
-      final int xBin = (int) ((c.x - minx) / xBinWidth);
-      final int yBin = (int) ((c.y - miny) / yBinWidth);
+      final int xbin = (int) ((c.getX() - minx) / xbinWidth);
+      final int ybin = (int) ((c.getY() - miny) / ybinWidth);
       // Build a single linked list
-      c.nextE = grid[xBin][yBin];
-      grid[xBin][yBin] = c;
+      c.setNextExtended(grid[xbin][ybin]);
+      grid[xbin][ybin] = c;
     }
 
     final double r2 = radius * radius;
@@ -560,7 +566,7 @@ public class ClusteringEngine {
     tracker.log("Clustering " + clusteringAlgorithm.toString() + " ...");
 
     final ArrayList<Cluster> clusters =
-        runParticleSingleLinkage(grid, nXBins, nYBins, r2, minx, miny, candidates, singles);
+        runParticleSingleLinkage(grid, nxbins, nybins, r2, minx, miny, candidates, singles);
 
     tracker.progress(1);
     shutdownMultithreading();
@@ -570,9 +576,9 @@ public class ClusteringEngine {
     return clusters;
   }
 
-  private ArrayList<Cluster> runParticleSingleLinkage(ExtendedClusterPoint[][] grid, int nXBins,
-      int nYBins, double r2, double minx, double miny, ArrayList<ExtendedClusterPoint> candidates,
-      ArrayList<Cluster> singles) {
+  private ArrayList<Cluster> runParticleSingleLinkage(ExtendedClusterPoint[][] grid, int nxbins,
+      int nybins, double r2, double minx, double miny, ArrayList<ExtendedClusterPoint> candidates,
+      ArrayList<Cluster> currentClusters) {
     final int N = candidates.size();
     int candidatesProcessed = 0;
     nextClusterId = 0; // Incremented within joinClosestParticle(...)
@@ -580,21 +586,21 @@ public class ClusteringEngine {
     // Used to store the cluster for each candidate
     final int[] clusterId = new int[candidates.size()];
 
-    int nProcessed = 0;
+    int processed = 0;
 
     if (trackJoins) {
       interIdDistances = new double[candidates.size()];
       intraIdDistances = new double[candidates.size()];
-      interIdCount = intraIdCount = 0;
+      interIdCount = 0;
+      intraIdCount = 0;
     }
 
-    initialiseMultithreading(nXBins, nYBins);
-    while ((nProcessed =
-        joinClosestParticle(grid, nXBins, nYBins, r2, minx, miny, clusterId)) > 0) {
+    initialiseMultithreading(nxbins, nybins);
+    while ((processed = joinClosestParticle(grid, nxbins, nybins, r2, minx, miny, clusterId)) > 0) {
       if (tracker.isEnded()) {
         return null;
       }
-      candidatesProcessed += nProcessed;
+      candidatesProcessed += processed;
       tracker.progress(candidatesProcessed, N);
     }
 
@@ -608,13 +614,12 @@ public class ClusteringEngine {
 
     // Create clusters from the original cluster points using the assignments
     final Cluster[] clusters = new Cluster[nextClusterId];
-    int failed = singles.size();
+    final int originalSize = currentClusters.size();
     for (int i = 0; i < clusterId.length; i++) {
-      final ClusterPoint originalPoint = candidates.get(i).next;
+      final ClusterPoint originalPoint = candidates.get(i).getNext();
       if (clusterId[i] == 0) {
-        // throw new RuntimeException("Failed to assign a cluster to a candidate particle");
-        // tracker.log("Failed to assign a cluster to a candidate particle: " + i);
-        singles.add(new Cluster(originalPoint));
+        // tracker.log("Failed to assign a cluster to a candidate particle: " + i)
+        currentClusters.add(new Cluster(originalPoint));
       } else {
         // The next points were used to store the original cluster points
         final int clusterIndex = clusterId[i] - 1;
@@ -625,24 +630,20 @@ public class ClusteringEngine {
         }
       }
     }
-    failed = singles.size() - failed;
+    int failed = currentClusters.size() - originalSize;
     tracker.log("Failed to assign %d candidates", failed);
 
     for (int i = 0; i < clusters.length; i++) {
       if (clusters[i] != null) {
-        singles.add(clusters[i]);
-      } else {
-        // tracker.log("Empty cluster ID %d", i);
+        currentClusters.add(clusters[i]);
       }
     }
-    return singles;
+    return currentClusters;
   }
 
-  private void initialiseMultithreading(int nXBins, int nYBins) {
-    final int MIN_BLOCK_SIZE = 3;
-
+  private void initialiseMultithreading(int nxbins, int nybins) {
     // Do not use threads if the number of bins is small
-    if (nXBins < MIN_BLOCK_SIZE && nYBins < MIN_BLOCK_SIZE) {
+    if (nxbins < MIN_BLOCK_SIZE && nybins < MIN_BLOCK_SIZE) {
       return;
     }
 
@@ -651,20 +652,20 @@ public class ClusteringEngine {
       threadPool = Executors.newFixedThreadPool(threadCount);
 
       // Ensure a minimum block size to avoid wasting time.
-      xBlock = FastMath.max(nXBins / threadCount, MIN_BLOCK_SIZE);
-      yBlock = FastMath.max(nYBins / threadCount, MIN_BLOCK_SIZE);
+      xblock = FastMath.max(nxbins / threadCount, MIN_BLOCK_SIZE);
+      yblock = FastMath.max(nybins / threadCount, MIN_BLOCK_SIZE);
 
-      // System.out.printf("Block size %d x %d = %d\n", xBlock, yBlock, countBlocks(nXBins,
-      // nYBins));
+      // System.out.printf("Block size %d x %d = %d\n", xBlock, yBlock, countBlocks(nxbins,
+      // nybins));
       // Increment the block size until the number of blocks to process is just above the thread
       // count.
       // This reduces thread overhead but still processes across many threads.
       int counter = 0;
-      while (countBlocks(nXBins, nYBins) > 2 * threadCount) {
+      while (countBlocks(nxbins, nybins) > 2 * threadCount) {
         if (counter++ % 2 == 0) {
-          xBlock++;
+          xblock++;
         } else {
-          yBlock++;
+          yblock++;
         }
       }
     }
@@ -677,14 +678,14 @@ public class ClusteringEngine {
     }
   }
 
-  private int countBlocks(int nXBins, int nYBins) {
-    int nBlocks = 0;
-    for (int startYBin = 0; startYBin < nYBins; startYBin += yBlock) {
-      for (int startXBin = 0; startXBin < nXBins; startXBin += xBlock) {
-        nBlocks++;
+  private int countBlocks(int nxbins, int nybins) {
+    int blocks = 0;
+    for (int startybin = 0; startybin < nybins; startybin += yblock) {
+      for (int startxbin = 0; startxbin < nxbins; startxbin += xblock) {
+        blocks++;
       }
     }
-    return nBlocks;
+    return blocks;
   }
 
   /**
@@ -692,15 +693,15 @@ public class ClusteringEngine {
    * radius distance and join them.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
    * @param minx the minx
    * @param miny the miny
    * @param clusterId the cluster id
    * @return The number of points assigned to clusters (either 0, 1, or 2)
    */
-  private int joinClosestParticle(ExtendedClusterPoint[][] grid, final int nXBins, final int nYBins,
+  private int joinClosestParticle(ExtendedClusterPoint[][] grid, final int nxbins, final int nybins,
       final double r2, double minx, double miny, int[] clusterId) {
     ClosestPair closest = null;
 
@@ -709,22 +710,22 @@ public class ClusteringEngine {
     // if there are not enough blocks since each overlap is double processed.
 
     if (threadPool == null) {
-      closest = findClosestParticle(grid, nXBins, nYBins, r2, minx, miny, 0, nXBins, 0, nYBins);
+      closest = findClosestParticle(grid, nxbins, nybins, r2, minx, miny, 0, nxbins, 0, nybins);
     } else {
       // Use threads to find the closest pairs in blocks
       final List<Future<?>> futures = new LinkedList<>();
       final List<ClosestPair> results = new LinkedList<>();
 
-      for (int startYBin = 0; startYBin < nYBins; startYBin += yBlock) {
-        final int endYBin = FastMath.min(nYBins, startYBin + yBlock);
-        for (int startXBin = 0; startXBin < nXBins; startXBin += xBlock) {
-          final int endXBin = FastMath.min(nXBins, startXBin + xBlock);
-          // System.out.printf("Block [%d-%d, %d-%d]\n", startXBin, endXBin, startYBin, endYBin);
+      for (int startybin = 0; startybin < nybins; startybin += yblock) {
+        final int endybin = FastMath.min(nybins, startybin + yblock);
+        for (int startxbin = 0; startxbin < nxbins; startxbin += xblock) {
+          final int endxbin = FastMath.min(nxbins, startxbin + xblock);
+          // System.out.printf("Block [%d-%d, %d-%d]\n", startxbin, endxbin, startybin, endybin);
 
           final ClosestPair pair = new ClosestPair();
           results.add(pair);
-          futures.add(threadPool.submit(new ParticleLinkageWorker(pair, grid, nXBins, nYBins, r2,
-              minx, miny, startXBin, endXBin, startYBin, endYBin)));
+          futures.add(threadPool.submit(new ParticleLinkageWorker(pair, grid, nxbins, nybins, r2,
+              minx, miny, startxbin, endxbin, startybin, endybin)));
         }
       }
 
@@ -747,34 +748,34 @@ public class ClusteringEngine {
       final ExtendedClusterPoint pair1 = (ExtendedClusterPoint) closest.point1;
       final ExtendedClusterPoint pair2 = (ExtendedClusterPoint) closest.point2;
 
-      int nProcessed = 1;
+      int processed = 1;
 
-      if (pair1.inCluster && pair2.inCluster) {
+      if (pair1.isInCluster() && pair2.isInCluster()) {
         // Error
         throw new RuntimeException("Linkage between two particles already in a cluster");
-      } else if (pair1.inCluster) {
-        clusterId[pair2.id] = clusterId[pair1.id];
-        pair2.inCluster = true;
-      } else if (pair2.inCluster) {
-        clusterId[pair1.id] = clusterId[pair2.id];
-        pair1.inCluster = true;
-      }
-      // Create a new cluster if necessary
-      else {
-        nProcessed = 2;
-        clusterId[pair1.id] = clusterId[pair2.id] = ++nextClusterId;
-        pair1.inCluster = pair2.inCluster = true;
+      } else if (pair1.isInCluster()) {
+        clusterId[pair2.getId()] = clusterId[pair1.getId()];
+        pair2.setInCluster(true);
+      } else if (pair2.isInCluster()) {
+        clusterId[pair1.getId()] = clusterId[pair2.getId()];
+        pair1.setInCluster(true);
+      } else {
+        // Create a new cluster if necessary
+        processed = 2;
+        clusterId[pair1.getId()] = clusterId[pair2.getId()] = ++nextClusterId;
+        pair1.setInCluster(true);
+        pair2.setInCluster(true);
       }
 
       if (trackJoins) {
-        if (pair1.next.id == pair2.next.id) {
+        if (pair1.getNext().getId() == pair2.getNext().getId()) {
           intraIdDistances[intraIdCount++] = Math.sqrt(closest.distance);
         } else {
           interIdDistances[interIdCount++] = Math.sqrt(closest.distance);
         }
       }
 
-      return nProcessed;
+      return processed;
     }
 
     // This should not happen if the density manager counted neighbours correctly
@@ -787,69 +788,75 @@ public class ClusteringEngine {
    * radius distance.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
    * @param minx the minx
    * @param miny the miny
-   * @param startXBin the start X bin
-   * @param endXBin the end X bin
-   * @param startYBin the start Y bin
-   * @param endYBin the end Y bin
+   * @param startxbin the start X bin
+   * @param endxbin the end X bin
+   * @param startybin the start Y bin
+   * @param endybin the end Y bin
    * @return The pair of closest points (or null)
    */
-  private ClosestPair findClosestParticle(ExtendedClusterPoint[][] grid, final int nXBins,
-      final int nYBins, final double r2, double minx, double miny, int startXBin, int endXBin,
-      int startYBin, int endYBin) {
+  private ClosestPair findClosestParticle(ExtendedClusterPoint[][] grid, final int nxbins,
+      final int nybins, final double r2, double minx, double miny, int startxbin, int endxbin,
+      int startybin, int endybin) {
     double min = r2;
-    ExtendedClusterPoint pair1 = null, pair2 = null;
-    for (int yBin = startYBin; yBin < endYBin; yBin++) {
-      for (int xBin = startXBin; xBin < endXBin; xBin++) {
-        for (ExtendedClusterPoint c1 = grid[xBin][yBin]; c1 != null; c1 = c1.nextE) {
-          final boolean cluster1 = c1.inCluster;
+    ExtendedClusterPoint pair1 = null;
+    ExtendedClusterPoint pair2 = null;
+    for (int ybin = startybin; ybin < endybin; ybin++) {
+      for (int xbin = startxbin; xbin < endxbin; xbin++) {
+        for (ExtendedClusterPoint c1 = grid[xbin][ybin]; c1 != null; c1 = c1.getNextExtended()) {
+          final boolean cluster1 = c1.isInCluster();
 
           // Build a list of which cells to compare up to a maximum of 4
-          // | 0,0 | 1,0
+          //@formatter:off
+          //      | 0,0 | 1,0
           // ------------+-----
           // -1,1 | 0,1 | 1,1
+          //@formatter:on
 
           // Compare to neighbours and find the closest.
           // Use either the radius threshold or the current closest distance
           // which may have been set by an earlier comparison.
           ExtendedClusterPoint other = null;
 
-          for (ExtendedClusterPoint c2 = c1.nextE; c2 != null; c2 = c2.nextE) {
+          for (ExtendedClusterPoint c2 = c1.getNextExtended(); c2 != null; c2 =
+              c2.getNextExtended()) {
             // Ignore comparing points that are both in a cluster
-            if (cluster1 && c2.inCluster) {
+            if (cluster1 && c2.isInCluster()) {
               continue;
             }
 
-            final double d2 = c1.distance2(c2);
+            final double d2 = c1.distanceSquared(c2);
             if (d2 < min) {
               min = d2;
               other = c2;
             }
           }
 
-          if (yBin < nYBins - 1) {
-            for (ExtendedClusterPoint c2 = grid[xBin][yBin + 1]; c2 != null; c2 = c2.nextE) {
+          if (ybin < nybins - 1) {
+            for (ExtendedClusterPoint c2 = grid[xbin][ybin + 1]; c2 != null; c2 =
+                c2.getNextExtended()) {
               // Ignore comparing points that are both in a cluster
-              if (cluster1 && c2.inCluster) {
+              if (cluster1 && c2.isInCluster()) {
                 continue;
               }
-              final double d2 = c1.distance2(c2);
+              final double d2 = c1.distanceSquared(c2);
               if (d2 < min) {
                 min = d2;
                 other = c2;
               }
             }
-            if (xBin > 0) {
-              for (ExtendedClusterPoint c2 = grid[xBin - 1][yBin + 1]; c2 != null; c2 = c2.nextE) {
+            if (xbin > 0) {
+              for (ExtendedClusterPoint c2 = grid[xbin - 1][ybin + 1]; c2 != null; c2 =
+                  c2.getNextExtended()) {
                 // Ignore comparing points that are both in a cluster
-                if (cluster1 && c2.inCluster) {
+                if (cluster1 && c2.isInCluster()) {
                   continue;
                 }
-                final double d2 = c1.distance2(c2);
+                final double d2 = c1.distanceSquared(c2);
                 if (d2 < min) {
                   min = d2;
                   other = c2;
@@ -857,25 +864,27 @@ public class ClusteringEngine {
               }
             }
           }
-          if (xBin < nXBins - 1) {
-            for (ExtendedClusterPoint c2 = grid[xBin + 1][yBin]; c2 != null; c2 = c2.nextE) {
+          if (xbin < nxbins - 1) {
+            for (ExtendedClusterPoint c2 = grid[xbin + 1][ybin]; c2 != null; c2 =
+                c2.getNextExtended()) {
               // Ignore comparing points that are both in a cluster
-              if (cluster1 && c2.inCluster) {
+              if (cluster1 && c2.isInCluster()) {
                 continue;
               }
-              final double d2 = c1.distance2(c2);
+              final double d2 = c1.distanceSquared(c2);
               if (d2 < min) {
                 min = d2;
                 other = c2;
               }
             }
-            if (yBin < nYBins - 1) {
-              for (ExtendedClusterPoint c2 = grid[xBin + 1][yBin + 1]; c2 != null; c2 = c2.nextE) {
+            if (ybin < nybins - 1) {
+              for (ExtendedClusterPoint c2 = grid[xbin + 1][ybin + 1]; c2 != null; c2 =
+                  c2.getNextExtended()) {
                 // Ignore comparing points that are both in a cluster
-                if (cluster1 && c2.inCluster) {
+                if (cluster1 && c2.isInCluster()) {
                   continue;
                 }
-                final double d2 = c1.distance2(c2);
+                final double d2 = c1.distanceSquared(c2);
                 if (d2 < min) {
                   min = d2;
                   other = c2;
@@ -908,11 +917,11 @@ public class ClusteringEngine {
   private static int[] calculateDensity(List<ClusterPoint> points, double radius) {
     final float[] xcoord = new float[points.size()];
     final float[] ycoord = new float[points.size()];
-    int i = 0;
+    int index = 0;
     for (final ClusterPoint p : points) {
-      xcoord[i] = (float) p.x;
-      ycoord[i] = (float) p.y;
-      i++;
+      xcoord[index] = (float) p.getX();
+      ycoord[index] = (float) p.getY();
+      index++;
     }
     // The bounds are not used in the density calculation when not adjusting for borders
     final Rectangle bounds = new Rectangle();
@@ -929,20 +938,20 @@ public class ClusteringEngine {
    */
   private boolean noTimeInformation(ArrayList<Cluster> candidates) {
     useRange = checkForTimeRange(candidates);
-    final int firstT = candidates.get(0).head.start;
+    final int firstT = candidates.get(0).getHeadClusterPoint().getStartTime();
     if (useRange) {
-      final int lastT = candidates.get(0).head.end;
+      final int lastT = candidates.get(0).getHeadClusterPoint().getEndTime();
       for (final Cluster c : candidates) {
-        if (firstT != c.head.start) {
+        if (firstT != c.getHeadClusterPoint().getStartTime()) {
           return false;
         }
-        if (lastT != c.head.end) {
+        if (lastT != c.getHeadClusterPoint().getEndTime()) {
           return false;
         }
       }
     } else {
       for (final Cluster c : candidates) {
-        if (firstT != c.head.start) {
+        if (firstT != c.getHeadClusterPoint().getStartTime()) {
           return false;
         }
       }
@@ -959,7 +968,7 @@ public class ClusteringEngine {
    */
   private static boolean checkForTimeRange(ArrayList<Cluster> candidates) {
     for (final Cluster c : candidates) {
-      if (c.head.start != c.head.end) {
+      if (c.getHeadClusterPoint().getStartTime() != c.getHeadClusterPoint().getEndTime()) {
         return true;
       }
     }
@@ -971,34 +980,34 @@ public class ClusteringEngine {
    * to a closer cluster then break the link and rejoin. Then join all the links into clusters.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 the r 2
    * @param minx the minx
    * @param miny the miny
-   * @param xBinWidth the x bin width
-   * @param yBinWidth the y bin width
+   * @param xbinWidth the x bin width
+   * @param ybinWidth the y bin width
    * @param candidates the candidates
    * @param singles the singles
    * @return The clusters
    */
-  private ArrayList<Cluster> runPairwise(Cluster[][] grid, final int nXBins, final int nYBins,
-      final double r2, final double minx, final double miny, final double xBinWidth,
-      final double yBinWidth, ArrayList<Cluster> candidates, ArrayList<Cluster> singles) {
-    while (findLinks(grid, nXBins, nYBins, r2)) {
+  private ArrayList<Cluster> runPairwise(Cluster[][] grid, final int nxbins, final int nybins,
+      final double r2, final double minx, final double miny, final double xbinWidth,
+      final double ybinWidth, ArrayList<Cluster> candidates, ArrayList<Cluster> singles) {
+    while (findPairwiseLinks(grid, nxbins, nybins, r2)) {
       if (tracker.isEnded()) {
         return null;
       }
 
-      joinLinks(grid, nXBins, nYBins, candidates);
+      joinPairwiseLinks(grid, nxbins, nybins, candidates);
 
       // Reassign the grid
       for (final Cluster c : candidates) {
-        final int xBin = (int) ((c.x - minx) / xBinWidth);
-        final int yBin = (int) ((c.y - miny) / yBinWidth);
+        final int xbin = (int) ((c.getX() - minx) / xbinWidth);
+        final int ybin = (int) ((c.getY() - miny) / ybinWidth);
         // Build a single linked list
-        c.next = grid[xBin][yBin];
-        grid[xBin][yBin] = c;
+        c.setNext(grid[xbin][ybin]);
+        grid[xbin][ybin] = c;
       }
     }
 
@@ -1011,46 +1020,48 @@ public class ClusteringEngine {
    * if the clusters have any neighbours within 2*r^2.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
    * @return True if any links were made
    */
-  private static boolean findLinks(Cluster[][] grid, final int nXBins, final int nYBins,
+  private static boolean findPairwiseLinks(Cluster[][] grid, final int nxbins, final int nybins,
       final double r2) {
     final Cluster[] neighbours = new Cluster[5];
     boolean linked = false;
-    for (int yBin = 0; yBin < nYBins; yBin++) {
-      for (int xBin = 0; xBin < nXBins; xBin++) {
-        for (Cluster c1 = grid[xBin][yBin]; c1 != null; c1 = c1.next) {
+    for (int ybin = 0; ybin < nybins; ybin++) {
+      for (int xbin = 0; xbin < nxbins; xbin++) {
+        for (Cluster c1 = grid[xbin][ybin]; c1 != null; c1 = c1.getNext()) {
           // Build a list of which cells to compare up to a maximum of 5
-          // | 0,0 | 1,0
+          //@formatter:off
+          //      | 0,0 | 1,0
           // ------------+-----
           // -1,1 | 0,1 | 1,1
+          //@formatter:off
 
           int count = 0;
-          neighbours[count++] = c1.next;
+          neighbours[count++] = c1.getNext();
 
-          if (yBin < nYBins - 1) {
-            neighbours[count++] = grid[xBin][yBin + 1];
-            if (xBin > 0) {
-              neighbours[count++] = grid[xBin - 1][yBin + 1];
+          if (ybin < nybins - 1) {
+            neighbours[count++] = grid[xbin][ybin + 1];
+            if (xbin > 0) {
+              neighbours[count++] = grid[xbin - 1][ybin + 1];
             }
           }
-          if (xBin < nXBins - 1) {
-            neighbours[count++] = grid[xBin + 1][yBin];
-            if (yBin < nYBins - 1) {
-              neighbours[count++] = grid[xBin + 1][yBin + 1];
+          if (xbin < nxbins - 1) {
+            neighbours[count++] = grid[xbin + 1][ybin];
+            if (ybin < nybins - 1) {
+              neighbours[count++] = grid[xbin + 1][ybin + 1];
             }
           }
 
           // Compare to neighbours and find the closest.
           // Use either the radius threshold or the current closest distance
           // which may have been set by an earlier comparison.
-          double min = (c1.closest == null) ? r2 : c1.d2;
+          double min = (c1.getClosest() == null) ? r2 : c1.getDistanceSquared();
           Cluster other = null;
           while (count-- > 0) {
-            for (Cluster c2 = neighbours[count]; c2 != null; c2 = c2.next) {
+            for (Cluster c2 = neighbours[count]; c2 != null; c2 = c2.getNext()) {
               final double d2 = c1.distance2(c2);
               if (d2 < min) {
                 min = d2;
@@ -1074,31 +1085,31 @@ public class ClusteringEngine {
    * Join valid links between clusters. Resets the link candidates.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param candidates Re-populate will all the remaining clusters
    */
-  private static void joinLinks(Cluster[][] grid, int nXBins, int nYBins,
+  private static void joinPairwiseLinks(Cluster[][] grid, int nxbins, int nybins,
       ArrayList<Cluster> candidates) {
     candidates.clear();
 
-    for (int yBin = 0; yBin < nYBins; yBin++) {
-      for (int xBin = 0; xBin < nXBins; xBin++) {
-        for (Cluster c1 = grid[xBin][yBin]; c1 != null; c1 = c1.next) {
+    for (int ybin = 0; ybin < nybins; ybin++) {
+      for (int xbin = 0; xbin < nxbins; xbin++) {
+        for (Cluster c1 = grid[xbin][ybin]; c1 != null; c1 = c1.getNext()) {
           if (c1.validLink()) {
-            c1.add(c1.closest);
+            c1.add(c1.getClosest());
           }
           // Reset the link candidates
-          c1.closest = null;
+          c1.setClosest(null);
 
           // Store all remaining clusters
-          if (c1.n != 0) {
+          if (c1.getSize() != 0) {
             candidates.add(c1);
           }
         }
 
         // Reset the grid
-        grid[xBin][yBin] = null;
+        grid[xbin][ybin] = null;
       }
     }
   }
@@ -1109,40 +1120,40 @@ public class ClusteringEngine {
    * if the pair has no other neighbours. Default to joining the closest pair.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 the r 2
    * @param minx the minx
    * @param miny the miny
-   * @param xBinWidth the x bin width
-   * @param yBinWidth the y bin width
+   * @param xbinWidth the x bin width
+   * @param ybinWidth the y bin width
    * @param candidates the candidates
    * @param singles the singles
    * @return the list of clusters
    */
-  private ArrayList<Cluster> runPairwiseWithoutNeighbours(Cluster[][] grid, final int nXBins,
-      final int nYBins, final double r2, final double minx, final double miny,
-      final double xBinWidth, final double yBinWidth, ArrayList<Cluster> candidates,
+  private ArrayList<Cluster> runPairwiseWithoutNeighbours(Cluster[][] grid, final int nxbins,
+      final int nybins, final double r2, final double minx, final double miny,
+      final double xbinWidth, final double ybinWidth, ArrayList<Cluster> candidates,
       ArrayList<Cluster> singles) {
     // The find method is multi-threaded
     // The remaining join and update of the grid is single threaded
-    initialiseMultithreading(nXBins, nYBins);
+    initialiseMultithreading(nxbins, nybins);
 
     // Store if the clusters have any neighbours within sqrt(2)*r and remove them
     // from the next loop.
     final int N = candidates.size();
     final ArrayList<Cluster> joined = new ArrayList<>();
-    while (findLinksAndCountNeighbours(grid, nXBins, nYBins, r2, singles)) {
+    while (findLinksAndCountNeighbours(grid, nxbins, nybins, r2, singles)) {
       if (tracker.isEnded()) {
         return null;
       }
 
-      final int joins = joinLinks(grid, nXBins, nYBins, r2, candidates, joined, singles);
+      final int joins = joinLinks(grid, nxbins, nybins, r2, candidates, joined, singles);
       if (joins == 0) {
         break; // This should not happen
       }
 
-      tracker.progress(N - candidates.size(), N);
+      tracker.progress((long)N - candidates.size(), N);
 
       // TODO - determine at what point it is faster to reassign the grid
       if (joins < candidates.size() / 5) {
@@ -1150,19 +1161,19 @@ public class ClusteringEngine {
         // In that case check the clusters that were updated and reassign them to a new
         // grid position if necessary.
         for (final Cluster c : candidates) {
-          if (c.neighbour != 0) {
-            c.neighbour = 0;
-            final int xBin = (int) ((c.x - minx) / xBinWidth);
-            final int yBin = (int) ((c.y - miny) / yBinWidth);
+          if (c.getNeighbour() != 0) {
+            c.setNeighbour(0);
+            final int xbin = (int) ((c.getX() - minx) / xbinWidth);
+            final int ybin = (int) ((c.getY() - miny) / ybinWidth);
 
             // Check the current grid position.
-            if (xBin != c.xBin || yBin != c.yBin) {
+            if (xbin != c.getXBin() || ybin != c.getYBin()) {
               remove(grid, c);
 
-              c.xBin = xBin;
-              c.yBin = yBin;
-              c.next = grid[xBin][yBin];
-              grid[xBin][yBin] = c;
+              c.setXBin(xbin);
+              c.setYBin(ybin);
+              c.setNext(grid[xbin][ybin]);
+              grid[xbin][ybin] = c;
             }
           }
         }
@@ -1173,27 +1184,27 @@ public class ClusteringEngine {
         }
       } else {
         // Reassign the grid.
-        for (int xBin = 0; xBin < nXBins; xBin++) {
-          for (int yBin = 0; yBin < nYBins; yBin++) {
-            grid[xBin][yBin] = null;
+        for (int xbin = 0; xbin < nxbins; xbin++) {
+          for (int ybin = 0; ybin < nybins; ybin++) {
+            grid[xbin][ybin] = null;
           }
         }
         for (final Cluster c : candidates) {
           // Only candidates that have been flagged as a join may have changed
           // their grid position
-          if (c.neighbour != 0) {
-            c.xBin = (int) ((c.x - minx) / xBinWidth);
-            c.yBin = (int) ((c.y - miny) / yBinWidth);
+          if (c.getNeighbour() != 0) {
+            c.setXBin((int) ((c.getX() - minx) / xbinWidth));
+            c.setYBin((int) ((c.getY() - miny) / ybinWidth));
           }
           // Build a single linked list
-          c.next = grid[c.xBin][c.yBin];
-          grid[c.xBin][c.yBin] = c;
-          c.neighbour = 0;
+          c.setNext(grid[c.getXBin()][c.getYBin()]);
+          grid[c.getXBin()][c.getYBin()] = c;
+          c.setNeighbour(0);
         }
       }
     }
 
-    return combine(singles, grid, nXBins, nYBins);
+    return combine(singles, grid, nxbins, nybins);
   }
 
   /**
@@ -1201,28 +1212,28 @@ public class ClusteringEngine {
    * if the clusters have any neighbours within 2*r^2.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
    * @param singles Add remaining clusters that have no neighbours
    * @return True if any links were made
    */
-  private boolean findLinksAndCountNeighbours(Cluster[][] grid, final int nXBins, final int nYBins,
+  private boolean findLinksAndCountNeighbours(Cluster[][] grid, final int nxbins, final int nybins,
       final double r2, ArrayList<Cluster> singles) {
     if (threadPool == null) {
-      return findLinksAndCountNeighbours(grid, nXBins, nYBins, r2, 0, nXBins, 0, nYBins);
+      return findLinksAndCountNeighbours(grid, nxbins, nybins, r2, 0, nxbins, 0, nybins);
     }
     // Use threads to find the closest pairs in blocks
     final List<Future<?>> futures = new LinkedList<>();
     final List<FindLinksWorker> results = new LinkedList<>();
 
-    for (int startYBin = 0; startYBin < nYBins; startYBin += yBlock) {
-      final int endYBin = FastMath.min(nYBins, startYBin + yBlock);
-      for (int startXBin = 0; startXBin < nXBins; startXBin += xBlock) {
-        final int endXBin = FastMath.min(nXBins, startXBin + xBlock);
+    for (int startybin = 0; startybin < nybins; startybin += yblock) {
+      final int endybin = FastMath.min(nybins, startybin + yblock);
+      for (int startxbin = 0; startxbin < nxbins; startxbin += xblock) {
+        final int endxbin = FastMath.min(nxbins, startxbin + xblock);
 
         final FindLinksWorker worker =
-            new FindLinksWorker(grid, nXBins, nYBins, r2, startXBin, endXBin, startYBin, endYBin);
+            new FindLinksWorker(grid, nxbins, nybins, r2, startxbin, endxbin, startybin, endybin);
         results.add(worker);
         futures.add(threadPool.submit(worker));
       }
@@ -1245,52 +1256,54 @@ public class ClusteringEngine {
    * if the clusters have any neighbours within 2*r^2.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
-   * @param startXBin the start X bin
-   * @param endXBin the end X bin
-   * @param startYBin the start Y bin
-   * @param endYBin the end Y bin
+   * @param startxbin the start X bin
+   * @param endxbin the end X bin
+   * @param startybin the start Y bin
+   * @param endybin the end Y bin
    * @return True if any links were made
    */
-  private static boolean findLinksAndCountNeighbours(Cluster[][] grid, final int nXBins,
-      final int nYBins, final double r2, int startXBin, int endXBin, int startYBin, int endYBin) {
+  private static boolean findLinksAndCountNeighbours(Cluster[][] grid, final int nxbins,
+      final int nybins, final double r2, int startxbin, int endxbin, int startybin, int endybin) {
     final Cluster[] neighbours = new Cluster[5];
     boolean linked = false;
     final double neighbourDistance = 2 * r2;
 
-    for (int yBin = startYBin; yBin < endYBin; yBin++) {
-      for (int xBin = startXBin; xBin < endXBin; xBin++) {
-        for (Cluster c1 = grid[xBin][yBin]; c1 != null; c1 = c1.next) {
+    for (int ybin = startybin; ybin < endybin; ybin++) {
+      for (int xbin = startxbin; xbin < endxbin; xbin++) {
+        for (Cluster c1 = grid[xbin][ybin]; c1 != null; c1 = c1.getNext()) {
           // Build a list of which cells to compare up to a maximum of 5
-          // | 0,0 | 1,0
+          //@formatter:off
+          //      | 0,0 | 1,0
           // ------------+-----
           // -1,1 | 0,1 | 1,1
+          //@formatter:off
 
           int count = 0;
-          neighbours[count++] = c1.next;
+          neighbours[count++] = c1.getNext();
 
-          if (yBin < nYBins - 1) {
-            neighbours[count++] = grid[xBin][yBin + 1];
-            if (xBin > 0) {
-              neighbours[count++] = grid[xBin - 1][yBin + 1];
+          if (ybin < nybins - 1) {
+            neighbours[count++] = grid[xbin][ybin + 1];
+            if (xbin > 0) {
+              neighbours[count++] = grid[xbin - 1][ybin + 1];
             }
           }
-          if (xBin < nXBins - 1) {
-            neighbours[count++] = grid[xBin + 1][yBin];
-            if (yBin < nYBins - 1) {
-              neighbours[count++] = grid[xBin + 1][yBin + 1];
+          if (xbin < nxbins - 1) {
+            neighbours[count++] = grid[xbin + 1][ybin];
+            if (ybin < nybins - 1) {
+              neighbours[count++] = grid[xbin + 1][ybin + 1];
             }
           }
 
           // Compare to neighbours and find the closest.
           // Use either the radius threshold or the current closest distance
           // which may have been set by an earlier comparison.
-          double min = (c1.closest == null) ? r2 : c1.d2;
+          double min = (c1.getClosest() == null) ? r2 : c1.getDistanceSquared();
           Cluster other = null;
           while (count-- > 0) {
-            for (Cluster c2 = neighbours[count]; c2 != null; c2 = c2.next) {
+            for (Cluster c2 = neighbours[count]; c2 != null; c2 = c2.getNext()) {
               final double d2 = c1.distance2(c2);
               if (d2 < neighbourDistance) {
                 c1.incrementNeighbour();
@@ -1319,76 +1332,72 @@ public class ClusteringEngine {
    * to flag if the candidate was joined to another cluster.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 the r 2
    * @param candidates Re-populate will all the remaining clusters
    * @param joined the joined
    * @param singles Add any clusters with no neighbours
    * @return The number of joins that were made
    */
-  private static int joinLinks(Cluster[][] grid, int nXBins, int nYBins, double r2,
+  private static int joinLinks(Cluster[][] grid, int nxbins, int nybins, double r2,
       ArrayList<Cluster> candidates, ArrayList<Cluster> joined, ArrayList<Cluster> singles) {
     candidates.clear();
     joined.clear();
 
     double min = r2;
-    Cluster cluster1 = null, cluster2 = null;
-    for (int yBin = 0; yBin < nYBins; yBin++) {
-      for (int xBin = 0; xBin < nXBins; xBin++) {
+    Cluster cluster1 = null;
+    Cluster cluster2 = null;
+    for (int ybin = 0; ybin < nybins; ybin++) {
+      for (int xbin = 0; xbin < nxbins; xbin++) {
         Cluster previous = null;
-        for (Cluster c1 = grid[xBin][yBin]; c1 != null; c1 = c1.next) {
+        for (Cluster c1 = grid[xbin][ybin]; c1 != null; c1 = c1.getNext()) {
           int joinFlag = 0;
           if (c1.validLink()) {
             // Check if each cluster only has 1 neighbour
-            if (c1.neighbour == 1 && c1.closest.neighbour == 1) {
-              // System.out.printf("Joining pairs with no neighbours @ %f\n", Math.sqrt(c1.d2));
-              c1.add(c1.closest);
-              joined.add(c1.closest);
+            if (c1.getNeighbour() == 1 && c1.getClosest().getNeighbour() == 1) {
+              c1.add(c1.getClosest());
+              joined.add(c1.getClosest());
               joinFlag = 1;
-            } else if (c1.d2 < min) {
+            } else if (c1.getDistanceSquared() < min) {
               // Otherwise find the closest pair in case no joins are made
-              min = c1.d2;
+              min = c1.getDistanceSquared();
               cluster1 = c1;
-              cluster2 = c1.closest;
+              cluster2 = c1.getClosest();
             }
           }
           // Reset the link candidates
-          c1.closest = null;
+          c1.setClosest(null);
 
           // Check for singles
-          if (c1.neighbour == 0) {
+          if (c1.getNeighbour() == 0) {
             // Add singles to the singles list and remove from the grid
             singles.add(c1);
             if (previous == null) {
-              grid[xBin][yBin] = c1.next;
+              grid[xbin][ybin] = c1.getNext();
             } else {
-              previous.next = c1.next;
+              previous.setNext(c1.getNext());
             }
           } else {
             previous = c1;
 
             // Store all remaining clusters
-            if (c1.n != 0) {
+            if (c1.getSize() != 0) {
               candidates.add(c1);
-              c1.neighbour = joinFlag;
+              c1.setNeighbour(joinFlag);
             }
           }
         }
       }
     }
 
-    //// If no joins were made then join the closest pair
-    // if (joined.isEmpty() && cluster1 != null)
-
     // Always join the closest pair if it has not been already
-    if (cluster1 != null && cluster1.neighbour == 0) {
-      // System.out.printf("Joining closest pair @ %f\n", Math.sqrt(cluster1.d2));
+    if (cluster1 != null && cluster1.getNeighbour() == 0) {
       cluster1.add(cluster2);
       // Remove cluster 2 from the candidates
       candidates.remove(cluster2);
       joined.add(cluster2);
-      cluster1.neighbour = 1;
+      cluster1.setNeighbour(1);
     }
 
     return joined.size();
@@ -1399,40 +1408,40 @@ public class ClusteringEngine {
    * process of joining the closest pair will be slow. Hopefully it will be manageable.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 the r 2
    * @param minx the minx
    * @param miny the miny
-   * @param xBinWidth the x bin width
-   * @param yBinWidth the y bin width
+   * @param xbinWidth the x bin width
+   * @param ybinWidth the y bin width
    * @param candidates the candidates
    * @param singles the singles
    * @param single True if only singles can be joined to another cluster
    * @return the list of clusters
    */
-  private ArrayList<Cluster> runClosest(Cluster[][] grid, int nXBins, int nYBins, double r2,
-      double minx, double miny, double xBinWidth, double yBinWidth, ArrayList<Cluster> candidates,
+  private ArrayList<Cluster> runClosest(Cluster[][] grid, int nxbins, int nybins, double r2,
+      double minx, double miny, double xbinWidth, double ybinWidth, ArrayList<Cluster> candidates,
       ArrayList<Cluster> singles, boolean single) {
     final int N = candidates.size();
     int candidatesProcessed = 0;
-    int s = singles.size();
+    int singlesSize = singles.size();
     final boolean trackProgress = (tracker.getClass() != NullTrackProgress.class);
-    initialiseMultithreading(nXBins, nYBins);
-    while (joinClosest(grid, nXBins, nYBins, r2, minx, miny, xBinWidth, yBinWidth, single)) {
+    initialiseMultithreading(nxbins, nybins);
+    while (joinClosest(grid, nxbins, nybins, r2, minx, miny, xbinWidth, ybinWidth, single)) {
       if (tracker.isEnded()) {
         return null;
       }
 
       // The number of candidates that have been processed is incremented by the number of singles
       if (trackProgress) {
-        candidatesProcessed += singles.size() - s;
-        s = singles.size();
+        candidatesProcessed += singles.size() - singlesSize;
+        singlesSize = singles.size();
         tracker.progress(candidatesProcessed++, N);
       }
     }
 
-    return combine(singles, grid, nXBins, nYBins);
+    return combine(singles, grid, nxbins, nybins);
   }
 
   /**
@@ -1440,38 +1449,38 @@ public class ClusteringEngine {
    * them.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
    * @param minx the minx
    * @param miny the miny
-   * @param xBinWidth the x bin width
-   * @param yBinWidth the y bin width
+   * @param xbinWidth the x bin width
+   * @param ybinWidth the y bin width
    * @param single True if only singles can be joined to another cluster
    * @return True if a join was made
    */
-  private boolean joinClosest(Cluster[][] grid, final int nXBins, final int nYBins, final double r2,
-      double minx, double miny, double xBinWidth, double yBinWidth, boolean single) {
+  private boolean joinClosest(Cluster[][] grid, final int nxbins, final int nybins, final double r2,
+      double minx, double miny, double xbinWidth, double ybinWidth, boolean single) {
     ClosestPair closest = null;
 
     if (threadPool == null) {
-      closest = (single) ? findClosestParticle(grid, nXBins, nYBins, r2, 0, nXBins, 0, nYBins)
-          : findClosest(grid, nXBins, nYBins, r2, 0, nXBins, 0, nYBins);
+      closest = (single) ? findClosestSingle(grid, nxbins, nybins, r2, 0, nxbins, 0, nybins)
+          : findClosest(grid, nxbins, nybins, r2, 0, nxbins, 0, nybins);
     } else {
       // Use threads to find the closest pairs in blocks
       final List<Future<?>> futures = new LinkedList<>();
       final List<ClosestPair> results = new LinkedList<>();
 
-      for (int startYBin = 0; startYBin < nYBins; startYBin += yBlock) {
-        final int endYBin = FastMath.min(nYBins, startYBin + yBlock);
-        for (int startXBin = 0; startXBin < nXBins; startXBin += xBlock) {
-          final int endXBin = FastMath.min(nXBins, startXBin + xBlock);
-          // System.out.printf("Block [%d-%d, %d-%d]\n", startXBin, endXBin, startYBin, endYBin);
+      for (int startybin = 0; startybin < nybins; startybin += yblock) {
+        final int endybin = FastMath.min(nybins, startybin + yblock);
+        for (int startxbin = 0; startxbin < nxbins; startxbin += xblock) {
+          final int endxbin = FastMath.min(nxbins, startxbin + xblock);
+          // System.out.printf("Block [%d-%d, %d-%d]\n", startxbin, endxbin, startybin, endybin)
 
           final ClosestPair pair = new ClosestPair();
           results.add(pair);
-          futures.add(threadPool.submit(new ClosestWorker(pair, grid, nXBins, nYBins, r2, startXBin,
-              endXBin, startYBin, endYBin, single)));
+          futures.add(threadPool.submit(new ClosestWorker(pair, grid, nxbins, nybins, r2, startxbin,
+              endxbin, startybin, endybin, single)));
         }
       }
 
@@ -1480,10 +1489,8 @@ public class ClusteringEngine {
 
       // Find the closest pair from all the results
       for (final ClosestPair result : results) {
-        if (result.point1 != null) {
-          if (closest == null || result.distance < closest.distance) {
-            closest = result;
-          }
+        if (result.point1 != null && (closest == null || result.distance < closest.distance)) {
+          closest = result;
         }
       }
     }
@@ -1495,13 +1502,13 @@ public class ClusteringEngine {
 
       if (single) {
         // Check
-        if (pair1.n > 1 && pair2.n > 1) {
+        if (pair1.getSize() > 1 && pair2.getSize() > 1) {
           throw new RuntimeException(
               "Linkage between two clusters (not a single particle and a single/cluster)");
         }
 
         // Add the single to the cluster
-        if (pair2.n < pair1.n) {
+        if (pair2.getSize() < pair1.getSize()) {
           final Cluster tmp = pair1;
           pair1 = pair2;
           pair2 = tmp;
@@ -1513,17 +1520,17 @@ public class ClusteringEngine {
       remove(grid, pair1);
 
       // Reassign the updated grid position
-      final int xBin = (int) ((pair2.x - minx) / xBinWidth);
-      final int yBin = (int) ((pair2.y - miny) / yBinWidth);
+      final int xbin = (int) ((pair2.getX() - minx) / xbinWidth);
+      final int ybin = (int) ((pair2.getY() - miny) / ybinWidth);
 
-      if (xBin != pair2.xBin || yBin != pair2.yBin) {
+      if (xbin != pair2.getXBin() || ybin != pair2.getYBin()) {
         remove(grid, pair2);
 
         // Build a single linked list
-        pair2.xBin = xBin;
-        pair2.yBin = yBin;
-        pair2.next = grid[xBin][yBin];
-        grid[xBin][yBin] = pair2;
+        pair2.setXBin(xbin);
+        pair2.setYBin(ybin);
+        pair2.setNext(grid[xbin][ybin]);
+        grid[xbin][ybin] = pair2;
       }
 
       return true;
@@ -1536,33 +1543,36 @@ public class ClusteringEngine {
    * Search for the closest pair of clusters that are below the squared radius distance.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
-   * @param startXBin the start X bin
-   * @param endXBin the end X bin
-   * @param startYBin the start Y bin
-   * @param endYBin the end Y bin
+   * @param startxbin the start X bin
+   * @param endxbin the end X bin
+   * @param startybin the start Y bin
+   * @param endybin the end Y bin
    * @return The closest pair
    */
-  private ClosestPair findClosest(Cluster[][] grid, final int nXBins, final int nYBins,
-      final double r2, int startXBin, int endXBin, int startYBin, int endYBin) {
+  private ClosestPair findClosest(Cluster[][] grid, final int nxbins, final int nybins,
+      final double r2, int startxbin, int endxbin, int startybin, int endybin) {
     double min = r2;
-    Cluster pair1 = null, pair2 = null;
-    for (int yBin = startYBin; yBin < endYBin; yBin++) {
-      for (int xBin = startXBin; xBin < endXBin; xBin++) {
-        for (Cluster c1 = grid[xBin][yBin]; c1 != null; c1 = c1.next) {
+    Cluster pair1 = null;
+    Cluster pair2 = null;
+    for (int ybin = startybin; ybin < endybin; ybin++) {
+      for (int xbin = startxbin; xbin < endxbin; xbin++) {
+        for (Cluster c1 = grid[xbin][ybin]; c1 != null; c1 = c1.getNext()) {
           // Build a list of which cells to compare up to a maximum of 4
-          // | 0,0 | 1,0
+          //@formatter:off
+          //      | 0,0 | 1,0
           // ------------+-----
           // -1,1 | 0,1 | 1,1
+          //@formatter:on
 
           // Compare to neighbours and find the closest.
           // Use either the radius threshold or the current closest distance
           // which may have been set by an earlier comparison.
           Cluster other = null;
 
-          for (Cluster c2 = c1.next; c2 != null; c2 = c2.next) {
+          for (Cluster c2 = c1.getNext(); c2 != null; c2 = c2.getNext()) {
             final double d2 = c1.distance2(c2);
             if (d2 < min) {
               min = d2;
@@ -1570,16 +1580,16 @@ public class ClusteringEngine {
             }
           }
 
-          if (yBin < nYBins - 1) {
-            for (Cluster c2 = grid[xBin][yBin + 1]; c2 != null; c2 = c2.next) {
+          if (ybin < nybins - 1) {
+            for (Cluster c2 = grid[xbin][ybin + 1]; c2 != null; c2 = c2.getNext()) {
               final double d2 = c1.distance2(c2);
               if (d2 < min) {
                 min = d2;
                 other = c2;
               }
             }
-            if (xBin > 0) {
-              for (Cluster c2 = grid[xBin - 1][yBin + 1]; c2 != null; c2 = c2.next) {
+            if (xbin > 0) {
+              for (Cluster c2 = grid[xbin - 1][ybin + 1]; c2 != null; c2 = c2.getNext()) {
                 final double d2 = c1.distance2(c2);
                 if (d2 < min) {
                   min = d2;
@@ -1588,16 +1598,16 @@ public class ClusteringEngine {
               }
             }
           }
-          if (xBin < nXBins - 1) {
-            for (Cluster c2 = grid[xBin + 1][yBin]; c2 != null; c2 = c2.next) {
+          if (xbin < nxbins - 1) {
+            for (Cluster c2 = grid[xbin + 1][ybin]; c2 != null; c2 = c2.getNext()) {
               final double d2 = c1.distance2(c2);
               if (d2 < min) {
                 min = d2;
                 other = c2;
               }
             }
-            if (yBin < nYBins - 1) {
-              for (Cluster c2 = grid[xBin + 1][yBin + 1]; c2 != null; c2 = c2.next) {
+            if (ybin < nybins - 1) {
+              for (Cluster c2 = grid[xbin + 1][ybin + 1]; c2 != null; c2 = c2.getNext()) {
                 final double d2 = c1.distance2(c2);
                 if (d2 < min) {
                   min = d2;
@@ -1629,12 +1639,12 @@ public class ClusteringEngine {
    */
   private static void remove(Cluster[][] grid, Cluster cluster) {
     Cluster previous = null;
-    for (Cluster c1 = grid[cluster.xBin][cluster.yBin]; c1 != null; c1 = c1.next) {
+    for (Cluster c1 = grid[cluster.getXBin()][cluster.getYBin()]; c1 != null; c1 = c1.getNext()) {
       if (c1 == cluster) {
         if (previous == null) {
-          grid[cluster.xBin][cluster.yBin] = c1.next;
+          grid[cluster.getXBin()][cluster.getYBin()] = c1.getNext();
         } else {
-          previous.next = c1.next;
+          previous.setNext(c1.getNext());
         }
         return;
       }
@@ -1647,15 +1657,15 @@ public class ClusteringEngine {
    *
    * @param singles the singles
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @return The combined clusters
    */
   private static ArrayList<Cluster> combine(ArrayList<Cluster> singles, Cluster[][] grid,
-      int nXBins, int nYBins) {
-    for (int xBin = 0; xBin < nXBins; xBin++) {
-      for (int yBin = 0; yBin < nYBins; yBin++) {
-        for (Cluster c1 = grid[xBin][yBin]; c1 != null; c1 = c1.next) {
+      int nxbins, int nybins) {
+    for (int xbin = 0; xbin < nxbins; xbin++) {
+      for (int ybin = 0; ybin < nybins; ybin++) {
+        for (Cluster c1 = grid[xbin][ybin]; c1 != null; c1 = c1.getNext()) {
           // if (c1.n > 0)
           singles.add(c1);
         }
@@ -1669,36 +1679,39 @@ public class ClusteringEngine {
    * the squared radius distance.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
-   * @param startXBin the start X bin
-   * @param endXBin the end X bin
-   * @param startYBin the start Y bin
-   * @param endYBin the end Y bin
+   * @param startxbin the start X bin
+   * @param endxbin the end X bin
+   * @param startybin the start Y bin
+   * @param endybin the end Y bin
    * @return The closest pair
    */
-  private ClosestPair findClosestParticle(Cluster[][] grid, final int nXBins, final int nYBins,
-      final double r2, int startXBin, int endXBin, int startYBin, int endYBin) {
+  private ClosestPair findClosestSingle(Cluster[][] grid, final int nxbins, final int nybins,
+      final double r2, int startxbin, int endxbin, int startybin, int endybin) {
     double min = r2;
-    Cluster pair1 = null, pair2 = null;
-    for (int yBin = startYBin; yBin < endYBin; yBin++) {
-      for (int xBin = startXBin; xBin < endXBin; xBin++) {
-        for (Cluster c1 = grid[xBin][yBin]; c1 != null; c1 = c1.next) {
-          final boolean cluster1 = c1.n > 1;
+    Cluster pair1 = null;
+    Cluster pair2 = null;
+    for (int ybin = startybin; ybin < endybin; ybin++) {
+      for (int xbin = startxbin; xbin < endxbin; xbin++) {
+        for (Cluster c1 = grid[xbin][ybin]; c1 != null; c1 = c1.getNext()) {
+          final boolean cluster1 = c1.getSize() > 1;
 
           // Build a list of which cells to compare up to a maximum of 4
-          // | 0,0 | 1,0
+          //@formatter:off
+          //      | 0,0 | 1,0
           // ------------+-----
           // -1,1 | 0,1 | 1,1
+          //@formatter:on
 
           // Compare to neighbours and find the closest.
           // Use either the radius threshold or the current closest distance
           // which may have been set by an earlier comparison.
           Cluster other = null;
 
-          for (Cluster c2 = c1.next; c2 != null; c2 = c2.next) {
-            if (cluster1 && c2.n > 1) {
+          for (Cluster c2 = c1.getNext(); c2 != null; c2 = c2.getNext()) {
+            if (cluster1 && c2.getSize() > 1) {
               continue;
             }
             final double d2 = c1.distance2(c2);
@@ -1708,9 +1721,9 @@ public class ClusteringEngine {
             }
           }
 
-          if (yBin < nYBins - 1) {
-            for (Cluster c2 = grid[xBin][yBin + 1]; c2 != null; c2 = c2.next) {
-              if (cluster1 && c2.n > 1) {
+          if (ybin < nybins - 1) {
+            for (Cluster c2 = grid[xbin][ybin + 1]; c2 != null; c2 = c2.getNext()) {
+              if (cluster1 && c2.getSize() > 1) {
                 continue;
               }
               final double d2 = c1.distance2(c2);
@@ -1719,9 +1732,9 @@ public class ClusteringEngine {
                 other = c2;
               }
             }
-            if (xBin > 0) {
-              for (Cluster c2 = grid[xBin - 1][yBin + 1]; c2 != null; c2 = c2.next) {
-                if (cluster1 && c2.n > 1) {
+            if (xbin > 0) {
+              for (Cluster c2 = grid[xbin - 1][ybin + 1]; c2 != null; c2 = c2.getNext()) {
+                if (cluster1 && c2.getSize() > 1) {
                   continue;
                 }
                 final double d2 = c1.distance2(c2);
@@ -1732,9 +1745,9 @@ public class ClusteringEngine {
               }
             }
           }
-          if (xBin < nXBins - 1) {
-            for (Cluster c2 = grid[xBin + 1][yBin]; c2 != null; c2 = c2.next) {
-              if (cluster1 && c2.n > 1) {
+          if (xbin < nxbins - 1) {
+            for (Cluster c2 = grid[xbin + 1][ybin]; c2 != null; c2 = c2.getNext()) {
+              if (cluster1 && c2.getSize() > 1) {
                 continue;
               }
               final double d2 = c1.distance2(c2);
@@ -1743,9 +1756,9 @@ public class ClusteringEngine {
                 other = c2;
               }
             }
-            if (yBin < nYBins - 1) {
-              for (Cluster c2 = grid[xBin + 1][yBin + 1]; c2 != null; c2 = c2.next) {
-                if (cluster1 && c2.n > 1) {
+            if (ybin < nybins - 1) {
+              for (Cluster c2 = grid[xbin + 1][ybin + 1]; c2 != null; c2 = c2.getNext()) {
+                if (cluster1 && c2.getSize() > 1) {
                   continue;
                 }
                 final double d2 = c1.distance2(c2);
@@ -1776,57 +1789,57 @@ public class ClusteringEngine {
    * in time and then distance.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 the r 2
    * @param time the time
    * @param minx the minx
    * @param miny the miny
-   * @param xBinWidth the x bin width
-   * @param yBinWidth the y bin width
+   * @param xbinWidth the x bin width
+   * @param ybinWidth the y bin width
    * @param candidates the candidates
    * @param singles the singles
    * @param single True if only singles can be joined to another cluster
    * @return the list of clusters
    */
-  private ArrayList<Cluster> runClosestTimePriority(Cluster[][] grid, int nXBins, int nYBins,
-      double r2, int time, double minx, double miny, double xBinWidth, double yBinWidth,
+  private ArrayList<Cluster> runClosestTimePriority(Cluster[][] grid, int nxbins, int nybins,
+      double r2, int time, double minx, double miny, double xbinWidth, double ybinWidth,
       ArrayList<Cluster> candidates, ArrayList<Cluster> singles, boolean single) {
     final int N = candidates.size();
     int candidatesProcessed = 0;
-    int s = singles.size();
+    int singleSize = singles.size();
     final boolean trackProgress = (tracker.getClass() != NullTrackProgress.class);
-    final TimeCluster[][] newGrid = convertGrid(grid, nXBins, nYBins);
-    initialiseMultithreading(nXBins, nYBins);
-    while (joinClosestTimePriority(newGrid, nXBins, nYBins, r2, time, minx, miny, xBinWidth,
-        yBinWidth, singles, single)) {
+    final TimeCluster[][] newGrid = convertGrid(grid, nxbins, nybins);
+    initialiseMultithreading(nxbins, nybins);
+    while (joinClosestTimePriority(newGrid, nxbins, nybins, r2, time, minx, miny, xbinWidth,
+        ybinWidth, singles, single)) {
       if (tracker.isEnded()) {
         return null;
       }
 
       // The number of candidates that have been processed is incremented by the number of singles
       if (trackProgress) {
-        candidatesProcessed += singles.size() - s;
-        s = singles.size();
+        candidatesProcessed += singles.size() - singleSize;
+        singleSize = singles.size();
         tracker.progress(candidatesProcessed++, N);
       }
     }
 
-    return combine(singles, newGrid, nXBins, nYBins);
+    return combine(singles, newGrid, nxbins, nybins);
   }
 
-  private TimeCluster[][] convertGrid(Cluster[][] grid, int nXBins, int nYBins) {
-    final TimeCluster[][] newGrid = new TimeCluster[nXBins][nYBins];
-    for (int yBin = 0; yBin < nYBins; yBin++) {
-      for (int xBin = 0; xBin < nXBins; xBin++) {
-        for (Cluster c1 = grid[xBin][yBin]; c1 != null; c1 = c1.next) {
+  private TimeCluster[][] convertGrid(Cluster[][] grid, int nxbins, int nybins) {
+    final TimeCluster[][] newGrid = new TimeCluster[nxbins][nybins];
+    for (int ybin = 0; ybin < nybins; ybin++) {
+      for (int xbin = 0; xbin < nxbins; xbin++) {
+        for (Cluster c1 = grid[xbin][ybin]; c1 != null; c1 = c1.getNext()) {
           // Build a single linked list
-          final TimeCluster c = new TimeCluster(c1.head);
-          c.pulse = getPulse(c.start);
-          c.xBin = xBin;
-          c.yBin = yBin;
-          c.next = newGrid[xBin][yBin];
-          newGrid[xBin][yBin] = c;
+          final TimeCluster c = new TimeCluster(c1.getHeadClusterPoint());
+          c.setPulseTime(getPulse(c.getStartTime()));
+          c.setXBin(xbin);
+          c.setYBin(ybin);
+          c.setNext(newGrid[xbin][ybin]);
+          newGrid[xbin][ybin] = c;
         }
       }
     }
@@ -1838,42 +1851,41 @@ public class ClusteringEngine {
    * them. Join closest in time and then distance.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
    * @param time The time threshold
    * @param minx the minx
    * @param miny the miny
-   * @param xBinWidth the x bin width
-   * @param yBinWidth the y bin width
+   * @param xbinWidth the x bin width
+   * @param ybinWidth the y bin width
    * @param singles Add remaining clusters that have no neighbours
    * @param single True if only singles can be joined to another cluster
    * @return True if a join was made
    */
-  private boolean joinClosestTimePriority(TimeCluster[][] grid, final int nXBins, final int nYBins,
-      final double r2, final int time, double minx, double miny, double xBinWidth, double yBinWidth,
+  private boolean joinClosestTimePriority(TimeCluster[][] grid, final int nxbins, final int nybins,
+      final double r2, final int time, double minx, double miny, double xbinWidth, double ybinWidth,
       ArrayList<Cluster> singles, boolean single) {
     ClosestPair closest = null;
 
     if (threadPool == null) {
       closest = (single)
-          ? findClosestParticleTimePriority(grid, nXBins, nYBins, r2, time, 0, nXBins, 0, nYBins)
-          : findClosestTimePriority(grid, nXBins, nYBins, r2, time, 0, nXBins, 0, nYBins);
+          ? findClosestParticleTimePriority(grid, nxbins, nybins, r2, time, 0, nxbins, 0, nybins)
+          : findClosestTimePriority(grid, nxbins, nybins, r2, time, 0, nxbins, 0, nybins);
     } else {
       // Use threads to find the closest pairs in blocks
       final List<Future<?>> futures = new LinkedList<>();
       final List<ClosestPair> results = new LinkedList<>();
 
-      for (int startYBin = 0; startYBin < nYBins; startYBin += yBlock) {
-        final int endYBin = FastMath.min(nYBins, startYBin + yBlock);
-        for (int startXBin = 0; startXBin < nXBins; startXBin += xBlock) {
-          final int endXBin = FastMath.min(nXBins, startXBin + xBlock);
-          // System.out.printf("Block [%d-%d, %d-%d]\n", startXBin, endXBin, startYBin, endYBin);
+      for (int startybin = 0; startybin < nybins; startybin += yblock) {
+        final int endybin = FastMath.min(nybins, startybin + yblock);
+        for (int startxbin = 0; startxbin < nxbins; startxbin += xblock) {
+          final int endxbin = FastMath.min(nxbins, startxbin + xblock);
 
           final ClosestPair pair = new ClosestPair();
           results.add(pair);
-          futures.add(threadPool.submit(new ClosestPriorityWorker(true, pair, grid, nXBins, nYBins,
-              r2, time, startXBin, endXBin, startYBin, endYBin, single)));
+          futures.add(threadPool.submit(new ClosestPriorityWorker(true, pair, grid, nxbins, nybins,
+              r2, time, startxbin, endxbin, startybin, endybin, single)));
         }
       }
 
@@ -1902,17 +1914,17 @@ public class ClusteringEngine {
       remove(grid, pair1);
 
       // Reassign the updated grid position
-      final int xBin = (int) ((pair2.x - minx) / xBinWidth);
-      final int yBin = (int) ((pair2.y - miny) / yBinWidth);
+      final int xbin = (int) ((pair2.getX() - minx) / xbinWidth);
+      final int ybin = (int) ((pair2.getY() - miny) / ybinWidth);
 
-      if (xBin != pair2.xBin || yBin != pair2.yBin) {
+      if (xbin != pair2.getXBin() || ybin != pair2.getYBin()) {
         remove(grid, pair2);
 
         // Build a single linked list
-        pair2.xBin = xBin;
-        pair2.yBin = yBin;
-        pair2.next = grid[xBin][yBin];
-        grid[xBin][yBin] = pair2;
+        pair2.setXBin(xbin);
+        pair2.setYBin(ybin);
+        pair2.setNext(grid[xbin][ybin]);
+        grid[xbin][ybin] = pair2;
       }
 
       return true;
@@ -1926,54 +1938,57 @@ public class ClusteringEngine {
    * closest in time and then distance.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
    * @param time the time
-   * @param startXBin the start X bin
-   * @param endXBin the end X bin
-   * @param startYBin the start Y bin
-   * @param endYBin the end Y bin
+   * @param startxbin the start X bin
+   * @param endxbin the end X bin
+   * @param startybin the start Y bin
+   * @param endybin the end Y bin
    * @return True if a join was made
    */
-  private ClosestPair findClosestTimePriority(TimeCluster[][] grid, final int nXBins,
-      final int nYBins, final double r2, final int time, int startXBin, int endXBin, int startYBin,
-      int endYBin) {
+  private ClosestPair findClosestTimePriority(TimeCluster[][] grid, final int nxbins,
+      final int nybins, final double r2, final int time, int startxbin, int endxbin, int startybin,
+      int endybin) {
     double minD = Double.POSITIVE_INFINITY;
     int minT = Integer.MAX_VALUE;
-    TimeCluster pair1 = null, pair2 = null;
+    TimeCluster pair1 = null;
+    TimeCluster pair2 = null;
     final TimeCluster[] neighbourCells = new TimeCluster[5];
     final boolean checkPulseInterval = pulseInterval > 0;
-    for (int yBin = startYBin; yBin < endYBin; yBin++) {
-      for (int xBin = startXBin; xBin < endXBin; xBin++) {
-        for (TimeCluster c1 = grid[xBin][yBin]; c1 != null; c1 = (TimeCluster) c1.next) {
+    for (int ybin = startybin; ybin < endybin; ybin++) {
+      for (int xbin = startxbin; xbin < endxbin; xbin++) {
+        for (TimeCluster c1 = grid[xbin][ybin]; c1 != null; c1 = (TimeCluster) c1.getNext()) {
           // Build a list of which cells to compare up to a maximum of 4
-          // | 0,0 | 1,0
+          //@formatter:off
+          //      | 0,0 | 1,0
           // ------------+-----
           // -1,1 | 0,1 | 1,1
+          //@formatter:on
 
           // Compare to neighbours and find the closest.
           // Use either the radius threshold or the current closest distance
           // which may have been set by an earlier comparison.
           TimeCluster other = null;
           int cells = 1;
-          neighbourCells[0] = (TimeCluster) c1.next;
-          if (yBin < nYBins - 1) {
-            neighbourCells[cells++] = grid[xBin][yBin + 1];
-            if (xBin > 0) {
-              neighbourCells[cells++] = grid[xBin - 1][yBin + 1];
+          neighbourCells[0] = (TimeCluster) c1.getNext();
+          if (ybin < nybins - 1) {
+            neighbourCells[cells++] = grid[xbin][ybin + 1];
+            if (xbin > 0) {
+              neighbourCells[cells++] = grid[xbin - 1][ybin + 1];
             }
           }
-          if (xBin < nXBins - 1) {
-            neighbourCells[cells++] = grid[xBin + 1][yBin];
-            if (yBin < nYBins - 1) {
-              neighbourCells[cells++] = grid[xBin + 1][yBin + 1];
+          if (xbin < nxbins - 1) {
+            neighbourCells[cells++] = grid[xbin + 1][ybin];
+            if (ybin < nybins - 1) {
+              neighbourCells[cells++] = grid[xbin + 1][ybin + 1];
             }
           }
 
           for (int c = 0; c < cells; c++) {
-            for (TimeCluster c2 = neighbourCells[c]; c2 != null; c2 = (TimeCluster) c2.next) {
-              if (checkPulseInterval && c1.pulse != c2.pulse) {
+            for (TimeCluster c2 = neighbourCells[c]; c2 != null; c2 = (TimeCluster) c2.getNext()) {
+              if (checkPulseInterval && c1.getPulseTime() != c2.getPulseTime()) {
                 continue;
               }
 
@@ -1983,7 +1998,7 @@ public class ClusteringEngine {
 
                 if (d2 <= r2) {
                   // Check if the two clusters can be merged
-                  if (gap == 0 && validUnion(c1, c2)) {
+                  if (invalidUnion(gap, c1, c2)) {
                     continue;
                   }
 
@@ -2014,17 +2029,31 @@ public class ClusteringEngine {
   }
 
   /**
-   * Check if the union of two clusters is valid.
+   * Check if the union of two clusters time points is invalid.
    *
-   * @param c1 the c 1
-   * @param c2 the c 2
-   * @return true, if successful
+   * <p>If the gap is non zero then this is valid.
+   *
+   * <p>If the time gap is zero then the union of the two clusters time points is checked to ensure
+   * distinct time points exists across all the cluster points.
+   *
+   * @param gap the time gap between the clusters (zero signals overlap)
+   * @param c1 the first cluster
+   * @param c2 the second cluster
+   * @return true if invalid
+   */
+  private boolean invalidUnion(int gap, TimeCluster c1, TimeCluster c2) {
+    return (gap == 0) && !validUnion(c1, c2);
+  }
+
+  /**
+   * Check if the union of two clusters time points is valid.
+   *
+   * @param c1 the first cluster
+   * @param c2 the second cluster
+   * @return true if valid
    */
   private boolean validUnion(TimeCluster c1, TimeCluster c2) {
-    if (useRange) {
-      return c1.validUnionRange(c2);
-    }
-    return c1.validUnion(c2);
+    return (useRange) ? c1.validUnionRange(c2) : c1.validUnion(c2);
   }
 
   /**
@@ -2032,59 +2061,62 @@ public class ClusteringEngine {
    * the squared radius distance. Find the closest in time and then distance.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
    * @param time the time
-   * @param startXBin the start X bin
-   * @param endXBin the end X bin
-   * @param startYBin the start Y bin
-   * @param endYBin the end Y bin
+   * @param startxbin the start X bin
+   * @param endxbin the end X bin
+   * @param startybin the start Y bin
+   * @param endybin the end Y bin
    * @return True if a join was made
    */
-  private ClosestPair findClosestParticleTimePriority(TimeCluster[][] grid, final int nXBins,
-      final int nYBins, final double r2, final int time, int startXBin, int endXBin, int startYBin,
-      int endYBin) {
+  private ClosestPair findClosestParticleTimePriority(TimeCluster[][] grid, final int nxbins,
+      final int nybins, final double r2, final int time, int startxbin, int endxbin, int startybin,
+      int endybin) {
     double minD = Double.POSITIVE_INFINITY;
     int minT = Integer.MAX_VALUE;
-    TimeCluster pair1 = null, pair2 = null;
+    TimeCluster pair1 = null;
+    TimeCluster pair2 = null;
     final TimeCluster[] neighbourCells = new TimeCluster[5];
     final boolean checkPulseInterval = pulseInterval > 0;
-    for (int yBin = startYBin; yBin < endYBin; yBin++) {
-      for (int xBin = startXBin; xBin < endXBin; xBin++) {
-        for (TimeCluster c1 = grid[xBin][yBin]; c1 != null; c1 = (TimeCluster) c1.next) {
-          final boolean cluster1 = c1.n > 1;
+    for (int ybin = startybin; ybin < endybin; ybin++) {
+      for (int xbin = startxbin; xbin < endxbin; xbin++) {
+        for (TimeCluster c1 = grid[xbin][ybin]; c1 != null; c1 = (TimeCluster) c1.getNext()) {
+          final boolean cluster1 = c1.getSize() > 1;
 
           // Build a list of which cells to compare up to a maximum of 4
-          // | 0,0 | 1,0
+          //@formatter:off
+          //      | 0,0 | 1,0
           // ------------+-----
           // -1,1 | 0,1 | 1,1
+          //@formatter:on
 
           // Compare to neighbours and find the closest.
           // Use either the radius threshold or the current closest distance
           // which may have been set by an earlier comparison.
           TimeCluster other = null;
           int cells = 1;
-          neighbourCells[0] = (TimeCluster) c1.next;
-          if (yBin < nYBins - 1) {
-            neighbourCells[cells++] = grid[xBin][yBin + 1];
-            if (xBin > 0) {
-              neighbourCells[cells++] = grid[xBin - 1][yBin + 1];
+          neighbourCells[0] = (TimeCluster) c1.getNext();
+          if (ybin < nybins - 1) {
+            neighbourCells[cells++] = grid[xbin][ybin + 1];
+            if (xbin > 0) {
+              neighbourCells[cells++] = grid[xbin - 1][ybin + 1];
             }
           }
-          if (xBin < nXBins - 1) {
-            neighbourCells[cells++] = grid[xBin + 1][yBin];
-            if (yBin < nYBins - 1) {
-              neighbourCells[cells++] = grid[xBin + 1][yBin + 1];
+          if (xbin < nxbins - 1) {
+            neighbourCells[cells++] = grid[xbin + 1][ybin];
+            if (ybin < nybins - 1) {
+              neighbourCells[cells++] = grid[xbin + 1][ybin + 1];
             }
           }
 
           for (int c = 0; c < cells; c++) {
-            for (TimeCluster c2 = neighbourCells[c]; c2 != null; c2 = (TimeCluster) c2.next) {
-              if (cluster1 && c2.n > 1) {
+            for (TimeCluster c2 = neighbourCells[c]; c2 != null; c2 = (TimeCluster) c2.getNext()) {
+              if (cluster1 && c2.getSize() > 1) {
                 continue;
               }
-              if (checkPulseInterval && c1.pulse != c2.pulse) {
+              if (checkPulseInterval && c1.getPulseTime() != c2.getPulseTime()) {
                 continue;
               }
 
@@ -2094,7 +2126,7 @@ public class ClusteringEngine {
 
                 if (d2 <= r2) {
                   // Check if the two clusters can be merged
-                  if (gap == 0 && validUnion(c1, c2)) {
+                  if (invalidUnion(gap, c1, c2)) {
                     continue;
                   }
 
@@ -2129,43 +2161,43 @@ public class ClusteringEngine {
    * in distance and then time.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 the r 2
    * @param time the time
    * @param minx the minx
    * @param miny the miny
-   * @param xBinWidth the x bin width
-   * @param yBinWidth the y bin width
+   * @param xbinWidth the x bin width
+   * @param ybinWidth the y bin width
    * @param candidates the candidates
    * @param singles the singles
    * @param single True if only singles can be joined to another cluster
    * @return the list of clusters
    */
-  private ArrayList<Cluster> runClosestDistancePriority(Cluster[][] grid, int nXBins, int nYBins,
-      double r2, int time, double minx, double miny, double xBinWidth, double yBinWidth,
+  private ArrayList<Cluster> runClosestDistancePriority(Cluster[][] grid, int nxbins, int nybins,
+      double r2, int time, double minx, double miny, double xbinWidth, double ybinWidth,
       ArrayList<Cluster> candidates, ArrayList<Cluster> singles, boolean single) {
     final int N = candidates.size();
     int candidatesProcessed = 0;
-    int s = singles.size();
+    int singlesSize = singles.size();
     final boolean trackProgress = (tracker.getClass() != NullTrackProgress.class);
-    final TimeCluster[][] newGrid = convertGrid(grid, nXBins, nYBins);
-    initialiseMultithreading(nXBins, nYBins);
-    while (joinClosestDistancePriority(newGrid, nXBins, nYBins, r2, time, minx, miny, xBinWidth,
-        yBinWidth, singles, single)) {
+    final TimeCluster[][] newGrid = convertGrid(grid, nxbins, nybins);
+    initialiseMultithreading(nxbins, nybins);
+    while (joinClosestDistancePriority(newGrid, nxbins, nybins, r2, time, minx, miny, xbinWidth,
+        ybinWidth, singles, single)) {
       if (tracker.isEnded()) {
         return null;
       }
 
       // The number of candidates that have been processed is incremented by the number of singles
       if (trackProgress) {
-        candidatesProcessed += singles.size() - s;
-        s = singles.size();
+        candidatesProcessed += singles.size() - singlesSize;
+        singlesSize = singles.size();
         tracker.progress(candidatesProcessed++, N);
       }
     }
 
-    return combine(singles, newGrid, nXBins, nYBins);
+    return combine(singles, newGrid, nxbins, nybins);
   }
 
   /**
@@ -2173,42 +2205,42 @@ public class ClusteringEngine {
    * them. Join closest in distance and then time.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
    * @param time The time threshold
    * @param minx the minx
    * @param miny the miny
-   * @param xBinWidth the x bin width
-   * @param yBinWidth the y bin width
+   * @param xbinWidth the x bin width
+   * @param ybinWidth the y bin width
    * @param singles Add remaining clusters that have no neighbours
    * @param single True if only singles can be joined to another cluster
    * @return True if a join was made
    */
-  private boolean joinClosestDistancePriority(TimeCluster[][] grid, final int nXBins,
-      final int nYBins, final double r2, int time, double minx, double miny, double xBinWidth,
-      double yBinWidth, ArrayList<Cluster> singles, boolean single) {
+  private boolean joinClosestDistancePriority(TimeCluster[][] grid, final int nxbins,
+      final int nybins, final double r2, int time, double minx, double miny, double xbinWidth,
+      double ybinWidth, ArrayList<Cluster> singles, boolean single) {
     ClosestPair closest = null;
 
     if (threadPool == null) {
       closest = (single)
-          ? findClosestParticleDistancePriority(grid, nXBins, nYBins, r2, time, 0, nXBins, 0,
-              nYBins)
-          : findClosestDistancePriority(grid, nXBins, nYBins, r2, time, 0, nXBins, 0, nYBins);
+          ? findClosestParticleDistancePriority(grid, nxbins, nybins, r2, time, 0, nxbins, 0,
+              nybins)
+          : findClosestDistancePriority(grid, nxbins, nybins, r2, time, 0, nxbins, 0, nybins);
     } else {
       // Use threads to find the closest pairs in blocks
       final List<Future<?>> futures = new LinkedList<>();
       final List<ClosestPair> results = new LinkedList<>();
 
-      for (int startYBin = 0; startYBin < nYBins; startYBin += yBlock) {
-        final int endYBin = FastMath.min(nYBins, startYBin + yBlock);
-        for (int startXBin = 0; startXBin < nXBins; startXBin += xBlock) {
-          final int endXBin = FastMath.min(nXBins, startXBin + xBlock);
+      for (int startybin = 0; startybin < nybins; startybin += yblock) {
+        final int endybin = FastMath.min(nybins, startybin + yblock);
+        for (int startxbin = 0; startxbin < nxbins; startxbin += xblock) {
+          final int endxbin = FastMath.min(nxbins, startxbin + xblock);
 
           final ClosestPair pair = new ClosestPair();
           results.add(pair);
-          futures.add(threadPool.submit(new ClosestPriorityWorker(false, pair, grid, nXBins, nYBins,
-              r2, time, startXBin, endXBin, startYBin, endYBin, single)));
+          futures.add(threadPool.submit(new ClosestPriorityWorker(false, pair, grid, nxbins, nybins,
+              r2, time, startxbin, endxbin, startybin, endybin, single)));
         }
       }
 
@@ -2237,17 +2269,17 @@ public class ClusteringEngine {
       remove(grid, pair1);
 
       // Reassign the updated grid position
-      final int xBin = (int) ((pair2.x - minx) / xBinWidth);
-      final int yBin = (int) ((pair2.y - miny) / yBinWidth);
+      final int xbin = (int) ((pair2.getX() - minx) / xbinWidth);
+      final int ybin = (int) ((pair2.getY() - miny) / ybinWidth);
 
-      if (xBin != pair2.xBin || yBin != pair2.yBin) {
+      if (xbin != pair2.getXBin() || ybin != pair2.getYBin()) {
         remove(grid, pair2);
 
         // Build a single linked list
-        pair2.xBin = xBin;
-        pair2.yBin = yBin;
-        pair2.next = grid[xBin][yBin];
-        grid[xBin][yBin] = pair2;
+        pair2.setXBin(xbin);
+        pair2.setYBin(ybin);
+        pair2.setNext(grid[xbin][ybin]);
+        grid[xbin][ybin] = pair2;
       }
 
       return true;
@@ -2261,54 +2293,57 @@ public class ClusteringEngine {
    * closest in distance and then time.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
    * @param time the time
-   * @param startXBin the start X bin
-   * @param endXBin the end X bin
-   * @param startYBin the start Y bin
-   * @param endYBin the end Y bin
+   * @param startxbin the start X bin
+   * @param endxbin the end X bin
+   * @param startybin the start Y bin
+   * @param endybin the end Y bin
    * @return True if a join was made
    */
-  private ClosestPair findClosestDistancePriority(TimeCluster[][] grid, final int nXBins,
-      final int nYBins, final double r2, final int time, int startXBin, int endXBin, int startYBin,
-      int endYBin) {
+  private ClosestPair findClosestDistancePriority(TimeCluster[][] grid, final int nxbins,
+      final int nybins, final double r2, final int time, int startxbin, int endxbin, int startybin,
+      int endybin) {
     double minD = Double.POSITIVE_INFINITY;
     int minT = Integer.MAX_VALUE;
-    TimeCluster pair1 = null, pair2 = null;
+    TimeCluster pair1 = null;
+    TimeCluster pair2 = null;
     final TimeCluster[] neighbourCells = new TimeCluster[5];
     final boolean checkPulseInterval = pulseInterval > 0;
-    for (int yBin = startYBin; yBin < endYBin; yBin++) {
-      for (int xBin = startXBin; xBin < endXBin; xBin++) {
-        for (TimeCluster c1 = grid[xBin][yBin]; c1 != null; c1 = (TimeCluster) c1.next) {
+    for (int ybin = startybin; ybin < endybin; ybin++) {
+      for (int xbin = startxbin; xbin < endxbin; xbin++) {
+        for (TimeCluster c1 = grid[xbin][ybin]; c1 != null; c1 = (TimeCluster) c1.getNext()) {
           // Build a list of which cells to compare up to a maximum of 4
-          // | 0,0 | 1,0
+          //@formatter:off
+          //      | 0,0 | 1,0
           // ------------+-----
           // -1,1 | 0,1 | 1,1
+          //@formatter:on
 
           // Compare to neighbours and find the closest.
           // Use either the radius threshold or the current closest distance
           // which may have been set by an earlier comparison.
           TimeCluster other = null;
           int cells = 1;
-          neighbourCells[0] = (TimeCluster) c1.next;
-          if (yBin < nYBins - 1) {
-            neighbourCells[cells++] = grid[xBin][yBin + 1];
-            if (xBin > 0) {
-              neighbourCells[cells++] = grid[xBin - 1][yBin + 1];
+          neighbourCells[0] = (TimeCluster) c1.getNext();
+          if (ybin < nybins - 1) {
+            neighbourCells[cells++] = grid[xbin][ybin + 1];
+            if (xbin > 0) {
+              neighbourCells[cells++] = grid[xbin - 1][ybin + 1];
             }
           }
-          if (xBin < nXBins - 1) {
-            neighbourCells[cells++] = grid[xBin + 1][yBin];
-            if (yBin < nYBins - 1) {
-              neighbourCells[cells++] = grid[xBin + 1][yBin + 1];
+          if (xbin < nxbins - 1) {
+            neighbourCells[cells++] = grid[xbin + 1][ybin];
+            if (ybin < nybins - 1) {
+              neighbourCells[cells++] = grid[xbin + 1][ybin + 1];
             }
           }
 
           for (int c = 0; c < cells; c++) {
-            for (TimeCluster c2 = neighbourCells[c]; c2 != null; c2 = (TimeCluster) c2.next) {
-              if (checkPulseInterval && c1.pulse != c2.pulse) {
+            for (TimeCluster c2 = neighbourCells[c]; c2 != null; c2 = (TimeCluster) c2.getNext()) {
+              if (checkPulseInterval && c1.getPulseTime() != c2.getPulseTime()) {
                 continue;
               }
 
@@ -2317,7 +2352,7 @@ public class ClusteringEngine {
                 final double d2 = c1.distance2(c2);
                 if (d2 <= r2) {
                   // Check if the two clusters can be merged
-                  if (gap == 0 && validUnion(c1, c2)) {
+                  if (invalidUnion(gap, c1, c2)) {
                     continue;
                   }
 
@@ -2352,59 +2387,62 @@ public class ClusteringEngine {
    * the squared radius distance. Find the closest in distance and then time.
    *
    * @param grid the grid
-   * @param nXBins the n X bins
-   * @param nYBins the n Y bins
+   * @param nxbins the n X bins
+   * @param nybins the n Y bins
    * @param r2 The squared radius distance
    * @param time the time
-   * @param startXBin the start X bin
-   * @param endXBin the end X bin
-   * @param startYBin the start Y bin
-   * @param endYBin the end Y bin
+   * @param startxbin the start X bin
+   * @param endxbin the end X bin
+   * @param startybin the start Y bin
+   * @param endybin the end Y bin
    * @return True if a join was made
    */
-  private ClosestPair findClosestParticleDistancePriority(TimeCluster[][] grid, final int nXBins,
-      final int nYBins, final double r2, final int time, int startXBin, int endXBin, int startYBin,
-      int endYBin) {
+  private ClosestPair findClosestParticleDistancePriority(TimeCluster[][] grid, final int nxbins,
+      final int nybins, final double r2, final int time, int startxbin, int endxbin, int startybin,
+      int endybin) {
     double minD = Double.POSITIVE_INFINITY;
     int minT = Integer.MAX_VALUE;
-    TimeCluster pair1 = null, pair2 = null;
+    TimeCluster pair1 = null;
+    TimeCluster pair2 = null;
     final TimeCluster[] neighbourCells = new TimeCluster[5];
     final boolean checkPulseInterval = pulseInterval > 0;
-    for (int yBin = startYBin; yBin < endYBin; yBin++) {
-      for (int xBin = startXBin; xBin < endXBin; xBin++) {
-        for (TimeCluster c1 = grid[xBin][yBin]; c1 != null; c1 = (TimeCluster) c1.next) {
-          final boolean cluster1 = c1.n > 1;
+    for (int ybin = startybin; ybin < endybin; ybin++) {
+      for (int xbin = startxbin; xbin < endxbin; xbin++) {
+        for (TimeCluster c1 = grid[xbin][ybin]; c1 != null; c1 = (TimeCluster) c1.getNext()) {
+          final boolean cluster1 = c1.getSize() > 1;
 
           // Build a list of which cells to compare up to a maximum of 4
-          // | 0,0 | 1,0
+          //@formatter:off
+          //      | 0,0 | 1,0
           // ------------+-----
           // -1,1 | 0,1 | 1,1
+          //@formatter:on
 
           // Compare to neighbours and find the closest.
           // Use either the radius threshold or the current closest distance
           // which may have been set by an earlier comparison.
           TimeCluster other = null;
           int cells = 1;
-          neighbourCells[0] = (TimeCluster) c1.next;
-          if (yBin < nYBins - 1) {
-            neighbourCells[cells++] = grid[xBin][yBin + 1];
-            if (xBin > 0) {
-              neighbourCells[cells++] = grid[xBin - 1][yBin + 1];
+          neighbourCells[0] = (TimeCluster) c1.getNext();
+          if (ybin < nybins - 1) {
+            neighbourCells[cells++] = grid[xbin][ybin + 1];
+            if (xbin > 0) {
+              neighbourCells[cells++] = grid[xbin - 1][ybin + 1];
             }
           }
-          if (xBin < nXBins - 1) {
-            neighbourCells[cells++] = grid[xBin + 1][yBin];
-            if (yBin < nYBins - 1) {
-              neighbourCells[cells++] = grid[xBin + 1][yBin + 1];
+          if (xbin < nxbins - 1) {
+            neighbourCells[cells++] = grid[xbin + 1][ybin];
+            if (ybin < nybins - 1) {
+              neighbourCells[cells++] = grid[xbin + 1][ybin + 1];
             }
           }
 
           for (int c = 0; c < cells; c++) {
-            for (TimeCluster c2 = neighbourCells[c]; c2 != null; c2 = (TimeCluster) c2.next) {
-              if (cluster1 && c2.n > 1) {
+            for (TimeCluster c2 = neighbourCells[c]; c2 != null; c2 = (TimeCluster) c2.getNext()) {
+              if (cluster1 && c2.getSize() > 1) {
                 continue;
               }
-              if (checkPulseInterval && c1.pulse != c2.pulse) {
+              if (checkPulseInterval && c1.getPulseTime() != c2.getPulseTime()) {
                 continue;
               }
 
@@ -2413,7 +2451,7 @@ public class ClusteringEngine {
                 final double d2 = c1.distance2(c2);
                 if (d2 <= r2) {
                   // Check if the two clusters can be merged
-                  if (gap == 0 && validUnion(c1, c2)) {
+                  if (invalidUnion(gap, c1, c2)) {
                     continue;
                   }
 
@@ -2444,6 +2482,8 @@ public class ClusteringEngine {
   }
 
   /**
+   * Gets the clustering algorithm.
+   *
    * @return the clustering algorithm
    */
   public ClusteringAlgorithm getClusteringAlgorithm() {
@@ -2451,6 +2491,8 @@ public class ClusteringEngine {
   }
 
   /**
+   * Sets the clustering algorithm.
+   *
    * @param clusteringAlgorithm The algorithm
    */
   public void setClusteringAlgorithm(ClusteringAlgorithm clusteringAlgorithm) {
@@ -2458,6 +2500,8 @@ public class ClusteringEngine {
   }
 
   /**
+   * Gets the tracker.
+   *
    * @return the tracker
    */
   public TrackProgress getTracker() {
@@ -2465,6 +2509,8 @@ public class ClusteringEngine {
   }
 
   /**
+   * Sets the tracker.
+   *
    * @param tracker the tracker to set
    */
   public void setTracker(TrackProgress tracker) {
@@ -2472,6 +2518,8 @@ public class ClusteringEngine {
   }
 
   /**
+   * Gets the pulse interval.
+   *
    * @return the pulse interval
    */
   public int getPulseInterval() {
@@ -2480,8 +2528,9 @@ public class ClusteringEngine {
 
   /**
    * Set a pulse interval. Clusters will only be created by joining localisations within each pulse.
-   * Pulses are assumed to start at t=1. <p> This only applies to the algorithms that use time and
-   * distance thresholds.
+   * Pulses are assumed to start at t=1.
+   *
+   * <p>This only applies to the algorithms that use time and distance thresholds.
    *
    * @param pulseInterval the pulse interval
    */
@@ -2504,6 +2553,8 @@ public class ClusteringEngine {
   }
 
   /**
+   * Checks if recording the distances between particles that were joined.
+   *
    * @return true if recording the distances between particles that were joined.
    */
   public boolean isTrackJoins() {
@@ -2522,6 +2573,8 @@ public class ClusteringEngine {
   }
 
   /**
+   * Gets the intra id distances.
+   *
    * @return the intra-Id distances from joins in the particle linkage algorithm
    */
   public double[] getIntraIdDistances() {
@@ -2529,6 +2582,8 @@ public class ClusteringEngine {
   }
 
   /**
+   * Gets the inter id distances.
+   *
    * @return the inter-Id distances from joins in the particle linkage algorithm
    */
   public double[] getInterIdDistances() {
@@ -2536,6 +2591,8 @@ public class ClusteringEngine {
   }
 
   /**
+   * Gets the thread count for multi-thread compatible algorithms.
+   *
    * @return the thread count for multi-thread compatible algorithms
    */
   public int getThreadCount() {
@@ -2543,6 +2600,8 @@ public class ClusteringEngine {
   }
 
   /**
+   * Sets the thread count for multi-thread compatible algorithms.
+   *
    * @param threadCount the thread count for multi-thread compatible algorithms
    */
   public void setThreadCount(int threadCount) {

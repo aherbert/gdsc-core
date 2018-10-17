@@ -1,40 +1,26 @@
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-import uk.ac.sussex.gdsc.test.utils.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.util.logging.Logger;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestSettings;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.junit5.*;import uk.ac.sussex.gdsc.test.rng.RngFactory;import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
-import uk.ac.sussex.gdsc.test.utils.TimingService;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.logging.Logger;
 
 @SuppressWarnings({"deprecation", "javadoc"})
 public class EqualityTest {
@@ -152,59 +138,19 @@ public class EqualityTest {
 
   @Test
   public void doubleCanComputeRelativeErrorFromSignificantDigits() {
-    final BigDecimal number =
-        BigDecimal.valueOf(2).divide(BigDecimal.valueOf(9), 20, RoundingMode.HALF_UP);
-    final BigDecimal margin = BigDecimal.valueOf(0.05);
-    // This does not work over the full range of siginifcant digits
-    for (int s = 2; s <= DoubleEquality.getMaxSignificantDigits() - 2; s++) {
-      final BigDecimal A = number.round(new MathContext(s));
+    for (int s = 1; s <= DoubleEquality.getMaxSignificantDigits(); s++) {
       final BigDecimal error = new BigDecimal("1e-" + (s - 1));
       final double e = error.doubleValue();
-      final BigDecimal one_m_error = BigDecimal.ONE.subtract(error);
-
-      BigDecimal BLow = A.multiply(one_m_error);
-      // Add margin for error
-      BLow = BLow.add(A.subtract(BLow).multiply(margin));
-      final BigDecimal BLower = BLow.round(new MathContext(s, RoundingMode.DOWN));
-
-      final double a = A.doubleValue();
-      final double b = BLow.doubleValue();
-      final double max = DoubleEquality.getMaxRelativeError(s);
-      Assertions.assertEquals(e, max, e * 0.01);
-      // double rel = DoubleEquality.relativeError(a, b);
-      // TestLog.debug(logger,"[%d] %s -> %s : %g %g", s, A, BLow, max, rel);
-      final DoubleEquality eq = new DoubleEquality(s, 0);
-      Assertions.assertTrue(eq.almostEqualRelativeOrAbsolute(a, b));
-      Assertions.assertFalse(eq.almostEqualRelativeOrAbsolute(a, BLower.doubleValue()));
+      Assertions.assertEquals(e, DoubleEquality.getRelativeErrorTerm(s));
     }
   }
 
   @Test
   public void floatCanComputeRelativeErrorFromSignificantDigits() {
-    final BigDecimal number =
-        BigDecimal.valueOf(2).divide(BigDecimal.valueOf(9), 20, RoundingMode.HALF_UP);
-    final BigDecimal margin = BigDecimal.valueOf(0.05);
-    // This does not work over the full range of siginifcant digits
-    for (int s = 2; s <= FloatEquality.getMaxSignificantDigits() - 2; s++) {
-      final BigDecimal A = number.round(new MathContext(s));
+    for (int s = 1; s <= FloatEquality.getMaxSignificantDigits(); s++) {
       final BigDecimal error = new BigDecimal("1e-" + (s - 1));
       final float e = error.floatValue();
-      final BigDecimal one_m_error = BigDecimal.ONE.subtract(error);
-
-      BigDecimal BLow = A.multiply(one_m_error);
-      // Add margin for error
-      BLow = BLow.add(A.subtract(BLow).multiply(margin));
-      final BigDecimal BLower = BLow.round(new MathContext(s, RoundingMode.DOWN));
-
-      final float a = A.floatValue();
-      final float b = BLow.floatValue();
-      final float max = FloatEquality.getMaxRelativeError(s);
-      Assertions.assertEquals(e, max, e * 0.01);
-      // float rel = FloatEquality.relativeError(a, b);
-      // TestLog.debug(logger,"[%d] %s -> %s : %g %g", s, A, BLow, max, rel);
-      final FloatEquality eq = new FloatEquality(s, 0);
-      Assertions.assertTrue(eq.almostEqualRelativeOrAbsolute(a, b));
-      Assertions.assertFalse(eq.almostEqualRelativeOrAbsolute(a, BLower.floatValue()));
+      Assertions.assertEquals(e, FloatEquality.getRelativeErrorTerm(s));
     }
   }
 
@@ -213,25 +159,18 @@ public class EqualityTest {
     final double maxRelativeError = 1e-3f;
     final double maxAbsoluteError = 1e-16f;
     final DoubleEquality equality = new DoubleEquality(maxRelativeError, maxAbsoluteError);
-    final DoubleEquality equality2 = new DoubleEquality(4, maxAbsoluteError);
 
     for (int i = 0; i < 100; i++) {
       final double f = i / 10000.0;
       final double f2 = f * (1.00f + maxRelativeError - 1e-3f);
       final double f3 = f * (1.0f + 2.0f * maxRelativeError);
-      //@formatter:off
-			Assertions.assertTrue(equality.almostEqualRelativeOrAbsolute(f, f), () -> String.format("not equal %f", f));
-			Assertions.assertTrue(equality.almostEqualRelativeOrAbsolute(f, f2), () -> String.format("not equal %f", f));
-			if (i > 0) {
-        Assertions.assertFalse(equality.almostEqualRelativeOrAbsolute(f, f3),() -> String.format("equal %f", f));
-      }
-
-			Assertions.assertTrue(equality2.almostEqualRelativeOrAbsolute(f, f),() -> String.format("not equal %f", f));
-			Assertions.assertTrue(equality2.almostEqualRelativeOrAbsolute(f, f2),() -> String.format("not equal %f", f));
-			if (i > 0)
-       {
-        Assertions.assertFalse(equality2.almostEqualRelativeOrAbsolute(f, f3),() -> String.format("equal %f", f));
-			//@formatter:on
+      Assertions.assertTrue(equality.almostEqualRelativeOrAbsolute(f, f),
+          () -> String.format("not equal %f", f));
+      Assertions.assertTrue(equality.almostEqualRelativeOrAbsolute(f, f2),
+          () -> String.format("not equal %f", f));
+      if (i > 0) {
+        Assertions.assertFalse(equality.almostEqualRelativeOrAbsolute(f, f3),
+            () -> String.format("equal %f", f));
       }
     }
   }
@@ -241,25 +180,18 @@ public class EqualityTest {
     final float maxRelativeError = 1e-3f;
     final float maxAbsoluteError = 1e-16f;
     final FloatEquality equality = new FloatEquality(maxRelativeError, maxAbsoluteError);
-    final FloatEquality equality2 = new FloatEquality(4, maxAbsoluteError);
 
     for (int i = 0; i < 100; i++) {
       final float f = (float) (i / 10000.0);
       final float f2 = f * (1.00f + maxRelativeError - 1e-3f);
       final float f3 = f * (1.0f + 2.0f * maxRelativeError);
-      //@formatter:off
-			Assertions.assertTrue(equality.almostEqualRelativeOrAbsolute(f, f), () -> String.format("not equal %f", f));
-			Assertions.assertTrue(equality.almostEqualRelativeOrAbsolute(f, f2), () -> String.format("not equal %f", f));
-			if (i > 0) {
-        Assertions.assertFalse(equality.almostEqualRelativeOrAbsolute(f, f3),() -> String.format("equal %f", f));
-      }
-
-			Assertions.assertTrue(equality2.almostEqualRelativeOrAbsolute(f, f),() -> String.format("not equal %f", f));
-			Assertions.assertTrue(equality2.almostEqualRelativeOrAbsolute(f, f2),() -> String.format("not equal %f", f));
-			if (i > 0)
-       {
-        Assertions.assertFalse(equality2.almostEqualRelativeOrAbsolute(f, f3),() -> String.format("equal %f", f));
-			//@formatter:on
+      Assertions.assertTrue(equality.almostEqualRelativeOrAbsolute(f, f),
+          () -> String.format("not equal %f", f));
+      Assertions.assertTrue(equality.almostEqualRelativeOrAbsolute(f, f2),
+          () -> String.format("not equal %f", f));
+      if (i > 0) {
+        Assertions.assertFalse(equality.almostEqualRelativeOrAbsolute(f, f3),
+            () -> String.format("equal %f", f));
       }
     }
   }

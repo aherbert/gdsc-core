@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.io;
 
 import java.io.File;
@@ -77,31 +78,26 @@ public final class FileSeekableStream extends SeekableStream {
     this(new File(path));
   }
 
-  /** {@inheritDoc} */
   @Override
   public long getFilePointer() throws IOException {
     return ras.getFilePointer();
   }
 
-  /** {@inheritDoc} */
   @Override
   public int read() throws IOException {
     return ras.read();
   }
 
-  /** {@inheritDoc} */
   @Override
   public int read(byte[] bytes, int off, int len) throws IOException {
     return ras.read(bytes, off, len);
   }
 
-  /** {@inheritDoc} */
   @Override
   public void seek(long loc) throws IOException {
     ras.seek(loc);
   }
 
-  /** {@inheritDoc} */
   @Override
   public void close() throws IOException {
     ras.close();

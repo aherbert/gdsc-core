@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.match;
 
 /**
@@ -32,7 +33,8 @@ package uk.ac.sussex.gdsc.core.match;
  * pulses.
  */
 public class Pulse extends BasePoint implements Comparable<Pulse> {
-  private final int start, end;
+  private final int start;
+  private final int end;
 
   /**
    * Instantiates a new pulse.
@@ -63,23 +65,21 @@ public class Pulse extends BasePoint implements Comparable<Pulse> {
     this.end = end;
   }
 
-  /** {@inheritDoc} */
   @Override
-  public boolean equals(Object aThat) {
-    if (this == aThat) {
+  public boolean equals(Object object) {
+    if (this == object) {
       return true;
     }
-    if (!(aThat instanceof Pulse)) {
+    if (!(object instanceof Pulse)) {
       return false;
     }
 
     // cast to native object is now safe
-    final Pulse that = (Pulse) aThat;
+    final Pulse that = (Pulse) object;
 
     return x == that.x && y == that.y && z == that.z && start == that.start && end == that.end;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int hashCode() {
     // Note: floatToRawIntBits does not unify all possible NaN values
@@ -114,64 +114,67 @@ public class Pulse extends BasePoint implements Comparable<Pulse> {
    * @return the score
    */
   public double score(final Pulse other, final double dt) {
-    final double d2 = distanceXYZ2(other);
+    final double d2 = distanceXyzSquared(other);
     return score(other, d2, dt);
   }
 
   /**
-   * Calculate the number of overlapping frames using the start and end times
+   * Calculate the number of overlapping frames using the start and end times.
    *
    * @param that The other pulse
    * @return the number of frames
    */
   public int calculateOverlap(final Pulse that) {
+    //@formatter:off
     // --------------
-    // ===========
+    //                ===========
     // or
     // ============
-    // ------------
+    //               ------------
+    //@formatter:on
     if (this.end < that.start || that.end < this.start) {
       return 0;
     }
 
+    //@formatter:off
     // ---------------------
-    // ==================
+    //         ==================
     // or
     // --------------------------------
-    // ==================
+    //         ==================
     // or
-    // ------------------
+    //         ------------------
     // =================================
     // or
-    // ---------------------
+    //         ---------------------
     // ==================
-    final int s = (this.start < that.start) ? that.start : this.start;
-    final int e = (this.end < that.end) ? this.end : that.end;
-    // TODO - remove this
-    if (e - s < 0) {
-      throw new RuntimeException("overlap error");
-    }
-    return e - s + 1;
+    //@formatter:on
+    final int overlapStart = (this.start < that.start) ? that.start : this.start;
+    final int overlapEnd = (this.end < that.end) ? this.end : that.end;
+    return overlapEnd - overlapStart + 1;
   }
 
-  /** {@inheritDoc} */
   @Override
-  public int compareTo(Pulse o) {
-    if (start == o.start) {
-      return Integer.compare(end, o.end);
+  public int compareTo(Pulse other) {
+    if (start == other.start) {
+      return Integer.compare(end, other.end);
     }
-    return (start < o.start) ? -1 : 1;
+    return (start < other.start) ? -1 : 1;
   }
 
   /**
-   * @return the start frame
+   * Gets the start frame.
+   *
+   * @return the start frame.
    */
   public int getStart() {
     return start;
   }
 
   /**
-   * @return the end frame
+   * Gets the end frame.
+   *
+   * @return the end frame.
    */
   public int getEnd() {
     return end;

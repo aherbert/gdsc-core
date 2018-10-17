@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.logging;
 
 /**
- * Logs messages to the Java console
+ * Logs messages to the Java console.
  */
 public class ConsoleLogger implements Logger {
   /**

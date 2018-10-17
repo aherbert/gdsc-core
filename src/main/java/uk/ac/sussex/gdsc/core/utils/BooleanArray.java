@@ -25,19 +25,21 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
- * Expandable store for boolean data backed by an array
+ * Expandable store for boolean data backed by an array.
  */
 public class BooleanArray implements Iterable<Boolean> {
   // TODO - Copy the functionality from Trove TArrayList (which does not have TBoolArrayList)
 
   private boolean[] values;
-  private int n = 0;
+  private int size = 0;
 
   /**
    * Instantiates a new boolean array.
@@ -64,7 +66,30 @@ public class BooleanArray implements Iterable<Boolean> {
   public BooleanArray(boolean[] data, boolean clone) {
     if (data != null) {
       values = (clone) ? data.clone() : data;
-      n = data.length;
+      size = data.length;
+    }
+  }
+
+  /**
+   * Ensure that the specified number of elements can be added to the array.
+   *
+   * <p>This is not synchronized. However any class using the safeAdd() methods in different threads
+   * should be using the same synchronized method to add data thus this method will be within
+   * synchronized code.
+   *
+   * @param length the length
+   */
+  private void checkCapacity(int length) {
+    final int minCapacity = size + length;
+    final int oldCapacity = values.length;
+    if (minCapacity > oldCapacity) {
+      int newCapacity = (oldCapacity * 3) / 2 + 1;
+      if (newCapacity < minCapacity) {
+        newCapacity = minCapacity;
+      }
+      final boolean[] newValues = new boolean[newCapacity];
+      System.arraycopy(values, 0, newValues, 0, size);
+      values = newValues;
     }
   }
 
@@ -79,29 +104,7 @@ public class BooleanArray implements Iterable<Boolean> {
     }
     checkCapacity(data.length);
     for (int i = 0; i < data.length; i++) {
-      values[n++] = data[i];
-    }
-  }
-
-  /**
-   * Ensure that the specified number of elements can be added to the array. <p> This is not
-   * synchronized. However any class using the safeAdd() methods in different threads should be
-   * using the same synchronized method to add data thus this method will be within synchronized
-   * code.
-   *
-   * @param length the length
-   */
-  private void checkCapacity(int length) {
-    final int minCapacity = n + length;
-    final int oldCapacity = values.length;
-    if (minCapacity > oldCapacity) {
-      int newCapacity = (oldCapacity * 3) / 2 + 1;
-      if (newCapacity < minCapacity) {
-        newCapacity = minCapacity;
-      }
-      final boolean[] newValues = new boolean[newCapacity];
-      System.arraycopy(values, 0, newValues, 0, n);
-      values = newValues;
+      values[size++] = data[i];
     }
   }
 
@@ -112,11 +115,11 @@ public class BooleanArray implements Iterable<Boolean> {
    */
   public void add(final boolean value) {
     checkCapacity(1);
-    values[n++] = value;
+    values[size++] = value;
   }
 
   /**
-   * Add the value n times
+   * Add the value n times.
    *
    * @param n The number of times
    * @param value The value
@@ -124,7 +127,20 @@ public class BooleanArray implements Iterable<Boolean> {
   public void add(int n, boolean value) {
     checkCapacity(n);
     for (int i = 0; i < n; i++) {
-      values[this.n++] = value;
+      values[this.size++] = value;
+    }
+  }
+
+  /**
+   * Adds the data to this store.
+   *
+   * @param data the data
+   */
+  public void add(BooleanArray data) {
+    if (data.size > 0) {
+      checkCapacity(data.size);
+      System.arraycopy(data.values, 0, values, size, data.size);
+      this.size += data.size;
     }
   }
 
@@ -134,14 +150,8 @@ public class BooleanArray implements Iterable<Boolean> {
    *
    * @param data the data
    */
-  synchronized public void safeAdd(boolean[] data) {
-    if (data == null) {
-      return;
-    }
-    checkCapacity(data.length);
-    for (int i = 0; i < data.length; i++) {
-      values[n++] = data[i];
-    }
+  public synchronized void safeAdd(boolean[] data) {
+    add(data);
   }
 
   /**
@@ -150,52 +160,8 @@ public class BooleanArray implements Iterable<Boolean> {
    *
    * @param value the value
    */
-  synchronized public void safeAdd(final boolean value) {
-    checkCapacity(1);
-    values[n++] = value;
-  }
-
-  /**
-   * @return A copy of the values added
-   */
-  public boolean[] toArray() {
-    return Arrays.copyOf(values, n);
-  }
-
-  /**
-   * Gets the value.
-   *
-   * @param i the index
-   * @return the value
-   */
-  public boolean get(int i) {
-    if (i >= n) {
-      throw new ArrayIndexOutOfBoundsException(i);
-    }
-    return values[i];
-  }
-
-  /**
-   * Gets the value without bounds checking.
-   *
-   * @param i the index
-   * @return the value
-   */
-  public boolean getf(int i) {
-    return values[i];
-  }
-
-  /**
-   * Adds the data to this store.
-   *
-   * @param data the data
-   */
-  public void add(BooleanArray data) {
-    if (data.n > 0) {
-      checkCapacity(data.n);
-      System.arraycopy(data.values, 0, values, n, data.n);
-      this.n += data.n;
-    }
+  public synchronized void safeAdd(final boolean value) {
+    add(value);
   }
 
   /**
@@ -204,8 +170,40 @@ public class BooleanArray implements Iterable<Boolean> {
    *
    * @param data the data
    */
-  synchronized public void safeAdd(BooleanArray data) {
+  public synchronized void safeAdd(BooleanArray data) {
     this.add(data);
+  }
+
+  /**
+   * Convert to an array.
+   *
+   * @return A copy of the values added.
+   */
+  public boolean[] toArray() {
+    return Arrays.copyOf(values, size);
+  }
+
+  /**
+   * Gets the value.
+   *
+   * @param index the index
+   * @return the value
+   */
+  public boolean get(int index) {
+    if (index >= size) {
+      throw new ArrayIndexOutOfBoundsException(index);
+    }
+    return values[index];
+  }
+
+  /**
+   * Gets the value without bounds checking.
+   *
+   * @param index the index
+   * @return the value
+   */
+  public boolean getf(int index) {
+    return values[index];
   }
 
   /**
@@ -219,30 +217,26 @@ public class BooleanArray implements Iterable<Boolean> {
   }
 
   /**
-   * Copied from ArrayList and removed unrequired code
+   * Copied from ArrayList and removed unrequired code.
    */
   private class Itr implements Iterator<Boolean> {
     int cursor; // index of next element to return
 
     @Override
     public boolean hasNext() {
-      return cursor != n;
+      return cursor != size;
     }
 
     @Override
     public Boolean next() {
-      // Simple implementation. Will throw index-out-of-bounds eventually
-      return BooleanArray.this.values[cursor++];
-
       // Copied from ArrayList and removed unrequired code
-      // int i = cursor;
-      // if (i >= n)
-      // throw new NoSuchElementException();
-      // final double[] elementData = StoredData.this.values;
-      // if (i >= elementData.length)
-      // throw new ConcurrentModificationException();
-      // cursor = i + 1;
-      // return elementData[i];
+      final int index = cursor;
+      if (index >= size) {
+        throw new NoSuchElementException();
+      }
+      final boolean[] elementData = BooleanArray.this.values;
+      cursor = index + 1;
+      return elementData[index];
     }
 
     @Override
@@ -257,14 +251,14 @@ public class BooleanArray implements Iterable<Boolean> {
    * @return the size
    */
   public int size() {
-    return n;
+    return size;
   }
 
   /**
    * Clear the array.
    */
   public void clear() {
-    n = 0;
+    size = 0;
   }
 
   /**

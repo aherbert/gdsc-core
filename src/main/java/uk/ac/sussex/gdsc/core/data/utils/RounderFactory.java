@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.utils;
 
 /**
- * Create a Rounder interface implementation
+ * Create a Rounder interface implementation.
  */
 public class RounderFactory {
   /**

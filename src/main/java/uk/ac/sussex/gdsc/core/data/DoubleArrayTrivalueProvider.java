@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data;
 
 /**
@@ -68,31 +69,26 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider {
     }
   }
 
-  /** {@inheritDoc} */
   @Override
   public int getLengthX() {
     return maxx;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int getLengthY() {
     return maxy;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int getLengthZ() {
     return maxz;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double get(int x, int y, int z) {
     return val[x][y][z];
   }
 
-  /** {@inheritDoc} */
   @Override
   public void get(int x, int y, int z, double[][][] values) {
     final int nX = x + 1;
@@ -131,7 +127,6 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider {
     values[2][2][2] = val[nX][nY][nZ];
   }
 
-  /** {@inheritDoc} */
   @Override
   public double[][][] toArray() {
     return val;

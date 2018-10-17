@@ -25,37 +25,45 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.match;
 
 /**
  * Class to store the result of a binary scoring analysis when true and false positive and negatives
  * are available.
  *
- * Can calculate the F-score statistic with a given beta weighting between the precision and recall.
+ * <p>Can calculate the F-score statistic with a given beta weighting between the precision and
+ * recall.
  *
  * @see "http://en.wikipedia.org/wiki/Precision_and_recall#F-measure"
  */
 public class ClassificationResult {
-  private final int tp, fp, tn, fn;
+  private final int truePositives;
+  private final int falsePositives;
+  private final int trueNegatives;
+  private final int falseNegatives;
   private final double precision;
   private final double recall;
   private final double jaccard;
 
   /**
-   * @param tp The number of true positives
-   * @param fp The number of false positives
-   * @param tn The number of true negatives
-   * @param fn The number of false negatives
+   * Instantiates a new classification result.
+   *
+   * @param truePositives The number of true positives
+   * @param falsePositives The number of false positives
+   * @param trueNegatives The number of true negatives
+   * @param falseNegatives The number of false negatives
    */
-  public ClassificationResult(int tp, int fp, int tn, int fn) {
-    this.tp = tp;
-    this.fp = fp;
-    this.tn = tn;
-    this.fn = fn;
+  public ClassificationResult(int truePositives, int falsePositives, int trueNegatives,
+      int falseNegatives) {
+    this.truePositives = truePositives;
+    this.falsePositives = falsePositives;
+    this.trueNegatives = trueNegatives;
+    this.falseNegatives = falseNegatives;
 
-    precision = divide(tp, tp + fp);
-    recall = divide(tp, tp + fn);
-    jaccard = divide(tp, tp + fp + fn);
+    precision = divide(truePositives, truePositives + falsePositives);
+    recall = divide(truePositives, truePositives + falseNegatives);
+    jaccard = divide(truePositives, truePositives + falsePositives + falseNegatives);
   }
 
   private static double divide(final double numerator, final int denominator) {
@@ -80,7 +88,7 @@ public class ClassificationResult {
   }
 
   /**
-   * Return the F-Score statistic, a weighted combination of the precision and recall
+   * Return the F-Score statistic, a weighted combination of the precision and recall.
    *
    * @param beta The weight
    * @return The F-Score
@@ -90,7 +98,7 @@ public class ClassificationResult {
   }
 
   /**
-   * Return the F1-Score statistic, a equal weighted combination of the precision and recall
+   * Return the F1-Score statistic, a equal weighted combination of the precision and recall.
    *
    * @return The F1-Score
    */
@@ -100,20 +108,26 @@ public class ClassificationResult {
   }
 
   /**
-   * @return the precision
+   * Gets the precision.
+   *
+   * @return the precision.
    */
   public double getPrecision() {
     return precision;
   }
 
   /**
-   * @return the recall
+   * Gets the recall.
+   *
+   * @return the recall.
    */
   public double getRecall() {
     return recall;
   }
 
   /**
+   * Gets the jaccard.
+   *
    * @return the Jaccard index (defined as the size of the intersection divided by the size of the
    *         union of the sample sets)
    */
@@ -124,108 +138,143 @@ public class ClassificationResult {
   // Taken from http://en.wikipedia.org/wiki/Sensitivity_and_specificity
 
   /**
-   * @return the true positives (hit)
+   * Gets the true positives.
+   *
+   * @return the true positives (hit).
    */
-  public int getTP() {
-    return tp;
+  public int getTruePositives() {
+    return truePositives;
   }
 
   /**
-   * @return the true negatives (correct rejection)
+   * Gets the true negatives.
+   *
+   * @return the true negatives (correct rejection).
    */
-  public int getTN() {
-    return tn;
+  public int getTrueNegatives() {
+    return trueNegatives;
   }
 
   /**
-   * @return the false positives (false alarm, Type 1 error)
+   * Gets the false positives.
+   *
+   * @return the false positives (false alarm, Type 1 error).
    */
-  public int getFP() {
-    return fp;
+  public int getFalsePositives() {
+    return falsePositives;
   }
 
   /**
-   * @return the false negatives (miss, Type 2 error)
+   * Gets the false negatives.
+   *
+   * @return the false negatives (miss, Type 2 error).
    */
-  public int getFN() {
-    return fn;
+  public int getFalseNegatives() {
+    return falseNegatives;
   }
 
   /**
-   * @return the total number of predictions
+   * Gets the total.
+   *
+   * @return the total number of predictions.
    */
   public int getTotal() {
-    return tp + fp + tn + fn;
+    return truePositives + falsePositives + trueNegatives + falseNegatives;
   }
 
   /**
-   * @return the number of positives
+   * Gets the positives.
+   *
+   * @return the number of positives (TP + FP).
    */
-  public int getP() {
-    return tp + fn;
+  public int getPositives() {
+    return truePositives + falsePositives;
   }
 
   /**
-   * @return the number of negatives
+   * Gets the negatives.
+   *
+   * @return the number of negatives (TN + FN).
    */
-  public int getN() {
-    return fp + tn;
+  public int getNegatives() {
+    return trueNegatives + falseNegatives;
   }
 
   /**
-   * @return The true positive rate (recall, sensitivity, hit rate) = tp / (tp + fn)
+   * Gets the true positive rate.
+   *
+   * @return The true positive rate (recall, sensitivity, hit rate) = truePositives / (truePositives
+   *         + falseNegatives)
    */
-  public double getTPR() {
-    return recall;
+  public double getTruePositiveRate() {
+    return getRecall();
   }
 
   /**
-   * @return The true negative rate (specificity) = tn / (fp + tn)
+   * Gets the true negative rate.
+   *
+   * @return The true negative rate (specificity) = trueNegatives / (falsePositives + trueNegatives)
    */
-  public double getTNR() {
-    return divide(tn, fp + tn);
+  public double getTrueNegativeRate() {
+    return divide(trueNegatives, falsePositives + trueNegatives);
   }
 
   /**
-   * @return The positive predictive value (precision) = tp / (tp + fp)
+   * Gets the positive predictive value.
+   *
+   * @return The positive predictive value (precision) = truePositives / (truePositives +
+   *         falsePositives)
    */
-  public double getPPV() {
-    return precision;
+  public double getPositivePredictiveValue() {
+    return getPrecision();
   }
 
   /**
-   * @return The negative predictive value = tn / (tn + fn)
+   * Gets the negative predictive value.
+   *
+   * @return The negative predictive value = trueNegatives / (trueNegatives + falseNegatives)
    */
-  public double getNPV() {
-    return divide(tn, tn + fn);
+  public double getNegativePredictiveValue() {
+    return divide(trueNegatives, trueNegatives + falseNegatives);
   }
 
   /**
-   * @return The false positive rate (fall-out) = fp / (fp + tn)
+   * Gets the false positive rate.
+   *
+   * @return The false positive rate (fall-out) = falsePositives / (falsePositives + trueNegatives)
    */
-  public double getFPR() {
-    return divide(fp, fp + tn);
+  public double getFalsePositiveRate() {
+    return divide(falsePositives, falsePositives + trueNegatives);
   }
 
   /**
-   * @return The false negative rate = fn / (fn + tp)
+   * Gets the false negative rate.
+   *
+   * @return The false negative rate = falseNegatives / (falseNegatives + truePositives)
    */
-  public double getFNR() {
-    return divide(fn, fn + tp);
+  public double getFalseNegativeRate() {
+    return divide(falseNegatives, falseNegatives + truePositives);
   }
 
   /**
-   * @return The false discovery rate (1 - precision) = fp / (tp + fp)
+   * Gets the false discovery rate.
+   *
+   * @return The false discovery rate (1 - precision) = falsePositives / (truePositives +
+   *         falsePositives)
    */
-  public double getFDR() {
-    return 1 - precision; // divide(fp, tp + fp);
+  public double getFalseDiscoveryRate() {
+    return 1 - precision; // divide(falsePositives, truePositives + falsePositives)
   }
 
   /**
-   * @return The accuracy = (tp + tn) / (tp + fp + tn + fn)
+   * Gets the accuracy.
+   *
+   * @return The accuracy = (truePositives + trueNegatives) / (truePositives + falsePositives +
+   *         trueNegatives + falseNegatives)
    */
   public double getAccuracy() {
-    return divide(tp + tn, getP() + getN());
+    return divide((double) truePositives + trueNegatives,
+        truePositives + falsePositives + trueNegatives + falseNegatives);
   }
 
   /**
@@ -240,26 +289,32 @@ public class ClassificationResult {
    *
    * @return The Matthews correlation coefficient (MCC)
    */
-  public double getMCC() {
-    final double d = (double) (tp + fp) * (double) (tp + fn) * (tn + fp) * (tn + fn);
+  public double getMatthewsCorrelationCoefficient() {
+    final double distance =
+        (double) (truePositives + falsePositives) * (truePositives + falseNegatives)
+            * (trueNegatives + falsePositives) * (trueNegatives + falseNegatives);
     double mcc = 0;
-    if (d != 0) {
-      mcc = ((double) (tp * tn) - (double) (fp * fn)) / Math.sqrt(d);
+    if (distance != 0) {
+      mcc = (truePositives * trueNegatives - falsePositives * falseNegatives) / Math.sqrt(distance);
     }
     return Math.max(-1, Math.min(1, mcc));
   }
 
   /**
+   * Gets the informedness.
+   *
    * @return The informedness (TPR + TNR - 1)
    */
   public double getInformedness() {
-    return getTPR() + getTNR() - 1;
+    return getTruePositiveRate() + getTrueNegativeRate() - 1;
   }
 
   /**
+   * Gets the markedness.
+   *
    * @return The markedness (PPV + NPV - 1)
    */
   public double getMarkedness() {
-    return getPPV() + getNPV() - 1;
+    return getPositivePredictiveValue() + getNegativePredictiveValue() - 1;
   }
 }

@@ -1,43 +1,31 @@
 package uk.ac.sussex.gdsc.core.filters;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.core.ij.Utils;
+import uk.ac.sussex.gdsc.core.utils.Random;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-import uk.ac.sussex.gdsc.test.utils.*;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestSettings;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
+import ij.ImagePlus;
+import ij.gui.PointRoi;
+import ij.process.FloatProcessor;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
+import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.apache.commons.rng.UniformRandomProvider;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
-import ij.ImagePlus;
-import ij.gui.PointRoi;
-import ij.process.FloatProcessor;
-import uk.ac.sussex.gdsc.core.ij.Utils;
-import uk.ac.sussex.gdsc.core.utils.Random;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 @SuppressWarnings({"javadoc"})
 public class NonMaximumSuppressionTest {
@@ -68,7 +56,7 @@ public class NonMaximumSuppressionTest {
 
   // int[] boxSizes = new int[] { 1 };
 
-  // XXX: Copy from here...
+  // XXX: Copy from here..
   @SeededTest
   public void floatBlockFindAndMaxFindReturnSameResult(RandomSeed seed) {
     final UniformRandomProvider rg = RngFactory.create(seed.getSeedAsLong());
@@ -848,7 +836,7 @@ public class NonMaximumSuppressionTest {
   }
 
   /**
-   * Test the maximum finding algorithms for the same result
+   * Test the maximum finding algorithms for the same result.
    */
   @SeededTest
   public void floatAllFindBlockMethodsReturnSameResultForSize1(RandomSeed seed) {
@@ -1684,7 +1672,7 @@ public class NonMaximumSuppressionTest {
   }
 
   /**
-   * Test the maximum finding algorithms for the same result
+   * Test the maximum finding algorithms for the same result.
    */
   @SeededTest
   public void intAllFindBlockMethodsReturnSameResultForSize1(RandomSeed seed) {

@@ -25,23 +25,24 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.utils;
 
 /**
- * Define conversion of a type
+ * Define conversion of a type.
  *
  * @param <T> the generic type
  */
 public interface TypeConverter<T> extends Converter {
   /**
-   * Specify the source unit to be converted from
+   * Specify the source unit to be converted from.
    *
    * @return the source unit
    */
   public T from();
 
   /**
-   * Specify the destination unit to be converted to
+   * Specify the destination unit to be converted to.
    *
    * @return the destination unit
    */

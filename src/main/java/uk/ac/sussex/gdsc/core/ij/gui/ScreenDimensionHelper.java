@@ -25,7 +25,10 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.gui;
+
+import ij.IJ;
 
 import java.awt.Dimension;
 import java.awt.Insets;
@@ -34,25 +37,15 @@ import java.awt.ScrollPane;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 
-import ij.IJ;
-
 /**
- * Allows resizing of window components for the current screen dimensions
+ * Allows resizing of window components for the current screen dimensions.
  */
 public class ScreenDimensionHelper {
   // Store the screen dimension
   private static Dimension screenDimension;
+
   static {
     screenDimension = IJ.getScreenSize();
-  }
-
-  /**
-   * Gets the screen size.
-   *
-   * @return the screen size
-   */
-  public static Dimension getScreenSize() {
-    return new Dimension(screenDimension);
   }
 
   // Max width - Set to a reasonable value for current screen resolution.
@@ -62,6 +55,15 @@ public class ScreenDimensionHelper {
 
   private int minWidth = 0;
   private int minHeight = 0;
+
+  /**
+   * Gets the screen size.
+   *
+   * @return the screen size
+   */
+  public static Dimension getScreenSize() {
+    return new Dimension(screenDimension);
+  }
 
   /**
    * Setup the scroll pane using the preferred size. For example this can be the preferred size of
@@ -89,6 +91,18 @@ public class ScreenDimensionHelper {
     scroll.setSize(preferredSize);
   }
 
+  /**
+   * Setup the scroll pane using the preferred size.
+   *
+   * @param scroll the scroll
+   */
+  public void setup(JScrollPane scroll) {
+    final JViewport viewport = scroll.getViewport();
+    final Dimension preferredSize = viewport.getViewSize();
+    clipDimensions(preferredSize);
+    viewport.setPreferredSize(preferredSize);
+  }
+
   private void clipDimensions(Dimension preferredSize) {
     if (maxWidth > 0) {
       preferredSize.width = Math.min(preferredSize.width, maxWidth);
@@ -102,18 +116,6 @@ public class ScreenDimensionHelper {
     if (minHeight > 0) {
       preferredSize.height = Math.max(preferredSize.height, minHeight);
     }
-  }
-
-  /**
-   * Setup the scroll pane using the preferred size.
-   *
-   * @param scroll the scroll
-   */
-  public void setup(JScrollPane scroll) {
-    final JViewport viewport = scroll.getViewport();
-    final Dimension preferredSize = viewport.getViewSize();
-    clipDimensions(preferredSize);
-    viewport.setPreferredSize(preferredSize);
   }
 
   /**

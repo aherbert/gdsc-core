@@ -25,12 +25,14 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 /**
  * Simple class to calculate the mean and standard deviation of data using a rolling algorithm. This
- * should be used when the numbers are large, e.g. 10^9 + 4, 10^9 + 7, 10^9 + 13, 10^9 + 16. <p>
- * Based on org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
+ * should be used when the numbers are large, e.g. 10^9 + 4, 10^9 + 7, 10^9 + 13, 10^9 + 16.
+ *
+ * <p>Based on org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
  */
 public class RollingStatistics extends Statistics {
   /**
@@ -65,7 +67,6 @@ public class RollingStatistics extends Statistics {
     super(data);
   }
 
-  /** {@inheritDoc} */
   @Override
   protected void addInternal(float[] data, int from, int to) {
     for (int i = from; i < to; i++) {
@@ -73,7 +74,6 @@ public class RollingStatistics extends Statistics {
     }
   }
 
-  /** {@inheritDoc} */
   @Override
   protected void addInternal(double[] data, int from, int to) {
     for (int i = from; i < to; i++) {
@@ -81,7 +81,6 @@ public class RollingStatistics extends Statistics {
     }
   }
 
-  /** {@inheritDoc} */
   @Override
   protected void addInternal(int[] data, int from, int to) {
     for (int i = from; i < to; i++) {
@@ -89,77 +88,69 @@ public class RollingStatistics extends Statistics {
     }
   }
 
-  /** {@inheritDoc} */
   @Override
   protected void addInternal(final double value) {
-    // This has changed the meaning of the inherited values s and ss
-    // s : sum -> mean
-    // ss : sum-squares -> sum (x-mean)^2
+    // This has changed the meaning of the inherited values sum and sumSq
+    // sum -> mean
+    // sum-squares -> sum (x-mean)^2
     // See https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
     // This has been adapted from org.apache.commons.math3.stat.descriptive.moment.SecondMoment
-    final double delta = value - s;
-    final double nB = n;
-    n++;
-    final double delta_n = delta / n;
-    s += delta_n;
-    ss += nB * delta * delta_n;
+    final double delta = value - sum;
+    final double nB = size;
+    size++;
+    final double delta_n = delta / size;
+    sum += delta_n;
+    sumSq += nB * delta * delta_n;
   }
 
-  /** {@inheritDoc} */
   @Override
-  protected void addInternal(int nA, double value) {
+  protected void addInternal(int n, double value) {
     // Note: for the input mean value the
     // deviation from mean is 0 (ss=0)
-    final double delta = value - s;
-    final int nB = n;
-    n += nA;
-    s = (nA * value + nB * s) / n;
-    ss += delta * delta * nA * nB / n;
+    final double delta = value - sum;
+    final int nB = size;
+    size += n;
+    sum = (n * value + nB * sum) / size;
+    sumSq += delta * delta * n * nB / size;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double getSum() {
-    return s * n;
+    return sum * size;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double getSumOfSquares() {
     throw new NotImplementedException("Sum-of-squares not computed");
   }
 
-  /** {@inheritDoc} */
   @Override
   public double getMean() {
-    return s;
+    return sum;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double getStandardDeviation() {
-    return (n > 1) ? Math.sqrt(ss / (n - 1)) : (n == 1) ? 0 : Double.NaN;
+    return (size > 1) ? Math.sqrt(sumSq / (size - 1)) : (size == 1) ? 0 : Double.NaN;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double getVariance() {
-    return (n > 1) ? ss / (n - 1) : (n == 1) ? 0 : Double.NaN;
+    return (size > 1) ? sumSq / (size - 1) : (size == 1) ? 0 : Double.NaN;
   }
 
-  /** {@inheritDoc} */
   @Override
   public void add(Statistics statistics) {
     if (statistics instanceof RollingStatistics) {
       final RollingStatistics extra = (RollingStatistics) statistics;
-      if (extra.n > 0) {
+      if (extra.size > 0) {
         // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
-        final double delta = extra.s - s;
-        final int nA = extra.n;
-        final int nB = n;
-        n += nA;
-        s = (nA * extra.s + nB * s) / n;
-        ss += extra.ss + delta * delta * nA * nB / n;
+        final double delta = extra.sum - sum;
+        final int nA = extra.size;
+        final int nB = size;
+        size += nA;
+        sum = (nA * extra.sum + nB * sum) / size;
+        sumSq += extra.sumSq + delta * delta * nA * nB / size;
       }
       return;
     }

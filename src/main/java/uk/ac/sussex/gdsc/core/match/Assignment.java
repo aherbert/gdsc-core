@@ -25,38 +25,32 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.match;
 
 /**
- * Stores an assignment between two identified points and the distance between them
+ * Stores an assignment between two identified points and the distance between them.
  */
 public interface Assignment {
+
   /**
-   * @return the target Id
+   * Gets the target id.
+   *
+   * @return the target Id.
    */
   public int getTargetId();
 
   /**
-   * @return the predicted Id
+   * Gets the predicted id.
+   *
+   * @return the predicted Id.
    */
   public int getPredictedId();
 
   /**
-   * @return the distance
+   * Gets the distance.
+   *
+   * @return the distance.
    */
   public double getDistance();
-
-  // For Java 1.8
-  /// **
-  // * @param o
-  // * @return
-  // */
-  // default public int compareTo(Assignment o)
-  // {
-  // if (getDistance() < o.getDistance())
-  // return -1;
-  // if (getDistance() > o.getDistance())
-  // return 1;
-  // return 0;
-  // }
 }

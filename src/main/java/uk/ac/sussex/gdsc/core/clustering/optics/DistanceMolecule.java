@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 /**
@@ -32,9 +33,9 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  */
 class DistanceMolecule extends Molecule {
   /**
-   * Working distance to current centre object
+   * Working distance to current centre object.
    */
-  private float d;
+  private float distance;
 
   /**
    * Instantiates a new distance molecule.
@@ -49,11 +50,11 @@ class DistanceMolecule extends Molecule {
 
   @Override
   float getD() {
-    return d;
+    return distance;
   }
 
   @Override
-  void setD(float d) {
-    this.d = d;
+  void setD(float distance) {
+    this.distance = distance;
   }
 }

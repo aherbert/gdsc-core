@@ -25,39 +25,53 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.match;
 
 /**
- * Stores a 2D/3D point
+ * Stores a 2D/3D point.
  */
 public interface Coordinate {
+
   /**
-   * @return The X-coordinate
+   * Gets the X-coordinate.
+   *
+   * @return The X-coordinate.
    */
   public float getX();
 
   /**
-   * @return The Y-coordinate
+   * Gets the Y-coordinate.
+   *
+   * @return The Y-coordinate.
    */
   public float getY();
 
   /**
-   * @return The Z-coordinate
+   * Gets the Z-coordinate.
+   *
+   * @return The Z-coordinate.
    */
   public float getZ();
 
   /**
-   * @return The X-coordinate cast to an int
+   * Gets the X-coordinate cast to an int.
+   *
+   * @return The X-coordinate cast to an int.
    */
   public int getXint();
 
   /**
-   * @return The Y-coordinate cast to an int
+   * Gets the Y-coordinate cast to an int.
+   *
+   * @return The Y-coordinate cast to an int.
    */
   public int getYint();
 
   /**
-   * @return The Z-coordinate cast to an int
+   * Gets the Z-coordinate cast to an int.
+   *
+   * @return The Z-coordinate cast to an int.
    */
   public int getZint();
 
@@ -87,7 +101,7 @@ public interface Coordinate {
    * @param y the y
    * @return the squared distance
    */
-  public double distance2(float x, float y);
+  public double distanceSquared(float x, float y);
 
   /**
    * Calculate the XYZ squared distance to the given coordinates.
@@ -97,7 +111,7 @@ public interface Coordinate {
    * @param z the z
    * @return the squared distance
    */
-  public double distance2(float x, float y, float z);
+  public double distanceSquared(float x, float y, float z);
 
   /**
    * Calculate the XY distance to the given coordinate.
@@ -105,7 +119,7 @@ public interface Coordinate {
    * @param other the other
    * @return the distance
    */
-  public double distanceXY(Coordinate other);
+  public double distanceXy(Coordinate other);
 
   /**
    * Calculate the XY squared distance to the given coordinate.
@@ -113,7 +127,7 @@ public interface Coordinate {
    * @param other the other
    * @return the squared distance
    */
-  public double distanceXY2(Coordinate other);
+  public double distanceXySquared(Coordinate other);
 
   /**
    * Calculate the XYZ distance to the given coordinate.
@@ -121,7 +135,7 @@ public interface Coordinate {
    * @param other the other
    * @return the distance
    */
-  public double distanceXYZ(Coordinate other);
+  public double distanceXyz(Coordinate other);
 
   /**
    * Calculate the XYZ squared distance to the given coordinate.
@@ -129,5 +143,5 @@ public interface Coordinate {
    * @param other the other
    * @return the squared distance
    */
-  public double distanceXYZ2(Coordinate other);
+  public double distanceXyzSquared(Coordinate other);
 }

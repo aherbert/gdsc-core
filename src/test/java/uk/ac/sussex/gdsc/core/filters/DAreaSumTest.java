@@ -1,41 +1,31 @@
 package uk.ac.sussex.gdsc.core.filters;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.core.utils.Random;
+import uk.ac.sussex.gdsc.core.utils.Statistics;
+import uk.ac.sussex.gdsc.test.api.TestAssertions;
+import uk.ac.sussex.gdsc.test.api.TestHelper;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-import uk.ac.sussex.gdsc.test.utils.*;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestSettings;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.awt.Rectangle;
-import java.util.logging.Logger;
+import ij.process.FloatProcessor;
+import ij.process.ImageStatistics;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import ij.process.FloatProcessor;
-import ij.process.ImageStatistics;
-import uk.ac.sussex.gdsc.core.utils.Random;
-import uk.ac.sussex.gdsc.core.utils.Statistics;
-import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
-import uk.ac.sussex.gdsc.test.utils.TimingService;
+import java.awt.Rectangle;
+import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
 public class DAreaSumTest {
@@ -63,12 +53,14 @@ public class DAreaSumTest {
     for (final boolean r : rolling) {
       a.setRollingSums(r);
       double[] o = a.getStatistics(0, 0, maxy);
-      Assertions.assertEquals(s.getN(), o[DAreaSum.N]);
-      TestAssertions.assertTest(s.getSum(), o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+      Assertions.assertEquals(s.getN(), o[DAreaSum.INDEX_COUNT]);
+      TestAssertions.assertTest(s.getSum(), o[DAreaSum.INDEX_SUM],
+          TestHelper.almostEqualDoubles(1e-6, 0));
 
       o = a.getStatistics(new Rectangle(maxx, maxy));
-      Assertions.assertEquals(s.getN(), o[DAreaSum.N]);
-      TestAssertions.assertTest(s.getSum(), o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+      Assertions.assertEquals(s.getN(), o[DAreaSum.INDEX_COUNT]);
+      TestAssertions.assertTest(s.getSum(), o[DAreaSum.INDEX_SUM],
+          TestHelper.almostEqualDoubles(1e-6, 0));
     }
   }
 
@@ -95,8 +87,9 @@ public class DAreaSumTest {
           fp.setRoi(new Rectangle(x - n, y - n, 2 * n + 1, 2 * n + 1));
           final ImageStatistics s = fp.getStatistics();
 
-          Assertions.assertEquals(s.area, o[DAreaSum.N]);
-          TestAssertions.assertTest(s.mean * s.area, o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+          Assertions.assertEquals(s.area, o[DAreaSum.INDEX_COUNT]);
+          TestAssertions.assertTest(s.mean * s.area, o[DAreaSum.INDEX_SUM],
+              TestHelper.almostEqualDoubles(1e-6, 0));
         }
       }
     }
@@ -126,9 +119,10 @@ public class DAreaSumTest {
             fp.setRoi(new Rectangle(x - nx, y - ny, 2 * nx + 1, 2 * ny + 1));
             final ImageStatistics s = fp.getStatistics();
 
-            Assertions.assertEquals(s.area, o[DAreaSum.N]);
+            Assertions.assertEquals(s.area, o[DAreaSum.INDEX_COUNT]);
             final double sum = s.mean * s.area;
-            TestAssertions.assertTest(sum, o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+            TestAssertions.assertTest(sum, o[DAreaSum.INDEX_SUM],
+                TestHelper.almostEqualDoubles(1e-6, 0));
           }
         }
       }
@@ -162,8 +156,9 @@ public class DAreaSumTest {
         fp.setRoi(roi);
         final ImageStatistics s = fp.getStatistics();
 
-        Assertions.assertEquals(s.area, o[DAreaSum.N]);
-        TestAssertions.assertTest(s.mean * s.area, o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+        Assertions.assertEquals(s.area, o[DAreaSum.INDEX_COUNT]);
+        TestAssertions.assertTest(s.mean * s.area, o[DAreaSum.INDEX_SUM],
+            TestHelper.almostEqualDoubles(1e-6, 0));
       }
     }
   }
@@ -179,19 +174,19 @@ public class DAreaSumTest {
       a.setRollingSums(r);
       for (final int n : boxSizes) {
         double[] o = a.getStatistics(0, 0, n);
-        Assertions.assertEquals(c, o[DAreaSum.N]);
-        TestAssertions.assertTest(u, o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+        Assertions.assertEquals(c, o[DAreaSum.INDEX_COUNT]);
+        TestAssertions.assertTest(u, o[DAreaSum.INDEX_SUM], TestHelper.almostEqualDoubles(1e-6, 0));
 
         final Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
         o = a.getStatistics(bounds);
-        Assertions.assertEquals(c, o[DAreaSum.N]);
-        TestAssertions.assertTest(u, o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+        Assertions.assertEquals(c, o[DAreaSum.INDEX_COUNT]);
+        TestAssertions.assertTest(u, o[DAreaSum.INDEX_SUM], TestHelper.almostEqualDoubles(1e-6, 0));
 
         bounds.x--;
         bounds.y--;
         o = a.getStatistics(bounds);
-        Assertions.assertEquals(c, o[DAreaSum.N]);
-        TestAssertions.assertTest(u, o[DAreaSum.SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+        Assertions.assertEquals(c, o[DAreaSum.INDEX_COUNT]);
+        TestAssertions.assertTest(u, o[DAreaSum.INDEX_SUM], TestHelper.almostEqualDoubles(1e-6, 0));
       }
     }
   }

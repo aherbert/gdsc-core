@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.logging;
 
 import uk.ac.sussex.gdsc.core.ij.Utils;
@@ -33,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Track the progress of processing results in incremental updates to a progress tracker
+ * Track the progress of processing results in incremental updates to a progress tracker.
  */
 public abstract class Ticker {
   /**
@@ -84,10 +85,20 @@ public abstract class Ticker {
   public abstract boolean isThreadSafe();
 
   /**
+   * Gets the default instance. This returns a ticker that does nothing.
+   *
+   * @return the default instance
+   */
+  public static Ticker getDefaultInstance() {
+    return NullTicker.INSTANCE;
+  }
+
+  /**
    * Creates a ticker. If the track progress is null, or the total is not positive, then a ticker
-   * that does nothing will be returned. <p> The tickers returned will only report progress to the
-   * track progress object incrementally. This prevents excessive calls to the track progress
-   * object.
+   * that does nothing will be returned.
+   *
+   * <p>The tickers returned will only report progress to the track progress object incrementally.
+   * This prevents excessive calls to the track progress object.
    *
    * @param trackProgress the track progress to report progress to
    * @param total the total amount of ticks
@@ -96,21 +107,22 @@ public abstract class Ticker {
    */
   public static Ticker create(TrackProgress trackProgress, long total, boolean threadSafe) {
     if (trackProgress == null || trackProgress instanceof NullTrackProgress || total < 1) {
-      return INSTANCE;
+      return getDefaultInstance();
     }
     if (total < Integer.MAX_VALUE) {
       return (threadSafe) ? new ConcurrentIntTicker(trackProgress, (int) total)
           : new IntTicker(trackProgress, (int) total);
     }
-    return (threadSafe) ? new ConcurrentLongTicker(trackProgress, (int) total)
-        : new LongTicker(trackProgress, (int) total);
+    return (threadSafe) ? new ConcurrentLongTicker(trackProgress, total)
+        : new LongTicker(trackProgress, total);
   }
 
   /**
    * Creates a starter ticker. If the track progress is null, or the total is not positive, then a
-   * ticker that does nothing will be returned. <p> The tickers returned will only report progress
-   * to the track progress object incrementally. This prevents excessive calls to the track progress
-   * object.
+   * ticker that does nothing will be returned.
+   *
+   * <p>The tickers returned will only report progress to the track progress object incrementally.
+   * This prevents excessive calls to the track progress object.
    *
    * @param trackProgress the track progress to report progress to
    * @param total the total amount of ticks
@@ -123,7 +135,10 @@ public abstract class Ticker {
     return ticker;
   }
 
+  /** A class that ignores all calls to the Ticker interface. */
   private static class NullTicker extends Ticker {
+    static final NullTicker INSTANCE = new NullTicker();
+
     @Override
     public void tick() {
       // Do nothing
@@ -155,10 +170,7 @@ public abstract class Ticker {
     }
   }
 
-  /** An instance that ignores all calls to the Ticker interface */
-  public static final Ticker INSTANCE = new NullTicker();
-
-  private static abstract class BaseTicker extends Ticker {
+  private abstract static class BaseTicker extends Ticker {
     final TrackProgress trackProgress;
 
     BaseTicker(TrackProgress trackProgress) {

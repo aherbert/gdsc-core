@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.match;
 
 import java.util.Arrays;
@@ -33,12 +34,11 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Compares assignments
+ * Compares assignments.
  */
 public class AssignmentComparator implements Comparator<Assignment> {
   private static final AssignmentComparator instance = new AssignmentComparator();
 
-  /** {@inheritDoc} */
   @Override
   public int compare(Assignment o1, Assignment o2) {
     if (o1.getDistance() < o2.getDistance()) {
@@ -51,7 +51,7 @@ public class AssignmentComparator implements Comparator<Assignment> {
   }
 
   /**
-   * Sort the assignments
+   * Sort the assignments.
    *
    * @param assignments the assignments
    */
@@ -69,7 +69,7 @@ public class AssignmentComparator implements Comparator<Assignment> {
   }
 
   /**
-   * Sort the assignments using the native object comparator
+   * Sort the assignments using the native object comparator.
    *
    * @param assignments the assignments
    */
@@ -78,7 +78,7 @@ public class AssignmentComparator implements Comparator<Assignment> {
   }
 
   /**
-   * Sort the assignments using a custom comparator
+   * Sort the assignments using a custom comparator.
    *
    * @param assignments the assignments
    */
@@ -95,17 +95,14 @@ public class AssignmentComparator implements Comparator<Assignment> {
       data[i][1] = i;
     }
 
-    Arrays.sort(data, new Comparator<double[]>() {
-      @Override
-      public int compare(double[] o1, double[] o2) {
-        if (o1[0] < o2[0]) {
-          return -1;
-        }
-        if (o1[0] > o2[0]) {
-          return 1;
-        }
-        return 0;
+    Arrays.sort(data, (o1, o2) -> {
+      if (o1[0] < o2[0]) {
+        return -1;
       }
+      if (o1[0] > o2[0]) {
+        return 1;
+      }
+      return 0;
     });
 
     // Copy back
@@ -115,29 +112,18 @@ public class AssignmentComparator implements Comparator<Assignment> {
     }
   }
 
-  private static class DoubleSortObject implements Comparable<DoubleSortObject> {
-    final double d;
-    final Assignment a;
+  private static class DoubleSortObject {
+    final double value;
+    final Assignment assignment;
 
-    DoubleSortObject(double d, Assignment a) {
-      this.d = d;
-      this.a = a;
-    }
-
-    @Override
-    public int compareTo(DoubleSortObject o2) {
-      if (d < o2.d) {
-        return -1;
-      }
-      if (d > o2.d) {
-        return 1;
-      }
-      return 0;
+    DoubleSortObject(double value, Assignment assignment) {
+      this.value = value;
+      this.assignment = assignment;
     }
   }
 
   /**
-   * Sort the assignments using a custom sort object with double precision
+   * Sort the assignments using a custom sort object with double precision.
    *
    * @param assignments the assignments
    */
@@ -153,49 +139,34 @@ public class AssignmentComparator implements Comparator<Assignment> {
       data[i] = new DoubleSortObject(assignments[i].getDistance(), assignments[i]);
     }
 
-    Arrays.sort(data);
-
-    // Arrays.sort(data, new Comparator<DoubleSortObject>()
-    // {
-    // public int compare(DoubleSortObject o1, DoubleSortObject o2)
-    // {
-    // if (o1.d < o2.d)
-    // return -1;
-    // if (o1.d > o2.d)
-    // return 1;
-    // return 0;
-    // }
-    // });
-
-    // Copy back
-    for (int i = size; i-- > 0;) {
-      assignments[i] = data[i].a;
-    }
-  }
-
-  private static class FloatSortObject implements Comparable<FloatSortObject> {
-    final float d;
-    final Assignment a;
-
-    FloatSortObject(float d, Assignment a) {
-      this.d = d;
-      this.a = a;
-    }
-
-    @Override
-    public int compareTo(FloatSortObject o2) {
-      if (d < o2.d) {
+    Arrays.sort(data, (o1, o2) -> {
+      if (o1.value < o2.value) {
         return -1;
       }
-      if (d > o2.d) {
+      if (o1.value > o2.value) {
         return 1;
       }
       return 0;
+    });
+
+    // Copy back
+    for (int i = size; i-- > 0;) {
+      assignments[i] = data[i].assignment;
+    }
+  }
+
+  private static class FloatSortObject {
+    final float value;
+    final Assignment assignment;
+
+    FloatSortObject(float value, Assignment assignment) {
+      this.value = value;
+      this.assignment = assignment;
     }
   }
 
   /**
-   * Sort the assignments using a custom sort object with float precision
+   * Sort the assignments using a custom sort object with float precision.
    *
    * @param assignments the assignments
    */
@@ -211,23 +182,19 @@ public class AssignmentComparator implements Comparator<Assignment> {
       data[i] = new FloatSortObject((float) assignments[i].getDistance(), assignments[i]);
     }
 
-    Arrays.sort(data);
-
-    // Arrays.sort(data, new Comparator<FloatSortObject>()
-    // {
-    // public int compare(FloatSortObject o1, FloatSortObject o2)
-    // {
-    // if (o1.d < o2.d)
-    // return -1;
-    // if (o1.d > o2.d)
-    // return 1;
-    // return 0;
-    // }
-    // });
+    Arrays.sort(data, (o1, o2) -> {
+      if (o1.value < o2.value) {
+        return -1;
+      }
+      if (o1.value > o2.value) {
+        return 1;
+      }
+      return 0;
+    });
 
     // Copy back
     for (int i = size; i-- > 0;) {
-      assignments[i] = data[i].a;
+      assignments[i] = data[i].assignment;
     }
   }
 }

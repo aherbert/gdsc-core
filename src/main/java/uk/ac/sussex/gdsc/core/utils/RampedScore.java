@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 /**
- * Provide a score function that ramps smoothly between the configured limits
+ * Provide a score function that ramps smoothly between the configured limits.
  */
 public class RampedScore implements Cloneable {
   /** The lower end of the range. */
@@ -109,12 +110,11 @@ public class RampedScore implements Cloneable {
     return (Math.round(score * steps)) / (float) steps;
   }
 
-  /** {@inheritDoc} */
   @Override
   public RampedScore clone() {
     try {
       return (RampedScore) super.clone();
-    } catch (final CloneNotSupportedException e) {
+    } catch (final CloneNotSupportedException ex) {
       return new RampedScore(lower, upper);
     }
   }

@@ -25,49 +25,60 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.threshold;
 
 /**
- * Contains a histogram. <p> The histogram is implemented in this class using integer bin values
- * starting from an offset
+ * Contains a histogram.
+ *
+ * <p>The histogram is implemented in this class using integer bin values starting from an offset.
+ * The offset does not have to be an integer.
  */
 public class IntHistogram extends Histogram {
   /** The offset. */
-  final int offset;
+  final double offset;
 
   /**
    * Instantiates a new int histogram.
    *
-   * @param h the histogram counts
+   * @param histogramCounts the histogram counts
    * @param minBin the min bin
    * @param maxBin the max bin
    * @param offset the offset
    */
-  protected IntHistogram(int[] h, int minBin, int maxBin, int offset) {
-    super(h, minBin, maxBin);
+  protected IntHistogram(int[] histogramCounts, int minBin, int maxBin, double offset) {
+    super(histogramCounts, minBin, maxBin);
     this.offset = offset;
   }
 
   /**
    * Instantiates a new int histogram.
    *
-   * @param h the histogram counts
+   * @param source the source
+   */
+  protected IntHistogram(IntHistogram source) {
+    super(source);
+    this.offset = source.offset;
+  }
+
+  /**
+   * Instantiates a new int histogram.
+   *
+   * @param histogram the histogram counts
    * @param offset the offset
    */
-  public IntHistogram(int[] h, int offset) {
-    super(h);
+  public IntHistogram(int[] histogram, int offset) {
+    super(histogram);
     this.offset = offset;
   }
 
-  /** {@inheritDoc} */
   @Override
-  public float getValue(int i) {
-    return offset + i;
+  public float getValue(int bin) {
+    return (float) (offset + bin);
   }
 
-  /** {@inheritDoc} */
   @Override
-  public IntHistogram clone() {
-    return new IntHistogram(this.h.clone(), minBin, maxBin, offset);
+  public IntHistogram copy() {
+    return new IntHistogram(this);
   }
 }

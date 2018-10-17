@@ -25,7 +25,10 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Class for simple lock acquisition for threaded applications. Allows multiple threads to view the
@@ -41,22 +44,22 @@ package uk.ac.sussex.gdsc.core.utils;
  * }
  * // else fall through
  * </pre>
- *
- * @author Alex Herbert
  */
 public class SimpleLock {
-  private boolean locked;
+
+  /** The lock. */
+  private final AtomicBoolean lock = new AtomicBoolean();
 
   /**
-   * Acquire the lock. This method is synchronized. The lock should be released when finished.
+   * Acquire the lock. The lock should be released when finished.
    *
    * @return true, if the lock was acquired, else false if already locked
    */
-  public synchronized boolean acquire() {
-    if (locked) {
-      return false;
-    }
-    return locked = true;
+  public boolean acquire() {
+    // expect the lock to be unlocked = false
+    // update the lock to be locked = true
+    // This will return true if the value was changed.
+    return lock.compareAndSet(false, true);
   }
 
   /**
@@ -65,13 +68,15 @@ public class SimpleLock {
    * @return true, if is locked
    */
   public boolean isLocked() {
-    return locked;
+    return lock.get();
   }
 
   /**
-   * Release the lock. This is not synchronized and should be called by the owner of the lock.
+   * Release the lock.
+   *
+   * <p>This should be called by the owner of the lock, however this is not enforced.
    */
   public void release() {
-    locked = false;
+    lock.set(false);
   }
 }

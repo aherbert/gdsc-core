@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import org.w3c.dom.Node;
@@ -39,7 +40,6 @@ import java.io.StringWriter;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -77,7 +77,8 @@ public class XmlUtils {
    * XML utility for formatting XML as a pretty-print output. Assumes the XML is valid since no DOM
    * conversion is performed.
    *
-   * Taken from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java
+   * @see <a href="http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java">
+   *      StackOverflow: How to pretty print XML from Java?</a>
    */
   private static class XmlFormatter {
     private final int indentNumChars;
@@ -89,13 +90,13 @@ public class XmlUtils {
       this.lineLength = lineLength;
     }
 
-    public synchronized String format(String s, int initialIndent) {
+    public synchronized String format(String xml, int initialIndent) {
       int indent = initialIndent;
       final StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < s.length(); i++) {
-        final char currentChar = s.charAt(i);
+      for (int i = 0; i < xml.length(); i++) {
+        final char currentChar = xml.charAt(i);
         if (currentChar == '<') {
-          final char nextChar = s.charAt(i + 1);
+          final char nextChar = xml.charAt(i + 1);
           if (nextChar == '/') {
             indent -= indentNumChars;
           }
@@ -109,13 +110,13 @@ public class XmlUtils {
         }
         sb.append(currentChar);
         if (currentChar == '>') {
-          if (s.charAt(i - 1) == '/') {
+          if (xml.charAt(i - 1) == '/') {
             indent -= indentNumChars;
             sb.append("\n");
           } else {
-            final int nextStartElementPos = s.indexOf('<', i);
+            final int nextStartElementPos = xml.indexOf('<', i);
             if (nextStartElementPos > i + 1) {
-              final String textBetweenElements = s.substring(i + 1, nextStartElementPos);
+              final String textBetweenElements = xml.substring(i + 1, nextStartElementPos);
 
               // If the space between elements is solely newlines, let them through to preserve
               // additional newlines in source document.
@@ -124,9 +125,8 @@ public class XmlUtils {
               } else if (textBetweenElements.length() <= lineLength * 0.5) {
                 sb.append(textBetweenElements);
                 singleLine = true;
-              }
-              // For larger amounts of text, wrap lines to a maximum line length.
-              else {
+              } else {
+                // For larger amounts of text, wrap lines to a maximum line length.
                 sb.append("\n" + lineWrap(textBetweenElements, lineLength, indent, null) + "\n");
               }
               i = nextStartElementPos - 1;
@@ -151,7 +151,7 @@ public class XmlUtils {
   /**
    * Wraps the supplied text to the specified line length.
    *
-   * @param s the s
+   * @param text the text
    * @param lineLength the maximum length of each line in the returned string (not including indent
    *        if specified)
    * @param indent optional number of whitespace characters to prepend to each line before the text
@@ -159,8 +159,8 @@ public class XmlUtils {
    * @return the supplied text wrapped so that no line exceeds the specified line length + indent,
    *         optionally with indent and prefix applied to each line.
    */
-  public static String lineWrap(String s, int lineLength, Integer indent, String linePrefix) {
-    if (s == null) {
+  public static String lineWrap(String text, int lineLength, Integer indent, String linePrefix) {
+    if (text == null) {
       return null;
     }
 
@@ -168,19 +168,19 @@ public class XmlUtils {
     int lineStartPos = 0;
     int lineEndPos;
     boolean firstLine = true;
-    while (lineStartPos < s.length()) {
+    while (lineStartPos < text.length()) {
       if (!firstLine) {
         sb.append("\n");
       } else {
         firstLine = false;
       }
 
-      if (lineStartPos + lineLength > s.length()) {
-        lineEndPos = s.length() - 1;
+      if (lineStartPos + lineLength > text.length()) {
+        lineEndPos = text.length() - 1;
       } else {
         lineEndPos = lineStartPos + lineLength - 1;
         while (lineEndPos > lineStartPos
-            && (s.charAt(lineEndPos) != ' ' && s.charAt(lineEndPos) != '\t')) {
+            && (text.charAt(lineEndPos) != ' ' && text.charAt(lineEndPos) != '\t')) {
           lineEndPos--;
         }
       }
@@ -189,7 +189,7 @@ public class XmlUtils {
         sb.append(linePrefix);
       }
 
-      sb.append(s.substring(lineStartPos, lineEndPos + 1));
+      sb.append(text.substring(lineStartPos, lineEndPos + 1));
       lineStartPos = lineEndPos + 1;
     }
     return sb.toString();
@@ -198,10 +198,10 @@ public class XmlUtils {
   /**
    * Formats an XML string for pretty printing. Requires Java 1.6.
    *
-   * Taken from http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java
-   *
    * @param xml the xml
    * @return pretty-print formatted XML
+   * @see <a href="http://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java">
+   *      StackOverflow: How to pretty print XML from Java?</a>
    */
   public static String prettyPrintXml(String xml) {
     try {
@@ -210,31 +210,24 @@ public class XmlUtils {
           DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src).getDocumentElement();
       final Boolean keepDeclaration = Boolean.valueOf(xml.startsWith("<?xml"));
 
-      // May need this:
-      // System.setProperty(DOMImplementationRegistry.PROPERTY,"com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
-
       final DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
       final DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
       final LSSerializer writer = impl.createLSSerializer();
 
-      writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE); // Set this to true
-                                                                               // if the output
-                                                                               // needs to be
-                                                                               // beautified.
-      writer.getDomConfig().setParameter("xml-declaration", keepDeclaration); // Set this to true if
-                                                                              // the declaration is
-                                                                              // needed to be
-                                                                              // outputted.
+      // Set this to true if the output needs to be beautified.
+      writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
+      // Set this to true if the declaration is needed to be output.
+      writer.getDomConfig().setParameter("xml-declaration", keepDeclaration);
 
       return writer.writeToString(document);
-    } catch (final Exception e) {
-      throw new RuntimeException(e);
+    } catch (final Exception ex) {
+      throw new RuntimeException(ex);
     }
   }
 
   /**
    * Return the contents of the node as a string. Any exceptions are ignored and the method returns
-   * null.
+   * an empty string.
    *
    * @param node the node
    * @param indent Indent the XML when formatting
@@ -252,20 +245,17 @@ public class XmlUtils {
       transformer.transform(source, result);
 
       return result.getWriter().toString();
-    } catch (final TransformerConfigurationException e) {
-      // e.printStackTrace();
-    } catch (final TransformerFactoryConfigurationError e) {
-      // e.printStackTrace();
-    } catch (final TransformerException e) {
-      // e.printStackTrace();
+    } catch (final TransformerFactoryConfigurationError | TransformerException ex) {
+      // Ignore exceptions and return empty string
     }
     return "";
   }
 
   /**
-   * Convert double quotes to single quotes. <p> This method is a simple replace function call. It
-   * does not check if the xml contains a mixture of single and double quotes. In that instance the
-   * returned XML will break.
+   * Convert double quotes to single quotes.
+   *
+   * <p>This method is a simple replace function call. It does not check if the xml contains a
+   * mixture of single and double quotes. In that instance the returned XML will break.
    *
    * @param xml the xml
    * @return the converted xml

@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.io;
 
 import uk.ac.sussex.gdsc.core.utils.TurboList;
@@ -33,9 +34,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * This class uses a memory cache to allow seeking within an InputStream. <p> Entirely based on
- * {@link ij.io.RandomAccessStream} which is itself based on the JAI MemoryCacheSeekableStream
- * class.
+ * This class uses a memory cache to allow seeking within an InputStream.
+ *
+ * <p>Entirely based on {@link ij.io.RandomAccessStream} which is itself based on the JAI
+ * MemoryCacheSeekableStream class.
  */
 public final class MemoryCacheSeekableStream extends SeekableStream {
   private static final int BLOCK_SIZE = 1024;
@@ -45,7 +47,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
   private long pointer;
   private final TurboList<byte[]> data;
   private long length;
-  private boolean foundEOS;
+  private boolean endOfStream;
 
   /**
    * Constructs a MemoryCacheSeekableStream from an InputStream. Seeking backwards is supported
@@ -57,32 +59,26 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
     if (inputstream == null) {
       throw new NullPointerException();
     }
-    pointer = 0L;
     data = new TurboList<>();
-    length = 0L;
-    foundEOS = false;
     src = inputstream;
   }
 
-  /** {@inheritDoc} */
   @Override
   public long getFilePointer() {
     return pointer;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int read() throws IOException {
     final long l = pointer + 1L;
     final long l1 = readUntil(l);
     if (l1 >= l) {
-      final byte abyte0[] = data.get((int) (pointer >> BLOCK_SHIFT));
+      final byte[] abyte0 = data.get((int) (pointer >> BLOCK_SHIFT));
       return abyte0[(int) (pointer++ & BLOCK_MASK)] & 0xff;
     }
     return -1;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int read(byte[] bytes, int off, int len) throws IOException {
     if (bytes == null) {
@@ -98,7 +94,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
     if (l <= pointer) {
       return -1;
     }
-    final byte abyte1[] = data.get((int) (pointer >> BLOCK_SHIFT));
+    final byte[] abyte1 = data.get((int) (pointer >> BLOCK_SHIFT));
     final int k = Math.min(len, BLOCK_SIZE - (int) (pointer & BLOCK_MASK));
     System.arraycopy(abyte1, (int) (pointer & BLOCK_MASK), bytes, off, k);
     pointer += k;
@@ -108,28 +104,30 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
   /**
    * Read until the given location.
    *
-   * @param l the location
-   * @return the long
+   * <p>The returned location may be less than desired if end-of-stream was found.
+   *
+   * @param location the location
+   * @return the location
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  private long readUntil(long l) throws IOException {
-    if (l < length) {
-      return l;
+  private long readUntil(long location) throws IOException {
+    if (location < length) {
+      return location;
     }
-    if (foundEOS) {
+    if (endOfStream) {
       return length;
     }
-    final int i = (int) (l >> BLOCK_SHIFT);
+    final int i = (int) (location >> BLOCK_SHIFT);
     final int j = (int) (length >> BLOCK_SHIFT);
     for (int k = j; k <= i; k++) {
-      final byte abyte0[] = new byte[BLOCK_SIZE];
+      final byte[] abyte0 = new byte[BLOCK_SIZE];
       data.add(abyte0);
       int i1 = BLOCK_SIZE;
       int j1 = 0;
       while (i1 > 0) {
         final int k1 = src.read(abyte0, j1, i1);
         if (k1 == -1) {
-          foundEOS = true;
+          endOfStream = true;
           return length;
         }
         j1 += k1;
@@ -140,7 +138,6 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
     return length;
   }
 
-  /** {@inheritDoc} */
   @Override
   public void seek(long loc) throws IOException {
     if (loc < 0L) {
@@ -149,7 +146,6 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
     pointer = loc;
   }
 
-  /** {@inheritDoc} */
   @Override
   public void close() throws IOException {
     data.clear();

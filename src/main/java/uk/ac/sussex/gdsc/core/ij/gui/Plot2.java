@@ -25,15 +25,16 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.gui;
 
 import uk.ac.sussex.gdsc.core.ij.Utils;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 import ij.IJ;
 import ij.gui.Plot;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * Extension of the {@link ij.gui.Plot} class to add functionality.
@@ -42,13 +43,16 @@ public class Plot2 extends Plot {
   /** Draw a bar plot. */
   public static final int BAR = 999;
 
-  /** Flag used when accessing the default min/max */
+  /** Flag used when accessing the default min./max */
   private static final int FLAG_DEFAULT_MIN_MAX = 0x01;
-  /** Flag used when accessing the current min/max */
+  /** Flag used when accessing the current min./max */
   private static final int FLAG_CURRENT_MIN_MAX = 0x02;
 
   /** The reflection status flag. This is updated when reflection fails. */
-  private static int REFLECTION_STATUS = 0;
+  private static int reflectionStatus = 0;
+
+  // This uses the ImageJ parameter names
+  // CHECKSTYLE.OFF: ParameterName
 
   /**
    * Instantiates a new plot 2.
@@ -145,9 +149,13 @@ public class Plot2 extends Plot {
   }
 
   /**
-   * {@inheritDoc} <p> Support Bar plots by adding an extra point to draw a horizontal line and
-   * vertical line between points. <p> This is a fudge as the values for the bar will be exported as
-   * the duplicated line. However if a visual is all that is required then this works fine.
+   * {@inheritDoc}
+   *
+   * <p>Support Bar plots by adding an extra point to draw a horizontal line and vertical line
+   * between points.
+   *
+   * <p>This is a fudge as the values for the bar will be exported as the duplicated line. However
+   * if a visual is all that is required then this works fine.
    *
    * @param shape CIRCLE, X, BOX, TRIANGLE, CROSS, DOT, LINE, CONNECTED_CIRCLES, or BAR
    */
@@ -174,11 +182,13 @@ public class Plot2 extends Plot {
         xValues = x;
         yValues = y;
       }
-    } catch (final Throwable e) { // Ignore
+    } catch (final Throwable ex) { // Ignore
     } finally {
       super.addPoints(xValues, yValues, yErrorBars, shape, label);
     }
   }
+
+  // CHECKSTYLE.ON: ParameterName
 
   /**
    * For the provided histogram x-axis bins, produce an x-axis for plotting. This functions doubles
@@ -198,7 +208,7 @@ public class Plot2 extends Plot {
     if (histogramX.length > 0) {
       final float dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
       axis[index++] = histogramX[histogramX.length - 1] + dx;
-      axis[index++] = histogramX[histogramX.length - 1] + dx;
+      axis[index] = histogramX[histogramX.length - 1] + dx;
     }
     return axis;
   }
@@ -227,8 +237,9 @@ public class Plot2 extends Plot {
 
   /**
    * Gets the default min and max. This will be the full range of data unless the
-   * {@link #setLimits(double, double, double, double)} method has been called. <p> Note: This uses
-   * reflection to access inherited methods and fields. Failure will return null.
+   * {@link #setLimits(double, double, double, double)} method has been called.
+   *
+   * <p>Note: This uses reflection to access inherited methods and fields. Failure will return null.
    *
    * @return the default min and max (or null)
    */
@@ -238,11 +249,11 @@ public class Plot2 extends Plot {
     // change the plotted area. So get the limits from the protected methods
     // and fields used by the Plot class.
 
-    if ((REFLECTION_STATUS & FLAG_DEFAULT_MIN_MAX) == 0) {
+    if ((reflectionStatus & FLAG_DEFAULT_MIN_MAX) == 0) {
       try {
-        // If in the same package ...
-        // super.getInitialMinAndMax();
-        // return defaultMinMax.clone();
+        // If in the same package ..
+        // super.getInitialMinAndMax()
+        // return defaultMinMax.clone()
 
         final Method m = Plot.class.getDeclaredMethod("getInitialMinAndMax");
         m.setAccessible(true);
@@ -253,50 +264,55 @@ public class Plot2 extends Plot {
 
         final double[] defaultMinMax = (double[]) f.get(this);
         return defaultMinMax.clone();
-      } catch (final Throwable e) {
+      } catch (final Throwable ex) {
         Utils.log("%s Failed to get the default min and max: %s", this.getClass().getName(),
-            e.getMessage());
+            ex.getMessage());
         if (IJ.debugMode) {
-          e.printStackTrace();
+          ex.printStackTrace();
         }
         // Don't try this again
-        REFLECTION_STATUS |= FLAG_DEFAULT_MIN_MAX;
+        updateReflectionStatus(FLAG_DEFAULT_MIN_MAX);
       }
     }
 
     return null;
-    // return getLimits();
+    // return getLimits()
   }
 
   /**
-   * Gets the current min and max. <p> Note: This uses reflection to access inherited methods and
-   * fields. Failure will return null.
+   * Gets the current min and max.
+   *
+   * <p>Note: This uses reflection to access inherited methods and fields. Failure will return null.
    *
    * @return the current min and max
    */
   public double[] getCurrentMinAndMax() {
-    if ((REFLECTION_STATUS & FLAG_CURRENT_MIN_MAX) == 0) {
+    if ((reflectionStatus & FLAG_CURRENT_MIN_MAX) == 0) {
       try {
-        // If in the same package ...
-        // return currentMinMax;
+        // If in the same package ..
+        // return currentMinMax
 
         final Field f = Plot.class.getDeclaredField("currentMinMax");
         f.setAccessible(true);
 
         final double[] currentMinMax = (double[]) f.get(this);
         return currentMinMax.clone();
-      } catch (final Throwable e) {
+      } catch (final Throwable ex) {
         Utils.log("%s Failed to get the current min and max: %s", this.getClass().getName(),
-            e.getMessage());
+            ex.getMessage());
         if (IJ.debugMode) {
-          e.printStackTrace();
+          ex.printStackTrace();
         }
         // Don't try this again
-        REFLECTION_STATUS |= FLAG_CURRENT_MIN_MAX;
+        updateReflectionStatus(FLAG_CURRENT_MIN_MAX);
       }
     }
 
     return null;
-    // return getLimits();
+    // return getLimits()
+  }
+
+  private static void updateReflectionStatus(int flag) {
+    reflectionStatus |= flag;
   }
 }

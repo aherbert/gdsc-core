@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.utils.NotImplementedException;
@@ -53,7 +54,7 @@ class Molecule {
   int predecessor = -1;
 
   /**
-   * Working data used in algorithm support
+   * Working data used in algorithm support.
    */
   private int workingData;
 
@@ -90,25 +91,25 @@ class Molecule {
   }
 
   /**
-   * Get the squared distance to the other molecule
+   * Get the squared distance to the other molecule.
    *
    * @param other the other
    * @return the squared distance
    */
-  float distance2(Molecule other) {
+  float distanceSquared(Molecule other) {
     final float dx = x - other.x;
     final float dy = y - other.y;
     return dx * dx + dy * dy;
   }
 
   /**
-   * Get the distance to the other molecule
+   * Get the distance to the other molecule.
    *
    * @param other the other
    * @return the distance
    */
   double distance(Molecule other) {
-    return Math.sqrt(distance2(other));
+    return Math.sqrt(distanceSquared(other));
   }
 
   /**
@@ -118,7 +119,7 @@ class Molecule {
     processed = false;
     predecessor = -1;
     workingData = 0;
-    coreDistance = reachabilityDistance = OPTICSManager.UNDEFINED;
+    coreDistance = reachabilityDistance = OpticsManager.UNDEFINED;
   }
 
   /**
@@ -144,13 +145,13 @@ class Molecule {
    *
    * @return the OPTICS order
    */
-  public OPTICSOrder toOPTICSResult() {
+  public OpticsOrder toOpticsResult() {
     final double actualCoreDistance =
-        (coreDistance == OPTICSManager.UNDEFINED) ? Double.POSITIVE_INFINITY : getCoreDistance();
+        (coreDistance == OpticsManager.UNDEFINED) ? Double.POSITIVE_INFINITY : getCoreDistance();
     final double actualReachabilityDistance =
-        (reachabilityDistance == OPTICSManager.UNDEFINED) ? Double.POSITIVE_INFINITY
+        (reachabilityDistance == OpticsManager.UNDEFINED) ? Double.POSITIVE_INFINITY
             : getReachabilityDistance();
-    return new OPTICSOrder(id, predecessor, actualCoreDistance, actualReachabilityDistance);
+    return new OpticsOrder(id, predecessor, actualCoreDistance, actualReachabilityDistance);
   }
 
   /**
@@ -172,11 +173,11 @@ class Molecule {
   /**
    * Sets the number of points.
    *
-   * @param nPts the new number of points
+   * @param numberOfPoints the new number of points
    */
-  public void setNumberOfPoints(int nPts) {
+  public void setNumberOfPoints(int numberOfPoints) {
     // Use the core distance to store this
-    coreDistance = nPts;
+    coreDistance = numberOfPoints;
   }
 
   /**
@@ -229,8 +230,8 @@ class Molecule {
    *
    * @return the DBSCAN order
    */
-  public DBSCANOrder toDBSCANResult() {
-    return new DBSCANOrder(id, getClusterId(), getNumberOfPoints());
+  public DbscanOrder toDbscanResult() {
+    return new DbscanOrder(id, getClusterId(), getNumberOfPoints());
   }
 
   /**
@@ -281,9 +282,9 @@ class Molecule {
   /**
    * Sets the distance.
    *
-   * @param d the new distance
+   * @param distance the new distance
    */
-  void setD(float d) {
+  void setD(float distance) {
     throw new NotImplementedException();
   }
 }

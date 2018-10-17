@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import org.apache.commons.math3.random.AbstractRandomGenerator;
@@ -32,7 +33,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.rng.UniformRandomProvider;
 
 /**
- * Contains a set of random numbers that are reused in sequence
+ * Contains a set of random numbers that are reused in sequence.
  */
 public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cloneable {
   /** The sequence. */
@@ -144,21 +145,18 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
     }
   }
 
-  /** {@inheritDoc} */
   @Override
   public void setSeed(int seed) {
     clear();
     position = Math.abs(seed) % length;
   }
 
-  /** {@inheritDoc} */
   @Override
   public void setSeed(long seed) {
     clear();
     position = Math.abs(Long.hashCode(seed)) % length;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double nextDouble() {
     final double d = sequence[position++];
@@ -168,7 +166,6 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
     return d;
   }
 
-  /** {@inheritDoc} */
   @Override
   public PseudoRandomGenerator clone() {
     try {
@@ -180,7 +177,7 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
         r.position = 0;
       }
       return r;
-    } catch (final CloneNotSupportedException e) {
+    } catch (final CloneNotSupportedException ex) {
       // This should not happen
       return new PseudoRandomGenerator(sequence, length);
     }
@@ -206,14 +203,15 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 
   /**
    * Returns a pseudorandom, uniformly distributed {@code int} value between 0 (inclusive) and the
-   * specified value (exclusive), drawn from this random number generator's sequence. <p> The
-   * default implementation returns:
+   * specified value (exclusive), drawn from this random number generator's sequence.
+   *
+   * <p>The default implementation returns:
    *
    * <pre>
    * <code>(int) (nextDouble() * n</code>
    * </pre>
-   * 
-   * <p> Warning: No check is made that n is positive so use with caution.
+   *
+   * <p>Warning: No check is made that n is positive so use with caution.
    *
    * @param n the bound on the random number to be returned. Must be positive.
    * @return a pseudorandom, uniformly distributed {@code int} value between 0 (inclusive) and n

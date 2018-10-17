@@ -25,17 +25,23 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Expandable store for data backed by a double array.
  */
 public class StoredData implements Iterable<Double>, DoubleData {
+
+  /** The values. */
   private double[] values = new double[0];
-  private int n = 0;
+
+  /** The size. */
+  private int size;
 
   /**
    * Instantiates a new stored data.
@@ -78,7 +84,7 @@ public class StoredData implements Iterable<Double>, DoubleData {
   public StoredData(double[] data, boolean clone) {
     if (data != null) {
       values = (clone) ? data.clone() : data;
-      n = data.length;
+      size = data.length;
     }
   }
 
@@ -92,6 +98,29 @@ public class StoredData implements Iterable<Double>, DoubleData {
   }
 
   /**
+   * Ensure that the specified number of elements can be added to the array.
+   *
+   * <p>This is not synchronized. However any class using the safeAdd() methods in different threads
+   * should be using the same synchronized method to add data thus this method will be within
+   * synchronized code.
+   *
+   * @param length the length
+   */
+  private void checkCapacity(int length) {
+    final int minCapacity = size + length;
+    final int oldCapacity = values.length;
+    if (minCapacity > oldCapacity) {
+      int newCapacity = (oldCapacity * 3) / 2 + 1;
+      if (newCapacity < minCapacity) {
+        newCapacity = minCapacity;
+      }
+      final double[] newValues = new double[newCapacity];
+      System.arraycopy(values, 0, newValues, 0, size);
+      values = newValues;
+    }
+  }
+
+  /**
    * Add the data.
    *
    * @param data the data
@@ -102,29 +131,7 @@ public class StoredData implements Iterable<Double>, DoubleData {
     }
     checkCapacity(data.length);
     for (int i = 0; i < data.length; i++) {
-      values[n++] = data[i];
-    }
-  }
-
-  /**
-   * Ensure that the specified number of elements can be added to the array. <p> This is not
-   * synchronized. However any class using the safeAdd() methods in different threads should be
-   * using the same synchronized method to add data thus this method will be within synchronized
-   * code.
-   *
-   * @param length the length
-   */
-  private void checkCapacity(int length) {
-    final int minCapacity = n + length;
-    final int oldCapacity = values.length;
-    if (minCapacity > oldCapacity) {
-      int newCapacity = (oldCapacity * 3) / 2 + 1;
-      if (newCapacity < minCapacity) {
-        newCapacity = minCapacity;
-      }
-      final double[] newValues = new double[newCapacity];
-      System.arraycopy(values, 0, newValues, 0, n);
-      values = newValues;
+      values[size++] = data[i];
     }
   }
 
@@ -138,12 +145,8 @@ public class StoredData implements Iterable<Double>, DoubleData {
       return;
     }
     checkCapacity(data.length);
-    System.arraycopy(data, 0, values, n, data.length);
-    n += data.length;
-    // for (int i = 0; i < data.length; i++)
-    // {
-    // values[n++] = data[i];
-    // }
+    System.arraycopy(data, 0, values, size, data.length);
+    size += data.length;
   }
 
   /**
@@ -157,7 +160,7 @@ public class StoredData implements Iterable<Double>, DoubleData {
     }
     checkCapacity(data.length);
     for (int i = 0; i < data.length; i++) {
-      values[n++] = data[i];
+      values[size++] = data[i];
     }
   }
 
@@ -168,7 +171,7 @@ public class StoredData implements Iterable<Double>, DoubleData {
    */
   public void add(final double value) {
     checkCapacity(1);
-    values[n++] = value;
+    values[size++] = value;
   }
 
   /**
@@ -180,7 +183,21 @@ public class StoredData implements Iterable<Double>, DoubleData {
   public void add(int n, double value) {
     checkCapacity(n);
     for (int i = 0; i < n; i++) {
-      values[this.n++] = value;
+      values[this.size++] = value;
+    }
+  }
+
+
+  /**
+   * Adds the data to this store.
+   *
+   * @param data the data
+   */
+  public void add(StoredData data) {
+    if (data.size > 0) {
+      checkCapacity(data.size);
+      System.arraycopy(data.values, 0, values, size, data.size);
+      this.size += data.size;
     }
   }
 
@@ -190,14 +207,8 @@ public class StoredData implements Iterable<Double>, DoubleData {
    *
    * @param data the data
    */
-  synchronized public void safeAdd(float[] data) {
-    if (data == null) {
-      return;
-    }
-    checkCapacity(data.length);
-    for (int i = 0; i < data.length; i++) {
-      values[n++] = data[i];
-    }
+  public synchronized void safeAdd(float[] data) {
+    add(data);
   }
 
   /**
@@ -206,14 +217,8 @@ public class StoredData implements Iterable<Double>, DoubleData {
    *
    * @param data the data
    */
-  synchronized public void safeAdd(double[] data) {
-    if (data == null) {
-      return;
-    }
-    checkCapacity(data.length);
-    for (int i = 0; i < data.length; i++) {
-      values[n++] = data[i];
-    }
+  public synchronized void safeAdd(double[] data) {
+    add(data);
   }
 
   /**
@@ -222,9 +227,18 @@ public class StoredData implements Iterable<Double>, DoubleData {
    *
    * @param value the value
    */
-  synchronized public void safeAdd(final double value) {
-    checkCapacity(1);
-    values[n++] = value;
+  public synchronized void safeAdd(final double value) {
+    add(value);
+  }
+
+  /**
+   * Adds the data to this store. Synchronized for thread safety. (Multiple threads must all use the
+   * same safeAdd method to ensure thread safety.)
+   *
+   * @param data the data
+   */
+  public synchronized void safeAdd(StoredData data) {
+    add(data);
   }
 
   /**
@@ -233,7 +247,7 @@ public class StoredData implements Iterable<Double>, DoubleData {
    * @return A copy of the values added
    */
   public double[] getValues() {
-    return Arrays.copyOf(values, n);
+    return Arrays.copyOf(values, size);
   }
 
   /**
@@ -248,11 +262,11 @@ public class StoredData implements Iterable<Double>, DoubleData {
   /**
    * Gets the value.
    *
-   * @param i the index
+   * @param index the index
    * @return the value
    */
-  public double getValue(int i) {
-    return values[i];
+  public double getValue(int index) {
+    return values[index];
   }
 
   /**
@@ -261,34 +275,11 @@ public class StoredData implements Iterable<Double>, DoubleData {
    * @return A copy of the values added
    */
   public float[] getFloatValues() {
-    final float[] data = new float[n];
-    for (int i = 0; i < n; i++) {
+    final float[] data = new float[size];
+    for (int i = 0; i < size; i++) {
       data[i] = (float) values[i];
     }
     return data;
-  }
-
-  /**
-   * Adds the data to this store.
-   *
-   * @param data the data
-   */
-  public void add(StoredData data) {
-    if (data.n > 0) {
-      checkCapacity(data.n);
-      System.arraycopy(data.values, 0, values, n, data.n);
-      this.n += data.n;
-    }
-  }
-
-  /**
-   * Adds the data to this store. Synchronized for thread safety. (Multiple threads must all use the
-   * same safeAdd method to ensure thread safety.)
-   *
-   * @param data the data
-   */
-  synchronized public void safeAdd(StoredData data) {
-    this.add(data);
   }
 
   /**
@@ -302,30 +293,26 @@ public class StoredData implements Iterable<Double>, DoubleData {
   }
 
   /**
-   * Copied from ArrayList and removed unrequired code
+   * Copied from ArrayList and removed unrequired code.
    */
   private class Itr implements Iterator<Double> {
     int cursor; // index of next element to return
 
     @Override
     public boolean hasNext() {
-      return cursor != n;
+      return cursor != size;
     }
 
     @Override
     public Double next() {
-      // Simple implementation. Will throw index-out-of-bounds eventually
-      return StoredData.this.values[cursor++];
-
       // Copied from ArrayList and removed unrequired code
-      // int i = cursor;
-      // if (i >= n)
-      // throw new NoSuchElementException();
-      // final double[] elementData = StoredData.this.values;
-      // if (i >= elementData.length)
-      // throw new ConcurrentModificationException();
-      // cursor = i + 1;
-      // return elementData[i];
+      final int index = cursor;
+      if (index >= size) {
+        throw new NoSuchElementException();
+      }
+      final double[] elementData = StoredData.this.values;
+      cursor = index + 1;
+      return elementData[index];
     }
 
     @Override
@@ -334,13 +321,11 @@ public class StoredData implements Iterable<Double>, DoubleData {
     }
   }
 
-  /** {@inheritDoc} */
   @Override
   public int size() {
-    return n;
+    return size;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double[] values() {
     return getValues();
@@ -350,7 +335,7 @@ public class StoredData implements Iterable<Double>, DoubleData {
    * Clear the store (but keep the capacity).
    */
   public void clear() {
-    n = 0;
+    size = 0;
   }
 
   /**

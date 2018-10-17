@@ -25,9 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.awt.Rectangle;
+import java.util.Arrays;
 
 /**
  * Contains methods for extracting parts of an image.
@@ -86,41 +88,6 @@ public class ImageExtractor {
     return region;
   }
 
-  private static float[] allocate(float[] buffer, int size) {
-    if (buffer == null || buffer.length < size) {
-      buffer = new float[size];
-    }
-    return buffer;
-  }
-
-  /**
-   * Truncate the input data to the given length. Does nothing if the data is shorter or null.
-   *
-   * @param data the data
-   * @param length the length
-   * @return The truncated data
-   */
-  public static float[] truncate(float[] data, int length) {
-    if (data != null && data.length > length) {
-      final float[] newData = new float[length];
-      for (int i = length; i-- > 0;) {
-        newData[i] = data[i];
-      }
-      return newData;
-    }
-    return data;
-  }
-
-  /**
-   * Extract a region from the image.
-   *
-   * @param regionBounds The region to extract
-   * @return The image region (with dimensions specified in the dimensions array)
-   */
-  public double[] cropToDouble(Rectangle regionBounds) {
-    return crop(regionBounds, (double[]) null);
-  }
-
   /**
    * Extract a region from the image. The output array can be truncated using the
    * {@link #truncate(double[], int)} method.
@@ -143,6 +110,23 @@ public class ImageExtractor {
     return region;
   }
 
+  /**
+   * Extract a region from the image.
+   *
+   * @param regionBounds The region to extract
+   * @return The image region (with dimensions specified in the dimensions array)
+   */
+  public double[] cropToDouble(Rectangle regionBounds) {
+    return crop(regionBounds, (double[]) null);
+  }
+
+  private static float[] allocate(float[] buffer, int size) {
+    if (buffer == null || buffer.length < size) {
+      buffer = new float[size];
+    }
+    return buffer;
+  }
+
   private static double[] allocate(double[] buffer, int size) {
     if (buffer == null || buffer.length < size) {
       buffer = new double[size];
@@ -157,13 +141,23 @@ public class ImageExtractor {
    * @param length the length
    * @return The truncated data
    */
+  public static float[] truncate(float[] data, int length) {
+    if (data != null && data.length > length) {
+      return Arrays.copyOf(data, length);
+    }
+    return data;
+  }
+
+  /**
+   * Truncate the input data to the given length. Does nothing if the data is shorter or null.
+   *
+   * @param data the data
+   * @param length the length
+   * @return The truncated data
+   */
   public static double[] truncate(double[] data, int length) {
     if (data != null && data.length > length) {
-      final double[] newData = new double[length];
-      for (int i = length; i-- > 0;) {
-        newData[i] = data[i];
-      }
-      return newData;
+      return Arrays.copyOf(data, length);
     }
     return data;
   }

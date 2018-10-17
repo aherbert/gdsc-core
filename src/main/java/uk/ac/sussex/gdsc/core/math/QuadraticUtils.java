@@ -25,12 +25,13 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.math;
 
 import uk.ac.sussex.gdsc.core.data.DataException;
 
 /**
- * Class for working with quadratics
+ * Class for working with quadratics.
  */
 public class QuadraticUtils {
   /**
@@ -61,12 +62,12 @@ public class QuadraticUtils {
   /**
    * Find the max.
    *
-   * @param a the a
-   * @param b the b
+   * @param value1 the value 1
+   * @param value2 the value 2
    * @return the max
    */
-  private static double max(double a, double b) {
-    return (a > b) ? a : b;
+  private static double max(double value1, double value2) {
+    return (value1 > value2) ? value1 : value2;
   }
 
   /**
@@ -121,8 +122,9 @@ public class QuadraticUtils {
   }
 
   /**
-   * Solve the quadratic ax^2 + bx + c that passes through the points 1,2,3. <p> Solved using
-   * Cramer's rule: <a href=
+   * Solve the quadratic ax^2 + bx + c that passes through the points 1,2,3.
+   *
+   * <p>Solved using Cramer's rule: <a href=
    * "https://en.wikipedia.org/wiki/Cramer%27s_rule#Explicit_formulas_for_small_systems">Explicit_formulas_for_small_systems</a>.
    *
    * @param x1 the x-coordinate of point 1
@@ -184,8 +186,9 @@ public class QuadraticUtils {
   }
 
   /**
-   * Find the max/min of the quadratic ax^2 + bx + c that passes through the points 1,2,3. <p> This
-   * is the solution to 0 = 2ax + b, i.e. the root of the quadratic gradient.
+   * Find the max/min of the quadratic ax^2 + bx + c that passes through the points 1,2,3.
+   *
+   * <p>This is the solution to 0 = 2ax + b, i.e. the root of the quadratic gradient.
    *
    * @param x1 the x-coordinate of point 1
    * @param y1 the y-coordinate of point 1

@@ -25,18 +25,36 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
-import java.math.BigDecimal;
-
 /**
- * Provides equality functions for floating point numbers <p> Adapted from
- * http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
+ * Provides equality functions for floating point numbers.
+ *
+ * @see <A
+ *      href="https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/">Comparing
+ *      Floating Point Numbers, 2012 Edition</a>
  */
 public class FloatEquality {
-  /** The default relative error */
+
+  /**
+   * Contains the relative error for ascending numbers of significant digits using base 10.
+   *
+   * <p>1e-0, 1e-1, 1e-2, 1e-3, etc.
+   */
+  private static final float[] RELATIVE_ERROR_TABLE;
+
+  static {
+    final int precision = Math.abs((int) Math.floor(Math.log10(Float.MIN_VALUE))) + 1;
+    RELATIVE_ERROR_TABLE = new float[precision];
+    for (int p = 0; p < precision; p++) {
+      RELATIVE_ERROR_TABLE[p] = Float.parseFloat("1e-" + p);
+    }
+  }
+
+  /** The default relative error. */
   public static final float RELATIVE_ERROR = 1e-2f;
-  /** The default absolute error */
+  /** The default absolute error. */
   public static final float ABSOLUTE_ERROR = 1e-10f;
 
   private float maxRelativeError;
@@ -62,85 +80,26 @@ public class FloatEquality {
   }
 
   /**
-   * Instantiates a new float equality.
-   *
-   * @param maxRelativeError The relative error allowed between the numbers
-   * @param maxAbsoluteError The absolute error allowed between the numbers. Should be a small
-   *        number (e.g. 1e-10)
-   * @param significantDigits the significant digits
-   * @deprecated The significant digits are ignored
-   */
-  @Deprecated
-  public FloatEquality(float maxRelativeError, float maxAbsoluteError, int significantDigits) {
-    this(maxRelativeError, maxAbsoluteError);
-  }
-
-  /**
-   * Instantiates a new float equality.
-   *
-   * @param significantDigits the significant digits
-   * @param maxAbsoluteError The absolute error allowed between the numbers. Should be a small
-   *        number (e.g. 1e-10)
-   * @see #getMaxRelativeError(int)
-   * @deprecated The significant digits are used to set the max relative error as
-   *             1e<sup>-(n-1)</sup>, e.g. 3sd =&gt; 1e<sup>-2</sup>.
-   */
-  @Deprecated
-  public FloatEquality(int significantDigits, float maxAbsoluteError) {
-    setSignificantDigits(significantDigits);
-    setMaxAbsoluteError(maxAbsoluteError);
-  }
-
-  /**
    * Compares two floats are within the configured errors.
    *
-   * @param A the first value
-   * @param B the second value
+   * @param v1 the first value
+   * @param v2 the second value
    * @return True if equal
    */
-  public boolean almostEqualRelativeOrAbsolute(float A, float B) {
-    return almostEqualRelativeOrAbsolute(A, B, maxRelativeError, maxAbsoluteError);
-  }
-
-  /**
-   * Compares two floats are within the configured number of bits variation using int comparisons.
-   *
-   * @param A the first value
-   * @param B the second value
-   * @return True if equal
-   * @deprecated This method now calls {@link #almostEqualRelativeOrAbsolute(float, float)}
-   */
-  @Deprecated
-  public boolean almostEqualComplement(float A, float B) {
-    return almostEqualRelativeOrAbsolute(A, B);
-  }
-
-  /**
-   * Compare complement.
-   *
-   * @param A the first value
-   * @param B the second value
-   * @return the int
-   * @deprecated This method now converts the relative error to significant digits and then to ULPs
-   *             for complement comparison
-   */
-  @Deprecated
-  public int compareComplement(float A, float B) {
-    // Convert the relative error back to significant digits, then to ULPs
-    final int maxUlps = getUlps((int) Math.round(1 - Math.log(maxRelativeError)));
-    return compareComplement(A, B, maxUlps);
+  public boolean almostEqualRelativeOrAbsolute(float v1, float v2) {
+    return almostEqualRelativeOrAbsolute(v1, v2, maxRelativeError, maxAbsoluteError);
   }
 
   /**
    * Compares two float arrays are within the configured errors.
    *
-   * @param A the first value
-   * @param B the second value
+   * @param v1 the first value
+   * @param v2 the second value
    * @return True if equal
    */
-  public boolean almostEqualRelativeOrAbsolute(float[] A, float[] B) {
-    for (int i = 0; i < A.length; i++) {
-      if (!almostEqualRelativeOrAbsolute(A[i], B[i], maxRelativeError, maxAbsoluteError)) {
+  public boolean almostEqualRelativeOrAbsolute(float[] v1, float[] v2) {
+    for (int i = 0; i < v1.length; i++) {
+      if (!almostEqualRelativeOrAbsolute(v1[i], v2[i], maxRelativeError, maxAbsoluteError)) {
         return false;
       }
     }
@@ -148,84 +107,68 @@ public class FloatEquality {
   }
 
   /**
-   * This method now calls {@link #almostEqualRelativeOrAbsolute(float[], float[])}
-   *
-   * @param A the first value
-   * @param B the second value
-   * @return true, if successful
-   * @deprecated This method now calls {@link #almostEqualRelativeOrAbsolute(float[], float[])}
-   */
-  @Deprecated
-  public boolean almostEqualComplement(float[] A, float[] B) {
-    return almostEqualRelativeOrAbsolute(A, B);
-  }
-
-  /**
    * Compares two floats are within the specified errors.
    *
-   * @param A the first value
-   * @param B the second value
+   * @param v1 the first value
+   * @param v2 the second value
    * @param maxRelativeError The relative error allowed between the numbers
    * @param maxAbsoluteError The absolute error allowed between the numbers. Should be a small
    *        number (e.g. 1e-10)
    * @return True if equal
    */
-  public static boolean almostEqualRelativeOrAbsolute(float A, float B, float maxRelativeError,
+  public static boolean almostEqualRelativeOrAbsolute(float v1, float v2, float maxRelativeError,
       float maxAbsoluteError) {
     // Check the two numbers are within an absolute distance.
-    final float difference = Math.abs(A - B);
+    final float difference = Math.abs(v1 - v2);
     if (difference <= maxAbsoluteError) {
       return true;
     }
     // Ignore NaNs. This is OK since if either number is a NaN the difference
     // will be NaN and we end up returning false
-    final float size = max(Math.abs(A), Math.abs(B));
-    if (difference <= size * maxRelativeError) {
-      return true;
-    }
-    return false;
+    final float size = max(Math.abs(v1), Math.abs(v2));
+    return (difference <= size * maxRelativeError);
   }
 
   /**
    * Get the max.
    *
-   * @param a the first value
-   * @param b the second value
+   * @param v1 the first value
+   * @param v2 the second value
    * @return the max
    */
-  private static float max(float a, float b) {
-    return (a >= b) ? a : b;
+  private static float max(float v1, float v2) {
+    return (v1 >= v2) ? v1 : v2;
   }
 
   /**
    * Compute the relative error between two floats.
    *
-   * @param A the first value
-   * @param B the second value
+   * @param v1 the first value
+   * @param v2 the second value
    * @return The relative error
    */
-  public static float relativeError(float A, float B) {
-    final float diff = A - B;
+  public static float relativeError(float v1, float v2) {
+    final float diff = v1 - v2;
     if (diff == 0) {
       return 0;
     }
-    if (Math.abs(B) > Math.abs(A)) {
-      return Math.abs(diff / B);
+    if (Math.abs(v2) > Math.abs(v1)) {
+      return Math.abs(diff / v2);
     }
-    return Math.abs(diff / A);
+    return Math.abs(diff / v1);
   }
 
   /**
    * Compute the maximum relative error between two float arrays.
    *
-   * @param A the first value
-   * @param B the second value
+   * @param v1 the first value
+   * @param v2 the second value
    * @return The relative error
    */
-  public static float relativeError(float[] A, float[] B) {
+  public static float relativeError(float[] v1, float[] v2) {
     float max = 0;
-    for (int i = 0; i < A.length; i++) {
-      max = Math.max(max, relativeError(A[i], B[i]));
+    for (int i = 0; i < v1.length; i++) {
+      max = Math.max(max, relativeError(v1[i], v2[i]));
     }
     return max;
   }
@@ -233,38 +176,35 @@ public class FloatEquality {
   /**
    * Compares two floats are within the specified number of bits variation using int comparisons.
    *
-   * @param A the first value
-   * @param B the second value
-   * @param maxUlps How many representable floats we are willing to accept between A and B
+   * @param v1 the first value
+   * @param v2 the second value
+   * @param maxUlps How many representable floats we are willing to accept between v1 and v2
    * @param maxAbsoluteError The absolute error allowed between the numbers. Should be a small
    *        number (e.g. 1e-10)
    * @return True if equal
    */
-  public static boolean almostEqualComplement(float A, float B, int maxUlps,
+  public static boolean almostEqualComplement(float v1, float v2, int maxUlps,
       float maxAbsoluteError) {
     // Make sure maxUlps is non-negative and small enough that the
     // default NAN won't compare as equal to anything.
-    // assert (maxUlps > 0 && maxUlps < 4 * 1024 * 1024);
+    // assert (maxUlps > 0 && maxUlps < (1 << 23)
 
-    if (Math.abs(A - B) < maxAbsoluteError) {
+    if (Math.abs(v1 - v2) < maxAbsoluteError) {
       return true;
     }
-    if (complement(A, B) <= maxUlps) {
-      return true;
-    }
-    return false;
+    return (complement(v1, v2) <= maxUlps);
   }
 
   /**
    * Compares two floats within the specified number of bits variation using int comparisons.
    *
-   * @param A the first value
-   * @param B the second value
-   * @param maxUlps How many representable floats we are willing to accept between A and B
+   * @param v1 the first value
+   * @param v2 the second value
+   * @param maxUlps How many representable floats we are willing to accept between v1 and v2
    * @return -1, 0 or 1
    */
-  public static int compareComplement(float A, float B, int maxUlps) {
-    final int c = signedComplement(A, B);
+  public static int compareComplement(float v1, float v2, int maxUlps) {
+    final int c = signedComplement(v1, v2);
     if (c < -maxUlps) {
       return -1;
     }
@@ -272,6 +212,40 @@ public class FloatEquality {
       return 1;
     }
     return 0;
+  }
+
+  /**
+   * Gets the supported max significant digits.
+   *
+   * @return the max significant digits
+   * @see #getRelativeErrorTerm(int)
+   */
+  public static int getMaxSignificantDigits() {
+    return RELATIVE_ERROR_TABLE.length;
+  }
+
+  /**
+   * Get the relative error in terms of the number of decimal significant digits that will be
+   * compared between two real values, e.g. the relative error to use for equality testing at
+   * approximately n significant digits.
+   *
+   * <p>Note that the relative error term is just 1e^-(n-1). This method is to provide backward
+   * support for equality testing when the significant digits term was used to generate an
+   * approximate ULP (Unit of Least Precision) value for direct float comparisons using the
+   * complement.
+   *
+   * <p>If significant digits is below 1 or above the precision of the float datatype then zero is
+   * returned.
+   *
+   * @param significantDigits The number of significant digits for comparisons
+   * @return the max relative error
+   * @see #getMaxSignificantDigits()
+   */
+  public static float getRelativeErrorTerm(int significantDigits) {
+    if (significantDigits < 1 || significantDigits > RELATIVE_ERROR_TABLE.length) {
+      return 0;
+    }
+    return RELATIVE_ERROR_TABLE[significantDigits - 1];
   }
 
   /**
@@ -311,115 +285,46 @@ public class FloatEquality {
   }
 
   /**
-   * Ignored. ULP comparison is no longer supported.
-   *
-   * @param maxUlps the new max ulps
-   * @deprecated ULP comparison is no longer supported
-   */
-  @Deprecated
-  public void setMaxUlps(int maxUlps) { // Ignore
-  }
-
-  /**
-   * Ignored. ULP comparison is no longer supported.
-   *
-   * @return 0
-   * @deprecated ULP comparison is no longer supported
-   */
-  @Deprecated
-  public int getMaxUlps() {
-    return 0;
-  }
-
-  // The following methods are different between the FloatEquality and FloatEquality class
-
-  private static float[] RELATIVE_ERROR_TABLE;
-  static {
-    final int precision = new BigDecimal(Float.toString(Float.MAX_VALUE)).precision();
-    RELATIVE_ERROR_TABLE = new float[precision];
-    for (int p = 0; p < precision; p++) {
-      RELATIVE_ERROR_TABLE[p] = Float.parseFloat("1e-" + p);
-    }
-  }
-
-  /**
-   * Get the maximum relative error in terms of the number of decimal significant digits that will
-   * be compared between two real values, e.g. the relative error to use for equality testing at
-   * approximately n significant digits. <p> Note that the relative error term is just 1e^-(n-1).
-   * This method is to provide backward support for equality testing when the significant digits
-   * term was used to generate an approximate ULP (Unit of Least Precision) value for direct float
-   * comparisons using the complement. <p> If significant digits is below 1 or above the precision
-   * of the float datatype then zero is returned.
-   *
-   * @param significantDigits The number of significant digits for comparisons
-   * @return the max relative error
-   */
-  public static float getMaxRelativeError(int significantDigits) {
-    if (significantDigits < 1 || significantDigits > RELATIVE_ERROR_TABLE.length) {
-      return 0;
-    }
-    return RELATIVE_ERROR_TABLE[significantDigits - 1];
-  }
-
-  /**
-   * Gets the supported max significant digits.
-   *
-   * @return the max significant digits
-   */
-  public static int getMaxSignificantDigits() {
-    return RELATIVE_ERROR_TABLE.length;
-  }
-
-  /**
-   * Set the maximum relative error in terms of the number of decimal significant digits
-   *
-   * @param significantDigits The number of significant digits for comparisons
-   * @deprecated The significant digits are used to set the max relative error as
-   *             1e<sup>-(n-1)</sup>, e.g. 3sd =&gt; 1e<sup>-2</sup>.
-   */
-  @Deprecated
-  public void setSignificantDigits(int significantDigits) {
-    setMaxRelativeError(getMaxRelativeError(significantDigits));
-  }
-
-  /**
    * Compute the number of representable doubles until a difference in significant digits. This is
-   * only approximate since the ULP depend on the doubles being compared. <p> The number of doubles
-   * are computed between Math.power(10, sig-1) and 1 + Math.power(10, sig-1)
+   * only approximate since the ULP depend on the doubles being compared.
+   *
+   * <p>The number of doubles are computed between Math.power(10, sig-1) and 1 + Math.power(10,
+   * sig-1)
    *
    * @param significantDigits The significant digits
    * @return The number of representable doubles (Units in the Last Place)
    */
   public static int getUlps(int significantDigits) {
-    final int value1 = (int) Math.pow(10.0, significantDigits - 1);
+    final int value1 = (int) Math.pow(10.0, significantDigits - 1.0);
     final int value2 = value1 + 1;
     final int ulps = Float.floatToRawIntBits(value2) - Float.floatToRawIntBits(value1);
     return (ulps < 0) ? 0 : ulps;
   }
 
   /**
-   * Compute the number of bits variation using integer comparisons. <p> If the number is too large
-   * to fit in a int then Integer.MAX_VALUE is returned.
+   * Compute the number of bits variation using integer comparisons.
    *
-   * @param A the first value
-   * @param B the second value
-   * @return How many representable floats we are between A and B
+   * <p>If the number is too large to fit in a int then Integer.MAX_VALUE is returned.
+   *
+   * @param v1 the first value
+   * @param v2 the second value
+   * @return How many representable floats are between v1 and v2
    */
-  public static int complement(float A, float B) {
-    int aInt = Float.floatToRawIntBits(A);
-    int bInt = Float.floatToRawIntBits(B);
-    if (((aInt ^ bInt) & 0x80000000) == 0) {
+  public static int complement(float v1, float v2) {
+    int bits1 = Float.floatToRawIntBits(v1);
+    int bits2 = Float.floatToRawIntBits(v2);
+    if (((bits1 ^ bits2) & 0x80000000) == 0) {
       // Same sign
-      return Math.abs(aInt - bInt);
+      return Math.abs(bits1 - bits2);
     }
-    if (aInt < 0) {
-      // Make aInt lexicographically ordered as a twos-complement int
-      aInt = 0x80000000 - aInt;
-      return difference(bInt, aInt);
+    if (bits1 < 0) {
+      // Make bits1 lexicographically ordered as a twos-complement int
+      bits1 = 0x80000000 - bits1;
+      return difference(bits2, bits1);
     }
-    // Make bInt lexicographically ordered as a twos-complement int
-    bInt = 0x80000000 - bInt;
-    return difference(aInt, bInt);
+    // Make bits2 lexicographically ordered as a twos-complement int
+    bits2 = 0x80000000 - bits2;
+    return difference(bits1, bits2);
   }
 
   private static int difference(int high, int low) {
@@ -429,32 +334,33 @@ public class FloatEquality {
   }
 
   /**
-   * Compute the number of bits variation using int comparisons. <p> If the number is too large to
-   * fit in a int then Integer.MIN_VALUE/MAX_VALUE is returned depending on the sign.
+   * Compute the number of bits variation using int comparisons.
    *
-   * @param A the first value
-   * @param B the second value
-   * @return How many representable floats we are between A and B
+   * <p>If the number is too large to fit in a int then Integer.MIN_VALUE/MAX_VALUE is returned
+   * depending on the sign.
+   *
+   * @param v1 the first value
+   * @param v2 the second value
+   * @return How many representable floats we are between v1 and v2
    */
-  public static int signedComplement(float A, float B) {
-    int aInt = Float.floatToRawIntBits(A);
-    int bInt = Float.floatToRawIntBits(B);
-    if (((aInt ^ bInt) & 0x80000000) == 0) {
+  public static int signedComplement(float v1, float v2) {
+    int bits1 = Float.floatToRawIntBits(v1);
+    int bits2 = Float.floatToRawIntBits(v2);
+    if (((bits1 ^ bits2) & 0x80000000) == 0) {
       // Same sign - no overflow
-      return aInt - bInt;
+      return bits1 - bits2;
     }
-    if (aInt < 0) {
-      // Make aInt lexicographically ordered as a twos-complement int
-      aInt = 0x80000000 - aInt;
-      final int d = aInt - bInt;
+    if (bits1 < 0) {
+      // Make bits1 lexicographically ordered as a twos-complement int
+      bits1 = 0x80000000 - bits1;
+      final int d = bits1 - bits2;
       // Check for over-flow. We know a is negative and b positive
       return (d > 0) ? Integer.MIN_VALUE : d;
     }
-    // Make bInt lexicographically ordered as a twos-complement int
-    bInt = 0x80000000 - bInt;
-    final int d = aInt - bInt;
+    // Make bits2 lexicographically ordered as a twos-complement int
+    bits2 = 0x80000000 - bits2;
+    final int d = bits1 - bits2;
     // Check for over-flow. We know a is positive and b negative
     return (d < 0) ? Integer.MAX_VALUE : d;
   }
-
 }

@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
 import org.apache.commons.math3.exception.OutOfRangeException;
@@ -39,7 +40,7 @@ public class ScaledIndexedCubicSplinePosition extends IndexedCubicSplinePosition
 
   /**
    * Instantiates a new indexed cubic spline position. Only used when x is known to be in the range
-   * 0-1 and the index is positive..
+   * 0-1 and the index is positive.
    *
    * @param index the index
    * @param x the x

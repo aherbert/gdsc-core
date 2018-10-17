@@ -25,13 +25,14 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.rng.UniformRandomProvider;
 
 /**
- * Contains a set of random numbers that are reused in sequence
+ * Contains a set of random numbers that are reused in sequence.
  */
 public class PseudoRandomSequence implements Cloneable {
   /** The sequence. */
@@ -46,7 +47,7 @@ public class PseudoRandomSequence implements Cloneable {
    * @param sequence the sequence
    * @throws IllegalArgumentException if the sequence is not positive in length
    */
-  public PseudoRandomSequence(double[] sequence) throws IllegalArgumentException {
+  public PseudoRandomSequence(double[] sequence) {
     if (sequence == null || sequence.length < 1) {
       throw new IllegalArgumentException("Sequence must have a positive length");
     }
@@ -62,8 +63,7 @@ public class PseudoRandomSequence implements Cloneable {
    * @throws IllegalArgumentException if the size is not positive
    * @throws NullPointerException if the generator is null
    */
-  public PseudoRandomSequence(int size, RandomGenerator source, double scale)
-      throws IllegalArgumentException, NullPointerException {
+  public PseudoRandomSequence(int size, RandomGenerator source, double scale) {
     if (size < 1) {
       throw new IllegalArgumentException("Sequence must have a positive length");
     }
@@ -86,8 +86,7 @@ public class PseudoRandomSequence implements Cloneable {
    * @throws IllegalArgumentException if the size is not positive
    * @throws NullPointerException if the generator is null
    */
-  public PseudoRandomSequence(int size, UniformRandomProvider source, double scale)
-      throws IllegalArgumentException, NullPointerException {
+  public PseudoRandomSequence(int size, UniformRandomProvider source, double scale) {
     if (size < 1) {
       throw new IllegalArgumentException("Sequence must have a positive length");
     }
@@ -108,7 +107,6 @@ public class PseudoRandomSequence implements Cloneable {
    */
   public void setSeed(long seed) {
     position = Math.abs(Long.hashCode(seed)) % sequence.length;
-    // position = (int) (Math.abs(seed) % sequence.length);
   }
 
   /**
@@ -124,7 +122,6 @@ public class PseudoRandomSequence implements Cloneable {
     return d;
   }
 
-  /** {@inheritDoc} */
   @Override
   public PseudoRandomSequence clone() {
     try {
@@ -136,7 +133,7 @@ public class PseudoRandomSequence implements Cloneable {
         r.position = 0;
       }
       return r;
-    } catch (final CloneNotSupportedException e) {
+    } catch (final CloneNotSupportedException ex) {
       // This should not happen
       return new PseudoRandomSequence(sequence);
     }

@@ -1,32 +1,17 @@
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-import uk.ac.sussex.gdsc.test.utils.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 @SuppressWarnings({"javadoc"})
 public class DigestTest {
@@ -47,8 +32,9 @@ public class DigestTest {
   }
 
   /**
-   * Generates a random string of hex characters of length len. <p> Adapted from
-   * org.apache.commons.math3.random.RandomDataGenerator.
+   * Generates a random string of hex characters of length len.
+   *
+   * <p>Adapted from org.apache.commons.math3.random.RandomDataGenerator.
    *
    * @param ran the random provider
    * @param len the len

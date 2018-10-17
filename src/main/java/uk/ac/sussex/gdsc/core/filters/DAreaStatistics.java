@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.filters;
 
 /**
@@ -32,17 +33,19 @@ package uk.ac.sussex.gdsc.core.filters;
  */
 public class DAreaStatistics extends DAreaSum {
   /** The index of the standard deviation in the results. */
-  public final static int SD = 2;
+  public static final int INDEX_SD = 2;
 
-  private final static double[] EMPTY;
+  private static final double[] EMPTY;
+
   static {
     EMPTY = new double[3];
-    EMPTY[N] = 0;
-    EMPTY[SUM] = Double.NaN;
-    EMPTY[SD] = Double.NaN;
+    EMPTY[INDEX_COUNT] = 0;
+    EMPTY[INDEX_SUM] = Double.NaN;
+    EMPTY[INDEX_SD] = Double.NaN;
   }
 
-  private double[] ss = null;
+  /** The rolling sum of squares. */
+  private double[] rollingSumSq = null;
 
   /**
    * Instantiates a new area statistics.
@@ -58,7 +61,7 @@ public class DAreaStatistics extends DAreaSum {
 
   @Override
   protected void calculateRollingSums() {
-    if (s_ != null) {
+    if (rollingSum != null) {
       return;
     }
 
@@ -67,35 +70,35 @@ public class DAreaStatistics extends DAreaSum {
     // ss(u,v) = f(u,v) * f(u,v) + ss(u-1,v) + ss(u,v-1) - ss(u-1,v-1)
     // where s(u,v) = ss(u,v) = 0 when either u,v < 0
 
-    s_ = new double[data.length];
-    ss = new double[data.length];
+    rollingSum = new double[data.length];
+    rollingSumSq = new double[data.length];
 
     // First row
-    double cs_ = 0; // Column sum
-    double css = 0; // Column sum-squares
+    double columnSum = 0; // Column sum
+    double columnSumSq = 0; // Column sum-squares
     for (int i = 0; i < maxx; i++) {
-      final double d = data[i];
-      cs_ += d;
-      css += d * d;
-      s_[i] = cs_;
-      ss[i] = css;
+      final double value = data[i];
+      columnSum += value;
+      columnSumSq += value * value;
+      rollingSum[i] = columnSum;
+      rollingSumSq[i] = columnSumSq;
     }
 
     // Remaining rows:
     // sum = rolling sum of row + sum of row above
     for (int y = 1; y < maxy; y++) {
-      int i = y * maxx;
-      cs_ = 0;
-      css = 0;
+      int index = y * maxx;
+      columnSum = 0;
+      columnSumSq = 0;
 
       // Remaining columns
-      for (int x = 0; x < maxx; x++, i++) {
-        final double d = data[i];
-        cs_ += d;
-        css += d * d;
+      for (int x = 0; x < maxx; x++, index++) {
+        final double d = data[index];
+        columnSum += d;
+        columnSumSq += d * d;
 
-        s_[i] = s_[i - maxx] + cs_;
-        ss[i] = ss[i - maxx] + css;
+        rollingSum[index] = rollingSum[index - maxx] + columnSum;
+        rollingSumSq[index] = rollingSumSq[index - maxx] + columnSumSq;
       }
     }
   }
@@ -125,25 +128,25 @@ public class DAreaStatistics extends DAreaSum {
 
     // + s(u+N-1,v+N-1)
     int index = maxV * maxx + maxU;
-    double sum = s_[index];
-    double sumSquares = ss[index];
+    double sum = rollingSum[index];
+    double sumSquares = rollingSumSq[index];
 
     if (minU >= 0) {
       // - s(u-1,v+N-1)
       index = maxV * maxx + minU;
-      sum -= s_[index];
-      sumSquares -= ss[index];
+      sum -= rollingSum[index];
+      sumSquares -= rollingSumSq[index];
 
       if (minV >= 0) {
         // - s(u+N-1,v-1)
         index = minV * maxx + maxU;
-        sum -= s_[index];
-        sumSquares -= ss[index];
+        sum -= rollingSum[index];
+        sumSquares -= rollingSumSq[index];
 
         // + s(u-1,v-1)
         index = minV * maxx + minU;
-        sum += s_[index];
-        sumSquares += ss[index];
+        sum += rollingSum[index];
+        sumSquares += rollingSumSq[index];
       } else {
         // Reset to bounds to calculate the number of pixels
         minV = -1;
@@ -155,8 +158,8 @@ public class DAreaStatistics extends DAreaSum {
       if (minV >= 0) {
         // - s(u+N-1,v-1)
         index = minV * maxx + maxU;
-        sum -= s_[index];
-        sumSquares -= ss[index];
+        sum -= rollingSum[index];
+        sumSquares -= rollingSumSq[index];
 
       } else {
         // Reset to bounds to calculate the number of pixels
@@ -164,9 +167,9 @@ public class DAreaStatistics extends DAreaSum {
       }
     }
 
-    final int n = (maxU - minU) * (maxV - minV);
+    final int count = (maxU - minU) * (maxV - minV);
 
-    return getResults(sum, sumSquares, n);
+    return getResults(sum, sumSquares, count);
   }
 
   /**
@@ -174,21 +177,21 @@ public class DAreaStatistics extends DAreaSum {
    *
    * @param sum the sum
    * @param sumSquares the sum squares
-   * @param n the n
+   * @param count the count
    * @return the results
    */
-  private static double[] getResults(double sum, double sumSquares, int n) {
+  private static double[] getResults(double sum, double sumSquares, int count) {
     final double[] stats = new double[3];
 
-    stats[N] = n;
+    stats[INDEX_COUNT] = count;
     // Note: We do not consider n==0 since the methods are not called with an empty region
-    stats[SUM] = sum;
+    stats[INDEX_SUM] = sum;
 
-    if (n > 1) {
+    if (count > 1) {
       // Get the sum of squared differences
-      final double residuals = sumSquares - (sum * sum) / n;
+      final double residuals = sumSquares - (sum * sum) / count;
       if (residuals > 0.0) {
-        stats[SD] = Math.sqrt(residuals / (n - 1));
+        stats[INDEX_SD] = Math.sqrt(residuals / (count - 1));
       }
     }
 

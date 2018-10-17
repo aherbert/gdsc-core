@@ -1,40 +1,26 @@
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.core.clustering.DensityCounter.SimpleMolecule;
+import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerFactory;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-import uk.ac.sussex.gdsc.test.utils.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestSettings;
+import uk.ac.sussex.gdsc.test.utils.TimingService;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.GaussianSampler;
 import org.apache.commons.rng.sampling.distribution.PoissonSampler;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 
-import uk.ac.sussex.gdsc.test.junit5.*;import uk.ac.sussex.gdsc.test.rng.RngFactory;import uk.ac.sussex.gdsc.core.clustering.DensityCounter.SimpleMolecule;
-import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerFactory;
-import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TimingService;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Test the DensityCounter.
@@ -215,7 +201,8 @@ public class DensityCounterTest {
 
   @SeededTest
   public void countAllSpeedTest(RandomSeed seed) {
-    // Assumptions.assumeTrue(logger.isLoggable(Level.INFO)); Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+    // Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
+    // Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
 
@@ -249,71 +236,76 @@ public class DensityCounterTest {
     logger.info(FunctionUtils.getSupplier("Expected Comparisons : Single = %f, Multi non-sync = %f",
         nCells * 5 * d * d, nCells * 9 * d * d));
 
-    //@formatter:off
-		final TimingService ts = new TimingService();
-//		ts.execute(new MyTimingTask("countAllSimple")
-//		{
-//			public Object run(Object data) { int i = (Integer) data; return c[i].countAllSimple(nChannels - 1); }
-//		});
-//		ts.execute(new MyTimingTask("countAllSimple static")
-//		{
-//			public Object run(Object data) { int i = (Integer) data; return DensityCounter.countAll(molecules[i], radius, nChannels - 1); }
-//		});
-		ts.execute(new MyTimingTask("countAll single thread")
-		{
-			@Override
-			public Object run(Object data) { final int i = (Integer) data;
-				c[i].setNumberOfThreads(1);
-				return c[i].countAll(nChannels - 1); }
-		});
-		ts.execute(new MyTimingTask("countAll single thread + constructor")
-		{
-			@Override
-			public Object run(Object data) { final int i = (Integer) data;
-    			final DensityCounter c = new DensityCounter(molecules[i], radius, true);
-    			c.setNumberOfThreads(1);
-    			return c.countAll(nChannels - 1); }
-		});
-		ts.execute(new MyTimingTask("countAll multi thread")
-		{
-			@Override
-			public Object run(Object data) { final int i = (Integer) data;
-				c[i].setNumberOfThreads(nThreads);
-				//c[i].gridPriority = null;
-    			c[i].multiThreadMode = DensityCounter.MODE_SYNC;
-				return c[i].countAll(nChannels - 1); }
-		});
-		ts.execute(new MyTimingTask("countAll multi thread + constructor")
-		{
-			@Override
-			public Object run(Object data) { final int i = (Integer) data;
-    			final DensityCounter c = new DensityCounter(molecules[i], radius, true);
-    			c.setNumberOfThreads(nThreads);
-				c.gridPriority = null;
-    			c.multiThreadMode = DensityCounter.MODE_SYNC;
-    			return c.countAll(nChannels - 1); }
-		});
-		ts.execute(new MyTimingTask("countAll multi thread non-sync")
-		{
-			@Override
-			public Object run(Object data) { final int i = (Integer) data;
-				c[i].setNumberOfThreads(nThreads);
-				//c[i].gridPriority = null;
-    			c[i].multiThreadMode = DensityCounter.MODE_NON_SYNC;
-				return c[i].countAll(nChannels - 1); }
-		});
-		ts.execute(new MyTimingTask("countAll multi thread non-sync + constructor")
-		{
-			@Override
-			public Object run(Object data) { final int i = (Integer) data;
-    			final DensityCounter c = new DensityCounter(molecules[i], radius, true);
-    			c.setNumberOfThreads(nThreads);
-				c.gridPriority = null;
-    			c.multiThreadMode = DensityCounter.MODE_NON_SYNC;
-    			return c.countAll(nChannels - 1); }
-		});
-
-		//@formatter:on
+    final TimingService ts = new TimingService();
+    // ts.execute(new MyTimingTask("countAllSimple")
+    // {
+    // public Object run(Object data) { int i = (Integer) data; return c[i].countAllSimple(nChannels
+    // - 1); }
+    // });
+    // ts.execute(new MyTimingTask("countAllSimple static")
+    // {
+    // public Object run(Object data) { int i = (Integer) data; return
+    // DensityCounter.countAll(molecules[i], radius, nChannels - 1); }
+    // });
+    ts.execute(new MyTimingTask("countAll single thread") {
+      @Override
+      public Object run(Object data) {
+        final int i = (Integer) data;
+        c[i].setNumberOfThreads(1);
+        return c[i].countAll(nChannels - 1);
+      }
+    });
+    ts.execute(new MyTimingTask("countAll single thread + constructor") {
+      @Override
+      public Object run(Object data) {
+        final int i = (Integer) data;
+        final DensityCounter c = new DensityCounter(molecules[i], radius, true);
+        c.setNumberOfThreads(1);
+        return c.countAll(nChannels - 1);
+      }
+    });
+    ts.execute(new MyTimingTask("countAll multi thread") {
+      @Override
+      public Object run(Object data) {
+        final int i = (Integer) data;
+        c[i].setNumberOfThreads(nThreads);
+        // c[i].gridPriority = null;
+        c[i].multiThreadMode = DensityCounter.MODE_SYNC;
+        return c[i].countAll(nChannels - 1);
+      }
+    });
+    ts.execute(new MyTimingTask("countAll multi thread + constructor") {
+      @Override
+      public Object run(Object data) {
+        final int i = (Integer) data;
+        final DensityCounter c = new DensityCounter(molecules[i], radius, true);
+        c.setNumberOfThreads(nThreads);
+        c.gridPriority = null;
+        c.multiThreadMode = DensityCounter.MODE_SYNC;
+        return c.countAll(nChannels - 1);
+      }
+    });
+    ts.execute(new MyTimingTask("countAll multi thread non-sync") {
+      @Override
+      public Object run(Object data) {
+        final int i = (Integer) data;
+        c[i].setNumberOfThreads(nThreads);
+        // c[i].gridPriority = null;
+        c[i].multiThreadMode = DensityCounter.MODE_NON_SYNC;
+        return c[i].countAll(nChannels - 1);
+      }
+    });
+    ts.execute(new MyTimingTask("countAll multi thread non-sync + constructor") {
+      @Override
+      public Object run(Object data) {
+        final int i = (Integer) data;
+        final DensityCounter c = new DensityCounter(molecules[i], radius, true);
+        c.setNumberOfThreads(nThreads);
+        c.gridPriority = null;
+        c.multiThreadMode = DensityCounter.MODE_NON_SYNC;
+        return c.countAll(nChannels - 1);
+      }
+    });
 
     @SuppressWarnings("unused")
     final int size = ts.repeat();

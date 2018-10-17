@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils.rng;
 
 import org.apache.commons.rng.UniformRandomProvider;
@@ -52,8 +53,9 @@ public class SafePoissonSampler {
   };
 
   /**
-   * Creates a new PoissonSampler. <p> If the mean is zero this will return a sampler that always
-   * returns 0.
+   * Creates a new PoissonSampler.
+   *
+   * <p>If the mean is zero this will return a sampler that always returns 0.
    *
    * @param rng Generator of uniformly distributed random numbers.
    * @param mean Mean of the Poisson distribution.
@@ -70,7 +72,9 @@ public class SafePoissonSampler {
   }
 
   /**
-   * Creates a new Poisson sample. <p> If the mean is zero this will return 0.
+   * Creates a new Poisson sample.
+   *
+   * <p>If the mean is zero this will return 0.
    *
    * @param rng Generator of uniformly distributed random numbers.
    * @param mean Mean of the Poisson distribution.

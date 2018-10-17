@@ -25,14 +25,15 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.detection;
 
 /**
- * Interface to compute collision detections between a 2D point and a set of objects
+ * Interface to compute collision detections between a 2D point and a set of objects.
  */
 public interface DetectionGrid {
   /**
-   * List of Ids of the objects that contain the point
+   * List of Ids of the objects that contain the point.
    *
    * @param x the x
    * @param y the y
@@ -41,7 +42,7 @@ public interface DetectionGrid {
   public int[] find(double x, double y);
 
   /**
-   * Get the number of objects in the grid
+   * Get the number of objects in the grid.
    *
    * @return The number of objects
    */

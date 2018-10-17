@@ -25,10 +25,8 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package uk.ac.sussex.gdsc.core.ij.plugin;
 
-import java.awt.Dimension;
-import java.util.Arrays;
+package uk.ac.sussex.gdsc.core.ij.plugin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -37,16 +35,24 @@ import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.PlotWindow;
 
+import java.awt.Dimension;
+import java.util.Arrays;
+
 /**
- * Extend the standard ImageJ window organiser plugin and make the methods public <p> Adds stateful
- * methods to the instance so it can layout any windows added to it.
+ * Extend the standard ImageJ window organiser plugin and make the methods public.
+ *
+ * <p>Adds stateful methods to the instance so it can layout any windows added to it.
  */
 public class WindowOrganiser extends ij.plugin.WindowOrganizer {
-  private static final int XSTART = 4, YSTART = 80, XOFFSET = 8, YOFFSET = 24, MAXSTEP = 200,
-      GAP = 2;
+  private static final int XSTART = 4;
+  private static final int YSTART = 80;
+  private static final int XOFFSET = 8;
+  private static final int YOFFSET = 24;
+  private static final int MAXSTEP = 200;
+  private static final int GAP = 2;
 
   /** The titlebar height. */
-  private final static int titlebarHeight = IJ.isMacintosh() ? 40 : 20;
+  private static final int TITLE_BAR_HEIGHT = IJ.isMacintosh() ? 40 : 20;
 
   /** The list. */
   private int[] list = new int[10];
@@ -125,7 +131,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
   }
 
   /**
-   * Set to true to unfreeze plots after layout
+   * Set to true to unfreeze plots after layout.
    *
    * @param unfreeze the new unfreeze flag
    */
@@ -165,32 +171,32 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
   /**
    * Tile windows.
    *
-   * @param wList the window list
+   * @param windowList the window list
    */
-  public static void tileWindows(int[] wList) {
-    tileWindows(wList, true);
+  public static void tileWindows(int[] windowList) {
+    tileWindows(windowList, true);
   }
 
   /**
    * Tile windows.
    *
-   * @param wList the window list
+   * @param windowList the window list
    * @param isUnfreeze Set to true if unfreezing plots after layout
    */
-  public static void tileWindows(int[] wList, boolean isUnfreeze) {
+  public static void tileWindows(int[] windowList, boolean isUnfreeze) {
     // As of ImageJ 1.50 plot windows must be frozen to allow tiling.
     // This is because they are dynamically resized.
-    final boolean[] unfreeze = freezePlotWindows(wList);
+    final boolean[] unfreeze = freezePlotWindows(windowList);
     try {
       // This is not visible so call a copy
-      // super.tileWindows(wList);
-      copyOfTileWindows(wList);
+      // super.tileWindows(windowList);
+      copyOfTileWindows(windowList);
     } finally {
       // TODO - Determine how to deal with freeze and unfreeze
       // Since you can unfreeze a plot within the plot window (using the More>> menu)
       // for now it is left to the user to unfreeze plots for dynamic resizing
       if (isUnfreeze) {
-        unfreezePlotWindows(wList, unfreeze);
+        unfreezePlotWindows(windowList, unfreeze);
       }
     }
   }
@@ -198,13 +204,13 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
   /**
    * Freeze any plot windows to allow them to be tiled.
    *
-   * @param wList the w list
+   * @param windowList the window list
    * @return The windows that should be unfrozen
    */
-  private static boolean[] freezePlotWindows(int[] wList) {
-    final boolean[] unfreeze = new boolean[wList.length];
-    for (int i = 0; i < wList.length; i++) {
-      final ImageWindow win = getWindow(wList[i]);
+  private static boolean[] freezePlotWindows(int[] windowList) {
+    final boolean[] unfreeze = new boolean[windowList.length];
+    for (int i = 0; i < windowList.length; i++) {
+      final ImageWindow win = getWindow(windowList[i]);
       if (win == null) {
         continue;
       }
@@ -222,15 +228,15 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
   /**
    * Unfreeze any marked plot windows.
    *
-   * @param wList the w list
+   * @param windowList the window list
    * @param unfreeze The windows that should be unfrozen
    */
-  private static void unfreezePlotWindows(int[] wList, boolean[] unfreeze) {
-    for (int i = 0; i < wList.length; i++) {
+  private static void unfreezePlotWindows(int[] windowList, boolean[] unfreeze) {
+    for (int i = 0; i < windowList.length; i++) {
       if (!unfreeze[i]) {
         continue;
       }
-      final ImageWindow win = getWindow(wList[i]);
+      final ImageWindow win = getWindow(windowList[i]);
       if (win == null) {
         continue;
       }
@@ -244,27 +250,27 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
   /**
    * Cascade windows.
    *
-   * @param wList the window list
+   * @param windowList the window list
    */
-  public static void cascadeWindows(int[] wList) {
+  public static void cascadeWindows(int[] windowList) {
     // This is not visible so call a copy
-    // super.cascadeWindows(wList);
-    copyOfCascadeWindows(wList);
+    // super.cascadeWindows(windowList);
+    copyOfCascadeWindows(windowList);
   }
 
   /**
    * Copy of tile windows.
    *
-   * @param wList the w list
+   * @param windowList the window list
    */
-  private static void copyOfTileWindows(int[] wList) {
+  private static void copyOfTileWindows(int[] windowList) {
     final Dimension screen = IJ.getScreenSize();
     int minWidth = Integer.MAX_VALUE;
     int minHeight = Integer.MAX_VALUE;
     double totalWidth = 0;
     double totalHeight = 0;
-    for (int i = 0; i < wList.length; i++) {
-      final ImageWindow win = getWindow(wList[i]);
+    for (int i = 0; i < windowList.length; i++) {
+      final ImageWindow win = getWindow(windowList[i]);
       if (win == null) {
         continue;
       }
@@ -274,7 +280,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
       }
       final Dimension d = win.getSize();
       final int w = d.width;
-      final int h = d.height + titlebarHeight;
+      final int h = d.height + TITLE_BAR_HEIGHT;
       if (w < minWidth) {
         minWidth = w;
       }
@@ -284,12 +290,11 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
       totalWidth += w;
       totalHeight += h;
     }
-    final int nPics = wList.length;
+    final int nPics = windowList.length;
     final double averageWidth = totalWidth / nPics;
     final double averageHeight = totalHeight / nPics;
     int tileWidth = (int) averageWidth;
     int tileHeight = (int) averageHeight;
-    // IJ.write("tileWidth, tileHeight: "+tileWidth+" "+tileHeight);
     final int hspace = screen.width - 2 * GAP;
     if (tileWidth > hspace) {
       tileWidth = hspace;
@@ -298,15 +303,16 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
     if (tileHeight > vspace) {
       tileHeight = vspace;
     }
-    int hloc, vloc;
+    int hloc;
+    int vloc;
     boolean theyFit;
     do {
       hloc = XSTART;
       vloc = YSTART;
       theyFit = true;
-      int i = 0;
+      int index = 0;
       do {
-        i++;
+        index++;
         if (hloc + tileWidth > screen.width) {
           hloc = XSTART;
           vloc = vloc + tileHeight;
@@ -315,12 +321,14 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
           }
         }
         hloc = hloc + tileWidth + GAP;
-      } while (theyFit && (i < nPics));
+      }
+      while (theyFit && (index < nPics));
       if (!theyFit) {
         tileWidth = (int) (tileWidth * 0.98 + 0.5);
         tileHeight = (int) (tileHeight * 0.98 + 0.5);
       }
-    } while (!theyFit);
+    }
+    while (!theyFit);
     hloc = XSTART;
     vloc = YSTART;
 
@@ -329,7 +337,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
         hloc = XSTART;
         vloc = vloc + tileHeight;
       }
-      final ImageWindow win = getWindow(wList[i]);
+      final ImageWindow win = getWindow(windowList[i]);
       if (win != null) {
         win.setLocation(hloc, vloc);
         // IJ.write(i+" "+w+" "+tileWidth+" "+mag+" "+IJ.d2s(zoomFactor,2)+" "+zoomCount);
@@ -361,16 +369,16 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
   /**
    * Copy of cascade windows.
    *
-   * @param wList the w list
+   * @param windowList the window list
    */
-  private static void copyOfCascadeWindows(int[] wList) {
+  private static void copyOfCascadeWindows(int[] windowList) {
     final Dimension screen = IJ.getScreenSize();
-    int x = XSTART;
-    int y = YSTART;
+    int xposition = XSTART;
+    int yposition = YSTART;
     int xstep = 0;
     int xstart = XSTART;
-    for (int i = 0; i < wList.length; i++) {
-      final ImageWindow win = getWindow(wList[i]);
+    for (int i = 0; i < windowList.length; i++) {
+      final ImageWindow win = getWindow(windowList[i]);
       if (win == null) {
         continue;
       }
@@ -381,18 +389,18 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
           xstep = MAXSTEP;
         }
       }
-      if (y + d.height * 0.67 > screen.height) {
+      if (yposition + d.height * 0.67 > screen.height) {
         xstart += xstep;
         if (xstart + d.width * 0.67 > screen.width) {
           xstart = XSTART + XOFFSET;
         }
-        x = xstart;
-        y = YSTART;
+        xposition = xstart;
+        yposition = YSTART;
       }
-      win.setLocation(x, y);
+      win.setLocation(xposition, yposition);
       win.toFront();
-      x += XOFFSET;
-      y += YOFFSET;
+      xposition += XOFFSET;
+      yposition += YOFFSET;
     }
   }
 }

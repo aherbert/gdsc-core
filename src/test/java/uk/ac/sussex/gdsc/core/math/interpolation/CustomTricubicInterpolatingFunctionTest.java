@@ -1,25 +1,13 @@
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-import uk.ac.sussex.gdsc.test.utils.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.util.concurrent.ExecutorService;
+import uk.ac.sussex.gdsc.core.data.DoubleArrayTrivalueProvider;
+import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
+import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
+import uk.ac.sussex.gdsc.core.data.ValueProvider;
+import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicInterpolatingFunction.Size;
+import uk.ac.sussex.gdsc.test.api.TestAssertions;
+import uk.ac.sussex.gdsc.test.api.TestHelper;
 
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NoDataException;
@@ -30,15 +18,10 @@ import org.apache.commons.rng.simple.RandomSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.junit5.*;import uk.ac.sussex.gdsc.test.rng.RngFactory;import uk.ac.sussex.gdsc.core.data.DoubleArrayTrivalueProvider;
-import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
-import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
-import uk.ac.sussex.gdsc.core.data.ValueProvider;
-import uk.ac.sussex.gdsc.core.logging.TrackProgress;
-import uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicInterpolatingFunction.Size;
+import java.util.concurrent.ExecutorService;
 
 /**
- * This class is used to in-line the computation for the CustomTricubicInterpolatingFunction
+ * This class is used to in-line the computation for the CustomTricubicInterpolatingFunction.
  */
 @SuppressWarnings({"javadoc"})
 public class CustomTricubicInterpolatingFunctionTest {
@@ -163,7 +146,7 @@ public class CustomTricubicInterpolatingFunctionTest {
           dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ);
       final double[] e =
           CustomTricubicInterpolatingFunction.computeCoefficientsInlineCollectTerms(beta);
-      Assertions.assertArrayEquals(e, fun1.getA());
+      Assertions.assertArrayEquals(e, fun1.getCoefficients());
 
       // Check with scale
       for (int z = 0; z < 2; z++) {
@@ -182,7 +165,7 @@ public class CustomTricubicInterpolatingFunctionTest {
 
       final CustomTricubicFunction fun2 = CustomTricubicInterpolatingFunction.create(xscale, yscale,
           zscale, f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ);
-      Assertions.assertArrayEquals(e, fun2.getA());
+      Assertions.assertArrayEquals(e, fun2.getCoefficients());
     }
   }
 

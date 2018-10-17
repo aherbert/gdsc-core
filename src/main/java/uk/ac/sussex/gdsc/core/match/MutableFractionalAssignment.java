@@ -25,11 +25,12 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.match;
 
 /**
  * Stores an assignment between two identified points, the distance between them and the score for
- * the match
+ * the match.
  */
 public class MutableFractionalAssignment extends MutableAssignment implements FractionalAssignment {
   private double score;
@@ -58,14 +59,13 @@ public class MutableFractionalAssignment extends MutableAssignment implements Fr
     this(targetId, predictedId, distance, 1);
   }
 
-  /** {@inheritDoc} */
   @Override
   public double getScore() {
     return score;
   }
 
   /**
-   * Set the score
+   * Set the score.
    *
    * @param score the score to set
    */

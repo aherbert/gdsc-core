@@ -25,17 +25,19 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
 
 /**
- * Provide a rolling array of integers
+ * Provide a rolling array of integers.
  */
 public class IntRollingArray {
   private final int[] data;
   private final int capacity;
-  private int index, count;
+  private int index;
+  private int count;
   private long sum;
 
   /**
@@ -49,7 +51,7 @@ public class IntRollingArray {
   }
 
   /**
-   * Remove all the numbers from the array
+   * Remove all the numbers from the array.
    */
   public void clear() {
     sum = 0;
@@ -58,11 +60,11 @@ public class IntRollingArray {
   }
 
   /**
-   * Add a number to the array
+   * Add a number to the array.
    *
-   * @param d The number
+   * @param number the number
    */
-  public void add(int d) {
+  public void add(int number) {
     // If at capacity
     if (isFull()) {
       // Subtract the item to be replaced
@@ -72,9 +74,9 @@ public class IntRollingArray {
       count++;
     }
     // Add to the total
-    sum += d;
+    sum += number;
     // Replace the item
-    data[index++] = d;
+    data[index++] = number;
     // Wrap the index
     if (index == capacity) {
       index = 0;
@@ -84,53 +86,89 @@ public class IntRollingArray {
   /**
    * Add a number to the array n times.
    *
-   * @param d The number
-   * @param n the number of times
+   * @param number the number
+   * @param repeats the repeats (n)
    */
-  public void add(int d, int n) {
-    if (n >= capacity) {
+  public void add(int number, int repeats) {
+    if (repeats >= capacity) {
       // Saturate
-      Arrays.fill(data, d);
-      sum = n * d;
+      Arrays.fill(data, number);
+      sum = (long) repeats * number;
       index = 0;
       count = capacity;
     } else {
-      while (n-- > 0) {
-        add(d);
+      while (repeats-- > 0) {
+        add(number);
       }
     }
   }
 
   /**
-   * @return The count of numbers stored in the array
+   * Gets the count of numbers stored in the array.
+   *
+   * @return The count
    */
   public int getCount() {
     return count;
   }
 
   /**
-   * @return The capacity of the array
+   * Gets the capacity of the array.
+   *
+   * @return The capacity
    */
   public int getCapacity() {
     return capacity;
   }
 
   /**
-   * @return The sum using the rolling sum of the numbers
+   * Gets the sum using the rolling sum of the numbers (may accumulate errors).
+   *
+   * @return The sum
    */
   public long getSum() {
     return sum;
   }
 
   /**
-   * @return The average using the rolling sum of the numbers
+   * Gets the recomputed sum using the current set of numbers.
+   *
+   * @return The recomputed sum using the current set of numbers.
+   */
+  public long computeAndGetSum() {
+    long newSum = 0;
+    // If full 'count' will be the length of the data array
+    for (int i = 0; i < count; i++) {
+      newSum += data[i];
+    }
+
+    // Reset the sum
+    sum = newSum;
+    return newSum;
+  }
+
+  /**
+   * Gets average using the rolling sum of the numbers.
+   *
+   * @return The average using the rolling sum of the numbers.
    */
   public double getAverage() {
     return (double) sum / count;
   }
 
   /**
-   * @return True if full
+   * Gets the average using a recomputed sum of the current numbers.
+   *
+   * @return The average using a recomputed sum of the current numbers.
+   */
+  public double computeAndGetAverage() {
+    return (double) computeAndGetSum() / count;
+  }
+
+  /**
+   * Checks if is full.
+   *
+   * @return True if full.
    */
   public boolean isFull() {
     return count == capacity;

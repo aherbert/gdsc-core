@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 
 /**
- * Class for computing digests
+ * Class for computing digests.
  *
  * @author Alex Herbert
  */
@@ -55,7 +56,9 @@ public class Digest {
   public static final String SHA_1 = "SHA-1";
 
   /**
-   * The SHA-224 hash algorithm defined in the FIPS PUB 180-3. <p> Present in Oracle Java 8. </p>
+   * The SHA-224 hash algorithm defined in the FIPS PUB 180-3.
+   *
+   * <p>Present in Oracle Java 8. </p>
    *
    * @since 1.11
    */
@@ -88,7 +91,7 @@ public class Digest {
       final MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
       messageDigest.reset();
       return messageDigest;
-    } catch (final java.security.NoSuchAlgorithmException e) {
+    } catch (final java.security.NoSuchAlgorithmException ex) {
       throw new IllegalArgumentException("Invalid algorithm: " + algorithm);
     }
   }
@@ -144,8 +147,9 @@ public class Digest {
       {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
   /**
-   * Convert the byte data to a hex string. Lower case is used. <p> Taken from
-   * org.apache.commons.codec.binary.Hex
+   * Convert the byte data to a hex string. Lower case is used.
+   *
+   * <p>Taken from org.apache.commons.codec.binary.Hex
    *
    * @param data the data
    * @return the hex string
@@ -162,7 +166,9 @@ public class Digest {
   }
 
   /**
-   * Convert the byte data to a hex string. <p> Taken from org.apache.commons.codec.binary.Hex
+   * Convert the byte data to a hex string.
+   *
+   * <p>Taken from org.apache.commons.codec.binary.Hex
    *
    * @param data the data
    * @param toLowerCase true if lower case is required

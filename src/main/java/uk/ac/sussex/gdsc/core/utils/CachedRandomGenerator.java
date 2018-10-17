@@ -25,26 +25,27 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 
 /**
- * Caches random numbers
+ * Caches random numbers.
  */
 public class CachedRandomGenerator extends AbstractRandomGenerator {
   /**
-   * Class to allow ignoring data when the capacity is full
+   * Class to allow ignoring data when the capacity is full.
    */
-  private final static class NullStoredData extends StoredData {
+  private static final class NullStoredData extends StoredData {
     @Override
     public void add(double value) {
       // Ignore
     }
   }
 
-  private final static NullStoredData NULL_STORE = new NullStoredData();
+  private static final NullStoredData NULL_STORE = new NullStoredData();
 
   /** The sequence. */
   protected final StoredData sequence;
@@ -117,17 +118,16 @@ public class CachedRandomGenerator extends AbstractRandomGenerator {
     store = sequence;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double nextDouble() {
-    double d;
+    double value;
     if (pos < sequence.size()) {
-      d = sequence.getValue(pos);
+      value = sequence.getValue(pos);
     } else {
-      d = source.nextDouble();
+      value = source.nextDouble();
       try {
-        store.add(d);
-      } catch (final NegativeArraySizeException e) {
+        store.add(value);
+      } catch (final NegativeArraySizeException ex) {
         // No more capacity
         store = NULL_STORE;
       }
@@ -136,7 +136,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator {
     if (pos != Integer.MAX_VALUE) {
       pos++;
     }
-    return d;
+    return value;
   }
 
   /**
@@ -179,15 +179,17 @@ public class CachedRandomGenerator extends AbstractRandomGenerator {
   /**
    * Returns a pseudorandom, uniformly distributed {@code int} value between {@code 0} (inclusive)
    * and the specified value {@code n} (exclusive), drawn from this random number generator's
-   * sequence. <p> The default implementation returns:
+   * sequence.
+   *
+   * <p>The default implementation returns:
    *
    * <pre>
    * <code>
    * (int) (nextDouble() * n}
    * </code>
    * </pre>
-   * 
-   * <p> Warning: No check is made that n is positive so use with caution.
+   *
+   * <p>Warning: No check is made that n is positive so use with caution.
    *
    * @param n the bound on the random number to be returned. Must be positive.
    * @return a pseudorandom, uniformly distributed value between 0 (inclusive) and n (exclusive).

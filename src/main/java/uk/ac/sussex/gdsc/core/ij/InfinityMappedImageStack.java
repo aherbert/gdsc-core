@@ -25,21 +25,21 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij;
 
 import uk.ac.sussex.gdsc.core.ij.process.InfinityMappedFloatProcessor;
-
-import java.awt.image.ColorModel;
 
 import ij.ImageStack;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 
+import java.awt.image.ColorModel;
+
 /**
  * Extends the ImageJ {@link ImageStack} class to support an infinity mapped float processor for
  * float data.
  *
- * @author Alex Herbert
  * @see InfinityMappedFloatProcessor
  */
 public class InfinityMappedImageStack extends ImageStack {
@@ -99,7 +99,6 @@ public class InfinityMappedImageStack extends ImageStack {
     super(width, height, cm);
   }
 
-  /** {@inheritDoc} */
   @Override
   public ImageProcessor getProcessor(int n) {
     ImageProcessor ip = super.getProcessor(n);

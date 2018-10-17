@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.utils;
 
 /**
- * Perform no conversion
+ * Perform no conversion.
  *
  * @param <T> the generic type
  */
@@ -42,31 +43,26 @@ public class IdentityTypeConverter<T> extends AbstractTypeConverter<T> {
     super(units, units, true);
   }
 
-  /** {@inheritDoc} */
   @Override
   public double convert(double value) {
     return value;
   }
 
-  /** {@inheritDoc} */
   @Override
   public float convert(float value) {
     return value;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double convertBack(double value) {
     return value;
   }
 
-  /** {@inheritDoc} */
   @Override
   public float convertBack(float value) {
     return value;
   }
 
-  /** {@inheritDoc} */
   @Override
   public String getFunction() {
     return "x";

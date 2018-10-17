@@ -25,36 +25,35 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package uk.ac.sussex.gdsc.core.clustering;
 
-import org.apache.commons.math3.util.FastMath;
+package uk.ac.sussex.gdsc.core.clustering;
 
 /**
  * Used to store information about a point in the clustering analysis.
  */
 public class ClusterPoint {
   /** The x position. */
-  public double x;
+  private double x;
 
   /** The y position. */
-  public double y;
+  private double y;
 
   /** The weight. */
-  public double weight;
+  private double weight;
 
   /** The id. */
-  public int id;
+  private int id;
 
-  /** The start frame. */
-  public int start;
+  /** The start time. */
+  private int startTime;
 
-  /** The end frame. */
-  public int end;
+  /** The end time. */
+  private int endTime;
 
   /**
-   * The next. Used to construct a single linked list of points.
+   * The next cluster point. Used to construct a single linked list of points.
    */
-  public ClusterPoint next = null;
+  private ClusterPoint next = null;
 
   /**
    * Create a cluster point.
@@ -69,6 +68,19 @@ public class ClusterPoint {
   }
 
   /**
+   * Create a cluster point with weight information.
+   *
+   * @param id the id
+   * @param x the x
+   * @param y the y
+   * @param weight the weight
+   * @return The cluster point
+   */
+  public static ClusterPoint newClusterPoint(int id, double x, double y, double weight) {
+    return new ClusterPoint(id, x, y, weight);
+  }
+
+  /**
    * Create a cluster point with time information.
    *
    * @param id the id
@@ -80,19 +92,6 @@ public class ClusterPoint {
    */
   public static ClusterPoint newTimeClusterPoint(int id, double x, double y, int start, int end) {
     return new ClusterPoint(id, x, y, start, end);
-  }
-
-  /**
-   * Create a cluster point with weight information.
-   *
-   * @param id the id
-   * @param x the x
-   * @param y the y
-   * @param weight the weight
-   * @return The cluster point
-   */
-  public static ClusterPoint newClusterPoint(int id, double x, double y, double weight) {
-    return new ClusterPoint(id, x, y, weight);
   }
 
   /**
@@ -123,7 +122,7 @@ public class ClusterPoint {
     this.x = x;
     this.y = y;
     weight = 1;
-    start = end = 0;
+    startTime = endTime = 0;
   }
 
   /**
@@ -140,8 +139,8 @@ public class ClusterPoint {
     this.x = x;
     this.y = y;
     weight = 1;
-    this.start = start;
-    this.end = end;
+    this.startTime = start;
+    this.endTime = end;
   }
 
   /**
@@ -157,7 +156,7 @@ public class ClusterPoint {
     this.x = x;
     this.y = y;
     this.weight = weight;
-    start = end = 0;
+    startTime = endTime = 0;
   }
 
   /**
@@ -175,8 +174,8 @@ public class ClusterPoint {
     this.x = x;
     this.y = y;
     this.weight = weight;
-    this.start = start;
-    this.end = end;
+    this.startTime = start;
+    this.endTime = end;
   }
 
   /**
@@ -186,9 +185,7 @@ public class ClusterPoint {
    * @return the distance
    */
   public double distance(ClusterPoint other) {
-    final double dx = x - other.x;
-    final double dy = y - other.y;
-    return Math.sqrt(dx * dx + dy * dy);
+    return Math.sqrt(distanceSquared(other));
   }
 
   /**
@@ -197,9 +194,9 @@ public class ClusterPoint {
    * @param other the other cluster point
    * @return the squared distance
    */
-  public double distance2(ClusterPoint other) {
-    final double dx = x - other.x;
-    final double dy = y - other.y;
+  public double distanceSquared(ClusterPoint other) {
+    final double dx = getX() - other.getX();
+    final double dy = getY() - other.getY();
     return dx * dx + dy * dy;
   }
 
@@ -210,13 +207,133 @@ public class ClusterPoint {
    * @return the time gap
    */
   public int gap(ClusterPoint other) {
-    // Overlap:
-    // S-----------E
-    // S---------E
-    //
-    // Gap:
-    // S-----------E
-    // S---------E
-    return FastMath.max(0, FastMath.max(start, other.start) - FastMath.min(end, other.end));
+    return ClusterUtils.gap(getStartTime(), getEndTime(), other.getStartTime(),
+        other.getEndTime());
+  }
+
+  /**
+   * Gets the x.
+   *
+   * @return the x
+   */
+  public double getX() {
+    return x;
+  }
+
+  /**
+   * Sets the x.
+   *
+   * @param x the new x
+   */
+  public void setX(double x) {
+    this.x = x;
+  }
+
+  /**
+   * Gets the y.
+   *
+   * @return the y
+   */
+  public double getY() {
+    return y;
+  }
+
+  /**
+   * Sets the y.
+   *
+   * @param y the new y
+   */
+  public void setY(double y) {
+    this.y = y;
+  }
+
+  /**
+   * Gets the weight.
+   *
+   * @return the weight
+   */
+  public double getWeight() {
+    return weight;
+  }
+
+  /**
+   * Sets the weight.
+   *
+   * @param weight the new weight
+   */
+  public void setWeight(double weight) {
+    this.weight = weight;
+  }
+
+  /**
+   * Gets the id.
+   *
+   * @return the id
+   */
+  public int getId() {
+    return id;
+  }
+
+  /**
+   * Sets the id.
+   *
+   * @param id the new id
+   */
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  /**
+   * Gets the start time.
+   *
+   * @return the start time
+   */
+  public int getStartTime() {
+    return startTime;
+  }
+
+  /**
+   * Sets the start time.
+   *
+   * @param start the new start time
+   */
+  public void setStartTime(int start) {
+    this.startTime = start;
+  }
+
+  /**
+   * Gets the end time.
+   *
+   * @return the end time
+   */
+  public int getEndTime() {
+    return endTime;
+  }
+
+  /**
+   * Sets the end time.
+   *
+   * @param end the end
+   */
+  public void setEndTime(int end) {
+    this.endTime = end;
+  }
+
+  /**
+   * Gets the next cluster point. Used to construct a single linked list of points.
+   *
+   * @return the next cluster point
+   */
+  public ClusterPoint getNext() {
+    return next;
+  }
+
+  /**
+   * Sets the next cluster point. Used to construct a single linked list of points.
+   *
+   * @param next the new next cluster point
+   */
+  public void setNext(ClusterPoint next) {
+    this.next = next;
   }
 }

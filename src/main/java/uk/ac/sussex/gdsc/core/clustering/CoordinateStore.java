@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering;
 
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
@@ -32,7 +33,7 @@ import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import java.awt.Rectangle;
 
 /**
- * Store 2D coordinates shifted to the origin for efficient grid processing
+ * Store 2D coordinates shifted to the origin for efficient grid processing.
  */
 public class CoordinateStore implements Cloneable {
   /** The tracker. */
@@ -78,41 +79,41 @@ public class CoordinateStore implements Cloneable {
     this.ycoord = ycoord;
 
     // Assign localisations & get min bounds
-    float minXCoord = Float.POSITIVE_INFINITY;
-    float minYCoord = Float.POSITIVE_INFINITY;
+    float minX = Float.POSITIVE_INFINITY;
+    float minY = Float.POSITIVE_INFINITY;
     for (int i = 0; i < xcoord.length; i++) {
-      if (minXCoord > xcoord[i]) {
-        minXCoord = xcoord[i];
+      if (minX > xcoord[i]) {
+        minX = xcoord[i];
       }
-      if (minYCoord > ycoord[i]) {
-        minYCoord = ycoord[i];
+      if (minY > ycoord[i]) {
+        minY = ycoord[i];
       }
     }
 
     // Round down and shift to origin (so all coords are >=0 for efficient grid allocation)
-    originx = (float) Math.floor(minXCoord);
-    originy = (float) Math.floor(minYCoord);
+    originx = (float) Math.floor(minX);
+    originy = (float) Math.floor(minY);
 
     // Get max bounds
-    minXCoord -= originx;
-    minYCoord -= originy;
-    float maxXCoord = 0;
-    float maxYCoord = 0;
+    minX -= originx;
+    minY -= originy;
+    float maxX = 0;
+    float maxY = 0;
     for (int i = 0; i < xcoord.length; i++) {
       xcoord[i] -= originx;
       ycoord[i] -= originy;
-      if (maxXCoord < xcoord[i]) {
-        maxXCoord = xcoord[i];
+      if (maxX < xcoord[i]) {
+        maxX = xcoord[i];
       }
-      if (maxYCoord < ycoord[i]) {
-        maxYCoord = ycoord[i];
+      if (maxY < ycoord[i]) {
+        maxY = ycoord[i];
       }
     }
 
-    this.minXCoord = minXCoord;
-    this.minYCoord = minYCoord;
-    this.maxXCoord = maxXCoord;
-    this.maxYCoord = maxYCoord;
+    this.minXCoord = minX;
+    this.minYCoord = minY;
+    this.maxXCoord = maxX;
+    this.maxYCoord = maxY;
     // Store the area of the input results
     area = bounds.width * bounds.height;
   }
@@ -187,6 +188,8 @@ public class CoordinateStore implements Cloneable {
   }
 
   /**
+   * Gets the tracker.
+   *
    * @return the tracker
    */
   public TrackProgress getTracker() {
@@ -194,18 +197,19 @@ public class CoordinateStore implements Cloneable {
   }
 
   /**
+   * Sets the tracker.
+   *
    * @param tracker the tracker to set
    */
   public void setTracker(TrackProgress tracker) {
     this.tracker = tracker;
   }
 
-  /** {@inheritDoc} */
   @Override
   public CoordinateStore clone() {
     try {
       return (CoordinateStore) super.clone();
-    } catch (final CloneNotSupportedException e) {
+    } catch (final CloneNotSupportedException ex) {
       return null;
     }
   }

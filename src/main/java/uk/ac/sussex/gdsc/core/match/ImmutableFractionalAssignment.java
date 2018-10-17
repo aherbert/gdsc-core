@@ -25,11 +25,12 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.match;
 
 /**
  * Stores an assignment between two identified points, the distance between them and the score for
- * the match
+ * the match.
  */
 public class ImmutableFractionalAssignment extends ImmutableAssignment
     implements FractionalAssignment {
@@ -60,7 +61,6 @@ public class ImmutableFractionalAssignment extends ImmutableAssignment
     this(targetId, predictedId, distance, 1);
   }
 
-  /** {@inheritDoc} */
   @Override
   public double getScore() {
     return score;

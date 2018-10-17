@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
@@ -34,14 +35,15 @@ import java.util.Arrays;
  * calculation.
  */
 public class Correlator {
-  private int[] x, y;
-  private int n = 0;
+  private int[] x;
+  private int[] y;
+  private int count = 0;
 
-  private long sumX = 0;
-  private long sumY = 0;
+  private long sumx = 0;
+  private long sumy = 0;
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param capacity The initial capacity
    */
@@ -54,7 +56,7 @@ public class Correlator {
   }
 
   /**
-   * Constructor
+   * Constructor.
    */
   public Correlator() {
     this(100);
@@ -72,42 +74,7 @@ public class Correlator {
   }
 
   /**
-   * Ensure that the specified number of elements can be added to the arrays.
-   *
-   * @param length the length
-   */
-  private void checkCapacity(int length) {
-    final int minCapacity = n + length;
-    if (minCapacity > x.length) {
-      int newCapacity = (x.length * 3) / 2 + 1;
-      if (newCapacity < minCapacity) {
-        newCapacity = minCapacity;
-      }
-      int[] newValues = new int[newCapacity];
-      System.arraycopy(x, 0, newValues, 0, n);
-      x = newValues;
-      newValues = new int[newCapacity];
-      System.arraycopy(y, 0, newValues, 0, n);
-      y = newValues;
-    }
-  }
-
-  /**
-   * Add a pair of data points to the sums.
-   *
-   * @param v1 the first value
-   * @param v2 the second value
-   */
-  private void addData(final int v1, final int v2) {
-    sumX += v1;
-    sumY += v2;
-    x[n] = v1;
-    y[n] = v2;
-    n++;
-  }
-
-  /**
-   * Add a set of paired data points
+   * Add a set of paired data points.
    *
    * @param v1 the first values
    * @param v2 the second values
@@ -124,7 +91,7 @@ public class Correlator {
   }
 
   /**
-   * Add a set of paired data points
+   * Add a set of paired data points.
    *
    * @param v1 the first values
    * @param v2 the second values
@@ -142,78 +109,124 @@ public class Correlator {
   }
 
   /**
-   * @return The correlation
+   * Ensure that the specified number of elements can be added to the arrays.
+   *
+   * @param length the length
+   */
+  private void checkCapacity(int length) {
+    final int minCapacity = count + length;
+    if (minCapacity > x.length) {
+      int newCapacity = (x.length * 3) / 2 + 1;
+      if (newCapacity < minCapacity) {
+        newCapacity = minCapacity;
+      }
+      int[] newValues = new int[newCapacity];
+      System.arraycopy(x, 0, newValues, 0, count);
+      x = newValues;
+      newValues = new int[newCapacity];
+      System.arraycopy(y, 0, newValues, 0, count);
+      y = newValues;
+    }
+  }
+
+  /**
+   * Add a pair of data points to the sums.
+   *
+   * @param v1 the first value
+   * @param v2 the second value
+   */
+  private void addData(final int v1, final int v2) {
+    sumx += v1;
+    sumy += v2;
+    x[count] = v1;
+    y[count] = v2;
+    count++;
+  }
+
+  /**
+   * Gets the correlation.
+   *
+   * @return The correlation.
    */
   public double getCorrelation() {
-    if (n == 0) {
+    if (count == 0) {
       return Double.NaN;
     }
-
-    final double ux = sumX / (double) n;
-    final double uy = sumY / (double) n;
-    return doCorrelation(x, y, n, ux, uy);
-
-    // return correlation(x, y, n);
+    final double ux = sumx / (double) count;
+    final double uy = sumy / (double) count;
+    return doCorrelation(x, y, count, ux, uy);
   }
 
   /**
-   * @return The correlation calculated using a fast sum
+   * Gets the correlation using a fast sum.
+   *
+   * @return The correlation calculated using a fast sum.
    */
   public double getFastCorrelation() {
-    if (n == 0) {
+    if (count == 0) {
       return Double.NaN;
     }
 
-    long sumXY = 0;
-    long sumXX = 0;
-    long sumYY = 0;
+    long sumxy = 0;
+    long sumxx = 0;
+    long sumyy = 0;
 
-    for (int i = n; i-- > 0;) {
-      sumXY += (x[i] * y[i]);
-      sumXX += (x[i] * x[i]);
-      sumYY += (y[i] * y[i]);
+    for (int i = count; i-- > 0;) {
+      sumxy += (x[i] * y[i]);
+      sumxx += (x[i] * x[i]);
+      sumyy += (y[i] * y[i]);
     }
 
-    return FastCorrelator.calculateCorrelation(sumX, sumXY, sumXX, sumYY, sumY, n);
+    return FastCorrelator.calculateCorrelation(sumx, sumxy, sumxx, sumyy, sumy, count);
   }
 
   /**
-   * @return The X-data
+   * Gets the x-data.
+   *
+   * @return The X-data.
    */
   public int[] getX() {
-    return Arrays.copyOf(x, n);
+    return Arrays.copyOf(x, count);
   }
 
   /**
-   * @return The Y-data
+   * Gets the y-data.
+   *
+   * @return The Y-data.
    */
   public int[] getY() {
-    return Arrays.copyOf(y, n);
+    return Arrays.copyOf(y, count);
   }
 
   /**
-   * @return The sum of the X data
+   * Gets the sum of the X data.
+   *
+   * @return The sum of the X data.
    */
   public long getSumX() {
-    return sumX;
+    return sumx;
   }
 
   /**
-   * @return The sum of the Y data
+   * Gets the sum of the Y data.
+   *
+   * @return The sum of the Y data.
    */
   public long getSumY() {
-    return sumY;
+    return sumy;
   }
 
   /**
-   * @return The number of data points
+   * Gets the number of data points.
+   *
+   * @return The number of data points.
    */
   public int getN() {
-    return n;
+    return count;
   }
 
   /**
-   * Calculate the correlation
+   * Calculate the correlation.
    *
    * @param x The X data
    * @param y the Y data
@@ -228,7 +241,7 @@ public class Correlator {
   }
 
   /**
-   * Calculate the correlation
+   * Calculate the correlation.
    *
    * @param x The X data
    * @param y the Y data
@@ -244,7 +257,7 @@ public class Correlator {
   }
 
   /**
-   * Calculate the correlation
+   * Calculate the correlation.
    *
    * @param x The X data
    * @param y the Y data
@@ -272,7 +285,7 @@ public class Correlator {
   }
 
   /**
-   * Calculate the correlation
+   * Calculate the correlation.
    *
    * @param x The X data
    * @param y the Y data
@@ -306,10 +319,10 @@ public class Correlator {
   }
 
   /**
-   * Clear all stored values
+   * Clear all stored values.
    */
   public void clear() {
-    sumX = sumY = 0;
-    n = 0;
+    sumx = sumy = 0;
+    count = 0;
   }
 }

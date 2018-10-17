@@ -25,15 +25,19 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.text;
+
+import ij.text.TextPanel;
+import ij.text.TextWindow;
 
 import java.util.ArrayList;
 
-import ij.text.TextWindow;
-
 /**
- * Uses a TextPanel to displays text in a window. <p> Copied from {@link ij.text.TextWindow}. Added
- * functionality to allow the window to be configured before display.
+ * Uses a TextPanel to displays text in a window.
+ *
+ * <p>Copied from {@link ij.text.TextWindow}. Added functionality to allow the window to be
+ * configured before display.
  *
  * @see TextPanel
  */
@@ -92,13 +96,11 @@ public class TextWindow2 extends TextWindow {
   }
 
   @Override
-  public void setVisible(boolean b) {
-    if (b) {
-      // Do not show upon construction
-      if (!constructed) {
-        return;
-      }
+  public void setVisible(boolean value) {
+    // Do not show upon construction
+    if (value && !constructed) {
+      return;
     }
-    super.setVisible(b);
+    super.setVisible(value);
   }
 }

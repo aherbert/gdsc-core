@@ -25,9 +25,13 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.threshold;
 
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 // History of the Auto_ThresholdImageJ plugin of G. Landini:
 // Autothreshold segmentation
@@ -55,84 +59,80 @@ import uk.ac.sussex.gdsc.core.utils.TextUtils;
 // 1.14 2011/Apr/14 IsoData issues a warning if threhsold not found
 
 /**
- * Provides thresholding methods based on a histogram. <p> The methods have been extracted from the
- * Auto_Threshold ImageJ plugin of G. Landini.
+ * Provides thresholding methods based on a histogram.
+ *
+ * <p>The methods have been extracted from the Auto_Threshold ImageJ plugin of G. Landini.
  */
 public class AutoThreshold {
+
+  /** The Constant logger. */
+  private static final Logger logger = Logger.getLogger(AutoThreshold.class.getName());
+
   /**
-   * The auto-threshold method
+   * The auto-threshold method.
    */
   public enum Method {
-    //@formatter:off
-		/** The none method. */
-		NONE("None"),
-		/** The default method. */
-		DEFAULT("Default"),
-		/** The huang method. */
-		HUANG("Huang"),
-		/** The intermodes method. */
-		INTERMODES("Intermodes"),
-		/** The iso data method. */
-		ISO_DATA("IsoData"),
-		/** The li method. */
-		LI("Li"),
-		/** The max entropy method. */
-		MAX_ENTROPY("MaxEntropy"),
-		/** The mean method. */
-		MEAN("Mean"),
-		/** The mean plus std dev method. */
-		MEAN_PLUS_STD_DEV("MeanPlusStdDev"),
-		/** The min error i method. */
-		MIN_ERROR_I("MinError(I)"),
-		/** The minimum method. */
-		MINIMUM("Minimum"),
-		/** The moments method. */
-		MOMENTS("Moments"),
-		/** The otsu method. */
-		OTSU("Otsu"),
-		/** The percentile method. */
-		PERCENTILE("Percentile"),
-		/** The renyi entropy method. */
-		RENYI_ENTROPY("RenyiEntropy"),
-		/** The shanbhag method. */
-		SHANBHAG("Shanbhag"),
-		/** The triangle method. */
-		TRIANGLE("Triangle"),
-		/** The yen method. */
-		YEN("Yen");
-		//@formatter:on
+    /** The none method. */
+    NONE("None"),
+    /** The default method. */
+    DEFAULT("Default"),
+    /** The huang method. */
+    HUANG("Huang"),
+    /** The intermodes method. */
+    INTERMODES("Intermodes"),
+    /** The iso data method. */
+    ISO_DATA("IsoData"),
+    /** The li method. */
+    LI("Li"),
+    /** The max entropy method. */
+    MAX_ENTROPY("MaxEntropy"),
+    /** The mean method. */
+    MEAN("Mean"),
+    /** The mean plus std dev method. */
+    MEAN_PLUS_STD_DEV("MeanPlusStdDev"),
+    /** The min error i method. */
+    MIN_ERROR_I("MinError(I)"),
+    /** The minimum method. */
+    MINIMUM("Minimum"),
+    /** The moments method. */
+    MOMENTS("Moments"),
+    /** The otsu method. */
+    OTSU("Otsu"),
+    /** The percentile method. */
+    PERCENTILE("Percentile"),
+    /** The renyi entropy method. */
+    RENYI_ENTROPY("RenyiEntropy"),
+    /** The shanbhag method. */
+    SHANBHAG("Shanbhag"),
+    /** The triangle method. */
+    TRIANGLE("Triangle"),
+    /** The yen method. */
+    YEN("Yen");
 
     /** The name. */
-    public final String name;
+    private final String nameString;
 
     private Method(String name) {
-      this.name = name;
+      this.nameString = name;
     }
 
-    /** {@inheritDoc} */
     @Override
     public String toString() {
-      return name;
+      return nameString;
     }
   }
 
-  /** Flag to allow extra logging information to be output from thresholding methods. */
-  public static boolean isDebug = false;
-
-  /** Flag to log information from the thresholding methods. */
-  public static boolean isLogging = false;
-
-  private final static String[] methods;
-  private final static String[] methods2;
+  private static final String[] methods;
+  private static final String[] methods2;
 
   static {
     final Method[] m = Method.values();
     methods = new String[m.length];
     methods2 = new String[m.length - 1];
     for (int i = 0; i < m.length; i++) {
-      methods[i] = m[i].name;
+      methods[i] = m[i].nameString;
       if (i != 0) {
-        methods2[i - 1] = m[i].name;
+        methods2[i - 1] = m[i].nameString;
       }
     }
   }
@@ -177,17 +177,17 @@ public class AutoThreshold {
   /**
    * Gets the method from the index of the method names.
    *
-   * @param i the index
+   * @param index the index
    * @param ignoreNone Set to true to remove the {@link Method#NONE} option
    * @return the method
    */
-  public static Method getMethod(int i, boolean ignoreNone) {
+  public static Method getMethod(int index, boolean ignoreNone) {
     final Method[] m = Method.values();
     if (ignoreNone) {
-      i++;
+      index++;
     }
-    if (i >= 0 && i < m.length) {
-      return m[i];
+    if (index >= 0 && index < m.length) {
+      return m[index];
     }
     return Method.NONE;
   }
@@ -198,10 +198,8 @@ public class AutoThreshold {
    * @param data the data
    * @return the threshold
    */
-  public static int IJDefault(int[] data) {
-    int level;
+  public static int ijDefault(int[] data) {
     final int maxValue = data.length - 1;
-    double result, sum1, sum2, sum3, sum4;
 
     int min = 0;
     while ((data[min] == 0) && (min < maxValue)) {
@@ -212,10 +210,14 @@ public class AutoThreshold {
       max--;
     }
     if (min >= max) {
-      level = data.length / 2;
-      return level;
+      return data.length / 2;
     }
 
+    double result;
+    double sum1;
+    double sum2;
+    double sum3;
+    double sum4;
     int movingIndex = min;
     do {
       sum1 = sum2 = sum3 = sum4 = 0.0;
@@ -229,10 +231,10 @@ public class AutoThreshold {
       }
       result = (sum1 / sum2 + sum3 / sum4) / 2.0;
       movingIndex++;
-    } while ((movingIndex + 1) <= result && movingIndex < max - 1);
+    }
+    while ((movingIndex + 1) <= result && movingIndex < max - 1);
 
-    level = (int) Math.round(result);
-    return level;
+    return (int) Math.round(result);
   }
 
   /**
@@ -244,9 +246,10 @@ public class AutoThreshold {
    * @param data the data
    * @return the threshold
    */
-  public static int Huang(int[] data) {
+  public static int huang(int[] data) {
     // find first and last non-empty bin
-    int first, last;
+    int first;
+    int last;
     for (first = 0; first < data.length && data[first] == 0; first++) {
       // do nothing
     }
@@ -258,11 +261,12 @@ public class AutoThreshold {
     }
 
     // calculate the cumulative density and the weighted cumulative density
-    final double[] S = new double[last + 1], W = new double[last + 1];
-    S[0] = data[0];
+    final double[] cumulDensity = new double[last + 1];
+    final double[] weightedCumulDensity = new double[last + 1];
+    cumulDensity[0] = data[0];
     for (int i = Math.max(1, first); i <= last; i++) {
-      S[i] = S[i - 1] + data[i];
-      W[i] = W[i - 1] + i * data[i];
+      cumulDensity[i] = cumulDensity[i - 1] + data[i];
+      weightedCumulDensity[i] = weightedCumulDensity[i - 1] + i * data[i];
     }
 
     // precalculate the summands of the entropy given the absolute difference x - mu (integral)
@@ -278,11 +282,12 @@ public class AutoThreshold {
     double bestEntropy = Double.MAX_VALUE;
     for (int threshold = first; threshold <= last; threshold++) {
       double entropy = 0;
-      int mu = (int) Math.round(W[threshold] / S[threshold]);
+      int mu = (int) Math.round(weightedCumulDensity[threshold] / cumulDensity[threshold]);
       for (int i = first; i <= threshold; i++) {
         entropy += Smu[Math.abs(i - mu)] * data[i];
       }
-      mu = (int) Math.round((W[last] - W[threshold]) / (S[last] - S[threshold]));
+      mu = (int) Math.round((weightedCumulDensity[last] - weightedCumulDensity[threshold])
+          / (cumulDensity[last] - cumulDensity[threshold]));
       for (int i = threshold + 1; i <= last; i++) {
         entropy += Smu[Math.abs(i - mu)] * data[i];
       }
@@ -299,16 +304,16 @@ public class AutoThreshold {
   /**
    * Bimodal test.
    *
-   * @param y the y
+   * @param data the data
    * @return true, if successful
    */
-  protected static boolean bimodalTest(double[] y) {
-    final int len = y.length;
-    boolean b = false;
+  protected static boolean bimodalTest(double[] data) {
+    final int len = data.length;
+    boolean flag = false;
     int modes = 0;
 
     for (int k = 1; k < len - 1; k++) {
-      if (y[k - 1] < y[k] && y[k + 1] < y[k]) {
+      if (data[k - 1] < data[k] && data[k + 1] < data[k]) {
         modes++;
         if (modes > 2) {
           return false;
@@ -316,9 +321,9 @@ public class AutoThreshold {
       }
     }
     if (modes == 2) {
-      b = true;
+      flag = true;
     }
-    return b;
+    return flag;
   }
 
   /**
@@ -328,15 +333,15 @@ public class AutoThreshold {
    * http://www.cs.tut.fi/~ant/histthresh/ for an excellent slide presentation and the original
    * Matlab code.
    *
-   * Assumes a bimodal histogram. The histogram needs is smoothed (using a running average of size
-   * 3, iteratively) until there are only two local maxima. j and k. Threshold t is (j+k)/2. Images
-   * with histograms having extremely unequal peaks or a broad and ﬂat valley are unsuitable for
-   * this method.
+   * <p>Assumes a bimodal histogram. The histogram needs is smoothed (using a running average of
+   * size 3, iteratively) until there are only two local maxima. j and k. Threshold t is (j+k)/2.
+   * Images with histograms having extremely unequal peaks or a broad and ﬂat valley are unsuitable
+   * for this method.
    *
    * @param data the data
    * @return the threshold
    */
-  public static int Intermodes(int[] data) {
+  public static int intermodes(int[] data) {
     final double[] iHisto = new double[data.length];
     int iter = 0;
     int threshold = -1;
@@ -346,7 +351,9 @@ public class AutoThreshold {
 
     while (!bimodalTest(iHisto)) {
       // smooth with a 3 point running mean filter
-      double previous = 0, current = 0, next = iHisto[0];
+      double previous = 0;
+      double current = 0;
+      double next = iHisto[0];
       for (int i = 0; i < data.length - 1; i++) {
         previous = current;
         current = next;
@@ -357,7 +364,7 @@ public class AutoThreshold {
       iter++;
       if (iter > 10000) {
         threshold = -1;
-        log("Intermodes Threshold not found after 10000 iterations.");
+        logger.fine("Intermodes Threshold not found after 10000 iterations.");
         return threshold;
       }
     }
@@ -369,7 +376,6 @@ public class AutoThreshold {
         tt += i;
       }
     }
-    // log("mode:" +i);
     threshold = (int) Math.floor(tt / 2.0);
     return threshold;
   }
@@ -385,7 +391,7 @@ public class AutoThreshold {
    * ImageJ that implements this function is the getAutoThreshold() method in the ImageProcessor
    * class.
    *
-   * From: Tim Morris (dtm@ap.co.umist.ac.uk) Subject: Re: Thresholding method? posted to
+   * <p>From: Tim Morris (dtm@ap.co.umist.ac.uk) Subject: Re: Thresholding method? posted to
    * sci.image.processing on 1996/06/24 The algorithm implemented in NIH Image sets the threshold as
    * that grey value, G, for which the average of the averages of the grey values below and above G
    * is equal to G. It does this by initialising G to the lowest sensible value and iterating:
@@ -393,7 +399,7 @@ public class AutoThreshold {
    * @param data the data
    * @return the threshold
    */
-  public static int IsoData(int[] data) {
+  public static int isoData(int[] data) {
     // L = the average grey value of pixels with intensities < G
     // H = the average grey value of pixels with intensities > G
     // is G = (L + H)/2?
@@ -401,40 +407,40 @@ public class AutoThreshold {
     // no => increment G and repeat
     //
     // There is a discrepancy with IJ because they are slightly different methods
-    int i, l, toth, totl, h, g = 0;
-    for (i = 1; i < data.length; i++) {
+    int threshold = 0;
+    for (int i = 1; i < data.length; i++) {
       if (data[i] > 0) {
-        g = i + 1;
+        threshold = i + 1;
         break;
       }
     }
     while (true) {
-      l = 0;
-      totl = 0;
-      for (i = 0; i < g; i++) {
-        totl = totl + data[i];
-        l = l + (data[i] * i);
+      int low = 0;
+      int totLow = 0;
+      for (int i = 0; i < threshold; i++) {
+        totLow = totLow + data[i];
+        low = low + (data[i] * i);
       }
-      h = 0;
-      toth = 0;
-      for (i = g + 1; i < data.length; i++) {
-        toth += data[i];
-        h += (data[i] * i);
+      int high = 0;
+      int totHigh = 0;
+      for (int i = threshold + 1; i < data.length; i++) {
+        totHigh += data[i];
+        high += (data[i] * i);
       }
-      if (totl > 0 && toth > 0) {
-        l /= totl;
-        h /= toth;
-        if (g == (int) Math.round((l + h) / 2.0)) {
+      if (totLow > 0 && totHigh > 0) {
+        low /= totLow;
+        high /= totHigh;
+        if (threshold == (int) Math.round((low + high) / 2.0)) {
           break;
         }
       }
-      g++;
-      if (g > data.length - 2) {
-        log("IsoData Threshold not found.");
+      threshold++;
+      if (threshold > data.length - 2) {
+        logger.fine("IsoData Threshold not found.");
         return -1;
       }
     }
-    return g;
+    return threshold;
   }
 
   /**
@@ -449,81 +455,76 @@ public class AutoThreshold {
    * @param data the data
    * @return the threshold
    */
-  public static int Li(int[] data) {
+  public static int li(int[] data) {
     // Ported to ImageJ plugin by G.Landini from E Celebi's fourier_0.8 routines.
-    int threshold;
-    int ih;
-    int num_pixels;
-    int sum_back; /* sum of the background pixels at a given threshold */
-    int sum_obj; /* sum of the object pixels at a given threshold */
-    int num_back; /* number of background pixels at a given threshold */
-    int num_obj; /* number of object pixels at a given threshold */
-    double old_thresh;
-    double new_thresh;
-    double mean_back; /* mean of the background pixels at a given threshold */
-    double mean_obj; /* mean of the object pixels at a given threshold */
-    double mean; /* mean gray-level in the image */
-    double tolerance; /* threshold tolerance */
-    double temp;
 
-    tolerance = 0.5;
-    num_pixels = 0;
-    for (ih = 0; ih < data.length; ih++) {
-      num_pixels += data[ih];
+    int numPixels = 0;
+    for (int ih = 0; ih < data.length; ih++) {
+      numPixels += data[ih];
     }
 
     /* Calculate the mean gray-level */
-    mean = 0.0;
-    for (ih = 0; ih < data.length; ih++) {
+    double mean = 0.0;
+    for (int ih = 0; ih < data.length; ih++) {
       // 0 + 1?
       mean += ih * data[ih];
     }
-    mean /= num_pixels;
+    mean /= numPixels;
     /* Initial estimate */
-    new_thresh = mean;
+    double newThresh = mean;
 
+    int threshold;
+    double oldThresh;
     do {
-      old_thresh = new_thresh;
-      threshold = (int) (old_thresh + 0.5); /* range */
+      oldThresh = newThresh;
+      threshold = (int) (oldThresh + 0.5); /* range */
       /* Calculate the means of background and object pixels */
       /* Background */
-      sum_back = 0;
-      num_back = 0;
-      for (ih = 0; ih <= threshold; ih++) {
-        sum_back += ih * data[ih];
-        num_back += data[ih];
+      /* sum of the background pixels at a given threshold */
+      int sumBack = 0;
+      /* number of background pixels at a given threshold */
+      int numBack = 0;
+      for (int ih = 0; ih <= threshold; ih++) {
+        sumBack += ih * data[ih];
+        numBack += data[ih];
       }
-      mean_back = (num_back == 0 ? 0.0 : (sum_back / (double) num_back));
+      /* mean of the background pixels at a given threshold */
+      double meanBack = (numBack == 0 ? 0.0 : (sumBack / (double) numBack));
       /* Object */
-      sum_obj = 0;
-      num_obj = 0;
-      for (ih = threshold + 1; ih < data.length; ih++) {
-        sum_obj += ih * data[ih];
-        num_obj += data[ih];
+      /* sum of the object pixels at a given threshold */
+      int sumObj = 0;
+      /* number of object pixels at a given threshold */
+      int numObj = 0;
+      for (int ih = threshold + 1; ih < data.length; ih++) {
+        sumObj += ih * data[ih];
+        numObj += data[ih];
       }
-      mean_obj = (num_obj == 0 ? 0.0 : (sum_obj / (double) num_obj));
+      /* mean of the object pixels at a given threshold */
+      double meanObj = (numObj == 0 ? 0.0 : (sumObj / (double) numObj));
 
       /* Calculate the new threshold: Equation (7) in Ref. 2 */
       // new_thresh = simple_round ( ( mean_back - mean_obj ) / ( Math.log ( mean_back ) - Math.log
-      // ( mean_obj ) ) );
+      // ( mean_obj ) ) )
       // simple_round ( double x ) {
-      // return ( int ) ( IS_NEG ( x ) ? x - .5 : x + .5 );
+      // return ( int ) ( IS_NEG ( x ) ? x - .5 : x + .5 )
       // }
       //
       // #define IS_NEG( x ) ( ( x ) < -DBL_EPSILON )
       // DBL_EPSILON = 2.220446049250313E-16
-      temp = (mean_back - mean_obj) / (Math.log(mean_back) - Math.log(mean_obj));
+      double temp = (meanBack - meanObj) / (Math.log(meanBack) - Math.log(meanObj));
 
       if (temp < -2.220446049250313E-16) {
-        new_thresh = (int) (temp - 0.5);
+        newThresh = (int) (temp - 0.5);
       } else {
-        new_thresh = (int) (temp + 0.5);
+        newThresh = (int) (temp + 0.5);
         /*
          * Stop the iterations when the difference between the new and old threshold values is less
          * than the tolerance
          */
       }
-    } while (Math.abs(new_thresh - old_thresh) > tolerance);
+    }
+    // Use a fixed threshold tolerance of 0.5
+    while (Math.abs(newThresh - oldThresh) > 0.5);
     return threshold;
   }
 
@@ -535,83 +536,76 @@ public class AutoThreshold {
    * @param data the data
    * @return the threshold
    */
-  public static int MaxEntropy(int[] data) {
+  public static int maxEntropy(int[] data) {
     // M. Emre Celebi
     // 06.15.2007
     // Ported to ImageJ plugin by G.Landini from E Celebi's fourier_0.8 routines
-    int threshold = -1;
-    int ih, it;
-    int first_bin;
-    int last_bin;
-    double tot_ent; /* total entropy */
-    double max_ent; /* max entropy */
-    double ent_back; /* entropy of the background pixels at a given threshold */
-    double ent_obj; /* entropy of the object pixels at a given threshold */
-    final double[] norm_histo = new double[data.length]; /* normalized histogram */
-    final double[] P1 = new double[data.length]; /* cumulative normalized histogram */
-    final double[] P2 = new double[data.length];
+    final double[] normHisto = new double[data.length]; /* normalized histogram */
+    final double[] p1 = new double[data.length]; /* cumulative normalized histogram */
+    final double[] p2 = new double[data.length];
 
     int total = 0;
-    for (ih = 0; ih < data.length; ih++) {
+    for (int ih = 0; ih < data.length; ih++) {
       total += data[ih];
     }
 
-    for (ih = 0; ih < data.length; ih++) {
-      norm_histo[ih] = (double) data[ih] / total;
+    for (int ih = 0; ih < data.length; ih++) {
+      normHisto[ih] = (double) data[ih] / total;
     }
 
-    P1[0] = norm_histo[0];
-    P2[0] = 1.0 - P1[0];
-    for (ih = 1; ih < data.length; ih++) {
-      P1[ih] = P1[ih - 1] + norm_histo[ih];
-      P2[ih] = 1.0 - P1[ih];
+    p1[0] = normHisto[0];
+    p2[0] = 1.0 - p1[0];
+    for (int ih = 1; ih < data.length; ih++) {
+      p1[ih] = p1[ih - 1] + normHisto[ih];
+      p2[ih] = 1.0 - p1[ih];
     }
 
     /* Determine the first non-zero bin */
-    first_bin = 0;
-    for (ih = 0; ih < data.length; ih++) {
-      if (!(Math.abs(P1[ih]) < 2.220446049250313E-16)) {
-        first_bin = ih;
+    int firstBin = 0;
+    for (int ih = 0; ih < data.length; ih++) {
+      if (Math.abs(p1[ih]) >= 2.220446049250313E-16) {
+        firstBin = ih;
         break;
       }
     }
 
     /* Determine the last non-zero bin */
-    last_bin = data.length - 1;
-    for (ih = data.length - 1; ih >= first_bin; ih--) {
-      if (!(Math.abs(P2[ih]) < 2.220446049250313E-16)) {
-        last_bin = ih;
+    int lastBin = data.length - 1;
+    for (int ih = data.length - 1; ih >= firstBin; ih--) {
+      if (Math.abs(p2[ih]) >= 2.220446049250313E-16) {
+        lastBin = ih;
         break;
       }
     }
 
     // Calculate the total entropy each gray-level
     // and find the threshold that maximizes it
-    max_ent = Double.MIN_VALUE;
+    /* max entropy */
+    double maxEnt = Double.MIN_VALUE;
+    int threshold = -1;
 
-    for (it = first_bin; it <= last_bin; it++) {
+    for (int it = firstBin; it <= lastBin; it++) {
       /* Entropy of the background pixels */
-      ent_back = 0.0;
-      for (ih = 0; ih <= it; ih++) {
+      double entBack = 0.0;
+      for (int ih = 0; ih <= it; ih++) {
         if (data[ih] != 0) {
-          ent_back -= (norm_histo[ih] / P1[it]) * Math.log(norm_histo[ih] / P1[it]);
+          entBack -= (normHisto[ih] / p1[it]) * Math.log(normHisto[ih] / p1[it]);
         }
       }
 
       /* Entropy of the object pixels */
-      ent_obj = 0.0;
-      for (ih = it + 1; ih < data.length; ih++) {
+      double entObj = 0.0;
+      for (int ih = it + 1; ih < data.length; ih++) {
         if (data[ih] != 0) {
-          ent_obj -= (norm_histo[ih] / P2[it]) * Math.log(norm_histo[ih] / P2[it]);
+          entObj -= (normHisto[ih] / p2[it]) * Math.log(normHisto[ih] / p2[it]);
         }
       }
 
       /* Total entropy */
-      tot_ent = ent_back + ent_obj;
+      double totEnt = entBack + entObj;
 
-      // log(""+max_ent+" "+tot_ent);
-      if (max_ent < tot_ent) {
-        max_ent = tot_ent;
+      if (maxEnt < totEnt) {
+        maxEnt = totEnt;
         threshold = it;
       }
     }
@@ -622,24 +616,28 @@ public class AutoThreshold {
    * C. A. Glasbey, "An analysis of histogram-based thresholding algorithms," CVGIP: Graphical
    * Models and Image Processing, vol. 55, pp. 532-537, 1993.
    *
-   * The threshold is the mean of the greyscale data.
+   * <p>The threshold is the mean of the greyscale data.
    *
    * @param data the data
    * @return the threshold
    */
-  public static int Mean(int[] data) {
+  public static int mean(int[] data) {
     int threshold = -1;
-    double tot = 0, sum = 0;
+    double tot = 0;
+    double sum = 0;
     for (int i = 0; i < data.length; i++) {
       tot += data[i];
       sum += (i * data[i]);
+    }
+    if (tot == 0) {
+      return 0;
     }
     threshold = (int) Math.floor(sum / tot);
     return threshold;
   }
 
   /**
-   * The multiplier used within the MeanPlusStdDev calculation
+   * The multiplier used within the MeanPlusStdDev calculation.
    */
   private static double stdDevMultiplier = 3;
 
@@ -662,17 +660,18 @@ public class AutoThreshold {
   }
 
   /**
-   * Get the mean plus a multiplier of the standard deviation <p> This is not threadsafe as the
-   * standard deviation multiplier is static. Use the instance method for thread safety
-   * ({@link #MeanPlusStdDev(int[], double)}) if you are changing the multiplier in different
-   * threads.
+   * Get the mean plus a multiplier of the standard deviation.
+   *
+   * <p>This is not threadsafe as the standard deviation multiplier is static. Use the instance
+   * method for thread safety ({@link #meanPlusStdDev(int[], double)}) if you are changing the
+   * multiplier in different threads.
    *
    * @param data The histogram data
    * @return The threshold
    */
-  public static int MeanPlusStdDev(int[] data) {
+  public static int meanPlusStdDev(int[] data) {
     final double m = AutoThreshold.stdDevMultiplier;
-    return new AutoThreshold().MeanPlusStdDev(data, m);
+    return new AutoThreshold().meanPlusStdDev(data, m);
   }
 
   /**
@@ -682,13 +681,13 @@ public class AutoThreshold {
    * @param stdDevMultiplier the std dev multiplier
    * @return the threshold
    */
-  public int MeanPlusStdDev(int[] data, double stdDevMultiplier) {
+  public int meanPlusStdDev(int[] data, double stdDevMultiplier) {
     // The threshold is the mean of the greyscale data plus a multiplier of the image standard
     // deviation
-    int threshold = -1;
     int count;
     double value;
-    double tot = 0, sum = 0;
+    double tot = 0;
+    double sum = 0;
     double sum2 = 0.0;
     for (int i = 0; i < data.length; i++) {
       if (data[i] > 0) {
@@ -698,6 +697,10 @@ public class AutoThreshold {
         sum += value * count;
         sum2 += (value * value) * count;
       }
+    }
+
+    if (tot == 0) {
+      return 0;
     }
 
     final double mean = sum / tot;
@@ -716,7 +719,7 @@ public class AutoThreshold {
       stdDev = 0.0;
     }
 
-    threshold = (int) Math.floor(mean + stdDev * stdDevMultiplier);
+    int threshold = (int) Math.floor(mean + stdDev * stdDevMultiplier);
 
     // Do a bounds check
     if (threshold < 0) {
@@ -739,117 +742,65 @@ public class AutoThreshold {
    * @param data the data
    * @return the threshold
    */
-  public static int MinErrorI(int[] data) {
-    int threshold = Mean(data); // Initial estimate for the threshold is found with the MEAN
-                                // algorithm.
-    int Tprev = -2;
-    double mu, nu, p, q, sigma2, tau2, w0, w1, w2, sqterm, temp;
+  public static int minErrorI(int[] data) {
+    // Initial estimate for the threshold is found with the MEAN
+    // algorithm.
+    int threshold = mean(data);
+    int prevThreshold = -2;
 
     // Pre-compute
-    final double[] A = new double[data.length];
-    final double[] B = new double[data.length];
-    final double[] C = new double[data.length];
-    double a = 0, b = 0, c = 0;
+    final double[] cumulativeCount = new double[data.length];
+    final double[] cumulativeSum = new double[data.length];
+    final double[] cumulativeSumSq = new double[data.length];
+    double count = 0;
+    double sum = 0;
+    double sumSq = 0;
     for (int i = 0; i < data.length; i++) {
-      a += data[i];
-      A[i] = a;
-      b += i * data[i];
-      B[i] = b;
-      c += i * i * data[i];
-      C[i] = c;
+      count += data[i];
+      cumulativeCount[i] = count;
+      sum += i * data[i];
+      cumulativeSum[i] = sum;
+      sumSq += i * i * data[i];
+      cumulativeSumSq[i] = sumSq;
     }
 
-    // int counter=1;
     final int end = data.length - 1;
-    while (threshold != Tprev) {
+    while (threshold != prevThreshold) {
       // Calculate some statistics.
-      // mu = B(data, threshold) / A(data, threshold);
-      // nu = (B(data, end) - B(data, threshold)) / (A(data, end) - A(data, threshold));
-      // p = A(data, threshold) / A(data, end);
-      // q = (A(data, end) - A(data, threshold)) / A(data, end);
-      // sigma2 = C(data, threshold) / A(data, threshold) - (mu * mu);
-      // tau2 = (C(data, end) - C(data, threshold)) / (A(data, end) - A(data, threshold)) -
-      // (nu * nu);
-
-      // With precomputed values
-      mu = B[threshold] / A[threshold];
-      nu = (B[end] - B[threshold]) / (A[end] - A[threshold]);
-      p = A[threshold] / A[end];
-      q = (A[end] - A[threshold]) / A[end];
-      sigma2 = C[threshold] / A[threshold] - (mu * mu);
-      tau2 = (C[end] - C[threshold]) / (A[end] - A[threshold]) - (nu * nu);
+      double mu = cumulativeSum[threshold] / cumulativeCount[threshold];
+      double nu = (cumulativeSum[end] - cumulativeSum[threshold])
+          / (cumulativeCount[end] - cumulativeCount[threshold]);
+      double pterm = cumulativeCount[threshold] / cumulativeCount[end];
+      double qterm = (cumulativeCount[end] - cumulativeCount[threshold]) / cumulativeCount[end];
+      double sigma2 = cumulativeSumSq[threshold] / cumulativeCount[threshold] - (mu * mu);
+      double tau2 = (cumulativeSumSq[end] - cumulativeSumSq[threshold])
+          / (cumulativeCount[end] - cumulativeCount[threshold]) - (nu * nu);
 
       // The terms of the quadratic equation to be solved.
-      w0 = 1.0 / sigma2 - 1.0 / tau2;
-      w1 = mu / sigma2 - nu / tau2;
-      w2 = (mu * mu) / sigma2 - (nu * nu) / tau2
-          + Math.log10((sigma2 * (q * q)) / (tau2 * (p * p)));
+      double w0 = 1.0 / sigma2 - 1.0 / tau2;
+      double w1 = mu / sigma2 - nu / tau2;
+      double w2 = (mu * mu) / sigma2 - (nu * nu) / tau2
+          + Math.log10((sigma2 * (qterm * qterm)) / (tau2 * (pterm * pterm)));
 
       // If the next threshold would be imaginary, return with the current one.
-      sqterm = (w1 * w1) - w0 * w2;
+      double sqterm = (w1 * w1) - w0 * w2;
       if (sqterm < 0) {
-        log("MinError(I): not converging. Try \'Ignore black/white\' options");
+        logger.fine("MinError(I): not converging. Try \'Ignore black/white\' options");
         return threshold;
       }
 
       // The updated threshold is the integer part of the solution of the quadratic equation.
-      Tprev = threshold;
-      temp = (w1 + Math.sqrt(sqterm)) / w0;
+      prevThreshold = threshold;
+      double temp = (w1 + Math.sqrt(sqterm)) / w0;
 
       if (Double.isNaN(temp)) {
-        log("MinError(I): NaN, not converging. Try \'Ignore black/white\' options");
-        threshold = Tprev;
+        logger.fine("MinError(I): NaN, not converging. Try \'Ignore black/white\' options");
+        threshold = prevThreshold;
       } else {
         threshold = (int) Math.floor(temp);
-        // log("Iter: "+ counter+++" t:"+threshold);
       }
     }
     return threshold;
-  }
-
-  /**
-   * A.
-   *
-   * @param y the y
-   * @param j the j
-   * @return the double
-   */
-  protected static double A(int[] y, int j) {
-    double x = 0;
-    for (int i = 0; i <= j; i++) {
-      x += y[i];
-    }
-    return x;
-  }
-
-  /**
-   * B.
-   *
-   * @param y the y
-   * @param j the j
-   * @return the double
-   */
-  protected static double B(int[] y, int j) {
-    double x = 0;
-    for (int i = 0; i <= j; i++) {
-      x += i * y[i];
-    }
-    return x;
-  }
-
-  /**
-   * C.
-   *
-   * @param y the y
-   * @param j the j
-   * @return the double
-   */
-  protected static double C(int[] y, int j) {
-    double x = 0;
-    for (int i = 0; i <= j; i++) {
-      x += i * i * y[i];
-    }
-    return x;
   }
 
   /**
@@ -862,7 +813,7 @@ public class AutoThreshold {
    * @param data the data
    * @return the threshold
    */
-  public static int Minimum(int[] data) {
+  public static int minimum(int[] data) {
     // Assumes a bimodal histogram. The histogram needs is smoothed (using a
     // running average of size 3, iteratively) until there are only two local maxima.
     // Threshold t is such that yt−1 > yt ≤ yt+1.
@@ -871,36 +822,39 @@ public class AutoThreshold {
     int iter = 0;
     int threshold = -1;
     int max = -1;
-    double[] iHisto = new double[data.length];
+    double[] histogram = new double[data.length];
 
     for (int i = 0; i < data.length; i++) {
-      iHisto[i] = data[i];
+      histogram[i] = data[i];
       if (data[i] > 0) {
         max = i;
       }
     }
-    final double[] tHisto = iHisto;
 
-    while (!bimodalTest(iHisto)) {
+    final double[] tmpHistogram = new double[data.length];
+
+    while (!bimodalTest(histogram)) {
       // smooth with a 3 point running mean filter
       for (int i = 1; i < data.length - 1; i++) {
-        tHisto[i] = (iHisto[i - 1] + iHisto[i] + iHisto[i + 1]) / 3;
+        tmpHistogram[i] = (histogram[i - 1] + histogram[i] + histogram[i + 1]) / 3;
       }
-      tHisto[0] = (iHisto[0] + iHisto[1]) / 3; // 0 outside
-      tHisto[data.length - 1] = (iHisto[data.length - 2] + iHisto[data.length - 1]) / 3; // 0
-                                                                                         // outside
-      iHisto = tHisto;
+      // 0 outside
+      tmpHistogram[0] = (histogram[0] + histogram[1]) / 3;
+      // 0 outside
+      tmpHistogram[data.length - 1] = (histogram[data.length - 2] + histogram[data.length - 1]) / 3;
+
+      // Copy back
+      System.arraycopy(tmpHistogram, 0, histogram, 0, data.length);
       iter++;
       if (iter > 10000) {
         threshold = -1;
-        log("Minimum Threshold not found after 10000 iterations.");
+        logger.fine("Minimum Threshold not found after 10000 iterations.");
         return threshold;
       }
     }
     // The threshold is the minimum between the two peaks. modified for 16 bits
     for (int i = 1; i < max; i++) {
-      // log(" "+i+" "+iHisto[i]);
-      if (iHisto[i - 1] > iHisto[i] && iHisto[i + 1] >= iHisto[i]) {
+      if (histogram[i - 1] > histogram[i] && histogram[i + 1] >= histogram[i]) {
         threshold = i;
       }
     }
@@ -917,24 +871,26 @@ public class AutoThreshold {
    * @param data the data
    * @return the threshold
    */
-  public static int Moments(int[] data) {
+  public static int moments(int[] data) {
     double total = 0;
-    final double m0 = 1.0;
-    double m1 = 0.0, m2 = 0.0, m3 = 0.0, sum = 0.0, p0 = 0.0;
-    double cd, c0, c1, z0, z1; /* auxiliary variables */
-    int threshold = -1;
-
-    final double[] histo = new double[data.length];
 
     for (int i = 0; i < data.length; i++) {
       total += data[i];
     }
 
+    if (total == 0) {
+      return 0;
+    }
+
+    final double[] histo = new double[data.length];
     for (int i = 0; i < data.length; i++) {
       histo[i] = data[i] / total; // normalised histogram
     }
 
     /* Calculate the first, second, and third order moments */
+    double m1 = 0.0;
+    double m2 = 0.0;
+    double m3 = 0.0;
     for (int i = 0; i < data.length; i++) {
       m1 += i * histo[i];
       m2 += i * i * histo[i];
@@ -944,16 +900,19 @@ public class AutoThreshold {
      * First 4 moments of the gray-level image should match the first 4 moments of the target binary
      * image. This leads to 4 equalities whose solutions are given in the Appendix of Ref. 1
      */
-    cd = m0 * m2 - m1 * m1;
-    c0 = (-m2 * m2 + m1 * m3) / cd;
-    c1 = (m0 * -m3 + m2 * m1) / cd;
-    z0 = 0.5 * (-c1 - Math.sqrt(c1 * c1 - 4.0 * c0));
-    z1 = 0.5 * (-c1 + Math.sqrt(c1 * c1 - 4.0 * c0));
-    p0 = (z1 - m1) / (z1 - z0); /* Fraction of the object pixels in the target binary image */
+    final double m0 = 1.0;
+    double cd = m0 * m2 - m1 * m1;
+    double c0 = (-m2 * m2 + m1 * m3) / cd;
+    double c1 = (m0 * -m3 + m2 * m1) / cd;
+    double z0 = 0.5 * (-c1 - Math.sqrt(c1 * c1 - 4.0 * c0));
+    double z1 = 0.5 * (-c1 + Math.sqrt(c1 * c1 - 4.0 * c0));
+    double p0 =
+        (z1 - m1) / (z1 - z0); /* Fraction of the object pixels in the target binary image */
 
     // The threshold is the gray-level closest
     // to the p0-tile of the normalized histogram
-    sum = 0;
+    double sum = 0;
+    int threshold = -1;
     for (int i = 0; i < data.length; i++) {
       sum += histo[i];
       if (sum > p0) {
@@ -971,94 +930,92 @@ public class AutoThreshold {
    * @param data the data
    * @return the threshold
    */
-  public static int Otsu(int[] data) {
-    int k, kStar; // k = the current threshold; kStar = optimal threshold
-    int N1, N; // N1 = # points with intensity <=k; N = total number of points
-    double BCV, BCVmax; // The current Between Class Variance and maximum BCV
-    double num, denom; // temporary bookeeping
-    int Sk; // The total intensity for all histogram points <=k
-    int S; // The total intensity of the image
-    final int L = data.length;
+  public static int otsu(int[] data) {
+    final int length = data.length;
 
     // Initialize values:
-    S = N = 0;
+    // The total intensity of the image
+    int sum = 0;
+    // np = total number of points
+    int np = 0;
     double ssx = 0;
-    for (k = 0; k < L; k++) {
+    for (int k = 0; k < length; k++) {
       ssx += k * k * data[k];
-      S += k * data[k]; // Total histogram intensity
-      N += data[k]; // Total number of data points
+      sum += k * data[k]; // Total histogram intensity
+      np += data[k]; // Total number of data points
     }
 
-    Sk = 0;
-    N1 = data[0]; // The entry for zero intensity
-    BCV = 0;
-    BCVmax = 0;
-    kStar = 0;
-    int kStar_count = 0;
+    // k = the current threshold
+    // kstar = optimal threshold
+    int kstar = 0;
+    // The maximum Between Class Variance
+    double bcvMax = 0;
+    // The total intensity for all histogram points <=k
+    int sumK = 0;
+    // n1 = # points with intensity <=k.
+    // Start with the entry for zero intensity
+    int n1 = data[0];
+    // The count of the number of optimal thresholds
+    int kstarCount = 0;
 
     // Look at each possible threshold value,
     // calculate the between-class variance, and decide if it's a max
-    for (k = 1; k < L - 1; k++) { // No need to check endpoints k = 0 or k = L-1
-      Sk += k * data[k];
-      N1 += data[k];
+    for (int k = 1; k < length - 1; k++) { // No need to check endpoints k = 0 or k = L-1
+      sumK += k * data[k];
+      n1 += data[k];
 
       // The float casting here is to avoid compiler warning about loss of precision and
       // will prevent overflow in the case of large saturated images
-      denom = (double) (N1) * (N - N1); // Maximum value of denom is (N^2)/4 = approx. 3E10
+      double denom = (double) (n1) * (np - n1); // Maximum value of denom is (N^2)/4 = approx. 3E10
 
+      // The current Between Class Variance and maximum BCV
+      double bcv;
       if (denom != 0) {
         // Float here is to avoid loss of precision when dividing
-        num = ((double) N1 / N) * S - Sk; // Maximum value of num = 255*N = approx 8E7
-        BCV = (num * num) / denom;
+        double num = ((double) n1 / np) * sum - sumK; // Maximum value of num = 255*N = approx 8E7
+        bcv = (num * num) / denom;
 
       } else {
-        BCV = 0;
+        bcv = 0;
       }
 
-      // if (BCV >= BCVmax)
-      // { // Assign the best threshold found so far
-      // BCVmax = BCV;
-      // kStar = k;
-      // }
       // Added for debugging.
       // Gonzalex & Woods, Digital Image Processing, 3rd Ed. pp 746:
       // "If a maximum exists for more than one threshold it is customary to average them"
-      if (BCV > BCVmax) { // Assign the best threshold found so far
-        BCVmax = BCV;
-        kStar = k;
-        kStar_count = 1;
-      } else if (BCV == BCVmax) {
+      if (bcv > bcvMax) { // Assign the best threshold found so far
+        bcvMax = bcv;
+        kstar = k;
+        kstarCount = 1;
+      } else if (bcv == bcvMax) {
         // Total the thresholds for averaging
-        kStar += k;
-        kStar_count++;
+        kstar += k;
+        kstarCount++;
       }
     }
 
-    if (kStar_count > 1) {
-      if (isDebug) {
-        log("Otsu method has multiple optimal thresholds");
-      }
-      kStar /= kStar_count;
+    if (kstarCount > 1) {
+      logger.finer("Otsu method has multiple optimal thresholds");
+      kstar /= kstarCount;
     }
 
     // Output the measure of separability. Requires BCVmax / BCVglobal
-    if (isDebug && N > 0) {
+    if (logger.isLoggable(Level.FINER) && np > 0) {
       // Calculate global variance
-      final double sx = S;
+      final double sx = sum;
       ssx = 0;
-      for (k = 1; k < L; k++) {
+      for (int k = 1; k < length; k++) {
         ssx += k * k * data[k];
       }
-      BCV = (ssx - sx * sx / N) / N;
+      double bcv = (ssx - sx * sx / np) / np;
 
-      // Removed use of minbin to allow thread safe execution
-      // log(String.format("Otsu separability @ %d: %f", kStar + minbin, (BCVmax / BCV)));
-      log(String.format("Otsu separability @ %d: %f", kStar, (BCVmax / BCV)));
+      final int kstarCopy = kstar;
+      final double ratio = (bcvMax / bcv);
+      logger.finer(() -> String.format("Otsu separability @ %d: %f", kstarCopy, ratio));
     }
 
-    // kStar += 1; // Use QTI convention that intensity -> 1 if intensity >= k
+    // kstar += 1; // Use QTI convention that intensity -> 1 if intensity >= k
     // (the algorithm was developed for I-> 1 if I <= k.)
-    return kStar;
+    return kstar;
   }
 
   /**
@@ -1071,27 +1028,16 @@ public class AutoThreshold {
    * @param data the data
    * @return the threshold
    */
-  public static int Percentile(int[] data) {
+  public static int percentile(int[] data) {
+    final double total = partialSum(data, data.length - 1);
+    if (total == 0) {
+      return 0;
+    }
     int threshold = -1;
     final double ptile = 0.5; // default fraction of foreground pixels
-
-    // double[] avec = new double[data.length];
-    // for (int i = 0; i < data.length; i++)
-    // avec[i] = 0.0;
-
-    final double total = partialSum(data, data.length - 1);
     double temp = 1.0;
     double sum = 0;
     for (int i = 0; i < data.length; i++) {
-      // avec[i] = Math.abs((partialSum(data, i) / total) - ptile);
-      // avec[i] = Math.abs((partialSum(data, i) / total) - ptile);
-      // log("Ptile[" + i + "]:" + avec[i]);
-      //
-      // if (avec[i] < temp)
-      // {
-      // temp = avec[i];
-      // threshold = i;
-      // }
 
       sum += data[i];
       // Fraction of the data
@@ -1120,16 +1066,16 @@ public class AutoThreshold {
   /**
    * Partial sum.
    *
-   * @param y the y
-   * @param j the j
+   * @param data the data
+   * @param size the size
    * @return the double
    */
-  protected static double partialSum(int[] y, int j) {
-    double x = 0;
-    for (int i = 0; i <= j; i++) {
-      x += y[i];
+  protected static double partialSum(int[] data, int size) {
+    double sum = 0;
+    for (int i = 0; i <= size; i++) {
+      sum += data[i];
     }
-    return x;
+    return sum;
   }
 
   /**
@@ -1140,57 +1086,47 @@ public class AutoThreshold {
    * @param data the data
    * @return the threshold
    */
-  public static int RenyiEntropy(int[] data) {
-    int threshold;
-    int opt_threshold;
-
-    int ih, it;
-    int first_bin;
-    int last_bin;
-    int tmp_var;
-    int t_star1, t_star2, t_star3;
-    int beta1, beta2, beta3;
-    double alpha;/* alpha parameter of the method */
-    double term;
-    double tot_ent; /* total entropy */
-    double max_ent; /* max entropy */
-    double ent_back; /* entropy of the background pixels at a given threshold */
-    double ent_obj; /* entropy of the object pixels at a given threshold */
-    double omega;
-    final double[] norm_histo = new double[data.length]; /* normalized histogram */
-    final double[] P1 = new double[data.length]; /* cumulative normalized histogram */
-    final double[] P2 = new double[data.length];
+  public static int renyiEntropy(int[] data) {
 
     int total = 0;
-    for (ih = 0; ih < data.length; ih++) {
+    for (int ih = 0; ih < data.length; ih++) {
       total += data[ih];
     }
 
-    for (ih = 0; ih < data.length; ih++) {
-      norm_histo[ih] = (double) data[ih] / total;
+    if (total == 0) {
+      return 0;
     }
 
-    P1[0] = norm_histo[0];
-    P2[0] = 1.0 - P1[0];
-    for (ih = 1; ih < data.length; ih++) {
-      P1[ih] = P1[ih - 1] + norm_histo[ih];
-      P2[ih] = 1.0 - P1[ih];
+    /* normalized histogram */
+    final double[] normHisto = new double[data.length];
+    for (int ih = 0; ih < data.length; ih++) {
+      normHisto[ih] = (double) data[ih] / total;
+    }
+
+    /* cumulative normalized histogram */
+    final double[] p1 = new double[data.length];
+    final double[] p2 = new double[data.length];
+    p1[0] = normHisto[0];
+    p2[0] = 1.0 - p1[0];
+    for (int ih = 1; ih < data.length; ih++) {
+      p1[ih] = p1[ih - 1] + normHisto[ih];
+      p2[ih] = 1.0 - p1[ih];
     }
 
     /* Determine the first non-zero bin */
-    first_bin = 0;
-    for (ih = 0; ih < data.length; ih++) {
-      if (!(Math.abs(P1[ih]) < 2.220446049250313E-16)) {
-        first_bin = ih;
+    int firstBin = 0;
+    for (int ih = 0; ih < data.length; ih++) {
+      if (Math.abs(p1[ih]) >= 2.220446049250313E-16) {
+        firstBin = ih;
         break;
       }
     }
 
     /* Determine the last non-zero bin */
-    last_bin = data.length - 1;
-    for (ih = data.length - 1; ih >= first_bin; ih--) {
-      if (!(Math.abs(P2[ih]) < 2.220446049250313E-16)) {
-        last_bin = ih;
+    int lastBin = data.length - 1;
+    for (int ih = data.length - 1; ih >= firstBin; ih--) {
+      if (Math.abs(p2[ih]) >= 2.220446049250313E-16) {
+        lastBin = ih;
         break;
       }
     }
@@ -1200,118 +1136,126 @@ public class AutoThreshold {
     /*
      * Calculate the total entropy each gray-level and find the threshold that maximizes it
      */
-    threshold = 0; // was MIN_INT in original code, but if an empty image is processed it gives an
-                   // error later on.
-    max_ent = 0.0;
+    // was MIN_INT in original code, but if an empty image is processed it gives an
+    // error later on.
+    int threshold = 0;
+    /* max entropy */
+    double maxEnt = 0.0;
 
-    for (it = first_bin; it <= last_bin; it++) {
+    for (int it = firstBin; it <= lastBin; it++) {
       /* Entropy of the background pixels */
-      ent_back = 0.0;
-      for (ih = 0; ih <= it; ih++) {
+      double entBack = 0.0;
+      for (int ih = 0; ih <= it; ih++) {
         if (data[ih] != 0) {
-          ent_back -= (norm_histo[ih] / P1[it]) * Math.log(norm_histo[ih] / P1[it]);
+          entBack -= (normHisto[ih] / p1[it]) * Math.log(normHisto[ih] / p1[it]);
         }
       }
 
       /* Entropy of the object pixels */
-      ent_obj = 0.0;
-      for (ih = it + 1; ih < data.length; ih++) {
+      double entObj = 0.0;
+      for (int ih = it + 1; ih < data.length; ih++) {
         if (data[ih] != 0) {
-          ent_obj -= (norm_histo[ih] / P2[it]) * Math.log(norm_histo[ih] / P2[it]);
+          entObj -= (normHisto[ih] / p2[it]) * Math.log(normHisto[ih] / p2[it]);
         }
       }
 
       /* Total entropy */
-      tot_ent = ent_back + ent_obj;
+      double totEnt = entBack + entObj;
 
-      // log(""+max_ent+" "+tot_ent);
-
-      if (max_ent < tot_ent) {
-        max_ent = tot_ent;
+      if (maxEnt < totEnt) {
+        maxEnt = totEnt;
         threshold = it;
       }
     }
-    t_star2 = threshold;
+    final int fixedTstar2 = threshold;
 
     /* Maximum Entropy Thresholding - END */
-    threshold = 0; // was MIN_INT in original code, but if an empty image is processed it gives an
-                   // error later on.
-    max_ent = 0.0;
-    alpha = 0.5;
-    term = 1.0 / (1.0 - alpha);
-    for (it = first_bin; it <= last_bin; it++) {
+    // was MIN_INT in original code, but if an empty image is processed it gives an
+    // error later on.
+    threshold = 0;
+    maxEnt = 0.0;
+    /* alpha parameter of the method */
+    double alpha = 0.5;
+    double term = 1.0 / (1.0 - alpha);
+    for (int it = firstBin; it <= lastBin; it++) {
       /* Entropy of the background pixels */
-      ent_back = 0.0;
-      for (ih = 0; ih <= it; ih++) {
-        ent_back += Math.sqrt(norm_histo[ih] / P1[it]);
+      double entBack = 0.0;
+      for (int ih = 0; ih <= it; ih++) {
+        entBack += Math.sqrt(normHisto[ih] / p1[it]);
       }
 
       /* Entropy of the object pixels */
-      ent_obj = 0.0;
-      for (ih = it + 1; ih < data.length; ih++) {
-        ent_obj += Math.sqrt(norm_histo[ih] / P2[it]);
+      double entObj = 0.0;
+      for (int ih = it + 1; ih < data.length; ih++) {
+        entObj += Math.sqrt(normHisto[ih] / p2[it]);
       }
 
       /* Total entropy */
-      tot_ent = term * ((ent_back * ent_obj) > 0.0 ? Math.log(ent_back * ent_obj) : 0.0);
+      double totEnt = term * ((entBack * entObj) > 0.0 ? Math.log(entBack * entObj) : 0.0);
 
-      if (tot_ent > max_ent) {
-        max_ent = tot_ent;
+      if (totEnt > maxEnt) {
+        maxEnt = totEnt;
         threshold = it;
       }
     }
 
-    t_star1 = threshold;
+    final int fixedTstar1 = threshold;
 
-    threshold = 0; // was MIN_INT in original code, but if an empty image is processed it gives an
-                   // error later on.
-    max_ent = 0.0;
+    // was MIN_INT in original code, but if an empty image is processed it gives an
+    // error later on.
+    threshold = 0;
+    maxEnt = 0.0;
     alpha = 2.0;
     term = 1.0 / (1.0 - alpha);
-    for (it = first_bin; it <= last_bin; it++) {
+    for (int it = firstBin; it <= lastBin; it++) {
       /* Entropy of the background pixels */
-      ent_back = 0.0;
-      for (ih = 0; ih <= it; ih++) {
-        ent_back += (norm_histo[ih] * norm_histo[ih]) / (P1[it] * P1[it]);
+      double entBack = 0.0;
+      for (int ih = 0; ih <= it; ih++) {
+        entBack += (normHisto[ih] * normHisto[ih]) / (p1[it] * p1[it]);
       }
 
       /* Entropy of the object pixels */
-      ent_obj = 0.0;
-      for (ih = it + 1; ih < data.length; ih++) {
-        ent_obj += (norm_histo[ih] * norm_histo[ih]) / (P2[it] * P2[it]);
+      double entObj = 0.0;
+      for (int ih = it + 1; ih < data.length; ih++) {
+        entObj += (normHisto[ih] * normHisto[ih]) / (p2[it] * p2[it]);
       }
 
       /* Total entropy */
-      tot_ent = term * ((ent_back * ent_obj) > 0.0 ? Math.log(ent_back * ent_obj) : 0.0);
+      double totEnt = term * ((entBack * entObj) > 0.0 ? Math.log(entBack * entObj) : 0.0);
 
-      if (tot_ent > max_ent) {
-        max_ent = tot_ent;
+      if (totEnt > maxEnt) {
+        maxEnt = totEnt;
         threshold = it;
       }
     }
 
-    t_star3 = threshold;
+    int tstar1 = fixedTstar1;
+    int tstar2 = fixedTstar2;
+    int tstar3 = threshold;
 
     /* Sort t_star values */
-    if (t_star2 < t_star1) {
-      tmp_var = t_star1;
-      t_star1 = t_star2;
-      t_star2 = tmp_var;
+    if (tstar2 < tstar1) {
+      int tmpVar = tstar1;
+      tstar1 = tstar2;
+      tstar2 = tmpVar;
     }
-    if (t_star3 < t_star2) {
-      tmp_var = t_star2;
-      t_star2 = t_star3;
-      t_star3 = tmp_var;
+    if (tstar3 < tstar2) {
+      int tmpVar = tstar2;
+      tstar2 = tstar3;
+      tstar3 = tmpVar;
     }
-    if (t_star2 < t_star1) {
-      tmp_var = t_star1;
-      t_star1 = t_star2;
-      t_star2 = tmp_var;
+    if (tstar2 < tstar1) {
+      int tmpVar = tstar1;
+      tstar1 = tstar2;
+      tstar2 = tmpVar;
     }
 
     /* Adjust beta values */
-    if (Math.abs(t_star1 - t_star2) <= 5) {
-      if (Math.abs(t_star2 - t_star3) <= 5) {
+    int beta1;
+    int beta2;
+    int beta3;
+    if (Math.abs(tstar1 - tstar2) <= 5) {
+      if (Math.abs(tstar2 - tstar3) <= 5) {
         beta1 = 1;
         beta2 = 2;
         beta3 = 1;
@@ -1320,7 +1264,7 @@ public class AutoThreshold {
         beta2 = 1;
         beta3 = 3;
       }
-    } else if (Math.abs(t_star2 - t_star3) <= 5) {
+    } else if (Math.abs(tstar2 - tstar3) <= 5) {
       beta1 = 3;
       beta2 = 1;
       beta3 = 0;
@@ -1329,13 +1273,10 @@ public class AutoThreshold {
       beta2 = 2;
       beta3 = 1;
     }
-    // log(""+t_star1+" "+t_star2+" "+t_star3);
     /* Determine the optimal threshold value */
-    omega = P1[t_star3] - P1[t_star1];
-    opt_threshold = (int) (t_star1 * (P1[t_star1] + 0.25 * omega * beta1)
-        + 0.25 * t_star2 * omega * beta2 + t_star3 * (P2[t_star3] + 0.25 * omega * beta3));
-
-    return opt_threshold;
+    double omega = p1[tstar3] - p1[tstar1];
+    return (int) (tstar1 * (p1[tstar1] + 0.25 * omega * beta1)
+        + 0.25 * tstar2 * omega * beta2 + tstar3 * (p2[tstar3] + 0.25 * omega * beta3));
   }
 
   /**
@@ -1346,81 +1287,78 @@ public class AutoThreshold {
    * @param data the data
    * @return the threshold
    */
-  public static int Shanbhag(int[] data) {
-    int threshold;
-    int ih, it;
-    int first_bin;
-    int last_bin;
-    double term;
-    double tot_ent; /* total entropy */
-    double min_ent; /* max entropy */
-    double ent_back; /* entropy of the background pixels at a given threshold */
-    double ent_obj; /* entropy of the object pixels at a given threshold */
-    final double[] norm_histo = new double[data.length]; /* normalized histogram */
-    final double[] P1 = new double[data.length]; /* cumulative normalized histogram */
-    final double[] P2 = new double[data.length];
+  public static int shanbhag(int[] data) {
 
     int total = 0;
-    for (ih = 0; ih < data.length; ih++) {
+    for (int ih = 0; ih < data.length; ih++) {
       total += data[ih];
     }
-
-    for (ih = 0; ih < data.length; ih++) {
-      norm_histo[ih] = (double) data[ih] / total;
+    if (total == 0) {
+      return 0;
     }
 
-    P1[0] = norm_histo[0];
-    P2[0] = 1.0 - P1[0];
-    for (ih = 1; ih < data.length; ih++) {
-      P1[ih] = P1[ih - 1] + norm_histo[ih];
-      P2[ih] = 1.0 - P1[ih];
+    /* normalized histogram */
+    final double[] normHisto = new double[data.length];
+    for (int ih = 0; ih < data.length; ih++) {
+      normHisto[ih] = (double) data[ih] / total;
+    }
+
+    /* cumulative normalized histogram */
+    final double[] p1 = new double[data.length];
+    final double[] p2 = new double[data.length];
+    p1[0] = normHisto[0];
+    p2[0] = 1.0 - p1[0];
+    for (int ih = 1; ih < data.length; ih++) {
+      p1[ih] = p1[ih - 1] + normHisto[ih];
+      p2[ih] = 1.0 - p1[ih];
     }
 
     /* Determine the first non-zero bin */
-    first_bin = 0;
-    for (ih = 0; ih < data.length; ih++) {
-      if (!(Math.abs(P1[ih]) < 2.220446049250313E-16)) {
-        first_bin = ih;
+    int firstBin = 0;
+    for (int ih = 0; ih < data.length; ih++) {
+      if (Math.abs(p1[ih]) >= 2.220446049250313E-16) {
+        firstBin = ih;
         break;
       }
     }
 
     /* Determine the last non-zero bin */
-    last_bin = data.length - 1;
-    for (ih = data.length - 1; ih >= first_bin; ih--) {
-      if (!(Math.abs(P2[ih]) < 2.220446049250313E-16)) {
-        last_bin = ih;
+    int lastBin = data.length - 1;
+    for (int ih = data.length - 1; ih >= firstBin; ih--) {
+      if (Math.abs(p2[ih]) >= 2.220446049250313E-16) {
+        lastBin = ih;
         break;
       }
     }
 
     // Calculate the total entropy each gray-level
     // and find the threshold that maximizes it
-    threshold = -1;
-    min_ent = Double.MAX_VALUE;
+    int threshold = -1;
+    /* min entropy */
+    double minEnt = Double.MAX_VALUE;
 
-    for (it = first_bin; it <= last_bin; it++) {
+    for (int it = firstBin; it <= lastBin; it++) {
       /* Entropy of the background pixels */
-      ent_back = 0.0;
-      term = 0.5 / P1[it];
-      for (ih = 1; ih <= it; ih++) {
-        ent_back -= norm_histo[ih] * Math.log(1.0 - term * P1[ih - 1]);
+      double entBack = 0.0;
+      double term = 0.5 / p1[it];
+      for (int ih = 1; ih <= it; ih++) {
+        entBack -= normHisto[ih] * Math.log(1.0 - term * p1[ih - 1]);
       }
-      ent_back *= term;
+      entBack *= term;
 
       /* Entropy of the object pixels */
-      ent_obj = 0.0;
-      term = 0.5 / P2[it];
-      for (ih = it + 1; ih < data.length; ih++) {
-        ent_obj -= norm_histo[ih] * Math.log(1.0 - term * P2[ih]);
+      double entObj = 0.0;
+      term = 0.5 / p2[it];
+      for (int ih = it + 1; ih < data.length; ih++) {
+        entObj -= normHisto[ih] * Math.log(1.0 - term * p2[ih]);
       }
-      ent_obj *= term;
+      entObj *= term;
 
       /* Total entropy */
-      tot_ent = Math.abs(ent_back - ent_obj);
+      double totEnt = Math.abs(entBack - entObj);
 
-      if (tot_ent < min_ent) {
-        min_ent = tot_ent;
+      if (totEnt < minEnt) {
+        minEnt = totEnt;
         threshold = it;
       }
     }
@@ -1431,14 +1369,14 @@ public class AutoThreshold {
    * Zack, G. W., Rogers, W. E. and Latt, S. A., 1977, Automatic Measurement of Sister Chromatid
    * Exchange Frequency, Journal of Histochemistry and Cytochemistry 25 (7), pp. 741-753.
    *
-   * Modified from Johannes Schindelin plugin.
+   * <p>Modified from Johannes Schindelin plugin.
    *
    * @param data the data
    * @return the threshold
    */
-  public static int Triangle(int[] data) {
+  public static int triangle(int[] data) {
     // find min and max
-    int min = 0, dmax = 0, max = 0, min2 = 0;
+    int min = 0;
     for (int i = 0; i < data.length; i++) {
       if (data[i] > 0) {
         min = i;
@@ -1446,7 +1384,8 @@ public class AutoThreshold {
       }
     }
     if (min > 0) {
-      min--; // line to the (p==0) point, not to data[min]
+      // line to the (p==0) point, not to data[min]
+      min--;
     }
 
     // The Triangle algorithm cannot tell whether the data is skewed to one side or another.
@@ -1455,6 +1394,7 @@ public class AutoThreshold {
     // Here I propose to find out to which side of the max point the data is furthest, and use that
     // as
     // the other extreme.
+    int min2 = 0;
     for (int i = data.length - 1; i > 0; i--) {
       if (data[i] > 0) {
         min2 = i;
@@ -1465,6 +1405,8 @@ public class AutoThreshold {
       min2++; // line to the (p==0) point, not to data[min]
     }
 
+    int dmax = 0;
+    int max = 0;
     for (int i = 0; i < data.length; i++) {
       if (data[i] > dmax) {
         max = i;
@@ -1472,11 +1414,9 @@ public class AutoThreshold {
       }
     }
     // find which is the furthest side
-    // log(""+min+" "+max+" "+min2);
     boolean inverted = false;
     if ((max - min) < (min2 - max)) {
       // reverse the histogram
-      // log("Reversing histogram.");
       inverted = true;
       int left = 0; // index of leftmost element
       int right = data.length - 1; // index of rightmost element
@@ -1494,25 +1434,23 @@ public class AutoThreshold {
     }
 
     if (min == max) {
-      // log("Triangle: min == max.");
       return min;
     }
 
     // describe line by nx * x + ny * y - d = 0
-    double nx, ny, d;
     // nx is just the max frequency as the other point has freq=0
-    nx = data[max]; // -min; // data[min]; // lowest value bmin = (p=0)% in the image
-    ny = min - max;
-    d = Math.sqrt(nx * nx + ny * ny);
-    nx /= d;
-    ny /= d;
-    d = nx * min + ny * data[min];
+    double nx = data[max];
+    double ny = (double) min - max;
+    double distance = Math.sqrt(nx * nx + ny * ny);
+    nx /= distance;
+    ny /= distance;
+    distance = nx * min + ny * data[min];
 
     // find split point
     int split = min;
     double splitDistance = 0;
     for (int i = min + 1; i <= max; i++) {
-      final double newDistance = nx * i + ny * data[i] - d;
+      final double newDistance = nx * i + ny * data[i] - distance;
       if (newDistance > splitDistance) {
         split = i;
         splitDistance = newDistance;
@@ -1543,53 +1481,49 @@ public class AutoThreshold {
    * Quantitative Performance Evaluation" Journal of Electronic Imaging, 13(1): 146-165.
    * http://citeseer.ist.psu.edu/sezgin04survey.html
    *
-   * Ported to ImageJ plugin by G.Landini from E Celebi's fourier_0.8 routines.
+   * <p>Ported to ImageJ plugin by G.Landini from E Celebi's fourier_0.8 routines.
    *
    * @param data the data
    * @return the threshold
    */
-  public static int Yen(int[] data) {
-    int threshold;
-    int ih, it;
-    double crit;
-    double max_crit;
-    final double[] norm_histo = new double[data.length]; /* normalized histogram */
-    final double[] P1 = new double[data.length]; /* cumulative normalized histogram */
-    final double[] P1_sq = new double[data.length];
-    final double[] P2_sq = new double[data.length];
+  public static int yen(int[] data) {
+    final double[] normHisto = new double[data.length]; /* normalized histogram */
+    final double[] p1 = new double[data.length]; /* cumulative normalized histogram */
+    final double[] p1Sq = new double[data.length];
+    final double[] p2Sq = new double[data.length];
 
     int total = 0;
-    for (ih = 0; ih < data.length; ih++) {
+    for (int ih = 0; ih < data.length; ih++) {
       total += data[ih];
     }
 
-    for (ih = 0; ih < data.length; ih++) {
-      norm_histo[ih] = (double) data[ih] / total;
+    for (int ih = 0; ih < data.length; ih++) {
+      normHisto[ih] = (double) data[ih] / total;
     }
 
-    P1[0] = norm_histo[0];
-    for (ih = 1; ih < data.length; ih++) {
-      P1[ih] = P1[ih - 1] + norm_histo[ih];
+    p1[0] = normHisto[0];
+    for (int ih = 1; ih < data.length; ih++) {
+      p1[ih] = p1[ih - 1] + normHisto[ih];
     }
 
-    P1_sq[0] = norm_histo[0] * norm_histo[0];
-    for (ih = 1; ih < data.length; ih++) {
-      P1_sq[ih] = P1_sq[ih - 1] + norm_histo[ih] * norm_histo[ih];
+    p1Sq[0] = normHisto[0] * normHisto[0];
+    for (int ih = 1; ih < data.length; ih++) {
+      p1Sq[ih] = p1Sq[ih - 1] + normHisto[ih] * normHisto[ih];
     }
 
-    P2_sq[data.length - 1] = 0.0;
-    for (ih = data.length - 2; ih >= 0; ih--) {
-      P2_sq[ih] = P2_sq[ih + 1] + norm_histo[ih + 1] * norm_histo[ih + 1];
+    p2Sq[data.length - 1] = 0.0;
+    for (int ih = data.length - 2; ih >= 0; ih--) {
+      p2Sq[ih] = p2Sq[ih + 1] + normHisto[ih + 1] * normHisto[ih + 1];
     }
 
     /* Find the threshold that maximizes the criterion */
-    threshold = -1;
-    max_crit = Double.MIN_VALUE;
-    for (it = 0; it < data.length; it++) {
-      crit = -1.0 * ((P1_sq[it] * P2_sq[it]) > 0.0 ? Math.log(P1_sq[it] * P2_sq[it]) : 0.0)
-          + 2 * ((P1[it] * (1.0 - P1[it])) > 0.0 ? Math.log(P1[it] * (1.0 - P1[it])) : 0.0);
-      if (crit > max_crit) {
-        max_crit = crit;
+    int threshold = -1;
+    double maxCrit = Double.MIN_VALUE;
+    for (int it = 0; it < data.length; it++) {
+      double crit = -1.0 * ((p1Sq[it] * p2Sq[it]) > 0.0 ? Math.log(p1Sq[it] * p2Sq[it]) : 0.0)
+          + 2 * ((p1[it] * (1.0 - p1[it])) > 0.0 ? Math.log(p1[it] * (1.0 - p1[it])) : 0.0);
+      if (crit > maxCrit) {
+        maxCrit = crit;
         threshold = it;
       }
     }
@@ -1597,8 +1531,10 @@ public class AutoThreshold {
   }
 
   /**
-   * Gets the threshold. <p> This method is faster than calling the required static thresholding
-   * method as the histogram is cropped to the min-max range before processing.
+   * Gets the threshold.
+   *
+   * <p>This method is faster than calling the required static thresholding method as the histogram
+   * is cropped to the min-max range before processing.
    *
    * @param method the method
    * @param data the data
@@ -1612,8 +1548,10 @@ public class AutoThreshold {
   }
 
   /**
-   * Gets the threshold. <p> This method is faster than calling the required static thresholding
-   * method as the histogram is cropped to the min-max range before processing.
+   * Gets the threshold.
+   *
+   * <p>This method is faster than calling the required static thresholding method as the histogram
+   * is cropped to the min-max range before processing.
    *
    * @param method the method
    * @param data the data
@@ -1624,7 +1562,7 @@ public class AutoThreshold {
       return 0;
     }
     for (final Method m : Method.values()) {
-      if (m.name.equals(method)) {
+      if (m.nameString.equals(method)) {
         return getThreshold(m, data);
       }
     }
@@ -1632,8 +1570,10 @@ public class AutoThreshold {
   }
 
   /**
-   * Gets the threshold. <p> This method is faster than calling the required static thresholding
-   * method as the histogram is cropped to the min-max range before processing.
+   * Gets the threshold.
+   *
+   * <p>This method is faster than calling the required static thresholding method as the histogram
+   * is cropped to the min-max range before processing.
    *
    * @param method the method
    * @param data the data
@@ -1647,16 +1587,6 @@ public class AutoThreshold {
     // bracket the histogram to the range that holds data to make it quicker
     int minbin = 0;
     int maxbin = data.length - 1;
-    // for (int i = 0; i < data.length; i++)
-    // {
-    // if (data[i] > 0)
-    // maxbin = i;
-    // }
-    // for (int i = data.length - 1; i >= 0; i--)
-    // {
-    // if (data[i] > 0)
-    // minbin = i;
-    // }
     while ((data[minbin] == 0) && (minbin < maxbin)) {
       minbin++;
     }
@@ -1689,39 +1619,28 @@ public class AutoThreshold {
   }
 
   private static int run(Method method, int[] data) {
-    // Should not be needed
-    // if (data == null)
-    // return 0;
-
     switch (method) {
       //@formatter:off
-			case OTSU: return Otsu(data);
-			case DEFAULT: return IJDefault(data);
-			case HUANG: return Huang(data);
-			case INTERMODES: return Intermodes(data);
-			case ISO_DATA: return IsoData(data);
-			case LI: return Li(data);
-			case MAX_ENTROPY: return MaxEntropy(data);
-			case MEAN: return Mean(data);
-			case MEAN_PLUS_STD_DEV: return MeanPlusStdDev(data);
-			case MIN_ERROR_I: return MinErrorI(data);
-			case MINIMUM: return Minimum(data);
-			case MOMENTS: return Moments(data);
-			case PERCENTILE: return Percentile(data);
-			case RENYI_ENTROPY: return RenyiEntropy(data);
-			case SHANBHAG: return Shanbhag(data);
-			case TRIANGLE: return Triangle(data);
-			case YEN: return Yen(data);
-			case NONE:
-			default: return -1;
-			//@formatter:on
-    }
-  }
-
-  private static void log(String string) {
-    if (isLogging) {
-      // This could be changed to output somewhere else, e.g. a utils.logging.Logger instance
-      System.out.println(string);
+      case OTSU: return otsu(data);
+      case DEFAULT: return ijDefault(data);
+      case HUANG: return huang(data);
+      case INTERMODES: return intermodes(data);
+      case ISO_DATA: return isoData(data);
+      case LI: return li(data);
+      case MAX_ENTROPY: return maxEntropy(data);
+      case MEAN: return mean(data);
+      case MEAN_PLUS_STD_DEV: return meanPlusStdDev(data);
+      case MIN_ERROR_I: return minErrorI(data);
+      case MINIMUM: return minimum(data);
+      case MOMENTS: return moments(data);
+      case PERCENTILE: return percentile(data);
+      case RENYI_ENTROPY: return renyiEntropy(data);
+      case SHANBHAG: return shanbhag(data);
+      case TRIANGLE: return triangle(data);
+      case YEN: return yen(data);
+      case NONE:
+      default: return -1;
+      //@formatter:on
     }
   }
 }

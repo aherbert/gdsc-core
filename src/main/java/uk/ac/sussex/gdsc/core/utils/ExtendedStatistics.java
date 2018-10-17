@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 /**
@@ -69,55 +70,51 @@ public class ExtendedStatistics extends Statistics {
     super(data);
   }
 
-  /** {@inheritDoc} */
   @Override
   protected void addInternal(float[] data, int from, int to) {
-    if (n == 0 && from < to) {
+    if (size == 0 && from < to) {
       min = max = data[from];
     }
     for (int i = from; i < to; i++) {
       final double value = data[i];
-      s += value;
-      ss += value * value;
+      sum += value;
+      sumSq += value * value;
       updateMinMax(value);
     }
-    n += (to - from);
+    size += (to - from);
   }
 
-  /** {@inheritDoc} */
   @Override
   protected void addInternal(double[] data, int from, int to) {
-    if (n == 0 && from < to) {
+    if (size == 0 && from < to) {
       min = max = data[from];
     }
     for (int i = from; i < to; i++) {
       final double value = data[i];
-      s += value;
-      ss += value * value;
+      sum += value;
+      sumSq += value * value;
       updateMinMax(value);
     }
-    n += (to - from);
+    size += (to - from);
   }
 
-  /** {@inheritDoc} */
   @Override
   protected void addInternal(int[] data, int from, int to) {
-    if (n == 0 && from < to) {
+    if (size == 0 && from < to) {
       min = max = data[from];
     }
     for (int i = from; i < to; i++) {
       final double value = data[i];
-      s += value;
-      ss += value * value;
+      sum += value;
+      sumSq += value * value;
       updateMinMax(value);
     }
-    n += (to - from);
+    size += (to - from);
   }
 
-  /** {@inheritDoc} */
   @Override
   protected void addInternal(final double value) {
-    if (n == 0) {
+    if (size == 0) {
       min = max = value;
     } else {
       updateMinMax(value);
@@ -125,20 +122,21 @@ public class ExtendedStatistics extends Statistics {
     super.addInternal(value);
   }
 
-  /** {@inheritDoc} */
   @Override
-  protected void addInternal(int nA, double value) {
-    if (n == 0) {
+  protected void addInternal(int n, double value) {
+    if (size == 0) {
       min = max = value;
     } else {
       updateMinMax(value);
     }
-    super.addInternal(nA, value);
+    super.addInternal(n, value);
   }
 
   /**
-   * Update the min and max. <p> This should only be called when the count is above zero (i.e.
-   * min/max have been set with a valid value).
+   * Update the min and max.
+   *
+   * <p>This should only be called when the count is above zero (i.e. min/max have been set with a
+   * valid value).
    *
    * @param value the value
    */
@@ -156,7 +154,7 @@ public class ExtendedStatistics extends Statistics {
    * @return the minimum
    */
   public double getMin() {
-    return (n == 0) ? Double.NaN : min;
+    return (size == 0) ? Double.NaN : min;
   }
 
   /**
@@ -165,18 +163,17 @@ public class ExtendedStatistics extends Statistics {
    * @return the maximum
    */
   public double getMax() {
-    return (n == 0) ? Double.NaN : max;
+    return (size == 0) ? Double.NaN : max;
   }
 
-  /** {@inheritDoc} */
   @Override
   public void add(Statistics statistics) {
     if (statistics instanceof ExtendedStatistics) {
       final ExtendedStatistics extra = (ExtendedStatistics) statistics;
-      if (extra.n > 0) {
-        n += statistics.n;
-        s += statistics.s;
-        ss += statistics.ss;
+      if (extra.size > 0) {
+        size += statistics.size;
+        sum += statistics.sum;
+        sumSq += statistics.sumSq;
         if (min > extra.min) {
           min = extra.min;
         }
@@ -189,7 +186,6 @@ public class ExtendedStatistics extends Statistics {
     throw new NotImplementedException("Not a ExtendedStatistics instance");
   }
 
-  /** {@inheritDoc} */
   @Override
   public void reset() {
     super.reset();

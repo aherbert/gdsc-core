@@ -25,18 +25,19 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.roi;
 
 import uk.ac.sussex.gdsc.core.data.procedures.FValueProcedure;
 import uk.ac.sussex.gdsc.core.data.procedures.IValueProcedure;
-
-import java.awt.Rectangle;
 
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
+
+import java.awt.Rectangle;
 
 /**
  * Class for working with image ROIs.
@@ -79,12 +80,12 @@ public class RoiHelper {
    *
    * @param roi the roi
    * @param ip the image processor
-   * @param p the procedure
+   * @param procedure the procedure
    */
-  public static void forEach(Roi roi, ImageProcessor ip, FValueProcedure p) {
+  public static void forEach(Roi roi, ImageProcessor ip, FValueProcedure procedure) {
     if (roi == null) {
       for (int i = 0, n = ip.getPixelCount(); i < n; i++) {
-        p.execute(ip.getf(i));
+        procedure.execute(ip.getf(i));
       }
       return;
     }
@@ -105,14 +106,14 @@ public class RoiHelper {
     if (mask == null) {
       for (int y = 0; y < rheight; y++) {
         for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++) {
-          p.execute(ip.getf(i));
+          procedure.execute(ip.getf(i));
         }
       }
     } else {
       for (int y = 0, j = 0; y < rheight; y++) {
         for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++) {
           if (mask.get(j) != 0) {
-            p.execute(ip.getf(i));
+            procedure.execute(ip.getf(i));
           }
         }
       }
@@ -125,14 +126,14 @@ public class RoiHelper {
    *
    * @param roi the roi
    * @param stack the stack
-   * @param p the procedure
+   * @param procedure the procedure
    */
-  public static void forEach(Roi roi, ImageStack stack, FValueProcedure p) {
+  public static void forEach(Roi roi, ImageStack stack, FValueProcedure procedure) {
     if (roi == null) {
       for (int slice = 1; slice <= stack.getSize(); slice++) {
         final ImageProcessor ip = stack.getProcessor(slice);
         for (int i = 0, n = ip.getPixelCount(); i < n; i++) {
-          p.execute(ip.getf(i));
+          procedure.execute(ip.getf(i));
         }
       }
       return;
@@ -156,7 +157,7 @@ public class RoiHelper {
         final ImageProcessor ip = stack.getProcessor(slice);
         for (int y = 0; y < rheight; y++) {
           for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++) {
-            p.execute(ip.getf(i));
+            procedure.execute(ip.getf(i));
           }
         }
       }
@@ -166,7 +167,7 @@ public class RoiHelper {
         for (int y = 0, j = 0; y < rheight; y++) {
           for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++) {
             if (mask.get(j) != 0) {
-              p.execute(ip.getf(i));
+              procedure.execute(ip.getf(i));
             }
           }
         }
@@ -180,12 +181,12 @@ public class RoiHelper {
    *
    * @param roi the roi
    * @param ip the image processor
-   * @param p the procedure
+   * @param procedure the procedure
    */
-  public static void forEach(Roi roi, ImageProcessor ip, IValueProcedure p) {
+  public static void forEach(Roi roi, ImageProcessor ip, IValueProcedure procedure) {
     if (roi == null) {
       for (int i = 0, n = ip.getPixelCount(); i < n; i++) {
-        p.execute(ip.get(i));
+        procedure.execute(ip.get(i));
       }
       return;
     }
@@ -206,14 +207,14 @@ public class RoiHelper {
     if (mask == null) {
       for (int y = 0; y < rheight; y++) {
         for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++) {
-          p.execute(ip.get(i));
+          procedure.execute(ip.get(i));
         }
       }
     } else {
       for (int y = 0, j = 0; y < rheight; y++) {
         for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++) {
           if (mask.get(j) != 0) {
-            p.execute(ip.get(i));
+            procedure.execute(ip.get(i));
           }
         }
       }
@@ -226,14 +227,14 @@ public class RoiHelper {
    *
    * @param roi the roi
    * @param stack the stack
-   * @param p the procedure
+   * @param procedure the procedure
    */
-  public static void forEach(Roi roi, ImageStack stack, IValueProcedure p) {
+  public static void forEach(Roi roi, ImageStack stack, IValueProcedure procedure) {
     if (roi == null) {
       for (int slice = 1; slice <= stack.getSize(); slice++) {
         final ImageProcessor ip = stack.getProcessor(slice);
         for (int i = 0, n = ip.getPixelCount(); i < n; i++) {
-          p.execute(ip.get(i));
+          procedure.execute(ip.get(i));
         }
       }
       return;
@@ -257,7 +258,7 @@ public class RoiHelper {
         final ImageProcessor ip = stack.getProcessor(slice);
         for (int y = 0; y < rheight; y++) {
           for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++) {
-            p.execute(ip.get(i));
+            procedure.execute(ip.get(i));
           }
         }
       }
@@ -267,7 +268,7 @@ public class RoiHelper {
         for (int y = 0, j = 0; y < rheight; y++) {
           for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++) {
             if (mask.get(j) != 0) {
-              p.execute(ip.get(i));
+              procedure.execute(ip.get(i));
             }
           }
         }

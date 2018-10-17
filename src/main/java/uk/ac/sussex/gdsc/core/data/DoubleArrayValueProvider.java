@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data;
 
 /**
@@ -46,19 +47,16 @@ public class DoubleArrayValueProvider implements ValueProvider {
     this.val = val;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int getLength() {
     return val.length;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double get(int x) {
     return val[x];
   }
 
-  /** {@inheritDoc} */
   @Override
   public void get(int x, double[] values) {
     values[0] = val[x - 1];
@@ -66,7 +64,6 @@ public class DoubleArrayValueProvider implements ValueProvider {
     values[2] = val[x + 1];
   }
 
-  /** {@inheritDoc} */
   @Override
   public double[] toArray() {
     return val;

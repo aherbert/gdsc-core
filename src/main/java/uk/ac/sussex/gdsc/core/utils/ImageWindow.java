@@ -25,33 +25,67 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.util.Objects;
+
 /**
- * Apply a window function to reduce edge artifacts
+ * Apply a window function to reduce edge artifacts.
  */
 public class ImageWindow {
+
   /**
-   * The window function.
+   * The method used for the window function.
    */
-  public enum WindowFunction {
-  /** The Hanning window function. */
-  HANNING,
-  /** The cosine window function. */
-  COSINE,
-  /** The Tukey window function. */
-  TUKEY
+  public enum WindowMethod {
+    /** No window function. */
+    NONE("None"),
+    /** The Hanning window function. */
+    HANNING("Hanning"),
+    /** The cosine window function. */
+    COSINE("Cosine"),
+    /** The Tukey window function. */
+    TUKEY("Tukey");
+
+    private final String nameString;
+
+    /**
+     * Instantiates a new window method.
+     *
+     * @param name the name
+     */
+    private WindowMethod(String name) {
+      nameString = name;
+    }
+
+    @Override
+    public String toString() {
+      return getName();
+    }
+
+    /**
+     * Gets the name.
+     *
+     * @return the name
+     */
+    public String getName() {
+      return nameString;
+    }
   }
 
   // Allow cached window weights
-  private double[] wx = null;
-  private double[] wy = null;
-  private final WindowFunction windowFunction = null;
+  private double[] wx;
+  private double[] wy;
+  private WindowMethod windowFunction;
 
   /**
-   * Apply a window function to reduce edge artifacts. <p> Applied as two 1-dimensional window
-   * functions. Faster than the nonseparable form but has direction dependent corners. <p> Instance
-   * method allows caching the weight matrices.
+   * Apply a window function to reduce edge artifacts.
+   *
+   * <p>Applied as two 1-dimensional window functions. Faster than the non-separable form but has
+   * direction dependent corners.
+   *
+   * <p>Instance method allows caching the weight matrices.
    *
    * @param image the image
    * @param maxx the maxx
@@ -60,9 +94,14 @@ public class ImageWindow {
    * @return the image
    */
   public float[] applySeperable(float[] image, final int maxx, final int maxy,
-      WindowFunction windowFunction) {
+      WindowMethod windowFunction) {
+    Objects.requireNonNull(windowFunction, "Window function must not be null");
+    if (windowFunction == WindowMethod.NONE) {
+      return image;
+    }
     if (this.windowFunction != windowFunction || wx == null || wx.length != maxx || wy == null
         || wy.length != maxy) {
+      this.windowFunction = windowFunction;
       switch (windowFunction) {
         case HANNING:
           wx = hanning(maxx);
@@ -92,8 +131,10 @@ public class ImageWindow {
   }
 
   /**
-   * Apply a window function to reduce edge artifacts. <p> Applied as two 1-dimensional window
-   * functions. Faster than the nonseparable form but has direction dependent corners.
+   * Apply a window function to reduce edge artifacts.
+   *
+   * <p>Applied as two 1-dimensional window functions. Faster than the non-separable form but has
+   * direction dependent corners.
    *
    * @param image the image
    * @param maxx the maxx
@@ -102,9 +143,9 @@ public class ImageWindow {
    * @return the image
    */
   public static float[] applyWindowSeparable(float[] image, final int maxx, final int maxy,
-      WindowFunction windowFunction) {
-    double[] wx = null;
-    double[] wy = null;
+      WindowMethod windowFunction) {
+    double[] wx;
+    double[] wy;
 
     switch (windowFunction) {
       case HANNING:
@@ -119,10 +160,9 @@ public class ImageWindow {
         wx = tukey(maxx);
         wy = tukey(maxy);
         break;
-    }
-
-    if (wx == null || wy == null) {
-      return image;
+      case NONE:
+      default:
+        return image;
     }
 
     final float[] data = new float[image.length];
@@ -137,8 +177,10 @@ public class ImageWindow {
   }
 
   /**
-   * Apply a window function to reduce edge artifacts. <p> Applied as two 1-dimensional window
-   * functions. Faster than the nonseparable form but has direction dependent corners.
+   * Apply a window function to reduce edge artifacts.
+   *
+   * <p>Applied as two 1-dimensional window functions. Faster than the nonseparable form but has
+   * direction dependent corners.
    *
    * @param image the image
    * @param maxx the maxx
@@ -165,8 +207,10 @@ public class ImageWindow {
   }
 
   /**
-   * Apply a window function to reduce edge artifacts. <p> Applied as two 1-dimensional window
-   * functions. Faster than the nonseparable form but has direction dependent corners.
+   * Apply a window function to reduce edge artifacts.
+   *
+   * <p>Applied as two 1-dimensional window functions. Faster than the nonseparable form but has
+   * direction dependent corners.
    *
    * @param image the image
    * @param maxx the maxx
@@ -188,7 +232,9 @@ public class ImageWindow {
   }
 
   /**
-   * Apply a window function to reduce edge artifacts <p> Applied as a nonseparable form.
+   * Apply a window function to reduce edge artifacts.
+   *
+   * <p>Applied as a non-separable form.
    *
    * @param image the image
    * @param maxx the maxx
@@ -197,8 +243,8 @@ public class ImageWindow {
    * @return the image
    */
   public static float[] applyWindow(float[] image, final int maxx, final int maxy,
-      WindowFunction windowFunction) {
-    WindowMethod wf = null;
+      WindowMethod windowFunction) {
+    WindowFunction wf;
     switch (windowFunction) {
       case HANNING:
         wf = new Hanning();
@@ -207,20 +253,20 @@ public class ImageWindow {
         wf = new Cosine();
         break;
       case TUKEY:
-        wf = new Tukey(ALPHA);
-    }
-
-    if (wf == null) {
-      return image;
+        wf = new Tukey();
+        break;
+      case NONE:
+      default:
+        return image;
     }
 
     final float[] data = new float[image.length];
 
     final double cx = maxx * 0.5;
     final double cy = maxy * 0.5;
-    final double maxDistance = Math.sqrt(maxx * maxx + maxy * maxy);
+    final double maxDistance = Math.sqrt((double) maxx * maxx + (double) maxy * maxy);
 
-    // Precompute
+    // Pre-compute
     final double[] dx2 = new double[maxx];
     for (int x = 0; x < maxx; x++) {
       dx2[x] = (x - cx) * (x - cx);
@@ -238,9 +284,10 @@ public class ImageWindow {
     return data;
   }
 
-  private static double ALPHA = 0.5;
-
-  private interface WindowMethod {
+  /**
+   * The Interface WindowFunction.
+   */
+  public interface WindowFunction {
     /**
      * Return the weight for the window at a fraction of the distance from the edge of the window.
      *
@@ -250,24 +297,55 @@ public class ImageWindow {
     double weight(double fractionDistance);
   }
 
-  private static class Hanning implements WindowMethod {
+  /**
+   * Implement a Hanning window function.
+   */
+  public static class Hanning implements WindowFunction {
     @Override
     public double weight(double fractionDistance) {
       return 0.5 * (1 - Math.cos(Math.PI * 2 * fractionDistance));
     }
   }
 
-  private static class Cosine implements WindowMethod {
+  /**
+   * Implement a Cosine window function.
+   */
+  public static class Cosine implements WindowFunction {
     @Override
     public double weight(double fractionDistance) {
       return Math.sin(Math.PI * fractionDistance);
     }
   }
 
-  private static class Tukey implements WindowMethod {
-    final double alpha;
-    final double a1, a2;
+  /**
+   * Implement a Tukey (Tapered Cosine) window function.
+   */
+  public static class Tukey implements WindowFunction {
 
+    /** The default alpha for the Tukey window (set to 0.5). */
+    public static final double DEFAULT_ALPHA = 0.5;
+
+    /** The alpha. */
+    final double alpha;
+
+    /** The a 1. */
+    final double a1;
+
+    /** The a 2. */
+    final double a2;
+
+    /**
+     * Instantiates a new tukey window function using the default alpha of 0.5.
+     */
+    public Tukey() {
+      this(DEFAULT_ALPHA);
+    }
+
+    /**
+     * Instantiates a new tukey window function.
+     *
+     * @param alpha the alpha
+     */
     public Tukey(double alpha) {
       this.alpha = alpha;
       a1 = alpha / 2;
@@ -286,107 +364,111 @@ public class ImageWindow {
     }
   }
 
-  private static double[] createWindow(WindowMethod wf, int N) {
-    final double N_1 = N - 1;
-    final double[] w = new double[N];
+  private static double[] createWindow(WindowFunction wf, int size) {
+    final double N_1 = size - 1.0;
+    final double[] w = new double[size];
     // Assume symmetry
-    final int middle = N / 2;
-    for (int i = 0, j = N - 1; i <= middle; i++, j--) {
+    final int middle = size / 2;
+    for (int i = 0, j = size - 1; i <= middle; i++, j--) {
       w[i] = w[j] = wf.weight(i / N_1);
     }
     return w;
   }
 
   /**
-   * Create a Hanning window.
+   * Create a window function.
    *
-   * @param N the size of the window
+   * @param windowFunction the window function
+   * @param size the size of the window
    * @return the window weighting
    */
-  public static double[] hanning(int N) {
-    return createWindow(new Hanning(), N);
+  public static double[] createWindow(WindowMethod windowFunction, int size) {
+    switch (windowFunction) {
+      case HANNING:
+        return hanning(size);
+      case COSINE:
+        return cosine(size);
+      case TUKEY:
+        return tukey(size);
+      case NONE:
+      default:
+        return SimpleArrayUtils.newDoubleArray(size, 1);
+    }
+  }
+
+  /**
+   * Create a Hanning window.
+   *
+   * @param size the size of the window
+   * @return the window weighting
+   */
+  public static double[] hanning(int size) {
+    return createWindow(new Hanning(), size);
   }
 
   /**
    * Create a Cosine window.
    *
-   * @param N the size of the window
+   * @param size the size of the window
    * @return the window weighting
    */
-  public static double[] cosine(int N) {
-    return createWindow(new Cosine(), N);
+  public static double[] cosine(int size) {
+    return createWindow(new Cosine(), size);
   }
 
   /**
-   * Create a Tukey (Tapered Cosine) window. <p> Alpha controls the distance from the edge of the
-   * window to the centre to apply the weight. A value of 1 will return a Hanning window, 0 will
-   * return a rectangular window.
+   * Create a Tukey (Tapered Cosine) window.
    *
-   * @param N the size of the window
+   * <p>Alpha controls the distance from the edge of the window to the centre to apply the weight. A
+   * value of 1 will return a Hanning window, 0 will return a rectangular window.
+   *
+   * @param size the size of the window
    * @param alpha the alpha parameter
    * @return the window weighting
    * @throws IllegalArgumentException If alpha is not in the range 0-1
    */
-  public static double[] tukey(int N, double alpha) {
+  public static double[] tukey(int size, double alpha) {
     if (alpha < 0 || alpha > 1) {
       throw new IllegalArgumentException("Alpha must be in the range 0-1");
     }
-    return createWindow(new Tukey(alpha), N);
+    return createWindow(new Tukey(alpha), size);
   }
 
   /**
    * Create a Tukey (Tapered Cosine) window using the default alpha of 0.5.
    *
-   * @param N the size of the window
+   * @param size the size of the window
    * @return the window weighting
    */
-  public static double[] tukey(int N) {
-    return createWindow(new Tukey(ALPHA), N);
+  public static double[] tukey(int size) {
+    return createWindow(new Tukey(), size);
   }
 
   /**
-   * Create a Tukey (Tapered Cosine) window using the specified edge. <p> Edge controls the distance
-   * from the edge of the window to the centre to apply the weight. A 0 will return a rectangular
-   * window.
+   * Create a Tukey (Tapered Cosine) window using the specified edge.
    *
-   * @param N the size of the window
+   * <p>Edge controls the distance from the edge of the window to the centre to apply the weight. A
+   * 0 will return a rectangular window.
+   *
+   * @param size the size of the window
    * @param edge the size of the window edge
    * @return the window weighting
    */
-  public static double[] tukeyEdge(int N, int edge) {
-    return tukey(N, tukeyAlpha(N, edge));
+  public static double[] tukeyEdge(int size, int edge) {
+    return tukey(size, tukeyAlpha(size, edge));
   }
 
   /**
    * Create the alpha for the Tukey window using the desired size of the edge window.
    *
+   * @param size the size of the window
    * @param edge the size of the window edge
-   * @param N the size of the window
    * @return the alpha (range 0-1)
    */
-  public static double tukeyAlpha(int N, int edge) {
-    if (edge <= 0 || N < 1) {
+  public static double tukeyAlpha(int size, int edge) {
+    if (edge <= 0 || size < 1) {
       return 0;
     }
-    return Math.min((2.0 * edge) / (N - 1), 1.0);
-  }
-
-  /**
-   * Create a window function.
-   *
-   * @param windowFunction the window function
-   * @param N the size of the window
-   * @return the window weighting
-   */
-  public static double[] createWindow(WindowFunction windowFunction, int N) {
-    switch (windowFunction) {
-      case HANNING:
-        return hanning(N);
-      case COSINE:
-        return cosine(N);
-      case TUKEY:
-      default:
-        return tukey(N);
-    }
+    return Math.min((2.0 * edge) / (size - 1), 1.0);
   }
 }

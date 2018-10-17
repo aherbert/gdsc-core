@@ -8,7 +8,7 @@ import uk.ac.sussex.gdsc.core.data.procedures.StandardTrivalueProcedure;
 import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
-import uk.ac.sussex.gdsc.core.utils.Maths;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
@@ -425,16 +425,16 @@ public class CustomTricubicInterpolatorTest {
     final CustomTricubicInterpolatingFunction f1 =
         new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
 
-    final double[] e = f1.getSplineNode(1, 1, 1).getA();
+    final double[] e = f1.getSplineNode(1, 1, 1).getCoefficients();
 
     double[] o;
     if (noScale) {
-      o = CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval)).getA();
+      o = CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval)).getCoefficients();
     } else {
       o = CustomTricubicInterpolator
           .create(new DoubleArrayValueProvider(xval), new DoubleArrayValueProvider(yval),
               new DoubleArrayValueProvider(zval), new DoubleArrayTrivalueProvider(fval))
-          .getA();
+          .getCoefficients();
     }
 
     Assertions.assertArrayEquals(e, o);
@@ -480,16 +480,16 @@ public class CustomTricubicInterpolatorTest {
 
   private static void check(CustomTricubicInterpolatingFunction f1, double[] xval, double[] yval,
       double[] zval, double[][][] fval, boolean noScale, int i, int j, int k) {
-    final double[] e = f1.getSplineNode(i, j, k).getA();
+    final double[] e = f1.getSplineNode(i, j, k).getCoefficients();
 
     double[] o;
     if (noScale) {
-      o = CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval), i, j, k).getA();
+      o = CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval), i, j, k).getCoefficients();
     } else {
       o = CustomTricubicInterpolator
           .create(new DoubleArrayValueProvider(xval), new DoubleArrayValueProvider(yval),
               new DoubleArrayValueProvider(zval), new DoubleArrayTrivalueProvider(fval), i, j, k)
-          .getA();
+          .getCoefficients();
     }
 
     Assertions.assertArrayEquals(e, o);
@@ -547,8 +547,8 @@ public class CustomTricubicInterpolatorTest {
     final double gamma = 1;
 
     // Compute the maximum amplitude
-    double sx = s * (1.0 + Maths.pow2((gamma) / zDepth) * 0.5);
-    double sy = s * (1.0 + Maths.pow2((-gamma) / zDepth) * 0.5);
+    double sx = s * (1.0 + MathUtils.pow2((gamma) / zDepth) * 0.5);
+    double sy = s * (1.0 + MathUtils.pow2((-gamma) / zDepth) * 0.5);
     amplitude = 1.0 / (2 * Math.PI * sx * sy);
 
     // ImageStack stack = new ImageStack(x, y);
@@ -559,8 +559,8 @@ public class CustomTricubicInterpolatorTest {
       // Astigmatism based on cz.
       // Width will be 1.5 at zDepth.
       final double dz = cz - zz;
-      sx = s * (1.0 + Maths.pow2((dz + gamma) / zDepth) * 0.5);
-      sy = s * (1.0 + Maths.pow2((dz - gamma) / zDepth) * 0.5);
+      sx = s * (1.0 + MathUtils.pow2((dz + gamma) / zDepth) * 0.5);
+      sy = s * (1.0 + MathUtils.pow2((dz - gamma) / zDepth) * 0.5);
 
       // TestLog.debug(logger,"%d = %f,%f", zz, sx, sy);
 
@@ -569,10 +569,10 @@ public class CustomTricubicInterpolatorTest {
       final double sx2 = 2 * sx * sx;
       final double sy2 = 2 * sy * sy;
       for (int xx = 0; xx < x; xx++) {
-        otherx[xx] = -Maths.pow2(xx - cx) / sx2;
+        otherx[xx] = -MathUtils.pow2(xx - cx) / sx2;
       }
       for (int yy = 0; yy < y; yy++) {
-        final double othery = Maths.pow2(yy - cy) / sy2;
+        final double othery = MathUtils.pow2(yy - cy) / sy2;
         for (int xx = 0; xx < x; xx++) {
           final double value = norm * FastMath.exp(otherx[xx] - othery);
           fval[xx][yy][zz] = value;
@@ -1296,7 +1296,7 @@ public class CustomTricubicInterpolatorTest {
               (DoubleCustomTricubicFunction) f1.getSplineNodeReference(i, j, k);
           final DoubleCustomTricubicFunction n2 =
               (DoubleCustomTricubicFunction) f2.getSplineNodeReference(i, j, k);
-          Assertions.assertArrayEquals(n1.getA(), n2.getA());
+          Assertions.assertArrayEquals(n1.getCoefficients(), n2.getCoefficients());
         }
       }
     }
@@ -1629,7 +1629,7 @@ public class CustomTricubicInterpolatorTest {
         if (i > 1) {
           @SuppressWarnings("null")
           final double d =
-              Maths.distance(last[0], last[1], last[2], optimum[0], optimum[1], optimum[2]);
+              MathUtils.distance(last[0], last[1], last[2], optimum[0], optimum[1], optimum[2]);
           logger.info(FunctionUtils.getSupplier("[%d] %f,%f,%f %d = %s : dist = %f : change = %g",
               ii, cx, cy, cz, i, Arrays.toString(optimum), d,
               DoubleEquality.relativeError(last[3], optimum[3])));

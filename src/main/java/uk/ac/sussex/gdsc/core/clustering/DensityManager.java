@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering;
 
 import org.apache.commons.math3.util.FastMath;
@@ -33,24 +34,29 @@ import java.awt.Rectangle;
 
 /**
  * Calculate the density of localisations around a given position using a square block of specified
- * width
+ * width.
  */
 public class DensityManager extends CoordinateStore {
+
+  /**
+   * Represent a molecule in 2D space.
+   */
   private class Molecule {
     int id;
-    public float x, y;
+    float x;
+    float y;
 
     // Used to construct a single linked list of molecules
-    public Molecule next = null;
+    Molecule next = null;
 
-    public Molecule(int id, float x, float y, Molecule next) {
+    Molecule(int id, float x, float y, Molecule next) {
       this.id = id;
       this.x = x;
       this.y = y;
       this.next = next;
     }
 
-    public float distance2(Molecule other) {
+    float distance2(Molecule other) {
       final float dx = x - other.x;
       final float dy = y - other.y;
       return dx * dx + dy * dy;
@@ -70,13 +76,17 @@ public class DensityManager extends CoordinateStore {
   }
 
   /**
-   * Calculate the density for the results. <p> A square block is used around each result of the
-   * specified radius. The results are assigned to a grid using a cell size of radius / resolution.
-   * The totals of each cell are then counted for the range +/- radius around each result. <p> If
-   * the block overlaps the border of the image the density will suffer from under-counting. The
-   * value can be optionally scaled using the fraction of the overlap area. <p> Note that the score
-   * is the number of molecules surrounding the given molecule, so the molecule itself is not
-   * counted.
+   * Calculate the density for the results.
+   *
+   * <p>A square block is used around each result of the specified radius. The results are assigned
+   * to a grid using a cell size of radius / resolution. The totals of each cell are then counted
+   * for the range +/- radius around each result.
+   *
+   * <p>If the block overlaps the border of the image the density will suffer from under-counting.
+   * The value can be optionally scaled using the fraction of the overlap area.
+   *
+   * <p>Note that the score is the number of molecules surrounding the given molecule, so the
+   * molecule itself is not counted.
    *
    * @param radius the radius
    * @param resolution the resolution
@@ -106,35 +116,24 @@ public class DensityManager extends CoordinateStore {
 
     // Create rolling sum table. Re-use the storage
     // First row
-    int cs_ = 0; // Column sum
+    int columnSum = 0; // Column sum
     for (int i = 0; i < maxx; i++) {
-      cs_ += data[i];
-      data[i] = cs_;
+      columnSum += data[i];
+      data[i] = columnSum;
     }
 
     // Remaining rows:
     // sum = rolling sum of row + sum of row above
     for (int y = 1; y < maxy; y++) {
-      int i = y * maxx;
-      cs_ = 0;
+      int index = y * maxx;
+      columnSum = 0;
 
       // Remaining columns
-      for (int x = 0; x < maxx; x++, i++) {
-        cs_ += data[i];
-        data[i] = data[i - maxx] + cs_;
+      for (int x = 0; x < maxx; x++, index++) {
+        columnSum += data[index];
+        data[index] = data[index - maxx] + columnSum;
       }
     }
-
-    // Used for debugging
-    // FileWriter out = null;
-    // try
-    // {
-    // out = new FileWriter("/tmp/check.txt");
-    // }
-    // catch (IOException e)
-    // {
-    // // Ignore
-    // }
 
     // For each localisation, compute the sum of counts within a square box radius
     final float area = 4 * resolution * resolution;
@@ -198,57 +197,7 @@ public class DensityManager extends CoordinateStore {
       }
 
       density[i] = sum;
-
-      // // Check
-      // if (out != null)
-      // {
-      // int sum2 = 0;
-      // float xlower = xcoord[i] - radius;
-      // float xupper = xcoord[i] + radius;
-      // float ylower = ycoord[i] - radius;
-      // float yupper = ycoord[i] + radius;
-      // for (int j = 0; j < xcoord.length; j++)
-      // {
-      // if (j == i)
-      // continue;
-      // if (xcoord[j] < xlower || xcoord[j] > xupper)
-      // continue;
-      // if (ycoord[j] < ylower || ycoord[j] > yupper)
-      // continue;
-      // sum2++;
-      // }
-      //
-      // try
-      // {
-      // out.write(String.format("%d %d\n", sum, sum2));
-      // }
-      // catch (IOException e)
-      // {
-      // // Just shutdown
-      // try
-      // {
-      // out.close();
-      // }
-      // catch (IOException e1)
-      // {
-      // // Ignore
-      // }
-      // out = null;
-      // }
-      // }
     }
-
-    // if (out != null)
-    // {
-    // try
-    // {
-    // out.close();
-    // }
-    // catch (IOException e)
-    // {
-    // // Ignore
-    // }
-    // }
 
     return density;
   }
@@ -267,7 +216,7 @@ public class DensityManager extends CoordinateStore {
     }
 
     // Note: We do not subtract min from the value for speed:
-    // final int maxx = (int) ((maxXCoord-minXCoord) / radius) + 1;
+    // final int maxx = (int) ((maxXCoord-minXCoord) / radius) + 1
     // minXCoord will be in the range 0-1 after initialisation.
 
     final int maxx = (int) (maxXCoord / radius) + 1;
@@ -283,33 +232,33 @@ public class DensityManager extends CoordinateStore {
 
     // Create rolling sum table. Re-use the storage
     // First row
-    int cs_ = 0; // Column sum
+    int columnSum = 0; // Column sum
     for (int i = 0; i < maxx; i++) {
-      cs_ += data[i];
-      data[i] = cs_;
+      columnSum += data[i];
+      data[i] = columnSum;
     }
 
     // Remaining rows:
     // sum = rolling sum of row + sum of row above
     for (int y = 1; y < maxy; y++) {
-      int i = y * maxx;
-      cs_ = 0;
+      int index = y * maxx;
+      columnSum = 0;
 
       // Remaining columns
-      for (int x = 0; x < maxx; x++, i++) {
-        cs_ += data[i];
-        data[i] = data[i - maxx] + cs_;
+      for (int x = 0; x < maxx; x++, index++) {
+        columnSum += data[index];
+        data[index] = data[index - maxx] + columnSum;
       }
     }
 
     // Pre-compute U bounds
     final int[] minU = new int[maxx];
     final int[] maxU = new int[maxx];
-    final boolean[] minUOK = new boolean[maxx];
+    final boolean[] minUok = new boolean[maxx];
     for (int u = maxx; u-- > 0;) {
       minU[u] = u - 2;
       maxU[u] = FastMath.min(u + 1, maxx - 1);
-      minUOK[u] = u >= 2;
+      minUok[u] = u >= 2;
     }
 
     // For each block, compute the sum of counts within a 3x3 box radius
@@ -317,7 +266,7 @@ public class DensityManager extends CoordinateStore {
     for (int v = maxy; v-- > 0;) {
       final int minV = v - 2;
       final int maxV = FastMath.min(v + 1, maxy - 1);
-      final boolean minVOK = (minV >= 0);
+      final boolean minVok = (minV >= 0);
       final int lowerIndex = minV * maxx;
 
       for (int u = maxx; u-- > 0;) {
@@ -337,15 +286,15 @@ public class DensityManager extends CoordinateStore {
         final int upperIndex = maxV * maxx;
         int sum = data[upperIndex + maxU[u]];
 
-        if (minUOK[u]) {
+        if (minUok[u]) {
           // - s(minU,maxV)
           sum -= data[upperIndex + minU[u]];
         }
-        if (minVOK) {
+        if (minVok) {
           // - s(maxU,minV)
           sum -= data[lowerIndex + maxU[u]];
 
-          if (minUOK[u]) {
+          if (minUok[u]) {
             // + s(minU,minV)
             sum += data[lowerIndex + minU[u]];
           }
@@ -372,41 +321,43 @@ public class DensityManager extends CoordinateStore {
 
     // Assign to a grid
     final float binWidth = radius;
-    final int nXBins = 1 + (int) ((maxx) / binWidth);
-    final int nYBins = 1 + (int) ((maxy) / binWidth);
-    final int[][] grid = new int[nXBins][nYBins];
+    final int xbins = 1 + (int) ((maxx) / binWidth);
+    final int ybins = 1 + (int) ((maxy) / binWidth);
+    final int[][] grid = new int[xbins][ybins];
     for (int i = 0; i < xcoord.length; i++) {
-      final int xBin = (int) ((xcoord[i]) / binWidth);
-      final int yBin = (int) ((ycoord[i]) / binWidth);
-      grid[xBin][yBin]++;
+      final int xbin = (int) ((xcoord[i]) / binWidth);
+      final int ybin = (int) ((ycoord[i]) / binWidth);
+      grid[xbin][ybin]++;
     }
 
-    final int[] density = new int[nXBins * nYBins];
+    final int[] density = new int[xbins * ybins];
     boolean withinY = false;
-    for (int yBin = nYBins; yBin-- > 0; withinY = true) {
+    for (int ybin = ybins; ybin-- > 0; withinY = true) {
       boolean withinX = false;
-      for (int xBin = nXBins; xBin-- > 0; withinX = true) {
-        final int i = yBin * nXBins + xBin;
-        final int iCount = grid[xBin][yBin];
+      for (int xbin = xbins; xbin-- > 0; withinX = true) {
+        final int i = ybin * xbins + xbin;
+        final int iCount = grid[xbin][ybin];
         density[i] += iCount;
 
         // Compare up to a maximum of 4 neighbours
-        // | 0,0 | 1,0
+        //@formatter:off
+        //      | 0,0 | 1,0
         // ------------+-----
         // -1,1 | 0,1 | 1,1
+        //@formatter:on
 
         if (withinY) {
-          add(density, grid, nXBins, i, iCount, xBin, yBin + 1);
-          if (xBin > 0) {
-            add(density, grid, nXBins, i, iCount, xBin - 1, yBin + 1);
+          add(density, grid, xbins, i, iCount, xbin, ybin + 1);
+          if (xbin > 0) {
+            add(density, grid, xbins, i, iCount, xbin - 1, ybin + 1);
           }
 
           if (withinX) {
-            add(density, grid, nXBins, i, iCount, xBin + 1, yBin);
-            add(density, grid, nXBins, i, iCount, xBin + 1, yBin + 1);
+            add(density, grid, xbins, i, iCount, xbin + 1, ybin);
+            add(density, grid, xbins, i, iCount, xbin + 1, ybin + 1);
           }
         } else if (withinX) {
-          add(density, grid, nXBins, i, iCount, xBin + 1, yBin);
+          add(density, grid, xbins, i, iCount, xbin + 1, ybin);
         }
       }
     }
@@ -414,10 +365,10 @@ public class DensityManager extends CoordinateStore {
     return density;
   }
 
-  private static void add(final int[] density, final int[][] grid, final int nXBins, final int i,
-      final int iCount, final int xBin, final int yBin) {
-    density[i] += grid[xBin][yBin];
-    density[yBin * nXBins + xBin] += iCount;
+  private static void add(final int[] density, final int[][] grid, final int xbins, final int index,
+      final int indexCount, final int xbin, final int ybin) {
+    density[index] += grid[xbin][ybin];
+    density[ybin * xbins + xbin] += indexCount;
   }
 
   /**
@@ -434,34 +385,34 @@ public class DensityManager extends CoordinateStore {
 
     // Assign to a grid
     final float binWidth = radius;
-    final int nXBins = 1 + (int) ((maxx) / binWidth);
-    final int nYBins = 1 + (int) ((maxy) / binWidth);
-    final int[][] grid = new int[nXBins][nYBins];
+    final int xbins = 1 + (int) ((maxx) / binWidth);
+    final int ybins = 1 + (int) ((maxy) / binWidth);
+    final int[][] grid = new int[xbins][ybins];
     for (int i = 0; i < xcoord.length; i++) {
-      final int xBin = (int) ((xcoord[i]) / binWidth);
-      final int yBin = (int) ((ycoord[i]) / binWidth);
-      grid[xBin][yBin]++;
+      final int xbin = (int) ((xcoord[i]) / binWidth);
+      final int ybin = (int) ((ycoord[i]) / binWidth);
+      grid[xbin][ybin]++;
     }
 
     // Simple sweep
-    final int[] density = new int[nXBins * nYBins];
-    for (int yBin = 0; yBin < nYBins; yBin++) {
-      for (int xBin = 0; xBin < nXBins; xBin++) {
+    final int[] density = new int[xbins * ybins];
+    for (int ybin = 0; ybin < ybins; ybin++) {
+      for (int xbin = 0; xbin < xbins; xbin++) {
         int sum = 0;
         for (int y = -1; y <= 1; y++) {
-          final int yBin2 = yBin + y;
-          if (yBin2 < 0 || yBin2 >= nYBins) {
+          final int yBin2 = ybin + y;
+          if (yBin2 < 0 || yBin2 >= ybins) {
             continue;
           }
           for (int x = -1; x <= 1; x++) {
-            final int xBin2 = xBin + x;
-            if (xBin2 < 0 || xBin2 >= nYBins) {
+            final int xBin2 = xbin + x;
+            if (xBin2 < 0 || xBin2 >= ybins) {
               continue;
             }
             sum += grid[xBin2][yBin2];
           }
         }
-        density[yBin * nXBins + xBin] = sum;
+        density[ybin * xbins + xbin] = sum;
       }
     }
 
@@ -469,11 +420,16 @@ public class DensityManager extends CoordinateStore {
   }
 
   /**
-   * Calculate the density for the results. <p> A circle is used around each result of the specified
-   * radius and the number of neighbours counted for each result. <p> If the block overlaps the
-   * border of the image the density will suffer from under-counting. The value can be optionally
-   * scaled using the fraction of the overlap area. <p> Note that the score is the number of
-   * molecules surrounding the given molecule, so the molecule itself is not counted.
+   * Calculate the density for the results.
+   *
+   * <p>A circle is used around each result of the specified radius and the number of neighbours
+   * counted for each result.
+   *
+   * <p>If the block overlaps the border of the image the density will suffer from under-counting.
+   * The value can be optionally scaled using the fraction of the overlap area.
+   *
+   * <p>Note that the score is the number of molecules surrounding the given molecule, so the
+   * molecule itself is not counted.
    *
    * @param radius the radius
    * @param adjustForBorder Set to true to adjust for border
@@ -504,20 +460,24 @@ public class DensityManager extends CoordinateStore {
         // http://stackoverflow.com/questions/622287/area-of-intersection-between-circle-and-rectangle
         // Assume: Circle centre will be within the rectangle
 
-        // S1 S2 S3
+        //@formatter:off
         //
-        // | |
-        // A1 |________| A3 SA
-        // / \
-        // /| A2 |\
+        //   S1       S2       S3
+        //
+        //        |        |
+        //    A1  |________|   A3      SA
+        //        /        \
+        //       /|   A2   |\
         // -----/-|--------|-\-----
-        // | | | |
-        // |B1| B2 |B3| SB
-        // | | | |
+        //     |  |        |  |
+        //     |B1|   B2   |B3|        SB
+        //     |  |        |  |
         // -----\-|--------|-/-----
-        // \| C2 |/ C3 SC
-        // C1 \________/
-        // | |
+        //       \|   C2   |/   C3     SC
+        //   C1   \________/
+        //        |        |
+        //
+        //@formatter:on
 
         // Note: A1,A3,C1,C3 are inside the circle
         // S1 = Slice 1, SA = Slice A, etc
@@ -527,51 +487,48 @@ public class DensityManager extends CoordinateStore {
         // -- Check if the second boundary is slices the circle (i.e. a vertex is inside the circle)
         // ---- Calculate the corner section area to subtract from the overlapping slices
         // Missed = S1 + S3 + SA + SC - A1 - A3 - C1 - C3
-        double S1 = 0;
-        final double S3 = 0;
-        double SA = 0, SC = 0, A1 = 0, A3 = 0, C1 = 0, C3 = 0;
+        double s1 = 0;
+        final double s3 = 0;
+        double sa = 0;
+        double sc = 0;
+        double a1 = 0;
+        double a3 = 0;
+        double c1 = 0;
+        double c3 = 0;
 
         // Note all coords are shifted the origin so simply compare the radius and the
         // max bounds minus the radius
 
         if (x < radius) {
-          S1 = getSegmentArea(radius, radius - x);
+          s1 = getSegmentArea(radius, radius - x);
           if (y < radius) {
-            A1 = getCornerArea(radius, x, y);
+            a1 = getCornerArea(radius, x, y);
           }
           if (y > upperY) {
-            C1 = getCornerArea(radius, x, maxYCoord - y);
+            c1 = getCornerArea(radius, x, maxYCoord - y);
           }
         }
         if (x > upperX) {
           final float dx = maxXCoord - x;
-          S1 = getSegmentArea(radius, radius - dx);
+          s1 = getSegmentArea(radius, radius - dx);
           if (y < radius) {
-            A3 = getCornerArea(radius, dx, y);
+            a3 = getCornerArea(radius, dx, y);
           }
           if (y > upperY) {
-            C3 = getCornerArea(radius, dx, maxYCoord - y);
+            c3 = getCornerArea(radius, dx, maxYCoord - y);
           }
         }
         if (y < radius) {
-          SA = getSegmentArea(radius, radius - y);
+          sa = getSegmentArea(radius, radius - y);
         }
         if (y > upperY) {
           final float dy = maxYCoord - y;
-          SC = getSegmentArea(radius, radius - dy);
+          sc = getSegmentArea(radius, radius - dy);
         }
 
-        final double missed = S1 + S3 + SA + SC - A1 - A3 - C1 - C3;
+        final double missed = s1 + s3 + sa + sc - a1 - a3 - c1 - c3;
         if (missed > 0) {
           final double adjustment = area / (area - missed);
-          // if (missed > area)
-          // {
-          // System.out.printf("Ooops %f > %f\n", missed, area);
-          // }
-          // else
-          // {
-          // System.out.printf("increase %f @ %f %f\n", adjustment, x, y);
-          // }
           sum *= adjustment;
         }
 
@@ -583,11 +540,15 @@ public class DensityManager extends CoordinateStore {
   }
 
   /**
-   * Calculate the density for the results using an all-vs-all analysis. <p> A circle is used around
-   * each result of the specified radius and the number of neighbours counted for each result. <p>
-   * If the block overlaps the border of the image the density will suffer from under-counting. <p>
-   * Note that the score is the number of molecules surrounding the given molecule, so the molecule
-   * itself is not counted.
+   * Calculate the density for the results using an all-vs-all analysis.
+   *
+   * <p>A circle is used around each result of the specified radius and the number of neighbours
+   * counted for each result.
+   *
+   * <p>If the block overlaps the border of the image the density will suffer from under-counting.
+   *
+   * <p>Note that the score is the number of molecules surrounding the given molecule, so the
+   * molecule itself is not counted.
    *
    * @param radius the radius
    * @return the density
@@ -617,10 +578,15 @@ public class DensityManager extends CoordinateStore {
 
   /**
    * Calculate the density for the results using an all-vs-all analysis in the lower triangle of
-   * comparisons. <p> A circle is used around each result of the specified radius and the number of
-   * neighbours counted for each result. <p> If the block overlaps the border of the image the
-   * density will suffer from under-counting. <p> Note that the score is the number of molecules
-   * surrounding the given molecule, so the molecule itself is not counted.
+   * comparisons.
+   *
+   * <p>A circle is used around each result of the specified radius and the number of neighbours
+   * counted for each result.
+   *
+   * <p>If the block overlaps the border of the image the density will suffer from under-counting.
+   *
+   * <p>Note that the score is the number of molecules surrounding the given molecule, so the
+   * molecule itself is not counted.
    *
    * @param radius the radius
    * @return the density
@@ -647,11 +613,15 @@ public class DensityManager extends CoordinateStore {
   }
 
   /**
-   * Calculate the density for the results using a nearest neighbour cell grid analysis. <p> A
-   * circle is used around each result of the specified radius and the number of neighbours counted
-   * for each result. <p> If the block overlaps the border of the image the density will suffer from
-   * under-counting. <p> Note that the score is the number of molecules surrounding the given
-   * molecule, so the molecule itself is not counted.
+   * Calculate the density for the results using a nearest neighbour cell grid analysis.
+   *
+   * <p>A circle is used around each result of the specified radius and the number of neighbours
+   * counted for each result.
+   *
+   * <p>If the block overlaps the border of the image the density will suffer from under-counting.
+   *
+   * <p>Note that the score is the number of molecules surrounding the given molecule, so the
+   * molecule itself is not counted.
    *
    * @param radius the radius
    * @return the density
@@ -666,47 +636,49 @@ public class DensityManager extends CoordinateStore {
 
     // Assign to a grid
     final float binWidth = radius * 1.01f;
-    final int nXBins = 1 + (int) ((maxx - minx) / binWidth);
-    final int nYBins = 1 + (int) ((maxy - miny) / binWidth);
-    final Molecule[][] grid = new Molecule[nXBins][nYBins];
+    final int xbins = 1 + (int) ((maxx - minx) / binWidth);
+    final int ybins = 1 + (int) ((maxy - miny) / binWidth);
+    final Molecule[][] grid = new Molecule[xbins][ybins];
     for (int i = 0; i < xcoord.length; i++) {
       final float x = xcoord[i];
       final float y = ycoord[i];
-      final int xBin = (int) ((x - minx) / binWidth);
-      final int yBin = (int) ((y - miny) / binWidth);
+      final int xbin = (int) ((x - minx) / binWidth);
+      final int ybin = (int) ((y - miny) / binWidth);
       // Build a single linked list
-      grid[xBin][yBin] = new Molecule(i, x, y, grid[xBin][yBin]);
+      grid[xbin][ybin] = new Molecule(i, x, y, grid[xbin][ybin]);
     }
 
     final Molecule[] neighbours = new Molecule[5];
     final float radius2 = radius * radius;
-    for (int yBin = 0; yBin < nYBins; yBin++) {
-      for (int xBin = 0; xBin < nXBins; xBin++) {
-        if (grid[xBin][yBin] == null) {
+    for (int ybin = 0; ybin < ybins; ybin++) {
+      for (int xbin = 0; xbin < xbins; xbin++) {
+        if (grid[xbin][ybin] == null) {
           continue;
         }
 
         // Build a list of which cells to compare up to a maximum of 4
-        // | 0,0 | 1,0
-        // ------------+-----
-        // -1,1 | 0,1 | 1,1
+        //@formatter:off
+        //      | 0,0  |  1,0
+        // -----+------+-----
+        // -1,1 | 0,1  |  1,1
+        //@formatter:on
 
         int count = 1;
 
-        if (yBin < nYBins - 1) {
-          neighbours[count++] = grid[xBin][yBin + 1];
-          if (xBin > 0) {
-            neighbours[count++] = grid[xBin - 1][yBin + 1];
+        if (ybin < ybins - 1) {
+          neighbours[count++] = grid[xbin][ybin + 1];
+          if (xbin > 0) {
+            neighbours[count++] = grid[xbin - 1][ybin + 1];
           }
         }
-        if (xBin < nXBins - 1) {
-          neighbours[count++] = grid[xBin + 1][yBin];
-          if (yBin < nYBins - 1) {
-            neighbours[count++] = grid[xBin + 1][yBin + 1];
+        if (xbin < xbins - 1) {
+          neighbours[count++] = grid[xbin + 1][ybin];
+          if (ybin < ybins - 1) {
+            neighbours[count++] = grid[xbin + 1][ybin + 1];
           }
         }
 
-        for (Molecule m1 = grid[xBin][yBin]; m1 != null; m1 = m1.next) {
+        for (Molecule m1 = grid[xbin][ybin]; m1 != null; m1 = m1.next) {
           neighbours[0] = m1.next;
 
           // Compare to neighbours
@@ -727,43 +699,48 @@ public class DensityManager extends CoordinateStore {
 
   /**
    * Calculate the area of circular segment, a portion of a disk whose upper boundary is a
-   * (circular) arc and whose lower boundary is a chord making a central angle of theta radians. <p>
-   * See http://mathworld.wolfram.com/CircularSegment.html
+   * (circular) arc and whose lower boundary is a chord making a central angle of theta radians.
    *
-   * @param R the radius of the circle
-   * @param h the height of the arced portion
+   * @param radius the radius of the circle
+   * @param height the height of the arced portion
    * @return The area
+   * @see <a href="http://mathworld.wolfram.com/CircularSegment.html">Circular Segment</a>
    */
-  private static double getSegmentArea(double R, double h) {
-    return R * R * Math.acos((R - h) / R) - (R - h) * Math.sqrt(2 * R * h - h * h);
+  private static double getSegmentArea(double radius, double height) {
+    return radius * radius * Math.acos((radius - height) / radius)
+        - (radius - height) * Math.sqrt(2 * radius * height - height * height);
   }
 
   /**
-   * Get the area taken by a corner of a rectangle within a circle of radius R
+   * Get the area taken by a corner of a rectangle within a circle of radius radius.
    *
-   * @param R the radius of the circle
+   * @param radius the radius of the circle
    * @param x The corner X position
    * @param y The corner Y position
    * @return The area
    */
-  private static double getCornerArea(double R, double x, double y) {
+  private static double getCornerArea(double radius, double x, double y) {
     // 1 vertex is inside the circle: The sum of the areas of a circular segment and a triangle.
 
-    // (x,y)
-    // XXXXX XXXXXXXXX p2
-    // X X Triangle ->X _-X
-    // X X X _- X
-    // X +--X--+ X _- X <- Circular segment
-    // X | X | X- XX
-    // XXXXX | XXXXX
-    // | | p1
+    //@formatter:off
+    //
+    //                            (x,y)
+    //      XXXXX                   XXXXXXXXX p2
+    //     X     X       Triangle ->X     _-X
+    //    X       X                 X   _-  X
+    //    X    +--X--+              X _-   X <- Circular segment
+    //     X   | X   |              X-   XX
+    //      XXXXX    |              XXXXX
+    //         |     |             p1
+    //
+    //@formatter:on
 
     // Assume: circle at origin, x & y are positive, x^2 + y^2 < radius^2
 
     // Get the point p1 & p2
     final double x1 = x;
-    final double y1 = otherSide(x, R);
-    final double x2 = otherSide(y, R);
+    final double y1 = otherSide(x, radius);
+    final double x2 = otherSide(y, radius);
     final double y2 = y;
 
     // Calculate half the length of the chord cutting the circle between p1 & p2
@@ -772,29 +749,64 @@ public class DensityManager extends CoordinateStore {
     final double halfChord = Math.sqrt(dx * dx + dy * dy);
 
     // Calculate the height of the arced portion
-    final double h = R - otherSide(halfChord, R);
+    final double height = radius - otherSide(halfChord, radius);
 
     // Get the area as the circular segment plus the triangle
-    return getSegmentArea(R, h) + 0.5 * dx * dy;
+    return getSegmentArea(radius, height) + 0.5 * dx * dy;
   }
 
   /**
    * Returns a from a right angle triangle where a^2 + b^2 = c^2.
    *
-   * @param b the b
-   * @param c the c
+   * @param lengthB the b
+   * @param lengthC the c
    * @return a
    */
-  private static double otherSide(double b, double c) {
-    return Math.sqrt(c * c - b * b);
+  private static double otherSide(double lengthB, double lengthC) {
+    return Math.sqrt(lengthC * lengthC - lengthB * lengthB);
   }
 
   /**
-   * Compute Ripley's K-function. <p> See
-   * http://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions
+   * Compute Ripley's K-function.
+   *
+   * @param density The density score for each particle
+   * @param radius The radius at which the density was computed
+   * @return The K-function score
+   * @see #calculateDensity(float, boolean)
+   * @see #calculateSquareDensity(float, int, boolean)
+   * @see <a
+   *      href="http://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions">Ripleys
+   *      K and L functions</a>
+   */
+  public double ripleysKFunction(int[] density, double radius) {
+    if (radius < 0) {
+      throw new IllegalArgumentException("Radius must be positive");
+    }
+    if (density.length != xcoord.length) {
+      throw new IllegalArgumentException(
+          "Input density array must match the number of coordinates");
+    }
+
+    // Count the number of points within the distance
+    int sum = 0;
+    for (final int d : density) {
+      sum += d;
+    }
+
+    // Normalise
+    final double scale = area / ((double) density.length * (double) density.length);
+    return sum * scale;
+  }
+
+
+  /**
+   * Compute Ripley's K-function.
    *
    * @param radius The radius
    * @return The K-function score
+   * @see <a
+   *      href="http://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions">Ripleys
+   *      K and L functions</a>
    */
   public double ripleysKFunction(double radius) {
     if (radius < 0) {
@@ -806,13 +818,13 @@ public class DensityManager extends CoordinateStore {
 
     // Normalise
     final double scale = area / ((double) xcoord.length * (double) xcoord.length);
-    final double k = sum * scale;
-
-    return k;
+    return sum * scale;
   }
 
   /**
-   * Calculate the number of pairs within the given radius. <p> The sum is over i&lt;n, j&lt;n, i!=j
+   * Calculate the number of pairs within the given radius.
+   *
+   * <p>The sum is over {@code i<n, j<n, i!=j}.
    *
    * @param radius the radius
    * @return the pairs
@@ -835,13 +847,14 @@ public class DensityManager extends CoordinateStore {
     // Note that the sum should be computed over:
     // i<n, j<n, i!=j
     // Thus it should be doubled to account for j iterating from zero.
-    sum *= 2;
-    return sum;
+    return sum * 2;
   }
 
   /**
    * Calculate the number of pairs within the given radius using a nearest neighbour cell grid
-   * analysis. <p> The sum is over i&lt;n, j&lt;n, i!=j
+   * analysis.
+   *
+   * <p>The sum is over {@code i<n, j<n, i!=j}.
    *
    * @param radius the radius
    * @return the pairs
@@ -856,47 +869,49 @@ public class DensityManager extends CoordinateStore {
 
     // Assign to a grid
     final float binWidth = radius * 1.01f;
-    final int nXBins = 1 + (int) ((maxx - minx) / binWidth);
-    final int nYBins = 1 + (int) ((maxy - miny) / binWidth);
-    final Molecule[][] grid = new Molecule[nXBins][nYBins];
+    final int xbins = 1 + (int) ((maxx - minx) / binWidth);
+    final int ybins = 1 + (int) ((maxy - miny) / binWidth);
+    final Molecule[][] grid = new Molecule[xbins][ybins];
     for (int i = 0; i < xcoord.length; i++) {
       final float x = xcoord[i];
       final float y = ycoord[i];
-      final int xBin = (int) ((x - minx) / binWidth);
-      final int yBin = (int) ((y - miny) / binWidth);
+      final int xbin = (int) ((x - minx) / binWidth);
+      final int ybin = (int) ((y - miny) / binWidth);
       // Build a single linked list
-      grid[xBin][yBin] = new Molecule(i, x, y, grid[xBin][yBin]);
+      grid[xbin][ybin] = new Molecule(i, x, y, grid[xbin][ybin]);
     }
 
     final Molecule[] neighbours = new Molecule[5];
     final float radius2 = radius * radius;
-    for (int yBin = 0; yBin < nYBins; yBin++) {
-      for (int xBin = 0; xBin < nXBins; xBin++) {
-        if (grid[xBin][yBin] == null) {
+    for (int ybin = 0; ybin < ybins; ybin++) {
+      for (int xbin = 0; xbin < xbins; xbin++) {
+        if (grid[xbin][ybin] == null) {
           continue;
         }
 
         // Build a list of which cells to compare up to a maximum of 4
-        // | 0,0 | 1,0
+        //@formatter:off
+        //      | 0,0 | 1,0
         // ------------+-----
         // -1,1 | 0,1 | 1,1
+        //@formatter:on
 
         int count = 1;
 
-        if (yBin < nYBins - 1) {
-          neighbours[count++] = grid[xBin][yBin + 1];
-          if (xBin > 0) {
-            neighbours[count++] = grid[xBin - 1][yBin + 1];
+        if (ybin < ybins - 1) {
+          neighbours[count++] = grid[xbin][ybin + 1];
+          if (xbin > 0) {
+            neighbours[count++] = grid[xbin - 1][ybin + 1];
           }
         }
-        if (xBin < nXBins - 1) {
-          neighbours[count++] = grid[xBin + 1][yBin];
-          if (yBin < nYBins - 1) {
-            neighbours[count++] = grid[xBin + 1][yBin + 1];
+        if (xbin < xbins - 1) {
+          neighbours[count++] = grid[xbin + 1][ybin];
+          if (ybin < ybins - 1) {
+            neighbours[count++] = grid[xbin + 1][ybin + 1];
           }
         }
 
-        for (Molecule m1 = grid[xBin][yBin]; m1 != null; m1 = m1.next) {
+        for (Molecule m1 = grid[xbin][ybin]; m1 != null; m1 = m1.next) {
           neighbours[0] = m1.next;
 
           // Compare to neighbours
@@ -915,11 +930,13 @@ public class DensityManager extends CoordinateStore {
   }
 
   /**
-   * Compute Ripley's L-function. <p> See
-   * http://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions
+   * Compute Ripley's L-function.
    *
    * @param radius The radius
    * @return The L-function score
+   * @see <a
+   *      href="http://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions">Ripleys
+   *      K and L functions</a>
    */
   public double ripleysLFunction(double radius) {
     final double k = ripleysKFunction(radius);
@@ -927,46 +944,16 @@ public class DensityManager extends CoordinateStore {
   }
 
   /**
-   * Compute Ripley's K-function. <p> See
-   * http://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions
+   * Compute Ripley's L-function.
    *
    * @param density The density score for each particle
    * @param radius The radius at which the density was computed
    * @return The K-function score
    * @see #calculateDensity(float, boolean)
    * @see #calculateSquareDensity(float, int, boolean)
-   */
-  public double ripleysKFunction(int[] density, double radius) {
-    if (radius < 0) {
-      throw new IllegalArgumentException("Radius must be positive");
-    }
-    if (density.length != xcoord.length) {
-      throw new IllegalArgumentException(
-          "Input density array must match the number of coordinates");
-    }
-
-    // Count the number of points within the distance
-    int sum = 0;
-    for (final int d : density) {
-      sum += d;
-    }
-
-    // Normalise
-    final double scale = area / ((double) density.length * (double) density.length);
-    final double k = sum * scale;
-
-    return k;
-  }
-
-  /**
-   * Compute Ripley's L-function. <p> See
-   * http://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions
-   *
-   * @param density The density score for each particle
-   * @param radius The radius at which the density was computed
-   * @return The K-function score
-   * @see #calculateDensity(float, boolean)
-   * @see #calculateSquareDensity(float, int, boolean)
+   * @see <a
+   *      href="http://en.wikipedia.org/wiki/Spatial_descriptive_statistics#Ripley.27s_K_and_L_functions">Ripleys
+   *      K and L functions</a>
    */
   public double ripleysLFunction(int[] density, double radius) {
     final double k = ripleysKFunction(density, radius);

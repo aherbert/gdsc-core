@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.data.procedures;
 
 /**
- * Custom implementation for accessing a value in three dimensions using a stack of float data
+ * Custom implementation for accessing a value in three dimensions using a stack of float data.
  */
 public class FloatStackTrivalueProcedure implements TrivalueProcedure {
   /** The x axis values. */
@@ -45,7 +46,6 @@ public class FloatStackTrivalueProcedure implements TrivalueProcedure {
 
   private int maxx;
 
-  /** {@inheritDoc} */
   @Override
   public boolean setDimensions(int maxx, int maxy, int maxz) {
     x = new double[maxx];
@@ -56,27 +56,23 @@ public class FloatStackTrivalueProcedure implements TrivalueProcedure {
     return true;
   }
 
-  /** {@inheritDoc} */
   @Override
-  public void setX(int i, double value) {
-    x[i] = value;
+  public void setX(int index, double value) {
+    x[index] = value;
   }
 
-  /** {@inheritDoc} */
   @Override
-  public void setY(int j, double value) {
-    y[j] = value;
+  public void setY(int index, double value) {
+    y[index] = value;
   }
 
-  /** {@inheritDoc} */
   @Override
-  public void setZ(int k, double value) {
-    z[k] = value;
+  public void setZ(int index, double value) {
+    z[index] = value;
   }
 
-  /** {@inheritDoc} */
   @Override
-  public void setValue(int i, int j, int k, double value) {
-    this.value[k][j * maxx + i] = (float) value;
+  public void setValue(int indexX, int indexY, int indexZ, double value) {
+    this.value[indexZ][indexY * maxx + indexX] = (float) value;
   }
 }

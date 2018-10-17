@@ -25,15 +25,16 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.match;
 
 /**
- * Stores an assignment between two identified points and the distance between them
+ * Stores an assignment between two identified points and the distance between them.
  */
 public class ImmutableAssignment implements Assignment {
-  final private int targetId;
-  final private int predictedId;
-  final private double distance;
+  private final int targetId;
+  private final int predictedId;
+  private final double distance;
 
   /**
    * Instantiates a new assignment.
@@ -48,19 +49,16 @@ public class ImmutableAssignment implements Assignment {
     this.distance = distance;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int getTargetId() {
     return targetId;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int getPredictedId() {
     return predictedId;
   }
 
-  /** {@inheritDoc} */
   @Override
   public double getDistance() {
     return distance;

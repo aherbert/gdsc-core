@@ -25,19 +25,22 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.gui;
+
+import ij.IJ;
+import ij.WindowManager;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 
-import ij.IJ;
-import ij.WindowManager;
-
 /**
  * This is an extension of {@link uk.ac.sussex.gdsc.core.ij.gui.ExtendedGenericDialog} that is
- * non-model. <p> The implementation is a copy of {@link ij.gui.NonBlockingGenericDialog}.
+ * non-model.
+ *
+ * <p>The implementation is a copy of {@link ij.gui.NonBlockingGenericDialog}.
  */
 public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog {
   private static final long serialVersionUID = 8535959215385211516L;
@@ -69,29 +72,32 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog {
     }
     try {
       wait();
-    } catch (final InterruptedException e) { // Ignore
+    } catch (final InterruptedException ex) {
+      // Restore interrupted state...
+      Thread.currentThread().interrupt();
+      // Ignore exception
     }
   }
 
   @Override
-  public synchronized void actionPerformed(ActionEvent e) {
-    super.actionPerformed(e);
+  public synchronized void actionPerformed(ActionEvent event) {
+    super.actionPerformed(event);
     if (!isVisible()) {
       notify();
     }
   }
 
   @Override
-  public synchronized void keyPressed(KeyEvent e) {
-    super.keyPressed(e);
+  public synchronized void keyPressed(KeyEvent event) {
+    super.keyPressed(event);
     if (wasOKed() || wasCanceled()) {
       notify();
     }
   }
 
   @Override
-  public synchronized void windowClosing(WindowEvent e) {
-    super.windowClosing(e);
+  public synchronized void windowClosing(WindowEvent event) {
+    super.windowClosing(event);
     if (wasOKed() || wasCanceled()) {
       notify();
     }

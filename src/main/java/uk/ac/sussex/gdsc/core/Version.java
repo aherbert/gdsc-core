@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ import java.util.regex.Pattern;
  * Show the version information contained in the source jar manifest.
  */
 public class Version {
-  /** Constant for the string "unknown" */
+  /** Constant for the string "unknown". */
   public static final String UNKNOWN = "unknown";
   private static String version = null;
   private static String buildDate = null;
@@ -80,7 +81,7 @@ public class Version {
   }
 
   /**
-   * Get the GDSC Core version
+   * Get the GDSC Core version.
    *
    * @return The uk.ac.sussex.gdsc.core package version
    */
@@ -89,7 +90,7 @@ public class Version {
   }
 
   /**
-   * Get the GDSC Core package build date
+   * Get the GDSC Core package build date.
    *
    * @return The uk.ac.sussex.gdsc.core package build date
    */
@@ -98,7 +99,7 @@ public class Version {
   }
 
   /**
-   * Get the GDSC Core package build number
+   * Get the GDSC Core package build number.
    *
    * @return The uk.ac.sussex.gdsc.core package build number
    */
@@ -107,7 +108,7 @@ public class Version {
   }
 
   /**
-   * Get the major version
+   * Get the major version.
    *
    * @return The major version (or 0 if unknown)
    */
@@ -121,7 +122,7 @@ public class Version {
   }
 
   /**
-   * Get the minor version
+   * Get the minor version.
    *
    * @return The minor version (or 0 if unknown)
    */
@@ -135,7 +136,7 @@ public class Version {
   }
 
   /**
-   * Get the patch version
+   * Get the patch version.
    *
    * @return The patch version (or 0 if unknown)
    */
@@ -149,7 +150,7 @@ public class Version {
   }
 
   /**
-   * Get a string with the major, minor and patch versions
+   * Get a string with the major, minor and patch versions.
    *
    * @return Major.Minor.Patch
    */
@@ -183,7 +184,7 @@ public class Version {
       try (InputStream in = new URL(manifestPath).openStream()) {
         return new Manifest(in);
       }
-    } catch (final IOException e) {
+    } catch (final IOException ex) {
       // Ignore this
     }
     return null;

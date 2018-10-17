@@ -25,20 +25,22 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.process;
 
-import java.awt.image.ColorModel;
-
 import ij.process.FloatProcessor;
+
+import java.awt.image.ColorModel;
 
 /**
  * Extends the ImageJ {@link FloatProcessor} class to map the min-max range to 1-255 in the 8-bit
  * image. The min is set to the first value above zero. All values below min are mapped to 0 in the
- * LUT. <p> Optionally +0.0f can be set as the min value mapped to 1. In this case -0.0f is still
- * mapped to 0. This allows for example display of the results of a probability calculation where 0
- * is a valid display value. -0.0f can be used when no probability exists.
+ * LUT.
  *
- * @author Alex Herbert
+ * <p>Optionally +0.0f can be set as the min value mapped to 1. In this case -0.0f is still mapped
+ * to 0. This allows for example display of the results of a probability calculation where 0 is a
+ * valid display value. -0.0f can be used when no probability exists.
+ *
  * @see FloatProcessor
  */
 public class MappedFloatProcessor extends FloatProcessor {
@@ -140,7 +142,6 @@ public class MappedFloatProcessor extends FloatProcessor {
 
   private static int NEGATIVE_ZERO = Float.floatToRawIntBits(-0.0f);
 
-  /** {@inheritDoc} */
   // scale from float to 8-bits
   @Override
   protected byte[] create8BitImage() {
@@ -162,7 +163,8 @@ public class MappedFloatProcessor extends FloatProcessor {
     int ivalue;
 
     // Default min/max
-    float min2 = (float) getMin(), max2 = (float) getMax();
+    float min2 = (float) getMin();
+    float max2 = (float) getMax();
 
     // Ensure above zero
     min2 = Math.max(0, min2);

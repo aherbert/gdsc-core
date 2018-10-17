@@ -25,13 +25,14 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.logging;
 
 /**
- * Logs messages to nowhere
+ * Logs messages to nowhere.
  */
 public class NullLogger implements Logger {
-  /** An instance to ignore progress reporting */
+  /** An instance to ignore progress reporting. */
   public static final NullLogger INSTANCE = new NullLogger();
 
   /**
@@ -44,37 +45,31 @@ public class NullLogger implements Logger {
     return (logger == null) ? INSTANCE : logger;
   }
 
-  /** {@inheritDoc} */
   @Override
   public void info(String message) {
     // Do nothing
   }
 
-  /** {@inheritDoc} */
   @Override
   public void info(String format, Object... args) {
     // Do nothing
   }
 
-  /** {@inheritDoc} */
   @Override
   public void debug(String message) {
     // Do nothing
   }
 
-  /** {@inheritDoc} */
   @Override
   public void debug(String format, Object... args) {
     // Do nothing
   }
 
-  /** {@inheritDoc} */
   @Override
   public void error(String message) {
     // Do nothing
   }
 
-  /** {@inheritDoc} */
   @Override
   public void error(String format, Object... args) {
     // Do nothing

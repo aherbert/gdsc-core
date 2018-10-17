@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.logging;
 
 import java.io.BufferedOutputStream;
@@ -75,7 +76,7 @@ public class FileLogger implements Logger {
         if (!message.endsWith("\n")) {
           os.write('\n');
         }
-      } catch (final IOException e) {
+      } catch (final IOException ex) {
         close();
       }
     }
@@ -93,25 +94,21 @@ public class FileLogger implements Logger {
     info(String.format(format, args));
   }
 
-  /** {@inheritDoc} */
   @Override
   public void debug(String message) {
     info(message);
   }
 
-  /** {@inheritDoc} */
   @Override
   public void debug(String format, Object... args) {
     info(format, args);
   }
 
-  /** {@inheritDoc} */
   @Override
   public void error(String message) {
     info(message);
   }
 
-  /** {@inheritDoc} */
   @Override
   public void error(String format, Object... args) {
     info(format, args);
@@ -127,7 +124,7 @@ public class FileLogger implements Logger {
     synchronized (os) {
       try {
         os.close();
-      } catch (final IOException e) { // Ignore
+      } catch (final IOException ex) { // Ignore
       } finally {
         os = null;
       }

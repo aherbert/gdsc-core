@@ -25,22 +25,24 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package uk.ac.sussex.gdsc.core.data.detection;
 
-import java.awt.geom.Rectangle2D;
+package uk.ac.sussex.gdsc.core.data.detection;
 
 import gnu.trove.list.array.TIntArrayList;
 
+import java.awt.geom.Rectangle2D;
+
 /**
- * Class to compute collision detections between a point and a set of rectangles
+ * Class to compute collision detections between a point and a set of rectangles.
  */
 public class SimpleDetectionGrid implements DetectionGrid {
   private final Rectangle2D[] rectangles;
 
   /**
-   * Set to true to include the outer right and lower boundary edge of the rectangle. <p> This
-   * contrasts with {@link Rectangle2D#contains(double, double)} as a point on the right or lower
-   * boundary will not be within the rectangle since due to the definition of "insideness".
+   * Set to true to include the outer right and lower boundary edge of the rectangle.
+   *
+   * <p>This contrasts with {@link Rectangle2D#contains(double, double)} as a point on the right or
+   * lower boundary will not be within the rectangle since due to the definition of "insideness".
    */
   public boolean includeOuterEdge = false;
 
@@ -56,7 +58,6 @@ public class SimpleDetectionGrid implements DetectionGrid {
     this.rectangles = rectangles;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int size() {
     return rectangles.length;
@@ -87,17 +88,16 @@ public class SimpleDetectionGrid implements DetectionGrid {
   }
 
   /**
-   * Check if the rectangle contains the point (x,y)
+   * Check if the rectangle contains the point (x,y).
    *
-   * @param r the r
+   * @param rectangle the rectangle
    * @param x the x
    * @param y the y
    * @return true, if successful
    */
-  private static boolean contains(Rectangle2D r, double x, double y) {
-    final double x0 = r.getX();
-    final double y0 = r.getY();
-    return (x >= x0 && y >= y0 && x <= r.getMaxX() && y <= r.getMaxY());
+  private static boolean contains(Rectangle2D rectangle, double x, double y) {
+    final double x0 = rectangle.getX();
+    final double y0 = rectangle.getY();
+    return (x >= x0 && y >= y0 && x <= rectangle.getMaxX() && y <= rectangle.getMaxY());
   }
-
 }

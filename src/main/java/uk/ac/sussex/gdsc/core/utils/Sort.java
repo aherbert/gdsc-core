@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
@@ -364,75 +365,6 @@ public class Sort {
     }
 
     return indices;
-  }
-
-  /**
-   * Reverse the array order.
-   *
-   * @param data the data
-   * @deprecated Moved to SimpleArrayUtils
-   */
-  @Deprecated
-  public static void reverse(int[] data) {
-    int left = 0;
-    int right = data.length - 1;
-
-    while (left < right) {
-      // swap the values at the left and right indices
-      final int temp = data[left];
-      data[left] = data[right];
-      data[right] = temp;
-
-      // move the left and right index pointers in toward the center
-      left++;
-      right--;
-    }
-  }
-
-  /**
-   * Reverse the array order.
-   *
-   * @param data the data
-   * @deprecated Moved to SimpleArrayUtils
-   */
-  @Deprecated
-  public static void reverse(float[] data) {
-    int left = 0;
-    int right = data.length - 1;
-
-    while (left < right) {
-      // swap the values at the left and right indices
-      final float temp = data[left];
-      data[left] = data[right];
-      data[right] = temp;
-
-      // move the left and right index pointers in toward the center
-      left++;
-      right--;
-    }
-  }
-
-  /**
-   * Reverse the array order.
-   *
-   * @param data the data
-   * @deprecated Moved to SimpleArrayUtils
-   */
-  @Deprecated
-  public static void reverse(double[] data) {
-    int left = 0;
-    int right = data.length - 1;
-
-    while (left < right) {
-      // swap the values at the left and right indices
-      final double temp = data[left];
-      data[left] = data[right];
-      data[right] = temp;
-
-      // move the left and right index pointers in toward the center
-      left++;
-      right--;
-    }
   }
 
   /**

@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 /**
@@ -38,7 +39,7 @@ class InnerRadialMoleculeSpace extends RadialMoleculeSpace {
    * @param opticsManager the optics manager
    * @param generatingDistanceE the generating distance (E)
    */
-  InnerRadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE) {
+  InnerRadialMoleculeSpace(OpticsManager opticsManager, float generatingDistanceE) {
     this(opticsManager, generatingDistanceE, 0);
   }
 
@@ -49,7 +50,7 @@ class InnerRadialMoleculeSpace extends RadialMoleculeSpace {
    * @param generatingDistanceE the generating distance (E)
    * @param resolution the resolution
    */
-  InnerRadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, int resolution) {
+  InnerRadialMoleculeSpace(OpticsManager opticsManager, float generatingDistanceE, int resolution) {
     super(opticsManager, generatingDistanceE, resolution, true);
   }
 }

@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.generics;
 
 import java.lang.ref.WeakReference;
@@ -32,24 +33,73 @@ import java.util.AbstractQueue;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * A blocking queue that can be closed. <p> This is a copy implementation of
- * java.util.ArrayBlockingQueue. Modifications have been made to allow the queue to be closed to
- * additions. When closed the behaviour is non-blocking. No additions to the queue are allowed and
- * any blocked removal operations return null or error. Note that returning null objects is in
- * contrast to the ArrayBlockingQueue which does not allow null objects to be removed from the
- * {@link #take()} method.
+ * A blocking queue that can be closed.
+ *
+ * <p>This is a copy implementation of java.util.ArrayBlockingQueue. Modifications have been made to
+ * allow the queue to be closed to additions. When closed the behaviour is non-blocking. No
+ * additions to the queue are allowed and any blocked removal operations return null or error. Note
+ * that returning null objects is in contrast to the ArrayBlockingQueue which does not allow null
+ * objects to be removed from the {@link #take()} method.
  *
  * @param <E> the element type
  * @since 1.2.0
  */
 public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     implements BlockingQueue<E>, java.io.Serializable {
+
+  // This is a copy implementation.
+  // To aid maintenance the rules have been relexed
+  // CHECKSTYLE.OFF: ParameterName
+  // CHECKSTYLE.OFF: OverloadMethodsDeclarationOrder
+  // CHECKSTYLE.OFF: LocalVariableName
+
+  /**
+   * Serialization ID. This class relies on default serialization even for the items array, which is
+   * default-serialized, even if it is empty. Otherwise it could not be declared final, which is
+   * necessary here.
+   */
+  private static final long serialVersionUID = -6721357142783374158L;
+
+  /** The queued items. */
+  final Object[] items;
+
+  /** items index for next take, poll, peek or remove. */
+  int takeIndex;
+
+  /** items index for next put, offer, or add. */
+  int putIndex;
+
+  /** Number of elements in the queue. */
+  int count;
+
+  /*
+   * Concurrency control uses the classic two-condition algorithm found in any textbook.
+   */
+
+  /** Main lock guarding all access. */
+  final ReentrantLock lock;
+
+  /** Condition for waiting takes. */
+  private final Condition notEmpty;
+
+  /** Condition for waiting puts. */
+  private final Condition notFull;
+
+  /**
+   * Shared state for currently active iterators, or null if there are known not to be any. Allows
+   * queue operations to update iterator state.
+   */
+  transient Itrs itrs = null;
+
   /** The closed flag. Should only be modified when holding lock. */
   private boolean closed = false;
 
@@ -62,186 +112,35 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
   /** Flag specifying the behaviour if closed. */
   private boolean throwIfClosed = false;
 
-  /**
-   * Checks if is closed. No additions are possible when the queue is closed. Items can still be
-   * removed.
-   *
-   * @return true, if is closed
-   */
-  public boolean isClosed() {
-    return closed;
-  }
-
-  /**
-   * Checks if is closed. No additions are possible when the queue is closed. Items cannot be
-   * removed when the queue is empty. <p> If the queue is closed and empty then synchronisation is
-   * avoided on all methods that use the queue since it cannot change.
-   *
-   * @return true, if is closed and empty
-   */
-  public boolean isClosedAndEmpty() {
-    return closedAndEmpty;
-  }
-
-  /**
-   * Close the queue. No additions are possible when the queue is closed. Items can still be
-   * removed.
-   *
-   * @param clear Set to true to clear the queue
-   */
-  public void close(boolean clear) {
-    if (closed) {
-      return;
-    }
-
-    final ReentrantLock lock = this.lock;
-    lock.lock();
-    try {
-      closed = true;
-      if (clear) {
-        clear();
-        closedAndEmpty = true;
-      }
-
-      // Release anything waiting to put items in the queue.
-      // Nothing can be added when it is closed.
-      while (lock.hasWaiters(notFull)) {
-        notFull.signal();
-      }
-      // Release anything waiting for the queue.
-      // This is because the queue will never fill when closed
-      // and prevents stale threads waiting forever.
-      while (lock.hasWaiters(notEmpty)) {
-        notEmpty.signal();
-      }
-    } finally {
-      lock.unlock();
-    }
-  }
-
-  /**
-   * Open the queue.
-   */
-  public void open() {
-    if (closed) {
-      return;
-    }
-
-    final ReentrantLock lock = this.lock;
-    lock.lock();
-    try {
-      closed = false;
-      closedAndEmpty = false;
-    } finally {
-      lock.unlock();
-    }
-  }
-
-  /**
-   * Checks if is throw if closed flag.
-   *
-   * @return true, if IllegalStateException is thrown by additions/removals when closed
-   */
-  public boolean isThrowIfClosed() {
-    return throwIfClosed;
-  }
-
-  /**
-   * Sets the throw if closed flag. <p> If true then additions to the closed queue that normally
-   * block when full will throw an exception. The default is to ignore them. <p> If true then
-   * removals from the queue that normally block will throw an exception. The default is to return
-   * null. <p> The exception will be an IllegalStateException.
-   *
-   * @param throwIfClosed the new throw if closed
-   */
-  public void setThrowIfClosed(boolean throwIfClosed) {
-    final ReentrantLock lock = this.lock;
-    lock.lock();
-    try {
-      this.throwIfClosed = throwIfClosed;
-    } finally {
-      lock.unlock();
-    }
-  }
-
-  /**
-   * Serialization ID. This class relies on default serialization even for the items array, which is
-   * default-serialized, even if it is empty. Otherwise it could not be declared final, which is
-   * necessary here.
-   */
-  private static final long serialVersionUID = -6721357142783374158L;
-
-  /** The queued items */
-  final Object[] items;
-
-  /** items index for next take, poll, peek or remove */
-  int takeIndex;
-
-  /** items index for next put, offer, or add */
-  int putIndex;
-
-  /** Number of elements in the queue */
-  int count;
-
-  /*
-   * Concurrency control uses the classic two-condition algorithm found in any textbook.
-   */
-
-  /** Main lock guarding all access */
-  final ReentrantLock lock;
-
-  /** Condition for waiting takes */
-  private final Condition notEmpty;
-
-  /** Condition for waiting puts */
-  private final Condition notFull;
-
-  /**
-   * Shared state for currently active iterators, or null if there are known not to be any. Allows
-   * queue operations to update iterator state.
-   */
-  transient Itrs itrs = null;
-
   // Internal helper methods
 
   /**
-   * Circularly decrement i.
+   * Circularly decrement index.
    *
-   * @param i the i
-   * @return the new i
+   * @param index the index
+   * @return the new index
    */
-  final int dec(int i) {
-    return ((i == 0) ? items.length : i) - 1;
+  final int dec(int index) {
+    return ((index == 0) ? items.length : index) - 1;
   }
 
   /**
-   * Returns item at index i.
+   * Returns item at the index.
    *
-   * @param i the index
-   * @return the e
+   * @param index the index
+   * @return the item
    */
   @SuppressWarnings("unchecked")
-  final E itemAt(int i) {
-    return (E) items[i];
-  }
-
-  /**
-   * Throws NullPointerException if argument is null.
-   *
-   * @param v the element
-   */
-  private static void checkNotNull(Object v) {
-    if (v == null) {
-      throw new NullPointerException();
-    }
+  final E itemAt(int index) {
+    return (E) items[index];
   }
 
   /**
    * Inserts element at current put position, advances, and signals. Call only when holding lock.
    */
   private void enqueue(E x) {
-    // assert lock.getHoldCount() == 1;
-    // assert items[putIndex] == null;
+    // assert lock.getHoldCount() == 1
+    // assert items[putIndex] == null
     final Object[] items = this.items;
     items[putIndex] = x;
     if (++putIndex == items.length) {
@@ -255,8 +154,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * Extracts element at current take position, advances, and signals. Call only when holding lock.
    */
   private E dequeue() {
-    // assert lock.getHoldCount() == 1;
-    // assert items[takeIndex] != null;
+    // assert lock.getHoldCount() == 1
+    // assert items[takeIndex] != null
     final Object[] items = this.items;
     @SuppressWarnings("unchecked")
     final E x = (E) items[takeIndex];
@@ -283,9 +182,9 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * @param removeIndex the remove index
    */
   void removeAt(final int removeIndex) {
-    // assert lock.getHoldCount() == 1;
-    // assert items[removeIndex] != null;
-    // assert removeIndex >= 0 && removeIndex < items.length;
+    // assert lock.getHoldCount() == 1
+    // assert items[removeIndex] != null
+    // assert removeIndex >= 0 && removeIndex < items.length
     final Object[] items = this.items;
     if (removeIndex == takeIndex) {
       // removing front item; just advance
@@ -373,17 +272,125 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     final ReentrantLock lock = this.lock;
     lock.lock(); // Lock only for visibility, not mutual exclusion
     try {
-      int i = 0;
+      int index = 0;
       try {
         for (final E e : c) {
-          checkNotNull(e);
-          items[i++] = e;
+          items[index++] = Objects.requireNonNull(e, "Element cannot be null");
         }
       } catch (final ArrayIndexOutOfBoundsException ex) {
         throw new IllegalArgumentException();
       }
-      count = i;
-      putIndex = (i == capacity) ? 0 : i;
+      count = index;
+      putIndex = (index == capacity) ? 0 : index;
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  /**
+   * Checks if is closed. No additions are possible when the queue is closed. Items can still be
+   * removed.
+   *
+   * @return true, if is closed
+   */
+  public boolean isClosed() {
+    return closed;
+  }
+
+  /**
+   * Checks if is closed. No additions are possible when the queue is closed. Items cannot be
+   * removed when the queue is empty.
+   *
+   * <p>If the queue is closed and empty then synchronisation is avoided on all methods that use the
+   * queue since it cannot change.
+   *
+   * @return true, if is closed and empty
+   */
+  public boolean isClosedAndEmpty() {
+    return closedAndEmpty;
+  }
+
+  /**
+   * Close the queue. No additions are possible when the queue is closed. Items can still be
+   * removed.
+   *
+   * @param clear Set to true to clear the queue
+   */
+  public void close(boolean clear) {
+    if (closed) {
+      return;
+    }
+
+    final ReentrantLock lock = this.lock;
+    lock.lock();
+    try {
+      closed = true;
+      if (clear) {
+        clear();
+        closedAndEmpty = true;
+      }
+
+      // Release anything waiting to put items in the queue.
+      // Nothing can be added when it is closed.
+      while (lock.hasWaiters(notFull)) {
+        notFull.signal();
+      }
+      // Release anything waiting for the queue.
+      // This is because the queue will never fill when closed
+      // and prevents stale threads waiting forever.
+      while (lock.hasWaiters(notEmpty)) {
+        notEmpty.signal();
+      }
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  /**
+   * Open the queue.
+   */
+  public void open() {
+    if (!closed) {
+      return;
+    }
+
+    final ReentrantLock lock = this.lock;
+    lock.lock();
+    try {
+      closed = false;
+      closedAndEmpty = false;
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  /**
+   * Checks if is throw if closed flag.
+   *
+   * @return true, if IllegalStateException is thrown by additions/removals when closed
+   */
+  public boolean isThrowIfClosed() {
+    return throwIfClosed;
+  }
+
+  /**
+   * Sets the throw if closed flag.
+   *
+   * <p>If true then additions to the closed queue that normally block when full will throw an
+   * exception. The default is to ignore them.
+   *
+   * <p>If true then removals from the queue that normally block will throw an exception. The
+   * default is to return null.
+   *
+   * <p>The exception will be an IllegalStateException.
+   *
+   * @param throwIfClosed the new throw if closed
+   */
+  public void setThrowIfClosed(boolean throwIfClosed) {
+    final ReentrantLock lock = this.lock;
+    lock.lock();
+    try {
+      this.throwIfClosed = throwIfClosed;
     } finally {
       lock.unlock();
     }
@@ -420,113 +427,13 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return false;
     }
 
-    checkNotNull(e);
+    Objects.requireNonNull(e, "Element cannot be null");
     final ReentrantLock lock = this.lock;
     lock.lock();
     try {
       if (closed || count == items.length) {
         return false;
       }
-      enqueue(e);
-      return true;
-    } finally {
-      lock.unlock();
-    }
-  }
-
-  /**
-   * Inserts the specified element at the tail of this queue, waiting for space to become available
-   * if the queue is full. <p> If closed then either ignores the element or throws an exception. <p>
-   * If the queue is closed while waiting then this method will unblock and ignore the element.
-   * Callers should check if the queue is closed after calling this method, i.e. do not continue
-   * generating more items that will be ignored by a closed queue. <p> Alternatively use
-   * {@link #putAndConfirm(Object)} to know if the element was successfully put on the queue.
-   *
-   * @param e the element to add
-   * @throws InterruptedException {@inheritDoc}
-   * @throws IllegalStateException If closed and {@link #isThrowIfClosed()} is true
-   * @throws NullPointerException {@inheritDoc}
-   */
-  @Override
-  public void put(E e) throws InterruptedException, IllegalStateException {
-    // Don't lock if closed
-    if (closed) {
-      if (throwIfClosed) {
-        throw new IllegalStateException("No additions to a closed queue");
-      }
-      return;
-    }
-
-    checkNotNull(e);
-    final ReentrantLock lock = this.lock;
-    lock.lockInterruptibly();
-    try {
-      if (closed) {
-        if (throwIfClosed) {
-          throw new IllegalStateException("No additions to a closed queue");
-        }
-        return;
-      }
-
-      while (count == items.length) {
-        notFull.await();
-      }
-
-      if (closed) {
-        if (throwIfClosed) {
-          throw new IllegalStateException("No additions to a closed queue");
-        }
-        return;
-      }
-
-      enqueue(e);
-    } finally {
-      lock.unlock();
-    }
-  }
-
-  /**
-   * Inserts the specified element at the tail of this queue, waiting for space to become available
-   * if the queue is full. <p> If closed then either ignores the element or throws an exception. <p>
-   * If the queue is closed while waiting then this method will unblock and ignore the element.
-   *
-   * @param e the element to add
-   * @return true, if successfully added to the queue
-   * @throws InterruptedException If interrupted while waiting
-   * @throws IllegalStateException If closed and {@link #isThrowIfClosed()} is true
-   * @throws NullPointerException If the specified element is null
-   */
-  public boolean putAndConfirm(E e) throws InterruptedException, IllegalStateException {
-    // Don't lock if closed
-    if (closed) {
-      if (throwIfClosed) {
-        throw new IllegalStateException("No additions to a closed queue");
-      }
-      return false;
-    }
-
-    checkNotNull(e);
-    final ReentrantLock lock = this.lock;
-    lock.lockInterruptibly();
-    try {
-      if (closed) {
-        if (throwIfClosed) {
-          throw new IllegalStateException("No additions to a closed queue");
-        }
-        return false;
-      }
-
-      while (count == items.length) {
-        notFull.await();
-      }
-
-      if (closed) {
-        if (throwIfClosed) {
-          throw new IllegalStateException("No additions to a closed queue");
-        }
-        return false;
-      }
-
       enqueue(e);
       return true;
     } finally {
@@ -549,7 +456,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return false;
     }
 
-    checkNotNull(e);
+    Objects.requireNonNull(e, "Element cannot be null");
     long nanos = unit.toNanos(timeout);
     final ReentrantLock lock = this.lock;
     lock.lockInterruptibly();
@@ -562,6 +469,114 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       }
 
       if (closed) {
+        return false;
+      }
+
+      enqueue(e);
+      return true;
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  /**
+   * Inserts the specified element at the tail of this queue, waiting for space to become available
+   * if the queue is full.
+   *
+   * <p>If closed then either ignores the element or throws an exception.
+   *
+   * <p>If the queue is closed while waiting then this method will unblock and ignore the element.
+   * Callers should check if the queue is closed after calling this method, i.e. do not continue
+   * generating more items that will be ignored by a closed queue.
+   *
+   * <p>Alternatively use {@link #putAndConfirm(Object)} to know if the element was successfully put
+   * on the queue.
+   *
+   * @param e the element to add
+   * @throws InterruptedException {@inheritDoc}
+   * @throws IllegalStateException If closed and {@link #isThrowIfClosed()} is true
+   * @throws NullPointerException {@inheritDoc}
+   */
+  @Override
+  public void put(E e) throws InterruptedException, IllegalStateException {
+    // Don't lock if closed
+    if (closed) {
+      if (throwIfClosed) {
+        throw new IllegalStateException("No additions to a closed queue");
+      }
+      return;
+    }
+
+    Objects.requireNonNull(e, "Element cannot be null");
+    final ReentrantLock lock = this.lock;
+    lock.lockInterruptibly();
+    try {
+      if (closed) {
+        if (throwIfClosed) {
+          throw new IllegalStateException("No additions to a closed queue");
+        }
+        return;
+      }
+
+      while (count == items.length) {
+        notFull.await();
+      }
+
+      if (closed) {
+        if (throwIfClosed) {
+          throw new IllegalStateException("No additions to a closed queue");
+        }
+        return;
+      }
+
+      enqueue(e);
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  /**
+   * Inserts the specified element at the tail of this queue, waiting for space to become available
+   * if the queue is full.
+   *
+   * <p>If closed then either ignores the element or throws an exception.
+   *
+   * <p>If the queue is closed while waiting then this method will unblock and ignore the element.
+   *
+   * @param e the element to add
+   * @return true, if successfully added to the queue
+   * @throws InterruptedException If interrupted while waiting
+   * @throws IllegalStateException If closed and {@link #isThrowIfClosed()} is true
+   * @throws NullPointerException If the specified element is null
+   */
+  public boolean putAndConfirm(E e) throws InterruptedException, IllegalStateException {
+    // Don't lock if closed
+    if (closed) {
+      if (throwIfClosed) {
+        throw new IllegalStateException("No additions to a closed queue");
+      }
+      return false;
+    }
+
+    Objects.requireNonNull(e, "Element cannot be null");
+    final ReentrantLock lock = this.lock;
+    lock.lockInterruptibly();
+    try {
+      if (closed) {
+        if (throwIfClosed) {
+          throw new IllegalStateException("No additions to a closed queue");
+        }
+        return false;
+      }
+
+      while (count == items.length) {
+        notFull.await();
+      }
+
+      if (closed) {
+        if (throwIfClosed) {
+          throw new IllegalStateException("No additions to a closed queue");
+        }
         return false;
       }
 
@@ -590,10 +605,14 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
   }
 
   /**
-   * {@inheritDoc} <p> If the queue is closed while waiting then this method will unblock and either
-   * return null or throw an exception. <p> Callers should check if the return value is null and
-   * appropriately handle a closed empty queue, i.e. do not continue to call this method as it will
-   * no longer block but will have locking synchronisation overhead.
+   * {@inheritDoc}
+   *
+   * <p>If the queue is closed while waiting then this method will unblock and either return null or
+   * throw an exception.
+   *
+   * <p>Callers should check if the return value is null and appropriately handle a closed empty
+   * queue, i.e. do not continue to call this method as it will no longer block but will have
+   * locking synchronisation overhead.
    *
    * @throws IllegalStateException If closed while waiting and {@link #isThrowIfClosed()} is true
    */
@@ -699,9 +718,9 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * or resource constraints) accept without blocking. This is always equal to the initial capacity
    * of this queue less the current {@code size} of this queue.
    *
-   * <p> Note that you <em>cannot</em> always tell if an attempt to insert an element will succeed
-   * by inspecting {@code remainingCapacity} because it may be the case that another thread is about
-   * to insert or remove an element.
+   * <p>Note that you <em>cannot</em> always tell if an attempt to insert an element will succeed by
+   * inspecting {@code remainingCapacity} because it may be the case that another thread is about to
+   * insert or remove an element.
    */
   @Override
   public int remainingCapacity() {
@@ -725,7 +744,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * one or more such elements. Returns {@code true} if this queue contained the specified element
    * (or equivalently, if this queue changed as a result of the call).
    *
-   * <p> Removal of interior elements in circular array based queues is an intrinsically slow and
+   * <p>Removal of interior elements in circular array based queues is an intrinsically slow and
    * disruptive operation, so should be undertaken only in exceptional circumstances, ideally only
    * when the queue is known not to be accessible by other threads.
    *
@@ -753,7 +772,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
           if (++i == items.length) {
             i = 0;
           }
-        } while (i != putIndex);
+        }
+        while (i != putIndex);
       }
       return false;
     } finally {
@@ -789,7 +809,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
           if (++i == items.length) {
             i = 0;
           }
-        } while (i != putIndex);
+        }
+        while (i != putIndex);
       }
       return false;
     } finally {
@@ -800,11 +821,11 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
   /**
    * Returns an array containing all of the elements in this queue, in proper sequence.
    *
-   * <p> The returned array will be "safe" in that no references to it are maintained by this queue.
+   * <p>The returned array will be "safe" in that no references to it are maintained by this queue.
    * (In other words, this method must allocate a new array). The caller is thus free to modify the
    * returned array.
    *
-   * <p> This method acts as bridge between array-based and collection-based APIs.
+   * <p>This method acts as bridge between array-based and collection-based APIs.
    *
    * @return an array containing all of the elements in this queue
    */
@@ -839,15 +860,15 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * array, it is returned therein. Otherwise, a new array is allocated with the runtime type of the
    * specified array and the size of this queue.
    *
-   * <p> If this queue fits in the specified array with room to spare (i.e., the array has more
+   * <p>If this queue fits in the specified array with room to spare (i.e., the array has more
    * elements than this queue), the element in the array immediately following the end of the queue
    * is set to {@code null}.
    *
-   * <p> Like the {@link #toArray()} method, this method acts as bridge between array-based and
+   * <p>Like the {@link #toArray()} method, this method acts as bridge between array-based and
    * collection-based APIs. Further, this method allows precise control over the runtime type of the
    * output array, and may, under certain circumstances, be used to save allocation costs.
    *
-   * <p> Suppose {@code x} is a queue known to contain only strings. The following code can be used
+   * <p>Suppose {@code x} is a queue known to contain only strings. The following code can be used
    * to dump the queue into a newly allocated array of {@code String}:
    *
    * <pre>
@@ -857,7 +878,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * }
    * </pre>
    *
-   * Note that {@code toArray(new Object[0])} is identical in function to {@code toArray()}.
+   * <p>Note that {@code toArray(new Object[0])} is identical in function to {@code toArray()}.
    *
    * @param a the array into which the elements of the queue are to be stored, if it is big enough;
    *        otherwise, a new array of the same runtime type is allocated for this purpose
@@ -958,7 +979,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
           if (++i == items.length) {
             i = 0;
           }
-        } while (i != putIndex);
+        }
+        while (i != putIndex);
         takeIndex = putIndex;
         count = 0;
         if (itrs != null) {
@@ -973,26 +995,14 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     }
   }
 
-  /**
-   * @throws UnsupportedOperationException {@inheritDoc}
-   * @throws ClassCastException {@inheritDoc}
-   * @throws NullPointerException {@inheritDoc}
-   * @throws IllegalArgumentException {@inheritDoc}
-   */
   @Override
   public int drainTo(Collection<? super E> c) {
     return drainTo(c, Integer.MAX_VALUE);
   }
 
-  /**
-   * @throws UnsupportedOperationException {@inheritDoc}
-   * @throws ClassCastException {@inheritDoc}
-   * @throws NullPointerException {@inheritDoc}
-   * @throws IllegalArgumentException {@inheritDoc}
-   */
   @Override
   public int drainTo(Collection<? super E> c, int maxElements) {
-    checkNotNull(c);
+    Objects.requireNonNull(c, "Collection cannot be null");
     if (c == this) {
       throw new IllegalArgumentException();
     }
@@ -1046,8 +1056,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * Returns an iterator over the elements in this queue in proper sequence. The elements will be
    * returned in order from first (head) to last (tail).
    *
-   * <p> The returned iterator is <a href="package-summary.html#Weakly"><i>weakly
-   * consistent</i></a>.
+   * <p>The returned iterator is <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
    *
    * @return an iterator over the elements in this queue in proper sequence
    */
@@ -1060,40 +1069,43 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * Shared data between iterators and their queue, allowing queue modifications to update iterators
    * when elements are removed.
    *
-   * This adds a lot of complexity for the sake of correctly handling some uncommon operations, but
-   * the combination of circular-arrays and supporting interior removes (i.e., those not at head)
-   * would cause iterators to sometimes lose their places and/or (re)report elements they shouldn't.
-   * To avoid this, when a queue has one or more iterators, it keeps iterator state consistent by:
+   * <p>This adds a lot of complexity for the sake of correctly handling some uncommon operations,
+   * but the combination of circular-arrays and supporting interior removes (i.e., those not at
+   * head) would cause iterators to sometimes lose their places and/or (re)report elements they
+   * shouldn't. To avoid this, when a queue has one or more iterators, it keeps iterator state
+   * consistent by:
    *
-   * (1) keeping track of the number of "cycles", that is, the number of times takeIndex has wrapped
-   * around to 0. (2) notifying all iterators via the callback removedAt whenever an interior
-   * element is removed (and thus other elements may be shifted).
+   * <p>(1) keeping track of the number of "cycles", that is, the number of times takeIndex has
+   * wrapped around to 0.
    *
-   * These suffice to eliminate iterator inconsistencies, but unfortunately add the secondary
+   * <p>(2) notifying all iterators via the callback removedAt whenever an interior element is
+   * removed (and thus other elements may be shifted).
+   *
+   * <p>These suffice to eliminate iterator inconsistencies, but unfortunately add the secondary
    * responsibility of maintaining the list of iterators. We track all active iterators in a simple
    * linked list (accessed only when the queue's lock is held) of weak references to Itr. The list
    * is cleaned up using 3 different mechanisms:
    *
-   * (1) Whenever a new iterator is created, do some O(1) checking for stale list elements.
+   * <p>(1) Whenever a new iterator is created, do some O(1) checking for stale list elements.
    *
-   * (2) Whenever takeIndex wraps around to 0, check for iterators that have been unused for more
+   * <p>(2) Whenever takeIndex wraps around to 0, check for iterators that have been unused for more
    * than one wrap-around cycle.
    *
-   * (3) Whenever the queue becomes empty, all iterators are notified and this entire data structure
-   * is discarded.
+   * <p>(3) Whenever the queue becomes empty, all iterators are notified and this entire data
+   * structure is discarded.
    *
-   * So in addition to the removedAt callback that is necessary for correctness, iterators have the
-   * shutdown and takeIndexWrapped callbacks that help remove stale iterators from the list.
+   * <p>So in addition to the removedAt callback that is necessary for correctness, iterators have
+   * the shutdown and takeIndexWrapped callbacks that help remove stale iterators from the list.
    *
-   * Whenever a list element is examined, it is expunged if either the GC has determined that the
+   * <p>Whenever a list element is examined, it is expunged if either the GC has determined that the
    * iterator is discarded, or if the iterator reports that it is "detached" (does not need any
    * further state updates). Overhead is maximal when takeIndex never advances, iterators are
    * discarded before they are exhausted, and all removals are interior removes, in which case all
    * stale iterators are discovered by the GC. But even in this case we don't increase the amortized
    * complexity.
    *
-   * Care must be taken to keep list sweeping methods from reentrantly invoking another such method,
-   * causing subtle corruption bugs.
+   * <p>Care must be taken to keep list sweeping methods from reentrantly invoking another such
+   * method, causing subtle corruption bugs.
    */
   class Itrs {
     /**
@@ -1108,13 +1120,13 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       }
     }
 
-    /** Incremented whenever takeIndex wraps around to 0 */
+    /** Incremented whenever takeIndex wraps around to 0. */
     int cycles = 0;
 
-    /** Linked list of weak iterator references */
+    /** Linked list of weak iterator references. */
     private Node head;
 
-    /** Used to expunge stale iterators */
+    /** Used to expunge stale iterators. */
     private Node sweeper = null;
 
     private static final int SHORT_SWEEP_PROBES = 4;
@@ -1140,7 +1152,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       // assert lock.getHoldCount() == 1;
       // assert head != null;
       int probes = tryHarder ? LONG_SWEEP_PROBES : SHORT_SWEEP_PROBES;
-      Node o, p;
+      Node o;
+      Node p;
       final Node sweeper = this.sweeper;
       boolean passedGo; // to limit search to one full sweep
 
@@ -1203,7 +1216,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     /**
      * Called whenever takeIndex wraps around to 0.
      *
-     * Notifies all iterators, and expunges any that are now stale.
+     * <p>Notifies all iterators, and expunges any that are now stale.
      */
     void takeIndexWrapped() {
       // assert lock.getHoldCount() == 1;
@@ -1234,7 +1247,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     /**
      * Called whenever an interior remove (not at takeIndex) occurred.
      *
-     * Notifies all iterators, and expunges any that are now stale.
+     * <p>Notifies all iterators, and expunges any that are now stale.
      *
      * @param removedIndex the removed index
      */
@@ -1265,8 +1278,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     /**
      * Called whenever the queue becomes empty.
      *
-     * Notifies all active iterators that the queue is empty, clears all weak refs, and unlinks the
-     * itrs datastructure.
+     * <p>Notifies all active iterators that the queue is empty, clears all weak refs, and unlinks
+     * the itrs datastructure.
      */
     void queueIsEmpty() {
       // assert lock.getHoldCount() == 1;
@@ -1297,40 +1310,40 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
   /**
    * Iterator for CloseableBlockingQueue.
    *
-   * To maintain weak consistency with respect to puts and takes, we read ahead one slot, so as to
-   * not report hasNext true but then not have an element to return.
+   * <p>To maintain weak consistency with respect to puts and takes, we read ahead one slot, so as
+   * to not report hasNext true but then not have an element to return.
    *
-   * We switch into "detached" mode (allowing prompt unlinking from itrs without help from the GC)
-   * when all indices are negative, or when hasNext returns false for the first time. This allows
-   * the iterator to track concurrent updates completely accurately, except for the corner case of
-   * the user calling Iterator.remove() after hasNext() returned false. Even in this case, we ensure
-   * that we don't remove the wrong element by keeping track of the expected element to remove, in
-   * lastItem. Yes, we may fail to remove lastItem from the queue if it moved due to an interleaved
-   * interior remove while in detached mode.
+   * <p>We switch into "detached" mode (allowing prompt unlinking from itrs without help from the
+   * GC) when all indices are negative, or when hasNext returns false for the first time. This
+   * allows the iterator to track concurrent updates completely accurately, except for the corner
+   * case of the user calling Iterator.remove() after hasNext() returned false. Even in this case,
+   * we ensure that we don't remove the wrong element by keeping track of the expected element to
+   * remove, in lastItem. Yes, we may fail to remove lastItem from the queue if it moved due to an
+   * interleaved interior remove while in detached mode.
    */
   private class Itr implements Iterator<E> {
-    /** Index to look for new nextItem; NONE at end */
+    /** Index to look for new nextItem; NONE at end. */
     private int cursor;
 
-    /** Element to be returned by next call to next(); null if none */
+    /** Element to be returned by next call to next(); null if none. */
     private E nextItem;
 
-    /** Index of nextItem; NONE if none, REMOVED if removed elsewhere */
+    /** Index of nextItem; NONE if none, REMOVED if removed elsewhere. */
     private int nextIndex;
 
-    /** Last element returned; null if none or not detached. */
+    /** Last element returned; null if none or not detached.. */
     private E lastItem;
 
-    /** Index of lastItem, NONE if none, REMOVED if removed elsewhere */
+    /** Index of lastItem, NONE if none, REMOVED if removed elsewhere.. */
     private int lastRet;
 
-    /** Previous value of takeIndex, or DETACHED when detached */
+    /** Previous value of takeIndex, or DETACHED when detached.. */
     private int prevTakeIndex;
 
-    /** Previous value of iters.cycles */
+    /** Previous value of iters.cycles. */
     private int prevCycles;
 
-    /** Special index value indicating "not available" or "undefined" */
+    /** Special index value indicating "not available" or "undefined". */
     private static final int NONE = -1;
 
     /**
@@ -1339,7 +1352,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
      */
     private static final int REMOVED = -2;
 
-    /** Special value for prevTakeIndex indicating "detached mode" */
+    /** Special value for prevTakeIndex indicating "detached mode". */
     private static final int DETACHED = -3;
 
     Itr() {
@@ -1697,28 +1710,22 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     // }
   }
 
-  // Only when we move the Java version to 1.8
-  // /**
-  // * Returns a {@link Spliterator} over the elements in this queue.
-  // *
-  // * <p>
-  // * The returned spliterator is
-  // * <a href="package-summary.html#Weakly"><i>weakly consistent</i></a>.
-  // *
-  // * <p>
-  // * The {@code Spliterator} reports {@link Spliterator#CONCURRENT},
-  // * {@link Spliterator#ORDERED}, and {@link Spliterator#NONNULL}.
-  // *
-  // * @implNote
-  // * The {@code Spliterator} implements {@code trySplit} to permit limited
-  // * parallelism.
-  // *
-  // * @return a {@code Spliterator} over the elements in this queue
-  // * @since 1.8
-  // */
-  // public Spliterator<E> spliterator()
-  // {
-  // return Spliterators.spliterator(this, Spliterator.ORDERED | Spliterator.NONNULL |
-  // Spliterator.CONCURRENT);
-  // }
+  /**
+   * Returns a {@link Spliterator} over the elements in this queue.
+   *
+   * <p>The returned spliterator is <a href="package-summary.html#Weakly"><i>weakly
+   * consistent</i></a>.
+   *
+   * <p>The {@code Spliterator} reports {@link Spliterator#CONCURRENT}, {@link Spliterator#ORDERED},
+   * and {@link Spliterator#NONNULL}.
+   *
+   * @implNote The {@code Spliterator} implements {@code trySplit} to permit limited parallelism.
+   *
+   * @return a {@code Spliterator} over the elements in this queue
+   */
+  @Override
+  public Spliterator<E> spliterator() {
+    return Spliterators.spliterator(this,
+        Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.CONCURRENT);
+  }
 }

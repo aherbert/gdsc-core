@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 /**
@@ -32,6 +33,16 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  * the centre.
  */
 class RadialMoleculeSpace extends GridMoleculeSpace {
+
+  /**
+   * Hold the point where inner processing starts to use a higher resolution grid.
+   */
+  static final int N_MOLECULES_FOR_NEXT_RESOLUTION_INNER = 150;
+  /**
+   * Hold the point where processing starts to use a higher resolution grid.
+   */
+  static final int N_MOLECULES_FOR_NEXT_RESOLUTION_OUTER = 150;
+
   /** The offset. */
   CircularKernelOffset[] offset;
   private final boolean useInternal;
@@ -42,7 +53,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
    * @param opticsManager the optics manager
    * @param generatingDistanceE the generating distance (E)
    */
-  RadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE) {
+  RadialMoleculeSpace(OpticsManager opticsManager, float generatingDistanceE) {
     this(opticsManager, generatingDistanceE, 0);
   }
 
@@ -53,9 +64,9 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
    * @param generatingDistanceE the generating distance (E)
    * @param resolution the resolution
    */
-  RadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, int resolution) {
+  RadialMoleculeSpace(OpticsManager opticsManager, float generatingDistanceE, int resolution) {
     super(opticsManager, generatingDistanceE, resolution);
-    useInternal = opticsManager.getOptions().contains(OPTICSManager.Option.INNER_PROCESSING);
+    useInternal = opticsManager.getOptions().contains(OpticsManager.Option.INNER_PROCESSING);
   }
 
   /**
@@ -66,7 +77,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
    * @param resolution the resolution
    * @param useInternal the use internal
    */
-  RadialMoleculeSpace(OPTICSManager opticsManager, float generatingDistanceE, int resolution,
+  RadialMoleculeSpace(OpticsManager opticsManager, float generatingDistanceE, int resolution,
       boolean useInternal) {
     super(opticsManager, generatingDistanceE, resolution);
     this.useInternal = useInternal;
@@ -102,7 +113,6 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
         || resolution < 2) {
       resolution++;
     }
-    // System.out.printf("d=%.3f [%d]\n", generatingDistanceE, resolution);
     // We handle a resolution of zero in the calling function
     return resolution;
   }
@@ -110,19 +120,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
   @Override
   double getNMoleculesInGeneratingArea(float xrange, float yrange) {
     final double nMoleculesInPixel = (double) size / (xrange * yrange);
-    final double nMoleculesInCircle =
-        Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
-    return nMoleculesInCircle;
+    return Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
   }
-
-  /**
-   * Hold the point where inner processing starts to use a higher resolution grid.
-   */
-  static int N_MOLECULES_FOR_NEXT_RESOLUTION_INNER = 150;
-  /**
-   * Hold the point where processing starts to use a higher resolution grid.
-   */
-  static int N_MOLECULES_FOR_NEXT_RESOLUTION_OUTER = 150;
 
   @Override
   void adjustResolution(float xrange, float yrange) {
@@ -154,10 +153,6 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
         newResolution = 4;
       } else {
         // Above this limit the resolution of the circles is good.
-        // TODO - Build the inner and outer circle with different resolutions and see how the area
-        // converges as resolution increases (number of pixels * area of single pixel).
-        // At a certain point additional resolution will add more pixels
-        // but will not better define the circle.
         newResolution = 5;
       }
     } else if (nMoleculesInArea < N_MOLECULES_FOR_NEXT_RESOLUTION_OUTER) {
@@ -168,10 +163,6 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
       newResolution = 4;
     } else {
       // Above this limit the resolution of the circles is good.
-      // TODO - Build the inner and outer circle with different resolutions and see how the area
-      // converges as resolution increases (number of pixels * area of single pixel).
-      // At a certain point additional resolution will add more pixels
-      // but will not better define the circle.
       newResolution = 5;
     }
 
@@ -179,15 +170,10 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
   }
 
   @Override
-  void findNeighbours(int minPts, Molecule object, float e) {
-    // if (true)
-    // {
-    // super.findNeighbours(minPts, object, e);
-    // return;
-    // }
+  void findNeighbours(int minPts, Molecule object, float generatingDistanceE) {
 
-    final int xBin = object.getXBin();
-    final int yBin = object.getYBin();
+    final int xbin = object.getXBin();
+    final int ybin = object.getYBin();
 
     neighbours.clear();
 
@@ -195,51 +181,19 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
     // Only compute distances at the edge of the mask
 
     // Pre-compute range
-    final int miny = Math.max(yBin - resolution, 0);
-    final int maxy = Math.min(yBin + resolution + 1, yBins);
-    final int startRow = Math.max(resolution - yBin, 0);
-
-    // TODO - Determine any situation under which this can be made faster than
-    // just computing all the distances.
-
-    // // Count if there are enough neighbours
-    // int count = minPts;
-    // counting: for (int y = miny, row = startRow; y < maxy; y++, row++)
-    // {
-    // // Dynamically compute the search strip
-    // final int minx = Math.max(xBin + offset[row].start, 0);
-    // final int maxx = Math.min(xBin + offset[row].end, xBins);
-    //
-    // // Use fast-forward to skip to the next position with data
-    // int index = getIndex(minx, y);
-    // if (grid[index] == null)
-    // index = fastForward[index];
-    // int endIndex = getIndex(maxx, y);
-    // while (index < endIndex)
-    // {
-    // count -= grid[index].length;
-    // if (count <= 0)
-    // break counting;
-    // index = fastForward[index];
-    // }
-    // }
-    //
-    // if (count > 0)
-    // {
-    // // Not a core point so do not compute distances
-    // //System.out.println("Skipping distance computation (not a core point)");
-    // return;
-    // }
+    final int miny = Math.max(ybin - resolution, 0);
+    final int maxy = Math.min(ybin + resolution + 1, ybins);
+    final int startRow = Math.max(resolution - ybin, 0);
 
     if (useInternal) {
       // Internal processing. Any pixel that is internal does not require
       // a distance computation.
 
-      if (xBin + resolution < xBins && xBin - resolution >= 0) {
+      if (xbin + resolution < xbins && xbin - resolution >= 0) {
         // Internal X. Maintain the centre index and use offsets to set the indices
-        int centreIndex = getIndex(xBin, miny);
+        int centreIndex = getIndex(xbin, miny);
 
-        for (int y = miny, row = startRow; y < maxy; y++, row++, centreIndex += xBins) {
+        for (int y = miny, row = startRow; y < maxy; y++, row++, centreIndex += xbins) {
           // Dynamically compute the search strip
           int index = centreIndex + offset[row].start;
           final int endIndex = centreIndex + offset[row].end;
@@ -260,7 +214,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // Build a list of all the neighbours
               // If at the edge then compute distances
               for (int i = list.length; i-- > 0;) {
-                if (object.distance2(list[i]) <= e) {
+                if (object.distanceSquared(list[i]) <= generatingDistanceE) {
                   neighbours.add(list[i]);
                 }
               }
@@ -276,10 +230,6 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // This uses System.arrayCopy.
               neighbours.add(list);
 
-              // Simple addition
-              // for (int i = list.length; i-- > 0;)
-              // neighbours.add(list[i]);
-
               index = fastForward[index];
             }
             while (index < endIndex) {
@@ -288,7 +238,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // Build a list of all the neighbours
               // If at the edge then compute distances
               for (int i = list.length; i-- > 0;) {
-                if (object.distance2(list[i]) <= e) {
+                if (object.distanceSquared(list[i]) <= generatingDistanceE) {
                   neighbours.add(list[i]);
                 }
               }
@@ -302,7 +252,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // Build a list of all the neighbours
               // If not internal then compute distances
               for (int i = list.length; i-- > 0;) {
-                if (object.distance2(list[i]) <= e) {
+                if (object.distanceSquared(list[i]) <= generatingDistanceE) {
                   neighbours.add(list[i]);
                 }
               }
@@ -315,8 +265,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
         // Compute distances
         for (int y = miny, row = startRow; y < maxy; y++, row++) {
           // Dynamically compute the search strip
-          int index = getIndex(Math.max(xBin + offset[row].start, 0), y);
-          final int endIndex = getIndex(Math.min(xBin + offset[row].end, xBins), y);
+          int index = getIndex(Math.max(xbin + offset[row].start, 0), y);
+          final int endIndex = getIndex(Math.min(xbin + offset[row].end, xbins), y);
 
           // Use fast-forward to skip to the next position with data
           if (grid[index] == null) {
@@ -325,8 +275,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
 
           if (offset[row].internal) {
             // Speed this up with diffs
-            final int startInternal = getIndex(xBin + offset[row].startInternal, y);
-            final int endInternal = getIndex(Math.min(xBin + offset[row].endInternal, xBins), y);
+            final int startInternal = getIndex(xbin + offset[row].startInternal, y);
+            final int endInternal = getIndex(Math.min(xbin + offset[row].endInternal, xbins), y);
 
             while (index < startInternal) {
               final Molecule[] list = grid[index];
@@ -334,7 +284,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // Build a list of all the neighbours
               // If at the edge then compute distances
               for (int i = list.length; i-- > 0;) {
-                if (object.distance2(list[i]) <= e) {
+                if (object.distanceSquared(list[i]) <= generatingDistanceE) {
                   neighbours.add(list[i]);
                 }
               }
@@ -350,10 +300,6 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // This uses System.arrayCopy.
               neighbours.add(list);
 
-              // Simple addition
-              // for (int i = list.length; i-- > 0;)
-              // neighbours.add(list[i]);
-
               index = fastForward[index];
             }
             while (index < endIndex) {
@@ -362,7 +308,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // Build a list of all the neighbours
               // If at the edge then compute distances
               for (int i = list.length; i-- > 0;) {
-                if (object.distance2(list[i]) <= e) {
+                if (object.distanceSquared(list[i]) <= generatingDistanceE) {
                   neighbours.add(list[i]);
                 }
               }
@@ -376,7 +322,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
               // Build a list of all the neighbours
               // If not internal then compute distances
               for (int i = list.length; i-- > 0;) {
-                if (object.distance2(list[i]) <= e) {
+                if (object.distanceSquared(list[i]) <= generatingDistanceE) {
                   neighbours.add(list[i]);
                 }
               }
@@ -386,11 +332,11 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
           }
         }
       }
-    } else if (xBin + resolution < xBins && xBin - resolution >= 0) {
+    } else if (xbin + resolution < xbins && xbin - resolution >= 0) {
       // Internal X. Maintain the centre index and use offsets to set the indices
-      int centreIndex = getIndex(xBin, miny);
+      int centreIndex = getIndex(xbin, miny);
 
-      for (int y = miny, row = startRow; y < maxy; y++, row++, centreIndex += xBins) {
+      for (int y = miny, row = startRow; y < maxy; y++, row++, centreIndex += xbins) {
         // Dynamically compute the search strip
         int index = centreIndex + offset[row].start;
         final int endIndex = centreIndex + offset[row].end;
@@ -406,7 +352,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
           // Build a list of all the neighbours
           // If not internal then compute distances
           for (int i = list.length; i-- > 0;) {
-            if (object.distance2(list[i]) <= e) {
+            if (object.distanceSquared(list[i]) <= generatingDistanceE) {
               neighbours.add(list[i]);
             }
           }
@@ -418,8 +364,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
       // Compute distances
       for (int y = miny, row = startRow; y < maxy; y++, row++) {
         // Dynamically compute the search strip
-        int index = getIndex(Math.max(xBin + offset[row].start, 0), y);
-        final int endIndex = getIndex(Math.min(xBin + offset[row].end, xBins), y);
+        int index = getIndex(Math.max(xbin + offset[row].start, 0), y);
+        final int endIndex = getIndex(Math.min(xbin + offset[row].end, xbins), y);
 
         // Use fast-forward to skip to the next position with data
         if (grid[index] == null) {
@@ -432,7 +378,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
           // Build a list of all the neighbours
           // If not internal then compute distances
           for (int i = list.length; i-- > 0;) {
-            if (object.distance2(list[i]) <= e) {
+            if (object.distanceSquared(list[i]) <= generatingDistanceE) {
               neighbours.add(list[i]);
             }
           }
@@ -444,14 +390,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
   }
 
   @Override
-  void findNeighboursAndDistances(int minPts, Molecule object, float e) {
-    // TODO - could this be implemented to use concentric rings around the current pixel
-    // We would need to pre-compute all the bounds for each concentric ring.
-    // then process from the central point outward. When the min points is achieved
-    // we then compute the core distance using the molecules in the most recent ring.
-    // For all remaining points outside the core distance
-    // we only need to compute the reachability distance if it is currently UNDEFINED
-    // or it is greater than the core distance.
+  void findNeighboursAndDistances(int minPts, Molecule object, float generatingDistanceE) {
 
     // Sweep grid in concentric squares. This is much easier then concentric circles as
     // we can ensure the bounds are checked only once.
@@ -462,14 +401,14 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
     // as well as the direct index. It is a lot of bounds comparisons.
     //
     // To sweep a concentric square ring you do upper and lower edges first. Then column
-    // edges with an an index 1 inside. This avoids counting corners twice. This probably
+    // edges with an index 1 inside. This avoids counting corners twice. This probably
     // needs 4 loops as each must be checked if it is inside.
     //
     // We can avoid checks if the max square is inside the grid. If not then we can avoid
     // checks up to the first intersect ring.
 
-    final int xBin = object.getXBin();
-    final int yBin = object.getYBin();
+    final int xbin = object.getXBin();
+    final int ybin = object.getYBin();
 
     neighbours.clear();
 
@@ -477,15 +416,15 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
     // Only compute distances at the edge of the mask
 
     // Pre-compute range
-    final int miny = Math.max(yBin - resolution, 0);
-    final int maxy = Math.min(yBin + resolution + 1, yBins);
-    final int startRow = Math.max(resolution - yBin, 0);
+    final int miny = Math.max(ybin - resolution, 0);
+    final int maxy = Math.min(ybin + resolution + 1, ybins);
+    final int startRow = Math.max(resolution - ybin, 0);
 
-    if (xBin + resolution < xBins && xBin - resolution >= 0) {
+    if (xbin + resolution < xbins && xbin - resolution >= 0) {
       // Internal X. Maintain the centre index and use offsets to set the indices
-      int centreIndex = getIndex(xBin, miny);
+      int centreIndex = getIndex(xbin, miny);
 
-      for (int y = miny, row = startRow; y < maxy; y++, row++, centreIndex += xBins) {
+      for (int y = miny, row = startRow; y < maxy; y++, row++, centreIndex += xbins) {
         // Dynamically compute the search strip
         int index = centreIndex + offset[row].start;
         final int endIndex = centreIndex + offset[row].end;
@@ -501,8 +440,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
           // Build a list of all the neighbours
           // If not internal then compute distances
           for (int i = list.length; i-- > 0;) {
-            final float d = object.distance2(list[i]);
-            if (d <= e) {
+            final float d = object.distanceSquared(list[i]);
+            if (d <= generatingDistanceE) {
               // Build a list of all the neighbours and their working distance
               final Molecule otherObject = list[i];
               otherObject.setD(d);
@@ -517,8 +456,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
       // Compute distances
       for (int y = miny, row = startRow; y < maxy; y++, row++) {
         // Dynamically compute the search strip
-        int index = getIndex(Math.max(xBin + offset[row].start, 0), y);
-        final int endIndex = getIndex(Math.min(xBin + offset[row].end, xBins), y);
+        int index = getIndex(Math.max(xbin + offset[row].start, 0), y);
+        final int endIndex = getIndex(Math.min(xbin + offset[row].end, xbins), y);
 
         // Use fast-forward to skip to the next position with data
         if (grid[index] == null) {
@@ -531,8 +470,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
           // Build a list of all the neighbours
           // If not internal then compute distances
           for (int i = list.length; i-- > 0;) {
-            final float d = object.distance2(list[i]);
-            if (d <= e) {
+            final float d = object.distanceSquared(list[i]);
+            if (d <= generatingDistanceE) {
               // Build a list of all the neighbours and their working distance
               final Molecule otherObject = list[i];
               otherObject.setD(d);

@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.io;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ import java.io.IOException;
  */
 public final class ByteArraySeekableStream extends SeekableStream {
   /** The current position in the byte array. */
-  int p = 0;
+  int position = 0;
 
   /** The buffer of bytes. */
   byte[] buffer;
@@ -55,29 +56,26 @@ public final class ByteArraySeekableStream extends SeekableStream {
     length = bytes.length;
   }
 
-  /** {@inheritDoc} */
   @Override
   public long getFilePointer() {
-    return p;
+    return position;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int read() {
-    if (p < length) {
-      return buffer[p++] & 0xff;
+    if (position < length) {
+      return buffer[position++] & 0xff;
     }
     return -1;
   }
 
-  /** {@inheritDoc} */
   @Override
   public int read(byte[] bytes, int off, int len) {
-    if (p < length) {
+    if (position < length) {
       if (len > 0) {
-        final int size = (p + len <= length) ? len : length - p;
-        System.arraycopy(buffer, p, bytes, off, size);
-        p += size;
+        final int size = (position + len <= length) ? len : length - position;
+        System.arraycopy(buffer, position, bytes, off, size);
+        position += size;
         return size;
       }
       return 0;
@@ -85,14 +83,13 @@ public final class ByteArraySeekableStream extends SeekableStream {
     return -1;
   }
 
-  /** {@inheritDoc} */
   @Override
   public void seek(long loc) throws IOException {
     if (loc < 0) {
       throw new IOException("Negative position");
     }
     // Allow seek to the end
-    p = (loc > length) ? length : (int) loc;
+    position = (loc > length) ? length : (int) loc;
   }
 
   @Override
@@ -105,24 +102,23 @@ public final class ByteArraySeekableStream extends SeekableStream {
     if (n <= 0) {
       return 0;
     }
-    final int pos = p;
+    final int pos = position;
     final long newpos = pos + n;
     if (newpos > length || newpos < 0) {
-      p = length;
+      position = length;
     } else {
-      p = (int) newpos;
+      position = (int) newpos;
     }
 
     /* return the actual number of bytes skipped */
-    return p - pos;
+    return position - pos;
   }
 
   @Override
   public int available() {
-    return length - p;
+    return length - position;
   }
 
-  /** {@inheritDoc} */
   @Override
   public boolean canCopy() {
     return true;

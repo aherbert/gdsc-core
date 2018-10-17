@@ -25,17 +25,20 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
 
 /**
- * Provide a rolling array of booleans
+ * Provide a rolling array of booleans.
  */
 public class BooleanRollingArray {
   private final boolean[] data;
   private final int capacity;
-  private int index, count, sum;
+  private int index;
+  private int count;
+  private int sum;
 
   /**
    * Create a rolling array.
@@ -48,7 +51,7 @@ public class BooleanRollingArray {
   }
 
   /**
-   * Remove all the numbers from the array
+   * Remove all the numbers from the array.
    */
   public void clear() {
     sum = 0;
@@ -57,11 +60,11 @@ public class BooleanRollingArray {
   }
 
   /**
-   * Add a number to the array
+   * Add a number to the array.
    *
-   * @param d The number
+   * @param value the value
    */
-  public void add(boolean d) {
+  public void add(boolean value) {
     // If at capacity
     if (isFull()) {
       // Subtract the item to be replaced
@@ -73,11 +76,11 @@ public class BooleanRollingArray {
       count++;
     }
     // Add to the true count
-    if (d) {
+    if (value) {
       sum++;
     }
     // Replace the item
-    data[index++] = d;
+    data[index++] = value;
     // Wrap the index
     if (index == capacity) {
       index = 0;
@@ -87,53 +90,63 @@ public class BooleanRollingArray {
   /**
    * Add a number to the array n times.
    *
-   * @param d The number
+   * @param value the value
    * @param n the number of times
    */
-  public void add(boolean d, int n) {
+  public void add(boolean value, int n) {
     if (n >= capacity) {
       // Saturate
-      Arrays.fill(data, d);
-      sum = (d) ? n : 0;
+      Arrays.fill(data, value);
+      sum = (value) ? n : 0;
       index = 0;
       count = capacity;
     } else {
       while (n-- > 0) {
-        add(d);
+        add(value);
       }
     }
   }
 
   /**
-   * @return The count of items stored in the array
+   * Gets the count of items stored in the array.
+   *
+   * @return The count of items stored in the array.
    */
   public int getCount() {
     return count;
   }
 
   /**
-   * @return The capacity of the array
+   * Gets the capacity of the array.
+   *
+   * @return The capacity of the array.
    */
   public int getCapacity() {
     return capacity;
   }
 
   /**
-   * @return The number of true items stored in the array
+   * Gets the number of true items stored in the array.
+   *
+   * @return The number of true items stored in the array.
    */
   public int getTrueCount() {
     return sum;
   }
 
   /**
-   * @return The number of false items stored in the array
+   * Gets the number of false items stored in the array.
+   *
+   * @return The number of false items stored in the array.
    */
   public int getFalseCount() {
     return count - sum;
   }
 
   /**
-   * @return True if full
+   * Checks if is full.
+   *
+   * @return True if full.
    */
   public boolean isFull() {
     return count == capacity;

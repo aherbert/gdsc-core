@@ -25,10 +25,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 /**
- * Used in the OPTICS/DBSCAN algorithms
+ * Used in the OPTICS/DBSCAN algorithms.
  */
 abstract class MoleculeSpace {
   /** the generating distance (E). */
@@ -39,7 +40,7 @@ abstract class MoleculeSpace {
 
   /** The size. */
   final int size;
-  /** Working storage for find neighbours */
+  /** Working storage for find neighbours. */
   final MoleculeList neighbours;
 
   /**
@@ -77,27 +78,34 @@ abstract class MoleculeSpace {
 
   /**
    * Find neighbours closer than the generating distance. The neighbours are written to the working
-   * memory store. <p> If the number of points is definitely below the minimum number of points then
-   * no distances are computed (to save time). <p> The neighbours includes the actual point in the
-   * list of neighbours (where the distance would be 0).
+   * memory store.
+   *
+   * <p>If the number of points is definitely below the minimum number of points then no distances
+   * are computed (to save time).
+   *
+   * <p>The neighbours includes the actual point in the list of neighbours (where the distance would
+   * be 0).
    *
    * @param minPts the min points
    * @param object the object
-   * @param e the generating distance
+   * @param generatingDistanceE the generating distance
    */
-  abstract void findNeighbours(int minPts, Molecule object, float e);
+  abstract void findNeighbours(int minPts, Molecule object, float generatingDistanceE);
 
   /**
    * Find neighbours closer than the generating distance. The neighbours are written to the working
-   * memory store. The distances are stored in the objects encountered. <p> If the number of points
-   * is definitely below the minimum number of points then no distances are computed (to save time).
-   * Objects are ranked by distance and distances for objects below the min points may not be
-   * computed (in this case they can be set to zero). <p> The neighbours includes the actual point
-   * in the list of neighbours (where the distance would be 0).
+   * memory store. The distances are stored in the objects encountered.
+   *
+   * <p>If the number of points is definitely below the minimum number of points then no distances
+   * are computed (to save time). Objects are ranked by distance and distances for objects below the
+   * min points may not be computed (in this case they can be set to zero).
+   *
+   * <p>The neighbours includes the actual point in the list of neighbours (where the distance would
+   * be 0).
    *
    * @param minPts the min points
    * @param object the object
-   * @param e the generating distance
+   * @param generatingDistanceE the generating distance
    */
-  abstract void findNeighboursAndDistances(int minPts, Molecule object, float e);
+  abstract void findNeighboursAndDistances(int minPts, Molecule object, float generatingDistanceE);
 }

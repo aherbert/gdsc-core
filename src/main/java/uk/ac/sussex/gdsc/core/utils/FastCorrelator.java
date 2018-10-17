@@ -25,23 +25,24 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.math.BigInteger;
 
 /**
- * Class to calculate the correlation between two datasets using rolling sums
+ * Class to calculate the correlation between two datasets using rolling sums.
  */
 public class FastCorrelator {
-  private long sumX = 0;
-  private long sumXY = 0;
-  private long sumXX = 0;
-  private long sumYY = 0;
-  private long sumY = 0;
-  private int n = 0;
+  private long sumx = 0;
+  private long sumxy = 0;
+  private long sumxx = 0;
+  private long sumyy = 0;
+  private long sumy = 0;
+  private int count = 0;
 
   /**
-   * Add a pair of data points
+   * Add a pair of data points.
    *
    * @param v1 the first value
    * @param v2 the second value
@@ -51,22 +52,7 @@ public class FastCorrelator {
   }
 
   /**
-   * Add a pair of data points to the sums
-   *
-   * @param v1 the first value
-   * @param v2 the second value
-   */
-  private void addData(final int v1, final int v2) {
-    sumX += v1;
-    sumXY += (v1 * v2);
-    sumXX += (v1 * v1);
-    sumYY += (v2 * v2);
-    sumY += v2;
-    n++;
-  }
-
-  /**
-   * Add a pair of data points
+   * Add a pair of data points.
    *
    * @param v1 the first value
    * @param v2 the second value
@@ -76,22 +62,7 @@ public class FastCorrelator {
   }
 
   /**
-   * Add a pair of data points to the sums
-   *
-   * @param v1 the first value
-   * @param v2 the second value
-   */
-  private void addData(final long v1, final long v2) {
-    sumX += v1;
-    sumXY += (v1 * v2);
-    sumXX += (v1 * v1);
-    sumYY += (v2 * v2);
-    sumY += v2;
-    n++;
-  }
-
-  /**
-   * Add a set of paired data points
+   * Add a set of paired data points.
    *
    * @param v1 the first values
    * @param v2 the second values
@@ -107,7 +78,7 @@ public class FastCorrelator {
   }
 
   /**
-   * Add a set of paired data points
+   * Add a set of paired data points.
    *
    * @param v1 the first values
    * @param v2 the second values
@@ -124,59 +95,103 @@ public class FastCorrelator {
   }
 
   /**
-   * @return The correlation
+   * Add a pair of data points to the sums.
+   *
+   * @param v1 the first value
+   * @param v2 the second value
+   */
+  private void addData(final int v1, final int v2) {
+    sumx += v1;
+    sumxy += (v1 * v2);
+    sumxx += (v1 * v1);
+    sumyy += (v2 * v2);
+    sumy += v2;
+    count++;
+  }
+
+  /**
+   * Add a pair of data points to the sums.
+   *
+   * @param v1 the first value
+   * @param v2 the second value
+   */
+  private void addData(final long v1, final long v2) {
+    sumx += v1;
+    sumxy += (v1 * v2);
+    sumxx += (v1 * v1);
+    sumyy += (v2 * v2);
+    sumy += v2;
+    count++;
+  }
+
+  /**
+   * Gets the correlation.
+   *
+   * @return The correlation.
    */
   public double getCorrelation() {
-    if (n == 0) {
+    if (count == 0) {
       return Double.NaN;
     }
-    return calculateCorrelation(sumX, sumXY, sumXX, sumYY, sumY, n);
+    return calculateCorrelation(sumx, sumxy, sumxx, sumyy, sumy, count);
   }
 
   /**
-   * @return The sum of the X data
+   * Gets the sum of the X data.
+   *
+   * @return The sum of the X data.
    */
   public long getSumX() {
-    return sumX;
+    return sumx;
   }
 
   /**
-   * @return The sum of the Y data
+   * Gets the sum of the Y data.
+   *
+   * @return The sum of the Y data.
    */
   public long getSumY() {
-    return sumY;
+    return sumy;
   }
 
   /**
-   * @return The sum of the X data squared
+   * Gets the sum X^2.
+   *
+   * @return The sum of the X data squared.
    */
-  public long getSumXX() {
-    return sumXX;
+  public long getSumSquaredX() {
+    return sumxx;
   }
 
   /**
-   * @return The sum of the Y data squared
+   * Gets the sum Y^2.
+   *
+   * @return The sum of the Y data squared.
    */
-  public long getSumYY() {
-    return sumYY;
+  public long getSumSquaredY() {
+    return sumyy;
   }
 
   /**
-   * @return The sum of each X data point multiplied by the paired Y data point
+   * Gets the sum X*Y.
+   *
+   * @return The sum of each X data point multiplied by the paired Y data point.
    */
-  public long getSumXY() {
-    return sumXY;
+  public long getSumXbyY() {
+    return sumxy;
   }
 
   /**
-   * @return The number of data points
+   * Gets the number of data points.
+   *
+   * @return The number of data points.
    */
   public int getN() {
-    return n;
+    return count;
   }
 
   /**
-   * Calculate the correlation
+   * Calculate the correlation.
    *
    * @param x The X data
    * @param y the Y data
@@ -191,7 +206,7 @@ public class FastCorrelator {
   }
 
   /**
-   * Calculate the correlation using a fast sum
+   * Calculate the correlation using a fast sum.
    *
    * @param x The X data
    * @param y the Y data
@@ -207,65 +222,76 @@ public class FastCorrelator {
   }
 
   /**
-   * Calculate the correlation using a fast sum
+   * Calculate the correlation using a fast sum.
    *
    * @param x The X data
    * @param y the Y data
+   * @param n the n
    * @return The correlation
    */
-  private static double doCorrelation(int[] x, int[] y, int n) {
-    if (n <= 0) {
+  private static double doCorrelation(int[] x, int[] y, int count) {
+    if (count <= 0) {
       return Double.NaN;
     }
 
-    long sumX = 0;
-    long sumXY = 0;
-    long sumXX = 0;
-    long sumYY = 0;
-    long sumY = 0;
+    long sumx = 0;
+    long sumxy = 0;
+    long sumxx = 0;
+    long sumyy = 0;
+    long sumy = 0;
 
-    for (int i = n; i-- > 0;) {
-      sumX += x[i];
-      sumXY += (x[i] * y[i]);
-      sumXX += (x[i] * x[i]);
-      sumYY += (y[i] * y[i]);
-      sumY += y[i];
+    for (int i = count; i-- > 0;) {
+      sumx += x[i];
+      sumxy += (x[i] * y[i]);
+      sumxx += (x[i] * x[i]);
+      sumyy += (y[i] * y[i]);
+      sumy += y[i];
     }
 
-    return calculateCorrelation(sumX, sumXY, sumXX, sumYY, sumY, n);
+    return calculateCorrelation(sumx, sumxy, sumxx, sumyy, sumy, count);
   }
 
   /**
-   * Calculate the correlation using BigInteger to avoid precision error
+   * Calculate the correlation using BigInteger to avoid precision error.
    *
-   * @param sumX The sum of the X values
-   * @param sumXY The sum of the X*Y values
-   * @param sumXX The squared sum of the X values
-   * @param sumYY The squared sum of the Y values
-   * @param sumY The sum of the Y values
-   * @param n The number of values
+   * @param sumx The sum of the X values
+   * @param sumxy The sum of the X*Y values
+   * @param sumxx The sum of the X^2 values
+   * @param sumyy The sum of the Y^2 values
+   * @param sumy The sum of the Y values
+   * @param count The number of values
    * @return The correlation
+   * @see <a
+   *      href="https://en.wikipedia.org/wiki/Pearson_correlation_coefficient#For_a_population">Pearson
+   *      correlation coefficient</a>
    */
-  public static double calculateCorrelation(long sumX, long sumXY, long sumXX, long sumYY,
-      long sumY, long n) {
-    BigInteger nSumXY = BigInteger.valueOf(sumXY).multiply(BigInteger.valueOf(n));
-    BigInteger nSumXX = BigInteger.valueOf(sumXX).multiply(BigInteger.valueOf(n));
-    BigInteger nSumYY = BigInteger.valueOf(sumYY).multiply(BigInteger.valueOf(n));
+  public static double calculateCorrelation(long sumx, long sumxy, long sumxx, long sumyy,
+      long sumy, long count) {
 
-    nSumXY = nSumXY.subtract(BigInteger.valueOf(sumX).multiply(BigInteger.valueOf(sumY)));
-    nSumXX = nSumXX.subtract(BigInteger.valueOf(sumX).multiply(BigInteger.valueOf(sumX)));
-    nSumYY = nSumYY.subtract(BigInteger.valueOf(sumY).multiply(BigInteger.valueOf(sumY)));
+    // Compute:
+    // E[XY] - n E[X]E[Y]
+    // -------------------------------------------------
+    // sqrt(E[X^2] - [E[X]]^2) * sqrt(E[Y^2] - [E[Y]]^2)
 
-    final BigInteger product = nSumXX.multiply(nSumYY);
+    final BigInteger countB = BigInteger.valueOf(count);
+    final BigInteger nsumxy = countB.multiply(BigInteger.valueOf(sumxy));
+    final BigInteger nsumxx = countB.multiply(BigInteger.valueOf(sumxx));
+    final BigInteger nsumyy = countB.multiply(BigInteger.valueOf(sumyy));
 
-    return nSumXY.doubleValue() / Math.sqrt(product.doubleValue());
+    final BigInteger sumxB = BigInteger.valueOf(sumx);
+    final BigInteger sumyB = BigInteger.valueOf(sumy);
+    final BigInteger coVariance = nsumxy.subtract(sumxB.multiply(sumyB));
+    final BigInteger varianceX = nsumxx.subtract(sumxB.multiply(sumxB));
+    final BigInteger varianceY = nsumyy.subtract(sumyB.multiply(sumyB));
+
+    return coVariance.doubleValue() / Math.sqrt(varianceX.multiply(varianceY).doubleValue());
   }
 
   /**
-   * Clear all stored values
+   * Clear all stored values.
    */
   public void clear() {
-    sumX = sumXY = sumXX = sumYY = sumY = 0;
-    n = 0;
+    sumx = sumxy = sumxx = sumyy = sumy = 0;
+    count = 0;
   }
 }

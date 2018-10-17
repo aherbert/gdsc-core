@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.roi;
 
 /**
@@ -32,7 +33,7 @@ package uk.ac.sussex.gdsc.core.ij.roi;
  */
 public abstract class RoiTest {
   /**
-   * Test if the coordinates are inside the ROI
+   * Test if the coordinates are inside the ROI.
    *
    * @param x the x
    * @param y the y

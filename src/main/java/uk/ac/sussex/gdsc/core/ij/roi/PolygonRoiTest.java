@@ -25,21 +25,23 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.ij.roi;
 
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
-import java.awt.geom.Rectangle2D;
-
 import ij.gui.Roi;
 import ij.process.FloatPolygon;
+
+import java.awt.geom.Rectangle2D;
 
 /**
  * Class for testing if coordinates are within a polygon/free/traced ROI.
  */
 public class PolygonRoiTest extends RoiTest {
   private final Rectangle2D.Double bounds;
-  private final double[] xpoints, ypoints;
+  private final double[] xpoints;
+  private final double[] ypoints;
 
   /**
    * Instantiates a new polygon roi test.

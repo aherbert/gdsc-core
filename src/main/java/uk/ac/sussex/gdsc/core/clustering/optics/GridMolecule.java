@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 /**
@@ -34,8 +35,8 @@ class GridMolecule extends DistanceMolecule {
   // Used to construct a single linked list of molecules
   private GridMolecule next = null;
 
-  private final int xBin;
-  private final int yBin;
+  private final int xbin;
+  private final int ybin;
 
   /**
    * Instantiates a new grid molecule.
@@ -43,15 +44,15 @@ class GridMolecule extends DistanceMolecule {
    * @param id the id
    * @param x the x
    * @param y the y
-   * @param xBin the x bin
-   * @param yBin the y bin
+   * @param xbin the x bin
+   * @param ybin the y bin
    * @param next the next
    */
-  GridMolecule(int id, float x, float y, int xBin, int yBin, GridMolecule next) {
+  GridMolecule(int id, float x, float y, int xbin, int ybin, GridMolecule next) {
     super(id, x, y);
     this.next = next;
-    this.xBin = xBin;
-    this.yBin = yBin;
+    this.xbin = xbin;
+    this.ybin = ybin;
   }
 
   @Override
@@ -70,11 +71,11 @@ class GridMolecule extends DistanceMolecule {
 
   @Override
   int getXBin() {
-    return xBin;
+    return xbin;
   }
 
   @Override
   int getYBin() {
-    return yBin;
+    return ybin;
   }
 }

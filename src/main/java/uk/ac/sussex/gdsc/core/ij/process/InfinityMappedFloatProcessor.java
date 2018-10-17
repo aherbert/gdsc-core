@@ -25,20 +25,22 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package uk.ac.sussex.gdsc.core.ij.process;
 
-import java.awt.image.ColorModel;
+package uk.ac.sussex.gdsc.core.ij.process;
 
 import ij.process.FloatProcessor;
 
+import java.awt.image.ColorModel;
+
 /**
  * Extends the ImageJ {@link FloatProcessor} class to map the min-max range to 1-255 in the 8-bit
- * image. Negative infinity is mapped to 0 in the LUT. <p> This allows display of a range of float
- * data using the special marker -Infinity to ignore pixels from display (assuming the LUT has black
- * for 0). -Infinity is ignored by ImageJ for most FloatProcessor functionality (histograms, min/max
- * value, etc). This is not the case for NaN which breaks ImageJ data display.
+ * image. Negative infinity is mapped to 0 in the LUT.
  *
- * @author Alex Herbert
+ * <p>This allows display of a range of float data using the special marker -Infinity to ignore
+ * pixels from display (assuming the LUT has black for 0). -Infinity is ignored by ImageJ for most
+ * FloatProcessor functionality (histograms, min/max value, etc). This is not the case for NaN which
+ * breaks ImageJ data display.
+ *
  * @see FloatProcessor
  */
 public class InfinityMappedFloatProcessor extends FloatProcessor {
@@ -136,7 +138,6 @@ public class InfinityMappedFloatProcessor extends FloatProcessor {
     super(array);
   }
 
-  /** {@inheritDoc} */
   @Override
   protected byte[] create8BitImage() {
     // Map all values to the range 1-255. Negative infinity maps to zero.
@@ -149,7 +150,8 @@ public class InfinityMappedFloatProcessor extends FloatProcessor {
     int ivalue;
 
     // Default min/max
-    final float min2 = (float) getMin(), max2 = (float) getMax();
+    final float min2 = (float) getMin();
+    final float max2 = (float) getMax();
 
     final float scale = 254f / (max2 - min2);
 

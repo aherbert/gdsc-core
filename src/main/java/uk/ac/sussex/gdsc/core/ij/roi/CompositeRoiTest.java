@@ -25,20 +25,22 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package uk.ac.sussex.gdsc.core.ij.roi;
 
-import java.awt.Rectangle;
-import java.awt.Shape;
+package uk.ac.sussex.gdsc.core.ij.roi;
 
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
+
+import java.awt.Rectangle;
+import java.awt.Shape;
 
 /**
  * Class for testing if coordinates are within a composite ROI.
  */
 public class CompositeRoiTest extends RoiTest {
   private final Shape shape;
-  private final int ox, oy;
+  private final int ox;
+  private final int oy;
 
   /**
    * Instantiates a new composite roi test.

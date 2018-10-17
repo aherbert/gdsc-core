@@ -25,6 +25,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering;
 
 /**
@@ -32,49 +33,49 @@ package uk.ac.sussex.gdsc.core.clustering;
  */
 public class Cluster implements Comparable<Cluster> {
   /** The x position. */
-  public double x;
+  private double x;
 
   /** The y position. */
-  public double y;
+  private double y;
 
   /** The sum of x. */
-  public double sumx;
+  private double sumx;
 
   /** The sum of y. */
-  public double sumy;
+  private double sumy;
 
   /** The sum of the weights. */
-  public double sumw;
+  private double sumw;
 
-  /** The number in the cluster. */
-  public int n;
-
-  /**
-   * The next cluster. Used to construct a single linked list of clusters
-   */
-  public Cluster next = null;
+  /** The number of points in the cluster. */
+  private int size;
 
   /**
-   * The closest. Used to store potential clustering links
+   * The next cluster. Used to construct a single linked list of clusters.
    */
-  public Cluster closest = null;
+  private Cluster next = null;
+
+  /**
+   * The closest. Used to store potential clustering links.
+   */
+  private Cluster closest = null;
 
   /** The squared distance. */
-  public double d2;
+  private double distanceSquared;
 
   /**
    * The neighbour. Used to indicate this cluster has a neighbour.
    */
-  public int neighbour = 0;
+  private int neighbour = 0;
 
-  /** The head. Used to construct a single linked list of cluster points */
-  public ClusterPoint head = null;
+  /** The head. Used to construct a single linked list of cluster points. */
+  private ClusterPoint headClusterPoint = null;
 
   /** The x bin for allocating to a grid. */
-  public int xBin;
+  private int xbin;
 
   /** The y bin for allocating to a grid. */
-  public int yBin;
+  private int ybin;
 
   /**
    * Instantiates a new cluster.
@@ -82,14 +83,14 @@ public class Cluster implements Comparable<Cluster> {
    * @param point the point
    */
   public Cluster(ClusterPoint point) {
-    point.next = null;
-    head = point;
-    sumx = point.x * point.weight;
-    sumy = point.y * point.weight;
-    sumw = point.weight;
-    n = 1;
-    this.x = point.x;
-    this.y = point.y;
+    point.setNext(null);
+    headClusterPoint = point;
+    sumx = point.getX() * point.getWeight();
+    sumy = point.getY() * point.getWeight();
+    sumw = point.getWeight();
+    size = 1;
+    x = point.getX();
+    y = point.getY();
   }
 
   /**
@@ -99,8 +100,8 @@ public class Cluster implements Comparable<Cluster> {
    * @return the distance
    */
   public double distance(Cluster other) {
-    final double dx = x - other.x;
-    final double dy = y - other.y;
+    final double dx = getX() - other.getX();
+    final double dy = getY() - other.getY();
     return Math.sqrt(dx * dx + dy * dy);
   }
 
@@ -111,8 +112,8 @@ public class Cluster implements Comparable<Cluster> {
    * @return the squared distance
    */
   public double distance2(Cluster other) {
-    final double dx = x - other.x;
-    final double dy = y - other.y;
+    final double dx = getX() - other.getX();
+    final double dy = getY() - other.getY();
     return dx * dx + dy * dy;
   }
 
@@ -126,28 +127,42 @@ public class Cluster implements Comparable<Cluster> {
 
     // Add to this list
     // Find the tail of the shortest list
-    ClusterPoint big, small;
-    if (n < other.n) {
-      small = head;
-      big = other.head;
+    ClusterPoint big;
+    ClusterPoint small;
+    if (size < other.size) {
+      small = headClusterPoint;
+      big = other.headClusterPoint;
     } else {
-      small = other.head;
-      big = head;
+      small = other.headClusterPoint;
+      big = headClusterPoint;
     }
 
     ClusterPoint tail = small;
-    while (tail.next != null) {
-      tail = tail.next;
+    while (tail.getNext() != null) {
+      tail = tail.getNext();
     }
 
     // Join the small list to the long list
-    tail.next = big;
-    head = small;
+    tail.setNext(big);
+    headClusterPoint = small;
 
-    merge(other.x, other.y, other.sumx, other.sumy, other.sumw, other.n);
+    merge(other.getX(), other.getY(), other.sumx, other.sumy, other.sumw, other.size);
 
     // Free the other cluster
     other.clear();
+  }
+
+  /**
+   * Adds the point to this cluster.
+   *
+   * @param point the point
+   */
+  public void add(ClusterPoint point) {
+    point.setNext(null);
+    headClusterPoint = point;
+
+    merge(point.getX(), point.getY(), point.getX() * point.getWeight(),
+        point.getY() * point.getWeight(), point.getWeight(), 1);
   }
 
   /**
@@ -165,7 +180,7 @@ public class Cluster implements Comparable<Cluster> {
     sumx += otherSumX;
     sumy += otherSumY;
     sumw += otherSumW;
-    n += otherN;
+    size += otherN;
 
     // Avoid minor drift during merge. This can effect the particle linkage algorithm when
     // merged points have the same coordinates. This is because clusters may have new coordinates
@@ -182,25 +197,13 @@ public class Cluster implements Comparable<Cluster> {
   }
 
   /**
-   * Adds the point to this cluster.
-   *
-   * @param point the point
-   */
-  public void add(ClusterPoint point) {
-    point.next = null;
-    head = point;
-
-    merge(point.x, point.y, point.x * point.weight, point.y * point.weight, point.weight, 1);
-  }
-
-  /**
    * Clear the cluster.
    */
   protected void clear() {
-    head = null;
-    closest = null;
-    n = 0;
-    x = y = sumx = sumy = sumw = d2 = 0;
+    headClusterPoint = null;
+    setClosest(null);
+    size = 0;
+    x = y = sumx = sumy = sumw = setDistanceSquared(0);
   }
 
   /**
@@ -212,36 +215,38 @@ public class Cluster implements Comparable<Cluster> {
    */
   public void link(Cluster other, double d2) {
     // Check if the other cluster has a closer candidate
-    if (other.closest != null && other.d2 < d2) {
+    if (other.getClosest() != null && other.getDistanceSquared() < d2) {
       return;
     }
 
-    other.closest = this;
-    other.d2 = d2;
+    other.setClosest(this);
+    other.setDistanceSquared(d2);
 
-    this.closest = other;
-    this.d2 = d2;
+    this.setClosest(other);
+    this.setDistanceSquared(d2);
   }
 
   /**
    * Increment the neighbour counter in a thread safe method.
    */
   public synchronized void incrementNeighbour() {
-    neighbour++;
+    setNeighbour(getNeighbour() + 1);
   }
 
   /**
    * Link the two clusters as potential merge candidates only if the squared distance is smaller
-   * than the other cluster's current closest. <p> Thread safe.
+   * than the other cluster's current closest.
+   *
+   * <p>Thread safe.
    *
    * @param other the other cluster
-   * @param d2 the squared distance
+   * @param disatnceSquared the disatnce squared
    */
-  public synchronized void linkSynchronized(Cluster other, double d2) {
-    // The entire method should be synchronized since the other cluster d2 is checked.
+  public synchronized void linkSynchronized(Cluster other, double disatnceSquared) {
+    // The entire method should be synchronized since the other cluster distanceSquared is checked.
     // This may be updated by another thread unless the updates only occur within a
     // synchronized block
-    link(other, d2);
+    link(other, disatnceSquared);
   }
 
   /**
@@ -251,42 +256,187 @@ public class Cluster implements Comparable<Cluster> {
    */
   public boolean validLink() {
     // Check if the other cluster has an updated link to another candidate
-    if (closest != null) {
+    if (getClosest() != null) {
       // Valid if the other cluster links back to this cluster
-      return closest.closest == this;
+      return getClosest().getClosest() == this;
     }
     return false;
   }
 
-  /** {@inheritDoc} */
   @Override
-  public int compareTo(Cluster o) {
+  public int compareTo(Cluster other) {
     // Sort by size, then centroid x then y, then the total weight.
     // The sort is arbitrary but allows comparison of two lists after sorting.
-    if (n < o.n) {
+    if (size < other.size) {
       return -1;
     }
-    if (n > o.n) {
+    if (size > other.size) {
       return 1;
     }
-    if (x < o.x) {
+    if (getX() < other.getX()) {
       return -1;
     }
-    if (x > o.x) {
+    if (getX() > other.getX()) {
       return 1;
     }
-    if (y < o.y) {
+    if (getY() < other.getY()) {
       return -1;
     }
-    if (y > o.y) {
+    if (getY() > other.getY()) {
       return 1;
     }
-    if (sumw < o.sumw) {
+    if (sumw < other.sumw) {
       return -1;
     }
-    if (sumw > o.sumw) {
+    if (sumw > other.sumw) {
       return 1;
     }
     return 0;
+  }
+
+  /**
+   * Gets the x.
+   *
+   * @return the x
+   */
+  public double getX() {
+    return x;
+  }
+
+  /**
+   * Gets the y.
+   *
+   * @return the y
+   */
+  public double getY() {
+    return y;
+  }
+
+  /**
+   * Gets the size.
+   *
+   * @return the size
+   */
+  public int getSize() {
+    return size;
+  }
+
+  /**
+   * Gets the head cluster point in the linked list of the cluster's points.
+   *
+   * @return the head cluster point
+   */
+  public ClusterPoint getHeadClusterPoint() {
+    return headClusterPoint;
+  }
+
+  /**
+   * Gets the next. Used to construct a single linked list of clusters.
+   *
+   * @return the next
+   */
+  public Cluster getNext() {
+    return next;
+  }
+
+  /**
+   * Sets the next. Used to construct a single linked list of clusters.
+   *
+   * @param next the new next
+   */
+  public void setNext(Cluster next) {
+    this.next = next;
+  }
+
+  /**
+   * Gets the closest. Used to store potential clustering links.
+   *
+   * @return the closest
+   */
+  public Cluster getClosest() {
+    return closest;
+  }
+
+  /**
+   * Sets the closest. Used to store potential clustering links.
+   *
+   * @param closest the new closest
+   */
+  public void setClosest(Cluster closest) {
+    this.closest = closest;
+  }
+
+  /**
+   * Gets the distance squared.
+   *
+   * @return the distance squared
+   */
+  public double getDistanceSquared() {
+    return distanceSquared;
+  }
+
+  /**
+   * Sets the distance squared.
+   *
+   * @param distanceSquared the distance squared
+   * @return the double
+   */
+  public double setDistanceSquared(double distanceSquared) {
+    this.distanceSquared = distanceSquared;
+    return distanceSquared;
+  }
+
+  /**
+   * Gets the neighbour. Used to indicate this cluster has a neighbour.
+   *
+   * @return the neighbour
+   */
+  public int getNeighbour() {
+    return neighbour;
+  }
+
+  /**
+   * Sets the neighbour. Used to indicate this cluster has a neighbour.
+   *
+   * @param neighbour the new neighbour
+   */
+  public void setNeighbour(int neighbour) {
+    this.neighbour = neighbour;
+  }
+
+  /**
+   * Gets the x bin for allocating to a grid.
+   *
+   * @return the x bin
+   */
+  public int getXBin() {
+    return xbin;
+  }
+
+  /**
+   * Sets the x bin for allocating to a grid.
+   *
+   * @param xbin the new x bin
+   */
+  public void setXBin(int xbin) {
+    this.xbin = xbin;
+  }
+
+  /**
+   * Gets the y bin for allocating to a grid.
+   *
+   * @return the y bin
+   */
+  public int getYBin() {
+    return ybin;
+  }
+
+  /**
+   * Sets the y bin for allocating to a grid.
+   *
+   * @param ybin the new y bin
+   */
+  public void setYBin(int ybin) {
+    this.ybin = ybin;
   }
 }

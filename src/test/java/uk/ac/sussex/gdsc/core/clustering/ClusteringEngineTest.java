@@ -1,27 +1,14 @@
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.test.junit5.*;
+import uk.ac.sussex.gdsc.core.utils.Random;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-import uk.ac.sussex.gdsc.test.utils.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-import uk.ac.sussex.gdsc.test.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-import org.junit.jupiter.api.*;
-
-import uk.ac.sussex.gdsc.test.junit5.*;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
-
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.logging.Logger;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestSettings;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
@@ -29,11 +16,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 
-import uk.ac.sussex.gdsc.test.junit5.*;import uk.ac.sussex.gdsc.test.rng.RngFactory;import uk.ac.sussex.gdsc.core.utils.Random;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
-import uk.ac.sussex.gdsc.test.utils.TestSettings;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
 public class ClusteringEngineTest {
@@ -301,7 +286,7 @@ public class ClusteringEngineTest {
 
     // Report density of the clustering we are testing. Size/radius are in nm
     // TestLog.debug(logger,"Testing n=%d, Size=%d, Density=%s um^-2, Radius=%s nm", n, size,
-    // Utils.rounded(n * 1e6 / (size * size)), Utils.rounded(radius));
+    // MathUtils.rounded(n * 1e6 / (size * size)), MathUtils.rounded(radius));
 
     final ArrayList<Cluster> exp = findClusters(points, radius);
     final ArrayList<Cluster> obs = engine.findClusters(points, radius);
@@ -318,10 +303,10 @@ public class ClusteringEngineTest {
       for (int i = 0; i < exp.size(); i++) {
         assertEqual(i, exp.get(i), obs.get(i));
       }
-    } catch (final AssertionError e) {
+    } catch (final AssertionError ex) {
       print("Expected", exp);
       print("Observed", obs);
-      throw e;
+      throw ex;
     }
   }
 
@@ -329,17 +314,17 @@ public class ClusteringEngineTest {
     logger.info(FunctionUtils.getSupplier(name + " : size=%d", clusters.size()));
     for (int i = 0; i < clusters.size(); i++) {
       final Cluster c = clusters.get(i);
-      logger.info(FunctionUtils.getSupplier("[%d] : head=%d, n=%d, cx=%g, cy=%g", i, c.head.id, c.n,
-          c.x, c.y));
+      logger.info(FunctionUtils.getSupplier("[%d] : head=%d, n=%d, cx=%g, cy=%g", i,
+          c.getHeadClusterPoint().getId(), c.getSize(), c.getX(), c.getY()));
     }
   }
 
   private static void assertEqual(int i, Cluster cluster, Cluster cluster2) {
-    Assertions.assertEquals(cluster.n, cluster2.n,
+    Assertions.assertEquals(cluster.getSize(), cluster2.getSize(),
         () -> String.format("Cluster %d: Size is different", i));
-    Assertions.assertEquals(cluster.x, cluster2.x, 1e-4,
+    Assertions.assertEquals(cluster.getX(), cluster2.getX(), 1e-4,
         () -> String.format("Cluster %d: X is different", i));
-    Assertions.assertEquals(cluster.y, cluster2.y, 1e-4,
+    Assertions.assertEquals(cluster.getY(), cluster2.getY(), 1e-4,
         () -> String.format("Cluster %d: Y is different", i));
     // Q. Should we check each cluster member is the same ?
   }
@@ -356,7 +341,7 @@ public class ClusteringEngineTest {
     final ArrayList<Cluster> clusters = new ArrayList<>(points.size());
     for (int i = 0; i < points.size(); i++) {
       final ClusterPoint m = points.get(i);
-      clusters.add(new Cluster(ClusterPoint.newClusterPoint(i, m.x, m.y)));
+      clusters.add(new Cluster(ClusterPoint.newClusterPoint(i, m.getX(), m.getY())));
     }
 
     // Iteratively find the closest pair
