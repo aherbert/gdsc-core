@@ -313,6 +313,15 @@ public class Cluster implements Comparable<Cluster> {
   }
 
   /**
+   * Gets the sum of the weights of all the cluster points.
+   *
+   * @return the sum of the weights
+   */
+  public double getSumOfWeights() {
+    return sumw;
+  }
+
+  /**
    * Gets the size.
    *
    * @return the size

@@ -890,10 +890,11 @@ public class AlignImagesFft {
 
   /**
    * Transforms a target image processor for alignment with the initialised reference. The FHT can
-   * be passed to the {@link #align(ImageProcessor, WindowMethod, Rectangle, SubPixelMethod)} method
+   * be passed to the
+   * {@link #align(ImageProcessor, ImageWindow.WindowMethod, Rectangle, SubPixelMethod)} method
    *
-   * <p>If the {@link #initialiseReference(ImageProcessor, WindowMethod, boolean)} method has not
-   * been called this returns null.
+   * <p>If the {@link #initialiseReference(ImageProcessor, ImageWindow.WindowMethod, boolean)}
+   * method has not been called this returns null.
    *
    * @param targetIp the target ip
    * @param windowMethod the window method

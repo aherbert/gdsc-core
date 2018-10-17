@@ -28,10 +28,9 @@
 
 /**
  * Extend the functionality of the <a href="https://commons.apache.org/proper/commons-rng/"> Apache
- * Commons RNG</a> {@link org.apache.commons.rng} package.
+ * Commons RNG</a> library.
  *
  * @see <a href="https://commons.apache.org/proper/commons-rng/">Apache Commons RNG</a>
  * @since 1.2.0
  */
-
 package uk.ac.sussex.gdsc.core.utils.rng;

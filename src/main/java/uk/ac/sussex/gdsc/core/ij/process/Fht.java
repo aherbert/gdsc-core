@@ -454,12 +454,12 @@ public class Fht extends FloatProcessor {
   }
 
   /**
-   * Converts this FHT to a complex Fourier transform and returns it as a two slice stack. This has
-   * been adapted from the routine {@link #getComplexTransform()} to compute the real and imaginary
-   * parts of the transform at the same time.
+   * Converts this FHT to a complex Fourier transform and returns it as a two slice stack.
+   * 
+   * <p>This has been adapted from the routine {@link #getComplexTransform()} to compute the real
+   * and imaginary parts of the transform at the same time.
    *
    * @return the complex transform
-   * @author Joachim Wesner, Alex Herbert
    */
   public ImageStack getComplexTransform() {
     if (!isFrequencyDomain) {
@@ -481,12 +481,12 @@ public class Fht extends FloatProcessor {
   }
 
   /**
-   * Converts this FHT to a complex Fourier transform and returns it as a two slice stack. This has
-   * been adapted from the routine {@link #getComplexTransform()} to compute the real and imaginary
-   * parts of the transform at the same time.
+   * Converts this FHT to a complex Fourier transform and returns it as a two slice stack.
+   * 
+   * <p>This has been adapted from the routine {@link #getComplexTransform()} to compute the real
+   * and imaginary parts of the transform at the same time.
    *
    * @return the complex transform real and imaginary processors
-   * @author Joachim Wesner, Alex Herbert
    */
   public FloatProcessor[] getComplexTransformProcessors() {
     if (!isFrequencyDomain) {
