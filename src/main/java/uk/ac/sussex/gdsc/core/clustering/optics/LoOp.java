@@ -60,7 +60,7 @@ public class LoOp {
   private final float[][] points;
 
   /**
-   * Instantiates a new LoOP class.
+   * Create a new instance.
    *
    * @param x the x
    * @param y the y
@@ -75,16 +75,26 @@ public class LoOp {
   }
 
   /**
-   * Instantiates a new LoOP class.
+   * Create a new instance.
    *
    * @param points the points
    */
-  public LoOp(float[][] points) {
+  LoOp(float[][] points) {
     this.points = points;
     tree = new FloatIntKdTree2D.SqrEuclid2D();
     for (int i = 0; i < points.length; i++) {
       tree.addPoint(points[i], i);
     }
+  }
+
+  /**
+   * Create a new LoOP class by wrapping the provided data.
+   *
+   * @param points the points
+   * @return the Local Outlier Probabilities class
+   */
+  public static LoOp wrap(float[][] points) {
+    return new LoOp(points);
   }
 
   /**
@@ -96,7 +106,7 @@ public class LoOp {
     return points.length;
   }
 
-  private class KnnStore implements IntNeighbourStore {
+  private static class KnnStore implements IntNeighbourStore {
     final int[][] neighbours;
     int index;
     int size;
@@ -156,7 +166,7 @@ public class LoOp {
     }
   }
 
-  private class PlofWorker implements Runnable {
+  private static class PlofWorker implements Runnable {
     final int[][] neighbours;
     final int numberOfNeigbours;
     final double[] pd;
@@ -193,12 +203,12 @@ public class LoOp {
       }
     }
 
-    private double max(double value1, double value2) {
+    private static double max(double value1, double value2) {
       return value1 >= value2 ? value1 : value2;
     }
   }
 
-  private class NormWorker implements Runnable {
+  private static class NormWorker implements Runnable {
     final double[] plofs;
     final double norm;
     final int from;

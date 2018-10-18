@@ -38,7 +38,7 @@ import org.apache.commons.math3.util.FastMath;
  * Processing.
  */
 public class FloatLinkedMedianWindow {
-  private class Data {
+  private static class Data {
     int index;
     float value;
     /** The smaller chain (s). */

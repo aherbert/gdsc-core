@@ -71,17 +71,17 @@ public class DbscanResult implements ClusteringResult {
   /**
    * Clusters assigned by extractClusters(...)
    */
-  private int[] clusters = null;
+  private int[] clusters;
 
   /**
    * Convex hulls assigned by computeConvexHulls().
    */
-  private ConvexHull[] hulls = null;
+  private ConvexHull[] hulls;
 
   /**
    * Bounds assigned by computeConvexHulls().
    */
-  private Rectangle2D[] bounds = null;
+  private Rectangle2D[] bounds;
 
   /**
    * Instantiates a new DBSCAN result.
@@ -170,15 +170,15 @@ public class DbscanResult implements ClusteringResult {
   }
 
   /**
-   * This can be set by {@link #extractClusters(boolean)}.
+   * {@inheritDoc}
    *
-   * <p>{@inheritDoc}
+   * <p>This can be set by {@link #extractClusters(boolean)}. Otherwise it is null.
    *
    * @see uk.ac.sussex.gdsc.core.clustering.optics.ClusteringResult#getClusters()
    */
   @Override
   public int[] getClusters() {
-    return clusters;
+    return (clusters == null) ? null : clusters.clone();
   }
 
   /**

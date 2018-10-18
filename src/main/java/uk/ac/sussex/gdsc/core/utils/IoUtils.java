@@ -29,8 +29,9 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,7 +61,7 @@ public final class IoUtils {
    * @return true if all OK, false if an error occurred
    */
   public static boolean save(String header, double[] data, String filename) {
-    try (BufferedWriter file = new BufferedWriter(new FileWriter(filename))) {
+    try (BufferedWriter file = openFile(filename)) {
       if (!TextUtils.isNullOrEmpty(header)) {
         file.write(header);
         file.newLine();
@@ -73,7 +74,7 @@ public final class IoUtils {
       }
       return true;
     } catch (final IOException ex) {
-      logger.log(Level.WARNING, "Unable to save data to file", ex);
+      logIoException(ex);
     }
     return false;
   }
@@ -102,7 +103,7 @@ public final class IoUtils {
    * @return true if all OK, false if an error occurred
    */
   public static boolean save(String header, int[] data, String filename) {
-    try (BufferedWriter file = new BufferedWriter(new FileWriter(filename))) {
+    try (BufferedWriter file = openFile(filename)) {
       if (!TextUtils.isNullOrEmpty(header)) {
         file.write(header);
         file.newLine();
@@ -115,7 +116,7 @@ public final class IoUtils {
       }
       return true;
     } catch (final IOException ex) {
-      logger.log(Level.WARNING, "Unable to save data to file", ex);
+      logIoException(ex);
     }
     return false;
   }
@@ -144,7 +145,7 @@ public final class IoUtils {
    * @return true if all OK, false if an error occurred
    */
   public static boolean save(String header, float[] data, String filename) {
-    try (BufferedWriter file = new BufferedWriter(new FileWriter(filename))) {
+    try (BufferedWriter file = openFile(filename)) {
       if (!TextUtils.isNullOrEmpty(header)) {
         file.write(header);
         file.newLine();
@@ -157,7 +158,7 @@ public final class IoUtils {
       }
       return true;
     } catch (final IOException ex) {
-      logger.log(Level.WARNING, "Unable to save data to file", ex);
+      logIoException(ex);
     }
     return false;
   }
@@ -173,5 +174,44 @@ public final class IoUtils {
    */
   public static boolean save(float[] data, String filename) {
     return save(null, data, filename);
+  }
+
+  /**
+   * Save the text to file.
+   *
+   * <p>Any {@link IOException} is logged but not re-thrown.
+   *
+   * @param filename the filename
+   * @param text the text
+   * @return true, if successful
+   */
+  public static boolean save(String filename, String text) {
+    try (BufferedWriter file = openFile(filename)) {
+      file.write(text);
+      return true;
+    } catch (final IOException ex) {
+      logIoException(ex);
+    }
+    return false;
+  }
+
+  /**
+   * Open the file.
+   *
+   * @param filename the filename
+   * @return the buffered writer
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  private static BufferedWriter openFile(String filename) throws IOException {
+    return Files.newBufferedWriter(new File(filename).toPath());
+  }
+
+  /**
+   * Log the IO exception.
+   *
+   * @param exception the exception
+   */
+  private static void logIoException(final IOException exception) {
+    logger.log(Level.WARNING, "Unable to save data to file", exception);
   }
 }

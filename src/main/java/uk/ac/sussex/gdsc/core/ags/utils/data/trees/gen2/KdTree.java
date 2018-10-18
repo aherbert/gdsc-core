@@ -313,7 +313,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
     if (sequentialSorting) {
       while (resultHeap.values > 0) {
         resultHeap.removeLargest();
-        results.add(new Entry<>(resultHeap.removedDist, (T) resultHeap.removedData));
+        results.add(new Entry<>(resultHeap.getRemovedDistance(), (T) resultHeap.getRemovedData()));
       }
     } else {
       for (int i = 0; i < resultHeap.values; i++) {
@@ -462,7 +462,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
      * @param weights the new weights
      */
     public void setWeights(double[] weights) {
-      this.weights = weights;
+      this.weights = weights.clone();
     }
 
     @Override
@@ -619,7 +619,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
      * @param weights the new weights
      */
     public void setWeights(double[] weights) {
-      this.weights = weights;
+      this.weights = weights.clone();
     }
 
     @Override

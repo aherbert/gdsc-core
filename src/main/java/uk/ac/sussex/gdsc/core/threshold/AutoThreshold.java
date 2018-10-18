@@ -814,6 +814,11 @@ public class AutoThreshold {
    * @return the threshold
    */
   public static int minimum(int[] data) {
+    if (data.length < 3) {
+      // Cannot be bimodal with less than 3 points.
+      return -1;
+    }
+
     // Assumes a bimodal histogram. The histogram needs is smoothed (using a
     // running average of size 3, iteratively) until there are only two local maxima.
     // Threshold t is such that yt−1 > yt ≤ yt+1.
@@ -831,26 +836,32 @@ public class AutoThreshold {
       }
     }
 
-    final double[] tmpHistogram = new double[data.length];
+    // Working space for the smoothed histogram
+    double[] smoothedHistogram = new double[data.length];
 
     while (!bimodalTest(histogram)) {
-      // smooth with a 3 point running mean filter
-      for (int i = 1; i < data.length - 1; i++) {
-        tmpHistogram[i] = (histogram[i - 1] + histogram[i] + histogram[i + 1]) / 3;
-      }
-      // 0 outside
-      tmpHistogram[0] = (histogram[0] + histogram[1]) / 3;
-      // 0 outside
-      tmpHistogram[data.length - 1] = (histogram[data.length - 2] + histogram[data.length - 1]) / 3;
 
-      // Copy back
-      System.arraycopy(tmpHistogram, 0, histogram, 0, data.length);
+      // Check for convergence
       iter++;
       if (iter > 10000) {
-        threshold = -1;
         logger.fine("Minimum Threshold not found after 10000 iterations.");
-        return threshold;
+        return -1;
       }
+
+      // smooth with a 3 point running mean filter
+      for (int i = 1; i < data.length - 1; i++) {
+        smoothedHistogram[i] = (histogram[i - 1] + histogram[i] + histogram[i + 1]) / 3;
+      }
+      // 0 outside the start
+      smoothedHistogram[0] = (histogram[0] + histogram[1]) / 3;
+      // 0 outside the end
+      smoothedHistogram[data.length - 1] =
+          (histogram[data.length - 2] + histogram[data.length - 1]) / 3;
+
+      // Swap
+      final double[] tmp = histogram;
+      histogram = smoothedHistogram;
+      smoothedHistogram = tmp;
     }
     // The threshold is the minimum between the two peaks. modified for 16 bits
     for (int i = 1; i < max; i++) {
@@ -1053,7 +1064,6 @@ public class AutoThreshold {
       } else {
         final double distance = f - ptile;
         if (distance < temp) {
-          temp = distance;
           threshold = i;
         }
         // No point continuing as this is just moving away from the target
@@ -1275,8 +1285,8 @@ public class AutoThreshold {
     }
     /* Determine the optimal threshold value */
     double omega = p1[tstar3] - p1[tstar1];
-    return (int) (tstar1 * (p1[tstar1] + 0.25 * omega * beta1)
-        + 0.25 * tstar2 * omega * beta2 + tstar3 * (p2[tstar3] + 0.25 * omega * beta3));
+    return (int) (tstar1 * (p1[tstar1] + 0.25 * omega * beta1) + 0.25 * tstar2 * omega * beta2
+        + tstar3 * (p2[tstar3] + 0.25 * omega * beta3));
   }
 
   /**

@@ -38,7 +38,108 @@
 
   <Match>
     <Class name="~.*\.gen2\..*KdTree2?D?" />
+    <!-- NP: The cursor cannot be null. -->
+    <Or>
+      <Method name="calculateSplit" />
+      <Method name="findNeighbor" />
+      <Method name="nearestNeighbor" />
+    </Or>
     <Bug code="NP" />
+  </Match>
+
+  <Match>
+    <Class name="~.*\.gen3\.KdNode" />
+    <!-- FE: The test for the split value explicitly uses the == floating-point
+      equality check. -->
+    <Method name="calculateSplit" />
+    <Bug code="FE" />
+  </Match>
+
+  <Match>
+    <Class name="~.*\.gen2\..*KdTree2?D?" />
+    <!-- FE: The test for the split value explicitly uses the == floating-point
+      equality check. -->
+    <Method name="addPoint" />
+    <Bug code="FE" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.generics.CloseableBlockingQueue" />
+    <!-- Se: The implementations of the Condition interface are Serializable. -->
+    <Bug code="Se" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.generics.CloseableBlockingQueue$Itr" />
+    <!-- Dead store to local variable in the iterator. -->
+    <Bug pattern="DLS_DEAD_LOCAL_STORE_SHADOWS_FIELD" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.ij.Utils" />
+    <!-- Allow reflection usage to catch generic exception. -->
+    <Or>
+      <Method name="setShowStatus" />
+      <Method name="setShowProgress" />
+    </Or>
+    <Bug pattern="REC_CATCH_EXCEPTION" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.threshold.AutoThreshold" />
+    <!-- Test for equal maximum uses == -->
+    <Method name="otsu" />
+    <Bug pattern="FE_FLOATING_POINT_EQUALITY" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.clustering.Cluster" />
+    <!-- Test for equality uses == -->
+    <Method name="merge" />
+    <Bug pattern="FE_FLOATING_POINT_EQUALITY" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.ij.io.FastTiffDecoder" />
+    <!-- Leave the string handling to the default encoding -->
+    <Bug pattern="DM_DEFAULT_ENCODING" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.utils.UnicodeReader" />
+    <!-- This ignores the encoding parameter if null -->
+    <Bug pattern="DM_DEFAULT_ENCODING" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.utils.StoredData" />
+    <!-- This deliberately exposes the internal array -->
+    <Method name="getValuesRef" />
+    <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.clustering.ClusteringEngine" />
+    <!-- These deliberately expose the internal array -->
+    <Or>
+      <Method name="getIntraIdDistances" />
+      <Method name="getInterIdDistances" />
+    </Or>
+    <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.match.RankedScoreCalculator" />
+    <!-- This deliberately exposes the internal array -->
+    <Method name="getScoredAssignments" />
+    <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.clustering.CoordinateStore" />
+    <!-- The constructor deliberately wraps the array -->
+    <Method name="&lt;init&gt;" />
+    <Bug pattern="EI_EXPOSE_REP2" />
   </Match>
 
 </FindBugsFilter>

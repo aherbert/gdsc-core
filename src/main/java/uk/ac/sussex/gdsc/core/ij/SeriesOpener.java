@@ -57,7 +57,7 @@ public class SeriesOpener {
   private int numberOfThreads = 0;
 
   // Used to filter the image list
-  private int numberOfImages;
+  private int maximumNumberOfImages;
   private int start;
   private int increment;
   private String filter;
@@ -151,7 +151,7 @@ public class SeriesOpener {
    * @return The names of the image files
    */
   public String[] getImageList() {
-    return imageList;
+    return imageList.clone();
   }
 
   /**
@@ -170,7 +170,6 @@ public class SeriesOpener {
   }
 
   private ImagePlus openImage(String filename) {
-    // System.out.printf("Opening %s %s\n", path, filename);
     final Opener opener = new Opener();
     opener.setSilentMode(true);
     Utils.setShowProgress(false);
@@ -184,10 +183,8 @@ public class SeriesOpener {
       }
 
       // Check dimensions
-      if (!variableSize) {
-        if (width != imp.getWidth() || height != imp.getHeight()) {
-          imp = null;
-        }
+      if (!variableSize && (width != imp.getWidth() || height != imp.getHeight())) {
+        imp = null;
       }
     }
     return imp;
@@ -209,13 +206,22 @@ public class SeriesOpener {
       }
       if (filter != null) {
         int filteredImages = 0;
-        for (int i = 0; i < list.length; i++) {
-          if (isRegex && list[i].matches(filter)) {
-            filteredImages++;
-          } else if (list[i].indexOf(filter) >= 0) {
-            filteredImages++;
-          } else {
-            list[i] = null;
+        if (isRegex) {
+          Pattern pattern = Pattern.compile(filter);
+          for (int i = 0; i < list.length; i++) {
+            if (pattern.matcher(list[i]).matches()) {
+              filteredImages++;
+            } else {
+              list[i] = null;
+            }
+          }
+        } else {
+          for (int i = 0; i < list.length; i++) {
+            if (list[i].indexOf(filter) >= 0) {
+              filteredImages++;
+            } else {
+              list[i] = null;
+            }
           }
         }
         if (filteredImages == 0) {
@@ -238,15 +244,15 @@ public class SeriesOpener {
       }
 
       // Process only the requested number of images
-      if (numberOfImages < 1) {
-        numberOfImages = list.length;
+      if (maximumNumberOfImages < 1) {
+        maximumNumberOfImages = list.length;
       }
       if (start < 1 || start > list.length) {
         start = 1;
       }
       imageList = new String[list.length];
       int count = 0;
-      for (int i = start - 1; i < list.length && count < numberOfImages; i += increment, count++) {
+      for (int i = start - 1; i < list.length && count < maximumNumberOfImages; i += increment, count++) {
         imageList[count] = list[i];
       }
 
@@ -273,7 +279,7 @@ public class SeriesOpener {
     if (gd.wasCanceled()) {
       return false;
     }
-    numberOfImages = (int) gd.getNextNumber();
+    maximumNumberOfImages = (int) gd.getNextNumber();
     start = (int) gd.getNextNumber();
     increment = (int) gd.getNextNumber();
     if (increment < 1) {
@@ -309,7 +315,7 @@ public class SeriesOpener {
     return numberOfThreads;
   }
 
-  private class FolderOpenerDialog extends GenericDialog {
+  private static class FolderOpenerDialog extends GenericDialog {
     private static final long serialVersionUID = 7944532917923080862L;
     transient ImagePlus imp;
     String[] list;
@@ -350,8 +356,11 @@ public class SeriesOpener {
       if (!localFilter.equals("") && !localFilter.equals("*")) {
         int count = 0;
         for (int i = 0; i < list.length; i++) {
-          if ((pattern != null && pattern.matcher(list[i]).matches())
-              || list[i].indexOf(localFilter) >= 0) {
+          if (pattern != null) {
+            if (pattern.matcher(list[i]).matches()) {
+              count++;
+            }
+          } else if (list[i].indexOf(localFilter) >= 0) {
             count++;
           }
         }

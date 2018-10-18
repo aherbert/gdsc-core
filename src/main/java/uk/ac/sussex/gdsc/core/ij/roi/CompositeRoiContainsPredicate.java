@@ -29,41 +29,38 @@
 package uk.ac.sussex.gdsc.core.ij.roi;
 
 import ij.gui.Roi;
+import ij.gui.ShapeRoi;
 
+import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.RoundRectangle2D;
 
 /**
- * Class for testing if coordinates are within a rectangle/oval ROI.
+ * Class for testing if coordinates are within a composite ROI.
  */
-public class BasicRoiTest extends RoiTest {
+public class CompositeRoiContainsPredicate implements CoordinatePredicate {
   private final Shape shape;
+  private final int ox;
+  private final int oy;
 
   /**
-   * Instantiates a new basic roi test.
+   * Creates a new instance.
    *
    * @param roi the roi
    */
-  public BasicRoiTest(Roi roi) {
-    if (roi.getType() == Roi.RECTANGLE) {
-      // Account for corners
-      if (roi.getCornerDiameter() != 0) {
-        shape = new RoundRectangle2D.Double(roi.getXBase(), roi.getYBase(), roi.getFloatWidth(),
-            roi.getFloatHeight(), roi.getCornerDiameter(), roi.getCornerDiameter());
-      } else {
-        shape = roi.getFloatBounds();
-      }
-    } else if (roi.getType() == Roi.OVAL) {
-      shape = new Ellipse2D.Double(roi.getXBase(), roi.getYBase(), roi.getFloatWidth(),
-          roi.getFloatHeight());
+  public CompositeRoiContainsPredicate(Roi roi) {
+    if (roi instanceof ShapeRoi) {
+      // The composite shape is offset by the origin
+      final Rectangle bounds = roi.getBounds();
+      shape = ((ShapeRoi) roi).getShape();
+      ox = bounds.x;
+      oy = bounds.y;
     } else {
-      throw new IllegalArgumentException("Require rectangle or oval ROI");
+      throw new IllegalArgumentException("Require composite ROI");
     }
   }
 
   @Override
-  public boolean contains(double x, double y) {
-    return shape.contains(x, y);
+  public boolean test(double x, double y) {
+    return shape.contains(x - ox, y - oy);
   }
 }

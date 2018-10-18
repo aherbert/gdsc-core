@@ -29,12 +29,15 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 /**
  * Provides sorting functionality.
  */
-public class Sort {
+public final class Sort {
+
+  /** No public construction. */
+  private Sort() {}
+
   /**
    * Sorts the indices in descending order of their values.
    *
@@ -62,19 +65,8 @@ public class Sort {
       data[i][1] = indices[i];
     }
 
-    Arrays.sort(data, new Comparator<int[]>() {
-      @Override
-      public int compare(int[] o1, int[] o2) {
-        // Largest first
-        if (o2[0] < o1[0]) {
-          return -1;
-        }
-        if (o2[0] > o1[0]) {
-          return 1;
-        }
-        return 0;
-      }
-    });
+    // Largest first
+    Arrays.sort(data, (o1, o2) -> Integer.compare(o2[0], o1[0]));
 
     // Copy back
     for (int i = indices.length; i-- > 0;) {
@@ -113,29 +105,16 @@ public class Sort {
     final float[][] data = new float[indices.length][2];
     for (int i = indices.length; i-- > 0;) {
       data[i][0] = values[indices[i]];
-      // data[i][1] = indices[i];
       // This is required to handle integers that do not fit in a float.
       // Speed test shows it is also faster than the cast.
       data[i][1] = Float.intBitsToFloat(indices[i]);
     }
 
-    Arrays.sort(data, new Comparator<float[]>() {
-      @Override
-      public int compare(float[] o1, float[] o2) {
-        // Largest first
-        if (o2[0] < o1[0]) {
-          return -1;
-        }
-        if (o2[0] > o1[0]) {
-          return 1;
-        }
-        return 0;
-      }
-    });
+    // Largest first
+    Arrays.sort(data, (o1, o2) -> Float.compare(o2[0], o1[0]));
 
     // Copy back
     for (int i = indices.length; i-- > 0;) {
-      // indices[i] = (int) data[i][1];
       indices[i] = Float.floatToRawIntBits(data[i][1]);
     }
     if (sortValues) {
@@ -174,19 +153,8 @@ public class Sort {
       data[i][1] = indices[i];
     }
 
-    Arrays.sort(data, new Comparator<double[]>() {
-      @Override
-      public int compare(double[] o1, double[] o2) {
-        // Largest first
-        if (o2[0] < o1[0]) {
-          return -1;
-        }
-        if (o2[0] > o1[0]) {
-          return 1;
-        }
-        return 0;
-      }
-    });
+    // Largest first
+    Arrays.sort(data, (o1, o2) -> Double.compare(o2[0], o1[0]));
 
     // Copy back
     for (int i = indices.length; i-- > 0;) {
@@ -228,19 +196,8 @@ public class Sort {
       data[i][1] = indices[i];
     }
 
-    Arrays.sort(data, new Comparator<int[]>() {
-      @Override
-      public int compare(int[] o1, int[] o2) {
-        // Smallest first
-        if (o1[0] < o2[0]) {
-          return -1;
-        }
-        if (o1[0] > o2[0]) {
-          return 1;
-        }
-        return 0;
-      }
-    });
+    // Smallest first
+    Arrays.sort(data, (o1, o2) -> Integer.compare(o1[0], o2[0]));
 
     // Copy back
     for (int i = indices.length; i-- > 0;) {
@@ -279,29 +236,16 @@ public class Sort {
     final float[][] data = new float[indices.length][2];
     for (int i = indices.length; i-- > 0;) {
       data[i][0] = values[indices[i]];
-      // data[i][1] = indices[i];
       // This is required to handle integers that do not fit in a float.
       // Speed test shows it is also faster than the cast.
       data[i][1] = Float.intBitsToFloat(indices[i]);
     }
 
-    Arrays.sort(data, new Comparator<float[]>() {
-      @Override
-      public int compare(float[] o1, float[] o2) {
-        // Smallest first
-        if (o1[0] < o2[0]) {
-          return -1;
-        }
-        if (o1[0] > o2[0]) {
-          return 1;
-        }
-        return 0;
-      }
-    });
+    // Smallest first
+    Arrays.sort(data, (o1, o2) -> Float.compare(o1[0], o2[0]));
 
     // Copy back
     for (int i = indices.length; i-- > 0;) {
-      // indices[i] = (int) data[i][1];
       indices[i] = Float.floatToRawIntBits(data[i][1]);
     }
     if (sortValues) {
@@ -340,19 +284,8 @@ public class Sort {
       data[i][1] = indices[i];
     }
 
-    Arrays.sort(data, new Comparator<double[]>() {
-      @Override
-      public int compare(double[] o1, double[] o2) {
-        // Smallest first
-        if (o1[0] < o2[0]) {
-          return -1;
-        }
-        if (o1[0] > o2[0]) {
-          return 1;
-        }
-        return 0;
-      }
-    });
+    // Smallest first
+    Arrays.sort(data, (o1, o2) -> Double.compare(o1[0], o2[0]));
 
     // Copy back
     for (int i = indices.length; i-- > 0;) {

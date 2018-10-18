@@ -43,9 +43,8 @@ import java.util.List;
  */
 public final class MatchCalculator {
 
-  private MatchCalculator() {
-    throw new IllegalStateException("Utility class");
-  }
+  /** No public construction. */
+  private MatchCalculator() {}
 
   /**
    * Calculate the match results for the given actual and predicted points. Points that are within
@@ -224,8 +223,7 @@ public final class MatchCalculator {
         }
       }
 
-    }
-    while (!assignments.isEmpty());
+    } while (!assignments.isEmpty());
 
     // Add to lists
     if (falsePositives != null) {
@@ -432,8 +430,7 @@ public final class MatchCalculator {
         }
       }
 
-    }
-    while (!assignments.isEmpty());
+    } while (!assignments.isEmpty());
 
     // Add to lists
     if (falsePositives != null) {
@@ -745,8 +742,7 @@ public final class MatchCalculator {
         }
       }
 
-    }
-    while (!assignments.isEmpty());
+    } while (!assignments.isEmpty());
 
     // Add to lists
     if (falsePositives != null) {

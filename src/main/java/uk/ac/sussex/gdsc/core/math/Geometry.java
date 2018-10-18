@@ -33,9 +33,8 @@ package uk.ac.sussex.gdsc.core.math;
  */
 public final class Geometry {
 
-  private Geometry() {
-    throw new IllegalStateException("Utility class");
-  }
+  /** No public construction. */
+  private Geometry() {}
 
   /**
    * Gets the area of the triangle from its vertices.

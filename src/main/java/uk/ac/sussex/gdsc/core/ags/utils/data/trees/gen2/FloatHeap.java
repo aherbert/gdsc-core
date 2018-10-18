@@ -36,7 +36,7 @@ public class FloatHeap {
   int values;
 
   /** The distance of the last removed item. */
-  public float removedDist;
+  private float removedDistance;
 
   /**
    * Instantiates a new float heap.
@@ -77,7 +77,7 @@ public class FloatHeap {
       throw new IllegalStateException();
     }
 
-    removedDist = distance[0];
+    removedDistance = distance[0];
     values--;
     distance[0] = distance[values];
     downHeapify(0);
@@ -160,5 +160,15 @@ public class FloatHeap {
    */
   public float[] getDistance() {
     return Arrays.copyOf(distance, values);
+  }
+
+  /**
+   * Gets the removed distance.
+   *
+   * @return the removed distance
+   * @see #removeLargest()
+   */
+  public float getRemovedDistance() {
+    return removedDistance;
   }
 }

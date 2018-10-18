@@ -78,9 +78,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1027,6 +1024,7 @@ public class Utils {
 
       default:
         // Nothing to do
+        break;
     }
 
     if (minWidth > 0) {
@@ -2030,6 +2028,7 @@ public class Utils {
       autoThreshold /= 2;
     }
     final int threshold = stats.pixelCount / autoThreshold;
+
     int index = -1;
     boolean found = false;
     int count;
@@ -2042,6 +2041,7 @@ public class Utils {
       found = count > threshold;
     }
     while (!found && index < 255);
+
     final int hmin = index;
     index = 256;
     do {
@@ -2053,16 +2053,13 @@ public class Utils {
       found = count > threshold;
     }
     while (!found && index > 0);
+
     final int hmax = index;
     double min;
     double max;
-    if (hmax >= hmin) {
+    if (hmax > hmin) {
       min = stats.histMin + hmin * stats.binSize;
       max = stats.histMin + hmax * stats.binSize;
-      if (min == max) {
-        min = stats.min;
-        max = stats.max;
-      }
     } else {
       min = stats.min;
       max = stats.max;

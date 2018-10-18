@@ -59,7 +59,7 @@ public final class FileSeekableStream extends SeekableStream {
    * @throws SecurityException if a security manager exists and its checkRead method denies read
    *         access to the file
    */
-  public FileSeekableStream(File file) throws FileNotFoundException, SecurityException {
+  public FileSeekableStream(File file) throws FileNotFoundException {
     if (file == null) {
       throw new NullPointerException();
     }
@@ -74,7 +74,7 @@ public final class FileSeekableStream extends SeekableStream {
    * @throws SecurityException if a security manager exists and its checkRead method denies read
    *         access to the file
    */
-  public FileSeekableStream(String path) throws FileNotFoundException, SecurityException {
+  public FileSeekableStream(String path) throws FileNotFoundException {
     this(new File(path));
   }
 

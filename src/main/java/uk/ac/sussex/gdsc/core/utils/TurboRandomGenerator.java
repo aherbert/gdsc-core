@@ -41,6 +41,14 @@ import org.apache.commons.rng.UniformRandomProvider;
  * of random integers and shuffling of lists.
  */
 public class TurboRandomGenerator extends PseudoRandomGenerator {
+
+  /**
+   * Copy constructor.
+   */
+  private TurboRandomGenerator(TurboRandomGenerator source) {
+    super(source);
+  }
+
   /**
    * Instantiates a new turbo random generator. The input sequence may be modified: any 1 is set to
    * 1-ulp.
@@ -119,8 +127,13 @@ public class TurboRandomGenerator extends PseudoRandomGenerator {
   @Override
   public double nextDouble() {
     // This method is only for JavaDoc about the violation of the nextDouble contract.
-    // It is pass through to the parent implementation.
+    // Use the parent implementation.
     return super.nextDouble();
+  }
+
+  @Override
+  public TurboRandomGenerator copy() {
+    return new TurboRandomGenerator(this);
   }
 
   @Override

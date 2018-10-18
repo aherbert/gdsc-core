@@ -45,6 +45,8 @@ import java.awt.event.WindowEvent;
 public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog {
   private static final long serialVersionUID = 8535959215385211516L;
 
+  private boolean closed;
+
   /**
    * Instantiates a new non blocking extended generic dialog.
    *
@@ -63,19 +65,16 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog {
     }
     if (!IJ.macroRunning()) { // add to Window menu on event dispatch thread
       final NonBlockingExtendedGenericDialog thisDialog = this;
-      EventQueue.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          WindowManager.addWindow(thisDialog);
-        }
-      });
+      EventQueue.invokeLater(() -> WindowManager.addWindow(thisDialog));
     }
-    try {
-      wait();
-    } catch (final InterruptedException ex) {
-      // Restore interrupted state...
-      Thread.currentThread().interrupt();
-      // Ignore exception
+    while (!closed) {
+      try {
+        wait();
+      } catch (final InterruptedException ex) {
+        // Restore interrupted state...
+        Thread.currentThread().interrupt();
+        // Ignore exception
+      }
     }
   }
 
@@ -83,7 +82,8 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog {
   public synchronized void actionPerformed(ActionEvent event) {
     super.actionPerformed(event);
     if (!isVisible()) {
-      notify();
+      closed = true;
+      notifyAll();
     }
   }
 
@@ -91,7 +91,8 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog {
   public synchronized void keyPressed(KeyEvent event) {
     super.keyPressed(event);
     if (wasOKed() || wasCanceled()) {
-      notify();
+      closed = true;
+      notifyAll();
     }
   }
 
@@ -99,7 +100,8 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog {
   public synchronized void windowClosing(WindowEvent event) {
     super.windowClosing(event);
     if (wasOKed() || wasCanceled()) {
-      notify();
+      closed = true;
+      notifyAll();
     }
   }
 

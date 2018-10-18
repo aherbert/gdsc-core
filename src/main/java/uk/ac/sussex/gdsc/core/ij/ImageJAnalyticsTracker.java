@@ -47,6 +47,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
@@ -98,18 +99,21 @@ public final class ImageJAnalyticsTracker {
    */
   private static final int ENABLED = 1;
 
-  private static ClientParameters clientParameters = null;
-  private static JGoogleAnalyticsTracker tracker = null;
-  private static boolean loggedPreferrences = false;
+  // Use volatile to support double checked locking:
+  // http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html
+
+  private static volatile ClientParameters clientParameters;
+  private static volatile JGoogleAnalyticsTracker tracker;
+
+  private static boolean loggedPreferrences;
 
   /**
    * Flag indicating that the user has opted in/out of analytics.
    */
   private static int state = (int) Prefs.get(PROPERTY_GA_STATE, UNKNOWN);
 
-  private ImageJAnalyticsTracker() {
-    throw new IllegalStateException("Utility class");
-  }
+  /** No public construction. */
+  private ImageJAnalyticsTracker() {}
 
   /**
    * Track a page view.
@@ -147,32 +151,36 @@ public final class ImageJAnalyticsTracker {
 
         // Get the client parameters
         final String clientId = Prefs.get(PROPERTY_GA_CLIENT_ID, null);
-        clientParameters = new ClientParameters(GA_TRACKING_ID, clientId, APPLICATION_NAME);
+        ClientParameters newClientParameters =
+            new ClientParameters(GA_TRACKING_ID, clientId, APPLICATION_NAME);
 
-        ClientParametersManager.populate(clientParameters);
+        ClientParametersManager.populate(newClientParameters);
 
         // Record for next time
-        Prefs.set(PROPERTY_GA_CLIENT_ID, clientParameters.getClientId());
+        Prefs.set(PROPERTY_GA_CLIENT_ID, newClientParameters.getClientId());
 
         // Record the version of analytics we are using
-        clientParameters.setApplicationVersion(uk.ac.sussex.gdsc.analytics.Version.VERSION_X_X_X);
+        newClientParameters
+            .setApplicationVersion(uk.ac.sussex.gdsc.analytics.Version.VERSION_X_X_X);
 
         // Use custom dimensions to record client data. These should be registered
         // in the analytics account for the given tracking ID
 
         // Record the ImageJ information.
-        clientParameters.addCustomDimension(1, getImageJInfo());
+        newClientParameters.addCustomDimension(1, getImageJInfo());
 
         // Java version
-        clientParameters.addCustomDimension(2, System.getProperty("java.version"));
+        newClientParameters.addCustomDimension(2, System.getProperty("java.version"));
 
         // OS
-        clientParameters.addCustomDimension(3, System.getProperty("os.name"));
-        clientParameters.addCustomDimension(4, System.getProperty("os.version"));
-        clientParameters.addCustomDimension(5, System.getProperty("os.arch"));
+        newClientParameters.addCustomDimension(3, System.getProperty("os.name"));
+        newClientParameters.addCustomDimension(4, System.getProperty("os.version"));
+        newClientParameters.addCustomDimension(5, System.getProperty("os.arch"));
 
         // Versions
-        clientParameters.addCustomDimension(9, uk.ac.sussex.gdsc.core.Version.getVersion());
+        newClientParameters.addCustomDimension(9, uk.ac.sussex.gdsc.core.Version.getVersion());
+
+        clientParameters = newClientParameters;
       }
     }
   }
@@ -235,8 +243,8 @@ public final class ImageJAnalyticsTracker {
         // Make sure we have created a client
         initialise();
 
-        tracker = new JGoogleAnalyticsTracker(clientParameters, MeasurementProtocolVersion.V_1,
-            DispatchMode.SINGLE_THREAD);
+        JGoogleAnalyticsTracker newTracker = new JGoogleAnalyticsTracker(clientParameters,
+            MeasurementProtocolVersion.V_1, DispatchMode.SINGLE_THREAD);
 
         // TODO: Always use anonymised and secure connection.
         // Following GDPR all personal data is removed so nothing
@@ -245,8 +253,10 @@ public final class ImageJAnalyticsTracker {
 
         // DEBUG: Enable logging
         if (Boolean.parseBoolean(System.getProperty("gdsc-analytics-logger", "false"))) {
-          tracker.setLogger(new uk.ac.sussex.gdsc.analytics.ConsoleLogger());
+          newTracker.setLogger(new uk.ac.sussex.gdsc.analytics.ConsoleLogger());
         }
+
+        tracker = newTracker;
       }
     }
   }
@@ -257,9 +267,11 @@ public final class ImageJAnalyticsTracker {
    *
    * @param map The map object to populate
    * @param pluginsStream The ImageJ properties file
+   * @param charset the charset
    */
-  public static void buildPluginMap(Map<String, String[]> map, InputStream pluginsStream) {
-    try (BufferedReader input = new BufferedReader(new InputStreamReader(pluginsStream))) {
+  public static void buildPluginMap(Map<String, String[]> map, InputStream pluginsStream, Charset charset) {
+    try (BufferedReader input =
+        new BufferedReader(new InputStreamReader(pluginsStream, charset))) {
       String line;
       while ((line = input.readLine()) != null) {
         if (line.startsWith("#")) {

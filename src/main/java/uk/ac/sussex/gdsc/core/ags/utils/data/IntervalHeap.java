@@ -203,7 +203,7 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T> {
       if (keys[index] < keys[index - 1]) {
         swap(index, index - 1); // Swap with it's pair
       }
-    } else if (index % 2 == 1) {
+    } else if ((index & 1) == 1) { // Check for oddness
       // Already paired. Ensure pair is ordered right
       // The larger value of the parent pair
       final int parent = (index / 2 - 1) | 1;

@@ -41,13 +41,7 @@ public class AssignmentComparator implements Comparator<Assignment> {
 
   @Override
   public int compare(Assignment o1, Assignment o2) {
-    if (o1.getDistance() < o2.getDistance()) {
-      return -1;
-    }
-    if (o1.getDistance() > o2.getDistance()) {
-      return 1;
-    }
-    return 0;
+    return Double.compare(o1.getDistance(), o2.getDistance());
   }
 
   /**
@@ -95,15 +89,7 @@ public class AssignmentComparator implements Comparator<Assignment> {
       data[i][1] = i;
     }
 
-    Arrays.sort(data, (o1, o2) -> {
-      if (o1[0] < o2[0]) {
-        return -1;
-      }
-      if (o1[0] > o2[0]) {
-        return 1;
-      }
-      return 0;
-    });
+    Arrays.sort(data, (o1, o2) -> Double.compare(o1[0], o2[0]));
 
     // Copy back
     final Assignment[] tmp = Arrays.copyOf(assignments, size);
@@ -139,15 +125,7 @@ public class AssignmentComparator implements Comparator<Assignment> {
       data[i] = new DoubleSortObject(assignments[i].getDistance(), assignments[i]);
     }
 
-    Arrays.sort(data, (o1, o2) -> {
-      if (o1.value < o2.value) {
-        return -1;
-      }
-      if (o1.value > o2.value) {
-        return 1;
-      }
-      return 0;
-    });
+    Arrays.sort(data, (o1, o2) -> Double.compare(o1.value, o2.value));
 
     // Copy back
     for (int i = size; i-- > 0;) {
@@ -182,15 +160,7 @@ public class AssignmentComparator implements Comparator<Assignment> {
       data[i] = new FloatSortObject((float) assignments[i].getDistance(), assignments[i]);
     }
 
-    Arrays.sort(data, (o1, o2) -> {
-      if (o1.value < o2.value) {
-        return -1;
-      }
-      if (o1.value > o2.value) {
-        return 1;
-      }
-      return 0;
-    });
+    Arrays.sort(data, (o1, o2) -> Float.compare(o1.value, o2.value));
 
     // Copy back
     for (int i = size; i-- > 0;) {

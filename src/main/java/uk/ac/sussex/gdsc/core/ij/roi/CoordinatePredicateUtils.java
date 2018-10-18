@@ -29,38 +29,36 @@
 package uk.ac.sussex.gdsc.core.ij.roi;
 
 import ij.gui.Roi;
-import ij.gui.ShapeRoi;
-
-import java.awt.Rectangle;
-import java.awt.Shape;
 
 /**
- * Class for testing if coordinates are within a composite ROI.
+ * Class for creating a {@link CoordinatePredicate} from an ROI.
  */
-public class CompositeRoiTest extends RoiTest {
-  private final Shape shape;
-  private final int ox;
-  private final int oy;
+public final class CoordinatePredicateUtils {
+
+  /** No public construction. */
+  private CoordinatePredicateUtils() {}
 
   /**
-   * Instantiates a new composite roi test.
+   * Creates a {@link CoordinatePredicate} for testing if coordinates are within the ROI.
    *
-   * @param roi the roi
+   * @param roi the roi (must be an area ROI)
+   * @return the predicate (or null if not supported)
    */
-  public CompositeRoiTest(Roi roi) {
-    if (roi.getType() == Roi.COMPOSITE) {
-      // The composite shape is offset by the origin
-      final Rectangle bounds = roi.getBounds();
-      shape = ((ShapeRoi) roi).getShape();
-      ox = bounds.x;
-      oy = bounds.y;
-    } else {
-      throw new IllegalArgumentException("Require composite ROI");
+  public static CoordinatePredicate createContainsPredicate(Roi roi) {
+    // Support different ROIs.
+    if (roi == null || !roi.isArea() || !(roi.getFloatWidth() > 0 && roi.getFloatHeight() > 0)) {
+      return null;
     }
-  }
 
-  @Override
-  public boolean contains(double x, double y) {
-    return shape.contains(x - ox, y - oy);
+    if (roi.getType() == Roi.RECTANGLE || roi.getType() == Roi.OVAL) {
+      return new BasicRoiContainsPredicate(roi);
+    } else if (roi.getType() == Roi.COMPOSITE) {
+      return new CompositeRoiContainsPredicate(roi);
+    } else if (roi.getType() == Roi.POLYGON || roi.getType() == Roi.FREEROI
+        || roi.getType() == Roi.TRACED_ROI) {
+      return new PolygonRoiContainsPredicate(roi);
+    }
+
+    return null;
   }
 }

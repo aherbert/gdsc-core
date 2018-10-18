@@ -51,7 +51,7 @@ public class DetectionGridTest {
 
     // Definition of insideness
     Assertions.assertArrayEquals(new int[0], g.find(10, 10));
-    g.includeOuterEdge = true;
+    g.setIncludeOuterEdge(true);
     Assertions.assertArrayEquals(new int[] {0, 1, 2}, g.find(10, 10));
   }
 

@@ -28,16 +28,12 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.core.logging.TrackProgress;
-
 import java.awt.Rectangle;
 
 /**
  * Store 2D coordinates shifted to the origin for efficient grid processing.
  */
 public class CoordinateStore implements Cloneable {
-  /** The tracker. */
-  protected TrackProgress tracker = null;
 
   /** The xcoords. */
   protected final float[] xcoord;
@@ -63,10 +59,12 @@ public class CoordinateStore implements Cloneable {
   public final int area;
 
   /**
-   * Input arrays are modified.
+   * Create a new instance.
    *
-   * @param xcoord the xcoord
-   * @param ycoord the ycoord
+   * <p>Input arrays are modified.
+   *
+   * @param xcoord the x coordinates
+   * @param ycoord the y coordinates
    * @param bounds the bounds
    * @throws IllegalArgumentException if results are null or empty
    */
@@ -185,24 +183,6 @@ public class CoordinateStore implements Cloneable {
       y[i] = ycoord[i];
     }
     return new double[][] {x, y};
-  }
-
-  /**
-   * Gets the tracker.
-   *
-   * @return the tracker
-   */
-  public TrackProgress getTracker() {
-    return tracker;
-  }
-
-  /**
-   * Sets the tracker.
-   *
-   * @param tracker the tracker to set
-   */
-  public void setTracker(TrackProgress tracker) {
-    this.tracker = tracker;
   }
 
   @Override

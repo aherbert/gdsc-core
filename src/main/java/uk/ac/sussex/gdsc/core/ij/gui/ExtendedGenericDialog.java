@@ -87,9 +87,11 @@ public class ExtendedGenericDialog extends GenericDialog {
     buttonRightBorder = (IJ.isMacOSX()) ? 3 : 1;
   }
 
-  private Component positionComponent = null;
+  private Component positionComponent;
 
-  private TurboList<OptionListener<?>> listeners;
+  private transient TurboList<OptionListener<?>> listeners;
+
+  private transient TurboList<OptionCollectedListener> optionCollectedListeners;
 
   /** The labels. Used to reset the recorder. */
   private final TurboList<String> labels = new TurboList<>();
@@ -99,11 +101,11 @@ public class ExtendedGenericDialog extends GenericDialog {
   private final JPanel panel = new JPanel();
 
   // Max unscrolled width
-  private int maxWidth = 0;
+  private int maxWidth;
   // Max unscrolled height
-  private int maxHeight = 0;
+  private int maxHeight;
 
-  private JButton lastOptionButton = null;
+  private JButton lastOptionButton;
 
   /**
    * The silent flag.
@@ -838,7 +840,7 @@ public class ExtendedGenericDialog extends GenericDialog {
   /**
    * An event generated when options are collected.
    */
-  public class OptionCollectedEvent {
+  public static class OptionCollectedEvent {
     private final String label;
 
     /**
@@ -878,8 +880,6 @@ public class ExtendedGenericDialog extends GenericDialog {
      */
     public void optionCollected(OptionCollectedEvent event);
   }
-
-  private TurboList<OptionCollectedListener> optionCollectedListeners = null;
 
   /**
    * Adds the option collected listener.

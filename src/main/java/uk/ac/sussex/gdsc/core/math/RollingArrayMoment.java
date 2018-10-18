@@ -328,12 +328,12 @@ public class RollingArrayMoment implements ArrayMoment {
 
   @Override
   public double[] getFirstMoment() {
-    return m1;
+    return (m1 == null) ? new double[0] : m1.clone();
   }
 
   @Override
   public double[] getSecondMoment() {
-    return m2;
+    return (m2 == null) ? new double[0] : m2.clone();
   }
 
   @Override
@@ -349,7 +349,7 @@ public class RollingArrayMoment implements ArrayMoment {
   @Override
   public double[] getVariance(boolean isBiasCorrected) {
     if (size == 0) {
-      return null;
+      return new double[0];
     }
     if (size == 1) {
       return new double[m2.length];
@@ -374,7 +374,7 @@ public class RollingArrayMoment implements ArrayMoment {
   @Override
   public double[] getStandardDeviation(boolean isBiasCorrected) {
     if (size == 0) {
-      return null;
+      return new double[0];
     }
     if (size == 1) {
       return new double[m2.length];

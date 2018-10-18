@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeAll;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
@@ -229,9 +230,9 @@ public class ClusteringEngineTest {
     final int time = 10;
     final ArrayList<ClusterPoint> points = createClusters(rg, 500, 1000, 2, radius / 2, time);
     final ClusteringEngine engine = new ClusteringEngine(0, algorithm);
-    final ArrayList<Cluster> exp = engine.findClusters(points, radius, time);
+    final List<Cluster> exp = engine.findClusters(points, radius, time);
     engine.setThreadCount(8);
-    final ArrayList<Cluster> obs = engine.findClusters(points, radius, time);
+    final List<Cluster> obs = engine.findClusters(points, radius, time);
     compareClusters(exp, obs);
   }
 
@@ -288,12 +289,12 @@ public class ClusteringEngineTest {
     // TestLog.debug(logger,"Testing n=%d, Size=%d, Density=%s um^-2, Radius=%s nm", n, size,
     // MathUtils.rounded(n * 1e6 / (size * size)), MathUtils.rounded(radius));
 
-    final ArrayList<Cluster> exp = findClusters(points, radius);
-    final ArrayList<Cluster> obs = engine.findClusters(points, radius);
+    final List<Cluster> exp = findClusters(points, radius);
+    final List<Cluster> obs = engine.findClusters(points, radius);
     compareClusters(exp, obs);
   }
 
-  private static void compareClusters(ArrayList<Cluster> exp, ArrayList<Cluster> obs)
+  private static void compareClusters(List<Cluster> exp, List<Cluster> obs)
       throws AssertionError {
     Collections.sort(exp);
     Collections.sort(obs);
@@ -310,7 +311,7 @@ public class ClusteringEngineTest {
     }
   }
 
-  private static void print(String name, ArrayList<Cluster> clusters) {
+  private static void print(String name, List<Cluster> clusters) {
     logger.info(FunctionUtils.getSupplier(name + " : size=%d", clusters.size()));
     for (int i = 0; i < clusters.size(); i++) {
       final Cluster c = clusters.get(i);

@@ -102,9 +102,10 @@ public class FastCorrelator {
    */
   private void addData(final int v1, final int v2) {
     sumx += v1;
-    sumxy += (v1 * v2);
-    sumxx += (v1 * v1);
-    sumyy += (v2 * v2);
+    // Use long multiplication
+    sumxy += ((long) v1 * v2);
+    sumxx += ((long) v1 * v1);
+    sumyy += ((long) v2 * v2);
     sumy += v2;
     count++;
   }

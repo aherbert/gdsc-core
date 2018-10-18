@@ -29,15 +29,16 @@
 package uk.ac.sussex.gdsc.core.ij.roi;
 
 /**
- * Base class for testing if coordinates are within an ROI.
+ * Interface for testing coordinates.
  */
-public abstract class RoiTest {
+@FunctionalInterface
+public interface CoordinatePredicate {
   /**
-   * Test if the coordinates are inside the ROI.
+   * Test the coordinates.
    *
    * @param x the x
    * @param y the y
    * @return true, if successful
    */
-  public abstract boolean contains(double x, double y);
+  public boolean test(double x, double y);
 }

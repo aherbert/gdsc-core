@@ -55,8 +55,21 @@ public class DAreaStatistics extends DAreaSum {
    * @param maxy the maxy
    * @throws IllegalArgumentException if maxx * maxy != data.length or data is null or length zero
    */
-  public DAreaStatistics(double[] data, int maxx, int maxy) throws IllegalArgumentException {
+  DAreaStatistics(double[] data, int maxx, int maxy) {
     super(data, maxx, maxy);
+  }
+
+  /**
+   * Create a new area statistics wrapping the provided data.
+   *
+   * @param data the data
+   * @param maxx the maxx
+   * @param maxy the maxy
+   * @return the area statistics
+   * @throws IllegalArgumentException if maxx * maxy != data.length or data is null or length zero
+   */
+  public static DAreaStatistics wrap(double[] data, int maxx, int maxy) {
+    return new DAreaStatistics(data, maxx, maxy);
   }
 
   @Override

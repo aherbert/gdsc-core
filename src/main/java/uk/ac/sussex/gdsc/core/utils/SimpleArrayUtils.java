@@ -959,4 +959,37 @@ public class SimpleArrayUtils {
         : Arrays.toString(    (Object[]) object);
     //@formatter:on
   }
+
+  /**
+   * Deep copy the values.
+   *
+   * @param values the values
+   * @return the copy
+   * @throws NullPointerException If any array reference is null
+   */
+  public static double[][] deepCopy(double[][] values) {
+    return Arrays.stream(values).map(double[]::clone).toArray(double[][]::new);
+  }
+
+  /**
+   * Deep copy the values.
+   *
+   * @param values the values
+   * @return the copy
+   * @throws NullPointerException If any array reference is null
+   */
+  public static float[][] deepCopy(float[][] values) {
+    return Arrays.stream(values).map(float[]::clone).toArray(float[][]::new);
+  }
+
+  /**
+   * Deep copy the values.
+   *
+   * @param values the values
+   * @return the copy
+   * @throws NullPointerException If any array reference is null
+   */
+  public static int[][] deepCopy(int[][] values) {
+    return Arrays.stream(values).map(int[]::clone).toArray(int[][]::new);
+  }
 }

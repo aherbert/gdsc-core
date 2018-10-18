@@ -332,9 +332,26 @@ public class StoredData implements Iterable<Double>, DoubleData {
   }
 
   /**
-   * Clear the store (but keep the capacity).
+   * Clear the store.
    */
   public void clear() {
+    clear(0);
+  }
+
+  /**
+   * Clear the store and resize to the given capacity.
+   *
+   * @param capacity the capacity
+   */
+  public void clear(int capacity) {
+    size = 0;
+    values = new double[capacity];
+  }
+
+  /**
+   * Reset the store (but keep the capacity).
+   */
+  public void reset() {
     size = 0;
   }
 

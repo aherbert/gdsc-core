@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.data;
 
+import java.util.Arrays;
+
 /**
  * Provide data on 2-axes from an array of doubles.
  */
@@ -94,6 +96,6 @@ public class DoubleArrayBivalueProvider implements BivalueProvider {
 
   @Override
   public double[][] toArray() {
-    return val;
+    return Arrays.stream(val).map(double[]::clone).toArray(double[][]::new);
   }
 }

@@ -57,6 +57,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.function.DoublePredicate;
 
 /**
  * Function that implements the <a href="http://en.wikipedia.org/wiki/Tricubic_interpolation">
@@ -275,7 +276,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     final int lastK = zLen - 1;
     splines = new CustomTricubicFunction[lastI][lastJ][lastK];
 
-    final long total = (long)lastI * lastJ * lastK;
+    final long total = (long) lastI * lastJ * lastK;
     taskSize = Math.max(1, taskSize);
 
     final boolean threaded = executorService != null && taskSize < total;
@@ -547,7 +548,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     return scale;
   }
 
-  //@CHECKSTYLE.OFF: ParameterName
+  // @CHECKSTYLE.OFF: ParameterName
 
   private void buildInteger(final TrivalueProvider f, final TrivalueProvider dFdX,
       final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
@@ -728,7 +729,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
         : new DoubleCustomTricubicFunction(a);
   }
 
-  //@CHECKSTYLE.ON: ParameterName
+  // @CHECKSTYLE.ON: ParameterName
 
   /**
    * Instantiates a new custom tricubic interpolating function.
@@ -744,10 +745,10 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    *         increasing.
    */
   //@formatter:off
-  public CustomTricubicInterpolatingFunction(double[] x,
-                                             double[] y,
-                                             double[] z,
-                                             CustomTricubicFunction[][][] splines) {
+  CustomTricubicInterpolatingFunction(double[] x,
+                                      double[] y,
+                                      double[] z,
+                                      CustomTricubicFunction[][][] splines) {
     this(new DoubleArrayValueProvider(x),
        new DoubleArrayValueProvider(y),
        new DoubleArrayValueProvider(z),
@@ -769,10 +770,10 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    *         increasing.
    */
   //@formatter:off
-  public CustomTricubicInterpolatingFunction(ValueProvider x,
-                                             ValueProvider y,
-                                             ValueProvider z,
-                                             CustomTricubicFunction[][][] splines) {
+  CustomTricubicInterpolatingFunction(ValueProvider x,
+                                      ValueProvider y,
+                                      ValueProvider z,
+                                      CustomTricubicFunction[][][] splines) {
     //@formatter:on
     final int xLen = x.getLength();
     final int yLen = y.getLength();
@@ -2308,6 +2309,18 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     return isInteger;
   }
 
+  @FunctionalInterface
+  private interface DoubleBiPredicate {
+    /**
+     * Test the two values.
+     *
+     * @param d1 the first {@code double}
+     * @param d2 the second {@code double}
+     * @return the result
+     */
+    boolean test(double d1, double d2);
+  }
+
   /**
    * Perform n refinements of a binary search to find the optimum value. The search finds the spline
    * node that has the optimum value. If refinements are performed then 8 vertices of the node cube
@@ -2343,13 +2356,18 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     int ox = 0;
     int oy = 0;
     int oz = 0;
-    final int dir = (maximum) ? Double.compare(2, 1) : Double.compare(1, 2);
+    // Set the test to determine is the value is an improvement
+    final DoubleBiPredicate valueIsBetter = (maximum)
+        // Higher
+        ? (d1, d2) -> d1 > d2
+        // Lower
+        : (d1, d2) -> d1 < d2;
     for (int x = 0; x < maxx; x++) {
       for (int y = 0; y < maxy; y++) {
         for (int z = 0; z < maxz; z++) {
-          final double v = splines[x][y][z].value000();
-          if (Double.compare(v, optimumValue) == dir) {
-            optimumValue = v;
+          final double value = splines[x][y][z].value000();
+          if (valueIsBetter.test(value, optimumValue)) {
+            optimumValue = value;
             ox = x;
             oy = y;
             oz = z;
@@ -2362,23 +2380,31 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
       return new double[] {xval[ox], yval[oy], zval[oz], optimumValue};
     }
 
-    // We want to do refinement within the cube of the optimum node
-    // Evaluate the gradient at the node position so we pick the correct node
+    // We want to do refinement within the cube of the optimum node.
+    // Evaluate the gradient at the node position to test how the value will change as
+    // the optimum point (ox,oy,oz) is increased.
     final double[] derivative1 = new double[3];
     splines[ox][oy][oz].value000(derivative1);
 
     // Check if moving in the wrong direction.
+    // A maximum search requires the gradient to be positive.
+    // A minimum search requires the gradient to be negative.
     // If the gradient is zero then keep the same node as we already know this is the
     // optimum point. A cubic polynomial between this and the next node with zero gradient
     // would require a lower neighbour node or a flat line between them making them equal
     // for interpolation.
-    if (Double.compare(derivative1[0], 0) == -dir) {
+    final DoublePredicate gradientIsWrongDirection = (maximum)
+        // Maximum search: if the gradient is negative this is the wrong direction
+        ? d1 -> d1 < 0
+        // Minimum search: if the gradient is positive this is the wrong direction
+        : d1 -> d1 > 0;
+    if (gradientIsWrongDirection.test(derivative1[0])) {
       ox = Math.max(0, ox - 1);
     }
-    if (Double.compare(derivative1[1], 0) == -dir) {
+    if (gradientIsWrongDirection.test(derivative1[1])) {
       oy = Math.max(0, oy - 1);
     }
-    if (Double.compare(derivative1[2], 0) == -dir) {
+    if (gradientIsWrongDirection.test(derivative1[2])) {
       oz = Math.max(0, oz - 1);
     }
 
@@ -2392,7 +2418,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     return optimum;
   }
 
-  //@CHECKSTYLE.OFF: ParameterName
+  // @CHECKSTYLE.OFF: ParameterName
 
   /**
    * Create a tricubic interpolating function for interpolation between 0 and 1. The input must have

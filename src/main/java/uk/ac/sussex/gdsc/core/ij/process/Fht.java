@@ -248,86 +248,6 @@ public class Fht extends FloatProcessor {
    * @param inverse True for inverse transform.
    * @param maxN Length of data that should be transformed; this must be always the same for a given
    *        FHT object. Note that all amplitudes in the output 'x' are multiplied by maxN.
-   */
-  @SuppressWarnings("unused")
-  private void dfht3(float[] x, int base, boolean inverse, int maxN) {
-
-    final int log2N = log2(maxN);
-    bitRevRArr(x, base, maxN); // bitReverse the input array
-    int gpSize = 2; // first & second stages - do radix 4 butterflies once thru
-    int numGps = maxN / 4;
-    for (int gpNum = 0; gpNum < numGps; gpNum++) {
-      final int ad1 = gpNum * 4;
-      final int ad2 = ad1 + 1;
-      final int ad3 = ad1 + gpSize;
-      final int ad4 = ad2 + gpSize;
-      final float rt1 = x[base + ad1] + x[base + ad2]; // a + b
-      final float rt2 = x[base + ad1] - x[base + ad2]; // a - b
-      final float rt3 = x[base + ad3] + x[base + ad4]; // c + d
-      final float rt4 = x[base + ad3] - x[base + ad4]; // c - d
-      x[base + ad1] = rt1 + rt3; // a + b + (c + d)
-      x[base + ad2] = rt2 + rt4; // a - b + (c - d)
-      x[base + ad3] = rt1 - rt3; // a + b - (c + d)
-      x[base + ad4] = rt2 - rt4; // a - b - (c - d)
-    }
-
-    if (log2N > 2) {
-      // third + stages computed here
-      gpSize = 4;
-      int numBfs = 2;
-      numGps = numGps / 2;
-      for (int stage = 2; stage < log2N; stage++) {
-        for (int gpNum = 0; gpNum < numGps; gpNum++) {
-          final int ad0 = gpNum * gpSize * 2;
-          int ad1 = ad0; // 1st butterfly is different from others - no mults needed
-          int ad2 = ad1 + gpSize;
-          int ad3 = ad1 + gpSize / 2;
-          int ad4 = ad3 + gpSize;
-          float rt1 = x[base + ad1];
-          x[base + ad1] = x[base + ad1] + x[base + ad2];
-          x[base + ad2] = rt1 - x[base + ad2];
-          rt1 = x[base + ad3];
-          x[base + ad3] = x[base + ad3] + x[base + ad4];
-          x[base + ad4] = rt1 - x[base + ad4];
-          for (int bfNum = 1; bfNum < numBfs; bfNum++) {
-            // subsequent BF's dealt with together
-            ad1 = bfNum + ad0;
-            ad2 = ad1 + gpSize;
-            ad3 = gpSize - bfNum + ad0;
-            ad4 = ad3 + gpSize;
-
-            final int csAd = bfNum * numGps;
-            rt1 = x[base + ad2] * cosTable[csAd] + x[base + ad4] * sinTable[csAd];
-            final float rt2 = x[base + ad4] * cosTable[csAd] - x[base + ad2] * sinTable[csAd];
-
-            x[base + ad2] = x[base + ad1] - rt1;
-            x[base + ad1] = x[base + ad1] + rt1;
-            x[base + ad4] = x[base + ad3] + rt2;
-            x[base + ad3] = x[base + ad3] - rt2;
-
-          } /* end bfNum loop */
-        } /* end gpNum loop */
-        gpSize *= 2;
-        numBfs *= 2;
-        numGps = numGps / 2;
-      } /* end for all stages */
-    } /* end if log2N > 2 */
-
-    if (inverse) {
-      for (int i = 0; i < maxN; i++) {
-        x[base + i] = x[base + i] / maxN;
-      }
-    }
-  }
-
-  /**
-   * Performs an optimized 1D FHT of an array or part of an array.
-   *
-   * @param x Input array; will be overwritten by the output in the range given by base and maxN.
-   * @param base First index from where data of the input array should be read.
-   * @param inverse True for inverse transform.
-   * @param maxN Length of data that should be transformed; this must be always the same for a given
-   *        FHT object. Note that all amplitudes in the output 'x' are multiplied by maxN.
    * @param x2 the working data buffer
    */
   private void dfht3(float[] x, int base, boolean inverse, int maxN, float[] x2) {
@@ -435,15 +355,6 @@ public class Fht extends FloatProcessor {
     return ((x & (1 << bit)) != 0);
   }
 
-  private void bitRevRArr(float[] x, int base, int maxN) {
-    for (int i = 0; i < maxN; i++) {
-      tempArr[i] = x[base + bitrev[i]];
-    }
-    for (int i = 0; i < maxN; i++) {
-      x[base + i] = tempArr[i];
-    }
-  }
-
   private void bitRevRArr(float[] x, int maxN) {
     for (int i = 0; i < maxN; i++) {
       tempArr[i] = x[bitrev[i]];
@@ -455,7 +366,7 @@ public class Fht extends FloatProcessor {
 
   /**
    * Converts this FHT to a complex Fourier transform and returns it as a two slice stack.
-   * 
+   *
    * <p>This has been adapted from the routine {@link #getComplexTransform()} to compute the real
    * and imaginary parts of the transform at the same time.
    *
@@ -482,7 +393,7 @@ public class Fht extends FloatProcessor {
 
   /**
    * Converts this FHT to a complex Fourier transform and returns it as a two slice stack.
-   * 
+   *
    * <p>This has been adapted from the routine {@link #getComplexTransform()} to compute the real
    * and imaginary parts of the transform at the same time.
    *

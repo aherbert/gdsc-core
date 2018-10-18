@@ -66,6 +66,6 @@ public class DoubleArrayValueProvider implements ValueProvider {
 
   @Override
   public double[] toArray() {
-    return val;
+    return val.clone();
   }
 }

@@ -253,8 +253,7 @@ class GridMoleculeSpace extends MoleculeSpace {
     // newResolution = 4;
     // else
     // // When there are a lot more molecules then the speed is limited by the all-vs-all
-    // comparison,
-    // // not finding the molecules so this is an upper limit.
+    // comparison, not finding the molecules so this is an upper limit.
     // newResolution = 5;
 
     resolution = Math.min(newResolution, resolution);

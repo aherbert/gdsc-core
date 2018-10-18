@@ -28,6 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.data;
 
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+
+import java.util.Arrays;
+
 /**
  * Provide data on 3-axes from an array of doubles.
  */
@@ -129,6 +133,8 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider {
 
   @Override
   public double[][][] toArray() {
-    return val;
+    return Arrays.stream(val).map(
+        // Function to clone each double[][] element of double[][][]
+        SimpleArrayUtils::deepCopy).toArray(double[][][]::new);
   }
 }
