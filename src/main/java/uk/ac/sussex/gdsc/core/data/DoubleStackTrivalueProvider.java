@@ -34,29 +34,32 @@ package uk.ac.sussex.gdsc.core.data;
 public class DoubleStackTrivalueProvider implements TrivalueProvider {
   private final int maxx;
   private final int maxy;
-  private final double[][] val;
+  private final double[][] data;
 
   /**
-   * Instantiates a new double stack trivalue provider.
+   * Creates a new instance.
    *
-   * @param val the stack of values. Each array is packed in yx order.
+   * <p>The input array in wrapped; that is, modifications to the array will cause the provided data
+   * to be modified.
+   *
+   * @param data the stack of values. Each array is packed in yx order.
    * @param maxx the length in the x-dimension
    * @param maxy the length in the y-dimension
-   * @throws DataException If the stack is missing data
+   * @throws DataException If any dimension is length zero or if there is a dimension mismatch
    */
-  public DoubleStackTrivalueProvider(double[][] val, int maxx, int maxy) throws DataException {
-    if (val.length == 0) {
+  public DoubleStackTrivalueProvider(double[][] data, int maxx, int maxy) {
+    if (data.length == 0) {
       throw new DataException("No data");
     }
     final int size = maxx * maxy;
-    for (int z = 0; z < val.length; z++) {
-      if (size != val[z].length) {
+    for (int z = 0; z < data.length; z++) {
+      if (size != data[z].length) {
         throw new DataException("XY data must be length " + size);
       }
     }
-    this.val = val;
     this.maxx = maxx;
     this.maxy = maxy;
+    this.data = data;
   }
 
   @Override
@@ -71,7 +74,7 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider {
 
   @Override
   public int getLengthZ() {
-    return val.length;
+    return data.length;
   }
 
   /**
@@ -87,7 +90,7 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider {
 
   @Override
   public double get(int x, int y, int z) {
-    return val[z][getIndex(x, y)];
+    return data[z][getIndex(x, y)];
   }
 
   @Override
@@ -105,43 +108,43 @@ public class DoubleStackTrivalueProvider implements TrivalueProvider {
     final int cZ = z;
     final int nZ = z + 1;
 
-    values[0][0][0] = val[pZ][pXpY];
-    values[0][0][1] = val[cZ][pXpY];
-    values[0][0][2] = val[nZ][pXpY];
-    values[0][1][0] = val[pZ][pXcY];
-    values[0][1][1] = val[cZ][pXcY];
-    values[0][1][2] = val[nZ][pXcY];
-    values[0][2][0] = val[pZ][pXnY];
-    values[0][2][1] = val[cZ][pXnY];
-    values[0][2][2] = val[nZ][pXnY];
-    values[1][0][0] = val[pZ][cXpY];
-    values[1][0][1] = val[cZ][cXpY];
-    values[1][0][2] = val[nZ][cXpY];
-    values[1][1][0] = val[pZ][cXcY];
-    values[1][1][1] = val[cZ][cXcY];
-    values[1][1][2] = val[nZ][cXcY];
-    values[1][2][0] = val[pZ][cXnY];
-    values[1][2][1] = val[cZ][cXnY];
-    values[1][2][2] = val[nZ][cXnY];
-    values[2][0][0] = val[pZ][nXpY];
-    values[2][0][1] = val[cZ][nXpY];
-    values[2][0][2] = val[nZ][nXpY];
-    values[2][1][0] = val[pZ][nXcY];
-    values[2][1][1] = val[cZ][nXcY];
-    values[2][1][2] = val[nZ][nXcY];
-    values[2][2][0] = val[pZ][nXnY];
-    values[2][2][1] = val[cZ][nXnY];
-    values[2][2][2] = val[nZ][nXnY];
+    values[0][0][0] = data[pZ][pXpY];
+    values[0][0][1] = data[cZ][pXpY];
+    values[0][0][2] = data[nZ][pXpY];
+    values[0][1][0] = data[pZ][pXcY];
+    values[0][1][1] = data[cZ][pXcY];
+    values[0][1][2] = data[nZ][pXcY];
+    values[0][2][0] = data[pZ][pXnY];
+    values[0][2][1] = data[cZ][pXnY];
+    values[0][2][2] = data[nZ][pXnY];
+    values[1][0][0] = data[pZ][cXpY];
+    values[1][0][1] = data[cZ][cXpY];
+    values[1][0][2] = data[nZ][cXpY];
+    values[1][1][0] = data[pZ][cXcY];
+    values[1][1][1] = data[cZ][cXcY];
+    values[1][1][2] = data[nZ][cXcY];
+    values[1][2][0] = data[pZ][cXnY];
+    values[1][2][1] = data[cZ][cXnY];
+    values[1][2][2] = data[nZ][cXnY];
+    values[2][0][0] = data[pZ][nXpY];
+    values[2][0][1] = data[cZ][nXpY];
+    values[2][0][2] = data[nZ][nXpY];
+    values[2][1][0] = data[pZ][nXcY];
+    values[2][1][1] = data[cZ][nXcY];
+    values[2][1][2] = data[nZ][nXcY];
+    values[2][2][0] = data[pZ][nXnY];
+    values[2][2][1] = data[cZ][nXnY];
+    values[2][2][2] = data[nZ][nXnY];
   }
 
   @Override
   public double[][][] toArray() {
     final double[][][] xyz = new double[maxx][maxy][getLengthZ()];
-    for (int z = 0; z < val.length; z++) {
-      final double[] data = val[z];
+    for (int z = 0; z < data.length; z++) {
+      final double[] data2D = data[z];
       for (int y = 0, i = 0; y < maxy; y++) {
         for (int x = 0; x < maxx; x++, i++) {
-          xyz[x][y][z] = data[i];
+          xyz[x][y][z] = data2D[i];
         }
       }
     }

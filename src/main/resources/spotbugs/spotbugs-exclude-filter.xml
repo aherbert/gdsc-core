@@ -142,4 +142,28 @@
     <Bug pattern="EI_EXPOSE_REP2" />
   </Match>
 
+  <Match>
+    <Or>
+      <Class name="uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider" />
+      <Class name="uk.ac.sussex.gdsc.core.data.DoubleArrayBivalueProvider" />
+      <Class name="uk.ac.sussex.gdsc.core.data.DoubleArrayTrivalueProvider" />
+      <Class name="uk.ac.sussex.gdsc.core.data.DoubleStackTrivalueProvider" />
+      <Class name="uk.ac.sussex.gdsc.core.data.FloatStackTrivalueProvider" />
+    </Or>
+    <!-- The constructors deliberately wraps the array -->
+    <Method name="&lt;init&gt;" />
+    <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+
+  <Match>
+    <Or>
+      <Class name="uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider" />
+      <Class name="uk.ac.sussex.gdsc.core.data.DoubleArrayBivalueProvider" />
+      <Class name="uk.ac.sussex.gdsc.core.data.DoubleArrayTrivalueProvider" />
+    </Or>
+    <!-- This deliberately exposes the internal array -->
+    <Method name="toArray" />
+    <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+
 </FindBugsFilter>
