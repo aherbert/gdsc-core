@@ -164,7 +164,11 @@ public class SeriesOpener {
   public ImagePlus nextImage() {
     ImagePlus imp = null;
     while (currentImage < imageList.length && imp == null) {
+      Utils.showSlowProgress(currentImage, imageList.length);
       imp = openImage(imageList[currentImage++]);
+      if (currentImage == imageList.length) {
+        Utils.clearSlowProgress();
+      }
     }
     return imp;
   }
@@ -172,9 +176,7 @@ public class SeriesOpener {
   private ImagePlus openImage(String filename) {
     final Opener opener = new Opener();
     opener.setSilentMode(true);
-    Utils.setShowProgress(false);
     ImagePlus imp = opener.openImage(path, filename);
-    Utils.setShowProgress(true);
     if (imp != null) {
       // Initialise dimensions using first image
       if (width == -1) {
@@ -399,15 +401,10 @@ public class SeriesOpener {
      */
     public int getNumber(Object field) {
       final TextField tf = (TextField) field;
-      final String theText = tf.getText();
-      Double value;
       try {
-        value = new Double(theText);
+        return Integer.parseInt(tf.getText());
       } catch (final NumberFormatException ex) {
-        value = null;
-      }
-      if (value != null) {
-        return (int) value.doubleValue();
+        // Not an integer
       }
       return 0;
     }

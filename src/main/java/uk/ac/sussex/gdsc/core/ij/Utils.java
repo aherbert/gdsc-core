@@ -32,6 +32,7 @@ import uk.ac.sussex.gdsc.core.ij.gui.Plot2;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.utils.DoubleData;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.core.utils.StoredDataStatistics;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
@@ -79,6 +80,9 @@ import java.awt.Rectangle;
 import java.awt.Window;
 import java.io.File;
 import java.lang.reflect.Field;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -145,10 +149,40 @@ public class Utils {
   /** Used to record extra options in the macro recorder. */
   private static final String EXTRA_OPTIONS = "extraoptions";
 
-  private static boolean newWindow = false;
+  private static boolean newWindow;
 
   /** The last time to status was updated. */
-  private static long lastTime = 0;
+  private static long lastTime;
+
+  /** The default method to select the histogram bins. Used if the input number of bins is zero. */
+  public static BinMethod defaultMethod = BinMethod.SCOTT;
+
+  /** The x values from the last histogram plotted. */
+  public static double[] xValues;
+  /** The y values from the last histogram plotted. */
+  public static double[] yValues;
+  /** The x min from the last histogram plotted. */
+  public static double xMin;
+  /** The x max from the last histogram plotted. */
+  public static double xMax;
+  /** The y min from the last histogram plotted. */
+  public static double yMin;
+  /** The y max from the last histogram plotted. */
+  public static double yMax;
+  /** The last histogram plotted. */
+  public static Plot2 plot;
+
+  private static final int STATUS_OFF = -1;
+  private static final int STATUS_UNKNOWN = 0;
+  private static final int STATUS_ON = 1;
+
+  private static int statusLineStatus;
+  private static int isShowStatusLine;
+  private static JLabel statusLine;
+
+  private static int progressBarStatus;
+  private static int isShowProgress;
+  private static ProgressBar progressBar;
 
   /**
    * Splits a full path into the directory and filename.
@@ -455,18 +489,12 @@ public class Utils {
           // Setting the limits before drawing avoids a double draw
           plot.setLimits(limits[0], limits[1], limits[2], limits[3]);
           flags = 0;
-        }
-        // If only some of the limits are to be preserved then we must get the current default
-        // min/max.
-        // This cannot be done for a Plot class but we can do it for Plot2 (which makes public extra
-        // functionality).
-        if ((flags & PRESERVE_ALL) != 0 && plot instanceof Plot2) {
-          final Plot2 p2 = (Plot2) plot;
-          final double[] currentLimits = p2.getDefaultMinAndMax();
-          if (currentLimits != null) {
-            preserveLimits(plot, flags, limits, currentLimits);
-            flags = 0;
-          }
+        } else if ((flags & PRESERVE_ALL) != 0) {
+          // If only some of the limits are to be preserved then we use the default
+          // auto-range using NaN.
+          final double[] currentLimits = SimpleArrayUtils.newDoubleArray(limits.length, Double.NaN);
+          preserveLimits(plot, flags, limits, currentLimits);
+          flags = 0;
         }
         plotWindow.drawPlot(plot);
         preserveLimits(plot, flags, limits);
@@ -516,8 +544,8 @@ public class Utils {
   }
 
   /**
-   * Preserve limits the limits from the input array for all the set flags. Otherwise use the
-   * current plot limits.
+   * Preserve the limits from the input array for all the set flags. Otherwise use the current plot
+   * limits.
    *
    * @param plot the plot
    * @param preserveLimits the preserve limits flag
@@ -529,8 +557,8 @@ public class Utils {
   }
 
   /**
-   * Preserve limits the limits from the input array for all the set flags. Otherwise use the
-   * current plot limits.
+   * Preserve the limits from the input array for all the set flags. Otherwise use the current plot
+   * limits.
    *
    * @param plot the plot
    * @param preserveLimits the preserve limits flag
@@ -1134,9 +1162,6 @@ public class Utils {
     SQRT
   }
 
-  /** The default method to select the histogram bins. Used if the input number of bins is zero. */
-  public static BinMethod defaultMethod = BinMethod.SCOTT;
-
   /**
    * Gets the bins.
    *
@@ -1237,21 +1262,6 @@ public class Utils {
     return (int) Math.ceil(Math.sqrt(n));
   }
 
-  /** The x values from the last histogram plotted. */
-  public static double[] xValues;
-  /** The y values from the last histogram plotted. */
-  public static double[] yValues;
-  /** The x min from the last histogram plotted. */
-  public static double xMin;
-  /** The x max from the last histogram plotted. */
-  public static double xMax;
-  /** The y min from the last histogram plotted. */
-  public static double yMin;
-  /** The y max from the last histogram plotted. */
-  public static double yMax;
-  /** The last histogram plotted. */
-  public static Plot2 plot;
-
   /**
    * Checks if is new window.
    *
@@ -1261,21 +1271,19 @@ public class Utils {
     return newWindow;
   }
 
-  private static int PROGRESS_BAR_STATUS = 0;
-  private static int IS_SHOW_PROGRESS = 0;
-  private static ProgressBar progressBar = null;
-
   /**
    * Gets the ImageJ GUI progress bar.
    *
    * @return the progress bar (or null if there is no ImageJ instance)
+   * @deprecated This should not be done and other workarounds should be found!
    */
-  public static ProgressBar getProgressBar() {
-    if (PROGRESS_BAR_STATUS == 0) {
+  @Deprecated
+  public static synchronized ProgressBar getProgressBar() {
+    if (progressBarStatus == STATUS_UNKNOWN) {
       if (IJ.getInstance() != null) {
         progressBar = IJ.getInstance().getProgressBar();
       }
-      PROGRESS_BAR_STATUS = (progressBar == null) ? -1 : 1;
+      progressBarStatus = (progressBar == null) ? STATUS_OFF : STATUS_ON;
     }
     return progressBar;
   }
@@ -1284,20 +1292,24 @@ public class Utils {
    * Checks if the ImageJ status bar is not null.
    *
    * @return true, if is show progress
+   * @deprecated This should not be done and other workarounds should be found!
    */
-  public static boolean isShowProgress() {
-    return IS_SHOW_PROGRESS != -1;
+  @Deprecated
+  public static synchronized boolean isShowProgress() {
+    return isShowProgress != STATUS_OFF;
   }
 
   /**
    * Use reflection to replace the progress bar with null.
    *
    * @param showProgress Set to true to disable the progress bar
+   * @deprecated This should not be done and other workarounds should be found!
    */
-  public static void setShowProgress(boolean showProgress) {
+  @Deprecated
+  public static synchronized void setShowProgress(boolean showProgress) {
     getProgressBar();
 
-    if (PROGRESS_BAR_STATUS == -1) {
+    if (progressBarStatus == STATUS_OFF) {
       return;
     }
 
@@ -1309,37 +1321,84 @@ public class Utils {
     }
 
     try {
-      final Field f = IJ.class.getDeclaredField("progressBar");
-      f.setAccessible(true);
-      f.set(IJ.class, newProgressBar);
-      IS_SHOW_PROGRESS = (showProgress) ? 1 : -1;
-    } catch (final Exception ex) {
-      IS_SHOW_PROGRESS = 0;
-      PROGRESS_BAR_STATUS = -1;
+      isShowProgress = AccessController.doPrivileged(new PrivilegedExceptionAction<Integer>() {
+        @Override
+        public Integer run() throws NoSuchFieldException, IllegalAccessException {
+          final Field f = IJ.class.getDeclaredField("progressBar");
+          f.setAccessible(true);
+          f.set(IJ.class, newProgressBar);
+          return (showProgress) ? STATUS_ON : STATUS_OFF;
+        }
+      });
+    } catch (final PrivilegedActionException | SecurityException | IllegalArgumentException ex) {
+      isShowProgress = STATUS_UNKNOWN;
+      progressBarStatus = STATUS_OFF;
     }
   }
 
-  private static int STATUS_LINE_STATUS = 0;
-  private static int IS_SHOW_STATUS_LINE = 0;
-  private static JLabel statusLine = null;
+  /**
+   * Show the slow part of the dual progress.
+   *
+   * <p>The dual progress bar works if the progress is negative and between 0 exclusive and -1
+   * exclusive. So the progress is set using:
+   *
+   * <pre>
+   * -(currentIndex + 0.5) / finalIndex
+   * </pre>
+   *
+   * <p>The progress will show a dual progress as long as currentIndex is below finalIndex, e.g. in
+   * a loop:
+   *
+   * <pre>
+   * <code>
+   * int size = 10;
+   * for (int i = 0; i < size; i++) {
+   *   showDualProgress(i, size);
+   *   // .. do something that updates the progress bar from 0 to 1.
+   *   // This will be shown as the fast progress.
+   * }
+   * </code>
+   * </pre>
+   *
+   * <p>The dual progress bar can be cleared using {@link IJ#showProgress(double)} with an argument
+   * of -1.
+   *
+   * @param currentIndex the current index
+   * @param finalIndex the final index
+   */
+  public static void showSlowProgress(int currentIndex, int finalIndex) {
+    IJ.showProgress(-(currentIndex + 0.5) / finalIndex);
+  }
+
+  /**
+   * Clear the progress bar including the slow part of the dual progress.
+   *
+   * <p>The dual progress bar can be cleared using {@link IJ#showProgress(double)} with an argument
+   * of -1.
+   */
+  public static void clearSlowProgress() {
+    IJ.showProgress(-1);
+  }
 
   /**
    * Gets the ImageJ GUI status bar label.
    *
    * @return the status bar label
+   * @deprecated This should not be done and other workarounds should be found!
    */
-  public static JLabel getStatusLine() {
-    if (STATUS_LINE_STATUS == 0) {
+  @Deprecated
+  public static synchronized JLabel getStatusLine() {
+    if (statusLineStatus == STATUS_UNKNOWN) {
       if (IJ.getInstance() != null) {
         final Panel statusBar = IJ.getInstance().getStatusBar();
         for (final Component c : statusBar.getComponents()) {
           if (c instanceof JLabel) {
-            statusLine = (JLabel) statusBar.getComponent(0);
+            statusLine = (JLabel) statusBar.getComponent(STATUS_UNKNOWN);
             break;
           }
         }
       }
-      STATUS_LINE_STATUS = (statusLine == null) ? -1 : 1;
+      statusLineStatus = (statusLine == null) ? STATUS_OFF : STATUS_ON;
     }
     return statusLine;
   }
@@ -1348,20 +1407,24 @@ public class Utils {
    * Checks if the ImageJ status bar label is not null.
    *
    * @return true, if is show status
+   * @deprecated This should not be done and other workarounds should be found!
    */
-  public static boolean isShowStatus() {
-    return IS_SHOW_STATUS_LINE != -1;
+  @Deprecated
+  public static synchronized boolean isShowStatus() {
+    return isShowStatusLine != STATUS_OFF;
   }
 
   /**
    * Use reflection to replace the status bar label with null.
    *
    * @param showStatus Set to true to disable the status bar
+   * @deprecated This should not be done and other workarounds should be found!
    */
-  public static void setShowStatus(boolean showStatus) {
+  @Deprecated
+  public static synchronized void setShowStatus(boolean showStatus) {
     getStatusLine();
 
-    if (STATUS_LINE_STATUS == -1) {
+    if (statusLineStatus == STATUS_OFF) {
       return;
     }
 
@@ -1374,14 +1437,19 @@ public class Utils {
     }
 
     try {
-      final ImageJ ij = IJ.getInstance();
-      final Field f = ij.getClass().getDeclaredField("statusLine");
-      f.setAccessible(true);
-      f.set(ij, newStatusLine);
-      IS_SHOW_STATUS_LINE = (showStatus) ? 1 : -1;
-    } catch (final Exception ex) {
-      IS_SHOW_STATUS_LINE = 0;
-      STATUS_LINE_STATUS = -1;
+      isShowStatusLine = AccessController.doPrivileged(new PrivilegedExceptionAction<Integer>() {
+        @Override
+        public Integer run() throws NoSuchFieldException, IllegalAccessException {
+          final ImageJ ij = IJ.getInstance();
+          final Field f = ij.getClass().getDeclaredField("statusLine");
+          f.setAccessible(true);
+          f.set(ij, newStatusLine);
+          return (showStatus) ? STATUS_ON : STATUS_OFF;
+        }
+      });
+    } catch (final PrivilegedActionException | SecurityException | IllegalArgumentException ex) {
+      isShowStatusLine = STATUS_UNKNOWN;
+      statusLineStatus = STATUS_OFF;
     }
   }
 

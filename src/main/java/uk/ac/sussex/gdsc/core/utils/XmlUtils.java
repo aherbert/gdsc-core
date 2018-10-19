@@ -33,11 +33,15 @@ import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -196,7 +200,9 @@ public class XmlUtils {
   }
 
   /**
-   * Formats an XML string for pretty printing. Requires Java 1.6.
+   * Formats an XML string for pretty printing.
+   *
+   * <p>Any XML parser exceptions are ignored and the method returns the input string.
    *
    * @param xml the xml
    * @return pretty-print formatted XML
@@ -220,23 +226,28 @@ public class XmlUtils {
       writer.getDomConfig().setParameter("xml-declaration", keepDeclaration);
 
       return writer.writeToString(document);
-    } catch (final Exception ex) {
-      throw new RuntimeException(ex);
+    } catch (SAXException | IOException | ParserConfigurationException | ClassNotFoundException
+        | InstantiationException | IllegalAccessException | ClassCastException ex) {
+      // Ignore and return the input string
     }
+    return xml;
   }
 
   /**
-   * Return the contents of the node as a string. Any exceptions are ignored and the method returns
-   * an empty string.
+   * Return the contents of the node as a string.
+   *
+   * <p>Any exceptions are ignored and the method returns an empty string.
    *
    * @param node the node
    * @param indent Indent the XML when formatting
    * @return The node contents
    */
   public static String getString(Node node, boolean indent) {
-    Transformer transformer;
     try {
-      transformer = TransformerFactory.newInstance().newTransformer();
+      TransformerFactory factory = TransformerFactory.newInstance();
+      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+      Transformer transformer = factory.newTransformer();
       transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
       transformer.setOutputProperty(OutputKeys.INDENT, (indent) ? "yes" : "no");
 

@@ -37,140 +37,10 @@ import java.awt.Color;
  *
  * @see LUT
  */
-public class LutHelper {
-  /**
-   * The LUT Colour.
-   */
-  public enum LutColour {
-
-    /** The red hot LUT. */
-    RED_HOT("Red-Hot"),
-
-    /** The ice LUT. */
-    ICE("Ice"),
-
-    /** The rainbow LUT. */
-    RAINBOW("Rainbow"),
-
-    /** The fire LUT. */
-    FIRE("Fire"),
-
-    /** The fire light LUT. */
-    FIRE_LIGHT("FireLight"),
-
-    /** The fire glow LUT. */
-    FIRE_GLOW("FireGlow"),
-
-    /** The red yellow LUT. */
-    RED_YELLOW("Red-Yellow"),
-
-    /** The red LUT. */
-    RED("Red"),
-
-    /** The green LUT. */
-    GREEN("Green"),
-
-    /** The blue LUT. */
-    BLUE("Blue"),
-
-    /** The cyan LUT. */
-    CYAN("Cyan"),
-
-    /** The magenta LUT. */
-    MAGENTA("Magenta"),
-
-    /** The yellow LUT. */
-    YELLOW("Yellow"),
-
-    /** The red blue LUT. */
-    RED_BLUE("Red-Blue"),
-
-    /** The intense LUT. */
-    INTENSE("Intense") {
-      @Override
-      public boolean isDistinct() {
-        return true;
-      }
-    },
-
-    /** The pimp LUT. */
-    PIMP("Pimp") {
-      @Override
-      public boolean isDistinct() {
-        return true;
-      }
-    },
-
-    /** The pimp light LUT. */
-    PIMP_LIGHT("PimpLight") {
-      @Override
-      public boolean isDistinct() {
-        return true;
-      }
-    },
-
-    /** The distinct LUT. */
-    DISTINCT("Distinct") {
-      @Override
-      public boolean isDistinct() {
-        return true;
-      }
-    },
-
-    /** The red cyan LUT. */
-    RED_CYAN("Red-Cyan"),
-
-    /** The grays LUT. */
-    GRAYS("Grays");
-
-    private final String nameString;
-
-    LutColour(String name) {
-      nameString = name;
-    }
-
-    @Override
-    public String toString() {
-      return getName();
-    }
-
-    /**
-     * Gets the name.
-     *
-     * @return the name
-     */
-    public String getName() {
-      return nameString;
-    }
-
-    /**
-     * Checks if is a distinct colour set.
-     *
-     * <p>This is when all colours should be distinct to the human eye.
-     *
-     * @return true, if is distinct
-     */
-    public boolean isDistinct() {
-      return false;
-    }
-
-    /**
-     * Get the LUT colour for the given number.
-     *
-     * @param lut the lut number
-     * @return the lut colour
-     */
-    public static LutColour forNumber(int lut) {
-      final LutColour[] values = LutColour.values();
-      if (lut >= 0 && lut < values.length) {
-        return values[lut];
-      }
-      return null;
-    }
-  }
+public final class LutHelper {
 
   /** List of the LUT names. */
-  public static final String[] luts;
+  private static final String[] luts;
 
   /** LUTs with distinct colours. */
 
@@ -365,6 +235,137 @@ public class LutHelper {
       {43, 38, 51}, {102, 0, 14}, {64, 34, 0}, {102, 255, 0}, {0, 51, 77}, {136, 0, 255},
       {217, 54, 76}};
 
+  /**
+   * The LUT Colour.
+   */
+  public enum LutColour {
+
+    /** The red hot LUT. */
+    RED_HOT("Red-Hot"),
+
+    /** The ice LUT. */
+    ICE("Ice"),
+
+    /** The rainbow LUT. */
+    RAINBOW("Rainbow"),
+
+    /** The fire LUT. */
+    FIRE("Fire"),
+
+    /** The fire light LUT. */
+    FIRE_LIGHT("FireLight"),
+
+    /** The fire glow LUT. */
+    FIRE_GLOW("FireGlow"),
+
+    /** The red yellow LUT. */
+    RED_YELLOW("Red-Yellow"),
+
+    /** The red LUT. */
+    RED("Red"),
+
+    /** The green LUT. */
+    GREEN("Green"),
+
+    /** The blue LUT. */
+    BLUE("Blue"),
+
+    /** The cyan LUT. */
+    CYAN("Cyan"),
+
+    /** The magenta LUT. */
+    MAGENTA("Magenta"),
+
+    /** The yellow LUT. */
+    YELLOW("Yellow"),
+
+    /** The red blue LUT. */
+    RED_BLUE("Red-Blue"),
+
+    /** The intense LUT. */
+    INTENSE("Intense") {
+      @Override
+      public boolean isDistinct() {
+        return true;
+      }
+    },
+
+    /** The pimp LUT. */
+    PIMP("Pimp") {
+      @Override
+      public boolean isDistinct() {
+        return true;
+      }
+    },
+
+    /** The pimp light LUT. */
+    PIMP_LIGHT("PimpLight") {
+      @Override
+      public boolean isDistinct() {
+        return true;
+      }
+    },
+
+    /** The distinct LUT. */
+    DISTINCT("Distinct") {
+      @Override
+      public boolean isDistinct() {
+        return true;
+      }
+    },
+
+    /** The red cyan LUT. */
+    RED_CYAN("Red-Cyan"),
+
+    /** The grays LUT. */
+    GRAYS("Grays");
+
+    private final String nameString;
+
+    LutColour(String name) {
+      nameString = name;
+    }
+
+    @Override
+    public String toString() {
+      return getName();
+    }
+
+    /**
+     * Gets the name.
+     *
+     * @return the name
+     */
+    public String getName() {
+      return nameString;
+    }
+
+    /**
+     * Checks if is a distinct colour set.
+     *
+     * <p>This is when all colours should be distinct to the human eye.
+     *
+     * @return true, if is distinct
+     */
+    public boolean isDistinct() {
+      return false;
+    }
+
+    /**
+     * Get the LUT colour for the given number.
+     *
+     * @param lut the lut number
+     * @return the lut colour
+     */
+    public static LutColour forNumber(int lut) {
+      final LutColour[] values = LutColour.values();
+      if (lut >= 0 && lut < values.length) {
+        return values[lut];
+      }
+      return null;
+    }
+  }
+
   static {
     final LutColour[] l = LutColour.values();
     luts = new String[l.length];
@@ -373,18 +374,17 @@ public class LutHelper {
     }
   }
 
-  private static LUT fromRgbValues(byte[] reds, byte[] greens, byte[] blues, int[][] values,
-      boolean includeBlack) {
-    if (values.length != 256) {
-      throw new RuntimeException("The LUT colours must have 256 values");
-    }
-    for (int i = (includeBlack) ? 1 : 0; i < 256; i++) {
-      final int[] rgb = values[i];
-      reds[i] = (byte) (rgb[0] & 255);
-      greens[i] = (byte) (rgb[1] & 255);
-      blues[i] = (byte) (rgb[2] & 255);
-    }
-    return new LUT(reds, greens, blues);
+  /** No public instances. */
+  private LutHelper() {}
+
+
+  /**
+   * Gets a list of the LUT names.
+   *
+   * @return the LUT names
+   */
+  public static String[] getLutNames() {
+    return luts.clone();
   }
 
   /**
@@ -497,37 +497,6 @@ public class LutHelper {
     return new LUT(reds, greens, blues);
   }
 
-  private static int rainbow(byte[] reds, byte[] greens, byte[] blues) {
-    // Using HSV vary the Hue from 300 (magenta) to Red (0)
-    int index = 0;
-    for (int h = 300; h >= 0; h -= 2) {
-      final Color c = Color.getHSBColor(h / 360.0f, 1, 1);
-      reds[index] = (byte) c.getRed();
-      greens[index] = (byte) c.getGreen();
-      blues[index] = (byte) c.getBlue();
-      index++;
-    }
-    return index;
-  }
-
-  private static int setColours(byte[] reds, byte[] greens, byte[] blues, Color... colours) {
-    int index = 0;
-    if (colours.length == 1) {
-      reds[index] = (byte) (colours[0].getRed() / 2);
-      greens[index] = (byte) (colours[0].getGreen() / 2);
-      blues[index] = (byte) (colours[0].getBlue() / 2);
-      index++;
-    }
-
-    for (final Color colour : colours) {
-      reds[index] = (byte) colour.getRed();
-      greens[index] = (byte) colour.getGreen();
-      blues[index] = (byte) colour.getBlue();
-      index++;
-    }
-    return index;
-  }
-
   /**
    * Copied from ij.plugin.LutLoader
    *
@@ -551,6 +520,19 @@ public class LutHelper {
     return r.length;
   }
 
+  private static int rainbow(byte[] reds, byte[] greens, byte[] blues) {
+    // Using HSV vary the Hue from 300 (magenta) to Red (0)
+    int index = 0;
+    for (int h = 300; h >= 0; h -= 2) {
+      final Color c = Color.getHSBColor(h / 360.0f, 1, 1);
+      reds[index] = (byte) c.getRed();
+      greens[index] = (byte) c.getGreen();
+      blues[index] = (byte) c.getBlue();
+      index++;
+    }
+    return index;
+  }
+
   /**
    * Copied from ij.plugin.LutLoader
    *
@@ -572,23 +554,6 @@ public class LutHelper {
       blues[i] = (byte) b[i];
     }
     return r.length;
-  }
-
-  /**
-   * Copied from ij.plugin.LutLoader
-   *
-   * @param reds the reds
-   * @param greens the greens
-   * @param blues the blues
-   * @return the number of colours
-   */
-  private static int grays(byte[] reds, byte[] greens, byte[] blues) {
-    for (int i = 0; i < 256; i++) {
-      reds[i] = (byte) i;
-      greens[i] = (byte) i;
-      blues[i] = (byte) i;
-    }
-    return 256;
   }
 
   /**
@@ -647,6 +612,55 @@ public class LutHelper {
       blues[i] = (byte) b[i];
     }
     return r.length;
+  }
+
+  private static int setColours(byte[] reds, byte[] greens, byte[] blues, Color... colours) {
+    int index = 0;
+    if (colours.length == 1) {
+      reds[index] = (byte) (colours[0].getRed() / 2);
+      greens[index] = (byte) (colours[0].getGreen() / 2);
+      blues[index] = (byte) (colours[0].getBlue() / 2);
+      index++;
+    }
+
+    for (final Color colour : colours) {
+      reds[index] = (byte) colour.getRed();
+      greens[index] = (byte) colour.getGreen();
+      blues[index] = (byte) colour.getBlue();
+      index++;
+    }
+    return index;
+  }
+
+  private static LUT fromRgbValues(byte[] reds, byte[] greens, byte[] blues, int[][] values,
+      boolean includeBlack) {
+    if (values.length != 256) {
+      throw new RuntimeException("The LUT colours must have 256 values");
+    }
+    for (int i = (includeBlack) ? 1 : 0; i < 256; i++) {
+      final int[] rgb = values[i];
+      reds[i] = (byte) (rgb[0] & 255);
+      greens[i] = (byte) (rgb[1] & 255);
+      blues[i] = (byte) (rgb[2] & 255);
+    }
+    return new LUT(reds, greens, blues);
+  }
+
+  /**
+   * Copied from ij.plugin.LutLoader
+   *
+   * @param reds the reds
+   * @param greens the greens
+   * @param blues the blues
+   * @return the number of colours
+   */
+  private static int grays(byte[] reds, byte[] greens, byte[] blues) {
+    for (int i = 0; i < 256; i++) {
+      reds[i] = (byte) i;
+      greens[i] = (byte) i;
+      blues[i] = (byte) i;
+    }
+    return 256;
   }
 
   /**
@@ -980,8 +994,6 @@ public class LutHelper {
   public static class DefaultLutMapper extends NullLutMapper {
     /** The minimum. */
     final float minimum;
-    /** The maximum. */
-    final float maximum;
     /** The scale. */
     final float scale;
 
@@ -992,7 +1004,6 @@ public class LutHelper {
      * @param maximum the maximum
      */
     public DefaultLutMapper(float minimum, float maximum) {
-      this.maximum = maximum;
       this.minimum = minimum;
       scale = 255f / (maximum - minimum);
     }
@@ -1022,8 +1033,6 @@ public class LutHelper {
   public static class NonZeroLutMapper extends NullLutMapper {
     /** The minimum. */
     final float minimum;
-    /** The maximum. */
-    final float maximum;
     /** The scale. */
     final float scale;
 
@@ -1034,7 +1043,6 @@ public class LutHelper {
      * @param maximum the maximum
      */
     public NonZeroLutMapper(float minimum, float maximum) {
-      this.maximum = maximum;
       this.minimum = minimum;
       scale = 254f / (maximum - minimum);
     }

@@ -343,8 +343,12 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T> {
     return str.toString();
   }
 
-  @SuppressWarnings("unused")
-  private boolean validateHeap() {
+  /**
+   * Validate the heap. This can be used to check the heap construction.
+   *
+   * @return true, if valid
+   */
+  boolean validateHeap() {
     // Validate left-right
     for (int i = 0; i < size - 1; i += 2) {
       if (keys[i] > keys[i + 1]) {

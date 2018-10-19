@@ -123,7 +123,7 @@ public class FloatLinkedMedianWindow {
     final Data point = data[latestInsertion];
     final float removedValue = point.value;
     if (value == removedValue) {
-      latestInsertion = ++latestInsertion % data.length;
+      latestInsertion = (++latestInsertion % data.length);
       return;
     }
 

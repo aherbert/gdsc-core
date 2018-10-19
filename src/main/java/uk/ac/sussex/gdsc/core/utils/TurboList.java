@@ -51,7 +51,7 @@ import java.util.RandomAccess;
  *            the element type
  */
 public class TurboList<E> extends AbstractList<E>
-        implements List<E>, RandomAccess, Cloneable, java.io.Serializable
+        implements RandomAccess, Cloneable, java.io.Serializable
 {
     private static final long serialVersionUID = -4227785171523226892L;
 

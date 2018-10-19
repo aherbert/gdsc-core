@@ -1834,7 +1834,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
       total *= ((singlePrecision) ? Float.BYTES : Double.BYTES);
       // Add the size of each axis and scale in double precision
       for (int i = 0; i < 3; i++) {
-        total += 8 * (dimensions[i] + dimensions[i] - 1);
+        total += 8 * ((long) dimensions[i] + dimensions[i] - 1);
       }
       return total;
     }

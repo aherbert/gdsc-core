@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,7 +37,12 @@ import java.util.List;
 /**
  * Compares assignments.
  */
-public class AssignmentComparator implements Comparator<Assignment> {
+public class AssignmentComparator implements Comparator<Assignment>, Serializable {
+  /**
+   * The serial version ID.
+   */
+  private static final long serialVersionUID = 360766140635525134L;
+
   private static final AssignmentComparator instance = new AssignmentComparator();
 
   @Override

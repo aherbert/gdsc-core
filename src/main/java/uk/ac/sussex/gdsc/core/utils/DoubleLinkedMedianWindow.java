@@ -123,7 +123,7 @@ public class DoubleLinkedMedianWindow {
     final Data point = data[latestInsertion];
     final double removedValue = point.value;
     if (value == removedValue) {
-      latestInsertion = ++latestInsertion % data.length;
+      latestInsertion = (++latestInsertion % data.length);
       return;
     }
 

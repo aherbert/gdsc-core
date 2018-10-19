@@ -2162,7 +2162,7 @@ public abstract class FastTiffDecoder {
       return false;
     }
     // Skip all the index data: tag, fieldType, count, value
-    ss.seek(ss.getFilePointer() + nEntries * INDEX_SIZE);
+    ss.seek(ss.getFilePointer() + (long) nEntries * INDEX_SIZE);
     return true;
   }
 

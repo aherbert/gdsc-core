@@ -155,19 +155,6 @@ abstract class KdNode<T> {
     }
   }
 
-  @SuppressWarnings("unused")
-  private boolean checkBounds(double[] point) {
-    for (int i = getDimensions(); i-- > 0;) {
-      if (point[i] > maxBound[i]) {
-        return false;
-      }
-      if (point[i] < minBound[i]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   private void extendBounds(double[] point) {
     if (minBound == null) {
       minBound = Arrays.copyOf(point, getDimensions());
