@@ -388,10 +388,10 @@ public class SimpleArrayUtils {
   }
 
   /**
-   * Checks if all the values have an integer representation.
+   * Checks if all the values have an {@code integer} representation.
    *
    * @param x the x
-   * @return true, if is integer
+   * @return true if all the values have an integer representation
    */
   public static boolean isInteger(double[] x) {
     for (int i = 0; i < x.length; i++) {
@@ -403,10 +403,10 @@ public class SimpleArrayUtils {
   }
 
   /**
-   * Checks if all the values have an integer representation.
+   * Checks if all the values have an {@code integer} representation.
    *
    * @param x the x
-   * @return true, if is integer
+   * @return true if all the values have an integer representation
    */
   public static boolean isInteger(float[] x) {
     for (int i = 0; i < x.length; i++) {

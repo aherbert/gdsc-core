@@ -64,7 +64,7 @@ public class FloatLinkedMedianWindow {
   private Data median;
 
   /**
-   * Instantiates a new median window DLL.
+   * Instantiates a new median window.
    *
    * @param values the values
    * @throws IllegalArgumentException if the input data is an even size

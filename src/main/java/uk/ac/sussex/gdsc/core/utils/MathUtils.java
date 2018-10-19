@@ -1331,4 +1331,36 @@ public final class MathUtils {
   public static double div0(long value1, long value2) {
     return (value1 == 0) ? 0 : (double) value1 / value2;
   }
+
+  /**
+   * Checks if the value is a mathematical integer.
+   *
+   * <p>Note this may require a {@code long} integer type to store the value.
+   *
+   * @param value the value
+   * @return true if the value is a mathematical integer
+   */
+  public static boolean isMathematicalInteger(double value) {
+    return Double.isFinite(value) && Math.rint(value) == value;
+  }
+
+  /**
+   * Checks if the value can be represented as an {@code integer}.
+   *
+   * @param value the value
+   * @return true if the value is an integer
+   */
+  public static boolean isInteger(double value) {
+    return ((int) (value) == value);
+  }
+
+  /**
+   * Checks if the value can be represented as an {@code integer}.
+   *
+   * @param value the value
+   * @return true if the value is an integer
+   */
+  public static boolean isInteger(float value) {
+    return ((int) (value) == value);
+  }
 }
