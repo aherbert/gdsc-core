@@ -33,9 +33,8 @@ package uk.ac.sussex.gdsc.core.match;
  */
 public final class AucCalculator {
 
-  private AucCalculator() {
-    throw new IllegalStateException("Utility class");
-  }
+  /** No public construction. */
+  private AucCalculator() {}
 
   /**
    * Calculates an estimate of the area under the precision-recall curve.

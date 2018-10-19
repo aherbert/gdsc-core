@@ -50,7 +50,8 @@ import java.util.RandomAccess;
  * @param <E>
  *            the element type
  */
-public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAccess, Cloneable, java.io.Serializable
+public class TurboList<E> extends AbstractList<E>
+        implements List<E>, RandomAccess, Cloneable, java.io.Serializable
 {
     private static final long serialVersionUID = -4227785171523226892L;
 
@@ -1079,7 +1080,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
 
         @Override
         public Iterator<E> iterator() {
-            return listIterator();
+            return super.listIterator();
         }
 
         @Override

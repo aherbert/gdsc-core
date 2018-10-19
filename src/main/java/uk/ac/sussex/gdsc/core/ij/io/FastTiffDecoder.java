@@ -37,6 +37,7 @@ import ij.io.FileInfo;
 import ij.util.Tools;
 
 import java.awt.Rectangle;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -200,6 +201,9 @@ public abstract class FastTiffDecoder {
 
   /** The size of the IFD index standard data in bytes (short+short+int+int). */
   private static final int INDEX_SIZE = 2 + 2 + 4 + 4; //
+
+  /** Constant for 72 DPI. */
+  private static final double RESOLUTION_72_DOTS_PER_INCH = 1.0 / 72.0;
 
   private String directory;
   private final String name;
@@ -548,7 +552,7 @@ public abstract class FastTiffDecoder {
     fi.description = id;
     final int index1 = id.indexOf("images=");
     if (index1 > 0) {
-      final int index2 = id.indexOf("\n", index1);
+      final int index2 = id.indexOf('\n', index1);
       if (index2 > 0) {
         final String images = id.substring(index1 + 7, index2);
         final int n = (int) Tools.parseDouble(images, 0.0);
@@ -833,16 +837,11 @@ public abstract class FastTiffDecoder {
 
       final int fieldType = getShort(byteBuffer, position + 2);
       final int count = getInt(byteBuffer, position + 4);
-      // int value = getValue(fieldType, count, buffer[j + 8] & 0xff, buffer[j + 9] & 0xff, buffer[j
-      // + 10] & 0xff,
-      // buffer[j + 11] & 0xff);
       final int value = getValue(fieldType, count, byteBuffer, position + 8);
       final long lvalue = (value) & 0xffffffffL;
       if (debugMode && ifdCount <= ifdCountForDebugData) {
         dumpTag(tag, count, value, fi);
       }
-      // System.out.println(i+"/"+nEntries+" "+tag + ", count=" + count + ", value=" + value);
-      // if (tag==0) return null;
       switch (tag) {
         case IMAGE_WIDTH:
           fi.width = value;
@@ -953,7 +952,12 @@ public abstract class FastTiffDecoder {
           if (value == 1 && fi.unit == null) {
             fi.unit = " ";
           } else if (value == 2) {
-            if (fi.pixelWidth == 1.0 / 72.0) {
+            // Inches.
+            // Test for a standard of 72 Dots-Per-Inch.
+            // The width should have been set as 1.0 / xScale so should match
+            // the constant if xScale was 72.0.
+            if (Double.compare(fi.pixelWidth, RESOLUTION_72_DOTS_PER_INCH) == 0) {
+              // Leave 72 PDI as pixels
               fi.pixelWidth = 1.0;
               fi.pixelHeight = 1.0;
             } else {
@@ -1216,11 +1220,11 @@ public abstract class FastTiffDecoder {
     final char[] chars = new char[len];
     if (isLittleEndian()) {
       for (int j = 0, k = 0; j < len; j++) {
-        chars[j] = (char) (buffer[k++] & 255 + ((buffer[k++] & 255) << 8));
+        chars[j] = (char) ((buffer[k++] & 255) + ((buffer[k++] & 255) << 8));
       }
     } else {
       for (int j = 0, k = 0; j < len; j++) {
-        chars[j] = (char) (((buffer[k++] & 255) << 8) + buffer[k++] & 255);
+        chars[j] = (char) (((buffer[k++] & 255) << 8) + (buffer[k++] & 255));
       }
     }
     fi.info = new String(chars);
@@ -1249,11 +1253,11 @@ public abstract class FastTiffDecoder {
         final char[] chars = new char[len];
         if (isLittleEndian()) {
           for (int j = 0, k = 0; j < len; j++) {
-            chars[j] = (char) (buffer[k++] & 255 + ((buffer[k++] & 255) << 8));
+            chars[j] = (char) ((buffer[k++] & 255) + ((buffer[k++] & 255) << 8));
           }
         } else {
           for (int j = 0, k = 0; j < len; j++) {
-            chars[j] = (char) (((buffer[k++] & 255) << 8) + buffer[k++] & 255);
+            chars[j] = (char) (((buffer[k++] & 255) << 8) + (buffer[k++] & 255));
           }
         }
         fi.sliceLabels[index++] = new String(chars);
@@ -1354,16 +1358,9 @@ public abstract class FastTiffDecoder {
     for (int i = first; i <= last; i++) {
       skip += metaDataCounts[i];
     }
-    ss.skip(skip);
-
-    // byte[] buffer = new byte[metaDataCounts[first]];
-    // for (int i = first; i <= last; i++)
-    // {
-    // int len = metaDataCounts[i];
-    // if (len > buffer.length)
-    // buffer = new byte[len];
-    // ss.readFully(buffer, len);
-    // }
+    if (ss.skip(skip) != skip) {
+      throw new EOFException();
+    }
   }
 
   /**
@@ -1732,7 +1729,7 @@ public abstract class FastTiffDecoder {
   /**
    * A class for holding the index map for images in an OME-TIFF file.
    */
-  public class IndexMap {
+  public static class IndexMap {
     private final int[] map;
 
     /** The size of the map. */
@@ -2142,17 +2139,6 @@ public abstract class FastTiffDecoder {
     return 0;
   }
 
-  @SuppressWarnings("unused")
-  private int getValue(int fieldType, int count, int b1, int b2, int b3, int b4) {
-    int value = 0;
-    if (fieldType == SHORT && count == 1) {
-      value = getShort(b1, b2);
-    } else {
-      value = getInt(b1, b2, b3, b4);
-    }
-    return value;
-  }
-
   private int getValue(int fieldType, int count, byte[] buffer, int offset) {
     int value = 0;
     if (fieldType == SHORT && count == 1) {
@@ -2172,12 +2158,10 @@ public abstract class FastTiffDecoder {
   private boolean scanIfd() throws IOException {
     // Get Image File Directory data
     final int nEntries = readShort();
-    // System.out.println("nEntries = " + nEntries);
     if (nEntries < 1 || nEntries > 1000) {
       return false;
     }
     // Skip all the index data: tag, fieldType, count, value
-    // in.skip(nEntries * INDEX_SIZE);
     ss.seek(ss.getFilePointer() + nEntries * INDEX_SIZE);
     return true;
   }
@@ -2209,7 +2193,7 @@ public abstract class FastTiffDecoder {
     if (id.length() > 7) {
       final int index1 = id.indexOf("images=");
       if (index1 > 0) {
-        final int index2 = id.indexOf("\n", index1);
+        final int index2 = id.indexOf('\n', index1);
         if (index2 > 0) {
           final String images = id.substring(index1 + 7, index2);
           final int n = (int) Tools.parseDouble(images, 0.0);
@@ -2328,7 +2312,7 @@ public abstract class FastTiffDecoder {
       case RATIONAL:
         return 8; // 2 dwords, numerator and denominator
       default:
-        System.out.printf("unknown IFD field size for field type: %d\n", fieldType);
+        System.out.printf("unknown IFD field size for field type: %d%n", fieldType);
         return 1; // It has to have some size
     }
   }

@@ -34,29 +34,32 @@ package uk.ac.sussex.gdsc.core.data;
 public class DoubleArrayBivalueProvider implements BivalueProvider {
   private final int maxx;
   private final int maxy;
-  private final double[][] val;
+  private final double[][] data;
 
   /**
-   * Instantiates a new double array trivalue provider.
+   * Creates a new instance.
    *
-   * @param val the val
-   * @throws DataException If the array is missing data
+   * <p>The input array in wrapped; that is, modifications to the array will cause the provided data
+   * to be modified.
+   *
+   * @param data the data
+   * @throws DataException If any dimension is length zero or if there is a dimension mismatch
    */
-  public DoubleArrayBivalueProvider(double[][] val) throws DataException {
-    if (val.length == 0) {
+  public DoubleArrayBivalueProvider(double[][] data) {
+    if (data.length == 0) {
       throw new DataException("No X data");
     }
-    if (val[0].length == 0) {
+    if (data[0].length == 0) {
       throw new DataException("No Y data");
     }
-    this.val = val;
-    maxx = val.length;
-    maxy = val[0].length;
+    maxx = data.length;
+    maxy = data[0].length;
     for (int x = 0; x < maxx; x++) {
-      if (maxy != val[x].length) {
+      if (maxy != data[x].length) {
         throw new DataException("Y data must be the same length");
       }
     }
+    this.data = data;
   }
 
   @Override
@@ -71,7 +74,7 @@ public class DoubleArrayBivalueProvider implements BivalueProvider {
 
   @Override
   public double get(int x, int y) {
-    return val[x][y];
+    return data[x][y];
   }
 
   @Override
@@ -81,19 +84,19 @@ public class DoubleArrayBivalueProvider implements BivalueProvider {
     final int nY = y + 1;
     final int pY = y - 1;
 
-    values[0][0] = val[pX][pY];
-    values[0][1] = val[pX][y];
-    values[0][2] = val[pX][nY];
-    values[1][0] = val[x][pY];
-    values[1][1] = val[x][y];
-    values[1][2] = val[x][nY];
-    values[2][0] = val[nX][pY];
-    values[2][1] = val[nX][y];
-    values[2][2] = val[nX][nY];
+    values[0][0] = data[pX][pY];
+    values[0][1] = data[pX][y];
+    values[0][2] = data[pX][nY];
+    values[1][0] = data[x][pY];
+    values[1][1] = data[x][y];
+    values[1][2] = data[x][nY];
+    values[2][0] = data[nX][pY];
+    values[2][1] = data[nX][y];
+    values[2][2] = data[nX][nY];
   }
 
   @Override
   public double[][] toArray() {
-    return val;
+    return data;
   }
 }

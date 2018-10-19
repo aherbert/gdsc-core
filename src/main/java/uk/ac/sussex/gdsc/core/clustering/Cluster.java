@@ -30,6 +30,8 @@ package uk.ac.sussex.gdsc.core.clustering;
 
 /**
  * Used to store all the information about a cluster in the clustering analysis.
+ *
+ * <p>Note: this class has a natural ordering that is inconsistent with equals.
  */
 public class Cluster implements Comparable<Cluster> {
   /** The x position. */
@@ -182,7 +184,10 @@ public class Cluster implements Comparable<Cluster> {
     sumw += otherSumW;
     size += otherN;
 
-    // Avoid minor drift during merge. This can effect the particle linkage algorithm when
+    // Avoid minor drift during merge by only updating the (x,y) position if
+    // it is different.
+    //
+    // This can effect the particle linkage algorithm when
     // merged points have the same coordinates. This is because clusters may have new coordinates
     // that are moved slightly and so the remaining points on the original coordinates join to
     // each other rather than the cluster.
@@ -273,25 +278,15 @@ public class Cluster implements Comparable<Cluster> {
     if (size > other.size) {
       return 1;
     }
-    if (getX() < other.getX()) {
-      return -1;
+    int result = Double.compare(getX(), other.getX());
+    if (result != 0) {
+      return result;
     }
-    if (getX() > other.getX()) {
-      return 1;
+    result = Double.compare(getY(), other.getY());
+    if (result != 0) {
+      return result;
     }
-    if (getY() < other.getY()) {
-      return -1;
-    }
-    if (getY() > other.getY()) {
-      return 1;
-    }
-    if (sumw < other.sumw) {
-      return -1;
-    }
-    if (sumw > other.sumw) {
-      return 1;
-    }
-    return 0;
+    return Double.compare(sumw, other.sumw);
   }
 
   /**

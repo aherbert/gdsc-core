@@ -235,7 +235,7 @@ public class SimpleArrayMoment implements ArrayMoment {
   @Override
   public double[] getFirstMoment() {
     if (size == 0) {
-      return null;
+      return new double[0];
     }
     final double[] m1 = sum.clone();
     final double n = this.size;
@@ -248,7 +248,7 @@ public class SimpleArrayMoment implements ArrayMoment {
   @Override
   public double[] getSecondMoment() {
     if (size == 0) {
-      return null;
+      return new double[0];
     }
     final double[] m2 = new double[sum.length];
     final double n = this.size;
@@ -271,7 +271,7 @@ public class SimpleArrayMoment implements ArrayMoment {
   @Override
   public double[] getVariance(boolean isBiasCorrected) {
     if (size == 0) {
-      return null;
+      return new double[0];
     }
     if (size == 1) {
       return new double[sum.length];
@@ -296,7 +296,7 @@ public class SimpleArrayMoment implements ArrayMoment {
   @Override
   public double[] getStandardDeviation(boolean isBiasCorrected) {
     if (size == 0) {
-      return null;
+      return new double[0];
     }
     if (size == 1) {
       return new double[sum.length];

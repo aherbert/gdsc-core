@@ -32,52 +32,66 @@ import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.rng.UniformRandomProvider;
 
+import java.util.Objects;
+
 /**
  * Contains a set of random numbers that are reused in sequence.
  */
-public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cloneable {
+public class PseudoRandomGenerator extends AbstractRandomGenerator {
   /** The sequence. */
   protected final double[] sequence;
 
   /** The length. */
   protected final int length;
 
-  private int position = 0;
+  /** The position. */
+  private int position;
+
+  /**
+   * Copy constructor.
+   *
+   * @param source the source
+   */
+  protected PseudoRandomGenerator(PseudoRandomGenerator source) {
+    this.sequence = source.sequence;
+    this.length = source.length;
+    this.position = source.position;
+  }
 
   /**
    * Instantiates a new pseudo random generator.
+   *
+   * <p>The input array is wrapped.
    *
    * @param sequence the sequence (must contains numbers in the interval 0 to 1)
    * @throws IllegalArgumentException if the sequence is not positive in length and contains numbers
    *         outside the interval 0 to 1.
    */
-  public PseudoRandomGenerator(double[] sequence) throws IllegalArgumentException {
+  PseudoRandomGenerator(double[] sequence) {
     this(sequence, sequence.length);
   }
 
   /**
    * Instantiates a new pseudo random generator.
    *
+   * <p>The input array is wrapped.
+   *
    * @param sequence the sequence (must contains numbers in the interval 0 to 1)
-   * @param length the length (if greater than sequence.length it is set to length)
+   * @param length the length (if greater than sequence.length it is set to sequence.length)
    * @throws IllegalArgumentException if the sequence is not positive in length and contains numbers
    *         outside the interval 0 to 1.
    */
-  public PseudoRandomGenerator(double[] sequence, int length) throws IllegalArgumentException {
-    if (sequence == null || length < 1) {
-      throw new IllegalArgumentException("Sequence must have a positive length");
-    }
-    if (length > sequence.length) {
-      length = sequence.length;
-    }
-    for (int i = length; i-- > 0;) {
+  PseudoRandomGenerator(double[] sequence, int length) {
+    final int size = Math.min(sequence.length, length);
+    checkSize(size);
+    for (int i = size; i-- > 0;) {
       if (sequence[i] < 0 || sequence[i] > 1) {
         throw new IllegalArgumentException(
             "Sequence must contain numbers between 0 and 1 inclusive");
       }
     }
     this.sequence = sequence;
-    this.length = length;
+    this.length = size;
   }
 
   /**
@@ -88,12 +102,9 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
    * @param dummy the dummy parameter flag
    * @throws IllegalArgumentException if the size is not positive
    */
-  PseudoRandomGenerator(double[] sequence, int length, boolean dummy)
-      throws IllegalArgumentException {
-    if (sequence == null || length < 1) {
-      throw new IllegalArgumentException("Sequence must have a positive length");
-    }
-    this.sequence = sequence;
+  PseudoRandomGenerator(double[] sequence, int length, boolean dummy) {
+    checkSize(length);
+    this.sequence = Objects.requireNonNull(sequence, "Sequence must not be null");
     this.length = length;
   }
 
@@ -105,14 +116,9 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
    * @throws IllegalArgumentException if the size is not positive
    * @throws NullPointerException if the generator is null
    */
-  public PseudoRandomGenerator(int size, RandomGenerator source)
-      throws IllegalArgumentException, NullPointerException {
-    if (size < 1) {
-      throw new IllegalArgumentException("Sequence must have a positive length");
-    }
-    if (source == null) {
-      throw new NullPointerException("Source generator must not be null");
-    }
+  public PseudoRandomGenerator(int size, RandomGenerator source) {
+    checkSize(size);
+    Objects.requireNonNull(source, "Source generator must not be null");
     sequence = new double[size];
     length = size;
     // Preserve order
@@ -129,19 +135,20 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
    * @throws IllegalArgumentException if the size is not positive
    * @throws NullPointerException if the generator is null
    */
-  public PseudoRandomGenerator(int size, UniformRandomProvider source)
-      throws IllegalArgumentException, NullPointerException {
-    if (size < 1) {
-      throw new IllegalArgumentException("Sequence must have a positive length");
-    }
-    if (source == null) {
-      throw new NullPointerException("Source generator must not be null");
-    }
+  public PseudoRandomGenerator(int size, UniformRandomProvider source) {
+    checkSize(size);
+    Objects.requireNonNull(source, "Source generator must not be null");
     sequence = new double[size];
     length = size;
     // Preserve order
     for (int i = 0; i < size; i++) {
       sequence[i] = source.nextDouble();
+    }
+  }
+
+  private static void checkSize(int size) {
+    if (size < 1) {
+      throw new IllegalArgumentException("Sequence must have a positive length: " + size);
     }
   }
 
@@ -159,28 +166,28 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator implements Cl
 
   @Override
   public double nextDouble() {
-    final double d = sequence[position++];
-    if (position == length) {
-      position = 0;
+    int current = position;
+    // Wrap
+    if (current == length) {
+      current = 0;
     }
-    return d;
+    // Set the next position in the sequence
+    position = current + 1;
+    return sequence[current];
   }
 
-  @Override
-  public PseudoRandomGenerator clone() {
-    try {
-      final PseudoRandomGenerator r = (PseudoRandomGenerator) super.clone();
-      // In case cloning when being used. This is probably not necessary
-      // as the class is not thread safe so cloning should not happen when
-      // another thread is using the generator
-      if (r.position >= length) {
-        r.position = 0;
-      }
-      return r;
-    } catch (final CloneNotSupportedException ex) {
-      // This should not happen
-      return new PseudoRandomGenerator(sequence, length);
-    }
+  /**
+   * Create a copy.
+   *
+   * <p>The copy reuses the sequence and will begin at the current position. To reset the sequence
+   * use {@link #setSeed(int)} using zero.
+   *
+   * <p>The state of {@link #nextGaussian()} is reset.
+   *
+   * @return the copy
+   */
+  public PseudoRandomGenerator copy() {
+    return new PseudoRandomGenerator(this);
   }
 
   /**

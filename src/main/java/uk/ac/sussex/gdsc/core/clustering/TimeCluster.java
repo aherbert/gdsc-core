@@ -32,6 +32,8 @@ import org.apache.commons.math3.util.FastMath;
 
 /**
  * Used to store all the information about a cluster in the clustering analysis.
+ *
+ * <p>Note: this class has a natural ordering that is inconsistent with equals.
  */
 public class TimeCluster extends Cluster {
   /** The start time. */

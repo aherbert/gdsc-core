@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.match;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 import java.util.Arrays;
+import java.util.BitSet;
 
 /**
  * Calculates the match scoring statistics for the first N predictions in a set of assignments
@@ -52,68 +53,81 @@ public class RankedScoreCalculator {
   /**
    * Construct the calculator.
    *
+   * <p>The input assignment data is wrapped and will be sorted for ranking.
+   *
    * @param assignments The assignments
+   * @param maxA The maximum actual ID in the assignments
+   * @param maxP The maximum predicted ID in the assignments
+   * @param totalA the total number of actual IDs in the assignments
+   * @param totalP the total number of predicted IDs in the assignments
    */
-  public RankedScoreCalculator(FractionalAssignment[] assignments) {
+  RankedScoreCalculator(FractionalAssignment[] assignments, int maxA, int maxP, int totalA,
+      int totalP) {
     this.assignments = assignments;
-    AssignmentComparator.sort(assignments);
-    // Count unique actual and predicted
-    int localMaxA = 0;
-    int localMaxP = 0;
-    for (int i = 0; i < assignments.length; i++) {
-      final FractionalAssignment a = assignments[i];
-      if (localMaxA < a.getTargetId()) {
-        localMaxA = a.getTargetId();
-      }
-      if (localMaxP < a.getPredictedId()) {
-        localMaxP = a.getPredictedId();
-      }
-    }
-    final boolean[] obsA = new boolean[localMaxA + 1];
-    final boolean[] obsP = new boolean[localMaxP + 1];
-    for (int i = 0; i < assignments.length; i++) {
-      final FractionalAssignment a = assignments[i];
-      obsA[a.getTargetId()] = true;
-      obsP[a.getPredictedId()] = true;
-    }
-    this.maxA = localMaxA;
-    this.maxP = localMaxP;
-    totalA = count(obsA);
-    totalP = count(obsP);
+    this.maxA = maxA;
+    this.maxP = maxP;
+    this.totalA = totalA;
+    this.totalP = totalP;
   }
 
   /**
    * Construct the calculator.
    *
+   * <p>The input assignment data is wrapped and will be sorted for ranking.
+   *
+   * @param assignments The assignments
+   * @return the ranked score calculator
+   */
+  public static RankedScoreCalculator create(FractionalAssignment[] assignments) {
+    // Count unique actual and predicted
+    int maxA = 0;
+    int maxP = 0;
+    for (int i = 0; i < assignments.length; i++) {
+      final FractionalAssignment a = assignments[i];
+      if (maxA < a.getTargetId()) {
+        maxA = a.getTargetId();
+      }
+      if (maxP < a.getPredictedId()) {
+        maxP = a.getPredictedId();
+      }
+    }
+    return create(assignments, maxA, maxP);
+  }
+
+  /**
+   * Construct the calculator.
+   *
+   * <p>The input assignment data is wrapped and will be sorted for ranking.
+   *
+   * <p>If the input maximums are below the value of any of the assignments they will be increased
+   * appropriately. They can be specified since the assignments may not contain all the IDs that
+   * were present in the original data.
+   *
    * @param assignments The assignments
    * @param maxA The maximum actual ID in the assignments
    * @param maxP The maximum predicted ID in the assignments
+   * @return the ranked score calculator
    */
-  public RankedScoreCalculator(FractionalAssignment[] assignments, int maxA, int maxP) {
-    this.assignments = assignments;
+  public static RankedScoreCalculator create(FractionalAssignment[] assignments, int maxA,
+      int maxP) {
     AssignmentComparator.sort(assignments);
-    // Count unique actual and predicted
-    final boolean[] obsA = new boolean[maxA + 1];
-    final boolean[] obsP = new boolean[maxP + 1];
+
+    // Count unique actual and predicted.
+    // Use a BitSet to allow expansion in the event that max A / P are incorrect.
+    final BitSet obsA = new BitSet(maxA + 1);
+    final BitSet obsP = new BitSet(maxP + 1);
     for (int i = 0; i < assignments.length; i++) {
       final FractionalAssignment a = assignments[i];
-      obsA[a.getTargetId()] = true;
-      obsP[a.getPredictedId()] = true;
+      obsA.set(a.getTargetId(), true);
+      obsP.set(a.getPredictedId(), true);
     }
-    this.maxA = maxA;
-    this.maxP = maxP;
-    totalA = count(obsA);
-    totalP = count(obsP);
-  }
 
-  private static int count(boolean[] data) {
-    int count = 0;
-    for (int i = 0; i < data.length; i++) {
-      if (data[i]) {
-        count++;
-      }
-    }
-    return count;
+    int newMaxA = obsA.length();
+    int newMaxP = obsP.length();
+    int totalA = obsA.cardinality();
+    int totalP = obsP.cardinality();
+
+    return new RankedScoreCalculator(assignments, newMaxA, newMaxP, totalA, totalP);
   }
 
   /**
@@ -200,6 +214,10 @@ public class RankedScoreCalculator {
   @SuppressWarnings("null")
   public double[] score(int numberOfPredictions, boolean multipleMatches, boolean save) {
     final FractionalAssignment[] localAssignments = getAssignmentsInternal(numberOfPredictions);
+
+    // Note: This currently uses boolean arrays.
+    // A BitSet would be more memory efficient but slower unless the entire
+    // set fits into cached memory and the standard boolean array does not.
     final boolean[] actualAssignment = new boolean[maxA + 1];
     final int sizeP = Math.min(numberOfPredictions, maxP + 1);
     final TurboList<FractionalAssignment> scored =

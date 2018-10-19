@@ -39,14 +39,14 @@ public class IntResultHeap {
   int values;
 
   /**
-   * The removed data (see {@link #removeLargest()}).
+   * The removed data.
    */
-  public int removedData;
+  private int removedData;
 
   /**
-   * The removed distince (see {@link #removeLargest()}).
+   * The removed distance.
    */
-  public double removedDist;
+  private double removedDistance;
 
   /**
    * Instantiates a new int result heap.
@@ -92,7 +92,7 @@ public class IntResultHeap {
     }
 
     removedData = data[0];
-    removedDist = distance[0];
+    removedDistance = distance[0];
     values--;
     data[0] = data[values];
     distance[0] = distance[values];
@@ -191,5 +191,25 @@ public class IntResultHeap {
    */
   public int[] getData() {
     return Arrays.copyOf(data, values);
+  }
+
+  /**
+   * Gets the removed data.
+   *
+   * @return the removed data
+   * @see #removeLargest()
+   */
+  public int getRemovedData() {
+    return removedData;
+  }
+
+  /**
+   * Gets the removed distance.
+   *
+   * @return the removed distance
+   * @see #removeLargest()
+   */
+  public double getRemovedDistance() {
+    return removedDistance;
   }
 }

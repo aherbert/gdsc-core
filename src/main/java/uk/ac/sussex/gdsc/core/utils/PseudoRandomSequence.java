@@ -31,15 +31,27 @@ package uk.ac.sussex.gdsc.core.utils;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.rng.UniformRandomProvider;
 
+import java.util.Objects;
+
 /**
  * Contains a set of random numbers that are reused in sequence.
  */
-public class PseudoRandomSequence implements Cloneable {
+public class PseudoRandomSequence {
   /** The sequence. */
   protected final double[] sequence;
 
   /** The position. */
   private int position = 0;
+
+  /**
+   * Copy constructor.
+   *
+   * @param source the source
+   */
+  protected PseudoRandomSequence(PseudoRandomSequence source) {
+    this.sequence = source.sequence;
+    this.position = source.position;
+  }
 
   /**
    * Instantiates a new pseudo random sequence. The input sequence is cloned.
@@ -48,9 +60,7 @@ public class PseudoRandomSequence implements Cloneable {
    * @throws IllegalArgumentException if the sequence is not positive in length
    */
   public PseudoRandomSequence(double[] sequence) {
-    if (sequence == null || sequence.length < 1) {
-      throw new IllegalArgumentException("Sequence must have a positive length");
-    }
+    checkSize(sequence.length);
     this.sequence = sequence.clone();
   }
 
@@ -64,12 +74,8 @@ public class PseudoRandomSequence implements Cloneable {
    * @throws NullPointerException if the generator is null
    */
   public PseudoRandomSequence(int size, RandomGenerator source, double scale) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Sequence must have a positive length");
-    }
-    if (source == null) {
-      throw new NullPointerException("Source generator must not be null");
-    }
+    checkSize(size);
+    Objects.requireNonNull(source, "Source generator must not be null");
     sequence = new double[size];
     // Preserve order
     for (int i = 0; i < size; i++) {
@@ -87,16 +93,18 @@ public class PseudoRandomSequence implements Cloneable {
    * @throws NullPointerException if the generator is null
    */
   public PseudoRandomSequence(int size, UniformRandomProvider source, double scale) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Sequence must have a positive length");
-    }
-    if (source == null) {
-      throw new NullPointerException("Source generator must not be null");
-    }
+    checkSize(size);
+    Objects.requireNonNull(source, "Source generator must not be null");
     sequence = new double[size];
     // Preserve order
     for (int i = 0; i < size; i++) {
       sequence[i] = source.nextDouble() * scale;
+    }
+  }
+
+  private static void checkSize(int size) {
+    if (size < 1) {
+      throw new IllegalArgumentException("Sequence must have a positive length: " + size);
     }
   }
 
@@ -115,28 +123,23 @@ public class PseudoRandomSequence implements Cloneable {
    * @return the double
    */
   public double nextDouble() {
-    final double d = sequence[position++];
-    if (position == sequence.length) {
-      position = 0;
+    int current = position;
+    // Wrap
+    if (current == sequence.length) {
+      current = 0;
     }
-    return d;
+    // Set the next position in the sequence
+    position = current + 1;
+    return sequence[current];
   }
 
-  @Override
-  public PseudoRandomSequence clone() {
-    try {
-      final PseudoRandomSequence r = (PseudoRandomSequence) super.clone();
-      // In case cloning when being used. This is probably not necessary
-      // as the class is not thread safe so cloning should not happen when
-      // another thread is using the generator
-      if (r.position >= r.sequence.length) {
-        r.position = 0;
-      }
-      return r;
-    } catch (final CloneNotSupportedException ex) {
-      // This should not happen
-      return new PseudoRandomSequence(sequence);
-    }
+  /**
+   * Create a copy.
+   *
+   * @return the copy
+   */
+  public PseudoRandomSequence copy() {
+    return new PseudoRandomSequence(this);
   }
 
   /**

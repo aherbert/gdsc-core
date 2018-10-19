@@ -897,7 +897,7 @@ public class OpticsResult implements ClusteringResult {
     }
   }
 
-  private class RemovePredicate implements SimplePredicate<OpticsCluster> {
+  private static class RemovePredicate implements SimplePredicate<OpticsCluster> {
     int counter = 0;
     boolean[] remove;
 

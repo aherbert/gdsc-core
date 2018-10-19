@@ -50,10 +50,22 @@ public class ImageExtractor {
    * @param width The image width
    * @param height The image height
    */
-  public ImageExtractor(float[] data, int width, int height) {
+  ImageExtractor(float[] data, int width, int height) {
     this.data = data;
     this.width = width;
     this.height = height;
+  }
+
+  /**
+   * Create a new image extractor wrapping the provided data.
+   *
+   * @param data the data
+   * @param width the width
+   * @param height the height
+   * @return the image extractor
+   */
+  public static ImageExtractor wrap(float[] data, int width, int height) {
+    return new ImageExtractor(data, width, height);
   }
 
   /**

@@ -33,9 +33,8 @@ package uk.ac.sussex.gdsc.core.math;
  */
 public final class NumberUtils {
 
-  private NumberUtils() {
-    throw new IllegalStateException("Utility class");
-  }
+  /** No public construction. */
+  private NumberUtils() {}
 
   /**
    * Gets the unsigned exponent. This is in the range 0-255.

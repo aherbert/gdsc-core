@@ -58,6 +58,25 @@ public class OpticsManager extends CoordinateStore {
    */
   static final float UNDEFINED = -1;
 
+  /** The tracker. */
+  private TrackProgress tracker = null;
+
+  private EnumSet<Option> options = EnumSet.noneOf(Option.class);
+
+  private LoOp loop = null;
+
+  private int numberOfThreads = -1;
+
+  private long seed = 0;
+
+  /**
+   * The grid. Package level for JUnit testing
+   */
+  MoleculeSpace grid;
+
+  /** The heap for storing the top n distances. */
+  private FloatHeap heap;
+
   /**
    * Options for the algorithms.
    */
@@ -114,47 +133,10 @@ public class OpticsManager extends CoordinateStore {
     OPTICS_SIMPLE_PRIORITY_QUEUE;
   }
 
-  private EnumSet<Option> options = EnumSet.noneOf(Option.class);
-
-  /**
-   * Adds the options to the current options.
-   *
-   * @param options the options
-   */
-  public void addOptions(Option... options) {
-    for (final Option option : options) {
-      this.options.add(option);
-    }
-  }
-
-  /**
-   * Removes the options from the current options.
-   *
-   * @param options the options
-   */
-  public void removeOptions(Option... options) {
-    for (final Option option : options) {
-      this.options.remove(option);
-    }
-  }
-
-  /**
-   * Gets the options. This is a reference to the current options.
-   *
-   * @return the options
-   */
-  public Set<Option> getOptions() {
-    return options;
-  }
-
-  private int numberOfThreads = -1;
-
-  private long seed = 0;
-
   /**
    * Used in the DBSCAN algorithm to store a queue of molecules to process.
    */
-  private class MoleculeQueue extends MoleculeList {
+  private static class MoleculeQueue extends MoleculeList {
     int next = 0;
 
     MoleculeQueue(int capacity) {
@@ -774,14 +756,6 @@ public class OpticsManager extends CoordinateStore {
     }
     return orderSeeds;
   }
-
-  /**
-   * The grid. Package level for JUnit testing
-   */
-  MoleculeSpace grid;
-
-  /** The heap for storing the top n distances. */
-  private FloatHeap heap;
 
   /**
    * Initialise the memory structure for the OPTICS algorithm. This can be cached if the
@@ -1824,7 +1798,54 @@ public class OpticsManager extends CoordinateStore {
     this.seed = seed;
   }
 
-  private LoOp loop = null;
+  /**
+   * Gets the tracker.
+   *
+   * @return the tracker
+   */
+  public TrackProgress getTracker() {
+    return tracker;
+  }
+
+  /**
+   * Sets the tracker.
+   *
+   * @param tracker the tracker to set
+   */
+  public void setTracker(TrackProgress tracker) {
+    this.tracker = tracker;
+  }
+
+  /**
+   * Adds the options to the current options.
+   *
+   * @param options the options
+   */
+  public void addOptions(Option... options) {
+    for (final Option option : options) {
+      this.options.add(option);
+    }
+  }
+
+  /**
+   * Removes the options from the current options.
+   *
+   * @param options the options
+   */
+  public void removeOptions(Option... options) {
+    for (final Option option : options) {
+      this.options.remove(option);
+    }
+  }
+
+  /**
+   * Gets the options. This is a reference to the current options.
+   *
+   * @return the options
+   */
+  public Set<Option> getOptions() {
+    return options;
+  }
 
   /**
    * Compute the Local Outlier Probability scores. Scores are normalised to the range [0:1] with the

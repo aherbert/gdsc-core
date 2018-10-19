@@ -48,12 +48,22 @@ public final class ByteArraySeekableStream extends SeekableStream {
    *
    * @param bytes the bytes
    */
-  public ByteArraySeekableStream(byte[] bytes) {
+  ByteArraySeekableStream(byte[] bytes) {
     if (bytes == null) {
       throw new NullPointerException();
     }
     this.buffer = bytes;
     length = bytes.length;
+  }
+
+  /**
+   * Create a new byte array seekable stream wrapping the provided data.
+   *
+   * @param bytes the bytes
+   * @return the byte array seekable stream
+   */
+  public static ByteArraySeekableStream wrap(byte[] bytes) {
+    return new ByteArraySeekableStream(bytes);
   }
 
   @Override
@@ -111,7 +121,7 @@ public final class ByteArraySeekableStream extends SeekableStream {
     }
 
     /* return the actual number of bytes skipped */
-    return position - pos;
+    return (long) position - pos;
   }
 
   @Override

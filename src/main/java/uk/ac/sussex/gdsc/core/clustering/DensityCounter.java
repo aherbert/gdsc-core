@@ -130,7 +130,7 @@ public class DensityCounter {
   /**
    * Wrap input molecules with an index to the original input order.
    */
-  private class IndexMolecule implements Molecule {
+  private static class IndexMolecule implements Molecule {
     /** The molecule. */
     Molecule molecule;
 
@@ -179,7 +179,7 @@ public class DensityCounter {
     }
   }
 
-  private class MoleculeList {
+  private static class MoleculeList {
     int size = 0;
     IndexMolecule[] data = new IndexMolecule[1];
 

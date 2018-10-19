@@ -44,18 +44,28 @@ public class SimpleDetectionGrid implements DetectionGrid {
    * <p>This contrasts with {@link Rectangle2D#contains(double, double)} as a point on the right or
    * lower boundary will not be within the rectangle since due to the definition of "insideness".
    */
-  public boolean includeOuterEdge = false;
+  private boolean includeOuterEdge = false;
 
   /**
    * Instantiates a new simple detection grid.
    *
    * @param rectangles the rectangles
    */
-  public SimpleDetectionGrid(Rectangle2D[] rectangles) {
+   SimpleDetectionGrid(Rectangle2D[] rectangles) {
     if (rectangles == null) {
       throw new IllegalArgumentException("Rectangle2Ds must not be null");
     }
     this.rectangles = rectangles;
+  }
+
+  /**
+   * Wrap the data to create a simple detection grid.
+   *
+   * @param rectangles the rectangles
+   * @return the simple detection grid
+   */
+  public static SimpleDetectionGrid wrap(Rectangle2D[] rectangles) {
+    return new SimpleDetectionGrid(rectangles);
   }
 
   @Override
@@ -99,5 +109,29 @@ public class SimpleDetectionGrid implements DetectionGrid {
     final double x0 = rectangle.getX();
     final double y0 = rectangle.getY();
     return (x >= x0 && y >= y0 && x <= rectangle.getMaxX() && y <= rectangle.getMaxY());
+  }
+
+  /**
+   * Checks whether to include the outer right and lower boundary edge of the rectangle.
+   *
+   * <p>This contrasts with {@link Rectangle2D#contains(double, double)} as a point on the right or
+   * lower boundary will not be within the rectangle since due to the definition of "insideness".
+   *
+   * @return true, if is include outer edge
+   */
+  public boolean isIncludeOuterEdge() {
+    return includeOuterEdge;
+  }
+
+  /**
+   * Set to true to include the outer right and lower boundary edge of the rectangle.
+   *
+   * <p>This contrasts with {@link Rectangle2D#contains(double, double)} as a point on the right or
+   * lower boundary will not be within the rectangle since due to the definition of "insideness".
+   *
+   * @param includeOuterEdge the new include outer edge
+   */
+  public void setIncludeOuterEdge(boolean includeOuterEdge) {
+    this.includeOuterEdge = includeOuterEdge;
   }
 }

@@ -45,80 +45,44 @@ public class NoiseEstimator {
    * The noise estimator method.
    */
   public enum Method {
-    // @fomatter:off
     /**
      * Use all pixels.
      */
-    ALL_PIXELS {
-      @Override
-      public String getName() {
-        return "All pixels";
-      }
-    },
+    ALL_PIXELS("All pixels"),
     /**
      * Use a range around the lowest pixel in the image.
      */
-    LOWEST_PIXELS {
-      @Override
-      public String getName() {
-        return "Lowest pixels";
-      }
-    },
+    LOWEST_PIXELS("Lowest pixels"),
     /**
      * Use the psuedo-residuals and calculate the least median of squares.
      */
-    RESIDUALS_LEAST_MEDIAN_OF_SQUARES {
-      @Override
-      public String getName() {
-        return "Residuals least-median-of-squares";
-      }
-    },
+    RESIDUALS_LEAST_MEDIAN_OF_SQUARES("Residuals least-median-of-squares"),
     /**
      * Use the psuedo-residuals and calculate the least trimmed of squares.
      */
-    RESIDUALS_LEAST_TRIMMED_OF_SQUARES {
-      @Override
-      public String getName() {
-        return "Residuals least-trimmed-of-squares";
-      }
-    },
+    RESIDUALS_LEAST_TRIMMED_OF_SQUARES("Residuals least-trimmed-of-squares"),
     /**
      * Use the psuedo-residuals and calculate the least mean of squares.
      */
-    RESIDUALS_LEAST_MEAN_OF_SQUARES {
-      @Override
-      public String getName() {
-        return "Residuals least-mean-of-squares";
-      }
-    },
+    RESIDUALS_LEAST_MEAN_OF_SQUARES("Residuals least-mean-of-squares"),
     /**
      * Use the psuedo-residuals ignoring image border and calculate the least median of squares.
      */
-    QUICK_RESIDUALS_LEAST_MEDIAN_OF_SQUARES {
-      @Override
-      public String getName() {
-        return "Quick residuals least-median-of-squares";
-      }
-    },
+    QUICK_RESIDUALS_LEAST_MEDIAN_OF_SQUARES("Quick residuals least-median-of-squares"),
     /**
      * Use the psuedo-residuals ignoring image border and calculate the least trimmed of squares.
      */
-    QUICK_RESIDUALS_LEAST_TRIMMED_OF_SQUARES {
-      @Override
-      public String getName() {
-        return "Quick residuals least-trimmed-of-squares";
-      }
-    },
+    QUICK_RESIDUALS_LEAST_TRIMMED_OF_SQUARES("Quick residuals least-trimmed-of-squares"),
     /**
      * Use the psuedo-residuals ignoring image border and calculate the least mean of squares.
      */
-    QUICK_RESIDUALS_LEAST_MEAN_OF_SQUARES {
-      @Override
-      public String getName() {
-        return "Quick residuals least-mean-of-squares";
-      }
-    };
-    //@formatter:on
+    QUICK_RESIDUALS_LEAST_MEAN_OF_SQUARES("Quick residuals least-mean-of-squares");
+
+    private final String nameString;
+
+    Method(String name) {
+      nameString = name;
+    }
 
     @Override
     public String toString() {
@@ -130,7 +94,9 @@ public class NoiseEstimator {
      *
      * @return the name
      */
-    public abstract String getName();
+    public String getName() {
+      return nameString;
+    }
   }
 
   private final float[] data;
@@ -153,8 +119,10 @@ public class NoiseEstimator {
    * @param data the data
    * @param maxx the maxx
    * @param maxy the maxy
+   * @throws IllegalArgumentException if {@code data.length < maxx * maxy} or the dimensions are not
+   *         strictly positive.
    */
-  public NoiseEstimator(float[] data, int maxx, int maxy) {
+  NoiseEstimator(float[] data, int maxx, int maxy) {
     if (maxx < 1 || maxy < 1) {
       throw new IllegalArgumentException("X/Y dimensions must be larger than 0");
     }
@@ -164,6 +132,20 @@ public class NoiseEstimator {
     this.data = data;
     this.maxx = maxx;
     this.maxy = maxy;
+  }
+
+  /**
+   * Create a new noise estimator by wrapping the provided data.
+   *
+   * @param data the data
+   * @param maxx the maxx
+   * @param maxy the maxy
+   * @return the noise estimator
+   * @throws IllegalArgumentException if {@code data.length < maxx * maxy} or the dimensions are not
+   *         strictly positive.
+   */
+  public static NoiseEstimator wrap(float[] data, int maxx, int maxy) {
+    return new NoiseEstimator(data, maxx, maxy);
   }
 
   /**
@@ -372,6 +354,19 @@ public class NoiseEstimator {
   }
 
   /**
+   * Get the pseudo-residuals of the input data.
+   *
+   * @return The pseudo residuals
+   * @see #computePseudoResiduals()
+   */
+  private float[] getPseudoResiduals() {
+    if (residuals == null) {
+      residuals = computePseudoResiduals();
+    }
+    return residuals;
+  }
+
+  /**
    * Compute the pseudo-residuals of the input data.
    *
    * <p>The pseudo residual \f$ R(x,y) \f$ of the image \f$ I(x,y) \f$ are defined by \f$ R(x,y) = 4
@@ -380,69 +375,68 @@ public class NoiseEstimator {
    *
    * @return The pseudo residuals
    */
-  public float[] getPseudoResiduals() {
-    if (residuals == null) {
-      residuals = new float[maxx * maxy];
+  private float[] computePseudoResiduals() {
+    final float[] newResiduals = new float[maxx * maxy];
 
-      for (int y = 0, index = 0; y < maxy; y++) {
-        for (int x = 0; x < maxx; x++, index++) {
-          double t2 = 0;
-          if (x == 0) {
-            t2 += data[index + 1];
-          } else {
-            t2 += data[index - 1];
-          }
-          if (x == maxx - 1) {
-            t2 += data[index - 1];
-          } else {
-            t2 += data[index + 1];
-          }
-          if (y == 0) {
-            t2 += data[index + maxx];
-          } else {
-            t2 += data[index - maxx];
-          }
-          if (y == maxy - 1) {
-            t2 += data[index - maxx];
-          } else {
-            t2 += data[index + maxx];
-          }
+    for (int y = 0, index = 0; y < maxy; y++) {
+      for (int x = 0; x < maxx; x++, index++) {
+        //@formatter:off
+        // The sum of the 4N connected neighbours.
+        // Edges are handled using reflection to the opposite side.
+        double sum4n
+            = ((x == 0)        ? data[index + 1]    : data[index - 1]   )
+            + ((x == maxx - 1) ? data[index - 1]    : data[index + 1]   )
+            + ((y == 0)        ? data[index + maxx] : data[index - maxx])
+            + ((y == maxy - 1) ? data[index - maxx] : data[index + maxx]);
+        //@formatter:on
 
-          // 0.223606798 = 1 / sqrt(20)
-          residuals[index] = (float) (0.223606798 * (4. * data[index] - t2));
-        }
+        // 0.223606798 = 1 / sqrt(20)
+        newResiduals[index] = (float) (0.223606798 * (4. * data[index] - sum4n));
       }
     }
 
-    return residuals;
+    return newResiduals;
   }
 
   /**
-   * Compute the pseudo-residuals of the input data. Ignore the image border so output will be size
-   * = (maxx - 2) * (maxy - 2)
+   * Get the pseudo-residuals of the input data.
+   *
+   * @return The pseudo residuals
+   * @see #computeQuickPseudoResiduals()
+   */
+  private float[] getQuickPseudoResiduals() {
+    if (quickResiduals == null) {
+      quickResiduals = computeQuickPseudoResiduals();
+    }
+    return quickResiduals;
+  }
+
+  /**
+   * Compute the pseudo-residuals of the input data.
+   *
+   * <p>Ignore the image border so output will be {@code size = (maxx - 2) * (maxy - 2)}. If either
+   * dimension is less than 3 then the output will be a zero length array.
    *
    * @return The pseudo residuals
    */
-  public float[] getQuickPseudoResiduals() {
-    if (quickResiduals == null) {
-      if (maxx < 3 || maxy < 3) {
-        quickResiduals = new float[0];
-        return quickResiduals;
-      }
+  private float[] computeQuickPseudoResiduals() {
+    if (maxx < 3 || maxy < 3) {
+      return new float[0];
+    }
 
-      quickResiduals = new float[(maxx - 2) * (maxy - 2)];
+    final float[] newQuickResiduals = new float[(maxx - 2) * (maxy - 2)];
 
-      for (int y = 1, i = 0; y < maxy - 1; y++) {
-        for (int x = 1, index = y * maxx + 1; x < maxx - 1; x++, index++, i++) {
-          final double t2 =
-              data[index - 1] + data[index + 1] + data[index - maxx] + data[index + maxx];
-          // 0.223606798 = 1 / sqrt(20)
-          quickResiduals[i] = (float) (0.223606798 * (4. * data[index] - t2));
-        }
+    for (int y = 1, i = 0; y < maxy - 1; y++) {
+      for (int x = 1, index = y * maxx + 1; x < maxx - 1; x++, index++, i++) {
+        // The sum of the 4N connected neighbours.
+        final double sum4n =
+            data[index - 1] + data[index + 1] + data[index - maxx] + data[index + maxx];
+        // 0.223606798 = 1 / sqrt(20)
+        newQuickResiduals[i] = (float) (0.223606798 * (4. * data[index] - sum4n));
       }
     }
 
-    return quickResiduals;
+    return newQuickResiduals;
   }
 
   /**

@@ -234,7 +234,7 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D {
     if (sequentialSorting) {
       while (resultHeap.values > 0) {
         resultHeap.removeLargest();
-        results.add(new Entry(resultHeap.removedDist, (float[]) resultHeap.removedData));
+        results.add(new Entry(resultHeap.getRemovedDistance(), (float[]) resultHeap.getRemovedData()));
       }
     } else {
       for (int i = 0; i < resultHeap.values; i++) {
@@ -340,7 +340,7 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D {
   /**
    * Internal class for child nodes.
    */
-  private class ChildNode extends SimpleFloatKdTreeNode2D {
+  private static class ChildNode extends SimpleFloatKdTreeNode2D {
     /**
      * Instantiates a new child node.
      *

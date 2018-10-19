@@ -36,7 +36,7 @@ public class DoubleHeap {
   int values;
 
   /** The distance of the last removed item. */
-  public double removedDist;
+  private double removedDistance;
 
   /**
    * Instantiates a new double heap.
@@ -77,7 +77,7 @@ public class DoubleHeap {
       throw new IllegalStateException();
     }
 
-    removedDist = distance[0];
+    removedDistance = distance[0];
     values--;
     distance[0] = distance[values];
     downHeapify(0);
@@ -160,5 +160,15 @@ public class DoubleHeap {
    */
   public double[] getDistance() {
     return Arrays.copyOf(distance, values);
+  }
+
+  /**
+   * Gets the removed distance.
+   *
+   * @return the removed distance
+   * @see #removeLargest()
+   */
+  public double getRemovedDistance() {
+    return removedDistance;
   }
 }

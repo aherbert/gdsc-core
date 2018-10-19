@@ -39,14 +39,16 @@ public class FloatResultHeap<T> {
 
   /** The values. */
   int values;
+
   /**
-   * The removed data (see {@link #removeLargest()}).
+   * The removed data.
    */
-  public Object removedData;
+  private Object removedData;
+
   /**
-   * The removed distance (see {@link #removeLargest()}).
+   * The removed distance.
    */
-  public float removedDist;
+  private float removedDistance;
 
   /**
    * Instantiates a new float result heap.
@@ -92,7 +94,7 @@ public class FloatResultHeap<T> {
     }
 
     removedData = data[0];
-    removedDist = distance[0];
+    removedDistance = distance[0];
     values--;
     data[0] = data[values];
     distance[0] = distance[values];
@@ -210,5 +212,26 @@ public class FloatResultHeap<T> {
       array[values] = null;
     }
     return array;
+  }
+
+  /**
+   * Gets the removed data.
+   *
+   * @return the removed data
+   * @see #removeLargest()
+   */
+  @SuppressWarnings("unchecked")
+  public T getRemovedData() {
+    return (T) removedData;
+  }
+
+  /**
+   * Gets the removed distance.
+   *
+   * @return the removed distance
+   * @see #removeLargest()
+   */
+  public float getRemovedDistance() {
+    return removedDistance;
   }
 }

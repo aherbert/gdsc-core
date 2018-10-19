@@ -28,36 +28,47 @@
 
 package uk.ac.sussex.gdsc.core.logging;
 
-import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.BufferedWriter;
+import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Logs messages to a file.
  */
-public class FileLogger implements Logger {
-  private OutputStreamWriter os = null;
+public class FileLogger implements Logger, Closeable {
+  /** The new line string. */
+  private static final String NEW_LINE = System.lineSeparator();
+
+  /** The writer for the output file. */
+  private BufferedWriter output = null;
+
+  /** Main lock guarding all access to the output stream. */
+  private final ReentrantLock lock = new ReentrantLock(false);
 
   /**
-   * Instantiates a new file logger.
+   * Instantiates a new file logger using the UTF-8 charset.
    *
    * @param filename the filename
-   * @throws FileNotFoundException If the file cannot be created
+   * @throws IOException Signals that an I/O exception has occurred.
    */
-  @SuppressWarnings("resource")
-  public FileLogger(String filename) throws FileNotFoundException {
-    this(new FileOutputStream(filename));
+  public FileLogger(String filename) throws IOException {
+    this(filename, StandardCharsets.UTF_8);
   }
 
   /**
    * Instantiates a new file logger.
    *
-   * @param fos the file output stream
+   * @param filename the filename
+   * @param charset the charset
+   * @throws IOException Signals that an I/O exception has occurred.
    */
-  public FileLogger(FileOutputStream fos) {
-    os = new OutputStreamWriter(new BufferedOutputStream(fos));
+  public FileLogger(String filename, Charset charset) throws IOException {
+    output = Files.newBufferedWriter(new File(filename).toPath(), charset);
   }
 
   /**
@@ -67,24 +78,29 @@ public class FileLogger implements Logger {
    */
   @Override
   public void info(String message) {
-    if (os == null) {
+    if (isClosed()) {
       return;
     }
-    synchronized (os) {
-      try {
-        os.write(message);
-        if (!message.endsWith("\n")) {
-          os.write('\n');
-        }
-      } catch (final IOException ex) {
-        close();
+    lock.lock();
+    try {
+      if (isClosed()) {
+        return;
       }
+      output.write(message);
+      if (!message.endsWith(NEW_LINE)) {
+        output.write(NEW_LINE);
+      }
+    } catch (final IOException ex) {
+      close();
+    } finally {
+      lock.unlock();
     }
   }
 
   /**
-   * Log the arguments using the given format to the Java console. Appends a new line to the
-   * message.
+   * Log the arguments using the given format to the Java console.
+   *
+   * <p>Appends a new line to the message.
    *
    * @param format the format
    * @param args the args
@@ -114,20 +130,31 @@ public class FileLogger implements Logger {
     info(format, args);
   }
 
-  /**
-   * Close the file.
-   */
+  @Override
   public void close() {
-    if (os == null) {
+    if (isClosed()) {
       return;
     }
-    synchronized (os) {
-      try {
-        os.close();
-      } catch (final IOException ex) { // Ignore
-      } finally {
-        os = null;
+    lock.lock();
+    try {
+      if (isClosed()) {
+        return;
       }
+      output.close();
+    } catch (final IOException ex) {
+      // Ignore
+    } finally {
+      output = null;
+      lock.unlock();
     }
+  }
+
+  /**
+   * Checks if is closed.
+   *
+   * @return true, if is closed
+   */
+  public boolean isClosed() {
+    return output == null;
   }
 }

@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.filters;
 
+import uk.ac.sussex.gdsc.core.utils.ImageExtractor;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 import java.awt.Rectangle;
@@ -61,18 +62,31 @@ public class DAreaSum {
   protected double[] rollingSum = null;
 
   /**
-   * Instantiates a new area statistics.
+   * Instantiates a new area sum.
    *
    * @param data the data
    * @param maxx the maxx
    * @param maxy the maxy
    * @throws IllegalArgumentException if maxx * maxy != data.length or data is null or length zero
    */
-  public DAreaSum(double[] data, int maxx, int maxy) throws IllegalArgumentException {
+  DAreaSum(double[] data, int maxx, int maxy) {
     SimpleArrayUtils.hasData2D(maxx, maxy, data);
     this.maxx = maxx;
     this.maxy = maxy;
     this.data = data;
+  }
+
+  /**
+   * Create a new area sum wrapping the provided data.
+   *
+   * @param data the data
+   * @param maxx the maxx
+   * @param maxy the maxy
+   * @return the area sum
+   * @throws IllegalArgumentException if maxx * maxy != data.length or data is null or length zero
+   */
+  public static DAreaSum wrap(double[] data, int maxx, int maxy) {
+    return new DAreaSum(data, maxx, maxy);
   }
 
   /**

@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Text utilities.
@@ -177,10 +178,12 @@ public final class TextUtils {
    * @param filename the filename
    * @param text the text
    * @return true, if successful
+   * @deprecated Moved to {@link IoUtils#save(String, String)}
    */
+  @Deprecated
   public static boolean write(String filename, String text) {
     try (FileOutputStream fs = new FileOutputStream(filename)) {
-      fs.write(text.getBytes());
+      fs.write(text.getBytes(StandardCharsets.UTF_8));
       return true;
     } catch (final IOException ex) {
       // Ignore

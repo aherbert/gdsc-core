@@ -271,7 +271,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D {
     if (sequentialSorting) {
       while (resultHeap.values > 0) {
         resultHeap.removeLargest();
-        results.add(new Entry(resultHeap.removedDist, resultHeap.removedData));
+        results.add(new Entry(resultHeap.getRemovedDistance(), resultHeap.getRemovedData()));
       }
     } else {
       for (int i = 0; i < resultHeap.values; i++) {
@@ -488,7 +488,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D {
   /**
    * Internal class for child nodes.
    */
-  private class ChildNode extends FloatIntKdTreeNode2D {
+  private static class ChildNode extends FloatIntKdTreeNode2D {
     /**
      * Instantiates a new child node.
      *

@@ -257,15 +257,13 @@ public class RadixStringSampler {
       out[index++] = TABLE64[i4 & 0x3F];
     }
     // The final characters
-    if (index < length) {
-      // For simplicity there are 5 samples per int (with two unused bits).
-      while (index < length) {
-        int i1 = rng.nextInt();
+    // For simplicity there are 5 samples per int (with two unused bits).
+    while (index < length) {
+      int i1 = rng.nextInt();
+      out[index++] = TABLE64[i1 & 0x3F];
+      for (int j = 0; j < 4 && index < length; j++) {
+        i1 >>>= 6;
         out[index++] = TABLE64[i1 & 0x3F];
-        for (int j = 0; j < 4 && index < length; j++) {
-          i1 >>>= 6;
-          out[index++] = TABLE64[i1 & 0x3F];
-        }
       }
     }
     return new String(out);

@@ -53,7 +53,7 @@ public class ClusteringEngine {
   /**
    * Used for multi-threaded clustering to store the closest pair in a region of the search space.
    */
-  private class ClosestPair {
+  private static class ClosestPair {
     double distance;
     int time;
     Object point1;
@@ -233,8 +233,8 @@ public class ClusteringEngine {
    * Use a runnable to allow multi-threaded operation. Input parameters that are manipulated should
    * have synchronized methods.
    */
-  private class FindLinksWorker implements Runnable {
-    boolean links = false;
+  private static class FindLinksWorker implements Runnable {
+    boolean links;
     Cluster[][] grid;
     int nxbins;
     int nybins;
@@ -263,21 +263,21 @@ public class ClusteringEngine {
     }
   }
 
-  private ExecutorService threadPool = null;
+  private ExecutorService threadPool;
   private int xblock;
   private int yblock;
 
   private ClusteringAlgorithm clusteringAlgorithm = ClusteringAlgorithm.PAIRWISE;
   private TrackProgress tracker = NullTrackProgress.INSTANCE;
-  private int pulseInterval = 0;
-  private boolean trackJoins = false;
+  private int pulseInterval;
+  private boolean trackJoins;
   private int threadCount = 1;
-  private double[] intraIdDistances = null;
-  private double[] interIdDistances = null;
+  private double[] intraIdDistances;
+  private double[] interIdDistances;
   private int intraIdCount;
   private int interIdCount;
   private int nextClusterId;
-  private boolean useRange = false;
+  private boolean useRange;
 
   /**
    * Instantiates a new clustering engine.
@@ -329,7 +329,7 @@ public class ClusteringEngine {
    * @param radius the radius
    * @return the clusters
    */
-  public ArrayList<Cluster> findClusters(List<ClusterPoint> points, double radius) {
+  public List<Cluster> findClusters(List<ClusterPoint> points, double radius) {
     return findClusters(points, radius, 0);
   }
 
@@ -341,7 +341,7 @@ public class ClusteringEngine {
    * @param time the time
    * @return the clusters
    */
-  public ArrayList<Cluster> findClusters(List<ClusterPoint> points, double radius, int time) {
+  public List<Cluster> findClusters(List<ClusterPoint> points, double radius, int time) {
     if (clusteringAlgorithm == ClusteringAlgorithm.PARTICLE_SINGLE_LINKAGE) {
       return runParticleSingleLinkage(points, radius);
     }

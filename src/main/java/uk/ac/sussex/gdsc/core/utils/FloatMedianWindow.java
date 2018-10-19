@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.utils;
 import org.apache.commons.math3.util.FastMath;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Provides a rolling median window on a data array.
@@ -46,21 +47,36 @@ public class FloatMedianWindow {
   private boolean sortedScan = false;
 
   /**
-   * Instantiates a new median window float.
+   * Creates a new instance wrapping the provided data.
+   *
+   * <p>Note that the median must be written back to a different array, i.e. the input data should
+   * be cloned if the array is to be reused.
    *
    * @param data the data
    * @param radius the radius
    * @throws IllegalArgumentException if the radius is negative
    */
-  public FloatMedianWindow(float[] data, int radius) {
-    if (data == null) {
-      throw new IllegalArgumentException("Input data must not be null");
-    }
+  FloatMedianWindow(float[] data, int radius) {
     if (radius < 0) {
       throw new IllegalArgumentException("Radius must not be negative");
     }
-    this.data = data;
+    this.data = Objects.requireNonNull(data, "Input data must not be null");
     this.radius = radius;
+  }
+
+  /**
+   * Creates a new instance wrapping the provided data.
+   *
+   * <p>Note that the median must be written back to a different array, i.e. the input data should
+   * be cloned if the array is to be reused.
+   *
+   * @param data the data
+   * @param radius the radius
+   * @return the median window
+   * @throws IllegalArgumentException if the radius is negative
+   */
+  public static FloatMedianWindow wrap(float[] data, int radius) {
+    return new FloatMedianWindow(data, radius);
   }
 
   /**
@@ -196,7 +212,7 @@ public class FloatMedianWindow {
     // Remove  ------
     // Keep          +++++++++++++++++++
     // Add                              ======
-    //@formatter:off
+    //@formatter:on
 
     final int newStart = FastMath.max(0, position - radius);
     final int newEnd = FastMath.min(position + radius + 1, data.length);
@@ -228,23 +244,24 @@ public class FloatMedianWindow {
         }
         Arrays.sort(dataToRemove);
 
-        for (int remove = 0, add = cacheEnd, cachePosition =
-            0; remove < dataToRemove.length; remove++) {
+        int pos = 0;
+        int add = cacheEnd;
+        for (int remove = 0; remove < dataToRemove.length; remove++) {
           final float toRemove = dataToRemove[remove];
           final int add2 = add;
 
           // Find the number in the cache
-          for (; cachePosition < cache.length; cachePosition++) {
-            if (cache[cachePosition] == toRemove) {
+          for (; pos < cache.length; pos++) {
+            if (cache[pos] == toRemove) {
               // Replace with new data
-              cache[cachePosition++] = data[add++];
+              cache[pos++] = data[add++];
               break;
             }
           }
 
           if (add == add2) {
             // This is bad. Just recompute the entire cache
-            System.out.printf("MedianWindow : Failed to replace data in the cache\n");
+            // System.out.println("FloatMedianWindow : Failed to replace data in the cache")
             cache = new float[newLength];
             for (int i = newStart, j = 0; i < newEnd; i++, j++) {
               cache[j] = data[i];
@@ -254,7 +271,8 @@ public class FloatMedianWindow {
         }
       } else {
         // Iterate over numbers to remove
-        for (int remove = cacheStart, add = cacheEnd; remove < newStart; remove++) {
+        int add = cacheEnd;
+        for (int remove = cacheStart; remove < newStart; remove++) {
           final float toRemove = data[remove];
           final int add2 = add;
           // Find the number in the cache
@@ -278,7 +296,7 @@ public class FloatMedianWindow {
 
           if (add == add2) {
             // This is bad. Just recompute the entire cache
-            System.out.printf("MedianWindow : Failed to replace data in the cache\n");
+            // System.out.println("FloatMedianWindow : Failed to replace data in the cache")
             cache = new float[newLength];
             for (int i = newStart, j = 0; i < newEnd; i++, j++) {
               cache[j] = data[i];

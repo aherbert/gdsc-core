@@ -38,17 +38,17 @@ import java.awt.geom.Rectangle2D;
 /**
  * Class for testing if coordinates are within a polygon/free/traced ROI.
  */
-public class PolygonRoiTest extends RoiTest {
+public class PolygonRoiContainsPredicate implements CoordinatePredicate {
   private final Rectangle2D.Double bounds;
   private final double[] xpoints;
   private final double[] ypoints;
 
   /**
-   * Instantiates a new polygon roi test.
+   * Creates a new instance.
    *
    * @param roi the roi
    */
-  public PolygonRoiTest(Roi roi) {
+  public PolygonRoiContainsPredicate(Roi roi) {
     if (roi.getType() == Roi.POLYGON || roi.getType() == Roi.FREEROI
         || roi.getType() == Roi.TRACED_ROI) {
       bounds = roi.getFloatBounds();
@@ -61,18 +61,18 @@ public class PolygonRoiTest extends RoiTest {
   }
 
   @Override
-  public boolean contains(double x, double y) {
+  public boolean test(double x, double y) {
     return bounds.contains(x, y) && polygonContains(x, y);
   }
 
   /**
    * Returns 'true' if the point (x,y) is inside this polygon. This is a Java version of the
-   * remarkably small C program by W. Randolph Franklin at
-   * http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html#The%20C%20Code
+   * remarkably small C program by W. Randolph Franklin.
    *
    * @param x the x
    * @param y the y
    * @return true, if successful
+   * @see <a href="https://wrf.ecse.rpi.edu/nikola/pages/software/#pnpoly">PNPOLY</a>
    */
   public boolean polygonContains(double x, double y) {
     boolean inside = false;

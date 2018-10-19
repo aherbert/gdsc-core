@@ -35,17 +35,6 @@ import org.apache.commons.math3.random.RandomGenerator;
  * Caches random numbers.
  */
 public class CachedRandomGenerator extends AbstractRandomGenerator {
-  /**
-   * Class to allow ignoring data when the capacity is full.
-   */
-  private static final class NullStoredData extends StoredData {
-    @Override
-    public void add(double value) {
-      // Ignore
-    }
-  }
-
-  private static final NullStoredData NULL_STORE = new NullStoredData();
 
   /** The sequence. */
   protected final StoredData sequence;
@@ -60,12 +49,24 @@ public class CachedRandomGenerator extends AbstractRandomGenerator {
   protected int pos = 0;
 
   /**
+   * Class to allow ignoring data when the capacity is full.
+   */
+  private static final class NullStoredData extends StoredData {
+    private static final NullStoredData INSTANCE = new NullStoredData();
+
+    @Override
+    public void add(double value) {
+      // Ignore
+    }
+  }
+
+  /**
    * Instantiates a new cached random generator.
    *
    * @param source the random source
    * @throws NullPointerException if the generator is null
    */
-  public CachedRandomGenerator(RandomGenerator source) throws NullPointerException {
+  public CachedRandomGenerator(RandomGenerator source) {
     this(100, source);
   }
 
@@ -76,7 +77,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator {
    * @param source the random source
    * @throws NullPointerException if the generator is null
    */
-  public CachedRandomGenerator(int size, RandomGenerator source) throws NullPointerException {
+  public CachedRandomGenerator(int size, RandomGenerator source) {
     if (source == null) {
       throw new NullPointerException("Source generator must not be null");
     }
@@ -129,7 +130,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator {
         store.add(value);
       } catch (final NegativeArraySizeException ex) {
         // No more capacity
-        store = NULL_STORE;
+        store = NullStoredData.INSTANCE;
       }
     }
     // Safe increment of position to avoid overflow
@@ -172,8 +173,9 @@ public class CachedRandomGenerator extends AbstractRandomGenerator {
    * @return the pseudo random generator
    * @throws IllegalArgumentException If no numbers are in the sequence
    */
-  public PseudoRandomGenerator getPseudoRandomGenerator() throws IllegalArgumentException {
-    return new PseudoRandomGenerator(sequence.getValuesRef(), sequence.size(), false);
+  public PseudoRandomGenerator getPseudoRandomGenerator() {
+    // Clone the sequence because it may be reset
+    return new PseudoRandomGenerator(sequence.getValues(), sequence.size(), false);
   }
 
   /**

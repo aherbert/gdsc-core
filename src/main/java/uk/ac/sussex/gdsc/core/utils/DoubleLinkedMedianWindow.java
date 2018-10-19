@@ -38,7 +38,7 @@ import org.apache.commons.math3.util.FastMath;
  * Processing.
  */
 public class DoubleLinkedMedianWindow {
-  private class Data {
+  private static class Data {
     int index;
     double value;
     /** The smaller chain (s). */

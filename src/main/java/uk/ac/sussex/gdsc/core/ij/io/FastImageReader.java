@@ -65,9 +65,9 @@ public class FastImageReader {
 
   // readRgb48() calculates min/max pixel values
   /** The min value read for Rgb48 images. */
-  public double min;
+  private double min;
   /** The max value read for Rgb48 images. */
-  public double max;
+  private double max;
 
   /**
    * Constructs a new ImageReader using a FileInfo object to describe the file to be read.
@@ -142,9 +142,7 @@ public class FastImageReader {
       throws IOException {
     final int position = in.position;
     final long skip = bytesPerPixel * ((long) numberOfPixels);
-    if (in.skip(skip) != skip) {
-      throw new EOFException();
-    }
+    skip(in, skip);
     return position;
   }
 
@@ -898,9 +896,7 @@ public class FastImageReader {
       if (i > 0) {
         final long skip = (fi.stripOffsets[i] & 0xffffffffL)
             - (fi.stripOffsets[i - 1] & 0xffffffffL) - fi.stripLengths[i - 1];
-        if (skip > 0L) {
-          in.skip(skip);
-        }
+        skip(in, skip);
       }
       int len = fi.stripLengths[i];
       final int bytesToGo = (numberOfPixels - pixel) * channels * 2;
@@ -951,15 +947,13 @@ public class FastImageReader {
     final int channels = 3;
     final short[][] stack = new short[channels][numberOfPixels];
     int pixel = 0;
-    int min = 65535;
-    int max = 0;
+    int localMin = 65535;
+    int localMax = 0;
     for (int i = 0; i < fi.stripOffsets.length; i++) {
       if (i > 0) {
         final long skip = (fi.stripOffsets[i] & 0xffffffffL)
             - (fi.stripOffsets[i - 1] & 0xffffffffL) - fi.stripLengths[i - 1];
-        if (skip > 0L) {
-          in.skip(skip);
-        }
+        skip(in, skip);
       }
       int len = fi.stripLengths[i];
       byte[] buffer = new byte[len];
@@ -978,11 +972,11 @@ public class FastImageReader {
         } else {
           value = ((buffer[base] & 0xff) << 8) | (buffer[base + 1] & 0xff);
         }
-        if (value < min) {
-          min = value;
+        if (value < localMin) {
+          localMin = value;
         }
-        if (value > max) {
-          max = value;
+        if (value > localMax) {
+          localMax = value;
         }
         stack[channel][pixel] = (short) (value);
         channel++;
@@ -992,9 +986,27 @@ public class FastImageReader {
         }
       }
     }
-    this.min = min;
-    this.max = max;
+    this.min = localMin;
+    this.max = localMax;
     return stack;
+  }
+
+  /**
+   * Gets min value read for Rgb48 images.
+   *
+   * @return the min
+   */
+  public double getMinRgb48Value() {
+    return min;
+  }
+
+  /**
+   * Gets max value read for Rgb48 images.
+   *
+   * @return the max
+   */
+  public double getMaxRgb48Value() {
+    return max;
   }
 
   /**
@@ -1106,13 +1118,11 @@ public class FastImageReader {
   /**
    * Skip the input by the current value of skip count and then initialise the buffer for reading.
    *
-   * @param in the input seekable streamput
+   * @param in the input seekable stream
    * @throws IOException Signals that an I/O exception has occurred.
    */
   void skip(SeekableStream in) throws IOException {
-    if (skipCount > 0) {
-      in.skip(skipCount);
-    }
+    skip(in, skipCount);
     byteCount = ((long) width) * height * bytesPerPixel;
     if (fi.fileType == FileInfo.BITMAP) {
       int scan = width / 8;
@@ -1128,6 +1138,20 @@ public class FastImageReader {
       bufferSize = 8192;
     } else {
       bufferSize = (bufferSize / 8192) * 8192;
+    }
+  }
+
+  /**
+   * Skip the input by the given number of bytes.
+   *
+   * @param in the input seekable stream
+   * @param numberOfBytes the number of bytes
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  private static void skip(SeekableStream in, long numberOfBytes) throws IOException {
+    // Check the correct number of bytes were skipped
+    if (numberOfBytes > 0 && in.skip(numberOfBytes) != numberOfBytes) {
+      throw new EOFException();
     }
   }
 
@@ -1322,7 +1346,7 @@ public class FastImageReader {
   /**
    * Uncompress.
    *
-   * @param input the input seekable streamput
+   * @param input the input seekable stream
    * @return the byte[] image
    * @throws IOException Signals that an I/O exception has occurred.
    */
@@ -1341,7 +1365,7 @@ public class FastImageReader {
   /**
    * TIFF Adobe ZIP support contributed by Jason Newton.
    *
-   * @param input the input seekable streamput bytes
+   * @param input the input seekable stream bytes
    * @return the byte[] image
    * @throws IOException Signals that an I/O exception has occurred.
    */
@@ -1367,7 +1391,7 @@ public class FastImageReader {
    * Specification: http://partners.adobe.com/asn/developer/pdfs/tn/TIFF6.pdf (page 61). Author:
    * Curtis Rueden (ctrueden at wisc.edu).
    *
-   * @param input the input seekable streamput bytes
+   * @param input the input seekable stream bytes
    * @return the byte[] image
    */
   public byte[] lzwUncompress(byte[] input) {
@@ -1471,7 +1495,7 @@ public class FastImageReader {
   }
 
   /** A growable array of bytes. */
-  private class ByteVector {
+  private static class ByteVector {
     private byte[] data;
     private int size;
 

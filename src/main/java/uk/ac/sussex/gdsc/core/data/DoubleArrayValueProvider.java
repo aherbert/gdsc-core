@@ -32,40 +32,43 @@ package uk.ac.sussex.gdsc.core.data;
  * Provide data on 1-axis from an array of doubles.
  */
 public class DoubleArrayValueProvider implements ValueProvider {
-  private final double[] val;
+  private final double[] data;
 
   /**
-   * Instantiates a new double array trivalue provider.
+   * Creates a new instance.
    *
-   * @param val the val
-   * @throws DataException If the array is missing data
+   * <p>The input array in wrapped; that is, modifications to the array will cause the provided data
+   * to be modified.
+   *
+   * @param data the data
+   * @throws DataException If the array is length zero
    */
-  public DoubleArrayValueProvider(double[] val) throws DataException {
-    if (val.length == 0) {
+  public DoubleArrayValueProvider(double[] data) {
+    if (data.length == 0) {
       throw new DataException("No data");
     }
-    this.val = val;
+    this.data = data;
   }
 
   @Override
   public int getLength() {
-    return val.length;
+    return data.length;
   }
 
   @Override
   public double get(int x) {
-    return val[x];
+    return data[x];
   }
 
   @Override
   public void get(int x, double[] values) {
-    values[0] = val[x - 1];
-    values[1] = val[x];
-    values[2] = val[x + 1];
+    values[0] = data[x - 1];
+    values[1] = data[x];
+    values[2] = data[x + 1];
   }
 
   @Override
   public double[] toArray() {
-    return val;
+    return data;
   }
 }

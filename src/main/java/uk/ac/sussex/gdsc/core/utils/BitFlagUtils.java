@@ -33,9 +33,8 @@ package uk.ac.sussex.gdsc.core.utils;
  */
 public final class BitFlagUtils {
 
-  private BitFlagUtils() {
-    throw new IllegalStateException("Utility class");
-  }
+  /** No public construction. */
+  private BitFlagUtils() {}
 
   /**
    * Check if all of the given bits are set in the flags.
