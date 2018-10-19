@@ -232,7 +232,8 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D {
     if (sequentialSorting) {
       while (resultHeap.values > 0) {
         resultHeap.removeLargest();
-        results.add(new Entry(resultHeap.getRemovedDistance(), (double[]) resultHeap.getRemovedData()));
+        results.add(
+            new Entry(resultHeap.getRemovedDistance(), resultHeap.getRemovedData()));
       }
     } else {
       for (int i = 0; i < resultHeap.values; i++) {

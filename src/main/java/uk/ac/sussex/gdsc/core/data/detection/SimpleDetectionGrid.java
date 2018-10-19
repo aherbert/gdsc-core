@@ -51,7 +51,7 @@ public class SimpleDetectionGrid implements DetectionGrid {
    *
    * @param rectangles the rectangles
    */
-   SimpleDetectionGrid(Rectangle2D[] rectangles) {
+  SimpleDetectionGrid(Rectangle2D[] rectangles) {
     if (rectangles == null) {
       throw new IllegalArgumentException("Rectangle2Ds must not be null");
     }

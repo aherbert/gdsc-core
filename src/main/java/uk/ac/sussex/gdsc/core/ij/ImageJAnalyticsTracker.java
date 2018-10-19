@@ -269,9 +269,9 @@ public final class ImageJAnalyticsTracker {
    * @param pluginsStream The ImageJ properties file
    * @param charset the charset
    */
-  public static void buildPluginMap(Map<String, String[]> map, InputStream pluginsStream, Charset charset) {
-    try (BufferedReader input =
-        new BufferedReader(new InputStreamReader(pluginsStream, charset))) {
+  public static void buildPluginMap(Map<String, String[]> map, InputStream pluginsStream,
+      Charset charset) {
+    try (BufferedReader input = new BufferedReader(new InputStreamReader(pluginsStream, charset))) {
       String line;
       while ((line = input.readLine()) != null) {
         if (line.startsWith("#")) {

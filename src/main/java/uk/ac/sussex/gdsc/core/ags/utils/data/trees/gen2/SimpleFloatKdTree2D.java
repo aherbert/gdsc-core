@@ -234,7 +234,8 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D {
     if (sequentialSorting) {
       while (resultHeap.values > 0) {
         resultHeap.removeLargest();
-        results.add(new Entry(resultHeap.getRemovedDistance(), (float[]) resultHeap.getRemovedData()));
+        results
+            .add(new Entry(resultHeap.getRemovedDistance(), resultHeap.getRemovedData()));
       }
     } else {
       for (int i = 0; i < resultHeap.values; i++) {

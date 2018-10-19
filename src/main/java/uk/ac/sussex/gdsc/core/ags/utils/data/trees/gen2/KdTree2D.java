@@ -244,7 +244,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
     if (sequentialSorting) {
       while (resultHeap.values > 0) {
         resultHeap.removeLargest();
-        results.add(new Entry<>(resultHeap.getRemovedDistance(), (T) resultHeap.getRemovedData()));
+        results.add(new Entry<>(resultHeap.getRemovedDistance(), resultHeap.getRemovedData()));
       }
     } else {
       for (int i = 0; i < resultHeap.values; i++) {
