@@ -455,7 +455,7 @@ public class Fht extends FloatProcessor {
 
   /**
    * Converts this FHT to a complex Fourier transform and returns it as a two slice stack.
-   * 
+   *
    * <p>This has been adapted from the routine {@link #getComplexTransform()} to compute the real
    * and imaginary parts of the transform at the same time.
    *
@@ -482,7 +482,7 @@ public class Fht extends FloatProcessor {
 
   /**
    * Converts this FHT to a complex Fourier transform and returns it as a two slice stack.
-   * 
+   *
    * <p>This has been adapted from the routine {@link #getComplexTransform()} to compute the real
    * and imaginary parts of the transform at the same time.
    *
