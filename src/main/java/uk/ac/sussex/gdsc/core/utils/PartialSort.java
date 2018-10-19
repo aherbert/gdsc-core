@@ -32,10 +32,8 @@ import java.util.Arrays;
 
 /**
  * Provides functionality to partially sort an array.
- *
- * @author Alex Herbert
  */
-public class PartialSort {
+public final class PartialSort {
   // This class uses n,k as legitimate method parameter names.
   // CHECKSTYLE.OFF: ParameterName
   /**
@@ -45,18 +43,18 @@ public class PartialSort {
    * list (m, e.g. n/m &gt; 0.5) then it is probably faster to sort the input list and take the top
    * n.
    */
-  public static final int OPTION_SORT = 1;
+  public static final int OPTION_SORT = 0x01;
 
   /**
    * Remove NaN values from the returned data.
    */
-  public static final int OPTION_REMOVE_NAN = 2;
+  public static final int OPTION_REMOVE_NAN = 0x02;
 
   /**
    * Return the head position at the first point in the returned data (i.e. if choosing the bottom N
    * then array[0] will contain the Nth point. This is not compatible with {@link #OPTION_SORT}.
    */
-  public static final int OPTION_HEAD_FIRST = 4;
+  public static final int OPTION_HEAD_FIRST = 0x04;
 
   /**
    * Return a sorted array with no invalid data.
@@ -66,7 +64,16 @@ public class PartialSort {
   /**
    * Internal top direction flag.
    */
-  private static final int OPTION_TOP = 8;
+  private static final int OPTION_TOP = 0x08;
+
+  /**
+   * Internal no clone flag.
+   */
+  private static final int OPTION_NO_CLONE = 0x10;
+
+
+  /** No public construction. */
+  private PartialSort() {}
 
   /**
    * Provide partial sort of double arrays.
@@ -90,9 +97,7 @@ public class PartialSort {
      * @param selectN the number to select
      */
     public DoubleHeap(int selectN) {
-      if (selectN < 1) {
-        throw new IllegalArgumentException("N must be strictly positive");
-      }
+      checkStrictlyPositive(selectN);
       this.queue = new double[selectN];
       this.selectN = selectN;
     }
@@ -158,10 +163,6 @@ public class PartialSort {
           bottomDownHeapify(0);
         }
         index++;
-      }
-
-      if (options == 0) {
-        return queue;
       }
 
       return quickFinish(queue, options);
@@ -265,10 +266,6 @@ public class PartialSort {
         index++;
       }
 
-      if (options == 0) {
-        return queue;
-      }
-
       return quickFinish(queue, options | OPTION_TOP);
     }
 
@@ -330,9 +327,7 @@ public class PartialSort {
      * @param selectN The number N to select
      */
     public DoubleSelector(int selectN) {
-      if (selectN < 1) {
-        throw new IllegalArgumentException("N must be strictly positive");
-      }
+      checkStrictlyPositive(selectN);
       this.selectN = selectN;
       queue = new double[selectN];
     }
@@ -402,10 +397,6 @@ public class PartialSort {
           max = bottomMax(queue);
         }
         index++;
-      }
-
-      if (options == 0) {
-        return queue;
       }
 
       if ((options & OPTION_HEAD_FIRST) != 0) {
@@ -479,10 +470,6 @@ public class PartialSort {
         index++;
       }
 
-      if (options == 0) {
-        return queue;
-      }
-
       if ((options & OPTION_HEAD_FIRST) != 0) {
         swapHead(queue, max);
       }
@@ -513,9 +500,7 @@ public class PartialSort {
      * @param selectN the number to select
      */
     public FloatHeap(int selectN) {
-      if (selectN < 1) {
-        throw new IllegalArgumentException("N must be strictly positive");
-      }
+      checkStrictlyPositive(selectN);
       this.queue = new float[selectN];
       this.selectN = selectN;
     }
@@ -581,10 +566,6 @@ public class PartialSort {
           bottomDownHeapify(0);
         }
         index++;
-      }
-
-      if (options == 0) {
-        return queue;
       }
 
       return quickFinish(queue, options);
@@ -688,10 +669,6 @@ public class PartialSort {
         index++;
       }
 
-      if (options == 0) {
-        return queue;
-      }
-
       return quickFinish(queue, options | OPTION_TOP);
     }
 
@@ -753,9 +730,7 @@ public class PartialSort {
      * @param selectN The number N to select
      */
     public FloatSelector(int selectN) {
-      if (selectN < 1) {
-        throw new IllegalArgumentException("N must be strictly positive");
-      }
+      checkStrictlyPositive(selectN);
       this.selectN = selectN;
       queue = new float[selectN];
     }
@@ -825,10 +800,6 @@ public class PartialSort {
           max = bottomMax(queue);
         }
         index++;
-      }
-
-      if (options == 0) {
-        return queue;
       }
 
       if ((options & OPTION_HEAD_FIRST) != 0) {
@@ -902,10 +873,6 @@ public class PartialSort {
         index++;
       }
 
-      if (options == 0) {
-        return queue;
-      }
-
       if ((options & OPTION_HEAD_FIRST) != 0) {
         swapHead(queue, max);
       }
@@ -956,15 +923,15 @@ public class PartialSort {
   }
 
   private static double[] quickFinish(double[] data, int options) {
-    data = removeNaN(data, options);
-    sort(data, options);
-    return data;
+    double[] result = removeNaN(data, options);
+    sort(result, options);
+    return cloneResultIfRequired(data, result, options);
   }
 
   private static float[] quickFinish(float[] data, int options) {
-    data = removeNaN(data, options);
-    sort(data, options);
-    return data;
+    float[] result = removeNaN(data, options);
+    sort(result, options);
+    return cloneResultIfRequired(data, result, options);
   }
 
   private static double[] bottomFinish(double[] data, int options) {
@@ -1083,6 +1050,22 @@ public class PartialSort {
     }
   }
 
+  private static double[] cloneResultIfRequired(double[] data, double[] result, int options) {
+    return ((options & OPTION_NO_CLONE) != 0 || data != result)
+        // The no clone option is specified; or the result is different anyway
+        ? result
+        // Clone the result
+        : result.clone();
+  }
+
+  private static float[] cloneResultIfRequired(float[] data, float[] result, int options) {
+    return ((options & OPTION_NO_CLONE) != 0 || data != result)
+        // The no clone option is specified; or the result is different anyway
+        ? result
+        // Clone the result
+        : result.clone();
+  }
+
   /**
    * Pick the bottom N from the data using ascending order, i.e. find the bottom n smallest values.
    *
@@ -1182,9 +1165,9 @@ public class PartialSort {
     if (size <= n) {
       list = bottomFinish(list.clone(), options);
     } else if (n < 5) {
-      list = new DoubleSelector(n).bottom(options, list, size);
+      list = new DoubleSelector(n).bottom(options | OPTION_NO_CLONE, list, size);
     } else {
-      list = new DoubleHeap(n).bottom(options, list, size);
+      list = new DoubleHeap(n).bottom(options | OPTION_NO_CLONE, list, size);
     }
     return list;
   }
@@ -1206,9 +1189,9 @@ public class PartialSort {
     if (size <= n) {
       list = bottomFinish(list.clone(), options);
     } else if (n < 5) {
-      list = new FloatSelector(n).bottom(options, list, size);
+      list = new FloatSelector(n).bottom(options | OPTION_NO_CLONE, list, size);
     } else {
-      list = new FloatHeap(n).bottom(options, list, size);
+      list = new FloatHeap(n).bottom(options | OPTION_NO_CLONE, list, size);
     }
     return list;
   }
@@ -1312,9 +1295,9 @@ public class PartialSort {
     if (size <= n) {
       list = topFinish(list.clone(), options);
     } else if (n < 5) {
-      list = new DoubleSelector(n).top(options, list, size);
+      list = new DoubleSelector(n).top(options | OPTION_NO_CLONE, list, size);
     } else {
-      list = new DoubleHeap(n).top(options, list, size);
+      list = new DoubleHeap(n).top(options | OPTION_NO_CLONE, list, size);
     }
     return list;
   }
@@ -1336,9 +1319,9 @@ public class PartialSort {
     if (size <= n) {
       list = topFinish(list.clone(), options);
     } else if (n < 5) {
-      list = new FloatSelector(n).top(options, list, size);
+      list = new FloatSelector(n).top(options | OPTION_NO_CLONE, list, size);
     } else {
-      list = new FloatHeap(n).top(options, list, size);
+      list = new FloatHeap(n).top(options | OPTION_NO_CLONE, list, size);
     }
     return list;
   }
@@ -1493,5 +1476,16 @@ public class PartialSort {
     final float temp = data[index1];
     data[index1] = data[index2];
     data[index2] = temp;
+  }
+
+  /**
+   * Check the number is strictly positive ({@code > 0}).
+   *
+   * @param number the number
+   */
+  private static void checkStrictlyPositive(int number) {
+    if (number < 1) {
+      throw new IllegalArgumentException("N must be strictly positive: " + number);
+    }
   }
 }
