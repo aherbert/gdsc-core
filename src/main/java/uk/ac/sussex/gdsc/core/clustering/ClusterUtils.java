@@ -31,7 +31,7 @@ package uk.ac.sussex.gdsc.core.clustering;
 import org.apache.commons.math3.util.FastMath;
 
 /**
- * Used to store information about a point in the clustering analysis.
+ * Utilities used for clustering.
  */
 final class ClusterUtils {
 
