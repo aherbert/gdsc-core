@@ -296,8 +296,8 @@ public class ClusteringEngineTest {
 
   private static void compareClusters(List<Cluster> exp, List<Cluster> obs)
       throws AssertionError {
-    Collections.sort(exp);
-    Collections.sort(obs);
+    Collections.sort(exp, ClusterComparator.getDefaultInstance());
+    Collections.sort(obs, ClusterComparator.getDefaultInstance());
 
     try {
       Assertions.assertEquals(exp.size(), obs.size(), "# clusters is different");
