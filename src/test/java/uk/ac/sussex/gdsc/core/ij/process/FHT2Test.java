@@ -111,7 +111,7 @@ public class FHT2Test {
     // using double*double + double*double rather than float*float + float*float,
     // i.e. the float are converted to double before multiplication.
     if (mode == 2) {
-      TestAssertions.assertArrayTest(e, o, TestHelper.almostEqualFloats(1e-5, 0));
+      TestAssertions.assertArrayTest(e, o, TestHelper.floatsAreClose(1e-5, 0));
     } else {
       Assertions.assertArrayEquals(e, o);
     }

@@ -2,7 +2,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.rng.UniformRandomProvider;
@@ -15,7 +15,7 @@ import org.opentest4j.AssertionFailedError;
 public class StatisticsTest {
   @SeededTest
   public void canComputeStatistics(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     DescriptiveStatistics e;
     Statistics o;
     for (int i = 0; i < 10; i++) {

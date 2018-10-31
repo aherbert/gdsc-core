@@ -11,7 +11,7 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
@@ -49,7 +49,7 @@ public class KdTreeTest {
 
   @SeededTest
   public void canComputeKNNSecondGen(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     for (final int n : N) {
       final double[][] data = createData(r, size, n, false);
 
@@ -95,7 +95,7 @@ public class KdTreeTest {
 
   @SeededTest
   public void canComputeKNNSecondGenWithDuplicates(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     for (final int n : N) {
       final double[][] data = createData(r, size, n, true);
 
@@ -141,7 +141,7 @@ public class KdTreeTest {
 
   @SeededTest
   public void canComputeKNNDistanceSecondGen(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     for (final int n : N) {
       final double[][] data = createData(r, size, n, true);
 
@@ -177,7 +177,7 @@ public class KdTreeTest {
 
   @SeededTest
   public void canComputeKNNThirdGen(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     for (final int n : N) {
       final double[][] data = createData(r, size, n, false);
 
@@ -225,7 +225,7 @@ public class KdTreeTest {
 
   @SeededTest
   public void canComputeKNNThirdGenWithDuplicates(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     for (final int n : N) {
       final double[][] data = createData(r, size, n, true);
 
@@ -273,7 +273,7 @@ public class KdTreeTest {
 
   @SeededTest
   public void canComputeKNNDistanceThirdGen(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     for (final int n : N) {
       final double[][] data = createData(r, size, n, true);
 
@@ -362,7 +362,7 @@ public class KdTreeTest {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     final TimingService ts = new TimingService(15);
     final int n = 5000;
     final double[][] data = createData(r, size, n, true);
@@ -535,7 +535,7 @@ public class KdTreeTest {
   public void secondGenBucket24IsFastest(RandomSeed seed) {
     logger.isLoggable(Level.INFO);
 
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     final TimingService ts = new TimingService(15);
     final int n = 5000;
     final double[][] data = createData(r, size, n, true);

@@ -2,7 +2,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
 
@@ -54,7 +54,7 @@ public class PartialSortTest {
 
   @SeededTest
   public void bottomNofMIsCorrect(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     for (final int n : testN) {
       for (final int m : testM) {
         bottomCompute(r, 100, n, m);
@@ -215,7 +215,7 @@ public class PartialSortTest {
 
   @SeededTest
   public void topNofMIsCorrect(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     for (final int n : testN) {
       for (final int m : testM) {
         topCompute(r, 100, n, m);

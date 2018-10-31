@@ -2,7 +2,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
@@ -17,7 +17,7 @@ import java.io.IOException;
 public class DigestTest {
   @SeededTest
   public void canComputeMD5Hex(RandomSeed seed) throws IOException {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
 
     final byte[] testBytes = new byte[50];
 

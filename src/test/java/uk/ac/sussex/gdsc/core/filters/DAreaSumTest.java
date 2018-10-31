@@ -7,7 +7,7 @@ import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLog;
@@ -47,7 +47,7 @@ public class DAreaSumTest {
 
   @SeededTest
   public void canComputeGlobalStatistics(RandomSeed seed) {
-    final double[] data = createData(RngFactory.create(seed.getSeedAsLong()));
+    final double[] data = createData(RngUtils.create(seed.getSeedAsLong()));
     final Statistics s = new Statistics(data);
     final DAreaSum a = new DAreaSum(data, maxx, maxy);
     for (final boolean r : rolling) {
@@ -55,18 +55,18 @@ public class DAreaSumTest {
       double[] o = a.getStatistics(0, 0, maxy);
       Assertions.assertEquals(s.getN(), o[DAreaSum.INDEX_COUNT]);
       TestAssertions.assertTest(s.getSum(), o[DAreaSum.INDEX_SUM],
-          TestHelper.almostEqualDoubles(1e-6, 0));
+          TestHelper.doublesAreClose(1e-6, 0));
 
       o = a.getStatistics(new Rectangle(maxx, maxy));
       Assertions.assertEquals(s.getN(), o[DAreaSum.INDEX_COUNT]);
       TestAssertions.assertTest(s.getSum(), o[DAreaSum.INDEX_SUM],
-          TestHelper.almostEqualDoubles(1e-6, 0));
+          TestHelper.doublesAreClose(1e-6, 0));
     }
   }
 
   @SeededTest
   public void canComputeNxNRegionStatistics(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     final double[] data = createData(r);
     final DAreaSum a1 = new DAreaSum(data, maxx, maxy);
     a1.setRollingSums(true);
@@ -89,7 +89,7 @@ public class DAreaSumTest {
 
           Assertions.assertEquals(s.area, o[DAreaSum.INDEX_COUNT]);
           TestAssertions.assertTest(s.mean * s.area, o[DAreaSum.INDEX_SUM],
-              TestHelper.almostEqualDoubles(1e-6, 0));
+              TestHelper.doublesAreClose(1e-6, 0));
         }
       }
     }
@@ -97,7 +97,7 @@ public class DAreaSumTest {
 
   @SeededTest
   public void canComputeNxMRegionStatistics(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     final double[] data = createData(r);
     final DAreaSum a1 = new DAreaSum(data, maxx, maxy);
     a1.setRollingSums(true);
@@ -122,7 +122,7 @@ public class DAreaSumTest {
             Assertions.assertEquals(s.area, o[DAreaSum.INDEX_COUNT]);
             final double sum = s.mean * s.area;
             TestAssertions.assertTest(sum, o[DAreaSum.INDEX_SUM],
-                TestHelper.almostEqualDoubles(1e-6, 0));
+                TestHelper.doublesAreClose(1e-6, 0));
           }
         }
       }
@@ -131,7 +131,7 @@ public class DAreaSumTest {
 
   @SeededTest
   public void canComputeRectangleRegionStatistics(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     final double[] data = createData(r);
     final DAreaSum a1 = new DAreaSum(data, maxx, maxy);
     a1.setRollingSums(true);
@@ -158,7 +158,7 @@ public class DAreaSumTest {
 
         Assertions.assertEquals(s.area, o[DAreaSum.INDEX_COUNT]);
         TestAssertions.assertTest(s.mean * s.area, o[DAreaSum.INDEX_SUM],
-            TestHelper.almostEqualDoubles(1e-6, 0));
+            TestHelper.doublesAreClose(1e-6, 0));
       }
     }
   }
@@ -175,18 +175,18 @@ public class DAreaSumTest {
       for (final int n : boxSizes) {
         double[] o = a.getStatistics(0, 0, n);
         Assertions.assertEquals(c, o[DAreaSum.INDEX_COUNT]);
-        TestAssertions.assertTest(u, o[DAreaSum.INDEX_SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+        TestAssertions.assertTest(u, o[DAreaSum.INDEX_SUM], TestHelper.doublesAreClose(1e-6, 0));
 
         final Rectangle bounds = new Rectangle(2 * n + 1, 2 * n + 1);
         o = a.getStatistics(bounds);
         Assertions.assertEquals(c, o[DAreaSum.INDEX_COUNT]);
-        TestAssertions.assertTest(u, o[DAreaSum.INDEX_SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+        TestAssertions.assertTest(u, o[DAreaSum.INDEX_SUM], TestHelper.doublesAreClose(1e-6, 0));
 
         bounds.x--;
         bounds.y--;
         o = a.getStatistics(bounds);
         Assertions.assertEquals(c, o[DAreaSum.INDEX_COUNT]);
-        TestAssertions.assertTest(u, o[DAreaSum.INDEX_SUM], TestHelper.almostEqualDoubles(1e-6, 0));
+        TestAssertions.assertTest(u, o[DAreaSum.INDEX_SUM], TestHelper.doublesAreClose(1e-6, 0));
       }
     }
   }
@@ -254,7 +254,7 @@ public class DAreaSumTest {
 
   private void speedTest(RandomSeed seed, double density, boolean rollingIsFaster, int minN,
       int maxN) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
 
     final int k = (int) Math.round(maxx * maxy * density);
     final int[] x = Random.sample(k, maxx, r);

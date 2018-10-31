@@ -8,6 +8,7 @@ import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.math.interpolation.CustomTricubicInterpolatingFunction.Size;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
+import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NoDataException;
@@ -89,6 +90,7 @@ public class CustomTricubicInterpolatingFunctionTest {
   public void testComputeCoefficients() {
     final UniformRandomProvider rng = RandomSource.create(RandomSource.MWC_256);
     final double[] beta = new double[64];
+    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-10, 0);
     for (int i = 0; i < 10; i++) {
       for (int j = 0; j < beta.length; j++) {
         beta[j] = rng.nextDouble();
@@ -100,7 +102,7 @@ public class CustomTricubicInterpolatingFunctionTest {
       final double[] o2 =
           CustomTricubicInterpolatingFunction.computeCoefficientsInlineCollectTerms(beta);
       // Almost the same
-      TestAssertions.assertArrayTest(e, o2, TestHelper.almostEqualDoubles(1e-10, 0));
+      TestAssertions.assertArrayTest(e, o2, equality);
     }
   }
 

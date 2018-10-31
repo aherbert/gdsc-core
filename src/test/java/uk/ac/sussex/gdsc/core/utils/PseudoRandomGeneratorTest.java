@@ -2,7 +2,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
@@ -30,14 +30,14 @@ public class PseudoRandomGeneratorTest {
 
   @SeededTest
   public void canConstructPseudoRandomGeneratorFromSource(RandomSeed seed) {
-    final UniformRandomProvider source = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider source = RngUtils.create(seed.getSeedAsLong());
     final int length = 5;
     final double[] e = new double[length];
     for (int i = 0; i < e.length; i++) {
       e[i] = source.nextDouble();
     }
     final PseudoRandomGenerator r = new PseudoRandomGenerator(length,
-        new RandomGeneratorAdapter(RngFactory.create(seed.getSeedAsLong())));
+        new RandomGeneratorAdapter(RngUtils.create(seed.getSeedAsLong())));
     canConstructPseudoRandomGenerator(r, e);
   }
 

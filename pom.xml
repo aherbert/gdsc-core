@@ -83,17 +83,14 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <gdsc.test.version>1.0-SNAPSHOT</gdsc.test.version>
     <org.junit.jupiter.version>5.2.0</org.junit.jupiter.version>
     <org.junit.platform.version>1.2.0</org.junit.platform.version>
-    <org.junit.version>4.12</org.junit.version>
     <org.opentest4j.version>1.1.0</org.opentest4j.version>
     <commons.rng.version>1.1</commons.rng.version>
-    <commons.codec.version>1.11</commons.codec.version>
     <org.jacoco.version>0.8.1</org.jacoco.version>
-    <license-maven-plugin.version>1.16</license-maven-plugin.version>
     <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
     <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
     <spotbugs.version>3.1.6</spotbugs.version>
     <checkstyle.version>8.13</checkstyle.version>
-    <pmd.version>6.7.0</pmd.version>
+    <pmd.version>6.8.0</pmd.version>
     <elki.version>0.7.1</elki.version>
     <!-- Maven -->
     <maven.compiler.source>1.8</maven.compiler.source>

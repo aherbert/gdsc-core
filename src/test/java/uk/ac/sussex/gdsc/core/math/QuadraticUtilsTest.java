@@ -3,9 +3,10 @@ package uk.ac.sussex.gdsc.core.math;
 import uk.ac.sussex.gdsc.core.data.DataException;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
+import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
@@ -15,7 +16,8 @@ import org.junit.jupiter.api.Test;
 public class QuadraticUtilsTest {
   @SeededTest
   public void canGetDeterminant3x3(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final DoubleDoubleBiPredicate areClose = TestHelper.doublesAreClose(1e-6, 0);
     for (int i = 0; i < 5; i++) {
       final double[] m = new double[9];
       for (int j = 0; j < 9; j++) {
@@ -26,7 +28,7 @@ public class QuadraticUtilsTest {
       for (int j = 0; j < 3; j++) {
         final double scale = r.nextDouble() * 100;
         final double o = QuadraticUtils.getDeterminant3x3(m, scale);
-        TestAssertions.assertTest(e, o, TestHelper.almostEqualDoubles(1e-6, 0));
+        TestAssertions.assertTest(e, o, areClose);
       }
     }
   }
@@ -38,7 +40,7 @@ public class QuadraticUtilsTest {
     final double c = -4;
     final double[] e = new double[] {a, b, c};
 
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     for (int i = 0; i < 5; i++) {
       // Avoid identical points
       final double x1 = -5 + r.nextDouble() * 10;
@@ -52,20 +54,21 @@ public class QuadraticUtilsTest {
       }
 
       // Order invariant
-      canSolveQuadratic(a, b, c, e, x1, x2, x3);
-      canSolveQuadratic(a, b, c, e, x1, x3, x2);
-      canSolveQuadratic(a, b, c, e, x2, x1, x3);
-      canSolveQuadratic(a, b, c, e, x2, x3, x1);
-      canSolveQuadratic(a, b, c, e, x3, x1, x2);
-      canSolveQuadratic(a, b, c, e, x3, x2, x1);
+      final DoubleDoubleBiPredicate areClose = TestHelper.doublesAreClose(1e-6, 0);
+      canSolveQuadratic(a, b, c, e, x1, x2, x3, areClose);
+      canSolveQuadratic(a, b, c, e, x1, x3, x2, areClose);
+      canSolveQuadratic(a, b, c, e, x2, x1, x3, areClose);
+      canSolveQuadratic(a, b, c, e, x2, x3, x1, areClose);
+      canSolveQuadratic(a, b, c, e, x3, x1, x2, areClose);
+      canSolveQuadratic(a, b, c, e, x3, x2, x1, areClose);
     }
   }
 
   private static void canSolveQuadratic(double a, double b, double c, double[] e, double x1,
-      double x2, double x3) {
+      double x2, double x3, DoubleDoubleBiPredicate areClose) {
     final double[] o = solveQuadratic(a, b, c, x1, x2, x3);
     Assertions.assertNotNull(o);
-    TestAssertions.assertArrayTest(e, o, TestHelper.almostEqualDoubles(1e-6, 0));
+    TestAssertions.assertArrayTest(e, o, areClose);
   }
 
   private static double[] solveQuadratic(double a, double b, double c, double x1, double x2,
@@ -88,14 +91,11 @@ public class QuadraticUtilsTest {
 
   @Test
   public void canFindMinMaxQuadratic() {
-    TestAssertions.assertTest(0, findMinMaxQuadratic(1, 0, 0, -1, 0, 1),
-        TestHelper.almostEqualDoubles(1e-6, 0));
-    TestAssertions.assertTest(0, findMinMaxQuadratic(1, 0, -10, -1, 0, 1),
-        TestHelper.almostEqualDoubles(1e-6, 0));
-    TestAssertions.assertTest(-1, findMinMaxQuadratic(1, 2, 0, -1, 0, 1),
-        TestHelper.almostEqualDoubles(1e-6, 0));
-    TestAssertions.assertTest(-1, findMinMaxQuadratic(1, 2, -10, -1, 0, 1),
-        TestHelper.almostEqualDoubles(1e-6, 0));
+    final DoubleDoubleBiPredicate areClose = TestHelper.doublesAreClose(1e-6, 0);
+    TestAssertions.assertTest(0, findMinMaxQuadratic(1, 0, 0, -1, 0, 1), areClose);
+    TestAssertions.assertTest(0, findMinMaxQuadratic(1, 0, -10, -1, 0, 1), areClose);
+    TestAssertions.assertTest(-1, findMinMaxQuadratic(1, 2, 0, -1, 0, 1), areClose);
+    TestAssertions.assertTest(-1, findMinMaxQuadratic(1, 2, -10, -1, 0, 1), areClose);
   }
 
   private static double findMinMaxQuadratic(double a, double b, double c, double x1, double x2,

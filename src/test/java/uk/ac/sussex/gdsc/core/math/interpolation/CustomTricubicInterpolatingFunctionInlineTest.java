@@ -3,9 +3,10 @@ package uk.ac.sussex.gdsc.core.math.interpolation;
 import uk.ac.sussex.gdsc.core.utils.Sort;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
+import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
@@ -207,7 +208,9 @@ public class CustomTricubicInterpolatingFunctionInlineTest {
     logger.log(level, inlineComputeCoefficientsCollectTerms());
   }
 
-  private abstract class MyTimingTask extends BaseTimingTask {
+  private static abstract class MyTimingTask extends BaseTimingTask {
+    static final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-6, 0);
+
     double[][] a;
 
     public MyTimingTask(String name, double[][] a) {
@@ -228,7 +231,7 @@ public class CustomTricubicInterpolatingFunctionInlineTest {
     @Override
     public void check(int i, Object result) {
       final double[][] b = (double[][]) result;
-      TestAssertions.assertArrayTest(a, b, TestHelper.almostEqualDoubles(1e-6, 0), getName());
+      TestAssertions.assertArrayTest(a, b, equality, getName());
     }
   }
 
@@ -236,7 +239,7 @@ public class CustomTricubicInterpolatingFunctionInlineTest {
   public void inlineComputeCoefficientsIsFaster(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
 
     final int N = 3000;
     final double[][] tables = new double[N][];

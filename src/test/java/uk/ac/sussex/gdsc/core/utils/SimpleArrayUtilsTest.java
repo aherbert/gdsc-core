@@ -2,7 +2,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
@@ -38,7 +38,7 @@ public class SimpleArrayUtilsTest {
 
   @SeededTest
   public void canFlatten(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     final TIntHashSet set = new TIntHashSet();
     testFlatten(set, new int[0]);
     testFlatten(set, new int[10]);
@@ -91,7 +91,7 @@ public class SimpleArrayUtilsTest {
   public void testMergeOnIndexData(RandomSeed seed) {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
 
     final double[] f = new double[] {0.1, 0.5, 0.75};
     for (final int size : new int[] {100, 1000, 10000}) {
@@ -143,7 +143,7 @@ public class SimpleArrayUtilsTest {
   public void testMergeOnRedundantData(RandomSeed seed) {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
 
     final int[] n = new int[] {2, 4, 8};
     final int[] size = new int[] {100, 1000, 10000};

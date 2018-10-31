@@ -38,7 +38,7 @@ public class CachedBicubicInterpolatorTest {
       x3[i] = x[i] * x[i] * x[i];
     }
 
-    final DoubleDoubleBiPredicate equality = TestHelper.almostEqualDoubles(1e-5, 0);
+    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-5, 0);
 
     for (int i = 0; i < x.length; i++) {
       for (int j = 0; j < x.length; j++) {

@@ -2,7 +2,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
 import org.apache.commons.rng.UniformRandomProvider;
@@ -80,7 +80,7 @@ public class ConvexHullTest {
 
   @SeededTest
   public void canComputeConvexHullFromOrigin00(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     for (final int size : new int[] {10}) {
       for (final float w : new float[] {10, 5}) {
         for (final float h : new float[] {10, 5}) {
@@ -92,7 +92,7 @@ public class ConvexHullTest {
 
   @SeededTest
   public void canComputeConvexHullFromOriginXY(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     for (final int size : new int[] {10}) {
       for (final float ox : new float[] {-5, 5}) {
         for (final float oy : new float[] {-5, 5}) {

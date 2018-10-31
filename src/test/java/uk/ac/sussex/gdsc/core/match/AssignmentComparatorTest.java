@@ -2,7 +2,7 @@ package uk.ac.sussex.gdsc.core.match;
 
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
 
@@ -94,7 +94,7 @@ public class AssignmentComparatorTest {
   }
 
   private static AssignmentComparatorTestData getData(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     final int size = 100;
     // The assignment data will be concatenated blocks of sorted arrays
     final int blocks = 50;

@@ -3,7 +3,7 @@ package uk.ac.sussex.gdsc.core.data.detection;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLog;
@@ -129,7 +129,7 @@ public class DetectionGridTest {
   @SeededTest
   public void canDetectTheSameCollisions(RandomSeed seed) {
     final int size = 512;
-    final UniformRandomProvider rdg = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider rdg = RngUtils.create(seed.getSeedAsLong());
     final Rectangle2D[] r = generateRectangles(rdg, 1000, size);
 
     final SimpleDetectionGrid g1 = new SimpleDetectionGrid(r);
@@ -246,7 +246,7 @@ public class DetectionGridTest {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rdg = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider rdg = RngUtils.create(seed.getSeedAsLong());
 
     final TimingService ts = new TimingService();
     while (n > 500) {

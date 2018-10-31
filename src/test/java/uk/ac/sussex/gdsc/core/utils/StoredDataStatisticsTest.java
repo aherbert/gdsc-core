@@ -3,7 +3,7 @@ package uk.ac.sussex.gdsc.core.utils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLog;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
@@ -42,7 +42,7 @@ public class StoredDataStatisticsTest extends StatisticsTest {
   final int loops = 100;
 
   private static StoredDataStatistics createStatistics(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     final StoredDataStatistics stats = new StoredDataStatistics(STATISTICS_SIZE);
     for (int i = 0; i < STATISTICS_SIZE; i++) {
       stats.add(r.nextDouble());

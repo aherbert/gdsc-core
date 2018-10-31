@@ -5,7 +5,7 @@ import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.rng.UniformRandomProvider;
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 public class RollingStatisticsTest {
   @SeededTest
   public void canComputeStatistics(RandomSeed seed) {
-    final UniformRandomProvider r = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     DescriptiveStatistics e;
     RollingStatistics o;
     for (int i = 0; i < 10; i++) {
@@ -84,7 +84,7 @@ public class RollingStatisticsTest {
     o4.add(d1);
     o4.add(d2);
 
-    final DoubleDoubleBiPredicate equality = TestHelper.almostEqualDoubles(1e-10, 0);
+    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-10, 0);
     Assertions.assertEquals(o3.getN(), o4.getN(), "N");
     TestAssertions.assertTest(o3.getMean(), o4.getMean(), equality, "Mean");
     TestAssertions.assertTest(o3.getVariance(), o4.getVariance(), equality, "Variance");

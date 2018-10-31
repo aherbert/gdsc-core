@@ -33,6 +33,11 @@
     <!--  Allow builders to construct classes using private constructors -->
     <exclude name="AccessorClassGeneration" />
   </rule>
+  <rule ref="category/java/codestyle.xml/FieldNamingConventions">
+    <properties>
+      <property name="exclusions" value="serialVersionUID|logger" />
+    </properties>
+  </rule>
   <rule ref="category/java/codestyle.xml">
     <exclude name="MethodArgumentCouldBeFinal" />
     <exclude name="ShortVariable" />

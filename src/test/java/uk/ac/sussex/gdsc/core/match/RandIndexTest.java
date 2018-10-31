@@ -4,7 +4,7 @@ import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RngFactory;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLog;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
@@ -213,7 +213,7 @@ public class RandIndexTest {
 
   @SeededTest
   public void canComputeRandIndexWithSimpleData(RandomSeed seed) {
-    final UniformRandomProvider rg = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
     final int size = 100;
     for (final int n1 : new int[] {1, 2, 3, 4, 5}) {
       for (final int n2 : new int[] {1, 2, 3, 4, 5}) {
@@ -225,7 +225,7 @@ public class RandIndexTest {
   @SeededTest
   public void canComputeRandIndexWithBigData(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.LOW));
-    final UniformRandomProvider rg = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
     final int size = 10000;
     for (final int i : new int[] {3, 5, 10}) {
       final int n1 = size / i;
@@ -272,13 +272,13 @@ public class RandIndexTest {
     logger.log(TestLog.getRecord(Level.FINE, "[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f", n, n1,
         n2, simple, e, table2, o2, simple / (double) table2));
 
-    TestAssertions.assertTest(e, o1, TestHelper.almostEqualDoubles(1e-10, 0));
+    TestAssertions.assertTest(e, o1, TestHelper.doublesAreClose(1e-10, 0));
     Assertions.assertEquals(o2, o1);
   }
 
   @SeededTest
   public void adjustedRandIndexIsZeroForRandomData(RandomSeed seed) {
-    final UniformRandomProvider rg = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
     final int size = 100;
     for (final int n1 : new int[] {2, 5, 10}) {
       for (final int n2 : new int[] {2, 5}) {
@@ -351,7 +351,7 @@ public class RandIndexTest {
       c1[size] = size % n1;
       c2[size] = size % n2;
     }
-    final UniformRandomProvider rand = RngFactory.create(seed.getSeedAsLong());
+    final UniformRandomProvider rand = RngUtils.create(seed.getSeedAsLong());
     PermutationSampler.shuffle(rand, c1);
 
     final RandIndex ri = new RandIndex();
