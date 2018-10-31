@@ -117,29 +117,6 @@ public class TimeCluster extends Cluster {
     setEndTime(FastMath.max(getEndTime(), other.getEndTime()));
   }
 
-  @Override
-  public int compareTo(Cluster other) {
-    final int result = super.compareTo(other);
-    if (result != 0 || !(other instanceof TimeCluster)) {
-      return result;
-    }
-    final TimeCluster tc = (TimeCluster) other;
-    // Compare using the start and end time
-    if (getStartTime() < tc.getStartTime()) {
-      return -1;
-    }
-    if (getStartTime() > tc.getStartTime()) {
-      return 1;
-    }
-    if (getEndTime() < tc.getEndTime()) {
-      return -1;
-    }
-    if (getEndTime() > tc.getEndTime()) {
-      return 1;
-    }
-    return 0;
-  }
-
   /**
    * Gets the start time.
    *

@@ -33,7 +33,7 @@ package uk.ac.sussex.gdsc.core.clustering;
  *
  * <p>Note: this class has a natural ordering that is inconsistent with equals.
  */
-public class Cluster implements Comparable<Cluster> {
+public class Cluster {
   /** The x position. */
   private double x;
 
@@ -266,27 +266,6 @@ public class Cluster implements Comparable<Cluster> {
       return getClosest().getClosest() == this;
     }
     return false;
-  }
-
-  @Override
-  public int compareTo(Cluster other) {
-    // Sort by size, then centroid x then y, then the total weight.
-    // The sort is arbitrary but allows comparison of two lists after sorting.
-    if (size < other.size) {
-      return -1;
-    }
-    if (size > other.size) {
-      return 1;
-    }
-    int result = Double.compare(getX(), other.getX());
-    if (result != 0) {
-      return result;
-    }
-    result = Double.compare(getY(), other.getY());
-    if (result != 0) {
-      return result;
-    }
-    return Double.compare(sumw, other.sumw);
   }
 
   /**

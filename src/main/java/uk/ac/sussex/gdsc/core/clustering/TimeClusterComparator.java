@@ -34,13 +34,13 @@ import java.util.Comparator;
 /**
  * Used to sort clusters.
  *
- * <p>Sort by size, centroid x, centroid y, and total weight. The sort is arbitrary but allows
- * comparison of two lists after sorting.
+ * <p>Sort by size, centroid x, centroid y, total weight, start time, and end time. The sort is
+ * arbitrary but allows comparison of two lists after sorting.
  */
-public class ClusterComparator implements Comparator<Cluster>, Serializable {
+public class TimeClusterComparator implements Comparator<TimeCluster>, Serializable {
 
   /** The instance. */
-  private static final ClusterComparator INSTANCE = new ClusterComparator();
+  private static final TimeClusterComparator INSTANCE = new TimeClusterComparator();
 
   /**
    * The serial version ID.
@@ -49,29 +49,32 @@ public class ClusterComparator implements Comparator<Cluster>, Serializable {
 
   /**
    * Compare clusters.
-   *
-   * <p>Sort by size, centroid x, centroid y, and total weight.
    * 
+   * <p>Sort by size, centroid x, centroid y, total weight, start time, and end time.
+   *
    * @param first the first cluster
    * @param second the second cluster
    * @return the comparison result
    */
-  public static int compareClusters(Cluster first, Cluster second) {
-    if (first.getSize() < second.getSize()) {
+  public int compareClusters(TimeCluster first, TimeCluster second) {
+    int result = ClusterComparator.compareClusters(first, second);
+    if (result != 0) {
+      return result;
+    }
+    // Compare using the start and end time
+    if (first.getStartTime() < second.getStartTime()) {
       return -1;
     }
-    if (first.getSize() > second.getSize()) {
+    if (first.getStartTime() > second.getStartTime()) {
       return 1;
     }
-    int result = Double.compare(first.getX(), second.getX());
-    if (result != 0) {
-      return result;
+    if (first.getEndTime() < second.getEndTime()) {
+      return -1;
     }
-    result = Double.compare(first.getY(), second.getY());
-    if (result != 0) {
-      return result;
+    if (first.getEndTime() > second.getEndTime()) {
+      return 1;
     }
-    return Double.compare(first.getSumOfWeights(), second.getSumOfWeights());
+    return 0;
   }
 
   /**
@@ -79,12 +82,12 @@ public class ClusterComparator implements Comparator<Cluster>, Serializable {
    *
    * @return an instance
    */
-  public static ClusterComparator getInstance() {
+  public static TimeClusterComparator getInstance() {
     return INSTANCE;
   }
 
   @Override
-  public int compare(Cluster o1, Cluster o2) {
+  public int compare(TimeCluster o1, TimeCluster o2) {
     return compareClusters(o1, o2);
   }
 }

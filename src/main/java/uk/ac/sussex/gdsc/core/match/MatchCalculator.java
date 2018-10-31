@@ -303,8 +303,8 @@ public final class MatchCalculator {
     boolean[] matchedActual = (falseNegatives == null) ? new boolean[actualPointsLength] : null;
 
     // Sort by time to allow efficient looping
-    Arrays.sort(actualPoints);
-    Arrays.sort(predictedPoints);
+    Arrays.sort(actualPoints, PulseTimeComparator.getInstance());
+    Arrays.sort(predictedPoints, PulseTimeComparator.getInstance());
 
     // Pre-calculate all-vs-all distance matrix if it can fit in memory
     final int size = predictedPointsLength * actualPointsLength;

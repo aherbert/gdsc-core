@@ -32,7 +32,7 @@ package uk.ac.sussex.gdsc.core.match;
  * Stores a 2D/3D point with a start and end time. Allows scoring the match between two fluorophore
  * pulses.
  */
-public class Pulse extends BasePoint implements Comparable<Pulse> {
+public class Pulse extends BasePoint {
   private final int start;
   private final int end;
 
@@ -153,14 +153,6 @@ public class Pulse extends BasePoint implements Comparable<Pulse> {
     final int overlapStart = (this.start < that.start) ? that.start : this.start;
     final int overlapEnd = (this.end < that.end) ? this.end : that.end;
     return overlapEnd - overlapStart + 1;
-  }
-
-  @Override
-  public int compareTo(Pulse other) {
-    if (start == other.start) {
-      return Integer.compare(end, other.end);
-    }
-    return (start < other.start) ? -1 : 1;
   }
 
   /**
