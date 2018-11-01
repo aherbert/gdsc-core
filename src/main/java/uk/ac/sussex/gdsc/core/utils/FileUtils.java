@@ -36,19 +36,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Simple Input/Output utility class.
+ * Simple File utility class.
  *
  * <p>Any {@link IOException} is logged but not re-thrown.
  */
-public final class IoUtils {
+public final class FileUtils {
 
   /** The logger. */
-  private static final Logger logger = Logger.getLogger(IoUtils.class.getName());
+  private static final Logger logger = Logger.getLogger(FileUtils.class.getName());
 
   /**
    * No public construction.
    */
-  private IoUtils() {}
+  private FileUtils() {}
 
   /**
    * Save an array to file, one record per line.

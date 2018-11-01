@@ -860,28 +860,6 @@ public final class ImageJUtils {
   }
 
   /**
-   * Convert time in milliseconds into a nice string.
-   *
-   * @param time the time
-   * @return The string
-   */
-  public static String timeToString(double time) {
-    String units = " ms";
-    if (time > 1000) {
-      // 1 second
-      time /= 1000;
-      units = " s";
-
-      if (time > 180) {
-        // 3 minutes
-        time /= 60;
-        units = " min";
-      }
-    }
-    return MathUtils.rounded(time, 4) + units;
-  }
-
-  /**
    * Replace the filename extension with the specified extension.
    *
    * @param filename the filename
@@ -950,7 +928,7 @@ public final class ImageJUtils {
   /**
    * Waits for all threads to complete computation.
    *
-   * <p>Catches ExecutionException and InterruptedException and re-throws them as a
+   * <p>Catches {@link ExecutionException } and {@link InterruptedException} and re-throws them as a
    * RuntimeException. This is a convenience method to allow a simple wait for futures without
    * explicit try/catch blocks.
    *
@@ -958,8 +936,8 @@ public final class ImageJUtils {
    * @throws RuntimeException a runtime exception that is the cause or a new exception wrapping the
    *         cause of the the error
    */
-  public static void waitForCompletion(List<Future<?>> futures) {
-    waitForCompletion(futures, false);
+  public static void waitForCompletion2(List<Future<?>> futures) {
+    waitForCompletion2(futures, false);
   }
 
   /**
@@ -977,7 +955,7 @@ public final class ImageJUtils {
    *         exception wrapping the cause of the error
    * @throws OutOfMemoryError an out of memory error if this is the {@link ExecutionException }
    */
-  public static void waitForCompletion(List<Future<?>> futures, boolean print) {
+  public static void waitForCompletion2(List<Future<?>> futures, boolean print) {
     Exception exception = null;
     try {
       for (final Future<?> f : futures) {
@@ -1209,7 +1187,7 @@ public final class ImageJUtils {
    * steps. Code should use the following prototype: <br>
    *
    * <pre>
-   * final int interval = Utils.getProgressInterval(total);
+   * final int interval = ImageJUtils.getProgressInterval(total);
    * for (int i = 0; i &lt; total; i++) {
    *   if (i % interval == 0) {
    *     IJ.showProgress(i, total);

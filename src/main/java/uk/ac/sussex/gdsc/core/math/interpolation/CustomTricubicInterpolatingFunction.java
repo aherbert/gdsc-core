@@ -29,6 +29,7 @@
 
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
+import uk.ac.sussex.gdsc.core.data.AsynchronousException;
 import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
 import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
 import uk.ac.sussex.gdsc.core.data.ValueProvider;
@@ -36,6 +37,7 @@ import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
 import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
@@ -55,6 +57,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.function.DoublePredicate;
@@ -210,6 +215,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    *         elements.
    * @throws NonMonotonicSequenceException if {@code x}, {@code y} or {@code z} are not strictly
    *         increasing.
+   * @throws AsynchronousException if interrupted when using an executor service
    */
   @SuppressWarnings("null")
   //@formatter:off
@@ -317,7 +323,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
         from = to;
       }
 
-      ImageJUtils.waitForCompletion(futures);
+      ConcurrencyUtils.waitForCompletionOrError(futures);
     } else {
       final double[] beta = new double[64];
       if (isInteger) {

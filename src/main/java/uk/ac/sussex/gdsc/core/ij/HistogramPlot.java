@@ -861,7 +861,7 @@ public class HistogramPlot {
   private void updateLimitsToRemoveOutliers(double[] limits, double[] values) {
     switch (removeOutliersOption) {
       case 1:
-        computeIQR(values);
+        computeInterQuartileRange(values);
         final double iqr = 1.5 * (upper - lower);
         limits[0] = FastMath.max(lower - iqr, limits[0]);
         limits[1] = FastMath.min(upper + iqr, limits[1]);
@@ -882,7 +882,7 @@ public class HistogramPlot {
    *
    * @param values the values
    */
-  private void computeIQR(double[] values) {
+  private void computeInterQuartileRange(double[] values) {
     if (Double.isNaN(upper)) {
       final DescriptiveStatistics descriptiveStatistics = getStatistics(values).getStatistics();
       lower = descriptiveStatistics.getPercentile(25);

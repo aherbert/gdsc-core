@@ -28,16 +28,22 @@
 
 package uk.ac.sussex.gdsc.core.data;
 
+import java.util.concurrent.ExecutionException;
+
 /**
- * Exception to throw if data is invalid.
+ * Exception to throw if an error occurred during asynchronous processing.
+ *
+ * <p>This is a runtime exception that can be used to wrap an exception that occurs when using
+ * asynchronous or multi-threaded operations, e.g. {@link InterruptedException} or
+ * {@link ExecutionException}.
  */
-public class DataException extends RuntimeException {
+public class AsynchronousException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
   /**
    * Instantiates a new data exception.
    */
-  public DataException() {
+  public AsynchronousException() {
     super();
   }
 
@@ -46,7 +52,7 @@ public class DataException extends RuntimeException {
    *
    * @param message the message
    */
-  public DataException(String message) {
+  public AsynchronousException(String message) {
     super(message);
   }
 
@@ -56,7 +62,7 @@ public class DataException extends RuntimeException {
    * @param message the message
    * @param cause the cause
    */
-  public DataException(String message, Throwable cause) {
+  public AsynchronousException(String message, Throwable cause) {
     super(message, cause);
   }
 
@@ -65,7 +71,7 @@ public class DataException extends RuntimeException {
    *
    * @param cause the cause
    */
-  public DataException(Throwable cause) {
+  public AsynchronousException(Throwable cause) {
     super(cause);
   }
 }

@@ -28,8 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.ij.gui;
 
-import uk.ac.sussex.gdsc.core.ij.RecorderUtils;
 import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
+import uk.ac.sussex.gdsc.core.ij.RecorderUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 import ij.IJ;

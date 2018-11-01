@@ -36,6 +36,10 @@ import java.nio.charset.StandardCharsets;
  * Text utilities.
  */
 public final class TextUtils {
+
+  /** No public constructor. */
+  private TextUtils() {}
+
   // -----------------------------------------------------------------------
   // Wrapping - Taken from apache.commons.lang.WordUtils
   // -----------------------------------------------------------------------
@@ -133,7 +137,7 @@ public final class TextUtils {
 
   /**
    * Return "s" if the size is not 1 otherwise returns an empty string. This can be used to add an s
-   * where necessary to adjectives:
+   * where necessary to nouns:
    *
    * <pre>
    * System.out.printf(&quot;Created %d thing%s\n&quot;, n, TextUtils.pleural(n));
@@ -147,8 +151,8 @@ public final class TextUtils {
   }
 
   /**
-   * Return "s" if the size is not 1 otherwise returns an empty string. This can be used to add an s
-   * where necessary to adjectives:
+   * Create a string of the number and the name. Adds "s" to the name if the size is not 1. This can
+   * be used to add an s where necessary to nouns:
    *
    * <pre>
    * System.out.printf(&quot;Created %s\n&quot;, TextUtils.pleural(n, &quot;thing&quot;));
@@ -163,31 +167,52 @@ public final class TextUtils {
   }
 
   /**
+   * Get the correct pleural form for the count. E.g.
+   *
+   * <pre>
+   * TextUtils.pleural(0, "mouse", "mice") => "mice"
+   * TextUtils.pleural(1, "mouse", "mice") => "mouse"
+   * TextUtils.pleural(2, "mouse", "mice") => "mice"
+   * </pre>
+   *
+   * @param count the count
+   * @param singular the singular form
+   * @param pleural the pleural form
+   * @return the string
+   */
+  public static String pleuralise(int count, String singular, String pleural) {
+    return (count == 1) ? singular : pleural;
+  }
+
+  /**
    * Check if the string is null or length zero. Does not check for a string of whitespace.
    *
    * @param string the string
    * @return true if the string is null or length zero
    */
   public static boolean isNullOrEmpty(String string) {
-    return string == null || string.length() == 0;
+    return string == null || string.isEmpty();
   }
 
   /**
-   * Write the text to file. Catches the IOException and returns false if failed.
+   * Convert time in milliseconds into a nice string.
    *
-   * @param filename the filename
-   * @param text the text
-   * @return true, if successful
-   * @deprecated Moved to {@link IoUtils#save(String, String)}
+   * @param time the time
+   * @return The string
    */
-  @Deprecated
-  public static boolean write(String filename, String text) {
-    try (FileOutputStream fs = new FileOutputStream(filename)) {
-      fs.write(text.getBytes(StandardCharsets.UTF_8));
-      return true;
-    } catch (final IOException ex) {
-      // Ignore
+  public static String timeToString(double time) {
+    String units = " ms";
+    if (time > 1000) {
+      // 1 second
+      time /= 1000;
+      units = " s";
+
+      if (time > 180) {
+        // 3 minutes
+        time /= 60;
+        units = " min";
+      }
     }
-    return false;
+    return MathUtils.rounded(time, 4) + units;
   }
 }

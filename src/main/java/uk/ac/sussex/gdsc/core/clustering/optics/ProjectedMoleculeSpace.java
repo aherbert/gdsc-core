@@ -36,6 +36,7 @@ import uk.ac.sussex.gdsc.core.utils.NotImplementedException;
 import uk.ac.sussex.gdsc.core.utils.PseudoRandomGenerator;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Sort;
+import uk.ac.sussex.gdsc.core.utils.TextUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 import uk.ac.sussex.gdsc.core.utils.TurboRandomGenerator;
 
@@ -497,7 +498,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
 
     if (size == 2) {
       // No point performing projections and splits
-      splitSets.add(new Split((int[]) new int[] {0, 1}));
+      final int[] set = new int[] {0, 1};
+      splitSets.add(new Split(set));
       return;
     }
 
@@ -580,7 +582,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     if (tracker != null) {
       tracker.progress(1);
       final long time2 = System.currentTimeMillis();
-      tracker.log("Computed projections ... " + ImageJUtils.timeToString(time2 - time));
+      tracker.log("Computed projections ... " + TextUtils.timeToString(time2 - time));
       time = time2;
       tracker.log("Splitting data ...");
     }
@@ -652,7 +654,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
 
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
-      tracker.log("Split data ... " + ImageJUtils.timeToString(time));
+      tracker.log("Split data ... " + TextUtils.timeToString(time));
       tracker.progress(1);
     }
   }
@@ -1025,7 +1027,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
       tracker.log("Computed density and neighbourhoods (%d distances) ... %s",
-          distanceComputations.get(), ImageJUtils.timeToString(time));
+          distanceComputations.get(), TextUtils.timeToString(time));
       tracker.progress(1);
     }
 

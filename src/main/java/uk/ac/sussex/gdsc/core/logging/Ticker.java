@@ -28,8 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.logging;
 
-import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
-
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -100,21 +98,69 @@ public abstract class Ticker {
    * <p>The tickers returned will only report progress to the track progress object incrementally.
    * This prevents excessive calls to the track progress object.
    *
+   * <p>The default increment is a maximum of 0.5%.
+   *
    * @param trackProgress the track progress to report progress to
    * @param total the total amount of ticks
    * @param threadSafe Set to true to create a thread safe ticker
    * @return the ticker
+   * @throws IllegalArgumentException If the interval or total are not strictly positive
    */
   public static Ticker create(TrackProgress trackProgress, long total, boolean threadSafe) {
+    final long interval = getProgressInterval(total);
+    return create(trackProgress, interval, total, threadSafe);
+  }
+
+  /**
+   * Creates a ticker. If the track progress is null, or the total is not positive, then a ticker
+   * that does nothing will be returned.
+   *
+   * <p>The tickers returned will only report progress to the track progress object incrementally.
+   * This prevents excessive calls to the track progress object.
+   *
+   * @param trackProgress the track progress to report progress to
+   * @param interval the interval at which to report progress
+   * @param total the total amount of ticks
+   * @param threadSafe Set to true to create a thread safe ticker
+   * @return the ticker
+   * @throws IllegalArgumentException If the interval or total are not strictly positive
+   */
+  public static Ticker create(TrackProgress trackProgress, long interval, long total,
+      boolean threadSafe) {
     if (trackProgress == null || trackProgress instanceof NullTrackProgress || total < 1) {
       return getDefaultInstance();
     }
-    if (total < Integer.MAX_VALUE) {
-      return (threadSafe) ? new ConcurrentIntTicker(trackProgress, (int) total)
-          : new IntTicker(trackProgress, (int) total);
+    if (interval <= 0) {
+      throw new IllegalArgumentException("Interval must be strictly positive: " + interval);
     }
-    return (threadSafe) ? new ConcurrentLongTicker(trackProgress, total)
-        : new LongTicker(trackProgress, total);
+    if (total <= 0) {
+      throw new IllegalArgumentException("Total must be strictly positive: " + total);
+    }
+    if (total < Integer.MAX_VALUE) {
+      return (threadSafe) ? new ConcurrentIntTicker(trackProgress, (int) interval, (int) total)
+          : new IntTicker(trackProgress, (int) interval, (int) total);
+    }
+    return (threadSafe) ? new ConcurrentLongTicker(trackProgress, interval, total)
+        : new LongTicker(trackProgress, interval, total);
+  }
+
+  /**
+   * Creates a starter ticker. If the track progress is null, or the total is not positive, then a
+   * ticker that does nothing will be returned.
+   *
+   * <p>The tickers returned will only report progress to the track progress object incrementally.
+   * This prevents excessive calls to the track progress object.
+   *
+   * <p>The default increment is a maximum of 0.5%.
+   *
+   * @param trackProgress the track progress to report progress to
+   * @param total the total amount of ticks
+   * @param threadSafe Set to true to create a thread safe ticker
+   * @return the started ticker
+   */
+  public static Ticker createStarted(TrackProgress trackProgress, long total, boolean threadSafe) {
+    final long interval = getProgressInterval(total);
+    return createStarted(trackProgress, interval, total, threadSafe);
   }
 
   /**
@@ -125,14 +171,27 @@ public abstract class Ticker {
    * This prevents excessive calls to the track progress object.
    *
    * @param trackProgress the track progress to report progress to
+   * @param interval the interval at which to report progress
    * @param total the total amount of ticks
    * @param threadSafe Set to true to create a thread safe ticker
    * @return the started ticker
    */
-  public static Ticker createStarted(TrackProgress trackProgress, long total, boolean threadSafe) {
-    final Ticker ticker = create(trackProgress, total, threadSafe);
+  public static Ticker createStarted(TrackProgress trackProgress, long interval, long total,
+      boolean threadSafe) {
+    final Ticker ticker = create(trackProgress, interval, total, threadSafe);
     ticker.start();
     return ticker;
+  }
+
+  /**
+   * Gets the progress interval.
+   *
+   * @param total the total
+   * @return the progress interval
+   */
+  private static long getProgressInterval(long total) {
+    // Return a maximum of 0.5% (i.e. 200 / 100)
+    return (total > 200L) ? total / 100L : 1L;
   }
 
   /** A class that ignores all calls to the Ticker interface. */
@@ -186,13 +245,13 @@ public abstract class Ticker {
   private static class IntTicker extends BaseTicker {
     final int total;
     final int interval;
-    int current = 0;
-    int next = 0;
+    int current;
+    int next;
 
-    IntTicker(TrackProgress trackProgress, int total) {
+    IntTicker(TrackProgress trackProgress, int interval, int total) {
       super(trackProgress);
       this.total = total;
-      interval = ImageJUtils.getProgressInterval(total);
+      this.interval = interval;
     }
 
     @Override
@@ -231,12 +290,12 @@ public abstract class Ticker {
     final int total;
     final int interval;
     final AtomicInteger current = new AtomicInteger();
-    int next = 0;
+    int next;
 
-    ConcurrentIntTicker(TrackProgress trackProgress, int total) {
+    ConcurrentIntTicker(TrackProgress trackProgress, int interval, int total) {
       super(trackProgress);
       this.total = total;
-      interval = ImageJUtils.getProgressInterval(total);
+      this.interval = interval;
     }
 
     @Override
@@ -274,13 +333,13 @@ public abstract class Ticker {
   private static class LongTicker extends BaseTicker {
     final long total;
     final long interval;
-    long current = 0L;
-    long next = 0L;
+    long current;
+    long next;
 
-    LongTicker(TrackProgress trackProgress, long total) {
+    LongTicker(TrackProgress trackProgress, long interval, long total) {
       super(trackProgress);
       this.total = total;
-      interval = ImageJUtils.getProgressInterval(total);
+      this.interval = interval;
     }
 
     @Override
@@ -319,12 +378,12 @@ public abstract class Ticker {
     final long total;
     final long interval;
     final AtomicLong current = new AtomicLong();
-    long next = 0L;
+    long next;
 
-    ConcurrentLongTicker(TrackProgress trackProgress, long total) {
+    ConcurrentLongTicker(TrackProgress trackProgress, long interval, long total) {
       super(trackProgress);
       this.total = total;
-      interval = ImageJUtils.getProgressInterval(total);
+      this.interval = interval;
     }
 
     @Override

@@ -728,7 +728,7 @@ public class OpticsManager extends CoordinateStore {
       if (tracker != null) {
         time = System.currentTimeMillis() - time;
         tracker.log("Finished OPTICS: %s @ %s (Time = %s)", TextUtils.pleural(nClusters, "Cluster"),
-            MathUtils.rounded(generatingDistanceE), ImageJUtils.timeToString(time));
+            MathUtils.rounded(generatingDistanceE), TextUtils.timeToString(time));
       }
     }
 
@@ -1241,7 +1241,7 @@ public class OpticsManager extends CoordinateStore {
       if (tracker != null) {
         time = System.currentTimeMillis() - time;
         tracker.log("Finished DBSCAN: %s (Time = %s)",
-            TextUtils.pleural(counter.getTotalClusters(), "Cluster"), ImageJUtils.timeToString(time));
+            TextUtils.pleural(counter.getTotalClusters(), "Cluster"), TextUtils.timeToString(time));
       }
     }
 
@@ -1435,7 +1435,7 @@ public class OpticsManager extends CoordinateStore {
     }
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
-      tracker.log("Finished KNN computation (Time = " + ImageJUtils.timeToString(time) + ")");
+      tracker.log("Finished KNN computation (Time = " + TextUtils.timeToString(time) + ")");
       tracker.progress(1);
     }
 
@@ -1609,8 +1609,8 @@ public class OpticsManager extends CoordinateStore {
         time = end - time;
         time2 = end - time2;
         tracker.log("Finished OPTICS: %s @ %s (Time = %s)", TextUtils.pleural(nClusters, "Cluster"),
-            MathUtils.rounded(grid.generatingDistanceE), ImageJUtils.timeToString(time2));
-        tracker.log("Finished FastOPTICS ... " + ImageJUtils.timeToString(time));
+            MathUtils.rounded(grid.generatingDistanceE), TextUtils.timeToString(time2));
+        tracker.log("Finished FastOPTICS ... " + TextUtils.timeToString(time));
       }
     }
 
@@ -1904,7 +1904,7 @@ public class OpticsManager extends CoordinateStore {
 
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
-      tracker.log("Finished LoOP computation (Time = " + ImageJUtils.timeToString(time) + ")");
+      tracker.log("Finished LoOP computation (Time = " + TextUtils.timeToString(time) + ")");
     }
 
     if (!cache) {

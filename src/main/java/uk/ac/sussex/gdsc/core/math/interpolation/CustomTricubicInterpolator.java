@@ -28,14 +28,15 @@
 
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
+import uk.ac.sussex.gdsc.core.data.AsynchronousException;
 import uk.ac.sussex.gdsc.core.data.DoubleArrayTrivalueProvider;
 import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
 import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
 import uk.ac.sussex.gdsc.core.data.ValueProvider;
 import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
-import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
@@ -271,6 +272,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
    * @throws NonMonotonicSequenceException if arrays are not sorted
    * @throws NumberIsTooSmallException if the number of points is too small for the order of the
    *         interpolation
+   * @throws AsynchronousException if interrupted when using an executor service
    *
    * @see org.apache.commons.math3.analysis.interpolation.TrivariateGridInterpolator#interpolate(
    *      double[], double[], double[], double[][][])
@@ -351,7 +353,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
         from = to;
       }
 
-      ImageJUtils.waitForCompletion(futures);
+      ConcurrencyUtils.waitForCompletionOrError(futures);
     } else {
       final double[][][] values = new double[3][3][3];
 
@@ -1423,7 +1425,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
         from = to;
       }
 
-      ImageJUtils.waitForCompletion(futures);
+      ConcurrencyUtils.waitForCompletionOrError(futures);
     } else {
       // Approximation to the partial derivatives using finite differences.
       final double[][][] f = new double[2][2][2];

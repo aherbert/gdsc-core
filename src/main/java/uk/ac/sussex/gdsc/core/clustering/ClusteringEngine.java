@@ -28,9 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
+import uk.ac.sussex.gdsc.core.data.AsynchronousException;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 
 import org.apache.commons.math3.util.FastMath;
 
@@ -340,6 +341,7 @@ public class ClusteringEngine {
    * @param radius the radius
    * @param time the time
    * @return the clusters
+   * @throws AsynchronousException if interrupted when using a multi-threaded algorithm
    */
   public List<Cluster> findClusters(List<ClusterPoint> points, double radius, int time) {
     if (clusteringAlgorithm == ClusteringAlgorithm.PARTICLE_SINGLE_LINKAGE) {
@@ -451,6 +453,25 @@ public class ClusteringEngine {
     final double r2 = radius * radius;
 
     tracker.log("Clustering " + clusteringAlgorithm.toString() + " ...");
+    try {
+      final ArrayList<Cluster> clusters = runFindClusters(time, candidates, singles, minx, miny,
+          xbinWidth, ybinWidth, nxbins, nybins, grid, r2);
+      reportResult(clusters);
+      return clusters;
+    } finally {
+      shutdownMultithreading();
+    }
+  }
+
+  private void reportResult(final ArrayList<Cluster> clusters) {
+    tracker.progress(1);
+    tracker.log("Found %d clusters", (clusters == null) ? 0 : clusters.size());
+  }
+
+  private ArrayList<Cluster> runFindClusters(int time, final ArrayList<Cluster> candidates,
+      final ArrayList<Cluster> singles, double minx, double miny, final double xbinWidth,
+      final double ybinWidth, final int nxbins, final int nybins, final Cluster[][] grid,
+      final double r2) {
     ArrayList<Cluster> clusters;
     switch (clusteringAlgorithm) {
       case PAIRWISE:
@@ -484,12 +505,6 @@ public class ClusteringEngine {
             runClosest(grid, nxbins, nybins, r2, minx, miny, xbinWidth, ybinWidth, candidates,
                 singles, clusteringAlgorithm == ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE);
     }
-
-    tracker.progress(1);
-    shutdownMultithreading();
-
-    tracker.log("Found %d clusters", (clusters == null) ? 0 : clusters.size());
-
     return clusters;
   }
 
@@ -565,15 +580,14 @@ public class ClusteringEngine {
 
     tracker.log("Clustering " + clusteringAlgorithm.toString() + " ...");
 
-    final ArrayList<Cluster> clusters =
-        runParticleSingleLinkage(grid, nxbins, nybins, r2, minx, miny, candidates, singles);
-
-    tracker.progress(1);
-    shutdownMultithreading();
-
-    tracker.log("Found %d clusters", (clusters == null) ? 0 : clusters.size());
-
-    return clusters;
+    try {
+      final ArrayList<Cluster> clusters =
+          runParticleSingleLinkage(grid, nxbins, nybins, r2, minx, miny, candidates, singles);
+      reportResult(clusters);
+      return clusters;
+    } finally {
+      shutdownMultithreading();
+    }
   }
 
   private ArrayList<Cluster> runParticleSingleLinkage(ExtendedClusterPoint[][] grid, int nxbins,
@@ -730,7 +744,7 @@ public class ClusteringEngine {
       }
 
       // Finish processing data
-      ImageJUtils.waitForCompletion(futures);
+      ConcurrencyUtils.waitForCompletionOrError(futures);
       futures.clear();
 
       // Find the closest pair from all the results
@@ -799,7 +813,7 @@ public class ClusteringEngine {
    * @param endybin the end Y bin
    * @return The pair of closest points (or null)
    */
-  private ClosestPair findClosestParticle(ExtendedClusterPoint[][] grid, final int nxbins,
+  private static ClosestPair findClosestParticle(ExtendedClusterPoint[][] grid, final int nxbins,
       final int nybins, final double r2, double minx, double miny, int startxbin, int endxbin,
       int startybin, int endybin) {
     double min = r2;
@@ -1240,7 +1254,7 @@ public class ClusteringEngine {
     }
 
     // Finish processing data
-    ImageJUtils.waitForCompletion(futures);
+    ConcurrencyUtils.waitForCompletionOrError(futures);
     futures.clear();
 
     for (final FindLinksWorker worker : results) {
@@ -1485,7 +1499,7 @@ public class ClusteringEngine {
       }
 
       // Finish processing data
-      ImageJUtils.waitForCompletion(futures);
+      ConcurrencyUtils.waitForCompletionOrError(futures);
 
       // Find the closest pair from all the results
       for (final ClosestPair result : results) {
@@ -1552,7 +1566,7 @@ public class ClusteringEngine {
    * @param endybin the end Y bin
    * @return The closest pair
    */
-  private ClosestPair findClosest(Cluster[][] grid, final int nxbins, final int nybins,
+  private static ClosestPair findClosest(Cluster[][] grid, final int nxbins, final int nybins,
       final double r2, int startxbin, int endxbin, int startybin, int endybin) {
     double min = r2;
     Cluster pair1 = null;
@@ -1688,7 +1702,7 @@ public class ClusteringEngine {
    * @param endybin the end Y bin
    * @return The closest pair
    */
-  private ClosestPair findClosestSingle(Cluster[][] grid, final int nxbins, final int nybins,
+  private static ClosestPair findClosestSingle(Cluster[][] grid, final int nxbins, final int nybins,
       final double r2, int startxbin, int endxbin, int startybin, int endybin) {
     double min = r2;
     Cluster pair1 = null;
@@ -1890,7 +1904,7 @@ public class ClusteringEngine {
       }
 
       // Finish processing data
-      ImageJUtils.waitForCompletion(futures);
+      ConcurrencyUtils.waitForCompletionOrError(futures);
       futures.clear();
 
       // Find the closest pair from all the results
@@ -2245,7 +2259,7 @@ public class ClusteringEngine {
       }
 
       // Finish processing data
-      ImageJUtils.waitForCompletion(futures);
+      ConcurrencyUtils.waitForCompletionOrError(futures);
       futures.clear();
 
       // Find the closest pair from all the results
