@@ -1031,4 +1031,34 @@ public class SimpleArrayUtils {
         // Function to clone each int[][] element of int[][][]
         SimpleArrayUtils::deepCopy).toArray(int[][][]::new);
   }
+
+  /**
+   * Checks if all values pass {@link Double#isFinite(double)}.
+   *
+   * @param values the values
+   * @return true if all values are finite
+   */
+  public static boolean isFinite(double[] values) {
+    for (double value : values) {
+      if (!Double.isFinite(value)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Checks if all values pass {@link Float#isFinite(float)}.
+   *
+   * @param values the values
+   * @return true if all values are finite
+   */
+  public static boolean isFinite(float[] values) {
+    for (float value : values) {
+      if (!Float.isFinite(value)) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

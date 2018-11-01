@@ -29,7 +29,7 @@
 package uk.ac.sussex.gdsc.core.ij.gui;
 
 import uk.ac.sussex.gdsc.core.ij.RecorderUtils;
-import uk.ac.sussex.gdsc.core.ij.Utils;
+import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 import ij.IJ;
@@ -142,7 +142,7 @@ public class ExtendedGenericDialog extends GenericDialog {
     this.setLayout(new BorderLayout());
 
     // Use a scroll pane as required
-    if (Utils.isShowGenericDialog()) {
+    if (ImageJUtils.isShowGenericDialog()) {
       // JScrollPane allows the border to be set to null.
       // However it does not repaint the contents inside the
       // window unless we use a JPanel. Even then some of the
@@ -972,7 +972,7 @@ public class ExtendedGenericDialog extends GenericDialog {
     final JButton button = createOptionButton("Select a file");
     button.addActionListener(event -> {
       final boolean record = Recorder.record;
-      final String filename = Utils.getFilename(label, tf.getText());
+      final String filename = ImageJUtils.getFilename(label, tf.getText());
       Recorder.record = record;
       if (filename != null) {
         tf.setText(filename);
@@ -1018,7 +1018,7 @@ public class ExtendedGenericDialog extends GenericDialog {
     final JButton button = createOptionButton("Select a directory");
     button.addActionListener(event -> {
       final boolean record = Recorder.record;
-      final String filename = Utils.getDirectory(label, tf.getText());
+      final String filename = ImageJUtils.getDirectory(label, tf.getText());
       Recorder.record = record;
       if (filename != null) {
         tf.setText(filename);
@@ -1121,7 +1121,7 @@ public class ExtendedGenericDialog extends GenericDialog {
     if (listeners == null) {
       return;
     }
-    if (!(Recorder.record || Utils.isMacro())) {
+    if (!(Recorder.record || ImageJUtils.isMacro())) {
       return;
     }
     for (int i = 0; i < listeners.size(); i++) {
@@ -1232,7 +1232,7 @@ public class ExtendedGenericDialog extends GenericDialog {
    */
   @Override
   protected void setup() {
-    if (!Utils.isShowGenericDialog()) {
+    if (!ImageJUtils.isShowGenericDialog()) {
       return;
     }
 

@@ -164,10 +164,10 @@ public class SeriesOpener {
   public ImagePlus nextImage() {
     ImagePlus imp = null;
     while (currentImage < imageList.length && imp == null) {
-      Utils.showSlowProgress(currentImage, imageList.length);
+      ImageJUtils.showSlowProgress(currentImage, imageList.length);
       imp = openImage(imageList[currentImage++]);
       if (currentImage == imageList.length) {
-        Utils.clearSlowProgress();
+        ImageJUtils.clearSlowProgress();
       }
     }
     return imp;

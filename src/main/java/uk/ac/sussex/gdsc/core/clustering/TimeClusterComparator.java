@@ -49,7 +49,7 @@ public class TimeClusterComparator implements Comparator<TimeCluster>, Serializa
 
   /**
    * Compare clusters.
-   * 
+   *
    * <p>Sort by size, centroid x, centroid y, total weight, start time, and end time.
    *
    * @param first the first cluster

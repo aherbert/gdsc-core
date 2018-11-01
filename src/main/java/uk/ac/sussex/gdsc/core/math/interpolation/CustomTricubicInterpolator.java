@@ -33,7 +33,7 @@ import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
 import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
 import uk.ac.sussex.gdsc.core.data.ValueProvider;
 import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
-import uk.ac.sussex.gdsc.core.ij.Utils;
+import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
@@ -351,7 +351,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
         from = to;
       }
 
-      Utils.waitForCompletion(futures);
+      ImageJUtils.waitForCompletion(futures);
     } else {
       final double[][][] values = new double[3][3][3];
 
@@ -1423,7 +1423,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
         from = to;
       }
 
-      Utils.waitForCompletion(futures);
+      ImageJUtils.waitForCompletion(futures);
     } else {
       // Approximation to the partial derivatives using finite differences.
       final double[][][] f = new double[2][2][2];

@@ -37,7 +37,7 @@ public class UtilsTest {
 
   @Test
   public void cantIterateOver_getIDList() {
-    for (final int i : Utils.getIdList()) {
+    for (final int i : ImageJUtils.getIdList()) {
       // This will not run as the ID list should be empty
       logger.info("Window ID = " + i);
     }

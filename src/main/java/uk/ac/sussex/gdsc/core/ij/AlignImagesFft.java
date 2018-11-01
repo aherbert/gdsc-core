@@ -225,7 +225,7 @@ public class AlignImagesFft {
       if (showNormalisedImage) {
         normalisedStack.addSlice(null, fpNormalised.duplicate());
       }
-      if (Utils.isInterrupted()) {
+      if (ImageJUtils.isInterrupted()) {
         return null;
       }
     }
@@ -279,7 +279,7 @@ public class AlignImagesFft {
       final ImageProcessor targetIp = stack.getProcessor(slice);
       outStack.addSlice(null, alignImages(refFht, rollingSum, rollingSumSq, targetIp, slice,
           windowMethod, bounds, null, null, subPixelMethod, interpolationMethod, clipOutput));
-      if (Utils.isInterrupted()) {
+      if (ImageJUtils.isInterrupted()) {
         return null;
       }
     }

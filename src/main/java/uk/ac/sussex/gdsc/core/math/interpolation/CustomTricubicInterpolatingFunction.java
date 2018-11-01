@@ -33,7 +33,7 @@ import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
 import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
 import uk.ac.sussex.gdsc.core.data.ValueProvider;
 import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
-import uk.ac.sussex.gdsc.core.ij.Utils;
+import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
@@ -317,7 +317,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
         from = to;
       }
 
-      Utils.waitForCompletion(futures);
+      ImageJUtils.waitForCompletion(futures);
     } else {
       final double[] beta = new double[64];
       if (isInteger) {

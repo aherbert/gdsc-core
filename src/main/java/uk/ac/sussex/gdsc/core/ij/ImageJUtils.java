@@ -28,13 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.core.ij.gui.Plot2;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
-import uk.ac.sussex.gdsc.core.utils.DoubleData;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.core.utils.Statistics;
-import uk.ac.sussex.gdsc.core.utils.StoredDataStatistics;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 
 import ij.IJ;
@@ -64,9 +60,6 @@ import ij.process.ShortProcessor;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math3.util.FastMath;
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -84,7 +77,6 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -94,7 +86,7 @@ import javax.swing.JLabel;
 /**
  * Contains helper functions.
  */
-public class Utils {
+public final class ImageJUtils {
   // Flags for buildImageList
 
   /** Single plane (2D image). */
@@ -149,28 +141,8 @@ public class Utils {
   /** Used to record extra options in the macro recorder. */
   private static final String EXTRA_OPTIONS = "extraoptions";
 
-  private static boolean newWindow;
-
   /** The last time to status was updated. */
   private static long lastTime;
-
-  /** The default method to select the histogram bins. Used if the input number of bins is zero. */
-  public static BinMethod defaultMethod = BinMethod.SCOTT;
-
-  /** The x values from the last histogram plotted. */
-  public static double[] xValues;
-  /** The y values from the last histogram plotted. */
-  public static double[] yValues;
-  /** The x min from the last histogram plotted. */
-  public static double xMin;
-  /** The x max from the last histogram plotted. */
-  public static double xMax;
-  /** The y min from the last histogram plotted. */
-  public static double yMin;
-  /** The y max from the last histogram plotted. */
-  public static double yMax;
-  /** The last histogram plotted. */
-  public static Plot2 plot;
 
   private static final int STATUS_OFF = -1;
   private static final int STATUS_UNKNOWN = 0;
@@ -183,6 +155,11 @@ public class Utils {
   private static int progressBarStatus;
   private static int isShowProgress;
   private static ProgressBar progressBar;
+
+  /**
+   * No public construction.
+   */
+  private ImageJUtils() {}
 
   /**
    * Splits a full path into the directory and filename.
@@ -215,10 +192,10 @@ public class Utils {
    *
    * @param title the title
    * @param ip the image processor
-   * @return the
+   * @return the image
    */
   public static ImagePlus display(String title, ImageProcessor ip) {
-    return display(title, ip, 0);
+    return display(title, ip, 0, null);
   }
 
   /**
@@ -228,7 +205,7 @@ public class Utils {
    * @param title the title
    * @param ip the image processor
    * @param flags the flags
-   * @return the
+   * @return the image
    */
   public static ImagePlus display(String title, ImageProcessor ip, int flags) {
     return display(title, ip, flags, null);
@@ -240,21 +217,31 @@ public class Utils {
    *
    * @param title the title
    * @param ip the image processor
+   * @param windowOrganiser the window organiser. New images are added to this.
+   * @return the image
+   */
+  public static ImagePlus display(String title, ImageProcessor ip,
+      WindowOrganiser windowOrganiser) {
+    return display(title, ip, 0, windowOrganiser);
+  }
+
+  /**
+   * Show the image. Replace a currently open image with the specified title or else create a new
+   * image.
+   *
+   * @param title the title
+   * @param ip the image processor
    * @param flags the flags
    * @param windowOrganiser the window organiser. New images are added to this.
-   * @return the
+   * @return the image
    */
   public static ImagePlus display(String title, ImageProcessor ip, int flags,
       WindowOrganiser windowOrganiser) {
-    newWindow = false;
     ImagePlus imp = WindowManager.getImage(title);
     if (imp == null) {
       imp = new ImagePlus(title, ip);
       imp.show();
-      newWindow = true;
-      if (windowOrganiser != null) {
-        windowOrganiser.add(imp);
-      }
+      addImage(windowOrganiser, imp);
     } else {
       final boolean resized = imp.getWidth() != ip.getWidth() || imp.getHeight() != ip.getHeight();
       // This works only if it is not a stack
@@ -287,7 +274,7 @@ public class Utils {
    * @return the image
    */
   public static ImagePlus display(String title, ImageStack slices) {
-    return display(title, slices, 0);
+    return display(title, slices, 0, null);
   }
 
   /**
@@ -296,7 +283,7 @@ public class Utils {
    *
    * @param title the title
    * @param slices the slices
-   * @param flags the flags the window organiser. New images are added to this.
+   * @param flags the flags
    * @return the image
    */
   public static ImagePlus display(String title, ImageStack slices, int flags) {
@@ -309,21 +296,31 @@ public class Utils {
    *
    * @param title the title
    * @param slices the slices
-   * @param flags the flags the window organiser. New images are added to this.
-   * @param windowOrganiser the window organiser
+   * @param windowOrganiser the window organiser. New images are added to this.
+   * @return the image
+   */
+  public static ImagePlus display(String title, ImageStack slices,
+      WindowOrganiser windowOrganiser) {
+    return display(title, slices, 0, windowOrganiser);
+  }
+
+  /**
+   * Show the image. Replace a currently open image with the specified title or else create a new
+   * image.
+   *
+   * @param title the title
+   * @param slices the slices
+   * @param flags the flags
+   * @param windowOrganiser the window organiser. New images are added to this.
    * @return the image
    */
   public static ImagePlus display(String title, ImageStack slices, int flags,
       WindowOrganiser windowOrganiser) {
-    newWindow = false;
     ImagePlus imp = WindowManager.getImage(title);
     if (imp == null) {
       imp = new ImagePlus(title, slices);
       imp.show();
-      newWindow = true;
-      if (windowOrganiser != null) {
-        windowOrganiser.add(imp);
-      }
+      addImage(windowOrganiser, imp);
     } else {
       slices.setColorModel(imp.getProcessor().getColorModel());
       final boolean resized =
@@ -353,7 +350,7 @@ public class Utils {
    * @return the image
    */
   public static ImagePlus display(String title, double[] data, int width, int height) {
-    return display(title, data, width, height, 0);
+    return display(title, data, width, height, 0, null);
   }
 
   /**
@@ -365,9 +362,11 @@ public class Utils {
    * @param width the width
    * @param height the height
    * @param flags the flags
+   * @param windowOrganiser the window organiser (new windows are added to this)
    * @return the image
    */
-  public static ImagePlus display(String title, double[] data, int width, int height, int flags) {
+  public static ImagePlus display(String title, double[] data, int width, int height, int flags,
+      WindowOrganiser windowOrganiser) {
     if (data == null || data.length < width * height) {
       return null;
     }
@@ -375,7 +374,7 @@ public class Utils {
     for (int i = 0; i < f.length; i++) {
       f[i] = (float) data[i];
     }
-    return Utils.display(title, new FloatProcessor(width, height, f), flags);
+    return ImageJUtils.display(title, new FloatProcessor(width, height, f), flags, windowOrganiser);
   }
 
   /**
@@ -389,7 +388,7 @@ public class Utils {
    * @return the image
    */
   public static ImagePlus display(String title, double[][] data, int width, int height) {
-    return display(title, data, width, height, 0);
+    return display(title, data, width, height, 0, null);
   }
 
   /**
@@ -401,9 +400,11 @@ public class Utils {
    * @param width the width
    * @param height the height
    * @param flags the flags
+   * @param windowOrganiser the window organiser (new windows are added to this)
    * @return the image
    */
-  public static ImagePlus display(String title, double[][] data, int width, int height, int flags) {
+  public static ImagePlus display(String title, double[][] data, int width, int height, int flags,
+      WindowOrganiser windowOrganiser) {
     if (data == null || data.length < 1) {
       return null;
     }
@@ -421,7 +422,7 @@ public class Utils {
       }
       stack.setPixels(f, s + 1);
     }
-    return Utils.display(title, stack, flags);
+    return ImageJUtils.display(title, stack, flags, windowOrganiser);
   }
 
   /**
@@ -455,13 +456,25 @@ public class Utils {
    *
    * @param title the title
    * @param plot the plot
+   * @param windowOrganiser the window organiser (new windows are added to this)
+   * @return the plot window
+   */
+  public static PlotWindow display(String title, Plot plot, WindowOrganiser windowOrganiser) {
+    return display(title, plot, 0, windowOrganiser);
+  }
+
+  /**
+   * Show the plot. Replace a currently open plot with the specified title or else create a new plot
+   * window.
+   *
+   * @param title the title
+   * @param plot the plot
    * @param flags Option flags, e.g. to preserve the current limits of an existing plot
-   * @param windowOrganiser the window organiser. New plots are added to this.
+   * @param windowOrganiser the window organiser (new windows are added to this)
    * @return the plot window
    */
   public static PlotWindow display(String title, Plot plot, int flags,
       WindowOrganiser windowOrganiser) {
-    newWindow = false;
     Frame plotWindowFrame = null;
     for (final int i : getIdList()) {
       final ImagePlus imp = WindowManager.getImage(i);
@@ -473,10 +486,7 @@ public class Utils {
     PlotWindow plotWindow = null;
     if (plotWindowFrame == null) {
       plotWindow = plot.show();
-      if (windowOrganiser != null) {
-        windowOrganiser.add(plotWindow);
-      }
-      newWindow = true;
+      addPlot(windowOrganiser, plotWindow);
     } else {
       // Since the new IJ 1.50 plot functionality to have scalable plots this can sometimes error
       try {
@@ -505,9 +515,9 @@ public class Utils {
         }
       } catch (final Throwable thrown) {
         // Allow debugging
-        thrown.printStackTrace();
+        IJ.handleException(thrown);
 
-        // Get the location and close the error window
+        // Get the location and close the error plot window
         Point location = null;
         Dimension dimension = null;
         double[] limits = null;
@@ -534,13 +544,35 @@ public class Utils {
         if (limits != null) {
           preserveLimits(plot, flags, limits);
         }
-        if (windowOrganiser != null) {
-          windowOrganiser.add(plotWindow);
-        }
-        newWindow = true;
+        addPlot(windowOrganiser, plotWindow);
       }
     }
     return plotWindow;
+  }
+
+
+  /**
+   * Adds the image to the window organiser.
+   *
+   * @param windowOrganiser the window organiser
+   * @param imp the imp
+   */
+  private static void addImage(WindowOrganiser windowOrganiser, ImagePlus imp) {
+    if (windowOrganiser != null) {
+      windowOrganiser.add(imp);
+    }
+  }
+
+  /**
+   * Adds the plot to the window organiser.
+   *
+   * @param windowOrganiser the window organiser
+   * @param plotWindow the plot window
+   */
+  private static void addPlot(WindowOrganiser windowOrganiser, PlotWindow plotWindow) {
+    if (windowOrganiser != null) {
+      windowOrganiser.add(plotWindow);
+    }
   }
 
   /**
@@ -622,275 +654,6 @@ public class Utils {
   }
 
   /**
-   * Calculate a histogram given the provided data.
-   *
-   * @param data the data
-   * @param numBins The number of histogram bins between min and max
-   * @return The histogram as a pair of arrays: { value[], frequency[] }
-   */
-  public static float[][] calcHistogram(float[] data, int numBins) {
-    float min = Float.POSITIVE_INFINITY;
-    float max = Float.NEGATIVE_INFINITY;
-    for (final float f : data) {
-      if (min > f) {
-        min = f;
-      }
-      if (max < f) {
-        max = f;
-      }
-    }
-    return calcHistogram(data, min, max, numBins);
-  }
-
-  /**
-   * Calculate a histogram given the provided data.
-   *
-   * <p>The histogram will create the specified number of bins to accommodate all data between the
-   * minimum and maximum inclusive. The number of bins must be above one so that min and max are in
-   * different bins. If min and max are the same then the number of bins is set to 1.
-   *
-   * @param data the data
-   * @param min The minimum value to include (inclusive)
-   * @param max The maximum value to include (inclusive)
-   * @param numBins The number of histogram bins between min and max (must be above one)
-   * @return The histogram as a pair of arrays: { value[], frequency[] }
-   */
-  public static float[][] calcHistogram(float[] data, double min, double max, int numBins) {
-    // Parameter check
-    if (numBins < 2) {
-      numBins = 2;
-    }
-    if (max < min) {
-      final double tmp = max;
-      max = min;
-      min = tmp;
-    }
-    final double binSize;
-    if (max == min) {
-      numBins = 1;
-      binSize = 1;
-    } else {
-      binSize = (max - min) / (numBins - 1);
-    }
-
-    final float[] value = new float[numBins];
-    final float[] frequency = new float[numBins];
-
-    for (int i = 0; i < numBins; i++) {
-      value[i] = (float) (min + i * binSize);
-    }
-
-    for (final double d : data) {
-      final int bin = (int) ((d - min) / binSize);
-      if (bin < 0) { /* this data is smaller than min */
-      } else if (bin >= numBins) { /* this data point is bigger than max */
-      } else {
-        frequency[bin]++;
-      }
-    }
-
-    return new float[][] {value, frequency};
-  }
-
-  /**
-   * Calculate a histogram given the provided data.
-   *
-   * @param data the data
-   * @param numBins The number of histogram bins between min and max
-   * @return The histogram as a pair of arrays: { value[], frequency[] }
-   */
-  public static double[][] calcHistogram(double[] data, int numBins) {
-    double min = Double.POSITIVE_INFINITY;
-    double max = Double.NEGATIVE_INFINITY;
-    for (final double f : data) {
-      if (min > f) {
-        min = f;
-      }
-      if (max < f) {
-        max = f;
-      }
-    }
-    return calcHistogram(data, min, max, numBins);
-  }
-
-  /**
-   * Calculate a histogram given the provided data.
-   *
-   * <p>The histogram will create the specified number of bins to accommodate all data between the
-   * minimum and maximum inclusive. The number of bins must be above one so that min and max are in
-   * different bins. If min and max are the same then the number of bins is set to 1.
-   *
-   * @param data the data
-   * @param min The minimum value to include (inclusive)
-   * @param max The maximum value to include (inclusive)
-   * @param numBins The number of histogram bins between min and max (must be above one)
-   * @return The histogram as a pair of arrays: { value[], frequency[] }
-   */
-  public static double[][] calcHistogram(double[] data, double min, double max, int numBins) {
-    // Parameter check
-    if (numBins < 2) {
-      numBins = 2;
-    }
-    if (max < min) {
-      final double tmp = max;
-      max = min;
-      min = tmp;
-    }
-    final double binSize;
-    if (max == min) {
-      numBins = 1;
-      binSize = 1;
-    } else {
-      binSize = (max - min) / (numBins - 1);
-    }
-
-    final double[] value = new double[numBins];
-    final double[] frequency = new double[numBins];
-
-    for (int i = 0; i < numBins; i++) {
-      value[i] = (min + i * binSize);
-    }
-
-    for (final double d : data) {
-      final int bin = (int) ((d - min) / binSize);
-      if (bin < 0) { /* this data is smaller than min */
-      } else if (bin >= numBins) { /* this data point is bigger than max */
-      } else {
-        frequency[bin]++;
-      }
-    }
-
-    return new double[][] {value, frequency};
-  }
-
-  /**
-   * For the provided histogram x-axis bins, produce an x-axis for plotting. This functions doubles
-   * up the histogram x-positions to allow plotting a square line profile using the ImageJ plot
-   * command.
-   *
-   * @param histogramX the histogram X
-   * @return the x-axis values
-   */
-  public static float[] createHistogramAxis(float[] histogramX) {
-    final float[] axis = new float[histogramX.length * 2 + 2];
-    int index = 0;
-    for (int i = 0; i < histogramX.length; ++i) {
-      axis[index++] = histogramX[i];
-      axis[index++] = histogramX[i];
-    }
-    if (histogramX.length > 0) {
-      final float dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
-      axis[index++] = histogramX[histogramX.length - 1] + dx;
-      axis[index] = histogramX[histogramX.length - 1] + dx;
-    }
-    return axis;
-  }
-
-  /**
-   * For the provided histogram x-axis bins, produce an x-axis for plotting. This functions doubles
-   * up the histogram x-positions to allow plotting a square line profile using the ImageJ plot
-   * command.
-   *
-   * @param histogramX the histogram X
-   * @return the x-axis values
-   */
-  public static double[] createHistogramAxis(double[] histogramX) {
-    final double[] axis = new double[histogramX.length * 2 + 2];
-    int index = 0;
-    for (int i = 0; i < histogramX.length; ++i) {
-      axis[index++] = histogramX[i];
-      axis[index++] = histogramX[i];
-    }
-    if (histogramX.length > 0) {
-      final double dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
-      axis[index++] = histogramX[histogramX.length - 1] + dx;
-      axis[index] = histogramX[histogramX.length - 1] + dx;
-    }
-    return axis;
-  }
-
-  /**
-   * For the provided histogram y-axis values, produce a y-axis for plotting. This functions doubles
-   * up the histogram values to allow plotting a square line profile using the ImageJ plot command.
-   *
-   * @param histogramY the histogram Y
-   * @return the y-axis values
-   */
-  public static float[] createHistogramValues(float[] histogramY) {
-    final float[] axis = new float[histogramY.length * 2 + 2];
-
-    int index = 0;
-    axis[index++] = 0;
-    for (int i = 0; i < histogramY.length; ++i) {
-      axis[index++] = histogramY[i];
-      axis[index++] = histogramY[i];
-    }
-    return axis;
-  }
-
-  /**
-   * For the provided histogram y-axis values, produce a y-axis for plotting. This functions doubles
-   * up the histogram values to allow plotting a square line profile using the ImageJ plot command.
-   *
-   * @param histogramY the histogram Y
-   * @return the y-axis values
-   */
-  public static double[] createHistogramValues(double[] histogramY) {
-    final double[] axis = new double[histogramY.length * 2 + 2];
-
-    int index = 0;
-    axis[index++] = 0;
-    for (int i = 0; i < histogramY.length; ++i) {
-      axis[index++] = histogramY[i];
-      axis[index++] = histogramY[i];
-    }
-    return axis;
-  }
-
-  /**
-   * Return the histogram statistics.
-   *
-   * @param x Histogram values
-   * @param y Histogram counts
-   * @return Array containing: { mean, standard deviation }
-   */
-  public static double[] getHistogramStatistics(float[] x, float[] y) {
-    // Get the average
-    double total = 0;
-    double sum = 0.0;
-    double sumSq = 0.0;
-    for (int i = 0; i < x.length; i++) {
-      if (y[i] > 0) {
-        final float count = y[i];
-        final float value = x[i];
-        total += count;
-        sum += value * count;
-        sumSq += (value * value) * count;
-      }
-    }
-    if (total == 0) {
-      return new double[2];
-    }
-    final double av = sum / total;
-
-    // Get the Std.Dev
-    double stdDev;
-    if (total > 0) {
-      final double d = total;
-      stdDev = (d * sumSq - sum * sum) / d;
-      if (stdDev > 0.0) {
-        stdDev = Math.sqrt(stdDev / (d - 1.0));
-      } else {
-        stdDev = 0.0;
-      }
-    } else {
-      stdDev = 0.0;
-    }
-
-    return new double[] {av, stdDev};
-  }
-
-  /**
    * Logs a message to the ImageJ log.
    *
    * @param format the format
@@ -912,363 +675,6 @@ public class Utils {
       return true;
     }
     return false;
-  }
-
-  /**
-   * Show a histogram of the data.
-   *
-   * @param title The title to prepend to the plot name
-   * @param data the data
-   * @param name The name of plotted statistic
-   * @param minWidth The minimum bin width to use (e.g. set to 1 for integer values)
-   * @param removeOutliers Remove outliers. 1 - 1.5x IQR. 2 - remove top 2%.
-   * @param bins The number of bins to use
-   * @return The histogram window ID
-   */
-  public static int showHistogram(String title, DoubleData data, String name, double minWidth,
-      int removeOutliers, int bins) {
-    return showHistogram(title, data, name, minWidth, removeOutliers, bins, true, null);
-  }
-
-  /**
-   * Show a histogram of the data.
-   *
-   * @param title The title to prepend to the plot name
-   * @param data the data
-   * @param name The name of plotted statistic
-   * @param minWidth The minimum bin width to use (e.g. set to 1 for integer values)
-   * @param removeOutliers Remove outliers. 1 - 1.5x IQR. 2 - remove top 2%.
-   * @param bins The number of bins to use
-   * @param label The label to add
-   * @return The histogram window ID
-   */
-  public static int showHistogram(String title, DoubleData data, String name, double minWidth,
-      int removeOutliers, int bins, String label) {
-    return showHistogram(title, data, name, minWidth, removeOutliers, bins, true, label);
-  }
-
-  /**
-   * Show a histogram of the data.
-   *
-   * @param title The title to prepend to the plot name
-   * @param data the data
-   * @param name The name of plotted statistic
-   * @param minWidth The minimum bin width to use (e.g. set to 1 for integer values)
-   * @param removeOutliers Remove outliers. 1 - 1.5x IQR. 2 - remove top 2%.
-   * @param bins The number of bins to use
-   * @param barChart Use a bar chart, else plot non-zero bin counts as a line plot
-   * @param label The label to add
-   * @return The histogram window ID
-   */
-  public static int showHistogram(String title, DoubleData data, String name, double minWidth,
-      int removeOutliers, int bins, boolean barChart, String label) {
-    return showHistogram(title, data, name, minWidth, removeOutliers, bins,
-        (barChart) ? Plot2.BAR : Plot.LINE, label);
-  }
-
-  /**
-   * Show a histogram of the data.
-   *
-   * @param title The title to prepend to the plot name
-   * @param data the data
-   * @param name The name of plotted statistic
-   * @param minWidth The minimum bin width to use (e.g. set to 1 for integer values)
-   * @param removeOutliers Remove outliers. 1 - 1.5x IQR. 2 - remove top 2%.
-   * @param bins The number of bins to use
-   * @param shape the shape
-   * @param label The label to add
-   * @return The histogram window ID
-   */
-  public static int showHistogram(String title, DoubleData data, String name, double minWidth,
-      int removeOutliers, int bins, int shape, String label) {
-    final double[] values = data.values();
-    // If we have +/- Infinity in here it will break
-    if (values == null || values.length < 2) {
-      return 0;
-    }
-    final double[] limits = MathUtils.limits(values);
-    double minY = limits[0];
-    double maxY = limits[1];
-    double width;
-    double lower = Double.NaN;
-    double upper = Double.NaN;
-    StoredDataStatistics stats = null;
-
-    if (bins <= 0) {
-      // Auto
-      switch (defaultMethod) {
-        case SCOTT:
-          stats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
-              : new StoredDataStatistics(data.values());
-          width = getBinWidthScottsRule(stats.getStandardDeviation(), stats.size());
-          bins = (int) Math.ceil((limits[1] - limits[0]) / width);
-          break;
-
-        case FD:
-          stats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
-              : new StoredDataStatistics(data.values());
-          lower = stats.getStatistics().getPercentile(25);
-          upper = stats.getStatistics().getPercentile(75);
-          width = getBinWidthFreedmanDiaconisRule(upper, lower, stats.size());
-          bins = (int) Math.ceil((limits[1] - limits[0]) / width);
-          break;
-
-        case STURGES:
-          bins = getBinsSturgesRule(data.size());
-          break;
-
-        case SQRT:
-        default:
-          bins = getBinsSqrtRule(data.size());
-      }
-      // In case of error (N=0, Infinity in the data range)
-      if (bins == Integer.MAX_VALUE) {
-        bins = getBinsSqrtRule(data.size());
-      }
-    }
-
-    switch (removeOutliers) {
-      case 1:
-        // Get the inter quartile range
-        if (Double.isNaN(lower)) {
-          stats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
-              : new StoredDataStatistics(data.values());
-          lower = stats.getStatistics().getPercentile(25);
-          upper = stats.getStatistics().getPercentile(75);
-        }
-        final double iqr = 1.5 * (upper - lower);
-        minY = FastMath.max(lower - iqr, minY);
-        maxY = FastMath.min(upper + iqr, maxY);
-        break;
-
-      case 2:
-        // Remove top 2%
-        if (stats == null) {
-          stats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
-              : new StoredDataStatistics(data.values());
-        }
-        maxY = stats.getStatistics().getPercentile(98);
-        break;
-
-      default:
-        // Nothing to do
-        break;
-    }
-
-    if (minWidth > 0) {
-      final double binSize = (maxY - minY) / ((bins < 2) ? 1 : bins - 1);
-      if (binSize < minWidth) {
-        bins = (int) ((maxY - minY) / minWidth) + 1;
-        // yMax = bins * minWidth + yMin
-      }
-    }
-    // else
-    // {
-    // // Calculate the resolution, i.e. the smallest gap between data points
-    // double resolution = Double.POSITIVE_INFINITY;
-    // for (int i=1; i<values.length; i++)
-    // {
-    // if (values[i-1] != values[i])
-    // {
-    // if (resolution > values[i] - values[i-1])
-    // resolution = values[i] - values[i-1];
-    // }
-    // }
-    //
-    // // Set the number of bins as the most needed to separate the data points.
-    // // This prevents gaps in the histogram
-    // if (resolution != Double.POSITIVE_INFINITY)
-    // {
-    // int numBins = 1 + (int)((yMax - yMin) / resolution);
-    // if (bins > numBins)
-    // bins = numBins;
-    // }
-    // }
-
-    title += " " + name;
-
-    final double[][] hist = Utils.calcHistogram(values, minY, maxY, bins);
-
-    final boolean barChart = (shape & Plot2.BAR) == Plot2.BAR;
-    if (barChart) {
-      // Standard histogram
-      xValues = hist[0]; // Utils.createHistogramAxis(hist[0]);
-      yValues = hist[1]; // Utils.createHistogramValues(hist[1]);
-    } else {
-      // Line plot of non-zero values
-      int size = 0;
-      xValues = new double[hist[0].length];
-      yValues = new double[xValues.length];
-      for (int i = 0; i < xValues.length; i++) {
-        if (hist[1][i] != 0) {
-          xValues[size] = hist[0][i];
-          yValues[size] = hist[1][i];
-          size++;
-        }
-      }
-      xValues = Arrays.copyOf(xValues, size);
-      yValues = Arrays.copyOf(yValues, size);
-    }
-
-    plot = new Plot2(title, name, "Frequency");
-    Utils.xMin = Utils.xMax = Utils.yMin = Utils.yMax = 0;
-    if (xValues.length > 0) {
-      double dx = 0;
-      if (barChart) {
-        dx = (xValues.length == 1) ? 1 : (xValues[1] - xValues[0]);
-      }
-      final double xMax = xValues[xValues.length - 1] + dx;
-      final double xPadding = 0.05 * (xMax - xValues[0]);
-      Utils.xMin = xValues[0] - xPadding;
-      Utils.xMax = xMax + xPadding;
-      Utils.yMax = MathUtils.max(yValues) * 1.05;
-      plot.setLimits(xMin, xMax, Utils.yMin, Utils.yMax);
-    }
-    plot.addPoints(xValues, yValues, shape);
-    if (label != null) {
-      plot.addLabel(0, 0, label);
-    }
-    final PlotWindow window = Utils.display(title, plot);
-    return window.getImagePlus().getID();
-  }
-
-  /**
-   * The method to select the number of histogram bins.
-   */
-  public enum BinMethod {
-    /**
-     * The Scott's rule bin method.
-     *
-     * @see #getBinWidthScottsRule(double, int)
-     */
-    SCOTT,
-    /**
-     * The Freedman-Diaconis rule bin method.
-     *
-     * @see #getBinWidthFreedmanDiaconisRule(double, double, int)
-     */
-    FD,
-    /**
-     * The Sturges' rule bin method.
-     *
-     * @see #getBinsSturgesRule(int)
-     */
-    STURGES,
-    /**
-     * The square root rule bin method.
-     *
-     * @see #getBinsSqrtRule(int)
-     */
-    SQRT
-  }
-
-  /**
-   * Gets the bins.
-   *
-   * <p>Based on the MatLab methods.
-   *
-   * @param data the data
-   * @param method the method
-   * @return the bins
-   * @see "http://uk.mathworks.com/help/matlab/ref/histogram.html"
-   */
-  public static int getBins(DoubleData data, BinMethod method) {
-    double width;
-    double[] limits;
-    switch (method) {
-      case SCOTT:
-        final Statistics stats =
-            (data instanceof Statistics) ? (Statistics) data : new Statistics(data.values());
-        width = getBinWidthScottsRule(stats.getStandardDeviation(), data.size());
-        limits = MathUtils.limits(data.values());
-        return (int) Math.ceil((limits[1] - limits[0]) / width);
-
-      case FD:
-        final DescriptiveStatistics descriptiveStats =
-            (data instanceof StoredDataStatistics) ? ((StoredDataStatistics) data).getStatistics()
-                : new DescriptiveStatistics(data.values());
-        final double lower = descriptiveStats.getPercentile(25);
-        final double upper = descriptiveStats.getPercentile(75);
-        width = getBinWidthFreedmanDiaconisRule(upper, lower, data.size());
-        limits = MathUtils.limits(data.values());
-        return (int) Math.ceil((limits[1] - limits[0]) / width);
-
-      case STURGES:
-        return getBinsSturgesRule(data.size());
-
-      case SQRT:
-      default:
-        return getBinsSqrtRule(data.size());
-    }
-  }
-
-  /**
-   * Gets the bin width using Scott's rule.
-   *
-   * <pre>
-   * 3.5 * sd / cubeRoot(n)
-   * </pre>
-   *
-   * @param sd the sd
-   * @param n the n
-   * @return the bin width using Scott's rule
-   */
-  public static double getBinWidthScottsRule(double sd, int n) {
-    return 3.5 * sd / FastMath.cbrt(n);
-  }
-
-  /**
-   * Gets the bin width using the Freedman-Diaconis rule.
-   *
-   * <pre>
-   * 2 * IQR / cubeRoot(n)
-   * </pre>
-   *
-   * @param upper the upper of the Inter-Quartile Range (IQR)
-   * @param lower the lower of the Inter-Quartile Range (IQR)
-   * @param n the n
-   * @return the bin width freedman diaconis rule
-   */
-  public static double getBinWidthFreedmanDiaconisRule(double upper, double lower, int n) {
-    final double iqr = upper - lower;
-    return 2 * iqr / FastMath.cbrt(n);
-  }
-
-  /**
-   * Gets the bins using the Sturges' rule.
-   *
-   * <pre>
-   * ceil(1 + log2(n)
-   * </pre>
-   *
-   * @param n the n
-   * @return the number of bins
-   */
-  public static int getBinsSturgesRule(int n) {
-    return (int) Math.ceil(1 + Math.log(n) / 0.69314718);
-  }
-
-  /**
-   * Gets the bins using the square root rule.
-   *
-   * <pre>
-   * ceil(squareRoot(n))
-   * </pre>
-   *
-   * @param n the n
-   * @return the number of bins
-   */
-  public static int getBinsSqrtRule(int n) {
-    return (int) Math.ceil(Math.sqrt(n));
-  }
-
-  /**
-   * Checks if is new window.
-   *
-   * @return True is the last call to display created a new window
-   */
-  public static boolean isNewWindow() {
-    return newWindow;
   }
 
   /**
@@ -1630,7 +1036,7 @@ public class Utils {
    * @return The path (or null if the dialog is cancelled)
    */
   public static String getFilename(String title, String filename) {
-    final String[] path = Utils.decodePath(filename);
+    final String[] path = ImageJUtils.decodePath(filename);
     final OpenDialog chooser = new OpenDialog(title, path[0], path[1]);
     if (chooser.getFileName() != null) {
       return chooser.getDirectory() + chooser.getFileName();

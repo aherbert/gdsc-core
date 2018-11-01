@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.ij.plugin;
 
+import gnu.trove.list.array.TIntArrayList;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -55,13 +57,13 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
   private static final int TITLE_BAR_HEIGHT = IJ.isMacintosh() ? 40 : 20;
 
   /** The list. */
-  private int[] list = new int[10];
+  private TIntArrayList list = new TIntArrayList(10);
 
   /** The count. */
-  private int count = 0;
+  private int count;
 
   /** Set to true to ignore any added window. */
-  private boolean ignore = false;
+  private boolean ignore;
 
   /** Set to true to unfreeze plots after layout. */
   private boolean unfreeze = true;
@@ -75,10 +77,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
     if (ignore) {
       return;
     }
-    if (list.length == count) {
-      list = Arrays.copyOf(list, (int) (count * 1.5));
-    }
-    list[count++] = id;
+    list.add(id);
   }
 
   /**
@@ -100,6 +99,20 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
   public void add(PlotWindow pw) {
     if (pw != null) {
       add(pw.getImagePlus());
+    }
+  }
+
+  /**
+   * Adds the window IDs from the window organiser to the instance.
+   *
+   * @param windowOrganiser the window organiser
+   */
+  public void add(WindowOrganiser windowOrganiser) {
+    if (windowOrganiser != null) {
+      windowOrganiser.list.forEach(id -> {
+        add(id);
+        return true;
+      });
     }
   }
 
@@ -149,13 +162,40 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
   }
 
   /**
+   * Checks if no windows have been added.
+   *
+   * @return true, if is empty
+   */
+  public boolean isEmpty() {
+    return count == 0;
+  }
+
+  /**
+   * Checks if windows have been added.
+   *
+   * @return true, if is not empty
+   */
+  public boolean isNotEmpty() {
+    return count != 0;
+  }
+
+  /**
+   * Gets the window IDs.
+   *
+   * @return the window IDs
+   */
+  public int[] getWindowIds() {
+    return list.toArray();
+  }
+
+  /**
    * Tile all the windows added to this instance.
    */
   public void tile() {
     if (count <= 1) {
       return;
     }
-    tileWindows(Arrays.copyOf(list, count), isUnfreeze());
+    tileWindows(getWindowIds(), isUnfreeze());
   }
 
   /**
@@ -165,7 +205,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
     if (count <= 1) {
       return;
     }
-    cascadeWindows(Arrays.copyOf(list, count));
+    cascadeWindows(getWindowIds());
   }
 
   /**
@@ -189,10 +229,9 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
     final boolean[] unfreeze = freezePlotWindows(windowList);
     try {
       // This is not visible so call a copy
-      // super.tileWindows(windowList);
+      // super.tileWindows(windowList)
       copyOfTileWindows(windowList);
     } finally {
-      // TODO - Determine how to deal with freeze and unfreeze
       // Since you can unfreeze a plot within the plot window (using the More>> menu)
       // for now it is left to the user to unfreeze plots for dynamic resizing
       if (isUnfreeze) {
@@ -254,7 +293,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
    */
   public static void cascadeWindows(int[] windowList) {
     // This is not visible so call a copy
-    // super.cascadeWindows(windowList);
+    // super.cascadeWindows(windowList)
     copyOfCascadeWindows(windowList);
   }
 
@@ -340,7 +379,6 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
       final ImageWindow win = getWindow(windowList[i]);
       if (win != null) {
         win.setLocation(hloc, vloc);
-        // IJ.write(i+" "+w+" "+tileWidth+" "+mag+" "+IJ.d2s(zoomFactor,2)+" "+zoomCount);
         final ImageCanvas canvas = win.getCanvas();
         while (win.getSize().width * 0.85 >= tileWidth && canvas.getMagnification() > 0.03125) {
           canvas.zoomOut(0, 0);

@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import uk.ac.sussex.gdsc.core.ij.Utils;
+import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
@@ -580,7 +580,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     if (tracker != null) {
       tracker.progress(1);
       final long time2 = System.currentTimeMillis();
-      tracker.log("Computed projections ... " + Utils.timeToString(time2 - time));
+      tracker.log("Computed projections ... " + ImageJUtils.timeToString(time2 - time));
       time = time2;
       tracker.log("Splitting data ...");
     }
@@ -652,7 +652,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
 
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
-      tracker.log("Split data ... " + Utils.timeToString(time));
+      tracker.log("Split data ... " + ImageJUtils.timeToString(time));
       tracker.progress(1);
     }
   }
@@ -969,7 +969,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       futures = new TurboList<>(nThreads);
     }
 
-    final int interval = Utils.getProgressInterval(n);
+    final int interval = ImageJUtils.getProgressInterval(n);
     for (int i = 0; i < n; i++) {
       if (tracker != null) {
         if (i % interval == 0) {
@@ -1025,7 +1025,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
       tracker.log("Computed density and neighbourhoods (%d distances) ... %s",
-          distanceComputations.get(), Utils.timeToString(time));
+          distanceComputations.get(), ImageJUtils.timeToString(time));
       tracker.progress(1);
     }
 

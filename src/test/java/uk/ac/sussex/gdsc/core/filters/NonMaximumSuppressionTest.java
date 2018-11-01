@@ -1,6 +1,6 @@
 package uk.ac.sussex.gdsc.core.filters;
 
-import uk.ac.sussex.gdsc.core.ij.Utils;
+import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.utils.Random;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -196,7 +196,7 @@ public class NonMaximumSuppressionTest {
   }
 
   private static void showImage(int width, int height, float[] data, int[] indices, String title) {
-    final ImagePlus imp = Utils.display(title, new FloatProcessor(width, height, data));
+    final ImagePlus imp = ImageJUtils.display(title, new FloatProcessor(width, height, data));
     final int[] ox = new int[indices.length];
     final int[] oy = new int[indices.length];
     int points = 0;
@@ -1035,7 +1035,7 @@ public class NonMaximumSuppressionTest {
   }
 
   private static void showImage(int width, int height, int[] data, int[] indices, String title) {
-    final ImagePlus imp = Utils.display(title, new FloatProcessor(width, height, data));
+    final ImagePlus imp = ImageJUtils.display(title, new FloatProcessor(width, height, data));
     final int[] ox = new int[indices.length];
     final int[] oy = new int[indices.length];
     int points = 0;

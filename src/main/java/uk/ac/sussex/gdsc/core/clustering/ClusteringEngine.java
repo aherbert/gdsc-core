@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.core.ij.Utils;
+import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 
@@ -730,7 +730,7 @@ public class ClusteringEngine {
       }
 
       // Finish processing data
-      Utils.waitForCompletion(futures);
+      ImageJUtils.waitForCompletion(futures);
       futures.clear();
 
       // Find the closest pair from all the results
@@ -1240,7 +1240,7 @@ public class ClusteringEngine {
     }
 
     // Finish processing data
-    Utils.waitForCompletion(futures);
+    ImageJUtils.waitForCompletion(futures);
     futures.clear();
 
     for (final FindLinksWorker worker : results) {
@@ -1485,7 +1485,7 @@ public class ClusteringEngine {
       }
 
       // Finish processing data
-      Utils.waitForCompletion(futures);
+      ImageJUtils.waitForCompletion(futures);
 
       // Find the closest pair from all the results
       for (final ClosestPair result : results) {
@@ -1890,7 +1890,7 @@ public class ClusteringEngine {
       }
 
       // Finish processing data
-      Utils.waitForCompletion(futures);
+      ImageJUtils.waitForCompletion(futures);
       futures.clear();
 
       // Find the closest pair from all the results
@@ -2245,7 +2245,7 @@ public class ClusteringEngine {
       }
 
       // Finish processing data
-      Utils.waitForCompletion(futures);
+      ImageJUtils.waitForCompletion(futures);
       futures.clear();
 
       // Find the closest pair from all the results

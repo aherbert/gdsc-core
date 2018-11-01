@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.logging;
 
-import uk.ac.sussex.gdsc.core.ij.Utils;
+import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -192,7 +192,7 @@ public abstract class Ticker {
     IntTicker(TrackProgress trackProgress, int total) {
       super(trackProgress);
       this.total = total;
-      interval = Utils.getProgressInterval(total);
+      interval = ImageJUtils.getProgressInterval(total);
     }
 
     @Override
@@ -236,7 +236,7 @@ public abstract class Ticker {
     ConcurrentIntTicker(TrackProgress trackProgress, int total) {
       super(trackProgress);
       this.total = total;
-      interval = Utils.getProgressInterval(total);
+      interval = ImageJUtils.getProgressInterval(total);
     }
 
     @Override
@@ -280,7 +280,7 @@ public abstract class Ticker {
     LongTicker(TrackProgress trackProgress, long total) {
       super(trackProgress);
       this.total = total;
-      interval = Utils.getProgressInterval(total);
+      interval = ImageJUtils.getProgressInterval(total);
     }
 
     @Override
@@ -324,7 +324,7 @@ public abstract class Ticker {
     ConcurrentLongTicker(TrackProgress trackProgress, long total) {
       super(trackProgress);
       this.total = total;
-      interval = Utils.getProgressInterval(total);
+      interval = ImageJUtils.getProgressInterval(total);
     }
 
     @Override

@@ -32,6 +32,7 @@ import uk.ac.sussex.gdsc.core.ij.gui.Plot2;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.utils.DoubleData;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.core.utils.StoredDataStatistics;
 
@@ -68,6 +69,8 @@ public class HistogramPlot {
   private int plotShape = Plot2.BAR;
   /** The plot label. */
   private String plotLabel;
+  /** The method to select the histogram bins. Used if the input number of bins is zero. */
+  private BinMethod binMethod = BinMethod.SCOTT;
 
   /** The stats derived from the data. */
   private StoredDataStatistics stats;
@@ -75,10 +78,6 @@ public class HistogramPlot {
   private double lower;
   /** The upper range of the interquartile range. */
   private double upper = Double.NaN;
-
-  /** The method to select the histogram bins. Used if the input number of bins is zero. */
-  private BinMethod binMethod = BinMethod.SCOTT;
-
   /** The x-values from the last histogram plotted. */
   private double[] plotXValues;
   /** The y-values from the last histogram plotted. */
@@ -91,6 +90,222 @@ public class HistogramPlot {
   private double plotMaxY;
   /** The last histogram plotted. */
   private Plot2 plot;
+
+  /**
+   * A builder for {@link HistogramPlot}.
+   */
+  public static class HistogramPlotBuilder {
+    /** The title to prepend to the plot name. */
+    private String title;
+    /** The data. */
+    private DoubleData data;
+    /** The name of the plotted statistic. */
+    private String name;
+    /** The minimum bin width to use (e.g. set to 1 for integer values). 0 is auto. */
+    private double minBinWidth;
+    /**
+     * The remove outliers option.
+     *
+     * <p>1 - 1.5x IQR. 2 - remove top 2%.
+     */
+    private int removeOutliersOption;
+    /** The number of bins to use. 0 is auto. */
+    private int numberOfBins;
+    /** The plot shape. */
+    private int plotShape = Plot2.BAR;
+    /** The plot label. */
+    private String plotLabel;
+    /** The method to select the histogram bins. Used if the input number of bins is zero. */
+    private BinMethod binMethod = BinMethod.SCOTT;
+
+    /**
+     * Instantiates a new histogram plot builder.
+     *
+     * @param title The title to prepend to the plot name
+     * @param data The data
+     * @param name The name of the plotted statistic
+     */
+    public HistogramPlotBuilder(String title, DoubleData data, String name) {
+      setTitle(title);
+      setData(data);
+      setName(name);
+    }
+
+    /**
+     * Instantiates a new histogram plot builder.
+     *
+     * <p>Note an exception will be raised within {@link #build()} if the required fields are never
+     * set.
+     *
+     * @param title The title to prepend to the plot name
+     * @see #setData(DoubleData)
+     * @see #setName(String)
+     */
+    public HistogramPlotBuilder(String title) {
+      setTitle(title);
+    }
+
+    /**
+     * Instantiates a new histogram plot builder.
+     *
+     * <p>Note an exception will be raised within {@link #build()} if the required fields are never
+     * set.
+     *
+     * @see #setTitle(String)
+     * @see #setData(DoubleData)
+     * @see #setName(String)
+     */
+    public HistogramPlotBuilder() {}
+
+    /**
+     * Sets the title.
+     *
+     * @param title The title to prepend to the plot name
+     * @return the histogram plot builder
+     */
+    public HistogramPlotBuilder setTitle(String title) {
+      this.title = Objects.requireNonNull(title, "Title must not be null");
+      return this;
+    }
+
+    /**
+     * Sets the data.
+     *
+     * @param data the data
+     * @return the histogram plot builder
+     */
+    public HistogramPlotBuilder setData(DoubleData data) {
+      this.data = Objects.requireNonNull(data, "Data must not be null");
+      return this;
+    }
+
+    /**
+     * Sets the name of the plotted statistic.
+     *
+     * @param name The name of the plotted statistic
+     * @return the histogram plot builder
+     */
+    public HistogramPlotBuilder setName(String name) {
+      this.name = Objects.requireNonNull(name, "Name must not be null");
+      return this;
+    }
+
+    /**
+     * Sets the minimum bin width to use (e.g. set to 1 for integer values). 0 is auto.
+     *
+     * @param minBinWidth the new minimum bin width
+     * @return the histogram plot builder
+     */
+    public HistogramPlotBuilder setMinBinWidth(double minBinWidth) {
+      this.minBinWidth = minBinWidth;
+      return this;
+    }
+
+    /**
+     * Sets the minimum bin width to use 1 for integer values or 0 for auto.
+     *
+     * @param isInteger Set to true if using integer bin widths
+     * @return the histogram plot builder
+     */
+    public HistogramPlotBuilder setIntegerBins(boolean isInteger) {
+      return setMinBinWidth(isInteger ? 1 : 0);
+    }
+
+    /**
+     * Sets the removes the outliers option.
+     *
+     * <ol> <li>1.5x IQR</li><li>Remove top 2%</li></ol>
+     *
+     * @param removeOutliersOption the new removes the outliers option
+     * @return the histogram plot builder
+     */
+    public HistogramPlotBuilder setRemoveOutliersOption(int removeOutliersOption) {
+      this.removeOutliersOption = removeOutliersOption;
+      return this;
+    }
+
+    /**
+     * Sets the number of bins to use. 0 is auto.
+     *
+     * @param numberOfBins the new number of bins
+     * @return the histogram plot builder
+     */
+    public HistogramPlotBuilder setNumberOfBins(int numberOfBins) {
+      this.numberOfBins = numberOfBins;
+      return this;
+    }
+
+    /**
+     * Sets the plot shape. Use {@link Plot2#BAR} to draw a bar chart.
+     *
+     * @param plotShape the new plot shape
+     * @return the histogram plot builder
+     */
+    public HistogramPlotBuilder setPlotShape(int plotShape) {
+      this.plotShape = plotShape;
+      return this;
+    }
+
+    /**
+     * Sets the plot label.
+     *
+     * @param plotLabel the new plot label
+     * @return the histogram plot builder
+     */
+    public HistogramPlotBuilder setPlotLabel(String plotLabel) {
+      this.plotLabel = plotLabel;
+      return this;
+    }
+
+    /**
+     * Sets the bin method for computing the number of bins.
+     *
+     * @param binMethod the new default method
+     * @return the histogram plot builder
+     */
+    public HistogramPlotBuilder setBinMethod(BinMethod binMethod) {
+      this.binMethod = binMethod;
+      return this;
+    }
+
+    /**
+     * Builds the {@link HistogramPlot}.
+     *
+     * @return the histogram plot
+     */
+    public HistogramPlot build() {
+      HistogramPlot hp = new HistogramPlot(title, data, name);
+      hp.setMinBinWidth(minBinWidth);
+      hp.setRemoveOutliersOption(removeOutliersOption);
+      hp.setNumberOfBins(numberOfBins);
+      hp.setPlotShape(plotShape);
+      hp.setPlotLabel(plotLabel);
+      hp.setBinMethod(binMethod);
+      return hp;
+    }
+
+    /**
+     * Builds the {@link HistogramPlot} and calls {@link HistogramPlot#show()}.
+     *
+     * @return The histogram plot window (or null if the plot is not possible)
+     */
+    public PlotWindow show() {
+      return show(null);
+    }
+
+    /**
+     * Builds the {@link HistogramPlot} and calls {@link HistogramPlot#show(WindowOrganiser)}.
+     *
+     * <p>If the plot is shown in a new window it will be added to the provided organiser (if not
+     * null).
+     *
+     * @param windowOrganiser the window organiser
+     * @return The histogram plot window (or null if the plot is not possible)
+     */
+    public PlotWindow show(WindowOrganiser windowOrganiser) {
+      return build().show(windowOrganiser);
+    }
+  }
 
   /**
    * The method to select the number of histogram bins.
@@ -508,9 +723,9 @@ public class HistogramPlot {
   /**
    * Show a histogram of the data.
    *
-   * @return The histogram window ID
+   * @return The histogram plot window (or null if the plot is not possible)
    */
-  public int show() {
+  public PlotWindow show() {
     return show(null);
   }
 
@@ -521,13 +736,12 @@ public class HistogramPlot {
    * null).
    *
    * @param windowOrganiser the window organiser
-   * @return The histogram window ID
+   * @return The histogram plot window (or null if the plot is not possible)
    */
-  public int show(WindowOrganiser windowOrganiser) {
+  public PlotWindow show(WindowOrganiser windowOrganiser) {
     final double[] values = data.values();
-    // If we have +/- Infinity in here it will break
-    if (values == null || values.length < 2) {
-      return 0;
+    if (!canPlot(values)) {
+      return null;
     }
     final double[] limits = MathUtils.limits(values);
 
@@ -549,8 +763,17 @@ public class HistogramPlot {
 
     createPlot(barChart);
 
-    final PlotWindow window = Utils.display(plotTitle, plot, 0, windowOrganiser);
-    return window.getImagePlus().getID();
+    return ImageJUtils.display(plotTitle, plot, 0, windowOrganiser);
+  }
+
+  /**
+   * Check the values can be plotted.
+   *
+   * @param values the values
+   * @return true, if successful
+   */
+  private static boolean canPlot(double[] values) {
+    return (values != null && values.length >= 2 && SimpleArrayUtils.isFinite(values));
   }
 
   /**
@@ -735,7 +958,7 @@ public class HistogramPlot {
   }
 
   /**
-   * Sets the minimum bin width to use (e.g. set to 1 for integer values). 0 is auto..
+   * Sets the minimum bin width to use (e.g. set to 1 for integer values). 0 is auto.
    *
    * @param minBinWidth the new minimum bin width
    */
@@ -822,7 +1045,7 @@ public class HistogramPlot {
    *
    * @return the bin method
    */
-  public BinMethod getDefaultMethod() {
+  public BinMethod getBinMethod() {
     return binMethod;
   }
 
@@ -831,7 +1054,7 @@ public class HistogramPlot {
    *
    * @param binMethod the new default method
    */
-  public void setDefaultMethod(BinMethod binMethod) {
+  public void setBinMethod(BinMethod binMethod) {
     this.binMethod = binMethod;
   }
 
@@ -840,7 +1063,7 @@ public class HistogramPlot {
    *
    * @return the x-values
    */
-  public double[] getValuesX() {
+  public double[] getPlotXValues() {
     return plotXValues;
   }
 
@@ -849,7 +1072,7 @@ public class HistogramPlot {
    *
    * @return the y-values
    */
-  public double[] getValuesY() {
+  public double[] getPlotYValues() {
     return plotYValues;
   }
 
@@ -858,7 +1081,7 @@ public class HistogramPlot {
    *
    * @return the min X
    */
-  public double getMinX() {
+  public double getPlotMinX() {
     return plotMinX;
   }
 
@@ -867,7 +1090,7 @@ public class HistogramPlot {
    *
    * @return the max X
    */
-  public double getMaxX() {
+  public double getPlotMaxX() {
     return plotMaxX;
   }
 
@@ -876,7 +1099,7 @@ public class HistogramPlot {
    *
    * @return the max Y
    */
-  public double getMaxY() {
+  public double getPlotMaxY() {
     return plotMaxY;
   }
 

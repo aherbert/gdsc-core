@@ -51,7 +51,7 @@ public class ClusterComparator implements Comparator<Cluster>, Serializable {
    * Compare clusters.
    *
    * <p>Sort by size, centroid x, centroid y, and total weight.
-   * 
+   *
    * @param first the first cluster
    * @param second the second cluster
    * @return the comparison result

@@ -81,7 +81,7 @@ public class ImageJTrackProgress implements TrackProgress {
 
   @Override
   public boolean isEnded() {
-    return Utils.isInterrupted();
+    return ImageJUtils.isInterrupted();
   }
 
   @Override

@@ -30,7 +30,7 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleFloatKdTree2D;
 import uk.ac.sussex.gdsc.core.clustering.CoordinateStore;
-import uk.ac.sussex.gdsc.core.ij.Utils;
+import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
@@ -728,7 +728,7 @@ public class OpticsManager extends CoordinateStore {
       if (tracker != null) {
         time = System.currentTimeMillis() - time;
         tracker.log("Finished OPTICS: %s @ %s (Time = %s)", TextUtils.pleural(nClusters, "Cluster"),
-            MathUtils.rounded(generatingDistanceE), Utils.timeToString(time));
+            MathUtils.rounded(generatingDistanceE), ImageJUtils.timeToString(time));
       }
     }
 
@@ -1241,7 +1241,7 @@ public class OpticsManager extends CoordinateStore {
       if (tracker != null) {
         time = System.currentTimeMillis() - time;
         tracker.log("Finished DBSCAN: %s (Time = %s)",
-            TextUtils.pleural(counter.getTotalClusters(), "Cluster"), Utils.timeToString(time));
+            TextUtils.pleural(counter.getTotalClusters(), "Cluster"), ImageJUtils.timeToString(time));
       }
     }
 
@@ -1435,7 +1435,7 @@ public class OpticsManager extends CoordinateStore {
     }
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
-      tracker.log("Finished KNN computation (Time = " + Utils.timeToString(time) + ")");
+      tracker.log("Finished KNN computation (Time = " + ImageJUtils.timeToString(time) + ")");
       tracker.progress(1);
     }
 
@@ -1609,8 +1609,8 @@ public class OpticsManager extends CoordinateStore {
         time = end - time;
         time2 = end - time2;
         tracker.log("Finished OPTICS: %s @ %s (Time = %s)", TextUtils.pleural(nClusters, "Cluster"),
-            MathUtils.rounded(grid.generatingDistanceE), Utils.timeToString(time2));
-        tracker.log("Finished FastOPTICS ... " + Utils.timeToString(time));
+            MathUtils.rounded(grid.generatingDistanceE), ImageJUtils.timeToString(time2));
+        tracker.log("Finished FastOPTICS ... " + ImageJUtils.timeToString(time));
       }
     }
 
@@ -1904,7 +1904,7 @@ public class OpticsManager extends CoordinateStore {
 
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
-      tracker.log("Finished LoOP computation (Time = " + Utils.timeToString(time) + ")");
+      tracker.log("Finished LoOP computation (Time = " + ImageJUtils.timeToString(time) + ")");
     }
 
     if (!cache) {
