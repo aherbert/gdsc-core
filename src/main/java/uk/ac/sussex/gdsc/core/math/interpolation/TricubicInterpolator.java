@@ -36,6 +36,9 @@ package uk.ac.sussex.gdsc.core.math.interpolation;
 public class TricubicInterpolator extends BicubicInterpolator {
   private final double[] arr = new double[4];
 
+  /**
+   * Instantiates a new tricubic interpolator.
+   */
   protected TricubicInterpolator() {
     super();
   }

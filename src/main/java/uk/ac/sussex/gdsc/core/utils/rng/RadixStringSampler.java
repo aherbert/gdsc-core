@@ -130,40 +130,15 @@ public class RadixStringSampler {
     final char[] out = new char[length];
     switch (radix) {
       case 64:
-        return new Supplier<String>() {
-          @Override
-          public String get() {
-            return nextBase64String(rng, out);
-          }
-        };
+        return () -> nextBase64String(rng, out);
       case 16:
-        return new Supplier<String>() {
-          @Override
-          public String get() {
-            return nextHexString(rng, out);
-          }
-        };
+        return () -> nextHexString(rng, out);
       case 8:
-        return new Supplier<String>() {
-          @Override
-          public String get() {
-            return nextOctalString(rng, out);
-          }
-        };
+        return () -> nextOctalString(rng, out);
       case 2:
-        return new Supplier<String>() {
-          @Override
-          public String get() {
-            return nextBinaryString(rng, out);
-          }
-        };
+        return () -> nextBinaryString(rng, out);
       default:
-        return new Supplier<String>() {
-          @Override
-          public String get() {
-            return nextString(rng, out, radix);
-          }
-        };
+        return () -> nextString(rng, out, radix);
     }
   }
 

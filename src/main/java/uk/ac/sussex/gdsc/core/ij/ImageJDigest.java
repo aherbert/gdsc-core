@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.core.utils.Digest;
+import uk.ac.sussex.gdsc.core.utils.DigestUtils;
 
 import ij.ImageStack;
 import ij.process.ImageProcessor;
@@ -131,7 +131,7 @@ public class ImageJDigest {
    * Instantiates a new IJ digest.
    */
   public ImageJDigest() {
-    this(Digest.MD5);
+    this(DigestUtils.MD5);
   }
 
   /**
@@ -140,7 +140,7 @@ public class ImageJDigest {
    * @param algorithm the algorithm
    */
   public ImageJDigest(String algorithm) {
-    digest = Digest.getDigest(algorithm);
+    digest = DigestUtils.getDigest(algorithm);
   }
 
   /**
@@ -153,7 +153,7 @@ public class ImageJDigest {
     final Object pixels = ip.getPixels();
     final PixelsDigester digester = getPixelsDigester(pixels);
     digester.update(pixels);
-    return Digest.toHex(digester.digest.digest());
+    return DigestUtils.toHex(digester.digest.digest());
   }
 
   /**
@@ -167,7 +167,7 @@ public class ImageJDigest {
     for (int i = 1; i <= stack.getSize(); i++) {
       digester.update(stack.getPixels(i));
     }
-    return Digest.toHex(digester.digest.digest());
+    return DigestUtils.toHex(digester.digest.digest());
   }
 
   /**

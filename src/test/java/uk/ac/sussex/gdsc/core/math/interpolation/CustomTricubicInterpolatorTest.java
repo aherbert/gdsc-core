@@ -1333,20 +1333,20 @@ public class CustomTricubicInterpolatorTest {
     final StandardTrivalueProcedure p = new StandardTrivalueProcedure();
     f1.sample(n, p);
 
-    Assertions.assertArrayEquals(SimpleArrayUtils.newArray((x - 1) * n + 1, 0, xscale / n), p.x,
+    Assertions.assertArrayEquals(SimpleArrayUtils.newArray((x - 1) * n + 1, 0, xscale / n), p.getXAxis(),
         1e-6);
-    Assertions.assertArrayEquals(SimpleArrayUtils.newArray((y - 1) * n + 1, 0, yscale / n), p.y,
+    Assertions.assertArrayEquals(SimpleArrayUtils.newArray((y - 1) * n + 1, 0, yscale / n), p.getYAxis(),
         1e-6);
-    Assertions.assertArrayEquals(SimpleArrayUtils.newArray((z - 1) * n + 1, 0, zscale / n), p.z,
+    Assertions.assertArrayEquals(SimpleArrayUtils.newArray((z - 1) * n + 1, 0, zscale / n), p.getZAxis(),
         1e-6);
 
     final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-8, 0);
 
-    for (int i = 0; i < p.x.length; i++) {
-      for (int j = 0; j < p.y.length; j++) {
-        for (int k = 0; k < p.z.length; k++) {
+    for (int i = 0; i < p.getXAxis().length; i++) {
+      for (int j = 0; j < p.getYAxis().length; j++) {
+        for (int k = 0; k < p.getZAxis().length; k++) {
           // Test original function interpolated value against the sample
-          TestAssertions.assertTest(f1.value(p.x[i], p.y[j], p.z[k]), p.value[i][j][k], equality);
+          TestAssertions.assertTest(f1.value(p.getXAxis()[i], p.getYAxis()[j], p.getZAxis()[k]), p.getValue()[i][j][k], equality);
         }
       }
     }
@@ -1407,13 +1407,13 @@ public class CustomTricubicInterpolatorTest {
       es.shutdown();
     }
 
-    Assertions.assertArrayEquals(p.x, p2.x, 1e-10);
-    Assertions.assertArrayEquals(p.y, p2.y, 1e-10);
-    Assertions.assertArrayEquals(p.z, p2.z, 1e-10);
+    Assertions.assertArrayEquals(p.getXAxis(), p2.getXAxis(), 1e-10);
+    Assertions.assertArrayEquals(p.getYAxis(), p2.getYAxis(), 1e-10);
+    Assertions.assertArrayEquals(p.getZAxis(), p2.getZAxis(), 1e-10);
 
-    for (int i = 0; i < p.x.length; i++) {
-      for (int j = 0; j < p.y.length; j++) {
-        Assertions.assertArrayEquals(p.value[i][j], p2.value[i][j]);
+    for (int i = 0; i < p.getXAxis().length; i++) {
+      for (int j = 0; j < p.getYAxis().length; j++) {
+        Assertions.assertArrayEquals(p.getValue()[i][j], p2.getValue()[i][j]);
       }
     }
   }
@@ -1460,15 +1460,15 @@ public class CustomTricubicInterpolatorTest {
     final StandardTrivalueProcedure p2 = new StandardTrivalueProcedure();
     f2.sample(n, p2);
 
-    Assertions.assertArrayEquals(p1.x, p2.x);
-    Assertions.assertArrayEquals(p1.y, p2.y);
-    Assertions.assertArrayEquals(p1.z, p2.z);
+    Assertions.assertArrayEquals(p1.getXAxis(), p2.getXAxis());
+    Assertions.assertArrayEquals(p1.getYAxis(), p2.getYAxis());
+    Assertions.assertArrayEquals(p1.getZAxis(), p2.getZAxis());
 
-    for (int i = 0; i < p1.x.length; i++) {
-      for (int j = 0; j < p1.y.length; j++) {
-        for (int k = 0; k < p1.z.length; k++) {
-          Assertions.assertEquals(f1.value(p1.x[i], p1.y[j], p1.z[k]),
-              f2.value(p1.x[i], p1.y[j], p1.z[k]));
+    for (int i = 0; i < p1.getXAxis().length; i++) {
+      for (int j = 0; j < p1.getYAxis().length; j++) {
+        for (int k = 0; k < p1.getZAxis().length; k++) {
+          Assertions.assertEquals(f1.value(p1.getXAxis()[i], p1.getYAxis()[j], p1.getZAxis()[k]),
+              f2.value(p1.getXAxis()[i], p1.getYAxis()[j], p1.getZAxis()[k]));
         }
       }
     }
@@ -1728,10 +1728,10 @@ public class CustomTricubicInterpolatorTest {
     final StandardTrivalueProcedure p2 = new StandardTrivalueProcedure();
     f2.sample(2, p2);
 
-    Assertions.assertArrayEquals(p1.x, p2.x);
-    Assertions.assertArrayEquals(p1.y, p2.y);
-    Assertions.assertArrayEquals(p1.z, p2.z);
-    Assertions.assertArrayEquals(p1.value, p2.value);
+    Assertions.assertArrayEquals(p1.getXAxis(), p2.getXAxis());
+    Assertions.assertArrayEquals(p1.getYAxis(), p2.getYAxis());
+    Assertions.assertArrayEquals(p1.getZAxis(), p2.getZAxis());
+    Assertions.assertArrayEquals(p1.getValue(), p2.getValue());
 
     //@formatter:off
         // With integer axis
@@ -1747,10 +1747,10 @@ public class CustomTricubicInterpolatorTest {
 
     f3.sample(2, p2);
 
-    Assertions.assertArrayEquals(p1.x, p2.x);
-    Assertions.assertArrayEquals(p1.y, p2.y);
-    Assertions.assertArrayEquals(p1.z, p2.z);
-    Assertions.assertArrayEquals(p1.value, p2.value);
+    Assertions.assertArrayEquals(p1.getXAxis(), p2.getXAxis());
+    Assertions.assertArrayEquals(p1.getYAxis(), p2.getYAxis());
+    Assertions.assertArrayEquals(p1.getZAxis(), p2.getZAxis());
+    Assertions.assertArrayEquals(p1.getValue(), p2.getValue());
 
     es.shutdown();
   }

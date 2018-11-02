@@ -23,7 +23,7 @@ package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;
 import java.util.Arrays;
 
 /**
- * Class for tracking up to 'size' closest values.
+ * Class for tracking up to 'capacity' closest size.
  *
  * @param <T> the generic type
  */
@@ -34,11 +34,11 @@ public class FloatResultHeap<T> {
   /** The distance. */
   final float[] distance;
 
-  /** The size. */
-  private final int size;
+  /** The capacity. */
+  private final int capacity;
 
-  /** The values. */
-  int values;
+  /** The size. */
+  int size;
 
   /**
    * The removed data.
@@ -53,13 +53,13 @@ public class FloatResultHeap<T> {
   /**
    * Instantiates a new float result heap.
    *
-   * @param size the size
+   * @param capacity the capacity
    */
-  public FloatResultHeap(int size) {
-    this.data = new Object[size];
-    this.distance = new float[size];
-    this.size = size;
-    this.values = 0;
+  public FloatResultHeap(int capacity) {
+    this.data = new Object[capacity];
+    this.distance = new float[capacity];
+    this.capacity = capacity;
+    this.size = 0;
   }
 
   /**
@@ -70,12 +70,12 @@ public class FloatResultHeap<T> {
    */
   public void addValue(float dist, Object value) {
     // If there is still room in the heap
-    if (values < size) {
+    if (size < capacity) {
       // Insert new value at the end
-      data[values] = value;
-      distance[values] = dist;
-      upHeapify(values);
-      values++;
+      data[size] = value;
+      distance[size] = dist;
+      upHeapify(size);
+      size++;
     } else if (dist < distance[0]) {
       // If there is no room left in the heap, and the new entry is lower
       // than the max entry replace the max entry with the new entry
@@ -89,15 +89,15 @@ public class FloatResultHeap<T> {
    * Removes the largest.
    */
   public void removeLargest() {
-    if (values == 0) {
+    if (size == 0) {
       throw new IllegalStateException();
     }
 
     removedData = data[0];
     removedDistance = distance[0];
-    values--;
-    data[0] = data[values];
-    distance[0] = distance[values];
+    size--;
+    data[0] = data[size];
+    distance[0] = distance[size];
     downHeapify(0);
   }
 
@@ -129,8 +129,8 @@ public class FloatResultHeap<T> {
    * @param index the index
    */
   private void downHeapify(int index) {
-    for (int c = index * 2 + 1; c < values; index = c, c = index * 2 + 1) {
-      if (c + 1 < values && distance[c] < distance[c + 1]) {
+    for (int c = index * 2 + 1; c < size; index = c, c = index * 2 + 1) {
+      if (c + 1 < size && distance[c] < distance[c + 1]) {
         c++;
       }
       if (distance[index] < distance[c]) {
@@ -153,7 +153,7 @@ public class FloatResultHeap<T> {
    * @return the max dist
    */
   public float getMaxDist() {
-    if (values < size) {
+    if (size < capacity) {
       return Float.POSITIVE_INFINITY;
     }
     return distance[0];
@@ -165,7 +165,7 @@ public class FloatResultHeap<T> {
    * @return the size
    */
   public int getSize() {
-    return values;
+    return size;
   }
 
   /**
@@ -174,7 +174,7 @@ public class FloatResultHeap<T> {
    * @return the capacity
    */
   public int getCapacity() {
-    return size;
+    return capacity;
   }
 
   /**
@@ -183,7 +183,7 @@ public class FloatResultHeap<T> {
    * @return the distance
    */
   public float[] getDistance() {
-    return Arrays.copyOf(distance, values);
+    return Arrays.copyOf(distance, size);
   }
 
   /**
@@ -192,7 +192,7 @@ public class FloatResultHeap<T> {
    * @return the data
    */
   public Object[] getData() {
-    return Arrays.copyOf(data, values);
+    return Arrays.copyOf(data, size);
   }
 
   /**
@@ -203,13 +203,13 @@ public class FloatResultHeap<T> {
    */
   @SuppressWarnings("unchecked")
   public T[] getData(T[] array) {
-    if (array.length < values) {
+    if (array.length < size) {
       // Make a new array of a's runtime type, but my contents:
-      return (T[]) Arrays.copyOf(data, values, array.getClass());
+      return (T[]) Arrays.copyOf(data, size, array.getClass());
     }
-    System.arraycopy(data, 0, array, 0, values);
-    if (array.length > values) {
-      array[values] = null;
+    System.arraycopy(data, 0, array, 0, size);
+    if (array.length > size) {
+      array[size] = null;
     }
     return array;
   }

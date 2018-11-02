@@ -131,12 +131,18 @@ public class RollingStatistics extends Statistics {
 
   @Override
   public double getStandardDeviation() {
-    return (size > 1) ? Math.sqrt(sumSq / (size - 1)) : (size == 1) ? 0 : Double.NaN;
+    if (size > 1) {
+      return Math.sqrt(sumSq / (size - 1));
+    }
+    return (size == 0) ? Double.NaN : 0;
   }
 
   @Override
   public double getVariance() {
-    return (size > 1) ? sumSq / (size - 1) : (size == 1) ? 0 : Double.NaN;
+    if (size > 1) {
+      return sumSq / (size - 1);
+    }
+    return (size == 0) ? Double.NaN : 0;
   }
 
   @Override

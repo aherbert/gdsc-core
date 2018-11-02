@@ -30,7 +30,7 @@ package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;
  */
 abstract class KdTreeNode2D<T> {
   /** The bucket size. */
-  static final int bucketSize = 24;
+  static final int BUCKET_SIZE = 24;
 
   // All types
 
@@ -77,8 +77,8 @@ abstract class KdTreeNode2D<T> {
    */
   KdTreeNode2D() {
     // Init as leaf
-    this.locations = new double[bucketSize][];
-    this.data = new Object[bucketSize];
+    this.locations = new double[BUCKET_SIZE][];
+    this.data = new Object[BUCKET_SIZE];
     this.locationCount = 0;
     this.singularity = true;
 
@@ -93,7 +93,7 @@ abstract class KdTreeNode2D<T> {
    */
   KdTreeNode2D(KdTreeNode2D<T> parent) {
     // Init as leaf
-    this.locations = new double[Math.max(bucketSize, parent.locationCount)][];
+    this.locations = new double[Math.max(BUCKET_SIZE, parent.locationCount)][];
     this.data = new Object[locations.length];
     this.locationCount = 0;
     this.singularity = true;

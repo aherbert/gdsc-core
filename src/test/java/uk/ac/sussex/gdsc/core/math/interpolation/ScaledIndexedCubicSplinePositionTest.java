@@ -35,7 +35,7 @@ public class ScaledIndexedCubicSplinePositionTest {
       final ScaledIndexedCubicSplinePosition p =
           new ScaledIndexedCubicSplinePosition(index, x, scale);
       Assertions.assertNotNull(p);
-      Assertions.assertEquals(scale, p.scale);
+      Assertions.assertEquals(scale, p.getScaleFactor());
       Assertions.assertEquals(1 * scale, p.scale(1));
       Assertions.assertEquals(1 / scale, p.scaleGradient(1));
       Assertions.assertEquals(1 / scale / scale, p.scaleGradient2(1));

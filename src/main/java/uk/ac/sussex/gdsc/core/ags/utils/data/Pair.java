@@ -27,10 +27,10 @@ package uk.ac.sussex.gdsc.core.ags.utils.data;
  */
 public final class Pair<T> {
   /** The first. */
-  public final T first;
+  private final T first;
 
   /** The second. */
-  public final T second;
+  private final T second;
 
   /**
    * Instantiates a new pair.
@@ -41,5 +41,23 @@ public final class Pair<T> {
   public Pair(T first, T second) {
     this.first = first;
     this.second = second;
+  }
+
+  /**
+   * Gets the first in the pair.
+   *
+   * @return the first
+   */
+  public T getFirst() {
+    return first;
+  }
+
+  /**
+   * Gets the second in the pair.
+   *
+   * @return the second
+   */
+  public T getSecond() {
+    return second;
   }
 }

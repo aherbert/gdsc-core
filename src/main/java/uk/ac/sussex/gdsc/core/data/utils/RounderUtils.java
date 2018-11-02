@@ -26,36 +26,24 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.match;
-
-import java.io.Serializable;
-import java.util.Comparator;
+package uk.ac.sussex.gdsc.core.data.utils;
 
 /**
- * Compares the {@link Pulse} class using only time.
+ * Create a {@link Rounder} implementation.
  */
-public class PulseTimeComparator implements Comparator<Pulse>, Serializable {
-  /**
-   * The serial version ID.
-   */
-  private static final long serialVersionUID = 1L;
+public final class RounderUtils {
 
-  private static final PulseTimeComparator INSTANCE = new PulseTimeComparator();
+  /** No construction. */
+  private RounderUtils() {}
 
   /**
-   * Gets an instance.
+   * Creates the rounder. If the precision is less than 1 then an instance will be created that does
+   * not perform rounding.
    *
-   * @return an instance
+   * @param precision the precision
+   * @return the rounder
    */
-  public static PulseTimeComparator getInstance() {
-    return INSTANCE;
-  }
-
-  @Override
-  public int compare(Pulse o1, Pulse o2) {
-    if (o1.getStart() == o2.getStart()) {
-      return Integer.compare(o1.getEnd(), o2.getEnd());
-    }
-    return (o1.getStart() < o2.getStart()) ? -1 : 1;
+  public static Rounder create(int precision) {
+    return (precision > 0) ? new MathContextRounder(precision) : new NonRounder();
   }
 }

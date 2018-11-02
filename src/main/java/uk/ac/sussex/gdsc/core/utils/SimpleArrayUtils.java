@@ -35,10 +35,15 @@ import java.util.Arrays;
 
 /**
  * Class for manipulating arrays.
- *
- * @author Alex Herbert
  */
-public class SimpleArrayUtils {
+public final class SimpleArrayUtils {
+
+  private static final String DATA_EMPTY = "Data is empty";
+  private static final String DATA_INCORRECT_SIZE = "Data is not the correct array size";
+
+  /** No public construction. */
+  private SimpleArrayUtils() {}
+
   /**
    * Merge the two sets into a single set using a hashset. The order is undefined. Input sets are
    * unchanged.
@@ -795,10 +800,10 @@ public class SimpleArrayUtils {
    */
   public static void hasData2D(int width, int height, float[] data) {
     if (data == null || data.length == 0) {
-      throw new IllegalArgumentException("data is empty");
+      throw new IllegalArgumentException(DATA_EMPTY);
     }
     if (check2DSize(width, height) != data.length) {
-      throw new IllegalArgumentException("data is not the correct array size");
+      throw new IllegalArgumentException(DATA_INCORRECT_SIZE);
     }
   }
 
@@ -817,10 +822,10 @@ public class SimpleArrayUtils {
    */
   public static void hasData2D(int width, int height, double[] data) {
     if (data == null || data.length == 0) {
-      throw new IllegalArgumentException("data is empty");
+      throw new IllegalArgumentException(DATA_EMPTY);
     }
     if (check2DSize(width, height) != data.length) {
-      throw new IllegalArgumentException("data is not the correct array size");
+      throw new IllegalArgumentException(DATA_INCORRECT_SIZE);
     }
   }
 
@@ -839,10 +844,10 @@ public class SimpleArrayUtils {
    */
   public static void hasData2D(int width, int height, int[] data) {
     if (data == null || data.length == 0) {
-      throw new IllegalArgumentException("data is empty");
+      throw new IllegalArgumentException(DATA_EMPTY);
     }
     if (check2DSize(width, height) != data.length) {
-      throw new IllegalArgumentException("data is not the correct array size");
+      throw new IllegalArgumentException(DATA_INCORRECT_SIZE);
     }
   }
 
@@ -861,10 +866,10 @@ public class SimpleArrayUtils {
    */
   public static void hasData2D(int width, int height, byte[] data) {
     if (data == null || data.length == 0) {
-      throw new IllegalArgumentException("data is empty");
+      throw new IllegalArgumentException(DATA_EMPTY);
     }
     if (check2DSize(width, height) != data.length) {
-      throw new IllegalArgumentException("data is not the correct array size");
+      throw new IllegalArgumentException(DATA_INCORRECT_SIZE);
     }
   }
 

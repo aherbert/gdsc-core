@@ -231,12 +231,12 @@ public abstract class FastTiffDecoder {
    * metadata can be large and so by default the count is 1 to only do this for the first IFD. Set
    * to 0 if not wanted.
    */
-  public int ifdCountForMicroManagerMetadata = 1;
+  private int ifdCountForMicroManagerMetadata = 1;
 
   /**
    * This is a count of the number of IFDs for which the debug info is recorded.
    */
-  public int ifdCountForDebugData = 10;
+  private int ifdCountForDebugData = 10;
 
   /**
    * Instantiates a new fast tiff decoder.
@@ -839,7 +839,7 @@ public abstract class FastTiffDecoder {
       final int count = getInt(byteBuffer, position + 4);
       final int value = getValue(fieldType, count, byteBuffer, position + 8);
       final long lvalue = (value) & 0xffffffffL;
-      if (debugMode && ifdCount <= ifdCountForDebugData) {
+      if (debugMode && ifdCount <= getIfdCountForDebugData()) {
         dumpTag(tag, count, value, fi);
       }
       switch (tag) {
@@ -1054,7 +1054,7 @@ public abstract class FastTiffDecoder {
           break;
         case METAMORPH1:
         case METAMORPH2:
-          if ((name.indexOf(".STK") > 0 || name.indexOf(".stk") > 0)
+          if ((name.indexOf(".STK") != -1 || name.indexOf(".stk") != -1)
               && fi.compression == FileInfo.COMPRESSION_NONE) {
             if (tag == METAMORPH2) {
               fi.nImages = count;
@@ -1084,11 +1084,11 @@ public abstract class FastTiffDecoder {
           getMetaData(value, fi);
           break;
         case MICRO_MANAGER_META_DATA:
-          if (ifdCount <= ifdCountForMicroManagerMetadata) {
+          if (ifdCount <= getIfdCountForMicroManagerMetadata()) {
             // Only read if desired
             final byte[] bytes = getString(count, lvalue);
             if (bytes != null) {
-              fi.extendedMetaData = new String(bytes, UTF8);
+              fi.setExtendedMetaData(new String(bytes, UTF8));
             }
           }
           break;
@@ -1386,7 +1386,6 @@ public abstract class FastTiffDecoder {
    * @see #reset()
    */
   public ExtendedFileInfo[] getTiffInfo(boolean pixelDataOnly) throws IOException {
-    // debugMode = true;
 
     ifdCount = 0;
     long ifdOffset = readUnsignedInt();
@@ -1405,7 +1404,7 @@ public abstract class FastTiffDecoder {
     if (fi != null) {
       list.add(fi);
       ifdOffset = readUnsignedInt();
-      if (debugMode && ifdCount <= ifdCountForDebugData) {
+      if (debugMode && ifdCount <= getIfdCountForDebugData()) {
         debugInfo += "  nextIFD=" + ifdOffset + "\n";
       }
       // ignore extra IFDs in ImageJ and NIH Image stacks
@@ -1420,7 +1419,7 @@ public abstract class FastTiffDecoder {
           } else {
             ifdOffset = 0L;
           }
-          if (debugMode && ifdCount <= ifdCountForDebugData) {
+          if (debugMode && ifdCount <= getIfdCountForDebugData()) {
             debugInfo += "  nextIFD=" + ifdOffset + "\n";
           }
         }
@@ -1458,20 +1457,14 @@ public abstract class FastTiffDecoder {
       fi.debugInfo += "little-endian byte order: " + fi.intelByteOrder + "\n";
     }
 
-    // System.out.println(dInfo);
-    // System.out.println(tiffMetadata);
-    // System.out.println(fi.summaryMetaData);
-    // System.out.println(fi.extendedMetaData);
-    // System.out.println(fi.info);
-
     return info;
   }
 
   /**
    * Gets the tiff info for the index map entry. The seekable stream is not closed.
    *
-   * <p>This method also sets {@link #ifdCountForDebugData} to 1, i.e. debug data is only recorded
-   * for the first IFD.
+   * <p>This method also sets {@link #setIfdCountForDebugData(int)} to 1, i.e. debug data is only
+   * recorded for the first IFD.
    *
    * <p>Optionally the IFD entry can be read for only the data needed to read the pixels. This means
    * skipping the X/YResolution, ResolutionUnit, ImageDescription and any meta-data tags for faster
@@ -1485,14 +1478,13 @@ public abstract class FastTiffDecoder {
    */
   public ExtendedFileInfo getTiffInfo(IndexMap indexMap, int index, boolean pixelDataOnly)
       throws IOException {
-    // debugMode = true;
 
     // Note: Special processing for the first IFD so that the result of reading all
     // IFDs from the IndexMap should be the same as using getTiffInfo(). This is
     // with the exception of the debugInfo field.
     ss.seek(indexMap.getOffset(index));
     ifdCount = index;
-    ifdCountForDebugData = 1; // Only record debugging info for the first IFD
+    setIfdCountForDebugData(1); // Only record debugging info for the first IFD
     if (index == 0) {
       if (debugMode) {
         debugInfo = "\n  " + name + ": opening\n";
@@ -1515,12 +1507,6 @@ public abstract class FastTiffDecoder {
       }
     }
 
-    // System.out.println(dInfo);
-    // System.out.println(tiffMetadata);
-    // System.out.println(fi.summaryMetaData);
-    // System.out.println(fi.extendedMetaData);
-    // System.out.println(fi.info);
-
     return fi;
   }
 
@@ -1530,7 +1516,7 @@ public abstract class FastTiffDecoder {
       final int count = readInt();
       final byte[] bytes = new byte[count];
       ss.readFully(bytes);
-      fi.summaryMetaData = new String(bytes, UTF8);
+      fi.setSummaryMetaData(new String(bytes, UTF8));
     }
   }
 
@@ -1555,7 +1541,7 @@ public abstract class FastTiffDecoder {
         maxGap = gap;
       }
     }
-    final long imageSize = fi[0].width * fi[0].height * fi[0].getBytesPerPixel();
+    final long imageSize = (long) fi[0].width * fi[0].height * fi[0].getBytesPerPixel();
     minGap -= imageSize;
     maxGap -= imageSize;
     if (minGap == maxGap) {
@@ -1569,16 +1555,16 @@ public abstract class FastTiffDecoder {
    */
   public static class NumberOfImages {
     /** The number of images. */
-    public final int imageCount;
+    private final int imageCount;
 
     /** Flag to indicate that the TIFF info had information for an exact image count. */
-    public final boolean exact;
+    private final boolean exact;
 
     /**
      * The error. This is the difference in file size between the estimated size using an IFD scan
      * and the actual file size.
      */
-    public final double error;
+    private final double error;
 
     /**
      * Instantiates a new number of images.
@@ -1601,6 +1587,34 @@ public abstract class FastTiffDecoder {
       this.imageCount = imageCount;
       this.error = 0;
       exact = true;
+    }
+
+    /**
+     * Gets the image count.
+     *
+     * @return the image count
+     */
+    public int getImageCount() {
+      return imageCount;
+    }
+
+    /**
+     * Checks if the TIFF info had information for an exact image count.
+     *
+     * @return true, if is exact
+     */
+    public boolean isExact() {
+      return exact;
+    }
+
+    /**
+     * Gets the error. This is the difference in file size between the estimated size using an IFD
+     * scan and the actual file size.
+     *
+     * @return the error
+     */
+    public double getError() {
+      return error;
     }
   }
 
@@ -2235,7 +2249,7 @@ public abstract class FastTiffDecoder {
     // other parts of the file.
 
     // Includes (number of entries) + (next offset)
-    long total = 2 + entryCount * INDEX_SIZE + 4;
+    long total = 2 + (long) entryCount * INDEX_SIZE + 4;
     for (int i = 0, j = 0; i < entryCount; i++, j += INDEX_SIZE) {
       final int tag = getShort(buffer, j);
       final int fieldType = getShort(buffer, j + 2);
@@ -2506,7 +2520,7 @@ public abstract class FastTiffDecoder {
    * @return the origin
    */
   public static Rectangle getOrigin(ExtendedFileInfo fi) {
-    Rectangle origin = getOrigin(fi.summaryMetaData, '[', ',', ']');
+    Rectangle origin = getOrigin(fi.getSummaryMetaData(), '[', ',', ']');
     if (origin != null) {
       return origin;
     }
@@ -2514,7 +2528,7 @@ public abstract class FastTiffDecoder {
     if (origin != null) {
       return origin;
     }
-    return getOrigin(fi.extendedMetaData, '"', '-', '"');
+    return getOrigin(fi.getExtendedMetaData(), '"', '-', '"');
   }
 
   /**
@@ -2618,5 +2632,43 @@ public abstract class FastTiffDecoder {
    */
   public void setTrackProgress(TrackProgress tracker) {
     this.trackProgress = NullTrackProgress.createIfNull(tracker);
+  }
+
+  /**
+   * Gets the count of the number of IFDs for which the debug info is recorded.
+   *
+   * @return the IFD count for debug data
+   */
+  public int getIfdCountForDebugData() {
+    return ifdCountForDebugData;
+  }
+
+  /**
+   * Sets the count of the number of IFDs for which the debug info is recorded.
+   *
+   * @param ifdCountForDebugData the new IFD count for debug data
+   */
+  public void setIfdCountForDebugData(int ifdCountForDebugData) {
+    this.ifdCountForDebugData = ifdCountForDebugData;
+  }
+
+  /**
+   * Gets the count of the number of IFDs for which the micro manager metadata will be read.
+   *
+   * @return the IFD count for micro manager metadata
+   */
+  public int getIfdCountForMicroManagerMetadata() {
+    return ifdCountForMicroManagerMetadata;
+  }
+
+  /**
+   * Sets the count of the number of IFDs for which the micro manager metadata will be read. This
+   * metadata can be large and so by default the count is 1 to only do this for the first IFD. Set
+   * to 0 if not wanted.
+   *
+   * @param ifdCountForMicroManagerMetadata the new IFD count for micro manager metadata
+   */
+  public void setIfdCountForMicroManagerMetadata(int ifdCountForMicroManagerMetadata) {
+    this.ifdCountForMicroManagerMetadata = ifdCountForMicroManagerMetadata;
   }
 }

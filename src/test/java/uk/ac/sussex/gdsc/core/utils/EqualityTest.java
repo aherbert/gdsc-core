@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.logging.Logger;
 
-@SuppressWarnings({"deprecation", "javadoc"})
+@SuppressWarnings({"javadoc"})
 public class EqualityTest {
   private static Logger logger;
 

@@ -29,7 +29,7 @@ import java.util.Arrays;
  */
 public abstract class BinaryHeap<T> {
   /** The Constant defaultCapacity. */
-  protected static final int defaultCapacity = 64;
+  protected static final int DEFAULT_CAPACITY = 64;
 
   /** The direction. */
   private final int direction;
@@ -208,7 +208,7 @@ public abstract class BinaryHeap<T> {
      * Instantiates a new max.
      */
     public Max() {
-      super(defaultCapacity, 1);
+      super(DEFAULT_CAPACITY, 1);
     }
 
     /**
@@ -251,7 +251,7 @@ public abstract class BinaryHeap<T> {
      * Instantiates a new min.
      */
     public Min() {
-      super(defaultCapacity, -1);
+      super(DEFAULT_CAPACITY, -1);
     }
 
     /**

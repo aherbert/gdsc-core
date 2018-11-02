@@ -29,6 +29,7 @@
 package uk.ac.sussex.gdsc.core.clustering;
 
 import uk.ac.sussex.gdsc.core.data.AsynchronousException;
+import uk.ac.sussex.gdsc.core.data.ComputationException;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
@@ -51,6 +52,22 @@ public class ClusteringEngine {
   /** The minimum block size for multi-threading. */
   private static final int MIN_BLOCK_SIZE = 3;
 
+  private ExecutorService threadPool;
+  private int xblock;
+  private int yblock;
+
+  private ClusteringAlgorithm clusteringAlgorithm = ClusteringAlgorithm.PAIRWISE;
+  private TrackProgress tracker = NullTrackProgress.INSTANCE;
+  private int pulseInterval;
+  private boolean trackJoins;
+  private int threadCount = 1;
+  private double[] intraIdDistances;
+  private double[] interIdDistances;
+  private int intraIdCount;
+  private int interIdCount;
+  private int nextClusterId;
+  private boolean useRange;
+
   /**
    * Used for multi-threaded clustering to store the closest pair in a region of the search space.
    */
@@ -60,49 +77,44 @@ public class ClusteringEngine {
     Object point1;
     Object point2;
 
-    public ClosestPair(double distance, Object point1, Object point2) {
+    ClosestPair(double distance, Object point1, Object point2) {
       this.distance = distance;
       this.point1 = point1;
       this.point2 = point2;
     }
 
-    public ClosestPair(double distance, int time, Object point1, Object point2) {
+    ClosestPair(double distance, int time, Object point1, Object point2) {
       this.distance = distance;
       this.time = time;
       this.point1 = point1;
       this.point2 = point2;
     }
 
-    public ClosestPair() {}
+    ClosestPair() {}
   }
 
   /**
    * Use a runnable to allow multi-threaded operation. Input parameters that are manipulated should
    * have synchronized methods.
    */
-  private class ParticleLinkageWorker implements Runnable {
+  private static class ParticleLinkageWorker implements Runnable {
     ClosestPair pair;
     ExtendedClusterPoint[][] grid;
     int nxbins;
     int nybins;
     double r2;
-    double minx;
-    double miny;
     int startxbin;
     int endxbin;
     int startybin;
     int endybin;
 
-    public ParticleLinkageWorker(ClosestPair pair, ExtendedClusterPoint[][] grid, int nxbins,
-        int nybins, double r2, double minx, double miny, int startxbin, int endxbin, int startybin,
-        int endybin) {
+    ParticleLinkageWorker(ClosestPair pair, ExtendedClusterPoint[][] grid, int nxbins, int nybins,
+        double r2, int startxbin, int endxbin, int startybin, int endybin) {
       this.pair = pair;
       this.grid = grid;
       this.nxbins = nxbins;
       this.nybins = nybins;
       this.r2 = r2;
-      this.minx = minx;
-      this.miny = miny;
       this.startxbin = startxbin;
       this.endxbin = endxbin;
       this.startybin = startybin;
@@ -111,8 +123,8 @@ public class ClusteringEngine {
 
     @Override
     public void run() {
-      final ClosestPair result = findClosestParticle(grid, nxbins, nybins, r2, minx, miny,
-          startxbin, endxbin, startybin, endybin);
+      final ClosestPair result =
+          findClosestParticle(grid, nxbins, nybins, r2, startxbin, endxbin, startybin, endybin);
       if (result != null) {
         pair.distance = result.distance;
         pair.point1 = result.point1;
@@ -125,7 +137,7 @@ public class ClusteringEngine {
    * Use a runnable to allow multi-threaded operation. Input parameters that are manipulated should
    * have synchronized methods.
    */
-  private class ClosestWorker implements Runnable {
+  private static class ClosestWorker implements Runnable {
     ClosestPair pair;
     Cluster[][] grid;
     int nxbins;
@@ -137,7 +149,7 @@ public class ClusteringEngine {
     int endybin;
     boolean single;
 
-    public ClosestWorker(ClosestPair pair, Cluster[][] grid, int nxbins, int nybins, double r2,
+    ClosestWorker(ClosestPair pair, Cluster[][] grid, int nxbins, int nybins, double r2,
         int startxbin, int endxbin, int startybin, int endybin, boolean single) {
       this.pair = pair;
       this.grid = grid;
@@ -187,9 +199,9 @@ public class ClusteringEngine {
     int endybin;
     boolean single;
 
-    public ClosestPriorityWorker(boolean timePriority, ClosestPair pair, TimeCluster[][] grid,
-        int nxbins, int nybins, double r2, int time, int startxbin, int endxbin, int startybin,
-        int endybin, boolean single) {
+    ClosestPriorityWorker(boolean timePriority, ClosestPair pair, TimeCluster[][] grid, int nxbins,
+        int nybins, double r2, int time, int startxbin, int endxbin, int startybin, int endybin,
+        boolean single) {
       this.timePriority = timePriority;
       this.pair = pair;
       this.grid = grid;
@@ -245,8 +257,8 @@ public class ClusteringEngine {
     int startybin;
     int endybin;
 
-    public FindLinksWorker(Cluster[][] grid, int nxbins, int nybins, double r2, int startxbin,
-        int endxbin, int startybin, int endybin) {
+    FindLinksWorker(Cluster[][] grid, int nxbins, int nybins, double r2, int startxbin, int endxbin,
+        int startybin, int endybin) {
       this.grid = grid;
       this.nxbins = nxbins;
       this.nybins = nybins;
@@ -263,22 +275,6 @@ public class ClusteringEngine {
           endybin);
     }
   }
-
-  private ExecutorService threadPool;
-  private int xblock;
-  private int yblock;
-
-  private ClusteringAlgorithm clusteringAlgorithm = ClusteringAlgorithm.PAIRWISE;
-  private TrackProgress tracker = NullTrackProgress.INSTANCE;
-  private int pulseInterval;
-  private boolean trackJoins;
-  private int threadCount = 1;
-  private double[] intraIdDistances;
-  private double[] interIdDistances;
-  private int intraIdCount;
-  private int interIdCount;
-  private int nextClusterId;
-  private boolean useRange;
 
   /**
    * Instantiates a new clustering engine.
@@ -669,11 +665,8 @@ public class ClusteringEngine {
       xblock = FastMath.max(nxbins / threadCount, MIN_BLOCK_SIZE);
       yblock = FastMath.max(nybins / threadCount, MIN_BLOCK_SIZE);
 
-      // System.out.printf("Block size %d x %d = %d\n", xBlock, yBlock, countBlocks(nxbins,
-      // nybins));
       // Increment the block size until the number of blocks to process is just above the thread
-      // count.
-      // This reduces thread overhead but still processes across many threads.
+      // count. This reduces thread overhead but still processes across many threads.
       int counter = 0;
       while (countBlocks(nxbins, nybins) > 2 * threadCount) {
         if (counter++ % 2 == 0) {
@@ -724,7 +717,7 @@ public class ClusteringEngine {
     // if there are not enough blocks since each overlap is double processed.
 
     if (threadPool == null) {
-      closest = findClosestParticle(grid, nxbins, nybins, r2, minx, miny, 0, nxbins, 0, nybins);
+      closest = findClosestParticle(grid, nxbins, nybins, r2, 0, nxbins, 0, nybins);
     } else {
       // Use threads to find the closest pairs in blocks
       final List<Future<?>> futures = new LinkedList<>();
@@ -734,12 +727,11 @@ public class ClusteringEngine {
         final int endybin = FastMath.min(nybins, startybin + yblock);
         for (int startxbin = 0; startxbin < nxbins; startxbin += xblock) {
           final int endxbin = FastMath.min(nxbins, startxbin + xblock);
-          // System.out.printf("Block [%d-%d, %d-%d]\n", startxbin, endxbin, startybin, endybin);
 
           final ClosestPair pair = new ClosestPair();
           results.add(pair);
           futures.add(threadPool.submit(new ParticleLinkageWorker(pair, grid, nxbins, nybins, r2,
-              minx, miny, startxbin, endxbin, startybin, endybin)));
+              startxbin, endxbin, startybin, endybin)));
         }
       }
 
@@ -749,10 +741,8 @@ public class ClusteringEngine {
 
       // Find the closest pair from all the results
       for (final ClosestPair result : results) {
-        if (result.point1 != null) {
-          if (closest == null || result.distance < closest.distance) {
-            closest = result;
-          }
+        if (result.point1 != null && (closest == null || result.distance < closest.distance)) {
+          closest = result;
         }
       }
     }
@@ -766,7 +756,7 @@ public class ClusteringEngine {
 
       if (pair1.isInCluster() && pair2.isInCluster()) {
         // Error
-        throw new RuntimeException("Linkage between two particles already in a cluster");
+        throw new ComputationException("Linkage between two particles already in a cluster");
       } else if (pair1.isInCluster()) {
         clusterId[pair2.getId()] = clusterId[pair1.getId()];
         pair2.setInCluster(true);
@@ -814,8 +804,7 @@ public class ClusteringEngine {
    * @return The pair of closest points (or null)
    */
   private static ClosestPair findClosestParticle(ExtendedClusterPoint[][] grid, final int nxbins,
-      final int nybins, final double r2, double minx, double miny, int startxbin, int endxbin,
-      int startybin, int endybin) {
+      final int nybins, final double r2, int startxbin, int endxbin, int startybin, int endybin) {
     double min = r2;
     ExtendedClusterPoint pair1 = null;
     ExtendedClusterPoint pair2 = null;
@@ -1517,7 +1506,7 @@ public class ClusteringEngine {
       if (single) {
         // Check
         if (pair1.getSize() > 1 && pair2.getSize() > 1) {
-          throw new RuntimeException(
+          throw new ComputationException(
               "Linkage between two clusters (not a single particle and a single/cluster)");
         }
 
@@ -1680,7 +1669,6 @@ public class ClusteringEngine {
     for (int xbin = 0; xbin < nxbins; xbin++) {
       for (int ybin = 0; ybin < nybins; ybin++) {
         for (Cluster c1 = grid[xbin][ybin]; c1 != null; c1 = c1.getNext()) {
-          // if (c1.n > 0)
           singles.add(c1);
         }
       }
@@ -1909,11 +1897,9 @@ public class ClusteringEngine {
 
       // Find the closest pair from all the results
       for (final ClosestPair result : results) {
-        if (result.point1 != null) {
-          if (closest == null || (result.time < closest.time)
-              || (result.time <= closest.time && result.distance < closest.distance)) {
-            closest = result;
-          }
+        if (result.point1 != null && (closest == null || (result.time < closest.time)
+            || (result.time <= closest.time && result.distance < closest.distance))) {
+          closest = result;
         }
       }
     }
@@ -2264,11 +2250,9 @@ public class ClusteringEngine {
 
       // Find the closest pair from all the results
       for (final ClosestPair result : results) {
-        if (result.point1 != null) {
-          if (closest == null || (result.distance < closest.distance)
-              || (result.distance <= closest.distance && result.time < closest.time)) {
-            closest = result;
-          }
+        if (result.point1 != null && (closest == null || (result.distance < closest.distance)
+            || (result.distance <= closest.distance && result.time < closest.time))) {
+          closest = result;
         }
       }
     }

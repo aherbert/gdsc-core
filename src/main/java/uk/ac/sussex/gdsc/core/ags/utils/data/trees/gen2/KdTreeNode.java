@@ -27,8 +27,8 @@ package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;
  * @param <T> the generic type
  */
 abstract class KdTreeNode<T> {
-  /** The Constant bucketSize. */
-  static final int bucketSize = 24;
+  /** The Constant BUCKET_SIZE. */
+  static final int BUCKET_SIZE = 24;
 
   // All types
 
@@ -80,8 +80,8 @@ abstract class KdTreeNode<T> {
     this.dimensions = dimensions;
 
     // Init as leaf
-    this.locations = new double[bucketSize][];
-    this.data = new Object[bucketSize];
+    this.locations = new double[BUCKET_SIZE][];
+    this.data = new Object[BUCKET_SIZE];
     this.locationCount = 0;
     this.singularity = true;
 
@@ -98,7 +98,7 @@ abstract class KdTreeNode<T> {
     this.dimensions = parent.dimensions;
 
     // Init as leaf
-    this.locations = new double[Math.max(bucketSize, parent.locationCount)][];
+    this.locations = new double[Math.max(BUCKET_SIZE, parent.locationCount)][];
     this.data = new Object[locations.length];
     this.locationCount = 0;
     this.singularity = true;

@@ -33,7 +33,11 @@ import uk.ac.sussex.gdsc.core.data.DataException;
 /**
  * Class for working with quadratics.
  */
-public class QuadraticUtils {
+public final class QuadraticUtils {
+
+  /** No public construction. */
+  private QuadraticUtils() {}
+
   /**
    * Find the absolute max of the data.
    *
@@ -102,8 +106,6 @@ public class QuadraticUtils {
    * @return the determinant
    */
   public static double getDeterminant3x3(double[] data, double scale) {
-    // scale = 1;
-
     final double a11 = data[0] * scale;
     final double a12 = data[1] * scale;
     final double a13 = data[2] * scale;
@@ -146,9 +148,7 @@ public class QuadraticUtils {
     double b1 = x1;
     double b2 = x2;
     double b3 = x3;
-    // double c1 = 1;
-    // double c2 = 1;
-    // double c3 = 1;
+    // c1=c2=c3 = 1
     double d1 = y1;
     double d2 = y2;
     double d3 = y3;
@@ -161,9 +161,6 @@ public class QuadraticUtils {
     b1 *= c_;
     b2 *= c_;
     b3 *= c_;
-    // c1 = scale;
-    // c2 = scale;
-    // c3 = scale;
     d1 *= c_;
     d2 *= c_;
     d3 *= c_;
@@ -199,8 +196,8 @@ public class QuadraticUtils {
    * @return [a,b,c] or null if no solution exists
    * @throws DataException If there is no quadratic solution (e.g. points are colocated/colinear)
    */
-  public static double findMinMax(double x1, double y1, double x2, double y2, double x3, double y3)
-      throws DataException {
+  public static double findMinMax(double x1, double y1, double x2, double y2, double x3,
+      double y3) {
     // Formulate linear problem:
     // a1*x + b1*y + c1*z = d1
     // a2*x + b2*y + c2*z = d2
@@ -211,9 +208,7 @@ public class QuadraticUtils {
     double b1 = x1;
     double b2 = x2;
     double b3 = x3;
-    // double c1 = 1;
-    // double c2 = 1;
-    // double c3 = 1;
+    // c1=c2=c3 = 1
     double d1 = y1;
     double d2 = y2;
     double d3 = y3;
@@ -226,9 +221,6 @@ public class QuadraticUtils {
     b1 *= c_;
     b2 *= c_;
     b3 *= c_;
-    // c1 = scale;
-    // c2 = scale;
-    // c3 = scale;
     d1 *= c_;
     d2 *= c_;
     d3 *= c_;

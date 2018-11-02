@@ -4,7 +4,6 @@ import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
 import org.apache.commons.rng.UniformRandomProvider;
@@ -14,7 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 @SuppressWarnings({"javadoc"})
-public class DigestTest {
+public class DigestUtilsTest {
   @SeededTest
   public void canComputeMD5Hex(RandomSeed seed) throws IOException {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
@@ -23,11 +22,14 @@ public class DigestTest {
 
     for (int i = 0; i < 10; i++) {
       final String testString = nextHexString(r, 50);
-      Assertions.assertEquals(DigestUtils.md5Hex(testString), Digest.md5Hex(testString));
+      Assertions.assertEquals(org.apache.commons.codec.digest.DigestUtils.md5Hex(testString),
+          DigestUtils.md5Hex(testString));
       r.nextBytes(testBytes);
-      Assertions.assertEquals(DigestUtils.md5Hex(testBytes), Digest.md5Hex(testBytes));
-      Assertions.assertEquals(DigestUtils.md5Hex(new ByteArrayInputStream(testBytes)),
-          Digest.md5Hex(new ByteArrayInputStream(testBytes)));
+      Assertions.assertEquals(org.apache.commons.codec.digest.DigestUtils.md5Hex(testBytes),
+          DigestUtils.md5Hex(testBytes));
+      Assertions.assertEquals(
+          org.apache.commons.codec.digest.DigestUtils.md5Hex(new ByteArrayInputStream(testBytes)),
+          DigestUtils.md5Hex(new ByteArrayInputStream(testBytes)));
     }
   }
 

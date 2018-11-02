@@ -30,7 +30,6 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleFloatKdTree2D;
 import uk.ac.sussex.gdsc.core.clustering.CoordinateStore;
-import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
@@ -59,15 +58,15 @@ public class OpticsManager extends CoordinateStore {
   static final float UNDEFINED = -1;
 
   /** The tracker. */
-  private TrackProgress tracker = null;
+  private TrackProgress tracker;
 
   private EnumSet<Option> options = EnumSet.noneOf(Option.class);
 
-  private LoOp loop = null;
+  private LoOp loop;
 
-  private int numberOfThreads = -1;
+  private int numberOfThreads;
 
-  private long seed = 0;
+  private long seed;
 
   /**
    * The grid. Package level for JUnit testing
@@ -643,6 +642,25 @@ public class OpticsManager extends CoordinateStore {
   }
 
   /**
+   * Instantiates a new optics manager.
+   *
+   * @param source the source
+   * @param deepCopy Set to true to copy the coordinate arrays
+   */
+  private OpticsManager(OpticsManager source, boolean deepCopy) {
+    super(source, deepCopy);
+    // Copy properties
+    options = EnumSet.copyOf(source.options);
+    numberOfThreads = source.numberOfThreads;
+    seed = source.seed;
+    // Do not copy the state used for algorithms:
+    // tracker
+    // loop
+    // grid
+    // heap
+  }
+
+  /**
    * Compute the core radius for each point to have n closest neighbours and the minimum
    * reachability distance of a point from another core point.
    *
@@ -704,10 +722,9 @@ public class OpticsManager extends CoordinateStore {
 
     for (int i = 0; i < size; i++) {
       final Molecule object = setOfObjects[i];
-      if (object.isNotProcessed()) {
-        if (opticsExpandClusterOrder(object, e, minPts, results, orderSeeds)) {
-          break;
-        }
+      if (object.isNotProcessed()
+          && opticsExpandClusterOrder(object, e, minPts, results, orderSeeds)) {
+        break;
       }
     }
 
@@ -727,14 +744,19 @@ public class OpticsManager extends CoordinateStore {
       final int nClusters = optics.extractDbscanClustering(generatingDistanceE);
       if (tracker != null) {
         time = System.currentTimeMillis() - time;
-        tracker.log("Finished OPTICS: %s @ %s (Time = %s)", TextUtils.pleural(nClusters, "Cluster"),
-            MathUtils.rounded(generatingDistanceE), TextUtils.timeToString(time));
+        tracker.log("Finished OPTICS: %d %s @ %s (Time = %s)", nClusters,
+            pleuraliseClusterCount(nClusters), MathUtils.rounded(generatingDistanceE),
+            TextUtils.timeToString(time));
       }
     }
 
     finish();
 
     return optics;
+  }
+
+  private static String pleuraliseClusterCount(int count) {
+    return TextUtils.pleuralise(count, "Cluster", "Clusters");
   }
 
   private OpticsPriorityQueue createQueue(final int size) {
@@ -960,7 +982,6 @@ public class OpticsManager extends CoordinateStore {
    */
   public void clearMemory() {
     grid = null;
-    // floatArray = null;
     heap = null;
   }
 
@@ -1213,10 +1234,8 @@ public class OpticsManager extends CoordinateStore {
 
     for (int i = 0; i < size; i++) {
       final Molecule object = setOfObjects[i];
-      if (object.isNotProcessed()) {
-        if (dbscanExpandCluster(object, e, minPts, counter, seeds)) {
-          break;
-        }
+      if (object.isNotProcessed() && dbscanExpandCluster(object, e, minPts, counter, seeds)) {
+        break;
       }
     }
 
@@ -1240,8 +1259,8 @@ public class OpticsManager extends CoordinateStore {
       dbscanResult = new DbscanResult(this, minPts, generatingDistanceE, dbscanOrder);
       if (tracker != null) {
         time = System.currentTimeMillis() - time;
-        tracker.log("Finished DBSCAN: %s (Time = %s)",
-            TextUtils.pleural(counter.getTotalClusters(), "Cluster"), TextUtils.timeToString(time));
+        tracker.log("Finished DBSCAN: %d %s (Time = %s)", counter.getTotalClusters(),
+            pleuraliseClusterCount(counter.getTotalClusters()), TextUtils.timeToString(time));
       }
     }
 
@@ -1314,12 +1333,18 @@ public class OpticsManager extends CoordinateStore {
     }
   }
 
+  /**
+   * Create a copy.
+   *
+   * <p>Copies the underlying coordinate data and algorithm properties. Data structures used during
+   * computation are not copied. This includes the tracker.
+   *
+   * @param deepCopy Set to true to copy the coordinate arrays
+   * @return the copy
+   */
   @Override
-  public OpticsManager clone() {
-    final OpticsManager m = (OpticsManager) super.clone();
-    m.options = options.clone();
-    m.clearMemory();
-    return m;
+  public OpticsManager copy(boolean deepCopy) {
+    return new OpticsManager(this, deepCopy);
   }
 
   /**
@@ -1582,11 +1607,9 @@ public class OpticsManager extends CoordinateStore {
 
     for (int i = 0; i < size; i++) {
       final Molecule object = setOfObjects[i];
-      if (object.isNotProcessed()) {
-        // TODO - specific version using the precomputed neighbours
-        if (fastOpticsExpandClusterOrder(object, minPts, results, orderSeeds)) {
-          break;
-        }
+      if (object.isNotProcessed()
+          && fastOpticsExpandClusterOrder(object, minPts, results, orderSeeds)) {
+        break;
       }
     }
 
@@ -1608,8 +1631,9 @@ public class OpticsManager extends CoordinateStore {
         final long end = System.currentTimeMillis();
         time = end - time;
         time2 = end - time2;
-        tracker.log("Finished OPTICS: %s @ %s (Time = %s)", TextUtils.pleural(nClusters, "Cluster"),
-            MathUtils.rounded(grid.generatingDistanceE), TextUtils.timeToString(time2));
+        tracker.log("Finished OPTICS: %d %s @ %s (Time = %s)", nClusters,
+            pleuraliseClusterCount(nClusters), MathUtils.rounded(grid.generatingDistanceE),
+            TextUtils.timeToString(time2));
         tracker.log("Finished FastOPTICS ... " + TextUtils.timeToString(time));
       }
     }
@@ -1749,7 +1773,7 @@ public class OpticsManager extends CoordinateStore {
    * @return the number of threads
    */
   public int getNumberOfThreads() {
-    if (numberOfThreads == -1) {
+    if (numberOfThreads == 0) {
       numberOfThreads = Runtime.getRuntime().availableProcessors();
     }
     return numberOfThreads;
@@ -1761,11 +1785,7 @@ public class OpticsManager extends CoordinateStore {
    * @param numberOfThreads the new number of threads
    */
   public void setNumberOfThreads(int numberOfThreads) {
-    if (numberOfThreads > 0) {
-      this.numberOfThreads = numberOfThreads;
-    } else {
-      this.numberOfThreads = 1;
-    }
+    this.numberOfThreads = Math.max(1, numberOfThreads);
   }
 
   /**

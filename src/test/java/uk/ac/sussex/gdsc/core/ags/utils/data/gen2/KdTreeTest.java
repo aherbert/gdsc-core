@@ -80,7 +80,7 @@ public class KdTreeTest {
           // Neighbours will be in reverse order
           int j = k;
           for (final Entry<Object> e : neighbours) {
-            observed[--j] = e.distance;
+            observed[--j] = e.getDistance();
           }
 
           final double[] expected = Arrays.copyOf(d2, k);
@@ -126,7 +126,7 @@ public class KdTreeTest {
           // Neighbours will be in reverse order
           int j = k;
           for (final Entry<Object> e : neighbours) {
-            observed[--j] = e.distance;
+            observed[--j] = e.getDistance();
           }
 
           final double[] expected = Arrays.copyOf(d2, k);
@@ -169,7 +169,7 @@ public class KdTreeTest {
         for (final int k : K) {
           final List<Entry<Object>> neighbours = tree.nearestNeighbor(data[i], k, false);
 
-          Assertions.assertEquals(d2[k - 1], neighbours.get(0).distance);
+          Assertions.assertEquals(d2[k - 1], neighbours.get(0).getDistance());
         }
       }
     }
@@ -393,7 +393,7 @@ public class KdTreeTest {
         }
         final double[] o = new double[data.length];
         for (int i = 0; i < data.length; i++) {
-          o[i] = tree.nearestNeighbor(data[i], k, false).get(0).distance;
+          o[i] = tree.nearestNeighbor(data[i], k, false).get(0).getDistance();
         }
         return o;
       }
@@ -410,7 +410,7 @@ public class KdTreeTest {
         }
         final double[] o = new double[data.length];
         for (int i = 0; i < data.length; i++) {
-          o[i] = tree.nearestNeighbor(data[i], k, false).get(0).distance;
+          o[i] = tree.nearestNeighbor(data[i], k, false).get(0).getDistance();
         }
         return o;
       }
@@ -427,7 +427,7 @@ public class KdTreeTest {
         }
         final double[] o = new double[data.length];
         for (int i = 0; i < data.length; i++) {
-          o[i] = tree.nearestNeighbor(data[i], k, false).get(0).distance;
+          o[i] = tree.nearestNeighbor(data[i], k, false).get(0).getDistance();
         }
         return o;
       }
@@ -444,7 +444,7 @@ public class KdTreeTest {
         }
         final double[] o = new double[data.length];
         for (int i = 0; i < data.length; i++) {
-          o[i] = tree.nearestNeighbor(data[i], k, false).get(0).distance;
+          o[i] = tree.nearestNeighbor(data[i], k, false).get(0).getDistance();
         }
         return o;
       }
@@ -522,7 +522,7 @@ public class KdTreeTest {
       }
       final double[] o = new double[data.length];
       for (int i = 0; i < data.length; i++) {
-        o[i] = tree.nearestNeighbor(data[i], k, false).get(0).distance;
+        o[i] = tree.nearestNeighbor(data[i], k, false).get(0).getDistance();
       }
       // ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D.bucketSize = b;
       return o;

@@ -68,8 +68,6 @@ package uk.ac.sussex.gdsc.core.utils;
  *   // k == index
  * }
  * </pre>
- *
- * @author Alex Herbert
  */
 public class TriangleArray {
   // This class uses i,j as legitimate method parameter names.
@@ -242,10 +240,7 @@ public class TriangleArray {
    * @see #toIndex(int, int, int)
    */
   public static int toSafeIndex(int n, int i, int j) {
-    if (j > i) {
-      return toIndex(n, i, j);
-    }
-    return toIndex(n, j, i);
+    return (j > i) ? toIndex(n, i, j) : toIndex(n, j, i);
   }
 
   /**
@@ -257,10 +252,7 @@ public class TriangleArray {
    * @return the linear index
    */
   public int toSafeIndex(int i, int j) {
-    if (j > i) {
-      return toIndex(i, j);
-    }
-    return toIndex(j, i);
+    return (j > i) ? toIndex(i, j) : toIndex(j, i);
   }
 
   /**

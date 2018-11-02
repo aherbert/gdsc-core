@@ -470,9 +470,9 @@ public class Random extends AbstractRandomGenerator {
     for (int i = data.length - 1; k-- > 0; i--) {
       final int j = rng.nextInt(i + 1);
       // In a standard shuffle we swap i and j:
-      // int tmp = data[i];
-      // data[i] = data[j];
-      // data[j] = tmp;
+      // int tmp = data[i]
+      // data[i] = data[j]
+      // data[j] = tmp
       // i then becomes fixed (with a random sample) as we descend the array.
       // This method is modified to write i into j and write what we would put into i into the
       // result array.
@@ -488,9 +488,9 @@ public class Random extends AbstractRandomGenerator {
     for (int i = data.length - 1; k-- > 0; i--) {
       final int j = rng.nextInt(i + 1);
       // In a standard shuffle we swap i and j:
-      // int tmp = data[i];
-      // data[i] = data[j];
-      // data[j] = tmp;
+      // int tmp = data[i]
+      // data[i] = data[j]
+      // data[j] = tmp
       // i then becomes fixed (with a random sample) as we descend the array.
       // This method is modified to write i into j and write what we would put into i into the
       // result array.

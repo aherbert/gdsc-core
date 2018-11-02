@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.filters;
 
-import uk.ac.sussex.gdsc.core.utils.ImageExtractor;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 import java.awt.Rectangle;

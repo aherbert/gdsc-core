@@ -133,9 +133,6 @@ public abstract class Ticker {
     if (interval <= 0) {
       throw new IllegalArgumentException("Interval must be strictly positive: " + interval);
     }
-    if (total <= 0) {
-      throw new IllegalArgumentException("Total must be strictly positive: " + total);
-    }
     if (total < Integer.MAX_VALUE) {
       return (threadSafe) ? new ConcurrentIntTicker(trackProgress, (int) interval, (int) total)
           : new IntTicker(trackProgress, (int) interval, (int) total);

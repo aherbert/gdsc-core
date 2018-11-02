@@ -26,20 +26,30 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.data.utils;
+package uk.ac.sussex.gdsc.core.utils.rng;
+
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.distribution.GaussianSampler;
+import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSampler;
 
 /**
- * Create a Rounder interface implementation.
+ * A factory for creating GaussianSampler objects.
  */
-public class RounderFactory {
+public final class GaussianSamplerUtils {
+
+  /** No construction. */
+  private GaussianSamplerUtils() {}
+
   /**
-   * Creates the rounder. If the precision is less than 1 then an instance will be created that does
-   * not perform rounding.
+   * Creates a new GaussianSampler.
    *
-   * @param precision the precision
-   * @return the rounder
+   * @param rng Generator of uniformly distributed random numbers.
+   * @param mean Mean of the Gaussian distribution.
+   * @param standardDeviation Standard deviation of the Gaussian distribution.
+   * @return the Gaussian sampler
    */
-  public static Rounder create(int precision) {
-    return (precision > 0) ? new MathContextRounder(precision) : new NonRounder();
+  public static GaussianSampler createGaussianSampler(UniformRandomProvider rng, double mean,
+      double standardDeviation) {
+    return new GaussianSampler(new ZigguratNormalizedGaussianSampler(rng), mean, standardDeviation);
   }
 }

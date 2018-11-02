@@ -226,17 +226,17 @@ public final class ConvexHull {
     maxX = minX;
     maxY = minY;
     for (int i = 1; i < npoints; i++) {
-      final float x = xpoints[i];
-      if (maxX < x) {
-        maxX = x;
-      } else if (minX > x) {
-        minX = x;
+      final float xp = xpoints[i];
+      if (maxX < xp) {
+        maxX = xp;
+      } else if (minX > xp) {
+        minX = xp;
       }
-      final float y = ypoints[i];
-      if (maxY < y) {
-        maxY = y;
-      } else if (minY > y) {
-        minY = y;
+      final float yp = ypoints[i];
+      if (maxY < yp) {
+        maxY = yp;
+      } else if (minY > yp) {
+        minY = yp;
       }
     }
     final int iMinX = (int) Math.floor(minX);

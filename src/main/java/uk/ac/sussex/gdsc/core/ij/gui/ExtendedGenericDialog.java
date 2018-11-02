@@ -971,9 +971,7 @@ public class ExtendedGenericDialog extends GenericDialog {
 
     final JButton button = createOptionButton("Select a file");
     button.addActionListener(event -> {
-      final boolean record = Recorder.record;
       final String filename = ImageJUtils.getFilename(label, tf.getText());
-      Recorder.record = record;
       if (filename != null) {
         tf.setText(filename);
       }

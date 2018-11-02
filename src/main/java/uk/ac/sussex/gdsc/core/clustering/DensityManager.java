@@ -96,11 +96,9 @@ public class DensityManager extends CoordinateStore {
    * @return the density
    */
   public int[] calculateSquareDensity(float radius, int resolution, boolean adjustForBorder) {
-    if (radius < 0) {
-      throw new IllegalArgumentException("Radius must be positive");
-    }
+    checkRadius(radius);
     if (resolution < 1) {
-      throw new IllegalArgumentException("Resolution must be positive");
+      throw new IllegalArgumentException("Resolution must be strictly positive");
     }
 
     final float cellSize = radius / resolution;
@@ -138,7 +136,7 @@ public class DensityManager extends CoordinateStore {
     }
 
     // For each localisation, compute the sum of counts within a square box radius
-    final float area = 4 * resolution * resolution;
+    final float area = (float) (4.0 * resolution * resolution);
     final int[] density = new int[xcoord.length];
     for (int i = 0; i < xcoord.length; i++) {
       final int u = (int) (xcoord[i] / cellSize);
@@ -213,9 +211,7 @@ public class DensityManager extends CoordinateStore {
    * @return the block density array
    */
   public int[] calculateBlockDensity(final float radius) {
-    if (radius < 0) {
-      throw new IllegalArgumentException("Radius must be positive");
-    }
+    checkRadius(radius);
 
     // Note: We do not subtract min from the value for speed:
     // final int maxx = (int) ((maxXCoord-minXCoord) / radius) + 1
@@ -438,9 +434,7 @@ public class DensityManager extends CoordinateStore {
    * @return the density
    */
   public int[] calculateDensity(float radius, boolean adjustForBorder) {
-    if (radius < 0) {
-      throw new IllegalArgumentException("Radius must be positive");
-    }
+    checkRadius(radius);
 
     // For each localisation, compute the sum of counts within a circle radius
     // TODO - Determine the optimum parameters to switch to using the grid method.
@@ -781,9 +775,7 @@ public class DensityManager extends CoordinateStore {
    *      K and L functions</a>
    */
   public double ripleysKFunction(int[] density, double radius) {
-    if (radius < 0) {
-      throw new IllegalArgumentException("Radius must be positive");
-    }
+    checkRadius(radius);
     if (density.length != xcoord.length) {
       throw new IllegalArgumentException(
           "Input density array must match the number of coordinates");
@@ -811,9 +803,7 @@ public class DensityManager extends CoordinateStore {
    *      K and L functions</a>
    */
   public double ripleysKFunction(double radius) {
-    if (radius < 0) {
-      throw new IllegalArgumentException("Radius must be positive");
-    }
+    checkRadius(radius);
 
     // Count the number of points within the distance
     final int sum = calculateSumGrid((float) radius);
@@ -960,5 +950,16 @@ public class DensityManager extends CoordinateStore {
   public double ripleysLFunction(int[] density, double radius) {
     final double k = ripleysKFunction(density, radius);
     return Math.sqrt(k / Math.PI);
+  }
+
+  /**
+   * Check the radius is strictly positive.
+   *
+   * @param radius the radius
+   */
+  private static void checkRadius(double radius) {
+    if (radius <= 0) {
+      throw new IllegalArgumentException("Radius must be strictly positive");
+    }
   }
 }

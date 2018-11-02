@@ -174,10 +174,8 @@ public class MappedFloatProcessor extends FloatProcessor {
     if (min2 == 0 && max2 > 0 && !isMapZero()) {
       min2 = max2;
       for (int i = 0; i < size; i++) {
-        if (pixels[i] > 0) {
-          if (min2 > pixels[i]) {
-            min2 = pixels[i];
-          }
+        if (pixels[i] > 0 && min2 > pixels[i]) {
+          min2 = pixels[i];
         }
       }
     }
@@ -195,11 +193,9 @@ public class MappedFloatProcessor extends FloatProcessor {
         }
 
         // Special case where we must check for -0 or +0
-        if (pixels[i] == 0) {
-          if (Float.floatToRawIntBits(pixels[i]) == NEGATIVE_ZERO) {
-            pixels8[i] = (byte) 0;
-            continue;
-          }
+        if (pixels[i] == 0 && Float.floatToRawIntBits(pixels[i]) == NEGATIVE_ZERO) {
+          pixels8[i] = (byte) 0;
+          continue;
         }
 
         // +0 or above maps to 1-255

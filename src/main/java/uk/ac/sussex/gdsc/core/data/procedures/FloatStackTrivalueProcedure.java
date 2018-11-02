@@ -33,16 +33,16 @@ package uk.ac.sussex.gdsc.core.data.procedures;
  */
 public class FloatStackTrivalueProcedure implements TrivalueProcedure {
   /** The x axis values. */
-  public double[] x;
+  private double[] x;
 
   /** The y axis values. */
-  public double[] y;
+  private double[] y;
 
   /** The z axis values. */
-  public double[] z;
+  private double[] z;
 
   /** The value. This is a stack of z slices of XY data packed in YZ order */
-  public float[][] value;
+  private float[][] value;
 
   private int maxx;
 
@@ -68,11 +68,47 @@ public class FloatStackTrivalueProcedure implements TrivalueProcedure {
 
   @Override
   public void setZ(int index, double value) {
-    z[index] = value;
+    getZAxis()[index] = value;
   }
 
   @Override
   public void setValue(int indexX, int indexY, int indexZ, double value) {
     this.value[indexZ][indexY * maxx + indexX] = (float) value;
+  }
+
+  /**
+   * Gets the x axis.
+   *
+   * @return the x axis
+   */
+  public double[] getXAxis() {
+    return x;
+  }
+
+  /**
+   * Gets the y axis.
+   *
+   * @return the y axis
+   */
+  public double[] getYAxis() {
+    return y;
+  }
+
+  /**
+   * Gets the z axis.
+   *
+   * @return the z axis
+   */
+  public double[] getZAxis() {
+    return z;
+  }
+
+  /**
+   * Gets the value.
+   *
+   * @return the value
+   */
+  public float[][] getValue() {
+    return value;
   }
 }

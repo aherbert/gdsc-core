@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
+import uk.ac.sussex.gdsc.core.data.AsynchronousException;
 import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
@@ -101,15 +102,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
      */
     Split(TurboList<int[]> sets) {
       this.sets = sets;
-    }
-
-    /**
-     * Instantiates a new split.
-     *
-     * @param sets the sets
-     */
-    Split(int[]... sets) {
-      this.sets = new TurboList<>(Arrays.asList(sets));
     }
   }
 
@@ -335,7 +327,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
         // Restore interrupted state...
         Thread.currentThread().interrupt();
         System.out.println(ex.toString());
-        throw new RuntimeException(ex);
+        throw new AsynchronousException(ex);
       } finally {
         finished = true;
       }
@@ -411,8 +403,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       } catch (final InterruptedException ex) {
         // Restore interrupted state...
         Thread.currentThread().interrupt();
-        System.out.println(ex.toString());
-        throw new RuntimeException(ex);
+        throw new AsynchronousException(ex);
       } finally {
         finished = true;
       }
@@ -498,8 +489,9 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
 
     if (size == 2) {
       // No point performing projections and splits
-      final int[] set = new int[] {0, 1};
-      splitSets.add(new Split(set));
+      TurboList<int[]> sets = new TurboList<>(1);
+      sets.add(new int[] {0, 1});
+      splitSets.add(new Split(sets));
       return;
     }
 
@@ -509,8 +501,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     // The ELKI framework increase this for the number of dimensions. However I have stuck
     // with the original (as it is less so will be faster).
     // Note: In most computer science contexts log is in base 2.
-    int numberOfSplitSets = getNumberOfSplitSets(numberOfSplits, size);
-    int localNumberOfProjections = getNumberOfProjections(numberOfProjections, size);
+    final int numberOfSplitSets = getNumberOfSplitSets(numberOfSplits, size);
+    final int localNumberOfProjections = getNumberOfProjections(numberOfProjections, size);
 
     // perform O(log N+log dim) splits of the entire point sets projections
     // numberOfSplitSets = (int) (logOProjectionConst * log2(size * dim + 1))
@@ -570,7 +562,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     // Wait for all to finish
     for (int i = 0; i < threadCount; i++) {
       try {
-        threads.get(i).join();
+        threads.getf(i).join();
       } catch (final InterruptedException ex) {
         // Restore interrupted state...
         Thread.currentThread().interrupt();
@@ -620,7 +612,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       }
 
       // New random generator
-      final TurboRandomGenerator pseudoRandomCopy =  pseudoRandom.copy();
+      final TurboRandomGenerator pseudoRandomCopy = pseudoRandom.copy();
       pseudoRandomCopy.setSeed(i);
 
       put(splitJobs, new SplitJob(i, shuffledProjectedPoints, pseudoRandomCopy));
@@ -635,8 +627,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     int total = 0;
     for (int i = 0; i < threadCount; i++) {
       try {
-        threads.get(i).join();
-        total += splitWorkers.get(i).splitSets.size();
+        threads.getf(i).join();
+        total += splitWorkers.getf(i).splitSets.size();
       } catch (final InterruptedException ex) {
         // Restore interrupted state...
         Thread.currentThread().interrupt();
@@ -646,10 +638,10 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     threads.clear();
 
     // Merge the split-sets
-    splitSets = splitWorkers.get(0).splitSets;
+    splitSets = splitWorkers.getf(0).splitSets;
     splitSets.ensureCapacity(total);
     for (int i = 1; i < threadCount; i++) {
-      splitSets.addAll(splitWorkers.get(i).splitSets);
+      splitSets.addAll(splitWorkers.getf(i).splitSets);
     }
 
     if (tracker != null) {
@@ -672,7 +664,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     } catch (final InterruptedException ex) {
       // Restore interrupted state...
       Thread.currentThread().interrupt();
-      throw new RuntimeException("Unexpected interruption", ex);
+      throw new AsynchronousException("Unexpected interruption", ex);
     }
   }
 
@@ -744,7 +736,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     final float[] tpro = projectedPoints[dim];
 
     if (saveApproximateSets) {
-      // save set such that used for density or neighborhood computation
+      // save set such that used for density or neighbourhood computation
       // sets should be roughly minSplitSize
       // -=-=-
       // Note: This is the method used in ELKI which uses the distance to the median of the set
@@ -763,7 +755,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       // picking a point randomly(picking index of point)
       // outcome is similar
 
-      // int minInd = splitByDistance(ind, begin, end, tpro, rand);
+      // int minInd = splitByDistance(ind, begin, end, tpro, rand)
       final int minInd = splitRandomly(ind, begin, end, tpro, rand);
 
       // split set recursively
@@ -973,13 +965,11 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
 
     final int interval = ImageJUtils.getProgressInterval(n);
     for (int i = 0; i < n; i++) {
-      if (tracker != null) {
-        if (i % interval == 0) {
-          tracker.progress(i, n);
-        }
+      if (tracker != null && i % interval == 0) {
+        tracker.progress(i, n);
       }
 
-      final Split split = splitSets.get(i);
+      final Split split = splitSets.getf(i);
       if (multiThread) {
         // If the indices are unique within each split set then we can multi-thread the
         // sampling of neighbours (since each index in the cumulative arrays will only
@@ -1008,10 +998,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
         sampleNeighbours(sumDistances, countDistances, neighbours, split.sets, 0,
             split.sets.size());
       }
-    }
-
-    if (multiThread) {
-      executor.shutdown();
     }
 
     // Finalise averages
@@ -1050,17 +1036,17 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     switch (sampleMode) {
       case RANDOM:
         for (int i = from; i < to; i++) {
-          sampleNeighboursRandom(sumDistances, countDistances, neighbours, sets.get(i));
+          sampleNeighboursRandom(sumDistances, countDistances, neighbours, sets.getf(i));
         }
         break;
       case MEDIAN:
         for (int i = from; i < to; i++) {
-          sampleNeighboursUsingMedian(sumDistances, countDistances, neighbours, sets.get(i));
+          sampleNeighboursUsingMedian(sumDistances, countDistances, neighbours, sets.getf(i));
         }
         break;
       case ALL:
         for (int i = from; i < to; i++) {
-          sampleNeighboursAll(sumDistances, countDistances, neighbours, sets.get(i));
+          sampleNeighboursAll(sumDistances, countDistances, neighbours, sets.getf(i));
         }
         break;
       default:

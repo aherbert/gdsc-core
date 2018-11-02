@@ -31,7 +31,7 @@ package uk.ac.sussex.gdsc.core.utils;
 /**
  * Provide a score function that ramps smoothly between the configured limits.
  */
-public class RampedScore implements Cloneable {
+public class RampedScore {
   /** The lower end of the range. */
   public final double lower;
 
@@ -54,6 +54,17 @@ public class RampedScore implements Cloneable {
     this.upper = upper;
     this.lower = lower;
     this.range = upper - lower;
+  }
+
+  /**
+   * Instantiates a new ramped score.
+   *
+   * @param source the source
+   */
+  private RampedScore(RampedScore source) {
+    this.upper = source.upper;
+    this.lower = source.lower;
+    this.range = source.range;
   }
 
   /**
@@ -110,12 +121,12 @@ public class RampedScore implements Cloneable {
     return (Math.round(score * steps)) / (float) steps;
   }
 
-  @Override
-  public RampedScore clone() {
-    try {
-      return (RampedScore) super.clone();
-    } catch (final CloneNotSupportedException ex) {
-      return new RampedScore(lower, upper);
-    }
+  /**
+   * Create a copy.
+   *
+   * @return the copy
+   */
+  public RampedScore copy() {
+    return new RampedScore(this);
   }
 }

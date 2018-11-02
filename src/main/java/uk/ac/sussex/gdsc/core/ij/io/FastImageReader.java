@@ -1130,7 +1130,7 @@ public class FastImageReader {
       if (pad > 0) {
         scan++;
       }
-      byteCount = scan * height;
+      byteCount = (long) scan * height;
     }
     numberOfPixels = width * height;
     bufferSize = (int) (byteCount / 25L);

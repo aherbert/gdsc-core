@@ -31,8 +31,8 @@ package uk.ac.sussex.gdsc.core.utils;
 import org.apache.commons.math3.util.FastMath;
 
 /**
- * Provides a rolling median on a fixed size data set. The median is maintained using a
- * float-linked list data structure.
+ * Provides a rolling median on a fixed size data set. The median is maintained using a float-linked
+ * list data structure.
  *
  * <p>See Juhola, et al. (1991) Comparison of algorithms for standard median filtering. Signal
  * Processing.
@@ -123,7 +123,7 @@ public class FloatLinkedMedianWindow {
     final Data point = data[latestInsertion];
     final float removedValue = point.value;
     if (value == removedValue) {
-      latestInsertion = (++latestInsertion % data.length);
+      latestInsertion = (latestInsertion + 1) % data.length;
       return;
     }
 
@@ -251,7 +251,7 @@ public class FloatLinkedMedianWindow {
     }
 
     // Update the latest insertion finger
-    latestInsertion = ++latestInsertion % data.length;
+    latestInsertion = (latestInsertion + 1) % data.length;
   }
 
   private boolean aboveMedian(Data point) {

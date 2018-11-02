@@ -51,10 +51,10 @@ public class Fht extends FloatProcessor {
   private int[] bitrev;
   private float[] tempArr;
   // Used for fast multiply operations
-  private double[] h2e;
-  private double[] h2o;
-  private double[] mag;
-  private int[] jj;
+  private double[] precomputedH2e;
+  private double[] precomputedH2o;
+  private double[] precomputedMag;
+  private int[] precomputedJj;
 
   /**
    * Constructs a FHT object from an ImageProcessor. Byte, short and RGB images are converted to
@@ -554,7 +554,7 @@ public class Fht extends FloatProcessor {
    * if a convolution kernel is to be applied to many FHT objects.
    */
   public void initialiseFastMultiply() {
-    if (h2e == null) {
+    if (precomputedH2e == null) {
       // Do this on new arrays for thread safety (i.e. concurrent initialisation)
       final float[] h2 = getData();
       final int maxN = getWidth();
@@ -569,10 +569,10 @@ public class Fht extends FloatProcessor {
           jj[i] = j;
         }
       }
-      this.h2o = h2o;
-      this.jj = jj;
+      this.precomputedH2o = h2o;
+      this.precomputedJj = jj;
       // Assign at the end for thread safety (i.e. concurrent initialisation)
-      this.h2e = h2e;
+      this.precomputedH2e = h2e;
     }
   }
 
@@ -585,9 +585,10 @@ public class Fht extends FloatProcessor {
    */
   public void initialiseFastOperations() {
     initialiseFastMultiply();
-    if (mag == null) {
+    if (precomputedMag == null) {
       // Do this on new arrays for thread safety (i.e. concurrent initialisation)
-      final double[] mag = new double[h2e.length];
+      final double[] mag = new double[precomputedH2e.length];
+      final int[] jj = precomputedJj;
       final float[] h2 = getData();
       for (int i = 0; i < h2.length; i++) {
         // Note that pre-computed h2e and h2o are divided by 2 so we also
@@ -595,7 +596,7 @@ public class Fht extends FloatProcessor {
         // in the divide operation (which does not require h2e/2 and h2o/2)
         mag[i] = Math.max(1e-20, h2[i] * h2[i] + h2[jj[i]] * h2[jj[i]]) / 2;
       }
-      this.mag = mag;
+      this.precomputedMag = mag;
     }
   }
 
@@ -605,7 +606,7 @@ public class Fht extends FloatProcessor {
    * @return true, if is fast multiply
    */
   public boolean isFastMultiply() {
-    return h2e != null;
+    return precomputedH2e != null;
   }
 
   /**
@@ -614,14 +615,14 @@ public class Fht extends FloatProcessor {
    * @return true, if is fast operations
    */
   public boolean isFastOperations() {
-    return mag != null;
+    return precomputedMag != null;
   }
 
   private void resetFastOperations() {
-    h2e = null;
-    h2o = null;
-    jj = null;
-    mag = null;
+    precomputedH2e = null;
+    precomputedH2o = null;
+    precomputedJj = null;
+    precomputedMag = null;
   }
 
   private Fht createFhtResult(float[] tmp, final int maxN) {
@@ -653,7 +654,8 @@ public class Fht extends FloatProcessor {
    * @return the fht2
    */
   public Fht multiply(Fht fht, float[] tmp) {
-    return (fht.isFastMultiply()) ? multiply(fht.h2e, fht.h2o, fht.jj, tmp)
+    return (fht.isFastMultiply())
+        ? multiply(fht.precomputedH2e, fht.precomputedH2o, fht.precomputedJj, tmp)
         : multiply(fht.getData(), tmp);
   }
 
@@ -740,7 +742,8 @@ public class Fht extends FloatProcessor {
    * @return the fht2
    */
   public Fht conjugateMultiply(Fht fht, float[] tmp) {
-    return (fht.isFastMultiply()) ? conjugateMultiply(fht.h2e, fht.h2o, fht.jj, tmp)
+    return (fht.isFastMultiply())
+        ? conjugateMultiply(fht.precomputedH2e, fht.precomputedH2o, fht.precomputedJj, tmp)
         : conjugateMultiply(fht.getData(), tmp);
   }
 
@@ -819,7 +822,8 @@ public class Fht extends FloatProcessor {
    * @return the fht2
    */
   public Fht divide(Fht fht, float[] tmp) {
-    return (fht.isFastOperations()) ? divide(fht.h2e, fht.h2o, fht.jj, fht.mag, tmp)
+    return (fht.isFastOperations())
+        ? divide(fht.precomputedH2e, fht.precomputedH2o, fht.precomputedJj, fht.precomputedMag, tmp)
         : divide(fht.getData(), tmp);
   }
 
@@ -840,25 +844,16 @@ public class Fht extends FloatProcessor {
     for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r) {
       // rowMod = (maxN - r) % maxN
       for (int c = 0, colMod = 0; c < maxN; c++, colMod = maxN - c, i++) {
-        // colMod = (maxN - c) % maxN
-        // mag = h2[r * maxN + c] * h2[r * maxN + c] + h2[rowMod * maxN + colMod] * h2[rowMod * maxN
-        // + colMod]
-        // if (mag < 1e-20)
-        // mag = 1e-20
-        // h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod])
-        // h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod])
-        // tmp[r * maxN + c] = (float) ((h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o)
-        // / mag)
         final int j = rowMod * maxN + colMod;
         final double h2i = h2[i];
         final double h2j = h2[j];
-        double mag = h2i * h2i + h2j * h2j;
-        if (mag < 1e-20) {
-          mag = 1e-20;
+        double magnitude = h2i * h2i + h2j * h2j;
+        if (magnitude < 1e-20) {
+          magnitude = 1e-20;
         }
         final double h2e = (h2i + h2j);
         final double h2o = (h2i - h2j);
-        tmp[i] = (float) ((h1[i] * h2e - h1[j] * h2o) / mag);
+        tmp[i] = (float) ((h1[i] * h2e - h1[j] * h2o) / magnitude);
       }
     }
     return createFhtResult(tmp, maxN);

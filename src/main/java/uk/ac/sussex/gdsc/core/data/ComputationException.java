@@ -26,26 +26,46 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.utils.rng;
-
-import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.distribution.GaussianSampler;
-import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSampler;
+package uk.ac.sussex.gdsc.core.data;
 
 /**
- * A factory for creating GaussianSampler objects.
+ * Exception to throw if computation failed.
  */
-public class GaussianSamplerFactory {
+public class ComputationException extends RuntimeException {
+  private static final long serialVersionUID = 1L;
+
   /**
-   * Creates a new GaussianSampler.
-   *
-   * @param rng Generator of uniformly distributed random numbers.
-   * @param mean Mean of the Gaussian distribution.
-   * @param standardDeviation Standard deviation of the Gaussian distribution.
-   * @return the Gaussian sampler
+   * Instantiates a new computation exception.
    */
-  public static GaussianSampler createGaussianSampler(UniformRandomProvider rng, double mean,
-      double standardDeviation) {
-    return new GaussianSampler(new ZigguratNormalizedGaussianSampler(rng), mean, standardDeviation);
+  public ComputationException() {
+    super();
+  }
+
+  /**
+   * Instantiates a new computation exception.
+   *
+   * @param message the message
+   */
+  public ComputationException(String message) {
+    super(message);
+  }
+
+  /**
+   * Instantiates a new computation exception.
+   *
+   * @param message the message
+   * @param cause the cause
+   */
+  public ComputationException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  /**
+   * Instantiates a new computation exception.
+   *
+   * @param cause the cause
+   */
+  public ComputationException(Throwable cause) {
+    super(cause);
   }
 }

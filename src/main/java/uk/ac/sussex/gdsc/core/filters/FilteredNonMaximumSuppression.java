@@ -46,10 +46,30 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
   // this class is rarely used and so the parent is left unmodifed to ensure it
   // runs fast.
 
-  private float background = 0;
-  private float fractionAboveBackground = 0;
-  private float minimumHeight = 0;
-  private float minimumWidth = 0;
+  private float background;
+  private float fractionAboveBackground;
+  private float minimumHeight;
+  private float minimumWidth;
+
+  /**
+   * Instantiates a new filtered non maximum suppression.
+   */
+  public FilteredNonMaximumSuppression() {
+    // Nothing to do
+  }
+
+  /**
+   * Instantiates a new filtered non maximum suppression.
+   *
+   * @param source the source
+   */
+  private FilteredNonMaximumSuppression(FilteredNonMaximumSuppression source) {
+    super(source);
+    this.background = source.background;
+    this.fractionAboveBackground = source.fractionAboveBackground;
+    this.minimumHeight = source.minimumHeight;
+    this.minimumWidth = source.minimumWidth;
+  }
 
   /**
    * Sets the fraction above background.
@@ -160,9 +180,14 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     return (int) (0.5 + (maximum - background) * 0.5);
   }
 
+  /**
+   * Create a copy.
+   *
+   * @return the copy
+   */
   @Override
-  public FilteredNonMaximumSuppression clone() {
-    return (FilteredNonMaximumSuppression) super.clone();
+  public FilteredNonMaximumSuppression copy() {
+    return new FilteredNonMaximumSuppression(this);
   }
 
   // ----------------------------------------------------

@@ -29,7 +29,6 @@
 package uk.ac.sussex.gdsc.core.ij;
 
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
-import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 
@@ -77,9 +76,6 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import javax.swing.JLabel;
 
@@ -626,11 +622,9 @@ public final class ImageJUtils {
   public static boolean hide(String title) {
     for (final int i : getIdList()) {
       final ImagePlus imp = WindowManager.getImage(i);
-      if (imp != null) {
-        if (imp.getTitle().equals(title)) {
-          imp.getWindow().setVisible(false);
-          return true;
-        }
+      if (imp != null && imp.getTitle().equals(title)) {
+        imp.getWindow().setVisible(false);
+        return true;
       }
     }
     return false;
@@ -923,67 +917,6 @@ public final class ImageJUtils {
       return true;
     }
     return false;
-  }
-
-  /**
-   * Waits for all threads to complete computation.
-   *
-   * <p>Catches {@link ExecutionException } and {@link InterruptedException} and re-throws them as a
-   * RuntimeException. This is a convenience method to allow a simple wait for futures without
-   * explicit try/catch blocks.
-   *
-   * @param futures the futures
-   * @throws RuntimeException a runtime exception that is the cause or a new exception wrapping the
-   *         cause of the the error
-   */
-  public static void waitForCompletion2(List<Future<?>> futures) {
-    waitForCompletion2(futures, false);
-  }
-
-  /**
-   * Waits for all threads to complete computation.
-   *
-   * <p>Catches {@link ExecutionException } and {@link InterruptedException} and re-throws them as a
-   * RuntimeException. This is a convenience method to allow a simple wait for futures without
-   * explicit try/catch blocks.
-   *
-   * <p>If selected the exception will be printed using {@link IJ#handleException(Throwable)}.
-   *
-   * @param futures the futures
-   * @param print flag to indicate that the stack trace should be printed
-   * @throws RuntimeException a runtime exception that is the {@link ExecutionException } or a new
-   *         exception wrapping the cause of the error
-   * @throws OutOfMemoryError an out of memory error if this is the {@link ExecutionException }
-   */
-  public static void waitForCompletion2(List<Future<?>> futures, boolean print) {
-    Exception exception = null;
-    try {
-      for (final Future<?> f : futures) {
-        f.get();
-      }
-    } catch (InterruptedException ex) {
-      // Restore interrupted state...
-      Thread.currentThread().interrupt();
-      exception = ex;
-    } catch (ExecutionException ex) {
-      exception = ex;
-    }
-
-    if (exception != null) {
-      if (print) {
-        IJ.handleException(exception);
-      }
-      final Throwable cause = exception.getCause();
-      if (cause != null) {
-        if (cause instanceof RuntimeException) {
-          throw (RuntimeException) cause;
-        }
-        if (cause instanceof OutOfMemoryError) {
-          throw (OutOfMemoryError) cause;
-        }
-      }
-      throw new RuntimeException((cause != null) ? cause : exception);
-    }
   }
 
   /**

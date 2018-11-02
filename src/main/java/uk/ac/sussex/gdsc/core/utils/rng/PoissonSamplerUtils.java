@@ -37,20 +37,18 @@ import org.apache.commons.rng.sampling.distribution.SmallMeanPoissonSampler;
  * Class for computing Poisson samples handling the edge case where the mean is zero. In that case
  * the sample return is zero.
  */
-public class SafePoissonSampler {
+public final class PoissonSamplerUtils {
 
   /**
    * Value for switching sampling algorithm. This is the same pivot point as the PoissonSampler
    */
   private static final double PIVOT = 40;
 
-  /** A sampler to return zero. */
-  public static final DiscreteSampler ZERO = new DiscreteSampler() {
-    @Override
-    public int sample() {
-      return 0;
-    }
-  };
+  /** A sampler to return zero for the sample() method. */
+  public static final DiscreteSampler ZERO = () -> 0;
+
+  /** No construction. */
+  private PoissonSamplerUtils() {}
 
   /**
    * Creates a new PoissonSampler.
@@ -62,8 +60,7 @@ public class SafePoissonSampler {
    * @return the Poisson sampler
    * @throws IllegalArgumentException if {@code mean < 0}.
    */
-  public static DiscreteSampler createPoissonSampler(UniformRandomProvider rng, double mean)
-      throws IllegalArgumentException {
+  public static DiscreteSampler createPoissonSampler(UniformRandomProvider rng, double mean) {
     if (mean == 0) {
       return ZERO;
     }
@@ -81,8 +78,7 @@ public class SafePoissonSampler {
    * @return the Poisson sample
    * @throws IllegalArgumentException if {@code mean < 0}.
    */
-  public static int nextPoissonSample(UniformRandomProvider rng, double mean)
-      throws IllegalArgumentException {
+  public static int nextPoissonSample(UniformRandomProvider rng, double mean) {
     if (mean == 0) {
       return 0;
     }

@@ -294,8 +294,8 @@ public class DoubleEquality {
    * @param significantDigits The significant digits
    * @return The number of representable doubles (Units in the Last Place)
    */
-  public static long getUlps(long significantDigits) {
-    final long value1 = (long) Math.pow(10.0, significantDigits - 1);
+  public static long getUlps(int significantDigits) {
+    final long value1 = (long) Math.pow(10.0, significantDigits - 1.0);
     final long value2 = value1 + 1;
     final long ulps = Double.doubleToRawLongBits(value2) - Double.doubleToRawLongBits(value1);
     return (ulps < 0) ? 0 : ulps;

@@ -35,17 +35,32 @@ import org.apache.commons.math3.util.FastMath;
 /**
  * Computes the local maxima.
  */
-public class NonMaximumSuppression implements Cloneable {
-  private static final float floatMin = Float.NEGATIVE_INFINITY;
-  private static final int intMin = Integer.MIN_VALUE;
+public class NonMaximumSuppression {
 
-  private boolean neighbourCheck = false;
+  private boolean neighbourCheck;
   private boolean dataBuffer = true;
 
-  private float[] newDataFloat = null;
-  private int[] newDataInt = null;
-  private IntFixedList resultsBuffer = null;
-  private boolean[] maximaFlagBuffer = null;
+  private float[] newDataFloat;
+  private int[] newDataInt;
+  private IntFixedList resultsBuffer;
+  private boolean[] maximaFlagBuffer;
+
+  /**
+   * Instantiates a new non maximum suppression.
+   */
+  public NonMaximumSuppression() {
+    // Nothing to do
+  }
+
+  /**
+   * Instantiates a new non maximum suppression.
+   *
+   * @param source the source
+   */
+  protected NonMaximumSuppression(NonMaximumSuppression source) {
+    this.neighbourCheck = source.neighbourCheck;
+    this.dataBuffer = source.dataBuffer;
+  }
 
   /**
    * Neighbour checking performs an additional comparison between the local maxima within the block
@@ -94,6 +109,13 @@ public class NonMaximumSuppression implements Cloneable {
 
   /**
    * Expand the image to the new dimensions with a 1-pixel border.
+   *
+   * @param data the data
+   * @param maxx the maxx
+   * @param maxy the maxy
+   * @param newx the newx
+   * @param newy the newy
+   * @return the new image
    */
   protected float[] expand(float[] data, int maxx, int maxy, int newx, int newy) {
     final int size = newx * newy;
@@ -137,6 +159,13 @@ public class NonMaximumSuppression implements Cloneable {
 
   /**
    * Expand the image to the new dimensions with a 1-pixel border.
+   *
+   * @param data the data
+   * @param maxx the maxx
+   * @param maxy the maxy
+   * @param newx the newx
+   * @param newy the newy
+   * @return the new image
    */
   protected int[] expand(int[] data, int maxx, int maxy, int newx, int newy) {
     final int size = newx * newy;
@@ -221,9 +250,15 @@ public class NonMaximumSuppression implements Cloneable {
     return maximaFlagBuffer;
   }
 
+  /**
+   * Gets the blocks.
+   *
+   * @param max the maximum of the dimension
+   * @param n The block size
+   * @return the blocks
+   */
   protected static int getBlocks(int max, int n) {
-    final int blocks = (int) Math.ceil((1.0 * max) / n);
-    return blocks;
+    return (int) Math.ceil((double) max / n);
   }
 
   /**
@@ -264,18 +299,31 @@ public class NonMaximumSuppression implements Cloneable {
     return copy;
   }
 
-  @Override
-  public NonMaximumSuppression clone() {
-    try {
-      final NonMaximumSuppression o = (NonMaximumSuppression) super.clone();
-      o.newDataFloat = null;
-      o.newDataInt = null;
-      o.maximaFlagBuffer = null;
-      return o;
-    } catch (final CloneNotSupportedException ex) {
-      // Ignore
-    }
-    return null;
+  /**
+   * Create a copy.
+   *
+   * @return the copy
+   */
+  public NonMaximumSuppression copy() {
+    return new NonMaximumSuppression(this);
+  }
+
+  /**
+   * The minimum value for a float.
+   *
+   * @return the minimum value
+   */
+  protected static final float floatMin() {
+    return Float.NEGATIVE_INFINITY;
+  }
+
+  /**
+   * The minimum value for a int.
+   *
+   * @return the minimum value
+   */
+  protected static final int intMin() {
+    return Integer.MIN_VALUE;
   }
 
   // ----------------------------------------------------
@@ -1106,7 +1154,6 @@ public class NonMaximumSuppression implements Cloneable {
    */
   public int[] findBlockMaxima2x2(float[] data, int maxx, int maxy) {
     // Optimised for 2x2 block
-    // final int n = 2;
 
     // The number of blocks in x and y
     final int xblocks = getBlocks(maxx, 2);
@@ -1171,7 +1218,7 @@ public class NonMaximumSuppression implements Cloneable {
       // D
       if (xfinal != maxx) {
         // Compare 1x1 block
-        maxima[block++] = yfinal * maxx + xfinal;
+        maxima[block] = yfinal * maxx + xfinal;
       }
     }
 
@@ -1216,7 +1263,7 @@ public class NonMaximumSuppression implements Cloneable {
         int ysize = (y != yfinal) ? n : maxy - yfinal;
 
         int index = y * maxx + x;
-        float max = floatMin;
+        float max = floatMin();
 
         while (ysize-- > 0) {
           for (int x2 = xsize; x2-- > 0;) {
@@ -1285,7 +1332,7 @@ public class NonMaximumSuppression implements Cloneable {
         int ysize = (y != yfinal) ? n : maxy - yfinal - border;
 
         int index = y * maxx + x;
-        float max = floatMin;
+        float max = floatMin();
 
         while (ysize-- > 0) {
           for (int x2 = xsize; x2-- > 0;) {
@@ -1322,7 +1369,6 @@ public class NonMaximumSuppression implements Cloneable {
    */
   public int[][] findBlockMaximaCandidates2x2(float[] data, int maxx, int maxy) {
     // Optimised for 2x2 block
-    // final int n = 2;
 
     // The number of blocks in x and y
     final int xblocks = getBlocks(maxx, 2);
@@ -1401,7 +1447,7 @@ public class NonMaximumSuppression implements Cloneable {
       // D
       if (xfinal != maxx) {
         // Compare 1x1 block
-        maxima[block++] = new int[] {yfinal * maxx + xfinal};
+        maxima[block] = new int[] {yfinal * maxx + xfinal};
       }
     }
 
@@ -2605,7 +2651,6 @@ public class NonMaximumSuppression implements Cloneable {
    */
   public int[] findBlockMaxima2x2(int[] data, int maxx, int maxy) {
     // Optimised for 2x2 block
-    // final int n = 2;
 
     // The number of blocks in x and y
     final int xblocks = getBlocks(maxx, 2);
@@ -2670,7 +2715,7 @@ public class NonMaximumSuppression implements Cloneable {
       // D
       if (xfinal != maxx) {
         // Compare 1x1 block
-        maxima[block++] = yfinal * maxx + xfinal;
+        maxima[block] = yfinal * maxx + xfinal;
       }
     }
 
@@ -2715,7 +2760,7 @@ public class NonMaximumSuppression implements Cloneable {
         int ysize = (y != yfinal) ? n : maxy - yfinal;
 
         int index = y * maxx + x;
-        int max = intMin;
+        int max = intMin();
 
         while (ysize-- > 0) {
           for (int x2 = xsize; x2-- > 0;) {
@@ -2784,7 +2829,7 @@ public class NonMaximumSuppression implements Cloneable {
         int ysize = (y != yfinal) ? n : maxy - yfinal - border;
 
         int index = y * maxx + x;
-        int max = intMin;
+        int max = intMin();
 
         while (ysize-- > 0) {
           for (int x2 = xsize; x2-- > 0;) {
@@ -2821,7 +2866,6 @@ public class NonMaximumSuppression implements Cloneable {
    */
   public int[][] findBlockMaximaCandidates2x2(int[] data, int maxx, int maxy) {
     // Optimised for 2x2 block
-    // final int n = 2;
 
     // The number of blocks in x and y
     final int xblocks = getBlocks(maxx, 2);
@@ -2900,7 +2944,7 @@ public class NonMaximumSuppression implements Cloneable {
       // D
       if (xfinal != maxx) {
         // Compare 1x1 block
-        maxima[block++] = new int[] {yfinal * maxx + xfinal};
+        maxima[block] = new int[] {yfinal * maxx + xfinal};
       }
     }
 

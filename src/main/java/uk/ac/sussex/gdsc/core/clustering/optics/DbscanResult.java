@@ -44,10 +44,6 @@ import java.awt.geom.Rectangle2D;
  * Contains the result of the DBSCAN algorithm.
  */
 public class DbscanResult implements ClusteringResult {
-  /**
-   * Used to provide access to the raw coordinates.
-   */
-  private final OpticsManager opticsManager;
 
   /**
    * A result not part of any cluster.
@@ -55,13 +51,18 @@ public class DbscanResult implements ClusteringResult {
   public static final int NOISE = 0;
 
   /**
-   * The min points for a core object.
+   * Used to provide access to the raw coordinates.
    */
-  public final int minPts;
+  private final OpticsManager opticsManager;
+
+  /**
+   * The minimum points for a core object.
+   */
+  private final int minPoints;
   /**
    * The generating distance for a core object.
    */
-  public final float generatingDistance;
+  private final float generatingDistance;
 
   /**
    * The order results.
@@ -87,14 +88,14 @@ public class DbscanResult implements ClusteringResult {
    * Instantiates a new DBSCAN result.
    *
    * @param opticsManager the optics manager
-   * @param minPts the min points
+   * @param minPoints the min points
    * @param generatingDistance the generating distance
    * @param dbscanResults the DBSCAN results
    */
-  DbscanResult(OpticsManager opticsManager, int minPts, float generatingDistance,
+  DbscanResult(OpticsManager opticsManager, int minPoints, float generatingDistance,
       DbscanOrder[] dbscanResults) {
     this.opticsManager = opticsManager;
-    this.minPts = minPts;
+    this.minPoints = minPoints;
     this.generatingDistance = generatingDistance;
     this.results = dbscanResults;
   }
@@ -191,7 +192,7 @@ public class DbscanResult implements ClusteringResult {
     final int[] newClusters = new int[size()];
     if (core) {
       for (int i = size(); i-- > 0;) {
-        if (results[i].numberOfPoints >= minPts) {
+        if (results[i].numberOfPoints >= getMinPoints()) {
           final int id = results[i].parent;
           newClusters[id] = results[i].clusterId;
         }
@@ -306,5 +307,23 @@ public class DbscanResult implements ClusteringResult {
         }
       }
     }
+  }
+
+  /**
+   * Gets the minimum points for a core object.
+   *
+   * @return the minimum points for a core object.
+   */
+  public int getMinPoints() {
+    return minPoints;
+  }
+
+  /**
+   * Gets the generating distance for a core object.
+   *
+   * @return the generating distance for a core object.
+   */
+  public float getGeneratingDistance() {
+    return generatingDistance;
   }
 }

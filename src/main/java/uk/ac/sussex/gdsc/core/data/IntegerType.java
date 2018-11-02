@@ -1104,7 +1104,7 @@ public enum IntegerType {
    * @return the integer type
    * @throws IllegalArgumentException If the ordinal is invalid
    */
-  public static IntegerType forOrdinal(int ordinal) throws IllegalArgumentException {
+  public static IntegerType forOrdinal(int ordinal) {
     if (ordinal < 0) {
       throw new IllegalArgumentException("Negative ordinal");
     }
@@ -1138,9 +1138,9 @@ public enum IntegerType {
    * @return the max value
    * @throws IllegalArgumentException If the bit-depth is invalid
    */
-  public static long maxUnsigned(int bitDepth) throws IllegalArgumentException {
+  public static long maxUnsigned(int bitDepth) {
     if (bitDepth < 0 || bitDepth > 63) {
-      throw new IllegalArgumentException("Invalid bit depth: " + bitDepth);
+      throw new IllegalArgumentException(invalidBitDepthMessage(bitDepth));
     }
     long max = 1;
     while (bitDepth-- > 0) {
@@ -1158,7 +1158,7 @@ public enum IntegerType {
    */
   public static long maxSigned(int bitDepth) {
     if (bitDepth < 0 || bitDepth > 64) {
-      throw new IllegalArgumentException("Invalid bit depth: " + bitDepth);
+      throw new IllegalArgumentException(invalidBitDepthMessage(bitDepth));
     }
     long max = 1;
     while (bitDepth-- > 1) {
@@ -1176,12 +1176,16 @@ public enum IntegerType {
    */
   public static long minSigned(int bitDepth) {
     if (bitDepth < 0 || bitDepth > 64) {
-      throw new IllegalArgumentException("Invalid bit depth: " + bitDepth);
+      throw new IllegalArgumentException(invalidBitDepthMessage(bitDepth));
     }
     long max = 1;
     while (bitDepth-- > 1) {
       max = max << 1;
     }
     return -max;
+  }
+
+  private static String invalidBitDepthMessage(int bitDepth) {
+    return "Invalid bit depth: " + bitDepth;
   }
 }

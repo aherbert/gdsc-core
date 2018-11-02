@@ -147,22 +147,22 @@ public class AlignImagesFft {
   public ImagePlus align(ImagePlus refImp, ImagePlus targetImp, WindowMethod windowMethod,
       Rectangle bounds, SubPixelMethod subPixelMethod, int interpolationMethod, boolean normalised,
       boolean showCorrelationImage, boolean showNormalisedImage, boolean clipOutput) {
-    final ImageProcessor refIp = refImp.getProcessor();
+    final ImageProcessor referenceIp = refImp.getProcessor();
     if (targetImp == null) {
       targetImp = refImp;
     }
 
     // Check same size
-    if (!isValid(refIp, targetImp)) {
+    if (!isValid(referenceIp, targetImp)) {
       return null;
     }
 
     // Fourier transforms use the largest power-two dimension that covers both images
-    int maxN = FastMath.max(refIp.getWidth(), refIp.getHeight());
+    int maxN = FastMath.max(referenceIp.getWidth(), referenceIp.getHeight());
     final int maxM = FastMath.max(targetImp.getWidth(), targetImp.getHeight());
     maxN = FastMath.max(maxN, maxM);
 
-    this.normalisedRefIp = padAndZero(refIp, maxN, windowMethod, refImageBounds);
+    this.normalisedRefIp = padAndZero(referenceIp, maxN, windowMethod, refImageBounds);
     if (showNormalisedImage) {
       new ImagePlus(refImp.getTitle() + " Normalised Ref", normalisedRefIp).show();
     }
@@ -206,7 +206,7 @@ public class AlignImagesFft {
       calculateRollingSums(normalisedRefIp, sum, sumSq);
     }
 
-    final FHT refFht = fht(normalisedRefIp);
+    final FHT referenceFht = fht(normalisedRefIp);
 
     if (bounds == null) {
       bounds = createHalfMaxBounds(refImp.getWidth(), refImp.getHeight(), targetImp.getWidth(),
@@ -217,8 +217,8 @@ public class AlignImagesFft {
     final ImageStack stack = targetImp.getStack();
     for (int slice = 1; slice <= stack.getSize(); slice++) {
       final ImageProcessor targetIp = stack.getProcessor(slice);
-      outStack.addSlice(null, alignImages(refFht, sum, sumSq, targetIp, slice, windowMethod, bounds,
-          fpCorrelation, fpNormalised, subPixelMethod, interpolationMethod, clipOutput));
+      outStack.addSlice(null, alignImages(referenceFht, sum, sumSq, targetIp, slice, windowMethod,
+          bounds, fpCorrelation, fpNormalised, subPixelMethod, interpolationMethod, clipOutput));
       if (showCorrelationImage) {
         correlationStack.addSlice(null, fpCorrelation.duplicate());
       }
@@ -544,19 +544,12 @@ public class AlignImagesFft {
           }
         }
 
-        // Reset to bounds to calculate the number of pixels
-        if (minU < 0) {
-          minU = 0;
-        }
-        if (minV < 0) {
-          minV = 0;
-        }
+        // Use bounds to calculate the number of pixels
 
         final Rectangle regionBounds =
             new Rectangle(xxx - halfSizeU, yyy - halfSizeV, sizeU, sizeV);
         final Rectangle r = imageBounds.intersection(regionBounds);
 
-        // int n = (maxU - minU + 1) * (maxV - minV + 1);
         final int n = r.width * r.height;
 
         if (n < 1) {
@@ -643,8 +636,7 @@ public class AlignImagesFft {
   public static Rectangle createBounds(int minXShift, int maxXShift, int minYShift, int maxYShift) {
     final int w = maxXShift - minXShift;
     final int h = maxYShift - minYShift;
-    final Rectangle bounds = new Rectangle(minXShift, minYShift, w, h);
-    return bounds;
+    return new Rectangle(minXShift, minYShift, w, h);
   }
 
   /**
@@ -801,9 +793,7 @@ public class AlignImagesFft {
       return targetIp;
     }
 
-    final ImageProcessor resultIp =
-        translate(interpolationMethod, targetIp, lastXOffset, lastYOffset, clipOutput);
-    return resultIp;
+    return translate(interpolationMethod, targetIp, lastXOffset, lastYOffset, clipOutput);
   }
 
   /**
@@ -1310,7 +1300,7 @@ public class AlignImagesFft {
 
     final double cx = maxx * 0.5;
     final double cy = maxy * 0.5;
-    final double maxDistance = Math.sqrt(maxx * maxx + maxy * maxy);
+    final double maxDistance = Math.sqrt((double) maxx * maxx + maxy * maxy);
 
     // Pre-compute
     final double[] dx2 = new double[maxx];

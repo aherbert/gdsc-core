@@ -41,7 +41,7 @@ public class AssignmentComparator implements Comparator<Assignment>, Serializabl
   /**
    * The serial version ID.
    */
-  private static final long serialVersionUID = 360766140635525134L;
+  private static final long serialVersionUID = 1L;
 
   private static final AssignmentComparator instance = new AssignmentComparator();
 

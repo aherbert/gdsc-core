@@ -23,17 +23,17 @@ package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;
 import java.util.Arrays;
 
 /**
- * Class for tracking up to 'size' closest values.
+ * Class for tracking up to 'capacity' closest size.
  */
 public class DoubleHeap {
   /** The distance. */
   final double[] distance;
 
-  /** The size. */
-  private final int size;
+  /** The capacity. */
+  private final int capacity;
 
-  /** The values. */
-  int values;
+  /** The size. */
+  int size;
 
   /** The distance of the last removed item. */
   private double removedDistance;
@@ -41,12 +41,12 @@ public class DoubleHeap {
   /**
    * Instantiates a new double heap.
    *
-   * @param size the size
+   * @param capacity the capacity
    */
-  public DoubleHeap(int size) {
-    this.distance = new double[size];
-    this.size = size;
-    this.values = 0;
+  public DoubleHeap(int capacity) {
+    this.distance = new double[capacity];
+    this.capacity = capacity;
+    this.size = 0;
   }
 
   /**
@@ -56,11 +56,11 @@ public class DoubleHeap {
    */
   public void addValue(double dist) {
     // If there is still room in the heap
-    if (values < size) {
+    if (size < capacity) {
       // Insert new value at the end
-      distance[values] = dist;
-      upHeapify(values);
-      values++;
+      distance[size] = dist;
+      upHeapify(size);
+      size++;
     } else if (dist < distance[0]) {
       // If there is no room left in the heap, and the new entry is lower
       // than the max entry replace the max entry with the new entry
@@ -73,13 +73,13 @@ public class DoubleHeap {
    * Removes the largest.
    */
   public void removeLargest() {
-    if (values == 0) {
+    if (size == 0) {
       throw new IllegalStateException();
     }
 
     removedDistance = distance[0];
-    values--;
-    distance[0] = distance[values];
+    size--;
+    distance[0] = distance[size];
     downHeapify(0);
   }
 
@@ -108,8 +108,8 @@ public class DoubleHeap {
    * @param index the index
    */
   private void downHeapify(int index) {
-    for (int c = index * 2 + 1; c < values; index = c, c = index * 2 + 1) {
-      if (c + 1 < values && distance[c] < distance[c + 1]) {
+    for (int c = index * 2 + 1; c < size; index = c, c = index * 2 + 1) {
+      if (c + 1 < size && distance[c] < distance[c + 1]) {
         c++;
       }
       if (distance[index] < distance[c]) {
@@ -129,7 +129,7 @@ public class DoubleHeap {
    * @return the max dist
    */
   public double getMaxDist() {
-    if (values < size) {
+    if (size < capacity) {
       return Double.POSITIVE_INFINITY;
     }
     return distance[0];
@@ -141,7 +141,7 @@ public class DoubleHeap {
    * @return the size
    */
   public int getSize() {
-    return values;
+    return size;
   }
 
   /**
@@ -150,7 +150,7 @@ public class DoubleHeap {
    * @return the capacity
    */
   public int getCapacity() {
-    return size;
+    return capacity;
   }
 
   /**
@@ -159,7 +159,7 @@ public class DoubleHeap {
    * @return the distance
    */
   public double[] getDistance() {
-    return Arrays.copyOf(distance, values);
+    return Arrays.copyOf(distance, size);
   }
 
   /**

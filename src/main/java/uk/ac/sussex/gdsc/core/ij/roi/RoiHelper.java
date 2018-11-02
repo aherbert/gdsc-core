@@ -42,7 +42,11 @@ import java.awt.Rectangle;
 /**
  * Class for working with image ROIs.
  */
-public class RoiHelper {
+public final class RoiHelper {
+
+  /** No construction. */
+  private RoiHelper() {}
+
   /**
    * Build a byte mask of all pixels in an ROI. If no area ROI is present then the mask will be
    * null.

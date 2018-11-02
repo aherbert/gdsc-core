@@ -64,7 +64,7 @@ class Molecule {
    * @return the queue index
    */
   public int getQueueIndex() {
-    return workingData;
+    return getWorkingData();
   }
 
   /**
@@ -73,7 +73,7 @@ class Molecule {
    * @param index the new queue index
    */
   public void setQueueIndex(int index) {
-    workingData = index;
+    setWorkingData(index);
   }
 
   /**
@@ -118,7 +118,7 @@ class Molecule {
   void reset() {
     processed = false;
     predecessor = -1;
-    workingData = 0;
+    setWorkingData(0);
     coreDistance = reachabilityDistance = OpticsManager.UNDEFINED;
   }
 
@@ -195,7 +195,7 @@ class Molecule {
    * @return the cluster id
    */
   public int getClusterId() {
-    return workingData;
+    return getWorkingData();
   }
 
   /**
@@ -204,16 +204,16 @@ class Molecule {
    * @param clusterId the new cluster id
    */
   public void setClusterOrigin(int clusterId) {
-    workingData = clusterId;
+    setWorkingData(clusterId);
   }
 
   /**
-   * Sets a member of the cluster member.
+   * Sets a member of the cluster.
    *
    * @param clusterId the new cluster id
    */
   public void setClusterMember(int clusterId) {
-    workingData = clusterId;
+    setWorkingData(clusterId);
   }
 
   /**
@@ -222,7 +222,7 @@ class Molecule {
    * @return true, if is not in a cluster
    */
   public boolean isNotInACluster() {
-    return workingData == 0;
+    return getWorkingData() == 0;
   }
 
   /**
@@ -286,5 +286,32 @@ class Molecule {
    */
   void setD(float distance) {
     throw new NotImplementedException();
+  }
+
+  /**
+   * Gets the working data.
+   *
+   * <p>The working data usually represents the cluster that contains the molecule, or zero if not
+   * in a cluster.
+   *
+   * <p>The working data may represent different meanings depending on the algorithm that is using
+   * the molecule. As such defined methods are used to set the working data to enable clarity within
+   * the algorithm.
+   *
+   * <p>Note: This means the molecule cannot be used for different algorithms at the same time.
+   *
+   * @return the working data
+   */
+  private int getWorkingData() {
+    return workingData;
+  }
+
+  /**
+   * Sets the working data.
+   *
+   * @param workingData the new working data
+   */
+  private void setWorkingData(int workingData) {
+    this.workingData = workingData;
   }
 }

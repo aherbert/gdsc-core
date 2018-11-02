@@ -31,10 +31,16 @@
 
 package uk.ac.sussex.gdsc.core.math;
 
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+
 /**
  * Compute the radial statistics of 2D data.
  */
-public class RadialStatistics {
+public final class RadialStatisticsUtils {
+
+  /** No public construction. */
+  private RadialStatisticsUtils() {}
+
   /**
    * Compute the radial sum of circles up to radius size/2. The sum includes all pixels that are at
    * a radius (r) equal to or greater than n and less than n+1.
@@ -44,15 +50,7 @@ public class RadialStatistics {
    * @return the sum
    */
   public static double[] radialSum(int size, float[] data) {
-    if (data == null) {
-      throw new IllegalArgumentException("Data is null");
-    }
-    if (size < 1) {
-      throw new IllegalArgumentException("Size must be positive");
-    }
-    if (data.length != size * size) {
-      throw new IllegalArgumentException("Data is incorrect size");
-    }
+    SimpleArrayUtils.hasData2D(size, size, data);
 
     // Centre
     final int cx = size / 2;
@@ -125,18 +123,7 @@ public class RadialStatistics {
    * @return the sum
    */
   public static double[][] radialSum(int size, float[]... data) {
-    if (data == null || data.length == 0) {
-      throw new IllegalArgumentException("Data is null");
-    }
-    if (size < 1) {
-      throw new IllegalArgumentException("Size must be positive");
-    }
-    final int m = data.length;
-    for (int mi = 0; mi < m; mi++) {
-      if (data[mi].length != size * size) {
-        throw new IllegalArgumentException("Data array " + mi + " is incorrect size");
-      }
-    }
+    final int m = checkData(size, data);
 
     // Centre
     final int cx = size / 2;
@@ -218,18 +205,7 @@ public class RadialStatistics {
    * @return the sum
    */
   public static double[][] radialSumAndCount(int size, float[]... data) {
-    if (data == null || data.length == 0) {
-      throw new IllegalArgumentException("Data is null");
-    }
-    if (size < 1) {
-      throw new IllegalArgumentException("Size must be positive");
-    }
-    final int m = data.length;
-    for (int mi = 0; mi < m; mi++) {
-      if (data[mi].length != size * size) {
-        throw new IllegalArgumentException("Data array " + mi + " is incorrect size");
-      }
-    }
+    final int m = checkData(size, data);
 
     // Centre
     final int cx = size / 2;
@@ -301,6 +277,30 @@ public class RadialStatistics {
     }
 
     return sum;
+  }
+
+  /**
+   * Check all input arrays in the data are the correct length (size*size).
+   *
+   * @param size the size
+   * @param data the data
+   * @return the number of input arrays
+   */
+  private static int checkData(int size, float[]... data) {
+    if (data.length == 0) {
+      throw new IllegalArgumentException("No data");
+    }
+    if (size < 1) {
+      throw new IllegalArgumentException("Size must be strictly positive");
+    }
+    final int m = data.length;
+    final int length = SimpleArrayUtils.check2DSize(size, size);
+    for (int mi = 0; mi < m; mi++) {
+      if (data[mi].length != length) {
+        throw new IllegalArgumentException("Data array " + mi + " is incorrect size");
+      }
+    }
+    return m;
   }
 
   /**

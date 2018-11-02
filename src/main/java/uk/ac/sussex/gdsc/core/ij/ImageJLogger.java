@@ -37,9 +37,9 @@ import ij.IJ;
  */
 public class ImageJLogger implements Logger {
   /** Set to true to show debug log messages. */
-  public boolean showDebug = false;
+  private boolean showDebug;
   /** Set to true to show error log messages. */
-  public boolean showError = true;
+  private boolean showError = true;
 
   /**
    * Instantiates a new IJ logger.
@@ -53,8 +53,8 @@ public class ImageJLogger implements Logger {
    * @param showError Set to true to show error log messages
    */
   public ImageJLogger(boolean showDebug, boolean showError) {
-    this.showDebug = showDebug;
-    this.showError = showError;
+    this.setShowDebug(showDebug);
+    this.setShowError(showError);
   }
 
   @Override
@@ -69,29 +69,65 @@ public class ImageJLogger implements Logger {
 
   @Override
   public void debug(String message) {
-    if (showDebug) {
+    if (isShowDebug()) {
       info(message);
     }
   }
 
   @Override
   public void debug(String format, Object... args) {
-    if (showDebug) {
+    if (isShowDebug()) {
       info(format, args);
     }
   }
 
   @Override
   public void error(String message) {
-    if (showError) {
+    if (isShowError()) {
       info(message);
     }
   }
 
   @Override
   public void error(String format, Object... args) {
-    if (showError) {
+    if (isShowError()) {
       info(format, args);
     }
+  }
+
+  /**
+   * Checks if is showing debug log messages.
+   *
+   * @return true if is showing debug log messages
+   */
+  public boolean isShowDebug() {
+    return showDebug;
+  }
+
+  /**
+   * Set to true to show debug log messages.
+   *
+   * @param showDebug the new show debug flag
+   */
+  public void setShowDebug(boolean showDebug) {
+    this.showDebug = showDebug;
+  }
+
+  /**
+   * Checks if is showing error log messages.
+   *
+   * @return true if is showing error log messages
+   */
+  public boolean isShowError() {
+    return showError;
+  }
+
+  /**
+   * Set to true to show debug log messages.
+   *
+   * @param showError the new show error flag
+   */
+  public void setShowError(boolean showError) {
+    this.showError = showError;
   }
 }

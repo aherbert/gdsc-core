@@ -1,7 +1,7 @@
 package uk.ac.sussex.gdsc.core.clustering;
 
 import uk.ac.sussex.gdsc.core.clustering.DensityCounter.SimpleMolecule;
-import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerFactory;
+import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
@@ -92,7 +92,7 @@ public class DensityCounterTest {
       for (final float radius : radii) {
         final DensityCounter c = new DensityCounter(molecules, radius, true);
         c.setNumberOfThreads(4);
-        c.multiThreadMode = DensityCounter.MODE_SYNC;
+        c.setMultiThreadMode(DensityCounter.MODE_SYNC);
 
         final int[][] d1 = DensityCounter.countAll(molecules, radius, nChannels - 1);
         final int[][] d2 = c.countAll(nChannels - 1);
@@ -111,7 +111,7 @@ public class DensityCounterTest {
       for (final float radius : radii) {
         final DensityCounter c = new DensityCounter(molecules, radius, true);
         c.setNumberOfThreads(4);
-        c.multiThreadMode = DensityCounter.MODE_NON_SYNC;
+        c.setMultiThreadMode(DensityCounter.MODE_NON_SYNC);
 
         final int[][] d1 = DensityCounter.countAll(molecules, radius, nChannels - 1);
         final int[][] d2 = c.countAll(nChannels - 1);
@@ -270,7 +270,7 @@ public class DensityCounterTest {
         final int i = (Integer) data;
         c[i].setNumberOfThreads(nThreads);
         // c[i].gridPriority = null;
-        c[i].multiThreadMode = DensityCounter.MODE_SYNC;
+        c[i].setMultiThreadMode(DensityCounter.MODE_SYNC);
         return c[i].countAll(nChannels - 1);
       }
     });
@@ -281,7 +281,7 @@ public class DensityCounterTest {
         final DensityCounter c = new DensityCounter(molecules[i], radius, true);
         c.setNumberOfThreads(nThreads);
         c.gridPriority = null;
-        c.multiThreadMode = DensityCounter.MODE_SYNC;
+        c.setMultiThreadMode(DensityCounter.MODE_SYNC);
         return c.countAll(nChannels - 1);
       }
     });
@@ -291,7 +291,7 @@ public class DensityCounterTest {
         final int i = (Integer) data;
         c[i].setNumberOfThreads(nThreads);
         // c[i].gridPriority = null;
-        c[i].multiThreadMode = DensityCounter.MODE_NON_SYNC;
+        c[i].setMultiThreadMode(DensityCounter.MODE_NON_SYNC);
         return c[i].countAll(nChannels - 1);
       }
     });
@@ -302,7 +302,7 @@ public class DensityCounterTest {
         final DensityCounter c = new DensityCounter(molecules[i], radius, true);
         c.setNumberOfThreads(nThreads);
         c.gridPriority = null;
-        c.multiThreadMode = DensityCounter.MODE_NON_SYNC;
+        c.setMultiThreadMode(DensityCounter.MODE_NON_SYNC);
         return c.countAll(nChannels - 1);
       }
     });
@@ -413,8 +413,8 @@ public class DensityCounterTest {
       final float x = r.nextFloat() * size;
       final float y = r.nextFloat() * size;
       final int id = r.nextInt(nChannels);
-      final GaussianSampler gx = GaussianSamplerFactory.createGaussianSampler(r, x, precision);
-      final GaussianSampler gy = GaussianSamplerFactory.createGaussianSampler(r, y, precision);
+      final GaussianSampler gx = GaussianSamplerUtils.createGaussianSampler(r, x, precision);
+      final GaussianSampler gy = GaussianSamplerUtils.createGaussianSampler(r, y, precision);
 
       int c = p.sample();
       while (i < n && c-- > 0) {

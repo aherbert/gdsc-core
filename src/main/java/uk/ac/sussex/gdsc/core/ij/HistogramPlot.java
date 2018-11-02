@@ -1062,18 +1062,20 @@ public class HistogramPlot {
    * Gets x-values from the last histogram plotted.
    *
    * @return the x-values
+   * @throws NullPointerException If no plot can been created
    */
   public double[] getPlotXValues() {
-    return plotXValues;
+    return plotXValues.clone();
   }
 
   /**
    * Gets y-values from the last histogram plotted.
    *
    * @return the y-values
+   * @throws NullPointerException If no plot can been created
    */
   public double[] getPlotYValues() {
-    return plotYValues;
+    return plotYValues.clone();
   }
 
   /**

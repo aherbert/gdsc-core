@@ -42,6 +42,7 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.RandomAccess;
+import java.util.function.Predicate;
 
 //@formatter:off
 /**
@@ -650,7 +651,7 @@ public class TurboList<E> extends AbstractList<E>
      */
     private void rangeCheck(int index) {
         if (index >= size) {
-          throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+          throw new IndexOutOfBoundsException(outOfBoundsMsg(index, size));
         }
     }
 
@@ -659,7 +660,7 @@ public class TurboList<E> extends AbstractList<E>
      */
     private void rangeCheckForAdd(int index) {
         if (index > size || index < 0) {
-          throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+          throw new IndexOutOfBoundsException(outOfBoundsMsg(index, size));
         }
     }
 
@@ -668,7 +669,7 @@ public class TurboList<E> extends AbstractList<E>
      * Of the many possible refactorings of the error handling code,
      * this "outlining" performs best with both server and client VMs.
      */
-    private String outOfBoundsMsg(int index) {
+    private static String outOfBoundsMsg(int index, int size) {
         return "Index: "+index+", Size: "+size;
     }
 
@@ -717,7 +718,8 @@ public class TurboList<E> extends AbstractList<E>
 
     private boolean batchRemove(Collection<?> c, boolean complement) {
         final Object[] elementData = this.elementData;
-        int r = 0, w = 0;
+        int r = 0;
+        int w = 0;
         boolean modified = false;
         try {
             for (; r < size; r++) {
@@ -812,7 +814,7 @@ public class TurboList<E> extends AbstractList<E>
     @Override
     public ListIterator<E> listIterator(int index) {
         if (index < 0 || index > size) {
-          throw new IndexOutOfBoundsException("Index: "+index);
+          throw new IndexOutOfBoundsException(outOfBoundsMsg(index, size));
         }
         return new ListItr(index);
     }
@@ -1190,52 +1192,19 @@ public class TurboList<E> extends AbstractList<E>
 
         private void rangeCheck(int index) {
             if (index < 0 || index >= this.size) {
-              throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+              throw new IndexOutOfBoundsException(outOfBoundsMsg(index, this.size));
             }
         }
 
         private void rangeCheckForAdd(int index) {
             if (index < 0 || index > this.size) {
-              throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+              throw new IndexOutOfBoundsException(outOfBoundsMsg(index, this.size));
             }
         }
-
-        private String outOfBoundsMsg(int index) {
-            return "Index: "+index+", Size: "+this.size;
-        }
     }
 
-    /**
-     * Represents a predicate (boolean-valued function) of one argument.
-     * <p>
-     * This functionality was added in Java 1.8 so for backward compatibility
-     * to Java 1.5 the required methods from the java.util.function.Predicate
-     * interface have been duplicated here.
-     *
-     * @param <T>
-     *            the generic type
-     */
-    @FunctionalInterface
-    public interface SimplePredicate<T> {
-
-        /**
-         * Evaluates this predicate on the given argument.
-         *
-         * @param argument the input argument
-         * @return {@code true} if the input argument matches the predicate,
-         * otherwise {@code false}
-         */
-        public boolean test(T argument);
-    }
-
-    /**
-     * Removes from the list the if an element passes the filter.
-     *
-     * @param filter
-     *            the filter
-     * @return true, if the list was modified
-     */
-    public boolean removeIf(SimplePredicate<? super E> filter) {
+    @Override
+    public boolean removeIf(Predicate<? super E> filter) {
         Objects.requireNonNull(filter);
         // figure out which elements are to be removed
         // any exception thrown from the filter predicate at this stage

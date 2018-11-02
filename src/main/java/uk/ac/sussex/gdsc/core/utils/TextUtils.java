@@ -28,9 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Text utilities.
@@ -214,5 +214,15 @@ public final class TextUtils {
       }
     }
     return MathUtils.rounded(time, 4) + units;
+  }
+
+  /**
+   * Convert time in milliseconds into a nice string.
+   *
+   * @param time the time
+   * @return The string
+   */
+  public static String timeToString(long time) {
+    return timeToString((double) time);
   }
 }

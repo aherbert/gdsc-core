@@ -86,8 +86,8 @@ public class TextWindow2 extends TextWindow {
     constructed = true;
   }
 
-  @SuppressWarnings("deprecation")
   @Override
+  @Deprecated
   public void show() {
     // Do not show upon construction
     if (constructed) {

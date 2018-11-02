@@ -35,7 +35,11 @@ import ij.plugin.frame.Recorder;
 /**
  * Contains helper functions for the recorder.
  */
-public class RecorderUtils {
+public final class RecorderUtils {
+
+  /** No construction. */
+  private RecorderUtils() {}
+
   /**
    * Reset the recorder for all the named keys.
    *
@@ -53,11 +57,9 @@ public class RecorderUtils {
       return;
     }
 
-    // System.out.printf("%s - %s\n", commandOptions, java.util.Arrays.toString(keys));
-
     // We only support labels added with
-    // Recorder.recordOption(String);
-    // Recorder.recordOption(String,String);
+    // Recorder.recordOption(String)
+    // Recorder.recordOption(String,String)
     // These will create a key in the command options of:
     // " "+key
     // " "+key+"="+value
@@ -103,12 +105,10 @@ public class RecorderUtils {
 
       // Check key should be ignored
       if (ignore(key, keys)) {
-        // System.out.printf("Ignoring %s %s\n", key, value);
         ignored = true;
         continue;
       }
 
-      // System.out.printf("Keeping %s %s\n", key, value);
       pairs.add(new String[] {key, value});
     }
 
@@ -136,7 +136,6 @@ public class RecorderUtils {
         Recorder.recordOption(key, value);
       }
     }
-    // System.out.printf("Now %s\n", Recorder.getCommandOptions());
   }
 
   private static int findKeyEnd(String commandOptions, int len, int index) {

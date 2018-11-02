@@ -31,7 +31,6 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 import uk.ac.sussex.gdsc.core.utils.ConvexHull;
 import uk.ac.sussex.gdsc.core.utils.Sort;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
-import uk.ac.sussex.gdsc.core.utils.TurboList.SimplePredicate;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntIntHashMap;
@@ -43,15 +42,12 @@ import org.apache.commons.math3.util.MathArrays;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Contains the result of the OPTICS algorithm.
  */
 public class OpticsResult implements ClusteringResult {
-  /**
-   * Used to provide access to the raw coordinates.
-   */
-  private final OpticsManager opticsManager;
 
   /**
    * A result not part of any cluster.
@@ -59,13 +55,18 @@ public class OpticsResult implements ClusteringResult {
   public static final int NOISE = 0;
 
   /**
-   * The min points for a core object.
+   * Used to provide access to the raw coordinates.
    */
-  public final int minPts;
+  private final OpticsManager opticsManager;
+
+  /**
+   * The minimum points for a core object.
+   */
+  private final int minPoints;
   /**
    * The generating distance for a core object.
    */
-  public final float generatingDistance;
+  private final float generatingDistance;
 
   /**
    * The order results.
@@ -91,14 +92,14 @@ public class OpticsResult implements ClusteringResult {
    * Instantiates a new Optics result.
    *
    * @param opticsManager the optics manager
-   * @param minPts the min points
+   * @param minPoints the min points
    * @param generatingDistance the generating distance
    * @param opticsResults the optics results
    */
-  OpticsResult(OpticsManager opticsManager, int minPts, float generatingDistance,
+  OpticsResult(OpticsManager opticsManager, int minPoints, float generatingDistance,
       OpticsOrder[] opticsResults) {
     this.opticsManager = opticsManager;
-    this.minPts = minPts;
+    this.minPoints = minPoints;
     this.generatingDistance = generatingDistance;
     this.opticsResults = opticsResults;
   }
@@ -144,7 +145,7 @@ public class OpticsResult implements ClusteringResult {
   private void convert(double[] data) {
     for (int i = data.length; i-- > 0;) {
       if (data[i] == Double.POSITIVE_INFINITY) {
-        data[i] = generatingDistance;
+        data[i] = getGeneratingDistance();
       }
     }
   }
@@ -897,7 +898,7 @@ public class OpticsResult implements ClusteringResult {
     }
   }
 
-  private static class RemovePredicate implements SimplePredicate<OpticsCluster> {
+  private static class RemovePredicate implements Predicate<OpticsCluster> {
     int counter = 0;
     boolean[] remove;
 
@@ -931,6 +932,11 @@ public class OpticsResult implements ClusteringResult {
    * only associated below the lower limit.
    */
   public static final int XI_OPTION_LOWER_LIMIT = 8;
+  /**
+   * Option to exclude the last steep-up point if it is Xi significant. This modification is found
+   * in the R code for the Xi algorithm.
+   */
+  public static final int XI_OPTION_EXCLUDE_LAST_STEEP_UP_IF_SIGNIFICANT = 0x10;
 
   private double upperLimit = Double.POSITIVE_INFINITY;
   private double lowerLimit = 0;
@@ -963,6 +969,8 @@ public class OpticsResult implements ClusteringResult {
   public void extractClusters(double xi, int options) {
     final boolean topLevel = (options & XI_OPTION_TOP_LEVEL) != 0;
     final boolean noCorrect = (options & XI_OPTION_NO_CORRECT) != 0;
+    final boolean excludeLastSteepUp =
+        (options & XI_OPTION_EXCLUDE_LAST_STEEP_UP_IF_SIGNIFICANT) != 0;
     final double ul = getUpperLimit();
     final double ll = getLowerLimit();
     final boolean useUpperLimit =
@@ -1020,8 +1028,8 @@ public class OpticsResult implements ClusteringResult {
             endSteep = index + 1;
             continue;
           }
-          // Stop looking if not going downward or after minPts of non steep area
-          if (!steepDown(index, reachability, 1) || index - endSteep > minPts) {
+          // Stop looking if not going downward or after minPoints of non steep area
+          if (!steepDown(index, reachability, 1) || index - endSteep > getMinPoints()) {
             break;
           }
         }
@@ -1069,8 +1077,8 @@ public class OpticsResult implements ClusteringResult {
                 }
                 continue;
               }
-              // Stop looking if not going upward or after minPts of non steep area
-              if (!steepUp(index, reachability, 1) || index - endSteep > minPts) {
+              // Stop looking if not going upward or after minPoints of non steep area
+              if (!steepUp(index, reachability, 1) || index - endSteep > getMinPoints()) {
                 break;
               }
             }
@@ -1139,15 +1147,14 @@ public class OpticsResult implements ClusteringResult {
             }
           }
 
-          // This is the R-code but I do not know why so I leave it out.
+          // This is the R-code but I do not know why. It's not in the original paper.
           // Ensure the last steep up point is not included if it's xi significant
-          // if (steepUp(index - 1, r, ixi))
-          // {
-          // cend--;
-          // }
+          if (excludeLastSteepUp && steepUp(index - 1, reachability, ixi)) {
+            cend--;
+          }
 
           // Condition 3A: obey minpts
-          if (cend - cstart + 1 < minPts) {
+          if (cend - cstart + 1 < getMinPoints()) {
             continue;
           }
 
@@ -1225,15 +1232,10 @@ public class OpticsResult implements ClusteringResult {
   private static void updateFilterSdaSet(final double mib,
       TurboList<SteepDownArea> setOfSteepDownAreas, final double ixi) {
     final double threshold = mib / ixi;
-    setOfSteepDownAreas.removeIf(new SimplePredicate<SteepArea>() {
-      @Override
-      public boolean test(SteepArea sda) {
-        // Return true to remove.
-        // "we filter all steep down areas from SDASet whose start multiplied by (1-ξ)
-        // is smaller than the global mib -value"
-        return sda.maximum < threshold;
-      }
-    });
+    // Return true to remove.
+    // "we filter all steep down areas from SDASet whose start multiplied by (1-ξ)
+    // is smaller than the global mib -value"
+    setOfSteepDownAreas.removeIf(sda -> sda.maximum < threshold);
     // Update mib-values
     for (int i = setOfSteepDownAreas.size(); i-- > 0;) {
       if (mib > setOfSteepDownAreas.getf(i).mib) {
@@ -1344,5 +1346,23 @@ public class OpticsResult implements ClusteringResult {
       lowerLimit = 0;
     }
     this.lowerLimit = lowerLimit;
+  }
+
+  /**
+   * Gets the minimum points for a core object.
+   *
+   * @return the minimum points for a core object.
+   */
+  public int getMinPoints() {
+    return minPoints;
+  }
+
+  /**
+   * Gets the generating distance for a core object.
+   *
+   * @return the generating distance for a core object.
+   */
+  public float getGeneratingDistance() {
+    return generatingDistance;
   }
 }

@@ -33,7 +33,7 @@ import java.awt.Rectangle;
 /**
  * Store 2D coordinates shifted to the origin for efficient grid processing.
  */
-public class CoordinateStore implements Cloneable {
+public class CoordinateStore {
 
   /** The xcoords. */
   protected final float[] xcoord;
@@ -117,6 +117,24 @@ public class CoordinateStore implements Cloneable {
   }
 
   /**
+   * Instantiates a new coordinate store.
+   *
+   * @param source the source
+   * @param deepCopy Set to true to copy the coordinate arrays
+   */
+  protected CoordinateStore(CoordinateStore source, boolean deepCopy) {
+    this.xcoord = (deepCopy) ? source.xcoord.clone() : source.xcoord;
+    this.ycoord = (deepCopy) ? source.ycoord.clone() : source.ycoord;
+    this.originx = source.originx;
+    this.originy = source.originy;
+    this.minXCoord = source.minXCoord;
+    this.minYCoord = source.minYCoord;
+    this.maxXCoord = source.maxXCoord;
+    this.maxYCoord = source.maxYCoord;
+    this.area = source.area;
+  }
+
+  /**
    * Gets the number of points in the data store.
    *
    * @return the size
@@ -185,12 +203,13 @@ public class CoordinateStore implements Cloneable {
     return new double[][] {x, y};
   }
 
-  @Override
-  public CoordinateStore clone() {
-    try {
-      return (CoordinateStore) super.clone();
-    } catch (final CloneNotSupportedException ex) {
-      return null;
-    }
+  /**
+   * Create a copy.
+   *
+   * @param deepCopy Set to true to copy the coordinate arrays
+   * @return the copy
+   */
+  public CoordinateStore copy(boolean deepCopy) {
+    return new CoordinateStore(this, deepCopy);
   }
 }

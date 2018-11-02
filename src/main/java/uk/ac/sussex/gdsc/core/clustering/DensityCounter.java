@@ -196,7 +196,7 @@ public class DensityCounter {
   }
 
   /** The radius. */
-  public final float radius;
+  private final float radius;
 
   private final float r2;
   private final float xmin;
@@ -226,7 +226,7 @@ public class DensityCounter {
   /** Non-synchronised mode. */
   static final byte MODE_NON_SYNC = 1;
   /** Multi-thread mode. */
-  byte multiThreadMode = MODE_NON_SYNC;
+  private byte multiThreadMode = MODE_NON_SYNC;
 
   /**
    * Gets the number of threads to use for multi-threaded algorithms.
@@ -677,24 +677,24 @@ public class DensityCounter {
 
       createGridPriority();
 
-      final int numberOfThreads = Math.min(this.numberOfThreads, gridPriority.length);
+      final int threadCount = Math.min(this.numberOfThreads, gridPriority.length);
 
       // Split the entries evenly over each thread
       // This should fairly allocate the density to all processing threads
       final int[] process = new int[nonEmpty];
       for (int i = 0, j = 0, k = 0; i < gridPriority.length; i++) {
         process[i] = gridPriority[j];
-        j += numberOfThreads;
+        j += threadCount;
         if (j >= gridPriority.length) {
           j = ++k;
         }
       }
 
       // Use an executor service so that we know when complete
-      final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-      final TurboList<Future<?>> futures = new TurboList<>(numberOfThreads);
+      final ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+      final TurboList<Future<?>> futures = new TurboList<>(threadCount);
 
-      final int nPerThread = (int) Math.ceil((double) process.length / numberOfThreads);
+      final int nPerThread = (int) Math.ceil((double) process.length / threadCount);
       for (int from = 0; from < process.length;) {
         final int to = Math.min(from + nPerThread, process.length);
         if (multiThreadMode == MODE_NON_SYNC) {
@@ -1171,6 +1171,33 @@ public class DensityCounter {
       }
     }
     return count1;
+  }
+
+  /**
+   * Gets the radius.
+   *
+   * @return the radius
+   */
+  public float getRadius() {
+    return radius;
+  }
+
+  /**
+   * Gets the multi thread mode.
+   *
+   * @return the multi thread mode
+   */
+  byte getMultiThreadMode() {
+    return multiThreadMode;
+  }
+
+  /**
+   * Sets the multi thread mode.
+   *
+   * @param multiThreadMode the new multi thread mode
+   */
+  void setMultiThreadMode(byte multiThreadMode) {
+    this.multiThreadMode = multiThreadMode;
   }
 
   /**

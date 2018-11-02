@@ -6,19 +6,19 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 @SuppressWarnings({"javadoc"})
-public class RadialStatisticsTest {
+public class RadialStatisticsUtilsTest {
   @Test
   public void canComputeRadialSum() {
-    assertEquals("3", new double[] {1, 8, 0}, RadialStatistics.radialSum(3, ones(3)));
-    assertEquals("4", new double[] {1, 8, 7}, RadialStatistics.radialSum(4, ones(4)));
-    assertEquals("5", new double[] {1, 8, 16, 0, 0}, RadialStatistics.radialSum(5, ones(5)));
-    assertEquals("6", new double[] {1, 8, 16, 10, 0}, RadialStatistics.radialSum(6, ones(6)));
+    assertEquals("3", new double[] {1, 8, 0}, RadialStatisticsUtils.radialSum(3, ones(3)));
+    assertEquals("4", new double[] {1, 8, 7}, RadialStatisticsUtils.radialSum(4, ones(4)));
+    assertEquals("5", new double[] {1, 8, 16, 0, 0}, RadialStatisticsUtils.radialSum(5, ones(5)));
+    assertEquals("6", new double[] {1, 8, 16, 10, 0}, RadialStatisticsUtils.radialSum(6, ones(6)));
   }
 
   @Test
   public void canComputeRadialSum16() {
     assertEquals("16", new double[] {1, 8, 16, 20, 24, 40, 36, 48, 38, 16, 8, 1},
-        RadialStatistics.radialSum(16, ones(16)));
+        RadialStatisticsUtils.radialSum(16, ones(16)));
   }
 
   @Test
@@ -44,21 +44,21 @@ public class RadialStatisticsTest {
         560, 540, 564, 500, 532, 508, 500, 496, 444, 504, 432, 468, 428, 424, 424, 396, 416, 376,
         380, 376, 336, 372, 328, 348, 312, 312, 308, 272, 312, 260, 272, 256, 224, 276, 208, 232,
         212, 176, 232, 168, 196, 164, 156, 160, 120, 168, 108, 128, 112, 72, 132, 60, 108, 48, 72,
-        48, 32, 52, 20, 28, 8, 4, 1}, RadialStatistics.radialSum(512, ones(512)));
+        48, 32, 52, 20, 28, 8, 4, 1}, RadialStatisticsUtils.radialSum(512, ones(512)));
   }
 
   @Test
   public void canComputeRadialCount() {
-    assertEquals("3", new int[] {1, 8, 0}, RadialStatistics.radialCount(3));
-    assertEquals("4", new int[] {1, 8, 7}, RadialStatistics.radialCount(4));
-    assertEquals("5", new int[] {1, 8, 16, 0, 0}, RadialStatistics.radialCount(5));
-    assertEquals("6", new int[] {1, 8, 16, 10, 0}, RadialStatistics.radialCount(6));
+    assertEquals("3", new int[] {1, 8, 0}, RadialStatisticsUtils.radialCount(3));
+    assertEquals("4", new int[] {1, 8, 7}, RadialStatisticsUtils.radialCount(4));
+    assertEquals("5", new int[] {1, 8, 16, 0, 0}, RadialStatisticsUtils.radialCount(5));
+    assertEquals("6", new int[] {1, 8, 16, 10, 0}, RadialStatisticsUtils.radialCount(6));
   }
 
   @Test
   public void canComputeRadialCount16() {
     assertEquals("16", new int[] {1, 8, 16, 20, 24, 40, 36, 48, 38, 16, 8, 1},
-        RadialStatistics.radialCount(16));
+        RadialStatisticsUtils.radialCount(16));
   }
 
   @Test
@@ -84,13 +84,13 @@ public class RadialStatisticsTest {
         560, 540, 564, 500, 532, 508, 500, 496, 444, 504, 432, 468, 428, 424, 424, 396, 416, 376,
         380, 376, 336, 372, 328, 348, 312, 312, 308, 272, 312, 260, 272, 256, 224, 276, 208, 232,
         212, 176, 232, 168, 196, 164, 156, 160, 120, 168, 108, 128, 112, 72, 132, 60, 108, 48, 72,
-        48, 32, 52, 20, 28, 8, 4, 1}, RadialStatistics.radialCount(512));
+        48, 32, 52, 20, 28, 8, 4, 1}, RadialStatisticsUtils.radialCount(512));
   }
 
   @Test
   public void canComputeRadialSum8x8() {
     assertEquals("8x8", new double[] {37, 296, 592, 740, 338, 77},
-        RadialStatistics.radialSum(8, sequence(8)));
+        RadialStatisticsUtils.radialSum(8, sequence(8)));
   }
 
   @Test
@@ -98,12 +98,12 @@ public class RadialStatisticsTest {
     assertEquals("32x32",
         new double[] {529, 4232, 8464, 10580, 12696, 21160, 19044, 25392, 29624, 29624, 35972,
             33856, 42320, 48668, 46552, 50784, 33338, 28572, 16932, 15872, 6352, 4236, 1},
-        RadialStatistics.radialSum(32, sequence(32)));
+        RadialStatisticsUtils.radialSum(32, sequence(32)));
   }
 
   @Test
   public void canComputeRadialSumAndCount32() {
-    final double[][] sum = RadialStatistics.radialSumAndCount(32, sequence(32), sequence(32, 43));
+    final double[][] sum = RadialStatisticsUtils.radialSumAndCount(32, sequence(32), sequence(32, 43));
     assertEquals(
         "sum1", new double[] {529, 4232, 8464, 10580, 12696, 21160, 19044, 25392, 29624, 29624,
             35972, 33856, 42320, 48668, 46552, 50784, 33338, 28572, 16932, 15872, 6352, 4236, 1},
@@ -118,7 +118,7 @@ public class RadialStatisticsTest {
 
   @Test
   public void canComputeRadialSumAndCountMulti32() {
-    final double[][] sum = RadialStatistics.radialSum(32, sequence(32), sequence(32, 43));
+    final double[][] sum = RadialStatisticsUtils.radialSum(32, sequence(32), sequence(32, 43));
     assertEquals(
         "sum1", new double[] {529, 4232, 8464, 10580, 12696, 21160, 19044, 25392, 29624, 29624,
             35972, 33856, 42320, 48668, 46552, 50784, 33338, 28572, 16932, 15872, 6352, 4236, 1},

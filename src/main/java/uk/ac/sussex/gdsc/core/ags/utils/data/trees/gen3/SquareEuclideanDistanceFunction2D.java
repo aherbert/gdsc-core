@@ -20,6 +20,8 @@
 
 package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3;
 
+import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.DistanceUtils;
+
 /**
  * Optimised distance function for 2D data.
  *
@@ -35,10 +37,8 @@ public class SquareEuclideanDistanceFunction2D implements DistanceFunction {
 
   @Override
   public double distanceToRect(double[] point, double[] min, double[] max) {
-    final double dx =
-        (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? point[0] - min[0] : 0;
-    final double dy =
-        (point[1] > max[1]) ? point[1] - max[1] : (point[1] < min[1]) ? point[1] - min[1] : 0;
+    final double dx = DistanceUtils.getDistanceOutsideRange(point[0], min[0], max[0]);
+    final double dy = DistanceUtils.getDistanceOutsideRange(point[1], min[1], max[1]);
     return dx * dx + dy * dy;
   }
 }

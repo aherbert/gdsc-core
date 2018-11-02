@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.ij.process;
 
+import uk.ac.sussex.gdsc.core.data.DataException;
+
 import ij.process.LUT;
 
 import java.awt.Color;
@@ -635,7 +637,7 @@ public final class LutHelper {
   private static LUT fromRgbValues(byte[] reds, byte[] greens, byte[] blues, int[][] values,
       boolean includeBlack) {
     if (values.length != 256) {
-      throw new RuntimeException("The LUT colours must have 256 values");
+      throw new DataException("The LUT colours must have 256 values");
     }
     for (int i = (includeBlack) ? 1 : 0; i < 256; i++) {
       final int[] rgb = values[i];

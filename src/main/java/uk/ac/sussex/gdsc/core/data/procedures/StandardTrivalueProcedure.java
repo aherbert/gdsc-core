@@ -33,16 +33,16 @@ package uk.ac.sussex.gdsc.core.data.procedures;
  */
 public class StandardTrivalueProcedure implements TrivalueProcedure {
   /** The x axis values. */
-  public double[] x;
+  private double[] x;
 
   /** The y axis values. */
-  public double[] y;
+  private double[] y;
 
   /** The z axis values. */
-  public double[] z;
+  private double[] z;
 
   /** The value. */
-  public double[][][] value;
+  private double[][][] value;
 
   @Override
   public boolean setDimensions(int maxx, int maxy, int maxz) {
@@ -55,21 +55,57 @@ public class StandardTrivalueProcedure implements TrivalueProcedure {
 
   @Override
   public void setX(int index, double value) {
-    x[index] = value;
+    getXAxis()[index] = value;
   }
 
   @Override
   public void setY(int index, double value) {
-    y[index] = value;
+    getYAxis()[index] = value;
   }
 
   @Override
   public void setZ(int index, double value) {
-    z[index] = value;
+    getZAxis()[index] = value;
   }
 
   @Override
   public void setValue(int indexX, int indexY, int indexZ, double value) {
     this.value[indexX][indexY][indexZ] = value;
+  }
+
+  /**
+   * Gets the x axis.
+   *
+   * @return the x axis
+   */
+  public double[] getXAxis() {
+    return x;
+  }
+
+  /**
+   * Gets the y axis.
+   *
+   * @return the y axis
+   */
+  public double[] getYAxis() {
+    return y;
+  }
+
+  /**
+   * Gets the z axis.
+   *
+   * @return the z axis
+   */
+  public double[] getZAxis() {
+    return z;
+  }
+
+  /**
+   * Gets the value.
+   *
+   * @return the value
+   */
+  public double[][][] getValue() {
+    return value;
   }
 }

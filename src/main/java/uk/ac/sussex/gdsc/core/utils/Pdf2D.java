@@ -35,13 +35,13 @@ public class Pdf2D {
   private final Pdf1D[] rows;
   private final Pdf1D sum;
   /** The X-dimension size. */
-  public final int nx;
+  private final int nx;
   /** The Y-dimension size. */
-  public final int ny;
+  private final int ny;
   /**
    * The cumulative sum of the original input data.
    */
-  public final double cumulative;
+  private final double cumulativeSum;
 
   /**
    * Default constructor. Assumes the x-range and y-range increment from zero in integers.
@@ -76,7 +76,7 @@ public class Pdf2D {
 
     // Build a PDF for the sum of the rows
     this.sum = new Pdf1D(workingSum);
-    cumulative = this.sum.getCumulative();
+    cumulativeSum = this.sum.getCumulative();
   }
 
   /**
@@ -101,5 +101,32 @@ public class Pdf2D {
     // Sample within the specific row to find the x-coordinate
     point[0] = rows[(int) point[1]].sample(r2);
     return (point[0] < 0);
+  }
+
+  /**
+   * Gets the X-dimension size.
+   *
+   * @return the X-dimension size
+   */
+  public int getDimensionX() {
+    return nx;
+  }
+
+  /**
+   * Gets the Y-dimension size.
+   *
+   * @return the Y-dimension size
+   */
+  public int getDimensionY() {
+    return ny;
+  }
+
+  /**
+   * Gets the cumulative sum of the original input data.
+   *
+   * @return the cumulative sum
+   */
+  public double getCumulative() {
+    return cumulativeSum;
   }
 }

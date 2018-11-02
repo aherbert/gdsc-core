@@ -64,6 +64,12 @@
   </Match>
 
   <Match>
+    <Class name="~.*\.gen2\.Simple.*KdTree2D\$Entry" />
+    <!-- EI: The Entry class deliberately exposes the internal array. -->
+    <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+
+  <Match>
     <Class name="uk.ac.sussex.gdsc.core.generics.CloseableBlockingQueue" />
     <!-- Se: The implementations of the Condition interface are Serializable. -->
     <Bug code="Se" />
@@ -107,20 +113,20 @@
 
   <Match>
     <Class name="uk.ac.sussex.gdsc.core.utils.UnicodeReader" />
-    <!-- This ignores the encoding parameter if null -->
+    <!-- This ignores the encoding parameter if null. -->
     <Bug pattern="DM_DEFAULT_ENCODING" />
   </Match>
 
   <Match>
     <Class name="uk.ac.sussex.gdsc.core.utils.StoredData" />
-    <!-- This deliberately exposes the internal array -->
+    <!-- This deliberately exposes the internal array. -->
     <Method name="getValuesRef" />
     <Bug pattern="EI_EXPOSE_REP" />
   </Match>
 
   <Match>
     <Class name="uk.ac.sussex.gdsc.core.clustering.ClusteringEngine" />
-    <!-- These deliberately expose the internal array -->
+    <!-- These deliberately expose the internal array. -->
     <Or>
       <Method name="getIntraIdDistances" />
       <Method name="getInterIdDistances" />
@@ -130,14 +136,14 @@
 
   <Match>
     <Class name="uk.ac.sussex.gdsc.core.match.RankedScoreCalculator" />
-    <!-- This deliberately exposes the internal array -->
+    <!-- This deliberately exposes the internal array. -->
     <Method name="getScoredAssignments" />
     <Bug pattern="EI_EXPOSE_REP" />
   </Match>
 
   <Match>
     <Class name="uk.ac.sussex.gdsc.core.clustering.CoordinateStore" />
-    <!-- The constructor deliberately wraps the array -->
+    <!-- The constructor deliberately wraps the array. -->
     <Method name="&lt;init&gt;" />
     <Bug pattern="EI_EXPOSE_REP2" />
   </Match>
@@ -150,7 +156,7 @@
       <Class name="uk.ac.sussex.gdsc.core.data.DoubleStackTrivalueProvider" />
       <Class name="uk.ac.sussex.gdsc.core.data.FloatStackTrivalueProvider" />
     </Or>
-    <!-- The constructors deliberately wraps the array -->
+    <!-- The constructors deliberately wraps the array. -->
     <Method name="&lt;init&gt;" />
     <Bug pattern="EI_EXPOSE_REP2" />
   </Match>
@@ -161,9 +167,16 @@
       <Class name="uk.ac.sussex.gdsc.core.data.DoubleArrayBivalueProvider" />
       <Class name="uk.ac.sussex.gdsc.core.data.DoubleArrayTrivalueProvider" />
     </Or>
-    <!-- This deliberately exposes the internal array -->
+    <!-- This deliberately exposes the internal array. -->
     <Method name="toArray" />
     <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.ij.HistogramPlot" />
+    <!-- This has a default statement but no break. -->
+    <Method name="updateLimitsToRemoveOutliers" />
+    <Bug pattern="SF_SWITCH_NO_DEFAULT" />
   </Match>
 
 </FindBugsFilter>

@@ -35,6 +35,9 @@ package uk.ac.sussex.gdsc.core.math.interpolation;
  */
 public class CubicInterpolator {
 
+  /**
+   * Instantiates a new cubic interpolator.
+   */
   protected CubicInterpolator() {
     // Do nothing
   }

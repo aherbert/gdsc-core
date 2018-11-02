@@ -123,7 +123,7 @@ public class DoubleLinkedMedianWindow {
     final Data point = data[latestInsertion];
     final double removedValue = point.value;
     if (value == removedValue) {
-      latestInsertion = (++latestInsertion % data.length);
+      latestInsertion = (latestInsertion + 1) % data.length;
       return;
     }
 
@@ -251,7 +251,7 @@ public class DoubleLinkedMedianWindow {
     }
 
     // Update the latest insertion finger
-    latestInsertion = ++latestInsertion % data.length;
+    latestInsertion = (latestInsertion + 1) % data.length;
   }
 
   private boolean aboveMedian(Data point) {

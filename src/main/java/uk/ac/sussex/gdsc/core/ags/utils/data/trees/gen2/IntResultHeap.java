@@ -23,7 +23,7 @@ package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;
 import java.util.Arrays;
 
 /**
- * Class for tracking up to 'size' closest values.
+ * Class for tracking up to 'capacity' closest size.
  */
 public class IntResultHeap {
   /** The data. */
@@ -32,11 +32,11 @@ public class IntResultHeap {
   /** The distance. */
   final double[] distance;
 
-  /** The size. */
-  private final int size;
+  /** The capacity. */
+  private final int capacity;
 
-  /** The values. */
-  int values;
+  /** The size. */
+  int size;
 
   /**
    * The removed data.
@@ -51,13 +51,13 @@ public class IntResultHeap {
   /**
    * Instantiates a new int result heap.
    *
-   * @param size the size
+   * @param capacity the capacity
    */
-  public IntResultHeap(int size) {
-    this.data = new int[size];
-    this.distance = new double[size];
-    this.size = size;
-    this.values = 0;
+  public IntResultHeap(int capacity) {
+    this.data = new int[capacity];
+    this.distance = new double[capacity];
+    this.capacity = capacity;
+    this.size = 0;
   }
 
   /**
@@ -68,12 +68,12 @@ public class IntResultHeap {
    */
   public void addValue(double dist, int value) {
     // If there is still room in the heap
-    if (values < size) {
+    if (size < capacity) {
       // Insert new value at the end
-      data[values] = value;
-      distance[values] = dist;
-      upHeapify(values);
-      values++;
+      data[size] = value;
+      distance[size] = dist;
+      upHeapify(size);
+      size++;
     } else if (dist < distance[0]) {
       // If there is no room left in the heap, and the new entry is lower
       // than the max entry replace the max entry with the new entry
@@ -87,15 +87,15 @@ public class IntResultHeap {
    * Removes the largest.
    */
   public void removeLargest() {
-    if (values == 0) {
+    if (size == 0) {
       throw new IllegalStateException();
     }
 
     removedData = data[0];
     removedDistance = distance[0];
-    values--;
-    data[0] = data[values];
-    distance[0] = distance[values];
+    size--;
+    data[0] = data[size];
+    distance[0] = distance[size];
     downHeapify(0);
   }
 
@@ -127,8 +127,8 @@ public class IntResultHeap {
    * @param index the index
    */
   private void downHeapify(int index) {
-    for (int c = index * 2 + 1; c < values; index = c, c = index * 2 + 1) {
-      if (c + 1 < values && distance[c] < distance[c + 1]) {
+    for (int c = index * 2 + 1; c < size; index = c, c = index * 2 + 1) {
+      if (c + 1 < size && distance[c] < distance[c + 1]) {
         c++;
       }
       if (distance[index] < distance[c]) {
@@ -151,7 +151,7 @@ public class IntResultHeap {
    * @return the max dist
    */
   public double getMaxDist() {
-    if (values < size) {
+    if (size < capacity) {
       return Float.POSITIVE_INFINITY;
     }
     return distance[0];
@@ -163,7 +163,7 @@ public class IntResultHeap {
    * @return the size
    */
   public int getSize() {
-    return values;
+    return size;
   }
 
   /**
@@ -172,7 +172,7 @@ public class IntResultHeap {
    * @return the capacity
    */
   public int getCapacity() {
-    return size;
+    return capacity;
   }
 
   /**
@@ -181,7 +181,7 @@ public class IntResultHeap {
    * @return the distance
    */
   public double[] getDistance() {
-    return Arrays.copyOf(distance, values);
+    return Arrays.copyOf(distance, size);
   }
 
   /**
@@ -190,7 +190,7 @@ public class IntResultHeap {
    * @return the data
    */
   public int[] getData() {
-    return Arrays.copyOf(data, values);
+    return Arrays.copyOf(data, size);
   }
 
   /**

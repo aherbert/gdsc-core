@@ -69,6 +69,9 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    */
   private static final long serialVersionUID = -6721357142783374158L;
 
+  private static final String ELEMENT_NOT_NULL = "Element cannot be null";
+  private static final String NO_ADDITIONS = "No additions to a closed queue";
+
   /** The queued items. */
   final Object[] items;
 
@@ -275,7 +278,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       int index = 0;
       try {
         for (final E e : c) {
-          items[index++] = Objects.requireNonNull(e, "Element cannot be null");
+          items[index++] = Objects.requireNonNull(e, ELEMENT_NOT_NULL);
         }
       } catch (final ArrayIndexOutOfBoundsException ex) {
         throw new IllegalArgumentException();
@@ -427,7 +430,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return false;
     }
 
-    Objects.requireNonNull(e, "Element cannot be null");
+    Objects.requireNonNull(e, ELEMENT_NOT_NULL);
     final ReentrantLock lock = this.lock;
     lock.lock();
     try {
@@ -456,7 +459,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return false;
     }
 
-    Objects.requireNonNull(e, "Element cannot be null");
+    Objects.requireNonNull(e, ELEMENT_NOT_NULL);
     long nanos = unit.toNanos(timeout);
     final ReentrantLock lock = this.lock;
     lock.lockInterruptibly();
@@ -498,22 +501,22 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * @throws NullPointerException {@inheritDoc}
    */
   @Override
-  public void put(E e) throws InterruptedException, IllegalStateException {
+  public void put(E e) throws InterruptedException {
     // Don't lock if closed
     if (closed) {
       if (throwIfClosed) {
-        throw new IllegalStateException("No additions to a closed queue");
+        throw new IllegalStateException(NO_ADDITIONS);
       }
       return;
     }
 
-    Objects.requireNonNull(e, "Element cannot be null");
+    Objects.requireNonNull(e, ELEMENT_NOT_NULL);
     final ReentrantLock lock = this.lock;
     lock.lockInterruptibly();
     try {
       if (closed) {
         if (throwIfClosed) {
-          throw new IllegalStateException("No additions to a closed queue");
+          throw new IllegalStateException(NO_ADDITIONS);
         }
         return;
       }
@@ -524,7 +527,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
 
       if (closed) {
         if (throwIfClosed) {
-          throw new IllegalStateException("No additions to a closed queue");
+          throw new IllegalStateException(NO_ADDITIONS);
         }
         return;
       }
@@ -553,18 +556,18 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     // Don't lock if closed
     if (closed) {
       if (throwIfClosed) {
-        throw new IllegalStateException("No additions to a closed queue");
+        throw new IllegalStateException(NO_ADDITIONS);
       }
       return false;
     }
 
-    Objects.requireNonNull(e, "Element cannot be null");
+    Objects.requireNonNull(e, ELEMENT_NOT_NULL);
     final ReentrantLock lock = this.lock;
     lock.lockInterruptibly();
     try {
       if (closed) {
         if (throwIfClosed) {
-          throw new IllegalStateException("No additions to a closed queue");
+          throw new IllegalStateException(NO_ADDITIONS);
         }
         return false;
       }
@@ -575,7 +578,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
 
       if (closed) {
         if (throwIfClosed) {
-          throw new IllegalStateException("No additions to a closed queue");
+          throw new IllegalStateException(NO_ADDITIONS);
         }
         return false;
       }
@@ -1438,7 +1441,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
         final int len = items.length;
         // how far takeIndex has advanced since the previous
         // operation of this iterator
-        final long dequeues = (cycles - prevCycles) * len + (takeIndex - prevTakeIndex);
+        final long dequeues = (long) (cycles - prevCycles) * len + (takeIndex - prevTakeIndex);
 
         // Check indices for invalidation
         if (invalidated(lastRet, prevTakeIndex, dequeues, len)) {

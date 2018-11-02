@@ -650,7 +650,7 @@ public final class MathUtils {
     }
 
     // Normalise
-    if (normalise) {
+    if (normalise && count != 0) {
       for (int i = 0; i < sum.length; i++) {
         sum[i] /= count;
       }

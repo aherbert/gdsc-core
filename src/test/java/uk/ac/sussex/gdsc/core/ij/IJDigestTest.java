@@ -1,6 +1,6 @@
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.core.utils.Digest;
+import uk.ac.sussex.gdsc.core.utils.DigestUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
@@ -28,7 +28,7 @@ public class IJDigestTest {
     r.nextBytes(data);
 
     final String o = new ImageJDigest().digest(new ByteProcessor(size, 1, data));
-    final String e = Digest.md5Hex(data);
+    final String e = DigestUtils.md5Hex(data);
     Assertions.assertEquals(e, o);
   }
 
@@ -46,7 +46,7 @@ public class IJDigestTest {
     for (int i = 0; i < size; i++) {
       out.writeShort(data[i]);
     }
-    final String e = Digest.md5Hex(bos.toByteArray());
+    final String e = DigestUtils.md5Hex(bos.toByteArray());
     Assertions.assertEquals(e, o);
   }
 
@@ -64,7 +64,7 @@ public class IJDigestTest {
     for (int i = 0; i < size; i++) {
       out.writeFloat(data[i]);
     }
-    final String e = Digest.md5Hex(bos.toByteArray());
+    final String e = DigestUtils.md5Hex(bos.toByteArray());
     Assertions.assertEquals(e, o);
   }
 
@@ -82,7 +82,7 @@ public class IJDigestTest {
     for (int i = 0; i < size; i++) {
       out.writeInt(data[i]);
     }
-    final String e = Digest.md5Hex(bos.toByteArray());
+    final String e = DigestUtils.md5Hex(bos.toByteArray());
     Assertions.assertEquals(e, o);
   }
 }

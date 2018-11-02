@@ -36,10 +36,14 @@ import java.security.MessageDigest;
 
 /**
  * Class for computing digests.
- *
- * @author Alex Herbert
  */
-public class Digest {
+public final class DigestUtils {
+
+  private static final char[] DIGITS_UPPER =
+      {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+  private static final char[] DIGITS_LOWER =
+      {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
   /**
    * The MD2 message digest algorithm defined in RFC 1319.
    */
@@ -78,6 +82,9 @@ public class Digest {
    * The SHA-512 hash algorithm defined in the FIPS PUB 180-2.
    */
   public static final String SHA_512 = "SHA-512";
+
+  /** No public construction. */
+  private DigestUtils() {}
 
   /**
    * Gets the digest.
@@ -141,11 +148,6 @@ public class Digest {
     return messageDigest;
   }
 
-  private static final char[] DIGITS_UPPER =
-      {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-  private static final char[] DIGITS_LOWER =
-      {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-
   /**
    * Convert the byte data to a hex string. Lower case is used.
    *
@@ -155,14 +157,7 @@ public class Digest {
    * @return the hex string
    */
   public static String toHex(byte[] data) {
-    final int l = data.length;
-    final char[] out = new char[l << 1];
-    // two characters form the hex value.
-    for (int i = 0, j = 0; i < l; i++) {
-      out[j++] = DIGITS_LOWER[(0xF0 & data[i]) >>> 4];
-      out[j++] = DIGITS_LOWER[0x0F & data[i]];
-    }
-    return new String(out);
+    return toHex(data, true);
   }
 
   /**
@@ -192,8 +187,8 @@ public class Digest {
    * @param data the data
    * @return the digest
    */
-  public static byte[] md5(String data) {
-    return updateDigest(getDigest("MD5"), data).digest();
+  public static byte[] md5Digest(String data) {
+    return updateDigest(getDigest(MD5), data).digest();
   }
 
   /**
@@ -203,8 +198,8 @@ public class Digest {
    * @return the digest
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  public static byte[] md5(InputStream data) throws IOException {
-    return updateDigest(getDigest("MD5"), data).digest();
+  public static byte[] md5Digest(InputStream data) throws IOException {
+    return updateDigest(getDigest(MD5), data).digest();
   }
 
   /**
@@ -213,8 +208,8 @@ public class Digest {
    * @param data the data
    * @return the digest
    */
-  public static byte[] md5(byte[] data) {
-    return updateDigest(getDigest("MD5"), data).digest();
+  public static byte[] md5Digest(byte[] data) {
+    return updateDigest(getDigest(MD5), data).digest();
   }
 
   /**
@@ -234,7 +229,7 @@ public class Digest {
    * @return the MD5 string
    */
   public static String md5Hex(String data) {
-    return md5ToHex(md5(data));
+    return md5ToHex(md5Digest(data));
   }
 
   /**
@@ -245,7 +240,7 @@ public class Digest {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   public static String md5Hex(InputStream data) throws IOException {
-    return md5ToHex(md5(data));
+    return md5ToHex(md5Digest(data));
   }
 
   /**
@@ -255,6 +250,6 @@ public class Digest {
    * @return the MD5 string
    */
   public static String md5Hex(byte[] data) {
-    return md5ToHex(md5(data));
+    return md5ToHex(md5Digest(data));
   }
 }

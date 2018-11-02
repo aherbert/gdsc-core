@@ -137,10 +137,10 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
    */
   public static class Entry<T> {
     /** The distance. */
-    public final double distance;
+    private final double distance;
 
     /** The value. */
-    public final T value;
+    private final T value;
 
     /**
      * Instantiates a new entry.
@@ -151,6 +151,24 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
     private Entry(double distance, T value) {
       this.distance = distance;
       this.value = value;
+    }
+
+    /**
+     * Gets the distance.
+     *
+     * @return the distance
+     */
+    public double getDistance() {
+      return distance;
+    }
+
+    /**
+     * Gets the value.
+     *
+     * @return the value
+     */
+    public T getValue() {
+      return value;
     }
   }
 
@@ -227,11 +245,10 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
 
       // Check if it's worth descending. Assume it is if it's sibling has
       // not been visited yet.
-      if (cursor.status == Status.ALLVISITED) {
-        if (nextCursor.locationCount == 0 || (!nextCursor.singularity
-            && pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range)) {
-          continue;
-        }
+      if (cursor.status == Status.ALLVISITED
+          && (nextCursor.locationCount == 0 || (!nextCursor.singularity
+              && pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range))) {
+        continue;
       }
 
       // Descend down the tree
@@ -240,14 +257,14 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
     }
     while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
-    final ArrayList<Entry<T>> results = new ArrayList<>(resultHeap.values);
+    final ArrayList<Entry<T>> results = new ArrayList<>(resultHeap.size);
     if (sequentialSorting) {
-      while (resultHeap.values > 0) {
+      while (resultHeap.size > 0) {
         resultHeap.removeLargest();
         results.add(new Entry<>(resultHeap.getRemovedDistance(), resultHeap.getRemovedData()));
       }
     } else {
-      for (int i = 0; i < resultHeap.values; i++) {
+      for (int i = 0; i < resultHeap.size; i++) {
         results.add(new Entry<>(resultHeap.distance[i], (T) resultHeap.data[i]));
       }
     }
@@ -327,11 +344,10 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
 
       // Check if it's worth descending. Assume it is if it's sibling has
       // not been visited yet.
-      if (cursor.status == Status.ALLVISITED) {
-        if (nextCursor.locationCount == 0 || (!nextCursor.singularity
-            && pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range)) {
-          continue;
-        }
+      if (cursor.status == Status.ALLVISITED
+          && (nextCursor.locationCount == 0 || (!nextCursor.singularity
+              && pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range))) {
+        continue;
       }
 
       // Descend down the tree
@@ -340,7 +356,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
     }
     while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
-    for (int i = 0; i < resultHeap.values; i++) {
+    for (int i = 0; i < resultHeap.size; i++) {
       results.add(resultHeap.distance[i], (T) resultHeap.data[i]);
     }
   }
@@ -417,11 +433,10 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
 
       // Check if it's worth descending. Assume it is if it's sibling has
       // not been visited yet.
-      if (cursor.status == Status.ALLVISITED) {
-        if (nextCursor.locationCount == 0 || (!nextCursor.singularity
-            && pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range)) {
-          continue;
-        }
+      if (cursor.status == Status.ALLVISITED
+          && (nextCursor.locationCount == 0 || (!nextCursor.singularity
+              && pointRegionDist(location, nextCursor.minLimit, nextCursor.maxLimit) > range))) {
+        continue;
       }
 
       // Descend down the tree
@@ -475,10 +490,8 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
 
     @Override
     protected double pointRegionDist(double[] point, double[] min, double[] max) {
-      final double dx =
-          (point[0] > max[0]) ? point[0] - max[0] : (point[0] < min[0]) ? min[0] - point[0] : 0;
-      final double dy =
-          (point[1] > max[1]) ? point[1] - max[1] : (point[1] < min[1]) ? min[1] - point[1] : 0;
+      final double dx = DistanceUtils.getDistanceOutsideRange(point[0], min[0], max[0]);
+      final double dy = DistanceUtils.getDistanceOutsideRange(point[1], min[1], max[1]);
       return dx * dx + dy * dy;
     }
   }

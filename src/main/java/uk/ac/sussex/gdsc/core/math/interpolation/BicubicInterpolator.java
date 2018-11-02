@@ -36,6 +36,9 @@ package uk.ac.sussex.gdsc.core.math.interpolation;
 public class BicubicInterpolator extends CubicInterpolator {
   private final double[] arr = new double[4];
 
+  /**
+   * Instantiates a new bicubic interpolator.
+   */
   protected BicubicInterpolator() {
     super();
   }

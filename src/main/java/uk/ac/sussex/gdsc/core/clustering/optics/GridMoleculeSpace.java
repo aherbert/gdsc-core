@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
+import uk.ac.sussex.gdsc.core.data.ComputationException;
+
 /**
  * Store molecules in a 2D grid.
  */
@@ -175,7 +177,7 @@ class GridMoleculeSpace extends MoleculeSpace {
       }
     }
     if (count != setOfObjects.length) {
-      throw new RuntimeException("Grid does not contain all the objects");
+      throw new ComputationException("Grid does not contain all the objects");
     }
 
     return setOfObjects;
@@ -221,7 +223,6 @@ class GridMoleculeSpace extends MoleculeSpace {
     return 4 * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
   }
 
-  @SuppressWarnings("unused")
   /**
    * Adjust resolution.
    *
@@ -239,11 +240,15 @@ class GridMoleculeSpace extends MoleculeSpace {
     // If the grid is too large then the outer cells may contain many points that are too far from
     // the centre, missing the chance to ignore them.
 
-    final int newResolution = 2;
-
     // We can set the resolution using a simple look-up table.
+    final int newResolution = 2;
+    // ------
+    // Note:
     // A JUnit test shows there does not appear to be much benefit from higher resolution as the
     // number of distance comparisons is the limiting factor.
+    // So currently this code is commented out.
+    // ------
+
     // double nMoleculesInArea = getNMoleculesInGeneratingArea(xrange, yrange);
     // if (nMoleculesInArea < 20)
     // newResolution = 2;

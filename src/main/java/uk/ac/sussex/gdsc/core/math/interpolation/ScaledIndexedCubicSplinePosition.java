@@ -35,8 +35,8 @@ import org.apache.commons.math3.exception.OutOfRangeException;
  * pre-compute values to evaluate the spline value.
  */
 public class ScaledIndexedCubicSplinePosition extends IndexedCubicSplinePosition {
-  /** The scale used to compress the original value to the range 0-1. */
-  public final double scale;
+  /** The scale factor used to compress the original value to the range 0-1. */
+  private final double scaleFactor;
 
   /**
    * Instantiates a new indexed cubic spline position. Only used when x is known to be in the range
@@ -44,12 +44,12 @@ public class ScaledIndexedCubicSplinePosition extends IndexedCubicSplinePosition
    *
    * @param index the index
    * @param x the x
-   * @param scale the scale used to compress the original value to the range 0-1
+   * @param scaleFactor the scale factor used to compress the original value to the range 0-1
    * @param dummy the dummy flag
    */
-  ScaledIndexedCubicSplinePosition(int index, double x, double scale, boolean dummy) {
+  ScaledIndexedCubicSplinePosition(int index, double x, double scaleFactor, boolean dummy) {
     super(index, x, dummy);
-    this.scale = scale;
+    this.scaleFactor = scaleFactor;
   }
 
   /**
@@ -67,21 +67,30 @@ public class ScaledIndexedCubicSplinePosition extends IndexedCubicSplinePosition
     if (!(scale > 0)) {
       throw new IllegalArgumentException("Scale must be strictly positive");
     }
-    this.scale = scale;
+    this.scaleFactor = scale;
   }
 
   @Override
   public double scale(double x) {
-    return x * scale;
+    return x * getScaleFactor();
   }
 
   @Override
-  public double scaleGradient(double df_dx) {
-    return df_dx / scale;
+  public double scaleGradient(double derivative1) {
+    return derivative1 / getScaleFactor();
   }
 
   @Override
-  public double scaleGradient2(double d2f_dx2) {
-    return d2f_dx2 / scale / scale;
+  public double scaleGradient2(double derivative2) {
+    return derivative2 / getScaleFactor() / getScaleFactor();
+  }
+
+  /**
+   * Gets the scale factor used to compress the original value to the range 0-1.
+   *
+   * @return the scale factor
+   */
+  public double getScaleFactor() {
+    return scaleFactor;
   }
 }

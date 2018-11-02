@@ -129,7 +129,6 @@ public class CircularKernelOffset {
     for (int y = 0; y <= resolution; y++) {
       // Move the outer pixel if it is above the limit and the minimum distance is currently
       // outside.
-      // while (outerX > 0 && distance2(origX, origY, outerX, y) > e)
       double target = e - distance2(origY, y, binWidth);
       while (outerX > 0 && distance2(origX, outerX, binWidth) > target) {
         outerX--;
@@ -146,7 +145,6 @@ public class CircularKernelOffset {
       // inside.
       // This may be at the limit so check before distance calculations
       if (innerX != -1) {
-        // while (innerX > -1 && distance2(0, 0, innerX + 1, y + 1) > e)
         target = e - distance2(y + 1, binWidth);
         while (innerX > -1 && distance2(innerX + 1, binWidth) > target) {
           innerX--;

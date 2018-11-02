@@ -28,7 +28,7 @@ import java.util.Arrays;
  * @param <T> the generic type
  */
 public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T> {
-  private static final int defaultCapacity = 64;
+  private static final int DEFAULT_CAPACITY = 64;
   private Object[] data;
   private double[] keys;
   private int capacity;
@@ -38,7 +38,7 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T> {
    * Instantiates a new interval heap.
    */
   public IntervalHeap() {
-    this(defaultCapacity);
+    this(DEFAULT_CAPACITY);
   }
 
   /**
@@ -290,11 +290,10 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T> {
           }
           break;
         }
-      } else if (c + 2 < size) {
-        // If there is room for a right child upper pair
-        if (keys[c + 2] > keys[c]) {
-          c += 2;
-        }
+      } else if (c + 2 < size
+          // If there is room for a right child upper pair
+          && keys[c + 2] > keys[c]) {
+        c += 2;
       }
       if (keys[c] > keys[index]) {
         swap(index, c);

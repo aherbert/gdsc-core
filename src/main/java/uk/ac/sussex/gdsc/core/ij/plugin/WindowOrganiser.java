@@ -38,7 +38,6 @@ import ij.gui.ImageWindow;
 import ij.gui.PlotWindow;
 
 import java.awt.Dimension;
-import java.util.Arrays;
 
 /**
  * Extend the standard ImageJ window organiser plugin and make the methods public.
@@ -58,9 +57,6 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
 
   /** The list. */
   private TIntArrayList list = new TIntArrayList(10);
-
-  /** The count. */
-  private int count;
 
   /** Set to true to ignore any added window. */
   private boolean ignore;
@@ -158,7 +154,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
    * @return the size
    */
   public int size() {
-    return count;
+    return list.size();
   }
 
   /**
@@ -167,7 +163,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
    * @return true, if is empty
    */
   public boolean isEmpty() {
-    return count == 0;
+    return list.isEmpty();
   }
 
   /**
@@ -176,7 +172,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
    * @return true, if is not empty
    */
   public boolean isNotEmpty() {
-    return count != 0;
+    return !isEmpty();
   }
 
   /**
@@ -192,7 +188,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
    * Tile all the windows added to this instance.
    */
   public void tile() {
-    if (count <= 1) {
+    if (list.isEmpty()) {
       return;
     }
     tileWindows(getWindowIds(), isUnfreeze());
@@ -202,7 +198,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
    * Cascade all the windows added to this instance.
    */
   public void cascade() {
-    if (count <= 1) {
+    if (list.isEmpty()) {
       return;
     }
     cascadeWindows(getWindowIds());

@@ -426,7 +426,7 @@ public class RandIndex {
         }
         tpPlusFp += binomialCoefficient2(sum);
         if (tpPlusFp < 0) {
-          throw new RuntimeException("TP+FP overflow");
+          throw new ArithmeticException("TP+FP overflow");
         }
       }
 
@@ -437,7 +437,7 @@ public class RandIndex {
         }
         tpPlusFn += binomialCoefficient2(sum);
         if (tpPlusFn < 0) {
-          throw new RuntimeException("TP+FN overflow");
+          throw new ArithmeticException("TP+FN overflow");
         }
       }
     } else {
@@ -467,7 +467,7 @@ public class RandIndex {
         }
         tpPlusFp += binomialCoefficient2(sum);
         if (tpPlusFp < 0) {
-          throw new RuntimeException("TP+FP overflow");
+          throw new ArithmeticException("TP+FP overflow");
         }
       }
 
@@ -478,7 +478,7 @@ public class RandIndex {
         }
         tpPlusFn += binomialCoefficient2(sum);
         if (tpPlusFn < 0) {
-          throw new RuntimeException("TP+FN overflow");
+          throw new ArithmeticException("TP+FN overflow");
         }
       }
     }

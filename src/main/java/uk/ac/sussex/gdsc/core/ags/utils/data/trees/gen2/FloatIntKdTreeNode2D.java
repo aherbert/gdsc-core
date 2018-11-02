@@ -30,7 +30,7 @@ package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;
  */
 abstract class FloatIntKdTreeNode2D {
   /** The bucket size. */
-  static final int bucketSize = 24;
+  static final int BUCKET_SIZE = 24;
 
   // All types
 
@@ -73,8 +73,8 @@ abstract class FloatIntKdTreeNode2D {
    */
   FloatIntKdTreeNode2D() {
     // Init as leaf
-    this.locations = new float[bucketSize][];
-    this.data = new int[bucketSize];
+    this.locations = new float[BUCKET_SIZE][];
+    this.data = new int[BUCKET_SIZE];
     this.locationCount = 0;
     this.singularity = true;
 
@@ -91,7 +91,7 @@ abstract class FloatIntKdTreeNode2D {
    */
   FloatIntKdTreeNode2D(FloatIntKdTreeNode2D parent, int id) {
     // Init as leaf
-    this.locations = new float[Math.max(bucketSize, parent.locationCount)][];
+    this.locations = new float[Math.max(BUCKET_SIZE, parent.locationCount)][];
     this.data = new int[locations.length];
     this.locationCount = 0;
     this.singularity = true;

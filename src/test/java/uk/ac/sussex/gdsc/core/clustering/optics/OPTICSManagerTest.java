@@ -7,7 +7,7 @@ import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.match.RandIndex;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.PartialSort;
-import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerFactory;
+import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerUtils;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
@@ -920,7 +920,7 @@ public class OPTICSManagerTest {
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
     for (final int n : new int[] {100, 500}) {
       final OpticsManager om1 = createOPTICSManager(size, n, rg);
-      final OpticsManager om2 = om1.clone();
+      final OpticsManager om2 = om1.copy(false);
       om2.addOptions(options);
 
       for (final int minPts : minPoints) {
@@ -946,7 +946,7 @@ public class OPTICSManagerTest {
     for (final int n : new int[] {100, 500}) {
       final OpticsManager om1 = createOPTICSManager(size, n, rg);
       om1.addOptions(options1);
-      final OpticsManager om2 = om1.clone();
+      final OpticsManager om2 = om1.copy(false);
       om2.addOptions(options);
 
       for (final int minPts : minPoints) {
@@ -1030,7 +1030,7 @@ public class OPTICSManagerTest {
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
     for (final int n : new int[] {100, 500, 5000}) {
       final OpticsManager om1 = createOPTICSManager(size, n, rg);
-      final OpticsManager om2 = om1.clone();
+      final OpticsManager om2 = om1.copy(false);
       om2.addOptions(options);
 
       for (final int minPts : minPoints) {
@@ -1342,7 +1342,7 @@ public class OPTICSManagerTest {
 
     final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
     final OpticsManager om1 = createOPTICSManager(size, 5000, rg);
-    final OpticsManager om2 = om1.clone();
+    final OpticsManager om2 = om1.copy(false);
 
     final long t1 = System.nanoTime();
     final OpticsResult r1 = om1.optics(0, 10);
@@ -1380,7 +1380,7 @@ public class OPTICSManagerTest {
 
           // Try smaller radius for DBSCAN
           for (int i = 2; i <= 5; i++) {
-            final float d = r1.generatingDistance / i;
+            final float d = r1.getGeneratingDistance() / i;
             final DbscanResult r2 = om.dbscan(d, minPts);
 
             // Now extract core points
@@ -1403,7 +1403,7 @@ public class OPTICSManagerTest {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
     final int molecules = 10000;
     final OpticsManager om1 = createOPTICSManager(size, molecules, rg);
-    final OpticsManager om2 = om1.clone();
+    final OpticsManager om2 = om1.copy(false);
     om1.addOptions(Option.GRID_PROCESSING);
     om2.addOptions(Option.CIRCULAR_PROCESSING, Option.INNER_PROCESSING);
 
@@ -1448,7 +1448,7 @@ public class OPTICSManagerTest {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
     final int molecules = 10000;
     final OpticsManager om1 = createOPTICSManager(size, molecules, rg);
-    final OpticsManager om2 = om1.clone();
+    final OpticsManager om2 = om1.copy(false);
     om1.addOptions(Option.GRID_PROCESSING);
     om2.addOptions(Option.CIRCULAR_PROCESSING);
 
@@ -2337,8 +2337,8 @@ public class OPTICSManagerTest {
       int m = clusterMin + r.nextInt(range);
       final double x = r.nextDouble() * size;
       final double y = r.nextDouble() * size;
-      final GaussianSampler gx = GaussianSamplerFactory.createGaussianSampler(r, x, radius);
-      final GaussianSampler gy = GaussianSamplerFactory.createGaussianSampler(r, y, radius);
+      final GaussianSampler gx = GaussianSamplerUtils.createGaussianSampler(r, x, radius);
+      final GaussianSampler gy = GaussianSamplerUtils.createGaussianSampler(r, y, radius);
 
       while (m > 0 && i < n) {
         // Ensure within the image

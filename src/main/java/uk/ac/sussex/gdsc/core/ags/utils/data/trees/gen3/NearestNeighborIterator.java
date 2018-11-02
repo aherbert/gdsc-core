@@ -26,13 +26,14 @@ import uk.ac.sussex.gdsc.core.ags.utils.data.MinHeap;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * The Class NearestNeighborIterator.
  *
  * @param <T> the generic type
  */
-public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T> {
+public class NearestNeighborIterator<T> implements Iterator<T> {
   /** The distance function. */
   private final DistanceFunction distanceFunction;
 
@@ -79,7 +80,7 @@ public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T> {
   @Override
   public T next() {
     if (!hasNext()) {
-      throw new IllegalStateException("NearestNeighborIterator has reached end!");
+      throw new NoSuchElementException("NearestNeighborIterator has reached end!");
     }
 
     while (pendingPaths.size() > 0 && (evaluatedPoints.size() == 0
@@ -108,10 +109,5 @@ public class NearestNeighborIterator<T> implements Iterator<T>, Iterable<T> {
   @Override
   public void remove() {
     throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Iterator<T> iterator() {
-    return this;
   }
 }

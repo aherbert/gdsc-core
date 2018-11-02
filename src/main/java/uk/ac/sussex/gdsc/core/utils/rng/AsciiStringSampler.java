@@ -111,7 +111,7 @@ public class AsciiStringSampler {
    * @param rng Generator of uniformly distributed random numbers.
    * @throws NullPointerException If {@code rng} is null.
    */
-  public AsciiStringSampler(UniformRandomProvider rng) throws NullPointerException {
+  public AsciiStringSampler(UniformRandomProvider rng) {
     this.rng = Objects.requireNonNull(rng, "Random generator must not be null");
   }
 

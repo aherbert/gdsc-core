@@ -63,24 +63,24 @@ public class MathContextRounder implements Rounder {
 
   @Override
   public double round(double value) {
-    if (Math.abs(value) <= Double.MAX_VALUE) {
-      return new BigDecimal(value).round(mathContext).doubleValue();
+    if (Double.isFinite(value)) {
+      return BigDecimal.valueOf(value).round(mathContext).doubleValue();
     }
     return value; // NaN or infinite
   }
 
   @Override
   public float round(float value) {
-    if (Math.abs(value) <= Float.MAX_VALUE) {
-      return new BigDecimal(value).round(mathContext).floatValue();
+    if (Float.isFinite(value)) {
+      return BigDecimal.valueOf(value).round(mathContext).floatValue();
     }
     return value; // NaN or infinite
   }
 
   @Override
   public String toString(double value) {
-    if (Math.abs(value) <= Double.MAX_VALUE) {
-      return new BigDecimal(value).round(mathContext).toString();
+    if (Double.isFinite(value)) {
+      return BigDecimal.valueOf(value).round(mathContext).toString();
     }
     if (value == Double.POSITIVE_INFINITY) {
       return "Infinity";
@@ -93,8 +93,8 @@ public class MathContextRounder implements Rounder {
 
   @Override
   public String toString(float value) {
-    if (Math.abs(value) <= Float.MAX_VALUE) {
-      return new BigDecimal(value).round(mathContext).toString();
+    if (Float.isFinite(value)) {
+      return BigDecimal.valueOf(value).round(mathContext).toString();
     }
     if (value == Float.POSITIVE_INFINITY) {
       return "Infinity";

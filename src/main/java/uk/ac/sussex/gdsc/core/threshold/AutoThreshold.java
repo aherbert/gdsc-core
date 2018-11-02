@@ -270,11 +270,11 @@ public class AutoThreshold {
     }
 
     // precalculate the summands of the entropy given the absolute difference x - mu (integral)
-    final double C = last - first;
-    final double[] Smu = new double[last + 1 - first];
-    for (int i = 1; i < Smu.length; i++) {
+    final double C = (double) last - first;
+    final double[] sumMu = new double[last + 1 - first];
+    for (int i = 1; i < sumMu.length; i++) {
       final double mu = 1 / (1 + Math.abs(i) / C);
-      Smu[i] = -mu * Math.log(mu) - (1 - mu) * Math.log(1 - mu);
+      sumMu[i] = -mu * Math.log(mu) - (1 - mu) * Math.log(1 - mu);
     }
 
     // calculate the threshold
@@ -284,12 +284,12 @@ public class AutoThreshold {
       double entropy = 0;
       int mu = (int) Math.round(weightedCumulDensity[threshold] / cumulDensity[threshold]);
       for (int i = first; i <= threshold; i++) {
-        entropy += Smu[Math.abs(i - mu)] * data[i];
+        entropy += sumMu[Math.abs(i - mu)] * data[i];
       }
       mu = (int) Math.round((weightedCumulDensity[last] - weightedCumulDensity[threshold])
           / (cumulDensity[last] - cumulDensity[threshold]));
       for (int i = threshold + 1; i <= last; i++) {
-        entropy += Smu[Math.abs(i - mu)] * data[i];
+        entropy += sumMu[Math.abs(i - mu)] * data[i];
       }
 
       if (bestEntropy > entropy) {
@@ -505,9 +505,8 @@ public class AutoThreshold {
       /* Calculate the new threshold: Equation (7) in Ref. 2 */
       // new_thresh = simple_round ( ( mean_back - mean_obj ) / ( Math.log ( mean_back ) - Math.log
       // ( mean_obj ) ) )
-      // simple_round ( double x ) {
+      // simple_round ( double x )
       // return ( int ) ( IS_NEG ( x ) ? x - .5 : x + .5 )
-      // }
       //
       // #define IS_NEG( x ) ( ( x ) < -DBL_EPSILON )
       // DBL_EPSILON = 2.220446049250313E-16

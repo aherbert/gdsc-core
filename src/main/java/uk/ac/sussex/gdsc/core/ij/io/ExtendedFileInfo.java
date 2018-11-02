@@ -38,10 +38,52 @@ public class ExtendedFileInfo extends FileInfo {
    * Contains summary meta data (i.e. for non ImageJ applications such as MicroManager). This is
    * expected to be used only for the first IFD in a TIFF file.
    */
-  public String summaryMetaData;
+  private String summaryMetaData;
   /**
    * Contains extended meta data for the image (i.e. for non ImageJ applications such as
    * MicroManager)
    */
-  public String extendedMetaData;
+  private String extendedMetaData;
+
+  /**
+   * Gets the summary meta data.
+   *
+   * <p>Contains summary meta data (i.e. for non ImageJ applications such as MicroManager). This is
+   * expected to be used only for the first IFD in a TIFF file.
+   *
+   * @return the summary meta data
+   */
+  public String getSummaryMetaData() {
+    return summaryMetaData;
+  }
+
+  /**
+   * Sets the summary meta data.
+   *
+   * @param summaryMetaData the new summary meta data
+   */
+  public void setSummaryMetaData(String summaryMetaData) {
+    this.summaryMetaData = summaryMetaData;
+  }
+
+  /**
+   * Gets the extended meta data.
+   *
+   * <p>Contains extended meta data for the image (i.e. for non ImageJ applications such as
+   * MicroManager).
+   *
+   * @return the extended meta data
+   */
+  public String getExtendedMetaData() {
+    return extendedMetaData;
+  }
+
+  /**
+   * Sets the extended meta data.
+   *
+   * @param extendedMetaData the new extended meta data
+   */
+  public void setExtendedMetaData(String extendedMetaData) {
+    this.extendedMetaData = extendedMetaData;
+  }
 }
