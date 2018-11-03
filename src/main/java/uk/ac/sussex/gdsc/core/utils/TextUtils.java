@@ -28,8 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import java.time.Clock;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -199,7 +197,9 @@ public final class TextUtils {
    *
    * @param time the time
    * @return The string
+   * @deprecated Time should be measured using a long so use {@link #timeToString(long)}
    */
+  @Deprecated
   public static String timeToString(double time) {
     String units = " ms";
     if (time > 1000) {
@@ -217,12 +217,80 @@ public final class TextUtils {
   }
 
   /**
-   * Convert time in milliseconds into a nice string.
+   * Convert time in milliseconds into a nice string. Uses the format:
    *
-   * @param time the time
+   * <pre>
+   * 0-999ms
+   * 0.000s
+   * 0m00.000s
+   * 0h00m0.000s
+   * </pre>
+   * 
+   * Note: The full information to the millisecond is always preserved.
+   *
+   * @param duration the duration in milliseconds
    * @return The string
+   * @throws IllegalArgumentException If the milliseconds is not positive
    */
-  public static String timeToString(long time) {
-    return timeToString((double) time);
+  public static String timeToString(long duration) {
+    // TODO change this to millisToString
+    checkPositive(duration);
+    if (duration < 1000) {
+      return duration + "ms";
+    }
+    // No rounding as the modulus preserves the remainder
+    long seconds = duration / 1000;
+    final long milliseconds = duration % 1000;
+    if (seconds < 60) {
+      return String.format("%d.%03ds", seconds, milliseconds);
+    }
+    long minutes = seconds / 60;
+    seconds = seconds % 60;
+    if (minutes < 60) {
+      return String.format("%dm%02d.%03ds", minutes, seconds, milliseconds);
+    }
+    final long hours = minutes / 60;
+    minutes = minutes % 60;
+    return String.format("%dh%02dm%02d.%03ds", hours, minutes, seconds, milliseconds);
+  }
+
+  /**
+   * Convert time in nanoseconds into a nice string. Uses the format:
+   *
+   * <pre>
+   * 0-999ns
+   * 0-999µs
+   * 0-999ms
+   * 0.000s
+   * 0m00.000s
+   * 0h00m0.000s
+   * </pre>
+   * 
+   * Durations are rounded to 3 significant figures when converting to the next significant time unit, 
+   * e.g. 9999ns becomes 10µs, 999999ns becomes 1s.
+   *
+   * @param nanoseconds the duration in nanoseconds
+   * @return the string
+   * @throws IllegalArgumentException If the nanoseconds is not positive
+   */
+  public static String nanosToString(long nanoseconds) {
+    checkPositive(nanoseconds);
+    if (nanoseconds < 1000) {
+      return nanoseconds + "ns";
+    }
+    // Implement rounding
+    final long microseconds = (nanoseconds + 500) / 1000;
+    if (microseconds < 1000) {
+      return microseconds + "µs";
+    }
+    // Implement rounding
+    final long milliseconds = (nanoseconds + 500000) / 1000000;
+    return timeToString(milliseconds);
+  }
+
+  private static void checkPositive(long duration) {
+    if (duration < 0) {
+      throw new IllegalArgumentException("Duration must be positive: " + duration);
+    }
   }
 }
