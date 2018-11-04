@@ -28,12 +28,15 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * Text utilities.
  */
 public final class TextUtils {
+
+  // Constants for time conversion
+  private static final long THOUSAND = 1000;
+  private static final long MILLION = 1000000;
+  private static final long SIXTY = 60;
 
   /** No public constructor. */
   private TextUtils() {}
@@ -228,30 +231,30 @@ public final class TextUtils {
    * 
    * Note: The full information to the millisecond is always preserved.
    *
-   * @param duration the duration in milliseconds
+   * @param milliseconds the duration in milliseconds
    * @return The string
    * @throws IllegalArgumentException If the milliseconds is not positive
    */
-  public static String timeToString(long duration) {
+  public static String timeToString(long milliseconds) {
     // TODO change this to millisToString
-    checkPositive(duration);
-    if (duration < 1000) {
-      return duration + "ms";
+    checkPositive(milliseconds);
+    if (milliseconds < THOUSAND) {
+      return milliseconds + "ms";
     }
     // No rounding as the modulus preserves the remainder
-    long seconds = duration / 1000;
-    final long milliseconds = duration % 1000;
-    if (seconds < 60) {
-      return String.format("%d.%03ds", seconds, milliseconds);
+    long seconds = milliseconds / THOUSAND;
+    final long millis = milliseconds % THOUSAND;
+    if (seconds < SIXTY) {
+      return String.format("%d.%03ds", seconds, millis);
     }
-    long minutes = seconds / 60;
-    seconds = seconds % 60;
-    if (minutes < 60) {
-      return String.format("%dm%02d.%03ds", minutes, seconds, milliseconds);
+    long minutes = seconds / SIXTY;
+    seconds = seconds % SIXTY;
+    if (minutes < SIXTY) {
+      return String.format("%dm%02d.%03ds", minutes, seconds, millis);
     }
-    final long hours = minutes / 60;
-    minutes = minutes % 60;
-    return String.format("%dh%02dm%02d.%03ds", hours, minutes, seconds, milliseconds);
+    final long hours = minutes / SIXTY;
+    minutes = minutes % SIXTY;
+    return String.format("%dh%02dm%02d.%03ds", hours, minutes, seconds, millis);
   }
 
   /**
@@ -266,8 +269,8 @@ public final class TextUtils {
    * 0h00m0.000s
    * </pre>
    * 
-   * Durations are rounded to 3 significant figures when converting to the next significant time unit, 
-   * e.g. 9999ns becomes 10µs, 999999ns becomes 1s.
+   * Durations are rounded to 3 significant figures when converting the time unit, e.g. 9999ns
+   * becomes 10µs, 999999ns becomes 1.000s.
    *
    * @param nanoseconds the duration in nanoseconds
    * @return the string
@@ -275,22 +278,43 @@ public final class TextUtils {
    */
   public static String nanosToString(long nanoseconds) {
     checkPositive(nanoseconds);
-    if (nanoseconds < 1000) {
+    if (nanoseconds < THOUSAND) {
       return nanoseconds + "ns";
     }
-    // Implement rounding
-    final long microseconds = (nanoseconds + 500) / 1000;
-    if (microseconds < 1000) {
+    // Rounding to microseconds - overflow safe
+    final long microseconds = divideAndRound(nanoseconds, THOUSAND);
+    if (microseconds < THOUSAND) {
       return microseconds + "µs";
     }
-    // Implement rounding
-    final long milliseconds = (nanoseconds + 500000) / 1000000;
+    // Rounding to milliseconds - overflow safe
+    final long milliseconds = divideAndRound(nanoseconds, MILLION);
     return timeToString(milliseconds);
   }
 
+  /**
+   * Check the duration is positive.
+   *
+   * @param duration the duration
+   * @throws IllegalArgumentException If the duration is not positive
+   */
   private static void checkPositive(long duration) {
     if (duration < 0) {
       throw new IllegalArgumentException("Duration must be positive: " + duration);
     }
+  }
+
+  /**
+   * Divide the value by the divisor and round up/down to the nearest integer.
+   *
+   * @param value the value
+   * @param divisor the divisor
+   * @return the result
+   */
+  private static long divideAndRound(long value, long divisor) {
+    long floor = value / divisor;
+    long remainder = value % divisor;
+    // This has the effect of rounding up the floor to the next integer if
+    // the remainder is >= half of the divisor.
+    return floor + (remainder + divisor / 2) / divisor;
   }
 }
