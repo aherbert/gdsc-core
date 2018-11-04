@@ -28,6 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
+
 /**
  * Text utilities.
  */
@@ -225,11 +229,14 @@ public final class TextUtils {
    * <pre>
    * 0-999ms
    * 0.000s
-   * 0m00.000s
-   * 0h00m0.000s
+   * 0m00.0s
+   * 0h00m0.0s
    * </pre>
    *
-   * Note: The full information to the millisecond is always preserved.
+   * <p>Durations in seconds are rounded to 4 significant figures and trailing zeros are omitted
+   * unless required to signify rounding has occurred.
+   * 
+   * <p>When minutes or hours are present the seconds are rounded to 1 decimal place.
    *
    * @param milliseconds the duration in milliseconds
    * @return The string
@@ -262,15 +269,17 @@ public final class TextUtils {
    *
    * <pre>
    * 0-999ns
-   * 0-999µs
-   * 0-999ms
+   * 0.000µs
+   * 0.000ms
    * 0.000s
-   * 0m00.000s
-   * 0h00m0.000s
+   * 0m00.0s
+   * 0h00m0.0s
    * </pre>
    *
-   * Durations are rounded to 3 significant figures when converting the time unit, e.g. 9999ns
-   * becomes 10µs, 999999ns becomes 1.000s.
+   * <p>Durations in microseconds, milliseconds and seconds are rounded to 4 significant figures and
+   * trailing zeros are omitted unless required to signify rounding has occurred.
+   * 
+   * <p>When minutes or hours are present the seconds are rounded to 1 decimal place.
    *
    * @param nanoseconds the duration in nanoseconds
    * @return the string
@@ -281,10 +290,26 @@ public final class TextUtils {
     if (nanoseconds < THOUSAND) {
       return nanoseconds + "ns";
     }
-    final long microseconds = divideAndRound(nanoseconds, THOUSAND);
-    if (microseconds < THOUSAND) {
-      return microseconds + "µs";
+    // Round to microseconds
+    BigDecimal bd = divideAndRound2(nanoseconds, THOUSAND);
+    if (bd.compareTo(BigDecimal.valueOf(THOUSAND)) < 0) {
+      return bd.toString() + "µs";
     }
+    // Round to milliseconds
+    bd = divideAndRound2(nanoseconds, MILLION);
+    if (bd.compareTo(BigDecimal.valueOf(THOUSAND)) < 0) {
+      return bd.toString() + "ms";
+    }
+    // Round to seconds
+    bd = divideAndRound2(nanoseconds, MILLION);
+    if (bd.compareTo(BigDecimal.valueOf(THOUSAND)) < 0) {
+      return bd.toString() + "ms";
+    }
+    // TODO: Fix this for seconds
+
+    // Once in minutes then seconds should be to 1 decimal place
+
+
     return timeToString(divideAndRound(nanoseconds, MILLION));
   }
 
@@ -314,5 +339,9 @@ public final class TextUtils {
     // This has the effect of rounding up the floor to the next integer if
     // the remainder is >= half of the divisor.
     return floor + (remainder + divisor / 2) / divisor;
+  }
+
+  private static BigDecimal divideAndRound2(long value, long divisor) {
+    return BigDecimal.valueOf(value).divide(BigDecimal.valueOf(divisor), new MathContext(4));
   }
 }
