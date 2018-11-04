@@ -228,7 +228,7 @@ public final class TextUtils {
    * 0m00.000s
    * 0h00m0.000s
    * </pre>
-   * 
+   *
    * Note: The full information to the millisecond is always preserved.
    *
    * @param milliseconds the duration in milliseconds
@@ -268,7 +268,7 @@ public final class TextUtils {
    * 0m00.000s
    * 0h00m0.000s
    * </pre>
-   * 
+   *
    * Durations are rounded to 3 significant figures when converting the time unit, e.g. 9999ns
    * becomes 10µs, 999999ns becomes 1.000s.
    *
@@ -281,14 +281,11 @@ public final class TextUtils {
     if (nanoseconds < THOUSAND) {
       return nanoseconds + "ns";
     }
-    // Rounding to microseconds - overflow safe
     final long microseconds = divideAndRound(nanoseconds, THOUSAND);
     if (microseconds < THOUSAND) {
       return microseconds + "µs";
     }
-    // Rounding to milliseconds - overflow safe
-    final long milliseconds = divideAndRound(nanoseconds, MILLION);
-    return timeToString(milliseconds);
+    return timeToString(divideAndRound(nanoseconds, MILLION));
   }
 
   /**
@@ -304,15 +301,16 @@ public final class TextUtils {
   }
 
   /**
-   * Divide the value by the divisor and round up/down to the nearest integer.
+   * Divide the value by the divisor and round up/down to the nearest integer. This is overflow
+   * safe, e.g. value can be {@link Long#MAX_VALUE}.
    *
-   * @param value the value
-   * @param divisor the divisor
+   * @param value the value (must be above 0)
+   * @param divisor the divisor (must be above 0)
    * @return the result
    */
   private static long divideAndRound(long value, long divisor) {
-    long floor = value / divisor;
-    long remainder = value % divisor;
+    final long floor = value / divisor;
+    final long remainder = value % divisor;
     // This has the effect of rounding up the floor to the next integer if
     // the remainder is >= half of the divisor.
     return floor + (remainder + divisor / 2) / divisor;
