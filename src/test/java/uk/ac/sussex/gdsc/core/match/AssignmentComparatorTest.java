@@ -38,13 +38,7 @@ public class AssignmentComparatorTest {
 
     @Override
     public int compareTo(IntegerSortData o) {
-      if (data < o.data) {
-        return -1;
-      }
-      if (data > o.data) {
-        return 1;
-      }
-      return 0;
+      return Integer.compare(data,  o.data);
     }
   }
 
