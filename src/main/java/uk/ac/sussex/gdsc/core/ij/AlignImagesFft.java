@@ -650,13 +650,8 @@ public class AlignImagesFft {
     if (refIp == null || targetImp == null) {
       return false;
     }
-
-    // Check images have values. No correlation is possible with
-    if (noValue(refIp)) {
-      return false;
-    }
-
-    return true;
+    // Check images have values. No correlation is possible without.
+    return !noValue(refIp);
   }
 
   /**

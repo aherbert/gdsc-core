@@ -1146,7 +1146,7 @@ public class ClusteringEngine {
     // from the next loop.
     final int N = candidates.size();
     final ArrayList<Cluster> joined = new ArrayList<>();
-    while (findLinksAndCountNeighbours(grid, nxbins, nybins, r2, singles)) {
+    while (findLinksAndCountNeighbours(grid, nxbins, nybins, r2)) {
       if (tracker.isEnded()) {
         return null;
       }
@@ -1218,11 +1218,10 @@ public class ClusteringEngine {
    * @param nxbins the n X bins
    * @param nybins the n Y bins
    * @param r2 The squared radius distance
-   * @param singles Add remaining clusters that have no neighbours
    * @return True if any links were made
    */
   private boolean findLinksAndCountNeighbours(Cluster[][] grid, final int nxbins, final int nybins,
-      final double r2, ArrayList<Cluster> singles) {
+      final double r2) {
     if (threadPool == null) {
       return findLinksAndCountNeighbours(grid, nxbins, nybins, r2, 0, nxbins, 0, nybins);
     }
@@ -1814,7 +1813,7 @@ public class ClusteringEngine {
     final TimeCluster[][] newGrid = convertGrid(grid, nxbins, nybins);
     initialiseMultithreading(nxbins, nybins);
     while (joinClosestTimePriority(newGrid, nxbins, nybins, r2, time, minx, miny, xbinWidth,
-        ybinWidth, singles, single)) {
+        ybinWidth, single)) {
       if (tracker.isEnded()) {
         return null;
       }
@@ -1861,13 +1860,12 @@ public class ClusteringEngine {
    * @param miny the miny
    * @param xbinWidth the x bin width
    * @param ybinWidth the y bin width
-   * @param singles Add remaining clusters that have no neighbours
    * @param single True if only singles can be joined to another cluster
    * @return True if a join was made
    */
   private boolean joinClosestTimePriority(TimeCluster[][] grid, final int nxbins, final int nybins,
       final double r2, final int time, double minx, double miny, double xbinWidth, double ybinWidth,
-      ArrayList<Cluster> singles, boolean single) {
+      boolean single) {
     ClosestPair closest = null;
 
     if (threadPool == null) {
@@ -2184,7 +2182,7 @@ public class ClusteringEngine {
     final TimeCluster[][] newGrid = convertGrid(grid, nxbins, nybins);
     initialiseMultithreading(nxbins, nybins);
     while (joinClosestDistancePriority(newGrid, nxbins, nybins, r2, time, minx, miny, xbinWidth,
-        ybinWidth, singles, single)) {
+        ybinWidth, single)) {
       if (tracker.isEnded()) {
         return null;
       }
@@ -2213,13 +2211,12 @@ public class ClusteringEngine {
    * @param miny the miny
    * @param xbinWidth the x bin width
    * @param ybinWidth the y bin width
-   * @param singles Add remaining clusters that have no neighbours
    * @param single True if only singles can be joined to another cluster
    * @return True if a join was made
    */
   private boolean joinClosestDistancePriority(TimeCluster[][] grid, final int nxbins,
       final int nybins, final double r2, int time, double minx, double miny, double xbinWidth,
-      double ybinWidth, ArrayList<Cluster> singles, boolean single) {
+      double ybinWidth, boolean single) {
     ClosestPair closest = null;
 
     if (threadPool == null) {

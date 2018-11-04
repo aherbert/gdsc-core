@@ -552,7 +552,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * @throws IllegalStateException If closed and {@link #isThrowIfClosed()} is true
    * @throws NullPointerException If the specified element is null
    */
-  public boolean putAndConfirm(E e) throws InterruptedException, IllegalStateException {
+  public boolean putAndConfirm(E e) throws InterruptedException {
     // Don't lock if closed
     if (closed) {
       if (throwIfClosed) {
@@ -620,7 +620,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * @throws IllegalStateException If closed while waiting and {@link #isThrowIfClosed()} is true
    */
   @Override
-  public E take() throws InterruptedException, IllegalStateException {
+  public E take() throws InterruptedException {
     // Avoid synchronisation if this is closed and empty (since nothing can be added)
     if (closedAndEmpty) {
       if (throwIfClosed) {
