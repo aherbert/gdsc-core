@@ -28,32 +28,57 @@
 
 package uk.ac.sussex.gdsc.core.logging;
 
+import java.io.PrintStream;
+import java.util.Objects;
+
 /**
- * Logs messages to the Java console.
+ * Logs messages to an output {@link PrintStream}, defaulting to {@link System#out}.
  */
 public class ConsoleLogger implements Logger {
+  /** The new line format string. */
+  private static final String NEW_LINE = "%n";
+
+  /** The output destination. */
+  private final PrintStream out;
+
   /**
-   * Log the message to the Java console. Appends a new line to the message.
+   * Instantiates a new console logger using {@link System#out}.
+   */
+  public ConsoleLogger() {
+    this(System.out);
+  }
+
+  /**
+   * Instantiates a new console logger.
+   *
+   * @param out the output destination
+   */
+  public ConsoleLogger(PrintStream out) {
+    this.out = Objects.requireNonNull(out, "Output must not be null");
+  }
+
+  /**
+   * Log the message to the output. Appends a new line to the message.
    *
    * @param message the message
    */
   @Override
   public void info(String message) {
-    System.out.println(message);
+    out.println(message);
   }
 
   /**
-   * Log the arguments using the given format to the Java console. Appends a new line to the console
-   * if the format is missing the \n character.
+   * Log the arguments using the given format to the output. Appends a new line to the output if the
+   * format is missing the newline format string "%n".
    *
    * @param format the format
    * @param args the args
    */
   @Override
   public void info(String format, Object... args) {
-    System.out.printf(format, args);
-    if (!format.endsWith("\n")) {
-      System.out.println();
+    out.printf(format, args);
+    if (!format.endsWith(NEW_LINE)) {
+      out.println();
     }
   }
 

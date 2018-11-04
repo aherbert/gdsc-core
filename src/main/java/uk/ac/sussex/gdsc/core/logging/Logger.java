@@ -30,7 +30,10 @@ package uk.ac.sussex.gdsc.core.logging;
 
 /**
  * Defines a simple interface for logging information.
+ * 
+ * @deprecated Use java.util.logging.Logger
  */
+@Deprecated
 public interface Logger {
   /**
    * Log the message.
