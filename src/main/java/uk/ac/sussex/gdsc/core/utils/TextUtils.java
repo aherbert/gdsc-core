@@ -29,7 +29,6 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.MathContext;
 
 /**
@@ -38,9 +37,16 @@ import java.math.MathContext;
 public final class TextUtils {
 
   // Constants for time conversion
-  private static final long THOUSAND = 1000;
-  private static final long MILLION = 1000000;
+  private static final MathContext ROUND_TO_3_SF = new MathContext(3);
+  private static final long TEN = 10;
   private static final long SIXTY = 60;
+  private static final long HUNDRED = 100;
+  private static final long THOUSAND = 1000;
+  private static final long HUNDRED_MILLION = HUNDRED * THOUSAND * THOUSAND;
+  private static final BigDecimal BD_SIXTY = BigDecimal.valueOf(SIXTY);
+  private static final BigDecimal BD_THOUSAND = BigDecimal.valueOf(THOUSAND);
+  private static final BigDecimal BD_MILLION = BigDecimal.valueOf(THOUSAND * THOUSAND);
+  private static final BigDecimal BD_BILLION = BigDecimal.valueOf(THOUSAND * THOUSAND * THOUSAND);
 
   /** No public constructor. */
   private TextUtils() {}
@@ -227,16 +233,17 @@ public final class TextUtils {
    * Convert time in milliseconds into a nice string. Uses the format:
    *
    * <pre>
-   * 0-999ms
-   * 0.000s
-   * 0m00.0s
-   * 0h00m0.0s
+   *       0-999ms
+   *       0.00s
+   *    0m00.0s
+   * 0h00m00.0s
    * </pre>
    *
-   * <p>Durations in seconds are rounded to 4 significant figures and trailing zeros are omitted
-   * unless required to signify rounding has occurred.
-   * 
+   * <p>Durations in seconds are rounded to 3 significant figures.
+   *
    * <p>When minutes or hours are present the seconds are rounded to 1 decimal place.
+   * 
+   * <p>Trailing zeros are omitted unless required to signify rounding has occurred.
    *
    * @param milliseconds the duration in milliseconds
    * @return The string
@@ -246,40 +253,40 @@ public final class TextUtils {
     // TODO change this to millisToString
     checkPositive(milliseconds);
     if (milliseconds < THOUSAND) {
+      // No rounding
       return milliseconds + "ms";
     }
-    // No rounding as the modulus preserves the remainder
-    long seconds = milliseconds / THOUSAND;
-    final long millis = milliseconds % THOUSAND;
-    if (seconds < SIXTY) {
-      return String.format("%d.%03ds", seconds, millis);
+    // Rounding uses BigDecimal to achieve 3 s.f.
+    final BigDecimal millis = BigDecimal.valueOf(milliseconds);
+    // Round to seconds
+    final BigDecimal seconds = millis.divide(BD_THOUSAND, ROUND_TO_3_SF);
+    if (seconds.compareTo(BD_SIXTY) < 0) {
+      return seconds.toString() + "s";
     }
-    long minutes = seconds / SIXTY;
-    seconds = seconds % SIXTY;
-    if (minutes < SIXTY) {
-      return String.format("%dm%02d.%03ds", minutes, seconds, millis);
-    }
-    final long hours = minutes / SIXTY;
-    minutes = minutes % SIXTY;
-    return String.format("%dh%02dm%02d.%03ds", hours, minutes, seconds, millis);
+    // Once in minutes then seconds should be to 1 decimal place.
+    // Convert to deciseconds with rounding and output.
+    final long deciseconds = divideAndRound(milliseconds, HUNDRED);
+    final boolean wasRounded = milliseconds % HUNDRED != 0;
+    return decisToString(deciseconds, wasRounded);
   }
 
   /**
    * Convert time in nanoseconds into a nice string. Uses the format:
    *
    * <pre>
-   * 0-999ns
-   * 0.000µs
-   * 0.000ms
-   * 0.000s
-   * 0m00.0s
-   * 0h00m0.0s
+   *       0-999ns
+   *       0.00µs
+   *       0.00ms
+   *       0.00s
+   *    0m00.0s
+   * 0h00m00.0s
    * </pre>
    *
-   * <p>Durations in microseconds, milliseconds and seconds are rounded to 4 significant figures and
-   * trailing zeros are omitted unless required to signify rounding has occurred.
-   * 
+   * <p>Durations in microseconds, milliseconds and seconds are rounded to 3 significant figures.
+   *
    * <p>When minutes or hours are present the seconds are rounded to 1 decimal place.
+   * 
+   * <p>Trailing zeros are omitted unless required to signify rounding has occurred.
    *
    * @param nanoseconds the duration in nanoseconds
    * @return the string
@@ -288,29 +295,67 @@ public final class TextUtils {
   public static String nanosToString(long nanoseconds) {
     checkPositive(nanoseconds);
     if (nanoseconds < THOUSAND) {
+      // No rounding
       return nanoseconds + "ns";
     }
+    // Rounding uses BigDecimal to achieve 3 s.f.
+    final BigDecimal nanos = BigDecimal.valueOf(nanoseconds);
     // Round to microseconds
-    BigDecimal bd = divideAndRound2(nanoseconds, THOUSAND);
-    if (bd.compareTo(BigDecimal.valueOf(THOUSAND)) < 0) {
-      return bd.toString() + "µs";
+    final BigDecimal micros = nanos.divide(BD_THOUSAND, ROUND_TO_3_SF);
+    if (micros.compareTo(BD_THOUSAND) < 0) {
+      return micros.toString() + "µs";
     }
     // Round to milliseconds
-    bd = divideAndRound2(nanoseconds, MILLION);
-    if (bd.compareTo(BigDecimal.valueOf(THOUSAND)) < 0) {
-      return bd.toString() + "ms";
+    final BigDecimal millis = nanos.divide(BD_MILLION, ROUND_TO_3_SF);
+    if (millis.compareTo(BD_THOUSAND) < 0) {
+      return millis.toString() + "ms";
     }
     // Round to seconds
-    bd = divideAndRound2(nanoseconds, MILLION);
-    if (bd.compareTo(BigDecimal.valueOf(THOUSAND)) < 0) {
-      return bd.toString() + "ms";
+    final BigDecimal seconds = nanos.divide(BD_BILLION, ROUND_TO_3_SF);
+    if (seconds.compareTo(BD_SIXTY) < 0) {
+      return seconds.toString() + "s";
     }
-    // TODO: Fix this for seconds
+    // Once in minutes then seconds should be to 1 decimal place.
+    // Convert to deciseconds with rounding and output.
+    final long deciseconds = divideAndRound(nanoseconds, HUNDRED_MILLION);
+    final boolean wasRounded = nanoseconds % HUNDRED_MILLION != 0;
+    return decisToString(deciseconds, wasRounded);
+  }
 
-    // Once in minutes then seconds should be to 1 decimal place
-
-
-    return timeToString(divideAndRound(nanoseconds, MILLION));
+  /**
+   * Convert time in deciseconds into a nice string. Uses the format:
+   *
+   * <pre>
+   *       0.0s
+   *    0m00.0s
+   * 0h00m00.0s
+   * </pre>
+   *
+   * <p>No rounding is required.
+   *
+   * <p>Ommits the trailing .0s unless the {@code wasRounded} flag is set to true.
+   *
+   * @param deciseconds the duration in deciseconds
+   * @param wasRounded true if the deciseconds have been rounded
+   * @return the string
+   * @throws IllegalArgumentException If the deciseconds is not positive
+   */
+  public static String decisToString(long deciseconds, boolean wasRounded) {
+    checkPositive(deciseconds);
+    // No rounding as the modulus preserves the remainder
+    long seconds = deciseconds / TEN;
+    final long tenths = deciseconds % TEN;
+    if (seconds < SIXTY) {
+      return String.format("%d%s", seconds, getTenths(tenths, wasRounded));
+    }
+    long minutes = seconds / SIXTY;
+    seconds = seconds % SIXTY;
+    if (minutes < SIXTY) {
+      return String.format("%dm%02d%s", minutes, seconds, getTenths(tenths, wasRounded));
+    }
+    final long hours = minutes / SIXTY;
+    minutes = minutes % SIXTY;
+    return String.format("%dh%02dm%02d%s", hours, minutes, seconds, getTenths(tenths, wasRounded));
   }
 
   /**
@@ -341,7 +386,7 @@ public final class TextUtils {
     return floor + (remainder + divisor / 2) / divisor;
   }
 
-  private static BigDecimal divideAndRound2(long value, long divisor) {
-    return BigDecimal.valueOf(value).divide(BigDecimal.valueOf(divisor), new MathContext(4));
+  private static String getTenths(long tenths, boolean wasRounded) {
+    return (wasRounded || tenths != 0) ? "." + tenths + "s" : "s";
   }
 }
