@@ -44,7 +44,7 @@ public final class ImageJLoggingUtils {
 
   /**
    * Remove all instances of {@link ConsoleHandler} and replace with {@link ImageJLogHandler}.
-   * 
+   *
    * <p>This is a helper method to allow code to send logging output to the ImageJ log window. It
    * can be called by plugins to ensure the packages that are used will send output to the ImageJ
    * log.
@@ -58,7 +58,7 @@ public final class ImageJLoggingUtils {
   /**
    * Remove all instances of {@link ConsoleHandler} or {@link ImageJLogHandler} and replace with the
    * provided {@link ImageJLogHandler}.
-   * 
+   *
    * <p>This is a helper method to allow code to send logging output to the ImageJ log window. It
    * can be called by plugins to ensure the packages that are used will send output to the ImageJ
    * log.

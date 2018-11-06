@@ -41,12 +41,48 @@ public class ImageJTrackProgress implements TrackProgress {
    */
   private double done = 0;
 
+  /** The slow mode flag. */
+  private final boolean slowMode;
+
+  /** The progress flag. */
+  private boolean progress = true;
+
+  /** The log flag. */
+  private boolean log = true;
+
+  /** The status flag. */
+  private boolean status = true;
+
+  /**
+   * Instantiates a new image J track progress.
+   */
+  public ImageJTrackProgress() {
+    this(false);
+  }
+
+  /**
+   * Instantiates a new image J track progress.
+   *
+   * <p>If using the slow progress functionality the progress will be reported as negative.
+   *
+   * @param slowMode Set to true to use the slow progress functionality of ImageJ
+   */
+  public ImageJTrackProgress(boolean slowMode) {
+    this.slowMode = slowMode;
+  }
+
   @Override
   public void progress(double fraction) {
     if (fraction == 0) {
       done = 0;
     }
-    IJ.showProgress(fraction);
+    if (isProgress()) {
+      if (slowMode) {
+        IJ.showProgress(-fraction);
+      } else {
+        IJ.showProgress(fraction);
+      }
+    }
   }
 
   @Override
@@ -54,7 +90,13 @@ public class ImageJTrackProgress implements TrackProgress {
     if (position == 0) {
       done = 0;
     }
-    IJ.showProgress((double) position / total);
+    if (isProgress()) {
+      if (slowMode) {
+        ImageJUtils.showSlowProgress((int) position, (int) total);
+      } else {
+        IJ.showProgress((double) position / total);
+      }
+    }
   }
 
   /**
@@ -65,18 +107,28 @@ public class ImageJTrackProgress implements TrackProgress {
    */
   @Override
   public void incrementProgress(double fraction) {
-    done += fraction;
-    IJ.showProgress(done);
+    if (slowMode) {
+      done -= fraction;
+    } else {
+      done += fraction;
+    }
+    if (isProgress()) {
+      IJ.showProgress(done);
+    }
   }
 
   @Override
   public void log(String format, Object... args) {
-    IJ.log(String.format(format, args));
+    if (isLog()) {
+      IJ.log(String.format(format, args));
+    }
   }
 
   @Override
   public void status(String format, Object... args) {
-    IJ.showStatus(String.format(format, args));
+    if (isStatus()) {
+      IJ.showStatus(String.format(format, args));
+    }
   }
 
   @Override
@@ -86,16 +138,43 @@ public class ImageJTrackProgress implements TrackProgress {
 
   @Override
   public boolean isProgress() {
-    return true;
+    return progress;
+  }
+
+  /**
+   * Sets if the progress methods are active.
+   *
+   * @param progress the new progress
+   */
+  public void setProgress(boolean progress) {
+    this.progress = progress;
   }
 
   @Override
   public boolean isLog() {
-    return true;
+    return log;
+  }
+
+  /**
+   * Sets if the log methods are active.
+   *
+   * @param log True for active
+   */
+  public void setLog(boolean log) {
+    this.log = log;
   }
 
   @Override
   public boolean isStatus() {
-    return true;
+    return status;
+  }
+
+  /**
+   * Sets if the status methods are active.
+   *
+   * @param status the new status
+   */
+  public void setStatus(boolean status) {
+    this.status = status;
   }
 }

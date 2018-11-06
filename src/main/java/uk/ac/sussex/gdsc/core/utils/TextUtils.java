@@ -218,7 +218,7 @@ public final class TextUtils {
    * <p>Durations in seconds are rounded to 3 significant figures.
    *
    * <p>When minutes or hours are present the seconds are rounded to 1 decimal place.
-   * 
+   *
    * <p>Trailing zeros are omitted unless required to signify rounding has occurred.
    *
    * @param milliseconds the duration in milliseconds
@@ -260,7 +260,7 @@ public final class TextUtils {
    * <p>Durations in microseconds, milliseconds and seconds are rounded to 3 significant figures.
    *
    * <p>When minutes or hours are present the seconds are rounded to 1 decimal place.
-   * 
+   *
    * <p>Trailing zeros are omitted unless required to signify rounding has occurred.
    *
    * @param nanoseconds the duration in nanoseconds

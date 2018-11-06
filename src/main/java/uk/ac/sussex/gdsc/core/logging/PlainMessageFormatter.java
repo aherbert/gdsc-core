@@ -41,7 +41,7 @@ import java.util.logging.LogRecord;
  * </pre>
  *
  * <p>If the record contains a thrown exception then the stack trace is added to the message.
- * 
+ *
  * <p>The formatted message is created using the log record parameters. No timestamp is added and no
  * use of the record resource bundle occurs.
  */

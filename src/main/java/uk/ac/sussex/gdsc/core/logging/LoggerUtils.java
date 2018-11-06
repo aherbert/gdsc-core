@@ -70,7 +70,7 @@ public final class LoggerUtils {
 
   /**
    * Creates an instance if the argument is null, else return the argument.
-   * 
+   *
    * <p>The created instance will ignore logging requests.
    *
    * @param logger the logger (may be null)
