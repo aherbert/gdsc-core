@@ -70,7 +70,7 @@ public class CubicSplinePosition {
    * @throws IllegalArgumentException If the index is negative
    * @throws OutOfRangeException If x is not in the range 0 to 1
    */
-  public CubicSplinePosition(double x) throws IllegalArgumentException, OutOfRangeException {
+  public CubicSplinePosition(double x) {
     // Use negation to catch NaN
     if (!(x >= 0 && x <= 1)) {
       throw new OutOfRangeException(x, 0, 1);

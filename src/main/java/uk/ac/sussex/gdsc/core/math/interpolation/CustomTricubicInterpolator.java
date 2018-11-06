@@ -848,8 +848,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
    *         interpolation
    * @throws IllegalArgumentException If the offset is not positive
    */
-  public static CustomTricubicFunction create(final TrivalueProvider fval, int x, int y, int z)
-      throws NumberIsTooSmallException, IllegalArgumentException {
+  public static CustomTricubicFunction create(final TrivalueProvider fval, int x, int y, int z) {
     if (x < 0 || y < 0 || z < 0) {
       throw new IllegalArgumentException("Offset must be positive");
     }

@@ -370,7 +370,7 @@ public class TurboList<E> extends AbstractList<E>
      * @return the element at the specified position in this list
      * @throws IndexOutOfBoundsException  if the index is out of range (index &lt; 0 || index &gt;= capacity)
      */
-    public E getf(int index) throws IndexOutOfBoundsException {
+    public E getf(int index) {
         return elementData(index);
     }
 
@@ -400,7 +400,7 @@ public class TurboList<E> extends AbstractList<E>
      * @param element element to be stored at the specified position
      * @throws IndexOutOfBoundsException  if the index is out of range (index &lt; 0 || index &gt;= capacity)
      */
-    public void setf(int index, E element) throws IndexOutOfBoundsException {
+    public void setf(int index, E element) {
         elementData[index] = element;
     }
 

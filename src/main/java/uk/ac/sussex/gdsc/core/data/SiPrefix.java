@@ -212,7 +212,7 @@ public enum SiPrefix {
    * @return the integer type
    * @throws IllegalArgumentException If the ordinal is invalid
    */
-  public static SiPrefix forOrdinal(int ordinal) throws IllegalArgumentException {
+  public static SiPrefix forOrdinal(int ordinal) {
     if (ordinal < 0) {
       throw new IllegalArgumentException("Negative ordinal");
     }

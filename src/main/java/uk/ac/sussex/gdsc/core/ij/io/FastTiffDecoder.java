@@ -271,8 +271,7 @@ public abstract class FastTiffDecoder {
    * @throws IOException If an I/O exception has occurred, or this is not a TIFF file.
    * @throws NullPointerException If name is null
    */
-  public static FastTiffDecoder create(String directory, String name)
-      throws IOException, NullPointerException {
+  public static FastTiffDecoder create(String directory, String name) throws IOException {
     final File file = new File(directory, name);
     return create(file);
   }
@@ -288,8 +287,7 @@ public abstract class FastTiffDecoder {
    * @throws NullPointerException If either argument is null
    */
   @SuppressWarnings("resource")
-  public static FastTiffDecoder create(InputStream in, String name)
-      throws IOException, NullPointerException {
+  public static FastTiffDecoder create(InputStream in, String name) throws IOException {
     if (in == null) {
       throw new NullPointerException();
     }
@@ -306,8 +304,7 @@ public abstract class FastTiffDecoder {
    * @throws IOException If an I/O exception has occurred, or this is not a TIFF file.
    * @throws NullPointerException If either argument is null
    */
-  public static FastTiffDecoder create(SeekableStream ss, String name)
-      throws IOException, NullPointerException {
+  public static FastTiffDecoder create(SeekableStream ss, String name) throws IOException {
     if (ss == null) {
       throw new NullPointerException();
     }
@@ -327,8 +324,7 @@ public abstract class FastTiffDecoder {
    * @throws SecurityException the security exception
    */
   @SuppressWarnings("resource")
-  public static FastTiffDecoder create(File file)
-      throws IOException, NullPointerException, FileNotFoundException, SecurityException {
+  public static FastTiffDecoder create(File file) throws IOException {
     return createTiffDecoder(new FileSeekableStream(file), file);
   }
 

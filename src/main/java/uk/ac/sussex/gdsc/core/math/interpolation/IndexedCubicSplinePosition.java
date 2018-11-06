@@ -59,8 +59,7 @@ public class IndexedCubicSplinePosition extends CubicSplinePosition {
    * @throws IllegalArgumentException If the index is negative
    * @throws OutOfRangeException If x is not in the range 0 to 1
    */
-  public IndexedCubicSplinePosition(int index, double x)
-      throws IllegalArgumentException, OutOfRangeException {
+  public IndexedCubicSplinePosition(int index, double x) {
     super(x);
     // If the user creates a spline position then we should check it is valid
     if (index < 0) {

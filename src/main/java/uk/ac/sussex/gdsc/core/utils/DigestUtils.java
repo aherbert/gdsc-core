@@ -93,7 +93,7 @@ public final class DigestUtils {
    * @return the digest
    * @throws IllegalArgumentException If the algorithm is not recognised
    */
-  public static MessageDigest getDigest(String algorithm) throws IllegalArgumentException {
+  public static MessageDigest getDigest(String algorithm) {
     try {
       final MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
       messageDigest.reset();

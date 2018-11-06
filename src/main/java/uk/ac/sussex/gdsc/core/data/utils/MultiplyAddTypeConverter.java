@@ -47,8 +47,7 @@ public class MultiplyAddTypeConverter<T> extends MultiplyTypeConverter<T> {
    * @throws ConversionException If the multiplication is not finite
    * @throws ConversionException If the addition is not finite
    */
-  public MultiplyAddTypeConverter(T from, T to, double multiplication, double addition)
-      throws ConversionException {
+  public MultiplyAddTypeConverter(T from, T to, double multiplication, double addition) {
     super(from, to, multiplication);
     if (!Double.isFinite(addition)) {
       throw new ConversionException("addition must be finite");

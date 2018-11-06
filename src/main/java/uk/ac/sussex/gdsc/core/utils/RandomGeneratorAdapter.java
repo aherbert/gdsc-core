@@ -61,7 +61,7 @@ public class RandomGeneratorAdapter extends AbstractRandomGenerator {
    * @throws NotImplementedException the not implemented exception
    */
   @Override
-  public void setSeed(long seed) throws NotImplementedException {
+  public void setSeed(long seed) {
     throw new NotImplementedException("Cannot set the seed");
   }
 
