@@ -33,7 +33,6 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 
 import ij.IJ;
-import ij.ImageJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Macro;
@@ -44,7 +43,6 @@ import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.Plot;
 import ij.gui.PlotWindow;
-import ij.gui.ProgressBar;
 import ij.io.DirectoryChooser;
 import ij.io.OpenDialog;
 import ij.plugin.HyperStackReducer;
@@ -71,13 +69,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.io.File;
-import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
-
-import javax.swing.JLabel;
+import java.util.function.Supplier;
 
 /**
  * Contains helper functions.
@@ -139,18 +132,6 @@ public final class ImageJUtils {
 
   /** The last time to status was updated. */
   private static long lastTime;
-
-  private static final int STATUS_OFF = -1;
-  private static final int STATUS_UNKNOWN = 0;
-  private static final int STATUS_ON = 1;
-
-  private static int statusLineStatus;
-  private static int isShowStatusLine;
-  private static JLabel statusLine;
-
-  private static int progressBarStatus;
-  private static int isShowProgress;
-  private static ProgressBar progressBar;
 
   /**
    * No public construction.
@@ -672,71 +653,6 @@ public final class ImageJUtils {
   }
 
   /**
-   * Gets the ImageJ GUI progress bar.
-   *
-   * @return the progress bar (or null if there is no ImageJ instance)
-   * @deprecated This should not be done and other workarounds should be found!
-   */
-  @Deprecated
-  public static synchronized ProgressBar getProgressBar() {
-    if (progressBarStatus == STATUS_UNKNOWN) {
-      if (IJ.getInstance() != null) {
-        progressBar = IJ.getInstance().getProgressBar();
-      }
-      progressBarStatus = (progressBar == null) ? STATUS_OFF : STATUS_ON;
-    }
-    return progressBar;
-  }
-
-  /**
-   * Checks if the ImageJ status bar is not null.
-   *
-   * @return true, if is show progress
-   * @deprecated This should not be done and other workarounds should be found!
-   */
-  @Deprecated
-  public static synchronized boolean isShowProgress() {
-    return isShowProgress != STATUS_OFF;
-  }
-
-  /**
-   * Use reflection to replace the progress bar with null.
-   *
-   * @param showProgress Set to true to disable the progress bar
-   * @deprecated This should not be done and other workarounds should be found!
-   */
-  @Deprecated
-  public static synchronized void setShowProgress(boolean showProgress) {
-    getProgressBar();
-
-    if (progressBarStatus == STATUS_OFF) {
-      return;
-    }
-
-    ProgressBar newProgressBar;
-    if (showProgress) {
-      newProgressBar = progressBar;
-    } else {
-      newProgressBar = null;
-    }
-
-    try {
-      isShowProgress = AccessController.doPrivileged(new PrivilegedExceptionAction<Integer>() {
-        @Override
-        public Integer run() throws NoSuchFieldException, IllegalAccessException {
-          final Field f = IJ.class.getDeclaredField("progressBar");
-          f.setAccessible(true);
-          f.set(IJ.class, newProgressBar);
-          return (showProgress) ? STATUS_ON : STATUS_OFF;
-        }
-      });
-    } catch (final PrivilegedActionException | SecurityException | IllegalArgumentException ex) {
-      isShowProgress = STATUS_UNKNOWN;
-      progressBarStatus = STATUS_OFF;
-    }
-  }
-
-  /**
    * Show the slow part of the dual progress.
    *
    * <p>The dual progress bar works if the progress is negative and between 0 exclusive and -1
@@ -778,79 +694,6 @@ public final class ImageJUtils {
    */
   public static void clearSlowProgress() {
     IJ.showProgress(-1);
-  }
-
-  /**
-   * Gets the ImageJ GUI status bar label.
-   *
-   * @return the status bar label
-   * @deprecated This should not be done and other workarounds should be found!
-   */
-  @Deprecated
-  public static synchronized JLabel getStatusLine() {
-    if (statusLineStatus == STATUS_UNKNOWN) {
-      if (IJ.getInstance() != null) {
-        final Panel statusBar = IJ.getInstance().getStatusBar();
-        for (final Component c : statusBar.getComponents()) {
-          if (c instanceof JLabel) {
-            statusLine = (JLabel) statusBar.getComponent(STATUS_UNKNOWN);
-            break;
-          }
-        }
-      }
-      statusLineStatus = (statusLine == null) ? STATUS_OFF : STATUS_ON;
-    }
-    return statusLine;
-  }
-
-  /**
-   * Checks if the ImageJ status bar label is not null.
-   *
-   * @return true, if is show status
-   * @deprecated This should not be done and other workarounds should be found!
-   */
-  @Deprecated
-  public static synchronized boolean isShowStatus() {
-    return isShowStatusLine != STATUS_OFF;
-  }
-
-  /**
-   * Use reflection to replace the status bar label with null.
-   *
-   * @param showStatus Set to true to disable the status bar
-   * @deprecated This should not be done and other workarounds should be found!
-   */
-  @Deprecated
-  public static synchronized void setShowStatus(boolean showStatus) {
-    getStatusLine();
-
-    if (statusLineStatus == STATUS_OFF) {
-      return;
-    }
-
-    JLabel newStatusLine;
-    if (showStatus) {
-      newStatusLine = statusLine;
-    } else {
-      // Provide a label that will swallow method calls to setText()
-      newStatusLine = new JLabel();
-    }
-
-    try {
-      isShowStatusLine = AccessController.doPrivileged(new PrivilegedExceptionAction<Integer>() {
-        @Override
-        public Integer run() throws NoSuchFieldException, IllegalAccessException {
-          final ImageJ ij = IJ.getInstance();
-          final Field f = ij.getClass().getDeclaredField("statusLine");
-          f.setAccessible(true);
-          f.set(ij, newStatusLine);
-          return (showStatus) ? STATUS_ON : STATUS_OFF;
-        }
-      });
-    } catch (final PrivilegedActionException | SecurityException | IllegalArgumentException ex) {
-      isShowStatusLine = STATUS_UNKNOWN;
-      statusLineStatus = STATUS_OFF;
-    }
   }
 
   /**
@@ -987,6 +830,22 @@ public final class ImageJUtils {
     if (time - lastTime > 150) {
       lastTime = time;
       IJ.showStatus(message);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Show a message on the status bar if enough time has passed since the last call.
+   *
+   * @param message The message
+   * @return True if shown
+   */
+  public static boolean showStatus(Supplier<String> message) {
+    final long time = System.currentTimeMillis();
+    if (time - lastTime > 150) {
+      lastTime = time;
+      IJ.showStatus(message.get());
       return true;
     }
     return false;
