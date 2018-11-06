@@ -34,10 +34,10 @@ import java.util.logging.Logger;
 
 /**
  * Contains helper functions for plugins that use {@link java.util.logging.Logger}.
- * 
+ *
  * <p>When created this class will redirect all loggers below the package {@code uk.ac.sussex.gdsc}
  * using {@link ConsoleHandler} to use {@link ImageJLogHandler}.
- * 
+ *
  * <p>This is a helper that allows top-level GDSC plugins to create loggers that will appropriately
  * redirect output to ImageJ.
  */
@@ -68,7 +68,7 @@ public final class ImageJPluginLoggerHelper {
 
   /**
    * Gets the logger using the class name.
-   * 
+   *
    * <p>Note: The initialisation for this helper class redirects all loggers below the package
    * {@code uk.ac.sussex.gdsc} using {@link ConsoleHandler} to use {@link ImageJLogHandler}. This
    * occurs only once and logging can be further configured using the {@link LogManager} or
