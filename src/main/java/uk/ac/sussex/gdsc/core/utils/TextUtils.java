@@ -206,30 +206,6 @@ public final class TextUtils {
   }
 
   /**
-   * Convert time in milliseconds into a nice string.
-   *
-   * @param time the time
-   * @return The string
-   * @deprecated Time should be measured using a long so use {@link #timeToString(long)}
-   */
-  @Deprecated
-  public static String timeToString(double time) {
-    String units = " ms";
-    if (time > 1000) {
-      // 1 second
-      time /= 1000;
-      units = " s";
-
-      if (time > 180) {
-        // 3 minutes
-        time /= 60;
-        units = " min";
-      }
-    }
-    return MathUtils.rounded(time, 4) + units;
-  }
-
-  /**
    * Convert time in milliseconds into a nice string. Uses the format:
    *
    * <pre>
@@ -249,8 +225,7 @@ public final class TextUtils {
    * @return The string
    * @throws IllegalArgumentException If the milliseconds is not positive
    */
-  public static String timeToString(long milliseconds) {
-    // TODO change this to millisToString
+  public static String millisToString(long milliseconds) {
     checkPositive(milliseconds);
     if (milliseconds < THOUSAND) {
       // No rounding

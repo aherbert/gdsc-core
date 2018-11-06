@@ -9,21 +9,18 @@ public class ScaledIndexedCubicSplinePositionTest {
   // class.
 
   @Test
+  @SuppressWarnings("unused")
   public void testConstructor() {
     final int index = 0;
     final double scale = 2;
     final double x = 0.5;
     Assertions.assertNotNull(new ScaledIndexedCubicSplinePosition(index, x, scale));
 
-    Assertions.assertThrows(IllegalArgumentException.class, () -> {
-      @SuppressWarnings("unused")
-      final ScaledIndexedCubicSplinePosition p = new ScaledIndexedCubicSplinePosition(index, x, 0);
-    });
-    Assertions.assertThrows(IllegalArgumentException.class, () -> {
-      @SuppressWarnings("unused")
-      final ScaledIndexedCubicSplinePosition p =
-          new ScaledIndexedCubicSplinePosition(index, x, -1e-6);
-    });
+    for (double badScale : new double[] {0, Double.POSITIVE_INFINITY, -1, Double.NaN}) {
+      Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        new ScaledIndexedCubicSplinePosition(index, x, badScale);
+      });
+    }
   }
 
   @Test

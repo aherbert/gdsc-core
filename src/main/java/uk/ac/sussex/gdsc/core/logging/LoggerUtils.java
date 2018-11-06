@@ -29,17 +29,19 @@
 package uk.ac.sussex.gdsc.core.logging;
 
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 /**
- * Utilities for logging.
+ * Utilities for working with {@link java.util.logging.Logger}.
  */
-public final class LoggingUtils {
+public final class LoggerUtils {
 
   /**
-   * Extend java.util.logging.Logger and make isLoggable always return false and setLogLevel be
-   * ignored. Then use this when the logger is null.
+   * Extend Logger and make isLoggable always return false and setLogLevel be ignored. Then use this
+   * when the logger is null.
    */
-  private static class NoLogger extends java.util.logging.Logger {
+  private static class NoLogger extends Logger {
     private static final NoLogger INSTANCE = new NoLogger();
 
     public NoLogger() {
@@ -64,7 +66,7 @@ public final class LoggingUtils {
   }
 
   /** No public construction. */
-  private LoggingUtils() {}
+  private LoggerUtils() {}
 
   /**
    * Creates an instance if the argument is null, else return the argument.
@@ -74,7 +76,34 @@ public final class LoggingUtils {
    * @param logger the logger (may be null)
    * @return the logger (not null)
    */
-  public static java.util.logging.Logger createIfNull(java.util.logging.Logger logger) {
+  public static Logger createIfNull(Logger logger) {
     return (logger != null) ? logger : NoLogger.INSTANCE;
+  }
+
+  /**
+   * Gets an unconfigured logger. This is an anonymous logger which does not have any handlers.
+   *
+   * @return the unconfigured logger
+   */
+  public static Logger getUnconfiguredLogger() {
+    Logger logger = Logger.getAnonymousLogger();
+    logger.setUseParentHandlers(false);
+    return logger;
+  }
+
+  /**
+   * Log the formatted message to the logger.
+   *
+   * @param logger the logger (ignored if null)
+   * @param level the level
+   * @param format the format
+   * @param args the arguments
+   * @see String#format(String, Object...)
+   */
+  public static void log(Logger logger, Level level, String format, Object... args) {
+    if (logger == null || !logger.isLoggable(level)) {
+      return;
+    }
+    logger.log(new LogRecord(level, String.format(format, args)));
   }
 }

@@ -61,10 +61,9 @@ public class ScaledIndexedCubicSplinePosition extends IndexedCubicSplinePosition
    * @throws IllegalArgumentException If the index is negative or the scale is negative or zero
    * @throws OutOfRangeException If x is not in the range 0 to 1
    */
-  public ScaledIndexedCubicSplinePosition(int index, double x, double scale)
-      throws IllegalArgumentException, OutOfRangeException {
+  public ScaledIndexedCubicSplinePosition(int index, double x, double scale) {
     super(index, x);
-    if (!(scale > 0)) {
+    if (!Double.isFinite(scale) || scale <= 0) {
       throw new IllegalArgumentException("Scale must be strictly positive");
     }
     this.scaleFactor = scale;

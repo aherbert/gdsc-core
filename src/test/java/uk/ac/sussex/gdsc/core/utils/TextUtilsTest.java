@@ -8,44 +8,44 @@ public class TextUtilsTest {
 
   @Test
   public void canConvertMillisToString() {
-    Assertions.assertThrows(IllegalArgumentException.class, () -> TextUtils.timeToString(-1));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> TextUtils.millisToString(-1));
     // Milliseconds reported exactly
-    Assertions.assertEquals("0ms", TextUtils.timeToString(0));
-    Assertions.assertEquals("999ms", TextUtils.timeToString(999));
+    Assertions.assertEquals("0ms", TextUtils.millisToString(0));
+    Assertions.assertEquals("999ms", TextUtils.millisToString(999));
     // Seconds to 3 s.f.
-    Assertions.assertEquals("1s", TextUtils.timeToString(1000));
-    Assertions.assertEquals("1.00s", TextUtils.timeToString(1001));
-    Assertions.assertEquals("1.01s", TextUtils.timeToString(1005));
-    Assertions.assertEquals("1.1s", TextUtils.timeToString(1100));
-    Assertions.assertEquals("9.99s", TextUtils.timeToString(9990));
-    Assertions.assertEquals("10.0s", TextUtils.timeToString(9995));
-    Assertions.assertEquals("10s", TextUtils.timeToString(10000));
-    Assertions.assertEquals("10.0s", TextUtils.timeToString(10010));
-    Assertions.assertEquals("10.1s", TextUtils.timeToString(10050));
-    Assertions.assertEquals("10.1s", TextUtils.timeToString(10100));
-    Assertions.assertEquals("59.9s", TextUtils.timeToString(59900));
+    Assertions.assertEquals("1s", TextUtils.millisToString(1000));
+    Assertions.assertEquals("1.00s", TextUtils.millisToString(1001));
+    Assertions.assertEquals("1.01s", TextUtils.millisToString(1005));
+    Assertions.assertEquals("1.1s", TextUtils.millisToString(1100));
+    Assertions.assertEquals("9.99s", TextUtils.millisToString(9990));
+    Assertions.assertEquals("10.0s", TextUtils.millisToString(9995));
+    Assertions.assertEquals("10s", TextUtils.millisToString(10000));
+    Assertions.assertEquals("10.0s", TextUtils.millisToString(10010));
+    Assertions.assertEquals("10.1s", TextUtils.millisToString(10050));
+    Assertions.assertEquals("10.1s", TextUtils.millisToString(10100));
+    Assertions.assertEquals("59.9s", TextUtils.millisToString(59900));
     // Minutes. Seconds should be 1 decimal place
-    Assertions.assertEquals("1m00.0s", TextUtils.timeToString(59950));
-    Assertions.assertEquals("1m00s", TextUtils.timeToString(60000));
-    Assertions.assertEquals("1m00.0s", TextUtils.timeToString(60001));
-    Assertions.assertEquals("1m00.0s", TextUtils.timeToString(60010));
-    Assertions.assertEquals("1m00.1s", TextUtils.timeToString(60050));
-    Assertions.assertEquals("1m00.1s", TextUtils.timeToString(60100));
-    Assertions.assertEquals("1m01s", TextUtils.timeToString(61000));
-    Assertions.assertEquals("59m59.9s", TextUtils.timeToString(3599900));
+    Assertions.assertEquals("1m00.0s", TextUtils.millisToString(59950));
+    Assertions.assertEquals("1m00s", TextUtils.millisToString(60000));
+    Assertions.assertEquals("1m00.0s", TextUtils.millisToString(60001));
+    Assertions.assertEquals("1m00.0s", TextUtils.millisToString(60010));
+    Assertions.assertEquals("1m00.1s", TextUtils.millisToString(60050));
+    Assertions.assertEquals("1m00.1s", TextUtils.millisToString(60100));
+    Assertions.assertEquals("1m01s", TextUtils.millisToString(61000));
+    Assertions.assertEquals("59m59.9s", TextUtils.millisToString(3599900));
     // Hours. Seconds should be 1 decimal place
-    Assertions.assertEquals("1h00m00.0s", TextUtils.timeToString(3599950));
-    Assertions.assertEquals("1h00m00s", TextUtils.timeToString(3600000));
-    Assertions.assertEquals("1h00m00.0s", TextUtils.timeToString(3600001));
-    Assertions.assertEquals("1h00m00.0s", TextUtils.timeToString(3600010));
-    Assertions.assertEquals("1h00m00.1s", TextUtils.timeToString(3600050));
-    Assertions.assertEquals("1h00m00.1s", TextUtils.timeToString(3600100));
-    Assertions.assertEquals("1h00m01s", TextUtils.timeToString(3601000));
-    Assertions.assertEquals("1h00m10s", TextUtils.timeToString(3610000));
-    Assertions.assertEquals("1h01m00s", TextUtils.timeToString(3660000));
-    Assertions.assertEquals("1h59m59.9s", TextUtils.timeToString(7199900));
-    Assertions.assertEquals("2h00m00.0s", TextUtils.timeToString(7199950));
-    Assertions.assertEquals("2h00m00s", TextUtils.timeToString(7200000));
+    Assertions.assertEquals("1h00m00.0s", TextUtils.millisToString(3599950));
+    Assertions.assertEquals("1h00m00s", TextUtils.millisToString(3600000));
+    Assertions.assertEquals("1h00m00.0s", TextUtils.millisToString(3600001));
+    Assertions.assertEquals("1h00m00.0s", TextUtils.millisToString(3600010));
+    Assertions.assertEquals("1h00m00.1s", TextUtils.millisToString(3600050));
+    Assertions.assertEquals("1h00m00.1s", TextUtils.millisToString(3600100));
+    Assertions.assertEquals("1h00m01s", TextUtils.millisToString(3601000));
+    Assertions.assertEquals("1h00m10s", TextUtils.millisToString(3610000));
+    Assertions.assertEquals("1h01m00s", TextUtils.millisToString(3660000));
+    Assertions.assertEquals("1h59m59.9s", TextUtils.millisToString(7199900));
+    Assertions.assertEquals("2h00m00.0s", TextUtils.millisToString(7199950));
+    Assertions.assertEquals("2h00m00s", TextUtils.millisToString(7200000));
   }
 
   @Test

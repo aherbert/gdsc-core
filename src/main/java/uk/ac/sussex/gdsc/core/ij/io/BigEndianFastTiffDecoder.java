@@ -53,7 +53,7 @@ public class BigEndianFastTiffDecoder extends FastTiffDecoder {
 
   @Override
   protected int getInt(int b1, int b2, int b3, int b4) {
-    return ((b1 << 24) + (b2 << 16) + (b3 << 8) + b4);
+    return toInt(b1, b2, b3, b4);
   }
 
   @Override

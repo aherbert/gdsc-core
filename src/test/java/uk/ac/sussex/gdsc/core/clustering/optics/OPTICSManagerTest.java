@@ -1,8 +1,6 @@
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.clustering.optics.OpticsManager.Option;
-import uk.ac.sussex.gdsc.core.logging.ConsoleLogger;
-import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.match.RandIndex;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
@@ -109,15 +107,6 @@ public class OPTICSManagerTest {
   int size = 256;
   float[] radii = new float[] {2, 4, 8, 16};
   int[] N = new int[] {1000, 2000, 4000, 8000};
-
-  class SimpleTrackProgress extends NullTrackProgress {
-    ConsoleLogger l = new ConsoleLogger();
-
-    @Override
-    public void log(String format, Object... args) {
-      l.info(format, args);
-    }
-  }
 
   class SimpleMoleculeSpace extends MoleculeSpace {
     OpticsManager opticsManager;

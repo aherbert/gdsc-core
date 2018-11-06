@@ -647,18 +647,15 @@ public class AlignImagesFft {
    * @return true, if is valid
    */
   private static boolean isValid(ImageProcessor refIp, ImagePlus targetImp) {
-    if (refIp == null || targetImp == null) {
-      return false;
-    }
     // Check images have values. No correlation is possible without.
-    return !noValue(refIp);
+    return refIp != null && targetImp != null && !noValue(refIp);
   }
 
   /**
    * No value.
    *
    * @param ip the image
-   * @return true if the image has not pixels with a value
+   * @return true if the image has no pixels with a value
    */
   private static boolean noValue(ImageProcessor ip) {
     for (int i = 0; i < ip.getPixelCount(); i++) {

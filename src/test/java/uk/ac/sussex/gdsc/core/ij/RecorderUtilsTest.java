@@ -22,7 +22,7 @@ public class RecorderUtilsTest {
     recorder = null;
   }
 
-  private synchronized static void initialise() {
+  private static synchronized void initialise() {
     // This test is slow as creating the recorder involves spinning up a lot of
     // ImageJ and Java AWT classes. So only run if asked for.
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.LOW));

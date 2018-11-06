@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 public class Version {
   /** Constant for the string "unknown". */
   public static final String UNKNOWN = "unknown";
-  private static String version = null;
+  private static String versionNumber = null;
   private static String buildDate = null;
   private static String buildNumber = null;
 
@@ -50,13 +50,13 @@ public class Version {
     final Manifest manifest = loadManifest(Version.class);
     if (manifest != null) {
       final Attributes attributes = manifest.getMainAttributes();
-      version = attributes.getValue("Specification-Version");
+      versionNumber = attributes.getValue("Specification-Version");
       buildDate = attributes.getValue("Implementation-Date");
       buildNumber = attributes.getValue("Implementation-Build");
     }
 
-    if (version == null || version.length() == 0) {
-      version = UNKNOWN;
+    if (versionNumber == null || versionNumber.length() == 0) {
+      versionNumber = UNKNOWN;
     }
     if (buildDate == null || buildDate.length() == 0) {
       buildDate = UNKNOWN;
@@ -74,7 +74,7 @@ public class Version {
   public static void main(String[] args) {
     final StringBuilder msg = new StringBuilder();
     final String newLine = System.getProperty("line.separator");
-    msg.append("Version : ").append(version).append(newLine);
+    msg.append("Version : ").append(versionNumber).append(newLine);
     msg.append("Build Date : ").append(buildDate).append(newLine);
     msg.append("Build Number : ").append(buildNumber).append(newLine);
     System.out.print(msg);
@@ -86,7 +86,7 @@ public class Version {
    * @return The uk.ac.sussex.gdsc.core package version
    */
   public static String getVersion() {
-    return version;
+    return versionNumber;
   }
 
   /**
@@ -114,7 +114,7 @@ public class Version {
    */
   public static int getMajorVersion() {
     final Pattern p = Pattern.compile("^\\d+");
-    final Matcher m = p.matcher(version);
+    final Matcher m = p.matcher(versionNumber);
     if (m.find()) {
       return Integer.parseInt(m.group());
     }
@@ -128,7 +128,7 @@ public class Version {
    */
   public static int getMinorVersion() {
     final Pattern p = Pattern.compile("^\\d+\\.(\\d+)");
-    final Matcher m = p.matcher(version);
+    final Matcher m = p.matcher(versionNumber);
     if (m.find()) {
       return Integer.parseInt(m.group(1));
     }
@@ -142,7 +142,7 @@ public class Version {
    */
   public static int getPatchVersion() {
     final Pattern p = Pattern.compile("^\\d+\\.\\d+\\.(\\d+)");
-    final Matcher m = p.matcher(version);
+    final Matcher m = p.matcher(versionNumber);
     if (m.find()) {
       return Integer.parseInt(m.group(1));
     }
@@ -156,7 +156,7 @@ public class Version {
    */
   public static String getMajorMinorPatch() {
     final Pattern p = Pattern.compile("^\\d+\\.\\d+\\.\\d+");
-    final Matcher m = p.matcher(version);
+    final Matcher m = p.matcher(versionNumber);
     if (m.find()) {
       return m.group();
     }

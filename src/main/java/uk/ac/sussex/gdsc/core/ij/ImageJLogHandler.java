@@ -26,57 +26,51 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.logging;
+package uk.ac.sussex.gdsc.core.ij;
+
+import uk.ac.sussex.gdsc.core.logging.PlainMessageFormatter;
+
+import ij.IJ;
+
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 /**
- * Defines a simple interface for logging information.
- * 
- * @deprecated Use java.util.logging.Logger
+ * Publish log records to the ImageJ log window.
  */
-@Deprecated
-public interface Logger {
-  /**
-   * Log the message.
-   *
-   * @param message the message
-   */
-  public void info(String message);
+public class ImageJLogHandler extends Handler {
 
   /**
-   * Log the arguments using the given format.
-   *
-   * @param format the format
-   * @param args the args
+   * Instantiates a new ImageJ log handler using a {@link PlainMessageFormatter}.
    */
-  public void info(String format, Object... args);
+  public ImageJLogHandler() {
+    this(new PlainMessageFormatter());
+  }
 
   /**
-   * Log the message.
+   * Instantiates a new ImageJ log handler.
    *
-   * @param message the message
+   * @param formatter the formatter
    */
-  public void debug(String message);
+  public ImageJLogHandler(Formatter formatter) {
+    setFormatter(formatter);
+  }
 
-  /**
-   * Log the arguments using the given format.
-   *
-   * @param format the format
-   * @param args the args
-   */
-  public void debug(String format, Object... args);
+  @Override
+  public void publish(LogRecord record) {
+    if (isLoggable(record)) {
+      IJ.log(getFormatter().formatMessage(record));
+    }
+  }
 
-  /**
-   * Log the message.
-   *
-   * @param message the message
-   */
-  public void error(String message);
+  @Override
+  public void flush() {
+    // Do nothing
+  }
 
-  /**
-   * Log the arguments using the given format.
-   *
-   * @param format the format
-   * @param args the args
-   */
-  public void error(String format, Object... args);
+  @Override
+  public void close() {
+    // Do nothing
+  }
 }

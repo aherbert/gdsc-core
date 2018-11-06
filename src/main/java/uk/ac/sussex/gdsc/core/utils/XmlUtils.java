@@ -53,8 +53,11 @@ import javax.xml.transform.stream.StreamResult;
 /**
  * XML Utilities.
  */
-public class XmlUtils {
+public final class XmlUtils {
   private static XmlFormatter formatter = new XmlFormatter(2, 80);
+
+  /** No public construction. */
+  private XmlUtils() {}
 
   /**
    * Pretty print format XML. Assumes XML is valid.

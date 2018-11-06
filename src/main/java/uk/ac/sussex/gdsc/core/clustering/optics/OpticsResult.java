@@ -1054,40 +1054,38 @@ public class OpticsResult implements ClusteringResult {
         // Update mib values with current mib and filter
         updateFilterSdaSet(mib, setOfSteepDownAreas, ixi);
         SteepUpArea sua;
-        {
-          final int startSteep = index;
-          int endSteep = index + 1;
-          mib = reachability[index];
-          double endSuccessor = getNextReachability(index, size, reachability);
-          if (endSuccessor != Double.POSITIVE_INFINITY) {
-            for (index++; valid(index, size); index++) {
-              if (steepUp(index, reachability, ixi)) {
-                // The last reachable point must have a reachability equal or below the upper limit
-                if (useUpperLimit && reachability[index] > ul) {
-                  // Not allowed so end
-                  break;
-                }
-
-                endSteep = index + 1;
-                mib = reachability[index];
-                endSuccessor = getNextReachability(index, size, reachability);
-                if (endSuccessor == Double.POSITIVE_INFINITY) {
-                  endSteep--;
-                  break;
-                }
-                continue;
-              }
-              // Stop looking if not going upward or after minPoints of non steep area
-              if (!steepUp(index, reachability, 1) || index - endSteep > getMinPoints()) {
+        final int startSteep = index;
+        int endSteep = index + 1;
+        mib = reachability[index];
+        double endSuccessor = getNextReachability(index, size, reachability);
+        if (endSuccessor != Double.POSITIVE_INFINITY) {
+          for (index++; valid(index, size); index++) {
+            if (steepUp(index, reachability, ixi)) {
+              // The last reachable point must have a reachability equal or below the upper limit
+              if (useUpperLimit && reachability[index] > ul) {
+                // Not allowed so end
                 break;
               }
+
+              endSteep = index + 1;
+              mib = reachability[index];
+              endSuccessor = getNextReachability(index, size, reachability);
+              if (endSuccessor == Double.POSITIVE_INFINITY) {
+                endSteep--;
+                break;
+              }
+
+              // Stop looking if not going upward or after minPoints of non steep area
+            } else if (!steepUp(index, reachability, 1) || index - endSteep > getMinPoints()) {
+              break;
             }
-          } else {
-            endSteep--;
-            index++;
           }
-          sua = new SteepUpArea(startSteep, endSteep, endSuccessor);
+        } else {
+          endSteep--;
+          index++;
         }
+        sua = new SteepUpArea(startSteep, endSteep, endSuccessor);
+
         // Note: mib currently holds the value at the end-of-steep-up
         final double threshold = mib * ixi;
         for (int i = setOfSteepDownAreas.size(); i-- > 0;) {
@@ -1116,16 +1114,14 @@ public class OpticsResult implements ClusteringResult {
           }
 
           // Condition 4
-          {
-            // Case b
-            if (sda.maximum * ixi >= sua.maximum) {
-              while (cstart < cend && reachability[cstart + 1] > sua.maximum) {
-                cstart++;
-              }
-            } else if (sua.maximum * ixi >= sda.maximum) {
-              while (cend > cstart && reachability[cend - 1] > sda.maximum) {
-                cend--;
-              }
+          // Case b
+          if (sda.maximum * ixi >= sua.maximum) {
+            while (cstart < cend && reachability[cstart + 1] > sua.maximum) {
+              cstart++;
+            }
+          } else if (sua.maximum * ixi >= sda.maximum) {
+            while (cend > cstart && reachability[cend - 1] > sda.maximum) {
+              cend--;
             }
           }
 

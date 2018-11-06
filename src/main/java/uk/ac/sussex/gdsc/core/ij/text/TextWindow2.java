@@ -86,6 +86,7 @@ public class TextWindow2 extends TextWindow {
     constructed = true;
   }
 
+  /** {@inheritDoc} */
   @Override
   @Deprecated
   public void show() {

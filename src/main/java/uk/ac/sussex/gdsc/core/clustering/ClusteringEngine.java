@@ -57,7 +57,7 @@ public class ClusteringEngine {
   private int yblock;
 
   private ClusteringAlgorithm clusteringAlgorithm = ClusteringAlgorithm.PAIRWISE;
-  private TrackProgress tracker = NullTrackProgress.INSTANCE;
+  private TrackProgress tracker = NullTrackProgress.getInstance();
   private int pulseInterval;
   private boolean trackJoins;
   private int threadCount = 1;

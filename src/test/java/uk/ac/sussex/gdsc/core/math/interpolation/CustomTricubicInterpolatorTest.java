@@ -1705,7 +1705,6 @@ public class CustomTricubicInterpolatorTest {
     singlePrecision = true;
     taskSize = 10;
 
-    interpolator.setProgress(NullTrackProgress.INSTANCE);
     final CustomTricubicInterpolatingFunction f1 = interpolator.interpolate(xval, yval, zval, fval);
 
     final ExecutorService es = Executors.newFixedThreadPool(2);
@@ -1717,7 +1716,7 @@ public class CustomTricubicInterpolatorTest {
                 .setZValue(zval)
                 .setFValue(fval)
                 .setSinglePrecision(singlePrecision)
-                .setProgress(NullTrackProgress.INSTANCE)
+                .setProgress(NullTrackProgress.getInstance())
                 .setTaskSize(taskSize)
                 .setExecutorService(es)
                 .interpolate();
@@ -1738,7 +1737,6 @@ public class CustomTricubicInterpolatorTest {
         final CustomTricubicInterpolatingFunction f3 = new CustomTricubicInterpolator.Builder()
                 .setFValue(fval)
                 .setSinglePrecision(singlePrecision)
-                .setProgress(NullTrackProgress.INSTANCE)
                 // Executor but with a big task size so no multi-threading
                 .setExecutorService(es)
                 .setIntegerAxisValues(true)

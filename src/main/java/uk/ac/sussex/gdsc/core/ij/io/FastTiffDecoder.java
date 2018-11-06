@@ -224,7 +224,7 @@ public abstract class FastTiffDecoder {
   private int entryCount;
   private byte[] buffer;
 
-  private TrackProgress trackProgress = NullTrackProgress.INSTANCE;
+  private TrackProgress trackProgress = NullTrackProgress.getInstance();
 
   /**
    * This is a count of the number of IFDs for which the micro manager metadata will be read. This
@@ -1426,7 +1426,7 @@ public abstract class FastTiffDecoder {
       }
     }
 
-    if (list.size() == 0) {
+    if (list.isEmpty()) {
       ss.close();
       return null;
     }
@@ -1654,15 +1654,15 @@ public abstract class FastTiffDecoder {
     // Open the first IFD looking for information about the number of images
 
     ss.seek(ifdOffset);
-    int ifdCount = scanFirstIfd();
+    int imageCount = scanFirstIfd();
 
-    if (ifdCount < 0) {
+    if (imageCount < 0) {
       return NO_IMAGES;
     }
 
     // If an ImageJ image then the nImages is written to the description
-    if (ifdCount > 1) {
-      return new NumberOfImages(ifdCount);
+    if (imageCount > 1) {
+      return new NumberOfImages(imageCount);
     }
 
     ifdOffset = readUnsignedInt();
@@ -1699,7 +1699,7 @@ public abstract class FastTiffDecoder {
       return new NumberOfImages(n, e);
     }
     // If not an ImageJ image then we have to read each IFD
-    ifdCount = 1;
+    imageCount = 1;
 
     while (ifdOffset > 0L) {
       ss.seek(ifdOffset);
@@ -1708,11 +1708,11 @@ public abstract class FastTiffDecoder {
         break;
       }
 
-      ifdCount++;
+      imageCount++;
       ifdOffset = readUnsignedInt();
     }
 
-    return new NumberOfImages(ifdCount);
+    return new NumberOfImages(imageCount);
   }
 
   /**

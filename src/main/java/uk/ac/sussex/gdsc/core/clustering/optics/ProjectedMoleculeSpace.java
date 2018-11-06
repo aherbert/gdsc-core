@@ -574,7 +574,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     if (tracker != null) {
       tracker.progress(1);
       final long time2 = System.currentTimeMillis();
-      tracker.log("Computed projections ... " + TextUtils.timeToString(time2 - time));
+      tracker.log("Computed projections ... " + TextUtils.millisToString(time2 - time));
       time = time2;
       tracker.log("Splitting data ...");
     }
@@ -646,7 +646,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
 
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
-      tracker.log("Split data ... " + TextUtils.timeToString(time));
+      tracker.log("Split data ... " + TextUtils.millisToString(time));
       tracker.progress(1);
     }
   }
@@ -1013,7 +1013,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
       tracker.log("Computed density and neighbourhoods (%d distances) ... %s",
-          distanceComputations.get(), TextUtils.timeToString(time));
+          distanceComputations.get(), TextUtils.millisToString(time));
       tracker.progress(1);
     }
 

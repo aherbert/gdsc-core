@@ -746,7 +746,7 @@ public class OpticsManager extends CoordinateStore {
         time = System.currentTimeMillis() - time;
         tracker.log("Finished OPTICS: %d %s @ %s (Time = %s)", nClusters,
             pleuraliseClusterCount(nClusters), MathUtils.rounded(generatingDistanceE),
-            TextUtils.timeToString(time));
+            TextUtils.millisToString(time));
       }
     }
 
@@ -1260,7 +1260,7 @@ public class OpticsManager extends CoordinateStore {
       if (tracker != null) {
         time = System.currentTimeMillis() - time;
         tracker.log("Finished DBSCAN: %d %s (Time = %s)", counter.getTotalClusters(),
-            pleuraliseClusterCount(counter.getTotalClusters()), TextUtils.timeToString(time));
+            pleuraliseClusterCount(counter.getTotalClusters()), TextUtils.millisToString(time));
       }
     }
 
@@ -1460,7 +1460,7 @@ public class OpticsManager extends CoordinateStore {
     }
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
-      tracker.log("Finished KNN computation (Time = " + TextUtils.timeToString(time) + ")");
+      tracker.log("Finished KNN computation (Time = " + TextUtils.millisToString(time) + ")");
       tracker.progress(1);
     }
 
@@ -1633,8 +1633,8 @@ public class OpticsManager extends CoordinateStore {
         time2 = end - time2;
         tracker.log("Finished OPTICS: %d %s @ %s (Time = %s)", nClusters,
             pleuraliseClusterCount(nClusters), MathUtils.rounded(grid.generatingDistanceE),
-            TextUtils.timeToString(time2));
-        tracker.log("Finished FastOPTICS ... " + TextUtils.timeToString(time));
+            TextUtils.millisToString(time2));
+        tracker.log("Finished FastOPTICS ... " + TextUtils.millisToString(time));
       }
     }
 
@@ -1924,7 +1924,7 @@ public class OpticsManager extends CoordinateStore {
 
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
-      tracker.log("Finished LoOP computation (Time = " + TextUtils.timeToString(time) + ")");
+      tracker.log("Finished LoOP computation (Time = " + TextUtils.millisToString(time) + ")");
     }
 
     if (!cache) {

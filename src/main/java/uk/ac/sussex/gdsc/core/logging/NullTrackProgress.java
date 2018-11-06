@@ -34,7 +34,7 @@ package uk.ac.sussex.gdsc.core.logging;
 public class NullTrackProgress implements TrackProgress {
 
   /** An instance to ignore progress reporting. */
-  public static final NullTrackProgress INSTANCE = new NullTrackProgress();
+  private static final NullTrackProgress INSTANCE = new NullTrackProgress();
 
   /**
    * Creates an instance if the argument is null, else return the argument.
@@ -44,6 +44,15 @@ public class NullTrackProgress implements TrackProgress {
    */
   public static TrackProgress createIfNull(TrackProgress trackProgress) {
     return (trackProgress == null) ? INSTANCE : trackProgress;
+  }
+
+  /**
+   * Gets an instance of NullTrackProgress.
+   *
+   * @return instance of NullTrackProgress
+   */
+  public static NullTrackProgress getInstance() {
+    return INSTANCE;
   }
 
   @Override
