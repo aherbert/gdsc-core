@@ -18,7 +18,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 @SuppressWarnings({"javadoc"})
-public class IJDigestTest {
+public class ImageJDigestTest {
   int size = 50;
 
   @SeededTest

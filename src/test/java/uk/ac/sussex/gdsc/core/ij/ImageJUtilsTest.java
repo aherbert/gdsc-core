@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
-public class UtilsTest {
+public class ImageJUtilsTest {
   private static Logger logger;
 
   @BeforeAll
   public static void beforeAll() {
-    logger = Logger.getLogger(UtilsTest.class.getName());
+    logger = Logger.getLogger(ImageJUtilsTest.class.getName());
   }
 
   @AfterAll
