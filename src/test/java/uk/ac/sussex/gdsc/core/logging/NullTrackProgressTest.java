@@ -62,5 +62,6 @@ public class NullTrackProgressTest {
     newProgress.progress(0.5);
     newProgress.progress(1, 2);
     newProgress.incrementProgress(0.1);
+    newProgress.status("ignored");
   }
 }

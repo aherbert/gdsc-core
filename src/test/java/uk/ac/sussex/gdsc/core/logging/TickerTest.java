@@ -188,10 +188,12 @@ public class TickerTest {
     Assertions.assertEquals(threadSafe, ticker.isThreadSafe(), "ThreadSafe");
 
     Assertions.assertEquals(0, ticker.getCurrent(), "Current when initialised");
+    Assertions.assertEquals(0, ticker.getProgress(), "Ticker progress when initialised");
     Assertions.assertEquals(Double.NaN, progressFraction[0], "Progress when initialised");
 
     ticker.start();
     Assertions.assertEquals(0, ticker.getCurrent(), "Current when started");
+    Assertions.assertEquals(0, ticker.getProgress(), "Ticker progress when started");
     Assertions.assertEquals(0, progressFraction[0], "Progress when started");
 
     // Interval is 2. Should report at current == 0,2,4,etc
@@ -205,10 +207,12 @@ public class TickerTest {
     // Test - 1 tick should be enough to register progress
     ticker.tick();
     Assertions.assertEquals(1, ticker.getCurrent(), "Current after 1 tick");
+    Assertions.assertEquals(1.0 / total, ticker.getProgress(), "Ticker progress 1 tick");
     Assertions.assertEquals(0, progressFraction[0], "Progress after 1 tick");
 
     ticker.tick();
     Assertions.assertEquals(2, ticker.getCurrent(), "Current after 2 ticks");
+    Assertions.assertEquals(2.0 / total, ticker.getProgress(), "Ticker progress 2 ticks");
     // Updated progress as the interval is 2
     Assertions.assertEquals(2.0 / total, progressFraction[0], "Progress after 2 ticks");
 
@@ -231,6 +235,9 @@ public class TickerTest {
     Assertions.assertEquals(6, ticker.getCurrent(), "Current after 6 ticks after stop()");
     Assertions.assertEquals(6.0 / total, progressFraction[0],
         "Progress after 6 ticks after stop()");
+
+    Assertions.assertEquals(6.0 / total, ticker.getProgress(),
+        "Ticker Progress after 6 ticks after stop()");
 
     // This should reset the ticker
     ticker.start();

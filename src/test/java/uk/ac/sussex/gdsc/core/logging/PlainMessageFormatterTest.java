@@ -18,6 +18,10 @@ public class PlainMessageFormatterTest {
     Assertions.assertFalse(formatter.isIncludeInfo(), "Default isIncludeInfo");
     Assertions.assertEquals(Level.SEVERE + ":" + msg, formatter.format(lr));
 
+    // Ignore zero length parameters
+    lr.setParameters(new Object[0]);
+    Assertions.assertEquals(Level.SEVERE + ":" + msg, formatter.format(lr));
+
     // Special handling of INFO level
     lr.setLevel(Level.INFO);
     Assertions.assertEquals(msg, formatter.format(lr));
@@ -48,13 +52,24 @@ public class PlainMessageFormatterTest {
 
   @Test
   public void canFormatParametersString() {
+    final PlainMessageFormatter formatter = new PlainMessageFormatter();
     final Object[] parameters = new Object[] {"Test", "the", "parameters", "string"};
+    final LogRecord lr = new LogRecord(Level.INFO, "");
+    lr.setParameters(parameters);
     for (int i = 0; i < 4; i++) {
       final String msg = "Param {" + i + "} message";
-      final LogRecord lr = new LogRecord(Level.INFO, msg);
-      lr.setParameters(parameters);
-      final PlainMessageFormatter formatter = new PlainMessageFormatter();
+      lr.setMessage(msg);
       Assertions.assertEquals(MessageFormat.format(msg, parameters), formatter.format(lr));
     }
+
+    // This is not formatted
+    String msg = "Param {4} message";
+    lr.setMessage(msg);
+    Assertions.assertEquals(msg, formatter.format(lr));
+
+    // Test an exception with a bad format string
+    msg = "Param {0:fgfh} message";
+    lr.setMessage(msg);
+    Assertions.assertEquals(msg, formatter.format(lr));
   }
 }
