@@ -254,7 +254,7 @@ public abstract class Ticker {
     @Override
     public void tick() {
       final int now = ++current;
-      if (now > next) {
+      if (now >= next) {
         next = now + interval;
         trackProgress.progress((double) now / total);
       }
@@ -273,7 +273,7 @@ public abstract class Ticker {
     @Override
     public void start() {
       current = 0;
-      next = 0;
+      next = interval;
       trackProgress.progress(0.0);
     }
 
@@ -287,7 +287,7 @@ public abstract class Ticker {
     final int total;
     final int interval;
     final AtomicInteger current = new AtomicInteger();
-    int next;
+    AtomicInteger next = new AtomicInteger();
 
     ConcurrentIntTicker(TrackProgress trackProgress, int interval, int total) {
       super(trackProgress);
@@ -298,8 +298,12 @@ public abstract class Ticker {
     @Override
     public void tick() {
       final int now = current.incrementAndGet();
-      if (now > next) {
-        next = now + interval;
+      // This is used as an alternative to
+      // next.compareAndSet(now, now + interval)
+      // since multiple threads could increment 'current' past 'next'.
+      // It also matches the non-threaded implementation.
+      if (now >= next.get()) {
+        next.set(now + interval);
         trackProgress.progress((double) now / total);
       }
     }
@@ -317,7 +321,7 @@ public abstract class Ticker {
     @Override
     public void start() {
       current.set(0);
-      next = 0;
+      next.set(interval);
       trackProgress.progress(0.0);
     }
 
@@ -342,7 +346,7 @@ public abstract class Ticker {
     @Override
     public void tick() {
       final long now = ++current;
-      if (now > next) {
+      if (now >= next) {
         next = now + interval;
         trackProgress.progress((double) now / total);
       }
@@ -361,7 +365,7 @@ public abstract class Ticker {
     @Override
     public void start() {
       current = 0L;
-      next = 0L;
+      next = interval;
       trackProgress.progress(0.0);
     }
 
@@ -375,7 +379,7 @@ public abstract class Ticker {
     final long total;
     final long interval;
     final AtomicLong current = new AtomicLong();
-    long next;
+    AtomicLong next = new AtomicLong();
 
     ConcurrentLongTicker(TrackProgress trackProgress, long interval, long total) {
       super(trackProgress);
@@ -386,8 +390,12 @@ public abstract class Ticker {
     @Override
     public void tick() {
       final long now = current.incrementAndGet();
-      if (now > next) {
-        next = now + interval;
+      // This is used as an alternative to
+      // next.compareAndSet(now, now + interval)
+      // since multiple threads could increment 'current' past 'next'.
+      // It also matches the non-threaded implementation.
+      if (now >= next.get()) {
+        next.set(now + interval);
         trackProgress.progress((double) now / total);
       }
     }
@@ -405,7 +413,7 @@ public abstract class Ticker {
     @Override
     public void start() {
       current.set(0L);
-      next = 0L;
+      next.set(interval);
       trackProgress.progress(0.0);
     }
 

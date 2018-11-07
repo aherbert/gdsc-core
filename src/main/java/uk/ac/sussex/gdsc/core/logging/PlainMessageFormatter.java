@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.logging;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Formatter;
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 /**
@@ -39,6 +40,8 @@ import java.util.logging.LogRecord;
  * <pre>
  * level + ":" + message
  * </pre>
+ * 
+ * <p>By default the level is not included if it is {@link Level#INFO}.
  *
  * <p>If the record contains a thrown exception then the stack trace is added to the message.
  *
@@ -46,6 +49,9 @@ import java.util.logging.LogRecord;
  * use of the record resource bundle occurs.
  */
 public class PlainMessageFormatter extends Formatter {
+
+  /** The include info flag. */
+  private boolean includeInfo;
 
   @Override
   public String format(LogRecord record) {
@@ -60,7 +66,10 @@ public class PlainMessageFormatter extends Formatter {
     return getPlainMessage(record);
   }
 
-  private static String getPlainMessage(LogRecord record) {
+  private String getPlainMessage(LogRecord record) {
+    if (record.getLevel() == Level.INFO && !isIncludeInfo()) {
+      return formatLogRecord(record);
+    }
     return record.getLevel() + ":" + formatLogRecord(record);
   }
 
@@ -94,5 +103,23 @@ public class PlainMessageFormatter extends Formatter {
       }
     }
     return format;
+  }
+
+  /**
+   * Checks if {@link Level#INFO} will be included in the message. By default this is {@code false}.
+   *
+   * @return true, if is including INFO
+   */
+  public boolean isIncludeInfo() {
+    return includeInfo;
+  }
+
+  /**
+   * Sets if {@link Level#INFO} will be included in the message.
+   *
+   * @param includeInfo the new include info flag
+   */
+  public void setIncludeInfo(boolean includeInfo) {
+    this.includeInfo = includeInfo;
   }
 }
