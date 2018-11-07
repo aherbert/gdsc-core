@@ -40,7 +40,7 @@ import java.util.logging.LogRecord;
  * <pre>
  * level + ":" + message
  * </pre>
- * 
+ *
  * <p>By default the level is not included if it is {@link Level#INFO}.
  *
  * <p>If the record contains a thrown exception then the stack trace is added to the message.
