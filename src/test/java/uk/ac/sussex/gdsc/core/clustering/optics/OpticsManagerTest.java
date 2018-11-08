@@ -77,7 +77,7 @@ import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
 @SuppressWarnings({"javadoc"})
-public class OPTICSManagerTest {
+public class OpticsManagerTest {
   private static Logger logger;
 
   @BeforeAll
@@ -96,7 +96,7 @@ public class OPTICSManagerTest {
       throw new Error(ex);
     }
 
-    logger = Logger.getLogger(OPTICSManagerTest.class.getName());
+    logger = Logger.getLogger(OpticsManagerTest.class.getName());
   }
 
   @AfterAll
@@ -312,8 +312,9 @@ public class OPTICSManagerTest {
       }
 
       final DBIDVar v = DBIDUtil.newVar();
-      for (int i = space.allNeighbours.length; i-- > 0;) {
-        final int[] list = space.allNeighbours[i];
+      int[][] allNeighbours = space.getAllNeighbours();
+      for (int i = allNeighbours.length; i-- > 0;) {
+        final int[] list = allNeighbours[i];
         final ArrayModifiableDBIDs nids = DBIDUtil.newArray(list.length);
         for (final int id : list) {
           nids.add(DBIDFactory.FACTORY.importInteger(id));

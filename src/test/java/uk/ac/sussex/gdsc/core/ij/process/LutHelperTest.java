@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class LUTHelperTest {
+public class LutHelperTest {
   @Test
   public void canMapTo0to255() {
     mapTo0to255(0, 0);

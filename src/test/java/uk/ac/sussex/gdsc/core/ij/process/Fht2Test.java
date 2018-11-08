@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class FHT2Test {
+public class Fht2Test {
   @Test
   public void canCheckPowerOf2() {
     Assertions.assertFalse(Fht.isPowerOf2(1), "1");
