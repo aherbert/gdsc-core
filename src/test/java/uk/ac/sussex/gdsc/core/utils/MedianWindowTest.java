@@ -5,7 +5,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingResult;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
@@ -515,7 +515,7 @@ public class MedianWindowTest {
       // Allow a margin of error
       // Assertions.assertTrue(String.format("Radius %d, Increment %d", radius, increment), t2 < t1
       // * 1.1);
-      logger.log(TestLog.getResultRecord(t2 < t1,
+      logger.log(TestLogUtils.getResultRecord(t2 < t1,
           "Radius %d, Increment %d : double %d : float %d = %fx faster", radius, increment, t1, t2,
           (double) t1 / t2));
     } else {
@@ -623,9 +623,9 @@ public class MedianWindowTest {
     if (radius == testSpeedRadius) {
       // Assertions.assertTrue(t2 < t1, () -> String.format("Radius %d, Increment %d", radius,
       // increment));
-      logger.log(TestLog.getTimingRecord(slow, fast));
+      logger.log(TestLogUtils.getTimingRecord(slow, fast));
     } else {
-      logger.log(TestLog.getStageTimingRecord(slow, fast));
+      logger.log(TestLogUtils.getStageTimingRecord(slow, fast));
     }
   }
 

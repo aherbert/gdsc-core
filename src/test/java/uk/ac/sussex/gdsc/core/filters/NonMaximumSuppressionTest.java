@@ -7,7 +7,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -337,14 +337,14 @@ public class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLog.getTimingRecord("float maxFind" + boxSize, boxTotal, "float blockFind",
+      logger.log(TestLogUtils.getTimingRecord("float maxFind" + boxSize, boxTotal, "float blockFind",
           blockBoxTotal));
       // if (boxSize > 1) // Sometimes this fails at small sizes
       // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
       // blockBoxTotal, boxTotal),
       // blockBoxTotal < boxTotal);
     }
-    logger.log(TestLog.getTimingRecord("float maxFind", total, "float blockFind", blockTotal));
+    logger.log(TestLogUtils.getTimingRecord("float maxFind", total, "float blockFind", blockTotal));
   }
 
   @SpeedTag
@@ -405,7 +405,7 @@ public class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLog.getTimingRecord("float maxFind" + boxSize, boxTotal,
+      logger.log(TestLogUtils.getTimingRecord("float maxFind" + boxSize, boxTotal,
           "float blockFindWithCheck", blockBoxTotal));
       // if (boxSize > 1) // Sometimes this fails at small sizes
       // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
@@ -413,7 +413,7 @@ public class NonMaximumSuppressionTest {
       // blockBoxTotal < boxTotal);
     }
     logger.log(
-        TestLog.getTimingRecord("float maxFind", total, "float blockFindWithCheck", blockTotal));
+        TestLogUtils.getTimingRecord("float maxFind", total, "float blockFindWithCheck", blockTotal));
   }
 
   private ArrayList<float[]> floatCreateSpeedData(UniformRandomProvider rg) {
@@ -498,7 +498,7 @@ public class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLog.getTimingRecord("float blockFind" + boxSize, boxTotal,
+      logger.log(TestLogUtils.getTimingRecord("float blockFind" + boxSize, boxTotal,
           "float blockFindInternal", internalBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Internal not faster: Block %d : %d > %d", boxSize,
@@ -506,7 +506,7 @@ public class NonMaximumSuppressionTest {
     }
     logger.info(FunctionUtils.getSupplier("float blockFind %d => blockFindInternal %d = %.2fx",
         total, internalTotal, (1.0 * total) / internalTotal));
-    logger.log(TestLog.getTimingRecord("float blockFind (border >= 5)", bigTotal,
+    logger.log(TestLogUtils.getTimingRecord("float blockFind (border >= 5)", bigTotal,
         "float blockFindInternal (border >= 5)", bigInternalTotal));
   }
 
@@ -575,7 +575,7 @@ public class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLog.getTimingRecord("float blockFindInternal check" + boxSize, checkBoxTotal,
+      logger.log(TestLogUtils.getTimingRecord("float blockFindInternal check" + boxSize, checkBoxTotal,
           "float blockFindInternal", noCheckBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
@@ -585,7 +585,7 @@ public class NonMaximumSuppressionTest {
     logger.info(FunctionUtils.getSupplier(
         "float blockFindInternal check %d => blockFindInternal %d = %.2fx", checkTotal,
         noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-    logger.log(TestLog.getTimingRecord("float blockFindInternal check (border >= 5)", bigCheckTotal,
+    logger.log(TestLogUtils.getTimingRecord("float blockFindInternal check (border >= 5)", bigCheckTotal,
         "float blockFindInternal (border >= 5)", bigNoCheckTotal));
   }
 
@@ -654,7 +654,7 @@ public class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLog.getTimingRecord("float blockFind check" + boxSize, checkBoxTotal,
+      logger.log(TestLogUtils.getTimingRecord("float blockFind check" + boxSize, checkBoxTotal,
           "float blockFind", noCheckBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
@@ -663,7 +663,7 @@ public class NonMaximumSuppressionTest {
     }
     logger.info(FunctionUtils.getSupplier("float blockFind check %d => blockFind %d = %.2fx",
         checkTotal, noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-    logger.log(TestLog.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
+    logger.log(TestLogUtils.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
         "float blockFind check %d  (border >= 5) => blockFind %d = %.2fx", bigCheckTotal,
         bigNoCheckTotal, (1.0 * bigCheckTotal) / bigNoCheckTotal));
   }
@@ -719,7 +719,7 @@ public class NonMaximumSuppressionTest {
       }
     }
     logger.log(
-        TestLog.getTimingRecord("float blockFindNxN", total, "float blockFind3x3", blockTotal));
+        TestLogUtils.getTimingRecord("float blockFindNxN", total, "float blockFind3x3", blockTotal));
   }
 
   @SpeedTag
@@ -777,7 +777,7 @@ public class NonMaximumSuppressionTest {
         }
       }
     }
-    logger.log(TestLog.getTimingRecord("float blockFind3x3", total, "float blockFind3x3 (buffer)",
+    logger.log(TestLogUtils.getTimingRecord("float blockFind3x3", total, "float blockFind3x3 (buffer)",
         blockTotal));
   }
 
@@ -832,7 +832,7 @@ public class NonMaximumSuppressionTest {
       }
     }
     logger
-        .log(TestLog.getTimingRecord("float maxFind3x3", total, "float blockFind3x3", blockTotal));
+        .log(TestLogUtils.getTimingRecord("float maxFind3x3", total, "float blockFind3x3", blockTotal));
   }
 
   /**
@@ -1176,14 +1176,14 @@ public class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLog.getTimingRecord("int maxFind" + boxSize, boxTotal, "int blockFind",
+      logger.log(TestLogUtils.getTimingRecord("int maxFind" + boxSize, boxTotal, "int blockFind",
           blockBoxTotal));
       // if (boxSize > 1) // Sometimes this fails at small sizes
       // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
       // blockBoxTotal, boxTotal),
       // blockBoxTotal < boxTotal);
     }
-    logger.log(TestLog.getTimingRecord("int maxFind", total, "int blockFind", blockTotal));
+    logger.log(TestLogUtils.getTimingRecord("int maxFind", total, "int blockFind", blockTotal));
   }
 
   @SpeedTag
@@ -1244,14 +1244,14 @@ public class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLog.getTimingRecord("int maxFind" + boxSize, boxTotal,
+      logger.log(TestLogUtils.getTimingRecord("int maxFind" + boxSize, boxTotal,
           "int blockFindWithCheck", blockBoxTotal));
       // if (boxSize > 1) // Sometimes this fails at small sizes
       // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
       // blockBoxTotal, boxTotal),
       // blockBoxTotal < boxTotal);
     }
-    logger.log(TestLog.getTimingRecord("int maxFind", total, "int blockFindWithCheck", blockTotal));
+    logger.log(TestLogUtils.getTimingRecord("int maxFind", total, "int blockFindWithCheck", blockTotal));
   }
 
   private ArrayList<int[]> intCreateSpeedData(UniformRandomProvider rg) {
@@ -1336,7 +1336,7 @@ public class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLog.getTimingRecord("int blockFind" + boxSize, boxTotal,
+      logger.log(TestLogUtils.getTimingRecord("int blockFind" + boxSize, boxTotal,
           "int blockFindInternal", internalBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Internal not faster: Block %d : %d > %d", boxSize,
@@ -1344,7 +1344,7 @@ public class NonMaximumSuppressionTest {
     }
     logger.info(FunctionUtils.getSupplier("int blockFind %d => blockFindInternal %d = %.2fx", total,
         internalTotal, (1.0 * total) / internalTotal));
-    logger.log(TestLog.getTimingRecord("int blockFind (border >= 5)", bigTotal,
+    logger.log(TestLogUtils.getTimingRecord("int blockFind (border >= 5)", bigTotal,
         "int blockFindInternal (border >= 5)", bigInternalTotal));
   }
 
@@ -1413,7 +1413,7 @@ public class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLog.getTimingRecord("int blockFindInternal check" + boxSize, checkBoxTotal,
+      logger.log(TestLogUtils.getTimingRecord("int blockFindInternal check" + boxSize, checkBoxTotal,
           "int blockFindInternal", noCheckBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
@@ -1423,7 +1423,7 @@ public class NonMaximumSuppressionTest {
     logger.info(
         FunctionUtils.getSupplier("int blockFindInternal check %d => blockFindInternal %d = %.2fx",
             checkTotal, noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-    logger.log(TestLog.getTimingRecord("int blockFindInternal check (border >= 5)", bigCheckTotal,
+    logger.log(TestLogUtils.getTimingRecord("int blockFindInternal check (border >= 5)", bigCheckTotal,
         "int blockFindInternal (border >= 5)", bigNoCheckTotal));
   }
 
@@ -1492,7 +1492,7 @@ public class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLog.getTimingRecord("int blockFind check" + boxSize, checkBoxTotal,
+      logger.log(TestLogUtils.getTimingRecord("int blockFind check" + boxSize, checkBoxTotal,
           "int blockFind", noCheckBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
@@ -1501,7 +1501,7 @@ public class NonMaximumSuppressionTest {
     }
     logger.info(FunctionUtils.getSupplier("int blockFind check %d => blockFind %d = %.2fx",
         checkTotal, noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-    logger.log(TestLog.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
+    logger.log(TestLogUtils.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
         "int blockFind check %d  (border >= 5) => blockFind %d = %.2fx", bigCheckTotal,
         bigNoCheckTotal, (1.0 * bigCheckTotal) / bigNoCheckTotal));
   }
@@ -1556,7 +1556,7 @@ public class NonMaximumSuppressionTest {
         }
       }
     }
-    logger.log(TestLog.getTimingRecord("int blockFindNxN", total, "int blockFind3x3", blockTotal));
+    logger.log(TestLogUtils.getTimingRecord("int blockFindNxN", total, "int blockFind3x3", blockTotal));
   }
 
   @SpeedTag
@@ -1614,7 +1614,7 @@ public class NonMaximumSuppressionTest {
         }
       }
     }
-    logger.log(TestLog.getTimingRecord("int blockFind3x3", total, "int blockFind3x3 (buffer)",
+    logger.log(TestLogUtils.getTimingRecord("int blockFind3x3", total, "int blockFind3x3 (buffer)",
         blockTotal));
   }
 
@@ -1668,7 +1668,7 @@ public class NonMaximumSuppressionTest {
         }
       }
     }
-    logger.log(TestLog.getTimingRecord("int maxFind3x3", total, "int blockFind3x3", blockTotal));
+    logger.log(TestLogUtils.getTimingRecord("int maxFind3x3", total, "int blockFind3x3", blockTotal));
   }
 
   /**

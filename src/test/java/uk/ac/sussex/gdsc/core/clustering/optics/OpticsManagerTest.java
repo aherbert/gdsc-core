@@ -15,7 +15,7 @@ import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingResult;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
@@ -693,7 +693,7 @@ public class OpticsManagerTest {
           ri.compute(expClusters, obsClusters);
 
           final double r = ri.getRandIndex();
-          logger.log(TestLog.getResultRecord(ri.getAdjustedRandIndex() > 0,
+          logger.log(TestLogUtils.getResultRecord(ri.getAdjustedRandIndex() > 0,
               "FastOPTICS vs ELKI : %d,%d : [%d] r=%f (%f)", n, minPts, loop, r,
               ri.getAdjustedRandIndex()));
           // Assertions.assertTrue(ri.getAdjustedRandIndex() > 0);
@@ -702,7 +702,7 @@ public class OpticsManagerTest {
 
         sum /= nLoops;
 
-        logger.log(TestLog.getResultRecord(sum > 0.6, "FastOPTICS vs ELKI : %d,%d : r=%f", n,
+        logger.log(TestLogUtils.getResultRecord(sum > 0.6, "FastOPTICS vs ELKI : %d,%d : r=%f", n,
             minPts, sum));
         // Assertions.assertTrue(sum > 0.6);
       }
@@ -768,9 +768,9 @@ public class OpticsManagerTest {
         final long elki = t2 - t1;
         final long smlm1 = t3 - t2;
         final long smlm2 = t4 - t3;
-        logger.log(TestLog.getResultRecord(smlm1 < elki, "ELKI = %d, SMLM = %d = %f", elki, smlm1,
+        logger.log(TestLogUtils.getResultRecord(smlm1 < elki, "ELKI = %d, SMLM = %d = %f", elki, smlm1,
             elki / (double) smlm1));
-        logger.log(TestLog.getResultRecord(smlm2 < elki, "ELKI = %d, SMLM (default) = %d = %f",
+        logger.log(TestLogUtils.getResultRecord(smlm2 < elki, "ELKI = %d, SMLM (default) = %d = %f",
             elki, smlm2, elki / (double) smlm2));
         // Assertions.assertTrue(smlm1 < elki);
         // Assertions.assertTrue(smlm2 < elki);
@@ -839,7 +839,7 @@ public class OpticsManagerTest {
           }
           final double r = sum / c;
           // This may fail with certain random seeds
-          logger.log(TestLog.getResultRecord(randMin < r,
+          logger.log(TestLogUtils.getResultRecord(randMin < r,
               "xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, sampleMode=%s : r=%f", xi, n,
               minPts, nSplits, nProjections, sampleMode, r));
         }
@@ -1433,7 +1433,7 @@ public class OpticsManagerTest {
     t2 = t2 - t1;
 
     logger
-        .log(TestLog.getTimingRecord("DBSCAN Grid High Density", t2, "DBSCAN Inner Cicrular", t3));
+        .log(TestLogUtils.getTimingRecord("DBSCAN Grid High Density", t2, "DBSCAN Inner Cicrular", t3));
   }
 
   @SpeedTag
@@ -1477,7 +1477,7 @@ public class OpticsManagerTest {
     t3 = t3 - t2;
     t2 = t2 - t1;
 
-    logger.log(TestLog.getTimingRecord("OPTICS Grid High Density", t2, "OPTICS Circular", t3));
+    logger.log(TestLogUtils.getTimingRecord("OPTICS Grid High Density", t2, "OPTICS Circular", t3));
   }
 
   private enum MS {

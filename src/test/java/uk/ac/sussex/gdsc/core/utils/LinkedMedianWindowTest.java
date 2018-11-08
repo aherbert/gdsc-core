@@ -5,7 +5,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -361,7 +361,7 @@ public class LinkedMedianWindowTest {
     // When the increment is large then the linked list is doing too many operations
     // verses the full array sort of the cache median window.
     if (increment <= 4) {
-      logger.log(TestLog.getResultRecord(t2 < t1,
+      logger.log(TestLogUtils.getResultRecord(t2 < t1,
           "Radius %d, Increment %d : Cached %d : DLL %d = %fx faster", radius, increment, t1, t2,
           (double) t1 / t2));
     } else {

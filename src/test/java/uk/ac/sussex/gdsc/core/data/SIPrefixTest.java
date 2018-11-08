@@ -1,6 +1,6 @@
 package uk.ac.sussex.gdsc.core.data;
 
-import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -132,7 +132,7 @@ public class SIPrefixTest {
   private static void canGetPrefix(int sign, double value, SiPrefix e) {
     value *= sign;
     final SiPrefix o = SiPrefix.getPrefix(value);
-    logger.log(TestLog.getRecord(Level.FINE, "Value %s = %s %s (%s)", value, o.convert(value),
+    logger.log(TestLogUtils.getRecord(Level.FINE, "Value %s = %s %s (%s)", value, o.convert(value),
         o.getName(), o.getSymbol()));
     Assertions.assertEquals(e, o);
   }

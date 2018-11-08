@@ -6,7 +6,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -28,7 +28,6 @@ public class ClusteringEngineTest {
   @BeforeAll
   public static void beforeAll() {
     logger = Logger.getLogger(ClusteringEngineTest.class.getName());
-
   }
 
   @AfterAll
@@ -76,7 +75,7 @@ public class ClusteringEngineTest {
     final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
     final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
 
-    logger.log(TestLog.getTimingRecord("(Low Density) Centroid-linkage", t1,
+    logger.log(TestLogUtils.getTimingRecord("(Low Density) Centroid-linkage", t1,
         "PairwiseWithoutNeighbours", t2));
   }
 
@@ -96,7 +95,7 @@ public class ClusteringEngineTest {
     final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
     final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE_WITHOUT_NEIGHBOURS, radius);
 
-    logger.log(TestLog.getTimingRecord("(High Density) Centroid-linkage", t1,
+    logger.log(TestLogUtils.getTimingRecord("(High Density) Centroid-linkage", t1,
         "PairwiseWithoutNeighbours", t2));
     Assertions.assertTrue(t1 <= t2);
   }
@@ -116,7 +115,7 @@ public class ClusteringEngineTest {
     final long t1 = runSpeedTest(points, ClusteringAlgorithm.CENTROID_LINKAGE, radius);
     final long t2 = runSpeedTest(points, ClusteringAlgorithm.PAIRWISE, radius);
 
-    logger.log(TestLog.getTimingRecord("Centroid-linkage", t1, "Pairwise", t2));
+    logger.log(TestLogUtils.getTimingRecord("Centroid-linkage", t1, "Pairwise", t2));
     Assertions.assertTrue(t2 <= t1);
   }
 
@@ -255,7 +254,7 @@ public class ClusteringEngineTest {
     final long t1 = runSpeedTest(points, algorithm, radius, time, 1);
     final long t2 = runSpeedTest(points, algorithm, radius, time, testCores);
 
-    logger.log(TestLog.getTimingRecord(algorithm.toString() + " Single", t1,
+    logger.log(TestLogUtils.getTimingRecord(algorithm.toString() + " Single", t1,
         "Multi-threaded 4-cores", t2));
     // Assertions.assertTrue(t2 <= t1);
   }

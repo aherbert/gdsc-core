@@ -312,7 +312,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
           <consoleOutput>true</consoleOutput>
           <failsOnError>true</failsOnError>
           <linkXRef>true</linkXRef>
-          <includeTestSourceDirectory>false</includeTestSourceDirectory>
+          <includeTestSourceDirectory>true</includeTestSourceDirectory>
         </configuration>
         <executions>
           <execution>

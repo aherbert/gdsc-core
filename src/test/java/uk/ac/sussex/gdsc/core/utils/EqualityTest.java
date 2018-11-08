@@ -6,7 +6,7 @@ import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
@@ -385,7 +385,7 @@ public class EqualityTest {
     logger.info(ts.getReport());
 
     final double error = DoubleEquality.relativeError(ts.get(-1).getMean(), ts.get(-2).getMean());
-    logger.log(TestLog.getResultRecord(error < 0.2,
+    logger.log(TestLogUtils.getResultRecord(error < 0.2,
         "Float and Double relative equality not the same speed: Error=" + error));
   }
 

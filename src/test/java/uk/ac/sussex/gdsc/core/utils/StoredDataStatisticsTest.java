@@ -5,7 +5,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -95,7 +95,7 @@ public class StoredDataStatisticsTest extends StatisticsTest {
     start2 = System.nanoTime() - start2;
     logger.finest(FunctionUtils.getSupplier("Total = %s", total));
 
-    logger.log(TestLog.getTimingRecord("for (double d : stats.getValues())", start2,
+    logger.log(TestLogUtils.getTimingRecord("for (double d : stats.getValues())", start2,
         "for (int j = 0; j < values.length; j++)", start1));
   }
 
@@ -128,7 +128,7 @@ public class StoredDataStatisticsTest extends StatisticsTest {
     start2 = System.nanoTime() - start2;
     logger.finest(FunctionUtils.getSupplier("Total = %s", total));
 
-    logger.log(TestLog.getTimingRecord("for (double d : stats)", start2,
+    logger.log(TestLogUtils.getTimingRecord("for (double d : stats)", start2,
         "for (double d : stats.getValues)", start1));
   }
 
@@ -161,7 +161,7 @@ public class StoredDataStatisticsTest extends StatisticsTest {
     start2 = System.nanoTime() - start2;
     logger.finest(FunctionUtils.getSupplier("Total = %s", total));
 
-    logger.log(TestLog.getTimingRecord("for (Double d : stats)", start2,
+    logger.log(TestLogUtils.getTimingRecord("for (Double d : stats)", start2,
         "for (double d : stats.getValues)", start1));
   }
 

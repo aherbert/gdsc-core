@@ -5,7 +5,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
 
@@ -253,7 +253,7 @@ public class DensityManagerTest {
         // This is not always faster
         // TestLog.info(logger,msg);
         // Assertions.assertTrue(t2 < t1, msg);
-        logger.log(TestLog.getResultRecord(t2 < t1, msg));
+        logger.log(TestLogUtils.getResultRecord(t2 < t1, msg));
       }
     }
   }

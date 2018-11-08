@@ -6,7 +6,7 @@ import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingResult;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
@@ -266,7 +266,7 @@ public class DetectionGridTest {
     for (int i1 = -1, i2 = -2; i > 0; i -= 2, i1 -= 2, i2 -= 2) {
       final TimingResult fast = ts.get(i1);
       final TimingResult slow = ts.get(i2);
-      logger.log(TestLog.getTimingRecord(slow, fast));
+      logger.log(TestLogUtils.getTimingRecord(slow, fast));
     }
   }
 }

@@ -21,7 +21,7 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestCounter;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingResult;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
@@ -1260,7 +1260,7 @@ public class CustomTricubicInterpolatorTest {
     for (int i = 1; i < n; i += 2) {
       final TimingResult fast = ts.get(-i);
       final TimingResult slow = ts.get(-i - 1);
-      logger.log(TestLog.getTimingRecord(slow, fast));
+      logger.log(TestLogUtils.getTimingRecord(slow, fast));
     }
   }
 

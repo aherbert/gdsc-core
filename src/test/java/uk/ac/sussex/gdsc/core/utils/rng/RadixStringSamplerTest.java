@@ -1,6 +1,6 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
-import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.apache.commons.rng.RestorableUniformRandomProvider;
@@ -167,7 +167,7 @@ public class RadixStringSamplerTest {
     Arrays.fill(expected, 1.0 / radix);
     final double p = chi.chiSquareTest(expected, h);
     final boolean reject = p < 0.001;
-    logger.log(TestLog.getResultRecord(!reject,
+    logger.log(TestLogUtils.getResultRecord(!reject,
         () -> String.format("Radix %d, chiSq p = %s  (reject=%b)", radix, p, reject)));
     // This will sometimes fail due to randomness so do not assert
     // Assertions.assertFalse(reject);

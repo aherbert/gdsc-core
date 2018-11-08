@@ -10,7 +10,7 @@ import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
 
@@ -283,7 +283,7 @@ public class AreaSumTest {
     // Do not let this fail the test suite
     // Assertions.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
     logger
-        .log(TestLog.getResultRecord(ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
+        .log(TestLogUtils.getResultRecord(ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
             "AreaSum Density=%g RollingIsFaster=%b N=%d:%d: rolling %s vs simple %s", density,
             rollingIsFaster, minN, maxN, ts.get(-2).getMean(), ts.get(-1).getMean()));
   }
