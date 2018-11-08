@@ -166,11 +166,12 @@ public class LinkedMedianWindowTest {
     }
   }
 
-  @Test
-  public void canComputeMedianForSparseDataUsingDynamicLinkedList() {
+  @SeededTest
+  public void canComputeMedianForSparseDataUsingDynamicLinkedList(RandomSeed seed) {
+    UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final double value : values) {
-      final double[] data = MedianWindowTest.createSparseData(dataSize, value);
+      final double[] data = MedianWindowTest.createSparseData(rng, dataSize, value);
       for (final int radius : radii) {
         final double[] startData = Arrays.copyOf(data, 2 * radius + 1);
         final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(startData);

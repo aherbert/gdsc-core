@@ -6,7 +6,7 @@ import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.DistanceFunction;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.SquareEuclideanDistanceFunction2D;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.PartialSort;
-import uk.ac.sussex.gdsc.core.utils.Random;
+import uk.ac.sussex.gdsc.core.utils.RandomUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
@@ -566,8 +566,8 @@ public class KdTreeTest {
     } else {
       final double[] x = SimpleArrayUtils.newArray(n, 0, (double) size / n);
       final double[] y = x.clone();
-      Random.shuffle(x, r);
-      Random.shuffle(y, r);
+      RandomUtils.shuffle(x, r);
+      RandomUtils.shuffle(y, r);
       for (int i = 0; i < n; i++) {
         data[i] = new double[] {x[i], y[i]};
       }

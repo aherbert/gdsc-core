@@ -1,6 +1,6 @@
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.core.utils.Random;
+import uk.ac.sussex.gdsc.core.utils.RandomUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
@@ -458,7 +458,7 @@ public class ClusteringEngineTest {
       final double x = rg.nextDouble() * size;
       final double y = rg.nextDouble() * size;
       if (time != null) {
-        Random.shuffle(time, rg);
+        RandomUtils.shuffle(time, rg);
         for (int i = m; i-- > 0;) {
           points.add(ClusterPoint.newTimeClusterPoint(id++, x + rg.nextDouble() * radius,
               y + rg.nextDouble() * radius, time[i], time[i]));

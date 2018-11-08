@@ -1,7 +1,7 @@
 package uk.ac.sussex.gdsc.core.filters;
 
 import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
-import uk.ac.sussex.gdsc.core.utils.Random;
+import uk.ac.sussex.gdsc.core.utils.RandomUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
@@ -870,7 +870,7 @@ public class NonMaximumSuppressionTest {
       data[i] = i;
     }
 
-    Random.shuffle(data, rg);
+    RandomUtils.shuffle(data, rg);
 
     return data;
   }
@@ -1706,7 +1706,7 @@ public class NonMaximumSuppressionTest {
       data[i] = i;
     }
 
-    Random.shuffle(data, rg);
+    RandomUtils.shuffle(data, rg);
 
     return data;
   }

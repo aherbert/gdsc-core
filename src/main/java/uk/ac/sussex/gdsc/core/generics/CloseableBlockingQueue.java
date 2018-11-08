@@ -57,7 +57,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     implements BlockingQueue<E>, java.io.Serializable {
 
   // This is a copy implementation.
-  // To aid maintenance the rules have been relexed
+  // To aid maintenance the rules have been relaxed
   // CHECKSTYLE.OFF: ParameterName
   // CHECKSTYLE.OFF: OverloadMethodsDeclarationOrder
   // CHECKSTYLE.OFF: LocalVariableName

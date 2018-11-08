@@ -30,8 +30,11 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import uk.ac.sussex.gdsc.core.data.AsynchronousException;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
@@ -84,10 +87,10 @@ public final class ConcurrencyUtils {
    * {@link InterruptedException} or {@link ExecutionException} to preserve the stack trace.
    *
    * @param futures the futures
-   * @param errorHandler the error handler used to process the exception (if not null)
+   * @param errorHandler the error handler used to process the exception (can be null)
    * @throws AsynchronousException a wrapped InterruptedException or ExecutionException
    */
-  public static void waitForCompletionOrError(List<Future<?>> futures,
+  public static  void waitForCompletionOrError(List<Future<?>> futures,
       Consumer<Exception> errorHandler) {
     try {
       for (final Future<?> f : futures) {
@@ -132,6 +135,59 @@ public final class ConcurrencyUtils {
   private static void handleError(Consumer<Exception> errorHandler, Exception exception) {
     if (errorHandler != null) {
       errorHandler.accept(exception);
+    }
+  }
+
+  /**
+   * Executes the given tasks, returning a list of Futures holding their status and results when all
+   * complete. {@link Future#isDone} is {@code true} for each element of the returned list.
+   *
+   * <p>This is convenience method that wraps an {@link InterruptedException} with an
+   * {@link AsynchronousException}. Note: If an {@link InterruptedException} occurs the thread
+   * interrupted state is reset.
+   *
+   * @param <T> the type of the values returned from the tasks
+   * @param executor the executor
+   * @param tasks the tasks
+   * @return the list
+   * @throws AsynchronousException a wrapped InterruptedException or ExecutionException
+   * @see ExecutorService#invokeAll(Collection)
+   */
+  public static <T> List<Future<T>> invokeAllOrError(ExecutorService executor,
+      Collection<? extends Callable<T>> tasks) {
+    return invokeAllOrError(executor, tasks, null);
+  }
+
+  /**
+   * Executes the given tasks using the executor, returning a list of Futures holding their status
+   * and results when all complete. {@link Future#isDone} is {@code true} for each element of the
+   * returned list.
+   *
+   * <p>The result must still be checked using {@link Future#get()} to determine if an exception
+   * occurred in each task.
+   *
+   * <p>This is convenience method that wraps an {@link InterruptedException} with an
+   * {@link AsynchronousException}. Note: If an {@link InterruptedException} occurs the thread
+   * interrupted state is reset.
+   *
+   * @param <T> the type of the values returned from the tasks
+   * @param executor the executor
+   * @param tasks the tasks
+   * @param errorHandler the error handler used to process the exception (can be null)
+   * @return a list of Futures representing the tasks, in the same sequential order as produced by
+   *         the iterator f
+   * @throws AsynchronousException a wrapped InterruptedException
+   * @see ExecutorService#invokeAll(Collection)
+   */
+  public static <T> List<Future<T>> invokeAllOrError(ExecutorService executor,
+      Collection<? extends Callable<T>> tasks, Consumer<Exception> errorHandler) {
+    try {
+      return executor.invokeAll(tasks);
+    } catch (InterruptedException ex) {
+      // Restore interrupted state...
+      Thread.currentThread().interrupt();
+      handleError(errorHandler, ex);
+      throw new AsynchronousException(ex);
     }
   }
 }

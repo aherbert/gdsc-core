@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import org.apache.commons.math3.random.AbstractRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.rng.UniformRandomProvider;
 
@@ -37,138 +36,10 @@ import java.util.Arrays;
 /**
  * Random number generator.
  */
-public class Random extends AbstractRandomGenerator {
-  private static int IA = 16807;
-  private static int IM = 2147483647;
-  private static int IQ = 127773;
-  private static int IR = 2836;
-  private static int NTAB = 32;
-  private static int NDIV = (1 + (IM - 1) / NTAB);
-  private static float AM = (float) (1.0 / (IM));
-  /** The float before 1f. */
-  private static float RNMX = Math.nextDown(1f);
+public final class RandomUtils {
 
-  private int idum;
-  private int iy = 0;
-  private final int[] iv = new int[NTAB];
-
-  /**
-   * Default constructor.
-   */
-  public Random() {
-    // Require an integer seed
-    final int seed = (int) (System.currentTimeMillis() & 0xffffffff);
-    init(seed);
-  }
-
-  /**
-   * Constructor.
-   *
-   * @param seed The seed to use for the random number generator
-   */
-  public Random(int seed) {
-    init(seed);
-  }
-
-  private void init(int seed) {
-    // Clear the Gaussian random deviate cache
-    clear();
-    idum = (seed > 0) ? -seed : seed;
-  }
-
-  /**
-   * Returns a random number between 0 (included) and 1 (excluded).
-   *
-   * @return Random number
-   */
-  public float next() {
-    return next(RNMX);
-  }
-
-  /**
-   * Returns a random number between 0 (included) and 1 (optionally included).
-   *
-   * @param includeOne set to true to return a value up to 1 inclusive. The default is 1 exclusive.
-   * @return Random number
-   */
-  public float next(boolean includeOne) {
-    return (includeOne) ? next(1f) : next(RNMX);
-  }
-
-  /**
-   * Returns a random number between 0 (included) and max.
-   *
-   * @param max the max
-   * @return Random number
-   */
-  private float next(float max) {
-    int kk;
-
-    if (idum <= 0 || iy == 0) {
-      if (-idum < 1) {
-        idum = 1;
-      } else {
-        idum = -idum;
-      }
-      for (int j = NTAB + 8; j-- > 0;) {
-        kk = idum / IQ;
-        idum = IA * (idum - kk * IQ) - IR * kk;
-        if (idum < 0) {
-          idum += IM;
-        }
-        if (j < NTAB) {
-          iv[j] = idum;
-        }
-      }
-      iy = iv[0];
-    }
-    kk = idum / IQ;
-    idum = IA * (idum - kk * IQ) - IR * kk;
-    if (idum < 0) {
-      idum += IM;
-    }
-    int index = iy / NDIV;
-    iy = iv[index];
-    iv[index] = idum;
-    final float temp = AM * iy;
-    return (temp > max) ? max : temp;
-  }
-
-  /**
-   * Perform a Fisher-Yates shuffle on the data.
-   *
-   * @param data the data
-   */
-  public void shuffle(double[] data) {
-    shuffle(data, this);
-  }
-
-  /**
-   * Perform a Fisher-Yates shuffle on the data.
-   *
-   * @param data the data
-   */
-  public void shuffle(float[] data) {
-    shuffle(data, this);
-  }
-
-  /**
-   * Perform a Fisher-Yates shuffle on the data.
-   *
-   * @param data the data
-   */
-  public void shuffle(int[] data) {
-    shuffle(data, this);
-  }
-
-  /**
-   * Perform a Fisher-Yates shuffle on the data.
-   *
-   * @param data the data
-   */
-  public void shuffle(Object[] data) {
-    shuffle(data, this);
-  }
+  /** No public construction. */
+  private RandomUtils() {}
 
   /**
    * Perform a Fisher-Yates shuffle on the data.
@@ -292,35 +163,6 @@ public class Random extends AbstractRandomGenerator {
 
   // It is fine to have parameter names n and k for the common nomenclature of nCk (n choose k)
   // CHECKSTYLE.OFF: ParameterName
-
-  /**
-   * Sample k objects without replacement from n objects. This is done using an in-line Fisher-Yates
-   * shuffle on an array of length n for the first k target indices.
-   *
-   * <p>Note: Returns an empty array if n or k are less than 1. Returns an ascending array of
-   * indices if k is equal or bigger than n.
-   *
-   * @param k the k
-   * @param n the n
-   * @return the sample
-   */
-  public int[] sample(final int k, final int n) {
-    return sample(k, n, this);
-  }
-
-  /**
-   * Sample k values without replacement from the data.
-   *
-   * <p>Note: Returns an empty array if k is less than 1. Returns a copy of the data if k is greater
-   * than data.length.
-   *
-   * @param k the k
-   * @param data the data
-   * @return the sample
-   */
-  public int[] sample(final int k, final int[] data) {
-    return sample(k, data.length, this);
-  }
 
   /**
    * Sample k objects without replacement from n objects. This is done using an in-line Fisher-Yates
@@ -501,57 +343,4 @@ public class Random extends AbstractRandomGenerator {
   }
 
   // CHECKSTYLE.ON: ParameterName
-
-  // Apache commons random generator methods
-
-  @Override
-  public void setSeed(long seed) {
-    init((int) (seed & 0xffffffffL));
-  }
-
-  @Override
-  public double nextDouble() {
-    // 0 to 1 inclusive
-    return next(1f);
-  }
-
-  @Override
-  public float nextFloat() {
-    // 0 to 1 inclusive
-    return next(1f);
-  }
-
-  @Override
-  public int nextInt() {
-    return (int) ((2d * next(1f) - 1d) * Integer.MAX_VALUE);
-  }
-
-  @Override
-  public int nextInt(int upper) {
-    return (int) (next(RNMX) * upper);
-  }
-
-  /**
-   * Generate a random integer between lower and upper (end points included).
-   *
-   * @param lower the lower
-   * @param upper the upper
-   * @return the integer
-   */
-  public int nextInt(int lower, int upper) {
-    final int max = (upper - lower) + 1;
-    if (max <= 0) {
-      // The range is too wide to fit in a positive int (larger
-      // than 2^31); as it covers more than half the integer range,
-      // we use a simple rejection method.
-      while (true) {
-        final int next = nextInt();
-        if (next >= lower && next <= upper) {
-          return next;
-        }
-      }
-    }
-    // We can shift the range and directly generate a positive int.
-    return lower + nextInt(max);
-  }
 }

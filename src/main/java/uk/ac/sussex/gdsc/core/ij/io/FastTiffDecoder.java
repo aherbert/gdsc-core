@@ -43,6 +43,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.logging.Logger;
 
 /**
  * Re-implement the {@link ij.io.TiffDecoder} to allow it to use a SeekableStream interface.
@@ -2322,7 +2323,8 @@ public abstract class FastTiffDecoder {
       case RATIONAL:
         return 8; // 2 dwords, numerator and denominator
       default:
-        System.out.printf("unknown IFD field size for field type: %d%n", fieldType);
+        Logger.getLogger(FastTiffDecoder.class.getName())
+            .warning(() -> "unknown IFD field size for field type: " + fieldType);
         return 1; // It has to have some size
     }
   }

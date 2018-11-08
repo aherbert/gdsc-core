@@ -158,26 +158,27 @@ public class MedianWindowTest {
     }
   }
 
-  @Test
-  public void canComputeMedianForSparseDataUsingSingleIncrement() {
-    // canComputeMedianForDataUsingSingleIncrement(SimpleArrayUtils.newArray(10, 1.0, 1));
-
+  @SeededTest
+  public void canComputeMedianForSparseDataUsingSingleIncrement(RandomSeed seed) {
+    UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
     for (final double value : values) {
-      canComputeMedianForDataUsingSingleIncrement(createSparseData(dataSize, value));
+      canComputeMedianForDataUsingSingleIncrement(createSparseData(rng, dataSize, value));
     }
   }
 
-  @Test
-  public void canComputeMedianForSparseDataUsingSetPosition() {
+  @SeededTest
+  public void canComputeMedianForSparseDataUsingSetPosition(RandomSeed seed) {
+    UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
     for (final double value : values) {
-      canComputeMedianForDataUsingSetPosition(createSparseData(dataSize, value));
+      canComputeMedianForDataUsingSetPosition(createSparseData(rng, dataSize, value));
     }
   }
 
-  @Test
-  public void canComputeMedianForSparseDataUsingBigIncrement() {
+  @SeededTest
+  public void canComputeMedianForSparseDataUsingBigIncrement(RandomSeed seed) {
+    UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
     for (final double value : values) {
-      canComputeMedianForDataUsingBigIncrement(createSparseData(dataSize, value));
+      canComputeMedianForDataUsingBigIncrement(createSparseData(rng, dataSize, value));
     }
   }
 
@@ -666,7 +667,7 @@ public class MedianWindowTest {
     return data;
   }
 
-  static double[] createSparseData(int size, double value) {
+  static double[] createSparseData(UniformRandomProvider rng, int size, double value) {
     final double[] data = new double[size];
     for (int i = 0; i < data.length; i++) {
       data[i] = value;
@@ -674,7 +675,7 @@ public class MedianWindowTest {
         value++;
       }
     }
-    new Random(30051977).shuffle(data);
+    RandomUtils.shuffle(data, rng);
     return data;
   }
 

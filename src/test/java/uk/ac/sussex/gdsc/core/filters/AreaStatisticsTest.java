@@ -1,6 +1,6 @@
 package uk.ac.sussex.gdsc.core.filters;
 
-import uk.ac.sussex.gdsc.core.utils.Random;
+import uk.ac.sussex.gdsc.core.utils.RandomUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
@@ -78,8 +78,8 @@ public class AreaStatisticsTest {
     final FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
 
     final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-6, 0);
-    for (final int x : Random.sample(5, maxx, r)) {
-      for (final int y : Random.sample(5, maxy, r)) {
+    for (final int x : RandomUtils.sample(5, maxx, r)) {
+      for (final int y : RandomUtils.sample(5, maxy, r)) {
         for (final int n : boxSizes) {
           final double[] e = a1.getStatistics(x, y, n);
           final double[] o = a2.getStatistics(x, y, n);
@@ -111,8 +111,8 @@ public class AreaStatisticsTest {
     final FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
 
     final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-6, 0);
-    for (final int x : Random.sample(5, maxx, r)) {
-      for (final int y : Random.sample(5, maxy, r)) {
+    for (final int x : RandomUtils.sample(5, maxx, r)) {
+      for (final int y : RandomUtils.sample(5, maxy, r)) {
         for (final int nx : boxSizes) {
           for (final int ny : boxSizes) {
             final double[] e = a1.getStatistics(x, y, nx, ny);
@@ -148,8 +148,8 @@ public class AreaStatisticsTest {
     final FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
 
     final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-10, 0);
-    for (final int x : Random.sample(5, maxx - width, r)) {
-      for (final int y : Random.sample(5, maxy - height, r)) {
+    for (final int x : RandomUtils.sample(5, maxx - width, r)) {
+      for (final int y : RandomUtils.sample(5, maxy - height, r)) {
         roi.x = x;
         roi.y = y;
         final double[] e = a1.getStatistics(roi);
@@ -267,8 +267,8 @@ public class AreaStatisticsTest {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
 
     final int k = (int) Math.round(maxx * maxy * density);
-    final int[] x = Random.sample(k, maxx, r);
-    final int[] y = Random.sample(k, maxy, r);
+    final int[] x = RandomUtils.sample(k, maxx, r);
+    final int[] y = RandomUtils.sample(k, maxy, r);
     final int[] sample = new int[k * 2];
     for (int i = 0, j = 0; i < x.length; i++) {
       sample[j++] = x[i];
