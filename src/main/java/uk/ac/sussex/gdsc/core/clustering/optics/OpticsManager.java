@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleFloatKdTree2D;
 import uk.ac.sussex.gdsc.core.clustering.CoordinateStore;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
@@ -42,6 +43,10 @@ import org.apache.commons.rng.simple.RandomSource;
 import java.awt.Rectangle;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Compute clustering using OPTICS.
@@ -75,6 +80,9 @@ public class OpticsManager extends CoordinateStore {
 
   /** The heap for storing the top n distances. */
   private FloatHeap heap;
+
+  /** The executor service used for FastOPTICS. */
+  private ExecutorService executorService;
 
   /**
    * Options for the algorithms.
@@ -1562,9 +1570,9 @@ public class OpticsManager extends CoordinateStore {
     initialiseFastOptics(minPts);
 
     if (tracker != null) {
-      numberOfSplits = ProjectedMoleculeSpace.getNumberOfSplitSets(numberOfSplits, getSize());
+      numberOfSplits = ProjectedMoleculeSpace.getOrComputeNumberOfSplitSets(numberOfSplits, getSize());
       numberOfProjections =
-          ProjectedMoleculeSpace.getNumberOfProjections(numberOfProjections, getSize());
+          ProjectedMoleculeSpace.getOrComputeNumberOfProjections(numberOfProjections, getSize());
 
       tracker.log(
           "Running FastOPTICS ... minPts=%d, splits=%d, projections=%d, randomVectors=%b, "
@@ -1576,12 +1584,12 @@ public class OpticsManager extends CoordinateStore {
     // Compute projections and find neighbours
     final ProjectedMoleculeSpace space = (ProjectedMoleculeSpace) grid;
 
-    space.numberOfSplits = numberOfSplits;
-    space.numberOfProjections = numberOfProjections;
-    space.useRandomVectors = useRandomVectors;
-    space.saveApproximateSets = saveApproximateSets;
+    space.setNumberOfSplits(numberOfSplits);
+    space.setNumberOfProjections(numberOfProjections);
+    space.setUseRandomVectors(useRandomVectors);
+    space.setSaveApproximateSets(saveApproximateSets);
     space.setSampleMode(sampleMode);
-    space.numberOfThreads = getNumberOfThreads();
+    space.setExecutorService(getExecutorService());
 
     space.setTracker(tracker);
     space.computeSets(minPts); // project points
@@ -1651,7 +1659,7 @@ public class OpticsManager extends CoordinateStore {
    * @return the number of split sets
    */
   public int getNumberOfSplitSets(int numberOfSplits) {
-    return ProjectedMoleculeSpace.getNumberOfSplitSets(numberOfSplits, getSize());
+    return ProjectedMoleculeSpace.getOrComputeNumberOfSplitSets(numberOfSplits, getSize());
   }
 
   /**
@@ -1782,10 +1790,19 @@ public class OpticsManager extends CoordinateStore {
   /**
    * Sets the number of threads to use for multi-threaded algorithms (FastOPTICS).
    *
+   * <p>Multi-threaded algorithms use an {@link ExecutorService} if the number of threads is above
+   * 1. The service can be shutdown using {@link #shutdownExecutorService()}.
+   *
+   * <p>Note: Changing the number of threads will shutdown a previously created service.
+   *
    * @param numberOfThreads the new number of threads
    */
   public void setNumberOfThreads(int numberOfThreads) {
-    this.numberOfThreads = Math.max(1, numberOfThreads);
+    final int newNumberOfThreads = Math.max(1, numberOfThreads);
+    if (newNumberOfThreads != numberOfThreads) {
+      shutdownExecutorService();
+    }
+    this.numberOfThreads = newNumberOfThreads;
   }
 
   /**
@@ -1912,7 +1929,8 @@ public class OpticsManager extends CoordinateStore {
       if (tracker != null) {
         tracker.log("Failed LoOP computation: " + ex.getMessage());
       }
-      ex.printStackTrace();
+      Logger.getLogger(getClass().getName()).log(Level.WARNING, ex,
+          () -> "Failed LoOP computation: " + ex.getMessage());
       return null;
     }
 
@@ -1932,5 +1950,35 @@ public class OpticsManager extends CoordinateStore {
     }
 
     return result;
+  }
+
+  /**
+   * Shutdown the executor service. This is created for multi-threaded algorithms (FastOPTICS) when
+   * the number of threads is above 1.
+   *
+   * <p>Calling this has no effect if the executor service is not present or already shutdown.
+   */
+  public void shutdownExecutorService() {
+    if (executorService != null) {
+      executorService.shutdown();
+      executorService = null;
+    }
+  }
+
+  /**
+   * Gets the executor service. This is null if the number of threads is 1 or below. It reuses the
+   * same executor service if previously created.
+   *
+   * @return the executor service
+   */
+  @VisibleForTesting
+  ExecutorService getExecutorService() {
+    if (numberOfThreads <= 1) {
+      return null;
+    }
+    if (executorService == null || executorService.isShutdown()) {
+      executorService = Executors.newFixedThreadPool(numberOfThreads);
+    }
+    return executorService;
   }
 }

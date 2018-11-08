@@ -340,9 +340,7 @@ public final class SimpleArrayUtils {
 
     while (left < right) {
       // swap the values at the left and right indices
-      final int temp = data[left];
-      data[left] = data[right];
-      data[right] = temp;
+      swap(data, left, right);
 
       // move the left and right index pointers in toward the center
       left++;
@@ -361,9 +359,7 @@ public final class SimpleArrayUtils {
 
     while (left < right) {
       // swap the values at the left and right indices
-      final float temp = data[left];
-      data[left] = data[right];
-      data[right] = temp;
+      swap(data, left, right);
 
       // move the left and right index pointers in toward the center
       left++;
@@ -382,9 +378,7 @@ public final class SimpleArrayUtils {
 
     while (left < right) {
       // swap the values at the left and right indices
-      final double temp = data[left];
-      data[left] = data[right];
-      data[right] = temp;
+      swap(data, left, right);
 
       // move the left and right index pointers in toward the center
       left++;
@@ -1065,5 +1059,44 @@ public final class SimpleArrayUtils {
       }
     }
     return true;
+  }
+
+  /**
+   * Swap the value of the two indices.
+   *
+   * @param data the data
+   * @param index1 the first index
+   * @param index2 the second index
+   */
+  public static void swap(int[] data, int index1, int index2) {
+    final int tmp = data[index1];
+    data[index1] = data[index2];
+    data[index2] = tmp;
+  }
+
+  /**
+   * Swap the value of the two indices.
+   *
+   * @param data the data
+   * @param index1 the first index
+   * @param index2 the second index
+   */
+  public static void swap(float[] data, int index1, int index2) {
+    final float tmp = data[index1];
+    data[index1] = data[index2];
+    data[index2] = tmp;
+  }
+
+  /**
+   * Swap the value of the two indices.
+   *
+   * @param data the data
+   * @param index1 the first index
+   * @param index2 the second index
+   */
+  public static void swap(double[] data, int index1, int index2) {
+    final double tmp = data[index1];
+    data[index1] = data[index2];
+    data[index2] = tmp;
   }
 }

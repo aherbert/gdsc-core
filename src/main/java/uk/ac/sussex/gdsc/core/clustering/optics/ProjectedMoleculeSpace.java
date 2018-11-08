@@ -29,9 +29,10 @@
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.data.AsynchronousException;
-import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.NotImplementedException;
 import uk.ac.sussex.gdsc.core.utils.PseudoRandomGenerator;
@@ -48,12 +49,13 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.UnitSphereSampler;
 
 import java.util.Arrays;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Store molecules and allows generation of random projections.
@@ -75,6 +77,11 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   private static final int LOG_O_PROJECTION_CONSTANT = 20;
 
   /**
+   * 1. / log(2)
+   */
+  public static final double ONE_BY_LOG2 = 1. / Math.log(2.);
+
+  /**
    * Sets used for neighbourhood computation should be about minSplitSize.
    *
    * <p>Sets are still used if they deviate by less (1+/- sizeTolerance).
@@ -84,8 +91,52 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   /** Used for access to the raw coordinates. */
   protected final OpticsManager opticsManager;
 
+  /**
+   * Random factory.
+   */
+  private final UniformRandomProvider rand;
+
   /** The tracker. */
   private TrackProgress tracker;
+
+  /**
+   * The number of splits to compute (if below 1 it will be auto-computed using the size of the
+   * data).
+   */
+  private int numberOfSplits;
+
+  /**
+   * The number of projections to compute (if below 1 it will be auto-computed using the size of the
+   * data).
+   */
+  private int numberOfProjections;
+
+  /**
+   * Set to true to save all sets that are approximately min split size. The default is to only save
+   * sets smaller than min split size.
+   */
+  private boolean saveApproximateSets;
+
+  /** The sample mode. */
+  private SampleMode sampleMode;
+
+  /**
+   * Set to true to use random vectors for the projections. The default is to uniformly create
+   * vectors on the semi-circle interval.
+   */
+  private boolean useRandomVectors;
+
+  /** The executorService service to use for multi-threading. */
+  private ExecutorService executorService;
+
+  /** Sets that resulted from recursive split of entire point set. */
+  private TurboList<Split> splitSets;
+
+  /** The neighbours of each point. */
+  private int[][] allNeighbours;
+
+  /** The number of distance computations. */
+  private final AtomicInteger distanceComputations = new AtomicInteger();
 
   /**
    * Store the results of a split of the dataset.
@@ -104,50 +155,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       this.sets = sets;
     }
   }
-
-  /** Sets that resulted from recursive split of entire point set. */
-  TurboList<Split> splitSets;
-
-  /**
-   * Random factory.
-   */
-  private final UniformRandomProvider rand;
-
-  /** The neighbours of each point. */
-  int[][] allNeighbours;
-
-  /**
-   * The number of splits to compute (if below 1 it will be auto-computed using the size of the
-   * data).
-   */
-  int numberOfSplits = 0;
-
-  /**
-   * The number of projections to compute (if below 1 it will be auto-computed using the size of the
-   * data).
-   */
-  int numberOfProjections = 0;
-
-  /**
-   * Set to true to save all sets that are approximately min split size. The default is to only save
-   * sets smaller than min split size.
-   */
-  boolean saveApproximateSets = false;
-
-  /** The sample mode. */
-  private SampleMode sampleMode;
-
-  /**
-   * Set to true to use random vectors for the projections. The default is to uniformly create
-   * vectors on the semi-circle interval.
-   */
-  boolean useRandomVectors = false;
-
-  /** The number of threads to use. */
-  int numberOfThreads = 1;
-
-  /** The number of distance computations. */
-  AtomicInteger distanceComputations = new AtomicInteger();
 
   /**
    * Instantiates a new projected molecule space.
@@ -184,300 +191,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     return setOfObjects;
   }
 
-  @Override
-  void findNeighbours(int minPts, Molecule object, float generatingDistance) {
-    // Return the neighbours found in {@link #computeAverageDistInSetAndNeighbours()}.
-    // Assume allNeighbours has been computed.
-    neighbours.clear();
-    final int[] list = allNeighbours[object.id];
-    for (int i = list.length; i-- > 0;) {
-      neighbours.add(setOfObjects[list[i]]);
-    }
-  }
-
-  @Override
-  void findNeighboursAndDistances(int minPts, Molecule object, float generatingDistance) {
-    // Return the neighbours found in {@link #computeAverageDistInSetAndNeighbours()}.
-    // Assume allNeighbours has been computed.
-    neighbours.clear();
-    final int[] list = allNeighbours[object.id];
-    for (int i = list.length; i-- > 0;) {
-      final Molecule otherObject = setOfObjects[list[i]];
-      otherObject.setD(object.distanceSquared(otherObject));
-      neighbours.add(otherObject);
-    }
-  }
-
-  /**
-   * Sets the tracker.
-   *
-   * @param tracker the new tracker
-   */
-  public void setTracker(TrackProgress tracker) {
-    this.tracker = tracker;
-  }
-
-  /**
-   * The Class Job.
-   */
-  private abstract class Job {
-
-    /** The index. */
-    final int index;
-
-    /**
-     * Instantiates a new job.
-     *
-     * @param index the index
-     */
-    Job(int index) {
-      this.index = index;
-    }
-  }
-
-  /**
-   * The Class ProjectionJob.
-   */
-  private class ProjectionJob extends Job {
-
-    /** The vector. */
-    final double[] vector;
-
-    /**
-     * Instantiates a new projection job.
-     *
-     * @param index the index
-     * @param vector the vector
-     */
-    ProjectionJob(int index, double[] vector) {
-      super(index);
-      this.vector = vector;
-    }
-  }
-
-  /**
-   * The Class SplitJob.
-   */
-  private class SplitJob extends Job {
-
-    /** The projected points. */
-    final float[][] projectedPoints;
-
-    /** The rand. */
-    final TurboRandomGenerator rand;
-
-    /**
-     * Instantiates a new split job.
-     *
-     * @param index the index
-     * @param projectedPoints the projected points
-     * @param rand the rand
-     */
-    SplitJob(int index, float[][] projectedPoints, TurboRandomGenerator rand) {
-      super(index);
-      this.projectedPoints = projectedPoints;
-      this.rand = rand;
-    }
-  }
-
-  /**
-   * The Class ProjectionWorker.
-   */
-  private class ProjectionWorker implements Runnable {
-    /** The finished. */
-    volatile boolean finished = false;
-
-    /** The ticker. */
-    final Ticker ticker;
-
-    /** The jobs. */
-    final BlockingQueue<ProjectionJob> jobs;
-
-    /** The projected points. */
-    final float[][] projectedPoints;
-
-    /**
-     * Instantiates a new projection worker.
-     *
-     * @param ticker the ticker
-     * @param jobs the jobs
-     * @param projectedPoints the projected points
-     */
-    public ProjectionWorker(Ticker ticker, BlockingQueue<ProjectionJob> jobs,
-        float[][] projectedPoints) {
-      this.ticker = ticker;
-      this.jobs = jobs;
-      this.projectedPoints = projectedPoints;
-    }
-
-    @Override
-    public void run() {
-      try {
-        while (true) {
-          final ProjectionJob job = jobs.take();
-          if (job.index < 0) {
-            break;
-          }
-          if (!finished) {
-            // Only run jobs when not finished. This allows the queue to be emptied.
-            run(job);
-          }
-        }
-      } catch (final InterruptedException ex) {
-        // Restore interrupted state...
-        Thread.currentThread().interrupt();
-        System.out.println(ex.toString());
-        throw new AsynchronousException(ex);
-      } finally {
-        finished = true;
-      }
-    }
-
-    /**
-     * Run.
-     *
-     * @param job the job
-     */
-    private void run(ProjectionJob job) {
-      final double[] v = job.vector;
-
-      // Project points to the vector and compute the distance along the vector from the origin
-      final float[] currPro = new float[size];
-      for (int it = size; it-- > 0;) {
-        final Molecule m = setOfObjects[it];
-        // Dot product:
-        currPro[it] = (float) (v[0] * m.x + v[1] * m.y);
-      }
-      projectedPoints[job.index] = currPro;
-
-      ticker.tick();
-    }
-  }
-
-  /**
-   * The Class SplitWorker.
-   */
-  private class SplitWorker implements Runnable {
-
-    /** The finished. */
-    volatile boolean finished = false;
-
-    /** The ticker. */
-    final Ticker ticker;
-
-    /** The jobs. */
-    final BlockingQueue<SplitJob> jobs;
-
-    /** The min split size. */
-    final int minSplitSize;
-
-    /** The split sets. */
-    final TurboList<Split> splitSets = new TurboList<>();
-
-    /**
-     * Instantiates a new split worker.
-     *
-     * @param ticker the ticker
-     * @param jobs the jobs
-     * @param minSplitSize the min split size
-     */
-    public SplitWorker(Ticker ticker, BlockingQueue<SplitJob> jobs, int minSplitSize) {
-      this.ticker = ticker;
-      this.jobs = jobs;
-      this.minSplitSize = minSplitSize;
-    }
-
-    @Override
-    public void run() {
-      try {
-        while (true) {
-          final SplitJob job = jobs.take();
-          if (job.index < 0) {
-            break;
-          }
-          if (!finished) {
-            // Only run jobs when not finished. This allows the queue to be emptied.
-            run(job);
-          }
-        }
-      } catch (final InterruptedException ex) {
-        // Restore interrupted state...
-        Thread.currentThread().interrupt();
-        throw new AsynchronousException(ex);
-      } finally {
-        finished = true;
-      }
-    }
-
-    /**
-     * Run.
-     *
-     * @param job the job
-     */
-    private void run(SplitJob job) {
-      final TurboList<int[]> sets = new TurboList<>();
-      splitupNoSort(sets, job.projectedPoints, SimpleArrayUtils.newArray(size, 0, 1), 0, size, 0,
-          job.rand, minSplitSize);
-      splitSets.add(new Split(sets));
-      ticker.tick();
-    }
-  }
-
-  /**
-   * The Class SetWorker.
-   */
-  private class SetWorker implements Runnable {
-
-    /** The sum distances. */
-    final double[] sumDistances;
-
-    /** The n distances. */
-    final int[] countDistances;
-
-    /** The neighbours. */
-    final TIntHashSet[] neighbours;
-
-    /** The sets. */
-    final TurboList<int[]> sets;
-
-    /** The from. */
-    final int from;
-
-    /** The to. */
-    final int to;
-
-    /**
-     * Instantiates a new sets the worker.
-     *
-     * @param sumDistances the sum distances
-     * @param countDistances the n distances
-     * @param neighbours the neighbours
-     * @param sets the sets
-     * @param from the from
-     * @param to the to
-     */
-    public SetWorker(double[] sumDistances, int[] countDistances, TIntHashSet[] neighbours,
-        TurboList<int[]> sets, int from, int to) {
-      this.sumDistances = sumDistances;
-      this.countDistances = countDistances;
-      this.neighbours = neighbours;
-      this.sets = sets;
-      this.from = from;
-      this.to = to;
-    }
-
-    @Override
-    public void run() {
-      sampleNeighbours(sumDistances, countDistances, neighbours, sets, from, to);
-    }
-  }
-
   /**
    * Create random projections, project points and put points into sets of size about
    * minSplitSize/2.
    *
    * @param minSplitSize minimum size for which a point set is further partitioned (roughly
    *        corresponds to minPts in OPTICS)
+   * @throws AsynchronousException If interrupted while computing
    */
   public void computeSets(int minSplitSize) {
     splitSets = new TurboList<>();
@@ -489,7 +209,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
 
     if (size == 2) {
       // No point performing projections and splits
-      TurboList<int[]> sets = new TurboList<>(1);
+      final TurboList<int[]> sets = new TurboList<>(1);
       sets.add(new int[] {0, 1});
       splitSets.add(new Split(sets));
       return;
@@ -501,8 +221,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     // The ELKI framework increase this for the number of dimensions. However I have stuck
     // with the original (as it is less so will be faster).
     // Note: In most computer science contexts log is in base 2.
-    final int numberOfSplitSets = getNumberOfSplitSets(numberOfSplits, size);
-    final int localNumberOfProjections = getNumberOfProjections(numberOfProjections, size);
+    final int numberOfSplitSets = getOrComputeNumberOfSplitSets(numberOfSplits, size);
+    final int localNumberOfProjections = getOrComputeNumberOfProjections(numberOfProjections, size);
 
     // perform O(log N+log dim) splits of the entire point sets projections
     // numberOfSplitSets = (int) (logOProjectionConst * log2(size * dim + 1))
@@ -521,55 +241,33 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       tracker.log("Computing projections ...");
     }
 
-    // Multi-thread this for speed
-    final int threadCount = Math.min(this.numberOfThreads, numberOfSplitSets);
-    final TurboList<Thread> threads = new TurboList<>(threadCount);
-    Ticker ticker = Ticker.create(tracker, localNumberOfProjections, threadCount > 1);
-
-    final BlockingQueue<ProjectionJob> projectionJobs = new ArrayBlockingQueue<>(threadCount * 2);
-    final TurboList<ProjectionWorker> projectionWorkers = new TurboList<>(threadCount);
-    for (int i = 0; i < threadCount; i++) {
-      final ProjectionWorker worker = new ProjectionWorker(ticker, projectionJobs, projectedPoints);
-      final Thread t = new Thread(worker);
-      projectionWorkers.addf(worker);
-      threads.addf(t);
-      t.start();
-    }
-
     // Create random vectors or uniform distribution
-
     final UnitSphereSampler vectorGen = (useRandomVectors) ? new UnitSphereSampler(2, rand) : null;
     final double increment = Math.PI / localNumberOfProjections;
+
+    final Ticker ticker = Ticker.createStarted(tracker, localNumberOfProjections, true);
+    final TurboList<Runnable> tasks = new TurboList<>();
     for (int i = 0; i < localNumberOfProjections; i++) {
       // Create a random unit vector
-      double[] randomVector;
+      final double[] randomVector;
       if (vectorGen != null) {
         randomVector = vectorGen.nextVector();
       } else {
         // For a 2D vector we can just uniformly distribute them around a semi-circle
         randomVector = new double[dim];
-        final double a = i * increment;
-        randomVector[0] = Math.sin(a);
-        randomVector[1] = Math.cos(a);
+        final double angle = i * increment;
+        randomVector[0] = Math.sin(angle);
+        randomVector[1] = Math.cos(angle);
       }
-      put(projectionJobs, new ProjectionJob(i, randomVector));
-    }
-    // Finish all the worker threads by passing in a null job
-    for (int i = 0; i < threadCount; i++) {
-      put(projectionJobs, new ProjectionJob(-1, null));
+      final int index = i;
+      tasks.add(() -> {
+        projectedPoints[index] = doProjection(randomVector);
+        ticker.tick();
+      });
     }
 
-    // Wait for all to finish
-    for (int i = 0; i < threadCount; i++) {
-      try {
-        threads.getf(i).join();
-      } catch (final InterruptedException ex) {
-        // Restore interrupted state...
-        Thread.currentThread().interrupt();
-        ex.printStackTrace();
-      }
-    }
-    threads.clear();
+    runTasks(tasks);
+    tasks.clear();
 
     if (tracker != null) {
       tracker.progress(1);
@@ -590,19 +288,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     final TurboRandomGenerator pseudoRandom = new TurboRandomGenerator(
         MathUtils.max(numberOfSplitSets, 200, minSplitSize + 2 * expectedSets), rand);
 
-    // Multi-thread this for speed
-    final BlockingQueue<SplitJob> splitJobs = new ArrayBlockingQueue<>(threadCount * 2);
-    final TurboList<SplitWorker> splitWorkers = new TurboList<>(threadCount);
-    ticker = Ticker.create(tracker, numberOfSplitSets, threadCount > 1);
-
-    for (int i = 0; i < threadCount; i++) {
-      final SplitWorker worker = new SplitWorker(ticker, splitJobs, minSplitSize);
-      final Thread t = new Thread(worker);
-      splitWorkers.addf(worker);
-      threads.addf(t);
-      t.start();
-    }
-
+    final List<Split> syncSplitSets = Collections.synchronizedList(splitSets);
+    final Ticker ticker2 = Ticker.createStarted(tracker, numberOfSplitSets, true);
     for (int i = 0; i < numberOfSplitSets; i++) {
       // shuffle projections
       final float[][] shuffledProjectedPoints = new float[localNumberOfProjections][];
@@ -615,34 +302,16 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       final TurboRandomGenerator pseudoRandomCopy = pseudoRandom.copy();
       pseudoRandomCopy.setSeed(i);
 
-      put(splitJobs, new SplitJob(i, shuffledProjectedPoints, pseudoRandomCopy));
+      tasks.add(() -> {
+        final TurboList<int[]> sets = new TurboList<>();
+        splitupNoSort(sets, shuffledProjectedPoints, SimpleArrayUtils.newArray(size, 0, 1), 0, size,
+            0, pseudoRandomCopy, minSplitSize);
+        syncSplitSets.add(new Split(sets));
+        ticker2.tick();
+      });
     }
 
-    // Finish all the worker threads by passing in a null job
-    for (int i = 0; i < threadCount; i++) {
-      put(splitJobs, new SplitJob(-1, null, null));
-    }
-
-    // Wait for all to finish
-    int total = 0;
-    for (int i = 0; i < threadCount; i++) {
-      try {
-        threads.getf(i).join();
-        total += splitWorkers.getf(i).splitSets.size();
-      } catch (final InterruptedException ex) {
-        // Restore interrupted state...
-        Thread.currentThread().interrupt();
-        ex.printStackTrace();
-      }
-    }
-    threads.clear();
-
-    // Merge the split-sets
-    splitSets = splitWorkers.getf(0).splitSets;
-    splitSets.ensureCapacity(total);
-    for (int i = 1; i < threadCount; i++) {
-      splitSets.addAll(splitWorkers.getf(i).splitSets);
-    }
+    runTasks(tasks);
 
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
@@ -652,31 +321,14 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   }
 
   /**
-   * Put.
+   * Gets the number of split sets (or computes it using the size).
    *
-   * @param <T> the generic type
-   * @param jobs the jobs
-   * @param job the job
-   */
-  private static <T> void put(BlockingQueue<T> jobs, T job) {
-    try {
-      jobs.put(job);
-    } catch (final InterruptedException ex) {
-      // Restore interrupted state...
-      Thread.currentThread().interrupt();
-      throw new AsynchronousException("Unexpected interruption", ex);
-    }
-  }
-
-  /**
-   * Gets the number of split sets.
-   *
-   * @param numberOfSplits The number of splits to compute (if below 1 it will be auto-computed
+   * @param numberOfSplits The number of splits (if below 1 it will be auto-computed
    *        using the size of the data)
    * @param size the size
    * @return the number of split sets
    */
-  public static int getNumberOfSplitSets(int numberOfSplits, int size) {
+  public static int getOrComputeNumberOfSplitSets(int numberOfSplits, int size) {
     if (size < 2) {
       return 0;
     }
@@ -684,21 +336,16 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   }
 
   /**
-   * Gets the number of projections.
+   * Gets the number of projections (or computes it using the size).
    *
-   * @param numberOfProjections The number of projections to compute (if below 1 it will be
+   * @param numberOfProjections The number of projections (if below 1 it will be
    *        auto-computed using the size of the data)
    * @param size the size
    * @return the number of projections
    */
-  public static int getNumberOfProjections(int numberOfProjections, int size) {
-    return getNumberOfSplitSets(numberOfProjections, size);
+  public static int getOrComputeNumberOfProjections(int numberOfProjections, int size) {
+    return getOrComputeNumberOfSplitSets(numberOfProjections, size);
   }
-
-  /**
-   * 1. / log(2)
-   */
-  public static final double ONE_BY_LOG2 = 1. / Math.log(2.);
 
   /**
    * Compute the base 2 logarithm.
@@ -708,6 +355,52 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    */
   public static double log2(double x) {
     return Math.log(x) * ONE_BY_LOG2;
+  }
+
+  /**
+   * Project points to the vector and compute the distance along the vector from the origin.
+   *
+   * @param size the size
+   * @param randomVector the random vector
+   * @return the projection distance
+   */
+  private float[] doProjection(double[] randomVector) {
+    final float[] projection = new float[size];
+    for (int it = size; it-- > 0;) {
+      final Molecule m = setOfObjects[it];
+      // Dot product:
+      projection[it] = (float) (randomVector[0] * m.x + randomVector[1] * m.y);
+    }
+    return projection;
+  }
+
+  /**
+   * Run tasks. Uses the executor service if available or just runs on the current thread.
+   *
+   * @param tasks the tasks
+   */
+  private void runTasks(TurboList<Runnable> tasks) {
+    if (executorService != null) {
+      final List<Future<?>> futures = new TurboList<>();
+      for (final Runnable task : tasks) {
+        futures.add(executorService.submit(task));
+      }
+      ConcurrencyUtils.waitForCompletionOrError(futures, ProjectedMoleculeSpace::logException);
+    } else {
+      for (final Runnable task : tasks) {
+        task.run();
+      }
+    }
+  }
+
+  /**
+   * Log an exception.
+   *
+   * @param ex the exception
+   */
+  private static void logException(Exception ex) {
+    Logger.getLogger(ProjectedMoleculeSpace.class.getName()).log(Level.WARNING,
+        () -> "Failed to perform computation: " + ex.getMessage());
   }
 
   /**
@@ -735,17 +428,15 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     dim = dim % projectedPoints.length;// choose a projection of points
     final float[] tpro = projectedPoints[dim];
 
-    if (saveApproximateSets) {
-      // save set such that used for density or neighbourhood computation
-      // sets should be roughly minSplitSize
-      // -=-=-
-      // Note: This is the method used in ELKI which uses the distance to the median of the set
-      // (thus no distances are computed that are between points very far apart, e.g. each end
-      // of the set).
-      if (nele > minSplitSize * (1 - SIZE_TOLERANCE)
-          && nele < minSplitSize * (1 + SIZE_TOLERANCE)) {
-        saveSet(splitSets, ind, begin, end, rand, tpro);
-      }
+    // save set such that used for density or neighbourhood computation
+    // sets should be roughly minSplitSize
+    // -=-=-
+    // Note: This is the method used in ELKI which uses the distance to the median of the set
+    // (thus no distances are computed that are between points very far apart, e.g. each end
+    // of the set).
+    if (saveApproximateSets && nele > minSplitSize * (1 - SIZE_TOLERANCE)
+        && nele < minSplitSize * (1 + SIZE_TOLERANCE)) {
+      saveSet(splitSets, ind, begin, end, rand, tpro);
     }
 
     // compute splitting element
@@ -814,7 +505,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
         if (minInd == maxInd) {
           break;
         }
-        swap(ind, minInd, maxInd);
+        SimpleArrayUtils.swap(ind, minInd, maxInd);
         maxInd--;
       }
       minInd++;
@@ -824,19 +515,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       minInd = (begin + end) >>> 1;
     }
     return minInd;
-  }
-
-  /**
-   * Swap the value of the two indices.
-   *
-   * @param data the data
-   * @param index1 the index1
-   * @param index2 the index2
-   */
-  private static void swap(int[] data, int index1, int index2) {
-    final int tmp = data[index1];
-    data[index1] = data[index2];
-    data[index2] = tmp;
   }
 
   /**
@@ -880,7 +558,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
           if (minInd == maxInd) {
             break;
           }
-          swap(ind, minInd, maxInd);
+          SimpleArrayUtils.swap(ind, minInd, maxInd);
           maxInd--;
         }
         minInd++;
@@ -915,8 +593,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * for each point from sets resulting from projection.
    *
    * @return list of neighbours for each point
+   * @throws AsynchronousException If interrupted while computing
    */
-  @SuppressWarnings("null")
   public int[][] computeAverageDistInSetAndNeighbours() {
     distanceComputations.set(0);
 
@@ -951,54 +629,34 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
 
     // Multi-thread the hash set operations for speed.
     // We can do this if each split uses each index only once.
-    final int nThreads = Math.min(this.numberOfThreads, n);
-    final boolean multiThread = (n > 1 && !saveApproximateSets);
+    final TurboList<Future<?>> futures =
+        (executorService != null && n > 1 && !saveApproximateSets) ? new TurboList<>() : null;
 
-    // Use an executor service so that we know the entire split has been processed before
-    // doing the next split.
-    ExecutorService executor = null;
-    TurboList<Future<?>> futures = null;
-    if (multiThread) {
-      executor = Executors.newFixedThreadPool(nThreads);
-      futures = new TurboList<>(nThreads);
-    }
-
-    final int interval = ImageJUtils.getProgressInterval(n);
+    final Ticker ticker = Ticker.createStarted(tracker, n, futures != null);
     for (int i = 0; i < n; i++) {
-      if (tracker != null && i % interval == 0) {
-        tracker.progress(i, n);
-      }
-
       final Split split = splitSets.getf(i);
-      if (multiThread) {
+      if (futures != null) {
         // If the indices are unique within each split set then we can multi-thread the
         // sampling of neighbours (since each index in the cumulative arrays will only
-        // be accessed concurrently by a single thread).
-        final int nPerThread = (int) Math.ceil((double) split.sets.size() / nThreads);
-        for (int from = 0; from < split.sets.size();) {
-          final int to = Math.min(from + nPerThread, split.sets.size());
-          futures.add(executor.submit(
-              new SetWorker(sumDistances, countDistances, neighbours, split.sets, from, to)));
-          from = to;
+        // be accessed concurrently by a single splitting task).
+        // Use the number of threads from OPTICS manager to get an idea of the task size.
+        final int taskSize =
+            (int) Math.ceil((double) split.sets.size() / opticsManager.getNumberOfThreads());
+        for (int j = 0; j < split.sets.size(); j += taskSize) {
+          final int from = j;
+          final int to = Math.min(from + taskSize, split.sets.size());
+          futures.add(executorService.submit(() -> sampleNeighbours(sumDistances, countDistances,
+              neighbours, split.sets, from, to)));
         }
-        // Wait for all to finish
-        for (int t = futures.size(); t-- > 0;) {
-          try {
-            // The future .get() method will block until completed
-            futures.get(t).get();
-          } catch (final Exception ex) {
-            // This should not happen.
-            // Ignore it and allow processing to continue (the number of neighbour samples will just
-            // be smaller).
-            ex.printStackTrace();
-          }
-        }
+        ConcurrencyUtils.waitForCompletionOrError(futures, ProjectedMoleculeSpace::logException);
         futures.clear();
       } else {
         sampleNeighbours(sumDistances, countDistances, neighbours, split.sets, 0,
             split.sets.size());
       }
+      ticker.tick();
     }
+    ticker.stop();
 
     // Finalise averages
     // Convert to simple arrays
@@ -1185,6 +843,97 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     countDistances[indices[n1]] += n1;
   }
 
+
+  @Override
+  void findNeighbours(int minPts, Molecule object, float generatingDistance) {
+    // Return the neighbours found in {@link #computeAverageDistInSetAndNeighbours()}.
+    // Assume allNeighbours has been computed.
+    neighbours.clear();
+    final int[] list = allNeighbours[object.id];
+    for (int i = list.length; i-- > 0;) {
+      neighbours.add(setOfObjects[list[i]]);
+    }
+  }
+
+  @Override
+  void findNeighboursAndDistances(int minPts, Molecule object, float generatingDistance) {
+    // Return the neighbours found in {@link #computeAverageDistInSetAndNeighbours()}.
+    // Assume allNeighbours has been computed.
+    neighbours.clear();
+    final int[] list = allNeighbours[object.id];
+    for (int i = list.length; i-- > 0;) {
+      final Molecule otherObject = setOfObjects[list[i]];
+      otherObject.setD(object.distanceSquared(otherObject));
+      neighbours.add(otherObject);
+    }
+  }
+
+  /**
+   * Sets the tracker.
+   *
+   * @param tracker the new tracker
+   */
+  public void setTracker(TrackProgress tracker) {
+    this.tracker = tracker;
+  }
+
+  /**
+   * Gets the number of splits.
+   *
+   * @return the number of splits
+   */
+  int getNumberOfSplits() {
+    return numberOfSplits;
+  }
+
+  /**
+   * Sets the number of splits to compute (if below 1 it will be auto-computed using the size of the
+   * data).
+   *
+   * @param numberOfSplits the new number of splits
+   */
+  void setNumberOfSplits(int numberOfSplits) {
+    this.numberOfSplits = numberOfSplits;
+  }
+
+  /**
+   * Gets the number of projections.
+   *
+   * @return the number of projections
+   */
+  int getNumberOfProjections() {
+    return numberOfProjections;
+  }
+
+  /**
+   * Sets the number of projections to compute (if below 1 it will be auto-computed using the size
+   * of the data).
+   *
+   * @param numberOfProjections the new number of projections
+   */
+  void setNumberOfProjections(int numberOfProjections) {
+    this.numberOfProjections = numberOfProjections;
+  }
+
+  /**
+   * Checks if is save approximate sets.
+   *
+   * @return true, if is save approximate sets
+   */
+  boolean isSaveApproximateSets() {
+    return saveApproximateSets;
+  }
+
+  /**
+   * Sets the save approximate sets flag. Set to true to save all sets that are approximately
+   * minimum split size. The default is to only save sets smaller than minimum split size.
+   *
+   * @param saveApproximateSets the new save approximate sets
+   */
+  void setSaveApproximateSets(boolean saveApproximateSets) {
+    this.saveApproximateSets = saveApproximateSets;
+  }
+
   /**
    * Gets the sample mode.
    *
@@ -1204,5 +953,43 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       sampleMode = SampleMode.RANDOM;
     }
     this.sampleMode = sampleMode;
+  }
+
+  /**
+   * Checks if is use random vectors.
+   *
+   * @return true, if is use random vectors
+   */
+  boolean isUseRandomVectors() {
+    return useRandomVectors;
+  }
+
+  /**
+   * Sets the use random vectors flag. Set to true to use random vectors for the projections. The
+   * default is to uniformly create vectors on the semi-circle interval.
+   *
+   * @param useRandomVectors the new use random vectors
+   */
+  void setUseRandomVectors(boolean useRandomVectors) {
+    this.useRandomVectors = useRandomVectors;
+  }
+
+  /**
+   * Sets the executorService service.
+   *
+   * @param executorService the new executorService service
+   */
+  void setExecutorService(ExecutorService executorService) {
+    this.executorService = executorService;
+  }
+
+  /**
+   * Gets the all neighbours.
+   *
+   * @return the all neighbours
+   */
+  @VisibleForTesting
+  int[][] getAllNeighbours() {
+    return SimpleArrayUtils.deepCopy(allNeighbours);
   }
 }

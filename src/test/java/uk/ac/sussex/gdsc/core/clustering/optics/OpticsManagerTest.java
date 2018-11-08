@@ -804,10 +804,10 @@ public class OpticsManagerTest {
 
       for (final int minPts : minPoints) {
         // Default using ALL
-        final int[] c1 = runFastOPTICS(om, xi, minPts, 0, 0, false, false, SampleMode.ALL);
-
         final int nSplits = 0;
         final int nProjections = 0;
+        final int[] c1 =
+            runFastOPTICS(om, xi, minPts, nSplits, nProjections, false, false, SampleMode.ALL);
         for (final SampleMode sampleMode : SampleMode.values()) {
           double sum = 0;
           int c = 0;
@@ -825,9 +825,15 @@ public class OpticsManagerTest {
                   "xi=%f, n=%d, minPts=%d, splits=%d, projections=%d, randomVectors=%b, approxSets=%b, sampleMode=%s : r=%f (%f)",
                   xi, n, minPts, nSplits, nProjections, useRandomVectors, saveApproximateSets,
                   sampleMode, r, ari));
+
+              if (ari <= 0) {
+                System.out.println(Arrays.toString(c1));
+                System.out.println(Arrays.toString(c2));
+              }
               // This should always be true, i.e. better than chance
               Assertions.assertTrue(0 < ari, () -> {
-                return String.format("Adjusted rand index is below zero: %s", sampleMode);
+                return String.format("Adjusted rand index is below zero: %s (ARI=%s)", sampleMode,
+                    ari);
               });
             }
           }
@@ -2348,7 +2354,6 @@ public class OpticsManagerTest {
       }
     }
 
-    final OpticsManager om = new OpticsManager(xcoord, ycoord, new Rectangle(size, size));
-    return om;
+    return new OpticsManager(xcoord, ycoord, new Rectangle(size, size));
   }
 }
