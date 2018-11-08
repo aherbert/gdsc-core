@@ -206,6 +206,13 @@ public abstract class FastTiffDecoder {
   /** Constant for 72 DPI. */
   private static final double RESOLUTION_72_DOTS_PER_INCH = 1.0 / 72.0;
 
+  /** The ROI tag for parsing the origin. */
+  private static final String ROI_TAG = "\"ROI\"";
+
+  private static final char COLON = ':';
+  private static final char SPACE = ' ';
+  private static final int DELIMITER_COUNT = 3;
+
   private String directory;
   private final String name;
 
@@ -2511,7 +2518,7 @@ public abstract class FastTiffDecoder {
   /**
    * Gets the origin from the FileInfo. This is read using the summaryMetaData field looking for a
    * JSON tag of "ROI": [x,y,w,h] or the info or extendedMetaData fields using a tag of "ROI":
-   * "x-y-w-h". These tags are used by MircoManager and saved to the appropriate fields of the
+   * "x-y-w-h". These tags are used by MicroManager and saved to the appropriate fields of the
    * ExtendedFileInfo object by this decoder.
    *
    * @param fi the file info
@@ -2544,35 +2551,26 @@ public abstract class FastTiffDecoder {
    * @return the origin
    */
   public static Rectangle getOrigin(String text, char start, char delimiter, char end) {
-    if (text == null) {
+    if (text == null || text.length() < ROI_TAG.length()) {
       return null;
     }
 
-    // The tag is length 5
-    if (text.length() < 5) {
-      return null;
-    }
-
-    int tagIndex = text.indexOf("\"ROI\"");
+    int tagIndex = text.indexOf(ROI_TAG);
     if (tagIndex < 0) {
       return null;
     }
 
     // Skip over the tag
-    tagIndex += 5;
+    tagIndex += ROI_TAG.length();
     int startIndex = text.indexOf(start, tagIndex);
     if (startIndex < 0) {
       return null;
     }
 
-    // Check that between index and i there is only space/colon
+    // Check that between "ROI" tag and the 'start' character there is only space/colon
     for (int k = tagIndex; k < startIndex; k++) {
-      // This has index checking which could be avoided by extracting the chars
-      // in a single call. However we expect the tag match to be fairly unique to
-      // this situation and so the number of chars to the start character will be
-      // small.
-      final char c = text.charAt(k);
-      if (!(c == ':' || c == ' ')) {
+      final char ch = text.charAt(k);
+      if (!(ch == COLON || ch == SPACE)) {
         return null;
       }
     }
@@ -2584,41 +2582,38 @@ public abstract class FastTiffDecoder {
       return null;
     }
 
-    // Extract the x,y,w,h from with the start and end characters
-    final char[] chars = new char[endIndex - startIndex];
-    text.getChars(startIndex, endIndex, chars, 0);
-
-    // This should contain only digits and 3 delimiters
-    final int[] index = new int[3];
+    // Extract the x,y,w,h from within the start and end characters.
+    // This should contain only digits and 3 delimiters. Count up to 4 delimiters.
+    final int[] index = new int[DELIMITER_COUNT + 1];
     int digits = 0;
     int count = 0;
-    for (int k = 0; k < chars.length; k++) {
-      if (Character.isDigit(chars[k])) {
-        digits++;
-        continue;
-      }
-      if (chars[k] == delimiter) {
-        if (digits == 0 || count == 3) {
-          // No digits before the comma or too many commas
+    for (int k = startIndex; k < endIndex && count <= DELIMITER_COUNT; k++) {
+      final char ch = text.charAt(k);
+      if (ch == delimiter) {
+        if (digits == 0) {
+          // Must have some digits before the delimiter
           return null;
         }
-        index[count++] = k;
         digits = 0;
-        continue;
+        index[count++] = k;
+      } else if (Character.isDigit(ch)) {
+        // Increase the length of this run of digits
+        digits++;
+      } else {
+        // Anything else is not allowed
+        return null;
       }
-      // Anything else is not allowed
-      return null;
     }
-    // Must have 3 commas and a digit after the last comma
-    if (count != 3 || digits == 0) {
+    // Must have 3 delimiters
+    if (count != DELIMITER_COUNT) {
       return null;
     }
 
-    // We have the indices of the commas to extract the ROI
-    final int x = Integer.parseInt(new String(chars, 0, index[0]));
-    final int y = Integer.parseInt(new String(chars, index[0] + 1, index[1] - index[0] - 1));
-    final int w = Integer.parseInt(new String(chars, index[1] + 1, index[2] - index[1] - 1));
-    final int h = Integer.parseInt(new String(chars, index[2] + 1, chars.length - index[2] - 1));
+    // We have the indices of the delimiters to extract the ROI
+    final int x = Integer.parseInt(text.substring(startIndex, index[0]));
+    final int y = Integer.parseInt(text.substring(index[0] + 1, index[1]));
+    final int w = Integer.parseInt(text.substring(index[1] + 1, index[2]));
+    final int h = Integer.parseInt(text.substring(index[2] + 1, endIndex));
 
     return new Rectangle(x, y, w, h);
   }
