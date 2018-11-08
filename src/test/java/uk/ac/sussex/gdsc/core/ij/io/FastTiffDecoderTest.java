@@ -63,7 +63,7 @@ public class FastTiffDecoderTest {
     char end = ']';
     for (String pattern : new String[] {
         //@formatter:off
-        null, "", 
+        null, "",
         "No ROI tag",
         "\"ROI\" without colon after",
         "\"ROI\": with no start character after",
