@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
+import uk.ac.sussex.gdsc.core.data.AsynchronousException;
+import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
@@ -35,6 +37,8 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Calculate the density of classes of molecules around a given position.
@@ -623,6 +627,7 @@ public class DensityCounter {
    *
    * @param maxId the max ID of molecules
    * @return the counts
+   * @throws AsynchronousException If interrupted while computing using multi-thread mode
    */
   public int[][] countAll(int maxId) {
     final int[][] results = new int[moleculesCount][maxId + 1];
@@ -704,18 +709,8 @@ public class DensityCounter {
         }
         from = to;
       }
-      // Wait for all to finish
-      for (int t = futures.size(); t-- > 0;) {
-        try {
-          // The future .get() method will block until completed
-          futures.get(t).get();
-        } catch (final Exception ex) {
-          // This should not happen.
-          // Ignore it and allow processing to continue (the number of neighbour samples will just
-          // be smaller).
-          ex.printStackTrace();
-        }
-      }
+
+      ConcurrencyUtils.waitForCompletionOrError(futures, DensityCounter::logException);
 
       executor.shutdown();
     }
@@ -736,6 +731,7 @@ public class DensityCounter {
    * @param searchMolecules the molecules to around which to search
    * @param maxId the max ID of molecules
    * @return the counts
+   * @throws AsynchronousException If interrupted while computing using multi-thread mode
    */
   @SuppressWarnings("null")
   public int[][] countAll(Molecule[] searchMolecules, int maxId) {
@@ -767,23 +763,22 @@ public class DensityCounter {
         from = to;
       }
 
-      // Wait for all to finish
-      for (int t = futures.size(); t-- > 0;) {
-        try {
-          // The future .get() method will block until completed
-          futures.get(t).get();
-        } catch (final Exception ex) {
-          // This should not happen.
-          // Ignore it and allow processing to continue (the number of neighbour samples will just
-          // be smaller).
-          ex.printStackTrace();
-        }
-      }
+      ConcurrencyUtils.waitForCompletionOrError(futures, DensityCounter::logException);
 
       executor.shutdown();
     }
 
     return results;
+  }
+
+  /**
+   * Log an exception.
+   *
+   * @param ex the exception
+   */
+  private static void logException(Exception ex) {
+    Logger.getLogger(DensityCounter.class.getName()).log(Level.WARNING,
+        () -> "Failed to perform computation: " + ex.getMessage());
   }
 
   private void createGridPriority() {

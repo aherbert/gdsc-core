@@ -1218,17 +1218,17 @@ public abstract class FastTiffDecoder {
    */
   void getInfoProperty(int first, ExtendedFileInfo fi) throws IOException {
     int len = metaDataCounts[first];
-    final byte[] buffer = new byte[len];
-    ss.readFully(buffer, len);
+    final byte[] byteBuffer = new byte[len];
+    ss.readFully(byteBuffer, len);
     len /= 2;
     final char[] chars = new char[len];
     if (isLittleEndian()) {
       for (int j = 0, k = 0; j < len; j++) {
-        chars[j] = (char) ((buffer[k++] & 255) + ((buffer[k++] & 255) << 8));
+        chars[j] = (char) ((byteBuffer[k++] & 255) + ((byteBuffer[k++] & 255) << 8));
       }
     } else {
       for (int j = 0, k = 0; j < len; j++) {
-        chars[j] = (char) (((buffer[k++] & 255) << 8) + (buffer[k++] & 255));
+        chars[j] = (char) (((byteBuffer[k++] & 255) << 8) + (byteBuffer[k++] & 255));
       }
     }
     fi.info = new String(chars);
@@ -1245,23 +1245,23 @@ public abstract class FastTiffDecoder {
   void getSliceLabels(int first, int last, ExtendedFileInfo fi) throws IOException {
     fi.sliceLabels = new String[last - first + 1];
     int index = 0;
-    byte[] buffer = new byte[metaDataCounts[first]];
+    byte[] byteBuffer = new byte[metaDataCounts[first]];
     for (int i = first; i <= last; i++) {
       int len = metaDataCounts[i];
       if (len > 0) {
-        if (len > buffer.length) {
-          buffer = new byte[len];
+        if (len > byteBuffer.length) {
+          byteBuffer = new byte[len];
         }
-        ss.readFully(buffer, len);
+        ss.readFully(byteBuffer, len);
         len /= 2;
         final char[] chars = new char[len];
         if (isLittleEndian()) {
           for (int j = 0, k = 0; j < len; j++) {
-            chars[j] = (char) ((buffer[k++] & 255) + ((buffer[k++] & 255) << 8));
+            chars[j] = (char) ((byteBuffer[k++] & 255) + ((byteBuffer[k++] & 255) << 8));
           }
         } else {
           for (int j = 0, k = 0; j < len; j++) {
-            chars[j] = (char) (((buffer[k++] & 255) << 8) + (buffer[k++] & 255));
+            chars[j] = (char) (((byteBuffer[k++] & 255) << 8) + (byteBuffer[k++] & 255));
           }
         }
         fi.sliceLabels[index++] = new String(chars);
@@ -2113,14 +2113,14 @@ public abstract class FastTiffDecoder {
     // Read the index data in one operation.
     // Any tag data is read by using a seek operation and then reset to the current position.
     final int size = entryCount * INDEX_SIZE;
-    final byte[] buffer = allocateBuffer(size);
-    if (ss.readBytes(buffer, size) != size) {
+    final byte[] byteBuffer = allocateBuffer(size);
+    if (ss.readBytes(byteBuffer, size) != size) {
       return -1;
     }
 
     for (int i = 0, j = 0; i < entryCount; i++, j += INDEX_SIZE) {
       // We are only interested in any fields that specify the nImages
-      final int tag = getShort(buffer, j);
+      final int tag = getShort(byteBuffer, j);
 
       // Note:
       // NIH_IMAGE_HDR does contain nImages for GRAY8 or COLOR8.
@@ -2133,9 +2133,9 @@ public abstract class FastTiffDecoder {
 
       // Just support extracting the nImages from the description
       if (tag == IMAGE_DESCRIPTION) {
-        final int fieldType = getShort(buffer, j + 2);
-        final int count = getInt(buffer, j + 4);
-        final int value = getValue(fieldType, count, buffer, j + 8);
+        final int fieldType = getShort(byteBuffer, j + 2);
+        final int count = getInt(byteBuffer, j + 4);
+        final int value = getValue(fieldType, count, byteBuffer, j + 8);
         final long lvalue = (value) & 0xffffffffL;
         final byte[] s = getString(count, lvalue);
 
@@ -2241,8 +2241,8 @@ public abstract class FastTiffDecoder {
       // Read the index data in one operation.
       // Any tag data is read by using a seek operation and then reset to the current position.
       final int size = entryCount * INDEX_SIZE;
-      final byte[] buffer = allocateBuffer(size);
-      if (ss.readBytes(buffer, size) != size) {
+      final byte[] byteBuffer = allocateBuffer(size);
+      if (ss.readBytes(byteBuffer, size) != size) {
         return 0;
       }
     }

@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.FloatIntKdTree2D;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.IntNeighbourStore;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.Status;
+import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 import java.util.concurrent.ExecutionException;
@@ -344,11 +345,7 @@ public class LoOp {
 
   private static void wait(TurboList<Future<?>> futures)
       throws InterruptedException, ExecutionException {
-    // Wait for all to finish
-    for (int t = futures.size(); t-- > 0;) {
-      // The future .get() method will block until completed
-      futures.get(t).get();
-    }
+    ConcurrencyUtils.waitForCompletion(futures);
     futures.clear();
   }
 

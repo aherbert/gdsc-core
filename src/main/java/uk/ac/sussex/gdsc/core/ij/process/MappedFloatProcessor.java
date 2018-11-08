@@ -140,7 +140,7 @@ public class MappedFloatProcessor extends FloatProcessor {
     super(array);
   }
 
-  private static int NEGATIVE_ZERO = Float.floatToRawIntBits(-0.0f);
+  private static final int NEGATIVE_ZERO = Float.floatToRawIntBits(-0.0f);
 
   // scale from float to 8-bits
   @Override

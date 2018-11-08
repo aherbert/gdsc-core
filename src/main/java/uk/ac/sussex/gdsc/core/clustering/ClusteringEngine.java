@@ -578,7 +578,7 @@ public class ClusteringEngine {
 
     try {
       final ArrayList<Cluster> clusters =
-          runParticleSingleLinkage(grid, nxbins, nybins, r2, minx, miny, candidates, singles);
+          runParticleSingleLinkage(grid, nxbins, nybins, r2, candidates, singles);
       reportResult(clusters);
       return clusters;
     } finally {
@@ -587,7 +587,7 @@ public class ClusteringEngine {
   }
 
   private ArrayList<Cluster> runParticleSingleLinkage(ExtendedClusterPoint[][] grid, int nxbins,
-      int nybins, double r2, double minx, double miny, ArrayList<ExtendedClusterPoint> candidates,
+      int nybins, double r2, ArrayList<ExtendedClusterPoint> candidates,
       ArrayList<Cluster> currentClusters) {
     final int N = candidates.size();
     int candidatesProcessed = 0;
@@ -606,7 +606,7 @@ public class ClusteringEngine {
     }
 
     initialiseMultithreading(nxbins, nybins);
-    while ((processed = joinClosestParticle(grid, nxbins, nybins, r2, minx, miny, clusterId)) > 0) {
+    while ((processed = joinClosestParticle(grid, nxbins, nybins, r2, clusterId)) > 0) {
       if (tracker.isEnded()) {
         return null;
       }
@@ -703,13 +703,11 @@ public class ClusteringEngine {
    * @param nxbins the n X bins
    * @param nybins the n Y bins
    * @param r2 The squared radius distance
-   * @param minx the minx
-   * @param miny the miny
    * @param clusterId the cluster id
    * @return The number of points assigned to clusters (either 0, 1, or 2)
    */
   private int joinClosestParticle(ExtendedClusterPoint[][] grid, final int nxbins, final int nybins,
-      final double r2, double minx, double miny, int[] clusterId) {
+      final double r2, int[] clusterId) {
     ClosestPair closest = null;
 
     // Blocks must be overlapping by one bin to calculate all distances. There is no point

@@ -809,19 +809,7 @@ public class OpticsManager extends CoordinateStore {
       // This is roughly pi/4
       // Compute the expected number of molecules in the area.
 
-      final float xrange = maxXCoord - minXCoord;
-      final float yrange = maxYCoord - minYCoord;
-      double area;
-      if (xrange == 0 && yrange == 0) {
-        // Occurs when only 1 point or colocated data. A distance of zero is invalid so set to 1.
-        area = 1;
-      } else {
-        area = xrange * yrange;
-      }
-
-      final double nMoleculesInPixel = getSize() / area;
-      final double nMoleculesInCircle =
-          Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
+      final double nMoleculesInCircle = getMoleculesInCircle(generatingDistanceE);
 
       // TODO - JUnit test to show when to use a circle to avoid distance comparisons.
       // We can miss 1 - pi/4 = 21% of the area.
@@ -841,25 +829,42 @@ public class OpticsManager extends CoordinateStore {
       // DBSCAN will benefit from inner radial processing if the number of comparisons is high.
       // Compute the expected number of molecules in the area.
 
-      final float xrange = maxXCoord - minXCoord;
-      final float yrange = maxYCoord - minYCoord;
-      double area;
-      if (xrange == 0 && yrange == 0) {
-        // Occurs when only 1 point or colocated data. A distance of zero is invalid so set to 1.
-        area = 1;
-      } else {
-        area = xrange * yrange;
-      }
-
-      final double nMoleculesInPixel = getSize() / area;
-      final double nMoleculesInCircle =
-          Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
+      final double nMoleculesInCircle = getMoleculesInCircle(generatingDistanceE);
 
       if (nMoleculesInCircle > RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_INNER) {
         clazz = InnerRadialMoleculeSpace.class;
       }
     }
     initialise(generatingDistanceE, minPts, clazz);
+  }
+
+  /**
+   * Gets the number of molecules in the circle defined by the generating distance. This assumes all
+   * the molecules are uniformly spread across the bounding region of the coordinates.
+   *
+   * @param generatingDistanceE the generating distance E
+   * @return the molecules in circle
+   */
+  private double getMoleculesInCircle(float generatingDistanceE) {
+    final double xrange = computeDeltaOrOne(maxXCoord, minXCoord);
+    final double yrange = computeDeltaOrOne(maxYCoord, minYCoord);
+    final double area = xrange * yrange;
+    final double nMoleculesInPixel = getSize() / area;
+    return Math.PI * generatingDistanceE * generatingDistanceE * nMoleculesInPixel;
+  }
+
+  /**
+   * Compute the difference (delta) between the max and min or one.
+   *
+   * @param max the max
+   * @param min the min
+   * @return the double
+   */
+  private static double computeDeltaOrOne(float max, float min) {
+    double delta = max - min;
+    // If the range is zero the points are colocated (or there is 1 point). Return 1 so the
+    // area can be computed.
+    return (delta != 0) ? delta : 1;
   }
 
   /**
@@ -1570,7 +1575,8 @@ public class OpticsManager extends CoordinateStore {
     initialiseFastOptics(minPts);
 
     if (tracker != null) {
-      numberOfSplits = ProjectedMoleculeSpace.getOrComputeNumberOfSplitSets(numberOfSplits, getSize());
+      numberOfSplits =
+          ProjectedMoleculeSpace.getOrComputeNumberOfSplitSets(numberOfSplits, getSize());
       numberOfProjections =
           ProjectedMoleculeSpace.getOrComputeNumberOfProjections(numberOfProjections, getSize());
 

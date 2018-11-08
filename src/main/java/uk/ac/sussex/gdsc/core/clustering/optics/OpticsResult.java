@@ -1131,12 +1131,9 @@ public class OpticsResult implements ClusteringResult {
           // Ensure that the predecessor is in the current cluster. This filter
           // removes common artifacts from the Xi method.
           if (!noCorrect) {
-            simplify: while (cend > cstart) {
-              final int predecessor = get(cend).predecessor;
-              for (int c = cstart; c < cend; c++) {
-                if (predecessor == get(c).parent) {
-                  break simplify;
-                }
+            while (cend > cstart) {
+              if (predecessorInCurrentCluster(cstart, cend)) {
+                break;
               }
               // Not found.
               cend--;
@@ -1300,6 +1297,24 @@ public class OpticsResult implements ClusteringResult {
   private static double getNextReachability(int index, final int size,
       final double[] reachability) {
     return (valid(index + 1, size)) ? reachability[index + 1] : Double.POSITIVE_INFINITY;
+  }
+
+  /**
+   * Check the predecessor is in the current cluster. This filter removes common artifacts from the
+   * Xi method.
+   *
+   * @param cstart the cluster start
+   * @param cend the cluster end
+   * @return true, if successful
+   */
+  private boolean predecessorInCurrentCluster(int cstart, int cend) {
+    final int predecessor = get(cend).predecessor;
+    for (int c = cstart; c < cend; c++) {
+      if (predecessor == get(c).parent) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

@@ -36,7 +36,6 @@ import java.util.NoSuchElementException;
  * Expandable store for boolean data backed by an array.
  */
 public class BooleanArray implements Iterable<Boolean> {
-  // TODO - Copy the functionality from Trove TArrayList (which does not have TBoolArrayList)
 
   private boolean[] values;
   private int size = 0;
@@ -255,7 +254,7 @@ public class BooleanArray implements Iterable<Boolean> {
   }
 
   /**
-   * Clear the array.
+   * Clear the array. Does not release capacity. Use {@link #compact()}.
    */
   public void clear() {
     size = 0;

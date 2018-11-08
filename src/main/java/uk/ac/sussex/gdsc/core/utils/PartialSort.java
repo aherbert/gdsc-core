@@ -1372,7 +1372,8 @@ public final class PartialSort {
       i = l + 1;
       j = ir;
       a = arr[l + 1];
-      for (;;) {
+      boolean running = true;
+      while (running) {
         do {
           i++;
         }
@@ -1382,9 +1383,10 @@ public final class PartialSort {
         }
         while (arr[j] > a);
         if (j < i) {
-          break;
+          running = false;
+        } else {
+          swap(arr, i, j);
         }
-        swap(arr, i, j);
       }
       arr[l + 1] = arr[j];
       arr[j] = a;
@@ -1439,7 +1441,8 @@ public final class PartialSort {
       i = l + 1;
       j = ir;
       a = arr[l + 1];
-      for (;;) {
+      boolean running = true;
+      while (running) {
         do {
           i++;
         }
@@ -1449,9 +1452,10 @@ public final class PartialSort {
         }
         while (arr[j] > a);
         if (j < i) {
-          break;
+          running = false;
+        } else {
+          swap(arr, i, j);
         }
-        swap(arr, i, j);
       }
       arr[l + 1] = arr[j];
       arr[j] = a;
