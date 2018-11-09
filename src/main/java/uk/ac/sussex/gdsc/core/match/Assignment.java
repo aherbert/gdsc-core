@@ -38,19 +38,19 @@ public interface Assignment {
    *
    * @return the target Id.
    */
-  public int getTargetId();
+  int getTargetId();
 
   /**
    * Gets the predicted id.
    *
    * @return the predicted Id.
    */
-  public int getPredictedId();
+  int getPredictedId();
 
   /**
    * Gets the distance.
    *
    * @return the distance.
    */
-  public double getDistance();
+  double getDistance();
 }

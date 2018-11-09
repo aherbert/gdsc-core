@@ -212,33 +212,33 @@ public class OpticsManager extends CoordinateStore {
      *
      * @param molecule the molecule
      */
-    public void push(Molecule molecule);
+    void push(Molecule molecule);
 
     /**
      * Move the molecule up the queue (since the reachability distance has changed).
      *
      * @param molecule the molecule
      */
-    public void moveUp(Molecule molecule);
+    void moveUp(Molecule molecule);
 
     /**
      * Checks for next.
      *
      * @return true, if successful
      */
-    public boolean hasNext();
+    boolean hasNext();
 
     /**
      * Get the next molecule.
      *
      * @return the molecule
      */
-    public Molecule next();
+    Molecule next();
 
     /**
      * Clear the queue.
      */
-    public void clear();
+    void clear();
   }
 
   /**

@@ -148,7 +148,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
      * @param distance the distance
      * @param value the value
      */
-    private Entry(double distance, T value) {
+    public Entry(double distance, T value) {
       this.distance = distance;
       this.value = value;
     }

@@ -37,25 +37,21 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
   private final LinkedList<double[]> locationStack;
 
   /** The size limit. */
-  private final Integer sizeLimit;
+  private final int sizeLimit;
 
   /**
-   * Construct a RTree with a given number of dimensions and a limit on maxiumum size (after which
-   * it throws away old points).
+   * Construct a RTree with a given number of dimensions and a limit on maximum size (after which it
+   * throws away old points).
    *
    * @param dimensions the dimensions
    * @param sizeLimit the size limit
    */
-  private KdTree(int dimensions, Integer sizeLimit) {
+  public KdTree(int dimensions, int sizeLimit) {
     super(dimensions);
 
     // Init as root
     this.sizeLimit = sizeLimit;
-    if (sizeLimit != null) {
-      this.locationStack = new LinkedList<>();
-    } else {
-      this.locationStack = null;
-    }
+    this.locationStack = (sizeLimit > 0) ? new LinkedList<>() : null;
   }
 
   /**
@@ -154,7 +150,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
     cursor.locationCount++;
     cursor.extendBounds(location);
 
-    if (this.sizeLimit != null) {
+    if (this.locationStack != null) {
       this.locationStack.add(location);
       if (this.locationCount > this.sizeLimit) {
         this.removeOld();
@@ -215,7 +211,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
      * @param distance the distance
      * @param value the value
      */
-    private Entry(double distance, T value) {
+    public Entry(double distance, T value) {
       this.distance = distance;
       this.value = value;
     }
@@ -464,7 +460,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
      * @param dimensions the dimensions
      * @param sizeLimit the size limit
      */
-    public WeightedSqrEuclid(int dimensions, Integer sizeLimit) {
+    public WeightedSqrEuclid(int dimensions, int sizeLimit) {
       super(dimensions, sizeLimit);
       this.weights = new double[dimensions];
       Arrays.fill(this.weights, 1.0);
@@ -531,7 +527,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
      * @param dimensions the dimensions
      * @param sizeLimit the size limit
      */
-    public SqrEuclid(int dimensions, Integer sizeLimit) {
+    public SqrEuclid(int dimensions, int sizeLimit) {
       super(dimensions, sizeLimit);
     }
 
@@ -585,7 +581,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
      *
      * @param sizeLimit the size limit
      */
-    public SqrEuclid2D(Integer sizeLimit) {
+    public SqrEuclid2D(int sizeLimit) {
       super(2, sizeLimit);
     }
 
@@ -619,7 +615,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
      * @param dimensions the dimensions
      * @param sizeLimit the size limit
      */
-    public WeightedManhattan(int dimensions, Integer sizeLimit) {
+    public WeightedManhattan(int dimensions, int sizeLimit) {
       super(dimensions, sizeLimit);
       this.weights = new double[dimensions];
       Arrays.fill(this.weights, 1.0);
@@ -686,7 +682,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
      * @param dimensions the dimensions
      * @param sizeLimit the size limit
      */
-    public Manhattan(int dimensions, Integer sizeLimit) {
+    public Manhattan(int dimensions, int sizeLimit) {
       super(dimensions, sizeLimit);
     }
 

@@ -40,5 +40,5 @@ public interface CoordinatePredicate {
    * @param y the y
    * @return true, if successful
    */
-  public boolean test(double x, double y);
+  boolean test(double x, double y);
 }

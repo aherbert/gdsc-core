@@ -38,7 +38,7 @@ public interface ValueProvider {
    *
    * @return the length
    */
-  public int getLength();
+   int getLength();
 
   /**
    * Gets the value.
@@ -46,7 +46,7 @@ public interface ValueProvider {
    * @param x the x (must be positive)
    * @return the value
    */
-  public double get(int x);
+   double get(int x);
 
   /**
    * Gets the 3 values around the index. If the index is at the bounds then the result is undefined.
@@ -54,12 +54,12 @@ public interface ValueProvider {
    * @param x the x (must be positive)
    * @param values the values
    */
-  public void get(int x, double[] values);
+   void get(int x, double[] values);
 
   /**
    * Convert to an array.
    *
    * @return the array
    */
-  public double[] toArray();
+   double[] toArray();
 }

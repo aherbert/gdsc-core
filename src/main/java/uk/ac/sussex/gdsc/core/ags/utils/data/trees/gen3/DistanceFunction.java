@@ -31,7 +31,7 @@ public interface DistanceFunction {
    * @param p2 point 2
    * @return the distance
    */
-  public double distance(double[] p1, double[] p2);
+  double distance(double[] p1, double[] p2);
 
   /**
    * Distance to the rectangle.
@@ -41,5 +41,5 @@ public interface DistanceFunction {
    * @param max the max of the rectangle
    * @return the distance
    */
-  public double distanceToRect(double[] point, double[] min, double[] max);
+  double distanceToRect(double[] point, double[] min, double[] max);
 }

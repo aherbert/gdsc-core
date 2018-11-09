@@ -89,13 +89,14 @@ public class FloatHeap {
    * @param index the index
    */
   private void upHeapify(int index) {
-    while (index > 0) {
-      final int p = (index - 1) >>> 1;
-      if (distance[index] > distance[p]) {
+    int child = index;
+    while (child > 0) {
+      final int p = (child - 1) >>> 1;
+      if (distance[child] > distance[p]) {
         final float pDist = distance[p];
-        distance[p] = distance[index];
-        distance[index] = pDist;
-        index = p;
+        distance[p] = distance[child];
+        distance[child] = pDist;
+        child = p;
       } else {
         break;
       }
@@ -108,14 +109,14 @@ public class FloatHeap {
    * @param index the index
    */
   private void downHeapify(int index) {
-    for (int c = index * 2 + 1; c < size; index = c, c = index * 2 + 1) {
+    for (int p = index, c = index * 2 + 1; c < size; p = c, c = p * 2 + 1) {
       if (c + 1 < size && distance[c] < distance[c + 1]) {
         c++;
       }
-      if (distance[index] < distance[c]) {
+      if (distance[p] < distance[c]) {
         // Swap the points
-        final float pDist = distance[index];
-        distance[index] = distance[c];
+        final float pDist = distance[p];
+        distance[p] = distance[c];
         distance[c] = pDist;
       } else {
         break;

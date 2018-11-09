@@ -53,7 +53,7 @@ public class ClusterPoint {
   /**
    * The next cluster point. Used to construct a single linked list of points.
    */
-  private ClusterPoint next = null;
+  private ClusterPoint next;
 
   /**
    * Create a cluster point.

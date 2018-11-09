@@ -33,21 +33,29 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Show the version information contained in the source jar manifest.
  */
-public class Version {
+public final class VersionUtils {
   /** Constant for the string "unknown". */
   public static final String UNKNOWN = "unknown";
+
+  /** The version number. */
   private static String versionNumber;
+
+  /** The build date. */
   private static String buildDate;
+
+  /** The build number. */
   private static String buildNumber;
 
   static {
-    final Manifest manifest = loadManifest(Version.class);
+    final Manifest manifest = loadManifest(VersionUtils.class);
     if (manifest != null) {
       final Attributes attributes = manifest.getMainAttributes();
       versionNumber = attributes.getValue("Specification-Version");
@@ -66,17 +74,22 @@ public class Version {
     }
   }
 
+  /** No public construction. */
+  private VersionUtils() {}
+
   /**
    * The main method. Output the version and build date.
    *
    * @param args the arguments
    */
   public static void main(String[] args) {
-    final StringBuilder msg = new StringBuilder();
     final String newLine = System.getProperty("line.separator");
-    msg.append("Version : ").append(versionNumber).append(newLine);
-    msg.append("Build Date : ").append(buildDate).append(newLine);
-    msg.append("Build Number : ").append(buildNumber).append(newLine);
+    //@formatter:off
+    final StringBuilder msg = new StringBuilder(100)
+        .append("Version : ").append(versionNumber).append(newLine)
+        .append("Build Date : ").append(buildDate).append(newLine)
+        .append("Build Number : ").append(buildNumber).append(newLine);
+    //@formatter:on
     System.out.print(msg);
   }
 
@@ -185,7 +198,8 @@ public class Version {
         return new Manifest(in);
       }
     } catch (final IOException ex) {
-      // Ignore this
+      Logger.getLogger(VersionUtils.class.getName()).log(Level.WARNING, ex,
+          () -> "Failed to load manifest for class: " + clazz.getName());
     }
     return null;
   }

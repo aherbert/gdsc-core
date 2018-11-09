@@ -38,42 +38,42 @@ public interface Coordinate {
    *
    * @return The X-coordinate.
    */
-  public float getX();
+  float getX();
 
   /**
    * Gets the Y-coordinate.
    *
    * @return The Y-coordinate.
    */
-  public float getY();
+  float getY();
 
   /**
    * Gets the Z-coordinate.
    *
    * @return The Z-coordinate.
    */
-  public float getZ();
+  float getZ();
 
   /**
    * Gets the X-coordinate cast to an int.
    *
    * @return The X-coordinate cast to an int.
    */
-  public int getXint();
+  int getXint();
 
   /**
    * Gets the Y-coordinate cast to an int.
    *
    * @return The Y-coordinate cast to an int.
    */
-  public int getYint();
+  int getYint();
 
   /**
    * Gets the Z-coordinate cast to an int.
    *
    * @return The Z-coordinate cast to an int.
    */
-  public int getZint();
+  int getZint();
 
   /**
    * Calculate the XY distance to the given coordinates.
@@ -82,7 +82,7 @@ public interface Coordinate {
    * @param y the y
    * @return the distance
    */
-  public double distance(float x, float y);
+  double distance(float x, float y);
 
   /**
    * Calculate the XYZ distance to the given coordinates.
@@ -92,7 +92,7 @@ public interface Coordinate {
    * @param z the z
    * @return the distance
    */
-  public double distance(float x, float y, float z);
+  double distance(float x, float y, float z);
 
   /**
    * Calculate the XY squared distance to the given coordinates.
@@ -101,7 +101,7 @@ public interface Coordinate {
    * @param y the y
    * @return the squared distance
    */
-  public double distanceSquared(float x, float y);
+  double distanceSquared(float x, float y);
 
   /**
    * Calculate the XYZ squared distance to the given coordinates.
@@ -111,7 +111,7 @@ public interface Coordinate {
    * @param z the z
    * @return the squared distance
    */
-  public double distanceSquared(float x, float y, float z);
+  double distanceSquared(float x, float y, float z);
 
   /**
    * Calculate the XY distance to the given coordinate.
@@ -119,7 +119,7 @@ public interface Coordinate {
    * @param other the other
    * @return the distance
    */
-  public double distanceXy(Coordinate other);
+  double distanceXy(Coordinate other);
 
   /**
    * Calculate the XY squared distance to the given coordinate.
@@ -127,7 +127,7 @@ public interface Coordinate {
    * @param other the other
    * @return the squared distance
    */
-  public double distanceXySquared(Coordinate other);
+  double distanceXySquared(Coordinate other);
 
   /**
    * Calculate the XYZ distance to the given coordinate.
@@ -135,7 +135,7 @@ public interface Coordinate {
    * @param other the other
    * @return the distance
    */
-  public double distanceXyz(Coordinate other);
+  double distanceXyz(Coordinate other);
 
   /**
    * Calculate the XYZ squared distance to the given coordinate.
@@ -143,5 +143,5 @@ public interface Coordinate {
    * @param other the other
    * @return the squared distance
    */
-  public double distanceXyzSquared(Coordinate other);
+  double distanceXyzSquared(Coordinate other);
 }

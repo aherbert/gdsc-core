@@ -55,12 +55,12 @@ public class Cluster {
   /**
    * The next cluster. Used to construct a single linked list of clusters.
    */
-  private Cluster next = null;
+  private Cluster next;
 
   /**
    * The closest. Used to store potential clustering links.
    */
-  private Cluster closest = null;
+  private Cluster closest;
 
   /** The squared distance. */
   private double distanceSquared;
@@ -68,10 +68,10 @@ public class Cluster {
   /**
    * The neighbour. Used to indicate this cluster has a neighbour.
    */
-  private int neighbour = 0;
+  private int neighbour;
 
   /** The head. Used to construct a single linked list of cluster points. */
-  private ClusterPoint headClusterPoint = null;
+  private ClusterPoint headClusterPoint;
 
   /** The x bin for allocating to a grid. */
   private int xbin;
@@ -220,10 +220,30 @@ public class Cluster {
    */
   public void link(Cluster other, double d2) {
     // Check if the other cluster has a closer candidate
-    if (other.getClosest() != null && other.getDistanceSquared() < d2) {
-      return;
+    if (canLink(other, d2)) {
+      doLink(other, d2);
     }
+  }
 
+  /**
+   * Check if this cluster can link to the other cluster. This is true if the other cluster has no
+   * current closest cluster or the distance to its closest cluster is above the given distance.
+   *
+   * @param other the other
+   * @param d2 the squared distance
+   * @return true, if successful
+   */
+  public boolean canLink(Cluster other, double d2) {
+    return other.getClosest() == null || other.getDistanceSquared() > d2;
+  }
+
+  /**
+   * Link the two clusters as potential merge candidates.
+   *
+   * @param other the other cluster
+   * @param d2 the squared distance
+   */
+  private void doLink(Cluster other, double d2) {
     other.setClosest(this);
     other.setDistanceSquared(d2);
 
@@ -232,26 +252,10 @@ public class Cluster {
   }
 
   /**
-   * Increment the neighbour counter in a thread safe method.
+   * Increment the neighbour counter.
    */
-  public synchronized void incrementNeighbour() {
-    setNeighbour(getNeighbour() + 1);
-  }
-
-  /**
-   * Link the two clusters as potential merge candidates only if the squared distance is smaller
-   * than the other cluster's current closest.
-   *
-   * <p>Thread safe.
-   *
-   * @param other the other cluster
-   * @param disatnceSquared the disatnce squared
-   */
-  public synchronized void linkSynchronized(Cluster other, double disatnceSquared) {
-    // The entire method should be synchronized since the other cluster distanceSquared is checked.
-    // This may be updated by another thread unless the updates only occur within a
-    // synchronized block
-    link(other, disatnceSquared);
+  public void incrementNeighbour() {
+    neighbour++;
   }
 
   /**

@@ -38,14 +38,14 @@ public interface BivalueProvider {
    *
    * @return the length
    */
-  public int getLengthX();
+   int getLengthX();
 
   /**
    * Gets the length of the Y-dimension.
    *
    * @return the length
    */
-  public int getLengthY();
+   int getLengthY();
 
   /**
    * Gets the value.
@@ -54,7 +54,7 @@ public interface BivalueProvider {
    * @param y the y (must be positive)
    * @return the value
    */
-  public double get(int x, int y);
+   double get(int x, int y);
 
   /**
    * Gets the 3x3 values around the index. If the index is at the bounds then the result is
@@ -64,12 +64,12 @@ public interface BivalueProvider {
    * @param y the y (must be positive)
    * @param values the values
    */
-  public void get(int x, int y, double[][] values);
+   void get(int x, int y, double[][] values);
 
   /**
    * Convert to an array.
    *
    * @return the array
    */
-  public double[][] toArray();
+   double[][] toArray();
 }

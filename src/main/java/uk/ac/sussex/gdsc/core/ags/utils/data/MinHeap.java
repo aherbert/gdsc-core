@@ -31,7 +31,7 @@ public interface MinHeap<T> {
    *
    * @return the size
    */
-  public int size();
+  int size();
 
   /**
    * Offer.
@@ -39,7 +39,7 @@ public interface MinHeap<T> {
    * @param key the key
    * @param value the value
    */
-  public void offer(double key, T value);
+  void offer(double key, T value);
 
   /**
    * Replace min.
@@ -47,24 +47,24 @@ public interface MinHeap<T> {
    * @param key the key
    * @param value the value
    */
-  public void replaceMin(double key, T value);
+  void replaceMin(double key, T value);
 
   /**
    * Removes the min.
    */
-  public void removeMin();
+  void removeMin();
 
   /**
    * Gets the min.
    *
    * @return the min
    */
-  public T getMin();
+  T getMin();
 
   /**
    * Gets the min key.
    *
    * @return the min key
    */
-  public double getMinKey();
+  double getMinKey();
 }

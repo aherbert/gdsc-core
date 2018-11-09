@@ -178,7 +178,7 @@ public final class ImageJAnalyticsTracker {
         newClientParameters.addCustomDimension(5, System.getProperty("os.arch"));
 
         // Versions
-        newClientParameters.addCustomDimension(9, uk.ac.sussex.gdsc.core.Version.getVersion());
+        newClientParameters.addCustomDimension(9, uk.ac.sussex.gdsc.core.VersionUtils.getVersion());
 
         clientParameters = newClientParameters;
       }

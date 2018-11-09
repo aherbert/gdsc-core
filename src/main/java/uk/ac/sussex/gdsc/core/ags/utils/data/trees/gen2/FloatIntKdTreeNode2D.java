@@ -113,7 +113,7 @@ abstract class FloatIntKdTreeNode2D {
       return;
     }
 
-    for (int i = 2; i-- > 0;) {
+    for (int i = 0; i < 2; i++) {
       if (Double.isNaN(location[i])) {
         minLimit[i] = Float.NaN;
         maxLimit[i] = Float.NaN;

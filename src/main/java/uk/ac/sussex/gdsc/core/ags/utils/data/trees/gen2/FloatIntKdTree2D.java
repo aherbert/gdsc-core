@@ -161,7 +161,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D {
      * @param distance the distance
      * @param value the value
      */
-    private Entry(float distance, int value) {
+    public Entry(float distance, int value) {
       this.distance = distance;
       this.value = value;
     }

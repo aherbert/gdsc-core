@@ -136,7 +136,7 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D {
      * @param distance the distance
      * @param value the value
      */
-    private Entry(double distance, double[] value) {
+    public Entry(double distance, double[] value) {
       this.distance = distance;
       this.value = value;
     }

@@ -162,7 +162,7 @@ abstract class KdNode<T> {
       return;
     }
 
-    for (int i = getDimensions(); i-- > 0;) {
+    for (int i = 0; i < getDimensions(); i++) {
       if (Double.isNaN(point[i])) {
         if (!Double.isNaN(minBound[i]) || !Double.isNaN(maxBound[i])) {
           singlePoint = false;
@@ -190,7 +190,7 @@ abstract class KdNode<T> {
     }
 
     double width = 0;
-    for (int i = getDimensions(); i-- > 0;) {
+    for (int i = 0; i < getDimensions(); i++) {
       double dwidth = (maxBound[i] - minBound[i]);
       if (Double.isNaN(dwidth)) {
         dwidth = 0;

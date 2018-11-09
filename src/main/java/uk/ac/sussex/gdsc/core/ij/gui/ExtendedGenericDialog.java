@@ -820,7 +820,7 @@ public class ExtendedGenericDialog extends GenericDialog {
      * @param value the field value
      * @return true, if new options were collected
      */
-    public boolean collectOptions(T value);
+    boolean collectOptions(T value);
 
     /**
      * Gets the options using the previously read value of the field.
@@ -834,7 +834,7 @@ public class ExtendedGenericDialog extends GenericDialog {
      *
      * @return true, if new options were collected
      */
-    public boolean collectOptions();
+    boolean collectOptions();
   }
 
   /**
@@ -878,7 +878,7 @@ public class ExtendedGenericDialog extends GenericDialog {
      *
      * @param event the event
      */
-    public void optionCollected(OptionCollectedEvent event);
+    void optionCollected(OptionCollectedEvent event);
   }
 
   /**

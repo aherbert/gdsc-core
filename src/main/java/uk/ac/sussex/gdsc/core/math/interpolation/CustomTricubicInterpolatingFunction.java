@@ -2113,7 +2113,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
 
   //@formatter:on
 
-  private static interface SplineWriter {
+  private interface SplineWriter {
     void write(DataOutput out, CustomTricubicFunction function) throws IOException;
   }
 
@@ -2135,7 +2135,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     }
   }
 
-  private static interface SplineReader {
+  private interface SplineReader {
     CustomTricubicFunction read(DataInput in) throws IOException;
   }
 

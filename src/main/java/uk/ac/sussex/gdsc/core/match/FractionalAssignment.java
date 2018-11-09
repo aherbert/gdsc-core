@@ -43,5 +43,5 @@ public interface FractionalAssignment extends Assignment {
    *
    * @return the score
    */
-  public double getScore();
+  double getScore();
 }

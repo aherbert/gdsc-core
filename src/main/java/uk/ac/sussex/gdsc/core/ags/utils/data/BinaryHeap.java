@@ -145,14 +145,14 @@ public abstract class BinaryHeap<T> {
    * @param index the index
    */
   private void siftUp(int index) {
-    for (int p = (index - 1) / 2; index != 0
-        && direction * keys[index] > direction * keys[p]; index = p, p = (index - 1) / 2) {
+    for (int c = index, p = (index - 1) / 2; c != 0
+        && direction * keys[c] > direction * keys[p]; c = p, p = (c - 1) / 2) {
       final Object pData = data[p];
       final double pDist = keys[p];
-      data[p] = data[index];
-      keys[p] = keys[index];
-      data[index] = pData;
-      keys[index] = pDist;
+      data[p] = data[c];
+      keys[p] = keys[c];
+      data[c] = pData;
+      keys[c] = pDist;
     }
   }
 
@@ -162,16 +162,16 @@ public abstract class BinaryHeap<T> {
    * @param index the index
    */
   private void siftDown(int index) {
-    for (int c = index * 2 + 1; c < size; index = c, c = index * 2 + 1) {
+    for (int p = index, c = p * 2 + 1; c < size; p = c, c = p * 2 + 1) {
       if (c + 1 < size && direction * keys[c] < direction * keys[c + 1]) {
         c++;
       }
-      if (direction * keys[index] < direction * keys[c]) {
+      if (direction * keys[p] < direction * keys[c]) {
         // Swap the points
-        final Object pData = data[index];
-        final double pDist = keys[index];
-        data[index] = data[c];
-        keys[index] = keys[c];
+        final Object pData = data[p];
+        final double pDist = keys[p];
+        data[p] = data[c];
+        keys[p] = keys[c];
         data[c] = pData;
         keys[c] = pDist;
       } else {

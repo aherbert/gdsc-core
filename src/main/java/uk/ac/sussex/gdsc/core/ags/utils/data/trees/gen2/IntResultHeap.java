@@ -105,16 +105,17 @@ public class IntResultHeap {
    * @param index the index
    */
   private void upHeapify(int index) {
-    while (index > 0) {
-      final int p = (index - 1) >>> 1;
-      if (distance[index] > distance[p]) {
+    int child = index;
+    while (child > 0) {
+      final int p = (child - 1) >>> 1;
+      if (distance[child] > distance[p]) {
         final int pData = data[p];
         final double pDist = distance[p];
-        data[p] = data[index];
-        distance[p] = distance[index];
-        data[index] = pData;
-        distance[index] = pDist;
-        index = p;
+        data[p] = data[child];
+        distance[p] = distance[child];
+        data[child] = pData;
+        distance[child] = pDist;
+        child = p;
       } else {
         break;
       }
@@ -127,16 +128,16 @@ public class IntResultHeap {
    * @param index the index
    */
   private void downHeapify(int index) {
-    for (int c = index * 2 + 1; c < size; index = c, c = index * 2 + 1) {
+    for (int p = index, c = index * 2 + 1; c < size; p = c, c = p * 2 + 1) {
       if (c + 1 < size && distance[c] < distance[c + 1]) {
         c++;
       }
-      if (distance[index] < distance[c]) {
+      if (distance[p] < distance[c]) {
         // Swap the points
-        final int pData = data[index];
-        final double pDist = distance[index];
-        data[index] = data[c];
-        distance[index] = distance[c];
+        final int pData = data[p];
+        final double pDist = distance[p];
+        data[p] = data[c];
+        distance[p] = distance[c];
         data[c] = pData;
         distance[c] = pDist;
       } else {

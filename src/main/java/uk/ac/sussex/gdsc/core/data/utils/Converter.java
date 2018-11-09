@@ -38,7 +38,7 @@ public interface Converter {
    * @param value the value
    * @return the new value
    */
-  public double convert(double value);
+   double convert(double value);
 
   /**
    * Convert the value.
@@ -46,7 +46,7 @@ public interface Converter {
    * @param value the value
    * @return the new value
    */
-  public float convert(float value);
+   float convert(float value);
 
   /**
    * Convert the value back. This performs the opposite of {@link #convert(double)}.
@@ -54,7 +54,7 @@ public interface Converter {
    * @param value the value
    * @return the new value
    */
-  public double convertBack(double value);
+   double convertBack(double value);
 
   /**
    * Convert the value back. This performs the opposite of {@link #convert(float)}.
@@ -62,7 +62,7 @@ public interface Converter {
    * @param value the value
    * @return the new value
    */
-  public float convertBack(float value);
+   float convertBack(float value);
 
   /**
    * Gets the conversion function, f(x). The function should represent what conversion is performed
@@ -70,5 +70,5 @@ public interface Converter {
    *
    * @return the function
    */
-  public String getFunction();
+   String getFunction();
 }

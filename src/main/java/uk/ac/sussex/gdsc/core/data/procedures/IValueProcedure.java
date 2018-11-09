@@ -37,5 +37,5 @@ public interface IValueProcedure {
    *
    * @param value the pixel value
    */
-  public void execute(int value);
+   void execute(int value);
 }

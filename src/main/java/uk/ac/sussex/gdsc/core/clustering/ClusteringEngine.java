@@ -272,7 +272,23 @@ public class ClusteringEngine {
     @Override
     public void run() {
       links = findLinksAndCountNeighbours(grid, nxbins, nybins, r2, startxbin, endxbin, startybin,
-          endybin);
+          endybin, FindLinksWorker::incrementNeighbour, FindLinksWorker::link);
+    }
+
+    static void incrementNeighbour(Cluster c1) {
+      synchronized (c1) {
+        c1.incrementNeighbour();
+      }
+    }
+
+    static void link(Cluster c1, Cluster c2, double d2) {
+      if (c1.canLink(c2, d2)) {
+        synchronized (c1) {
+          synchronized (c2) {
+            c1.link(c2, d2);
+          }
+        }
+      }
     }
   }
 
@@ -1038,7 +1054,7 @@ public class ClusteringEngine {
           //      | 0,0 | 1,0
           // ------------+-----
           // -1,1 | 0,1 | 1,1
-          //@formatter:off
+          //@formatter:on
 
           int count = 0;
           neighbours[count++] = c1.getNext();
@@ -1154,7 +1170,7 @@ public class ClusteringEngine {
         break; // This should not happen
       }
 
-      tracker.progress((long)N - candidates.size(), N);
+      tracker.progress((long) N - candidates.size(), N);
 
       // TODO - determine at what point it is faster to reassign the grid
       if (joins < candidates.size() / 5) {
@@ -1221,7 +1237,12 @@ public class ClusteringEngine {
   private boolean findLinksAndCountNeighbours(Cluster[][] grid, final int nxbins, final int nybins,
       final double r2) {
     if (threadPool == null) {
-      return findLinksAndCountNeighbours(grid, nxbins, nybins, r2, 0, nxbins, 0, nybins);
+      return findLinksAndCountNeighbours(grid, nxbins, nybins, r2, 0, nxbins, 0, nybins,
+          // No synchronisation required, just call the methods direct
+          // Increment the neighbours
+          (c) -> c.incrementNeighbour(),
+          // Link two clusters if the distance is an improvement
+          (c1, c2, d2) -> c1.link(c2, d2));
     }
     // Use threads to find the closest pairs in blocks
     final List<Future<?>> futures = new LinkedList<>();
@@ -1241,7 +1262,6 @@ public class ClusteringEngine {
 
     // Finish processing data
     ConcurrencyUtils.waitForCompletionOrError(futures);
-    futures.clear();
 
     for (final FindLinksWorker worker : results) {
       if (worker.links) {
@@ -1249,6 +1269,22 @@ public class ClusteringEngine {
       }
     }
     return false;
+  }
+
+  /**
+   * Allow cluster neighbour to be incremented.
+   */
+  @FunctionalInterface
+  private interface ClusterNeighbourIncrementer {
+    void incrementNeighbour(Cluster cluster);
+  }
+
+  /**
+   * Allow clusters to be linked.
+   */
+  @FunctionalInterface
+  private interface ClusterLinker {
+    void link(Cluster c1, Cluster c2, double d2);
   }
 
   /**
@@ -1263,10 +1299,12 @@ public class ClusteringEngine {
    * @param endxbin the end X bin
    * @param startybin the start Y bin
    * @param endybin the end Y bin
+   * @param requireSynchronized Set to true if cluster updates require synchronized
    * @return True if any links were made
    */
   private static boolean findLinksAndCountNeighbours(Cluster[][] grid, final int nxbins,
-      final int nybins, final double r2, int startxbin, int endxbin, int startybin, int endybin) {
+      final int nybins, final double r2, int startxbin, int endxbin, int startybin, int endybin,
+      ClusterNeighbourIncrementer clusterNeighbourIncrementer, ClusterLinker clusterLinker) {
     final Cluster[] neighbours = new Cluster[5];
     boolean linked = false;
     final double neighbourDistance = 2 * r2;
@@ -1279,7 +1317,7 @@ public class ClusteringEngine {
           //      | 0,0 | 1,0
           // ------------+-----
           // -1,1 | 0,1 | 1,1
-          //@formatter:off
+          //@formatter:on
 
           int count = 0;
           neighbours[count++] = c1.getNext();
@@ -1306,8 +1344,8 @@ public class ClusteringEngine {
             for (Cluster c2 = neighbours[count]; c2 != null; c2 = c2.getNext()) {
               final double d2 = c1.distance2(c2);
               if (d2 < neighbourDistance) {
-                c1.incrementNeighbour();
-                c2.incrementNeighbour();
+                clusterNeighbourIncrementer.incrementNeighbour(c1);
+                clusterNeighbourIncrementer.incrementNeighbour(c2);
                 if (d2 < min) {
                   min = d2;
                   other = c2;
@@ -1318,7 +1356,7 @@ public class ClusteringEngine {
 
           if (other != null) {
             // Store the potential link between the two clusters
-            c1.linkSynchronized(other, min);
+            clusterLinker.link(c1, other, min);
             linked = true;
           }
         }

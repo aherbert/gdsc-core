@@ -197,7 +197,7 @@ public class NoiseEstimator {
    * Provide the base implementation for all noise estimators.
    */
   private interface Estimator {
-    abstract double getNoise();
+    double getNoise();
   }
 
   /**

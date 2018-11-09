@@ -31,7 +31,7 @@ public interface MaxHeap<T> {
    *
    * @return the size
    */
-  public int size();
+  int size();
 
   /**
    * Offer.
@@ -39,7 +39,7 @@ public interface MaxHeap<T> {
    * @param key the key
    * @param value the value
    */
-  public void offer(double key, T value);
+  void offer(double key, T value);
 
   /**
    * Replace max.
@@ -47,24 +47,24 @@ public interface MaxHeap<T> {
    * @param key the key
    * @param value the value
    */
-  public void replaceMax(double key, T value);
+  void replaceMax(double key, T value);
 
   /**
    * Removes the max.
    */
-  public void removeMax();
+  void removeMax();
 
   /**
    * Gets the max.
    *
    * @return the max
    */
-  public T getMax();
+  T getMax();
 
   /**
    * Gets the max key.
    *
    * @return the max key
    */
-  public double getMaxKey();
+  double getMaxKey();
 }

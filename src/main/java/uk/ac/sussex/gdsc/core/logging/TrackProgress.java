@@ -37,7 +37,7 @@ public interface TrackProgress {
    *
    * @param fraction the fraction
    */
-  public void progress(double fraction);
+  void progress(double fraction);
 
   /**
    * Specify progress as the position relative to the total.
@@ -45,14 +45,14 @@ public interface TrackProgress {
    * @param position the position
    * @param total the total
    */
-  public void progress(long position, long total);
+  void progress(long position, long total);
 
   /**
    * Specify an increment to the progress as a fraction.
    *
    * @param fraction the fraction
    */
-  public void incrementProgress(double fraction);
+  void incrementProgress(double fraction);
 
   /**
    * Logs a message on the progress.
@@ -60,7 +60,7 @@ public interface TrackProgress {
    * @param format the format
    * @param args the args
    */
-  public void log(String format, Object... args);
+  void log(String format, Object... args);
 
   /**
    * Sets the status on the progress.
@@ -68,7 +68,7 @@ public interface TrackProgress {
    * @param format the format
    * @param args the args
    */
-  public void status(String format, Object... args);
+  void status(String format, Object... args);
 
   /**
    * Return true if the tracker is ended and the processing of results should stop.
@@ -77,26 +77,26 @@ public interface TrackProgress {
    *
    * @return True if ended
    */
-  public boolean isEnded();
+  boolean isEnded();
 
   /**
    * Checks if the progress methods are active.
    *
    * @return true, if progress methods are active.
    */
-  public boolean isProgress();
+  boolean isProgress();
 
   /**
    * Checks if the {@link #log(String, Object...)}. method is active
    *
    * @return true, if the {@link #log(String, Object...)}. method is active
    */
-  public boolean isLog();
+  boolean isLog();
 
   /**
    * Checks if the {@link #status(String, Object...)} method is active.
    *
    * @return true, if is {@link #status(String, Object...)} method is active.
    */
-  public boolean isStatus();
+  boolean isStatus();
 }

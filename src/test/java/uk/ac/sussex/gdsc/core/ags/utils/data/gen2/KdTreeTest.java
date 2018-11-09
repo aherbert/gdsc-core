@@ -56,7 +56,7 @@ public class KdTreeTest {
 
       // Create the KDtree
       final uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree<Object> tree =
-          new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree.SqrEuclid2D<>(null);
+          new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree.SqrEuclid2D<>(0);
       for (final double[] location : data) {
         tree.addPoint(location, null);
       }
@@ -102,7 +102,7 @@ public class KdTreeTest {
 
       // Create the KDtree
       final uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree<Object> tree =
-          new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree.SqrEuclid2D<>(null);
+          new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree.SqrEuclid2D<>(0);
       for (final double[] location : data) {
         tree.addPoint(location, null);
       }
@@ -148,7 +148,7 @@ public class KdTreeTest {
 
       // Create the KDtree
       final uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree<Object> tree =
-          new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree.SqrEuclid2D<>(null);
+          new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree.SqrEuclid2D<>(0);
       for (final double[] location : data) {
         tree.addPoint(location, null);
       }
@@ -387,7 +387,7 @@ public class KdTreeTest {
       @Override
       public Object run(Object objectData) {
         final uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree<Object> tree =
-            new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree.SqrEuclid2D<>(null);
+            new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree.SqrEuclid2D<>(0);
         final double[][] data = (double[][]) objectData;
         for (final double[] location : data) {
           tree.addPoint(location, null);

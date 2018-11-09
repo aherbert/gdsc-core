@@ -906,7 +906,7 @@ public final class LutHelper {
      * @param value the value
      * @return the mapped value
      */
-    public int map(float value);
+    int map(float value);
 
     /**
      * Map the value to a value between 0 and 255.
@@ -914,7 +914,7 @@ public final class LutHelper {
      * @param value the value
      * @return the mapped value
      */
-    public float mapf(float value);
+    float mapf(float value);
 
     /**
      * Gets the colour.
@@ -923,21 +923,21 @@ public final class LutHelper {
      * @param value the value
      * @return the colour
      */
-    public Color getColour(LUT lut, float value);
+    Color getColour(LUT lut, float value);
 
     /**
      * Gets the min value output by {@link #map(float)}.
      *
      * @return the min value
      */
-    public int getMin();
+    int getMin();
 
     /**
      * Gets the max value output by {@link #map(float)}.
      *
      * @return the max value
      */
-    public int getMax();
+    int getMax();
   }
 
   /**

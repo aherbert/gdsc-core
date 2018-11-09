@@ -38,21 +38,21 @@ public interface TrivalueProvider {
    *
    * @return the length
    */
-  public int getLengthX();
+   int getLengthX();
 
   /**
    * Gets the length of the Y-dimension.
    *
    * @return the length
    */
-  public int getLengthY();
+   int getLengthY();
 
   /**
    * Gets the length of the Z-dimension.
    *
    * @return the length
    */
-  public int getLengthZ();
+   int getLengthZ();
 
   /**
    * Gets the value.
@@ -62,7 +62,7 @@ public interface TrivalueProvider {
    * @param z the z (must be positive)
    * @return the value
    */
-  public double get(int x, int y, int z);
+   double get(int x, int y, int z);
 
   /**
    * Gets the 3x3x3 values around the index. If the index is at the bounds then the result is
@@ -73,12 +73,12 @@ public interface TrivalueProvider {
    * @param z the z (must be positive)
    * @param values the values
    */
-  public void get(int x, int y, int z, double[][][] values);
+   void get(int x, int y, int z, double[][][] values);
 
   /**
    * Convert to an array.
    *
    * @return the array
    */
-  public double[][][] toArray();
+   double[][][] toArray();
 }
