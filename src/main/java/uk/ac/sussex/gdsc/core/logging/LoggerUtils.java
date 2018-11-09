@@ -86,7 +86,7 @@ public final class LoggerUtils {
    * @return the unconfigured logger
    */
   public static Logger getUnconfiguredLogger() {
-    Logger logger = Logger.getAnonymousLogger();
+    final Logger logger = Logger.getAnonymousLogger();
     logger.setUseParentHandlers(false);
     return logger;
   }

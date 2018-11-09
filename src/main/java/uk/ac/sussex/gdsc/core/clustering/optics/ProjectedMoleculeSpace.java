@@ -323,8 +323,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   /**
    * Gets the number of split sets (or computes it using the size).
    *
-   * @param numberOfSplits The number of splits (if below 1 it will be auto-computed
-   *        using the size of the data)
+   * @param numberOfSplits The number of splits (if below 1 it will be auto-computed using the size
+   *        of the data)
    * @param size the size
    * @return the number of split sets
    */
@@ -338,8 +338,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   /**
    * Gets the number of projections (or computes it using the size).
    *
-   * @param numberOfProjections The number of projections (if below 1 it will be
-   *        auto-computed using the size of the data)
+   * @param numberOfProjections The number of projections (if below 1 it will be auto-computed using
+   *        the size of the data)
    * @param size the size
    * @return the number of projections
    */

@@ -1038,7 +1038,7 @@ public final class SimpleArrayUtils {
    * @return true if all values are finite
    */
   public static boolean isFinite(double[] values) {
-    for (double value : values) {
+    for (final double value : values) {
       if (!Double.isFinite(value)) {
         return false;
       }
@@ -1053,7 +1053,7 @@ public final class SimpleArrayUtils {
    * @return true if all values are finite
    */
   public static boolean isFinite(float[] values) {
-    for (float value : values) {
+    for (final float value : values) {
       if (!Float.isFinite(value)) {
         return false;
       }

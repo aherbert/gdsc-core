@@ -90,7 +90,9 @@ public class ClusteringEngine {
       this.point2 = point2;
     }
 
-    ClosestPair() {}
+    ClosestPair() {
+      // Allow empty constructor
+    }
   }
 
   /**
@@ -656,7 +658,7 @@ public class ClusteringEngine {
         }
       }
     }
-    int failed = currentClusters.size() - originalSize;
+    final int failed = currentClusters.size() - originalSize;
     tracker.log("Failed to assign %d candidates", failed);
 
     for (int i = 0; i < clusters.length; i++) {

@@ -81,8 +81,8 @@ public class PlainMessageFormatter extends Formatter {
    * @return the string
    */
   private static String formatLogRecord(LogRecord record) {
-    String format = record.getMessage();
-    Object[] parameters = record.getParameters();
+    final String format = record.getMessage();
+    final Object[] parameters = record.getParameters();
     if (parameters == null || parameters.length == 0) {
       // No parameters. Just return format string.
       return format;
@@ -98,7 +98,7 @@ public class PlainMessageFormatter extends Formatter {
       // Do the formatting.
       try {
         return java.text.MessageFormat.format(format, parameters);
-      } catch (Exception ex) {
+      } catch (final Exception ex) {
         // Formatting failed. Fall through to plain format string
       }
     }

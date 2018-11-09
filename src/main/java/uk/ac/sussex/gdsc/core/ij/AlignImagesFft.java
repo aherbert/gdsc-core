@@ -501,9 +501,9 @@ public class AlignImagesFft {
         double sum = 0;
         double sumSquares = 0;
 
-        int minU = xxx - halfSizeU - 1;
+        final int minU = xxx - halfSizeU - 1;
         final int maxU = FastMath.min(minU + sizeU, maxx - 1);
-        int minV = yyy - halfSizeV - 1;
+        final int minV = yyy - halfSizeV - 1;
         final int maxV = FastMath.min(minV + sizeV, maxy - 1);
 
         // Compute sum from rolling sum using:
@@ -761,7 +761,7 @@ public class AlignImagesFft {
 
       if (IJ.debugMode) {
         // Used for debugging - Check if interpolation rounds to a different integer
-        double[] debugCentre = performCubicFit(subCorrMat, centre[0], centre[1]);
+        final double[] debugCentre = performCubicFit(subCorrMat, centre[0], centre[1]);
         debugCentre[0] = Math.round(debugCentre[0]);
         debugCentre[1] = Math.round(debugCentre[1]);
 

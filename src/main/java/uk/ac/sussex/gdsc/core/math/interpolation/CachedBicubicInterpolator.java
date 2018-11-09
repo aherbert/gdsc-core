@@ -85,8 +85,8 @@ public class CachedBicubicInterpolator {
   /**
    * Update coefficients.
    *
-   * <p>Note that if x=-1 and x=2 are not available then they can be replaced with x=1 and x=0.
-   * This is because the cubic interpolation uses the points to construct the gradient at x=0 as
+   * <p>Note that if x=-1 and x=2 are not available then they can be replaced with x=1 and x=0. This
+   * is because the cubic interpolation uses the points to construct the gradient at x=0 as
    * ((x=1)-(x=-1)) / 2. Setting x=-1 to x=1 will just zero the gradient at x=0. Likewise for the
    * gradient at x=1 = ((x=2)-(x=0))/2. Similar arguments apply to y.
    *
@@ -116,8 +116,8 @@ public class CachedBicubicInterpolator {
   /**
    * Update coefficients.
    *
-   * <p>Note that if x=-1 and x=2 are not available then they can be replaced with x=1 and x=0.
-   * This is because the cubic interpolation uses the points to construct the gradient at x=0 as
+   * <p>Note that if x=-1 and x=2 are not available then they can be replaced with x=1 and x=0. This
+   * is because the cubic interpolation uses the points to construct the gradient at x=0 as
    * ((x=1)-(x=-1)) / 2. Setting x=-1 to x=1 will just zero the gradient at x=0. Likewise for the
    * gradient at x=1 = ((x=2)-(x=0))/2. Similar arguments apply to y.
    *
@@ -147,8 +147,8 @@ public class CachedBicubicInterpolator {
   /**
    * Update coefficients.
    *
-   * <p>Note that if x=-1 and x=2 are not available then they can be replaced with x=1 and x=0.
-   * This is because the cubic interpolation uses the points to construct the gradient at x=0 as
+   * <p>Note that if x=-1 and x=2 are not available then they can be replaced with x=1 and x=0. This
+   * is because the cubic interpolation uses the points to construct the gradient at x=0 as
    * ((x=1)-(x=-1)) / 2. Setting x=-1 to x=1 will just zero the gradient at x=0. Likewise for the
    * gradient at x=1 = ((x=2)-(x=0))/2. Similar arguments apply to y.
    *

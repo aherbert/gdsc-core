@@ -209,7 +209,7 @@ public class SeriesOpener {
       if (filter != null) {
         int filteredImages = 0;
         if (isRegex) {
-          Pattern pattern = Pattern.compile(filter);
+          final Pattern pattern = Pattern.compile(filter);
           for (int i = 0; i < list.length; i++) {
             if (pattern.matcher(list[i]).matches()) {
               filteredImages++;

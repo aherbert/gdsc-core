@@ -923,13 +923,13 @@ public final class PartialSort {
   }
 
   private static double[] quickFinish(double[] data, int options) {
-    double[] result = removeNaN(data, options);
+    final double[] result = removeNaN(data, options);
     sort(result, options);
     return cloneResultIfRequired(data, result, options);
   }
 
   private static float[] quickFinish(float[] data, int options) {
-    float[] result = removeNaN(data, options);
+    final float[] result = removeNaN(data, options);
     sort(result, options);
     return cloneResultIfRequired(data, result, options);
   }

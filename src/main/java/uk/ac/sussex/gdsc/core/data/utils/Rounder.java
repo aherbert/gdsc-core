@@ -38,7 +38,7 @@ public interface Rounder {
    * @param value the value
    * @return the rounded value
    */
-   double round(double value);
+  double round(double value);
 
   /**
    * Round the value.
@@ -46,7 +46,7 @@ public interface Rounder {
    * @param value the value
    * @return the rounded value
    */
-   float round(float value);
+  float round(float value);
 
   /**
    * Round the value to a string.
@@ -54,7 +54,7 @@ public interface Rounder {
    * @param value the value
    * @return the rounded string value
    */
-   String toString(double value);
+  String toString(double value);
 
   /**
    * Round the value to a string.
@@ -62,5 +62,5 @@ public interface Rounder {
    * @param value the value
    * @return the rounded string value
    */
-   String toString(float value);
+  String toString(float value);
 }

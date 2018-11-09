@@ -90,18 +90,18 @@ public final class ConcurrencyUtils {
    * @param errorHandler the error handler used to process the exception (can be null)
    * @throws AsynchronousException a wrapped InterruptedException or ExecutionException
    */
-  public static  void waitForCompletionOrError(List<Future<?>> futures,
+  public static void waitForCompletionOrError(List<Future<?>> futures,
       Consumer<Exception> errorHandler) {
     try {
       for (final Future<?> f : futures) {
         f.get();
       }
-    } catch (InterruptedException ex) {
+    } catch (final InterruptedException ex) {
       // Restore interrupted state...
       Thread.currentThread().interrupt();
       handleError(errorHandler, ex);
       throw new AsynchronousException(ex);
-    } catch (ExecutionException ex) {
+    } catch (final ExecutionException ex) {
       handleErrorAndRethrow(errorHandler, ex);
     }
   }
@@ -183,7 +183,7 @@ public final class ConcurrencyUtils {
       Collection<? extends Callable<T>> tasks, Consumer<Exception> errorHandler) {
     try {
       return executor.invokeAll(tasks);
-    } catch (InterruptedException ex) {
+    } catch (final InterruptedException ex) {
       // Restore interrupted state...
       Thread.currentThread().interrupt();
       handleError(errorHandler, ex);

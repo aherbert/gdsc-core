@@ -39,12 +39,12 @@ public interface DetectionGrid {
    * @param y the y
    * @return the ids
    */
-   int[] find(double x, double y);
+  int[] find(double x, double y);
 
   /**
    * Get the number of objects in the grid.
    *
    * @return The number of objects
    */
-   int size();
+  int size();
 }

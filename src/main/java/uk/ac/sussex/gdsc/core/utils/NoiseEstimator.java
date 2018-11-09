@@ -383,7 +383,7 @@ public class NoiseEstimator {
         //@formatter:off
         // The sum of the 4N connected neighbours.
         // Edges are handled using reflection to the opposite side.
-        double sum4n
+        final double sum4n
             = ((x == 0)        ? data[index + 1]    : data[index - 1]   )
             + ((x == maxx - 1) ? data[index - 1]    : data[index + 1]   )
             + ((y == 0)        ? data[index + maxx] : data[index - maxx])

@@ -109,7 +109,7 @@ public final class MatchCalculator {
           truePositives, falsePositives, falseNegatives, matches);
     }
 
-    double distanceThresholdSquared = distanceThreshold * distanceThreshold;
+    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
 
     int tp = 0; // true positives (actual with matched predicted point)
     int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
@@ -132,9 +132,10 @@ public final class MatchCalculator {
     final boolean[] roiAssignment = new boolean[fn];
     final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
 
-    boolean[] matchedPredicted =
+    final boolean[] matchedPredicted =
         (falsePositives != null) ? new boolean[predictedPointsLength] : null;
-    boolean[] matchedActual = (falseNegatives == null) ? new boolean[actualPointsLength] : null;
+    final boolean[] matchedActual =
+        (falseNegatives == null) ? new boolean[actualPointsLength] : null;
 
     do {
       assignments.clear();
@@ -298,9 +299,10 @@ public final class MatchCalculator {
     final boolean[] roiAssignment = new boolean[fn];
     final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
 
-    boolean[] matchedPredicted =
+    final boolean[] matchedPredicted =
         (falsePositives != null) ? new boolean[predictedPointsLength] : null;
-    boolean[] matchedActual = (falseNegatives == null) ? new boolean[actualPointsLength] : null;
+    final boolean[] matchedActual =
+        (falseNegatives == null) ? new boolean[actualPointsLength] : null;
 
     // Sort by time to allow efficient looping
     Arrays.sort(actualPoints, PulseTimeComparator.getInstance());
@@ -479,7 +481,7 @@ public final class MatchCalculator {
   public static MatchResult analyseResults2DSinglePass(Coordinate[] actualPoints,
       Coordinate[] predictedPoints, double distanceThreshold, List<Coordinate> truePositives,
       List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches) {
-    double distanceThresholdSquared = distanceThreshold * distanceThreshold;
+    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
 
     final int predictedPointsLength = (predictedPoints != null) ? predictedPoints.length : 0;
     final int actualPointsLength = (actualPoints != null) ? actualPoints.length : 0;
@@ -622,7 +624,7 @@ public final class MatchCalculator {
           truePositives, falsePositives, falseNegatives, matches);
     }
 
-    double distanceThresholdSquared = distanceThreshold * distanceThreshold;
+    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
 
     int tp = 0; // true positives (actual with matched predicted point)
     int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
@@ -645,9 +647,10 @@ public final class MatchCalculator {
     final boolean[] roiAssignment = new boolean[fn];
     final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
 
-    boolean[] matchedPredicted =
+    final boolean[] matchedPredicted =
         (falsePositives != null) ? new boolean[predictedPointsLength] : null;
-    boolean[] matchedActual = (falseNegatives == null) ? new boolean[actualPointsLength] : null;
+    final boolean[] matchedActual =
+        (falseNegatives == null) ? new boolean[actualPointsLength] : null;
 
     do {
       assignments.clear();
@@ -787,7 +790,7 @@ public final class MatchCalculator {
   public static MatchResult analyseResults3DSinglePass(Coordinate[] actualPoints,
       Coordinate[] predictedPoints, double distanceThreshold, List<Coordinate> truePositives,
       List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches) {
-    double distanceThresholdSquared = distanceThreshold * distanceThreshold;
+    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
 
     final int predictedPointsLength = (predictedPoints != null) ? predictedPoints.length : 0;
     final int actualPointsLength = (actualPoints != null) ? actualPoints.length : 0;

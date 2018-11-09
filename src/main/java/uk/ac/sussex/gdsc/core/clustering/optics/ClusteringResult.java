@@ -43,12 +43,12 @@ public interface ClusteringResult {
    *
    * @return true, if successful
    */
-   boolean hasConvexHulls();
+  boolean hasConvexHulls();
 
   /**
    * Compute convex hulls and bounds for each cluster.
    */
-   void computeConvexHulls();
+  void computeConvexHulls();
 
   /**
    * Gets the convex hull for the cluster. The hull includes any points within child clusters. Hulls
@@ -57,7 +57,7 @@ public interface ClusteringResult {
    * @param clusterId the cluster id
    * @return the convex hull (or null if not available)
    */
-   ConvexHull getConvexHull(int clusterId);
+  ConvexHull getConvexHull(int clusterId);
 
   /**
    * Gets the bounds for the cluster. The bounds includes any points within child clusters. Bounds
@@ -66,14 +66,14 @@ public interface ClusteringResult {
    * @param clusterId the cluster id
    * @return the convex hull (or null if not available)
    */
-   Rectangle2D getBounds(int clusterId);
+  Rectangle2D getBounds(int clusterId);
 
   /**
    * Gets the cluster Id for each parent object.
    *
    * @return the clusters
    */
-   int[] getClusters();
+  int[] getClusters();
 
   /**
    * Scramble the cluster numbers assigned to the results.
@@ -83,7 +83,7 @@ public interface ClusteringResult {
    *
    * @param rng the random generator
    */
-   void scrambleClusters(RandomGenerator rng);
+  void scrambleClusters(RandomGenerator rng);
 
   /**
    * Gets the parent ids for each cluster in the list of Ids. If hierarchical clusters are specified
@@ -92,5 +92,5 @@ public interface ClusteringResult {
    * @param clusterIds the cluster ids
    * @return the parent ids
    */
-   int[] getParents(int[] clusterIds);
+  int[] getParents(int[] clusterIds);
 }

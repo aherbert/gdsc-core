@@ -56,7 +56,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
   private static final int TITLE_BAR_HEIGHT = IJ.isMacintosh() ? 40 : 20;
 
   /** The list. */
-  private TIntArrayList list = new TIntArrayList(10);
+  private final TIntArrayList list = new TIntArrayList(10);
 
   /** Set to true to ignore any added window. */
   private boolean ignore;

@@ -57,7 +57,7 @@ public class TimeClusterComparator implements Comparator<TimeCluster>, Serializa
    * @return the comparison result
    */
   public int compareClusters(TimeCluster first, TimeCluster second) {
-    int result = ClusterComparator.compareClusters(first, second);
+    final int result = ClusterComparator.compareClusters(first, second);
     if (result != 0) {
       return result;
     }

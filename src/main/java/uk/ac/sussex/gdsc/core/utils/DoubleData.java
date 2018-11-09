@@ -37,12 +37,12 @@ public interface DoubleData {
    *
    * @return the number of values
    */
-   int size();
+  int size();
 
   /**
    * Get the values.
    *
    * @return the values
    */
-   double[] values();
+  double[] values();
 }

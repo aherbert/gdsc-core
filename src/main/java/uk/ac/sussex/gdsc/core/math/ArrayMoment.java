@@ -37,7 +37,7 @@ public interface ArrayMoment {
    *
    * @param data the data
    */
-   void add(double data);
+  void add(double data);
 
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
@@ -46,7 +46,7 @@ public interface ArrayMoment {
    *
    * @param data the data
    */
-   void add(double[] data);
+  void add(double[] data);
 
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
@@ -55,7 +55,7 @@ public interface ArrayMoment {
    *
    * @param data the data
    */
-   void add(float[] data);
+  void add(float[] data);
 
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
@@ -64,7 +64,7 @@ public interface ArrayMoment {
    *
    * @param data the data
    */
-   void add(int[] data);
+  void add(int[] data);
 
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
@@ -73,7 +73,7 @@ public interface ArrayMoment {
    *
    * @param data the data
    */
-   void add(short[] data);
+  void add(short[] data);
 
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
@@ -82,7 +82,7 @@ public interface ArrayMoment {
    *
    * @param data the data
    */
-   void add(byte[] data);
+  void add(byte[] data);
 
   /**
    * Adds the data in the array moment. This can throw an illegal argument exception is the input is
@@ -90,7 +90,7 @@ public interface ArrayMoment {
    *
    * @param arrayMoment the array moment
    */
-   void add(ArrayMoment arrayMoment);
+  void add(ArrayMoment arrayMoment);
 
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
@@ -99,7 +99,7 @@ public interface ArrayMoment {
    *
    * @param data the data
    */
-   void addUnsigned(short[] data);
+  void addUnsigned(short[] data);
 
   /**
    * Add the data. The first set of data defines the number of individual moments to compute. All
@@ -108,35 +108,35 @@ public interface ArrayMoment {
    *
    * @param data the data
    */
-   void addUnsigned(byte[] data);
+  void addUnsigned(byte[] data);
 
   /**
    * Gets the first moment (the sample mean).
    *
    * @return the first moment (null if no data has been added)
    */
-   double[] getFirstMoment();
+  double[] getFirstMoment();
 
   /**
    * Gets the second moment (sum of squared deviations from the sample mean).
    *
    * @return the second moment (null if no data has been added)
    */
-   double[] getSecondMoment();
+  double[] getSecondMoment();
 
   /**
    * Gets the number of observations.
    *
    * @return the n
    */
-   long getN();
+  long getN();
 
   /**
    * Gets the unbiased estimate of the variance.
    *
    * @return the variance (null if no data has been added)
    */
-   double[] getVariance();
+  double[] getVariance();
 
   /**
    * Gets the estimate of the variance.
@@ -144,14 +144,14 @@ public interface ArrayMoment {
    * @param isBiasCorrected Set to true to be bias corrected, i.e. unbiased
    * @return the variance (null if no data has been added)
    */
-   double[] getVariance(boolean isBiasCorrected);
+  double[] getVariance(boolean isBiasCorrected);
 
   /**
    * Gets the unbiased estimate of the standard deviation.
    *
    * @return the standard deviation (null if no data has been added)
    */
-   double[] getStandardDeviation();
+  double[] getStandardDeviation();
 
   /**
    * Gets the estimate of the standard deviation.
@@ -159,12 +159,12 @@ public interface ArrayMoment {
    * @param isBiasCorrected Set to true to be bias corrected, i.e. unbiased
    * @return the standard deviation (null if no data has been added)
    */
-   double[] getStandardDeviation(boolean isBiasCorrected);
+  double[] getStandardDeviation(boolean isBiasCorrected);
 
   /**
    * Create a new instance.
    *
    * @return the array moment
    */
-   ArrayMoment newInstance();
+  ArrayMoment newInstance();
 }

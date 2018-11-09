@@ -274,7 +274,7 @@ public class HistogramPlot {
      * @return the histogram plot
      */
     public HistogramPlot build() {
-      HistogramPlot hp = new HistogramPlot(title, data, name);
+      final HistogramPlot hp = new HistogramPlot(title, data, name);
       hp.setMinBinWidth(minBinWidth);
       hp.setRemoveOutliersOption(removeOutliersOption);
       hp.setNumberOfBins(numberOfBins);

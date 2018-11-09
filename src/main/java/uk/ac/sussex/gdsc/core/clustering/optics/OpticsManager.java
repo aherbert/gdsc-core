@@ -861,7 +861,7 @@ public class OpticsManager extends CoordinateStore {
    * @return the double
    */
   private static double computeDeltaOrOne(float max, float min) {
-    double delta = max - min;
+    final double delta = max - min;
     // If the range is zero the points are colocated (or there is 1 point). Return 1 so the
     // area can be computed.
     return (delta != 0) ? delta : 1;

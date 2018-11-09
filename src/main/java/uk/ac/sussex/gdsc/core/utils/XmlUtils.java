@@ -247,10 +247,10 @@ public final class XmlUtils {
    */
   public static String getString(Node node, boolean indent) {
     try {
-      TransformerFactory factory = TransformerFactory.newInstance();
+      final TransformerFactory factory = TransformerFactory.newInstance();
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 
-      Transformer transformer = factory.newTransformer();
+      final Transformer transformer = factory.newTransformer();
       transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
       transformer.setOutputProperty(OutputKeys.INDENT, (indent) ? "yes" : "no");
 

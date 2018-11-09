@@ -122,10 +122,10 @@ public class RankedScoreCalculator {
       obsP.set(a.getPredictedId(), true);
     }
 
-    int newMaxA = obsA.length();
-    int newMaxP = obsP.length();
-    int totalA = obsA.cardinality();
-    int totalP = obsP.cardinality();
+    final int newMaxA = obsA.length();
+    final int newMaxP = obsP.length();
+    final int totalA = obsA.cardinality();
+    final int totalP = obsP.cardinality();
 
     return new RankedScoreCalculator(assignments, newMaxA, newMaxP, totalA, totalP);
   }

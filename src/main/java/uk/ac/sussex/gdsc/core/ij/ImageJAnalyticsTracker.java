@@ -151,7 +151,7 @@ public final class ImageJAnalyticsTracker {
 
         // Get the client parameters
         final String clientId = Prefs.get(PROPERTY_GA_CLIENT_ID, null);
-        ClientParameters newClientParameters =
+        final ClientParameters newClientParameters =
             new ClientParameters(GA_TRACKING_ID, clientId, APPLICATION_NAME);
 
         ClientParametersManager.populate(newClientParameters);
@@ -243,7 +243,7 @@ public final class ImageJAnalyticsTracker {
         // Make sure we have created a client
         initialise();
 
-        JGoogleAnalyticsTracker newTracker = new JGoogleAnalyticsTracker(clientParameters,
+        final JGoogleAnalyticsTracker newTracker = new JGoogleAnalyticsTracker(clientParameters,
             MeasurementProtocolVersion.V_1, DispatchMode.SINGLE_THREAD);
 
         // TODO: Always use anonymised and secure connection.

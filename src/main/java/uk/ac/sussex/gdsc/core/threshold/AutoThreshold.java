@@ -489,7 +489,7 @@ public class AutoThreshold {
         numBack += data[ih];
       }
       /* mean of the background pixels at a given threshold */
-      double meanBack = (numBack == 0 ? 0.0 : (sumBack / (double) numBack));
+      final double meanBack = (numBack == 0 ? 0.0 : (sumBack / (double) numBack));
       /* Object */
       /* sum of the object pixels at a given threshold */
       int sumObj = 0;
@@ -500,7 +500,7 @@ public class AutoThreshold {
         numObj += data[ih];
       }
       /* mean of the object pixels at a given threshold */
-      double meanObj = (numObj == 0 ? 0.0 : (sumObj / (double) numObj));
+      final double meanObj = (numObj == 0 ? 0.0 : (sumObj / (double) numObj));
 
       /* Calculate the new threshold: Equation (7) in Ref. 2 */
       // new_thresh = simple_round ( ( mean_back - mean_obj ) / ( Math.log ( mean_back ) - Math.log
@@ -510,7 +510,7 @@ public class AutoThreshold {
       //
       // #define IS_NEG( x ) ( ( x ) < -DBL_EPSILON )
       // DBL_EPSILON = 2.220446049250313E-16
-      double temp = (meanBack - meanObj) / (Math.log(meanBack) - Math.log(meanObj));
+      final double temp = (meanBack - meanObj) / (Math.log(meanBack) - Math.log(meanObj));
 
       if (temp < -2.220446049250313E-16) {
         newThresh = (int) (temp - 0.5);
@@ -601,7 +601,7 @@ public class AutoThreshold {
       }
 
       /* Total entropy */
-      double totEnt = entBack + entObj;
+      final double totEnt = entBack + entObj;
 
       if (maxEnt < totEnt) {
         maxEnt = totEnt;
@@ -766,23 +766,24 @@ public class AutoThreshold {
     final int end = data.length - 1;
     while (threshold != prevThreshold) {
       // Calculate some statistics.
-      double mu = cumulativeSum[threshold] / cumulativeCount[threshold];
-      double nu = (cumulativeSum[end] - cumulativeSum[threshold])
+      final double mu = cumulativeSum[threshold] / cumulativeCount[threshold];
+      final double nu = (cumulativeSum[end] - cumulativeSum[threshold])
           / (cumulativeCount[end] - cumulativeCount[threshold]);
-      double pterm = cumulativeCount[threshold] / cumulativeCount[end];
-      double qterm = (cumulativeCount[end] - cumulativeCount[threshold]) / cumulativeCount[end];
-      double sigma2 = cumulativeSumSq[threshold] / cumulativeCount[threshold] - (mu * mu);
-      double tau2 = (cumulativeSumSq[end] - cumulativeSumSq[threshold])
+      final double pterm = cumulativeCount[threshold] / cumulativeCount[end];
+      final double qterm =
+          (cumulativeCount[end] - cumulativeCount[threshold]) / cumulativeCount[end];
+      final double sigma2 = cumulativeSumSq[threshold] / cumulativeCount[threshold] - (mu * mu);
+      final double tau2 = (cumulativeSumSq[end] - cumulativeSumSq[threshold])
           / (cumulativeCount[end] - cumulativeCount[threshold]) - (nu * nu);
 
       // The terms of the quadratic equation to be solved.
-      double w0 = 1.0 / sigma2 - 1.0 / tau2;
-      double w1 = mu / sigma2 - nu / tau2;
-      double w2 = (mu * mu) / sigma2 - (nu * nu) / tau2
+      final double w0 = 1.0 / sigma2 - 1.0 / tau2;
+      final double w1 = mu / sigma2 - nu / tau2;
+      final double w2 = (mu * mu) / sigma2 - (nu * nu) / tau2
           + Math.log10((sigma2 * (qterm * qterm)) / (tau2 * (pterm * pterm)));
 
       // If the next threshold would be imaginary, return with the current one.
-      double sqterm = (w1 * w1) - w0 * w2;
+      final double sqterm = (w1 * w1) - w0 * w2;
       if (sqterm < 0) {
         logger.fine("MinError(I): not converging. Try \'Ignore black/white\' options");
         return threshold;
@@ -790,7 +791,7 @@ public class AutoThreshold {
 
       // The updated threshold is the integer part of the solution of the quadratic equation.
       prevThreshold = threshold;
-      double temp = (w1 + Math.sqrt(sqterm)) / w0;
+      final double temp = (w1 + Math.sqrt(sqterm)) / w0;
 
       if (Double.isNaN(temp)) {
         logger.fine("MinError(I): NaN, not converging. Try \'Ignore black/white\' options");
@@ -911,12 +912,12 @@ public class AutoThreshold {
      * image. This leads to 4 equalities whose solutions are given in the Appendix of Ref. 1
      */
     final double m0 = 1.0;
-    double cd = m0 * m2 - m1 * m1;
-    double c0 = (-m2 * m2 + m1 * m3) / cd;
-    double c1 = (m0 * -m3 + m2 * m1) / cd;
-    double z0 = 0.5 * (-c1 - Math.sqrt(c1 * c1 - 4.0 * c0));
-    double z1 = 0.5 * (-c1 + Math.sqrt(c1 * c1 - 4.0 * c0));
-    double p0 =
+    final double cd = m0 * m2 - m1 * m1;
+    final double c0 = (-m2 * m2 + m1 * m3) / cd;
+    final double c1 = (m0 * -m3 + m2 * m1) / cd;
+    final double z0 = 0.5 * (-c1 - Math.sqrt(c1 * c1 - 4.0 * c0));
+    final double z1 = 0.5 * (-c1 + Math.sqrt(c1 * c1 - 4.0 * c0));
+    final double p0 =
         (z1 - m1) / (z1 - z0); /* Fraction of the object pixels in the target binary image */
 
     // The threshold is the gray-level closest
@@ -975,14 +976,16 @@ public class AutoThreshold {
       n1 += data[k];
 
       // The float casting here is to avoid compiler warning about loss of precision and
-      // will prevent overflow in the case of large saturated images
-      double denom = (double) (n1) * (np - n1); // Maximum value of denom is (N^2)/4 = approx. 3E10
+      // will prevent overflow in the case of large saturated images.
+      // Maximum value of denom is (N^2)/4 = approx. 3E10
+      final double denom = (double) (n1) * (np - n1);
 
       // The current Between Class Variance and maximum BCV
       double bcv;
       if (denom != 0) {
-        // Float here is to avoid loss of precision when dividing
-        double num = ((double) n1 / np) * sum - sumK; // Maximum value of num = 255*N = approx 8E7
+        // Float here is to avoid loss of precision when dividing.
+        // Maximum value of num = 255*N = approx 8E7
+        final double num = ((double) n1 / np) * sum - sumK;
         bcv = (num * num) / denom;
 
       } else {
@@ -1016,7 +1019,7 @@ public class AutoThreshold {
       for (int k = 1; k < length; k++) {
         ssx += k * k * data[k];
       }
-      double bcv = (ssx - sx * sx / np) / np;
+      final double bcv = (ssx - sx * sx / np) / np;
 
       final int kstarCopy = kstar;
       final double ratio = (bcvMax / bcv);
@@ -1169,7 +1172,7 @@ public class AutoThreshold {
       }
 
       /* Total entropy */
-      double totEnt = entBack + entObj;
+      final double totEnt = entBack + entObj;
 
       if (maxEnt < totEnt) {
         maxEnt = totEnt;
@@ -1200,7 +1203,7 @@ public class AutoThreshold {
       }
 
       /* Total entropy */
-      double totEnt = term * ((entBack * entObj) > 0.0 ? Math.log(entBack * entObj) : 0.0);
+      final double totEnt = term * ((entBack * entObj) > 0.0 ? Math.log(entBack * entObj) : 0.0);
 
       if (totEnt > maxEnt) {
         maxEnt = totEnt;
@@ -1230,7 +1233,7 @@ public class AutoThreshold {
       }
 
       /* Total entropy */
-      double totEnt = term * ((entBack * entObj) > 0.0 ? Math.log(entBack * entObj) : 0.0);
+      final double totEnt = term * ((entBack * entObj) > 0.0 ? Math.log(entBack * entObj) : 0.0);
 
       if (totEnt > maxEnt) {
         maxEnt = totEnt;
@@ -1244,17 +1247,17 @@ public class AutoThreshold {
 
     /* Sort t_star values */
     if (tstar2 < tstar1) {
-      int tmpVar = tstar1;
+      final int tmpVar = tstar1;
       tstar1 = tstar2;
       tstar2 = tmpVar;
     }
     if (tstar3 < tstar2) {
-      int tmpVar = tstar2;
+      final int tmpVar = tstar2;
       tstar2 = tstar3;
       tstar3 = tmpVar;
     }
     if (tstar2 < tstar1) {
-      int tmpVar = tstar1;
+      final int tmpVar = tstar1;
       tstar1 = tstar2;
       tstar2 = tmpVar;
     }
@@ -1283,7 +1286,7 @@ public class AutoThreshold {
       beta3 = 1;
     }
     /* Determine the optimal threshold value */
-    double omega = p1[tstar3] - p1[tstar1];
+    final double omega = p1[tstar3] - p1[tstar1];
     return (int) (tstar1 * (p1[tstar1] + 0.25 * omega * beta1) + 0.25 * tstar2 * omega * beta2
         + tstar3 * (p2[tstar3] + 0.25 * omega * beta3));
   }
@@ -1364,7 +1367,7 @@ public class AutoThreshold {
       entObj *= term;
 
       /* Total entropy */
-      double totEnt = Math.abs(entBack - entObj);
+      final double totEnt = Math.abs(entBack - entObj);
 
       if (totEnt < minEnt) {
         minEnt = totEnt;
@@ -1529,7 +1532,7 @@ public class AutoThreshold {
     int threshold = -1;
     double maxCrit = Double.MIN_VALUE;
     for (int it = 0; it < data.length; it++) {
-      double crit = -1.0 * ((p1Sq[it] * p2Sq[it]) > 0.0 ? Math.log(p1Sq[it] * p2Sq[it]) : 0.0)
+      final double crit = -1.0 * ((p1Sq[it] * p2Sq[it]) > 0.0 ? Math.log(p1Sq[it] * p2Sq[it]) : 0.0)
           + 2 * ((p1[it] * (1.0 - p1[it])) > 0.0 ? Math.log(p1[it] * (1.0 - p1[it])) : 0.0);
       if (crit > maxCrit) {
         maxCrit = crit;

@@ -67,9 +67,9 @@ public final class ImageJLoggingUtils {
    * @param imageJLogHandler the ImageJ log handler
    */
   public static void redirectConsoleHandler(String packageName, ImageJLogHandler imageJLogHandler) {
-    Logger logger = Logger.getLogger(packageName);
+    final Logger logger = Logger.getLogger(packageName);
     boolean removed = false;
-    for (Handler handler : logger.getHandlers()) {
+    for (final Handler handler : logger.getHandlers()) {
       if (handler.getClass().equals(ConsoleHandler.class) || handler instanceof ImageJLogHandler) {
         removed = true;
         logger.removeHandler(handler);

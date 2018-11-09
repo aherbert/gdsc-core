@@ -207,8 +207,7 @@ public class ClusterPoint {
    * @return the time gap
    */
   public int gap(ClusterPoint other) {
-    return ClusterUtils.gap(getStartTime(), getEndTime(), other.getStartTime(),
-        other.getEndTime());
+    return ClusterUtils.gap(getStartTime(), getEndTime(), other.getStartTime(), other.getEndTime());
   }
 
   /**
