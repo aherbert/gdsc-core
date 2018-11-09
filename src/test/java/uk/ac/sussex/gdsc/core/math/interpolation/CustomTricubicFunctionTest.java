@@ -209,7 +209,9 @@ public class CustomTricubicFunctionTest {
 
   @Test
   public void testComputePowerTable() {
-    final double x = 0.1, y = 0.3, z = 0.7;
+    final double x = 0.1;
+    final double y = 0.3;
+    final double z = 0.7;
     final CubicSplinePosition px = new CubicSplinePosition(x);
     final CubicSplinePosition py = new CubicSplinePosition(y);
     final CubicSplinePosition pz = new CubicSplinePosition(z);

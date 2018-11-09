@@ -26,13 +26,13 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.utils;
+package uk.ac.sussex.gdsc.core.data;
 
 /**
  * Exception to throw if a method is not implemented.
  */
 public class NotImplementedException extends UnsupportedOperationException {
-  private static final long serialVersionUID = 7226451080179546585L;
+  private static final long serialVersionUID = 1L;
 
   /**
    * Instantiates a new not implemented exception.

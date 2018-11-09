@@ -35,16 +35,16 @@ public class LinkedMedianWindowTest {
   }
 
   private static class UpdateableSupplier implements Supplier<String> {
-    int p;
+    int pos;
     int radius;
 
     @Override
     public String get() {
-      return String.format("Position %d, Radius %d", p, radius);
+      return String.format("Position %d, Radius %d", pos, radius);
     }
 
-    Supplier<String> update(int p, int radius) {
-      this.p = p;
+    Supplier<String> update(int pos, int radius) {
+      this.pos = pos;
       this.radius = radius;
       return this;
     }
@@ -140,63 +140,63 @@ public class LinkedMedianWindowTest {
     for (final int radius : radii) {
       final double[] startData = Arrays.copyOf(data, 2 * radius + 1);
       final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(startData);
-      int p = 0;
-      for (int i = 0; i < radius; i++, p++) {
+      int pos = 0;
+      for (int i = 0; i < radius; i++, pos++) {
         final double median = mw.getMedianOldest(i + 1 + radius);
-        final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
+        final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
         // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p, radius,
         // median2, median));
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(p, radius));
+        Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
       }
-      for (int j = startData.length; j < data.length; j++, p++) {
+      for (int j = startData.length; j < data.length; j++, pos++) {
         final double median = mw.getMedian();
         mw.add(data[j]);
-        final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
+        final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
         // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p, radius,
         // median2, median));
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(p, radius));
+        Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
       }
-      for (int i = 2 * radius + 1; i-- > 0; p++) {
+      for (int i = 2 * radius + 1; i-- > 0; pos++) {
         final double median = mw.getMedianYoungest(i + 1);
-        final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
+        final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
         // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p, radius,
         // median2, median));
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(p, radius));
+        Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
       }
     }
   }
 
   @SeededTest
   public void canComputeMedianForSparseDataUsingDynamicLinkedList(RandomSeed seed) {
-    UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final double value : values) {
       final double[] data = MedianWindowTest.createSparseData(rng, dataSize, value);
       for (final int radius : radii) {
         final double[] startData = Arrays.copyOf(data, 2 * radius + 1);
         final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(startData);
-        int p = 0;
-        for (int i = 0; i < radius; i++, p++) {
+        int pos = 0;
+        for (int i = 0; i < radius; i++, pos++) {
           final double median = mw.getMedianOldest(i + 1 + radius);
-          final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
+          final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
           // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
           // radius, median2, median));
-          Assertions.assertEquals(median2, median, 1e-6, msg.update(p, radius));
+          Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
-        for (int j = startData.length; j < data.length; j++, p++) {
+        for (int j = startData.length; j < data.length; j++, pos++) {
           final double median = mw.getMedian();
           mw.add(data[j]);
-          final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
+          final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
           // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
           // radius, median2, median));
-          Assertions.assertEquals(median2, median, 1e-6, msg.update(p, radius));
+          Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
-        for (int i = 2 * radius + 1; i-- > 0; p++) {
+        for (int i = 2 * radius + 1; i-- > 0; pos++) {
           final double median = mw.getMedianYoungest(i + 1);
-          final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
+          final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
           // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
           // radius, median2, median));
-          Assertions.assertEquals(median2, median, 1e-6, msg.update(p, radius));
+          Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
       }
     }
@@ -211,28 +211,28 @@ public class LinkedMedianWindowTest {
       for (final int radius : radii) {
         final double[] startData = Arrays.copyOf(data, 2 * radius + 1);
         final DoubleLinkedMedianWindow mw = new DoubleLinkedMedianWindow(startData);
-        int p = 0;
-        for (int i = 0; i < radius; i++, p++) {
+        int pos = 0;
+        for (int i = 0; i < radius; i++, pos++) {
           final double median = mw.getMedianOldest(i + 1 + radius);
-          final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
+          final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
           // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
           // radius, median2, median));
-          Assertions.assertEquals(median2, median, 1e-6, msg.update(p, radius));
+          Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
-        for (int j = startData.length; j < data.length; j++, p++) {
+        for (int j = startData.length; j < data.length; j++, pos++) {
           final double median = mw.getMedian();
           mw.add(data[j]);
-          final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
+          final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
           // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
           // radius, median2, median));
-          Assertions.assertEquals(median2, median, 1e-6, msg.update(p, radius));
+          Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
-        for (int i = 2 * radius + 1; i-- > 0; p++) {
+        for (int i = 2 * radius + 1; i-- > 0; pos++) {
           final double median = mw.getMedianYoungest(i + 1);
-          final double median2 = MedianWindowTest.calculateMedian(data, p, radius);
+          final double median2 = MedianWindowTest.calculateMedian(data, pos, radius);
           // logger.log(TestLog.getRecord(Level.FINE, "Position %d, Radius %d : %g vs %g", p,
           // radius, median2, median));
-          Assertions.assertEquals(median2, median, 1e-6, msg.update(p, radius));
+          Assertions.assertEquals(median2, median, 1e-6, msg.update(pos, radius));
         }
       }
     }
@@ -268,9 +268,9 @@ public class LinkedMedianWindowTest {
     mw.setPosition(radius);
     long t1;
     if (increment == 1) {
-      int j = 0;
+      int index = 0;
       do {
-        m1[j++] = mw.getMedian();
+        m1[index++] = mw.getMedian();
         mw.increment();
       }
       while (mw.getPosition() < finalPosition);
@@ -287,9 +287,9 @@ public class LinkedMedianWindowTest {
       }
       t1 = System.nanoTime() - s1;
     } else {
-      int j = 0;
+      int index = 0;
       do {
-        m1[j++] = mw.getMedian();
+        m1[index++] = mw.getMedian();
         mw.increment(increment);
       }
       while (mw.getPosition() < finalPosition);
@@ -312,11 +312,11 @@ public class LinkedMedianWindowTest {
     DoubleLinkedMedianWindow mw2 = new DoubleLinkedMedianWindow(startData);
     long t2;
     if (increment == 1) {
-      int k = 0;
-      m2[k++] = mw2.getMedian();
+      int index = 0;
+      m2[index++] = mw2.getMedian();
       for (int j = startData.length; j < data[0].length; j++) {
         mw2.add(data[0][j]);
-        m2[k++] = mw2.getMedian();
+        m2[index++] = mw2.getMedian();
       }
       final long s2 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
@@ -331,13 +331,13 @@ public class LinkedMedianWindowTest {
       t2 = System.nanoTime() - s2;
     } else {
       final int limit = data[0].length - increment;
-      int k = 0;
-      m2[k++] = mw2.getMedian();
+      int index = 0;
+      m2[index++] = mw2.getMedian();
       for (int j = startData.length; j < limit; j += increment) {
         for (int i = 0; i < increment; i++) {
           mw2.add(data[0][j + i]);
         }
-        m2[k++] = mw2.getMedian();
+        m2[index++] = mw2.getMedian();
       }
       final long s2 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {

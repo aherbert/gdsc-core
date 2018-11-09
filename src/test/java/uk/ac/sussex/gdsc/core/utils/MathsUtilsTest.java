@@ -15,20 +15,20 @@ public class MathsUtilsTest {
   @SeededTest
   public void canRoundToDecimalPlaces(RandomSeed seed) {
     // 0.1 cannot be an exact double (see constructor documentation for BigDecimal)
-    double d = 0.1;
-    BigDecimal bd = new BigDecimal(d);
+    double value = 0.1;
+    BigDecimal bd = new BigDecimal(value);
     Assertions.assertNotEquals("0.1", bd.toPlainString());
     Assertions.assertEquals("0.1",
-        MathUtils.roundUsingDecimalPlacesToBigDecimal(d, 1).toPlainString());
+        MathUtils.roundUsingDecimalPlacesToBigDecimal(value, 1).toPlainString());
 
     // Random test that rounding does the same as String.format
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     for (int i = 0; i < 10; i++) {
       final String format = "%." + i + "f";
       for (int j = 0; j < 10; j++) {
-        d = r.nextDouble();
-        final String e = String.format(format, d);
-        bd = MathUtils.roundUsingDecimalPlacesToBigDecimal(d, i);
+        value = r.nextDouble();
+        final String e = String.format(format, value);
+        bd = MathUtils.roundUsingDecimalPlacesToBigDecimal(value, i);
         Assertions.assertEquals(e, bd.toPlainString());
       }
     }

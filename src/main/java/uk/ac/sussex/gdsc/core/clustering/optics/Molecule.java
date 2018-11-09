@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import uk.ac.sussex.gdsc.core.utils.NotImplementedException;
+import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 
 /**
  * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules.

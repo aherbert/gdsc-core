@@ -13,9 +13,20 @@ public class RandomUtilsTest {
   public void canComputeSample(RandomSeed seed) {
     final int[] set = new int[] {0, 1, 2, 5, 8, 9, 10};
     final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : set) {
-      for (final int k : set) {
-        canComputeSample(rng, k, n);
+    for (final int total : set) {
+      for (final int size : set) {
+        canComputeSample(rng, size, total);
+      }
+    }
+  }
+
+  private static void canComputeSample(UniformRandomProvider rng, int size, int total) {
+    final int[] sample = RandomUtils.sample(size, total, rng);
+    // TestLog.debug(logger,"%d from %d = %s", k, n, java.util.Arrays.toString(sample));
+    Assertions.assertEquals(Math.min(size, total), sample.length);
+    for (int i = 0; i < sample.length; i++) {
+      for (int j = i + 1; j < sample.length; j++) {
+        Assertions.assertNotEquals(sample[i], sample[j]);
       }
     }
   }
@@ -23,20 +34,9 @@ public class RandomUtilsTest {
   @SeededTest
   public void canComputeSampleFromBigData(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
-    final int n = 100;
-    for (final int k : new int[] {0, 1, 2, n / 2, n - 2, n - 1, n}) {
-      canComputeSample(rng, k, n);
-    }
-  }
-
-  private static void canComputeSample(UniformRandomProvider rng, int k, int n) {
-    final int[] sample = RandomUtils.sample(k, n, rng);
-    // TestLog.debug(logger,"%d from %d = %s", k, n, java.util.Arrays.toString(sample));
-    Assertions.assertEquals(Math.min(k, n), sample.length);
-    for (int i = 0; i < sample.length; i++) {
-      for (int j = i + 1; j < sample.length; j++) {
-        Assertions.assertNotEquals(sample[i], sample[j]);
-      }
+    final int total = 100;
+    for (final int size : new int[] {0, 1, 2, total / 2, total - 2, total - 1, total}) {
+      canComputeSample(rng, size, total);
     }
   }
 }

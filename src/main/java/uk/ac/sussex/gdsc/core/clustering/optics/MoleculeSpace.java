@@ -86,6 +86,9 @@ abstract class MoleculeSpace {
    * <p>The neighbours includes the actual point in the list of neighbours (where the distance would
    * be 0).
    *
+   * <p>The generating distance may not match that used in the constructor. Typically it is squared
+   * to allow use of fast Euclidean distance comparisons.
+   *
    * @param minPts the min points
    * @param object the object
    * @param generatingDistanceE the generating distance
@@ -102,6 +105,9 @@ abstract class MoleculeSpace {
    *
    * <p>The neighbours includes the actual point in the list of neighbours (where the distance would
    * be 0).
+   *
+   * <p>The generating distance may not match that used in the constructor. Typically it is squared
+   * to allow use of fast Euclidean distance comparisons.
    *
    * @param minPts the min points
    * @param object the object

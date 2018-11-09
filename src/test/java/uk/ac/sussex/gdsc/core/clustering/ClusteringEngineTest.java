@@ -36,7 +36,8 @@ public class ClusteringEngineTest {
   }
 
   // Store the closest pair of clusters
-  int ii, jj;
+  int ii;
+  int jj;
 
   @SeededTest
   public void canClusterClusterPointsAtDifferentDensitiesUsingCentroidLinkage(RandomSeed seed) {
@@ -318,13 +319,13 @@ public class ClusteringEngineTest {
     }
   }
 
-  private static void assertEqual(int i, Cluster cluster, Cluster cluster2) {
+  private static void assertEqual(int index, Cluster cluster, Cluster cluster2) {
     Assertions.assertEquals(cluster.getSize(), cluster2.getSize(),
-        () -> String.format("Cluster %d: Size is different", i));
+        () -> String.format("Cluster %d: Size is different", index));
     Assertions.assertEquals(cluster.getX(), cluster2.getX(), 1e-4,
-        () -> String.format("Cluster %d: X is different", i));
+        () -> String.format("Cluster %d: X is different", index));
     Assertions.assertEquals(cluster.getY(), cluster2.getY(), 1e-4,
-        () -> String.format("Cluster %d: Y is different", i));
+        () -> String.format("Cluster %d: Y is different", index));
     // Q. Should we check each cluster member is the same ?
   }
 
@@ -379,91 +380,94 @@ public class ClusteringEngineTest {
   }
 
   /**
-   * Create n points in a 2D distribution of size * size.
+   * Create points in a 2D distribution of size * size.
    *
-   * @param rg the rg
-   * @param n the n
+   * @param rg the random generator
+   * @param totalClusters the totalClusters
    * @param size the size
    * @return The points
    */
-  private static ArrayList<ClusterPoint> createPoints(UniformRandomProvider rg, int n, int size) {
-    final ArrayList<ClusterPoint> points = new ArrayList<>(n);
-    while (n-- > 0) {
-      points.add(ClusterPoint.newClusterPoint(n, rg.nextDouble() * size, rg.nextDouble() * size));
+  private static ArrayList<ClusterPoint> createPoints(UniformRandomProvider rg, int totalClusters,
+      int size) {
+    final ArrayList<ClusterPoint> points = new ArrayList<>(totalClusters);
+    while (totalClusters-- > 0) {
+      points.add(ClusterPoint.newClusterPoint(totalClusters, rg.nextDouble() * size,
+          rg.nextDouble() * size));
     }
     return points;
   }
 
   /**
-   * Create n clusters of m points in a 2D distribution of size * size. Clusters will be spread in a
-   * radius*radius square.
+   * Create clusters of clusterSize points in a 2D distribution of size * size. Clusters will be
+   * spread in a radius*radius square.
    *
-   * @param rg the rg
-   * @param n the n
+   * @param rg the random generator
+   * @param totalClusters the totalClusters
    * @param size the size
-   * @param m the m
+   * @param clusterSize the clusterSize
    * @param radius the radius
    * @return The points
    */
-  private static ArrayList<ClusterPoint> createClusters(UniformRandomProvider rg, int n, int size,
-      int m, double radius) {
-    return createClusters(rg, n, size, m, radius, null);
+  private static ArrayList<ClusterPoint> createClusters(UniformRandomProvider rg, int totalClusters,
+      int size, int clusterSize, double radius) {
+    return createClusters(rg, totalClusters, size, clusterSize, radius, null);
   }
 
   /**
-   * Create n clusters of m points in a 2D distribution of size * size. Clusters will be spread in a
-   * radius*radius square. Points will be selected randomly from the given number of frames.
+   * Create clusters of clusterSize points in a 2D distribution of size * size. Clusters will be
+   * spread in a radius*radius square. Points will be selected randomly from the given number of
+   * frames.
    *
-   * @param rg the rg
-   * @param n the n
+   * @param rg the random generator
+   * @param totalClusters the totalClusters
    * @param size the size
-   * @param m the m
+   * @param clusterSize the clusterSize
    * @param radius the radius
-   * @param t the t
+   * @param maxTime the maxTime
    * @return The points
    */
-  private static ArrayList<ClusterPoint> createClusters(UniformRandomProvider rg, int n, int size,
-      int m, double radius, int t) {
-    final int[] time = new int[t];
-    for (int i = 0; i < t; i++) {
+  private static ArrayList<ClusterPoint> createClusters(UniformRandomProvider rg, int totalClusters,
+      int size, int clusterSize, double radius, int maxTime) {
+    final int[] time = new int[maxTime];
+    for (int i = 0; i < maxTime; i++) {
       time[i] = i + 1;
     }
-    return createClusters(rg, n, size, m, radius, time);
+    return createClusters(rg, totalClusters, size, clusterSize, radius, time);
   }
 
   /**
-   * Create n clusters of m points in a 2D distribution of size * size. Clusters will be spread in a
-   * radius*radius square. Points will be selected randomly from the given frames.
+   * Create clusters of clusterSize points in a 2D distribution of size * size. Clusters will be
+   * spread in a radius*radius square. Points will be selected randomly from the given frames.
    *
-   * @param rg the rg
-   * @param n the n
+   * @param rg the random generator
+   * @param totalClusters the totalClusters
    * @param size the size
-   * @param m the m
+   * @param clusterSize the clusterSize
    * @param radius the radius
    * @param time the time
    * @return The points
    */
-  private static ArrayList<ClusterPoint> createClusters(UniformRandomProvider rg, int n, int size,
-      int m, double radius, int[] time) {
-    final ArrayList<ClusterPoint> points = new ArrayList<>(n);
+  private static ArrayList<ClusterPoint> createClusters(UniformRandomProvider rg, int totalClusters,
+      int size, int clusterSize, double radius, int[] time) {
+    final ArrayList<ClusterPoint> points = new ArrayList<>(totalClusters);
     int id = 0;
     if (time != null) {
-      if (time.length < m) {
+      if (time.length < clusterSize) {
         throw new RuntimeException(
             "Input time array must be at least as large as the number of points");
       }
     }
-    while (n-- > 0) {
+    while (totalClusters-- > 0) {
       final double x = rg.nextDouble() * size;
       final double y = rg.nextDouble() * size;
       if (time != null) {
         RandomUtils.shuffle(time, rg);
-        for (int i = m; i-- > 0;) {
+        for (int i = clusterSize; i-- > 0;) {
           points.add(ClusterPoint.newTimeClusterPoint(id++, x + rg.nextDouble() * radius,
               y + rg.nextDouble() * radius, time[i], time[i]));
         }
       } else {
-        for (int i = m; i-- > 0;) {
+        for (int i = clusterSize; i-- > 0;) {
           points.add(ClusterPoint.newClusterPoint(id++, x + rg.nextDouble() * radius,
               y + rg.nextDouble() * radius));
         }

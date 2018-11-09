@@ -208,14 +208,14 @@ public class CustomTricubicInterpolatingFunctionInlineTest {
     logger.log(level, inlineComputeCoefficientsCollectTerms());
   }
 
-  private static abstract class MyTimingTask extends BaseTimingTask {
+  private abstract static class MyTimingTask extends BaseTimingTask {
     static final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-6, 0);
 
-    double[][] a;
+    double[][] expected;
 
-    public MyTimingTask(String name, double[][] a) {
+    public MyTimingTask(String name, double[][] expected) {
       super(name);
-      this.a = a;
+      this.expected = expected;
     }
 
     @Override
@@ -224,14 +224,14 @@ public class CustomTricubicInterpolatingFunctionInlineTest {
     }
 
     @Override
-    public Object getData(int i) {
+    public Object getData(int index) {
       return null;
     }
 
     @Override
-    public void check(int i, Object result) {
-      final double[][] b = (double[][]) result;
-      TestAssertions.assertArrayTest(a, b, equality, getName());
+    public void check(int index, Object result) {
+      final double[][] observed = (double[][]) result;
+      TestAssertions.assertArrayTest(expected, observed, equality, getName());
     }
   }
 

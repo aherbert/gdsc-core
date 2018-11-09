@@ -29,6 +29,8 @@ import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
 public class NonMaximumSuppressionTest {
+  static final int ITER = 5;
+
   private static Logger logger;
 
   @BeforeAll
@@ -52,8 +54,6 @@ public class NonMaximumSuppressionTest {
   int[] boxSizes = new int[] {9, 5, 3, 2, 1};
   // int[] boxSizes = new int[] { 2, 3, 5, 9, 15 };
 
-  int ITER = 5;
-
   // int[] boxSizes = new int[] { 1 };
 
   // XXX: Copy from here..
@@ -69,15 +69,6 @@ public class NonMaximumSuppressionTest {
         }
       }
     }
-  }
-
-  private void floatCompareBlockFindToMaxFind(UniformRandomProvider rg, NonMaximumSuppression nms,
-      int width, int height, int boxSize) {
-    floatCompareBlockFindToMaxFind(nms, width, height, boxSize, floatCreateData(rg, width, height),
-        "Random");
-
-    // Empty data
-    floatCompareBlockFindToMaxFind(nms, width, height, boxSize, new float[width * height], "Empty");
   }
 
   @SeededTest
@@ -146,6 +137,15 @@ public class NonMaximumSuppressionTest {
         floatCreatePatternData(width, height, 1, 1, 1, 0), "Pattern1110");
   }
 
+  private void floatCompareBlockFindToMaxFind(UniformRandomProvider rg, NonMaximumSuppression nms,
+      int width, int height, int boxSize) {
+    floatCompareBlockFindToMaxFind(nms, width, height, boxSize, floatCreateData(rg, width, height),
+        "Random");
+
+    // Empty data
+    floatCompareBlockFindToMaxFind(nms, width, height, boxSize, new float[width * height], "Empty");
+  }
+
   private void floatCompareBlockFindToMaxFind(NonMaximumSuppression nms, int width, int height,
       int boxSize, float[] data, String name) {
     final int[] blockIndices = nms.blockFindNxN(data, width, height, boxSize);
@@ -164,9 +164,10 @@ public class NonMaximumSuppressionTest {
 
   private static void floatCompareIndices(int width, int height, float[] data, int boxSize,
       int[] indices1, int[] indices2) {
-    logger.info(FunctionUtils.getSupplier("float [%dx%d@%d] i1 = %d, i2 = %d", width, height,
+    logger.info(FunctionUtils.getSupplier("float [%dx%d@%d] i1 = %d; int i2 =  %d", width, height,
         boxSize, indices1.length, indices2.length));
-    int i1 = 0, i2 = 0;
+    int i1 = 0;
+    int i2 = 0;
     boolean match = true;
     while (i1 < indices1.length || i2 < indices2.length) {
       final int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
@@ -191,11 +192,12 @@ public class NonMaximumSuppressionTest {
       return;
     }
     // Show image
-    showImage(width, height, data, indices1, "i1");
-    showImage(width, height, data, indices2, "i2");
+    floatShowImage(width, height, data, indices1, "i1");
+    floatShowImage(width, height, data, indices2, "i2");
   }
 
-  private static void showImage(int width, int height, float[] data, int[] indices, String title) {
+  private static void floatShowImage(int width, int height, float[] data, int[] indices,
+      String title) {
     final ImagePlus imp = ImageJUtils.display(title, new FloatProcessor(width, height, data));
     final int[] ox = new int[indices.length];
     final int[] oy = new int[indices.length];
@@ -309,10 +311,12 @@ public class NonMaximumSuppressionTest {
       }
     }
 
-    long total = 0, blockTotal = 0;
+    long total = 0;
+    long blockTotal = 0;
     int index = 0;
     for (final int boxSize : boxSizes) {
-      long boxTotal = 0, blockBoxTotal = 0;
+      long boxTotal = 0;
+      long blockBoxTotal = 0;
       for (final int width : primes) {
         for (final int height : primes) {
           long time = System.nanoTime();
@@ -337,8 +341,8 @@ public class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogUtils.getTimingRecord("float maxFind" + boxSize, boxTotal, "float blockFind",
-          blockBoxTotal));
+      logger.log(TestLogUtils.getTimingRecord("float maxFind" + boxSize, boxTotal,
+          "float blockFind", blockBoxTotal));
       // if (boxSize > 1) // Sometimes this fails at small sizes
       // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
       // blockBoxTotal, boxTotal),
@@ -377,10 +381,12 @@ public class NonMaximumSuppressionTest {
       }
     }
 
-    long total = 0, blockTotal = 0;
+    long total = 0;
+    long blockTotal = 0;
     int index = 0;
     for (final int boxSize : boxSizes) {
-      long boxTotal = 0, blockBoxTotal = 0;
+      long boxTotal = 0;
+      long blockBoxTotal = 0;
       for (final int width : primes) {
         for (final int height : primes) {
           long time = System.nanoTime();
@@ -412,8 +418,8 @@ public class NonMaximumSuppressionTest {
       // blockBoxTotal, boxTotal),
       // blockBoxTotal < boxTotal);
     }
-    logger.log(
-        TestLogUtils.getTimingRecord("float maxFind", total, "float blockFindWithCheck", blockTotal));
+    logger.log(TestLogUtils.getTimingRecord("float maxFind", total, "float blockFindWithCheck",
+        blockTotal));
   }
 
   private ArrayList<float[]> floatCreateSpeedData(UniformRandomProvider rg) {
@@ -463,11 +469,14 @@ public class NonMaximumSuppressionTest {
       }
     }
 
-    long total = 0, internalTotal = 0;
-    long bigTotal = 0, bigInternalTotal = 0;
+    long total = 0;
+    long internalTotal = 0;
+    long bigTotal = 0;
+    long bigInternalTotal = 0;
     int index = 0;
     for (final int boxSize : boxSizes) {
-      long boxTotal = 0, internalBoxTotal = 0;
+      long boxTotal = 0;
+      long internalBoxTotal = 0;
       for (final int width : primes) {
         for (final int height : primes) {
           // Initialise
@@ -542,11 +551,14 @@ public class NonMaximumSuppressionTest {
     nms.setNeighbourCheck(true);
     nms.blockFindNxNInternal(dataSet.get(0), primes[0], primes[0], boxSizes[0], boxSizes[0]);
 
-    long checkTotal = 0, noCheckTotal = 0;
-    long bigCheckTotal = 0, bigNoCheckTotal = 0;
+    long checkTotal = 0;
+    long noCheckTotal = 0;
+    long bigCheckTotal = 0;
+    long bigNoCheckTotal = 0;
     int index = 0;
     for (final int boxSize : boxSizes) {
-      long checkBoxTotal = 0, noCheckBoxTotal = 0;
+      long checkBoxTotal = 0;
+      long noCheckBoxTotal = 0;
       for (final int width : primes) {
         for (final int height : primes) {
           long time = System.nanoTime();
@@ -575,8 +587,8 @@ public class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogUtils.getTimingRecord("float blockFindInternal check" + boxSize, checkBoxTotal,
-          "float blockFindInternal", noCheckBoxTotal));
+      logger.log(TestLogUtils.getTimingRecord("float blockFindInternal check" + boxSize,
+          checkBoxTotal, "float blockFindInternal", noCheckBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
       // %d", boxSize,
@@ -585,8 +597,8 @@ public class NonMaximumSuppressionTest {
     logger.info(FunctionUtils.getSupplier(
         "float blockFindInternal check %d => blockFindInternal %d = %.2fx", checkTotal,
         noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-    logger.log(TestLogUtils.getTimingRecord("float blockFindInternal check (border >= 5)", bigCheckTotal,
-        "float blockFindInternal (border >= 5)", bigNoCheckTotal));
+    logger.log(TestLogUtils.getTimingRecord("float blockFindInternal check (border >= 5)",
+        bigCheckTotal, "float blockFindInternal (border >= 5)", bigNoCheckTotal));
   }
 
   @SpeedTag
@@ -621,11 +633,14 @@ public class NonMaximumSuppressionTest {
     nms.setNeighbourCheck(true);
     nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 
-    long checkTotal = 0, noCheckTotal = 0;
-    long bigCheckTotal = 0, bigNoCheckTotal = 0;
+    long checkTotal = 0;
+    long noCheckTotal = 0;
+    long bigCheckTotal = 0;
+    long bigNoCheckTotal = 0;
     int index = 0;
     for (final int boxSize : boxSizes) {
-      long checkBoxTotal = 0, noCheckBoxTotal = 0;
+      long checkBoxTotal = 0;
+      long noCheckBoxTotal = 0;
       for (final int width : primes) {
         for (final int height : primes) {
           long time = System.nanoTime();
@@ -694,7 +709,8 @@ public class NonMaximumSuppressionTest {
       }
     }
 
-    long total = 0, blockTotal = 0;
+    long total = 0;
+    long blockTotal = 0;
     int index = 0;
     for (final int width : primes) {
       for (final int height : primes) {
@@ -718,8 +734,8 @@ public class NonMaximumSuppressionTest {
         }
       }
     }
-    logger.log(
-        TestLogUtils.getTimingRecord("float blockFindNxN", total, "float blockFind3x3", blockTotal));
+    logger.log(TestLogUtils.getTimingRecord("float blockFindNxN", total, "float blockFind3x3",
+        blockTotal));
   }
 
   @SpeedTag
@@ -753,7 +769,8 @@ public class NonMaximumSuppressionTest {
       }
     }
 
-    long total = 0, blockTotal = 0;
+    long total = 0;
+    long blockTotal = 0;
     int index = 0;
     for (final int width : primes) {
       for (final int height : primes) {
@@ -777,8 +794,8 @@ public class NonMaximumSuppressionTest {
         }
       }
     }
-    logger.log(TestLogUtils.getTimingRecord("float blockFind3x3", total, "float blockFind3x3 (buffer)",
-        blockTotal));
+    logger.log(TestLogUtils.getTimingRecord("float blockFind3x3", total,
+        "float blockFind3x3 (buffer)", blockTotal));
   }
 
   @SpeedTag
@@ -808,7 +825,8 @@ public class NonMaximumSuppressionTest {
       }
     }
 
-    long total = 0, blockTotal = 0;
+    long total = 0;
+    long blockTotal = 0;
     int index = 0;
     for (final int width : primes) {
       for (final int height : primes) {
@@ -831,8 +849,8 @@ public class NonMaximumSuppressionTest {
         }
       }
     }
-    logger
-        .log(TestLogUtils.getTimingRecord("float maxFind3x3", total, "float blockFind3x3", blockTotal));
+    logger.log(
+        TestLogUtils.getTimingRecord("float maxFind3x3", total, "float blockFind3x3", blockTotal));
   }
 
   /**
@@ -875,15 +893,15 @@ public class NonMaximumSuppressionTest {
     return data;
   }
 
-  private static float[] floatCreatePatternData(int width, int height, float a, float b, float c,
-      float d) {
+  private static float[] floatCreatePatternData(int width, int height, float v00, float v01,
+      float v10, float v11) {
     final float[] row1 = new float[width + 2];
     final float[] row2 = new float[width + 2];
     for (int x = 0; x < width; x += 2) {
-      row1[x] = a;
-      row1[x + 1] = b;
-      row2[x] = c;
-      row2[x + 1] = d;
+      row1[x] = v00;
+      row1[x + 1] = v01;
+      row2[x] = v10;
+      row2[x + 1] = v11;
     }
 
     final float[] data = new float[width * height];
@@ -908,15 +926,6 @@ public class NonMaximumSuppressionTest {
         }
       }
     }
-  }
-
-  private void intCompareBlockFindToMaxFind(UniformRandomProvider rg, NonMaximumSuppression nms,
-      int width, int height, int boxSize) {
-    intCompareBlockFindToMaxFind(nms, width, height, boxSize, intCreateData(rg, width, height),
-        "Random");
-
-    // Empty data
-    intCompareBlockFindToMaxFind(nms, width, height, boxSize, new int[width * height], "Empty");
   }
 
   @SeededTest
@@ -985,6 +994,15 @@ public class NonMaximumSuppressionTest {
         intCreatePatternData(width, height, 1, 1, 1, 0), "Pattern1110");
   }
 
+  private void intCompareBlockFindToMaxFind(UniformRandomProvider rg, NonMaximumSuppression nms,
+      int width, int height, int boxSize) {
+    intCompareBlockFindToMaxFind(nms, width, height, boxSize, intCreateData(rg, width, height),
+        "Random");
+
+    // Empty data
+    intCompareBlockFindToMaxFind(nms, width, height, boxSize, new int[width * height], "Empty");
+  }
+
   private void intCompareBlockFindToMaxFind(NonMaximumSuppression nms, int width, int height,
       int boxSize, int[] data, String name) {
     final int[] blockIndices = nms.blockFindNxN(data, width, height, boxSize);
@@ -1003,9 +1021,10 @@ public class NonMaximumSuppressionTest {
 
   private static void intCompareIndices(int width, int height, int[] data, int boxSize,
       int[] indices1, int[] indices2) {
-    logger.info(FunctionUtils.getSupplier("int [%dx%d@%d] i1 = %d, i2 = %d", width, height, boxSize,
-        indices1.length, indices2.length));
-    int i1 = 0, i2 = 0;
+    logger.info(FunctionUtils.getSupplier("int [%dx%d@%d] i1 = %d; int i2 =  %d", width, height,
+        boxSize, indices1.length, indices2.length));
+    int i1 = 0;
+    int i2 = 0;
     boolean match = true;
     while (i1 < indices1.length || i2 < indices2.length) {
       final int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
@@ -1030,11 +1049,11 @@ public class NonMaximumSuppressionTest {
       return;
     }
     // Show image
-    showImage(width, height, data, indices1, "i1");
-    showImage(width, height, data, indices2, "i2");
+    intShowImage(width, height, data, indices1, "i1");
+    intShowImage(width, height, data, indices2, "i2");
   }
 
-  private static void showImage(int width, int height, int[] data, int[] indices, String title) {
+  private static void intShowImage(int width, int height, int[] data, int[] indices, String title) {
     final ImagePlus imp = ImageJUtils.display(title, new FloatProcessor(width, height, data));
     final int[] ox = new int[indices.length];
     final int[] oy = new int[indices.length];
@@ -1148,10 +1167,12 @@ public class NonMaximumSuppressionTest {
       }
     }
 
-    long total = 0, blockTotal = 0;
+    long total = 0;
+    long blockTotal = 0;
     int index = 0;
     for (final int boxSize : boxSizes) {
-      long boxTotal = 0, blockBoxTotal = 0;
+      long boxTotal = 0;
+      long blockBoxTotal = 0;
       for (final int width : primes) {
         for (final int height : primes) {
           long time = System.nanoTime();
@@ -1216,10 +1237,12 @@ public class NonMaximumSuppressionTest {
       }
     }
 
-    long total = 0, blockTotal = 0;
+    long total = 0;
+    long blockTotal = 0;
     int index = 0;
     for (final int boxSize : boxSizes) {
-      long boxTotal = 0, blockBoxTotal = 0;
+      long boxTotal = 0;
+      long blockBoxTotal = 0;
       for (final int width : primes) {
         for (final int height : primes) {
           long time = System.nanoTime();
@@ -1251,7 +1274,8 @@ public class NonMaximumSuppressionTest {
       // blockBoxTotal, boxTotal),
       // blockBoxTotal < boxTotal);
     }
-    logger.log(TestLogUtils.getTimingRecord("int maxFind", total, "int blockFindWithCheck", blockTotal));
+    logger.log(
+        TestLogUtils.getTimingRecord("int maxFind", total, "int blockFindWithCheck", blockTotal));
   }
 
   private ArrayList<int[]> intCreateSpeedData(UniformRandomProvider rg) {
@@ -1301,11 +1325,14 @@ public class NonMaximumSuppressionTest {
       }
     }
 
-    long total = 0, internalTotal = 0;
-    long bigTotal = 0, bigInternalTotal = 0;
+    long total = 0;
+    long internalTotal = 0;
+    long bigTotal = 0;
+    long bigInternalTotal = 0;
     int index = 0;
     for (final int boxSize : boxSizes) {
-      long boxTotal = 0, internalBoxTotal = 0;
+      long boxTotal = 0;
+      long internalBoxTotal = 0;
       for (final int width : primes) {
         for (final int height : primes) {
           // Initialise
@@ -1380,11 +1407,14 @@ public class NonMaximumSuppressionTest {
     nms.setNeighbourCheck(true);
     nms.blockFindNxNInternal(dataSet.get(0), primes[0], primes[0], boxSizes[0], boxSizes[0]);
 
-    long checkTotal = 0, noCheckTotal = 0;
-    long bigCheckTotal = 0, bigNoCheckTotal = 0;
+    long checkTotal = 0;
+    long noCheckTotal = 0;
+    long bigCheckTotal = 0;
+    long bigNoCheckTotal = 0;
     int index = 0;
     for (final int boxSize : boxSizes) {
-      long checkBoxTotal = 0, noCheckBoxTotal = 0;
+      long checkBoxTotal = 0;
+      long noCheckBoxTotal = 0;
       for (final int width : primes) {
         for (final int height : primes) {
           long time = System.nanoTime();
@@ -1413,8 +1443,8 @@ public class NonMaximumSuppressionTest {
         }
       }
       // if (debug)
-      logger.log(TestLogUtils.getTimingRecord("int blockFindInternal check" + boxSize, checkBoxTotal,
-          "int blockFindInternal", noCheckBoxTotal));
+      logger.log(TestLogUtils.getTimingRecord("int blockFindInternal check" + boxSize,
+          checkBoxTotal, "int blockFindInternal", noCheckBoxTotal));
       // This is not always faster for the 15-size block so leave commented out.
       // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
       // %d", boxSize,
@@ -1423,8 +1453,8 @@ public class NonMaximumSuppressionTest {
     logger.info(
         FunctionUtils.getSupplier("int blockFindInternal check %d => blockFindInternal %d = %.2fx",
             checkTotal, noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-    logger.log(TestLogUtils.getTimingRecord("int blockFindInternal check (border >= 5)", bigCheckTotal,
-        "int blockFindInternal (border >= 5)", bigNoCheckTotal));
+    logger.log(TestLogUtils.getTimingRecord("int blockFindInternal check (border >= 5)",
+        bigCheckTotal, "int blockFindInternal (border >= 5)", bigNoCheckTotal));
   }
 
   @SpeedTag
@@ -1459,11 +1489,14 @@ public class NonMaximumSuppressionTest {
     nms.setNeighbourCheck(true);
     nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
 
-    long checkTotal = 0, noCheckTotal = 0;
-    long bigCheckTotal = 0, bigNoCheckTotal = 0;
+    long checkTotal = 0;
+    long noCheckTotal = 0;
+    long bigCheckTotal = 0;
+    long bigNoCheckTotal = 0;
     int index = 0;
     for (final int boxSize : boxSizes) {
-      long checkBoxTotal = 0, noCheckBoxTotal = 0;
+      long checkBoxTotal = 0;
+      long noCheckBoxTotal = 0;
       for (final int width : primes) {
         for (final int height : primes) {
           long time = System.nanoTime();
@@ -1532,7 +1565,8 @@ public class NonMaximumSuppressionTest {
       }
     }
 
-    long total = 0, blockTotal = 0;
+    long total = 0;
+    long blockTotal = 0;
     int index = 0;
     for (final int width : primes) {
       for (final int height : primes) {
@@ -1556,7 +1590,8 @@ public class NonMaximumSuppressionTest {
         }
       }
     }
-    logger.log(TestLogUtils.getTimingRecord("int blockFindNxN", total, "int blockFind3x3", blockTotal));
+    logger.log(
+        TestLogUtils.getTimingRecord("int blockFindNxN", total, "int blockFind3x3", blockTotal));
   }
 
   @SpeedTag
@@ -1590,7 +1625,8 @@ public class NonMaximumSuppressionTest {
       }
     }
 
-    long total = 0, blockTotal = 0;
+    long total = 0;
+    long blockTotal = 0;
     int index = 0;
     for (final int width : primes) {
       for (final int height : primes) {
@@ -1645,7 +1681,8 @@ public class NonMaximumSuppressionTest {
       }
     }
 
-    long total = 0, blockTotal = 0;
+    long total = 0;
+    long blockTotal = 0;
     int index = 0;
     for (final int width : primes) {
       for (final int height : primes) {
@@ -1668,7 +1705,8 @@ public class NonMaximumSuppressionTest {
         }
       }
     }
-    logger.log(TestLogUtils.getTimingRecord("int maxFind3x3", total, "int blockFind3x3", blockTotal));
+    logger
+        .log(TestLogUtils.getTimingRecord("int maxFind3x3", total, "int blockFind3x3", blockTotal));
   }
 
   /**
@@ -1711,14 +1749,15 @@ public class NonMaximumSuppressionTest {
     return data;
   }
 
-  private static int[] intCreatePatternData(int width, int height, int a, int b, int c, int d) {
+  private static int[] intCreatePatternData(int width, int height, int v00, int v01, int v10,
+      int v11) {
     final int[] row1 = new int[width + 2];
     final int[] row2 = new int[width + 2];
     for (int x = 0; x < width; x += 2) {
-      row1[x] = a;
-      row1[x + 1] = b;
-      row2[x] = c;
-      row2[x + 1] = d;
+      row1[x] = v00;
+      row1[x + 1] = v01;
+      row2[x] = v10;
+      row2[x + 1] = v11;
     }
 
     final int[] data = new int[width * height];

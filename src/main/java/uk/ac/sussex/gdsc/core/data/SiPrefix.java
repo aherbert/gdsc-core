@@ -33,156 +33,98 @@ package uk.ac.sussex.gdsc.core.data;
  * of 10.
  */
 public enum SiPrefix {
-  //@formatter:off
   /** Yotta. */
-  YOTTA {
-    @Override public double getFactor() { return 1e24; }
-    @Override public String getName() { return "yotta"; }
-    @Override public String getSymbol() { return "Y"; }
-  },
+  YOTTA(1e24, "yotta", "Y"),
   /** Zetta. */
-  ZETTA {
-    @Override public double getFactor() { return 1e21; }
-    @Override public String getName() { return "zetta"; }
-    @Override public String getSymbol() { return "Z"; }
-  },
+  ZETTA(1e21, "zetta", "Z"),
   /** Exa. */
-  EXA {
-    @Override public double getFactor() { return 1e18; }
-    @Override public String getName() { return "exa"; }
-    @Override public String getSymbol() { return "E"; }
-  },
+  EXA(1e18, "exa", "E"),
   /** Peta. */
-  PETA {
-    @Override public double getFactor() { return 1e15; }
-    @Override public String getName() { return "peta"; }
-    @Override public String getSymbol() { return "P"; }
-  },
+  PETA(1e15, "peta", "P"),
   /** Tera. */
-  TERA {
-    @Override public double getFactor() { return 1e12; }
-    @Override public String getName() { return "tera"; }
-    @Override public String getSymbol() { return "T"; }
-  },
+  TERA(1e12, "tera", "T"),
   /** Giga. */
-  GIGA {
-    @Override public double getFactor() { return 1e9; }
-    @Override public String getName() { return "giga"; }
-    @Override public String getSymbol() { return "G"; }
-  },
+  GIGA(1e9, "giga", "G"),
   /** Mega. */
-  MEGA {
-    @Override public double getFactor() { return 1e6; }
-    @Override public String getName() { return "mega"; }
-    @Override public String getSymbol() { return "M"; }
-  },
+  MEGA(1e6, "mega", "M"),
   /** Kilo. */
-  KILO {
-    @Override public double getFactor() { return 1e3; }
-    @Override public String getName() { return "kilo"; }
-    @Override public String getSymbol() { return "k"; }
-  },
+  KILO(1e3, "kilo", "k"),
   /** Hecto. */
-  HECTO {
-    @Override public double getFactor() { return 1e2; }
-    @Override public String getName() { return "hecto"; }
-    @Override public String getSymbol() { return "h"; }
-  },
+  HECTO(1e2, "hecto", "h"),
   /** Deka. */
-  DEKA {
-    @Override public double getFactor() { return 1e1; }
-    @Override public String getName() { return "deka"; }
-    @Override public String getSymbol() { return "da"; }
-  },
+  DEKA(1e1, "deka", "da"),
   /** None. */
-  NONE {
-    @Override public double getFactor() { return 1e0; }
-    @Override public String getName() { return ""; }
-    @Override public String getSymbol() { return ""; }
-  },
+  NONE(1e0, "", ""),
   /** Deci. */
-  DECI {
-    @Override public double getFactor() { return 1e-1; }
-    @Override public String getName() { return "deci"; }
-    @Override public String getSymbol() { return "d"; }
-  },
+  DECI(1e-1, "deci", "d"),
   /** Centi. */
-  CENTI {
-    @Override public double getFactor() { return 1e-2; }
-    @Override public String getName() { return "centi"; }
-    @Override public String getSymbol() { return "c"; }
-  },
+  CENTI(1e-2, "centi", "c"),
   /** Milli. */
-  MILLI {
-    @Override public double getFactor() { return 1e-3; }
-    @Override public String getName() { return "milli"; }
-    @Override public String getSymbol() { return "m"; }
-  },
+  MILLI(1e-3, "milli", "m"),
   /** Micro. */
-  MICRO {
-    @Override public double getFactor() { return 1e-6; }
-    @Override public String getName() { return "micro"; }
-    @Override public String getSymbol() { return "µ"; }
-  },
+  MICRO(1e-6, "micro", "µ"),
   /** Nano. */
-  NANO {
-    @Override public double getFactor() { return 1e-9; }
-    @Override public String getName() { return "nano"; }
-    @Override public String getSymbol() { return "n"; }
-  },
+  NANO(1e-9, "nano", "n"),
   /** Pico. */
-  PICO {
-    @Override public double getFactor() { return 1e-12; }
-    @Override public String getName() { return "pico"; }
-    @Override public String getSymbol() { return "p"; }
-  },
+  PICO(1e-12, "pico", "p"),
   /** Femto. */
-  FEMTO {
-    @Override public double getFactor() { return 1e-15; }
-    @Override public String getName() { return "femto"; }
-    @Override public String getSymbol() { return "f"; }
-  },
+  FEMTO(1e-15, "femto", "f"),
   /** Atto. */
-  ATTO {
-    @Override public double getFactor() { return 1e-18; }
-    @Override public String getName() { return "atto"; }
-    @Override public String getSymbol() { return "a"; }
-  },
+  ATTO(1e-18, "atto", "a"),
   /** Zepto. */
-  ZEPTO {
-    @Override public double getFactor() { return 1e-21; }
-    @Override public String getName() { return "zepto"; }
-    @Override public String getSymbol() { return "z"; }
-  },
+  ZEPTO(1e-21, "zepto", "z"),
   /** Yocto. */
-  YOCTO {
-    @Override public double getFactor() { return 1e-24; }
-    @Override public String getName() { return "yocto"; }
-    @Override public String getSymbol() { return "y"; }
-  },
-  ;
-  //@formatter:on
+  YOCTO(1e-24, "yocto", "y");
+
+  /** The factor. */
+  final double factor;
+
+  /** The prefix. */
+  final String prefix;
+
+  /** The symbol. */
+  final String symbol;
+
+  /**
+   * Instantiates a new SI prefix.
+   *
+   * @param factor the factor
+   * @param prefix the prefix
+   * @param symbol the symbol
+   */
+  SiPrefix(double factor, String prefix, String symbol) {
+    this.factor = factor;
+    this.prefix = prefix;
+    this.symbol = symbol;
+  }
+
 
   /**
    * Gets the factor.
    *
    * @return the factor
    */
-  public abstract double getFactor();
+  public double getFactor() {
+    return factor;
+  }
 
   /**
-   * Gets the name.
+   * Gets the prefix.
    *
-   * @return the name
+   * @return the prefix
    */
-  public abstract String getName();
+  public String getPrefix() {
+    return prefix;
+  }
 
   /**
    * Gets the symbol.
    *
    * @return the symbol
    */
-  public abstract String getSymbol();
+  public String getSymbol() {
+    return symbol;
+  }
 
   /**
    * Convert the value.
@@ -247,14 +189,14 @@ public enum SiPrefix {
    *
    * <pre>
    * double value = ...;
-   * SIPrefix p = SIPrefix.getPrefix(value);
-   * String text = String.format("%s %s[unit]", p.convert(value), p.getName());
+   * SiPrefix p = SiPrefix.getSiPrefix(value);
+   * String text = String.format("%s %s[unit]", p.convert(value), p.getPrefix());
    * </pre>
    *
    * @param value the value
    * @return the prefix
    */
-  public static SiPrefix getPrefix(double value) {
+  public static SiPrefix getSiPrefix(double value) {
     // Edge case
     if (value == 0 || !Double.isFinite(value)) {
       return SiPrefix.NONE;

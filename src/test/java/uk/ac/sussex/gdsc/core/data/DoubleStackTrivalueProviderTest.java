@@ -12,7 +12,9 @@ public class DoubleStackTrivalueProviderTest {
   @SuppressWarnings("null")
   @Test
   public void canProvideData() {
-    final int maxx = 5, maxy = 4, maxz = 3;
+    final int maxx = 5;
+    final int maxy = 4;
+    final int maxz = 3;
     final int size = maxx * maxy;
     final double[][] data = new double[maxz][];
     for (int z = 0; z < maxz; z++) {
@@ -28,7 +30,8 @@ public class DoubleStackTrivalueProviderTest {
     // Test with FloatProcessor as that is the likely source of the stack of data
     for (int z = 0; z < maxz; z++) {
       final FloatProcessor fp = new FloatProcessor(maxx, maxy, data[z]);
-      FloatProcessor fpp = null, fpn = null;
+      FloatProcessor fpp = null;
+      FloatProcessor fpn = null;
       if (z > 0 && z < maxz - 1) {
         fpp = new FloatProcessor(maxx, maxy, data[z - 1]);
         fpn = new FloatProcessor(maxx, maxy, data[z + 1]);
@@ -56,7 +59,9 @@ public class DoubleStackTrivalueProviderTest {
 
   @Test
   public void canConvertToArray() {
-    final int maxx = 5, maxy = 4, maxz = 3;
+    final int maxx = 5;
+    final int maxy = 4;
+    final int maxz = 3;
     final int size = maxx * maxy;
     final double[][] data = new double[maxz][];
     for (int z = 0; z < maxz; z++) {

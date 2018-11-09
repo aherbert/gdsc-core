@@ -14,6 +14,10 @@ import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
 public class QuadraticUtilsTest {
+
+  // It is fine to use a,b,c for a quadratic ax^2 + bx + c
+  // CHECKSTYLE.OFF: ParameterName
+
   @SeededTest
   public void canGetDeterminant3x3(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
@@ -38,7 +42,7 @@ public class QuadraticUtilsTest {
     final double a = 3;
     final double b = -2;
     final double c = -4;
-    final double[] e = new double[] {a, b, c};
+    final double[] exp = new double[] {a, b, c};
 
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     for (int i = 0; i < 5; i++) {
@@ -55,20 +59,20 @@ public class QuadraticUtilsTest {
 
       // Order invariant
       final DoubleDoubleBiPredicate areClose = TestHelper.doublesAreClose(1e-6, 0);
-      canSolveQuadratic(a, b, c, e, x1, x2, x3, areClose);
-      canSolveQuadratic(a, b, c, e, x1, x3, x2, areClose);
-      canSolveQuadratic(a, b, c, e, x2, x1, x3, areClose);
-      canSolveQuadratic(a, b, c, e, x2, x3, x1, areClose);
-      canSolveQuadratic(a, b, c, e, x3, x1, x2, areClose);
-      canSolveQuadratic(a, b, c, e, x3, x2, x1, areClose);
+      canSolveQuadratic(a, b, c, exp, x1, x2, x3, areClose);
+      canSolveQuadratic(a, b, c, exp, x1, x3, x2, areClose);
+      canSolveQuadratic(a, b, c, exp, x2, x1, x3, areClose);
+      canSolveQuadratic(a, b, c, exp, x2, x3, x1, areClose);
+      canSolveQuadratic(a, b, c, exp, x3, x1, x2, areClose);
+      canSolveQuadratic(a, b, c, exp, x3, x2, x1, areClose);
     }
   }
 
-  private static void canSolveQuadratic(double a, double b, double c, double[] e, double x1,
+  private static void canSolveQuadratic(double a, double b, double c, double[] exp, double x1,
       double x2, double x3, DoubleDoubleBiPredicate areClose) {
     final double[] o = solveQuadratic(a, b, c, x1, x2, x3);
     Assertions.assertNotNull(o);
-    TestAssertions.assertArrayTest(e, o, areClose);
+    TestAssertions.assertArrayTest(exp, o, areClose);
   }
 
   private static double[] solveQuadratic(double a, double b, double c, double x1, double x2,

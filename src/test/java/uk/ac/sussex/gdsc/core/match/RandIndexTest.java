@@ -267,10 +267,10 @@ public class RandIndexTest {
     final long table1 = t3 - t2;
     final long table2 = t4 - t3;
 
-    logger.log(TestLogUtils.getRecord(Level.FINE, "[%d,%d,%d] simple=%d (%f), table1=%d (%f), %f", n, n1,
-        n2, simple, e, table1, o1, simple / (double) table1));
-    logger.log(TestLogUtils.getRecord(Level.FINE, "[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f", n, n1,
-        n2, simple, e, table2, o2, simple / (double) table2));
+    logger.log(TestLogUtils.getRecord(Level.FINE, "[%d,%d,%d] simple=%d (%f), table1=%d (%f), %f",
+        n, n1, n2, simple, e, table1, o1, simple / (double) table1));
+    logger.log(TestLogUtils.getRecord(Level.FINE, "[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f",
+        n, n1, n2, simple, e, table2, o2, simple / (double) table2));
 
     TestAssertions.assertTest(e, o1, TestHelper.doublesAreClose(1e-10, 0));
     Assertions.assertEquals(o2, o1);
@@ -367,8 +367,9 @@ public class RandIndexTest {
     final long table1 = t2 - t1;
     final long table2 = t3 - t2;
 
-    logger.log(TestLogUtils.getRecord(Level.FINE, "[%d,%d,%d] table1=%d (%f [%f]), table2=%d (%f), %f",
-        n, n1, n2, table1, o1, r, table2, o2, table1 / (double) table2));
+    logger.log(
+        TestLogUtils.getRecord(Level.FINE, "[%d,%d,%d] table1=%d (%f [%f]), table2=%d (%f), %f", n,
+            n1, n2, table1, o1, r, table2, o2, table1 / (double) table2));
 
     Assertions.assertEquals(o2, o1);
   }

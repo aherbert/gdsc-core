@@ -36,10 +36,10 @@ public class EqualityTest {
     logger = null;
   }
 
-  int MAX_ITER = 2000000;
+  static final int MAX_ITER = 2000000;
 
   @Test
-  public void doubleRelativeErrorIsCorrectUntilULPSIsSmall() {
+  public void doubleRelativeErrorIsCorrectUntilUlpsIsSmall() {
     final int precision = new BigDecimal(Double.toString(Double.MAX_VALUE)).precision();
     // TestLog.debug(logger,"Double max precision = %d", precision);
     for (int sig = 1; sig <= precision; sig++) {
@@ -51,27 +51,28 @@ public class EqualityTest {
           BigDecimal.ONE.divide(one_m_error, sig * 10, RoundingMode.HALF_UP);
 
       // TestLog.debug(logger,"Error = %s %s %s", error, one_m_error, one_one_m_error);
-      int same = 0, total = 0;
+      int same = 0;
+      int total = 0;
       for (int leadingDigit = 1; leadingDigit <= 9; leadingDigit++) {
         for (int trailingDigit = 1; trailingDigit <= 9; trailingDigit++) {
-          BigDecimal A = BigDecimal.valueOf(trailingDigit);
-          A = A.scaleByPowerOfTen(-(sig - 1));
+          BigDecimal v1 = BigDecimal.valueOf(trailingDigit);
+          v1 = v1.scaleByPowerOfTen(-(sig - 1));
           final BigDecimal toAdd = BigDecimal.valueOf(leadingDigit);
-          A = A.add(toAdd);
+          v1 = v1.add(toAdd);
 
           // Get number with a set relative error
-          final BigDecimal BLow = A.multiply(one_m_error);
-          final BigDecimal BHigh = A.multiply(one_one_m_error);
+          final BigDecimal v2low = v1.multiply(one_m_error);
+          final BigDecimal v2high = v1.multiply(one_one_m_error);
 
           // bd1 = bd1.round(new MathContext(sig, RoundingMode.HALF_DOWN));
-          final double d = A.doubleValue();
-          final double d1 = BLow.doubleValue();
-          final double d2 = BHigh.doubleValue();
+          final double d = v1.doubleValue();
+          final double d1 = v2low.doubleValue();
+          final double d2 = v2high.doubleValue();
           final long ulps1 = Double.doubleToLongBits(d) - Double.doubleToLongBits(d1);
           final long ulps2 = Double.doubleToLongBits(d2) - Double.doubleToLongBits(d);
           final double rel1 = DoubleEquality.relativeError(d, d1);
           final double rel2 = DoubleEquality.relativeError(d, d2);
-          // TestLog.debug(logger,"%d %s < %s < %s = %d %d %g %g", sig, BLow, A, BHigh, ulps1,
+          // TestLog.debug(logger,"%d %s < %s < %s = %d %d %g %g", sig, v2low, v1, v2high, ulps1,
           // ulps2, rel1, rel2);
           if (ulps1 > 100) {
             Assertions.assertEquals(e, rel1, tolerance);
@@ -88,7 +89,7 @@ public class EqualityTest {
   }
 
   @Test
-  public void floatRelativeErrorIsCorrectUntilULPSIsSmall() {
+  public void floatRelativeErrorIsCorrectUntilUlpsIsSmall() {
     final int precision = new BigDecimal(Float.toString(Float.MAX_VALUE)).precision();
     // TestLog.debug(logger,"Float max precision = %d", precision);
     for (int sig = 1; sig <= precision; sig++) {
@@ -100,27 +101,28 @@ public class EqualityTest {
           BigDecimal.ONE.divide(one_m_error, sig * 10, RoundingMode.HALF_UP);
 
       // TestLog.debug(logger,"Error = %s %s %s", error, one_m_error, one_one_m_error);
-      int same = 0, total = 0;
+      int same = 0;
+      int total = 0;
       for (int leadingDigit = 1; leadingDigit <= 9; leadingDigit++) {
         for (int trailingDigit = 1; trailingDigit <= 9; trailingDigit++) {
-          BigDecimal A = BigDecimal.valueOf(trailingDigit);
-          A = A.scaleByPowerOfTen(-(sig - 1));
+          BigDecimal v1 = BigDecimal.valueOf(trailingDigit);
+          v1 = v1.scaleByPowerOfTen(-(sig - 1));
           final BigDecimal toAdd = BigDecimal.valueOf(leadingDigit);
-          A = A.add(toAdd);
+          v1 = v1.add(toAdd);
 
           // Get number with a set relative error
-          final BigDecimal BLow = A.multiply(one_m_error);
-          final BigDecimal BHigh = A.multiply(one_one_m_error);
+          final BigDecimal v2low = v1.multiply(one_m_error);
+          final BigDecimal v2high = v1.multiply(one_one_m_error);
 
           // bd1 = bd1.round(new MathContext(sig, RoundingMode.HALF_DOWN));
-          final float d = A.floatValue();
-          final float d1 = BLow.floatValue();
-          final float d2 = BHigh.floatValue();
+          final float d = v1.floatValue();
+          final float d1 = v2low.floatValue();
+          final float d2 = v2high.floatValue();
           final int ulps1 = Float.floatToIntBits(d) - Float.floatToIntBits(d1);
           final int ulps2 = Float.floatToIntBits(d2) - Float.floatToIntBits(d);
           final float rel1 = FloatEquality.relativeError(d, d1);
           final float rel2 = FloatEquality.relativeError(d, d2);
-          // TestLog.debug(logger,"%d %s < %s < %s = %d %d %g %g", sig, BLow, A, BHigh, ulps1,
+          // TestLog.debug(logger,"%d %s < %s < %s = %d %d %g %g", sig, v2low, v1, v2high, ulps1,
           // ulps2, rel1, rel2);
           if (ulps1 > 100) {
             Assertions.assertEquals(e, rel1, tolerance);
@@ -275,17 +277,17 @@ public class EqualityTest {
     }
     final long h = DoubleEquality.complement(0, upper);
     final long l = DoubleEquality.complement(0, lower);
-    long d = (lower > 0) ? h - l : h + l;
-    if (d < 0) {
-      d = Long.MAX_VALUE;
+    long expected = (lower > 0) ? h - l : h + l;
+    if (expected < 0) {
+      expected = Long.MAX_VALUE;
     } else {
       final long c = DoubleEquality.signedComplement(lower, upper);
       Assertions.assertTrue(c < 0);
-      Assertions.assertEquals(d, -c);
-      Assertions.assertEquals(d, DoubleEquality.signedComplement(upper, lower));
+      Assertions.assertEquals(expected, -c);
+      Assertions.assertEquals(expected, DoubleEquality.signedComplement(upper, lower));
     }
     // log("%g - %g = %d", upper, lower, d);
-    Assertions.assertEquals(d, DoubleEquality.complement(lower, upper));
+    Assertions.assertEquals(expected, DoubleEquality.complement(lower, upper));
   }
 
   private static void test(float lower, float upper) {
@@ -296,29 +298,29 @@ public class EqualityTest {
     }
     final int h = FloatEquality.complement(0, upper);
     final int l = FloatEquality.complement(0, lower);
-    int d = (lower > 0) ? h - l : h + l;
-    if (d < 0) {
-      d = Integer.MAX_VALUE;
+    int expected = (lower > 0) ? h - l : h + l;
+    if (expected < 0) {
+      expected = Integer.MAX_VALUE;
     }
     // log("%g - %g = %d", upper, lower, d);
-    Assertions.assertEquals(d, FloatEquality.complement(lower, upper));
+    Assertions.assertEquals(expected, FloatEquality.complement(lower, upper));
   }
 
   /**
    * Used to check what the int difference between float actually is.
    *
-   * @param f the f
+   * @param value the value
    */
   @SuppressWarnings("unused")
-  private static void computeComplement(float f) {
-    final float f3 = f + f * 1e-2f;
-    final float f4 = f - f * 1e-2f;
-    logger.info(FunctionUtils.getSupplier("%g -> %g = %d : %d (%g : %g)", f, f3,
-        FloatEquality.complement(f3, f), DoubleEquality.complement(f3, f),
-        FloatEquality.relativeError(f, f3), DoubleEquality.relativeError(f, f3)));
-    logger.info(FunctionUtils.getSupplier("%g -> %g = %d : %d (%g : %g)", f, f4,
-        FloatEquality.complement(f4, f), DoubleEquality.complement(f4, f),
-        FloatEquality.relativeError(f, f4), DoubleEquality.relativeError(f, f4)));
+  private static void computeComplement(float value) {
+    final float f3 = value + value * 1e-2f;
+    final float f4 = value - value * 1e-2f;
+    logger.info(FunctionUtils.getSupplier("%g -> %g = %d : %d (%g : %g)", value, f3,
+        FloatEquality.complement(f3, value), DoubleEquality.complement(f3, value),
+        FloatEquality.relativeError(value, f3), DoubleEquality.relativeError(value, f3)));
+    logger.info(FunctionUtils.getSupplier("%g -> %g = %d : %d (%g : %g)", value, f4,
+        FloatEquality.complement(f4, value), DoubleEquality.complement(f4, value),
+        FloatEquality.relativeError(value, f4), DoubleEquality.relativeError(value, f4)));
   }
 
   @SpeedTag
@@ -354,7 +356,7 @@ public class EqualityTest {
       }
 
       @Override
-      public Object getData(int i) {
+      public Object getData(int index) {
         return null;
       }
 
@@ -371,7 +373,7 @@ public class EqualityTest {
       }
 
       @Override
-      public Object getData(int i) {
+      public Object getData(int index) {
         return null;
       }
 

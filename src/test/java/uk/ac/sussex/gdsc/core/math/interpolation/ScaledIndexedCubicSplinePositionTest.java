@@ -16,7 +16,7 @@ public class ScaledIndexedCubicSplinePositionTest {
     final double x = 0.5;
     Assertions.assertNotNull(new ScaledIndexedCubicSplinePosition(index, x, scale));
 
-    for (double badScale : new double[] {0, Double.POSITIVE_INFINITY, -1, Double.NaN}) {
+    for (final double badScale : new double[] {0, Double.POSITIVE_INFINITY, -1, Double.NaN}) {
       Assertions.assertThrows(IllegalArgumentException.class, () -> {
         new ScaledIndexedCubicSplinePosition(index, x, badScale);
       });

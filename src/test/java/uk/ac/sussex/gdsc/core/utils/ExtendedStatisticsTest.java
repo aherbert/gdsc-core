@@ -15,57 +15,58 @@ public class ExtendedStatisticsTest {
   @SeededTest
   public void canComputeStatistics(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    DescriptiveStatistics e;
-    ExtendedStatistics o;
+    DescriptiveStatistics expected;
+    ExtendedStatistics observed;
     for (int i = 0; i < 10; i++) {
-      e = new DescriptiveStatistics();
-      o = new ExtendedStatistics();
+      expected = new DescriptiveStatistics();
+      observed = new ExtendedStatistics();
       for (int j = 0; j < 100; j++) {
         final double d = r.nextDouble();
-        e.addValue(d);
-        o.add(d);
-        check(e, o);
+        expected.addValue(d);
+        observed.add(d);
+        check(expected, observed);
       }
     }
 
-    e = new DescriptiveStatistics();
-    o = new ExtendedStatistics();
+    expected = new DescriptiveStatistics();
+    observed = new ExtendedStatistics();
     final int[] idata = SimpleArrayUtils.newArray(100, 0, 1);
     PermutationSampler.shuffle(r, idata);
     for (final double v : idata) {
-      e.addValue(v);
+      expected.addValue(v);
     }
-    o.add(idata);
-    check(e, o);
+    observed.add(idata);
+    check(expected, observed);
 
-    e = new DescriptiveStatistics();
-    o = new ExtendedStatistics();
+    expected = new DescriptiveStatistics();
+    observed = new ExtendedStatistics();
     final double[] ddata = new double[idata.length];
     for (int i = 0; i < idata.length; i++) {
       ddata[i] = idata[i];
-      e.addValue(ddata[i]);
+      expected.addValue(ddata[i]);
     }
-    o.add(ddata);
-    check(e, o);
+    observed.add(ddata);
+    check(expected, observed);
 
-    e = new DescriptiveStatistics();
-    o = new ExtendedStatistics();
+    expected = new DescriptiveStatistics();
+    observed = new ExtendedStatistics();
     final float[] fdata = new float[idata.length];
     for (int i = 0; i < idata.length; i++) {
       fdata[i] = idata[i];
-      e.addValue(fdata[i]);
+      expected.addValue(fdata[i]);
     }
-    o.add(fdata);
-    check(e, o);
+    observed.add(fdata);
+    check(expected, observed);
   }
 
-  private static void check(DescriptiveStatistics e, ExtendedStatistics o) {
-    Assertions.assertEquals(e.getN(), o.getN(), "N");
-    Assertions.assertEquals(e.getMean(), o.getMean(), 1e-10, "Mean");
-    Assertions.assertEquals(e.getVariance(), o.getVariance(), 1e-10, "Variance");
-    Assertions.assertEquals(e.getStandardDeviation(), o.getStandardDeviation(), 1e-10, "SD");
-    Assertions.assertEquals(e.getMin(), o.getMin(), "Min");
-    Assertions.assertEquals(e.getMax(), o.getMax(), "Max");
+  private static void check(DescriptiveStatistics expected, ExtendedStatistics observed) {
+    Assertions.assertEquals(expected.getN(), observed.getN(), "N");
+    Assertions.assertEquals(expected.getMean(), observed.getMean(), 1e-10, "Mean");
+    Assertions.assertEquals(expected.getVariance(), observed.getVariance(), 1e-10, "Variance");
+    Assertions.assertEquals(expected.getStandardDeviation(), observed.getStandardDeviation(), 1e-10,
+        "SD");
+    Assertions.assertEquals(expected.getMin(), observed.getMin(), "Min");
+    Assertions.assertEquals(expected.getMax(), observed.getMax(), "Max");
   }
 
   @Test

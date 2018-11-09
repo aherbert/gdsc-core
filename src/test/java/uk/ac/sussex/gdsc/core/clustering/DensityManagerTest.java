@@ -14,6 +14,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 
 import java.awt.Rectangle;
 import java.util.function.Supplier;
@@ -35,13 +36,13 @@ public class DensityManagerTest {
 
   int size = 256;
   float[] radii = new float[] {2, 4, 8, 16};
-  int[] N = new int[] {1000, 2000, 4000};
+  int[] ns = new int[] {1000, 2000, 4000};
 
   @SeededTest
   public void densityWithTriangleMatchesDensity(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
-      final DensityManager dm = createDensityManager(r, size, n);
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (final int n : ns) {
+      final DensityManager dm = createDensityManager(rng, size, n);
 
       for (final float radius : radii) {
         final int[] d1 = dm.calculateDensity(radius);
@@ -54,9 +55,9 @@ public class DensityManagerTest {
 
   @SeededTest
   public void densityWithGridMatchesDensity(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
-      final DensityManager dm = createDensityManager(r, size, n);
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (final int n : ns) {
+      final DensityManager dm = createDensityManager(rng, size, n);
 
       for (final float radius : radii) {
         final int[] d1 = dm.calculateDensity(radius);
@@ -71,9 +72,9 @@ public class DensityManagerTest {
   public void densityWithGridFasterThanDensityTriangle(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
-      final DensityManager dm = createDensityManager(r, size, n);
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (final int n : ns) {
+      final DensityManager dm = createDensityManager(rng, size, n);
 
       for (final float radius : radii) {
         long start = System.nanoTime();
@@ -99,9 +100,9 @@ public class DensityManagerTest {
   public void densityWithGridFasterThanDensity(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
-      final DensityManager dm = createDensityManager(r, size, n);
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (final int n : ns) {
+      final DensityManager dm = createDensityManager(rng, size, n);
 
       for (final float radius : radii) {
         long start = System.nanoTime();
@@ -125,9 +126,9 @@ public class DensityManagerTest {
 
   @SeededTest
   public void sumWithGridMatchesSum(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
-      final DensityManager dm = createDensityManager(r, size, n);
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (final int n : ns) {
+      final DensityManager dm = createDensityManager(rng, size, n);
 
       for (final float radius : radii) {
         final int s1 = dm.calculateSum(radius);
@@ -142,9 +143,9 @@ public class DensityManagerTest {
   public void sumWithGridFasterThanSum(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
-      final DensityManager dm = createDensityManager(r, size, n);
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (final int n : ns) {
+      final DensityManager dm = createDensityManager(rng, size, n);
 
       for (final float radius : radii) {
         long start = System.nanoTime();
@@ -168,9 +169,9 @@ public class DensityManagerTest {
 
   @SeededTest
   public void blockDensityMatchesBlockDensity2(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
-      final DensityManager dm = createDensityManager(r, size, n);
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (final int n : ns) {
+      final DensityManager dm = createDensityManager(rng, size, n);
 
       for (final float radius : radii) {
         final int[] d1 = dm.calculateBlockDensity(radius);
@@ -183,9 +184,9 @@ public class DensityManagerTest {
 
   @SeededTest
   public void blockDensity2MatchesBlockDensity3(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
-      final DensityManager dm = createDensityManager(r, size, n);
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (final int n : ns) {
+      final DensityManager dm = createDensityManager(rng, size, n);
 
       for (final float radius : radii) {
         final int[] d1 = dm.calculateBlockDensity2(radius);
@@ -196,14 +197,14 @@ public class DensityManagerTest {
     }
   }
 
-  // This is not always true. The two are comparable in speed.
-  // @SeededTest
+  @Disabled("This is not always true. The two are comparable in speed.")
+  @SeededTest
   public void blockDensityFasterThanBlockDensity2(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
-      final DensityManager dm = createDensityManager(r, size, n);
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (final int n : ns) {
+      final DensityManager dm = createDensityManager(rng, size, n);
 
       for (final float radius : radii) {
         long start = System.nanoTime();
@@ -231,9 +232,9 @@ public class DensityManagerTest {
   public void blockDensity2FasterThanBlockDensity3(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
-      final DensityManager dm = createDensityManager(r, size, n);
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (final int n : ns) {
+      final DensityManager dm = createDensityManager(rng, size, n);
 
       for (final float radius : radii) {
         long start = System.nanoTime();
@@ -258,12 +259,12 @@ public class DensityManagerTest {
     }
   }
 
-  private static DensityManager createDensityManager(UniformRandomProvider r, int size, int n) {
+  private static DensityManager createDensityManager(UniformRandomProvider rng, int size, int n) {
     final float[] xcoord = new float[n];
     final float[] ycoord = new float[xcoord.length];
     for (int i = 0; i < xcoord.length; i++) {
-      xcoord[i] = r.nextFloat() * size;
-      ycoord[i] = r.nextFloat() * size;
+      xcoord[i] = rng.nextFloat() * size;
+      ycoord[i] = rng.nextFloat() * size;
     }
     final DensityManager dm = new DensityManager(xcoord, ycoord, new Rectangle(size, size));
     return dm;

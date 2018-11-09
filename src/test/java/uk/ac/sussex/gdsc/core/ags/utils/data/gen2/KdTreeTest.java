@@ -23,6 +23,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,13 +45,13 @@ public class KdTreeTest {
   }
 
   int size = 256;
-  int[] N = new int[] {100, 200, 400, 2000};
-  int[] K = new int[] {2, 4, 8, 16};
+  int[] ns = new int[] {100, 200, 400, 2000};
+  int[] ks = new int[] {2, 4, 8, 16};
 
   @SeededTest
-  public void canComputeKNNSecondGen(RandomSeed seed) {
+  public void canComputeknnSecondGen(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
+    for (final int n : ns) {
       final double[][] data = createData(r, size, n, false);
 
       // Create the KDtree
@@ -71,16 +72,16 @@ public class KdTreeTest {
       // For each point
       for (int i = 0; i < n; i++) {
         // Get the sorted distances to neighbours
-        final double[] d2 = PartialSort.bottom(d[i], K[K.length - 1]);
+        final double[] d2 = PartialSort.bottom(d[i], ks[ks.length - 1]);
 
-        // Get the KNN
-        for (final int k : K) {
+        // Get the knn
+        for (final int k : ks) {
           final List<Entry<Object>> neighbours = tree.nearestNeighbor(data[i], k, true);
           final double[] observed = new double[k];
           // Neighbours will be in reverse order
-          int j = k;
+          int index = k;
           for (final Entry<Object> e : neighbours) {
-            observed[--j] = e.getDistance();
+            observed[--index] = e.getDistance();
           }
 
           final double[] expected = Arrays.copyOf(d2, k);
@@ -94,9 +95,9 @@ public class KdTreeTest {
   }
 
   @SeededTest
-  public void canComputeKNNSecondGenWithDuplicates(RandomSeed seed) {
+  public void canComputeknnSecondGenWithDuplicates(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
+    for (final int n : ns) {
       final double[][] data = createData(r, size, n, true);
 
       // Create the KDtree
@@ -117,16 +118,16 @@ public class KdTreeTest {
       // For each point
       for (int i = 0; i < n; i++) {
         // Get the sorted distances to neighbours
-        final double[] d2 = PartialSort.bottom(d[i], K[K.length - 1]);
+        final double[] d2 = PartialSort.bottom(d[i], ks[ks.length - 1]);
 
-        // Get the KNN
-        for (final int k : K) {
+        // Get the knn
+        for (final int k : ks) {
           final List<Entry<Object>> neighbours = tree.nearestNeighbor(data[i], k, true);
           final double[] observed = new double[k];
           // Neighbours will be in reverse order
-          int j = k;
+          int index = k;
           for (final Entry<Object> e : neighbours) {
-            observed[--j] = e.getDistance();
+            observed[--index] = e.getDistance();
           }
 
           final double[] expected = Arrays.copyOf(d2, k);
@@ -140,9 +141,9 @@ public class KdTreeTest {
   }
 
   @SeededTest
-  public void canComputeKNNDistanceSecondGen(RandomSeed seed) {
+  public void canComputeknnDistanceSecondGen(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
+    for (final int n : ns) {
       final double[][] data = createData(r, size, n, true);
 
       // Create the KDtree
@@ -163,10 +164,10 @@ public class KdTreeTest {
       // For each point
       for (int i = 0; i < n; i++) {
         // Get the sorted distances to neighbours
-        final double[] d2 = PartialSort.bottom(d[i], K[K.length - 1]);
+        final double[] d2 = PartialSort.bottom(d[i], ks[ks.length - 1]);
 
-        // Get the KNN
-        for (final int k : K) {
+        // Get the knn
+        for (final int k : ks) {
           final List<Entry<Object>> neighbours = tree.nearestNeighbor(data[i], k, false);
 
           Assertions.assertEquals(d2[k - 1], neighbours.get(0).getDistance());
@@ -176,9 +177,9 @@ public class KdTreeTest {
   }
 
   @SeededTest
-  public void canComputeKNNThirdGen(RandomSeed seed) {
+  public void canComputeknnThirdGen(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
+    for (final int n : ns) {
       final double[][] data = createData(r, size, n, false);
 
       // Create the KDtree
@@ -199,17 +200,17 @@ public class KdTreeTest {
       // For each point
       for (int i = 0; i < n; i++) {
         // Get the sorted distances to neighbours
-        final double[] d2 = PartialSort.bottom(d[i], K[K.length - 1]);
+        final double[] d2 = PartialSort.bottom(d[i], ks[ks.length - 1]);
 
-        // Get the KNN
-        for (final int k : K) {
+        // Get the knn
+        for (final int k : ks) {
           final MaxHeap<Object> neighbours =
               tree.findNearestNeighbors(data[i], k, new SquareEuclideanDistanceFunction2D());
           final double[] observed = new double[k];
           // Neighbours will be in reverse order
-          int j = k;
+          int index = k;
           while (neighbours.size() > 0) {
-            observed[--j] = neighbours.getMaxKey();
+            observed[--index] = neighbours.getMaxKey();
             neighbours.removeMax();
           }
 
@@ -224,9 +225,9 @@ public class KdTreeTest {
   }
 
   @SeededTest
-  public void canComputeKNNThirdGenWithDuplicates(RandomSeed seed) {
+  public void canComputeknnThirdGenWithDuplicates(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
+    for (final int n : ns) {
       final double[][] data = createData(r, size, n, true);
 
       // Create the KDtree
@@ -247,17 +248,17 @@ public class KdTreeTest {
       // For each point
       for (int i = 0; i < n; i++) {
         // Get the sorted distances to neighbours
-        final double[] d2 = PartialSort.bottom(d[i], K[K.length - 1]);
+        final double[] d2 = PartialSort.bottom(d[i], ks[ks.length - 1]);
 
-        // Get the KNN
-        for (final int k : K) {
+        // Get the knn
+        for (final int k : ks) {
           final MaxHeap<Object> neighbours =
               tree.findNearestNeighbors(data[i], k, new SquareEuclideanDistanceFunction2D());
           final double[] observed = new double[k];
           // Neighbours will be in reverse order
-          int j = k;
+          int index = k;
           while (neighbours.size() > 0) {
-            observed[--j] = neighbours.getMaxKey();
+            observed[--index] = neighbours.getMaxKey();
             neighbours.removeMax();
           }
 
@@ -272,9 +273,9 @@ public class KdTreeTest {
   }
 
   @SeededTest
-  public void canComputeKNNDistanceThirdGen(RandomSeed seed) {
+  public void canComputeknnDistanceThirdGen(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    for (final int n : N) {
+    for (final int n : ns) {
       final double[][] data = createData(r, size, n, true);
 
       // Create the KDtree
@@ -295,10 +296,10 @@ public class KdTreeTest {
       // For each point
       for (int i = 0; i < n; i++) {
         // Get the sorted distances to neighbours
-        final double[] d2 = PartialSort.bottom(d[i], K[K.length - 1]);
+        final double[] d2 = PartialSort.bottom(d[i], ks[ks.length - 1]);
 
-        // Get the KNN
-        for (final int k : K) {
+        // Get the knn
+        for (final int k : ks) {
           final MaxHeap<Object> neighbours =
               tree.findNearestNeighbors(data[i], k, new SquareEuclideanDistanceFunction2D());
 
@@ -308,19 +309,19 @@ public class KdTreeTest {
     }
   }
 
-  private abstract class NNTimingTask extends BaseTimingTask {
+  private abstract class NnTimingTask extends BaseTimingTask {
     Object data;
     double[] expected;
     double eps;
 
-    public NNTimingTask(String name, double[][] data, double[] expected) {
+    public NnTimingTask(String name, double[][] data, double[] expected) {
       super(name);
       this.data = data;
       this.expected = expected;
       this.eps = 0;
     }
 
-    public NNTimingTask(String name, double[][] data, double[] expected, double eps) {
+    public NnTimingTask(String name, double[][] data, double[] expected, double eps) {
       super(name);
       // Convert to float
       final double[][] d = data;
@@ -340,12 +341,12 @@ public class KdTreeTest {
     }
 
     @Override
-    public Object getData(int i) {
+    public Object getData(int index) {
       return data;
     }
 
     @Override
-    public void check(int i, Object result) {
+    public void check(int index, Object result) {
       final double[] observed = (double[]) result;
       if (eps == 0) {
         Assertions.assertArrayEquals(expected, observed);
@@ -382,12 +383,12 @@ public class KdTreeTest {
     }
     time = System.nanoTime() - time;
 
-    ts.execute(new NNTimingTask("Second", data, expected) {
+    ts.execute(new NnTimingTask("Second", data, expected) {
       @Override
-      public Object run(Object oData) {
+      public Object run(Object objectData) {
         final uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree<Object> tree =
             new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree.SqrEuclid2D<>(null);
-        final double[][] data = (double[][]) oData;
+        final double[][] data = (double[][]) objectData;
         for (final double[] location : data) {
           tree.addPoint(location, null);
         }
@@ -399,12 +400,12 @@ public class KdTreeTest {
       }
     });
 
-    ts.execute(new NNTimingTask("Second2D", data, expected) {
+    ts.execute(new NnTimingTask("Second2D", data, expected) {
       @Override
-      public Object run(Object oData) {
+      public Object run(Object objectData) {
         final uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree2D<Object> tree =
             new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.KdTree2D.SqrEuclid2D<>();
-        final double[][] data = (double[][]) oData;
+        final double[][] data = (double[][]) objectData;
         for (final double[] location : data) {
           tree.addPoint(location, null);
         }
@@ -416,12 +417,12 @@ public class KdTreeTest {
       }
     });
 
-    ts.execute(new NNTimingTask("SecondSimple2D", data, expected) {
+    ts.execute(new NnTimingTask("SecondSimple2D", data, expected) {
       @Override
-      public Object run(Object oData) {
+      public Object run(Object objectData) {
         final uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleKdTree2D tree =
             new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleKdTree2D.SqrEuclid2D();
-        final double[][] data = (double[][]) oData;
+        final double[][] data = (double[][]) objectData;
         for (final double[] location : data) {
           tree.addPoint(location);
         }
@@ -433,12 +434,12 @@ public class KdTreeTest {
       }
     });
 
-    ts.execute(new NNTimingTask("SecondSimpleFloat2D", data, expected, 1e-3) {
+    ts.execute(new NnTimingTask("SecondSimpleFloat2D", data, expected, 1e-3) {
       @Override
-      public Object run(Object oData) {
+      public Object run(Object objectData) {
         final uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleFloatKdTree2D tree =
             new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleFloatKdTree2D.SqrEuclid2D();
-        final float[][] data = (float[][]) oData;
+        final float[][] data = (float[][]) objectData;
         for (final float[] location : data) {
           tree.addPoint(location);
         }
@@ -450,12 +451,12 @@ public class KdTreeTest {
       }
     });
 
-    ts.execute(new NNTimingTask("Third", data, expected) {
+    ts.execute(new NnTimingTask("Third", data, expected) {
       @Override
-      public Object run(Object oData) {
+      public Object run(Object objectData) {
         final uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.KdTree<Object> tree =
             new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.KdTreeNd<>(2);
-        final double[][] data = (double[][]) oData;
+        final double[][] data = (double[][]) objectData;
         for (final double[] location : data) {
           tree.addPoint(location, null);
         }
@@ -468,12 +469,12 @@ public class KdTreeTest {
       }
     });
 
-    ts.execute(new NNTimingTask("Third2D", data, expected) {
+    ts.execute(new NnTimingTask("Third2D", data, expected) {
       @Override
-      public Object run(Object oData) {
+      public Object run(Object objectData) {
         final uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.KdTree<Object> tree =
             new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.KdTree2D<>();
-        final double[][] data = (double[][]) oData;
+        final double[][] data = (double[][]) objectData;
         for (final double[] location : data) {
           tree.addPoint(location, null);
         }
@@ -495,18 +496,18 @@ public class KdTreeTest {
     logger.info(ts.getReport());
   }
 
-  class Float2DNNTimingTask extends NNTimingTask {
-    int k;
+  class Float2DnnTimingTask extends NnTimingTask {
+    int count;
     int buckectSize;
 
-    public Float2DNNTimingTask(double[][] data, int k, int buckectSize) {
+    public Float2DnnTimingTask(double[][] data, int count, int buckectSize) {
       super("Bucket" + buckectSize, data, null, 0);
-      this.k = k;
+      this.count = count;
       this.buckectSize = buckectSize;
     }
 
     @Override
-    public Object run(Object oData) {
+    public Object run(Object objectData) {
       // The following tests the bucket size is optimal. It requires the bucketSize be set to public
       // non-final.
       // This prevents some code optimisation and so is not the default. The default uses a final
@@ -516,22 +517,21 @@ public class KdTreeTest {
 
       final uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleFloatKdTree2D tree =
           new uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleFloatKdTree2D.SqrEuclid2D();
-      final float[][] data = (float[][]) oData;
+      final float[][] data = (float[][]) objectData;
       for (final float[] location : data) {
         tree.addPoint(location);
       }
       final double[] o = new double[data.length];
       for (int i = 0; i < data.length; i++) {
-        o[i] = tree.nearestNeighbor(data[i], k, false).get(0).getDistance();
+        o[i] = tree.nearestNeighbor(data[i], count, false).get(0).getDistance();
       }
       // ags.utils.dataStructures.trees.secondGenKD.SimpleFloatKdTree2D.bucketSize = b;
       return o;
     }
   }
 
-  // Requires code modification of the SimpleFloatKdTree2D class to make bucketSize size visible and
-  // not final ..
-  // @SeededTest
+  @Disabled("Requires code modification to make bucket size visible and not final")
+  @SeededTest
   public void secondGenBucket24IsFastest(RandomSeed seed) {
     logger.isLoggable(Level.INFO);
 
@@ -542,7 +542,7 @@ public class KdTreeTest {
     final int k = 4;
 
     for (final int b : new int[] {1, 2, 3, 4, 5, 8, 16, 24, 32}) {
-      ts.execute(new Float2DNNTimingTask(data, k, b));
+      ts.execute(new Float2DnnTimingTask(data, k, b));
     }
 
     final int number = ts.getSize();
@@ -552,13 +552,13 @@ public class KdTreeTest {
     logger.info(ts.getReport());
   }
 
-  private static double[][] createData(UniformRandomProvider r, int size, int n,
+  private static double[][] createData(UniformRandomProvider rng, int size, int n,
       boolean allowDuplicates) {
     final double[][] data = new double[n][];
     if (allowDuplicates) {
       final int half = n / 2;
       for (int i = half; i < n; i++) {
-        data[i] = new double[] {r.nextDouble() * size, r.nextDouble() * size};
+        data[i] = new double[] {rng.nextDouble() * size, rng.nextDouble() * size};
       }
       for (int i = 0, j = half; i < half; i++, j++) {
         data[i] = data[j];
@@ -566,8 +566,8 @@ public class KdTreeTest {
     } else {
       final double[] x = SimpleArrayUtils.newArray(n, 0, (double) size / n);
       final double[] y = x.clone();
-      RandomUtils.shuffle(x, r);
-      RandomUtils.shuffle(y, r);
+      RandomUtils.shuffle(x, rng);
+      RandomUtils.shuffle(y, rng);
       for (int i = 0; i < n; i++) {
         data[i] = new double[] {x[i], y[i]};
       }

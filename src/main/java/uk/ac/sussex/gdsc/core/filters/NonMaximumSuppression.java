@@ -641,9 +641,8 @@ public class NonMaximumSuppression {
 
           // A
           for (int jj = mj_minus_n; jj < j; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -654,33 +653,26 @@ public class NonMaximumSuppression {
           final int j_plus_n = FastMath.min(j + n, maxy - 1);
           for (int jj = j; jj <= j_plus_n; jj++) {
             // B
-            {
-              int indexStart = jj * maxx + mi_minus_n;
-              final int indexEnd = jj * maxx + i;
-              for (; indexStart < indexEnd; indexStart++) {
-                if (v < data[indexStart]) {
-                  continue FIND_MAXIMUM;
-                }
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + i; indexStart < indexEnd; indexStart++) {
+              if (v < data[indexStart]) {
+                continue FIND_MAXIMUM;
               }
             }
 
             // C
-            {
-              int indexStart = jj * maxx + i_plus_n;
-              final int indexEnd = jj * maxx + mi_plus_n;
-              for (; indexStart <= indexEnd; indexStart++) {
-                if (v < data[indexStart]) {
-                  continue FIND_MAXIMUM;
-                }
+            for (int indexStart = jj * maxx + i_plus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
+              if (v < data[indexStart]) {
+                continue FIND_MAXIMUM;
               }
             }
           }
           // D
           final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
           for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -700,9 +692,8 @@ public class NonMaximumSuppression {
 
           // A
           for (int jj = mj_minus_n; jj < j; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -710,9 +701,8 @@ public class NonMaximumSuppression {
           }
           // B
           for (int jj = j; jj <= j_plus_n; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + i;
-            for (; indexStart < indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + i; indexStart < indexEnd; indexStart++) {
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -745,9 +735,8 @@ public class NonMaximumSuppression {
 
         // A
         for (int jj = mj_minus_n; jj < j; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
+          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
@@ -758,33 +747,26 @@ public class NonMaximumSuppression {
         final int j_plus_n = FastMath.min(j + n, maxy - 1);
         for (int jj = j; jj <= j_plus_n; jj++) {
           // B
-          {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + i;
-            for (; indexStart < indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
+          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+              jj * maxx + i; indexStart < indexEnd; indexStart++) {
+            if (v < data[indexStart]) {
+              continue FIND_MAXIMUM;
             }
           }
 
           // C
-          {
-            int indexStart = jj * maxx + i_plus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
+          for (int indexStart = jj * maxx + i_plus_n, indexEnd =
+              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
+            if (v < data[indexStart]) {
+              continue FIND_MAXIMUM;
             }
           }
         }
         // D
         final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
         for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
+          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
@@ -865,9 +847,8 @@ public class NonMaximumSuppression {
 
           // A
           for (int jj = mj_minus_n; jj < j; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -878,33 +859,26 @@ public class NonMaximumSuppression {
           final int j_plus_n = FastMath.min(j + n, maxy - border - 1);
           for (int jj = j; jj <= j_plus_n; jj++) {
             // B
-            {
-              int indexStart = jj * maxx + mi_minus_n;
-              final int indexEnd = jj * maxx + i;
-              for (; indexStart < indexEnd; indexStart++) {
-                if (v < data[indexStart]) {
-                  continue FIND_MAXIMUM;
-                }
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + i; indexStart < indexEnd; indexStart++) {
+              if (v < data[indexStart]) {
+                continue FIND_MAXIMUM;
               }
             }
 
             // C
-            {
-              int indexStart = jj * maxx + i_plus_n;
-              final int indexEnd = jj * maxx + mi_plus_n;
-              for (; indexStart <= indexEnd; indexStart++) {
-                if (v < data[indexStart]) {
-                  continue FIND_MAXIMUM;
-                }
+            for (int indexStart = jj * maxx + i_plus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
+              if (v < data[indexStart]) {
+                continue FIND_MAXIMUM;
               }
             }
           }
           // D
           final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
           for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -924,9 +898,8 @@ public class NonMaximumSuppression {
 
           // A
           for (int jj = mj_minus_n; jj < j; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -934,9 +907,8 @@ public class NonMaximumSuppression {
           }
           // B
           for (int jj = j; jj <= j_plus_n; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + i;
-            for (; indexStart < indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + i; indexStart < indexEnd; indexStart++) {
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -970,9 +942,8 @@ public class NonMaximumSuppression {
 
         // A
         for (int jj = mj_minus_n; jj < j; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
+          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
@@ -983,33 +954,26 @@ public class NonMaximumSuppression {
         final int j_plus_n = FastMath.min(j + n, maxy - border - 1);
         for (int jj = j; jj <= j_plus_n; jj++) {
           // B
-          {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + i;
-            for (; indexStart < indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
+          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+              jj * maxx + i; indexStart < indexEnd; indexStart++) {
+            if (v < data[indexStart]) {
+              continue FIND_MAXIMUM;
             }
           }
 
           // C
-          {
-            int indexStart = jj * maxx + i_plus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
+          for (int indexStart = jj * maxx + i_plus_n, indexEnd =
+              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
+            if (v < data[indexStart]) {
+              continue FIND_MAXIMUM;
             }
           }
         }
         // D
         final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
         for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
+          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
@@ -2138,9 +2102,8 @@ public class NonMaximumSuppression {
 
           // A
           for (int jj = mj_minus_n; jj < j; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2151,33 +2114,26 @@ public class NonMaximumSuppression {
           final int j_plus_n = FastMath.min(j + n, maxy - 1);
           for (int jj = j; jj <= j_plus_n; jj++) {
             // B
-            {
-              int indexStart = jj * maxx + mi_minus_n;
-              final int indexEnd = jj * maxx + i;
-              for (; indexStart < indexEnd; indexStart++) {
-                if (v < data[indexStart]) {
-                  continue FIND_MAXIMUM;
-                }
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + i; indexStart < indexEnd; indexStart++) {
+              if (v < data[indexStart]) {
+                continue FIND_MAXIMUM;
               }
             }
 
             // C
-            {
-              int indexStart = jj * maxx + i_plus_n;
-              final int indexEnd = jj * maxx + mi_plus_n;
-              for (; indexStart <= indexEnd; indexStart++) {
-                if (v < data[indexStart]) {
-                  continue FIND_MAXIMUM;
-                }
+            for (int indexStart = jj * maxx + i_plus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
+              if (v < data[indexStart]) {
+                continue FIND_MAXIMUM;
               }
             }
           }
           // D
           final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
           for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2197,9 +2153,8 @@ public class NonMaximumSuppression {
 
           // A
           for (int jj = mj_minus_n; jj < j; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2207,9 +2162,8 @@ public class NonMaximumSuppression {
           }
           // B
           for (int jj = j; jj <= j_plus_n; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + i;
-            for (; indexStart < indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + i; indexStart < indexEnd; indexStart++) {
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2242,9 +2196,8 @@ public class NonMaximumSuppression {
 
         // A
         for (int jj = mj_minus_n; jj < j; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
+          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
@@ -2255,33 +2208,26 @@ public class NonMaximumSuppression {
         final int j_plus_n = FastMath.min(j + n, maxy - 1);
         for (int jj = j; jj <= j_plus_n; jj++) {
           // B
-          {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + i;
-            for (; indexStart < indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
+          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+              jj * maxx + i; indexStart < indexEnd; indexStart++) {
+            if (v < data[indexStart]) {
+              continue FIND_MAXIMUM;
             }
           }
 
           // C
-          {
-            int indexStart = jj * maxx + i_plus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
+          for (int indexStart = jj * maxx + i_plus_n, indexEnd =
+              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
+            if (v < data[indexStart]) {
+              continue FIND_MAXIMUM;
             }
           }
         }
         // D
         final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
         for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
+          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
@@ -2362,9 +2308,8 @@ public class NonMaximumSuppression {
 
           // A
           for (int jj = mj_minus_n; jj < j; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2375,33 +2320,26 @@ public class NonMaximumSuppression {
           final int j_plus_n = FastMath.min(j + n, maxy - border - 1);
           for (int jj = j; jj <= j_plus_n; jj++) {
             // B
-            {
-              int indexStart = jj * maxx + mi_minus_n;
-              final int indexEnd = jj * maxx + i;
-              for (; indexStart < indexEnd; indexStart++) {
-                if (v < data[indexStart]) {
-                  continue FIND_MAXIMUM;
-                }
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + i; indexStart < indexEnd; indexStart++) {
+              if (v < data[indexStart]) {
+                continue FIND_MAXIMUM;
               }
             }
 
             // C
-            {
-              int indexStart = jj * maxx + i_plus_n;
-              final int indexEnd = jj * maxx + mi_plus_n;
-              for (; indexStart <= indexEnd; indexStart++) {
-                if (v < data[indexStart]) {
-                  continue FIND_MAXIMUM;
-                }
+            for (int indexStart = jj * maxx + i_plus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
+              if (v < data[indexStart]) {
+                continue FIND_MAXIMUM;
               }
             }
           }
           // D
           final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
           for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
               if (v < data[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2421,9 +2359,8 @@ public class NonMaximumSuppression {
 
           // A
           for (int jj = mj_minus_n; jj < j; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2431,9 +2368,8 @@ public class NonMaximumSuppression {
           }
           // B
           for (int jj = j; jj <= j_plus_n; jj++) {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + i;
-            for (; indexStart < indexEnd; indexStart++) {
+            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+                jj * maxx + i; indexStart < indexEnd; indexStart++) {
               if (maximaFlag[indexStart]) {
                 continue FIND_MAXIMUM;
               }
@@ -2467,9 +2403,8 @@ public class NonMaximumSuppression {
 
         // A
         for (int jj = mj_minus_n; jj < j; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
+          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }
@@ -2480,33 +2415,26 @@ public class NonMaximumSuppression {
         final int j_plus_n = FastMath.min(j + n, maxy - border - 1);
         for (int jj = j; jj <= j_plus_n; jj++) {
           // B
-          {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + i;
-            for (; indexStart < indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
+          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+              jj * maxx + i; indexStart < indexEnd; indexStart++) {
+            if (v < data[indexStart]) {
+              continue FIND_MAXIMUM;
             }
           }
 
           // C
-          {
-            int indexStart = jj * maxx + i_plus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
+          for (int indexStart = jj * maxx + i_plus_n, indexEnd =
+              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
+            if (v < data[indexStart]) {
+              continue FIND_MAXIMUM;
             }
           }
         }
         // D
         final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
         for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
+          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
+              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
             if (v < data[indexStart]) {
               continue FIND_MAXIMUM;
             }

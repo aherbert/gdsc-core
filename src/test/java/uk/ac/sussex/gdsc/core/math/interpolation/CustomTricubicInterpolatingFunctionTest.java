@@ -29,7 +29,9 @@ public class CustomTricubicInterpolatingFunctionTest {
 
   @Test
   public void testSizeConstructor() {
-    final int maxx = 2, maxy = 2, maxz = 2;
+    final int maxx = 2;
+    final int maxy = 2;
+    final int maxz = 2;
     Assertions.assertNotNull(new Size(maxx, maxy, maxz));
 
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -128,7 +130,9 @@ public class CustomTricubicInterpolatingFunctionTest {
     final TrivalueProvider d2FdXdZ = new DoubleArrayTrivalueProvider(_d2FdXdZ);
     final TrivalueProvider d2FdYdZ = new DoubleArrayTrivalueProvider(_d2FdYdZ);
     final TrivalueProvider d3FdXdYdZ = new DoubleArrayTrivalueProvider(_d3FdXdYdZ);
-    final double xscale = 2, yscale = 3, zscale = 4;
+    final double xscale = 2;
+    final double yscale = 3;
+    final double zscale = 4;
     for (int i = 0; i < 3; i++) {
       for (int z = 0, j = 0; z < 2; z++) {
         for (int y = 0; y < 2; y++) {
@@ -348,10 +352,10 @@ public class CustomTricubicInterpolatingFunctionTest {
     });
   }
 
-  private static void testIsUniformIsInteger(CustomTricubicInterpolatingFunction f,
+  private static void testIsUniformIsInteger(CustomTricubicInterpolatingFunction func,
       boolean isUniform, boolean isInteger) {
-    Assertions.assertEquals(isUniform, f.isUniform(), "Uniform");
-    Assertions.assertEquals(isInteger, f.isInteger(), "Integer");
+    Assertions.assertEquals(isUniform, func.isUniform(), "Uniform");
+    Assertions.assertEquals(isInteger, func.isInteger(), "Integer");
   }
 
   @Test

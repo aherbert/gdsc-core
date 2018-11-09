@@ -56,56 +56,56 @@ public class AsciiStringSamplerTest {
   private final int letterF = 'F';
   private final int letterZ = 'Z';
 
-  private final int[] rangeAZ = {letterA, letterZ};
-  private final int[] rangeaz = {lettera, letterz};
-  private final int[] rangeAF = {letterA, letterF};
-  private final int[] range09 = {digit0, digit9};
+  private final int[] rangeAtoZ = {letterA, letterZ};
+  private final int[] rangeatoz = {lettera, letterz};
+  private final int[] rangeAtoF = {letterA, letterF};
+  private final int[] range0to9 = {digit0, digit9};
   private final int[] rangeAscii = {32, 126};
   private final int[] rangePrint = {32, 125};
   private final int[] rangeGraph = {33, 125};
 
-  private static boolean isAscii(int c) {
-    return c >= 32 && c <= 126;
+  private static boolean isAscii(int ch) {
+    return ch >= 32 && ch <= 126;
   }
 
-  private boolean isNumeric(int c) {
-    return c >= digit0 && c <= digit9;
+  private boolean isNumeric(int ch) {
+    return ch >= digit0 && ch <= digit9;
   }
 
-  private boolean isLower(int c) {
-    return c >= lettera && c <= letterz;
+  private boolean isLower(int ch) {
+    return ch >= lettera && ch <= letterz;
   }
 
-  private boolean isUpper(int c) {
-    return c >= letterA && c <= letterZ;
+  private boolean isUpper(int ch) {
+    return ch >= letterA && ch <= letterZ;
   }
 
-  private boolean isAlphabetic(int c) {
-    return isLower(c) || isUpper(c);
+  private boolean isAlphabetic(int ch) {
+    return isLower(ch) || isUpper(ch);
   }
 
-  private boolean isAlphanumeric(int c) {
-    return isAlphabetic(c) || isNumeric(c);
+  private boolean isAlphanumeric(int ch) {
+    return isAlphabetic(ch) || isNumeric(ch);
   }
 
-  private static boolean isPrint(int c) {
-    return c >= 32 && c <= 125;
+  private static boolean isPrint(int ch) {
+    return ch >= 32 && ch <= 125;
   }
 
-  private static boolean isGraph(int c) {
-    return c >= 33 && c <= 125;
+  private static boolean isGraph(int ch) {
+    return ch >= 33 && ch <= 125;
   }
 
-  private boolean isHex(int c) {
-    return isNumeric(c) || c >= letterA && c <= letterF;
+  private boolean isHex(int ch) {
+    return isNumeric(ch) || ch >= letterA && ch <= letterF;
   }
 
-  private boolean isBase64(int c) {
-    return isAlphanumeric(c) || c == '+' || c == '/';
+  private boolean isBase64(int ch) {
+    return isAlphanumeric(ch) || ch == '+' || ch == '/';
   }
 
-  private boolean isCharacter(int c) {
-    return isUpper(c) || isNumeric(c);
+  private boolean isCharacter(int ch) {
+    return isUpper(ch) || isNumeric(ch);
   }
 
   @Test
@@ -143,7 +143,7 @@ public class AsciiStringSamplerTest {
         }
       }
       return true;
-    }, rangeAZ, rangeaz);
+    }, rangeAtoZ, rangeatoz);
   }
 
   @Test
@@ -156,7 +156,7 @@ public class AsciiStringSamplerTest {
         }
       }
       return true;
-    }, rangeAZ, rangeaz, range09);
+    }, rangeAtoZ, rangeatoz, range0to9);
   }
 
   @Test
@@ -182,7 +182,7 @@ public class AsciiStringSamplerTest {
         }
       }
       return true;
-    }, rangeAZ);
+    }, rangeAtoZ);
   }
 
   @Test
@@ -195,7 +195,7 @@ public class AsciiStringSamplerTest {
         }
       }
       return true;
-    }, rangeAZ);
+    }, rangeAtoZ);
   }
 
   @Test
@@ -221,7 +221,7 @@ public class AsciiStringSamplerTest {
         }
       }
       return true;
-    }, range09, rangeAF);
+    }, range0to9, rangeAtoF);
   }
 
   @Test
@@ -234,7 +234,7 @@ public class AsciiStringSamplerTest {
         }
       }
       return true;
-    }, rangeaz);
+    }, rangeatoz);
   }
 
   @Test
@@ -247,7 +247,7 @@ public class AsciiStringSamplerTest {
         }
       }
       return true;
-    }, range09);
+    }, range0to9);
   }
 
   @Test
@@ -273,7 +273,7 @@ public class AsciiStringSamplerTest {
         }
       }
       return true;
-    }, rangeAZ);
+    }, rangeAtoZ);
   }
 
   private static void testSamples(BiFunction<AsciiStringSampler, Integer, String> fun,

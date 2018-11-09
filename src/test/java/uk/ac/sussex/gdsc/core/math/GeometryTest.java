@@ -15,18 +15,18 @@ public class GeometryTest {
     canComputeArea(1, true, 0, 0, 1, 0, 1, 1, 0, 1);
   }
 
-  private static void canComputeArea(double e, boolean signed, double... vertices) {
+  private static void canComputeArea(double exp, boolean signed, double... vertices) {
     final double[] x = new double[vertices.length / 2];
     final double[] y = new double[x.length];
     for (int i = 0, j = 0; i < vertices.length; i += 2, j++) {
       x[j] = vertices[i];
       y[j] = vertices[i + 1];
     }
-    double o = Geometry.getArea(x, y);
+    double obs = Geometry.getArea(x, y);
     if (!signed) {
-      o = Math.abs(o);
+      obs = Math.abs(obs);
     }
-    Assertions.assertEquals(e, o, 1e-10);
+    Assertions.assertEquals(exp, obs, 1e-10);
   }
 
   @Test
@@ -36,15 +36,15 @@ public class GeometryTest {
     canComputeIntersection(new double[] {0, 0}, 0, 0, 1, 1, 0, 0, 0, 1);
   }
 
-  private static void canComputeIntersection(double[] e, double x1, double y1, double x2, double y2,
-      double x3, double y3, double x4, double y4) {
-    final double[] o = new double[2];
-    final boolean result = Geometry.getIntersection(x1, y1, x2, y2, x3, y3, x4, y4, o);
-    if (e == null) {
+  private static void canComputeIntersection(double[] exp, double x1, double y1, double x2,
+      double y2, double x3, double y3, double x4, double y4) {
+    final double[] obs = new double[2];
+    final boolean result = Geometry.getIntersection(x1, y1, x2, y2, x3, y3, x4, y4, obs);
+    if (exp == null) {
       Assertions.assertFalse(result);
     } else {
       Assertions.assertTrue(result);
-      Assertions.assertArrayEquals(e, o, 1e-10);
+      Assertions.assertArrayEquals(exp, obs, 1e-10);
     }
   }
 }

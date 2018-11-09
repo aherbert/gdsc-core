@@ -32,7 +32,7 @@ public class RecorderUtilsTest {
   }
 
   @Test
-  public void canResetRecorder() {
+  public void canResetRecorderWithPlainValues() {
     initialise();
     canResetRecorder(toArray("a", "b"), toArray("1", "2"), toArray("c", "d"), toArray("3", "4"),
         null);

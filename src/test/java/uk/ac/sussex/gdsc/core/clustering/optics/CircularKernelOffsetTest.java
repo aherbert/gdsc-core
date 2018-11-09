@@ -39,7 +39,8 @@ public class CircularKernelOffsetTest {
       final int size = offset.length * offset.length;
       final double pixelArea = 4.0 / (size);
       // Count pixels for the outer/inner circles
-      int outer = 0, inner = 0;
+      int outer = 0;
+      int inner = 0;
       for (final CircularKernelOffset o : offset) {
         outer += Math.max(0, o.end - o.start);
         if (o.internal) {

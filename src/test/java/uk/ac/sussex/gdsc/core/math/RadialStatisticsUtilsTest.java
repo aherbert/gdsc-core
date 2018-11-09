@@ -103,7 +103,8 @@ public class RadialStatisticsUtilsTest {
 
   @Test
   public void canComputeRadialSumAndCount32() {
-    final double[][] sum = RadialStatisticsUtils.radialSumAndCount(32, sequence(32), sequence(32, 43));
+    final double[][] sum =
+        RadialStatisticsUtils.radialSumAndCount(32, sequence(32), sequence(32, 43));
     assertEquals(
         "sum1", new double[] {529, 4232, 8464, 10580, 12696, 21160, 19044, 25392, 29624, 29624,
             35972, 33856, 42320, 48668, 46552, 50784, 33338, 28572, 16932, 15872, 6352, 4236, 1},
@@ -147,21 +148,21 @@ public class RadialStatisticsUtilsTest {
     return data;
   }
 
-  private static void assertEquals(String msg, double[] e, double[] o) {
-    // TestLog.debug(logger,"%s vs %s", Arrays.toString(e), Arrays.toString(o));
+  private static void assertEquals(String msg, double[] exp, double[] obs) {
+    // TestLog.debug(logger,"%s vs %s", Arrays.toString(exp), Arrays.toString(obs));
 
     // The radial sum is meant to match the computation of the Matlab DIPimage toolbox.
     // However RadialSum truncates the computation at the max in one dimension so only go up to the
-    // size of o.
-    Assertions.assertArrayEquals(Arrays.copyOf(e, o.length), o, msg);
+    // size of obs.
+    Assertions.assertArrayEquals(Arrays.copyOf(exp, obs.length), obs, msg);
   }
 
-  private static void assertEquals(String msg, int[] e, int[] o) {
-    // TestLog.debug(logger,"%s vs %s", Arrays.toString(e), Arrays.toString(o));
+  private static void assertEquals(String msg, int[] exp, int[] obs) {
+    // TestLog.debug(logger,"%s vs %s", Arrays.toString(exp), Arrays.toString(obs));
 
     // The radial sum is meant to match the computation of the Matlab DIPimage toolbox.
     // However RadialSum truncates the computation at the max in one dimension so only go up to the
-    // size of o.
-    Assertions.assertArrayEquals(Arrays.copyOf(e, o.length), o, msg);
+    // size of obs.
+    Assertions.assertArrayEquals(Arrays.copyOf(exp, obs.length), obs, msg);
   }
 }

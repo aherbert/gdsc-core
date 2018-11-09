@@ -14,40 +14,41 @@ import java.util.Arrays;
 public class PseudoRandomGeneratorTest {
   @Test
   public void canConstructPseudoRandomGeneratorFromSequence() {
-    final double[] e = new double[] {0.2, 0.87, 0.45, 0.99};
-    final PseudoRandomGenerator r = new PseudoRandomGenerator(e);
-    canConstructPseudoRandomGenerator(r, e);
+    final double[] expected = new double[] {0.2, 0.87, 0.45, 0.99};
+    final PseudoRandomGenerator r = new PseudoRandomGenerator(expected);
+    canConstructPseudoRandomGenerator(r, expected);
   }
 
   @Test
   public void canConstructPseudoRandomGeneratorFromSequenceLength() {
-    double[] e = new double[] {0.2, 0.87, 0.45, 0.99};
-    final int length = e.length - 1;
-    final PseudoRandomGenerator r = new PseudoRandomGenerator(e, length);
-    e = Arrays.copyOf(e, length);
-    canConstructPseudoRandomGenerator(r, e);
+    double[] expected = new double[] {0.2, 0.87, 0.45, 0.99};
+    final int length = expected.length - 1;
+    final PseudoRandomGenerator r = new PseudoRandomGenerator(expected, length);
+    expected = Arrays.copyOf(expected, length);
+    canConstructPseudoRandomGenerator(r, expected);
   }
 
   @SeededTest
   public void canConstructPseudoRandomGeneratorFromSource(RandomSeed seed) {
     final UniformRandomProvider source = RngUtils.create(seed.getSeedAsLong());
     final int length = 5;
-    final double[] e = new double[length];
-    for (int i = 0; i < e.length; i++) {
-      e[i] = source.nextDouble();
+    final double[] expected = new double[length];
+    for (int i = 0; i < expected.length; i++) {
+      expected[i] = source.nextDouble();
     }
     final PseudoRandomGenerator r = new PseudoRandomGenerator(length,
         new RandomGeneratorAdapter(RngUtils.create(seed.getSeedAsLong())));
-    canConstructPseudoRandomGenerator(r, e);
+    canConstructPseudoRandomGenerator(r, expected);
   }
 
-  private static void canConstructPseudoRandomGenerator(PseudoRandomGenerator r, double[] e) {
-    for (int i = 0; i < e.length; i++) {
-      Assertions.assertEquals(e[i], r.nextDouble());
+  private static void canConstructPseudoRandomGenerator(PseudoRandomGenerator rng,
+      double[] expected) {
+    for (int i = 0; i < expected.length; i++) {
+      Assertions.assertEquals(expected[i], rng.nextDouble());
     }
     // Repeat
-    for (int i = 0; i < e.length; i++) {
-      Assertions.assertEquals(e[i], r.nextDouble());
+    for (int i = 0; i < expected.length; i++) {
+      Assertions.assertEquals(expected[i], rng.nextDouble());
     }
   }
 }

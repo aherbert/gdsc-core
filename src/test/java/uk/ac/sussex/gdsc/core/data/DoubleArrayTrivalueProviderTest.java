@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Test;
 public class DoubleArrayTrivalueProviderTest {
   @Test
   public void canProvideData() {
-    final int maxx = 5, maxy = 4, maxz = 3;
+    final int maxx = 5;
+    final int maxy = 4;
+    final int maxz = 3;
     final double[][][] data = new double[maxx][maxy][maxz];
     for (int x = 0, i = 0; x < maxx; x++) {
       for (int y = 0; y < maxy; y++) {

@@ -18,12 +18,12 @@ public class FastTiffDecoderTest {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
 
     for (int i = 0; i < 5; i++) {
-      int x = rng.nextInt(100);
-      int y = rng.nextInt(100);
-      int width = rng.nextInt(100);
-      int height = rng.nextInt(100);
+      final int x = rng.nextInt(100);
+      final int y = rng.nextInt(100);
+      final int width = rng.nextInt(100);
+      final int height = rng.nextInt(100);
 
-      ExtendedFileInfo fi = new ExtendedFileInfo();
+      final ExtendedFileInfo fi = new ExtendedFileInfo();
 
       // "ROI": [x,y,w,h]
       String text =
@@ -48,7 +48,7 @@ public class FastTiffDecoderTest {
 
   private static void checkOrigin(ExtendedFileInfo fi, int x, int y, int width, int height,
       String text) {
-    Rectangle origin = FastTiffDecoder.getOrigin(fi);
+    final Rectangle origin = FastTiffDecoder.getOrigin(fi);
     Assertions.assertNotNull(origin, text);
     Assertions.assertEquals(x, origin.x, () -> "X missing: " + text);
     Assertions.assertEquals(y, origin.y, () -> "Y missing: " + text);
@@ -58,10 +58,10 @@ public class FastTiffDecoderTest {
 
   @Test
   public void canGetOriginSkipsBadPatterns() {
-    char start = '[';
-    char delimiter = ',';
-    char end = ']';
-    for (String pattern : new String[] {
+    final char start = '[';
+    final char delimiter = ',';
+    final char end = ']';
+    for (final String pattern : new String[] {
         //@formatter:off
         null, "",
         "No ROI tag",
@@ -77,7 +77,7 @@ public class FastTiffDecoderTest {
         "\"ROI\": [0,0,,0]",
         "\"ROI\": [0,0,0,0,0]",
         //@formatter:on
-        }) {
+    }) {
       Assertions.assertNull(FastTiffDecoder.getOrigin(pattern, start, delimiter, end), pattern);
     }
   }

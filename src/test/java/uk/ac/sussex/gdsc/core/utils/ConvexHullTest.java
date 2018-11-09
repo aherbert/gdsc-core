@@ -80,25 +80,25 @@ public class ConvexHullTest {
 
   @SeededTest
   public void canComputeConvexHullFromOrigin00(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
     for (final int size : new int[] {10}) {
       for (final float w : new float[] {10, 5}) {
         for (final float h : new float[] {10, 5}) {
-          compute(r, size, 0, 0, w, h);
+          compute(rng, size, 0, 0, w, h);
         }
       }
     }
   }
 
   @SeededTest
-  public void canComputeConvexHullFromOriginXY(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+  public void canComputeConvexHullFromOriginXy(RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
     for (final int size : new int[] {10}) {
       for (final float ox : new float[] {-5, 5}) {
         for (final float oy : new float[] {-5, 5}) {
           for (final float w : new float[] {10, 5}) {
             for (final float h : new float[] {10, 5}) {
-              compute(r, size, ox, oy, w, h);
+              compute(rng, size, ox, oy, w, h);
             }
           }
         }
@@ -106,9 +106,9 @@ public class ConvexHullTest {
     }
   }
 
-  private static void compute(UniformRandomProvider r, int size, float ox, float oy, float w,
-      float h) {
-    final float[][] data = createData(r, size, ox, oy, w, h);
+  private static void compute(UniformRandomProvider rng, int size, float ox, float oy, float width,
+      float height) {
+    final float[][] data = createData(rng, size, ox, oy, width, height);
     final ConvexHull hull = ConvexHull.create(data[0], data[1]);
 
     // Simple check of the bounds
@@ -120,10 +120,10 @@ public class ConvexHullTest {
       Assertions.assertTrue(oy <= bounds.getY(),
           () -> String.format("ymin %d <= %d", oy, bounds.getY()));
 
-      Assertions.assertTrue(ox + w >= bounds.getMaxX(),
-          () -> String.format("xmax %d >= %d", ox + w, bounds.getMaxX()));
-      Assertions.assertTrue(oy + h >= bounds.getMaxY(),
-          () -> String.format("ymax %d >= %d", oy + h, bounds.getMaxY()));
+      Assertions.assertTrue(ox + width >= bounds.getMaxX(),
+          () -> String.format("xmax %d >= %d", ox + width, bounds.getMaxX()));
+      Assertions.assertTrue(oy + height >= bounds.getMaxY(),
+          () -> String.format("ymax %d >= %d", oy + height, bounds.getMaxY()));
     } catch (final AssertionError ex) {
       // Debug
       if (logger.isLoggable(Level.FINE)) {
@@ -140,12 +140,12 @@ public class ConvexHullTest {
     }
   }
 
-  private static float[][] createData(UniformRandomProvider r, int size, float ox, float oy,
-      float w, float h) {
+  private static float[][] createData(UniformRandomProvider rng, int size, float ox, float oy,
+      float width, float height) {
     final float[][] data = new float[2][size];
     for (int i = 0; i < size; i++) {
-      data[0][i] = ox + r.nextFloat() * w;
-      data[1][i] = oy + r.nextFloat() * h;
+      data[0][i] = ox + rng.nextFloat() * width;
+      data[1][i] = oy + rng.nextFloat() * height;
     }
     return data;
   }
@@ -187,33 +187,33 @@ public class ConvexHullTest {
   @Test
   public void canComputeLengthAndArea() {
     // Parallelogram
-    float[] x = new float[] {0, 10, 11, 1};
-    float[] y = new float[] {0, 0, 10, 10};
-    ConvexHull hull = ConvexHull.create(x, y);
+    float[] xvalues = new float[] {0, 10, 11, 1};
+    float[] yvalues = new float[] {0, 0, 10, 10};
+    ConvexHull hull = ConvexHull.create(xvalues, yvalues);
     Assertions.assertEquals(2 * 10 + 2 * Math.sqrt(1 * 1 + 10 * 10), hull.getLength(), 1e-6);
     Assertions.assertEquals(100, hull.getArea(), 1e-6);
 
     // Rotated square
-    x = new float[] {0, 10, 9, -1};
-    y = new float[] {0, 1, 11, 10};
-    hull = ConvexHull.create(x, y);
+    xvalues = new float[] {0, 10, 9, -1};
+    yvalues = new float[] {0, 1, 11, 10};
+    hull = ConvexHull.create(xvalues, yvalues);
     final double edgeLengthSquared = 1 * 1 + 10 * 10;
     Assertions.assertEquals(4 * Math.sqrt(edgeLengthSquared), hull.getLength(), 1e-6);
     Assertions.assertEquals(edgeLengthSquared, hull.getArea(), 1e-6);
 
     // Polygon circle
     final int n = 1000;
-    final double r = 4;
-    x = new float[n];
-    y = new float[n];
+    final double radius = 4;
+    xvalues = new float[n];
+    yvalues = new float[n];
     for (int i = 0; i < 1000; i++) {
       final double a = i * 2 * Math.PI / n;
-      x[i] = (float) (Math.sin(a) * r);
-      y[i] = (float) (Math.cos(a) * r);
+      xvalues[i] = (float) (Math.sin(a) * radius);
+      yvalues[i] = (float) (Math.cos(a) * radius);
     }
-    hull = ConvexHull.create(x, y);
-    Assertions.assertEquals(2 * Math.PI * r, hull.getLength(), 1e-2);
-    Assertions.assertEquals(Math.PI * r * r, hull.getArea(), 1e-2);
+    hull = ConvexHull.create(xvalues, yvalues);
+    Assertions.assertEquals(2 * Math.PI * radius, hull.getLength(), 1e-2);
+    Assertions.assertEquals(Math.PI * radius * radius, hull.getArea(), 1e-2);
   }
 
   @Test

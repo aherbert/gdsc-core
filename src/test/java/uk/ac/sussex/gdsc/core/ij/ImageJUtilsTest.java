@@ -24,19 +24,19 @@ public class ImageJUtilsTest {
   @Test
   public void cannotIterateOverNullList() {
     Assertions.assertThrows(NullPointerException.class, () -> {
-      for (final int i : getIDList()) {
+      for (final int i : getIdList()) {
         // This will not run as an exception should be generated
         logger.info("Window ID = " + i);
       }
     });
   }
 
-  private static int[] getIDList() {
+  private static int[] getIdList() {
     return null;
   }
 
   @Test
-  public void cantIterateOver_getIDList() {
+  public void cantIterateOver_getIdList() {
     for (final int i : ImageJUtils.getIdList()) {
       // This will not run as the ID list should be empty
       logger.info("Window ID = " + i);

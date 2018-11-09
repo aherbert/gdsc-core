@@ -79,36 +79,6 @@ public class RadixStringSamplerTest {
     }
   }
 
-  private final int lower1 = '0';
-  private final int upper1 = '9';
-  private final int lower2 = 'A';
-  private final int upper2 = 'Z';
-  private final int offset2 = lower2 - 10;
-  private final int lower3 = 'a';
-  private final int upper3 = 'z';
-  private final int offset3 = lower3 - 36;
-
-  private int map(char c) {
-    if (c >= lower1 && c <= upper1) {
-      return c - lower1;
-    }
-    if (c >= lower2 && c <= upper2) {
-      return c - offset2;
-    }
-    if (c >= lower3 && c <= upper3) {
-      return c - offset3;
-    }
-    if (c == '+') {
-      return 62;
-    }
-    if (c == '/') {
-      return 63;
-    }
-    Assertions.fail("Unsupported character: " + c);
-    // For the java compiler
-    return 0;
-  }
-
   private void testSamples(int radix) {
     final RestorableUniformRandomProvider rng1 = RandomSource.create(RandomSource.MWC_256);
     final RestorableUniformRandomProvider rng2 = RandomSource.create(RandomSource.MWC_256);
@@ -133,6 +103,36 @@ public class RadixStringSamplerTest {
         Assertions.assertEquals(string, string2);
       }
     }
+  }
+
+  private final int lower1 = '0';
+  private final int upper1 = '9';
+  private final int lower2 = 'A';
+  private final int upper2 = 'Z';
+  private final int offset2 = lower2 - 10;
+  private final int lower3 = 'a';
+  private final int upper3 = 'z';
+  private final int offset3 = lower3 - 36;
+
+  private int map(char ch) {
+    if (ch >= lower1 && ch <= upper1) {
+      return ch - lower1;
+    }
+    if (ch >= lower2 && ch <= upper2) {
+      return ch - offset2;
+    }
+    if (ch >= lower3 && ch <= upper3) {
+      return ch - offset3;
+    }
+    if (ch == '+') {
+      return 62;
+    }
+    if (ch == '/') {
+      return 63;
+    }
+    Assertions.fail("Unsupported character: " + ch);
+    // For the java compiler
+    return 0;
   }
 
   @Test

@@ -40,11 +40,11 @@ public class DetectionGridTest {
 
   @Test
   public void canDetectCollisionsUsingSimpleGrid() {
-    final Rectangle[] r = new Rectangle[3];
-    r[0] = new Rectangle(0, 0, 10, 10);
-    r[1] = new Rectangle(0, 5, 10, 5);
-    r[2] = new Rectangle(5, 5, 5, 5);
-    final SimpleDetectionGrid g = new SimpleDetectionGrid(r);
+    final Rectangle[] bounds = new Rectangle[3];
+    bounds[0] = new Rectangle(0, 0, 10, 10);
+    bounds[1] = new Rectangle(0, 5, 10, 5);
+    bounds[2] = new Rectangle(5, 5, 5, 5);
+    final SimpleDetectionGrid g = new SimpleDetectionGrid(bounds);
     Assertions.assertArrayEquals(new int[] {0}, g.find(0, 0));
     Assertions.assertArrayEquals(new int[] {0, 1, 2}, g.find(5, 5));
     Assertions.assertArrayEquals(new int[0], g.find(-5, 5));
@@ -58,7 +58,8 @@ public class DetectionGridTest {
   @Test
   public void canFindIndicesUsingBinaryTreeGrid() {
     final double[] data = SimpleArrayUtils.newArray(10, 0, 1.0);
-    int i1, i2;
+    int i1;
+    int i2;
     for (int i = 0; i < data.length; i++) {
       i1 = BinarySearchDetectionGrid.findIndexUpToAndIncluding(data, data[i]);
       Assertions.assertEquals(i, i1);
@@ -195,12 +196,12 @@ public class DetectionGridTest {
   }
 
   private class MyTimingtask extends BaseTimingTask {
-    DetectionGrid g;
+    DetectionGrid grid;
     double[][] points;
 
-    public MyTimingtask(DetectionGrid g, double[][] points) {
-      super(g.getClass().getSimpleName() + g.size());
-      this.g = g;
+    public MyTimingtask(DetectionGrid grid, double[][] points) {
+      super(grid.getClass().getSimpleName() + grid.size());
+      this.grid = grid;
       this.points = points;
     }
 
@@ -210,7 +211,7 @@ public class DetectionGridTest {
     }
 
     @Override
-    public Object getData(int i) {
+    public Object getData(int index) {
       return points;
     }
 
@@ -218,7 +219,7 @@ public class DetectionGridTest {
     public Object run(Object data) {
       final double[][] points = (double[][]) data;
       for (final double[] p : points) {
-        g.find(p[0], p[1]);
+        grid.find(p[0], p[1]);
       }
       return null;
     }
@@ -260,10 +261,10 @@ public class DetectionGridTest {
       ts.execute(new MyTimingtask(g2, points));
       n /= 2;
     }
-    int i = ts.getSize();
+    int resultsSize = ts.getSize();
     ts.repeat();
     logger.info(ts.getReport());
-    for (int i1 = -1, i2 = -2; i > 0; i -= 2, i1 -= 2, i2 -= 2) {
+    for (int i1 = -1, i2 = -2; resultsSize > 0; resultsSize -= 2, i1 -= 2, i2 -= 2) {
       final TimingResult fast = ts.get(i1);
       final TimingResult slow = ts.get(i2);
       logger.log(TestLogUtils.getTimingRecord(slow, fast));

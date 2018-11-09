@@ -29,7 +29,9 @@
 package uk.ac.sussex.gdsc.core.math;
 
 import uk.ac.sussex.gdsc.core.data.IntegerType;
-import uk.ac.sussex.gdsc.core.utils.NotImplementedException;
+import uk.ac.sussex.gdsc.core.data.NotImplementedException;
+
+import java.math.BigInteger;
 
 /**
  * Simple class to calculate the mean and variance of arrayed integer data using a fast summation
@@ -41,11 +43,13 @@ import uk.ac.sussex.gdsc.core.utils.NotImplementedException;
  * for floating point data.
  *
  * <p>This class is only suitable if the user is assured that overflow of Long.MAX_VALUE will not
- * occur. The sum accumulates the input value squared. So each datum can have a value of (2^b)^2
- * where b is the bit-depth of the integer data. A check can be made for potential overflow if the
- * bit-depth and number of inputs is known.
+ * occur. The sum accumulates the input value squared. A check can be made for potential overflow if
+ * the maximum value and number of inputs is known.
  */
 public class IntegerArrayMoment implements ArrayMoment {
+
+  /** The max value of a long as a BigInteger. */
+  private static final BigInteger BIG_MAX_VALUE = BigInteger.valueOf(Long.MAX_VALUE);
 
   /** The size. */
   private long size = 0;
@@ -338,20 +342,22 @@ public class IntegerArrayMoment implements ArrayMoment {
    * Checks if it is valid to use this class for the expected data size.
    *
    * <p>This class is only suitable if the user is assured that overflow of Long.MAX_VALUE will not
-   * occur. The sum accumulates the input value squared. So each datum can have a value of (2^b)^2
-   * where b is the bit-depth of the integer data. A check can be made for potential overflow if the
-   * bit-depth and number of inputs is known.
+   * occur. The sum accumulates the input value squared. A check can be made for potential overflow
+   * if the maximum value and number of inputs is known.
+   *
+   * <p>This uses {@link BigInteger} to compute the limit.
    *
    * @param integerType the integer type
    * @param size the number of inputs
    * @return true, if is valid
    */
   public static boolean isValid(IntegerType integerType, int size) {
-    final long max = integerType.getAbsoluteMax();
-    final long l2 = max * max;
-    if (l2 < 0) {
-      return false;
-    }
-    return (l2 * (double) size <= Long.MAX_VALUE);
+    // Get the largest magnitude.
+    final BigInteger mag =
+        BigInteger.valueOf((integerType.isSigned()) ? integerType.getMin() : integerType.getMax());
+
+    // Get the total
+    final BigInteger total = mag.multiply(mag).multiply(BigInteger.valueOf(size));
+    return (total.compareTo(BIG_MAX_VALUE) <= 0);
   }
 }

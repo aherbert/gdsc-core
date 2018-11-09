@@ -61,13 +61,15 @@ public class CustomTricubicInterpolatorTest {
   }
 
   // Delta for numerical gradients
-  private final double h_ = 0.00001;
+  private final double gradientDelta = 0.00001;
 
   @SeededTest
   public void canConstructInterpolatingFunction(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
 
-    final int x = 4, y = 5, z = 6;
+    final int x = 4;
+    final int y = 5;
+    final int z = 6;
     final double[][][] fval = createData(x, y, z, null);
     for (int i = 0; i < 3; i++) {
       final double[] xval = SimpleArrayUtils.newArray(x, r.nextDouble(), r.nextDouble());
@@ -106,7 +108,9 @@ public class CustomTricubicInterpolatorTest {
 
   @Test
   public void constructWithXArrayOfLength1Throws() {
-    final int x = 1, y = 2, z = 2;
+    final int x = 1;
+    final int y = 2;
+    final int z = 2;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
@@ -118,7 +122,9 @@ public class CustomTricubicInterpolatorTest {
 
   @Test
   public void constructWithYArrayOfLength1Throws() {
-    final int x = 2, y = 1, z = 2;
+    final int x = 2;
+    final int y = 1;
+    final int z = 2;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
@@ -130,7 +136,9 @@ public class CustomTricubicInterpolatorTest {
 
   @Test
   public void constructWithZArrayOfLength1Throws() {
-    final int x = 2, y = 2, z = 1;
+    final int x = 2;
+    final int y = 2;
+    final int z = 1;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
@@ -142,8 +150,12 @@ public class CustomTricubicInterpolatorTest {
 
   @Test
   public void canDetectIfUniform() {
-    final int x = 3, y = 3, z = 3;
-    final double xscale = 1, yscale = 0.5, zscale = 2.0;
+    final int x = 3;
+    final int y = 3;
+    final int z = 3;
+    final double xscale = 1;
+    final double yscale = 0.5;
+    final double zscale = 2.0;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
@@ -179,7 +191,9 @@ public class CustomTricubicInterpolatorTest {
 
   @Test
   public void canDetectIfInteger() {
-    final int x = 3, y = 3, z = 3;
+    final int x = 3;
+    final int y = 3;
+    final int z = 3;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
     final double[] yval = SimpleArrayUtils.newArray(y, 4.2345, 1.0);
     final double[] zval = SimpleArrayUtils.newArray(z, 17.5, 1.0);
@@ -212,18 +226,20 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolate(RandomSeed seed) {
+  public void canInterpolateWithNonIntegerAxis(RandomSeed seed) {
     canInterpolate(seed, false);
   }
 
   @SeededTest
-  public void canInterpolateWithIntegerAxisSpacing(RandomSeed seed) {
+  public void canInterpolateWithIntegerAxis(RandomSeed seed) {
     canInterpolate(seed, true);
   }
 
   private void canInterpolate(RandomSeed seed, boolean isInteger) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    final int x = 4, y = 4, z = 4;
+    final int x = 4;
+    final int y = 4;
+    final int z = 4;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, (isInteger) ? 1 : 0.5);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, (isInteger) ? 1.0 : 2.0);
@@ -232,8 +248,10 @@ public class CustomTricubicInterpolatorTest {
     final double[] testz = SimpleArrayUtils.newArray(6, zval[1], (zval[2] - zval[1]) / 5);
     final TricubicInterpolator f3 = new TricubicInterpolator();
     final BicubicInterpolator bi = new BicubicInterpolator();
-    double[] face, face2;
-    double o, e;
+    double[] face;
+    double[] face2;
+    double obs;
+    double exp;
     final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-8, 0);
     for (int i = 0; i < 3; i++) {
       final double[][][] fval = createData(x, y, z, (i == 0) ? null : r);
@@ -248,10 +266,10 @@ public class CustomTricubicInterpolatorTest {
           final IndexedCubicSplinePosition sy = f1.getYSplinePosition(yy);
 
           for (final double xx : testx) {
-            o = f1.value(xx, yy, zz);
+            obs = f1.value(xx, yy, zz);
             final IndexedCubicSplinePosition sx = f1.getXSplinePosition(xx);
-            final double o2 = f1.value(sx, sy, sz);
-            Assertions.assertEquals(o, o2);
+            final double obs2 = f1.value(sx, sy, sz);
+            Assertions.assertEquals(obs, obs2);
 
             // Test against simple tricubic spline
             // which requires x,y,z in the range 0-1 for function values
@@ -262,96 +280,96 @@ public class CustomTricubicInterpolatorTest {
                     (yy - yval[1]) / (yval[2] - yval[1]),
                     (zz - zval[1]) / (zval[2] - zval[1]));
             // @formatter:on
-            TestAssertions.assertTest(e2, o, equality);
+            TestAssertions.assertTest(e2, obs, equality);
           }
         }
       }
 
       // Each face of the cube should interpolate as a Bicubic function
-      face = extractXYFace(fval, 0);
-      face2 = extractXYFace(fval, z - 1);
+      face = extractXyFace(fval, 0);
+      face2 = extractXyFace(fval, z - 1);
       for (final double xx : testx) {
         for (final double yy : testy) {
-          o = f1.value(xx, yy, 0);
-          e = bi.getValue(face, (xx - xval[1]) / (xval[2] - xval[1]),
+          obs = f1.value(xx, yy, 0);
+          exp = bi.getValue(face, (xx - xval[1]) / (xval[2] - xval[1]),
               (yy - yval[1]) / (yval[2] - yval[1]));
-          TestAssertions.assertTest(e, o, equality);
-          o = f1.value(xx, yy, zval[z - 1]);
-          e = bi.getValue(face2, (xx - xval[1]) / (xval[2] - xval[1]),
+          TestAssertions.assertTest(exp, obs, equality);
+          obs = f1.value(xx, yy, zval[z - 1]);
+          exp = bi.getValue(face2, (xx - xval[1]) / (xval[2] - xval[1]),
               (yy - yval[1]) / (yval[2] - yval[1]));
-          TestAssertions.assertTest(e, o, equality);
+          TestAssertions.assertTest(exp, obs, equality);
         }
       }
 
-      face = extractXZFace(fval, 0);
-      face2 = extractXZFace(fval, y - 1);
+      face = extractXzFace(fval, 0);
+      face2 = extractXzFace(fval, y - 1);
       for (final double xx : testx) {
         for (final double zz : testz) {
-          o = f1.value(xx, 0, zz);
-          e = bi.getValue(face, (xx - xval[1]) / (xval[2] - xval[1]),
+          obs = f1.value(xx, 0, zz);
+          exp = bi.getValue(face, (xx - xval[1]) / (xval[2] - xval[1]),
               (zz - zval[1]) / (zval[2] - zval[1]));
-          TestAssertions.assertTest(e, o, equality);
-          o = f1.value(xx, yval[y - 1], zz);
-          e = bi.getValue(face2, (xx - xval[1]) / (xval[2] - xval[1]),
+          TestAssertions.assertTest(exp, obs, equality);
+          obs = f1.value(xx, yval[y - 1], zz);
+          exp = bi.getValue(face2, (xx - xval[1]) / (xval[2] - xval[1]),
               (zz - zval[1]) / (zval[2] - zval[1]));
-          TestAssertions.assertTest(e, o, equality);
+          TestAssertions.assertTest(exp, obs, equality);
         }
       }
 
-      face = extractYZFace(fval, 0);
-      face2 = extractYZFace(fval, z - 1);
+      face = extractYzFace(fval, 0);
+      face2 = extractYzFace(fval, z - 1);
       for (final double yy : testy) {
         for (final double zz : testz) {
-          o = f1.value(0, yy, zz);
-          e = bi.getValue(face, (yy - yval[1]) / (yval[2] - yval[1]),
+          obs = f1.value(0, yy, zz);
+          exp = bi.getValue(face, (yy - yval[1]) / (yval[2] - yval[1]),
               (zz - zval[1]) / (zval[2] - zval[1]));
-          TestAssertions.assertTest(e, o, equality);
-          o = f1.value(xval[x - 1], yy, zz);
-          e = bi.getValue(face2, (yy - yval[1]) / (yval[2] - yval[1]),
+          TestAssertions.assertTest(exp, obs, equality);
+          obs = f1.value(xval[x - 1], yy, zz);
+          exp = bi.getValue(face2, (yy - yval[1]) / (yval[2] - yval[1]),
               (zz - zval[1]) / (zval[2] - zval[1]));
-          TestAssertions.assertTest(e, o, equality);
+          TestAssertions.assertTest(exp, obs, equality);
         }
       }
     }
   }
 
-  private static double[] extractXYFace(double[][][] fval, int o) {
+  private static double[] extractXyFace(double[][][] fval, int z) {
     final int maxx = fval.length;
     final int maxy = fval[0].length;
 
     final double[] f = new double[maxx * maxy];
-    int i = 0;
+    int index = 0;
     for (int y = 0; y < maxy; y++) {
       for (int x = 0; x < maxx; x++) {
-        f[i++] = fval[x][y][o];
+        f[index++] = fval[x][y][z];
       }
     }
     return f;
   }
 
-  private static double[] extractXZFace(double[][][] fval, int o) {
+  private static double[] extractXzFace(double[][][] fval, int y) {
     final int maxx = fval.length;
     final int maxz = fval[0][0].length;
 
     final double[] f = new double[maxx * maxz];
-    int i = 0;
+    int index = 0;
     for (int z = 0; z < maxz; z++) {
       for (int x = 0; x < maxx; x++) {
-        f[i++] = fval[x][o][z];
+        f[index++] = fval[x][y][z];
       }
     }
     return f;
   }
 
-  private static double[] extractYZFace(double[][][] fval, int o) {
+  private static double[] extractYzFace(double[][][] fval, int x) {
     final int maxy = fval[0].length;
     final int maxz = fval[0][0].length;
 
     final double[] f = new double[maxy * maxz];
-    int i = 0;
+    int index = 0;
     for (int z = 0; z < maxz; z++) {
       for (int y = 0; y < maxy; y++) {
-        f[i++] = fval[o][y][z];
+        f[index++] = fval[x][y][z];
       }
     }
     return f;
@@ -360,8 +378,12 @@ public class CustomTricubicInterpolatorTest {
   @SeededTest
   public void canInterpolateUsingPrecomputedTable(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    final int x = 4, y = 4, z = 4;
-    final double xscale = 1, yscale = 0.5, zscale = 2.0;
+    final int x = 4;
+    final int y = 4;
+    final int z = 4;
+    final double xscale = 1;
+    final double yscale = 0.5;
+    final double zscale = 2.0;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
@@ -384,9 +406,9 @@ public class CustomTricubicInterpolatorTest {
       for (int zi = 1; zi < 3; zi++) {
         for (int yi = 1; yi < 3; yi++) {
           for (int xi = 1; xi < 3; xi++) {
-            final double o = f1.value(xval[xi] + xx, yval[yi] + yy, zval[zi] + zz);
-            final double e = f1.value(xi, yi, zi, table);
-            TestAssertions.assertTest(e, o, equality);
+            final double obs = f1.value(xval[xi] + xx, yval[yi] + yy, zval[zi] + zz);
+            final double exp = f1.value(xi, yi, zi, table);
+            TestAssertions.assertTest(exp, obs, equality);
           }
         }
       }
@@ -394,7 +416,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void canInterpolateSingleNode() {
+  public void canInterpolateSingleNodeWithScale() {
     canInterpolateSingleNode(0.5, 1, 2);
   }
 
@@ -404,7 +426,9 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private void canInterpolateSingleNode(double xscale, double yscale, double zscale) {
-    final int x = 4, y = 4, z = 4;
+    final int x = 4;
+    final int y = 4;
+    final int z = 4;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
@@ -423,24 +447,24 @@ public class CustomTricubicInterpolatorTest {
     final CustomTricubicInterpolatingFunction f1 =
         new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
 
-    final double[] e = f1.getSplineNode(1, 1, 1).getCoefficients();
+    final double[] exp = f1.getSplineNode(1, 1, 1).getCoefficients();
 
-    double[] o;
+    double[] obs;
     if (noScale) {
-      o = CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval))
+      obs = CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval))
           .getCoefficients();
     } else {
-      o = CustomTricubicInterpolator
+      obs = CustomTricubicInterpolator
           .create(new DoubleArrayValueProvider(xval), new DoubleArrayValueProvider(yval),
               new DoubleArrayValueProvider(zval), new DoubleArrayTrivalueProvider(fval))
           .getCoefficients();
     }
 
-    Assertions.assertArrayEquals(e, o);
+    Assertions.assertArrayEquals(exp, obs);
   }
 
   @Test
-  public void canInterpolateSingleNodeWithOffset() {
+  public void canInterpolateSingleNodeWithOffsetWithScale() {
     canInterpolateSingleNodeWithOffset(0.5, 1, 2);
   }
 
@@ -450,7 +474,9 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private void canInterpolateSingleNodeWithOffset(double xscale, double yscale, double zscale) {
-    final int x = 6, y = 6, z = 6;
+    final int x = 6;
+    final int y = 6;
+    final int z = 6;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
@@ -478,41 +504,40 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private static void check(CustomTricubicInterpolatingFunction f1, double[] xval, double[] yval,
-      double[] zval, double[][][] fval, boolean noScale, int i, int j, int k) {
-    final double[] e = f1.getSplineNode(i, j, k).getCoefficients();
+      double[] zval, double[][][] fval, boolean noScale, int indexX, int indexY, int indexZ) {
+    final double[] exp = f1.getSplineNode(indexX, indexY, indexZ).getCoefficients();
 
-    double[] o;
+    double[] obs;
     if (noScale) {
-      o = CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval), i, j, k)
-          .getCoefficients();
+      obs = CustomTricubicInterpolator
+          .create(new DoubleArrayTrivalueProvider(fval), indexX, indexY, indexZ).getCoefficients();
     } else {
-      o = CustomTricubicInterpolator
-          .create(new DoubleArrayValueProvider(xval), new DoubleArrayValueProvider(yval),
-              new DoubleArrayValueProvider(zval), new DoubleArrayTrivalueProvider(fval), i, j, k)
-          .getCoefficients();
+      obs = CustomTricubicInterpolator.create(new DoubleArrayValueProvider(xval),
+          new DoubleArrayValueProvider(yval), new DoubleArrayValueProvider(zval),
+          new DoubleArrayTrivalueProvider(fval), indexX, indexY, indexZ).getCoefficients();
     }
 
-    Assertions.assertArrayEquals(e, o);
+    Assertions.assertArrayEquals(exp, obs);
   }
 
-  double[][][] createData(int x, int y, int z, UniformRandomProvider r) {
+  double[][][] createData(int x, int y, int z, UniformRandomProvider rng) {
     // Create a 2D Gaussian
-    double s = 1.0;
+    double sd = 1.0;
     double cx = x / 2.0;
     double cy = y / 2.0;
     double cz = z / 2.0;
-    if (r != null) {
-      s += r.nextDouble() - 0.5;
-      cx += r.nextDouble() - 0.5;
-      cy += r.nextDouble() - 0.5;
-      cz += r.nextDouble() - 0.5;
+    if (rng != null) {
+      sd += rng.nextDouble() - 0.5;
+      cx += rng.nextDouble() - 0.5;
+      cy += rng.nextDouble() - 0.5;
+      cz += rng.nextDouble() - 0.5;
     } else {
       // Prevent symmetry which breaks the evaluation of gradients
       cx += 0.01;
       cy += 0.01;
       cz += 0.01;
     }
-    return createData(x, y, z, cx, cy, cz, s);
+    return createData(x, y, z, cx, cy, cz, sd);
 
     // double[][][] fval = new double[x][y][z];
     // double[] otherx = new double[x];
@@ -539,7 +564,7 @@ public class CustomTricubicInterpolatorTest {
 
   double amplitude;
 
-  double[][][] createData(int x, int y, int z, double cx, double cy, double cz, double s) {
+  double[][][] createData(int x, int y, int z, double cx, double cy, double cz, double sd) {
     final double[][][] fval = new double[x][y][z];
     // Create a 2D Gaussian with astigmatism
     final double[] otherx = new double[x];
@@ -547,8 +572,8 @@ public class CustomTricubicInterpolatorTest {
     final double gamma = 1;
 
     // Compute the maximum amplitude
-    double sx = s * (1.0 + MathUtils.pow2((gamma) / zDepth) * 0.5);
-    double sy = s * (1.0 + MathUtils.pow2((-gamma) / zDepth) * 0.5);
+    double sx = sd * (1.0 + MathUtils.pow2((gamma) / zDepth) * 0.5);
+    double sy = sd * (1.0 + MathUtils.pow2((-gamma) / zDepth) * 0.5);
     amplitude = 1.0 / (2 * Math.PI * sx * sy);
 
     // ImageStack stack = new ImageStack(x, y);
@@ -559,8 +584,8 @@ public class CustomTricubicInterpolatorTest {
       // Astigmatism based on cz.
       // Width will be 1.5 at zDepth.
       final double dz = cz - zz;
-      sx = s * (1.0 + MathUtils.pow2((dz + gamma) / zDepth) * 0.5);
-      sy = s * (1.0 + MathUtils.pow2((dz - gamma) / zDepth) * 0.5);
+      sx = sd * (1.0 + MathUtils.pow2((dz + gamma) / zDepth) * 0.5);
+      sy = sd * (1.0 + MathUtils.pow2((dz - gamma) / zDepth) * 0.5);
 
       // TestLog.debug(logger,"%d = %f,%f", zz, sx, sy);
 
@@ -588,18 +613,20 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolateWithGradients(RandomSeed seed) {
+  public void canInterpolateWithGradientsWithNonIntegerAxis(RandomSeed seed) {
     canInterpolateWithGradients(seed, false);
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsWithIntegetAxisSpacing(RandomSeed seed) {
+  public void canInterpolateWithGradientsWithIntegetAxis(RandomSeed seed) {
     canInterpolateWithGradients(seed, false);
   }
 
   private void canInterpolateWithGradients(RandomSeed seed, boolean isInteger) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    final int x = 4, y = 4, z = 4;
+    final int x = 4;
+    final int y = 4;
+    final int z = 4;
     // Difference scales
     final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, (isInteger) ? 1.0 : 0.5);
@@ -652,21 +679,21 @@ public class CustomTricubicInterpolatorTest {
             for (final double xx : testx) {
               onNode = onNode || Arrays.binarySearch(xval, xx) >= 0;
 
-              final double e = f1.value(xx, yy, zz);
-              final double o = f1.value(xx, yy, zz, df_daA);
-              TestAssertions.assertTest(e, o, equality);
+              final double exp = f1.value(xx, yy, zz);
+              final double obs = f1.value(xx, yy, zz, df_daA);
+              TestAssertions.assertTest(exp, obs, equality);
 
-              double o2 = f1.value(xx, yy, zz, df_daB, d2f_da2A);
-              Assertions.assertEquals(o, o2);
+              double obs2 = f1.value(xx, yy, zz, df_daB, d2f_da2A);
+              Assertions.assertEquals(obs, obs2);
               Assertions.assertArrayEquals(df_daA, df_daB);
 
               final IndexedCubicSplinePosition sx = f1.getXSplinePosition(xx);
-              o2 = f1.value(sx, sy, sz, df_daB);
-              Assertions.assertEquals(o, o2);
+              obs2 = f1.value(sx, sy, sz, df_daB);
+              Assertions.assertEquals(obs, obs2);
               Assertions.assertArrayEquals(df_daA, df_daB);
 
-              o2 = f1.value(sx, sy, sz, df_daB, d2f_da2B);
-              Assertions.assertEquals(o, o2);
+              obs2 = f1.value(sx, sy, sz, df_daB, d2f_da2B);
+              Assertions.assertEquals(obs, obs2);
               Assertions.assertArrayEquals(df_daA, df_daB);
               Assertions.assertArrayEquals(d2f_da2A, d2f_da2B);
 
@@ -676,18 +703,18 @@ public class CustomTricubicInterpolatorTest {
               final double[] a = new double[] {xx, yy, zz};
               for (int j = 0; j < 3; j++) {
                 final int jj = j;
-                final double h = Precision.representableDelta(a[j], h_);
+                final double h = Precision.representableDelta(a[j], gradientDelta);
                 final double old = a[j];
                 a[j] = old + h;
                 final double high = f1.value(a[0], a[1], a[2], df_daH);
                 a[j] = old - h;
                 final double low = f1.value(a[0], a[1], a[2], df_daL);
                 a[j] = old;
-                // double df_da = (high - e) / h;
+                // double df_da = (high - exp) / h;
                 final double df_da = (high - low) / (2 * h);
-                final boolean signOK = (df_da * df_daA[j]) >= 0;
+                final boolean signOk = (df_da * df_daA[j]) >= 0;
                 final boolean ok = eq.almostEqualRelativeOrAbsolute(df_da, df_daA[j]);
-                if (!signOK) {
+                if (!signOk) {
                   tc1.run(j, () -> {
                     Assertions.fail(df_da + " sign != " + df_daA[jj]);
                   });
@@ -738,21 +765,24 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsUsingPrecomputedTable(RandomSeed seed) {
+  public void canInterpolateWithGradientsUsingPrecomputedTableWithNonIntegerAxis(RandomSeed seed) {
     canInterpolateWithGradientsUsingPrecomputedTable(seed, false);
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsUsingPrecomputedTableWithIntegerAxisSpacing(
-      RandomSeed seed) {
+  public void canInterpolateWithGradientsUsingPrecomputedTableWithIntegerAxis(RandomSeed seed) {
     canInterpolateWithGradientsUsingPrecomputedTable(seed, true);
   }
 
   private void canInterpolateWithGradientsUsingPrecomputedTable(RandomSeed seed,
       boolean isInteger) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    final int x = 4, y = 4, z = 4;
-    final double xscale = 1, yscale = isInteger ? 1.0 : 0.5, zscale = isInteger ? 1.0 : 2.0;
+    final int x = 4;
+    final int y = 4;
+    final int z = 4;
+    final double xscale = 1;
+    final double yscale = isInteger ? 1.0 : 0.5;
+    final double zscale = isInteger ? 1.0 : 2.0;
     final double[] scale = {xscale, yscale, zscale};
     final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
@@ -761,8 +791,12 @@ public class CustomTricubicInterpolatorTest {
     final double[] df_daB = new double[3];
     final double[] d2f_da2A = new double[3];
     final double[] d2f_da2B = new double[3];
-    double e, o, o2;
-    double[] e1A, e1B, e2B;
+    double exp;
+    double obs;
+    double obs2;
+    double[] e1A;
+    double[] e1B;
+    double[] e2B;
 
     final double[][][] fval = createData(x, y, z, null);
     final CustomTricubicInterpolator in = new CustomTricubicInterpolator();
@@ -801,15 +835,15 @@ public class CustomTricubicInterpolatorTest {
 
               final CustomTricubicFunction node = f1.getSplineNode(xi, yi, zi);
 
-              e = f1.value(x_, y_, z_);
-              o = f1.value(xi, yi, zi, table);
-              TestAssertions.assertTest(e, o, dtableEquality);
+              exp = f1.value(x_, y_, z_);
+              obs = f1.value(xi, yi, zi, table);
+              TestAssertions.assertTest(exp, obs, dtableEquality);
 
               // 1st order gradient
 
-              e = f1.value(x_, y_, z_, df_daA);
-              o = f1.value(xi, yi, zi, table, df_daB);
-              TestAssertions.assertTest(e, o, dtableEquality);
+              exp = f1.value(x_, y_, z_, df_daA);
+              obs = f1.value(xi, yi, zi, table, df_daB);
+              TestAssertions.assertTest(exp, obs, dtableEquality);
               TestAssertions.assertArrayTest(df_daA, df_daB, dtableEquality);
 
               // Store result
@@ -827,19 +861,19 @@ public class CustomTricubicInterpolatorTest {
               TestAssertions.assertArrayTest(e1A, df_daB, ftableEquality);
 
               // Pre-scaled table should be the same
-              o2 = f1.value(xi, yi, zi, table, table2, table3, df_daB);
+              obs2 = f1.value(xi, yi, zi, table, table2, table3, df_daB);
 
-              Assertions.assertEquals(o, o2);
+              Assertions.assertEquals(obs, obs2);
               Assertions.assertArrayEquals(e1B, df_daB);
 
               // 2nd order gradient
 
-              o2 = f1.value(x_, y_, z_, df_daA, d2f_da2A);
-              Assertions.assertEquals(e, o2);
+              obs2 = f1.value(x_, y_, z_, df_daA, d2f_da2A);
+              Assertions.assertEquals(exp, obs2);
               Assertions.assertArrayEquals(e1A, df_daA);
 
-              o2 = f1.value(xi, yi, zi, table, df_daB, d2f_da2B);
-              Assertions.assertEquals(o, o2);
+              obs2 = f1.value(xi, yi, zi, table, df_daB, d2f_da2B);
+              Assertions.assertEquals(obs, obs2);
               Assertions.assertArrayEquals(e1B, df_daB);
               TestAssertions.assertArrayTest(d2f_da2A, d2f_da2B, dtableEquality);
 
@@ -847,8 +881,8 @@ public class CustomTricubicInterpolatorTest {
               e2B = d2f_da2B.clone();
 
               // Pre-scaled table should be the same
-              o2 = f1.value(xi, yi, zi, table, table2, table3, table6, df_daB, d2f_da2B);
-              Assertions.assertEquals(o, o2);
+              obs2 = f1.value(xi, yi, zi, table, table2, table3, table6, df_daB, d2f_da2B);
+              Assertions.assertEquals(obs, obs2);
               Assertions.assertArrayEquals(e1B, df_daB);
               Assertions.assertArrayEquals(e2B, d2f_da2B);
 
@@ -872,19 +906,19 @@ public class CustomTricubicInterpolatorTest {
               // This just exercises the methods. The accuracy of
               // returned values is checked in a separate test
               // with lower tolerance.
-              o = f1.value(xi, yi, zi, ftable);
-              TestAssertions.assertTest(e, o, ftableEquality);
-              o2 = f1.value(xi, yi, zi, ftable, df_daA);
-              Assertions.assertEquals(o, o2);
+              obs = f1.value(xi, yi, zi, ftable);
+              TestAssertions.assertTest(exp, obs, ftableEquality);
+              obs2 = f1.value(xi, yi, zi, ftable, df_daA);
+              Assertions.assertEquals(obs, obs2);
               TestAssertions.assertArrayTest(e1A, df_daA, ftableEquality);
-              o2 = f1.value(xi, yi, zi, ftable, ftable2, ftable3, df_daA);
-              Assertions.assertEquals(o, o2);
-              o2 = f1.value(xi, yi, zi, ftable, df_daB, d2f_da2B);
-              Assertions.assertEquals(o, o2);
+              obs2 = f1.value(xi, yi, zi, ftable, ftable2, ftable3, df_daA);
+              Assertions.assertEquals(obs, obs2);
+              obs2 = f1.value(xi, yi, zi, ftable, df_daB, d2f_da2B);
+              Assertions.assertEquals(obs, obs2);
               Assertions.assertArrayEquals(df_daA, df_daB);
               TestAssertions.assertArrayTest(e2B, d2f_da2B, ftableEquality);
-              o2 = f1.value(xi, yi, zi, ftable, ftable2, ftable3, ftable6, df_daB, d2f_da2B);
-              Assertions.assertEquals(o, o2);
+              obs2 = f1.value(xi, yi, zi, ftable, ftable2, ftable3, ftable6, df_daB, d2f_da2B);
+              Assertions.assertEquals(obs, obs2);
               Assertions.assertArrayEquals(df_daA, df_daB);
               TestAssertions.assertArrayTest(e2B, d2f_da2B, ftableEquality);
             }
@@ -895,12 +929,13 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision(RandomSeed seed) {
+  public void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecisionWithNonIntegerAxis(
+      RandomSeed seed) {
     canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision(seed, false);
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecisionWithIntegerAxisSpacing(
+  public void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecisionWithIntegerAxis(
       RandomSeed seed) {
     canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision(seed, true);
   }
@@ -908,8 +943,12 @@ public class CustomTricubicInterpolatorTest {
   private void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision(RandomSeed seed,
       boolean isInteger) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    final int x = 4, y = 4, z = 4;
-    final double xscale = 1, yscale = isInteger ? 1.0 : 0.5, zscale = isInteger ? 1.0 : 2.0;
+    final int x = 4;
+    final int y = 4;
+    final int z = 4;
+    final double xscale = 1;
+    final double yscale = isInteger ? 1.0 : 0.5;
+    final double zscale = isInteger ? 1.0 : 2.0;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
@@ -917,8 +956,11 @@ public class CustomTricubicInterpolatorTest {
     final double[] df_daB = new double[3];
     final double[] d2f_da2A = new double[3];
     final double[] d2f_da2B = new double[3];
-    double e, o, o2;
-    double[] e1B, e2B;
+    double exp;
+    double obs;
+    double obs2;
+    double[] e1B;
+    double[] e2B;
     final double[][][] fval = createData(x, y, z, null);
     final CustomTricubicInterpolatingFunction f1 =
         new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
@@ -956,15 +998,15 @@ public class CustomTricubicInterpolatorTest {
         final CustomTricubicFunction n2 = fnodes[ii];
 
         // Just check relative to the double-table version
-        e = n1.value(table);
-        o = n2.value(ftable);
-        TestAssertions.assertTest(e, o, valueTolerance);
+        exp = n1.value(table);
+        obs = n2.value(ftable);
+        TestAssertions.assertTest(exp, obs, valueTolerance);
 
         // 1st order gradient
 
         n1.value(table, df_daA);
-        o2 = n2.value(ftable, df_daB);
-        Assertions.assertEquals(o, o2);
+        obs2 = n2.value(ftable, df_daB);
+        Assertions.assertEquals(obs, obs2);
         TestAssertions.assertArrayTest(df_daA, df_daB, gradientTolerance);
 
         // Store result
@@ -973,9 +1015,9 @@ public class CustomTricubicInterpolatorTest {
         // 2nd order gradient
 
         n1.value(table, df_daA, d2f_da2A);
-        o2 = n2.value(ftable, df_daB, d2f_da2B);
+        obs2 = n2.value(ftable, df_daB, d2f_da2B);
         // Should be the same as the first-order gradient (which has already passed)
-        Assertions.assertEquals(o, o2);
+        Assertions.assertEquals(obs, obs2);
         Assertions.assertArrayEquals(e1B, df_daB);
         // Check 2nd order gradient
         TestAssertions.assertArrayTest(d2f_da2A, d2f_da2B, gradientTolerance2);
@@ -984,12 +1026,12 @@ public class CustomTricubicInterpolatorTest {
         e2B = d2f_da2B.clone();
 
         // Pre-scaled table should be the same
-        o2 = n2.value(ftable, ftable2, ftable3, df_daB);
-        Assertions.assertEquals(o, o2);
+        obs2 = n2.value(ftable, ftable2, ftable3, df_daB);
+        Assertions.assertEquals(obs, obs2);
         Assertions.assertArrayEquals(e1B, df_daB);
 
-        o2 = n2.value(ftable, ftable2, ftable3, ftable6, df_daB, d2f_da2B);
-        Assertions.assertEquals(o, o2);
+        obs2 = n2.value(ftable, ftable2, ftable3, ftable6, df_daB, d2f_da2B);
+        Assertions.assertEquals(obs, obs2);
         Assertions.assertArrayEquals(e1B, df_daB);
         Assertions.assertArrayEquals(e2B, d2f_da2B);
       }
@@ -998,8 +1040,12 @@ public class CustomTricubicInterpolatorTest {
 
   @Test
   public void canComputeNoInterpolation() {
-    final int x = 4, y = 4, z = 4;
-    final double xscale = 1, yscale = 0.5, zscale = 2.0;
+    final int x = 4;
+    final int y = 4;
+    final int z = 4;
+    final double xscale = 1;
+    final double yscale = 0.5;
+    final double zscale = 2.0;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
@@ -1007,7 +1053,8 @@ public class CustomTricubicInterpolatorTest {
     final double[] df_daB = new double[3];
     final double[] d2f_da2A = new double[3];
     final double[] d2f_da2B = new double[3];
-    double e, o;
+    double exp;
+    double obs;
     final double[][][] fval = createData(x, y, z, null);
     final CustomTricubicInterpolatingFunction f1 =
         new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
@@ -1020,34 +1067,34 @@ public class CustomTricubicInterpolatorTest {
     final float[] ftable = CustomTricubicFunction.computeFloatPowerTable(0, 0, 0);
 
     // Check no interpolation is correct
-    e = n1.value(table);
-    o = n1.value000();
-    Assertions.assertEquals(e, o);
+    exp = n1.value(table);
+    obs = n1.value000();
+    Assertions.assertEquals(exp, obs);
 
-    e = n1.value(table, df_daA);
-    o = n1.value000(df_daB);
-    Assertions.assertEquals(e, o);
+    exp = n1.value(table, df_daA);
+    obs = n1.value000(df_daB);
+    Assertions.assertEquals(exp, obs);
     Assertions.assertArrayEquals(df_daA, df_daB);
 
-    e = n1.value(table, df_daA, d2f_da2A);
-    o = n1.value000(df_daB, d2f_da2B);
-    Assertions.assertEquals(e, o);
+    exp = n1.value(table, df_daA, d2f_da2A);
+    obs = n1.value000(df_daB, d2f_da2B);
+    Assertions.assertEquals(exp, obs);
     Assertions.assertArrayEquals(df_daA, df_daB);
     Assertions.assertArrayEquals(d2f_da2A, d2f_da2B);
 
     // Check no interpolation is correct
-    e = n2.value(ftable);
-    o = n2.value000();
-    Assertions.assertEquals(e, o);
+    exp = n2.value(ftable);
+    obs = n2.value000();
+    Assertions.assertEquals(exp, obs);
 
-    e = n2.value(ftable, df_daA);
-    o = n2.value000(df_daB);
-    Assertions.assertEquals(e, o);
+    exp = n2.value(ftable, df_daA);
+    obs = n2.value000(df_daB);
+    Assertions.assertEquals(exp, obs);
     Assertions.assertArrayEquals(df_daA, df_daB);
 
-    e = n2.value(ftable, df_daA, d2f_da2A);
-    o = n2.value000(df_daB, d2f_da2B);
-    Assertions.assertEquals(e, o);
+    exp = n2.value(ftable, df_daA, d2f_da2A);
+    obs = n2.value000(df_daB, d2f_da2B);
+    Assertions.assertEquals(exp, obs);
     Assertions.assertArrayEquals(df_daA, df_daB);
     Assertions.assertArrayEquals(d2f_da2A, d2f_da2B);
   }
@@ -1068,7 +1115,7 @@ public class CustomTricubicInterpolatorTest {
     }
 
     @Override
-    public Object getData(int i) {
+    public Object getData(int index) {
       return null;
     }
   }
@@ -1098,13 +1145,13 @@ public class CustomTricubicInterpolatorTest {
 
     @Override
     public Object run(Object data) {
-      double v = 0;
+      double value = 0;
       for (int i = 0; i < nodes.length; i++) {
         for (int j = 0; j < tables.length; j++) {
-          v += nodes[i].value(tables[j]);
+          value += nodes[i].value(tables[j]);
         }
       }
-      return v;
+      return value;
     }
   }
 
@@ -1115,13 +1162,13 @@ public class CustomTricubicInterpolatorTest {
 
     @Override
     public Object run(Object data) {
-      double v = 0;
+      double value = 0;
       for (int i = 0; i < nodes.length; i++) {
         for (int j = 0; j < tables.length; j++) {
-          v += nodes[i].value(tables[j]);
+          value += nodes[i].value(tables[j]);
         }
       }
-      return v;
+      return value;
     }
   }
 
@@ -1132,13 +1179,13 @@ public class CustomTricubicInterpolatorTest {
 
     @Override
     public Object run(Object data) {
-      double v = 0;
+      double value = 0;
       for (int i = 0; i < nodes.length; i++) {
         for (int j = 0; j < tables.length; j++) {
-          v += nodes[i].value(tables[j], df_da);
+          value += nodes[i].value(tables[j], df_da);
         }
       }
-      return v;
+      return value;
     }
   }
 
@@ -1149,13 +1196,13 @@ public class CustomTricubicInterpolatorTest {
 
     @Override
     public Object run(Object data) {
-      double v = 0;
+      double value = 0;
       for (int i = 0; i < nodes.length; i++) {
         for (int j = 0; j < tables.length; j++) {
-          v += nodes[i].value(tables[j], df_da);
+          value += nodes[i].value(tables[j], df_da);
         }
       }
-      return v;
+      return value;
     }
   }
 
@@ -1166,13 +1213,13 @@ public class CustomTricubicInterpolatorTest {
 
     @Override
     public Object run(Object data) {
-      double v = 0;
+      double value = 0;
       for (int i = 0; i < nodes.length; i++) {
         for (int j = 0; j < tables.length; j++) {
-          v += nodes[i].value(tables[j], df_da, d2f_da2);
+          value += nodes[i].value(tables[j], df_da, d2f_da2);
         }
       }
-      return v;
+      return value;
     }
   }
 
@@ -1183,13 +1230,13 @@ public class CustomTricubicInterpolatorTest {
 
     @Override
     public Object run(Object data) {
-      double v = 0;
+      double value = 0;
       for (int i = 0; i < nodes.length; i++) {
         for (int j = 0; j < tables.length; j++) {
-          v += nodes[i].value(tables[j], df_da, d2f_da2);
+          value += nodes[i].value(tables[j], df_da, d2f_da2);
         }
       }
-      return v;
+      return value;
     }
   }
 
@@ -1199,8 +1246,12 @@ public class CustomTricubicInterpolatorTest {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    final int x = 6, y = 5, z = 4;
-    final double xscale = 1, yscale = 0.5, zscale = 2.0;
+    final int x = 6;
+    final int y = 5;
+    final int z = 4;
+    final double xscale = 1;
+    final double yscale = 0.5;
+    final double zscale = 2.0;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
@@ -1265,7 +1316,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @Test
-  public void canComputeWithExecutorService() {
+  public void canComputeNonIntegerGridWithExecutorService() {
     canComputeWithExecutorService(1, 0.5, 2.0);
   }
 
@@ -1275,7 +1326,9 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private void canComputeWithExecutorService(double xscale, double yscale, double zscale) {
-    final int x = 6, y = 5, z = 4;
+    final int x = 6;
+    final int y = 5;
+    final int z = 4;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
@@ -1319,9 +1372,13 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private void canSampleInterpolatedFunction(int n) {
-    final int x = 6, y = 5, z = 4;
+    final int x = 6;
+    final int y = 5;
+    final int z = 4;
     // Make it easy to have exact matching
-    final double xscale = 2.0, yscale = 2.0, zscale = 2.0;
+    final double xscale = 2.0;
+    final double yscale = 2.0;
+    final double zscale = 2.0;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
@@ -1333,12 +1390,12 @@ public class CustomTricubicInterpolatorTest {
     final StandardTrivalueProcedure p = new StandardTrivalueProcedure();
     f1.sample(n, p);
 
-    Assertions.assertArrayEquals(SimpleArrayUtils.newArray((x - 1) * n + 1, 0, xscale / n), p.getXAxis(),
-        1e-6);
-    Assertions.assertArrayEquals(SimpleArrayUtils.newArray((y - 1) * n + 1, 0, yscale / n), p.getYAxis(),
-        1e-6);
-    Assertions.assertArrayEquals(SimpleArrayUtils.newArray((z - 1) * n + 1, 0, zscale / n), p.getZAxis(),
-        1e-6);
+    Assertions.assertArrayEquals(SimpleArrayUtils.newArray((x - 1) * n + 1, 0, xscale / n),
+        p.getXAxis(), 1e-6);
+    Assertions.assertArrayEquals(SimpleArrayUtils.newArray((y - 1) * n + 1, 0, yscale / n),
+        p.getYAxis(), 1e-6);
+    Assertions.assertArrayEquals(SimpleArrayUtils.newArray((z - 1) * n + 1, 0, zscale / n),
+        p.getZAxis(), 1e-6);
 
     final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-8, 0);
 
@@ -1346,7 +1403,8 @@ public class CustomTricubicInterpolatorTest {
       for (int j = 0; j < p.getYAxis().length; j++) {
         for (int k = 0; k < p.getZAxis().length; k++) {
           // Test original function interpolated value against the sample
-          TestAssertions.assertTest(f1.value(p.getXAxis()[i], p.getYAxis()[j], p.getZAxis()[k]), p.getValue()[i][j][k], equality);
+          TestAssertions.assertTest(f1.value(p.getXAxis()[i], p.getYAxis()[j], p.getZAxis()[k]),
+              p.getValue()[i][j][k], equality);
         }
       }
     }
@@ -1377,7 +1435,9 @@ public class CustomTricubicInterpolatorTest {
     // This assumes that the sample method of the
     // CustomTricubicInterpolatingFunction works!
 
-    final int x = 6, y = 5, z = 4;
+    final int x = 6;
+    final int y = 5;
+    final int z = 4;
     // No scale for this test
     final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
@@ -1429,8 +1489,12 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private void canExternaliseFunction(boolean singlePrecision) throws IOException {
-    final int x = 6, y = 5, z = 4;
-    final double xscale = 1, yscale = 0.5, zscale = 2.0;
+    final int x = 6;
+    final int y = 5;
+    final int z = 4;
+    final double xscale = 1;
+    final double yscale = 0.5;
+    final double zscale = 2.0;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
@@ -1477,7 +1541,9 @@ public class CustomTricubicInterpolatorTest {
   @SeededTest
   public void canInterpolateAcrossNodesForValueAndGradient1(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    final int x = 4, y = 4, z = 4;
+    final int x = 4;
+    final int y = 4;
+    final int z = 4;
     // Difference scales
     final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
@@ -1507,9 +1573,9 @@ public class CustomTricubicInterpolatorTest {
 
                   final CustomTricubicFunction previous = f1.getSplineNodeReference(xxx, yyy, zzz);
 
-                  final double e = next.value(0, 0, 0, df_daA);
-                  final double o = previous.value(i, j, k, df_daB);
-                  TestAssertions.assertTest(e, o, equality);
+                  final double exp = next.value(0, 0, 0, df_daA);
+                  final double obs = previous.value(i, j, k, df_daB);
+                  TestAssertions.assertTest(exp, obs, equality);
 
                   for (int c = 0; c < 3; c++) {
                     TestAssertions.assertTest(df_daA[c], df_daB[c], equality);
@@ -1526,7 +1592,9 @@ public class CustomTricubicInterpolatorTest {
   @SeededTest
   public void cannotInterpolateAcrossNodesForGradient2(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
-    final int x = 4, y = 4, z = 4;
+    final int x = 4;
+    final int y = 4;
+    final int z = 4;
     // Difference scales
     final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
@@ -1599,7 +1667,9 @@ public class CustomTricubicInterpolatorTest {
 
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     // Bigger depth of field to capture astigmatism centre
-    final int x = 10, y = 10, z = 10;
+    final int x = 10;
+    final int y = 10;
+    final int z = 10;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
@@ -1643,7 +1713,9 @@ public class CustomTricubicInterpolatorTest {
   public void canFindOptimum(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     // Bigger depth of field to capture astigmatism centre
-    final int x = 10, y = 10, z = 10;
+    final int x = 10;
+    final int y = 10;
+    final int z = 10;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, 1.0);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, 1.0);
@@ -1685,9 +1757,13 @@ public class CustomTricubicInterpolatorTest {
 
   @Test
   public void testBuilder() {
-    final int x = 6, y = 5, z = 4;
+    final int x = 6;
+    final int y = 5;
+    final int z = 4;
     // Make it easy to have exact matching
-    final double xscale = 1.0, yscale = 1.0, zscale = 1.0;
+    final double xscale = 1.0;
+    final double yscale = 1.0;
+    final double zscale = 1.0;
     final double[] xval = SimpleArrayUtils.newArray(x, 0, xscale);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, yscale);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, zscale);
@@ -1710,17 +1786,17 @@ public class CustomTricubicInterpolatorTest {
     final ExecutorService es = Executors.newFixedThreadPool(2);
 
     //@formatter:off
-        final CustomTricubicInterpolatingFunction f2 = new CustomTricubicInterpolator.Builder()
-                .setXValue(xval)
-                .setYValue(yval)
-                .setZValue(zval)
-                .setFValue(fval)
-                .setSinglePrecision(singlePrecision)
-                .setProgress(NullTrackProgress.getInstance())
-                .setTaskSize(taskSize)
-                .setExecutorService(es)
-                .interpolate();
-        //@formatter:on
+    final CustomTricubicInterpolatingFunction f2 = new CustomTricubicInterpolator.Builder()
+        .setXValue(xval)
+        .setYValue(yval)
+        .setZValue(zval)
+        .setFValue(fval)
+        .setSinglePrecision(singlePrecision)
+        .setProgress(NullTrackProgress.getInstance())
+        .setTaskSize(taskSize)
+        .setExecutorService(es)
+        .interpolate();
+    //@formatter:on
 
     final StandardTrivalueProcedure p1 = new StandardTrivalueProcedure();
     f1.sample(2, p1);
@@ -1733,15 +1809,15 @@ public class CustomTricubicInterpolatorTest {
     Assertions.assertArrayEquals(p1.getValue(), p2.getValue());
 
     //@formatter:off
-        // With integer axis
-        final CustomTricubicInterpolatingFunction f3 = new CustomTricubicInterpolator.Builder()
-                .setFValue(fval)
-                .setSinglePrecision(singlePrecision)
-                // Executor but with a big task size so no multi-threading
-                .setExecutorService(es)
-                .setIntegerAxisValues(true)
-                .interpolate();
-        //@formatter:on
+    // With integer axis
+    final CustomTricubicInterpolatingFunction f3 = new CustomTricubicInterpolator.Builder()
+        .setFValue(fval)
+        .setSinglePrecision(singlePrecision)
+        // Executor but with a big task size so no multi-threading
+        .setExecutorService(es)
+        .setIntegerAxisValues(true)
+        .interpolate();
+    //@formatter:on
 
     f3.sample(2, p2);
 
@@ -1889,22 +1965,22 @@ public class CustomTricubicInterpolatorTest {
       }
 
       @Override
-      public void setX(int i, double value) {
+      public void setX(int index0, double value) {
         // Do nothing
       }
 
       @Override
-      public void setY(int j, double value) {
+      public void setY(int index1, double value) {
         // Do nothing
       }
 
       @Override
-      public void setZ(int k, double value) {
+      public void setZ(int index2, double value) {
         // Do nothing
       }
 
       @Override
-      public void setValue(int i, int j, int k, double value) {
+      public void setValue(int index0, int index1, int index2, double value) {
         // Do nothing
       }
     };

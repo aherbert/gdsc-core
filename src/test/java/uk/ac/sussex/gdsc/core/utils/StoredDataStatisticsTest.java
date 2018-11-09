@@ -26,13 +26,13 @@ public class StoredDataStatisticsTest extends StatisticsTest {
   private static Map<RandomSeed, StoredDataStatistics> dataCache;
 
   @BeforeAll
-  public static void beforeAll() {
+  static void beforeAll() {
     logger = Logger.getLogger(StoredDataStatisticsTest.class.getName());
     dataCache = new ConcurrentHashMap<>();
   }
 
   @AfterAll
-  public static void afterAll() {
+  static void afterAll() {
     dataCache.clear();
     dataCache = null;
     logger = null;
@@ -56,9 +56,9 @@ public class StoredDataStatisticsTest extends StatisticsTest {
         dataCache.computeIfAbsent(seed, StoredDataStatisticsTest::createStatistics);
 
     final double[] values = stats.getValues();
-    int i = 0;
+    int index = 0;
     for (final double d : stats) {
-      Assertions.assertEquals(d, values[i++]);
+      Assertions.assertEquals(d, values[index++]);
     }
   }
 
@@ -168,12 +168,12 @@ public class StoredDataStatisticsTest extends StatisticsTest {
   @Test
   public void canConstructWithData() {
     // This requires that the constructor correctly initialises the storage
-    StoredDataStatistics s;
-    s = new StoredDataStatistics(new double[] {1, 2, 3});
-    s.add(1d);
-    s = new StoredDataStatistics(new float[] {1, 2, 3});
-    s.add(1f);
-    s = new StoredDataStatistics(new int[] {1, 2, 3});
-    s.add(1);
+    StoredDataStatistics stats;
+    stats = new StoredDataStatistics(new double[] {1, 2, 3});
+    stats.add(1d);
+    stats = new StoredDataStatistics(new float[] {1, 2, 3});
+    stats.add(1f);
+    stats = new StoredDataStatistics(new int[] {1, 2, 3});
+    stats.add(1);
   }
 }

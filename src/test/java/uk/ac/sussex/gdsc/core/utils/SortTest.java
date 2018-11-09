@@ -25,11 +25,11 @@ public class SortTest {
   }
 
   private abstract class FloatConversionTimingTask extends BaseTimingTask {
-    final int n;
+    final int size;
 
-    public FloatConversionTimingTask(String name, int n) {
-      super(name + " n=" + n);
-      this.n = n;
+    public FloatConversionTimingTask(String name, int size) {
+      super(name + " size=" + size);
+      this.size = size;
     }
 
     @Override
@@ -38,54 +38,54 @@ public class SortTest {
     }
 
     @Override
-    public Object getData(int i) {
+    public Object getData(int index) {
       return null;
     }
 
     @Override
     public Object run(Object data) {
-      for (int i = n; i-- > 0;) {
-        if (convertBack(convert(i)) != i) {
+      for (int index = size; index-- > 0;) {
+        if (convertBack(convert(index)) != index) {
           throw new RuntimeException();
         }
       }
       return null;
     }
 
-    abstract float convert(int i);
+    abstract float convert(int index);
 
-    abstract int convertBack(float f);
+    abstract int convertBack(float value);
   }
 
   private class FloatCastConversion extends FloatConversionTimingTask {
-    public FloatCastConversion(int n) {
-      super("float cast", n);
+    public FloatCastConversion(int size) {
+      super("float cast", size);
     }
 
     @Override
-    float convert(int i) {
-      return i;
+    float convert(int index) {
+      return index;
     }
 
     @Override
-    int convertBack(float f) {
-      return (int) f;
+    int convertBack(float value) {
+      return (int) value;
     }
   }
 
   private class FloatBitConversion extends FloatConversionTimingTask {
-    public FloatBitConversion(int n) {
-      super("float bit", n);
+    public FloatBitConversion(int size) {
+      super("float bit", size);
     }
 
     @Override
-    float convert(int i) {
-      return Float.intBitsToFloat(i);
+    float convert(int index) {
+      return Float.intBitsToFloat(index);
     }
 
     @Override
-    int convertBack(float f) {
-      return Float.floatToRawIntBits(f);
+    int convertBack(float value) {
+      return Float.floatToRawIntBits(value);
     }
   }
 
@@ -94,36 +94,36 @@ public class SortTest {
     Assumptions.assumeTrue(false);
 
     // Q. Is it faster to use:
-    // int i;
-    // float f = i;
-    // i = (int) f;
+    // int index;
+    // float value = index;
+    // index = (int) value;
     // OR
-    // float f = Float.intBitsToFloat(i)
-    // i = Float.floatToRawIntBits(i);
+    // float value = Float.intBitsToFloat(index)
+    // index = Float.floatToRawIntBits(index);
 
     // Note that is the number of indices is above the max value that can be
     // stored in a float mantissa then the casting case is invalid.
 
-    final int[] n = new int[] {100, 10000, 1000000};
-    final int maxn = n[n.length - 1];
+    final int[] size = new int[] {100, 10000, 1000000};
+    final int maxn = size[size.length - 1];
 
-    for (int i = 0; i < n.length; i++) {
-      final TimingService ts = new TimingService(10 * maxn / n[i]);
-      ts.execute(new FloatCastConversion(n[i]));
-      ts.execute(new FloatBitConversion(n[i]));
+    for (int index = 0; index < size.length; index++) {
+      final TimingService ts = new TimingService(10 * maxn / size[index]);
+      ts.execute(new FloatCastConversion(size[index]));
+      ts.execute(new FloatBitConversion(size[index]));
 
-      final int size = ts.getSize();
-      ts.repeat(size);
-      logger.info(ts.getReport(size));
+      final int resultsSize = ts.getSize();
+      ts.repeat(resultsSize);
+      logger.info(ts.getReport(resultsSize));
     }
   }
 
   private abstract class DoubleConversionTimingTask extends BaseTimingTask {
-    final int n;
+    final int size;
 
-    public DoubleConversionTimingTask(String name, int n) {
-      super(name + " n=" + n);
-      this.n = n;
+    public DoubleConversionTimingTask(String name, int size) {
+      super(name + " size=" + size);
+      this.size = size;
     }
 
     @Override
@@ -132,13 +132,13 @@ public class SortTest {
     }
 
     @Override
-    public Object getData(int i) {
+    public Object getData(int index) {
       return null;
     }
 
     @Override
     public Object run(Object data) {
-      for (int i = n; i-- > 0;) {
+      for (int i = size; i-- > 0;) {
         if (convertBack(convert(i)) != i) {
           throw new RuntimeException();
         }
@@ -146,40 +146,40 @@ public class SortTest {
       return null;
     }
 
-    abstract double convert(int i);
+    abstract double convert(int index);
 
-    abstract int convertBack(double f);
+    abstract int convertBack(double value);
   }
 
   private class DoubleCastConversion extends DoubleConversionTimingTask {
-    public DoubleCastConversion(int n) {
-      super("double cast", n);
+    public DoubleCastConversion(int size) {
+      super("double cast", size);
     }
 
     @Override
-    double convert(int i) {
-      return i;
+    double convert(int index) {
+      return index;
     }
 
     @Override
-    int convertBack(double f) {
-      return (int) f;
+    int convertBack(double value) {
+      return (int) value;
     }
   }
 
   private class DoubleBitConversion extends DoubleConversionTimingTask {
-    public DoubleBitConversion(int n) {
-      super("double bit", n);
+    public DoubleBitConversion(int size) {
+      super("double bit", size);
     }
 
     @Override
-    double convert(int i) {
-      return Double.longBitsToDouble(i);
+    double convert(int index) {
+      return Double.longBitsToDouble(index);
     }
 
     @Override
-    int convertBack(double f) {
-      return (int) Double.doubleToRawLongBits(f);
+    int convertBack(double value) {
+      return (int) Double.doubleToRawLongBits(value);
     }
   }
 
@@ -199,17 +199,17 @@ public class SortTest {
     // stored in a float mantissa then the casting case is invalid.
 
     // 1 << 30 takes too long to run
-    final int[] n = new int[] {100, 10000, 1000000, 1 << 25};
-    final int maxn = n[n.length - 1];
+    final int[] size = new int[] {100, 10000, 1000000, 1 << 25};
+    final int maxn = size[size.length - 1];
 
-    for (int i = 0; i < n.length; i++) {
-      final TimingService ts = new TimingService(maxn / n[i]);
-      ts.execute(new DoubleCastConversion(n[i]));
-      ts.execute(new DoubleBitConversion(n[i]));
+    for (int i = 0; i < size.length; i++) {
+      final TimingService ts = new TimingService(maxn / size[i]);
+      ts.execute(new DoubleCastConversion(size[i]));
+      ts.execute(new DoubleBitConversion(size[i]));
 
-      final int size = ts.getSize();
-      ts.repeat(size);
-      logger.info(ts.getReport(size));
+      final int resultsSize = ts.getSize();
+      ts.repeat(resultsSize);
+      logger.info(ts.getReport(resultsSize));
     }
   }
 }

@@ -39,16 +39,16 @@ public class MedianWindowTest {
   }
 
   private static class UpdateableSupplier implements Supplier<String> {
-    int p;
+    int pos;
     int radius;
 
     @Override
     public String get() {
-      return String.format("Position %d, Radius %d", p, radius);
+      return String.format("Position %d, Radius %d", pos, radius);
     }
 
-    Supplier<String> update(int p, int radius) {
-      this.p = p;
+    Supplier<String> update(int pos, int radius) {
+      this.pos = pos;
       this.radius = radius;
       return this;
     }
@@ -160,7 +160,7 @@ public class MedianWindowTest {
 
   @SeededTest
   public void canComputeMedianForSparseDataUsingSingleIncrement(RandomSeed seed) {
-    UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
     for (final double value : values) {
       canComputeMedianForDataUsingSingleIncrement(createSparseData(rng, dataSize, value));
     }
@@ -168,7 +168,7 @@ public class MedianWindowTest {
 
   @SeededTest
   public void canComputeMedianForSparseDataUsingSetPosition(RandomSeed seed) {
-    UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
     for (final double value : values) {
       canComputeMedianForDataUsingSetPosition(createSparseData(rng, dataSize, value));
     }
@@ -176,7 +176,7 @@ public class MedianWindowTest {
 
   @SeededTest
   public void canComputeMedianForSparseDataUsingBigIncrement(RandomSeed seed) {
-    UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
     for (final double value : values) {
       canComputeMedianForDataUsingBigIncrement(createSparseData(rng, dataSize, value));
     }
@@ -257,28 +257,28 @@ public class MedianWindowTest {
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
       DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
-      int i = 0;
+      int index = 0;
       while (mw.isValidPosition()) {
         final double median = mw.getMedian();
-        final double median2 = calculateMedian(data, i, radius);
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
+        final double median2 = calculateMedian(data, index, radius);
+        Assertions.assertEquals(median2, median, 1e-6, msg.update(index, radius));
 
         mw.increment();
-        i++;
+        index++;
       }
-      Assertions.assertEquals(i, data.length, "Not all data interated");
+      Assertions.assertEquals(index, data.length, "Not all data interated");
 
       mw = new DoubleMedianWindow(data, radius);
-      i = 0;
+      index = 0;
       do {
         final double median = mw.getMedian();
-        final double median2 = calculateMedian(data, i, radius);
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
+        final double median2 = calculateMedian(data, index, radius);
+        Assertions.assertEquals(median2, median, 1e-6, msg.update(index, radius));
 
-        i++;
+        index++;
       }
       while (mw.increment());
-      Assertions.assertEquals(i, data.length, "Not all data interated");
+      Assertions.assertEquals(index, data.length, "Not all data interated");
     }
   }
 
@@ -290,14 +290,14 @@ public class MedianWindowTest {
     final int increment = 10;
     for (final int radius : radii) {
       final DoubleMedianWindow mw = new DoubleMedianWindow(data, radius);
-      int i = 0;
+      int index = 0;
       while (mw.isValidPosition()) {
         final double median = mw.getMedian();
-        final double median2 = calculateMedian(data, i, radius);
-        Assertions.assertEquals(median2, median, 1e-6, msg.update(i, radius));
+        final double median2 = calculateMedian(data, index, radius);
+        Assertions.assertEquals(median2, median, 1e-6, msg.update(index, radius));
 
         mw.increment(increment);
-        i += increment;
+        index += increment;
       }
     }
   }
@@ -359,9 +359,9 @@ public class MedianWindowTest {
       final long s1 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
         mw = new DoubleMedianWindow(data[iter], radius);
-        int j = 0;
+        int index = 0;
         do {
-          m1[j++] = mw.getMedian();
+          m1[index++] = mw.getMedian();
         }
         while (mw.increment());
       }
@@ -375,9 +375,9 @@ public class MedianWindowTest {
       final long s1 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
         mw = new DoubleMedianWindow(data[iter], radius);
-        int j = 0;
+        int index = 0;
         while (mw.isValidPosition()) {
-          m1[j++] = mw.getMedian();
+          m1[index++] = mw.getMedian();
           mw.increment(increment);
         }
       }
@@ -445,9 +445,9 @@ public class MedianWindowTest {
       final long s1 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
         mw = new DoubleMedianWindow(data[iter], radius);
-        int j = 0;
+        int index = 0;
         do {
-          m1[j++] = mw.getMedian();
+          m1[index++] = mw.getMedian();
         }
         while (mw.increment());
       }
@@ -461,9 +461,9 @@ public class MedianWindowTest {
       final long s1 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
         mw = new DoubleMedianWindow(data[iter], radius);
-        int j = 0;
+        int index = 0;
         while (mw.isValidPosition()) {
-          m1[j++] = mw.getMedian();
+          m1[index++] = mw.getMedian();
           mw.increment(increment);
         }
       }
@@ -483,9 +483,9 @@ public class MedianWindowTest {
       final long s2 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
         mw2 = new FloatMedianWindow(data2[iter], radius);
-        int j = 0;
+        int index = 0;
         do {
-          m2[j++] = mw2.getMedian();
+          m2[index++] = mw2.getMedian();
         }
         while (mw2.increment());
       }
@@ -499,9 +499,9 @@ public class MedianWindowTest {
       final long s2 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
         mw2 = new FloatMedianWindow(data2[iter], radius);
-        int j = 0;
+        int index = 0;
         while (mw2.isValidPosition()) {
-          m2[j++] = mw2.getMedian();
+          m2[index++] = mw2.getMedian();
           mw2.increment(increment);
         }
       }

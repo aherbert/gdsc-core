@@ -18,13 +18,13 @@ public class Fht2Test {
   public void canCheckPowerOf2() {
     Assertions.assertFalse(Fht.isPowerOf2(1), "1");
     Assertions.assertFalse(Fht.isPowerOf2(Integer.MAX_VALUE), "" + Integer.MAX_VALUE);
-    int i = 2;
-    while (i > 0) // Until overflow
-    {
-      Assertions.assertTrue(Fht.isPowerOf2(i), Integer.toString(i));
-      Assertions.assertFalse(Fht.isPowerOf2(i - 1), Integer.toString(i - 1));
-      Assertions.assertFalse(Fht.isPowerOf2(i + 1), Integer.toString(i + 1));
-      i *= 2;
+    int value = 2;
+    // Until overflow
+    while (value > 0) {
+      Assertions.assertTrue(Fht.isPowerOf2(value), Integer.toString(value));
+      Assertions.assertFalse(Fht.isPowerOf2(value - 1), Integer.toString(value - 1));
+      Assertions.assertFalse(Fht.isPowerOf2(value + 1), Integer.toString(value + 1));
+      value *= 2;
     }
   }
 
@@ -60,8 +60,10 @@ public class Fht2Test {
 
   private static void canCompute(int mode, boolean fast) {
     final int size = 16;
-    final int ex = 5, ey = 7;
-    final int ox = 1, oy = 2;
+    final int ex = 5;
+    final int ey = 7;
+    final int ox = 1;
+    final int oy = 2;
     final FloatProcessor fp1 = createProcessor(size, ex, ey, 4, 4);
     final FloatProcessor fp2 = createProcessor(size, size / 2 + ox, size / 2 + oy, 4, 4);
 
@@ -104,23 +106,23 @@ public class Fht2Test {
     fhtE.inverseTransform();
     fhtO.inverseTransform();
 
-    final float[] e = (float[]) fhtE.getPixels();
-    final float[] o = (float[]) fhtO.getPixels();
+    final float[] exp = (float[]) fhtE.getPixels();
+    final float[] oobs = (float[]) fhtO.getPixels();
 
     // This is not exact for the divide since the FHT2 magnitude is computed
     // using double*double + double*double rather than float*float + float*float,
     // i.e. the float are converted to double before multiplication.
     if (mode == 2) {
-      TestAssertions.assertArrayTest(e, o, TestHelper.floatsAreClose(1e-5, 0));
+      TestAssertions.assertArrayTest(exp, oobs, TestHelper.floatsAreClose(1e-5, 0));
     } else {
-      Assertions.assertArrayEquals(e, o);
+      Assertions.assertArrayEquals(exp, oobs);
     }
   }
 
-  private static FloatProcessor createProcessor(int size, int x, int y, int w, int h) {
+  private static FloatProcessor createProcessor(int size, int x, int y, int width, int height) {
     final ByteProcessor bp = new ByteProcessor(size, size);
     bp.setColor(255);
-    bp.fillOval(x, y, w, h);
+    bp.fillOval(x, y, width, height);
     final EDM e = new EDM();
     return e.makeFloatEDM(bp, 0, true);
   }

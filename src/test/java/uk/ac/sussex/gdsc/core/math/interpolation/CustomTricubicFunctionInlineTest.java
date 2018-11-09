@@ -37,14 +37,14 @@ public class CustomTricubicFunctionInlineTest {
   }
 
   /** Number of points. */
-  private final short N = 4;
+  private static final short N = 4;
   /** Number of points - 1. */
-  private final short N_1 = 3;
+  private static final short N_1 = 3;
   /** Number of points - 2. */
-  private final short N_2 = 2;
+  private static final short N_2 = 2;
 
-  static int getIndex(int i, int j, int k) {
-    return CustomTricubicFunction.getIndex(i, j, k);
+  static int getIndex(int powerX, int powerY, int powerZ) {
+    return CustomTricubicFunction.getIndex(powerX, powerY, powerZ);
   }
 
   /**
@@ -53,15 +53,15 @@ public class CustomTricubicFunctionInlineTest {
    * @return the function text.
    */
   String inlineValue() {
-    String _pZpY;
+    String powerZpowerY;
     final StringBuilder sb = new StringBuilder();
 
     for (int k = 0, ai = 0; k < N; k++) {
       for (int j = 0; j < N; j++) {
-        _pZpY = append_pZpY(sb, k, j);
+        powerZpowerY = append_powerZpowerY(sb, k, j);
 
         for (int i = 0; i < N; i++, ai++) {
-          sb.append(String.format("result += %s * pX[%d] * a[%d];\n", _pZpY, i, ai));
+          sb.append(String.format("result += %s * powerX[%d] * a[%d];\n", powerZpowerY, i, ai));
         }
       }
     }
@@ -69,27 +69,27 @@ public class CustomTricubicFunctionInlineTest {
     return finaliseInlineFunction(sb);
   }
 
-  static String append_pZpY(StringBuilder sb, int k, int j) {
-    String _pZpY;
-    if (k == 0) {
-      if (j == 0) {
-        _pZpY = "1";
+  static String append_powerZpowerY(StringBuilder sb, int powerY, int powerZ) {
+    String powerZpowerY;
+    if (powerY == 0) {
+      if (powerZ == 0) {
+        powerZpowerY = "1";
       } else {
-        _pZpY = String.format("pY[%d]", j);
+        powerZpowerY = String.format("powerY[%d]", powerZ);
       }
-    } else if (j == 0) {
-      _pZpY = String.format("pZ[%d]", k);
+    } else if (powerZ == 0) {
+      powerZpowerY = String.format("powerZ[%d]", powerY);
     } else {
-      sb.append(String.format("pZpY = pZ[%d] * pY[%d];\n", k, j));
-      _pZpY = "pZpY";
+      sb.append(String.format("powerZpowerY = powerZ[%d] * powerY[%d];\n", powerY, powerZ));
+      powerZpowerY = "powerZpowerY";
     }
-    return _pZpY;
+    return powerZpowerY;
   }
 
   static String finaliseInlineFunction(StringBuilder sb) {
     String result = sb.toString();
     // Replace the use of 1 in multiplications
-    result = result.replace("pX[0]", "1");
+    result = result.replace("powerX[0]", "1");
     result = result.replace(" * 1", "");
     result = result.replace(" 1 *", "");
     // We optimise out the need to store 1.0 in the array at pN[0]
@@ -97,9 +97,9 @@ public class CustomTricubicFunctionInlineTest {
     for (int i = 0; i < 3; i++) {
       final String was = String.format("[%d]", i + 1);
       final String now = String.format("[%d]", i);
-      result = result.replace("pX" + was, "pX" + now);
-      result = result.replace("pY" + was, "pY" + now);
-      result = result.replace("pZ" + was, "pZ" + now);
+      result = result.replace("powerX" + was, "powerX" + now);
+      result = result.replace("powerY" + was, "powerY" + now);
+      result = result.replace("powerZ" + was, "powerZ" + now);
     }
 
     return result;
@@ -128,9 +128,9 @@ public class CustomTricubicFunctionInlineTest {
     // Each entry should be unique indicating that the result is optimal
     map.forEachEntry(new TObjectIntProcedure<String>() {
       @Override
-      public boolean execute(String a, int b) {
-        if (b > 1) {
-          logger.info(FunctionUtils.getSupplier("%s = %d\n", a, b));
+      public boolean execute(String key, int value) {
+        if (value > 1) {
+          logger.info(FunctionUtils.getSupplier("%s = %d\n", key, value));
           return false;
         }
         return true;
@@ -154,7 +154,7 @@ public class CustomTricubicFunctionInlineTest {
         table0jk = appendTableijk(sb, k, j, 0, ai++);
 
         for (int i = 1; i < N; i++, ai++) {
-          sb.append(String.format("table[%d] = %s * pX[%d];\n", ai, table0jk, i));
+          sb.append(String.format("table[%d] = %s * powerX[%d];\n", ai, table0jk, i));
         }
       }
     }
@@ -162,26 +162,26 @@ public class CustomTricubicFunctionInlineTest {
     return finaliseInlineFunction(sb);
   }
 
-  static String appendTableijk(StringBuilder sb, int k, int j, int i, int ai) {
-    String pZpY;
+  static String appendTableijk(StringBuilder sb, int powerZ, int powerY, int powerX, int ai) {
+    String powerZpowerY;
     boolean compound = true;
-    if (k == 0) {
+    if (powerZ == 0) {
       compound = false;
-      if (j == 0) {
-        pZpY = "1";
+      if (powerY == 0) {
+        powerZpowerY = "1";
       } else {
-        pZpY = String.format("pY[%d]", j);
+        powerZpowerY = String.format("powerY[%d]", powerY);
       }
-    } else if (j == 0) {
+    } else if (powerY == 0) {
       compound = false;
-      pZpY = String.format("pZ[%d]", k);
+      powerZpowerY = String.format("powerZ[%d]", powerZ);
     } else {
-      pZpY = String.format("pZ[%d] * pY[%d]", k, j);
+      powerZpowerY = String.format("powerZ[%d] * powerY[%d]", powerZ, powerY);
     }
 
     final String tableijk = String.format("table[%d]", ai);
-    sb.append(String.format("%s = %s * pX[%d];\n", tableijk, pZpY, i));
-    return (compound) ? tableijk : pZpY;
+    sb.append(String.format("%s = %s * powerX[%d];\n", tableijk, powerZpowerY, powerX));
+    return (compound) ? tableijk : powerZpowerY;
   }
 
   /**
@@ -190,8 +190,8 @@ public class CustomTricubicFunctionInlineTest {
    * @return the function text.
    */
   String inlineValue1() {
-    String _pZpY;
-    String _pZpYpX;
+    String powerZpowerY;
+    String powerZpowerYpowerX;
     final StringBuilder sb = new StringBuilder();
 
     // Gradients are described in:
@@ -200,34 +200,33 @@ public class CustomTricubicFunctionInlineTest {
     // Scientific Reports 7, Article number: 552
     for (int k = 0, ai = 0; k < N; k++) {
       for (int j = 0; j < N; j++) {
-        _pZpY = append_pZpY(sb, k, j);
+        powerZpowerY = append_powerZpowerY(sb, k, j);
 
         for (int i = 0; i < N; i++, ai++) {
-          _pZpYpX = append_pZpYpX(sb, _pZpY, i);
+          powerZpowerYpowerX = append_powerZpowerYpowerX(sb, powerZpowerY, i);
 
           //@formatter:off
-sb.append(String.format("result += %s * a[%d];\n", _pZpYpX, ai));
-if (i < N_1) {
-          sb.append(String.format("df_da[0] += %d * %s * a[%d];\n", i+1, _pZpYpX, getIndex(i+1, j, k)));
-     }
-if (j < N_1) {
-          sb.append(String.format("df_da[1] += %d * %s * a[%d];\n", j+1, _pZpYpX, getIndex(i, j+1, k)));
-     }
-if (k < N_1)
-      {
-          sb.append(String.format("df_da[2] += %d * %s * a[%d];\n", k+1, _pZpYpX, getIndex(i, j, k+1)));
-//@formatter:on
+          sb.append(String.format("result += %s * a[%d];\n", powerZpowerYpowerX, ai));
+          if (i < N_1) {
+            sb.append(String.format("df_da[0] += %d * %s * a[%d];\n", i+1, powerZpowerYpowerX, getIndex(i+1, j, k)));
+           }
+          if (j < N_1) {
+            sb.append(String.format("df_da[1] += %d * %s * a[%d];\n", j+1, powerZpowerYpowerX, getIndex(i, j+1, k)));
           }
+          if (k < N_1) {
+            sb.append(String.format("df_da[2] += %d * %s * a[%d];\n", k+1, powerZpowerYpowerX, getIndex(i, j, k+1)));
+          }
+          //@formatter:on
 
           // Formal computation
-          // pZpYpX = pZ[k] * pY[j] * pX[i];
-          // result += pZpYpX * a[ai];
+          // powerZpowerYpowerX = powerZ[k] * powerY[j] * powerX[i];
+          // result += powerZpowerYpowerX * a[ai];
           // if (i < N_1)
-          // df_da[0] += (i+1) * pZpYpX * a[getIndex(i+1, j, k)];
+          // df_da[0] += (i+1) * powerZpowerYpowerX * a[getIndex(i+1, j, k)];
           // if (j < N_1)
-          // df_da[1] += (j+1) * pZpYpX * a[getIndex(i, j+1, k)];
+          // df_da[1] += (j+1) * powerZpowerYpowerX * a[getIndex(i, j+1, k)];
           // if (k < N_1)
-          // df_da[2] += (k+1) * pZpYpX * a[getIndex(i, j, k+1)];
+          // df_da[2] += (k+1) * powerZpowerYpowerX * a[getIndex(i, j, k+1)];
         }
       }
     }
@@ -235,17 +234,17 @@ if (k < N_1)
     return finaliseInlineFunction(sb);
   }
 
-  static String append_pZpYpX(StringBuilder sb, String _pZpY, int i) {
-    String _pZpYpX;
-    if (i == 0) {
-      _pZpYpX = _pZpY;
-    } else if (_pZpY.equals("1")) {
-      _pZpYpX = String.format("pX[%d]", i);
+  static String append_powerZpowerYpowerX(StringBuilder sb, String powerZpowerY, int power) {
+    String powerZpowerYpowerX;
+    if (power == 0) {
+      powerZpowerYpowerX = powerZpowerY;
+    } else if (powerZpowerY.equals("1")) {
+      powerZpowerYpowerX = String.format("powerX[%d]", power);
     } else {
-      sb.append(String.format("pZpYpX = %s * pX[%d];\n", _pZpY, i));
-      _pZpYpX = "pZpYpX";
+      sb.append(String.format("powerZpowerYpowerX = %s * powerX[%d];\n", powerZpowerY, power));
+      powerZpowerYpowerX = "powerZpowerYpowerX";
     }
-    return _pZpYpX;
+    return powerZpowerYpowerX;
   }
 
   /**
@@ -305,9 +304,9 @@ if (k < N_1)
     // Each entry should be unique indicating that the result is optimal
     map.forEachEntry(new TObjectIntProcedure<String>() {
       @Override
-      public boolean execute(String a, int b) {
-        if (b > 1) {
-          logger.info(FunctionUtils.getSupplier("%s = %d\n", a, b));
+      public boolean execute(String key, int value) {
+        if (value > 1) {
+          logger.info(FunctionUtils.getSupplier("%s = %d\n", key, value));
           return false;
         }
         return true;
@@ -321,7 +320,8 @@ if (k < N_1)
       int i2, int j2, int k2) {
     final int after = getIndex(i2, j2, k2);
     final int before = getIndex(i1, j1, k1);
-    int nh, nl;
+    int nh;
+    int nl;
     if (i1 != i2) {
       nh = i1;
       nl = i2;
@@ -332,12 +332,12 @@ if (k < N_1)
       nh = k1;
       nl = k2;
     }
-    int n = 1;
+    int powerN = 1;
     while (nh > nl) {
-      n *= nh;
+      powerN *= nh;
       nh--;
     }
-    final String sum = String.format("%d * table[%d] * a[%d]\n", n, after, before);
+    final String sum = String.format("%d * table[%d] * a[%d]\n", powerN, after, before);
     map.adjustOrPutValue(sum, 1, 1);
     sb.append("+ ").append(sum);
   }
@@ -399,9 +399,9 @@ if (k < N_1)
     // Each entry should be unique indicating that the result is optimal
     map.forEachEntry(new TObjectIntProcedure<String>() {
       @Override
-      public boolean execute(String a, int b) {
-        if (b > 1) {
-          logger.info(FunctionUtils.getSupplier("%s = %d", a, b));
+      public boolean execute(String key, int value) {
+        if (value > 1) {
+          logger.info(FunctionUtils.getSupplier("%s = %d", key, value));
           return false;
         }
         return true;
@@ -415,7 +415,8 @@ if (k < N_1)
       int i2, int j2, int k2) {
     final int after = getIndex(i2, j2, k2);
     final int before = getIndex(i1, j1, k1);
-    int nh, nl;
+    int nh;
+    int nl;
     if (i1 != i2) {
       nh = i1;
       nl = i2;
@@ -426,12 +427,12 @@ if (k < N_1)
       nh = k1;
       nl = k2;
     }
-    int n = 1;
+    int powerN = 1;
     while (nh > nl) {
-      n *= nh;
+      powerN *= nh;
       nh--;
     }
-    final String sum = String.format("table%d[%d] * a[%d]\n", n, after, before);
+    final String sum = String.format("table%d[%d] * a[%d]\n", powerN, after, before);
     map.adjustOrPutValue(sum, 1, 1);
     sb.append("+ ").append(sum);
   }
@@ -451,8 +452,8 @@ if (k < N_1)
    * @return the function text.
    */
   String inlineValue2() {
-    String _pZpY;
-    String _pZpYpX;
+    String powerZpowerY;
+    String powerZpowerYpowerX;
     final StringBuilder sb = new StringBuilder();
 
     // Gradients are described in:
@@ -461,56 +462,54 @@ if (k < N_1)
     // Scientific Reports 7, Article number: 552
     for (int k = 0, ai = 0; k < N; k++) {
       for (int j = 0; j < N; j++) {
-        _pZpY = append_pZpY(sb, k, j);
+        powerZpowerY = append_powerZpowerY(sb, k, j);
 
         for (int i = 0; i < N; i++, ai++) {
-          _pZpYpX = append_pZpYpX(sb, _pZpY, i);
+          powerZpowerYpowerX = append_powerZpowerYpowerX(sb, powerZpowerY, i);
 
           //@formatter:off
-sb.append(String.format("result += %s * a[%d];\n", _pZpYpX, ai));
-if (i < N_1)
-{
-          sb.append(String.format("df_da[0] += %d * %s * a[%d];\n", i+1, _pZpYpX, getIndex(i+1, j, k)));
-          if (i < N_2) {
-            sb.append(String.format("d2f_da2[0] += %d * %s * a[%d];\n", (i+1)*(i+2), _pZpYpX, getIndex(i+2, j, k)));
+          sb.append(String.format("result += %s * a[%d];\n", powerZpowerYpowerX, ai));
+          if (i < N_1) {
+            sb.append(String.format("df_da[0] += %d * %s * a[%d];\n", i+1, powerZpowerYpowerX, getIndex(i+1, j, k)));
+            if (i < N_2) {
+              sb.append(String.format("d2f_da2[0] += %d * %s * a[%d];\n", (i+1)*(i+2), powerZpowerYpowerX, getIndex(i+2, j, k)));
+            }
           }
-}
-if (j < N_1)
-{
-          sb.append(String.format("df_da[1] += %d * %s * a[%d];\n", j+1, _pZpYpX, getIndex(i, j+1, k)));
-          if (j < N_2) {
-            sb.append(String.format("d2f_da2[1] += %d * %s * a[%d];\n", (j+1)*(j+2), _pZpYpX, getIndex(i, j+2, k)));
+          if (j < N_1) {
+            sb.append(String.format("df_da[1] += %d * %s * a[%d];\n", j+1, powerZpowerYpowerX, getIndex(i, j+1, k)));
+            if (j < N_2) {
+              sb.append(String.format("d2f_da2[1] += %d * %s * a[%d];\n", (j+1)*(j+2), powerZpowerYpowerX, getIndex(i, j+2, k)));
+            }
           }
-}
-if (k < N_1)
-{
-          sb.append(String.format("df_da[2] += %d * %s * a[%d];\n", k+1, _pZpYpX, getIndex(i, j, k+1)));
-          if (k < N_2) {
-            sb.append(String.format("d2f_da2[2] += %d * %s * a[%d];\n", (k+1)*(k+2), _pZpYpX, getIndex(i, j, k+2)));
+          if (k < N_1)
+          {
+            sb.append(String.format("df_da[2] += %d * %s * a[%d];\n", k+1, powerZpowerYpowerX, getIndex(i, j, k+1)));
+            if (k < N_2) {
+              sb.append(String.format("d2f_da2[2] += %d * %s * a[%d];\n", (k+1)*(k+2), powerZpowerYpowerX, getIndex(i, j, k+2)));
+            }
           }
-}
-//@formatter:on
+          //@formatter:on
 
           //// Formal computation
-          // pZpYpX = pZpY * pX[i];
-          // result += pZpYpX * a[ai];
+          // powerZpowerYpowerX = powerZpowerY * powerX[i];
+          // result += powerZpowerYpowerX * a[ai];
           // if (i < N_1)
           // {
-          // df_da[0] += (i+1) * pZpYpX * a[getIndex(i+1, j, k)];
+          // df_da[0] += (i+1) * powerZpowerYpowerX * a[getIndex(i+1, j, k)];
           // if (i < N_2)
-          // d2f_da2[0] += (i+1) * (i + 2) * pZpYpX * a[getIndex(i + 2, j, k)];
+          // d2f_da2[0] += (i+1) * (i + 2) * powerZpowerYpowerX * a[getIndex(i + 2, j, k)];
           // }
           // if (j < N_1)
           // {
-          // df_da[1] += (j+1) * pZpYpX * a[getIndex(i, j+1, k)];
+          // df_da[1] += (j+1) * powerZpowerYpowerX * a[getIndex(i, j+1, k)];
           // if (j < N_2)
-          // d2f_da2[1] += (j+1) * (j + 2) * pZpYpX * a[getIndex(i, j + 2, k)];
+          // d2f_da2[1] += (j+1) * (j + 2) * powerZpowerYpowerX * a[getIndex(i, j + 2, k)];
           // }
           // if (k < N_1)
           // {
-          // df_da[2] += (k+1) * pZpYpX * a[getIndex(i, j, k+1)];
+          // df_da[2] += (k+1) * powerZpowerYpowerX * a[getIndex(i, j, k+1)];
           // if (k < N_2)
-          // d2f_da2[2] += (k+1) * (k + 2) * pZpYpX * a[getIndex(i, j, k + 2)];
+          // d2f_da2[2] += (k+1) * (k + 2) * powerZpowerYpowerX * a[getIndex(i, j, k + 2)];
           // }
         }
       }
@@ -608,9 +607,9 @@ if (k < N_1)
     // Each entry should be unique indicating that the result is optimal
     map.forEachEntry(new TObjectIntProcedure<String>() {
       @Override
-      public boolean execute(String a, int b) {
-        if (b > 1) {
-          logger.info(FunctionUtils.getSupplier("%s = %d", a, b));
+      public boolean execute(String key, int value) {
+        if (value > 1) {
+          logger.info(FunctionUtils.getSupplier("%s = %d", key, value));
           return false;
         }
         return true;
@@ -709,9 +708,9 @@ if (k < N_1)
     // Each entry should be unique indicating that the result is optimal
     map.forEachEntry(new TObjectIntProcedure<String>() {
       @Override
-      public boolean execute(String a, int b) {
-        if (b > 1) {
-          logger.info(FunctionUtils.getSupplier("%s = %d", a, b));
+      public boolean execute(String key, int value) {
+        if (value > 1) {
+          logger.info(FunctionUtils.getSupplier("%s = %d", key, value));
           return false;
         }
         return true;
