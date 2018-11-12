@@ -28,6 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+
 import java.awt.Rectangle;
 
 /**
@@ -76,42 +79,23 @@ public class CoordinateStore {
     this.xcoord = xcoord;
     this.ycoord = ycoord;
 
-    // Assign localisations & get min bounds
-    float minX = Float.POSITIVE_INFINITY;
-    float minY = Float.POSITIVE_INFINITY;
-    for (int i = 0; i < xcoord.length; i++) {
-      if (minX > xcoord[i]) {
-        minX = xcoord[i];
-      }
-      if (minY > ycoord[i]) {
-        minY = ycoord[i];
-      }
-    }
+    // Get min bounds
+    float minX = MathUtils.min(xcoord);
+    float minY = MathUtils.min(ycoord);
 
     // Round down and shift to origin (so all coords are >=0 for efficient grid allocation)
     originx = (float) Math.floor(minX);
     originy = (float) Math.floor(minY);
 
-    // Get max bounds
-    minX -= originx;
-    minY -= originy;
-    float maxX = 0;
-    float maxY = 0;
-    for (int i = 0; i < xcoord.length; i++) {
-      xcoord[i] -= originx;
-      ycoord[i] -= originy;
-      if (maxX < xcoord[i]) {
-        maxX = xcoord[i];
-      }
-      if (maxY < ycoord[i]) {
-        maxY = ycoord[i];
-      }
-    }
+    SimpleArrayUtils.add(xcoord, -originx);
+    SimpleArrayUtils.add(ycoord, -originy);
 
-    this.minXCoord = minX;
-    this.minYCoord = minY;
-    this.maxXCoord = maxX;
-    this.maxYCoord = maxY;
+    // Store the limits
+    this.minXCoord = minX - originx;
+    this.minYCoord = minY - originy;
+    this.maxXCoord = MathUtils.max(xcoord);
+    this.maxYCoord = MathUtils.max(ycoord);
+
     // Store the area of the input results
     area = bounds.width * bounds.height;
   }

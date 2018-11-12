@@ -51,21 +51,31 @@ import java.util.concurrent.Future;
 public class ClusteringEngine {
   /** The minimum block size for multi-threading. */
   private static final int MIN_BLOCK_SIZE = 3;
+  /**
+   * The maximum number of bins to use for the pairwise algorithm.
+   *
+   * <p>This has not been optimised. It is based on the assumption of handling data in pixel units
+   * and the default of assigning coordinates to a 512x512 grid.
+   */
+  private static final int PAIRWISE_MAX_BINS = 512;
 
   private ExecutorService threadPool;
   private int xblock;
   private int yblock;
 
-  private ClusteringAlgorithm clusteringAlgorithm = ClusteringAlgorithm.PAIRWISE;
-  private TrackProgress tracker = NullTrackProgress.getInstance();
+  private ClusteringAlgorithm clusteringAlgorithm;
+  private TrackProgress tracker;
   private int pulseInterval;
   private boolean trackJoins;
-  private int threadCount = 1;
+  private int threadCount;
   private double[] intraIdDistances;
   private double[] interIdDistances;
   private int intraIdCount;
   private int interIdCount;
-  private int nextClusterId;
+
+  /**
+   * Flag to indicate that clustering with time will use the time range (the default is start time).
+   */
   private boolean useRange;
 
   /**
@@ -295,10 +305,36 @@ public class ClusteringEngine {
   }
 
   /**
+   * A simple counter.
+   */
+  private class Counter {
+    int count;
+
+    /**
+     * Increment and get the new count.
+     *
+     * @return the count
+     */
+    int incrementAndGet() {
+      count++;
+      return count;
+    }
+
+    /**
+     * Gets the count.
+     *
+     * @return the count
+     */
+    int get() {
+      return count;
+    }
+  }
+
+  /**
    * Instantiates a new clustering engine.
    */
   public ClusteringEngine() {
-    setTracker(null);
+    this(1);
   }
 
   /**
@@ -307,20 +343,17 @@ public class ClusteringEngine {
    * @param threadCount the thread count
    */
   public ClusteringEngine(int threadCount) {
-    this.threadCount = threadCount;
-    setTracker(null);
+    this(threadCount, ClusteringAlgorithm.PAIRWISE, null);
   }
 
   /**
    * Instantiates a new clustering engine.
    *
    * @param threadCount the thread count
-   * @param custeringAlgorithm the custering algorithm
+   * @param clusteringAlgorithm the clustering algorithm
    */
-  public ClusteringEngine(int threadCount, ClusteringAlgorithm custeringAlgorithm) {
-    this.threadCount = threadCount;
-    this.clusteringAlgorithm = custeringAlgorithm;
-    setTracker(null);
+  public ClusteringEngine(int threadCount, ClusteringAlgorithm clusteringAlgorithm) {
+    this(threadCount, clusteringAlgorithm, null);
   }
 
   /**
@@ -334,7 +367,7 @@ public class ClusteringEngine {
       TrackProgress tracker) {
     this.threadCount = threadCount;
     this.clusteringAlgorithm = custeringAlgorithm;
-    setTracker(tracker);
+    this.tracker = NullTrackProgress.createIfNull(tracker);
   }
 
   /**
@@ -389,8 +422,8 @@ public class ClusteringEngine {
 
     // Extract initial cluster points using molecules with a density above 1
     // (All other points cannot be clustered at this radius)
-    final ArrayList<Cluster> candidates = new ArrayList<>(density.length);
-    final ArrayList<Cluster> singles = new ArrayList<>(density.length);
+    final List<Cluster> candidates = new ArrayList<>(density.length);
+    final List<Cluster> singles = new ArrayList<>(density.length);
     int index = 0;
     for (final ClusterPoint p : points) {
       final Cluster c = new Cluster(p);
@@ -443,14 +476,13 @@ public class ClusteringEngine {
       }
     }
 
-    // Assign to a grid
-    final int maxbins = 500;
+    // Assign to a grid.
     // If tracking potential neighbours then the cells must be larger to cover the increased
     // distance
     final double cellSize =
         (clusteringAlgorithm == ClusteringAlgorithm.PAIRWISE) ? radius : radius * 1.4142;
-    final double xbinWidth = FastMath.max(cellSize, (maxx - minx) / maxbins);
-    final double ybinWidth = FastMath.max(cellSize, (maxy - miny) / maxbins);
+    final double xbinWidth = FastMath.max(cellSize, (maxx - minx) / PAIRWISE_MAX_BINS);
+    final double ybinWidth = FastMath.max(cellSize, (maxy - miny) / PAIRWISE_MAX_BINS);
     final int nxbins = 1 + (int) ((maxx - minx) / xbinWidth);
     final int nybins = 1 + (int) ((maxy - miny) / ybinWidth);
     final Cluster[][] grid = new Cluster[nxbins][nybins];
@@ -468,7 +500,7 @@ public class ClusteringEngine {
 
     tracker.log("Clustering " + clusteringAlgorithm.toString() + " ...");
     try {
-      final ArrayList<Cluster> clusters = runFindClusters(time, candidates, singles, minx, miny,
+      final List<Cluster> clusters = runFindClusters(time, candidates, singles, minx, miny,
           xbinWidth, ybinWidth, nxbins, nybins, grid, r2);
       reportResult(clusters);
       return clusters;
@@ -477,16 +509,16 @@ public class ClusteringEngine {
     }
   }
 
-  private void reportResult(final ArrayList<Cluster> clusters) {
+  private void reportResult(final List<Cluster> clusters) {
     tracker.progress(1);
     tracker.log("Found %d clusters", (clusters == null) ? 0 : clusters.size());
   }
 
-  private ArrayList<Cluster> runFindClusters(int time, final ArrayList<Cluster> candidates,
-      final ArrayList<Cluster> singles, double minx, double miny, final double xbinWidth,
+  private List<Cluster> runFindClusters(int time, final List<Cluster> candidates,
+      final List<Cluster> singles, double minx, double miny, final double xbinWidth,
       final double ybinWidth, final int nxbins, final int nybins, final Cluster[][] grid,
       final double r2) {
-    ArrayList<Cluster> clusters;
+    List<Cluster> clusters;
     switch (clusteringAlgorithm) {
       case PAIRWISE:
         clusters = runPairwise(grid, nxbins, nybins, r2, minx, miny, xbinWidth, ybinWidth,
@@ -529,13 +561,13 @@ public class ClusteringEngine {
    * @param radius the radius
    * @return The clusters
    */
-  private ArrayList<Cluster> runParticleSingleLinkage(List<ClusterPoint> points, double radius) {
+  private List<Cluster> runParticleSingleLinkage(List<ClusterPoint> points, double radius) {
     final int[] density = calculateDensity(points, radius);
 
     // Extract initial cluster points using molecules with a density above 1
     // (All other points cannot be clustered at this radius)
-    final ArrayList<ExtendedClusterPoint> candidates = new ArrayList<>(density.length);
-    final ArrayList<Cluster> singles = new ArrayList<>(density.length);
+    final List<ExtendedClusterPoint> candidates = new ArrayList<>(density.length);
+    final List<Cluster> singles = new ArrayList<>(density.length);
     int index = 0;
     int id = 0;
     for (final ClusterPoint p : points) {
@@ -595,7 +627,7 @@ public class ClusteringEngine {
     tracker.log("Clustering " + clusteringAlgorithm.toString() + " ...");
 
     try {
-      final ArrayList<Cluster> clusters =
+      final List<Cluster> clusters =
           runParticleSingleLinkage(grid, nxbins, nybins, r2, candidates, singles);
       reportResult(clusters);
       return clusters;
@@ -604,17 +636,14 @@ public class ClusteringEngine {
     }
   }
 
-  private ArrayList<Cluster> runParticleSingleLinkage(ExtendedClusterPoint[][] grid, int nxbins,
-      int nybins, double r2, ArrayList<ExtendedClusterPoint> candidates,
-      ArrayList<Cluster> currentClusters) {
-    final int N = candidates.size();
+  private List<Cluster> runParticleSingleLinkage(ExtendedClusterPoint[][] grid, int nxbins,
+      int nybins, double r2, List<ExtendedClusterPoint> candidates, List<Cluster> currentClusters) {
+    final int totalCandidates = candidates.size();
     int candidatesProcessed = 0;
-    nextClusterId = 0; // Incremented within joinClosestParticle(...)
+    final Counter clusterCount = new Counter(); // Incremented within joinClosestParticle(...)
 
     // Used to store the cluster for each candidate
     final int[] clusterId = new int[candidates.size()];
-
-    int processed = 0;
 
     if (trackJoins) {
       interIdDistances = new double[candidates.size()];
@@ -624,12 +653,15 @@ public class ClusteringEngine {
     }
 
     initialiseMultithreading(nxbins, nybins);
-    while ((processed = joinClosestParticle(grid, nxbins, nybins, r2, clusterId)) > 0) {
+    int processed = joinClosestParticle(grid, nxbins, nybins, r2, clusterId, clusterCount);
+    while (processed > 0) {
       if (tracker.isEnded()) {
         return null;
       }
       candidatesProcessed += processed;
-      tracker.progress(candidatesProcessed, N);
+      tracker.progress(candidatesProcessed, totalCandidates);
+      // Repeat
+      processed = joinClosestParticle(grid, nxbins, nybins, r2, clusterId, clusterCount);
     }
 
     if (trackJoins) {
@@ -637,11 +669,11 @@ public class ClusteringEngine {
       intraIdDistances = Arrays.copyOf(intraIdDistances, intraIdCount);
     }
 
-    tracker.log("Processed %d / %d", candidatesProcessed, N);
-    tracker.log("%d candidates linked into %d clusters", candidates.size(), nextClusterId);
+    tracker.log("Processed %d / %d", candidatesProcessed, totalCandidates);
+    tracker.log("%d candidates linked into %d clusters", candidates.size(), clusterCount.get());
 
     // Create clusters from the original cluster points using the assignments
-    final Cluster[] clusters = new Cluster[nextClusterId];
+    final Cluster[] clusters = new Cluster[clusterCount.get()];
     final int originalSize = currentClusters.size();
     for (int i = 0; i < clusterId.length; i++) {
       final ClusterPoint originalPoint = candidates.get(i).getNext();
@@ -722,10 +754,11 @@ public class ClusteringEngine {
    * @param nybins the n Y bins
    * @param r2 The squared radius distance
    * @param clusterId the cluster id
+   * @param clusterCount the cluster count
    * @return The number of points assigned to clusters (either 0, 1, or 2)
    */
   private int joinClosestParticle(ExtendedClusterPoint[][] grid, final int nxbins, final int nybins,
-      final double r2, int[] clusterId) {
+      final double r2, int[] clusterId, Counter clusterCount) {
     ClosestPair closest = null;
 
     // Blocks must be overlapping by one bin to calculate all distances. There is no point
@@ -782,7 +815,7 @@ public class ClusteringEngine {
       } else {
         // Create a new cluster if necessary
         processed = 2;
-        clusterId[pair1.getId()] = clusterId[pair2.getId()] = ++nextClusterId;
+        clusterId[pair1.getId()] = clusterId[pair2.getId()] = clusterCount.incrementAndGet();
         pair1.setInCluster(true);
         pair2.setInCluster(true);
       }
@@ -955,7 +988,7 @@ public class ClusteringEngine {
    * @param candidates the candidates
    * @return true if there are no different time points
    */
-  private boolean noTimeInformation(ArrayList<Cluster> candidates) {
+  private boolean noTimeInformation(List<Cluster> candidates) {
     useRange = checkForTimeRange(candidates);
     final int firstT = candidates.get(0).getHeadClusterPoint().getStartTime();
     if (useRange) {
@@ -985,7 +1018,7 @@ public class ClusteringEngine {
    * @param candidates the candidates
    * @return true, if successful
    */
-  private static boolean checkForTimeRange(ArrayList<Cluster> candidates) {
+  private static boolean checkForTimeRange(List<Cluster> candidates) {
     for (final Cluster c : candidates) {
       if (c.getHeadClusterPoint().getStartTime() != c.getHeadClusterPoint().getEndTime()) {
         return true;
@@ -1010,9 +1043,9 @@ public class ClusteringEngine {
    * @param singles the singles
    * @return The clusters
    */
-  private ArrayList<Cluster> runPairwise(Cluster[][] grid, final int nxbins, final int nybins,
+  private List<Cluster> runPairwise(Cluster[][] grid, final int nxbins, final int nybins,
       final double r2, final double minx, final double miny, final double xbinWidth,
-      final double ybinWidth, ArrayList<Cluster> candidates, ArrayList<Cluster> singles) {
+      final double ybinWidth, List<Cluster> candidates, List<Cluster> singles) {
     while (findPairwiseLinks(grid, nxbins, nybins, r2)) {
       if (tracker.isEnded()) {
         return null;
@@ -1109,7 +1142,7 @@ public class ClusteringEngine {
    * @param candidates Re-populate will all the remaining clusters
    */
   private static void joinPairwiseLinks(Cluster[][] grid, int nxbins, int nybins,
-      ArrayList<Cluster> candidates) {
+      List<Cluster> candidates) {
     candidates.clear();
 
     for (int ybin = 0; ybin < nybins; ybin++) {
@@ -1150,18 +1183,18 @@ public class ClusteringEngine {
    * @param singles the singles
    * @return the list of clusters
    */
-  private ArrayList<Cluster> runPairwiseWithoutNeighbours(Cluster[][] grid, final int nxbins,
+  private List<Cluster> runPairwiseWithoutNeighbours(Cluster[][] grid, final int nxbins,
       final int nybins, final double r2, final double minx, final double miny,
-      final double xbinWidth, final double ybinWidth, ArrayList<Cluster> candidates,
-      ArrayList<Cluster> singles) {
+      final double xbinWidth, final double ybinWidth, List<Cluster> candidates,
+      List<Cluster> singles) {
     // The find method is multi-threaded
     // The remaining join and update of the grid is single threaded
     initialiseMultithreading(nxbins, nybins);
 
     // Store if the clusters have any neighbours within sqrt(2)*r and remove them
     // from the next loop.
-    final int N = candidates.size();
-    final ArrayList<Cluster> joined = new ArrayList<>();
+    final int totalCandidates = candidates.size();
+    final List<Cluster> joined = new ArrayList<>();
     while (findLinksAndCountNeighbours(grid, nxbins, nybins, r2)) {
       if (tracker.isEnded()) {
         return null;
@@ -1172,7 +1205,7 @@ public class ClusteringEngine {
         break; // This should not happen
       }
 
-      tracker.progress((long) N - candidates.size(), N);
+      tracker.progress((long) totalCandidates - candidates.size(), totalCandidates);
 
       // TODO - determine at what point it is faster to reassign the grid
       if (joins < candidates.size() / 5) {
@@ -1278,6 +1311,11 @@ public class ClusteringEngine {
    */
   @FunctionalInterface
   private interface ClusterNeighbourIncrementer {
+    /**
+     * Increment the neighbour count.
+     *
+     * @param cluster the cluster
+     */
     void incrementNeighbour(Cluster cluster);
   }
 
@@ -1286,6 +1324,14 @@ public class ClusteringEngine {
    */
   @FunctionalInterface
   private interface ClusterLinker {
+    /**
+     * Link the two clusters if neither is already joined at a distance less that the squared
+     * distance.
+     *
+     * @param c1 the first cluster
+     * @param c2 the second cluster
+     * @param d2 the squared distance
+     */
     void link(Cluster c1, Cluster c2, double d2);
   }
 
@@ -1381,7 +1427,7 @@ public class ClusteringEngine {
    * @return The number of joins that were made
    */
   private static int joinLinks(Cluster[][] grid, int nxbins, int nybins, double r2,
-      ArrayList<Cluster> candidates, ArrayList<Cluster> joined, ArrayList<Cluster> singles) {
+      List<Cluster> candidates, List<Cluster> joined, List<Cluster> singles) {
     candidates.clear();
     joined.clear();
 
@@ -1460,10 +1506,10 @@ public class ClusteringEngine {
    * @param single True if only singles can be joined to another cluster
    * @return the list of clusters
    */
-  private ArrayList<Cluster> runClosest(Cluster[][] grid, int nxbins, int nybins, double r2,
-      double minx, double miny, double xbinWidth, double ybinWidth, ArrayList<Cluster> candidates,
-      ArrayList<Cluster> singles, boolean single) {
-    final int N = candidates.size();
+  private List<Cluster> runClosest(Cluster[][] grid, int nxbins, int nybins, double r2, double minx,
+      double miny, double xbinWidth, double ybinWidth, List<Cluster> candidates,
+      List<Cluster> singles, boolean single) {
+    final int totalCandidates = candidates.size();
     int candidatesProcessed = 0;
     int singlesSize = singles.size();
     final boolean trackProgress = (tracker.getClass() != NullTrackProgress.class);
@@ -1477,7 +1523,7 @@ public class ClusteringEngine {
       if (trackProgress) {
         candidatesProcessed += singles.size() - singlesSize;
         singlesSize = singles.size();
-        tracker.progress(candidatesProcessed++, N);
+        tracker.progress(candidatesProcessed++, totalCandidates);
       }
     }
 
@@ -1701,8 +1747,8 @@ public class ClusteringEngine {
    * @param nybins the n Y bins
    * @return The combined clusters
    */
-  private static ArrayList<Cluster> combine(ArrayList<Cluster> singles, Cluster[][] grid,
-      int nxbins, int nybins) {
+  private static List<Cluster> combine(List<Cluster> singles, Cluster[][] grid, int nxbins,
+      int nybins) {
     for (int xbin = 0; xbin < nxbins; xbin++) {
       for (int ybin = 0; ybin < nybins; ybin++) {
         for (Cluster c1 = grid[xbin][ybin]; c1 != null; c1 = c1.getNext()) {
@@ -1841,10 +1887,10 @@ public class ClusteringEngine {
    * @param single True if only singles can be joined to another cluster
    * @return the list of clusters
    */
-  private ArrayList<Cluster> runClosestTimePriority(Cluster[][] grid, int nxbins, int nybins,
-      double r2, int time, double minx, double miny, double xbinWidth, double ybinWidth,
-      ArrayList<Cluster> candidates, ArrayList<Cluster> singles, boolean single) {
-    final int N = candidates.size();
+  private List<Cluster> runClosestTimePriority(Cluster[][] grid, int nxbins, int nybins, double r2,
+      int time, double minx, double miny, double xbinWidth, double ybinWidth,
+      List<Cluster> candidates, List<Cluster> singles, boolean single) {
+    final int totalCandidates = candidates.size();
     int candidatesProcessed = 0;
     int singleSize = singles.size();
     final boolean trackProgress = (tracker.getClass() != NullTrackProgress.class);
@@ -1860,7 +1906,7 @@ public class ClusteringEngine {
       if (trackProgress) {
         candidatesProcessed += singles.size() - singleSize;
         singleSize = singles.size();
-        tracker.progress(candidatesProcessed++, N);
+        tracker.progress(candidatesProcessed++, totalCandidates);
       }
     }
 
@@ -2210,10 +2256,10 @@ public class ClusteringEngine {
    * @param single True if only singles can be joined to another cluster
    * @return the list of clusters
    */
-  private ArrayList<Cluster> runClosestDistancePriority(Cluster[][] grid, int nxbins, int nybins,
+  private List<Cluster> runClosestDistancePriority(Cluster[][] grid, int nxbins, int nybins,
       double r2, int time, double minx, double miny, double xbinWidth, double ybinWidth,
-      ArrayList<Cluster> candidates, ArrayList<Cluster> singles, boolean single) {
-    final int N = candidates.size();
+      List<Cluster> candidates, List<Cluster> singles, boolean single) {
+    final int totalCandidates = candidates.size();
     int candidatesProcessed = 0;
     int singlesSize = singles.size();
     final boolean trackProgress = (tracker.getClass() != NullTrackProgress.class);
@@ -2229,7 +2275,7 @@ public class ClusteringEngine {
       if (trackProgress) {
         candidatesProcessed += singles.size() - singlesSize;
         singlesSize = singles.size();
-        tracker.progress(candidatesProcessed++, N);
+        tracker.progress(candidatesProcessed++, totalCandidates);
       }
     }
 

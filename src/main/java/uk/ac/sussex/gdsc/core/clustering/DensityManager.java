@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
+import uk.ac.sussex.gdsc.core.utils.ArgumentUtils;
+
 import org.apache.commons.math3.util.FastMath;
 
 import java.awt.Rectangle;
@@ -42,12 +44,15 @@ public class DensityManager extends CoordinateStore {
    * Represent a molecule in 2D space.
    */
   private static class Molecule {
+    /** The id. */
     int id;
+    /** The x. */
     float x;
+    /** The y. */
     float y;
 
-    // Used to construct a single linked list of molecules
-    Molecule next = null;
+    /** Used to construct a single linked list of molecules. */
+    Molecule next;
 
     Molecule(int id, float x, float y, Molecule next) {
       this.id = id;
@@ -97,9 +102,7 @@ public class DensityManager extends CoordinateStore {
    */
   public int[] calculateSquareDensity(float radius, int resolution, boolean adjustForBorder) {
     checkRadius(radius);
-    if (resolution < 1) {
-      throw new IllegalArgumentException("Resolution must be strictly positive");
-    }
+    ArgumentUtils.checkCondition(resolution > 0, "Resolution must be strictly positive");
 
     final float cellSize = radius / resolution;
 
@@ -958,8 +961,6 @@ public class DensityManager extends CoordinateStore {
    * @param radius the radius
    */
   private static void checkRadius(double radius) {
-    if (radius <= 0) {
-      throw new IllegalArgumentException("Radius must be strictly positive");
-    }
+    ArgumentUtils.checkCondition(radius > 0, "Radius must be strictly positive");
   }
 }

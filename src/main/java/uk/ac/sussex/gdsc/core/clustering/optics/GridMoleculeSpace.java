@@ -117,7 +117,7 @@ class GridMoleculeSpace extends MoleculeSpace {
         resolution = 1;
         binWidth = determineBinWidth(xrange, yrange);
       } else {
-        adjustResolution(xrange, yrange);
+        adjustMaximumResolution(xrange, yrange);
         binWidth = generatingDistanceE / resolution;
       }
     }
@@ -224,31 +224,34 @@ class GridMoleculeSpace extends MoleculeSpace {
   }
 
   /**
-   * Adjust resolution.
+   * Adjust the maximum resolution.
+   * 
+   * <p>This will be called with the output from {@link #determineMaximumResolution(float, float)}
+   * allowing an algorithm to optimise the resolution.
    *
    * @param xrange the xrange
    * @param yrange the yrange
    */
-  void adjustResolution(final float xrange, final float yrange) {
-    // This has been optimised using a simple JUnit test to increase the number of molecules in the
-    // square region.
-
+  void adjustMaximumResolution(final float xrange, final float yrange) {
+    // ------
+    // Note:
+    // Testing shows there does not appear to be much benefit from higher resolution as the
+    // number of distance comparisons is the limiting factor.
+    //
     // If the grid is far too small then many of the lists in each cell will be empty.
     // If the grid is too small then many of the lists in each cell will be empty or contain only 1
     // item.
     // This leads to setting up a for loop through only 1 item.
     // If the grid is too large then the outer cells may contain many points that are too far from
     // the centre, missing the chance to ignore them.
-
-    // We can set the resolution using a simple look-up table.
-    final int newResolution = 2;
-    // ------
-    // Note:
-    // A JUnit test shows there does not appear to be much benefit from higher resolution as the
-    // number of distance comparisons is the limiting factor.
-    // So currently this code is commented out.
+    //
+    // So currently this code is commented out and the resolution limited to 2.
+    resolution = Math.min(2, resolution);
     // ------
 
+    // Set the resolution using a simple look-up table.
+
+    // int newResolution = 2;
     // double nMoleculesInArea = getNMoleculesInGeneratingArea(xrange, yrange);
     // if (nMoleculesInArea < 20)
     // newResolution = 2;
@@ -260,21 +263,7 @@ class GridMoleculeSpace extends MoleculeSpace {
     // // When there are a lot more molecules then the speed is limited by the all-vs-all
     // comparison, not finding the molecules so this is an upper limit.
     // newResolution = 5;
-
-    resolution = Math.min(newResolution, resolution);
-  }
-
-  /**
-   * Get the number of distance comparisons.
-   *
-   * @param molecules the molecules
-   * @return the number of distance comparisons
-   */
-  public static double comparisons(double molecules) {
-    if (molecules < 1) {
-      return 0;
-    }
-    return molecules * (molecules - 1) / 2;
+    // resolution = Math.min(newResolution, resolution);
   }
 
   private float determineBinWidth(float xrange, float yrange) {

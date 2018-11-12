@@ -115,7 +115,7 @@ class Molecule {
   /**
    * Reset for fresh processing.
    */
-  void reset() {
+  final void reset() {
     processed = false;
     predecessor = -1;
     setWorkingData(0);

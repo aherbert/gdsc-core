@@ -44,7 +44,43 @@ import java.util.logging.Logger;
  * Calculate the density of classes of molecules around a given position.
  */
 public class DensityCounter {
+
+  /** The square root of 2. */
   private static final double ROOT2 = Math.sqrt(2.0);
+
+  /** Synchronised mode. */
+  static final byte MODE_SYNC = 0;
+  /** Non-synchronised mode. */
+  static final byte MODE_NON_SYNC = 1;
+
+  /** The radius. */
+  private final float radius;
+
+  private final float r2;
+  private final float xmin;
+  private final float ymin;
+  private final float binWidth;
+  private final int nxbins;
+  private final int nybins;
+  private final int moleculesCount;
+  private final IndexMolecule[][] grid;
+
+  private final int nonEmpty;
+  private final int maxCellSize;
+
+  /** The grid priority. */
+  int[] gridPriority;
+
+  // Note:
+  // Multi-threading is not faster unless the
+  // number of molecules is very large and/or the radius (i.e. the total
+  // number of comparisons). However at low numbers of comparison the
+  // speed slow-down for multi-threading will likely not be noticed so
+  // default to multi-threading.
+  private int numberOfThreads = -1;
+
+  /** Multi-thread mode. */
+  private byte multiThreadMode = MODE_NON_SYNC;
 
   /**
    * Specify a molecule.
@@ -183,8 +219,11 @@ public class DensityCounter {
     }
   }
 
+  /**
+   * A simple list of molecules.
+   */
   private static class MoleculeList {
-    int size = 0;
+    int size;
     IndexMolecule[] data = new IndexMolecule[1];
 
     void add(Molecule molecule, int index) {
@@ -196,64 +235,6 @@ public class DensityCounter {
 
     IndexMolecule[] toArray() {
       return Arrays.copyOf(data, size);
-    }
-  }
-
-  /** The radius. */
-  private final float radius;
-
-  private final float r2;
-  private final float xmin;
-  private final float ymin;
-  private final float binWidth;
-  private final int nxbins;
-  private final int nybins;
-  private final int moleculesCount;
-  private final IndexMolecule[][] grid;
-
-  private final int nonEmpty;
-  private final int maxCellSize;
-
-  /** The grid priority. */
-  int[] gridPriority = null;
-
-  // Note:
-  // Multi-threading is not faster unless the
-  // number of molecules is very large and/or the radius (i.e. the total
-  // number of comparisons). However at low numbers of comparison the
-  // speed slow-down for multi-threading will likely not be noticed so
-  // default to multi-threading.
-  private int numberOfThreads = -1;
-
-  /** Synchronised mode. */
-  static final byte MODE_SYNC = 0;
-  /** Non-synchronised mode. */
-  static final byte MODE_NON_SYNC = 1;
-  /** Multi-thread mode. */
-  private byte multiThreadMode = MODE_NON_SYNC;
-
-  /**
-   * Gets the number of threads to use for multi-threaded algorithms.
-   *
-   * @return the number of threads
-   */
-  public int getNumberOfThreads() {
-    if (numberOfThreads == -1) {
-      numberOfThreads = Runtime.getRuntime().availableProcessors();
-    }
-    return numberOfThreads;
-  }
-
-  /**
-   * Sets the number of threads to use for multi-threaded algorithms.
-   *
-   * @param numberOfThreads the new number of threads
-   */
-  public void setNumberOfThreads(int numberOfThreads) {
-    if (numberOfThreads > 0) {
-      this.numberOfThreads = numberOfThreads;
-    } else {
-      this.numberOfThreads = 1;
     }
   }
 
@@ -281,8 +262,7 @@ public class DensityCounter {
     } else {
       float minx = Float.POSITIVE_INFINITY;
       float miny = Float.POSITIVE_INFINITY;
-      for (int i = 0; i < molecules.length; i++) {
-        final Molecule m = molecules[i];
+      for (final Molecule m : molecules) {
         if (minx > m.getX()) {
           minx = m.getX();
         }
@@ -294,10 +274,9 @@ public class DensityCounter {
       ymin = miny;
     }
 
-    float xmax = 0;
-    float ymax = 0;
-    for (int i = 0; i < molecules.length; i++) {
-      final Molecule m = molecules[i];
+    float xmax = Float.NEGATIVE_INFINITY;
+    float ymax = Float.NEGATIVE_INFINITY;
+    for (final Molecule m : molecules) {
       if (xmax < m.getX()) {
         xmax = m.getX();
       }
@@ -457,8 +436,7 @@ public class DensityCounter {
   public Molecule[] getMolecules() {
     // Extract the molecules
     final Molecule[] molecules = new Molecule[moleculesCount];
-    for (int i = 0; i < grid.length; i++) {
-      final IndexMolecule[] cell1 = grid[i];
+    for (final IndexMolecule[] cell1 : grid) {
       if (cell1 == null) {
         continue;
       }
@@ -570,8 +548,7 @@ public class DensityCounter {
       final float x = m1.getX();
       final float y = m1.getY();
 
-      for (int j = 0; j < molecules.length; j++) {
-        final Molecule m2 = molecules[j];
+      for (final Molecule m2 : molecules) {
         if (distance2(x, y, m2) < r2) {
           count1[m2.getId()]++;
         }
@@ -756,11 +733,16 @@ public class DensityCounter {
       final TurboList<Future<?>> futures = new TurboList<>(threadCount);
 
       final int nPerThread = (int) Math.ceil((double) moleculesLength / threadCount);
-      for (int from = 0; from < moleculesLength;) {
+      for (int molecule = 0; molecule < moleculesLength;) {
+        final int from = molecule;
         final int to = Math.min(from + nPerThread, moleculesLength);
-        futures.add(
-            executor.submit(new MoleculeCountWorker(searchMolecules, maxId, results, from, to)));
-        from = to;
+        futures.add(executor.submit(() -> {
+          final int[] neighbours = new int[9];
+          for (int i = from; i < to; i++) {
+            results[i] = count(searchMolecules[i], maxId, neighbours);
+          }
+        }));
+        molecule = to;
       }
 
       ConcurrencyUtils.waitForCompletionOrError(futures, DensityCounter::logException);
@@ -786,8 +768,7 @@ public class DensityCounter {
       // Histogram the size of each cell.
       // This should not be a memory problem as no cell will be larger than moleculesLength.
       final int[] h = new int[maxCellSize + 1];
-      for (int i = 0; i < grid.length; i++) {
-        final IndexMolecule[] cell1 = grid[i];
+      for (final IndexMolecule[] cell1 : grid) {
         if (cell1 == null) {
           continue;
         }
@@ -824,7 +805,8 @@ public class DensityCounter {
 
   private int addNeighbour(int[] neighbours, int count, int index) {
     if (grid[index] != null) {
-      neighbours[count++] = index;
+      neighbours[count] = index;
+      return count + 1;
     }
     return count;
   }
@@ -841,7 +823,7 @@ public class DensityCounter {
 
     // For thread safety we create a stash of updates to the results which are then applied
     // in a synchronised method
-    int indexCount = 0;
+    int indexCount;
     int[] indexData = new int[2000];
     int[] idData = new int[2000];
 
@@ -862,7 +844,7 @@ public class DensityCounter {
       indexCount = 0;
     }
 
-    public CountWorker(int[][] results, int[] process, int from, int to) {
+    CountWorker(int[][] results, int[] process, int from, int to) {
       this.results = results;
       this.process = process;
       this.from = from;
@@ -927,8 +909,7 @@ public class DensityCounter {
           results[indexData[indexCount]][idData[indexCount]]++;
         }
 
-        for (int i = 0; i < results1.length; i++) {
-          final int[] count1 = results1[i];
+        for (final int[] count1 : results1) {
           // We store the index at the end of the array
           final int[] count = results[count1[countSize]];
           for (int j = 0; j < countSize; j++) {
@@ -949,7 +930,7 @@ public class DensityCounter {
     final int from;
     final int to;
 
-    public CountWorker2(int[][] results, int[] process, int from, int to) {
+    CountWorker2(int[][] results, int[] process, int from, int to) {
       this.results = results;
       this.process = process;
       this.from = from;
@@ -1169,6 +1150,31 @@ public class DensityCounter {
   }
 
   /**
+   * Gets the number of threads to use for multi-threaded algorithms.
+   *
+   * @return the number of threads
+   */
+  public int getNumberOfThreads() {
+    if (numberOfThreads == -1) {
+      numberOfThreads = Runtime.getRuntime().availableProcessors();
+    }
+    return numberOfThreads;
+  }
+
+  /**
+   * Sets the number of threads to use for multi-threaded algorithms.
+   *
+   * @param numberOfThreads the new number of threads
+   */
+  public void setNumberOfThreads(int numberOfThreads) {
+    if (numberOfThreads > 0) {
+      this.numberOfThreads = numberOfThreads;
+    } else {
+      this.numberOfThreads = 1;
+    }
+  }
+
+  /**
    * Gets the radius.
    *
    * @return the radius
@@ -1193,32 +1199,5 @@ public class DensityCounter {
    */
   void setMultiThreadMode(byte multiThreadMode) {
     this.multiThreadMode = multiThreadMode;
-  }
-
-  /**
-   * For processing the countAll method using an all neighbour cell comparison.
-   */
-  private class MoleculeCountWorker implements Runnable {
-    final Molecule[] molecules;
-    final int maxId;
-    final int[][] results;
-    final int from;
-    final int to;
-
-    public MoleculeCountWorker(Molecule[] molecules, int maxId, int[][] results, int from, int to) {
-      this.molecules = molecules;
-      this.maxId = maxId;
-      this.results = results;
-      this.from = from;
-      this.to = to;
-    }
-
-    @Override
-    public void run() {
-      final int[] neighbours = new int[9];
-      for (int i = from; i < to; i++) {
-        results[i] = count(molecules[i], maxId, neighbours);
-      }
-    }
   }
 }

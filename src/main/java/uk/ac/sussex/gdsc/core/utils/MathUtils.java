@@ -34,7 +34,7 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 
 /**
- * Simple class to calculate statistics of data.
+ * Contains Math utilities.
  */
 public final class MathUtils {
 
@@ -1362,5 +1362,62 @@ public final class MathUtils {
    */
   public static boolean isInteger(float value) {
     return ((int) (value) == value);
+  }
+
+  /**
+   * Returns the error function.
+   *
+   * <p>erf(x) = 2/&radic;&pi; <sub>0</sub>&int;<sup>x</sup> e<sup>-t*t</sup>dt </p>
+   *
+   * <p>This implementation computes erf(x) using the approximation by Abramowitz and Stegun. The
+   * maximum absolute error is about 3e-7 for all x. </p>
+   *
+   * <p>The value returned is always between -1 and 1 (inclusive). If {@code abs(x) > 40}, then
+   * {@code erf(x)} is indistinguishable from either 1 or -1 as a double, so the appropriate extreme
+   * value is returned. </p>
+   *
+   * @param x the value.
+   * @return the error function erf(x)
+   */
+  public static double erf(double x) {
+    if (x < 0) {
+      // Negate the symmetric result
+      return -computeErf(-x);
+    }
+    return computeErf(x);
+  }
+
+  /**
+   * Returns the error function of a positive value.
+   *
+   * <p>erf(x) = 2/&radic;&pi; <sub>0</sub>&int;<sup>x</sup> e<sup>-t*t</sup>dt </p>
+   *
+   * <p>This implementation computes erf(x) using the approximation by Abramowitz and Stegun. The
+   * maximum absolute error is about 3e-7 for all x. </p>
+   *
+   * <p>The value returned is always between -1 and 1 (inclusive). If {@code abs(x) > 40}, then
+   * {@code erf(x)} is indistinguishable from either 1 or -1 as a double, so the appropriate extreme
+   * value is returned. </p>
+   *
+   * @param x the value.
+   * @return the error function erf(x)
+   */
+  private static double computeErf(double x) {
+    if (x > 6.183574750897915) {
+      // At the limit
+      return 1;
+    }
+
+    final double x2 = x * x;
+    final double x3 = x2 * x;
+    return 1 - 1 / power16(1.0 + 0.0705230784 * x + 0.0422820123 * x2 + 0.0092705272 * x3
+        + 0.0001520143 * x2 * x2 + 0.0002765672 * x2 * x3 + 0.0000430638 * x3 * x3);
+  }
+
+  private static double power16(double value) {
+    value = value * value; // power2
+    value = value * value; // power4
+    value = value * value; // power8
+    return value * value;
   }
 }

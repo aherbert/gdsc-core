@@ -32,10 +32,11 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  * Used in the DBSCAN/OPTICS algorithms to represent 2D molecules.
  */
 class GridMolecule extends DistanceMolecule {
-  // Used to construct a single linked list of molecules
-  private GridMolecule next = null;
-
+  /** The next molecule in a single linked list of molecules. */
+  private GridMolecule next;
+  /** The x-bin. */
   private final int xbin;
+  /** The y-bin. */
   private final int ybin;
 
   /**

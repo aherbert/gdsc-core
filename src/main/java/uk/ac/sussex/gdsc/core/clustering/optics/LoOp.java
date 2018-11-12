@@ -32,6 +32,7 @@ import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.FloatIntKdTree2D;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.IntNeighbourStore;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.Status;
 import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 import java.util.concurrent.ExecutionException;
@@ -56,9 +57,161 @@ import java.util.concurrent.Future;
  * https://elki-project.github.io/.
  */
 public class LoOp {
+
+  /** The number of threads. */
   private int numberOfThreads = -1;
+
+  /** The KD tree used to store the points for an efficient neighbour search. */
   private final FloatIntKdTree2D.SqrEuclid2D tree;
+
+  /** The points. */
   private final float[][] points;
+
+  /**
+   * Class to store the nearest neighbours of each point.
+   */
+  private static class KnnStore implements IntNeighbourStore {
+
+    /** The neighbours. */
+    final int[][] neighbours;
+
+    /** The current index in the neighbours. */
+    int index;
+
+    /** The size of the current list of neighbours. */
+    int size;
+
+    /** This is a reference to the neighbours at the current index. */
+    int[] neighboursAtIndex;
+
+    /** Sum-of-squared distances for the current neighbours. */
+    double sumDistances;
+
+    KnnStore(int[][] neighbours) {
+      this.neighbours = neighbours;
+    }
+
+    @Override
+    public void add(double distance, int neighbour) {
+      if (index == neighbour) {
+        // Ignore self
+        return;
+      }
+      sumDistances += distance;
+      neighboursAtIndex[size++] = neighbour;
+    }
+
+    /**
+     * Reset for processing the specified index.
+     *
+     * @param index the index
+     */
+    void reset(int index) {
+      this.index = index;
+      sumDistances = 0;
+      size = 0;
+      neighboursAtIndex = neighbours[index];
+    }
+  }
+
+  /**
+   * Class to count the nearest neighbours of each point.
+   */
+  private class KnnWorker implements Runnable {
+    final int numberOfNeigbours;
+    final double[] pd;
+    final int from;
+    final int to;
+    final KnnStore store;
+
+    KnnWorker(int[][] neighbours, int numberOfNeigbours, double[] pd, int from, int to) {
+      this.numberOfNeigbours = numberOfNeigbours;
+      this.pd = pd;
+      this.from = from;
+      this.to = to;
+      store = new KnnStore(neighbours);
+    }
+
+    @Override
+    public void run() {
+      // Note: The numberOfNeigbours-nearest neighbour search will include the actual
+      // point so increment by 1
+      final int k1 = numberOfNeigbours + 1;
+      final Status[] status = new Status[tree.getNumberOfNodes()];
+      for (int i = from; i < to; i++) {
+        store.reset(i);
+        tree.nearestNeighbor(points[i], k1, store, status);
+        pd[i] = Math.sqrt(store.sumDistances / numberOfNeigbours);
+      }
+    }
+  }
+
+  /**
+   * Class to compute the Probabilistic Local Outlier Factors (PLOF).
+   */
+  private static class PlofWorker implements Runnable {
+    final int[][] neighbours;
+    final int numberOfNeigbours;
+    final double[] pd;
+    final double[] plofs;
+    final int from;
+    final int to;
+    double nplof = 0;
+
+    PlofWorker(int[][] neighbours, int numberOfNeigbours, double[] pd, double[] plofs, int from,
+        int to) {
+      this.neighbours = neighbours;
+      this.numberOfNeigbours = numberOfNeigbours;
+      this.pd = pd;
+      this.plofs = plofs;
+      this.from = from;
+      this.to = to;
+    }
+
+    @Override
+    public void run() {
+      for (int i = from; i < to; i++) {
+        double sum = 0;
+        final int[] list = neighbours[i];
+        for (int j = numberOfNeigbours; j-- > 0;) {
+          sum += pd[list[j]];
+        }
+        double plof = (sum == 0) ? 1 : max(pd[i] * numberOfNeigbours / sum, 1.0);
+        if (Double.isFinite(plof)) {
+          nplof += MathUtils.pow2(plof - 1.0);
+        } else {
+          plof = 1.0;
+        }
+        plofs[i] = plof;
+      }
+    }
+
+    private static double max(double value1, double value2) {
+      return value1 >= value2 ? value1 : value2;
+    }
+  }
+
+  private static class NormWorker implements Runnable {
+    final double[] plofs;
+    final double norm;
+    final int from;
+    final int to;
+
+    NormWorker(double[] plofs, double norm, int from, int to) {
+      this.plofs = plofs;
+      this.norm = norm;
+      this.from = from;
+      this.to = to;
+    }
+
+    @Override
+    public void run() {
+      for (int i = from; i < to; i++) {
+        // Use an approximation for speed
+        plofs[i] = MathUtils.erf((plofs[i] - 1.0) * norm);
+      }
+    }
+  }
 
   /**
    * Create a new instance.
@@ -96,179 +249,6 @@ public class LoOp {
    */
   public static LoOp wrap(float[][] points) {
     return new LoOp(points);
-  }
-
-  /**
-   * Get the number of points.
-   *
-   * @return the number of points
-   */
-  public int size() {
-    return points.length;
-  }
-
-  private static class KnnStore implements IntNeighbourStore {
-    final int[][] neighbours;
-    int index;
-    int size;
-    int[] list;
-
-    // Sum-of-squared distances
-    double sumDistances;
-
-    public KnnStore(int[][] neighbours) {
-      this.neighbours = neighbours;
-    }
-
-    @Override
-    public void add(double distance, int neighbour) {
-      if (index == neighbour) {
-        // Ignore self
-        return;
-      }
-      sumDistances += distance;
-      list[size++] = neighbour;
-    }
-
-    public void reset(int index) {
-      this.index = index;
-      sumDistances = 0;
-      size = 0;
-      list = neighbours[index];
-    }
-  }
-
-  private class KnnWorker implements Runnable {
-    final int numberOfNeigbours;
-    final double[] pd;
-    final int from;
-    final int to;
-    final KnnStore store;
-
-    KnnWorker(int[][] neighbours, int numberOfNeigbours, double[] pd, int from, int to) {
-      this.numberOfNeigbours = numberOfNeigbours;
-      this.pd = pd;
-      this.from = from;
-      this.to = to;
-      store = new KnnStore(neighbours);
-    }
-
-    @Override
-    public void run() {
-      // Note: The numberOfNeigbours-nearest neighbour search will include the actual
-      // point so increment by 1
-      final int k1 = numberOfNeigbours + 1;
-      final Status[] status = new Status[tree.getNumberOfNodes()];
-      for (int i = from; i < to; i++) {
-        store.reset(i);
-        tree.nearestNeighbor(points[i], k1, store, status);
-        pd[i] = Math.sqrt(store.sumDistances / numberOfNeigbours);
-      }
-    }
-  }
-
-  private static class PlofWorker implements Runnable {
-    final int[][] neighbours;
-    final int numberOfNeigbours;
-    final double[] pd;
-    final double[] plofs;
-    final int from;
-    final int to;
-    double nplof = 0;
-
-    PlofWorker(int[][] neighbours, int numberOfNeigbours, double[] pd, double[] plofs, int from,
-        int to) {
-      this.neighbours = neighbours;
-      this.numberOfNeigbours = numberOfNeigbours;
-      this.pd = pd;
-      this.plofs = plofs;
-      this.from = from;
-      this.to = to;
-    }
-
-    @Override
-    public void run() {
-      for (int i = from; i < to; i++) {
-        double sum = 0;
-        final int[] list = neighbours[i];
-        for (int j = numberOfNeigbours; j-- > 0;) {
-          sum += pd[list[j]];
-        }
-        double plof = (sum == 0) ? 1 : max(pd[i] * numberOfNeigbours / sum, 1.0);
-        if (Double.isNaN(plof) || Double.isInfinite(plof)) {
-          plof = 1.0;
-        } else {
-          nplof += (plof - 1.0) * (plof - 1.0);
-        }
-        plofs[i] = plof;
-      }
-    }
-
-    private static double max(double value1, double value2) {
-      return value1 >= value2 ? value1 : value2;
-    }
-  }
-
-  private static class NormWorker implements Runnable {
-    final double[] plofs;
-    final double norm;
-    final int from;
-    final int to;
-
-    NormWorker(double[] plofs, double norm, int from, int to) {
-      this.plofs = plofs;
-      this.norm = norm;
-      this.from = from;
-      this.to = to;
-    }
-
-    @Override
-    public void run() {
-      for (int i = from; i < to; i++) {
-        // Use an approximation for speed
-        plofs[i] = erf((plofs[i] - 1.0) * norm);
-      }
-    }
-  }
-
-  /**
-   * Returns the error function.
-   *
-   * <p>erf(x) = 2/&radic;&pi; <sub>0</sub>&int;<sup>x</sup> e<sup>-t*t</sup>dt </p>
-   *
-   * <p>This implementation computes erf(x) using the approximation by Abramowitz and Stegun. The
-   * maximum absolute error is about 3e-7 for all x. </p>
-   *
-   * <p>The value returned is always between -1 and 1 (inclusive). If {@code abs(x) > 40}, then
-   * {@code erf(x)} is indistinguishable from either 1 or -1 as a double, so the appropriate extreme
-   * value is returned. </p>
-   *
-   * @param x the value.
-   * @return the error function erf(x)
-   */
-  public static double erf(double x) {
-    final boolean negative = (x < 0);
-    if (negative) {
-      x = -x;
-    }
-    if (x > 6.183574750897915) {
-      return negative ? -1 : 1;
-    }
-
-    final double x2 = x * x;
-    final double x3 = x2 * x;
-    final double ret =
-        1 - 1 / power16(1.0 + 0.0705230784 * x + 0.0422820123 * x2 + 0.0092705272 * x3
-            + 0.0001520143 * x2 * x2 + 0.0002765672 * x2 * x3 + 0.0000430638 * x3 * x3);
-
-    return (negative) ? -ret : ret;
-  }
-
-  private static double power16(double value) {
-    value = value * value; // power2
-    value = value * value; // power4
-    value = value * value; // power8
-    return value * value;
   }
 
   /**
@@ -347,6 +327,15 @@ public class LoOp {
       throws InterruptedException, ExecutionException {
     ConcurrencyUtils.waitForCompletion(futures);
     futures.clear();
+  }
+
+  /**
+   * Get the number of points.
+   *
+   * @return the number of points
+   */
+  public int size() {
+    return points.length;
   }
 
   /**

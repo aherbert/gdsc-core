@@ -32,6 +32,10 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  * Represent a circular kernel around a central pixel with size 2 * resolution + 1.
  */
 public class CircularKernelOffset {
+
+  /** The constant 1 used to set the limit of the circular kernel. */
+  private static final double ONE = 1;
+
   /** The start. */
   final int start;
 
@@ -55,7 +59,7 @@ public class CircularKernelOffset {
    * @param endInternal the end internal
    * @param end the end
    */
-  CircularKernelOffset(int start, int startInternal, int endInternal, int end) {
+  private CircularKernelOffset(int start, int startInternal, int endInternal, int end) {
     this.start = start;
     this.startInternal = startInternal;
     this.endInternal = endInternal;
@@ -102,10 +106,7 @@ public class CircularKernelOffset {
     // ..........X
     // ..........X
 
-    final double generatingDistanceE = 1;
-    final double binWidth = generatingDistanceE / resolution;
-
-    final double e = generatingDistanceE * generatingDistanceE;
+    final double binWidth = ONE / resolution;
 
     // External:
     // The closest distance to the origin is above the generating distance
@@ -129,7 +130,7 @@ public class CircularKernelOffset {
     for (int y = 0; y <= resolution; y++) {
       // Move the outer pixel if it is above the limit and the minimum distance is currently
       // outside.
-      double target = e - distance2(origY, y, binWidth);
+      double target = ONE - distance2(origY, y, binWidth);
       while (outerX > 0 && distance2(origX, outerX, binWidth) > target) {
         outerX--;
         // Update origin
@@ -145,7 +146,7 @@ public class CircularKernelOffset {
       // inside.
       // This may be at the limit so check before distance calculations
       if (innerX != -1) {
-        target = e - distance2(y + 1, binWidth);
+        target = ONE - distance2(y + 1, binWidth);
         while (innerX > -1 && distance2(innerX + 1, binWidth) > target) {
           innerX--;
         }

@@ -124,8 +124,8 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
   }
 
   @Override
-  void adjustResolution(float xrange, float yrange) {
-    // This has been optimised using a simple JUnit test to increase the number of molecules in the
+  void adjustMaximumResolution(float xrange, float yrange) {
+    // This has been optimised using a simple test to increase the number of molecules in the
     // circle region.
 
     // If the grid is far too small then many of the lists in each cell will be empty.
@@ -133,8 +133,7 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
     // item.
     // This leads to setting up a for loop through only 1 item.
     // If the grid is too large then the outer cells may contain many points that are too far from
-    // the
-    // centre, missing the chance to ignore them.
+    // the centre, missing the chance to ignore them.
 
     final double nMoleculesInArea = getNMoleculesInGeneratingArea(xrange, yrange);
 
