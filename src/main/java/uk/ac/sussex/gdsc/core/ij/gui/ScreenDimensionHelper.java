@@ -53,8 +53,8 @@ public class ScreenDimensionHelper {
   // Max height - Set to a reasonable value for current screen resolution.
   private int maxHeight = screenDimension.height - 150;
 
-  private int minWidth = 0;
-  private int minHeight = 0;
+  private int minWidth;
+  private int minHeight;
 
   /**
    * Gets the screen size.

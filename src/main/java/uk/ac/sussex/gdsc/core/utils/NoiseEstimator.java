@@ -100,8 +100,8 @@ public class NoiseEstimator {
   }
 
   private final float[] data;
-  private float[] residuals = null;
-  private float[] quickResiduals = null;
+  private float[] residuals;
+  private float[] quickResiduals;
   private final int maxx;
   private final int maxy;
 
@@ -111,7 +111,7 @@ public class NoiseEstimator {
    * modify the residuals (LeastMedian or LeastTrimmed). If false these methods destroy the
    * residuals which then have to be recomputed.
    */
-  private boolean preserveResiduals = false;
+  private boolean preserveResiduals;
 
   /**
    * Instantiates a new noise estimator.
@@ -254,7 +254,7 @@ public class NoiseEstimator {
   }
 
   private class ResidualsLeastMedianSquareEstimator implements Estimator {
-    boolean quick = false;
+    boolean quick;
 
     ResidualsLeastMedianSquareEstimator(boolean quick) {
       this.quick = quick;
@@ -290,7 +290,7 @@ public class NoiseEstimator {
   }
 
   private class ResidualsLeastTrimmedSquareEstimator implements Estimator {
-    boolean quick = false;
+    boolean quick;
 
     ResidualsLeastTrimmedSquareEstimator(boolean quick) {
       this.quick = quick;
@@ -328,7 +328,7 @@ public class NoiseEstimator {
   }
 
   private class ResidualsLeastMeanSquareEstimator implements Estimator {
-    boolean quick = false;
+    boolean quick;
 
     ResidualsLeastMeanSquareEstimator(boolean quick) {
       this.quick = quick;

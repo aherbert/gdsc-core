@@ -50,11 +50,11 @@ import java.util.regex.Pattern;
 public class SeriesOpener {
   private final String path;
   private String[] imageList = new String[0];
-  private int currentImage = 0;
+  private int currentImage;
   private int width = -1;
   private int height = -1;
-  private boolean variableSize = false;
-  private int numberOfThreads = 0;
+  private boolean variableSize;
+  private int numberOfThreads;
 
   // Used to filter the image list
   private int maximumNumberOfImages;

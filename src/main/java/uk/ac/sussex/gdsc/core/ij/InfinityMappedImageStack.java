@@ -43,7 +43,7 @@ import java.awt.image.ColorModel;
  * @see InfinityMappedFloatProcessor
  */
 public class InfinityMappedImageStack extends ImageStack {
-  private boolean mapPositiveInfinity = false;
+  private boolean mapPositiveInfinity;
 
   /**
    * Checks if positive infinity is mapped to zero.

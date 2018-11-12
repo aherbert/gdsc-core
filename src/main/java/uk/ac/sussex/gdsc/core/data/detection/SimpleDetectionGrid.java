@@ -44,7 +44,7 @@ public class SimpleDetectionGrid implements DetectionGrid {
    * <p>This contrasts with {@link Rectangle2D#contains(double, double)} as a point on the right or
    * lower boundary will not be within the rectangle since due to the definition of "insideness".
    */
-  private boolean includeOuterEdge = false;
+  private boolean includeOuterEdge;
 
   /**
    * Instantiates a new simple detection grid.

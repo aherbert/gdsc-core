@@ -39,7 +39,7 @@ public class ImageJTrackProgress implements TrackProgress {
   /**
    * The current progress (used in {@link #incrementProgress(double)}).
    */
-  private double done = 0;
+  private double done;
 
   /** The slow mode flag. */
   private final boolean slowMode;

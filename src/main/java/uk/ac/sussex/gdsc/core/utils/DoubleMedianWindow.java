@@ -38,13 +38,13 @@ import java.util.Objects;
  */
 public class DoubleMedianWindow {
   private final int radius;
-  private int position = 0;
+  private int position;
   private int cachePosition = -1;
   private final double[] data;
-  private double[] cache = null;
+  private double[] cache;
   private double median = Double.NaN;
   private boolean invalid = true;
-  private boolean sortedScan = false;
+  private boolean sortedScan;
 
   /**
    * Creates a new instance wrapping the provided data.

@@ -36,7 +36,7 @@ class MoleculeList {
   final Molecule[] list;
 
   /** The size. */
-  int size = 0;
+  int size;
 
   /**
    * Instantiates a new molecule array.

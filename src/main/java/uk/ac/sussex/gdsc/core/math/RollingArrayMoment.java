@@ -52,7 +52,7 @@ package uk.ac.sussex.gdsc.core.math;
  * </pre>
  */
 public class RollingArrayMoment implements ArrayMoment {
-  private long size = 0;
+  private long size;
 
   /** First moment of values that have been added. */
   private double[] m1;

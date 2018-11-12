@@ -45,7 +45,7 @@ public class DAreaStatistics extends DAreaSum {
   }
 
   /** The rolling sum of squares. */
-  private double[] rollingSumSq = null;
+  private double[] rollingSumSq;
 
   /**
    * Instantiates a new area statistics.

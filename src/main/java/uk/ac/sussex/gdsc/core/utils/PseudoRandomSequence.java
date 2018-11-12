@@ -41,7 +41,7 @@ public class PseudoRandomSequence {
   protected final double[] sequence;
 
   /** The position. */
-  private int position = 0;
+  private int position;
 
   /**
    * Copy constructor.

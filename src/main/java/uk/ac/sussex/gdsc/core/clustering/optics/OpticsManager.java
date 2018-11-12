@@ -144,7 +144,7 @@ public class OpticsManager extends CoordinateStore {
    * Used in the DBSCAN algorithm to store a queue of molecules to process.
    */
   private static class MoleculeQueue extends MoleculeList {
-    int next = 0;
+    int next;
 
     MoleculeQueue(int capacity) {
       super(capacity);
@@ -245,7 +245,7 @@ public class OpticsManager extends CoordinateStore {
    * Used in the OPTICS algorithm to store the next seed is a priority queue.
    */
   private class OpticsMoleculePriorityQueue extends MoleculeList implements OpticsPriorityQueue {
-    int next = 0;
+    int next;
 
     OpticsMoleculePriorityQueue(int capacity) {
       super(capacity);
@@ -520,7 +520,7 @@ public class OpticsManager extends CoordinateStore {
    */
   private class OpticsResultList {
     final OpticsOrder[] list;
-    int size = 0;
+    int size;
 
     OpticsResultList(int capacity) {
       list = new OpticsOrder[capacity];
@@ -1398,7 +1398,7 @@ public class OpticsManager extends CoordinateStore {
     return ycoord[index] + originy;
   }
 
-  private SimpleFloatKdTree2D tree = null;
+  private SimpleFloatKdTree2D tree;
 
   /**
    * Compute (a sample of) the k-nearest neighbour distance for objects from the data The plot of

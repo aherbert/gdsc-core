@@ -44,7 +44,7 @@ public class OpticsCluster {
   int clusterId;
 
   /** The children. */
-  LinkedList<OpticsCluster> children = null;
+  LinkedList<OpticsCluster> children;
 
   /** The level in the hierarchy. */
   private int level;

@@ -156,7 +156,7 @@ public class LoOp {
     final double[] plofs;
     final int from;
     final int to;
-    double nplof = 0;
+    double nplof;
 
     PlofWorker(int[][] neighbours, int numberOfNeigbours, double[] pd, double[] plofs, int from,
         int to) {

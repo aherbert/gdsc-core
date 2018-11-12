@@ -101,19 +101,19 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * Shared state for currently active iterators, or null if there are known not to be any. Allows
    * queue operations to update iterator state.
    */
-  transient Itrs itrs = null;
+  transient Itrs itrs;
 
   /** The closed flag. Should only be modified when holding lock. */
-  private boolean closed = false;
+  private boolean closed;
 
   /**
    * The closed and empty flag. This is used to avoid synchronisation when closed. Should only be
    * modified when holding lock.
    */
-  private boolean closedAndEmpty = false;
+  private boolean closedAndEmpty;
 
   /** Flag specifying the behaviour if closed. */
-  private boolean throwIfClosed = false;
+  private boolean throwIfClosed;
 
   // Internal helper methods
 
@@ -1124,13 +1124,13 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     }
 
     /** Incremented whenever takeIndex wraps around to 0. */
-    int cycles = 0;
+    int cycles;
 
     /** Linked list of weak iterator references. */
     private Node head;
 
     /** Used to expunge stale iterators. */
-    private Node sweeper = null;
+    private Node sweeper;
 
     private static final int SHORT_SWEEP_PROBES = 4;
     private static final int LONG_SWEEP_PROBES = 16;

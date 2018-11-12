@@ -81,12 +81,12 @@ public class OpticsResult implements ClusteringResult {
   /**
    * Convex hulls assigned by computeConvexHulls().
    */
-  private ConvexHull[] hulls = null;
+  private ConvexHull[] hulls;
 
   /**
    * Bounds assigned by computeConvexHulls().
    */
-  private Rectangle2D[] bounds = null;
+  private Rectangle2D[] bounds;
 
   /**
    * Instantiates a new Optics result.
@@ -899,7 +899,7 @@ public class OpticsResult implements ClusteringResult {
   }
 
   private static class RemovePredicate implements Predicate<OpticsCluster> {
-    int counter = 0;
+    int counter;
     boolean[] remove;
 
     public RemovePredicate(boolean[] remove) {
@@ -939,7 +939,7 @@ public class OpticsResult implements ClusteringResult {
   public static final int XI_OPTION_EXCLUDE_LAST_STEEP_UP_IF_SIGNIFICANT = 0x10;
 
   private double upperLimit = Double.POSITIVE_INFINITY;
-  private double lowerLimit = 0;
+  private double lowerLimit;
 
   /**
    * Extract clusters from the reachability distance profile.

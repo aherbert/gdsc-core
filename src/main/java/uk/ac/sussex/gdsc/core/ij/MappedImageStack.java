@@ -42,7 +42,7 @@ import java.awt.image.ColorModel;
  * @see MappedFloatProcessor
  */
 public class MappedImageStack extends ImageStack {
-  private boolean mapZero = false;
+  private boolean mapZero;
 
   /**
    * If set to true positive zero is mapped to 1 in the LUT. The default maps the first value above

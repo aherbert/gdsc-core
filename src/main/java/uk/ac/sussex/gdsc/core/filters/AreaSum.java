@@ -49,7 +49,7 @@ public class AreaSum {
     EMPTY[INDEX_SUM] = Double.NaN;
   }
 
-  private boolean rollingSums = false;
+  private boolean rollingSums;
 
   /** The max x dimension. */
   public final int maxx;
@@ -58,7 +58,7 @@ public class AreaSum {
   /** The data. */
   protected final float[] data;
   /** The rolling sum table. */
-  protected double[] rollingSum = null;
+  protected double[] rollingSum;
 
   /**
    * Instantiates a new area sum.

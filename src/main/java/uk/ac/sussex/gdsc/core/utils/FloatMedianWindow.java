@@ -38,13 +38,13 @@ import java.util.Objects;
  */
 public class FloatMedianWindow {
   private final int radius;
-  private int position = 0;
+  private int position;
   private int cachePosition = -1;
   private final float[] data;
-  private float[] cache = null;
+  private float[] cache;
   private float median = Float.NaN;
   private boolean invalid = true;
-  private boolean sortedScan = false;
+  private boolean sortedScan;
 
   /**
    * Creates a new instance wrapping the provided data.

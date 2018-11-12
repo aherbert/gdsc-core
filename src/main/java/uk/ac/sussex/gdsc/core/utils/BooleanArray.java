@@ -38,7 +38,7 @@ import java.util.NoSuchElementException;
 public class BooleanArray implements Iterable<Boolean> {
 
   private boolean[] values;
-  private int size = 0;
+  private int size;
 
   /**
    * Instantiates a new boolean array.

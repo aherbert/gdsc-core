@@ -52,7 +52,7 @@ public class IntegerArrayMoment implements ArrayMoment {
   private static final BigInteger BIG_MAX_VALUE = BigInteger.valueOf(Long.MAX_VALUE);
 
   /** The size. */
-  private long size = 0;
+  private long size;
 
   /** The sum of values that have been added. */
   private long[] sum;

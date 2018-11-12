@@ -46,7 +46,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator {
   protected final RandomGenerator source;
 
   /** The position. */
-  protected int pos = 0;
+  protected int pos;
 
   /**
    * Class to allow ignoring data when the capacity is full.

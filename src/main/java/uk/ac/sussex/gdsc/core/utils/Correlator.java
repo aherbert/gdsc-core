@@ -37,10 +37,10 @@ import java.util.Arrays;
 public class Correlator {
   private int[] x;
   private int[] y;
-  private int count = 0;
+  private int count;
 
-  private long sumx = 0;
-  private long sumy = 0;
+  private long sumx;
+  private long sumy;
 
   /**
    * Constructor.

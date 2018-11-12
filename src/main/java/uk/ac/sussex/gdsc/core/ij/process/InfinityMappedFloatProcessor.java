@@ -44,7 +44,7 @@ import java.awt.image.ColorModel;
  * @see FloatProcessor
  */
 public class InfinityMappedFloatProcessor extends FloatProcessor {
-  private boolean mapPositiveInfinity = false;
+  private boolean mapPositiveInfinity;
 
   /**
    * Checks if positive infinity is mapped to zero.

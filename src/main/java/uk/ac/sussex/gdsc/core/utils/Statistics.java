@@ -35,13 +35,13 @@ import org.apache.commons.math3.distribution.TDistribution;
  */
 public class Statistics {
   /** The number. */
-  protected int size = 0;
+  protected int size;
 
   /** The sum. */
-  protected double sum = 0;
+  protected double sum;
 
   /** The sum-of-squares. */
-  protected double sumSq = 0;
+  protected double sumSq;
 
   /**
    * Instantiates a new statistics.

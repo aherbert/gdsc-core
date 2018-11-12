@@ -52,7 +52,7 @@ public class ConcurrentMonoStack<E> {
   private static final String EMPTY_CLOSED_STACK = "Empty closed stack";
 
   // We only support a stack size of 1
-  private E item = null;
+  private E item;
 
   /** Main lock guarding all access. */
   final ReentrantLock lock;
@@ -64,16 +64,16 @@ public class ConcurrentMonoStack<E> {
   private final Condition notFull;
 
   /** The closed flag. Should only be modified when holding lock. */
-  private boolean closed = false;
+  private boolean closed;
 
   /**
    * The closed and empty flag. This is used to avoid synchronisation when closed. Should only be
    * modified when holding lock.
    */
-  private boolean closedAndEmpty = false;
+  private boolean closedAndEmpty;
 
   /** Flag specifying the behaviour if closed. */
-  private boolean throwIfClosed = false;
+  private boolean throwIfClosed;
 
   /**
    * Creates an {@code ConcurrentMonoStack} with the default access policy.

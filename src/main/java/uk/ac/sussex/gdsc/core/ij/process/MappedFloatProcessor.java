@@ -44,7 +44,7 @@ import java.awt.image.ColorModel;
  * @see FloatProcessor
  */
 public class MappedFloatProcessor extends FloatProcessor {
-  private boolean mapZero = false;
+  private boolean mapZero;
 
   /**
    * If set to true positive zero is mapped to 1 in the LUT. The default maps the first value above

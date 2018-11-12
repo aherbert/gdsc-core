@@ -34,7 +34,7 @@ package uk.ac.sussex.gdsc.core.math;
  * for a large series of data where the mean is far from zero due to floating point round-off error.
  */
 public class SimpleArrayMoment implements ArrayMoment {
-  private long size = 0;
+  private long size;
 
   /** The sum of values that have been added. */
   private double[] sum;

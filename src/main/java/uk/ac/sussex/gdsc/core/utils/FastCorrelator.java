@@ -34,12 +34,12 @@ import java.math.BigInteger;
  * Class to calculate the correlation between two datasets using rolling sums.
  */
 public class FastCorrelator {
-  private long sumx = 0;
-  private long sumxy = 0;
-  private long sumxx = 0;
-  private long sumyy = 0;
-  private long sumy = 0;
-  private int count = 0;
+  private long sumx;
+  private long sumxy;
+  private long sumxx;
+  private long sumyy;
+  private long sumy;
+  private int count;
 
   /**
    * Add a pair of data points.

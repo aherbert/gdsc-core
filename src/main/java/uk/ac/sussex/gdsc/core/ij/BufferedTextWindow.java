@@ -43,7 +43,7 @@ public class BufferedTextWindow {
   /** The text window. */
   public final Frame textWindow;
   private final TextPanel textPanel;
-  private int count = 0;
+  private int count;
   private int nextFlush = 10;
   private int increment = 10;
 

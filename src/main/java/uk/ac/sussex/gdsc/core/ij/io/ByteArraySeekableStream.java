@@ -35,7 +35,7 @@ import java.io.IOException;
  */
 public final class ByteArraySeekableStream extends SeekableStream {
   /** The current position in the byte array. */
-  int position = 0;
+  int position;
 
   /** The buffer of bytes. */
   byte[] buffer;

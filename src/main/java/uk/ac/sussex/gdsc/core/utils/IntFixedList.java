@@ -39,7 +39,7 @@ public class IntFixedList {
   private final int[] data;
 
   /** The size. */
-  private int size = 0;
+  private int size;
 
   /**
    * Instantiates a new fixed int list.
