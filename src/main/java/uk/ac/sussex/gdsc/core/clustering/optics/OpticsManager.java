@@ -32,7 +32,7 @@ import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleFloatKdTree2D;
 import uk.ac.sussex.gdsc.core.clustering.CoordinateStore;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
-import uk.ac.sussex.gdsc.core.utils.ArgumentUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
@@ -579,7 +579,7 @@ public class OpticsManager extends CoordinateStore {
      * @param size the size
      */
     private FloatHeap(int size) {
-      ArgumentUtils.checkCondition(size > 0, "N must be strictly positive");
+      ValidationUtils.checkArgument(size > 0, "N must be strictly positive");
       this.queue = new float[size];
       this.size = size;
     }

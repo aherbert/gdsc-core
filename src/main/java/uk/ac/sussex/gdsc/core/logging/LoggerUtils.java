@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.logging;
 
-import uk.ac.sussex.gdsc.core.utils.ArgumentUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -79,7 +79,7 @@ public final class LoggerUtils {
    * @return the logger (not null)
    */
   public static Logger createIfNull(Logger logger) {
-    return ArgumentUtils.defaultIfNull(logger, NoLogger.INSTANCE);
+    return ValidationUtils.defaultIfNull(logger, NoLogger.INSTANCE);
   }
 
   /**

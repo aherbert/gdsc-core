@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.generics;
 
-import uk.ac.sussex.gdsc.core.utils.ArgumentUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -63,7 +63,7 @@ public class EnumList<E extends Enum<E>> implements Iterable<E> {
    * @return the Enum helper
    */
   public static <E extends Enum<E>> EnumList<E> forEnum(Class<E> elementType) {
-    ArgumentUtils.checkNotNull(elementType, "Enum type must not be null");
+    ValidationUtils.checkNotNull(elementType, "Enum type must not be null");
     return new EnumList<>(elementType.getEnumConstants());
   }
 
@@ -75,7 +75,7 @@ public class EnumList<E extends Enum<E>> implements Iterable<E> {
    * @return the Enum helper
    */
   public static <E extends Enum<E>> EnumList<E> forEnum(E element) {
-    ArgumentUtils.checkNotNull(element, "Enum must not be null");
+    ValidationUtils.checkNotNull(element, "Enum must not be null");
     return new EnumList<>(element.getDeclaringClass().getEnumConstants());
   }
 
@@ -105,8 +105,8 @@ public class EnumList<E extends Enum<E>> implements Iterable<E> {
    * @throws IllegalArgumentException If the ordinal is out of the range of the enum
    */
   public E get(int ordinal) {
-    ArgumentUtils.checkCondition(ordinal >= 0, "Ordinal %d must be positive", ordinal);
-    ArgumentUtils.checkCondition(ordinal < values.length, "Ordinal %d must be less than size %d",
+    ValidationUtils.checkArgument(ordinal >= 0, "Ordinal %d must be positive", ordinal);
+    ValidationUtils.checkArgument(ordinal < values.length, "Ordinal %d must be less than size %d",
         ordinal, values.length);
     return values[ordinal];
   }

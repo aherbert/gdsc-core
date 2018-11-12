@@ -33,7 +33,7 @@ import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
-import uk.ac.sussex.gdsc.core.utils.ArgumentUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.PseudoRandomGenerator;
@@ -962,7 +962,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @param sampleMode the new sample mode
    */
   public void setSampleMode(SampleMode sampleMode) {
-    this.sampleMode = ArgumentUtils.defaultIfNull(sampleMode, SampleMode.RANDOM);
+    this.sampleMode = ValidationUtils.defaultIfNull(sampleMode, SampleMode.RANDOM);
   }
 
   /**

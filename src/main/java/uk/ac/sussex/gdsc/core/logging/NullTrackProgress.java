@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.logging;
 
-import uk.ac.sussex.gdsc.core.utils.ArgumentUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 /**
  * Ignore all method calls from the {@link TrackProgress} interface.
@@ -45,7 +45,7 @@ public class NullTrackProgress implements TrackProgress {
    * @return the track progress (not null)
    */
   public static TrackProgress createIfNull(TrackProgress trackProgress) {
-    return ArgumentUtils.defaultIfNull(trackProgress, INSTANCE);
+    return ValidationUtils.defaultIfNull(trackProgress, INSTANCE);
   }
 
   /**
