@@ -225,7 +225,7 @@ class GridMoleculeSpace extends MoleculeSpace {
 
   /**
    * Adjust the maximum resolution.
-   * 
+   *
    * <p>This will be called with the output from {@link #determineMaximumResolution(float, float)}
    * allowing an algorithm to optimise the resolution.
    *
