@@ -30,7 +30,7 @@ public class ExtendedStatisticsTest {
 
     expected = new DescriptiveStatistics();
     observed = new ExtendedStatistics();
-    final int[] idata = SimpleArrayUtils.newArray(100, 0, 1);
+    final int[] idata = SimpleArrayUtils.natural(100);
     PermutationSampler.shuffle(r, idata);
     for (final double v : idata) {
       expected.addValue(v);
@@ -71,7 +71,7 @@ public class ExtendedStatisticsTest {
 
   @Test
   public void canAddStatistics() {
-    final int[] d1 = SimpleArrayUtils.newArray(100, 0, 1);
+    final int[] d1 = SimpleArrayUtils.natural(100);
     final int[] d2 = SimpleArrayUtils.newArray(100, 4, 1);
     final ExtendedStatistics o = new ExtendedStatistics();
     o.add(d1);

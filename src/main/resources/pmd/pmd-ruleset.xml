@@ -36,6 +36,12 @@
       <property name="allowIncrementDecrement" value="true" />
     </properties>
   </rule>
+  <!-- Allow 1 to be used in conditions as a magic number. -->
+  <rule ref="category/java/errorprone.xml/AvoidLiteralsInIfCondition">
+    <properties>
+      <property name="ignoreMagicNumbers" value="-1,0,1" />
+    </properties>
+  </rule>
   <rule ref="category/java/codestyle.xml">
     <exclude name="MethodArgumentCouldBeFinal" />
     <exclude name="ShortVariable" />

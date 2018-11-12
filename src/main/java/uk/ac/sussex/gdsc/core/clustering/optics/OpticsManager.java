@@ -32,6 +32,7 @@ import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleFloatKdTree2D;
 import uk.ac.sussex.gdsc.core.clustering.CoordinateStore;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.ArgumentUtils;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
@@ -43,6 +44,7 @@ import org.apache.commons.rng.simple.RandomSource;
 import java.awt.Rectangle;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -57,20 +59,24 @@ import java.util.logging.Logger;
  */
 public class OpticsManager extends CoordinateStore {
   /**
-   * The UNDEFINED distance in the OPTICS algorithm. This is actually arbitrary. Use a simple value
-   * so we can spot it when debugging.
+   * The UNDEFINED distance in the OPTICS algorithm. This is actually arbitrary as long as it is not
+   * a real distance. Use a simple value so we can spot it when debugging.
    */
   static final float UNDEFINED = -1;
 
   /** The tracker. */
   private TrackProgress tracker;
 
+  /** The options. */
   private EnumSet<Option> options = EnumSet.noneOf(Option.class);
 
-  private LoOp loop;
+  /** The class to compute local outlier probability. */
+  private LoOp loOp;
 
+  /** The number of threads. */
   private int numberOfThreads;
 
+  /** The seed for random algorithms. */
   private long seed;
 
   /**
@@ -83,6 +89,14 @@ public class OpticsManager extends CoordinateStore {
 
   /** The executor service used for FastOPTICS. */
   private ExecutorService executorService;
+
+  /**
+   * The KD tree used to store the points for an efficient neighbour search.
+   *
+   * <p>This can be cached as it is initialised with the current coordinates (that should not
+   * change).
+   */
+  private SimpleFloatKdTree2D tree;
 
   /**
    * Options for the algorithms.
@@ -163,7 +177,7 @@ public class OpticsManager extends CoordinateStore {
       return next < size;
     }
 
-    public Molecule next() {
+    Molecule getNext() {
       return list[next++];
     }
   }
@@ -389,8 +403,9 @@ public class OpticsManager extends CoordinateStore {
       siftUp(object.getQueueIndex());
     }
 
-    void siftUp(int child) {
+    void siftUp(int index) {
       // Remove unnecessary loop set-up statements, i.e. where p is not needed
+      int child = index;
       while (child > 0) {
         final int parent = (child - 1) >>> 1;
         if (lower(list[child], list[parent])) {
@@ -408,8 +423,9 @@ public class OpticsManager extends CoordinateStore {
       set(m, index2);
     }
 
-    void siftDown(int parent) {
-      for (int child = parent * 2 + 1; child < size; parent = child, child = parent * 2 + 1) {
+    void siftDown(int index) {
+      for (int parent = index, child = parent * 2 + 1; child < size; parent = child, child =
+          parent * 2 + 1) {
         if (child + 1 < size && higher(list[child], list[child + 1])) {
           child++;
         }
@@ -423,6 +439,7 @@ public class OpticsManager extends CoordinateStore {
 
     @Override
     public void clear() {
+      // Make public the inherited method to match the OpticsPriorityQueue interface
       super.clear();
     }
 
@@ -562,9 +579,7 @@ public class OpticsManager extends CoordinateStore {
      * @param size the size
      */
     private FloatHeap(int size) {
-      if (size < 1) {
-        throw new IllegalArgumentException("N must be strictly positive");
-      }
+      ArgumentUtils.checkCondition(size > 0, "N must be strictly positive");
       this.queue = new float[size];
       this.size = size;
     }
@@ -606,7 +621,8 @@ public class OpticsManager extends CoordinateStore {
       return queue[0];
     }
 
-    private void upHeapify(int child) {
+    private void upHeapify(int index) {
+      int child = index;
       while (child > 0) {
         final int parent = (child - 1) >>> 1;
         if (queue[child] > queue[parent]) {
@@ -620,8 +636,9 @@ public class OpticsManager extends CoordinateStore {
       }
     }
 
-    private void downHeapify(int parent) {
-      for (int child = parent * 2 + 1; child < size; parent = child, child = parent * 2 + 1) {
+    private void downHeapify(int index) {
+      for (int parent = index, child = parent * 2 + 1; child < size; parent = child, child =
+          parent * 2 + 1) {
         if (child + 1 < size && queue[child] < queue[child + 1]) {
           child++;
         }
@@ -1052,14 +1069,12 @@ public class OpticsManager extends CoordinateStore {
       return;
     }
 
-    final Molecule[] list = neighbours.list;
-
     // Special case where we find the max value
     if (size == minPts) {
-      float max = list[0].getD();
+      float max = neighbours.get(0).getD();
       for (int i = 1; i < size; i++) {
-        if (max < list[i].getD()) {
-          max = list[i].getD();
+        if (max < neighbours.get(i).getD()) {
+          max = neighbours.get(i).getD();
         }
       }
       object.coreDistance = max;
@@ -1071,15 +1086,15 @@ public class OpticsManager extends CoordinateStore {
     // the speed is fast no matter what method is used since minPts is expected to be low
     // (somewhere around 5 for 2D data).
 
-    heap.start(list[0].getD());
+    heap.start(neighbours.get(0).getD());
     int index = 1;
     while (index < minPts) {
-      heap.put(index, list[index].getD());
+      heap.put(index, neighbours.get(index).getD());
       index++;
     }
     // Scan
     while (index < size) {
-      heap.push(list[index++].getD());
+      heap.push(neighbours.get(index++).getD());
     }
 
     object.coreDistance = heap.getMaxValue();
@@ -1097,12 +1112,12 @@ public class OpticsManager extends CoordinateStore {
       Molecule centreObject) {
     orderSeeds.clear();
 
-    final float c_dist = centreObject.coreDistance;
+    final float coreDist = centreObject.coreDistance;
     for (int i = neighbours.size; i-- > 0;) {
       final Molecule object = neighbours.get(i);
       if (object.isNotProcessed()) {
         // This is new so add it to the list
-        object.reachabilityDistance = max(c_dist, object.getD());
+        object.reachabilityDistance = max(coreDist, object.getD());
         object.predecessor = centreObject.id;
         orderSeeds.push(object);
       }
@@ -1119,14 +1134,14 @@ public class OpticsManager extends CoordinateStore {
    */
   private static void opticsUpdateSearch(OpticsPriorityQueue orderSeeds, MoleculeList neighbours,
       Molecule centreObject) {
-    final float c_dist = centreObject.coreDistance;
+    final float coreDist = centreObject.coreDistance;
     for (int i = neighbours.size; i-- > 0;) {
       final Molecule object = neighbours.get(i);
       if (object.isNotProcessed()) {
-        final float new_r_dist = max(c_dist, object.getD());
+        final float newReachabilityDistance = max(coreDist, object.getD());
         if (object.reachabilityDistance == UNDEFINED) {
           // This is new so add it to the list
-          object.reachabilityDistance = new_r_dist;
+          object.reachabilityDistance = newReachabilityDistance;
           object.predecessor = centreObject.id;
           orderSeeds.push(object);
 
@@ -1134,8 +1149,8 @@ public class OpticsManager extends CoordinateStore {
           // This is already in the list
           // Here is the difference between OPTICS and DBSCAN.
           // In this case the order of points to process can be changed based on the reachability.
-        } else if (new_r_dist < object.reachabilityDistance) {
-          object.reachabilityDistance = new_r_dist;
+        } else if (newReachabilityDistance < object.reachabilityDistance) {
+          object.reachabilityDistance = newReachabilityDistance;
           object.predecessor = centreObject.id;
           orderSeeds.moveUp(object);
         }
@@ -1301,7 +1316,7 @@ public class OpticsManager extends CoordinateStore {
       dbscanUpdateSearch(seeds, grid.neighbours, clusterId);
 
       while (seeds.hasNext()) {
-        object = seeds.next();
+        object = seeds.getNext();
         grid.findNeighbours(minPts, object, generatingDistance);
         if (counter.increment()) {
           return true;
@@ -1398,8 +1413,6 @@ public class OpticsManager extends CoordinateStore {
     return ycoord[index] + originy;
   }
 
-  private SimpleFloatKdTree2D tree;
-
   /**
    * Compute (a sample of) the k-nearest neighbour distance for objects from the data The plot of
    * the sorted k-distance can be used to pick the generating distance. Or it can be done
@@ -1428,11 +1441,7 @@ public class OpticsManager extends CoordinateStore {
     }
 
     // Bounds check k
-    if (numberOfNeighbours < 1) {
-      numberOfNeighbours = 1;
-    } else if (numberOfNeighbours >= size) {
-      numberOfNeighbours = size - 1;
-    }
+    numberOfNeighbours = MathUtils.clip(1, size - 1, numberOfNeighbours);
 
     final int n = Math.min(samples, size);
     final float[] d = new float[n];
@@ -1445,7 +1454,7 @@ public class OpticsManager extends CoordinateStore {
     int[] indices;
     if (n <= size) {
       // Compute all
-      indices = SimpleArrayUtils.newArray(n, 0, 1);
+      indices = SimpleArrayUtils.natural(n);
     } else {
       // Random sample
       indices = new PermutationSampler(RandomSource.create(RandomSource.MWC_256), size, n).sample();
@@ -1717,12 +1726,12 @@ public class OpticsManager extends CoordinateStore {
       MoleculeList neighbours, Molecule centreObject) {
     orderSeeds.clear();
 
-    final float c_dist = centreObject.coreDistance;
+    final float coreDist = centreObject.coreDistance;
     for (int i = neighbours.size; i-- > 0;) {
       final Molecule object = neighbours.get(i);
       if (object.isNotProcessed()) {
         // This is new so add it to the list
-        object.reachabilityDistance = max(c_dist, object.distanceSquared(centreObject));
+        object.reachabilityDistance = max(coreDist, object.distanceSquared(centreObject));
         object.predecessor = centreObject.id;
         orderSeeds.push(object);
       }
@@ -1739,14 +1748,14 @@ public class OpticsManager extends CoordinateStore {
    */
   private static void updateWithComputeDistance(OpticsPriorityQueue orderSeeds,
       MoleculeList neighbours, Molecule centreObject) {
-    final float c_dist = centreObject.coreDistance;
+    final float coreDist = centreObject.coreDistance;
     for (int i = neighbours.size; i-- > 0;) {
       final Molecule object = neighbours.get(i);
       if (object.isNotProcessed()) {
-        final float new_r_dist = max(c_dist, object.distanceSquared(centreObject));
+        final float newReachabilityDistance = max(coreDist, object.distanceSquared(centreObject));
         if (object.reachabilityDistance == UNDEFINED) {
           // This is new so add it to the list
-          object.reachabilityDistance = new_r_dist;
+          object.reachabilityDistance = newReachabilityDistance;
           object.predecessor = centreObject.id;
           orderSeeds.push(object);
 
@@ -1754,8 +1763,8 @@ public class OpticsManager extends CoordinateStore {
           // This is already in the list
           // Here is the difference between OPTICS and DBSCAN.
           // In this case the order of points to process can be changed based on the reachability.
-        } else if (new_r_dist < object.reachabilityDistance) {
-          object.reachabilityDistance = new_r_dist;
+        } else if (newReachabilityDistance < object.reachabilityDistance) {
+          object.reachabilityDistance = newReachabilityDistance;
           object.predecessor = centreObject.id;
           orderSeeds.moveUp(object);
         }
@@ -1772,8 +1781,8 @@ public class OpticsManager extends CoordinateStore {
   private static float getMaxReachability(OpticsOrder[] list) {
     double max = 0;
     for (int i = list.length; i-- > 0;) {
-      if (list[i].isReachablePoint() && max < list[i].reachabilityDistance) {
-        max = list[i].reachabilityDistance;
+      if (list[i].isReachablePoint() && max < list[i].getReachabilityDistance()) {
+        max = list[i].getReachabilityDistance();
       }
     }
     return (float) max;
@@ -1912,26 +1921,22 @@ public class OpticsManager extends CoordinateStore {
     long time = System.currentTimeMillis();
 
     // Bounds check k
-    if (numberOfNeighbours < 1) {
-      numberOfNeighbours = 1;
-    } else if (numberOfNeighbours >= size) {
-      numberOfNeighbours = size - 1;
-    }
+    numberOfNeighbours = MathUtils.clip(1, size - 1, numberOfNeighbours);
 
     if (tracker != null) {
       tracker.log("Computing Local Outlier Probability scores, k=%d, Lambda=%s", numberOfNeighbours,
           MathUtils.rounded(lambda));
     }
 
-    if (loop == null) {
-      loop = new LoOp(xcoord, ycoord);
+    if (loOp == null) {
+      loOp = new LoOp(xcoord, ycoord);
     }
-    loop.setNumberOfThreads(getNumberOfThreads());
+    loOp.setNumberOfThreads(getNumberOfThreads());
 
     double[] scores;
     try {
-      scores = loop.run(numberOfNeighbours, lambda);
-    } catch (final Exception ex) {
+      scores = loOp.run(numberOfNeighbours, lambda);
+    } catch (final ExecutionException | InterruptedException ex) {
       if (tracker != null) {
         tracker.log("Failed LoOP computation: " + ex.getMessage());
       }
@@ -1952,7 +1957,7 @@ public class OpticsManager extends CoordinateStore {
     }
 
     if (!cache) {
-      loop = null;
+      loOp = null;
     }
 
     return result;

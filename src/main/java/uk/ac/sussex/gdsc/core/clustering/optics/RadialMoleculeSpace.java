@@ -45,6 +45,14 @@ class RadialMoleculeSpace extends GridMoleculeSpace {
 
   /** The offset. */
   CircularKernelOffset[] offset;
+
+  /**
+   * Flag to indicate that inner circle processing is enabled.
+   *
+   * <p>Any grid cell where all locations are totally within a computed inner circle around a target
+   * point does not require a distance computation since it is known that the distance is below the
+   * generating distance.
+   */
   private final boolean useInternal;
 
   /**

@@ -33,7 +33,7 @@ public class RollingStatisticsTest {
 
     expected = new DescriptiveStatistics();
     observed = new RollingStatistics();
-    final int[] idata = SimpleArrayUtils.newArray(100, 0, 1);
+    final int[] idata = SimpleArrayUtils.natural(100);
     PermutationSampler.shuffle(rng, idata);
     for (final double v : idata) {
       expected.addValue(v);
@@ -72,7 +72,7 @@ public class RollingStatisticsTest {
 
   @Test
   public void canAddStatistics() {
-    final int[] d1 = SimpleArrayUtils.newArray(100, 0, 1);
+    final int[] d1 = SimpleArrayUtils.natural(100);
     final int[] d2 = SimpleArrayUtils.newArray(100, 4, 1);
     final RollingStatistics o = new RollingStatistics();
     o.add(d1);

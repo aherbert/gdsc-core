@@ -221,6 +221,20 @@ public final class SimpleArrayUtils {
   }
 
   /**
+   * Create a natural sequence from {@code 0} up to {@code length - 1}.
+   *
+   * @param length The length of the array
+   * @return The new array
+   */
+  public static int[] natural(int length) {
+    final int[] data = new int[length];
+    for (int i = 0; i < length; i++) {
+      data[i] = i;
+    }
+    return data;
+  }
+
+  /**
    * Convert the data to strictly positive. Any value that is zero or below is set the minimum value
    * above zero.
    *
@@ -1096,6 +1110,19 @@ public final class SimpleArrayUtils {
    */
   public static void swap(double[] data, int index1, int index2) {
     final double tmp = data[index1];
+    data[index1] = data[index2];
+    data[index2] = tmp;
+  }
+
+  /**
+   * Swap the value of the two indices.
+   *
+   * @param data the data
+   * @param index1 the first index
+   * @param index2 the second index
+   */
+  public static <T> void swap(T[] data, int index1, int index2) {
+    final T tmp = data[index1];
     data[index1] = data[index2];
     data[index2] = tmp;
   }

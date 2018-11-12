@@ -33,6 +33,7 @@ import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
+import uk.ac.sussex.gdsc.core.utils.ArgumentUtils;
 import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.PseudoRandomGenerator;
@@ -215,8 +216,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       return;
     }
 
-    final int dim = 2;
-
     // FastOPTICS paper states you can use c0*log(N) sets and c1*log(N) projections.
     // The ELKI framework increase this for the number of dimensions. However I have stuck
     // with the original (as it is less so will be faster).
@@ -248,17 +247,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     final Ticker ticker = Ticker.createStarted(tracker, localNumberOfProjections, true);
     final TurboList<Runnable> tasks = new TurboList<>();
     for (int i = 0; i < localNumberOfProjections; i++) {
-      // Create a random unit vector
-      final double[] randomVector;
-      if (vectorGen != null) {
-        randomVector = vectorGen.nextVector();
-      } else {
-        // For a 2D vector we can just uniformly distribute them around a semi-circle
-        randomVector = new double[dim];
-        final double angle = i * increment;
-        randomVector[0] = Math.sin(angle);
-        randomVector[1] = Math.cos(angle);
-      }
+      final double[] randomVector = createUnitVector(vectorGen, increment, i);
       final int index = i;
       tasks.add(() -> {
         projectedPoints[index] = doProjection(randomVector);
@@ -278,7 +267,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     }
 
     // split entire point set, reuse projections by shuffling them
-    final int[] proind = SimpleArrayUtils.newArray(localNumberOfProjections, 0, 1);
+    final int[] proind = SimpleArrayUtils.natural(localNumberOfProjections);
 
     // The splits do not have to be that random so we can use a pseudo random sequence.
     // The sets will be randomly sized between 1 and minSplitSize. Ensure we have enough
@@ -304,8 +293,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
 
       tasks.add(() -> {
         final TurboList<int[]> sets = new TurboList<>();
-        splitupNoSort(sets, shuffledProjectedPoints, SimpleArrayUtils.newArray(size, 0, 1), 0, size,
-            0, pseudoRandomCopy, minSplitSize);
+        splitupNoSort(sets, shuffledProjectedPoints, SimpleArrayUtils.natural(size), 0, size, 0,
+            pseudoRandomCopy, minSplitSize);
         syncSplitSets.add(new Split(sets));
         ticker2.tick();
       });
@@ -358,6 +347,30 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   }
 
   /**
+   * Create a random unit vector. Use the generator if not null, else use a multiple of the
+   * increment.
+   *
+   * @param vectorGen the vector generator
+   * @param increment the angle increment between vector
+   * @param multiple the increment multiple
+   * @return the vector
+   */
+  private static double[] createUnitVector(final UnitSphereSampler vectorGen,
+      final double increment, int multiple) {
+    final double[] randomVector;
+    if (vectorGen == null) {
+      // For a 2D vector we can just uniformly distribute them around a semi-circle
+      randomVector = new double[2];
+      final double angle = multiple * increment;
+      randomVector[0] = Math.sin(angle);
+      randomVector[1] = Math.cos(angle);
+    } else {
+      randomVector = vectorGen.nextVector();
+    }
+    return randomVector;
+  }
+
+  /**
    * Project points to the vector and compute the distance along the vector from the origin.
    *
    * @param size the size
@@ -380,16 +393,16 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @param tasks the tasks
    */
   private void runTasks(TurboList<Runnable> tasks) {
-    if (executorService != null) {
+    if (executorService == null) {
+      for (final Runnable task : tasks) {
+        task.run();
+      }
+    } else {
       final List<Future<?>> futures = new TurboList<>();
       for (final Runnable task : tasks) {
         futures.add(executorService.submit(task));
       }
       ConcurrencyUtils.waitForCompletionOrError(futures, ProjectedMoleculeSpace::logException);
-    } else {
-      for (final Runnable task : tasks) {
-        task.run();
-      }
     }
   }
 
@@ -635,7 +648,10 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     final Ticker ticker = Ticker.createStarted(tracker, n, futures != null);
     for (int i = 0; i < n; i++) {
       final Split split = splitSets.getf(i);
-      if (futures != null) {
+      if (futures == null) {
+        sampleNeighbours(sumDistances, countDistances, neighbours, split.sets, 0,
+            split.sets.size());
+      } else {
         // If the indices are unique within each split set then we can multi-thread the
         // sampling of neighbours (since each index in the cumulative arrays will only
         // be accessed concurrently by a single splitting task).
@@ -650,9 +666,6 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
         }
         ConcurrencyUtils.waitForCompletionOrError(futures, ProjectedMoleculeSpace::logException);
         futures.clear();
-      } else {
-        sampleNeighbours(sumDistances, countDistances, neighbours, split.sets, 0,
-            split.sets.size());
       }
       ticker.tick();
     }
@@ -949,10 +962,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @param sampleMode the new sample mode
    */
   public void setSampleMode(SampleMode sampleMode) {
-    if (sampleMode == null) {
-      sampleMode = SampleMode.RANDOM;
-    }
-    this.sampleMode = sampleMode;
+    this.sampleMode = ArgumentUtils.defaultIfNull(sampleMode, SampleMode.RANDOM);
   }
 
   /**

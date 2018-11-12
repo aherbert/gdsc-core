@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.logging;
 
+import uk.ac.sussex.gdsc.core.utils.ArgumentUtils;
+
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -77,7 +79,7 @@ public final class LoggerUtils {
    * @return the logger (not null)
    */
   public static Logger createIfNull(Logger logger) {
-    return (logger != null) ? logger : NoLogger.INSTANCE;
+    return ArgumentUtils.defaultIfNull(logger, NoLogger.INSTANCE);
   }
 
   /**

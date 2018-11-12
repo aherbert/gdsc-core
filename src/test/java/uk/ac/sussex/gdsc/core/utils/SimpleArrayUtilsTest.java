@@ -106,7 +106,7 @@ public class SimpleArrayUtilsTest {
   private void testMergeOnIndexData(UniformRandomProvider rng, int length, final int size,
       final int n1, final int n2) {
     final int[][][] data = new int[length][2][];
-    final int[] s1 = SimpleArrayUtils.newArray(size, 0, 1);
+    final int[] s1 = SimpleArrayUtils.natural(size);
     for (int i = 0; i < length; i++) {
       PermutationSampler.shuffle(rng, s1);
       data[i][0] = Arrays.copyOf(s1, n1);

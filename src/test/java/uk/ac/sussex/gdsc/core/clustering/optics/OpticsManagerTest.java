@@ -391,7 +391,7 @@ public class OpticsManagerTest {
           final int obsPre = r1.get(index).predecessor;
 
           final double expR = order.getReachability(it);
-          final double obsR = r1.get(index).reachabilityDistance;
+          final double obsR = r1.get(index).getReachabilityDistance();
 
           // TestLog.debug(logger,"[%d] %d %d : %f = %f (%f) : %s = %d", i, expId, obsId, expR,
           // obsR,
@@ -475,7 +475,7 @@ public class OpticsManagerTest {
           final int obsPre = r1.get(index).predecessor;
 
           final double expR = order.getReachability(it);
-          final double obsR = r1.get(index).reachabilityDistance;
+          final double obsR = r1.get(index).getReachabilityDistance();
 
           // TestLog.debug(logger,"[%d] %d %d : %f = %f (%f) : %s = %d", i, expId, obsId, expR,
           // obsR,
@@ -962,8 +962,8 @@ public class OpticsManagerTest {
         continue;
       }
 
-      final double expC = r1.get(i).coreDistance;
-      final double obsC = r2.get(i).coreDistance;
+      final double expC = r1.get(i).getCoreDistance();
+      final double obsC = r2.get(i).getCoreDistance();
 
       final int expId = r1.get(i).parent;
       final int obsId = r2.get(i).parent;
@@ -971,8 +971,8 @@ public class OpticsManagerTest {
       final int expPre = r1.get(i).predecessor;
       final int obsPre = r2.get(i).predecessor;
 
-      final double expR = r1.get(i).reachabilityDistance;
-      final double obsR = r2.get(i).reachabilityDistance;
+      final double expR = r1.get(i).getReachabilityDistance();
+      final double obsR = r2.get(i).getReachabilityDistance();
 
       // TestLog.debug(logger,"[%d] %d %d : %f = %f (%f) : %s = %d", i, expId, obsId, expR, obsR,
       // r1.get(i).coreDistance, expPre, obsPre);
@@ -1199,8 +1199,8 @@ public class OpticsManagerTest {
     for (int i = r1.size(); i-- > 0;) {
       Assertions.assertEquals(r1.get(i).parent, r2.get(i).parent);
       Assertions.assertEquals(r1.get(i).clusterId, r2.get(i).clusterId);
-      Assertions.assertEquals(r1.get(i).coreDistance, r2.get(i).coreDistance);
-      Assertions.assertEquals(r1.get(i).reachabilityDistance, r2.get(i).reachabilityDistance);
+      Assertions.assertEquals(r1.get(i).getCoreDistance(), r2.get(i).getCoreDistance());
+      Assertions.assertEquals(r1.get(i).getReachabilityDistance(), r2.get(i).getReachabilityDistance());
     }
   }
 

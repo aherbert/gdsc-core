@@ -129,32 +129,32 @@ public final class ArgumentUtils {
    *
    * <p>If not true the exception message is formed using {@link String#valueOf(Object)}.
    *
-   * @param obj the object reference to check for nullity
+   * @param object the object reference to check for nullity
    * @param <T> the type of the reference
-   * @return {@code obj} if not {@code null}
-   * @throws NullPointerException if {@code obj} is {@code null}
+   * @return {@code object} if not {@code null}
+   * @throws NullPointerException if {@code object} is {@code null}
    */
-  public static <T> T checkNotNull(T obj) {
-    if (obj == null) {
+  public static <T> T checkNotNull(T object) {
+    if (object == null) {
       throw new NullPointerException();
     }
-    return obj;
+    return object;
   }
 
   /**
    * Checks that the specified object reference is not {@code null}.
    *
    * @param <T> the type of the reference
-   * @param obj the object reference to check for nullity
+   * @param object the object reference to check for nullity
    * @param message the object used to form the exception message
-   * @return {@code obj} if not {@code null}
-   * @throws NullPointerException if {@code obj} is {@code null}
+   * @return {@code object} if not {@code null}
+   * @throws NullPointerException if {@code object} is {@code null}
    */
-  public static <T> T checkNotNull(T obj, Object message) {
-    if (obj == null) {
+  public static <T> T checkNotNull(T object, Object message) {
+    if (object == null) {
       throw new NullPointerException(String.valueOf(message));
     }
-    return obj;
+    return object;
   }
 
   /**
@@ -163,16 +163,29 @@ public final class ArgumentUtils {
    * <p>If not true the exception message is formed using {@link String#format(String, Object...)}.
    *
    * @param <T> the type of the reference
-   * @param obj the object reference to check for nullity
+   * @param object the object reference to check for nullity
    * @param format the format of the exception message
    * @param args the arguments of the exception message
-   * @return {@code obj} if not {@code null}
-   * @throws NullPointerException if {@code obj} is {@code null}
+   * @return {@code object} if not {@code null}
+   * @throws NullPointerException if {@code object} is {@code null}
    */
-  public static <T> T checkNotNull(T obj, String format, Object... args) {
-    if (obj == null) {
+  public static <T> T checkNotNull(T object, String format, Object... args) {
+    if (object == null) {
       throw new NullPointerException(String.format(format, args));
     }
-    return obj;
+    return object;
+  }
+
+  /**
+   * Return the specified object if it is not {@code null}, otherwise the default value.
+   *
+   * @param <T> the type of the reference
+   * @param object the object reference to check for nullity
+   * @param defaultValue the default value
+   * @return {@code object} if not {@code null}, otherwise the default value
+   * @throws NullPointerException if {@code object} is {@code null}
+   */
+  public static <T> T defaultIfNull(T object, T defaultValue) {
+    return (object == null) ? defaultValue : object;
   }
 }

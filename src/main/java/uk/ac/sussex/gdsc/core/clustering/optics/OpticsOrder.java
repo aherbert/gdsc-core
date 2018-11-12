@@ -47,23 +47,14 @@ public class OpticsOrder {
   int clusterId;
 
   /**
-   * Gets the cluster id.
-   *
-   * @return the cluster id
-   */
-  public int getClusterId() {
-    return clusterId;
-  }
-
-  /**
    * The core distance. Set to positive infinity if not a core point.
    */
-  public final double coreDistance;
+  private final double coreDistance;
   /**
    * The reachability distance. Set to positive infinity if not a reachable point, or the first core
    * point of a new grouping.
    */
-  public final double reachabilityDistance;
+  private final double reachabilityDistance;
 
   /**
    * Instantiates a new OPTICS order result.
@@ -82,12 +73,21 @@ public class OpticsOrder {
   }
 
   /**
+   * Gets the cluster id.
+   *
+   * @return the cluster id
+   */
+  public int getClusterId() {
+    return clusterId;
+  }
+
+  /**
    * Checks if is core point.
    *
    * @return true, if is core point
    */
   public boolean isCorePoint() {
-    return coreDistance != Double.POSITIVE_INFINITY;
+    return getCoreDistance() != Double.POSITIVE_INFINITY;
   }
 
   /**
@@ -99,6 +99,25 @@ public class OpticsOrder {
    * @return true, if is reachable point
    */
   public boolean isReachablePoint() {
-    return reachabilityDistance != Double.POSITIVE_INFINITY;
+    return getReachabilityDistance() != Double.POSITIVE_INFINITY;
+  }
+
+  /**
+   * Gets the core distance. Set to positive infinity if not a core point.
+   *
+   * @return the core distance
+   */
+  public double getCoreDistance() {
+    return coreDistance;
+  }
+
+  /**
+   * Gets the reachability distance. Set to positive infinity if not a reachable point, or the first
+   * core point of a new grouping.
+   *
+   * @return the reachability distance
+   */
+  public double getReachabilityDistance() {
+    return reachabilityDistance;
   }
 }

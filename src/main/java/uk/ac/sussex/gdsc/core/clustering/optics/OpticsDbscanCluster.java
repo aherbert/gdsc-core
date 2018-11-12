@@ -33,6 +33,8 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
  * DBSCAN-like clustering.
  */
 public class OpticsDbscanCluster extends OpticsCluster {
+
+  /** The size. */
   private final int size;
 
   /**

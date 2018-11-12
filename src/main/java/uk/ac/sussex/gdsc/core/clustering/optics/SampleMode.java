@@ -28,54 +28,49 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
+
 /**
  * The sample mode to sample neighbours in FastOPTICS.
  */
 public enum SampleMode {
   /** Randomly sample a maximum of two neighbours from each set. */
-  RANDOM {
-    @Override
-    public String getName() {
-      return "Random";
-    }
-  },
+  RANDOM("Random"),
   /** The median of the project set is the neighbour of all points in the set. */
-  MEDIAN {
-    @Override
-    public String getName() {
-      return "Median";
-    }
-  },
+  MEDIAN("Median"),
   /** Sample all-vs-all from each set. */
-  ALL {
-    @Override
-    public String getName() {
-      return "All";
-    }
-  };
+  ALL("All");
+
+  /** The values of the enum. */
+  private static final SampleMode[] VALUES = values();
+
+  /** The nice name. */
+  private final String niceName;
 
   /**
-   * Gets the name.
+   * Instantiates a new sample mode.
    *
-   * @return the name
+   * @param niceName the nice name
    */
-  public abstract String getName();
+  SampleMode(String niceName) {
+    this.niceName = niceName;
+  }
 
   @Override
   public String toString() {
-    return getName();
+    return niceName;
   }
 
   /**
    * Gets the sample mode.
+   * 
+   * <p>If the ordinal is outside the range of the enum then the value of the first declared
+   * constant in this enum is returned.
    *
    * @param ordinal the ordinal
    * @return the sample mode
    */
-  public static SampleMode get(int ordinal) {
-    if (ordinal < 0 || ordinal >= values().length) {
-      ordinal = 0;
-    }
-    return values()[ordinal];
+  public static SampleMode forOrdinal(int ordinal) {
+    return VALUES[MathUtils.clip(0, VALUES.length - 1, ordinal)];
   }
 }

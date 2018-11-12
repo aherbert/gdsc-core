@@ -29,6 +29,7 @@
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Represents a cluster from the OPTICS algorithm.
@@ -44,7 +45,7 @@ public class OpticsCluster {
   int clusterId;
 
   /** The children. */
-  LinkedList<OpticsCluster> children;
+  List<OpticsCluster> children;
 
   /** The level in the hierarchy. */
   private int level;
