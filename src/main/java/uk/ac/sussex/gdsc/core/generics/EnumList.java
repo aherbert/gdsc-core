@@ -106,7 +106,7 @@ public class EnumList<E extends Enum<E>> {
 
   /**
    * Get the enumeration value for the ordinal or a default.
-   * 
+   *
    * <p>If the ordinal is out of the range of the enum the default value is returned.
    *
    * @param ordinal the ordinal
@@ -119,7 +119,7 @@ public class EnumList<E extends Enum<E>> {
 
   /**
    * Get the enumeration value for the ordinal.
-   * 
+   *
    * <p>If the ordinal is out of the range of the enum the first declared value in the enum is
    * returned.
    *

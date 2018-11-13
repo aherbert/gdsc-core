@@ -63,7 +63,7 @@ public enum SampleMode {
 
   /**
    * Gets the sample mode.
-   * 
+   *
    * <p>If the ordinal is outside the range of the enum then the value of the first declared
    * constant in this enum is returned.
    *
