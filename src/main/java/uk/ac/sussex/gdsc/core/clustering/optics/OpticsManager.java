@@ -32,10 +32,10 @@ import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleFloatKdTree2D;
 import uk.ac.sussex.gdsc.core.clustering.CoordinateStore;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
