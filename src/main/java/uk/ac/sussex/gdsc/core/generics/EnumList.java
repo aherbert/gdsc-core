@@ -28,7 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.generics;
 
-import uk.ac.sussex.gdsc.core.utils.ArgumentUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * A helper for working with all elements of an enum in their declared order.
@@ -36,7 +39,7 @@ import uk.ac.sussex.gdsc.core.utils.ArgumentUtils;
  * @param <E> the enum element type
  * @since 2.0
  */
-public final class EnumList<E extends Enum<E>> {
+public final class EnumList<E extends Enum<E>> implements Iterable<E> {
 
   /** The values of the enum, in the order they are declared. */
   private final E[] values;
@@ -56,8 +59,8 @@ public final class EnumList<E extends Enum<E>> {
    * @param elementType the element type
    * @return the Enum helper
    */
-  public EnumList<E> forEnum(Class<E> elementType) {
-    ArgumentUtils.checkNotNull(elementType, "Enum type must not be null");
+  public static <E extends Enum<E>> EnumList<E> forEnum(Class<E> elementType) {
+    ValidationUtils.checkNotNull(elementType, "Enum type must not be null");
     return new EnumList<>(elementType);
   }
 
@@ -67,8 +70,8 @@ public final class EnumList<E extends Enum<E>> {
    * @param element the element
    * @return the Enum helper
    */
-  public EnumList<E> forEnum(E element) {
-    ArgumentUtils.checkNotNull(element, "Enum must not be null");
+  public static <E extends Enum<E>> EnumList<E> forEnum(E element) {
+    ValidationUtils.checkNotNull(element, "Enum must not be null");
     return new EnumList<>(element.getDeclaringClass());
   }
 
@@ -98,9 +101,9 @@ public final class EnumList<E extends Enum<E>> {
    * @throws IllegalArgumentException If the ordinal is out of the range of the enum
    */
   public E get(int ordinal) {
-    ArgumentUtils.checkCondition(ordinal >= 0, "Ordinal %d must be positive", ordinal);
-    ArgumentUtils.checkCondition(ordinal < values.length, "Ordinal %d must be less than the max %d",
-        ordinal, values.length);
+    ValidationUtils.checkArgument(ordinal >= 0, "Ordinal %d must be positive", ordinal);
+    ValidationUtils.checkArgument(ordinal < values.length,
+        "Ordinal %d must be less than the max %d", ordinal, values.length);
     return values[ordinal];
   }
 
@@ -123,10 +126,59 @@ public final class EnumList<E extends Enum<E>> {
    * <p>If the ordinal is out of the range of the enum the first declared value in the enum is
    * returned.
    *
+   * <p>If the enum has no declared values then there is no valid return value and null is returned.
+   *
    * @param ordinal the ordinal
    * @return the enumeration value
    */
   public E getOrFirst(int ordinal) {
-    return getOrDefault(ordinal, values[0]);
+    if ((ordinal < 0 || ordinal >= values.length)) {
+      return (size() == 0) ? null : values[0];
+    }
+    return values[ordinal];
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Since the list is unmodifiable the iterator will throw an
+   * {@link UnsupportedOperationException} on {@link Iterator#remove()}.
+   */
+  @Override
+  public Iterator<E> iterator() {
+    return new Itr();
+  }
+
+  /**
+   * A simple iterator over the values.
+   */
+  private class Itr implements Iterator<E> {
+    /** index of next element to return. */
+    int cursor;
+
+    @Override
+    public boolean hasNext() {
+      return cursor != size();
+    }
+
+    @Override
+    public E next() {
+      final int i = cursor;
+      if (i >= size()) {
+        throw new NoSuchElementException();
+      }
+      cursor = i + 1;
+      return values[i];
+    }
+
+    /**
+     * This is not supported as the list is unmodifiable.
+     *
+     * @throws UnsupportedOperationException This is not supported
+     */
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException("List is not modifiable");
+    }
   }
 }

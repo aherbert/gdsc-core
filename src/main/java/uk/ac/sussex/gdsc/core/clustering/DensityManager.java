@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.core.utils.ArgumentUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import org.apache.commons.math3.util.FastMath;
 
@@ -102,7 +102,7 @@ public class DensityManager extends CoordinateStore {
    */
   public int[] calculateSquareDensity(float radius, int resolution, boolean adjustForBorder) {
     checkRadius(radius);
-    ArgumentUtils.checkCondition(resolution > 0, "Resolution must be strictly positive");
+    ValidationUtils.checkArgument(resolution > 0, "Resolution must be strictly positive");
 
     final float cellSize = radius / resolution;
 
@@ -961,6 +961,6 @@ public class DensityManager extends CoordinateStore {
    * @param radius the radius
    */
   private static void checkRadius(double radius) {
-    ArgumentUtils.checkCondition(radius > 0, "Radius must be strictly positive");
+    ValidationUtils.checkArgument(radius > 0, "Radius must be strictly positive");
   }
 }
