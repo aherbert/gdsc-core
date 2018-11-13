@@ -116,6 +116,10 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
       <artifactId>commons-rng-simple</artifactId>
       <version>${commons.rng.version}</version>
     </dependency>
@@ -127,6 +131,10 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <dependency>
       <groupId>net.sf.trove4j</groupId>
       <artifactId>trove4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
     <!-- TESTING -->
     <dependency>
@@ -465,7 +473,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       </plugin>
     </plugins>
   </reporting>
-  
+
   <profiles>
     <profile>
       <id>ossrh</id>
