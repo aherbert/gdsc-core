@@ -34,6 +34,7 @@ package uk.ac.sussex.gdsc.core.data.utils;
  * @param <T> the generic type
  */
 public class MultiplyAddTypeConverter<T> extends MultiplyTypeConverter<T> {
+  /** The addition. */
   private final double addition;
 
   /**

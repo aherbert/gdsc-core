@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.data.detection;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 
@@ -35,19 +37,32 @@ import java.util.Arrays;
  * Class to compute collision detections between a point and a set of rectangles.
  */
 public class BinarySearchDetectionGrid implements DetectionGrid {
-  private static final byte TWO = 0x02;
-  private static final byte FOUR = 0x04;
-  private static final int[] EMPTY = new int[0];
 
+  /** A count of two. */
+  private static final int TWO = 2;
+  /** A count of four. */
+  private static final int FOUR = 4;
+
+  /** The number of rectangles. */
   private final int size;
-  private final int[] minxIds;
-  private final int[] maxxIds;
-  private final int[] minyIds;
-  private final int[] maxyIds;
+
+  /** The min x of each rectangle, sorted in ascending order. */
   private final double[] minx;
+  /** The max x of each rectangle, sorted in ascending order. */
   private final double[] maxx;
+  /** The min y of each rectangle, sorted in ascending order. */
   private final double[] miny;
+  /** The max y of each rectangle, sorted in ascending order. */
   private final double[] maxy;
+
+  /** The original rectangle Id for each index in the sorted minx array. */
+  private final int[] minxIds;
+  /** The original rectangle Id for each index in the sorted maxx array. */
+  private final int[] maxxIds;
+  /** The original rectangle Id for each index in the sorted miny array. */
+  private final int[] minyIds;
+  /** The original rectangle Id for each index in the sorted maxy array. */
+  private final int[] maxyIds;
 
   /**
    * Instantiates a new binary search detection grid.
@@ -104,16 +119,7 @@ public class BinarySearchDetectionGrid implements DetectionGrid {
       data[i][1] = indices[i];
     }
 
-    Arrays.sort(data, (o1, o2) -> {
-      // Smallest first
-      if (o1[0] < o2[0]) {
-        return -1;
-      }
-      if (o1[0] > o2[0]) {
-        return 1;
-      }
-      return 0;
-    });
+    Arrays.sort(data, (o1, o2) -> Double.compare(o1[0], o2[0]));
 
     // Copy back
     for (int i = indices.length; i-- > 0;) {
@@ -128,7 +134,7 @@ public class BinarySearchDetectionGrid implements DetectionGrid {
   public int[] find(double x, double y) {
     // Perform a binary search to find the insert location of the index
     final byte[] data = new byte[size];
-    for (int i = findIndexUpToAndIncluding(minx, x) + 1; i-- > 0;) {
+    for (int i = findIndexUpToAndIncluding(minx, x); i >= 0; i--) {
       data[minxIds[i]]++;
     }
     for (int i = findIndexAfter(maxx, x); i < size; i++) {
@@ -136,10 +142,11 @@ public class BinarySearchDetectionGrid implements DetectionGrid {
     }
 
     if (!contains(data, TWO)) {
-      return EMPTY;
+      // The x position is not within any rectangle
+      return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
-    for (int i = findIndexUpToAndIncluding(miny, y) + 1; i-- > 0;) {
+    for (int i = findIndexUpToAndIncluding(miny, y); i >= 0; i--) {
       data[minyIds[i]]++;
     }
     for (int i = findIndexAfter(maxy, y); i < size; i++) {
@@ -148,7 +155,8 @@ public class BinarySearchDetectionGrid implements DetectionGrid {
 
     int count = count(data, FOUR);
     if (count == 0) {
-      return EMPTY;
+      // The (x,y) position is not within any rectangle
+      return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
     final int[] list = new int[count];
@@ -163,7 +171,7 @@ public class BinarySearchDetectionGrid implements DetectionGrid {
     return list;
   }
 
-  private static boolean contains(byte[] data, byte value) {
+  private static boolean contains(byte[] data, int value) {
     for (int i = data.length; i-- > 0;) {
       if (data[i] == value) {
         return true;
@@ -172,7 +180,7 @@ public class BinarySearchDetectionGrid implements DetectionGrid {
     return false;
   }
 
-  private static int count(byte[] data, byte value) {
+  private static int count(byte[] data, int value) {
     int count = 0;
     for (int i = data.length; i-- > 0;) {
       if (data[i] == value) {

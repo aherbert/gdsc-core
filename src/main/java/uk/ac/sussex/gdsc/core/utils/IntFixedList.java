@@ -28,8 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import java.util.Arrays;
-
 /**
  * Contains a list of fixed capacity. This is a simple wrapper around an array providing get/set
  * index methods and dynamic addition of data to the end of the array up to the capacity.
@@ -152,7 +150,9 @@ public class IntFixedList {
    * @return the int[] array
    */
   public int[] toArray() {
-    return Arrays.copyOf(data, size);
+    final int[] copy = new int[size];
+    System.arraycopy(data, 0, copy, 0, size);
+    return copy;
   }
 
   /**

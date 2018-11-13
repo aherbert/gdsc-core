@@ -23,7 +23,15 @@ package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3;
 /**
  * Distance function for ND data.
  */
-public class SquareEuclideanDistanceFunction implements DistanceFunction {
+public final class SquareEuclideanDistanceFunction implements DistanceFunction {
+
+  /** The instance. */
+  public static final SquareEuclideanDistanceFunction INSTANCE =
+      new SquareEuclideanDistanceFunction();
+
+  /** No public construction. */
+  private SquareEuclideanDistanceFunction() {}
+
   @Override
   public double distance(double[] p1, double[] p2) {
     double distance = 0;

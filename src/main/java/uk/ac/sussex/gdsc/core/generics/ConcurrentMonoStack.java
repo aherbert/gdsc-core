@@ -51,7 +51,7 @@ public class ConcurrentMonoStack<E> {
   /** Message shown when trying to remove from an empty closed stack. */
   private static final String EMPTY_CLOSED_STACK = "Empty closed stack";
 
-  // We only support a stack size of 1
+  /** The single item in the mono stack. */
   private E item;
 
   /** Main lock guarding all access. */
@@ -230,9 +230,7 @@ public class ConcurrentMonoStack<E> {
   public boolean push(E element) throws InterruptedException {
     // Don't lock if closed
     if (closed) {
-      if (throwIfClosed) {
-        throw new IllegalStateException(NO_ADDITIONS_TO_CLOSED_STACK);
-      }
+      checkAdditionToClosedStack();
       return false;
     }
 
@@ -241,9 +239,7 @@ public class ConcurrentMonoStack<E> {
     localLock.lockInterruptibly();
     try {
       if (closed) {
-        if (throwIfClosed) {
-          throw new IllegalStateException(NO_ADDITIONS_TO_CLOSED_STACK);
-        }
+        checkAdditionToClosedStack();
         return false;
       }
 
@@ -252,9 +248,7 @@ public class ConcurrentMonoStack<E> {
       }
 
       if (closed) {
-        if (throwIfClosed) {
-          throw new IllegalStateException(NO_ADDITIONS_TO_CLOSED_STACK);
-        }
+        checkAdditionToClosedStack();
         return false;
       }
 
@@ -262,6 +256,17 @@ public class ConcurrentMonoStack<E> {
       return true;
     } finally {
       localLock.unlock();
+    }
+  }
+
+  /**
+   * Check if an addition is allowed to a closed stack.
+   * 
+   * @throws IllegalStateException if exceptions should be thrown when the stack is closed 
+   */
+  private void checkAdditionToClosedStack() {
+    if (throwIfClosed) {
+      throw new IllegalStateException(NO_ADDITIONS_TO_CLOSED_STACK);
     }
   }
 
@@ -307,9 +312,7 @@ public class ConcurrentMonoStack<E> {
   public boolean insert(E element) {
     // Don't lock if closed
     if (closed) {
-      if (throwIfClosed) {
-        throw new IllegalStateException(NO_ADDITIONS_TO_CLOSED_STACK);
-      }
+      checkAdditionToClosedStack();
       return false;
     }
 
@@ -318,9 +321,7 @@ public class ConcurrentMonoStack<E> {
     localLock.lock();
     try {
       if (closed) {
-        if (throwIfClosed) {
-          throw new IllegalStateException(NO_ADDITIONS_TO_CLOSED_STACK);
-        }
+        checkAdditionToClosedStack();
         return false;
       }
       enqueue(element);
@@ -348,9 +349,7 @@ public class ConcurrentMonoStack<E> {
   public E pop() throws InterruptedException {
     // Avoid synchronisation if this is closed and empty (since nothing can be added)
     if (closedAndEmpty) {
-      if (throwIfClosed) {
-        throw new IllegalStateException(EMPTY_CLOSED_STACK);
-      }
+      checkRemovalFromClosedStack();
       return null;
     }
 
@@ -359,10 +358,7 @@ public class ConcurrentMonoStack<E> {
     try {
       while (item == null) {
         if (closed) {
-          // If the count is 0 and nothing can be queued we should return.
-          if (throwIfClosed) {
-            throw new IllegalStateException(EMPTY_CLOSED_STACK);
-          }
+          checkRemovalFromClosedStack();
           return null;
         }
 
@@ -372,6 +368,17 @@ public class ConcurrentMonoStack<E> {
       return dequeue();
     } finally {
       localLock.unlock();
+    }
+  }
+
+  /**
+   * Check if a removal is allowed from a closed stack.
+   * 
+   * @throws IllegalStateException if exceptions should be thrown when the stack is closed 
+   */
+  private void checkRemovalFromClosedStack() {
+    if (throwIfClosed) {
+      throw new IllegalStateException(EMPTY_CLOSED_STACK);
     }
   }
 

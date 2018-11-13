@@ -28,10 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.core.data.AsynchronousException;
 import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
+
+import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
@@ -604,7 +605,7 @@ public class DensityCounter {
    *
    * @param maxId the max ID of molecules
    * @return the counts
-   * @throws AsynchronousException If interrupted while computing using multi-thread mode
+   * @throws ConcurrentRuntimeException If interrupted while computing using multi-thread mode
    */
   public int[][] countAll(int maxId) {
     final int[][] results = new int[moleculesCount][maxId + 1];
@@ -687,7 +688,7 @@ public class DensityCounter {
         from = to;
       }
 
-      ConcurrencyUtils.waitForCompletionOrError(futures, DensityCounter::logException);
+      ConcurrencyUtils.waitForCompletionUnchecked(futures, DensityCounter::logException);
 
       executor.shutdown();
     }
@@ -708,7 +709,7 @@ public class DensityCounter {
    * @param searchMolecules the molecules to around which to search
    * @param maxId the max ID of molecules
    * @return the counts
-   * @throws AsynchronousException If interrupted while computing using multi-thread mode
+   * @throws ConcurrentRuntimeException If interrupted while computing using multi-thread mode
    */
   @SuppressWarnings("null")
   public int[][] countAll(Molecule[] searchMolecules, int maxId) {
@@ -745,7 +746,7 @@ public class DensityCounter {
         molecule = to;
       }
 
-      ConcurrencyUtils.waitForCompletionOrError(futures, DensityCounter::logException);
+      ConcurrencyUtils.waitForCompletionUnchecked(futures, DensityCounter::logException);
 
       executor.shutdown();
     }

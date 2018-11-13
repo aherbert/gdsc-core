@@ -37,13 +37,158 @@ import org.apache.commons.math3.util.FastMath;
  */
 public class NonMaximumSuppression {
 
+  /**
+   * The neighbour check flag. Set to true to perform an additional comparison between the local
+   * maxima within the block (size n) and the neighbours within the 2n+1 perimeter.
+   */
   private boolean neighbourCheck;
+
+  /**
+   * Set to true to use data buffers for processing. Set to false should enable thread safety as all
+   * buffers are allocated dynamically.
+   */
   private boolean dataBuffer = true;
 
-  private float[] newDataFloat;
-  private int[] newDataInt;
+  /** A buffer to store the input float data with a border. */
+  private float[] expandedFloatDataBuffer;
+  /** A buffer to store the input int data with a border. */
+  private int[] expandedIntDataBuffer;
+  /** A buffer to store the maxima indices. */
   private IntFixedList resultsBuffer;
+  /** A buffer to store true if the index is a maxima. */
   private boolean[] maximaFlagBuffer;
+
+  /**
+   * Class to store scans for candidate maxima. The highest maxima is kept, or if tied then all
+   * maxima are kept.
+   */
+  private abstract class ScanCandidate {
+    /** The size (i.e. number of candidates). */
+    int size;
+    /** The indices. */
+    int[] indices = new int[4];
+    /** The scans. */
+    int[][] scans = new int[4][];
+
+    /**
+     * Gets the size.
+     *
+     * @return the size
+     */
+    int size() {
+      return size;
+    }
+
+    /**
+     * Gets the max index.
+     *
+     * @param index the index
+     * @return the max index
+     */
+    int getMaxIndex(int index) {
+      return indices[index];
+    }
+
+    /**
+     * Gets the scan.
+     *
+     * @param index the index
+     * @return the scan
+     */
+    int[] getScan(int index) {
+      return scans[index];
+    }
+  }
+
+  /**
+   * Class to store scans for candidate maxima. The highest maxima is kept, or if tied then all
+   * maxima are kept.
+   */
+  private final class FloatScanCandidate extends ScanCandidate {
+    /** The maxima value. */
+    float value;
+
+    /**
+     * Initialises to a size of 1 with the given candidate.
+     *
+     * @param values the values
+     * @param index the index in the values
+     * @param scan the scan around the candidate
+     */
+    void init(float[] values, int index, int[] scan) {
+      init(values[index], index, scan);
+    }
+
+    /**
+     * Initialises to a size of 1 with the given candidate.
+     *
+     * @param value the value
+     * @param index the index
+     * @param scan the scan around the candidate
+     */
+    void init(float value, int index, int[] scan) {
+      this.value = value;
+      indices[0] = index;
+      scans[0] = scan;
+      size = 1;
+    }
+
+    void add(float[] values, int index, int[] scan) {
+      final float newValue = values[index];
+      if (newValue > value) {
+        init(newValue, index, scan);
+      } else if (newValue == value) {
+        indices[size] = index;
+        scans[size] = scan;
+        size++;
+      }
+    }
+  }
+
+  /**
+   * Class to store scans for candidate maxima. The highest maxima is kept, or if tied then all
+   * maxima are kept.
+   */
+  private final class IntScanCandidate extends ScanCandidate {
+    /** The maxima value. */
+    int value;
+
+    /**
+     * Initialises to a size of 1 with the given candidate.
+     *
+     * @param values the values
+     * @param index the index in the values
+     * @param scan the scan around the candidate
+     */
+    void init(int[] values, int index, int[] scan) {
+      init(values[index], index, scan);
+    }
+
+    /**
+     * Initialises to a size of 1 with the given candidate.
+     *
+     * @param value the value
+     * @param index the index
+     * @param scan the scan around the candidate
+     */
+    void init(int value, int index, int[] scan) {
+      this.value = value;
+      indices[0] = index;
+      scans[0] = scan;
+      size = 1;
+    }
+
+    void add(int[] values, int index, int[] scan) {
+      final int newValue = values[index];
+      if (newValue > value) {
+        init(newValue, index, scan);
+      } else if (newValue == value) {
+        indices[size] = index;
+        scans[size] = scan;
+        size++;
+      }
+    }
+  }
 
   /**
    * Instantiates a new non maximum suppression.
@@ -93,8 +238,8 @@ public class NonMaximumSuppression {
   public void setDataBuffer(boolean dataBuffer) {
     this.dataBuffer = dataBuffer;
     if (!dataBuffer) {
-      newDataFloat = null;
-      newDataInt = null;
+      expandedFloatDataBuffer = null;
+      expandedIntDataBuffer = null;
     }
   }
 
@@ -120,19 +265,19 @@ public class NonMaximumSuppression {
   protected float[] expand(float[] data, int maxx, int maxy, int newx, int newy) {
     final int size = newx * newy;
 
-    if (!dataBuffer || newDataFloat == null || newDataFloat.length < size) {
-      newDataFloat = new float[size];
+    if (!dataBuffer || expandedFloatDataBuffer == null || expandedFloatDataBuffer.length < size) {
+      expandedFloatDataBuffer = new float[size];
     }
 
     // Zero first row
     for (int x = 0; x < newx; x++) {
-      newDataFloat[x] = Float.NEGATIVE_INFINITY;
+      expandedFloatDataBuffer[x] = Float.NEGATIVE_INFINITY;
     }
     // Zero last rows
     for (int y = maxy + 1; y < newy; y++) {
       int newIndex = y * newx;
       for (int x = 0; x < newx; x++) {
-        newDataFloat[newIndex++] = Float.NEGATIVE_INFINITY;
+        expandedFloatDataBuffer[newIndex++] = Float.NEGATIVE_INFINITY;
       }
     }
 
@@ -141,20 +286,20 @@ public class NonMaximumSuppression {
       int newIndex = (y + 1) * newx;
 
       // Zero first column
-      newDataFloat[newIndex++] = Float.NEGATIVE_INFINITY;
+      expandedFloatDataBuffer[newIndex++] = Float.NEGATIVE_INFINITY;
 
       // Copy data
       for (int x = 0; x < maxx; x++) {
-        newDataFloat[newIndex++] = data[index++];
+        expandedFloatDataBuffer[newIndex++] = data[index++];
       }
 
       // Zero remaining columns
       for (int x = maxx + 1; x < newx; x++) {
-        newDataFloat[newIndex++] = Float.NEGATIVE_INFINITY;
+        expandedFloatDataBuffer[newIndex++] = Float.NEGATIVE_INFINITY;
       }
     }
 
-    return newDataFloat;
+    return expandedFloatDataBuffer;
   }
 
   /**
@@ -170,19 +315,19 @@ public class NonMaximumSuppression {
   protected int[] expand(int[] data, int maxx, int maxy, int newx, int newy) {
     final int size = newx * newy;
 
-    if (!dataBuffer || newDataInt == null || newDataInt.length < size) {
-      newDataInt = new int[size];
+    if (!dataBuffer || expandedIntDataBuffer == null || expandedIntDataBuffer.length < size) {
+      expandedIntDataBuffer = new int[size];
     }
 
     // Zero first row
     for (int x = 0; x < newx; x++) {
-      newDataInt[x] = Integer.MIN_VALUE;
+      expandedIntDataBuffer[x] = Integer.MIN_VALUE;
     }
     // Zero last rows
     for (int y = maxy + 1; y < newy; y++) {
       int newIndex = y * newx;
       for (int x = 0; x < newx; x++) {
-        newDataInt[newIndex++] = Integer.MIN_VALUE;
+        expandedIntDataBuffer[newIndex++] = Integer.MIN_VALUE;
       }
     }
 
@@ -191,20 +336,20 @@ public class NonMaximumSuppression {
       int newIndex = (y + 1) * newx;
 
       // Zero first column
-      newDataInt[newIndex++] = Integer.MIN_VALUE;
+      expandedIntDataBuffer[newIndex++] = Integer.MIN_VALUE;
 
       // Copy data
       for (int x = 0; x < maxx; x++) {
-        newDataInt[newIndex++] = data[index++];
+        expandedIntDataBuffer[newIndex++] = data[index++];
       }
 
       // Zero remaining columns
       for (int x = maxx + 1; x < newx; x++) {
-        newDataInt[newIndex++] = Integer.MIN_VALUE;
+        expandedIntDataBuffer[newIndex++] = Integer.MIN_VALUE;
       }
     }
 
-    return newDataInt;
+    return expandedIntDataBuffer;
   }
 
   /**
@@ -376,8 +521,8 @@ public class NonMaximumSuppression {
 
         // Sweep neighbourhood
         if (isInnerXy) {
-          for (int i = 0; i < offset.length; i++) {
-            if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
+          for (final int off : offset) {
+            if (maximaFlag[index + off] || data[index + off] > v) {
               continue FIND_MAXIMUM;
             }
           }
@@ -396,7 +541,7 @@ public class NonMaximumSuppression {
 
         results.add(index);
         maximaFlag[index] = true;
-      } // end FIND_MAXIMA
+      } // end FIND_MAXIMUM
     }
 
     return results.toArray();
@@ -439,15 +584,15 @@ public class NonMaximumSuppression {
 
         // Sweep neighbourhood -
         // No check for boundaries as this should be an internal sweep.
-        for (int i = 0; i < offset.length; i++) {
-          if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
+        for (final int off : offset) {
+          if (maximaFlag[index + off] || data[index + off] > v) {
             continue FIND_MAXIMUM;
           }
         }
 
         results.add(index);
         maximaFlag[index] = true;
-      } // end FIND_MAXIMA
+      } // end FIND_MAXIMUM
     }
 
     return results.toArray();
@@ -503,8 +648,8 @@ public class NonMaximumSuppression {
         final float v = data[index];
 
         if (inner) {
-          for (int i = 0; i < offset.length; i++) {
-            if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
+          for (final int off : offset) {
+            if (maximaFlag[index + off] || data[index + off] > v) {
               continue FIND_MAXIMUM;
             }
           }
@@ -530,7 +675,7 @@ public class NonMaximumSuppression {
 
         results.add(index);
         maximaFlag[index] = true;
-      } // end FIND_MAXIMA
+      } // end FIND_MAXIMUM
     }
 
     return results.toArray();
@@ -603,181 +748,220 @@ public class NonMaximumSuppression {
       final boolean[] maximaFlag = getFlagBuffer(data.length);
 
       for (final int[] blockMaxima : blockMaximaCandidates) {
-        FIND_MAXIMUM: for (final int index : blockMaxima) {
-          final float v = data[index];
-
-          final int mi = index % maxx;
-          final int mj = index / maxx;
-
-          // Compare the maxima to the surroundings. Ignore the block region already processed.
-          //@formatter:off
-          //
-          //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
-          //             |dddddddddddddddddddddddddddddddddddddddddddd|
-          //             |dddddddddddddddddddddddddddddddddddddddddddd|
-          //             |dddddddddddddddddddddddddddddddddddddddddddd|
-          //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
-          //
-          //@formatter:on
-          // This must be done without over-running boundaries
-          final int j = n1 * (mj / n1);
-          final int mi_minus_n = FastMath.max(mi - n, 0);
-          final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
-          final int mj_minus_n = FastMath.max(mj - n, 0);
-
-          // A
-          for (int jj = mj_minus_n; jj < j; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
+        for (final int index : blockMaxima) {
+          if (isMaximaNxN(data, maximaFlag, maxx, maxy, n, 0, n1, index)) {
+            maximaFlag[index] = true;
+            maxima[maximaCount++] = index;
+            break;
           }
-          final int i = n1 * (mi / n1);
-          final int i_plus_n = i + n1;
-          final int j_plus_n = FastMath.min(j + n, maxy - 1);
-          for (int jj = j; jj <= j_plus_n; jj++) {
-            // B
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + i; indexStart < indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-
-            // C
-            for (int indexStart = jj * maxx + i_plus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-          // D
-          final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
-          for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-
-          // Neighbour check for existing maxima. This is relevant if the same height.
-          // However we cannot just check height as the neighbour may not be the selected maxima
-          // within its block.
-          // Only check A+B since the blocks for C+D have not yet been processed
-
-          // TODO: We only need to check the maxima of the preceding blocks:
-          // This requires iteration over the blockMaximaCandidates as a grid.
-          // - Find the maxima for the preceding blocks..
-          // - Check if within N distance
-          // - Check if equal (higher check has already been done)
-
-          // A
-          for (int jj = mj_minus_n; jj < j; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-          // B
-          for (int jj = j; jj <= j_plus_n; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + i; indexStart < indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-
-          maximaFlag[index] = true;
-          maxima[maximaCount++] = index;
-          break;
-        } // end FIND_MAXIMA
+        }
       }
     } else {
       final int[] blockMaxima = findBlockMaximaNxN(data, maxx, maxy, n);
 
       maxima = blockMaxima; // Re-use storage space
 
-      FIND_MAXIMUM: for (final int index : blockMaxima) {
-        final float v = data[index];
-
-        final int mi = index % maxx;
-        final int mj = index / maxx;
-
-        // Compare the maxima to the surroundings. Ignore the block region already processed.
-        //
-        // This must be done without over-running boundaries
-        final int j = n1 * (mj / n1);
-        final int mi_minus_n = FastMath.max(mi - n, 0);
-        final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
-        final int mj_minus_n = FastMath.max(mj - n, 0);
-
-        // A
-        for (int jj = mj_minus_n; jj < j; jj++) {
-          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
+      for (final int index : blockMaxima) {
+        if (isMaximaNxN(data, maxx, maxy, n, 0, n1, index)) {
+          maxima[maximaCount++] = index;
         }
-        final int i = n1 * (mi / n1);
-        final int i_plus_n = i + n1;
-        final int j_plus_n = FastMath.min(j + n, maxy - 1);
-        for (int jj = j; jj <= j_plus_n; jj++) {
-          // B
-          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-              jj * maxx + i; indexStart < indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-
-          // C
-          for (int indexStart = jj * maxx + i_plus_n, indexEnd =
-              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-        // D
-        final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
-        for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-
-        maxima[maximaCount++] = index;
-      } // end FIND_MAXIMA
+      }
     }
 
     return truncate(maxima, maximaCount);
+  }
+
+  /**
+   * Checks if the block maxima is a maxima in the larger region outside the local block, up to +/-
+   * n around the index location.
+   *
+   * @param data The input data (packed in YX order)
+   * @param maximaFlag the maxima flag
+   * @param maxx The width of the data
+   * @param maxy The height of the data
+   * @param n The block size
+   * @param border the border
+   * @param n1 the n+1
+   * @param index the index
+   * @return true, if is maxima
+   */
+  private static boolean isMaximaNxN(float[] data, boolean[] maximaFlag, int maxx, int maxy, int n,
+      int border, int n1, int index) {
+    final float v = data[index];
+
+    final int mi = index % maxx;
+    final int mj = index / maxx;
+
+    // Compare the maxima to the surroundings. Ignore the block region already processed.
+    //@formatter:off
+    //
+    //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
+    //             |dddddddddddddddddddddddddddddddddddddddddddd|
+    //             |dddddddddddddddddddddddddddddddddddddddddddd|
+    //             |dddddddddddddddddddddddddddddddddddddddddddd|
+    //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
+    //
+    //@formatter:on
+    // This must be done without over-running boundaries
+    final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
+    final int miMinusN = FastMath.max(mi - n, 0);
+    final int miPlusN = FastMath.min(mi + n, maxx - 1);
+    final int mjMinusN = FastMath.max(mj - n, 0);
+
+    // Neighbour check for existing maxima. This is relevant if the same height.
+    // However we cannot just check height as the neighbour may not be the selected maxima
+    // within its block.
+    // Only check A+B since the blocks for C+D have not yet been processed
+
+    // A
+    for (int jj = mjMinusN; jj < j; jj++) {
+      final int indexEnd = jj * maxx + miPlusN;
+      for (int indexStart = jj * maxx + miMinusN; indexStart <= indexEnd; indexStart++) {
+        // A includes neighbour check
+        if (v < data[indexStart] || maximaFlag[indexStart]) {
+          return false;
+        }
+      }
+    }
+    final int i = n1 * ((mi - border) / n1) + border; // Blocks n+1 wide
+    final int iPlusN = i + n1;
+    final int jPlusN = FastMath.min(j + n, maxy - 1);
+    for (int jj = j; jj <= jPlusN; jj++) {
+      // B
+      final int indexEnd = jj * maxx + i;
+      for (int indexStart = jj * maxx + miMinusN; indexStart < indexEnd; indexStart++) {
+        // B includes neighbour check
+        if (v < data[indexStart] || maximaFlag[indexStart]) {
+          return false;
+        }
+      }
+
+      // C
+      final int indexEnd2 = jj * maxx + miPlusN;
+      for (int indexStart = jj * maxx + iPlusN; indexStart <= indexEnd2; indexStart++) {
+        if (v < data[indexStart]) {
+          return false;
+        }
+      }
+    }
+    // D
+    final int mjPlusN = FastMath.min(mj + n, maxy - 1);
+    for (int jj = jPlusN + 1; jj <= mjPlusN; jj++) {
+      final int indexEnd = jj * maxx + miPlusN;
+      for (int indexStart = jj * maxx + miMinusN; indexStart <= indexEnd; indexStart++) {
+        if (v < data[indexStart]) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Checks if the block maxima is a maxima in the larger region outside the local block, up to +/-
+   * n around the index location.
+   *
+   * @param data The input data (packed in YX order)
+   * @param maxx The width of the data
+   * @param maxy The height of the data
+   * @param n The block size
+   * @param n1 the n+1
+   * @param index the index
+   * @return true, if is maxima
+   */
+  private static boolean isMaximaNxN(float[] data, int maxx, int maxy, int n, int border, int n1,
+      int index) {
+    final float v = data[index];
+
+    final int mi = index % maxx;
+    final int mj = index / maxx;
+
+    // Compare the maxima to the surroundings. Ignore the block region already processed.
+    //@formatter:off
+    //
+    //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
+    //             |dddddddddddddddddddddddddddddddddddddddddddd|
+    //             |dddddddddddddddddddddddddddddddddddddddddddd|
+    //             |dddddddddddddddddddddddddddddddddddddddddddd|
+    //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
+    //
+    //@formatter:on
+    // This must be done without over-running boundaries
+    final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
+    final int miMinusN = FastMath.max(mi - n, 0);
+    final int miPlusN = FastMath.min(mi + n, maxx - 1);
+    final int mjMinusN = FastMath.max(mj - n, 0);
+
+    // A
+    for (int jj = mjMinusN; jj < j; jj++) {
+      final int indexEnd = jj * maxx + miPlusN;
+      for (int indexStart = jj * maxx + miMinusN; indexStart <= indexEnd; indexStart++) {
+        if (v < data[indexStart]) {
+          return false;
+        }
+      }
+    }
+    final int i = n1 * ((mi - border) / n1) + border; // Blocks n+1 wide
+    final int iPlusN = i + n1;
+    final int jPlusN = FastMath.min(j + n, maxy - 1);
+    for (int jj = j; jj <= jPlusN; jj++) {
+      // B
+      final int indexEnd = jj * maxx + i;
+      for (int indexStart = jj * maxx + miMinusN; indexStart < indexEnd; indexStart++) {
+        if (v < data[indexStart]) {
+          return false;
+        }
+      }
+
+      // C
+      final int indexEnd2 = jj * maxx + miPlusN;
+      for (int indexStart = jj * maxx + iPlusN; indexStart <= indexEnd2; indexStart++) {
+        if (v < data[indexStart]) {
+          return false;
+        }
+      }
+    }
+    // D
+    final int mjPlusN = FastMath.min(mj + n, maxy - 1);
+    for (int jj = jPlusN + 1; jj <= mjPlusN; jj++) {
+      final int indexEnd = jj * maxx + miPlusN;
+      for (int indexStart = jj * maxx + miMinusN; indexStart <= indexEnd; indexStart++) {
+        if (v < data[indexStart]) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -808,184 +992,29 @@ public class NonMaximumSuppression {
       final boolean[] maximaFlag = getFlagBuffer(data.length);
 
       for (final int[] blockMaxima : blockMaximaCandidates) {
-        FIND_MAXIMUM: for (final int index : blockMaxima) {
-          final float v = data[index];
-
-          final int mi = index % maxx;
-          final int mj = index / maxx;
-
-          // Compare the maxima to the surroundings. Ignore the block region already processed.
-          //@formatter:off
-          //
-          //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
-          //             |dddddddddddddddddddddddddddddddddddddddddddd|
-          //             |dddddddddddddddddddddddddddddddddddddddddddd|
-          //             |dddddddddddddddddddddddddddddddddddddddddddd|
-          //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
-          //
-          //@formatter:on
-          // No check for over-running boundaries since this is the internal version
-          final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
-          // The block boundaries will have been truncated on the final block. Ensure this is swept
-          final int mi_minus_n = FastMath.max(mi - n, 0);
-          final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
-          final int mj_minus_n = FastMath.max(mj - n, 0);
-
-          // A
-          for (int jj = mj_minus_n; jj < j; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
+        for (final int index : blockMaxima) {
+          if (isMaximaNxN(data, maximaFlag, maxx, maxy, n, border, n1, index)) {
+            maximaFlag[index] = true;
+            maxima[maximaCount++] = index;
+            break;
           }
-          final int i = n1 * ((mi - border) / n1) + border; // Blocks n+1 wide
-          final int i_plus_n = i + n1;
-          final int j_plus_n = FastMath.min(j + n, maxy - border - 1);
-          for (int jj = j; jj <= j_plus_n; jj++) {
-            // B
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + i; indexStart < indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-
-            // C
-            for (int indexStart = jj * maxx + i_plus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-          // D
-          final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
-          for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-
-          // Neighbour check for existing maxima. This is relevant if the same height.
-          // However we cannot just check height as the neighbour may not be the selected maxima
-          // within its block.
-          // Only check A+B since the blocks for C+D have not yet been processed
-
-          // TODO: We only need to check the maxima of the preceding blocks:
-          // This requires iteration over the blockMaximaCandidates as a grid.
-          // - Find the maxima for the preceding blocks..
-          // - Check if within N distance
-          // - Check if equal (higher check has already been done)
-
-          // A
-          for (int jj = mj_minus_n; jj < j; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-          // B
-          for (int jj = j; jj <= j_plus_n; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + i; indexStart < indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-
-          maximaFlag[index] = true;
-          maxima[maximaCount++] = index;
-          break;
-        } // end FIND_MAXIMA
+        }
       }
     } else {
       final int[] blockMaxima = findBlockMaximaNxNInternal(data, maxx, maxy, n, border);
 
       maxima = blockMaxima; // Re-use storage space
 
-      FIND_MAXIMUM: for (final int index : blockMaxima) {
-        final float v = data[index];
-
-        final int mi = index % maxx;
-        final int mj = index / maxx;
-
-        // Compare the maxima to the surroundings. Ignore the block region already processed.
-        //
-        // No check for over-running boundaries since this is the internal version
-        final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
-        // The block boundaries will have been truncated on the final block. Ensure this is swept
-        final int mi_minus_n = FastMath.max(mi - n, 0);
-        final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
-        final int mj_minus_n = FastMath.max(mj - n, 0);
-
-        // A
-        for (int jj = mj_minus_n; jj < j; jj++) {
-          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
+      for (final int index : blockMaxima) {
+        if (isMaximaNxN(data, maxx, maxy, n, border, n1, index)) {
+          maxima[maximaCount++] = index;
         }
-        final int i = n1 * ((mi - border) / n1) + border; // Blocks n+1 wide
-        final int i_plus_n = i + n1;
-        final int j_plus_n = FastMath.min(j + n, maxy - border - 1);
-        for (int jj = j; jj <= j_plus_n; jj++) {
-          // B
-          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-              jj * maxx + i; indexStart < indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-
-          // C
-          for (int indexStart = jj * maxx + i_plus_n, indexEnd =
-              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-        // D
-        final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
-        for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-
-        maxima[maximaCount++] = index;
-      } // end FIND_MAXIMA
+      }
     }
 
     return truncate(maxima, maximaCount);
   }
+
 
   /**
    * Search the data for the index of the maximum in each block of size n*n.
@@ -1001,25 +1030,25 @@ public class NonMaximumSuppression {
   public int[] findBlockMaximaNxN(float[] data, int maxx, int maxy, int n) {
     // Include the actual pixel in the block
     // This makes the block search inclusive: i=0; i<=n; i++
-    n++;
+    final int n1 = n + 1;
 
     // The number of blocks in x and y
-    final int xblocks = getBlocks(maxx, n);
-    final int yblocks = getBlocks(maxy, n);
+    final int xblocks = getBlocks(maxx, n1);
+    final int yblocks = getBlocks(maxy, n1);
 
     // The final index in each dimension (where an incomplete block is found).
     // This equals maxx/maxy if the number of blocks fits exactly.
-    final int xfinal = n * (maxx / n);
-    final int yfinal = n * (maxy / n);
+    final int xfinal = n1 * (maxx / n1);
+    final int yfinal = n1 * (maxy / n1);
 
     final int[] maxima = new int[xblocks * yblocks];
 
     int block = 0;
-    for (int y = 0; y < maxy; y += n) {
-      for (int x = 0; x < maxx; x += n) {
+    for (int y = 0; y < maxy; y += n1) {
+      for (int x = 0; x < maxx; x += n1) {
         // Find the sweep size in each direction
-        final int xsize = (x != xfinal) ? n : maxx - xfinal;
-        int ysize = (y != yfinal) ? n : maxy - yfinal;
+        final int xsize = (x == xfinal) ? maxx - xfinal : n1;
+        int ysize = (y == yfinal) ? maxy - yfinal : n1;
 
         int index = y * maxx + x;
         int maxIndex = index;
@@ -1059,11 +1088,11 @@ public class NonMaximumSuppression {
   public int[] findBlockMaximaNxNInternal(float[] data, int maxx, int maxy, int n, int border) {
     // Include the actual pixel in the block
     // This makes the block search inclusive: i=0; i<=n; i++
-    n++;
+    final int n1 = n + 1;
 
     // The number of blocks in x and y. Subtract the boundary blocks.
-    final int xblocks = getBlocks(maxx - border, n);
-    final int yblocks = getBlocks(maxy - border, n);
+    final int xblocks = getBlocks(maxx - border, n1);
+    final int yblocks = getBlocks(maxy - border, n1);
 
     if (xblocks < 1 || yblocks < 1) {
       return new int[0];
@@ -1071,18 +1100,18 @@ public class NonMaximumSuppression {
 
     // The final index in each dimension (where an incomplete block is found).
     // This equals maxx/maxy if the number of blocks fits exactly.
-    final int xfinal = n * ((maxx - 2 * border) / n) + border;
-    final int yfinal = n * ((maxy - 2 * border) / n) + border;
+    final int xfinal = n1 * ((maxx - 2 * border) / n1) + border;
+    final int yfinal = n1 * ((maxy - 2 * border) / n1) + border;
 
     final int[] maxima = new int[xblocks * yblocks];
 
     int block = 0;
-    for (int y = border; y < maxy - border; y += n) {
-      for (int x = border; x < maxx - border; x += n) {
+    for (int y = border; y < maxy - border; y += n1) {
+      for (int x = border; x < maxx - border; x += n1) {
 
         // Find the sweep size in each direction
-        final int xsize = (x != xfinal) ? n : maxx - xfinal - border;
-        int ysize = (y != yfinal) ? n : maxy - yfinal - border;
+        final int xsize = (x == xfinal) ? maxx - xfinal - border : n1;
+        int ysize = (y == yfinal) ? maxy - yfinal - border : n1;
 
         int index = y * maxx + x;
         int maxIndex = index;
@@ -1205,26 +1234,26 @@ public class NonMaximumSuppression {
   public int[][] findBlockMaximaCandidatesNxN(float[] data, int maxx, int maxy, int n) {
     // Include the actual pixel in the block
     // This makes the block search inclusive: i=0; i<=n; i++
-    n++;
+    final int n1 = n + 1;
 
     // The number of blocks in x and y
-    final int xblocks = getBlocks(maxx, n);
-    final int yblocks = getBlocks(maxy, n);
+    final int xblocks = getBlocks(maxx, n1);
+    final int yblocks = getBlocks(maxy, n1);
 
     // The final index in each dimension (where an incomplete block is found).
     // This equals maxx/maxy if the number of blocks fits exactly.
-    final int xfinal = n * (maxx / n);
-    final int yfinal = n * (maxy / n);
+    final int xfinal = n1 * (maxx / n1);
+    final int yfinal = n1 * (maxy / n1);
 
     final int[][] maxima = new int[xblocks * yblocks][];
-    final IntFixedList list = new IntFixedList(n * n);
+    final IntFixedList list = new IntFixedList(n1 * n1);
 
     int block = 0;
-    for (int y = 0; y < maxy; y += n) {
-      for (int x = 0; x < maxx; x += n) {
+    for (int y = 0; y < maxy; y += n1) {
+      for (int x = 0; x < maxx; x += n1) {
         // Find the sweep size in each direction
-        final int xsize = (x != xfinal) ? n : maxx - xfinal;
-        int ysize = (y != yfinal) ? n : maxy - yfinal;
+        final int xsize = (x == xfinal) ? maxx - xfinal : n1;
+        int ysize = (y == yfinal) ? maxy - yfinal : n1;
 
         int index = y * maxx + x;
         float max = floatMin();
@@ -1269,11 +1298,11 @@ public class NonMaximumSuppression {
       int border) {
     // Include the actual pixel in the block
     // This makes the block search inclusive: i=0; i<=n; i++
-    n++;
+    final int n1 = n + 1;
 
     // The number of blocks in x and y. Subtract the boundary blocks.
-    final int xblocks = getBlocks(maxx - border, n);
-    final int yblocks = getBlocks(maxy - border, n);
+    final int xblocks = getBlocks(maxx - border, n1);
+    final int yblocks = getBlocks(maxy - border, n1);
 
     if (xblocks < 1 || yblocks < 1) {
       return new int[0][0];
@@ -1281,19 +1310,18 @@ public class NonMaximumSuppression {
 
     // The final index in each dimension (where an incomplete block is found).
     // This equals maxx/maxy if the number of blocks fits exactly.
-    final int xfinal = n * ((maxx - 2 * border) / n) + border;
-    final int yfinal = n * ((maxy - 2 * border) / n) + border;
+    final int xfinal = n1 * ((maxx - 2 * border) / n1) + border;
+    final int yfinal = n1 * ((maxy - 2 * border) / n1) + border;
 
     final int[][] maxima = new int[xblocks * yblocks][];
-    final IntFixedList list = new IntFixedList(n * n);
+    final IntFixedList list = new IntFixedList(n1 * n1);
 
     int block = 0;
-    for (int y = border; y < maxy - border; y += n) {
-      for (int x = border; x < maxx - border; x += n) {
-
+    for (int y = border; y < maxy - border; y += n1) {
+      for (int x = border; x < maxx - border; x += n1) {
         // Find the sweep size in each direction
-        final int xsize = (x != xfinal) ? n : maxx - xfinal - border;
-        int ysize = (y != yfinal) ? n : maxy - yfinal - border;
+        final int xsize = (x == xfinal) ? maxx - xfinal - border : n1;
+        int ysize = (y == yfinal) ? maxy - yfinal - border : n1;
 
         int index = y * maxx + x;
         float max = floatMin();
@@ -1365,31 +1393,27 @@ public class NonMaximumSuppression {
     // cccccccccccccccddd--maxy
     //@formatter:on
 
+    // Working storage for indices
+    final IntFixedList i1 = new IntFixedList(4);
+    final IntFixedList i2 = new IntFixedList(4);
+
     int block = 0;
     for (int y = 0; y < yfinal; y += 2) {
       // A
       int xindex = y * maxx;
       for (int x = 0; x < xfinal; x += 2) {
         // Compare 2x2 block
-        final int[] i1 = getIndices(data, xindex, xindex + 1);
-        final int[] i2 = getIndices(data, xindex + maxx, xindex + maxx + 1);
+        getIndices(i1, data, xindex, xindex + 1);
+        getIndices(i2, data, xindex + maxx, xindex + maxx + 1);
 
-        if (data[i1[0]] > data[i2[0]]) {
-          maxima[block++] = i1;
-        } else if (data[i1[0]] == data[i2[0]]) {
-          if (i1.length == 1) {
-            if (i2.length == 1) {
-              maxima[block++] = new int[] {i1[0], i2[0]};
-            } else {
-              maxima[block++] = new int[] {i1[0], i2[0], i2[1]};
-            }
-          } else if (i2.length == 1) {
-            maxima[block++] = new int[] {i1[0], i1[1], i2[0]};
-          } else {
-            maxima[block++] = new int[] {i1[0], i1[1], i2[0], i2[1]};
-          }
+        if (data[i1.get(0)] > data[i2.get(0)]) {
+          maxima[block++] = i1.toArray();
+        } else if (data[i1.get(0)] < data[i2.get(0)]) {
+          maxima[block++] = i2.toArray();
         } else {
-          maxima[block++] = i2;
+          // Tied so merge the candidates
+          i1.add(i2);
+          maxima[block++] = i1.toArray();
         }
         xindex += 2;
       }
@@ -1397,7 +1421,8 @@ public class NonMaximumSuppression {
       if (xfinal != maxx) {
         // Compare 1x2 block
         final int index = y * maxx + xfinal;
-        maxima[block++] = getIndices(data, index, index + maxx);
+        getIndices(i1, data, index, index + maxx);
+        maxima[block++] = i1.toArray();
       }
     }
     if (yfinal != maxy) {
@@ -1405,7 +1430,8 @@ public class NonMaximumSuppression {
       int xindex = yfinal * maxx;
       for (int x = 0; x < xfinal; x += 2) {
         // Compare 2x1 block
-        maxima[block++] = getIndices(data, xindex, xindex + 1);
+        getIndices(i1, data, xindex, xindex + 1);
+        maxima[block++] = i1.toArray();
         xindex += 2;
       }
       // D
@@ -1421,20 +1447,24 @@ public class NonMaximumSuppression {
   /**
    * Gets the indices of the maxima within the data from the provided indices.
    *
-   * <p>Returns an array of 1 or 2 indices if both have the same value.
+   * <p>Finds 1 index or 2 indices if both have the same value.
    *
+   * @param indices the indices
    * @param data the data
    * @param index1 the first index
    * @param index2 the second index
-   * @return the indices
    */
-  private static int[] getIndices(float[] data, int index1, int index2) {
+  private static void getIndices(IntFixedList indices, float[] data, int index1, int index2) {
+    indices.clear();
     if (data[index1] > data[index2]) {
-      return new int[] {index1};
-    } else if (data[index1] == data[index2]) {
-      return new int[] {index1, index2};
+      indices.add(index1);
+    } else if (data[index1] < data[index2]) {
+      indices.add(index2);
+    } else {
+      // Tied
+      indices.add(index1);
+      indices.add(index2);
     }
-    return new int[] {index2};
   }
 
   /**
@@ -1458,7 +1488,7 @@ public class NonMaximumSuppression {
     // Expand the canvas
     final int newx = maxx + (maxx - xfinal) + 2;
     final int newy = maxy + (maxy - yfinal) + 2;
-    data = expand(data, maxx, maxy, newx, newy);
+    final float[] newData = expand(data, maxx, maxy, newx, newy);
 
     // Compare 2x2 block
     // ....
@@ -1480,120 +1510,108 @@ public class NonMaximumSuppression {
     int maximaCount = 0;
 
     if (isNeighbourCheck()) {
-      final boolean[] maximaFlag = getFlagBuffer(data.length);
+      final boolean[] maximaFlag = getFlagBuffer(newData.length);
 
-      final int[][] scans = new int[4][];
-      final int[] maxIndices = new int[4];
-      int candidates;
+      final FloatScanCandidate candidates = new FloatScanCandidate();
 
       for (int y = 0; y < maxy; y += 2) {
         int xindex = (y + 1) * newx + 1;
         for (int x = 0; x < maxx; x += 2, xindex += 2) {
-          // Compare A and B
-          if (data[xindex] < data[xindex + 1]) {
-            scans[0] = b;
-            maxIndices[0] = xindex + 1;
-            candidates = 1;
-          } else if (data[xindex] == data[xindex + 1]) {
-            scans[0] = a;
-            maxIndices[0] = xindex;
-            scans[1] = b;
-            maxIndices[1] = xindex + 1;
-            candidates = 2;
-          } else {
-            scans[0] = a;
-            maxIndices[0] = xindex;
-            candidates = 1;
-          }
-
-          // Compare to C
-          if (data[maxIndices[0]] < data[xindex + newx]) {
-            scans[0] = c;
-            maxIndices[0] = xindex + newx;
-            candidates = 1;
-          } else if (data[maxIndices[0]] == data[xindex + newx]) {
-            scans[candidates] = c;
-            maxIndices[candidates] = xindex + newx;
-            candidates++;
-          }
-
-          // Compare to D
-          if (data[maxIndices[0]] < data[xindex + newx + 1]) {
-            scans[0] = d;
-            maxIndices[0] = xindex + newx + 1;
-            candidates = 1;
-          } else if (data[maxIndices[0]] == data[xindex + newx + 1]) {
-            scans[candidates] = d;
-            maxIndices[candidates] = xindex + newx + 1;
-            candidates++;
-          }
+          candidates.init(newData, xindex, a);
+          candidates.add(newData, xindex + 1, b);
+          candidates.add(newData, xindex + newx, c);
+          candidates.add(newData, xindex + newx + 1, d);
 
           // Check the remaining region for each candidate to ensure a true maxima
-          FIND_MAXIMUM: for (int candidate = 0; candidate < candidates; candidate++) {
-            final int maxIndex = maxIndices[candidate];
-            final int[] scan = scans[candidate];
+          for (int i = 0; i < candidates.size(); i++) {
+            final int maxIndex = candidates.getMaxIndex(i);
+            final int[] scan = candidates.getScan(i);
 
-            for (final int offset : scan) {
-              if (data[maxIndex] < data[maxIndex + offset]) {
-                continue FIND_MAXIMUM;
-              }
+            // Only check ABC using the existing maxima flag
+            // since the scan blocks for D have not yet been processed
+            final boolean isMaxima = (scan == d) ? isMaxima3x3(newData, maxIndex, scan)
+                : isMaxima3x3(newData, maximaFlag, maxIndex, scan);
+
+            if (isMaxima) {
+              // Remap the maxima
+              final int xx = maxIndex % newx;
+              final int yy = maxIndex / newx;
+
+              maximaFlag[maxIndex] = true;
+              maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
+              break;
             }
-
-            // Only check ABC since the scan blocks for D have not yet been processed
-            if (scan != d) {
-              for (final int offset : scan) {
-                if (maximaFlag[maxIndex + offset]) {
-                  continue FIND_MAXIMUM;
-                }
-              }
-            }
-
-            // Remap the maxima
-            final int xx = maxIndex % newx;
-            final int yy = maxIndex / newx;
-
-            maximaFlag[maxIndex] = true;
-            maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
-            break;
           }
         }
       }
     } else {
       for (int y = 0; y < maxy; y += 2) {
         int xindex = (y + 1) * newx + 1;
-        FIND_MAXIMUM: for (int x = 0; x < maxx; x += 2, xindex += 2) {
+        for (int x = 0; x < maxx; x += 2, xindex += 2) {
           int[] scan = a;
           int maxIndex = xindex;
-          if (data[maxIndex] < data[xindex + 1]) {
+          if (newData[maxIndex] < newData[xindex + 1]) {
             scan = b;
             maxIndex = xindex + 1;
           }
-          if (data[maxIndex] < data[xindex + newx]) {
+          if (newData[maxIndex] < newData[xindex + newx]) {
             scan = c;
             maxIndex = xindex + newx;
           }
-          if (data[maxIndex] < data[xindex + newx + 1]) {
+          if (newData[maxIndex] < newData[xindex + newx + 1]) {
             scan = d;
             maxIndex = xindex + newx + 1;
           }
 
           // Check the remaining region
-          for (final int offset : scan) {
-            if (data[maxIndex] < data[maxIndex + offset]) {
-              continue FIND_MAXIMUM;
-            }
+          if (isMaxima3x3(newData, maxIndex, scan)) {
+            // Remap the maxima
+            final int xx = maxIndex % newx;
+            final int yy = maxIndex / newx;
+
+            maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
           }
-
-          // Remap the maxima
-          final int xx = maxIndex % newx;
-          final int yy = maxIndex / newx;
-
-          maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
-        } // end FIND_MAXIMA
+        }
       }
     }
 
     return truncate(maxima, maximaCount);
+  }
+
+
+  /**
+   * Checks if is a maxima using the offsets to scan the remaining region around the core 2x2 block.
+   *
+   * @param data the data
+   * @param maximaFlag the maxima flag
+   * @param index the index
+   * @param scan the scan offsets
+   * @return true, if is a maxima
+   */
+  private static boolean isMaxima3x3(float[] data, boolean[] maximaFlag, int index, int[] scan) {
+    for (final int offset : scan) {
+      if (data[index] < data[index + offset] || maximaFlag[index + offset]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Checks if is a maxima using the offsets to scan the remaining region around the core 2x2 block.
+   *
+   * @param data the data
+   * @param index the index
+   * @param scan the scan offsets
+   * @return true, if is a maxima
+   */
+  private static boolean isMaxima3x3(float[] data, int index, int[] scan) {
+    for (final int offset : scan) {
+      if (data[index] < data[index + offset]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -1638,82 +1656,38 @@ public class NonMaximumSuppression {
     if (isNeighbourCheck()) {
       final boolean[] maximaFlag = getFlagBuffer(data.length);
 
-      final int[][] scans = new int[4][];
-      final int[] maxIndices = new int[4];
-      int candidates;
+      final FloatScanCandidate candidates = new FloatScanCandidate();
 
       for (int y = border; y < maxy - border - 1; y += 2) {
         int xindex = y * maxx + border;
         for (int x = border; x < maxx - border - 1; x += 2, xindex += 2) {
-          // Compare A and B
-          if (data[xindex] < data[xindex + 1]) {
-            scans[0] = b;
-            maxIndices[0] = xindex + 1;
-            candidates = 1;
-          } else if (data[xindex] == data[xindex + 1]) {
-            scans[0] = a;
-            maxIndices[0] = xindex;
-            scans[1] = b;
-            maxIndices[1] = xindex + 1;
-            candidates = 2;
-          } else {
-            scans[0] = a;
-            maxIndices[0] = xindex;
-            candidates = 1;
-          }
-
-          // Compare to C
-          if (data[maxIndices[0]] < data[xindex + maxx]) {
-            scans[0] = c;
-            maxIndices[0] = xindex + maxx;
-            candidates = 1;
-          } else if (data[maxIndices[0]] == data[xindex + maxx]) {
-            scans[candidates] = c;
-            maxIndices[candidates] = xindex + maxx;
-            candidates++;
-          }
-
-          // Compare to D
-          if (data[maxIndices[0]] < data[xindex + maxx + 1]) {
-            scans[0] = d;
-            maxIndices[0] = xindex + maxx + 1;
-            candidates = 1;
-          } else if (data[maxIndices[0]] == data[xindex + maxx + 1]) {
-            scans[candidates] = d;
-            maxIndices[candidates] = xindex + maxx + 1;
-            candidates++;
-          }
+          candidates.init(data, xindex, a);
+          candidates.add(data, xindex + 1, b);
+          candidates.add(data, xindex + maxx, c);
+          candidates.add(data, xindex + maxx + 1, d);
 
           // Check the remaining region for each candidate to ensure a true maxima
-          FIND_MAXIMUM: for (int candidate = 0; candidate < candidates; candidate++) {
-            final int maxIndex = maxIndices[candidate];
-            final int[] scan = scans[candidate];
+          for (int i = 0; i < candidates.size(); i++) {
+            final int maxIndex = candidates.getMaxIndex(i);
+            final int[] scan = candidates.getScan(i);
 
-            for (final int offset : scan) {
-              if (data[maxIndex] < data[maxIndex + offset]) {
-                continue FIND_MAXIMUM;
-              }
+            // Only check ABC using the existing maxima flag
+            // since the scan blocks for D have not yet been processed
+            final boolean isMaxima = (scan == d) ? isMaxima3x3(data, maxIndex, scan)
+                : isMaxima3x3(data, maximaFlag, maxIndex, scan);
+
+            if (isMaxima) {
+              maximaFlag[maxIndex] = true;
+              maxima[maximaCount++] = maxIndex;
+              break;
             }
-
-            // Only check ABC since the scan blocks for D have not yet been processed
-            if (scan != d) {
-              for (final int offset : scan) {
-                if (maximaFlag[maxIndex + offset]) {
-                  continue FIND_MAXIMUM;
-                }
-              }
-            }
-
-            maximaFlag[maxIndex] = true;
-            maxima[maximaCount++] = maxIndex;
-            break;
-          } // end FIND_MAXIMA
+          }
         }
       }
     } else {
       for (int y = border; y < maxy - border - 1; y += 2) {
         int xindex = y * maxx + border;
-        FIND_MAXIMUM: for (int x = border; x < maxx - border - 1; x += 2, xindex += 2) {
+        for (int x = border; x < maxx - border - 1; x += 2, xindex += 2) {
           int[] scan = a;
           int maxIndex = xindex;
           if (data[maxIndex] < data[xindex + 1]) {
@@ -1730,14 +1704,10 @@ public class NonMaximumSuppression {
           }
 
           // Check the remaining region
-          for (final int offset : scan) {
-            if (data[maxIndex] < data[maxIndex + offset]) {
-              continue FIND_MAXIMUM;
-            }
+          if (isMaxima3x3(data, maxIndex, scan)) {
+            maxima[maximaCount++] = maxIndex;
           }
-
-          maxima[maximaCount++] = maxIndex;
-        } // end FIND_MAXIMA
+        } // end FIND_MAXIMUM
       }
     }
 
@@ -1837,8 +1807,8 @@ public class NonMaximumSuppression {
 
         // Sweep neighbourhood
         if (isInnerXy) {
-          for (int i = 0; i < offset.length; i++) {
-            if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
+          for (final int off : offset) {
+            if (maximaFlag[index + off] || data[index + off] > v) {
               continue FIND_MAXIMUM;
             }
           }
@@ -1857,7 +1827,7 @@ public class NonMaximumSuppression {
 
         results.add(index);
         maximaFlag[index] = true;
-      } // end FIND_MAXIMA
+      } // end FIND_MAXIMUM
     }
 
     return results.toArray();
@@ -1900,15 +1870,15 @@ public class NonMaximumSuppression {
 
         // Sweep neighbourhood -
         // No check for boundaries as this should be an internal sweep.
-        for (int i = 0; i < offset.length; i++) {
-          if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
+        for (final int off : offset) {
+          if (maximaFlag[index + off] || data[index + off] > v) {
             continue FIND_MAXIMUM;
           }
         }
 
         results.add(index);
         maximaFlag[index] = true;
-      } // end FIND_MAXIMA
+      } // end FIND_MAXIMUM
     }
 
     return results.toArray();
@@ -1964,8 +1934,8 @@ public class NonMaximumSuppression {
         final int v = data[index];
 
         if (inner) {
-          for (int i = 0; i < offset.length; i++) {
-            if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
+          for (final int off : offset) {
+            if (maximaFlag[index + off] || data[index + off] > v) {
               continue FIND_MAXIMUM;
             }
           }
@@ -1991,7 +1961,7 @@ public class NonMaximumSuppression {
 
         results.add(index);
         maximaFlag[index] = true;
-      } // end FIND_MAXIMA
+      } // end FIND_MAXIMUM
     }
 
     return results.toArray();
@@ -2064,181 +2034,220 @@ public class NonMaximumSuppression {
       final boolean[] maximaFlag = getFlagBuffer(data.length);
 
       for (final int[] blockMaxima : blockMaximaCandidates) {
-        FIND_MAXIMUM: for (final int index : blockMaxima) {
-          final int v = data[index];
-
-          final int mi = index % maxx;
-          final int mj = index / maxx;
-
-          // Compare the maxima to the surroundings. Ignore the block region already processed.
-          //@formatter:off
-          //
-          //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
-          //             |dddddddddddddddddddddddddddddddddddddddddddd|
-          //             |dddddddddddddddddddddddddddddddddddddddddddd|
-          //             |dddddddddddddddddddddddddddddddddddddddddddd|
-          //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
-          //
-          //@formatter:on
-          // This must be done without over-running boundaries
-          final int j = n1 * (mj / n1);
-          final int mi_minus_n = FastMath.max(mi - n, 0);
-          final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
-          final int mj_minus_n = FastMath.max(mj - n, 0);
-
-          // A
-          for (int jj = mj_minus_n; jj < j; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
+        for (final int index : blockMaxima) {
+          if (isMaximaNxN(data, maximaFlag, maxx, maxy, n, 0, n1, index)) {
+            maximaFlag[index] = true;
+            maxima[maximaCount++] = index;
+            break;
           }
-          final int i = n1 * (mi / n1);
-          final int i_plus_n = i + n1;
-          final int j_plus_n = FastMath.min(j + n, maxy - 1);
-          for (int jj = j; jj <= j_plus_n; jj++) {
-            // B
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + i; indexStart < indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-
-            // C
-            for (int indexStart = jj * maxx + i_plus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-          // D
-          final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
-          for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-
-          // Neighbour check for existing maxima. This is relevant if the same height.
-          // However we cannot just check height as the neighbour may not be the selected maxima
-          // within its block.
-          // Only check A+B since the blocks for C+D have not yet been processed
-
-          // TODO: We only need to check the maxima of the preceding blocks:
-          // This requires iteration over the blockMaximaCandidates as a grid.
-          // - Find the maxima for the preceding blocks..
-          // - Check if within N distance
-          // - Check if equal (higher check has already been done)
-
-          // A
-          for (int jj = mj_minus_n; jj < j; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-          // B
-          for (int jj = j; jj <= j_plus_n; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + i; indexStart < indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-
-          maximaFlag[index] = true;
-          maxima[maximaCount++] = index;
-          break;
-        } // end FIND_MAXIMA
+        }
       }
     } else {
       final int[] blockMaxima = findBlockMaximaNxN(data, maxx, maxy, n);
 
       maxima = blockMaxima; // Re-use storage space
 
-      FIND_MAXIMUM: for (final int index : blockMaxima) {
-        final int v = data[index];
-
-        final int mi = index % maxx;
-        final int mj = index / maxx;
-
-        // Compare the maxima to the surroundings. Ignore the block region already processed.
-        //
-        // This must be done without over-running boundaries
-        final int j = n1 * (mj / n1);
-        final int mi_minus_n = FastMath.max(mi - n, 0);
-        final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
-        final int mj_minus_n = FastMath.max(mj - n, 0);
-
-        // A
-        for (int jj = mj_minus_n; jj < j; jj++) {
-          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
+      for (final int index : blockMaxima) {
+        if (isMaximaNxN(data, maxx, maxy, n, 0, n1, index)) {
+          maxima[maximaCount++] = index;
         }
-        final int i = n1 * (mi / n1);
-        final int i_plus_n = i + n1;
-        final int j_plus_n = FastMath.min(j + n, maxy - 1);
-        for (int jj = j; jj <= j_plus_n; jj++) {
-          // B
-          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-              jj * maxx + i; indexStart < indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-
-          // C
-          for (int indexStart = jj * maxx + i_plus_n, indexEnd =
-              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-        // D
-        final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
-        for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-
-        maxima[maximaCount++] = index;
-      } // end FIND_MAXIMA
+      }
     }
 
     return truncate(maxima, maximaCount);
+  }
+
+  /**
+   * Checks if the block maxima is a maxima in the larger region outside the local block, up to +/-
+   * n around the index location.
+   *
+   * @param data The input data (packed in YX order)
+   * @param maximaFlag the maxima flag
+   * @param maxx The width of the data
+   * @param maxy The height of the data
+   * @param n The block size
+   * @param border the border
+   * @param n1 the n+1
+   * @param index the index
+   * @return true, if is maxima
+   */
+  private static boolean isMaximaNxN(int[] data, boolean[] maximaFlag, int maxx, int maxy, int n,
+      int border, int n1, int index) {
+    final int v = data[index];
+
+    final int mi = index % maxx;
+    final int mj = index / maxx;
+
+    // Compare the maxima to the surroundings. Ignore the block region already processed.
+    //@formatter:off
+    //
+    //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
+    //             |dddddddddddddddddddddddddddddddddddddddddddd|
+    //             |dddddddddddddddddddddddddddddddddddddddddddd|
+    //             |dddddddddddddddddddddddddddddddddddddddddddd|
+    //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
+    //
+    //@formatter:on
+    // This must be done without over-running boundaries
+    final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
+    final int miMinusN = FastMath.max(mi - n, 0);
+    final int miPlusN = FastMath.min(mi + n, maxx - 1);
+    final int mjMinusN = FastMath.max(mj - n, 0);
+
+    // Neighbour check for existing maxima. This is relevant if the same height.
+    // However we cannot just check height as the neighbour may not be the selected maxima
+    // within its block.
+    // Only check A+B since the blocks for C+D have not yet been processed
+
+    // A
+    for (int jj = mjMinusN; jj < j; jj++) {
+      final int indexEnd = jj * maxx + miPlusN;
+      for (int indexStart = jj * maxx + miMinusN; indexStart <= indexEnd; indexStart++) {
+        // A includes neighbour check
+        if (v < data[indexStart] || maximaFlag[indexStart]) {
+          return false;
+        }
+      }
+    }
+    final int i = n1 * ((mi - border) / n1) + border; // Blocks n+1 wide
+    final int iPlusN = i + n1;
+    final int jPlusN = FastMath.min(j + n, maxy - 1);
+    for (int jj = j; jj <= jPlusN; jj++) {
+      // B
+      final int indexEnd = jj * maxx + i;
+      for (int indexStart = jj * maxx + miMinusN; indexStart < indexEnd; indexStart++) {
+        // B includes neighbour check
+        if (v < data[indexStart] || maximaFlag[indexStart]) {
+          return false;
+        }
+      }
+
+      // C
+      final int indexEnd2 = jj * maxx + miPlusN;
+      for (int indexStart = jj * maxx + iPlusN; indexStart <= indexEnd2; indexStart++) {
+        if (v < data[indexStart]) {
+          return false;
+        }
+      }
+    }
+    // D
+    final int mjPlusN = FastMath.min(mj + n, maxy - 1);
+    for (int jj = jPlusN + 1; jj <= mjPlusN; jj++) {
+      final int indexEnd = jj * maxx + miPlusN;
+      for (int indexStart = jj * maxx + miMinusN; indexStart <= indexEnd; indexStart++) {
+        if (v < data[indexStart]) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Checks if the block maxima is a maxima in the larger region outside the local block, up to +/-
+   * n around the index location.
+   *
+   * @param data The input data (packed in YX order)
+   * @param maxx The width of the data
+   * @param maxy The height of the data
+   * @param n The block size
+   * @param n1 the n+1
+   * @param index the index
+   * @return true, if is maxima
+   */
+  private static boolean isMaximaNxN(int[] data, int maxx, int maxy, int n, int border, int n1,
+      int index) {
+    final int v = data[index];
+
+    final int mi = index % maxx;
+    final int mj = index / maxx;
+
+    // Compare the maxima to the surroundings. Ignore the block region already processed.
+    //@formatter:off
+    //
+    //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
+    //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbbbbb|                  |ccccccccccccc|
+    //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
+    //             |dddddddddddddddddddddddddddddddddddddddddddd|
+    //             |dddddddddddddddddddddddddddddddddddddddddddd|
+    //             |dddddddddddddddddddddddddddddddddddddddddddd|
+    //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
+    //
+    //@formatter:on
+    // This must be done without over-running boundaries
+    final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
+    final int miMinusN = FastMath.max(mi - n, 0);
+    final int miPlusN = FastMath.min(mi + n, maxx - 1);
+    final int mjMinusN = FastMath.max(mj - n, 0);
+
+    // A
+    for (int jj = mjMinusN; jj < j; jj++) {
+      final int indexEnd = jj * maxx + miPlusN;
+      for (int indexStart = jj * maxx + miMinusN; indexStart <= indexEnd; indexStart++) {
+        if (v < data[indexStart]) {
+          return false;
+        }
+      }
+    }
+    final int i = n1 * ((mi - border) / n1) + border; // Blocks n+1 wide
+    final int iPlusN = i + n1;
+    final int jPlusN = FastMath.min(j + n, maxy - 1);
+    for (int jj = j; jj <= jPlusN; jj++) {
+      // B
+      final int indexEnd = jj * maxx + i;
+      for (int indexStart = jj * maxx + miMinusN; indexStart < indexEnd; indexStart++) {
+        if (v < data[indexStart]) {
+          return false;
+        }
+      }
+
+      // C
+      final int indexEnd2 = jj * maxx + miPlusN;
+      for (int indexStart = jj * maxx + iPlusN; indexStart <= indexEnd2; indexStart++) {
+        if (v < data[indexStart]) {
+          return false;
+        }
+      }
+    }
+    // D
+    final int mjPlusN = FastMath.min(mj + n, maxy - 1);
+    for (int jj = jPlusN + 1; jj <= mjPlusN; jj++) {
+      final int indexEnd = jj * maxx + miPlusN;
+      for (int indexStart = jj * maxx + miMinusN; indexStart <= indexEnd; indexStart++) {
+        if (v < data[indexStart]) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -2269,184 +2278,29 @@ public class NonMaximumSuppression {
       final boolean[] maximaFlag = getFlagBuffer(data.length);
 
       for (final int[] blockMaxima : blockMaximaCandidates) {
-        FIND_MAXIMUM: for (final int index : blockMaxima) {
-          final int v = data[index];
-
-          final int mi = index % maxx;
-          final int mj = index / maxx;
-
-          // Compare the maxima to the surroundings. Ignore the block region already processed.
-          //@formatter:off
-          //
-          //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-          //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbbbbb|                  |ccccccccccccc|
-          //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
-          //             |dddddddddddddddddddddddddddddddddddddddddddd|
-          //             |dddddddddddddddddddddddddddddddddddddddddddd|
-          //             |dddddddddddddddddddddddddddddddddddddddddddd|
-          //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
-          //
-          //@formatter:on
-          // No check for over-running boundaries since this is the internal version
-          final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
-          // The block boundaries will have been truncated on the final block. Ensure this is swept
-          final int mi_minus_n = FastMath.max(mi - n, 0);
-          final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
-          final int mj_minus_n = FastMath.max(mj - n, 0);
-
-          // A
-          for (int jj = mj_minus_n; jj < j; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
+        for (final int index : blockMaxima) {
+          if (isMaximaNxN(data, maximaFlag, maxx, maxy, n, border, n1, index)) {
+            maximaFlag[index] = true;
+            maxima[maximaCount++] = index;
+            break;
           }
-          final int i = n1 * ((mi - border) / n1) + border; // Blocks n+1 wide
-          final int i_plus_n = i + n1;
-          final int j_plus_n = FastMath.min(j + n, maxy - border - 1);
-          for (int jj = j; jj <= j_plus_n; jj++) {
-            // B
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + i; indexStart < indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-
-            // C
-            for (int indexStart = jj * maxx + i_plus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-          // D
-          final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
-          for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (v < data[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-
-          // Neighbour check for existing maxima. This is relevant if the same height.
-          // However we cannot just check height as the neighbour may not be the selected maxima
-          // within its block.
-          // Only check A+B since the blocks for C+D have not yet been processed
-
-          // TODO: We only need to check the maxima of the preceding blocks:
-          // This requires iteration over the blockMaximaCandidates as a grid.
-          // - Find the maxima for the preceding blocks..
-          // - Check if within N distance
-          // - Check if equal (higher check has already been done)
-
-          // A
-          for (int jj = mj_minus_n; jj < j; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-          // B
-          for (int jj = j; jj <= j_plus_n; jj++) {
-            for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-                jj * maxx + i; indexStart < indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-
-          maximaFlag[index] = true;
-          maxima[maximaCount++] = index;
-          break;
-        } // end FIND_MAXIMA
+        }
       }
     } else {
       final int[] blockMaxima = findBlockMaximaNxNInternal(data, maxx, maxy, n, border);
 
       maxima = blockMaxima; // Re-use storage space
 
-      FIND_MAXIMUM: for (final int index : blockMaxima) {
-        final int v = data[index];
-
-        final int mi = index % maxx;
-        final int mj = index / maxx;
-
-        // Compare the maxima to the surroundings. Ignore the block region already processed.
-        //
-        // No check for over-running boundaries since this is the internal version
-        final int j = n1 * ((mj - border) / n1) + border; // Blocks n+1 wide
-        // The block boundaries will have been truncated on the final block. Ensure this is swept
-        final int mi_minus_n = FastMath.max(mi - n, 0);
-        final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
-        final int mj_minus_n = FastMath.max(mj - n, 0);
-
-        // A
-        for (int jj = mj_minus_n; jj < j; jj++) {
-          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
+      for (final int index : blockMaxima) {
+        if (isMaximaNxN(data, maxx, maxy, n, border, n1, index)) {
+          maxima[maximaCount++] = index;
         }
-        final int i = n1 * ((mi - border) / n1) + border; // Blocks n+1 wide
-        final int i_plus_n = i + n1;
-        final int j_plus_n = FastMath.min(j + n, maxy - border - 1);
-        for (int jj = j; jj <= j_plus_n; jj++) {
-          // B
-          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-              jj * maxx + i; indexStart < indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-
-          // C
-          for (int indexStart = jj * maxx + i_plus_n, indexEnd =
-              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-        // D
-        final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
-        for (int jj = j_plus_n + 1; jj <= mj_plus_n; jj++) {
-          for (int indexStart = jj * maxx + mi_minus_n, indexEnd =
-              jj * maxx + mi_plus_n; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-
-        maxima[maximaCount++] = index;
-      } // end FIND_MAXIMA
+      }
     }
 
     return truncate(maxima, maximaCount);
   }
+
 
   /**
    * Search the data for the index of the maximum in each block of size n*n.
@@ -2462,25 +2316,25 @@ public class NonMaximumSuppression {
   public int[] findBlockMaximaNxN(int[] data, int maxx, int maxy, int n) {
     // Include the actual pixel in the block
     // This makes the block search inclusive: i=0; i<=n; i++
-    n++;
+    final int n1 = n + 1;
 
     // The number of blocks in x and y
-    final int xblocks = getBlocks(maxx, n);
-    final int yblocks = getBlocks(maxy, n);
+    final int xblocks = getBlocks(maxx, n1);
+    final int yblocks = getBlocks(maxy, n1);
 
     // The final index in each dimension (where an incomplete block is found).
     // This equals maxx/maxy if the number of blocks fits exactly.
-    final int xfinal = n * (maxx / n);
-    final int yfinal = n * (maxy / n);
+    final int xfinal = n1 * (maxx / n1);
+    final int yfinal = n1 * (maxy / n1);
 
     final int[] maxima = new int[xblocks * yblocks];
 
     int block = 0;
-    for (int y = 0; y < maxy; y += n) {
-      for (int x = 0; x < maxx; x += n) {
+    for (int y = 0; y < maxy; y += n1) {
+      for (int x = 0; x < maxx; x += n1) {
         // Find the sweep size in each direction
-        final int xsize = (x != xfinal) ? n : maxx - xfinal;
-        int ysize = (y != yfinal) ? n : maxy - yfinal;
+        final int xsize = (x == xfinal) ? maxx - xfinal : n1;
+        int ysize = (y == yfinal) ? maxy - yfinal : n1;
 
         int index = y * maxx + x;
         int maxIndex = index;
@@ -2520,11 +2374,11 @@ public class NonMaximumSuppression {
   public int[] findBlockMaximaNxNInternal(int[] data, int maxx, int maxy, int n, int border) {
     // Include the actual pixel in the block
     // This makes the block search inclusive: i=0; i<=n; i++
-    n++;
+    final int n1 = n + 1;
 
     // The number of blocks in x and y. Subtract the boundary blocks.
-    final int xblocks = getBlocks(maxx - border, n);
-    final int yblocks = getBlocks(maxy - border, n);
+    final int xblocks = getBlocks(maxx - border, n1);
+    final int yblocks = getBlocks(maxy - border, n1);
 
     if (xblocks < 1 || yblocks < 1) {
       return new int[0];
@@ -2532,18 +2386,18 @@ public class NonMaximumSuppression {
 
     // The final index in each dimension (where an incomplete block is found).
     // This equals maxx/maxy if the number of blocks fits exactly.
-    final int xfinal = n * ((maxx - 2 * border) / n) + border;
-    final int yfinal = n * ((maxy - 2 * border) / n) + border;
+    final int xfinal = n1 * ((maxx - 2 * border) / n1) + border;
+    final int yfinal = n1 * ((maxy - 2 * border) / n1) + border;
 
     final int[] maxima = new int[xblocks * yblocks];
 
     int block = 0;
-    for (int y = border; y < maxy - border; y += n) {
-      for (int x = border; x < maxx - border; x += n) {
+    for (int y = border; y < maxy - border; y += n1) {
+      for (int x = border; x < maxx - border; x += n1) {
 
         // Find the sweep size in each direction
-        final int xsize = (x != xfinal) ? n : maxx - xfinal - border;
-        int ysize = (y != yfinal) ? n : maxy - yfinal - border;
+        final int xsize = (x == xfinal) ? maxx - xfinal - border : n1;
+        int ysize = (y == yfinal) ? maxy - yfinal - border : n1;
 
         int index = y * maxx + x;
         int maxIndex = index;
@@ -2666,26 +2520,26 @@ public class NonMaximumSuppression {
   public int[][] findBlockMaximaCandidatesNxN(int[] data, int maxx, int maxy, int n) {
     // Include the actual pixel in the block
     // This makes the block search inclusive: i=0; i<=n; i++
-    n++;
+    final int n1 = n + 1;
 
     // The number of blocks in x and y
-    final int xblocks = getBlocks(maxx, n);
-    final int yblocks = getBlocks(maxy, n);
+    final int xblocks = getBlocks(maxx, n1);
+    final int yblocks = getBlocks(maxy, n1);
 
     // The final index in each dimension (where an incomplete block is found).
     // This equals maxx/maxy if the number of blocks fits exactly.
-    final int xfinal = n * (maxx / n);
-    final int yfinal = n * (maxy / n);
+    final int xfinal = n1 * (maxx / n1);
+    final int yfinal = n1 * (maxy / n1);
 
     final int[][] maxima = new int[xblocks * yblocks][];
-    final IntFixedList list = new IntFixedList(n * n);
+    final IntFixedList list = new IntFixedList(n1 * n1);
 
     int block = 0;
-    for (int y = 0; y < maxy; y += n) {
-      for (int x = 0; x < maxx; x += n) {
+    for (int y = 0; y < maxy; y += n1) {
+      for (int x = 0; x < maxx; x += n1) {
         // Find the sweep size in each direction
-        final int xsize = (x != xfinal) ? n : maxx - xfinal;
-        int ysize = (y != yfinal) ? n : maxy - yfinal;
+        final int xsize = (x == xfinal) ? maxx - xfinal : n1;
+        int ysize = (y == yfinal) ? maxy - yfinal : n1;
 
         int index = y * maxx + x;
         int max = intMin();
@@ -2730,11 +2584,11 @@ public class NonMaximumSuppression {
       int border) {
     // Include the actual pixel in the block
     // This makes the block search inclusive: i=0; i<=n; i++
-    n++;
+    final int n1 = n + 1;
 
     // The number of blocks in x and y. Subtract the boundary blocks.
-    final int xblocks = getBlocks(maxx - border, n);
-    final int yblocks = getBlocks(maxy - border, n);
+    final int xblocks = getBlocks(maxx - border, n1);
+    final int yblocks = getBlocks(maxy - border, n1);
 
     if (xblocks < 1 || yblocks < 1) {
       return new int[0][0];
@@ -2742,19 +2596,18 @@ public class NonMaximumSuppression {
 
     // The final index in each dimension (where an incomplete block is found).
     // This equals maxx/maxy if the number of blocks fits exactly.
-    final int xfinal = n * ((maxx - 2 * border) / n) + border;
-    final int yfinal = n * ((maxy - 2 * border) / n) + border;
+    final int xfinal = n1 * ((maxx - 2 * border) / n1) + border;
+    final int yfinal = n1 * ((maxy - 2 * border) / n1) + border;
 
     final int[][] maxima = new int[xblocks * yblocks][];
-    final IntFixedList list = new IntFixedList(n * n);
+    final IntFixedList list = new IntFixedList(n1 * n1);
 
     int block = 0;
-    for (int y = border; y < maxy - border; y += n) {
-      for (int x = border; x < maxx - border; x += n) {
-
+    for (int y = border; y < maxy - border; y += n1) {
+      for (int x = border; x < maxx - border; x += n1) {
         // Find the sweep size in each direction
-        final int xsize = (x != xfinal) ? n : maxx - xfinal - border;
-        int ysize = (y != yfinal) ? n : maxy - yfinal - border;
+        final int xsize = (x == xfinal) ? maxx - xfinal - border : n1;
+        int ysize = (y == yfinal) ? maxy - yfinal - border : n1;
 
         int index = y * maxx + x;
         int max = intMin();
@@ -2826,31 +2679,27 @@ public class NonMaximumSuppression {
     // cccccccccccccccddd--maxy
     //@formatter:on
 
+    // Working storage for indices
+    final IntFixedList i1 = new IntFixedList(4);
+    final IntFixedList i2 = new IntFixedList(4);
+
     int block = 0;
     for (int y = 0; y < yfinal; y += 2) {
       // A
       int xindex = y * maxx;
       for (int x = 0; x < xfinal; x += 2) {
         // Compare 2x2 block
-        final int[] i1 = getIndices(data, xindex, xindex + 1);
-        final int[] i2 = getIndices(data, xindex + maxx, xindex + maxx + 1);
+        getIndices(i1, data, xindex, xindex + 1);
+        getIndices(i2, data, xindex + maxx, xindex + maxx + 1);
 
-        if (data[i1[0]] > data[i2[0]]) {
-          maxima[block++] = i1;
-        } else if (data[i1[0]] == data[i2[0]]) {
-          if (i1.length == 1) {
-            if (i2.length == 1) {
-              maxima[block++] = new int[] {i1[0], i2[0]};
-            } else {
-              maxima[block++] = new int[] {i1[0], i2[0], i2[1]};
-            }
-          } else if (i2.length == 1) {
-            maxima[block++] = new int[] {i1[0], i1[1], i2[0]};
-          } else {
-            maxima[block++] = new int[] {i1[0], i1[1], i2[0], i2[1]};
-          }
+        if (data[i1.get(0)] > data[i2.get(0)]) {
+          maxima[block++] = i1.toArray();
+        } else if (data[i1.get(0)] < data[i2.get(0)]) {
+          maxima[block++] = i2.toArray();
         } else {
-          maxima[block++] = i2;
+          // Tied so merge the candidates
+          i1.add(i2);
+          maxima[block++] = i1.toArray();
         }
         xindex += 2;
       }
@@ -2858,7 +2707,8 @@ public class NonMaximumSuppression {
       if (xfinal != maxx) {
         // Compare 1x2 block
         final int index = y * maxx + xfinal;
-        maxima[block++] = getIndices(data, index, index + maxx);
+        getIndices(i1, data, index, index + maxx);
+        maxima[block++] = i1.toArray();
       }
     }
     if (yfinal != maxy) {
@@ -2866,7 +2716,8 @@ public class NonMaximumSuppression {
       int xindex = yfinal * maxx;
       for (int x = 0; x < xfinal; x += 2) {
         // Compare 2x1 block
-        maxima[block++] = getIndices(data, xindex, xindex + 1);
+        getIndices(i1, data, xindex, xindex + 1);
+        maxima[block++] = i1.toArray();
         xindex += 2;
       }
       // D
@@ -2882,20 +2733,24 @@ public class NonMaximumSuppression {
   /**
    * Gets the indices of the maxima within the data from the provided indices.
    *
-   * <p>Returns an array of 1 or 2 indices if both have the same value.
+   * <p>Finds 1 index or 2 indices if both have the same value.
    *
+   * @param indices the indices
    * @param data the data
    * @param index1 the first index
    * @param index2 the second index
-   * @return the indices
    */
-  private static int[] getIndices(int[] data, int index1, int index2) {
+  private static void getIndices(IntFixedList indices, int[] data, int index1, int index2) {
+    indices.clear();
     if (data[index1] > data[index2]) {
-      return new int[] {index1};
-    } else if (data[index1] == data[index2]) {
-      return new int[] {index1, index2};
+      indices.add(index1);
+    } else if (data[index1] < data[index2]) {
+      indices.add(index2);
+    } else {
+      // Tied
+      indices.add(index1);
+      indices.add(index2);
     }
-    return new int[] {index2};
   }
 
   /**
@@ -2919,7 +2774,7 @@ public class NonMaximumSuppression {
     // Expand the canvas
     final int newx = maxx + (maxx - xfinal) + 2;
     final int newy = maxy + (maxy - yfinal) + 2;
-    data = expand(data, maxx, maxy, newx, newy);
+    final int[] newData = expand(data, maxx, maxy, newx, newy);
 
     // Compare 2x2 block
     // ....
@@ -2941,120 +2796,108 @@ public class NonMaximumSuppression {
     int maximaCount = 0;
 
     if (isNeighbourCheck()) {
-      final boolean[] maximaFlag = getFlagBuffer(data.length);
+      final boolean[] maximaFlag = getFlagBuffer(newData.length);
 
-      final int[][] scans = new int[4][];
-      final int[] maxIndices = new int[4];
-      int candidates;
+      final IntScanCandidate candidates = new IntScanCandidate();
 
       for (int y = 0; y < maxy; y += 2) {
         int xindex = (y + 1) * newx + 1;
         for (int x = 0; x < maxx; x += 2, xindex += 2) {
-          // Compare A and B
-          if (data[xindex] < data[xindex + 1]) {
-            scans[0] = b;
-            maxIndices[0] = xindex + 1;
-            candidates = 1;
-          } else if (data[xindex] == data[xindex + 1]) {
-            scans[0] = a;
-            maxIndices[0] = xindex;
-            scans[1] = b;
-            maxIndices[1] = xindex + 1;
-            candidates = 2;
-          } else {
-            scans[0] = a;
-            maxIndices[0] = xindex;
-            candidates = 1;
-          }
-
-          // Compare to C
-          if (data[maxIndices[0]] < data[xindex + newx]) {
-            scans[0] = c;
-            maxIndices[0] = xindex + newx;
-            candidates = 1;
-          } else if (data[maxIndices[0]] == data[xindex + newx]) {
-            scans[candidates] = c;
-            maxIndices[candidates] = xindex + newx;
-            candidates++;
-          }
-
-          // Compare to D
-          if (data[maxIndices[0]] < data[xindex + newx + 1]) {
-            scans[0] = d;
-            maxIndices[0] = xindex + newx + 1;
-            candidates = 1;
-          } else if (data[maxIndices[0]] == data[xindex + newx + 1]) {
-            scans[candidates] = d;
-            maxIndices[candidates] = xindex + newx + 1;
-            candidates++;
-          }
+          candidates.init(newData, xindex, a);
+          candidates.add(newData, xindex + 1, b);
+          candidates.add(newData, xindex + newx, c);
+          candidates.add(newData, xindex + newx + 1, d);
 
           // Check the remaining region for each candidate to ensure a true maxima
-          FIND_MAXIMUM: for (int candidate = 0; candidate < candidates; candidate++) {
-            final int maxIndex = maxIndices[candidate];
-            final int[] scan = scans[candidate];
+          for (int i = 0; i < candidates.size(); i++) {
+            final int maxIndex = candidates.getMaxIndex(i);
+            final int[] scan = candidates.getScan(i);
 
-            for (final int offset : scan) {
-              if (data[maxIndex] < data[maxIndex + offset]) {
-                continue FIND_MAXIMUM;
-              }
+            // Only check ABC using the existing maxima flag
+            // since the scan blocks for D have not yet been processed
+            final boolean isMaxima = (scan == d) ? isMaxima3x3(newData, maxIndex, scan)
+                : isMaxima3x3(newData, maximaFlag, maxIndex, scan);
+
+            if (isMaxima) {
+              // Remap the maxima
+              final int xx = maxIndex % newx;
+              final int yy = maxIndex / newx;
+
+              maximaFlag[maxIndex] = true;
+              maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
+              break;
             }
-
-            // Only check ABC since the scan blocks for D have not yet been processed
-            if (scan != d) {
-              for (final int offset : scan) {
-                if (maximaFlag[maxIndex + offset]) {
-                  continue FIND_MAXIMUM;
-                }
-              }
-            }
-
-            // Remap the maxima
-            final int xx = maxIndex % newx;
-            final int yy = maxIndex / newx;
-
-            maximaFlag[maxIndex] = true;
-            maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
-            break;
           }
         }
       }
     } else {
       for (int y = 0; y < maxy; y += 2) {
         int xindex = (y + 1) * newx + 1;
-        FIND_MAXIMUM: for (int x = 0; x < maxx; x += 2, xindex += 2) {
+        for (int x = 0; x < maxx; x += 2, xindex += 2) {
           int[] scan = a;
           int maxIndex = xindex;
-          if (data[maxIndex] < data[xindex + 1]) {
+          if (newData[maxIndex] < newData[xindex + 1]) {
             scan = b;
             maxIndex = xindex + 1;
           }
-          if (data[maxIndex] < data[xindex + newx]) {
+          if (newData[maxIndex] < newData[xindex + newx]) {
             scan = c;
             maxIndex = xindex + newx;
           }
-          if (data[maxIndex] < data[xindex + newx + 1]) {
+          if (newData[maxIndex] < newData[xindex + newx + 1]) {
             scan = d;
             maxIndex = xindex + newx + 1;
           }
 
           // Check the remaining region
-          for (final int offset : scan) {
-            if (data[maxIndex] < data[maxIndex + offset]) {
-              continue FIND_MAXIMUM;
-            }
+          if (isMaxima3x3(newData, maxIndex, scan)) {
+            // Remap the maxima
+            final int xx = maxIndex % newx;
+            final int yy = maxIndex / newx;
+
+            maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
           }
-
-          // Remap the maxima
-          final int xx = maxIndex % newx;
-          final int yy = maxIndex / newx;
-
-          maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
-        } // end FIND_MAXIMA
+        }
       }
     }
 
     return truncate(maxima, maximaCount);
+  }
+
+
+  /**
+   * Checks if is a maxima using the offsets to scan the remaining region around the core 2x2 block.
+   *
+   * @param data the data
+   * @param maximaFlag the maxima flag
+   * @param index the index
+   * @param scan the scan offsets
+   * @return true, if is a maxima
+   */
+  private static boolean isMaxima3x3(int[] data, boolean[] maximaFlag, int index, int[] scan) {
+    for (final int offset : scan) {
+      if (data[index] < data[index + offset] || maximaFlag[index + offset]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Checks if is a maxima using the offsets to scan the remaining region around the core 2x2 block.
+   *
+   * @param data the data
+   * @param index the index
+   * @param scan the scan offsets
+   * @return true, if is a maxima
+   */
+  private static boolean isMaxima3x3(int[] data, int index, int[] scan) {
+    for (final int offset : scan) {
+      if (data[index] < data[index + offset]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -3099,82 +2942,38 @@ public class NonMaximumSuppression {
     if (isNeighbourCheck()) {
       final boolean[] maximaFlag = getFlagBuffer(data.length);
 
-      final int[][] scans = new int[4][];
-      final int[] maxIndices = new int[4];
-      int candidates;
+      final IntScanCandidate candidates = new IntScanCandidate();
 
       for (int y = border; y < maxy - border - 1; y += 2) {
         int xindex = y * maxx + border;
         for (int x = border; x < maxx - border - 1; x += 2, xindex += 2) {
-          // Compare A and B
-          if (data[xindex] < data[xindex + 1]) {
-            scans[0] = b;
-            maxIndices[0] = xindex + 1;
-            candidates = 1;
-          } else if (data[xindex] == data[xindex + 1]) {
-            scans[0] = a;
-            maxIndices[0] = xindex;
-            scans[1] = b;
-            maxIndices[1] = xindex + 1;
-            candidates = 2;
-          } else {
-            scans[0] = a;
-            maxIndices[0] = xindex;
-            candidates = 1;
-          }
-
-          // Compare to C
-          if (data[maxIndices[0]] < data[xindex + maxx]) {
-            scans[0] = c;
-            maxIndices[0] = xindex + maxx;
-            candidates = 1;
-          } else if (data[maxIndices[0]] == data[xindex + maxx]) {
-            scans[candidates] = c;
-            maxIndices[candidates] = xindex + maxx;
-            candidates++;
-          }
-
-          // Compare to D
-          if (data[maxIndices[0]] < data[xindex + maxx + 1]) {
-            scans[0] = d;
-            maxIndices[0] = xindex + maxx + 1;
-            candidates = 1;
-          } else if (data[maxIndices[0]] == data[xindex + maxx + 1]) {
-            scans[candidates] = d;
-            maxIndices[candidates] = xindex + maxx + 1;
-            candidates++;
-          }
+          candidates.init(data, xindex, a);
+          candidates.add(data, xindex + 1, b);
+          candidates.add(data, xindex + maxx, c);
+          candidates.add(data, xindex + maxx + 1, d);
 
           // Check the remaining region for each candidate to ensure a true maxima
-          FIND_MAXIMUM: for (int candidate = 0; candidate < candidates; candidate++) {
-            final int maxIndex = maxIndices[candidate];
-            final int[] scan = scans[candidate];
+          for (int i = 0; i < candidates.size(); i++) {
+            final int maxIndex = candidates.getMaxIndex(i);
+            final int[] scan = candidates.getScan(i);
 
-            for (final int offset : scan) {
-              if (data[maxIndex] < data[maxIndex + offset]) {
-                continue FIND_MAXIMUM;
-              }
+            // Only check ABC using the existing maxima flag
+            // since the scan blocks for D have not yet been processed
+            final boolean isMaxima = (scan == d) ? isMaxima3x3(data, maxIndex, scan)
+                : isMaxima3x3(data, maximaFlag, maxIndex, scan);
+
+            if (isMaxima) {
+              maximaFlag[maxIndex] = true;
+              maxima[maximaCount++] = maxIndex;
+              break;
             }
-
-            // Only check ABC since the scan blocks for D have not yet been processed
-            if (scan != d) {
-              for (final int offset : scan) {
-                if (maximaFlag[maxIndex + offset]) {
-                  continue FIND_MAXIMUM;
-                }
-              }
-            }
-
-            maximaFlag[maxIndex] = true;
-            maxima[maximaCount++] = maxIndex;
-            break;
-          } // end FIND_MAXIMA
+          }
         }
       }
     } else {
       for (int y = border; y < maxy - border - 1; y += 2) {
         int xindex = y * maxx + border;
-        FIND_MAXIMUM: for (int x = border; x < maxx - border - 1; x += 2, xindex += 2) {
+        for (int x = border; x < maxx - border - 1; x += 2, xindex += 2) {
           int[] scan = a;
           int maxIndex = xindex;
           if (data[maxIndex] < data[xindex + 1]) {
@@ -3191,14 +2990,10 @@ public class NonMaximumSuppression {
           }
 
           // Check the remaining region
-          for (final int offset : scan) {
-            if (data[maxIndex] < data[maxIndex + offset]) {
-              continue FIND_MAXIMUM;
-            }
+          if (isMaxima3x3(data, maxIndex, scan)) {
+            maxima[maximaCount++] = maxIndex;
           }
-
-          maxima[maximaCount++] = maxIndex;
-        } // end FIND_MAXIMA
+        } // end FIND_MAXIMUM
       }
     }
 

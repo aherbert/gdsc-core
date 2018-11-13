@@ -4,6 +4,7 @@ import uk.ac.sussex.gdsc.core.utils.RandomUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
+import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
@@ -28,12 +29,12 @@ import java.awt.Rectangle;
 import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
-public class AreaSumTest {
+public class DoubleAreaStatisticsTest {
   private static Logger logger;
 
   @BeforeAll
   public static void beforeAll() {
-    logger = Logger.getLogger(AreaSumTest.class.getName());
+    logger = Logger.getLogger(DoubleAreaStatisticsTest.class.getName());
   }
 
   @AfterAll
@@ -46,32 +47,34 @@ public class AreaSumTest {
   int maxx = 97;
   int maxy = 101;
 
+  DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-6);
+
   @SeededTest
   public void canComputeGlobalStatistics(RandomSeed seed) {
-    final float[] data = createData(RngUtils.create(seed.getSeedAsLong()));
+    final double[] data = createData(RngUtils.create(seed.getSeedAsLong()));
     final Statistics s = new Statistics(data);
-    final AreaSum a = new AreaSum(data, maxx, maxy);
+    final DoubleAreaStatistics a = new DoubleAreaStatistics(data, maxx, maxy);
     for (final boolean rng : rolling) {
       a.setRollingSums(rng);
       double[] obs = a.getStatistics(0, 0, maxy);
-      Assertions.assertEquals(s.getN(), obs[AreaSum.INDEX_COUNT]);
-      TestAssertions.assertTest(s.getSum(), obs[AreaSum.INDEX_SUM],
-          TestHelper.doublesAreClose(1e-6, 0));
+      Assertions.assertEquals(s.getN(), obs[AreaStatistics.INDEX_COUNT]);
+      TestAssertions.assertTest(s.getSum(), obs[AreaStatistics.INDEX_SUM], equality);
+      TestAssertions.assertTest(s.getStandardDeviation(), obs[AreaStatistics.INDEX_SD], equality);
 
       obs = a.getStatistics(new Rectangle(maxx, maxy));
-      Assertions.assertEquals(s.getN(), obs[AreaSum.INDEX_COUNT]);
-      TestAssertions.assertTest(s.getSum(), obs[AreaSum.INDEX_SUM],
-          TestHelper.doublesAreClose(1e-6, 0));
+      Assertions.assertEquals(s.getN(), obs[AreaStatistics.INDEX_COUNT]);
+      TestAssertions.assertTest(s.getSum(), obs[AreaStatistics.INDEX_SUM], equality);
+      TestAssertions.assertTest(s.getStandardDeviation(), obs[AreaStatistics.INDEX_SD], equality);
     }
   }
 
   @SeededTest
   public void canComputeNxNRegionStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
-    final float[] data = createData(rng);
-    final AreaSum a1 = new AreaSum(data, maxx, maxy);
+    final double[] data = createData(rng);
+    final DoubleAreaStatistics a1 = new DoubleAreaStatistics(data, maxx, maxy);
     a1.setRollingSums(true);
-    final AreaSum a2 = new AreaSum(data, maxx, maxy);
+    final DoubleAreaStatistics a2 = new DoubleAreaStatistics(data, maxx, maxy);
     a2.setRollingSums(false);
 
     final FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
@@ -81,17 +84,21 @@ public class AreaSumTest {
         for (final int size : boxSizes) {
           final double[] exp = a1.getStatistics(x, y, size);
           final double[] obs = a2.getStatistics(x, y, size);
-          TestAssertions.assertArrayTest(exp, obs, TestHelper.doublesAreClose(1e-6, 0));
+          Assertions.assertEquals(exp[AreaStatistics.INDEX_COUNT], obs[AreaStatistics.INDEX_COUNT]);
+          TestAssertions.assertTest(exp[AreaStatistics.INDEX_SUM], obs[AreaStatistics.INDEX_SUM],
+              equality);
+          TestAssertions.assertTest(exp[AreaStatistics.INDEX_SD], obs[AreaStatistics.INDEX_SD],
+              equality);
           // TestLog.debug(logger,"%s vs %s", toString(exp), toString(obs));
 
           // Check with ImageJ
           fp.setRoi(new Rectangle(x - size, y - size, 2 * size + 1, 2 * size + 1));
           final ImageStatistics s = fp.getStatistics();
 
-          Assertions.assertEquals(s.area, obs[AreaSum.INDEX_COUNT]);
+          Assertions.assertEquals(s.area, obs[AreaStatistics.INDEX_COUNT]);
           final double sum = s.mean * s.area;
-          TestAssertions.assertTest(sum, obs[AreaSum.INDEX_SUM],
-              TestHelper.doublesAreClose(1e-6, 0));
+          TestAssertions.assertTest(sum, obs[AreaStatistics.INDEX_SUM], equality);
+          TestAssertions.assertTest(s.stdDev, obs[AreaStatistics.INDEX_SD], equality);
         }
       }
     }
@@ -100,10 +107,10 @@ public class AreaSumTest {
   @SeededTest
   public void canComputeNxMRegionStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
-    final float[] data = createData(rng);
-    final AreaSum a1 = new AreaSum(data, maxx, maxy);
+    final double[] data = createData(rng);
+    final DoubleAreaStatistics a1 = new DoubleAreaStatistics(data, maxx, maxy);
     a1.setRollingSums(true);
-    final AreaSum a2 = new AreaSum(data, maxx, maxy);
+    final DoubleAreaStatistics a2 = new DoubleAreaStatistics(data, maxx, maxy);
     a2.setRollingSums(false);
 
     final FloatProcessor fp = new FloatProcessor(maxx, maxy, data);
@@ -114,16 +121,22 @@ public class AreaSumTest {
           for (final int ny : boxSizes) {
             final double[] exp = a1.getStatistics(x, y, nx, ny);
             final double[] obs = a2.getStatistics(x, y, nx, ny);
-            TestAssertions.assertArrayTest(exp, obs, TestHelper.doublesAreClose(1e-6, 0));
+            Assertions.assertEquals(exp[AreaStatistics.INDEX_COUNT],
+                obs[AreaStatistics.INDEX_COUNT]);
+            TestAssertions.assertTest(exp[AreaStatistics.INDEX_SUM], obs[AreaStatistics.INDEX_SUM],
+                equality);
+            TestAssertions.assertTest(exp[AreaStatistics.INDEX_SD], obs[AreaStatistics.INDEX_SD],
+                equality);
             // TestLog.debug(logger,"%s vs %s", toString(exp), toString(obs));
 
             // Check with ImageJ
             fp.setRoi(new Rectangle(x - nx, y - ny, 2 * nx + 1, 2 * ny + 1));
             final ImageStatistics s = fp.getStatistics();
 
-            Assertions.assertEquals(s.area, obs[AreaSum.INDEX_COUNT]);
-            TestAssertions.assertTest(s.mean * s.area, obs[AreaSum.INDEX_SUM],
-                TestHelper.doublesAreClose(1e-6, 0));
+            Assertions.assertEquals(s.area, obs[AreaStatistics.INDEX_COUNT]);
+            final double sum = s.mean * s.area;
+            TestAssertions.assertTest(sum, obs[AreaStatistics.INDEX_SUM], equality);
+            TestAssertions.assertTest(s.stdDev, obs[AreaStatistics.INDEX_SD], equality);
           }
         }
       }
@@ -133,10 +146,10 @@ public class AreaSumTest {
   @SeededTest
   public void canComputeRectangleRegionStatistics(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
-    final float[] data = createData(rng);
-    final AreaSum a1 = new AreaSum(data, maxx, maxy);
+    final double[] data = createData(rng);
+    final DoubleAreaStatistics a1 = new DoubleAreaStatistics(data, maxx, maxy);
     a1.setRollingSums(true);
-    final AreaSum a2 = new AreaSum(data, maxx, maxy);
+    final DoubleAreaStatistics a2 = new DoubleAreaStatistics(data, maxx, maxy);
     a2.setRollingSums(false);
 
     final int width = 10;
@@ -151,44 +164,52 @@ public class AreaSumTest {
         roi.y = y;
         final double[] exp = a1.getStatistics(roi);
         final double[] obs = a2.getStatistics(roi);
-        TestAssertions.assertArrayTest(exp, obs, TestHelper.doublesAreClose(1e-6, 0));
+        Assertions.assertEquals(exp[AreaStatistics.INDEX_COUNT], obs[AreaStatistics.INDEX_COUNT]);
+        TestAssertions.assertTest(exp[AreaStatistics.INDEX_SUM], obs[AreaStatistics.INDEX_SUM],
+            equality);
+        TestAssertions.assertTest(exp[AreaStatistics.INDEX_SD], obs[AreaStatistics.INDEX_SD],
+            equality);
         // TestLog.debug(logger,"%s vs %s", toString(exp), toString(obs));
 
         // Check with ImageJ
         fp.setRoi(roi);
         final ImageStatistics s = fp.getStatistics();
 
-        Assertions.assertEquals(s.area, obs[AreaSum.INDEX_COUNT]);
-        TestAssertions.assertTest(s.mean * s.area, obs[AreaSum.INDEX_SUM],
-            TestHelper.doublesAreClose(1e-6, 0));
+        Assertions.assertEquals(s.area, obs[AreaStatistics.INDEX_COUNT]);
+        TestAssertions.assertTest(s.mean * s.area, obs[AreaStatistics.INDEX_SUM], equality);
+        TestAssertions.assertTest(s.stdDev, obs[AreaStatistics.INDEX_SD], equality);
       }
     }
   }
 
   @Test
   public void canComputeStatisticsWithinClippedBounds() {
-    final float[] data = new float[] {1, 2, 3, 4};
-    final AreaSum a = new AreaSum(data, 2, 2);
+    final double[] data = new double[] {1, 2, 3, 4};
+    final DoubleAreaStatistics a = new DoubleAreaStatistics(data, 2, 2);
     final Statistics stats = new Statistics(data);
     final int c = stats.getN();
     final double u = stats.getSum();
+    final double s = stats.getStandardDeviation();
     for (final boolean rng : rolling) {
       a.setRollingSums(rng);
       for (final int size : boxSizes) {
         double[] obs = a.getStatistics(0, 0, size);
-        Assertions.assertEquals(c, obs[AreaSum.INDEX_COUNT]);
-        TestAssertions.assertTest(u, obs[AreaSum.INDEX_SUM], TestHelper.doublesAreClose(1e-6, 0));
+        Assertions.assertEquals(c, obs[AreaStatistics.INDEX_COUNT]);
+        TestAssertions.assertTest(u, obs[AreaStatistics.INDEX_SUM], equality);
+        TestAssertions.assertTest(s, obs[AreaStatistics.INDEX_SD], equality);
 
         final Rectangle bounds = new Rectangle(2 * size + 1, 2 * size + 1);
         obs = a.getStatistics(bounds);
-        Assertions.assertEquals(c, obs[AreaSum.INDEX_COUNT]);
-        TestAssertions.assertTest(u, obs[AreaSum.INDEX_SUM], TestHelper.doublesAreClose(1e-6, 0));
+        Assertions.assertEquals(c, obs[AreaStatistics.INDEX_COUNT]);
+        TestAssertions.assertTest(u, obs[AreaStatistics.INDEX_SUM], equality);
+        TestAssertions.assertTest(s, obs[AreaStatistics.INDEX_SD], equality);
 
         bounds.x--;
         bounds.y--;
         obs = a.getStatistics(bounds);
-        Assertions.assertEquals(c, obs[AreaSum.INDEX_COUNT]);
-        TestAssertions.assertTest(u, obs[AreaSum.INDEX_SUM], TestHelper.doublesAreClose(1e-6, 0));
+        Assertions.assertEquals(c, obs[AreaStatistics.INDEX_COUNT]);
+        TestAssertions.assertTest(u, obs[AreaStatistics.INDEX_SUM], equality);
+        TestAssertions.assertTest(s, obs[AreaStatistics.INDEX_SD], equality);
       }
     }
   }
@@ -196,10 +217,10 @@ public class AreaSumTest {
   private class MyTimingtask extends BaseTimingTask {
     boolean rolling;
     int size;
-    float[][] data;
+    double[][] data;
     int[] sample;
 
-    public MyTimingtask(boolean rolling, int size, float[][] data, int[] sample) {
+    public MyTimingtask(boolean rolling, int size, double[][] data, int[] sample) {
       super(((rolling) ? "Rolling" : "Simple") + size);
       this.rolling = rolling;
       this.size = size;
@@ -219,8 +240,8 @@ public class AreaSumTest {
 
     @Override
     public Object run(Object data) {
-      final float[] d = (float[]) data;
-      final AreaSum a = new AreaSum(d, maxx, maxy);
+      final double[] d = (double[]) data;
+      final DoubleAreaStatistics a = new DoubleAreaStatistics(d, maxx, maxy);
       a.setRollingSums(rolling);
       for (int i = 0; i < sample.length; i += 2) {
         a.getStatistics(sample[i], sample[i + 1], size);
@@ -238,10 +259,10 @@ public class AreaSumTest {
 
   @SpeedTag
   @SeededTest
-  public void simpleIsfasterAtMediumDensityAndNLessThan3(RandomSeed seed) {
+  public void simpleIsfasterAtMediumDensityAndNLessThan5(RandomSeed seed) {
     // Test the speed for computing the noise around each 3x3 box
-    // using a region of 3x3 (size=1) to 5x5 (size=2)
-    speedTest(seed, 1.0 / 9, false, 1, 2);
+    // using a region of 3x3 (size=1) to 9x9 (size=4)
+    speedTest(seed, 1.0 / 9, false, 1, 4);
   }
 
   @SpeedTag
@@ -267,7 +288,7 @@ public class AreaSumTest {
       sample[j++] = y[i];
     }
 
-    final float[][] data = new float[10][];
+    final double[][] data = new double[10][];
     for (int i = 0; i < data.length; i++) {
       data[i] = createData(rng);
     }
@@ -287,14 +308,14 @@ public class AreaSumTest {
     // Assertions.assertEquals(ts.get(-2).getMean() < ts.get(-1).getMean(), rollingIsFaster);
     logger.log(
         TestLogUtils.getResultRecord(ts.get(-2).getMean() < ts.get(-1).getMean() == rollingIsFaster,
-            "AreaSum Density=%g RollingIsFaster=%b N=%d:%d: rolling %s vs simple %s", density,
-            rollingIsFaster, minN, maxN, ts.get(-2).getMean(), ts.get(-1).getMean()));
+            "DoubleAreaStatistics Density=%g RollingIsFaster=%b N=%d:%d: rolling %s vs simple %s",
+            density, rollingIsFaster, minN, maxN, ts.get(-2).getMean(), ts.get(-1).getMean()));
   }
 
-  private float[] createData(UniformRandomProvider rng) {
-    final float[] d = new float[maxx * maxy];
+  private double[] createData(UniformRandomProvider rng) {
+    final double[] d = new double[maxx * maxy];
     for (int i = 0; i < d.length; i++) {
-      d[i] = rng.nextFloat();
+      d[i] = rng.nextDouble();
     }
     return d;
   }

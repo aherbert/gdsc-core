@@ -36,7 +36,7 @@ import uk.ac.sussex.gdsc.core.utils.ArgumentUtils;
  * @param <E> the enum element type
  * @since 2.0
  */
-public class EnumList<E extends Enum<E>> {
+public final class EnumList<E extends Enum<E>> {
 
   /** The values of the enum, in the order they are declared. */
   private final E[] values;
@@ -44,10 +44,10 @@ public class EnumList<E extends Enum<E>> {
   /**
    * Instantiates a new enum helper.
    *
-   * @param values the values
+   * @param elementType the element type
    */
-  private EnumList(E[] values) {
-    this.values = values;
+  private EnumList(Class<E> elementType) {
+    this.values = elementType.getEnumConstants();
   }
 
   /**
@@ -58,7 +58,7 @@ public class EnumList<E extends Enum<E>> {
    */
   public EnumList<E> forEnum(Class<E> elementType) {
     ArgumentUtils.checkNotNull(elementType, "Enum type must not be null");
-    return new EnumList<>(elementType.getEnumConstants());
+    return new EnumList<>(elementType);
   }
 
   /**
@@ -69,7 +69,7 @@ public class EnumList<E extends Enum<E>> {
    */
   public EnumList<E> forEnum(E element) {
     ArgumentUtils.checkNotNull(element, "Enum must not be null");
-    return new EnumList<>(element.getDeclaringClass().getEnumConstants());
+    return new EnumList<>(element.getDeclaringClass());
   }
 
   /**

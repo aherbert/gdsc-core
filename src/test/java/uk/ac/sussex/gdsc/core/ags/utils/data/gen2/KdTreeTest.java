@@ -205,7 +205,7 @@ public class KdTreeTest {
         // Get the knn
         for (final int k : ks) {
           final MaxHeap<Object> neighbours =
-              tree.findNearestNeighbors(data[i], k, new SquareEuclideanDistanceFunction2D());
+              tree.findNearestNeighbors(data[i], k, SquareEuclideanDistanceFunction2D.INSTANCE);
           final double[] observed = new double[k];
           // Neighbours will be in reverse order
           int index = k;
@@ -253,7 +253,7 @@ public class KdTreeTest {
         // Get the knn
         for (final int k : ks) {
           final MaxHeap<Object> neighbours =
-              tree.findNearestNeighbors(data[i], k, new SquareEuclideanDistanceFunction2D());
+              tree.findNearestNeighbors(data[i], k, SquareEuclideanDistanceFunction2D.INSTANCE);
           final double[] observed = new double[k];
           // Neighbours will be in reverse order
           int index = k;
@@ -301,7 +301,7 @@ public class KdTreeTest {
         // Get the knn
         for (final int k : ks) {
           final MaxHeap<Object> neighbours =
-              tree.findNearestNeighbors(data[i], k, new SquareEuclideanDistanceFunction2D());
+              tree.findNearestNeighbors(data[i], k, SquareEuclideanDistanceFunction2D.INSTANCE);
 
           Assertions.assertEquals(d2[k - 1], neighbours.getMaxKey());
         }
@@ -460,7 +460,7 @@ public class KdTreeTest {
         for (final double[] location : data) {
           tree.addPoint(location, null);
         }
-        final DistanceFunction distanceFunction = new SquareEuclideanDistanceFunction2D();
+        final DistanceFunction distanceFunction = SquareEuclideanDistanceFunction2D.INSTANCE;
         final double[] o = new double[data.length];
         for (int i = 0; i < data.length; i++) {
           o[i] = tree.findNearestNeighbors(data[i], k, distanceFunction).getMaxKey();
@@ -478,7 +478,7 @@ public class KdTreeTest {
         for (final double[] location : data) {
           tree.addPoint(location, null);
         }
-        final DistanceFunction distanceFunction = new SquareEuclideanDistanceFunction2D();
+        final DistanceFunction distanceFunction = SquareEuclideanDistanceFunction2D.INSTANCE;
         final double[] o = new double[data.length];
         for (int i = 0; i < data.length; i++) {
           o[i] = tree.findNearestNeighbors(data[i], k, distanceFunction).getMaxKey();

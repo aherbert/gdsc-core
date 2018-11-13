@@ -37,7 +37,6 @@ import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.SquareEuclideanDistanceF
  * Store molecules in a 2D tree (using the 3rd generation implementation).
  */
 class TreeMoleculeSpace3rdGen extends MoleculeSpace {
-  private static final DistanceFunction distanceFunction = new SquareEuclideanDistanceFunction2D();
 
   /**
    * Used for access to the raw coordinates.
@@ -81,7 +80,7 @@ class TreeMoleculeSpace3rdGen extends MoleculeSpace {
   @Override
   void findNeighbours(int minPts, Molecule object, float generatingDistanceE) {
     final NearestNeighborIterator<Molecule> iter = tree.getNearestNeighborIterator(
-        new double[] {object.x, object.y}, tree.size(), distanceFunction);
+        new double[] {object.x, object.y}, tree.size(), SquareEuclideanDistanceFunction2D.INSTANCE);
     neighbours.clear();
     final double genDistance = generatingDistanceE;
     while (iter.hasNext()) {
@@ -97,7 +96,7 @@ class TreeMoleculeSpace3rdGen extends MoleculeSpace {
   @Override
   void findNeighboursAndDistances(int minPts, Molecule object, float generatingDistanceE) {
     final NearestNeighborIterator<Molecule> iter = tree.getNearestNeighborIterator(
-        new double[] {object.x, object.y}, tree.size(), distanceFunction);
+        new double[] {object.x, object.y}, tree.size(), SquareEuclideanDistanceFunction2D.INSTANCE);
     neighbours.clear();
     while (iter.hasNext()) {
       final Molecule molecule = iter.next();

@@ -43,8 +43,12 @@ class TreeMoleculeSpace2ndGen extends MoleculeSpace {
 
   /** The 2nd generation tree implementation. */
   private KdTree2D<Molecule> tree;
+  /** The store. */
   private final MoleculeStore store;
 
+  /**
+   * A store for the nearest neighbour molecules.
+   */
   private class MoleculeStore implements NeighbourStore<Molecule> {
     @Override
     public void add(double distance, Molecule molecule) {
@@ -76,7 +80,6 @@ class TreeMoleculeSpace2ndGen extends MoleculeSpace {
     for (int i = 0; i < xcoord.length; i++) {
       final float x = xcoord[i];
       final float y = ycoord[i];
-      // Build a single linked list
       final Molecule m = new DistanceMolecule(i, x, y);
       setOfObjects[i] = m;
       tree.addPoint(new double[] {x, y}, m);

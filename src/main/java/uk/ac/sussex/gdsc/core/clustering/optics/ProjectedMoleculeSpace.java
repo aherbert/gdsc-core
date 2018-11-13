@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import uk.ac.sussex.gdsc.core.data.AsynchronousException;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
@@ -45,6 +44,7 @@ import uk.ac.sussex.gdsc.core.utils.TurboRandomGenerator;
 
 import gnu.trove.set.hash.TIntHashSet;
 
+import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.UnitSphereSampler;
@@ -198,7 +198,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    *
    * @param minSplitSize minimum size for which a point set is further partitioned (roughly
    *        corresponds to minPts in OPTICS)
-   * @throws AsynchronousException If interrupted while computing
+   * @throws ConcurrentRuntimeException If interrupted while computing
    */
   public void computeSets(int minSplitSize) {
     splitSets = new TurboList<>();
@@ -402,7 +402,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       for (final Runnable task : tasks) {
         futures.add(executorService.submit(task));
       }
-      ConcurrencyUtils.waitForCompletionOrError(futures, ProjectedMoleculeSpace::logException);
+      ConcurrencyUtils.waitForCompletionUnchecked(futures, ProjectedMoleculeSpace::logException);
     }
   }
 
@@ -606,7 +606,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * for each point from sets resulting from projection.
    *
    * @return list of neighbours for each point
-   * @throws AsynchronousException If interrupted while computing
+   * @throws ConcurrentRuntimeException If interrupted while computing
    */
   public int[][] computeAverageDistInSetAndNeighbours() {
     distanceComputations.set(0);
@@ -664,7 +664,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
           futures.add(executorService.submit(() -> sampleNeighbours(sumDistances, countDistances,
               neighbours, split.sets, from, to)));
         }
-        ConcurrencyUtils.waitForCompletionOrError(futures, ProjectedMoleculeSpace::logException);
+        ConcurrencyUtils.waitForCompletionUnchecked(futures, ProjectedMoleculeSpace::logException);
         futures.clear();
       }
       ticker.tick();

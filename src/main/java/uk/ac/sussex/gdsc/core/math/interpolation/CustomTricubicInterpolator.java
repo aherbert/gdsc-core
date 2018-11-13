@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.core.data.AsynchronousException;
 import uk.ac.sussex.gdsc.core.data.DoubleArrayTrivalueProvider;
 import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
 import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
@@ -40,6 +39,7 @@ import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
+import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 import org.apache.commons.math3.analysis.interpolation.TrivariateGridInterpolator;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NonMonotonicSequenceException;
@@ -272,7 +272,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
    * @throws NonMonotonicSequenceException if arrays are not sorted
    * @throws NumberIsTooSmallException if the number of points is too small for the order of the
    *         interpolation
-   * @throws AsynchronousException if interrupted when using an executor service
+   * @throws ConcurrentRuntimeException if interrupted when using an executor service
    *
    * @see org.apache.commons.math3.analysis.interpolation.TrivariateGridInterpolator#interpolate(
    *      double[], double[], double[], double[][][])
@@ -353,7 +353,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
         from = to;
       }
 
-      ConcurrencyUtils.waitForCompletionOrError(futures);
+      ConcurrencyUtils.waitForCompletionUnchecked(futures);
     } else {
       final double[][][] values = new double[3][3][3];
 
@@ -1424,7 +1424,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
         from = to;
       }
 
-      ConcurrencyUtils.waitForCompletionOrError(futures);
+      ConcurrencyUtils.waitForCompletionUnchecked(futures);
     } else {
       // Approximation to the partial derivatives using finite differences.
       final double[][][] f = new double[2][2][2];

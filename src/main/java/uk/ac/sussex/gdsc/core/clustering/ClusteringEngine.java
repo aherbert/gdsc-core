@@ -28,12 +28,12 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
-import uk.ac.sussex.gdsc.core.data.AsynchronousException;
 import uk.ac.sussex.gdsc.core.data.ComputationException;
 import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 
+import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 import org.apache.commons.math3.util.FastMath;
 
 import java.awt.Rectangle;
@@ -388,7 +388,7 @@ public class ClusteringEngine {
    * @param radius the radius
    * @param time the time
    * @return the clusters
-   * @throws AsynchronousException if interrupted when using a multi-threaded algorithm
+   * @throws ConcurrentRuntimeException if interrupted when using a multi-threaded algorithm
    */
   public List<Cluster> findClusters(List<ClusterPoint> points, double radius, int time) {
     if (clusteringAlgorithm == ClusteringAlgorithm.PARTICLE_SINGLE_LINKAGE) {
@@ -785,7 +785,7 @@ public class ClusteringEngine {
       }
 
       // Finish processing data
-      ConcurrencyUtils.waitForCompletionOrError(futures);
+      ConcurrencyUtils.waitForCompletionUnchecked(futures);
       futures.clear();
 
       // Find the closest pair from all the results
@@ -1296,7 +1296,7 @@ public class ClusteringEngine {
     }
 
     // Finish processing data
-    ConcurrencyUtils.waitForCompletionOrError(futures);
+    ConcurrencyUtils.waitForCompletionUnchecked(futures);
 
     for (final FindLinksWorker worker : results) {
       if (worker.links) {
@@ -1571,7 +1571,7 @@ public class ClusteringEngine {
       }
 
       // Finish processing data
-      ConcurrencyUtils.waitForCompletionOrError(futures);
+      ConcurrencyUtils.waitForCompletionUnchecked(futures);
 
       // Find the closest pair from all the results
       for (final ClosestPair result : results) {
@@ -1974,7 +1974,7 @@ public class ClusteringEngine {
       }
 
       // Finish processing data
-      ConcurrencyUtils.waitForCompletionOrError(futures);
+      ConcurrencyUtils.waitForCompletionUnchecked(futures);
       futures.clear();
 
       // Find the closest pair from all the results
@@ -2326,7 +2326,7 @@ public class ClusteringEngine {
       }
 
       // Finish processing data
-      ConcurrencyUtils.waitForCompletionOrError(futures);
+      ConcurrencyUtils.waitForCompletionUnchecked(futures);
       futures.clear();
 
       // Find the closest pair from all the results

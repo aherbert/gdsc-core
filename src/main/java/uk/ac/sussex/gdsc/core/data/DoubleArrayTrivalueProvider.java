@@ -32,9 +32,13 @@ package uk.ac.sussex.gdsc.core.data;
  * Provide data on 3-axes from an array of doubles.
  */
 public class DoubleArrayTrivalueProvider implements TrivalueProvider {
+  /** The length (max) of the x-dimension. */
   private final int maxx;
+  /** The length (max) of the y-dimension. */
   private final int maxy;
+  /** The length (max) of the z-dimension. */
   private final int maxz;
+  /** The data. */
   private final double[][][] data;
 
   /**

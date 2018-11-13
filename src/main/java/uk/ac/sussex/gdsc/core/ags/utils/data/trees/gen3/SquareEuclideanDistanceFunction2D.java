@@ -20,14 +20,22 @@
 
 package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3;
 
-import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.DistanceUtils;
+import uk.ac.sussex.gdsc.core.ags.utils.data.DistanceUtils;
 
 /**
  * Optimised distance function for 2D data.
  *
  * @author Alex Herbert
  */
-public class SquareEuclideanDistanceFunction2D implements DistanceFunction {
+public final class SquareEuclideanDistanceFunction2D implements DistanceFunction {
+
+  /** The instance. */
+  public static final SquareEuclideanDistanceFunction2D INSTANCE =
+      new SquareEuclideanDistanceFunction2D();
+
+  /** No public construction. */
+  private SquareEuclideanDistanceFunction2D() {}
+
   @Override
   public double distance(double[] p1, double[] p2) {
     final double dx = p1[0] - p2[0];

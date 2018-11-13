@@ -29,7 +29,6 @@
 
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.core.data.AsynchronousException;
 import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
 import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
 import uk.ac.sussex.gdsc.core.data.ValueProvider;
@@ -40,6 +39,7 @@ import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
+import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NoDataException;
@@ -211,7 +211,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    *         elements.
    * @throws NonMonotonicSequenceException if {@code x}, {@code y} or {@code z} are not strictly
    *         increasing.
-   * @throws AsynchronousException if interrupted when using an executor service
+   * @throws ConcurrentRuntimeException if interrupted when using an executor service
    */
   @SuppressWarnings("null")
   //@formatter:off
@@ -319,7 +319,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
         from = to;
       }
 
-      ConcurrencyUtils.waitForCompletionOrError(futures);
+      ConcurrencyUtils.waitForCompletionUnchecked(futures);
     } else {
       final double[] beta = new double[64];
       if (isInteger) {

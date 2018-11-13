@@ -1200,7 +1200,8 @@ public class OpticsManagerTest {
       Assertions.assertEquals(r1.get(i).parent, r2.get(i).parent);
       Assertions.assertEquals(r1.get(i).clusterId, r2.get(i).clusterId);
       Assertions.assertEquals(r1.get(i).getCoreDistance(), r2.get(i).getCoreDistance());
-      Assertions.assertEquals(r1.get(i).getReachabilityDistance(), r2.get(i).getReachabilityDistance());
+      Assertions.assertEquals(r1.get(i).getReachabilityDistance(),
+          r2.get(i).getReachabilityDistance());
     }
   }
 

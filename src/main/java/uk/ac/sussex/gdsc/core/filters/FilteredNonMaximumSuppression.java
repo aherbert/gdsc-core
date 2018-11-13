@@ -43,12 +43,16 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
   // TODO: Update to use the same block find algorithm as NonMaximumSuppression.
   // There is a lot of code duplication is this class. The parent could be
   // modified to have hooks at the appropriate point for validation. However
-  // this class is rarely used and so the parent is left unmodifed to ensure it
+  // this class is rarely used and so the parent is left unmodified to ensure it
   // runs fast.
 
+  /** The background. */
   private float background;
+  /** The fraction above background. */
   private float fractionAboveBackground;
+  /** The minimum height. */
   private float minimumHeight;
+  /** The minimum width. */
   private float minimumWidth;
 
   /**
@@ -320,7 +324,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block An inner boundary of N is ignored as potential
+   * Compute the local-maxima within a 2n+1 block. An inner boundary of N is ignored as potential
    * maxima.
    *
    * <p>Any maxima below the configured fraction above background are ignored. Fraction =
@@ -422,7 +426,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block An inner boundary is ignored as potential maxima.
+   * Compute the local-maxima within a 2n+1 block. An inner boundary is ignored as potential maxima.
    *
    * <p>Any maxima below the configured fraction above background are ignored. Fraction =
    * (Max-background)/Max within the 2n+1 neighbourhood. Maxima below the minimum height (above

@@ -32,6 +32,8 @@ package uk.ac.sussex.gdsc.core.data;
  * Provide data on 1-axis from an array of doubles.
  */
 public class DoubleArrayValueProvider implements ValueProvider {
+
+  /** The data. */
   private final double[] data;
 
   /**

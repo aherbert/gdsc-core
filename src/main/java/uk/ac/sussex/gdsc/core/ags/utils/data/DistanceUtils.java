@@ -18,7 +18,7 @@
  * 2. This notice may not be removed or altered from any source distribution.
  */
 
-package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;
+package uk.ac.sussex.gdsc.core.ags.utils.data;
 
 /**
  * Utility class for distance computation.

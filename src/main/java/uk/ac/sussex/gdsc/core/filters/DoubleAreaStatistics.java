@@ -31,18 +31,7 @@ package uk.ac.sussex.gdsc.core.filters;
 /**
  * Compute statistics using an area region of an 2D data frame.
  */
-public class DAreaStatistics extends DAreaSum {
-  /** The index of the standard deviation in the results. */
-  public static final int INDEX_SD = 2;
-
-  private static final double[] EMPTY;
-
-  static {
-    EMPTY = new double[3];
-    EMPTY[INDEX_COUNT] = 0;
-    EMPTY[INDEX_SUM] = Double.NaN;
-    EMPTY[INDEX_SD] = Double.NaN;
-  }
+public class DoubleAreaStatistics extends DoubleAreaSum {
 
   /** The rolling sum of squares. */
   private double[] rollingSumSq;
@@ -55,7 +44,7 @@ public class DAreaStatistics extends DAreaSum {
    * @param maxy the maxy
    * @throws IllegalArgumentException if maxx * maxy != data.length or data is null or length zero
    */
-  DAreaStatistics(double[] data, int maxx, int maxy) {
+  DoubleAreaStatistics(double[] data, int maxx, int maxy) {
     super(data, maxx, maxy);
   }
 
@@ -68,8 +57,13 @@ public class DAreaStatistics extends DAreaSum {
    * @return the area statistics
    * @throws IllegalArgumentException if maxx * maxy != data.length or data is null or length zero
    */
-  public static DAreaStatistics wrap(double[] data, int maxx, int maxy) {
-    return new DAreaStatistics(data, maxx, maxy);
+  public static DoubleAreaStatistics wrap(double[] data, int maxx, int maxy) {
+    return new DoubleAreaStatistics(data, maxx, maxy);
+  }
+
+  @Override
+  protected double[] getSingleResult(int x, int y) {
+    return getResults(data[getIndex(x, y)], 0, 1);
   }
 
   @Override
@@ -131,14 +125,6 @@ public class DAreaStatistics extends DAreaSum {
     // s(u,v) = s(umax,vmax) when u>umax,v>vmax
     // Likewise for ss
 
-    // Clip to limits
-    if (maxU >= maxx) {
-      maxU = maxx - 1;
-    }
-    if (maxV >= maxy) {
-      maxV = maxy - 1;
-    }
-
     // + s(u+N-1,v+N-1)
     int index = maxV * maxx + maxU;
     double sum = rollingSum[index];
@@ -160,24 +146,12 @@ public class DAreaStatistics extends DAreaSum {
         index = minV * maxx + minU;
         sum += rollingSum[index];
         sumSquares += rollingSumSq[index];
-      } else {
-        // Reset to bounds to calculate the number of pixels
-        minV = -1;
       }
-    } else {
-      // Reset to bounds to calculate the number of pixels
-      minU = -1;
-
-      if (minV >= 0) {
-        // - s(u+N-1,v-1)
-        index = minV * maxx + maxU;
-        sum -= rollingSum[index];
-        sumSquares -= rollingSumSq[index];
-
-      } else {
-        // Reset to bounds to calculate the number of pixels
-        minV = -1;
-      }
+    } else if (minV >= 0) {
+      // - s(u+N-1,v-1)
+      index = minV * maxx + maxU;
+      sum -= rollingSum[index];
+      sumSquares -= rollingSumSq[index];
     }
 
     final int count = (maxU - minU) * (maxV - minV);
@@ -185,53 +159,8 @@ public class DAreaStatistics extends DAreaSum {
     return getResults(sum, sumSquares, count);
   }
 
-  /**
-   * Gets the results.
-   *
-   * @param sum the sum
-   * @param sumSquares the sum squares
-   * @param count the count
-   * @return the results
-   */
-  private static double[] getResults(double sum, double sumSquares, int count) {
-    final double[] stats = new double[3];
-
-    stats[INDEX_COUNT] = count;
-    // Note: We do not consider n==0 since the methods are not called with an empty region
-    stats[INDEX_SUM] = sum;
-
-    if (count > 1) {
-      // Get the sum of squared differences
-      final double residuals = sumSquares - (sum * sum) / count;
-      if (residuals > 0.0) {
-        stats[INDEX_SD] = Math.sqrt(residuals / (count - 1));
-      }
-    }
-
-    return stats;
-  }
-
-  @Override
-  protected double[] getSingleResult(int x, int y) {
-    return new double[] {1, data[getIndex(x, y)], 0};
-  }
-
   @Override
   protected double[] getStatisticsSimple(int minU, int maxU, int minV, int maxV) {
-    // Clip to limits
-    if (minU < 0) {
-      minU = 0;
-    }
-    if (minV < 0) {
-      minV = 0;
-    }
-    if (maxU > maxx) {
-      maxU = maxx;
-    }
-    if (maxV > maxy) {
-      maxV = maxy;
-    }
-
     double sum = 0;
     double sumSquares = 0;
     for (int y = minV; y < maxV; y++) {
@@ -242,8 +171,8 @@ public class DAreaStatistics extends DAreaSum {
       }
     }
 
-    final int n = (maxU - minU) * (maxV - minV);
+    final int count = (maxU - minU) * (maxV - minV);
 
-    return getResults(sum, sumSquares, n);
+    return getResults(sum, sumSquares, count);
   }
 }

@@ -76,6 +76,9 @@ public enum SiPrefix {
   /** Yocto. */
   YOCTO(1e-24, "yocto", "y");
 
+  /** The values. */
+  private static final SiPrefix[] values = SiPrefix.values();
+
   /** The factor. */
   final double factor;
 
@@ -158,7 +161,6 @@ public enum SiPrefix {
     if (ordinal < 0) {
       throw new IllegalArgumentException("Negative ordinal");
     }
-    final SiPrefix[] values = SiPrefix.values();
     if (ordinal >= values.length) {
       throw new IllegalArgumentException("Ordinal too high");
     }
@@ -174,7 +176,6 @@ public enum SiPrefix {
    * @return the integer type
    */
   public static SiPrefix forOrdinal(int ordinal, SiPrefix defaultValue) {
-    final SiPrefix[] values = SiPrefix.values();
     if (ordinal < 0 || ordinal >= values.length) {
       return (defaultValue == null) ? values[0] : defaultValue;
     }
@@ -202,13 +203,12 @@ public enum SiPrefix {
       return SiPrefix.NONE;
     }
 
-    value = Math.abs(value);
-    final SiPrefix[] p = SiPrefix.values();
-    final int p_1 = p.length - 1;
+    final double absValue = Math.abs(value);
+    final int upperLimit = values.length - 1;
     int index = 0;
-    while (index < p_1 && value < p[index].getFactor()) {
+    while (index < upperLimit && absValue < values[index].getFactor()) {
       index++;
     }
-    return p[index];
+    return values[index];
   }
 }

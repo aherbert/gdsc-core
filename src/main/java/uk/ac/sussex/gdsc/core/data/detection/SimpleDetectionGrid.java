@@ -36,6 +36,8 @@ import java.awt.geom.Rectangle2D;
  * Class to compute collision detections between a point and a set of rectangles.
  */
 public class SimpleDetectionGrid implements DetectionGrid {
+
+  /** The rectangles. */
   private final Rectangle2D[] rectangles;
 
   /**

@@ -32,8 +32,12 @@ package uk.ac.sussex.gdsc.core.data;
  * Provide data on 2-axes from an array of doubles.
  */
 public class DoubleArrayBivalueProvider implements BivalueProvider {
+
+  /** The length (max) of the x-dimension. */
   private final int maxx;
+  /** The length (max) of the y-dimension. */
   private final int maxy;
+  /** The data. */
   private final double[][] data;
 
   /**

@@ -34,8 +34,12 @@ package uk.ac.sussex.gdsc.core.data.utils;
  * @param <T> the generic type
  */
 public abstract class AbstractTypeConverter<T> implements TypeConverter<T> {
-  private final T from;
-  private final T to;
+
+  /** The unit to convert from. */
+  private final T fromUnit;
+
+  /** The unit to convert to. */
+  private final T toUnit;
 
   /**
    * Instantiates a new abstract unit converter.
@@ -51,8 +55,8 @@ public abstract class AbstractTypeConverter<T> implements TypeConverter<T> {
     if (to == null) {
       throw new ConversionException("To unit is null");
     }
-    this.from = from;
-    this.to = to;
+    this.fromUnit = from;
+    this.toUnit = to;
   }
 
   /**
@@ -70,8 +74,8 @@ public abstract class AbstractTypeConverter<T> implements TypeConverter<T> {
     if (to == null && !suppressExceptions) {
       throw new ConversionException("To unit is null");
     }
-    this.from = from;
-    this.to = to;
+    this.fromUnit = from;
+    this.toUnit = to;
   }
 
   @Override
@@ -86,16 +90,16 @@ public abstract class AbstractTypeConverter<T> implements TypeConverter<T> {
 
   @Override
   public T from() {
-    return from;
+    return fromUnit;
   }
 
   @Override
   public T to() {
-    return to;
+    return toUnit;
   }
 
   @Override
   public String toString() {
-    return to + " = f(x=" + from + ") = " + getFunction();
+    return to() + " = f(x=" + from() + ") = " + getFunction();
   }
 }

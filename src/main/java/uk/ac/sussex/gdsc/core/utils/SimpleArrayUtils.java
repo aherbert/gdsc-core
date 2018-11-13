@@ -401,6 +401,44 @@ public final class SimpleArrayUtils {
   }
 
   /**
+   * Reverse the array order.
+   *
+   * @param data the data
+   */
+  public static void reverse(byte[] data) {
+    int left = 0;
+    int right = data.length - 1;
+
+    while (left < right) {
+      // swap the values at the left and right indices
+      swap(data, left, right);
+
+      // move the left and right index pointers in toward the center
+      left++;
+      right--;
+    }
+  }
+
+  /**
+   * Reverse the array order.
+   *
+   * @param data the data
+   */
+  public static void reverse(short[] data) {
+    int left = 0;
+    int right = data.length - 1;
+
+    while (left < right) {
+      // swap the values at the left and right indices
+      swap(data, left, right);
+
+      // move the left and right index pointers in toward the center
+      left++;
+      right--;
+    }
+  }
+
+  /**
    * Checks if all the values have an {@code integer} representation.
    *
    * @param x the x
@@ -1110,6 +1148,32 @@ public final class SimpleArrayUtils {
    */
   public static void swap(double[] data, int index1, int index2) {
     final double tmp = data[index1];
+    data[index1] = data[index2];
+    data[index2] = tmp;
+  }
+
+  /**
+   * Swap the value of the two indices.
+   *
+   * @param data the data
+   * @param index1 the first index
+   * @param index2 the second index
+   */
+  public static void swap(byte[] data, int index1, int index2) {
+    final byte tmp = data[index1];
+    data[index1] = data[index2];
+    data[index2] = tmp;
+  }
+
+  /**
+   * Swap the value of the two indices.
+   *
+   * @param data the data
+   * @param index1 the first index
+   * @param index2 the second index
+   */
+  public static void swap(short[] data, int index1, int index2) {
+    final short tmp = data[index1];
     data[index1] = data[index2];
     data[index2] = tmp;
   }

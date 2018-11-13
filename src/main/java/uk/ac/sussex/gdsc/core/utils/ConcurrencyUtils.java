@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.core.data.AsynchronousException;
+import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 
 import java.util.Collection;
 import java.util.List;
@@ -63,34 +63,36 @@ public final class ConcurrencyUtils {
   }
 
   /**
-   * Waits for all threads to complete computation.
+   * Waits for all threads to complete computation. Transforms checked exceptions into runtime
+   * exceptions.
    *
    * @param futures the futures
-   * @throws AsynchronousException a wrapped InterruptedException or ExecutionException
-   * @see #waitForCompletionOrError(List, Consumer)
+   * @throws ConcurrentRuntimeException a wrapped InterruptedException or ExecutionException
+   * @see #waitForCompletionUnchecked(List, Consumer)
    */
-  public static void waitForCompletionOrError(List<Future<?>> futures) {
-    waitForCompletionOrError(futures, null);
+  public static void waitForCompletionUnchecked(List<Future<?>> futures) {
+    waitForCompletionUnchecked(futures, null);
   }
 
   /**
-   * Waits for all threads to complete computation.
+   * Waits for all threads to complete computation. Transforms checked exceptions into runtime
+   * exceptions.
    *
    * <p>This is convenience method that wraps an {@link InterruptedException} with an
-   * {@link AsynchronousException}. Note: If an {@link InterruptedException} occurs the thread
+   * {@link ConcurrentRuntimeException}. Note: If an {@link InterruptedException} occurs the thread
    * interrupted state is reset.
    *
    * <p>If an {@link ExecutionException} occurs and the cause is an unchecked exception then cause
-   * will be re-thrown. Otherwise wraps the cause with an {@link AsynchronousException}.
+   * will be re-thrown. Otherwise wraps the cause with an {@link ConcurrentRuntimeException}.
    *
    * <p>If not null, the error handler will be passed the original caught exception, either
    * {@link InterruptedException} or {@link ExecutionException} to preserve the stack trace.
    *
    * @param futures the futures
    * @param errorHandler the error handler used to process the exception (can be null)
-   * @throws AsynchronousException a wrapped InterruptedException or ExecutionException
+   * @throws ConcurrentRuntimeException a wrapped InterruptedException or ExecutionException
    */
-  public static void waitForCompletionOrError(List<Future<?>> futures,
+  public static void waitForCompletionUnchecked(List<Future<?>> futures,
       Consumer<Exception> errorHandler) {
     try {
       for (final Future<?> f : futures) {
@@ -100,7 +102,7 @@ public final class ConcurrencyUtils {
       // Restore interrupted state...
       Thread.currentThread().interrupt();
       handleError(errorHandler, ex);
-      throw new AsynchronousException(ex);
+      throw new ConcurrentRuntimeException(ex);
     } catch (final ExecutionException ex) {
       handleErrorAndRethrow(errorHandler, ex);
     }
@@ -123,7 +125,7 @@ public final class ConcurrencyUtils {
     if (cause instanceof Error) {
       throw (Error) cause;
     }
-    throw new AsynchronousException((cause != null) ? cause : exception);
+    throw new ConcurrentRuntimeException((cause != null) ? cause : exception);
   }
 
   /**
@@ -142,20 +144,20 @@ public final class ConcurrencyUtils {
    * Executes the given tasks, returning a list of Futures holding their status and results when all
    * complete. {@link Future#isDone} is {@code true} for each element of the returned list.
    *
-   * <p>This is convenience method that wraps an {@link InterruptedException} with an
-   * {@link AsynchronousException}. Note: If an {@link InterruptedException} occurs the thread
-   * interrupted state is reset.
+   * <p>The result must still be checked using {@link Future#get()} to determine if an exception
+   * occurred in each task. Transforms checked exceptions into runtime exceptions.
    *
    * @param <T> the type of the values returned from the tasks
    * @param executor the executor
    * @param tasks the tasks
    * @return the list
-   * @throws AsynchronousException a wrapped InterruptedException or ExecutionException
+   * @throws ConcurrentRuntimeException a wrapped InterruptedException or ExecutionException
    * @see ExecutorService#invokeAll(Collection)
+   * @see #invokeAllUnchecked(ExecutorService, Collection, Consumer)
    */
-  public static <T> List<Future<T>> invokeAllOrError(ExecutorService executor,
+  public static <T> List<Future<T>> invokeAllUnchecked(ExecutorService executor,
       Collection<? extends Callable<T>> tasks) {
-    return invokeAllOrError(executor, tasks, null);
+    return invokeAllUnchecked(executor, tasks, null);
   }
 
   /**
@@ -164,10 +166,10 @@ public final class ConcurrencyUtils {
    * returned list.
    *
    * <p>The result must still be checked using {@link Future#get()} to determine if an exception
-   * occurred in each task.
+   * occurred in each task. Transforms checked exceptions into runtime exceptions.
    *
    * <p>This is convenience method that wraps an {@link InterruptedException} with an
-   * {@link AsynchronousException}. Note: If an {@link InterruptedException} occurs the thread
+   * {@link ConcurrentRuntimeException}. Note: If an {@link InterruptedException} occurs the thread
    * interrupted state is reset.
    *
    * @param <T> the type of the values returned from the tasks
@@ -176,10 +178,10 @@ public final class ConcurrencyUtils {
    * @param errorHandler the error handler used to process the exception (can be null)
    * @return a list of Futures representing the tasks, in the same sequential order as produced by
    *         the iterator f
-   * @throws AsynchronousException a wrapped InterruptedException
+   * @throws ConcurrentRuntimeException a wrapped InterruptedException
    * @see ExecutorService#invokeAll(Collection)
    */
-  public static <T> List<Future<T>> invokeAllOrError(ExecutorService executor,
+  public static <T> List<Future<T>> invokeAllUnchecked(ExecutorService executor,
       Collection<? extends Callable<T>> tasks, Consumer<Exception> errorHandler) {
     try {
       return executor.invokeAll(tasks);
@@ -187,7 +189,7 @@ public final class ConcurrencyUtils {
       // Restore interrupted state...
       Thread.currentThread().interrupt();
       handleError(errorHandler, ex);
-      throw new AsynchronousException(ex);
+      throw new ConcurrentRuntimeException(ex);
     }
   }
 }

@@ -32,8 +32,11 @@ package uk.ac.sussex.gdsc.core.data;
  * Provide data on 3-axes from a stack of XY float data.
  */
 public class FloatStackTrivalueProvider implements TrivalueProvider {
+  /** The length (max) of the x-dimension. */
   private final int maxx;
+  /** The length (max) of the y-dimension. */
   private final int maxy;
+  /** The data. */
   private final float[][] data;
 
   /**
@@ -52,8 +55,8 @@ public class FloatStackTrivalueProvider implements TrivalueProvider {
       throw new DataException("No data");
     }
     final int size = maxx * maxy;
-    for (int z = 0; z < data.length; z++) {
-      if (size != data[z].length) {
+    for (float[] xyData : data) {
+      if (size != xyData.length) {
         throw new DataException("XY data must be length " + size);
       }
     }
