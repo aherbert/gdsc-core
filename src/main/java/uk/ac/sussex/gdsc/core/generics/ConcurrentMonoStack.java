@@ -261,8 +261,8 @@ public class ConcurrentMonoStack<E> {
 
   /**
    * Check if an addition is allowed to a closed stack.
-   * 
-   * @throws IllegalStateException if exceptions should be thrown when the stack is closed 
+   *
+   * @throws IllegalStateException if exceptions should be thrown when the stack is closed
    */
   private void checkAdditionToClosedStack() {
     if (throwIfClosed) {
@@ -373,8 +373,8 @@ public class ConcurrentMonoStack<E> {
 
   /**
    * Check if a removal is allowed from a closed stack.
-   * 
-   * @throws IllegalStateException if exceptions should be thrown when the stack is closed 
+   *
+   * @throws IllegalStateException if exceptions should be thrown when the stack is closed
    */
   private void checkRemovalFromClosedStack() {
     if (throwIfClosed) {

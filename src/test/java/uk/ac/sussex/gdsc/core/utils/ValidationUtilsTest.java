@@ -18,7 +18,7 @@ public class ValidationUtilsTest {
       ValidationUtils.defaultIfNull(null, null);
     });
   }
-  
+
   @Test
   public void canCheckArgument() {
     Assertions.assertThrows(IllegalArgumentException.class, () -> {

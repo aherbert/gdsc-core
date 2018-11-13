@@ -30,7 +30,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 /**
  * Class for validating conditions.
- * 
+ *
  * <p>Overloaded methods are provided for common argument types to avoid the performance overhead of
  * autoboxing and varargs array creation.
  */
