@@ -592,11 +592,11 @@ public final class SimpleArrayUtils {
    * Add to the data in-place.
    *
    * @param x the x
-   * @param addition the scale
+   * @param value the value
    */
-  public static void add(double[] x, double addition) {
+  public static void add(double[] x, double value) {
     for (int i = 0; i < x.length; i++) {
-      x[i] += addition;
+      x[i] += value;
     }
   }
 
@@ -604,11 +604,11 @@ public final class SimpleArrayUtils {
    * Add to the data in-place.
    *
    * @param x the x
-   * @param addition the scale
+   * @param value the value
    */
-  public static void add(float[] x, float addition) {
+  public static void add(float[] x, float value) {
     for (int i = 0; i < x.length; i++) {
-      x[i] += addition;
+      x[i] += value;
     }
   }
 
@@ -616,11 +616,23 @@ public final class SimpleArrayUtils {
    * Add to the data in-place.
    *
    * @param x the x
-   * @param addition the scale
+   * @param value the value
    */
-  public static void add(int[] x, int addition) {
+  public static void add(int[] x, int value) {
     for (int i = 0; i < x.length; i++) {
-      x[i] += addition;
+      x[i] += value;
+    }
+  }
+
+  /**
+   * Subtract from the data in-place.
+   *
+   * @param x the x
+   * @param value the value
+   */
+  public static void subtract(int[] x, int value) {
+    for (int i = 0; i < x.length; i++) {
+      x[i] -= value;
     }
   }
 

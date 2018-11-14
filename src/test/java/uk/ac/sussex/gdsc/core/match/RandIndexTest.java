@@ -54,34 +54,41 @@ public class RandIndexTest {
   public void canCompact() {
     canCompact(new int[] {});
     canCompact(new int[] {0});
-    canCompact(new int[] {7});
-    canCompact(new int[] {7, 7});
-    canCompact(new int[] {7, 8});
-    canCompact(new int[] {7, 7, 7});
-    canCompact(new int[] {7, 1, 4, 5});
-    canCompact(new int[] {7, 7, 7, 7, 7});
-    canCompact(new int[] {7, 7, 7, 7, 8});
+    canCompact(new int[] {0});
+    canCompact(new int[] {0, 0});
+    canCompact(new int[] {0, 1});
+    canCompact(new int[] {0, 0, 0});
+    canCompact(new int[] {0, 1, 2});
+    canCompact(new int[] {1, 2, 0});
+    canCompact(new int[] {1, 0, 2});
     canCompact(new int[] {Integer.MIN_VALUE, 0, Integer.MAX_VALUE});
+    canCompact(new int[] {0, 0, 0, 0});
+    canCompact(new int[] {0, 0, 0, 1});
   }
 
-  private static void canCompact(int[] data) {
-    // Use -1
-    TIntIntHashMap map = new TIntIntHashMap(data.length, 0.5f, 0, NO_ENTRY);
-    int value = 0;
-    for (int key : data) {
-      if (map.putIfAbsent(key, value) == NO_ENTRY) {
-        value++;
+  private static void canCompact(int[] inputData) {
+    // Try shifts
+    for (int i = -1; i <= 1; i++) {
+      // Use -1 as the null entry
+      int[] data = inputData.clone();
+      TIntIntHashMap map = new TIntIntHashMap(data.length, 0.5f, 0, NO_ENTRY);
+      int value = 0;
+      for (int key : data) {
+        if (map.putIfAbsent(key, value) == NO_ENTRY) {
+          value++;
+        }
       }
+      int[] expected = new int[data.length];
+      for (int j = 0; j < data.length; j++) {
+        expected[j] = map.get(data[j]);
+      }
+      int[] observed = data.clone();
+      int numberOfClusters = RandIndex.compact(observed);
+      Assertions.assertEquals(map.size(), numberOfClusters,
+          () -> "Number of clusters : " + Arrays.toString(data));
+      Assertions.assertArrayEquals(expected, observed,
+          () -> "Original data=" + Arrays.toString(data));
     }
-    int[] expected = new int[data.length];
-    for (int i = 0; i < data.length; i++) {
-      expected[i] = map.get(data[i]);
-    }
-    int[] observed = data.clone();
-    int numberOfClusters = RandIndex.compact(observed);
-    Assertions.assertEquals(map.size(), numberOfClusters, "Number of clusters");
-    Assertions.assertArrayEquals(expected, observed,
-        () -> "Original data=" + Arrays.toString(data));
   }
 
   @Test
@@ -197,7 +204,7 @@ public class RandIndexTest {
   }
 
   @Test
-  public void canComputeRandIndex2WithNegativeData() {
+  public void canComputeRandIndexWithMaxClustersWithNegativeData() {
     final int[] clusters = {0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, 2, 2, 2, 2, 2};
     final int[] classes = {0, 0, 1, 0, 0, 0, 0, 1, 1, 1, -2, 1, 0, -2, -2, -2, 0};
     final double r = RandIndex.randIndex(clusters, 3, classes, 3);
@@ -238,7 +245,7 @@ public class RandIndexTest {
   }
 
   @Test
-  public void canComputeRandIndex2WithSparseData() {
+  public void canComputeRandIndexWithMaxClustersWithSparseData() {
     final int[] clusters = {4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6};
     final int[] classes = {0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 9, 1, 0, 9, 9, 9, 0};
     final double r = RandIndex.randIndex(clusters, 7, classes, 10);
@@ -322,7 +329,8 @@ public class RandIndexTest {
     logger.log(TestLogUtils.getRecord(Level.FINE, "[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f",
         n, n1, n2, simple, e, table2, o2, simple / (double) table2));
 
-    TestAssertions.assertTest(e, o1, TestHelper.doublesAreClose(1e-10, 0), "simpleRandIndex and randIndex");
+    TestAssertions.assertTest(e, o1, TestHelper.doublesAreClose(1e-10, 0),
+        "simpleRandIndex and randIndex");
     Assertions.assertEquals(o2, o1, "randIndex and randIndex with limits");
   }
 
@@ -403,6 +411,10 @@ public class RandIndexTest {
     }
     final UniformRandomProvider rand = RngUtils.create(seed.getSeedAsLong());
     PermutationSampler.shuffle(rand, c1);
+
+    // For debugging check the compact function works with this data
+    //canCompact(c1);
+    //canCompact(c2);
 
     final RandIndex ri = new RandIndex();
 

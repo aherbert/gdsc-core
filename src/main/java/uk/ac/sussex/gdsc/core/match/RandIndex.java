@@ -34,6 +34,7 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import java.math.BigInteger;
+import java.util.BitSet;
 
 /**
  * Compute the Rand index for two classifications of a set of data.
@@ -263,59 +264,55 @@ public class RandIndex {
       set[0] = 0;
       return 1;
     }
-
-    int firstClusterId = MathUtils.min(set);
-
-    // Overflow safe by resetting range
-    if (firstClusterId > 0) {
-      SimpleArrayUtils.add(set, -firstClusterId);
-      firstClusterId = 0;
+    if (set.length == 2) {
+      // If the Ids are current different then use 2 Ids.
+      final int id1 = (set[0] != set[1]) ? 1 : 0;
+      set[0] = 0;
+      set[1] = id1;
+      return id1 + 1;
     }
 
-    // Reorder in place by creating a series from min upwards
+    // If the range of cluster Ids fits within a positive integer then the compact
+    // operation can be done in place.
+    final int[] limits = MathUtils.limits(set);
+    final int min = limits[0];
+    final int max = limits[1];
+    final long range = (long) max - min;
 
-    // To make the output nice ensure the first index in the array matches the firstClusterId
-    if (set[0] != firstClusterId) {
-      // This is only possible if there is more than 1 unique value.
-      // Swap the values.
-      swap(set, firstClusterId, set[0]);
+    if (range < Integer.MAX_VALUE) {
+      return compactInPlace(set, max);
     }
 
-    int nextClusterId = firstClusterId;
-    for (int i = 0; i < set.length; i++) {
-      // Any number above the processed clusters can be renumbered
-      if (set[i] >= nextClusterId) {
-        replace(set, i, nextClusterId);
-        // Should not overflow unless the set contains
-        // at least Integer.MAX_VALUE different values.
-        nextClusterId++;
-      }
-    }
-
-    // Overflow safe
-    nextClusterId = resetOverFlow(nextClusterId);
-
-    // Get the number of clusters
-    final long numberOfClusters = (long) nextClusterId - firstClusterId;
-    ValidationUtils.checkArgument(numberOfClusters <= Integer.MAX_VALUE,
-        "Number of clusters exceeds the range of an integer: %d", numberOfClusters);
-
-    // Reset from zero
-    if (firstClusterId != 0) {
-      SimpleArrayUtils.add(set, -firstClusterId);
-    }
-
-    return (int) numberOfClusters;
+    return compactDynamically(set);
   }
 
-  private static void swap(int[] set, int id1, int id2) {
+  /**
+   * Compact the set so that it contains cluster assignments from 0 to n-1 where n is the number of
+   * clusters (max cluster number + 1).
+   *
+   * <p>This is performed in-place assuming the range of values in less than
+   * {@link Integer#MAX_VALUE}.
+   *
+   * @param set the set (modified in place)
+   * @param max the max
+   * @return the number of clusters (max cluster number + 1) (n)
+   */
+  private static int compactInPlace(int[] set, int max) {
+    // Make all negative. Assuming the range of values in less than
+    // Integer#MAX_VALUE, then any number minus the max
+    // should be zero or negative. Add one to ensure negative.
+    SimpleArrayUtils.subtract(set, max + 1);
+
+    int nextClusterId = 0;
     for (int i = 0; i < set.length; i++) {
-      if (set[i] == id1) {
-        set[i] = id2;
-      } else if (set[i] == id2) {
-        set[i] = id1;
+      // Any negative number has not been processed
+      if (set[i] < 0) {
+        // Cannot underflow as the total range is less than Integer.MAX_VALUE
+        replace(set, i, nextClusterId++);
       }
     }
+
+    return nextClusterId;
   }
 
   /**
@@ -330,6 +327,46 @@ public class RandIndex {
     for (int i = index; i < set.length; i++) {
       if (set[i] == oldClusterId) {
         set[i] = newClusterId;
+      }
+    }
+  }
+
+  /**
+   * Compact the set so that it contains cluster assignments from 0 to n-1 where n is the number of
+   * clusters (max cluster number + 1).
+   *
+   * <p>This is performed using storage to identify the processed indices.
+   *
+   * @param set the set (modified in place)
+   * @return the number of clusters (max cluster number + 1) (n)
+   */
+  private static int compactDynamically(int[] set) {
+    final BitSet processed = new BitSet(set.length);
+    int nextClusterId = 0;
+    replaceUnlessProcessed(set, 0, nextClusterId++, processed);
+    for (int index = processed.nextClearBit(0); index < set.length; index =
+        processed.nextClearBit(index)) {
+      replaceUnlessProcessed(set, index, nextClusterId++, processed);
+    }
+    return nextClusterId;
+  }
+
+  /**
+   * Replace all occurrences of the cluster Id from the given index with the new cluster Id if they
+   * have not been processed.
+   *
+   * @param set the set
+   * @param index the index
+   * @param newClusterId the new cluster id
+   * @param processed the processed
+   */
+  private static void replaceUnlessProcessed(int[] set, int index, int newClusterId,
+      BitSet processed) {
+    final int oldClusterId = set[index];
+    for (int i = index; i < set.length; i++) {
+      if (set[i] == oldClusterId && !processed.get(i)) {
+        set[i] = newClusterId;
+        processed.set(i);
       }
     }
   }
@@ -421,6 +458,34 @@ public class RandIndex {
       return;
     }
 
+    // Note: Using a single array we have an upper limit on the array size of:
+    // 2^31 - 1 * 4 bytes ~ 8Gb
+    // This should be enough. Otherwise we use int[][] table.
+    if ((long) n1 * n2 > Integer.MAX_VALUE) {
+      computeUsingMatrix(set1, n1, set2, n2);
+    } else {
+      computeUsingArray(set1, n1, set2, n2);
+    }
+  }
+
+  /**
+   * Compute the contingency table for two classifications of a set of data and generate the values
+   * required to produce the Rand index.
+   *
+   * <p>Each set should use integers from 0 to n-1 for n clusters.
+   *
+   * <p>Warning: No checks are made on the input! However if clusters numbers below zero or above n
+   * clusters are used then an {@link ArrayIndexOutOfBoundsException} can occur. This is handled by
+   * compacting the sets and re-computing.
+   *
+   * @param set1 the first set of clusters for the objects
+   * @param n1 the number of clusters (max cluster number + 1) in set 1
+   * @param set2 the second set of clusters for the objects
+   * @param n2 the number of clusters (max cluster number + 1) in set 2
+   * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
+   * @throws ArithmeticException if the sums are larger than Long.MAX_VALUE
+   */
+  private void computeUsingMatrix(int[] set1, int n1, int[] set2, int n2) {
     // TP will only overflow after TP+FP
     long tp = 0;
     // Note: The following could overflow.
@@ -430,95 +495,125 @@ public class RandIndex {
     long tpPlusFp = 0;
     long tpPlusFn = 0;
 
-    // Note: Using a single array we have an upper limit on the array size of: 
-    // 2^31 - 1 * 4 bytes ~ 8Gb
-    // This should be enough. Otherwise we use int[][] table.
-    final long lSize = (long) n1 * n2;
-    if (lSize > Integer.MAX_VALUE) {
-      final int[][] table = new int[n1][n2];
+    final int[][] table = new int[n1][n2];
 
-      try {
-        for (int i = 0; i < n; i++) {
-          table[set1[i]][set2[i]]++;
-        }
-      } catch (final ArrayIndexOutOfBoundsException ex) {
-        // Probably because the input was not checked ...
-        // This should not cause infinite recursion as the next time all the indices will be OK.
-        compute(set1, set2);
-        return;
+    try {
+      for (int i = 0; i < set1.length; i++) {
+        table[set1[i]][set2[i]]++;
       }
+    } catch (final ArrayIndexOutOfBoundsException ex) {
+      // Probably because the input was not checked ...
+      // This should not cause infinite recursion as the next time all the indices will be OK.
+      compute(set1, set2);
+      return;
+    }
 
+    for (int i = 0; i < n1; i++) {
+      // Note: When we sum the columns or rows we are summing the number of counts
+      // of members of the input array. This can never exceed Integer.MAX_VALUE since
+      // Java uses ints for array allocation.
+      int sum = 0;
+      for (int j = 0; j < n2; j++) {
+        final int v = table[i][j];
+        sum += v;
+        tp += binomialCoefficient2(v);
+      }
+      tpPlusFp += binomialCoefficient2(sum);
+      if (tpPlusFp < 0) {
+        throw new ArithmeticException("TP+FP overflow");
+      }
+    }
+
+    for (int j = 0; j < n2; j++) {
+      int sum = 0;
       for (int i = 0; i < n1; i++) {
-        // Note: When we sum the columns or rows we are summing the number of counts
-        // of members of the input array. This can never exceed Integer.MAX_VALUE since
-        // Java uses ints for array allocation.
-        int sum = 0;
-        for (int j = 0; j < n2; j++) {
-          final int v = table[i][j];
-          sum += v;
-          tp += binomialCoefficient2(v);
-        }
-        tpPlusFp += binomialCoefficient2(sum);
-        if (tpPlusFp < 0) {
-          throw new ArithmeticException("TP+FP overflow");
-        }
+        sum += table[i][j];
       }
-
-      for (int j = 0; j < n2; j++) {
-        int sum = 0;
-        for (int i = 0; i < n1; i++) {
-          sum += table[i][j];
-        }
-        tpPlusFn += binomialCoefficient2(sum);
-        if (tpPlusFn < 0) {
-          throw new ArithmeticException("TP+FN overflow");
-        }
-      }
-    } else {
-      final int size = n1 * n2;
-      final int[] table = new int[size];
-
-      try {
-        for (int i = 0; i < n; i++) {
-          table[set1[i] * n2 + set2[i]]++;
-        }
-      } catch (final ArrayIndexOutOfBoundsException ex) {
-        // Probably because the input was not checked ...
-        // This should not cause infinite recursion as the next time all the indices will be OK.
-        compute(set1, set2);
-        return;
-      }
-
-      for (int i = 0, index = 0; i < n1; i++) {
-        // Note: When we sum the columns or rows we are summing the number of counts
-        // of members of the input array. This can never exceed Integer.MAX_VALUE since
-        // Java uses ints for array allocation.
-        int sum = 0;
-        for (final int stop = index + n2; index < stop; index++) {
-          final int v = table[index];
-          sum += v;
-          tp += binomialCoefficient2(v);
-        }
-        tpPlusFp += binomialCoefficient2(sum);
-        if (tpPlusFp < 0) {
-          throw new ArithmeticException("TP+FP overflow");
-        }
-      }
-
-      for (int j = 0; j < n2; j++) {
-        int sum = 0;
-        for (int index = j; index < size; index += n2) {
-          sum += table[index];
-        }
-        tpPlusFn += binomialCoefficient2(sum);
-        if (tpPlusFn < 0) {
-          throw new ArithmeticException("TP+FN overflow");
-        }
+      tpPlusFn += binomialCoefficient2(sum);
+      if (tpPlusFn < 0) {
+        throw new ArithmeticException("TP+FN overflow");
       }
     }
 
     // Store after no exceptions are raised
-    this.numberOfElements = n;
+    this.numberOfElements = set1.length;
+    this.truePositives = tp;
+    this.truePositivesPlusFalsePositives = tpPlusFp;
+    this.truePositivesPlusFalseNegatives = tpPlusFn;
+  }
+
+  /**
+   * Compute the contingency table for two classifications of a set of data and generate the values
+   * required to produce the Rand index.
+   *
+   * <p>Each set should use integers from 0 to n-1 for n clusters.
+   *
+   * <p>Warning: No checks are made on the input! However if clusters numbers below zero or above n
+   * clusters are used then an {@link ArrayIndexOutOfBoundsException} can occur. This is handled by
+   * compacting the sets and re-computing.
+   *
+   * <p>This method uses a single linear array for the contingency table.
+   *
+   * @param set1 the first set of clusters for the objects
+   * @param n1 the number of clusters (max cluster number + 1) in set 1
+   * @param set2 the second set of clusters for the objects
+   * @param n2 the number of clusters (max cluster number + 1) in set 2
+   * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
+   * @throws ArithmeticException if the sums are larger than Long.MAX_VALUE
+   */
+  private void computeUsingArray(int[] set1, int n1, int[] set2, int n2) {
+    // TP will only overflow after TP+FP
+    long tp = 0;
+    // Note: The following could overflow.
+    // This will happen if the number of clusters is very large (approaching Integer.MAX_VALUE),
+    // i.e. non-clustered data. Any reasonable clustering comparison will have clustered the data
+    // better than that so we just fail with an exception.
+    long tpPlusFp = 0;
+    long tpPlusFn = 0;
+
+    final int size = n1 * n2;
+    final int[] table = new int[size];
+
+    try {
+      for (int i = 0; i < set1.length; i++) {
+        table[set1[i] * n2 + set2[i]]++;
+      }
+    } catch (final ArrayIndexOutOfBoundsException ex) {
+      // Probably because the input was not checked ...
+      // This should not cause infinite recursion as the next time all the indices will be OK.
+      compute(set1, set2);
+      return;
+    }
+
+    for (int i = 0, index = 0; i < n1; i++) {
+      // Note: When we sum the columns or rows we are summing the number of counts
+      // of members of the input array. This can never exceed Integer.MAX_VALUE since
+      // Java uses ints for array allocation.
+      int sum = 0;
+      for (final int stop = index + n2; index < stop; index++) {
+        final int v = table[index];
+        sum += v;
+        tp += binomialCoefficient2(v);
+      }
+      tpPlusFp += binomialCoefficient2(sum);
+      if (tpPlusFp < 0) {
+        throw new ArithmeticException("TP+FP overflow");
+      }
+    }
+
+    for (int j = 0; j < n2; j++) {
+      int sum = 0;
+      for (int index = j; index < size; index += n2) {
+        sum += table[index];
+      }
+      tpPlusFn += binomialCoefficient2(sum);
+      if (tpPlusFn < 0) {
+        throw new ArithmeticException("TP+FN overflow");
+      }
+    }
+
+    // Store after no exceptions are raised
+    this.numberOfElements = set1.length;
     this.truePositives = tp;
     this.truePositivesPlusFalsePositives = tpPlusFp;
     this.truePositivesPlusFalseNegatives = tpPlusFn;
