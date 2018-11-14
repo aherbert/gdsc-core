@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,7 +37,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Compares assignments.
+ * Compares assignments using the distance.
  */
 public class AssignmentComparator implements Comparator<Assignment>, Serializable {
   /**
@@ -43,7 +45,8 @@ public class AssignmentComparator implements Comparator<Assignment>, Serializabl
    */
   private static final long serialVersionUID = 1L;
 
-  private static final AssignmentComparator instance = new AssignmentComparator();
+  /** An instance. */
+  private static final AssignmentComparator INSTANCE = new AssignmentComparator();
 
   @Override
   public int compare(Assignment o1, Assignment o2) {
@@ -56,11 +59,11 @@ public class AssignmentComparator implements Comparator<Assignment>, Serializabl
    * @param assignments the assignments
    */
   public static void sort(List<? extends Assignment> assignments) {
-    Collections.sort(assignments, instance);
+    Collections.sort(assignments, INSTANCE);
   }
 
   /**
-   * Sort the assignments using the fastest sort.
+   * Sort the assignments using the distance.
    *
    * @param assignments the assignments
    */
@@ -69,12 +72,13 @@ public class AssignmentComparator implements Comparator<Assignment>, Serializabl
   }
 
   /**
-   * Sort the assignments using the native object comparator.
+   * Sort the assignments using the distance comparator.
    *
    * @param assignments the assignments
    */
-  public static void sort1(Assignment[] assignments) {
-    Arrays.sort(assignments, instance);
+  @VisibleForTesting
+  static void sort1(Assignment[] assignments) {
+    Arrays.sort(assignments, INSTANCE);
   }
 
   /**
@@ -82,7 +86,8 @@ public class AssignmentComparator implements Comparator<Assignment>, Serializabl
    *
    * @param assignments the assignments
    */
-  public static void sort2(Assignment[] assignments) {
+  @VisibleForTesting
+  static void sort2(Assignment[] assignments) {
     final int size = assignments.length;
     if (assignments.length < 2) {
       return;
@@ -119,7 +124,8 @@ public class AssignmentComparator implements Comparator<Assignment>, Serializabl
    *
    * @param assignments the assignments
    */
-  public static void sort3(Assignment[] assignments) {
+  @VisibleForTesting
+  static void sort3(Assignment[] assignments) {
     final int size = assignments.length;
     if (assignments.length < 2) {
       return;
@@ -154,7 +160,8 @@ public class AssignmentComparator implements Comparator<Assignment>, Serializabl
    *
    * @param assignments the assignments
    */
-  public static void sort4(Assignment[] assignments) {
+  @VisibleForTesting
+  static void sort4(Assignment[] assignments) {
     final int size = assignments.length;
     if (assignments.length < 2) {
       return;

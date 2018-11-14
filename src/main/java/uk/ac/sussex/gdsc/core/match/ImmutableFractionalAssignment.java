@@ -34,6 +34,7 @@ package uk.ac.sussex.gdsc.core.match;
  */
 public class ImmutableFractionalAssignment extends ImmutableAssignment
     implements FractionalAssignment {
+  /** The score. */
   private final double score;
 
   /**

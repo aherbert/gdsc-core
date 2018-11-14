@@ -32,8 +32,11 @@ package uk.ac.sussex.gdsc.core.match;
  * Stores an assignment between two identified points and the distance between them.
  */
 public class MutableAssignment implements Assignment {
+  /** The target id. */
   private int targetId;
+  /** The predicted id. */
   private int predictedId;
+  /** The distance between target and predicted. */
   private double distance;
 
   /**

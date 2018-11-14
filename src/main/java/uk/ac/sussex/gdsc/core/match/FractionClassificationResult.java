@@ -35,17 +35,26 @@ package uk.ac.sussex.gdsc.core.match;
  * <p>Can calculate the F-score statistic with a given beta weighting between the precision and
  * recall.
  *
- * @see "http://en.wikipedia.org/wiki/Precision_and_recall#F-measure"
+ * @see <a href="http://en.wikipedia.org/wiki/Precision_and_recall#F-measure">F-Measure</a>
  */
 public class FractionClassificationResult {
+  /** The true positives. */
   private final double truePositives;
+  /** The false positives. */
   private final double falsePositives;
+  /** The true negatives. */
   private final double trueNegatives;
+  /** The false negatives. */
   private final double falseNegatives;
+  /** The number of positives. */
   private final int numberOfPositives;
+  /** The number of negatives. */
   private final int numberOfNegatives;
+  /** The precision. */
   private final double precision;
+  /** The recall. */
   private final double recall;
+  /** The jaccard. */
   private final double jaccard;
 
   /**
@@ -87,6 +96,13 @@ public class FractionClassificationResult {
     jaccard = divide(truePositives, truePositives + falsePositives + falseNegatives);
   }
 
+  /**
+   * Divide.
+   *
+   * @param numerator the numerator
+   * @param denominator the denominator
+   * @return the double
+   */
   private static double divide(final double numerator, final double denominator) {
     if (denominator == 0) {
       return 0;

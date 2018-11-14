@@ -40,6 +40,7 @@ public class PulseTimeComparator implements Comparator<Pulse>, Serializable {
    */
   private static final long serialVersionUID = 1L;
 
+  /** An instance. */
   private static final PulseTimeComparator INSTANCE = new PulseTimeComparator();
 
   /**

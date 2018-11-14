@@ -42,10 +42,15 @@ import java.util.BitSet;
  * max N.
  */
 public class RankedScoreCalculator {
+  /** The assignments. */
   private final FractionalAssignment[] assignments;
+  /** The maximum actual ID in the assignments. */
   private final int maxA;
+  /** The maximum predicted ID in the assignments. */
   private final int maxP;
+  /** The total number of actual IDs in the assignments. This may be less than maxA. */
   private final int totalA;
+  /** The total number of predicted IDs in the assignments. This may be less than maxP. */
   private final int totalP;
 
   private FractionalAssignment[] scoredAssignments;

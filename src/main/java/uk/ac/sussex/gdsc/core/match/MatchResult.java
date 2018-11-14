@@ -37,12 +37,19 @@ package uk.ac.sussex.gdsc.core.match;
  * @see "http://en.wikipedia.org/wiki/Precision_and_recall#F-measure"
  */
 public class MatchResult {
+  /** The true positives. */
   private final int tp;
+  /** The false positives. */
   private final int fp;
+  /** The false negatives. */
   private final int fn;
+  /** The precision. */
   private final double precision;
+  /** The recall. */
   private final double recall;
+  /** The jaccard. */
   private final double jaccard;
+  /** The The root mean squared distance between true positives. */
   private final double rmsd;
 
   /**

@@ -33,6 +33,8 @@ package uk.ac.sussex.gdsc.core.match;
  * the match.
  */
 public class MutableFractionalAssignment extends MutableAssignment implements FractionalAssignment {
+
+  /** The score. */
   private double score;
 
   /**

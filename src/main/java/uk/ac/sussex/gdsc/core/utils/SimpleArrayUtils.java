@@ -589,7 +589,7 @@ public final class SimpleArrayUtils {
   }
 
   /**
-   * Scale the data in-place.
+   * Add to the data in-place.
    *
    * @param x the x
    * @param addition the scale
@@ -601,12 +601,24 @@ public final class SimpleArrayUtils {
   }
 
   /**
-   * Scale the data in-place.
+   * Add to the data in-place.
    *
    * @param x the x
    * @param addition the scale
    */
   public static void add(float[] x, float addition) {
+    for (int i = 0; i < x.length; i++) {
+      x[i] += addition;
+    }
+  }
+
+  /**
+   * Add to the data in-place.
+   *
+   * @param x the x
+   * @param addition the scale
+   */
+  public static void add(int[] x, int addition) {
     for (int i = 0; i < x.length; i++) {
       x[i] += addition;
     }
@@ -1189,5 +1201,21 @@ public final class SimpleArrayUtils {
     final T tmp = data[index1];
     data[index1] = data[index2];
     data[index2] = tmp;
+  }
+
+  /**
+   * Find the index of the first occurrence of the given value.
+   *
+   * @param data the data
+   * @param value the value
+   * @return the index (or -1 if not found)
+   */
+  public static int indexOf(int[] data, int value) {
+    for (int i = 0; i < data.length; i++) {
+      if (data[i] == value) {
+        return i;
+      }
+    }
+    return -1;
   }
 }

@@ -32,7 +32,9 @@ package uk.ac.sussex.gdsc.core.match;
  * Class to store a pair of coordinates.
  */
 public class PointPair {
+  /** The first point. */
   private final Coordinate point1;
+  /** The second point. */
   private final Coordinate point2;
 
   /**

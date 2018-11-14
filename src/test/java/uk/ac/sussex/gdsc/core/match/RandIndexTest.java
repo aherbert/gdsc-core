@@ -9,6 +9,8 @@ import uk.ac.sussex.gdsc.test.utils.TestComplexity;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 import uk.ac.sussex.gdsc.test.utils.TestSettings;
 
+import gnu.trove.map.hash.TIntIntHashMap;
+
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
 import org.junit.jupiter.api.AfterAll;
@@ -17,11 +19,15 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
 public class RandIndexTest {
+
+  private static final int NO_ENTRY = -1;
+
   private static Logger logger;
 
   @BeforeAll
@@ -32,6 +38,50 @@ public class RandIndexTest {
   @AfterAll
   public static void afterAll() {
     logger = null;
+  }
+
+  @Test
+  public void canResetOverflow() {
+    Assertions.assertEquals(Integer.MAX_VALUE, RandIndex.resetOverFlow(Integer.MIN_VALUE),
+        "Should reset overflow");
+    for (int unchanged : new int[] {Integer.MAX_VALUE, 1, 0, -1, Integer.MIN_VALUE + 1}) {
+      Assertions.assertEquals(unchanged, RandIndex.resetOverFlow(unchanged),
+          "Should not change value");
+    }
+  }
+
+  @Test
+  public void canCompact() {
+    canCompact(new int[] {});
+    canCompact(new int[] {0});
+    canCompact(new int[] {7});
+    canCompact(new int[] {7, 7});
+    canCompact(new int[] {7, 8});
+    canCompact(new int[] {7, 7, 7});
+    canCompact(new int[] {7, 1, 4, 5});
+    canCompact(new int[] {7, 7, 7, 7, 7});
+    canCompact(new int[] {7, 7, 7, 7, 8});
+    canCompact(new int[] {Integer.MIN_VALUE, 0, Integer.MAX_VALUE});
+  }
+
+  private static void canCompact(int[] data) {
+    // Use -1
+    TIntIntHashMap map = new TIntIntHashMap(data.length, 0.5f, 0, NO_ENTRY);
+    int value = 0;
+    for (int key : data) {
+      if (map.putIfAbsent(key, value) == NO_ENTRY) {
+        value++;
+      }
+    }
+    int[] expected = new int[data.length];
+    for (int i = 0; i < data.length; i++) {
+      expected[i] = map.get(data[i]);
+    }
+    int[] observed = data.clone();
+    int numberOfClusters = RandIndex.compact(observed);
+    Assertions.assertEquals(map.size(), numberOfClusters, "Number of clusters");
+    Assertions.assertArrayEquals(expected, observed,
+        () -> "Original data=" + Arrays.toString(data));
   }
 
   @Test
@@ -272,8 +322,8 @@ public class RandIndexTest {
     logger.log(TestLogUtils.getRecord(Level.FINE, "[%d,%d,%d] simple=%d (%f), table2=%d (%f), %f",
         n, n1, n2, simple, e, table2, o2, simple / (double) table2));
 
-    TestAssertions.assertTest(e, o1, TestHelper.doublesAreClose(1e-10, 0));
-    Assertions.assertEquals(o2, o1);
+    TestAssertions.assertTest(e, o1, TestHelper.doublesAreClose(1e-10, 0), "simpleRandIndex and randIndex");
+    Assertions.assertEquals(o2, o1, "randIndex and randIndex with limits");
   }
 
   @SeededTest
@@ -371,6 +421,6 @@ public class RandIndexTest {
         TestLogUtils.getRecord(Level.FINE, "[%d,%d,%d] table1=%d (%f [%f]), table2=%d (%f), %f", n,
             n1, n2, table1, o1, r, table2, o2, table1 / (double) table2));
 
-    Assertions.assertEquals(o2, o1);
+    Assertions.assertEquals(o2, o1, "adjustedRandIndex and adjustedRandIndex with limits");
   }
 }

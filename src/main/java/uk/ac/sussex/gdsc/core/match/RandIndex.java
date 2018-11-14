@@ -28,7 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import java.math.BigInteger;
 
@@ -51,9 +54,16 @@ import java.math.BigInteger;
  */
 public class RandIndex {
 
-  private int numberOfElements = -1;
+  /** The constant to reset the number of elements. */
+  private static final int RESET_NUMBER_OF_ELEMENTS = -1;
+
+  /** The number of elements. */
+  private int numberOfElements = RESET_NUMBER_OF_ELEMENTS;
+  /** The true positives. */
   private long truePositives;
+  /** The true positives + false positives. */
   private long truePositivesPlusFalsePositives;
+  /** The true positives + false negatives. */
   private long truePositivesPlusFalseNegatives;
 
   /**
@@ -114,19 +124,11 @@ public class RandIndex {
    * @throws IllegalArgumentException if the sets are different lengths
    */
   public static double simpleRandIndex(int[] set1, int[] set2) {
-    if (set1 == null) {
-      throw new NullPointerException("set1");
-    }
-    if (set2 == null) {
-      throw new NullPointerException("set2");
-    }
-    if (set1.length != set2.length) {
-      throw new IllegalArgumentException("Sets must be the same size");
-    }
+    checkSetArguments(set1, set2);
 
     final int n = set1.length;
 
-    if (n < 2) {
+    if (n <= 1) {
       return getDefaultRandIndex(n);
     }
 
@@ -150,6 +152,18 @@ public class RandIndex {
     }
 
     return (double) aplusb / binomialCoefficient2(n);
+  }
+
+  /**
+   * Check the two sets are the same size.
+   *
+   * @param set1 the set 1
+   * @param set2 the set 2
+   */
+  private static void checkSetArguments(int[] set1, int[] set2) {
+    ValidationUtils.checkNotNull(set1, "set1");
+    ValidationUtils.checkNotNull(set2, "set2");
+    ValidationUtils.checkArgument(set1.length == set2.length, "Sets must be the same size");
   }
 
   /**
@@ -237,6 +251,8 @@ public class RandIndex {
    *
    * @param set the set (modified in place)
    * @return the number of clusters (max cluster number + 1) (n)
+   * @throws IllegalArgumentException If the number of clusters does not fit in the range of an
+   *         integer
    */
   public static int compact(int[] set) {
     // Edge cases
@@ -248,44 +264,85 @@ public class RandIndex {
       return 1;
     }
 
-    final int[] newSet = new int[set.length];
-    final int clusterNumber = compact(set, newSet);
+    int firstClusterId = MathUtils.min(set);
 
-    // Copy back
-    System.arraycopy(newSet, 0, set, 0, set.length);
+    // Overflow safe by resetting range
+    if (firstClusterId > 0) {
+      SimpleArrayUtils.add(set, -firstClusterId);
+      firstClusterId = 0;
+    }
 
-    return clusterNumber;
+    // Reorder in place by creating a series from min upwards
+
+    // To make the output nice ensure the first index in the array matches the firstClusterId
+    if (set[0] != firstClusterId) {
+      // This is only possible if there is more than 1 unique value.
+      // Swap the values.
+      swap(set, firstClusterId, set[0]);
+    }
+
+    int nextClusterId = firstClusterId;
+    for (int i = 0; i < set.length; i++) {
+      // Any number above the processed clusters can be renumbered
+      if (set[i] >= nextClusterId) {
+        replace(set, i, nextClusterId);
+        // Should not overflow unless the set contains
+        // at least Integer.MAX_VALUE different values.
+        nextClusterId++;
+      }
+    }
+
+    // Overflow safe
+    nextClusterId = resetOverFlow(nextClusterId);
+
+    // Get the number of clusters
+    final long numberOfClusters = (long) nextClusterId - firstClusterId;
+    ValidationUtils.checkArgument(numberOfClusters <= Integer.MAX_VALUE,
+        "Number of clusters exceeds the range of an integer: %d", numberOfClusters);
+
+    // Reset from zero
+    if (firstClusterId != 0) {
+      SimpleArrayUtils.add(set, -firstClusterId);
+    }
+
+    return (int) numberOfClusters;
+  }
+
+  private static void swap(int[] set, int id1, int id2) {
+    for (int i = 0; i < set.length; i++) {
+      if (set[i] == id1) {
+        set[i] = id2;
+      } else if (set[i] == id2) {
+        set[i] = id1;
+      }
+    }
   }
 
   /**
-   * Compact the set so that it contains cluster assignments from 0 to n-1 where n is the number of
-   * clusters (max cluster number + 1).
+   * Replace all occurrences of the cluster Id from the given index with the new cluster Id.
    *
    * @param set the set
-   * @param newSet the new set
-   * @return the number of clusters (max cluster number + 1) (n)
+   * @param index the index
+   * @param newClusterId the new cluster id
    */
-  private static int compact(int[] set, int[] newSet) {
-    // No checks on input arguments as this method is internal
-
-    final boolean[] skip = new boolean[set.length];
-
-    int clusterNumber = 0;
-    for (int i = 0; i < set.length; i++) {
-      if (skip[i]) {
-        continue;
+  private static void replace(int[] set, int index, int newClusterId) {
+    final int oldClusterId = set[index];
+    for (int i = index; i < set.length; i++) {
+      if (set[i] == oldClusterId) {
+        set[i] = newClusterId;
       }
-      final int value = set[i];
-      for (int j = i; j < set.length; j++) {
-        if (value == set[j]) {
-          skip[j] = true;
-          newSet[j] = clusterNumber;
-        }
-      }
-      clusterNumber++;
     }
+  }
 
-    return clusterNumber;
+  /**
+   * Reset the next cluster Id counter in the case of over flow.
+   *
+   * @param nextClusterId the next cluster id
+   * @return the next cluster id
+   */
+  @VisibleForTesting
+  static int resetOverFlow(int nextClusterId) {
+    return (nextClusterId == Integer.MIN_VALUE) ? Integer.MAX_VALUE : nextClusterId;
   }
 
   /**
@@ -299,8 +356,10 @@ public class RandIndex {
    * Reset the computation.
    */
   private void reset() {
-    numberOfElements = -1;
-    truePositives = truePositivesPlusFalsePositives = truePositivesPlusFalseNegatives = 0;
+    numberOfElements = RESET_NUMBER_OF_ELEMENTS;
+    truePositives = 0;
+    truePositivesPlusFalsePositives = 0;
+    truePositivesPlusFalseNegatives = 0;
   }
 
   /**
@@ -311,52 +370,25 @@ public class RandIndex {
    * @param set2 the second set of clusters for the objects
    * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
    * @throws IllegalArgumentException if the sets are different lengths
-   * @throws RuntimeException if the sums are larger than Long.MAX_VALUE
+   * @throws ArithmeticException if the sums are larger than Long.MAX_VALUE
    */
   public void compute(int[] set1, int[] set2) {
     reset();
 
-    if (set1 == null) {
-      throw new NullPointerException("set1");
-    }
-    if (set2 == null) {
-      throw new NullPointerException("set2");
-    }
-    if (set1.length != set2.length) {
-      throw new IllegalArgumentException("Sets must be the same size");
-    }
+    checkSetArguments(set1, set2);
 
     final int length = set1.length;
-    if (length < 2) {
+    if (length <= 1) {
       this.numberOfElements = length;
       return;
     }
 
-    final int[] set1a;
-    final int[] set2a;
-    final int max1;
-    final int max2;
-
-    // Compute using a contingency table.
-    // Each set should optimally use integers from 0 to n-1 for n clusters.
-    // Check if we need to compact the sets
-    final int[] limits1 = MathUtils.limits(set1);
-    if (limits1[0] < 0 || limits1[1] == Integer.MAX_VALUE) {
-      set1a = new int[length];
-      max1 = compact(set1, set1a);
-    } else {
-      set1a = set1;
-      max1 = limits1[1] + 1;
-    }
-
-    final int[] limits2 = MathUtils.limits(set2);
-    if (limits2[0] < 0 || limits2[1] == Integer.MAX_VALUE) {
-      set2a = new int[length];
-      max2 = compact(set2, set2a);
-    } else {
-      set2a = set2;
-      max2 = limits2[1] + 1;
-    }
+    // Each set should use integers from 0 to n-1 for n clusters.
+    // So compact the sets.
+    final int[] set1a = set1.clone();
+    final int[] set2a = set2.clone();
+    final int max1 = compact(set1a);
+    final int max2 = compact(set2a);
 
     compute(set1a, max1, set2a, max2);
   }
@@ -376,13 +408,15 @@ public class RandIndex {
    * @param set2 the second set of clusters for the objects
    * @param n2 the number of clusters (max cluster number + 1) in set 2
    * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
-   * @throws RuntimeException if the sums are larger than Long.MAX_VALUE
+   * @throws ArithmeticException if the sums are larger than Long.MAX_VALUE
    */
   public void compute(int[] set1, int n1, int[] set2, int n2) {
     reset();
 
+    checkSetArguments(set1, set2);
+
     final int n = set1.length;
-    if (n < 2) {
+    if (n <= 1) {
       this.numberOfElements = n;
       return;
     }
@@ -396,8 +430,8 @@ public class RandIndex {
     long tpPlusFp = 0;
     long tpPlusFn = 0;
 
-    // Note: Using a single array we have an upper limit on the array size of: 2^31 - 1 * 4 bytes ~
-    // 8Gb
+    // Note: Using a single array we have an upper limit on the array size of: 
+    // 2^31 - 1 * 4 bytes ~ 8Gb
     // This should be enough. Otherwise we use int[][] table.
     final long lSize = (long) n1 * n2;
     if (lSize > Integer.MAX_VALUE) {
@@ -544,7 +578,7 @@ public class RandIndex {
    * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
    */
   public double getRandIndex() {
-    if (numberOfElements < 2) {
+    if (numberOfElements <= 1) {
       return getDefaultRandIndex(numberOfElements);
     }
 
@@ -630,7 +664,7 @@ public class RandIndex {
    * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
    */
   public double getAdjustedRandIndex() {
-    if (numberOfElements < 2) {
+    if (numberOfElements <= 1) {
       return getDefaultAdjustedRandIndex(numberOfElements);
     }
 

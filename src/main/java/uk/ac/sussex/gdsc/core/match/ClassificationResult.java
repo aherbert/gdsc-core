@@ -38,12 +38,19 @@ package uk.ac.sussex.gdsc.core.match;
  * @see "http://en.wikipedia.org/wiki/Precision_and_recall#F-measure"
  */
 public class ClassificationResult {
+  /** The true positives. */
   private final int truePositives;
+  /** The false positives. */
   private final int falsePositives;
+  /** The true negatives. */
   private final int trueNegatives;
+  /** The false negatives. */
   private final int falseNegatives;
+  /** The precision. */
   private final double precision;
+  /** The recall. */
   private final double recall;
+  /** The jaccard. */
   private final double jaccard;
 
   /**
@@ -66,6 +73,13 @@ public class ClassificationResult {
     jaccard = divide(truePositives, truePositives + falsePositives + falseNegatives);
   }
 
+  /**
+   * Divide.
+   *
+   * @param numerator the numerator
+   * @param denominator the denominator
+   * @return the double
+   */
   private static double divide(final double numerator, final int denominator) {
     if (denominator == 0) {
       return 0;

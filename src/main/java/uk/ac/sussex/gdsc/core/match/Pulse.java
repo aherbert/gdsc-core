@@ -33,7 +33,9 @@ package uk.ac.sussex.gdsc.core.match;
  * pulses.
  */
 public class Pulse extends BasePoint {
+  /** The start. */
   private final int start;
+  /** The end. */
   private final int end;
 
   /**
