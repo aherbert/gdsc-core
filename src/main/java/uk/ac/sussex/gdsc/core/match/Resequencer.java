@@ -44,7 +44,7 @@ import java.util.List;
 public class Resequencer {
 
   /** The value for no entry in a map of sequence ids. */
-  private static final int NO_ENTRY = -1;
+  static final int NO_ENTRY = -1;
 
   /** Used to clear the cached map. */
   private static final IntMap NO_MAP = null;
@@ -351,7 +351,7 @@ public class Resequencer {
    */
   private int renumber1(int[] set, int[] outputSet) {
     if (isCacheMap()) {
-      int min = set[0];
+      final int min = set[0];
       intMap = createMap(min, 1);
       intMap.putIfAbsent(min, 0);
     }
@@ -368,9 +368,9 @@ public class Resequencer {
    */
   private int renumber2(int[] set, int[] outputSet) {
     // If the Ids are currently different then use 2 Ids.
-    final int id1 = (set[0] != set[1]) ? 1 : 0;
+    final int id1 = (set[0] == set[1]) ? 0 : 1;
     if (isCacheMap()) {
-      int min = Math.min(set[0], set[1]);
+      final int min = Math.min(set[0], set[1]);
       intMap = createMap(min, 2);
       intMap.putIfAbsent(set[0], 0);
       intMap.putIfAbsent(set[1], id1);
@@ -393,7 +393,7 @@ public class Resequencer {
     }
 
     if (range < getSwitchPoint()) {
-      int size = (int) range;
+      final int size = (int) range;
       return (min == 0) ? new FixedIntMap(size) : new OffsetIntMap(size, min);
     }
     // The input range may be very large. Let the set expand dynamically.
@@ -448,9 +448,9 @@ public class Resequencer {
       // Sort by the values
       Collections.sort(pairs, (p1, p2) -> Integer.compare(p1[1], p2[1]));
       // Extract keys
-      int[] inverseMap = new int[pairs.size()];
+      final int[] inverseMap = new int[pairs.size()];
       for (int j = 0; j < inverseMap.length; j++) {
-        int[] pair = pairs.get(j);
+        final int[] pair = pairs.get(j);
         inverseMap[pair[1]] = pair[0];
       }
       return inverseMap;
@@ -491,6 +491,9 @@ public class Resequencer {
 
   /**
    * Set if the map of the identifiers will be cached. The default is false.
+   *
+   * <p>The map can be reused to improve efficiency at the expense of memory overhead. It is also
+   * required to allow the map to be retrieved from the method {@link #getRenumberMap()}.
    *
    * @param cacheMap the new cache map flag
    */

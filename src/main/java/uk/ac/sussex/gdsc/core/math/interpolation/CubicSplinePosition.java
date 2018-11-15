@@ -50,7 +50,7 @@ public class CubicSplinePosition {
    * Instantiates a new cubic spline position. Only used when x is known to be in the range 0-1.
    *
    * @param x the x
-   * @param dummy the dummy flag
+   * @param dummy the dummy flag (this is unused)
    */
   CubicSplinePosition(double x, boolean dummy) {
     createPowers(x);

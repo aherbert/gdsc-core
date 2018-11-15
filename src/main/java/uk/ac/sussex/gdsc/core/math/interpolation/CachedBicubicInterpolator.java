@@ -34,6 +34,9 @@ package uk.ac.sussex.gdsc.core.math.interpolation;
  * <p>Taken from http://www.paulinternet.nl/?page=bicubic.
  */
 public class CachedBicubicInterpolator {
+
+  // Fields represent a 4x4 matrix (a)
+
   private double a00;
   private double a01;
   private double a02;

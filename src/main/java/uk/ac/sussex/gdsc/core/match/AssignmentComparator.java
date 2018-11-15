@@ -88,12 +88,12 @@ public class AssignmentComparator implements Comparator<Assignment>, Serializabl
    */
   @VisibleForTesting
   static void sort2(Assignment[] assignments) {
-    final int size = assignments.length;
-    if (assignments.length < 2) {
+    if (assignments.length <= 1) {
       return;
     }
 
     // Convert data for sorting
+    final int size = assignments.length;
     final double[][] data = new double[size][2];
     for (int i = size; i-- > 0;) {
       data[i][0] = assignments[i].getDistance();
@@ -109,6 +109,9 @@ public class AssignmentComparator implements Comparator<Assignment>, Serializabl
     }
   }
 
+  /**
+   * Store the double value and assignment for sorting.
+   */
   private static class DoubleSortObject {
     final double value;
     final Assignment assignment;
@@ -126,12 +129,12 @@ public class AssignmentComparator implements Comparator<Assignment>, Serializabl
    */
   @VisibleForTesting
   static void sort3(Assignment[] assignments) {
-    final int size = assignments.length;
-    if (assignments.length < 2) {
+    if (assignments.length <= 1) {
       return;
     }
 
     // Convert data for sorting
+    final int size = assignments.length;
     final DoubleSortObject[] data = new DoubleSortObject[size];
     for (int i = size; i-- > 0;) {
       data[i] = new DoubleSortObject(assignments[i].getDistance(), assignments[i]);
@@ -145,6 +148,9 @@ public class AssignmentComparator implements Comparator<Assignment>, Serializabl
     }
   }
 
+  /**
+   * Store the float value and assignment for sorting.
+   */
   private static class FloatSortObject {
     final float value;
     final Assignment assignment;
@@ -162,12 +168,12 @@ public class AssignmentComparator implements Comparator<Assignment>, Serializabl
    */
   @VisibleForTesting
   static void sort4(Assignment[] assignments) {
-    final int size = assignments.length;
-    if (assignments.length < 2) {
+    if (assignments.length <= 1) {
       return;
     }
 
     // Convert data for sorting
+    final int size = assignments.length;
     final FloatSortObject[] data = new FloatSortObject[size];
     for (int i = size; i-- > 0;) {
       data[i] = new FloatSortObject((float) assignments[i].getDistance(), assignments[i]);

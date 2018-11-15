@@ -42,6 +42,15 @@ import java.util.BitSet;
  * max N.
  */
 public class RankedScoreCalculator {
+
+  /**
+   * The score for a complete match.
+   * 
+   * <p>True positive scores can be above this due to multiple matching but a false positive is
+   * limited to a maximum of this value.
+   */
+  private static final double COMPLETE_MATCH_SCORE = 1.0;
+
   /** The assignments. */
   private final FractionalAssignment[] assignments;
   /** The maximum actual ID in the assignments. */
@@ -52,7 +61,7 @@ public class RankedScoreCalculator {
   private final int totalA;
   /** The total number of predicted IDs in the assignments. This may be less than maxP. */
   private final int totalP;
-
+  /** The scored assignments. */
   private FractionalAssignment[] scoredAssignments;
 
   /**
@@ -87,8 +96,7 @@ public class RankedScoreCalculator {
     // Count unique actual and predicted
     int maxA = 0;
     int maxP = 0;
-    for (int i = 0; i < assignments.length; i++) {
-      final FractionalAssignment a = assignments[i];
+    for (final FractionalAssignment a : assignments) {
       if (maxA < a.getTargetId()) {
         maxA = a.getTargetId();
       }
@@ -121,8 +129,7 @@ public class RankedScoreCalculator {
     // Use a BitSet to allow expansion in the event that max A / P are incorrect.
     final BitSet obsA = new BitSet(maxA + 1);
     final BitSet obsP = new BitSet(maxP + 1);
-    for (int i = 0; i < assignments.length; i++) {
-      final FractionalAssignment a = assignments[i];
+    for (final FractionalAssignment a : assignments) {
       obsA.set(a.getTargetId(), true);
       obsP.set(a.getPredictedId(), true);
     }
@@ -175,8 +182,7 @@ public class RankedScoreCalculator {
   private FractionalAssignment[] getSubset(int numberOfPredictions) {
     final FractionalAssignment[] assignments2 = new FractionalAssignment[assignments.length];
     int count = 0;
-    for (int i = 0; i < assignments.length; i++) {
-      final FractionalAssignment a = assignments[i];
+    for (final FractionalAssignment a : assignments) {
       if (a.getPredictedId() < numberOfPredictions) {
         assignments2[count++] = a;
       }
@@ -244,17 +250,16 @@ public class RankedScoreCalculator {
 
     // Assign matches
     if (multipleMatches) {
-      final double[] predictedAssignment = new double[sizeP];
+      final double[] predictedAssignments = new double[sizeP];
 
       double tp = 0;
       int remainingA = totalA;
 
-      for (int i = 0; i < localAssignments.length; i++) {
-        final FractionalAssignment a = localAssignments[i];
+      for (final FractionalAssignment a : localAssignments) {
         if (!actualAssignment[a.getTargetId()]) {
           actualAssignment[a.getTargetId()] = true;
           tp += a.getScore();
-          predictedAssignment[a.getPredictedId()] += a.getScore();
+          predictedAssignments[a.getPredictedId()] += a.getScore();
           if (save) {
             scored.add(a);
           }
@@ -264,21 +269,18 @@ public class RankedScoreCalculator {
         }
       }
 
-      // Compute the FP.
-      // Although a predicted point can accumulate more than 1 for TP matches (due
-      // to multiple matching), no predicted point can score less than 1.
+      // Compute the FP. This starts are the number of predictions and is decremented
+      // by a maximum of 1 (since any predicted point can only score up to 1 false positive).
       double fp = numberOfPredictions;
       int itp = 0;
-      for (int i = 0; i < predictedAssignment.length; i++) {
-        if (predictedAssignment[i] == 0) {
+      for (final double predictedAssignment : predictedAssignments) {
+        if (predictedAssignment == 0) {
           continue;
         }
+        // This was matched to something so increment the match counter
         itp++;
-        if (predictedAssignment[i] > 1) {
-          fp -= 1.0;
-        } else {
-          fp -= predictedAssignment[i];
-        }
+        // Decrement the amount matched up to a maximum of 1
+        fp -= min(predictedAssignment, COMPLETE_MATCH_SCORE);
       }
 
       result = new double[] {tp, fp, itp, numberOfPredictions - itp};
@@ -289,8 +291,7 @@ public class RankedScoreCalculator {
       int remainingP = totalP;
       int remainingA = totalA;
 
-      for (int i = 0; i < localAssignments.length; i++) {
-        final FractionalAssignment a = localAssignments[i];
+      for (final FractionalAssignment a : localAssignments) {
         if (!actualAssignment[a.getTargetId()] && !predictedAssignment[a.getPredictedId()]) {
           actualAssignment[a.getTargetId()] = true;
           predictedAssignment[a.getPredictedId()] = true;
@@ -313,6 +314,17 @@ public class RankedScoreCalculator {
     }
 
     return result;
+  }
+
+  /**
+   * Get the min value without checking for NaN.
+   *
+   * @param v1 the first value
+   * @param v2 the second value
+   * @return the min
+   */
+  private static double min(double v1, double v2) {
+    return (v1 < v2) ? v1 : v2;
   }
 
   /**
@@ -374,8 +386,7 @@ public class RankedScoreCalculator {
   public static double[] getMatchScore(FractionalAssignment[] assignments,
       int numberOfPredictions) {
     final double[] matchScore = new double[numberOfPredictions];
-    for (int i = 0; i < assignments.length; i++) {
-      final FractionalAssignment a = assignments[i];
+    for (final FractionalAssignment a : assignments) {
       matchScore[a.getPredictedId()] += a.getScore();
     }
     return matchScore;
@@ -409,11 +420,11 @@ public class RankedScoreCalculator {
     for (int i = 0; i < score.length;) {
       if (score[i] == 0) {
         fp += 1.0;
-      } else if (score[i] > 1.0) {
+      } else if (score[i] > COMPLETE_MATCH_SCORE) {
         tp += score[i];
       } else {
         tp += score[i];
-        fp += (1.0 - score[i]);
+        fp += (COMPLETE_MATCH_SCORE - score[i]);
       }
       i++; // Increment since the arrays are offset by 1
       r[i] = tp / numberOfActual;

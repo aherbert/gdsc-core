@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.math;
 
 import uk.ac.sussex.gdsc.core.data.IntegerType;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import java.math.BigInteger;
 
@@ -46,7 +47,7 @@ import java.math.BigInteger;
  * occur. The sum accumulates the input value squared. A check can be made for potential overflow if
  * the maximum value and number of inputs is known.
  */
-public class IntegerArrayMoment implements ArrayMoment {
+public final class IntegerArrayMoment implements ArrayMoment {
 
   /** The max value of a long as a BigInteger. */
   private static final BigInteger BIG_MAX_VALUE = BigInteger.valueOf(Long.MAX_VALUE);
@@ -63,7 +64,9 @@ public class IntegerArrayMoment implements ArrayMoment {
   /**
    * Instantiates a new array moment with data.
    */
-  public IntegerArrayMoment() {}
+  public IntegerArrayMoment() {
+    // Do nothing
+  }
 
   /**
    * Instantiates a new array moment with data.
@@ -153,6 +156,7 @@ public class IntegerArrayMoment implements ArrayMoment {
    * Adds the data in the array moment.
    *
    * @param arrayMoment the array moment
+   * @throws ArithmeticException if overflow occurs
    */
   public void add(IntegerArrayMoment arrayMoment) {
     if (arrayMoment.size == 0) {
@@ -178,37 +182,16 @@ public class IntegerArrayMoment implements ArrayMoment {
 
     size += nb;
     for (int i = 0; i < sum.length; i++) {
-      sum[i] = add(sum[i], sb[i]);
-      sumSq[i] = add(sumSq[i], ssb[i]);
+      sum[i] = Math.addExact(sum[i], sb[i]);
+      sumSq[i] = Math.addExact(sumSq[i], ssb[i]);
     }
   }
 
   @Override
   public void add(ArrayMoment arrayMoment) {
-    if (arrayMoment == null) {
-      throw new NullPointerException();
-    }
-    if (arrayMoment instanceof IntegerArrayMoment) {
-      add((IntegerArrayMoment) arrayMoment);
-    } else {
-      throw new IllegalArgumentException("Not compatible: " + arrayMoment.getClass());
-    }
-  }
-
-  /**
-   * Adds the.
-   *
-   * @param value1 the value 1
-   * @param value2 the value 2
-   * @return the long
-   */
-  private static long add(long value1, long value2) {
-    final long c = value1 + value2;
-    if (c < 0) {
-      throw new IllegalStateException(
-          String.format("Adding the moments results in overflow: %d + %d", value1, value2));
-    }
-    return c;
+    ValidationUtils.checkArgument(arrayMoment instanceof IntegerArrayMoment,
+        "Not compatible array moment %s", arrayMoment);
+    add((IntegerArrayMoment) arrayMoment);
   }
 
   @Override

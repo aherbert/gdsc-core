@@ -49,7 +49,7 @@ public class CubicInterpolator {
    * @param x the x (between 0 and 1)
    * @return the interpolated value
    */
-  public static double getValue(double[] values, double x) {
+  public double getValue(double[] values, double x) {
     return values[1] + 0.5 * x
         * (values[2] - values[0] + x * (2.0 * values[0] - 5.0 * values[1] + 4.0 * values[2]
             - values[3] + x * (3.0 * (values[1] - values[2]) + values[3] - values[0])));
@@ -65,7 +65,7 @@ public class CubicInterpolator {
    * @param x the x (between 0 and 1)
    * @return the interpolated value
    */
-  public static double getValue(double[] values, int offset, double x) {
+  public double getValue(double[] values, int offset, double x) {
     return values[offset + 1] + 0.5 * x
         * (values[offset + 2] - values[offset]
             + x * (2.0 * values[offset] - 5.0 * values[offset + 1] + 4.0 * values[offset + 2]

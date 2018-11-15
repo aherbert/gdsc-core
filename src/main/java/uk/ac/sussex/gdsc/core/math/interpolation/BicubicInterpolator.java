@@ -34,7 +34,6 @@ package uk.ac.sussex.gdsc.core.math.interpolation;
  * <p>Taken from <a href="http://www.paulinternet.nl/?page=bicubic">Cubic interpolation</a>.
  */
 public class BicubicInterpolator extends CubicInterpolator {
-  private final double[] arr = new double[4];
 
   /**
    * Instantiates a new bicubic interpolator.
@@ -52,6 +51,7 @@ public class BicubicInterpolator extends CubicInterpolator {
    * @return the interpolated value
    */
   public double getValue(double[][] values, double x, double y) {
+    final double[] arr = new double[4];
     arr[0] = getValue(values[0], y);
     arr[1] = getValue(values[1], y);
     arr[2] = getValue(values[2], y);
@@ -69,6 +69,7 @@ public class BicubicInterpolator extends CubicInterpolator {
    * @return the interpolated value
    */
   public double getValue(double[] values, double x, double y) {
+    final double[] arr = new double[4];
     arr[0] = getValue(values, 0, x);
     arr[1] = getValue(values, 4, x);
     arr[2] = getValue(values, 8, x);

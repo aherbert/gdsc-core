@@ -190,10 +190,10 @@ public final class NumberUtils {
    * @return the sign
    */
   public static int getSign(float x) {
-    if (x < 0f) {
+    if (x < 0) {
       return -1;
     }
-    if (x > 0f) {
+    if (x > 0) {
       return 1;
     }
     return 0;
@@ -206,10 +206,10 @@ public final class NumberUtils {
    * @return the sign
    */
   public static int getSign(double x) {
-    if (x < 0d) {
+    if (x < 0) {
       return -1;
     }
-    if (x > 0d) {
+    if (x > 0) {
       return 1;
     }
     return 0;

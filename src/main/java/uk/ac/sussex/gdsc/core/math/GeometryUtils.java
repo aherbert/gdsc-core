@@ -31,10 +31,13 @@ package uk.ac.sussex.gdsc.core.math;
 /**
  * Contains methods for standard geometry computations.
  */
-public final class Geometry {
+public final class GeometryUtils {
 
+  /** The minimum vertices for an area. */
+  private static final int MIN_VERTICES = 3; 
+  
   /** No public construction. */
-  private Geometry() {}
+  private GeometryUtils() {}
 
   /**
    * Gets the area of the triangle from its vertices.
@@ -78,7 +81,7 @@ public final class Geometry {
    * @return the area @ If the arrays are not the same length
    */
   public static double getArea(float[] x, float[] y) {
-    if (x.length < 3) {
+    if (x.length < MIN_VERTICES) {
       return 0;
     }
     if (x.length != y.length) {
@@ -105,7 +108,7 @@ public final class Geometry {
    * @return the area @ If the arrays are not the same length
    */
   public static double getArea(double[] x, double[] y) {
-    if (x.length < 3) {
+    if (x.length < MIN_VERTICES) {
       return 0;
     }
     if (x.length != y.length) {

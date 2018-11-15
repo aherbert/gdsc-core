@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"javadoc"})
-public class GeometryTest {
+public class GeometryUtilsTest {
   @Test
   public void canComputeArea() {
     // Area is signed
@@ -22,7 +22,7 @@ public class GeometryTest {
       x[j] = vertices[i];
       y[j] = vertices[i + 1];
     }
-    double obs = Geometry.getArea(x, y);
+    double obs = GeometryUtils.getArea(x, y);
     if (!signed) {
       obs = Math.abs(obs);
     }
@@ -39,7 +39,7 @@ public class GeometryTest {
   private static void canComputeIntersection(double[] exp, double x1, double y1, double x2,
       double y2, double x3, double y3, double x4, double y4) {
     final double[] obs = new double[2];
-    final boolean result = Geometry.getIntersection(x1, y1, x2, y2, x3, y3, x4, y4, obs);
+    final boolean result = GeometryUtils.getIntersection(x1, y1, x2, y2, x3, y3, x4, y4, obs);
     if (exp == null) {
       Assertions.assertFalse(result);
     } else {

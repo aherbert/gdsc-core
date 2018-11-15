@@ -28,12 +28,14 @@
 
 package uk.ac.sussex.gdsc.core.math;
 
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
+
 /**
  * Simple class to calculate the mean and variance of arrayed data using a fast summation algorithm
  * that tracks the sum of input values and the sum of squared input values. This may not be suitable
  * for a large series of data where the mean is far from zero due to floating point round-off error.
  */
-public class SimpleArrayMoment implements ArrayMoment {
+public final class SimpleArrayMoment implements ArrayMoment {
   private long size;
 
   /** The sum of values that have been added. */
@@ -45,7 +47,9 @@ public class SimpleArrayMoment implements ArrayMoment {
   /**
    * Instantiates a new array moment with data.
    */
-  public SimpleArrayMoment() {}
+  public SimpleArrayMoment() {
+    // Do nothing
+  }
 
   /**
    * Instantiates a new array moment with data.
@@ -192,14 +196,9 @@ public class SimpleArrayMoment implements ArrayMoment {
 
   @Override
   public void add(ArrayMoment arrayMoment) {
-    if (arrayMoment == null) {
-      throw new NullPointerException();
-    }
-    if (arrayMoment instanceof SimpleArrayMoment) {
-      add((SimpleArrayMoment) arrayMoment);
-    } else {
-      throw new IllegalArgumentException("Not compatible: " + arrayMoment.getClass());
-    }
+    ValidationUtils.checkArgument(arrayMoment instanceof SimpleArrayMoment,
+        "Not compatible array moment %s", arrayMoment);
+    add((SimpleArrayMoment) arrayMoment);
   }
 
   @Override

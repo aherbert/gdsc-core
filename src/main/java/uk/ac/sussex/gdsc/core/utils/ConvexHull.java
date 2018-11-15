@@ -28,7 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
-import uk.ac.sussex.gdsc.core.math.Geometry;
+import uk.ac.sussex.gdsc.core.math.GeometryUtils;
 
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
@@ -282,6 +282,6 @@ public final class ConvexHull {
    * @return the area
    */
   public double getArea() {
-    return Geometry.getArea(x, y);
+    return GeometryUtils.getArea(x, y);
   }
 }

@@ -226,6 +226,9 @@ public abstract class Ticker {
     }
   }
 
+  /**
+   * The base class for Ticker implementations that report progress.
+   */
   private abstract static class BaseTicker extends Ticker {
     final TrackProgress trackProgress;
 
@@ -239,6 +242,9 @@ public abstract class Ticker {
     }
   }
 
+  /**
+   * Report progress using {@code int} arithmetic.
+   */
   private static class IntTicker extends BaseTicker {
     final int total;
     final int interval;
@@ -283,6 +289,9 @@ public abstract class Ticker {
     }
   }
 
+  /**
+   * Report progress using thread-safe {@code int} arithmetic.
+   */
   private static class ConcurrentIntTicker extends BaseTicker {
     final int total;
     final int interval;
@@ -331,6 +340,9 @@ public abstract class Ticker {
     }
   }
 
+  /**
+   * Report progress using {@code long} arithmetic.
+   */
   private static class LongTicker extends BaseTicker {
     final long total;
     final long interval;
@@ -375,6 +387,9 @@ public abstract class Ticker {
     }
   }
 
+  /**
+   * Report progress using thread-safe {@code long} arithmetic.
+   */
   private static class ConcurrentLongTicker extends BaseTicker {
     final long total;
     final long interval;

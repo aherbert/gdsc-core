@@ -46,7 +46,7 @@ public final class LoggerUtils {
   private static class NoLogger extends Logger {
     private static final NoLogger INSTANCE = new NoLogger();
 
-    public NoLogger() {
+    NoLogger() {
       super(NoLogger.class.getName(), null);
     }
 

@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.math;
 
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
+
 /**
  * Simple class to calculate the mean and variance of arrayed data using a rolling algorithm.
  *
@@ -51,7 +53,7 @@ package uk.ac.sussex.gdsc.core.math;
  * new value = old value + dev^2 * (n -1) / n.
  * </pre>
  */
-public class RollingArrayMoment implements ArrayMoment {
+public final class RollingArrayMoment implements ArrayMoment {
   private long size;
 
   /** First moment of values that have been added. */
@@ -63,7 +65,9 @@ public class RollingArrayMoment implements ArrayMoment {
   /**
    * Instantiates a new array moment with data.
    */
-  public RollingArrayMoment() {}
+  public RollingArrayMoment() {
+    // Do nothing
+  }
 
   /**
    * Instantiates a new array moment with data.
@@ -101,13 +105,13 @@ public class RollingArrayMoment implements ArrayMoment {
       // Initialise sum-of-squared differences to zero
       m2 = new double[1];
     } else {
-      final double n_1 = size;
+      final double nMinus1 = size;
       size++;
       final double n0 = size;
       final double dev = data - m1[0];
       final double nDev = dev / n0;
       m1[0] += nDev;
-      m2[0] += n_1 * dev * nDev;
+      m2[0] += nMinus1 * dev * nDev;
     }
   }
 
@@ -120,14 +124,14 @@ public class RollingArrayMoment implements ArrayMoment {
       // Initialise sum-of-squared differences to zero
       m2 = new double[data.length];
     } else {
-      final double n_1 = size;
+      final double nMinus1 = size;
       size++;
       final double n0 = size;
       for (int i = 0; i < data.length; i++) {
         final double dev = data[i] - m1[i];
         final double nDev = dev / n0;
         m1[i] += nDev;
-        m2[i] += n_1 * dev * nDev;
+        m2[i] += nMinus1 * dev * nDev;
       }
     }
   }
@@ -144,14 +148,14 @@ public class RollingArrayMoment implements ArrayMoment {
       // Initialise sum-of-squared differences to zero
       m2 = new double[data.length];
     } else {
-      final double n_1 = size;
+      final double nMinus1 = size;
       size++;
       final double n0 = size;
       for (int i = 0; i < data.length; i++) {
         final double dev = data[i] - m1[i];
         final double nDev = dev / n0;
         m1[i] += nDev;
-        m2[i] += n_1 * dev * nDev;
+        m2[i] += nMinus1 * dev * nDev;
       }
     }
   }
@@ -168,14 +172,14 @@ public class RollingArrayMoment implements ArrayMoment {
       // Initialise sum-of-squared differences to zero
       m2 = new double[data.length];
     } else {
-      final double n_1 = size;
+      final double nMinus1 = size;
       size++;
       final double n0 = size;
       for (int i = 0; i < data.length; i++) {
         final double dev = data[i] - m1[i];
         final double nDev = dev / n0;
         m1[i] += nDev;
-        m2[i] += n_1 * dev * nDev;
+        m2[i] += nMinus1 * dev * nDev;
       }
     }
   }
@@ -192,14 +196,14 @@ public class RollingArrayMoment implements ArrayMoment {
       // Initialise sum-of-squared differences to zero
       m2 = new double[data.length];
     } else {
-      final double n_1 = size;
+      final double nMinus1 = size;
       size++;
       final double n0 = size;
       for (int i = 0; i < data.length; i++) {
         final double dev = data[i] - m1[i];
         final double nDev = dev / n0;
         m1[i] += nDev;
-        m2[i] += n_1 * dev * nDev;
+        m2[i] += nMinus1 * dev * nDev;
       }
     }
   }
@@ -216,14 +220,14 @@ public class RollingArrayMoment implements ArrayMoment {
       // Initialise sum-of-squared differences to zero
       m2 = new double[data.length];
     } else {
-      final double n_1 = size;
+      final double nMinus1 = size;
       size++;
       final double n0 = size;
       for (int i = 0; i < data.length; i++) {
         final double dev = data[i] - m1[i];
         final double nDev = dev / n0;
         m1[i] += nDev;
-        m2[i] += n_1 * dev * nDev;
+        m2[i] += nMinus1 * dev * nDev;
       }
     }
   }
@@ -268,14 +272,9 @@ public class RollingArrayMoment implements ArrayMoment {
 
   @Override
   public void add(ArrayMoment arrayMoment) {
-    if (arrayMoment == null) {
-      throw new NullPointerException();
-    }
-    if (arrayMoment instanceof RollingArrayMoment) {
-      add((RollingArrayMoment) arrayMoment);
-    } else {
-      throw new IllegalArgumentException("Not compatible: " + arrayMoment.getClass());
-    }
+    ValidationUtils.checkArgument(arrayMoment instanceof RollingArrayMoment,
+        "Not compatible array moment %s", arrayMoment);
+    add((RollingArrayMoment) arrayMoment);
   }
 
   @Override
@@ -290,14 +289,14 @@ public class RollingArrayMoment implements ArrayMoment {
       // Initialise sum-of-squared differences to zero
       m2 = new double[data.length];
     } else {
-      final double n_1 = size;
+      final double nMinus1 = size;
       size++;
       final double n0 = size;
       for (int i = 0; i < data.length; i++) {
         final double dev = (data[i] & 0xffff) - m1[i];
         final double nDev = dev / n0;
         m1[i] += nDev;
-        m2[i] += n_1 * dev * nDev;
+        m2[i] += nMinus1 * dev * nDev;
       }
     }
   }
@@ -314,14 +313,14 @@ public class RollingArrayMoment implements ArrayMoment {
       // Initialise sum-of-squared differences to zero
       m2 = new double[data.length];
     } else {
-      final double n_1 = size;
+      final double nMinus1 = size;
       size++;
       final double n0 = size;
       for (int i = 0; i < data.length; i++) {
         final double dev = (data[i] & 0xff) - m1[i];
         final double nDev = dev / n0;
         m1[i] += nDev;
-        m2[i] += n_1 * dev * nDev;
+        m2[i] += nMinus1 * dev * nDev;
       }
     }
   }

@@ -154,32 +154,33 @@ public final class QuadraticUtils {
     double d3 = y3;
 
     // Scale data for stability
-    final double c_ = 1. / absoluteMax(new double[] {a1, a2, a3, b1, b2, b3, d1, d2, d3});
-    a1 *= c_;
-    a2 *= c_;
-    a3 *= c_;
-    b1 *= c_;
-    b2 *= c_;
-    b3 *= c_;
-    d1 *= c_;
-    d2 *= c_;
-    d3 *= c_;
+    final double cn = 1. / absoluteMax(new double[] {a1, a2, a3, b1, b2, b3, d1, d2, d3});
+    a1 *= cn;
+    a2 *= cn;
+    a3 *= cn;
+    b1 *= cn;
+    b2 *= cn;
+    b3 *= cn;
+    d1 *= cn;
+    d2 *= cn;
+    d3 *= cn;
 
-    final double D_ = getDeterminant3x3(new double[] {a1, b1, c_, a2, b2, c_, a3, b3, c_});
-    if (D_ == 0) {
+    final double dn = getDeterminant3x3(new double[] {a1, b1, cn, a2, b2, cn, a3, b3, cn});
+    if (dn == 0) {
+      // Documented to return null if no solution
       return null;
     }
-    final double Dx = getDeterminant3x3(new double[] {d1, b1, c_, d2, b2, c_, d3, b3, c_});
-    final double Dy = getDeterminant3x3(new double[] {a1, d1, c_, a2, d2, c_, a3, d3, c_});
-    final double Dz = getDeterminant3x3(new double[] {a1, b1, d1, a2, b2, d2, a3, b3, d3});
+    final double dx = getDeterminant3x3(new double[] {d1, b1, cn, d2, b2, cn, d3, b3, cn});
+    final double dy = getDeterminant3x3(new double[] {a1, d1, cn, a2, d2, cn, a3, d3, cn});
+    final double dz = getDeterminant3x3(new double[] {a1, b1, d1, a2, b2, d2, a3, b3, d3});
 
     return new double[] {
         // x (quadratic constant a)
-        Dx / D_,
+        dx / dn,
         // y (quadratic constant b)
-        Dy / D_,
+        dy / dn,
         // z (quadratic constant c)
-        Dz / D_};
+        dz / dn};
   }
 
   /**
@@ -214,31 +215,31 @@ public final class QuadraticUtils {
     double d3 = y3;
 
     // Scale data for stability
-    final double c_ = 1. / absoluteMax(new double[] {a1, a2, a3, b1, b2, b3, d1, d2, d3});
-    a1 *= c_;
-    a2 *= c_;
-    a3 *= c_;
-    b1 *= c_;
-    b2 *= c_;
-    b3 *= c_;
-    d1 *= c_;
-    d2 *= c_;
-    d3 *= c_;
+    final double cn = 1. / absoluteMax(new double[] {a1, a2, a3, b1, b2, b3, d1, d2, d3});
+    a1 *= cn;
+    a2 *= cn;
+    a3 *= cn;
+    b1 *= cn;
+    b2 *= cn;
+    b3 *= cn;
+    d1 *= cn;
+    d2 *= cn;
+    d3 *= cn;
 
-    final double D_ = getDeterminant3x3(new double[] {a1, b1, c_, a2, b2, c_, a3, b3, c_});
-    if (D_ == 0) {
+    final double dn = getDeterminant3x3(new double[] {a1, b1, cn, a2, b2, cn, a3, b3, cn});
+    if (dn == 0) {
       throw new DataException("No quadratic solution");
     }
-    final double Dx = getDeterminant3x3(new double[] {d1, b1, c_, d2, b2, c_, d3, b3, c_});
-    if (Dx == 0) {
+    final double dx = getDeterminant3x3(new double[] {d1, b1, cn, d2, b2, cn, d3, b3, cn});
+    if (dx == 0) {
       throw new DataException("No min/max solution, points are colinear");
     }
 
     // x (quadratic constant a)
-    final double a = Dx / D_;
+    final double a = dx / dn;
 
-    final double Dy = getDeterminant3x3(new double[] {a1, d1, c_, a2, d2, c_, a3, d3, c_});
-    final double b = Dy / D_;
+    final double dy = getDeterminant3x3(new double[] {a1, d1, cn, a2, d2, cn, a3, d3, cn});
+    final double b = dy / dn;
 
     // 0 = 2ax + b
     // x = -b/2a
