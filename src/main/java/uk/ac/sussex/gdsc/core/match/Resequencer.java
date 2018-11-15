@@ -93,7 +93,7 @@ public class Resequencer {
 
   /**
    * A fixed size map of values.
-   * 
+   *
    * <p>This is intended to be extended with an offset and methods exist for
    */
   private static class FixedIntMap implements IntMap {
@@ -247,14 +247,14 @@ public class Resequencer {
    * of distinct identifiers in the set. Matched identifiers will be preserved, for example:
    *
    * <pre>
-   * [0,1,1,2]    => [0,1,1,2] 
-   * [1,1,0,2]    => [0,0,1,2] 
+   * [0,1,1,2]    => [0,1,1,2]
+   * [1,1,0,2]    => [0,0,1,2]
    * [-8,-8,4,16] => [0,0,1,2]
    * </pre>
    *
    * <p>This method can be used to compact identifiers into a minimum representation that can be
    * safely used as array indexes.
-   * 
+   *
    * <p>For more details see {@link #renumber(int[], int[])}.
    *
    * @param set the set (modified in place)
@@ -269,20 +269,20 @@ public class Resequencer {
   /**
    * Renumber the set of identifiers so that it contains numbers from 0 to n-1 where n is the number
    * of distinct identifiers in the set. Matched identifiers will be preserved, for example:
-   * 
+   *
    * <pre>
-   * [0,1,1,2]    => [0,1,1,2] 
-   * [1,1,0,2]    => [0,0,1,2] 
+   * [0,1,1,2]    => [0,1,1,2]
+   * [1,1,0,2]    => [0,0,1,2]
    * [-8,-8,4,16] => [0,0,1,2]
    * </pre>
-   * 
+   *
    * <p>This method can be used to compact identifiers into a minimum representation that can be
    * safely used as array indexes.
-   * 
+   *
    * <p>The algorithm uses a single pass over the input with a map to store the new identifiers. The
    * map chosen depends on the range of identifiers. If this is above the configured switch point
    * then a dynamic map is used.
-   * 
+   *
    * <p>The map can be retrieved if explicitly set to be cached.
    *
    * @param set the set
@@ -419,7 +419,7 @@ public class Resequencer {
    * Gets the mapped key-value pairs from the last call to {@link #renumber(int[], int[])}.
    *
    * <p>{@code key} is the original identifier. {@code value} is the new identifier.
-   * 
+   *
    * <p>This requires that the map has been cached (which is disabled by default).
    *
    * @return the map (or null)
@@ -436,7 +436,7 @@ public class Resequencer {
    * <p>{@code value} is the new identifier. {@code key} is the original identifier. Since the the
    * values are ascending from zero the map is returned using a single array where the index
    * corresponds to {@code value}.
-   * 
+   *
    * <p>This requires that the map has been cached (which is disabled by default).
    *
    * @return the map (or null)
@@ -470,7 +470,7 @@ public class Resequencer {
 
   /**
    * Sets the switch point for the algorithm to use a dynamic hash map algorithm.
-   * 
+   *
    * <p>Small ranges of sequence identifiers can be handled using a fixed size hash map. This option
    * is used to control the switch point to a dynamic hash map.
    *
