@@ -15,14 +15,14 @@ public class ResequencerTest {
 
   @Test
   public void renumberThrowsWithMismatchedArrays() {
-    Resequencer resequencer = new Resequencer();
+    final Resequencer resequencer = new Resequencer();
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       resequencer.renumber(new int[2], new int[3]);
     });
   }
 
   @Test
-  public void canResequence() {
+  public void canResequenceWithDefaultSwitchPoint() {
     canResequence(false);
   }
 
@@ -32,7 +32,7 @@ public class ResequencerTest {
   }
 
   private static void canResequence(boolean dynamic) {
-    Resequencer resequencer = new Resequencer();
+    final Resequencer resequencer = new Resequencer();
     if (dynamic) {
       resequencer.setSwitchPoint(0);
     }
@@ -80,7 +80,7 @@ public class ResequencerTest {
   }
 
   @Test
-  public void canCacheRenumberMap() {
+  public void canCacheRenumberMapWithDefaultSwitchPoint() {
     canCacheRenumberMap(false);
   }
 
@@ -90,7 +90,7 @@ public class ResequencerTest {
   }
 
   private static void canCacheRenumberMap(boolean dynamic) {
-    Resequencer resequencer = new Resequencer();
+    final Resequencer resequencer = new Resequencer();
     if (dynamic) {
       resequencer.setSwitchPoint(0);
     }
@@ -128,7 +128,7 @@ public class ResequencerTest {
 
   private static void canCacheRenumberMap(int[] inputData, Resequencer resequencer) {
 
-    int[] outputData = new int[inputData.length];
+    final int[] outputData = new int[inputData.length];
     // Try shifts
     for (int i = -1; i <= 1; i++) {
       final int[] data = inputData.clone();
@@ -138,24 +138,24 @@ public class ResequencerTest {
 
       final int n = resequencer.renumber(data, outputData);
 
-      List<int[]> pairs = resequencer.getRenumberMap();
+      final List<int[]> pairs = resequencer.getRenumberMap();
       Assertions.assertNotNull(pairs, "getNumberMap should be cached");
 
       Assertions.assertEquals(n, pairs.size(),
           () -> "Map has wrong size : " + Arrays.toString(data));
 
       // Check
-      TIntIntHashMap map = new TIntIntHashMap();
+      final TIntIntHashMap map = new TIntIntHashMap();
       for (int j = 0; j < data.length; j++) {
         map.put(data[j], outputData[j]);
       }
-      for (int[] pair : pairs) {
+      for (final int[] pair : pairs) {
         Assertions.assertEquals(map.get(pair[0]), pair[1],
             () -> "Map has key doesn't map to value : " + Arrays.toString(data));
       }
 
       // Extract keys
-      int[] inverseMap = resequencer.getRenumberInverseMap();
+      final int[] inverseMap = resequencer.getRenumberInverseMap();
       Assertions.assertEquals(n, inverseMap.length,
           () -> "Inverse map has wrong size : " + Arrays.toString(data));
 

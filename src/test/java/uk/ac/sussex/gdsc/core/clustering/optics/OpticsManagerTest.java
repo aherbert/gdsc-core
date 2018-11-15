@@ -813,7 +813,8 @@ public class OpticsManagerTest {
                   useRandomVectors, saveApproximateSets, sampleMode);
 
               // Should be similar
-              final double randIndex = ri.getRandIndex(c1, c2);
+              ri.compute(c1, c2);
+              final double randIndex = ri.getRandIndex();
               sum += randIndex;
               count++;
               final double ari = ri.getAdjustedRandIndex();
