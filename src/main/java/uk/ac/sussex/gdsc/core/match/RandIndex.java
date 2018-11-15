@@ -33,7 +33,6 @@ import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
-import java.math.BigInteger;
 import java.util.BitSet;
 
 /**
@@ -66,6 +65,8 @@ public class RandIndex {
   private long truePositivesPlusFalsePositives;
   /** The true positives + false negatives. */
   private long truePositivesPlusFalseNegatives;
+  /** Allow destructive modification of input arrays. */
+  private boolean allowDestructiveModification;
 
   /**
    * Returns an exact representation of the the number of 2-element subsets that can be selected
@@ -178,11 +179,30 @@ public class RandIndex {
    * @param set1 the first set of clusters for the objects
    * @param set2 the second set of clusters for the objects
    * @return the Rand index
-   * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
    * @throws IllegalArgumentException if the sets are different lengths
+   * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
    */
   public static double randIndex(int[] set1, int[] set2) {
-    return new RandIndex().getRandIndex(set1, set2);
+    return randIndex(set1, set2, false);
+  }
+
+  /**
+   * Compute the Rand index for two classifications of a set of data.
+   *
+   * <p>The Rand index has a value between 0 and 1, with 0 indicating that the two data clusters do
+   * not agree on any pair of points and 1 indicating that the data clusters are exactly the same.
+   *
+   * <p>Compute using a contingency table.
+   *
+   * @param set1 the first set of clusters for the objects
+   * @param set2 the second set of clusters for the objects
+   * @param allowDestructiveModification allow destructive modification of input arrays
+   * @return the Rand index
+   * @throws IllegalArgumentException if the sets are different lengths
+   * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
+   */
+  public static double randIndex(int[] set1, int[] set2, boolean allowDestructiveModification) {
+    return new RandIndex(allowDestructiveModification).getRandIndex(set1, set2);
   }
 
   /**
@@ -221,7 +241,7 @@ public class RandIndex {
    * @throws IllegalArgumentException if the sets are different lengths
    */
   public static double adjustedRandIndex(int[] set1, int[] set2) {
-    return new RandIndex().getAdjustedRandIndex(set1, set2);
+    return adjustedRandIndex(set1, set2, false);
   }
 
   /**
@@ -231,7 +251,26 @@ public class RandIndex {
    * Rand Index may only yield a value between 0 and +1, the adjusted Rand index can yield negative
    * values if the index is less than the expected index.
    *
-   * <p>Each set should use integers from 0 to n-1 for n clusters. .
+   * @param set1 the first set of clusters for the objects
+   * @param set2 the second set of clusters for the objects
+   * @param allowDestructiveModification the allow destructive modification flag
+   * @return the Rand index
+   * @throws IllegalArgumentException if the sets are different lengths
+   * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
+   */
+  public static double adjustedRandIndex(int[] set1, int[] set2,
+      boolean allowDestructiveModification) {
+    return new RandIndex(allowDestructiveModification).getAdjustedRandIndex(set1, set2);
+  }
+
+  /**
+   * Compute the adjusted Rand index for two classifications of a set of data.
+   *
+   * <p>The adjusted Rand index is the corrected-for-chance version of the Rand index. Though the
+   * Rand Index may only yield a value between 0 and +1, the adjusted Rand index can yield negative
+   * values if the index is less than the expected index.
+   *
+   * <p>Each set should use integers from 0 to n-1 for n clusters.
    *
    * <p>Warning: No checks are made on the input!
    *
@@ -372,21 +411,19 @@ public class RandIndex {
   }
 
   /**
-   * Reset the next cluster Id counter in the case of over flow.
-   *
-   * @param nextClusterId the next cluster id
-   * @return the next cluster id
+   * Instantiates a new RandIndex object.
    */
-  @VisibleForTesting
-  static int resetOverFlow(int nextClusterId) {
-    return (nextClusterId == Integer.MIN_VALUE) ? Integer.MAX_VALUE : nextClusterId;
+  public RandIndex() {
+    this(false);
   }
 
   /**
    * Instantiates a new RandIndex object.
+   *
+   * @param allowDestructiveModification the allow destructive modification flag
    */
-  public RandIndex() {
-    reset();
+  public RandIndex(boolean allowDestructiveModification) {
+    this.allowDestructiveModification = allowDestructiveModification;
   }
 
   /**
@@ -397,6 +434,17 @@ public class RandIndex {
     truePositives = 0;
     truePositivesPlusFalsePositives = 0;
     truePositivesPlusFalseNegatives = 0;
+  }
+
+  /**
+   * Copy the data for computation, or return the data in-place if allowing destructive
+   * modification.
+   *
+   * @param data the data
+   * @return the data
+   */
+  private int[] copyForComputation(int[] data) {
+    return (isAllowDestructiveModification()) ? data : data.clone();
   }
 
   /**
@@ -422,8 +470,8 @@ public class RandIndex {
 
     // Each set should use integers from 0 to n-1 for n clusters.
     // So compact the sets.
-    final int[] set1a = set1.clone();
-    final int[] set2a = set2.clone();
+    final int[] set1a = copyForComputation(set1);
+    final int[] set2a = copyForComputation(set2);
     final int max1 = compact(set1a);
     final int max2 = compact(set2a);
 
@@ -485,7 +533,8 @@ public class RandIndex {
    * @see <a href="https://en.wikipedia.org/wiki/Rand_index">Rand Index</a>
    * @throws ArithmeticException if the sums are larger than Long.MAX_VALUE
    */
-  private void computeUsingMatrix(int[] set1, int n1, int[] set2, int n2) {
+  @VisibleForTesting
+  void computeUsingMatrix(int[] set1, int n1, int[] set2, int n2) {
     // TP will only overflow after TP+FP
     long tp = 0;
     // Note: The following could overflow.
@@ -518,10 +567,7 @@ public class RandIndex {
         sum += v;
         tp += binomialCoefficient2(v);
       }
-      tpPlusFp += binomialCoefficient2(sum);
-      if (tpPlusFp < 0) {
-        throw new ArithmeticException("TP+FP overflow");
-      }
+      tpPlusFp = Math.addExact(tpPlusFp, binomialCoefficient2(sum));
     }
 
     for (int j = 0; j < n2; j++) {
@@ -529,10 +575,7 @@ public class RandIndex {
       for (int i = 0; i < n1; i++) {
         sum += table[i][j];
       }
-      tpPlusFn += binomialCoefficient2(sum);
-      if (tpPlusFn < 0) {
-        throw new ArithmeticException("TP+FN overflow");
-      }
+      tpPlusFn = Math.addExact(tpPlusFn, binomialCoefficient2(sum));
     }
 
     // Store after no exceptions are raised
@@ -595,10 +638,7 @@ public class RandIndex {
         sum += v;
         tp += binomialCoefficient2(v);
       }
-      tpPlusFp += binomialCoefficient2(sum);
-      if (tpPlusFp < 0) {
-        throw new ArithmeticException("TP+FP overflow");
-      }
+      tpPlusFp = Math.addExact(tpPlusFp, binomialCoefficient2(sum));
     }
 
     for (int j = 0; j < n2; j++) {
@@ -606,10 +646,7 @@ public class RandIndex {
       for (int index = j; index < size; index += n2) {
         sum += table[index];
       }
-      tpPlusFn += binomialCoefficient2(sum);
-      if (tpPlusFn < 0) {
-        throw new ArithmeticException("TP+FN overflow");
-      }
+      tpPlusFn = Math.addExact(tpPlusFn, binomialCoefficient2(sum));
     }
 
     // Store after no exceptions are raised
@@ -695,14 +732,10 @@ public class RandIndex {
 
     final long tn = getTrueNegatives();
 
+    // No check for overflow since the binomial coefficient is computed as a long.
+    // If nC2 == (a+b+c+d) then (a+b) must be less than a long.
     final long ab = truePositives + tn;
-    if (ab > 0) {
-      return (double) ab / binomialCoefficient2(numberOfElements);
-    }
-
-    // Use big integer
-    return BigInteger.valueOf(truePositives).add(BigInteger.valueOf(tn)).doubleValue()
-        / binomialCoefficient2(numberOfElements);
+    return (double) ab / binomialCoefficient2(numberOfElements);
   }
 
   /**
@@ -730,7 +763,7 @@ public class RandIndex {
    * Rand Index may only yield a value between 0 and +1, the adjusted Rand index can yield negative
    * values if the index is less than the expected index.
    *
-   * <p>Each set should use integers from 0 to n-1 for n clusters. .
+   * <p>Each set should use integers from 0 to n-1 for n clusters.
    *
    * <p>Warning: No checks are made on the input!
    *
@@ -836,5 +869,23 @@ public class RandIndex {
    */
   public long getFalseNegatives() {
     return truePositivesPlusFalseNegatives - truePositives;
+  }
+
+  /**
+   * Checks if allowing destructive modification of input arrays.
+   *
+   * @return true, if allowing destructive modification
+   */
+  public boolean isAllowDestructiveModification() {
+    return allowDestructiveModification;
+  }
+
+  /**
+   * Set to true to allow destructive modification of input arrays.
+   *
+   * @param allowDestructiveModification the new allow destructive modification flag
+   */
+  public void setAllowDestructiveModification(boolean allowDestructiveModification) {
+    this.allowDestructiveModification = allowDestructiveModification;
   }
 }
