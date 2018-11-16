@@ -85,7 +85,7 @@ public class FloatLinkedMedianWindow {
       indices[i] = i;
       this.data[i] = new Data(values[i], i);
     }
-    Sort.sort(indices, values);
+    SortUtils.sort(indices, values);
 
     // Create the smaller and greater pointers.
     // (The sort is in descending order)

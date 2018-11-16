@@ -36,7 +36,7 @@ import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.PseudoRandomGenerator;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
-import uk.ac.sussex.gdsc.core.utils.Sort;
+import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 import uk.ac.sussex.gdsc.core.utils.TurboRandomGenerator;
@@ -484,7 +484,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     } else if (sampleMode == SampleMode.MEDIAN) {
       // sort set, since need median element later
       // (when computing distance to the middle of the set)
-      Sort.sort(indices, tpro);
+      SortUtils.sort(indices, tpro);
     }
     splitSets.add(indices);
   }

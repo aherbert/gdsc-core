@@ -33,10 +33,10 @@ import java.util.Arrays;
 /**
  * Provides sorting functionality.
  */
-public final class Sort {
+public final class SortUtils {
 
   /** No public construction. */
-  private Sort() {}
+  private SortUtils() {}
 
   /**
    * Sorts the indices in descending order of their values.

@@ -1,6 +1,6 @@
 package uk.ac.sussex.gdsc.core.math.interpolation;
 
-import uk.ac.sussex.gdsc.core.utils.Sort;
+import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
@@ -134,7 +134,7 @@ public class CustomTricubicInterpolatingFunctionInlineTest {
             j[i] = Math.abs(j[i]);
           }
 
-          Sort.sortArrays(js, j, true);
+          SortUtils.sortArrays(js, j, true);
 
           // Check if starting with negative
           char add = '+';

@@ -29,7 +29,7 @@
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.utils.ConvexHull;
-import uk.ac.sussex.gdsc.core.utils.Sort;
+import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
 import gnu.trove.list.array.TIntArrayList;
@@ -742,7 +742,7 @@ public class OpticsResult implements ClusteringResult {
     // Sort
     final int[] parentIds = parents.toArray();
     final int[] rank = parentsRank.toArray();
-    Sort.sortArrays(parentIds, rank, true);
+    SortUtils.sortArrays(parentIds, rank, true);
     return parentIds;
   }
 
