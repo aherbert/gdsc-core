@@ -344,14 +344,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
           <failOnViolation>false</failOnViolation>
           <printFailingErrors>false</printFailingErrors>
         </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-              <goal>cpd-check</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>com.github.spotbugs</groupId>
@@ -363,13 +355,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
           <effort>Default</effort>
           <excludeFilterFile>${basedir}/src/main/resources/spotbugs/spotbugs-exclude-filter.xml</excludeFilterFile>
         </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
     <resources>
