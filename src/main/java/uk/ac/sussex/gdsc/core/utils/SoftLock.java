@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * supporting a type of non-blocking synchronised block execution.
  *
  * <pre>
- * SimpleLock lock = new SimpleLock();
+ * SoftLock lock = new SoftLock();
  *
  * if (lock.acquire()) {
  *   // Do something
@@ -44,8 +44,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * }
  * // else fall through
  * </pre>
+ * 
+ * The lock does no checks on ownership and thus does not actually enforce locking.
  */
-public class SimpleLock {
+public class SoftLock {
 
   /** The lock. */
   private final AtomicBoolean lock = new AtomicBoolean();
