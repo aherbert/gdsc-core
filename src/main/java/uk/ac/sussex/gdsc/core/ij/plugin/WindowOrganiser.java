@@ -299,13 +299,12 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
    * @param windowList the window list
    */
   private static void copyOfTileWindows(int[] windowList) {
-    final Dimension screen = IJ.getScreenSize();
     int minWidth = Integer.MAX_VALUE;
     int minHeight = Integer.MAX_VALUE;
     double totalWidth = 0;
     double totalHeight = 0;
-    for (int i = 0; i < windowList.length; i++) {
-      final ImageWindow win = getWindow(windowList[i]);
+    for (final int windowId : windowList) {
+      final ImageWindow win = getWindow(windowId);
       if (win == null) {
         continue;
       }
@@ -330,6 +329,7 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
     final double averageHeight = totalHeight / nPics;
     int tileWidth = (int) averageWidth;
     int tileHeight = (int) averageHeight;
+    final Dimension screen = IJ.getScreenSize();
     final int hspace = screen.width - 2 * GAP;
     if (tileWidth > hspace) {
       tileWidth = hspace;

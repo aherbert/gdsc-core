@@ -47,12 +47,12 @@ public class BasicRoiContainsPredicate implements CoordinatePredicate {
    */
   public BasicRoiContainsPredicate(Roi roi) {
     if (roi.getType() == Roi.RECTANGLE) {
-      // Account for corners
-      if (roi.getCornerDiameter() != 0) {
+      if (roi.getCornerDiameter() == 0) {
+        shape = roi.getFloatBounds();
+      } else {
+        // Account for corners
         shape = new RoundRectangle2D.Double(roi.getXBase(), roi.getYBase(), roi.getFloatWidth(),
             roi.getFloatHeight(), roi.getCornerDiameter(), roi.getCornerDiameter());
-      } else {
-        shape = roi.getFloatBounds();
       }
     } else if (roi.getType() == Roi.OVAL) {
       shape = new Ellipse2D.Double(roi.getXBase(), roi.getYBase(), roi.getFloatWidth(),

@@ -29,6 +29,7 @@
 package uk.ac.sussex.gdsc.core.ij.io;
 
 import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,9 +57,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
    * @param inputstream the inputstream
    */
   public MemoryCacheSeekableStream(InputStream inputstream) {
-    if (inputstream == null) {
-      throw new NullPointerException();
-    }
+    ValidationUtils.checkNotNull(inputstream, "input stream must not be null");
     data = new TurboList<>();
     src = inputstream;
   }
@@ -81,9 +80,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
 
   @Override
   public int read(byte[] bytes, int off, int len) throws IOException {
-    if (bytes == null) {
-      throw new NullPointerException();
-    }
+    ValidationUtils.checkNotNull(bytes, "bytes must not be null");
     if (off < 0 || len < 0 || off + len > bytes.length) {
       throw new IndexOutOfBoundsException();
     }
@@ -140,7 +137,7 @@ public final class MemoryCacheSeekableStream extends SeekableStream {
 
   @Override
   public void seek(long loc) throws IOException {
-    if (loc < 0L) {
+    if (loc < 0) {
       throw new IOException("Location is negative");
     }
     pointer = loc;

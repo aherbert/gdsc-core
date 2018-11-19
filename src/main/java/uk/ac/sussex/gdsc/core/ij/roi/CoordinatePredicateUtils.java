@@ -46,7 +46,7 @@ public final class CoordinatePredicateUtils {
    */
   public static CoordinatePredicate createContainsPredicate(Roi roi) {
     // Support different ROIs.
-    if (roi == null || !roi.isArea() || !(roi.getFloatWidth() > 0 && roi.getFloatHeight() > 0)) {
+    if (isNotArea(roi)) {
       return null;
     }
 
@@ -60,5 +60,15 @@ public final class CoordinatePredicateUtils {
     }
 
     return null;
+  }
+
+  /**
+   * Checks if is not an area ROI.
+   *
+   * @param roi the roi
+   * @return true, if is not an area
+   */
+  private static boolean isNotArea(Roi roi) {
+    return roi == null || !roi.isArea() || !(roi.getFloatWidth() > 0 && roi.getFloatHeight() > 0);
   }
 }

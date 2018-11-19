@@ -94,7 +94,9 @@ public class Pdf1D {
      */
 
     if (r1 >= 1.0 || r1 < 0) {
-      r1 = 0.0;
+      // Bottem of the range.
+      // Top of the range is an error but here we return the bottom.
+      return 0;
     }
 
     final int k = find(r1);

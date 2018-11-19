@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.ij.io;
 
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -45,9 +47,7 @@ public final class FileSeekableStream extends SeekableStream {
    * @param ras the random access file
    */
   public FileSeekableStream(RandomAccessFile ras) {
-    if (ras == null) {
-      throw new NullPointerException();
-    }
+    ValidationUtils.checkNotNull(ras, "random access file must not be null");
     this.ras = ras;
   }
 
@@ -60,9 +60,7 @@ public final class FileSeekableStream extends SeekableStream {
    *         access to the file
    */
   public FileSeekableStream(File file) throws FileNotFoundException {
-    if (file == null) {
-      throw new NullPointerException();
-    }
+    ValidationUtils.checkNotNull(file, "file must not be null");
     this.ras = new RandomAccessFile(file, "r");
   }
 

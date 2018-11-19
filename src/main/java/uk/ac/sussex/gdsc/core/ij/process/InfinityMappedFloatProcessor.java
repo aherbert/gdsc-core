@@ -44,6 +44,8 @@ import java.awt.image.ColorModel;
  * @see FloatProcessor
  */
 public class InfinityMappedFloatProcessor extends FloatProcessor {
+  private static final int MAX_BYTE_VALUE = 255;
+
   private boolean mapPositiveInfinity;
 
   /**
@@ -164,8 +166,8 @@ public class InfinityMappedFloatProcessor extends FloatProcessor {
           // Map all values to the range 1-255.
           value = pixels[i] - min2;
           ivalue = 1 + (int) ((value * scale) + 0.5f);
-          if (ivalue > 255) {
-            ivalue = 255;
+          if (ivalue > MAX_BYTE_VALUE) {
+            ivalue = MAX_BYTE_VALUE;
           }
           pixels8[i] = (byte) ivalue;
         }
@@ -179,8 +181,8 @@ public class InfinityMappedFloatProcessor extends FloatProcessor {
           // Map all values to the range 1-255.
           value = pixels[i] - min2;
           ivalue = 1 + (int) ((value * scale) + 0.5f);
-          if (ivalue > 255) {
-            ivalue = 255;
+          if (ivalue > MAX_BYTE_VALUE) {
+            ivalue = MAX_BYTE_VALUE;
           }
           pixels8[i] = (byte) ivalue;
         }

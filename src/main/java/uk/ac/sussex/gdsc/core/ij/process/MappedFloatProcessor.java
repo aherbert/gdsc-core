@@ -44,6 +44,9 @@ import java.awt.image.ColorModel;
  * @see FloatProcessor
  */
 public class MappedFloatProcessor extends FloatProcessor {
+  private static final int NEGATIVE_ZERO = Float.floatToRawIntBits(-0.0f);
+  private static final int MAX_BYTE_VALUE = 255;
+
   private boolean mapZero;
 
   /**
@@ -140,8 +143,6 @@ public class MappedFloatProcessor extends FloatProcessor {
     super(array);
   }
 
-  private static final int NEGATIVE_ZERO = Float.floatToRawIntBits(-0.0f);
-
   // scale from float to 8-bits
   @Override
   protected byte[] create8BitImage() {
@@ -160,7 +161,6 @@ public class MappedFloatProcessor extends FloatProcessor {
     }
     final float[] pixels = (float[]) getPixels();
     float value;
-    int ivalue;
 
     // Default min/max
     float min2 = (float) getMin();
@@ -195,15 +195,10 @@ public class MappedFloatProcessor extends FloatProcessor {
         // Special case where we must check for -0 or +0
         if (pixels[i] == 0 && Float.floatToRawIntBits(pixels[i]) == NEGATIVE_ZERO) {
           pixels8[i] = (byte) 0;
-          continue;
+        } else {
+          // +0 or above maps to 1-255
+          pixels8[i] = (byte) Math.min(MAX_BYTE_VALUE, 1 + (int) ((pixels[i] * scale) + 0.5f));
         }
-
-        // +0 or above maps to 1-255
-        ivalue = 1 + (int) ((pixels[i] * scale) + 0.5f);
-        if (ivalue > 255) {
-          ivalue = 255;
-        }
-        pixels8[i] = (byte) ivalue;
       }
     } else {
       for (int i = 0; i < size; i++) {
@@ -213,11 +208,7 @@ public class MappedFloatProcessor extends FloatProcessor {
         } else {
           // Map all non zero values to the range 1-255.
           value = pixels[i] - min2;
-          ivalue = 1 + (int) ((value * scale) + 0.5f);
-          if (ivalue > 255) {
-            ivalue = 255;
-          }
-          pixels8[i] = (byte) ivalue;
+          pixels8[i] = (byte) Math.min(MAX_BYTE_VALUE, 1 + (int) ((value * scale) + 0.5f));
         }
       }
     }
