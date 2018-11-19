@@ -266,7 +266,7 @@ public class AsciiStringSampler {
           "Requested random string length " + count + " is less than 0.");
     }
     final char[] chars = new char[count];
-    while (count-- != 0) {
+    for (int i = 0; i < count; i++) {
       chars[count] = table[rng.nextInt(range)];
     }
     return new String(chars);
@@ -290,7 +290,7 @@ public class AsciiStringSampler {
           "Requested random string length " + count + " is less than 0.");
     }
     final char[] chars = new char[count];
-    while (count-- != 0) {
+    for (int i = 0; i < count; i++) {
       chars[count] = table[rng.nextInt(range) + start];
     }
     return new String(chars);

@@ -54,7 +54,11 @@ import javax.xml.transform.stream.StreamResult;
  * XML Utilities.
  */
 public final class XmlUtils {
-  private static XmlFormatter formatter = new XmlFormatter(2, 80);
+
+  /** The XML formatter. */
+  private static final XmlFormatter FORMATTER = new XmlFormatter(2, 80);
+
+  private static final char NEW_LINE = '\n';
 
   /** No public construction. */
   private XmlUtils() {}
@@ -66,7 +70,7 @@ public final class XmlUtils {
    * @return pretty-print formatted XML
    */
   public static String formatXml(String xml) {
-    return formatter.format(xml, 0);
+    return formatXml(xml, 0);
   }
 
   /**
@@ -77,7 +81,7 @@ public final class XmlUtils {
    * @return pretty-print formatted XML
    */
   public static String formatXml(String xml, int initialIndent) {
-    return formatter.format(xml, initialIndent);
+    return FORMATTER.format(xml, initialIndent);
   }
 
   /**
@@ -88,71 +92,93 @@ public final class XmlUtils {
    *      StackOverflow: How to pretty print XML from Java?</a>
    */
   private static class XmlFormatter {
+    private static final char LESS_THAN = '<';
+    private static final char GREATER_THAN = '>';
+    private static final char FORWARD_SLASH = '/';
+    private static final char QUESTION_MARK = '?';
+    private static final char EXCLAMATION_MARK = '!';
+    private static final char NEW_LINE = '\n';
+
     private final int indentNumChars;
     private final int lineLength;
-    private boolean singleLine;
 
-    public XmlFormatter(int indentNumChars, int lineLength) {
+    XmlFormatter(int indentNumChars, int lineLength) {
       this.indentNumChars = indentNumChars;
       this.lineLength = lineLength;
     }
 
-    public synchronized String format(String xml, int initialIndent) {
+    String format(String xml, int initialIndent) {
+      boolean singleLine = false;
       int indent = initialIndent;
       final StringBuilder sb = new StringBuilder();
       for (int i = 0; i < xml.length(); i++) {
         final char currentChar = xml.charAt(i);
-        if (currentChar == '<') {
+        if (currentChar == LESS_THAN) {
           final char nextChar = xml.charAt(i + 1);
-          if (nextChar == '/') {
+          if (nextChar == FORWARD_SLASH) {
             indent -= indentNumChars;
           }
           if (!singleLine) {
-            sb.append(buildWhitespace(indent));
+            appendWhitespace(sb, indent);
           }
-          if (nextChar != '?' && nextChar != '!' && nextChar != '/') {
+          if (nextChar != QUESTION_MARK && nextChar != EXCLAMATION_MARK
+              && nextChar != FORWARD_SLASH) {
             indent += indentNumChars;
           }
           singleLine = false; // Reset flag.
         }
         sb.append(currentChar);
-        if (currentChar == '>') {
-          if (xml.charAt(i - 1) == '/') {
+        if (currentChar == GREATER_THAN) {
+          if (xml.charAt(i - 1) == FORWARD_SLASH) {
             indent -= indentNumChars;
-            sb.append("\n");
+            sb.append(NEW_LINE);
           } else {
-            final int nextStartElementPos = xml.indexOf('<', i);
+            final int nextStartElementPos = xml.indexOf(LESS_THAN, i);
             if (nextStartElementPos > i + 1) {
               final String textBetweenElements = xml.substring(i + 1, nextStartElementPos);
 
               // If the space between elements is solely newlines, let them through to preserve
               // additional newlines in source document.
-              if (textBetweenElements.replaceAll("\n", "").length() == 0) {
-                sb.append(textBetweenElements + "\n");
+              if (isNewLines(textBetweenElements)) {
+                sb.append(textBetweenElements).append(NEW_LINE);
               } else if (textBetweenElements.length() <= lineLength * 0.5) {
                 sb.append(textBetweenElements);
                 singleLine = true;
               } else {
                 // For larger amounts of text, wrap lines to a maximum line length.
-                sb.append("\n" + lineWrap(textBetweenElements, lineLength, indent, null) + "\n");
+                sb.append(NEW_LINE).append(lineWrap(textBetweenElements, lineLength, indent, null))
+                    .append(NEW_LINE);
               }
               i = nextStartElementPos - 1;
             } else {
-              sb.append("\n");
+              sb.append(NEW_LINE);
             }
           }
         }
       }
       return sb.toString();
     }
+
+    private static boolean isNewLines(String textBetweenElements) {
+      for (int i = 0; i < textBetweenElements.length(); i++) {
+        if (textBetweenElements.charAt(i) != NEW_LINE) {
+          return false;
+        }
+      }
+      return true;
+    }
   }
 
-  private static String buildWhitespace(int numChars) {
-    final StringBuilder sb = new StringBuilder();
+  /**
+   * Append whitespace to the string builder.
+   *
+   * @param sb the string builder
+   * @param numChars the number of characters
+   */
+  static void appendWhitespace(StringBuilder sb, int numChars) {
     for (int i = 0; i < numChars; i++) {
-      sb.append(" ");
+      sb.append(' ');
     }
-    return sb.toString();
   }
 
   /**
@@ -176,10 +202,10 @@ public final class XmlUtils {
     int lineEndPos;
     boolean firstLine = true;
     while (lineStartPos < text.length()) {
-      if (!firstLine) {
-        sb.append("\n");
-      } else {
+      if (firstLine) {
         firstLine = false;
+      } else {
+        sb.append(NEW_LINE);
       }
 
       if (lineStartPos + lineLength > text.length()) {
@@ -191,7 +217,7 @@ public final class XmlUtils {
           lineEndPos--;
         }
       }
-      sb.append(buildWhitespace(indent));
+      appendWhitespace(sb, indent);
       if (linePrefix != null) {
         sb.append(linePrefix);
       }

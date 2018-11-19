@@ -52,7 +52,7 @@ public class FloatAreaSumTest {
   @SeededTest
   public void canComputeGlobalStatistics(RandomSeed seed) {
     final float[] data = createData(RngUtils.create(seed.getSeedAsLong()));
-    final Statistics s = new Statistics(data);
+    final Statistics s = Statistics.create(data);
     final FloatAreaSum a = new FloatAreaSum(data, maxx, maxy);
     for (final boolean rng : rolling) {
       a.setRollingSums(rng);
@@ -177,7 +177,7 @@ public class FloatAreaSumTest {
   public void canComputeStatisticsWithinClippedBounds() {
     final float[] data = new float[] {1, 2, 3, 4};
     final FloatAreaSum a = new FloatAreaSum(data, 2, 2);
-    final Statistics stats = new Statistics(data);
+    final Statistics stats = Statistics.create(data);
     final int c = stats.getN();
     final double u = stats.getSum();
     for (final boolean rng : rolling) {

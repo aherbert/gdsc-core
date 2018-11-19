@@ -52,7 +52,7 @@ public class DoubleAreaStatisticsTest {
   @SeededTest
   public void canComputeGlobalStatistics(RandomSeed seed) {
     final double[] data = createData(RngUtils.create(seed.getSeedAsLong()));
-    final Statistics s = new Statistics(data);
+    final Statistics s = Statistics.create(data);
     final DoubleAreaStatistics a = new DoubleAreaStatistics(data, maxx, maxy);
     for (final boolean rng : rolling) {
       a.setRollingSums(rng);
@@ -186,7 +186,7 @@ public class DoubleAreaStatisticsTest {
   public void canComputeStatisticsWithinClippedBounds() {
     final double[] data = new double[] {1, 2, 3, 4};
     final DoubleAreaStatistics a = new DoubleAreaStatistics(data, 2, 2);
-    final Statistics stats = new Statistics(data);
+    final Statistics stats = Statistics.create(data);
     final int c = stats.getN();
     final double u = stats.getSum();
     final double s = stats.getStandardDeviation();

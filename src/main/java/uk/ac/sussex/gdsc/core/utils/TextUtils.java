@@ -97,41 +97,37 @@ public final class TextUtils {
     if (str == null) {
       return null;
     }
-    if (newLineStr == null) {
-      newLineStr = System.getProperty("line.separator");
-    }
-    if (wrapLength < 1) {
-      wrapLength = 1;
-    }
+    final String newLine = (newLineStr == null) ? System.getProperty("line.separator") : newLineStr;
+    final int wrapCount = Math.max(1, wrapLength);
     final int inputLineLength = str.length();
     int offset = 0;
     final StringBuilder wrappedLine = new StringBuilder(inputLineLength + 32);
 
-    while ((inputLineLength - offset) > wrapLength) {
+    while ((inputLineLength - offset) > wrapCount) {
       if (str.charAt(offset) == ' ') {
         offset++;
         continue;
       }
-      int spaceToWrapAt = str.lastIndexOf(' ', wrapLength + offset);
+      int spaceToWrapAt = str.lastIndexOf(' ', wrapCount + offset);
 
       if (spaceToWrapAt >= offset) {
         // normal case
         wrappedLine.append(str.substring(offset, spaceToWrapAt));
-        wrappedLine.append(newLineStr);
+        wrappedLine.append(newLine);
         offset = spaceToWrapAt + 1;
 
         // really long word or URL
       } else if (wrapLongWords) {
         // wrap really long word one line at a time
-        wrappedLine.append(str.substring(offset, wrapLength + offset));
-        wrappedLine.append(newLineStr);
-        offset += wrapLength;
+        wrappedLine.append(str.substring(offset, wrapCount + offset));
+        wrappedLine.append(newLine);
+        offset += wrapCount;
       } else {
         // do not wrap really long word, just extend beyond limit
-        spaceToWrapAt = str.indexOf(' ', wrapLength + offset);
+        spaceToWrapAt = str.indexOf(' ', wrapCount + offset);
         if (spaceToWrapAt >= 0) {
           wrappedLine.append(str.substring(offset, spaceToWrapAt));
-          wrappedLine.append(newLineStr);
+          wrappedLine.append(newLine);
           offset = spaceToWrapAt + 1;
         } else {
           wrappedLine.append(str.substring(offset));

@@ -141,7 +141,7 @@ public class TriangleArray {
    *
    * @return the length
    */
-  public int getLength() {
+  public final int getLength() {
     return getLength(n);
   }
 

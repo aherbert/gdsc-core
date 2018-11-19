@@ -169,11 +169,11 @@ public class StoredDataStatisticsTest extends StatisticsTest {
   public void canConstructWithData() {
     // This requires that the constructor correctly initialises the storage
     StoredDataStatistics stats;
-    stats = new StoredDataStatistics(new double[] {1, 2, 3});
+    stats = StoredDataStatistics.create(new double[] {1, 2, 3});
     stats.add(1d);
-    stats = new StoredDataStatistics(new float[] {1, 2, 3});
+    stats = StoredDataStatistics.create(new float[] {1, 2, 3});
     stats.add(1f);
-    stats = new StoredDataStatistics(new int[] {1, 2, 3});
+    stats = StoredDataStatistics.create(new int[] {1, 2, 3});
     stats.add(1);
   }
 }

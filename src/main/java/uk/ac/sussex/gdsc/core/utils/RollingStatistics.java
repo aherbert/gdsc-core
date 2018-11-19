@@ -37,36 +37,41 @@ import uk.ac.sussex.gdsc.core.data.NotImplementedException;
  * <p>Based on org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
  */
 public class RollingStatistics extends Statistics {
-  /**
-   * Instantiates a new rolling statistics.
-   */
-  public RollingStatistics() {}
 
   /**
    * Instantiates a new rolling statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public RollingStatistics(float[] data) {
-    super(data);
+  public static RollingStatistics create(float[] data) {
+    final RollingStatistics stats = new RollingStatistics();
+    stats.add(data);
+    return stats;
   }
 
   /**
    * Instantiates a new rolling statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public RollingStatistics(double[] data) {
-    super(data);
+  public static RollingStatistics create(double[] data) {
+    final RollingStatistics stats = new RollingStatistics();
+    stats.add(data);
+    return stats;
   }
 
   /**
    * Instantiates a new rolling statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public RollingStatistics(int[] data) {
-    super(data);
+  public static RollingStatistics create(int[] data) {
+    final RollingStatistics stats = new RollingStatistics();
+    stats.add(data);
+    return stats;
   }
 
   @Override
@@ -100,9 +105,9 @@ public class RollingStatistics extends Statistics {
     final double delta = value - sum;
     final double nB = size;
     size++;
-    final double delta_n = delta / size;
-    sum += delta_n;
-    sumSq += nB * delta * delta_n;
+    final double deltaOverSize = delta / size;
+    sum += deltaOverSize;
+    sumSq += nB * delta * deltaOverSize;
   }
 
   @Override

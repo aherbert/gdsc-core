@@ -353,7 +353,7 @@ public class HistogramPlot {
     switch (method) {
       case SCOTT:
         final Statistics stats =
-            (data instanceof Statistics) ? (Statistics) data : new Statistics(data.values());
+            (data instanceof Statistics) ? (Statistics) data : Statistics.create(data.values());
         width = getBinWidthScottsRule(stats.getStandardDeviation(), data.size());
         limits = MathUtils.limits(data.values());
         return (int) Math.ceil((limits[1] - limits[0]) / width);
@@ -846,7 +846,7 @@ public class HistogramPlot {
     StoredDataStatistics localStats = stats;
     if (localStats == null) {
       localStats = (data instanceof StoredDataStatistics) ? (StoredDataStatistics) data
-          : new StoredDataStatistics(values);
+          : StoredDataStatistics.create(values);
       stats = localStats;
     }
     return localStats;

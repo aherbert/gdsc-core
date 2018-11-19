@@ -198,16 +198,16 @@ public final class RandomUtils {
     if (k > n / 2) {
       final int[] sample = inlineSelection(data.clone(), n - k, rng);
       // Flag for removal
-      for (int i = 0; i < sample.length; i++) {
-        data[sample[i]] = -1;
+      for (final int value : sample) {
+        data[value] = -1;
       }
       // Remove from original series
       int count = 0;
-      for (int i = 0; i < n; i++) {
-        if (data[i] == -1) {
+      for (final int value : data) {
+        if (value == -1) {
           continue;
         }
-        data[count++] = data[i];
+        data[count++] = value;
       }
       return Arrays.copyOf(data, count);
     }
@@ -269,16 +269,16 @@ public final class RandomUtils {
     if (k > n / 2) {
       final int[] sample = inlineSelection(data.clone(), n - k, rng);
       // Flag for removal
-      for (int i = 0; i < sample.length; i++) {
-        data[sample[i]] = -1;
+      for (final int value : sample) {
+        data[value] = -1;
       }
       // Remove from original series
       int count = 0;
-      for (int i = 0; i < n; i++) {
-        if (data[i] == -1) {
+      for (final int value : data) {
+        if (value == -1) {
           continue;
         }
-        data[count++] = data[i];
+        data[count++] = value;
       }
       return Arrays.copyOf(data, count);
     }
@@ -309,7 +309,7 @@ public final class RandomUtils {
   private static int[] inlineSelection(final int[] data, int k, RandomGenerator rng) {
     // Do an in-line Fisher-Yates shuffle into a result array
     final int[] result = new int[k];
-    for (int i = data.length - 1; k-- > 0; i--) {
+    for (int i = data.length - 1, count = 0; count < k; i--, count++) {
       final int j = rng.nextInt(i + 1);
       // In a standard shuffle we swap i and j:
       // int tmp = data[i]
@@ -318,7 +318,7 @@ public final class RandomUtils {
       // i then becomes fixed (with a random sample) as we descend the array.
       // This method is modified to write i into j and write what we would put into i into the
       // result array.
-      result[k] = data[j];
+      result[count] = data[j];
       data[j] = data[i];
     }
     return result;
@@ -327,7 +327,7 @@ public final class RandomUtils {
   private static int[] inlineSelection(final int[] data, int k, UniformRandomProvider rng) {
     // Do an in-line Fisher-Yates shuffle into a result array
     final int[] result = new int[k];
-    for (int i = data.length - 1; k-- > 0; i--) {
+    for (int i = data.length - 1, count = 0; count < k; i--, count++) {
       final int j = rng.nextInt(i + 1);
       // In a standard shuffle we swap i and j:
       // int tmp = data[i]
@@ -336,7 +336,7 @@ public final class RandomUtils {
       // i then becomes fixed (with a random sample) as we descend the array.
       // This method is modified to write i into j and write what we would put into i into the
       // result array.
-      result[k] = data[j];
+      result[count] = data[j];
       data[j] = data[i];
     }
     return result;

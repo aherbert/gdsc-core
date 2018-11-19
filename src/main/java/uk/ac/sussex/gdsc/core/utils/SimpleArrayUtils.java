@@ -41,6 +41,9 @@ public final class SimpleArrayUtils {
   private static final String DATA_EMPTY = "Data is empty";
   private static final String DATA_INCORRECT_SIZE = "Data is not the correct array size";
 
+  /** The minimum length of an array that can be tested for uniformity. */
+  private static final int MIN_UNIFORM_LENGTH = 3;
+
   /** No public construction. */
   private SimpleArrayUtils() {}
 
@@ -214,8 +217,8 @@ public final class SimpleArrayUtils {
    */
   public static int[] newArray(int length, int start, int increment) {
     final int[] data = new int[length];
-    for (int i = 0; i < length; i++, start += increment) {
-      data[i] = start;
+    for (int i = 0; i < length; i++) {
+      data[i] = start + i * increment;
     }
     return data;
   }
@@ -244,32 +247,47 @@ public final class SimpleArrayUtils {
    * @return the strictly positive variance
    */
   public static float[] ensureStrictlyPositive(float[] data) {
-    for (int i = 0, n = data.length; i < n; i++) {
+    final int index = indexOfNotStrictlyPositive(data);
+    if (index == -1) {
+      // All data are posiitve
+      return data;
+    }
+
+    // Not strictly positive so create a clone
+    final float[] v = new float[data.length];
+    // Copy the values that were positive
+    System.arraycopy(data, 0, v, 0, index);
+
+    // Find the min above zero
+    final float min = minAboveZero(data);
+    if (min == 0) {
+      // No values are above zero. Return an array of zero.
+      return v;
+    }
+
+    // We know this was not strictly positive
+    v[index] = min;
+
+    // Check and copy the rest
+    for (int i = index + 1; i < data.length; i++) {
+      v[i] = (data[i] <= 0) ? min : data[i];
+    }
+    return v;
+  }
+
+  /**
+   * Find the first index where the value is not strictly positive.
+   *
+   * @param data the data
+   * @return the index (or -1)
+   */
+  private static int indexOfNotStrictlyPositive(float[] data) {
+    for (int i = 0; i < data.length; i++) {
       if (data[i] <= 0) {
-        // Not strictly positive so create a clone
-
-        final float[] v = new float[n];
-        if (i != 0) {
-          // Copy the values that were positive
-          System.arraycopy(data, 0, v, 0, i);
-        }
-
-        // Find the min above zero
-        final float min = minAboveZero(data);
-        if (min == 0) {
-          return v;
-        }
-
-        v[i] = min; // We know this was not strictly positive
-
-        // Check and copy the rest
-        while (++i < n) {
-          v[i] = (data[i] <= 0) ? min : data[i];
-        }
-        return v;
+        return i;
       }
     }
-    return data;
+    return -1;
   }
 
   /**
@@ -282,9 +300,9 @@ public final class SimpleArrayUtils {
    */
   public static float minAboveZero(float[] data) {
     float min = Float.POSITIVE_INFINITY;
-    for (int i = 0, n = data.length; i < n; i++) {
-      if (data[i] > 0 && min > data[i]) {
-        min = data[i];
+    for (final float value : data) {
+      if (value > 0 && min > value) {
+        min = value;
       }
     }
     // Check if any values were above zero, else return zero
@@ -445,8 +463,8 @@ public final class SimpleArrayUtils {
    * @return true if all the values have an integer representation
    */
   public static boolean isInteger(double[] x) {
-    for (int i = 0; i < x.length; i++) {
-      if ((int) x[i] != x[i]) {
+    for (final double value : x) {
+      if ((int) value != value) {
         return false;
       }
     }
@@ -460,8 +478,34 @@ public final class SimpleArrayUtils {
    * @return true if all the values have an integer representation
    */
   public static boolean isInteger(float[] x) {
-    for (int i = 0; i < x.length; i++) {
-      if ((int) x[i] != x[i]) {
+    for (final float value : x) {
+      if ((int) value != value) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Checks if all the values have a uniform interval between them. The interval between each
+   * successive pair is compared to the first interval. If different then return false. If the first
+   * interval is zero then return false. This ensures that the function returns true only if the
+   * sequence is monotonic and evenly sampled.
+   *
+   * @param x the x
+   * @return true, if is uniform
+   */
+  public static boolean isUniform(int[] x) {
+    if (x.length < MIN_UNIFORM_LENGTH) {
+      return true;
+    }
+    final int reference = x[1] - x[0];
+    if (reference == 0) {
+      return false;
+    }
+    for (int i = 2; i < x.length; i++) {
+      final int interval = x[i] - x[i - 1];
+      if (interval != reference) {
         return false;
       }
     }
@@ -483,43 +527,44 @@ public final class SimpleArrayUtils {
    * @return true, if is uniform
    */
   public static boolean isUniform(double[] x, double uniformTolerance) {
-    if (x.length <= 2) {
+    if (x.length < MIN_UNIFORM_LENGTH) {
       return true;
     }
-    double sum = 0;
-    double reference = 0;
-    final double direction = Math.signum(x[1] - x[0]);
-    if (direction == 0.0) {
+
+    double interval1 = x[1] - x[0];
+    final double direction = Math.signum(interval1);
+    if (direction == 0) {
+      // No interval
       return false;
     }
-    for (int i = 1; i < x.length; i++) {
-      final double interval = x[i] - x[i - 1];
-      if (Math.signum(interval) != direction) {
+
+    double interval2 = x[2] - x[1];
+
+    // Check each step is roughly the same size and in the same direction.
+    // Do this by checking successive steps are equal within the tolerance.
+    if (!isUniformInterval(interval2, interval1, direction, uniformTolerance)) {
+      return false;
+    }
+
+    // The first two steps are within tolerance.
+    // Check the rest and sum the intervals to compute the mean.
+    double sum = interval1 + interval2;
+
+    for (int i = 3; i < x.length; i++) {
+      interval1 = interval2;
+      interval2 = x[i] - x[i - 1];
+      if (!isUniformInterval(interval2, interval1, direction, uniformTolerance)) {
         return false;
       }
-      sum += interval;
-      // Difference from last. Use this to avoid having to compute the mean if the intervals are
-      // very different.
-      if (i != 1) {
-        if (interval > reference) {
-          if (interval - reference > uniformTolerance) {
-            return false;
-          }
-        } else if (reference - interval > uniformTolerance) {
-          return false;
-        }
-      }
-      reference = interval;
+      sum += interval2;
     }
-    // Check against the mean
-    reference = sum / (x.length - 1);
+
+    // Each step is within tolerance of the last step.
+    // But steps could be getting increasingly larger or smaller so check against the mean.
+    final double meanInterval = sum / (x.length - 1);
     for (int i = 1; i < x.length; i++) {
       final double interval = x[i] - x[i - 1];
-      if (interval > reference) {
-        if (interval - reference > uniformTolerance) {
-          return false;
-        }
-      } else if (reference - interval > uniformTolerance) {
+      if (!isWithinTolerance(interval, meanInterval, uniformTolerance)) {
         return false;
       }
     }
@@ -527,29 +572,31 @@ public final class SimpleArrayUtils {
   }
 
   /**
-   * Checks if all the values have a uniform interval between them. The interval between each
-   * successive pair is compared to the first interval. If different then return false. If the first
-   * interval is zero then return false. This ensures that the function returns true only if the
-   * sequence is monotonic and evenly sampled.
+   * Checks if is the interval is is the correct direction and within tolerance of the last
+   * interval.
    *
-   * @param x the x
-   * @return true, if is uniform
+   * @param interval the interval
+   * @param lastInterval the last interval
+   * @param direction the direction
+   * @param tolerance the tolerance
+   * @return true, if is uniform interval
    */
-  public static boolean isUniform(int[] x) {
-    if (x.length <= 2) {
-      return true;
-    }
-    final int reference = x[1] - x[0];
-    if (reference == 0) {
-      return false;
-    }
-    for (int i = 2; i < x.length; i++) {
-      final int interval = x[i] - x[i - 1];
-      if (interval != reference) {
-        return false;
-      }
-    }
-    return true;
+  private static boolean isUniformInterval(double interval, double lastInterval, double direction,
+      double tolerance) {
+    return (Math.signum(interval) == direction
+        && isWithinTolerance(interval, lastInterval, tolerance));
+  }
+
+  /**
+   * Checks if the absolute difference is within tolerance.
+   *
+   * @param value1 the value 1
+   * @param value2 the value 2
+   * @param tolerance the tolerance
+   * @return true, if is within tolerance
+   */
+  private static boolean isWithinTolerance(double value1, double value2, double tolerance) {
+    return Math.abs(value1 - value2) <= tolerance;
   }
 
   /**

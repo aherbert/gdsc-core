@@ -143,6 +143,24 @@ public final class ValidationUtils {
    * @param p2 the second argument of the exception message
    * @throws IllegalArgumentException If not {@code true}
    */
+  public static void checkArgument(final boolean result, String format, double p1, double p2) {
+    if (!result) {
+      throw new IllegalArgumentException(String.format(format, p1, p2));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @param p2 the second argument of the exception message
+   * @throws IllegalArgumentException If not {@code true}
+   */
   public static void checkArgument(final boolean result, String format, Object p1, Object p2) {
     if (!result) {
       throw new IllegalArgumentException(String.format(format, p1, p2));

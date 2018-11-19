@@ -46,11 +46,7 @@ public class RampedScore {
    * @param upper The upper end of the range
    */
   public RampedScore(double lower, double upper) {
-    if (lower > upper) {
-      final double tmp = lower;
-      lower = upper;
-      upper = tmp;
-    }
+    ValidationUtils.checkArgument(lower <= upper, "Lower (%f) must be below upper (%f)", lower, upper);
     this.upper = upper;
     this.lower = lower;
     this.range = upper - lower;

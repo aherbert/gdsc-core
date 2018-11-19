@@ -65,30 +65,36 @@ public class StoredDataStatistics extends Statistics implements Iterable<Double>
    * Instantiates a new stored data statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public StoredDataStatistics(float[] data) {
-    super();
-    add(data);
+  public static StoredDataStatistics create(float[] data) {
+    final StoredDataStatistics stats = new StoredDataStatistics();
+    stats.add(data);
+    return stats;
   }
 
   /**
    * Instantiates a new stored data statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public StoredDataStatistics(double[] data) {
-    super();
-    add(data);
+  public static StoredDataStatistics create(double[] data) {
+    final StoredDataStatistics stats = new StoredDataStatistics();
+    stats.add(data);
+    return stats;
   }
 
   /**
    * Instantiates a new stored data statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public StoredDataStatistics(int[] data) {
-    super();
-    add(data);
+  public static StoredDataStatistics create(int[] data) {
+    final StoredDataStatistics stats = new StoredDataStatistics();
+    stats.add(data);
+    return stats;
   }
 
   /**

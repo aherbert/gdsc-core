@@ -42,34 +42,38 @@ public class ExtendedStatistics extends Statistics {
 
   /**
    * Instantiates a new extended statistics.
-   */
-  public ExtendedStatistics() {}
-
-  /**
-   * Instantiates a new extended statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public ExtendedStatistics(float[] data) {
-    super(data);
+  public static ExtendedStatistics create(float[] data) {
+    final ExtendedStatistics stats = new ExtendedStatistics();
+    stats.add(data);
+    return stats;
   }
 
   /**
    * Instantiates a new extended statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public ExtendedStatistics(double[] data) {
-    super(data);
+  public static ExtendedStatistics create(double[] data) {
+    final ExtendedStatistics stats = new ExtendedStatistics();
+    stats.add(data);
+    return stats;
   }
 
   /**
    * Instantiates a new extended statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public ExtendedStatistics(int[] data) {
-    super(data);
+  public static ExtendedStatistics create(int[] data) {
+    final ExtendedStatistics stats = new ExtendedStatistics();
+    stats.add(data);
+    return stats;
   }
 
   @Override

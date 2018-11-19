@@ -46,7 +46,9 @@ public class StoredData implements Iterable<Double>, DoubleData {
   /**
    * Instantiates a new stored data.
    */
-  public StoredData() {}
+  public StoredData() {
+    // Do nothing
+  }
 
   /**
    * Instantiates a new stored data.
@@ -55,15 +57,6 @@ public class StoredData implements Iterable<Double>, DoubleData {
    */
   public StoredData(int capacity) {
     values = new double[capacity];
-  }
-
-  /**
-   * Instantiates a new stored data.
-   *
-   * @param data the data
-   */
-  public StoredData(float[] data) {
-    add(data);
   }
 
   /**
@@ -89,12 +82,27 @@ public class StoredData implements Iterable<Double>, DoubleData {
   }
 
   /**
-   * Instantiates a new stored data.
+   * Instantiates a new stored data statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public StoredData(int[] data) {
-    add(data);
+  public static StoredData create(float[] data) {
+    final StoredData object = new StoredData();
+    object.add(data);
+    return object;
+  }
+
+  /**
+   * Instantiates a new stored data statistics.
+   *
+   * @param data the data
+   * @return the stored data statistics
+   */
+  public static StoredData create(int[] data) {
+    final StoredData object = new StoredData();
+    object.add(data);
+    return object;
   }
 
   /**
@@ -130,8 +138,8 @@ public class StoredData implements Iterable<Double>, DoubleData {
       return;
     }
     checkCapacity(data.length);
-    for (int i = 0; i < data.length; i++) {
-      values[size++] = data[i];
+    for (final float value : data) {
+      values[size++] = value;
     }
   }
 
@@ -159,8 +167,8 @@ public class StoredData implements Iterable<Double>, DoubleData {
       return;
     }
     checkCapacity(data.length);
-    for (int i = 0; i < data.length; i++) {
-      values[size++] = data[i];
+    for (final int value : data) {
+      values[size++] = value;
     }
   }
 
@@ -207,8 +215,10 @@ public class StoredData implements Iterable<Double>, DoubleData {
    *
    * @param data the data
    */
-  public synchronized void safeAdd(float[] data) {
-    add(data);
+  public void safeAdd(float[] data) {
+    synchronized (this) {
+      add(data);
+    }
   }
 
   /**
@@ -217,8 +227,10 @@ public class StoredData implements Iterable<Double>, DoubleData {
    *
    * @param data the data
    */
-  public synchronized void safeAdd(double[] data) {
-    add(data);
+  public void safeAdd(double[] data) {
+    synchronized (this) {
+      add(data);
+    }
   }
 
   /**
@@ -227,8 +239,10 @@ public class StoredData implements Iterable<Double>, DoubleData {
    *
    * @param value the value
    */
-  public synchronized void safeAdd(final double value) {
-    add(value);
+  public void safeAdd(final double value) {
+    synchronized (this) {
+      add(value);
+    }
   }
 
   /**
@@ -237,8 +251,10 @@ public class StoredData implements Iterable<Double>, DoubleData {
    *
    * @param data the data
    */
-  public synchronized void safeAdd(StoredData data) {
-    add(data);
+  public void safeAdd(StoredData data) {
+    synchronized (this) {
+      add(data);
+    }
   }
 
   /**

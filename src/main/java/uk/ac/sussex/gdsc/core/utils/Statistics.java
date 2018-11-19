@@ -34,45 +34,49 @@ import org.apache.commons.math3.distribution.TDistribution;
  * Simple class to calculate the mean and standard deviation of data.
  */
 public class Statistics {
-  /** The number. */
+  /** The size of the data. */
   protected int size;
 
-  /** The sum. */
+  /** The sum of the data. */
   protected double sum;
 
-  /** The sum-of-squares. */
+  /** The sum-of-squares of the data. */
   protected double sumSq;
 
   /**
    * Instantiates a new statistics.
-   */
-  public Statistics() {}
-
-  /**
-   * Instantiates a new statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public Statistics(float[] data) {
-    add(data);
+  public static Statistics create(float[] data) {
+    final Statistics stats = new Statistics();
+    stats.add(data);
+    return stats;
   }
 
   /**
    * Instantiates a new statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public Statistics(double[] data) {
-    add(data);
+  public static Statistics create(double[] data) {
+    final Statistics stats = new Statistics();
+    stats.add(data);
+    return stats;
   }
 
   /**
    * Instantiates a new statistics.
    *
    * @param data the data
+   * @return the stored data statistics
    */
-  public Statistics(int[] data) {
-    add(data);
+  public static Statistics create(int[] data) {
+    final Statistics stats = new Statistics();
+    stats.add(data);
+    return stats;
   }
 
   /**
@@ -278,8 +282,10 @@ public class Statistics {
    *
    * @param data the data
    */
-  public synchronized void safeAdd(float[] data) {
-    add(data);
+  public void safeAdd(float[] data) {
+    synchronized (this) {
+      add(data);
+    }
   }
 
   /**
@@ -287,8 +293,10 @@ public class Statistics {
    *
    * @param data the data
    */
-  public synchronized void safeAdd(double[] data) {
-    add(data);
+  public void safeAdd(double[] data) {
+    synchronized (this) {
+      add(data);
+    }
   }
 
   /**
@@ -296,8 +304,10 @@ public class Statistics {
    *
    * @param data the data
    */
-  public synchronized void safeAdd(int[] data) {
-    add(data);
+  public void safeAdd(int[] data) {
+    synchronized (this) {
+      add(data);
+    }
   }
 
   /**
@@ -305,8 +315,10 @@ public class Statistics {
    *
    * @param value the value
    */
-  public synchronized void safeAdd(final double value) {
-    addInternal(value);
+  public void safeAdd(final double value) {
+    synchronized (this) {
+      addInternal(value);
+    }
   }
 
   /**
@@ -315,8 +327,10 @@ public class Statistics {
    * @param n the n
    * @param value the value
    */
-  public synchronized void safeAdd(int n, final double value) {
-    addInternal(n, value);
+  public void safeAdd(int n, final double value) {
+    synchronized (this) {
+      addInternal(n, value);
+    }
   }
 
   /**
@@ -324,8 +338,10 @@ public class Statistics {
    *
    * @param statistics the statistics
    */
-  public synchronized void safeAdd(Statistics statistics) {
-    add(statistics);
+  public void safeAdd(Statistics statistics) {
+    synchronized (this) {
+      add(statistics);
+    }
   }
 
   /**
@@ -371,7 +387,7 @@ public class Statistics {
    */
   public double getStandardDeviation() {
     double stdDev = sumSq - (sum * sum) / size;
-    if (stdDev > 0.0) {
+    if (stdDev > 0) {
       stdDev = Math.sqrt(stdDev / (size - 1));
     } else {
       stdDev = 0.0;
@@ -386,7 +402,7 @@ public class Statistics {
    */
   public double getVariance() {
     double variance = sumSq - (sum * sum) / size;
-    if (variance > 0.0) {
+    if (variance > 0) {
       variance = variance / (size - 1);
     } else {
       variance = 0.0;
@@ -423,7 +439,7 @@ public class Statistics {
    * @see "https://en.wikipedia.org/wiki/Confidence_interval#Basic_steps"
    */
   public double getConfidenceInterval(double confidenceLevel) {
-    if (size < 2) {
+    if (size <= 1) {
       return Double.POSITIVE_INFINITY;
     }
     if (confidenceLevel < 0 || confidenceLevel > 1) {
