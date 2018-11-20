@@ -671,9 +671,7 @@ public class Fht extends FloatProcessor {
   private Fht multiply(float[] h2, float[] tmp) {
     final float[] h1 = getData();
     final int maxN = getWidth();
-    if (tmp == null || tmp.length != h1.length) {
-      tmp = new float[h1.length];
-    }
+    final float[] buffer = getBuffer(tmp, h1.length);
     for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r) {
       // rowMod = (maxN - r) % maxN
       for (int c = 0, colMod = 0; c < maxN; c++, colMod = maxN - c, i++) {
@@ -692,10 +690,10 @@ public class Fht extends FloatProcessor {
         final int j = rowMod * maxN + colMod;
         final double h2e = (h2[i] + h2[j]) / 2;
         final double h2o = (h2[i] - h2[j]) / 2;
-        tmp[i] = (float) (h1[i] * h2e + h1[j] * h2o);
+        buffer[i] = (float) (h1[i] * h2e + h1[j] * h2o);
       }
     }
-    return createFhtResult(tmp, maxN);
+    return createFhtResult(buffer, maxN);
   }
 
   /**
@@ -711,13 +709,11 @@ public class Fht extends FloatProcessor {
    */
   private Fht multiply(double[] h2e, double[] h2o, int[] jj, float[] tmp) {
     final float[] h1 = getData();
-    if (tmp == null || tmp.length != h1.length) {
-      tmp = new float[h1.length];
-    }
+    final float[] buffer = getBuffer(tmp, h1.length);
     for (int i = 0; i < h1.length; i++) {
-      tmp[i] = (float) (h1[i] * h2e[i] + h1[jj[i]] * h2o[i]);
+      buffer[i] = (float) (h1[i] * h2e[i] + h1[jj[i]] * h2o[i]);
     }
-    return createFhtResult(tmp, width);
+    return createFhtResult(buffer, width);
   }
 
   /**
@@ -759,23 +755,22 @@ public class Fht extends FloatProcessor {
   private Fht conjugateMultiply(float[] h2, float[] tmp) {
     final float[] h1 = getData();
     final int maxN = getWidth();
-    if (tmp == null || tmp.length != h1.length) {
-      tmp = new float[h1.length];
-    }
+    final float[] buffer = getBuffer(tmp, h1.length);
     for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r) {
       // rowMod = (maxN - r) % maxN
       for (int c = 0, colMod = 0; c < maxN; c++, colMod = maxN - c, i++) {
         // colMod = (maxN - c) % maxN
         // h2e = (h2[r * maxN + c] + h2[rowMod * maxN + colMod]) / 2
         // h2o = (h2[r * maxN + c] - h2[rowMod * maxN + colMod]) / 2
-        // tmp[r * maxN + c] = (float) (h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] * h2o)
+        // buffer[r * maxN + c] = (float) (h1[r * maxN + c] * h2e - h1[rowMod * maxN + colMod] *
+        // h2o)
         final int j = rowMod * maxN + colMod;
         final double h2e = (h2[i] + h2[j]) / 2;
         final double h2o = (h2[i] - h2[j]) / 2;
-        tmp[i] = (float) (h1[i] * h2e - h1[j] * h2o);
+        buffer[i] = (float) (h1[i] * h2e - h1[j] * h2o);
       }
     }
-    return createFhtResult(tmp, maxN);
+    return createFhtResult(buffer, maxN);
   }
 
   /**
@@ -791,13 +786,11 @@ public class Fht extends FloatProcessor {
    */
   private Fht conjugateMultiply(double[] h2e, double[] h2o, int[] jj, float[] tmp) {
     final float[] h1 = getData();
-    if (tmp == null || tmp.length != h1.length) {
-      tmp = new float[h1.length];
-    }
+    final float[] buffer = getBuffer(tmp, h1.length);
     for (int i = 0; i < h1.length; i++) {
-      tmp[i] = (float) (h1[i] * h2e[i] - h1[jj[i]] * h2o[i]);
+      buffer[i] = (float) (h1[i] * h2e[i] - h1[jj[i]] * h2o[i]);
     }
-    return createFhtResult(tmp, width);
+    return createFhtResult(buffer, width);
   }
 
   /**
@@ -838,9 +831,7 @@ public class Fht extends FloatProcessor {
   private Fht divide(float[] h2, float[] tmp) {
     final float[] h1 = getData();
     final int maxN = getWidth();
-    if (tmp == null || tmp.length != h1.length) {
-      tmp = new float[h1.length];
-    }
+    final float[] buffer = getBuffer(tmp, h1.length);
     for (int r = 0, rowMod = 0, i = 0; r < maxN; r++, rowMod = maxN - r) {
       // rowMod = (maxN - r) % maxN
       for (int c = 0, colMod = 0; c < maxN; c++, colMod = maxN - c, i++) {
@@ -853,10 +844,10 @@ public class Fht extends FloatProcessor {
         }
         final double h2e = (h2i + h2j);
         final double h2o = (h2i - h2j);
-        tmp[i] = (float) ((h1[i] * h2e - h1[j] * h2o) / magnitude);
+        buffer[i] = (float) ((h1[i] * h2e - h1[j] * h2o) / magnitude);
       }
     }
-    return createFhtResult(tmp, maxN);
+    return createFhtResult(buffer, maxN);
   }
 
   /**
@@ -872,13 +863,11 @@ public class Fht extends FloatProcessor {
    */
   private Fht divide(double[] h2e, double[] h2o, int[] jj, double[] mag, float[] tmp) {
     final float[] h1 = getData();
-    if (tmp == null || tmp.length != h1.length) {
-      tmp = new float[h1.length];
-    }
+    final float[] buffer = getBuffer(tmp, h1.length);
     for (int i = 0; i < h1.length; i++) {
-      tmp[i] = (float) ((h1[i] * h2e[i] - h1[jj[i]] * h2o[i]) / mag[i]);
+      buffer[i] = (float) ((h1[i] * h2e[i] - h1[jj[i]] * h2o[i]) / mag[i]);
     }
-    return createFhtResult(tmp, width);
+    return createFhtResult(buffer, width);
   }
 
   /**
@@ -890,6 +879,20 @@ public class Fht extends FloatProcessor {
     final Fht fht = new Fht(getData().clone(), width, isFrequencyDomain);
     fht.copyTables(this);
     return fht;
+  }
+
+  /**
+   * Gets a buffer of the specified length reusing the given buffer if possible.
+   *
+   * @param buffer the input buffer
+   * @param length the length
+   * @return the buffer
+   */
+  private static float[] getBuffer(float[] buffer, int length) {
+    if (buffer == null || buffer.length != length) {
+      return new float[length];
+    }
+    return buffer;
   }
 
   /**

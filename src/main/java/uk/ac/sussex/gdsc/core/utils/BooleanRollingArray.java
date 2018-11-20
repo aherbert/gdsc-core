@@ -101,7 +101,7 @@ public class BooleanRollingArray {
       index = 0;
       count = capacity;
     } else {
-      while (n-- > 0) {
+      for (int i = n; i-- > 0;) {
         add(value);
       }
     }

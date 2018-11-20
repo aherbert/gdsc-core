@@ -126,13 +126,13 @@ public class DoubleMedianWindow {
    * @param position Set the current position
    */
   public void setPosition(int position) {
-    position = FastMath.max(0, position);
+    final int newPosition = FastMath.max(0, position);
     // If moving backwards then delete the cache
-    if (position < this.position) {
+    if (newPosition < this.position) {
       cache = null;
     }
-    invalid = this.position != position || cache == null;
-    this.position = position;
+    invalid = this.position != newPosition || cache == null;
+    this.position = newPosition;
   }
 
   /**

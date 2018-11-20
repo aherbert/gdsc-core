@@ -337,7 +337,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
         <configuration>
           <targetJdk>${maven.compiler.target}</targetJdk>
           <!-- Ignore lower levels for now  -->
-          <minimumPriority>1</minimumPriority>
+          <minimumPriority>2</minimumPriority>
           <skipEmptyReport>false</skipEmptyReport>
           <analysisCache>true</analysisCache>
           <rulesets>

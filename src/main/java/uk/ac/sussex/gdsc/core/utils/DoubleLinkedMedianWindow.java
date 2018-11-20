@@ -285,10 +285,10 @@ public class DoubleLinkedMedianWindow {
    * @return the median
    */
   public double getMedian(int start, int end) {
-    end = FastMath.min(data.length - 1, Math.abs(end));
-    start = FastMath.max(0, Math.abs(start));
+    final int rangeEnd = FastMath.min(data.length - 1, Math.abs(end));
+    final int rangeStart = FastMath.max(0, Math.abs(start));
 
-    final int length = end - start + 1;
+    final int length = rangeEnd - rangeStart + 1;
     if (length == 0) {
       return Double.NaN;
     }
@@ -306,7 +306,7 @@ public class DoubleLinkedMedianWindow {
     int index = 0;
     while (head != null) {
       final int age = (data.length + head.index - latestInsertion) % data.length;
-      if (age >= start && age <= end) {
+      if (age >= rangeStart && age <= rangeEnd) {
         list[index++] = head;
       }
       head = head.greater;

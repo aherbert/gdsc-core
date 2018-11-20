@@ -88,8 +88,8 @@ public class FastCorrelator {
     if (v1 == null || v2 == null) {
       return;
     }
-    length = Math.min(Math.min(v1.length, v2.length), length);
-    for (int i = 0; i < length; i++) {
+    final int size = Math.min(Math.min(v1.length, v2.length), length);
+    for (int i = 0; i < size; i++) {
       addData(v1[i], v2[i]);
     }
   }
@@ -218,8 +218,8 @@ public class FastCorrelator {
     if (x == null || y == null) {
       return Double.NaN;
     }
-    n = Math.min(Math.min(x.length, y.length), n);
-    return doCorrelation(x, y, n);
+    final int count = Math.min(Math.min(x.length, y.length), n);
+    return doCorrelation(x, y, count);
   }
 
   /**

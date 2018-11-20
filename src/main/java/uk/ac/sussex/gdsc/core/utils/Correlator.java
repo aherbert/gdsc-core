@@ -48,11 +48,9 @@ public class Correlator {
    * @param capacity The initial capacity
    */
   public Correlator(int capacity) {
-    if (capacity < 0) {
-      capacity = 0;
-    }
-    x = new int[capacity];
-    y = new int[capacity];
+    final int size = Math.max(0, capacity);
+    x = new int[size];
+    y = new int[size];
   }
 
   /**
@@ -101,9 +99,9 @@ public class Correlator {
     if (v1 == null || v2 == null) {
       return;
     }
-    length = Math.min(Math.min(v1.length, v2.length), length);
-    checkCapacity(length);
-    for (int i = 0; i < length; i++) {
+    final int size = Math.min(Math.min(v1.length, v2.length), length);
+    checkCapacity(size);
+    for (int i = 0; i < size; i++) {
       addData(v1[i], v2[i]);
     }
   }
@@ -252,8 +250,8 @@ public class Correlator {
     if (x == null || y == null) {
       return Double.NaN;
     }
-    n = Math.min(Math.min(x.length, y.length), n);
-    return doCorrelation(x, y, n);
+    final int count = Math.min(Math.min(x.length, y.length), n);
+    return doCorrelation(x, y, count);
   }
 
   /**

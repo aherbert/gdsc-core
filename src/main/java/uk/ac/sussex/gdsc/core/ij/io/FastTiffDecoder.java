@@ -32,7 +32,6 @@ import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import ij.io.FileInfo;
 import ij.util.Tools;
@@ -520,11 +519,11 @@ public abstract class FastTiffDecoder {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   byte[] getString(int count, long offset) throws IOException {
-    count--; // skip null byte at end of string
-    if (count <= 3) {
+    final int size = count - 1; // skip null byte at end of string
+    if (size <= 3) {
       return null;
     }
-    final byte[] bytes = new byte[count];
+    final byte[] bytes = new byte[size];
     final long saveLoc = ss.getFilePointer();
     ss.seek(offset);
     ss.readFully(bytes);
@@ -901,7 +900,7 @@ public abstract class FastTiffDecoder {
             } else if (value == 1) {
               fi.fileType = FileInfo.BITMAP;
             } else {
-              error("Unsupported BitsPerSample: " + value);
+              raiseIoException("Unsupported BitsPerSample: " + value);
             }
           } else if (count > 1) {
             final long saveLoc = ss.getFilePointer();
@@ -912,7 +911,8 @@ public abstract class FastTiffDecoder {
             } else if (bitDepth == 16) {
               fi.fileType = FileInfo.GRAY16_UNSIGNED;
             } else {
-              error("ImageJ can only open 8 and 16 bit/channel images (" + bitDepth + ")");
+              raiseIoException(
+                  "ImageJ can only open 8 and 16 bit/channel images (" + bitDepth + ")");
             }
             ss.seek(saveLoc);
           }
@@ -974,7 +974,7 @@ public abstract class FastTiffDecoder {
           } else if (value != 2
               && !(fi.samplesPerPixel == 1 || fi.samplesPerPixel == 3 || fi.samplesPerPixel == 4)) {
             final String msg = "Unsupported SamplesPerPixel: " + fi.samplesPerPixel;
-            error(msg);
+            raiseIoException(msg);
           }
           break;
         case COMPRESSION:
@@ -982,7 +982,7 @@ public abstract class FastTiffDecoder {
             // LZW compression
             fi.compression = FileInfo.LZW;
             if (fi.fileType == FileInfo.GRAY12_UNSIGNED) {
-              error("ImageJ cannot open 12-bit LZW-compressed TIFFs");
+              raiseIoException("ImageJ cannot open 12-bit LZW-compressed TIFFs");
             }
           } else if (value == 32773) {
             fi.compression = FileInfo.PACK_BITS;
@@ -992,7 +992,8 @@ public abstract class FastTiffDecoder {
             // don't abort with Spot camera compressed (7) thumbnails
             // otherwise, this is an unknown compression type
             fi.compression = FileInfo.COMPRESSION_UNKNOWN;
-            error("ImageJ cannot open TIFF files " + "compressed in this fashion (" + value + ")");
+            raiseIoException(
+                "ImageJ cannot open TIFF files " + "compressed in this fashion (" + value + ")");
           }
           break;
         case SOFTWARE:
@@ -1016,7 +1017,7 @@ public abstract class FastTiffDecoder {
           }
           break;
         case TILE_WIDTH:
-          error("ImageJ cannot open tiled TIFFs.\nTry using the Bio-Formats plugin.");
+          raiseIoException("ImageJ cannot open tiled TIFFs.\nTry using the Bio-Formats plugin.");
           break;
         case SAMPLE_FORMAT:
           if (fi.fileType == FileInfo.GRAY32_INT && value == FLOATING_POINT) {
@@ -1027,13 +1028,13 @@ public abstract class FastTiffDecoder {
               fi.fileType = FileInfo.GRAY16_SIGNED;
             }
             if (value == FLOATING_POINT) {
-              error("ImageJ cannot open 16-bit float TIFFs");
+              raiseIoException("ImageJ cannot open 16-bit float TIFFs");
             }
           }
           break;
         case JPEG_TABLES:
           if (fi.compression == FileInfo.JPEG) {
-            error("Cannot open JPEG-compressed TIFFs with separate tables");
+            raiseIoException("Cannot open JPEG-compressed TIFFs with separate tables");
           }
           break;
         case IMAGE_DESCRIPTION:
@@ -1333,12 +1334,12 @@ public abstract class FastTiffDecoder {
   }
 
   /**
-   * Error.
+   * Close the input seekable stream and raise an {@link IOException} with the given messaeg.
    *
    * @param message the message
    * @throws IOException Signals that an I/O exception has occurred.
    */
-  void error(String message) throws IOException {
+  void raiseIoException(String message) throws IOException {
     if (ss != null) {
       ss.close();
     }
@@ -2372,7 +2373,7 @@ public abstract class FastTiffDecoder {
             } else if (value == 1) {
               fileType = FileInfo.BITMAP;
             } else {
-              error("Unsupported BitsPerSample: " + value);
+              raiseIoException("Unsupported BitsPerSample: " + value);
             }
           } else if (count > 1) {
             final long saveLoc = ss.getFilePointer();
@@ -2383,7 +2384,8 @@ public abstract class FastTiffDecoder {
             } else if (bitDepth == 16) {
               fileType = FileInfo.GRAY16_UNSIGNED;
             } else {
-              error("ImageJ can only open 8 and 16 bit/channel images (" + bitDepth + ")");
+              raiseIoException(
+                  "ImageJ can only open 8 and 16 bit/channel images (" + bitDepth + ")");
             }
             ss.seek(saveLoc);
           }
@@ -2409,7 +2411,7 @@ public abstract class FastTiffDecoder {
           } else if (value != 2
               && !(samplesPerPixel == 1 || samplesPerPixel == 3 || samplesPerPixel == 4)) {
             final String msg = "Unsupported SamplesPerPixel: " + samplesPerPixel;
-            error(msg);
+            raiseIoException(msg);
           }
           break;
         case COMPRESSION:
@@ -2417,7 +2419,7 @@ public abstract class FastTiffDecoder {
             // LZW compression
             compression = FileInfo.LZW;
             if (fileType == FileInfo.GRAY12_UNSIGNED) {
-              error("ImageJ cannot open 12-bit LZW-compressed TIFFs");
+              raiseIoException("ImageJ cannot open 12-bit LZW-compressed TIFFs");
             }
           } else if (value == 32773) {
             compression = FileInfo.PACK_BITS;
@@ -2427,11 +2429,12 @@ public abstract class FastTiffDecoder {
             // don't abort with Spot camera compressed (7) thumbnails
             // otherwise, this is an unknown compression type
             compression = FileInfo.COMPRESSION_UNKNOWN;
-            error("ImageJ cannot open TIFF files compressed in this fashion (" + value + ")");
+            raiseIoException(
+                "ImageJ cannot open TIFF files compressed in this fashion (" + value + ")");
           }
           break;
         case TILE_WIDTH:
-          error("ImageJ cannot open tiled TIFFs.\nTry using the Bio-Formats plugin.");
+          raiseIoException("ImageJ cannot open tiled TIFFs.\nTry using the Bio-Formats plugin.");
           break;
         case SAMPLE_FORMAT:
           if (fileType == FileInfo.GRAY32_INT && value == FLOATING_POINT) {
@@ -2442,13 +2445,13 @@ public abstract class FastTiffDecoder {
               fileType = FileInfo.GRAY16_SIGNED;
             }
             if (value == FLOATING_POINT) {
-              error("ImageJ cannot open 16-bit float TIFFs");
+              raiseIoException("ImageJ cannot open 16-bit float TIFFs");
             }
           }
           break;
         case JPEG_TABLES:
           if (compression == FileInfo.JPEG) {
-            error("Cannot open JPEG-compressed TIFFs with separate tables");
+            raiseIoException("Cannot open JPEG-compressed TIFFs with separate tables");
           }
           break;
         default:
@@ -2460,7 +2463,7 @@ public abstract class FastTiffDecoder {
     if (size != 0 && compression <= FileInfo.COMPRESSION_NONE) {
       return size;
     }
-    error("Cannot estimate TIFF image size");
+    raiseIoException("Cannot estimate TIFF image size");
     return 0; //
   }
 

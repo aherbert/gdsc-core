@@ -1470,12 +1470,10 @@ public class FastImageReader {
    * @return the byte[] image
    */
   public byte[] packBitsUncompress(byte[] input, int expected) {
-    if (expected == 0) {
-      expected = Integer.MAX_VALUE;
-    }
+    final int outputLimit = (expected == 0) ? Integer.MAX_VALUE : expected;
     final ByteVector output = new ByteVector(1024);
     int index = 0;
-    while (output.size() < expected && index < input.length) {
+    while (output.size() < outputLimit && index < input.length) {
       final byte n = input[index++];
       if (n >= 0) { // 0 <= n <= 127
         final byte[] data = new byte[n + 1];
@@ -1516,10 +1514,8 @@ public class FastImageReader {
     public void add(byte x) {
       if (size >= data.length) {
         doubleCapacity();
-        add(x);
-      } else {
-        data[size++] = x;
       }
+      data[size++] = x;
     }
 
     public void add(byte[] array) {

@@ -264,12 +264,8 @@ public class LoOp {
       throws InterruptedException, ExecutionException {
     final int size = size();
 
-    // Bounds check k
-    if (numberOfNeighbours < 1) {
-      numberOfNeighbours = 1;
-    } else if (numberOfNeighbours > size) {
-      numberOfNeighbours = size;
-    }
+    // Bounds check the neighbour count (k)
+    final int neighbourCount = MathUtils.clip(1, size, numberOfNeighbours);
 
     // Multi-thread
     final int threadCount = getNumberOfThreads();
@@ -279,12 +275,12 @@ public class LoOp {
 
     // Find neighbours for each point and
     // compute probabilistic distances
-    final int[][] neighbours = new int[size][numberOfNeighbours];
+    final int[][] neighbours = new int[size][neighbourCount];
     final double[] pd = new double[size];
 
     for (int from = 0; from < size;) {
       final int to = Math.min(from + nPerThread, size);
-      futures.add(executor.submit(new KnnWorker(neighbours, numberOfNeighbours, pd, from, to)));
+      futures.add(executor.submit(new KnnWorker(neighbours, neighbourCount, pd, from, to)));
       from = to;
     }
     wait(futures);
@@ -294,7 +290,7 @@ public class LoOp {
     final TurboList<PlofWorker> workers = new TurboList<>(threadCount);
     for (int from = 0; from < size;) {
       final int to = Math.min(from + nPerThread, size);
-      final PlofWorker w = new PlofWorker(neighbours, numberOfNeighbours, pd, plofs, from, to);
+      final PlofWorker w = new PlofWorker(neighbours, neighbourCount, pd, plofs, from, to);
       workers.add(w);
       futures.add(executor.submit(w));
       from = to;

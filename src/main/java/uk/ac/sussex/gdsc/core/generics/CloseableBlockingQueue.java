@@ -73,7 +73,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
   private static final String NO_ADDITIONS = "No additions to a closed queue";
 
   /** The queued items. */
-  final Object[] items;
+  final Object[] queuedItems;
 
   /** items index for next take, poll, peek or remove. */
   int takeIndex;
@@ -89,7 +89,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    */
 
   /** Main lock guarding all access. */
-  final ReentrantLock lock;
+  final ReentrantLock queueLock;
 
   /** Condition for waiting takes. */
   private final Condition notEmpty;
@@ -124,7 +124,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * @return the new index
    */
   final int dec(int index) {
-    return ((index == 0) ? items.length : index) - 1;
+    return ((index == 0) ? queuedItems.length : index) - 1;
   }
 
   /**
@@ -135,7 +135,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    */
   @SuppressWarnings("unchecked")
   final E itemAt(int index) {
-    return (E) items[index];
+    return (E) queuedItems[index];
   }
 
   /**
@@ -144,7 +144,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
   private void enqueue(E x) {
     // assert lock.getHoldCount() == 1
     // assert items[putIndex] == null
-    final Object[] items = this.items;
+    final Object[] items = this.queuedItems;
     items[putIndex] = x;
     if (++putIndex == items.length) {
       putIndex = 0;
@@ -159,7 +159,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
   private E dequeue() {
     // assert lock.getHoldCount() == 1
     // assert items[takeIndex] != null
-    final Object[] items = this.items;
+    final Object[] items = this.queuedItems;
     @SuppressWarnings("unchecked")
     final E x = (E) items[takeIndex];
     items[takeIndex] = null;
@@ -188,7 +188,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     // assert lock.getHoldCount() == 1
     // assert items[removeIndex] != null
     // assert removeIndex >= 0 && removeIndex < items.length
-    final Object[] items = this.items;
+    final Object[] items = this.queuedItems;
     if (removeIndex == takeIndex) {
       // removing front item; just advance
       items[takeIndex] = null;
@@ -250,10 +250,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     if (capacity <= 0) {
       throw new IllegalArgumentException();
     }
-    this.items = new Object[capacity];
-    lock = new ReentrantLock(fair);
-    notEmpty = lock.newCondition();
-    notFull = lock.newCondition();
+    this.queuedItems = new Object[capacity];
+    queueLock = new ReentrantLock(fair);
+    notEmpty = queueLock.newCondition();
+    notFull = queueLock.newCondition();
   }
 
   /**
@@ -272,13 +272,13 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
   public CloseableBlockingQueue(int capacity, boolean fair, Collection<? extends E> c) {
     this(capacity, fair);
 
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lock(); // Lock only for visibility, not mutual exclusion
     try {
       int index = 0;
       try {
         for (final E e : c) {
-          items[index++] = Objects.requireNonNull(e, ELEMENT_NOT_NULL);
+          queuedItems[index++] = Objects.requireNonNull(e, ELEMENT_NOT_NULL);
         }
       } catch (final ArrayIndexOutOfBoundsException ex) {
         throw new IllegalArgumentException();
@@ -324,7 +324,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return;
     }
 
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
       closed = true;
@@ -357,7 +357,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return;
     }
 
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
       closed = false;
@@ -390,7 +390,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * @param throwIfClosed the new throw if closed
    */
   public void setThrowIfClosed(boolean throwIfClosed) {
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
       this.throwIfClosed = throwIfClosed;
@@ -431,10 +431,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     }
 
     Objects.requireNonNull(e, ELEMENT_NOT_NULL);
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
-      if (closed || count == items.length) {
+      if (closed || count == queuedItems.length) {
         return false;
       }
       enqueue(e);
@@ -461,10 +461,10 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
 
     Objects.requireNonNull(e, ELEMENT_NOT_NULL);
     long nanos = unit.toNanos(timeout);
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lockInterruptibly();
     try {
-      while (count == items.length) {
+      while (count == queuedItems.length) {
         if (closed || nanos <= 0) {
           return false;
         }
@@ -511,7 +511,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     }
 
     Objects.requireNonNull(e, ELEMENT_NOT_NULL);
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lockInterruptibly();
     try {
       if (closed) {
@@ -521,7 +521,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
         return;
       }
 
-      while (count == items.length) {
+      while (count == queuedItems.length) {
         notFull.await();
       }
 
@@ -562,7 +562,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     }
 
     Objects.requireNonNull(e, ELEMENT_NOT_NULL);
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lockInterruptibly();
     try {
       if (closed) {
@@ -572,7 +572,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
         return false;
       }
 
-      while (count == items.length) {
+      while (count == queuedItems.length) {
         notFull.await();
       }
 
@@ -597,7 +597,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return null;
     }
 
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
       // Allow poll if closed for additions
@@ -629,7 +629,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return null;
     }
 
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lockInterruptibly();
     try {
       while (count == 0) {
@@ -658,7 +658,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     }
 
     long nanos = unit.toNanos(timeout);
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lockInterruptibly();
     try {
       while (count == 0) {
@@ -682,7 +682,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return null;
     }
 
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
       return itemAt(takeIndex); // null when queue is empty
@@ -705,7 +705,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return 0;
     }
 
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
       return count;
@@ -729,13 +729,13 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
   public int remainingCapacity() {
     // Avoid synchronisation if this is closed and empty (since nothing can be added)
     if (closedAndEmpty) {
-      return items.length;
+      return queuedItems.length;
     }
 
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
-      return items.length - count;
+      return queuedItems.length - count;
     } finally {
       lock.unlock();
     }
@@ -760,8 +760,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     if (o == null || closedAndEmpty) {
       return false;
     }
-    final Object[] items = this.items;
-    final ReentrantLock lock = this.lock;
+    final Object[] items = this.queuedItems;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
       if (count > 0) {
@@ -798,8 +798,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     if (o == null || closedAndEmpty) {
       return false;
     }
-    final Object[] items = this.items;
-    final ReentrantLock lock = this.lock;
+    final Object[] items = this.queuedItems;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
       if (count > 0) {
@@ -839,17 +839,17 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return new Object[0];
     }
     Object[] a;
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
       final int count = this.count;
       a = new Object[count];
-      final int n = items.length - takeIndex;
+      final int n = queuedItems.length - takeIndex;
       if (count <= n) {
-        System.arraycopy(items, takeIndex, a, 0, count);
+        System.arraycopy(queuedItems, takeIndex, a, 0, count);
       } else {
-        System.arraycopy(items, takeIndex, a, 0, n);
-        System.arraycopy(items, 0, a, n, count - n);
+        System.arraycopy(queuedItems, takeIndex, a, 0, n);
+        System.arraycopy(queuedItems, 0, a, n, count - n);
       }
     } finally {
       lock.unlock();
@@ -899,29 +899,31 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return a;
     }
 
-    final Object[] items = this.items;
-    final ReentrantLock lock = this.lock;
+    final Object[] items = this.queuedItems;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
+    T[] result = a;
     try {
       final int count = this.count;
-      final int len = a.length;
+      final int len = result.length;
       if (len < count) {
-        a = (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), count);
+        result =
+            (T[]) java.lang.reflect.Array.newInstance(result.getClass().getComponentType(), count);
       }
       final int n = items.length - takeIndex;
       if (count <= n) {
-        System.arraycopy(items, takeIndex, a, 0, count);
+        System.arraycopy(items, takeIndex, result, 0, count);
       } else {
-        System.arraycopy(items, takeIndex, a, 0, n);
-        System.arraycopy(items, 0, a, n, count - n);
+        System.arraycopy(items, takeIndex, result, 0, n);
+        System.arraycopy(items, 0, result, n, count - n);
       }
       if (len > count) {
-        a[count] = null;
+        result[count] = null;
       }
     } finally {
       lock.unlock();
     }
-    return a;
+    return result;
   }
 
   @Override
@@ -931,7 +933,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return "[]";
     }
 
-    final ReentrantLock lock = this.lock;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
       int k = count;
@@ -939,7 +941,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
         return "[]";
       }
 
-      final Object[] items = this.items;
+      final Object[] items = this.queuedItems;
       final StringBuilder sb = new StringBuilder();
       sb.append('[');
       for (int i = takeIndex;;) {
@@ -969,8 +971,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return;
     }
 
-    final Object[] items = this.items;
-    final ReentrantLock lock = this.lock;
+    final Object[] items = this.queuedItems;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
       int k = count;
@@ -1014,8 +1016,8 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       return 0;
     }
 
-    final Object[] items = this.items;
-    final ReentrantLock lock = this.lock;
+    final Object[] items = this.queuedItems;
+    final ReentrantLock lock = this.queueLock;
     lock.lock();
     try {
       final int n = Math.min(maxElements, count);
@@ -1361,7 +1363,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     Itr() {
       // assert lock.getHoldCount() == 0;
       lastRet = NONE;
-      final ReentrantLock lock = CloseableBlockingQueue.this.lock;
+      final ReentrantLock lock = CloseableBlockingQueue.this.queueLock;
       lock.lock();
       try {
         if (count == 0) {
@@ -1398,13 +1400,14 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
 
     private int incCursor(int index) {
       // assert lock.getHoldCount() == 1;
-      if (++index == items.length) {
-        index = 0;
+      int newIndex = index;
+      if (++newIndex == queuedItems.length) {
+        newIndex = 0;
       }
-      if (index == putIndex) {
-        index = NONE;
+      if (newIndex == putIndex) {
+        newIndex = NONE;
       }
-      return index;
+      return newIndex;
     }
 
     /**
@@ -1438,7 +1441,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       final int prevTakeIndex = this.prevTakeIndex;
 
       if (cycles != prevCycles || takeIndex != prevTakeIndex) {
-        final int len = items.length;
+        final int len = queuedItems.length;
         // how far takeIndex has advanced since the previous
         // operation of this iterator
         final long dequeues = (long) (cycles - prevCycles) * len + (takeIndex - prevTakeIndex);
@@ -1500,7 +1503,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     }
 
     private void noNext() {
-      final ReentrantLock lock = CloseableBlockingQueue.this.lock;
+      final ReentrantLock lock = CloseableBlockingQueue.this.queueLock;
       lock.lock();
       try {
         // assert cursor == NONE;
@@ -1528,7 +1531,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       if (x == null) {
         throw new NoSuchElementException();
       }
-      final ReentrantLock lock = CloseableBlockingQueue.this.lock;
+      final ReentrantLock lock = CloseableBlockingQueue.this.queueLock;
       lock.lock();
       try {
         if (!isDetached()) {
@@ -1555,7 +1558,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
     @Override
     public void remove() {
       // assert lock.getHoldCount() == 0;
-      final ReentrantLock lock = CloseableBlockingQueue.this.lock;
+      final ReentrantLock lock = CloseableBlockingQueue.this.queueLock;
       lock.lock();
       try {
         if (!isDetached()) {
@@ -1637,7 +1640,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       final int takeIndex = CloseableBlockingQueue.this.takeIndex;
       final int prevCycles = this.prevCycles;
       final int prevTakeIndex = this.prevTakeIndex;
-      final int len = items.length;
+      final int len = queuedItems.length;
       int cycleDiff = cycles - prevCycles;
       if (removedIndex < takeIndex) {
         cycleDiff++;

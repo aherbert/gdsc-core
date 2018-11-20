@@ -87,17 +87,17 @@ public class ImageExtractor {
    * @return The image region (with dimensions specified in the dimensions array)
    */
   public float[] crop(Rectangle regionBounds, float[] region) {
-    region = allocate(region, regionBounds.width * regionBounds.height);
+    final float[] buffer = allocate(region, regionBounds.width * regionBounds.height);
 
     int offset1 = 0;
     for (int ys = regionBounds.y; ys < regionBounds.y + regionBounds.height; ys++) {
       int offset2 = ys * width + regionBounds.x;
       for (int xs = 0; xs < regionBounds.width; xs++) {
-        region[offset1++] = data[offset2++];
+        buffer[offset1++] = data[offset2++];
       }
     }
 
-    return region;
+    return buffer;
   }
 
   /**
@@ -109,17 +109,17 @@ public class ImageExtractor {
    * @return The image region (with dimensions specified in the dimensions array)
    */
   public double[] crop(Rectangle regionBounds, double[] region) {
-    region = allocate(region, regionBounds.width * regionBounds.height);
+    final double[] buffer = allocate(region, regionBounds.width * regionBounds.height);
 
     int offset1 = 0;
     for (int ys = regionBounds.y; ys < regionBounds.y + regionBounds.height; ys++) {
       int offset2 = ys * width + regionBounds.x;
       for (int xs = 0; xs < regionBounds.width; xs++) {
-        region[offset1++] = data[offset2++];
+        buffer[offset1++] = data[offset2++];
       }
     }
 
-    return region;
+    return buffer;
   }
 
   /**
@@ -134,14 +134,14 @@ public class ImageExtractor {
 
   private static float[] allocate(float[] buffer, int size) {
     if (buffer == null || buffer.length < size) {
-      buffer = new float[size];
+      return new float[size];
     }
     return buffer;
   }
 
   private static double[] allocate(double[] buffer, int size) {
     if (buffer == null || buffer.length < size) {
-      buffer = new double[size];
+      return new double[size];
     }
     return buffer;
   }

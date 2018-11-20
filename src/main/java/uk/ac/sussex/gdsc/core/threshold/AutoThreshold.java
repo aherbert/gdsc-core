@@ -183,11 +183,9 @@ public class AutoThreshold {
    * @return the method
    */
   public static Method getMethod(int index, boolean ignoreNone) {
-    if (ignoreNone) {
-      index++;
-    }
-    if (index >= 0 && index < methodValues.length) {
-      return methodValues[index];
+    final int target = (ignoreNone) ? index + 1 : index;
+    if (target >= 0 && target < methodValues.length) {
+      return methodValues[target];
     }
     return Method.NONE;
   }

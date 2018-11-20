@@ -97,7 +97,7 @@ public class DoubleRollingArray {
       index = 0;
       count = capacity;
     } else {
-      while (repeats-- > 0) {
+      for (int i = repeats; i-- > 0;) {
         add(number);
       }
     }

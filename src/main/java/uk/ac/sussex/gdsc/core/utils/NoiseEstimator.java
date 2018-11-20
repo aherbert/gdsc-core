@@ -446,10 +446,7 @@ public class NoiseEstimator {
    * @param range the range for the search around the local minimum. Must be at least 1.
    */
   public void setRange(int range) {
-    if (range < 1) {
-      range = 1;
-    }
-    this.range = range;
+    this.range = Math.max(1, range);
   }
 
   /**
