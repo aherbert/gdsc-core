@@ -56,9 +56,9 @@ public final class ValidationUtils {
    * Check the {@code result} is {@code true}.
    *
    * @param result the result
-   * @throws IllegalArgumentException If not {@code true}
+   * @throws IllegalArgumentException if not {@code true}
    */
-  public static void checkArgument(final boolean result) {
+  public static void checkArgument(boolean result) {
     if (!result) {
       throw new IllegalArgumentException();
     }
@@ -71,9 +71,9 @@ public final class ValidationUtils {
    *
    * @param result the result
    * @param message the object used to form the exception message
-   * @throws IllegalArgumentException If not {@code true}
+   * @throws IllegalArgumentException if not {@code true}
    */
-  public static void checkArgument(final boolean result, Object message) {
+  public static void checkArgument(boolean result, Object message) {
     if (!result) {
       throw new IllegalArgumentException(String.valueOf(message));
     }
@@ -88,9 +88,9 @@ public final class ValidationUtils {
    * @param result the result
    * @param format the format of the exception message
    * @param p1 the first argument of the exception message
-   * @throws IllegalArgumentException If not {@code true}
+   * @throws IllegalArgumentException if not {@code true}
    */
-  public static void checkArgument(final boolean result, String format, int p1) {
+  public static void checkArgument(boolean result, String format, byte p1) {
     if (!result) {
       throw new IllegalArgumentException(String.format(format, p1));
     }
@@ -105,9 +105,77 @@ public final class ValidationUtils {
    * @param result the result
    * @param format the format of the exception message
    * @param p1 the first argument of the exception message
-   * @throws IllegalArgumentException If not {@code true}
+   * @throws IllegalArgumentException if not {@code true}
    */
-  public static void checkArgument(final boolean result, String format, Object p1) {
+  public static void checkArgument(boolean result, String format, int p1) {
+    if (!result) {
+      throw new IllegalArgumentException(String.format(format, p1));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @throws IllegalArgumentException if not {@code true}
+   */
+  public static void checkArgument(boolean result, String format, long p1) {
+    if (!result) {
+      throw new IllegalArgumentException(String.format(format, p1));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @throws IllegalArgumentException if not {@code true}
+   */
+  public static void checkArgument(boolean result, String format, float p1) {
+    if (!result) {
+      throw new IllegalArgumentException(String.format(format, p1));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @throws IllegalArgumentException if not {@code true}
+   */
+  public static void checkArgument(boolean result, String format, double p1) {
+    if (!result) {
+      throw new IllegalArgumentException(String.format(format, p1));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @throws IllegalArgumentException if not {@code true}
+   */
+  public static void checkArgument(boolean result, String format, Object p1) {
     if (!result) {
       throw new IllegalArgumentException(String.format(format, p1));
     }
@@ -123,9 +191,9 @@ public final class ValidationUtils {
    * @param format the format of the exception message
    * @param p1 the first argument of the exception message
    * @param p2 the second argument of the exception message
-   * @throws IllegalArgumentException If not {@code true}
+   * @throws IllegalArgumentException if not {@code true}
    */
-  public static void checkArgument(final boolean result, String format, int p1, int p2) {
+  public static void checkArgument(boolean result, String format, byte p1, byte p2) {
     if (!result) {
       throw new IllegalArgumentException(String.format(format, p1, p2));
     }
@@ -141,9 +209,9 @@ public final class ValidationUtils {
    * @param format the format of the exception message
    * @param p1 the first argument of the exception message
    * @param p2 the second argument of the exception message
-   * @throws IllegalArgumentException If not {@code true}
+   * @throws IllegalArgumentException if not {@code true}
    */
-  public static void checkArgument(final boolean result, String format, double p1, double p2) {
+  public static void checkArgument(boolean result, String format, int p1, int p2) {
     if (!result) {
       throw new IllegalArgumentException(String.format(format, p1, p2));
     }
@@ -159,9 +227,9 @@ public final class ValidationUtils {
    * @param format the format of the exception message
    * @param p1 the first argument of the exception message
    * @param p2 the second argument of the exception message
-   * @throws IllegalArgumentException If not {@code true}
+   * @throws IllegalArgumentException if not {@code true}
    */
-  public static void checkArgument(final boolean result, String format, Object p1, Object p2) {
+  public static void checkArgument(boolean result, String format, long p1, long p2) {
     if (!result) {
       throw new IllegalArgumentException(String.format(format, p1, p2));
     }
@@ -175,136 +243,294 @@ public final class ValidationUtils {
    *
    * @param result the result
    * @param format the format of the exception message
-   * @param args the arguments of the exception message
-   * @throws IllegalArgumentException If not {@code true}
+   * @param p1 the first argument of the exception message
+   * @param p2 the second argument of the exception message
+   * @throws IllegalArgumentException if not {@code true}
    */
-  public static void checkArgument(final boolean result, String format, Object... args) {
+  public static void checkArgument(boolean result, String format, float p1, float p2) {
     if (!result) {
-      throw new IllegalArgumentException(String.format(format, args));
+      throw new IllegalArgumentException(String.format(format, p1, p2));
     }
   }
 
   /**
-   * Check the {@code state} is {@code true}.
+   * Check the {@code result} is {@code true}.
    *
-   * @param state the state
-   * @throws IllegalStateException If not {@code true}
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @param p2 the second argument of the exception message
+   * @throws IllegalArgumentException if not {@code true}
    */
-  public static void checkState(final boolean state) {
-    if (!state) {
+  public static void checkArgument(boolean result, String format, double p1, double p2) {
+    if (!result) {
+      throw new IllegalArgumentException(String.format(format, p1, p2));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @param p2 the second argument of the exception message
+   * @throws IllegalArgumentException if not {@code true}
+   */
+  public static void checkArgument(boolean result, String format, Object p1, Object p2) {
+    if (!result) {
+      throw new IllegalArgumentException(String.format(format, p1, p2));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * @param result the result
+   * @throws IllegalStateException if not {@code true}
+   */
+  public static void checkState(boolean result) {
+    if (!result) {
       throw new IllegalStateException();
     }
   }
 
   /**
-   * Check the {@code state} is {@code true}.
+   * Check the {@code result} is {@code true}.
    *
    * <p>If not {@code true} the exception message is formed using {@link String#valueOf(Object)}.
    *
-   * @param state the state
+   * @param result the result
    * @param message the object used to form the exception message
-   * @throws IllegalStateException If not {@code true}
+   * @throws IllegalStateException if not {@code true}
    */
-  public static void checkState(final boolean state, Object message) {
-    if (!state) {
+  public static void checkState(boolean result, Object message) {
+    if (!result) {
       throw new IllegalStateException(String.valueOf(message));
     }
   }
 
   /**
-   * Check the {@code state} is {@code true}.
+   * Check the {@code result} is {@code true}.
    *
    * <p>If not {@code true} the exception message is formed using
    * {@link String#format(String, Object...)}.
    *
-   * @param state the state
+   * @param result the result
    * @param format the format of the exception message
    * @param p1 the first argument of the exception message
-   * @throws IllegalStateException If not {@code true}
+   * @throws IllegalStateException if not {@code true}
    */
-  public static void checkState(final boolean state, String format, int p1) {
-    if (!state) {
+  public static void checkState(boolean result, String format, byte p1) {
+    if (!result) {
       throw new IllegalStateException(String.format(format, p1));
     }
   }
 
   /**
-   * Check the {@code state} is {@code true}.
+   * Check the {@code result} is {@code true}.
    *
    * <p>If not {@code true} the exception message is formed using
    * {@link String#format(String, Object...)}.
    *
-   * @param state the state
+   * @param result the result
    * @param format the format of the exception message
    * @param p1 the first argument of the exception message
-   * @throws IllegalStateException If not {@code true}
+   * @throws IllegalStateException if not {@code true}
    */
-  public static void checkState(final boolean state, String format, Object p1) {
-    if (!state) {
+  public static void checkState(boolean result, String format, int p1) {
+    if (!result) {
       throw new IllegalStateException(String.format(format, p1));
     }
   }
 
   /**
-   * Check the {@code state} is {@code true}.
+   * Check the {@code result} is {@code true}.
    *
    * <p>If not {@code true} the exception message is formed using
    * {@link String#format(String, Object...)}.
    *
-   * @param state the state
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @throws IllegalStateException if not {@code true}
+   */
+  public static void checkState(boolean result, String format, long p1) {
+    if (!result) {
+      throw new IllegalStateException(String.format(format, p1));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @throws IllegalStateException if not {@code true}
+   */
+  public static void checkState(boolean result, String format, float p1) {
+    if (!result) {
+      throw new IllegalStateException(String.format(format, p1));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @throws IllegalStateException if not {@code true}
+   */
+  public static void checkState(boolean result, String format, double p1) {
+    if (!result) {
+      throw new IllegalStateException(String.format(format, p1));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @throws IllegalStateException if not {@code true}
+   */
+  public static void checkState(boolean result, String format, Object p1) {
+    if (!result) {
+      throw new IllegalStateException(String.format(format, p1));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
    * @param format the format of the exception message
    * @param p1 the first argument of the exception message
    * @param p2 the second argument of the exception message
-   * @throws IllegalStateException If not {@code true}
+   * @throws IllegalStateException if not {@code true}
    */
-  public static void checkState(final boolean state, String format, int p1, int p2) {
-    if (!state) {
+  public static void checkState(boolean result, String format, byte p1, byte p2) {
+    if (!result) {
       throw new IllegalStateException(String.format(format, p1, p2));
     }
   }
 
   /**
-   * Check the {@code state} is {@code true}.
+   * Check the {@code result} is {@code true}.
    *
    * <p>If not {@code true} the exception message is formed using
    * {@link String#format(String, Object...)}.
    *
-   * @param state the state
+   * @param result the result
    * @param format the format of the exception message
    * @param p1 the first argument of the exception message
    * @param p2 the second argument of the exception message
-   * @throws IllegalStateException If not {@code true}
+   * @throws IllegalStateException if not {@code true}
    */
-  public static void checkState(final boolean state, String format, Object p1, Object p2) {
-    if (!state) {
+  public static void checkState(boolean result, String format, int p1, int p2) {
+    if (!result) {
       throw new IllegalStateException(String.format(format, p1, p2));
     }
   }
 
   /**
-   * Check the {@code state} is {@code true}.
+   * Check the {@code result} is {@code true}.
    *
    * <p>If not {@code true} the exception message is formed using
    * {@link String#format(String, Object...)}.
    *
-   * @param state the state
+   * @param result the result
    * @param format the format of the exception message
-   * @param args the arguments of the exception message
-   * @throws IllegalStateException If not {@code true}
+   * @param p1 the first argument of the exception message
+   * @param p2 the second argument of the exception message
+   * @throws IllegalStateException if not {@code true}
    */
-  public static void checkState(final boolean state, String format, Object... args) {
-    if (!state) {
-      throw new IllegalStateException(String.format(format, args));
+  public static void checkState(boolean result, String format, long p1, long p2) {
+    if (!result) {
+      throw new IllegalStateException(String.format(format, p1, p2));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @param p2 the second argument of the exception message
+   * @throws IllegalStateException if not {@code true}
+   */
+  public static void checkState(boolean result, String format, float p1, float p2) {
+    if (!result) {
+      throw new IllegalStateException(String.format(format, p1, p2));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @param p2 the second argument of the exception message
+   * @throws IllegalStateException if not {@code true}
+   */
+  public static void checkState(boolean result, String format, double p1, double p2) {
+    if (!result) {
+      throw new IllegalStateException(String.format(format, p1, p2));
+    }
+  }
+
+  /**
+   * Check the {@code result} is {@code true}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param result the result
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @param p2 the second argument of the exception message
+   * @throws IllegalStateException if not {@code true}
+   */
+  public static void checkState(boolean result, String format, Object p1, Object p2) {
+    if (!result) {
+      throw new IllegalStateException(String.format(format, p1, p2));
     }
   }
 
   /**
    * Checks that the specified object reference is not {@code null}.
    *
-   * <p>If not {@code true} the exception message is formed using {@link String#valueOf(Object)}.
-   *
-   * @param object the object reference to check for nullity
    * @param <T> the type of the reference
+   * @param object the object reference to check for nullity
    * @return {@code object} if not {@code null}
    * @throws NullPointerException if {@code object} is {@code null}
    */
@@ -317,6 +543,8 @@ public final class ValidationUtils {
 
   /**
    * Checks that the specified object reference is not {@code null}.
+   *
+   * <p>If not {@code true} the exception message is formed using {@link String#valueOf(Object)}.
    *
    * @param <T> the type of the reference
    * @param object the object reference to check for nullity
@@ -334,7 +562,27 @@ public final class ValidationUtils {
   /**
    * Checks that the specified object reference is not {@code null}.
    *
-   * <p>If {@code null} the exception message is formed using
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param <T> the type of the reference
+   * @param object the object reference to check for nullity
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @return {@code object} if not {@code null}
+   * @throws NullPointerException if {@code object} is {@code null}
+   */
+  public static <T> T checkNotNull(T object, String format, byte p1) {
+    if (object == null) {
+      throw new NullPointerException(String.format(format, p1));
+    }
+    return object;
+  }
+
+  /**
+   * Checks that the specified object reference is not {@code null}.
+   *
+   * <p>If not {@code true} the exception message is formed using
    * {@link String#format(String, Object...)}.
    *
    * @param <T> the type of the reference
@@ -354,7 +602,67 @@ public final class ValidationUtils {
   /**
    * Checks that the specified object reference is not {@code null}.
    *
-   * <p>If {@code null} the exception message is formed using
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param <T> the type of the reference
+   * @param object the object reference to check for nullity
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @return {@code object} if not {@code null}
+   * @throws NullPointerException if {@code object} is {@code null}
+   */
+  public static <T> T checkNotNull(T object, String format, long p1) {
+    if (object == null) {
+      throw new NullPointerException(String.format(format, p1));
+    }
+    return object;
+  }
+
+  /**
+   * Checks that the specified object reference is not {@code null}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param <T> the type of the reference
+   * @param object the object reference to check for nullity
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @return {@code object} if not {@code null}
+   * @throws NullPointerException if {@code object} is {@code null}
+   */
+  public static <T> T checkNotNull(T object, String format, float p1) {
+    if (object == null) {
+      throw new NullPointerException(String.format(format, p1));
+    }
+    return object;
+  }
+
+  /**
+   * Checks that the specified object reference is not {@code null}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param <T> the type of the reference
+   * @param object the object reference to check for nullity
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @return {@code object} if not {@code null}
+   * @throws NullPointerException if {@code object} is {@code null}
+   */
+  public static <T> T checkNotNull(T object, String format, double p1) {
+    if (object == null) {
+      throw new NullPointerException(String.format(format, p1));
+    }
+    return object;
+  }
+
+  /**
+   * Checks that the specified object reference is not {@code null}.
+   *
+   * <p>If not {@code true} the exception message is formed using
    * {@link String#format(String, Object...)}.
    *
    * @param <T> the type of the reference
@@ -374,7 +682,28 @@ public final class ValidationUtils {
   /**
    * Checks that the specified object reference is not {@code null}.
    *
-   * <p>If {@code null} the exception message is formed using
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param <T> the type of the reference
+   * @param object the object reference to check for nullity
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @param p2 the second argument of the exception message
+   * @return {@code object} if not {@code null}
+   * @throws NullPointerException if {@code object} is {@code null}
+   */
+  public static <T> T checkNotNull(T object, String format, byte p1, byte p2) {
+    if (object == null) {
+      throw new NullPointerException(String.format(format, p1, p2));
+    }
+    return object;
+  }
+
+  /**
+   * Checks that the specified object reference is not {@code null}.
+   *
+   * <p>If not {@code true} the exception message is formed using
    * {@link String#format(String, Object...)}.
    *
    * @param <T> the type of the reference
@@ -395,7 +724,70 @@ public final class ValidationUtils {
   /**
    * Checks that the specified object reference is not {@code null}.
    *
-   * <p>If {@code null} the exception message is formed using
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param <T> the type of the reference
+   * @param object the object reference to check for nullity
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @param p2 the second argument of the exception message
+   * @return {@code object} if not {@code null}
+   * @throws NullPointerException if {@code object} is {@code null}
+   */
+  public static <T> T checkNotNull(T object, String format, long p1, long p2) {
+    if (object == null) {
+      throw new NullPointerException(String.format(format, p1, p2));
+    }
+    return object;
+  }
+
+  /**
+   * Checks that the specified object reference is not {@code null}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param <T> the type of the reference
+   * @param object the object reference to check for nullity
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @param p2 the second argument of the exception message
+   * @return {@code object} if not {@code null}
+   * @throws NullPointerException if {@code object} is {@code null}
+   */
+  public static <T> T checkNotNull(T object, String format, float p1, float p2) {
+    if (object == null) {
+      throw new NullPointerException(String.format(format, p1, p2));
+    }
+    return object;
+  }
+
+  /**
+   * Checks that the specified object reference is not {@code null}.
+   *
+   * <p>If not {@code true} the exception message is formed using
+   * {@link String#format(String, Object...)}.
+   *
+   * @param <T> the type of the reference
+   * @param object the object reference to check for nullity
+   * @param format the format of the exception message
+   * @param p1 the first argument of the exception message
+   * @param p2 the second argument of the exception message
+   * @return {@code object} if not {@code null}
+   * @throws NullPointerException if {@code object} is {@code null}
+   */
+  public static <T> T checkNotNull(T object, String format, double p1, double p2) {
+    if (object == null) {
+      throw new NullPointerException(String.format(format, p1, p2));
+    }
+    return object;
+  }
+
+  /**
+   * Checks that the specified object reference is not {@code null}.
+   *
+   * <p>If not {@code true} the exception message is formed using
    * {@link String#format(String, Object...)}.
    *
    * @param <T> the type of the reference
@@ -409,26 +801,6 @@ public final class ValidationUtils {
   public static <T> T checkNotNull(T object, String format, Object p1, Object p2) {
     if (object == null) {
       throw new NullPointerException(String.format(format, p1, p2));
-    }
-    return object;
-  }
-
-  /**
-   * Checks that the specified object reference is not {@code null}.
-   *
-   * <p>If {@code null} the exception message is formed using
-   * {@link String#format(String, Object...)}.
-   *
-   * @param <T> the type of the reference
-   * @param object the object reference to check for nullity
-   * @param format the format of the exception message
-   * @param args the arguments of the exception message
-   * @return {@code object} if not {@code null}
-   * @throws NullPointerException if {@code object} is {@code null}
-   */
-  public static <T> T checkNotNull(T object, String format, Object... args) {
-    if (object == null) {
-      throw new NullPointerException(String.format(format, args));
     }
     return object;
   }

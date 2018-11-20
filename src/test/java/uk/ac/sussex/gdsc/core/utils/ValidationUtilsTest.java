@@ -1,10 +1,255 @@
 package uk.ac.sussex.gdsc.core.utils;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
 public class ValidationUtilsTest {
+
+  private static final String[] series = {"first", "second"};
+
+  private static Logger logger;
+
+  /** The level at which the generated methods are logged. */
+  private Level level = Level.ALL;
+
+  @BeforeAll
+  public static void beforeAll() {
+    logger = Logger.getLogger(ValidationUtilsTest.class.getName());
+  }
+
+  @AfterAll
+  public static void afterAll() {
+    logger = null;
+  }
+
+  /**
+   * This is not a test but is inline generation of the class methods.
+   */
+  @Test
+  public void canGenerateMethods() {
+    String[] name = {"Argument", "State", "NotNull"};
+    String[] ex = {"IllegalArgument", "IllegalState", "NullPointer"};
+    boolean[] generics = {false, false, true};
+    StringBuilder sb = new StringBuilder(1000);
+    sb.append('\n');
+    for (int i = 0; i < name.length; i++) {
+      generateMethods(sb, generics[i], name[i], ex[i]);
+    }
+    logger.log(level, () -> sb.toString());
+  }
+
+  private static void generateMethods(StringBuilder sb, boolean generic, String methodSuffix,
+      String exceptionPrefix) {
+    String[] types = {"byte", "int", "long", "float", "double", "Object"};
+    doGenerateMethods(sb, generic, methodSuffix, exceptionPrefix, false);
+    doGenerateMethods(sb, generic, methodSuffix, exceptionPrefix, true);
+    for (String type : types) {
+      doGenerateMethods(sb, generic, methodSuffix, exceptionPrefix, true, type);
+    }
+    for (String type : types) {
+      doGenerateMethods(sb, generic, methodSuffix, exceptionPrefix, true, type, type);
+    }
+  }
+
+  private static void doGenerateMethods(StringBuilder sb, boolean generic, String methodSuffix,
+      String exceptionPrefix, boolean args, String... params) {
+    sb.append("/**\n");
+    if (generic) {
+      sb.append(" * Checks that the specified object reference is not {@code null}.\n");
+    } else {
+      sb.append(" * Check the {@code result} is {@code true}.\n");
+    }
+    sb.append(" *\n");
+    if (args) {
+      if (params.length > 0) {
+        sb.append(" * <p>If not {@code true} the exception message is formed using\n");
+        sb.append(" * {@link String#format(String, Object...)}.\n");
+        sb.append(" *\n");
+      } else if (params.length == 0) {
+        sb.append(" * <p>If not {@code true} the exception message is formed using\n");
+        sb.append(" * {@link String#valueOf(Object)}.\n");
+        sb.append(" *\n");
+      }
+    }
+    if (generic) {
+      sb.append(" * @param <T> the type of the reference\n");
+      sb.append(" * @param object the object reference to check for nullity\n");
+    } else {
+      sb.append(" * @param result the result\n");
+    }
+    if (args) {
+      if (params.length > 0) {
+        sb.append(" * @param format the format of the exception message\n");
+      } else if (params.length == 0) {
+        sb.append(" * @param message the object used to form the exception message\n");
+      }
+    }
+    for (int i = 0; i < params.length; i++) {
+      sb.append(" * @param p").append(i + 1).append(" the ").append(series[i])
+          .append(" argument of the exception message\n");
+    }
+    if (generic) {
+      sb.append(" * @return {@code object} if not {@code null}\n");
+      sb.append(" * @throws ").append(exceptionPrefix)
+          .append("Exception if {@code object} is {@code null}\n");
+    } else {
+      sb.append(" * @throws ").append(exceptionPrefix).append("Exception if not {@code true}\n");
+    }
+    sb.append(" */\n");
+    if (generic) {
+      sb.append("public static <T> T check").append(methodSuffix);
+      sb.append("(T object");
+    } else {
+      sb.append("public static void check").append(methodSuffix);
+      sb.append("(boolean result");
+    }
+    if (args) {
+      if (params.length > 0) {
+        sb.append(", String format");
+      } else if (params.length == 0) {
+        sb.append(", Object message");
+      }
+    }
+    for (int i = 0; i < params.length; i++) {
+      sb.append(", ").append(params[i]).append(" p").append(i + 1);
+    }
+    sb.append(") {\n");
+    if (generic) {
+      sb.append("  if (object == null) {\n");
+    } else {
+      sb.append("  if (!result) {\n");
+    }
+    sb.append("throw new ").append(exceptionPrefix).append("Exception(");
+    if (args) {
+      if (params.length > 0) {
+        sb.append("String.format(format");
+        for (int i = 0; i < params.length; i++) {
+          sb.append(", p").append(i + 1);
+        }
+        sb.append(")");
+      } else if (params.length == 0) {
+        sb.append("String.valueOf(message)");
+      }
+    }
+    sb.append(");\n");
+    sb.append("  }\n");
+    if (generic) {
+      sb.append("  return object;\n");
+    }
+    sb.append("}\n");
+  }
+
+  /**
+   * This is not a test but is inline generation of the test class methods.
+   */
+  @Test
+  public void canGenerateTestMethods() {
+    String[] name = {"Argument", "State", "NotNull"};
+    String[] ex = {"IllegalArgument", "IllegalState", "NullPointer"};
+    boolean[] generics = {false, false, true};
+    StringBuilder sb = new StringBuilder(1000);
+    sb.append('\n');
+    for (int i = 0; i < name.length; i++) {
+      generateTestMethods(sb, generics[i], name[i], ex[i]);
+    }
+    logger.log(level, () -> sb.toString());
+  }
+
+  private static void generateTestMethods(StringBuilder sb, boolean generic, String methodSuffix,
+      String exceptionPrefix) {
+    String[] types = {"byte", "int", "long", "float", "double", "Object"};
+    doGenerateTestMethods(sb, generic, methodSuffix, exceptionPrefix, false);
+    doGenerateTestMethods(sb, generic, methodSuffix, exceptionPrefix, true);
+    for (String type : types) {
+      doGenerateTestMethods(sb, generic, methodSuffix, exceptionPrefix, true, type);
+    }
+    for (String type : types) {
+      doGenerateTestMethods(sb, generic, methodSuffix, exceptionPrefix, true, type, type);
+    }
+  }
+
+  private static void doGenerateTestMethods(StringBuilder sb, boolean generic, String methodSuffix,
+      String exceptionPrefix, boolean args, String... params) {
+    sb.append("@Test\n");
+    sb.append("public void canCheck").append(methodSuffix);
+    if (args) {
+      sb.append("With");
+      for (int i = 0; i < params.length; i++) {
+        sb.append(Character.toUpperCase(params[i].charAt(0))).append(params[i], 1,
+            params[i].length());
+      }
+      sb.append("Message");
+    }
+    sb.append("() {\n");
+    if (!args) {
+      sb.append("ValidationUtils.check").append(methodSuffix).append('(')
+          .append(generic ? "this" : "true").append(");\n");
+      sb.append("Assertions.assertThrows(").append(exceptionPrefix)
+          .append("Exception.class, () -> {\n");
+      sb.append("  ValidationUtils.check").append(methodSuffix).append('(')
+          .append(generic ? "null" : "false").append(");\n");
+      sb.append("});\n");
+      sb.append("}\n");
+      return;
+    }
+
+    sb.append("final String message = \"failure message");
+    for (int i = 0; i < params.length; i++) {
+      sb.append(" %s");
+    }
+    sb.append("\";\n");
+    for (int i = 0; i < params.length; i++) {
+      sb.append("final ").append(params[i]).append(" p").append(i + 1).append(" = ").append(i + 1)
+          .append(";\n");
+    }
+
+    // Check can pass
+    sb.append('\n');
+    if (generic) {
+      sb.append("final Object anything = new Object();\nfinal Object result = ");
+    }
+    sb.append("ValidationUtils.check").append(methodSuffix).append('(')
+        .append(generic ? "anything" : "true").append(", message");
+    for (int i = 0; i < params.length; i++) {
+      sb.append(", p").append(i + 1);
+    }
+    sb.append(");\n");
+    if (generic) {
+      sb.append("Assertions.assertSame(anything, result, \"Did not return the same object\");\n");
+    }
+    sb.append("\n");
+
+    // Check failure
+    sb.append("final ").append(exceptionPrefix).append("Exception ex =\n");
+    sb.append("Assertions.assertThrows(").append(exceptionPrefix)
+        .append("Exception.class, () -> {\n");
+    sb.append("  ValidationUtils.check").append(methodSuffix).append('(')
+        .append(generic ? "null" : "false").append(", message");
+    for (int i = 0; i < params.length; i++) {
+      sb.append(", p").append(i + 1);
+    }
+    sb.append(");\n");
+    sb.append("});\n");
+    sb.append("final String expected = String.");
+    if (params.length == 0) {
+      sb.append("valueOf(message");
+    } else {
+      sb.append("format(message");
+      for (int i = 0; i < params.length; i++) {
+        sb.append(", p").append(i + 1);
+      }
+    }
+    sb.append(");\n");
+    sb.append(
+        "Assertions.assertEquals(expected, ex.getMessage(), \"Does not format the message\");\n");
+    sb.append("}\n");
+  }
 
   @Test
   public void canGetDefaultIfNull() {
@@ -21,235 +266,625 @@ public class ValidationUtilsTest {
 
   @Test
   public void canCheckArgument() {
+    ValidationUtils.checkArgument(true);
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       ValidationUtils.checkArgument(false);
     });
   }
 
   @Test
-  public void canCheckArgumentWithObjectMessage() {
+  public void canCheckArgumentWithMessage() {
     final String message = "failure message";
+
+    ValidationUtils.checkArgument(true, message);
+
     final IllegalArgumentException ex =
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
           ValidationUtils.checkArgument(false, message);
         });
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.valueOf(message);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckArgumentWithIntArgMessage() {
-    final String format = "failure %d message";
-    final int p1 = 44;
+  public void canCheckArgumentWithByteMessage() {
+    final String message = "failure message %s";
+    final byte p1 = 1;
+
+    ValidationUtils.checkArgument(true, message, p1);
+
     final IllegalArgumentException ex =
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-          ValidationUtils.checkArgument(false, format, p1);
+          ValidationUtils.checkArgument(false, message, p1);
         });
-    final String message = String.format(format, p1);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckArgumentWithObjectArgMessage() {
-    final String format = "failure %s message";
-    final String p1 = "one";
+  public void canCheckArgumentWithIntMessage() {
+    final String message = "failure message %s";
+    final int p1 = 1;
+
+    ValidationUtils.checkArgument(true, message, p1);
+
     final IllegalArgumentException ex =
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-          ValidationUtils.checkArgument(false, format, p1);
+          ValidationUtils.checkArgument(false, message, p1);
         });
-    final String message = String.format(format, p1);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckArgumentWithIntIntArgMessage() {
-    final String format = "failure %d message %d";
-    final int p1 = 44;
-    final int p2 = 123;
+  public void canCheckArgumentWithLongMessage() {
+    final String message = "failure message %s";
+    final long p1 = 1;
+
+    ValidationUtils.checkArgument(true, message, p1);
+
     final IllegalArgumentException ex =
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-          ValidationUtils.checkArgument(false, format, p1, p2);
+          ValidationUtils.checkArgument(false, message, p1);
         });
-    final String message = String.format(format, p1, p2);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckArgumentWithObjectObjectArgMessage() {
-    final String format = "failure %s message %s";
-    final String p1 = "one";
-    final String p2 = "two";
+  public void canCheckArgumentWithFloatMessage() {
+    final String message = "failure message %s";
+    final float p1 = 1;
+
+    ValidationUtils.checkArgument(true, message, p1);
+
     final IllegalArgumentException ex =
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-          ValidationUtils.checkArgument(false, format, p1, p2);
+          ValidationUtils.checkArgument(false, message, p1);
         });
-    final String message = String.format(format, p1, p2);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckArgumentWithVarArgsMessage() {
-    final String format = "failure %d message";
-    final Object[] args = new Object[] {44};
+  public void canCheckArgumentWithDoubleMessage() {
+    final String message = "failure message %s";
+    final double p1 = 1;
+
+    ValidationUtils.checkArgument(true, message, p1);
+
     final IllegalArgumentException ex =
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-          ValidationUtils.checkArgument(false, format, args);
+          ValidationUtils.checkArgument(false, message, p1);
         });
-    final String message = String.format(format, args);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckArgumentWithObjectMessage() {
+    final String message = "failure message %s";
+    final Object p1 = 1;
+
+    ValidationUtils.checkArgument(true, message, p1);
+
+    final IllegalArgumentException ex =
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+          ValidationUtils.checkArgument(false, message, p1);
+        });
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckArgumentWithByteByteMessage() {
+    final String message = "failure message %s %s";
+    final byte p1 = 1;
+    final byte p2 = 2;
+
+    ValidationUtils.checkArgument(true, message, p1, p2);
+
+    final IllegalArgumentException ex =
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+          ValidationUtils.checkArgument(false, message, p1, p2);
+        });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckArgumentWithIntIntMessage() {
+    final String message = "failure message %s %s";
+    final int p1 = 1;
+    final int p2 = 2;
+
+    ValidationUtils.checkArgument(true, message, p1, p2);
+
+    final IllegalArgumentException ex =
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+          ValidationUtils.checkArgument(false, message, p1, p2);
+        });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckArgumentWithLongLongMessage() {
+    final String message = "failure message %s %s";
+    final long p1 = 1;
+    final long p2 = 2;
+
+    ValidationUtils.checkArgument(true, message, p1, p2);
+
+    final IllegalArgumentException ex =
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+          ValidationUtils.checkArgument(false, message, p1, p2);
+        });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckArgumentWithFloatFloatMessage() {
+    final String message = "failure message %s %s";
+    final float p1 = 1;
+    final float p2 = 2;
+
+    ValidationUtils.checkArgument(true, message, p1, p2);
+
+    final IllegalArgumentException ex =
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+          ValidationUtils.checkArgument(false, message, p1, p2);
+        });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckArgumentWithDoubleDoubleMessage() {
+    final String message = "failure message %s %s";
+    final double p1 = 1;
+    final double p2 = 2;
+
+    ValidationUtils.checkArgument(true, message, p1, p2);
+
+    final IllegalArgumentException ex =
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+          ValidationUtils.checkArgument(false, message, p1, p2);
+        });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckArgumentWithObjectObjectMessage() {
+    final String message = "failure message %s %s";
+    final Object p1 = 1;
+    final Object p2 = 2;
+
+    ValidationUtils.checkArgument(true, message, p1, p2);
+
+    final IllegalArgumentException ex =
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+          ValidationUtils.checkArgument(false, message, p1, p2);
+        });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
   public void canCheckState() {
+    ValidationUtils.checkState(true);
     Assertions.assertThrows(IllegalStateException.class, () -> {
       ValidationUtils.checkState(false);
     });
   }
 
   @Test
-  public void canCheckStateWithObjectMessage() {
+  public void canCheckStateWithMessage() {
     final String message = "failure message";
+
+    ValidationUtils.checkState(true, message);
+
     final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class, () -> {
       ValidationUtils.checkState(false, message);
     });
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.valueOf(message);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckStateWithIntArgMessage() {
-    final String format = "failure %d message";
-    final int p1 = 44;
+  public void canCheckStateWithByteMessage() {
+    final String message = "failure message %s";
+    final byte p1 = 1;
+
+    ValidationUtils.checkState(true, message, p1);
+
     final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class, () -> {
-      ValidationUtils.checkState(false, format, p1);
+      ValidationUtils.checkState(false, message, p1);
     });
-    final String message = String.format(format, p1);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckStateWithObjectArgMessage() {
-    final String format = "failure %s message";
-    final String p1 = "one";
+  public void canCheckStateWithIntMessage() {
+    final String message = "failure message %s";
+    final int p1 = 1;
+
+    ValidationUtils.checkState(true, message, p1);
+
     final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class, () -> {
-      ValidationUtils.checkState(false, format, p1);
+      ValidationUtils.checkState(false, message, p1);
     });
-    final String message = String.format(format, p1);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckStateWithIntIntArgMessage() {
-    final String format = "failure %d message %d";
-    final int p1 = 44;
-    final int p2 = 123;
+  public void canCheckStateWithLongMessage() {
+    final String message = "failure message %s";
+    final long p1 = 1;
+
+    ValidationUtils.checkState(true, message, p1);
+
     final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class, () -> {
-      ValidationUtils.checkState(false, format, p1, p2);
+      ValidationUtils.checkState(false, message, p1);
     });
-    final String message = String.format(format, p1, p2);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckStateWithObjectObjectArgMessage() {
-    final String format = "failure %s message %s";
-    final String p1 = "one";
-    final String p2 = "two";
+  public void canCheckStateWithFloatMessage() {
+    final String message = "failure message %s";
+    final float p1 = 1;
+
+    ValidationUtils.checkState(true, message, p1);
+
     final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class, () -> {
-      ValidationUtils.checkState(false, format, p1, p2);
+      ValidationUtils.checkState(false, message, p1);
     });
-    final String message = String.format(format, p1, p2);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckStateWithVarArgsMessage() {
-    final String format = "failure %d message";
-    final Object[] args = new Object[] {44};
+  public void canCheckStateWithDoubleMessage() {
+    final String message = "failure message %s";
+    final double p1 = 1;
+
+    ValidationUtils.checkState(true, message, p1);
+
     final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class, () -> {
-      ValidationUtils.checkState(false, format, args);
+      ValidationUtils.checkState(false, message, p1);
     });
-    final String message = String.format(format, args);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckStateWithObjectMessage() {
+    final String message = "failure message %s";
+    final Object p1 = 1;
+
+    ValidationUtils.checkState(true, message, p1);
+
+    final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class, () -> {
+      ValidationUtils.checkState(false, message, p1);
+    });
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckStateWithByteByteMessage() {
+    final String message = "failure message %s %s";
+    final byte p1 = 1;
+    final byte p2 = 2;
+
+    ValidationUtils.checkState(true, message, p1, p2);
+
+    final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class, () -> {
+      ValidationUtils.checkState(false, message, p1, p2);
+    });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckStateWithIntIntMessage() {
+    final String message = "failure message %s %s";
+    final int p1 = 1;
+    final int p2 = 2;
+
+    ValidationUtils.checkState(true, message, p1, p2);
+
+    final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class, () -> {
+      ValidationUtils.checkState(false, message, p1, p2);
+    });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckStateWithLongLongMessage() {
+    final String message = "failure message %s %s";
+    final long p1 = 1;
+    final long p2 = 2;
+
+    ValidationUtils.checkState(true, message, p1, p2);
+
+    final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class, () -> {
+      ValidationUtils.checkState(false, message, p1, p2);
+    });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckStateWithFloatFloatMessage() {
+    final String message = "failure message %s %s";
+    final float p1 = 1;
+    final float p2 = 2;
+
+    ValidationUtils.checkState(true, message, p1, p2);
+
+    final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class, () -> {
+      ValidationUtils.checkState(false, message, p1, p2);
+    });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckStateWithDoubleDoubleMessage() {
+    final String message = "failure message %s %s";
+    final double p1 = 1;
+    final double p2 = 2;
+
+    ValidationUtils.checkState(true, message, p1, p2);
+
+    final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class, () -> {
+      ValidationUtils.checkState(false, message, p1, p2);
+    });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckStateWithObjectObjectMessage() {
+    final String message = "failure message %s %s";
+    final Object p1 = 1;
+    final Object p2 = 2;
+
+    ValidationUtils.checkState(true, message, p1, p2);
+
+    final IllegalStateException ex = Assertions.assertThrows(IllegalStateException.class, () -> {
+      ValidationUtils.checkState(false, message, p1, p2);
+    });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
   public void canCheckNotNull() {
-    final Object object = new Object();
-    Assertions.assertSame(object, ValidationUtils.checkNotNull(object),
-        "Does not return the same object");
+    ValidationUtils.checkNotNull(this);
     Assertions.assertThrows(NullPointerException.class, () -> {
       ValidationUtils.checkNotNull(null);
     });
   }
 
   @Test
-  public void canCheckNotNullWithObjectMessage() {
+  public void canCheckNotNullWithMessage() {
     final String message = "failure message";
-    final Object object = new Object();
-    Assertions.assertSame(object, ValidationUtils.checkNotNull(object, message),
-        "Does not return the same object");
+
+    final Object anything = new Object();
+    final Object result = ValidationUtils.checkNotNull(anything, message);
+    Assertions.assertSame(anything, result, "Did not return the same object");
+
     final NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> {
       ValidationUtils.checkNotNull(null, message);
     });
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.valueOf(message);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckNotNullWithIntArgMessage() {
-    final String format = "failure %d message";
-    final int p1 = 44;
+  public void canCheckNotNullWithByteMessage() {
+    final String message = "failure message %s";
+    final byte p1 = 1;
+
+    final Object anything = new Object();
+    final Object result = ValidationUtils.checkNotNull(anything, message, p1);
+    Assertions.assertSame(anything, result, "Did not return the same object");
+
     final NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> {
-      ValidationUtils.checkNotNull(null, format, p1);
+      ValidationUtils.checkNotNull(null, message, p1);
     });
-    final String message = String.format(format, p1);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckNotNullWithObjectArgMessage() {
-    final String format = "failure %s message";
-    final String p1 = "one";
+  public void canCheckNotNullWithIntMessage() {
+    final String message = "failure message %s";
+    final int p1 = 1;
+
+    final Object anything = new Object();
+    final Object result = ValidationUtils.checkNotNull(anything, message, p1);
+    Assertions.assertSame(anything, result, "Did not return the same object");
+
     final NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> {
-      ValidationUtils.checkNotNull(null, format, p1);
+      ValidationUtils.checkNotNull(null, message, p1);
     });
-    final String message = String.format(format, p1);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckNotNullWithIntIntArgMessage() {
-    final String format = "failure %d message %d";
-    final int p1 = 44;
-    final int p2 = 123;
+  public void canCheckNotNullWithLongMessage() {
+    final String message = "failure message %s";
+    final long p1 = 1;
+
+    final Object anything = new Object();
+    final Object result = ValidationUtils.checkNotNull(anything, message, p1);
+    Assertions.assertSame(anything, result, "Did not return the same object");
+
     final NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> {
-      ValidationUtils.checkNotNull(null, format, p1, p2);
+      ValidationUtils.checkNotNull(null, message, p1);
     });
-    final String message = String.format(format, p1, p2);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckNotNullWithObjectObjectArgMessage() {
-    final String format = "failure %s message %s";
-    final String p1 = "one";
-    final String p2 = "two";
+  public void canCheckNotNullWithFloatMessage() {
+    final String message = "failure message %s";
+    final float p1 = 1;
+
+    final Object anything = new Object();
+    final Object result = ValidationUtils.checkNotNull(anything, message, p1);
+    Assertions.assertSame(anything, result, "Did not return the same object");
+
     final NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> {
-      ValidationUtils.checkNotNull(null, format, p1, p2);
+      ValidationUtils.checkNotNull(null, message, p1);
     });
-    final String message = String.format(format, p1, p2);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 
   @Test
-  public void canCheckNotNullWithVarArgsMessage() {
-    final String format = "failure %d message";
-    final Object[] args = new Object[] {44};
-    final Object object = new Object();
-    Assertions.assertSame(object, ValidationUtils.checkNotNull(object, format, args),
-        "Does not return the same object");
+  public void canCheckNotNullWithDoubleMessage() {
+    final String message = "failure message %s";
+    final double p1 = 1;
+
+    final Object anything = new Object();
+    final Object result = ValidationUtils.checkNotNull(anything, message, p1);
+    Assertions.assertSame(anything, result, "Did not return the same object");
+
     final NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> {
-      ValidationUtils.checkNotNull(null, format, args);
+      ValidationUtils.checkNotNull(null, message, p1);
     });
-    final String message = String.format(format, args);
-    Assertions.assertEquals(message, ex.getMessage(), "Does not format the message");
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckNotNullWithObjectMessage() {
+    final String message = "failure message %s";
+    final Object p1 = 1;
+
+    final Object anything = new Object();
+    final Object result = ValidationUtils.checkNotNull(anything, message, p1);
+    Assertions.assertSame(anything, result, "Did not return the same object");
+
+    final NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> {
+      ValidationUtils.checkNotNull(null, message, p1);
+    });
+    final String expected = String.format(message, p1);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckNotNullWithByteByteMessage() {
+    final String message = "failure message %s %s";
+    final byte p1 = 1;
+    final byte p2 = 2;
+
+    final Object anything = new Object();
+    final Object result = ValidationUtils.checkNotNull(anything, message, p1, p2);
+    Assertions.assertSame(anything, result, "Did not return the same object");
+
+    final NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> {
+      ValidationUtils.checkNotNull(null, message, p1, p2);
+    });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckNotNullWithIntIntMessage() {
+    final String message = "failure message %s %s";
+    final int p1 = 1;
+    final int p2 = 2;
+
+    final Object anything = new Object();
+    final Object result = ValidationUtils.checkNotNull(anything, message, p1, p2);
+    Assertions.assertSame(anything, result, "Did not return the same object");
+
+    final NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> {
+      ValidationUtils.checkNotNull(null, message, p1, p2);
+    });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckNotNullWithLongLongMessage() {
+    final String message = "failure message %s %s";
+    final long p1 = 1;
+    final long p2 = 2;
+
+    final Object anything = new Object();
+    final Object result = ValidationUtils.checkNotNull(anything, message, p1, p2);
+    Assertions.assertSame(anything, result, "Did not return the same object");
+
+    final NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> {
+      ValidationUtils.checkNotNull(null, message, p1, p2);
+    });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckNotNullWithFloatFloatMessage() {
+    final String message = "failure message %s %s";
+    final float p1 = 1;
+    final float p2 = 2;
+
+    final Object anything = new Object();
+    final Object result = ValidationUtils.checkNotNull(anything, message, p1, p2);
+    Assertions.assertSame(anything, result, "Did not return the same object");
+
+    final NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> {
+      ValidationUtils.checkNotNull(null, message, p1, p2);
+    });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckNotNullWithDoubleDoubleMessage() {
+    final String message = "failure message %s %s";
+    final double p1 = 1;
+    final double p2 = 2;
+
+    final Object anything = new Object();
+    final Object result = ValidationUtils.checkNotNull(anything, message, p1, p2);
+    Assertions.assertSame(anything, result, "Did not return the same object");
+
+    final NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> {
+      ValidationUtils.checkNotNull(null, message, p1, p2);
+    });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
+  }
+
+  @Test
+  public void canCheckNotNullWithObjectObjectMessage() {
+    final String message = "failure message %s %s";
+    final Object p1 = 1;
+    final Object p2 = 2;
+
+    final Object anything = new Object();
+    final Object result = ValidationUtils.checkNotNull(anything, message, p1, p2);
+    Assertions.assertSame(anything, result, "Did not return the same object");
+
+    final NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> {
+      ValidationUtils.checkNotNull(null, message, p1, p2);
+    });
+    final String expected = String.format(message, p1, p2);
+    Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
 }
