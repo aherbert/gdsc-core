@@ -45,7 +45,7 @@ public class RankedScoreCalculator {
 
   /**
    * The score for a complete match.
-   * 
+   *
    * <p>True positive scores can be above this due to multiple matching but a false positive is
    * limited to a maximum of this value.
    */

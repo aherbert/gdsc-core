@@ -163,7 +163,7 @@ public class HistogramPlot {
      * @param title The title to prepend to the plot name
      * @return the histogram plot builder
      */
-    public HistogramPlotBuilder setTitle(String title) {
+    public final HistogramPlotBuilder setTitle(String title) {
       this.title = Objects.requireNonNull(title, "Title must not be null");
       return this;
     }
@@ -174,7 +174,7 @@ public class HistogramPlot {
      * @param data the data
      * @return the histogram plot builder
      */
-    public HistogramPlotBuilder setData(DoubleData data) {
+    public final HistogramPlotBuilder setData(DoubleData data) {
       this.data = Objects.requireNonNull(data, "Data must not be null");
       return this;
     }
@@ -185,7 +185,7 @@ public class HistogramPlot {
      * @param name The name of the plotted statistic
      * @return the histogram plot builder
      */
-    public HistogramPlotBuilder setName(String name) {
+    public final HistogramPlotBuilder setName(String name) {
       this.name = Objects.requireNonNull(name, "Name must not be null");
       return this;
     }

@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.filters;
 
 import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.util.FastMath;
 
 /**
@@ -62,7 +63,7 @@ public class NonMaximumSuppression {
    * Class to store scans for candidate maxima. The highest maxima is kept, or if tied then all
    * maxima are kept.
    */
-  private abstract class ScanCandidate {
+  private abstract static class ScanCandidate {
     /** The size (i.e. number of candidates). */
     int size;
     /** The indices. */
@@ -104,7 +105,7 @@ public class NonMaximumSuppression {
    * Class to store scans for candidate maxima. The highest maxima is kept, or if tied then all
    * maxima are kept.
    */
-  private final class FloatScanCandidate extends ScanCandidate {
+  static final class FloatScanCandidate extends ScanCandidate {
     /** The maxima value. */
     float value;
 
@@ -133,6 +134,14 @@ public class NonMaximumSuppression {
       size = 1;
     }
 
+    /**
+     * Adds the given index from the values and scan arrays. If higher then replace the current
+     * maxima. If equal then increase the size to store it in addition.
+     *
+     * @param values the values
+     * @param index the index
+     * @param scan the scan
+     */
     void add(float[] values, int index, int[] scan) {
       final float newValue = values[index];
       if (newValue > value) {
@@ -149,7 +158,7 @@ public class NonMaximumSuppression {
    * Class to store scans for candidate maxima. The highest maxima is kept, or if tied then all
    * maxima are kept.
    */
-  private final class IntScanCandidate extends ScanCandidate {
+  static final class IntScanCandidate extends ScanCandidate {
     /** The maxima value. */
     int value;
 
@@ -178,6 +187,14 @@ public class NonMaximumSuppression {
       size = 1;
     }
 
+    /**
+     * Adds the given index from the values and scan arrays. If higher then replace the current
+     * maxima. If equal then increase the size to store it in addition.
+     *
+     * @param values the values
+     * @param index the index
+     * @param scan the scan
+     */
     void add(int[] values, int index, int[] scan) {
       final int newValue = values[index];
       if (newValue > value) {
@@ -418,7 +435,7 @@ public class NonMaximumSuppression {
       return array;
     }
     if (size == 0) {
-      return new int[0];
+      return ArrayUtils.EMPTY_INT_ARRAY;
     }
     final int[] copy = new int[size];
     System.arraycopy(array, 0, copy, 0, size);
@@ -785,8 +802,8 @@ public class NonMaximumSuppression {
    * @param index the index
    * @return true, if is maxima
    */
-  private static boolean isMaximaNxN(float[] data, boolean[] maximaFlag, int maxx, int maxy, int n,
-      int border, int n1, int index) {
+  protected static boolean isMaximaNxN(float[] data, boolean[] maximaFlag, int maxx, int maxy,
+      int n, int border, int n1, int index) {
     final float v = data[index];
 
     final int mi = index % maxx;
@@ -880,11 +897,12 @@ public class NonMaximumSuppression {
    * @param maxx The width of the data
    * @param maxy The height of the data
    * @param n The block size
+   * @param border the border
    * @param n1 the n+1
    * @param index the index
    * @return true, if is maxima
    */
-  private static boolean isMaximaNxN(float[] data, int maxx, int maxy, int n, int border, int n1,
+  protected static boolean isMaximaNxN(float[] data, int maxx, int maxy, int n, int border, int n1,
       int index) {
     final float v = data[index];
 
@@ -1015,7 +1033,6 @@ public class NonMaximumSuppression {
     return truncate(maxima, maximaCount);
   }
 
-
   /**
    * Search the data for the index of the maximum in each block of size n*n.
    *
@@ -1095,7 +1112,7 @@ public class NonMaximumSuppression {
     final int yblocks = getBlocks(maxy - border, n1);
 
     if (xblocks < 1 || yblocks < 1) {
-      return new int[0];
+      return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
     // The final index in each dimension (where an incomplete block is found).
@@ -1454,7 +1471,7 @@ public class NonMaximumSuppression {
    * @param index1 the first index
    * @param index2 the second index
    */
-  private static void getIndices(IntFixedList indices, float[] data, int index1, int index2) {
+  protected static void getIndices(IntFixedList indices, float[] data, int index1, int index2) {
     indices.clear();
     if (data[index1] > data[index2]) {
       indices.add(index1);
@@ -1588,7 +1605,7 @@ public class NonMaximumSuppression {
    * @param scan the scan offsets
    * @return true, if is a maxima
    */
-  private static boolean isMaxima3x3(float[] data, boolean[] maximaFlag, int index, int[] scan) {
+  protected static boolean isMaxima3x3(float[] data, boolean[] maximaFlag, int index, int[] scan) {
     for (final int offset : scan) {
       if (data[index] < data[index + offset] || maximaFlag[index + offset]) {
         return false;
@@ -1605,7 +1622,7 @@ public class NonMaximumSuppression {
    * @param scan the scan offsets
    * @return true, if is a maxima
    */
-  private static boolean isMaxima3x3(float[] data, int index, int[] scan) {
+  protected static boolean isMaxima3x3(float[] data, int index, int[] scan) {
     for (final int offset : scan) {
       if (data[index] < data[index + offset]) {
         return false;
@@ -2071,7 +2088,7 @@ public class NonMaximumSuppression {
    * @param index the index
    * @return true, if is maxima
    */
-  private static boolean isMaximaNxN(int[] data, boolean[] maximaFlag, int maxx, int maxy, int n,
+  protected static boolean isMaximaNxN(int[] data, boolean[] maximaFlag, int maxx, int maxy, int n,
       int border, int n1, int index) {
     final int v = data[index];
 
@@ -2166,11 +2183,12 @@ public class NonMaximumSuppression {
    * @param maxx The width of the data
    * @param maxy The height of the data
    * @param n The block size
+   * @param border the border
    * @param n1 the n+1
    * @param index the index
    * @return true, if is maxima
    */
-  private static boolean isMaximaNxN(int[] data, int maxx, int maxy, int n, int border, int n1,
+  protected static boolean isMaximaNxN(int[] data, int maxx, int maxy, int n, int border, int n1,
       int index) {
     final int v = data[index];
 
@@ -2381,7 +2399,7 @@ public class NonMaximumSuppression {
     final int yblocks = getBlocks(maxy - border, n1);
 
     if (xblocks < 1 || yblocks < 1) {
-      return new int[0];
+      return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
     // The final index in each dimension (where an incomplete block is found).
@@ -2740,7 +2758,7 @@ public class NonMaximumSuppression {
    * @param index1 the first index
    * @param index2 the second index
    */
-  private static void getIndices(IntFixedList indices, int[] data, int index1, int index2) {
+  protected static void getIndices(IntFixedList indices, int[] data, int index1, int index2) {
     indices.clear();
     if (data[index1] > data[index2]) {
       indices.add(index1);
@@ -2874,7 +2892,7 @@ public class NonMaximumSuppression {
    * @param scan the scan offsets
    * @return true, if is a maxima
    */
-  private static boolean isMaxima3x3(int[] data, boolean[] maximaFlag, int index, int[] scan) {
+  protected static boolean isMaxima3x3(int[] data, boolean[] maximaFlag, int index, int[] scan) {
     for (final int offset : scan) {
       if (data[index] < data[index + offset] || maximaFlag[index + offset]) {
         return false;
@@ -2891,7 +2909,7 @@ public class NonMaximumSuppression {
    * @param scan the scan offsets
    * @return true, if is a maxima
    */
-  private static boolean isMaxima3x3(int[] data, int index, int[] scan) {
+  protected static boolean isMaxima3x3(int[] data, int index, int[] scan) {
     for (final int offset : scan) {
       if (data[index] < data[index + offset]) {
         return false;

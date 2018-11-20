@@ -36,6 +36,7 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.set.hash.TIntHashSet;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.MathArrays;
 
@@ -48,9 +49,6 @@ import java.util.function.Predicate;
  * Contains the result of the OPTICS algorithm.
  */
 public class OpticsResult implements ClusteringResult {
-
-  /** An empty array. Used for no clusters. */
-  private static final int[] EMPTY = new int[0];
 
   /**
    * Use to return only top-level clusters that do not contain other clusters.
@@ -591,28 +589,26 @@ public class OpticsResult implements ClusteringResult {
    */
   public int[] getClustersFromOrder(int start, int end, boolean includeChildren) {
     if (clustering == null) {
-      return EMPTY;
+      return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
     // Check the range covers some of the profile
-    if (end < start) {
-      end = start;
-    }
-    if (start > size() || end < 1) {
-      return EMPTY;
+    int rangeEnd = Math.max(start, end);
+    if (start > size() || rangeEnd < 1) {
+      return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
     // Clip to the range
-    start = Math.max(0, start - 1);
-    end = Math.min(size() - 1, end - 1);
+    int rangeStart = Math.max(0, start - 1);
+    rangeEnd = Math.min(size() - 1, rangeEnd - 1);
 
     final TIntArrayList clusters = new TIntArrayList();
 
-    final boolean single = start == end;
+    final boolean single = rangeStart == rangeEnd;
 
     // Use the hierarchy
     for (final OpticsCluster cluster : clustering) {
-      if (overlap(cluster.start, cluster.end, start, end)) {
+      if (overlap(cluster.start, cluster.end, rangeStart, rangeEnd)) {
         clusters.add(cluster.clusterId);
         if (includeChildren) {
           addClusterHierarchy(cluster.children, clusters);
@@ -685,7 +681,7 @@ public class OpticsResult implements ClusteringResult {
   @Override
   public int[] getParents(int[] clusterIds) {
     if (clusterIds == null) {
-      return EMPTY;
+      return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
     final TIntArrayList parents = new TIntArrayList();

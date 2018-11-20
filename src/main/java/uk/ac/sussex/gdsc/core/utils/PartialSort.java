@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.util.Arrays;
 
 /**
@@ -1005,7 +1007,7 @@ public final class PartialSort {
         return data;
       }
       if (size == 0) {
-        return new double[0];
+        return ArrayUtils.EMPTY_DOUBLE_ARRAY;
       }
       data = Arrays.copyOf(data, size);
     }
@@ -1075,7 +1077,7 @@ public final class PartialSort {
    */
   public static double[] bottom(double[] list, int n) {
     if (list == null) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     return bottom(list, list.length, n);
   }
@@ -1128,7 +1130,7 @@ public final class PartialSort {
    */
   public static double[] bottom(int options, double[] list, int n) {
     if (list == null) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     return bottom(options, list, list.length, n);
   }
@@ -1159,7 +1161,7 @@ public final class PartialSort {
    */
   public static double[] bottom(int options, double[] list, int size, int n) {
     if (list == null || size <= 0) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     size = Math.min(size, list.length);
     if (size <= n) {
@@ -1205,7 +1207,7 @@ public final class PartialSort {
    */
   public static double[] top(double[] list, int n) {
     if (list == null) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     return top(list, list.length, n);
   }
@@ -1258,7 +1260,7 @@ public final class PartialSort {
    */
   public static double[] top(int options, double[] list, int n) {
     if (list == null) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     return top(options, list, list.length, n);
   }
@@ -1289,7 +1291,7 @@ public final class PartialSort {
    */
   public static double[] top(int options, double[] list, int size, int n) {
     if (list == null || size <= 0) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     size = Math.min(size, list.length);
     if (size <= n) {

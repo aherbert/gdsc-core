@@ -57,6 +57,8 @@ import ij.process.ShortProcessor;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -906,7 +908,7 @@ public final class ImageJUtils {
    */
   public static int[] getIdList() {
     final int[] list = WindowManager.getIDList();
-    return (list != null) ? list : new int[0];
+    return (list != null) ? list : ArrayUtils.EMPTY_INT_ARRAY;
   }
 
   /**

@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.util.Arrays;
@@ -40,7 +41,7 @@ import java.util.NoSuchElementException;
 public class StoredDataStatistics extends Statistics implements Iterable<Double>, DoubleData {
 
   /** The values. */
-  private double[] values = new double[0];
+  private double[] values = ArrayUtils.EMPTY_DOUBLE_ARRAY;
 
   /** The cached statistics. */
   private DescriptiveStatistics stats;

@@ -30,6 +30,8 @@ package uk.ac.sussex.gdsc.core.math;
 
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 /**
  * Simple class to calculate the mean and variance of arrayed data using a rolling algorithm.
  *
@@ -327,12 +329,12 @@ public final class RollingArrayMoment implements ArrayMoment {
 
   @Override
   public double[] getFirstMoment() {
-    return (m1 == null) ? new double[0] : m1.clone();
+    return (m1 == null) ? ArrayUtils.EMPTY_DOUBLE_ARRAY : m1.clone();
   }
 
   @Override
   public double[] getSecondMoment() {
-    return (m2 == null) ? new double[0] : m2.clone();
+    return (m2 == null) ? ArrayUtils.EMPTY_DOUBLE_ARRAY : m2.clone();
   }
 
   @Override
@@ -348,7 +350,7 @@ public final class RollingArrayMoment implements ArrayMoment {
   @Override
   public double[] getVariance(boolean isBiasCorrected) {
     if (size == 0) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     if (size == 1) {
       return new double[m2.length];
@@ -373,7 +375,7 @@ public final class RollingArrayMoment implements ArrayMoment {
   @Override
   public double[] getStandardDeviation(boolean isBiasCorrected) {
     if (size == 0) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     if (size == 1) {
       return new double[m2.length];

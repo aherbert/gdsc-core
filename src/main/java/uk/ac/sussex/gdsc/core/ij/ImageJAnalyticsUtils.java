@@ -51,9 +51,9 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
- * Provide a global reference to JGoogleAnalyticsTracker for tracking GDSC ImageJ plugins.
+ * Provide a global reference to a Google Analytics client for tracking GDSC ImageJ plugins.
  */
-public final class ImageJAnalyticsTracker {
+public final class ImageJAnalyticsUtils {
   /**
    * Google Analytics (GA) tracking Id.
    *
@@ -113,7 +113,7 @@ public final class ImageJAnalyticsTracker {
   private static int state = (int) Prefs.get(PROPERTY_GA_STATE, UNKNOWN);
 
   /** No public construction. */
-  private ImageJAnalyticsTracker() {}
+  private ImageJAnalyticsUtils() {}
 
   /**
    * Track a page view.
@@ -143,7 +143,7 @@ public final class ImageJAnalyticsTracker {
    */
   public static void initialise() {
     if (clientParameters == null) {
-      synchronized (ImageJAnalyticsTracker.class) {
+      synchronized (ImageJAnalyticsUtils.class) {
         // In case another thread was waiting to do this
         if (clientParameters != null) {
           return;
@@ -234,7 +234,7 @@ public final class ImageJAnalyticsTracker {
    */
   private static void initialiseTracker() {
     if (tracker == null) {
-      synchronized (ImageJAnalyticsTracker.class) {
+      synchronized (ImageJAnalyticsUtils.class) {
         // Check again since this may be a second thread that was waiting
         if (tracker != null) {
           return;
@@ -355,8 +355,8 @@ public final class ImageJAnalyticsTracker {
    * @param disabled True to disable analytics
    */
   public static void setDisabled(boolean disabled) {
-    final int oldState = ImageJAnalyticsTracker.state;
-    ImageJAnalyticsTracker.state = (disabled) ? DISABLED : ENABLED;
+    final int oldState = ImageJAnalyticsUtils.state;
+    ImageJAnalyticsUtils.state = (disabled) ? DISABLED : ENABLED;
 
     Prefs.set(PROPERTY_GA_LAST_VERSION, getVersion());
 

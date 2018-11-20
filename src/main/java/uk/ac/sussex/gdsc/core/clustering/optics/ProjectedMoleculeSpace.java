@@ -424,13 +424,13 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @param ind points that are in the current set
    * @param begin Interval begin in the ind array
    * @param end Interval end in the ind array
-   * @param dim depth of projection (how many times point set has been split already)
+   * @param depth depth of projection (how many times point set has been split already)
    * @param rand Random generator
    * @param minSplitSize minimum size for which a point set is further partitioned (roughly
    *        corresponds to minPts in OPTICS)
    */
   private void splitupNoSort(TurboList<int[]> splitSets, float[][] projectedPoints, int[] ind,
-      int begin, int end, int dim, PseudoRandomGenerator rand, int minSplitSize) {
+      int begin, int end, int depth, PseudoRandomGenerator rand, int minSplitSize) {
     final int nele = end - begin;
 
     if (nele < 2) {
@@ -438,7 +438,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       return;
     }
 
-    dim = dim % projectedPoints.length;// choose a projection of points
+    // choose a projection of points
+    final int dim = depth % projectedPoints.length;
     final float[] tpro = projectedPoints[dim];
 
     // save set such that used for density or neighbourhood computation

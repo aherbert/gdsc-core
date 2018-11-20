@@ -1211,7 +1211,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
      *
      * @param itr the itr
      */
-    void register(Itr itr) {
+    final void register(Itr itr) {
       // assert lock.getHoldCount() == 1;
       head = new Node(itr, head);
     }

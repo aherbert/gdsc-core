@@ -259,6 +259,8 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
   }
   //@formatter:on
 
+  //CHECKSTYLE.OFF: LocalVariableName
+
   /**
    * Compute an interpolating function for the dataset.
    *
@@ -310,9 +312,9 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     final int xLen = xval.getLength();
     final int yLen = yval.getLength();
     final int zLen = zval.getLength();
-    final int xLen_1 = xLen - 1;
-    final int yLen_1 = yLen - 1;
-    final int zLen_1 = zLen - 1;
+    final int xLenM1 = xLen - 1;
+    final int yLenM1 = yLen - 1;
+    final int zLenM1 = zLen - 1;
 
     // Approximation to the partial derivatives using finite differences.
     final double[][][] dFdX = new double[xLen][yLen][zLen];
@@ -333,24 +335,24 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     ticker.start();
 
     if (threaded) {
-      final long xLen_yLen = (long) xLen * yLen;
+      final long xLenMyLen = (long) xLen * yLen;
 
       // Break this up into reasonable tasks, ensuring we can hold all the futures
       final long[] tmp = getTaskSizeAndNumberOfTasks(total, localTaskSize);
       localTaskSize = tmp[0];
       final long numberOfTasks = tmp[1];
       final TurboList<Future<?>> futures = new TurboList<>((int) numberOfTasks);
-      for (long from = 0; from < total;) {
-        final long from_ = from;
-        final long to = Math.min(from + localTaskSize, total);
+      for (long i = 0; i < total;) {
+        final long from = i;
+        final long to = Math.min(i + localTaskSize, total);
         futures.add(localExecutorService.submit(() -> {
           final double[][][] values = new double[3][3][3];
-          for (long index = from_; index < to; index++) {
-            build(index, xLen, xLen_yLen, xLen_1, yLen_1, zLen_1, xval, yval, zval, fval, dFdX,
-                dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ, values, ticker);
+          for (long index = from; index < to; index++) {
+            buildForInterpolating(index, xLen, xLenMyLen, xLenM1, yLenM1, zLenM1, xval, yval, zval,
+                fval, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ, values, ticker);
           }
         }));
-        from = to;
+        i = to;
       }
 
       ConcurrencyUtils.waitForCompletionUnchecked(futures);
@@ -358,87 +360,48 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
       final double[][][] values = new double[3][3][3];
 
       // Updated to handle edges
-
+      int nI = 0;
+      int pI = 0;
+      double deltaX = 0;
       for (int i = 0; i < xLen; i++) {
 
-        final boolean edgeX = i == 0 || i == xLen_1;
-        final int nI;
-        final int pI;
-        final double deltaX;
-        if (edgeX) {
-          // Ignored
-          nI = pI = 0;
-          deltaX = 0;
-        } else {
+        final boolean edgeX = i == 0 || i == xLenM1;
+        if (!edgeX) {
+          // Not ignored so compute next and previous
           nI = i + 1;
           pI = i - 1;
           deltaX = xval.get(nI) - xval.get(pI);
         }
 
+        int nJ = 0;
+        int pJ = 0;
+        double deltaY = 0;
         for (int j = 0; j < yLen; j++) {
 
-          final boolean edgeY = j == 0 || j == yLen_1;
-          final int nJ;
-          final int pJ;
-          final double deltaY;
-          if (edgeY) {
-            // Ignored
-            nJ = pJ = 0;
-            deltaY = 0;
-          } else {
+          final boolean edgeY = j == 0 || j == yLenM1;
+          if (!edgeY) {
+            // Not ignored so compute next and previous
             nJ = j + 1;
             pJ = j - 1;
             deltaY = yval.get(nJ) - yval.get(pJ);
           }
 
-          final boolean edgeXy = edgeX || edgeY;
-          final double deltaXy = deltaX * deltaY;
-
+          int nK = 0;
+          int pK = 0;
+          double deltaZ = 0;
           for (int k = 0; k < zLen; k++) {
 
-            final boolean edgeZ = k == 0 || k == zLen_1;
-            final int nK;
-            final int pK;
-            final double deltaZ;
-            if (edgeZ) {
-              // Ignored
-              nK = pK = 0;
-              deltaZ = 0;
-            } else {
+            final boolean edgeZ = k == 0 || k == zLenM1;
+            if (!edgeZ) {
+              // Not ignored so compute next and previous
               nK = k + 1;
               pK = k - 1;
               deltaZ = zval.get(nK) - zval.get(pK);
             }
 
-            if (edgeXy || edgeZ) {
-              //@formatter:off
-              // No gradients at the edge
-              dFdX[i][j][k] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / deltaX;
-              dFdY[i][j][k] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / deltaY;
-              dFdZ[i][j][k] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / deltaZ;
-
-              d2FdXdY[i][j][k] = (edgeXy) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / deltaXy;
-              d2FdXdZ[i][j][k] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / (deltaX * deltaZ);
-              d2FdYdZ[i][j][k] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / (deltaY * deltaZ);
-              //@formatter:on
-            } else {
-              fval.get(i, j, k, values);
-
-              //@formatter:off
-              dFdX[i][j][k] = (values[2][1][1] - values[0][1][1]) / deltaX;
-              dFdY[i][j][k] = (values[1][2][1] - values[1][0][1]) / deltaY;
-              dFdZ[i][j][k] = (values[1][1][2] - values[1][1][0]) / deltaZ;
-
-              d2FdXdY[i][j][k] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / deltaXy;
-              d2FdXdZ[i][j][k] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / (deltaX * deltaZ);
-              d2FdYdZ[i][j][k] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / (deltaY * deltaZ);
-
-              d3FdXdYdZ[i][j][k] = (values[2][2][2] - values[2][0][2] -
-                                    values[0][2][2] + values[0][0][2] -
-                                    values[2][2][0] + values[2][0][0] +
-                                    values[0][2][0] - values[0][0][0]) / (deltaXy * deltaZ);
-              //@formatter:on
-            }
+            buildForInterpolating(fval, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ,
+                values, k, j, i, edgeX, nI, pI, deltaX, edgeY, nJ, pJ, deltaY, edgeZ, nK, pK,
+                deltaZ);
 
             ticker.tick();
           }
@@ -461,12 +424,12 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
         progress, localExecutorService, localTaskSize, singlePrecision);
   }
 
-  private static void build(long index,
+  private static void buildForInterpolating(long index,
       final int xLen,
-      final long xLen_yLen,
-      final int xLen_1,
-      final int yLen_1,
-      final int zLen_1,
+      final long xLenMyLen,
+      final int xLenM1,
+      final int yLenM1,
+      final int zLenM1,
       final ValueProvider xval,
       final ValueProvider yval,
       final ValueProvider zval,
@@ -483,12 +446,12 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     //@formatter:on
 
     // Convert position to the indices
-    final int k = (int) (index / xLen_yLen);
-    final long mod = index % xLen_yLen;
+    final int k = (int) (index / xLenMyLen);
+    final long mod = index % xLenMyLen;
     final int j = (int) (mod / xLen);
     final int i = (int) (mod % xLen);
 
-    final boolean edgeX = i == 0 || i == xLen_1;
+    final boolean edgeX = i == 0 || i == xLenM1;
     final int nI;
     final int pI;
     final double deltaX;
@@ -502,7 +465,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
       deltaX = xval.get(nI) - xval.get(pI);
     }
 
-    final boolean edgeY = j == 0 || j == yLen_1;
+    final boolean edgeY = j == 0 || j == yLenM1;
     final int nJ;
     final int pJ;
     final double deltaY;
@@ -516,7 +479,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
       deltaY = yval.get(nJ) - yval.get(pJ);
     }
 
-    final boolean edgeZ = k == 0 || k == zLen_1;
+    final boolean edgeZ = k == 0 || k == zLenM1;
     final int nK;
     final int pK;
     final double deltaZ;
@@ -530,6 +493,22 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
       deltaZ = zval.get(nK) - zval.get(pK);
     }
 
+    buildForInterpolating(fval, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ, values, k,
+        j, i, edgeX, nI, pI, deltaX, edgeY, nJ, pJ, deltaY, edgeZ, nK, pK, deltaZ);
+
+    ticker.tick();
+  }
+
+  //CHECKSTYLE.ON: LocalVariableName
+  //CHECKSTYLE.OFF: ParameterName
+
+  private static void buildForInterpolating(final TrivalueProvider fval, final double[][][] dFdX,
+      final double[][][] dFdY, final double[][][] dFdZ, final double[][][] d2FdXdY,
+      final double[][][] d2FdXdZ, final double[][][] d2FdYdZ, final double[][][] d3FdXdYdZ,
+      final double[][][] values, final int k, final int j, final int i, final boolean edgeX,
+      final int nI, final int pI, final double deltaX, final boolean edgeY, final int nJ,
+      final int pJ, final double deltaY, final boolean edgeZ, final int nK, final int pK,
+      final double deltaZ) {
     if (edgeX || edgeY || edgeZ) {
       //@formatter:off
       // No gradients at the edge
@@ -542,6 +521,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
       d2FdYdZ[i][j][k] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / (deltaY * deltaZ);
       //@formatter:on
     } else {
+      // Use the 3x3x3 values around the indexes
       fval.get(i, j, k, values);
 
       //@formatter:off
@@ -561,9 +541,9 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
                             values[0][2][0] - values[0][0][0]) / (deltaXy * deltaZ);
       //@formatter:on
     }
-
-    ticker.tick();
   }
+
+  //CHECKSTYLE.ON: ParameterName
 
   /**
    * Sets the progress tracker.
@@ -829,6 +809,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     //@formatter:on
   }
 
+  //CHECKSTYLE.OFF: LocalVariableName
 
   /**
    * Compute an interpolating function for the data. Creates a single tricubic function for
@@ -862,9 +843,9 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
       throw new NumberIsTooSmallException(fval.getLengthZ(), z + 2, true);
     }
 
-    final int xLen_1 = fval.getLengthX() - 1;
-    final int yLen_1 = fval.getLengthY() - 1;
-    final int zLen_1 = fval.getLengthZ() - 1;
+    final int xLenM1 = fval.getLengthX() - 1;
+    final int yLenM1 = fval.getLengthY() - 1;
+    final int zLenM1 = fval.getLengthZ() - 1;
 
     // Approximation to the partial derivatives using finite differences.
     final double[][][] f = new double[2][2][2];
@@ -878,51 +859,43 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
 
     final double[][][] values = new double[3][3][3];
 
+    int nI = 0;
+    int pI = 0;
     for (int ii = 0; ii < 2; ii++) {
 
       final int i = x + ii;
-      final boolean edgeX = i == 0 || i == xLen_1;
-      final int nI;
-      final int pI;
-      if (edgeX) {
-        // Ignored
-        nI = pI = 0;
-      } else {
+      final boolean edgeX = i == 0 || i == xLenM1;
+      if (!edgeX) {
+        // Not ignored so compute next and previous
         nI = i + 1;
         pI = i - 1;
       }
 
+      int nJ = 0;
+      int pJ = 0;
       for (int jj = 0; jj < 2; jj++) {
 
         final int j = y + jj;
-        final boolean edgeY = j == 0 || j == yLen_1;
-        final int nJ;
-        final int pJ;
-        if (edgeY) {
-          // Ignored
-          nJ = pJ = 0;
-        } else {
+        final boolean edgeY = j == 0 || j == yLenM1;
+        if (!edgeY) {
+          // Not ignored so compute next and previous
           nJ = j + 1;
           pJ = j - 1;
         }
 
-        final boolean edgeXy = edgeX || edgeY;
-
+        int nK = 0;
+        int pK = 0;
         for (int kk = 0; kk < 2; kk++) {
 
           final int k = z + kk;
-          final boolean edgeZ = k == 0 || k == zLen_1;
-          final int nK;
-          final int pK;
-          if (edgeZ) {
-            // Ignored
-            nK = pK = 0;
-          } else {
+          final boolean edgeZ = k == 0 || k == zLenM1;
+          if (!edgeZ) {
+            // Not ignored so compute next and previous
             nK = k + 1;
             pK = k - 1;
           }
 
-          if (edgeXy || edgeZ) {
+          if (edgeX || edgeY || edgeZ) {
             f[ii][jj][kk] = fval.get(i, j, k);
 
             // No gradients at the edge
@@ -931,7 +904,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
             dFdY[ii][jj][kk] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / 2;
             dFdZ[ii][jj][kk] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / 2;
 
-            d2FdXdY[ii][jj][kk] = (edgeXy) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / 4;
+            d2FdXdY[ii][jj][kk] = (edgeX||edgeY) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / 4;
             d2FdXdZ[ii][jj][kk] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / 4;
             d2FdYdZ[ii][jj][kk] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / 4;
             //@formatter:on
@@ -973,7 +946,6 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
         new DoubleArrayTrivalueProvider(d3FdXdYdZ));
     //@formatter:on
   }
-
 
   /**
    * Compute an interpolating function for the data. Creates a single tricubic function for
@@ -1044,9 +1016,9 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     CustomTricubicInterpolatingFunction.checkOrder(yval);
     CustomTricubicInterpolatingFunction.checkOrder(zval);
 
-    final int xLen_1 = fval.getLengthX() - 1;
-    final int yLen_1 = fval.getLengthY() - 1;
-    final int zLen_1 = fval.getLengthZ() - 1;
+    final int xLenM1 = fval.getLengthX() - 1;
+    final int yLenM1 = fval.getLengthY() - 1;
+    final int zLenM1 = fval.getLengthZ() - 1;
 
     // Approximation to the partial derivatives using finite differences.
     final double[][][] f = new double[2][2][2];
@@ -1060,61 +1032,51 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
 
     final double[][][] values = new double[3][3][3];
 
+    int nI = 0;
+    int pI = 0;
+    double deltaX = 0;
     for (int ii = 0; ii < 2; ii++) {
 
       final int i = x + ii;
-      final boolean edgeX = i == 0 || i == xLen_1;
-      final int nI;
-      final int pI;
-      final double deltaX;
-      if (edgeX) {
-        // Ignored
-        nI = pI = 0;
-        deltaX = 0;
-      } else {
+      final boolean edgeX = i == 0 || i == xLenM1;
+      if (!edgeX) {
+        // Not ignored so compute next and previous
         nI = i + 1;
         pI = i - 1;
         deltaX = xval.get(nI) - xval.get(pI);
       }
 
+      int nJ = 0;
+      int pJ = 0;
+      double deltaY = 0;
       for (int jj = 0; jj < 2; jj++) {
 
         final int j = y + jj;
-        final boolean edgeY = j == 0 || j == yLen_1;
-        final int nJ;
-        final int pJ;
-        final double deltaY;
-        if (edgeY) {
-          // Ignored
-          nJ = pJ = 0;
-          deltaY = 0;
-        } else {
+        final boolean edgeY = j == 0 || j == yLenM1;
+        if (!edgeY) {
+          // Not ignored so compute next and previous
           nJ = j + 1;
           pJ = j - 1;
           deltaY = yval.get(nJ) - yval.get(pJ);
         }
 
-        final boolean edgeXy = edgeX || edgeY;
         final double deltaXy = deltaX * deltaY;
 
+        int nK = 0;
+        int pK = 0;
+        double deltaZ = 0;
         for (int kk = 0; kk < 2; kk++) {
 
           final int k = z + kk;
-          final boolean edgeZ = k == 0 || k == zLen_1;
-          final int nK;
-          final int pK;
-          final double deltaZ;
-          if (edgeZ) {
-            // Ignored
-            nK = pK = 0;
-            deltaZ = 0;
-          } else {
+          final boolean edgeZ = k == 0 || k == zLenM1;
+          if (!edgeZ) {
+            // Not ignored so compute next and previous
             nK = k + 1;
             pK = k - 1;
             deltaZ = zval.get(nK) - zval.get(pK);
           }
 
-          if (edgeXy || edgeZ) {
+          if (edgeX || edgeY || edgeZ) {
             // No gradients at the edge
             f[ii][jj][kk] = fval.get(i, j, k);
 
@@ -1124,7 +1086,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
             dFdY[ii][jj][kk] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / deltaY;
             dFdZ[ii][jj][kk] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / deltaZ;
 
-            d2FdXdY[ii][jj][kk] = (edgeXy) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / deltaXy;
+            d2FdXdY[ii][jj][kk] = (edgeX||edgeY) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / deltaXy;
             d2FdXdZ[ii][jj][kk] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / (deltaX * deltaZ);
             d2FdYdZ[ii][jj][kk] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / (deltaY * deltaZ);
             //@formatter:on
@@ -1230,24 +1192,25 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
       throw new NumberIsTooSmallException(zLen, 2, true);
     }
 
-    final int xLen_1 = xLen - 1;
-    final int yLen_1 = yLen - 1;
-    final int zLen_1 = zLen - 1;
-    final int xLen_2 = xLen - 2;
-    final int yLen_2 = yLen - 2;
-    final int zLen_2 = zLen - 2;
+    // M is for minus
+    final int xLenM1 = xLen - 1;
+    final int yLenM1 = yLen - 1;
+    final int zLenM1 = zLen - 1;
+    final int xLenM2 = xLen - 2;
+    final int yLenM2 = yLen - 2;
+    final int zLenM2 = zLen - 2;
 
     // We can interpolate all nodes n-times plus a final point at the last node
-    final int maxx = (xLen_1) * nx;
-    final int maxy = (yLen_1) * ny;
-    final int maxz = (zLen_1) * nz;
+    final int maxx = (xLenM1) * nx;
+    final int maxy = (yLenM1) * ny;
+    final int maxz = (zLenM1) * nz;
     if (!procedure.setDimensions(maxx + 1, maxy + 1, maxz + 1)) {
       return;
     }
 
     // Allow threading
-    final long xLen_1_yLen_1 = (long) xLen_1 * (yLen_1);
-    final long nNodes = xLen_1_yLen_1 * zLen_1;
+    final long xLenM1yLenM1 = (long) xLenM1 * (yLenM1);
+    final long nNodes = xLenM1yLenM1 * zLenM1;
     final long total = (long) (maxx + 1) * (maxy + 1) * (maxz + 1);
 
     final ExecutorService localExecutorService = this.executorService;
@@ -1293,9 +1256,9 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
       localTaskSize = tmp[0];
       final long numberOfTasks = tmp[1];
       final TurboList<Future<?>> futures = new TurboList<>((int) numberOfTasks);
-      for (long from = 0; from < nNodes;) {
-        final long from_ = from;
-        final long to = Math.min(from + localTaskSize, nNodes);
+      for (long n = 0; n < nNodes;) {
+        final long from = n;
+        final long to = Math.min(n + localTaskSize, nNodes);
         futures.add(localExecutorService.submit(() -> {
           // Approximation to the partial derivatives using finite differences.
           final double[][][] f = new double[2][2][2];
@@ -1310,85 +1273,45 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
           final double[][][] values = new double[3][3][3];
           final double[] beta = new double[64];
 
-          for (long index = from_; index < to; index++) {
+          for (long index = from; index < to; index++) {
             // Convert position to the indices for the node
-            final int z = (int) (index / xLen_1_yLen_1);
-            final long mod = index % xLen_1_yLen_1;
-            final int y = (int) (mod / xLen_1);
-            final int x = (int) (mod % xLen_1);
+            final int z = (int) (index / xLenM1yLenM1);
+            final long mod = index % xLenM1yLenM1;
+            final int y = (int) (mod / xLenM1);
+            final int x = (int) (mod % xLenM1);
 
+            int nI = 0;
+            int pI = 0;
             for (int ii = 0; ii < 2; ii++) {
               final int i = x + ii;
-              final boolean edgeX = i == 0 || i == xLen_1;
-              final int nI;
-              final int pI;
-              if (edgeX) {
-                // Ignored
-                nI = pI = 0;
-              } else {
+              final boolean edgeX = i == 0 || i == xLenM1;
+              if (!edgeX) {
+                // Not ignored so compute next and previous
                 nI = i + 1;
                 pI = i - 1;
               }
+              int nJ = 0;
+              int pJ = 0;
               for (int jj = 0; jj < 2; jj++) {
                 final int j = y + jj;
-                final boolean edgeY = j == 0 || j == yLen_1;
-                final int nJ;
-                final int pJ;
-                if (edgeY) {
-                  // Ignored
-                  nJ = pJ = 0;
-                } else {
+                final boolean edgeY = j == 0 || j == yLenM1;
+                if (!edgeY) {
+                  // Not ignored so compute next and previous
                   nJ = j + 1;
                   pJ = j - 1;
                 }
-                final boolean edgeXy = edgeX || edgeY;
+                int nK = 0;
+                int pK = 0;
                 for (int kk = 0; kk < 2; kk++) {
                   final int k = z + kk;
-                  final boolean edgeZ = k == 0 || k == zLen_1;
-                  final int nK;
-                  final int pK;
-                  if (edgeZ) {
-                    // Ignored
-                    nK = pK = 0;
-                  } else {
+                  final boolean edgeZ = k == 0 || k == zLenM1;
+                  if (!edgeZ) {
+                    // Not ignored so compute next and previous
                     nK = k + 1;
                     pK = k - 1;
                   }
-                  if (edgeXy || edgeZ) {
-                    f[ii][jj][kk] = fval.get(i, j, k);
-
-                    // No gradients at the edge
-                    //@formatter:off
-                    dFdX[ii][jj][kk] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / 2;
-                    dFdY[ii][jj][kk] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / 2;
-                    dFdZ[ii][jj][kk] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / 2;
-
-                    d2FdXdY[ii][jj][kk] = (edgeXy) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / 4;
-                    d2FdXdZ[ii][jj][kk] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / 4;
-                    d2FdYdZ[ii][jj][kk] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / 4;
-
-                    d3FdXdYdZ[ii][jj][kk] = 0;
-                    //@formatter:on
-                  } else {
-                    fval.get(i, j, k, values);
-
-                    f[ii][jj][kk] = values[1][1][1];
-
-                    //@formatter:off
-                    dFdX[ii][jj][kk] = (values[2][1][1] - values[0][1][1]) / 2;
-                    dFdY[ii][jj][kk] = (values[1][2][1] - values[1][0][1]) / 2;
-                    dFdZ[ii][jj][kk] = (values[1][1][2] - values[1][1][0]) / 2;
-
-                    d2FdXdY[ii][jj][kk] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / 4;
-                    d2FdXdZ[ii][jj][kk] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / 4;
-                    d2FdYdZ[ii][jj][kk] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / 4;
-
-                    d3FdXdYdZ[ii][jj][kk] = (values[2][2][2] - values[2][0][2] -
-                                             values[0][2][2] + values[0][0][2] -
-                                             values[2][2][0] + values[2][0][0] +
-                                             values[0][2][0] - values[0][0][0]) / 8;
-                    //@formatter:on
-                  }
+                  buildForSampling(fval, f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ,
+                      values, nI, pI, ii, i, edgeX, nJ, pJ, jj, j, edgeY, nK, pK, kk, k, edgeZ);
                 }
               }
             }
@@ -1409,11 +1332,11 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
 
             // Write interpolated values. For the final position we use the extra table to
             // get the value at x=1 in the range [0-1].
-            for (int k = 0, maxk = (z == zLen_2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++) {
-              for (int j = 0, maxj = (y == yLen_2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++) {
+            for (int k = 0, maxk = (z == zLenM2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++) {
+              for (int j = 0, maxj = (y == yLenM2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++) {
                 // Position in the interpolation tables
                 int pos = nx1 * (j + ny1 * k);
-                for (int i = 0, maxi = (x == xLen_2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++) {
+                for (int i = 0, maxi = (x == xLenM2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++) {
                   procedure.setValue(xx, yy, zz, cf.value(tables[pos++]));
                   ticker.tick();
                 }
@@ -1421,7 +1344,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
             }
           }
         }));
-        from = to;
+        n = to;
       }
 
       ConcurrencyUtils.waitForCompletionUnchecked(futures);
@@ -1440,81 +1363,41 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
       final double[] beta = new double[64];
 
       // Dynamically interpolate each node
-      for (int x = 0; x < xLen_1; x++) {
-        for (int y = 0; y < yLen_1; y++) {
-          for (int z = 0; z < zLen_1; z++) {
+      for (int x = 0; x < xLenM1; x++) {
+        for (int y = 0; y < yLenM1; y++) {
+          for (int z = 0; z < zLenM1; z++) {
+            int nI = 0;
+            int pI = 0;
             for (int ii = 0; ii < 2; ii++) {
               final int i = x + ii;
-              final boolean edgeX = i == 0 || i == xLen_1;
-              final int nI;
-              final int pI;
-              if (edgeX) {
-                // Ignored
-                nI = pI = 0;
-              } else {
+              final boolean edgeX = i == 0 || i == xLenM1;
+              if (!edgeX) {
+                // Not ignored so compute next and previous
                 nI = i + 1;
                 pI = i - 1;
               }
+              int nJ = 0;
+              int pJ = 0;
               for (int jj = 0; jj < 2; jj++) {
                 final int j = y + jj;
-                final boolean edgeY = j == 0 || j == yLen_1;
-                final int nJ;
-                final int pJ;
-                if (edgeY) {
-                  // Ignored
-                  nJ = pJ = 0;
-                } else {
+                final boolean edgeY = j == 0 || j == yLenM1;
+                if (!edgeY) {
+                  // Not ignored so compute next and previous
                   nJ = j + 1;
                   pJ = j - 1;
                 }
-                final boolean edgeXy = edgeX || edgeY;
+                int nK = 0;
+                int pK = 0;
                 for (int kk = 0; kk < 2; kk++) {
                   final int k = z + kk;
-                  final boolean edgeZ = k == 0 || k == zLen_1;
-                  final int nK;
-                  final int pK;
-                  if (edgeZ) {
-                    // Ignored
-                    nK = pK = 0;
-                  } else {
+                  final boolean edgeZ = k == 0 || k == zLenM1;
+                  if (!edgeZ) {
+                    // Not ignored so compute next and previous
                     nK = k + 1;
                     pK = k - 1;
                   }
-                  if (edgeXy || edgeZ) {
-                    f[ii][jj][kk] = fval.get(i, j, k);
-
-                    // No gradients at the edge
-                    //@formatter:off
-                    dFdX[ii][jj][kk] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / 2;
-                    dFdY[ii][jj][kk] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / 2;
-                    dFdZ[ii][jj][kk] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / 2;
-
-                    d2FdXdY[ii][jj][kk] = (edgeXy) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / 4;
-                    d2FdXdZ[ii][jj][kk] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / 4;
-                    d2FdYdZ[ii][jj][kk] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / 4;
-
-                    d3FdXdYdZ[ii][jj][kk] = 0;
-                    //@formatter:on
-                  } else {
-                    fval.get(i, j, k, values);
-
-                    f[ii][jj][kk] = values[1][1][1];
-
-                    //@formatter:off
-                    dFdX[ii][jj][kk] = (values[2][1][1] - values[0][1][1]) / 2;
-                    dFdY[ii][jj][kk] = (values[1][2][1] - values[1][0][1]) / 2;
-                    dFdZ[ii][jj][kk] = (values[1][1][2] - values[1][1][0]) / 2;
-
-                    d2FdXdY[ii][jj][kk] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / 4;
-                    d2FdXdZ[ii][jj][kk] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / 4;
-                    d2FdYdZ[ii][jj][kk] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / 4;
-
-                    d3FdXdYdZ[ii][jj][kk] = (values[2][2][2] - values[2][0][2] -
-                                             values[0][2][2] + values[0][0][2] -
-                                             values[2][2][0] + values[2][0][0] +
-                                             values[0][2][0] - values[0][0][0]) / 8;
-                    //@formatter:on
-                  }
+                  buildForSampling(fval, f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ,
+                      values, nI, pI, ii, i, edgeX, nJ, pJ, jj, j, edgeY, nK, pK, kk, k, edgeZ);
                 }
               }
             }
@@ -1535,11 +1418,11 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
 
             // Write interpolated values. For the final position we use the extra table to
             // get the value at x=1 in the range [0-1].
-            for (int k = 0, maxk = (z == zLen_2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++) {
-              for (int j = 0, maxj = (y == yLen_2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++) {
+            for (int k = 0, maxk = (z == zLenM2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++) {
+              for (int j = 0, maxj = (y == yLenM2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++) {
                 // Position in the interpolation tables
                 int pos = nx1 * (j + ny1 * k);
-                for (int i = 0, maxi = (x == xLen_2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++) {
+                for (int i = 0, maxi = (x == xLenM2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++) {
                   procedure.setValue(xx, yy, zz, cf.value(tables[pos++]));
                   ticker.tick();
                 }
@@ -1552,6 +1435,54 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
 
     ticker.stop();
   }
+
+  //CHECKSTYLE.OFF: LocalVariableName
+  //CHECKSTYLE.OFF: ParameterName
+
+  private static void buildForSampling(final TrivalueProvider fval, final double[][][] f,
+      final double[][][] dFdX, final double[][][] dFdY, final double[][][] dFdZ,
+      final double[][][] d2FdXdY, final double[][][] d2FdXdZ, final double[][][] d2FdYdZ,
+      final double[][][] d3FdXdYdZ, final double[][][] values, int nI, int pI, int ii, final int i,
+      final boolean edgeX, int nJ, int pJ, int jj, final int j, final boolean edgeY, int nK, int pK,
+      int kk, final int k, final boolean edgeZ) {
+    if (edgeX || edgeY || edgeZ) {
+      f[ii][jj][kk] = fval.get(i, j, k);
+
+      // No gradients at the edge
+      //@formatter:off
+      dFdX[ii][jj][kk] = (edgeX) ? 0 : (fval.get(nI,j,k) - fval.get(pI,j,k)) / 2;
+      dFdY[ii][jj][kk] = (edgeY) ? 0 : (fval.get(i,nJ,k) - fval.get(i,pJ,k)) / 2;
+      dFdZ[ii][jj][kk] = (edgeZ) ? 0 : (fval.get(i,j,nK) - fval.get(i,j,pK)) / 2;
+
+      d2FdXdY[ii][jj][kk] = (edgeX||edgeY) ? 0 : (fval.get(nI,nJ,k) - fval.get(nI,pJ,k) - fval.get(pI,nJ,k) + fval.get(pI,pJ,k)) / 4;
+      d2FdXdZ[ii][jj][kk] = (edgeX||edgeZ) ? 0 : (fval.get(nI,j,nK) - fval.get(nI,j,pK) - fval.get(pI,j,nK) + fval.get(pI,j,pK)) / 4;
+      d2FdYdZ[ii][jj][kk] = (edgeY||edgeZ) ? 0 : (fval.get(i,nJ,nK) - fval.get(i,nJ,pK) - fval.get(i,pJ,nK) + fval.get(i,pJ,pK)) / 4;
+
+      d3FdXdYdZ[ii][jj][kk] = 0;
+      //@formatter:on
+    } else {
+      fval.get(i, j, k, values);
+
+      f[ii][jj][kk] = values[1][1][1];
+
+      //@formatter:off
+      dFdX[ii][jj][kk] = (values[2][1][1] - values[0][1][1]) / 2;
+      dFdY[ii][jj][kk] = (values[1][2][1] - values[1][0][1]) / 2;
+      dFdZ[ii][jj][kk] = (values[1][1][2] - values[1][1][0]) / 2;
+
+      d2FdXdY[ii][jj][kk] = (values[2][2][1] - values[2][0][1] - values[0][2][1] + values[0][0][1]) / 4;
+      d2FdXdZ[ii][jj][kk] = (values[2][1][2] - values[2][1][0] - values[0][1][2] + values[0][1][0]) / 4;
+      d2FdYdZ[ii][jj][kk] = (values[1][2][2] - values[1][2][0] - values[1][0][2] + values[1][0][0]) / 4;
+
+      d3FdXdYdZ[ii][jj][kk] = (values[2][2][2] - values[2][0][2] -
+                               values[0][2][2] + values[0][0][2] -
+                               values[2][2][0] + values[2][0][0] +
+                               values[0][2][0] - values[0][0][0]) / 8;
+      //@formatter:on
+    }
+  }
+
+  //CHECKSTYLE.ON: ParameterName
 
   /**
    * Gets the task size and number of tasks.

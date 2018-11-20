@@ -35,6 +35,7 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.MathArrays;
 
@@ -179,7 +180,7 @@ public class DbscanResult implements ClusteringResult {
    */
   @Override
   public int[] getClusters() {
-    return (clusters == null) ? null : clusters.clone();
+    return ArrayUtils.clone(clusters);
   }
 
   /**
@@ -270,7 +271,7 @@ public class DbscanResult implements ClusteringResult {
   @Override
   public int[] getParents(int[] clusterIds) {
     if (clusterIds == null) {
-      return new int[0];
+      return ArrayUtils.EMPTY_INT_ARRAY;
     }
     final TIntArrayList parents = new TIntArrayList();
 

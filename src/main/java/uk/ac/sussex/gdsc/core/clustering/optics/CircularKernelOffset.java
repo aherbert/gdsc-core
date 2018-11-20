@@ -31,7 +31,7 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 /**
  * Represent a circular kernel around a central pixel with size 2 * resolution + 1.
  */
-public class CircularKernelOffset {
+public final class CircularKernelOffset {
 
   /** The constant 1 used to set the limit of the circular kernel. */
   private static final double ONE = 1;

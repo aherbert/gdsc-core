@@ -152,15 +152,15 @@ public class FloatHistogram extends Histogram {
     }
 
     // Compress non-integer data
-    final int size_1 = size - 1;
-    final float binSize = (max - min) / size_1;
+    final int sizeMinus1 = size - 1;
+    final float binSize = (max - min) / sizeMinus1;
     final int[] newH = new int[size];
     for (int i = 0; i < histogramCounts.length; i++) {
       final int bin = (int) ((getValue(i) - min) / binSize + 0.5);
       if (bin < 0) {
         newH[0] += histogramCounts[i];
       } else if (bin >= size) {
-        newH[size_1] += histogramCounts[i];
+        newH[sizeMinus1] += histogramCounts[i];
       } else {
         newH[bin] += histogramCounts[i];
       }

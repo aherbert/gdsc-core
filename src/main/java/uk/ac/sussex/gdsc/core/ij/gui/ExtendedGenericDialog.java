@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.ij.gui;
 import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.ij.RecorderUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import ij.IJ;
 import ij.gui.GenericDialog;
@@ -156,7 +157,7 @@ public class ExtendedGenericDialog extends GenericDialog {
       // scroll.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE)
 
       // The ScrollPanel must be sized from the default of 100x100 when
-      // displayed. This is done in setup()
+      // displayed. This is done in setup() before the dialog is shown.
       final int policy = ScrollPane.SCROLLBARS_AS_NEEDED;
       final ScrollPane scroll = new ScrollPane(policy);
       scroll.getHAdjustable().setUnitIncrement(16);
@@ -773,9 +774,7 @@ public class ExtendedGenericDialog extends GenericDialog {
    * @throws NullPointerException if the action listener is null
    */
   public Button addAndGetButton(String label, final ActionListener actionListener) {
-    if (actionListener == null) {
-      throw new NullPointerException("Action listener is missing for the button");
-    }
+    ValidationUtils.checkNotNull(actionListener, "Action listener is missing for the button");
 
     // To make room for the button we add a message and then remove that from the dialog
     addMessage("-- Empty --");
@@ -1174,49 +1173,50 @@ public class ExtendedGenericDialog extends GenericDialog {
 
   // Methods used within GenericDialog to add components to the container.
   // These are overridden so that we can add components to a single panel.
+  // Make these final to prevent sub-classes changing them.
 
   @Override
-  public Component add(Component comp) {
+  public final Component add(Component comp) {
     return panel.add(comp);
   }
 
   @Override
-  public void add(Component comp, Object constraints) {
+  public final void add(Component comp, Object constraints) {
     panel.add(comp, constraints);
   }
 
   @Override
-  public Component add(Component comp, int index) {
+  public final Component add(Component comp, int index) {
     return panel.add(comp, index);
   }
 
   @Override
-  public Component add(String name, Component comp) {
+  public final Component add(String name, Component comp) {
     return panel.add(name, comp);
   }
 
   @Override
-  public void add(Component comp, Object constraints, int index) {
+  public final void add(Component comp, Object constraints, int index) {
     panel.add(comp, constraints, index);
   }
 
   @Override
-  public void add(PopupMenu popup) {
+  public final void add(PopupMenu popup) {
     panel.add(popup);
   }
 
   @Override
-  public void remove(Component comp) {
+  public final void remove(Component comp) {
     panel.remove(comp);
   }
 
   @Override
-  public void remove(int index) {
+  public final void remove(int index) {
     panel.remove(index);
   }
 
   @Override
-  public void remove(MenuComponent popup) {
+  public final void remove(MenuComponent popup) {
     panel.remove(popup);
   }
 

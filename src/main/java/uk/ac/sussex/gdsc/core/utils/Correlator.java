@@ -314,8 +314,8 @@ public class Correlator {
       p3 += d1 * d2;
     }
 
-    final double p1_m_p2 = p1 * p2;
-    return (p1_m_p2 == 0) ? 0 : p3 / Math.sqrt(p1_m_p2);
+    final double p1ByP2 = p1 * p2;
+    return (p1ByP2 == 0) ? 0 : p3 / Math.sqrt(p1ByP2);
   }
 
   /**

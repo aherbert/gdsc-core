@@ -32,6 +32,7 @@ import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.DoubleEquality;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import ij.io.FileInfo;
 import ij.util.Tools;
@@ -296,9 +297,6 @@ public abstract class FastTiffDecoder {
    */
   @SuppressWarnings("resource")
   public static FastTiffDecoder create(InputStream in, String name) throws IOException {
-    if (in == null) {
-      throw new NullPointerException();
-    }
     return createTiffDecoder(new MemoryCacheSeekableStream(in), new File(name));
   }
 
@@ -313,9 +311,6 @@ public abstract class FastTiffDecoder {
    * @throws NullPointerException If either argument is null
    */
   public static FastTiffDecoder create(SeekableStream ss, String name) throws IOException {
-    if (ss == null) {
-      throw new NullPointerException();
-    }
     ss.seek(0);
     return createTiffDecoder(ss, new File(name));
   }

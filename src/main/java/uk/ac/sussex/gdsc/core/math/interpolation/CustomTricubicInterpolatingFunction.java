@@ -287,36 +287,36 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     ticker.start();
 
     if (threaded) {
-      final long lastI_lastJ = (long) lastI * lastJ;
+      final long lastIlastJ = (long) lastI * lastJ;
 
       // Break this up into reasonable tasks, ensuring we can hold all the futures
       final long[] tmp = CustomTricubicInterpolator.getTaskSizeAndNumberOfTasks(total, taskSize);
       taskSize = tmp[0];
       final long nTasks = tmp[1];
       final TurboList<Future<?>> futures = new TurboList<>((int) nTasks);
-      for (long from = 0; from < total;) {
-        final long from_ = from;
-        final long to = Math.min(from + taskSize, total);
+      for (long i = 0; i < total;) {
+        final long from = i;
+        final long to = Math.min(i + taskSize, total);
         futures.add(executorService.submit(() -> {
           if (isInteger) {
-            for (long index = from_; index < to; index++) {
+            for (long index = from; index < to; index++) {
               //@formatter:off
               buildInteger(f, dFdX, dFdY, dFdZ,
                     d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ,
-                    lastI, lastI_lastJ, index, ticker, singlePrecision);
+                    lastI, lastIlastJ, index, ticker, singlePrecision);
               //@formatter:on
             }
           } else {
-            for (long index = from_; index < to; index++) {
+            for (long index = from; index < to; index++) {
               //@formatter:off
               build(f, dFdX, dFdY, dFdZ,
                     d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ,
-                    lastI, lastI_lastJ, index, ticker, singlePrecision);
+                    lastI, lastIlastJ, index, ticker, singlePrecision);
               //@formatter:on
             }
           }
         }));
-        from = to;
+        i = to;
       }
 
       ConcurrencyUtils.waitForCompletionUnchecked(futures);
@@ -555,10 +555,10 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
   private void buildInteger(final TrivalueProvider f, final TrivalueProvider dFdX,
       final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
       final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ,
-      final TrivalueProvider d3FdXdYdZ, final int lastI, final long lastI_lastJ, long index,
+      final TrivalueProvider d3FdXdYdZ, final int lastI, final long lastIlastJ, long index,
       final Ticker ticker, boolean singlePrecision) {
-    final int k = (int) (index / lastI_lastJ);
-    final long mod = index % lastI_lastJ;
+    final int k = (int) (index / lastIlastJ);
+    final long mod = index % lastIlastJ;
     final int j = (int) (mod / lastI);
     final int i = (int) (mod % lastI);
     final int ip1 = i + 1;
@@ -638,10 +638,10 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
   private void build(final TrivalueProvider f, final TrivalueProvider dFdX,
       final TrivalueProvider dFdY, final TrivalueProvider dFdZ, final TrivalueProvider d2FdXdY,
       final TrivalueProvider d2FdXdZ, final TrivalueProvider d2FdYdZ,
-      final TrivalueProvider d3FdXdYdZ, final int lastI, final long lastI_lastJ, long index,
+      final TrivalueProvider d3FdXdYdZ, final int lastI, final long lastIlastJ, long index,
       final Ticker ticker, boolean singlePrecision) {
-    final int k = (int) (index / lastI_lastJ);
-    final long mod = index % lastI_lastJ;
+    final int k = (int) (index / lastIlastJ);
+    final long mod = index % lastIlastJ;
     final int j = (int) (mod / lastI);
     final int i = (int) (mod % lastI);
     final int ip1 = i + 1;

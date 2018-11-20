@@ -45,7 +45,7 @@ import java.util.regex.Pattern;
 /**
  * Opens a series of images in a folder. The series is sorted numerically.
  *
- * <p>Adapted from {@link ij.plugin.FolderOpener }
+ * <p>Adapted from {@link ij.plugin.FolderOpener}.
  */
 public class SeriesOpener {
   private final String path;
@@ -80,15 +80,15 @@ public class SeriesOpener {
    * @param showDialog Open a dialog and allow the user to filter the images
    * @param numberOfThreads Set the number of threads specified in the input dialog. If zero then
    *        this field is not shown.
+   * @return the series opener
    */
-  public SeriesOpener(String path, boolean showDialog, int numberOfThreads) {
-    this.path = path;
-    this.numberOfThreads = Math.abs(numberOfThreads);
-    buildImageList();
-
+  public static SeriesOpener create(String path, boolean showDialog, int numberOfThreads) {
+    SeriesOpener opener = new SeriesOpener(path);
+    opener.numberOfThreads = Math.abs(numberOfThreads);
     if (showDialog) {
-      filterImageList();
+      opener.filterImageList();
     }
+    return opener;
   }
 
   private void buildImageList() {

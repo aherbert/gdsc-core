@@ -49,23 +49,6 @@ public class IntFixedList {
   }
 
   /**
-   * Instantiates a new fixed int list with values. All the input values are stored so the fixed
-   * capacity will be equal (or greater if specified) than the number of input values.
-   *
-   * @param capacity the capacity
-   * @param values the values
-   */
-  public IntFixedList(int capacity, int... values) {
-    if (values.length < capacity) {
-      this.data = new int[capacity];
-      add(values);
-    } else {
-      this.data = values;
-      size = values.length;
-    }
-  }
-
-  /**
    * Get the capacity.
    *
    * @return the capacity

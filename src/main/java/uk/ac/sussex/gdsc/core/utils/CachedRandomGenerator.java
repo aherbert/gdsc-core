@@ -78,9 +78,7 @@ public class CachedRandomGenerator extends AbstractRandomGenerator {
    * @throws NullPointerException if the generator is null
    */
   public CachedRandomGenerator(int size, RandomGenerator source) {
-    if (source == null) {
-      throw new NullPointerException("Source generator must not be null");
-    }
+    ValidationUtils.checkNotNull(source, "Source generator must not be null");
     sequence = new StoredData(Math.max(0, size));
     store = sequence;
     this.source = source;

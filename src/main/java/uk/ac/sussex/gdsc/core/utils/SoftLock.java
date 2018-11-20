@@ -44,8 +44,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * }
  * // else fall through
  * </pre>
- * 
- * The lock does no checks on ownership and thus does not actually enforce locking.
+ *
+ * <p>The lock does no checks on ownership and thus does not actually enforce locking.
  */
 public class SoftLock {
 

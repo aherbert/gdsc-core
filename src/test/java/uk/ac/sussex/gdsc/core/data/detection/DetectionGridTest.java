@@ -11,6 +11,7 @@ import uk.ac.sussex.gdsc.test.utils.TestSettings;
 import uk.ac.sussex.gdsc.test.utils.TimingResult;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -47,10 +48,10 @@ public class DetectionGridTest {
     final SimpleDetectionGrid g = new SimpleDetectionGrid(bounds);
     Assertions.assertArrayEquals(new int[] {0}, g.find(0, 0));
     Assertions.assertArrayEquals(new int[] {0, 1, 2}, g.find(5, 5));
-    Assertions.assertArrayEquals(new int[0], g.find(-5, 5));
+    Assertions.assertArrayEquals(ArrayUtils.EMPTY_INT_ARRAY, g.find(-5, 5));
 
     // Definition of insideness
-    Assertions.assertArrayEquals(new int[0], g.find(10, 10));
+    Assertions.assertArrayEquals(ArrayUtils.EMPTY_INT_ARRAY, g.find(10, 10));
     g.setIncludeOuterEdge(true);
     Assertions.assertArrayEquals(new int[] {0, 1, 2}, g.find(10, 10));
   }
@@ -121,10 +122,10 @@ public class DetectionGridTest {
     final BinarySearchDetectionGrid g = new BinarySearchDetectionGrid(r);
     Assertions.assertArrayEquals(new int[] {0}, g.find(0, 0));
     Assertions.assertArrayEquals(new int[] {0, 1, 2}, g.find(5, 5));
-    Assertions.assertArrayEquals(new int[0], g.find(-5, 5));
+    Assertions.assertArrayEquals(ArrayUtils.EMPTY_INT_ARRAY, g.find(-5, 5));
 
     // Respect the insideness definition
-    Assertions.assertArrayEquals(new int[0], g.find(10, 10));
+    Assertions.assertArrayEquals(ArrayUtils.EMPTY_INT_ARRAY, g.find(10, 10));
   }
 
   @SeededTest

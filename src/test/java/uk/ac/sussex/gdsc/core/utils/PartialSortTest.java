@@ -6,6 +6,7 @@ import uk.ac.sussex.gdsc.test.rng.RngUtils;
 import uk.ac.sussex.gdsc.test.utils.BaseTimingTask;
 import uk.ac.sussex.gdsc.test.utils.TimingService;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -79,7 +80,7 @@ public class PartialSortTest {
 
   @Test
   public void bottomCanHandleEmptyData() {
-    final double[] o = PartialSort.bottom(new double[0], 5);
+    final double[] o = PartialSort.bottom(ArrayUtils.EMPTY_DOUBLE_ARRAY, 5);
     Assertions.assertEquals(0, o.length);
   }
 
@@ -242,7 +243,7 @@ public class PartialSortTest {
 
   @Test
   public void topCanHandleEmptyData() {
-    final double[] o = PartialSort.top(new double[0], 5);
+    final double[] o = PartialSort.top(ArrayUtils.EMPTY_DOUBLE_ARRAY, 5);
     Assertions.assertEquals(0, o.length);
   }
 

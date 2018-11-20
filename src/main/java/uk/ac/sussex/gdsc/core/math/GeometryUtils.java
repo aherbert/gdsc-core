@@ -34,8 +34,8 @@ package uk.ac.sussex.gdsc.core.math;
 public final class GeometryUtils {
 
   /** The minimum vertices for an area. */
-  private static final int MIN_VERTICES = 3; 
-  
+  private static final int MIN_VERTICES = 3;
+
   /** No public construction. */
   private GeometryUtils() {}
 
@@ -154,13 +154,13 @@ public final class GeometryUtils {
     //                       x2,y2
     //@formatter:on
 
-    final double x1_m_x2 = x1 - x2;
-    final double x3_m_x4 = x3 - x4;
-    final double y1_m_y2 = y1 - y2;
-    final double y3_m_y4 = y3 - y4;
+    final double x1_s_x2 = x1 - x2;
+    final double x3_s_x4 = x3 - x4;
+    final double y1_s_y2 = y1 - y2;
+    final double y3_s_y4 = y3 - y4;
 
     // Check if lines are parallel
-    final double d = x1_m_x2 * y3_m_y4 - y1_m_y2 * x3_m_x4;
+    final double d = x1_s_x2 * y3_s_y4 - y1_s_y2 * x3_s_x4;
     if (d == 0) {
       if (y1 == y3) {
         // The lines are the same
@@ -170,10 +170,10 @@ public final class GeometryUtils {
       }
     } else {
       // Find intersection
-      final double x1_by_y2_m_y1_by_x2 = x1 * y2 - y1 * x2;
-      final double x3_by_y4_m_y3_by_x4 = x3 * y4 - y3 * x4;
-      final double px = (x1_by_y2_m_y1_by_x2 * x3_m_x4 - x1_m_x2 * x3_by_y4_m_y3_by_x4) / d;
-      final double py = (x1_by_y2_m_y1_by_x2 * y3_m_y4 - y1_m_y2 * x3_by_y4_m_y3_by_x4) / d;
+      final double x1_m_y2_s_y1_m_x2 = x1 * y2 - y1 * x2;
+      final double x3_m_y4_s_y3_m_x4 = x3 * y4 - y3 * x4;
+      final double px = (x1_m_y2_s_y1_m_x2 * x3_s_x4 - x1_s_x2 * x3_m_y4_s_y3_m_x4) / d;
+      final double py = (x1_m_y2_s_y1_m_x2 * y3_s_y4 - y1_s_y2 * x3_m_y4_s_y3_m_x4) / d;
       intersection[0] = px;
       intersection[1] = py;
       return true;

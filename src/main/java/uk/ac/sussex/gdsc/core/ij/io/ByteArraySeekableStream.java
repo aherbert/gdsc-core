@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.ij.io;
 
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
+
 import java.io.IOException;
 
 /**
@@ -49,9 +51,7 @@ public final class ByteArraySeekableStream extends SeekableStream {
    * @param bytes the bytes
    */
   ByteArraySeekableStream(byte[] bytes) {
-    if (bytes == null) {
-      throw new NullPointerException();
-    }
+    ValidationUtils.checkNotNull(bytes, "bytes must not be null");
     this.buffer = bytes;
     length = bytes.length;
   }

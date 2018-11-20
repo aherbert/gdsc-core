@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -38,7 +40,7 @@ import java.util.NoSuchElementException;
 public class StoredData implements Iterable<Double>, DoubleData {
 
   /** The values. */
-  private double[] values = new double[0];
+  private double[] values = ArrayUtils.EMPTY_DOUBLE_ARRAY;
 
   /** The size. */
   private int size;

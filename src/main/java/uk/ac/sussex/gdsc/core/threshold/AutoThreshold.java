@@ -122,17 +122,18 @@ public class AutoThreshold {
     }
   }
 
-  private static final String[] methods;
-  private static final String[] methods2;
+  private static final Method[] methodValues;
+  private static final String[] methodNames;
+  private static final String[] methodNamesWithoutNone;
 
   static {
-    final Method[] m = Method.values();
-    methods = new String[m.length];
-    methods2 = new String[m.length - 1];
-    for (int i = 0; i < m.length; i++) {
-      methods[i] = m[i].nameString;
+    methodValues = Method.values();
+    methodNames = new String[methodValues.length];
+    methodNamesWithoutNone = new String[methodValues.length - 1];
+    for (int i = 0; i < methodValues.length; i++) {
+      methodNames[i] = methodValues[i].toString();
       if (i != 0) {
-        methods2[i - 1] = m[i].nameString;
+        methodNamesWithoutNone[i - 1] = methodValues[i].toString();
       }
     }
   }
@@ -143,7 +144,7 @@ public class AutoThreshold {
    * @return the methods
    */
   public static String[] getMethods() {
-    return methods.clone();
+    return methodNames.clone();
   }
 
   /**
@@ -154,9 +155,9 @@ public class AutoThreshold {
    */
   public static String[] getMethods(boolean ignoreNone) {
     if (ignoreNone) {
-      return methods2.clone();
+      return methodNamesWithoutNone.clone();
     }
-    return methods.clone();
+    return methodNames.clone();
   }
 
   /**
@@ -166,9 +167,9 @@ public class AutoThreshold {
    * @return the method
    */
   public static Method getMethod(String name) {
-    for (int i = 0; i < methods.length; i++) {
-      if (methods[i].equals(name)) {
-        return Method.values()[i];
+    for (int i = 0; i < methodNames.length; i++) {
+      if (methodNames[i].equals(name)) {
+        return methodValues[i];
       }
     }
     return Method.NONE;
@@ -182,12 +183,11 @@ public class AutoThreshold {
    * @return the method
    */
   public static Method getMethod(int index, boolean ignoreNone) {
-    final Method[] m = Method.values();
     if (ignoreNone) {
       index++;
     }
-    if (index >= 0 && index < m.length) {
-      return m[index];
+    if (index >= 0 && index < methodValues.length) {
+      return methodValues[index];
     }
     return Method.NONE;
   }
@@ -270,10 +270,10 @@ public class AutoThreshold {
     }
 
     // precalculate the summands of the entropy given the absolute difference x - mu (integral)
-    final double C = (double) last - first;
+    final double rangeC = (double) last - first;
     final double[] sumMu = new double[last + 1 - first];
     for (int i = 1; i < sumMu.length; i++) {
-      final double mu = 1 / (1 + Math.abs(i) / C);
+      final double mu = 1 / (1 + Math.abs(i) / rangeC);
       sumMu[i] = -mu * Math.log(mu) - (1 - mu) * Math.log(1 - mu);
     }
 
@@ -1553,10 +1553,10 @@ public class AutoThreshold {
    * @return the threshold
    */
   public static int getThreshold(int method, int[] data) {
-    if (method < 0 || method >= methods.length) {
+    if (method < 0 || method >= methodNames.length) {
       return 0;
     }
-    return getThreshold(Method.values()[method], data);
+    return getThreshold(methodValues[method], data);
   }
 
   /**
@@ -1573,7 +1573,7 @@ public class AutoThreshold {
     if (TextUtils.isNullOrEmpty(method)) {
       return 0;
     }
-    for (final Method m : Method.values()) {
+    for (final Method m : methodValues) {
       if (m.nameString.equals(method)) {
         return getThreshold(m, data);
       }

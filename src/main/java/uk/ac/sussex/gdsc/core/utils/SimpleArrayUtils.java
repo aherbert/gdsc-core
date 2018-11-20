@@ -31,6 +31,8 @@ package uk.ac.sussex.gdsc.core.utils;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.util.Arrays;
 
 /**
@@ -92,7 +94,7 @@ public final class SimpleArrayUtils {
    */
   public static int[] flatten(int[] array) {
     if (array == null) {
-      return new int[0];
+      return ArrayUtils.EMPTY_INT_ARRAY;
     }
     if (array.length <= 1) {
       return array;
@@ -115,7 +117,7 @@ public final class SimpleArrayUtils {
    */
   public static double[] toDouble(float[] array) {
     if (array == null) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     final double[] out = new double[array.length];
     for (int i = 0; i < array.length; i++) {
@@ -132,7 +134,7 @@ public final class SimpleArrayUtils {
    */
   public static double[] toDouble(int[] array) {
     if (array == null) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     final double[] out = new double[array.length];
     for (int i = 0; i < array.length; i++) {
@@ -853,7 +855,7 @@ public final class SimpleArrayUtils {
    */
   public static int[] getRanges(int[] indices) {
     if (indices == null || indices.length == 0) {
-      return new int[0];
+      return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
     if (indices.length == 1) {
@@ -1260,21 +1262,5 @@ public final class SimpleArrayUtils {
     final T tmp = data[index1];
     data[index1] = data[index2];
     data[index2] = tmp;
-  }
-
-  /**
-   * Find the index of the first occurrence of the given value.
-   *
-   * @param data the data
-   * @param value the value
-   * @return the index (or -1 if not found)
-   */
-  public static int indexOf(int[] data, int value) {
-    for (int i = 0; i < data.length; i++) {
-      if (data[i] == value) {
-        return i;
-      }
-    }
-    return -1;
   }
 }

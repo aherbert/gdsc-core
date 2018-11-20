@@ -32,6 +32,8 @@ import uk.ac.sussex.gdsc.core.data.IntegerType;
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.math.BigInteger;
 
 /**
@@ -227,7 +229,7 @@ public final class IntegerArrayMoment implements ArrayMoment {
   @Override
   public double[] getFirstMoment() {
     if (size == 0) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     final double[] m1 = new double[sum.length];
     final double n = this.size;
@@ -240,7 +242,7 @@ public final class IntegerArrayMoment implements ArrayMoment {
   @Override
   public double[] getSecondMoment() {
     if (size == 0) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     final double[] m2 = new double[sum.length];
     for (int i = 0; i < sum.length; i++) {
@@ -262,7 +264,7 @@ public final class IntegerArrayMoment implements ArrayMoment {
   @Override
   public double[] getVariance(boolean isBiasCorrected) {
     if (size == 0) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     if (size == 1) {
       return new double[sum.length];
@@ -293,7 +295,7 @@ public final class IntegerArrayMoment implements ArrayMoment {
   @Override
   public double[] getStandardDeviation(boolean isBiasCorrected) {
     if (size == 0) {
-      return new double[0];
+      return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
     if (size == 1) {
       return new double[sum.length];

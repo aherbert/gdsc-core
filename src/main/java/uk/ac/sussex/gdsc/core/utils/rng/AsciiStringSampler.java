@@ -267,7 +267,7 @@ public class AsciiStringSampler {
     }
     final char[] chars = new char[count];
     for (int i = 0; i < count; i++) {
-      chars[count] = table[rng.nextInt(range)];
+      chars[i] = table[rng.nextInt(range)];
     }
     return new String(chars);
   }
@@ -291,7 +291,7 @@ public class AsciiStringSampler {
     }
     final char[] chars = new char[count];
     for (int i = 0; i < count; i++) {
-      chars[count] = table[rng.nextInt(range) + start];
+      chars[i] = table[rng.nextInt(range) + start];
     }
     return new String(chars);
   }

@@ -270,13 +270,14 @@ public class NoiseEstimator {
       if (isPreserveResiduals()) {
         buf = Arrays.copyOf(buf, buf.length);
       }
+      final int medianIndex = n / 2;
       Arrays.sort(buf);
-      final float med_i = buf[(int) (.5 * n)];
+      final float median = buf[medianIndex];
       for (int j = 0; j < n; j++) {
-        buf[j] = Math.abs(buf[j] - med_i);
+        buf[j] = Math.abs(buf[j] - median);
       }
       Arrays.sort(buf);
-      final double sig = 1.4828 * buf[(int) (.5 * n)];
+      final double sig = 1.4828 * buf[medianIndex];
       if (!isPreserveResiduals()) {
         // Residuals have been destroyed
         if (quick) {

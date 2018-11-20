@@ -119,7 +119,7 @@ public class Fht extends FloatProcessor {
    *
    * @return true, if successful
    */
-  public boolean powerOf2Size() {
+  public final boolean powerOf2Size() {
     return width == height && isPowerOf2(width);
   }
 
@@ -504,8 +504,8 @@ public class Fht extends FloatProcessor {
       throw new IllegalArgumentException("Require even dimensions");
     }
 
-    final int ny_2 = ny / 2;
-    final int nx_2 = nx / 2;
+    final int nyOver2 = ny / 2;
+    final int nxOver2 = nx / 2;
 
     final float[] tmp = new float[nx];
     final float[] a = (float[]) ip.getPixels();
@@ -513,9 +513,9 @@ public class Fht extends FloatProcessor {
     //@formatter:off
     // We swap: 0 <=> nx_2, 0 <=> ny_2
     // 1 <=> 3
-    Fht.swap(a, a, nx, nx_2,    0,    0, ny_2, nx_2, ny_2, tmp);
+    Fht.swap(a, a, nx, nxOver2,    0,    0, nyOver2, nxOver2, nyOver2, tmp);
     // 2 <=> 4
-    Fht.swap(a, a, nx,    0,    0, nx_2, ny_2, nx_2, ny_2, tmp);
+    Fht.swap(a, a, nx,    0,    0, nxOver2, nyOver2, nxOver2, nyOver2, tmp);
     //@formatter:on
   }
 

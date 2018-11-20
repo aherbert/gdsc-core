@@ -365,12 +365,12 @@ public class ImageWindow {
   }
 
   private static double[] createWindow(WindowFunction wf, int size) {
-    final double N_1 = size - 1.0;
+    final double nMinus1 = size - 1.0;
     final double[] w = new double[size];
     // Assume symmetry
     final int middle = size / 2;
     for (int i = 0, j = size - 1; i <= middle; i++, j--) {
-      w[i] = w[j] = wf.weight(i / N_1);
+      w[i] = w[j] = wf.weight(i / nMinus1);
     }
     return w;
   }

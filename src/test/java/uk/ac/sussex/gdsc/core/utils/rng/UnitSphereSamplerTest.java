@@ -1,5 +1,6 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.UnitSphereSampler;
 import org.apache.commons.rng.simple.RandomSource;
@@ -13,7 +14,7 @@ public class UnitSphereSamplerTest {
   public void testZeroLength() {
     final UniformRandomProvider rng = RandomSource.create(RandomSource.MWC_256);
     final UnitSphereSampler s = new UnitSphereSampler(0, rng);
-    Assertions.assertArrayEquals(new double[0], s.nextVector());
+    Assertions.assertArrayEquals(ArrayUtils.EMPTY_DOUBLE_ARRAY, s.nextVector());
   }
 
   @Test

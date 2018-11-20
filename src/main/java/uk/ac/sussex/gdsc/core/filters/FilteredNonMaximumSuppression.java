@@ -40,11 +40,10 @@ import org.apache.commons.math3.util.FastMath;
  */
 public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
 
-  // TODO: Update to use the same block find algorithm as NonMaximumSuppression.
   // There is a lot of code duplication is this class. The parent could be
   // modified to have hooks at the appropriate point for validation. However
   // this class is rarely used and so the parent is left unmodified to ensure it
-  // runs fast.
+  // runs optimally.
 
   /** The background. */
   private float background;
@@ -163,7 +162,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
   }
 
   /**
-   * Float half maximum.
+   * Find the {@code float} value for half the maximum.
    *
    * @param background the background
    * @param maximum the maximum
@@ -174,7 +173,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
   }
 
   /**
-   * Int half maximum.
+   * Find the {@code int} value for half the maximum.
    *
    * @param background the background
    * @param maximum the maximum
@@ -238,10 +237,10 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
       }
     }
 
-    // Compare all points
     final float heightThreshold = getHeightThreshold();
     final float floatBackground = background;
 
+    // Compare all points
     int index = 0;
     for (int y = 0; y < maxy; y++) {
       FIND_MAXIMUM: for (int x = 0; x < maxx; x++, index++) {
@@ -274,53 +273,101 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
         }
 
         // Check the maximum width
-        if (minimumWidth > 0) {
-          // Get the width at half maximum.
-          final float v_half = floatHalfMaximum(floatBackground, v);
-          int index2;
-          // Scan right
-          int x1 = x + 1;
-          index2 = index + 1;
-          while (x1 < maxx && data[index2] > v_half) {
-            x1++;
-            index2++;
-          }
-          // Scan left
-          int x2 = x - 1;
-          index2 = index - 1;
-          while (x2 >= 0 && data[index2] > v_half) {
-            x2--;
-            index2--;
-          }
-          if (x1 - x2 < minimumWidth) {
-            continue;
-          }
-          // Scan up
-          int y1 = y + 1;
-          index2 = index + maxx;
-          while (y1 < maxy && data[index2] > v_half) {
-            y1++;
-            index2 += maxx;
-          }
-          // Scan down
-          int y2 = y - 1;
-          index2 = index - 1;
-          while (y2 >= 0 && data[index2] > v_half) {
-            y2--;
-            index2 -= maxx;
-          }
-          if (y1 - y2 < minimumWidth) {
-            continue;
-          }
+        if (isAboveMinimumWidth(data, maxx, maxy, index, x, y, floatBackground)) {
+          results.add(index);
+          maximaFlag[index] = true;
         }
-
-        results.add(index);
-        maximaFlag[index] = true;
       } // end FIND_MAXIMA
     }
 
     return results.toArray();
 
+  }
+
+  /**
+   * Checks if the maxima is above the minimum width. Computes the half height of the maxima and
+   * then computes the peak width at half maxima (PWHM) in the X and Y dimensions and compares them
+   * to the minimum width.
+   *
+   * @param data the data
+   * @param maxx the maxx
+   * @param maxy the maxy
+   * @param index the index
+   * @param x the x
+   * @param y the y
+   * @param background the background
+   * @return true if PWHM is above minimum width
+   */
+  private boolean isAboveMinimumWidth(float[] data, int maxx, int maxy, int index, int x, int y,
+      float background) {
+    // Check the maximum width
+    if (minimumWidth > 0) {
+      final float halfMax = floatHalfMaximum(background, data[index]);
+
+      // Get the width at half maximum in x
+      int index2;
+      // Scan right
+      int x1 = x + 1;
+      index2 = index + 1;
+      while (x1 < maxx && data[index2] > halfMax) {
+        x1++;
+        index2++;
+      }
+      // Scan left
+      int x2 = x - 1;
+      index2 = index - 1;
+      while (x2 >= 0 && data[index2] > halfMax) {
+        x2--;
+        index2--;
+      }
+      // Check PWHM in x
+      if (x1 - x2 < minimumWidth) {
+        return false;
+      }
+
+      // Get the width at half maximum in y
+      // Scan up
+      int y1 = y + 1;
+      index2 = index + maxx;
+      while (y1 < maxy && data[index2] > halfMax) {
+        y1++;
+        index2 += maxx;
+      }
+      // Scan down
+      int y2 = y - 1;
+      index2 = index - 1;
+      while (y2 >= 0 && data[index2] > halfMax) {
+        y2--;
+        index2 -= maxx;
+      }
+      // Check PWHM in y
+      if (y1 - y2 < minimumWidth) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Checks if the maxima is above the minimum width. Computes the half height of the maxima and
+   * then computes the peak width at half maxima (PWHM) in the X and Y dimensions and compares them
+   * to the minimum width.
+   *
+   * @param data the data
+   * @param maxx the maxx
+   * @param maxy the maxy
+   * @param index the index
+   * @param background the background
+   * @return true if PWHM is above minimum width
+   */
+  private boolean isAboveMinimumWidth(float[] data, int maxx, int maxy, int index,
+      float background) {
+    if (minimumWidth > 0) {
+      final int x = index % maxx;
+      final int y = index / maxx;
+      return isAboveMinimumWidth(data, maxx, maxy, index, x, y, background);
+    }
+    return true;
   }
 
   /**
@@ -357,10 +404,10 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
       }
     }
 
-    // Compare all points
     final float heightThreshold = getHeightThreshold();
     final float floatBackground = background;
 
+    // Compare all points
     for (int y = n; y < maxy - n; y++) {
       int index = y * maxx + n;
       FIND_MAXIMUM: for (int x = n; x < maxx - n; x++, index++) {
@@ -378,47 +425,10 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
         }
 
         // Check the maximum width
-        if (minimumWidth > 0) {
-          final float v_half = floatHalfMaximum(floatBackground, v);
-          int index2;
-          // Scan right
-          int x1 = x + 1;
-          index2 = index + 1;
-          while (x1 < maxx && data[index2] > v_half) {
-            x1++;
-            index2++;
-          }
-          // Scan left
-          int x2 = x - 1;
-          index2 = index - 1;
-          while (x2 >= 0 && data[index2] > v_half) {
-            x2--;
-            index2--;
-          }
-          if (x1 - x2 < minimumWidth) {
-            continue;
-          }
-          // Scan up
-          int y1 = y + 1;
-          index2 = index + maxx;
-          while (y1 < maxy && data[index2] > v_half) {
-            y1++;
-            index2 += maxx;
-          }
-          // Scan down
-          int y2 = y - 1;
-          index2 = index - 1;
-          while (y2 >= 0 && data[index2] > v_half) {
-            y2--;
-            index2 -= maxx;
-          }
-          if (y1 - y2 < minimumWidth) {
-            continue;
-          }
+        if (isAboveMinimumWidth(data, maxx, maxy, index, x, y, floatBackground)) {
+          results.add(index);
+          maximaFlag[index] = true;
         }
-
-        results.add(index);
-        maximaFlag[index] = true;
       } // end FIND_MAXIMA
     }
 
@@ -473,10 +483,10 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     // All blocks fit within the border
     final boolean inner = (n < border);
 
-    // Compare all points
     final float heightThreshold = getHeightThreshold();
     final float floatBackground = background;
 
+    // Compare all points
     for (int y = border; y < maxy - border; y++) {
       int index = y * maxx + border;
       FIND_MAXIMUM: for (int x = border; x < maxx - border; x++, index++) {
@@ -513,47 +523,11 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
         }
 
         // Check the maximum width
-        if (minimumWidth > 0) {
-          final float v_half = floatHalfMaximum(floatBackground, v);
-          int index2;
-          // Scan right
-          int x1 = x + 1;
-          index2 = index + 1;
-          while (x1 < maxx && data[index2] > v_half) {
-            x1++;
-            index2++;
-          }
-          // Scan left
-          int x2 = x - 1;
-          index2 = index - 1;
-          while (x2 >= 0 && data[index2] > v_half) {
-            x2--;
-            index2--;
-          }
-          if (x1 - x2 < minimumWidth) {
-            continue;
-          }
-          // Scan up
-          int y1 = y + 1;
-          index2 = index + maxx;
-          while (y1 < maxy && data[index2] > v_half) {
-            y1++;
-            index2 += maxx;
-          }
-          // Scan down
-          int y2 = y - 1;
-          index2 = index - 1;
-          while (y2 >= 0 && data[index2] > v_half) {
-            y2--;
-            index2 -= maxx;
-          }
-          if (y1 - y2 < minimumWidth) {
-            continue;
-          }
+        if (isAboveMinimumWidth(data, maxx, maxy, index, x, y, floatBackground)) {
+          results.add(index);
+          maximaFlag[index] = true;
         }
 
-        results.add(index);
-        maximaFlag[index] = true;
       } // end FIND_MAXIMA
     }
 
@@ -577,201 +551,45 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
    */
   @Override
   public int[] blockFindNxN(float[] data, int maxx, int maxy, int n) {
-    final int[] blockMaxima = findBlockMaximaNxN(data, maxx, maxy, n);
+    int[] maxima;
     int maximaCount = 0;
+    final int n1 = n + 1;
     final float heightThreshold = getHeightThreshold();
     final float floatBackground = background;
 
-    boolean[] maximaFlag = null;
     if (isNeighbourCheck()) {
-      maximaFlag = getFlagBuffer(data.length);
+      // Compute all candidate maxima in the NxN blocks. Then check each candidate
+      // is a maxima in the 2N+1 region including a check for existing maxima.
+      final int[][] blockMaximaCandidates = findBlockMaximaCandidatesNxN(data, maxx, maxy, n);
+
+      maxima = new int[blockMaximaCandidates.length];
+      final boolean[] maximaFlag = getFlagBuffer(data.length);
+
+      for (final int[] blockMaxima : blockMaximaCandidates) {
+        for (final int index : blockMaxima) {
+          if (data[index] >= heightThreshold
+              && isMaximaNxN(data, maximaFlag, maxx, maxy, n, 0, n1, index)
+              && isAboveMinimumWidth(data, maxx, maxy, index, floatBackground)) {
+            maximaFlag[index] = true;
+            maxima[maximaCount++] = index;
+            break;
+          }
+        }
+      }
+    } else {
+      final int[] blockMaxima = findBlockMaximaNxN(data, maxx, maxy, n);
+
+      maxima = blockMaxima; // Re-use storage space
+
+      for (final int index : blockMaxima) {
+        if (data[index] >= heightThreshold && isMaximaNxN(data, maxx, maxy, n, 0, n1, index)
+            && isAboveMinimumWidth(data, maxx, maxy, index, floatBackground)) {
+          maxima[maximaCount++] = index;
+        }
+      }
     }
 
-    FIND_MAXIMUM: for (final int index : blockMaxima) {
-
-      final float v = data[index];
-
-      if (v < heightThreshold) {
-        continue;
-      }
-
-      final int x = index % maxx;
-      final int y = index / maxx;
-
-      // Compare the maxima to the surroundings. Ignore the block region already processed.
-      //@formatter:off
-      //
-      //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
-      //             |dddddddddddddddddddddddddddddddddddddddddddd|
-      //             |dddddddddddddddddddddddddddddddddddddddddddd|
-      //             |dddddddddddddddddddddddddddddddddddddddddddd|
-      //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
-      //
-      //@formatter:on
-      // This must be done without over-running boundaries
-      final int mi = x;
-      final int mj = y;
-      final int i = (n + 1) * (mi / (n + 1));
-      final int j = (n + 1) * (mj / (n + 1));
-      final int i_plus_n = FastMath.min(i + n + 1, maxx - 1);
-      final int j_plus_n = FastMath.min(j + n + 1, maxy - 1);
-      final int mi_minus_n = FastMath.max(mi - n, 0);
-      final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
-      final int mj_minus_n = FastMath.max(mj - n, 0);
-      final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
-
-      // A
-      for (int jj = mj_minus_n; jj < j; jj++) {
-        int indexStart = jj * maxx + mi_minus_n;
-        final int indexEnd = jj * maxx + mi_plus_n;
-        for (; indexStart <= indexEnd; indexStart++) {
-          if (v < data[indexStart]) {
-            continue FIND_MAXIMUM;
-          }
-        }
-      }
-      for (int jj = j; jj < j_plus_n; jj++) {
-        // B
-        {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + i;
-          for (; indexStart < indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-
-        // C
-        {
-          int indexStart = jj * maxx + i_plus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-      }
-      // D
-      for (int jj = j_plus_n; jj <= mj_plus_n; jj++) {
-        int indexStart = jj * maxx + mi_minus_n;
-        final int indexEnd = jj * maxx + mi_plus_n;
-        for (; indexStart <= indexEnd; indexStart++) {
-          if (v < data[indexStart]) {
-            continue FIND_MAXIMUM;
-          }
-        }
-      }
-
-      if (maximaFlag != null) {
-        // A
-        for (int jj = mj_minus_n; jj < j; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
-            if (maximaFlag[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-        for (int jj = j; jj < j_plus_n; jj++) {
-          // B
-          {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + i;
-            for (; indexStart < indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-
-          // C
-          {
-            int indexStart = jj * maxx + i_plus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-        }
-        // D
-        for (int jj = j_plus_n; jj <= mj_plus_n; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
-            if (maximaFlag[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-      }
-
-      // Check the maximum width
-      if (minimumWidth > 0) {
-        final float v_half = floatHalfMaximum(floatBackground, v);
-        int index2;
-        // Scan right
-        int x1 = x + 1;
-        index2 = index + 1;
-        while (x1 < maxx && data[index2] > v_half) {
-          x1++;
-          index2++;
-        }
-        // Scan left
-        int x2 = x - 1;
-        index2 = index - 1;
-        while (x2 >= 0 && data[index2] > v_half) {
-          x2--;
-          index2--;
-        }
-        if (x1 - x2 < minimumWidth) {
-          continue;
-        }
-        // Scan up
-        int y1 = y + 1;
-        index2 = index + maxx;
-        while (y1 < maxy && data[index2] > v_half) {
-          y1++;
-          index2 += maxx;
-        }
-        // Scan down
-        int y2 = y - 1;
-        index2 = index - 1;
-        while (y2 >= 0 && data[index2] > v_half) {
-          y2--;
-          index2 -= maxx;
-        }
-        if (y1 - y2 < minimumWidth) {
-          continue;
-        }
-      }
-
-      // Re-use storage space
-      blockMaxima[maximaCount++] = index;
-      if (maximaFlag != null) {
-        maximaFlag[index] = true;
-      }
-    } // end FIND_MAXIMA
-
-    return truncate(blockMaxima, maximaCount);
+    return truncate(maxima, maximaCount);
   }
 
   /**
@@ -793,201 +611,46 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
    */
   @Override
   public int[] blockFindNxNInternal(float[] data, int maxx, int maxy, int n, int border) {
-    final int[] blockMaxima = findBlockMaximaNxNInternal(data, maxx, maxy, n, border);
+    int[] maxima;
     int maximaCount = 0;
+    final int n1 = n + 1;
     final float heightThreshold = getHeightThreshold();
     final float floatBackground = background;
 
-    boolean[] maximaFlag = null;
     if (isNeighbourCheck()) {
-      maximaFlag = getFlagBuffer(data.length);
+      // Compute all candidate maxima in the NxN blocks. Then check each candidate
+      // is a maxima in the 2N+1 region including a check for existing maxima.
+      final int[][] blockMaximaCandidates =
+          findBlockMaximaCandidatesNxNInternal(data, maxx, maxy, n, border);
+
+      maxima = new int[blockMaximaCandidates.length];
+      final boolean[] maximaFlag = getFlagBuffer(data.length);
+
+      for (final int[] blockMaxima : blockMaximaCandidates) {
+        for (final int index : blockMaxima) {
+          if (data[index] >= heightThreshold
+              && isMaximaNxN(data, maximaFlag, maxx, maxy, n, 0, n1, index)
+              && isAboveMinimumWidth(data, maxx, maxy, index, floatBackground)) {
+            maximaFlag[index] = true;
+            maxima[maximaCount++] = index;
+            break;
+          }
+        }
+      }
+    } else {
+      final int[] blockMaxima = findBlockMaximaNxNInternal(data, maxx, maxy, n, border);
+
+      maxima = blockMaxima; // Re-use storage space
+
+      for (final int index : blockMaxima) {
+        if (data[index] >= heightThreshold && isMaximaNxN(data, maxx, maxy, n, 0, n1, index)
+            && isAboveMinimumWidth(data, maxx, maxy, index, floatBackground)) {
+          maxima[maximaCount++] = index;
+        }
+      }
     }
 
-    FIND_MAXIMUM: for (final int index : blockMaxima) {
-      final float v = data[index];
-
-      if (v < heightThreshold) {
-        continue;
-      }
-
-      final int x = index % maxx;
-      final int y = index / maxx;
-
-      // Compare the maxima to the surroundings. Ignore the block region already processed.
-      //@formatter:off
-      //
-      //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
-      //             |dddddddddddddddddddddddddddddddddddddddddddd|
-      //             |dddddddddddddddddddddddddddddddddddddddddddd|
-      //             |dddddddddddddddddddddddddddddddddddddddddddd|
-      //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
-      //
-      //@formatter:on
-      // No check for over-running boundaries since this is the internal version
-      final int mi = x;
-      final int mj = y;
-      final int i = (n + 1) * ((mi - border) / (n + 1)) + border; // Blocks n+1 wide
-      final int j = (n + 1) * ((mj - border) / (n + 1)) + border; // Blocks n+1 wide
-      // The block boundaries will have been truncated on the final block. Ensure this is swept
-      final int i_plus_n = FastMath.min(i + n + 1, maxx - border - 1);
-      final int j_plus_n = FastMath.min(j + n + 1, maxy - border - 1);
-      final int mi_minus_n = FastMath.max(mi - n, 0);
-      final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
-      final int mj_minus_n = FastMath.max(mj - n, 0);
-      final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
-
-      // A
-      for (int jj = mj_minus_n; jj < j; jj++) {
-        int indexStart = jj * maxx + mi_minus_n;
-        final int indexEnd = jj * maxx + mi_plus_n;
-        for (; indexStart <= indexEnd; indexStart++) {
-          if (v < data[indexStart]) {
-            continue FIND_MAXIMUM;
-          }
-        }
-      }
-      for (int jj = j; jj < j_plus_n; jj++) {
-        // B
-        {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + i;
-          for (; indexStart < indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-
-        // C
-        {
-          int indexStart = jj * maxx + i_plus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-      }
-      // D
-      for (int jj = j_plus_n; jj <= mj_plus_n; jj++) {
-        int indexStart = jj * maxx + mi_minus_n;
-        final int indexEnd = jj * maxx + mi_plus_n;
-        for (; indexStart <= indexEnd; indexStart++) {
-          if (v < data[indexStart]) {
-            continue FIND_MAXIMUM;
-          }
-        }
-      }
-
-      if (maximaFlag != null) {
-        // A
-        for (int jj = mj_minus_n; jj < j; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
-            if (maximaFlag[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-        for (int jj = j; jj < j_plus_n; jj++) {
-          // B
-          {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + i;
-            for (; indexStart < indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-
-          // C
-          {
-            int indexStart = jj * maxx + i_plus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-        }
-        // D
-        for (int jj = j_plus_n; jj <= mj_plus_n; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
-            if (maximaFlag[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-      }
-
-      // Check the maximum width
-      if (minimumWidth > 0) {
-        final float v_half = floatHalfMaximum(floatBackground, v);
-        int index2;
-        // Scan right
-        int x1 = x + 1;
-        index2 = index + 1;
-        while (x1 < maxx && data[index2] > v_half) {
-          x1++;
-          index2++;
-        }
-        // Scan left
-        int x2 = x - 1;
-        index2 = index - 1;
-        while (x2 >= 0 && data[index2] > v_half) {
-          x2--;
-          index2--;
-        }
-        if (x1 - x2 < minimumWidth) {
-          continue;
-        }
-        // Scan up
-        int y1 = y + 1;
-        index2 = index + maxx;
-        while (y1 < maxy && data[index2] > v_half) {
-          y1++;
-          index2 += maxx;
-        }
-        // Scan down
-        int y2 = y - 1;
-        index2 = index - 1;
-        while (y2 >= 0 && data[index2] > v_half) {
-          y2--;
-          index2 -= maxx;
-        }
-        if (y1 - y2 < minimumWidth) {
-          continue;
-        }
-      }
-
-      // Re-use storage space
-      blockMaxima[maximaCount++] = index;
-      if (maximaFlag != null) {
-        maximaFlag[index] = true;
-      }
-    } // end FIND_MAXIMA
-
-    return truncate(blockMaxima, maximaCount);
+    return truncate(maxima, maximaCount);
   }
 
   /**
@@ -1018,18 +681,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     // Expand the canvas
     final int newx = maxx + (maxx - xfinal) + 2;
     final int newy = maxy + (maxy - yfinal) + 2;
-    data = expand(data, maxx, maxy, newx, newy);
-
-    final int[] maxima = new int[xblocks * yblocks];
-
-    final float heightThreshold = getHeightThreshold();
-    final float floatBackground = background;
-    final boolean validations = (heightThreshold > 0 || minimumWidth > 0 || isNeighbourCheck());
-
-    boolean[] maximaFlag = null;
-    if (isNeighbourCheck()) {
-      maximaFlag = getFlagBuffer(data.length);
-    }
+    final float[] newData = expand(data, maxx, maxy, newx, newy);
 
     // Compare 2x2 block
     // ....
@@ -1047,100 +699,77 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     final int[] c = new int[] {-newx - 1, -1, +newx - 1, +newx, +newx + 1};
     final int[] d = new int[] {-newx + 1, +1, +newx - 1, +newx, +newx + 1};
 
+    final int[] maxima = new int[xblocks * yblocks];
     int maximaCount = 0;
-    for (int y = 0; y < maxy; y += 2) {
-      int xindex = (y + 1) * newx + 1;
-      FIND_MAXIMUM: for (int x = 0; x < maxx; x += 2, xindex += 2) {
-        int[] scan = a;
-        int maxIndex = xindex;
-        if (data[maxIndex] < data[xindex + 1]) {
-          scan = b;
-          maxIndex = xindex + 1;
-        }
-        if (data[maxIndex] < data[xindex + newx]) {
-          scan = c;
-          maxIndex = xindex + newx;
-        }
-        if (data[maxIndex] < data[xindex + newx + 1]) {
-          scan = d;
-          maxIndex = xindex + newx + 1;
-        }
+    final float heightThreshold = getHeightThreshold();
+    final float floatBackground = background;
 
-        // Check the remaining region
-        for (final int offset : scan) {
-          if (data[maxIndex] < data[maxIndex + offset]) {
-            continue FIND_MAXIMUM;
-          }
-        }
+    if (isNeighbourCheck()) {
+      final boolean[] maximaFlag = getFlagBuffer(newData.length);
 
-        if (validations) {
-          if (data[maxIndex] < heightThreshold) {
-            continue;
-          }
+      final FloatScanCandidate candidates = new FloatScanCandidate();
 
-          if (maximaFlag != null) {
-            for (final int offset : scan) {
-              if (maximaFlag[maxIndex + offset]) {
-                continue FIND_MAXIMUM;
-              }
+      for (int y = 0; y < maxy; y += 2) {
+        int xindex = (y + 1) * newx + 1;
+        for (int x = 0; x < maxx; x += 2, xindex += 2) {
+          candidates.init(newData, xindex, a);
+          candidates.add(newData, xindex + 1, b);
+          candidates.add(newData, xindex + newx, c);
+          candidates.add(newData, xindex + newx + 1, d);
+
+          // Check the remaining region for each candidate to ensure a true maxima
+          for (int i = 0; i < candidates.size(); i++) {
+            final int maxIndex = candidates.getMaxIndex(i);
+            final int[] scan = candidates.getScan(i);
+
+            final boolean isMaxima = data[maxIndex] >= heightThreshold
+                // Only check ABC using the existing maxima flag
+                // since the scan blocks for D have not yet been processed
+                && ((scan == d) ? isMaxima3x3(newData, maxIndex, scan)
+                    : isMaxima3x3(newData, maximaFlag, maxIndex, scan));
+
+            if (isMaxima && isAboveMinimumWidth(newData, newx, newy, maxIndex, floatBackground)) {
+              // Remap the maxima
+              final int xx = maxIndex % newx;
+              final int yy = maxIndex / newx;
+
+              maximaFlag[maxIndex] = true;
+              maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
+              break;
             }
           }
-
-          // Check the maximum width
-          if (minimumWidth > 0) {
-            final int x0 = maxIndex % maxx;
-            final int y0 = maxIndex / maxx;
-
-            // Get the width at half maximum.
-            final float v_half = floatHalfMaximum(floatBackground, data[maxIndex]);
-            int index2;
-            // Scan right
-            int x1 = x0 + 1;
-            index2 = maxIndex + 1;
-            while (x1 < maxx && data[index2] > v_half) {
-              x1++;
-              index2++;
-            }
-            // Scan left
-            int x2 = x0 - 1;
-            index2 = maxIndex - 1;
-            while (x2 >= 0 && data[index2] > v_half) {
-              x2--;
-              index2--;
-            }
-            if (x1 - x2 < minimumWidth) {
-              continue;
-            }
-            // Scan up
-            int y1 = y0 + 1;
-            index2 = maxIndex + newx;
-            while (y1 < maxy && data[index2] > v_half) {
-              y1++;
-              index2 += newx;
-            }
-            // Scan down
-            int y2 = y0 - 1;
-            index2 = maxIndex - newx;
-            while (y2 >= 0 && data[index2] > v_half) {
-              y2--;
-              index2 -= newx;
-            }
-            if (y1 - y2 < minimumWidth) {
-              continue;
-            }
+        }
+      }
+    } else {
+      for (int y = 0; y < maxy; y += 2) {
+        int xindex = (y + 1) * newx + 1;
+        for (int x = 0; x < maxx; x += 2, xindex += 2) {
+          int[] scan = a;
+          int maxIndex = xindex;
+          if (newData[maxIndex] < newData[xindex + 1]) {
+            scan = b;
+            maxIndex = xindex + 1;
+          }
+          if (newData[maxIndex] < newData[xindex + newx]) {
+            scan = c;
+            maxIndex = xindex + newx;
+          }
+          if (newData[maxIndex] < newData[xindex + newx + 1]) {
+            scan = d;
+            maxIndex = xindex + newx + 1;
           }
 
-          if (maximaFlag != null) {
-            maximaFlag[maxIndex] = true;
+          // Check the remaining region
+          if (data[maxIndex] >= heightThreshold && isMaxima3x3(newData, maxIndex, scan)
+              && isAboveMinimumWidth(newData, newx, newy, maxIndex, floatBackground)) {
+            // Remap the maxima
+            final int xx = maxIndex % newx;
+            final int yy = maxIndex / newx;
+
+            maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
           }
         }
-
-        // Remap the maxima
-        final int xx = maxIndex % newx;
-        final int yy = maxIndex / newx;
-
-        maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
-      } // end FIND_MAXIMA
+      }
     }
 
     return truncate(maxima, maximaCount);
@@ -1173,17 +802,6 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     final int xblocks = getBlocks(maxx - border, 2);
     final int yblocks = getBlocks(maxy - border, 2);
 
-    final int[] maxima = new int[xblocks * yblocks];
-
-    final float heightThreshold = getHeightThreshold();
-    final float floatBackground = background;
-    final boolean validations = (heightThreshold > 0 || minimumWidth > 0 || isNeighbourCheck());
-
-    boolean[] maximaFlag = null;
-    if (isNeighbourCheck()) {
-      maximaFlag = getFlagBuffer(data.length);
-    }
-
     // Compare 2x2 block
     // ....
     // .AB.
@@ -1200,96 +818,69 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     final int[] c = new int[] {-maxx - 1, -1, +maxx - 1, +maxx, +maxx + 1};
     final int[] d = new int[] {-maxx + 1, +1, +maxx - 1, +maxx, +maxx + 1};
 
+    final int[] maxima = new int[xblocks * yblocks];
     int maximaCount = 0;
-    for (int y = border; y < maxy - border - 1; y += 2) {
-      int xindex = y * maxx + border;
-      FIND_MAXIMUM: for (int x = border; x < maxx - border - 1; x += 2, xindex += 2) {
-        int[] scan = a;
-        int maxIndex = xindex;
-        if (data[maxIndex] < data[xindex + 1]) {
-          scan = b;
-          maxIndex = xindex + 1;
-        }
-        if (data[maxIndex] < data[xindex + maxx]) {
-          scan = c;
-          maxIndex = xindex + maxx;
-        }
-        if (data[maxIndex] < data[xindex + maxx + 1]) {
-          scan = d;
-          maxIndex = xindex + maxx + 1;
-        }
+    final float heightThreshold = getHeightThreshold();
+    final float floatBackground = background;
 
-        // Check the remaining region
-        for (final int offset : scan) {
-          if (data[maxIndex] < data[maxIndex + offset]) {
-            continue FIND_MAXIMUM;
-          }
-        }
+    if (isNeighbourCheck()) {
+      final boolean[] maximaFlag = getFlagBuffer(data.length);
 
-        if (validations) {
-          if (data[maxIndex] < heightThreshold) {
-            continue;
-          }
+      final FloatScanCandidate candidates = new FloatScanCandidate();
 
-          if (maximaFlag != null) {
-            for (final int offset : scan) {
-              if (maximaFlag[maxIndex + offset]) {
-                continue FIND_MAXIMUM;
-              }
+      for (int y = border; y < maxy - border - 1; y += 2) {
+        int xindex = y * maxx + border;
+        for (int x = border; x < maxx - border - 1; x += 2, xindex += 2) {
+          candidates.init(data, xindex, a);
+          candidates.add(data, xindex + 1, b);
+          candidates.add(data, xindex + maxx, c);
+          candidates.add(data, xindex + maxx + 1, d);
+
+          // Check the remaining region for each candidate to ensure a true maxima
+          for (int i = 0; i < candidates.size(); i++) {
+            final int maxIndex = candidates.getMaxIndex(i);
+            final int[] scan = candidates.getScan(i);
+
+            final boolean isMaxima = data[maxIndex] >= heightThreshold
+                // Only check ABC using the existing maxima flag
+                // since the scan blocks for D have not yet been processed
+                && ((scan == d) ? isMaxima3x3(data, maxIndex, scan)
+                    : isMaxima3x3(data, maximaFlag, maxIndex, scan));
+
+            if (isMaxima && isAboveMinimumWidth(data, maxx, maxy, maxIndex, floatBackground)) {
+              maximaFlag[maxIndex] = true;
+              maxima[maximaCount++] = maxIndex;
+              break;
             }
           }
-
-          // Check the maximum width
-          if (minimumWidth > 0) {
-            final int x0 = maxIndex % maxx;
-            final int y0 = maxIndex / maxx;
-
-            // Get the width at half maximum.
-            final float v_half = floatHalfMaximum(floatBackground, data[maxIndex]);
-            int index2;
-            // Scan right
-            int x1 = x0 + 1;
-            index2 = maxIndex + 1;
-            while (x1 < maxx && data[index2] > v_half) {
-              x1++;
-              index2++;
-            }
-            // Scan left
-            int x2 = x0 - 1;
-            index2 = maxIndex - 1;
-            while (x2 >= 0 && data[index2] > v_half) {
-              x2--;
-              index2--;
-            }
-            if (x1 - x2 < minimumWidth) {
-              continue;
-            }
-            // Scan up
-            int y1 = y0 + 1;
-            index2 = maxIndex + maxx;
-            while (y1 < maxy && data[index2] > v_half) {
-              y1++;
-              index2 += maxx;
-            }
-            // Scan down
-            int y2 = y0 - 1;
-            index2 = maxIndex - maxx;
-            while (y2 >= 0 && data[index2] > v_half) {
-              y2--;
-              index2 -= maxx;
-            }
-            if (y1 - y2 < minimumWidth) {
-              continue;
-            }
-          }
-
-          if (maximaFlag != null) {
-            maximaFlag[maxIndex] = true;
-          }
         }
+      }
+    } else {
+      for (int y = border; y < maxy - border - 1; y += 2) {
+        int xindex = y * maxx + border;
+        for (int x = border; x < maxx - border - 1; x += 2, xindex += 2) {
+          int[] scan = a;
+          int maxIndex = xindex;
+          if (data[maxIndex] < data[xindex + 1]) {
+            scan = b;
+            maxIndex = xindex + 1;
+          }
+          if (data[maxIndex] < data[xindex + maxx]) {
+            scan = c;
+            maxIndex = xindex + maxx;
+          }
+          if (data[maxIndex] < data[xindex + maxx + 1]) {
+            scan = d;
+            maxIndex = xindex + maxx + 1;
+          }
 
-        maxima[maximaCount++] = maxIndex;
-      } // end FIND_MAXIMA
+          // Check the remaining region
+          if (data[maxIndex] >= heightThreshold && isMaxima3x3(data, maxIndex, scan)
+              && isAboveMinimumWidth(data, maxx, maxy, maxIndex, floatBackground)) {
+            maxima[maximaCount++] = maxIndex;
+          }
+        } // end FIND_MAXIMUM
+      }
     }
 
     return truncate(maxima, maximaCount);
@@ -1342,10 +933,10 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
       }
     }
 
-    // Compare all points
     final int heightThreshold = (int) getHeightThreshold();
     final int intBackground = (int) background;
 
+    // Compare all points
     int index = 0;
     for (int y = 0; y < maxy; y++) {
       FIND_MAXIMUM: for (int x = 0; x < maxx; x++, index++) {
@@ -1378,48 +969,10 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
         }
 
         // Check the maximum width
-        if (minimumWidth > 0) {
-          // Get the width at half maximum.
-          final int v_half = intHalfMaximum(intBackground, v);
-          int index2;
-          // Scan right
-          int x1 = x + 1;
-          index2 = index + 1;
-          while (x1 < maxx && data[index2] > v_half) {
-            x1++;
-            index2++;
-          }
-          // Scan left
-          int x2 = x - 1;
-          index2 = index - 1;
-          while (x2 >= 0 && data[index2] > v_half) {
-            x2--;
-            index2--;
-          }
-          if (x1 - x2 < minimumWidth) {
-            continue;
-          }
-          // Scan up
-          int y1 = y + 1;
-          index2 = index + maxx;
-          while (y1 < maxy && data[index2] > v_half) {
-            y1++;
-            index2 += maxx;
-          }
-          // Scan down
-          int y2 = y - 1;
-          index2 = index - 1;
-          while (y2 >= 0 && data[index2] > v_half) {
-            y2--;
-            index2 -= maxx;
-          }
-          if (y1 - y2 < minimumWidth) {
-            continue;
-          }
+        if (isAboveMinimumWidth(data, maxx, maxy, index, x, y, intBackground)) {
+          results.add(index);
+          maximaFlag[index] = true;
         }
-
-        results.add(index);
-        maximaFlag[index] = true;
       } // end FIND_MAXIMA
     }
 
@@ -1428,7 +981,92 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block An inner boundary of N is ignored as potential
+   * Checks if the maxima is above the minimum width. Computes the half height of the maxima and
+   * then computes the peak width at half maxima (PWHM) in the X and Y dimensions and compares them
+   * to the minimum width.
+   *
+   * @param data the data
+   * @param maxx the maxx
+   * @param maxy the maxy
+   * @param index the index
+   * @param x the x
+   * @param y the y
+   * @param background the background
+   * @return true if PWHM is above minimum width
+   */
+  private boolean isAboveMinimumWidth(int[] data, int maxx, int maxy, int index, int x, int y,
+      int background) {
+    // Check the maximum width
+    if (minimumWidth > 0) {
+      final int halfMax = intHalfMaximum(background, data[index]);
+
+      // Get the width at half maximum in x
+      int index2;
+      // Scan right
+      int x1 = x + 1;
+      index2 = index + 1;
+      while (x1 < maxx && data[index2] > halfMax) {
+        x1++;
+        index2++;
+      }
+      // Scan left
+      int x2 = x - 1;
+      index2 = index - 1;
+      while (x2 >= 0 && data[index2] > halfMax) {
+        x2--;
+        index2--;
+      }
+      // Check PWHM in x
+      if (x1 - x2 < minimumWidth) {
+        return false;
+      }
+
+      // Get the width at half maximum in y
+      // Scan up
+      int y1 = y + 1;
+      index2 = index + maxx;
+      while (y1 < maxy && data[index2] > halfMax) {
+        y1++;
+        index2 += maxx;
+      }
+      // Scan down
+      int y2 = y - 1;
+      index2 = index - 1;
+      while (y2 >= 0 && data[index2] > halfMax) {
+        y2--;
+        index2 -= maxx;
+      }
+      // Check PWHM in y
+      if (y1 - y2 < minimumWidth) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Checks if the maxima is above the minimum width. Computes the half height of the maxima and
+   * then computes the peak width at half maxima (PWHM) in the X and Y dimensions and compares them
+   * to the minimum width.
+   *
+   * @param data the data
+   * @param maxx the maxx
+   * @param maxy the maxy
+   * @param index the index
+   * @param background the background
+   * @return true if PWHM is above minimum width
+   */
+  private boolean isAboveMinimumWidth(int[] data, int maxx, int maxy, int index, int background) {
+    if (minimumWidth > 0) {
+      final int x = index % maxx;
+      final int y = index / maxx;
+      return isAboveMinimumWidth(data, maxx, maxy, index, x, y, background);
+    }
+    return true;
+  }
+
+  /**
+   * Compute the local-maxima within a 2n+1 block. An inner boundary of N is ignored as potential
    * maxima.
    *
    * <p>Any maxima below the configured fraction above background are ignored. Fraction =
@@ -1461,10 +1099,10 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
       }
     }
 
-    // Compare all points
     final int heightThreshold = (int) getHeightThreshold();
     final int intBackground = (int) background;
 
+    // Compare all points
     for (int y = n; y < maxy - n; y++) {
       int index = y * maxx + n;
       FIND_MAXIMUM: for (int x = n; x < maxx - n; x++, index++) {
@@ -1482,47 +1120,10 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
         }
 
         // Check the maximum width
-        if (minimumWidth > 0) {
-          final int v_half = intHalfMaximum(intBackground, v);
-          int index2;
-          // Scan right
-          int x1 = x + 1;
-          index2 = index + 1;
-          while (x1 < maxx && data[index2] > v_half) {
-            x1++;
-            index2++;
-          }
-          // Scan left
-          int x2 = x - 1;
-          index2 = index - 1;
-          while (x2 >= 0 && data[index2] > v_half) {
-            x2--;
-            index2--;
-          }
-          if (x1 - x2 < minimumWidth) {
-            continue;
-          }
-          // Scan up
-          int y1 = y + 1;
-          index2 = index + maxx;
-          while (y1 < maxy && data[index2] > v_half) {
-            y1++;
-            index2 += maxx;
-          }
-          // Scan down
-          int y2 = y - 1;
-          index2 = index - 1;
-          while (y2 >= 0 && data[index2] > v_half) {
-            y2--;
-            index2 -= maxx;
-          }
-          if (y1 - y2 < minimumWidth) {
-            continue;
-          }
+        if (isAboveMinimumWidth(data, maxx, maxy, index, x, y, intBackground)) {
+          results.add(index);
+          maximaFlag[index] = true;
         }
-
-        results.add(index);
-        maximaFlag[index] = true;
       } // end FIND_MAXIMA
     }
 
@@ -1530,7 +1131,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
   }
 
   /**
-   * Compute the local-maxima within a 2n+1 block An inner boundary is ignored as potential maxima.
+   * Compute the local-maxima within a 2n+1 block. An inner boundary is ignored as potential maxima.
    *
    * <p>Any maxima below the configured fraction above background are ignored. Fraction =
    * (Max-background)/Max within the 2n+1 neighbourhood. Maxima below the minimum height (above
@@ -1577,10 +1178,10 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     // All blocks fit within the border
     final boolean inner = (n < border);
 
-    // Compare all points
     final int heightThreshold = (int) getHeightThreshold();
     final int intBackground = (int) background;
 
+    // Compare all points
     for (int y = border; y < maxy - border; y++) {
       int index = y * maxx + border;
       FIND_MAXIMUM: for (int x = border; x < maxx - border; x++, index++) {
@@ -1617,47 +1218,11 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
         }
 
         // Check the maximum width
-        if (minimumWidth > 0) {
-          final int v_half = intHalfMaximum(intBackground, v);
-          int index2;
-          // Scan right
-          int x1 = x + 1;
-          index2 = index + 1;
-          while (x1 < maxx && data[index2] > v_half) {
-            x1++;
-            index2++;
-          }
-          // Scan left
-          int x2 = x - 1;
-          index2 = index - 1;
-          while (x2 >= 0 && data[index2] > v_half) {
-            x2--;
-            index2--;
-          }
-          if (x1 - x2 < minimumWidth) {
-            continue;
-          }
-          // Scan up
-          int y1 = y + 1;
-          index2 = index + maxx;
-          while (y1 < maxy && data[index2] > v_half) {
-            y1++;
-            index2 += maxx;
-          }
-          // Scan down
-          int y2 = y - 1;
-          index2 = index - 1;
-          while (y2 >= 0 && data[index2] > v_half) {
-            y2--;
-            index2 -= maxx;
-          }
-          if (y1 - y2 < minimumWidth) {
-            continue;
-          }
+        if (isAboveMinimumWidth(data, maxx, maxy, index, x, y, intBackground)) {
+          results.add(index);
+          maximaFlag[index] = true;
         }
 
-        results.add(index);
-        maximaFlag[index] = true;
       } // end FIND_MAXIMA
     }
 
@@ -1681,201 +1246,45 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
    */
   @Override
   public int[] blockFindNxN(int[] data, int maxx, int maxy, int n) {
-    final int[] blockMaxima = findBlockMaximaNxN(data, maxx, maxy, n);
+    int[] maxima;
     int maximaCount = 0;
+    final int n1 = n + 1;
     final int heightThreshold = (int) getHeightThreshold();
     final int intBackground = (int) background;
 
-    boolean[] maximaFlag = null;
     if (isNeighbourCheck()) {
-      maximaFlag = getFlagBuffer(data.length);
+      // Compute all candidate maxima in the NxN blocks. Then check each candidate
+      // is a maxima in the 2N+1 region including a check for existing maxima.
+      final int[][] blockMaximaCandidates = findBlockMaximaCandidatesNxN(data, maxx, maxy, n);
+
+      maxima = new int[blockMaximaCandidates.length];
+      final boolean[] maximaFlag = getFlagBuffer(data.length);
+
+      for (final int[] blockMaxima : blockMaximaCandidates) {
+        for (final int index : blockMaxima) {
+          if (data[index] >= heightThreshold
+              && isMaximaNxN(data, maximaFlag, maxx, maxy, n, 0, n1, index)
+              && isAboveMinimumWidth(data, maxx, maxy, index, intBackground)) {
+            maximaFlag[index] = true;
+            maxima[maximaCount++] = index;
+            break;
+          }
+        }
+      }
+    } else {
+      final int[] blockMaxima = findBlockMaximaNxN(data, maxx, maxy, n);
+
+      maxima = blockMaxima; // Re-use storage space
+
+      for (final int index : blockMaxima) {
+        if (data[index] >= heightThreshold && isMaximaNxN(data, maxx, maxy, n, 0, n1, index)
+            && isAboveMinimumWidth(data, maxx, maxy, index, intBackground)) {
+          maxima[maximaCount++] = index;
+        }
+      }
     }
 
-    FIND_MAXIMUM: for (final int index : blockMaxima) {
-
-      final int v = data[index];
-
-      if (v < heightThreshold) {
-        continue;
-      }
-
-      final int x = index % maxx;
-      final int y = index / maxx;
-
-      // Compare the maxima to the surroundings. Ignore the block region already processed.
-      //@formatter:off
-      //
-      //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
-      //             |dddddddddddddddddddddddddddddddddddddddddddd|
-      //             |dddddddddddddddddddddddddddddddddddddddddddd|
-      //             |dddddddddddddddddddddddddddddddddddddddddddd|
-      //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
-      //
-      //@formatter:on
-      // This must be done without over-running boundaries
-      final int mi = x;
-      final int mj = y;
-      final int i = (n + 1) * (mi / (n + 1));
-      final int j = (n + 1) * (mj / (n + 1));
-      final int i_plus_n = FastMath.min(i + n + 1, maxx - 1);
-      final int j_plus_n = FastMath.min(j + n + 1, maxy - 1);
-      final int mi_minus_n = FastMath.max(mi - n, 0);
-      final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
-      final int mj_minus_n = FastMath.max(mj - n, 0);
-      final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
-
-      // A
-      for (int jj = mj_minus_n; jj < j; jj++) {
-        int indexStart = jj * maxx + mi_minus_n;
-        final int indexEnd = jj * maxx + mi_plus_n;
-        for (; indexStart <= indexEnd; indexStart++) {
-          if (v < data[indexStart]) {
-            continue FIND_MAXIMUM;
-          }
-        }
-      }
-      for (int jj = j; jj < j_plus_n; jj++) {
-        // B
-        {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + i;
-          for (; indexStart < indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-
-        // C
-        {
-          int indexStart = jj * maxx + i_plus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-      }
-      // D
-      for (int jj = j_plus_n; jj <= mj_plus_n; jj++) {
-        int indexStart = jj * maxx + mi_minus_n;
-        final int indexEnd = jj * maxx + mi_plus_n;
-        for (; indexStart <= indexEnd; indexStart++) {
-          if (v < data[indexStart]) {
-            continue FIND_MAXIMUM;
-          }
-        }
-      }
-
-      if (maximaFlag != null) {
-        // A
-        for (int jj = mj_minus_n; jj < j; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
-            if (maximaFlag[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-        for (int jj = j; jj < j_plus_n; jj++) {
-          // B
-          {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + i;
-            for (; indexStart < indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-
-          // C
-          {
-            int indexStart = jj * maxx + i_plus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-        }
-        // D
-        for (int jj = j_plus_n; jj <= mj_plus_n; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
-            if (maximaFlag[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-      }
-
-      // Check the maximum width
-      if (minimumWidth > 0) {
-        final int v_half = intHalfMaximum(intBackground, v);
-        int index2;
-        // Scan right
-        int x1 = x + 1;
-        index2 = index + 1;
-        while (x1 < maxx && data[index2] > v_half) {
-          x1++;
-          index2++;
-        }
-        // Scan left
-        int x2 = x - 1;
-        index2 = index - 1;
-        while (x2 >= 0 && data[index2] > v_half) {
-          x2--;
-          index2--;
-        }
-        if (x1 - x2 < minimumWidth) {
-          continue;
-        }
-        // Scan up
-        int y1 = y + 1;
-        index2 = index + maxx;
-        while (y1 < maxy && data[index2] > v_half) {
-          y1++;
-          index2 += maxx;
-        }
-        // Scan down
-        int y2 = y - 1;
-        index2 = index - 1;
-        while (y2 >= 0 && data[index2] > v_half) {
-          y2--;
-          index2 -= maxx;
-        }
-        if (y1 - y2 < minimumWidth) {
-          continue;
-        }
-      }
-
-      // Re-use storage space
-      blockMaxima[maximaCount++] = index;
-      if (maximaFlag != null) {
-        maximaFlag[index] = true;
-      }
-    } // end FIND_MAXIMA
-
-    return truncate(blockMaxima, maximaCount);
+    return truncate(maxima, maximaCount);
   }
 
   /**
@@ -1897,201 +1306,46 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
    */
   @Override
   public int[] blockFindNxNInternal(int[] data, int maxx, int maxy, int n, int border) {
-    final int[] blockMaxima = findBlockMaximaNxNInternal(data, maxx, maxy, n, border);
+    int[] maxima;
     int maximaCount = 0;
+    final int n1 = n + 1;
     final int heightThreshold = (int) getHeightThreshold();
     final int intBackground = (int) background;
 
-    boolean[] maximaFlag = null;
     if (isNeighbourCheck()) {
-      maximaFlag = getFlagBuffer(data.length);
+      // Compute all candidate maxima in the NxN blocks. Then check each candidate
+      // is a maxima in the 2N+1 region including a check for existing maxima.
+      final int[][] blockMaximaCandidates =
+          findBlockMaximaCandidatesNxNInternal(data, maxx, maxy, n, border);
+
+      maxima = new int[blockMaximaCandidates.length];
+      final boolean[] maximaFlag = getFlagBuffer(data.length);
+
+      for (final int[] blockMaxima : blockMaximaCandidates) {
+        for (final int index : blockMaxima) {
+          if (data[index] >= heightThreshold
+              && isMaximaNxN(data, maximaFlag, maxx, maxy, n, 0, n1, index)
+              && isAboveMinimumWidth(data, maxx, maxy, index, intBackground)) {
+            maximaFlag[index] = true;
+            maxima[maximaCount++] = index;
+            break;
+          }
+        }
+      }
+    } else {
+      final int[] blockMaxima = findBlockMaximaNxNInternal(data, maxx, maxy, n, border);
+
+      maxima = blockMaxima; // Re-use storage space
+
+      for (final int index : blockMaxima) {
+        if (data[index] >= heightThreshold && isMaximaNxN(data, maxx, maxy, n, 0, n1, index)
+            && isAboveMinimumWidth(data, maxx, maxy, index, intBackground)) {
+          maxima[maximaCount++] = index;
+        }
+      }
     }
 
-    FIND_MAXIMUM: for (final int index : blockMaxima) {
-      final int v = data[index];
-
-      if (v < heightThreshold) {
-        continue;
-      }
-
-      final int x = index % maxx;
-      final int y = index / maxx;
-
-      // Compare the maxima to the surroundings. Ignore the block region already processed.
-      //@formatter:off
-      //
-      //        (mi-n,mj-n)----------------------------------(mi+n,mj-n)
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|
-      //             |bbbbbbbb (i,j)-------------(i+n,j) ccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|     (mi,mj)      |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbbbbb|                  |ccccccccccccc|
-      //             |bbbbbbbb (i,j+n)-----------(i+n,j+n) ccccccc|
-      //             |dddddddddddddddddddddddddddddddddddddddddddd|
-      //             |dddddddddddddddddddddddddddddddddddddddddddd|
-      //             |dddddddddddddddddddddddddddddddddddddddddddd|
-      //       (mi-n,mj+n)----------------------------------(mi+n,mj+n)
-      //
-      //@formatter:on
-      // No check for over-running boundaries since this is the internal version
-      final int mi = x;
-      final int mj = y;
-      final int i = (n + 1) * ((mi - border) / (n + 1)) + border; // Blocks n+1 wide
-      final int j = (n + 1) * ((mj - border) / (n + 1)) + border; // Blocks n+1 wide
-      // The block boundaries will have been truncated on the final block. Ensure this is swept
-      final int i_plus_n = FastMath.min(i + n + 1, maxx - border - 1);
-      final int j_plus_n = FastMath.min(j + n + 1, maxy - border - 1);
-      final int mi_minus_n = FastMath.max(mi - n, 0);
-      final int mi_plus_n = FastMath.min(mi + n, maxx - 1);
-      final int mj_minus_n = FastMath.max(mj - n, 0);
-      final int mj_plus_n = FastMath.min(mj + n, maxy - 1);
-
-      // A
-      for (int jj = mj_minus_n; jj < j; jj++) {
-        int indexStart = jj * maxx + mi_minus_n;
-        final int indexEnd = jj * maxx + mi_plus_n;
-        for (; indexStart <= indexEnd; indexStart++) {
-          if (v < data[indexStart]) {
-            continue FIND_MAXIMUM;
-          }
-        }
-      }
-      for (int jj = j; jj < j_plus_n; jj++) {
-        // B
-        {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + i;
-          for (; indexStart < indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-
-        // C
-        {
-          int indexStart = jj * maxx + i_plus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
-            if (v < data[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-      }
-      // D
-      for (int jj = j_plus_n; jj <= mj_plus_n; jj++) {
-        int indexStart = jj * maxx + mi_minus_n;
-        final int indexEnd = jj * maxx + mi_plus_n;
-        for (; indexStart <= indexEnd; indexStart++) {
-          if (v < data[indexStart]) {
-            continue FIND_MAXIMUM;
-          }
-        }
-      }
-
-      if (maximaFlag != null) {
-        // A
-        for (int jj = mj_minus_n; jj < j; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
-            if (maximaFlag[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-        for (int jj = j; jj < j_plus_n; jj++) {
-          // B
-          {
-            int indexStart = jj * maxx + mi_minus_n;
-            final int indexEnd = jj * maxx + i;
-            for (; indexStart < indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-
-          // C
-          {
-            int indexStart = jj * maxx + i_plus_n;
-            final int indexEnd = jj * maxx + mi_plus_n;
-            for (; indexStart <= indexEnd; indexStart++) {
-              if (maximaFlag[indexStart]) {
-                continue FIND_MAXIMUM;
-              }
-            }
-          }
-        }
-        // D
-        for (int jj = j_plus_n; jj <= mj_plus_n; jj++) {
-          int indexStart = jj * maxx + mi_minus_n;
-          final int indexEnd = jj * maxx + mi_plus_n;
-          for (; indexStart <= indexEnd; indexStart++) {
-            if (maximaFlag[indexStart]) {
-              continue FIND_MAXIMUM;
-            }
-          }
-        }
-      }
-
-      // Check the maximum width
-      if (minimumWidth > 0) {
-        final int v_half = intHalfMaximum(intBackground, v);
-        int index2;
-        // Scan right
-        int x1 = x + 1;
-        index2 = index + 1;
-        while (x1 < maxx && data[index2] > v_half) {
-          x1++;
-          index2++;
-        }
-        // Scan left
-        int x2 = x - 1;
-        index2 = index - 1;
-        while (x2 >= 0 && data[index2] > v_half) {
-          x2--;
-          index2--;
-        }
-        if (x1 - x2 < minimumWidth) {
-          continue;
-        }
-        // Scan up
-        int y1 = y + 1;
-        index2 = index + maxx;
-        while (y1 < maxy && data[index2] > v_half) {
-          y1++;
-          index2 += maxx;
-        }
-        // Scan down
-        int y2 = y - 1;
-        index2 = index - 1;
-        while (y2 >= 0 && data[index2] > v_half) {
-          y2--;
-          index2 -= maxx;
-        }
-        if (y1 - y2 < minimumWidth) {
-          continue;
-        }
-      }
-
-      // Re-use storage space
-      blockMaxima[maximaCount++] = index;
-      if (maximaFlag != null) {
-        maximaFlag[index] = true;
-      }
-    } // end FIND_MAXIMA
-
-    return truncate(blockMaxima, maximaCount);
+    return truncate(maxima, maximaCount);
   }
 
   /**
@@ -2122,18 +1376,7 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     // Expand the canvas
     final int newx = maxx + (maxx - xfinal) + 2;
     final int newy = maxy + (maxy - yfinal) + 2;
-    data = expand(data, maxx, maxy, newx, newy);
-
-    final int[] maxima = new int[xblocks * yblocks];
-
-    final int heightThreshold = (int) getHeightThreshold();
-    final int intBackground = (int) background;
-    final boolean validations = (heightThreshold > 0 || minimumWidth > 0 || isNeighbourCheck());
-
-    boolean[] maximaFlag = null;
-    if (isNeighbourCheck()) {
-      maximaFlag = getFlagBuffer(data.length);
-    }
+    final int[] newData = expand(data, maxx, maxy, newx, newy);
 
     // Compare 2x2 block
     // ....
@@ -2151,100 +1394,77 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     final int[] c = new int[] {-newx - 1, -1, +newx - 1, +newx, +newx + 1};
     final int[] d = new int[] {-newx + 1, +1, +newx - 1, +newx, +newx + 1};
 
+    final int[] maxima = new int[xblocks * yblocks];
     int maximaCount = 0;
-    for (int y = 0; y < maxy; y += 2) {
-      int xindex = (y + 1) * newx + 1;
-      FIND_MAXIMUM: for (int x = 0; x < maxx; x += 2, xindex += 2) {
-        int[] scan = a;
-        int maxIndex = xindex;
-        if (data[maxIndex] < data[xindex + 1]) {
-          scan = b;
-          maxIndex = xindex + 1;
-        }
-        if (data[maxIndex] < data[xindex + newx]) {
-          scan = c;
-          maxIndex = xindex + newx;
-        }
-        if (data[maxIndex] < data[xindex + newx + 1]) {
-          scan = d;
-          maxIndex = xindex + newx + 1;
-        }
+    final int heightThreshold = (int) getHeightThreshold();
+    final int intBackground = (int) background;
 
-        // Check the remaining region
-        for (final int offset : scan) {
-          if (data[maxIndex] < data[maxIndex + offset]) {
-            continue FIND_MAXIMUM;
-          }
-        }
+    if (isNeighbourCheck()) {
+      final boolean[] maximaFlag = getFlagBuffer(newData.length);
 
-        if (validations) {
-          if (data[maxIndex] < heightThreshold) {
-            continue;
-          }
+      final IntScanCandidate candidates = new IntScanCandidate();
 
-          if (maximaFlag != null) {
-            for (final int offset : scan) {
-              if (maximaFlag[maxIndex + offset]) {
-                continue FIND_MAXIMUM;
-              }
+      for (int y = 0; y < maxy; y += 2) {
+        int xindex = (y + 1) * newx + 1;
+        for (int x = 0; x < maxx; x += 2, xindex += 2) {
+          candidates.init(newData, xindex, a);
+          candidates.add(newData, xindex + 1, b);
+          candidates.add(newData, xindex + newx, c);
+          candidates.add(newData, xindex + newx + 1, d);
+
+          // Check the remaining region for each candidate to ensure a true maxima
+          for (int i = 0; i < candidates.size(); i++) {
+            final int maxIndex = candidates.getMaxIndex(i);
+            final int[] scan = candidates.getScan(i);
+
+            final boolean isMaxima = data[maxIndex] >= heightThreshold
+                // Only check ABC using the existing maxima flag
+                // since the scan blocks for D have not yet been processed
+                && ((scan == d) ? isMaxima3x3(newData, maxIndex, scan)
+                    : isMaxima3x3(newData, maximaFlag, maxIndex, scan));
+
+            if (isMaxima && isAboveMinimumWidth(newData, newx, newy, maxIndex, intBackground)) {
+              // Remap the maxima
+              final int xx = maxIndex % newx;
+              final int yy = maxIndex / newx;
+
+              maximaFlag[maxIndex] = true;
+              maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
+              break;
             }
           }
-
-          // Check the maximum width
-          if (minimumWidth > 0) {
-            final int x0 = maxIndex % maxx;
-            final int y0 = maxIndex / maxx;
-
-            // Get the width at half maximum.
-            final int v_half = intHalfMaximum(intBackground, data[maxIndex]);
-            int index2;
-            // Scan right
-            int x1 = x0 + 1;
-            index2 = maxIndex + 1;
-            while (x1 < maxx && data[index2] > v_half) {
-              x1++;
-              index2++;
-            }
-            // Scan left
-            int x2 = x0 - 1;
-            index2 = maxIndex - 1;
-            while (x2 >= 0 && data[index2] > v_half) {
-              x2--;
-              index2--;
-            }
-            if (x1 - x2 < minimumWidth) {
-              continue;
-            }
-            // Scan up
-            int y1 = y0 + 1;
-            index2 = maxIndex + newx;
-            while (y1 < maxy && data[index2] > v_half) {
-              y1++;
-              index2 += newx;
-            }
-            // Scan down
-            int y2 = y0 - 1;
-            index2 = maxIndex - newx;
-            while (y2 >= 0 && data[index2] > v_half) {
-              y2--;
-              index2 -= newx;
-            }
-            if (y1 - y2 < minimumWidth) {
-              continue;
-            }
+        }
+      }
+    } else {
+      for (int y = 0; y < maxy; y += 2) {
+        int xindex = (y + 1) * newx + 1;
+        for (int x = 0; x < maxx; x += 2, xindex += 2) {
+          int[] scan = a;
+          int maxIndex = xindex;
+          if (newData[maxIndex] < newData[xindex + 1]) {
+            scan = b;
+            maxIndex = xindex + 1;
+          }
+          if (newData[maxIndex] < newData[xindex + newx]) {
+            scan = c;
+            maxIndex = xindex + newx;
+          }
+          if (newData[maxIndex] < newData[xindex + newx + 1]) {
+            scan = d;
+            maxIndex = xindex + newx + 1;
           }
 
-          if (maximaFlag != null) {
-            maximaFlag[maxIndex] = true;
+          // Check the remaining region
+          if (data[maxIndex] >= heightThreshold && isMaxima3x3(newData, maxIndex, scan)
+              && isAboveMinimumWidth(newData, newx, newy, maxIndex, intBackground)) {
+            // Remap the maxima
+            final int xx = maxIndex % newx;
+            final int yy = maxIndex / newx;
+
+            maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
           }
         }
-
-        // Remap the maxima
-        final int xx = maxIndex % newx;
-        final int yy = maxIndex / newx;
-
-        maxima[maximaCount++] = (yy - 1) * maxx + xx - 1;
-      } // end FIND_MAXIMA
+      }
     }
 
     return truncate(maxima, maximaCount);
@@ -2277,17 +1497,6 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     final int xblocks = getBlocks(maxx - border, 2);
     final int yblocks = getBlocks(maxy - border, 2);
 
-    final int[] maxima = new int[xblocks * yblocks];
-
-    final int heightThreshold = (int) getHeightThreshold();
-    final int intBackground = (int) background;
-    final boolean validations = (heightThreshold > 0 || minimumWidth > 0 || isNeighbourCheck());
-
-    boolean[] maximaFlag = null;
-    if (isNeighbourCheck()) {
-      maximaFlag = getFlagBuffer(data.length);
-    }
-
     // Compare 2x2 block
     // ....
     // .AB.
@@ -2304,96 +1513,69 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
     final int[] c = new int[] {-maxx - 1, -1, +maxx - 1, +maxx, +maxx + 1};
     final int[] d = new int[] {-maxx + 1, +1, +maxx - 1, +maxx, +maxx + 1};
 
+    final int[] maxima = new int[xblocks * yblocks];
     int maximaCount = 0;
-    for (int y = border; y < maxy - border - 1; y += 2) {
-      int xindex = y * maxx + border;
-      FIND_MAXIMUM: for (int x = border; x < maxx - border - 1; x += 2, xindex += 2) {
-        int[] scan = a;
-        int maxIndex = xindex;
-        if (data[maxIndex] < data[xindex + 1]) {
-          scan = b;
-          maxIndex = xindex + 1;
-        }
-        if (data[maxIndex] < data[xindex + maxx]) {
-          scan = c;
-          maxIndex = xindex + maxx;
-        }
-        if (data[maxIndex] < data[xindex + maxx + 1]) {
-          scan = d;
-          maxIndex = xindex + maxx + 1;
-        }
+    final int heightThreshold = (int) getHeightThreshold();
+    final int intBackground = (int) background;
 
-        // Check the remaining region
-        for (final int offset : scan) {
-          if (data[maxIndex] < data[maxIndex + offset]) {
-            continue FIND_MAXIMUM;
-          }
-        }
+    if (isNeighbourCheck()) {
+      final boolean[] maximaFlag = getFlagBuffer(data.length);
 
-        if (validations) {
-          if (data[maxIndex] < heightThreshold) {
-            continue;
-          }
+      final IntScanCandidate candidates = new IntScanCandidate();
 
-          if (maximaFlag != null) {
-            for (final int offset : scan) {
-              if (maximaFlag[maxIndex + offset]) {
-                continue FIND_MAXIMUM;
-              }
+      for (int y = border; y < maxy - border - 1; y += 2) {
+        int xindex = y * maxx + border;
+        for (int x = border; x < maxx - border - 1; x += 2, xindex += 2) {
+          candidates.init(data, xindex, a);
+          candidates.add(data, xindex + 1, b);
+          candidates.add(data, xindex + maxx, c);
+          candidates.add(data, xindex + maxx + 1, d);
+
+          // Check the remaining region for each candidate to ensure a true maxima
+          for (int i = 0; i < candidates.size(); i++) {
+            final int maxIndex = candidates.getMaxIndex(i);
+            final int[] scan = candidates.getScan(i);
+
+            final boolean isMaxima = data[maxIndex] >= heightThreshold
+                // Only check ABC using the existing maxima flag
+                // since the scan blocks for D have not yet been processed
+                && ((scan == d) ? isMaxima3x3(data, maxIndex, scan)
+                    : isMaxima3x3(data, maximaFlag, maxIndex, scan));
+
+            if (isMaxima && isAboveMinimumWidth(data, maxx, maxy, maxIndex, intBackground)) {
+              maximaFlag[maxIndex] = true;
+              maxima[maximaCount++] = maxIndex;
+              break;
             }
           }
-
-          // Check the maximum width
-          if (minimumWidth > 0) {
-            final int x0 = maxIndex % maxx;
-            final int y0 = maxIndex / maxx;
-
-            // Get the width at half maximum.
-            final int v_half = intHalfMaximum(intBackground, data[maxIndex]);
-            int index2;
-            // Scan right
-            int x1 = x0 + 1;
-            index2 = maxIndex + 1;
-            while (x1 < maxx && data[index2] > v_half) {
-              x1++;
-              index2++;
-            }
-            // Scan left
-            int x2 = x0 - 1;
-            index2 = maxIndex - 1;
-            while (x2 >= 0 && data[index2] > v_half) {
-              x2--;
-              index2--;
-            }
-            if (x1 - x2 < minimumWidth) {
-              continue;
-            }
-            // Scan up
-            int y1 = y0 + 1;
-            index2 = maxIndex + maxx;
-            while (y1 < maxy && data[index2] > v_half) {
-              y1++;
-              index2 += maxx;
-            }
-            // Scan down
-            int y2 = y0 - 1;
-            index2 = maxIndex - maxx;
-            while (y2 >= 0 && data[index2] > v_half) {
-              y2--;
-              index2 -= maxx;
-            }
-            if (y1 - y2 < minimumWidth) {
-              continue;
-            }
-          }
-
-          if (maximaFlag != null) {
-            maximaFlag[maxIndex] = true;
-          }
         }
+      }
+    } else {
+      for (int y = border; y < maxy - border - 1; y += 2) {
+        int xindex = y * maxx + border;
+        for (int x = border; x < maxx - border - 1; x += 2, xindex += 2) {
+          int[] scan = a;
+          int maxIndex = xindex;
+          if (data[maxIndex] < data[xindex + 1]) {
+            scan = b;
+            maxIndex = xindex + 1;
+          }
+          if (data[maxIndex] < data[xindex + maxx]) {
+            scan = c;
+            maxIndex = xindex + maxx;
+          }
+          if (data[maxIndex] < data[xindex + maxx + 1]) {
+            scan = d;
+            maxIndex = xindex + maxx + 1;
+          }
 
-        maxima[maximaCount++] = maxIndex;
-      } // end FIND_MAXIMA
+          // Check the remaining region
+          if (data[maxIndex] >= heightThreshold && isMaxima3x3(data, maxIndex, scan)
+              && isAboveMinimumWidth(data, maxx, maxy, maxIndex, intBackground)) {
+            maxima[maximaCount++] = maxIndex;
+          }
+        } // end FIND_MAXIMUM
+      }
     }
 
     return truncate(maxima, maximaCount);

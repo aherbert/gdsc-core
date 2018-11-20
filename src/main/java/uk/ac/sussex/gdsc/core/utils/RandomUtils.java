@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.rng.UniformRandomProvider;
 
@@ -179,7 +180,7 @@ public final class RandomUtils {
   public static int[] sample(final int k, final int n, RandomGenerator rng) {
     // Avoid stupidity
     if (n < 1 || k < 1) {
-      return new int[0];
+      return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
     // Create a range of data to sample
@@ -250,7 +251,7 @@ public final class RandomUtils {
   public static int[] sample(final int k, final int n, UniformRandomProvider rng) {
     // Avoid stupidity
     if (n < 1 || k < 1) {
-      return new int[0];
+      return ArrayUtils.EMPTY_INT_ARRAY;
     }
 
     // Create a range of data to sample
