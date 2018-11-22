@@ -32,6 +32,7 @@ package uk.ac.sussex.gdsc.core.math.interpolation;
 import uk.ac.sussex.gdsc.core.data.DoubleArrayValueProvider;
 import uk.ac.sussex.gdsc.core.data.TrivalueProvider;
 import uk.ac.sussex.gdsc.core.data.ValueProvider;
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.data.procedures.TrivalueProcedure;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
@@ -86,7 +87,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    * <p>This allows the function to be efficiently sampled using precomputed spline coefficients
    * (see {@link #value(int, int, int, double[])})
    */
-  private final boolean isUniform;
+  private final boolean isUniformFlag;
 
   /**
    * Set to true if the x,y,z spline points have a grid spacing of 1. Note that the spline points
@@ -94,10 +95,13 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    *
    * <p>This allows faster computation with no scaling.
    */
-  private final boolean isInteger;
+  private final boolean isIntegerFlag;
 
-  private double[] scale;
-
+  /**
+   * The size of the cubic spline coefficient table.
+   */
+  private static final int COEFFICIENT_SIZE = 64;
+  
   /**
    * Matrix to compute the spline coefficients from the function values and function derivatives
    * values.
@@ -170,6 +174,8 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     { 8,-8,-8,8,-8,8,8,-8,4,4,-4,-4,-4,-4,4,4,4,-4,4,-4,-4,4,-4,4,4,-4,-4,4,4,-4,-4,4,2,2,2,2,-2,-2,-2,-2,2,2,-2,-2,2,2,-2,-2,2,-2,2,-2,2,-2,2,-2,1,1,1,1,1,1,1,1 }
     //@formatter:on
   };
+
+  private double[] scale;
 
   /** Samples x-coordinates. */
   private final double[] xval;
@@ -259,11 +265,11 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     zval = z.toArray();
 
     //@formatter:off
-    isUniform =
+    isUniformFlag =
         SimpleArrayUtils.isUniform(xval, (xval[1]-xval[0])*UNIFORM_TOLERANCE) &&
         SimpleArrayUtils.isUniform(yval, (yval[1]-yval[0])*UNIFORM_TOLERANCE) &&
         SimpleArrayUtils.isUniform(zval, (zval[1]-zval[0])*UNIFORM_TOLERANCE);
-    isInteger = isUniform &&
+    isIntegerFlag = isUniformFlag &&
         (isIntegerRange(xval)) &&
         (isIntegerRange(yval)) &&
         (isIntegerRange(zval));
@@ -299,7 +305,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
         final long from = i;
         final long to = Math.min(i + safeTaskSize, total);
         futures.add(executorService.submit(() -> {
-          if (isInteger) {
+          if (isIntegerFlag) {
             for (long index = from; index < to; index++) {
               //@formatter:off
               buildInteger(f, dFdX, dFdY, dFdZ,
@@ -323,7 +329,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
       ConcurrencyUtils.waitForCompletionUnchecked(futures);
     } else {
       final double[] beta = new double[64];
-      if (isInteger) {
+      if (isIntegerFlag) {
         // We can shortcut if a true integer grid by ignoring the scale
         for (int i = 0; i < lastI; i++) {
 
@@ -790,12 +796,11 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     }
 
     final int lastI = xLen - 1;
-    final int lastJ = yLen - 1;
-    final int lastK = zLen - 1;
-
     if (lastI != splines.length) {
       throw new DimensionMismatchException(lastI, splines.length);
     }
+    final int lastJ = yLen - 1;
+    final int lastK = zLen - 1;
     for (int i = 0; i < lastI; i++) {
       if (lastJ != splines[i].length) {
         throw new DimensionMismatchException(lastJ, splines[i].length);
@@ -816,11 +821,11 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     zval = z.toArray();
 
     //@formatter:off
-    isUniform =
+    isUniformFlag =
         SimpleArrayUtils.isUniform(xval, (xval[1]-xval[0])*UNIFORM_TOLERANCE) &&
         SimpleArrayUtils.isUniform(yval, (yval[1]-yval[0])*UNIFORM_TOLERANCE) &&
         SimpleArrayUtils.isUniform(zval, (zval[1]-zval[0])*UNIFORM_TOLERANCE);
-    isInteger = isUniform &&
+    isIntegerFlag = isUniformFlag &&
         (isIntegerRange(xval)) &&
         (isIntegerRange(yval)) &&
         (isIntegerRange(zval));
@@ -846,7 +851,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    * @throws OutOfRangeException if any of the variables is outside its interpolation range.
    */
   private int searchIndex(double value, double[] values) {
-    if (isInteger) {
+    if (isIntegerFlag) {
       final int high = values.length - 1;
 
       if (value < values[0] || value > values[high]) {
@@ -947,7 +952,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    */
   private IndexedCubicSplinePosition getSplinePosition(double[] xval, double[] xscale, double x) {
     final int i = searchIndex(x, xval);
-    if (isInteger) {
+    if (isIntegerFlag) {
       return new IndexedCubicSplinePosition(i, x - xval[i], false);
     }
     final double xN = (x - xval[i]) / xscale[i];
@@ -998,7 +1003,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     final int j = searchIndex(y, yval);
     final int k = searchIndex(z, zval);
 
-    if (isInteger) {
+    if (isIntegerFlag) {
       return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k]);
     }
 
@@ -1068,7 +1073,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     final int j = searchIndex(y, yval);
     final int k = searchIndex(z, zval);
 
-    if (isInteger) {
+    if (isIntegerFlag) {
       return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k], derivative1);
     }
 
@@ -1113,7 +1118,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    * @see CustomTricubicFunction#computePowerTable(double, double, double)
    */
   public double value(int xindex, int yindex, int zindex, double[] table, double[] derivative1) {
-    if (isInteger) {
+    if (isIntegerFlag) {
       return splines[xindex][yindex][zindex].value(table, derivative1);
     }
     final double value = splines[xindex][yindex][zindex].value(table, derivative1);
@@ -1137,7 +1142,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    * @see CustomTricubicFunction#computePowerTable(double, double, double)
    */
   public double value(int xindex, int yindex, int zindex, float[] table, double[] derivative1) {
-    if (isInteger) {
+    if (isIntegerFlag) {
       return splines[xindex][yindex][zindex].value(table, derivative1);
     }
     final double value = splines[xindex][yindex][zindex].value(table, derivative1);
@@ -1164,7 +1169,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    */
   public double value(int xindex, int yindex, int zindex, double[] table, double[] table2,
       double[] table3, double[] derivative1) {
-    if (isInteger) {
+    if (isIntegerFlag) {
       return splines[xindex][yindex][zindex].value(table, table2, table3, derivative1);
     }
     final double value = splines[xindex][yindex][zindex].value(table, table2, table3, derivative1);
@@ -1191,7 +1196,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    */
   public double value(int xindex, int yindex, int zindex, float[] table, float[] table2,
       float[] table3, double[] derivative1) {
-    if (isInteger) {
+    if (isIntegerFlag) {
       return splines[xindex][yindex][zindex].value(table, table2, table3, derivative1);
     }
     final double value = splines[xindex][yindex][zindex].value(table, table2, table3, derivative1);
@@ -1217,7 +1222,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     final int j = searchIndex(y, yval);
     final int k = searchIndex(z, zval);
 
-    if (isInteger) {
+    if (isIntegerFlag) {
       return splines[i][j][k].value(x - xval[i], y - yval[j], z - zval[k], derivative1,
           derivative2);
     }
@@ -1269,7 +1274,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    */
   public double value(int xindex, int yindex, int zindex, double[] table, double[] derivative1,
       double[] derivative2) {
-    if (isInteger) {
+    if (isIntegerFlag) {
       return splines[xindex][yindex][zindex].value(table, derivative1, derivative2);
     }
     final double value = splines[xindex][yindex][zindex].value(table, derivative1, derivative2);
@@ -1298,7 +1303,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    */
   public double value(int xindex, int yindex, int zindex, float[] table, double[] derivative1,
       double[] derivative2) {
-    if (isInteger) {
+    if (isIntegerFlag) {
       return splines[xindex][yindex][zindex].value(table, derivative1, derivative2);
     }
     final double value = splines[xindex][yindex][zindex].value(table, derivative1, derivative2);
@@ -1330,7 +1335,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    */
   public double value(int xindex, int yindex, int zindex, double[] table, double[] table2,
       double[] table3, double[] table6, double[] derivative1, double[] derivative2) {
-    if (isInteger) {
+    if (isIntegerFlag) {
       return splines[xindex][yindex][zindex].value(table, table2, table3, table6, derivative1,
           derivative2);
     }
@@ -1364,7 +1369,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    */
   public double value(int xindex, int yindex, int zindex, float[] table, float[] table2,
       float[] table3, float[] table6, double[] derivative1, double[] derivative2) {
-    if (isInteger) {
+    if (isIntegerFlag) {
       return splines[xindex][yindex][zindex].value(table, table2, table3, table6, derivative1,
           derivative2);
     }
@@ -1388,7 +1393,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    * @throws IllegalStateException the illegal state exception
    */
   public double[] getScale() {
-    if (isUniform) {
+    if (isUniformFlag) {
       if (scale == null) {
         // We know that the values scale is uniform. Compute the scale using the
         // range of values
@@ -1943,14 +1948,14 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    * @param beta List of function values and function partial derivatives values.
    * @return the spline coefficients.
    */
+  @VisibleForTesting
   static double[] computeCoefficients(double[] beta) {
-    final int sz = 64;
-    final double[] a = new double[sz];
+    final double[] a = new double[COEFFICIENT_SIZE];
 
-    for (int i = 0; i < sz; i++) {
+    for (int i = 0; i < COEFFICIENT_SIZE; i++) {
       double result = 0;
       final double[] row = AINV[i];
-      for (int j = 0; j < sz; j++) {
+      for (int j = 0; j < COEFFICIENT_SIZE; j++) {
         result += row[j] * beta[j];
       }
       a[i] = result;
@@ -1966,6 +1971,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    * @param beta List of function values and function partial derivatives values.
    * @return the spline coefficients.
    */
+  @VisibleForTesting
   static double[] computeCoefficientsInline(double[] beta) {
     final double[] a = new double[64];
     a[0]=beta[0];
@@ -2043,6 +2049,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    * @param beta List of function values and function partial derivatives values.
    * @return the spline coefficients.
    */
+  @VisibleForTesting
   static double[] computeCoefficientsInlineCollectTerms(double[] beta) {
     final double[] a = new double[64];
     a[0]=beta[0];
@@ -2114,10 +2121,23 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
 
   //@formatter:on
 
+  /**
+   * Interface for writing the cubic spline data.
+   */
   private interface SplineWriter {
+    /**
+     * Write the spline function data.
+     *
+     * @param out the data output
+     * @param function the function
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     void write(DataOutput out, CustomTricubicFunction function) throws IOException;
   }
 
+  /**
+   * Write float cubic spline data.
+   */
   private static class FloatSplineWriter implements SplineWriter {
     @Override
     public void write(DataOutput out, CustomTricubicFunction function) throws IOException {
@@ -2127,6 +2147,9 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     }
   }
 
+  /**
+   * Write double cubic spline data.
+   */
   private static class DoubleSplineWriter implements SplineWriter {
     @Override
     public void write(DataOutput out, CustomTricubicFunction function) throws IOException {
@@ -2136,10 +2159,24 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     }
   }
 
+  /**
+   * Interface for reading the cubic spline data.
+   */
   private interface SplineReader {
+
+    /**
+     * Read the spline function data.
+     *
+     * @param in the data input
+     * @return the custom tricubic function
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
     CustomTricubicFunction read(DataInput in) throws IOException;
   }
 
+  /**
+   * Read float cubic spline data.
+   */
   private static class FloatSplineReader implements SplineReader {
     float[] data = new float[64];
 
@@ -2152,6 +2189,9 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     }
   }
 
+  /**
+   * Read float cubic spline data.
+   */
   private static class DoubleSplineReader implements SplineReader {
     double[] data = new double[64];
 
@@ -2215,8 +2255,8 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
   }
 
   private static void write(DataOutput out, double[] x) throws IOException {
-    for (int i = 0; i < x.length; i++) {
-      out.writeDouble(x[i]);
+    for (final double value : x) {
+      out.writeDouble(value);
     }
   }
 
@@ -2297,7 +2337,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    * @return true, if is uniform
    */
   public boolean isUniform() {
-    return isUniform;
+    return isUniformFlag;
   }
 
   /**
@@ -2309,9 +2349,12 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    * @return true, if is integer
    */
   public boolean isInteger() {
-    return isInteger;
+    return isIntegerFlag;
   }
 
+  /**
+   * Simple predicate to test double values.
+   */
   @FunctionalInterface
   private interface DoubleBiPredicate {
     /**

@@ -53,6 +53,21 @@ import java.util.concurrent.Future;
  */
 public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
 
+  /**
+   * The constant 2.
+   * 
+   * <p>This is the minimum size required to interpolate a set of function points using a cubic
+   * spline. Although the spline requires 4 points this is set to 2 as the outer points can be
+   * assumed to be zero.
+   */
+  private static final int TWO = 2;
+  /**
+   * The constant 4.
+   * 
+   * <p>This is the number of points required to interpolate a function using a cubic spline.
+   */
+  private static final int FOUR = 4;
+
   private TrackProgress progress;
   private ExecutorService executorService;
   private long taskSize = 1000;
@@ -286,13 +301,13 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
                                                          final ValueProvider zval,
                                                          final TrivalueProvider fval) {
     //@formatter:on
-    if (xval.getLength() < 2) {
+    if (xval.getLength() < TWO) {
       throw new NumberIsTooSmallException(xval.getLength(), 2, true);
     }
-    if (yval.getLength() < 2) {
+    if (yval.getLength() < TWO) {
       throw new NumberIsTooSmallException(yval.getLength(), 2, true);
     }
-    if (zval.getLength() < 2) {
+    if (zval.getLength() < TWO) {
       throw new NumberIsTooSmallException(zval.getLength(), 2, true);
     }
     if (xval.getLength() != fval.getLengthX()) {
@@ -611,13 +626,13 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
    * @throws DimensionMismatchException if the array lengths are inconsistent.
    */
   public static CustomTricubicFunction create(final TrivalueProvider fval) {
-    if (4 != fval.getLengthX()) {
+    if (FOUR != fval.getLengthX()) {
       throw new DimensionMismatchException(4, fval.getLengthX());
     }
-    if (4 != fval.getLengthY()) {
+    if (FOUR != fval.getLengthY()) {
       throw new DimensionMismatchException(4, fval.getLengthY());
     }
-    if (4 != fval.getLengthZ()) {
+    if (FOUR != fval.getLengthZ()) {
       throw new DimensionMismatchException(4, fval.getLengthZ());
     }
 
@@ -633,9 +648,9 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
 
     final double[][][] values = new double[3][3][3];
 
-    for (int i = 0; i < 2; i++) {
-      for (int j = 0; j < 2; j++) {
-        for (int k = 0; k < 2; k++) {
+    for (int i = 0; i < TWO; i++) {
+      for (int j = 0; j < TWO; j++) {
+        for (int k = 0; k < TWO; k++) {
 
           fval.get(i + 1, j + 1, k + 1, values);
 
@@ -711,13 +726,13 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
                                               final ValueProvider zval,
                                               final TrivalueProvider fval) {
     //@formatter:on
-    if (4 != fval.getLengthX()) {
+    if (FOUR != fval.getLengthX()) {
       throw new DimensionMismatchException(4, fval.getLengthX());
     }
-    if (4 != fval.getLengthY()) {
+    if (FOUR != fval.getLengthY()) {
       throw new DimensionMismatchException(4, fval.getLengthY());
     }
-    if (4 != fval.getLengthZ()) {
+    if (FOUR != fval.getLengthZ()) {
       throw new DimensionMismatchException(4, fval.getLengthZ());
     }
     if (xval.getLength() != fval.getLengthX()) {
@@ -742,14 +757,14 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
 
     final double[][][] values = new double[3][3][3];
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < TWO; i++) {
 
       final double nX = xval.get(i + 2);
       final double pX = xval.get(i);
 
       final double deltaX = nX - pX;
 
-      for (int j = 0; j < 2; j++) {
+      for (int j = 0; j < TWO; j++) {
 
         final double nY = yval.get(j + 2);
         final double pY = yval.get(j);
@@ -757,7 +772,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
         final double deltaY = nY - pY;
         final double deltaXy = deltaX * deltaY;
 
-        for (int k = 0; k < 2; k++) {
+        for (int k = 0; k < TWO; k++) {
 
           final double nZ = zval.get(k + 2);
           final double pZ = zval.get(k);
@@ -833,13 +848,13 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     if (x < 0 || y < 0 || z < 0) {
       throw new IllegalArgumentException("Offset must be positive");
     }
-    if (fval.getLengthX() - x < 2) {
+    if (fval.getLengthX() - x < TWO) {
       throw new NumberIsTooSmallException(fval.getLengthX(), x + 2, true);
     }
-    if (fval.getLengthY() - y < 2) {
+    if (fval.getLengthY() - y < TWO) {
       throw new NumberIsTooSmallException(fval.getLengthY(), y + 2, true);
     }
-    if (fval.getLengthZ() - z < 2) {
+    if (fval.getLengthZ() - z < TWO) {
       throw new NumberIsTooSmallException(fval.getLengthZ(), z + 2, true);
     }
 
@@ -861,7 +876,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
 
     int nI = 0;
     int pI = 0;
-    for (int ii = 0; ii < 2; ii++) {
+    for (int ii = 0; ii < TWO; ii++) {
 
       final int i = x + ii;
       final boolean edgeX = i == 0 || i == xLenM1;
@@ -873,7 +888,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
 
       int nJ = 0;
       int pJ = 0;
-      for (int jj = 0; jj < 2; jj++) {
+      for (int jj = 0; jj < TWO; jj++) {
 
         final int j = y + jj;
         final boolean edgeY = j == 0 || j == yLenM1;
@@ -885,7 +900,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
 
         int nK = 0;
         int pK = 0;
-        for (int kk = 0; kk < 2; kk++) {
+        for (int kk = 0; kk < TWO; kk++) {
 
           final int k = z + kk;
           final boolean edgeZ = k == 0 || k == zLenM1;
@@ -960,18 +975,18 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
    *
    * <pre>
    * {@code
-  * double x1 = xval.get(1);
-  * double y1 = yval.get(1);
-  * double z1 = zval.get(1);
-  * double x2 = xval.get(2);
-  * double y2 = yval.get(2);
-  * double z2 = zval.get(2);
-  * double xscale = x2 - x1;
-  * double yscale = y2 - y1
-  * double zscale = z2 - y2
-  * // x>=x1 && x<=x2 && y>=y1 && y<=y2 && z>=z1 && z<=z2
-  * double value = f.value((x-x1) / xscale, (y-y1) / yscale, (z-z1) / zscale);
-  * }
+   * double x1 = xval.get(1);
+   * double y1 = yval.get(1);
+   * double z1 = zval.get(1);
+   * double x2 = xval.get(2);
+   * double y2 = yval.get(2);
+   * double z2 = zval.get(2);
+   * double xscale = x2 - x1;
+   * double yscale = y2 - y1
+   * double zscale = z2 - y2
+   * // x>=x1 && x<=x2 && y>=y1 && y<=y2 && z>=z1 && z<=z2
+   * double value = f.value((x-x1) / xscale, (y-y1) / yscale, (z-z1) / zscale);
+   * }
    * </pre>
    *
    * @param xval All the x-coordinates of the interpolation points, sorted in increasing order.
@@ -993,13 +1008,13 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     if (x < 0 || y < 0 || z < 0) {
       throw new IllegalArgumentException("Offset must be positive");
     }
-    if (xval.getLength() - x < 2) {
+    if (xval.getLength() - x < TWO) {
       throw new NumberIsTooSmallException(xval.getLength(), x + 2, true);
     }
-    if (yval.getLength() - y < 2) {
+    if (yval.getLength() - y < TWO) {
       throw new NumberIsTooSmallException(yval.getLength(), y + 2, true);
     }
-    if (zval.getLength() - z < 2) {
+    if (zval.getLength() - z < TWO) {
       throw new NumberIsTooSmallException(zval.getLength(), z + 2, true);
     }
     if (xval.getLength() != fval.getLengthX()) {
@@ -1035,7 +1050,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     int nI = 0;
     int pI = 0;
     double deltaX = 0;
-    for (int ii = 0; ii < 2; ii++) {
+    for (int ii = 0; ii < TWO; ii++) {
 
       final int i = x + ii;
       final boolean edgeX = i == 0 || i == xLenM1;
@@ -1049,7 +1064,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
       int nJ = 0;
       int pJ = 0;
       double deltaY = 0;
-      for (int jj = 0; jj < 2; jj++) {
+      for (int jj = 0; jj < TWO; jj++) {
 
         final int j = y + jj;
         final boolean edgeY = j == 0 || j == yLenM1;
@@ -1065,7 +1080,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
         int nK = 0;
         int pK = 0;
         double deltaZ = 0;
-        for (int kk = 0; kk < 2; kk++) {
+        for (int kk = 0; kk < TWO; kk++) {
 
           final int k = z + kk;
           final boolean edgeZ = k == 0 || k == zLenM1;
@@ -1145,7 +1160,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
    * @throws NumberIsTooSmallException if the number of points in any dimension is less than 2
    */
   public void sample(final TrivalueProvider fval, int n, TrivalueProcedure procedure) {
-    if (n < 2) {
+    if (n < TWO) {
       throw new IllegalArgumentException("Samples must be at least 2");
     }
     sample(fval, n, n, n, procedure);
@@ -1179,16 +1194,15 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     }
 
     final int xLen = fval.getLengthX();
-    final int yLen = fval.getLengthY();
-    final int zLen = fval.getLengthZ();
-
-    if (xLen < 2) {
+    if (xLen < TWO) {
       throw new NumberIsTooSmallException(xLen, 2, true);
     }
-    if (yLen < 2) {
+    final int yLen = fval.getLengthY();
+    if (yLen < TWO) {
       throw new NumberIsTooSmallException(yLen, 2, true);
     }
-    if (zLen < 2) {
+    final int zLen = fval.getLengthZ();
+    if (zLen < TWO) {
       throw new NumberIsTooSmallException(zLen, 2, true);
     }
 
@@ -1196,9 +1210,6 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     final int xLenM1 = xLen - 1;
     final int yLenM1 = yLen - 1;
     final int zLenM1 = zLen - 1;
-    final int xLenM2 = xLen - 2;
-    final int yLenM2 = yLen - 2;
-    final int zLenM2 = zLen - 2;
 
     // We can interpolate all nodes n-times plus a final point at the last node
     final int maxx = (xLenM1) * nx;
@@ -1207,6 +1218,10 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     if (!procedure.setDimensions(maxx + 1, maxy + 1, maxz + 1)) {
       return;
     }
+
+    final int xLenM2 = xLen - 2;
+    final int yLenM2 = yLen - 2;
+    final int zLenM2 = zLen - 2;
 
     // Allow threading
     final long xLenM1yLenM1 = (long) xLenM1 * (yLenM1);
@@ -1273,6 +1288,16 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
           final double[][][] values = new double[3][3][3];
           final double[] beta = new double[64];
 
+          // Wrap the arrays for CustomTricubicInterpolatingFunction.createFunction
+          final DoubleArrayTrivalueProvider pf = new DoubleArrayTrivalueProvider(f);
+          final DoubleArrayTrivalueProvider pdFdX = new DoubleArrayTrivalueProvider(dFdX);
+          final DoubleArrayTrivalueProvider pdFdY = new DoubleArrayTrivalueProvider(dFdY);
+          final DoubleArrayTrivalueProvider pdFdZ = new DoubleArrayTrivalueProvider(dFdZ);
+          final DoubleArrayTrivalueProvider pd2FdXdY = new DoubleArrayTrivalueProvider(d2FdXdY);
+          final DoubleArrayTrivalueProvider pd2FdXdZ = new DoubleArrayTrivalueProvider(d2FdXdZ);
+          final DoubleArrayTrivalueProvider pd2FdYdZ = new DoubleArrayTrivalueProvider(d2FdYdZ);
+          final DoubleArrayTrivalueProvider pd3FdXdYdZ = new DoubleArrayTrivalueProvider(d3FdXdYdZ);
+
           for (long index = from; index < to; index++) {
             // Convert position to the indices for the node
             final int z = (int) (index / xLenM1yLenM1);
@@ -1282,7 +1307,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
 
             int nI = 0;
             int pI = 0;
-            for (int ii = 0; ii < 2; ii++) {
+            for (int ii = 0; ii < TWO; ii++) {
               final int i = x + ii;
               final boolean edgeX = i == 0 || i == xLenM1;
               if (!edgeX) {
@@ -1292,7 +1317,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
               }
               int nJ = 0;
               int pJ = 0;
-              for (int jj = 0; jj < 2; jj++) {
+              for (int jj = 0; jj < TWO; jj++) {
                 final int j = y + jj;
                 final boolean edgeY = j == 0 || j == yLenM1;
                 if (!edgeY) {
@@ -1302,7 +1327,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
                 }
                 int nK = 0;
                 int pK = 0;
-                for (int kk = 0; kk < 2; kk++) {
+                for (int kk = 0; kk < TWO; kk++) {
                   final int k = z + kk;
                   final boolean edgeZ = k == 0 || k == zLenM1;
                   if (!edgeZ) {
@@ -1317,26 +1342,19 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
             }
 
             // Create the interpolating function.
-            //@formatter:off
             final CustomTricubicFunction cf = CustomTricubicInterpolatingFunction.createFunction(
-                beta,
-                new DoubleArrayTrivalueProvider(f),
-                new DoubleArrayTrivalueProvider(dFdX),
-                new DoubleArrayTrivalueProvider(dFdY),
-                new DoubleArrayTrivalueProvider(dFdZ),
-                new DoubleArrayTrivalueProvider(d2FdXdY),
-                new DoubleArrayTrivalueProvider(d2FdXdZ),
-                new DoubleArrayTrivalueProvider(d2FdYdZ),
-                new DoubleArrayTrivalueProvider(d3FdXdYdZ));
-            //@formatter:on
+                beta, pf, pdFdX, pdFdY, pdFdZ, pd2FdXdY, pd2FdXdZ, pd2FdYdZ, pd3FdXdYdZ);
 
             // Write interpolated values. For the final position we use the extra table to
             // get the value at x=1 in the range [0-1].
-            for (int k = 0, maxk = (z == zLenM2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++) {
-              for (int j = 0, maxj = (y == yLenM2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++) {
+            final int maxk = (z == zLenM2) ? nz1 : nz;
+            for (int k = 0, zz = z * nz; k < maxk; k++, zz++) {
+              final int maxj = (y == yLenM2) ? ny1 : ny;
+              for (int j = 0, yy = y * ny; j < maxj; j++, yy++) {
                 // Position in the interpolation tables
                 int pos = nx1 * (j + ny1 * k);
-                for (int i = 0, maxi = (x == xLenM2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++) {
+                final int maxi = (x == xLenM2) ? nx1 : nx;
+                for (int i = 0, xx = x * nx; i < maxi; i++, xx++) {
                   procedure.setValue(xx, yy, zz, cf.value(tables[pos++]));
                   ticker.tick();
                 }
@@ -1362,13 +1380,23 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
       final double[][][] values = new double[3][3][3];
       final double[] beta = new double[64];
 
+      // Wrap the arrays for CustomTricubicInterpolatingFunction.createFunction
+      final DoubleArrayTrivalueProvider pf = new DoubleArrayTrivalueProvider(f);
+      final DoubleArrayTrivalueProvider pdFdX = new DoubleArrayTrivalueProvider(dFdX);
+      final DoubleArrayTrivalueProvider pdFdY = new DoubleArrayTrivalueProvider(dFdY);
+      final DoubleArrayTrivalueProvider pdFdZ = new DoubleArrayTrivalueProvider(dFdZ);
+      final DoubleArrayTrivalueProvider pd2FdXdY = new DoubleArrayTrivalueProvider(d2FdXdY);
+      final DoubleArrayTrivalueProvider pd2FdXdZ = new DoubleArrayTrivalueProvider(d2FdXdZ);
+      final DoubleArrayTrivalueProvider pd2FdYdZ = new DoubleArrayTrivalueProvider(d2FdYdZ);
+      final DoubleArrayTrivalueProvider pd3FdXdYdZ = new DoubleArrayTrivalueProvider(d3FdXdYdZ);
+
       // Dynamically interpolate each node
       for (int x = 0; x < xLenM1; x++) {
         for (int y = 0; y < yLenM1; y++) {
           for (int z = 0; z < zLenM1; z++) {
             int nI = 0;
             int pI = 0;
-            for (int ii = 0; ii < 2; ii++) {
+            for (int ii = 0; ii < TWO; ii++) {
               final int i = x + ii;
               final boolean edgeX = i == 0 || i == xLenM1;
               if (!edgeX) {
@@ -1378,7 +1406,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
               }
               int nJ = 0;
               int pJ = 0;
-              for (int jj = 0; jj < 2; jj++) {
+              for (int jj = 0; jj < TWO; jj++) {
                 final int j = y + jj;
                 final boolean edgeY = j == 0 || j == yLenM1;
                 if (!edgeY) {
@@ -1388,7 +1416,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
                 }
                 int nK = 0;
                 int pK = 0;
-                for (int kk = 0; kk < 2; kk++) {
+                for (int kk = 0; kk < TWO; kk++) {
                   final int k = z + kk;
                   final boolean edgeZ = k == 0 || k == zLenM1;
                   if (!edgeZ) {
@@ -1403,26 +1431,19 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
             }
 
             // Create the interpolating function.
-            //@formatter:off
             final CustomTricubicFunction cf = CustomTricubicInterpolatingFunction.createFunction(
-                beta,
-                new DoubleArrayTrivalueProvider(f),
-                new DoubleArrayTrivalueProvider(dFdX),
-                new DoubleArrayTrivalueProvider(dFdY),
-                new DoubleArrayTrivalueProvider(dFdZ),
-                new DoubleArrayTrivalueProvider(d2FdXdY),
-                new DoubleArrayTrivalueProvider(d2FdXdZ),
-                new DoubleArrayTrivalueProvider(d2FdYdZ),
-                new DoubleArrayTrivalueProvider(d3FdXdYdZ));
-            //@formatter:on
+                beta, pf, pdFdX, pdFdY, pdFdZ, pd2FdXdY, pd2FdXdZ, pd2FdYdZ, pd3FdXdYdZ);
 
             // Write interpolated values. For the final position we use the extra table to
             // get the value at x=1 in the range [0-1].
-            for (int k = 0, maxk = (z == zLenM2) ? nz1 : nz, zz = z * nz; k < maxk; k++, zz++) {
-              for (int j = 0, maxj = (y == yLenM2) ? ny1 : ny, yy = y * ny; j < maxj; j++, yy++) {
+            final int maxk = (z == zLenM2) ? nz1 : nz;
+            for (int k = 0, zz = z * nz; k < maxk; k++, zz++) {
+              final int maxj = (y == yLenM2) ? ny1 : ny;
+              for (int j = 0, yy = y * ny; j < maxj; j++, yy++) {
                 // Position in the interpolation tables
                 int pos = nx1 * (j + ny1 * k);
-                for (int i = 0, maxi = (x == xLenM2) ? nx1 : nx, xx = x * nx; i < maxi; i++, xx++) {
+                final int maxi = (x == xLenM2) ? nx1 : nx;
+                for (int i = 0, xx = x * nx; i < maxi; i++, xx++) {
                   procedure.setValue(xx, yy, zz, cf.value(tables[pos++]));
                   ticker.tick();
                 }
