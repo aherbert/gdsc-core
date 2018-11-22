@@ -781,9 +781,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    */
   public double[] search(boolean maximum, int refinements, double relativeError,
       double absoluteError) {
-    if (refinements < 1) {
-      refinements = 1;
-    }
+    int refinementIteration = Math.max(1, refinements);
 
     final boolean checkValue = relativeError > 0 || absoluteError > 0;
 
@@ -816,7 +814,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
 
       final double value = values[i];
 
-      boolean converged = (--refinements == 0);
+      boolean converged = (--refinementIteration == 0);
       if (!converged && checkValue && lastI != i) {
         // Check convergence on value if the cube vertex has changed.
         // If it hasn't changed then the value will be the same and we continue

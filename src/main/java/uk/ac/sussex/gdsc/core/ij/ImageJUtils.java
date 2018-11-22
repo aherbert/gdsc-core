@@ -148,19 +148,17 @@ public final class ImageJUtils {
    */
   public static String[] decodePath(String path) {
     final String[] result = new String[2];
-    if (path == null) {
-      path = "";
-    }
-    int index = path.lastIndexOf('/');
+    final String safePath = (path == null) ? "" : path;
+    int index = safePath.lastIndexOf('/');
     if (index == -1) {
-      index = path.lastIndexOf('\\');
+      index = safePath.lastIndexOf('\\');
     }
     if (index > 0) {
-      result[0] = path.substring(0, index + 1);
-      result[1] = path.substring(index + 1);
+      result[0] = safePath.substring(0, index + 1);
+      result[1] = safePath.substring(index + 1);
     } else {
       result[0] = OpenDialog.getDefaultDirectory();
-      result[1] = path;
+      result[1] = safePath;
     }
     return result;
   }
@@ -468,28 +466,29 @@ public final class ImageJUtils {
       addPlot(windowOrganiser, plotWindow);
     } else {
       // Since the new IJ 1.50 plot functionality to have scalable plots this can sometimes error
+      int displayFlags = flags;
       try {
         plotWindow = (PlotWindow) plotWindowFrame;
         final Plot oldPlot = plotWindow.getPlot();
         final Dimension d = oldPlot.getSize();
         final double[] limits = oldPlot.getLimits();
         plot.setSize(d.width, d.height);
-        if ((flags & PRESERVE_ALL) == PRESERVE_ALL) {
+        if ((displayFlags & PRESERVE_ALL) == PRESERVE_ALL) {
           // Setting the limits before drawing avoids a double draw
           plot.setLimits(limits[0], limits[1], limits[2], limits[3]);
-          flags = 0;
-        } else if ((flags & PRESERVE_ALL) != 0) {
+          displayFlags = 0;
+        } else if ((displayFlags & PRESERVE_ALL) != 0) {
           // If only some of the limits are to be preserved then we use the default
           // auto-range using NaN.
           final double[] currentLimits = SimpleArrayUtils.newDoubleArray(limits.length, Double.NaN);
-          preserveLimits(plot, flags, limits, currentLimits);
-          flags = 0;
+          preserveLimits(plot, displayFlags, limits, currentLimits);
+          displayFlags = 0;
         }
         plotWindow.drawPlot(plot);
-        preserveLimits(plot, flags, limits);
+        preserveLimits(plot, displayFlags, limits);
         if (!plotWindowFrame.isVisible()) {
           plotWindowFrame.setVisible(true);
-        } else if ((flags & NO_TO_FRONT) == 0) {
+        } else if ((displayFlags & NO_TO_FRONT) == 0) {
           plotWindow.toFront();
         }
       } catch (final Throwable thrown) {
@@ -521,7 +520,7 @@ public final class ImageJUtils {
           plotWindow.setLocation(location);
         }
         if (limits != null) {
-          preserveLimits(plot, flags, limits);
+          preserveLimits(plot, displayFlags, limits);
         }
         addPlot(windowOrganiser, plotWindow);
       }
@@ -709,10 +708,17 @@ public final class ImageJUtils {
     if (filename != null) {
       final int index = filename.lastIndexOf('.');
       final int index2 = filename.lastIndexOf(File.separatorChar);
+      final StringBuilder sb = new StringBuilder(filename.length() + extension.length());
       if (index > index2) {
-        filename = filename.substring(0, index);
+        sb.append(filename, 0, index);
+      } else {
+        sb.append(filename);
       }
-      filename += (extension.startsWith(".")) ? extension : "." + extension;
+      if (extension.charAt(0) != '.') {
+        sb.append('.');
+      }
+      sb.append(extension);
+      return sb.toString();
     }
     return filename;
   }
@@ -728,7 +734,7 @@ public final class ImageJUtils {
       final int index = filename.lastIndexOf('.');
       final int index2 = filename.lastIndexOf(File.separatorChar);
       if (index > index2) {
-        filename = filename.substring(0, index);
+        return filename.substring(0, index);
       }
     }
     return filename;
@@ -777,11 +783,11 @@ public final class ImageJUtils {
       OpenDialog.setDefaultDirectory(directory);
     }
     final DirectoryChooser chooser = new DirectoryChooser(title);
-    directory = chooser.getDirectory();
+    final String chosenDirectory = chooser.getDirectory();
     if (!TextUtils.isNullOrEmpty(defaultDir)) {
       OpenDialog.setDefaultDirectory(defaultDir);
     }
-    return directory;
+    return chosenDirectory;
   }
 
   /**
@@ -1065,10 +1071,8 @@ public final class ImageJUtils {
    * @return The directory
    */
   public static String addFileSeparator(String directory) {
-    if (directory.length() > 0 && !(directory.endsWith("/") || directory.endsWith("\\"))) {
-      directory += Prefs.separator;
-    }
-    return directory;
+    return (directory.endsWith("/") || directory.endsWith("\\")) ? directory
+        : directory + Prefs.separator;
   }
 
   /**

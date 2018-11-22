@@ -66,7 +66,9 @@ public final class RecorderUtils {
     // " "+key+"=["+value+"]"
     boolean ignored = false;
     final TurboList<String[]> pairs = new TurboList<>();
-    for (int current = 0, len = commandOptions.length(); current < len;) {
+    int current = 0;
+    final int len = commandOptions.length();
+    while (current < len) {
       // Find the next non-space character, this will be the start of a key
       while (current < len && commandOptions.charAt(current) == ' ') {
         current++;
@@ -106,10 +108,9 @@ public final class RecorderUtils {
       // Check key should be ignored
       if (ignore(key, keys)) {
         ignored = true;
-        continue;
+      } else {
+        pairs.add(new String[] {key, value});
       }
-
-      pairs.add(new String[] {key, value});
     }
 
     if (!ignored) {
@@ -138,7 +139,8 @@ public final class RecorderUtils {
     }
   }
 
-  private static int findKeyEnd(String commandOptions, int len, int index) {
+  private static int findKeyEnd(String commandOptions, int len, int start) {
+    int index = start;
     while (index < len) {
       final char c = commandOptions.charAt(index);
       if (c == ' ' || c == '=') {

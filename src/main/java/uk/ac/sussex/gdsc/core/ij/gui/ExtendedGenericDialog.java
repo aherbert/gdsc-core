@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.ij.gui;
 
 import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
 import uk.ac.sussex.gdsc.core.ij.RecorderUtils;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
@@ -247,10 +248,8 @@ public class ExtendedGenericDialog extends GenericDialog {
    */
   public void addChoice(String label, String[] items, int defaultIndex,
       final OptionListener<Integer> optionListener) {
-    if (defaultIndex < 0 || defaultIndex >= items.length) {
-      defaultIndex = 0;
-    }
-    final String defaultItem = items[defaultIndex];
+    final int safeIndex = (defaultIndex < 0 || defaultIndex >= items.length) ? 0 : defaultIndex;
+    final String defaultItem = items[safeIndex];
     addChoice(label, items, defaultItem, optionListener);
   }
 
@@ -296,10 +295,8 @@ public class ExtendedGenericDialog extends GenericDialog {
    * @param defaultIndex the default index
    */
   public void addChoice(String label, String[] items, int defaultIndex) {
-    if (defaultIndex < 0 || defaultIndex >= items.length) {
-      defaultIndex = 0;
-    }
-    final String defaultItem = items[defaultIndex];
+    final int safeIndex = (defaultIndex < 0 || defaultIndex >= items.length) ? 0 : defaultIndex;
+    final String defaultItem = items[safeIndex];
     addChoice(label, items, defaultItem);
   }
 
@@ -420,19 +417,14 @@ public class ExtendedGenericDialog extends GenericDialog {
       final OptionListener<Double> optionListener) {
     Objects.requireNonNull(optionListener, OPTION_LISTENER_NULL);
 
-    if (defaultValue < minValue) {
-      defaultValue = minValue;
-    }
-    if (defaultValue > maxValue) {
-      defaultValue = maxValue;
-    }
+    final double clippedDefaultValue = MathUtils.clip(minValue, maxValue, defaultValue);
 
-    addSlider(label, minValue, maxValue, defaultValue);
+    addSlider(label, minValue, maxValue, clippedDefaultValue);
     final Panel p = getLastPanel();
 
     final TextField tf = new ComponentFinder<>(p, TextField.class).getLast();
     final String originalText = tf.getText();
-    final double originalValue = defaultValue;
+    final double originalValue = clippedDefaultValue;
 
     addOptionListener(optionListener);
 
@@ -473,14 +465,12 @@ public class ExtendedGenericDialog extends GenericDialog {
       double defaultValue) {
     labels.add(label);
     if (Double.isFinite(defaultValue)) {
-      if (defaultValue < minValue) {
-        minValue = defaultValue;
-      }
-      if (defaultValue > maxValue) {
-        maxValue = defaultValue;
-      }
+      final double min = Math.min(minValue, defaultValue);
+      final double max = Math.max(minValue, defaultValue);
+      super.addSlider(label, min, max, defaultValue);
+    } else {
+      super.addSlider(label, minValue, minValue, defaultValue);
     }
-    super.addSlider(label, minValue, maxValue, defaultValue);
   }
 
   @Override

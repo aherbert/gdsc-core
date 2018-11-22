@@ -119,11 +119,10 @@ public final class MathUtils {
     if (data == null || data.length == 0) {
       return (limits == null || limits.length < 2) ? noDoubleLimits() : limits;
     }
-    if (limits == null || limits.length < 2) {
-      limits = new double[] {data[0], data[0]};
-    }
-    double min = limits[0];
-    double max = limits[1];
+    final double[] result =
+        (limits == null || limits.length < 2) ? new double[] {data[0], data[0]} : limits;
+    double min = result[0];
+    double max = result[1];
     if (min > max) {
       final double tmp = min;
       min = max;
@@ -136,9 +135,9 @@ public final class MathUtils {
         max = d;
       }
     }
-    limits[0] = min;
-    limits[1] = max;
-    return limits;
+    result[0] = min;
+    result[1] = max;
+    return result;
   }
 
   /**
@@ -152,11 +151,10 @@ public final class MathUtils {
     if (data == null || data.length == 0) {
       return (limits == null || limits.length < 2) ? noFloatLimits() : limits;
     }
-    if (limits == null || limits.length < 2) {
-      limits = new float[] {data[0], data[0]};
-    }
-    float min = limits[0];
-    float max = limits[1];
+    final float[] result =
+        (limits == null || limits.length < 2) ? new float[] {data[0], data[0]} : limits;
+    float min = result[0];
+    float max = result[1];
     if (min > max) {
       final float tmp = min;
       min = max;
@@ -169,9 +167,9 @@ public final class MathUtils {
         max = d;
       }
     }
-    limits[0] = min;
-    limits[1] = max;
-    return limits;
+    result[0] = min;
+    result[1] = max;
+    return result;
   }
 
   /**
@@ -185,11 +183,10 @@ public final class MathUtils {
     if (data == null || data.length == 0) {
       return (limits == null || limits.length < 2) ? noIntegerLimits() : limits;
     }
-    if (limits == null || limits.length < 2) {
-      limits = new int[] {data[0], data[0]};
-    }
-    int min = limits[0];
-    int max = limits[1];
+    final int[] result =
+        (limits == null || limits.length < 2) ? new int[] {data[0], data[0]} : limits;
+    int min = result[0];
+    int max = result[1];
     if (min > max) {
       final int tmp = min;
       min = max;
@@ -198,14 +195,13 @@ public final class MathUtils {
     for (final int d : data) {
       if (min > d) {
         min = d;
-      }
-      if (max < d) {
+      } else if (max < d) {
         max = d;
       }
     }
-    limits[0] = min;
-    limits[1] = max;
-    return limits;
+    result[0] = min;
+    result[1] = max;
+    return result;
   }
 
   /**
@@ -219,11 +215,10 @@ public final class MathUtils {
     if (data == null || data.length == 0) {
       return (limits == null || limits.length < 2) ? noLongLimits() : limits;
     }
-    if (limits == null || limits.length < 2) {
-      limits = new long[] {data[0], data[0]};
-    }
-    long min = limits[0];
-    long max = limits[1];
+    final long[] result =
+        (limits == null || limits.length < 2) ? new long[] {data[0], data[0]} : limits;
+    long min = result[0];
+    long max = result[1];
     if (min > max) {
       final long tmp = min;
       min = max;
@@ -236,9 +231,9 @@ public final class MathUtils {
         max = d;
       }
     }
-    limits[0] = min;
-    limits[1] = max;
-    return limits;
+    result[0] = min;
+    result[1] = max;
+    return result;
   }
 
   /**
@@ -252,11 +247,10 @@ public final class MathUtils {
     if (data == null || data.length == 0) {
       return (limits == null || limits.length < 2) ? noShortLimits() : limits;
     }
-    if (limits == null || limits.length < 2) {
-      limits = new short[] {data[0], data[0]};
-    }
-    short min = limits[0];
-    short max = limits[1];
+    final short[] result =
+        (limits == null || limits.length < 2) ? new short[] {data[0], data[0]} : limits;
+    short min = result[0];
+    short max = result[1];
     if (min > max) {
       final short tmp = min;
       min = max;
@@ -269,9 +263,9 @@ public final class MathUtils {
         max = d;
       }
     }
-    limits[0] = min;
-    limits[1] = max;
-    return limits;
+    result[0] = min;
+    result[1] = max;
+    return result;
   }
 
   /**
@@ -331,98 +325,103 @@ public final class MathUtils {
   }
 
   /**
-   * Get the max using a default value.
+   * Get the result using a default value.
    *
-   * @param max the max
+   * @param value the value
    * @param data the data
-   * @return the max
+   * @return the result
    */
-  public static double maxDefault(double max, double... data) {
+  public static double maxDefault(double value, double... data) {
     if (data == null || data.length == 0) {
-      return max;
+      return value;
     }
+    double result = value;
     for (final double d : data) {
-      if (max < d) {
-        max = d;
+      if (result < d) {
+        result = d;
       }
     }
-    return max;
+    return result;
   }
 
   /**
-   * Get the max using a default value.
+   * Get the result using a default value.
    *
-   * @param max the max
+   * @param value the value
    * @param data the data
-   * @return the max
+   * @return the result
    */
-  public static float maxDefault(float max, float... data) {
+  public static float maxDefault(float value, float... data) {
     if (data == null || data.length == 0) {
-      return max;
+      return value;
     }
+    float result = value;
     for (final float d : data) {
-      if (max < d) {
-        max = d;
+      if (result < d) {
+        result = d;
       }
     }
-    return max;
+    return result;
   }
 
   /**
-   * Get the max using a default value.
+   * Get the result using a default value.
    *
-   * @param max the max
+   * @param value the value
    * @param data the data
-   * @return the max
+   * @return the result
    */
-  public static int maxDefault(int max, int... data) {
+  public static int maxDefault(int value, int... data) {
     if (data == null || data.length == 0) {
-      return max;
+      return value;
     }
+    int result = value;
     for (final int d : data) {
-      if (max < d) {
-        max = d;
+      if (result < d) {
+        result = d;
       }
     }
-    return max;
+    return result;
   }
 
   /**
-   * Get the max using a default value.
+   * Get the result using a default value.
    *
-   * @param max the max
+   * @param value the value
    * @param data the data
-   * @return the max
+   * @return the result
    */
-  public static long maxDefault(long max, long... data) {
+  public static long maxDefault(long value, long... data) {
     if (data == null || data.length == 0) {
-      return max;
+      return value;
     }
+    long result = value;
     for (final long d : data) {
-      if (max < d) {
-        max = d;
+      if (result < d) {
+        result = d;
       }
     }
-    return max;
+    return result;
   }
 
   /**
-   * Get the max using a default value.
+   * Get the result using a default value.
    *
-   * @param max the max
+   * @param value the value
    * @param data the data
-   * @return the max
+   * @return the result
    */
-  public static short maxDefault(short max, short... data) {
+  public static short maxDefault(short value, short... data) {
     if (data == null || data.length == 0) {
-      return max;
+      return value;
     }
+    short result = value;
     for (final short d : data) {
-      if (max < d) {
-        max = d;
+      if (result < d) {
+        result = d;
       }
     }
-    return max;
+    return result;
   }
 
   /**
@@ -482,98 +481,103 @@ public final class MathUtils {
   }
 
   /**
-   * Get the min using a default value.
+   * Get the result using a default value.
    *
-   * @param min the min
+   * @param value the value
    * @param data the data
-   * @return the min
+   * @return the result
    */
-  public static double minDefault(double min, double... data) {
+  public static double minDefault(double value, double... data) {
     if (data == null || data.length == 0) {
-      return min;
+      return value;
     }
+    double result = value;
     for (final double d : data) {
-      if (min > d) {
-        min = d;
+      if (result > d) {
+        result = d;
       }
     }
-    return min;
+    return result;
   }
 
   /**
-   * Get the min using a default value.
+   * Get the result using a default value.
    *
-   * @param min the min
+   * @param value the value
    * @param data the data
-   * @return the min
+   * @return the result
    */
-  public static float minDefault(float min, float... data) {
+  public static float minDefault(float value, float... data) {
     if (data == null || data.length == 0) {
-      return min;
+      return value;
     }
+    float result = value;
     for (final float d : data) {
-      if (min > d) {
-        min = d;
+      if (result > d) {
+        result = d;
       }
     }
-    return min;
+    return result;
   }
 
   /**
-   * Get the min using a default value.
+   * Get the result using a default value.
    *
-   * @param min the min
+   * @param value the value
    * @param data the data
-   * @return the min
+   * @return the result
    */
-  public static int minDefault(int min, int... data) {
+  public static int minDefault(int value, int... data) {
     if (data == null || data.length == 0) {
-      return min;
+      return value;
     }
+    int result = value;
     for (final int d : data) {
-      if (min > d) {
-        min = d;
+      if (result > d) {
+        result = d;
       }
     }
-    return min;
+    return result;
   }
 
   /**
-   * Get the min using a default value.
+   * Get the result using a default value.
    *
-   * @param min the min
+   * @param value the value
    * @param data the data
-   * @return the min
+   * @return the result
    */
-  public static long minDefault(long min, long... data) {
+  public static long minDefault(long value, long... data) {
     if (data == null || data.length == 0) {
-      return min;
+      return value;
     }
+    long result = value;
     for (final long d : data) {
-      if (min > d) {
-        min = d;
+      if (result > d) {
+        result = d;
       }
     }
-    return min;
+    return result;
   }
 
   /**
-   * Get the min using a default value.
+   * Get the result using a default value.
    *
-   * @param min the min
+   * @param value the value
    * @param data the data
-   * @return the min
+   * @return the result
    */
-  public static short minDefault(short min, short... data) {
+  public static short minDefault(short value, short... data) {
     if (data == null || data.length == 0) {
-      return min;
+      return value;
     }
+    short result = value;
     for (final short d : data) {
-      if (min > d) {
-        min = d;
+      if (result > d) {
+        result = d;
       }
     }
-    return min;
+    return result;
   }
 
   private static double[] noDoubleLimits() {
@@ -609,43 +613,43 @@ public final class MathUtils {
       return new double[2][0];
     }
 
-    values = Arrays.copyOf(values, values.length);
-    Arrays.sort(values);
+    double[] data = values.clone();
+    Arrays.sort(data);
 
     // Arrays.sort() put the NaN values higher than all others.
     // If this is the first value then stop.
-    if (Double.isNaN(values[0])) {
+    if (Double.isNaN(data[0])) {
       return new double[2][0];
     }
 
-    double[] sum = new double[values.length];
-    double lastValue = values[0];
+    double[] sum = new double[data.length];
+    double lastValue = data[0];
     int position = 0;
     int count = 0;
-    for (int i = 0; i < values.length; i++) {
+    for (int i = 0; i < data.length; i++) {
       // Arrays.sort() put the NaN values higher than all others so this should occur at the end
-      if (Double.isNaN(values[i])) {
+      if (Double.isNaN(data[i])) {
         break;
       }
 
       // When a new value is reached, store the cumulative total for the previous value
-      if (lastValue != values[i]) {
-        values[position] = lastValue;
+      if (lastValue != data[i]) {
+        data[position] = lastValue;
         sum[position] = count;
-        lastValue = values[i];
+        lastValue = data[i];
         position++;
       }
       count++;
     }
 
     // Record the final value
-    values[position] = lastValue;
+    data[position] = lastValue;
     sum[position] = count;
     position++;
 
     // Truncate if necessary
-    if (position < values.length) {
-      values = Arrays.copyOf(values, position);
+    if (position < data.length) {
+      data = Arrays.copyOf(data, position);
       sum = Arrays.copyOf(sum, position);
     }
 
@@ -656,7 +660,7 @@ public final class MathUtils {
       }
     }
 
-    return new double[][] {values, sum};
+    return new double[][] {data, sum};
   }
 
   /**
@@ -1228,8 +1232,7 @@ public final class MathUtils {
    * @return value^4
    */
   public static double pow4(double value) {
-    value = value * value;
-    return value * value;
+    return pow2(pow2(value));
   }
 
   /**
@@ -1239,8 +1242,7 @@ public final class MathUtils {
    * @return value^4
    */
   public static int pow4(int value) {
-    value = value * value;
-    return value * value;
+    return pow2(pow2(value));
   }
 
   /**
@@ -1258,7 +1260,7 @@ public final class MathUtils {
   /**
    * Returns the closest power-of-two number greater than or equal to value.
    *
-   * <p>Copied from the JTransforms library class org.jtransforms.utils.CommonUtils.
+   * <p>Adapted from the JTransforms library class org.jtransforms.utils.CommonUtils.
    *
    * @param value the value
    * @return the closest power-of-two number greater than or equal to value
@@ -1270,12 +1272,13 @@ public final class MathUtils {
     if ((value & (value - 1)) == 0) {
       return value; // value is already a power-of-two number
     }
-    value |= (value >>> 1);
-    value |= (value >>> 2);
-    value |= (value >>> 4);
-    value |= (value >>> 8);
-    value |= (value >>> 16);
-    return value + 1;
+    int result = value;
+    result |= (result >>> 1);
+    result |= (result >>> 2);
+    result |= (result >>> 4);
+    result |= (result >>> 8);
+    result |= (result >>> 16);
+    return result + 1;
   }
 
   /**
@@ -1415,9 +1418,9 @@ public final class MathUtils {
   }
 
   private static double power16(double value) {
-    value = value * value; // power2
-    value = value * value; // power4
-    value = value * value; // power8
-    return value * value;
+    double result = value * value; // power2
+    result = result * result; // power4
+    result = result * result; // power8
+    return result * result;
   }
 }

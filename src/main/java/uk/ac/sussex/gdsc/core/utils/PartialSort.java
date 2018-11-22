@@ -170,9 +170,10 @@ public final class PartialSort {
       return quickFinish(queue, options);
     }
 
-    private void bottomUpHeapify(int child) {
+    private void bottomUpHeapify(int index) {
       // Reference to the sifted element
-      final double toSift = queue[child];
+      final double toSift = queue[index];
+      int child = index;
       while (child > 0) {
         final int parent = (child - 1) >>> 1;
         if (toSift > queue[parent]) {
@@ -186,9 +187,10 @@ public final class PartialSort {
       queue[child] = toSift;
     }
 
-    private void bottomDownHeapify(int parent) {
+    private void bottomDownHeapify(int index) {
       // Reference to the sifted element
-      final double toSift = queue[parent];
+      final double toSift = queue[index];
+      int parent = index;
       int child = parent * 2 + 1;
       while (child < selectN) {
         // If the right child is bigger, compare with it.
@@ -271,9 +273,10 @@ public final class PartialSort {
       return quickFinish(queue, options | OPTION_TOP);
     }
 
-    private void topUpHeapify(int child) {
+    private void topUpHeapify(int index) {
       // Reference to the sifted element
-      final double toSift = queue[child];
+      final double toSift = queue[index];
+      int child = index;
       while (child > 0) {
         final int parent = (child - 1) >>> 1;
         if (toSift < queue[parent]) {
@@ -287,9 +290,10 @@ public final class PartialSort {
       queue[child] = toSift;
     }
 
-    private void topDownHeapify(int parent) {
+    private void topDownHeapify(int index) {
       // Reference to the sifted element
-      final double toSift = queue[parent];
+      final double toSift = queue[index];
+      int parent = index;
       int child = parent * 2 + 1;
       while (child < selectN) {
         // If the right child is bigger, compare with it.
@@ -573,9 +577,10 @@ public final class PartialSort {
       return quickFinish(queue, options);
     }
 
-    private void bottomUpHeapify(int child) {
+    private void bottomUpHeapify(int index) {
       // Reference to the sifted element
-      final float toSift = queue[child];
+      final float toSift = queue[index];
+      int child = index;
       while (child > 0) {
         final int parent = (child - 1) >>> 1;
         if (toSift > queue[parent]) {
@@ -589,9 +594,10 @@ public final class PartialSort {
       queue[child] = toSift;
     }
 
-    private void bottomDownHeapify(int parent) {
+    private void bottomDownHeapify(int index) {
       // Reference to the sifted element
-      final float toSift = queue[parent];
+      final float toSift = queue[index];
+      int parent = index;
       int child = parent * 2 + 1;
       while (child < selectN) {
         // If the right child is bigger, compare with it.
@@ -674,9 +680,10 @@ public final class PartialSort {
       return quickFinish(queue, options | OPTION_TOP);
     }
 
-    private void topUpHeapify(int child) {
+    private void topUpHeapify(int index) {
       // Reference to the sifted element
-      final float toSift = queue[child];
+      final float toSift = queue[index];
+      int child = index;
       while (child > 0) {
         final int parent = (child - 1) >>> 1;
         if (toSift < queue[parent]) {
@@ -690,9 +697,10 @@ public final class PartialSort {
       queue[child] = toSift;
     }
 
-    private void topDownHeapify(int parent) {
+    private void topDownHeapify(int index) {
       // Reference to the sifted element
-      final float toSift = queue[parent];
+      final float toSift = queue[index];
+      int parent = index;
       int child = parent * 2 + 1;
       while (child < selectN) {
         // If the right child is bigger, compare with it.
@@ -956,18 +964,18 @@ public final class PartialSort {
     if (options == 0) {
       return data;
     }
-    options |= OPTION_TOP;
-    replaceHead(data, options);
-    return quickFinish(data, options);
+    final int topOptions = options | OPTION_TOP;
+    replaceHead(data, topOptions);
+    return quickFinish(data, topOptions);
   }
 
   private static float[] topFinish(float[] data, int options) {
     if (options == 0) {
       return data;
     }
-    options |= OPTION_TOP;
-    replaceHead(data, options);
-    return quickFinish(data, options);
+    final int topOptions = options | OPTION_TOP;
+    replaceHead(data, topOptions);
+    return quickFinish(data, topOptions);
   }
 
   private static void replaceHead(double[] data, int options) {
@@ -1009,7 +1017,7 @@ public final class PartialSort {
       if (size == 0) {
         return ArrayUtils.EMPTY_DOUBLE_ARRAY;
       }
-      data = Arrays.copyOf(data, size);
+      return Arrays.copyOf(data, size);
     }
     return data;
   }
@@ -1027,9 +1035,9 @@ public final class PartialSort {
         return data;
       }
       if (size == 0) {
-        return new float[0];
+        return ArrayUtils.EMPTY_FLOAT_ARRAY;
       }
-      data = Arrays.copyOf(data, size);
+      return Arrays.copyOf(data, size);
     }
     return data;
   }
@@ -1091,7 +1099,7 @@ public final class PartialSort {
    */
   public static float[] bottom(float[] list, int n) {
     if (list == null) {
-      return new float[0];
+      return ArrayUtils.EMPTY_FLOAT_ARRAY;
     }
     return bottom(list, list.length, n);
   }
@@ -1145,7 +1153,7 @@ public final class PartialSort {
    */
   public static float[] bottom(int options, float[] list, int n) {
     if (list == null) {
-      return new float[0];
+      return ArrayUtils.EMPTY_FLOAT_ARRAY;
     }
     return bottom(options, list, list.length, n);
   }
@@ -1163,15 +1171,14 @@ public final class PartialSort {
     if (list == null || size <= 0) {
       return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
-    size = Math.min(size, list.length);
-    if (size <= n) {
-      list = bottomFinish(list.clone(), options);
-    } else if (n < 5) {
-      list = new DoubleSelector(n).bottom(options | OPTION_NO_CLONE, list, size);
-    } else {
-      list = new DoubleHeap(n).bottom(options | OPTION_NO_CLONE, list, size);
+    final int length = Math.min(size, list.length);
+    if (length <= n) {
+      return bottomFinish(list.clone(), options);
     }
-    return list;
+    if (n < 5) {
+      return new DoubleSelector(n).bottom(options | OPTION_NO_CLONE, list, length);
+    }
+    return new DoubleHeap(n).bottom(options | OPTION_NO_CLONE, list, length);
   }
 
   /**
@@ -1185,17 +1192,16 @@ public final class PartialSort {
    */
   public static float[] bottom(int options, float[] list, int size, int n) {
     if (list == null || size <= 0) {
-      return new float[0];
+      return ArrayUtils.EMPTY_FLOAT_ARRAY;
     }
-    size = Math.min(size, list.length);
-    if (size <= n) {
-      list = bottomFinish(list.clone(), options);
-    } else if (n < 5) {
-      list = new FloatSelector(n).bottom(options | OPTION_NO_CLONE, list, size);
-    } else {
-      list = new FloatHeap(n).bottom(options | OPTION_NO_CLONE, list, size);
+    final int length = Math.min(size, list.length);
+    if (length <= n) {
+      return bottomFinish(list.clone(), options);
     }
-    return list;
+    if (n < 5) {
+      return new FloatSelector(n).bottom(options | OPTION_NO_CLONE, list, length);
+    }
+    return new FloatHeap(n).bottom(options | OPTION_NO_CLONE, list, length);
   }
 
   /**
@@ -1221,7 +1227,7 @@ public final class PartialSort {
    */
   public static float[] top(float[] list, int n) {
     if (list == null) {
-      return new float[0];
+      return ArrayUtils.EMPTY_FLOAT_ARRAY;
     }
     return top(list, list.length, n);
   }
@@ -1275,7 +1281,7 @@ public final class PartialSort {
    */
   public static float[] top(int options, float[] list, int n) {
     if (list == null) {
-      return new float[0];
+      return ArrayUtils.EMPTY_FLOAT_ARRAY;
     }
     return top(options, list, list.length, n);
   }
@@ -1293,15 +1299,14 @@ public final class PartialSort {
     if (list == null || size <= 0) {
       return ArrayUtils.EMPTY_DOUBLE_ARRAY;
     }
-    size = Math.min(size, list.length);
-    if (size <= n) {
-      list = topFinish(list.clone(), options);
-    } else if (n < 5) {
-      list = new DoubleSelector(n).top(options | OPTION_NO_CLONE, list, size);
-    } else {
-      list = new DoubleHeap(n).top(options | OPTION_NO_CLONE, list, size);
+    final int length = Math.min(size, list.length);
+    if (length <= n) {
+      return topFinish(list.clone(), options);
     }
-    return list;
+    if (n < 5) {
+      return new DoubleSelector(n).top(options | OPTION_NO_CLONE, list, length);
+    }
+    return new DoubleHeap(n).top(options | OPTION_NO_CLONE, list, length);
   }
 
   /**
@@ -1315,17 +1320,16 @@ public final class PartialSort {
    */
   public static float[] top(int options, float[] list, int size, int n) {
     if (list == null || size <= 0) {
-      return new float[0];
+      return ArrayUtils.EMPTY_FLOAT_ARRAY;
     }
-    size = Math.min(size, list.length);
-    if (size <= n) {
-      list = topFinish(list.clone(), options);
-    } else if (n < 5) {
-      list = new FloatSelector(n).top(options | OPTION_NO_CLONE, list, size);
-    } else {
-      list = new FloatHeap(n).top(options | OPTION_NO_CLONE, list, size);
+    final int length = Math.min(size, list.length);
+    if (length <= n) {
+      return topFinish(list.clone(), options);
     }
-    return list;
+    if (n < 5) {
+      return new FloatSelector(n).top(options | OPTION_NO_CLONE, list, length);
+    }
+    return new FloatHeap(n).top(options | OPTION_NO_CLONE, list, length);
   }
 
   // The following select routine is copied from:

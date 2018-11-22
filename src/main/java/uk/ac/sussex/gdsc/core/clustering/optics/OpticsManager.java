@@ -705,22 +705,20 @@ public class OpticsManager extends CoordinateStore {
    * {@link #setTracker(TrackProgress)}).
    *
    * @param generatingDistanceE the generating distance (E) (set to zero to auto calibrate)
-   * @param minPts the min points for a core object (recommended range around 4)
+   * @param minPoints the min points for a core object (recommended range around 4)
    * @return the results (or null if the algorithm was stopped using the tracker)
    */
-  public OpticsResult optics(float generatingDistanceE, int minPts) {
-    if (minPts < 1) {
-      minPts = 1;
-    }
+  public OpticsResult optics(float generatingDistanceE, int minPoints) {
+    final int minPts = Math.max(1, minPoints);
 
     long time = System.currentTimeMillis();
     initialiseOptics(generatingDistanceE, minPts);
 
     // The distance may be updated
-    generatingDistanceE = grid.generatingDistanceE;
+    final float workingGeneratingDistance = grid.generatingDistanceE;
 
     if (tracker != null) {
-      tracker.log("Running OPTICS ... Distance=%g, minPts=%d", generatingDistanceE, minPts);
+      tracker.log("Running OPTICS ... Distance=%g, minPts=%d", workingGeneratingDistance, minPts);
       tracker.progress(0, xcoord.length);
     }
 
@@ -729,7 +727,7 @@ public class OpticsManager extends CoordinateStore {
     // The generating distance (E) used in the paper is the maximum distance at which cluster
     // centres will be formed. This implementation uses the squared distance to avoid sqrt()
     // function calls.
-    final float e = generatingDistanceE * generatingDistanceE;
+    final float e = workingGeneratingDistance * workingGeneratingDistance;
 
     final int size = xcoord.length;
     final Molecule[] setOfObjects = grid.setOfObjects;
@@ -765,12 +763,12 @@ public class OpticsManager extends CoordinateStore {
 
     OpticsResult optics = null;
     if (!stopped) {
-      optics = new OpticsResult(this, minPts, generatingDistanceE, results.list);
-      final int nClusters = optics.extractDbscanClustering(generatingDistanceE);
+      optics = new OpticsResult(this, minPts, workingGeneratingDistance, results.list);
+      final int nClusters = optics.extractDbscanClustering(workingGeneratingDistance);
       if (tracker != null) {
         time = System.currentTimeMillis() - time;
         tracker.log("Finished OPTICS: %d %s @ %s (Time = %s)", nClusters,
-            pleuraliseClusterCount(nClusters), MathUtils.rounded(generatingDistanceE),
+            pleuraliseClusterCount(nClusters), MathUtils.rounded(workingGeneratingDistance),
             TextUtils.millisToString(time));
       }
     }
@@ -817,16 +815,17 @@ public class OpticsManager extends CoordinateStore {
     // Class<?> clazz = getPreferredMoleculeSpace(true)
 
     Class<?> clazz = getPreferredMoleculeSpace(false);
+    float workingGeneratingDistanceE = generatingDistanceE;
     if (clazz != null) {
       // Ensure the distance is valid
-      generatingDistanceE = getWorkingGeneratingDistance(generatingDistanceE, minPts);
+      workingGeneratingDistanceE = getWorkingGeneratingDistance(workingGeneratingDistanceE, minPts);
 
       // OPTICS will benefit from circular processing if the density is high.
       // This is because we can skip distance computation to molecules outside the circle.
       // This is roughly pi/4
       // Compute the expected number of molecules in the area.
 
-      final double nMoleculesInCircle = getMoleculesInCircle(generatingDistanceE);
+      final double nMoleculesInCircle = getMoleculesInCircle(workingGeneratingDistanceE);
 
       // TODO - JUnit test to show when to use a circle to avoid distance comparisons.
       // We can miss 1 - pi/4 = 21% of the area.
@@ -834,25 +833,26 @@ public class OpticsManager extends CoordinateStore {
         clazz = RadialMoleculeSpace.class;
       }
     }
-    initialise(generatingDistanceE, minPts, clazz);
+    initialise(workingGeneratingDistanceE, minPts, clazz);
   }
 
   private void initialiseDbscan(float generatingDistanceE, int minPts) {
     Class<?> clazz = getPreferredMoleculeSpace(true);
+    float workingGeneratingDistanceE = generatingDistanceE;
     if (clazz != null) {
       // Ensure the distance is valid
-      generatingDistanceE = getWorkingGeneratingDistance(generatingDistanceE, minPts);
+      workingGeneratingDistanceE = getWorkingGeneratingDistance(generatingDistanceE, minPts);
 
       // DBSCAN will benefit from inner radial processing if the number of comparisons is high.
       // Compute the expected number of molecules in the area.
 
-      final double nMoleculesInCircle = getMoleculesInCircle(generatingDistanceE);
+      final double nMoleculesInCircle = getMoleculesInCircle(workingGeneratingDistanceE);
 
       if (nMoleculesInCircle > RadialMoleculeSpace.N_MOLECULES_FOR_NEXT_RESOLUTION_INNER) {
         clazz = InnerRadialMoleculeSpace.class;
       }
     }
-    initialise(generatingDistanceE, minPts, clazz);
+    initialise(workingGeneratingDistanceE, minPts, clazz);
   }
 
   /**
@@ -911,30 +911,29 @@ public class OpticsManager extends CoordinateStore {
    * @param minPts the min points for a core object
    * @param clazz the preferred class for the molecule space
    */
-  private void initialise(float generatingDistanceE, int minPts, Class<?> clazz) {
+  private void initialise(float generatingDistanceE1, int minPts, Class<?> clazz) {
     // Ensure the distance is valid
-    generatingDistanceE = getWorkingGeneratingDistance(generatingDistanceE, minPts);
+    final float safeGeneratingDistanceE =
+        getWorkingGeneratingDistance(generatingDistanceE1, minPts);
 
-    if (clazz == null) {
-      clazz = getPreferredMoleculeSpace(false);
-    }
+    final Class<?> moleculeSpaceClass = (clazz == null) ? getPreferredMoleculeSpace(false) : clazz;
 
     // Compare to the existing grid
-    if (grid == null || grid.generatingDistanceE != generatingDistanceE
-        || grid.getClass() != clazz) {
+    if (grid == null || grid.generatingDistanceE != safeGeneratingDistanceE
+        || grid.getClass() != moleculeSpaceClass) {
       if (tracker != null) {
         tracker.log("Initialising ...");
       }
 
       // Control the type of space we use to store the data
-      if (clazz == ProjectedMoleculeSpace.class) {
-        grid = new ProjectedMoleculeSpace(this, generatingDistanceE, getRandomGenerator());
-      } else if (clazz == InnerRadialMoleculeSpace.class) {
-        grid = new InnerRadialMoleculeSpace(this, generatingDistanceE);
-      } else if (clazz == RadialMoleculeSpace.class) {
-        grid = new RadialMoleculeSpace(this, generatingDistanceE);
+      if (moleculeSpaceClass == ProjectedMoleculeSpace.class) {
+        grid = new ProjectedMoleculeSpace(this, safeGeneratingDistanceE, getRandomGenerator());
+      } else if (moleculeSpaceClass == InnerRadialMoleculeSpace.class) {
+        grid = new InnerRadialMoleculeSpace(this, safeGeneratingDistanceE);
+      } else if (moleculeSpaceClass == RadialMoleculeSpace.class) {
+        grid = new RadialMoleculeSpace(this, safeGeneratingDistanceE);
       } else {
-        grid = new GridMoleculeSpace(this, generatingDistanceE);
+        grid = new GridMoleculeSpace(this, safeGeneratingDistanceE);
       }
 
       grid.generate();
@@ -1039,16 +1038,16 @@ public class OpticsManager extends CoordinateStore {
       fill(orderSeeds, grid.neighbours, object);
 
       while (orderSeeds.hasNext()) {
-        object = orderSeeds.next();
-        grid.findNeighboursAndDistances(minPts, object, generatingDistance);
-        object.markProcessed();
-        setCoreDistance(object, minPts, grid.neighbours);
-        if (orderedFile.add(object)) {
+        final Molecule nextObject = orderSeeds.next();
+        grid.findNeighboursAndDistances(minPts, nextObject, generatingDistance);
+        nextObject.markProcessed();
+        setCoreDistance(nextObject, minPts, grid.neighbours);
+        if (orderedFile.add(nextObject)) {
           return true;
         }
 
-        if (object.coreDistance != UNDEFINED) {
-          opticsUpdateSearch(orderSeeds, grid.neighbours, object);
+        if (nextObject.coreDistance != UNDEFINED) {
+          opticsUpdateSearch(orderSeeds, grid.neighbours, nextObject);
         }
       }
     }
@@ -1228,30 +1227,28 @@ public class OpticsManager extends CoordinateStore {
    * {@link #setTracker(TrackProgress)}).
    *
    * @param generatingDistanceE the generating distance (E) (set to zero to auto calibrate)
-   * @param minPts the min points for a core object
+   * @param minPoints the min points for a core object
    * @return the results (or null if the algorithm was stopped using the tracker)
    */
-  public DbscanResult dbscan(float generatingDistanceE, int minPts) {
-    if (minPts < 1) {
-      minPts = 1;
-    }
+  public DbscanResult dbscan(float generatingDistanceE, int minPoints) {
+    final int minPts = Math.max(1, minPoints);
 
     long time = System.currentTimeMillis();
 
     initialiseDbscan(generatingDistanceE, minPts);
 
     // The distance may be updated
-    generatingDistanceE = grid.generatingDistanceE;
+    final float workingGeneratingDistance = grid.generatingDistanceE;
 
     if (tracker != null) {
-      tracker.log("Running DBSCAN ... Distance=%g, minPts=%d", generatingDistanceE, minPts);
+      tracker.log("Running DBSCAN ... Distance=%g, minPts=%d", workingGeneratingDistance, minPts);
       tracker.progress(0, xcoord.length);
     }
 
     // The generating distance (E) used in the paper is the maximum distance at which cluster
     // centres will be formed. This implementation uses the squared distance to avoid sqrt()
     // function calls.
-    final float e = generatingDistanceE * generatingDistanceE;
+    final float e = workingGeneratingDistance * workingGeneratingDistance;
 
     final int size = xcoord.length;
     final Molecule[] setOfObjects = grid.setOfObjects;
@@ -1284,7 +1281,7 @@ public class OpticsManager extends CoordinateStore {
       for (int i = 0; i < size; i++) {
         dbscanOrder[i] = setOfObjects[i].toDbscanResult();
       }
-      dbscanResult = new DbscanResult(this, minPts, generatingDistanceE, dbscanOrder);
+      dbscanResult = new DbscanResult(this, minPts, workingGeneratingDistance, dbscanOrder);
       if (tracker != null) {
         time = System.currentTimeMillis() - time;
         tracker.log("Finished DBSCAN: %d %s (Time = %s)", counter.getTotalClusters(),
@@ -1316,14 +1313,14 @@ public class OpticsManager extends CoordinateStore {
       dbscanUpdateSearch(seeds, grid.neighbours, clusterId);
 
       while (seeds.hasNext()) {
-        object = seeds.getNext();
-        grid.findNeighbours(minPts, object, generatingDistance);
+        final Molecule nextObject = seeds.getNext();
+        grid.findNeighbours(minPts, nextObject, generatingDistance);
         if (counter.increment()) {
           return true;
         }
 
-        object.markProcessed();
-        object.setNumberOfPoints(grid.neighbours.size);
+        nextObject.markProcessed();
+        nextObject.setNumberOfPoints(grid.neighbours.size);
         if (grid.neighbours.size >= minPts) {
           dbscanUpdateSearch(seeds, grid.neighbours, clusterId);
         }
@@ -1435,19 +1432,15 @@ public class OpticsManager extends CoordinateStore {
 
     long time = System.currentTimeMillis();
 
-    // Optionally compute all samples
-    if (samples <= 0) {
-      samples = size;
-    }
-
     // Bounds check k
-    numberOfNeighbours = MathUtils.clip(1, size - 1, numberOfNeighbours);
+    int numNeighbours = MathUtils.clip(1, size - 1, numberOfNeighbours);
 
-    final int n = Math.min(samples, size);
+    // Optionally compute all samples if samples is not positive
+    final int n = Math.min((samples <= 0) ? size : samples, size);
     final float[] d = new float[n];
 
     if (tracker != null) {
-      tracker.log("Computing %d nearest-neighbour distances, samples=%d", numberOfNeighbours, n);
+      tracker.log("Computing %d nearest-neighbour distances, samples=%d", numNeighbours, n);
       tracker.progress(0, n);
     }
 
@@ -1469,7 +1462,7 @@ public class OpticsManager extends CoordinateStore {
     }
 
     // Note: The k-nearest neighbour search will include the actual point so increment by 1
-    numberOfNeighbours++;
+    numNeighbours++;
 
     for (int i = 0; i < n; i++) {
       if (tracker != null) {
@@ -1478,7 +1471,7 @@ public class OpticsManager extends CoordinateStore {
       final int index = indices[i];
       final float[] location = new float[] {xcoord[index], ycoord[index]};
       // The tree will use the squared distance so compute the root
-      d[i] = (float) (Math.sqrt(tree.nearestNeighbor(location, numberOfNeighbours)[0]));
+      d[i] = (float) (Math.sqrt(tree.nearestNeighbor(location, numNeighbours)[0]));
     }
     if (tracker != null) {
       time = System.currentTimeMillis() - time;
@@ -1562,7 +1555,7 @@ public class OpticsManager extends CoordinateStore {
    * <p>This implementation is a port of the version in the ELKI framework:
    * https://elki-project.github.io/.
    *
-   * @param minPts the min points for a core object (recommended range around 4)
+   * @param minPoints the min points for a core object (recommended range around 4)
    * @param numberOfSplits The number of splits to compute (if below 1 it will be auto-computed
    *        using the size of the data)
    * @param numberOfProjections The number of projections to compute (if below 1 it will be
@@ -1574,33 +1567,31 @@ public class OpticsManager extends CoordinateStore {
    * @param sampleMode the sample mode to select neighbours within each split set
    * @return the results (or null if the algorithm was stopped using the tracker)
    */
-  public OpticsResult fastOptics(int minPts, int numberOfSplits, int numberOfProjections,
+  public OpticsResult fastOptics(int minPoints, int numberOfSplits, int numberOfProjections,
       boolean useRandomVectors, boolean saveApproximateSets, SampleMode sampleMode) {
-    if (minPts < 1) {
-      minPts = 1;
-    }
+    final int minPts = Math.max(1, minPoints);
 
     long time = System.currentTimeMillis();
     initialiseFastOptics(minPts);
 
-    if (tracker != null) {
-      numberOfSplits =
-          ProjectedMoleculeSpace.getOrComputeNumberOfSplitSets(numberOfSplits, getSize());
-      numberOfProjections =
-          ProjectedMoleculeSpace.getOrComputeNumberOfProjections(numberOfProjections, getSize());
+    final int numSplits =
+        ProjectedMoleculeSpace.getOrComputeNumberOfSplitSets(numberOfSplits, getSize());
+    final int numProjections =
+        ProjectedMoleculeSpace.getOrComputeNumberOfProjections(numberOfProjections, getSize());
 
+    if (tracker != null) {
       tracker.log(
           "Running FastOPTICS ... minPts=%d, splits=%d, projections=%d, randomVectors=%b, "
               + "approxSets=%b, sampleMode=%s, threads=%d",
-          minPts, numberOfSplits, numberOfProjections, useRandomVectors, saveApproximateSets,
-          sampleMode, getNumberOfThreads());
+          minPts, numSplits, numProjections, useRandomVectors, saveApproximateSets, sampleMode,
+          getNumberOfThreads());
     }
 
     // Compute projections and find neighbours
     final ProjectedMoleculeSpace space = (ProjectedMoleculeSpace) grid;
 
-    space.setNumberOfSplits(numberOfSplits);
-    space.setNumberOfProjections(numberOfProjections);
+    space.setNumberOfSplits(numSplits);
+    space.setNumberOfProjections(numProjections);
     space.setUseRandomVectors(useRandomVectors);
     space.setSaveApproximateSets(saveApproximateSets);
     space.setSampleMode(sampleMode);
@@ -1699,15 +1690,15 @@ public class OpticsManager extends CoordinateStore {
       fillWithComputeDistance(orderSeeds, grid.neighbours, object);
 
       while (orderSeeds.hasNext()) {
-        object = orderSeeds.next();
-        grid.findNeighbours(minPts, object, 0);
-        object.markProcessed();
-        if (orderedFile.add(object)) {
+        final Molecule nextObject = orderSeeds.next();
+        grid.findNeighbours(minPts, nextObject, 0);
+        nextObject.markProcessed();
+        if (orderedFile.add(nextObject)) {
           return true;
         }
 
-        if (object.coreDistance != UNDEFINED) {
-          updateWithComputeDistance(orderSeeds, grid.neighbours, object);
+        if (nextObject.coreDistance != UNDEFINED) {
+          updateWithComputeDistance(orderSeeds, grid.neighbours, nextObject);
         }
       }
     }
@@ -1921,11 +1912,11 @@ public class OpticsManager extends CoordinateStore {
     long time = System.currentTimeMillis();
 
     // Bounds check k
-    numberOfNeighbours = MathUtils.clip(1, size - 1, numberOfNeighbours);
+    final int safeNumberOfNeighbours = MathUtils.clip(1, size - 1, numberOfNeighbours);
 
     if (tracker != null) {
-      tracker.log("Computing Local Outlier Probability scores, k=%d, Lambda=%s", numberOfNeighbours,
-          MathUtils.rounded(lambda));
+      tracker.log("Computing Local Outlier Probability scores, k=%d, Lambda=%s",
+          safeNumberOfNeighbours, MathUtils.rounded(lambda));
     }
 
     if (loOp == null) {
@@ -1935,7 +1926,7 @@ public class OpticsManager extends CoordinateStore {
 
     double[] scores;
     try {
-      scores = loOp.run(numberOfNeighbours, lambda);
+      scores = loOp.run(safeNumberOfNeighbours, lambda);
     } catch (final ExecutionException | InterruptedException ex) {
       if (tracker != null) {
         tracker.log("Failed LoOP computation: " + ex.getMessage());

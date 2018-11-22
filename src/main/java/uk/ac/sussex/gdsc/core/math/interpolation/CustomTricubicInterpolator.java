@@ -259,7 +259,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
   }
   //@formatter:on
 
-  //CHECKSTYLE.OFF: LocalVariableName
+  // CHECKSTYLE.OFF: LocalVariableName
 
   /**
    * Compute an interpolating function for the dataset.
@@ -499,8 +499,8 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     ticker.tick();
   }
 
-  //CHECKSTYLE.ON: LocalVariableName
-  //CHECKSTYLE.OFF: ParameterName
+  // CHECKSTYLE.ON: LocalVariableName
+  // CHECKSTYLE.OFF: ParameterName
 
   private static void buildForInterpolating(final TrivalueProvider fval, final double[][][] dFdX,
       final double[][][] dFdY, final double[][][] dFdZ, final double[][][] d2FdXdY,
@@ -543,7 +543,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     }
   }
 
-  //CHECKSTYLE.ON: ParameterName
+  // CHECKSTYLE.ON: ParameterName
 
   /**
    * Sets the progress tracker.
@@ -809,7 +809,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     //@formatter:on
   }
 
-  //CHECKSTYLE.OFF: LocalVariableName
+  // CHECKSTYLE.OFF: LocalVariableName
 
   /**
    * Compute an interpolating function for the data. Creates a single tricubic function for
@@ -1436,8 +1436,8 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     ticker.stop();
   }
 
-  //CHECKSTYLE.OFF: LocalVariableName
-  //CHECKSTYLE.OFF: ParameterName
+  // CHECKSTYLE.OFF: LocalVariableName
+  // CHECKSTYLE.OFF: ParameterName
 
   private static void buildForSampling(final TrivalueProvider fval, final double[][][] f,
       final double[][][] dFdX, final double[][][] dFdY, final double[][][] dFdZ,
@@ -1482,7 +1482,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     }
   }
 
-  //CHECKSTYLE.ON: ParameterName
+  // CHECKSTYLE.ON: ParameterName
 
   /**
    * Gets the task size and number of tasks.
@@ -1496,11 +1496,12 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
    */
   static long[] getTaskSizeAndNumberOfTasks(final long total, long taskSize) {
     long numberOfTasks = (long) Math.ceil((double) total / taskSize);
+    long newTaskSize = taskSize;
     while (numberOfTasks >= Integer.MAX_VALUE) {
-      taskSize *= 2;
-      numberOfTasks = (long) Math.ceil((double) total / taskSize);
+      newTaskSize *= 2;
+      numberOfTasks = (long) Math.ceil((double) total / newTaskSize);
     }
-    return new long[] {taskSize, numberOfTasks};
+    return new long[] {newTaskSize, numberOfTasks};
   }
 
   private static CubicSplinePosition[] createCubicSplinePosition(int n) {

@@ -279,9 +279,9 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     splines = new CustomTricubicFunction[lastI][lastJ][lastK];
 
     final long total = (long) lastI * lastJ * lastK;
-    taskSize = Math.max(1, taskSize);
+    long safeTaskSize = Math.max(1, taskSize);
 
-    final boolean threaded = executorService != null && taskSize < total;
+    final boolean threaded = executorService != null && safeTaskSize < total;
 
     final Ticker ticker = Ticker.create(progress, total, threaded);
     ticker.start();
@@ -290,13 +290,14 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
       final long lastIlastJ = (long) lastI * lastJ;
 
       // Break this up into reasonable tasks, ensuring we can hold all the futures
-      final long[] tmp = CustomTricubicInterpolator.getTaskSizeAndNumberOfTasks(total, taskSize);
-      taskSize = tmp[0];
+      final long[] tmp =
+          CustomTricubicInterpolator.getTaskSizeAndNumberOfTasks(total, safeTaskSize);
+      safeTaskSize = tmp[0];
       final long nTasks = tmp[1];
       final TurboList<Future<?>> futures = new TurboList<>((int) nTasks);
       for (long i = 0; i < total;) {
         final long from = i;
-        final long to = Math.min(i + taskSize, total);
+        final long to = Math.min(i + safeTaskSize, total);
         futures.add(executorService.submit(() -> {
           if (isInteger) {
             for (long index = from; index < to; index++) {

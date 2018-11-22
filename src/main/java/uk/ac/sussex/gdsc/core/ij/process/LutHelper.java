@@ -29,6 +29,8 @@
 package uk.ac.sussex.gdsc.core.ij.process;
 
 import uk.ac.sussex.gdsc.core.data.DataException;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
 import ij.process.LUT;
 
@@ -729,13 +731,7 @@ public final class LutHelper {
    * @return a colour
    */
   public static Color getColour(LUT lut, int index) {
-    if (index < 0) {
-      index = 0;
-    }
-    if (index > 255) {
-      index = 255;
-    }
-    return new Color(lut.getRGB(index));
+    return new Color(lut.getRGB(MathUtils.clip(0, 255, index)));
   }
 
   /**
@@ -769,25 +765,22 @@ public final class LutHelper {
    * @return a colour
    */
   public static Color getColour(LUT lut, int value, int minimum, int maximum) {
-    // Logic copied from ShortProcessor.create8BitImage
-    if (minimum < 0) {
-      minimum = 0;
-    }
-    if (maximum > 65535) {
-      maximum = 65535;
-    }
+    ValidationUtils.checkArgument(minimum <= maximum, "Minimum %d not less than maximum %d",
+        minimum, maximum);
+    // Logic copied from ShortProcessor.create8BitImage.
+    // Clip to 16-bit range
+    final int min = Math.max(0, minimum);
 
-    final double scale = 256.0 / (maximum - minimum + 1);
-    value = value - minimum;
-    if (value < 0) {
-      value = 0;
+    // Transform to 0-255 8-bit range
+    int scaledValue = value - min;
+    if (scaledValue <= 0) {
+      return new Color(lut.getRGB(0));
     }
-    value = (int) (value * scale + 0.5);
-    if (value > 255) {
-      value = 255;
-    }
+    final int max = Math.min(65535, maximum);
+    final double scale = 256.0 / (max - min + 1);
+    scaledValue = Math.min(255, (int) Math.round(scaledValue * scale));
 
-    return new Color(lut.getRGB(value));
+    return new Color(lut.getRGB(scaledValue));
   }
 
   /**
@@ -800,21 +793,17 @@ public final class LutHelper {
    * @return a colour
    */
   public static Color getColour(LUT lut, float value, float minimum, float maximum) {
+    ValidationUtils.checkArgument(minimum <= maximum, "Minimum %f not less than maximum %f",
+        minimum, maximum);
     // Logic copied from FloatProcessor.create8BitImage
-
-    // No range check on the input min/max
-
+    final float shiftedValue = value - minimum;
+    if (shiftedValue <= 0) {
+      return new Color(lut.getRGB(0));
+    }
     final float scale = 255f / (maximum - minimum);
-    value = value - minimum;
-    if (value < 0f) {
-      value = 0f;
-    }
-    int ivalue = (int) ((value * scale) + 0.5f);
-    if (ivalue > 255) {
-      ivalue = 255;
-    }
+    final int scaledValue = Math.min(255, Math.round(shiftedValue * scale));
 
-    return new Color(lut.getRGB(ivalue));
+    return new Color(lut.getRGB(scaledValue));
   }
 
   /**
@@ -848,25 +837,22 @@ public final class LutHelper {
    * @return a colour
    */
   public static Color getNonZeroColour(LUT lut, int value, int minimum, int maximum) {
-    // Logic copied from ShortProcessor.create8BitImage
-    if (minimum < 0) {
-      minimum = 0;
-    }
-    if (maximum > 65535) {
-      maximum = 65535;
-    }
+    ValidationUtils.checkArgument(minimum <= maximum, "Minimum %d not less than maximum %d",
+        minimum, maximum);
+    // Logic copied from ShortProcessor.create8BitImage.
+    // Clip to 16-bit range
+    final int min = Math.max(0, minimum);
 
-    final double scale = 255.0 / (maximum - minimum + 1);
-    value = value - minimum;
-    if (value < 0) {
-      value = 0;
+    // Transform to 0-255 8-bit range
+    int scaledValue = value - min;
+    if (scaledValue <= 0) {
+      return new Color(lut.getRGB(1));
     }
-    value = 1 + (int) (value * scale + 0.5);
-    if (value > 255) {
-      value = 255;
-    }
+    final int max = Math.min(65535, maximum);
+    final double scale = 255.0 / (max - min + 1);
+    scaledValue = Math.min(255, 1 + (int) Math.round(scaledValue * scale));
 
-    return new Color(lut.getRGB(value));
+    return new Color(lut.getRGB(scaledValue));
   }
 
   /**
@@ -879,21 +865,17 @@ public final class LutHelper {
    * @return a colour
    */
   public static Color getNonZeroColour(LUT lut, float value, float minimum, float maximum) {
+    ValidationUtils.checkArgument(minimum <= maximum, "Minimum %f not less than maximum %f",
+        minimum, maximum);
     // Logic copied from FloatProcessor.create8BitImage
-
-    // No range check on the input min/max
-
+    final float shiftedValue = value - minimum;
+    if (shiftedValue <= 0) {
+      return new Color(lut.getRGB(1));
+    }
     final float scale = 254f / (maximum - minimum);
-    value = value - minimum;
-    if (value < 0f) {
-      value = 0f;
-    }
-    int ivalue = 1 + (int) ((value * scale) + 0.5f);
-    if (ivalue > 255) {
-      ivalue = 255;
-    }
+    final int scaledValue = Math.min(255, 1 + Math.round(shiftedValue * scale));
 
-    return new Color(lut.getRGB(ivalue));
+    return new Color(lut.getRGB(scaledValue));
   }
 
   /**
@@ -1006,21 +988,19 @@ public final class LutHelper {
      * @param maximum the maximum
      */
     public DefaultLutMapper(float minimum, float maximum) {
+      ValidationUtils.checkArgument(minimum <= maximum, "Minimum %f not less than maximum %f",
+          minimum, maximum);
       this.minimum = minimum;
       scale = 255f / (maximum - minimum);
     }
 
     @Override
     public int map(float value) {
-      value = value - minimum;
-      if (value < 0f) {
-        value = 0f;
+      final float scaledValue = value - minimum;
+      if (scaledValue <= 0f) {
+        return 0;
       }
-      int ivalue = (int) ((value * scale) + 0.5f);
-      if (ivalue > 255) {
-        ivalue = 255;
-      }
-      return ivalue;
+      return Math.min(255, Math.round(scaledValue * scale));
     }
 
     @Override
@@ -1045,21 +1025,19 @@ public final class LutHelper {
      * @param maximum the maximum
      */
     public NonZeroLutMapper(float minimum, float maximum) {
+      ValidationUtils.checkArgument(minimum <= maximum, "Minimum %f not less than maximum %f",
+          minimum, maximum);
       this.minimum = minimum;
       scale = 254f / (maximum - minimum);
     }
 
     @Override
-    public int map(float value) {
-      value = value - minimum;
-      if (value < 0f) {
-        value = 0f;
+    public int map(float value1) {
+      final float scaledValue = value1 - minimum;
+      if (scaledValue <= 0f) {
+        return 1;
       }
-      int ivalue = 1 + (int) ((value * scale) + 0.5f);
-      if (ivalue > 255) {
-        ivalue = 255;
-      }
-      return ivalue;
+      return Math.min(255, 1 + Math.round(scaledValue * scale));
     }
 
     @Override

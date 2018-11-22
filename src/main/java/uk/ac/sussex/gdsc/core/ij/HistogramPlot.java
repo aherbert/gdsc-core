@@ -441,21 +441,12 @@ public class HistogramPlot {
    * Calculate a histogram given the provided data.
    *
    * @param data the data
-   * @param numBins The number of histogram bins between min and max
+   * @param numberOfBins The number of histogram bins between min and max
    * @return The histogram as a pair of arrays: { value[], frequency[] }
    */
-  public static float[][] calcHistogram(float[] data, int numBins) {
-    float min = Float.POSITIVE_INFINITY;
-    float max = Float.NEGATIVE_INFINITY;
-    for (final float f : data) {
-      if (min > f) {
-        min = f;
-      }
-      if (max < f) {
-        max = f;
-      }
-    }
-    return calcHistogram(data, min, max, numBins);
+  public static float[][] calcHistogram(float[] data, int numberOfBins) {
+    final float[] limits = MathUtils.limits(data);
+    return calcHistogram(data, limits[0], limits[1], numberOfBins);
   }
 
   /**
@@ -466,16 +457,17 @@ public class HistogramPlot {
    * different bins. If min and max are the same then the number of bins is set to 1.
    *
    * @param data the data
-   * @param min The minimum value to include (inclusive)
-   * @param max The maximum value to include (inclusive)
-   * @param numBins The number of histogram bins between min and max (must be above one)
+   * @param minimum The minimum value to include (inclusive)
+   * @param maximum The maximum value to include (inclusive)
+   * @param numberOfBins The number of histogram bins between min and max (must be above one)
    * @return The histogram as a pair of arrays: { value[], frequency[] }
    */
-  public static float[][] calcHistogram(float[] data, double min, double max, int numBins) {
+  public static float[][] calcHistogram(float[] data, float minimum, float maximum,
+      int numberOfBins) {
     // Parameter check
-    if (numBins < 2) {
-      numBins = 2;
-    }
+    int numBins = Math.max(2, numberOfBins);
+    double min = minimum;
+    double max = maximum;
     if (max < min) {
       final double tmp = max;
       max = min;
@@ -512,21 +504,12 @@ public class HistogramPlot {
    * Calculate a histogram given the provided data.
    *
    * @param data the data
-   * @param numBins The number of histogram bins between min and max
+   * @param numberOfBins The number of histogram bins between min and max
    * @return The histogram as a pair of arrays: { value[], frequency[] }
    */
-  public static double[][] calcHistogram(double[] data, int numBins) {
-    double min = Double.POSITIVE_INFINITY;
-    double max = Double.NEGATIVE_INFINITY;
-    for (final double f : data) {
-      if (min > f) {
-        min = f;
-      }
-      if (max < f) {
-        max = f;
-      }
-    }
-    return calcHistogram(data, min, max, numBins);
+  public static double[][] calcHistogram(double[] data, int numberOfBins) {
+    final double[] limits = MathUtils.limits(data);
+    return calcHistogram(data, limits[0], limits[1], numberOfBins);
   }
 
   /**
@@ -537,16 +520,17 @@ public class HistogramPlot {
    * different bins. If min and max are the same then the number of bins is set to 1.
    *
    * @param data the data
-   * @param min The minimum value to include (inclusive)
-   * @param max The maximum value to include (inclusive)
-   * @param numBins The number of histogram bins between min and max (must be above one)
+   * @param minimum The minimum value to include (inclusive)
+   * @param maximum The maximum value to include (inclusive)
+   * @param numberOfBins The number of histogram bins between min and max (must be above one)
    * @return The histogram as a pair of arrays: { value[], frequency[] }
    */
-  public static double[][] calcHistogram(double[] data, double min, double max, int numBins) {
+  public static double[][] calcHistogram(double[] data, double minimum, double maximum,
+      int numberOfBins) {
     // Parameter check
-    if (numBins < 2) {
-      numBins = 2;
-    }
+    int numBins = Math.max(2, numberOfBins);
+    double min = minimum;
+    double max = maximum;
     if (max < min) {
       final double tmp = max;
       max = min;

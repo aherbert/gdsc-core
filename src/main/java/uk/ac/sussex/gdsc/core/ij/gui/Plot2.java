@@ -31,7 +31,7 @@ package uk.ac.sussex.gdsc.core.ij.gui;
 import ij.gui.Plot;
 
 /**
- * Extension of the {@link ij.gui.Plot} class to add functionality.
+ * Extension of the {@link ij.gui.Plot} class to add functionality to draw a Bar chart.
  */
 public class Plot2 extends Plot {
   /** Draw a bar plot. */
@@ -150,27 +150,31 @@ public class Plot2 extends Plot {
       String label) {
     // This only works if the addPoints super method ignores the
     // BAR option but still stores the values.
+    float[] newXValues = xValues;
+    float[] newYValues = yValues;
+    int newShape = shape;
     try {
-      if (shape == BAR) {
-        shape = Plot.LINE;
+      if (newShape == BAR) {
+        // Draw a Bar chart using a line
+        newShape = Plot.LINE;
 
-        if (xValues == null || xValues.length == 0) {
-          xValues = new float[yValues.length];
-          for (int i = 0; i < yValues.length; i++) {
-            xValues[i] = i;
+        if (newXValues == null || newXValues.length == 0) {
+          newXValues = new float[newYValues.length];
+          for (int i = 0; i < newYValues.length; i++) {
+            newXValues[i] = i;
           }
         }
 
-        final float[] x = createHistogramAxis(xValues);
-        final float[] y = createHistogramValues(yValues);
+        final float[] x = createHistogramAxis(newXValues);
+        final float[] y = createHistogramValues(newYValues);
 
         // No errors
-        xValues = x;
-        yValues = y;
+        newXValues = x;
+        newYValues = y;
       }
     } catch (final Throwable ex) { // Ignore
     } finally {
-      super.addPoints(xValues, yValues, yErrorBars, shape, label);
+      super.addPoints(newXValues, newYValues, yErrorBars, newShape, label);
     }
   }
 
