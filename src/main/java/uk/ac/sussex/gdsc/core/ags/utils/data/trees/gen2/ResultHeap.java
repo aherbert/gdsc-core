@@ -211,12 +211,32 @@ public class ResultHeap<T> {
   }
 
   /**
+   * Gets the distance at the given.
+   *
+   * @param index the index
+   * @return the distance
+   */
+  public double getDistance(int index) {
+    return distance[index];
+  }
+
+  /**
    * Gets the data.
    *
    * @return the data
    */
   public Object[] getData() {
     return Arrays.copyOf(data, size);
+  }
+
+  /**
+   * Gets the data at the given.
+   *
+   * @param index the index
+   * @return the data
+   */
+  public Object getData(int index) {
+    return data[index];
   }
 
   /**

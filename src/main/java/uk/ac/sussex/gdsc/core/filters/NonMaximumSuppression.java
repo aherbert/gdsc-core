@@ -63,7 +63,7 @@ public class NonMaximumSuppression {
    * Class to store scans for candidate maxima. The highest maxima is kept, or if tied then all
    * maxima are kept.
    */
-  private abstract static class ScanCandidate {
+  private static class ScanCandidate {
     /** The size (i.e. number of candidates). */
     int size;
     /** The indices. */

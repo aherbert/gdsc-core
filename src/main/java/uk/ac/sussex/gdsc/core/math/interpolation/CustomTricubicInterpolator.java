@@ -55,7 +55,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
 
   /**
    * The constant 2.
-   * 
+   *
    * <p>This is the minimum size required to interpolate a set of function points using a cubic
    * spline. Although the spline requires 4 points this is set to 2 as the outer points can be
    * assumed to be zero.
@@ -63,7 +63,7 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
   private static final int TWO = 2;
   /**
    * The constant 4.
-   * 
+   *
    * <p>This is the number of points required to interpolate a function using a cubic spline.
    */
   private static final int FOUR = 4;
@@ -467,9 +467,9 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     final int i = (int) (mod % xLen);
 
     final boolean edgeX = i == 0 || i == xLenM1;
-    final int nI;
-    final int pI;
-    final double deltaX;
+    int nI;
+    int pI;
+    double deltaX;
     if (edgeX) {
       // Ignored
       nI = pI = 0;
@@ -481,9 +481,9 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     }
 
     final boolean edgeY = j == 0 || j == yLenM1;
-    final int nJ;
-    final int pJ;
-    final double deltaY;
+    int nJ;
+    int pJ;
+    double deltaY;
     if (edgeY) {
       // Ignored
       nJ = pJ = 0;
@@ -495,9 +495,9 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     }
 
     final boolean edgeZ = k == 0 || k == zLenM1;
-    final int nK;
-    final int pK;
-    final double deltaZ;
+    int nK;
+    int pK;
+    double deltaZ;
     if (edgeZ) {
       // Ignored
       nK = pK = 0;

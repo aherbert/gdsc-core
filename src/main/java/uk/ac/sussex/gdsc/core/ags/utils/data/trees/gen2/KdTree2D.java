@@ -266,8 +266,8 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
         results.add(new Entry<>(resultHeap.getRemovedDistance(), resultHeap.getRemovedData()));
       }
     } else {
-      for (int i = 0; i < resultHeap.size; i++) {
-        results.add(new Entry<>(resultHeap.distance[i], (T) resultHeap.data[i]));
+      for (int i = 0; i < resultHeap.getSize(); i++) {
+        results.add(new Entry<>(resultHeap.getDistance(i), (T) resultHeap.getData(i)));
       }
     }
 
@@ -358,8 +358,8 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
     }
     while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
-    for (int i = 0; i < resultHeap.size; i++) {
-      results.add(resultHeap.distance[i], (T) resultHeap.data[i]);
+    for (int i = 0; i < resultHeap.getSize(); i++) {
+      results.add(resultHeap.getDistance(i), (T) resultHeap.getData(i));
     }
   }
 

@@ -73,6 +73,7 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider {
         }
       }
     }
+    // Documented to wrap the reference directly
     this.data = data;
   }
 
@@ -136,6 +137,7 @@ public class DoubleArrayTrivalueProvider implements TrivalueProvider {
 
   @Override
   public double[][][] toArray() {
+    // Documented to wrap the reference directly
     return data;
   }
 }

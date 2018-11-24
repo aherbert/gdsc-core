@@ -329,8 +329,8 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
         results.add(new Entry<>(resultHeap.getRemovedDistance(), resultHeap.getRemovedData()));
       }
     } else {
-      for (int i = 0; i < resultHeap.size; i++) {
-        results.add(new Entry<>(resultHeap.distance[i], (T) resultHeap.data[i]));
+      for (int i = 0; i < resultHeap.getSize(); i++) {
+        results.add(new Entry<>(resultHeap.getDistance(i), (T) resultHeap.getData(i)));
       }
     }
 

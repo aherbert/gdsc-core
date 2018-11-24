@@ -44,7 +44,7 @@ import java.util.ArrayList;
 public class TextWindow2 extends TextWindow {
   private static final long serialVersionUID = -6164933921278234275L;
 
-  private boolean constructed;
+  private final boolean constructed;
 
   /**
    * Opens a new single-column text window.

@@ -693,7 +693,7 @@ public final class SimpleArrayUtils {
    */
   public static int findMinIndex(int[] data) {
     int min = 0;
-    for (int i = 0; i < data.length; i++) {
+    for (int i = 1; i < data.length; i++) {
       if (data[i] < data[min]) {
         min = i;
       }
@@ -709,7 +709,7 @@ public final class SimpleArrayUtils {
    */
   public static int findMinIndex(float[] data) {
     int min = 0;
-    for (int i = 0; i < data.length; i++) {
+    for (int i = 1; i < data.length; i++) {
       if (data[i] < data[min]) {
         min = i;
       }
@@ -725,7 +725,7 @@ public final class SimpleArrayUtils {
    */
   public static int findMinIndex(double[] data) {
     int min = 0;
-    for (int i = 0; i < data.length; i++) {
+    for (int i = 1; i < data.length; i++) {
       if (data[i] < data[min]) {
         min = i;
       }
@@ -742,7 +742,7 @@ public final class SimpleArrayUtils {
    */
   public static int findMaxIndex(int[] data) {
     int max = 0;
-    for (int i = 0; i < data.length; i++) {
+    for (int i = 1; i < data.length; i++) {
       if (data[i] > data[max]) {
         max = i;
       }
@@ -758,7 +758,7 @@ public final class SimpleArrayUtils {
    */
   public static int findMaxIndex(float[] data) {
     int max = 0;
-    for (int i = 0; i < data.length; i++) {
+    for (int i = 1; i < data.length; i++) {
       if (data[i] > data[max]) {
         max = i;
       }
@@ -774,7 +774,7 @@ public final class SimpleArrayUtils {
    */
   public static int findMaxIndex(double[] data) {
     int max = 0;
-    for (int i = 0; i < data.length; i++) {
+    for (int i = 1; i < data.length; i++) {
       if (data[i] > data[max]) {
         max = i;
       }
@@ -783,7 +783,7 @@ public final class SimpleArrayUtils {
   }
 
   /**
-   * Find min index.
+   * Find min and max index.
    *
    * @param data the data
    * @return the min/max index
@@ -792,7 +792,7 @@ public final class SimpleArrayUtils {
     int min = 0;
     int max = 0;
 
-    for (int i = 0; i < data.length; i++) {
+    for (int i = 1; i < data.length; i++) {
       if (data[i] < data[min]) {
         min = i;
       } else if (data[i] > data[min]) {
@@ -803,7 +803,7 @@ public final class SimpleArrayUtils {
   }
 
   /**
-   * Find min index.
+   * Find min and max index.
    *
    * @param data the data
    * @return the min/max index
@@ -812,7 +812,7 @@ public final class SimpleArrayUtils {
     int min = 0;
     int max = 0;
 
-    for (int i = 0; i < data.length; i++) {
+    for (int i = 1; i < data.length; i++) {
       if (data[i] < data[min]) {
         min = i;
       } else if (data[i] > data[min]) {
@@ -824,7 +824,7 @@ public final class SimpleArrayUtils {
 
 
   /**
-   * Find min index.
+   * Find min and max index.
    *
    * @param data the data
    * @return the min/max index
@@ -833,7 +833,7 @@ public final class SimpleArrayUtils {
     int min = 0;
     int max = 0;
 
-    for (int i = 0; i < data.length; i++) {
+    for (int i = 1; i < data.length; i++) {
       if (data[i] < data[min]) {
         min = i;
       } else if (data[i] > data[min]) {

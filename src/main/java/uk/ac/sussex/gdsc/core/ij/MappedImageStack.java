@@ -65,7 +65,9 @@ public class MappedImageStack extends ImageStack {
   }
 
   /** Default constructor. */
-  public MappedImageStack() {}
+  public MappedImageStack() {
+    // Do nothing
+  }
 
   /**
    * Creates a new, empty image stack.

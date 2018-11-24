@@ -102,8 +102,8 @@ public class BooleanArray implements Iterable<Boolean> {
       return;
     }
     checkCapacity(data.length);
-    for (int i = 0; i < data.length; i++) {
-      values[size++] = data[i];
+    for (final boolean value : data) {
+      values[size++] = value;
     }
   }
 
@@ -223,14 +223,14 @@ public class BooleanArray implements Iterable<Boolean> {
 
     @Override
     public boolean hasNext() {
-      return cursor != size;
+      return cursor != size();
     }
 
     @Override
     public Boolean next() {
       // Copied from ArrayList and removed unrequired code
       final int index = cursor;
-      if (index >= size) {
+      if (index >= size()) {
         throw new NoSuchElementException();
       }
       final boolean[] elementData = BooleanArray.this.values;

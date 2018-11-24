@@ -38,6 +38,9 @@ import org.apache.commons.math3.util.FastMath;
  * Processing.
  */
 public class FloatLinkedMedianWindow {
+  /**
+   * The data structure for the double-linked list.
+   */
   private static class Data {
     int index;
     float value;
@@ -46,7 +49,7 @@ public class FloatLinkedMedianWindow {
     /** The greater chain (g). */
     Data greater;
 
-    public Data(float value, int index) {
+    Data(float value, int index) {
       this.value = value;
       this.index = index;
     }

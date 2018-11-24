@@ -29,16 +29,16 @@ import java.util.Arrays;
  */
 public class FloatResultHeap<T> {
   /** The data. */
-  final Object[] data;
+  private final Object[] data;
 
   /** The distance. */
-  final float[] distance;
+  private final float[] distance;
 
   /** The capacity. */
   private final int capacity;
 
   /** The size. */
-  int size;
+  private int size;
 
   /**
    * The removed data.
@@ -188,12 +188,32 @@ public class FloatResultHeap<T> {
   }
 
   /**
+   * Gets the distance at the given.
+   *
+   * @param index the index
+   * @return the distance
+   */
+  public float getDistance(int index) {
+    return distance[index];
+  }
+
+  /**
    * Gets the data.
    *
    * @return the data
    */
   public Object[] getData() {
     return Arrays.copyOf(data, size);
+  }
+
+  /**
+   * Gets the data at the given.
+   *
+   * @param index the index
+   * @return the data
+   */
+  public Object getData(int index) {
+    return data[index];
   }
 
   /**

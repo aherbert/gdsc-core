@@ -41,17 +41,26 @@ public class ImageJTrackProgress implements TrackProgress {
    */
   private double done;
 
+  // Properties are given a suffix 'Flag' to avoid confusing name collisions
+  // with the methods of the same name.
+
+  // TODO - Update the names to:
+  // setProgressReporting
+  // isProgressReporting
+  // reportProgress
+  // etc.
+
   /** The slow mode flag. */
-  private final boolean slowMode;
+  private final boolean slowModeFlag;
 
   /** The progress flag. */
-  private boolean progress = true;
+  private boolean progressFlag = true;
 
   /** The log flag. */
-  private boolean log = true;
+  private boolean logFlag = true;
 
   /** The status flag. */
-  private boolean status = true;
+  private boolean statusFlag = true;
 
   /**
    * Instantiates a new image J track progress.
@@ -68,7 +77,7 @@ public class ImageJTrackProgress implements TrackProgress {
    * @param slowMode Set to true to use the slow progress functionality of ImageJ
    */
   public ImageJTrackProgress(boolean slowMode) {
-    this.slowMode = slowMode;
+    this.slowModeFlag = slowMode;
   }
 
   @Override
@@ -77,7 +86,7 @@ public class ImageJTrackProgress implements TrackProgress {
       done = 0;
     }
     if (isProgress()) {
-      if (slowMode) {
+      if (slowModeFlag) {
         IJ.showProgress(-fraction);
       } else {
         IJ.showProgress(fraction);
@@ -91,7 +100,7 @@ public class ImageJTrackProgress implements TrackProgress {
       done = 0;
     }
     if (isProgress()) {
-      if (slowMode) {
+      if (slowModeFlag) {
         ImageJUtils.showSlowProgress((int) position, (int) total);
       } else {
         IJ.showProgress((double) position / total);
@@ -107,7 +116,7 @@ public class ImageJTrackProgress implements TrackProgress {
    */
   @Override
   public void incrementProgress(double fraction) {
-    if (slowMode) {
+    if (slowModeFlag) {
       done -= fraction;
     } else {
       done += fraction;
@@ -138,7 +147,7 @@ public class ImageJTrackProgress implements TrackProgress {
 
   @Override
   public boolean isProgress() {
-    return progress;
+    return progressFlag;
   }
 
   /**
@@ -147,12 +156,12 @@ public class ImageJTrackProgress implements TrackProgress {
    * @param progress the new progress
    */
   public void setProgress(boolean progress) {
-    this.progress = progress;
+    this.progressFlag = progress;
   }
 
   @Override
   public boolean isLog() {
-    return log;
+    return logFlag;
   }
 
   /**
@@ -161,12 +170,12 @@ public class ImageJTrackProgress implements TrackProgress {
    * @param log True for active
    */
   public void setLog(boolean log) {
-    this.log = log;
+    this.logFlag = log;
   }
 
   @Override
   public boolean isStatus() {
-    return status;
+    return statusFlag;
   }
 
   /**
@@ -175,6 +184,6 @@ public class ImageJTrackProgress implements TrackProgress {
    * @param status the new status
    */
   public void setStatus(boolean status) {
-    this.status = status;
+    this.statusFlag = status;
   }
 }

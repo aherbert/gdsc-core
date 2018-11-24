@@ -132,7 +132,13 @@ public final class ImageJUtils {
   /** Used to record extra options in the macro recorder. */
   private static final String EXTRA_OPTIONS = "extraoptions";
 
-  /** The last time to status was updated. */
+  /** The interval (in milliseconds) between changes to update the ImageJ status bar. */
+  private static final int STATUS_CHANGE_INTERVAL = 150;
+
+  /** The dot character '.'. */
+  private static final char DOT = '.';
+
+  /** The last time to ImageJ status bar was updated. */
   private static long lastTime;
 
   /**
@@ -233,10 +239,10 @@ public final class ImageJUtils {
         // Assume overlay is no longer valid
         imp.setOverlay(null);
       }
-      if (!imp.getWindow().isVisible()) {
-        imp.getWindow().setVisible(true);
-      } else if ((flags & NO_TO_FRONT) == 0) {
+      if (imp.getWindow().isVisible()) {
         imp.getWindow().toFront();
+      } else if ((flags & NO_TO_FRONT) == 0) {
+        imp.getWindow().setVisible(true);
       }
     }
     return imp;
@@ -307,10 +313,10 @@ public final class ImageJUtils {
         // Assume overlay is no longer valid
         imp.setOverlay(null);
       }
-      if (!imp.getWindow().isVisible()) {
-        imp.getWindow().setVisible(true);
-      } else if ((flags & NO_TO_FRONT) == 0) {
+      if (imp.getWindow().isVisible()) {
         imp.getWindow().toFront();
+      } else if ((flags & NO_TO_FRONT) == 0) {
+        imp.getWindow().setVisible(true);
       }
     }
     return imp;
@@ -386,8 +392,8 @@ public final class ImageJUtils {
       return null;
     }
     final int n = width * height;
-    for (int s = 0; s < data.length; s++) {
-      if (data[s] == null || data[s].length < n) {
+    for (final double[] dataSlice : data) {
+      if (dataSlice == null || dataSlice.length < n) {
         return null;
       }
     }
@@ -486,13 +492,13 @@ public final class ImageJUtils {
         }
         plotWindow.drawPlot(plot);
         preserveLimits(plot, displayFlags, limits);
-        if (!plotWindowFrame.isVisible()) {
-          plotWindowFrame.setVisible(true);
-        } else if ((displayFlags & NO_TO_FRONT) == 0) {
+        if (plotWindowFrame.isVisible()) {
           plotWindow.toFront();
+        } else if ((displayFlags & NO_TO_FRONT) == 0) {
+          plotWindowFrame.setVisible(true);
         }
       } catch (final Throwable thrown) {
-        // Allow debugging
+        // Allow debugging by logging the error
         IJ.handleException(thrown);
 
         // Get the location and close the error plot window
@@ -714,8 +720,8 @@ public final class ImageJUtils {
       } else {
         sb.append(filename);
       }
-      if (extension.charAt(0) != '.') {
-        sb.append('.');
+      if (extension.charAt(0) != DOT) {
+        sb.append(DOT);
       }
       sb.append(extension);
       return sb.toString();
@@ -834,9 +840,7 @@ public final class ImageJUtils {
    * @return True if shown
    */
   public static boolean showStatus(String message) {
-    final long time = System.currentTimeMillis();
-    if (time - lastTime > 150) {
-      lastTime = time;
+    if (statusExpired()) {
       IJ.showStatus(message);
       return true;
     }
@@ -850,10 +854,22 @@ public final class ImageJUtils {
    * @return True if shown
    */
   public static boolean showStatus(Supplier<String> message) {
-    final long time = System.currentTimeMillis();
-    if (time - lastTime > 150) {
-      lastTime = time;
+    if (statusExpired()) {
       IJ.showStatus(message.get());
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Return true when a set interval has passed since the ImageJ status was changed.
+   *
+   * @return true if the status interval has elapsed
+   */
+  private static boolean statusExpired() {
+    final long time = System.currentTimeMillis();
+    if (time - lastTime > STATUS_CHANGE_INTERVAL) {
+      lastTime = time;
       return true;
     }
     return false;
@@ -914,7 +930,7 @@ public final class ImageJUtils {
    */
   public static int[] getIdList() {
     final int[] list = WindowManager.getIDList();
-    return (list != null) ? list : ArrayUtils.EMPTY_INT_ARRAY;
+    return (list == null) ? ArrayUtils.EMPTY_INT_ARRAY : list;
   }
 
   /**
@@ -1018,7 +1034,9 @@ public final class ImageJUtils {
    *
    * @param paths the paths
    * @return The file path
+   * @deprecated This is not specific to ImageJ
    */
+  @Deprecated
   public static String combinePath(String... paths) {
     File file = new File(paths[0]);
 
@@ -1069,7 +1087,9 @@ public final class ImageJUtils {
    *
    * @param directory the directory
    * @return The directory
+   * @deprecated This is not specific to ImageJ
    */
+  @Deprecated
   public static String addFileSeparator(String directory) {
     return (directory.endsWith("/") || directory.endsWith("\\")) ? directory
         : directory + Prefs.separator;
@@ -1086,7 +1106,6 @@ public final class ImageJUtils {
     if (java.awt.GraphicsEnvironment.isHeadless()) {
       return false;
     }
-
     return Macro.getOptions() == null;
   }
 
@@ -1212,7 +1231,7 @@ public final class ImageJUtils {
    *
    * @param pixels the pixels
    * @return the bit depth
-   * @throws IllegalArgumentException If the pixesl array is an unrecognised type
+   * @throws IllegalArgumentException If the pixels array is an unrecognised type
    */
   public static int getBitDepth(Object pixels) {
     if (pixels instanceof float[]) {
@@ -1271,13 +1290,7 @@ public final class ImageJUtils {
     final ImageStatistics stats = imp.getRawStatistics(); // get uncalibrated stats
     final int limit = stats.pixelCount / 10;
     final int[] histogram = stats.histogram;
-    int autoThreshold = 0;
-    if (autoThreshold < 10) {
-      autoThreshold = 5000;
-    } else {
-      autoThreshold /= 2;
-    }
-    final int threshold = stats.pixelCount / autoThreshold;
+    final int threshold = stats.pixelCount / 5000;
 
     int index = -1;
     boolean found = false;

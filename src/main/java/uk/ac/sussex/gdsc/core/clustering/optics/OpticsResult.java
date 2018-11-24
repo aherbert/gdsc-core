@@ -599,7 +599,7 @@ public class OpticsResult implements ClusteringResult {
     }
 
     // Clip to the range
-    int rangeStart = Math.max(0, start - 1);
+    final int rangeStart = Math.max(0, start - 1);
     rangeEnd = Math.min(size() - 1, rangeEnd - 1);
 
     final TIntArrayList clusters = new TIntArrayList();

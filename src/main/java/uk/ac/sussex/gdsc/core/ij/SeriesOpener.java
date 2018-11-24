@@ -83,7 +83,7 @@ public class SeriesOpener {
    * @return the series opener
    */
   public static SeriesOpener create(String path, boolean showDialog, int numberOfThreads) {
-    SeriesOpener opener = new SeriesOpener(path);
+    final SeriesOpener opener = new SeriesOpener(path);
     opener.numberOfThreads = Math.abs(numberOfThreads);
     if (showDialog) {
       opener.filterImageList();
@@ -265,7 +265,7 @@ public class SeriesOpener {
 
   private boolean showDialog(ImagePlus imp, String[] list) {
     final int fileCount = list.length;
-    final FolderOpenerDialog gd = new FolderOpenerDialog("Sequence Options", imp, list);
+    final SeriesOpenerDialog gd = new SeriesOpenerDialog("Sequence Options", imp, list);
     gd.addMessage(
         "Folder: " + path + "\nFirst image: " + imp.getOriginalFileInfo().fileName + "\nWidth: "
             + imp.getWidth() + "\nHeight: " + imp.getHeight() + "\nFrames: " + imp.getStackSize());
@@ -290,7 +290,7 @@ public class SeriesOpener {
     }
     filter = gd.getNextString();
     final String regex = gd.getNextString();
-    if (!regex.equals("")) {
+    if (!regex.isEmpty()) {
       filter = regex;
       isRegex = true;
     }
@@ -318,12 +318,15 @@ public class SeriesOpener {
     return numberOfThreads;
   }
 
-  private static class FolderOpenerDialog extends GenericDialog {
+  /**
+   * A dialog to present the options for reading a series of images.
+   */
+  private static class SeriesOpenerDialog extends GenericDialog {
     private static final long serialVersionUID = 7944532917923080862L;
     transient ImagePlus imp;
     String[] list;
 
-    public FolderOpenerDialog(String title, ImagePlus imp, String[] list) {
+    SeriesOpenerDialog(String title, ImagePlus imp, String[] list) {
       super(title);
       this.imp = imp;
       this.list = list;
@@ -351,19 +354,19 @@ public class SeriesOpener {
       String localFilter = ((TextField) stringField.elementAt(0)).getText();
       final String regex = ((TextField) stringField.elementAt(1)).getText();
       Pattern pattern = null;
-      if (!regex.equals("")) {
+      if (!regex.isEmpty()) {
         localFilter = regex;
         pattern = Pattern.compile(localFilter);
       }
 
-      if (!localFilter.equals("") && !localFilter.equals("*")) {
+      if (!localFilter.isEmpty() && !localFilter.equals("*")) {
         int count = 0;
-        for (int i = 0; i < list.length; i++) {
+        for (final String name : list) {
           if (pattern != null) {
-            if (pattern.matcher(list[i]).matches()) {
+            if (pattern.matcher(name).matches()) {
               count++;
             }
-          } else if (list[i].indexOf(localFilter) >= 0) {
+          } else if (name.indexOf(localFilter) >= 0) {
             count++;
           }
         }

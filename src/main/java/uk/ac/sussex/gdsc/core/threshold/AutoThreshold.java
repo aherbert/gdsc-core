@@ -112,7 +112,7 @@ public class AutoThreshold {
     /** The name. */
     private final String nameString;
 
-    private Method(String name) {
+    Method(String name) {
       this.nameString = name;
     }
 
@@ -980,14 +980,13 @@ public class AutoThreshold {
 
       // The current Between Class Variance and maximum BCV
       double bcv;
-      if (denom != 0) {
+      if (denom == 0) {
+        bcv = 0;
+      } else {
         // Float here is to avoid loss of precision when dividing.
         // Maximum value of num = 255*N = approx 8E7
         final double num = ((double) n1 / np) * sum - sumK;
         bcv = (num * num) / denom;
-
-      } else {
-        bcv = 0;
       }
 
       // Added for debugging.
@@ -1572,7 +1571,7 @@ public class AutoThreshold {
       return 0;
     }
     for (final Method m : methodValues) {
-      if (m.nameString.equals(method)) {
+      if (m.toString().equals(method)) {
         return getThreshold(m, data);
       }
     }
@@ -1605,7 +1604,7 @@ public class AutoThreshold {
     }
 
     final int size = (maxbin - minbin) + 1;
-    final int[] data2;
+    int[] data2;
     if (size < data.length) {
       data2 = new int[size];
       for (int i = minbin, j = 0; i <= maxbin; i++, j++) {

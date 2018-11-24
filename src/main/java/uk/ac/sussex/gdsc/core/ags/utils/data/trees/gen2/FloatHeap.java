@@ -27,13 +27,13 @@ import java.util.Arrays;
  */
 public class FloatHeap {
   /** The distance. */
-  final float[] distance;
+  private final float[] distance;
 
   /** The capacity. */
   private final int capacity;
 
   /** The size. */
-  int size;
+  private int size;
 
   /** The distance of the last removed item. */
   private float removedDistance;

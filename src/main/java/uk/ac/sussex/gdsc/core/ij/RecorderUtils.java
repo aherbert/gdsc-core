@@ -131,7 +131,7 @@ public final class RecorderUtils {
         Recorder.recordOption(key);
       } else {
         // As per the GenericDialog ensure that empty strings are wrapped
-        if (value.equals("")) {
+        if (value.isEmpty()) {
           value = "[]";
         }
         Recorder.recordOption(key, value);
@@ -152,8 +152,8 @@ public final class RecorderUtils {
   }
 
   private static boolean ignore(String key, String[] keys) {
-    for (int i = 0; i < keys.length; i++) {
-      if (keys[i].equalsIgnoreCase(key)) {
+    for (final String value : keys) {
+      if (value.equalsIgnoreCase(key)) {
         return true;
       }
     }

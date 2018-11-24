@@ -191,9 +191,9 @@ public class Plot2 extends Plot {
   public static float[] createHistogramAxis(float[] histogramX) {
     final float[] axis = new float[histogramX.length * 2 + 2];
     int index = 0;
-    for (int i = 0; i < histogramX.length; ++i) {
-      axis[index++] = histogramX[i];
-      axis[index++] = histogramX[i];
+    for (final float value : histogramX) {
+      axis[index++] = value;
+      axis[index++] = value;
     }
     if (histogramX.length > 0) {
       final float dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
@@ -213,11 +213,10 @@ public class Plot2 extends Plot {
   public static float[] createHistogramValues(float[] histogramY) {
     final float[] axis = new float[histogramY.length * 2 + 2];
 
-    int index = 0;
-    axis[index++] = 0;
-    for (int i = 0; i < histogramY.length; ++i) {
-      axis[index++] = histogramY[i];
-      axis[index++] = histogramY[i];
+    int index = 1;
+    for (final float value : histogramY) {
+      axis[index++] = value;
+      axis[index++] = value;
     }
     return axis;
   }

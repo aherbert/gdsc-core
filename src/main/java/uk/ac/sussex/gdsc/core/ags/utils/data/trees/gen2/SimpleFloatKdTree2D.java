@@ -249,15 +249,15 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D {
     }
     while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
-    final ArrayList<Entry> results = new ArrayList<>(resultHeap.size);
+    final ArrayList<Entry> results = new ArrayList<>(resultHeap.getSize());
     if (sequentialSorting) {
-      while (resultHeap.size > 0) {
+      while (resultHeap.getSize() > 0) {
         resultHeap.removeLargest();
         results.add(new Entry(resultHeap.getRemovedDistance(), resultHeap.getRemovedData()));
       }
     } else {
-      for (int i = 0; i < resultHeap.size; i++) {
-        results.add(new Entry(resultHeap.distance[i], (float[]) resultHeap.data[i]));
+      for (int i = 0; i < resultHeap.getSize(); i++) {
+        results.add(new Entry(resultHeap.getDistance(i), (float[]) resultHeap.getData(i)));
       }
     }
 
@@ -349,10 +349,7 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D {
     }
     while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
-    if (count == resultHeap.size) {
-      return resultHeap.distance;
-    }
-    return Arrays.copyOf(resultHeap.distance, resultHeap.size);
+    return resultHeap.getDistance();
   }
 
   /**

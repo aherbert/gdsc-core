@@ -94,39 +94,40 @@ public class FloatHistogram extends Histogram {
     }
 
     // Create histogram values (optionally reusing the data in-place)
-    float[] value = (inPlace) ? data : data.clone();
+    float[] values = (inPlace) ? data : data.clone();
     int[] histogram = new int[data.length];
 
     if (doSort) {
-      Arrays.sort(value);
+      Arrays.sort(values);
     }
 
-    float lastValue = value[0];
+    float currentValue = values[0];
     int count = 0;
 
     int size = 0;
 
-    for (int i = 0; i < value.length; i++) {
-      if (lastValue != value[i]) {
+    for (final float value : values) {
+      if (currentValue != value) {
         // Re-use the array in-place
-        value[size] = lastValue;
+        values[size] = currentValue;
         histogram[size++] = count;
+        // Reset the count of the current value
+        currentValue = value;
         count = 0;
       }
-      lastValue = value[i];
       count++;
     }
     // Final count
-    value[size] = lastValue;
+    values[size] = currentValue;
     histogram[size++] = count;
 
     // Truncate
-    if (size < value.length) {
+    if (size < values.length) {
       histogram = Arrays.copyOf(histogram, size);
-      value = Arrays.copyOf(value, size);
+      values = Arrays.copyOf(values, size);
     }
 
-    return new FloatHistogram(value, histogram);
+    return new FloatHistogram(values, histogram);
   }
 
   /**

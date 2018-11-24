@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
-import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.DistanceFunction;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.KdTree2D;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.NearestNeighborIterator;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen3.SquareEuclideanDistanceFunction2D;

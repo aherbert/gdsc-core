@@ -80,8 +80,8 @@ public class CoordinateStore {
     this.ycoord = ycoord;
 
     // Get min bounds
-    float minX = MathUtils.min(xcoord);
-    float minY = MathUtils.min(ycoord);
+    final float minX = MathUtils.min(xcoord);
+    final float minY = MathUtils.min(ycoord);
 
     // Round down and shift to origin (so all coords are >=0 for efficient grid allocation)
     originx = (float) Math.floor(minX);

@@ -155,7 +155,9 @@ public class HistogramPlot {
      * @see #setData(DoubleData)
      * @see #setName(String)
      */
-    public HistogramPlotBuilder() {}
+    public HistogramPlotBuilder() {
+      // Do nothing
+    }
 
     /**
      * Sets the title.
@@ -473,7 +475,7 @@ public class HistogramPlot {
       max = min;
       min = tmp;
     }
-    final double binSize;
+    double binSize;
     if (max == min) {
       numBins = 1;
       binSize = 1;
@@ -490,9 +492,8 @@ public class HistogramPlot {
 
     for (final double d : data) {
       final int bin = (int) ((d - min) / binSize);
-      if (bin < 0) { /* this data is smaller than min */
-      } else if (bin >= numBins) { /* this data point is bigger than max */
-      } else {
+      // Ignore data outside the range
+      if (bin >= 0 && bin < numBins) {
         frequency[bin]++;
       }
     }
@@ -536,7 +537,7 @@ public class HistogramPlot {
       max = min;
       min = tmp;
     }
-    final double binSize;
+    double binSize;
     if (max == min) {
       numBins = 1;
       binSize = 1;
@@ -553,9 +554,8 @@ public class HistogramPlot {
 
     for (final double d : data) {
       final int bin = (int) ((d - min) / binSize);
-      if (bin < 0) { /* this data is smaller than min */
-      } else if (bin >= numBins) { /* this data point is bigger than max */
-      } else {
+      // Ignore data outside the range
+      if (bin >= 0 && bin < numBins) {
         frequency[bin]++;
       }
     }
@@ -574,9 +574,9 @@ public class HistogramPlot {
   public static float[] createHistogramAxis(float[] histogramX) {
     final float[] axis = new float[histogramX.length * 2 + 2];
     int index = 0;
-    for (int i = 0; i < histogramX.length; ++i) {
-      axis[index++] = histogramX[i];
-      axis[index++] = histogramX[i];
+    for (final float value : histogramX) {
+      axis[index++] = value;
+      axis[index++] = value;
     }
     if (histogramX.length > 0) {
       final float dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
@@ -597,9 +597,9 @@ public class HistogramPlot {
   public static double[] createHistogramAxis(double[] histogramX) {
     final double[] axis = new double[histogramX.length * 2 + 2];
     int index = 0;
-    for (int i = 0; i < histogramX.length; ++i) {
-      axis[index++] = histogramX[i];
-      axis[index++] = histogramX[i];
+    for (final double value : histogramX) {
+      axis[index++] = value;
+      axis[index++] = value;
     }
     if (histogramX.length > 0) {
       final double dx = (histogramX.length == 1) ? 1 : (histogramX[1] - histogramX[0]);
@@ -619,11 +619,10 @@ public class HistogramPlot {
   public static float[] createHistogramValues(float[] histogramY) {
     final float[] axis = new float[histogramY.length * 2 + 2];
 
-    int index = 0;
-    axis[index++] = 0;
-    for (int i = 0; i < histogramY.length; ++i) {
-      axis[index++] = histogramY[i];
-      axis[index++] = histogramY[i];
+    int index = 1;
+    for (final float value : histogramY) {
+      axis[index++] = value;
+      axis[index++] = value;
     }
     return axis;
   }
@@ -638,11 +637,10 @@ public class HistogramPlot {
   public static double[] createHistogramValues(double[] histogramY) {
     final double[] axis = new double[histogramY.length * 2 + 2];
 
-    int index = 0;
-    axis[index++] = 0;
-    for (int i = 0; i < histogramY.length; ++i) {
-      axis[index++] = histogramY[i];
-      axis[index++] = histogramY[i];
+    int index = 1;
+    for (final double value : histogramY) {
+      axis[index++] = value;
+      axis[index++] = value;
     }
     return axis;
   }
@@ -678,7 +676,7 @@ public class HistogramPlot {
     if (total > 0) {
       final double d = total;
       stdDev = (d * sumSq - sum * sum) / d;
-      if (stdDev > 0.0) {
+      if (stdDev > 0) {
         stdDev = Math.sqrt(stdDev / (d - 1.0));
       } else {
         stdDev = 0.0;
@@ -793,6 +791,7 @@ public class HistogramPlot {
         case SQRT:
         default:
           bins = getBinsSqrtRule(data.size());
+          break;
       }
       // In case of error (N=0 or Infinity in the data range)
       if (bins == Integer.MAX_VALUE) {

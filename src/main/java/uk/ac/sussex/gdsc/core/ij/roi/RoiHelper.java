@@ -55,14 +55,13 @@ public final class RoiHelper {
    * @return a byte mask (255 inside the ROI, else 0)
    */
   public static ByteProcessor getMask(ImagePlus imp) {
-    final int maxx = imp.getWidth();
-    final int maxy = imp.getHeight();
-
     final Roi roi = imp.getRoi();
-
     if (roi == null || !roi.isArea()) {
       return null;
     }
+
+    final int maxx = imp.getWidth();
+    final int maxy = imp.getHeight();
 
     // Check if this is a standard rectangle ROI that covers the entire image
     if (roi.getType() == Roi.RECTANGLE && roi.getRoundRectArcSize() == 0) {
@@ -88,7 +87,8 @@ public final class RoiHelper {
    */
   public static void forEach(Roi roi, ImageProcessor ip, FValueProcedure procedure) {
     if (roi == null) {
-      for (int i = 0, n = ip.getPixelCount(); i < n; i++) {
+      final int size = ip.getPixelCount();
+      for (int i = 0; i < size; i++) {
         procedure.execute(ip.getf(i));
       }
       return;
@@ -98,13 +98,13 @@ public final class RoiHelper {
     final int maxx = ip.getWidth();
     final int maxy = ip.getHeight();
     final Rectangle roiBounds = roi.getBounds().intersection(new Rectangle(maxx, maxy));
-    final int xOffset = roiBounds.x;
-    final int yOffset = roiBounds.y;
     final int rwidth = roiBounds.width;
     final int rheight = roiBounds.height;
     if (rwidth == 0 || rheight == 0) {
       return;
     }
+    final int xOffset = roiBounds.x;
+    final int yOffset = roiBounds.y;
 
     final ImageProcessor mask = roi.getMask();
     if (mask == null) {
@@ -114,9 +114,10 @@ public final class RoiHelper {
         }
       }
     } else {
-      for (int y = 0, j = 0; y < rheight; y++) {
-        for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++) {
-          if (mask.get(j) != 0) {
+      int maskIndex = 0;
+      for (int y = 0; y < rheight; y++) {
+        for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, maskIndex++) {
+          if (mask.get(maskIndex) != 0) {
             procedure.execute(ip.getf(i));
           }
         }
@@ -136,7 +137,8 @@ public final class RoiHelper {
     if (roi == null) {
       for (int slice = 1; slice <= stack.getSize(); slice++) {
         final ImageProcessor ip = stack.getProcessor(slice);
-        for (int i = 0, n = ip.getPixelCount(); i < n; i++) {
+        final int size = ip.getPixelCount();
+        for (int i = 0; i < size; i++) {
           procedure.execute(ip.getf(i));
         }
       }
@@ -147,13 +149,13 @@ public final class RoiHelper {
     final int maxx = stack.getWidth();
     final int maxy = stack.getHeight();
     final Rectangle roiBounds = roi.getBounds().intersection(new Rectangle(maxx, maxy));
-    final int xOffset = roiBounds.x;
-    final int yOffset = roiBounds.y;
     final int rwidth = roiBounds.width;
     final int rheight = roiBounds.height;
     if (rwidth == 0 || rheight == 0) {
       return;
     }
+    final int xOffset = roiBounds.x;
+    final int yOffset = roiBounds.y;
 
     final ImageProcessor mask = roi.getMask();
     if (mask == null) {
@@ -168,9 +170,10 @@ public final class RoiHelper {
     } else {
       for (int slice = 1; slice <= stack.getSize(); slice++) {
         final ImageProcessor ip = stack.getProcessor(slice);
-        for (int y = 0, j = 0; y < rheight; y++) {
-          for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++) {
-            if (mask.get(j) != 0) {
+        int maskIndex = 0;
+        for (int y = 0; y < rheight; y++) {
+          for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, maskIndex++) {
+            if (mask.get(maskIndex) != 0) {
               procedure.execute(ip.getf(i));
             }
           }
@@ -189,7 +192,8 @@ public final class RoiHelper {
    */
   public static void forEach(Roi roi, ImageProcessor ip, IValueProcedure procedure) {
     if (roi == null) {
-      for (int i = 0, n = ip.getPixelCount(); i < n; i++) {
+      final int size = ip.getPixelCount();
+      for (int i = 0; i < size; i++) {
         procedure.execute(ip.get(i));
       }
       return;
@@ -199,13 +203,13 @@ public final class RoiHelper {
     final int maxx = ip.getWidth();
     final int maxy = ip.getHeight();
     final Rectangle roiBounds = roi.getBounds().intersection(new Rectangle(maxx, maxy));
-    final int xOffset = roiBounds.x;
-    final int yOffset = roiBounds.y;
     final int rwidth = roiBounds.width;
     final int rheight = roiBounds.height;
     if (rwidth == 0 || rheight == 0) {
       return;
     }
+    final int xOffset = roiBounds.x;
+    final int yOffset = roiBounds.y;
 
     final ImageProcessor mask = roi.getMask();
     if (mask == null) {
@@ -215,9 +219,10 @@ public final class RoiHelper {
         }
       }
     } else {
-      for (int y = 0, j = 0; y < rheight; y++) {
-        for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++) {
-          if (mask.get(j) != 0) {
+      int maskIndex = 0;
+      for (int y = 0; y < rheight; y++) {
+        for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, maskIndex++) {
+          if (mask.get(maskIndex) != 0) {
             procedure.execute(ip.get(i));
           }
         }
@@ -235,9 +240,10 @@ public final class RoiHelper {
    */
   public static void forEach(Roi roi, ImageStack stack, IValueProcedure procedure) {
     if (roi == null) {
+      final int size = stack.getHeight() * stack.getWidth();
       for (int slice = 1; slice <= stack.getSize(); slice++) {
         final ImageProcessor ip = stack.getProcessor(slice);
-        for (int i = 0, n = ip.getPixelCount(); i < n; i++) {
+        for (int i = 0; i < size; i++) {
           procedure.execute(ip.get(i));
         }
       }
@@ -248,13 +254,13 @@ public final class RoiHelper {
     final int maxx = stack.getWidth();
     final int maxy = stack.getHeight();
     final Rectangle roiBounds = roi.getBounds().intersection(new Rectangle(maxx, maxy));
-    final int xOffset = roiBounds.x;
-    final int yOffset = roiBounds.y;
     final int rwidth = roiBounds.width;
     final int rheight = roiBounds.height;
     if (rwidth == 0 || rheight == 0) {
       return;
     }
+    final int xOffset = roiBounds.x;
+    final int yOffset = roiBounds.y;
 
     final ImageProcessor mask = roi.getMask();
     if (mask == null) {
@@ -269,9 +275,10 @@ public final class RoiHelper {
     } else {
       for (int slice = 1; slice <= stack.getSize(); slice++) {
         final ImageProcessor ip = stack.getProcessor(slice);
-        for (int y = 0, j = 0; y < rheight; y++) {
-          for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, j++) {
-            if (mask.get(j) != 0) {
+        int maskIndex = 0;
+        for (int y = 0; y < rheight; y++) {
+          for (int x = 0, i = (y + yOffset) * maxx + xOffset; x < rwidth; x++, i++, maskIndex++) {
+            if (mask.get(maskIndex) != 0) {
               procedure.execute(ip.get(i));
             }
           }

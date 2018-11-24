@@ -487,7 +487,7 @@ public class DensityManager extends CoordinateStore {
         // ---- Calculate the corner section area to subtract from the overlapping slices
         // Missed = S1 + S3 + SA + SC - A1 - A3 - C1 - C3
         double s1 = 0;
-        final double s3 = 0;
+        // s3 == 0
         double sa = 0;
         double sc = 0;
         double a1 = 0;
@@ -525,7 +525,7 @@ public class DensityManager extends CoordinateStore {
           sc = getSegmentArea(radius, radius - dy);
         }
 
-        final double missed = s1 + s3 + sa + sc - a1 - a3 - c1 - c3;
+        final double missed = s1 + sa + sc - a1 - a3 - c1 - c3;
         if (missed > 0) {
           final double adjustment = area / (area - missed);
           sum *= adjustment;

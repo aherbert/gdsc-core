@@ -89,6 +89,9 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    */
   private static final float SIZE_TOLERANCE = 2f / 3;
 
+  /** Minimum size where neighbours are possible. */
+  private static final int MIN_NEIGHBOURS_SIZE = 2;
+
   /** Used for access to the raw coordinates. */
   protected final OpticsManager opticsManager;
 
@@ -204,11 +207,11 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     splitSets = new TurboList<>();
 
     // Edge cases
-    if (minSplitSize < 2 || size <= 1) {
+    if (minSplitSize < MIN_NEIGHBOURS_SIZE || size < MIN_NEIGHBOURS_SIZE) {
       return;
     }
 
-    if (size == 2) {
+    if (size == MIN_NEIGHBOURS_SIZE) {
       // No point performing projections and splits
       final TurboList<int[]> sets = new TurboList<>(1);
       sets.add(new int[] {0, 1});
@@ -281,8 +284,8 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     final Ticker ticker2 = Ticker.createStarted(tracker, numberOfSplitSets, true);
     for (int i = 0; i < numberOfSplitSets; i++) {
       // shuffle projections
-      final float[][] shuffledProjectedPoints = new float[localNumberOfProjections][];
       pseudoRandom.shuffle(proind);
+      final float[][] shuffledProjectedPoints = new float[localNumberOfProjections][];
       for (int j = 0; j < localNumberOfProjections; j++) {
         shuffledProjectedPoints[j] = projectedPoints[proind[j]];
       }
@@ -318,7 +321,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @return the number of split sets
    */
   public static int getOrComputeNumberOfSplitSets(int numberOfSplits, int size) {
-    if (size < 2) {
+    if (size < MIN_NEIGHBOURS_SIZE) {
       return 0;
     }
     return (numberOfSplits > 0) ? numberOfSplits : (int) (LOG_O_PROJECTION_CONSTANT * log2(size));
@@ -357,17 +360,15 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    */
   private static double[] createUnitVector(final UnitSphereSampler vectorGen,
       final double increment, int multiple) {
-    final double[] randomVector;
     if (vectorGen == null) {
       // For a 2D vector we can just uniformly distribute them around a semi-circle
-      randomVector = new double[2];
+      final double[] randomVector = new double[2];
       final double angle = multiple * increment;
       randomVector[0] = Math.sin(angle);
       randomVector[1] = Math.cos(angle);
-    } else {
-      randomVector = vectorGen.nextVector();
+      return randomVector;
     }
-    return randomVector;
+    return vectorGen.nextVector();
   }
 
   /**
@@ -433,7 +434,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       int begin, int end, int depth, PseudoRandomGenerator rand, int minSplitSize) {
     final int nele = end - begin;
 
-    if (nele < 2) {
+    if (nele < MIN_NEIGHBOURS_SIZE) {
       // Nothing to split. Also ensures we only add to the sets if neighbours can be sampled.
       return;
     }
@@ -774,7 +775,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    */
   private void sampleNeighboursRandom(double[] sumDistances, int[] countDistances,
       TIntHashSet[] neighbours, int[] indices) {
-    if (indices.length == 2) {
+    if (indices.length == MIN_NEIGHBOURS_SIZE) {
       distanceComputations.incrementAndGet();
 
       // Only one set of neighbours

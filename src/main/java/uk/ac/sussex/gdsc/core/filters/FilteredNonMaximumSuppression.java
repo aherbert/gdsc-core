@@ -254,8 +254,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
 
         // Sweep neighbourhood
         if (isInnerXy) {
-          for (int i = 0; i < offset.length; i++) {
-            if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
+          for (final int shift : offset) {
+            if (maximaFlag[index + shift] || data[index + shift] > v) {
               continue FIND_MAXIMUM;
             }
           }
@@ -418,8 +418,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
 
         // Sweep neighbourhood -
         // No check for boundaries as this should be an internal sweep.
-        for (int i = 0; i < offset.length; i++) {
-          if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
+        for (final int shift : offset) {
+          if (maximaFlag[index + shift] || data[index + shift] > v) {
             continue FIND_MAXIMUM;
           }
         }
@@ -497,8 +497,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
         }
 
         if (inner) {
-          for (int i = 0; i < offset.length; i++) {
-            if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
+          for (final int shift : offset) {
+            if (maximaFlag[index + shift] || data[index + shift] > v) {
               continue FIND_MAXIMUM;
             }
           }
@@ -950,8 +950,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
 
         // Sweep neighbourhood
         if (isInnerXy) {
-          for (int i = 0; i < offset.length; i++) {
-            if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
+          for (final int shift : offset) {
+            if (maximaFlag[index + shift] || data[index + shift] > v) {
               continue FIND_MAXIMUM;
             }
           }
@@ -1113,8 +1113,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
 
         // Sweep neighbourhood -
         // No check for boundaries as this should be an internal sweep.
-        for (int i = 0; i < offset.length; i++) {
-          if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
+        for (final int shift : offset) {
+          if (maximaFlag[index + shift] || data[index + shift] > v) {
             continue FIND_MAXIMUM;
           }
         }
@@ -1192,8 +1192,8 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
         }
 
         if (inner) {
-          for (int i = 0; i < offset.length; i++) {
-            if (maximaFlag[index + offset[i]] || data[index + offset[i]] > v) {
+          for (final int shift : offset) {
+            if (maximaFlag[index + shift] || data[index + shift] > v) {
               continue FIND_MAXIMUM;
             }
           }

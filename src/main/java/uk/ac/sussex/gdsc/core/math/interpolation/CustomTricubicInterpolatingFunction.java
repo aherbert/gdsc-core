@@ -101,7 +101,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    * The size of the cubic spline coefficient table.
    */
   private static final int COEFFICIENT_SIZE = 64;
-  
+
   /**
    * Matrix to compute the spline coefficients from the function values and function derivatives
    * values.

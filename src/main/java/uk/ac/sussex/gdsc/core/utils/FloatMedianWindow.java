@@ -246,8 +246,7 @@ public class FloatMedianWindow {
 
         int pos = 0;
         int add = cacheEnd;
-        for (int remove = 0; remove < dataToRemove.length; remove++) {
-          final float toRemove = dataToRemove[remove];
+        for (final float toRemove : dataToRemove) {
           final int add2 = add;
 
           // Find the number in the cache

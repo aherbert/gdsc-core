@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.match;
 
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.util.FastMath;
 
 import java.util.ArrayList;
@@ -42,6 +43,9 @@ import java.util.List;
  * Calculates the match between a set of predicted points and the actual points.
  */
 public final class MatchCalculator {
+
+  /** The maximum size to use the single pass algorithm. */
+  private static final int SINGLE_PASS_MAX_SIZE = 100000;
 
   /** No public construction. */
   private MatchCalculator() {}
@@ -100,16 +104,14 @@ public final class MatchCalculator {
   public static MatchResult analyseResults2D(Coordinate[] actualPoints,
       Coordinate[] predictedPoints, double distanceThreshold, List<Coordinate> truePositives,
       List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches) {
-    final int predictedPointsLength = (predictedPoints != null) ? predictedPoints.length : 0;
-    final int actualPointsLength = (actualPoints != null) ? actualPoints.length : 0;
+    final int predictedPointsLength = ArrayUtils.getLength(predictedPoints);
+    final int actualPointsLength = ArrayUtils.getLength(actualPoints);
 
     // If the number of possible pairs is small then use a one pass algorithm
-    if (predictedPointsLength * actualPointsLength < 100000) {
+    if (predictedPointsLength * actualPointsLength < SINGLE_PASS_MAX_SIZE) {
       return analyseResults2DSinglePass(actualPoints, predictedPoints, distanceThreshold,
           truePositives, falsePositives, falseNegatives, matches);
     }
-
-    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
 
     int tp = 0; // true positives (actual with matched predicted point)
     int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
@@ -133,9 +135,11 @@ public final class MatchCalculator {
     final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
 
     final boolean[] matchedPredicted =
-        (falsePositives != null) ? new boolean[predictedPointsLength] : null;
+        (falsePositives == null) ? null : new boolean[predictedPointsLength];
     final boolean[] matchedActual =
-        (falseNegatives == null) ? new boolean[actualPointsLength] : null;
+        (falseNegatives == null) ? null : new boolean[actualPointsLength];
+
+    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
 
     do {
       assignments.clear();
@@ -150,7 +154,7 @@ public final class MatchCalculator {
         final float y = predictedPoints[predictedId].getY();
 
         // Find closest ROI point
-        float d2Min = (float) distanceThresholdSquared;
+        double d2Min = distanceThresholdSquared;
         int targetId = -1;
         for (int actualId = actualPointsLength; actualId-- > 0;) {
           if (roiAssignment[actualId]) {
@@ -160,18 +164,10 @@ public final class MatchCalculator {
           final Coordinate actualPoint = actualPoints[actualId];
 
           // Calculate in steps for increased speed (allows early exit)
-          float dx = actualPoint.getX() - x;
-          dx *= dx;
-          if (dx <= d2Min) {
-            float dy = actualPoint.getY() - y;
-            dy *= dy;
-            if (dy <= d2Min) {
-              final float d2 = dx + dy;
-              if (d2 <= d2Min) {
-                d2Min = d2;
-                targetId = actualId;
-              }
-            }
+          final double d2 = actualPoint.distanceSquared(x, y);
+          if (d2 <= d2Min) {
+            d2Min = d2;
+            targetId = actualId;
           }
         }
 
@@ -270,13 +266,8 @@ public final class MatchCalculator {
   public static MatchResult analyseResults2D(Pulse[] actualPoints, Pulse[] predictedPoints,
       double distanceThreshold, List<Pulse> truePositives, List<Pulse> falsePositives,
       List<Pulse> falseNegatives, List<PointPair> matches) {
-    // We will use the squared distance for speed
-    final double halfDistanceThresholdSquared = MathUtils.pow2(distanceThreshold * 0.5);
-    final float floatDistanceThreshold = (float) distanceThreshold;
-    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
-
-    final int predictedPointsLength = (predictedPoints != null) ? predictedPoints.length : 0;
-    final int actualPointsLength = (actualPoints != null) ? actualPoints.length : 0;
+    final int predictedPointsLength = ArrayUtils.getLength(predictedPoints);
+    final int actualPointsLength = ArrayUtils.getLength(actualPoints);
 
     int tp = 0; // true positives (actual with matched predicted point)
     int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
@@ -300,9 +291,9 @@ public final class MatchCalculator {
     final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
 
     final boolean[] matchedPredicted =
-        (falsePositives != null) ? new boolean[predictedPointsLength] : null;
+        (falsePositives == null) ? null : new boolean[predictedPointsLength];
     final boolean[] matchedActual =
-        (falseNegatives == null) ? new boolean[actualPointsLength] : null;
+        (falseNegatives == null) ? null : new boolean[actualPointsLength];
 
     // Sort by time to allow efficient looping
     Arrays.sort(actualPoints, PulseTimeComparator.getInstance());
@@ -322,6 +313,11 @@ public final class MatchCalculator {
         }
       }
     }
+
+    // We will use the squared distance for speed
+    final double halfDistanceThresholdSquared = MathUtils.pow2(distanceThreshold * 0.5);
+    final float floatDistanceThreshold = (float) distanceThreshold;
+    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
 
     do {
       assignments.clear();
@@ -355,9 +351,7 @@ public final class MatchCalculator {
           }
 
           double d2;
-          if (distanceMatrix != null) {
-            d2 = distanceMatrix[predictedId][actualId];
-          } else {
+          if (distanceMatrix == null) {
             final Coordinate actualPoint = actualPoints[actualId];
 
             // Calculate in steps for increased speed (allows early exit)
@@ -370,6 +364,8 @@ public final class MatchCalculator {
               continue;
             }
             d2 = dx * dx + dy * dy;
+          } else {
+            d2 = distanceMatrix[predictedId][actualId];
           }
 
           // Do we need to exclude using the distance threshold? This is useful for binary
@@ -481,10 +477,8 @@ public final class MatchCalculator {
   public static MatchResult analyseResults2DSinglePass(Coordinate[] actualPoints,
       Coordinate[] predictedPoints, double distanceThreshold, List<Coordinate> truePositives,
       List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches) {
-    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
-
-    final int predictedPointsLength = (predictedPoints != null) ? predictedPoints.length : 0;
-    final int actualPointsLength = (actualPoints != null) ? actualPoints.length : 0;
+    final int predictedPointsLength = ArrayUtils.getLength(predictedPoints);
+    final int actualPointsLength = ArrayUtils.getLength(actualPoints);
 
     int tp = 0; // true positives (actual with matched predicted point)
     int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
@@ -504,6 +498,7 @@ public final class MatchCalculator {
 
     // loop over the two arrays assigning the closest unassigned pair
     final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
+    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
 
     for (int predictedId = predictedPointsLength; predictedId-- > 0;) {
       final float x = predictedPoints[predictedId].getX();
@@ -615,16 +610,14 @@ public final class MatchCalculator {
   public static MatchResult analyseResults3D(Coordinate[] actualPoints,
       Coordinate[] predictedPoints, double distanceThreshold, List<Coordinate> truePositives,
       List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches) {
-    final int predictedPointsLength = (predictedPoints != null) ? predictedPoints.length : 0;
-    final int actualPointsLength = (actualPoints != null) ? actualPoints.length : 0;
+    final int predictedPointsLength = ArrayUtils.getLength(predictedPoints);
+    final int actualPointsLength = ArrayUtils.getLength(actualPoints);
 
     // If the number of possible pairs is small then use a one pass algorithm
-    if (predictedPointsLength * actualPointsLength < 100000) {
+    if (predictedPointsLength * actualPointsLength < SINGLE_PASS_MAX_SIZE) {
       return analyseResults3DSinglePass(actualPoints, predictedPoints, distanceThreshold,
           truePositives, falsePositives, falseNegatives, matches);
     }
-
-    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
 
     int tp = 0; // true positives (actual with matched predicted point)
     int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
@@ -648,9 +641,11 @@ public final class MatchCalculator {
     final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
 
     final boolean[] matchedPredicted =
-        (falsePositives != null) ? new boolean[predictedPointsLength] : null;
+        (falsePositives == null) ? null : new boolean[predictedPointsLength];
     final boolean[] matchedActual =
-        (falseNegatives == null) ? new boolean[actualPointsLength] : null;
+        (falseNegatives == null) ? null : new boolean[actualPointsLength];
+
+    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
 
     do {
       assignments.clear();
@@ -790,10 +785,8 @@ public final class MatchCalculator {
   public static MatchResult analyseResults3DSinglePass(Coordinate[] actualPoints,
       Coordinate[] predictedPoints, double distanceThreshold, List<Coordinate> truePositives,
       List<Coordinate> falsePositives, List<Coordinate> falseNegatives, List<PointPair> matches) {
-    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
-
-    final int predictedPointsLength = (predictedPoints != null) ? predictedPoints.length : 0;
-    final int actualPointsLength = (actualPoints != null) ? actualPoints.length : 0;
+    final int predictedPointsLength = ArrayUtils.getLength(predictedPoints);
+    final int actualPointsLength = ArrayUtils.getLength(actualPoints);
 
     int tp = 0; // true positives (actual with matched predicted point)
     int fp = predictedPointsLength; // false positives (actual with no matched predicted point)
@@ -813,6 +806,7 @@ public final class MatchCalculator {
 
     // loop over the two arrays assigning the closest unassigned pair
     final ArrayList<ImmutableAssignment> assignments = new ArrayList<>(predictedPointsLength);
+    final double distanceThresholdSquared = distanceThreshold * distanceThreshold;
 
     for (int predictedId = predictedPointsLength; predictedId-- > 0;) {
       final float x = predictedPoints[predictedId].getX();

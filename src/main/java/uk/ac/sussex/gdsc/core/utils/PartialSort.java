@@ -66,13 +66,17 @@ public final class PartialSort {
   /**
    * Internal top direction flag.
    */
-  private static final int OPTION_TOP = 0x08;
+  static final int OPTION_TOP = 0x08;
 
   /**
    * Internal no clone flag.
    */
   private static final int OPTION_NO_CLONE = 0x10;
 
+  /**
+   * The size where the selector is faster than the heap.
+   */
+  private static final int SIZE_TO_USE_SELECTOR = 5;
 
   /** No public construction. */
   private PartialSort() {}
@@ -167,7 +171,7 @@ public final class PartialSort {
         index++;
       }
 
-      return quickFinish(queue, options);
+      return finish(queue, options);
     }
 
     private void bottomUpHeapify(int index) {
@@ -270,7 +274,7 @@ public final class PartialSort {
         index++;
       }
 
-      return quickFinish(queue, options | OPTION_TOP);
+      return finish(queue, options | OPTION_TOP);
     }
 
     private void topUpHeapify(int index) {
@@ -409,7 +413,7 @@ public final class PartialSort {
         swapHead(queue, max);
       }
 
-      return quickFinish(queue, options);
+      return finish(queue, options);
     }
 
     /**
@@ -480,7 +484,7 @@ public final class PartialSort {
         swapHead(queue, max);
       }
 
-      return quickFinish(queue, options | OPTION_TOP);
+      return finish(queue, options | OPTION_TOP);
     }
   }
 
@@ -574,7 +578,7 @@ public final class PartialSort {
         index++;
       }
 
-      return quickFinish(queue, options);
+      return finish(queue, options);
     }
 
     private void bottomUpHeapify(int index) {
@@ -677,7 +681,7 @@ public final class PartialSort {
         index++;
       }
 
-      return quickFinish(queue, options | OPTION_TOP);
+      return finish(queue, options | OPTION_TOP);
     }
 
     private void topUpHeapify(int index) {
@@ -816,7 +820,7 @@ public final class PartialSort {
         swapHead(queue, max);
       }
 
-      return quickFinish(queue, options);
+      return finish(queue, options);
     }
 
     /**
@@ -887,12 +891,17 @@ public final class PartialSort {
         swapHead(queue, max);
       }
 
-      return quickFinish(queue, options | OPTION_TOP);
+      return finish(queue, options | OPTION_TOP);
     }
   }
 
-
-  private static int bottomMax(double[] data) {
+  /**
+   * Find the index of the bottom (lowest value) of the data.
+   *
+   * @param data the data
+   * @return the index
+   */
+  static int bottomMax(double[] data) {
     int max = 0;
     for (int i = 1; i < data.length; i++) {
       if (data[max] < data[i]) {
@@ -902,7 +911,13 @@ public final class PartialSort {
     return max;
   }
 
-  private static int bottomMax(float[] data) {
+  /**
+   * Find the index of the bottom (lowest value) of the data.
+   *
+   * @param data the data
+   * @return the index
+   */
+  static int bottomMax(float[] data) {
     int max = 0;
     for (int i = 1; i < data.length; i++) {
       if (data[max] < data[i]) {
@@ -912,7 +927,13 @@ public final class PartialSort {
     return max;
   }
 
-  private static int topMax(float[] data) {
+  /**
+   * Find the index of the top (highest value) of the data.
+   *
+   * @param data the data
+   * @return the index
+   */
+  static int topMax(float[] data) {
     int max = 0;
     for (int i = 1; i < data.length; i++) {
       if (data[max] > data[i]) {
@@ -922,7 +943,13 @@ public final class PartialSort {
     return max;
   }
 
-  private static int topMax(double[] data) {
+  /**
+   * Find the index of the top (highest value) of the data.
+   *
+   * @param data the data
+   * @return the index
+   */
+  static int topMax(double[] data) {
     int max = 0;
     for (int i = 1; i < data.length; i++) {
       if (data[max] > data[i]) {
@@ -932,84 +959,139 @@ public final class PartialSort {
     return max;
   }
 
-  private static double[] quickFinish(double[] data, int options) {
+  /**
+   * Perform the finishing stage of the partial sort result using the specified finishing options.
+   *
+   * @param data the data
+   * @param options the options
+   * @return the result
+   */
+  static double[] finish(double[] data, int options) {
     final double[] result = removeNaN(data, options);
     sort(result, options);
     return cloneResultIfRequired(data, result, options);
   }
 
-  private static float[] quickFinish(float[] data, int options) {
+  /**
+   * Perform the finishing stage of the partial sort to result using the specified finishing
+   * options.
+   *
+   * @param data the data
+   * @param options the options
+   * @return the result
+   */
+  static float[] finish(float[] data, int options) {
     final float[] result = removeNaN(data, options);
     sort(result, options);
     return cloneResultIfRequired(data, result, options);
   }
 
-  private static double[] bottomFinish(double[] data, int options) {
+  /**
+   * Perform the finishing stage of the partial bottom sort result using the specified finishing
+   * options.
+   *
+   * @param data the data
+   * @param options the options
+   * @return the result
+   */
+  static double[] bottomFinish(double[] data, int options) {
     if (options == 0) {
       return data;
     }
     replaceHead(data, options);
-    return quickFinish(data, options);
+    return finish(data, options);
   }
 
-  private static float[] bottomFinish(float[] data, int options) {
+  /**
+   * Perform the finishing stage of the partial bottom sort result using the specified finishing
+   * options.
+   *
+   * @param data the data
+   * @param options the options
+   * @return the result
+   */
+  static float[] bottomFinish(float[] data, int options) {
     if (options == 0) {
       return data;
     }
     replaceHead(data, options);
-    return quickFinish(data, options);
+    return finish(data, options);
   }
 
-  private static double[] topFinish(double[] data, int options) {
+  /**
+   * Perform the finishing stage of the partial top sort result using the specified finishing
+   * options.
+   *
+   * @param data the data
+   * @param options the options
+   * @return the result
+   */
+  static double[] topFinish(double[] data, int options) {
     if (options == 0) {
       return data;
     }
     final int topOptions = options | OPTION_TOP;
     replaceHead(data, topOptions);
-    return quickFinish(data, topOptions);
+    return finish(data, topOptions);
   }
 
-  private static float[] topFinish(float[] data, int options) {
+  /**
+   * Perform the finishing stage of the partial top sort result using the specified finishing
+   * options.
+   *
+   * @param data the data
+   * @param options the options
+   * @return the result
+   */
+  static float[] topFinish(float[] data, int options) {
     if (options == 0) {
       return data;
     }
     final int topOptions = options | OPTION_TOP;
     replaceHead(data, topOptions);
-    return quickFinish(data, topOptions);
+    return finish(data, topOptions);
   }
 
   private static void replaceHead(double[] data, int options) {
     if ((options & OPTION_HEAD_FIRST) != 0) {
-      swapHead(data, ((options & OPTION_TOP) != 0) ? topMax(data) : bottomMax(data));
+      swapHead(data, ((options & OPTION_TOP) == 0) ? bottomMax(data) : topMax(data));
     }
   }
 
   private static void replaceHead(float[] data, int options) {
     if ((options & OPTION_HEAD_FIRST) != 0) {
-      swapHead(data, ((options & OPTION_TOP) != 0) ? topMax(data) : bottomMax(data));
+      swapHead(data, ((options & OPTION_TOP) == 0) ? bottomMax(data) : topMax(data));
     }
   }
 
-  private static void swapHead(double[] data, int max) {
-    final double head = data[max];
-    data[max] = data[0];
-    data[0] = head;
+  /**
+   * Swap the specified head index with index 0.
+   *
+   * @param data the data
+   * @param headIndex the head index
+   */
+  static void swapHead(double[] data, int headIndex) {
+    swap(data, 0, headIndex);
   }
 
-  private static void swapHead(float[] data, int max) {
-    final float head = data[max];
-    data[max] = data[0];
-    data[0] = head;
+  /**
+   * Swap the specified head index with index 0.
+   *
+   * @param data the data
+   * @param headIndex the head index
+   */
+  static void swapHead(float[] data, int headIndex) {
+    swap(data, 0, headIndex);
   }
 
   private static double[] removeNaN(double[] data, int options) {
     if ((options & OPTION_REMOVE_NAN) != 0) {
       int size = 0;
-      for (int i = 0; i < data.length; i++) {
-        if (Double.isNaN(data[i])) {
+      for (final double value : data) {
+        if (Double.isNaN(value)) {
           continue;
         }
-        data[size++] = data[i];
+        data[size++] = value;
       }
       if (size == data.length) {
         return data;
@@ -1025,11 +1107,11 @@ public final class PartialSort {
   private static float[] removeNaN(float[] data, int options) {
     if ((options & OPTION_REMOVE_NAN) != 0) {
       int size = 0;
-      for (int i = 0; i < data.length; i++) {
-        if (Float.isNaN(data[i])) {
+      for (final float value : data) {
+        if (Float.isNaN(value)) {
           continue;
         }
-        data[size++] = data[i];
+        data[size++] = value;
       }
       if (size == data.length) {
         return data;
@@ -1061,19 +1143,19 @@ public final class PartialSort {
   }
 
   private static double[] cloneResultIfRequired(double[] data, double[] result, int options) {
-    return ((options & OPTION_NO_CLONE) != 0 || data != result)
-        // The no clone option is specified; or the result is different anyway
-        ? result
+    return (data == result && (options & OPTION_NO_CLONE) == 0)
         // Clone the result
-        : result.clone();
+        ? result.clone()
+        // The no clone option is specified; or the result is different anyway
+        : result;
   }
 
   private static float[] cloneResultIfRequired(float[] data, float[] result, int options) {
-    return ((options & OPTION_NO_CLONE) != 0 || data != result)
-        // The no clone option is specified; or the result is different anyway
-        ? result
+    return (data == result && (options & OPTION_NO_CLONE) == 0)
         // Clone the result
-        : result.clone();
+        ? result.clone()
+        // The no clone option is specified; or the result is different anyway
+        : result;
   }
 
   /**
@@ -1175,7 +1257,7 @@ public final class PartialSort {
     if (length <= n) {
       return bottomFinish(list.clone(), options);
     }
-    if (n < 5) {
+    if (n < SIZE_TO_USE_SELECTOR) {
       return new DoubleSelector(n).bottom(options | OPTION_NO_CLONE, list, length);
     }
     return new DoubleHeap(n).bottom(options | OPTION_NO_CLONE, list, length);
@@ -1198,7 +1280,7 @@ public final class PartialSort {
     if (length <= n) {
       return bottomFinish(list.clone(), options);
     }
-    if (n < 5) {
+    if (n < SIZE_TO_USE_SELECTOR) {
       return new FloatSelector(n).bottom(options | OPTION_NO_CLONE, list, length);
     }
     return new FloatHeap(n).bottom(options | OPTION_NO_CLONE, list, length);
@@ -1303,7 +1385,7 @@ public final class PartialSort {
     if (length <= n) {
       return topFinish(list.clone(), options);
     }
-    if (n < 5) {
+    if (n < SIZE_TO_USE_SELECTOR) {
       return new DoubleSelector(n).top(options | OPTION_NO_CLONE, list, length);
     }
     return new DoubleHeap(n).top(options | OPTION_NO_CLONE, list, length);
@@ -1326,7 +1408,7 @@ public final class PartialSort {
     if (length <= n) {
       return topFinish(list.clone(), options);
     }
-    if (n < 5) {
+    if (n < SIZE_TO_USE_SELECTOR) {
       return new FloatSelector(n).top(options | OPTION_NO_CLONE, list, length);
     }
     return new FloatHeap(n).top(options | OPTION_NO_CLONE, list, length);
@@ -1476,13 +1558,27 @@ public final class PartialSort {
 
   // CHECKSTYLE.ON: LocalVariableName
 
-  private static void swap(double[] data, int index1, int index2) {
+  /**
+   * Swap the two indices.
+   *
+   * @param data the data
+   * @param index1 the first index
+   * @param index2 the second index
+   */
+  static void swap(double[] data, int index1, int index2) {
     final double temp = data[index1];
     data[index1] = data[index2];
     data[index2] = temp;
   }
 
-  private static void swap(float[] data, int index1, int index2) {
+  /**
+   * Swap the two indices.
+   *
+   * @param data the data
+   * @param index1 the first index
+   * @param index2 the second index
+   */
+  static void swap(float[] data, int index1, int index2) {
     final float temp = data[index1];
     data[index1] = data[index2];
     data[index2] = temp;
@@ -1493,7 +1589,7 @@ public final class PartialSort {
    *
    * @param number the number
    */
-  private static void checkStrictlyPositive(int number) {
+  static void checkStrictlyPositive(int number) {
     if (number < 1) {
       throw new IllegalArgumentException("N must be strictly positive: " + number);
     }

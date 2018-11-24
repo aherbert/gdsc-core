@@ -37,6 +37,10 @@ import java.util.Arrays;
  * Contains Math utilities.
  */
 public final class MathUtils {
+  /**
+   * The limit on x above which the erf(x) returns 1.
+   */
+  private static final double ERF_LIMIT = 6.183574750897915;
 
   /**
    * No public construction.
@@ -626,17 +630,17 @@ public final class MathUtils {
     double lastValue = data[0];
     int position = 0;
     int count = 0;
-    for (int i = 0; i < data.length; i++) {
+    for (final double value : data) {
       // Arrays.sort() put the NaN values higher than all others so this should occur at the end
-      if (Double.isNaN(data[i])) {
+      if (Double.isNaN(value)) {
         break;
       }
 
       // When a new value is reached, store the cumulative total for the previous value
-      if (lastValue != data[i]) {
+      if (lastValue != value) {
         data[position] = lastValue;
         sum[position] = count;
-        lastValue = data[i];
+        lastValue = value;
         position++;
       }
       count++;
@@ -1406,7 +1410,7 @@ public final class MathUtils {
    * @return the error function erf(x)
    */
   private static double computeErf(double x) {
-    if (x > 6.183574750897915) {
+    if (x > ERF_LIMIT) {
       // At the limit
       return 1;
     }

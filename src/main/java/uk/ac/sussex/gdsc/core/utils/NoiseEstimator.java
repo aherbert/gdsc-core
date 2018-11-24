@@ -99,11 +99,18 @@ public class NoiseEstimator {
     }
   }
 
-  private final float[] data;
-  private float[] residuals;
-  private float[] quickResiduals;
-  private final int maxx;
-  private final int maxy;
+  // Package private for access by inner classes
+
+  /** The data. */
+  final float[] data;
+  /** The residuals. */
+  float[] residuals;
+  /** The quick residuals. */
+  float[] quickResiduals;
+  /** The maxx. */
+  final int maxx;
+  /** The maxy. */
+  final int maxy;
 
   private int range = 6;
   /**
@@ -188,6 +195,7 @@ public class NoiseEstimator {
 
       default:
         ne = new AllEstimator();
+        break;
     }
 
     return ne.getNoise();
@@ -197,6 +205,11 @@ public class NoiseEstimator {
    * Provide the base implementation for all noise estimators.
    */
   private interface Estimator {
+    /**
+     * Gets the noise.
+     *
+     * @return the noise
+     */
     double getNoise();
   }
 
@@ -253,6 +266,9 @@ public class NoiseEstimator {
     }
   }
 
+  /**
+   * Estimate noise using the median of the residuals of the 4N connected neighbours of each pixel.
+   */
   private class ResidualsLeastMedianSquareEstimator implements Estimator {
     boolean quick;
 
@@ -264,7 +280,8 @@ public class NoiseEstimator {
     public double getNoise() {
       float[] buf = (quick) ? getQuickPseudoResiduals() : getPseudoResiduals();
       final int n = buf.length;
-      if (n < 2) {
+      if (n <= 1) {
+        // No standard deviation
         return 0;
       }
       if (isPreserveResiduals()) {
@@ -290,6 +307,12 @@ public class NoiseEstimator {
     }
   }
 
+  /**
+   * Estimate noise using the square of the residuals of the 4N connected neighbours of each pixel.
+   * 
+   * <p>This uses an approximation with the bottom 50% of the data to avoid outliers in the
+   * brightest pixels.
+   */
   private class ResidualsLeastTrimmedSquareEstimator implements Estimator {
     boolean quick;
 
@@ -301,7 +324,8 @@ public class NoiseEstimator {
     public double getNoise() {
       float[] buf = (quick) ? getQuickPseudoResiduals() : getPseudoResiduals();
       final int n = buf.length;
-      if (n < 2) {
+      if (n <= 1) {
+        // No standard deviation
         return 0;
       }
       if (isPreserveResiduals()) {
@@ -312,10 +336,11 @@ public class NoiseEstimator {
       }
       Arrays.sort(buf);
       double sum = 0;
-      for (int j = 0; j < (int) (.5 * n); j++) {
+      final int medianIndex = n / 2;
+      for (int j = 0; j < medianIndex; j++) {
         sum += buf[j];
       }
-      final double sig = 2.6477 * Math.sqrt(sum / (int) (.5 * n));
+      final double sig = 2.6477 * Math.sqrt(sum / medianIndex);
       if (!isPreserveResiduals()) {
         // Residuals have been destroyed
         if (quick) {
@@ -328,6 +353,9 @@ public class NoiseEstimator {
     }
   }
 
+  /**
+   * Estimate noise using the square of the residuals of the 4N connected neighbours of each pixel.
+   */
   private class ResidualsLeastMeanSquareEstimator implements Estimator {
     boolean quick;
 
@@ -338,14 +366,15 @@ public class NoiseEstimator {
     @Override
     public double getNoise() {
       final float[] buf = (quick) ? getQuickPseudoResiduals() : getPseudoResiduals();
-      if (buf.length < 2) {
+      if (buf.length <= 1) {
+        // No standard deviation
         return 0;
       }
       double sum = 0;
       double sumSq = 0;
-      for (int i = 0; i < buf.length; i++) {
-        sum += buf[i];
-        sumSq += buf[i] * buf[i];
+      for (final float value : buf) {
+        sum += value;
+        sumSq += value * value;
       }
       sum /= buf.length;
       sumSq /= buf.length;
@@ -360,7 +389,7 @@ public class NoiseEstimator {
    * @return The pseudo residuals
    * @see #computePseudoResiduals()
    */
-  private float[] getPseudoResiduals() {
+  float[] getPseudoResiduals() {
     if (residuals == null) {
       residuals = computePseudoResiduals();
     }
@@ -376,10 +405,11 @@ public class NoiseEstimator {
    *
    * @return The pseudo residuals
    */
-  private float[] computePseudoResiduals() {
+  float[] computePseudoResiduals() {
     final float[] newResiduals = new float[maxx * maxy];
 
-    for (int y = 0, index = 0; y < maxy; y++) {
+    int index = 0;
+    for (int y = 0; y < maxy; y++) {
       for (int x = 0; x < maxx; x++, index++) {
         //@formatter:off
         // The sum of the 4N connected neighbours.
@@ -405,7 +435,7 @@ public class NoiseEstimator {
    * @return The pseudo residuals
    * @see #computeQuickPseudoResiduals()
    */
-  private float[] getQuickPseudoResiduals() {
+  float[] getQuickPseudoResiduals() {
     if (quickResiduals == null) {
       quickResiduals = computeQuickPseudoResiduals();
     }
@@ -420,20 +450,21 @@ public class NoiseEstimator {
    *
    * @return The pseudo residuals
    */
-  private float[] computeQuickPseudoResiduals() {
+  float[] computeQuickPseudoResiduals() {
     if (maxx < 3 || maxy < 3) {
       return new float[0];
     }
 
     final float[] newQuickResiduals = new float[(maxx - 2) * (maxy - 2)];
 
-    for (int y = 1, i = 0; y < maxy - 1; y++) {
-      for (int x = 1, index = y * maxx + 1; x < maxx - 1; x++, index++, i++) {
+    int outputIndex = 0;
+    for (int y = 1; y < maxy - 1; y++) {
+      for (int x = 1, index = y * maxx + 1; x < maxx - 1; x++, index++, outputIndex++) {
         // The sum of the 4N connected neighbours.
         final double sum4n =
             data[index - 1] + data[index + 1] + data[index - maxx] + data[index + maxx];
         // 0.223606798 = 1 / sqrt(20)
-        newQuickResiduals[i] = (float) (0.223606798 * (4. * data[index] - sum4n));
+        newQuickResiduals[outputIndex] = (float) (0.223606798 * (4. * data[index] - sum4n));
       }
     }
 

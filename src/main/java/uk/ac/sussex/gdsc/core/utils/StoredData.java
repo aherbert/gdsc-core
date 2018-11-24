@@ -318,14 +318,14 @@ public class StoredData implements Iterable<Double>, DoubleData {
 
     @Override
     public boolean hasNext() {
-      return cursor != size;
+      return cursor != size();
     }
 
     @Override
     public Double next() {
       // Copied from ArrayList and removed unrequired code
       final int index = cursor;
-      if (index >= size) {
+      if (index >= size()) {
         throw new NoSuchElementException();
       }
       final double[] elementData = StoredData.this.values;

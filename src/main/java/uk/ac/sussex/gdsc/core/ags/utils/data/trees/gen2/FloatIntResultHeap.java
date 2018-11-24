@@ -27,16 +27,16 @@ import java.util.Arrays;
  */
 public class FloatIntResultHeap {
   /** The data. */
-  final int[] data;
+  private final int[] data;
 
   /** The distance. */
-  final float[] distance;
+  private final float[] distance;
 
   /** The capacity. */
   private final int capacity;
 
   /** The size. */
-  int size;
+  private int size;
 
   /**
    * The removed data.
@@ -186,6 +186,16 @@ public class FloatIntResultHeap {
   }
 
   /**
+   * Gets the distance at the given.
+   *
+   * @param index the index
+   * @return the distance
+   */
+  public float getDistance(int index) {
+    return distance[index];
+  }
+
+  /**
    * Gets the data.
    *
    * @return the data
@@ -194,6 +204,15 @@ public class FloatIntResultHeap {
     return Arrays.copyOf(data, size);
   }
 
+  /**
+   * Gets the data at the given.
+   *
+   * @param index the index
+   * @return the data
+   */
+  public int getData(int index) {
+    return data[index];
+  }
 
   /**
    * Gets the removed data.

@@ -55,13 +55,14 @@ public class FloatStackTrivalueProvider implements TrivalueProvider {
       throw new DataException("No data");
     }
     final int size = maxx * maxy;
-    for (float[] xyData : data) {
+    for (final float[] xyData : data) {
       if (size != xyData.length) {
         throw new DataException("XY data must be length " + size);
       }
     }
     this.maxx = maxx;
     this.maxy = maxy;
+    // Documented to wrap the reference directly
     this.data = data;
   }
 
@@ -145,9 +146,10 @@ public class FloatStackTrivalueProvider implements TrivalueProvider {
     final double[][][] xyz = new double[maxx][maxy][getLengthZ()];
     for (int z = 0; z < data.length; z++) {
       final float[] data2D = data[z];
-      for (int y = 0, i = 0; y < maxy; y++) {
-        for (int x = 0; x < maxx; x++, i++) {
-          xyz[x][y][z] = data2D[i];
+      int index = 0;
+      for (int y = 0; y < maxy; y++) {
+        for (int x = 0; x < maxx; x++, index++) {
+          xyz[x][y][z] = data2D[index];
         }
       }
     }

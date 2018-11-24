@@ -29,7 +29,6 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.awt.Rectangle;
-import java.util.Arrays;
 
 /**
  * Contains methods for extracting parts of an image.
@@ -72,19 +71,19 @@ public class ImageExtractor {
    * Extract a region from the image.
    *
    * @param regionBounds The region to extract
-   * @return The image region (with dimensions specified in the dimensions array)
+   * @return The image region
    */
   public float[] crop(Rectangle regionBounds) {
     return crop(regionBounds, (float[]) null);
   }
 
   /**
-   * Extract a region from the image. The output array can be truncated using the
-   * {@link #truncate(float[], int)} method.
+   * Extract a region from the image. The region buffer will be allocated if smaller than the region
+   * total length (width * height), otherwise it will be reused.
    *
    * @param regionBounds The region to extract
    * @param region A reusable buffer for the region
-   * @return The image region (with dimensions specified in the dimensions array)
+   * @return The image region
    */
   public float[] crop(Rectangle regionBounds, float[] region) {
     final float[] buffer = allocate(region, regionBounds.width * regionBounds.height);
@@ -101,12 +100,12 @@ public class ImageExtractor {
   }
 
   /**
-   * Extract a region from the image. The output array can be truncated using the
-   * {@link #truncate(double[], int)} method.
+   * Extract a region from the image. The region buffer will be allocated if smaller than the region
+   * total length (width * height), otherwise it will be reused.
    *
    * @param regionBounds The region to extract
    * @param region A reusable buffer for the region
-   * @return The image region (with dimensions specified in the dimensions array)
+   * @return The image region
    */
   public double[] crop(Rectangle regionBounds, double[] region) {
     final double[] buffer = allocate(region, regionBounds.width * regionBounds.height);
@@ -126,7 +125,7 @@ public class ImageExtractor {
    * Extract a region from the image.
    *
    * @param regionBounds The region to extract
-   * @return The image region (with dimensions specified in the dimensions array)
+   * @return The image region
    */
   public double[] cropToDouble(Rectangle regionBounds) {
     return crop(regionBounds, (double[]) null);
@@ -146,33 +145,6 @@ public class ImageExtractor {
     return buffer;
   }
 
-  /**
-   * Truncate the input data to the given length. Does nothing if the data is shorter or null.
-   *
-   * @param data the data
-   * @param length the length
-   * @return The truncated data
-   */
-  public static float[] truncate(float[] data, int length) {
-    if (data != null && data.length > length) {
-      return Arrays.copyOf(data, length);
-    }
-    return data;
-  }
-
-  /**
-   * Truncate the input data to the given length. Does nothing if the data is shorter or null.
-   *
-   * @param data the data
-   * @param length the length
-   * @return The truncated data
-   */
-  public static double[] truncate(double[] data, int length) {
-    if (data != null && data.length > length) {
-      return Arrays.copyOf(data, length);
-    }
-    return data;
-  }
 
   /**
    * Calculate a square region of size 2n+1 around the given coordinates. Respects the image

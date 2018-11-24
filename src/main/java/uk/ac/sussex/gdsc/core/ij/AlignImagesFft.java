@@ -29,6 +29,7 @@
 package uk.ac.sussex.gdsc.core.ij;
 
 import uk.ac.sussex.gdsc.core.utils.ImageWindow;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Cosine;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Hanning;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Tukey;
@@ -80,7 +81,7 @@ public class AlignImagesFft {
 
     private final String nameString;
 
-    private SubPixelMethod(String name) {
+    SubPixelMethod(String name) {
       nameString = name;
     }
 
@@ -441,10 +442,10 @@ public class AlignImagesFft {
    * Normalise the correlation matrix using the standard deviation of the region from the reference
    * that is covered by the target.
    *
-   * @param subCorrMat the sub corr mat
+   * @param subCorrMat the sub correlation matrix
    * @param rollingSum the rolling sum
    * @param rollingSumSq the rolling sum of squares
-   * @param targetIp the target ip
+   * @param targetIp the target image processor
    */
   private void normaliseCorrelation(FloatProcessor subCorrMat, double[] rollingSum,
       double[] rollingSumSq, ImageProcessor targetIp) {
@@ -495,6 +496,9 @@ public class AlignImagesFft {
     // union = imageBounds
     // TODO - More analysis to determine under what conditions this occurs.
     final Rectangle union = refImageBounds.union(targetImageBounds);
+
+    // This is updated within the loop
+    final Rectangle regionBounds = new Rectangle(sizeU, sizeV);
 
     // Normalise using the denominator
     final float[] data = (float[]) subCorrMat.getPixels();
@@ -549,8 +553,8 @@ public class AlignImagesFft {
 
         // Use bounds to calculate the number of pixels
 
-        final Rectangle regionBounds =
-            new Rectangle(xxx - halfSizeU, yyy - halfSizeV, sizeU, sizeV);
+        regionBounds.x = xxx - halfSizeU;
+        regionBounds.y = yyy - halfSizeV;
         final Rectangle r = imageBounds.intersection(regionBounds);
 
         final int n = r.width * r.height;
@@ -594,14 +598,8 @@ public class AlignImagesFft {
         final double normalisation = (residuals > 0) ? Math.sqrt(residuals) : 0;
 
         if (normalisation > 0) {
-          newData[index] = (float) (data[index] / normalisation);
           // Watch out for normalisation errors which cause problems when displaying the image data.
-          if (newData[index] < -1.1f) {
-            newData[index] = -1.1f;
-          }
-          if (newData[index] > 1.1f) {
-            newData[index] = 1.1f;
-          }
+          newData[index] = MathUtils.clip(-1.1f, 1.1f, (float) (data[index] / normalisation));
         }
       }
     }
@@ -744,7 +742,7 @@ public class AlignImagesFft {
 
     final int[] centre = findMaximum(subCorrMat, intersect);
     final float scoreMax = subCorrMat.getf(centre[0], centre[1]);
-    final double[] subPixelCentre;
+    double[] subPixelCentre;
 
     String estimatedScore = "";
     if (subPixelMethod == SubPixelMethod.CUBIC) {
@@ -847,7 +845,7 @@ public class AlignImagesFft {
 
     final int[] centre = findMaximum(subCorrMat, intersect);
     double scoreMax = subCorrMat.getf(centre[0], centre[1]);
-    final double[] subPixelCentre;
+    double[] subPixelCentre;
 
     if (subPixelMethod == SubPixelMethod.CUBIC) {
       subPixelCentre = performCubicFit(subCorrMat, centre[0], centre[1]);
@@ -1119,10 +1117,9 @@ public class AlignImagesFft {
     // However this involves shifting the image and windowing. The average depends on both
     // and so would have to be solved iteratively.
 
-    final ImageProcessor wip = (windowMethod != WindowMethod.NONE)
+    final ImageProcessor wip = (windowMethod == WindowMethod.NONE) ? ip
         // Use separable for speed.
-        ? applyWindowSeparable(ip, windowMethod)
-        : ip;
+        : applyWindowSeparable(ip, windowMethod);
 
     // Get average
     double sum = 0;
@@ -1145,7 +1142,8 @@ public class AlignImagesFft {
       padBounds.x = x;
       padBounds.y = y;
 
-      for (int yy = 0, index = 0; yy < wip.getHeight(); yy++) {
+      int index = 0;
+      for (int yy = 0; yy < wip.getHeight(); yy++) {
         int ii = (yy + y) * size + x;
         for (int xx = 0; xx < wip.getWidth(); xx++, index++, ii++) {
           data[ii] = (float) (wip.getf(index) - av);
@@ -1239,21 +1237,23 @@ public class AlignImagesFft {
 
     double sumWindowFunction = 0;
     double sumImage = 0;
-    for (int y = 0, i = 0; y < maxy; y++) {
-      for (int x = 0; x < maxx; x++, i++) {
+    int index = 0;
+    for (int y = 0; y < maxy; y++) {
+      for (int x = 0; x < maxx; x++, index++) {
         final double w = wx[x] * wy[y];
         sumWindowFunction += w;
-        sumImage += ip.getf(i) * w;
+        sumImage += ip.getf(index) * w;
       }
     }
 
     // Shift to zero
     if (sumWindowFunction != 0) {
       final double shift = sumImage / sumWindowFunction;
-      for (int y = 0, i = 0; y < maxy; y++) {
-        for (int x = 0; x < maxx; x++, i++) {
-          final double value = (ip.getf(i) - shift) * wx[x] * wy[y];
-          data[i] = (float) value;
+      index = 0;
+      for (int y = 0; y < maxy; y++) {
+        for (int x = 0; x < maxx; x++, index++) {
+          final double value = (ip.getf(index) - shift) * wx[x] * wy[y];
+          data[index] = (float) value;
         }
       }
     }
@@ -1271,9 +1271,6 @@ public class AlignImagesFft {
    * @return the float processor
    */
   public static FloatProcessor applyWindow(ImageProcessor ip, WindowMethod windowMethod) {
-    final int maxx = ip.getWidth();
-    final int maxy = ip.getHeight();
-
     WindowFunction wf = null;
     switch (windowMethod) {
       case HANNING: //
@@ -1292,6 +1289,8 @@ public class AlignImagesFft {
 
     final float[] data = new float[ip.getPixelCount()];
 
+    final int maxx = ip.getWidth();
+    final int maxy = ip.getHeight();
     final double cx = maxx * 0.5;
     final double cy = maxy * 0.5;
     final double maxDistance = Math.sqrt((double) maxx * maxx + maxy * maxy);
@@ -1308,26 +1307,28 @@ public class AlignImagesFft {
 
     double sumWindowFunction = 0;
     double sumImage = 0;
-    for (int y = 0, i = 0; y < maxy; y++) {
+    int index = 0;
+    for (int y = 0; y < maxy; y++) {
       final double dy2 = (y - cy) * (y - cy);
-      for (int x = 0; x < maxx; x++, i++) {
+      for (int x = 0; x < maxx; x++, index++) {
         final double distance = Math.sqrt(dx2[x] + dy2);
         final double w = wf.weight(0.5 - (distance / maxDistance));
         sumWindowFunction += w;
-        sumImage += ip.getf(i) * w;
+        sumImage += ip.getf(index) * w;
       }
     }
 
     // Shift to zero
     if (sumWindowFunction != 0) {
       final double shift = sumImage / sumWindowFunction;
-      for (int y = 0, i = 0; y < maxy; y++) {
+      index = 0;
+      for (int y = 0; y < maxy; y++) {
         final double dy2 = (y - cy) * (y - cy);
-        for (int x = 0; x < maxx; x++, i++) {
+        for (int x = 0; x < maxx; x++, index++) {
           final double distance = Math.sqrt(dx2[x] + dy2);
           final double w = wf.weight(0.5 - (distance / maxDistance));
-          final double value = (ip.getf(i) - shift) * w;
-          data[i] = (float) value;
+          final double value = (ip.getf(index) - shift) * w;
+          data[index] = (float) value;
         }
       }
     }

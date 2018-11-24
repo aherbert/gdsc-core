@@ -35,6 +35,7 @@ import uk.ac.sussex.gdsc.analytics.JGoogleAnalyticsTracker;
 import uk.ac.sussex.gdsc.analytics.JGoogleAnalyticsTracker.DispatchMode;
 import uk.ac.sussex.gdsc.analytics.JGoogleAnalyticsTracker.MeasurementProtocolVersion;
 import uk.ac.sussex.gdsc.analytics.RequestParameters;
+import uk.ac.sussex.gdsc.core.VersionUtils;
 
 import ij.IJ;
 import ij.ImageJ;
@@ -49,34 +50,22 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Provide a global reference to a Google Analytics client for tracking GDSC ImageJ plugins.
  */
 public final class ImageJAnalyticsUtils {
   /**
-   * Google Analytics (GA) tracking Id.
-   *
-   * <p>This is the GA property which is used to track all the user activity for the GDSC ImageJ
-   * plugins.
-   *
-   * <p><b>If you copy this code then please use your own tracking Id!</b>
-   */
-  private static final String GA_TRACKING_ID = "UA-74666243-1";
-  /**
    * Google Analytics (GA) application name.
    *
    * <p>This is the application name for GA. It doesn't really matter what the value is but it is a
    * required field within GA.
    */
-  private static final String APPLICATION_NAME = "GDSC ImageJ Plugins";
+  static final String APPLICATION_NAME = "GDSC ImageJ Plugins";
 
   // The following constants are used to store user preferences for Google Analytics tracking
 
-  /**
-   * Store the user's client Id. This allows tracking repeat sessions.
-   */
-  private static final String PROPERTY_GA_CLIENT_ID = "gdsc.ga.clientId";
   /**
    * Store the user's opt in/out state. This prevents asking each time they start a new session.
    */
@@ -99,18 +88,158 @@ public final class ImageJAnalyticsUtils {
    */
   private static final int ENABLED = 1;
 
-  // Use volatile to support double checked locking:
-  // http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html
+  /** The help label text. */
+  private static final String HELP_LABEL = "More details...";
+  /**
+   * The comment character in the ImageJ plugins file.
+   */
+  private static final char COMMENT_CHAR = '#';
+  /**
+   * The number of entries in the ImageJ plugins file. Plugins have [Menu path, Name,
+   * class(argument)].
+   */
+  private static final int PLUGIN_MAP_ENTRIES = 3;
 
-  private static volatile ClientParameters clientParameters;
-  private static volatile JGoogleAnalyticsTracker tracker;
-
+  /**
+   * Simple flag to indicate that {@link #logPreferences(boolean)} has been called.
+   *
+   * <p>It is not vital that this is synchronised.
+   */
   private static boolean loggedPreferrences;
 
   /**
    * Flag indicating that the user has opted in/out of analytics.
+   *
+   * <p>It is not vital that this is synchronised.
    */
   private static int state = (int) Prefs.get(PROPERTY_GA_STATE, UNKNOWN);
+
+  /**
+   * Initialise on demand the ClientParameters.
+   *
+   * <a href="https://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom">Initialisation on
+   * demand</a>
+   */
+  private static class LazyClientParametersHolder {
+    /**
+     * Google Analytics (GA) tracking Id.
+     *
+     * <p>This is the GA property which is used to track all the user activity for the GDSC ImageJ
+     * plugins.
+     *
+     * <p><b>If you copy this code then please use your own tracking Id!</b>
+     */
+    private static final String GA_TRACKING_ID = "UA-74666243-1";
+
+    /**
+     * Store the user's client Id. This allows tracking repeat sessions.
+     */
+    private static final String PROPERTY_GA_CLIENT_ID = "gdsc.ga.clientId";
+
+    /** The single instance. */
+    static final ClientParameters INSTANCE = create();
+
+    /**
+     * Creates the instance.
+     *
+     * @return the client parameters
+     */
+    private static ClientParameters create() {
+      // Get the client parameters
+      final String clientId = Prefs.get(PROPERTY_GA_CLIENT_ID, null);
+      final ClientParameters clientParameters =
+          new ClientParameters(GA_TRACKING_ID, clientId, APPLICATION_NAME);
+
+      ClientParametersManager.populate(clientParameters);
+
+      // Record for next time
+      Prefs.set(PROPERTY_GA_CLIENT_ID, clientParameters.getClientId());
+
+      // Record the version of analytics we are using
+      clientParameters.setApplicationVersion(uk.ac.sussex.gdsc.analytics.Version.VERSION_X_X_X);
+
+      // Use custom dimensions to record client data. These should be registered
+      // in the analytics account for the given tracking ID
+
+      // Record the ImageJ information.
+      clientParameters.addCustomDimension(1, getImageJInfo());
+
+      // Java version
+      clientParameters.addCustomDimension(2, System.getProperty("java.version"));
+
+      // OS
+      clientParameters.addCustomDimension(3, System.getProperty("os.name"));
+      clientParameters.addCustomDimension(4, System.getProperty("os.version"));
+      clientParameters.addCustomDimension(5, System.getProperty("os.arch"));
+
+      // Versions
+      clientParameters.addCustomDimension(9, VersionUtils.getVersion());
+
+      return clientParameters;
+    }
+
+    /**
+     * Gets the ImageJ information (Application name and version).
+     *
+     * @return The ImageJ information (Application name and version).
+     */
+    private static String getImageJInfo() {
+      // Avoid ImageJ throwing a HeadlessException
+      if (java.awt.GraphicsEnvironment.isHeadless()) {
+        return "Headless"; // + ImageJ.VERSION+ImageJ.BUILD
+      }
+
+      ImageJ ij = IJ.getInstance();
+      if (ij == null) {
+        // Run embedded without showing
+        ij = new ImageJ(ImageJ.NO_SHOW);
+      }
+
+      // ImageJ version
+      // This call should return a string like:
+      // ImageJ 1.48a; Java 1.7.0_11 [64-bit]; Windows 7 6.1; 29MB of 5376MB (<1%)
+      // (This should also be different if we are running within Fiji)
+      String info = ij.getInfo();
+      if (info.indexOf(';') != -1) {
+        info = info.substring(0, info.indexOf(';'));
+      }
+      return info;
+    }
+  }
+
+  /**
+   * Initialise on demand the JGoogleAnalyticsTracker.
+   *
+   * <a href="https://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom">Initialisation on
+   * demand</a>
+   */
+  private static class LazyJGoogleAnalyticsTrackerHolder {
+    /** The single instance. */
+    static final JGoogleAnalyticsTracker INSTANCE = create();
+
+    /**
+     * Creates the instance.
+     *
+     * @return the client parameters
+     */
+    private static JGoogleAnalyticsTracker create() {
+      final JGoogleAnalyticsTracker tracker =
+          new JGoogleAnalyticsTracker(LazyClientParametersHolder.INSTANCE,
+              MeasurementProtocolVersion.V_1, DispatchMode.SINGLE_THREAD);
+
+      // TODO: Always use anonymised and secure connection.
+      // Following GDPR all personal data is removed so nothing
+      // that is sent to Google can be used to identify a data
+      // subject (an individual).
+
+      // DEBUG: Enable logging
+      if (Boolean.parseBoolean(System.getProperty("gdsc-analytics-logger", "false"))) {
+        tracker.setLogger(new uk.ac.sussex.gdsc.analytics.ConsoleLogger());
+      }
+
+      return tracker;
+    }
+  }
 
   /** No public construction. */
   private ImageJAnalyticsUtils() {}
@@ -122,95 +251,20 @@ public final class ImageJAnalyticsUtils {
    * @param documentTitle The document title
    */
   public static void pageview(String documentPath, String documentTitle) {
-    initialiseTracker();
     if (isDisabled()) {
       return;
     }
+    final JGoogleAnalyticsTracker tracker = LazyJGoogleAnalyticsTrackerHolder.INSTANCE;
     // Get the timestamp. This allows asynchronous hits to be recorded at the correct time
     final long timestamp = System.currentTimeMillis();
     final RequestParameters data = new RequestParameters(HitType.PAGEVIEW);
     data.setDocumentPath(documentPath);
     data.setDocumentTitle(documentTitle);
     // Add custom dimensions for ImageJ state.
-    data.addCustomMetric(1, (IJ.isMacro()) ? 1 : 0);
-    data.addCustomDimension(8, Boolean.toString(IJ.isMacro()));
+    final boolean isMacro = IJ.isMacro();
+    data.addCustomMetric(1, (isMacro) ? 1 : 0);
+    data.addCustomDimension(8, Boolean.toString(isMacro));
     tracker.makeCustomRequest(data, timestamp);
-  }
-
-  /**
-   * Create the client parameters for the tracker and populate with information about ImageJ and the
-   * system.
-   */
-  public static void initialise() {
-    if (clientParameters == null) {
-      synchronized (ImageJAnalyticsUtils.class) {
-        // In case another thread was waiting to do this
-        if (clientParameters != null) {
-          return;
-        }
-
-        // Get the client parameters
-        final String clientId = Prefs.get(PROPERTY_GA_CLIENT_ID, null);
-        final ClientParameters newClientParameters =
-            new ClientParameters(GA_TRACKING_ID, clientId, APPLICATION_NAME);
-
-        ClientParametersManager.populate(newClientParameters);
-
-        // Record for next time
-        Prefs.set(PROPERTY_GA_CLIENT_ID, newClientParameters.getClientId());
-
-        // Record the version of analytics we are using
-        newClientParameters
-            .setApplicationVersion(uk.ac.sussex.gdsc.analytics.Version.VERSION_X_X_X);
-
-        // Use custom dimensions to record client data. These should be registered
-        // in the analytics account for the given tracking ID
-
-        // Record the ImageJ information.
-        newClientParameters.addCustomDimension(1, getImageJInfo());
-
-        // Java version
-        newClientParameters.addCustomDimension(2, System.getProperty("java.version"));
-
-        // OS
-        newClientParameters.addCustomDimension(3, System.getProperty("os.name"));
-        newClientParameters.addCustomDimension(4, System.getProperty("os.version"));
-        newClientParameters.addCustomDimension(5, System.getProperty("os.arch"));
-
-        // Versions
-        newClientParameters.addCustomDimension(9, uk.ac.sussex.gdsc.core.VersionUtils.getVersion());
-
-        clientParameters = newClientParameters;
-      }
-    }
-  }
-
-  /**
-   * Gets the ImageJ information (Application name and version).
-   *
-   * @return The ImageJ information (Application name and version).
-   */
-  private static String getImageJInfo() {
-    // Avoid ImageJ throwing a HeadlessException
-    if (java.awt.GraphicsEnvironment.isHeadless()) {
-      return "Headless"; // + ImageJ.VERSION+ImageJ.BUILD
-    }
-
-    ImageJ ij = IJ.getInstance();
-    if (ij == null) {
-      // Run embedded without showing
-      ij = new ImageJ(ImageJ.NO_SHOW);
-    }
-
-    // ImageJ version
-    // This call should return a string like:
-    // ImageJ 1.48a; Java 1.7.0_11 [64-bit]; Windows 7 6.1; 29MB of 5376MB (<1%)
-    // (This should also be different if we are running within Fiji)
-    String info = ij.getInfo();
-    if (info.indexOf(';') != -1) {
-      info = info.substring(0, info.indexOf(';'));
-    }
-    return info;
   }
 
   /**
@@ -225,40 +279,7 @@ public final class ImageJAnalyticsUtils {
    * @param value The dimension value (must not be null)
    */
   public static void addCustomDimension(int index, String value) {
-    initialise();
-    clientParameters.addCustomDimension(index, value);
-  }
-
-  /**
-   * Create the tracker. Call this before sending any requests to Google Analytics.
-   */
-  private static void initialiseTracker() {
-    if (tracker == null) {
-      synchronized (ImageJAnalyticsUtils.class) {
-        // Check again since this may be a second thread that was waiting
-        if (tracker != null) {
-          return;
-        }
-
-        // Make sure we have created a client
-        initialise();
-
-        final JGoogleAnalyticsTracker newTracker = new JGoogleAnalyticsTracker(clientParameters,
-            MeasurementProtocolVersion.V_1, DispatchMode.SINGLE_THREAD);
-
-        // TODO: Always use anonymised and secure connection.
-        // Following GDPR all personal data is removed so nothing
-        // that is sent to Google can be used to identify a data
-        // subject (an individual).
-
-        // DEBUG: Enable logging
-        if (Boolean.parseBoolean(System.getProperty("gdsc-analytics-logger", "false"))) {
-          newTracker.setLogger(new uk.ac.sussex.gdsc.analytics.ConsoleLogger());
-        }
-
-        tracker = newTracker;
-      }
-    }
+    LazyClientParametersHolder.INSTANCE.addCustomDimension(index, value);
   }
 
   /**
@@ -274,11 +295,11 @@ public final class ImageJAnalyticsUtils {
     try (BufferedReader input = new BufferedReader(new InputStreamReader(pluginsStream, charset))) {
       String line;
       while ((line = input.readLine()) != null) {
-        if (line.startsWith("#")) {
+        if (line.isEmpty() || line.charAt(0) == COMMENT_CHAR) {
           continue;
         }
         final String[] tokens = line.split(",");
-        if (tokens.length == 3) {
+        if (tokens.length == PLUGIN_MAP_ENTRIES) {
           // Plugins have [Menu path, Name, class(argument)], e.g.
           // Plugins>GDSC>Colocalisation, "CDA (macro)", gdsc.colocalisation.cda.CDA_Plugin("macro")
 
@@ -289,7 +310,8 @@ public final class ImageJAnalyticsUtils {
         }
       }
     } catch (final IOException ex) {
-      // Ignore
+      Logger.getLogger(ImageJAnalyticsUtils.class.getName())
+          .warning(() -> "Failed to read the plugin map: " + ex.getMessage());
     }
   }
 
@@ -377,7 +399,8 @@ public final class ImageJAnalyticsUtils {
 
       final boolean enabled = !disabled;
 
-      initialiseTracker();
+      final JGoogleAnalyticsTracker tracker = LazyJGoogleAnalyticsTrackerHolder.INSTANCE;
+
       // Reset the session if tracking has been enabled.
       if (enabled) {
         tracker.resetSession();
@@ -427,14 +450,13 @@ public final class ImageJAnalyticsUtils {
     // With ImageJ 1.48a hiding the cancel button means the dialog is disposed when pressing 'Help'.
     // To work around this we add an empty string and our own listener to show the help. ImageJ
     // should then notify listeners due to the empty help URL.
-    final String helpLabel = "More details...";
-    gd.setHelpLabel(helpLabel);
+    gd.setHelpLabel(HELP_LABEL);
     gd.addHelp("");
     gd.addDialogListener((dialog, event) -> {
         if (event != null && event.getSource() instanceof Button)
         {
           final Button button = (Button) (event.getSource());
-          if (button.getLabel().equals(helpLabel))
+          if (button.getLabel().equals(HELP_LABEL))
           {
             final String macro = "run('URL...', 'url=" +
                 // This page describe the usage tracking in more detail
@@ -464,14 +486,14 @@ public final class ImageJAnalyticsUtils {
     if (!gd.wasCanceled()) {
       // This will happen if the user clicks OK.
       disabled = !gd.getNextBoolean();
-    } else {
-      // We have hidden the cancel button.
-      // This code will run if:
-      // - The user closes the dialog by other means (clicks escape/close window).
-      // In this case assume they are happy with the current settings and store
-      // them. This should prevent the dialog being shown again for any code
-      // using the unknownStatus() method.
     }
+    // ELSE:
+    // We have hidden the cancel button.
+    // This code will run if:
+    // - The user closes the dialog by other means (clicks escape/close window).
+    // In this case assume they are happy with the current settings and store
+    // them. This should prevent the dialog being shown again for any code
+    // using the unknownStatus() method.
 
     setDisabled(disabled);
   }

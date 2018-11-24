@@ -125,7 +125,7 @@ public final class ConcurrencyUtils {
     if (cause instanceof Error) {
       throw (Error) cause;
     }
-    throw new ConcurrentRuntimeException((cause != null) ? cause : exception);
+    throw new ConcurrentRuntimeException((cause == null) ? exception : cause);
   }
 
   /**

@@ -64,7 +64,9 @@ public class InfinityMappedImageStack extends ImageStack {
   }
 
   /** Default constructor. */
-  public InfinityMappedImageStack() {}
+  public InfinityMappedImageStack() {
+    // Do nothing
+  }
 
   /**
    * Creates a new, empty image stack.

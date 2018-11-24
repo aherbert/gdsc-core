@@ -61,11 +61,19 @@ public class LoOp {
   /** The number of threads. */
   private int numberOfThreads = -1;
 
-  /** The KD tree used to store the points for an efficient neighbour search. */
-  private final FloatIntKdTree2D.SqrEuclid2D tree;
+  /**
+   * The KD tree used to store the points for an efficient neighbour search.
+   *
+   * <p>Package private to allow access from worker inner classes.
+   */
+  final FloatIntKdTree2D.SqrEuclid2D tree;
 
-  /** The points. */
-  private final float[][] points;
+  /**
+   * The points.
+   *
+   * <p>Package private to allow access from worker inner classes.
+   */
+  final float[][] points;
 
   /**
    * Class to store the nearest neighbours of each point.
@@ -191,6 +199,9 @@ public class LoOp {
     }
   }
 
+  /**
+   * Class to normalise the Probabilistic Local Outlier Factors (PLOF).
+   */
   private static class NormWorker implements Runnable {
     final double[] plofs;
     final double norm;

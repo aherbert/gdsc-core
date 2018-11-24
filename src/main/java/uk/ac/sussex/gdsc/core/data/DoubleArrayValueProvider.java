@@ -49,6 +49,7 @@ public class DoubleArrayValueProvider implements ValueProvider {
     if (data.length == 0) {
       throw new DataException("No data");
     }
+    // Documented to wrap the reference directly
     this.data = data;
   }
 
@@ -71,6 +72,7 @@ public class DoubleArrayValueProvider implements ValueProvider {
 
   @Override
   public double[] toArray() {
+    // Documented to wrap the reference directly
     return data;
   }
 }

@@ -45,6 +45,8 @@ import java.awt.event.WindowEvent;
 public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog {
   private static final long serialVersionUID = 8535959215385211516L;
 
+  private final Object lock = new Object();
+
   private boolean closed;
 
   /**
@@ -58,7 +60,7 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog {
   }
 
   @Override
-  public synchronized void showDialog() {
+  public void showDialog() {
     super.showDialog();
     if (isMacro()) {
       return;
@@ -67,41 +69,49 @@ public class NonBlockingExtendedGenericDialog extends ExtendedGenericDialog {
       final NonBlockingExtendedGenericDialog thisDialog = this;
       EventQueue.invokeLater(() -> WindowManager.addWindow(thisDialog));
     }
-    while (!closed) {
-      try {
-        wait();
-      } catch (final InterruptedException ex) {
-        // Restore interrupted state...
-        Thread.currentThread().interrupt();
-        // Ignore exception
+    synchronized (lock) {
+      while (!closed) {
+        try {
+          lock.wait();
+        } catch (final InterruptedException ex) {
+          // Restore interrupted state...
+          Thread.currentThread().interrupt();
+          // Ignore exception
+        }
       }
     }
   }
 
   @Override
-  public synchronized void actionPerformed(ActionEvent event) {
+  public void actionPerformed(ActionEvent event) {
     super.actionPerformed(event);
     if (!isVisible()) {
-      closed = true;
-      notifyAll();
+      synchronized (lock) {
+        closed = true;
+        lock.notifyAll();
+      }
     }
   }
 
   @Override
-  public synchronized void keyPressed(KeyEvent event) {
+  public void keyPressed(KeyEvent event) {
     super.keyPressed(event);
     if (wasOKed() || wasCanceled()) {
-      closed = true;
-      notifyAll();
+      synchronized (lock) {
+        closed = true;
+        lock.notifyAll();
+      }
     }
   }
 
   @Override
-  public synchronized void windowClosing(WindowEvent event) {
+  public void windowClosing(WindowEvent event) {
     super.windowClosing(event);
     if (wasOKed() || wasCanceled()) {
-      closed = true;
-      notifyAll();
+      synchronized (lock) {
+        closed = true;
+        lock.notifyAll();
+      }
     }
   }
 

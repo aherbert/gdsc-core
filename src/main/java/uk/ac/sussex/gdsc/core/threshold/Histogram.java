@@ -161,7 +161,7 @@ public class Histogram {
    * @return the threshold
    */
   public final float getAutoThreshold(Method method) {
-    final int[] statsHistogram;
+    int[] statsHistogram;
 
     // Truncate if possible
     final int size = maxBin - minBin + 1;

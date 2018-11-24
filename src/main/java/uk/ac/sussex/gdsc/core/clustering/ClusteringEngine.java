@@ -550,6 +550,7 @@ public class ClusteringEngine {
         clusters =
             runClosest(grid, nxbins, nybins, r2, minx, miny, xbinWidth, ybinWidth, candidates,
                 singles, clusteringAlgorithm == ClusteringAlgorithm.PARTICLE_CENTROID_LINKAGE);
+        break;
     }
     return clusters;
   }
@@ -844,15 +845,13 @@ public class ClusteringEngine {
    * @param nxbins the n X bins
    * @param nybins the n Y bins
    * @param r2 The squared radius distance
-   * @param minx the minx
-   * @param miny the miny
    * @param startxbin the start X bin
    * @param endxbin the end X bin
    * @param startybin the start Y bin
    * @param endybin the end Y bin
    * @return The pair of closest points (or null)
    */
-  private static ClosestPair findClosestParticle(ExtendedClusterPoint[][] grid, final int nxbins,
+  static ClosestPair findClosestParticle(ExtendedClusterPoint[][] grid, final int nxbins,
       final int nybins, final double r2, int startxbin, int endxbin, int startybin, int endybin) {
     double min = r2;
     ExtendedClusterPoint pair1 = null;
@@ -1347,11 +1346,12 @@ public class ClusteringEngine {
    * @param endxbin the end X bin
    * @param startybin the start Y bin
    * @param endybin the end Y bin
-   * @param requireSynchronized Set to true if cluster updates require synchronized
+   * @param clusterNeighbourIncrementer the cluster neighbour incrementer
+   * @param clusterLinker the cluster linker
    * @return True if any links were made
    */
-  private static boolean findLinksAndCountNeighbours(Cluster[][] grid, final int nxbins,
-      final int nybins, final double r2, int startxbin, int endxbin, int startybin, int endybin,
+  static boolean findLinksAndCountNeighbours(Cluster[][] grid, final int nxbins, final int nybins,
+      final double r2, int startxbin, int endxbin, int startybin, int endybin,
       ClusterNeighbourIncrementer clusterNeighbourIncrementer, ClusterLinker clusterLinker) {
     final Cluster[] neighbours = new Cluster[5];
     boolean linked = false;
@@ -1638,7 +1638,7 @@ public class ClusteringEngine {
    * @param endybin the end Y bin
    * @return The closest pair
    */
-  private static ClosestPair findClosest(Cluster[][] grid, final int nxbins, final int nybins,
+  static ClosestPair findClosest(Cluster[][] grid, final int nxbins, final int nybins,
       final double r2, int startxbin, int endxbin, int startybin, int endybin) {
     double min = r2;
     Cluster pair1 = null;
@@ -1773,7 +1773,7 @@ public class ClusteringEngine {
    * @param endybin the end Y bin
    * @return The closest pair
    */
-  private static ClosestPair findClosestSingle(Cluster[][] grid, final int nxbins, final int nybins,
+  static ClosestPair findClosestSingle(Cluster[][] grid, final int nxbins, final int nybins,
       final double r2, int startxbin, int endxbin, int startybin, int endybin) {
     double min = r2;
     Cluster pair1 = null;
@@ -2030,9 +2030,8 @@ public class ClusteringEngine {
    * @param endybin the end Y bin
    * @return True if a join was made
    */
-  private ClosestPair findClosestTimePriority(TimeCluster[][] grid, final int nxbins,
-      final int nybins, final double r2, final int time, int startxbin, int endxbin, int startybin,
-      int endybin) {
+  ClosestPair findClosestTimePriority(TimeCluster[][] grid, final int nxbins, final int nybins,
+      final double r2, final int time, int startxbin, int endxbin, int startybin, int endybin) {
     double minD = Double.POSITIVE_INFINITY;
     int minT = Integer.MAX_VALUE;
     TimeCluster pair1 = null;
@@ -2153,7 +2152,7 @@ public class ClusteringEngine {
    * @param endybin the end Y bin
    * @return True if a join was made
    */
-  private ClosestPair findClosestParticleTimePriority(TimeCluster[][] grid, final int nxbins,
+  ClosestPair findClosestParticleTimePriority(TimeCluster[][] grid, final int nxbins,
       final int nybins, final double r2, final int time, int startxbin, int endxbin, int startybin,
       int endybin) {
     double minD = Double.POSITIVE_INFINITY;
@@ -2382,9 +2381,8 @@ public class ClusteringEngine {
    * @param endybin the end Y bin
    * @return True if a join was made
    */
-  private ClosestPair findClosestDistancePriority(TimeCluster[][] grid, final int nxbins,
-      final int nybins, final double r2, final int time, int startxbin, int endxbin, int startybin,
-      int endybin) {
+  ClosestPair findClosestDistancePriority(TimeCluster[][] grid, final int nxbins, final int nybins,
+      final double r2, final int time, int startxbin, int endxbin, int startybin, int endybin) {
     double minD = Double.POSITIVE_INFINITY;
     int minT = Integer.MAX_VALUE;
     TimeCluster pair1 = null;
@@ -2476,7 +2474,7 @@ public class ClusteringEngine {
    * @param endybin the end Y bin
    * @return True if a join was made
    */
-  private ClosestPair findClosestParticleDistancePriority(TimeCluster[][] grid, final int nxbins,
+  ClosestPair findClosestParticleDistancePriority(TimeCluster[][] grid, final int nxbins,
       final int nybins, final double r2, final int time, int startxbin, int endxbin, int startybin,
       int endybin) {
     double minD = Double.POSITIVE_INFINITY;

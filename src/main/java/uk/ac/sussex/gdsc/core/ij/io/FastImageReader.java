@@ -1231,6 +1231,7 @@ public class FastImageReader {
         break;
       default:
         pixels = null;
+        break;
     }
     return pixels;
   }
@@ -1325,6 +1326,7 @@ public class FastImageReader {
         break;
       default:
         pixels = null;
+        break;
     }
     return pixels;
   }
@@ -1497,28 +1499,28 @@ public class FastImageReader {
     private byte[] data;
     private int size;
 
-    public ByteVector(int initialSize) {
+    ByteVector(int initialSize) {
       data = new byte[initialSize];
       size = 0;
     }
 
-    public ByteVector(byte[] byteBuffer) {
+    ByteVector(byte[] byteBuffer) {
       data = byteBuffer;
       size = 0;
     }
 
-    public int size() {
+    int size() {
       return size;
     }
 
-    public void add(byte x) {
+    void add(byte x) {
       if (size >= data.length) {
         doubleCapacity();
       }
       data[size++] = x;
     }
 
-    public void add(byte[] array) {
+    void add(byte[] array) {
       final int length = array.length;
       while (data.length - size < length) {
         doubleCapacity();

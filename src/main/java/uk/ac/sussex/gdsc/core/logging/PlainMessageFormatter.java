@@ -67,7 +67,7 @@ public class PlainMessageFormatter extends Formatter {
   }
 
   private String getPlainMessage(LogRecord record) {
-    if (record.getLevel() == Level.INFO && !isIncludeInfo()) {
+    if (!isIncludeInfo() && record.getLevel() == Level.INFO) {
       return formatLogRecord(record);
     }
     return record.getLevel() + ":" + formatLogRecord(record);

@@ -27,13 +27,13 @@ import java.util.Arrays;
  */
 public class DoubleHeap {
   /** The distance. */
-  final double[] distance;
+  private final double[] distance;
 
   /** The capacity. */
   private final int capacity;
 
   /** The size. */
-  int size;
+  private int size;
 
   /** The distance of the last removed item. */
   private double removedDistance;

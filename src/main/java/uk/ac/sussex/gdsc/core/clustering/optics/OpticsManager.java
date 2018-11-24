@@ -31,12 +31,14 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.SimpleFloatKdTree2D;
 import uk.ac.sussex.gdsc.core.clustering.CoordinateStore;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
+import uk.ac.sussex.gdsc.core.logging.NullTrackProgress;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.PermutationSampler;
 import org.apache.commons.rng.simple.RandomSource;
@@ -71,7 +73,7 @@ public class OpticsManager extends CoordinateStore {
   private EnumSet<Option> options = EnumSet.noneOf(Option.class);
 
   /** The class to compute local outlier probability. */
-  private LoOp loOp;
+  private LoOp loopObject;
 
   /** The number of threads. */
   private int numberOfThreads;
@@ -186,11 +188,14 @@ public class OpticsManager extends CoordinateStore {
    * Counter used in DBSCAN.
    */
   private class Counter {
+    /** Constants instance of the tracker throughout processing. */
+    final TrackProgress tracker;
     int next;
     int progress;
     int total;
 
     Counter(int total) {
+      tracker = NullTrackProgress.createIfNull(OpticsManager.this.getTracker());
       this.total = total;
     }
 
@@ -204,11 +209,8 @@ public class OpticsManager extends CoordinateStore {
      * @return true, if processing should stop
      */
     boolean increment() {
-      if (tracker != null) {
-        tracker.progress(++progress, total);
-        return tracker.isEnded();
-      }
-      return false;
+      tracker.progress(++progress, total);
+      return tracker.isEnded();
     }
 
     int getTotalClusters() {
@@ -259,7 +261,7 @@ public class OpticsManager extends CoordinateStore {
    * Used in the OPTICS algorithm to store the next seed is a priority queue.
    */
   private class OpticsMoleculePriorityQueue extends MoleculeList implements OpticsPriorityQueue {
-    int next;
+    int nextIndex;
 
     OpticsMoleculePriorityQueue(int capacity) {
       super(capacity);
@@ -278,28 +280,28 @@ public class OpticsManager extends CoordinateStore {
 
     @Override
     public void moveUp(Molecule object) {
-      if (lower(object, list[next])) {
-        swap(next, object.getQueueIndex());
+      if (lower(object, list[nextIndex])) {
+        swap(nextIndex, object.getQueueIndex());
       }
     }
 
     @Override
     public boolean hasNext() {
-      return next < size;
+      return nextIndex < size;
     }
 
     @Override
     public Molecule next() {
-      final Molecule molecule = list[next++];
+      final Molecule molecule = list[nextIndex++];
       if (hasNext()) {
         // Find the next lowest molecule
-        int lowest = next;
-        for (int i = next + 1; i < size; i++) {
+        int lowest = nextIndex;
+        for (int i = nextIndex + 1; i < size; i++) {
           if (lower(list[i], list[lowest])) {
             lowest = i;
           }
         }
-        swap(next, lowest);
+        swap(nextIndex, lowest);
       }
       return molecule;
     }
@@ -312,7 +314,7 @@ public class OpticsManager extends CoordinateStore {
 
     @Override
     public void clear() {
-      size = next = 0;
+      size = nextIndex = 0;
     }
 
     boolean lower(Molecule m1, Molecule m2) {
@@ -536,10 +538,13 @@ public class OpticsManager extends CoordinateStore {
    * Used in the OPTICS algorithm to store the output results.
    */
   private class OpticsResultList {
+    /** Constants instance of the tracker throughout processing. */
+    final TrackProgress tracker;
     final OpticsOrder[] list;
     int size;
 
     OpticsResultList(int capacity) {
+      tracker = NullTrackProgress.createIfNull(OpticsManager.this.getTracker());
       list = new OpticsOrder[capacity];
     }
 
@@ -552,11 +557,8 @@ public class OpticsManager extends CoordinateStore {
      */
     boolean add(Molecule molecule) {
       list[size++] = molecule.toOpticsResult();
-      if (tracker != null) {
-        tracker.progress(size, list.length);
-        return tracker.isEnded();
-      }
-      return false;
+      tracker.progress(size, list.length);
+      return tracker.isEnded();
     }
   }
 
@@ -578,7 +580,7 @@ public class OpticsManager extends CoordinateStore {
      *
      * @param size the size
      */
-    private FloatHeap(int size) {
+    FloatHeap(int size) {
       ValidationUtils.checkArgument(size > 0, "N must be strictly positive");
       this.queue = new float[size];
       this.size = size;
@@ -589,7 +591,7 @@ public class OpticsManager extends CoordinateStore {
      *
      * @param value the value
      */
-    private void start(float value) {
+    void start(float value) {
       queue[0] = value;
     }
 
@@ -597,10 +599,10 @@ public class OpticsManager extends CoordinateStore {
      * Put the next value into the heap. This method is used to fill the heap from {@code i=1} to
      * {@code i<n}.
      *
-     * @param i the index
+     * @param index the index
      * @param value the value
      */
-    private void put(int index, float value) {
+    void put(int index, float value) {
       queue[index] = value;
       upHeapify(index);
     }
@@ -610,18 +612,18 @@ public class OpticsManager extends CoordinateStore {
      *
      * @param value the value
      */
-    private void push(float value) {
+    void push(float value) {
       if (queue[0] > value) {
         queue[0] = value;
         downHeapify(0);
       }
     }
 
-    private float getMaxValue() {
+    float getMaxValue() {
       return queue[0];
     }
 
-    private void upHeapify(int index) {
+    void upHeapify(int index) {
       int child = index;
       while (child > 0) {
         final int parent = (child - 1) >>> 1;
@@ -636,7 +638,7 @@ public class OpticsManager extends CoordinateStore {
       }
     }
 
-    private void downHeapify(int index) {
+    void downHeapify(int index) {
       for (int parent = index, child = parent * 2 + 1; child < size; parent = child, child =
           parent * 2 + 1) {
         if (child + 1 < size && queue[child] < queue[child + 1]) {
@@ -879,9 +881,9 @@ public class OpticsManager extends CoordinateStore {
    */
   private static double computeDeltaOrOne(float max, float min) {
     final double delta = max - min;
-    // If the range is zero the points are colocated (or there is 1 point). Return 1 so the
-    // area can be computed.
-    return (delta != 0) ? delta : 1;
+    // If the range is zero the points are colocated (or there is 1 point).
+    // Return 1 so the area can be computed.
+    return (delta == 0) ? 1 : delta;
   }
 
   /**
@@ -1061,7 +1063,7 @@ public class OpticsManager extends CoordinateStore {
    * @param minPts the min points to be a core point
    * @param neighbours the neighbours
    */
-  public void setCoreDistance(Molecule object, int minPts, MoleculeList neighbours) {
+  private void setCoreDistance(Molecule object, int minPts, MoleculeList neighbours) {
     final int size = neighbours.size;
     if (size < minPts) {
       // Not a core point
@@ -1426,8 +1428,9 @@ public class OpticsManager extends CoordinateStore {
    */
   public float[] nearestNeighbourDistance(int numberOfNeighbours, int samples, boolean cache) {
     final int size = xcoord.length;
-    if (size < 2) {
-      return new float[0];
+    if (size <= 1) {
+      // No neighbours for single (or zero) points
+      return ArrayUtils.EMPTY_FLOAT_ARRAY;
     }
 
     long time = System.currentTimeMillis();
@@ -1436,21 +1439,24 @@ public class OpticsManager extends CoordinateStore {
     int numNeighbours = MathUtils.clip(1, size - 1, numberOfNeighbours);
 
     // Optionally compute all samples if samples is not positive
-    final int n = Math.min((samples <= 0) ? size : samples, size);
-    final float[] d = new float[n];
+    final int sampleSize = Math.min((samples <= 0) ? size : samples, size);
+    final float[] d = new float[sampleSize];
 
     if (tracker != null) {
-      tracker.log("Computing %d nearest-neighbour distances, samples=%d", numNeighbours, n);
-      tracker.progress(0, n);
+      tracker.log("Computing %d nearest-neighbour distances, samples=%d", numNeighbours,
+          sampleSize);
+      tracker.progress(0, sampleSize);
     }
 
     int[] indices;
-    if (n <= size) {
+    if (sampleSize <= size) {
       // Compute all
-      indices = SimpleArrayUtils.natural(n);
+      indices = SimpleArrayUtils.natural(sampleSize);
     } else {
       // Random sample
-      indices = new PermutationSampler(RandomSource.create(RandomSource.MWC_256), size, n).sample();
+      indices =
+          new PermutationSampler(RandomSource.create(RandomSource.SPLIT_MIX_64), size, sampleSize)
+              .sample();
     }
 
     // Use a KDtree to allow search of the space
@@ -1464,12 +1470,14 @@ public class OpticsManager extends CoordinateStore {
     // Note: The k-nearest neighbour search will include the actual point so increment by 1
     numNeighbours++;
 
-    for (int i = 0; i < n; i++) {
+    final float[] location = new float[2];
+    for (int i = 0; i < sampleSize; i++) {
       if (tracker != null) {
-        tracker.progress(i, n);
+        tracker.progress(i, sampleSize);
       }
       final int index = indices[i];
-      final float[] location = new float[] {xcoord[index], ycoord[index]};
+      location[0] = xcoord[index];
+      location[1] = ycoord[index];
       // The tree will use the squared distance so compute the root
       d[i] = (float) (Math.sqrt(tree.nearestNeighbor(location, numNeighbours)[0]));
     }
@@ -1905,11 +1913,12 @@ public class OpticsManager extends CoordinateStore {
    */
   public float[] loop(int numberOfNeighbours, double lambda, boolean cache) {
     final int size = xcoord.length;
-    if (size < 2) {
+    if (size <= 1) {
+      // No neighbours for single (or zero) point
       return new float[size];
     }
 
-    long time = System.currentTimeMillis();
+    final long startTime = System.currentTimeMillis();
 
     // Bounds check k
     final int safeNumberOfNeighbours = MathUtils.clip(1, size - 1, numberOfNeighbours);
@@ -1919,39 +1928,47 @@ public class OpticsManager extends CoordinateStore {
           safeNumberOfNeighbours, MathUtils.rounded(lambda));
     }
 
-    if (loOp == null) {
-      loOp = new LoOp(xcoord, ycoord);
+    if (loopObject == null) {
+      loopObject = new LoOp(xcoord, ycoord);
     }
-    loOp.setNumberOfThreads(getNumberOfThreads());
+    loopObject.setNumberOfThreads(getNumberOfThreads());
 
-    double[] scores;
     try {
-      scores = loOp.run(safeNumberOfNeighbours, lambda);
-    } catch (final ExecutionException | InterruptedException ex) {
-      if (tracker != null) {
-        tracker.log("Failed LoOP computation: " + ex.getMessage());
+      final double[] scores = loopObject.run(safeNumberOfNeighbours, lambda);
+
+      // Convert to float
+      final float[] result = new float[scores.length];
+      for (int i = 0; i < scores.length; i++) {
+        result[i] = (float) scores[i];
       }
-      Logger.getLogger(getClass().getName()).log(Level.WARNING, ex,
-          () -> "Failed LoOP computation: " + ex.getMessage());
-      return null;
-    }
 
-    // Convert to float
-    final float[] result = new float[scores.length];
-    for (int i = 0; i < scores.length; i++) {
-      result[i] = (float) scores[i];
-    }
+      if (tracker != null) {
+        final long time = System.currentTimeMillis() - startTime;
+        tracker.log("Finished LoOP computation (Time = " + TextUtils.millisToString(time) + ")");
+      }
 
+      return result;
+    } catch (final InterruptedException ex) {
+      // Restore interrupted state...
+      Thread.currentThread().interrupt();
+      handleLoopException(ex);
+    } catch (final ExecutionException ex) {
+      handleLoopException(ex);
+    } finally {
+      if (!cache) {
+        loopObject = null;
+      }
+    }
+    // Fall through from exceptions to return null
+    return null;
+  }
+
+  private void handleLoopException(Exception ex) {
     if (tracker != null) {
-      time = System.currentTimeMillis() - time;
-      tracker.log("Finished LoOP computation (Time = " + TextUtils.millisToString(time) + ")");
+      tracker.log("Failed LoOP computation: " + ex.getMessage());
     }
-
-    if (!cache) {
-      loOp = null;
-    }
-
-    return result;
+    Logger.getLogger(getClass().getName()).log(Level.WARNING, ex,
+        () -> "Failed LoOP computation: " + ex.getMessage());
   }
 
   /**

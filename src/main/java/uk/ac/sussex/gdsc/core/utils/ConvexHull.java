@@ -118,12 +118,14 @@ public final class ConvexHull {
   /**
    * Create a new convex hull from the given coordinates.
    *
+   * <p>Returns null if the convex hull cannot be computed by the algorithm.
+   *
    * @param xbase the x base coordinate (origin)
    * @param ybase the y base coordinate (origin)
    * @param x the x coordinates
    * @param y the y coordinates
    * @param n the number of coordinates
-   * @return the convex hull
+   * @return the convex hull (or null)
    * @throws NullPointerException if the inputs are null
    * @throws ArrayIndexOutOfBoundsException if the y are smaller than the x
    */
@@ -137,7 +139,8 @@ public final class ConvexHull {
     ConvexHull2D hull = null;
     try {
       hull = chain.generate(points);
-    } catch (final ConvergenceException ex) { // Ignore
+    } catch (final ConvergenceException ex) {
+      // Ignore
     }
 
     if (hull == null) {
@@ -209,13 +212,11 @@ public final class ConvexHull {
    */
   public Rectangle2D.Double getFloatBounds() {
     final int npoints = size();
-    final float[] xpoints = this.x;
-    final float[] ypoints = this.y;
     if (npoints == 0) {
       return new Rectangle2D.Double();
     }
     if (bounds == null) {
-      calculateBounds(xpoints, ypoints, npoints);
+      calculateBounds(x, y, npoints);
     }
     return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
   }

@@ -995,6 +995,9 @@ public class TurboList<E> extends AbstractList<E>
         }
     }
 
+    /**
+     * A sublist view of the array data.
+     */
     private class SubList extends AbstractList<E> implements RandomAccess {
         private final AbstractList<E> parent;
         private final int parentOffset;

@@ -68,7 +68,7 @@ public final class ImageJHashUtils {
 
     @Override
     public void funnel(short[] from, PrimitiveSink into) {
-      for (short value : from) {
+      for (final short value : from) {
         into.putShort(value);
       }
     }
@@ -83,7 +83,7 @@ public final class ImageJHashUtils {
 
     @Override
     public void funnel(float[] from, PrimitiveSink into) {
-      for (float value : from) {
+      for (final float value : from) {
         into.putFloat(value);
       }
     }
@@ -98,7 +98,7 @@ public final class ImageJHashUtils {
 
     @Override
     public void funnel(int[] from, PrimitiveSink into) {
-      for (int value : from) {
+      for (final int value : from) {
         into.putInt(value);
       }
     }

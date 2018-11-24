@@ -63,6 +63,7 @@ public class DoubleArrayBivalueProvider implements BivalueProvider {
         throw new DataException("Y data must be the same length");
       }
     }
+    // Documented to wrap the reference directly
     this.data = data;
   }
 
@@ -101,6 +102,7 @@ public class DoubleArrayBivalueProvider implements BivalueProvider {
 
   @Override
   public double[][] toArray() {
+    // Documented to wrap the reference directly
     return data;
   }
 }

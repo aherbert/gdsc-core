@@ -470,7 +470,7 @@ public abstract class FastTiffDecoder {
    */
   protected abstract long readLong() throws IOException;
 
-  private final double readDouble() throws IOException {
+  private double readDouble() throws IOException {
     return Double.longBitsToDouble(readLong());
   }
 
@@ -811,18 +811,18 @@ public abstract class FastTiffDecoder {
     final int size = entryCount * INDEX_SIZE;
     int position;
     byte[] byteBuffer;
-    if (bss != null) {
-      position = getPositionAndSkipBytes(bss, size);
-      if (position < 0) {
-        return null;
-      }
-      byteBuffer = bss.buffer;
-    } else {
+    if (bss == null) {
       position = 0;
       byteBuffer = allocateBuffer(size);
       if (ss.readBytes(byteBuffer, size) != size) {
         return null;
       }
+    } else {
+      position = getPositionAndSkipBytes(bss, size);
+      if (position < 0) {
+        return null;
+      }
+      byteBuffer = bss.buffer;
     }
 
     for (int i = 0; i < entryCount; i++, position += INDEX_SIZE) {
@@ -1002,7 +1002,7 @@ public abstract class FastTiffDecoder {
         case ARTEST:
           if (ifdCount == 1) {
             final byte[] bytes = getString(count, lvalue);
-            final String s = bytes != null ? new String(bytes) : null;
+            final String s = bytes == null ? null : new String(bytes);
             saveMetadata(getName(tag), s);
           }
           break;
@@ -1413,11 +1413,11 @@ public abstract class FastTiffDecoder {
         while (ifdOffset > 0L) {
           ss.seek(ifdOffset);
           fi = openIfd(pixelDataOnly);
-          if (fi != null) {
+          if (fi == null) {
+            ifdOffset = 0L;
+          } else {
             list.add(fi);
             ifdOffset = readUnsignedInt();
-          } else {
-            ifdOffset = 0L;
           }
           if (debugMode && ifdCount <= getIfdCountForDebugData()) {
             debugInfo += "  nextIFD=" + ifdOffset + "\n";
@@ -2052,16 +2052,7 @@ public abstract class FastTiffDecoder {
 
     final int[] map = new int[n * 5]; // 5 integers per entry
 
-    if (bss != null) {
-      int position = getPositionAndSkipBytes(bss, map.length * 4L);
-      if (position < 0) {
-        return null;
-      }
-      final byte[] byteBuffer = bss.buffer;
-      for (int i = 0; i < map.length; i++, position += 4) {
-        map[i] = getInt(byteBuffer, position);
-      }
-    } else {
+    if (bss == null) {
       // Do this in chunks
       final byte[] byteBuffer = allocateBuffer(4096);
       int index = 0;
@@ -2073,6 +2064,15 @@ public abstract class FastTiffDecoder {
         for (int j = 0; j < read; j += 4) {
           map[index++] = getInt(byteBuffer, j);
         }
+      }
+    } else {
+      int position = getPositionAndSkipBytes(bss, map.length * 4L);
+      if (position < 0) {
+        return null;
+      }
+      final byte[] byteBuffer = bss.buffer;
+      for (int i = 0; i < map.length; i++, position += 4) {
+        map[i] = getInt(byteBuffer, position);
       }
     }
     return new IndexMap(map);

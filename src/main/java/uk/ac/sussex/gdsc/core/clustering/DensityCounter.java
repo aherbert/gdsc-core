@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.clustering;
 
+import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
@@ -57,14 +58,20 @@ public class DensityCounter {
   /** The radius. */
   private final float radius;
 
-  private final float r2;
+  /** The radius squared. */
+  final float r2;
   private final float xmin;
   private final float ymin;
   private final float binWidth;
   private final int nxbins;
   private final int nybins;
   private final int moleculesCount;
-  private final IndexMolecule[][] grid;
+  /**
+   * The grid of molecules.
+   *
+   * <p>Package private to allow working inner classes access.
+   */
+  final IndexMolecule[][] grid;
 
   private final int nonEmpty;
   private final int maxCellSize;
@@ -458,11 +465,10 @@ public class DensityCounter {
    * <p>This method is optimised for use when the number of IDs is small. If the number of IDs is
    * large then the routine may run out of memory.
    *
-   * <p>NOTE: Package level for JUnit test only
-   *
    * @param maxId the max ID of molecules
    * @return the counts
    */
+  @VisibleForTesting
   int[][] countAllSimple(int maxId) {
     return countAllSimple(getMolecules(), r2, maxId);
   }
@@ -514,12 +520,11 @@ public class DensityCounter {
    * <p>This method is optimised for use when the number of IDs is small. If the number of IDs is
    * large then the routine may run out of memory. .
    *
-   * <p>NOTE: Package level for JUnit test only
-   *
    * @param searchMolecules the molecules to around which to search
    * @param maxId the max ID of molecules
    * @return the counts
    */
+  @VisibleForTesting
   int[][] countAllSimple(Molecule[] searchMolecules, int maxId) {
     return countAllSimple(getMolecules(), searchMolecules, r2, maxId);
   }
@@ -795,16 +800,27 @@ public class DensityCounter {
 
       // Record in reverse order (largest first)
       gridPriority = new int[nonEmpty];
-      for (int i = indices.length, j = 0; i-- > 0;) {
+      int target = 0;
+      for (int i = indices.length; i-- > 0;) {
         if (indices[i] != null) {
-          indices[i].copy(gridPriority, j);
-          j += indices[i].size();
+          indices[i].copy(gridPriority, target);
+          target += indices[i].size();
         }
       }
     }
   }
 
-  private int addNeighbour(int[] neighbours, int count, int index) {
+  /**
+   * Adds the index to the list of neighbours if the grid contains molecules at the index.
+   *
+   * <p>This is used to build a list of neighbour cells (reference by their index) to process.
+   *
+   * @param neighbours the list of neighbours
+   * @param count the current count of neighbours
+   * @param index the index
+   * @return the new count
+   */
+  int addNeighbour(int[] neighbours, int count, int index) {
     if (grid[index] != null) {
       neighbours[count] = index;
       return count + 1;
@@ -983,11 +999,13 @@ public class DensityCounter {
    * @param index the grid index
    * @return the number of neighbours
    */
-  private int getNeighbours4(int[] neighbours, int index) {
+  int getNeighbours4(int[] neighbours, int index) {
     // Build a list of which cells to compare up to a maximum of 4
-    // | 0,0 | 1,0
+    // @formatter:off
+    //      | 0,0 | 1,0
     // ------------+-----
     // -1,1 | 0,1 | 1,1
+    // @formatter:on
     int count = 0;
     final int xBin = index % nxbins;
     final int yBin = index / nxbins;
@@ -1013,7 +1031,7 @@ public class DensityCounter {
    * @param index the grid index
    * @return the number of neighbours
    */
-  private int getNeighbours8(int[] neighbours, int index) {
+  int getNeighbours8(int[] neighbours, int index) {
     // Build a list of which cells to compare up to a maximum of 8
     // -1,-1 | 0,-1 | 1,-1
     // ------------+--------
@@ -1059,7 +1077,7 @@ public class DensityCounter {
    * @param index the grid index
    * @return the number of neighbours
    */
-  private int getNeighbours9(int[] neighbours, int index) {
+  int getNeighbours9(int[] neighbours, int index) {
     // Build a list of which cells to compare up to a maximum of 9
     // -1,-1 | 0,-1 | 1,-1
     // ------------+--------
@@ -1099,14 +1117,14 @@ public class DensityCounter {
   }
 
   /**
-   * The squared distance.
+   * Get the squared distance.
    *
    * @param x the x
    * @param y the y
-   * @param molecule the index molecule
+   * @param molecule the molecule
    * @return the squared distance
    */
-  private static float distance2(float x, float y, Molecule molecule) {
+  static final float distance2(float x, float y, Molecule molecule) {
     final float dx = x - molecule.getX();
     final float dy = y - molecule.getY();
     return dx * dx + dy * dy;

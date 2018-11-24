@@ -162,6 +162,18 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
   protected abstract double value2(final double[] powerX, final double[] powerY,
       final double[] powerZ, final double[] derivative1, double[] derivative2);
 
+
+  /**
+   * Check the value is in the interval [0 : 1] inclusive.
+   *
+   * @param value the value
+   */
+  private static void checkRange(double value) {
+    if (value < 0 || value > 1) {
+      throw new OutOfRangeException(value, 0, 1);
+    }
+  }
+
   /**
    * Compute the power table.
    *
@@ -172,15 +184,9 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    *         {@code [0, 1]}.
    */
   public static double[] computePowerTable(double x, double y, double z) {
-    if (x < 0 || x > 1) {
-      throw new OutOfRangeException(x, 0, 1);
-    }
-    if (y < 0 || y > 1) {
-      throw new OutOfRangeException(y, 0, 1);
-    }
-    if (z < 0 || z > 1) {
-      throw new OutOfRangeException(z, 0, 1);
-    }
+    checkRange(x);
+    checkRange(y);
+    checkRange(z);
 
     final double x2 = x * x;
     final double x3 = x2 * x;
@@ -439,15 +445,9 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    */
   @Override
   public double value(double x, double y, double z) {
-    if (x < 0 || x > 1) {
-      throw new OutOfRangeException(x, 0, 1);
-    }
-    if (y < 0 || y > 1) {
-      throw new OutOfRangeException(y, 0, 1);
-    }
-    if (z < 0 || z > 1) {
-      throw new OutOfRangeException(z, 0, 1);
-    }
+    checkRange(x);
+    checkRange(y);
+    checkRange(z);
 
     final double x2 = x * x;
     final double x3 = x2 * x;
@@ -505,15 +505,9 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    *         {@code [0, 1]}.
    */
   public double value(double x, double y, double z, double[] derivative1) {
-    if (x < 0 || x > 1) {
-      throw new OutOfRangeException(x, 0, 1);
-    }
-    if (y < 0 || y > 1) {
-      throw new OutOfRangeException(y, 0, 1);
-    }
-    if (z < 0 || z > 1) {
-      throw new OutOfRangeException(z, 0, 1);
-    }
+    checkRange(x);
+    checkRange(y);
+    checkRange(z);
 
     final double x2 = x * x;
     final double x3 = x2 * x;
@@ -605,15 +599,9 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    *         {@code [0, 1]}.
    */
   public double value(double x, double y, double z, double[] derivative1, double[] derivative2) {
-    if (x < 0 || x > 1) {
-      throw new OutOfRangeException(x, 0, 1);
-    }
-    if (y < 0 || y > 1) {
-      throw new OutOfRangeException(y, 0, 1);
-    }
-    if (z < 0 || z > 1) {
-      throw new OutOfRangeException(z, 0, 1);
-    }
+    checkRange(x);
+    checkRange(y);
+    checkRange(z);
 
     final double x2 = x * x;
     final double x3 = x2 * x;
@@ -792,48 +780,65 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
     // 8 cube vertices packed as z*4 + y*2 + x
     final double[] values = new double[8];
     // We can initialise the default node value
-    int lastI = 0;
-    double lastValue = value000();
+    int currentIndex = 0;
+    double currentValue = value000();
     for (;;) {
-      // Evaluate the 8 flanking positions
-      for (int z = 0, i = 0; z < 2; z++) {
-        for (int y = 0; y < 2; y++) {
-          for (int x = 0; x < 2; x++, i++) {
-            // We can skip the value we know
-            values[i] = (i == lastI) ? lastValue : value(sx[x], sy[y], sz[z]);
-          }
-        }
-      }
+      // Evaluate the 7 flanking positions of the current value
+      updateSplineValues(sx, sy, sz, values, currentIndex, currentValue);
 
-      final int i =
+      final int newIndex =
           (maximum) ? SimpleArrayUtils.findMaxIndex(values) : SimpleArrayUtils.findMinIndex(values);
-      final int z = i / 4;
-      final int j = i % 4;
+      final int z = newIndex / 4;
+      final int j = newIndex % 4;
       final int y = j / 2;
       final int x = j % 2;
 
-      final double value = values[i];
+      final double newValue = values[newIndex];
 
       boolean converged = (--refinementIteration == 0);
-      if (!converged && checkValue && lastI != i) {
+      if (!converged && checkValue && currentIndex != newIndex) {
         // Check convergence on value if the cube vertex has changed.
         // If it hasn't changed then the value will be the same and we continue
         // reducing the cube size.
-        converged = areEqual(lastValue, value, absoluteError, relativeError);
+        converged = areEqual(currentValue, newValue, absoluteError, relativeError);
       }
 
       if (converged) {
         // Terminate
-        return new double[] {sx[x].getX(), sy[y].getX(), sz[z].getX(), value};
+        return new double[] {sx[x].getX(), sy[y].getX(), sz[z].getX(), newValue};
       }
 
-      lastI = i;
-      lastValue = value;
+      currentIndex = newIndex;
+      currentValue = newValue;
 
       // Update bounds
-      update(sx, x);
-      update(sy, y);
-      update(sz, z);
+      updateSplineBounds(sx, x);
+      updateSplineBounds(sy, y);
+      updateSplineBounds(sz, z);
+    }
+  }
+
+  /**
+   * Update the 7 spline values surrounding the current index in the 2x2x2 cube.
+   *
+   * @param sx the pair of spline positions defining the x bounds
+   * @param sy the pair of spline positions defining the y bounds
+   * @param sz the pair of spline positions defining the z bounds
+   * @param values the values
+   * @param currentIndex the current index
+   * @param currentValue the current value
+   */
+  private void updateSplineValues(final CubicSplinePosition[] sx, final CubicSplinePosition[] sy,
+      final CubicSplinePosition[] sz, final double[] values, int currentIndex, double currentValue) {
+    int i = 0;
+    for (int z = 0; z < 2; z++) {
+      for (int y = 0; y < 2; y++) {
+        for (int x = 0; x < 2; x++) {
+          // We can skip the value we know
+          values[i] = (i == currentIndex) ? currentValue : value(sx[x], sy[y], sz[z]);
+          i++;
+        }
+      }
     }
   }
 
@@ -865,10 +870,10 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * Update the bounds by fixing the last spline position that was optimum and moving the other
    * position to the midpoint.
    *
-   * @param splicePosition the pair of spline positions defining the bounds
-   * @param indcex the index of the optimum
+   * @param splinePosition the pair of spline positions defining the bounds
+   * @param index the index of the optimum
    */
-  private static void update(CubicSplinePosition[] splinePosition, int index) {
+  private static void updateSplineBounds(CubicSplinePosition[] splinePosition, int index) {
     final double mid = (splinePosition[0].getX() + splinePosition[1].getX()) / 2;
     // Move opposite bound
     splinePosition[(index + 1) % 2] = new CubicSplinePosition(mid);

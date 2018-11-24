@@ -41,7 +41,14 @@ import javax.swing.JViewport;
  * Allows resizing of window components for the current screen dimensions.
  */
 public class ScreenDimensionHelper {
-  // Store the screen dimension
+
+  /**
+   * Padding added to the scroll pane in OSX. This is needed as the OSX scroll pane adds scrollbars
+   * when the panel is close in size to the scroll pane.
+   */
+  private static final int OSX_PADDING = 15;
+
+  /** Store the screen dimension. */
   private static Dimension screenDimension;
 
   static {
@@ -82,9 +89,8 @@ public class ScreenDimensionHelper {
     if (IJ.isMacintosh()) {
       // This is needed as the OSX scroll pane adds scrollbars when the panel
       // is close in size to the scroll pane
-      final int padding = 15;
-      preferredSize.width += padding;
-      preferredSize.height += padding;
+      preferredSize.width += OSX_PADDING;
+      preferredSize.height += OSX_PADDING;
     }
 
     scroll.setPreferredSize(preferredSize);

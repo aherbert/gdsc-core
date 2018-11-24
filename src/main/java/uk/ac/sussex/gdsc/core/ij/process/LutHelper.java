@@ -43,6 +43,8 @@ import java.awt.Color;
  */
 public final class LutHelper {
 
+  /** The size of an 8-bit look-up table. */
+  private static final int LUT_TABLE_8BIT_SIZE = 256;
   /** List of the LUT names. */
   private static final String[] luts;
 
@@ -496,6 +498,7 @@ public final class LutHelper {
       case RED_HOT:
       default:
         numberOfColours = setColours(reds, greens, blues, Color.red, Color.yellow, Color.WHITE);
+        break;
     }
     interpolate(reds, greens, blues, numberOfColours, includeBlack);
     return new LUT(reds, greens, blues);
@@ -638,7 +641,7 @@ public final class LutHelper {
 
   private static LUT fromRgbValues(byte[] reds, byte[] greens, byte[] blues, int[][] values,
       boolean includeBlack) {
-    if (values.length != 256) {
+    if (values.length != LUT_TABLE_8BIT_SIZE) {
       throw new DataException("The LUT colours must have 256 values");
     }
     for (int i = (includeBlack) ? 1 : 0; i < 256; i++) {
@@ -679,7 +682,7 @@ public final class LutHelper {
   private static void interpolate(byte[] reds, byte[] greens, byte[] blues, int numberOfColours,
       boolean includeBlack) {
     // numberOfColours should be at least 2 and max 256.
-    if (numberOfColours == 256) {
+    if (numberOfColours == LUT_TABLE_8BIT_SIZE) {
       if (includeBlack) {
         reds[0] = greens[0] = blues[0] = 0;
       }
@@ -746,7 +749,7 @@ public final class LutHelper {
    * @return a colour
    */
   public static Color getColour(LUT lut, int index, int total) {
-    if (total <= 255) {
+    if (total <= LUT_TABLE_8BIT_SIZE) {
       // Assume 8-bit image
       return getColour(lut, index);
     }
@@ -793,8 +796,7 @@ public final class LutHelper {
    * @return a colour
    */
   public static Color getColour(LUT lut, float value, float minimum, float maximum) {
-    ValidationUtils.checkArgument(minimum <= maximum, "Minimum %f not less than maximum %f",
-        minimum, maximum);
+    checkRange(minimum, maximum);
     // Logic copied from FloatProcessor.create8BitImage
     final float shiftedValue = value - minimum;
     if (shiftedValue <= 0) {
@@ -807,9 +809,23 @@ public final class LutHelper {
   }
 
   /**
-   * Get a colour from the LUT ignoring zero. If the total is equal or less than 256 then the lut
-   * can be assumed for an 8-bit image. If above 256 then the colour is assumed for a 16-bit image
-   * and so the position is scaled linearly to 1-255 to find the colour. The uses the
+   * Check the minimum is less than or equal to the maximum so there is a range.
+   *
+   * @param minimum the minimum
+   * @param maximum the maximum
+   */
+  static void checkRange(float minimum, float maximum) {
+    ValidationUtils.checkArgument(minimum <= maximum, "Minimum %f not less than maximum %f",
+        minimum, maximum);
+  }
+
+  /**
+   * Get a colour from the LUT ignoring zero. If the total is equal or less than 255 then the lut
+   * can be assumed for an 8-bit image. The index is clipped to the range 0-254 and mapped to the
+   * value 1-255.
+   * 
+   * <p>If above 255 then the colour is assumed for a 16-bit image and so the position is scaled
+   * linearly to 1-255 to find the colour. The uses the
    * {@link #getNonZeroColour(LUT, int, int, int)} method.
    *
    * @param lut the lut
@@ -818,9 +834,9 @@ public final class LutHelper {
    * @return a colour
    */
   public static Color getNonZeroColour(LUT lut, int index, int total) {
-    if (total <= 256) {
+    if (total < LUT_TABLE_8BIT_SIZE) {
       // Assume 8-bit image
-      return getColour(lut, index);
+      return new Color(lut.getRGB(1 + MathUtils.clip(0, 254, index)));
     }
 
     // Use behaviour for 16-bit images
@@ -865,8 +881,7 @@ public final class LutHelper {
    * @return a colour
    */
   public static Color getNonZeroColour(LUT lut, float value, float minimum, float maximum) {
-    ValidationUtils.checkArgument(minimum <= maximum, "Minimum %f not less than maximum %f",
-        minimum, maximum);
+    checkRange(minimum, maximum);
     // Logic copied from FloatProcessor.create8BitImage
     final float shiftedValue = value - minimum;
     if (shiftedValue <= 0) {
@@ -926,6 +941,7 @@ public final class LutHelper {
    * Provide no mapping.
    */
   public static class NullLutMapper implements LutMapper {
+    private static final float MAX = 255;
 
     /**
      * Rounds the input to the nearest int and truncates to the range 0-255.
@@ -935,10 +951,10 @@ public final class LutHelper {
      */
     @Override
     public int map(float value) {
-      if (value < 0f) {
+      if (value < 0) {
         return 0;
       }
-      if (value > 255f) {
+      if (value > MAX) {
         return 255;
       }
       return Math.round(value);
@@ -988,8 +1004,7 @@ public final class LutHelper {
      * @param maximum the maximum
      */
     public DefaultLutMapper(float minimum, float maximum) {
-      ValidationUtils.checkArgument(minimum <= maximum, "Minimum %f not less than maximum %f",
-          minimum, maximum);
+      checkRange(minimum, maximum);
       this.minimum = minimum;
       scale = 255f / (maximum - minimum);
     }
@@ -997,7 +1012,7 @@ public final class LutHelper {
     @Override
     public int map(float value) {
       final float scaledValue = value - minimum;
-      if (scaledValue <= 0f) {
+      if (scaledValue <= 0) {
         return 0;
       }
       return Math.min(255, Math.round(scaledValue * scale));
@@ -1025,8 +1040,7 @@ public final class LutHelper {
      * @param maximum the maximum
      */
     public NonZeroLutMapper(float minimum, float maximum) {
-      ValidationUtils.checkArgument(minimum <= maximum, "Minimum %f not less than maximum %f",
-          minimum, maximum);
+      checkRange(minimum, maximum);
       this.minimum = minimum;
       scale = 254f / (maximum - minimum);
     }
@@ -1034,7 +1048,7 @@ public final class LutHelper {
     @Override
     public int map(float value1) {
       final float scaledValue = value1 - minimum;
-      if (scaledValue <= 0f) {
+      if (scaledValue <= 0) {
         return 1;
       }
       return Math.min(255, 1 + Math.round(scaledValue * scale));

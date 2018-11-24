@@ -209,14 +209,13 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
         if (next == items.length) {
           next = 0;
         }
-        if (next != putIndex) {
-          items[i] = items[next];
-          i = next;
-        } else {
+        if (next == putIndex) {
           items[i] = null;
           this.putIndex = i;
           break;
         }
+        items[i] = items[next];
+        i = next;
       }
       count--;
       if (itrs != null) {
@@ -281,7 +280,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
           queuedItems[index++] = Objects.requireNonNull(e, ELEMENT_NOT_NULL);
         }
       } catch (final ArrayIndexOutOfBoundsException ex) {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException(ex);
       }
       count = index;
       putIndex = (index == capacity) ? 0 : index;
@@ -950,7 +949,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
         if (--k == 0) {
           return sb.append(']').toString();
         }
-        sb.append(',').append(' ');
+        sb.append(',').append(' '); // faster than sb.append(", ") ?
         if (++i == items.length) {
           i = 0;
         }
@@ -1113,6 +1112,18 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
    * method, causing subtle corruption bugs.
    */
   class Itrs {
+    private static final int SHORT_SWEEP_PROBES = 4;
+    private static final int LONG_SWEEP_PROBES = 16;
+
+    /** Incremented whenever takeIndex wraps around to 0. */
+    int cycles;
+
+    /** Linked list of weak iterator references. */
+    private Node head;
+
+    /** Used to expunge stale iterators. */
+    private Node sweeper;
+
     /**
      * Node in a linked list of weak iterator references.
      */
@@ -1124,18 +1135,6 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
         this.next = next;
       }
     }
-
-    /** Incremented whenever takeIndex wraps around to 0. */
-    int cycles;
-
-    /** Linked list of weak iterator references. */
-    private Node head;
-
-    /** Used to expunge stale iterators. */
-    private Node sweeper;
-
-    private static final int SHORT_SWEEP_PROBES = 4;
-    private static final int LONG_SWEEP_PROBES = 16;
 
     /**
      * Instantiates a new iterator and adds a new iterator to the linked list of tracked iterators.
@@ -1567,15 +1566,15 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
         final int lastRet = this.lastRet;
         this.lastRet = NONE;
         if (lastRet >= 0) {
-          if (!isDetached()) {
-            removeAt(lastRet);
-          } else {
+          if (isDetached()) {
             final E lastItem = this.lastItem;
             // assert lastItem != null;
             this.lastItem = null;
             if (itemAt(lastRet) == lastItem) {
               removeAt(lastRet);
             }
+          } else {
+            removeAt(lastRet);
           }
         } else if (lastRet == NONE) {
           throw new IllegalStateException();

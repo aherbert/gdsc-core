@@ -41,28 +41,41 @@ import java.security.MessageDigest;
  * @since 1.2.0
  */
 public class ImageJDigest {
+
+  /** The message digest. */
+  private final MessageDigest messageDigest;
+
+  /**
+   * The base class for digesting pixels.
+   */
   private abstract class PixelsDigester {
-    MessageDigest digest;
+    MessageDigest pixelsDigest;
 
     PixelsDigester(MessageDigest digest) {
-      this.digest = digest;
+      this.pixelsDigest = digest;
       digest.reset();
     }
 
-    public abstract void update(Object pixels);
+    abstract void update(Object pixels);
   }
 
+  /**
+   * A digester for {@code byte} pixels;
+   */
   private class BytePixelsDigester extends PixelsDigester {
     BytePixelsDigester(MessageDigest digest) {
       super(digest);
     }
 
     @Override
-    public void update(Object pixels) {
-      digest.update((byte[]) pixels);
+    void update(Object pixels) {
+      pixelsDigest.update((byte[]) pixels);
     }
   }
 
+  /**
+   * A digester for {@code short} pixels;
+   */
   private class ShortPixelsDigester extends PixelsDigester {
     byte[] buffer = new byte[2];
 
@@ -71,17 +84,19 @@ public class ImageJDigest {
     }
 
     @Override
-    public void update(Object pixels) {
+    void update(Object pixels) {
       final short[] data = (short[]) pixels;
-      for (int i = 0; i < data.length; i++) {
-        final int v = data[i];
+      for (final int v : data) {
         buffer[0] = (byte) (v >>> 8);
         buffer[1] = (byte) (v >>> 0);
-        digest.update(buffer);
+        pixelsDigest.update(buffer);
       }
     }
   }
 
+  /**
+   * A digester for {@code int} pixels;
+   */
   private class IntegerPixelsDigester extends PixelsDigester {
     byte[] buffer = new byte[4];
 
@@ -90,19 +105,21 @@ public class ImageJDigest {
     }
 
     @Override
-    public void update(Object pixels) {
+    void update(Object pixels) {
       final int[] data = (int[]) pixels;
-      for (int i = 0; i < data.length; i++) {
-        final int v = data[i];
+      for (final int v : data) {
         buffer[0] = (byte) (v >>> 24);
         buffer[1] = (byte) (v >>> 16);
         buffer[2] = (byte) (v >>> 8);
         buffer[3] = (byte) (v >>> 0);
-        digest.update(buffer);
+        pixelsDigest.update(buffer);
       }
     }
   }
 
+  /**
+   * A digester for {@code float} pixels;
+   */
   private class FloatPixelsDigester extends PixelsDigester {
     byte[] buffer = new byte[4];
 
@@ -111,21 +128,18 @@ public class ImageJDigest {
     }
 
     @Override
-    public void update(Object pixels) {
+    void update(Object pixels) {
       final float[] data = (float[]) pixels;
-      for (int i = 0; i < data.length; i++) {
-        final int v = Float.floatToRawIntBits(data[i]);
+      for (final float value : data) {
+        final int v = Float.floatToRawIntBits(value);
         buffer[0] = (byte) (v >>> 24);
         buffer[1] = (byte) (v >>> 16);
         buffer[2] = (byte) (v >>> 8);
         buffer[3] = (byte) (v >>> 0);
-        digest.update(buffer);
+        pixelsDigest.update(buffer);
       }
     }
   }
-
-  /** The message digest. */
-  private final MessageDigest digest;
 
   /**
    * Instantiates a new IJ digest.
@@ -140,7 +154,7 @@ public class ImageJDigest {
    * @param algorithm the algorithm
    */
   public ImageJDigest(String algorithm) {
-    digest = DigestUtils.getDigest(algorithm);
+    messageDigest = DigestUtils.getDigest(algorithm);
   }
 
   /**
@@ -153,7 +167,7 @@ public class ImageJDigest {
     final Object pixels = ip.getPixels();
     final PixelsDigester digester = getPixelsDigester(pixels);
     digester.update(pixels);
-    return DigestUtils.toHex(digester.digest.digest());
+    return DigestUtils.toHex(digester.pixelsDigest.digest());
   }
 
   /**
@@ -167,7 +181,7 @@ public class ImageJDigest {
     for (int i = 1; i <= stack.getSize(); i++) {
       digester.update(stack.getPixels(i));
     }
-    return DigestUtils.toHex(digester.digest.digest());
+    return DigestUtils.toHex(digester.pixelsDigest.digest());
   }
 
   /**
@@ -178,16 +192,16 @@ public class ImageJDigest {
    */
   private PixelsDigester getPixelsDigester(Object pixels) {
     if (pixels instanceof byte[]) {
-      return new BytePixelsDigester(digest);
+      return new BytePixelsDigester(messageDigest);
     }
     if (pixels instanceof short[]) {
-      return new ShortPixelsDigester(digest);
+      return new ShortPixelsDigester(messageDigest);
     }
     if (pixels instanceof float[]) {
-      return new FloatPixelsDigester(digest);
+      return new FloatPixelsDigester(messageDigest);
     }
     if (pixels instanceof int[]) {
-      return new IntegerPixelsDigester(digest);
+      return new IntegerPixelsDigester(messageDigest);
     }
     throw new IllegalArgumentException("Unrecognised pixels type");
   }

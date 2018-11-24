@@ -155,63 +155,93 @@ public class MappedFloatProcessor extends FloatProcessor {
      * +0f to 1 but -0f to 0.
      */
 
-    final int size = width * height;
+    final float[] pixels = (float[]) getPixels();
+    final int size = pixels.length;
+    create8bitPixels(size);
+
+    // Get the default min/max and ensure above zero.
+    float minAbove0 = Math.max(0, (float) getMin());
+    final float maxAbove0 = Math.max(0, (float) getMax());
+
+    // Get minimum above zero
+    if (minAbove0 == 0 && maxAbove0 > 0 && !isMapZero()) {
+      minAbove0 = maxAbove0;
+      for (int i = 0; i < size; i++) {
+        if (pixels[i] > 0 && minAbove0 > pixels[i]) {
+          minAbove0 = pixels[i];
+        }
+      }
+    }
+
+    final float scale = 254f / (maxAbove0 - minAbove0);
+
+    if (isMapZero() && minAbove0 == 0) {
+      mapIncludingZero(pixels, size, scale);
+    } else {
+      mapAboveZero(pixels, size, minAbove0, scale);
+    }
+    return pixels8;
+  }
+
+  /**
+   * Creates the 8 bit pixels.
+   *
+   * @param size the size
+   */
+  private void create8bitPixels(final int size) {
     if (pixels8 == null) {
       pixels8 = new byte[size];
     }
-    final float[] pixels = (float[]) getPixels();
-    float value;
+  }
 
-    // Default min/max
-    float min2 = (float) getMin();
-    float max2 = (float) getMax();
+  /**
+   * Map all {@code value >= +0} to the range 1-255. {@code -0} and below maps to 0.
+   *
+   * @param pixels the pixels
+   * @param size the size
+   * @param scale the scale
+   */
+  private void mapIncludingZero(final float[] pixels, final int size, final float scale) {
+    // We map equal or below -0 to 0.
+    // Special case of mapping +0 to 1.
+    for (int i = 0; i < size; i++) {
+      if (pixels[i] < 0) {
+        // Below zero maps to zero
+        pixels8[i] = (byte) 0;
+        continue;
+      }
 
-    // Ensure above zero
-    min2 = Math.max(0, min2);
-    max2 = Math.max(0, max2);
-
-    // Get minimum above zero
-    if (min2 == 0 && max2 > 0 && !isMapZero()) {
-      min2 = max2;
-      for (int i = 0; i < size; i++) {
-        if (pixels[i] > 0 && min2 > pixels[i]) {
-          min2 = pixels[i];
-        }
+      // Special case where we must check for -0 or +0
+      if (pixels[i] == 0 && Float.floatToRawIntBits(pixels[i]) == NEGATIVE_ZERO) {
+        pixels8[i] = (byte) 0;
+      } else {
+        // +0 or above maps to 1-255
+        pixels8[i] = (byte) Math.min(MAX_BYTE_VALUE, 1 + (int) ((pixels[i] * scale) + 0.5f));
       }
     }
+  }
 
-    final float scale = 254f / (max2 - min2);
 
-    if (isMapZero() && min2 == 0) {
-      // We map equal or below -0 to 0.
-      // Special case of mapping +0 to 1.
-      for (int i = 0; i < size; i++) {
-        if (pixels[i] < 0) {
-          // Below zero maps to zero
-          pixels8[i] = (byte) 0;
-          continue;
-        }
-
-        // Special case where we must check for -0 or +0
-        if (pixels[i] == 0 && Float.floatToRawIntBits(pixels[i]) == NEGATIVE_ZERO) {
-          pixels8[i] = (byte) 0;
-        } else {
-          // +0 or above maps to 1-255
-          pixels8[i] = (byte) Math.min(MAX_BYTE_VALUE, 1 + (int) ((pixels[i] * scale) + 0.5f));
-        }
-      }
-    } else {
-      for (int i = 0; i < size; i++) {
-        if (pixels[i] < min2 || pixels[i] == 0) {
-          // Below min (or zero) maps to zero
-          pixels8[i] = (byte) 0;
-        } else {
-          // Map all non zero values to the range 1-255.
-          value = pixels[i] - min2;
-          pixels8[i] = (byte) Math.min(MAX_BYTE_VALUE, 1 + (int) ((value * scale) + 0.5f));
-        }
+  /**
+   * Map all {@code value > 0} to the range 1-255. {@code 0} and below maps to 0.
+   *
+   * @param pixels the pixels
+   * @param size the size
+   * @param minAbove0 the min above 0
+   * @param scale the scale
+   */
+  private void mapAboveZero(final float[] pixels, final int size, float minAbove0,
+      final float scale) {
+    for (int i = 0; i < size; i++) {
+      // This also checks == 0 as the minAboveZero may be zero.
+      if (pixels[i] < minAbove0 || pixels[i] == 0) {
+        // Below min (or zero) maps to zero
+        pixels8[i] = (byte) 0;
+      } else {
+        // Map all non zero values to the range 1-255.
+        pixels8[i] =
+            (byte) Math.min(MAX_BYTE_VALUE, 1 + Math.round((pixels[i] - minAbove0) * scale));
       }
     }
-    return pixels8;
   }
 }

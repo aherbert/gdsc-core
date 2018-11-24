@@ -254,8 +254,8 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D {
         results.add(new Entry(resultHeap.getRemovedDistance(), resultHeap.getRemovedData()));
       }
     } else {
-      for (int i = 0; i < resultHeap.size; i++) {
-        results.add(new Entry(resultHeap.distance[i], (double[]) resultHeap.data[i]));
+      for (int i = 0; i < resultHeap.getSize(); i++) {
+        results.add(new Entry(resultHeap.getDistance(i), (double[]) resultHeap.getData(i)));
       }
     }
 
