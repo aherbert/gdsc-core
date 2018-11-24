@@ -29,12 +29,12 @@
 package uk.ac.sussex.gdsc.core.ij;
 
 import uk.ac.sussex.gdsc.core.utils.ImageWindow;
-import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Cosine;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Hanning;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.Tukey;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowFunction;
 import uk.ac.sussex.gdsc.core.utils.ImageWindow.WindowMethod;
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
 
 import ij.IJ;
 import ij.ImagePlus;

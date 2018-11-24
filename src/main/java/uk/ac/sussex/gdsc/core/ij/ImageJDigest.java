@@ -60,7 +60,7 @@ public class ImageJDigest {
   }
 
   /**
-   * A digester for {@code byte} pixels;
+   * A digester for {@code byte} pixels.
    */
   private class BytePixelsDigester extends PixelsDigester {
     BytePixelsDigester(MessageDigest digest) {
@@ -74,7 +74,7 @@ public class ImageJDigest {
   }
 
   /**
-   * A digester for {@code short} pixels;
+   * A digester for {@code short} pixels.
    */
   private class ShortPixelsDigester extends PixelsDigester {
     byte[] buffer = new byte[2];
@@ -95,7 +95,7 @@ public class ImageJDigest {
   }
 
   /**
-   * A digester for {@code int} pixels;
+   * A digester for {@code int} pixels.
    */
   private class IntegerPixelsDigester extends PixelsDigester {
     byte[] buffer = new byte[4];
@@ -118,7 +118,7 @@ public class ImageJDigest {
   }
 
   /**
-   * A digester for {@code float} pixels;
+   * A digester for {@code float} pixels.
    */
   private class FloatPixelsDigester extends PixelsDigester {
     byte[] buffer = new byte[4];

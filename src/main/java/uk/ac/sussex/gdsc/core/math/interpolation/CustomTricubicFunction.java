@@ -829,14 +829,15 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param currentValue the current value
    */
   private void updateSplineValues(final CubicSplinePosition[] sx, final CubicSplinePosition[] sy,
-      final CubicSplinePosition[] sz, final double[] values, int currentIndex, double currentValue) {
-    int i = 0;
+      final CubicSplinePosition[] sz, final double[] values, int currentIndex,
+      double currentValue) {
+    int index = 0;
     for (int z = 0; z < 2; z++) {
       for (int y = 0; y < 2; y++) {
         for (int x = 0; x < 2; x++) {
           // We can skip the value we know
-          values[i] = (i == currentIndex) ? currentValue : value(sx[x], sy[y], sz[z]);
-          i++;
+          values[index] = (index == currentIndex) ? currentValue : value(sx[x], sy[y], sz[z]);
+          index++;
         }
       }
     }
