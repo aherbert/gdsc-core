@@ -823,7 +823,7 @@ public final class LutHelper {
    * Get a colour from the LUT ignoring zero. If the total is equal or less than 255 then the lut
    * can be assumed for an 8-bit image. The index is clipped to the range 0-254 and mapped to the
    * value 1-255.
-   * 
+   *
    * <p>If above 255 then the colour is assumed for a 16-bit image and so the position is scaled
    * linearly to 1-255 to find the colour. The uses the
    * {@link #getNonZeroColour(LUT, int, int, int)} method.

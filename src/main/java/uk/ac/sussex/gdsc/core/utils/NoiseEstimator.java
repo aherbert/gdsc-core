@@ -309,7 +309,7 @@ public class NoiseEstimator {
 
   /**
    * Estimate noise using the square of the residuals of the 4N connected neighbours of each pixel.
-   * 
+   *
    * <p>This uses an approximation with the bottom 50% of the data to avoid outliers in the
    * brightest pixels.
    */
