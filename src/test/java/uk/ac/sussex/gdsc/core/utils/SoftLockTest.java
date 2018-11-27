@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class SoftLockTest {
   @Test
   public void canSoftLock() {
-    SoftLock lock = new SoftLock();
+    final SoftLock lock = new SoftLock();
     Assertions.assertFalse(lock.isLocked(), "Initial state");
     Assertions.assertTrue(lock.acquire(), "Aquire when unlocked");
     Assertions.assertTrue(lock.isLocked(), "Locked state");
