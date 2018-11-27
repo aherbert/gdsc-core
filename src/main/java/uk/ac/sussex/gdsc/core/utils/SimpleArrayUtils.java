@@ -43,9 +43,6 @@ public final class SimpleArrayUtils {
   private static final String DATA_EMPTY = "Data is empty";
   private static final String DATA_INCORRECT_SIZE = "Data is not the correct array size";
 
-  /** The minimum length of an array that can be tested for uniformity. */
-  private static final int MIN_UNIFORM_LENGTH = 3;
-
   /** No public construction. */
   private SimpleArrayUtils() {}
 
@@ -251,7 +248,7 @@ public final class SimpleArrayUtils {
   public static float[] ensureStrictlyPositive(float[] data) {
     final int index = indexOfNotStrictlyPositive(data);
     if (index == -1) {
-      // All data are posiitve
+      // All data are positive
       return data;
     }
 
@@ -262,7 +259,7 @@ public final class SimpleArrayUtils {
 
     // Find the min above zero
     final float min = minAboveZero(data);
-    if (min == 0) {
+    if (Float.isNaN(min)) {
       // No values are above zero. Return an array of zero.
       return v;
     }
@@ -295,20 +292,19 @@ public final class SimpleArrayUtils {
   /**
    * Find the minimum above zero.
    *
-   * <p>Returns zero if no values are above zero.
+   * <p>Returns {@link Float#NaN} if no values are above zero.
    *
    * @param data the data
    * @return the minimum above zero
    */
   public static float minAboveZero(float[] data) {
-    float min = Float.POSITIVE_INFINITY;
+    float min = Float.NaN;
     for (final float value : data) {
-      if (value > 0 && min > value) {
+      if (value > 0 && (min > value || Float.isNaN(min))) {
         min = value;
       }
     }
-    // Check if any values were above zero, else return zero
-    return (min == Float.POSITIVE_INFINITY) ? 0 : min;
+    return min;
   }
 
   /**
@@ -458,20 +454,26 @@ public final class SimpleArrayUtils {
    * @return true, if is uniform
    */
   public static boolean isUniform(int[] x) {
-    if (x.length < MIN_UNIFORM_LENGTH) {
+    if (x.length <= 1) {
+      // No intervals to measure
       return true;
     }
-    final int reference = x[1] - x[0];
-    if (reference == 0) {
-      return false;
-    }
-    for (int i = 2; i < x.length; i++) {
-      final int interval = x[i] - x[i - 1];
-      if (interval != reference) {
+    try {
+      final int reference = Math.subtractExact(x[1], x[0]);
+      if (reference == 0) {
         return false;
       }
+      for (int i = 2; i < x.length; i++) {
+        final int interval = Math.subtractExact(x[i], x[i - 1]);
+        if (interval != reference) {
+          return false;
+        }
+      }
+      return true;
+    } catch (ArithmeticException ex) {
+      // Overflow so this is not a uniform ascending/descending series.
+      return false;
     }
-    return true;
   }
 
   /**
@@ -489,48 +491,67 @@ public final class SimpleArrayUtils {
    * @return true, if is uniform
    */
   public static boolean isUniform(double[] x, double uniformTolerance) {
-    if (x.length < MIN_UNIFORM_LENGTH) {
+    if (x.length <= 1) {
+      // No intervals to measure
       return true;
     }
 
-    double interval1 = x[1] - x[0];
-    final double direction = Math.signum(interval1);
-    if (direction == 0) {
-      // No interval
-      return false;
-    }
+    try {
+      double interval1 = getInterval(x[1], x[0]);
+      final double direction = Math.signum(interval1);
 
-    double interval2 = x[2] - x[1];
+      double interval2 = getInterval(x[2], x[1]);
 
-    // Check each step is roughly the same size and in the same direction.
-    // Do this by checking successive steps are equal within the tolerance.
-    if (!isUniformInterval(interval2, interval1, direction, uniformTolerance)) {
-      return false;
-    }
-
-    // The first two steps are within tolerance.
-    // Check the rest and sum the intervals to compute the mean.
-    double sum = interval1 + interval2;
-
-    for (int i = 3; i < x.length; i++) {
-      interval1 = interval2;
-      interval2 = x[i] - x[i - 1];
+      // Check each step is roughly the same size and in the same direction.
+      // Do this by checking successive steps are equal within the tolerance.
       if (!isUniformInterval(interval2, interval1, direction, uniformTolerance)) {
         return false;
       }
-      sum += interval2;
-    }
 
-    // Each step is within tolerance of the last step.
-    // But steps could be getting increasingly larger or smaller so check against the mean.
-    final double meanInterval = sum / (x.length - 1);
-    for (int i = 1; i < x.length; i++) {
-      final double interval = x[i] - x[i - 1];
-      if (!isWithinTolerance(interval, meanInterval, uniformTolerance)) {
-        return false;
+      // The first two steps are within tolerance.
+      // Check the rest and sum the intervals to compute the mean.
+      double sum = interval1 + interval2;
+
+      for (int i = 3; i < x.length; i++) {
+        interval1 = interval2;
+        interval2 = getInterval(x[i], x[i - 1]);
+        if (!isUniformInterval(interval2, interval1, direction, uniformTolerance)) {
+          return false;
+        }
+        sum += interval2;
       }
+
+      // Each step is within tolerance of the last step.
+      // But steps could be getting increasingly larger or smaller so check against the mean.
+      final double meanInterval = sum / (x.length - 1);
+      for (int i = 1; i < x.length; i++) {
+        // All intervals are valid so just subtract
+        final double interval = x[i] - x[i - 1];
+        if (!isWithinTolerance(interval, meanInterval, uniformTolerance)) {
+          return false;
+        }
+      }
+      return true;
+    } catch (ArithmeticException ex) {
+      // Bad interval
+      return false;
     }
-    return true;
+  }
+
+  /**
+   * Gets the finite interval between 2 values.
+   *
+   * @param value1 the value 1
+   * @param value2 the value 2
+   * @return the interval
+   * @throws ArithmeticException if the interval is zero or non-finite
+   */
+  private static double getInterval(double value1, double value2) {
+    final double interval = value1 - value2;
+    if (interval == 0 || !Double.isFinite(interval)) {
+      throw new ArithmeticException();
+    }
+    return interval;
   }
 
   /**
@@ -751,11 +772,10 @@ public final class SimpleArrayUtils {
   public static int[] findMinMaxIndex(int[] data) {
     int min = 0;
     int max = 0;
-
     for (int i = 1; i < data.length; i++) {
       if (data[i] < data[min]) {
         min = i;
-      } else if (data[i] > data[min]) {
+      } else if (data[i] > data[max]) {
         max = i;
       }
     }
@@ -771,11 +791,10 @@ public final class SimpleArrayUtils {
   public static int[] findMinMaxIndex(float[] data) {
     int min = 0;
     int max = 0;
-
     for (int i = 1; i < data.length; i++) {
       if (data[i] < data[min]) {
         min = i;
-      } else if (data[i] > data[min]) {
+      } else if (data[i] > data[max]) {
         max = i;
       }
     }
@@ -792,11 +811,10 @@ public final class SimpleArrayUtils {
   public static int[] findMinMaxIndex(double[] data) {
     int min = 0;
     int max = 0;
-
     for (int i = 1; i < data.length; i++) {
       if (data[i] < data[min]) {
         min = i;
-      } else if (data[i] > data[min]) {
+      } else if (data[i] > data[max]) {
         max = i;
       }
     }
