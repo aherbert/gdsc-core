@@ -63,20 +63,12 @@ public final class ConvexHull {
   /**
    * Instantiates a new convex hull.
    *
-   * @param xbase the x base
-   * @param ybase the y base
    * @param x the x coordinates
    * @param y the y coordinates
    */
-  private ConvexHull(float xbase, float ybase, float[] x, float[] y) {
+  private ConvexHull(float[] x, float[] y) {
     this.x = x;
     this.y = y;
-    if (xbase != 0 || ybase != 0) {
-      for (int i = x.length; i-- > 0;) {
-        x[i] += xbase;
-        y[i] += ybase;
-      }
-    }
   }
 
   /**
@@ -98,7 +90,7 @@ public final class ConvexHull {
    * @throws ArrayIndexOutOfBoundsException if the y are smaller than the x
    */
   public static ConvexHull create(float[] x, float[] y) {
-    return create(0, 0, x, y, x.length);
+    return create(x, y, x.length);
   }
 
   /**
@@ -148,20 +140,18 @@ public final class ConvexHull {
     }
 
     final Vector2D[] v = hull.getVertices();
-    if (v.length == 0) {
+    final int size = v.length;
+    if (size == 0) {
       return null;
     }
 
-    final int size = v.length;
     final float[] xx = new float[size];
     final float[] yy = new float[size];
-    int n2 = 0;
     for (int i = 0; i < size; i++) {
-      xx[n2] = (float) v[i].getX();
-      yy[n2] = (float) v[i].getY();
-      n2++;
+      xx[i] = (float) v[i].getX();
+      yy[i] = (float) v[i].getY();
     }
-    return new ConvexHull(0, 0, xx, yy);
+    return new ConvexHull(xx, yy);
   }
 
   // Below is functionality taken from ij.process.FloatPolygon
@@ -195,12 +185,9 @@ public final class ConvexHull {
    * @return the bounds
    */
   public Rectangle getBounds() {
-    final int npoints = size();
-    if (npoints == 0) {
-      return new Rectangle();
-    }
+    // Size is never zero so there are always some bounds
     if (bounds == null) {
-      calculateBounds(x, y, npoints);
+      calculateBounds(x, y, size());
     }
     return bounds.getBounds();
   }
@@ -211,12 +198,9 @@ public final class ConvexHull {
    * @return the float bounds
    */
   public Rectangle2D.Double getFloatBounds() {
-    final int npoints = size();
-    if (npoints == 0) {
-      return new Rectangle2D.Double();
-    }
+    // Size is never zero so there are always some bounds
     if (bounds == null) {
-      calculateBounds(x, y, npoints);
+      calculateBounds(x, y, size());
     }
     return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
   }
@@ -231,6 +215,8 @@ public final class ConvexHull {
       if (maxX < xp) {
         maxX = xp;
       } else if (minX > xp) {
+        // Currently this is not hit in test coverage as the hull
+        // is computed with the first vertex using the min X value.
         minX = xp;
       }
       final float yp = ypoints[i];
@@ -242,7 +228,8 @@ public final class ConvexHull {
     }
     final int iMinX = (int) Math.floor(minX);
     final int iMinY = (int) Math.floor(minY);
-    bounds = new Rectangle(iMinX, iMinY, (int) (maxX - iMinX + 0.5), (int) (maxY - iMinY + 0.5));
+    bounds = new Rectangle(iMinX, iMinY, (int) Math.ceil((double) maxX - iMinX),
+        (int) Math.ceil((double) maxY - iMinY));
   }
 
   /**

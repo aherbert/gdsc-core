@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,11 +31,28 @@ public class ConvexHullTest {
   }
 
   @Test
-  public void canComputeConvexHullFromSquare() {
-    final float[] x = new float[] {0, 10, 10, 0};
-    final float[] y = new float[] {0, 0, 10, 10};
+  public void cannotComputeConvexHullFromNoCoords() {
+    final float[] x = new float[] {};
+    final float[] y = new float[] {};
     final ConvexHull hull = ConvexHull.create(x, y);
-    check(x, y, hull);
+    Assertions.assertNull(hull);
+  }
+
+  @Test
+  public void canComputeConvexHullFromSquare() {
+    final float[] ex = new float[] {0, 10, 10, 0};
+    final float[] ey = new float[] {0, 0, 10, 10};
+    for (int i = 0; i < ex.length; i++) {
+      final float[] x = new float[ex.length];
+      final float[] y = new float[ey.length];
+      for (int j = 0; j < ex.length; j++) {
+        final int n = (i + j) % ex.length;
+        x[j] = ex[n];
+        y[j] = ey[n];
+      }
+      final ConvexHull hull = ConvexHull.create(x, y);
+      check(ex, ey, hull);
+    }
   }
 
   @Test
@@ -76,6 +94,21 @@ public class ConvexHullTest {
       Assertions.assertEquals(ex[i], hull.x[i]);
       Assertions.assertEquals(ey[i], hull.y[i]);
     }
+
+    final float ox = MathUtils.min(ex);
+    final float oy = MathUtils.min(ey);
+    final float maxx = MathUtils.max(ex);
+    final float maxy = MathUtils.max(ey);
+
+    final Rectangle bounds = hull.getBounds();
+    Assertions.assertEquals(ox, bounds.getX(), "minx");
+    Assertions.assertEquals(oy, bounds.getY(), "miny");
+    Assertions.assertEquals(maxx, bounds.getMaxX(), "maxx");
+    Assertions.assertEquals(maxy, bounds.getMaxY(), "maxy");
+
+    final Rectangle bounds2 = hull.getBounds();
+    Assertions.assertNotSame(bounds, bounds2, "Bounds should be a new object");
+    Assertions.assertEquals(bounds, bounds2);
   }
 
   @SeededTest
@@ -124,6 +157,10 @@ public class ConvexHullTest {
           () -> String.format("xmax %d >= %d", ox + width, bounds.getMaxX()));
       Assertions.assertTrue(oy + height >= bounds.getMaxY(),
           () -> String.format("ymax %d >= %d", oy + height, bounds.getMaxY()));
+
+      final Rectangle2D.Double bounds2 = hull.getFloatBounds();
+      Assertions.assertNotSame(bounds, bounds2, "Bounds should be a new object");
+      Assertions.assertEquals(bounds, bounds2);
     } catch (final AssertionError ex) {
       // Debug
       if (logger.isLoggable(Level.FINE)) {
