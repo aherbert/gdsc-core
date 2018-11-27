@@ -32,7 +32,7 @@ public class SortUtilsTest {
   @Test
   public void canSortDescendingIndicesUsingFloatValues() {
     int[] indices = {0, 1, 2};
-    float[] values = {2, 1, 3};
+    float[] values = {0.0f, -0.0f, 1f};
     SortUtils.sort(indices, values);
     int[] expected = {2, 0, 1};
     Assertions.assertArrayEquals(expected, indices, "Indices not descending order");
@@ -41,7 +41,7 @@ public class SortUtilsTest {
   @Test
   public void canSortDescendingIndicesAndValuesUsingFloatValues() {
     int[] indices = {0, 1, 2};
-    float[] values = {2, 1, 3};
+    float[] values = {0.0f, -0.0f, 1f};
     float[] expectedValues = values.clone();
     SortUtils.sort(indices, values, true);
     int[] expected = {2, 0, 1};
@@ -54,7 +54,7 @@ public class SortUtilsTest {
   @Test
   public void canSortDescendingIndicesUsingDoubleValues() {
     int[] indices = {0, 1, 2};
-    double[] values = {2, 1, 3};
+    double[] values = {0.0, -0.0, 1};
     SortUtils.sort(indices, values);
     int[] expected = {2, 0, 1};
     Assertions.assertArrayEquals(expected, indices, "Indices not descending order");
@@ -63,7 +63,7 @@ public class SortUtilsTest {
   @Test
   public void canSortDescendingIndicesAndValuesUsingDoubleValues() {
     int[] indices = {0, 1, 2};
-    double[] values = {2, 1, 3};
+    double[] values = {0.0, -0.0, 1};
     double[] expectedValues = values.clone();
     SortUtils.sort(indices, values, true);
     int[] expected = {2, 0, 1};
@@ -97,7 +97,7 @@ public class SortUtilsTest {
   @Test
   public void canSortAscendingIndicesUsingFloatValues() {
     int[] indices = {0, 1, 2};
-    float[] values = {2, 1, 3};
+    float[] values = {0.0f, -0.0f, 1f};
     SortUtils.sortAscending(indices, values);
     int[] expected = {1, 0, 2};
     Assertions.assertArrayEquals(expected, indices, "Indices not ascending order");
@@ -106,7 +106,7 @@ public class SortUtilsTest {
   @Test
   public void canSortAscendingIndicesAndValuesUsingFloatValues() {
     int[] indices = {0, 1, 2};
-    float[] values = {2, 1, 3};
+    float[] values = {0.0f, -0.0f, 1f};
     float[] expectedValues = values.clone();
     SortUtils.sortAscending(indices, values, true);
     int[] expected = {1, 0, 2};
@@ -118,7 +118,7 @@ public class SortUtilsTest {
   @Test
   public void canSortAscendingIndicesUsingDoubleValues() {
     int[] indices = {0, 1, 2};
-    double[] values = {2, 1, 3};
+    double[] values = {0.0, -0.0, 1};
     SortUtils.sortAscending(indices, values);
     int[] expected = {1, 0, 2};
     Assertions.assertArrayEquals(expected, indices, "Indices not ascending order");
@@ -127,7 +127,7 @@ public class SortUtilsTest {
   @Test
   public void canSortAscendingIndicesAndValuesUsingDoubleValues() {
     int[] indices = {0, 1, 2};
-    double[] values = {2, 1, 3};
+    double[] values = {0.0, -0.0, 1};
     double[] expectedValues = values.clone();
     SortUtils.sortAscending(indices, values, true);
     int[] expected = {1, 0, 2};
