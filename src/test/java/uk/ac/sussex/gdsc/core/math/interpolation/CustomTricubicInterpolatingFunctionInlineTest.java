@@ -134,7 +134,7 @@ public class CustomTricubicInterpolatingFunctionInlineTest {
             j[i] = Math.abs(j[i]);
           }
 
-          SortUtils.sortArrays(js, j, true);
+          SortUtils.sortAscending(js, j, true);
 
           // Check if starting with negative
           char add = '+';
