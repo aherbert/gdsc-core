@@ -369,16 +369,8 @@ public final class SimpleArrayUtils {
    * @param data the data
    */
   public static void reverse(int[] data) {
-    int left = 0;
-    int right = data.length - 1;
-
-    while (left < right) {
-      // swap the values at the left and right indices
+    for (int left = 0, right = data.length - 1; left < right; left++, right--) {
       swap(data, left, right);
-
-      // move the left and right index pointers in toward the center
-      left++;
-      right--;
     }
   }
 
@@ -388,16 +380,8 @@ public final class SimpleArrayUtils {
    * @param data the data
    */
   public static void reverse(float[] data) {
-    int left = 0;
-    int right = data.length - 1;
-
-    while (left < right) {
-      // swap the values at the left and right indices
+    for (int left = 0, right = data.length - 1; left < right; left++, right--) {
       swap(data, left, right);
-
-      // move the left and right index pointers in toward the center
-      left++;
-      right--;
     }
   }
 
@@ -407,16 +391,8 @@ public final class SimpleArrayUtils {
    * @param data the data
    */
   public static void reverse(double[] data) {
-    int left = 0;
-    int right = data.length - 1;
-
-    while (left < right) {
-      // swap the values at the left and right indices
+    for (int left = 0, right = data.length - 1; left < right; left++, right--) {
       swap(data, left, right);
-
-      // move the left and right index pointers in toward the center
-      left++;
-      right--;
     }
   }
 
@@ -426,16 +402,8 @@ public final class SimpleArrayUtils {
    * @param data the data
    */
   public static void reverse(byte[] data) {
-    int left = 0;
-    int right = data.length - 1;
-
-    while (left < right) {
-      // swap the values at the left and right indices
+    for (int left = 0, right = data.length - 1; left < right; left++, right--) {
       swap(data, left, right);
-
-      // move the left and right index pointers in toward the center
-      left++;
-      right--;
     }
   }
 
@@ -445,16 +413,8 @@ public final class SimpleArrayUtils {
    * @param data the data
    */
   public static void reverse(short[] data) {
-    int left = 0;
-    int right = data.length - 1;
-
-    while (left < right) {
-      // swap the values at the left and right indices
+    for (int left = 0, right = data.length - 1; left < right; left++, right--) {
       swap(data, left, right);
-
-      // move the left and right index pointers in toward the center
-      left++;
-      right--;
     }
   }
 

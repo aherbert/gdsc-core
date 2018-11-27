@@ -11,12 +11,12 @@ import org.junit.jupiter.api.Test;
 import java.util.logging.Logger;
 
 @SuppressWarnings({"javadoc"})
-public class SortTest {
+public class SortConversionSpeedTest {
   private static Logger logger;
 
   @BeforeAll
   public static void beforeAll() {
-    logger = Logger.getLogger(SortTest.class.getName());
+    logger = Logger.getLogger(SortConversionSpeedTest.class.getName());
   }
 
   @AfterAll

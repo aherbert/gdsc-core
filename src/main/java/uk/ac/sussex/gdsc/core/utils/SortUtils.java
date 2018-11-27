@@ -29,6 +29,7 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Provides sorting functionality.
@@ -38,6 +39,8 @@ public final class SortUtils {
   /** No public construction. */
   private SortUtils() {}
 
+  // TODO - rename descending sort methods to sortDescending for clarity.
+
   /**
    * Sorts the indices in descending order of their values.
    *
@@ -46,7 +49,7 @@ public final class SortUtils {
    * @return The indices
    */
   public static int[] sort(int[] indices, final int[] values) {
-    return sort(indices, values, false);
+    return sort(indices, values, false, false);
   }
 
   /**
@@ -54,10 +57,24 @@ public final class SortUtils {
    *
    * @param indices the indices
    * @param values the values
-   * @param sortValues the sort values
+   * @param sortValues set to true to also sort the values
    * @return The indices
    */
   public static int[] sort(int[] indices, final int[] values, boolean sortValues) {
+    return sort(indices, values, sortValues, false);
+  }
+
+  /**
+   * Sorts the indices in descending order of their values.
+   *
+   * @param indices the indices
+   * @param values the values
+   * @param sortValues set to true to also sort the values
+   * @param ascending set to true to sort in ascending order
+   * @return The indices
+   */
+  public static int[] sort(int[] indices, final int[] values, boolean sortValues,
+      boolean ascending) {
     // Convert data for sorting
     final int[][] data = new int[indices.length][2];
     for (int i = indices.length; i-- > 0;) {
@@ -65,8 +82,12 @@ public final class SortUtils {
       data[i][1] = indices[i];
     }
 
-    // Largest first
-    Arrays.sort(data, (o1, o2) -> Integer.compare(o2[0], o1[0]));
+    final Comparator<int[]> comp = ascending
+        // Smallest first
+        ? (o1, o2) -> Integer.compare(o1[0], o2[0])
+        // Largest first
+        : (o1, o2) -> Integer.compare(o2[0], o1[0]);
+    Arrays.sort(data, comp);
 
     // Copy back
     for (int i = indices.length; i-- > 0;) {
@@ -97,10 +118,24 @@ public final class SortUtils {
    *
    * @param indices the indices
    * @param values the values
-   * @param sortValues the sort values
+   * @param sortValues set to true to also sort the values
    * @return The indices
    */
   public static int[] sort(int[] indices, final float[] values, boolean sortValues) {
+    return sort(indices, values, sortValues, false);
+  }
+
+  /**
+   * Sorts the indices in descending order of their values.
+   *
+   * @param indices the indices
+   * @param values the values
+   * @param sortValues set to true to also sort the values
+   * @param ascending set to true to sort in ascending order
+   * @return The indices
+   */
+  public static int[] sort(int[] indices, final float[] values, boolean sortValues,
+      boolean ascending) {
     // Convert data for sorting
     final float[][] data = new float[indices.length][2];
     for (int i = indices.length; i-- > 0;) {
@@ -110,8 +145,12 @@ public final class SortUtils {
       data[i][1] = Float.intBitsToFloat(indices[i]);
     }
 
-    // Largest first
-    Arrays.sort(data, (o1, o2) -> Float.compare(o2[0], o1[0]));
+    final Comparator<float[]> comp = ascending
+        // Smallest first
+        ? (o1, o2) -> Float.compare(o1[0], o2[0])
+        // Largest first
+        : (o1, o2) -> Float.compare(o2[0], o1[0]);
+    Arrays.sort(data, comp);
 
     // Copy back
     for (int i = indices.length; i-- > 0;) {
@@ -142,10 +181,24 @@ public final class SortUtils {
    *
    * @param indices the indices
    * @param values the values
-   * @param sortValues the sort values
+   * @param sortValues set to true to also sort the values
    * @return The indices
    */
   public static int[] sort(int[] indices, final double[] values, boolean sortValues) {
+    return sort(indices, values, sortValues, false);
+  }
+
+  /**
+   * Sorts the indices in descending order of their values.
+   *
+   * @param indices the indices
+   * @param values the values
+   * @param sortValues set to true to also sort the values
+   * @param ascending set to true to sort in ascending order
+   * @return The indices
+   */
+  public static int[] sort(int[] indices, final double[] values, boolean sortValues,
+      boolean ascending) {
     // Convert data for sorting
     final double[][] data = new double[indices.length][2];
     for (int i = indices.length; i-- > 0;) {
@@ -153,8 +206,12 @@ public final class SortUtils {
       data[i][1] = indices[i];
     }
 
-    // Largest first
-    Arrays.sort(data, (o1, o2) -> Double.compare(o2[0], o1[0]));
+    final Comparator<double[]> comp = ascending
+        // Smallest first
+        ? (o1, o2) -> Double.compare(o1[0], o2[0])
+        // Largest first
+        : (o1, o2) -> Double.compare(o2[0], o1[0]);
+    Arrays.sort(data, comp);
 
     // Copy back
     for (int i = indices.length; i-- > 0;) {
@@ -169,6 +226,8 @@ public final class SortUtils {
     return indices;
   }
 
+  // Legacy API methods to sort ascending with/without sorting values
+
   /**
    * Sorts the indices in ascending order of their values.
    *
@@ -177,7 +236,7 @@ public final class SortUtils {
    * @return The indices
    */
   public static int[] sortAscending(int[] indices, final int[] values) {
-    return sortAscending(indices, values, false);
+    return sort(indices, values, false, true);
   }
 
   /**
@@ -185,31 +244,11 @@ public final class SortUtils {
    *
    * @param indices the indices
    * @param values the values
-   * @param sortValues the sort values
+   * @param sortValues set to true to also sort the values
    * @return The indices
    */
   public static int[] sortAscending(int[] indices, final int[] values, boolean sortValues) {
-    // Convert data for sorting
-    final int[][] data = new int[indices.length][2];
-    for (int i = indices.length; i-- > 0;) {
-      data[i][0] = values[indices[i]];
-      data[i][1] = indices[i];
-    }
-
-    // Smallest first
-    Arrays.sort(data, (o1, o2) -> Integer.compare(o1[0], o2[0]));
-
-    // Copy back
-    for (int i = indices.length; i-- > 0;) {
-      indices[i] = data[i][1];
-    }
-    if (sortValues) {
-      for (int i = indices.length; i-- > 0;) {
-        values[i] = data[i][0];
-      }
-    }
-
-    return indices;
+    return sort(indices, values, sortValues, true);
   }
 
   /**
@@ -220,7 +259,7 @@ public final class SortUtils {
    * @return The indices
    */
   public static int[] sortAscending(int[] indices, final float[] values) {
-    return sortAscending(indices, values, false);
+    return sort(indices, values, false, true);
   }
 
   /**
@@ -228,33 +267,11 @@ public final class SortUtils {
    *
    * @param indices the indices
    * @param values the values
-   * @param sortValues the sort values
+   * @param sortValues set to true to also sort the values
    * @return The indices
    */
   public static int[] sortAscending(int[] indices, final float[] values, boolean sortValues) {
-    // Convert data for sorting
-    final float[][] data = new float[indices.length][2];
-    for (int i = indices.length; i-- > 0;) {
-      data[i][0] = values[indices[i]];
-      // This is required to handle integers that do not fit in a float.
-      // Speed test shows it is also faster than the cast.
-      data[i][1] = Float.intBitsToFloat(indices[i]);
-    }
-
-    // Smallest first
-    Arrays.sort(data, (o1, o2) -> Float.compare(o1[0], o2[0]));
-
-    // Copy back
-    for (int i = indices.length; i-- > 0;) {
-      indices[i] = Float.floatToRawIntBits(data[i][1]);
-    }
-    if (sortValues) {
-      for (int i = indices.length; i-- > 0;) {
-        values[i] = data[i][0];
-      }
-    }
-
-    return indices;
+    return sort(indices, values, sortValues, true);
   }
 
   /**
@@ -265,7 +282,7 @@ public final class SortUtils {
    * @return The indices
    */
   public static int[] sortAscending(int[] indices, final double[] values) {
-    return sortAscending(indices, values, false);
+    return sort(indices, values, false, true);
   }
 
   /**
@@ -273,180 +290,10 @@ public final class SortUtils {
    *
    * @param indices the indices
    * @param values the values
-   * @param sortValues the sort values
+   * @param sortValues set to true to also sort the values
    * @return The indices
    */
   public static int[] sortAscending(int[] indices, final double[] values, boolean sortValues) {
-    // Convert data for sorting
-    final double[][] data = new double[indices.length][2];
-    for (int i = indices.length; i-- > 0;) {
-      data[i][0] = values[indices[i]];
-      data[i][1] = indices[i];
-    }
-
-    // Smallest first
-    Arrays.sort(data, (o1, o2) -> Double.compare(o1[0], o2[0]));
-
-    // Copy back
-    for (int i = indices.length; i-- > 0;) {
-      indices[i] = (int) data[i][1];
-    }
-    if (sortValues) {
-      for (int i = indices.length; i-- > 0;) {
-        values[i] = data[i][0];
-      }
-    }
-
-    return indices;
-  }
-
-  /**
-   * Sorts array 1 using the values in array 2.
-   *
-   * @param values1 the values 1
-   * @param values2 the values 2
-   * @param ascending the ascending
-   */
-  public static void sortArrays(int[] values1, final double[] values2, boolean ascending) {
-    // Extract indices
-    final int[] indices = new int[values1.length];
-    for (int i = values1.length; i-- > 0;) {
-      indices[i] = i;
-    }
-
-    if (ascending) {
-      sortAscending(indices, values2, false);
-    } else {
-      sort(indices, values2, false);
-    }
-
-    // Copy back
-    final int[] v1 = Arrays.copyOf(values1, values1.length);
-    final double[] v2 = Arrays.copyOf(values2, values2.length);
-
-    for (int i = values1.length; i-- > 0;) {
-      values1[i] = v1[indices[i]];
-      values2[i] = v2[indices[i]];
-    }
-  }
-
-  /**
-   * Sorts array 1 using the values in array 2.
-   *
-   * @param values1 the values 1
-   * @param values2 the values 2
-   * @param ascending the ascending
-   */
-  public static void sortArrays(int[] values1, final float[] values2, boolean ascending) {
-    // Extract indices
-    final int[] indices = new int[values1.length];
-    for (int i = values1.length; i-- > 0;) {
-      indices[i] = i;
-    }
-
-    if (ascending) {
-      sortAscending(indices, values2, false);
-    } else {
-      sort(indices, values2, false);
-    }
-
-    // Copy back
-    final int[] v1 = Arrays.copyOf(values1, values1.length);
-    final float[] v2 = Arrays.copyOf(values2, values2.length);
-
-    for (int i = values1.length; i-- > 0;) {
-      values1[i] = v1[indices[i]];
-      values2[i] = v2[indices[i]];
-    }
-  }
-
-  /**
-   * Sorts array 1 using the values in array 2.
-   *
-   * @param values1 the values 1
-   * @param values2 the values 2
-   * @param ascending the ascending
-   */
-  public static void sortArrays(int[] values1, final int[] values2, boolean ascending) {
-    // Extract indices
-    final int[] indices = new int[values1.length];
-    for (int i = values1.length; i-- > 0;) {
-      indices[i] = i;
-    }
-
-    if (ascending) {
-      sortAscending(indices, values2, false);
-    } else {
-      sort(indices, values2, false);
-    }
-
-    // Copy back
-    final int[] v1 = Arrays.copyOf(values1, values1.length);
-    final int[] v2 = Arrays.copyOf(values2, values2.length);
-
-    for (int i = values1.length; i-- > 0;) {
-      values1[i] = v1[indices[i]];
-      values2[i] = v2[indices[i]];
-    }
-  }
-
-  /**
-   * Sorts array 1 using the values in array 2.
-   *
-   * @param values1 the values 1
-   * @param values2 the values 2
-   * @param ascending the ascending
-   */
-  public static void sortArrays(float[] values1, final float[] values2, boolean ascending) {
-    // Extract indices
-    final int[] indices = new int[values1.length];
-    for (int i = values1.length; i-- > 0;) {
-      indices[i] = i;
-    }
-
-    if (ascending) {
-      sortAscending(indices, values2, false);
-    } else {
-      sort(indices, values2, false);
-    }
-
-    // Copy back
-    final float[] v1 = Arrays.copyOf(values1, values1.length);
-    final float[] v2 = Arrays.copyOf(values2, values2.length);
-
-    for (int i = values1.length; i-- > 0;) {
-      values1[i] = v1[indices[i]];
-      values2[i] = v2[indices[i]];
-    }
-  }
-
-  /**
-   * Sorts array 1 using the values in array 2.
-   *
-   * @param values1 the values 1
-   * @param values2 the values 2
-   * @param ascending the ascending
-   */
-  public static void sortArrays(double[] values1, final double[] values2, boolean ascending) {
-    // Extract indices
-    final int[] indices = new int[values1.length];
-    for (int i = values1.length; i-- > 0;) {
-      indices[i] = i;
-    }
-
-    if (ascending) {
-      sortAscending(indices, values2, false);
-    } else {
-      sort(indices, values2, false);
-    }
-
-    // Copy back
-    final double[] v1 = Arrays.copyOf(values1, values1.length);
-    final double[] v2 = Arrays.copyOf(values2, values2.length);
-
-    for (int i = values1.length; i-- > 0;) {
-      values1[i] = v1[indices[i]];
-      values2[i] = v2[indices[i]];
-    }
+    return sort(indices, values, sortValues, true);
   }
 }

@@ -738,7 +738,7 @@ public class OpticsResult implements ClusteringResult {
     // Sort
     final int[] parentIds = parents.toArray();
     final int[] rank = parentsRank.toArray();
-    SortUtils.sortArrays(parentIds, rank, true);
+    SortUtils.sortAscending(parentIds, rank, false);
     return parentIds;
   }
 
