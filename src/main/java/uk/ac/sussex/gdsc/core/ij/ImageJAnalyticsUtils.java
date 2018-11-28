@@ -28,14 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.analytics.ClientParameters;
-import uk.ac.sussex.gdsc.analytics.ClientParametersManager;
-import uk.ac.sussex.gdsc.analytics.HitType;
-import uk.ac.sussex.gdsc.analytics.JGoogleAnalyticsTracker;
-import uk.ac.sussex.gdsc.analytics.JGoogleAnalyticsTracker.DispatchMode;
-import uk.ac.sussex.gdsc.analytics.JGoogleAnalyticsTracker.MeasurementProtocolVersion;
-import uk.ac.sussex.gdsc.analytics.RequestParameters;
+import uk.ac.sussex.gdsc.analytics.DefaultHitDispatcher;
+import uk.ac.sussex.gdsc.analytics.GoogleAnalyticsClient;
 import uk.ac.sussex.gdsc.core.VersionUtils;
+import uk.ac.sussex.gdsc.core.utils.TextUtils;
 
 import ij.IJ;
 import ij.ImageJ;
@@ -44,12 +40,15 @@ import ij.gui.GenericDialog;
 import ij.macro.MacroRunner;
 
 import java.awt.Button;
+import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -115,12 +114,14 @@ public final class ImageJAnalyticsUtils {
   private static int state = (int) Prefs.get(PROPERTY_GA_STATE, UNKNOWN);
 
   /**
-   * Initialise on demand the ClientParameters.
+   * Initialise on demand the GoogleAnalyticsClient.
+   * 
+   * <p>This is used to avoid synchronisation during initialisation.
    *
    * <a href="https://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom">Initialisation on
    * demand</a>
    */
-  private static class LazyClientParametersHolder {
+  private static class LazyGoogleAnalyticsClientHolder {
     /**
      * Google Analytics (GA) tracking Id.
      *
@@ -136,46 +137,73 @@ public final class ImageJAnalyticsUtils {
      */
     private static final String PROPERTY_GA_CLIENT_ID = "gdsc.ga.clientId";
 
-    /** The single instance. */
-    static final ClientParameters INSTANCE = create();
+    /**
+     * The single instance of the client builder.
+     * 
+     * <p>Changes to the client must use methods on the builder and then the client instance can be
+     * rebuilt.
+     */
+    private static final GoogleAnalyticsClient.Builder builderInstance;
 
     /**
-     * Creates the instance.
-     *
-     * @return the client parameters
+     * The single instance of the client.
+     * 
+     * <p>This can be updated by methods that modify the builder.
      */
-    private static ClientParameters create() {
-      // Get the client parameters
-      final String clientId = Prefs.get(PROPERTY_GA_CLIENT_ID, null);
-      final ClientParameters clientParameters =
-          new ClientParameters(GA_TRACKING_ID, clientId, APPLICATION_NAME);
+    private static GoogleAnalyticsClient instance;
 
-      ClientParametersManager.populate(clientParameters);
+    static {
+      String clientId = Prefs.get(PROPERTY_GA_CLIENT_ID, null);
+      if (clientId == null) {
+        // Generate a random UUID to allow user tracking. This is anonymous information.
+        clientId = UUID.randomUUID().toString();
+        // Record for next time
+        Prefs.set(PROPERTY_GA_CLIENT_ID, clientId);
+      }
 
-      // Record for next time
-      Prefs.set(PROPERTY_GA_CLIENT_ID, clientParameters.getClientId());
+      String info = getImageJInfo();
+      Dimension screenSize = IJ.getScreenSize();
 
-      // Record the version of analytics we are using
-      clientParameters.setApplicationVersion(uk.ac.sussex.gdsc.analytics.Version.VERSION_X_X_X);
+      //@formatter:off
+      builderInstance = 
+          GoogleAnalyticsClient.newBuilder(GA_TRACKING_ID)
+                               .setClientId(clientId)
+                               // Always use anonymised and secure connection.
+                               // Following GDPR all personal data is removed so nothing
+                               // that is sent to Google can be used to identify a data
+                               // subject (an individual).
+                               .setSecure(true)
+                               .getOrCreatePerSessionParameters()
+                                   .addApplicationName(APPLICATION_NAME)
+                                   // Use the version of the analytics code
+                                   .addApplicationVersion(uk.ac.sussex.gdsc.analytics.VersionUtils
+                                       .VERSION_X_X_X)
+                                   .addScreenResolution(screenSize.width, screenSize.height)
+                                   // Use custom dimensions to record client data. 
+                                   // These should be registered in the analytics account for 
+                                   // the given tracking ID.
+                                   // Record the ImageJ information.
+                                   .addCustomDimension(1, info)
+                                   // Java version
+                                   .addCustomDimension(2, System.getProperty("java.version"))
+                                   // OS
+                                   .addCustomDimension(3, System.getProperty("os.name"))
+                                   .addCustomDimension(4, System.getProperty("os.version"))
+                                   .addCustomDimension(5, System.getProperty("os.arch"))
+                                   // Versions
+                                   .addCustomDimension(9, VersionUtils.getVersion())
+                                   .getParent();
+      //@formatter:on
 
-      // Use custom dimensions to record client data. These should be registered
-      // in the analytics account for the given tracking ID
+      instance = builderInstance.build();
 
-      // Record the ImageJ information.
-      clientParameters.addCustomDimension(1, getImageJInfo());
-
-      // Java version
-      clientParameters.addCustomDimension(2, System.getProperty("java.version"));
-
-      // OS
-      clientParameters.addCustomDimension(3, System.getProperty("os.name"));
-      clientParameters.addCustomDimension(4, System.getProperty("os.version"));
-      clientParameters.addCustomDimension(5, System.getProperty("os.arch"));
-
-      // Versions
-      clientParameters.addCustomDimension(9, VersionUtils.getVersion());
-
-      return clientParameters;
+      // DEBUG: Enable logging
+      if (Boolean.parseBoolean(System.getProperty("gdsc-analytics-logger", "false"))) {
+        Logger logger = Logger.getLogger(DefaultHitDispatcher.class.getName());
+        if (!logger.isLoggable(Level.FINE)) {
+          logger.setLevel(Level.FINE);
+        }
+      }
     }
 
     /**
@@ -205,39 +233,27 @@ public final class ImageJAnalyticsUtils {
       }
       return info;
     }
-  }
-
-  /**
-   * Initialise on demand the JGoogleAnalyticsTracker.
-   *
-   * <a href="https://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom">Initialisation on
-   * demand</a>
-   */
-  private static class LazyJGoogleAnalyticsTrackerHolder {
-    /** The single instance. */
-    static final JGoogleAnalyticsTracker INSTANCE = create();
 
     /**
-     * Creates the instance.
+     * Gets the instance of the GoogleAnalyticsClient.
      *
-     * @return the client parameters
+     * @return instance of GoogleAnalyticsClient
      */
-    private static JGoogleAnalyticsTracker create() {
-      final JGoogleAnalyticsTracker tracker =
-          new JGoogleAnalyticsTracker(LazyClientParametersHolder.INSTANCE,
-              MeasurementProtocolVersion.V_1, DispatchMode.SINGLE_THREAD);
+    static GoogleAnalyticsClient getInstance() {
+      return instance;
+    }
 
-      // TODO: Always use anonymised and secure connection.
-      // Following GDPR all personal data is removed so nothing
-      // that is sent to Google can be used to identify a data
-      // subject (an individual).
-
-      // DEBUG: Enable logging
-      if (Boolean.parseBoolean(System.getProperty("gdsc-analytics-logger", "false"))) {
-        tracker.setLogger(new uk.ac.sussex.gdsc.analytics.ConsoleLogger());
-      }
-
-      return tracker;
+    /**
+     * Add a custom dimension to the per-session parameters. The session will be reset.
+     *
+     * @param index The dimension index
+     * @param value The dimension value
+     */
+    static void addCustomDimension(int index, String value) {
+      builderInstance.getOrCreatePerSessionParameters().addCustomDimension(index, value);
+      // Update the instance. Avoid synchronisation. This method is likely to be called
+      // before any use of the instance since it sets session parameters. 
+      instance = builderInstance.build();
     }
   }
 
@@ -254,21 +270,38 @@ public final class ImageJAnalyticsUtils {
     if (isDisabled()) {
       return;
     }
-    final JGoogleAnalyticsTracker tracker = LazyJGoogleAnalyticsTrackerHolder.INSTANCE;
-    // Get the timestamp. This allows asynchronous hits to be recorded at the correct time
-    final long timestamp = System.currentTimeMillis();
-    final RequestParameters data = new RequestParameters(HitType.PAGEVIEW);
-    data.setDocumentPath(documentPath);
-    data.setDocumentTitle(documentTitle);
     // Add custom dimensions for ImageJ state.
     final boolean isMacro = IJ.isMacro();
-    data.addCustomMetric(1, (isMacro) ? 1 : 0);
-    data.addCustomDimension(8, Boolean.toString(isMacro));
-    tracker.makeCustomRequest(data, timestamp);
+
+    final String path = sanitisePath(documentPath);
+
+    //@formatter:off
+    LazyGoogleAnalyticsClientHolder.getInstance()
+        .pageview("localhost", path)
+        .addDocumentTitle(documentTitle)
+        .addCustomMetric(1, (isMacro) ? 1 : 0)
+        .addCustomDimension(8, Boolean.toString(isMacro))
+        .send();
+    //@formatter:on
   }
 
   /**
-   * Add a custom dimension.
+   * Sanitise the document path. Ensures a forward slash '/' is prepended to the path if missing.
+   *
+   * <p>A null or empty path returns "/".
+   *
+   * @param documentPath the document path
+   * @return the sanitised document path
+   */
+  public static String sanitisePath(String documentPath) {
+    if (TextUtils.isNullOrEmpty(documentPath)) {
+      return "/";
+    }
+    return (documentPath.charAt(0) == '/') ? documentPath : "/" + documentPath;
+  }
+
+  /**
+   * Add a custom dimension to the per-session parameters. The session will be reset.
    *
    * <p>Note that custom dimensions have to be created for your site before they can be used in
    * analytics reports.
@@ -279,22 +312,7 @@ public final class ImageJAnalyticsUtils {
    *      dimensions and metrics</a>
    */
   public static void addCustomDimension(int index, String value) {
-    LazyClientParametersHolder.INSTANCE.addCustomDimension(index, value);
-  }
-
-  /**
-   * Add a custom metric.
-   *
-   * <p>Note that custom metrics have to be created for your site before they can be used in
-   * analytics reports.
-   *
-   * @param index The dimension index (1-20 or 1-200 for premium accounts)
-   * @param value The dimension value
-   * @see <a href="https://support.google.com/analytics/answer/2709829">Create and edit custom
-   *      dimensions and metrics</a>
-   */
-  public static void addCustomMetric(int index, int value) {
-    LazyClientParametersHolder.INSTANCE.addCustomMetric(index, value);
+    LazyGoogleAnalyticsClientHolder.addCustomDimension(index, value);
   }
 
   /**
@@ -414,14 +432,18 @@ public final class ImageJAnalyticsUtils {
 
       final boolean enabled = !disabled;
 
-      final JGoogleAnalyticsTracker tracker = LazyJGoogleAnalyticsTrackerHolder.INSTANCE;
+      final GoogleAnalyticsClient ga = LazyGoogleAnalyticsClientHolder.getInstance();
 
       // Reset the session if tracking has been enabled.
       if (enabled) {
-        tracker.resetSession();
+        ga.resetSession();
       }
+      //@formatter:off
       // Track the opt status change with an event
-      tracker.event("Tracking", Boolean.toString(enabled), getVersion(), null);
+      ga.event("Tracking", Boolean.toString(enabled))
+          .addEventLabel(getVersion())
+          .send();
+      //@formatter:on
     }
   }
 
@@ -431,7 +453,7 @@ public final class ImageJAnalyticsUtils {
    * @return The version of the code.
    */
   private static String getVersion() {
-    return uk.ac.sussex.gdsc.analytics.Version.VERSION_X_X;
+    return uk.ac.sussex.gdsc.analytics.VersionUtils.VERSION_X_X;
   }
 
   /**
