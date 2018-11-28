@@ -88,18 +88,18 @@ public class DoubleLinkedMedianWindow {
       indices[i] = i;
       this.data[i] = new Data(values[i], i);
     }
-    SortUtils.sort(indices, values);
+    SortUtils.sortIndices(indices, values, false);
 
     // Create the smaller and greater pointers.
-    // (The sort is in descending order)
+    // (The sort is in ascending order.)
     for (int i = 0; i < values.length; i++) {
       if (i > 0) {
         // Set the smaller pointer to the data smaller than this
-        data[indices[i]].greater = data[indices[i - 1]];
+        data[indices[i]].smaller = data[indices[i - 1]];
       }
       if (i < values.length - 1) {
         // Set the greater pointer to the data greater than this
-        data[indices[i]].smaller = data[indices[i + 1]];
+        data[indices[i]].greater = data[indices[i + 1]];
       }
     }
 

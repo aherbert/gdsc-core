@@ -273,13 +273,28 @@ public final class ImageJAnalyticsUtils {
    * <p>Note that custom dimensions have to be created for your site before they can be used in
    * analytics reports.
    *
-   * @see "https://support.google.com/analytics/answer/2709829"
-   *
    * @param index The dimension index (1-20 or 1-200 for premium accounts)
    * @param value The dimension value (must not be null)
+   * @see <a href="https://support.google.com/analytics/answer/2709829">Create and edit custom
+   *      dimensions and metrics</a>
    */
   public static void addCustomDimension(int index, String value) {
     LazyClientParametersHolder.INSTANCE.addCustomDimension(index, value);
+  }
+
+  /**
+   * Add a custom metric.
+   *
+   * <p>Note that custom metrics have to be created for your site before they can be used in
+   * analytics reports.
+   *
+   * @param index The dimension index (1-20 or 1-200 for premium accounts)
+   * @param value The dimension value
+   * @see <a href="https://support.google.com/analytics/answer/2709829">Create and edit custom
+   *      dimensions and metrics</a>
+   */
+  public static void addCustomMetric(int index, int value) {
+    LazyClientParametersHolder.INSTANCE.addCustomMetric(index, value);
   }
 
   /**

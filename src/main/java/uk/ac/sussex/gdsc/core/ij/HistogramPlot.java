@@ -464,7 +464,7 @@ public class HistogramPlot {
    * @param numberOfBins The number of histogram bins between min and max (must be above one)
    * @return The histogram as a pair of arrays: { value[], frequency[] }
    */
-  public static float[][] calcHistogram(float[] data, float minimum, float maximum,
+  public static float[][] calcHistogram(float[] data, double minimum, double maximum,
       int numberOfBins) {
     // Parameter check
     int numBins = Math.max(2, numberOfBins);

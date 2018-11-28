@@ -484,9 +484,9 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
       // Ensure the indices are random
       rand.shuffle(indices);
     } else if (sampleMode == SampleMode.MEDIAN) {
-      // sort set, since need median element later
-      // (when computing distance to the middle of the set)
-      SortUtils.sort(indices, tpro);
+      // Sort the set, since we need the median element later
+      // (when computing distance to the middle of the set).
+      SortUtils.sortIndices(indices, tpro, false);
     }
     splitSets.add(indices);
   }

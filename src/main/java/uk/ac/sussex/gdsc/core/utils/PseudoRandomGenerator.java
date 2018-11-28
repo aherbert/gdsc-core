@@ -235,11 +235,8 @@ public class PseudoRandomGenerator extends AbstractRandomGenerator {
    * @param data the data
    */
   public void shuffle(int[] data) {
-    for (int i = data.length; i-- > 1;) {
-      final int j = nextIntFast(i + 1);
-      final int tmp = data[i];
-      data[i] = data[j];
-      data[j] = tmp;
+    for (int i = data.length; i > 1; i--) {
+      SimpleArrayUtils.swap(data, i - 1, nextIntFast(i));
     }
   }
 }
