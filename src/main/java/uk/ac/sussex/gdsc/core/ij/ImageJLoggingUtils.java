@@ -28,6 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
+import uk.ac.sussex.gdsc.core.utils.TurboList;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
@@ -43,40 +48,72 @@ public final class ImageJLoggingUtils {
   private ImageJLoggingUtils() {}
 
   /**
-   * Remove all instances of {@link ConsoleHandler} and replace with {@link ImageJLogHandler}.
+   * Remove all instances of {@link ConsoleHandler} or {@link ImageJLogHandler} and replace with the
+   * provided {@link ImageJLogHandler}. This works on a named subsystem.
    *
-   * <p>This is a helper method to allow code to send logging output to the ImageJ log window. It
-   * can be called by plugins to ensure the packages that are used will send output to the ImageJ
-   * log.
-   *
-   * @param packageName the package name
+   * @param name the name
+   * @see ImageJLoggingUtils#redirectConsoleHandler(String, ImageJLogHandler)
    */
-  public static void redirectConsoleHandler(String packageName) {
-    redirectConsoleHandler(packageName, new ImageJLogHandler());
+  public static void redirectConsoleHandler(String name) {
+    redirectConsoleHandler(name, new ImageJLogHandler());
   }
 
   /**
    * Remove all instances of {@link ConsoleHandler} or {@link ImageJLogHandler} and replace with the
-   * provided {@link ImageJLogHandler}.
+   * provided {@link ImageJLogHandler}. This works on a named subsystem.
    *
    * <p>This is a helper method to allow code to send logging output to the ImageJ log window. It
-   * can be called by plugins to ensure the packages that are used will send output to the ImageJ
-   * log.
+   * can be called by ImageJ plugins to ensure the packages that are used will send output to the
+   * ImageJ log.
    *
-   * @param packageName the package name
+   * <p>The handlers for the logger and its parents will be collected. {@link ConsoleHandler} or
+   * {@link ImageJLogHandler} will be replaced and the updated handlers added directly to this
+   * logger. The logger will be set to not use its parent handlers.
+   *
+   * <p>Warning: This effectively detaches the named subsystem from the parent so use with caution.
+   *
+   * @param name the name
    * @param imageJLogHandler the ImageJ log handler
    */
-  public static void redirectConsoleHandler(String packageName, ImageJLogHandler imageJLogHandler) {
-    final Logger logger = Logger.getLogger(packageName);
-    boolean removed = false;
-    for (final Handler handler : logger.getHandlers()) {
+  public static void redirectConsoleHandler(String name, ImageJLogHandler imageJLogHandler) {
+    final Logger logger = Logger.getLogger(name);
+    List<Handler> handlers = collectHandlers(logger);
+    // Remove specific instances
+    Iterator<Handler> iter = handlers.iterator();
+    while (iter.hasNext()) {
+      Handler handler = iter.next();
       if (handler.getClass().equals(ConsoleHandler.class) || handler instanceof ImageJLogHandler) {
-        removed = true;
-        logger.removeHandler(handler);
+        iter.remove();
       }
     }
-    if (removed) {
-      logger.addHandler(imageJLogHandler);
+    // Clear current handlers from the logger
+    for (final Handler handler : logger.getHandlers()) {
+        logger.removeHandler(handler);
     }
+    // Add the specific handler
+    handlers.add(imageJLogHandler);
+    for (final Handler handler : handlers) {
+      logger.addHandler(handler);
+    }
+    logger.setUseParentHandlers(false);
+  }
+
+  /**
+   * Collect all the handlers recursively up the tree if the logger allows use of its parent
+   * handlers.
+   *
+   * @param logger the logger
+   * @return the list
+   */
+  public static List<Handler> collectHandlers(Logger logger) {
+    TurboList<Handler> handlers = new TurboList<>();
+    while (logger != null) {
+      handlers.addAll(Arrays.asList(logger.getHandlers()));
+      if (!logger.getUseParentHandlers()) {
+        break;
+      }
+      logger = logger.getParent();
+    }
+    return handlers;
   }
 }

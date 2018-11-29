@@ -32,12 +32,15 @@ import uk.ac.sussex.gdsc.core.logging.PlainMessageFormatter;
 
 import ij.IJ;
 
+import java.util.logging.ErrorManager;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 /**
  * Publish log records to the ImageJ log window.
+ *
+ * @see IJ#log(String)
  */
 public class ImageJLogHandler extends Handler {
 
@@ -60,7 +63,20 @@ public class ImageJLogHandler extends Handler {
   @Override
   public void publish(LogRecord record) {
     if (isLoggable(record)) {
-      IJ.log(getFormatter().formatMessage(record));
+      // We don't want to throw an exception here, but we
+      // report the exception to any registered ErrorManager.
+      String msg;
+      try {
+        msg = getFormatter().format(record);
+      } catch (Exception ex) {
+        reportError(null, ex, ErrorManager.FORMAT_FAILURE);
+        return;
+      }
+      try {
+        IJ.log(msg);
+      } catch (Exception ex) {
+        reportError(null, ex, ErrorManager.WRITE_FAILURE);
+      }
     }
   }
 

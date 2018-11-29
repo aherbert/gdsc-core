@@ -104,7 +104,7 @@ public class SortUtilsTest {
     Assertions.assertArrayEquals(expectedData, data, "Data not ascending order");
     Assertions.assertArrayEquals(expectedValues, values, "Values have changed");
   }
-  
+
   @Test
   public void canSortAscendingDataAndValuesUsingIntDataIntValues() {
     final int[] data = {70, 80, 90};

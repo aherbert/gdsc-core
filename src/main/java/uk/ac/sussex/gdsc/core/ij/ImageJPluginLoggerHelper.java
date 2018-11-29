@@ -40,15 +40,20 @@ import java.util.logging.Logger;
  *
  * <p>This is a helper that allows top-level GDSC plugins to create loggers that will appropriately
  * redirect output to ImageJ.
+ *
+ * @see ImageJLoggingUtils#redirectConsoleHandler(String, ImageJLogHandler)
  */
 public final class ImageJPluginLoggerHelper {
+
+  static {
+    // Ensure redirection of the top-level GDSC package
+    ImageJLoggingUtils.redirectConsoleHandler("uk.ac.sussex.gdsc");
+  }
 
   /**
    * No public construction.
    */
-  private ImageJPluginLoggerHelper() {
-    ImageJLoggingUtils.redirectConsoleHandler("uk.ac.sussex.gdsc");
-  }
+  private ImageJPluginLoggerHelper() {}
 
   /**
    * Gets the logger for the named subsystem.

@@ -28,7 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.analytics.DefaultHitDispatcher;
 import uk.ac.sussex.gdsc.analytics.GoogleAnalyticsClient;
 import uk.ac.sussex.gdsc.core.VersionUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
@@ -48,7 +47,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -87,6 +85,9 @@ public final class ImageJAnalyticsUtils {
    */
   private static final int ENABLED = 1;
 
+  /** This page describe the usage tracking in more detail. */
+  private static final String TRACKING_HELP_URL =
+      "http://www.sussex.ac.uk/gdsc/intranet/microscopy/UserSupport/AnalysisProtocol/imagej/tracking/";
   /** The help label text. */
   private static final String HELP_LABEL = "More details...";
   /**
@@ -115,7 +116,7 @@ public final class ImageJAnalyticsUtils {
 
   /**
    * Initialise on demand the GoogleAnalyticsClient.
-   * 
+   *
    * <p>This is used to avoid synchronisation during initialisation.
    *
    * <a href="https://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom">Initialisation on
@@ -139,7 +140,7 @@ public final class ImageJAnalyticsUtils {
 
     /**
      * The single instance of the client builder.
-     * 
+     *
      * <p>Changes to the client must use methods on the builder and then the client instance can be
      * rebuilt.
      */
@@ -147,7 +148,7 @@ public final class ImageJAnalyticsUtils {
 
     /**
      * The single instance of the client.
-     * 
+     *
      * <p>This can be updated by methods that modify the builder.
      */
     private static GoogleAnalyticsClient instance;
@@ -161,11 +162,11 @@ public final class ImageJAnalyticsUtils {
         Prefs.set(PROPERTY_GA_CLIENT_ID, clientId);
       }
 
-      String info = getImageJInfo();
-      Dimension screenSize = IJ.getScreenSize();
+      final String info = getImageJInfo();
+      final Dimension screenSize = IJ.getScreenSize();
 
       //@formatter:off
-      builderInstance = 
+      builderInstance =
           GoogleAnalyticsClient.newBuilder(GA_TRACKING_ID)
                                .setClientId(clientId)
                                // Always use anonymised and secure connection.
@@ -179,8 +180,8 @@ public final class ImageJAnalyticsUtils {
                                    .addApplicationVersion(uk.ac.sussex.gdsc.analytics.VersionUtils
                                        .VERSION_X_X_X)
                                    .addScreenResolution(screenSize.width, screenSize.height)
-                                   // Use custom dimensions to record client data. 
-                                   // These should be registered in the analytics account for 
+                                   // Use custom dimensions to record client data.
+                                   // These should be registered in the analytics account for
                                    // the given tracking ID.
                                    // Record the ImageJ information.
                                    .addCustomDimension(1, info)
@@ -196,14 +197,6 @@ public final class ImageJAnalyticsUtils {
       //@formatter:on
 
       instance = builderInstance.build();
-
-      // DEBUG: Enable logging
-      if (Boolean.parseBoolean(System.getProperty("gdsc-analytics-logger", "false"))) {
-        Logger logger = Logger.getLogger(DefaultHitDispatcher.class.getName());
-        if (!logger.isLoggable(Level.FINE)) {
-          logger.setLevel(Level.FINE);
-        }
-      }
     }
 
     /**
@@ -252,7 +245,7 @@ public final class ImageJAnalyticsUtils {
     static void addCustomDimension(int index, String value) {
       builderInstance.getOrCreatePerSessionParameters().addCustomDimension(index, value);
       // Update the instance. Avoid synchronisation. This method is likely to be called
-      // before any use of the instance since it sets session parameters. 
+      // before any use of the instance since it sets session parameters.
       instance = builderInstance.build();
     }
   }
@@ -496,9 +489,7 @@ public final class ImageJAnalyticsUtils {
           if (button.getLabel().equals(HELP_LABEL))
           {
             final String macro = "run('URL...', 'url=" +
-                // This page describe the usage tracking in more detail
-                "http://www.sussex.ac.uk/gdsc/intranet/microscopy/imagej/tracking" +
-                "');";
+                TRACKING_HELP_URL + "');";
             new MacroRunner(macro);
           }
         }
