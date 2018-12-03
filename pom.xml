@@ -626,7 +626,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
               <!-- The buildhelper.maven.plugin sets the property 'timestamp' to an epochSeconds -->
               <!-- format. This is used by coveralls to parse the maven timestamp. -->
               <timestampFormat>EpochMillis</timestampFormat>
-              <repoToken>Q8aRjUdMT21BCnUTJCditFVT4NTZ8ooOX</repoToken>
             </configuration>
           </plugin>
         </plugins>
