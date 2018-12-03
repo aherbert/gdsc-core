@@ -334,6 +334,7 @@ public class OpticsManagerTest {
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
+    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-5, 0);
     for (final int n : new int[] {100, 500}) {
       final OpticsManager om = createOpticsManager(size, n, rg);
       om.setTracker(tracker);
@@ -399,7 +400,7 @@ public class OpticsManagerTest {
 
           Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("[%d] Id", index));
           Assertions.assertEquals(expPre, obsPre, FunctionUtils.getSupplier("[%d] Pre", index));
-          TestAssertions.assertTest(expR, obsR, TestHelper.doublesAreClose(1e-5, 0),
+          TestAssertions.assertTest(expR, obsR, equality,
               FunctionUtils.getSupplier("[%d] R", index));
         }
       }
@@ -419,6 +420,7 @@ public class OpticsManagerTest {
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
+    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-5, 0);
     for (final int n : new int[] {100, 500}) {
       final OpticsManager om = createOpticsManager(size, n, rg);
       om.setTracker(tracker);
@@ -483,8 +485,7 @@ public class OpticsManagerTest {
 
           Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("Id %d", index));
           Assertions.assertEquals(expPre, obsPre, FunctionUtils.getSupplier("Pre %d", index));
-          TestAssertions.assertTest(expR, obsR, TestHelper.doublesAreClose(1e-5, 0),
-              FunctionUtils.getSupplier("R %d", index));
+          TestAssertions.assertTest(expR, obsR, equality, FunctionUtils.getSupplier("R %d", index));
         }
       }
     }
@@ -2229,6 +2230,7 @@ public class OpticsManagerTest {
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
+    final DoubleDoubleBiPredicate equality = TestHelper.doublesAreClose(1e-2, 1e-5);
     for (final int n : new int[] {100, 500}) {
       final OpticsManager om = createOpticsManager(size, n, rg);
       om.setTracker(tracker);
@@ -2282,7 +2284,7 @@ public class OpticsManagerTest {
           // TestLog.debug(logger,"%s %d %d : %f = %f", prefix, expId, obsId, expL, obsL);
 
           Assertions.assertEquals(expId, obsId, FunctionUtils.getSupplier("[%d] Id", index));
-          TestAssertions.assertTest(expL, obsL, TestHelper.doublesAreClose(1e-2, 0),
+          TestAssertions.assertTest(expL, obsL, equality,
               FunctionUtils.getSupplier("[%d] LoOP", index));
         }
       }
