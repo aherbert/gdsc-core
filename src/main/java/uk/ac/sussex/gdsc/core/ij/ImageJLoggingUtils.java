@@ -88,7 +88,7 @@ public final class ImageJLoggingUtils {
     }
     // Clear current handlers from the logger
     for (final Handler handler : logger.getHandlers()) {
-        logger.removeHandler(handler);
+      logger.removeHandler(handler);
     }
     // Add the specific handler
     handlers.add(imageJLogHandler);

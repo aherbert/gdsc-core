@@ -84,6 +84,7 @@ public class DigestUtilsTest {
 
   @Test
   public void getDigestWithBadAlgorithmThrows() {
-    Assertions.assertThrows(IllegalArgumentException.class, () -> DigestUtils.getDigest("this is nonsense"));
+    Assertions.assertThrows(IllegalArgumentException.class,
+        () -> DigestUtils.getDigest("this is nonsense"));
   }
 }
