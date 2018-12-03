@@ -29,9 +29,9 @@
 package uk.ac.sussex.gdsc.core.clustering;
 
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
-import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.IntFixedList;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 
 import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 

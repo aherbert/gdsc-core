@@ -31,9 +31,9 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.FloatIntKdTree2D;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.IntNeighbourStore;
 import uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2.Status;
-import uk.ac.sussex.gdsc.core.utils.ConcurrencyUtils;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;

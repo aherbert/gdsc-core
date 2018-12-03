@@ -26,7 +26,7 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.generics;
+package uk.ac.sussex.gdsc.core.utils.concurrent;
 
 import java.lang.ref.WeakReference;
 import java.util.AbstractQueue;

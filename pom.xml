@@ -203,6 +203,16 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <id>apache.central</id>
       <url>http://repo.maven.apache.org/maven2</url>
     </repository>
+    <repository>
+      <id>snapshots-repo</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
   </repositories>
 
   <build>
@@ -336,7 +346,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
         <artifactId>maven-pmd-plugin</artifactId>
         <configuration>
           <targetJdk>${maven.compiler.target}</targetJdk>
-          <!-- Ignore lower levels for now  -->
+          <!-- Ignore lower levels for now -->
           <minimumPriority>3</minimumPriority>
           <skipEmptyReport>false</skipEmptyReport>
           <analysisCache>true</analysisCache>

@@ -27,9 +27,8 @@
  */
 
 /**
- * Provides generic data structures.
+ * Provides data structures and utilities for concurrent processing.
  *
  * @since 1.2.0
  */
-
-package uk.ac.sussex.gdsc.core.generics;
+package uk.ac.sussex.gdsc.core.utils.concurrent;

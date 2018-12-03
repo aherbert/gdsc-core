@@ -26,9 +26,7 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.generics;
-
-import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
+package uk.ac.sussex.gdsc.core.utils;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

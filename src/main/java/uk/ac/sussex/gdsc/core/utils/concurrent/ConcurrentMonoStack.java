@@ -26,7 +26,7 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.generics;
+package uk.ac.sussex.gdsc.core.utils.concurrent;
 
 import java.util.Objects;
 import java.util.concurrent.locks.Condition;

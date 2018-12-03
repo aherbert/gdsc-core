@@ -1,5 +1,6 @@
-package uk.ac.sussex.gdsc.core.generics;
+package uk.ac.sussex.gdsc.core.utils;
 
+import uk.ac.sussex.gdsc.core.utils.EnumList;
 import uk.ac.sussex.gdsc.test.utils.functions.IndexSupplier;
 
 import org.junit.jupiter.api.Assertions;

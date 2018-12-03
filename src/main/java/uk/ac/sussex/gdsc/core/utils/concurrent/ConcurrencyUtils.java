@@ -26,7 +26,7 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.utils;
+package uk.ac.sussex.gdsc.core.utils.concurrent;
 
 import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 
