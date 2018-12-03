@@ -1,55 +1,54 @@
 package uk.ac.sussex.gdsc.core.utils;
 
-import java.util.Arrays;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
-import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.rng.RNGFactory;
+import java.util.Arrays;
 
-@SuppressWarnings({ "javadoc" })
-public class PseudoRandomGeneratorTest
-{
-    @Test
-    public void canConstructPseudoRandomGeneratorFromSequence()
-    {
-        final double[] e = new double[] { 0.2, 0.87, 0.45, 0.99 };
-        final PseudoRandomGenerator r = new PseudoRandomGenerator(e);
-        canConstructPseudoRandomGenerator(r, e);
-    }
+@SuppressWarnings({"javadoc"})
+public class PseudoRandomGeneratorTest {
+  @Test
+  public void canConstructPseudoRandomGeneratorFromSequence() {
+    final double[] expected = new double[] {0.2, 0.87, 0.45, 0.99};
+    final PseudoRandomGenerator r = new PseudoRandomGenerator(expected);
+    canConstructPseudoRandomGenerator(r, expected);
+  }
 
-    @Test
-    public void canConstructPseudoRandomGeneratorFromSequenceLength()
-    {
-        double[] e = new double[] { 0.2, 0.87, 0.45, 0.99 };
-        final int length = e.length - 1;
-        final PseudoRandomGenerator r = new PseudoRandomGenerator(e, length);
-        e = Arrays.copyOf(e, length);
-        canConstructPseudoRandomGenerator(r, e);
-    }
+  @Test
+  public void canConstructPseudoRandomGeneratorFromSequenceLength() {
+    double[] expected = new double[] {0.2, 0.87, 0.45, 0.99};
+    final int length = expected.length - 1;
+    final PseudoRandomGenerator r = new PseudoRandomGenerator(expected, length);
+    expected = Arrays.copyOf(expected, length);
+    canConstructPseudoRandomGenerator(r, expected);
+  }
 
-    @SeededTest
-    public void canConstructPseudoRandomGeneratorFromSource(RandomSeed seed)
-    {
-        final UniformRandomProvider source = RNGFactory.create(seed.getSeed());
-        final int length = 5;
-        final double[] e = new double[length];
-        for (int i = 0; i < e.length; i++)
-            e[i] = source.nextDouble();
-        final PseudoRandomGenerator r = new PseudoRandomGenerator(length,
-                new RandomGeneratorAdapter(RNGFactory.create(seed.getSeed())));
-        canConstructPseudoRandomGenerator(r, e);
+  @SeededTest
+  public void canConstructPseudoRandomGeneratorFromSource(RandomSeed seed) {
+    final UniformRandomProvider source = RngUtils.create(seed.getSeedAsLong());
+    final int length = 5;
+    final double[] expected = new double[length];
+    for (int i = 0; i < expected.length; i++) {
+      expected[i] = source.nextDouble();
     }
+    final PseudoRandomGenerator r = new PseudoRandomGenerator(length,
+        new RandomGeneratorAdapter(RngUtils.create(seed.getSeedAsLong())));
+    canConstructPseudoRandomGenerator(r, expected);
+  }
 
-    private static void canConstructPseudoRandomGenerator(PseudoRandomGenerator r, double[] e)
-    {
-        for (int i = 0; i < e.length; i++)
-            Assertions.assertEquals(e[i], r.nextDouble());
-        // Repeat
-        for (int i = 0; i < e.length; i++)
-            Assertions.assertEquals(e[i], r.nextDouble());
+  private static void canConstructPseudoRandomGenerator(PseudoRandomGenerator rng,
+      double[] expected) {
+    for (int i = 0; i < expected.length; i++) {
+      Assertions.assertEquals(expected[i], rng.nextDouble());
     }
+    // Repeat
+    for (int i = 0; i < expected.length; i++) {
+      Assertions.assertEquals(expected[i], rng.nextDouble());
+    }
+  }
 }

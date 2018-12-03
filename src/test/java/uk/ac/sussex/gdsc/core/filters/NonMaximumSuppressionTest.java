@@ -1,1678 +1,1771 @@
 package uk.ac.sussex.gdsc.core.filters;
 
+import uk.ac.sussex.gdsc.core.ij.ImageJUtils;
+import uk.ac.sussex.gdsc.core.utils.RandomUtils;
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
+import uk.ac.sussex.gdsc.test.utils.TestComplexity;
+import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
+import uk.ac.sussex.gdsc.test.utils.TestSettings;
+import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+
+import ij.ImagePlus;
+import ij.gui.PointRoi;
+import ij.process.FloatProcessor;
+
+import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.rng.UniformRandomProvider;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+@SuppressWarnings({"javadoc"})
+public class NonMaximumSuppressionTest {
+  static final int ITER = 5;
 
-import ij.ImagePlus;
-import ij.gui.PointRoi;
-import ij.process.FloatProcessor;
-import uk.ac.sussex.gdsc.core.ij.Utils;
-import uk.ac.sussex.gdsc.core.utils.Random;
-import uk.ac.sussex.gdsc.test.junit5.ExtraAssumptions;
-import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
-import uk.ac.sussex.gdsc.test.junit5.SeededTest;
-import uk.ac.sussex.gdsc.test.junit5.SpeedTag;
-import uk.ac.sussex.gdsc.test.rng.RNGFactory;
-import uk.ac.sussex.gdsc.test.utils.TestComplexity;
-import uk.ac.sussex.gdsc.test.utils.TestLog;
-import uk.ac.sussex.gdsc.test.utils.functions.FunctionUtils;
+  private static Logger logger;
 
-@SuppressWarnings({ "javadoc" })
-public class NonMaximumSuppressionTest
-{
-    private static Logger logger;
+  @BeforeAll
+  public static void beforeAll() {
+    logger = Logger.getLogger(NonMaximumSuppressionTest.class.getName());
+  }
 
-    @BeforeAll
-    public static void beforeAll()
-    {
-        logger = Logger.getLogger(NonMaximumSuppressionTest.class.getName());
-    }
+  @AfterAll
+  public static void afterAll() {
+    logger = null;
+  }
 
-    @AfterAll
-    public static void afterAll()
-    {
-        logger = null;
-    }
+  private final boolean debug = logger.isLoggable(Level.FINE);
 
-    private final boolean debug = logger.isLoggable(Level.FINE);
+  // int[] primes = new int[] { 113, 97, 53, 29, 17, 7 };
+  // int[] primes = new int[] { 509, 251 };
+  int[] primes = new int[] {113, 29};
+  // int[] primes = new int[] { 17 };
+  // int[] smallPrimes = new int[] { 113, 97, 53, 29, 17, 7 };
+  int[] smallPrimes = new int[] {17};
+  int[] boxSizes = new int[] {9, 5, 3, 2, 1};
+  // int[] boxSizes = new int[] { 2, 3, 5, 9, 15 };
 
-    //int[] primes = new int[] { 113, 97, 53, 29, 17, 7 };
-    //int[] primes = new int[] { 509, 251 };
-    int[] primes = new int[] { 113, 29 };
-    //int[] primes = new int[] { 17 };
-    //int[] smallPrimes = new int[] { 113, 97, 53, 29, 17, 7 };
-    int[] smallPrimes = new int[] { 17 };
-    int[] boxSizes = new int[] { 9, 5, 3, 2, 1 };
-    //int[] boxSizes = new int[] { 2, 3, 5, 9, 15 };
+  // int[] boxSizes = new int[] { 1 };
 
-    int ITER = 5;
+  // XXX: Copy from here..
+  @SeededTest
+  public void floatBlockFindAndMaxFindReturnSameResult(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-    //int[] boxSizes = new int[] { 1 };
-
-    // XXX: Copy from here...
-    @SeededTest
-    public void floatBlockFindAndMaxFindReturnSameResult(RandomSeed seed)
-    {
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        for (final int width : primes)
-            for (final int height : primes)
-                for (final int boxSize : boxSizes)
-                    floatCompareBlockFindToMaxFind(rg, nms, width, height, boxSize);
-    }
-
-    private void floatCompareBlockFindToMaxFind(UniformRandomProvider rg, NonMaximumSuppression nms, int width,
-            int height, int boxSize)
-    {
-        floatCompareBlockFindToMaxFind(nms, width, height, boxSize, floatCreateData(rg, width, height), "Random");
-
-        // Empty data
-        floatCompareBlockFindToMaxFind(nms, width, height, boxSize, new float[width * height], "Empty");
-    }
-
-    @SeededTest
-    public void floatBlockFindReturnSameResultWithNeighbourCheck(RandomSeed seed)
-    {
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        for (final int width : primes)
-            for (final int height : primes)
-                for (final int boxSize : boxSizes)
-                    floatCompareBlockFindWithNeighbourCheck(rg, nms, width, height, boxSize);
-    }
-
-    private static void floatCompareBlockFindWithNeighbourCheck(UniformRandomProvider rg, NonMaximumSuppression nms,
-            int width, int height, int boxSize)
-    {
-        // Random data
-        final float[] data = floatCreateData(rg, width, height);
-        nms.setNeighbourCheck(false);
-        final int[] blockIndices1 = nms.blockFindNxN(data, width, height, boxSize);
-        nms.setNeighbourCheck(true);
-        final int[] blockIndices2 = nms.blockFindNxN(data, width, height, boxSize);
-
-        Assertions.assertArrayEquals(blockIndices1, blockIndices2,
-                FunctionUtils.getSupplier("Indices do not match: [%dx%d] @ %d", width, height, boxSize));
-    }
-
-    @Test
-    public void floatBlockFindAndMaxFindReturnSameResultOnPatternDataWithNeighbourCheck()
-    {
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-        nms.setNeighbourCheck(true);
-
-        for (final int width : smallPrimes)
-            for (final int height : smallPrimes)
-                for (final int boxSize : boxSizes)
-                    floatCompareBlockFindToMaxFindWithPatternData(nms, width, height, boxSize);
-    }
-
-    private void floatCompareBlockFindToMaxFindWithPatternData(NonMaximumSuppression nms, int width, int height,
-            int boxSize)
-    {
-        // This fails when N=2. Pattern data is problematic given the block find algorithm processes the pixels in a different order
-        // from a linear run across the yx order data. So when the pattern produces a max pixel within the range of all
-        // candidates on the top row of the block, the block algorithm will output a maxima from a subsequent row. Standard
-        // processing will just move further along the row (beyond the block boundary) to find the next maxima.
-        if (boxSize <= 2)
-            return;
-
-        // Pattern data
-        floatCompareBlockFindToMaxFind(nms, width, height, boxSize, floatCreatePatternData(width, height, 1, 0, 0, 0),
-                "Pattern1000");
-        floatCompareBlockFindToMaxFind(nms, width, height, boxSize, floatCreatePatternData(width, height, 1, 0, 1, 0),
-                "Pattern1010");
-        floatCompareBlockFindToMaxFind(nms, width, height, boxSize, floatCreatePatternData(width, height, 1, 0, 0, 1),
-                "Pattern1001");
-        floatCompareBlockFindToMaxFind(nms, width, height, boxSize, floatCreatePatternData(width, height, 1, 1, 1, 0),
-                "Pattern1110");
-    }
-
-    private void floatCompareBlockFindToMaxFind(NonMaximumSuppression nms, int width, int height, int boxSize,
-            float[] data, String name)
-    {
-        final int[] blockIndices = nms.blockFindNxN(data, width, height, boxSize);
-        final int[] maxIndices = nms.maxFind(data, width, height, boxSize);
-
-        Arrays.sort(blockIndices);
-        Arrays.sort(maxIndices);
-
-        if (debug)
-            floatCompareIndices(width, height, data, boxSize, blockIndices, maxIndices);
-
-        Assertions.assertArrayEquals(maxIndices, blockIndices,
-                FunctionUtils.getSupplier("%s: Indices do not match: [%dx%d] @ %d", name, width, height, boxSize));
-    }
-
-    private static void floatCompareIndices(int width, int height, float[] data, int boxSize, int[] indices1,
-            int[] indices2)
-    {
-        logger.info(FunctionUtils.getSupplier("float [%dx%d@%d] i1 = %d, i2 = %d", width, height, boxSize, indices1.length,
-                indices2.length));
-        int i1 = 0, i2 = 0;
-        boolean match = true;
-        while (i1 < indices1.length || i2 < indices2.length)
-        {
-            final int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
-            final int j = (i2 < indices2.length) ? indices2[i2] : Integer.MAX_VALUE;
-
-            if (i == j)
-            {
-                logger.info(
-                        FunctionUtils.getSupplier("float   [%d,%d] = [%d,%d]", i % width, i / width, j % width, j / width));
-                i1++;
-                i2++;
-            }
-            else if (i < j)
-            {
-                logger.info(FunctionUtils.getSupplier("float   [%d,%d] : -", i % width, i / width));
-                i1++;
-                match = false;
-            }
-            else if (i > j)
-            {
-                logger.info(FunctionUtils.getSupplier("float   - : [%d,%d]", j % width, j / width));
-                i2++;
-                match = false;
-            }
+    for (final int width : primes) {
+      for (final int height : primes) {
+        for (final int boxSize : boxSizes) {
+          floatCompareBlockFindToMaxFind(rg, nms, width, height, boxSize);
         }
-        if (match)
-            return;
-        // Show image
-        showImage(width, height, data, indices1, "i1");
-        showImage(width, height, data, indices2, "i2");
+      }
     }
+  }
 
-    private static void showImage(int width, int height, float[] data, int[] indices, String title)
-    {
-        final ImagePlus imp = Utils.display(title, new FloatProcessor(width, height, data));
-        final int[] ox = new int[indices.length];
-        final int[] oy = new int[indices.length];
-        int points = 0;
-        for (final int i : indices)
-        {
-            ox[points] = i % width;
-            oy[points++] = i / width;
+  @SeededTest
+  public void floatBlockFindReturnSameResultWithNeighbourCheck(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    for (final int width : primes) {
+      for (final int height : primes) {
+        for (final int boxSize : boxSizes) {
+          floatCompareBlockFindWithNeighbourCheck(rg, nms, width, height, boxSize);
         }
-        final PointRoi roi = new PointRoi(ox, oy, points);
-        imp.setRoi(roi);
-        //imp.getWindow().getCanvas().setMagnification(16);
-        for (int i = 7; i-- > 0;)
-            imp.getWindow().getCanvas().zoomIn(0, 0);
+      }
     }
+  }
 
-    @SeededTest
-    public void floatBlockFindNxNAndBlockFind3x3ReturnSameResult(RandomSeed seed)
-    {
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
+  private static void floatCompareBlockFindWithNeighbourCheck(UniformRandomProvider rg,
+      NonMaximumSuppression nms, int width, int height, int boxSize) {
+    // Random data
+    final float[] data = floatCreateData(rg, width, height);
+    nms.setNeighbourCheck(false);
+    final int[] blockIndices1 = nms.blockFindNxN(data, width, height, boxSize);
+    nms.setNeighbourCheck(true);
+    final int[] blockIndices2 = nms.blockFindNxN(data, width, height, boxSize);
 
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
+    Assertions.assertArrayEquals(blockIndices1, blockIndices2,
+        FunctionUtils.getSupplier("Indices do not match: [%dx%d] @ %d", width, height, boxSize));
+  }
 
-        for (int width : primes)
-        {
-            // 3x3 does not process to the edge of odd size images
-            width++;
+  @Test
+  public void floatBlockFindAndMaxFindReturnSameResultOnPatternDataWithNeighbourCheck() {
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    nms.setNeighbourCheck(true);
 
-            for (int height : primes)
-            {
-                height++;
-
-                final float[] data = floatCreateData(rg, width, height);
-
-                for (final boolean b : new boolean[] { false, true })
-                {
-                    nms.setNeighbourCheck(b);
-                    final int[] blockNxNIndices = nms.blockFindNxN(data, width, height, 1);
-                    final int[] block3x3Indices = nms.blockFind3x3(data, width, height);
-
-                    Arrays.sort(blockNxNIndices);
-                    Arrays.sort(block3x3Indices);
-
-                    if (debug)
-                        floatCompareIndices(width, height, data, 1, blockNxNIndices, block3x3Indices);
-
-                    Assertions.assertArrayEquals(blockNxNIndices, block3x3Indices,
-                            FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
-                }
-            }
+    for (final int width : smallPrimes) {
+      for (final int height : smallPrimes) {
+        for (final int boxSize : boxSizes) {
+          floatCompareBlockFindToMaxFindWithPatternData(nms, width, height, boxSize);
         }
+      }
+    }
+  }
+
+  private void floatCompareBlockFindToMaxFindWithPatternData(NonMaximumSuppression nms, int width,
+      int height, int boxSize) {
+    // This fails when N=2. Pattern data is problematic given the block find algorithm processes the
+    // pixels in a different order
+    // from a linear run across the yx order data. So when the pattern produces a max pixel within
+    // the range of all
+    // candidates on the top row of the block, the block algorithm will output a maxima from a
+    // subsequent row. Standard
+    // processing will just move further along the row (beyond the block boundary) to find the next
+    // maxima.
+    if (boxSize <= 2) {
+      return;
     }
 
-    @SeededTest
-    public void floatBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult(RandomSeed seed)
-    {
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
+    // Pattern data
+    floatCompareBlockFindToMaxFind(nms, width, height, boxSize,
+        floatCreatePatternData(width, height, 1, 0, 0, 0), "Pattern1000");
+    floatCompareBlockFindToMaxFind(nms, width, height, boxSize,
+        floatCreatePatternData(width, height, 1, 0, 1, 0), "Pattern1010");
+    floatCompareBlockFindToMaxFind(nms, width, height, boxSize,
+        floatCreatePatternData(width, height, 1, 0, 0, 1), "Pattern1001");
+    floatCompareBlockFindToMaxFind(nms, width, height, boxSize,
+        floatCreatePatternData(width, height, 1, 1, 1, 0), "Pattern1110");
+  }
 
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
+  private void floatCompareBlockFindToMaxFind(UniformRandomProvider rg, NonMaximumSuppression nms,
+      int width, int height, int boxSize) {
+    floatCompareBlockFindToMaxFind(nms, width, height, boxSize, floatCreateData(rg, width, height),
+        "Random");
 
-        for (int width : primes)
-        {
-            // 3x3 does not process to the edge of odd size images
-            width++;
+    // Empty data
+    floatCompareBlockFindToMaxFind(nms, width, height, boxSize, new float[width * height], "Empty");
+  }
 
-            for (int height : primes)
-            {
-                height++;
+  private void floatCompareBlockFindToMaxFind(NonMaximumSuppression nms, int width, int height,
+      int boxSize, float[] data, String name) {
+    final int[] blockIndices = nms.blockFindNxN(data, width, height, boxSize);
+    final int[] maxIndices = nms.maxFind(data, width, height, boxSize);
 
-                final float[] data = floatCreateData(rg, width, height);
+    Arrays.sort(blockIndices);
+    Arrays.sort(maxIndices);
 
-                for (final boolean b : new boolean[] { false, true })
-                {
-                    nms.setNeighbourCheck(b);
-                    final int[] blockNxNIndices = nms.blockFindNxNInternal(data, width, height, 1, 1);
-                    final int[] block3x3Indices = nms.blockFind3x3Internal(data, width, height, 1);
-
-                    Arrays.sort(blockNxNIndices);
-                    Arrays.sort(block3x3Indices);
-
-                    if (debug)
-                        floatCompareIndices(width, height, data, 1, blockNxNIndices, block3x3Indices);
-
-                    Assertions.assertArrayEquals(blockNxNIndices, block3x3Indices,
-                            FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
-                }
-            }
-        }
+    if (debug) {
+      floatCompareIndices(width, height, data, boxSize, blockIndices, maxIndices);
     }
 
-    @SpeedTag
-    @SeededTest
-    public void floatBlockFindIsFasterThanMaxFind(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
+    Assertions.assertArrayEquals(maxIndices, blockIndices, FunctionUtils
+        .getSupplier("%s: Indices do not match: [%dx%d] @ %d", name, width, height, boxSize));
+  }
 
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
+  private static void floatCompareIndices(int width, int height, float[] data, int boxSize,
+      int[] indices1, int[] indices2) {
+    logger.info(FunctionUtils.getSupplier("float [%dx%d@%d] i1 = %d; int i2 =  %d", width, height,
+        boxSize, indices1.length, indices2.length));
+    int i1 = 0;
+    int i2 = 0;
+    boolean match = true;
+    while (i1 < indices1.length || i2 < indices2.length) {
+      final int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
+      final int j = (i2 < indices2.length) ? indices2[i2] : Integer.MAX_VALUE;
 
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-        final ArrayList<Long> blockTimes = new ArrayList<>();
-
-        // Initialise
-        nms.blockFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-        nms.maxFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-
-        for (final int boxSize : boxSizes)
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final float[] data : dataSet)
-                        nms.blockFind(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-                    blockTimes.add(time);
-                }
-
-        long total = 0, blockTotal = 0;
-        int index = 0;
-        for (final int boxSize : boxSizes)
-        {
-            long boxTotal = 0, blockBoxTotal = 0;
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final float[] data : dataSet)
-                        nms.maxFind(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-
-                    final long blockTime = blockTimes.get(index++);
-                    total += time;
-                    blockTotal += blockTime;
-                    boxTotal += time;
-                    blockBoxTotal += blockTime;
-                    if (debug)
-                        logger.fine(FunctionUtils.getSupplier("float maxFind [%dx%d] @ %d : %d => blockFind %d = %.2fx",
-                                width, height, boxSize, time, blockTime, (1.0 * time) / blockTime));
-                    //Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width, height, boxSize,
-                    //		blockTime, time), blockTime < time);
-                }
-            //if (debug)
-            logger.log(TestLog.getTimingRecord("float maxFind" + boxSize, boxTotal, "float blockFind", blockBoxTotal));
-            //if (boxSize > 1) // Sometimes this fails at small sizes
-            //	Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize, blockBoxTotal, boxTotal),
-            //			blockBoxTotal < boxTotal);
-        }
-        logger.log(TestLog.getTimingRecord("float maxFind", total, "float blockFind", blockTotal));
+      if (i == j) {
+        logger.info(FunctionUtils.getSupplier("float   [%d,%d] = [%d,%d]", i % width, i / width,
+            j % width, j / width));
+        i1++;
+        i2++;
+      } else if (i < j) {
+        logger.info(FunctionUtils.getSupplier("float   [%d,%d] : -", i % width, i / width));
+        i1++;
+        match = false;
+      } else if (i > j) {
+        logger.info(FunctionUtils.getSupplier("float   - : [%d,%d]", j % width, j / width));
+        i2++;
+        match = false;
+      }
     }
-
-    @SpeedTag
-    @SeededTest
-    public void floatBlockFindWithNeighbourCheckIsFasterThanMaxFind(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-        nms.setNeighbourCheck(true);
-
-        final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-        final ArrayList<Long> blockTimes = new ArrayList<>();
-
-        // Initialise
-        nms.blockFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-        nms.maxFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-
-        for (final int boxSize : boxSizes)
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final float[] data : dataSet)
-                        nms.blockFind(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-                    blockTimes.add(time);
-                }
-
-        long total = 0, blockTotal = 0;
-        int index = 0;
-        for (final int boxSize : boxSizes)
-        {
-            long boxTotal = 0, blockBoxTotal = 0;
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final float[] data : dataSet)
-                        nms.maxFind(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-
-                    final long blockTime = blockTimes.get(index++);
-                    total += time;
-                    blockTotal += blockTime;
-                    boxTotal += time;
-                    blockBoxTotal += blockTime;
-                    if (debug)
-                        logger.fine(
-                                FunctionUtils.getSupplier("float maxFind [%dx%d] @ %d : %d => blockFindWithCheck %d = %.2fx",
-                                        width, height, boxSize, time, blockTime, (1.0 * time) / blockTime));
-                    //Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width, height, boxSize,
-                    //		blockTime, time), blockTime < time);
-                }
-            //if (debug)
-            logger.log(TestLog.getTimingRecord("float maxFind" + boxSize, boxTotal, "float blockFindWithCheck",
-                    blockBoxTotal));
-            //if (boxSize > 1) // Sometimes this fails at small sizes
-            //	Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize, blockBoxTotal, boxTotal),
-            //			blockBoxTotal < boxTotal);
-        }
-        logger.log(TestLog.getTimingRecord("float maxFind", total, "float blockFindWithCheck", blockTotal));
+    if (match) {
+      return;
     }
+    // Show image
+    floatShowImage(width, height, data, indices1, "i1");
+    floatShowImage(width, height, data, indices2, "i2");
+  }
 
-    private ArrayList<float[]> floatCreateSpeedData(UniformRandomProvider rg)
-    {
-        final int iter = ITER;
-
-        final ArrayList<float[]> dataSet = new ArrayList<>(iter);
-        for (int i = iter; i-- > 0;)
-            dataSet.add(floatCreateData(rg, primes[0], primes[0]));
-        return dataSet;
+  private static void floatShowImage(int width, int height, float[] data, int[] indices,
+      String title) {
+    final ImagePlus imp = ImageJUtils.display(title, new FloatProcessor(width, height, data));
+    final int[] ox = new int[indices.length];
+    final int[] oy = new int[indices.length];
+    int points = 0;
+    for (final int i : indices) {
+      ox[points] = i % width;
+      oy[points++] = i / width;
     }
-
-    @SpeedTag
-    @SeededTest
-    public void floatBlockFindNxNInternalIsFasterThanBlockFindNxNForBigBorders(RandomSeed seed)
-    {
-        // Note: This test is currently failing. The primes used to be:
-        // int[] primes = new int[] { 997, 503, 251 };
-        // Now with smaller primes (to increase the speed of running these tests)
-        // this test fails. The time for the JVM to optimise the internal method
-        // is high.
-        // If all the tests are run then the similar test
-        // floatBlockFindInternalIsFasterWithoutNeighbourCheck shows much faster
-        // times for the internal method.
-        // This test should be changed to repeat until the times converge.
-
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-        final ArrayList<Long> internalTimes = new ArrayList<>();
-
-        for (final int boxSize : boxSizes)
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    // Initialise
-                    nms.blockFindNxNInternal(dataSet.get(0), width, height, boxSize, boxSize);
-                    long time = System.nanoTime();
-                    for (final float[] data : dataSet)
-                        nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
-                    time = System.nanoTime() - time;
-                    internalTimes.add(time);
-                }
-
-        long total = 0, internalTotal = 0;
-        long bigTotal = 0, bigInternalTotal = 0;
-        int index = 0;
-        for (final int boxSize : boxSizes)
-        {
-            long boxTotal = 0, internalBoxTotal = 0;
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    // Initialise
-                    nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-                    long time = System.nanoTime();
-                    for (final float[] data : dataSet)
-                        nms.blockFindNxN(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-
-                    final long internalTime = internalTimes.get(index++);
-                    total += time;
-                    internalTotal += internalTime;
-                    if (boxSize >= 5)
-                    {
-                        bigTotal += time;
-                        bigInternalTotal += internalTime;
-                    }
-                    boxTotal += time;
-                    internalBoxTotal += internalTime;
-                    if (debug)
-                        logger.fine(
-                                FunctionUtils.getSupplier("float blockFind[%dx%d] @ %d : %d => blockFindInternal %d = %.2fx",
-                                        width, height, boxSize, time, internalTime, (1.0 * time) / internalTime));
-                    //Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width, height, boxSize,
-                    //		blockTime, time), blockTime < time);
-                }
-            //if (debug)
-            logger.log(TestLog.getTimingRecord("float blockFind" + boxSize, boxTotal, "float blockFindInternal",
-                    internalBoxTotal));
-            // This is not always faster for the 15-size block so leave commented out.
-            //Assertions.assertTrue(String.format("Internal not faster: Block %d : %d > %d", boxSize,
-            //		blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
-        }
-        logger.info(FunctionUtils.getSupplier("float blockFind %d => blockFindInternal %d = %.2fx", total, internalTotal,
-                (1.0 * total) / internalTotal));
-        logger.log(TestLog.getTimingRecord("float blockFind (border >= 5)", bigTotal,
-                "float blockFindInternal (border >= 5)", bigInternalTotal));
+    final PointRoi roi = new PointRoi(ox, oy, points);
+    imp.setRoi(roi);
+    // imp.getWindow().getCanvas().setMagnification(16);
+    for (int i = 7; i-- > 0;) {
+      imp.getWindow().getCanvas().zoomIn(0, 0);
     }
+  }
 
-    @SpeedTag
-    @SeededTest
-    public void floatBlockFindInternalIsFasterWithoutNeighbourCheck(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
+  @SeededTest
+  public void floatBlockFindNxNAndBlockFind3x3ReturnSameResult(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
 
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
+    for (int width : primes) {
+      // 3x3 does not process to the edge of odd size images
+      width++;
 
-        final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-        final ArrayList<Long> noCheckTimes = new ArrayList<>();
+      for (int height : primes) {
+        height++;
 
-        // Initialise
-        nms.setNeighbourCheck(false);
-        nms.blockFindNxNInternal(dataSet.get(0), primes[0], primes[0], boxSizes[0], boxSizes[0]);
-
-        for (final int boxSize : boxSizes)
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final float[] data : dataSet)
-                        nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
-                    time = System.nanoTime() - time;
-                    noCheckTimes.add(time);
-                }
-
-        nms.setNeighbourCheck(true);
-        nms.blockFindNxNInternal(dataSet.get(0), primes[0], primes[0], boxSizes[0], boxSizes[0]);
-
-        long checkTotal = 0, noCheckTotal = 0;
-        long bigCheckTotal = 0, bigNoCheckTotal = 0;
-        int index = 0;
-        for (final int boxSize : boxSizes)
-        {
-            long checkBoxTotal = 0, noCheckBoxTotal = 0;
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final float[] data : dataSet)
-                        nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
-                    time = System.nanoTime() - time;
-
-                    final long noCheckTime = noCheckTimes.get(index++);
-                    checkTotal += time;
-                    if (boxSize >= 5)
-                    {
-                        bigCheckTotal += time;
-                        bigNoCheckTotal += noCheckTime;
-                    }
-                    noCheckTotal += noCheckTime;
-                    checkBoxTotal += time;
-                    noCheckBoxTotal += noCheckTime;
-                    if (debug)
-                        logger.fine(FunctionUtils.getSupplier(
-                                "float blockFindInternal check [%dx%d] @ %d : %d => blockFindInternal %d = %.2fx",
-                                width, height, boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
-                    //Assertions.assertTrue(String.format("Without neighbour check not faster: [%dx%d] @ %d : %d > %d", width, height, boxSize,
-                    //		blockTime, time), blockTime < time);
-                }
-            //if (debug)
-            logger.log(TestLog.getTimingRecord("float blockFindInternal check" + boxSize, checkBoxTotal,
-                    "float blockFindInternal", noCheckBoxTotal));
-            // This is not always faster for the 15-size block so leave commented out.
-            //Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d > %d", boxSize,
-            //		blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
-        }
-        logger.info(FunctionUtils.getSupplier("float blockFindInternal check %d => blockFindInternal %d = %.2fx", checkTotal,
-                noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-        logger.log(TestLog.getTimingRecord("float blockFindInternal check (border >= 5)", bigCheckTotal,
-                "float blockFindInternal (border >= 5)", bigNoCheckTotal));
-    }
-
-    @SpeedTag
-    @SeededTest
-    public void floatBlockFindIsFasterWithoutNeighbourCheck(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-        final ArrayList<Long> noCheckTimes = new ArrayList<>();
-
-        // Initialise
-        nms.setNeighbourCheck(false);
-        nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-
-        for (final int boxSize : boxSizes)
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final float[] data : dataSet)
-                        nms.blockFindNxN(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-                    noCheckTimes.add(time);
-                }
-
-        nms.setNeighbourCheck(true);
-        nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-
-        long checkTotal = 0, noCheckTotal = 0;
-        long bigCheckTotal = 0, bigNoCheckTotal = 0;
-        int index = 0;
-        for (final int boxSize : boxSizes)
-        {
-            long checkBoxTotal = 0, noCheckBoxTotal = 0;
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final float[] data : dataSet)
-                        nms.blockFindNxN(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-
-                    final long noCheckTime = noCheckTimes.get(index++);
-                    checkTotal += time;
-                    if (boxSize >= 5)
-                    {
-                        bigCheckTotal += time;
-                        bigNoCheckTotal += noCheckTime;
-                    }
-                    noCheckTotal += noCheckTime;
-                    checkBoxTotal += time;
-                    noCheckBoxTotal += noCheckTime;
-                    if (debug)
-                        logger.fine(
-                                FunctionUtils.getSupplier("float blockFind check [%dx%d] @ %d : %d => blockFind %d = %.2fx",
-                                        width, height, boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
-                    //Assertions.assertTrue(String.format("Without neighbour check not faster: [%dx%d] @ %d : %d > %d", width, height, boxSize,
-                    //		blockTime, time), blockTime < time);
-                }
-            //if (debug)
-            logger.log(TestLog.getTimingRecord("float blockFind check" + boxSize, checkBoxTotal, "float blockFind",
-                    noCheckBoxTotal));
-            // This is not always faster for the 15-size block so leave commented out.
-            //Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d > %d", boxSize,
-            //		blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
-        }
-        logger.info(FunctionUtils.getSupplier("float blockFind check %d => blockFind %d = %.2fx", checkTotal, noCheckTotal,
-                (1.0 * checkTotal) / noCheckTotal));
-        logger.log(TestLog.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
-                "float blockFind check %d  (border >= 5) => blockFind %d = %.2fx", bigCheckTotal, bigNoCheckTotal,
-                (1.0 * bigCheckTotal) / bigNoCheckTotal));
-    }
-
-    @SpeedTag
-    @SeededTest
-    public void floatBlockFind3x3MethodIsFasterThanBlockFindNxN(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-        final ArrayList<Long> blockTimes = new ArrayList<>();
-
-        // Initialise
-        nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
-        nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], 1);
-
-        for (final int width : primes)
-            for (final int height : primes)
-            {
-                final long time = System.nanoTime();
-                for (final float[] data : dataSet)
-                    nms.blockFind3x3(data, width, height);
-                blockTimes.add(System.nanoTime() - time);
-            }
-
-        long total = 0, blockTotal = 0;
-        int index = 0;
-        for (final int width : primes)
-            for (final int height : primes)
-            {
-                long time = System.nanoTime();
-                for (final float[] data : dataSet)
-                    nms.blockFindNxN(data, width, height, 1);
-                time = System.nanoTime() - time;
-
-                final long blockTime = blockTimes.get(index++);
-                total += time;
-                blockTotal += blockTime;
-                if (debug)
-                    logger.fine(FunctionUtils.getSupplier("float blockFindNxN [%dx%d] : %d => blockFind3x3 %d = %.2fx", width,
-                            height, time, blockTime, (1.0 * time) / blockTime));
-                // This can be close so do not allow fail on single cases
-                //Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height, blockTime, time),
-                //		blockTime < time);
-            }
-        logger.log(TestLog.getTimingRecord("float blockFindNxN", total, "float blockFind3x3", blockTotal));
-    }
-
-    @SpeedTag
-    @SeededTest
-    public void floatBlockFind3x3WithBufferIsFasterThanBlockFind3x3(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-        nms.setDataBuffer(true);
-
-        final NonMaximumSuppression nms2 = new NonMaximumSuppression();
-        nms2.setDataBuffer(false);
-
-        final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-        final ArrayList<Long> blockTimes = new ArrayList<>();
-
-        // Initialise
-        nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
-        nms2.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
-
-        for (final int width : primes)
-            for (final int height : primes)
-            {
-                long time = System.nanoTime();
-                for (final float[] data : dataSet)
-                    nms.blockFind3x3(data, width, height);
-                time = System.nanoTime() - time;
-                blockTimes.add(time);
-            }
-
-        long total = 0, blockTotal = 0;
-        int index = 0;
-        for (final int width : primes)
-            for (final int height : primes)
-            {
-                long time = System.nanoTime();
-                for (final float[] data : dataSet)
-                    nms2.blockFind3x3(data, width, height);
-                time = System.nanoTime() - time;
-
-                final long blockTime = blockTimes.get(index++);
-                total += time;
-                blockTotal += blockTime;
-                if (debug)
-                    logger.fine(
-                            FunctionUtils.getSupplier("float blockFind3x3 [%dx%d] : %d => blockFind3x3 (buffer) %d = %.2fx",
-                                    width, height, time, blockTime, (1.0 * time) / blockTime));
-                // This can be close so do not allow fail on single cases
-                //Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height, blockTime, time),
-                //		blockTime < time);
-            }
-        logger.log(TestLog.getTimingRecord("float blockFind3x3", total, "float blockFind3x3 (buffer)", blockTotal));
-    }
-
-    @SpeedTag
-    @SeededTest
-    public void floatBlockFind3x3MethodIsFasterThanMaxFind3x3(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
-        final ArrayList<Long> blockTimes = new ArrayList<>();
-
-        // Initialise
-        nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
-        nms.maxFind(dataSet.get(0), primes[0], primes[0], 1);
-
-        for (final int width : primes)
-            for (final int height : primes)
-            {
-                long time = System.nanoTime();
-                for (final float[] data : dataSet)
-                    nms.blockFind3x3(data, width, height);
-                time = System.nanoTime() - time;
-                blockTimes.add(time);
-            }
-
-        long total = 0, blockTotal = 0;
-        int index = 0;
-        for (final int width : primes)
-            for (final int height : primes)
-            {
-                long time = System.nanoTime();
-                for (final float[] data : dataSet)
-                    nms.maxFind(data, width, height, 1);
-                time = System.nanoTime() - time;
-
-                final long blockTime = blockTimes.get(index++);
-                total += time;
-                blockTotal += blockTime;
-                if (debug)
-                    logger.fine(FunctionUtils.getSupplier("float maxFind3x3 [%dx%d] : %d => blockFind3x3 %d = %.2fx", width,
-                            height, time, blockTime, (1.0 * time) / blockTime));
-                //Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height, blockTime, time),
-                //		blockTime < time);
-            }
-        logger.log(TestLog.getTimingRecord("float maxFind3x3", total, "float blockFind3x3", blockTotal));
-    }
-
-    /**
-     * Test the maximum finding algorithms for the same result
-     */
-    @SeededTest
-    public void floatAllFindBlockMethodsReturnSameResultForSize1(RandomSeed seed)
-    {
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-        for (final int width : primes)
-            for (final int height : primes)
-                floatCompareBlockMethodsForSize1(rg, nms, width, height);
-    }
-
-    private static void floatCompareBlockMethodsForSize1(UniformRandomProvider rg, NonMaximumSuppression nms, int width,
-            int height)
-    {
         final float[] data = floatCreateData(rg, width, height);
 
-        final int[] blockNxNIndices = nms.findBlockMaximaNxN(data, width, height, 1);
-        final int[] block2x2Indices = nms.findBlockMaxima2x2(data, width, height);
+        for (final boolean b : new boolean[] {false, true}) {
+          nms.setNeighbourCheck(b);
+          final int[] blockNxNIndices = nms.blockFindNxN(data, width, height, 1);
+          final int[] block3x3Indices = nms.blockFind3x3(data, width, height);
 
-        Arrays.sort(blockNxNIndices);
-        Arrays.sort(block2x2Indices);
+          Arrays.sort(blockNxNIndices);
+          Arrays.sort(block3x3Indices);
 
-        Assertions.assertArrayEquals(blockNxNIndices, block2x2Indices,
-                FunctionUtils.getSupplier("Block vs 2x2 do not match: [%dx%d]", width, height));
-    }
+          if (debug) {
+            floatCompareIndices(width, height, data, 1, blockNxNIndices, block3x3Indices);
+          }
 
-    private static float[] floatCreateData(UniformRandomProvider rg, int width, int height)
-    {
-        final float[] data = new float[width * height];
-        for (int i = data.length; i-- > 0;)
-            data[i] = i;
-
-        Random.shuffle(data, rg);
-
-        return data;
-    }
-
-    private static float[] floatCreatePatternData(int width, int height, float a, float b, float c, float d)
-    {
-        final float[] row1 = new float[width + 2];
-        final float[] row2 = new float[width + 2];
-        for (int x = 0; x < width; x += 2)
-        {
-            row1[x] = a;
-            row1[x + 1] = b;
-            row2[x] = c;
-            row2[x + 1] = d;
+          Assertions.assertArrayEquals(blockNxNIndices, block3x3Indices,
+              FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
         }
+      }
+    }
+  }
 
-        final float[] data = new float[width * height];
-        for (int y = 0; y < height; y++)
-        {
-            final float[] row = (y % 2 == 0) ? row1 : row2;
-            System.arraycopy(row, 0, data, y * width, width);
+  @SeededTest
+  public void floatBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    for (int width : primes) {
+      // 3x3 does not process to the edge of odd size images
+      width++;
+
+      for (int height : primes) {
+        height++;
+
+        final float[] data = floatCreateData(rg, width, height);
+
+        for (final boolean b : new boolean[] {false, true}) {
+          nms.setNeighbourCheck(b);
+          final int[] blockNxNIndices = nms.blockFindNxNInternal(data, width, height, 1, 1);
+          final int[] block3x3Indices = nms.blockFind3x3Internal(data, width, height, 1);
+
+          Arrays.sort(blockNxNIndices);
+          Arrays.sort(block3x3Indices);
+
+          if (debug) {
+            floatCompareIndices(width, height, data, 1, blockNxNIndices, block3x3Indices);
+          }
+
+          Assertions.assertArrayEquals(blockNxNIndices, block3x3Indices,
+              FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
         }
+      }
+    }
+  }
 
-        return data;
+  @SpeedTag
+  @SeededTest
+  public void floatBlockFindIsFasterThanMaxFind(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+    final ArrayList<Long> blockTimes = new ArrayList<>();
+
+    // Initialise
+    nms.blockFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+    nms.maxFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+
+    for (final int boxSize : boxSizes) {
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final float[] data : dataSet) {
+            nms.blockFind(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
+          blockTimes.add(time);
+        }
+      }
     }
 
-    // XXX: Copy methods up to here for 'int' versions
-    @SeededTest
-    public void intBlockFindAndMaxFindReturnSameResult(RandomSeed seed)
-    {
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
+    long total = 0;
+    long blockTotal = 0;
+    int index = 0;
+    for (final int boxSize : boxSizes) {
+      long boxTotal = 0;
+      long blockBoxTotal = 0;
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final float[] data : dataSet) {
+            nms.maxFind(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
 
-        for (final int width : primes)
-            for (final int height : primes)
-                for (final int boxSize : boxSizes)
-                    intCompareBlockFindToMaxFind(rg, nms, width, height, boxSize);
+          final long blockTime = blockTimes.get(index++);
+          total += time;
+          blockTotal += blockTime;
+          boxTotal += time;
+          blockBoxTotal += blockTime;
+          if (debug) {
+            logger.fine(
+                FunctionUtils.getSupplier("float maxFind [%dx%d] @ %d : %d => blockFind %d = %.2fx",
+                    width, height, boxSize, time, blockTime, (1.0 * time) / blockTime));
+            // Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width,
+            // height, boxSize,
+            // blockTime, time), blockTime < time);
+          }
+        }
+      }
+      // if (debug)
+      logger.log(TestLogUtils.getTimingRecord("float maxFind" + boxSize, boxTotal,
+          "float blockFind", blockBoxTotal));
+      // if (boxSize > 1) // Sometimes this fails at small sizes
+      // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
+      // blockBoxTotal, boxTotal),
+      // blockBoxTotal < boxTotal);
+    }
+    logger.log(TestLogUtils.getTimingRecord("float maxFind", total, "float blockFind", blockTotal));
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void floatBlockFindWithNeighbourCheckIsFasterThanMaxFind(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    nms.setNeighbourCheck(true);
+
+    final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+    final ArrayList<Long> blockTimes = new ArrayList<>();
+
+    // Initialise
+    nms.blockFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+    nms.maxFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+
+    for (final int boxSize : boxSizes) {
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final float[] data : dataSet) {
+            nms.blockFind(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
+          blockTimes.add(time);
+        }
+      }
     }
 
-    private void intCompareBlockFindToMaxFind(UniformRandomProvider rg, NonMaximumSuppression nms, int width,
-            int height, int boxSize)
-    {
-        intCompareBlockFindToMaxFind(nms, width, height, boxSize, intCreateData(rg, width, height), "Random");
+    long total = 0;
+    long blockTotal = 0;
+    int index = 0;
+    for (final int boxSize : boxSizes) {
+      long boxTotal = 0;
+      long blockBoxTotal = 0;
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final float[] data : dataSet) {
+            nms.maxFind(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
 
-        // Empty data
-        intCompareBlockFindToMaxFind(nms, width, height, boxSize, new int[width * height], "Empty");
+          final long blockTime = blockTimes.get(index++);
+          total += time;
+          blockTotal += blockTime;
+          boxTotal += time;
+          blockBoxTotal += blockTime;
+          if (debug) {
+            logger.fine(FunctionUtils.getSupplier(
+                "float maxFind [%dx%d] @ %d : %d => blockFindWithCheck %d = %.2fx", width, height,
+                boxSize, time, blockTime, (1.0 * time) / blockTime));
+            // Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width,
+            // height, boxSize,
+            // blockTime, time), blockTime < time);
+          }
+        }
+      }
+      // if (debug)
+      logger.log(TestLogUtils.getTimingRecord("float maxFind" + boxSize, boxTotal,
+          "float blockFindWithCheck", blockBoxTotal));
+      // if (boxSize > 1) // Sometimes this fails at small sizes
+      // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
+      // blockBoxTotal, boxTotal),
+      // blockBoxTotal < boxTotal);
+    }
+    logger.log(TestLogUtils.getTimingRecord("float maxFind", total, "float blockFindWithCheck",
+        blockTotal));
+  }
+
+  private ArrayList<float[]> floatCreateSpeedData(UniformRandomProvider rg) {
+    final int iter = ITER;
+
+    final ArrayList<float[]> dataSet = new ArrayList<>(iter);
+    for (int i = iter; i-- > 0;) {
+      dataSet.add(floatCreateData(rg, primes[0], primes[0]));
+    }
+    return dataSet;
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void floatBlockFindNxNInternalIsFasterThanBlockFindNxNForBigBorders(RandomSeed seed) {
+    // Note: This test is currently failing. The primes used to be:
+    // int[] primes = new int[] { 997, 503, 251 };
+    // Now with smaller primes (to increase the speed of running these tests)
+    // this test fails. The time for the JVM to optimise the internal method
+    // is high.
+    // If all the tests are run then the similar test
+    // floatBlockFindInternalIsFasterWithoutNeighbourCheck shows much faster
+    // times for the internal method.
+    // This test should be changed to repeat until the times converge.
+
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+    final ArrayList<Long> internalTimes = new ArrayList<>();
+
+    for (final int boxSize : boxSizes) {
+      for (final int width : primes) {
+        for (final int height : primes) {
+          // Initialise
+          nms.blockFindNxNInternal(dataSet.get(0), width, height, boxSize, boxSize);
+          long time = System.nanoTime();
+          for (final float[] data : dataSet) {
+            nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
+          }
+          time = System.nanoTime() - time;
+          internalTimes.add(time);
+        }
+      }
     }
 
-    @SeededTest
-    public void intBlockFindReturnSameResultWithNeighbourCheck(RandomSeed seed)
-    {
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
+    long total = 0;
+    long internalTotal = 0;
+    long bigTotal = 0;
+    long bigInternalTotal = 0;
+    int index = 0;
+    for (final int boxSize : boxSizes) {
+      long boxTotal = 0;
+      long internalBoxTotal = 0;
+      for (final int width : primes) {
+        for (final int height : primes) {
+          // Initialise
+          nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+          long time = System.nanoTime();
+          for (final float[] data : dataSet) {
+            nms.blockFindNxN(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
 
-        for (final int width : primes)
-            for (final int height : primes)
-                for (final int boxSize : boxSizes)
-                    intCompareBlockFindWithNeighbourCheck(rg, nms, width, height, boxSize);
+          final long internalTime = internalTimes.get(index++);
+          total += time;
+          internalTotal += internalTime;
+          if (boxSize >= 5) {
+            bigTotal += time;
+            bigInternalTotal += internalTime;
+          }
+          boxTotal += time;
+          internalBoxTotal += internalTime;
+          if (debug) {
+            logger.fine(FunctionUtils.getSupplier(
+                "float blockFind[%dx%d] @ %d : %d => blockFindInternal %d = %.2fx", width, height,
+                boxSize, time, internalTime, (1.0 * time) / internalTime));
+            // Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width,
+            // height, boxSize,
+            // blockTime, time), blockTime < time);
+          }
+        }
+      }
+      // if (debug)
+      logger.log(TestLogUtils.getTimingRecord("float blockFind" + boxSize, boxTotal,
+          "float blockFindInternal", internalBoxTotal));
+      // This is not always faster for the 15-size block so leave commented out.
+      // Assertions.assertTrue(String.format("Internal not faster: Block %d : %d > %d", boxSize,
+      // blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
+    }
+    logger.info(FunctionUtils.getSupplier("float blockFind %d => blockFindInternal %d = %.2fx",
+        total, internalTotal, (1.0 * total) / internalTotal));
+    logger.log(TestLogUtils.getTimingRecord("float blockFind (border >= 5)", bigTotal,
+        "float blockFindInternal (border >= 5)", bigInternalTotal));
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void floatBlockFindInternalIsFasterWithoutNeighbourCheck(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+    final ArrayList<Long> noCheckTimes = new ArrayList<>();
+
+    // Initialise
+    nms.setNeighbourCheck(false);
+    nms.blockFindNxNInternal(dataSet.get(0), primes[0], primes[0], boxSizes[0], boxSizes[0]);
+
+    for (final int boxSize : boxSizes) {
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final float[] data : dataSet) {
+            nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
+          }
+          time = System.nanoTime() - time;
+          noCheckTimes.add(time);
+        }
+      }
     }
 
-    private static void intCompareBlockFindWithNeighbourCheck(UniformRandomProvider rg, NonMaximumSuppression nms,
-            int width, int height, int boxSize)
-    {
-        // Random data
+    nms.setNeighbourCheck(true);
+    nms.blockFindNxNInternal(dataSet.get(0), primes[0], primes[0], boxSizes[0], boxSizes[0]);
+
+    long checkTotal = 0;
+    long noCheckTotal = 0;
+    long bigCheckTotal = 0;
+    long bigNoCheckTotal = 0;
+    int index = 0;
+    for (final int boxSize : boxSizes) {
+      long checkBoxTotal = 0;
+      long noCheckBoxTotal = 0;
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final float[] data : dataSet) {
+            nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
+          }
+          time = System.nanoTime() - time;
+
+          final long noCheckTime = noCheckTimes.get(index++);
+          checkTotal += time;
+          if (boxSize >= 5) {
+            bigCheckTotal += time;
+            bigNoCheckTotal += noCheckTime;
+          }
+          noCheckTotal += noCheckTime;
+          checkBoxTotal += time;
+          noCheckBoxTotal += noCheckTime;
+          if (debug) {
+            logger.fine(FunctionUtils.getSupplier(
+                "float blockFindInternal check [%dx%d] @ %d : %d => blockFindInternal %d = %.2fx",
+                width, height, boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
+            // Assertions.assertTrue(String.format("Without neighbour check not faster: [%dx%d] @ %d
+            // : %d > %d", width, height, boxSize,
+            // blockTime, time), blockTime < time);
+          }
+        }
+      }
+      // if (debug)
+      logger.log(TestLogUtils.getTimingRecord("float blockFindInternal check" + boxSize,
+          checkBoxTotal, "float blockFindInternal", noCheckBoxTotal));
+      // This is not always faster for the 15-size block so leave commented out.
+      // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
+      // %d", boxSize,
+      // blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
+    }
+    logger.info(FunctionUtils.getSupplier(
+        "float blockFindInternal check %d => blockFindInternal %d = %.2fx", checkTotal,
+        noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
+    logger.log(TestLogUtils.getTimingRecord("float blockFindInternal check (border >= 5)",
+        bigCheckTotal, "float blockFindInternal (border >= 5)", bigNoCheckTotal));
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void floatBlockFindIsFasterWithoutNeighbourCheck(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+    final ArrayList<Long> noCheckTimes = new ArrayList<>();
+
+    // Initialise
+    nms.setNeighbourCheck(false);
+    nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+
+    for (final int boxSize : boxSizes) {
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final float[] data : dataSet) {
+            nms.blockFindNxN(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
+          noCheckTimes.add(time);
+        }
+      }
+    }
+
+    nms.setNeighbourCheck(true);
+    nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+
+    long checkTotal = 0;
+    long noCheckTotal = 0;
+    long bigCheckTotal = 0;
+    long bigNoCheckTotal = 0;
+    int index = 0;
+    for (final int boxSize : boxSizes) {
+      long checkBoxTotal = 0;
+      long noCheckBoxTotal = 0;
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final float[] data : dataSet) {
+            nms.blockFindNxN(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
+
+          final long noCheckTime = noCheckTimes.get(index++);
+          checkTotal += time;
+          if (boxSize >= 5) {
+            bigCheckTotal += time;
+            bigNoCheckTotal += noCheckTime;
+          }
+          noCheckTotal += noCheckTime;
+          checkBoxTotal += time;
+          noCheckBoxTotal += noCheckTime;
+          if (debug) {
+            logger.fine(FunctionUtils.getSupplier(
+                "float blockFind check [%dx%d] @ %d : %d => blockFind %d = %.2fx", width, height,
+                boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
+            // Assertions.assertTrue(String.format("Without neighbour check not faster: [%dx%d] @ %d
+            // : %d > %d", width, height, boxSize,
+            // blockTime, time), blockTime < time);
+          }
+        }
+      }
+      // if (debug)
+      logger.log(TestLogUtils.getTimingRecord("float blockFind check" + boxSize, checkBoxTotal,
+          "float blockFind", noCheckBoxTotal));
+      // This is not always faster for the 15-size block so leave commented out.
+      // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
+      // %d", boxSize,
+      // blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
+    }
+    logger.info(FunctionUtils.getSupplier("float blockFind check %d => blockFind %d = %.2fx",
+        checkTotal, noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
+    logger.log(TestLogUtils.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
+        "float blockFind check %d  (border >= 5) => blockFind %d = %.2fx", bigCheckTotal,
+        bigNoCheckTotal, (1.0 * bigCheckTotal) / bigNoCheckTotal));
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void floatBlockFind3x3MethodIsFasterThanBlockFindNxN(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+    final ArrayList<Long> blockTimes = new ArrayList<>();
+
+    // Initialise
+    nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
+    nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], 1);
+
+    for (final int width : primes) {
+      for (final int height : primes) {
+        final long time = System.nanoTime();
+        for (final float[] data : dataSet) {
+          nms.blockFind3x3(data, width, height);
+        }
+        blockTimes.add(System.nanoTime() - time);
+      }
+    }
+
+    long total = 0;
+    long blockTotal = 0;
+    int index = 0;
+    for (final int width : primes) {
+      for (final int height : primes) {
+        long time = System.nanoTime();
+        for (final float[] data : dataSet) {
+          nms.blockFindNxN(data, width, height, 1);
+        }
+        time = System.nanoTime() - time;
+
+        final long blockTime = blockTimes.get(index++);
+        total += time;
+        blockTotal += blockTime;
+        if (debug) {
+          logger.fine(FunctionUtils.getSupplier(
+              "float blockFindNxN [%dx%d] : %d => blockFind3x3 %d = %.2fx", width, height, time,
+              blockTime, (1.0 * time) / blockTime));
+          // This can be close so do not allow fail on single cases
+          // Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height,
+          // blockTime, time),
+          // blockTime < time);
+        }
+      }
+    }
+    logger.log(TestLogUtils.getTimingRecord("float blockFindNxN", total, "float blockFind3x3",
+        blockTotal));
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void floatBlockFind3x3WithBufferIsFasterThanBlockFind3x3(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    nms.setDataBuffer(true);
+
+    final NonMaximumSuppression nms2 = new NonMaximumSuppression();
+    nms2.setDataBuffer(false);
+
+    final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+    final ArrayList<Long> blockTimes = new ArrayList<>();
+
+    // Initialise
+    nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
+    nms2.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
+
+    for (final int width : primes) {
+      for (final int height : primes) {
+        long time = System.nanoTime();
+        for (final float[] data : dataSet) {
+          nms.blockFind3x3(data, width, height);
+        }
+        time = System.nanoTime() - time;
+        blockTimes.add(time);
+      }
+    }
+
+    long total = 0;
+    long blockTotal = 0;
+    int index = 0;
+    for (final int width : primes) {
+      for (final int height : primes) {
+        long time = System.nanoTime();
+        for (final float[] data : dataSet) {
+          nms2.blockFind3x3(data, width, height);
+        }
+        time = System.nanoTime() - time;
+
+        final long blockTime = blockTimes.get(index++);
+        total += time;
+        blockTotal += blockTime;
+        if (debug) {
+          logger.fine(FunctionUtils.getSupplier(
+              "float blockFind3x3 [%dx%d] : %d => blockFind3x3 (buffer) %d = %.2fx", width, height,
+              time, blockTime, (1.0 * time) / blockTime));
+          // This can be close so do not allow fail on single cases
+          // Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height,
+          // blockTime, time),
+          // blockTime < time);
+        }
+      }
+    }
+    logger.log(TestLogUtils.getTimingRecord("float blockFind3x3", total,
+        "float blockFind3x3 (buffer)", blockTotal));
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void floatBlockFind3x3MethodIsFasterThanMaxFind3x3(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    final ArrayList<float[]> dataSet = floatCreateSpeedData(rg);
+    final ArrayList<Long> blockTimes = new ArrayList<>();
+
+    // Initialise
+    nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
+    nms.maxFind(dataSet.get(0), primes[0], primes[0], 1);
+
+    for (final int width : primes) {
+      for (final int height : primes) {
+        long time = System.nanoTime();
+        for (final float[] data : dataSet) {
+          nms.blockFind3x3(data, width, height);
+        }
+        time = System.nanoTime() - time;
+        blockTimes.add(time);
+      }
+    }
+
+    long total = 0;
+    long blockTotal = 0;
+    int index = 0;
+    for (final int width : primes) {
+      for (final int height : primes) {
+        long time = System.nanoTime();
+        for (final float[] data : dataSet) {
+          nms.maxFind(data, width, height, 1);
+        }
+        time = System.nanoTime() - time;
+
+        final long blockTime = blockTimes.get(index++);
+        total += time;
+        blockTotal += blockTime;
+        if (debug) {
+          logger.fine(
+              FunctionUtils.getSupplier("float maxFind3x3 [%dx%d] : %d => blockFind3x3 %d = %.2fx",
+                  width, height, time, blockTime, (1.0 * time) / blockTime));
+          // Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height,
+          // blockTime, time),
+          // blockTime < time);
+        }
+      }
+    }
+    logger.log(
+        TestLogUtils.getTimingRecord("float maxFind3x3", total, "float blockFind3x3", blockTotal));
+  }
+
+  /**
+   * Test the maximum finding algorithms for the same result.
+   */
+  @SeededTest
+  public void floatAllFindBlockMethodsReturnSameResultForSize1(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    for (final int width : primes) {
+      for (final int height : primes) {
+        floatCompareBlockMethodsForSize1(rg, nms, width, height);
+      }
+    }
+  }
+
+  private static void floatCompareBlockMethodsForSize1(UniformRandomProvider rg,
+      NonMaximumSuppression nms, int width, int height) {
+    final float[] data = floatCreateData(rg, width, height);
+
+    final int[] blockNxNIndices = nms.findBlockMaximaNxN(data, width, height, 1);
+    final int[] block2x2Indices = nms.findBlockMaxima2x2(data, width, height);
+
+    Arrays.sort(blockNxNIndices);
+    Arrays.sort(block2x2Indices);
+
+    Assertions.assertArrayEquals(blockNxNIndices, block2x2Indices,
+        FunctionUtils.getSupplier("Block vs 2x2 do not match: [%dx%d]", width, height));
+  }
+
+  private static float[] floatCreateData(UniformRandomProvider rg, int width, int height) {
+    final float[] data = new float[width * height];
+    for (int i = data.length; i-- > 0;) {
+      data[i] = i;
+    }
+
+    RandomUtils.shuffle(data, rg);
+
+    return data;
+  }
+
+  private static float[] floatCreatePatternData(int width, int height, float v00, float v01,
+      float v10, float v11) {
+    final float[] row1 = new float[width + 2];
+    final float[] row2 = new float[width + 2];
+    for (int x = 0; x < width; x += 2) {
+      row1[x] = v00;
+      row1[x + 1] = v01;
+      row2[x] = v10;
+      row2[x + 1] = v11;
+    }
+
+    final float[] data = new float[width * height];
+    for (int y = 0; y < height; y++) {
+      final float[] row = (y % 2 == 0) ? row1 : row2;
+      System.arraycopy(row, 0, data, y * width, width);
+    }
+
+    return data;
+  }
+
+  // XXX: Copy methods up to here for 'int' versions
+  @SeededTest
+  public void intBlockFindAndMaxFindReturnSameResult(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    for (final int width : primes) {
+      for (final int height : primes) {
+        for (final int boxSize : boxSizes) {
+          intCompareBlockFindToMaxFind(rg, nms, width, height, boxSize);
+        }
+      }
+    }
+  }
+
+  @SeededTest
+  public void intBlockFindReturnSameResultWithNeighbourCheck(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    for (final int width : primes) {
+      for (final int height : primes) {
+        for (final int boxSize : boxSizes) {
+          intCompareBlockFindWithNeighbourCheck(rg, nms, width, height, boxSize);
+        }
+      }
+    }
+  }
+
+  private static void intCompareBlockFindWithNeighbourCheck(UniformRandomProvider rg,
+      NonMaximumSuppression nms, int width, int height, int boxSize) {
+    // Random data
+    final int[] data = intCreateData(rg, width, height);
+    nms.setNeighbourCheck(false);
+    final int[] blockIndices1 = nms.blockFindNxN(data, width, height, boxSize);
+    nms.setNeighbourCheck(true);
+    final int[] blockIndices2 = nms.blockFindNxN(data, width, height, boxSize);
+
+    Assertions.assertArrayEquals(blockIndices1, blockIndices2,
+        FunctionUtils.getSupplier("Indices do not match: [%dx%d] @ %d", width, height, boxSize));
+  }
+
+  @Test
+  public void intBlockFindAndMaxFindReturnSameResultOnPatternDataWithNeighbourCheck() {
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    nms.setNeighbourCheck(true);
+
+    for (final int width : smallPrimes) {
+      for (final int height : smallPrimes) {
+        for (final int boxSize : boxSizes) {
+          intCompareBlockFindToMaxFindWithPatternData(nms, width, height, boxSize);
+        }
+      }
+    }
+  }
+
+  private void intCompareBlockFindToMaxFindWithPatternData(NonMaximumSuppression nms, int width,
+      int height, int boxSize) {
+    // This fails when N=2. Pattern data is problematic given the block find algorithm processes the
+    // pixels in a different order
+    // from a linear run across the yx order data. So when the pattern produces a max pixel within
+    // the range of all
+    // candidates on the top row of the block, the block algorithm will output a maxima from a
+    // subsequent row. Standard
+    // processing will just move further along the row (beyond the block boundary) to find the next
+    // maxima.
+    if (boxSize <= 2) {
+      return;
+    }
+
+    // Pattern data
+    intCompareBlockFindToMaxFind(nms, width, height, boxSize,
+        intCreatePatternData(width, height, 1, 0, 0, 0), "Pattern1000");
+    intCompareBlockFindToMaxFind(nms, width, height, boxSize,
+        intCreatePatternData(width, height, 1, 0, 1, 0), "Pattern1010");
+    intCompareBlockFindToMaxFind(nms, width, height, boxSize,
+        intCreatePatternData(width, height, 1, 0, 0, 1), "Pattern1001");
+    intCompareBlockFindToMaxFind(nms, width, height, boxSize,
+        intCreatePatternData(width, height, 1, 1, 1, 0), "Pattern1110");
+  }
+
+  private void intCompareBlockFindToMaxFind(UniformRandomProvider rg, NonMaximumSuppression nms,
+      int width, int height, int boxSize) {
+    intCompareBlockFindToMaxFind(nms, width, height, boxSize, intCreateData(rg, width, height),
+        "Random");
+
+    // Empty data
+    intCompareBlockFindToMaxFind(nms, width, height, boxSize, new int[width * height], "Empty");
+  }
+
+  private void intCompareBlockFindToMaxFind(NonMaximumSuppression nms, int width, int height,
+      int boxSize, int[] data, String name) {
+    final int[] blockIndices = nms.blockFindNxN(data, width, height, boxSize);
+    final int[] maxIndices = nms.maxFind(data, width, height, boxSize);
+
+    Arrays.sort(blockIndices);
+    Arrays.sort(maxIndices);
+
+    if (debug) {
+      intCompareIndices(width, height, data, boxSize, blockIndices, maxIndices);
+    }
+
+    Assertions.assertArrayEquals(maxIndices, blockIndices, FunctionUtils
+        .getSupplier("%s: Indices do not match: [%dx%d] @ %d", name, width, height, boxSize));
+  }
+
+  private static void intCompareIndices(int width, int height, int[] data, int boxSize,
+      int[] indices1, int[] indices2) {
+    logger.info(FunctionUtils.getSupplier("int [%dx%d@%d] i1 = %d; int i2 =  %d", width, height,
+        boxSize, indices1.length, indices2.length));
+    int i1 = 0;
+    int i2 = 0;
+    boolean match = true;
+    while (i1 < indices1.length || i2 < indices2.length) {
+      final int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
+      final int j = (i2 < indices2.length) ? indices2[i2] : Integer.MAX_VALUE;
+
+      if (i == j) {
+        logger.info(FunctionUtils.getSupplier("int   [%d,%d] = [%d,%d]", i % width, i / width,
+            j % width, j / width));
+        i1++;
+        i2++;
+      } else if (i < j) {
+        logger.info(FunctionUtils.getSupplier("int   [%d,%d] : -", i % width, i / width));
+        i1++;
+        match = false;
+      } else if (i > j) {
+        logger.info(FunctionUtils.getSupplier("int   - : [%d,%d]", j % width, j / width));
+        i2++;
+        match = false;
+      }
+    }
+    if (match) {
+      return;
+    }
+    // Show image
+    intShowImage(width, height, data, indices1, "i1");
+    intShowImage(width, height, data, indices2, "i2");
+  }
+
+  private static void intShowImage(int width, int height, int[] data, int[] indices, String title) {
+    final ImagePlus imp = ImageJUtils.display(title, new FloatProcessor(width, height, data));
+    final int[] ox = new int[indices.length];
+    final int[] oy = new int[indices.length];
+    int points = 0;
+    for (final int i : indices) {
+      ox[points] = i % width;
+      oy[points++] = i / width;
+    }
+    final PointRoi roi = new PointRoi(ox, oy, points);
+    imp.setRoi(roi);
+    // imp.getWindow().getCanvas().setMagnification(16);
+    for (int i = 7; i-- > 0;) {
+      imp.getWindow().getCanvas().zoomIn(0, 0);
+    }
+  }
+
+  @SeededTest
+  public void intBlockFindNxNAndBlockFind3x3ReturnSameResult(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    for (int width : primes) {
+      // 3x3 does not process to the edge of odd size images
+      width++;
+
+      for (int height : primes) {
+        height++;
+
         final int[] data = intCreateData(rg, width, height);
-        nms.setNeighbourCheck(false);
-        final int[] blockIndices1 = nms.blockFindNxN(data, width, height, boxSize);
-        nms.setNeighbourCheck(true);
-        final int[] blockIndices2 = nms.blockFindNxN(data, width, height, boxSize);
 
-        Assertions.assertArrayEquals(blockIndices1, blockIndices2,
-                FunctionUtils.getSupplier("Indices do not match: [%dx%d] @ %d", width, height, boxSize));
-    }
+        for (final boolean b : new boolean[] {false, true}) {
+          nms.setNeighbourCheck(b);
+          final int[] blockNxNIndices = nms.blockFindNxN(data, width, height, 1);
+          final int[] block3x3Indices = nms.blockFind3x3(data, width, height);
 
-    @Test
-    public void intBlockFindAndMaxFindReturnSameResultOnPatternDataWithNeighbourCheck()
-    {
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-        nms.setNeighbourCheck(true);
+          Arrays.sort(blockNxNIndices);
+          Arrays.sort(block3x3Indices);
 
-        for (final int width : smallPrimes)
-            for (final int height : smallPrimes)
-                for (final int boxSize : boxSizes)
-                    intCompareBlockFindToMaxFindWithPatternData(nms, width, height, boxSize);
-    }
+          if (debug) {
+            intCompareIndices(width, height, data, 1, blockNxNIndices, block3x3Indices);
+          }
 
-    private void intCompareBlockFindToMaxFindWithPatternData(NonMaximumSuppression nms, int width, int height,
-            int boxSize)
-    {
-        // This fails when N=2. Pattern data is problematic given the block find algorithm processes the pixels in a different order
-        // from a linear run across the yx order data. So when the pattern produces a max pixel within the range of all
-        // candidates on the top row of the block, the block algorithm will output a maxima from a subsequent row. Standard
-        // processing will just move further along the row (beyond the block boundary) to find the next maxima.
-        if (boxSize <= 2)
-            return;
-
-        // Pattern data
-        intCompareBlockFindToMaxFind(nms, width, height, boxSize, intCreatePatternData(width, height, 1, 0, 0, 0),
-                "Pattern1000");
-        intCompareBlockFindToMaxFind(nms, width, height, boxSize, intCreatePatternData(width, height, 1, 0, 1, 0),
-                "Pattern1010");
-        intCompareBlockFindToMaxFind(nms, width, height, boxSize, intCreatePatternData(width, height, 1, 0, 0, 1),
-                "Pattern1001");
-        intCompareBlockFindToMaxFind(nms, width, height, boxSize, intCreatePatternData(width, height, 1, 1, 1, 0),
-                "Pattern1110");
-    }
-
-    private void intCompareBlockFindToMaxFind(NonMaximumSuppression nms, int width, int height, int boxSize, int[] data,
-            String name)
-    {
-        final int[] blockIndices = nms.blockFindNxN(data, width, height, boxSize);
-        final int[] maxIndices = nms.maxFind(data, width, height, boxSize);
-
-        Arrays.sort(blockIndices);
-        Arrays.sort(maxIndices);
-
-        if (debug)
-            intCompareIndices(width, height, data, boxSize, blockIndices, maxIndices);
-
-        Assertions.assertArrayEquals(maxIndices, blockIndices,
-                FunctionUtils.getSupplier("%s: Indices do not match: [%dx%d] @ %d", name, width, height, boxSize));
-    }
-
-    private static void intCompareIndices(int width, int height, int[] data, int boxSize, int[] indices1,
-            int[] indices2)
-    {
-        logger.info(FunctionUtils.getSupplier("int [%dx%d@%d] i1 = %d, i2 = %d", width, height, boxSize, indices1.length,
-                indices2.length));
-        int i1 = 0, i2 = 0;
-        boolean match = true;
-        while (i1 < indices1.length || i2 < indices2.length)
-        {
-            final int i = (i1 < indices1.length) ? indices1[i1] : Integer.MAX_VALUE;
-            final int j = (i2 < indices2.length) ? indices2[i2] : Integer.MAX_VALUE;
-
-            if (i == j)
-            {
-                logger.info(FunctionUtils.getSupplier("int   [%d,%d] = [%d,%d]", i % width, i / width, j % width, j / width));
-                i1++;
-                i2++;
-            }
-            else if (i < j)
-            {
-                logger.info(FunctionUtils.getSupplier("int   [%d,%d] : -", i % width, i / width));
-                i1++;
-                match = false;
-            }
-            else if (i > j)
-            {
-                logger.info(FunctionUtils.getSupplier("int   - : [%d,%d]", j % width, j / width));
-                i2++;
-                match = false;
-            }
+          Assertions.assertArrayEquals(blockNxNIndices, block3x3Indices,
+              FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
         }
-        if (match)
-            return;
-        // Show image
-        showImage(width, height, data, indices1, "i1");
-        showImage(width, height, data, indices2, "i2");
+      }
     }
+  }
 
-    private static void showImage(int width, int height, int[] data, int[] indices, String title)
-    {
-        final ImagePlus imp = Utils.display(title, new FloatProcessor(width, height, data));
-        final int[] ox = new int[indices.length];
-        final int[] oy = new int[indices.length];
-        int points = 0;
-        for (final int i : indices)
-        {
-            ox[points] = i % width;
-            oy[points++] = i / width;
-        }
-        final PointRoi roi = new PointRoi(ox, oy, points);
-        imp.setRoi(roi);
-        //imp.getWindow().getCanvas().setMagnification(16);
-        for (int i = 7; i-- > 0;)
-            imp.getWindow().getCanvas().zoomIn(0, 0);
-    }
+  @SeededTest
+  public void intBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
 
-    @SeededTest
-    public void intBlockFindNxNAndBlockFind3x3ReturnSameResult(RandomSeed seed)
-    {
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
 
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
+    for (int width : primes) {
+      // 3x3 does not process to the edge of odd size images
+      width++;
 
-        for (int width : primes)
-        {
-            // 3x3 does not process to the edge of odd size images
-            width++;
+      for (int height : primes) {
+        height++;
 
-            for (int height : primes)
-            {
-                height++;
-
-                final int[] data = intCreateData(rg, width, height);
-
-                for (final boolean b : new boolean[] { false, true })
-                {
-                    nms.setNeighbourCheck(b);
-                    final int[] blockNxNIndices = nms.blockFindNxN(data, width, height, 1);
-                    final int[] block3x3Indices = nms.blockFind3x3(data, width, height);
-
-                    Arrays.sort(blockNxNIndices);
-                    Arrays.sort(block3x3Indices);
-
-                    if (debug)
-                        intCompareIndices(width, height, data, 1, blockNxNIndices, block3x3Indices);
-
-                    Assertions.assertArrayEquals(blockNxNIndices, block3x3Indices,
-                            FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
-                }
-            }
-        }
-    }
-
-    @SeededTest
-    public void intBlockFindNxNInternalAndBlockFind3x3InternalReturnSameResult(RandomSeed seed)
-    {
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        for (int width : primes)
-        {
-            // 3x3 does not process to the edge of odd size images
-            width++;
-
-            for (int height : primes)
-            {
-                height++;
-
-                final int[] data = intCreateData(rg, width, height);
-
-                for (final boolean b : new boolean[] { false, true })
-                {
-                    nms.setNeighbourCheck(b);
-                    final int[] blockNxNIndices = nms.blockFindNxNInternal(data, width, height, 1, 1);
-                    final int[] block3x3Indices = nms.blockFind3x3Internal(data, width, height, 1);
-
-                    Arrays.sort(blockNxNIndices);
-                    Arrays.sort(block3x3Indices);
-
-                    if (debug)
-                        intCompareIndices(width, height, data, 1, blockNxNIndices, block3x3Indices);
-
-                    Assertions.assertArrayEquals(blockNxNIndices, block3x3Indices,
-                            FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
-                }
-            }
-        }
-    }
-
-    @SpeedTag
-    @SeededTest
-    public void intBlockFindIsFasterThanMaxFind(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-        final ArrayList<Long> blockTimes = new ArrayList<>();
-
-        // Initialise
-        nms.blockFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-        nms.maxFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-
-        for (final int boxSize : boxSizes)
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final int[] data : dataSet)
-                        nms.blockFind(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-                    blockTimes.add(time);
-                }
-
-        long total = 0, blockTotal = 0;
-        int index = 0;
-        for (final int boxSize : boxSizes)
-        {
-            long boxTotal = 0, blockBoxTotal = 0;
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final int[] data : dataSet)
-                        nms.maxFind(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-
-                    final long blockTime = blockTimes.get(index++);
-                    total += time;
-                    blockTotal += blockTime;
-                    boxTotal += time;
-                    blockBoxTotal += blockTime;
-                    if (debug)
-                        logger.fine(FunctionUtils.getSupplier("int maxFind [%dx%d] @ %d : %d => blockFind %d = %.2fx", width,
-                                height, boxSize, time, blockTime, (1.0 * time) / blockTime));
-                    //Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width, height, boxSize,
-                    //      blockTime, time), blockTime < time);
-                }
-            //if (debug)
-            logger.log(TestLog.getTimingRecord("int maxFind" + boxSize, boxTotal, "int blockFind", blockBoxTotal));
-            //if (boxSize > 1) // Sometimes this fails at small sizes
-            //  Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize, blockBoxTotal, boxTotal),
-            //          blockBoxTotal < boxTotal);
-        }
-        logger.log(TestLog.getTimingRecord("int maxFind", total, "int blockFind", blockTotal));
-    }
-
-    @SpeedTag
-    @SeededTest
-    public void intBlockFindWithNeighbourCheckIsFasterThanMaxFind(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-        nms.setNeighbourCheck(true);
-
-        final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-        final ArrayList<Long> blockTimes = new ArrayList<>();
-
-        // Initialise
-        nms.blockFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-        nms.maxFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-
-        for (final int boxSize : boxSizes)
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final int[] data : dataSet)
-                        nms.blockFind(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-                    blockTimes.add(time);
-                }
-
-        long total = 0, blockTotal = 0;
-        int index = 0;
-        for (final int boxSize : boxSizes)
-        {
-            long boxTotal = 0, blockBoxTotal = 0;
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final int[] data : dataSet)
-                        nms.maxFind(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-
-                    final long blockTime = blockTimes.get(index++);
-                    total += time;
-                    blockTotal += blockTime;
-                    boxTotal += time;
-                    blockBoxTotal += blockTime;
-                    if (debug)
-                        logger.fine(
-                                FunctionUtils.getSupplier("int maxFind [%dx%d] @ %d : %d => blockFindWithCheck %d = %.2fx",
-                                        width, height, boxSize, time, blockTime, (1.0 * time) / blockTime));
-                    //Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width, height, boxSize,
-                    //      blockTime, time), blockTime < time);
-                }
-            //if (debug)
-            logger.log(TestLog.getTimingRecord("int maxFind" + boxSize, boxTotal, "int blockFindWithCheck",
-                    blockBoxTotal));
-            //if (boxSize > 1) // Sometimes this fails at small sizes
-            //  Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize, blockBoxTotal, boxTotal),
-            //          blockBoxTotal < boxTotal);
-        }
-        logger.log(TestLog.getTimingRecord("int maxFind", total, "int blockFindWithCheck", blockTotal));
-    }
-
-    private ArrayList<int[]> intCreateSpeedData(UniformRandomProvider rg)
-    {
-        final int iter = ITER;
-
-        final ArrayList<int[]> dataSet = new ArrayList<>(iter);
-        for (int i = iter; i-- > 0;)
-            dataSet.add(intCreateData(rg, primes[0], primes[0]));
-        return dataSet;
-    }
-
-    @SpeedTag
-    @SeededTest
-    public void intBlockFindNxNInternalIsFasterThanBlockFindNxNForBigBorders(RandomSeed seed)
-    {
-        // Note: This test is currently failing. The primes used to be:
-        // int[] primes = new int[] { 997, 503, 251 };
-        // Now with smaller primes (to increase the speed of running these tests)
-        // this test fails. The time for the JVM to optimise the internal method
-        // is high.
-        // If all the tests are run then the similar test
-        // intBlockFindInternalIsFasterWithoutNeighbourCheck shows much faster
-        // times for the internal method.
-        // This test should be changed to repeat until the times converge.
-
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-        final ArrayList<Long> internalTimes = new ArrayList<>();
-
-        for (final int boxSize : boxSizes)
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    // Initialise
-                    nms.blockFindNxNInternal(dataSet.get(0), width, height, boxSize, boxSize);
-                    long time = System.nanoTime();
-                    for (final int[] data : dataSet)
-                        nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
-                    time = System.nanoTime() - time;
-                    internalTimes.add(time);
-                }
-
-        long total = 0, internalTotal = 0;
-        long bigTotal = 0, bigInternalTotal = 0;
-        int index = 0;
-        for (final int boxSize : boxSizes)
-        {
-            long boxTotal = 0, internalBoxTotal = 0;
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    // Initialise
-                    nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-                    long time = System.nanoTime();
-                    for (final int[] data : dataSet)
-                        nms.blockFindNxN(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-
-                    final long internalTime = internalTimes.get(index++);
-                    total += time;
-                    internalTotal += internalTime;
-                    if (boxSize >= 5)
-                    {
-                        bigTotal += time;
-                        bigInternalTotal += internalTime;
-                    }
-                    boxTotal += time;
-                    internalBoxTotal += internalTime;
-                    if (debug)
-                        logger.fine(
-                                FunctionUtils.getSupplier("int blockFind[%dx%d] @ %d : %d => blockFindInternal %d = %.2fx",
-                                        width, height, boxSize, time, internalTime, (1.0 * time) / internalTime));
-                    //Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width, height, boxSize,
-                    //      blockTime, time), blockTime < time);
-                }
-            //if (debug)
-            logger.log(TestLog.getTimingRecord("int blockFind" + boxSize, boxTotal, "int blockFindInternal",
-                    internalBoxTotal));
-            // This is not always faster for the 15-size block so leave commented out.
-            //Assertions.assertTrue(String.format("Internal not faster: Block %d : %d > %d", boxSize,
-            //      blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
-        }
-        logger.info(FunctionUtils.getSupplier("int blockFind %d => blockFindInternal %d = %.2fx", total, internalTotal,
-                (1.0 * total) / internalTotal));
-        logger.log(TestLog.getTimingRecord("int blockFind (border >= 5)", bigTotal,
-                "int blockFindInternal (border >= 5)", bigInternalTotal));
-    }
-
-    @SpeedTag
-    @SeededTest
-    public void intBlockFindInternalIsFasterWithoutNeighbourCheck(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-        final ArrayList<Long> noCheckTimes = new ArrayList<>();
-
-        // Initialise
-        nms.setNeighbourCheck(false);
-        nms.blockFindNxNInternal(dataSet.get(0), primes[0], primes[0], boxSizes[0], boxSizes[0]);
-
-        for (final int boxSize : boxSizes)
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final int[] data : dataSet)
-                        nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
-                    time = System.nanoTime() - time;
-                    noCheckTimes.add(time);
-                }
-
-        nms.setNeighbourCheck(true);
-        nms.blockFindNxNInternal(dataSet.get(0), primes[0], primes[0], boxSizes[0], boxSizes[0]);
-
-        long checkTotal = 0, noCheckTotal = 0;
-        long bigCheckTotal = 0, bigNoCheckTotal = 0;
-        int index = 0;
-        for (final int boxSize : boxSizes)
-        {
-            long checkBoxTotal = 0, noCheckBoxTotal = 0;
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final int[] data : dataSet)
-                        nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
-                    time = System.nanoTime() - time;
-
-                    final long noCheckTime = noCheckTimes.get(index++);
-                    checkTotal += time;
-                    if (boxSize >= 5)
-                    {
-                        bigCheckTotal += time;
-                        bigNoCheckTotal += noCheckTime;
-                    }
-                    noCheckTotal += noCheckTime;
-                    checkBoxTotal += time;
-                    noCheckBoxTotal += noCheckTime;
-                    if (debug)
-                        logger.fine(FunctionUtils.getSupplier(
-                                "int blockFindInternal check [%dx%d] @ %d : %d => blockFindInternal %d = %.2fx", width,
-                                height, boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
-                    //Assertions.assertTrue(String.format("Without neighbour check not faster: [%dx%d] @ %d : %d > %d", width, height, boxSize,
-                    //      blockTime, time), blockTime < time);
-                }
-            //if (debug)
-            logger.log(TestLog.getTimingRecord("int blockFindInternal check" + boxSize, checkBoxTotal,
-                    "int blockFindInternal", noCheckBoxTotal));
-            // This is not always faster for the 15-size block so leave commented out.
-            //Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d > %d", boxSize,
-            //      blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
-        }
-        logger.info(FunctionUtils.getSupplier("int blockFindInternal check %d => blockFindInternal %d = %.2fx", checkTotal,
-                noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
-        logger.log(TestLog.getTimingRecord("int blockFindInternal check (border >= 5)", bigCheckTotal,
-                "int blockFindInternal (border >= 5)", bigNoCheckTotal));
-    }
-
-    @SpeedTag
-    @SeededTest
-    public void intBlockFindIsFasterWithoutNeighbourCheck(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-        final ArrayList<Long> noCheckTimes = new ArrayList<>();
-
-        // Initialise
-        nms.setNeighbourCheck(false);
-        nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-
-        for (final int boxSize : boxSizes)
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final int[] data : dataSet)
-                        nms.blockFindNxN(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-                    noCheckTimes.add(time);
-                }
-
-        nms.setNeighbourCheck(true);
-        nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
-
-        long checkTotal = 0, noCheckTotal = 0;
-        long bigCheckTotal = 0, bigNoCheckTotal = 0;
-        int index = 0;
-        for (final int boxSize : boxSizes)
-        {
-            long checkBoxTotal = 0, noCheckBoxTotal = 0;
-            for (final int width : primes)
-                for (final int height : primes)
-                {
-                    long time = System.nanoTime();
-                    for (final int[] data : dataSet)
-                        nms.blockFindNxN(data, width, height, boxSize);
-                    time = System.nanoTime() - time;
-
-                    final long noCheckTime = noCheckTimes.get(index++);
-                    checkTotal += time;
-                    if (boxSize >= 5)
-                    {
-                        bigCheckTotal += time;
-                        bigNoCheckTotal += noCheckTime;
-                    }
-                    noCheckTotal += noCheckTime;
-                    checkBoxTotal += time;
-                    noCheckBoxTotal += noCheckTime;
-                    if (debug)
-                        logger.fine(FunctionUtils.getSupplier("int blockFind check [%dx%d] @ %d : %d => blockFind %d = %.2fx",
-                                width, height, boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
-                    //Assertions.assertTrue(String.format("Without neighbour check not faster: [%dx%d] @ %d : %d > %d", width, height, boxSize,
-                    //      blockTime, time), blockTime < time);
-                }
-            //if (debug)
-            logger.log(TestLog.getTimingRecord("int blockFind check" + boxSize, checkBoxTotal, "int blockFind",
-                    noCheckBoxTotal));
-            // This is not always faster for the 15-size block so leave commented out.
-            //Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d > %d", boxSize,
-            //      blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
-        }
-        logger.info(FunctionUtils.getSupplier("int blockFind check %d => blockFind %d = %.2fx", checkTotal, noCheckTotal,
-                (1.0 * checkTotal) / noCheckTotal));
-        logger.log(TestLog.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
-                "int blockFind check %d  (border >= 5) => blockFind %d = %.2fx", bigCheckTotal, bigNoCheckTotal,
-                (1.0 * bigCheckTotal) / bigNoCheckTotal));
-    }
-
-    @SpeedTag
-    @SeededTest
-    public void intBlockFind3x3MethodIsFasterThanBlockFindNxN(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-        final ArrayList<Long> blockTimes = new ArrayList<>();
-
-        // Initialise
-        nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
-        nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], 1);
-
-        for (final int width : primes)
-            for (final int height : primes)
-            {
-                final long time = System.nanoTime();
-                for (final int[] data : dataSet)
-                    nms.blockFind3x3(data, width, height);
-                blockTimes.add(System.nanoTime() - time);
-            }
-
-        long total = 0, blockTotal = 0;
-        int index = 0;
-        for (final int width : primes)
-            for (final int height : primes)
-            {
-                long time = System.nanoTime();
-                for (final int[] data : dataSet)
-                    nms.blockFindNxN(data, width, height, 1);
-                time = System.nanoTime() - time;
-
-                final long blockTime = blockTimes.get(index++);
-                total += time;
-                blockTotal += blockTime;
-                if (debug)
-                    logger.fine(FunctionUtils.getSupplier("int blockFindNxN [%dx%d] : %d => blockFind3x3 %d = %.2fx", width,
-                            height, time, blockTime, (1.0 * time) / blockTime));
-                // This can be close so do not allow fail on single cases
-                //Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height, blockTime, time),
-                //      blockTime < time);
-            }
-        logger.log(TestLog.getTimingRecord("int blockFindNxN", total, "int blockFind3x3", blockTotal));
-    }
-
-    @SpeedTag
-    @SeededTest
-    public void intBlockFind3x3WithBufferIsFasterThanBlockFind3x3(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-        nms.setDataBuffer(true);
-
-        final NonMaximumSuppression nms2 = new NonMaximumSuppression();
-        nms2.setDataBuffer(false);
-
-        final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-        final ArrayList<Long> blockTimes = new ArrayList<>();
-
-        // Initialise
-        nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
-        nms2.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
-
-        for (final int width : primes)
-            for (final int height : primes)
-            {
-                long time = System.nanoTime();
-                for (final int[] data : dataSet)
-                    nms.blockFind3x3(data, width, height);
-                time = System.nanoTime() - time;
-                blockTimes.add(time);
-            }
-
-        long total = 0, blockTotal = 0;
-        int index = 0;
-        for (final int width : primes)
-            for (final int height : primes)
-            {
-                long time = System.nanoTime();
-                for (final int[] data : dataSet)
-                    nms2.blockFind3x3(data, width, height);
-                time = System.nanoTime() - time;
-
-                final long blockTime = blockTimes.get(index++);
-                total += time;
-                blockTotal += blockTime;
-                if (debug)
-                    logger.fine(FunctionUtils.getSupplier("int blockFind3x3 [%dx%d] : %d => blockFind3x3 (buffer) %d = %.2fx",
-                            width, height, time, blockTime, (1.0 * time) / blockTime));
-                // This can be close so do not allow fail on single cases
-                //Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height, blockTime, time),
-                //      blockTime < time);
-            }
-        logger.log(TestLog.getTimingRecord("int blockFind3x3", total, "int blockFind3x3 (buffer)", blockTotal));
-    }
-
-    @SpeedTag
-    @SeededTest
-    public void intBlockFind3x3MethodIsFasterThanMaxFind3x3(RandomSeed seed)
-    {
-        ExtraAssumptions.assume(TestComplexity.MEDIUM);
-
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-
-        final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
-        final ArrayList<Long> blockTimes = new ArrayList<>();
-
-        // Initialise
-        nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
-        nms.maxFind(dataSet.get(0), primes[0], primes[0], 1);
-
-        for (final int width : primes)
-            for (final int height : primes)
-            {
-                long time = System.nanoTime();
-                for (final int[] data : dataSet)
-                    nms.blockFind3x3(data, width, height);
-                time = System.nanoTime() - time;
-                blockTimes.add(time);
-            }
-
-        long total = 0, blockTotal = 0;
-        int index = 0;
-        for (final int width : primes)
-            for (final int height : primes)
-            {
-                long time = System.nanoTime();
-                for (final int[] data : dataSet)
-                    nms.maxFind(data, width, height, 1);
-                time = System.nanoTime() - time;
-
-                final long blockTime = blockTimes.get(index++);
-                total += time;
-                blockTotal += blockTime;
-                if (debug)
-                    logger.fine(FunctionUtils.getSupplier("int maxFind3x3 [%dx%d] : %d => blockFind3x3 %d = %.2fx", width,
-                            height, time, blockTime, (1.0 * time) / blockTime));
-                //Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height, blockTime, time),
-                //      blockTime < time);
-            }
-        logger.log(TestLog.getTimingRecord("int maxFind3x3", total, "int blockFind3x3", blockTotal));
-    }
-
-    /**
-     * Test the maximum finding algorithms for the same result
-     */
-    @SeededTest
-    public void intAllFindBlockMethodsReturnSameResultForSize1(RandomSeed seed)
-    {
-        final UniformRandomProvider rg = RNGFactory.create(seed.getSeed());
-
-        final NonMaximumSuppression nms = new NonMaximumSuppression();
-        for (final int width : primes)
-            for (final int height : primes)
-                intCompareBlockMethodsForSize1(rg, nms, width, height);
-    }
-
-    private static void intCompareBlockMethodsForSize1(UniformRandomProvider rg, NonMaximumSuppression nms, int width,
-            int height)
-    {
         final int[] data = intCreateData(rg, width, height);
 
-        final int[] blockNxNIndices = nms.findBlockMaximaNxN(data, width, height, 1);
-        final int[] block2x2Indices = nms.findBlockMaxima2x2(data, width, height);
+        for (final boolean b : new boolean[] {false, true}) {
+          nms.setNeighbourCheck(b);
+          final int[] blockNxNIndices = nms.blockFindNxNInternal(data, width, height, 1, 1);
+          final int[] block3x3Indices = nms.blockFind3x3Internal(data, width, height, 1);
 
-        Arrays.sort(blockNxNIndices);
-        Arrays.sort(block2x2Indices);
+          Arrays.sort(blockNxNIndices);
+          Arrays.sort(block3x3Indices);
 
-        Assertions.assertArrayEquals(blockNxNIndices, block2x2Indices,
-                FunctionUtils.getSupplier("Block vs 2x2 do not match: [%dx%d]", width, height));
-    }
+          if (debug) {
+            intCompareIndices(width, height, data, 1, blockNxNIndices, block3x3Indices);
+          }
 
-    private static int[] intCreateData(UniformRandomProvider rg, int width, int height)
-    {
-        final int[] data = new int[width * height];
-        for (int i = data.length; i-- > 0;)
-            data[i] = i;
-
-        Random.shuffle(data, rg);
-
-        return data;
-    }
-
-    private static int[] intCreatePatternData(int width, int height, int a, int b, int c, int d)
-    {
-        final int[] row1 = new int[width + 2];
-        final int[] row2 = new int[width + 2];
-        for (int x = 0; x < width; x += 2)
-        {
-            row1[x] = a;
-            row1[x + 1] = b;
-            row2[x] = c;
-            row2[x + 1] = d;
+          Assertions.assertArrayEquals(blockNxNIndices, block3x3Indices,
+              FunctionUtils.getSupplier("Indices do not match: [%dx%d] %b", width, height, b));
         }
-
-        final int[] data = new int[width * height];
-        for (int y = 0; y < height; y++)
-        {
-            final int[] row = (y % 2 == 0) ? row1 : row2;
-            System.arraycopy(row, 0, data, y * width, width);
-        }
-
-        return data;
+      }
     }
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void intBlockFindIsFasterThanMaxFind(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+    final ArrayList<Long> blockTimes = new ArrayList<>();
+
+    // Initialise
+    nms.blockFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+    nms.maxFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+
+    for (final int boxSize : boxSizes) {
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final int[] data : dataSet) {
+            nms.blockFind(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
+          blockTimes.add(time);
+        }
+      }
+    }
+
+    long total = 0;
+    long blockTotal = 0;
+    int index = 0;
+    for (final int boxSize : boxSizes) {
+      long boxTotal = 0;
+      long blockBoxTotal = 0;
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final int[] data : dataSet) {
+            nms.maxFind(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
+
+          final long blockTime = blockTimes.get(index++);
+          total += time;
+          blockTotal += blockTime;
+          boxTotal += time;
+          blockBoxTotal += blockTime;
+          if (debug) {
+            logger.fine(
+                FunctionUtils.getSupplier("int maxFind [%dx%d] @ %d : %d => blockFind %d = %.2fx",
+                    width, height, boxSize, time, blockTime, (1.0 * time) / blockTime));
+            // Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width,
+            // height, boxSize,
+            // blockTime, time), blockTime < time);
+          }
+        }
+      }
+      // if (debug)
+      logger.log(TestLogUtils.getTimingRecord("int maxFind" + boxSize, boxTotal, "int blockFind",
+          blockBoxTotal));
+      // if (boxSize > 1) // Sometimes this fails at small sizes
+      // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
+      // blockBoxTotal, boxTotal),
+      // blockBoxTotal < boxTotal);
+    }
+    logger.log(TestLogUtils.getTimingRecord("int maxFind", total, "int blockFind", blockTotal));
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void intBlockFindWithNeighbourCheckIsFasterThanMaxFind(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    nms.setNeighbourCheck(true);
+
+    final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+    final ArrayList<Long> blockTimes = new ArrayList<>();
+
+    // Initialise
+    nms.blockFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+    nms.maxFind(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+
+    for (final int boxSize : boxSizes) {
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final int[] data : dataSet) {
+            nms.blockFind(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
+          blockTimes.add(time);
+        }
+      }
+    }
+
+    long total = 0;
+    long blockTotal = 0;
+    int index = 0;
+    for (final int boxSize : boxSizes) {
+      long boxTotal = 0;
+      long blockBoxTotal = 0;
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final int[] data : dataSet) {
+            nms.maxFind(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
+
+          final long blockTime = blockTimes.get(index++);
+          total += time;
+          blockTotal += blockTime;
+          boxTotal += time;
+          blockBoxTotal += blockTime;
+          if (debug) {
+            logger.fine(FunctionUtils.getSupplier(
+                "int maxFind [%dx%d] @ %d : %d => blockFindWithCheck %d = %.2fx", width, height,
+                boxSize, time, blockTime, (1.0 * time) / blockTime));
+            // Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width,
+            // height, boxSize,
+            // blockTime, time), blockTime < time);
+          }
+        }
+      }
+      // if (debug)
+      logger.log(TestLogUtils.getTimingRecord("int maxFind" + boxSize, boxTotal,
+          "int blockFindWithCheck", blockBoxTotal));
+      // if (boxSize > 1) // Sometimes this fails at small sizes
+      // Assertions.assertTrue(String.format("Not faster: Block %d : %d > %d", boxSize,
+      // blockBoxTotal, boxTotal),
+      // blockBoxTotal < boxTotal);
+    }
+    logger.log(
+        TestLogUtils.getTimingRecord("int maxFind", total, "int blockFindWithCheck", blockTotal));
+  }
+
+  private ArrayList<int[]> intCreateSpeedData(UniformRandomProvider rg) {
+    final int iter = ITER;
+
+    final ArrayList<int[]> dataSet = new ArrayList<>(iter);
+    for (int i = iter; i-- > 0;) {
+      dataSet.add(intCreateData(rg, primes[0], primes[0]));
+    }
+    return dataSet;
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void intBlockFindNxNInternalIsFasterThanBlockFindNxNForBigBorders(RandomSeed seed) {
+    // Note: This test is currently failing. The primes used to be:
+    // int[] primes = new int[] { 997, 503, 251 };
+    // Now with smaller primes (to increase the speed of running these tests)
+    // this test fails. The time for the JVM to optimise the internal method
+    // is high.
+    // If all the tests are run then the similar test
+    // intBlockFindInternalIsFasterWithoutNeighbourCheck shows much faster
+    // times for the internal method.
+    // This test should be changed to repeat until the times converge.
+
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+    final ArrayList<Long> internalTimes = new ArrayList<>();
+
+    for (final int boxSize : boxSizes) {
+      for (final int width : primes) {
+        for (final int height : primes) {
+          // Initialise
+          nms.blockFindNxNInternal(dataSet.get(0), width, height, boxSize, boxSize);
+          long time = System.nanoTime();
+          for (final int[] data : dataSet) {
+            nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
+          }
+          time = System.nanoTime() - time;
+          internalTimes.add(time);
+        }
+      }
+    }
+
+    long total = 0;
+    long internalTotal = 0;
+    long bigTotal = 0;
+    long bigInternalTotal = 0;
+    int index = 0;
+    for (final int boxSize : boxSizes) {
+      long boxTotal = 0;
+      long internalBoxTotal = 0;
+      for (final int width : primes) {
+        for (final int height : primes) {
+          // Initialise
+          nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+          long time = System.nanoTime();
+          for (final int[] data : dataSet) {
+            nms.blockFindNxN(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
+
+          final long internalTime = internalTimes.get(index++);
+          total += time;
+          internalTotal += internalTime;
+          if (boxSize >= 5) {
+            bigTotal += time;
+            bigInternalTotal += internalTime;
+          }
+          boxTotal += time;
+          internalBoxTotal += internalTime;
+          if (debug) {
+            logger.fine(FunctionUtils.getSupplier(
+                "int blockFind[%dx%d] @ %d : %d => blockFindInternal %d = %.2fx", width, height,
+                boxSize, time, internalTime, (1.0 * time) / internalTime));
+            // Assertions.assertTrue(String.format("Not faster: [%dx%d] @ %d : %d > %d", width,
+            // height, boxSize,
+            // blockTime, time), blockTime < time);
+          }
+        }
+      }
+      // if (debug)
+      logger.log(TestLogUtils.getTimingRecord("int blockFind" + boxSize, boxTotal,
+          "int blockFindInternal", internalBoxTotal));
+      // This is not always faster for the 15-size block so leave commented out.
+      // Assertions.assertTrue(String.format("Internal not faster: Block %d : %d > %d", boxSize,
+      // blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
+    }
+    logger.info(FunctionUtils.getSupplier("int blockFind %d => blockFindInternal %d = %.2fx", total,
+        internalTotal, (1.0 * total) / internalTotal));
+    logger.log(TestLogUtils.getTimingRecord("int blockFind (border >= 5)", bigTotal,
+        "int blockFindInternal (border >= 5)", bigInternalTotal));
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void intBlockFindInternalIsFasterWithoutNeighbourCheck(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+    final ArrayList<Long> noCheckTimes = new ArrayList<>();
+
+    // Initialise
+    nms.setNeighbourCheck(false);
+    nms.blockFindNxNInternal(dataSet.get(0), primes[0], primes[0], boxSizes[0], boxSizes[0]);
+
+    for (final int boxSize : boxSizes) {
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final int[] data : dataSet) {
+            nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
+          }
+          time = System.nanoTime() - time;
+          noCheckTimes.add(time);
+        }
+      }
+    }
+
+    nms.setNeighbourCheck(true);
+    nms.blockFindNxNInternal(dataSet.get(0), primes[0], primes[0], boxSizes[0], boxSizes[0]);
+
+    long checkTotal = 0;
+    long noCheckTotal = 0;
+    long bigCheckTotal = 0;
+    long bigNoCheckTotal = 0;
+    int index = 0;
+    for (final int boxSize : boxSizes) {
+      long checkBoxTotal = 0;
+      long noCheckBoxTotal = 0;
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final int[] data : dataSet) {
+            nms.blockFindNxNInternal(data, width, height, boxSize, boxSize);
+          }
+          time = System.nanoTime() - time;
+
+          final long noCheckTime = noCheckTimes.get(index++);
+          checkTotal += time;
+          if (boxSize >= 5) {
+            bigCheckTotal += time;
+            bigNoCheckTotal += noCheckTime;
+          }
+          noCheckTotal += noCheckTime;
+          checkBoxTotal += time;
+          noCheckBoxTotal += noCheckTime;
+          if (debug) {
+            logger.fine(FunctionUtils.getSupplier(
+                "int blockFindInternal check [%dx%d] @ %d : %d => blockFindInternal %d = %.2fx",
+                width, height, boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
+            // Assertions.assertTrue(String.format("Without neighbour check not faster: [%dx%d] @ %d
+            // : %d > %d", width, height, boxSize,
+            // blockTime, time), blockTime < time);
+          }
+        }
+      }
+      // if (debug)
+      logger.log(TestLogUtils.getTimingRecord("int blockFindInternal check" + boxSize,
+          checkBoxTotal, "int blockFindInternal", noCheckBoxTotal));
+      // This is not always faster for the 15-size block so leave commented out.
+      // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
+      // %d", boxSize,
+      // blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
+    }
+    logger.info(
+        FunctionUtils.getSupplier("int blockFindInternal check %d => blockFindInternal %d = %.2fx",
+            checkTotal, noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
+    logger.log(TestLogUtils.getTimingRecord("int blockFindInternal check (border >= 5)",
+        bigCheckTotal, "int blockFindInternal (border >= 5)", bigNoCheckTotal));
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void intBlockFindIsFasterWithoutNeighbourCheck(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+    final ArrayList<Long> noCheckTimes = new ArrayList<>();
+
+    // Initialise
+    nms.setNeighbourCheck(false);
+    nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+
+    for (final int boxSize : boxSizes) {
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final int[] data : dataSet) {
+            nms.blockFindNxN(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
+          noCheckTimes.add(time);
+        }
+      }
+    }
+
+    nms.setNeighbourCheck(true);
+    nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], boxSizes[0]);
+
+    long checkTotal = 0;
+    long noCheckTotal = 0;
+    long bigCheckTotal = 0;
+    long bigNoCheckTotal = 0;
+    int index = 0;
+    for (final int boxSize : boxSizes) {
+      long checkBoxTotal = 0;
+      long noCheckBoxTotal = 0;
+      for (final int width : primes) {
+        for (final int height : primes) {
+          long time = System.nanoTime();
+          for (final int[] data : dataSet) {
+            nms.blockFindNxN(data, width, height, boxSize);
+          }
+          time = System.nanoTime() - time;
+
+          final long noCheckTime = noCheckTimes.get(index++);
+          checkTotal += time;
+          if (boxSize >= 5) {
+            bigCheckTotal += time;
+            bigNoCheckTotal += noCheckTime;
+          }
+          noCheckTotal += noCheckTime;
+          checkBoxTotal += time;
+          noCheckBoxTotal += noCheckTime;
+          if (debug) {
+            logger.fine(FunctionUtils.getSupplier(
+                "int blockFind check [%dx%d] @ %d : %d => blockFind %d = %.2fx", width, height,
+                boxSize, time, noCheckTime, (1.0 * time) / noCheckTime));
+            // Assertions.assertTrue(String.format("Without neighbour check not faster: [%dx%d] @ %d
+            // : %d > %d", width, height, boxSize,
+            // blockTime, time), blockTime < time);
+          }
+        }
+      }
+      // if (debug)
+      logger.log(TestLogUtils.getTimingRecord("int blockFind check" + boxSize, checkBoxTotal,
+          "int blockFind", noCheckBoxTotal));
+      // This is not always faster for the 15-size block so leave commented out.
+      // Assertions.assertTrue(String.format("Without neighbour check not faster: Block %d : %d >
+      // %d", boxSize,
+      // blockBoxTotal, boxTotal), blockBoxTotal < boxTotal);
+    }
+    logger.info(FunctionUtils.getSupplier("int blockFind check %d => blockFind %d = %.2fx",
+        checkTotal, noCheckTotal, (1.0 * checkTotal) / noCheckTotal));
+    logger.log(TestLogUtils.getResultRecord(bigNoCheckTotal <= bigCheckTotal,
+        "int blockFind check %d  (border >= 5) => blockFind %d = %.2fx", bigCheckTotal,
+        bigNoCheckTotal, (1.0 * bigCheckTotal) / bigNoCheckTotal));
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void intBlockFind3x3MethodIsFasterThanBlockFindNxN(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+    final ArrayList<Long> blockTimes = new ArrayList<>();
+
+    // Initialise
+    nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
+    nms.blockFindNxN(dataSet.get(0), primes[0], primes[0], 1);
+
+    for (final int width : primes) {
+      for (final int height : primes) {
+        final long time = System.nanoTime();
+        for (final int[] data : dataSet) {
+          nms.blockFind3x3(data, width, height);
+        }
+        blockTimes.add(System.nanoTime() - time);
+      }
+    }
+
+    long total = 0;
+    long blockTotal = 0;
+    int index = 0;
+    for (final int width : primes) {
+      for (final int height : primes) {
+        long time = System.nanoTime();
+        for (final int[] data : dataSet) {
+          nms.blockFindNxN(data, width, height, 1);
+        }
+        time = System.nanoTime() - time;
+
+        final long blockTime = blockTimes.get(index++);
+        total += time;
+        blockTotal += blockTime;
+        if (debug) {
+          logger.fine(
+              FunctionUtils.getSupplier("int blockFindNxN [%dx%d] : %d => blockFind3x3 %d = %.2fx",
+                  width, height, time, blockTime, (1.0 * time) / blockTime));
+          // This can be close so do not allow fail on single cases
+          // Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height,
+          // blockTime, time),
+          // blockTime < time);
+        }
+      }
+    }
+    logger.log(
+        TestLogUtils.getTimingRecord("int blockFindNxN", total, "int blockFind3x3", blockTotal));
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void intBlockFind3x3WithBufferIsFasterThanBlockFind3x3(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    nms.setDataBuffer(true);
+
+    final NonMaximumSuppression nms2 = new NonMaximumSuppression();
+    nms2.setDataBuffer(false);
+
+    final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+    final ArrayList<Long> blockTimes = new ArrayList<>();
+
+    // Initialise
+    nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
+    nms2.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
+
+    for (final int width : primes) {
+      for (final int height : primes) {
+        long time = System.nanoTime();
+        for (final int[] data : dataSet) {
+          nms.blockFind3x3(data, width, height);
+        }
+        time = System.nanoTime() - time;
+        blockTimes.add(time);
+      }
+    }
+
+    long total = 0;
+    long blockTotal = 0;
+    int index = 0;
+    for (final int width : primes) {
+      for (final int height : primes) {
+        long time = System.nanoTime();
+        for (final int[] data : dataSet) {
+          nms2.blockFind3x3(data, width, height);
+        }
+        time = System.nanoTime() - time;
+
+        final long blockTime = blockTimes.get(index++);
+        total += time;
+        blockTotal += blockTime;
+        if (debug) {
+          logger.fine(FunctionUtils.getSupplier(
+              "int blockFind3x3 [%dx%d] : %d => blockFind3x3 (buffer) %d = %.2fx", width, height,
+              time, blockTime, (1.0 * time) / blockTime));
+          // This can be close so do not allow fail on single cases
+          // Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height,
+          // blockTime, time),
+          // blockTime < time);
+        }
+      }
+    }
+    logger.log(TestLogUtils.getTimingRecord("int blockFind3x3", total, "int blockFind3x3 (buffer)",
+        blockTotal));
+  }
+
+  @SpeedTag
+  @SeededTest
+  public void intBlockFind3x3MethodIsFasterThanMaxFind3x3(RandomSeed seed) {
+    Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
+
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+
+    final ArrayList<int[]> dataSet = intCreateSpeedData(rg);
+    final ArrayList<Long> blockTimes = new ArrayList<>();
+
+    // Initialise
+    nms.blockFind3x3(dataSet.get(0), primes[0], primes[0]);
+    nms.maxFind(dataSet.get(0), primes[0], primes[0], 1);
+
+    for (final int width : primes) {
+      for (final int height : primes) {
+        long time = System.nanoTime();
+        for (final int[] data : dataSet) {
+          nms.blockFind3x3(data, width, height);
+        }
+        time = System.nanoTime() - time;
+        blockTimes.add(time);
+      }
+    }
+
+    long total = 0;
+    long blockTotal = 0;
+    int index = 0;
+    for (final int width : primes) {
+      for (final int height : primes) {
+        long time = System.nanoTime();
+        for (final int[] data : dataSet) {
+          nms.maxFind(data, width, height, 1);
+        }
+        time = System.nanoTime() - time;
+
+        final long blockTime = blockTimes.get(index++);
+        total += time;
+        blockTotal += blockTime;
+        if (debug) {
+          logger.fine(
+              FunctionUtils.getSupplier("int maxFind3x3 [%dx%d] : %d => blockFind3x3 %d = %.2fx",
+                  width, height, time, blockTime, (1.0 * time) / blockTime));
+          // Assertions.assertTrue(String.format("Not faster: [%dx%d] : %d > %d", width, height,
+          // blockTime, time),
+          // blockTime < time);
+        }
+      }
+    }
+    logger
+        .log(TestLogUtils.getTimingRecord("int maxFind3x3", total, "int blockFind3x3", blockTotal));
+  }
+
+  /**
+   * Test the maximum finding algorithms for the same result.
+   */
+  @SeededTest
+  public void intAllFindBlockMethodsReturnSameResultForSize1(RandomSeed seed) {
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+
+    final NonMaximumSuppression nms = new NonMaximumSuppression();
+    for (final int width : primes) {
+      for (final int height : primes) {
+        intCompareBlockMethodsForSize1(rg, nms, width, height);
+      }
+    }
+  }
+
+  private static void intCompareBlockMethodsForSize1(UniformRandomProvider rg,
+      NonMaximumSuppression nms, int width, int height) {
+    final int[] data = intCreateData(rg, width, height);
+
+    final int[] blockNxNIndices = nms.findBlockMaximaNxN(data, width, height, 1);
+    final int[] block2x2Indices = nms.findBlockMaxima2x2(data, width, height);
+
+    Arrays.sort(blockNxNIndices);
+    Arrays.sort(block2x2Indices);
+
+    Assertions.assertArrayEquals(blockNxNIndices, block2x2Indices,
+        FunctionUtils.getSupplier("Block vs 2x2 do not match: [%dx%d]", width, height));
+  }
+
+  private static int[] intCreateData(UniformRandomProvider rg, int width, int height) {
+    final int[] data = new int[width * height];
+    for (int i = data.length; i-- > 0;) {
+      data[i] = i;
+    }
+
+    RandomUtils.shuffle(data, rg);
+
+    return data;
+  }
+
+  private static int[] intCreatePatternData(int width, int height, int v00, int v01, int v10,
+      int v11) {
+    final int[] row1 = new int[width + 2];
+    final int[] row2 = new int[width + 2];
+    for (int x = 0; x < width; x += 2) {
+      row1[x] = v00;
+      row1[x + 1] = v01;
+      row2[x] = v10;
+      row2[x + 1] = v11;
+    }
+
+    final int[] data = new int[width * height];
+    for (int y = 0; y < height; y++) {
+      final int[] row = (y % 2 == 0) ? row1 : row2;
+      System.arraycopy(row, 0, data, y * width, width);
+    }
+
+    return data;
+  }
 }

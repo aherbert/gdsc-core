@@ -5,6 +5,11 @@ This package contains core code used by the GDSC ImageJ and GDSC SMLM ImageJ
 plugins. It is a dependency for both of those packages.
 
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Build Status](https://travis-ci.com/aherbert/gdsc-core.svg?branch=master)](https://travis-ci.com/aherbert/gdsc-core)
+[![Coverage Status](https://coveralls.io/repos/github/aherbert/gdsc-core/badge.svg?branch=master)](https://coveralls.io/github/aherbert/gdsc-core?branch=master)
+
+
 Maven Installation
 ------------------
 
@@ -45,21 +50,11 @@ See [LICENSE](LICENSE.txt)
 
 # About #
 
-###### Repository name ######
-GDSC ImageJ Core
-
 ###### Owner(s) ######
 Alex Herbert
 
 ###### Institution ######
-Genome Damage and Stability Centre, University of Sussex
+[Genome Damage and Stability Centre, University of Sussex](http://www.sussex.ac.uk/gdsc/)
 
 ###### URL ######
-http://www.sussex.ac.uk/gdsc/intranet/microscopy/imagej/gdsc_plugins
-
-###### Email ######
-a.herbert@sussex.ac.uk
-
-###### Description ######
-The Genome Damage and Stability Centre (GDSC) ImageJ core package contains 
-common code used by the GDSC ImageJ and GDSC SMLM ImageJ plugins.
+http://www.sussex.ac.uk/gdsc/intranet/microscopy/UserSupport/AnalysisProtocol/imagej/gdsc_plugins/

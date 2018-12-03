@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,175 +14,159 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
+import uk.ac.sussex.gdsc.core.data.NotImplementedException;
+
 /**
- * Simple class to calculate the mean and standard deviation of data using a rolling algorithm. This should be used when
- * the numbers are large, e.g. 10^9 + 4, 10^9 + 7, 10^9 + 13, 10^9 + 16.
- * <p>
- * Based on org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
+ * Simple class to calculate the mean and standard deviation of data using a rolling algorithm. This
+ * should be used when the numbers are large, e.g. 10^9 + 4, 10^9 + 7, 10^9 + 13, 10^9 + 16.
+ *
+ * <p>Based on org.apache.commons.math3.stat.descriptive.moment.SecondMoment.
  */
-public class RollingStatistics extends Statistics
-{
-    /**
-     * Instantiates a new rolling statistics.
-     */
-    public RollingStatistics()
-    {
-    }
+public class RollingStatistics extends Statistics {
 
-    /**
-     * Instantiates a new rolling statistics.
-     *
-     * @param data
-     *            the data
-     */
-    public RollingStatistics(float[] data)
-    {
-        super(data);
-    }
+  /**
+   * Instantiates a new rolling statistics.
+   *
+   * @param data the data
+   * @return the stored data statistics
+   */
+  public static RollingStatistics create(float[] data) {
+    final RollingStatistics stats = new RollingStatistics();
+    stats.add(data);
+    return stats;
+  }
 
-    /**
-     * Instantiates a new rolling statistics.
-     *
-     * @param data
-     *            the data
-     */
-    public RollingStatistics(double[] data)
-    {
-        super(data);
-    }
+  /**
+   * Instantiates a new rolling statistics.
+   *
+   * @param data the data
+   * @return the stored data statistics
+   */
+  public static RollingStatistics create(double[] data) {
+    final RollingStatistics stats = new RollingStatistics();
+    stats.add(data);
+    return stats;
+  }
 
-    /**
-     * Instantiates a new rolling statistics.
-     *
-     * @param data
-     *            the data
-     */
-    public RollingStatistics(int[] data)
-    {
-        super(data);
-    }
+  /**
+   * Instantiates a new rolling statistics.
+   *
+   * @param data the data
+   * @return the stored data statistics
+   */
+  public static RollingStatistics create(int[] data) {
+    final RollingStatistics stats = new RollingStatistics();
+    stats.add(data);
+    return stats;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    protected void addInternal(float[] data, int from, int to)
-    {
-        for (int i = from; i < to; i++)
-            addInternal(data[i]);
+  @Override
+  protected void addInternal(float[] data, int from, int to) {
+    for (int i = from; i < to; i++) {
+      addInternal(data[i]);
     }
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    protected void addInternal(double[] data, int from, int to)
-    {
-        for (int i = from; i < to; i++)
-            addInternal(data[i]);
+  @Override
+  protected void addInternal(double[] data, int from, int to) {
+    for (int i = from; i < to; i++) {
+      addInternal(data[i]);
     }
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    protected void addInternal(int[] data, int from, int to)
-    {
-        for (int i = from; i < to; i++)
-            addInternal(data[i]);
+  @Override
+  protected void addInternal(int[] data, int from, int to) {
+    for (int i = from; i < to; i++) {
+      addInternal(data[i]);
     }
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    protected void addInternal(final double value)
-    {
-        // This has changed the meaning of the inherited values s and ss
-        // s : sum -> mean
-        // ss : sum-squares -> sum (x-mean)^2
-        // See https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
-        // This has been adapted from org.apache.commons.math3.stat.descriptive.moment.SecondMoment
-        final double delta = value - s;
-        final double nB = n;
-        n++;
-        final double delta_n = delta / n;
-        s += delta_n;
-        ss += nB * delta * delta_n;
-    }
+  @Override
+  protected void addInternal(final double value) {
+    // This has changed the meaning of the inherited values sum and sumSq
+    // sum -> mean
+    // sum-squares -> sum (x-mean)^2
+    // See https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
+    // This has been adapted from org.apache.commons.math3.stat.descriptive.moment.SecondMoment
+    final double delta = value - sum;
+    final double nB = size;
+    size++;
+    final double deltaOverSize = delta / size;
+    sum += deltaOverSize;
+    sumSq += nB * delta * deltaOverSize;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    protected void addInternal(int nA, double value)
-    {
-        // Note: for the input mean value the
-        // deviation from mean is 0 (ss=0)
-        final double delta = value - s;
-        final int nB = n;
-        n += nA;
-        s = (nA * value + nB * s) / n;
-        ss += delta * delta * nA * nB / n;
-    }
+  @Override
+  protected void addInternal(int n, double value) {
+    // Note: for the input mean value the
+    // deviation from mean is 0 (ss=0)
+    final double delta = value - sum;
+    final int nB = size;
+    size += n;
+    sum = (n * value + nB * sum) / size;
+    sumSq += delta * delta * n * nB / size;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public double getSum()
-    {
-        return s * n;
-    }
+  @Override
+  public double getSum() {
+    return sum * size;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public double getSumOfSquares()
-    {
-        throw new NotImplementedException("Sum-of-squares not computed");
-    }
+  @Override
+  public double getSumOfSquares() {
+    throw new NotImplementedException("Sum-of-squares not computed");
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public double getMean()
-    {
-        return s;
-    }
+  @Override
+  public double getMean() {
+    return sum;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public double getStandardDeviation()
-    {
-        return (n > 1) ? Math.sqrt(ss / (n - 1)) : (n == 1) ? 0 : Double.NaN;
+  @Override
+  public double getStandardDeviation() {
+    if (size > 1) {
+      return Math.sqrt(sumSq / (size - 1));
     }
+    return (size == 0) ? Double.NaN : 0;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public double getVariance()
-    {
-        return (n > 1) ? ss / (n - 1) : (n == 1) ? 0 : Double.NaN;
+  @Override
+  public double getVariance() {
+    if (size > 1) {
+      return sumSq / (size - 1);
     }
+    return (size == 0) ? Double.NaN : 0;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public void add(Statistics statistics)
-    {
-        if (statistics instanceof RollingStatistics)
-        {
-            final RollingStatistics extra = (RollingStatistics) statistics;
-            if (extra.n > 0)
-            {
-                // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
-                final double delta = extra.s - s;
-                final int nA = extra.n;
-                final int nB = n;
-                n += nA;
-                s = (nA * extra.s + nB * s) / n;
-                ss += extra.ss + delta * delta * nA * nB / n;
-            }
-            return;
-        }
-        throw new NotImplementedException("Not a RollingStatistics instance");
+  @Override
+  public void add(Statistics statistics) {
+    if (statistics instanceof RollingStatistics) {
+      final RollingStatistics extra = (RollingStatistics) statistics;
+      if (extra.size > 0) {
+        // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
+        final double delta = extra.sum - sum;
+        final int nA = extra.size;
+        final int nB = size;
+        size += nA;
+        sum = (nA * extra.sum + nB * sum) / size;
+        sumSq += extra.sumSq + delta * delta * nA * nB / size;
+      }
+      return;
     }
+    throw new NotImplementedException("Not a RollingStatistics instance");
+  }
 }

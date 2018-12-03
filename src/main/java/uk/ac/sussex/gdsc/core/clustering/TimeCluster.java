@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,133 +14,160 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.clustering;
 
 import org.apache.commons.math3.util.FastMath;
 
 /**
  * Used to store all the information about a cluster in the clustering analysis.
+ *
+ * <p>Note: this class has a natural ordering that is inconsistent with equals.
  */
-public class TimeCluster extends Cluster
-{
-    /** The start. */
-    public int start;
-    /** The end. */
-    public int end;
-    /** The pulse. */
-    public int pulse;
+public class TimeCluster extends Cluster {
+  /** The start time. */
+  private int startTime;
+  /** The end time. */
+  private int endTime;
+  /** The pulse time. */
+  private int pulseTime;
 
-    /**
-     * Instantiates a new time cluster.
-     *
-     * @param point
-     *            the point
-     */
-    public TimeCluster(ClusterPoint point)
-    {
-        super(point);
-        start = point.start;
-        end = point.end;
+  /**
+   * Instantiates a new time cluster.
+   *
+   * @param point the point
+   */
+  public TimeCluster(ClusterPoint point) {
+    super(point);
+    startTime = point.getStartTime();
+    endTime = point.getEndTime();
+  }
+
+  /**
+   * Get the time gap between the two clusters. If the clusters overlap then return 0.
+   *
+   * @param other the other cluster
+   * @return the time gap
+   */
+  public int gap(TimeCluster other) {
+    return ClusterUtils.gap(getStartTime(), getEndTime(), other.getStartTime(), other.getEndTime());
+  }
+
+  /**
+   * Check if the union of the cluster points has unique time values using the gap between each
+   * cluster point.
+   *
+   * <p>This check is only relevant if the {@link #gap(TimeCluster)} function returns zero.
+   *
+   * @param other the other cluster
+   * @return true, if successful
+   */
+  public boolean validUnionRange(TimeCluster other) {
+    for (ClusterPoint p1 = getHeadClusterPoint(); p1 != null; p1 = p1.getNext()) {
+      for (ClusterPoint p2 = other.getHeadClusterPoint(); p2 != null; p2 = p2.getNext()) {
+        if (p1.gap(p2) == 0) {
+          return false;
+        }
+      }
     }
+    return true;
+  }
 
-    /**
-     * Get the time gap between the two clusters. If the clusters overlap then return 0.
-     *
-     * @param other
-     *            the other cluster
-     * @return the time gap
-     */
-    public int gap(TimeCluster other)
-    {
-        // Overlap:
-        // |-----------|
-        //         |---------|
-        //
-        // Gap:
-        // |-----------|
-        //                  |---------|
-        return FastMath.max(0, FastMath.max(start, other.start) - FastMath.min(end, other.end));
+  /**
+   * Check if the union of the cluster points has unique time values using the start time of each
+   * cluster point.
+   *
+   * <p>This check is only relevant if the {@link #gap(TimeCluster)} function returns zero.
+   *
+   * @param other the other cluster
+   * @return true, if successful
+   */
+  public boolean validUnion(TimeCluster other) {
+    for (ClusterPoint p1 = getHeadClusterPoint(); p1 != null; p1 = p1.getNext()) {
+      for (ClusterPoint p2 = other.getHeadClusterPoint(); p2 != null; p2 = p2.getNext()) {
+        if (p1.getStartTime() == p2.getStartTime()) {
+          return false;
+        }
+      }
     }
+    return true;
+  }
 
-    /**
-     * Check if the union of the cluster points has unique time values using the gap between each cluster point.
-     * <p>
-     * This check is only relevant if the {@link #gap(TimeCluster)} function returns zero.
-     *
-     * @param other
-     *            the other cluster
-     * @return true, if successful
-     */
-    public boolean validUnionRange(TimeCluster other)
-    {
-        for (ClusterPoint p1 = head; p1 != null; p1 = p1.next)
-            for (ClusterPoint p2 = other.head; p2 != null; p2 = p2.next)
-                if (p1.gap(p2) == 0)
-                    return false;
-        return true;
-    }
+  /**
+   * Adds the other cluster.
+   *
+   * @param other the other cluster
+   */
+  public void add(TimeCluster other) {
+    super.add(other);
 
-    /**
-     * Check if the union of the cluster points has unique time values using the start time of each cluster point.
-     * <p>
-     * This check is only relevant if the {@link #gap(TimeCluster)} function returns zero.
-     *
-     * @param other
-     *            the other cluster
-     * @return true, if successful
-     */
-    public boolean validUnion(TimeCluster other)
-    {
-        for (ClusterPoint p1 = head; p1 != null; p1 = p1.next)
-            for (ClusterPoint p2 = other.head; p2 != null; p2 = p2.next)
-                if (p1.start == p2.start)
-                    return false;
-        return true;
-    }
+    // Update the start and end points
+    setStartTime(FastMath.min(getStartTime(), other.getStartTime()));
+    setEndTime(FastMath.max(getEndTime(), other.getEndTime()));
+  }
 
-    /**
-     * Adds the other cluster.
-     *
-     * @param other
-     *            the other cluster
-     */
-    public void add(TimeCluster other)
-    {
-        super.add(other);
+  /**
+   * Gets the start time.
+   *
+   * @return the start time
+   */
+  public int getStartTime() {
+    return startTime;
+  }
 
-        // Update the start and end points
-        start = FastMath.min(start, other.start);
-        end = FastMath.max(end, other.end);
-    }
+  /**
+   * Sets the start time.
+   *
+   * @param startTime the new start time
+   */
+  public void setStartTime(int startTime) {
+    this.startTime = startTime;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public int compareTo(Cluster o)
-    {
-        final int result = super.compareTo(o);
-        if (result != 0 || !(o instanceof TimeCluster))
-            return result;
-        final TimeCluster tc = (TimeCluster) o;
-        // Compare using the start and end time
-        if (start < tc.start)
-            return -1;
-        if (start > tc.start)
-            return 1;
-        if (end < tc.end)
-            return -1;
-        if (end > tc.end)
-            return 1;
-        return 0;
-    }
+  /**
+   * Gets the end time.
+   *
+   * @return the end time
+   */
+  public int getEndTime() {
+    return endTime;
+  }
+
+  /**
+   * Sets the end time.
+   *
+   * @param endTime the new end time
+   */
+  public void setEndTime(int endTime) {
+    this.endTime = endTime;
+  }
+
+  /**
+   * Gets the pulse time.
+   *
+   * @return the pulse time
+   */
+  public int getPulseTime() {
+    return pulseTime;
+  }
+
+  /**
+   * Sets the pulse time.
+   *
+   * @param pulseTime the new pulse time
+   */
+  public void setPulseTime(int pulseTime) {
+    this.pulseTime = pulseTime;
+  }
 }

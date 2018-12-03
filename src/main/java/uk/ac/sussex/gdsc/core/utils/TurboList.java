@@ -1,11 +1,11 @@
 /*-
  * #%L
  * Genome Damage and Stability Centre ImageJ Core Package
- * 
+ *
  * Contains code used by:
- * 
+ *
  * GDSC ImageJ Plugins - Microscopy image analysis
- * 
+ *
  * GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
  * %%
  * Copyright (C) 2011 - 2018 Alex Herbert
@@ -14,17 +14,18 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.io.IOException;
@@ -41,6 +42,7 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.RandomAccess;
+import java.util.function.Predicate;
 
 //@formatter:off
 /**
@@ -49,9 +51,10 @@ import java.util.RandomAccess;
  * @param <E>
  *            the element type
  */
-public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAccess, Cloneable, java.io.Serializable
+public class TurboList<E> extends AbstractList<E>
+        implements RandomAccess, Cloneable, java.io.Serializable
 {
-	private static final long serialVersionUID = -4227785171523226892L;
+    private static final long serialVersionUID = -4227785171523226892L;
 
     /**
      * The array buffer into which the elements of the ArrayList are stored.
@@ -73,9 +76,10 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      */
     public TurboList(int initialCapacity) {
         super();
-        if (initialCapacity < 0)
-            throw new IllegalArgumentException("Illegal Capacity: "+
-                                               initialCapacity);
+        if (initialCapacity < 0) {
+          throw new IllegalArgumentException("Illegal Capacity: "+
+                                             initialCapacity);
+        }
         this.elementData = new Object[initialCapacity];
     }
 
@@ -98,8 +102,9 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         elementData = c.toArray();
         size = elementData.length;
         // c.toArray might (incorrectly) not return Object[] (see 6260652)
-        if (elementData.getClass() != Object[].class)
-            elementData = Arrays.copyOf(elementData, size, Object[].class);
+        if (elementData.getClass() != Object[].class) {
+          elementData = Arrays.copyOf(elementData, size, Object[].class);
+        }
     }
 
     /**
@@ -109,8 +114,9 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      */
     public void trimToSize() {
         final int oldCapacity = elementData.length;
-        if (size < oldCapacity)
-			elementData = Arrays.copyOf(elementData, size);
+        if (size < oldCapacity) {
+          elementData = Arrays.copyOf(elementData, size);
+        }
     }
 
     /**
@@ -121,14 +127,16 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @param   minCapacity   the desired minimum capacity
      */
     public void ensureCapacity(int minCapacity) {
-        if (minCapacity > 0)
-            ensureCapacityInternal(minCapacity);
+        if (minCapacity > 0) {
+          ensureCapacityInternal(minCapacity);
+        }
     }
 
     private void ensureCapacityInternal(int minCapacity) {
         // overflow-conscious code
-        if (minCapacity - elementData.length > 0)
-            grow(minCapacity);
+        if (minCapacity - elementData.length > 0) {
+          grow(minCapacity);
+        }
     }
 
     /**
@@ -149,17 +157,20 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         // overflow-conscious code
         final int oldCapacity = elementData.length;
         int newCapacity = oldCapacity + (oldCapacity >> 1);
-        if (newCapacity - minCapacity < 0)
-            newCapacity = minCapacity;
-        if (newCapacity - MAX_ARRAY_SIZE > 0)
-            newCapacity = hugeCapacity(minCapacity);
+        if (newCapacity - minCapacity < 0) {
+          newCapacity = minCapacity;
+        }
+        if (newCapacity - MAX_ARRAY_SIZE > 0) {
+          newCapacity = hugeCapacity(minCapacity);
+        }
         // minCapacity is usually close to size, so this is a win:
         elementData = Arrays.copyOf(elementData, newCapacity);
     }
 
     private static int hugeCapacity(int minCapacity) {
-        if (minCapacity < 0) // overflow
-            throw new OutOfMemoryError();
+        if (minCapacity < 0) {
+          throw new OutOfMemoryError();
+        }
         return (minCapacity > MAX_ARRAY_SIZE) ?
             Integer.MAX_VALUE :
             MAX_ARRAY_SIZE;
@@ -171,7 +182,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @return the number of elements in this list
      */
     @Override
-	public int size() {
+    public int size() {
         return size;
     }
 
@@ -181,7 +192,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @return <tt>true</tt> if this list contains no elements
      */
     @Override
-	public boolean isEmpty() {
+    public boolean isEmpty() {
         return size == 0;
     }
 
@@ -195,7 +206,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @return <tt>true</tt> if this list contains the specified element
      */
     @Override
-	public boolean contains(Object o) {
+    public boolean contains(Object o) {
         return indexOf(o) >= 0;
     }
 
@@ -207,16 +218,20 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * or -1 if there is no such index.
      */
     @Override
-	public int indexOf(Object o) {
+    public int indexOf(Object o) {
         if (o == null) {
-            for (int i = 0; i < size; i++)
-                if (elementData[i]==null)
-                    return i;
+            for (int i = 0; i < size; i++) {
+              if (elementData[i]==null) {
+                return i;
+              }
+            }
+        } else {
+          for (int i = 0; i < size; i++) {
+            if (o.equals(elementData[i])) {
+              return i;
+            }
+          }
         }
-		else
-			for (int i = 0; i < size; i++)
-                if (o.equals(elementData[i]))
-                    return i;
         return -1;
     }
 
@@ -228,16 +243,20 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * or -1 if there is no such index.
      */
     @Override
-	public int lastIndexOf(Object o) {
+    public int lastIndexOf(Object o) {
         if (o == null) {
-            for (int i = size-1; i >= 0; i--)
-                if (elementData[i]==null)
-                    return i;
+            for (int i = size-1; i >= 0; i--) {
+              if (elementData[i]==null) {
+                return i;
+              }
+            }
+        } else {
+          for (int i = size-1; i >= 0; i--) {
+            if (o.equals(elementData[i])) {
+              return i;
+            }
+          }
         }
-		else
-			for (int i = size-1; i >= 0; i--)
-                if (o.equals(elementData[i]))
-                    return i;
         return -1;
     }
 
@@ -248,12 +267,12 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @return a clone of this <tt>TurboList</tt> instance
      */
     @Override
-	public Object clone() {
+    public Object clone() {
         try {
             final TurboList<?> v = (TurboList<?>) super.clone();
             v.elementData = Arrays.copyOf(elementData, size);
             return v;
-        } catch (final CloneNotSupportedException e) {
+        } catch (final CloneNotSupportedException ex) {
             // this shouldn't happen, since we are Cloneable
             throw new InternalError();
         }
@@ -274,7 +293,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      *         proper sequence
      */
     @Override
-	public Object[] toArray() {
+    public Object[] toArray() {
         return Arrays.copyOf(elementData, size);
     }
 
@@ -303,26 +322,28 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @throws NullPointerException if the specified array is null
      */
     @Override
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
-        if (a.length < size)
-            // Make a new array of a's runtime type, but my contents:
-            return (T[]) Arrays.copyOf(elementData, size, a.getClass());
+        if (a.length < size) {
+          // Make a new array of a's runtime type, but my contents:
+          return (T[]) Arrays.copyOf(elementData, size, a.getClass());
+        }
         System.arraycopy(elementData, 0, a, 0, size);
-        if (a.length > size)
-            a[size] = null;
+        if (a.length > size) {
+          a[size] = null;
+        }
         return a;
     }
 
     // Positional Access Operations
 
     /**
-	 * Get the element at the specified position.
-	 *
-	 * @param index
-	 *            the index
-	 * @return the element
-	 */
+     * Get the element at the specified position.
+     *
+     * @param index
+     *            the index
+     * @return the element
+     */
     @SuppressWarnings("unchecked")
     private E elementData(int index) {
         return (E) elementData[index];
@@ -336,7 +357,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     @Override
-	public E get(int index) {
+    public E get(int index) {
         rangeCheck(index);
 
         return elementData(index);
@@ -349,7 +370,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @return the element at the specified position in this list
      * @throws IndexOutOfBoundsException  if the index is out of range (index &lt; 0 || index &gt;= capacity)
      */
-    public E getf(int index) throws IndexOutOfBoundsException {
+    public E getf(int index) {
         return elementData(index);
     }
 
@@ -363,7 +384,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     @Override
-	public E set(int index, E element) {
+    public E set(int index, E element) {
         rangeCheck(index);
 
         final E oldValue = elementData(index);
@@ -379,7 +400,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @param element element to be stored at the specified position
      * @throws IndexOutOfBoundsException  if the index is out of range (index &lt; 0 || index &gt;= capacity)
      */
-    public void setf(int index, E element) throws IndexOutOfBoundsException {
+    public void setf(int index, E element) {
         elementData[index] = element;
     }
 
@@ -390,7 +411,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @return <tt>true</tt> (as specified by {@link Collection#add})
      */
     @Override
-	public boolean add(E e) {
+    public boolean add(E e) {
         ensureCapacityInternal(size + 1);
         elementData[size++] = e;
         return true;
@@ -416,7 +437,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     @Override
-	public void add(int index, E element) {
+    public void add(int index, E element) {
         rangeCheckForAdd(index);
 
         ensureCapacityInternal(size + 1);
@@ -436,15 +457,16 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     @Override
-	public E remove(int index) {
+    public E remove(int index) {
         rangeCheck(index);
 
         final E oldValue = elementData(index);
 
         final int numMoved = size - index - 1;
-        if (numMoved > 0)
-            System.arraycopy(elementData, index+1, elementData, index,
-                             numMoved);
+        if (numMoved > 0) {
+          System.arraycopy(elementData, index+1, elementData, index,
+                           numMoved);
+        }
         elementData[--size] = null; // Let gc do its work
 
         return oldValue;
@@ -464,20 +486,22 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @return <tt>true</tt> if this list contained the specified element
      */
     @Override
-	public boolean remove(Object o) {
+    public boolean remove(Object o) {
         if (o == null) {
-            for (int index = 0; index < size; index++)
-                if (elementData[index] == null) {
-                    fastRemove(index);
-                    return true;
-                }
+            for (int index = 0; index < size; index++) {
+              if (elementData[index] == null) {
+                  fastRemove(index);
+                  return true;
+              }
+            }
+        } else {
+          for (int index = 0; index < size; index++) {
+            if (o.equals(elementData[index])) {
+                fastRemove(index);
+                return true;
+            }
+          }
         }
-		else
-			for (int index = 0; index < size; index++)
-                if (o.equals(elementData[index])) {
-                    fastRemove(index);
-                    return true;
-                }
         return false;
     }
 
@@ -487,9 +511,10 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      */
     private void fastRemove(int index) {
         final int numMoved = size - index - 1;
-        if (numMoved > 0)
-            System.arraycopy(elementData, index+1, elementData, index,
-                             numMoved);
+        if (numMoved > 0) {
+          System.arraycopy(elementData, index+1, elementData, index,
+                           numMoved);
+        }
         elementData[--size] = null; // Let gc do its work
     }
 
@@ -498,11 +523,12 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * be empty after this call returns.
      */
     @Override
-	public void clear() {
+    public void clear() {
 
         // Let gc do its work
-        for (int i = 0; i < size; i++)
-            elementData[i] = null;
+        for (int i = 0; i < size; i++) {
+          elementData[i] = null;
+        }
 
         size = 0;
     }
@@ -529,7 +555,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @throws NullPointerException if the specified collection is null
      */
     @Override
-	public boolean addAll(Collection<? extends E> c) {
+    public boolean addAll(Collection<? extends E> c) {
         final Object[] a = c.toArray();
         final int numNew = a.length;
         ensureCapacityInternal(size + numNew);
@@ -571,7 +597,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @throws NullPointerException if the specified collection is null
      */
     @Override
-	public boolean addAll(int index, Collection<? extends E> c) {
+    public boolean addAll(int index, Collection<? extends E> c) {
         rangeCheckForAdd(index);
 
         final Object[] a = c.toArray();
@@ -579,9 +605,10 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         ensureCapacityInternal(size + numNew);
 
         final int numMoved = size - index;
-        if (numMoved > 0)
-            System.arraycopy(elementData, index, elementData, index + numNew,
-                             numMoved);
+        if (numMoved > 0) {
+          System.arraycopy(elementData, index, elementData, index + numNew,
+                           numMoved);
+        }
 
         System.arraycopy(a, 0, elementData, index, numNew);
         size += numNew;
@@ -603,15 +630,16 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      *          toIndex < fromIndex})
      */
     @Override
-	protected void removeRange(int fromIndex, int toIndex) {
+    protected void removeRange(int fromIndex, int toIndex) {
         final int numMoved = size - toIndex;
         System.arraycopy(elementData, toIndex, elementData, fromIndex,
                          numMoved);
 
         // clear to let GC do its work
         final int newSize = size - (toIndex-fromIndex);
-        for (int i = newSize; i < size; i++)
-			elementData[i] = null;
+        for (int i = newSize; i < size; i++) {
+          elementData[i] = null;
+        }
         size = newSize;
     }
 
@@ -622,16 +650,18 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * which throws an ArrayIndexOutOfBoundsException if index is negative.
      */
     private void rangeCheck(int index) {
-        if (index >= size)
-            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+        if (index >= size) {
+          throw new IndexOutOfBoundsException(outOfBoundsMsg(index, size));
+        }
     }
 
     /**
      * A version of rangeCheck used by add and addAll.
      */
     private void rangeCheckForAdd(int index) {
-        if (index > size || index < 0)
-            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+        if (index > size || index < 0) {
+          throw new IndexOutOfBoundsException(outOfBoundsMsg(index, size));
+        }
     }
 
     /**
@@ -639,7 +669,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * Of the many possible refactorings of the error handling code,
      * this "outlining" performs best with both server and client VMs.
      */
-    private String outOfBoundsMsg(int index) {
+    private static String outOfBoundsMsg(int index, int size) {
         return "Index: "+index+", Size: "+size;
     }
 
@@ -659,7 +689,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @see Collection#contains(Object)
      */
     @Override
-	public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(Collection<?> c) {
         Objects.requireNonNull(c);
         return batchRemove(c, false);
     }
@@ -681,19 +711,22 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @see Collection#contains(Object)
      */
     @Override
-	public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(Collection<?> c) {
         Objects.requireNonNull(c);
         return batchRemove(c, true);
     }
 
     private boolean batchRemove(Collection<?> c, boolean complement) {
         final Object[] elementData = this.elementData;
-        int r = 0, w = 0;
+        int r = 0;
+        int w = 0;
         boolean modified = false;
         try {
-            for (; r < size; r++)
-                if (c.contains(elementData[r]) == complement)
-                    elementData[w++] = elementData[r];
+            for (; r < size; r++) {
+              if (c.contains(elementData[r]) == complement) {
+                elementData[w++] = elementData[r];
+              }
+            }
         } finally {
             // Preserve behavioral compatibility with AbstractCollection,
             // even if c.contains() throws.
@@ -704,9 +737,10 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
                 w += size - r;
             }
             if (w != size) {
-            	// clear to let GC do its work
-                for (int i = w; i < size; i++)
-                    elementData[i] = null;
+                // clear to let GC do its work
+                for (int i = w; i < size; i++) {
+                  elementData[i] = null;
+                }
                 modCount += size - w;
                 size = w;
                 modified = true;
@@ -716,17 +750,17 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
     }
 
     /**
-	 * Save the state of the <tt>TurboList</tt> instance to a stream (that
-	 * is, serialize it).
-	 *
-	 * @param s
-	 *            the output stream
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 * @serialData The length of the array backing the <tt>TurboList</tt>
-	 *             instance is emitted (int), followed by all of its elements
-	 *             (each an <tt>Object</tt>) in the proper order.
-	 */
+     * Save the state of the <tt>TurboList</tt> instance to a stream (that
+     * is, serialize it).
+     *
+     * @param s
+     *            the output stream
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @serialData The length of the array backing the <tt>TurboList</tt>
+     *             instance is emitted (int), followed by all of its elements
+     *             (each an <tt>Object</tt>) in the proper order.
+     */
     private void writeObject(java.io.ObjectOutputStream s)
         throws IOException{
         // Write out element count, and any hidden stuff
@@ -736,21 +770,22 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         s.writeInt(elementData.length);
 
         // Write out all elements in the proper order.
-        for (int i=0; i<size; i++)
-            s.writeObject(elementData[i]);
+        for (int i=0; i<size; i++) {
+          s.writeObject(elementData[i]);
+        }
     }
 
     /**
-	 * Reconstitute the <tt>TurboList</tt> instance from a stream (that is,
-	 * deserialize it).
-	 *
-	 * @param s
-	 *            the input stream
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 * @throws ClassNotFoundException
-	 *             the class not found exception
-	 */
+     * Reconstitute the <tt>TurboList</tt> instance from a stream (that is,
+     * deserialize it).
+     *
+     * @param s
+     *            the input stream
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws ClassNotFoundException
+     *             the class not found exception
+     */
     private void readObject(java.io.ObjectInputStream s)
         throws IOException, ClassNotFoundException {
         // Read in size, and any hidden stuff
@@ -761,8 +796,9 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         final Object[] a = elementData = new Object[arrayLength];
 
         // Read in all elements in the proper order.
-        for (int i=0; i<size; i++)
-            a[i] = s.readObject();
+        for (int i=0; i<size; i++) {
+          a[i] = s.readObject();
+        }
     }
 
     /**
@@ -776,9 +812,10 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     @Override
-	public ListIterator<E> listIterator(int index) {
-        if (index < 0 || index > size)
-            throw new IndexOutOfBoundsException("Index: "+index);
+    public ListIterator<E> listIterator(int index) {
+        if (index < 0 || index > size) {
+          throw new IndexOutOfBoundsException(outOfBoundsMsg(index, size));
+        }
         return new ListItr(index);
     }
 
@@ -789,7 +826,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @see #listIterator(int)
      */
     @Override
-	public ListIterator<E> listIterator() {
+    public ListIterator<E> listIterator() {
         return new ListItr(0);
     }
 
@@ -799,7 +836,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @return an iterator over the elements in this list in proper sequence
      */
     @Override
-	public Iterator<E> iterator() {
+    public Iterator<E> iterator() {
         return new Itr();
     }
 
@@ -811,27 +848,30 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         int lastRet = -1; // index of last element returned; -1 if no such
 
         @Override
-		public boolean hasNext() {
+        public boolean hasNext() {
             return cursor != size;
         }
 
         @Override
-		@SuppressWarnings("unchecked")
+        @SuppressWarnings("unchecked")
         public E next() {
             final int i = cursor;
-            if (i >= size)
-                throw new NoSuchElementException();
+            if (i >= size) {
+              throw new NoSuchElementException();
+            }
             final Object[] elementData = TurboList.this.elementData;
-            if (i >= elementData.length)
-                throw new ConcurrentModificationException();
+            if (i >= elementData.length) {
+              throw new ConcurrentModificationException();
+            }
             cursor = i + 1;
             return (E) elementData[lastRet = i];
         }
 
         @Override
-		public void remove() {
-            if (lastRet < 0)
-                throw new IllegalStateException();
+        public void remove() {
+            if (lastRet < 0) {
+              throw new IllegalStateException();
+            }
 
             try {
                 TurboList.this.remove(lastRet);
@@ -853,37 +893,40 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         }
 
         @Override
-		public boolean hasPrevious() {
+        public boolean hasPrevious() {
             return cursor != 0;
         }
 
         @Override
-		public int nextIndex() {
+        public int nextIndex() {
             return cursor;
         }
 
         @Override
-		public int previousIndex() {
+        public int previousIndex() {
             return cursor - 1;
         }
 
         @Override
-		@SuppressWarnings("unchecked")
+        @SuppressWarnings("unchecked")
         public E previous() {
             final int i = cursor - 1;
-            if (i < 0)
-                throw new NoSuchElementException();
+            if (i < 0) {
+              throw new NoSuchElementException();
+            }
             final Object[] elementData = TurboList.this.elementData;
-            if (i >= elementData.length)
-                throw new ConcurrentModificationException();
+            if (i >= elementData.length) {
+              throw new ConcurrentModificationException();
+            }
             cursor = i;
             return (E) elementData[lastRet = i];
         }
 
         @Override
-		public void set(E e) {
-            if (lastRet < 0)
-                throw new IllegalStateException();
+        public void set(E e) {
+            if (lastRet < 0) {
+              throw new IllegalStateException();
+            }
             try {
                 TurboList.this.set(lastRet, e);
             } catch (final IndexOutOfBoundsException ex) {
@@ -892,7 +935,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         }
 
         @Override
-		public void add(E e) {
+        public void add(E e) {
             try {
                 final int i = cursor;
                 TurboList.this.add(i, e);
@@ -934,21 +977,27 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
      * @throws IllegalArgumentException {@inheritDoc}
      */
     @Override
-	public List<E> subList(int fromIndex, int toIndex) {
+    public List<E> subList(int fromIndex, int toIndex) {
         subListRangeCheck(fromIndex, toIndex, size);
         return new SubList(this, 0, fromIndex, toIndex);
     }
 
     private static void subListRangeCheck(int fromIndex, int toIndex, int size) {
-        if (fromIndex < 0)
-            throw new IndexOutOfBoundsException("fromIndex = " + fromIndex);
-        if (toIndex > size)
-            throw new IndexOutOfBoundsException("toIndex = " + toIndex);
-        if (fromIndex > toIndex)
-            throw new IllegalArgumentException("fromIndex(" + fromIndex +
-                                               ") > toIndex(" + toIndex + ")");
+        if (fromIndex < 0) {
+          throw new IndexOutOfBoundsException("fromIndex = " + fromIndex);
+        }
+        if (toIndex > size) {
+          throw new IndexOutOfBoundsException("toIndex = " + toIndex);
+        }
+        if (fromIndex > toIndex) {
+          throw new IllegalArgumentException("fromIndex(" + fromIndex +
+                                             ") > toIndex(" + toIndex + ")");
+        }
     }
 
+    /**
+     * A sublist view of the array data.
+     */
     private class SubList extends AbstractList<E> implements RandomAccess {
         private final AbstractList<E> parent;
         private final int parentOffset;
@@ -964,7 +1013,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         }
 
         @Override
-		public E set(int index, E e) {
+        public E set(int index, E e) {
             rangeCheck(index);
             final E oldValue = TurboList.this.elementData(offset + index);
             TurboList.this.elementData[offset + index] = e;
@@ -972,25 +1021,25 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         }
 
         @Override
-		public E get(int index) {
+        public E get(int index) {
             rangeCheck(index);
             return TurboList.this.elementData(offset + index);
         }
 
         @Override
-		public int size() {
+        public int size() {
             return this.size;
         }
 
         @Override
-		public void add(int index, E e) {
+        public void add(int index, E e) {
             rangeCheckForAdd(index);
             parent.add(parentOffset + index, e);
             this.size++;
         }
 
         @Override
-		public E remove(int index) {
+        public E remove(int index) {
             rangeCheck(index);
             final E result = parent.remove(parentOffset + index);
             this.size--;
@@ -998,34 +1047,36 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         }
 
         @Override
-		@SuppressWarnings("rawtypes")
-		protected void removeRange(int fromIndex, int toIndex) {
-        	if (parent instanceof TurboList)
-				((TurboList)parent)
-        		  .removeRange(parentOffset + fromIndex,
+        @SuppressWarnings("rawtypes")
+        protected void removeRange(int fromIndex, int toIndex) {
+            if (parent instanceof TurboList) {
+            ((TurboList)parent)
+                      .removeRange(parentOffset + fromIndex,
+                                   parentOffset + toIndex);
+          } else if (parent instanceof TurboList.SubList) {
+        ((TurboList.SubList)parent)
+                  .removeRange(parentOffset + fromIndex,
                                parentOffset + toIndex);
-			else if (parent instanceof TurboList.SubList)
-				((TurboList.SubList)parent)
-        		  .removeRange(parentOffset + fromIndex,
-                               parentOffset + toIndex);
-			else
-				// This should not happen since this is a private class
-      		  	super.removeRange(parentOffset + fromIndex,
-      		  				      parentOffset + toIndex);
+      } else {
+        // This should not happen since this is a private class
+        super.removeRange(parentOffset + fromIndex,
+                          parentOffset + toIndex);
+      }
             this.size -= toIndex - fromIndex;
         }
 
         @Override
-		public boolean addAll(Collection<? extends E> c) {
+        public boolean addAll(Collection<? extends E> c) {
             return addAll(this.size, c);
         }
 
         @Override
-		public boolean addAll(int index, Collection<? extends E> c) {
+        public boolean addAll(int index, Collection<? extends E> c) {
             rangeCheckForAdd(index);
             final int cSize = c.size();
-            if (cSize==0)
-                return false;
+            if (cSize==0) {
+              return false;
+            }
 
             parent.addAll(parentOffset + index, c);
             this.size += cSize;
@@ -1033,12 +1084,12 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         }
 
         @Override
-		public Iterator<E> iterator() {
-            return listIterator();
+        public Iterator<E> iterator() {
+            return super.listIterator();
         }
 
         @Override
-		public ListIterator<E> listIterator(final int index) {
+        public ListIterator<E> listIterator(final int index) {
             rangeCheckForAdd(index);
             final int offset = this.offset;
 
@@ -1047,55 +1098,60 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
                 int lastRet = -1;
 
                 @Override
-				public boolean hasNext() {
+                public boolean hasNext() {
                     return cursor != SubList.this.size;
                 }
 
                 @Override
-				@SuppressWarnings("unchecked")
+                @SuppressWarnings("unchecked")
                 public E next() {
                     final int i = cursor;
-                    if (i >= SubList.this.size)
-                        throw new NoSuchElementException();
+                    if (i >= SubList.this.size) {
+                      throw new NoSuchElementException();
+                    }
                     final Object[] elementData = TurboList.this.elementData;
-                    if (offset + i >= elementData.length)
-                        throw new ConcurrentModificationException();
+                    if (offset + i >= elementData.length) {
+                      throw new ConcurrentModificationException();
+                    }
                     cursor = i + 1;
                     return (E) elementData[offset + (lastRet = i)];
                 }
 
                 @Override
-				public boolean hasPrevious() {
+                public boolean hasPrevious() {
                     return cursor != 0;
                 }
 
                 @Override
-				@SuppressWarnings("unchecked")
+                @SuppressWarnings("unchecked")
                 public E previous() {
                     final int i = cursor - 1;
-                    if (i < 0)
-                        throw new NoSuchElementException();
+                    if (i < 0) {
+                      throw new NoSuchElementException();
+                    }
                     final Object[] elementData = TurboList.this.elementData;
-                    if (offset + i >= elementData.length)
-                        throw new ConcurrentModificationException();
+                    if (offset + i >= elementData.length) {
+                      throw new ConcurrentModificationException();
+                    }
                     cursor = i;
                     return (E) elementData[offset + (lastRet = i)];
                 }
 
                 @Override
-				public int nextIndex() {
+                public int nextIndex() {
                     return cursor;
                 }
 
                 @Override
-				public int previousIndex() {
+                public int previousIndex() {
                     return cursor - 1;
                 }
 
                 @Override
-				public void remove() {
-                    if (lastRet < 0)
-                        throw new IllegalStateException();
+                public void remove() {
+                    if (lastRet < 0) {
+                      throw new IllegalStateException();
+                    }
                     try {
                         SubList.this.remove(lastRet);
                         cursor = lastRet;
@@ -1106,9 +1162,10 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
                 }
 
                 @Override
-				public void set(E e) {
-                    if (lastRet < 0)
-                        throw new IllegalStateException();
+                public void set(E e) {
+                    if (lastRet < 0) {
+                      throw new IllegalStateException();
+                    }
                     try {
                         TurboList.this.set(offset + lastRet, e);
                     } catch (final IndexOutOfBoundsException ex) {
@@ -1117,7 +1174,7 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
                 }
 
                 @Override
-				public void add(E e) {
+                public void add(E e) {
                     try {
                         final int i = cursor;
                         SubList.this.add(i, e);
@@ -1131,56 +1188,26 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
         }
 
         @Override
-		public List<E> subList(int fromIndex, int toIndex) {
+        public List<E> subList(int fromIndex, int toIndex) {
             subListRangeCheck(fromIndex, toIndex, size);
             return new SubList(this, offset, fromIndex, toIndex);
         }
 
         private void rangeCheck(int index) {
-            if (index < 0 || index >= this.size)
-                throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+            if (index < 0 || index >= this.size) {
+              throw new IndexOutOfBoundsException(outOfBoundsMsg(index, this.size));
+            }
         }
 
         private void rangeCheckForAdd(int index) {
-            if (index < 0 || index > this.size)
-                throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
-        }
-
-        private String outOfBoundsMsg(int index) {
-            return "Index: "+index+", Size: "+this.size;
+            if (index < 0 || index > this.size) {
+              throw new IndexOutOfBoundsException(outOfBoundsMsg(index, this.size));
+            }
         }
     }
 
-    /**
-	 * Represents a predicate (boolean-valued function) of one argument.
-	 * <p>
-	 * This functionality was added in Java 1.8 so for backward compatibility
-	 * to Java 1.5 the required methods from the java.util.function.Predicate
-	 * interface have been duplicated here.
-	 *
-	 * @param <T>
-	 *            the generic type
-	 */
-    public interface SimplePredicate<T> {
-
-        /**
-         * Evaluates this predicate on the given argument.
-         *
-         * @param t the input argument
-         * @return {@code true} if the input argument matches the predicate,
-         * otherwise {@code false}
-         */
-    	public boolean test(T t);
-    }
-
-    /**
-	 * Removes from the list the if an element passes the filter.
-	 *
-	 * @param filter
-	 *            the filter
-	 * @return true, if the list was modified
-	 */
-    public boolean removeIf(SimplePredicate<? super E> filter) {
+    @Override
+    public boolean removeIf(Predicate<? super E> filter) {
         Objects.requireNonNull(filter);
         // figure out which elements are to be removed
         // any exception thrown from the filter predicate at this stage
@@ -1206,37 +1233,39 @@ public class TurboList<E> extends AbstractList<E> implements List<E>, RandomAcce
                 elementData[j] = elementData[i];
             }
             for (int k=newSize; k < size; k++)
-				elementData[k] = null;  // Let gc do its work
+             {
+              elementData[k] = null;  // Let gc do its work
+            }
             this.size = newSize;
         }
 
         return anyToRemove;
     }
 
-	/**
-	 * Reverse the list contents.
-	 */
-	public void reverse()
-	{
+    /**
+     * Reverse the list contents.
+     */
+    public void reverse()
+    {
         for (int left=0, mid=size>>1, right=size-1; left<mid; left++, right--)
         {
-			// swap the values at the left and right indices
-			final Object temp = elementData[left];
-			elementData[left] = elementData[right];
-			elementData[right] = temp;
+            // swap the values at the left and right indices
+            final Object temp = elementData[left];
+            elementData[left] = elementData[right];
+            elementData[right] = temp;
         }
-	}
+    }
 
-	/**
-	 * Sort the list.
-	 *
-	 * @param c the comparator
-	 */
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void sort(Comparator<? super E> c)
-	{
+    /**
+     * Sort the list.
+     *
+     * @param c the comparator
+     */
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public void sort(Comparator<? super E> c)
+    {
         Arrays.sort(elementData, 0, size, (Comparator)c);
-	}
+    }
 }
 //@formatter:on
