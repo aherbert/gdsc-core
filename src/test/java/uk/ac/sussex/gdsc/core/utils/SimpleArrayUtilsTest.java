@@ -439,7 +439,7 @@ public class SimpleArrayUtilsTest {
 
   @Test
   public void canTestDoubleIsUniform() {
-    for (int size = 0; size < 2; size++) {
+    for (int size = 0; size < 3; size++) {
       Assertions.assertTrue(SimpleArrayUtils.isUniform(new double[size], 0), "Below min size");
     }
     double[] data = new double[] {3, 5, 7, 9};

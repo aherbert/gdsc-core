@@ -42,6 +42,8 @@ public final class SimpleArrayUtils {
 
   private static final String DATA_EMPTY = "Data is empty";
   private static final String DATA_INCORRECT_SIZE = "Data is not the correct array size";
+  /** The minimum size of an array where intervals can be compared. */
+  private static final int MIN_INTERVAL_SIZE = 3;
 
   /** No public construction. */
   private SimpleArrayUtils() {}
@@ -454,7 +456,7 @@ public final class SimpleArrayUtils {
    * @return true, if is uniform
    */
   public static boolean isUniform(int[] x) {
-    if (x.length <= 1) {
+    if (x.length < MIN_INTERVAL_SIZE) {
       // No intervals to measure
       return true;
     }
@@ -491,7 +493,7 @@ public final class SimpleArrayUtils {
    * @return true, if is uniform
    */
   public static boolean isUniform(double[] x, double uniformTolerance) {
-    if (x.length <= 1) {
+    if (x.length < MIN_INTERVAL_SIZE) {
       // No intervals to measure
       return true;
     }
