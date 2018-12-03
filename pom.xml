@@ -95,9 +95,16 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <!-- Maven -->
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+    <maven-changes-plugin.version>2.12.1</maven-changes-plugin.version>
+    <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
+    <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
     <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
     <maven-pmd-plugin.version>3.10.0</maven-pmd-plugin.version>
+    <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
     <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
+    <nexus-staging-maven-plugin.version>1.6.7</nexus-staging-maven-plugin.version>
+    <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
   </properties>
 
   <dependencies>
@@ -219,7 +226,10 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+        </plugin>
+        <plugin>
           <artifactId>maven-jar-plugin</artifactId>
           <configuration>
             <archive>
@@ -244,6 +254,14 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
           </dependencies>
         </plugin>
         <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>${maven-project-info-reports-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven-site-plugin.version}</version>
+        </plugin>
+        <plugin>
           <artifactId>maven-pmd-plugin</artifactId>
           <version>${maven-pmd-plugin.version}</version>
           <dependencies>
@@ -259,11 +277,15 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
             </dependency>
           </dependencies>
         </plugin>
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>${nexus-staging-maven-plugin.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
         <executions>
           <execution>
@@ -277,7 +299,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven-surefire-plugin.version}</version>
         <configuration>
           <systemPropertyVariables>
             <!-- Set JUL Formatting -->
@@ -302,7 +323,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
         </dependencies>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <executions>
           <execution>
@@ -368,6 +388,17 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
           <excludeFilterFile>${basedir}/src/main/resources/spotbugs/spotbugs-exclude-filter.xml</excludeFilterFile>
         </configuration>
       </plugin>
+      <!-- use of mvn release:prepeare release perform should use the nexus release profile -->
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <useReleaseProfile>false</useReleaseProfile>
+          <releaseProfiles>release</releaseProfiles>
+          <goals>deploy</goals>
+          <!-- <goals>deploy nexus-staging:release</goals> -->
+        </configuration>
+      </plugin>
     </plugins>
     <resources>
       <resource>
@@ -393,7 +424,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
         </reportSets>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-changes-plugin</artifactId>
         <version>${maven-changes-plugin.version}</version>
         <configuration>
@@ -408,9 +438,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
         </reportSets>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>${maven-checkstyle-plugin.version}</version>
         <configuration>
           <configLocation>${basedir}/src/main/resources/checkstyle/checkstyle.xml</configLocation>
           <encoding>UTF-8</encoding>
@@ -465,7 +493,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
         </reportSets>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
         <version>${maven-jxr-plugin.version}</version>
       </plugin>
@@ -474,27 +501,56 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
 
   <profiles>
     <profile>
-      <id>ossrh</id>
-      <properties>
-        <gpg.executable>gpg</gpg.executable>
-        <gpg.keyname>${env.GPG_KEYNAME}</gpg.keyname>
-        <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
-        <gpg.defaultKeyring>false</gpg.defaultKeyring>
-        <gpg.publicKeyring>${env.GPG_DIR}/pubring.gpg</gpg.publicKeyring>
-        <gpg.secretKeyring>${env.GPG_DIR}/secring.gpg</gpg.secretKeyring>
-      </properties>
-      <activation>
-        <property>
-          <name>performRelease</name>
-          <value>true</value>
-        </property>
-      </activation>
+      <id>snapshot-release</id>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>${build-helper-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <!-- Fail if not a SNAPSHOT -->
+                <id>is-snapshot</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>regex-property</goal>
+                </goals>
+                <configuration>
+                  <name>is.snapshot.version</name>
+                  <value>${project.version}</value>
+                  <regex>^.*-SNAPSHOT$</regex>
+                  <failIfNoMatch>true</failIfNoMatch>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+              <!-- Not required for snapshot -->
+              <skipStaging>true</skipStaging>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>release</id>
+      <properties>
+        <gpg.executable>gpg</gpg.executable>
+        <gpg.keyname>${env.GPG_KEYNAME}</gpg.keyname>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
+            <version>${maven-gpg-plugin.version}</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
@@ -508,12 +564,12 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.2</version>
             <extensions>true</extensions>
             <configuration>
               <serverId>ossrh</serverId>
               <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+              <!-- The staged repo must be inspected and then released -->
+              <autoReleaseAfterClose>false</autoReleaseAfterClose>
             </configuration>
           </plugin>
         </plugins>
@@ -546,6 +602,19 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
           <artifactId>junit-jupiter-engine</artifactId>
         </dependency>
       </dependencies>
+    </profile>
+    <profile>
+      <id>coveralls</id>
+      <build>
+        <plugins>
+          <!-- Submit coverage -->
+          <plugin>
+            <groupId>org.eluder.coveralls</groupId>
+            <artifactId>coveralls-maven-plugin</artifactId>
+            <version>${coveralls-maven-plugin.version}</version>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
     <profile>
       <id>jacoco</id>
