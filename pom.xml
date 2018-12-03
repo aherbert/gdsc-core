@@ -38,12 +38,11 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
   </licenses>
 
   <inceptionYear>2011</inceptionYear>
-  <mailingLists>
-    <mailingList>
-      <name>ImageJ Forum</name>
-      <archive>http://forum.imagej.net/</archive>
-    </mailingList>
-  </mailingLists>
+  <scm>
+    <connection>scm:git:git://github.com/aherbert/gdsc-core.git</connection>
+    <developerConnection>scm:git:ssh://github.com/aherbert/gdsc-core.git</developerConnection>
+    <url>https://github.com/aherbert/gdsc-core</url>
+  </scm>
   <issueManagement>
     <system>GitHub Issues</system>
     <url>https://github.com/aherbert/gdsc-core/issues</url>
@@ -51,11 +50,26 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
   <ciManagement>
     <system>None</system>
   </ciManagement>
-  <scm>
-    <connection>scm:git:git://github.com/aherbert/gdsc-core.git</connection>
-    <developerConnection>scm:git:ssh://github.com/aherbert/gdsc-core.git</developerConnection>
-    <url>https://github.com/aherbert/gdsc-core</url>
-  </scm>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <site>
+      <id>${project.artifactId}-site</id>
+      <url>file://${parent.dir}/mvn-repo</url>
+    </site>
+  </distributionManagement>
+  <mailingLists>
+    <mailingList>
+      <name>ImageJ Forum</name>
+      <archive>http://forum.imagej.net/</archive>
+    </mailingList>
+  </mailingLists>
 
   <developers>
     <developer>
@@ -207,10 +221,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <url>http://maven.imagej.net/content/repositories/snapshots</url>
     </repository>
     <repository>
-      <id>apache.central</id>
-      <url>http://repo.maven.apache.org/maven2</url>
-    </repository>
-    <repository>
       <id>snapshots-repo</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       <releases>
@@ -225,6 +235,14 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>${maven-project-info-reports-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven-site-plugin.version}</version>
+        </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven-surefire-plugin.version}</version>
@@ -252,14 +270,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
               <version>${checkstyle.version}</version>
             </dependency>
           </dependencies>
-        </plugin>
-        <plugin>
-          <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>${maven-project-info-reports-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>${maven-site-plugin.version}</version>
         </plugin>
         <plugin>
           <artifactId>maven-pmd-plugin</artifactId>
@@ -612,6 +622,12 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
             <groupId>org.eluder.coveralls</groupId>
             <artifactId>coveralls-maven-plugin</artifactId>
             <version>${coveralls-maven-plugin.version}</version>
+            <configuration>
+              <!-- The buildhelper.maven.plugin sets the property 'timestamp' to an epochSeconds -->
+              <!-- format. This is used by coveralls to parse the maven timestamp. -->
+              <timestampFormat>EpochMillis</timestampFormat>
+              <repoToken>Q8aRjUdMT21BCnUTJCditFVT4NTZ8ooOX</repoToken>
+            </configuration>
           </plugin>
         </plugins>
       </build>
@@ -665,17 +681,13 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>fast</id>
+      <properties>
+        <skipTests>true</skipTests>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+      </properties>
+    </profile>
   </profiles>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
 
 </project>
