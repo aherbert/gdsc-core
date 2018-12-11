@@ -214,4 +214,16 @@ public final class FileUtils {
   private static void logIoException(final IOException exception) {
     logger.log(Level.WARNING, "Unable to save data to file", exception);
   }
+
+  /**
+   * Add the platform specific file separator character to the directory (if missing).
+   *
+   * @param directory the directory
+   * @return The directory
+   * @see File#separatorChar
+   */
+  public static String addFileSeparator(String directory) {
+    return (directory.endsWith("/") || directory.endsWith("\\")) ? directory
+        : directory + File.separatorChar;
+  }
 }
