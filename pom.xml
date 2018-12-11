@@ -218,10 +218,6 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
       <url>http://maven.imagej.net/content/repositories/releases</url>
     </repository>
     <repository>
-      <id>imagej.snapshots</id>
-      <url>http://maven.imagej.net/content/repositories/snapshots</url>
-    </repository>
-    <repository>
       <id>snapshots-repo</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       <releases>
@@ -639,7 +635,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.1</version>
+            <version>${org.jacoco.version}</version>
             <executions>
               <execution>
                 <id>default-prepare-agent</id>
