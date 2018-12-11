@@ -36,7 +36,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Macro;
-import ij.Prefs;
 import ij.WindowManager;
 import ij.gui.GenericDialog;
 import ij.gui.ImageCanvas;
@@ -1030,24 +1029,6 @@ public final class ImageJUtils {
   }
 
   /**
-   * Combine the arguments into a complete file path.
-   *
-   * @param paths the paths
-   * @return The file path
-   * @deprecated This is not specific to ImageJ
-   */
-  @Deprecated
-  public static String combinePath(String... paths) {
-    File file = new File(paths[0]);
-
-    for (int i = 1; i < paths.length; i++) {
-      file = new File(file, paths[i]);
-    }
-
-    return file.getPath();
-  }
-
-  /**
    * Extracts a single tile image processor from a hyperstack using the given projection method from
    * the ZProjector.
    *
@@ -1080,19 +1061,6 @@ public final class ImageJUtils {
     imp.setPositionWithoutUpdate(c, s, f);
 
     return projector.getProjection().getProcessor();
-  }
-
-  /**
-   * Add the platform specific file separator character to the directory (if missing).
-   *
-   * @param directory the directory
-   * @return The directory
-   * @deprecated This is not specific to ImageJ
-   */
-  @Deprecated
-  public static String addFileSeparator(String directory) {
-    return (directory.endsWith("/") || directory.endsWith("\\")) ? directory
-        : directory + Prefs.separator;
   }
 
   /**

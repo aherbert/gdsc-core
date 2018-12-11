@@ -37,5 +37,4 @@
  *
  * @since 1.2.0
  */
-
 package uk.ac.sussex.gdsc.core.ij;

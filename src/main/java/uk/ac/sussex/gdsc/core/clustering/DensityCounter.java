@@ -379,9 +379,9 @@ public class DensityCounter {
    * @return the bin
    */
   private int getBinSafe(float x, float y) {
-    final int xBin = clip(nxbins, getXBin(x));
-    final int yBin = clip(nybins, getYBin(y));
-    return getBin(xBin, yBin);
+    final int xbin = clip(nxbins, getXBin(x));
+    final int ybin = clip(nybins, getYBin(y));
+    return getBin(xbin, ybin);
   }
 
   private static int clip(int upper, int value) {
@@ -431,8 +431,8 @@ public class DensityCounter {
     }
 
     final double nXBins = 1 + Math.floor(x);
-    final double nYBins = 1 + Math.floor(y);
-    return nXBins * nYBins;
+    final double nybins = 1 + Math.floor(y);
+    return nXBins * nybins;
   }
 
   /**
@@ -1007,18 +1007,18 @@ public class DensityCounter {
     // -1,1 | 0,1 | 1,1
     // @formatter:on
     int count = 0;
-    final int xBin = index % nxbins;
-    final int yBin = index / nxbins;
-    if (yBin < nybins - 1) {
-      if (xBin > 0) {
+    final int xbin = index % nxbins;
+    final int ybin = index / nxbins;
+    if (ybin < nybins - 1) {
+      if (xbin > 0) {
         count = addNeighbour(neighbours, count, index + nxbins - 1);
       }
       count = addNeighbour(neighbours, count, index + nxbins);
-      if (xBin < nxbins - 1) {
+      if (xbin < nxbins - 1) {
         count = addNeighbour(neighbours, count, index + nxbins + 1);
         count = addNeighbour(neighbours, count, index + 1);
       }
-    } else if (xBin < nxbins - 1) {
+    } else if (xbin < nxbins - 1) {
       count = addNeighbour(neighbours, count, index + 1);
     }
     return count;
@@ -1039,11 +1039,11 @@ public class DensityCounter {
     // ------------+--------
     // -1, 1 | 0, 1 | 1, 1
     int count = 0;
-    final int xBin = index % nxbins;
-    final int yBin = index / nxbins;
-    final boolean lowerY = yBin > 0;
-    final boolean upperY = yBin < nybins - 1;
-    if (xBin > 0) {
+    final int xbin = index % nxbins;
+    final int ybin = index / nxbins;
+    final boolean lowerY = ybin > 0;
+    final boolean upperY = ybin < nybins - 1;
+    if (xbin > 0) {
       count = addNeighbour(neighbours, count, index - 1);
       if (lowerY) {
         count = addNeighbour(neighbours, count, index - 1 - nxbins);
@@ -1058,7 +1058,7 @@ public class DensityCounter {
     if (upperY) {
       count = addNeighbour(neighbours, count, index + nxbins);
     }
-    if (xBin < nxbins - 1) {
+    if (xbin < nxbins - 1) {
       count = addNeighbour(neighbours, count, index + 1);
       if (lowerY) {
         count = addNeighbour(neighbours, count, index + 1 - nxbins);
@@ -1085,11 +1085,11 @@ public class DensityCounter {
     // ------------+--------
     // -1, 1 | 0, 1 | 1, 1
     int count = addNeighbour(neighbours, 0, index);
-    final int xBin = index % nxbins;
-    final int yBin = index / nxbins;
-    final boolean lowerY = yBin > 0;
-    final boolean upperY = yBin < nybins - 1;
-    if (xBin > 0) {
+    final int xbin = index % nxbins;
+    final int ybin = index / nxbins;
+    final boolean lowerY = ybin > 0;
+    final boolean upperY = ybin < nybins - 1;
+    if (xbin > 0) {
       count = addNeighbour(neighbours, count, index - 1);
       if (lowerY) {
         count = addNeighbour(neighbours, count, index - 1 - nxbins);
@@ -1104,7 +1104,7 @@ public class DensityCounter {
     if (upperY) {
       count = addNeighbour(neighbours, count, index + nxbins);
     }
-    if (xBin < nxbins - 1) {
+    if (xbin < nxbins - 1) {
       count = addNeighbour(neighbours, count, index + 1);
       if (lowerY) {
         count = addNeighbour(neighbours, count, index + 1 - nxbins);

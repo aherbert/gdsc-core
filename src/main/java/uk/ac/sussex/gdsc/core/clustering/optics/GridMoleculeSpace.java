@@ -288,9 +288,9 @@ class GridMoleculeSpace extends MoleculeSpace {
    */
   int getBins(float xrange, float yrange, float distance, int resolution) {
     final float newBinWidth = distance / resolution;
-    final int nXBins = 1 + (int) (xrange / newBinWidth);
-    final int nYBins = 1 + (int) (yrange / newBinWidth);
-    return nXBins * nYBins;
+    final int xbins = 1 + (int) (xrange / newBinWidth);
+    final int ybins = 1 + (int) (yrange / newBinWidth);
+    return xbins * ybins;
   }
 
   /**

@@ -28,8 +28,6 @@
 
 package uk.ac.sussex.gdsc.core.threshold;
 
-import uk.ac.sussex.gdsc.core.utils.TextUtils;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -163,6 +161,8 @@ public class AutoThreshold {
   /**
    * Gets the method from method name.
    *
+   * <p>Returns {@link Method#NONE} if the name is not recognised.
+   *
    * @param name the name
    * @return the method
    */
@@ -177,6 +177,8 @@ public class AutoThreshold {
 
   /**
    * Gets the method from the index of the method names.
+   *
+   * <p>Returns {@link Method#NONE} if the name is not recognised.
    *
    * @param index the index
    * @param ignoreNone Set to true to remove the {@link Method#NONE} option
@@ -1545,37 +1547,12 @@ public class AutoThreshold {
    * <p>This method is faster than calling the required static thresholding method as the histogram
    * is cropped to the min-max range before processing.
    *
-   * @param method the method
+   * @param methodName the method name
    * @param data the data
    * @return the threshold
    */
-  public static int getThreshold(int method, int[] data) {
-    if (method < 0 || method >= methodNames.length) {
-      return 0;
-    }
-    return getThreshold(methodValues[method], data);
-  }
-
-  /**
-   * Gets the threshold.
-   *
-   * <p>This method is faster than calling the required static thresholding method as the histogram
-   * is cropped to the min-max range before processing.
-   *
-   * @param method the method
-   * @param data the data
-   * @return the threshold
-   */
-  public static int getThreshold(String method, int[] data) {
-    if (TextUtils.isNullOrEmpty(method)) {
-      return 0;
-    }
-    for (final Method m : methodValues) {
-      if (m.toString().equals(method)) {
-        return getThreshold(m, data);
-      }
-    }
-    return 0;
+  public static int getThreshold(String methodName, int[] data) {
+    return getThreshold(getMethod(methodName), data);
   }
 
   /**
