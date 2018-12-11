@@ -36,5 +36,4 @@
  * @see <a href="https://bitbucket.org/rednaxela/knn-benchmark">KNN benchmark</a>
  * @since 1.2.0
  */
-
 package uk.ac.sussex.gdsc.core.ags.utils.data.trees.gen2;

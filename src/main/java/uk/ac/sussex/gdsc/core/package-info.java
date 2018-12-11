@@ -25,10 +25,10 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 /**
  * Provides code to be used with the GDSC ImageJ plugins.
  *
  * @since 1.2.0
  */
-
 package uk.ac.sussex.gdsc.core;
