@@ -33,7 +33,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Allow work to be added to a LIFO stack of size 1 in a synchronised manner.
+ * Allow work to be added to a Last In First Out (LIFO) stack of size 1 in a synchronised manner.
  *
  * <p>Provides a method to replace the current top of the stack to allow a LIFO functionality when
  * the stack is full.
@@ -55,7 +55,7 @@ public class ConcurrentMonoStack<E> {
   private E item;
 
   /** Main lock guarding all access. */
-  final ReentrantLock lock;
+  private final ReentrantLock lock;
 
   /** Condition for waiting takes. */
   private final Condition notEmpty;
@@ -72,7 +72,9 @@ public class ConcurrentMonoStack<E> {
    */
   private boolean closedAndEmpty;
 
-  /** Flag specifying the behaviour if closed. */
+  /**
+   * Flag specifying the behaviour if closed. Should only be modified when holding lock.
+   */
   private boolean throwIfClosed;
 
   /**
@@ -133,7 +135,8 @@ public class ConcurrentMonoStack<E> {
     try {
       closed = true;
       if (clear) {
-        clear();
+        // No need to call clear() as we hold the lock and notify waiters next
+        item = null;
         closedAndEmpty = true;
       }
 
@@ -142,7 +145,7 @@ public class ConcurrentMonoStack<E> {
       while (localLock.hasWaiters(notFull)) {
         notFull.signal();
       }
-      // Release anything waiting for the stack.
+      // Release anything waiting for the stack to fill.
       // This is because the stack will never fill when closed
       // and prevents stale threads waiting forever.
       while (localLock.hasWaiters(notEmpty)) {
