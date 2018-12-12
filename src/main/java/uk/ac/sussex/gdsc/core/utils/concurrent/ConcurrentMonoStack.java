@@ -401,7 +401,6 @@ public class ConcurrentMonoStack<E> {
     } finally {
       localLock.unlock();
     }
-
   }
 
   /**

@@ -98,5 +98,4 @@ public class EnumListTest {
     Assertions.assertThrows(UnsupportedOperationException.class, () -> itr.remove(),
         "Should not support remove()");
   }
-
 }

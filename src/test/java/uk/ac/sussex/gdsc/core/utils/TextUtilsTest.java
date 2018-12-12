@@ -129,5 +129,4 @@ public class TextUtilsTest {
     Assertions.assertEquals("1h59m59.9s", TextUtils.decisToString(71999, false));
     Assertions.assertEquals("2h00m00s", TextUtils.decisToString(72000, false));
   }
-
 }

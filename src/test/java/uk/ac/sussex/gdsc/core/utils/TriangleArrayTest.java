@@ -146,7 +146,6 @@ public class TriangleArrayTest {
           Assertions.assertEquals(k, k2);
         }
       }
-
     }
   }
 }

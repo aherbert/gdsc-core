@@ -527,7 +527,6 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
           results.add(index);
           maximaFlag[index] = true;
         }
-
       } // end FIND_MAXIMA
     }
 
@@ -1222,7 +1221,6 @@ public class FilteredNonMaximumSuppression extends NonMaximumSuppression {
           results.add(index);
           maximaFlag[index] = true;
         }
-
       } // end FIND_MAXIMA
     }
 
