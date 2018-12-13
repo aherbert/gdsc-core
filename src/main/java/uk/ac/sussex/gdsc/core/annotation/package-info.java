@@ -28,7 +28,7 @@
 
 /**
  * Provides annotations.
- * 
+ *
  * @since 2.0
  */
 package uk.ac.sussex.gdsc.core.annotation;

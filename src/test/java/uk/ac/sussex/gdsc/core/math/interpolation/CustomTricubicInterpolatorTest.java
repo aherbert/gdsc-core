@@ -1099,10 +1099,10 @@ public class CustomTricubicInterpolatorTest {
     Assertions.assertArrayEquals(d2f_da2A, d2f_da2B);
   }
 
-  private abstract class MyTimingTask extends BaseTimingTask {
+  private abstract static class MyTimingTask extends BaseTimingTask {
     CustomTricubicFunction[] nodes;
-    double[] df_da = new double[3];
-    double[] d2f_da2 = new double[3];
+    double[] derivative1 = new double[3];
+    double[] derivative2 = new double[3];
 
     public MyTimingTask(String name, CustomTricubicFunction[] nodes) {
       super(name + " " + nodes[0].getClass().getSimpleName());
@@ -1182,7 +1182,7 @@ public class CustomTricubicInterpolatorTest {
       double value = 0;
       for (int i = 0; i < nodes.length; i++) {
         for (int j = 0; j < tables.length; j++) {
-          value += nodes[i].value(tables[j], df_da);
+          value += nodes[i].value(tables[j], derivative1);
         }
       }
       return value;
@@ -1199,7 +1199,7 @@ public class CustomTricubicInterpolatorTest {
       double value = 0;
       for (int i = 0; i < nodes.length; i++) {
         for (int j = 0; j < tables.length; j++) {
-          value += nodes[i].value(tables[j], df_da);
+          value += nodes[i].value(tables[j], derivative1);
         }
       }
       return value;
@@ -1216,7 +1216,7 @@ public class CustomTricubicInterpolatorTest {
       double value = 0;
       for (int i = 0; i < nodes.length; i++) {
         for (int j = 0; j < tables.length; j++) {
-          value += nodes[i].value(tables[j], df_da, d2f_da2);
+          value += nodes[i].value(tables[j], derivative1, derivative2);
         }
       }
       return value;
@@ -1233,7 +1233,7 @@ public class CustomTricubicInterpolatorTest {
       double value = 0;
       for (int i = 0; i < nodes.length; i++) {
         for (int j = 0; j < tables.length; j++) {
-          value += nodes[i].value(tables[j], df_da, d2f_da2);
+          value += nodes[i].value(tables[j], derivative1, derivative2);
         }
       }
       return value;

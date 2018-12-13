@@ -237,24 +237,24 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
                                              long taskSize,
                                              final boolean singlePrecision) {
     //@formatter:on
-    final int xLen = x.getLength();
-    final int yLen = y.getLength();
-    final int zLen = z.getLength();
+    final int xlength = x.getLength();
+    final int ylength = y.getLength();
+    final int zlength = z.getLength();
 
     // The original only failed if the length was zero. However
     // this function requires two points to interpolate between so
     // check the length is at least 2.
-    if (xLen <= 1 || yLen <= 1 || zLen <= 1) {
+    if (xlength <= 1 || ylength <= 1 || zlength <= 1) {
       throw new NoDataException();
     }
-    checkDimensions(xLen, yLen, zLen, f);
-    checkDimensions(xLen, yLen, zLen, dFdX);
-    checkDimensions(xLen, yLen, zLen, dFdY);
-    checkDimensions(xLen, yLen, zLen, dFdZ);
-    checkDimensions(xLen, yLen, zLen, d2FdXdY);
-    checkDimensions(xLen, yLen, zLen, d2FdXdZ);
-    checkDimensions(xLen, yLen, zLen, d2FdYdZ);
-    checkDimensions(xLen, yLen, zLen, d3FdXdYdZ);
+    checkDimensions(xlength, ylength, zlength, f);
+    checkDimensions(xlength, ylength, zlength, dFdX);
+    checkDimensions(xlength, ylength, zlength, dFdY);
+    checkDimensions(xlength, ylength, zlength, dFdZ);
+    checkDimensions(xlength, ylength, zlength, d2FdXdY);
+    checkDimensions(xlength, ylength, zlength, d2FdXdZ);
+    checkDimensions(xlength, ylength, zlength, d2FdYdZ);
+    checkDimensions(xlength, ylength, zlength, d3FdXdYdZ);
 
     checkOrder(x);
     checkOrder(y);
@@ -279,9 +279,9 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     yscale = createScale(yval);
     zscale = createScale(zval);
 
-    final int lastI = xLen - 1;
-    final int lastJ = yLen - 1;
-    final int lastK = zLen - 1;
+    final int lastI = xlength - 1;
+    final int lastJ = ylength - 1;
+    final int lastK = zlength - 1;
     splines = new CustomTricubicFunction[lastI][lastJ][lastK];
 
     final long total = (long) lastI * lastJ * lastK;
@@ -504,15 +504,16 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     ticker.stop();
   }
 
-  private static void checkDimensions(int xLen, int yLen, int zLen, TrivalueProvider function) {
-    if (xLen != function.getLengthX()) {
-      throw new DimensionMismatchException(xLen, function.getLengthX());
+  private static void checkDimensions(int xlength, int ylength, int zlength,
+      TrivalueProvider function) {
+    if (xlength != function.getLengthX()) {
+      throw new DimensionMismatchException(xlength, function.getLengthX());
     }
-    if (yLen != function.getLengthY()) {
-      throw new DimensionMismatchException(yLen, function.getLengthY());
+    if (ylength != function.getLengthY()) {
+      throw new DimensionMismatchException(ylength, function.getLengthY());
     }
-    if (zLen != function.getLengthZ()) {
-      throw new DimensionMismatchException(zLen, function.getLengthZ());
+    if (zlength != function.getLengthZ()) {
+      throw new DimensionMismatchException(zlength, function.getLengthZ());
     }
   }
 
@@ -784,23 +785,23 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
                                       ValueProvider z,
                                       CustomTricubicFunction[][][] splines) {
     //@formatter:on
-    final int xLen = x.getLength();
-    final int yLen = y.getLength();
-    final int zLen = z.getLength();
+    final int xlength = x.getLength();
+    final int ylength = y.getLength();
+    final int zlength = z.getLength();
 
     // The original only failed if the length was zero. However
     // this function requires two points to interpolate between so
     // check the length is at least 2.
-    if (xLen <= 1 || yLen <= 1 || zLen <= 1) {
+    if (xlength <= 1 || ylength <= 1 || zlength <= 1) {
       throw new NoDataException();
     }
 
-    final int lastI = xLen - 1;
+    final int lastI = xlength - 1;
     if (lastI != splines.length) {
       throw new DimensionMismatchException(lastI, splines.length);
     }
-    final int lastJ = yLen - 1;
-    final int lastK = zLen - 1;
+    final int lastJ = ylength - 1;
+    final int lastK = zlength - 1;
     for (int i = 0; i < lastI; i++) {
       if (lastJ != splines[i].length) {
         throw new DimensionMismatchException(lastJ, splines[i].length);
