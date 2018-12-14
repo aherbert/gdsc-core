@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Locale;
 
 /**
  * Text utilities.
@@ -47,6 +48,10 @@ public final class TextUtils {
   private static final BigDecimal BD_THOUSAND = BigDecimal.valueOf(THOUSAND);
   private static final BigDecimal BD_MILLION = BigDecimal.valueOf(THOUSAND * THOUSAND);
   private static final BigDecimal BD_BILLION = BigDecimal.valueOf(THOUSAND * THOUSAND * THOUSAND);
+
+  // Constants for byte conversion
+  private static final String[] SI_UNITS = {"B", "kB", "MB", "GB", "TB", "PB", "EB"};
+  private static final String[] BINARY_UNITS = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"};
 
   /** No public constructor. */
   private TextUtils() {}
@@ -359,5 +364,76 @@ public final class TextUtils {
 
   private static String getTenths(long tenths, boolean wasRounded) {
     return (wasRounded || tenths != 0) ? "." + tenths + "s" : "s";
+  }
+
+  /**
+   * Convert bytes to a human readable string. Example output:
+   *
+   * <pre>
+   *                              SI     BINARY
+   *                   0:        0 B        0 B
+   *                  27:       27 B       27 B
+   *                 999:      999 B      999 B
+   *                1000:     1.0 kB     1000 B
+   *                1023:     1.0 kB     1023 B
+   *                1024:     1.0 kB    1.0 KiB
+   *                1728:     1.7 kB    1.7 KiB
+   *              110592:   110.6 kB  108.0 KiB
+   *             7077888:     7.1 MB    6.8 MiB
+   *           452984832:   453.0 MB  432.0 MiB
+   *         28991029248:    29.0 GB   27.0 GiB
+   *       1855425871872:     1.9 TB    1.7 TiB
+   * 9223372036854775807:     9.2 EB    8.0 EiB   (Long.MAX_VALUE)
+   * </pre>
+   *
+   * @param bytes the bytes
+   * @param useSiUnits Set to true to use SI units
+   * @param locale the locale
+   * @return the string
+   * @see <a
+   *      href="https://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java">How
+   *      to convert byte size into human readable format in java?</a>
+   */
+  public static String bytesToString(final long bytes, final boolean useSiUnits,
+      final Locale locale) {
+    final String[] units = useSiUnits ? SI_UNITS : BINARY_UNITS;
+    final int base = useSiUnits ? 1000 : 1024;
+
+    // When using the smallest unit no decimal point is needed, because it's the exact number.
+    if (bytes < base) {
+      return bytes + " " + units[0];
+    }
+
+    final int exponent = (int) (Math.log(bytes) / Math.log(base));
+    final String unit = units[exponent];
+    return String.format(locale, "%.1f %s", bytes / Math.pow(base, exponent), unit);
+  }
+
+  /**
+   * Convert bytes to a human readable string using SI units and the default locale. Example output:
+   *
+   * <pre>
+   *                              SI
+   *                   0:        0 B
+   *                  27:       27 B
+   *                 999:      999 B
+   *                1000:     1.0 kB
+   *                1023:     1.0 kB
+   *                1024:     1.0 kB
+   *                1728:     1.7 kB
+   *              110592:   110.6 kB
+   *             7077888:     7.1 MB
+   *           452984832:   453.0 MB
+   *         28991029248:    29.0 GB
+   *       1855425871872:     1.9 TB
+   * 9223372036854775807:     9.2 EB   (Long.MAX_VALUE)
+   * </pre>
+   *
+   * @param bytes the bytes
+   * @return the string
+   * @see #bytesToString(long, boolean, Locale)
+   */
+  public static String bytesToString(final long bytes) {
+    return bytesToString(bytes, true, Locale.getDefault());
   }
 }

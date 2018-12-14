@@ -3,6 +3,8 @@ package uk.ac.sussex.gdsc.core.utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Locale;
+
 @SuppressWarnings({"javadoc"})
 public class TextUtilsTest {
 
@@ -128,5 +130,41 @@ public class TextUtilsTest {
     Assertions.assertEquals("1h01m00s", TextUtils.decisToString(36600, false));
     Assertions.assertEquals("1h59m59.9s", TextUtils.decisToString(71999, false));
     Assertions.assertEquals("2h00m00s", TextUtils.decisToString(72000, false));
+  }
+
+  @Test
+  public void canConvertBytesToString() {
+    Assertions.assertEquals("0 B", TextUtils.bytesToString(0));
+    Assertions.assertEquals("27 B", TextUtils.bytesToString(27));
+    Assertions.assertEquals("999 B", TextUtils.bytesToString(999));
+    Assertions.assertEquals("1.0 kB", TextUtils.bytesToString(1000));
+    Assertions.assertEquals("1.0 kB", TextUtils.bytesToString(1023));
+    Assertions.assertEquals("1.0 kB", TextUtils.bytesToString(1024));
+    Assertions.assertEquals("1.7 kB", TextUtils.bytesToString(1728));
+    Assertions.assertEquals("110.6 kB", TextUtils.bytesToString(110592));
+    Assertions.assertEquals("7.1 MB", TextUtils.bytesToString(7077888));
+    Assertions.assertEquals("453.0 MB", TextUtils.bytesToString(452984832));
+    Assertions.assertEquals("29.0 GB", TextUtils.bytesToString(28991029248L));
+    Assertions.assertEquals("1.9 TB", TextUtils.bytesToString(1855425871872L));
+    Assertions.assertEquals("9.2 EB", TextUtils.bytesToString(9223372036854775807L));
+  }
+
+  @Test
+  public void canConvertBytesToStringWithBinaryUnits() {
+    final Locale locale = Locale.UK;
+    Assertions.assertEquals("0 B", TextUtils.bytesToString(0, false, locale));
+    Assertions.assertEquals("27 B", TextUtils.bytesToString(27, false, locale));
+    Assertions.assertEquals("999 B", TextUtils.bytesToString(999, false, locale));
+    Assertions.assertEquals("1000 B", TextUtils.bytesToString(1000, false, locale));
+    Assertions.assertEquals("1023 B", TextUtils.bytesToString(1023, false, locale));
+    Assertions.assertEquals("1.0 KiB", TextUtils.bytesToString(1024, false, locale));
+    Assertions.assertEquals("1.7 KiB", TextUtils.bytesToString(1728, false, locale));
+    Assertions.assertEquals("108.0 KiB", TextUtils.bytesToString(110592, false, locale));
+    Assertions.assertEquals("6.8 MiB", TextUtils.bytesToString(7077888, false, locale));
+    Assertions.assertEquals("432.0 MiB", TextUtils.bytesToString(452984832, false, locale));
+    Assertions.assertEquals("27.0 GiB", TextUtils.bytesToString(28991029248L, false, locale));
+    Assertions.assertEquals("1.7 TiB", TextUtils.bytesToString(1855425871872L, false, locale));
+    Assertions.assertEquals("8.0 EiB",
+        TextUtils.bytesToString(9223372036854775807L, false, locale));
   }
 }
