@@ -1248,92 +1248,97 @@ public final class SimpleArrayUtils {
   }
 
   /**
-   * Gets a buffer to hold up to {@code size} values. The input {@code buffer} will be reused if not
-   * {@code null} and has a length of at least {@code size}. Otherwise a new array will be created.
+   * Ensure the array can hold up to {@code size} values. The input {@code array} will be reused if
+   * not {@code null} and has a length of at least {@code size}. Otherwise a new array will be
+   * created.
    *
-   * <p>Note that no values are preserved from the old buffer if a new array is returned. The
-   * returned buffer may be larger than {@code size}.
+   * <p>Note that no values are preserved from the old array if a new array is returned. The
+   * returned array may be larger than {@code size}.
    *
-   * @param buffer the current buffer
+   * @param array the current array
    * @param size the size
-   * @return the buffer
+   * @return the array
    */
-  public static @NotNull int[] getBuffer(@Nullable int[] buffer, int size) {
-    if (buffer == null || buffer.length < size) {
+  public static @NotNull int[] ensureSize(@Nullable int[] array, int size) {
+    if (array == null || array.length < size) {
       return new int[size];
     }
-    return buffer;
+    return array;
   }
 
   /**
-   * Gets a buffer to hold up to {@code size} values. The input {@code buffer} will be reused if not
-   * {@code null} and has a length of at least {@code size}. Otherwise a new array will be created.
+   * Ensure the array can hold up to {@code size} values. The input {@code array} will be reused if
+   * not {@code null} and has a length of at least {@code size}. Otherwise a new array will be
+   * created.
    *
-   * <p>Note that no values are preserved from the old buffer if a new array is returned. The
-   * returned buffer may be larger than {@code size}.
+   * <p>Note that no values are preserved from the old array if a new array is returned. The
+   * returned array may be larger than {@code size}.
    *
-   * @param buffer the current buffer
+   * @param array the current array
    * @param size the size
-   * @return the buffer
+   * @return the array
    */
-  public static @NotNull float[] getBuffer(@Nullable float[] buffer, int size) {
-    if (buffer == null || buffer.length < size) {
+  public static @NotNull float[] ensureSize(@Nullable float[] array, int size) {
+    if (array == null || array.length < size) {
       return new float[size];
     }
-    return buffer;
+    return array;
   }
 
   /**
-   * Gets a buffer to hold up to {@code size} values. The input {@code buffer} will be reused if not
-   * {@code null} and has a length of at least {@code size}. Otherwise a new array will be created.
+   * Ensure the array can hold up to {@code size} values. The input {@code array} will be reused if
+   * not {@code null} and has a length of at least {@code size}. Otherwise a new array will be
+   * created.
    *
-   * <p>Note that no values are preserved from the old buffer if a new array is returned. The
-   * returned buffer may be larger than {@code size}.
+   * <p>Note that no values are preserved from the old array if a new array is returned. The
+   * returned array may be larger than {@code size}.
    *
-   * @param buffer the current buffer
+   * @param array the current array
    * @param size the size
-   * @return the buffer
+   * @return the array
    */
-  public static @NotNull double[] getBuffer(@Nullable double[] buffer, int size) {
-    if (buffer == null || buffer.length < size) {
+  public static @NotNull double[] ensureSize(@Nullable double[] array, int size) {
+    if (array == null || array.length < size) {
       return new double[size];
     }
-    return buffer;
+    return array;
   }
 
   /**
-   * Gets a buffer to hold up to {@code size} values. The input {@code buffer} will be reused if not
-   * {@code null} and has a length of at least {@code size}. Otherwise a new array will be created.
+   * Ensure the array can hold up to {@code size} values. The input {@code array} will be reused if
+   * not {@code null} and has a length of at least {@code size}. Otherwise a new array will be
+   * created.
    *
-   * <p>Note that no values are preserved from the old buffer if a new array is returned. The
-   * returned buffer may be larger than {@code size}.
+   * <p>Note that no values are preserved from the old array if a new array is returned. The
+   * returned array may be larger than {@code size}.
    *
-   * @param buffer the current buffer
+   * @param array the current array
    * @param size the size
-   * @return the buffer
+   * @return the array
    */
-  public static @NotNull byte[] getBuffer(@Nullable byte[] buffer, int size) {
-    if (buffer == null || buffer.length < size) {
+  public static @NotNull byte[] ensureSize(@Nullable byte[] array, int size) {
+    if (array == null || array.length < size) {
       return new byte[size];
     }
-    return buffer;
+    return array;
   }
 
   /**
-   * Gets a buffer to hold up to {@code size} values. The input {@code buffer} will be reused if not
-   * {@code null} and has a length of at least {@code size}. Otherwise a new array will be created.
+   * Ensure the array can hold up to {@code size} values. The input {@code array} will be reused if
+   * not {@code null} and has a length of at least {@code size}. Otherwise a new array will be
+   * created.
    *
-   * <p>Note that no values are preserved from the old buffer if a new array is returned. The
-   * returned buffer may be larger than {@code size}.
+   * <p>Note that no values are preserved from the old array if a new array is returned. The
+   * returned array may be larger than {@code size}.
    *
-   * @param buffer the current buffer
+   * @param array the current array
    * @param size the size
-   * @return the buffer
+   * @return the array
    */
-  public static @NotNull short[] getBuffer(@Nullable short[] buffer, int size) {
-    if (buffer == null || buffer.length < size) {
+  public static @NotNull short[] ensureSize(@Nullable short[] array, int size) {
+    if (array == null || array.length < size) {
       return new short[size];
     }
-    return buffer;
+    return array;
   }
 }

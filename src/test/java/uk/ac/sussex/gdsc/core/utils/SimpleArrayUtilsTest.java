@@ -479,9 +479,8 @@ public class SimpleArrayUtilsTest {
         "increasing step size in series");
 
     // Special case of direction change
-    data = new double[] { 0, 1, 2, 1 };
-    Assertions.assertFalse(SimpleArrayUtils.isUniform(data, 1),
-        "direction change in series");
+    data = new double[] {0, 1, 2, 1};
+    Assertions.assertFalse(SimpleArrayUtils.isUniform(data, 1), "direction change in series");
   }
 
   @Test
@@ -887,5 +886,70 @@ public class SimpleArrayUtilsTest {
     final String[] data = {"3", "4"};
     SimpleArrayUtils.swap(data, 0, 1);
     Assertions.assertArrayEquals(new String[] {"4", "3"}, data);
+  }
+
+  @Test
+  public void canEnsureFloatSize() {
+    int[] data = null;
+    for (int i = 0; i < 3; i++) {
+      data = SimpleArrayUtils.ensureSize(data, i);
+      Assertions.assertEquals(i, data.length, "Did not resize");
+    }
+    for (int i = data.length; i > 0; i--) {
+      final int[] newData = SimpleArrayUtils.ensureSize(data, data.length - 1);
+      Assertions.assertSame(data, newData, "Should not create a new array");
+    }
+  }
+
+  @Test
+  public void canEnsureIntSize() {
+    float[] data = null;
+    for (int i = 0; i < 3; i++) {
+      data = SimpleArrayUtils.ensureSize(data, i);
+      Assertions.assertEquals(i, data.length, "Did not resize");
+    }
+    for (int i = data.length; i > 0; i--) {
+      final float[] newData = SimpleArrayUtils.ensureSize(data, data.length - 1);
+      Assertions.assertSame(data, newData, "Should not create a new array");
+    }
+  }
+
+  @Test
+  public void canEnsureDoubleSize() {
+    double[] data = null;
+    for (int i = 0; i < 3; i++) {
+      data = SimpleArrayUtils.ensureSize(data, i);
+      Assertions.assertEquals(i, data.length, "Did not resize");
+    }
+    for (int i = data.length; i > 0; i--) {
+      final double[] newData = SimpleArrayUtils.ensureSize(data, data.length - 1);
+      Assertions.assertSame(data, newData, "Should not create a new array");
+    }
+  }
+
+  @Test
+  public void canEnsurByteSize() {
+    byte[] data = null;
+    for (int i = 0; i < 3; i++) {
+      data = SimpleArrayUtils.ensureSize(data, i);
+      Assertions.assertEquals(i, data.length, "Did not resize");
+    }
+    for (int i = data.length; i > 0; i--) {
+      final byte[] newData = SimpleArrayUtils.ensureSize(data, data.length - 1);
+      Assertions.assertSame(data, newData, "Should not create a new array");
+    }
+  }
+
+  @Test
+  public void canEnsureShortSize() {
+    short[] data = null;
+    for (int i = 0; i < 3; i++) {
+      data = SimpleArrayUtils.ensureSize(data, i);
+      Assertions.assertEquals(i, data.length, "Did not resize");
+    }
+    for (int i = data.length; i > 0; i--) {
+      final short[] newData = SimpleArrayUtils.ensureSize(data, data.length - 1);
+      Assertions.assertSame(data, newData, "Should not create a new array");
+    }
   }
 }
