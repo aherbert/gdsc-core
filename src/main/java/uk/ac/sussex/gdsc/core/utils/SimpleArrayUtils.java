@@ -28,6 +28,9 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import uk.ac.sussex.gdsc.core.annotation.NotNull;
+import uk.ac.sussex.gdsc.core.annotation.Nullable;
+
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 
@@ -1242,5 +1245,95 @@ public final class SimpleArrayUtils {
     final T tmp = data[index1];
     data[index1] = data[index2];
     data[index2] = tmp;
+  }
+
+  /**
+   * Gets a buffer to hold up to {@code size} values. The input {@code buffer} will be reused if not
+   * {@code null} and has a length of at least {@code size}. Otherwise a new array will be created.
+   *
+   * <p>Note that no values are preserved from the old buffer if a new array is returned. The
+   * returned buffer may be larger than {@code size}.
+   *
+   * @param buffer the current buffer
+   * @param size the size
+   * @return the buffer
+   */
+  public static @NotNull int[] getBuffer(@Nullable int[] buffer, int size) {
+    if (buffer == null || buffer.length < size) {
+      return new int[size];
+    }
+    return buffer;
+  }
+
+  /**
+   * Gets a buffer to hold up to {@code size} values. The input {@code buffer} will be reused if not
+   * {@code null} and has a length of at least {@code size}. Otherwise a new array will be created.
+   *
+   * <p>Note that no values are preserved from the old buffer if a new array is returned. The
+   * returned buffer may be larger than {@code size}.
+   *
+   * @param buffer the current buffer
+   * @param size the size
+   * @return the buffer
+   */
+  public static @NotNull float[] getBuffer(@Nullable float[] buffer, int size) {
+    if (buffer == null || buffer.length < size) {
+      return new float[size];
+    }
+    return buffer;
+  }
+
+  /**
+   * Gets a buffer to hold up to {@code size} values. The input {@code buffer} will be reused if not
+   * {@code null} and has a length of at least {@code size}. Otherwise a new array will be created.
+   *
+   * <p>Note that no values are preserved from the old buffer if a new array is returned. The
+   * returned buffer may be larger than {@code size}.
+   *
+   * @param buffer the current buffer
+   * @param size the size
+   * @return the buffer
+   */
+  public static @NotNull double[] getBuffer(@Nullable double[] buffer, int size) {
+    if (buffer == null || buffer.length < size) {
+      return new double[size];
+    }
+    return buffer;
+  }
+
+  /**
+   * Gets a buffer to hold up to {@code size} values. The input {@code buffer} will be reused if not
+   * {@code null} and has a length of at least {@code size}. Otherwise a new array will be created.
+   *
+   * <p>Note that no values are preserved from the old buffer if a new array is returned. The
+   * returned buffer may be larger than {@code size}.
+   *
+   * @param buffer the current buffer
+   * @param size the size
+   * @return the buffer
+   */
+  public static @NotNull byte[] getBuffer(@Nullable byte[] buffer, int size) {
+    if (buffer == null || buffer.length < size) {
+      return new byte[size];
+    }
+    return buffer;
+  }
+
+  /**
+   * Gets a buffer to hold up to {@code size} values. The input {@code buffer} will be reused if not
+   * {@code null} and has a length of at least {@code size}. Otherwise a new array will be created.
+   *
+   * <p>Note that no values are preserved from the old buffer if a new array is returned. The
+   * returned buffer may be larger than {@code size}.
+   *
+   * @param buffer the current buffer
+   * @param size the size
+   * @return the buffer
+   */
+  public static @NotNull short[] getBuffer(@Nullable short[] buffer, int size) {
+    if (buffer == null || buffer.length < size) {
+      return new short[size];
+    }
+    return buffer;
   }
 }
