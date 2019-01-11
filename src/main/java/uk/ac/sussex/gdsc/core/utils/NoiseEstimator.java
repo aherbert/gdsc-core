@@ -156,7 +156,7 @@ public class NoiseEstimator {
   }
 
   /**
-   * Estimates the noise using random pixels from the image.
+   * Estimates the noise using pixels from the image.
    *
    * @param method the method
    * @return the noise
