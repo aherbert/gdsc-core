@@ -71,8 +71,7 @@ public class TickerTest {
     Assertions.assertEquals(true, ticker.isThreadSafe(), "ThreadSafe");
     ticker.start();
     ticker.tick();
-    Assertions.assertEquals(0, ticker.getCurrent(), "Current");
-    Assertions.assertEquals(0, ticker.getTotal(), "Total");
+    Assertions.assertEquals(0, ticker.getCurrent(), "Current should not increment");
     ticker.stop();
   }
 
@@ -243,8 +242,13 @@ public class TickerTest {
     ticker.start();
     Assertions.assertEquals(0, ticker.getCurrent(), "Current when re-started");
     Assertions.assertEquals(0, progressFraction[0], "Progress when re-started");
-  }
 
+    // Check multiple ticks
+    ticker.tick(2);
+    Assertions.assertEquals(2, ticker.getCurrent(), "Current after 2 ticks");
+    ticker.tick(3);
+    Assertions.assertEquals(5, ticker.getCurrent(), "Current after 2+3 ticks");
+  }
 
   @Test
   public void testThreadSafeTickerForIntegerTotal() throws InterruptedException {

@@ -42,6 +42,14 @@ public abstract class Ticker {
   public abstract void tick();
 
   /**
+   * Increment the current ticks by the specified amount and report the progress. Ideally this
+   * should be called after the work has been done as the progress is reported as completed.
+   *
+   * @param increment the increment
+   */
+  public abstract void tick(int increment);
+
+  /**
    * Gets the total amount of ticks.
    *
    * @return the total
@@ -201,6 +209,11 @@ public abstract class Ticker {
     }
 
     @Override
+    public void tick(int increment) {
+      // Do nothing
+    }
+
+    @Override
     public long getTotal() {
       return 0;
     }
@@ -259,7 +272,16 @@ public abstract class Ticker {
 
     @Override
     public void tick() {
-      final int now = ++current;
+      reportProgress(++current);
+    }
+
+    @Override
+    public void tick(int increment) {
+      current = current + increment;
+      reportProgress(current);
+    }
+
+    private void reportProgress(int now) {
       if (now >= next) {
         next = now + interval;
         trackProgress.progress((double) now / total);
@@ -296,7 +318,7 @@ public abstract class Ticker {
     final int total;
     final int interval;
     final AtomicInteger current = new AtomicInteger();
-    AtomicInteger next = new AtomicInteger();
+    final AtomicInteger next = new AtomicInteger();
 
     ConcurrentIntTicker(TrackProgress trackProgress, int interval, int total) {
       super(trackProgress);
@@ -306,7 +328,15 @@ public abstract class Ticker {
 
     @Override
     public void tick() {
-      final int now = current.incrementAndGet();
+      reportProgress(current.incrementAndGet());
+    }
+
+    @Override
+    public void tick(int increment) {
+      reportProgress(current.addAndGet(increment));
+    }
+
+    private void reportProgress(int now) {
       // This is used as an alternative to
       // next.compareAndSet(now, now + interval)
       // since multiple threads could increment 'current' past 'next'.
@@ -357,7 +387,16 @@ public abstract class Ticker {
 
     @Override
     public void tick() {
-      final long now = ++current;
+      reportProgress(++current);
+    }
+
+    @Override
+    public void tick(int increment) {
+      current = current + increment;
+      reportProgress(current);
+    }
+
+    private void reportProgress(long now) {
       if (now >= next) {
         next = now + interval;
         trackProgress.progress((double) now / total);
@@ -404,7 +443,15 @@ public abstract class Ticker {
 
     @Override
     public void tick() {
-      final long now = current.incrementAndGet();
+      reportProgress(current.incrementAndGet());
+    }
+
+    @Override
+    public void tick(int increment) {
+      reportProgress(current.addAndGet(increment));
+    }
+
+    private void reportProgress(long now) {
       // This is used as an alternative to
       // next.compareAndSet(now, now + interval)
       // since multiple threads could increment 'current' past 'next'.
