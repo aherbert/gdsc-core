@@ -28,6 +28,7 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
+import uk.ac.sussex.gdsc.core.annotation.NotNull;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
@@ -927,7 +928,8 @@ public final class ImageJUtils {
    * @return List of IDs
    * @see ij.WindowManager#getIDList()
    */
-  public static int[] getIdList() {
+  @SuppressWarnings("null")
+  public static @NotNull int[] getIdList() {
     final int[] list = WindowManager.getIDList();
     return (list == null) ? ArrayUtils.EMPTY_INT_ARRAY : list;
   }
@@ -938,7 +940,7 @@ public final class ImageJUtils {
    * @param flags Specify the types of image to collate
    * @return The list of images
    */
-  public static String[] getImageList(final int flags) {
+  public static @NotNull String[] getImageList(final int flags) {
     return getImageList(flags, null);
   }
 
@@ -949,7 +951,8 @@ public final class ImageJUtils {
    * @param ignoreSuffix A list of title suffixes to ignore
    * @return The list of images
    */
-  public static String[] getImageList(final int flags, String[] ignoreSuffix) {
+  @SuppressWarnings("null")
+  public static @NotNull String[] getImageList(final int flags, String[] ignoreSuffix) {
     final ArrayList<String> newImageList = new ArrayList<>();
 
     if ((flags & NO_IMAGE) == NO_IMAGE) {
@@ -976,7 +979,7 @@ public final class ImageJUtils {
       newImageList.add(imp.getTitle());
     }
 
-    return newImageList.toArray(new String[0]);
+    return newImageList.toArray(new String[newImageList.size()]);
   }
 
   /**
@@ -1097,6 +1100,7 @@ public final class ImageJUtils {
    * @param gd the dialog
    * @param rowsPerColumn the rows per column, for each column in order
    */
+  @SuppressWarnings("null")
   public static void rearrangeColumns(GenericDialog gd, int... rowsPerColumn) {
     if (!isShowGenericDialog()) {
       return;
