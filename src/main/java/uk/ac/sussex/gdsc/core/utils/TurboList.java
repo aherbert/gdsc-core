@@ -537,7 +537,6 @@ public class TurboList<E> extends AbstractList<E>
      * Removes all of the elements from this list. Does not set the references to null to allow garbage collection.
      */
     public void clearf() {
-
         size = 0;
     }
 
