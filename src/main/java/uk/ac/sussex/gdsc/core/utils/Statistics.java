@@ -47,7 +47,7 @@ public class Statistics {
    * Instantiates a new statistics.
    *
    * @param data the data
-   * @return the stored data statistics
+   * @return the statistics
    */
   public static Statistics create(float[] data) {
     final Statistics stats = new Statistics();
@@ -59,7 +59,7 @@ public class Statistics {
    * Instantiates a new statistics.
    *
    * @param data the data
-   * @return the stored data statistics
+   * @return the statistics
    */
   public static Statistics create(double[] data) {
     final Statistics stats = new Statistics();
@@ -71,7 +71,7 @@ public class Statistics {
    * Instantiates a new statistics.
    *
    * @param data the data
-   * @return the stored data statistics
+   * @return the statistics
    */
   public static Statistics create(int[] data) {
     final Statistics stats = new Statistics();

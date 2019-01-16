@@ -42,7 +42,7 @@ public class RollingStatistics extends Statistics {
    * Instantiates a new rolling statistics.
    *
    * @param data the data
-   * @return the stored data statistics
+   * @return the rolling statistics
    */
   public static RollingStatistics create(float[] data) {
     final RollingStatistics stats = new RollingStatistics();
@@ -54,7 +54,7 @@ public class RollingStatistics extends Statistics {
    * Instantiates a new rolling statistics.
    *
    * @param data the data
-   * @return the stored data statistics
+   * @return the rolling statistics
    */
   public static RollingStatistics create(double[] data) {
     final RollingStatistics stats = new RollingStatistics();
@@ -66,7 +66,7 @@ public class RollingStatistics extends Statistics {
    * Instantiates a new rolling statistics.
    *
    * @param data the data
-   * @return the stored data statistics
+   * @return the rolling statistics
    */
   public static RollingStatistics create(int[] data) {
     final RollingStatistics stats = new RollingStatistics();
