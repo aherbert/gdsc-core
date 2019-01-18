@@ -1324,6 +1324,17 @@ public final class MathUtils {
    * @param value2 the second value
    * @return value1/value2
    */
+  public static float div0(float value1, float value2) {
+    return (value1 == 0) ? 0 : value1 / value2;
+  }
+
+  /**
+   * Check if value1 is zero and return zero else divide value1 by value2.
+   *
+   * @param value1 the first value
+   * @param value2 the second value
+   * @return value1/value2
+   */
   public static double div0(int value1, int value2) {
     return (value1 == 0) ? 0 : (double) value1 / value2;
   }
