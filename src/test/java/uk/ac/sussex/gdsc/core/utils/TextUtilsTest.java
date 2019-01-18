@@ -167,4 +167,20 @@ public class TextUtilsTest {
     Assertions.assertEquals("8.0 EiB",
         TextUtils.bytesToString(9223372036854775807L, false, locale));
   }
+
+  @Test
+  public void canCheckIsNullOrEmptyString() {
+    Assertions.assertTrue(TextUtils.isNullOrEmpty(null));
+    Assertions.assertTrue(TextUtils.isNullOrEmpty(""));
+    Assertions.assertFalse(TextUtils.isNullOrEmpty(" "));
+    Assertions.assertFalse(TextUtils.isNullOrEmpty("a"));
+  }
+
+  @Test
+  public void canCheckIsNotEmptyString() {
+    Assertions.assertFalse(TextUtils.isNotEmpty(null));
+    Assertions.assertFalse(TextUtils.isNotEmpty(""));
+    Assertions.assertTrue(TextUtils.isNotEmpty(" "));
+    Assertions.assertTrue(TextUtils.isNotEmpty("a"));
+  }
 }

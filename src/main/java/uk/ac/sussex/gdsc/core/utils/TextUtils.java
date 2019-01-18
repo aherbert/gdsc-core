@@ -199,11 +199,26 @@ public final class TextUtils {
   /**
    * Check if the string is null or length zero. Does not check for a string of whitespace.
    *
+   * <p>This produces the opposite result to {@link #isNotEmpty(String)}.
+   *
    * @param string the string
    * @return true if the string is null or length zero
    */
   public static boolean isNullOrEmpty(String string) {
     return string == null || string.isEmpty();
+  }
+
+  /**
+   * Check if the string has characters. Does not check for a string of whitespace.
+   *
+   * <p>Returns false for a null or empty string, that is it produces the opposite result to
+   * {@link #isNullOrEmpty(String)}.
+   *
+   * @param string the string
+   * @return true if the string has characters
+   */
+  public static boolean isNotEmpty(String string) {
+    return string != null && !string.isEmpty();
   }
 
   /**
