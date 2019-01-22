@@ -887,4 +887,116 @@ public class ValidationUtilsTest {
     final String expected = String.format(message, p1, p2);
     Assertions.assertEquals(expected, ex.getMessage(), "Does not format the message");
   }
+
+  @Test
+  public void canCheckPositiveWithInt() {
+    int value = 0;
+    ValidationUtils.checkPositive(value);
+    for (int badValue : new int[] {Integer.MIN_VALUE, -1}) {
+      final IllegalArgumentException ex =
+          Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ValidationUtils.checkPositive(badValue);
+          });
+      Assertions.assertTrue(ex.getMessage().contains(String.valueOf(badValue)),
+          "Does not contain the bad value");
+    }
+  }
+
+  @Test
+  public void canCheckPositiveWithLong() {
+    long value = 0;
+    ValidationUtils.checkPositive(value);
+    for (long badValue : new long[] {Long.MIN_VALUE, -1}) {
+      final IllegalArgumentException ex =
+          Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ValidationUtils.checkPositive(badValue);
+          });
+      Assertions.assertTrue(ex.getMessage().contains(String.valueOf(badValue)),
+          "Does not contain the bad value");
+    }
+  }
+
+  @Test
+  public void canCheckPositiveWithFloat() {
+    float value = 0;
+    ValidationUtils.checkPositive(value);
+    for (float badValue : new float[] {Float.NaN, -1}) {
+      final IllegalArgumentException ex =
+          Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ValidationUtils.checkPositive(badValue);
+          });
+      Assertions.assertTrue(ex.getMessage().contains(String.valueOf(badValue)),
+          "Does not contain the bad value");
+    }
+  }
+
+  @Test
+  public void canCheckPositiveWithDouble() {
+    double value = 0;
+    ValidationUtils.checkPositive(value);
+    for (double badValue : new double[] {Double.NaN, -1}) {
+      final IllegalArgumentException ex =
+          Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ValidationUtils.checkPositive(badValue);
+          });
+      Assertions.assertTrue(ex.getMessage().contains(String.valueOf(badValue)),
+          "Does not contain the bad value");
+    }
+  }
+
+  @Test
+  public void canCheckStrictlyPositiveWithInt() {
+    int value = 1;
+    ValidationUtils.checkStrictlyPositive(value);
+    for (int badValue : new int[] {Integer.MIN_VALUE, -1, 0}) {
+      final IllegalArgumentException ex =
+          Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ValidationUtils.checkStrictlyPositive(badValue);
+          });
+      Assertions.assertTrue(ex.getMessage().contains(String.valueOf(badValue)),
+          "Does not contain the bad value");
+    }
+  }
+
+  @Test
+  public void canCheckStrictlyPositiveWithLong() {
+    long value = 1;
+    ValidationUtils.checkStrictlyPositive(value);
+    for (long badValue : new long[] {Long.MIN_VALUE, -1, 0}) {
+      final IllegalArgumentException ex =
+          Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ValidationUtils.checkStrictlyPositive(badValue);
+          });
+      Assertions.assertTrue(ex.getMessage().contains(String.valueOf(badValue)),
+          "Does not contain the bad value");
+    }
+  }
+
+  @Test
+  public void canCheckStrictlyPositiveWithFloat() {
+    float value = 1;
+    ValidationUtils.checkStrictlyPositive(value);
+    for (float badValue : new float[] {Float.NaN, -1, 0}) {
+      final IllegalArgumentException ex =
+          Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ValidationUtils.checkStrictlyPositive(badValue);
+          });
+      Assertions.assertTrue(ex.getMessage().contains(String.valueOf(badValue)),
+          "Does not contain the bad value");
+    }
+  }
+
+  @Test
+  public void canCheckStrictlyPositiveWithDouble() {
+    double value = 1;
+    ValidationUtils.checkStrictlyPositive(value);
+    for (double badValue : new double[] {Double.NaN, -1, 0}) {
+      final IllegalArgumentException ex =
+          Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ValidationUtils.checkStrictlyPositive(badValue);
+          });
+      Assertions.assertTrue(ex.getMessage().contains(String.valueOf(badValue)),
+          "Does not contain the bad value");
+    }
+  }
 }

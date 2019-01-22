@@ -36,6 +36,10 @@ package uk.ac.sussex.gdsc.core.utils;
  */
 public final class ValidationUtils {
 
+  private static final String VALUE = "Value";
+  private static final String MSG_IS_NOT_POSITIVE = " is not positive: ";
+  private static final String MSG_IS_NOT_STRICTLY_POSITIVE = " is not strictly positive: ";
+
   /** No public construction. */
   private ValidationUtils() {}
 
@@ -803,5 +807,289 @@ public final class ValidationUtils {
       throw new NullPointerException(String.format(format, p1, p2));
     }
     return object;
+  }
+
+  /**
+   * Check the specified value is positive.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * "Value is not positive: " + value
+   * </pre>
+   *
+   * @param value the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >=0}
+   */
+  public static void checkPositive(int value) {
+    checkPositive(value, VALUE);
+  }
+
+  /**
+   * Check the specified value is positive.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * name + MSG_IS_NOT_POSITIVE + value
+   * </pre>
+   *
+   * @param value the value
+   * @param name the name of the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >=0}
+   */
+  public static void checkPositive(int value, String name) {
+    if (value < 0) {
+      throw new IllegalArgumentException(name + MSG_IS_NOT_POSITIVE + value);
+    }
+  }
+
+  /**
+   * Check the specified value is positive.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * "Value is not positive: " + value
+   * </pre>
+   *
+   * @param value the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >=0}
+   */
+  public static void checkPositive(long value) {
+    checkPositive(value, VALUE);
+  }
+
+  /**
+   * Check the specified value is positive.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * name + MSG_IS_NOT_POSITIVE + value
+   * </pre>
+   *
+   * @param value the value
+   * @param name the name of the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >=0}
+   */
+  public static void checkPositive(long value, String name) {
+    if (value < 0) {
+      throw new IllegalArgumentException(name + MSG_IS_NOT_POSITIVE + value);
+    }
+  }
+
+  /**
+   * Check the specified value is positive. The value is allowed to be infinite but not NaN.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * "Value is not positive: " + value
+   * </pre>
+   *
+   * @param value the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >=0}
+   */
+  public static void checkPositive(float value) {
+    checkPositive(value, VALUE);
+  }
+
+  /**
+   * Check the specified value is positive. The value is allowed to be infinite but not NaN.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * name + MSG_IS_NOT_POSITIVE + value
+   * </pre>
+   *
+   * @param value the value
+   * @param name the name of the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >=0}
+   */
+  public static void checkPositive(float value, String name) {
+    if (value < 0 || Float.isNaN(value)) {
+      throw new IllegalArgumentException(name + MSG_IS_NOT_POSITIVE + value);
+    }
+  }
+
+  /**
+   * Check the specified value is positive. The value is allowed to be infinite but not NaN.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * "Value is not positive: " + value
+   * </pre>
+   *
+   * @param value the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >=0}
+   */
+  public static void checkPositive(double value) {
+    checkPositive(value, VALUE);
+  }
+
+  /**
+   * Check the specified value is positive. The value is allowed to be infinite but not NaN.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * name + MSG_IS_NOT_POSITIVE + value
+   * </pre>
+   *
+   * @param value the value
+   * @param name the name of the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >=0}
+   */
+  public static void checkPositive(double value, String name) {
+    if (value < 0 || Double.isNaN(value)) {
+      throw new IllegalArgumentException(name + MSG_IS_NOT_POSITIVE + value);
+    }
+  }
+
+  /**
+   * Check the specified value is strictly positive.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * "Value is not strictly positive: " + value
+   * </pre>
+   *
+   * @param value the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >0}
+   */
+  public static void checkStrictlyPositive(int value) {
+    checkStrictlyPositive(value, VALUE);
+  }
+
+  /**
+   * Check the specified value is strictly positive.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * name + MSG_IS_NOT_STRICTLY_POSITIVE + value
+   * </pre>
+   *
+   * @param value the value
+   * @param name the name of the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >0}
+   */
+  public static void checkStrictlyPositive(int value, String name) {
+    if (value <= 0) {
+      throw new IllegalArgumentException(name + MSG_IS_NOT_STRICTLY_POSITIVE + value);
+    }
+  }
+
+  /**
+   * Check the specified value is strictly positive.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * "Value is not strictly positive: " + value
+   * </pre>
+   *
+   * @param value the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >0}
+   */
+  public static void checkStrictlyPositive(long value) {
+    checkStrictlyPositive(value, VALUE);
+  }
+
+  /**
+   * Check the specified value is strictly positive.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * name + MSG_IS_NOT_STRICTLY_POSITIVE + value
+   * </pre>
+   *
+   * @param value the value
+   * @param name the name of the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >0}
+   */
+  public static void checkStrictlyPositive(long value, String name) {
+    if (value <= 0) {
+      throw new IllegalArgumentException(name + MSG_IS_NOT_STRICTLY_POSITIVE + value);
+    }
+  }
+
+  /**
+   * Check the specified value is strictly positive. The value is allowed to be infinite but not
+   * NaN.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * "Value is not strictly positive: " + value
+   * </pre>
+   *
+   * @param value the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >0}
+   */
+  public static void checkStrictlyPositive(float value) {
+    checkStrictlyPositive(value, VALUE);
+  }
+
+  /**
+   * Check the specified value is strictly positive. The value is allowed to be infinite but not
+   * NaN.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * name + MSG_IS_NOT_STRICTLY_POSITIVE + value
+   * </pre>
+   *
+   * @param value the value
+   * @param name the name of the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >0}
+   */
+  public static void checkStrictlyPositive(float value, String name) {
+    if (value <= 0 || Float.isNaN(value)) {
+      throw new IllegalArgumentException(name + MSG_IS_NOT_STRICTLY_POSITIVE + value);
+    }
+  }
+
+  /**
+   * Check the specified value is strictly positive. The value is allowed to be infinite but not
+   * NaN.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * "Value is not strictly positive: " + value
+   * </pre>
+   *
+   * @param value the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >0}
+   */
+  public static void checkStrictlyPositive(double value) {
+    checkStrictlyPositive(value, VALUE);
+  }
+
+  /**
+   * Check the specified value is strictly positive. The value is allowed to be infinite but not
+   * NaN.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * name + MSG_IS_NOT_STRICTLY_POSITIVE + value
+   * </pre>
+   *
+   * @param value the value
+   * @param name the name of the value
+   * @throws IllegalArgumentException if {@code value} is not {@code >0}
+   */
+  public static void checkStrictlyPositive(double value, String name) {
+    if (value <= 0 || Double.isNaN(value)) {
+      throw new IllegalArgumentException(name + MSG_IS_NOT_STRICTLY_POSITIVE + value);
+    }
   }
 }
