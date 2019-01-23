@@ -37,7 +37,7 @@ import java.awt.Frame;
 
 /**
  * Buffer to the ImageJ text window. Updates the display when 10 lines have been reached (to
- * auto-layout columns)_and then at the specified increments.
+ * auto-layout columns) and then at the specified increments.
  */
 public class BufferedTextWindow {
   /** The text window. */
