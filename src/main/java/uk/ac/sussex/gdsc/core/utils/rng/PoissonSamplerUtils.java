@@ -40,7 +40,7 @@ import org.apache.commons.rng.sampling.distribution.SmallMeanPoissonSampler;
 public final class PoissonSamplerUtils {
 
   /**
-   * Value for switching sampling algorithm. This is the same pivot point as the PoissonSampler
+   * Value for switching sampling algorithm. This is the same pivot point as the PoissonSampler.
    */
   private static final double PIVOT = 40;
 
