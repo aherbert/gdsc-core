@@ -831,7 +831,7 @@ public final class ValidationUtils {
    * <p>An error message is constructed using:
    *
    * <pre>
-   * name + MSG_IS_NOT_POSITIVE + value
+   * name + " is not positive: " + value
    * </pre>
    *
    * @param value the value
@@ -866,7 +866,7 @@ public final class ValidationUtils {
    * <p>An error message is constructed using:
    *
    * <pre>
-   * name + MSG_IS_NOT_POSITIVE + value
+   * name + " is not positive: " + value
    * </pre>
    *
    * @param value the value
@@ -901,7 +901,7 @@ public final class ValidationUtils {
    * <p>An error message is constructed using:
    *
    * <pre>
-   * name + MSG_IS_NOT_POSITIVE + value
+   * name + " is not positive: " + value
    * </pre>
    *
    * @param value the value
@@ -936,7 +936,7 @@ public final class ValidationUtils {
    * <p>An error message is constructed using:
    *
    * <pre>
-   * name + MSG_IS_NOT_POSITIVE + value
+   * name + " is not positive: " + value
    * </pre>
    *
    * @param value the value
@@ -971,7 +971,7 @@ public final class ValidationUtils {
    * <p>An error message is constructed using:
    *
    * <pre>
-   * name + MSG_IS_NOT_STRICTLY_POSITIVE + value
+   * name + " is not strictly positive: " + value
    * </pre>
    *
    * @param value the value
@@ -1006,7 +1006,7 @@ public final class ValidationUtils {
    * <p>An error message is constructed using:
    *
    * <pre>
-   * name + MSG_IS_NOT_STRICTLY_POSITIVE + value
+   * name + " is not strictly positive: " + value
    * </pre>
    *
    * @param value the value
@@ -1043,7 +1043,7 @@ public final class ValidationUtils {
    * <p>An error message is constructed using:
    *
    * <pre>
-   * name + MSG_IS_NOT_STRICTLY_POSITIVE + value
+   * name + " is not strictly positive: " + value
    * </pre>
    *
    * @param value the value
@@ -1080,7 +1080,7 @@ public final class ValidationUtils {
    * <p>An error message is constructed using:
    *
    * <pre>
-   * name + MSG_IS_NOT_STRICTLY_POSITIVE + value
+   * name + " is not strictly positive: " + value
    * </pre>
    *
    * @param value the value
