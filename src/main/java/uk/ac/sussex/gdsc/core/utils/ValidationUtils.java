@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 /**
  * Class for validating conditions.
  *
@@ -1090,6 +1092,41 @@ public final class ValidationUtils {
   public static void checkStrictlyPositive(double value, String name) {
     if (value <= 0 || Double.isNaN(value)) {
       throw new IllegalArgumentException(name + MSG_IS_NOT_STRICTLY_POSITIVE + value);
+    }
+  }
+
+  /**
+   * Check the specified array has a non-zero length.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * "Array length is zero"
+   * </pre>
+   *
+   * @param array the array
+   * @throws IllegalArgumentException if the object is not an array, is null or zero length
+   */
+  public static void checkArrayLength(Object array) {
+    checkArrayLength(array, "Array");
+  }
+
+  /**
+   * Check the specified array has a non-zero length.
+   *
+   * <p>An error message is constructed using:
+   *
+   * <pre>
+   * name + " length is zero"
+   * </pre>
+   *
+   * @param array the array
+   * @param name the name of the array
+   * @throws IllegalArgumentException if the object is not an array, is null or zero length
+   */
+  public static void checkArrayLength(Object array, String name) {
+    if (ArrayUtils.getLength(array) == 0) {
+      throw new IllegalArgumentException(name + " length is zero");
     }
   }
 }

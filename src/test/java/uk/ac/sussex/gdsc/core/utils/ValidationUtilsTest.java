@@ -999,4 +999,52 @@ public class ValidationUtilsTest {
           "Does not contain the bad value");
     }
   }
+
+  @Test
+  public void canCheckArrayLength() {
+    ValidationUtils.checkArrayLength(new boolean[1]);
+    ValidationUtils.checkArrayLength(new byte[1]);
+    ValidationUtils.checkArrayLength(new char[1]);
+    ValidationUtils.checkArrayLength(new double[1]);
+    ValidationUtils.checkArrayLength(new float[1]);
+    ValidationUtils.checkArrayLength(new int[1]);
+    ValidationUtils.checkArrayLength(new long[1]);
+    ValidationUtils.checkArrayLength(new short[1]);
+    ValidationUtils.checkArrayLength(new Object[1]);
+
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      ValidationUtils.checkArrayLength(new boolean[0]);
+    });
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      ValidationUtils.checkArrayLength(new byte[0]);
+    });
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      ValidationUtils.checkArrayLength(new char[0]);
+    });
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      ValidationUtils.checkArrayLength(new double[0]);
+    });
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      ValidationUtils.checkArrayLength(new float[0]);
+    });
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      ValidationUtils.checkArrayLength(new int[0]);
+    });
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      ValidationUtils.checkArrayLength(new long[0]);
+    });
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      ValidationUtils.checkArrayLength(new short[0]);
+    });
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      ValidationUtils.checkArrayLength(new Object[0]);
+    });
+
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      ValidationUtils.checkArrayLength(null);
+    }, "null input");
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      ValidationUtils.checkArrayLength(new Object());
+    }, "non-array input");
+  }
 }
