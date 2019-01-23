@@ -99,9 +99,9 @@ public final class ConcurrencyUtils {
         f.get();
       }
     } catch (final InterruptedException ex) {
+      handleError(errorHandler, ex);
       // Restore interrupted state...
       Thread.currentThread().interrupt();
-      handleError(errorHandler, ex);
       throw new ConcurrentRuntimeException(ex);
     } catch (final ExecutionException ex) {
       handleErrorAndRethrow(errorHandler, ex);
@@ -186,9 +186,9 @@ public final class ConcurrencyUtils {
     try {
       return executor.invokeAll(tasks);
     } catch (final InterruptedException ex) {
+      handleError(errorHandler, ex);
       // Restore interrupted state...
       Thread.currentThread().interrupt();
-      handleError(errorHandler, ex);
       throw new ConcurrentRuntimeException(ex);
     }
   }
