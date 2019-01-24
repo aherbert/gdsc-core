@@ -57,4 +57,4 @@ Alex Herbert
 [Genome Damage and Stability Centre, University of Sussex](http://www.sussex.ac.uk/gdsc/)
 
 ###### URL ######
-http://www.sussex.ac.uk/gdsc/intranet/microscopy/UserSupport/AnalysisProtocol/imagej/gdsc_plugins/
+[GDSC ImageJ plugins](http://www.sussex.ac.uk/gdsc/intranet/microscopy/UserSupport/AnalysisProtocol/imagej/gdsc_plugins/)
