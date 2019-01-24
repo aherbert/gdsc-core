@@ -28,11 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.ij;
 
-import uk.ac.sussex.gdsc.core.ij.process.MappedFloatProcessor;
-
 import ij.ImageStack;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import ij.process.MappedFloatProcessor;
 
 import java.awt.image.ColorModel;
 

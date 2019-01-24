@@ -26,9 +26,7 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.ij.process;
-
-import ij.process.FloatProcessor;
+package ij.process;
 
 import java.awt.image.ColorModel;
 
@@ -40,6 +38,9 @@ import java.awt.image.ColorModel;
  * pixels from display (assuming the LUT has black for 0). -Infinity is ignored by ImageJ for most
  * FloatProcessor functionality (histograms, min/max value, etc). This is not the case for NaN which
  * breaks ImageJ data display.
+ *
+ * <p>Note: This is not a native ImageJ class but must exist in the {@code ij.process} package to
+ * override package private methods.
  *
  * @see FloatProcessor
  */
@@ -142,6 +143,10 @@ public class InfinityMappedFloatProcessor extends FloatProcessor {
 
   @Override
   protected byte[] create8BitImage() {
+    // In previous versions this method was protected. In ImageJ 1.52i it has changed to be
+    // package private. This class has been moved into the ij.process package to support
+    // the functionality.
+
     // Map all values to the range 1-255. Negative infinity maps to zero.
     final int size = width * height;
     if (pixels8 == null) {

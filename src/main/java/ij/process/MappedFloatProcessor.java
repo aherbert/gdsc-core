@@ -26,9 +26,7 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.ij.process;
-
-import ij.process.FloatProcessor;
+package ij.process;
 
 import java.awt.image.ColorModel;
 
@@ -40,6 +38,9 @@ import java.awt.image.ColorModel;
  * <p>Optionally +0.0f can be set as the min value mapped to 1. In this case -0.0f is still mapped
  * to 0. This allows for example display of the results of a probability calculation where 0 is a
  * valid display value. -0.0f can be used when no probability exists.
+ *
+ * <p>Note: This is not a native ImageJ class but must exist in the {@code ij.process} package to
+ * override package private methods.
  *
  * @see FloatProcessor
  */
@@ -146,14 +147,16 @@ public class MappedFloatProcessor extends FloatProcessor {
   // scale from float to 8-bits
   @Override
   protected byte[] create8BitImage() {
-    /*
-     * Map all non zero values to the range 1-255.
-     *
-     * Optionally map +zero to the range 1-255 as well.
-     *
-     * Must find the minimum value above zero. This will be mapped to 1. Or special case is mapping
-     * +0f to 1 but -0f to 0.
-     */
+    // In previous versions this method was protected. In ImageJ 1.52i it has changed to be
+    // package private. This class has been moved into the ij.process package to support
+    // the functionality.
+
+    // Map all non zero values to the range 1-255.
+    //
+    // Optionally map +zero to the range 1-255 as well.
+    //
+    // Must find the minimum value above zero. This will be mapped to 1. Or special case is mapping
+    // +0f to 1 but -0f to 0.
 
     final float[] pixels = (float[]) getPixels();
     final int size = pixels.length;
