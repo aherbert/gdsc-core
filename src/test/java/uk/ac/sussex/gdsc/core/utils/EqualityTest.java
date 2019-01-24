@@ -388,7 +388,7 @@ public class EqualityTest {
 
     final double error = DoubleEquality.relativeError(ts.get(-1).getMean(), ts.get(-2).getMean());
     logger.log(TestLogUtils.getResultRecord(error < 0.2,
-        "Float and Double relative equality not the same speed: Error=" + error));
+        "Float and Double relative equality not the same speed: Error=%f", error));
   }
 
   private static void relative(FloatEquality equality, float[] data, float[] data2) {
