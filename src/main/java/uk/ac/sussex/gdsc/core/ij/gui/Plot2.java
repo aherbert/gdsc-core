@@ -50,7 +50,8 @@ public class Plot2 extends Plot {
    * @param yValues the y values
    */
   public Plot2(String title, String xLabel, String yLabel, float[] xValues, float[] yValues) {
-    super(title, xLabel, yLabel, xValues, yValues);
+    super(title, xLabel, yLabel);
+    addPoints(xValues, yValues, Plot.LINE);
   }
 
   /**
@@ -63,22 +64,8 @@ public class Plot2 extends Plot {
    * @param yValues the y values
    */
   public Plot2(String title, String xLabel, String yLabel, double[] xValues, double[] yValues) {
-    super(title, xLabel, yLabel, xValues, yValues);
-  }
-
-  /**
-   * Instantiates a new plot 2.
-   *
-   * @param dummy the dummy
-   * @param title the title
-   * @param xLabel the x label
-   * @param yLabel the y label
-   * @param xValues the x values
-   * @param yValues the y values
-   */
-  public Plot2(String dummy, String title, String xLabel, String yLabel, float[] xValues,
-      float[] yValues) {
-    super(title, xLabel, yLabel, xValues, yValues);
+    super(title, xLabel, yLabel);
+    addPoints(xValues, yValues, Plot.LINE);
   }
 
   /**
@@ -89,7 +76,7 @@ public class Plot2 extends Plot {
    * @param yLabel the y label
    */
   public Plot2(String title, String xLabel, String yLabel) {
-    super(title, xLabel, yLabel, (float[]) null, (float[]) null);
+    super(title, xLabel, yLabel);
   }
 
   /**
@@ -101,7 +88,7 @@ public class Plot2 extends Plot {
    * @param flags the flags
    */
   public Plot2(String title, String xLabel, String yLabel, int flags) {
-    super(title, xLabel, yLabel, (float[]) null, (float[]) null, flags);
+    super(title, xLabel, yLabel, flags);
   }
 
   /**
@@ -116,7 +103,8 @@ public class Plot2 extends Plot {
    */
   public Plot2(String title, String xLabel, String yLabel, float[] xValues, float[] yValues,
       int flags) {
-    super(title, xLabel, yLabel, xValues, yValues, flags);
+    super(title, xLabel, yLabel, flags);
+    addPoints(xValues, yValues, Plot.LINE);
   }
 
   /**
@@ -131,7 +119,8 @@ public class Plot2 extends Plot {
    */
   public Plot2(String title, String xLabel, String yLabel, double[] xValues, double[] yValues,
       int flags) {
-    super(title, xLabel, yLabel, xValues, yValues, flags);
+    super(title, xLabel, yLabel, flags);
+    addPoints(xValues, yValues, Plot.LINE);
   }
 
   /**
