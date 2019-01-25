@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
+
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.AhrensDieterExponentialSampler;
 import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
@@ -36,12 +38,8 @@ import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
  * Sampling from a <a href="https://en.wikipedia.org/wiki/Geometric_distribution">geometric
  * distribution</a>.
  *
- * <p>This distribution samples the number of failures before the first success.
- *
- * <p>Computes the sample using an exponential distribution. If X is an exponentially distributed
- * random variable with parameter λ, then Y = floor(X) is a geometrically distributed random
- * variable with parameter p = 1 − e<sup>−λ</sup> (thus λ = −ln(1 − p)) and taking values in the set
- * {0, 1, 2, ...}.
+ * <p>This distribution samples the number of failures before the first success taking values in the
+ * set {0, 1, 2, ...}.
  *
  * @see <a
  *      href="https://en.wikipedia.org/wiki/Geometric_distribution#Related_distributions">geometric
@@ -50,8 +48,8 @@ import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
  * @since 2.0
  */
 public class GeometricSampler implements DiscreteSampler {
-  /** The mean of this distribution. */
-  private final double mean;
+  /** The probability of success. */
+  private final double probabilityOfSuccess;
   /** The sampler for the geometric distribution. */
   private final AhrensDieterExponentialSampler exponentialSampler;
 
@@ -60,31 +58,19 @@ public class GeometricSampler implements DiscreteSampler {
    * {@code k=[0, 1, 2, ...]} where {@code k} indicates the number of failures before the first
    * success.
    *
-   * <p>The mean is equal to {@code (1 - p) / p} where {@code p} is the probability of a successful
-   * trial.
-   *
-   * <p>Note: The mean must be strictly positive.
-   *
    * @param rng Generator of uniformly distributed random numbers
-   * @param mean The mean of this distribution
-   * @throws IllegalArgumentException if the mean is unsupported (e.g. negative, zero or infinite)
+   * @param probabilityOfSuccess The probability of success
+   * @throws IllegalArgumentException if {@code probabilityOfSuccess} is not in the range [0 <
+   *         probabilityOfSuccess <= 1]
    */
-  public GeometricSampler(UniformRandomProvider rng, double mean) {
-    if (mean <= 0) {
-      throw new IllegalArgumentException("Mean must be strictly positive: " + mean);
-    }
-    this.mean = mean;
+  public GeometricSampler(UniformRandomProvider rng, double probabilityOfSuccess) {
+    ValidationUtils.checkArgument(probabilityOfSuccess > 0 && probabilityOfSuccess <= 1,
+        "Probability of success must be in the range [0 < p <= 1]: %f" + probabilityOfSuccess);
+    this.probabilityOfSuccess = probabilityOfSuccess;
     // Use a related exponential distribution:
-    // λ = −ln(1 − p)
+    // λ = −ln(1 − probabilityOfSuccess)
     // exponential mean = 1 / λ
-    final double exponentialMean = 1.0 / (-Math.log(1.0 - getP(mean)));
-    if (!Double.isFinite(exponentialMean)) {
-      // Note on validation:
-      // If the mean is large then p will approach 0 and the log function will approach 0.
-      // This will result in the exponential mean approaching infinity so check this does not
-      // occur.
-      throw new IllegalArgumentException("Unsupported mean: " + mean);
-    }
+    final double exponentialMean = 1.0 / (-Math.log(1.0 - probabilityOfSuccess));
     exponentialSampler = new AhrensDieterExponentialSampler(rng, exponentialMean);
   }
 
@@ -94,31 +80,32 @@ public class GeometricSampler implements DiscreteSampler {
    * <p>This is equal to {@code (1 - p) / p} where {@code p} is the probability of a successful
    * trial.
    *
+   * @param probabilityOfSuccess the probability of success
    * @return the mean
    */
-  public double getMean() {
-    return mean;
+  public static double getMean(double probabilityOfSuccess) {
+    return (1 - probabilityOfSuccess) / probabilityOfSuccess;
+  }
+
+  /**
+   * Gets the probability of success.
+   *
+   * <p>Computed as {@code 1 / (1 + mean)}.
+   *
+   * @param mean the mean
+   * @return the probability of success
+   */
+  public static double getProbabilityOfSuccess(double mean) {
+    return 1 / (1 + mean);
   }
 
   /**
    * Gets the probability of a successful trial.
    *
-   * @return the success probability
+   * @return the probability of success
    */
-  public double getP() {
-    return getP(mean);
-  }
-
-  /**
-   * Gets the success probability. Computed as {@code 1 / (1 + mean)}.
-   *
-   * @param mean the mean
-   * @return the success probability
-   */
-  private static double getP(double mean) {
-    // Geometric distribution:
-    // mean = (1 - p) / p
-    return 1 / (1 + mean);
+  public double getProbabilityOfSuccess() {
+    return probabilityOfSuccess;
   }
 
   /**

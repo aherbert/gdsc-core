@@ -32,10 +32,23 @@ public class GeometricSamplerTest {
   @Test
   public void testConstructor() {
     final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
-    for (double mean : new double[] {0.5, 1, 2}) {
-      GeometricSampler sampler = new GeometricSampler(rng, mean);
-      Assertions.assertEquals(mean, sampler.getMean(), "mean");
-      Assertions.assertEquals(1.0 / (1.0 + mean), sampler.getP(), "p");
+    for (double p : new double[] {0.1, 0.5, 1}) {
+      GeometricSampler sampler = new GeometricSampler(rng, p);
+      Assertions.assertEquals(p, sampler.getProbabilityOfSuccess(), "p");
+    }
+  }
+
+  @Test
+  public void testGetMean() {
+    for (double p : new double[] {0.1, 0.5, 1}) {
+      Assertions.assertEquals((1.0 - p) / p, GeometricSampler.getMean(p));
+    }
+  }
+
+  @Test
+  public void testGetProbabilityOfSuccess() {
+    for (double mean : new double[] {0.5, 1, 2, 10, 30}) {
+      Assertions.assertEquals(1 / (1.0 + mean), GeometricSampler.getProbabilityOfSuccess(mean));
     }
   }
 
@@ -43,11 +56,11 @@ public class GeometricSamplerTest {
   @Test
   public void testConstructorThrows() {
     final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
-    for (double mean : new double[] {0, Double.NaN, Double.POSITIVE_INFINITY,
+    for (double p : new double[] {0, 1.1, Double.NaN, Double.POSITIVE_INFINITY,
         Double.NEGATIVE_INFINITY, Double.MAX_VALUE}) {
       Assertions.assertThrows(IllegalArgumentException.class, () -> {
-        new GeometricSampler(rng, mean);
-      }, () -> "mean = " + mean);
+        new GeometricSampler(rng, p);
+      }, () -> "p = " + p);
     }
   }
 
@@ -60,15 +73,13 @@ public class GeometricSamplerTest {
 
   private static void testSamples(double mean) {
     // Create empirical distribution
-    final double p = 1.0 / (1.0 + mean);
+    final double p = GeometricSampler.getProbabilityOfSuccess(mean);
+    org.apache.commons.math3.distribution.GeometricDistribution gd =
+        new org.apache.commons.math3.distribution.GeometricDistribution(null, p);
+    final int maxK = gd.inverseCumulativeProbability(1 - 1e-6);
     final TDoubleArrayList list = new TDoubleArrayList();
-    for (int k = 0;; k++) {
-      double pmf = Math.pow(1 - p, k) * p;
-      list.add(pmf);
-      double cdf = 1 - Math.pow(1 - p, k + 1);
-      if (cdf > 1 - 1e-6) {
-        break;
-      }
+    for (int k = 0; k <= maxK; k++) {
+      list.add(gd.probability(k));
     }
 
     final double[] pmf = list.toArray();
@@ -77,7 +88,7 @@ public class GeometricSamplerTest {
     // Sample
     final int repeats = 100000;
     final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
-    GeometricSampler sampler = new GeometricSampler(rng, mean);
+    GeometricSampler sampler = new GeometricSampler(rng, p);
     for (int i = 0; i < repeats; i++) {
       int sample = sampler.sample();
       if (sample < histogram.length) {
@@ -94,8 +105,8 @@ public class GeometricSamplerTest {
     final ChiSquareTest chi = new ChiSquareTest();
     final double pvalue = chi.chiSquareTest(pmf, histogram);
     final boolean reject = pvalue < 0.001;
-    logger.log(TestLogUtils.getResultRecord(!reject,
-        () -> String.format("Mean %s, chiSq p = %s (reject=%b)", mean, pvalue, reject)));
+    logger.log(TestLogUtils.getResultRecord(!reject, () -> String
+        .format("mean %s, p %s, chiSq p-value = %s (reject=%b)", mean, p, pvalue, reject)));
     // This will sometimes fail due to randomness so do not assert
     // Assertions.assertFalse(reject);
   }
