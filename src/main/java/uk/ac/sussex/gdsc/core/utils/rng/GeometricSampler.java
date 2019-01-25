@@ -30,9 +30,10 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
+import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.distribution.AhrensDieterExponentialSampler;
-import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
+import org.apache.commons.rng.sampling.distribution.DiscreteInverseCumulativeProbabilityFunction;
+import org.apache.commons.rng.sampling.distribution.InverseTransformDiscreteSampler;
 
 /**
  * Sampling from a <a href="https://en.wikipedia.org/wiki/Geometric_distribution">geometric
@@ -47,11 +48,74 @@ import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
  *
  * @since 2.0
  */
-public class GeometricSampler implements DiscreteSampler {
+public class GeometricSampler extends InverseTransformDiscreteSampler {
   /** The probability of success. */
   private final double probabilityOfSuccess;
-  /** The sampler for the geometric distribution. */
-  private final AhrensDieterExponentialSampler exponentialSampler;
+
+  /**
+   * Define the inverse cumulative probability function for the Geometric distribution when the
+   * probability of success is 1.
+   */
+  private static class Geometric1DiscreteInverseCumulativeProbabilityFunction
+      implements DiscreteInverseCumulativeProbabilityFunction {
+
+    /** An instance. */
+    static final Geometric1DiscreteInverseCumulativeProbabilityFunction INSTANCE =
+        new Geometric1DiscreteInverseCumulativeProbabilityFunction();
+
+    @Override
+    public int inverseCumulativeProbability(double cumulativeProbability) {
+      // When p=1 then the sample is always 0
+      return 0;
+    }
+
+    @Override
+    public String toString() {
+      return "Geometric";
+    }
+  }
+
+  /**
+   * Define the inverse cumulative probability function for the Geometric distribution.
+   *
+   * <p>Adapted from org.apache.commons.math3.distribution.GeometricDistribution.
+   */
+  private static class GeometricDiscreteInverseCumulativeProbabilityFunction
+      implements DiscreteInverseCumulativeProbabilityFunction {
+
+    /**
+     * {@code log(1 - p)} where p is the probability of success.
+     */
+    private final double log1mProbabilityOfSuccess;
+
+    GeometricDiscreteInverseCumulativeProbabilityFunction(double probabilityOfSuccess) {
+      checkProbabilityOfSuccess(probabilityOfSuccess);
+      log1mProbabilityOfSuccess = FastMath.log1p(-probabilityOfSuccess);
+    }
+
+    @Override
+    public int inverseCumulativeProbability(double cumulativeProbability) {
+      if (cumulativeProbability == 1) {
+        // Avoid log1p(-1) which is Double.NEGATIVE_INFINITY
+        return Integer.MAX_VALUE;
+      }
+      // This is the equivalent of floor(log(u)/ln(1-p))
+      // where:
+      // u = cumulative probability
+      // p = probability of success
+      // See: https://en.wikipedia.org/wiki/Geometric_distribution#Related_distributions
+      // ---
+      // Note: if cumulativeProbability == 0 then log1p(-0) is zero and the result
+      // after the range check is 0.
+      return Math.max(0,
+          (int) Math.ceil(FastMath.log1p(-cumulativeProbability) / log1mProbabilityOfSuccess - 1));
+    }
+
+    @Override
+    public String toString() {
+      return "Geometric";
+    }
+  }
 
   /**
    * Instantiates a new geometric distribution sampler. The samples will be provided in the set
@@ -64,38 +128,63 @@ public class GeometricSampler implements DiscreteSampler {
    *         probabilityOfSuccess <= 1]
    */
   public GeometricSampler(UniformRandomProvider rng, double probabilityOfSuccess) {
-    ValidationUtils.checkArgument(probabilityOfSuccess > 0 && probabilityOfSuccess <= 1,
-        "Probability of success must be in the range [0 < p <= 1]: %f" + probabilityOfSuccess);
+    super(rng, createFunction(probabilityOfSuccess));
     this.probabilityOfSuccess = probabilityOfSuccess;
-    // Use a related exponential distribution:
-    // λ = −ln(1 − probabilityOfSuccess)
-    // exponential mean = 1 / λ
-    final double exponentialMean = 1.0 / (-Math.log(1.0 - probabilityOfSuccess));
-    exponentialSampler = new AhrensDieterExponentialSampler(rng, exponentialMean);
   }
 
   /**
-   * Gets the mean.
+   * Creates the function.
+   *
+   * @param probabilityOfSuccess the probability of success
+   * @return the discrete inverse cumulative probability function
+   */
+  private static DiscreteInverseCumulativeProbabilityFunction
+      createFunction(double probabilityOfSuccess) {
+    if (probabilityOfSuccess == 1) {
+      return Geometric1DiscreteInverseCumulativeProbabilityFunction.INSTANCE;
+    }
+    return new GeometricDiscreteInverseCumulativeProbabilityFunction(probabilityOfSuccess);
+  }
+
+  /**
+   * Factory method to create a sampler from the mean of the distribution.
+   *
+   * @param rng Generator of uniformly distributed random numbers
+   * @param mean the mean
+   * @return the geometric sampler
+   * @throws IllegalArgumentException if {@code mean} is not positive
+   */
+  public static GeometricSampler createFromMean(UniformRandomProvider rng, double mean) {
+    return new GeometricSampler(rng, getProbabilityOfSuccess(mean));
+  }
+
+  /**
+   * Gets the mean of the Geometric distribution from the probability of success.
    *
    * <p>This is equal to {@code (1 - p) / p} where {@code p} is the probability of a successful
    * trial.
    *
    * @param probabilityOfSuccess the probability of success
    * @return the mean
+   * @throws IllegalArgumentException if {@code probabilityOfSuccess} is not in the range [0 <
+   *         probabilityOfSuccess <= 1]
    */
   public static double getMean(double probabilityOfSuccess) {
+    checkProbabilityOfSuccess(probabilityOfSuccess);
     return (1 - probabilityOfSuccess) / probabilityOfSuccess;
   }
 
   /**
-   * Gets the probability of success.
+   * Gets the probability of success of the Geometric distribution from the mean.
    *
    * <p>Computed as {@code 1 / (1 + mean)}.
    *
    * @param mean the mean
    * @return the probability of success
+   * @throws IllegalArgumentException if {@code mean} is not positive
    */
   public static double getProbabilityOfSuccess(double mean) {
+    ValidationUtils.checkPositive(mean, "Mean");
     return 1 / (1 + mean);
   }
 
@@ -108,15 +197,8 @@ public class GeometricSampler implements DiscreteSampler {
     return probabilityOfSuccess;
   }
 
-  /**
-   * Create a sample from a geometric distribution.
-   *
-   * <p>The sample will take the values in the set {0, 1, 2, ...}, equivalent to the number of
-   * failures before the first success.
-   */
-  @Override
-  public int sample() {
-    // Return the floor of the exponential sample
-    return (int) Math.floor(exponentialSampler.sample());
+  private static void checkProbabilityOfSuccess(double probabilityOfSuccess) {
+    ValidationUtils.checkArgument(probabilityOfSuccess > 0 && probabilityOfSuccess <= 1,
+        "Probability of success must be in the range [0 < p <= 1]: %f" + probabilityOfSuccess);
   }
 }

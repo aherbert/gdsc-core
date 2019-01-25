@@ -35,6 +35,7 @@ public class GeometricSamplerTest {
     for (double p : new double[] {0.1, 0.5, 1}) {
       GeometricSampler sampler = new GeometricSampler(rng, p);
       Assertions.assertEquals(p, sampler.getProbabilityOfSuccess(), "p");
+      Assertions.assertTrue(sampler.toString().contains("Geometric"), "Name missing Geometric");
     }
   }
 
@@ -88,7 +89,7 @@ public class GeometricSamplerTest {
     // Sample
     final int repeats = 100000;
     final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
-    GeometricSampler sampler = new GeometricSampler(rng, p);
+    GeometricSampler sampler = GeometricSampler.createFromMean(rng, mean);
     for (int i = 0; i < repeats; i++) {
       int sample = sampler.sample();
       if (sample < histogram.length) {
