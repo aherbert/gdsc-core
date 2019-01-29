@@ -30,7 +30,6 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 
-import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.DiscreteInverseCumulativeProbabilityFunction;
 import org.apache.commons.rng.sampling.distribution.InverseTransformDiscreteSampler;
@@ -80,7 +79,7 @@ public class GeometricSampler extends InverseTransformDiscreteSampler {
    *
    * <p>Adapted from org.apache.commons.math3.distribution.GeometricDistribution.
    */
-  private static class GeometricDiscreteInverseCumulativeProbabilityFunction
+  public static class GeometricDiscreteInverseCumulativeProbabilityFunction
       implements DiscreteInverseCumulativeProbabilityFunction {
 
     /**
@@ -88,17 +87,18 @@ public class GeometricSampler extends InverseTransformDiscreteSampler {
      */
     private final double log1mProbabilityOfSuccess;
 
-    GeometricDiscreteInverseCumulativeProbabilityFunction(double probabilityOfSuccess) {
+    /**
+     * Instantiates a new geometric discrete inverse cumulative probability function.
+     *
+     * @param probabilityOfSuccess the probability of success
+     */
+    public GeometricDiscreteInverseCumulativeProbabilityFunction(double probabilityOfSuccess) {
       checkProbabilityOfSuccess(probabilityOfSuccess);
-      log1mProbabilityOfSuccess = FastMath.log1p(-probabilityOfSuccess);
+      log1mProbabilityOfSuccess = Math.log1p(-probabilityOfSuccess);
     }
 
     @Override
     public int inverseCumulativeProbability(double cumulativeProbability) {
-      if (cumulativeProbability == 1) {
-        // Avoid log1p(-1) which is Double.NEGATIVE_INFINITY
-        return Integer.MAX_VALUE;
-      }
       // This is the equivalent of floor(log(u)/ln(1-p))
       // where:
       // u = cumulative probability
@@ -107,8 +107,10 @@ public class GeometricSampler extends InverseTransformDiscreteSampler {
       // ---
       // Note: if cumulativeProbability == 0 then log1p(-0) is zero and the result
       // after the range check is 0.
+      // Note: if cumulativeProbability == 1 then log1p(-1) is negative infinity, the result of
+      // the divide is positive infinity and the result after the range check is Integer.MAX_VALUE.
       return Math.max(0,
-          (int) Math.ceil(FastMath.log1p(-cumulativeProbability) / log1mProbabilityOfSuccess - 1));
+          (int) Math.ceil(Math.log1p(-cumulativeProbability) / log1mProbabilityOfSuccess - 1));
     }
 
     @Override

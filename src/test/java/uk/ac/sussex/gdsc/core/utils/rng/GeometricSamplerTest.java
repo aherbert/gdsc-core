@@ -1,5 +1,6 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import uk.ac.sussex.gdsc.core.utils.rng.GeometricSampler.GeometricDiscreteInverseCumulativeProbabilityFunction;
 import uk.ac.sussex.gdsc.test.utils.TestLogUtils;
 
 import gnu.trove.list.array.TDoubleArrayList;
@@ -27,6 +28,17 @@ public class GeometricSamplerTest {
   @AfterAll
   public static void afterAll() {
     logger = null;
+  }
+
+  @Test
+  public void testGeometricDiscreteInverseCumulativeProbabilityFunction() {
+    for (double p : new double[] {0.1, 0.5, 0.99999}) {
+      GeometricDiscreteInverseCumulativeProbabilityFunction fun =
+          new GeometricDiscreteInverseCumulativeProbabilityFunction(p);
+      // Test the edge cases
+      Assertions.assertEquals(0, fun.inverseCumulativeProbability(0), "cumul p=0");
+      Assertions.assertEquals(Integer.MAX_VALUE, fun.inverseCumulativeProbability(1), "cumul p=1");
+    }
   }
 
   @Test
