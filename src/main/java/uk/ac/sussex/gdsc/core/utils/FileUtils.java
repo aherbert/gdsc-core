@@ -32,6 +32,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -225,5 +226,23 @@ public final class FileUtils {
   public static String addFileSeparator(String directory) {
     return (directory.endsWith("/") || directory.endsWith("\\")) ? directory
         : directory + File.separatorChar;
+  }
+
+  /**
+   * Creates the parent of the specified path.
+   *
+   * <p>Does nothing if the parent is null, or already exists.
+   *
+   * @param path the path
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  public static void createParent(Path path) throws IOException {
+    if (path.getParent() != null) {
+      try {
+        Files.createDirectories(path.getParent());
+      } catch (final SecurityException ex) {
+        throw new IOException("Failed to create parent directory: " + path.getParent(), ex);
+      }
+    }
   }
 }
