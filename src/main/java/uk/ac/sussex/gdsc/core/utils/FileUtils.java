@@ -233,6 +233,8 @@ public final class FileUtils {
    *
    * <p>Does nothing if the parent is null, or already exists.
    *
+   * <p>Note: Any {@link SecurityException} is wrapped with an {@link IOException}.
+   *
    * @param path the path
    * @throws IOException Signals that an I/O exception has occurred.
    */
