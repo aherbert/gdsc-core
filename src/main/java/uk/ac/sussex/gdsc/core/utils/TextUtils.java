@@ -222,6 +222,18 @@ public final class TextUtils {
   }
 
   /**
+   * Get the length of the string.
+   *
+   * <p>A null string will return zero.
+   *
+   * @param string the string
+   * @return the length
+   */
+  public static int getLength(String string) {
+    return (string != null) ? string.length() : 0;
+  }
+
+  /**
    * Convert time in milliseconds into a nice string. Uses the format:
    *
    * <pre>
