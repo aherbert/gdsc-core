@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -101,8 +102,10 @@ public class FileUtilsTest {
   }
 
   private static void canRemoveExtension(String expected, String filename) {
-    Assertions.assertEquals(expected, FileUtils.removeExtension(filename),
-        () -> "Filename = " + filename);
+    final String expected2 = sanitise(expected);
+    final String filename2 = sanitise(filename);
+    Assertions.assertEquals(expected2, FileUtils.removeExtension(filename2),
+        () -> "Filename = " + filename2);
   }
 
   @Test
@@ -127,10 +130,12 @@ public class FileUtilsTest {
   }
 
   private static void canGetExtensionAndLength(String expected, String filename) {
-    Assertions.assertEquals(expected, FileUtils.getExtension(filename),
-        () -> "Bad extension : Filename = " + filename);
-    Assertions.assertEquals(expected.length(), FileUtils.getExtensionLength(filename),
-        () -> "Bad extension length : Filename = " + filename);
+    final String expected2 = sanitise(expected);
+    final String filename2 = sanitise(filename);
+    Assertions.assertEquals(expected2, FileUtils.getExtension(filename2),
+        () -> "Bad extension : Filename = " + filename2);
+    Assertions.assertEquals(expected2.length(), FileUtils.getExtensionLength(filename2),
+        () -> "Bad extension length : Filename = " + filename2);
   }
 
   @Test
@@ -160,8 +165,10 @@ public class FileUtilsTest {
   }
 
   private static void canReplaceExtension(String expected, String filename, String extension) {
-    Assertions.assertEquals(expected, FileUtils.replaceExtension(filename, extension),
-        () -> "Filename = " + filename + ", extension = " + extension);
+    final String expected2 = sanitise(expected);
+    final String filename2 = sanitise(filename);
+    Assertions.assertEquals(expected2, FileUtils.replaceExtension(filename2, extension),
+        () -> "Filename = " + filename2 + ", extension = " + extension);
   }
 
   @Test
@@ -182,7 +189,38 @@ public class FileUtilsTest {
 
   private static void canAddExtensionIfAbsentExtension(String expected, String filename,
       String extension) {
-    Assertions.assertEquals(expected, FileUtils.addExtensionIfAbsent(filename, extension),
-        () -> "Filename = " + filename + ", extension = " + extension);
+    final String expected2 = sanitise(expected);
+    final String filename2 = sanitise(filename);
+    Assertions.assertEquals(expected2, FileUtils.addExtensionIfAbsent(filename2, extension),
+        () -> "Filename = " + filename2 + ", extension = " + extension);
+  }
+
+  @Test
+  public void canGetName() {
+    canGetName("", null);
+    canGetName("", "");
+    canGetName("", "/");
+    canGetName("", "//");
+    canGetName("a", "a//");
+    canGetName("b", "a/b/");
+    canGetName("c", "a/b/c");
+    canGetName("c", "/b/c");
+    canGetName("c", "//c");
+  }
+
+  private static void canGetName(String expected, String path) {
+    final String expected2 = sanitise(expected);
+    final String path2 = sanitise(path);
+    Assertions.assertEquals(expected2, FileUtils.getName(path2), () -> "Path = " + path2);
+  }
+
+  /**
+   * Sanitise the path to use the correct {@link File#separatorChar}.
+   *
+   * @param path the path
+   * @return the sanitised path
+   */
+  private static String sanitise(String path) {
+    return (path != null) ? path.replace('/', File.separatorChar) : null;
   }
 }

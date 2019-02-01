@@ -384,4 +384,43 @@ public final class FileUtils {
     }
     return replaceExtension(filename, extension);
   }
+
+  /**
+   * Returns the name of the file or directory. This is the text after the occurrence of the file
+   * separator character.
+   *
+   * <p>Note: Any trailing file separator characters are trimmed from the end of the path.
+   *
+   * <p>A null input for the path will be treated as the empty string.
+   *
+   * <pre>
+   * null         ==  ""
+   * ""           ==  ""
+   * "//"         ==  ""
+   * "file"       ==  "file"
+   * "dir/file"   ==  "file"
+   * "dir/dir2/"  ==  "dir2"
+   * "dir/dir2//" ==  "dir2"
+   * </pre>
+   *
+   * @param path the path
+   * @return The name of the file or directory denoted by this path, or the empty string
+   * @see File#separatorChar
+   */
+  public static String getName(String path) {
+    if (path == null) {
+      return "";
+    }
+    // Trim final separator characters
+    int length = path.length();
+    while (length > 0 && path.charAt(length - 1) == File.separatorChar) {
+      length--;
+    }
+    if (length == 0) {
+      return "";
+    }
+    // Find the next separator character
+    final int index = path.lastIndexOf(File.separatorChar, length - 1);
+    return path.substring(index + 1, length);
+  }
 }
