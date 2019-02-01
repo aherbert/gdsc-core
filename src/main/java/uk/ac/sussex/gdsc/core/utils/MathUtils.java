@@ -1438,4 +1438,25 @@ public final class MathUtils {
     result = result * result; // power8
     return result * result;
   }
+
+  /**
+   * Compute the average of two indices using integer arithmetic.
+   *
+   * <p>This uses unsigned right shift to ensure the result is positive and avoid overflow.
+   *
+   * <pre>
+   * {@code
+   * (index1 + index2) >>> 1
+   * }
+   * </pre>
+   *
+   * <p>Note: Does not check that the input indices are positive.
+   *
+   * @param index1 the first index
+   * @param index2 the second index
+   * @return the average index
+   */
+  public static int averageIndex(int index1, int index2) {
+    return (index1 + index2) >>> 1;
+  }
 }

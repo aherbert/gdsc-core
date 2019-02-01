@@ -53,4 +53,22 @@ public class MathsUtilsTest {
     Assertions.assertEquals("1000",
         MathUtils.roundUsingDecimalPlacesToBigDecimal(523, -3).toPlainString());
   }
+
+  @Test
+  public void canComputeAverageIndex() {
+    canComputeAverageIndex(0, 0);
+    canComputeAverageIndex(0, 1);
+    canComputeAverageIndex(0, 2);
+    canComputeAverageIndex(1, 2);
+    canComputeAverageIndex(1, 3);
+    canComputeAverageIndex(Integer.MAX_VALUE, 1);
+    canComputeAverageIndex(Integer.MAX_VALUE - 10, Integer.MAX_VALUE);
+    canComputeAverageIndex(Integer.MAX_VALUE, Integer.MAX_VALUE);
+  }
+
+  private static void canComputeAverageIndex(int index1, int index2) {
+    final long expected = ((long) index1 + (long) index2) / 2L;
+    Assertions.assertEquals(expected, MathUtils.averageIndex(index1, index2),
+        () -> "Index1=" + index1 + ", Index2=" + index2);
+  }
 }
