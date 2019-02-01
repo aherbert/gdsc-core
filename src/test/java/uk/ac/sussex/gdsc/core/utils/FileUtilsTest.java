@@ -78,4 +78,111 @@ public class FileUtilsTest {
 
     Assertions.assertNull(System.getSecurityManager(), "Failed to reset security manager");
   }
+
+  @Test
+  public void canRemoveExtension() {
+    canRemoveExtension("", null);
+    canRemoveExtension("", "");
+    canRemoveExtension("/", "/");
+    canRemoveExtension("./", "./");
+    canRemoveExtension("./", "./.");
+    canRemoveExtension("./", "./.e");
+    canRemoveExtension("./", "./.ex");
+    canRemoveExtension("./", "./.ext");
+    canRemoveExtension("./file", "./file");
+    canRemoveExtension("./file", "./file.");
+    canRemoveExtension("./file", "./file.e");
+    canRemoveExtension("./file", "./file.ex");
+    canRemoveExtension("./file", "./file.ext");
+    canRemoveExtension("./file.ext", "./file.ext.");
+    canRemoveExtension("./file.ext", "./file.ext.t");
+    canRemoveExtension("./file.ext", "./file.ext.tx");
+    canRemoveExtension("./file.ext", "./file.ext.txt");
+  }
+
+  private static void canRemoveExtension(String expected, String filename) {
+    Assertions.assertEquals(expected, FileUtils.removeExtension(filename),
+        () -> "Filename = " + filename);
+  }
+
+  @Test
+  public void canGetExtensionAndLength() {
+    canGetExtensionAndLength("", null);
+    canGetExtensionAndLength("", "");
+    canGetExtensionAndLength("", "/");
+    canGetExtensionAndLength("", "./");
+    canGetExtensionAndLength("", "./.");
+    canGetExtensionAndLength("e", "./.e");
+    canGetExtensionAndLength("ex", "./.ex");
+    canGetExtensionAndLength("ext", "./.ext");
+    canGetExtensionAndLength("", "./file");
+    canGetExtensionAndLength("", "./file.");
+    canGetExtensionAndLength("e", "./file.e");
+    canGetExtensionAndLength("ex", "./file.ex");
+    canGetExtensionAndLength("ext", "./file.ext");
+    canGetExtensionAndLength("", "./file.ext.");
+    canGetExtensionAndLength("t", "./file.ext.t");
+    canGetExtensionAndLength("tx", "./file.ext.tx");
+    canGetExtensionAndLength("txt", "./file.ext.txt");
+  }
+
+  private static void canGetExtensionAndLength(String expected, String filename) {
+    Assertions.assertEquals(expected, FileUtils.getExtension(filename),
+        () -> "Bad extension : Filename = " + filename);
+    Assertions.assertEquals(expected.length(), FileUtils.getExtensionLength(filename),
+        () -> "Bad extension length : Filename = " + filename);
+  }
+
+  @Test
+  public void canReplaceExtension() {
+    // Basic use case
+    canReplaceExtension("file.ext", "file", "ext");
+    canReplaceExtension("file.ext", "file.txt", "ext");
+    canReplaceExtension("file.ext", "file.", ".ext");
+    canReplaceExtension("file.ext", "file.txt", ".ext");
+
+    // Test it works as documented (i.e. an extension of '.' is a valid extsion)
+    canReplaceExtension("file.", "file.", ".");
+    canReplaceExtension("file.", "file.txt", ".");
+
+    canReplaceExtension("", null, null);
+    canReplaceExtension("", "", "");
+    canReplaceExtension("/", "/", "");
+    canReplaceExtension("/.ext", "/", "ext");
+    canReplaceExtension("/.ext", "/.", "ext");
+    canReplaceExtension("/file.ext", "/file.", "ext");
+    canReplaceExtension("/file.ext", "/file.txt", "ext");
+    canReplaceExtension("/file.extra.ext", "/file.extra.", "ext");
+    canReplaceExtension("/file.extra.ext", "/file.extra.txt", "ext");
+    canReplaceExtension("dir.extra/.ext", "dir.extra/", "ext");
+    canReplaceExtension("dir.extra/file.ext", "dir.extra/file", "ext");
+    canReplaceExtension("dir.extra/file.ext", "dir.extra/file.txt", "ext");
+  }
+
+  private static void canReplaceExtension(String expected, String filename, String extension) {
+    Assertions.assertEquals(expected, FileUtils.replaceExtension(filename, extension),
+        () -> "Filename = " + filename + ", extension = " + extension);
+  }
+
+  @Test
+  public void canAddExtensionIfAbsentExtension() {
+    canAddExtensionIfAbsentExtension("", null, null);
+    canAddExtensionIfAbsentExtension("", "", "");
+    canAddExtensionIfAbsentExtension("/", "/", "");
+    canAddExtensionIfAbsentExtension("/.ext", "/", "ext");
+    canAddExtensionIfAbsentExtension("/.ext", "/.", "ext");
+    canAddExtensionIfAbsentExtension("/file.ext", "/file.", "ext");
+    canAddExtensionIfAbsentExtension("/file.txt", "/file.txt", "ext");
+    canAddExtensionIfAbsentExtension("/file.extra.ext", "/file.extra.", "ext");
+    canAddExtensionIfAbsentExtension("/file.extra.txt", "/file.extra.txt", "ext");
+    canAddExtensionIfAbsentExtension("dir.extra/.ext", "dir.extra/", "ext");
+    canAddExtensionIfAbsentExtension("dir.extra/file.ext", "dir.extra/file", "ext");
+    canAddExtensionIfAbsentExtension("dir.extra/file.txt", "dir.extra/file.txt", "ext");
+  }
+
+  private static void canAddExtensionIfAbsentExtension(String expected, String filename,
+      String extension) {
+    Assertions.assertEquals(expected, FileUtils.addExtensionIfAbsent(filename, extension),
+        () -> "Filename = " + filename + ", extension = " + extension);
+  }
 }

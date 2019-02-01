@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,9 +43,10 @@ import java.util.logging.Logger;
  * <p>Any {@link IOException} is logged but not re-thrown.
  */
 public final class FileUtils {
-
   /** The logger. */
   private static final Logger logger = Logger.getLogger(FileUtils.class.getName());
+  /** The dot character '.'. */
+  private static final char DOT = '.';
 
   /**
    * No public construction.
@@ -204,7 +206,7 @@ public final class FileUtils {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   private static BufferedWriter openFile(String filename) throws IOException {
-    return Files.newBufferedWriter(new File(filename).toPath());
+    return Files.newBufferedWriter(Paths.get(filename));
   }
 
   /**
@@ -246,5 +248,140 @@ public final class FileUtils {
         throw new IOException("Failed to create parent directory: " + path.getParent(), ex);
       }
     }
+  }
+
+  /**
+   * Remove the filename extension. This is the text following the last dot ('.') character in the
+   * filename. Any dot characters before the last file separator character are ignored.
+   *
+   * <p>A null input will return the empty string.
+   *
+   * @param filename the filename
+   * @return the new filename
+   * @see File#separatorChar
+   */
+  public static String removeExtension(String filename) {
+    if (TextUtils.isNullOrEmpty(filename)) {
+      return "";
+    }
+    final int index = filename.lastIndexOf(DOT);
+    final int index2 = filename.lastIndexOf(File.separatorChar);
+    if (index > index2) {
+      return filename.substring(0, index);
+    }
+    return filename;
+  }
+
+  /**
+   * Get the filename extension. This is the text following the last dot ('.') character in the
+   * filename. Any dot characters before the last file separator character are ignored.
+   *
+   * <p>A null input will return the empty string.
+   *
+   * @param filename the filename
+   * @return the filename extension (or the empty string)
+   * @see File#separatorChar
+   */
+  public static String getExtension(String filename) {
+    if (filename != null) {
+      final int index = filename.lastIndexOf(DOT);
+      final int index2 = filename.lastIndexOf(File.separatorChar);
+      if (index > index2) {
+        return filename.substring(index + 1);
+      }
+    }
+    return "";
+  }
+
+  /**
+   * Get the length of the filename extension. This is the text following the last dot ('.')
+   * character in the filename. Any dot characters before the last file separator character are
+   * ignored.
+   *
+   * <p>A null input will return 0.
+   *
+   * @param filename the filename
+   * @return the length of the filename extension
+   * @see File#separatorChar
+   */
+  public static int getExtensionLength(String filename) {
+    if (filename != null) {
+      final int index = filename.lastIndexOf(DOT);
+      final int index2 = filename.lastIndexOf(File.separatorChar);
+      if (index > index2) {
+        return filename.length() - (index + 1);
+      }
+    }
+    return 0;
+  }
+
+  /**
+   * Replace the filename extension with the specified extension.his is the text following the last
+   * dot ('.') character in the filename. Any dot characters before the last file separator
+   * character are ignored.
+   *
+   * <p>If the extension is empty then the effect is the removal of any current extension.
+   *
+   * <p>A null input for the filename or extension will be treated as the empty string.
+   *
+   * <p>If the extension is missing the dot character at the start it is prefixed. The method does
+   * not check that the extension is only dot characters.
+   *
+   * @param filename the filename
+   * @param extension the extension
+   * @return the new filename
+   * @see File#separatorChar
+   */
+  public static String replaceExtension(String filename, String extension) {
+    int filenameLength = TextUtils.getLength(filename);
+    int extensionLength = TextUtils.getLength(extension);
+    final StringBuilder sb = new StringBuilder(filenameLength + extensionLength + 1);
+
+    if (filenameLength != 0) {
+      addFilenameWithoutExtension(sb, filename);
+    }
+    if (extensionLength != 0) {
+      addExtension(sb, extension);
+    }
+    return sb.toString();
+  }
+
+  private static void addFilenameWithoutExtension(StringBuilder sb, String filename) {
+    final int index = filename.lastIndexOf(DOT);
+    final int index2 = filename.lastIndexOf(File.separatorChar);
+    if (index > index2) {
+      sb.append(filename, 0, index);
+    } else {
+      sb.append(filename);
+    }
+  }
+
+  private static void addExtension(StringBuilder sb, String extension) {
+    if (extension.charAt(0) != DOT) {
+      sb.append(DOT);
+    }
+    sb.append(extension);
+  }
+
+  /**
+   * Adds the filename extension if currently absent. This is the text following the last dot ('.')
+   * character in the filename. Any dot characters before the last file separator character are
+   * ignored.
+   *
+   * <p>A null input for the filename or extension will be treated as the empty string.
+   *
+   * <p>If the extension is missing the dot character at the start it is prefixed. The method does
+   * not check that the extension is only dot characters.
+   * 
+   * @param filename the filename
+   * @param extension the extension (must not be empty)
+   * @return the string
+   * @see File#separatorChar
+   */
+  public static String addExtensionIfAbsent(String filename, String extension) {
+    if (getExtensionLength(filename) != 0) {
+      return filename;
+    }
+    return replaceExtension(filename, extension);
   }
 }

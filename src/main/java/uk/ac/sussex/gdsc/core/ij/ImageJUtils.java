@@ -70,7 +70,6 @@ import java.awt.Panel;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
@@ -134,9 +133,6 @@ public final class ImageJUtils {
 
   /** The interval (in milliseconds) between changes to update the ImageJ status bar. */
   private static final int STATUS_CHANGE_INTERVAL = 150;
-
-  /** The dot character '.'. */
-  private static final char DOT = '.';
 
   /** The last time to ImageJ status bar was updated. */
   private static long lastTime;
@@ -701,49 +697,6 @@ public final class ImageJUtils {
    */
   public static void clearSlowProgress() {
     IJ.showProgress(-1);
-  }
-
-  /**
-   * Replace the filename extension with the specified extension.
-   *
-   * @param filename the filename
-   * @param extension the extension
-   * @return the new filename
-   */
-  public static String replaceExtension(String filename, String extension) {
-    if (filename != null) {
-      final int index = filename.lastIndexOf('.');
-      final int index2 = filename.lastIndexOf(File.separatorChar);
-      final StringBuilder sb = new StringBuilder(filename.length() + extension.length());
-      if (index > index2) {
-        sb.append(filename, 0, index);
-      } else {
-        sb.append(filename);
-      }
-      if (extension.charAt(0) != DOT) {
-        sb.append(DOT);
-      }
-      sb.append(extension);
-      return sb.toString();
-    }
-    return filename;
-  }
-
-  /**
-   * Remove the filename extension.
-   *
-   * @param filename the filename
-   * @return the new filename
-   */
-  public static String removeExtension(String filename) {
-    if (filename != null) {
-      final int index = filename.lastIndexOf('.');
-      final int index2 = filename.lastIndexOf(File.separatorChar);
-      if (index > index2) {
-        return filename.substring(0, index);
-      }
-    }
-    return filename;
   }
 
   /**
