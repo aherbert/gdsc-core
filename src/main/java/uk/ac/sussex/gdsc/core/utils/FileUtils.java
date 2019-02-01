@@ -372,7 +372,7 @@ public final class FileUtils {
    *
    * <p>If the extension is missing the dot character at the start it is prefixed. The method does
    * not check that the extension is only dot characters.
-   * 
+   *
    * @param filename the filename
    * @param extension the extension (must not be empty)
    * @return the string
