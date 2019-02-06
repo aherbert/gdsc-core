@@ -35,15 +35,15 @@ import java.util.List;
 /**
  * Simple wrapper for a list of settings. Allows settings to be compared using equals().
  */
-public class Settings extends ArrayList<Object> {
-  private static final long serialVersionUID = -4023821382363386047L;
+public class SettingsList extends ArrayList<Object> {
+  private static final long serialVersionUID = 20190106L;
 
   /**
    * Instantiates a new list of settings.
    *
    * @param settings the settings
    */
-  public Settings(Object... settings) {
+  public SettingsList(Object... settings) {
     addAll(Arrays.asList(settings));
   }
 
