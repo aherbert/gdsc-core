@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  */
 public final class MemoryUtils {
 
-  /** The Constant runtime. */
+  /** The runtime for the currrent Java application. */
   private static final Runtime runtime = Runtime.getRuntime();
 
   /**

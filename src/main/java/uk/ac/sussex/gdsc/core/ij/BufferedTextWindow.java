@@ -44,6 +44,13 @@ public class BufferedTextWindow {
   public final Frame textWindow;
   private final TextPanel textPanel;
   private int count;
+
+  /**
+   * The count for the next flush opration.
+   *
+   * <p>This is initialised to the maximum count of rows where ImageJ will force recalculation of
+   * the column headers.
+   */
   private int nextFlush = 10;
   private int increment = 10;
 
@@ -81,6 +88,8 @@ public class BufferedTextWindow {
 
   /**
    * Flush the data to update the display and reset the next flush interval.
+   *
+   * <p>This method should be called if no more data will be sent to the table.
    */
   public void flush() {
     if (textPanel.isShowing()) {
@@ -100,6 +109,9 @@ public class BufferedTextWindow {
 
   /**
    * Sets the increment.
+   *
+   * <p>If set to zero then the {@link #flush()} will only be called once when the
+   * count reaches the largest row count used by ImageJ to auto-layout the columns.
    *
    * @param increment the increment to set.
    */
