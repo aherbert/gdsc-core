@@ -1129,4 +1129,87 @@ public final class ValidationUtils {
       throw new IllegalArgumentException(name + " length is zero");
     }
   }
+
+  /**
+   * Check the index is valid for the array. The index must be within the range zero, inclusive, to
+   * {@code size}, exclusive.
+   *
+   * @param <T> the array type
+   * @param index the index
+   * @param array the array
+   * @return the index
+   * @throws NullPointerException if the array is {@code null}
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public static <T> int checkIndex(int index, T[] array) {
+    return checkIndex(index, array, "index");
+  }
+
+  /**
+   * Check the index is valid for the array. The index must be within the range zero, inclusive, to
+   * {@code size}, exclusive.
+   *
+   * @param <T> the array type
+   * @param index the index
+   * @param array the array
+   * @param name the name of the index used in the error message
+   * @return the index
+   * @throws NullPointerException if the array is {@code null}
+   * @throws IndexOutOfBoundsException if the index is invalid
+   */
+  public static <T> int checkIndex(int index, T[] array, String name) {
+    return checkIndex(index, checkNotNull(array, "Validated array is null").length, name);
+  }
+
+  /**
+   * Check the index is valid for the array size. The index must be within the range zero,
+   * inclusive, to {@code size}, exclusive.
+   *
+   * @param index the index
+   * @param size the size
+   * @return the index
+   * @throws IndexOutOfBoundsException if the index is invalid
+   * @throws IllegalArgumentException if the size is negative
+   */
+  public static int checkIndex(int index, int size) {
+    return checkIndex(index, size, "index");
+  }
+
+  /**
+   * Check the index is valid for the array size. The index must be within the range zero,
+   * inclusive, to {@code size}, exclusive.
+   *
+   * @param index the index
+   * @param size the size
+   * @param name the name of the index used in the error message
+   * @return the index
+   * @throws IndexOutOfBoundsException if the index is invalid
+   * @throws IllegalArgumentException if the size is negative
+   */
+  public static int checkIndex(int index, int size, String name) {
+    if (index < 0 || index >= size) {
+      throw new IndexOutOfBoundsException(getIndexMessage(index, size, name));
+    }
+    return index;
+  }
+
+  /**
+   * Gets the message for a bad array index. This method assumes that the following is true:
+   * {@code index < 0 || index >= size}.
+   *
+   * @param index the index
+   * @param size the size
+   * @param name the name
+   * @return the index message
+   */
+  private static String getIndexMessage(int index, int size, String name) {
+    if (index < 0) {
+      return String.format("%s (%d) must not be negative", name, index);
+    }
+    if (size < 0) {
+      throw new IllegalArgumentException("negative size: " + size);
+    }
+    // index >= size
+    return String.format("%s (%d) must be less than size", name, index);
+  }
 }

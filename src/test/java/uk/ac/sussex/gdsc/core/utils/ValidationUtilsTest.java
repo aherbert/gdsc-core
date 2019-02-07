@@ -1047,4 +1047,35 @@ public class ValidationUtilsTest {
       ValidationUtils.checkArrayLength(new Object());
     }, "non-array input");
   }
+
+  @Test
+  public void canCheckArrayIndex() {
+    final Object o1 = new Object();
+    final Object[] array = {o1};
+    ValidationUtils.checkIndex(0, array);
+    Assertions.assertThrows(NullPointerException.class, () -> {
+      ValidationUtils.checkIndex(0, null);
+    }, "null input");
+    Assertions.assertThrows(IndexOutOfBoundsException.class, () -> {
+      ValidationUtils.checkIndex(-1, array);
+    }, "negative index");
+    Assertions.assertThrows(IndexOutOfBoundsException.class, () -> {
+      ValidationUtils.checkIndex(array.length, array);
+    }, "out-of-bounds index");
+  }
+
+  @Test
+  public void canCheckSizeIndex() {
+    int size = 1;
+    ValidationUtils.checkIndex(0, size);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> {
+      ValidationUtils.checkIndex(0, -1);
+    }, "negative size");
+    Assertions.assertThrows(IndexOutOfBoundsException.class, () -> {
+      ValidationUtils.checkIndex(-1, size);
+    }, "negative index");
+    Assertions.assertThrows(IndexOutOfBoundsException.class, () -> {
+      ValidationUtils.checkIndex(size, size);
+    }, "out-of-bounds index");
+  }
 }
