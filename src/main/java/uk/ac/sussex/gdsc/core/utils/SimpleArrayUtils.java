@@ -1341,4 +1341,19 @@ public final class SimpleArrayUtils {
     }
     return array;
   }
+
+  /**
+   * Get the value from the array if the index is valid, otherwise return a default value. The index
+   * must be within the range zero, inclusive, to {@code size}, exclusive.
+   *
+   * @param <T> the array type
+   * @param index the index
+   * @param array the array
+   * @param defaultValue the default value (can be null)
+   * @return the value
+   * @throws NullPointerException if the array is {@code null}
+   */
+  public static <T> T getIndex(int index, T[] array, @Nullable T defaultValue) {
+    return (index < 0 || index >= array.length) ? defaultValue : array[index];
+  }
 }

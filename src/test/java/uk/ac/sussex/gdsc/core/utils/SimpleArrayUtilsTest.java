@@ -952,4 +952,21 @@ public class SimpleArrayUtilsTest {
       Assertions.assertSame(data, newData, "Should not create a new array");
     }
   }
+
+  @Test
+  public void canGetIndex() {
+    final Object o1 = new Object();
+    final Object o2 = new Object();
+    final Object[] array = {o1};
+    Assertions.assertNull(SimpleArrayUtils.getIndex(-1, array, null),
+        "negative index, default null");
+    Assertions.assertNull(SimpleArrayUtils.getIndex(1, array, null),
+        "out-of-bounds index, default null");
+    Assertions.assertSame(o1, SimpleArrayUtils.getIndex(0, array, null),
+        "good index, default null");
+    Assertions.assertSame(o2, SimpleArrayUtils.getIndex(-1, array, o2),
+        "negative index, default object");
+    Assertions.assertSame(o2, SimpleArrayUtils.getIndex(1, array, o2),
+        "out-of-bounds index, default object");
+  }
 }
