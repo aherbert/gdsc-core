@@ -960,6 +960,7 @@ public class ExtendedGenericDialog extends GenericDialog {
 
     final JButton button = createOptionButton("Select a file");
     button.addActionListener(event -> {
+      Recorder.disablePathRecording();
       final String filename = ImageJUtils.getFilename(label, tf.getText());
       if (filename != null) {
         tf.setText(filename);
@@ -1004,6 +1005,7 @@ public class ExtendedGenericDialog extends GenericDialog {
 
     final JButton button = createOptionButton("Select a directory");
     button.addActionListener(event -> {
+      Recorder.disablePathRecording();
       final String filename = ImageJUtils.getDirectory(label, tf.getText());
       if (filename != null) {
         tf.setText(filename);
