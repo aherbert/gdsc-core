@@ -969,4 +969,36 @@ public class SimpleArrayUtilsTest {
     Assertions.assertSame(o2, SimpleArrayUtils.getIndex(1, array, o2),
         "out-of-bounds index, default object");
   }
+
+  @Test
+  public void canApplyIntOperator() {
+    final int[] data = {1, 2, 3};
+    final int[] expected = {2, 4, 6};
+    SimpleArrayUtils.apply(data, v -> v * 2);
+    Assertions.assertArrayEquals(expected, data);
+  }
+
+  @Test
+  public void canApplyLongOperator() {
+    final long[] data = {1, 2, 3};
+    final long[] expected = {2, 4, 6};
+    SimpleArrayUtils.apply(data, v -> v * 2);
+    Assertions.assertArrayEquals(expected, data);
+  }
+
+  @Test
+  public void canApplyFloatOperator() {
+    final float[] data = {1, 2, 3};
+    final float[] expected = {2, 4, 6};
+    SimpleArrayUtils.apply(data, v -> v * 2);
+    Assertions.assertArrayEquals(expected, data);
+  }
+
+  @Test
+  public void canApplyDoubleOperator() {
+    final double[] data = {1, 2, 3};
+    final double[] expected = {2, 4, 6};
+    SimpleArrayUtils.apply(data, v -> v * 2);
+    Assertions.assertArrayEquals(expected, data);
+  }
 }

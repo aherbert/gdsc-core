@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import uk.ac.sussex.gdsc.core.annotation.NotNull;
 import uk.ac.sussex.gdsc.core.annotation.Nullable;
+import uk.ac.sussex.gdsc.core.function.FloatUnaryOperator;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
@@ -37,6 +38,9 @@ import gnu.trove.set.hash.TIntHashSet;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Arrays;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntUnaryOperator;
+import java.util.function.LongUnaryOperator;
 
 /**
  * Class for manipulating arrays.
@@ -1355,5 +1359,53 @@ public final class SimpleArrayUtils {
    */
   public static <T> T getIndex(int index, T[] array, @Nullable T defaultValue) {
     return (index < 0 || index >= array.length) ? defaultValue : array[index];
+  }
+
+  /**
+   * Apply the operator to each value in the array.
+   *
+   * @param array the array
+   * @param operator the operator
+   */
+  public static void apply(int[] array, IntUnaryOperator operator) {
+    for (int i = 0; i < array.length; i++) {
+      array[i] = operator.applyAsInt(array[i]);
+    }
+  }
+
+  /**
+   * Apply the operator to each value in the array.
+   *
+   * @param array the array
+   * @param operator the operator
+   */
+  public static void apply(long[] array, LongUnaryOperator operator) {
+    for (int i = 0; i < array.length; i++) {
+      array[i] = operator.applyAsLong(array[i]);
+    }
+  }
+
+  /**
+   * Apply the operator to each value in the array.
+   *
+   * @param array the array
+   * @param operator the operator
+   */
+  public static void apply(float[] array, FloatUnaryOperator operator) {
+    for (int i = 0; i < array.length; i++) {
+      array[i] = operator.applyAsFloat(array[i]);
+    }
+  }
+
+  /**
+   * Apply the operator to each value in the array.
+   *
+   * @param array the array
+   * @param operator the operator
+   */
+  public static void apply(double[] array, DoubleUnaryOperator operator) {
+    for (int i = 0; i < array.length; i++) {
+      array[i] = operator.applyAsDouble(array[i]);
+    }
   }
 }
