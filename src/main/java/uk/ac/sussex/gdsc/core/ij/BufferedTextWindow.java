@@ -39,19 +39,21 @@ import java.awt.Frame;
  * Buffer to the ImageJ text window. Updates the display when 10 lines have been reached (to
  * auto-layout columns) and then at the specified increments.
  */
-public class BufferedTextWindow {
+public class BufferedTextWindow implements AutoCloseable {
   /** The text window. */
   public final Frame textWindow;
   private final TextPanel textPanel;
   private int count;
 
   /**
-   * The count for the next flush opration.
+   * The count for the next flush operation.
    *
    * <p>This is initialised to the maximum count of rows where ImageJ will force recalculation of
    * the column headers.
    */
   private int nextFlush = 10;
+
+  /** The number of rows that must be appended before an update of the display. */
   private int increment = 10;
 
   /**
@@ -99,7 +101,8 @@ public class BufferedTextWindow {
   }
 
   /**
-   * Gets the increment.
+   * Gets the increment. This is the number of calls to {@link #append(String)} before an update of
+   * the displayed text panel using {@link #flush()}.
    *
    * @return the increment.
    */
@@ -108,10 +111,11 @@ public class BufferedTextWindow {
   }
 
   /**
-   * Sets the increment.
+   * Sets the increment. This is the number of calls to {@link #append(String)} before an update of
+   * the displayed text panel using {@link #flush()}.
    *
-   * <p>If set to zero then the {@link #flush()} will only be called once when the
-   * count reaches the largest row count used by ImageJ to auto-layout the columns.
+   * <p>If set to zero then the {@link #flush()} will only be called once when the count reaches the
+   * largest row count used by ImageJ to auto-layout the columns.
    *
    * @param increment the increment to set.
    */
@@ -126,5 +130,15 @@ public class BufferedTextWindow {
    */
   public boolean isVisible() {
     return textWindow.isVisible();
+  }
+
+  /**
+   * Flushes the data to the display.
+   *
+   * @see #flush()
+   */
+  @Override
+  public void close() {
+    flush();
   }
 }
