@@ -172,7 +172,7 @@ public final class TextUtils {
    *
    * @param n The number of things
    * @param name The name of the thing
-   * @return "s" or empty string
+   * @return {@code n + " " + name} (name has "s" at the end if size is not 1)
    */
   public static String pleural(int n, String name) {
     return n + " " + name + ((Math.abs(n) == 1) ? "" : "s");
