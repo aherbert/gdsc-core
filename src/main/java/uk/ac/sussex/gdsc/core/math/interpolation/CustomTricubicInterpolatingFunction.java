@@ -893,7 +893,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
       // Not found. Convert to the insertion point.
       // We have already checked the upper bound and so we know the insertion point is
       // below 'high'.
-      index = (-index - 1);
+      index = -(index + 1);
     }
     // Return the index before. This makes index in the range 0 to high-1.
     return (index > 0) ? index - 1 : index;
