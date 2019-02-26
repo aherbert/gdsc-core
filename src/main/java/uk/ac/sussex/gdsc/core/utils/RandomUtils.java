@@ -33,7 +33,7 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.CombinationSampler;
 
 /**
- * Random number generator.
+ * Random utilities.
  */
 public final class RandomUtils {
 
@@ -95,7 +95,8 @@ public final class RandomUtils {
    * Sample k objects without replacement from n objects. This is done using an in-line Fisher-Yates
    * shuffle on an array of length n for the first k target indices.
    *
-   * <p>Note: Returns an empty array if n or k are less than 1.
+   * <p>Note: Returns an empty array if n or k are less than 1. Allows {@code k >= n} where an
+   * ascending array of size {@code n} is returned.
    *
    * @param k the k
    * @param n the n
@@ -107,7 +108,10 @@ public final class RandomUtils {
     if (n < 1 || k < 1) {
       return ArrayUtils.EMPTY_INT_ARRAY;
     }
-    return new CombinationSampler(rng, n , k).sample();
+    if (k >= n) {
+      return SimpleArrayUtils.natural(n);
+    }
+    return new CombinationSampler(rng, n, k).sample();
   }
 
   /**

@@ -29,6 +29,8 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
 import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.distribution.ContinuousUniformSampler;
+import org.apache.commons.rng.sampling.distribution.DiscreteUniformSampler;
 
 /**
  * A utility class for random numbers.
@@ -58,28 +60,20 @@ public final class RngUtils {
    * @return the value
    */
   public static double nextDouble(UniformRandomProvider rng, double min, double max) {
-    // Note that if max is below min then the signs are reversed and the result is valid.
-    return min + rng.nextDouble() * (max - min);
+    return new ContinuousUniformSampler(rng, min, max).sample();
   }
 
   /**
    * Compute a uniformly distributed value between {@code min} (inclusive) and {@code max}
    * (exclusive).
-   *
-   * <pre>
-   * {@code
-   * min + rng.nextInt(max - min);
-   * }
-   * </pre>
-   *
+   * 
    * @param rng the source of randomness
-   * @param min the minimum of the range
-   * @param max the maximum of the range
+   * @param min the minimum of the range (inclusive)
+   * @param max the maximum of the range (exclusive)
    * @return the value
-   * @throws IllegalArgumentException if {@code max} is less than {@code min} or overflow occurs
-   *         when computing {@code (max-min)}.
+   * @throws IllegalArgumentException if {@code min > max}.
    */
   public static int nextInt(UniformRandomProvider rng, int min, int max) {
-    return min + rng.nextInt(max - min);
+    return new DiscreteUniformSampler(rng, min, max - 1).sample();
   }
 }

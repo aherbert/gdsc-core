@@ -38,11 +38,9 @@ import org.apache.commons.rng.UniformRandomProvider;
  * {@link org.apache.commons.math3.random.RandomGenerator} interface.
  *
  * <p>Warning: It is not possible to set the seed.
- *
- * @author Alex Herbert
  */
 public class RandomGeneratorAdapter extends AbstractRandomGenerator {
-  private final UniformRandomProvider rg;
+  private final UniformRandomProvider rng;
 
   /**
    * Instantiates a new random generator adapter.
@@ -53,7 +51,29 @@ public class RandomGeneratorAdapter extends AbstractRandomGenerator {
     if (uniformRandomProvider == null) {
       throw new IllegalArgumentException("Uniform random provider must not be null");
     }
-    this.rg = uniformRandomProvider;
+    this.rng = uniformRandomProvider;
+  }
+
+  /**
+   * Warning: It is not possible to set the seed.
+   *
+   * @param seed the new seed (ignored)
+   * @throws NotImplementedException the not implemented exception
+   */
+  @Override
+  public void setSeed(int seed) {
+    throw new NotImplementedException();
+  }
+
+  /**
+   * Warning: It is not possible to set the seed.
+   *
+   * @param seed the new seed (ignored)
+   * @throws NotImplementedException the not implemented exception
+   */
+  @Override
+  public void setSeed(int[] seed) {
+    throw new NotImplementedException();
   }
 
   /**
@@ -64,11 +84,42 @@ public class RandomGeneratorAdapter extends AbstractRandomGenerator {
    */
   @Override
   public void setSeed(long seed) {
-    throw new NotImplementedException("Cannot set the seed");
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public void nextBytes(byte[] bytes) {
+    rng.nextBytes(bytes);
+  }
+
+  @Override
+  public int nextInt() {
+    return rng.nextInt();
+  }
+
+  @Override
+  public int nextInt(int n) {
+    return rng.nextInt(n);
+  }
+
+  @Override
+  public long nextLong() {
+    return rng.nextLong();
+  }
+
+  @Override
+  public boolean nextBoolean() {
+    return rng.nextBoolean();
+  }
+
+  @Override
+  public float nextFloat() {
+    return rng.nextFloat();
   }
 
   @Override
   public double nextDouble() {
-    return rg.nextDouble();
+    return rng.nextDouble();
   }
 }
+
