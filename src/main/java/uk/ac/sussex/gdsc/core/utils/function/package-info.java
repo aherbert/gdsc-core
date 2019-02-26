@@ -31,4 +31,4 @@
  *
  * @since 2.0
  */
-package uk.ac.sussex.gdsc.core.function;
+package uk.ac.sussex.gdsc.core.utils.function;

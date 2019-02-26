@@ -30,7 +30,7 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import uk.ac.sussex.gdsc.core.annotation.NotNull;
 import uk.ac.sussex.gdsc.core.annotation.Nullable;
-import uk.ac.sussex.gdsc.core.function.FloatUnaryOperator;
+import uk.ac.sussex.gdsc.core.utils.function.FloatUnaryOperator;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;

@@ -26,7 +26,7 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.function;
+package uk.ac.sussex.gdsc.core.utils.function;
 
 import java.util.Objects;
 
