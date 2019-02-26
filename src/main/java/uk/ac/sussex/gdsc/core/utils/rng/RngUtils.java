@@ -43,12 +43,6 @@ public final class RngUtils {
   /**
    * Compute a uniformly distributed value between {@code min} and {@code max}.
    *
-   * <pre>
-   * {@code
-   * min + rng.nextDouble() * (max - min);
-   * }
-   * </pre>
-   *
    * <p>Note that if max is below min then the signs are reversed and the result is a valid number
    * within the specified range.
    *
@@ -66,7 +60,7 @@ public final class RngUtils {
   /**
    * Compute a uniformly distributed value between {@code min} (inclusive) and {@code max}
    * (exclusive).
-   * 
+   *
    * @param rng the source of randomness
    * @param min the minimum of the range (inclusive)
    * @param max the maximum of the range (exclusive)
