@@ -211,4 +211,17 @@ public final class CollectionUtils {
     }
     return false;
   }
+
+  /**
+   * Get the size of the collection.
+   *
+   * <p>Returns {@code 0} if the collection is null.
+   *
+   * @param collection the collection
+   * @return the size
+   * @see Collection#size()
+   */
+  public static int getSize(Collection<?> collection) {
+    return (collection != null) ? collection.size() : 0;
+  }
 }

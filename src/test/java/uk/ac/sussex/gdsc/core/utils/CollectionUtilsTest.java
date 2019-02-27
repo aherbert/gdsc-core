@@ -3,6 +3,7 @@ package uk.ac.sussex.gdsc.core.utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 
 @SuppressWarnings({"javadoc"})
@@ -93,5 +94,11 @@ public class CollectionUtilsTest {
     Assertions.assertFalse(CollectionUtils.containsAll(EnumSet.of(A, B, C, D, E), A, B, C, D, E, F));
     Assertions.assertTrue(CollectionUtils.containsAll(EnumSet.of(A, B, C, D, E, F), A, B, C, D, E, F));
     // @formatter:on
+  }
+
+  @Test
+  public void canGetSize() {
+    Assertions.assertEquals(0, CollectionUtils.getSize(null));
+    Assertions.assertEquals(3, CollectionUtils.getSize(Arrays.asList(1, 2, 3)));
   }
 }
