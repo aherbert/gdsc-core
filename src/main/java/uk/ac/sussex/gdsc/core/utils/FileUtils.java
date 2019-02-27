@@ -316,8 +316,8 @@ public final class FileUtils {
   }
 
   /**
-   * Replace the filename extension with the specified extension.his is the text following the last
-   * dot ('.') character in the filename. Any dot characters before the last file separator
+   * Replace the filename extension with the specified extension. This is the text following the
+   * last dot ('.') character in the filename. Any dot characters before the last file separator
    * character are ignored.
    *
    * <p>If the extension is empty then the effect is the removal of any current extension.
