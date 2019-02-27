@@ -1138,8 +1138,8 @@ public final class MathUtils {
   /**
    * Return value clipped to within the given bounds.
    *
-   * @param lower the lower limit
-   * @param upper the upper limit
+   * @param lower the lower limit (inclusive)
+   * @param upper the upper limit (inclusive)
    * @param value the value
    * @return the clipped value
    */
@@ -1156,8 +1156,8 @@ public final class MathUtils {
   /**
    * Return value clipped to within the given bounds.
    *
-   * @param lower the lower limit
-   * @param upper the upper limit
+   * @param lower the lower limit (inclusive)
+   * @param upper the upper limit (inclusive)
    * @param value the value
    * @return the clipped value
    */
@@ -1174,8 +1174,8 @@ public final class MathUtils {
   /**
    * Return value clipped to within the given bounds.
    *
-   * @param lower the lower limit
-   * @param upper the upper limit
+   * @param lower the lower limit (inclusive)
+   * @param upper the upper limit (inclusive)
    * @param value the value
    * @return the clipped value
    */
