@@ -83,7 +83,7 @@ public final class VersionUtils {
    * @param args the arguments
    */
   public static void main(String[] args) {
-    final String newLine = System.getProperty("line.separator");
+    final String newLine = System.lineSeparator();
     //@formatter:off
     final StringBuilder msg = new StringBuilder(100)
         .append("Version : ").append(versionNumber).append(newLine)

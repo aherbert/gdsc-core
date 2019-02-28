@@ -102,7 +102,7 @@ public final class TextUtils {
     if (str == null) {
       return null;
     }
-    final String newLine = (newLineStr == null) ? System.getProperty("line.separator") : newLineStr;
+    final String newLine = (newLineStr == null) ? System.lineSeparator() : newLineStr;
     final int wrapCount = Math.max(1, wrapLength);
     final int inputLineLength = str.length();
     int offset = 0;
