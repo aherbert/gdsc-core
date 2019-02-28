@@ -29,6 +29,7 @@
 package uk.ac.sussex.gdsc.core.ij;
 
 import uk.ac.sussex.gdsc.core.annotation.NotNull;
+import uk.ac.sussex.gdsc.core.annotation.Nullable;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
@@ -709,8 +710,7 @@ public final class ImageJUtils {
    * @return True if the window headings were changed
    */
   public static boolean refreshHeadings(TextWindow textWindow, String headings, boolean preserve) {
-    if (textWindow != null && textWindow.isShowing()
-        && !textWindow.getTextPanel().getColumnHeadings().equals(headings)) {
+    if (isShowing(textWindow) && !textWindow.getTextPanel().getColumnHeadings().equals(headings)) {
       final TextPanel tp = textWindow.getTextPanel();
       String text = null;
       if (preserve) {
@@ -727,6 +727,17 @@ public final class ImageJUtils {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Checks if the window is showing.
+   *
+   * @param window the window (can be null)
+   * @return true if the window is showing
+   * @see Window#isShowing()
+   */
+  public static boolean isShowing(@Nullable Window window) {
+    return window != null && window.isShowing();
   }
 
   /**
