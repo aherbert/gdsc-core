@@ -33,6 +33,7 @@ import uk.ac.sussex.gdsc.core.annotation.Nullable;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
+import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -71,7 +72,10 @@ import java.awt.Panel;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 /**
@@ -738,6 +742,36 @@ public final class ImageJUtils {
    */
   public static boolean isShowing(@Nullable Window window) {
     return window != null && window.isShowing();
+  }
+
+  /**
+   * Refresh the text window within the provided reference. If the window is showing then it is
+   * returned. Otherwise a new window is created using the supplier, stored in the reference and
+   * returned.
+   *
+   * <p>A window listener is added to any newly created window to remove itself from the reference
+   * when the window closes. This releases memory.
+   *
+   * @param reference the reference
+   * @param supplier the supplier
+   * @return the text window
+   */
+  @NotNull
+  public static TextWindow refresh(AtomicReference<TextWindow> reference,
+      Supplier<TextWindow> supplier) {
+    final Supplier<TextWindow> wrappedSuppler = () -> {
+      final TextWindow window = supplier.get();
+      // When it closes remove the reference to this window
+      window.addWindowListener(new WindowAdapter() {
+        @Override
+        public void windowClosed(WindowEvent event) {
+          reference.compareAndSet(window, null);
+          super.windowClosed(event);
+        }
+      });
+      return window;
+    };
+    return ConcurrencyUtils.refresh(reference, TextWindow::isShowing, wrappedSuppler);
   }
 
   /**
