@@ -28,15 +28,21 @@
 
 package uk.ac.sussex.gdsc.core.utils.concurrent;
 
+import uk.ac.sussex.gdsc.core.annotation.NotNull;
+
 import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Contains concurrent utility functions.
@@ -191,5 +197,42 @@ public final class ConcurrencyUtils {
       Thread.currentThread().interrupt();
       throw new ConcurrentRuntimeException(ex);
     }
+  }
+
+  /**
+   * Refresh the object reference.
+   *
+   * <p>Test the object in the provided reference with the given test:</p>
+   *
+   * <ul>
+   *
+   * <li>If it is {@code null} or it fails the test then generate a new value with the supplier, set
+   * that in the reference and return the new value. The old value is discarded.</li>
+   *
+   * <li>If it passes the test then return the object. Note that the object cannot be null and the
+   * test need not handle this case.</li>
+   *
+   * </ul>
+   *
+   * <p>The value returned will match the value that is left in the reference. If will not be null.
+   *
+   * @param <T> the generic type
+   * @param reference the reference (must not be null)
+   * @param test the test (must not be null)
+   * @param supplier the supplier (must not be null)
+   * @return the value
+   * @throws NullPointerException If the {@link Supplier} creates a null object
+   */
+  @SuppressWarnings("null")
+  @NotNull
+  public static <T> T refresh(AtomicReference<T> reference, Predicate<T> test,
+      Supplier<T> supplier) {
+    T value = reference.get();
+    if (value != null && test.test(value)) {
+      return value;
+    }
+    value = Objects.requireNonNull(supplier.get(), "Generated object is null");
+    reference.set(value);
+    return value;
   }
 }
