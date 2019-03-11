@@ -34,8 +34,6 @@ import org.apache.commons.rng.UniformRandomProvider;
 /**
  * Adapts {@link org.apache.commons.math3.random.RandomGenerator} for the
  * {@link org.apache.commons.rng.UniformRandomProvider} interface.
- *
- * @author Alex Herbert
  */
 public class UniformRandomProviderAdapter implements UniformRandomProvider {
   private final RandomGenerator rg;

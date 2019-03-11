@@ -425,7 +425,6 @@ public class Fht extends FloatProcessor {
    * @param fht the fht
    * @param real the real
    * @param imag the imag
-   * @author Joachim Wesner, Alex Herbert
    */
   private static void fhtBoth(int row, int maxN, float[] fht, float[] real, float[] imag) {
     final int base = row * maxN;
