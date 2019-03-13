@@ -28,10 +28,23 @@
 
 package uk.ac.sussex.gdsc.core.math;
 
+import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
+
+import java.util.Arrays;
+
 /**
  * Contains methods for number computations.
  */
 public final class NumberUtils {
+
+  /** The list of primes below 200 excluding 2. */
+  private static final int[] primes = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53,
+      59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151,
+      157, 163, 167, 173, 179, 181, 191, 193, 197, 199};
+  /** The final prime before 200. */
+  private static final int FINAL_PRIME = primes[primes.length - 1];
+  /** The next prime after 200. */
+  private static final int NEXT_PRIME = 211;
 
   /** No public construction. */
   private NumberUtils() {}
@@ -233,5 +246,44 @@ public final class NumberUtils {
    */
   public static boolean isSubNormal(double x) {
     return getUnsignedExponent(x) == 0;
+  }
+
+  /**
+   * Checks the number is prime.
+   *
+   * @param n the number
+   * @return true if prime
+   * @see <a href="https://en.wikipedia.org/wiki/Primality_test#Pseudocode">Primality test</a>
+   * @throws IllegalArgumentException if n is not strictly positive
+   */
+  public static boolean isPrime(long n) {
+    ValidationUtils.checkStrictlyPositive(n);
+    // Special case for 2 which is prime, but 1 is not
+    if (n <= 3) {
+      return n > 1;
+    }
+    // Any even number is not prime
+    if ((n & 1L) == 0) {
+      return false;
+    }
+    // Test against known primes
+    if (n <= FINAL_PRIME) {
+      return Arrays.binarySearch(primes, (int) n) >= 0;
+    }
+    // n must be above the tabulated set of primes so test for divisors
+    for (final long prime : primes) {
+      if (n % prime == 0) {
+        return false;
+      }
+    }
+    // Simple algorithm to test all 6k+/-1 divisors up to sqrt(n)
+    long prime = NEXT_PRIME;
+    while (prime * prime <= n) {
+      if (n % prime == 0 || n % (prime + 2) == 0) {
+        return false;
+      }
+      prime += 6;
+    }
+    return true;
   }
 }
