@@ -647,6 +647,17 @@ public final class ImageJUtils {
   }
 
   /**
+   * Adds the message to the ImageJ dialog.
+   *
+   * @param gd the generic dialog
+   * @param format the format
+   * @param args the args
+   */
+  public static void addMessage(GenericDialog gd, String format, Object... args) {
+    gd.addMessage(String.format(format, args));
+  }
+
+  /**
    * Check if the escape key has been pressed. Show a status aborted message if true.
    *
    * @return True if aborted
