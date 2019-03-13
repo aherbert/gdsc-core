@@ -28,6 +28,8 @@
 
 package uk.ac.sussex.gdsc.core.ij.io;
 
+import uk.ac.sussex.gdsc.core.utils.FileUtils;
+
 import ij.io.BitBuffer;
 import ij.io.FileInfo;
 import ij.process.ColorProcessor;
@@ -142,7 +144,7 @@ public class FastImageReader {
       throws IOException {
     final int position = in.position;
     final long skip = bytesPerPixel * ((long) numberOfPixels);
-    skip(in, skip);
+    FileUtils.skip(in, skip);
     return position;
   }
 
@@ -896,7 +898,7 @@ public class FastImageReader {
       if (i > 0) {
         final long skip = (fi.stripOffsets[i] & 0xffffffffL)
             - (fi.stripOffsets[i - 1] & 0xffffffffL) - fi.stripLengths[i - 1];
-        skip(in, skip);
+        FileUtils.skip(in, skip);
       }
       int len = fi.stripLengths[i];
       final int bytesToGo = (numberOfPixels - pixel) * channels * 2;
@@ -953,7 +955,7 @@ public class FastImageReader {
       if (i > 0) {
         final long skip = (fi.stripOffsets[i] & 0xffffffffL)
             - (fi.stripOffsets[i - 1] & 0xffffffffL) - fi.stripLengths[i - 1];
-        skip(in, skip);
+        FileUtils.skip(in, skip);
       }
       int len = fi.stripLengths[i];
       byte[] buffer = new byte[len];
@@ -1122,7 +1124,7 @@ public class FastImageReader {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   void skip(SeekableStream in) throws IOException {
-    skip(in, skipCount);
+    FileUtils.skip(in, skipCount);
     byteCount = ((long) width) * height * bytesPerPixel;
     if (fi.fileType == FileInfo.BITMAP) {
       int scan = width / 8;
@@ -1138,20 +1140,6 @@ public class FastImageReader {
       bufferSize = 8192;
     } else {
       bufferSize = (bufferSize / 8192) * 8192;
-    }
-  }
-
-  /**
-   * Skip the input by the given number of bytes.
-   *
-   * @param in the input seekable stream
-   * @param numberOfBytes the number of bytes
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  private static void skip(SeekableStream in, long numberOfBytes) throws IOException {
-    // Check the correct number of bytes were skipped
-    if (numberOfBytes > 0 && in.skip(numberOfBytes) != numberOfBytes) {
-      throw new EOFException();
     }
   }
 

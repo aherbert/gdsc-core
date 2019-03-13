@@ -29,8 +29,10 @@
 package uk.ac.sussex.gdsc.core.utils;
 
 import java.io.BufferedWriter;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -422,5 +424,21 @@ public final class FileUtils {
     // Find the next separator character
     final int index = path.lastIndexOf(File.separatorChar, length - 1);
     return path.substring(index + 1, length);
+  }
+
+  /**
+   * Skip the input by the given number of bytes.
+   *
+   * <p>Throws an {@link EOFException} if the number of bytes skipped was incorrect.
+   *
+   * @param in the input stream
+   * @param numberOfBytes the number of bytes
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  public static void skip(InputStream in, long numberOfBytes) throws IOException {
+    // Check the correct number of bytes were skipped
+    if (numberOfBytes > 0 && in.skip(numberOfBytes) != numberOfBytes) {
+      throw new EOFException();
+    }
   }
 }
