@@ -394,6 +394,10 @@ public abstract class FastTiffDecoder {
     final int b2 = ss.read();
     final int b3 = ss.read();
     final int b4 = ss.read();
+    // All other reads either returned -1 or have already thrown so just check the last read
+    if (b4 == -1) {
+      throw new EOFException();
+    }
     return getInt(b1, b2, b3, b4);
   }
 
@@ -439,6 +443,10 @@ public abstract class FastTiffDecoder {
   final int readShort() throws IOException {
     final int b1 = ss.read();
     final int b2 = ss.read();
+    // All other reads either returned -1 or have already thrown so just check the last read
+    if (b2 == -1) {
+      throw new EOFException();
+    }
     return getShort(b1, b2);
   }
 

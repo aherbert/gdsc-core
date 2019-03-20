@@ -58,12 +58,12 @@ public class BigEndianFastTiffDecoder extends FastTiffDecoder {
 
   @Override
   protected int getShort(int b1, int b2) {
-    return ((b1 << 8) + b2);
+    return ((b1 << 8) | b2);
   }
 
   @Override
   protected long readLong() throws IOException {
-    return ((long) readInt() << 32) + (readInt() & 0xffffffffL);
+    return ((long) readInt() << 32) | (readInt() & 0xffffffffL);
   }
 
   /**
@@ -76,7 +76,7 @@ public class BigEndianFastTiffDecoder extends FastTiffDecoder {
    * @return the int
    */
   public static int toInt(int b1, int b2, int b3, int b4) {
-    return ((b1 << 24) + (b2 << 16) + (b3 << 8) + b4);
+    return ((b1 << 24) | (b2 << 16) | (b3 << 8) | b4);
   }
 
   /**
@@ -87,6 +87,6 @@ public class BigEndianFastTiffDecoder extends FastTiffDecoder {
    * @return the short
    */
   public static int toShort(int b1, int b2) {
-    return ((b1 << 8) + b2);
+    return ((b1 << 8) | b2);
   }
 }

@@ -58,7 +58,7 @@ public class LittleEndianFastTiffDecoder extends FastTiffDecoder {
 
   @Override
   protected int getShort(int b1, int b2) {
-    return ((b2 << 8) + b1);
+    return ((b2 << 8) | b1);
   }
 
   @Override
@@ -76,7 +76,7 @@ public class LittleEndianFastTiffDecoder extends FastTiffDecoder {
    * @return the int
    */
   public static int toInt(int b1, int b2, int b3, int b4) {
-    return (b4 << 24) + (b3 << 16) + (b2 << 8) + b1;
+    return (b4 << 24) | (b3 << 16) | (b2 << 8) | b1;
   }
 
   /**
@@ -87,6 +87,6 @@ public class LittleEndianFastTiffDecoder extends FastTiffDecoder {
    * @return the short
    */
   public static int toShort(int b1, int b2) {
-    return ((b2 << 8) + b1);
+    return ((b2 << 8) | b1);
   }
 }
