@@ -33,7 +33,7 @@ import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import ij.IJ;
 
 /**
- * Report the progress of processing results.
+ * Report the progress of processing results. The outputs used are configurable.
  */
 public class ImageJTrackProgress implements TrackProgress {
   /**
@@ -63,14 +63,14 @@ public class ImageJTrackProgress implements TrackProgress {
   private boolean statusFlag = true;
 
   /**
-   * Instantiates a new image J track progress.
+   * Instantiates a new ImageJ track progress.
    */
   public ImageJTrackProgress() {
     this(false);
   }
 
   /**
-   * Instantiates a new image J track progress.
+   * Instantiates a new ImageJ track progress.
    *
    * <p>If using the slow progress functionality the progress will be reported as negative.
    *
