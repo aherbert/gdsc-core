@@ -206,15 +206,22 @@ public final class ConcurrencyUtils {
    *
    * <ul>
    *
-   * <li>If it is {@code null} or it fails the test then generate a new value with the supplier, set
-   * that in the reference and return the new value. The old value is discarded.</li>
+   * <li>If the object is not {@code null} and it passes the test then return the object.</li>
    *
-   * <li>If it passes the test then return the object. Note that the object cannot be null and the
-   * test need not handle this case.</li>
+   * <li>If it is {@code null} or it fails the test then generate a new value with the supplier, set
+   * that in the reference and return the new value. The old value is discarded. Note: If the
+   * supplier creates a {@code null} object then an exception is thrown. </li>
    *
    * </ul>
    *
-   * <p>The value returned will match the value that is left in the reference. If will not be null.
+   * <p>Note that the object passed to the test will not be {@code null} and the test need not
+   * handle this case.
+   *
+   * <p>The value returned will match the value that is left in the reference. It will not be
+   * {@code null}.
+   *
+   * <p>Note: The entire operation is atomic. If there is contention among threads the supplier
+   * and test may be invoked multiple times so should be side-effect-free.
    *
    * @param <T> the generic type
    * @param reference the reference (must not be null)
@@ -225,14 +232,13 @@ public final class ConcurrencyUtils {
    */
   @SuppressWarnings("null")
   @NotNull
-  public static <T> T refresh(AtomicReference<T> reference, Predicate<T> test,
-      Supplier<T> supplier) {
-    T value = reference.get();
-    if (value != null && test.test(value)) {
-      return value;
-    }
-    value = Objects.requireNonNull(supplier.get(), "Generated object is null");
-    reference.set(value);
-    return value;
+  public static <T> T refresh(AtomicReference<T> reference, final Predicate<T> test,
+      final Supplier<T> supplier) {
+    return reference.updateAndGet(value -> {
+      if (value != null && test.test(value)) {
+        return value;
+      }
+      return Objects.requireNonNull(supplier.get(), "Generated object is null");
+    });
   }
 }
