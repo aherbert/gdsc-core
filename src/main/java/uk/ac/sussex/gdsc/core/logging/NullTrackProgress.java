@@ -33,7 +33,7 @@ import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 /**
  * Ignore all method calls from the {@link TrackProgress} interface.
  */
-public class NullTrackProgress implements TrackProgress {
+public final class NullTrackProgress implements TrackProgress {
 
   /** An instance to ignore progress reporting. */
   private static final NullTrackProgress INSTANCE = new NullTrackProgress();
