@@ -54,10 +54,9 @@ public abstract class SeekableStream extends InputStream {
    * Read the full length of the buffer into the byte buffer.
    *
    * @param bytes the buffer into which the data is read
-   * @throws IOException Signals that an I/O exception has occurred.
-   * @exception EOFException if this input stream reaches the end before reading all the bytes.
-   * @exception IOException the stream has been closed and the contained input stream does not
-   *            support reading after close, or another I/O error occurs.
+   * @throws EOFException if this input stream reaches the end before reading all the bytes.
+   * @throws IOException if the stream has been closed and the contained input stream does not
+   *         support reading after close, or another I/O error occurs.
    */
   public final void readFully(byte[] bytes) throws IOException {
     readFullyInternal(bytes, 0, bytes.length);
@@ -68,9 +67,9 @@ public abstract class SeekableStream extends InputStream {
    *
    * @param bytes the buffer into which the data is read
    * @param len the number of bytes to read.
-   * @exception EOFException if this input stream reaches the end before reading all the bytes.
-   * @exception IOException the stream has been closed and the contained input stream does not
-   *            support reading after close, or another I/O error occurs.
+   * @throws EOFException if this input stream reaches the end before reading all the bytes.
+   * @throws IOException if the stream has been closed and the contained input stream does not support
+   *         reading after close, or another I/O error occurs.
    */
   public final void readFully(byte[] bytes, int len) throws IOException {
     if (len < 0) {
@@ -85,9 +84,9 @@ public abstract class SeekableStream extends InputStream {
    * @param bytes the buffer into which the data is read
    * @param off the start offset of the data.
    * @param len the number of bytes to read.
-   * @exception EOFException if this input stream reaches the end before reading all the bytes.
-   * @exception IOException the stream has been closed and the contained input stream does not
-   *            support reading after close, or another I/O error occurs.
+   * @throws EOFException if this input stream reaches the end before reading all the bytes.
+   * @throws IOException if the stream has been closed and the contained input stream does not support
+   *         reading after close, or another I/O error occurs.
    */
   public final void readFully(byte[] bytes, int off, int len) throws IOException {
     if (len < 0) {
@@ -102,9 +101,9 @@ public abstract class SeekableStream extends InputStream {
    * @param bytes the buffer into which the data is read
    * @param off the start offset of the data.
    * @param len the number of bytes to read.
-   * @exception EOFException if this input stream reaches the end before reading all the bytes.
-   * @exception IOException the stream has been closed and the contained input stream does not
-   *            support reading after close, or another I/O error occurs.
+   * @throws EOFException if this input stream reaches the end before reading all the bytes.
+   * @throws IOException if the stream has been closed and the contained input stream does not support
+   *         reading after close, or another I/O error occurs.
    */
   public final void readFullyInternal(byte[] bytes, int off, int len) throws IOException {
     int bytesRead = 0;
@@ -125,8 +124,8 @@ public abstract class SeekableStream extends InputStream {
    *
    * @param bytes the buffer into which the data is read
    * @return the number of bytes read
-   * @exception IOException the stream has been closed and the contained input stream does not
-   *            support reading after close, or another I/O error occurs.
+   * @throws IOException if the stream has been closed and the contained input stream does not support
+   *         reading after close, or another I/O error occurs.
    */
   public final int readBytes(byte[] bytes) throws IOException {
     return readBytesInternal(bytes, 0, bytes.length);
@@ -141,8 +140,8 @@ public abstract class SeekableStream extends InputStream {
    * @param bytes the buffer into which the data is read
    * @param len the number of bytes to read.
    * @return the number of bytes read
-   * @exception IOException the stream has been closed and the contained input stream does not
-   *            support reading after close, or another I/O error occurs.
+   * @throws IOException if the stream has been closed and the contained input stream does not support
+   *         reading after close, or another I/O error occurs.
    */
   public final int readBytes(byte[] bytes, int len) throws IOException {
     if (len < 0) {
@@ -161,8 +160,8 @@ public abstract class SeekableStream extends InputStream {
    * @param off the start offset of the data.
    * @param len the number of bytes to read.
    * @return the number of bytes read
-   * @exception IOException the stream has been closed and the contained input stream does not
-   *            support reading after close, or another I/O error occurs.
+   * @throws IOException if the stream has been closed and the contained input stream does not support
+   *         reading after close, or another I/O error occurs.
    */
   public final int readBytes(byte[] bytes, int off, int len) throws IOException {
     if (len < 0) {
@@ -181,8 +180,8 @@ public abstract class SeekableStream extends InputStream {
    * @param off the start offset of the data.
    * @param len the number of bytes to read.
    * @return the number of bytes read
-   * @exception IOException the stream has been closed and the contained input stream does not
-   *            support reading after close, or another I/O error occurs.
+   * @throws IOException if the stream has been closed and the contained input stream does not support
+   *         reading after close, or another I/O error occurs.
    */
   public final int readBytesInternal(byte[] bytes, int off, int len) throws IOException {
     int bytesRead = 0;
