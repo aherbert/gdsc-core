@@ -31,6 +31,7 @@ package uk.ac.sussex.gdsc.core.ij;
 import uk.ac.sussex.gdsc.core.annotation.NotNull;
 import uk.ac.sussex.gdsc.core.annotation.Nullable;
 import uk.ac.sussex.gdsc.core.ij.plugin.WindowOrganiser;
+import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
@@ -1312,5 +1313,59 @@ public final class ImageJUtils {
       imp.setDisplayRange(min, max);
     }
     return new double[] {min, max};
+  }
+
+
+  /**
+   * Creates a started ticker for the total number of steps. The ticker will report to the ImageJ
+   * progress and status bar.
+   *
+   * <p>The number of threads is required to determine thread-safety of the ticker. Set to zero
+   * for non thread-safe.
+   *
+   * @param total the total
+   * @param numberOfThreads the number of threads
+   * @return the ticker
+   */
+  public static Ticker createTicker(long total, int numberOfThreads) {
+    return createTicker(total, numberOfThreads, null);
+  }
+
+  /**
+   * Creates a started ticker for the total number of steps. The ticker will report to the ImageJ
+   * progress and status bar. If the status message is not null then the ImageJ status bar will be
+   * updated with the message.
+   *
+   * <p>The number of threads is required to determine thread-safety of the ticker. Set to zero
+   * for non thread-safe.
+   *
+   * @param total the total
+   * @param numberOfThreads the number of threads
+   * @param statusMessage the status message
+   * @return the ticker
+   */
+  public static Ticker createTicker(long total, int numberOfThreads, String statusMessage) {
+    if (statusMessage != null) {
+      IJ.showStatus(statusMessage);
+    }
+    return Ticker.createStarted(SimpleImageJTrackProgress.getInstance(), total,
+        numberOfThreads > 1);
+  }
+
+  /**
+   * Set the progress to complete and the status message to empty.
+   */
+  public static void finished() {
+    finished("");
+  }
+
+  /**
+   * Set the progress to complete and the show the provided status message.
+   *
+   * @param statusMessage the status message
+   */
+  public static void finished(String statusMessage) {
+    IJ.showStatus(statusMessage);
+    IJ.showProgress(1.0);
   }
 }
