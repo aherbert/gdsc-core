@@ -1,6 +1,8 @@
 package uk.ac.sussex.gdsc.core.utils.concurrent;
 
+import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -27,5 +29,22 @@ public class ConcurrencyUtilsTest {
 
     value = ConcurrencyUtils.refresh(reference, test, supplier);
     Assertions.assertEquals(Integer.valueOf(1), value, "Did not generate the value when test fail");
+  }
+
+  @Test
+  public void canInterruptAndThrowUncheckedIf() {
+    Assumptions.assumeFalse(Thread.currentThread().isInterrupted(),
+        "Thread should not be interrupted");
+
+    final InterruptedException exception = new InterruptedException();
+
+    ConcurrencyUtils.interruptAndThrowUncheckedIf(false, exception);
+    Assertions.assertFalse(Thread.currentThread().isInterrupted());
+
+    Assertions.assertThrows(ConcurrentRuntimeException.class,
+        () -> ConcurrencyUtils.interruptAndThrowUncheckedIf(true, exception));
+
+    // This will clear the interrupted status
+    Assertions.assertTrue(Thread.interrupted(), "Thread should be interrupted");
   }
 }

@@ -220,8 +220,8 @@ public final class ConcurrencyUtils {
    * <p>The value returned will match the value that is left in the reference. It will not be
    * {@code null}.
    *
-   * <p>Note: The entire operation is atomic. If there is contention among threads the supplier
-   * and test may be invoked multiple times so should be side-effect-free.
+   * <p>Note: The entire operation is atomic. If there is contention among threads the supplier and
+   * test may be invoked multiple times so should be side-effect-free.
    *
    * @param <T> the generic type
    * @param reference the reference (must not be null)
@@ -240,5 +240,23 @@ public final class ConcurrencyUtils {
       }
       return Objects.requireNonNull(supplier.get(), "Generated object is null");
     });
+  }
+
+  /**
+   * Interrupt the current thread (reset the interrupt status) and re-throw the interrupted
+   * exception unchecked if the test result is {@code true}.
+   *
+   * <p>This can be used to handle an {@link InterruptedException} when it is expected under a set
+   * condition.
+   *
+   * @param result the test result
+   * @param exception the exception
+   * @throws ConcurrentRuntimeException a wrapped InterruptedException if the test is {@code true};
+   */
+  public static void interruptAndThrowUncheckedIf(boolean result, InterruptedException exception) {
+    if (result) {
+      Thread.currentThread().interrupt();
+      throw new ConcurrentRuntimeException(exception);
+    }
   }
 }
