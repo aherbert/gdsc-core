@@ -100,20 +100,20 @@ public class ConcurrentMonoStack<E> {
    * Checks if is closed. No additions are possible when the stack is closed. Items can still be
    * removed.
    *
-   * @return true, if is closed
+   * @return true if closed
    */
   public boolean isClosed() {
     return closed;
   }
 
   /**
-   * Checks if is closed. No additions are possible when the stack is closed. Items cannot be
-   * removed when the stack is empty.
+   * Checks if is closed and empty. No additions are possible when the stack is closed. Items cannot
+   * be removed when the stack is empty.
    *
    * <p>If the stack is closed and empty then synchronisation is avoided on all methods that use the
    * stack since it cannot change.
    *
-   * @return true, if is closed and empty
+   * @return true if closed and empty
    */
   public boolean isClosedAndEmpty() {
     return closedAndEmpty;
@@ -157,9 +157,14 @@ public class ConcurrentMonoStack<E> {
   }
 
   /**
-   * Checks if is throw if closed flag.
+   * Checks if an {@link IllegalStateException} is thrown when adding/removing from a closed stack.
    *
-   * @return true, if IllegalStateException is thrown by additions/removals when closed
+   * <p>The default is {@code false}.
+   *
+   * @return {@code true} if IllegalStateException is thrown by additions/removals when closed
+   * @see #push(Object)
+   * @see #insert(Object)
+   * @see #pop()
    */
   public boolean isThrowIfClosed() {
     return throwIfClosed;
@@ -229,6 +234,7 @@ public class ConcurrentMonoStack<E> {
    * @throws NullPointerException if the specified element is null
    * @throws InterruptedException If interrupted while waiting
    * @throws IllegalStateException If closed and {@link #isThrowIfClosed()} is true
+   * @see #isThrowIfClosed()
    */
   public boolean push(E element) throws InterruptedException {
     // Don't lock if closed
@@ -311,6 +317,7 @@ public class ConcurrentMonoStack<E> {
    * @return true, if successfully added to the stack
    * @throws NullPointerException if the specified element is null
    * @throws IllegalStateException If closed and {@link #isThrowIfClosed()} is true
+   * @see #isThrowIfClosed()
    */
   public boolean insert(E element) {
     // Don't lock if closed
@@ -348,6 +355,7 @@ public class ConcurrentMonoStack<E> {
    * @return the head of this stack
    * @throws InterruptedException if interrupted while waiting
    * @throws IllegalStateException If closed and {@link #isThrowIfClosed()} is true
+   * @see #isThrowIfClosed()
    */
   public E pop() throws InterruptedException {
     // Avoid synchronisation if this is closed and empty (since nothing can be added)
