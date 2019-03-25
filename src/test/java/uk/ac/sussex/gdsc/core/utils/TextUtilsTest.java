@@ -183,4 +183,15 @@ public class TextUtilsTest {
     Assertions.assertTrue(TextUtils.isNotEmpty(" "));
     Assertions.assertTrue(TextUtils.isNotEmpty("a"));
   }
+
+  @Test
+  public void canFormatToAppendable() {
+    final String format = "%s=%d";
+    final Object[] args = {"text", 1};
+    final String expected = String.format(format, args);
+    final StringBuilder sb = new StringBuilder();
+    TextUtils.formatTo(sb, format, args);
+    final String actual = sb.toString();
+    Assertions.assertEquals(expected, actual);
+  }
 }

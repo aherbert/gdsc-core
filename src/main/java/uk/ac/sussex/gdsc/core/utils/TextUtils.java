@@ -28,8 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.utils;
 
+import org.apache.commons.lang3.text.WordUtils;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Formatter;
 import java.util.Locale;
 
 /**
@@ -57,7 +60,7 @@ public final class TextUtils {
   private TextUtils() {}
 
   // -----------------------------------------------------------------------
-  // Wrapping - Taken from apache.commons.lang.WordUtils
+  // Wrapping - Delegate to apache.commons.lang.WordUtils
   // -----------------------------------------------------------------------
 
   /**
@@ -98,53 +101,9 @@ public final class TextUtils {
    * @param wrapLongWords true if long words (such as URLs) should be wrapped
    * @return a line with newlines inserted, <code>null</code> if null input
    */
+  @SuppressWarnings("deprecation")
   public static String wrap(String str, int wrapLength, String newLineStr, boolean wrapLongWords) {
-    if (str == null) {
-      return null;
-    }
-    final String newLine = (newLineStr == null) ? System.lineSeparator() : newLineStr;
-    final int wrapCount = Math.max(1, wrapLength);
-    final int inputLineLength = str.length();
-    int offset = 0;
-    final StringBuilder wrappedLine = new StringBuilder(inputLineLength + 32);
-
-    while ((inputLineLength - offset) > wrapCount) {
-      if (str.charAt(offset) == ' ') {
-        offset++;
-        continue;
-      }
-      int spaceToWrapAt = str.lastIndexOf(' ', wrapCount + offset);
-
-      if (spaceToWrapAt >= offset) {
-        // normal case
-        wrappedLine.append(str.substring(offset, spaceToWrapAt));
-        wrappedLine.append(newLine);
-        offset = spaceToWrapAt + 1;
-
-        // really long word or URL
-      } else if (wrapLongWords) {
-        // wrap really long word one line at a time
-        wrappedLine.append(str.substring(offset, wrapCount + offset));
-        wrappedLine.append(newLine);
-        offset += wrapCount;
-      } else {
-        // do not wrap really long word, just extend beyond limit
-        spaceToWrapAt = str.indexOf(' ', wrapCount + offset);
-        if (spaceToWrapAt >= 0) {
-          wrappedLine.append(str.substring(offset, spaceToWrapAt));
-          wrappedLine.append(newLine);
-          offset = spaceToWrapAt + 1;
-        } else {
-          wrappedLine.append(str.substring(offset));
-          offset = inputLineLength;
-        }
-      }
-    }
-
-    // Whatever is left in line is short enough to just pass through
-    wrappedLine.append(str.substring(offset));
-
-    return wrappedLine.toString();
+    return WordUtils.wrap(str, wrapLength, newLineStr, wrapLongWords);
   }
 
   /**
@@ -462,5 +421,47 @@ public final class TextUtils {
    */
   public static String bytesToString(final long bytes) {
     return bytesToString(bytes, true, Locale.getDefault());
+  }
+
+  /**
+   * Format a message to an {@link Appendable}. Convenience method for the equivalent of:
+   *
+   * <pre>
+   * return new Formatter(appendable).format(format, args).out()
+   * </pre>
+   *
+   * <p>It is recommended to explicitly create a {@link Formatter} if multiple invocations are
+   * expected.
+   *
+   * @param appendable the appendable
+   * @param format the format
+   * @param args the arguments
+   * @return the appendable
+   */
+  public static Appendable formatTo(Appendable appendable, String format, Object... args) {
+    return formatTo(appendable, Locale.getDefault(Locale.Category.FORMAT), format, args);
+  }
+
+  /**
+   * Format a message to an {@link Appendable}. Convenience method for the equivalent of:
+   *
+   * <pre>
+   * return new Formatter(appendable).format(locale, format, args).out()
+   * </pre>
+   *
+   * <p>It is recommended to explicitly create a {@link Formatter} if multiple invocations are
+   * expected.
+   *
+   * @param appendable the appendable
+   * @param locale the locale
+   * @param format the format
+   * @param args the arguments
+   * @return the appendable
+   */
+  @SuppressWarnings("resource")
+  public static Appendable formatTo(Appendable appendable, Locale locale, String format,
+      Object... args) {
+    new Formatter(appendable).format(locale, format, args);
+    return appendable;
   }
 }
