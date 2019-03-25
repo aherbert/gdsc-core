@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.Formatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,142 +46,145 @@ public class CustomTricubicInterpolatingFunctionInlineTest {
 
   static String inlineComputeCoefficients() {
     final StringBuilder sb = new StringBuilder();
+    try (Formatter formatter = new Formatter(sb)) {
+      final int sz = 64;
 
-    final int sz = 64;
+      formatter.format("final double[] a = new double[%d];\n", sz);
 
-    sb.append(String.format("final double[] a = new double[%d];\n", sz));
+      for (int i = 0; i < sz; i++) {
+        formatter.format("a[%d]=", i);
 
-    for (int i = 0; i < sz; i++) {
-      sb.append(String.format("a[%d]=", i));
-
-      final double[] row = CustomTricubicInterpolatingFunction.AINV[i];
-      for (int j = 0; j < sz; j++) {
-        final double d = row[j];
-        if (d != 0) {
-          if (d > 0) {
-            sb.append('+');
-          }
-          final int di = (int) Math.floor(d);
-          if (di == d) {
-            sb.append(String.format("%d*beta[%d]", di, j));
-          } else {
-            sb.append(String.format("%f*beta[%d]", d, j));
+        final double[] row = CustomTricubicInterpolatingFunction.AINV[i];
+        for (int j = 0; j < sz; j++) {
+          final double d = row[j];
+          if (d != 0) {
+            if (d > 0) {
+              sb.append('+');
+            }
+            final int di = (int) Math.floor(d);
+            if (di == d) {
+              formatter.format("%d*beta[%d]", di, j);
+            } else {
+              formatter.format("%f*beta[%d]", d, j);
+            }
           }
         }
+        formatter.format(";\n", i);
       }
-      sb.append(String.format(";\n", i));
+      sb.append("return a;\n");
     }
-    sb.append("return a;\n");
 
     return finialise(sb);
   }
 
   static String inlineComputeCoefficientsCollectTerms() {
     final StringBuilder sb = new StringBuilder();
+    try (Formatter formatter = new Formatter(sb)) {
 
-    final int sz = 64;
+      final int sz = 64;
 
-    // Require integer coefficients
-    int max = 0;
-    for (int i = 0; i < sz; i++) {
-      final double[] row = CustomTricubicInterpolatingFunction.AINV[i];
-      for (int j = 0; j < sz; j++) {
-        final double d = row[j];
-        if (d != 0) {
-          final int di = (int) Math.floor(d);
-          if (di != d) {
-            return null;
-          }
-          if (max < Math.abs(di)) {
-            max = Math.abs(di);
+      // Require integer coefficients
+      int max = 0;
+      for (int i = 0; i < sz; i++) {
+        final double[] row = CustomTricubicInterpolatingFunction.AINV[i];
+        for (int j = 0; j < sz; j++) {
+          final double d = row[j];
+          if (d != 0) {
+            final int di = (int) Math.floor(d);
+            if (di != d) {
+              return null;
+            }
+            if (max < Math.abs(di)) {
+              max = Math.abs(di);
+            }
           }
         }
       }
-    }
 
-    final TIntObjectHashMap<TIntArrayList> map = new TIntObjectHashMap<>(max + 1);
+      final TIntObjectHashMap<TIntArrayList> map = new TIntObjectHashMap<>(max + 1);
 
-    sb.append(String.format("final double[] a = new double[%d];\n", sz));
+      formatter.format("final double[] a = new double[%d];\n", sz);
 
-    for (int i = 0; i < sz; i++) {
-      map.clear();
-      final double[] row = CustomTricubicInterpolatingFunction.AINV[i];
-      for (int j = 0; j < sz; j++) {
-        final double d = row[j];
-        if (d != 0) {
-          final int di = (int) Math.floor(d);
-          final int key = Math.abs(di);
-          // Check if contains either positive or negative key
-          TIntArrayList value = map.get(key);
-          if (value == null) {
-            value = new TIntArrayList();
-            map.put(key, value);
+      for (int i = 0; i < sz; i++) {
+        map.clear();
+        final double[] row = CustomTricubicInterpolatingFunction.AINV[i];
+        for (int j = 0; j < sz; j++) {
+          final double d = row[j];
+          if (d != 0) {
+            final int di = (int) Math.floor(d);
+            final int key = Math.abs(di);
+            // Check if contains either positive or negative key
+            TIntArrayList value = map.get(key);
+            if (value == null) {
+              value = new TIntArrayList();
+              map.put(key, value);
+            }
+            // Store the index and the sign.
+            // We use 1-based index so we can store -0
+            value.add(((di < 0) ? -1 : 1) * (j + 1));
           }
-          // Store the index and the sign.
-          // We use 1-based index so we can store -0
-          value.add(((di < 0) ? -1 : 1) * (j + 1));
         }
-      }
 
-      sb.append(String.format("a[%d]=", i));
+        formatter.format("a[%d]=", i);
 
-      // Collect terms
-      map.forEachEntry(new TIntObjectProcedure<TIntArrayList>() {
-        @Override
-        public boolean execute(int key, TIntArrayList value) {
-          final int[] js = value.toArray(); // Signed j
-          final int[] j = js.clone(); // Unsigned j
-          for (int i = 0; i < j.length; i++) {
-            j[i] = Math.abs(j[i]);
-          }
-
-          SortUtils.sortData(js, j, true, false);
-
-          // Check if starting with negative
-          char add = '+';
-          char sub = '-';
-
-          if (js[0] < 0) {
-            // Subtract the set
-            sb.append('-');
-            if (key > 1) {
-              sb.append(key).append('*');
+        // Collect terms
+        map.forEachEntry(new TIntObjectProcedure<TIntArrayList>() {
+          @Override
+          public boolean execute(int key, TIntArrayList value) {
+            final int[] js = value.toArray(); // Signed j
+            final int[] j = js.clone(); // Unsigned j
+            for (int i = 0; i < j.length; i++) {
+              j[i] = Math.abs(j[i]);
             }
-            // Swap signs
-            add = sub;
-            sub = '+';
-          } else {
-            // Some positive so add the set
-            sb.append('+');
-            if (key > 1) {
-              sb.append(key).append('*');
-            }
-          }
 
-          if (js.length != 1) {
-            sb.append('(');
-          }
-          for (int i = 0; i < js.length; i++) {
-            if (i != 0) {
-              if (js[i] < 0) {
-                sb.append(sub);
-              } else {
-                sb.append(add);
+            SortUtils.sortData(js, j, true, false);
+
+            // Check if starting with negative
+            char add = '+';
+            char sub = '-';
+
+            if (js[0] < 0) {
+              // Subtract the set
+              sb.append('-');
+              if (key > 1) {
+                sb.append(key).append('*');
+              }
+              // Swap signs
+              add = sub;
+              sub = '+';
+            } else {
+              // Some positive so add the set
+              sb.append('+');
+              if (key > 1) {
+                sb.append(key).append('*');
               }
             }
-            // Convert 1-based index back to 0-based
-            sb.append("beta[").append(Math.abs(js[i]) - 1).append(']');
-          }
-          if (js.length != 1) {
-            sb.append(')');
-          }
-          return true;
-        }
-      });
 
-      sb.append(String.format(";\n", i));
+            if (js.length != 1) {
+              sb.append('(');
+            }
+            for (int i = 0; i < js.length; i++) {
+              if (i != 0) {
+                if (js[i] < 0) {
+                  sb.append(sub);
+                } else {
+                  sb.append(add);
+                }
+              }
+              // Convert 1-based index back to 0-based
+              sb.append("beta[").append(Math.abs(js[i]) - 1).append(']');
+            }
+            if (js.length != 1) {
+              sb.append(')');
+            }
+            return true;
+          }
+        });
+
+        formatter.format(";\n", i);
+      }
+      sb.append("return a;\n");
     }
-    sb.append("return a;\n");
 
     return finialise(sb);
   }

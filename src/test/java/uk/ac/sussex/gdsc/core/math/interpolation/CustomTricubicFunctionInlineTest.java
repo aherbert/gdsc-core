@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.Formatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,13 +56,14 @@ public class CustomTricubicFunctionInlineTest {
   String inlineValue() {
     String powerZpowerY;
     final StringBuilder sb = new StringBuilder();
+    try (Formatter formatter = new Formatter(sb)) {
+      for (int k = 0, ai = 0; k < N; k++) {
+        for (int j = 0; j < N; j++) {
+          powerZpowerY = append_powerZpowerY(formatter, k, j);
 
-    for (int k = 0, ai = 0; k < N; k++) {
-      for (int j = 0; j < N; j++) {
-        powerZpowerY = append_powerZpowerY(sb, k, j);
-
-        for (int i = 0; i < N; i++, ai++) {
-          sb.append(String.format("result += %s * powerX[%d] * a[%d];\n", powerZpowerY, i, ai));
+          for (int i = 0; i < N; i++, ai++) {
+            formatter.format("result += %s * powerX[%d] * a[%d];\n", powerZpowerY, i, ai);
+          }
         }
       }
     }
@@ -69,7 +71,7 @@ public class CustomTricubicFunctionInlineTest {
     return finaliseInlineFunction(sb);
   }
 
-  static String append_powerZpowerY(StringBuilder sb, int powerY, int powerZ) {
+  static String append_powerZpowerY(Formatter formatter, int powerY, int powerZ) {
     String powerZpowerY;
     if (powerY == 0) {
       if (powerZ == 0) {
@@ -80,7 +82,7 @@ public class CustomTricubicFunctionInlineTest {
     } else if (powerZ == 0) {
       powerZpowerY = String.format("powerZ[%d]", powerY);
     } else {
-      sb.append(String.format("powerZpowerY = powerZ[%d] * powerY[%d];\n", powerY, powerZ));
+      formatter.format("powerZpowerY = powerZ[%d] * powerY[%d];\n", powerY, powerZ);
       powerZpowerY = "powerZpowerY";
     }
     return powerZpowerY;
@@ -114,7 +116,6 @@ public class CustomTricubicFunctionInlineTest {
     final TObjectIntHashMap<String> map = new TObjectIntHashMap<>(64);
 
     final StringBuilder sb = new StringBuilder();
-
     sb.append("return ");
     for (int k = 0; k < N; k++) {
       for (int j = 0; j < N; j++) {
@@ -148,21 +149,21 @@ public class CustomTricubicFunctionInlineTest {
   String inlineComputePowerTable() {
     String table0jk;
     final StringBuilder sb = new StringBuilder();
+    try (Formatter formatter = new Formatter(sb)) {
+      for (int k = 0, ai = 0; k < N; k++) {
+        for (int j = 0; j < N; j++) {
+          table0jk = appendTableijk(formatter, k, j, 0, ai++);
 
-    for (int k = 0, ai = 0; k < N; k++) {
-      for (int j = 0; j < N; j++) {
-        table0jk = appendTableijk(sb, k, j, 0, ai++);
-
-        for (int i = 1; i < N; i++, ai++) {
-          sb.append(String.format("table[%d] = %s * powerX[%d];\n", ai, table0jk, i));
+          for (int i = 1; i < N; i++, ai++) {
+            formatter.format("table[%d] = %s * powerX[%d];\n", ai, table0jk, i);
+          }
         }
       }
     }
-
     return finaliseInlineFunction(sb);
   }
 
-  static String appendTableijk(StringBuilder sb, int powerZ, int powerY, int powerX, int ai) {
+  static String appendTableijk(Formatter formatter, int powerZ, int powerY, int powerX, int ai) {
     String powerZpowerY;
     boolean compound = true;
     if (powerZ == 0) {
@@ -180,7 +181,7 @@ public class CustomTricubicFunctionInlineTest {
     }
 
     final String tableijk = String.format("table[%d]", ai);
-    sb.append(String.format("%s = %s * powerX[%d];\n", tableijk, powerZpowerY, powerX));
+    formatter.format("%s = %s * powerX[%d];\n", tableijk, powerZpowerY, powerX);
     return (compound) ? tableijk : powerZpowerY;
   }
 
@@ -193,40 +194,41 @@ public class CustomTricubicFunctionInlineTest {
     String powerZpowerY;
     String powerZpowerYpowerX;
     final StringBuilder sb = new StringBuilder();
+    try (Formatter formatter = new Formatter(sb)) {
+      // Gradients are described in:
+      // Babcock & Zhuang (2017)
+      // Analyzing Single Molecule Localization Microscopy Data Using Cubic Splines
+      // Scientific Reports 7, Article number: 552
+      for (int k = 0, ai = 0; k < N; k++) {
+        for (int j = 0; j < N; j++) {
+          powerZpowerY = append_powerZpowerY(formatter, k, j);
 
-    // Gradients are described in:
-    // Babcock & Zhuang (2017)
-    // Analyzing Single Molecule Localization Microscopy Data Using Cubic Splines
-    // Scientific Reports 7, Article number: 552
-    for (int k = 0, ai = 0; k < N; k++) {
-      for (int j = 0; j < N; j++) {
-        powerZpowerY = append_powerZpowerY(sb, k, j);
+          for (int i = 0; i < N; i++, ai++) {
+            powerZpowerYpowerX = append_powerZpowerYpowerX(formatter, powerZpowerY, i);
 
-        for (int i = 0; i < N; i++, ai++) {
-          powerZpowerYpowerX = append_powerZpowerYpowerX(sb, powerZpowerY, i);
+            //@formatter:off
+            formatter.format("result += %s * a[%d];\n", powerZpowerYpowerX, ai);
+            if (i < N_1) {
+              formatter.format("df_da[0] += %d * %s * a[%d];\n", i+1, powerZpowerYpowerX, getIndex(i+1, j, k));
+             }
+            if (j < N_1) {
+              formatter.format("df_da[1] += %d * %s * a[%d];\n", j+1, powerZpowerYpowerX, getIndex(i, j+1, k));
+            }
+            if (k < N_1) {
+              formatter.format("df_da[2] += %d * %s * a[%d];\n", k+1, powerZpowerYpowerX, getIndex(i, j, k+1));
+            }
+            //@formatter:on
 
-          //@formatter:off
-          sb.append(String.format("result += %s * a[%d];\n", powerZpowerYpowerX, ai));
-          if (i < N_1) {
-            sb.append(String.format("df_da[0] += %d * %s * a[%d];\n", i+1, powerZpowerYpowerX, getIndex(i+1, j, k)));
-           }
-          if (j < N_1) {
-            sb.append(String.format("df_da[1] += %d * %s * a[%d];\n", j+1, powerZpowerYpowerX, getIndex(i, j+1, k)));
+            // Formal computation
+            // powerZpowerYpowerX = powerZ[k] * powerY[j] * powerX[i];
+            // result += powerZpowerYpowerX * a[ai];
+            // if (i < N_1)
+            // df_da[0] += (i+1) * powerZpowerYpowerX * a[getIndex(i+1, j, k)];
+            // if (j < N_1)
+            // df_da[1] += (j+1) * powerZpowerYpowerX * a[getIndex(i, j+1, k)];
+            // if (k < N_1)
+            // df_da[2] += (k+1) * powerZpowerYpowerX * a[getIndex(i, j, k+1)];
           }
-          if (k < N_1) {
-            sb.append(String.format("df_da[2] += %d * %s * a[%d];\n", k+1, powerZpowerYpowerX, getIndex(i, j, k+1)));
-          }
-          //@formatter:on
-
-          // Formal computation
-          // powerZpowerYpowerX = powerZ[k] * powerY[j] * powerX[i];
-          // result += powerZpowerYpowerX * a[ai];
-          // if (i < N_1)
-          // df_da[0] += (i+1) * powerZpowerYpowerX * a[getIndex(i+1, j, k)];
-          // if (j < N_1)
-          // df_da[1] += (j+1) * powerZpowerYpowerX * a[getIndex(i, j+1, k)];
-          // if (k < N_1)
-          // df_da[2] += (k+1) * powerZpowerYpowerX * a[getIndex(i, j, k+1)];
         }
       }
     }
@@ -234,14 +236,14 @@ public class CustomTricubicFunctionInlineTest {
     return finaliseInlineFunction(sb);
   }
 
-  static String append_powerZpowerYpowerX(StringBuilder sb, String powerZpowerY, int power) {
+  static String append_powerZpowerYpowerX(Formatter formatter, String powerZpowerY, int power) {
     String powerZpowerYpowerX;
     if (power == 0) {
       powerZpowerYpowerX = powerZpowerY;
     } else if (powerZpowerY.equals("1")) {
       powerZpowerYpowerX = String.format("powerX[%d]", power);
     } else {
-      sb.append(String.format("powerZpowerYpowerX = %s * powerX[%d];\n", powerZpowerY, power));
+      formatter.format("powerZpowerYpowerX = %s * powerX[%d];\n", powerZpowerY, power);
       powerZpowerYpowerX = "powerZpowerYpowerX";
     }
     return powerZpowerYpowerX;
@@ -455,62 +457,63 @@ public class CustomTricubicFunctionInlineTest {
     String powerZpowerY;
     String powerZpowerYpowerX;
     final StringBuilder sb = new StringBuilder();
+    try (Formatter formatter = new Formatter(sb)) {
+      // Gradients are described in:
+      // Babcock & Zhuang (2017)
+      // Analyzing Single Molecule Localization Microscopy Data Using Cubic Splines
+      // Scientific Reports 7, Article number: 552
+      for (int k = 0, ai = 0; k < N; k++) {
+        for (int j = 0; j < N; j++) {
+          powerZpowerY = append_powerZpowerY(formatter, k, j);
 
-    // Gradients are described in:
-    // Babcock & Zhuang (2017)
-    // Analyzing Single Molecule Localization Microscopy Data Using Cubic Splines
-    // Scientific Reports 7, Article number: 552
-    for (int k = 0, ai = 0; k < N; k++) {
-      for (int j = 0; j < N; j++) {
-        powerZpowerY = append_powerZpowerY(sb, k, j);
+          for (int i = 0; i < N; i++, ai++) {
+            powerZpowerYpowerX = append_powerZpowerYpowerX(formatter, powerZpowerY, i);
 
-        for (int i = 0; i < N; i++, ai++) {
-          powerZpowerYpowerX = append_powerZpowerYpowerX(sb, powerZpowerY, i);
-
-          //@formatter:off
-          sb.append(String.format("result += %s * a[%d];\n", powerZpowerYpowerX, ai));
-          if (i < N_1) {
-            sb.append(String.format("df_da[0] += %d * %s * a[%d];\n", i+1, powerZpowerYpowerX, getIndex(i+1, j, k)));
-            if (i < N_2) {
-              sb.append(String.format("d2f_da2[0] += %d * %s * a[%d];\n", (i+1)*(i+2), powerZpowerYpowerX, getIndex(i+2, j, k)));
+            //@formatter:off
+            formatter.format("result += %s * a[%d];\n", powerZpowerYpowerX, ai);
+            if (i < N_1) {
+              formatter.format("df_da[0] += %d * %s * a[%d];\n", i+1, powerZpowerYpowerX, getIndex(i+1, j, k));
+              if (i < N_2) {
+                formatter.format("d2f_da2[0] += %d * %s * a[%d];\n", (i+1)*(i+2), powerZpowerYpowerX, getIndex(i+2, j, k));
+              }
             }
-          }
-          if (j < N_1) {
-            sb.append(String.format("df_da[1] += %d * %s * a[%d];\n", j+1, powerZpowerYpowerX, getIndex(i, j+1, k)));
-            if (j < N_2) {
-              sb.append(String.format("d2f_da2[1] += %d * %s * a[%d];\n", (j+1)*(j+2), powerZpowerYpowerX, getIndex(i, j+2, k)));
+            if (j < N_1) {
+              formatter.format("df_da[1] += %d * %s * a[%d];\n", j+1, powerZpowerYpowerX, getIndex(i, j+1, k));
+              if (j < N_2) {
+                formatter.format("d2f_da2[1] += %d * %s * a[%d];\n", (j+1)*(j+2), powerZpowerYpowerX, getIndex(i, j+2, k));
+              }
             }
-          }
-          if (k < N_1)
-          {
-            sb.append(String.format("df_da[2] += %d * %s * a[%d];\n", k+1, powerZpowerYpowerX, getIndex(i, j, k+1)));
-            if (k < N_2) {
-              sb.append(String.format("d2f_da2[2] += %d * %s * a[%d];\n", (k+1)*(k+2), powerZpowerYpowerX, getIndex(i, j, k+2)));
+            if (k < N_1)
+            {
+              formatter.format("df_da[2] += %d * %s * a[%d];\n", k+1, powerZpowerYpowerX, getIndex(i, j, k+1));
+              if (k < N_2) {
+                formatter.format("d2f_da2[2] += %d * %s * a[%d];\n", (k+1)*(k+2), powerZpowerYpowerX, getIndex(i, j, k+2));
+              }
             }
-          }
-          //@formatter:on
+            //@formatter:on
 
-          //// Formal computation
-          // powerZpowerYpowerX = powerZpowerY * powerX[i];
-          // result += powerZpowerYpowerX * a[ai];
-          // if (i < N_1)
-          // {
-          // df_da[0] += (i+1) * powerZpowerYpowerX * a[getIndex(i+1, j, k)];
-          // if (i < N_2)
-          // d2f_da2[0] += (i+1) * (i + 2) * powerZpowerYpowerX * a[getIndex(i + 2, j, k)];
-          // }
-          // if (j < N_1)
-          // {
-          // df_da[1] += (j+1) * powerZpowerYpowerX * a[getIndex(i, j+1, k)];
-          // if (j < N_2)
-          // d2f_da2[1] += (j+1) * (j + 2) * powerZpowerYpowerX * a[getIndex(i, j + 2, k)];
-          // }
-          // if (k < N_1)
-          // {
-          // df_da[2] += (k+1) * powerZpowerYpowerX * a[getIndex(i, j, k+1)];
-          // if (k < N_2)
-          // d2f_da2[2] += (k+1) * (k + 2) * powerZpowerYpowerX * a[getIndex(i, j, k + 2)];
-          // }
+            //// Formal computation
+            // powerZpowerYpowerX = powerZpowerY * powerX[i];
+            // result += powerZpowerYpowerX * a[ai];
+            // if (i < N_1)
+            // {
+            // df_da[0] += (i+1) * powerZpowerYpowerX * a[getIndex(i+1, j, k)];
+            // if (i < N_2)
+            // d2f_da2[0] += (i+1) * (i + 2) * powerZpowerYpowerX * a[getIndex(i + 2, j, k)];
+            // }
+            // if (j < N_1)
+            // {
+            // df_da[1] += (j+1) * powerZpowerYpowerX * a[getIndex(i, j+1, k)];
+            // if (j < N_2)
+            // d2f_da2[1] += (j+1) * (j + 2) * powerZpowerYpowerX * a[getIndex(i, j + 2, k)];
+            // }
+            // if (k < N_1)
+            // {
+            // df_da[2] += (k+1) * powerZpowerYpowerX * a[getIndex(i, j, k+1)];
+            // if (k < N_2)
+            // d2f_da2[2] += (k+1) * (k + 2) * powerZpowerYpowerX * a[getIndex(i, j, k + 2)];
+            // }
+          }
         }
       }
     }
