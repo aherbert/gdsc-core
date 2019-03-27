@@ -33,18 +33,17 @@ import org.apache.commons.math3.exception.OutOfRangeException;
 /**
  * Contains the cubic spline position for a value within the interpolation range. Used to
  * pre-compute values to evaluate the spline value.
+ *
+ * <p>This class is immutable.
  */
 public class CubicSplinePosition {
 
-  /** The index for the value to the power 1. */
-  private static final int POWER_1 = 0;
-  /** The index for the value to the power 2. */
-  private static final int POWER_2 = 1;
-  /** The index for the value to the power 3. */
-  private static final int POWER_3 = 2;
-
-  /** The power of the value x (x^1, x^2, x^3). */
-  final double[] power = new double[3];
+  /** The value x^1. */
+  final double x1;
+  /** The value x^2. */
+  final double x2;
+  /** The value x^3. */
+  final double x3;
 
   /**
    * Instantiates a new cubic spline position. Only used when x is known to be in the range 0-1.
@@ -53,14 +52,9 @@ public class CubicSplinePosition {
    * @param dummy the dummy flag (this is unused)
    */
   CubicSplinePosition(double x, boolean dummy) {
-    createPowers(x);
-  }
-
-  private void createPowers(double x) {
-    final double x2 = x * x;
-    power[POWER_1] = x;
-    power[POWER_2] = x2;
-    power[POWER_3] = x2 * x;
+    x1 = x;
+    x2 = x * x;
+    x3 = x2 * x;
   }
 
   /**
@@ -75,17 +69,9 @@ public class CubicSplinePosition {
     if (!(x >= 0 && x <= 1)) {
       throw new OutOfRangeException(x, 0, 1);
     }
-    createPowers(x);
-  }
-
-  /**
-   * Gets the power of the value (x^n).
-   *
-   * @param n the power
-   * @return the power of the value
-   */
-  public double getPower(int n) {
-    return (n == 0) ? 1.0 : power[n - 1];
+    x1 = x;
+    x2 = x * x;
+    x3 = x2 * x;
   }
 
   /**
@@ -94,7 +80,7 @@ public class CubicSplinePosition {
    * @return x
    */
   public double getX() {
-    return power[POWER_1];
+    return x1;
   }
 
   /**
@@ -103,7 +89,7 @@ public class CubicSplinePosition {
    * @return x^2
    */
   public double getX2() {
-    return power[POWER_2];
+    return x2;
   }
 
   /**
@@ -112,7 +98,7 @@ public class CubicSplinePosition {
    * @return x^3
    */
   public double getX3() {
-    return power[POWER_3];
+    return x3;
   }
 
   /**

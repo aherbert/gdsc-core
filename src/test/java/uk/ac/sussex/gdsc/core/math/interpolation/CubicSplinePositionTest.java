@@ -33,10 +33,6 @@ public class CubicSplinePositionTest {
       Assertions.assertNotNull(p);
       final double x2 = x * x;
       final double x3 = x * x2;
-      Assertions.assertEquals(1, p.getPower(0));
-      Assertions.assertEquals(x, p.getPower(1));
-      Assertions.assertEquals(x2, p.getPower(2));
-      Assertions.assertEquals(x3, p.getPower(3));
       Assertions.assertEquals(x, p.getX());
       Assertions.assertEquals(x2, p.getX2());
       Assertions.assertEquals(x3, p.getX3());

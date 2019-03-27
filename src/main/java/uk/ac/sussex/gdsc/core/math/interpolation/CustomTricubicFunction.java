@@ -34,32 +34,27 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import org.apache.commons.math3.analysis.TrivariateFunction;
 import org.apache.commons.math3.exception.OutOfRangeException;
 
+import java.io.Serializable;
+
 /**
  * 3D-spline function.
  */
-public abstract class CustomTricubicFunction implements TrivariateFunction {
-  /**
-   * Get a copy of the 64 coefficients for the tricubic function.
-   *
-   * @return the coefficients
-   */
-  public abstract double[] getCoefficients();
+public abstract class CustomTricubicFunction implements TrivariateFunction, Serializable {
+  private static final long serialVersionUID = 1L;
 
   /**
-   * Get coefficient at the specified index for the tricubic function.
+   * Gets the 64 coefficients to a provided array.
    *
-   * @param index the index
-   * @return the coefficient
+   * @param coefficients the coefficients (must be allocated to {@code length >= 64})
    */
-  public abstract double get(int index);
+  public abstract void getCoefficients(double[] coefficients);
 
   /**
-   * Get the float-valued coefficient at the specified index for the tricubic function.
+   * Gets the 64 coefficients to a provided array.
    *
-   * @param index the index
-   * @return the float-valued coefficient
+   * @param coefficients the coefficients (must be allocated to {@code length >= 64})
    */
-  public abstract float getf(int index);
+  public abstract void getCoefficients(float[] coefficients);
 
   /**
    * Checks if is single precision.
@@ -85,21 +80,9 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
   /**
    * Copy the function.
    *
-   * @return the custom tricubic function
+   * @return the copy
    */
   public abstract CustomTricubicFunction copy();
-
-  /**
-   * Gets the index in the table of 64 coefficients for the specified power of each dimension.
-   *
-   * @param powerX the x power
-   * @param powerY the y power
-   * @param powerZ the z power
-   * @return the index
-   */
-  static int getIndex(int powerX, int powerY, int powerZ) {
-    return powerX + 4 * (powerY + 4 * powerZ);
-  }
 
   /**
    * Compute the value with no interpolation (i.e. x=0,y=0,z=0).
@@ -129,172 +112,38 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
   /**
    * Get the interpolated value.
    *
-   * @param powerX x-coordinate powers of the interpolation point.
-   * @param powerY y-coordinate powers of the interpolation point.
-   * @param powerZ z-coordinate powers of the interpolation point.
+   * @param x x-coordinate powers of the interpolation point.
+   * @param y y-coordinate powers of the interpolation point.
+   * @param z z-coordinate powers of the interpolation point.
    * @return the interpolated value.
    */
-  protected abstract double value0(final double[] powerX, final double[] powerY,
-      final double[] powerZ);
+  protected abstract double value0(final CubicSplinePosition x, CubicSplinePosition y,
+      CubicSplinePosition z);
 
   /**
    * Compute the value and partial first-order derivatives.
    *
-   * @param powerX x-coordinate powers of the interpolation point.
-   * @param powerY y-coordinate powers of the interpolation point.
-   * @param powerZ z-coordinate powers of the interpolation point.
+   * @param x x-coordinate powers of the interpolation point.
+   * @param y y-coordinate powers of the interpolation point.
+   * @param z z-coordinate powers of the interpolation point.
    * @param derivative1 the partial first order derivatives with respect to x,y,z
    * @return the interpolated value.
    */
-  protected abstract double value1(final double[] powerX, final double[] powerY,
-      final double[] powerZ, final double[] derivative1);
+  protected abstract double value1(final CubicSplinePosition x, CubicSplinePosition y,
+      CubicSplinePosition z, final double[] derivative1);
 
   /**
    * Compute the value and partial first-order and second-order derivatives.
    *
-   * @param powerX x-coordinate powers of the interpolation point.
-   * @param powerY y-coordinate powers of the interpolation point.
-   * @param powerZ z-coordinate powers of the interpolation point.
+   * @param x x-coordinate powers of the interpolation point.
+   * @param y y-coordinate powers of the interpolation point.
+   * @param z z-coordinate powers of the interpolation point.
    * @param derivative1 the partial first order derivatives with respect to x,y,z
    * @param derivative2 the partial second order derivatives with respect to x,y,z
    * @return the interpolated value.
    */
-  protected abstract double value2(final double[] powerX, final double[] powerY,
-      final double[] powerZ, final double[] derivative1, double[] derivative2);
-
-
-  /**
-   * Check the value is in the interval [0 : 1] inclusive.
-   *
-   * @param value the value
-   */
-  private static void checkRange(double value) {
-    if (value < 0 || value > 1) {
-      throw new OutOfRangeException(value, 0, 1);
-    }
-  }
-
-  /**
-   * Compute the power table.
-   *
-   * @param x x-coordinate of the interpolation point.
-   * @param y y-coordinate of the interpolation point.
-   * @param z z-coordinate of the interpolation point.
-   * @return the power table. @ if {@code x}, {@code y} or {@code z} are not in the interval
-   *         {@code [0, 1]}.
-   */
-  public static double[] computePowerTable(double x, double y, double z) {
-    checkRange(x);
-    checkRange(y);
-    checkRange(z);
-
-    final double x2 = x * x;
-    final double x3 = x2 * x;
-    final double[] powerX = { /* 1, optimised out */ x, x2, x3};
-
-    final double y2 = y * y;
-    final double y3 = y2 * y;
-    final double[] powerY = { /* 1, optimised out */ y, y2, y3};
-
-    final double z2 = z * z;
-    final double z3 = z2 * z;
-    final double[] powerZ = { /* 1, optimised out */ z, z2, z3};
-
-    return computePowerTable(powerX, powerY, powerZ);
-  }
-
-  /**
-   * Compute the power table.
-   *
-   * @param x x-coordinate of the interpolation point.
-   * @param y y-coordinate of the interpolation point.
-   * @param z z-coordinate of the interpolation point.
-   * @return the power table.
-   */
-  public static double[] computePowerTable(CubicSplinePosition x, CubicSplinePosition y,
-      CubicSplinePosition z) {
-    return computePowerTable(x.power, y.power, z.power);
-  }
-
-  /**
-   * Compute the power table.
-   *
-   * @param powerX x-coordinate powers of the interpolation point.
-   * @param powerY y-coordinate powers of the interpolation point.
-   * @param powerZ z-coordinate powers of the interpolation point.
-   * @return the power table.
-   */
-  private static double[] computePowerTable(final double[] powerX, final double[] powerY,
-      final double[] powerZ) {
-    final double[] table = new double[64];
-
-    table[0] = 1;
-    table[1] = powerX[0];
-    table[2] = powerX[1];
-    table[3] = powerX[2];
-    table[4] = powerY[0];
-    table[5] = powerY[0] * powerX[0];
-    table[6] = powerY[0] * powerX[1];
-    table[7] = powerY[0] * powerX[2];
-    table[8] = powerY[1];
-    table[9] = powerY[1] * powerX[0];
-    table[10] = powerY[1] * powerX[1];
-    table[11] = powerY[1] * powerX[2];
-    table[12] = powerY[2];
-    table[13] = powerY[2] * powerX[0];
-    table[14] = powerY[2] * powerX[1];
-    table[15] = powerY[2] * powerX[2];
-    table[16] = powerZ[0];
-    table[17] = powerZ[0] * powerX[0];
-    table[18] = powerZ[0] * powerX[1];
-    table[19] = powerZ[0] * powerX[2];
-    table[20] = powerZ[0] * powerY[0];
-    table[21] = table[20] * powerX[0];
-    table[22] = table[20] * powerX[1];
-    table[23] = table[20] * powerX[2];
-    table[24] = powerZ[0] * powerY[1];
-    table[25] = table[24] * powerX[0];
-    table[26] = table[24] * powerX[1];
-    table[27] = table[24] * powerX[2];
-    table[28] = powerZ[0] * powerY[2];
-    table[29] = table[28] * powerX[0];
-    table[30] = table[28] * powerX[1];
-    table[31] = table[28] * powerX[2];
-    table[32] = powerZ[1];
-    table[33] = powerZ[1] * powerX[0];
-    table[34] = powerZ[1] * powerX[1];
-    table[35] = powerZ[1] * powerX[2];
-    table[36] = powerZ[1] * powerY[0];
-    table[37] = table[36] * powerX[0];
-    table[38] = table[36] * powerX[1];
-    table[39] = table[36] * powerX[2];
-    table[40] = powerZ[1] * powerY[1];
-    table[41] = table[40] * powerX[0];
-    table[42] = table[40] * powerX[1];
-    table[43] = table[40] * powerX[2];
-    table[44] = powerZ[1] * powerY[2];
-    table[45] = table[44] * powerX[0];
-    table[46] = table[44] * powerX[1];
-    table[47] = table[44] * powerX[2];
-    table[48] = powerZ[2];
-    table[49] = powerZ[2] * powerX[0];
-    table[50] = powerZ[2] * powerX[1];
-    table[51] = powerZ[2] * powerX[2];
-    table[52] = powerZ[2] * powerY[0];
-    table[53] = table[52] * powerX[0];
-    table[54] = table[52] * powerX[1];
-    table[55] = table[52] * powerX[2];
-    table[56] = powerZ[2] * powerY[1];
-    table[57] = table[56] * powerX[0];
-    table[58] = table[56] * powerX[1];
-    table[59] = table[56] * powerX[2];
-    table[60] = powerZ[2] * powerY[2];
-    table[61] = table[60] * powerX[0];
-    table[62] = table[60] * powerX[1];
-    table[63] = table[60] * powerX[2];
-
-    return table;
-  }
+  protected abstract double value2(final CubicSplinePosition x, CubicSplinePosition y,
+      CubicSplinePosition z, final double[] derivative1, double[] derivative2);
 
   /**
    * Checks if the power table is at the boundary of the interpolation range for the given
@@ -304,14 +153,14 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param table the table
    * @return true, if at the boundary
    */
-  public static boolean isBoundary(int dimension, double[] table) {
+  public static boolean isBoundary(int dimension, DoubleCubicSplineData table) {
     switch (dimension) {
       case 0:
-        return isBoundary(table[1]);
+        return isBoundary(table.x1y0z0);
       case 1:
-        return isBoundary(table[4]);
+        return isBoundary(table.x0y1z0);
       case 2:
-        return isBoundary(table[16]);
+        return isBoundary(table.x0y0z1);
       default:
         return false;
     }
@@ -325,14 +174,14 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param table the table
    * @return true, if at the boundary
    */
-  public static boolean isBoundary(int dimension, float[] table) {
+  public static boolean isBoundary(int dimension, FloatCubicSplineData table) {
     switch (dimension) {
       case 0:
-        return isBoundary(table[1]);
+        return isBoundary(table.x1y0z0);
       case 1:
-        return isBoundary(table[4]);
+        return isBoundary(table.x0y1z0);
       case 2:
-        return isBoundary(table[16]);
+        return isBoundary(table.x0y0z1);
       default:
         return false;
     }
@@ -349,90 +198,80 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
   }
 
   /**
-   * Compute the power table.
+   * Checks if the value is 0 or 1.
    *
-   * @param x x-coordinate of the interpolation point.
-   * @param y y-coordinate of the interpolation point.
-   * @param z z-coordinate of the interpolation point.
-   * @return the power table. @ if {@code x}, {@code y} or {@code z} are not in the interval
-   *         {@code [0, 1]}.
+   * @param value the value
+   * @return true, if 0 or 1
    */
-  public static float[] computeFloatPowerTable(double x, double y, double z) {
-    // Compute as a double for precision
-    return toFloat(computePowerTable(x, y, z));
+  private static boolean isBoundary(float value) {
+    return value == 0 || value == 1;
   }
 
-  /**
-   * Compute the power table.
-   *
-   * @param x x-coordinate of the interpolation point.
-   * @param y y-coordinate of the interpolation point.
-   * @param z z-coordinate of the interpolation point.
-   * @return the power table.
-   */
-  public static float[] computeFloatPowerTable(CubicSplinePosition x, CubicSplinePosition y,
-      CubicSplinePosition z) {
-    // Compute as a double for precision
-    return toFloat(computePowerTable(x, y, z));
-  }
+  // /**
+  // * Convert a length 64 array to a float.
+  // *
+  // * @param values the values
+  // * @return the float array
+  // */
+  // protected static float[] toFloat(double[] values) {
+  // final float[] f = new float[64];
+  // for (int i = 0; i < 64; i++) {
+  // f[i] = (float) values[i];
+  // }
+  // return f;
+  // }
+  //
+  // /**
+  // * Convert a length 64 array to a double.
+  // *
+  // * @param values the values
+  // * @return the double array
+  // */
+  // protected static double[] toDouble(float[] values) {
+  // final double[] d = new double[64];
+  // for (int i = 0; i < 64; i++) {
+  // d[i] = values[i];
+  // }
+  // return d;
+  // }
+  //
+  // /**
+  // * Scale the power table. The scaled table can be used for fast computation of the gradients.
+  // *
+  // * @param table the table
+  // * @param scale the scale
+  // * @return the scaled table
+  // */
+  // public static double[] scalePowerTable(DoubleCubicSplineData table, int scale) {
+  // final DoubleCubicSplineData tableN = new double[64];
+  // for (int i = 0; i < 64; i++) {
+  // tableN[i] = scale * table[i];
+  // }
+  // return tableN;
+  // }
+  //
+  // /**
+  // * Scale the power table. The scaled table can be used for fast computation of the gradients.
+  // *
+  // * @param table the table
+  // * @param scale the scale
+  // * @return the scaled table
+  // */
+  // public static float[] scalePowerTable(FloatCubicSplineData table, int scale) {
+  // final FloatCubicSplineData tableN = new float[64];
+  // for (int i = 0; i < 64; i++) {
+  // tableN[i] = scale * table[i];
+  // }
+  // return tableN;
+  // }
+  //
+  /// **
+  // * Scale the coefficients by the given value.
+  // *
+  // * @param scale the scale
+  // */
+  // public abstract void scale(double scale);
 
-  /**
-   * Convert a length 64 array to a float.
-   *
-   * @param values the values
-   * @return the float array
-   */
-  protected static float[] toFloat(double[] values) {
-    final float[] f = new float[64];
-    for (int i = 0; i < 64; i++) {
-      f[i] = (float) values[i];
-    }
-    return f;
-  }
-
-  /**
-   * Convert a length 64 array to a double.
-   *
-   * @param values the values
-   * @return the double array
-   */
-  protected static double[] toDouble(float[] values) {
-    final double[] d = new double[64];
-    for (int i = 0; i < 64; i++) {
-      d[i] = values[i];
-    }
-    return d;
-  }
-
-  /**
-   * Scale the power table. The scaled table can be used for fast computation of the gradients.
-   *
-   * @param table the table
-   * @param scale the scale
-   * @return the scaled table
-   */
-  public static double[] scalePowerTable(double[] table, int scale) {
-    final double[] tableN = new double[64];
-    for (int i = 0; i < 64; i++) {
-      tableN[i] = scale * table[i];
-    }
-    return tableN;
-  }
-
-  /**
-   * Scale the power table. The scaled table can be used for fast computation of the gradients.
-   *
-   * @param table the table
-   * @param scale the scale
-   * @return the scaled table
-   */
-  public static float[] scalePowerTable(float[] table, int scale) {
-    final float[] tableN = new float[64];
-    for (int i = 0; i < 64; i++) {
-      tableN[i] = scale * table[i];
-    }
-    return tableN;
-  }
 
   /**
    * Get the interpolated value.
@@ -440,28 +279,14 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param x x-coordinate of the interpolation point.
    * @param y y-coordinate of the interpolation point.
    * @param z z-coordinate of the interpolation point.
-   * @return the interpolated value. @ if {@code x}, {@code y} or {@code z} are not in the interval
+   * @return the interpolated value.
+   * @throws OutOfRangeException if {@code x}, {@code y} or {@code z} are not in the interval
    *         {@code [0, 1]}.
    */
   @Override
   public double value(double x, double y, double z) {
-    checkRange(x);
-    checkRange(y);
-    checkRange(z);
-
-    final double x2 = x * x;
-    final double x3 = x2 * x;
-    final double[] powerX = { /* 1, optimised out */ x, x2, x3};
-
-    final double y2 = y * y;
-    final double y3 = y2 * y;
-    final double[] powerY = { /* 1, optimised out */ y, y2, y3};
-
-    final double z2 = z * z;
-    final double z3 = z2 * z;
-    final double[] powerZ = { /* 1, optimised out */ z, z2, z3};
-
-    return value0(powerX, powerY, powerZ);
+    return value0(new CubicSplinePosition(x), new CubicSplinePosition(y),
+        new CubicSplinePosition(z));
   }
 
   /**
@@ -473,7 +298,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @return the interpolated value.
    */
   public double value(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z) {
-    return value0(x.power, y.power, z.power);
+    return value0(x, y, z);
   }
 
   /**
@@ -482,7 +307,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param table the power table
    * @return the interpolated value.
    */
-  public abstract double value(double[] table);
+  public abstract double value(DoubleCubicSplineData table);
 
   /**
    * Get the value using a pre-computed power table.
@@ -490,7 +315,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param table the power table
    * @return the interpolated value.
    */
-  public abstract double value(float[] table);
+  public abstract double value(FloatCubicSplineData table);
 
   /**
    * Compute the value and partial first-order derivatives.
@@ -501,27 +326,13 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param y y-coordinate of the interpolation point.
    * @param z z-coordinate of the interpolation point.
    * @param derivative1 the partial first order derivatives with respect to x,y,z
-   * @return the interpolated value. @ if {@code x}, {@code y} or {@code z} are not in the interval
+   * @return the interpolated value.
+   * @throws OutOfRangeException if {@code x}, {@code y} or {@code z} are not in the interval
    *         {@code [0, 1]}.
    */
   public double value(double x, double y, double z, double[] derivative1) {
-    checkRange(x);
-    checkRange(y);
-    checkRange(z);
-
-    final double x2 = x * x;
-    final double x3 = x2 * x;
-    final double[] powerX = { /* 1, optimised out */ x, x2, x3};
-
-    final double y2 = y * y;
-    final double y3 = y2 * y;
-    final double[] powerY = { /* 1, optimised out */ y, y2, y3};
-
-    final double z2 = z * z;
-    final double z3 = z2 * z;
-    final double[] powerZ = { /* 1, optimised out */ z, z2, z3};
-
-    return value1(powerX, powerY, powerZ, derivative1);
+    return value1(new CubicSplinePosition(x), new CubicSplinePosition(y),
+        new CubicSplinePosition(z), derivative1);
   }
 
   /**
@@ -537,7 +348,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    */
   public double value(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z,
       double[] derivative1) {
-    final double value = value1(x.power, y.power, z.power, derivative1);
+    final double value = value1(x, y, z, derivative1);
     derivative1[0] = x.scaleGradient(derivative1[0]);
     derivative1[1] = y.scaleGradient(derivative1[1]);
     derivative1[2] = z.scaleGradient(derivative1[2]);
@@ -551,7 +362,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param derivative1 the partial first order derivatives with respect to x,y,z
    * @return the interpolated value.
    */
-  public abstract double value(double[] table, double[] derivative1);
+  public abstract double value(DoubleCubicSplineData table, double[] derivative1);
 
   /**
    * Compute the value and partial first-order derivatives using pre-computed power table.
@@ -560,19 +371,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param derivative1 the partial first order derivatives with respect to x,y,z
    * @return the interpolated value.
    */
-  public abstract double value(float[] table, double[] derivative1);
-
-  /**
-   * Compute the value and partial first-order derivatives using pre-computed power table.
-   *
-   * @param table the power table
-   * @param table2 the power table multiplied by 2
-   * @param table3 the power table multiplied by 3
-   * @param derivative1 the partial first order derivatives with respect to x,y,z
-   * @return the interpolated value.
-   */
-  public abstract double value(double[] table, double[] table2, double[] table3,
-      double[] derivative1);
+  public abstract double value(FloatCubicSplineData table, double[] derivative1);
 
   /**
    * Compute the value and partial first-order derivatives using pre-computed power table.
@@ -583,7 +382,20 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param derivative1 the partial first order derivatives with respect to x,y,z
    * @return the interpolated value.
    */
-  public abstract double value(float[] table, float[] table2, float[] table3, double[] derivative1);
+  public abstract double value(DoubleCubicSplineData table, DoubleCubicSplineData table2,
+      DoubleCubicSplineData table3, double[] derivative1);
+
+  /**
+   * Compute the value and partial first-order derivatives using pre-computed power table.
+   *
+   * @param table the power table
+   * @param table2 the power table multiplied by 2
+   * @param table3 the power table multiplied by 3
+   * @param derivative1 the partial first order derivatives with respect to x,y,z
+   * @return the interpolated value.
+   */
+  public abstract double value(FloatCubicSplineData table, FloatCubicSplineData table2,
+      FloatCubicSplineData table3, double[] derivative1);
 
   /**
    * Compute the value and partial first-order and second-order derivatives.
@@ -595,27 +407,14 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param z z-coordinate of the interpolation point.
    * @param derivative1 the partial first order derivatives with respect to x,y,z
    * @param derivative2 the partial second order derivatives with respect to x,y,z
-   * @return the interpolated value. @ if {@code x}, {@code y} or {@code z} are not in the interval
+   * @return the interpolated value.
+   * @throws OutOfRangeException if {@code x}, {@code y} or {@code z} are not in the interval
    *         {@code [0, 1]}.
    */
   public double value(double x, double y, double z, double[] derivative1, double[] derivative2) {
-    checkRange(x);
-    checkRange(y);
-    checkRange(z);
 
-    final double x2 = x * x;
-    final double x3 = x2 * x;
-    final double[] powerX = { /* 1, optimised out */ x, x2, x3};
-
-    final double y2 = y * y;
-    final double y3 = y2 * y;
-    final double[] powerY = { /* 1, optimised out */ y, y2, y3};
-
-    final double z2 = z * z;
-    final double z3 = z2 * z;
-    final double[] powerZ = { /* 1, optimised out */ z, z2, z3};
-
-    return value2(powerX, powerY, powerZ, derivative1, derivative2);
+    return value2(new CubicSplinePosition(x), new CubicSplinePosition(y),
+        new CubicSplinePosition(z), derivative1, derivative2);
   }
 
   /**
@@ -632,7 +431,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    */
   public double value(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z,
       double[] derivative1, double[] derivative2) {
-    final double value = value2(x.power, y.power, z.power, derivative1, derivative2);
+    final double value = value2(x, y, z, derivative1, derivative2);
     derivative1[0] = x.scaleGradient(derivative1[0]);
     derivative1[1] = y.scaleGradient(derivative1[1]);
     derivative1[2] = z.scaleGradient(derivative1[2]);
@@ -651,7 +450,8 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param derivative2 the partial second order derivatives with respect to x,y,z
    * @return the interpolated value.
    */
-  public abstract double value(double[] table, double[] derivative1, double[] derivative2);
+  public abstract double value(DoubleCubicSplineData table, double[] derivative1,
+      double[] derivative2);
 
   /**
    * Compute the value and partial first-order and second-order derivatives using pre-computed power
@@ -662,22 +462,8 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param derivative2 the partial second order derivatives with respect to x,y,z
    * @return the interpolated value.
    */
-  public abstract double value(float[] table, double[] derivative1, double[] derivative2);
-
-  /**
-   * Compute the value and partial first-order and second-order derivatives using pre-computed power
-   * table.
-   *
-   * @param table the power table
-   * @param table2 the power table multiplied by 2
-   * @param table3 the power table multiplied by 3
-   * @param table6 the power table multiplied by 6
-   * @param derivative1 the partial second order derivatives with respect to x,y,z
-   * @param derivative2 the partial second order derivatives with respect to x,y,z
-   * @return the interpolated value.
-   */
-  public abstract double value(double[] table, double[] table2, double[] table3, double[] table6,
-      double[] derivative1, double[] derivative2);
+  public abstract double value(FloatCubicSplineData table, double[] derivative1,
+      double[] derivative2);
 
   /**
    * Compute the value and partial first-order and second-order derivatives using pre-computed power
@@ -691,8 +477,25 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param derivative2 the partial second order derivatives with respect to x,y,z
    * @return the interpolated value.
    */
-  public abstract double value(float[] table, float[] table2, float[] table3, float[] table6,
-      double[] derivative1, double[] derivative2);
+  public abstract double value(DoubleCubicSplineData table, DoubleCubicSplineData table2,
+      DoubleCubicSplineData table3, DoubleCubicSplineData table6, double[] derivative1,
+      double[] derivative2);
+
+  /**
+   * Compute the value and partial first-order and second-order derivatives using pre-computed power
+   * table.
+   *
+   * @param table the power table
+   * @param table2 the power table multiplied by 2
+   * @param table3 the power table multiplied by 3
+   * @param table6 the power table multiplied by 6
+   * @param derivative1 the partial second order derivatives with respect to x,y,z
+   * @param derivative2 the partial second order derivatives with respect to x,y,z
+   * @return the interpolated value.
+   */
+  public abstract double value(FloatCubicSplineData table, FloatCubicSplineData table2,
+      FloatCubicSplineData table3, FloatCubicSplineData table6, double[] derivative1,
+      double[] derivative2);
 
   /**
    * Compute the partial first-order derivatives using pre-computed power table. Provides
@@ -701,7 +504,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param table the power table
    * @param derivative1 the partial first order derivatives with respect to x,y,z
    */
-  public abstract void gradient(double[] table, double[] derivative1);
+  public abstract void gradient(DoubleCubicSplineData table, double[] derivative1);
 
   /**
    * Compute the partial first-order derivatives using pre-computed power table. Provides
@@ -710,40 +513,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction {
    * @param table the power table
    * @param derivative1 the partial first order derivatives with respect to x,y,z
    */
-  public abstract void gradient(float[] table, double[] derivative1);
-
-  /**
-   * Creates the tricubic function.
-   *
-   * @param coefficients the coefficients
-   * @return the custom tricubic function
-   */
-  public static CustomTricubicFunction create(double[] coefficients) {
-    if (coefficients == null || coefficients.length != 64) {
-      throw new IllegalArgumentException("Require 64 coefficients");
-    }
-    return new DoubleCustomTricubicFunction(coefficients);
-  }
-
-  /**
-   * Creates the tricubic function. The function will store single precision coefficients.
-   *
-   * @param coefficients the coefficients
-   * @return the custom tricubic function
-   */
-  public static CustomTricubicFunction create(float[] coefficients) {
-    if (coefficients == null || coefficients.length != 64) {
-      throw new IllegalArgumentException("Require 64 coefficients");
-    }
-    return new FloatCustomTricubicFunction(coefficients);
-  }
-
-  /**
-   * Scale the coefficients by the given value.
-   *
-   * @param scale the scale
-   */
-  public abstract void scale(double scale);
+  public abstract void gradient(FloatCubicSplineData table, double[] derivative1);
 
   /**
    * Perform n refinements of a binary search to find the optimum value. 8 vertices of a cube are

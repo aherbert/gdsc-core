@@ -152,7 +152,9 @@ public class CustomTricubicInterpolatingFunctionTest {
           dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ);
       final double[] e =
           CustomTricubicInterpolatingFunction.computeCoefficientsInlineCollectTerms(beta);
-      Assertions.assertArrayEquals(e, fun1.getCoefficients());
+      final double[] obs = new double[64];
+      fun1.getCoefficients(obs);
+      Assertions.assertArrayEquals(e, obs);
 
       // Check with scale
       for (int z = 0; z < 2; z++) {
@@ -171,7 +173,8 @@ public class CustomTricubicInterpolatingFunctionTest {
 
       final CustomTricubicFunction fun2 = CustomTricubicInterpolatingFunction.create(xscale, yscale,
           zscale, f, dFdX, dFdY, dFdZ, d2FdXdY, d2FdXdZ, d2FdYdZ, d3FdXdYdZ);
-      Assertions.assertArrayEquals(e, fun2.getCoefficients());
+      fun2.getCoefficients(obs);
+      Assertions.assertArrayEquals(e, obs);
     }
   }
 
@@ -259,7 +262,7 @@ public class CustomTricubicInterpolatingFunctionTest {
 
     final CustomTricubicFunction[][][] splines = new CustomTricubicFunction[1][1][1];
     final double[] a = new double[64];
-    splines[0][0][0] = CustomTricubicFunction.create(a);
+    splines[0][0][0] = createCustomTricubicFunction(a);
 
     Assertions.assertNotNull(new CustomTricubicInterpolatingFunction(_x, _x, _x, splines));
 
@@ -321,7 +324,7 @@ public class CustomTricubicInterpolatingFunctionTest {
     for (int z = 0; z < 2; z++) {
       for (int y = 0; y < 2; y++) {
         for (int x = 0; x < 2; x++) {
-          splines[x][y][z] = CustomTricubicFunction.create(a);
+          splines[x][y][z] = createCustomTricubicFunction(a);
         }
       }
     }
@@ -363,7 +366,7 @@ public class CustomTricubicInterpolatingFunctionTest {
     final ValueProvider x = new DoubleArrayValueProvider(new double[] {0, 1});
     final CustomTricubicFunction[][][] splines = new CustomTricubicFunction[1][1][1];
     final double[] a = new double[64];
-    splines[0][0][0] = CustomTricubicFunction.create(a);
+    splines[0][0][0] = createCustomTricubicFunction(a);
     final CustomTricubicInterpolatingFunction f =
         new CustomTricubicInterpolatingFunction(x, x, x, splines);
     Assertions.assertFalse(f.isSinglePrecision());
@@ -385,7 +388,7 @@ public class CustomTricubicInterpolatingFunctionTest {
     final ValueProvider x = new DoubleArrayValueProvider(new double[] {0, 1});
     final CustomTricubicFunction[][][] splines = new CustomTricubicFunction[1][1][1];
     final double[] a = new double[64];
-    splines[0][0][0] = CustomTricubicFunction.create(a);
+    splines[0][0][0] = createCustomTricubicFunction(a);
     final CustomTricubicInterpolatingFunction f =
         new CustomTricubicInterpolatingFunction(x, x, x, splines);
     Assertions.assertTrue(f.isValidPoint(0, 0, 0));
@@ -404,7 +407,7 @@ public class CustomTricubicInterpolatingFunctionTest {
   public void testValueThrows() {
     final double[] a = new double[64];
     final CustomTricubicFunction[][][] splines = new CustomTricubicFunction[1][1][1];
-    splines[0][0][0] = CustomTricubicFunction.create(a);
+    splines[0][0][0] = createCustomTricubicFunction(a);
     double scale = 1;
     for (int i = 0; i < 2; i++) {
       final ValueProvider x = new DoubleArrayValueProvider(new double[] {0, scale});
@@ -434,5 +437,9 @@ public class CustomTricubicInterpolatingFunctionTest {
       });
       scale *= 0.5;
     }
+  }
+
+  private CustomTricubicFunction createCustomTricubicFunction(double[] a) {
+    return new DoubleCustomTricubicFunction(new DoubleCubicSplineData(a));
   }
 }

@@ -1243,13 +1243,13 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     final int ny1 = ny + 1;
     final int nz1 = nz + 1;
 
-    final double[][] tables = new double[nx1 * ny1 * nz1][];
+    final DoubleCubicSplineData[] tables = new DoubleCubicSplineData[nx1 * ny1 * nz1];
     for (int z = 0, i = 0; z < nz1; z++) {
       final CubicSplinePosition szz = sz[z];
       for (int y = 0; y < ny1; y++) {
         final CubicSplinePosition syy = sy[y];
         for (int x = 0; x < nx1; x++, i++) {
-          tables[i] = CustomTricubicFunction.computePowerTable(sx[x], syy, szz);
+          tables[i] = new DoubleCubicSplineData(sx[x], syy, szz);
         }
       }
     }

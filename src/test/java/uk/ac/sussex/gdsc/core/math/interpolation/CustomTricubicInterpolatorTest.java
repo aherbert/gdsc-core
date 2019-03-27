@@ -397,7 +397,7 @@ public class CustomTricubicInterpolatorTest {
       double zz = r.nextDouble();
 
       // This is done unscaled
-      final double[] table = CustomTricubicFunction.computePowerTable(xx, yy, zz);
+      final DoubleCubicSplineData table = computePowerTable(xx, yy, zz);
 
       xx *= xscale;
       yy *= yscale;
@@ -447,17 +447,17 @@ public class CustomTricubicInterpolatorTest {
     final CustomTricubicInterpolatingFunction f1 =
         new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
 
-    final double[] exp = f1.getSplineNode(1, 1, 1).getCoefficients();
+    final double[] exp = new double[64];
+    final double[] obs = new double[64];
+    f1.getSplineNode(1, 1, 1).getCoefficients(exp);
 
-    double[] obs;
     if (noScale) {
-      obs = CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval))
-          .getCoefficients();
+      CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval)).getCoefficients(obs);
     } else {
-      obs = CustomTricubicInterpolator
+      CustomTricubicInterpolator
           .create(new DoubleArrayValueProvider(xval), new DoubleArrayValueProvider(yval),
               new DoubleArrayValueProvider(zval), new DoubleArrayTrivalueProvider(fval))
-          .getCoefficients();
+          .getCoefficients(obs);
     }
 
     Assertions.assertArrayEquals(exp, obs);
@@ -505,16 +505,18 @@ public class CustomTricubicInterpolatorTest {
 
   private static void check(CustomTricubicInterpolatingFunction f1, double[] xval, double[] yval,
       double[] zval, double[][][] fval, boolean noScale, int indexX, int indexY, int indexZ) {
-    final double[] exp = f1.getSplineNode(indexX, indexY, indexZ).getCoefficients();
+    final double[] exp = new double[64];
+    final double[] obs = new double[64];
+    f1.getSplineNode(indexX, indexY, indexZ).getCoefficients(exp);
 
-    double[] obs;
     if (noScale) {
-      obs = CustomTricubicInterpolator
-          .create(new DoubleArrayTrivalueProvider(fval), indexX, indexY, indexZ).getCoefficients();
+      CustomTricubicInterpolator
+          .create(new DoubleArrayTrivalueProvider(fval), indexX, indexY, indexZ)
+          .getCoefficients(obs);
     } else {
-      obs = CustomTricubicInterpolator.create(new DoubleArrayValueProvider(xval),
+      CustomTricubicInterpolator.create(new DoubleArrayValueProvider(xval),
           new DoubleArrayValueProvider(yval), new DoubleArrayValueProvider(zval),
-          new DoubleArrayTrivalueProvider(fval), indexX, indexY, indexZ).getCoefficients();
+          new DoubleArrayTrivalueProvider(fval), indexX, indexY, indexZ).getCoefficients(obs);
     }
 
     Assertions.assertArrayEquals(exp, obs);
@@ -811,16 +813,16 @@ public class CustomTricubicInterpolatorTest {
         double zz = r.nextDouble();
 
         // This is done unscaled
-        final double[] table = CustomTricubicFunction.computePowerTable(xx, yy, zz);
-        final double[] table2 = CustomTricubicFunction.scalePowerTable(table, 2);
-        final double[] table3 = CustomTricubicFunction.scalePowerTable(table, 3);
-        final double[] table6 = CustomTricubicFunction.scalePowerTable(table, 6);
+        final DoubleCubicSplineData table = computePowerTable(xx, yy, zz);
+        final DoubleCubicSplineData table2 = table.scale(2);
+        final DoubleCubicSplineData table3 = table.scale(3);
+        final DoubleCubicSplineData table6 = table.scale(6);
 
         // Test the float table too
-        final float[] ftable = CustomTricubicFunction.computeFloatPowerTable(xx, yy, zz);
-        final float[] ftable2 = CustomTricubicFunction.scalePowerTable(ftable, 2);
-        final float[] ftable3 = CustomTricubicFunction.scalePowerTable(ftable, 3);
-        final float[] ftable6 = CustomTricubicFunction.scalePowerTable(ftable, 6);
+        final FloatCubicSplineData ftable = computeFloatPowerTable(xx, yy, zz);
+        final FloatCubicSplineData ftable2 = ftable.scale(2);
+        final FloatCubicSplineData ftable3 = ftable.scale(3);
+        final FloatCubicSplineData ftable6 = ftable.scale(6);
 
         xx *= xscale;
         yy *= yscale;
@@ -987,11 +989,11 @@ public class CustomTricubicInterpolatorTest {
       final double yy = r.nextDouble();
       final double zz = r.nextDouble();
 
-      final double[] table = CustomTricubicFunction.computePowerTable(xx, yy, zz);
-      final float[] ftable = CustomTricubicFunction.computeFloatPowerTable(xx, yy, zz);
-      final float[] ftable2 = CustomTricubicFunction.scalePowerTable(ftable, 2);
-      final float[] ftable3 = CustomTricubicFunction.scalePowerTable(ftable, 3);
-      final float[] ftable6 = CustomTricubicFunction.scalePowerTable(ftable, 6);
+      final DoubleCubicSplineData table = computePowerTable(xx, yy, zz);
+      final FloatCubicSplineData ftable = computeFloatPowerTable(xx, yy, zz);
+      final FloatCubicSplineData ftable2 = ftable.scale(2);
+      final FloatCubicSplineData ftable3 = ftable.scale(3);
+      final FloatCubicSplineData ftable6 = ftable.scale(6);
 
       for (int ii = 0; ii < nodes.length; ii++) {
         final CustomTricubicFunction n1 = nodes[ii];
@@ -1063,8 +1065,8 @@ public class CustomTricubicInterpolatorTest {
     final CustomTricubicFunction n1 = f1.getSplineNodeReference(1, 1, 1);
     final CustomTricubicFunction n2 = n1.toSinglePrecision();
 
-    final double[] table = CustomTricubicFunction.computePowerTable(0, 0, 0);
-    final float[] ftable = CustomTricubicFunction.computeFloatPowerTable(0, 0, 0);
+    final DoubleCubicSplineData table = computePowerTable(0, 0, 0);
+    final FloatCubicSplineData ftable = computeFloatPowerTable(0, 0, 0);
 
     // Check no interpolation is correct
     exp = n1.value(table);
@@ -1121,25 +1123,27 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private abstract class DoubleTimingTask extends MyTimingTask {
-    double[][] tables;
+    DoubleCubicSplineData[] tables;
 
-    public DoubleTimingTask(String name, double[][] tables, CustomTricubicFunction[] nodes) {
+    public DoubleTimingTask(String name, DoubleCubicSplineData[] tables,
+        CustomTricubicFunction[] nodes) {
       super(name, nodes);
       this.tables = tables;
     }
   }
 
   private abstract class FloatTimingTask extends MyTimingTask {
-    float[][] tables;
+    FloatCubicSplineData[] tables;
 
-    public FloatTimingTask(String name, float[][] tables, CustomTricubicFunction[] nodes) {
+    public FloatTimingTask(String name, FloatCubicSplineData[] tables,
+        CustomTricubicFunction[] nodes) {
       super(name, nodes);
       this.tables = tables;
     }
   }
 
   private class Double0TimingTask extends DoubleTimingTask {
-    public Double0TimingTask(double[][] tables, CustomTricubicFunction[] nodes) {
+    public Double0TimingTask(DoubleCubicSplineData[] tables, CustomTricubicFunction[] nodes) {
       super(Double0TimingTask.class.getSimpleName(), tables, nodes);
     }
 
@@ -1156,7 +1160,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private class Float0TimingTask extends FloatTimingTask {
-    public Float0TimingTask(float[][] tables, CustomTricubicFunction[] nodes) {
+    public Float0TimingTask(FloatCubicSplineData[] tables, CustomTricubicFunction[] nodes) {
       super(Float0TimingTask.class.getSimpleName(), tables, nodes);
     }
 
@@ -1173,7 +1177,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private class Double1TimingTask extends DoubleTimingTask {
-    public Double1TimingTask(double[][] tables, CustomTricubicFunction[] nodes) {
+    public Double1TimingTask(DoubleCubicSplineData[] tables, CustomTricubicFunction[] nodes) {
       super(Double1TimingTask.class.getSimpleName(), tables, nodes);
     }
 
@@ -1190,7 +1194,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private class Float1TimingTask extends FloatTimingTask {
-    public Float1TimingTask(float[][] tables, CustomTricubicFunction[] nodes) {
+    public Float1TimingTask(FloatCubicSplineData[] tables, CustomTricubicFunction[] nodes) {
       super(Float1TimingTask.class.getSimpleName(), tables, nodes);
     }
 
@@ -1207,7 +1211,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private class Double2TimingTask extends DoubleTimingTask {
-    public Double2TimingTask(double[][] tables, CustomTricubicFunction[] nodes) {
+    public Double2TimingTask(DoubleCubicSplineData[] tables, CustomTricubicFunction[] nodes) {
       super(Double2TimingTask.class.getSimpleName(), tables, nodes);
     }
 
@@ -1224,7 +1228,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private class Float2TimingTask extends FloatTimingTask {
-    public Float2TimingTask(float[][] tables, CustomTricubicFunction[] nodes) {
+    public Float2TimingTask(FloatCubicSplineData[] tables, CustomTricubicFunction[] nodes) {
       super(Float2TimingTask.class.getSimpleName(), tables, nodes);
     }
 
@@ -1272,15 +1276,15 @@ public class CustomTricubicInterpolatorTest {
     }
 
     // Get points
-    final double[][] tables = new double[3000][];
-    final float[][] ftables = new float[tables.length][];
+    final DoubleCubicSplineData[] tables = new DoubleCubicSplineData[3000];
+    final FloatCubicSplineData[] ftables = new FloatCubicSplineData[tables.length];
     for (int i = 0; i < tables.length; i++) {
       final double xx = r.nextDouble();
       final double yy = r.nextDouble();
       final double zz = r.nextDouble();
 
-      tables[i] = CustomTricubicFunction.computePowerTable(xx, yy, zz);
-      ftables[i] = CustomTricubicFunction.computeFloatPowerTable(xx, yy, zz);
+      tables[i] = computePowerTable(xx, yy, zz);
+      ftables[i] = computeFloatPowerTable(xx, yy, zz);
     }
 
     final TimingService ts = new TimingService();
@@ -1342,6 +1346,9 @@ public class CustomTricubicInterpolatorTest {
     final CustomTricubicInterpolatingFunction f2 = interpolator.interpolate(xval, yval, zval, fval);
     es.shutdown();
 
+    final double[] exp = new double[64];
+    final double[] obs = new double[64];
+
     // Compare all nodes
     for (int i = 0; i < f1.getMaxXSplinePosition(); i++) {
       for (int j = 0; j < f1.getMaxYSplinePosition(); j++) {
@@ -1350,7 +1357,9 @@ public class CustomTricubicInterpolatorTest {
               (DoubleCustomTricubicFunction) f1.getSplineNodeReference(i, j, k);
           final DoubleCustomTricubicFunction n2 =
               (DoubleCustomTricubicFunction) f2.getSplineNodeReference(i, j, k);
-          Assertions.assertArrayEquals(n1.getCoefficients(), n2.getCoefficients());
+          n1.getCoefficients(exp);
+          n2.getCoefficients(obs);
+          Assertions.assertArrayEquals(exp, obs);
         }
       }
     }
@@ -2031,5 +2040,15 @@ public class CustomTricubicInterpolatorTest {
     Assertions.assertTrue(taskSize < taskSize2);
     final long nTasks = result[1];
     Assertions.assertTrue(nTasks < Integer.MAX_VALUE);
+  }
+
+  private static DoubleCubicSplineData computePowerTable(double x, double y, double z) {
+    return new DoubleCubicSplineData(new CubicSplinePosition(x), new CubicSplinePosition(y),
+        new CubicSplinePosition(z));
+  }
+
+  private static FloatCubicSplineData computeFloatPowerTable(double x, double y, double z) {
+    return new FloatCubicSplineData(new CubicSplinePosition(x), new CubicSplinePosition(y),
+        new CubicSplinePosition(z));
   }
 }
