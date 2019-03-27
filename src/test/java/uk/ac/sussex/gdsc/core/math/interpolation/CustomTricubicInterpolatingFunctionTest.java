@@ -440,6 +440,6 @@ public class CustomTricubicInterpolatingFunctionTest {
   }
 
   private CustomTricubicFunction createCustomTricubicFunction(double[] a) {
-    return new DoubleCustomTricubicFunction(new DoubleCubicSplineData(a));
+    return CustomTricubicFunctionUtils.create(a);
   }
 }

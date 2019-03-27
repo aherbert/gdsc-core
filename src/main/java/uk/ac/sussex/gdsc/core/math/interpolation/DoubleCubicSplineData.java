@@ -326,7 +326,7 @@ public class DoubleCubicSplineData implements Serializable {
    * @param source the source.
    * @param scale the scale.
    */
-  DoubleCubicSplineData(DoubleCubicSplineData source, int scale) {
+  DoubleCubicSplineData(DoubleCubicSplineData source, double scale) {
     x0y0z0 = source.x0y0z0 * scale;
     x1y0z0 = source.x1y0z0 * scale;
     x2y0z0 = source.x2y0z0 * scale;
@@ -402,7 +402,7 @@ public class DoubleCubicSplineData implements Serializable {
    * @return the scaled coefficients
    * @see CustomTricubicFunction
    */
-  public DoubleCubicSplineData scale(int scale) {
+  public DoubleCubicSplineData scale(double scale) {
     return new DoubleCubicSplineData(this, scale);
   }
 

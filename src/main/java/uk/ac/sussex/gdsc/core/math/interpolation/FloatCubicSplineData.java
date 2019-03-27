@@ -325,71 +325,71 @@ public class FloatCubicSplineData implements Serializable {
    * @param source the source.
    * @param scale the scale.
    */
-  FloatCubicSplineData(FloatCubicSplineData source, int scale) {
-    x0y0z0 = source.x0y0z0 * scale;
-    x1y0z0 = source.x1y0z0 * scale;
-    x2y0z0 = source.x2y0z0 * scale;
-    x3y0z0 = source.x3y0z0 * scale;
-    x0y1z0 = source.x0y1z0 * scale;
-    x1y1z0 = source.x1y1z0 * scale;
-    x2y1z0 = source.x2y1z0 * scale;
-    x3y1z0 = source.x3y1z0 * scale;
-    x0y2z0 = source.x0y2z0 * scale;
-    x1y2z0 = source.x1y2z0 * scale;
-    x2y2z0 = source.x2y2z0 * scale;
-    x3y2z0 = source.x3y2z0 * scale;
-    x0y3z0 = source.x0y3z0 * scale;
-    x1y3z0 = source.x1y3z0 * scale;
-    x2y3z0 = source.x2y3z0 * scale;
-    x3y3z0 = source.x3y3z0 * scale;
-    x0y0z1 = source.x0y0z1 * scale;
-    x1y0z1 = source.x1y0z1 * scale;
-    x2y0z1 = source.x2y0z1 * scale;
-    x3y0z1 = source.x3y0z1 * scale;
-    x0y1z1 = source.x0y1z1 * scale;
-    x1y1z1 = source.x1y1z1 * scale;
-    x2y1z1 = source.x2y1z1 * scale;
-    x3y1z1 = source.x3y1z1 * scale;
-    x0y2z1 = source.x0y2z1 * scale;
-    x1y2z1 = source.x1y2z1 * scale;
-    x2y2z1 = source.x2y2z1 * scale;
-    x3y2z1 = source.x3y2z1 * scale;
-    x0y3z1 = source.x0y3z1 * scale;
-    x1y3z1 = source.x1y3z1 * scale;
-    x2y3z1 = source.x2y3z1 * scale;
-    x3y3z1 = source.x3y3z1 * scale;
-    x0y0z2 = source.x0y0z2 * scale;
-    x1y0z2 = source.x1y0z2 * scale;
-    x2y0z2 = source.x2y0z2 * scale;
-    x3y0z2 = source.x3y0z2 * scale;
-    x0y1z2 = source.x0y1z2 * scale;
-    x1y1z2 = source.x1y1z2 * scale;
-    x2y1z2 = source.x2y1z2 * scale;
-    x3y1z2 = source.x3y1z2 * scale;
-    x0y2z2 = source.x0y2z2 * scale;
-    x1y2z2 = source.x1y2z2 * scale;
-    x2y2z2 = source.x2y2z2 * scale;
-    x3y2z2 = source.x3y2z2 * scale;
-    x0y3z2 = source.x0y3z2 * scale;
-    x1y3z2 = source.x1y3z2 * scale;
-    x2y3z2 = source.x2y3z2 * scale;
-    x3y3z2 = source.x3y3z2 * scale;
-    x0y0z3 = source.x0y0z3 * scale;
-    x1y0z3 = source.x1y0z3 * scale;
-    x2y0z3 = source.x2y0z3 * scale;
-    x3y0z3 = source.x3y0z3 * scale;
-    x0y1z3 = source.x0y1z3 * scale;
-    x1y1z3 = source.x1y1z3 * scale;
-    x2y1z3 = source.x2y1z3 * scale;
-    x3y1z3 = source.x3y1z3 * scale;
-    x0y2z3 = source.x0y2z3 * scale;
-    x1y2z3 = source.x1y2z3 * scale;
-    x2y2z3 = source.x2y2z3 * scale;
-    x3y2z3 = source.x3y2z3 * scale;
-    x0y3z3 = source.x0y3z3 * scale;
-    x1y3z3 = source.x1y3z3 * scale;
-    x2y3z3 = source.x2y3z3 * scale;
-    x3y3z3 = source.x3y3z3 * scale;
+  FloatCubicSplineData(FloatCubicSplineData source, double scale) {
+    x0y0z0 = (float) (source.x0y0z0 * scale);
+    x1y0z0 = (float) (source.x1y0z0 * scale);
+    x2y0z0 = (float) (source.x2y0z0 * scale);
+    x3y0z0 = (float) (source.x3y0z0 * scale);
+    x0y1z0 = (float) (source.x0y1z0 * scale);
+    x1y1z0 = (float) (source.x1y1z0 * scale);
+    x2y1z0 = (float) (source.x2y1z0 * scale);
+    x3y1z0 = (float) (source.x3y1z0 * scale);
+    x0y2z0 = (float) (source.x0y2z0 * scale);
+    x1y2z0 = (float) (source.x1y2z0 * scale);
+    x2y2z0 = (float) (source.x2y2z0 * scale);
+    x3y2z0 = (float) (source.x3y2z0 * scale);
+    x0y3z0 = (float) (source.x0y3z0 * scale);
+    x1y3z0 = (float) (source.x1y3z0 * scale);
+    x2y3z0 = (float) (source.x2y3z0 * scale);
+    x3y3z0 = (float) (source.x3y3z0 * scale);
+    x0y0z1 = (float) (source.x0y0z1 * scale);
+    x1y0z1 = (float) (source.x1y0z1 * scale);
+    x2y0z1 = (float) (source.x2y0z1 * scale);
+    x3y0z1 = (float) (source.x3y0z1 * scale);
+    x0y1z1 = (float) (source.x0y1z1 * scale);
+    x1y1z1 = (float) (source.x1y1z1 * scale);
+    x2y1z1 = (float) (source.x2y1z1 * scale);
+    x3y1z1 = (float) (source.x3y1z1 * scale);
+    x0y2z1 = (float) (source.x0y2z1 * scale);
+    x1y2z1 = (float) (source.x1y2z1 * scale);
+    x2y2z1 = (float) (source.x2y2z1 * scale);
+    x3y2z1 = (float) (source.x3y2z1 * scale);
+    x0y3z1 = (float) (source.x0y3z1 * scale);
+    x1y3z1 = (float) (source.x1y3z1 * scale);
+    x2y3z1 = (float) (source.x2y3z1 * scale);
+    x3y3z1 = (float) (source.x3y3z1 * scale);
+    x0y0z2 = (float) (source.x0y0z2 * scale);
+    x1y0z2 = (float) (source.x1y0z2 * scale);
+    x2y0z2 = (float) (source.x2y0z2 * scale);
+    x3y0z2 = (float) (source.x3y0z2 * scale);
+    x0y1z2 = (float) (source.x0y1z2 * scale);
+    x1y1z2 = (float) (source.x1y1z2 * scale);
+    x2y1z2 = (float) (source.x2y1z2 * scale);
+    x3y1z2 = (float) (source.x3y1z2 * scale);
+    x0y2z2 = (float) (source.x0y2z2 * scale);
+    x1y2z2 = (float) (source.x1y2z2 * scale);
+    x2y2z2 = (float) (source.x2y2z2 * scale);
+    x3y2z2 = (float) (source.x3y2z2 * scale);
+    x0y3z2 = (float) (source.x0y3z2 * scale);
+    x1y3z2 = (float) (source.x1y3z2 * scale);
+    x2y3z2 = (float) (source.x2y3z2 * scale);
+    x3y3z2 = (float) (source.x3y3z2 * scale);
+    x0y0z3 = (float) (source.x0y0z3 * scale);
+    x1y0z3 = (float) (source.x1y0z3 * scale);
+    x2y0z3 = (float) (source.x2y0z3 * scale);
+    x3y0z3 = (float) (source.x3y0z3 * scale);
+    x0y1z3 = (float) (source.x0y1z3 * scale);
+    x1y1z3 = (float) (source.x1y1z3 * scale);
+    x2y1z3 = (float) (source.x2y1z3 * scale);
+    x3y1z3 = (float) (source.x3y1z3 * scale);
+    x0y2z3 = (float) (source.x0y2z3 * scale);
+    x1y2z3 = (float) (source.x1y2z3 * scale);
+    x2y2z3 = (float) (source.x2y2z3 * scale);
+    x3y2z3 = (float) (source.x3y2z3 * scale);
+    x0y3z3 = (float) (source.x0y3z3 * scale);
+    x1y3z3 = (float) (source.x1y3z3 * scale);
+    x2y3z3 = (float) (source.x2y3z3 * scale);
+    x3y3z3 = (float) (source.x3y3z3 * scale);
   }
 
   /**
@@ -401,7 +401,7 @@ public class FloatCubicSplineData implements Serializable {
    * @return the scaled coefficients
    * @see CustomTricubicFunction
    */
-  public FloatCubicSplineData scale(int scale) {
+  public FloatCubicSplineData scale(double scale) {
     return new FloatCubicSplineData(this, scale);
   }
 
@@ -416,7 +416,7 @@ public class FloatCubicSplineData implements Serializable {
    * for (int a = 0; a < N; a++) {
    *   for (int b = 0; b < N; b++) {
    *     for (int c = 0; c < N; c++) {
-   *       coefficient[i++] =  z ^ a * y ^ b * x ^ c;
+   *       coefficient[i++] = z ^ a * y ^ b * x ^ c;
    *     }
    *   }
    * }

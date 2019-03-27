@@ -2167,7 +2167,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    * Read float cubic spline data.
    */
   private static class FloatSplineReader implements SplineReader {
-    float[] data = new float[64];
+    final float[] data = new float[64];
 
     @Override
     public CustomTricubicFunction read(DataInput in) throws IOException {
@@ -2182,7 +2182,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    * Read float cubic spline data.
    */
   private static class DoubleSplineReader implements SplineReader {
-    double[] data = new double[64];
+    final double[] data = new double[64];
 
     @Override
     public CustomTricubicFunction read(DataInput in) throws IOException {

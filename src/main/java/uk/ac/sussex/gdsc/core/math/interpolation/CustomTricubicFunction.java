@@ -85,6 +85,14 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
   public abstract CustomTricubicFunction copy();
 
   /**
+   * Scale the coefficients by the given value and return a new function.
+   *
+   * @param scale the scale
+   * @return the scaled function
+   */
+  public abstract CustomTricubicFunction scale(double scale);
+
+  /**
    * Compute the value with no interpolation (i.e. x=0,y=0,z=0).
    *
    * @return the interpolated value.

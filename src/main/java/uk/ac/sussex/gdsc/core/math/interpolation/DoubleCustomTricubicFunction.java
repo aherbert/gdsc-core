@@ -85,6 +85,11 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction {
     return this;
   }
 
+  @Override
+  public CustomTricubicFunction scale(double scale) {
+    return new DoubleCustomTricubicFunction(coeff.scale(scale));
+  }
+
   // XXX - Copy from here into the FloatCustomTricubicFunction
 
   @Override
@@ -487,7 +492,7 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction {
     derivative2[0] = 0;
     derivative2[1] = 0;
     derivative2[2] = 0;
-    
+
     result += coeff.x0y0z0;
     derivative1[0] += coeff.x1y0z0;
     derivative2[0] += 2 * coeff.x2y0z0;
