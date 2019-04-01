@@ -215,72 +215,6 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
     return value == 0 || value == 1;
   }
 
-  // /**
-  // * Convert a length 64 array to a float.
-  // *
-  // * @param values the values
-  // * @return the float array
-  // */
-  // protected static float[] toFloat(double[] values) {
-  // final float[] f = new float[64];
-  // for (int i = 0; i < 64; i++) {
-  // f[i] = (float) values[i];
-  // }
-  // return f;
-  // }
-  //
-  // /**
-  // * Convert a length 64 array to a double.
-  // *
-  // * @param values the values
-  // * @return the double array
-  // */
-  // protected static double[] toDouble(float[] values) {
-  // final double[] d = new double[64];
-  // for (int i = 0; i < 64; i++) {
-  // d[i] = values[i];
-  // }
-  // return d;
-  // }
-  //
-  // /**
-  // * Scale the power table. The scaled table can be used for fast computation of the gradients.
-  // *
-  // * @param table the table
-  // * @param scale the scale
-  // * @return the scaled table
-  // */
-  // public static double[] scalePowerTable(DoubleCubicSplineData table, int scale) {
-  // final DoubleCubicSplineData tableN = new double[64];
-  // for (int i = 0; i < 64; i++) {
-  // tableN[i] = scale * table[i];
-  // }
-  // return tableN;
-  // }
-  //
-  // /**
-  // * Scale the power table. The scaled table can be used for fast computation of the gradients.
-  // *
-  // * @param table the table
-  // * @param scale the scale
-  // * @return the scaled table
-  // */
-  // public static float[] scalePowerTable(FloatCubicSplineData table, int scale) {
-  // final FloatCubicSplineData tableN = new float[64];
-  // for (int i = 0; i < 64; i++) {
-  // tableN[i] = scale * table[i];
-  // }
-  // return tableN;
-  // }
-  //
-  /// **
-  // * Scale the coefficients by the given value.
-  // *
-  // * @param scale the scale
-  // */
-  // public abstract void scale(double scale);
-
-
   /**
    * Get the interpolated value.
    *
@@ -310,22 +244,6 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
   }
 
   /**
-   * Get the value using a pre-computed power table.
-   *
-   * @param table the power table
-   * @return the interpolated value.
-   */
-  public abstract double value(DoubleCubicSplineData table);
-
-  /**
-   * Get the value using a pre-computed power table.
-   *
-   * @param table the power table
-   * @return the interpolated value.
-   */
-  public abstract double value(FloatCubicSplineData table);
-
-  /**
    * Compute the value and partial first-order derivatives.
    *
    * <p>WARNING: The gradients will be unscaled.
@@ -346,7 +264,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
   /**
    * Compute the value and partial first-order derivatives.
    *
-   * <p>The gradients are scaled
+   * <p>The gradients are scaled.
    *
    * @param x x-coordinate of the interpolation point.
    * @param y y-coordinate of the interpolation point.
@@ -362,48 +280,6 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
     derivative1[2] = z.scaleGradient(derivative1[2]);
     return value;
   }
-
-  /**
-   * Compute the value and partial first-order derivatives using pre-computed power table.
-   *
-   * @param table the power table
-   * @param derivative1 the partial first order derivatives with respect to x,y,z
-   * @return the interpolated value.
-   */
-  public abstract double value(DoubleCubicSplineData table, double[] derivative1);
-
-  /**
-   * Compute the value and partial first-order derivatives using pre-computed power table.
-   *
-   * @param table the power table
-   * @param derivative1 the partial first order derivatives with respect to x,y,z
-   * @return the interpolated value.
-   */
-  public abstract double value(FloatCubicSplineData table, double[] derivative1);
-
-  /**
-   * Compute the value and partial first-order derivatives using pre-computed power table.
-   *
-   * @param table the power table
-   * @param table2 the power table multiplied by 2
-   * @param table3 the power table multiplied by 3
-   * @param derivative1 the partial first order derivatives with respect to x,y,z
-   * @return the interpolated value.
-   */
-  public abstract double value(DoubleCubicSplineData table, DoubleCubicSplineData table2,
-      DoubleCubicSplineData table3, double[] derivative1);
-
-  /**
-   * Compute the value and partial first-order derivatives using pre-computed power table.
-   *
-   * @param table the power table
-   * @param table2 the power table multiplied by 2
-   * @param table3 the power table multiplied by 3
-   * @param derivative1 the partial first order derivatives with respect to x,y,z
-   * @return the interpolated value.
-   */
-  public abstract double value(FloatCubicSplineData table, FloatCubicSplineData table2,
-      FloatCubicSplineData table3, double[] derivative1);
 
   /**
    * Compute the value and partial first-order and second-order derivatives.
@@ -448,80 +324,6 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
     derivative2[2] = z.scaleGradient2(derivative2[2]);
     return value;
   }
-
-  /**
-   * Compute the value and partial first-order and second-order derivatives using pre-computed power
-   * table.
-   *
-   * @param table the power table
-   * @param derivative1 the partial second order derivatives with respect to x,y,z
-   * @param derivative2 the partial second order derivatives with respect to x,y,z
-   * @return the interpolated value.
-   */
-  public abstract double value(DoubleCubicSplineData table, double[] derivative1,
-      double[] derivative2);
-
-  /**
-   * Compute the value and partial first-order and second-order derivatives using pre-computed power
-   * table.
-   *
-   * @param table the power table
-   * @param derivative1 the partial second order derivatives with respect to x,y,z
-   * @param derivative2 the partial second order derivatives with respect to x,y,z
-   * @return the interpolated value.
-   */
-  public abstract double value(FloatCubicSplineData table, double[] derivative1,
-      double[] derivative2);
-
-  /**
-   * Compute the value and partial first-order and second-order derivatives using pre-computed power
-   * table.
-   *
-   * @param table the power table
-   * @param table2 the power table multiplied by 2
-   * @param table3 the power table multiplied by 3
-   * @param table6 the power table multiplied by 6
-   * @param derivative1 the partial second order derivatives with respect to x,y,z
-   * @param derivative2 the partial second order derivatives with respect to x,y,z
-   * @return the interpolated value.
-   */
-  public abstract double value(DoubleCubicSplineData table, DoubleCubicSplineData table2,
-      DoubleCubicSplineData table3, DoubleCubicSplineData table6, double[] derivative1,
-      double[] derivative2);
-
-  /**
-   * Compute the value and partial first-order and second-order derivatives using pre-computed power
-   * table.
-   *
-   * @param table the power table
-   * @param table2 the power table multiplied by 2
-   * @param table3 the power table multiplied by 3
-   * @param table6 the power table multiplied by 6
-   * @param derivative1 the partial second order derivatives with respect to x,y,z
-   * @param derivative2 the partial second order derivatives with respect to x,y,z
-   * @return the interpolated value.
-   */
-  public abstract double value(FloatCubicSplineData table, FloatCubicSplineData table2,
-      FloatCubicSplineData table3, FloatCubicSplineData table6, double[] derivative1,
-      double[] derivative2);
-
-  /**
-   * Compute the partial first-order derivatives using pre-computed power table. Provides
-   * separability between computing the value and the derivative.
-   *
-   * @param table the power table
-   * @param derivative1 the partial first order derivatives with respect to x,y,z
-   */
-  public abstract void gradient(DoubleCubicSplineData table, double[] derivative1);
-
-  /**
-   * Compute the partial first-order derivatives using pre-computed power table. Provides
-   * separability between computing the value and the derivative.
-   *
-   * @param table the power table
-   * @param derivative1 the partial first order derivatives with respect to x,y,z
-   */
-  public abstract void gradient(FloatCubicSplineData table, double[] derivative1);
 
   /**
    * Perform n refinements of a binary search to find the optimum value. 8 vertices of a cube are

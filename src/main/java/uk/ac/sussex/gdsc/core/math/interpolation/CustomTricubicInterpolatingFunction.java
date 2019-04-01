@@ -1030,31 +1030,20 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
   }
 
   /**
-   * Get the interpolated value using pre-computed spline coefficient power table.
+   * Get the interpolated value using pre-computed spline points.
    *
    * @param xindex the x spline position
    * @param yindex the y spline position
    * @param zindex the z spline position
-   * @param table the table of 64 precomputed power coefficients
+   * @param x x-coordinate of the interpolation point.
+   * @param y y-coordinate of the interpolation point.
+   * @param z z-coordinate of the interpolation point.
    * @return the value
    * @throws ArrayIndexOutOfBoundsException if the spline node does not exist
    */
-  public double value(int xindex, int yindex, int zindex, DoubleCubicSplineData table) {
-    return splines[xindex][yindex][zindex].value(table);
-  }
-
-  /**
-   * Get the interpolated value using pre-computed spline coefficient power table.
-   *
-   * @param xindex the x spline position
-   * @param yindex the y spline position
-   * @param zindex the z spline position
-   * @param table the table of 64 precomputed power coefficients
-   * @return the value
-   * @throws ArrayIndexOutOfBoundsException if the spline node does not exist
-   */
-  public double value(int xindex, int yindex, int zindex, FloatCubicSplineData table) {
-    return splines[xindex][yindex][zindex].value(table);
+  public double value(int xindex, int yindex, int zindex, CubicSplinePosition x,
+      CubicSplinePosition y, CubicSplinePosition z) {
+    return splines[xindex][yindex][zindex].value(x, y, z);
   }
 
   /**
@@ -1105,98 +1094,24 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
 
   /**
    * Get the interpolated value and partial first-order derivatives using pre-computed spline
-   * coefficient power table.
+   * points.
    *
    * @param xindex the x spline position
    * @param yindex the y spline position
    * @param zindex the z spline position
-   * @param table the power table
+   * @param x x-coordinate of the interpolation point.
+   * @param y y-coordinate of the interpolation point.
+   * @param z z-coordinate of the interpolation point.
    * @param derivative1 the partial first order derivatives with respect to x,y,z
    * @return the value
    * @throws ArrayIndexOutOfBoundsException if the spline node does not exist
    */
-  public double value(int xindex, int yindex, int zindex, DoubleCubicSplineData table,
-      double[] derivative1) {
+  public double value(int xindex, int yindex, int zindex, CubicSplinePosition x,
+      CubicSplinePosition y, CubicSplinePosition z, double[] derivative1) {
     if (isIntegerFlag) {
-      return splines[xindex][yindex][zindex].value(table, derivative1);
+      return splines[xindex][yindex][zindex].value(x, y, z, derivative1);
     }
-    final double value = splines[xindex][yindex][zindex].value(table, derivative1);
-    derivative1[0] /= xscale[xindex];
-    derivative1[1] /= yscale[yindex];
-    derivative1[2] /= zscale[zindex];
-    return value;
-  }
-
-  /**
-   * Get the interpolated value and partial first-order derivatives using pre-computed spline
-   * coefficient power table.
-   *
-   * @param xindex the x spline position
-   * @param yindex the y spline position
-   * @param zindex the z spline position
-   * @param table the power table
-   * @param derivative1 the partial first order derivatives with respect to x,y,z
-   * @return the value
-   * @throws ArrayIndexOutOfBoundsException if the spline node does not exist
-   */
-  public double value(int xindex, int yindex, int zindex, FloatCubicSplineData table,
-      double[] derivative1) {
-    if (isIntegerFlag) {
-      return splines[xindex][yindex][zindex].value(table, derivative1);
-    }
-    final double value = splines[xindex][yindex][zindex].value(table, derivative1);
-    derivative1[0] /= xscale[xindex];
-    derivative1[1] /= yscale[yindex];
-    derivative1[2] /= zscale[zindex];
-    return value;
-  }
-
-  /**
-   * Get the interpolated value and partial first-order derivatives using pre-computed spline
-   * coefficient power table.
-   *
-   * @param xindex the x spline position
-   * @param yindex the y spline position
-   * @param zindex the z spline position
-   * @param table the power table
-   * @param table2 the power table scaled by 2
-   * @param table3 the power table scaled by 3
-   * @param derivative1 the partial first order derivatives with respect to x,y,z
-   * @return the value
-   * @throws ArrayIndexOutOfBoundsException if the spline node does not exist
-   */
-  public double value(int xindex, int yindex, int zindex, DoubleCubicSplineData table,
-      DoubleCubicSplineData table2, DoubleCubicSplineData table3, double[] derivative1) {
-    if (isIntegerFlag) {
-      return splines[xindex][yindex][zindex].value(table, table2, table3, derivative1);
-    }
-    final double value = splines[xindex][yindex][zindex].value(table, table2, table3, derivative1);
-    derivative1[0] /= xscale[xindex];
-    derivative1[1] /= yscale[yindex];
-    derivative1[2] /= zscale[zindex];
-    return value;
-  }
-
-  /**
-   * Get the interpolated value and partial first-order derivatives using pre-computed spline
-   * coefficient power table.
-   *
-   * @param xindex the x spline position
-   * @param yindex the y spline position
-   * @param zindex the z spline position
-   * @param table the power table
-   * @param table2 the power table scaled by 2
-   * @param table3 the power table scaled by 3
-   * @param derivative1 the partial first order derivatives with respect to x,y,z
-   * @return the value
-   * @throws ArrayIndexOutOfBoundsException if the spline node does not exist
-   */
-  public double value(int xindex, int yindex, int zindex, FloatCubicSplineData table,
-      FloatCubicSplineData table2, FloatCubicSplineData table3, double[] derivative1) {
-    if (isIntegerFlag) {
-      return splines[xindex][yindex][zindex].value(table, table2, table3, derivative1);
-    }
-    final double value = splines[xindex][yindex][zindex].value(table, table2, table3, derivative1);
+    final double value = splines[xindex][yindex][zindex].value(x, y, z, derivative1);
     derivative1[0] /= xscale[xindex];
     derivative1[1] /= yscale[yindex];
     derivative1[2] /= zscale[zindex];
@@ -1257,119 +1172,25 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
 
   /**
    * Get the interpolated value and partial first-order and second-order derivatives using
-   * pre-computed spline coefficient power table.
+   * pre-computed spline points.
    *
    * @param xindex the x spline position
    * @param yindex the y spline position
    * @param zindex the z spline position
-   * @param table the power table
+   * @param x x-coordinate of the interpolation point.
+   * @param y y-coordinate of the interpolation point.
+   * @param z z-coordinate of the interpolation point.
    * @param derivative1 the partial first order derivatives with respect to x,y,z
    * @param derivative2 the partial second order derivatives with respect to x,y,z
    * @return the value
    * @throws ArrayIndexOutOfBoundsException if the spline node does not exist
    */
-  public double value(int xindex, int yindex, int zindex, DoubleCubicSplineData table,
-      double[] derivative1, double[] derivative2) {
+  public double value(int xindex, int yindex, int zindex, CubicSplinePosition x,
+      CubicSplinePosition y, CubicSplinePosition z, double[] derivative1, double[] derivative2) {
     if (isIntegerFlag) {
-      return splines[xindex][yindex][zindex].value(table, derivative1, derivative2);
+      return splines[xindex][yindex][zindex].value(x, y, z, derivative1, derivative2);
     }
-    final double value = splines[xindex][yindex][zindex].value(table, derivative1, derivative2);
-    derivative1[0] /= xscale[xindex];
-    derivative1[1] /= yscale[yindex];
-    derivative1[2] /= zscale[zindex];
-    derivative2[0] /= xscale[xindex] * xscale[xindex];
-    derivative2[1] /= yscale[yindex] * yscale[yindex];
-    derivative2[2] /= zscale[zindex] * zscale[zindex];
-    return value;
-  }
-
-  /**
-   * Get the interpolated value and partial first-order and second-order derivatives using
-   * pre-computed spline coefficient power table.
-   *
-   * @param xindex the x spline position
-   * @param yindex the y spline position
-   * @param zindex the z spline position
-   * @param table the power table
-   * @param derivative1 the partial first order derivatives with respect to x,y,z
-   * @param derivative2 the partial second order derivatives with respect to x,y,z
-   * @return the value
-   * @throws ArrayIndexOutOfBoundsException if the spline node does not exist
-   */
-  public double value(int xindex, int yindex, int zindex, FloatCubicSplineData table,
-      double[] derivative1, double[] derivative2) {
-    if (isIntegerFlag) {
-      return splines[xindex][yindex][zindex].value(table, derivative1, derivative2);
-    }
-    final double value = splines[xindex][yindex][zindex].value(table, derivative1, derivative2);
-    derivative1[0] /= xscale[xindex];
-    derivative1[1] /= yscale[yindex];
-    derivative1[2] /= zscale[zindex];
-    derivative2[0] /= xscale[xindex] * xscale[xindex];
-    derivative2[1] /= yscale[yindex] * yscale[yindex];
-    derivative2[2] /= zscale[zindex] * zscale[zindex];
-    return value;
-  }
-
-  /**
-   * Get the interpolated value and partial first-order and second-order derivatives using
-   * pre-computed spline coefficient power table.
-   *
-   * @param xindex the x spline position
-   * @param yindex the y spline position
-   * @param zindex the z spline position
-   * @param table the power table
-   * @param table2 the power table scaled by 2
-   * @param table3 the power table scaled by 3
-   * @param table6 the power table scaled by 6
-   * @param derivative1 the partial first order derivatives with respect to x,y,z
-   * @param derivative2 the partial second order derivatives with respect to x,y,z
-   * @return the value
-   * @throws ArrayIndexOutOfBoundsException if the spline node does not exist
-   */
-  public double value(int xindex, int yindex, int zindex, DoubleCubicSplineData table,
-      DoubleCubicSplineData table2, DoubleCubicSplineData table3, DoubleCubicSplineData table6,
-      double[] derivative1, double[] derivative2) {
-    if (isIntegerFlag) {
-      return splines[xindex][yindex][zindex].value(table, table2, table3, table6, derivative1,
-          derivative2);
-    }
-    final double value = splines[xindex][yindex][zindex].value(table, table2, table3, table6,
-        derivative1, derivative2);
-    derivative1[0] /= xscale[xindex];
-    derivative1[1] /= yscale[yindex];
-    derivative1[2] /= zscale[zindex];
-    derivative2[0] /= xscale[xindex] * xscale[xindex];
-    derivative2[1] /= yscale[yindex] * yscale[yindex];
-    derivative2[2] /= zscale[zindex] * zscale[zindex];
-    return value;
-  }
-
-  /**
-   * Get the interpolated value and partial first-order and second-order derivatives using
-   * pre-computed spline coefficient power table.
-   *
-   * @param xindex the x spline position
-   * @param yindex the y spline position
-   * @param zindex the z spline position
-   * @param table the power table
-   * @param table2 the power table scaled by 2
-   * @param table3 the power table scaled by 3
-   * @param table6 the power table scaled by 6
-   * @param derivative1 the partial first order derivatives with respect to x,y,z
-   * @param derivative2 the partial second order derivatives with respect to x,y,z
-   * @return the value
-   * @throws ArrayIndexOutOfBoundsException if the spline node does not exist
-   */
-  public double value(int xindex, int yindex, int zindex, FloatCubicSplineData table,
-      FloatCubicSplineData table2, FloatCubicSplineData table3, FloatCubicSplineData table6,
-      double[] derivative1, double[] derivative2) {
-    if (isIntegerFlag) {
-      return splines[xindex][yindex][zindex].value(table, table2, table3, table6, derivative1,
-          derivative2);
-    }
-    final double value = splines[xindex][yindex][zindex].value(table, table2, table3, table6,
-        derivative1, derivative2);
+    final double value = splines[xindex][yindex][zindex].value(x, y, z, derivative1, derivative2);
     derivative1[0] /= xscale[xindex];
     derivative1[1] /= yscale[yindex];
     derivative1[2] /= zscale[zindex];
@@ -1677,20 +1498,6 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     final CubicSplinePosition[] sx = createCubicSplinePosition(nx);
     final CubicSplinePosition[] sy = createCubicSplinePosition(ny);
     final CubicSplinePosition[] sz = createCubicSplinePosition(nz);
-    final int nx1 = nx + 1;
-    final int ny1 = ny + 1;
-    final int nz1 = nz + 1;
-
-    final DoubleCubicSplineData[] tables = new DoubleCubicSplineData[nx1 * ny1 * nz1];
-    for (int z = 0, i = 0; z < nz1; z++) {
-      final CubicSplinePosition szz = sz[z];
-      for (int y = 0; y < ny1; y++) {
-        final CubicSplinePosition syy = sy[y];
-        for (int x = 0; x < nx1; x++, i++) {
-          tables[i] = new DoubleCubicSplineData(sx[x], syy, szz);
-        }
-      }
-    }
 
     // Write axis values
     // Cache the table and the spline position to use for each interpolation point
@@ -1739,12 +1546,9 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
 
     // Write interpolated values
     for (int z = 0; z <= maxz; z++) {
-      final int zposition = zp[z];
       for (int y = 0; y <= maxy; y++) {
-        final int yposition = yp[y];
-        final int j = nx1 * (yt[y] + ny1 * zt[z]);
         for (int x = 0; x <= maxx; x++) {
-          procedure.setValue(x, y, z, value(xp[x], yposition, zposition, tables[j + xt[x]]));
+          procedure.setValue(x, y, z, value(xp[x], yp[y], zp[z], sx[xt[x]], sy[yt[y]], sz[zt[z]]));
           ticker.tick();
         }
       }
@@ -2319,8 +2123,8 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
   /**
    * Set to true if the x,y,z spline points are uniformly spaced.
    *
-   * <p>This allows the function to be efficiently sampled using precomputed spline coefficients
-   * (see {@link #value(int, int, int, DoubleCubicSplineData)}).
+   * <p>This allows the function to be efficiently sampled using precomputed spline points (see
+   * {@link #value(int, int, int, CubicSplinePosition, CubicSplinePosition, CubicSplinePosition)}.
    *
    * @return true, if is uniform
    */
