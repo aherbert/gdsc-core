@@ -6,8 +6,8 @@
  * This is an extension of the
  * org.apache.commons.math3.analysis.interpolation.TricubicFunction
  *
- * Modifications have been made to allow computation of gradients and computation
- * with pre-computed x,y,z powers using single/floating precision.
+ * Modifications have been made to allow computation of gradients and factorising the computation
+ * for improved performance.
  *
  * The code is released under the original Apache licence:
  *

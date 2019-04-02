@@ -116,11 +116,6 @@ public class DoubleCustomTricubicFunction extends CustomTricubicFunction {
     return coeff.x0y0z0;
   }
 
-  // Allow the working variables for the power computation
-  // to be declared at the top of the method
-  // CHECKSTYLE.OFF: VariableDeclarationUsageDistance
-  // CHECKSTYLE.OFF: LocalVariableName
-
   @Override
   protected double value0(final CubicSplinePosition x, final CubicSplinePosition y,
       final CubicSplinePosition z) {

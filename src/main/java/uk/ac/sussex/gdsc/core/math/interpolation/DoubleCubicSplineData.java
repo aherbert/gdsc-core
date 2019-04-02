@@ -396,8 +396,6 @@ public class DoubleCubicSplineData implements Serializable {
   /**
    * Scale the coefficients.
    *
-   * <p>Note a scaled power table can be used for fast computation of the cubic spline gradients.
-   *
    * @param scale the scale
    * @return the scaled coefficients
    * @see CustomTricubicFunction
