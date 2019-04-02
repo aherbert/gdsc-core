@@ -240,8 +240,8 @@ public class CustomTricubicInterpolatorTest {
     final int x = 4;
     final int y = 4;
     final int z = 4;
-    final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
-    final double[] yval = SimpleArrayUtils.newArray(y, 0, (isInteger) ? 1 : 0.5);
+    final double[] xval = SimpleArrayUtils.newArray(x, 0, (isInteger) ? 1.0 : 1.5);
+    final double[] yval = SimpleArrayUtils.newArray(y, 0, (isInteger) ? 1.0 : 0.5);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, (isInteger) ? 1.0 : 2.0);
     final double[] testx = SimpleArrayUtils.newArray(6, xval[1], (xval[2] - xval[1]) / 5);
     final double[] testy = SimpleArrayUtils.newArray(6, yval[1], (yval[2] - yval[1]) / 5);
@@ -622,7 +622,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsWithIntegetAxis(RandomSeed seed) {
+  public void canInterpolateWithGradientsWithIntegerAxis(RandomSeed seed) {
     canInterpolateWithGradients(seed, false);
   }
 
@@ -632,7 +632,7 @@ public class CustomTricubicInterpolatorTest {
     final int y = 4;
     final int z = 4;
     // Difference scales
-    final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
+    final double[] xval = SimpleArrayUtils.newArray(x, 0, (isInteger) ? 1.0 : 1.5);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, (isInteger) ? 1.0 : 0.5);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, (isInteger) ? 1.0 : 2.0);
 

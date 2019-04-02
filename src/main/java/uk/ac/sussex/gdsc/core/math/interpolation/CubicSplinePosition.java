@@ -37,7 +37,6 @@ import org.apache.commons.math3.exception.OutOfRangeException;
  * <p>This class is immutable.
  */
 public class CubicSplinePosition {
-
   /** The value x^1. */
   final double x1;
   /** The value x^2. */
@@ -46,7 +45,7 @@ public class CubicSplinePosition {
   final double x3;
 
   /**
-   * Instantiates a new cubic spline position. Only used when x is known to be in the range 0-1.
+   * Create a new instance. Only used when x is known to be in the range {@code [0,1]}.
    *
    * @param x the x
    * @param dummy the dummy flag (this is unused)
@@ -58,11 +57,11 @@ public class CubicSplinePosition {
   }
 
   /**
-   * Instantiates a new spline position.
+   * Create a new instance.
    *
-   * @param x the distance along the spline to the next node (range 0 to 1)
+   * @param x the distance along the spline to the next node (range {@code [0,1]})
    * @throws IllegalArgumentException If the index is negative
-   * @throws OutOfRangeException If x is not in the range 0 to 1
+   * @throws OutOfRangeException If x is not in the range {@code [0,1]}
    */
   public CubicSplinePosition(double x) {
     // Use negation to catch NaN
@@ -99,41 +98,5 @@ public class CubicSplinePosition {
    */
   public double getX3() {
     return x3;
-  }
-
-  /**
-   * Scale the x value back to the original scale. This can be used if a function axis was
-   * compressed to the interval 0-1 for cubic interpolation to decompress back to the original
-   * scale.
-   *
-   * @param x the x
-   * @return the scaled x value
-   */
-  public double scale(double x) {
-    return x;
-  }
-
-  /**
-   * Scale the first-order gradient back to the original scale. This can be used if a function axis
-   * was compressed to the interval 0-1 for cubic interpolation to appropriately scale the gradients
-   * (partial derivatives).
-   *
-   * @param derivative1 the first-order gradient
-   * @return the scaled first-order gradient
-   */
-  public double scaleGradient(double derivative1) {
-    return derivative1;
-  }
-
-  /**
-   * Scale the second-order gradient back to the original scale. This can be used if a function axis
-   * was compressed to the interval 0-1 for cubic interpolation to appropriately scale the gradients
-   * (partial derivatives).
-   *
-   * @param derivative2 the second-order gradient
-   * @return the scaled second-order gradient
-   */
-  public double scaleGradient2(double derivative2) {
-    return derivative2;
   }
 }

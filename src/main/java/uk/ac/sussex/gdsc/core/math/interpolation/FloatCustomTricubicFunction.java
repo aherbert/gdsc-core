@@ -32,9 +32,9 @@ package uk.ac.sussex.gdsc.core.math.interpolation;
  * 3D-spline function using single precision float values to store the coefficients. This reduces
  * the memory required to store the function.
  *
- * <p>Not all computations use exclusively float precision. The computations using the power table
- * use float computation and should show the largest speed benefit over the double precision counter
- * part.
+ * <p>Note: Computation still uses double precision. The result is a large number of
+ * {@code float * double} computations which evaluate slower than {@code double * double}. This
+ * class should only be used when storage space is limited.
  *
  * <p>This class is immutable.
  */

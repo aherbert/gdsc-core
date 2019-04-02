@@ -957,7 +957,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
       return new IndexedCubicSplinePosition(i, x - xval[i], false);
     }
     final double xN = (x - xval[i]) / xscale[i];
-    return new ScaledIndexedCubicSplinePosition(i, xN, xscale[i], false);
+    return new IndexedCubicSplinePosition(i, xN, false);
   }
 
   /**
@@ -1026,7 +1026,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    */
   public double value(IndexedCubicSplinePosition x, IndexedCubicSplinePosition y,
       IndexedCubicSplinePosition z) {
-    return splines[x.index][y.index][z.index].value(x, y, z);
+    return value(x.index, y.index, z.index, x, y, z);
   }
 
   /**
@@ -1089,7 +1089,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    */
   public double value(IndexedCubicSplinePosition x, IndexedCubicSplinePosition y,
       IndexedCubicSplinePosition z, double[] derivative1) {
-    return splines[x.index][y.index][z.index].value(x, y, z, derivative1);
+    return value(x.index, y.index, z.index, x, y, z, derivative1);
   }
 
   /**
@@ -1167,7 +1167,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
    */
   public double value(IndexedCubicSplinePosition x, IndexedCubicSplinePosition y,
       IndexedCubicSplinePosition z, double[] derivative1, double[] derivative2) {
-    return splines[x.index][y.index][z.index].value(x, y, z, derivative1, derivative2);
+    return value(x.index, y.index, z.index, x, y, z, derivative1, derivative2);
   }
 
   /**
@@ -1491,8 +1491,7 @@ public class CustomTricubicInterpolatingFunction implements TrivariateFunction {
     }
 
     final Ticker ticker =
-        Ticker.create(progress, (long) (maxx + 1) * (maxy + 1) * (maxz + 1), false);
-    ticker.start();
+        Ticker.createStarted(progress, (long) (maxx + 1) * (maxy + 1) * (maxz + 1), false);
 
     // Pre-compute interpolation tables
     final CubicSplinePosition[] sx = createCubicSplinePosition(nx);

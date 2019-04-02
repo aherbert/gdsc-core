@@ -36,9 +36,6 @@ public class CubicSplinePositionTest {
       Assertions.assertEquals(x, p.getX());
       Assertions.assertEquals(x2, p.getX2());
       Assertions.assertEquals(x3, p.getX3());
-      Assertions.assertEquals(1, p.scale(1));
-      Assertions.assertEquals(1, p.scaleGradient(1));
-      Assertions.assertEquals(1, p.scaleGradient2(1));
     }
   }
 }

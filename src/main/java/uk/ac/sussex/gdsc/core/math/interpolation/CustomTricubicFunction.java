@@ -246,8 +246,6 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
   /**
    * Compute the value and partial first-order derivatives.
    *
-   * <p>WARNING: The gradients will be unscaled.
-   *
    * @param x x-coordinate of the interpolation point.
    * @param y y-coordinate of the interpolation point.
    * @param z z-coordinate of the interpolation point.
@@ -264,8 +262,6 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
   /**
    * Compute the value and partial first-order derivatives.
    *
-   * <p>The gradients are scaled.
-   *
    * @param x x-coordinate of the interpolation point.
    * @param y y-coordinate of the interpolation point.
    * @param z z-coordinate of the interpolation point.
@@ -274,17 +270,11 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
    */
   public double value(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z,
       double[] derivative1) {
-    final double value = value1(x, y, z, derivative1);
-    derivative1[0] = x.scaleGradient(derivative1[0]);
-    derivative1[1] = y.scaleGradient(derivative1[1]);
-    derivative1[2] = z.scaleGradient(derivative1[2]);
-    return value;
+    return value1(x, y, z, derivative1);
   }
 
   /**
    * Compute the value and partial first-order and second-order derivatives.
-   *
-   * <p>WARNING: The gradients will be unscaled.
    *
    * @param x x-coordinate of the interpolation point.
    * @param y y-coordinate of the interpolation point.
@@ -304,8 +294,6 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
   /**
    * Compute the value and partial first-order and second-order derivatives.
    *
-   * <p>The gradients are scaled.
-   *
    * @param x x-coordinate of the interpolation point.
    * @param y y-coordinate of the interpolation point.
    * @param z z-coordinate of the interpolation point.
@@ -315,14 +303,7 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
    */
   public double value(CubicSplinePosition x, CubicSplinePosition y, CubicSplinePosition z,
       double[] derivative1, double[] derivative2) {
-    final double value = value2(x, y, z, derivative1, derivative2);
-    derivative1[0] = x.scaleGradient(derivative1[0]);
-    derivative1[1] = y.scaleGradient(derivative1[1]);
-    derivative1[2] = z.scaleGradient(derivative1[2]);
-    derivative2[0] = x.scaleGradient2(derivative2[0]);
-    derivative2[1] = y.scaleGradient2(derivative2[1]);
-    derivative2[2] = z.scaleGradient2(derivative2[2]);
-    return value;
+    return value2(x, y, z, derivative1, derivative2);
   }
 
   /**
