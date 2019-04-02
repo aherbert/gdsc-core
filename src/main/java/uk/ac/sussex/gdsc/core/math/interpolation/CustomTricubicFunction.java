@@ -154,45 +154,14 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
       CubicSplinePosition z, final double[] derivative1, double[] derivative2);
 
   /**
-   * Checks if the power table is at the boundary of the interpolation range for the given
-   * dimension, i.e. 0 or 1
+   * Checks if the points is at the boundary of the interpolation range, that is it has the value 0
+   * or 1.
    *
-   * @param dimension the dimension [x=0,y=1,z=2]
-   * @param table the table
+   * @param x the interpolation point
    * @return true, if at the boundary
    */
-  public static boolean isBoundary(int dimension, DoubleCubicSplineData table) {
-    switch (dimension) {
-      case 0:
-        return isBoundary(table.x1y0z0);
-      case 1:
-        return isBoundary(table.x0y1z0);
-      case 2:
-        return isBoundary(table.x0y0z1);
-      default:
-        return false;
-    }
-  }
-
-  /**
-   * Checks if the power table is at the boundary of the interpolation range for the given
-   * dimension, i.e. 0 or 1
-   *
-   * @param dimension the dimension [x=0,y=1,z=2]
-   * @param table the table
-   * @return true, if at the boundary
-   */
-  public static boolean isBoundary(int dimension, FloatCubicSplineData table) {
-    switch (dimension) {
-      case 0:
-        return isBoundary(table.x1y0z0);
-      case 1:
-        return isBoundary(table.x0y1z0);
-      case 2:
-        return isBoundary(table.x0y0z1);
-      default:
-        return false;
-    }
+  public static boolean isBoundary(CubicSplinePosition x) {
+    return isBoundary(x.x1);
   }
 
   /**
@@ -202,16 +171,6 @@ public abstract class CustomTricubicFunction implements TrivariateFunction, Seri
    * @return true, if 0 or 1
    */
   private static boolean isBoundary(double value) {
-    return value == 0 || value == 1;
-  }
-
-  /**
-   * Checks if the value is 0 or 1.
-   *
-   * @param value the value
-   * @return true, if 0 or 1
-   */
-  private static boolean isBoundary(float value) {
     return value == 0 || value == 1;
   }
 
