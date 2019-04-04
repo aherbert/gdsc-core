@@ -439,7 +439,7 @@ public class CustomTricubicInterpolatingFunctionTest {
     }
   }
 
-  private CustomTricubicFunction createCustomTricubicFunction(double[] a) {
-    return CustomTricubicFunctionUtils.create(a);
+  private static CustomTricubicFunction createCustomTricubicFunction(double[] coefficients) {
+    return CustomTricubicFunctionUtils.create(coefficients);
   }
 }
