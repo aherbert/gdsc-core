@@ -1243,17 +1243,6 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
     final int ny1 = ny + 1;
     final int nz1 = nz + 1;
 
-    final double[][] tables = new double[nx1 * ny1 * nz1][];
-    for (int z = 0, i = 0; z < nz1; z++) {
-      final CubicSplinePosition szz = sz[z];
-      for (int y = 0; y < ny1; y++) {
-        final CubicSplinePosition syy = sy[y];
-        for (int x = 0; x < nx1; x++, i++) {
-          tables[i] = CustomTricubicFunction.computePowerTable(sx[x], syy, szz);
-        }
-      }
-    }
-
     // Write axis values
     for (int x = 0; x <= maxx; x++) {
       procedure.setX(x, (double) x / nx);
@@ -1352,10 +1341,9 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
               final int maxj = (y == yLenM2) ? ny1 : ny;
               for (int j = 0, yy = y * ny; j < maxj; j++, yy++) {
                 // Position in the interpolation tables
-                int pos = nx1 * (j + ny1 * k);
                 final int maxi = (x == xLenM2) ? nx1 : nx;
                 for (int i = 0, xx = x * nx; i < maxi; i++, xx++) {
-                  procedure.setValue(xx, yy, zz, cf.value(tables[pos++]));
+                  procedure.setValue(xx, yy, zz, cf.value(sx[i], sy[j], sz[k]));
                   ticker.tick();
                 }
               }
@@ -1441,10 +1429,9 @@ public class CustomTricubicInterpolator implements TrivariateGridInterpolator {
               final int maxj = (y == yLenM2) ? ny1 : ny;
               for (int j = 0, yy = y * ny; j < maxj; j++, yy++) {
                 // Position in the interpolation tables
-                int pos = nx1 * (j + ny1 * k);
                 final int maxi = (x == xLenM2) ? nx1 : nx;
                 for (int i = 0, xx = x * nx; i < maxi; i++, xx++) {
-                  procedure.setValue(xx, yy, zz, cf.value(tables[pos++]));
+                  procedure.setValue(xx, yy, zz, cf.value(sx[i], sy[j], sz[k]));
                   ticker.tick();
                 }
               }

@@ -240,8 +240,8 @@ public class CustomTricubicInterpolatorTest {
     final int x = 4;
     final int y = 4;
     final int z = 4;
-    final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
-    final double[] yval = SimpleArrayUtils.newArray(y, 0, (isInteger) ? 1 : 0.5);
+    final double[] xval = SimpleArrayUtils.newArray(x, 0, (isInteger) ? 1.0 : 1.5);
+    final double[] yval = SimpleArrayUtils.newArray(y, 0, (isInteger) ? 1.0 : 0.5);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, (isInteger) ? 1.0 : 2.0);
     final double[] testx = SimpleArrayUtils.newArray(6, xval[1], (xval[2] - xval[1]) / 5);
     final double[] testy = SimpleArrayUtils.newArray(6, yval[1], (yval[2] - yval[1]) / 5);
@@ -376,7 +376,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolateUsingPrecomputedTable(RandomSeed seed) {
+  public void canInterpolateUsingPrecomputedPoints(RandomSeed seed) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     final int x = 4;
     final int y = 4;
@@ -397,7 +397,9 @@ public class CustomTricubicInterpolatorTest {
       double zz = r.nextDouble();
 
       // This is done unscaled
-      final double[] table = CustomTricubicFunction.computePowerTable(xx, yy, zz);
+      final CubicSplinePosition px = new CubicSplinePosition(xx);
+      final CubicSplinePosition py = new CubicSplinePosition(yy);
+      final CubicSplinePosition pz = new CubicSplinePosition(zz);
 
       xx *= xscale;
       yy *= yscale;
@@ -407,7 +409,7 @@ public class CustomTricubicInterpolatorTest {
         for (int yi = 1; yi < 3; yi++) {
           for (int xi = 1; xi < 3; xi++) {
             final double obs = f1.value(xval[xi] + xx, yval[yi] + yy, zval[zi] + zz);
-            final double exp = f1.value(xi, yi, zi, table);
+            final double exp = f1.value(xi, yi, zi, px, py, pz);
             TestAssertions.assertTest(exp, obs, equality);
           }
         }
@@ -447,17 +449,17 @@ public class CustomTricubicInterpolatorTest {
     final CustomTricubicInterpolatingFunction f1 =
         new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
 
-    final double[] exp = f1.getSplineNode(1, 1, 1).getCoefficients();
+    final double[] exp = new double[64];
+    final double[] obs = new double[64];
+    f1.getSplineNode(1, 1, 1).getCoefficients(exp);
 
-    double[] obs;
     if (noScale) {
-      obs = CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval))
-          .getCoefficients();
+      CustomTricubicInterpolator.create(new DoubleArrayTrivalueProvider(fval)).getCoefficients(obs);
     } else {
-      obs = CustomTricubicInterpolator
+      CustomTricubicInterpolator
           .create(new DoubleArrayValueProvider(xval), new DoubleArrayValueProvider(yval),
               new DoubleArrayValueProvider(zval), new DoubleArrayTrivalueProvider(fval))
-          .getCoefficients();
+          .getCoefficients(obs);
     }
 
     Assertions.assertArrayEquals(exp, obs);
@@ -505,16 +507,18 @@ public class CustomTricubicInterpolatorTest {
 
   private static void check(CustomTricubicInterpolatingFunction f1, double[] xval, double[] yval,
       double[] zval, double[][][] fval, boolean noScale, int indexX, int indexY, int indexZ) {
-    final double[] exp = f1.getSplineNode(indexX, indexY, indexZ).getCoefficients();
+    final double[] exp = new double[64];
+    final double[] obs = new double[64];
+    f1.getSplineNode(indexX, indexY, indexZ).getCoefficients(exp);
 
-    double[] obs;
     if (noScale) {
-      obs = CustomTricubicInterpolator
-          .create(new DoubleArrayTrivalueProvider(fval), indexX, indexY, indexZ).getCoefficients();
+      CustomTricubicInterpolator
+          .create(new DoubleArrayTrivalueProvider(fval), indexX, indexY, indexZ)
+          .getCoefficients(obs);
     } else {
-      obs = CustomTricubicInterpolator.create(new DoubleArrayValueProvider(xval),
+      CustomTricubicInterpolator.create(new DoubleArrayValueProvider(xval),
           new DoubleArrayValueProvider(yval), new DoubleArrayValueProvider(zval),
-          new DoubleArrayTrivalueProvider(fval), indexX, indexY, indexZ).getCoefficients();
+          new DoubleArrayTrivalueProvider(fval), indexX, indexY, indexZ).getCoefficients(obs);
     }
 
     Assertions.assertArrayEquals(exp, obs);
@@ -618,7 +622,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsWithIntegetAxis(RandomSeed seed) {
+  public void canInterpolateWithGradientsWithIntegerAxis(RandomSeed seed) {
     canInterpolateWithGradients(seed, false);
   }
 
@@ -628,7 +632,7 @@ public class CustomTricubicInterpolatorTest {
     final int y = 4;
     final int z = 4;
     // Difference scales
-    final double[] xval = SimpleArrayUtils.newArray(x, 0, 1.0);
+    final double[] xval = SimpleArrayUtils.newArray(x, 0, (isInteger) ? 1.0 : 1.5);
     final double[] yval = SimpleArrayUtils.newArray(y, 0, (isInteger) ? 1.0 : 0.5);
     final double[] zval = SimpleArrayUtils.newArray(z, 0, (isInteger) ? 1.0 : 2.0);
 
@@ -765,16 +769,16 @@ public class CustomTricubicInterpolatorTest {
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsUsingPrecomputedTableWithNonIntegerAxis(RandomSeed seed) {
-    canInterpolateWithGradientsUsingPrecomputedTable(seed, false);
+  public void canInterpolateWithGradientsUsingPrecomputedPointsWithNonIntegerAxis(RandomSeed seed) {
+    canInterpolateWithGradientsUsingPrecomputedPoints(seed, false);
   }
 
   @SeededTest
-  public void canInterpolateWithGradientsUsingPrecomputedTableWithIntegerAxis(RandomSeed seed) {
-    canInterpolateWithGradientsUsingPrecomputedTable(seed, true);
+  public void canInterpolateWithGradientsUsingPrecomputedPointsWithIntegerAxis(RandomSeed seed) {
+    canInterpolateWithGradientsUsingPrecomputedPoints(seed, true);
   }
 
-  private void canInterpolateWithGradientsUsingPrecomputedTable(RandomSeed seed,
+  private void canInterpolateWithGradientsUsingPrecomputedPoints(RandomSeed seed,
       boolean isInteger) {
     final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
     final int x = 4;
@@ -801,7 +805,6 @@ public class CustomTricubicInterpolatorTest {
     final double[][][] fval = createData(x, y, z, null);
     final CustomTricubicInterpolator in = new CustomTricubicInterpolator();
     final DoubleDoubleBiPredicate dtableEquality = TestHelper.doublesAreClose(1e-8, 0);
-    final DoubleDoubleBiPredicate ftableEquality = TestHelper.doublesAreClose(5e-3, 0);
     for (final boolean singlePrecision : new boolean[] {false, true}) {
       in.setSinglePrecision(singlePrecision);
       final CustomTricubicInterpolatingFunction f1 = in.interpolate(xval, yval, zval, fval);
@@ -811,16 +814,9 @@ public class CustomTricubicInterpolatorTest {
         double zz = r.nextDouble();
 
         // This is done unscaled
-        final double[] table = CustomTricubicFunction.computePowerTable(xx, yy, zz);
-        final double[] table2 = CustomTricubicFunction.scalePowerTable(table, 2);
-        final double[] table3 = CustomTricubicFunction.scalePowerTable(table, 3);
-        final double[] table6 = CustomTricubicFunction.scalePowerTable(table, 6);
-
-        // Test the float table too
-        final float[] ftable = CustomTricubicFunction.computeFloatPowerTable(xx, yy, zz);
-        final float[] ftable2 = CustomTricubicFunction.scalePowerTable(ftable, 2);
-        final float[] ftable3 = CustomTricubicFunction.scalePowerTable(ftable, 3);
-        final float[] ftable6 = CustomTricubicFunction.scalePowerTable(ftable, 6);
+        final CubicSplinePosition px = new CubicSplinePosition(xx);
+        final CubicSplinePosition py = new CubicSplinePosition(yy);
+        final CubicSplinePosition pz = new CubicSplinePosition(zz);
 
         xx *= xscale;
         yy *= yscale;
@@ -836,13 +832,13 @@ public class CustomTricubicInterpolatorTest {
               final CustomTricubicFunction node = f1.getSplineNode(xi, yi, zi);
 
               exp = f1.value(x_, y_, z_);
-              obs = f1.value(xi, yi, zi, table);
+              obs = f1.value(xi, yi, zi, px, py, pz);
               TestAssertions.assertTest(exp, obs, dtableEquality);
 
               // 1st order gradient
 
               exp = f1.value(x_, y_, z_, df_daA);
-              obs = f1.value(xi, yi, zi, table, df_daB);
+              obs = f1.value(xi, yi, zi, px, py, pz, df_daB);
               TestAssertions.assertTest(exp, obs, dtableEquality);
               TestAssertions.assertArrayTest(df_daA, df_daB, dtableEquality);
 
@@ -851,76 +847,36 @@ public class CustomTricubicInterpolatorTest {
               e1B = df_daB.clone();
 
               // Node should be the same after scaling
-              node.gradient(table, df_daA);
-              node.gradient(ftable, df_daB);
+              obs = node.value(px, py, pz, df_daA);
               for (int k = 0; k < 3; k++) {
                 df_daA[k] /= scale[k];
-                df_daB[k] /= scale[k];
               }
+              TestAssertions.assertTest(exp, obs, dtableEquality);
               TestAssertions.assertArrayTest(e1A, df_daA, dtableEquality);
-              TestAssertions.assertArrayTest(e1A, df_daB, ftableEquality);
-
-              // Pre-scaled table should be the same
-              obs2 = f1.value(xi, yi, zi, table, table2, table3, df_daB);
-
-              Assertions.assertEquals(obs, obs2);
-              Assertions.assertArrayEquals(e1B, df_daB);
 
               // 2nd order gradient
 
               obs2 = f1.value(x_, y_, z_, df_daA, d2f_da2A);
-              Assertions.assertEquals(exp, obs2);
+              TestAssertions.assertTest(exp, obs2, dtableEquality);
               Assertions.assertArrayEquals(e1A, df_daA);
 
-              obs2 = f1.value(xi, yi, zi, table, df_daB, d2f_da2B);
-              Assertions.assertEquals(obs, obs2);
+              obs2 = f1.value(xi, yi, zi, px, py, pz, df_daB, d2f_da2B);
+              TestAssertions.assertTest(exp, obs2, dtableEquality);
               Assertions.assertArrayEquals(e1B, df_daB);
               TestAssertions.assertArrayTest(d2f_da2A, d2f_da2B, dtableEquality);
 
               // Store result
               e2B = d2f_da2B.clone();
 
-              // Pre-scaled table should be the same
-              obs2 = f1.value(xi, yi, zi, table, table2, table3, table6, df_daB, d2f_da2B);
-              Assertions.assertEquals(obs, obs2);
-              Assertions.assertArrayEquals(e1B, df_daB);
-              Assertions.assertArrayEquals(e2B, d2f_da2B);
-
               // Node should be the same after scaling
-              node.value(table, df_daA, df_daB);
+              obs2 = node.value(px, py, pz, df_daA, df_daB);
               for (int k = 0; k < 3; k++) {
                 df_daA[k] /= scale[k];
-                df_daB[k] /= scale[k];
+                df_daB[k] /= (scale[k] * scale[k]);
               }
+              TestAssertions.assertTest(exp, obs2, dtableEquality);
               TestAssertions.assertArrayTest(e1A, df_daA, dtableEquality);
-              TestAssertions.assertArrayTest(e1B, df_daA, dtableEquality);
-              node.value(ftable, df_daA, df_daB);
-              for (int k = 0; k < 3; k++) {
-                df_daA[k] /= scale[k];
-                df_daB[k] /= scale[k];
-              }
-              TestAssertions.assertArrayTest(e1A, df_daA, ftableEquality);
-              TestAssertions.assertArrayTest(e1B, df_daA, ftableEquality);
-
-              // Test the float tables produce the same results.
-              // This just exercises the methods. The accuracy of
-              // returned values is checked in a separate test
-              // with lower tolerance.
-              obs = f1.value(xi, yi, zi, ftable);
-              TestAssertions.assertTest(exp, obs, ftableEquality);
-              obs2 = f1.value(xi, yi, zi, ftable, df_daA);
-              Assertions.assertEquals(obs, obs2);
-              TestAssertions.assertArrayTest(e1A, df_daA, ftableEquality);
-              obs2 = f1.value(xi, yi, zi, ftable, ftable2, ftable3, df_daA);
-              Assertions.assertEquals(obs, obs2);
-              obs2 = f1.value(xi, yi, zi, ftable, df_daB, d2f_da2B);
-              Assertions.assertEquals(obs, obs2);
-              Assertions.assertArrayEquals(df_daA, df_daB);
-              TestAssertions.assertArrayTest(e2B, d2f_da2B, ftableEquality);
-              obs2 = f1.value(xi, yi, zi, ftable, ftable2, ftable3, ftable6, df_daB, d2f_da2B);
-              Assertions.assertEquals(obs, obs2);
-              Assertions.assertArrayEquals(df_daA, df_daB);
-              TestAssertions.assertArrayTest(e2B, d2f_da2B, ftableEquality);
+              TestAssertions.assertArrayTest(e2B, df_daB, dtableEquality);
             }
           }
         }
@@ -960,7 +916,6 @@ public class CustomTricubicInterpolatorTest {
     double obs;
     double obs2;
     double[] e1B;
-    double[] e2B;
     final double[][][] fval = createData(x, y, z, null);
     final CustomTricubicInterpolatingFunction f1 =
         new CustomTricubicInterpolator().interpolate(xval, yval, zval, fval);
@@ -987,25 +942,24 @@ public class CustomTricubicInterpolatorTest {
       final double yy = r.nextDouble();
       final double zz = r.nextDouble();
 
-      final double[] table = CustomTricubicFunction.computePowerTable(xx, yy, zz);
-      final float[] ftable = CustomTricubicFunction.computeFloatPowerTable(xx, yy, zz);
-      final float[] ftable2 = CustomTricubicFunction.scalePowerTable(ftable, 2);
-      final float[] ftable3 = CustomTricubicFunction.scalePowerTable(ftable, 3);
-      final float[] ftable6 = CustomTricubicFunction.scalePowerTable(ftable, 6);
+      final CubicSplinePosition px = new CubicSplinePosition(xx);
+      final CubicSplinePosition py = new CubicSplinePosition(yy);
+      final CubicSplinePosition pz = new CubicSplinePosition(zz);
 
       for (int ii = 0; ii < nodes.length; ii++) {
         final CustomTricubicFunction n1 = nodes[ii];
         final CustomTricubicFunction n2 = fnodes[ii];
 
         // Just check relative to the double-table version
-        exp = n1.value(table);
-        obs = n2.value(ftable);
+        exp = n1.value(px, py, pz);
+        obs = n2.value(px, py, pz);
         TestAssertions.assertTest(exp, obs, valueTolerance);
 
         // 1st order gradient
 
-        n1.value(table, df_daA);
-        obs2 = n2.value(ftable, df_daB);
+        exp = n1.value(px, py, pz, df_daA);
+        obs2 = n2.value(px, py, pz, df_daB);
+        TestAssertions.assertTest(exp, obs, valueTolerance);
         Assertions.assertEquals(obs, obs2);
         TestAssertions.assertArrayTest(df_daA, df_daB, gradientTolerance);
 
@@ -1014,26 +968,15 @@ public class CustomTricubicInterpolatorTest {
 
         // 2nd order gradient
 
-        n1.value(table, df_daA, d2f_da2A);
-        obs2 = n2.value(ftable, df_daB, d2f_da2B);
+        exp = n1.value(px, py, pz, df_daA, d2f_da2A);
+        obs2 = n2.value(px, py, pz, df_daB, d2f_da2B);
         // Should be the same as the first-order gradient (which has already passed)
+        TestAssertions.assertTest(exp, obs, valueTolerance);
         Assertions.assertEquals(obs, obs2);
         Assertions.assertArrayEquals(e1B, df_daB);
+
         // Check 2nd order gradient
         TestAssertions.assertArrayTest(d2f_da2A, d2f_da2B, gradientTolerance2);
-
-        // Store result
-        e2B = d2f_da2B.clone();
-
-        // Pre-scaled table should be the same
-        obs2 = n2.value(ftable, ftable2, ftable3, df_daB);
-        Assertions.assertEquals(obs, obs2);
-        Assertions.assertArrayEquals(e1B, df_daB);
-
-        obs2 = n2.value(ftable, ftable2, ftable3, ftable6, df_daB, d2f_da2B);
-        Assertions.assertEquals(obs, obs2);
-        Assertions.assertArrayEquals(e1B, df_daB);
-        Assertions.assertArrayEquals(e2B, d2f_da2B);
       }
     }
   }
@@ -1063,36 +1006,35 @@ public class CustomTricubicInterpolatorTest {
     final CustomTricubicFunction n1 = f1.getSplineNodeReference(1, 1, 1);
     final CustomTricubicFunction n2 = n1.toSinglePrecision();
 
-    final double[] table = CustomTricubicFunction.computePowerTable(0, 0, 0);
-    final float[] ftable = CustomTricubicFunction.computeFloatPowerTable(0, 0, 0);
+    final CubicSplinePosition p0 = new CubicSplinePosition(0);
 
     // Check no interpolation is correct
-    exp = n1.value(table);
+    exp = n1.value(p0, p0, p0);
     obs = n1.value000();
     Assertions.assertEquals(exp, obs);
 
-    exp = n1.value(table, df_daA);
+    exp = n1.value(p0, p0, p0, df_daA);
     obs = n1.value000(df_daB);
     Assertions.assertEquals(exp, obs);
     Assertions.assertArrayEquals(df_daA, df_daB);
 
-    exp = n1.value(table, df_daA, d2f_da2A);
+    exp = n1.value(p0, p0, p0, df_daA, d2f_da2A);
     obs = n1.value000(df_daB, d2f_da2B);
     Assertions.assertEquals(exp, obs);
     Assertions.assertArrayEquals(df_daA, df_daB);
     Assertions.assertArrayEquals(d2f_da2A, d2f_da2B);
 
     // Check no interpolation is correct
-    exp = n2.value(ftable);
+    exp = n2.value(p0, p0, p0);
     obs = n2.value000();
     Assertions.assertEquals(exp, obs);
 
-    exp = n2.value(ftable, df_daA);
+    exp = n2.value(p0, p0, p0, df_daA);
     obs = n2.value000(df_daB);
     Assertions.assertEquals(exp, obs);
     Assertions.assertArrayEquals(df_daA, df_daB);
 
-    exp = n2.value(ftable, df_daA, d2f_da2A);
+    exp = n2.value(p0, p0, p0, df_daA, d2f_da2A);
     obs = n2.value000(df_daB, d2f_da2B);
     Assertions.assertEquals(exp, obs);
     Assertions.assertArrayEquals(df_daA, df_daB);
@@ -1121,51 +1063,26 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private abstract class DoubleTimingTask extends MyTimingTask {
-    double[][] tables;
+    CubicSplinePosition[][] positions;
 
-    public DoubleTimingTask(String name, double[][] tables, CustomTricubicFunction[] nodes) {
+    public DoubleTimingTask(String name, CubicSplinePosition[][] positions,
+        CustomTricubicFunction[] nodes) {
       super(name, nodes);
-      this.tables = tables;
-    }
-  }
-
-  private abstract class FloatTimingTask extends MyTimingTask {
-    float[][] tables;
-
-    public FloatTimingTask(String name, float[][] tables, CustomTricubicFunction[] nodes) {
-      super(name, nodes);
-      this.tables = tables;
+      this.positions = positions;
     }
   }
 
   private class Double0TimingTask extends DoubleTimingTask {
-    public Double0TimingTask(double[][] tables, CustomTricubicFunction[] nodes) {
-      super(Double0TimingTask.class.getSimpleName(), tables, nodes);
+    public Double0TimingTask(CubicSplinePosition[][] positions, CustomTricubicFunction[] nodes) {
+      super(Double0TimingTask.class.getSimpleName(), positions, nodes);
     }
 
     @Override
     public Object run(Object data) {
       double value = 0;
       for (int i = 0; i < nodes.length; i++) {
-        for (int j = 0; j < tables.length; j++) {
-          value += nodes[i].value(tables[j]);
-        }
-      }
-      return value;
-    }
-  }
-
-  private class Float0TimingTask extends FloatTimingTask {
-    public Float0TimingTask(float[][] tables, CustomTricubicFunction[] nodes) {
-      super(Float0TimingTask.class.getSimpleName(), tables, nodes);
-    }
-
-    @Override
-    public Object run(Object data) {
-      double value = 0;
-      for (int i = 0; i < nodes.length; i++) {
-        for (int j = 0; j < tables.length; j++) {
-          value += nodes[i].value(tables[j]);
+        for (int j = 0; j < positions.length; j++) {
+          value += nodes[i].value(positions[j][0], positions[j][1], positions[j][2]);
         }
       }
       return value;
@@ -1173,33 +1090,16 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private class Double1TimingTask extends DoubleTimingTask {
-    public Double1TimingTask(double[][] tables, CustomTricubicFunction[] nodes) {
-      super(Double1TimingTask.class.getSimpleName(), tables, nodes);
+    public Double1TimingTask(CubicSplinePosition[][] positions, CustomTricubicFunction[] nodes) {
+      super(Double1TimingTask.class.getSimpleName(), positions, nodes);
     }
 
     @Override
     public Object run(Object data) {
       double value = 0;
       for (int i = 0; i < nodes.length; i++) {
-        for (int j = 0; j < tables.length; j++) {
-          value += nodes[i].value(tables[j], derivative1);
-        }
-      }
-      return value;
-    }
-  }
-
-  private class Float1TimingTask extends FloatTimingTask {
-    public Float1TimingTask(float[][] tables, CustomTricubicFunction[] nodes) {
-      super(Float1TimingTask.class.getSimpleName(), tables, nodes);
-    }
-
-    @Override
-    public Object run(Object data) {
-      double value = 0;
-      for (int i = 0; i < nodes.length; i++) {
-        for (int j = 0; j < tables.length; j++) {
-          value += nodes[i].value(tables[j], derivative1);
+        for (int j = 0; j < positions.length; j++) {
+          value += nodes[i].value(positions[j][0], positions[j][1], positions[j][2], derivative1);
         }
       }
       return value;
@@ -1207,33 +1107,17 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private class Double2TimingTask extends DoubleTimingTask {
-    public Double2TimingTask(double[][] tables, CustomTricubicFunction[] nodes) {
-      super(Double2TimingTask.class.getSimpleName(), tables, nodes);
+    public Double2TimingTask(CubicSplinePosition[][] positions, CustomTricubicFunction[] nodes) {
+      super(Double2TimingTask.class.getSimpleName(), positions, nodes);
     }
 
     @Override
     public Object run(Object data) {
       double value = 0;
       for (int i = 0; i < nodes.length; i++) {
-        for (int j = 0; j < tables.length; j++) {
-          value += nodes[i].value(tables[j], derivative1, derivative2);
-        }
-      }
-      return value;
-    }
-  }
-
-  private class Float2TimingTask extends FloatTimingTask {
-    public Float2TimingTask(float[][] tables, CustomTricubicFunction[] nodes) {
-      super(Float2TimingTask.class.getSimpleName(), tables, nodes);
-    }
-
-    @Override
-    public Object run(Object data) {
-      double value = 0;
-      for (int i = 0; i < nodes.length; i++) {
-        for (int j = 0; j < tables.length; j++) {
-          value += nodes[i].value(tables[j], derivative1, derivative2);
+        for (int j = 0; j < positions.length; j++) {
+          value += nodes[i].value(positions[j][0], positions[j][1], positions[j][2], derivative1,
+              derivative2);
         }
       }
       return value;
@@ -1272,37 +1156,23 @@ public class CustomTricubicInterpolatorTest {
     }
 
     // Get points
-    final double[][] tables = new double[3000][];
-    final float[][] ftables = new float[tables.length][];
-    for (int i = 0; i < tables.length; i++) {
-      final double xx = r.nextDouble();
-      final double yy = r.nextDouble();
-      final double zz = r.nextDouble();
-
-      tables[i] = CustomTricubicFunction.computePowerTable(xx, yy, zz);
-      ftables[i] = CustomTricubicFunction.computeFloatPowerTable(xx, yy, zz);
+    final CubicSplinePosition[][] positions = new CubicSplinePosition[3000][];
+    for (int i = 0; i < positions.length; i++) {
+      positions[i] = new CubicSplinePosition[] {new CubicSplinePosition(r.nextDouble()),
+          new CubicSplinePosition(r.nextDouble()), new CubicSplinePosition(r.nextDouble()),};
     }
 
     final TimingService ts = new TimingService();
 
     // Put in order to pass the speed test
-    ts.execute(new Double2TimingTask(tables, fnodes));
-    ts.execute(new Double2TimingTask(tables, nodes));
+    ts.execute(new Double2TimingTask(positions, fnodes));
+    ts.execute(new Double2TimingTask(positions, nodes));
 
-    ts.execute(new Float2TimingTask(ftables, nodes));
-    ts.execute(new Float2TimingTask(ftables, fnodes));
+    ts.execute(new Double1TimingTask(positions, fnodes));
+    ts.execute(new Double1TimingTask(positions, nodes));
 
-    ts.execute(new Double1TimingTask(tables, fnodes));
-    ts.execute(new Double1TimingTask(tables, nodes));
-
-    ts.execute(new Float1TimingTask(ftables, nodes));
-    ts.execute(new Float1TimingTask(ftables, fnodes));
-
-    ts.execute(new Double0TimingTask(tables, fnodes));
-    ts.execute(new Double0TimingTask(tables, nodes));
-
-    ts.execute(new Float0TimingTask(ftables, nodes));
-    ts.execute(new Float0TimingTask(ftables, fnodes));
+    ts.execute(new Double0TimingTask(positions, fnodes));
+    ts.execute(new Double0TimingTask(positions, nodes));
 
     final int n = ts.getSize();
     ts.repeat();
@@ -1342,6 +1212,9 @@ public class CustomTricubicInterpolatorTest {
     final CustomTricubicInterpolatingFunction f2 = interpolator.interpolate(xval, yval, zval, fval);
     es.shutdown();
 
+    final double[] exp = new double[64];
+    final double[] obs = new double[64];
+
     // Compare all nodes
     for (int i = 0; i < f1.getMaxXSplinePosition(); i++) {
       for (int j = 0; j < f1.getMaxYSplinePosition(); j++) {
@@ -1350,7 +1223,9 @@ public class CustomTricubicInterpolatorTest {
               (DoubleCustomTricubicFunction) f1.getSplineNodeReference(i, j, k);
           final DoubleCustomTricubicFunction n2 =
               (DoubleCustomTricubicFunction) f2.getSplineNodeReference(i, j, k);
-          Assertions.assertArrayEquals(n1.getCoefficients(), n2.getCoefficients());
+          n1.getCoefficients(exp);
+          n2.getCoefficients(obs);
+          Assertions.assertArrayEquals(exp, obs);
         }
       }
     }

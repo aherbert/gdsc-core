@@ -33,6 +33,8 @@ import org.apache.commons.math3.exception.OutOfRangeException;
 /**
  * Contains the cubic spline position for a value within the interpolation range. Used to
  * pre-compute values to evaluate the spline value.
+ *
+ * <p>This class is immutable.
  */
 public class IndexedCubicSplinePosition extends CubicSplinePosition {
   /** The index of the spline node. */
@@ -40,7 +42,7 @@ public class IndexedCubicSplinePosition extends CubicSplinePosition {
 
   /**
    * Instantiates a new indexed cubic spline position. Only used when x is known to be in the range
-   * 0-1 and the index is positive.
+   * {@code [0,1]} and the index is positive.
    *
    * @param index the index
    * @param x the x
@@ -55,9 +57,9 @@ public class IndexedCubicSplinePosition extends CubicSplinePosition {
    * Instantiates a new spline position.
    *
    * @param index the index
-   * @param x the distance along the spline to the next node (range 0 to 1)
+   * @param x the distance along the spline to the next node (range {@code [0,1]})
    * @throws IllegalArgumentException If the index is negative
-   * @throws OutOfRangeException If x is not in the range 0 to 1
+   * @throws OutOfRangeException If x is not in the range {@code [0,1]}
    */
   public IndexedCubicSplinePosition(int index, double x) {
     super(x);
