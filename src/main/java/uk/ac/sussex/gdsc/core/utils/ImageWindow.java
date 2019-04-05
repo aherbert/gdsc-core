@@ -99,31 +99,42 @@ public class ImageWindow {
     if (windowFunction == WindowMethod.NONE) {
       return image;
     }
-    if (this.windowFunction != windowFunction || wx == null || wx.length != maxx || wy == null
-        || wy.length != maxy) {
-      this.windowFunction = windowFunction;
+
+    // Get cache and update if necessary
+    WindowMethod localWindowFunction = this.windowFunction;
+    double[] localWx = this.wx;
+    double[] localWy = this.wy;
+
+    if (localWindowFunction != windowFunction || localWx == null || localWx.length != maxx
+        || localWy == null || localWy.length != maxy) {
+      // Compute
       switch (windowFunction) {
         case HANNING:
-          wx = hanning(maxx);
-          wy = hanning(maxy);
+          localWx = hanning(maxx);
+          localWy = hanning(maxy);
           break;
         case COSINE:
-          wx = cosine(maxx);
-          wy = cosine(maxy);
+          localWx = cosine(maxx);
+          localWy = cosine(maxy);
           break;
         case TUKEY:
         default:
-          wx = tukey(maxx);
-          wy = tukey(maxy);
+          localWx = tukey(maxx);
+          localWy = tukey(maxy);
           break;
       }
+
+      // Update non-synchronised. It is only a cache.
+      this.windowFunction = windowFunction;
+      this.wx = localWx;
+      this.wy = localWy;
     }
 
     final float[] data = new float[image.length];
 
     for (int y = 0, i = 0; y < maxy; y++) {
       for (int x = 0; x < maxx; x++, i++) {
-        data[i] = (float) (image[i] * wx[x] * wy[y]);
+        data[i] = (float) (image[i] * localWx[x] * localWy[y]);
       }
     }
 
