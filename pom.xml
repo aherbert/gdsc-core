@@ -159,6 +159,7 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
+      <version>5.4.1</version>
       <scope>test</scope>
     </dependency>
     <!-- Used to test the DBSCAN and OPTICS algorithms -->
