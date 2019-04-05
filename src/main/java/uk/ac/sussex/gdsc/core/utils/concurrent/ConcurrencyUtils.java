@@ -243,19 +243,22 @@ public final class ConcurrencyUtils {
   }
 
   /**
-   * Interrupt the current thread (reset the interrupt status) and re-throw the interrupted
-   * exception unchecked if the test result is {@code true}.
+   * Interrupt the current thread (reset the interrupt status) and, if the test result is
+   * {@code true}, re-throw the interrupted exception unchecked.
    *
    * <p>This can be used to handle an {@link InterruptedException} when it is expected under a set
    * condition.
    *
    * @param result the test result
    * @param exception the exception
-   * @throws ConcurrentRuntimeException a wrapped InterruptedException if the test is {@code true};
+   * @throws ConcurrentRuntimeException a wrapped InterruptedException if the test is {@code true}
+   * @see Thread#interrupt()
    */
   public static void interruptAndThrowUncheckedIf(boolean result, InterruptedException exception) {
+    // Interrupt of current thread is always allowed.
+    // This will reset the thread's interrupt status.
+    Thread.currentThread().interrupt();
     if (result) {
-      Thread.currentThread().interrupt();
       throw new ConcurrentRuntimeException(exception);
     }
   }
