@@ -1286,24 +1286,19 @@ public final class MathUtils {
   }
 
   /**
-   * Return the log2 of value rounded down to a power of 2. This is done by scanning for the most
+   * Return the log<sub>2</sub> of value rounded down to a power of 2. This is done by scanning for the most
    * significant bit of the value.
    *
    * <p>If value is negative or zero this will return Integer.MIN_VALUE (as negative infinity).
    *
    * @param value the value (must be positive)
-   * @return log2(value)
+   * @return floor(log<sub>2</sub>(x))
    */
   public static int log2(int value) {
     if (value <= 0) {
       return Integer.MIN_VALUE;
     }
-    // Max value is 2^31 -1 so start at bit 30 for rounded down
-    int bit = 30;
-    while ((value & (1 << bit)) == 0) {
-      bit--;
-    }
-    return bit;
+    return 31 - Integer.numberOfLeadingZeros(value);
   }
 
   /**

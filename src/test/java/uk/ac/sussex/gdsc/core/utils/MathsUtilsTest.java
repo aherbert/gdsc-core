@@ -71,4 +71,13 @@ public class MathsUtilsTest {
     Assertions.assertEquals(expected, MathUtils.averageIndex(index1, index2),
         () -> "Index1=" + index1 + ", Index2=" + index2);
   }
+
+  @Test
+  public void canComputeLog2() {
+    Assertions.assertEquals(Integer.MIN_VALUE, MathUtils.log2(0));
+    Assertions.assertEquals(0, MathUtils.log2(1));
+    Assertions.assertEquals(1, MathUtils.log2(2));
+    Assertions.assertEquals(2, MathUtils.log2(4));
+    Assertions.assertEquals(8, MathUtils.log2(256));
+  }
 }
