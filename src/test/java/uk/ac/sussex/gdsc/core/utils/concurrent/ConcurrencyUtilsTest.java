@@ -39,12 +39,12 @@ public class ConcurrencyUtilsTest {
     final InterruptedException exception = new InterruptedException();
 
     ConcurrencyUtils.interruptAndThrowUncheckedIf(false, exception);
-    Assertions.assertFalse(Thread.currentThread().isInterrupted());
+    // This will clear the interrupted status
+    Assertions.assertTrue(Thread.interrupted(), "Thread should be interrupted when condition is false");
 
     Assertions.assertThrows(ConcurrentRuntimeException.class,
         () -> ConcurrencyUtils.interruptAndThrowUncheckedIf(true, exception));
 
-    // This will clear the interrupted status
-    Assertions.assertTrue(Thread.interrupted(), "Thread should be interrupted");
+    Assertions.assertTrue(Thread.interrupted(), "Thread should be interrupted when condition is true");
   }
 }
