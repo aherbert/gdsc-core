@@ -30,6 +30,7 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.GaussianSampler;
+import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
 import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSampler;
 
 /**
@@ -50,6 +51,17 @@ public final class GaussianSamplerUtils {
    */
   public static GaussianSampler createGaussianSampler(UniformRandomProvider rng, double mean,
       double standardDeviation) {
-    return new GaussianSampler(new ZigguratNormalizedGaussianSampler(rng), mean, standardDeviation);
+    return new GaussianSampler(createNormalizedGaussianSampler(rng), mean, standardDeviation);
+  }
+
+  /**
+   * Creates a new NormalizedGaussianSampler.
+   *
+   * @param rng Generator of uniformly distributed random numbers.
+   * @return the normalized Gaussian sampler
+   */
+  public static NormalizedGaussianSampler
+      createNormalizedGaussianSampler(UniformRandomProvider rng) {
+    return new ZigguratNormalizedGaussianSampler(rng);
   }
 }
