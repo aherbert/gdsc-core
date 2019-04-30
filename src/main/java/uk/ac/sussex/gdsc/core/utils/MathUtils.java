@@ -1286,8 +1286,8 @@ public final class MathUtils {
   }
 
   /**
-   * Return the log<sub>2</sub> of value rounded down to a power of 2. This is done by scanning for the most
-   * significant bit of the value.
+   * Return the log<sub>2</sub> of value rounded down to a power of 2. This is done by scanning for
+   * the most significant bit of the value.
    *
    * <p>If value is negative or zero this will return Integer.MIN_VALUE (as negative infinity).
    *
