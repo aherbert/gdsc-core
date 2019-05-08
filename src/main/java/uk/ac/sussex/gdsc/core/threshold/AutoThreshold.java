@@ -222,11 +222,11 @@ public class AutoThreshold {
     do {
       sum1 = sum2 = sum3 = sum4 = 0.0;
       for (int i = min; i <= movingIndex; i++) {
-        sum1 += i * data[i];
+        sum1 += (double) i * data[i];
         sum2 += data[i];
       }
       for (int i = (movingIndex + 1); i <= max; i++) {
-        sum3 += i * data[i];
+        sum3 += (double) i * data[i];
         sum4 += data[i];
       }
       result = (sum1 / sum2 + sum3 / sum4) / 2.0;
