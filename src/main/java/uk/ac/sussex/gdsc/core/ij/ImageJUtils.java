@@ -980,7 +980,7 @@ public final class ImageJUtils {
           || ((flags & GREY_SCALE) == GREY_SCALE && imp.getBitDepth() == 24)
           // 8/16-bit only
           || ((flags & GREY_8_16) == GREY_8_16
-              && (imp.getBitDepth() != 8 || imp.getBitDepth() != 16))
+              && (imp.getBitDepth() != 8 && imp.getBitDepth() != 16))
           // Ignore image suffix
           || (ignoreImage(ignoreSuffix, imp.getTitle()))) {
         continue;
@@ -1284,8 +1284,7 @@ public final class ImageJUtils {
         count = 0;
       }
       found = count > threshold;
-    }
-    while (!found && index < 255);
+    } while (!found && index < 255);
 
     final int hmin = index;
     index = 256;
@@ -1296,8 +1295,7 @@ public final class ImageJUtils {
         count = 0;
       }
       found = count > threshold;
-    }
-    while (!found && index > 0);
+    } while (!found && index > 0);
 
     final int hmax = index;
     double min;
@@ -1320,8 +1318,8 @@ public final class ImageJUtils {
    * Creates a started ticker for the total number of steps. The ticker will report to the ImageJ
    * progress and status bar.
    *
-   * <p>The number of threads is required to determine thread-safety of the ticker. Set to zero
-   * for non thread-safe.
+   * <p>The number of threads is required to determine thread-safety of the ticker. Set to zero for
+   * non thread-safe.
    *
    * @param total the total
    * @param numberOfThreads the number of threads
@@ -1336,8 +1334,8 @@ public final class ImageJUtils {
    * progress and status bar. If the status message is not null then the ImageJ status bar will be
    * updated with the message.
    *
-   * <p>The number of threads is required to determine thread-safety of the ticker. Set to zero
-   * for non thread-safe.
+   * <p>The number of threads is required to determine thread-safety of the ticker. Set to zero for
+   * non thread-safe.
    *
    * @param total the total
    * @param numberOfThreads the number of threads
