@@ -356,14 +356,12 @@ public class WindowOrganiser extends ij.plugin.WindowOrganizer {
           }
         }
         hloc = hloc + tileWidth + GAP;
-      }
-      while (theyFit && (index < nPics));
+      } while (theyFit && (index < nPics));
       if (!theyFit) {
         tileWidth = (int) (tileWidth * 0.98 + 0.5);
         tileHeight = (int) (tileHeight * 0.98 + 0.5);
       }
-    }
-    while (!theyFit);
+    } while (!theyFit);
     hloc = XSTART;
     vloc = YSTART;
 

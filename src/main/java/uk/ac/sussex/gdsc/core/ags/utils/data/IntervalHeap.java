@@ -256,16 +256,16 @@ public class IntervalHeap<T> implements MinHeap<T>, MaxHeap<T> {
 
   private void siftUpMin(int index) {
     // Min-side parent: (x/2-1)&~1
-    for (int c = index, p = (index / 2 - 1) & ~1; p >= 0 && keys[c] < keys[p]; c = p, p =
-        (c / 2 - 1) & ~1) {
+    for (int c = index, p = (index / 2 - 1) & ~1; p >= 0 && keys[c] < keys[p];
+        c = p, p = (c / 2 - 1) & ~1) {
       swap(c, p);
     }
   }
 
   private void siftUpMax(int index) {
     // Max-side parent: (x/2-1)|1
-    for (int c = index, p = (index / 2 - 1) | 1; p >= 0 && keys[c] > keys[p]; c = p, p =
-        (c / 2 - 1) | 1) {
+    for (int c = index, p = (index / 2 - 1) | 1; p >= 0 && keys[c] > keys[p];
+        c = p, p = (c / 2 - 1) | 1) {
       swap(c, p);
     }
   }

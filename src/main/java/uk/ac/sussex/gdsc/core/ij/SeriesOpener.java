@@ -254,8 +254,8 @@ public class SeriesOpener {
       }
       imageList = new String[list.length];
       int count = 0;
-      for (int i = start - 1; i < list.length && count < maximumNumberOfImages; i +=
-          increment, count++) {
+      for (int i = start - 1; i < list.length && count < maximumNumberOfImages;
+          i += increment, count++) {
         imageList[count] = list[i];
       }
 
@@ -386,8 +386,8 @@ public class SeriesOpener {
       }
 
       int count = 0;
-      for (int i = localStart - 1; i < list.length && count < localNumberOfImages; i +=
-          localIncrement, count++) {
+      for (int i = localStart - 1; i < list.length && count < localNumberOfImages;
+          i += localIncrement, count++) {
         // count increment
       }
 

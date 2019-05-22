@@ -3,6 +3,9 @@ package uk.ac.sussex.gdsc.core.math;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test for {@link NumberUtils}.
+ */
 @SuppressWarnings({"javadoc"})
 public class NumberUtilsTest {
   @Test

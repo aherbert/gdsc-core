@@ -4,6 +4,9 @@ import org.apache.commons.math3.exception.OutOfRangeException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test for {@link CubicSplinePosition}.
+ */
 @SuppressWarnings({"javadoc"})
 public class CubicSplinePositionTest {
   @Test

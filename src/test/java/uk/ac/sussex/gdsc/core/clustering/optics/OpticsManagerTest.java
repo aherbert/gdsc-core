@@ -1403,8 +1403,7 @@ public class OpticsManagerTest {
     do {
       generatingDistanceE += 0.1f;
       moleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-    }
-    while (moleculesInCircle < limit && generatingDistanceE < size);
+    } while (moleculesInCircle < limit && generatingDistanceE < size);
 
     final int minPts = 20;
 
@@ -1449,8 +1448,7 @@ public class OpticsManagerTest {
     do {
       generatingDistanceE += 0.1f;
       moleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-    }
-    while (moleculesInCircle < limit && generatingDistanceE < size);
+    } while (moleculesInCircle < limit && generatingDistanceE < size);
 
     final int minPts = 20;
 
@@ -1828,8 +1826,7 @@ public class OpticsManagerTest {
       do {
         generatingDistanceE += 0.1f;
         moleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-      }
-      while (moleculesInCircle < m && generatingDistanceE < size);
+      } while (moleculesInCircle < m && generatingDistanceE < size);
 
       final double nMoleculesInSquare =
           4 * generatingDistanceE * generatingDistanceE * moleculesInPixel;
@@ -1902,8 +1899,7 @@ public class OpticsManagerTest {
       do {
         generatingDistanceE += 0.1f;
         moleculesInSquare = 4 * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-      }
-      while (moleculesInSquare < m && generatingDistanceE < size);
+      } while (moleculesInSquare < m && generatingDistanceE < size);
 
       final double moleculesInCircle =
           Math.PI * generatingDistanceE * generatingDistanceE * moleculesInPixel;
@@ -1974,8 +1970,7 @@ public class OpticsManagerTest {
       do {
         generatingDistanceE += 0.1f;
         moleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-      }
-      while (moleculesInCircle < m && generatingDistanceE < size);
+      } while (moleculesInCircle < m && generatingDistanceE < size);
 
       final double nMoleculesInSquare =
           4 * generatingDistanceE * generatingDistanceE * moleculesInPixel;
@@ -2047,8 +2042,7 @@ public class OpticsManagerTest {
       do {
         generatingDistanceE += 0.1f;
         moleculesInCircle = Math.PI * generatingDistanceE * generatingDistanceE * moleculesInPixel;
-      }
-      while (moleculesInCircle < m && generatingDistanceE < size);
+      } while (moleculesInCircle < m && generatingDistanceE < size);
 
       final double nMoleculesInSquare =
           4 * generatingDistanceE * generatingDistanceE * moleculesInPixel;

@@ -9,6 +9,9 @@ import ij.process.ImageProcessor;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test for {@link CachedBicubicInterpolator}.
+ */
 @SuppressWarnings({"javadoc"})
 public class CachedBicubicInterpolatorTest {
   @Test

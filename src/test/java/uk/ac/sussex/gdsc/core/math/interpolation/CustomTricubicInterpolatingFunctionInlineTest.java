@@ -28,7 +28,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class is used to in-line the computation for the CustomTricubicInterpolatingFunction.
+ * This class is used to in-line the computation for the
+ * {@link CustomTricubicInterpolatingFunction}.
  */
 @SuppressWarnings({"javadoc"})
 public class CustomTricubicInterpolatingFunctionInlineTest {

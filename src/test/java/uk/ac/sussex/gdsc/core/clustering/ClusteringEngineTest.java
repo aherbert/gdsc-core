@@ -50,8 +50,8 @@ public class ClusteringEngineTest {
   }
 
   @SeededTest
-  public void canClusterClusterPointsAtDifferentDensitiesUsingPairwiseWithoutNeighbours(
-      RandomSeed seed) {
+  public void
+      canClusterClusterPointsAtDifferentDensitiesUsingPairwiseWithoutNeighbours(RandomSeed seed) {
     final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
     for (final double radius : new double[] {5, 10, 20}) {
       for (final int size : new int[] {1000, 500, 300, 100}) {

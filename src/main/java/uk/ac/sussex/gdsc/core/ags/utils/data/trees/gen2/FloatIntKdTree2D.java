@@ -283,8 +283,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D {
       // Descend down the tree
       cursor = nextCursor;
       status[cursor.id] = Status.NONE;
-    }
-    while (cursor.parent != null || status[cursor.id] != Status.ALLVISITED);
+    } while (cursor.parent != null || status[cursor.id] != Status.ALLVISITED);
 
     final ArrayList<Entry> results = new ArrayList<>(resultHeap.getSize());
     if (sequentialSorting) {
@@ -395,8 +394,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D {
       // Descend down the tree
       cursor = nextCursor;
       status[cursor.id] = Status.NONE;
-    }
-    while (cursor.parent != null || status[cursor.id] != Status.ALLVISITED);
+    } while (cursor.parent != null || status[cursor.id] != Status.ALLVISITED);
 
     for (int i = 0; i < resultHeap.getSize(); i++) {
       results.add(resultHeap.getDistance(i), resultHeap.getData(i));
@@ -498,8 +496,7 @@ public abstract class FloatIntKdTree2D extends FloatIntKdTreeNode2D {
       // Descend down the tree
       cursor = nextCursor;
       status[cursor.id] = Status.NONE;
-    }
-    while (cursor.parent != null || status[cursor.id] != Status.ALLVISITED);
+    } while (cursor.parent != null || status[cursor.id] != Status.ALLVISITED);
   }
 
   /**

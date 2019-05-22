@@ -3,6 +3,9 @@ package uk.ac.sussex.gdsc.core.math.interpolation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test for {@link IndexedCubicSplinePosition}.
+ */
 @SuppressWarnings({"javadoc"})
 public class IndexedCubicSplinePositionTest {
   // Note: Avoids testing the super-class methods again. Only those new to this

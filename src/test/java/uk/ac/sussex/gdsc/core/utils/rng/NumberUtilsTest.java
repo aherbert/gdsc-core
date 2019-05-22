@@ -199,7 +199,7 @@ public class NumberUtilsTest {
    * of the {@code n * [0,2^k) / 2^k} and {@code n * [0,2^k) % 2^k} for all numbers in the range
    * [0,2^k).
    */
-  //@Test
+  // @Test
   public void testBias() {
     final int range = 16; // 2^4
     for (int n = 1; n <= range; n++) {
@@ -274,7 +274,7 @@ public class NumberUtilsTest {
     }
   }
 
-  //@Test
+  // @Test
   public void outputBiasTable() {
     outputBiasTable(31, 31);
   }
@@ -317,9 +317,9 @@ public class NumberUtilsTest {
 
       // Search down until extra is close to half of n
       final long lowerN = upperN >>> 1;
-      //@CHECKSTYLE.OFF: LocalVariableName
+      // @CHECKSTYLE.OFF: LocalVariableName
       long n = upperN;
-      //@CHECKSTYLE.ON: LocalVariableName
+      // @CHECKSTYLE.ON: LocalVariableName
       long gap = Math.abs(upperN - 2 * extra);
       while (upperN > lowerN && gap > 1) {
         final long ex = range % (--upperN);

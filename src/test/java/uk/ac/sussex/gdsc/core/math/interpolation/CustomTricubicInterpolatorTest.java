@@ -46,6 +46,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
+/**
+ * Test for {@link CustomTricubicInterpolator}.
+ */
 @SuppressWarnings({"javadoc"})
 public class CustomTricubicInterpolatorTest {
   private static Logger logger;

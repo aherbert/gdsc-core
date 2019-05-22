@@ -272,8 +272,7 @@ public class LinkedMedianWindowTest {
       do {
         m1[index++] = mw.getMedian();
         mw.increment();
-      }
-      while (mw.getPosition() < finalPosition);
+      } while (mw.getPosition() < finalPosition);
 
       final long s1 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
@@ -282,8 +281,7 @@ public class LinkedMedianWindowTest {
         do {
           mw.getMedian();
           mw.increment();
-        }
-        while (mw.getPosition() < finalPosition);
+        } while (mw.getPosition() < finalPosition);
       }
       t1 = System.nanoTime() - s1;
     } else {
@@ -291,8 +289,7 @@ public class LinkedMedianWindowTest {
       do {
         m1[index++] = mw.getMedian();
         mw.increment(increment);
-      }
-      while (mw.getPosition() < finalPosition);
+      } while (mw.getPosition() < finalPosition);
 
       final long s1 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
@@ -301,8 +298,7 @@ public class LinkedMedianWindowTest {
         do {
           mw.getMedian();
           mw.increment(increment);
-        }
-        while (mw.getPosition() < finalPosition);
+        } while (mw.getPosition() < finalPosition);
       }
       t1 = System.nanoTime() - s1;
     }

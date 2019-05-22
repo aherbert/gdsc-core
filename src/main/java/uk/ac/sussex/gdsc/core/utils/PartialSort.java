@@ -1464,12 +1464,10 @@ public final class PartialSort {
       while (running) {
         do {
           i++;
-        }
-        while (arr[i] < a);
+        } while (arr[i] < a);
         do {
           j--;
-        }
-        while (arr[j] > a);
+        } while (arr[j] > a);
         if (j < i) {
           running = false;
         } else {
@@ -1533,12 +1531,10 @@ public final class PartialSort {
       while (running) {
         do {
           i++;
-        }
-        while (arr[i] < a);
+        } while (arr[i] < a);
         do {
           j--;
-        }
-        while (arr[j] > a);
+        } while (arr[j] > a);
         if (j < i) {
           running = false;
         } else {

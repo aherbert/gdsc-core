@@ -774,8 +774,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
           if (++i == items.length) {
             i = 0;
           }
-        }
-        while (i != putIndex);
+        } while (i != putIndex);
       }
       return false;
     } finally {
@@ -811,8 +810,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
           if (++i == items.length) {
             i = 0;
           }
-        }
-        while (i != putIndex);
+        } while (i != putIndex);
       }
       return false;
     } finally {
@@ -983,8 +981,7 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
           if (++i == items.length) {
             i = 0;
           }
-        }
-        while (i != putIndex);
+        } while (i != putIndex);
         takeIndex = putIndex;
         count = 0;
         if (itrs != null) {

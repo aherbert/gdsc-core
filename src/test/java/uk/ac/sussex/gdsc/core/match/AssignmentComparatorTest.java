@@ -15,6 +15,9 @@ import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Test for {@link AssignmentComparator}.
+ */
 @SuppressWarnings({"javadoc"})
 public class AssignmentComparatorTest {
   private static Logger logger;

@@ -244,8 +244,7 @@ public abstract class SimpleKdTree2D extends SimpleKdTreeNode2D {
       // Descend down the tree
       cursor = nextCursor;
       cursor.status = Status.NONE;
-    }
-    while (cursor.parent != null || cursor.status != Status.ALLVISITED);
+    } while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
     final ArrayList<Entry> results = new ArrayList<>(resultHeap.size);
     if (sequentialSorting) {

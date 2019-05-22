@@ -1,6 +1,7 @@
 package uk.ac.sussex.gdsc.core.math;
 
 import uk.ac.sussex.gdsc.core.data.IntegerType;
+import uk.ac.sussex.gdsc.core.match.RandIndex;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
 import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerUtils;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
@@ -26,6 +27,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.logging.Logger;
 
+/**
+ * Test for {@link ArrayMoment}.
+ */
 @SuppressWarnings({"javadoc"})
 public class ArrayMomentTest {
   static final int MAX_INT = 65335; // Unsigned 16-bit int

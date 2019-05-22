@@ -101,8 +101,7 @@ public class UniformRandomProviderAdapter implements UniformRandomProvider {
     do {
       bits = nextLong() >>> 1;
       val = bits % n;
-    }
-    while (bits - val + (n - 1) < 0);
+    } while (bits - val + (n - 1) < 0);
 
     return val;
   }

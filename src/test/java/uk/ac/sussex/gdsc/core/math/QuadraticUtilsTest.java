@@ -12,6 +12,9 @@ import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test for {@link QuadraticUtils}.
+ */
 @SuppressWarnings({"javadoc"})
 public class QuadraticUtilsTest {
 

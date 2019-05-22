@@ -3,21 +3,51 @@
           "-//Checkstyle//DTD Checkstyle Configuration 1.3/EN"
           "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
-<!-- Checkstyle configuration that checks the Google coding conventions from Google Java Style that can be found at https://google.github.io/styleguide/javaguide.html.
-  Checkstyle is very configurable. Be sure to read the documentation at http://checkstyle.sf.net (or in your downloaded distribution).
-  To completely disable a check, just comment it out or delete it from the file. Authors: Max Vetrenko, Ruslan Diachenko, Roman
-  Ivanov. -->
+<!--
+    Checkstyle configuration that checks the Google coding conventions from Google Java Style
+    that can be found at https://google.github.io/styleguide/javaguide.html.
+
+    Checkstyle is very configurable. Be sure to read the documentation at
+    http://checkstyle.sf.net (or in your downloaded distribution).
+
+    To completely disable a check, just comment it out or delete it from the file.
+
+    Authors: Max Vetrenko, Ruslan Diachenko, Roman Ivanov.
+ -->
 
 <module name="Checker">
+  <module name="SuppressionFilter">
+    <!-- Default property set by maven-checkstyle-plugin -->
+    <property name="file" value="${checkstyle.suppressions.file}"/>
+    <property name="optional" value="false"/>
+  </module>
+
   <property name="charset" value="UTF-8" />
 
   <property name="severity" value="warning" />
 
   <property name="fileExtensions" value="java, properties, xml" />
+  <!-- Excludes all 'module-info.java' files -->
+  <!-- See https://checkstyle.org/config_filefilters.html -->
+  <module name="BeforeExecutionExclusionFileFilter">
+    <property name="fileNamePattern" value="module\-info\.java$" />
+  </module>
+
   <!-- Checks for whitespace -->
   <!-- See http://checkstyle.sf.net/config_whitespace.html -->
   <module name="FileTabCharacter">
     <property name="eachLine" value="true" />
+  </module>
+
+  <!-- Require files to end with newline characters -->
+  <module name="NewlineAtEndOfFile" />
+
+  <!-- No trailing whitespace -->
+  <module name="RegexpSingleline">
+    <property name="format" value="\s+$" />
+    <property name="minimum" value="0" />
+    <property name="maximum" value="0" />
+    <property name="message" value="Line has trailing spaces." />
   </module>
 
   <module name="TreeWalker">
@@ -46,14 +76,21 @@
     </module>
     <module name="NeedBraces" />
     <module name="LeftCurly" />
-    <module name="RightCurly" />
     <module name="RightCurly">
-      <property name="option" value="alone" />
+      <property name="id" value="RightCurlySame" />
       <property name="tokens"
-        value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, LITERAL_DO, STATIC_INIT, INSTANCE_INIT" />
+        value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_DO" />
+    </module>
+    <module name="RightCurly">
+      <property name="id" value="RightCurlyAlone" />
+      <property name="option" value="alone" />
+      <!-- remove CTOR_DEF to allow empty constructors. -->
+      <property name="tokens"
+        value="CLASS_DEF, METHOD_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT, INSTANCE_INIT" />
     </module>
     <module name="WhitespaceAround">
       <property name="allowEmptyConstructors" value="true" />
+      <property name="allowEmptyLambdas" value="true" />
       <property name="allowEmptyMethods" value="true" />
       <property name="allowEmptyTypes" value="true" />
       <property name="allowEmptyLoops" value="true" />
@@ -72,12 +109,31 @@
       <property name="allowNoEmptyLineBetweenFields" value="true" />
     </module>
     <module name="SeparatorWrap">
+      <property name="id" value="SeparatorWrapDot" />
       <property name="tokens" value="DOT" />
       <property name="option" value="nl" />
     </module>
     <module name="SeparatorWrap">
+      <property name="id" value="SeparatorWrapComma" />
       <property name="tokens" value="COMMA" />
       <property name="option" value="EOL" />
+    </module>
+    <module name="SeparatorWrap">
+      <!-- ELLIPSIS is EOL until https://github.com/google/styleguide/issues/258 -->
+      <property name="id" value="SeparatorWrapEllipsis" />
+      <property name="tokens" value="ELLIPSIS" />
+      <property name="option" value="EOL" />
+    </module>
+    <module name="SeparatorWrap">
+      <!-- ARRAY_DECLARATOR is EOL until https://github.com/google/styleguide/issues/259 -->
+      <property name="id" value="SeparatorWrapArrayDeclarator" />
+      <property name="tokens" value="ARRAY_DECLARATOR" />
+      <property name="option" value="EOL" />
+    </module>
+    <module name="SeparatorWrap">
+      <property name="id" value="SeparatorWrapMethodRef" />
+      <property name="tokens" value="METHOD_REF" />
+      <property name="option" value="nl" />
     </module>
     <module name="PackageName">
       <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$" />
@@ -95,6 +151,10 @@
       <!-- Allow single characters x,y,z,n for numerical functions -->
       <property name="format" value="(^[a-z][a-z0-9][a-zA-Z0-9]*$)|(^[xyzn]$)" />
       <message key="name.invalidPattern" value="Parameter name ''{0}'' must match pattern ''{1}''." />
+    </module>
+    <module name="LambdaParameterName">
+      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$" />
+      <message key="name.invalidPattern" value="Lambda parameter name ''{0}'' must match pattern ''{1}''." />
     </module>
     <module name="CatchParameterName">
       <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$" />
@@ -146,6 +206,11 @@
         value="STATIC###SPECIAL_IMPORTS###THIRD_PARTY_PACKAGE###STANDARD_JAVA_PACKAGE" />
     </module>
     <module name="MethodParamPad" />
+    <module name="NoWhitespaceBefore">
+      <property name="tokens" value="COMMA, SEMI, POST_INC, POST_DEC, DOT, ELLIPSIS, METHOD_REF" />
+      <property name="allowLineBreaks" value="true" />
+    </module>
+    <module name="ParenPad" />
     <module name="OperatorWrap">
       <property name="option" value="NL" />
       <property name="tokens"
@@ -178,25 +243,24 @@
       <property name="allowedAnnotations" value="Override, Test, ParameterizedTest, SeededTest" />
       <property name="allowThrowsTagsForSubclasses" value="true" />
     </module>
+    <!-- Not supported by eclipse plugin 8.18
+    <module name="MissingJavadocType">
+      <property name="scope" value="public" />
+      <property name="skipAnnotations" value="Override, Test, ParameterizedTest, SeededTest" />
+    </module>
+    -->
     <module name="MethodName">
       <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9_]*$" />
       <message key="name.invalidPattern" value="Method name ''{0}'' must match pattern ''{1}''." />
     </module>
     <module name="SingleLineJavadoc">
-      <property name="ignoredTags" value="@inheritDoc, @see"/>
+      <property name="ignoredTags" value="@inheritDoc, @see" />
       <property name="ignoreInlineTags" value="false" />
     </module>
     <module name="EmptyCatchBlock">
       <property name="exceptionVariableName" value="expected" />
     </module>
     <module name="CommentsIndentation" />
-
-    <!-- No trailing whitespace -->
-    <module name="Regexp">
-      <property name="format" value="[ \t]+$" />
-      <property name="illegalPattern" value="true" />
-      <property name="message" value="Trailing whitespace" />
-    </module>
 
     <!-- Setup special comments to suppress specific checks from source files -->
     <module name="SuppressionCommentFilter">
@@ -208,7 +272,5 @@
       <property name="onCommentFormat" value="CHECKSTYLE.ON\: ([\w\|]+)" />
       <property name="checkFormat" value="$1" />
     </module>
-
   </module>
-
 </module>

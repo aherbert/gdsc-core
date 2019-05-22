@@ -276,8 +276,7 @@ public class MedianWindowTest {
         Assertions.assertEquals(median2, median, 1e-6, msg.update(index, radius));
 
         index++;
-      }
-      while (mw.increment());
+      } while (mw.increment());
       Assertions.assertEquals(index, data.length, "Not all data interated");
     }
   }
@@ -353,8 +352,7 @@ public class MedianWindowTest {
     if (increment == 1) {
       do {
         mw.getMedian();
-      }
-      while (mw.increment());
+      } while (mw.increment());
 
       final long s1 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
@@ -362,8 +360,7 @@ public class MedianWindowTest {
         int index = 0;
         do {
           m1[index++] = mw.getMedian();
-        }
-        while (mw.increment());
+        } while (mw.increment());
       }
       t1 = System.nanoTime() - s1;
     } else {
@@ -439,8 +436,7 @@ public class MedianWindowTest {
     if (increment == 1) {
       do {
         mw.getMedian();
-      }
-      while (mw.increment());
+      } while (mw.increment());
 
       final long s1 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
@@ -448,8 +444,7 @@ public class MedianWindowTest {
         int index = 0;
         do {
           m1[index++] = mw.getMedian();
-        }
-        while (mw.increment());
+        } while (mw.increment());
       }
       t1 = System.nanoTime() - s1;
     } else {
@@ -477,8 +472,7 @@ public class MedianWindowTest {
     if (increment == 1) {
       do {
         mw2.getMedian();
-      }
-      while (mw2.increment());
+      } while (mw2.increment());
 
       final long s2 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
@@ -486,8 +480,7 @@ public class MedianWindowTest {
         int index = 0;
         do {
           m2[index++] = mw2.getMedian();
-        }
-        while (mw2.increment());
+        } while (mw2.increment());
       }
       t2 = System.nanoTime() - s2;
     } else {
@@ -552,16 +545,14 @@ public class MedianWindowTest {
     if (increment == 1) {
       do {
         mw.getMedian();
-      }
-      while (mw.increment());
+      } while (mw.increment());
 
       final long s1 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
         mw = new DoubleMedianWindow(data[iter], radius);
         do {
           mw.getMedian();
-        }
-        while (mw.increment());
+        } while (mw.increment());
       }
       t1 = System.nanoTime() - s1;
     } else {
@@ -587,16 +578,14 @@ public class MedianWindowTest {
     if (increment == 1) {
       do {
         mw2.getMedian();
-      }
-      while (mw2.increment());
+      } while (mw2.increment());
 
       final long s2 = System.nanoTime();
       for (int iter = 0; iter < iterations; iter++) {
         mw2 = new IntMedianWindow(data2[iter], radius);
         do {
           mw2.getMedian();
-        }
-        while (mw2.increment());
+        } while (mw2.increment());
       }
       t2 = System.nanoTime() - s2;
     } else {

@@ -34,6 +34,6 @@ public class MemoryUtilsTest {
     Logger.getLogger(getClass().getName()).log(TestLogUtils.getResultRecord(error < 0.2,
         "Memory expected=%d : measured=%d : error=%f", expected, size, error));
     // This is flaky so do not assert the test
-    //Assertions.assertEquals(expected, size, expected * 0.1);
+    // Assertions.assertEquals(expected, size, expected * 0.1);
   }
 }

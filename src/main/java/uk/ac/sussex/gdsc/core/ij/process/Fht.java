@@ -334,8 +334,8 @@ public class Fht extends FloatProcessor {
    */
   private static void transposeR(float[] x, int maxN) {
     for (int r = 0; r < maxN; r++) {
-      for (int c = r + 1, i = r * maxN + r + 1, ii = (r + 1) * maxN + r; c < maxN; c++, i++, ii +=
-          maxN) {
+      for (int c = r + 1, i = r * maxN + r + 1, ii = (r + 1) * maxN + r; c < maxN;
+          c++, i++, ii += maxN) {
         final float rTemp = x[i];
         x[i] = x[ii];
         x[ii] = rTemp;

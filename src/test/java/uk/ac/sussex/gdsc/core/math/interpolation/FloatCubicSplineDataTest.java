@@ -5,6 +5,9 @@ import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test for {@link FloatCubicSplineData}.
+ */
 @SuppressWarnings({"javadoc"})
 public class FloatCubicSplineDataTest {
   @Test

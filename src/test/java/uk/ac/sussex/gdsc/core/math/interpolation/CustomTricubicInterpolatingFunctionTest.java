@@ -22,7 +22,8 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.ExecutorService;
 
 /**
- * This class is used to in-line the computation for the CustomTricubicInterpolatingFunction.
+ * This class is used to in-line the computation for the
+ * {@link CustomTricubicInterpolatingFunction}.
  */
 @SuppressWarnings({"javadoc"})
 public class CustomTricubicInterpolatingFunctionTest {

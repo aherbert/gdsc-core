@@ -219,8 +219,7 @@ public final class MatchCalculator {
           }
         }
       }
-    }
-    while (!assignments.isEmpty());
+    } while (!assignments.isEmpty());
 
     // Add to lists
     if (falsePositives != null) {
@@ -427,8 +426,7 @@ public final class MatchCalculator {
           }
         }
       }
-    }
-    while (!assignments.isEmpty());
+    } while (!assignments.isEmpty());
 
     // Add to lists
     if (falsePositives != null) {
@@ -739,8 +737,7 @@ public final class MatchCalculator {
           }
         }
       }
-    }
-    while (!assignments.isEmpty());
+    } while (!assignments.isEmpty());
 
     // Add to lists
     if (falsePositives != null) {

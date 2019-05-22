@@ -20,6 +20,9 @@ import org.junit.jupiter.api.Test;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Test for {@link RandIndex}.
+ */
 @SuppressWarnings({"javadoc"})
 public class RandIndexTest {
 

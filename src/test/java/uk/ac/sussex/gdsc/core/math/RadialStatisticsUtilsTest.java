@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
+/**
+ * Test for {@link RadialStatisticsUtils}.
+ */
 @SuppressWarnings({"javadoc"})
 public class RadialStatisticsUtilsTest {
   @Test

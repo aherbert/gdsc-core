@@ -231,8 +231,7 @@ public class AutoThreshold {
       }
       result = (sum1 / sum2 + sum3 / sum4) / 2.0;
       movingIndex++;
-    }
-    while ((movingIndex + 1) <= result && movingIndex < max - 1);
+    } while ((movingIndex + 1) <= result && movingIndex < max - 1);
 
     return (int) Math.round(result);
   }
@@ -521,9 +520,8 @@ public class AutoThreshold {
          * than the tolerance
          */
       }
-    }
-    // Use a fixed threshold tolerance of 0.5
-    while (Math.abs(newThresh - oldThresh) > 0.5);
+      // Use a fixed threshold tolerance of 0.5
+    } while (Math.abs(newThresh - oldThresh) > 0.5);
     return threshold;
   }
 

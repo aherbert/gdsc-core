@@ -3,6 +3,9 @@ package uk.ac.sussex.gdsc.core.math;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test for {@link GeometryUtils}.
+ */
 @SuppressWarnings({"javadoc"})
 public class GeometryUtilsTest {
   @Test

@@ -426,8 +426,8 @@ public class OpticsManager extends CoordinateStore {
     }
 
     void siftDown(int index) {
-      for (int parent = index, child = parent * 2 + 1; child < size; parent = child, child =
-          parent * 2 + 1) {
+      for (int parent = index, child = parent * 2 + 1; child < size;
+          parent = child, child = parent * 2 + 1) {
         if (child + 1 < size && higher(list[child], list[child + 1])) {
           child++;
         }
@@ -639,8 +639,8 @@ public class OpticsManager extends CoordinateStore {
     }
 
     void downHeapify(int index) {
-      for (int parent = index, child = parent * 2 + 1; child < size; parent = child, child =
-          parent * 2 + 1) {
+      for (int parent = index, child = parent * 2 + 1; child < size;
+          parent = child, child = parent * 2 + 1) {
         if (child + 1 < size && queue[child] < queue[child + 1]) {
           child++;
         }

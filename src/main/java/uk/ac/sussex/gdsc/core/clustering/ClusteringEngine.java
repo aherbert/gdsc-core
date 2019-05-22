@@ -873,8 +873,8 @@ public class ClusteringEngine {
           // which may have been set by an earlier comparison.
           ExtendedClusterPoint other = null;
 
-          for (ExtendedClusterPoint c2 = c1.getNextExtended(); c2 != null; c2 =
-              c2.getNextExtended()) {
+          for (ExtendedClusterPoint c2 = c1.getNextExtended(); c2 != null;
+              c2 = c2.getNextExtended()) {
             // Ignore comparing points that are both in a cluster
             if (cluster1 && c2.isInCluster()) {
               continue;
@@ -888,8 +888,8 @@ public class ClusteringEngine {
           }
 
           if (ybin < nybins - 1) {
-            for (ExtendedClusterPoint c2 = grid[xbin][ybin + 1]; c2 != null; c2 =
-                c2.getNextExtended()) {
+            for (ExtendedClusterPoint c2 = grid[xbin][ybin + 1]; c2 != null;
+                c2 = c2.getNextExtended()) {
               // Ignore comparing points that are both in a cluster
               if (cluster1 && c2.isInCluster()) {
                 continue;
@@ -901,8 +901,8 @@ public class ClusteringEngine {
               }
             }
             if (xbin > 0) {
-              for (ExtendedClusterPoint c2 = grid[xbin - 1][ybin + 1]; c2 != null; c2 =
-                  c2.getNextExtended()) {
+              for (ExtendedClusterPoint c2 = grid[xbin - 1][ybin + 1]; c2 != null;
+                  c2 = c2.getNextExtended()) {
                 // Ignore comparing points that are both in a cluster
                 if (cluster1 && c2.isInCluster()) {
                   continue;
@@ -916,8 +916,8 @@ public class ClusteringEngine {
             }
           }
           if (xbin < nxbins - 1) {
-            for (ExtendedClusterPoint c2 = grid[xbin + 1][ybin]; c2 != null; c2 =
-                c2.getNextExtended()) {
+            for (ExtendedClusterPoint c2 = grid[xbin + 1][ybin]; c2 != null;
+                c2 = c2.getNextExtended()) {
               // Ignore comparing points that are both in a cluster
               if (cluster1 && c2.isInCluster()) {
                 continue;
@@ -929,8 +929,8 @@ public class ClusteringEngine {
               }
             }
             if (ybin < nybins - 1) {
-              for (ExtendedClusterPoint c2 = grid[xbin + 1][ybin + 1]; c2 != null; c2 =
-                  c2.getNextExtended()) {
+              for (ExtendedClusterPoint c2 = grid[xbin + 1][ybin + 1]; c2 != null;
+                  c2 = c2.getNextExtended()) {
                 // Ignore comparing points that are both in a cluster
                 if (cluster1 && c2.isInCluster()) {
                   continue;

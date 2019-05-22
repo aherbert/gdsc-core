@@ -50,11 +50,17 @@ import ij.ImagePlus;
 public abstract class ImageAdapter implements ImageListener {
 
   @Override
-  public void imageOpened(ImagePlus imp) {}
+  public void imageOpened(ImagePlus imp) {
+    // Do nothing
+  }
 
   @Override
-  public void imageClosed(ImagePlus imp) {}
+  public void imageClosed(ImagePlus imp) {
+    // Do nothing
+  }
 
   @Override
-  public void imageUpdated(ImagePlus imp) {}
+  public void imageUpdated(ImagePlus imp) {
+    // Do nothing
+  }
 }

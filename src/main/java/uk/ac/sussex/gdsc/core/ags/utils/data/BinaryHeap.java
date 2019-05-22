@@ -145,8 +145,8 @@ public abstract class BinaryHeap<T> {
    * @param index the index
    */
   private void siftUp(int index) {
-    for (int c = index, p = (index - 1) / 2; c != 0
-        && direction * keys[c] > direction * keys[p]; c = p, p = (c - 1) / 2) {
+    for (int c = index, p = (index - 1) / 2; c != 0 && direction * keys[c] > direction * keys[p];
+        c = p, p = (c - 1) / 2) {
       final Object pData = data[p];
       final double pDist = keys[p];
       data[p] = data[c];

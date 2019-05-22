@@ -246,8 +246,7 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D {
       // Descend down the tree
       cursor = nextCursor;
       cursor.status = Status.NONE;
-    }
-    while (cursor.parent != null || cursor.status != Status.ALLVISITED);
+    } while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
     final ArrayList<Entry> results = new ArrayList<>(resultHeap.getSize());
     if (sequentialSorting) {
@@ -346,8 +345,7 @@ public abstract class SimpleFloatKdTree2D extends SimpleFloatKdTreeNode2D {
       // Descend down the tree
       cursor = nextCursor;
       cursor.status = Status.NONE;
-    }
-    while (cursor.parent != null || cursor.status != Status.ALLVISITED);
+    } while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
     return resultHeap.getDistance();
   }

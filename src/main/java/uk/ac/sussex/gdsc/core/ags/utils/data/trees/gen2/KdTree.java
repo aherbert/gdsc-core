@@ -188,8 +188,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
         do {
           cursor.locationCount--;
           cursor = cursor.parent;
-        }
-        while (cursor.parent != null);
+        } while (cursor.parent != null);
         return;
       }
     }
@@ -319,8 +318,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
       // Descend down the tree
       cursor = nextCursor;
       cursor.status = Status.NONE;
-    }
-    while (cursor.parent != null || cursor.status != Status.ALLVISITED);
+    } while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
     final ArrayList<Entry<T>> results = new ArrayList<>(resultHeap.size);
     if (sequentialSorting) {
@@ -418,8 +416,7 @@ public abstract class KdTree<T> extends KdTreeNode<T> {
       // Descend down the tree
       cursor = nextCursor;
       cursor.status = Status.NONE;
-    }
-    while (cursor.parent != null || cursor.status != Status.ALLVISITED);
+    } while (cursor.parent != null || cursor.status != Status.ALLVISITED);
   }
 
   /**

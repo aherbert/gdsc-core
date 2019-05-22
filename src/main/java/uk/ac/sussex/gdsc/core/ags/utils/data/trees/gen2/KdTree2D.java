@@ -256,8 +256,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
       // Descend down the tree
       cursor = nextCursor;
       cursor.status = Status.NONE;
-    }
-    while (cursor.parent != null || cursor.status != Status.ALLVISITED);
+    } while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
     final ArrayList<Entry<T>> results = new ArrayList<>(resultHeap.size);
     if (sequentialSorting) {
@@ -355,8 +354,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
       // Descend down the tree
       cursor = nextCursor;
       cursor.status = Status.NONE;
-    }
-    while (cursor.parent != null || cursor.status != Status.ALLVISITED);
+    } while (cursor.parent != null || cursor.status != Status.ALLVISITED);
 
     for (int i = 0; i < resultHeap.getSize(); i++) {
       results.add(resultHeap.getDistance(i), (T) resultHeap.getData(i));
@@ -444,8 +442,7 @@ public abstract class KdTree2D<T> extends KdTreeNode2D<T> {
       // Descend down the tree
       cursor = nextCursor;
       cursor.status = Status.NONE;
-    }
-    while (cursor.parent != null || cursor.status != Status.ALLVISITED);
+    } while (cursor.parent != null || cursor.status != Status.ALLVISITED);
   }
 
   /**
