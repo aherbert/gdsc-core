@@ -91,6 +91,9 @@ GDSC SMLM ImageJ Plugins - Single molecule localisation microscopy (SMLM)
     <license.licenseName>gpl_v3</license.licenseName>
     <license.copyrightOwners>Alex Herbert</license.copyrightOwners>
 
+    <!-- Workaround to avoid duplicating config files. -->
+    <gdsc.parent.dir>${basedir}</gdsc.parent.dir>
+
     <!-- Dependency versions -->
     <elki.version>0.7.1</elki.version>
 
