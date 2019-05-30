@@ -41,26 +41,17 @@ public class ImageJTrackProgress implements TrackProgress {
    */
   private double done;
 
-  // Properties are given a suffix 'Flag' to avoid confusing name collisions
-  // with the methods of the same name.
-
-  // TODO - Update the names to:
-  // setProgressReporting
-  // isProgressReporting
-  // reportProgress
-  // etc.
-
   /** The slow mode flag. */
-  private final boolean slowModeFlag;
+  private final boolean slowModeActive;
 
   /** The progress flag. */
-  private boolean progressFlag = true;
+  private boolean progressActive = true;
 
   /** The log flag. */
-  private boolean logFlag = true;
+  private boolean logActive = true;
 
   /** The status flag. */
-  private boolean statusFlag = true;
+  private boolean statusActive = true;
 
   /**
    * Instantiates a new ImageJ track progress.
@@ -77,7 +68,7 @@ public class ImageJTrackProgress implements TrackProgress {
    * @param slowMode Set to true to use the slow progress functionality of ImageJ
    */
   public ImageJTrackProgress(boolean slowMode) {
-    this.slowModeFlag = slowMode;
+    this.slowModeActive = slowMode;
   }
 
   @Override
@@ -86,7 +77,7 @@ public class ImageJTrackProgress implements TrackProgress {
       done = 0;
     }
     if (isProgress()) {
-      if (slowModeFlag) {
+      if (slowModeActive) {
         IJ.showProgress(-fraction);
       } else {
         IJ.showProgress(fraction);
@@ -100,7 +91,7 @@ public class ImageJTrackProgress implements TrackProgress {
       done = 0;
     }
     if (isProgress()) {
-      if (slowModeFlag) {
+      if (slowModeActive) {
         ImageJUtils.showSlowProgress((int) position, (int) total);
       } else {
         IJ.showProgress((double) position / total);
@@ -116,7 +107,7 @@ public class ImageJTrackProgress implements TrackProgress {
    */
   @Override
   public void incrementProgress(double fraction) {
-    if (slowModeFlag) {
+    if (slowModeActive) {
       done -= fraction;
     } else {
       done += fraction;
@@ -147,43 +138,43 @@ public class ImageJTrackProgress implements TrackProgress {
 
   @Override
   public boolean isProgress() {
-    return progressFlag;
+    return progressActive;
   }
 
   /**
    * Sets if the progress methods are active.
    *
-   * @param progress the new progress
+   * @param progress {@code true} for active
    */
-  public void setProgress(boolean progress) {
-    this.progressFlag = progress;
+  public void setProgressActive(boolean progress) {
+    this.progressActive = progress;
   }
 
   @Override
   public boolean isLog() {
-    return logFlag;
+    return logActive;
   }
 
   /**
    * Sets if the log methods are active.
    *
-   * @param log True for active
+   * @param log {@code true} for active
    */
-  public void setLog(boolean log) {
-    this.logFlag = log;
+  public void setLogActive(boolean log) {
+    this.logActive = log;
   }
 
   @Override
   public boolean isStatus() {
-    return statusFlag;
+    return statusActive;
   }
 
   /**
    * Sets if the status methods are active.
    *
-   * @param status the new status
+   * @param status {@code true} for active
    */
-  public void setStatus(boolean status) {
-    this.statusFlag = status;
+  public void setStatusActive(boolean status) {
+    this.statusActive = status;
   }
 }
