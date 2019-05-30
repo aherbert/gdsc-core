@@ -689,7 +689,7 @@ public final class ImageJUtils {
    * <code>
    * int size = 10;
    * for (int i = 0; i < size; i++) {
-   *   showDualProgress(i, size);
+   *   showSlowProgress(i, size);
    *   // .. do something that updates the progress bar from 0 to 1.
    *   // This will be shown as the fast progress.
    * }
