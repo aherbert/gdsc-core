@@ -115,6 +115,69 @@ public final class ConcurrencyUtils {
   }
 
   /**
+   * Waits for all threads to complete computation.
+   *
+   * @param <T> the type of the values returned from the tasks
+   * @param futures the futures
+   * @throws InterruptedException the interrupted exception
+   * @throws ExecutionException the execution exception
+   */
+  public static <T> void waitForCompletionT(List<Future<T>> futures)
+      throws InterruptedException, ExecutionException {
+    for (final Future<T> f : futures) {
+      f.get();
+    }
+  }
+
+  /**
+   * Waits for all threads to complete computation. Transforms checked exceptions into runtime
+   * exceptions.
+   *
+   * @param <T> the type of the values returned from the tasks
+   * @param futures the futures
+   * @throws ConcurrentRuntimeException a wrapped InterruptedException or ExecutionException
+   * @see #waitForCompletionUnchecked(List, Consumer)
+   */
+  public static <T> void waitForCompletionUncheckedT(List<Future<T>> futures) {
+    waitForCompletionUncheckedT(futures, null);
+  }
+
+  /**
+   * Waits for all threads to complete computation. Transforms checked exceptions into runtime
+   * exceptions.
+   * 
+   * <p>This is convenience method that wraps an {@link InterruptedException} with an
+   * {@link ConcurrentRuntimeException}. Note: If an {@link InterruptedException} occurs the thread
+   * interrupted state is reset.
+   * 
+   * <p>If an {@link ExecutionException} occurs and the cause is an unchecked exception then cause
+   * will be re-thrown. Otherwise wraps the cause with an {@link ConcurrentRuntimeException}.
+   * 
+   * <p>If not null, the error handler will be passed the original caught exception, either
+   * {@link InterruptedException} or {@link ExecutionException} to preserve the stack trace.
+   *
+   * @param <T> the type of the values returned from the tasks
+   * @param futures the futures
+   * @param errorHandler the error handler used to process the exception (can be null)
+   * @throws ConcurrentRuntimeException a wrapped InterruptedException or ExecutionException
+   */
+  public static <T> void waitForCompletionUncheckedT(List<Future<T>> futures,
+      Consumer<Exception> errorHandler) {
+    try {
+      for (final Future<T> f : futures) {
+        f.get();
+      }
+    } catch (final InterruptedException ex) {
+      handleError(errorHandler, ex);
+      // Restore interrupted state...
+      Thread.currentThread().interrupt();
+      throw new ConcurrentRuntimeException(ex);
+    } catch (final ExecutionException ex) {
+      handleErrorAndRethrow(errorHandler, ex);
+    }
+  }
+
+  /**
    * Handle the error using the error handler and re-throw the underlying unchecked exception or a
    * wrapped exception.
    *
