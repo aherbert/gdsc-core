@@ -30,7 +30,11 @@ package uk.ac.sussex.gdsc.core.ij;
 
 import ij.ImageStack;
 import ij.process.Blitter;
+import ij.process.ByteProcessor;
+import ij.process.ColorProcessor;
+import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
 
 /**
  * Contains helper functions for ImageJ pixels.
@@ -127,5 +131,32 @@ public final class PixelUtils {
    */
   public static void copyBits(ImageStack stack1, ImageStack stack2, int mode) {
     copyBits(stack1, stack2, 0, 0, 1, mode);
+  }
+
+  /**
+   * Wrap the pixels with an ImageProcessor.
+   *
+   * <p>Supports: {@code byte[]}; {@code short[]}; {@code float[]}; {@code int[]}.
+   *
+   * @param width the width
+   * @param height the height
+   * @param pixels the pixels
+   * @return the ImageProcessor
+   * @throws IllegalArgumentException If the input is not an ImageJ pixels array
+   */
+  public static ImageProcessor wrap(int width, int height, Object pixels) {
+    if (pixels instanceof byte[]) {
+      return new ByteProcessor(width, height, (byte[]) pixels);
+    }
+    if (pixels instanceof short[]) {
+      return new ShortProcessor(width, height, (short[]) pixels, null);
+    }
+    if (pixels instanceof float[]) {
+      return new FloatProcessor(width, height, (float[]) pixels);
+    }
+    if (pixels instanceof int[]) {
+      return new ColorProcessor(width, height, (int[]) pixels);
+    }
+    throw new IllegalArgumentException("Unsupported pixels type");
   }
 }
