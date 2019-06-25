@@ -27,6 +27,8 @@
 
 package uk.ac.sussex.gdsc.core.ij.gui;
 
+import gnu.trove.list.array.TIntArrayList;
+
 import ij.IJ;
 import ij.Macro;
 import ij.WindowManager;
@@ -262,9 +264,15 @@ public class MultiDialog extends Dialog {
     if (selectAll) {
       list.setSelectionInterval(0, items.size() - 1);
     } else if (selected != null) {
+      // Selection must be done all at once.
+      final TIntArrayList indices = new TIntArrayList();
       for (final String item : selected) {
-        list.setSelectedValue(item, false);
+        final int index = items.indexOf(item);
+        if (index != -1) {
+          indices.add(index);
+        }
       }
+      list.setSelectedIndices(indices.toArray());
     }
 
     list.addMouseListener(mouseAdpater);
