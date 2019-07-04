@@ -307,7 +307,7 @@ public class ClusteringEngine {
   /**
    * A simple counter.
    */
-  private class Counter {
+  private static class Counter {
     int count;
 
     /**

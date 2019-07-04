@@ -243,9 +243,10 @@ public final class FileUtils {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   public static void createParent(Path path) throws IOException {
-    if (path.getParent() != null) {
+    final Path parent = path.getParent();
+    if (parent != null) {
       try {
-        Files.createDirectories(path.getParent());
+        Files.createDirectories(parent);
       } catch (final SecurityException ex) {
         throw new IOException("Failed to create parent directory: " + path.getParent(), ex);
       }

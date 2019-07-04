@@ -1668,9 +1668,9 @@ public class CloseableBlockingQueue<E> extends AbstractQueue<E>
       if (nextIndex >= 0) {
         final int x = distance(nextIndex, prevTakeIndex, len);
         if (x == removedDistance) {
-          this.nextIndex = nextIndex = REMOVED;
+          this.nextIndex = REMOVED;
         } else if (x > removedDistance) {
-          this.nextIndex = nextIndex = dec(nextIndex);
+          this.nextIndex = dec(nextIndex);
         }
       } else if (cursor < 0 && nextIndex < 0 && lastRet < 0) {
         this.prevTakeIndex = DETACHED;

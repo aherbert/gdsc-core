@@ -66,7 +66,10 @@
   <Match>
     <Class name="~.*\.gen2\.Simple.*KdTree2D\$Entry" />
     <!-- EI: The Entry class deliberately exposes the internal array. -->
-    <Bug pattern="EI_EXPOSE_REP" />
+    <Or>
+      <Bug pattern="EI_EXPOSE_REP" />
+      <Bug pattern="EI_EXPOSE_REP2" />
+    </Or>
   </Match>
 
   <Match>
@@ -173,6 +176,15 @@
   </Match>
 
   <Match>
+    <Or>
+      <Class name="uk.ac.sussex.gdsc.core.data.procedures.FloatStackTrivalueProcedure" />
+      <Class name="uk.ac.sussex.gdsc.core.data.procedures.StandardTrivalueProcedure" />
+    </Or>
+    <!-- This deliberately exposes the internal arrays. -->
+    <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+
+  <Match>
     <Class name="uk.ac.sussex.gdsc.core.ij.HistogramPlot" />
     <!-- This has a default statement but no break. -->
     <Method name="updateLimitsToRemoveOutliers" />
@@ -187,6 +199,18 @@
   <Match>
     <Class name="uk.ac.sussex.gdsc.core.utils.concurrent.CloseableBlockingQueue" />
     <Bug pattern="SE_BAD_FIELD" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.utils.MemoryUtils" />
+    <Method name="runGarbageCollectorOnce" />
+    <Bug pattern="DM_GC" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.utils.MemoryUtils" />
+    <Method name="measureSize" />
+    <Bug pattern="UC_USELESS_OBJECT" />
   </Match>
 
 </FindBugsFilter>
