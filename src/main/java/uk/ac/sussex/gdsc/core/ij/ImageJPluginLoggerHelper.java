@@ -45,9 +45,16 @@ import java.util.logging.Logger;
  */
 public final class ImageJPluginLoggerHelper {
 
+  /** A reference to the redirected logger for the GDSC package.
+   *
+   * <p>This is not used but a reference is held to allow the configuration to be maintained
+   * since the LogManager only holds a weak reference to the configured logger.
+   */
+  private static final Logger redirectedLogger;
+
   static {
     // Ensure redirection of the top-level GDSC package
-    ImageJLoggingUtils.redirectConsoleHandler("uk.ac.sussex.gdsc");
+    redirectedLogger = ImageJLoggingUtils.redirectConsoleHandler("uk.ac.sussex.gdsc");
   }
 
   /**
@@ -86,5 +93,14 @@ public final class ImageJPluginLoggerHelper {
    */
   public static Logger getLogger(Class<?> clazz) {
     return Logger.getLogger(clazz.getName());
+  }
+
+  /**
+   * Gets the default logger for the {@code uk.ac.sussex.gdsc} package.
+   *
+   * @return the logger
+   */
+  public static Logger getDefaultLogger() {
+    return redirectedLogger;
   }
 }

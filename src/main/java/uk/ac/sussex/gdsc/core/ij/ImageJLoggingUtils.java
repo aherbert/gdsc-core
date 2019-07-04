@@ -48,14 +48,20 @@ public final class ImageJLoggingUtils {
   private ImageJLoggingUtils() {}
 
   /**
-   * Remove all instances of {@link ConsoleHandler} or {@link ImageJLogHandler} and replace with the
-   * provided {@link ImageJLogHandler}. This works on a named subsystem.
+   * Remove all instances of {@link ConsoleHandler} or {@link ImageJLogHandler} and replace with a
+   * new {@link ImageJLogHandler}. This works on a named subsystem.
+   *
+   * <p>Note: If configuration is to be permanent then a strong reference to the returned logger
+   * should be held as the newly created logger may be retained by the
+   * {@link java.util.logging.LogManager LogManager} using a weak reference.
    *
    * @param name the name
+   * @return the logger
    * @see ImageJLoggingUtils#redirectConsoleHandler(String, ImageJLogHandler)
+   * @see Logger#getLogger(String)
    */
-  public static void redirectConsoleHandler(String name) {
-    redirectConsoleHandler(name, new ImageJLogHandler());
+  public static Logger redirectConsoleHandler(String name) {
+    return redirectConsoleHandler(name, new ImageJLogHandler());
   }
 
   /**
@@ -72,16 +78,21 @@ public final class ImageJLoggingUtils {
    *
    * <p>Warning: This effectively detaches the named subsystem from the parent so use with caution.
    *
+   * <p>Note: If configuration is to be permanent then a strong reference to the returned logger
+   * should be held as the newly created logger may be retained by the
+   * {@link java.util.logging.LogManager LogManager} using a weak reference.
+   *
    * @param name the name
    * @param imageJLogHandler the ImageJ log handler
+   * @return the logger
    */
-  public static void redirectConsoleHandler(String name, ImageJLogHandler imageJLogHandler) {
+  public static Logger redirectConsoleHandler(String name, ImageJLogHandler imageJLogHandler) {
     final Logger logger = Logger.getLogger(name);
-    List<Handler> handlers = collectHandlers(logger);
+    final List<Handler> handlers = collectHandlers(logger);
     // Remove specific instances
-    Iterator<Handler> iter = handlers.iterator();
+    final Iterator<Handler> iter = handlers.iterator();
     while (iter.hasNext()) {
-      Handler handler = iter.next();
+      final Handler handler = iter.next();
       if (handler.getClass().equals(ConsoleHandler.class) || handler instanceof ImageJLogHandler) {
         iter.remove();
       }
@@ -96,6 +107,7 @@ public final class ImageJLoggingUtils {
       logger.addHandler(handler);
     }
     logger.setUseParentHandlers(false);
+    return logger;
   }
 
   /**
@@ -106,7 +118,7 @@ public final class ImageJLoggingUtils {
    * @return the list
    */
   public static List<Handler> collectHandlers(Logger logger) {
-    TurboList<Handler> handlers = new TurboList<>();
+    final TurboList<Handler> handlers = new TurboList<>();
     while (logger != null) {
       handlers.addAll(Arrays.asList(logger.getHandlers()));
       if (!logger.getUseParentHandlers()) {
