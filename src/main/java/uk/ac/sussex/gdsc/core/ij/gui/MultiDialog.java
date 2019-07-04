@@ -88,7 +88,7 @@ public class MultiDialog extends Dialog {
   private final boolean macro;
 
   private final List<String> items;
-  private Function<String, String> displayConverter = Function.identity();
+  private transient Function<String, String> displayConverter = Function.identity();
 
   /**
    * The modifiers captured in from {@link MouseListener#mouseClicked(MouseEvent)}.
@@ -412,9 +412,9 @@ public class MultiDialog extends Dialog {
   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
     in.defaultReadObject();
     // Create all instance fields
+    displayConverter = Function.identity();
     keyAdapter = new LocalKeyAdapter();
     windowAdpater = new LocalWindowAdpater();
     mouseAdpater = new LocalMouseAdpater();
-    displayConverter = Function.identity();
   }
 }

@@ -179,4 +179,14 @@
     <Bug pattern="SF_SWITCH_NO_DEFAULT" />
   </Match>
 
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.utils.rng.JdkRandomAdaptor" />
+    <Bug pattern="UR_UNINIT_READ_CALLED_FROM_SUPER_CONSTRUCTOR" />
+  </Match>
+
+  <Match>
+    <Class name="uk.ac.sussex.gdsc.core.utils.concurrent.CloseableBlockingQueue" />
+    <Bug pattern="SE_BAD_FIELD" />
+  </Match>
+
 </FindBugsFilter>
