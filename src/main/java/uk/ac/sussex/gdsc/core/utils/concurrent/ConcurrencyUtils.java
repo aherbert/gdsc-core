@@ -145,14 +145,14 @@ public final class ConcurrencyUtils {
   /**
    * Waits for all threads to complete computation. Transforms checked exceptions into runtime
    * exceptions.
-   * 
+   *
    * <p>This is convenience method that wraps an {@link InterruptedException} with an
    * {@link ConcurrentRuntimeException}. Note: If an {@link InterruptedException} occurs the thread
    * interrupted state is reset.
-   * 
+   *
    * <p>If an {@link ExecutionException} occurs and the cause is an unchecked exception then cause
    * will be re-thrown. Otherwise wraps the cause with an {@link ConcurrentRuntimeException}.
-   * 
+   *
    * <p>If not null, the error handler will be passed the original caught exception, either
    * {@link InterruptedException} or {@link ExecutionException} to preserve the stack trace.
    *
