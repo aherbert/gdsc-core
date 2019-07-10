@@ -28,8 +28,13 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.sampling.distribution.AhrensDieterMarsagliaTsangGammaSampler;
 import org.apache.commons.rng.sampling.distribution.ContinuousSampler;
 import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
+import org.apache.commons.rng.sampling.distribution.GaussianSampler;
+import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
+import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSampler;
 
 /**
  * Sampler utilities.
@@ -67,5 +72,45 @@ public final class SamplerUtils {
       samples[i] = sampler.sample();
     }
     return samples;
+  }
+
+  /**
+   * Creates a new {@link GaussianSampler}.
+   *
+   * @param rng Generator of uniformly distributed random numbers.
+   * @param mean Mean of the Gaussian distribution.
+   * @param standardDeviation Standard deviation of the Gaussian distribution.
+   * @return the sampler
+   */
+  public static GaussianSampler createGaussianSampler(UniformRandomProvider rng, double mean,
+      double standardDeviation) {
+    return new GaussianSampler(createNormalizedGaussianSampler(rng), mean, standardDeviation);
+  }
+
+  /**
+   * Creates a new {@link NormalizedGaussianSampler}.
+   *
+   * @param rng Generator of uniformly distributed random numbers.
+   * @return the sampler
+   */
+  public static NormalizedGaussianSampler
+      createNormalizedGaussianSampler(UniformRandomProvider rng) {
+    return new ZigguratNormalizedGaussianSampler(rng);
+  }
+
+  /**
+   * Creates a new {@link ContinuousSampler} for the Gamma distribution.
+   *
+   * @param rng Generator of uniformly distributed random numbers.
+   * @param shape the shape
+   * @param scale the scale
+   * @return the sampler
+   */
+  public static ContinuousSampler createGammaSampler(UniformRandomProvider rng, double shape,
+      double scale) {
+    // TODO: Swap these parameters when updating to v1.3.
+    // Commons RNG v1.2 incorrectly interprets alpha as the scale and beta as the shape.
+    // v1.3 fixes this to have alpha as the shape and beta the scale.
+    return new AhrensDieterMarsagliaTsangGammaSampler(rng, scale, shape);
   }
 }

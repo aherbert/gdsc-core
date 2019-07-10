@@ -2,6 +2,10 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
+import org.apache.commons.rng.UniformRandomProvider;
+import org.apache.commons.rng.core.source64.SplitMix64;
+import org.apache.commons.rng.sampling.distribution.ContinuousSampler;
+import org.apache.commons.rng.sampling.distribution.GaussianSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -30,5 +34,25 @@ public class SamplerUtilsTest {
     final double[] actual =
         SamplerUtils.createSamples(size, () -> start + count.getAndIncrement() * increment);
     Assertions.assertArrayEquals(expected, actual);
+  }
+
+  @Test
+  public void testCreateGaussianSampler() {
+    final UniformRandomProvider rng = new SplitMix64(0L);
+    final double mean = 1.23;
+    final double standardDeviation = 4.56;
+    final GaussianSampler sampler =
+        SamplerUtils.createGaussianSampler(rng, mean, standardDeviation);
+    Assertions.assertNotNull(sampler);
+  }
+
+  @Test
+  public void testCreateGammaSampler() {
+    final UniformRandomProvider rng = new SplitMix64(0L);
+    final double shape = 1.23;
+    final double scale = 4.56;
+    final ContinuousSampler sampler =
+        SamplerUtils.createGammaSampler(rng, shape, scale);
+    Assertions.assertNotNull(sampler);
   }
 }

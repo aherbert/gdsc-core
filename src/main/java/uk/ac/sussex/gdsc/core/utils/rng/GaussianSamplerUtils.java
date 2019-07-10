@@ -35,7 +35,10 @@ import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSa
 
 /**
  * A factory for creating GaussianSampler objects.
+ * 
+ * @deprecated Switch to {@link SamplerUtils}
  */
+@Deprecated
 public final class GaussianSamplerUtils {
 
   /** No construction. */
