@@ -5,7 +5,7 @@ import uk.ac.sussex.gdsc.core.logging.TrackProgress;
 import uk.ac.sussex.gdsc.core.match.RandIndex;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
 import uk.ac.sussex.gdsc.core.utils.PartialSort;
-import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerUtils;
+import uk.ac.sussex.gdsc.core.utils.rng.SamplerUtils;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
@@ -2332,8 +2332,8 @@ public class OpticsManagerTest {
       int molecules = clusterMin + rng.nextInt(range);
       final double x = rng.nextDouble() * size;
       final double y = rng.nextDouble() * size;
-      final GaussianSampler gx = GaussianSamplerUtils.createGaussianSampler(rng, x, radius);
-      final GaussianSampler gy = GaussianSamplerUtils.createGaussianSampler(rng, y, radius);
+      final GaussianSampler gx = SamplerUtils.createGaussianSampler(rng, x, radius);
+      final GaussianSampler gy = SamplerUtils.createGaussianSampler(rng, y, radius);
 
       while (molecules > 0 && index < totalMolecules) {
         // Ensure within the image

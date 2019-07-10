@@ -1,9 +1,8 @@
 package uk.ac.sussex.gdsc.core.math;
 
 import uk.ac.sussex.gdsc.core.data.IntegerType;
-import uk.ac.sussex.gdsc.core.match.RandIndex;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
-import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerUtils;
+import uk.ac.sussex.gdsc.core.utils.rng.SamplerUtils;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;
@@ -84,7 +83,7 @@ public class ArrayMomentTest {
     }
     canComputeMoment("Uniform", d, new RollingArrayMoment());
 
-    final GaussianSampler g = GaussianSamplerUtils.createGaussianSampler(rng, 0, 1);
+    final GaussianSampler g = SamplerUtils.createGaussianSampler(rng, 0, 1);
     for (int i = 0; i < d.length; i++) {
       d[i] = (float) g.sample();
     }
@@ -186,7 +185,7 @@ public class ArrayMomentTest {
     }
     canComputeMoment("Uniform", d, new SimpleArrayMoment());
 
-    final GaussianSampler g = GaussianSamplerUtils.createGaussianSampler(rng, 0, 1);
+    final GaussianSampler g = SamplerUtils.createGaussianSampler(rng, 0, 1);
     for (int i = 0; i < d.length; i++) {
       d[i] = (float) g.sample();
     }
@@ -210,7 +209,7 @@ public class ArrayMomentTest {
     }
     canComputeMoment("Uniform", d, new SimpleArrayMoment());
 
-    final GaussianSampler g = GaussianSamplerUtils.createGaussianSampler(rng, 0, 1);
+    final GaussianSampler g = SamplerUtils.createGaussianSampler(rng, 0, 1);
     for (int i = 0; i < d.length; i++) {
       d[i] = (float) g.sample();
     }
@@ -546,7 +545,7 @@ public class ArrayMomentTest {
 
     // Test if the standard Statistics object is good enough for
     // computing the mean and variance of sCMOS data from 60,000 frames. It seems it is.
-    final GaussianSampler g = GaussianSamplerUtils.createGaussianSampler(rng, 100.345, Math.PI);
+    final GaussianSampler g = SamplerUtils.createGaussianSampler(rng, 100.345, Math.PI);
     for (int i = 600000; i-- > 0;) {
       final double d = g.sample();
       m1.add(d);

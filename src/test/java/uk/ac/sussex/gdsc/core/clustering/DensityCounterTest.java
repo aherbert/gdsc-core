@@ -1,7 +1,7 @@
 package uk.ac.sussex.gdsc.core.clustering;
 
 import uk.ac.sussex.gdsc.core.clustering.DensityCounter.SimpleMolecule;
-import uk.ac.sussex.gdsc.core.utils.rng.GaussianSamplerUtils;
+import uk.ac.sussex.gdsc.core.utils.rng.SamplerUtils;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 import uk.ac.sussex.gdsc.test.rng.RngUtils;
@@ -416,8 +416,8 @@ public class DensityCounterTest {
       final float x = rng.nextFloat() * size;
       final float y = rng.nextFloat() * size;
       final int id = rng.nextInt(channels);
-      final GaussianSampler gx = GaussianSamplerUtils.createGaussianSampler(rng, x, precision);
-      final GaussianSampler gy = GaussianSamplerUtils.createGaussianSampler(rng, y, precision);
+      final GaussianSampler gx = SamplerUtils.createGaussianSampler(rng, x, precision);
+      final GaussianSampler gy = SamplerUtils.createGaussianSampler(rng, y, precision);
 
       int count = p.sample();
       while (i < numberOfMolecules && count-- > 0) {
