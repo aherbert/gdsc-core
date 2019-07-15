@@ -85,7 +85,7 @@ public class MarsagliaTsangGammaSampler implements ContinuousSampler {
   }
 
   /**
-   * Sets the theta (shape) parameter.
+   * Sets the theta (scale) parameter.
    *
    * <p>This performs no parameter checks!</p>
    *
