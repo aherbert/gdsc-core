@@ -28,11 +28,14 @@
 
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import org.apache.commons.math3.exception.NotPositiveException;
+import org.apache.commons.math3.exception.OutOfRangeException;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.AhrensDieterMarsagliaTsangGammaSampler;
 import org.apache.commons.rng.sampling.distribution.ContinuousSampler;
 import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
 import org.apache.commons.rng.sampling.distribution.GaussianSampler;
+import org.apache.commons.rng.sampling.distribution.InverseTransformDiscreteSampler;
 import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
 import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSampler;
 
@@ -112,5 +115,22 @@ public final class SamplerUtils {
     // Commons RNG v1.2 incorrectly interprets alpha as the scale and beta as the shape.
     // v1.3 fixes this to have alpha as the shape and beta the scale.
     return new AhrensDieterMarsagliaTsangGammaSampler(rng, scale, shape);
+  }
+
+  /**
+   * Creates a new {@link DiscreteSampler} for the Binomial distribution.
+   *
+   * @param rng Generator of uniformly distributed random numbers.
+   * @param trials Number of trials.
+   * @param probabilityOfSuccess Probability of success.
+   * @return the sampler
+   * @throws NotPositiveException if {@code trials < 0}.
+   * @throws OutOfRangeException if {@code p < 0} or {@code p > 1}.
+   */
+  public static DiscreteSampler createBinomialSampler(UniformRandomProvider rng, int trials,
+      double probabilityOfSuccess) {
+    final BinomialDiscreteInverseCumulativeProbabilityFunction fun =
+        new BinomialDiscreteInverseCumulativeProbabilityFunction(trials, probabilityOfSuccess);
+    return new InverseTransformDiscreteSampler(rng, fun);
   }
 }
