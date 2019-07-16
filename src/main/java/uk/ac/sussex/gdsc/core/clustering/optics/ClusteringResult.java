@@ -30,7 +30,7 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.utils.ConvexHull;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.rng.UniformRandomProvider;
 
 import java.awt.geom.Rectangle2D;
 
@@ -83,7 +83,7 @@ public interface ClusteringResult {
    *
    * @param rng the random generator
    */
-  void scrambleClusters(RandomGenerator rng);
+  void scrambleClusters(UniformRandomProvider rng);
 
   /**
    * Gets the parent ids for each cluster in the list of Ids. If hierarchical clusters are specified

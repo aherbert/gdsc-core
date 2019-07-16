@@ -30,14 +30,14 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.utils.ConvexHull;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
+import uk.ac.sussex.gdsc.core.utils.RandomUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.rng.UniformRandomProvider;
 
 import java.awt.geom.Rectangle2D;
 
@@ -134,7 +134,7 @@ public class DbscanResult implements ClusteringResult {
   }
 
   @Override
-  public void scrambleClusters(RandomGenerator rng) {
+  public void scrambleClusters(UniformRandomProvider rng) {
     clusters = null;
     hulls = null;
     bounds = null;
@@ -150,7 +150,7 @@ public class DbscanResult implements ClusteringResult {
     }
 
     final int[] map = SimpleArrayUtils.newArray(max, 1, 1);
-    MathArrays.shuffle(map, rng);
+    RandomUtils.shuffle(map, rng);
 
     for (int i = size(); i-- > 0;) {
       if (results[i].clusterId > 0) {

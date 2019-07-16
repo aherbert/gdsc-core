@@ -29,6 +29,7 @@
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.utils.ConvexHull;
+import uk.ac.sussex.gdsc.core.utils.RandomUtils;
 import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 
@@ -37,8 +38,7 @@ import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.set.hash.TIntHashSet;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.rng.UniformRandomProvider;
 
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -286,7 +286,7 @@ public class OpticsResult implements ClusteringResult {
   }
 
   @Override
-  public void scrambleClusters(RandomGenerator rng) {
+  public void scrambleClusters(UniformRandomProvider rng) {
     hulls = null;
     bounds = null;
 
@@ -314,7 +314,7 @@ public class OpticsResult implements ClusteringResult {
     final int[] map = new int[max + 1];
     for (int l = 0; l < nLevels; l++) {
       final int[] set = clusterIds[l].toArray();
-      MathArrays.shuffle(set, rng);
+      RandomUtils.shuffle(set, rng);
       for (final int clusterId : set) {
         map[clusterId] = id++;
       }

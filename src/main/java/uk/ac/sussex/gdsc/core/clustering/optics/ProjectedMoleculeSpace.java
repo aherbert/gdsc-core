@@ -32,20 +32,18 @@ import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
-import uk.ac.sussex.gdsc.core.utils.MathUtils;
-import uk.ac.sussex.gdsc.core.utils.PseudoRandomGenerator;
+import uk.ac.sussex.gdsc.core.utils.RandomUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
-import uk.ac.sussex.gdsc.core.utils.TurboRandomGenerator;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
+import uk.ac.sussex.gdsc.core.utils.rng.SplitMix;
 
 import gnu.trove.set.hash.TIntHashSet;
 
 import org.apache.commons.lang3.concurrent.ConcurrentRuntimeException;
-import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.UnitSphereSampler;
 
@@ -272,32 +270,26 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     // split entire point set, reuse projections by shuffling them
     final int[] proind = SimpleArrayUtils.natural(localNumberOfProjections);
 
-    // The splits do not have to be that random so we can use a pseudo random sequence.
-    // The sets will be randomly sized between 1 and minSplitSize. Ensure we have enough
-    // numbers for all the splits.
-    final double expectedSetSize = (1 + minSplitSize) * 0.5;
-    final int expectedSets = (int) Math.round(size / expectedSetSize);
-    final TurboRandomGenerator pseudoRandom = new TurboRandomGenerator(
-        MathUtils.max(numberOfSplitSets, 200, minSplitSize + 2 * expectedSets), rand);
+    // The splits do not have to be that random and the sets will be randomly sized between 1
+    // and minSplitSize. Use a special generator that can be used to create non-overlapping
+    // sequences.
+    final SplitMix splitMix = new SplitMix(rand.nextLong());
 
     final List<Split> syncSplitSets = Collections.synchronizedList(splitSets);
     final Ticker ticker2 = Ticker.createStarted(tracker, numberOfSplitSets, true);
     for (int i = 0; i < numberOfSplitSets; i++) {
       // shuffle projections
-      pseudoRandom.shuffle(proind);
+      RandomUtils.shuffle(proind, rand);
       final float[][] shuffledProjectedPoints = new float[localNumberOfProjections][];
       for (int j = 0; j < localNumberOfProjections; j++) {
         shuffledProjectedPoints[j] = projectedPoints[proind[j]];
       }
 
-      // New random generator
-      final TurboRandomGenerator pseudoRandomCopy = pseudoRandom.copy();
-      pseudoRandomCopy.setSeed(i);
-
       tasks.add(() -> {
         final TurboList<int[]> sets = new TurboList<>();
+        // New random generator using the copyAndJump
         splitupNoSort(sets, shuffledProjectedPoints, SimpleArrayUtils.natural(size), 0, size, 0,
-            pseudoRandomCopy, minSplitSize);
+            splitMix.copyAndJump(), minSplitSize);
         syncSplitSets.add(new Split(sets));
         ticker2.tick();
       });
@@ -431,7 +423,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    *        corresponds to minPts in OPTICS)
    */
   private void splitupNoSort(TurboList<int[]> splitSets, float[][] projectedPoints, int[] ind,
-      int begin, int end, int depth, PseudoRandomGenerator rand, int minSplitSize) {
+      int begin, int end, int depth, UniformRandomProvider rand, int minSplitSize) {
     final int nele = end - begin;
 
     if (nele < MIN_NEIGHBOURS_SIZE) {
@@ -478,11 +470,11 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
   }
 
   private void saveSet(TurboList<int[]> splitSets, int[] ind, int begin, int end,
-      PseudoRandomGenerator rand, float[] tpro) {
+      UniformRandomProvider rand, float[] tpro) {
     final int[] indices = Arrays.copyOfRange(ind, begin, end);
     if (sampleMode == SampleMode.RANDOM) {
       // Ensure the indices are random
-      rand.shuffle(indices);
+      RandomUtils.shuffle(indices, rand);
     } else if (sampleMode == SampleMode.MEDIAN) {
       // Sort the set, since we need the median element later
       // (when computing distance to the middle of the set).
@@ -502,7 +494,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @return Splitting point
    */
   public static int splitRandomly(int[] ind, int begin, int end, float[] tpro,
-      RandomGenerator rand) {
+      UniformRandomProvider rand) {
     final int nele = end - begin;
 
     // pick random splitting element based on position
@@ -543,7 +535,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
    * @return Splitting point
    */
   public static int splitByDistance(int[] ind, int begin, int end, float[] tpro,
-      RandomGenerator rand) {
+      UniformRandomProvider rand) {
     // pick random splitting point based on distance
     float rmin = tpro[ind[begin]];
     float rmax = rmin;
