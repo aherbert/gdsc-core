@@ -30,28 +30,28 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 
 import org.apache.commons.rng.UniformRandomProvider;
 import org.apache.commons.rng.sampling.distribution.DiscreteSampler;
-import org.apache.commons.rng.sampling.distribution.LargeMeanPoissonSampler;
-import org.apache.commons.rng.sampling.distribution.SmallMeanPoissonSampler;
+import org.apache.commons.rng.sampling.distribution.PoissonSamplerCache;
 
 /**
  * Class for computing Poisson samples handling the edge case where the mean is zero. In that case
  * the sample return is zero.
  */
 public final class PoissonSamplerUtils {
-
   /**
-   * Value for switching sampling algorithm. This is the same pivot point as the PoissonSampler.
+   * Cache to use for Poisson samplers.
+   *
+   * <p>This is thread safe.
    */
-  private static final double PIVOT = 40;
+  private static final PoissonSamplerCache poissonCache = new PoissonSamplerCache(0, 1000);
 
   /** A sampler to return zero for the sample() method. */
-  public static final DiscreteSampler ZERO = () -> 0;
+  private static final DiscreteSampler ZERO = () -> 0;
 
   /** No construction. */
   private PoissonSamplerUtils() {}
 
   /**
-   * Creates a new PoissonSampler.
+   * Creates a new sampler from the Poisson distribution.
    *
    * <p>If the mean is zero this will return a sampler that always returns 0.
    *
@@ -64,8 +64,7 @@ public final class PoissonSamplerUtils {
     if (mean == 0) {
       return ZERO;
     }
-    return mean < PIVOT ? new SmallMeanPoissonSampler(rng, mean)
-        : new LargeMeanPoissonSampler(rng, mean);
+    return poissonCache.createPoissonSampler(rng, mean);
   }
 
   /**
@@ -82,7 +81,6 @@ public final class PoissonSamplerUtils {
     if (mean == 0) {
       return 0;
     }
-    return mean < PIVOT ? new SmallMeanPoissonSampler(rng, mean).sample()
-        : new LargeMeanPoissonSampler(rng, mean).sample();
+    return poissonCache.createPoissonSampler(rng, mean).sample();
   }
 }
