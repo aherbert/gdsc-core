@@ -26,7 +26,7 @@
  * #L%
  */
 
-package uk.ac.sussex.gdsc.core.utils;
+package uk.ac.sussex.gdsc.core.utils.rng;
 
 import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 
