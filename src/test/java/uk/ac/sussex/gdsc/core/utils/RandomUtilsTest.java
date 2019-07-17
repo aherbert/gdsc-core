@@ -39,15 +39,4 @@ public class RandomUtilsTest {
       canComputeSample(rng, size, total);
     }
   }
-
-  @SeededTest
-  public void canGenerateDoubles(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
-    final int n = 13;
-    final double[] data = RandomUtils.generate(n, rng);
-    Assertions.assertEquals(n, data.length);
-    for (int i = 0; i < n; i++) {
-      Assertions.assertTrue(data[i] >= 0 && data[i] <= 1.0);
-    }
-  }
 }
