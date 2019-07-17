@@ -29,9 +29,9 @@
 package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.utils.ConvexHull;
-import uk.ac.sussex.gdsc.core.utils.RandomUtils;
 import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
+import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntIntHashMap;

@@ -32,13 +32,13 @@ import uk.ac.sussex.gdsc.core.data.NotImplementedException;
 import uk.ac.sussex.gdsc.core.data.VisibleForTesting;
 import uk.ac.sussex.gdsc.core.logging.Ticker;
 import uk.ac.sussex.gdsc.core.logging.TrackProgress;
-import uk.ac.sussex.gdsc.core.utils.RandomUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
 import uk.ac.sussex.gdsc.core.utils.SortUtils;
 import uk.ac.sussex.gdsc.core.utils.TextUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
+import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 import uk.ac.sussex.gdsc.core.utils.rng.SplitMix;
 
 import gnu.trove.set.hash.TIntHashSet;

@@ -1,7 +1,7 @@
 package uk.ac.sussex.gdsc.core.filters;
 
-import uk.ac.sussex.gdsc.core.utils.RandomUtils;
 import uk.ac.sussex.gdsc.core.utils.Statistics;
+import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 import uk.ac.sussex.gdsc.test.api.TestAssertions;
 import uk.ac.sussex.gdsc.test.api.TestHelper;
 import uk.ac.sussex.gdsc.test.api.function.DoubleDoubleBiPredicate;

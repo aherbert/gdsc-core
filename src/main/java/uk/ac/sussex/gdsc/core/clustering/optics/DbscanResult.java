@@ -30,8 +30,8 @@ package uk.ac.sussex.gdsc.core.clustering.optics;
 
 import uk.ac.sussex.gdsc.core.utils.ConvexHull;
 import uk.ac.sussex.gdsc.core.utils.MathUtils;
-import uk.ac.sussex.gdsc.core.utils.RandomUtils;
 import uk.ac.sussex.gdsc.core.utils.SimpleArrayUtils;
+import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
