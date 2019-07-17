@@ -135,4 +135,19 @@ public final class RandomUtils {
   }
 
   // CHECKSTYLE.ON: ParameterName
+
+  /**
+   * Generate an array of double values in the interval {@code [0, 1)}.
+   *
+   * @param n the number of generate
+   * @param rng the random generator
+   * @return the values
+   */
+  public static double[] generate(int n, UniformRandomProvider rng) {
+    double[] data = new double[n];
+    for (int i = 0; i < n; i++) {
+      data[i] = rng.nextDouble();
+    }
+    return data;
+  }
 }
