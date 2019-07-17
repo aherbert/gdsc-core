@@ -206,4 +206,70 @@ public final class NumberUtils {
 
     return carry + (bx >>> 32) + (ay >>> 32) + a * x;
   }
+
+  /**
+   * Multiply the two values as if unsigned 64-bit longs to produce a 128-bit unsigned result.
+   *
+   * @param value1 the first value
+   * @param value2 the second value
+   * @param result the 128-bit result stored as two 64-bit values
+   */
+  static void multiply(long value1, long value2, long[] result) {
+    // Note: This adapts the multiply and carry idea in BigInteger arithmetic.
+    // This is based on the following observation about the upper and lower bits of an
+    // unsigned big-endian integer:
+    // @formatter:off
+    //   ab * xy
+    // =  b *  y
+    // +  b * x0
+    // + a0 *  y
+    // + a0 * x0
+    // = b * y
+    // + b * x * 2^32
+    // + a * y * 2^32
+    // + a * x * 2^64
+    // @formatter:on
+    final long a = value1 >>> 32;
+    final long b = value1 & INT_TO_UNSIGNED_BYTE_MASK;
+    final long x = value2 >>> 32;
+    final long y = value2 & INT_TO_UNSIGNED_BYTE_MASK;
+
+    // Note:
+    // The result of two unsigned 32-bit integers multiplied together cannot overflow 64 bits.
+    // The carry is the upper 32-bits of the 64-bit result; this is obtained by bit shift.
+    // This algorithm thus computes the small numbers multiplied together and then sums
+    // the carry on to the result for the next power 2^32.
+    // This is a diagram of the bit cascade (using a 4 byte representation):
+    // @formatter:off
+    //             byby byby
+    // +      bxbx bxbx 0000
+    // +      ayay ayay 0000
+    // + axax axax 0000 0000
+    // @formatter:on
+
+    final long by = b * y;
+    final long bx = b * x;
+    final long ay = a * y;
+    final long ax = a * x;
+
+    // @formatter:off
+    result[0] = by & INT_TO_UNSIGNED_BYTE_MASK;
+
+    // Sum each 32-bit column using a long.
+    // The upper 32-bits (carry) are added to the next column sum.
+    long sum = (by >>> 32) +
+               (bx & INT_TO_UNSIGNED_BYTE_MASK) +
+               (ay & INT_TO_UNSIGNED_BYTE_MASK);
+    result[0] |= sum << 32;
+
+    sum = (sum >>> 32) +
+          (bx >>> 32) +
+          (ay >>> 32) +
+          (ax & INT_TO_UNSIGNED_BYTE_MASK);
+    result[1] = sum & INT_TO_UNSIGNED_BYTE_MASK;
+
+    result[1] |= ((sum >>> 32) +
+                  (ax >>> 32)) << 32;
+    // @formatter:on
+  }
 }

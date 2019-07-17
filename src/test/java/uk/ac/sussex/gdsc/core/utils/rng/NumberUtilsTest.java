@@ -1,5 +1,10 @@
 package uk.ac.sussex.gdsc.core.utils.rng;
 
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
+
+import org.apache.commons.rng.UniformRandomProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -274,6 +279,37 @@ public class NumberUtilsTest {
     }
   }
 
+
+  /**
+   * This is a test of the fence computation compared with that published by Daniel Lemire.
+   *
+   * @see <a href="https://arxiv.org/abs/1805.10941">Fast Random Integer Generation in an
+   *      Interval</a>
+   */
+  @Test
+  public void testFenceComputation() {
+    final long base = 1L << 32;
+    for (int power = 1; power <= 31; power++) {
+      final long upper = 1L << power;
+      final long lower = upper >> 1;
+      for (int i = 0; i < 10; i++) {
+        final int n = (int) (lower + i);
+        if (n >= upper) {
+          break;
+        }
+        final long fence = base % n;
+        // Lemire's method is based on having unsigned 32-bit integers where:
+        // 2^32 % n == (2^32 - n) % n == -n % n;
+        // This method using Java support for unsigned arithmetic
+        // converts each integer to a long and uses long modulus. So actually it is
+        // slower than having a pre-computed base stored as a long.
+        final int threshold = Integer.remainderUnsigned(-n, n);
+        // System.out.printf("power=%d, n=%d, fence=%d, %d%n", power, n, fence, threshold);
+        Assertions.assertEquals(fence, threshold);
+      }
+    }
+  }
+
   // @Test
   public void outputBiasTable() {
     outputBiasTable(31, 31);
@@ -398,5 +434,47 @@ public class NumberUtilsTest {
           (double) sum31 / count / range31, (double) max31 / range31,
           (double) sum32 / count / range32, (double) max32 / range32);
     }
+  }
+
+  @Test
+  public void testMultiply() {
+    final long[] values = {0L, 0xffL, 0xffffL, 0xffffffffL, 0xffff00000000L, 0xffffffff00000000L,
+        0xffffffffffffffffL};
+
+    for (long v1 : values) {
+      for (long v2 : values) {
+        assertMultiply(v1, v2);
+      }
+    }
+  }
+
+  @SeededTest
+  public void testMultiply(RandomSeed seed) {
+    final long[] values = new long[10];
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (int i = 0; i < values.length; i++) {
+      values[i] = rng.nextLong();
+    }
+
+    for (long v1 : values) {
+      for (long v2 : values) {
+        assertMultiply(v1, v2);
+      }
+    }
+  }
+
+  private static void assertMultiply(long v1, long v2) {
+    String un1 = Long.toUnsignedString(v1);
+    String un2 = Long.toUnsignedString(v2);
+    BigInteger bi1 = new BigInteger(un1);
+    BigInteger bi2 = new BigInteger(un2);
+    BigInteger expected = bi1.multiply(bi2);
+    Assertions.assertTrue(expected.bitLength() <= 128);
+    long[] result = new long[2];
+    NumberUtils.multiply(v1, v2, result);
+    BigInteger r1 = new BigInteger(Long.toUnsignedString(result[0]));
+    BigInteger r2 = new BigInteger(Long.toUnsignedString(result[1]));
+    BigInteger actual = r1.add(r2.shiftLeft(64));
+    Assertions.assertEquals(expected, actual, () -> String.format("%s * %s", un1, un2));
   }
 }
