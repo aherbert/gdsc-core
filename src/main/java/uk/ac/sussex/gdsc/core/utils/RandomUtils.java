@@ -144,7 +144,7 @@ public final class RandomUtils {
    * @return the values
    */
   public static double[] generate(int n, UniformRandomProvider rng) {
-    double[] data = new double[n];
+    final double[] data = new double[n];
     for (int i = 0; i < n; i++) {
       data[i] = rng.nextDouble();
     }
