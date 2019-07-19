@@ -97,7 +97,7 @@ public class MarsagliaTsangGammaSampler implements ContinuousSampler {
 
   @Override
   public double sample() {
-    while (true) {
+    for (;;) {
       final double x = gaussian.sample();
       final double oPcTx = 1 + cc * x;
       final double v = oPcTx * oPcTx * oPcTx;

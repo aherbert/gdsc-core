@@ -413,7 +413,7 @@ public class AutoThreshold {
         break;
       }
     }
-    while (true) {
+    for (;;) {
       int low = 0;
       int totLow = 0;
       for (int i = 0; i < threshold; i++) {

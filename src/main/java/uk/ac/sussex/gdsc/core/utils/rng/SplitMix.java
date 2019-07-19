@@ -103,7 +103,7 @@ public final class SplitMix implements RestorableUniformRandomProvider {
     // Fill in the remaining bytes.
     if (index < indexLimit) {
       long random = nextLong();
-      while (true) {
+      for (;;) {
         bytes[index++] = (byte) random;
         if (index < indexLimit) {
           random >>>= 8;
