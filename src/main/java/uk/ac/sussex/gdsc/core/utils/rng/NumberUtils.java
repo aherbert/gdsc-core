@@ -272,4 +272,132 @@ public final class NumberUtils {
                   (ax >>> 32)) << 32;
     // @formatter:on
   }
+
+  /**
+   * Compute the accumulated multiplier and addition for a Linear Congruential Generator (LCG). The
+   * base generator advance step is:
+   *
+   * <pre>
+   * x = m * x + c
+   * </pre>
+   *
+   * <p>A number of consecutive steps can be computed in a single multiply and add operation. This
+   * method computes the accumulated multiplier and addition for the given number of steps. The
+   * steps may be positive or negative for forward or backward.
+   *
+   * <p>Uses the algorithm from:
+   *
+   * <blockquote>Brown, F.B. (1994) Random number generation with arbitrary strides, Transactions of
+   * the American Nuclear Society 71.</blockquote>
+   *
+   * @param multiplier the multiplier
+   * @param constant the constant
+   * @param advanceSteps the number of advance steps
+   * @return the accumulated multiplier and addition
+   * @see <A href="https://www.osti.gov/biblio/89100-random-number-generation-arbitrary-strides">
+   *      Brown, F.B. (1994) Random number generation with arbitrary strides, Transactions of the
+   *      American Nuclear Society 71</a>
+   */
+  public static long[] computeLcgAdvance(final long multiplier, final long constant,
+      final long advanceSteps) {
+    // Current multiplier and constant
+    long currM = multiplier;
+    long currC = constant;
+    // Accumulated multiplier and constant
+    long accM = 1;
+    long accC = 0;
+
+    for (long steps = advanceSteps; steps != 0; steps >>>= 1) {
+      if ((steps & 1) != 0) {
+        // If the bit is set then the current multiplier and constant will be used
+        accM *= currM;
+        accC = accC * currM + currC;
+      }
+      // Update the multiplier and constant for the next power of 2
+      currC = (currM + 1) * currC;
+      currM *= currM;
+    }
+    return new long[] {accM, accC};
+  }
+
+  /**
+   * Compute the accumulated multiplier and addition for a Linear Congruential Generator (LCG). The
+   * base generator advance step is:
+   *
+   * <pre>
+   * x = m * x + c
+   * </pre>
+   *
+   * <p>A number of consecutive steps can be computed in a single multiply and add operation. This
+   * method computes the accumulated multiplier and addition for the given number of steps expressed
+   * as a power of 2. Only the last 6-bits of the input power are used.
+   *
+   * <p>Based on the algorithm from:
+   *
+   * <blockquote>Brown, F.B. (1994) Random number generation with arbitrary strides, Transactions of
+   * the American Nuclear Society 71.</blockquote>
+   *
+   * @param multiplier the multiplier
+   * @param constant the constant
+   * @param advancePowerOf2 the number of advance steps as a power of 2 (range [0, 63])
+   * @return the accumulated multiplier and addition
+   * @see <A href="https://www.osti.gov/biblio/89100-random-number-generation-arbitrary-strides">
+   *      Brown, F.B. (1994) Random number generation with arbitrary strides, Transactions of the
+   *      American Nuclear Society 71</a>
+   */
+  public static long[] computeLcgAdvancePow2(final long multiplier, final long constant,
+      final int advancePowerOf2) {
+    // Current multiplier and constant
+    long currM = multiplier;
+    long currC = constant;
+
+    // A valid power is [0, 63) so use the last 6 bits from the input number
+    for (int i = advancePowerOf2 & 0x3f; i != 0; i--) {
+      // Update the multiplier and constant for the next power of 2
+      currC = (currM + 1) * currC;
+      currM *= currM;
+    }
+    return new long[] {currM, currC};
+  }
+
+  /**
+   * Compute the accumulated multiplier and addition for a Linear Congruential Generator (LCG). The
+   * base generator advance step is:
+   *
+   * <pre>
+   * x = m * x + c
+   * </pre>
+   *
+   * <p>A number of consecutive steps can be computed in a single multiply and add operation. This
+   * method computes the accumulated multiplier and addition for the given number of steps expressed
+   * as a power of 2. Only the last 6-bits of the input power are used.
+   *
+   * <p>Based on the algorithm from:
+   *
+   * <blockquote>Brown, F.B. (1994) Random number generation with arbitrary strides, Transactions of
+   * the American Nuclear Society 71.</blockquote>
+   *
+   * @param state the state
+   * @param multiplier the multiplier
+   * @param constant the constant
+   * @param advancePowerOf2 the number of advance steps as a power of 2 (range [0, 63])
+   * @return the new state
+   * @see <A href="https://www.osti.gov/biblio/89100-random-number-generation-arbitrary-strides">
+   *      Brown, F.B. (1994) Random number generation with arbitrary strides, Transactions of the
+   *      American Nuclear Society 71</a>
+   */
+  public static long lcgAdvancePow2(final long state, final long multiplier, final long constant,
+      final int advancePowerOf2) {
+    // Current multiplier and constant
+    long currM = multiplier;
+    long currC = constant;
+
+    // A valid power is [0, 63) so use the last 6 bits from the input number
+    for (int i = advancePowerOf2 & 0x3f; i != 0; i--) {
+      // Update the multiplier and constant for the next power of 2
+      currC = (currM + 1) * currC;
+      currM *= currM;
+    }
+    return state * currM + currC;
+  }
 }
