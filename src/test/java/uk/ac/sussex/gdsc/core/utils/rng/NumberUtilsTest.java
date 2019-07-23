@@ -486,7 +486,7 @@ public class NumberUtilsTest {
     // Nothing
     assertComputeLcgAdvance(6711382, m, c, 0);
 
-    // Powers of 2
+    // Small powers of 2
     for (int i = 0; i < 8; i++) {
       assertComputeLcgAdvance(676788, m, c, 1L << i);
     }
@@ -548,7 +548,7 @@ public class NumberUtilsTest {
     // Powers of 2
     for (int i = 0; i <= 64; i++) {
       final int power = i;
-      final long steps = 1L << power;
+      final long steps = (power < 64) ? 1L << power : 0;
       final long[] expected = NumberUtils.computeLcgAdvance(m, c, steps);
       final long[] actual = NumberUtils.computeLcgAdvancePow2(m, c, i);
       Assertions.assertArrayEquals(expected, actual, () -> "Failed to advance power: " + power);
@@ -556,17 +556,76 @@ public class NumberUtilsTest {
   }
 
   @Test
+  public void testLcgAdvance() {
+    final long m = 6364136223846793005L;
+    final long c = 1442695040888963407L;
+
+    // Nothing
+    assertLcgAdvance(6711382, m, c, 0);
+
+    // Small powers of 2
+    for (int i = 0; i < 8; i++) {
+      assertLcgAdvance(676788, m, c, 1L << i);
+    }
+
+    // Odd
+    assertLcgAdvance(8997, m, c, 3);
+    assertLcgAdvance(99785, m, c, 5);
+    assertLcgAdvance(1278, m, c, 7);
+    assertLcgAdvance(6711345482L, m, c, 13);
+    assertLcgAdvance(9657, m, c, 15);
+
+    // Backwards
+    assertLcgAdvance(8997, m, c, -3);
+    assertLcgAdvance(99785, m, c, -5);
+    assertLcgAdvance(1278, m, c, -7);
+    assertLcgAdvance(6711345482L, m, c, -13);
+    assertLcgAdvance(9657, m, c, -15);
+  }
+
+  /**
+   * the state of the Linear Congruential Generator Assert compute lcg advance.
+   *
+   * @param x the x
+   * @param mult the LCG multiplier
+   * @param add the LCG addition
+   * @param steps the steps
+   */
+  private static void assertLcgAdvance(final long x, final long mult, final long add, long steps) {
+    // Run LCG
+    long state = x;
+    for (long i = Math.abs(steps); i-- > 0;) {
+      state = state * mult + add;
+    }
+
+    // Test forward and backward
+    long actual;
+    long expected;
+    if (steps >= 0) {
+      // Forward
+      actual = NumberUtils.lcgAdvance(x, mult, add, steps);
+      expected = state;
+    } else {
+      // Backward
+      actual = NumberUtils.lcgAdvance(state, mult, add, steps);
+      expected = x;
+    }
+
+    Assertions.assertEquals(expected, actual, () -> "Failed to advance: " + steps);
+  }
+
+  @Test
   public void testLcgAdvancePow2() {
     final long m = 6364136223846793005L;
     final long c = 1442695040888963407L;
 
-    // Powers of 2
     final long state = 2738942865345L;
+
+    // Powers of 2
     for (int i = 0; i <= 64; i++) {
       final int power = i;
-      final long steps = 1L << power;
-      final long[] advance = NumberUtils.computeLcgAdvance(m, c, steps);
-      final long expected = state * advance[0] + advance[1];
+      final long steps = (power < 64) ? 1L << power : 0;
+      final long expected = NumberUtils.lcgAdvance(state, m, c, steps);
       final long actual = NumberUtils.lcgAdvancePow2(state, m, c, i);
       Assertions.assertEquals(expected, actual, () -> "Failed to advance power: " + power);
     }
