@@ -25,7 +25,7 @@ public class JdkRandomAdaptorTest {
 
   @Test
   public void testSetSeedThrows() {
-    JdkRandomAdaptor rng = new JdkRandomAdaptor(new SplitMix(0));
+    final JdkRandomAdaptor rng = new JdkRandomAdaptor(new SplitMix(0));
     Assertions.assertThrows(NotImplementedException.class, () -> {
       rng.setSeed(44);
     });
@@ -34,9 +34,9 @@ public class JdkRandomAdaptorTest {
   @SeededTest
   public void testGeneratedValues(RandomSeed randomSeed) {
     final long seed = randomSeed.getSeedAsLong();
-    Random random1 = new Random(seed);
-    Random random2 = new Random(seed);
-    UniformRandomProvider source = new UniformRandomProvider() {
+    final Random random1 = new Random(seed);
+    final Random random2 = new Random(seed);
+    final UniformRandomProvider source = new UniformRandomProvider() {
       @Override
       public void nextBytes(byte[] bytes) {}
 
@@ -78,7 +78,7 @@ public class JdkRandomAdaptorTest {
         return 0;
       }
     };
-    JdkRandomAdaptor rng = new JdkRandomAdaptor(source);
+    final JdkRandomAdaptor rng = new JdkRandomAdaptor(source);
 
     Assertions.assertEquals(random1.nextInt(), rng.nextInt());
     Assertions.assertEquals(random1.nextInt(567), rng.nextInt(567));
@@ -88,7 +88,7 @@ public class JdkRandomAdaptorTest {
 
   @Test
   public void testSerializationThrows() throws IOException {
-    JdkRandomAdaptor rng = new JdkRandomAdaptor(new SplitMix(0));
+    final JdkRandomAdaptor rng = new JdkRandomAdaptor(new SplitMix(0));
     try (ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream())) {
       Assertions.assertThrows(NotImplementedException.class, () -> {
         oos.writeObject(rng);

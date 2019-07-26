@@ -106,7 +106,7 @@ public class PcgXshRs32Test {
       final int n = 100;
       for (int i = 0; i < n; i++) {
         rng.nextBytes(bytes);
-        for (byte b1 : bytes) {
+        for (final byte b1 : bytes) {
           bitCount += Integer.bitCount(b1 & 0xff);
         }
       }
