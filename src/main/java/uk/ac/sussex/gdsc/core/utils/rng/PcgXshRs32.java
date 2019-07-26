@@ -39,8 +39,10 @@ import org.apache.commons.rng.RestorableUniformRandomProvider;
  * 2<sup>64</sup>.
  *
  * @see <a href="http://www.pcg-random.org/">PCG, A Family of Better Random Number Generators</a>
+ * @since 2.0
  */
-public final class PcgXshRs32 implements RestorableUniformRandomProvider {
+public final class PcgXshRs32
+    implements RestorableUniformRandomProvider, SplittableUniformRandomProvider {
   /** The LCG multiplier. */
   private static final long MULTIPLIER = 6364136223846793005L;
 
@@ -240,22 +242,20 @@ public final class PcgXshRs32 implements RestorableUniformRandomProvider {
   }
 
   /**
-   * Create and return a new instance which shares no state with this instance. Creates a new state
-   * and increment. The probability of increment collision is 2<sup>-63</sup>; the probability of
-   * sequence overlap between the two generators is even lower.
+   * {@inheritDoc}
    *
-   * <p>The output from the two generators should have the same statistical properties as the same
-   * quantity of output from the original generator. This relationship should is expected to hold in
-   * the event of recursive splitting.
-   *
-   * @return the new generator
+   * <p>Creates a new state and increment for the new instance. The probability of increment
+   * collision is 2<sup>-63</sup>; the probability of sequence overlap between the two generators is
+   * even lower.
    */
+  @Override
   public PcgXshRs32 split() {
     return new PcgXshRs32(nextLong(), nextLong());
   }
 
   @Override
   public RandomProviderState saveState() {
+    // Transform increment when saving
     return new PcgState(state, increment >> 1);
   }
 
@@ -264,6 +264,8 @@ public final class PcgXshRs32 implements RestorableUniformRandomProvider {
     if (state instanceof PcgState) {
       final PcgState pcgState = (PcgState) state;
       this.state = pcgState.state;
+      // Reverse increment transform.
+      // This ensures the full period is maintained if the state increment is not odd.
       this.increment = (pcgState.increment << 1) | 1;
     } else {
       throw new IllegalArgumentException("Incompatible state");

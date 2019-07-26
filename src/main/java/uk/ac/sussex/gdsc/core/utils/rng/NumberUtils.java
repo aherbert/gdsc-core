@@ -30,6 +30,8 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 
 /**
  * Number utilities.
+ *
+ * @since 2.0
  */
 public final class NumberUtils {
   /**

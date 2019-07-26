@@ -41,6 +41,8 @@ import org.apache.commons.rng.sampling.distribution.ZigguratNormalizedGaussianSa
 
 /**
  * Sampler utilities.
+ *
+ * @since 2.0
  */
 public final class SamplerUtils {
 
