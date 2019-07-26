@@ -96,7 +96,7 @@ public class JdkRandomAdaptor extends Random {
    *
    * @param out the out
    * @throws IOException Signals that an I/O exception has occurred.
-   * @throws NotImplementedException The seed cannot be set on the underlying source of randomness.
+   * @throws NotImplementedException The underlying source of randomness cannot be written.
    */
   @SuppressWarnings({"static-method", "unused"})
   private synchronized void writeObject(ObjectOutputStream out) throws IOException {
@@ -109,7 +109,7 @@ public class JdkRandomAdaptor extends Random {
    * @param in Input stream.
    * @throws IOException if an error occurs.
    * @throws ClassNotFoundException if an error occurs.
-   * @throws NotImplementedException The seed cannot be set on the underlying source of randomness.
+   * @throws NotImplementedException The underlying source of randomness cannot be read.
    */
   @SuppressWarnings({"static-method", "unused"})
   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
