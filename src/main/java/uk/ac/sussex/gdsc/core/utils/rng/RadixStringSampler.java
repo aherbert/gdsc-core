@@ -197,7 +197,7 @@ public class RadixStringSampler {
    * @return A random Base64 string.
    * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045</a>
    */
-  public static String nextBase64String(UniformRandomProvider rng, char[] out) {
+  private static String nextBase64String(UniformRandomProvider rng, char[] out) {
     // Process blocks of 6 bits as an index in the range 0-63
     // for each base64 character.
     // There are 16 samples per 3 ints (16 * 6 = 3 * 32 = 96 bits).

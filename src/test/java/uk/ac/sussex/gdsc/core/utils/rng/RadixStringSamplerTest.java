@@ -172,4 +172,19 @@ public class RadixStringSamplerTest {
     // This will sometimes fail due to randomness so do not assert
     // Assertions.assertFalse(reject);
   }
+
+  @Test
+  public void testStaticSampleMethodsMatchInstanceSampler() {
+    final UniformRandomProvider rng1 = new SplitMix(0);
+    final UniformRandomProvider rng2 = new SplitMix(0);
+    final int length = 16;
+    Assertions.assertEquals(RadixStringSampler.nextBase64String(rng1, length),
+        new RadixStringSampler(rng2, length, 64).sample(), "Base64");
+    Assertions.assertEquals(RadixStringSampler.nextHexString(rng1, length),
+        new RadixStringSampler(rng2, length, 16).sample(), "Hex");
+    Assertions.assertEquals(RadixStringSampler.nextOctalString(rng1, length),
+        new RadixStringSampler(rng2, length, 8).sample(), "Octal");
+    Assertions.assertEquals(RadixStringSampler.nextBinaryString(rng1, length),
+        new RadixStringSampler(rng2, length, 2).sample(), "Binary");
+  }
 }

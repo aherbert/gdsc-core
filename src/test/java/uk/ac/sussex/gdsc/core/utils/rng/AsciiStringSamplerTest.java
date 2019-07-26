@@ -35,7 +35,7 @@ public class AsciiStringSamplerTest {
 
   @Test
   public void testConstructor() {
-    final UniformRandomProvider rng = RandomSource.create(RandomSource.SPLIT_MIX_64);
+    final UniformRandomProvider rng = new SplitMix(0);
     final AsciiStringSampler s = new AsciiStringSampler(rng);
     Assertions.assertNotNull(s);
   }
@@ -46,6 +46,22 @@ public class AsciiStringSamplerTest {
     Assertions.assertThrows(NullPointerException.class, () -> {
       new AsciiStringSampler(null);
     });
+  }
+
+  @Test
+  public void testNextWithZeroLength() {
+    final UniformRandomProvider rng = new SplitMix(0);
+    final AsciiStringSampler s = new AsciiStringSampler(rng);
+    Assertions.assertEquals("", s.nextAscii(0));
+    Assertions.assertEquals("", s.nextUpper(0));
+  }
+
+  @Test
+  public void testNextWithNegativeLengthThrows() {
+    final UniformRandomProvider rng = new SplitMix(0);
+    final AsciiStringSampler s = new AsciiStringSampler(rng);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> s.nextAscii(-1));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> s.nextUpper(-1));
   }
 
   private final int digit0 = '0';
