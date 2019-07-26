@@ -207,7 +207,7 @@ public final class SplitMix implements RestorableUniformRandomProvider {
   }
 
   /**
-   * Create a copy and advance the generator 2<sup>32</sup> steps in the output sequence. The copy
+   * Create a copy and advance the generator 2<sup>48</sup> steps in the output sequence. The copy
    * is returned.
    *
    * @return the copy of the previous state
@@ -216,7 +216,7 @@ public final class SplitMix implements RestorableUniformRandomProvider {
    */
   public SplitMix copyAndJump() {
     SplitMix copy = copy();
-    advance(1L << 32);
+    advance(1L << 48);
     return copy;
   }
 
