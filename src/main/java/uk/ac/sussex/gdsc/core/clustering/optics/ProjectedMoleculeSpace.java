@@ -38,8 +38,8 @@ import uk.ac.sussex.gdsc.core.utils.TextUtils;
 import uk.ac.sussex.gdsc.core.utils.TurboList;
 import uk.ac.sussex.gdsc.core.utils.ValidationUtils;
 import uk.ac.sussex.gdsc.core.utils.concurrent.ConcurrencyUtils;
+import uk.ac.sussex.gdsc.core.utils.rng.PcgXshRs32;
 import uk.ac.sussex.gdsc.core.utils.rng.RandomUtils;
-import uk.ac.sussex.gdsc.core.utils.rng.SplitMix;
 
 import gnu.trove.set.hash.TIntHashSet;
 
@@ -273,7 +273,7 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
     // The splits do not have to be that random and the sets will be randomly sized between 1
     // and minSplitSize. Use a special generator that can be used to create non-overlapping
     // sequences.
-    final SplitMix splitMix = new SplitMix(rand.nextLong());
+    final PcgXshRs32 rng = new PcgXshRs32(rand.nextLong());
 
     final List<Split> syncSplitSets = Collections.synchronizedList(splitSets);
     final Ticker ticker2 = Ticker.createStarted(tracker, numberOfSplitSets, true);
@@ -287,9 +287,9 @@ class ProjectedMoleculeSpace extends MoleculeSpace {
 
       tasks.add(() -> {
         final TurboList<int[]> sets = new TurboList<>();
-        // New random generator using the copyAndJump
+        // New random generator using the split
         splitupNoSort(sets, shuffledProjectedPoints, SimpleArrayUtils.natural(size), 0, size, 0,
-            splitMix.copyAndJump(), minSplitSize);
+            rng.split(), minSplitSize);
         syncSplitSets.add(new Split(sets));
         ticker2.tick();
       });
