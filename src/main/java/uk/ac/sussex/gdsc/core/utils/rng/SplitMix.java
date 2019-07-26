@@ -37,7 +37,8 @@ import org.apache.commons.rng.UniformRandomProvider;
  * {@link UniformRandomProvider} interface. Adds functions to allow the state to be advanced and
  * copied.
  *
- * <p>This generator has 64-bits of state and a period of 2<sup>64</sup>-1.
+ * <p>This generator has 64-bits of state, outputs 64-bits per cycle and a period of
+ * 2<sup>64</sup>-1.
  */
 public final class SplitMix implements RestorableUniformRandomProvider {
   /**
@@ -215,7 +216,7 @@ public final class SplitMix implements RestorableUniformRandomProvider {
    * @see #advance(long)
    */
   public SplitMix copyAndJump() {
-    SplitMix copy = copy();
+    final SplitMix copy = copy();
     advance(1L << 48);
     return copy;
   }
