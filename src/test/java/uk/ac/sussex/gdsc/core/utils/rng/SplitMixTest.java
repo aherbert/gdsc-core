@@ -200,7 +200,7 @@ public class SplitMixTest {
   }
 
   @Test
-  public void testRsetoreUsingBadStateThrows() {
+  public void testRestoreUsingBadStateThrows() {
     final SplitMix sm = new SplitMix(0);
     final RandomProviderState state = null;
     Assertions.assertThrows(IllegalArgumentException.class, () -> sm.restoreState(state));
