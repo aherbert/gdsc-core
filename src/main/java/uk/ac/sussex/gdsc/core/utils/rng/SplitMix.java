@@ -38,7 +38,7 @@ import org.apache.commons.rng.UniformRandomProvider;
  * copied.
  *
  * <p>This generator has 64-bits of state, outputs 64-bits per cycle and a period of
- * 2<sup>64</sup>-1.
+ * 2<sup>64</sup>.
  */
 public final class SplitMix implements RestorableUniformRandomProvider {
   /**
