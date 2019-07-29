@@ -98,8 +98,8 @@ public final class RngStreams {
      * @param rng the random generator
      * @param start the start index of the stream (inclusive)
      * @param end the upper limit of the stream (exclusive)
-     * @param lower the lower upper (inclusive) of the random number range to produce.
-     * @param upper the upper upper (exclusive) of the random number range to produce.
+     * @param lower the lower bound (inclusive) of the random number range to produce.
+     * @param upper the upper bound (exclusive) of the random number range to produce.
      */
     RandomIntsSpliterator(SplittableUniformRandomProvider rng, long start, long end, int lower,
         int upper) {
@@ -163,12 +163,12 @@ public final class RngStreams {
     }
 
     /**
-     * Next int.
+     * Compute the next value in the specified range.
      *
-     * @param rng the rng
-     * @param lower the lower
-     * @param upper the upper
-     * @return the int
+     * @param rng the random generator
+     * @param lower the lower bound (inclusive) of the random number range to produce.
+     * @param upper the upper bound (exclusive) of the random number range to produce.
+     * @return the value
      */
     private static int nextInt(SplittableUniformRandomProvider rng, int lower, int upper) {
       if (lower < upper) {
@@ -274,12 +274,12 @@ public final class RngStreams {
     }
 
     /**
-     * Next long.
+     * Compute the next value in the specified range.
      *
-     * @param rng the rng
-     * @param lower the lower
-     * @param upper the upper
-     * @return the long
+     * @param rng the random generator
+     * @param lower the lower bound (inclusive) of the random number range to produce.
+     * @param upper the upper bound (exclusive) of the random number range to produce.
+     * @return the value
      */
     private static long nextLong(SplittableUniformRandomProvider rng, long lower, long upper) {
       if (lower < upper) {
@@ -320,8 +320,8 @@ public final class RngStreams {
      * @param rng the random generator
      * @param start the start index of the stream
      * @param end the upper limit of the stream
-     * @param lower the lower upper (inclusive) of the random number range to produce.
-     * @param upper the upper upper (exclusive) of the random number range to produce.
+     * @param lower the lower bound (inclusive) of the random number range to produce.
+     * @param upper the upper bound (exclusive) of the random number range to produce.
      */
     RandomDoublesSpliterator(SplittableUniformRandomProvider rng, long start, long end,
         double lower, double upper) {
@@ -385,12 +385,12 @@ public final class RngStreams {
     }
 
     /**
-     * Next double.
+     * Compute the next value in the specified range.
      *
-     * @param rng the rng
-     * @param lower the lower
-     * @param upper the upper
-     * @return the double
+     * @param rng the random generator
+     * @param lower the lower bound (inclusive) of the random number range to produce.
+     * @param upper the upper bound (exclusive) of the random number range to produce.
+     * @return the value
      */
     private static double nextDouble(SplittableUniformRandomProvider rng, double lower,
         double upper) {
