@@ -1,0 +1,151 @@
+package uk.ac.sussex.gdsc.core.utils.rng;
+
+import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
+import uk.ac.sussex.gdsc.test.junit5.SeededTest;
+import uk.ac.sussex.gdsc.test.rng.RngUtils;
+
+import org.apache.commons.rng.UniformRandomProvider;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.function.LongUnaryOperator;
+
+@SuppressWarnings("javadoc")
+public class MixersTest {
+  @SeededTest
+  public void testXor(RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (int i = 0; i < 500; i++) {
+      final int x = rng.nextInt();
+      final int y = rng.nextInt();
+      final int z = x ^ y;
+      Assertions.assertEquals(x, y ^ z);
+      Assertions.assertEquals(y, x ^ z);
+    }
+  }
+
+  @SeededTest
+  public void testUnxorshift(RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (int shift = 1; shift < 64; shift++) {
+      final int fshift = shift;
+      for (int i = 0; i < 500; i++) {
+        final long x = rng.nextLong();
+        final long y = (x >>> shift) ^ x;
+        final long x2 = Mixers.unxorshift(y, shift);
+        Assertions.assertEquals(x, x2, () -> "shift = " + fshift);
+      }
+    }
+  }
+
+  @SeededTest
+  public void testRxsmxs(RandomSeed seed) {
+    assertUnmixer(seed, Mixers::rxsmxs, Mixers::rxsmxsUnmix);
+  }
+
+  @SeededTest
+  public void testRrmxmx(RandomSeed seed) {
+    assertUnmixer(seed, Mixers::rrmxmx, Mixers::rrmxmxUnmix);
+  }
+
+  private static void assertUnmixer(RandomSeed seed, LongUnaryOperator mix,
+      LongUnaryOperator unmix) {
+    for (long x : new long[] {Long.MIN_VALUE, -1, 0, 1, Long.MAX_VALUE}) {
+      final long y = mix.applyAsLong(x);
+      final long x2 = unmix.applyAsLong(y);
+      Assertions.assertEquals(x, x2);
+    }
+    for (int i = 0; i < 64; i++) {
+      final long x = 1L << i;
+      final long y = mix.applyAsLong(x);
+      final long x2 = unmix.applyAsLong(y);
+      Assertions.assertEquals(x, x2);
+    }
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (int i = 0; i < 500; i++) {
+      final long x = rng.nextLong();
+      final long y = mix.applyAsLong(x);
+      final long x2 = unmix.applyAsLong(y);
+      Assertions.assertEquals(x, x2);
+    }
+  }
+
+  @Test
+  public void testRxsmxsOutput() {
+    // Code generated using the reference c code obtained from:
+    // https://mostlymangling.blogspot.com/2018/07/on-mixing-functions-in-fast-splittable.html
+    final long[] values =
+        {0x4909bf4228b09f5dL, 0x62f1175aa2ac2becL, 0x0fff75f3a0f6eaa1L, 0x440055bc9b89eaf0L,
+            0x8d3954796546094bL, 0x541dc47bccef0e39L, 0xbcf2cf7ed5e3db25L, 0x3902cbf791fbac96L,
+            0x144101ff31d0bccdL, 0x5da6aec2faa5adceL, 0xbfff757b69be2784L, 0x6b3e67846edd0fd5L,
+            0x68192de4e987bdc4L, 0xb3fe34cee77a79a8L, 0xdea80e3b85df836dL, 0xd6276bdcf3d6d342L,
+            0x0b6cba29f4d2ad13L, 0xb6bfe1d2d013aa12L, 0xf08e347e079ba78cL, 0x0150ac7471e862fcL,
+            0x16457cc24205be12L, 0x1b3c87d7fc416c26L, 0xa7d1a4e56bbf95a9L, 0x44d605b26c0bbdaaL,
+            0xfe6167e96c66a310L, 0x09ecd862a1ef544bL, 0x8d83e2956e0da35dL, 0x268734a1a4d94cfdL,
+            0x104b3ca0ce4b772bL, 0x488689436f671ba8L, 0x3ae5b9b467cc827aL, 0xac0e0ba50f83e589L,
+            0xfd8d4041fb3350c6L, 0x2aebfa9bf4afe825L, 0xf7f840be98599b68L, 0x2c65c37d25d3f0ccL,
+            0xbf49fcbcef6acb81L, 0x0552891572d190a4L, 0x8292c9877a7a73dbL, 0x6377a3a02614593eL,};
+    assertMixer(Mixers::rrmxmx, values, 0x012de1babb3c4104L, 0xc8161b4202294965L);
+  }
+
+  @Test
+  public void testRrxmrrxmsx0Output() {
+    // Code generated using the reference c code obtained from:
+    // http://mostlymangling.blogspot.com/2019/01/better-stronger-mixer-and-test-procedure.html
+    final long[] values =
+        {0x9ccbd09c5dc10ca7L, 0x3c8947159899882bL, 0xd893601ad724cbe5L, 0x72f26c4df3673ee6L,
+            0xfaf48ced65d211cfL, 0x8a44f467531be62aL, 0x09e0c1313a1f5d0aL, 0xf6187ebbdc0757f5L,
+            0xcb46619de4f97746L, 0x22144f07f748af25L, 0x80b16f5e7b47ea31L, 0x32b8afbb80754fc5L,
+            0xa3b5c4410d509a03L, 0xd168c5f50cce6993L, 0x0f82c25b1fe2b83cL, 0xaa9939e780d46a94L,
+            0xb243a1b70ccfd29fL, 0x8339e40046415384L, 0x330356935c8bd63eL, 0x409d8934b393c9ffL,
+            0x79e4e7213ca3b57eL, 0xb41093551559a3bcL, 0x6617421a35827962L, 0x07e578716190d472L,
+            0x658d3b2eac566bdcL, 0xf1d12ab9abe02ac8L, 0xd342993d81c80796L, 0x7db078f0750ff480L,
+            0xb293aa0fe53fe1a3L, 0x6e48ce5dbf834da5L, 0x4c53364beb947791L, 0xc6dbd1f80ce8ff08L,
+            0x35d26dadbb5a7380L, 0xa672343acf8264c8L, 0xac015d5d9bef0924L, 0x39b36602bbd90446L,
+            0x759517ff4a1ef0fbL, 0x0ef3fdcdbf413a46L, 0x991d24c8b6c9f04fL, 0x7640f103903507ecL,};
+    assertMixer(Mixers::rrxmrrxmsx0, values, 0x012de1babb3c4104L, 0xc8161b4202294965L);
+  }
+
+  @Test
+  public void testMurmur3Output() {
+    // Code generated using the reference c code provided by David Stafford:
+    // http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html
+    final long[] values =
+        {0xdb3e232c1003b576L, 0x4da53e5b7c84173eL, 0xe2c498d0956e2a67L, 0x3a1a865a2c08ea34L,
+            0xb297e624901fea79L, 0x241a17faf3ee04bdL, 0x32b88f7c345c3c8aL, 0xbed326c79cde3d54L,
+            0x1173b9a40603f93fL, 0xc690ca776314d65cL, 0xe3753c2a2602094eL, 0x40d36f700f646e45L,
+            0xf03851d528a213e2L, 0x53acf12d51b641b4L, 0x91f382b63e0faee1L, 0x659dda2c787f7c9aL,
+            0xeddedb24f7d1f43eL, 0xe8a2dc137d7a84aeL, 0xc8cfa41cc2af0a4fL, 0xd2337b326e5c306eL,
+            0x88f0cf730266cf9bL, 0xdce208c02c2aaa04L, 0xbf2e5961057a35f8L, 0x5e136f9d03f7ccb0L,
+            0x6b64306b15c5fc39L, 0x04c6252c23bf5144L, 0x854ab124a4663d80L, 0xdb3746bcfc35ebceL,
+            0xb1f3fcc933315abbL, 0xc2cb15b0127ff726L, 0x6a5ebc92086ac3f2L, 0x9dfe71c717ac71aaL,
+            0x4d7856a84b1d4ee4L, 0x9fc002527767f050L, 0xc784f29e480b2aa2L, 0x1400dc5cbb74621eL,
+            0x63afda06ad81baeeL, 0x93ac5025caf335e4L, 0x988cbf34e715eec9L, 0x14318afff8984560L,};
+    assertMixer(Mixers::murmur3, values, 0x012de1babb3c4104L, 0xc8161b4202294965L);
+  }
+
+  @Test
+  public void testStafford13Output() {
+    // Code generated using the reference c code provided by David Stafford:
+    // http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html
+    final long[] values =
+        {0xb6e5bb4394c07618L, 0xc22a2f0fedefdbc5L, 0xc8c692032976fb0dL, 0x5eeafdee96357649L,
+            0xac07551c38d612edL, 0x4c02325af6a2d1c6L, 0x419a0e82ffcb9bacL, 0x0429b1de8b800604L,
+            0x087870444a51ef1dL, 0x909c0bbbb26527d6L, 0x6127dc6b5184f343L, 0x8e1a3ce1a932ff2cL,
+            0x6111ce001b3d0c3cL, 0xcd6de6af46e8bb99L, 0xc9456a240b1475a7L, 0x4d3d1bfc44594264L,
+            0xe3030ad6a2ede854L, 0xfccb1eea6d681fa9L, 0x9ac3b08ef7a65e65L, 0x14548ff7c51b277dL,
+            0x80638702bc9817abL, 0xaf44c7426c48f1a5L, 0xe588effe5e90d5bdL, 0xf9debeb061581d31L,
+            0xe5783c539c916096L, 0xe70372dfeabf1da8L, 0x049ccefce30b5e55L, 0xb2fdd15229d06a64L,
+            0xe15967acded0e841L, 0x3ab056912a9c7f44L, 0x800f750d6f92ac6bL, 0x828beb2c6b65fa10L,
+            0x2c7ebbc82cdee193L, 0x5f5bd29b1fb5b4e2L, 0xba69ecf78275b12eL, 0x82aea2bebbd0caa5L,
+            0xf5ebd97835f7d5abL, 0x3513e0fc1af2b448L, 0x151b8e21cbf81789L, 0xdb17e9cfacf6b51eL,};
+    assertMixer(Mixers::stafford13, values, 0x012de1babb3c4104L, 0xc8161b4202294965L);
+  }
+
+  private static void assertMixer(LongUnaryOperator mix, long[] expected, long state,
+      long increment) {
+    for (int i = 0; i < expected.length; i++) {
+      Assertions.assertEquals(expected[i], mix.applyAsLong(state += increment));
+    }
+  }
+}
