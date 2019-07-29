@@ -84,16 +84,21 @@ public final class Mixers {
     // This can be done recursively in blocks on n-bits until all are recovered.
     // @formatter:on
 
-    // Initialise the recovered value. This will have the correct top n-bits set.
-    long recovered = value;
-    for (int bits = shift; bits < 64; bits += shift) {
+    // Single operation if the shift is large
+    if (shift >= 32) {
+      return value ^ (value >>> shift);
+    }
+
+    // Initialise the recovered value. This will have the correct top 2n-bits set.
+    long recovered = value ^ (value >>> shift);
+    for (int bits = 2 * shift; bits < 64; bits += shift) {
       recovered = recovered ^ (value >>> bits);
     }
     return recovered;
   }
 
   /**
-   * Perform the 64-bit RXS-M-XS (Rand Xors shift; Multiply; Xor shift) mix function of the
+   * Perform the 64-bit RXS-M-XS (Random Xor Shift; Multiply; Xor Shift) mix function of the
    * Permutated Congruential Generator (PCG) family.
    *
    * @param x the input value
@@ -106,7 +111,7 @@ public final class Mixers {
   }
 
   /**
-   * Reverse the 64-bit RXS-M-XS (Rand Xors shift; Multiply; Xor shift) mix function of the
+   * Reverse the 64-bit RXS-M-XS (Random Xor Shift; Multiply; Xor Shift) mix function of the
    * Permutated Congruential Generator (PCG) family.
    *
    * @param x the input value
