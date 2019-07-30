@@ -32,7 +32,7 @@ import org.apache.commons.rng.RandomProviderState;
 import org.apache.commons.rng.RestorableUniformRandomProvider;
 
 /**
- * Implement a Permutated Congruential Generator (PCG) using a 64-bit Linear Congruential Generator
+ * Implement a Permuted Congruential Generator (PCG) using a 64-bit Linear Congruential Generator
  * (LCG) and the output XSH RS (Xor Shift; Random Shift) transform function.
  *
  * <p>This generator has 128-bits of state, outputs 32-bits per cycle and a period of
