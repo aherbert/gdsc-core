@@ -55,8 +55,7 @@ public final class Mixers {
    * value = (x >>> shift) ^ x
    * </pre>
    *
-   * <p>The shift value is not checked that it is positive. If zero an infinite loops occurs. If
-   * negative the results are undefined.
+   * <p>The shift value is not checked that it is positive. If negative the results are undefined.
    *
    * @param value the value
    * @param shift the shift (must be strictly positive)
@@ -88,12 +87,31 @@ public final class Mixers {
     if (shift >= 32) {
       return value ^ (value >>> shift);
     }
+    // Combined operation if the shift can easily cover the 64-bits
+    if (shift >= 16) {
+      return (shift >= 22)
+          // 2 shifts to cover 64 bits
+          ? value ^ (value >>> shift) ^ (value >>> 2 * shift)
+          // 3 shifts to cover 64 bits
+          : value ^ (value >>> shift) ^ (value >>> 2 * shift) ^ (value >>> 3 * shift);
+    }
 
+    // Small shift requires multiple recovery steps.
     // Initialise the recovered value. This will have the correct top 2n-bits set.
     long recovered = value ^ (value >>> shift);
-    for (int bits = 2 * shift; bits < 64; bits += shift) {
-      recovered = recovered ^ (value >>> bits);
+    // Use an algorithm that requires the recovered bits to be xor'd in doubling steps.
+    if (shift < 8) {
+      recovered = recovered ^ (recovered >>> (shift <<= 1));
+      if (shift < 8) {
+        recovered = recovered ^ (recovered >>> (shift <<= 1));
+        if (shift < 8) {
+          recovered = recovered ^ (recovered >>> (shift <<= 1));
+        }
+      }
     }
+    // Shift is under 16. Final 2 steps are always required.
+    recovered = recovered ^ (recovered >>> (shift << 1));
+    recovered = recovered ^ (recovered >>> (shift << 2));
     return recovered;
   }
 
