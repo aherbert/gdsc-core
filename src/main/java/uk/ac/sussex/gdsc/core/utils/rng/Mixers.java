@@ -49,75 +49,146 @@ public final class Mixers {
   private Mixers() {}
 
   /**
-   * Perform an inversion of a right xorshift.
+   * Perform an inversion of a xor right-shift.
    *
    * <pre>
-   * value = (x >>> shift) ^ x
+   * value = x ^ (x >>> shift)
    * </pre>
    *
-   * <p>The shift value is not checked that it is positive. If negative the results are undefined.
+   * <p>The shift value is not checked that it lies in the interval {@code [1, 63]}. If outside this
+   * interval the results are undefined.
    *
    * @param value the value
-   * @param shift the shift (must be strictly positive)
+   * @param shift the shift (must be in the interval {@code [1, 63]})
    * @return the inverted value (x)
    */
-  public static long unxorshift(long value, int shift) {
+  public static long reverseXorRightShift(long value, int shift) {
     // @formatter:off
     // Note: a xor operation can be used to recover itself:
     // x ^ y = z
     // z ^ y = x
-    // During a right xor shift of size n the top n-bits are unchanged.
+    // z ^ x = y
+    //
+    // During a xor right-shift of size n the top n-bits are unchanged.
+    // Thus x ^ (x >>> shift):
+    //
+    //   |  a  |  b  |  c  |  d  |  e  |
+    // ^ |     |  a  |  b  |  c  |  d  |
+    // = |  a  | a^b | b^c | c^d | d^e |
+    //
     // These known values can be used to recover the next set of n-bits.
-    // Thus (x >>> shift) ^ x:
+    // This can be done recursively in doubling blocks until all are recovered.
     //
-    //   abcdefgh
-    // ^     abcd
-    // = abcdwxyz
+    // Reverse step 1:
+    //   |  a  | a^b | b^c | c^d | d^e |
+    // ^ |     |  a  | a^b | b^c | c^d |
+    // = |  a  |  b  | a^c | b^d | c^e |
     //
-    // Reverse:
+    // Reverse step 2:
+    //   |  a  |  b  | a^c | b^d | c^e |
+    // ^ |     |     |  a  |  b  | a^c |
+    // = |  a  |  b  |  c  |  d  | a^e |
     //
-    //   abcdwxyz
-    // ^     abcd
-    // = abcdefgh
+    // Reverse step 3:
+    //   |  a  |  b  |  c  |  d  | a^e |
+    // ^ |     |     |     |     |  a  |
+    // = |  a  |  b  |  c  |  d  |  e  |
     //
-    // This can be done recursively in blocks on n-bits until all are recovered.
     // @formatter:on
 
-    // Single operation if the shift is large
-    if (shift >= 32) {
-      return value ^ (value >>> shift);
-    }
-    // Combined operation if the shift can easily cover the 64-bits
-    if (shift >= 16) {
-      return (shift >= 22)
-          // 2 shifts to cover 64 bits
-          ? value ^ (value >>> shift) ^ (value >>> 2 * shift)
-          // 3 shifts to cover 64 bits
-          : value ^ (value >>> shift) ^ (value >>> 2 * shift) ^ (value >>> 3 * shift);
-    }
-
-    // Small shift requires multiple recovery steps.
     // Initialise the recovered value. This will have the correct top 2n-bits set.
     long recovered = value ^ (value >>> shift);
     // Use an algorithm that requires the recovered bits to be xor'd in doubling steps.
-    if (shift < 8) {
-      recovered = recovered ^ (recovered >>> (shift <<= 1));
-      if (shift < 8) {
-        recovered = recovered ^ (recovered >>> (shift <<= 1));
+    if (shift < 32) {
+      recovered ^= (recovered >>> (shift << 1));
+      if (shift < 16) {
+        recovered ^= (recovered >>> (shift << 2));
         if (shift < 8) {
-          recovered = recovered ^ (recovered >>> (shift <<= 1));
+          recovered ^= (recovered >>> (shift << 3));
+          if (shift < 4) {
+            recovered ^= (recovered >>> (shift << 4));
+            if (shift < 2) {
+              recovered ^= (recovered >>> (shift << 5));
+            }
+          }
         }
       }
     }
-    // Shift is under 16. Final 2 steps are always required.
-    recovered = recovered ^ (recovered >>> (shift << 1));
-    recovered = recovered ^ (recovered >>> (shift << 2));
+    return recovered;
+  }
+
+  /**
+   * Perform an inversion of a xor left-shift.
+   *
+   * <pre>
+   * value = x ^ (x << shift)
+   * </pre>
+   *
+   * <p>The shift value is not checked that it lies in the interval {@code [1, 63]}. If outside this
+   * interval the results are undefined.
+   *
+   * @param value the value
+   * @param shift the shift (must be in the interval {@code [1, 63]})
+   * @return the inverted value (x)
+   */
+  public static long reverseXorLeftShift(long value, int shift) {
+    // @formatter:off
+    // Note: a xor operation can be used to recover itself:
+    // x ^ y = z
+    // z ^ y = x
+    // z ^ x = y
+    //
+    // During a xor left-shift of size n the bottom n-bits are unchanged.
+    // Thus x ^ (x << shift):
+    //
+    //   |  a  |  b  |  c  |  d  |  e  |
+    // ^ |  b  |  c  |  d  |  e  |     |
+    // = | a^b | b^c | c^d | d^e |  e  |
+    //
+    // These known values can be used to recover the next set of n-bits.
+    // This can be done recursively in doubling blocks until all are recovered.
+    //
+    // Reverse step 1:
+    //   | a^b | b^c | c^d | d^e |  e  |
+    // ^ | b^c | c^d | d^e |  e  |     |
+    // = | a^c | b^d | c^e |  d  |  e  |
+    //
+    // Reverse step 2:
+    //   | a^c | b^d | c^e |  d  |  e  |
+    //   | c^e |  d  |  e  |     |     |
+    // = | a^e |  b  |  c  |  d  |  e  |
+    //
+    // Reverse step 3:
+    //   | a^e |  b  |  c  |  d  |  e  |
+    // ^ |  e  |     |     |     |     |
+    // = |  a  |  b  |  c  |  d  |  e  |
+    //
+    // @formatter:on
+
+    // Initialise the recovered value. This will have the correct bottom 2n-bits set.
+    long recovered = value ^ (value << shift);
+    // Use an algorithm that requires the recovered bits to be xor'd in doubling steps.
+    if (shift < 32) {
+      recovered ^= (recovered << (shift << 1));
+      if (shift < 16) {
+        recovered ^= (recovered << (shift << 2));
+        if (shift < 8) {
+          recovered ^= (recovered << (shift << 3));
+          if (shift < 4) {
+            recovered ^= (recovered << (shift << 4));
+            if (shift < 2) {
+              recovered ^= (recovered << (shift << 5));
+            }
+          }
+        }
+      }
+    }
     return recovered;
   }
 
   /**
    * Perform the 64-bit RXS-M-XS (Random Xor Shift; Multiply; Xor Shift) mix function of the
-   * Permutated Congruential Generator (PCG) family.
+   * Permuted Congruential Generator (PCG) family.
    *
    * @param x the input value
    * @return the output value
@@ -130,7 +201,7 @@ public final class Mixers {
 
   /**
    * Reverse the 64-bit RXS-M-XS (Random Xor Shift; Multiply; Xor Shift) mix function of the
-   * Permutated Congruential Generator (PCG) family.
+   * Permuted Congruential Generator (PCG) family.
    *
    * @param x the input value
    * @return the output value
@@ -138,7 +209,7 @@ public final class Mixers {
    */
   public static long rxsmxsUnmix(long x) {
     final long word = ((x >>> 43) ^ x) * RXSMXS_UNMULTIPLIER;
-    return unxorshift(word, ((int) (word >>> 59)) + 5);
+    return reverseXorRightShift(word, ((int) (word >>> 59)) + 5);
   }
 
   /**

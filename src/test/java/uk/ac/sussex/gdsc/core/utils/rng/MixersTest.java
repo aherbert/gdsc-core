@@ -25,14 +25,28 @@ public class MixersTest {
   }
 
   @SeededTest
-  public void testUnxorshift(RandomSeed seed) {
+  public void testReverseXorRightShift(RandomSeed seed) {
     final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
     for (int shift = 1; shift < 64; shift++) {
       final int fshift = shift;
       for (int i = 0; i < 500; i++) {
         final long x = rng.nextLong();
-        final long y = (x >>> shift) ^ x;
-        final long x2 = Mixers.unxorshift(y, shift);
+        final long y = x ^ (x >>> shift);
+        final long x2 = Mixers.reverseXorRightShift(y, shift);
+        Assertions.assertEquals(x, x2, () -> "shift = " + fshift);
+      }
+    }
+  }
+
+  @SeededTest
+  public void testReverseXorLeftShift(RandomSeed seed) {
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    for (int shift = 1; shift < 64; shift++) {
+      final int fshift = shift;
+      for (int i = 0; i < 500; i++) {
+        final long x = rng.nextLong();
+        final long y = x ^ (x << shift);
+        final long x2 = Mixers.reverseXorLeftShift(y, shift);
         Assertions.assertEquals(x, x2, () -> "shift = " + fshift);
       }
     }
