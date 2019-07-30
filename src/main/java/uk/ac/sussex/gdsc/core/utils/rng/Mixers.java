@@ -240,8 +240,8 @@ public final class Mixers {
    * @see #rrmxmx(long)
    */
   public static long rrmxmxUnmix(long value) {
-    long result = unxorshift28(value) * 0x2AB9C720D1024ADL;
-    result = unxorshift28(result) * 0x2AB9C720D1024ADL;
+    long result = unxorshift28(value) * 0x2ab9c720d1024adL;
+    result = unxorshift28(result) * 0x2ab9c720d1024adL;
     return invertRor2449(result);
   }
 
