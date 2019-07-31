@@ -30,7 +30,6 @@ package uk.ac.sussex.gdsc.core.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 
@@ -151,7 +150,7 @@ public final class DigestUtils {
   /**
    * Convert the byte data to a hex string. Lower case is used.
    *
-   * <p>Taken from org.apache.commons.codec.binary.Hex
+   * <p>Adapted from org.apache.commons.codec.binary.Hex.
    *
    * @param data the data
    * @return the hex string
@@ -163,20 +162,20 @@ public final class DigestUtils {
   /**
    * Convert the byte data to a hex string.
    *
-   * <p>Taken from org.apache.commons.codec.binary.Hex
+   * <p>Adapted from org.apache.commons.codec.binary.Hex.
    *
    * @param data the data
    * @param toLowerCase true if lower case is required
    * @return the hex string
    */
   public static String toHex(byte[] data, boolean toLowerCase) {
-    final int l = data.length;
-    final char[] out = new char[l << 1];
+    final int length = data.length;
+    final char[] out = new char[length << 1];
     final char[] digits = (toLowerCase) ? DIGITS_LOWER : DIGITS_UPPER;
-    // two characters form the hex value.
-    for (int i = 0, j = 0; i < l; i++) {
-      out[j++] = digits[(0xF0 & data[i]) >>> 4];
-      out[j++] = digits[0x0F & data[i]];
+    // Each byte is 2 hex characters.
+    for (int i = 0, j = 0; i < length; i++) {
+      out[j++] = digits[(data[i] >>> 4) & 0xf];
+      out[j++] = digits[data[i] & 0xf];
     }
     return new String(out);
   }
@@ -213,23 +212,13 @@ public final class DigestUtils {
   }
 
   /**
-   * Convert the MD5 byte hash to a hex string.
-   *
-   * @param hash the hash
-   * @return the hex string
-   */
-  private static String md5ToHex(byte[] hash) {
-    return String.format("%032x", new BigInteger(1, hash));
-  }
-
-  /**
    * Create an MD5 hex digest from a string.
    *
    * @param data the data
    * @return the MD5 string
    */
   public static String md5Hex(String data) {
-    return md5ToHex(md5Digest(data));
+    return toHex(md5Digest(data));
   }
 
   /**
@@ -240,7 +229,7 @@ public final class DigestUtils {
    * @throws IOException Signals that an I/O exception has occurred.
    */
   public static String md5Hex(InputStream data) throws IOException {
-    return md5ToHex(md5Digest(data));
+    return toHex(md5Digest(data));
   }
 
   /**
@@ -250,6 +239,6 @@ public final class DigestUtils {
    * @return the MD5 string
    */
   public static String md5Hex(byte[] data) {
-    return md5ToHex(md5Digest(data));
+    return toHex(md5Digest(data));
   }
 }
