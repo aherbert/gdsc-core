@@ -250,7 +250,13 @@ public final class PcgXshRs32
    */
   @Override
   public PcgXshRs32 split() {
-    return new PcgXshRs32(nextLong(), nextLong());
+    // Note: In nextInt() the old state is unused so bump after copying.
+    final long s0 = state;
+    state = bump(state);
+    final long s1 = state;
+    state = bump(state);
+    // Two different mix functions
+    return new PcgXshRs32(Mixers.stafford1(s0), Mixers.stafford13(s1));
   }
 
   @Override

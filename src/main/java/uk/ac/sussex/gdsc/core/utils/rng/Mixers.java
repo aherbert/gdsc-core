@@ -304,7 +304,25 @@ public final class Mixers {
   }
 
   /**
+   * Perform variant 1 of David Stafford's 64-bit mix function.
+   *
+   * <p>This is ranked second of the top 14 Stafford mixers.
+   *
+   * @param x the input value
+   * @return the output value
+   * @see <a href="http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html">Better
+   *      Bit Mixing - Improving on MurmurHash3&#39;s 64-bit Finalizer.</a>
+   */
+  public static long stafford1(long x) {
+    x = (x ^ (x >>> 31)) * 0x7fb5d329728ea185L;
+    x = (x ^ (x >>> 27)) * 0x81dadef4bc2dd44dL;
+    return x ^ (x >>> 33);
+  }
+
+  /**
    * Perform variant 13 of David Stafford's 64-bit mix function.
+   *
+   * <p>This is ranked first of the top 14 Stafford mixers.
    *
    * @param x the input value
    * @return the output value

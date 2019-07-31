@@ -139,6 +139,24 @@ public class MixersTest {
   }
 
   @Test
+  public void testStafford1Output() {
+    // Code generated using the reference c code provided by David Stafford:
+    // http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html
+    final long[] values =
+        {0xe00854e38d780911L, 0xbb0ac46041e42918L, 0x10e69689ca4a9a11L, 0x17c6893b3cd5037fL,
+            0x52c12c13aea13d04L, 0x5c7eda3b1354483cL, 0x3da00e6700b4bd8dL, 0x989c64f349b85574L,
+            0xe27908f80f5754dbL, 0xd89e3d09f9bdfc73L, 0xec0859bf6f61c638L, 0x0a248688fedb698eL,
+            0x898dc39bd789089aL, 0x53f1dda084300687L, 0xccf410496922c3e9L, 0xc6bb4639b2759264L,
+            0x058cb1a89134d055L, 0xd85d9b39de7669beL, 0xbe4804c7ada87e09L, 0xc05408fb8d0a4b8cL,
+            0x4864108702020a36L, 0x6bc93bbbf6f1ef7dL, 0x74a538e6d9a238f7L, 0xb9204a971ef323fbL,
+            0xd1e4d8e08809efe8L, 0x669dc2e2c05fc928L, 0xdc5d71277d80e453L, 0x301282108a494599L,
+            0x11bb69f547d202e3L, 0xe4f5e136de914632L, 0xae25ab4c28031282L, 0xc1bbfc67c9ed36c1L,
+            0x37ef297a41970b69L, 0x2cf273e9261aa2e2L, 0xe50ec4c9e9c46763L, 0x3dae4f49c7b9803aL,
+            0x527d10e48f1804e2L, 0x4ddd2787e6088b0bL, 0x3c80ef127e4d4e8eL, 0xa5c012fe3273f5b5L,};
+    assertMixer(Mixers::stafford1, values, 0x012de1babb3c4104L, 0xc8161b4202294965L);
+  }
+
+  @Test
   public void testStafford13Output() {
     // Code generated using the reference c code provided by David Stafford:
     // http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html
