@@ -33,15 +33,14 @@ import org.apache.commons.rng.RestorableUniformRandomProvider;
 
 /**
  * Implement a Permuted Congruential Generator (PCG) using a 64-bit Linear Congruential Generator
- * (LCG) and the output XSH RS (Xor Shift; Random Shift) transform function.
+ * (LCG) and an output transform function to produce 32-bits per cycle.
  *
- * <p>This generator has 128-bits of state, outputs 32-bits per cycle and a period of
- * 2<sup>64</sup>.
+ * <p>This generator has 128-bits of state and a period of 2<sup>64</sup>.
  *
  * @see <a href="http://www.pcg-random.org/">PCG, A Family of Better Random Number Generators</a>
  * @since 2.0
  */
-public final class PcgXshRs32
+public abstract class Pcg32
     implements RestorableUniformRandomProvider, SplittableUniformRandomProvider {
   /** The LCG multiplier. */
   private static final long MULTIPLIER = 6364136223846793005L;
@@ -56,11 +55,121 @@ public final class PcgXshRs32
   private long increment;
 
   /**
+   * Implement the output XSH RS (Xor Shift; Random Shift) transform function.
+   *
+   * <p>This generator has 128-bits of state, outputs 32-bits per cycle and a period of
+   * 2<sup>64</sup>.
+   *
+   * @see <a href="http://www.pcg-random.org/">PCG, A Family of Better Random Number Generators</a>
+   * @since 2.0
+   */
+  private static final class PcgXshRs32 extends Pcg32 {
+    /**
+     * Create a new instance with the default increment.
+     *
+     * @param seedState the seed for the state
+     */
+    PcgXshRs32(long seedState) {
+      super(seedState);
+    }
+
+    /**
+     * Create a new instance.
+     *
+     * @param seedState the seed for the state
+     * @param seedIncrement the seed for the increment
+     */
+    PcgXshRs32(long seedState, long seedIncrement) {
+      super(seedState, seedIncrement);
+    }
+
+    /**
+     * Create a copy.
+     *
+     * @param source the source
+     */
+    PcgXshRs32(PcgXshRs32 source) {
+      super(source);
+    }
+
+    @Override
+    int mix(long x) {
+      final int count = (int) (x >>> 61);
+      return (int) ((x ^ (x >>> 22)) >>> (22 + count));
+    }
+
+    @Override
+    public Pcg32 copy() {
+      return new PcgXshRs32(this);
+    }
+
+    @Override
+    Pcg32 newInstance(long seedState, long seedIncrement) {
+      return new PcgXshRs32(seedState, seedIncrement);
+    }
+  }
+
+  /**
+   * Implement the output XSH RR (Xor Shift; Random Rotate) transform function.
+   *
+   * <p>This generator has 128-bits of state, outputs 32-bits per cycle and a period of
+   * 2<sup>64</sup>.
+   *
+   * @see <a href="http://www.pcg-random.org/">PCG, A Family of Better Random Number Generators</a>
+   * @since 2.0
+   */
+  private static final class PcgXshRr32 extends Pcg32 {
+    /**
+     * Create a new instance with the default increment.
+     *
+     * @param seedState the seed for the state
+     */
+    PcgXshRr32(long seedState) {
+      super(seedState);
+    }
+
+    /**
+     * Create a new instance.
+     *
+     * @param seedState the seed for the state
+     * @param seedIncrement the seed for the increment
+     */
+    PcgXshRr32(long seedState, long seedIncrement) {
+      super(seedState, seedIncrement);
+    }
+
+    /**
+     * Create a copy.
+     *
+     * @param source the source
+     */
+    PcgXshRr32(PcgXshRr32 source) {
+      super(source);
+    }
+
+    @Override
+    int mix(long x) {
+      final int count = (int) (x >>> 59);
+      return Integer.rotateRight((int) ((x ^ (x >>> 18)) >>> 27), count);
+    }
+
+    @Override
+    public Pcg32 copy() {
+      return new PcgXshRr32(this);
+    }
+
+    @Override
+    Pcg32 newInstance(long seedState, long seedIncrement) {
+      return new PcgXshRr32(seedState, seedIncrement);
+    }
+  }
+
+  /**
    * Create a new instance with the default increment.
    *
    * @param seedState the seed for the state
    */
-  public PcgXshRs32(long seedState) {
+  Pcg32(long seedState) {
     this.increment = DEFAULT_INCREMENT;
     this.state = bump(seedState + increment);
   }
@@ -74,7 +183,7 @@ public final class PcgXshRs32
    * @param seedState the seed for the state
    * @param seedIncrement the seed for the increment
    */
-  public PcgXshRs32(long seedState, long seedIncrement) {
+  Pcg32(long seedState, long seedIncrement) {
     this.increment = (seedIncrement << 1) | 1;
     this.state = bump(seedState + increment);
   }
@@ -84,9 +193,65 @@ public final class PcgXshRs32
    *
    * @param source the source
    */
-  private PcgXshRs32(PcgXshRs32 source) {
+  Pcg32(Pcg32 source) {
     this.increment = source.increment;
     this.state = source.state;
+  }
+
+  /**
+   * Create a Permuted Congruential Generator (PCG) using a 64-bit Linear Congruential Generator
+   * (LCG) and the output XSH RS (Xor Shift; Random Shift) transform function.
+   *
+   * <p>Uses the default increment.
+   *
+   * @param seedState the seed for the state
+   * @return the generator
+   */
+  public static Pcg32 xshrs(long seedState) {
+    return new PcgXshRs32(seedState);
+  }
+
+  /**
+   * Create a Permuted Congruential Generator (PCG) using a 64-bit Linear Congruential Generator
+   * (LCG) and the output XSH RS (Xor Shift; Random Shift) transform function.
+   *
+   * <p>The increment for the LCG is created using the upper 63-bits and setting the lowest bit to
+   * odd. This ensures a full period generator and support for 2<sup>63</sup> increments.
+   *
+   * @param seedState the seed for the state
+   * @param seedIncrement the seed for the increment
+   * @return the generator
+   */
+  public static Pcg32 xshrs(long seedState, long seedIncrement) {
+    return new PcgXshRs32(seedState, seedIncrement);
+  }
+
+  /**
+   * Create a Permuted Congruential Generator (PCG) using a 64-bit Linear Congruential Generator
+   * (LCG) and the output XSH RR (Xor Shift; Random Rotate) transform function.
+   *
+   * <p>Uses the default increment.
+   *
+   * @param seedState the seed for the state
+   * @return the generator
+   */
+  public static Pcg32 xshrr(long seedState) {
+    return new PcgXshRr32(seedState);
+  }
+
+  /**
+   * Create a Permuted Congruential Generator (PCG) using a 64-bit Linear Congruential Generator
+   * (LCG) and the output XSH RR (Xor Shift; Random Rotate) transform function.
+   *
+   * <p>The increment for the LCG is created using the upper 63-bits and setting the lowest bit to
+   * odd. This ensures a full period generator and support for 2<sup>63</sup> increments.
+   *
+   * @param seedState the seed for the state
+   * @param seedIncrement the seed for the increment
+   * @return the generator
+   */
+  public static Pcg32 xshrr(long seedState, long seedIncrement) {
+    return new PcgXshRr32(seedState, seedIncrement);
   }
 
   /**
@@ -98,6 +263,31 @@ public final class PcgXshRs32
   private long bump(long x) {
     return x * MULTIPLIER + increment;
   }
+
+  /**
+   * Mix the 64-bit state to a 32-bit output. This should be implemented by subclasses for different
+   * generators.
+   *
+   * @param x the state
+   * @return the output
+   */
+  abstract int mix(long x);
+
+  /**
+   * Create a new instance.
+   *
+   * @param seedState the seed for the state
+   * @param seedIncrement the seed for the increment
+   * @return the generator
+   */
+  abstract Pcg32 newInstance(long seedState, long seedIncrement);
+
+  /**
+   * Create a copy.
+   *
+   * @return the copy
+   */
+  public abstract Pcg32 copy();
 
   @Override
   public void nextBytes(byte[] bytes) {
@@ -141,8 +331,7 @@ public final class PcgXshRs32
   public int nextInt() {
     final long x = state;
     state = bump(state);
-    final int count = (int) (x >>> 61);
-    return (int) ((x ^ (x >>> 22)) >>> (22 + count));
+    return mix(x);
   }
 
   @Override
@@ -215,15 +404,6 @@ public final class PcgXshRs32
   }
 
   /**
-   * Create a copy.
-   *
-   * @return the copy
-   */
-  public PcgXshRs32 copy() {
-    return new PcgXshRs32(this);
-  }
-
-  /**
    * Create a copy and advance the generator 2<sup>48</sup> steps in the output sequence. The copy
    * is returned.
    *
@@ -235,8 +415,8 @@ public final class PcgXshRs32
    * @see #advance(long)
    * @see #split()
    */
-  public PcgXshRs32 copyAndJump() {
-    final PcgXshRs32 copy = copy();
+  public Pcg32 copyAndJump() {
+    final Pcg32 copy = copy();
     state = NumberUtils.lcgAdvancePow2(state, MULTIPLIER, increment, 48);
     return copy;
   }
@@ -249,14 +429,14 @@ public final class PcgXshRs32
    * even lower.
    */
   @Override
-  public PcgXshRs32 split() {
+  public Pcg32 split() {
     // Note: In nextInt() the old state is unused so bump after copying.
     final long s0 = state;
     state = bump(state);
     final long s1 = state;
     state = bump(state);
     // Two different mix functions
-    return new PcgXshRs32(Mixers.stafford1(s0), Mixers.stafford13(s1));
+    return newInstance(Mixers.stafford1(s0), Mixers.stafford13(s1));
   }
 
   @Override

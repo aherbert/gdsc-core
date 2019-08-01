@@ -20,7 +20,7 @@ import java.util.function.LongConsumer;
 public class RngStreamsTest {
   @Test
   public void testIntsThrowsWithBadSize() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       RngStreams.ints(rng, -1);
     }, "Should throw with negative size");
@@ -31,7 +31,7 @@ public class RngStreamsTest {
 
   @Test
   public void testIntsThrowsWithBadRange() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
     final int lower = 10;
     final int upper = 9;
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -44,7 +44,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testInts(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int[] values = RngStreams.ints(rng).limit(size).toArray();
     Assertions.assertEquals(size, values.length, "Incorrect stream length");
@@ -52,7 +52,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testIntsWithSize(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int[] values = RngStreams.ints(rng, size).toArray();
     Assertions.assertEquals(size, values.length, "Incorrect stream length");
@@ -60,7 +60,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testIntsWithSmallRange(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
     final int upper = 99;
@@ -73,7 +73,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testIntsWithLargeRange(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     // Set the range in the middle so equal chance of below/above rejection path
     final int size = 50;
     final int lower = Integer.MIN_VALUE / 2 - 1;
@@ -87,7 +87,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testIntsWithSmallRangeWithSize(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
     final int upper = 99;
@@ -100,7 +100,7 @@ public class RngStreamsTest {
 
   @Test
   public void testIntsSpliteratorCanSplit() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
 
     final RandomIntsSpliterator spliterator1 = new RandomIntsSpliterator(rng, 0, 2, 0, -1);
     Assertions.assertEquals(2, spliterator1.getExactSizeIfKnown(), "Incorrect pre-split size");
@@ -122,7 +122,7 @@ public class RngStreamsTest {
 
   @Test
   public void testIntsSpliteratorTryAdvance() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
 
     final int size = 2;
     final RandomIntsSpliterator spliterator = new RandomIntsSpliterator(rng, 0, size, 0, -1);
@@ -148,7 +148,7 @@ public class RngStreamsTest {
 
   @Test
   public void testIntsSpliteratorForEachRemaining() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
 
     final int size = 2;
     final RandomIntsSpliterator spliterator = new RandomIntsSpliterator(rng, 0, size, 0, -1);
@@ -176,7 +176,7 @@ public class RngStreamsTest {
 
   @Test
   public void testLongsThrowsWithBadSize() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       RngStreams.longs(rng, -1);
     }, "Should throw with negative size");
@@ -187,7 +187,7 @@ public class RngStreamsTest {
 
   @Test
   public void testLongsThrowsWithBadRange() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
     final long lower = 10;
     final long upper = 9;
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -200,7 +200,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testLongs(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final long[] values = RngStreams.longs(rng).limit(size).toArray();
     Assertions.assertEquals(size, values.length, "Incorrect stream length");
@@ -208,7 +208,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testLongsWithSize(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final long[] values = RngStreams.longs(rng, size).toArray();
     Assertions.assertEquals(size, values.length, "Incorrect stream length");
@@ -216,7 +216,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testLongsWithSmallRange(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
     final int upper = 99;
@@ -229,7 +229,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testLongsWithLargeRange(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     // Set the range in the middle so equal chance of below/above rejection path
     final int size = 50;
     final long lower = Long.MIN_VALUE / 2 - 1;
@@ -243,7 +243,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testLongsWithSmallRangeWithSize(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
     final int upper = 99;
@@ -256,7 +256,7 @@ public class RngStreamsTest {
 
   @Test
   public void testLongsSpliteratorCanSplit() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
 
     final RandomLongsSpliterator spliterator1 = new RandomLongsSpliterator(rng, 0, 2, 0, -1);
     Assertions.assertEquals(2, spliterator1.getExactSizeIfKnown(), "Incorrect pre-split size");
@@ -278,7 +278,7 @@ public class RngStreamsTest {
 
   @Test
   public void testLongsSpliteratorTryAdvance() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
 
     final int size = 2;
     final RandomLongsSpliterator spliterator = new RandomLongsSpliterator(rng, 0, size, 0, -1);
@@ -304,7 +304,7 @@ public class RngStreamsTest {
 
   @Test
   public void testLongsSpliteratorForEachRemaining() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
 
     final int size = 2;
     final RandomLongsSpliterator spliterator = new RandomLongsSpliterator(rng, 0, size, 0, -1);
@@ -332,7 +332,7 @@ public class RngStreamsTest {
 
   @Test
   public void testDoublesThrowsWithBadSize() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
       RngStreams.doubles(rng, -1);
     }, "Should throw with negative size");
@@ -343,7 +343,7 @@ public class RngStreamsTest {
 
   @Test
   public void testDoublesThrowsWithBadRange() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
     final double lower = 10;
     final double upper = Double.NaN;
     Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -356,7 +356,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testDoubles(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final double[] values = RngStreams.doubles(rng).limit(size).toArray();
     Assertions.assertEquals(size, values.length, "Incorrect stream length");
@@ -364,7 +364,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testDoublesWithSize(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final double[] values = RngStreams.doubles(rng, size).toArray();
     Assertions.assertEquals(size, values.length, "Incorrect stream length");
@@ -372,7 +372,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testDoublesWithRange(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
     final int upper = 99;
@@ -385,7 +385,7 @@ public class RngStreamsTest {
 
   @SeededTest
   public void testDoublesWithRangeWithSize(RandomSeed randomSeed) {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(randomSeed.getSeedAsLong());
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(randomSeed.getSeedAsLong());
     final int size = 7;
     final int lower = 44;
     final int upper = 99;
@@ -398,7 +398,7 @@ public class RngStreamsTest {
 
   @Test
   public void testDoublesSpliteratorCanSplit() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
 
     final RandomDoublesSpliterator spliterator1 = new RandomDoublesSpliterator(rng, 0, 2, 0, -1);
     Assertions.assertEquals(2, spliterator1.getExactSizeIfKnown(), "Incorrect pre-split size");
@@ -420,7 +420,7 @@ public class RngStreamsTest {
 
   @Test
   public void testDoublesSpliteratorTryAdvance() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
 
     final int size = 2;
     final RandomDoublesSpliterator spliterator = new RandomDoublesSpliterator(rng, 0, size, 0, -1);
@@ -446,7 +446,7 @@ public class RngStreamsTest {
 
   @Test
   public void testDoublesSpliteratorForEachRemaining() {
-    final SplittableUniformRandomProvider rng = new PcgXshRs32(0);
+    final SplittableUniformRandomProvider rng = Pcg32.xshrs(0);
 
     final int size = 2;
     final RandomDoublesSpliterator spliterator = new RandomDoublesSpliterator(rng, 0, size, 0, -1);
