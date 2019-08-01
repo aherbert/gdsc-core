@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 public class PoissonSamplerUtilsTest {
   @Test
   public void testCreatePoissonSamplerWithMeanZero() {
-    final UniformRandomProvider rng = new SplitMix(0);
+    final UniformRandomProvider rng = SplitMix.new64(0);
     final DiscreteSampler sampler = PoissonSamplerUtils.createPoissonSampler(rng, 0);
     for (int i = 0; i < 10; i++) {
       Assertions.assertEquals(0, sampler.sample());
@@ -19,14 +19,14 @@ public class PoissonSamplerUtilsTest {
 
   @Test
   public void testNextPoissonSampleWithMeanZero() {
-    final UniformRandomProvider rng = new SplitMix(0);
+    final UniformRandomProvider rng = SplitMix.new64(0);
     Assertions.assertEquals(0, PoissonSamplerUtils.nextPoissonSample(rng, 0));
   }
 
   @Test
   public void testCreatePoissonSampler() {
-    final UniformRandomProvider rng1 = new SplitMix(0);
-    final UniformRandomProvider rng2 = new SplitMix(0);
+    final UniformRandomProvider rng1 = SplitMix.new64(0);
+    final UniformRandomProvider rng2 = SplitMix.new64(0);
     final double mean = 3.456;
     final DiscreteSampler sampler1 = new PoissonSampler(rng1, mean);
     final DiscreteSampler sampler2 = PoissonSamplerUtils.createPoissonSampler(rng2, mean);
@@ -37,8 +37,8 @@ public class PoissonSamplerUtilsTest {
 
   @Test
   public void testNextPoissonSample() {
-    final UniformRandomProvider rng1 = new SplitMix(0);
-    final UniformRandomProvider rng2 = new SplitMix(0);
+    final UniformRandomProvider rng1 = SplitMix.new64(0);
+    final UniformRandomProvider rng2 = SplitMix.new64(0);
     final double mean = 3.456;
     final DiscreteSampler sampler1 = new PoissonSampler(rng1, mean);
     for (int i = 0; i < 10; i++) {

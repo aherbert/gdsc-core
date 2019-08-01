@@ -25,7 +25,7 @@ public class JdkRandomAdaptorTest {
 
   @Test
   public void testSetSeedThrows() {
-    final JdkRandomAdaptor rng = new JdkRandomAdaptor(new SplitMix(0));
+    final JdkRandomAdaptor rng = new JdkRandomAdaptor(SplitMix.new64(0));
     Assertions.assertThrows(NotImplementedException.class, () -> {
       rng.setSeed(44);
     });
@@ -88,7 +88,7 @@ public class JdkRandomAdaptorTest {
 
   @Test
   public void testSerializationThrows() throws IOException {
-    final JdkRandomAdaptor rng = new JdkRandomAdaptor(new SplitMix(0));
+    final JdkRandomAdaptor rng = new JdkRandomAdaptor(SplitMix.new64(0));
     try (ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream())) {
       Assertions.assertThrows(NotImplementedException.class, () -> {
         oos.writeObject(rng);

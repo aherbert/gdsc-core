@@ -37,12 +37,9 @@ import org.apache.commons.rng.UniformRandomProvider;
  * {@link UniformRandomProvider} interface. Adds functions to allow the state to be advanced and
  * copied.
  *
- * <p>This generator has 64-bits of state, outputs 64-bits per cycle and a period of
- * 2<sup>64</sup>.
- *
  * @since 2.0
  */
-public final class SplitMix implements RestorableUniformRandomProvider {
+public abstract class SplitMix implements RestorableUniformRandomProvider {
   /**
    * The golden ratio, phi, scaled to 64-bits and rounded to odd.
    *
@@ -55,15 +52,179 @@ public final class SplitMix implements RestorableUniformRandomProvider {
   private static final long GOLDEN_RATIO = 0x9e3779b97f4a7c15L;
 
   /** The state. */
-  private long state;
+  long state;
+
+  /*
+   * Implement the 64-bit SplitMix algorithm.
+   */
+  private static final class SplitMix64 extends SplitMix {
+    /**
+     * Create a new instance.
+     *
+     * @param seed the seed
+     */
+    SplitMix64(long seed) {
+      super(seed);
+    }
+
+    @Override
+    public void nextBytes(byte[] bytes, int start, int len) {
+      int index = start; // Index of first insertion.
+
+      // Index of first insertion plus multiple of 8 part of length
+      // (i.e. length with 3 least significant bits unset).
+      final int indexLoopLimit = index + (len & 0x7ffffff8);
+
+      // Start filling in the byte array, 8 bytes at a time.
+      while (index < indexLoopLimit) {
+        final long random = nextLong();
+        bytes[index++] = (byte) random;
+        bytes[index++] = (byte) (random >>> 8);
+        bytes[index++] = (byte) (random >>> 16);
+        bytes[index++] = (byte) (random >>> 24);
+        bytes[index++] = (byte) (random >>> 32);
+        bytes[index++] = (byte) (random >>> 40);
+        bytes[index++] = (byte) (random >>> 48);
+        bytes[index++] = (byte) (random >>> 56);
+      }
+
+      final int indexLimit = start + len; // Index of last insertion + 1.
+
+      // Fill in the remaining bytes.
+      if (index < indexLimit) {
+        long random = nextLong();
+        for (;;) {
+          bytes[index++] = (byte) random;
+          if (index < indexLimit) {
+            random >>>= 8;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+
+    @Override
+    public long nextLong() {
+      long key = state += GOLDEN_RATIO;
+      // Stafford variant 13 of 64-bit mix function:
+      // http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html
+      key = (key ^ (key >>> 30)) * 0xbf58476d1ce4e5b9L;
+      key = (key ^ (key >>> 27)) * 0x94d049bb133111ebL;
+      return key ^ (key >>> 31);
+    }
+
+    @Override
+    public SplitMix copy() {
+      return new SplitMix64(state);
+    }
+  }
+
+  /*
+   * Implement a 32-bit variant SplitMix algorithm.
+   *
+   * <p>This differs from {@link SplitMix64} by combining two 32-bit values to create a 64-bit
+   * value.
+   */
+  private static final class SplitMix32 extends SplitMix {
+    /**
+     * Create a new instance.
+     *
+     * @param seed the seed
+     */
+    SplitMix32(long seed) {
+      super(seed);
+    }
+
+    @Override
+    public void nextBytes(byte[] bytes, int start, int len) {
+      int index = start; // Index of first insertion.
+
+      // Index of first insertion plus multiple of 4 part of length
+      // (i.e. length with 2 least significant bits unset).
+      final int indexLoopLimit = index + (len & 0x7ffffffc);
+
+      // Start filling in the byte array, 4 bytes at a time.
+      while (index < indexLoopLimit) {
+        final int random = nextInt();
+        bytes[index++] = (byte) random;
+        bytes[index++] = (byte) (random >>> 8);
+        bytes[index++] = (byte) (random >>> 16);
+        bytes[index++] = (byte) (random >>> 24);
+      }
+
+      final int indexLimit = start + len; // Index of last insertion + 1.
+
+      // Fill in the remaining bytes.
+      if (index < indexLimit) {
+        long random = nextInt();
+        for (;;) {
+          bytes[index++] = (byte) random;
+          if (index < indexLimit) {
+            random >>>= 8;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+
+    @Override
+    public long nextLong() {
+      long upper = state += GOLDEN_RATIO;
+      long lower = state += GOLDEN_RATIO;
+      // Concatenate two 32-bit outputs.
+      // This replicates nextInt() inline to avoid cast to int and back to long.
+      upper = (upper ^ (upper >>> 33)) * 0x62a9d9ed799705f5L;
+      upper = ((upper ^ (upper >>> 28)) * 0xcb24d0a5c88c35b3L) & 0xffffffff00000000L;
+      lower = (lower ^ (lower >>> 33)) * 0x62a9d9ed799705f5L;
+      return upper | (((lower ^ (lower >>> 28)) * 0xcb24d0a5c88c35b3L) >>> 32);
+    }
+
+    @Override
+    public SplitMix copy() {
+      return new SplitMix32(state);
+    }
+  }
 
   /**
    * Create a new instance.
    *
    * @param seed the seed
    */
-  public SplitMix(long seed) {
-    this.state = seed;
+  SplitMix(long seed) {
+    state = seed;
+  }
+
+  /**
+   * Create a new instance that outputs 64-bits per cycle. Period for 64-bit output is
+   * 2<sup>64</sup>.
+   *
+   * <p>The output will match the output from {@link java.util.SplittableRandom SplittableRandom}.
+   *
+   * @param seed the seed
+   * @return the split mix generator
+   */
+  public static SplitMix new64(long seed) {
+    return new SplitMix64(seed);
+  }
+
+  /**
+   * Create a new instance that outputs 32-bits per cycle. A 64-bit output is created using two
+   * consecutive 32-bit outputs. Period for 64-bit output is 2<sup>63</sup>.
+   *
+   * <p>This allows the output to generate repeat occurrences of the same 64-bit value (and likewise
+   * zero occurrences of some values). The 64-bit SplitMix algorithm only outputs each 64-bit value
+   * once.
+   *
+   * <p>The output will match the output from {@link java.util.SplittableRandom SplittableRandom}
+   * for nextInt() and nextBoolean().
+   *
+   * @param seed the seed
+   * @return the split mix generator
+   */
+  public static SplitMix new32(long seed) {
+    return new SplitMix32(seed);
   }
 
   /**
@@ -78,43 +239,6 @@ public final class SplitMix implements RestorableUniformRandomProvider {
   @Override
   public void nextBytes(byte[] bytes) {
     nextBytes(bytes, 0, bytes.length);
-  }
-
-  @Override
-  public void nextBytes(byte[] bytes, int start, int len) {
-    int index = start; // Index of first insertion.
-
-    // Index of first insertion plus multiple of 8 part of length
-    // (i.e. length with 3 least significant bits unset).
-    final int indexLoopLimit = index + (len & 0x7ffffff8);
-
-    // Start filling in the byte array, 8 bytes at a time.
-    while (index < indexLoopLimit) {
-      final long random = nextLong();
-      bytes[index++] = (byte) random;
-      bytes[index++] = (byte) (random >>> 8);
-      bytes[index++] = (byte) (random >>> 16);
-      bytes[index++] = (byte) (random >>> 24);
-      bytes[index++] = (byte) (random >>> 32);
-      bytes[index++] = (byte) (random >>> 40);
-      bytes[index++] = (byte) (random >>> 48);
-      bytes[index++] = (byte) (random >>> 56);
-    }
-
-    final int indexLimit = start + len; // Index of last insertion + 1.
-
-    // Fill in the remaining bytes.
-    if (index < indexLimit) {
-      long random = nextLong();
-      for (;;) {
-        bytes[index++] = (byte) random;
-        if (index < indexLimit) {
-          random >>>= 8;
-        } else {
-          break;
-        }
-      }
-    }
   }
 
   @Override
@@ -144,16 +268,6 @@ public final class SplitMix implements RestorableUniformRandomProvider {
     } while (bits - val + nm1 < 0);
 
     return val;
-  }
-
-  @Override
-  public long nextLong() {
-    long key = state += GOLDEN_RATIO;
-    // Stafford variant 13 of 64-bit mix function:
-    // http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html
-    key = (key ^ (key >>> 30)) * 0xbf58476d1ce4e5b9L;
-    key = (key ^ (key >>> 27)) * 0x94d049bb133111ebL;
-    return key ^ (key >>> 31);
   }
 
   @Override
@@ -205,9 +319,7 @@ public final class SplitMix implements RestorableUniformRandomProvider {
    *
    * @return the copy
    */
-  public SplitMix copy() {
-    return new SplitMix(state);
-  }
+  public abstract SplitMix copy();
 
   /**
    * Create a copy and advance the generator 2<sup>48</sup> steps in the output sequence. The copy

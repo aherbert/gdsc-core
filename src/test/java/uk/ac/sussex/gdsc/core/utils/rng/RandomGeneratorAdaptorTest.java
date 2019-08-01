@@ -16,7 +16,7 @@ public class RandomGeneratorAdaptorTest {
 
   @Test
   public void testSetSeedThrows() {
-    final SplitMix rng = new SplitMix(0);
+    final SplitMix rng = SplitMix.new64(0);
     Assertions.assertThrows(NotImplementedException.class,
         () -> new RandomGeneratorAdapter(rng).setSeed(0), "Should throw with int seed");
     Assertions.assertThrows(NotImplementedException.class,
@@ -28,8 +28,8 @@ public class RandomGeneratorAdaptorTest {
   @SeededTest
   public void testNextMethods(RandomSeed randomSeed) {
     final long seed = randomSeed.getSeedAsLong();
-    final SplitMix rng1 = new SplitMix(seed);
-    final RandomGeneratorAdapter rng2 = new RandomGeneratorAdapter(new SplitMix(seed));
+    final SplitMix rng1 = SplitMix.new64(seed);
+    final RandomGeneratorAdapter rng2 = new RandomGeneratorAdapter(SplitMix.new64(seed));
     Assertions.assertEquals(rng1.nextDouble(), rng2.nextDouble());
     Assertions.assertEquals(rng1.nextFloat(), rng2.nextFloat());
     Assertions.assertEquals(rng1.nextInt(), rng2.nextInt());

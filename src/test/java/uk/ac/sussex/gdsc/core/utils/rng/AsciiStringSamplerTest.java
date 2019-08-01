@@ -35,7 +35,7 @@ public class AsciiStringSamplerTest {
 
   @Test
   public void testConstructor() {
-    final UniformRandomProvider rng = new SplitMix(0);
+    final UniformRandomProvider rng = SplitMix.new64(0);
     final AsciiStringSampler s = new AsciiStringSampler(rng);
     Assertions.assertNotNull(s);
   }
@@ -50,7 +50,7 @@ public class AsciiStringSamplerTest {
 
   @Test
   public void testNextWithZeroLength() {
-    final UniformRandomProvider rng = new SplitMix(0);
+    final UniformRandomProvider rng = SplitMix.new64(0);
     final AsciiStringSampler s = new AsciiStringSampler(rng);
     Assertions.assertEquals("", s.nextAscii(0));
     Assertions.assertEquals("", s.nextUpper(0));
@@ -58,7 +58,7 @@ public class AsciiStringSamplerTest {
 
   @Test
   public void testNextWithNegativeLengthThrows() {
-    final UniformRandomProvider rng = new SplitMix(0);
+    final UniformRandomProvider rng = SplitMix.new64(0);
     final AsciiStringSampler s = new AsciiStringSampler(rng);
     Assertions.assertThrows(IllegalArgumentException.class, () -> s.nextAscii(-1));
     Assertions.assertThrows(IllegalArgumentException.class, () -> s.nextUpper(-1));

@@ -175,8 +175,8 @@ public class RadixStringSamplerTest {
 
   @Test
   public void testStaticSampleMethodsMatchInstanceSampler() {
-    final UniformRandomProvider rng1 = new SplitMix(0);
-    final UniformRandomProvider rng2 = new SplitMix(0);
+    final UniformRandomProvider rng1 = SplitMix.new64(0);
+    final UniformRandomProvider rng2 = SplitMix.new64(0);
     final int length = 16;
     Assertions.assertEquals(RadixStringSampler.nextBase64String(rng1, length),
         new RadixStringSampler(rng2, length, 64).sample(), "Base64");

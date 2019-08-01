@@ -14,7 +14,7 @@ import java.util.stream.StreamSupport;
 public class RandomUtilsTest {
   @Test
   public void testShuffleDouble() {
-    final SplitMix rng = new SplitMix(0);
+    final SplitMix rng = SplitMix.new64(0);
     final int length = 15;
     final double[] data = SimpleArrayUtils.newArray(length, 0.0, 1.0);
     RandomUtils.shuffle(data, rng);
@@ -31,7 +31,7 @@ public class RandomUtilsTest {
 
   @Test
   public void testShuffleFloat() {
-    final SplitMix rng = new SplitMix(0);
+    final SplitMix rng = SplitMix.new64(0);
     final int length = 15;
     final float[] data = SimpleArrayUtils.newArray(length, 0.0f, 1.0f);
     RandomUtils.shuffle(data, rng);
@@ -48,7 +48,7 @@ public class RandomUtilsTest {
 
   @Test
   public void testShuffleInt() {
-    final SplitMix rng = new SplitMix(0);
+    final SplitMix rng = SplitMix.new64(0);
     final int length = 15;
     final int[] data = SimpleArrayUtils.natural(length);
     RandomUtils.shuffle(data, rng);
@@ -65,7 +65,7 @@ public class RandomUtilsTest {
 
   @Test
   public void testShuffleObject() {
-    final SplitMix rng = new SplitMix(0);
+    final SplitMix rng = SplitMix.new64(0);
     final int length = 15;
     final Integer[] data = IntStream.range(0, length).boxed().toArray(Integer[]::new);
     RandomUtils.shuffle(data, rng);
@@ -82,7 +82,7 @@ public class RandomUtilsTest {
 
   @Test
   public void testSample() {
-    final SplitMix rng = new SplitMix(0);
+    final SplitMix rng = SplitMix.new64(0);
     final int length = 15;
     final int lower = 10;
     final int upper = lower + length;
