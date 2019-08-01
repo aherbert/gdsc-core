@@ -91,7 +91,7 @@ public class AssignmentComparatorTest {
   }
 
   private static AssignmentComparatorTestData getData(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final int size = 100;
     // The assignment data will be concatenated blocks of sorted arrays
     final int blocks = 50;

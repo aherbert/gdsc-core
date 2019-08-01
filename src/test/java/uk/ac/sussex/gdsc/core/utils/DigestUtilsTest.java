@@ -17,7 +17,7 @@ import java.util.Locale;
 public class DigestUtilsTest {
   @SeededTest
   public void canComputeMD5Hex(RandomSeed seed) throws IOException {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
 
     final byte[] testBytes = new byte[50];
 

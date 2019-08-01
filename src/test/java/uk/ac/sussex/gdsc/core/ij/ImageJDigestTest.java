@@ -23,7 +23,7 @@ public class ImageJDigestTest {
 
   @SeededTest
   public void canDigestByteProcessor(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final byte[] data = new byte[size];
     r.nextBytes(data);
 
@@ -34,7 +34,7 @@ public class ImageJDigestTest {
 
   @SeededTest
   public void canDigestShortProcessor(RandomSeed seed) throws IOException {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final short[] data = new short[size];
     for (int i = 0; i < size; i++) {
       data[i] = (short) ((r.nextDouble() - 0.5) * 2 * Short.MAX_VALUE);
@@ -52,7 +52,7 @@ public class ImageJDigestTest {
 
   @SeededTest
   public void canDigestFloatProcessor(RandomSeed seed) throws IOException {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final float[] data = new float[size];
     for (int i = 0; i < size; i++) {
       data[i] = (r.nextFloat() - 0.5f) * 2f;
@@ -70,7 +70,7 @@ public class ImageJDigestTest {
 
   @SeededTest
   public void canDigestColorProcessor(RandomSeed seed) throws IOException {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final int[] data = new int[size];
     for (int i = 0; i < size; i++) {
       data[i] = r.nextInt();

@@ -15,7 +15,7 @@ import org.opentest4j.AssertionFailedError;
 public class StatisticsTest {
   @SeededTest
   public void canComputeStatistics(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     DescriptiveStatistics expected;
     Statistics observed;
     for (int i = 0; i < 10; i++) {

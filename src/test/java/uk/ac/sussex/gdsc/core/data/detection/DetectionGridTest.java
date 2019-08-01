@@ -131,7 +131,7 @@ public class DetectionGridTest {
   @SeededTest
   public void canDetectTheSameCollisions(RandomSeed seed) {
     final int size = 512;
-    final UniformRandomProvider rdg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rdg = RngUtils.create(seed.getSeed());
     final Rectangle2D[] r = generateRectangles(rdg, 1000, size);
 
     final SimpleDetectionGrid g1 = new SimpleDetectionGrid(r);
@@ -248,7 +248,7 @@ public class DetectionGridTest {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rdg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rdg = RngUtils.create(seed.getSeed());
 
     final TimingService ts = new TimingService();
     while (n > 500) {

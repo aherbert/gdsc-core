@@ -14,7 +14,7 @@ import java.util.function.LongUnaryOperator;
 public class MixersTest {
   @SeededTest
   public void testXor(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (int i = 0; i < 500; i++) {
       final int x = rng.nextInt();
       final int y = rng.nextInt();
@@ -26,7 +26,7 @@ public class MixersTest {
 
   @SeededTest
   public void testReverseXorRightShift(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (int shift = 1; shift < 64; shift++) {
       final int fshift = shift;
       for (int i = 0; i < 500; i++) {
@@ -40,7 +40,7 @@ public class MixersTest {
 
   @SeededTest
   public void testReverseXorLeftShift(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (int shift = 1; shift < 64; shift++) {
       final int fshift = shift;
       for (int i = 0; i < 500; i++) {
@@ -75,7 +75,7 @@ public class MixersTest {
       final long x2 = unmix.applyAsLong(y);
       Assertions.assertEquals(x, x2);
     }
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (int i = 0; i < 500; i++) {
       final long x = rng.nextLong();
       final long y = mix.applyAsLong(x);

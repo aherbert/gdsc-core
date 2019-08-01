@@ -68,7 +68,7 @@ public class AlphanumComparatorTest {
     final String[] sorted = data.clone();
 
     // Shuffle
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (int i = data.length - 1; i != 0; i--) {
       final int j = rng.nextInt(i + 1);
       final String tmp = data[i];

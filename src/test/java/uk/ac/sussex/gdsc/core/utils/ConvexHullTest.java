@@ -113,7 +113,7 @@ public class ConvexHullTest {
 
   @SeededTest
   public void canComputeConvexHullFromOrigin00(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int size : new int[] {10}) {
       for (final float w : new float[] {10, 5}) {
         for (final float h : new float[] {10, 5}) {
@@ -125,7 +125,7 @@ public class ConvexHullTest {
 
   @SeededTest
   public void canComputeConvexHullFromOriginXy(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int size : new int[] {10}) {
       for (final float ox : new float[] {-5, 5}) {
         for (final float oy : new float[] {-5, 5}) {

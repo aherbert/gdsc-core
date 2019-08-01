@@ -51,7 +51,7 @@ public class FloatAreaStatisticsTest {
 
   @SeededTest
   public void canComputeGlobalStatistics(RandomSeed seed) {
-    final float[] data = createData(RngUtils.create(seed.getSeedAsLong()));
+    final float[] data = createData(RngUtils.create(seed.getSeed()));
     final Statistics s = Statistics.create(data);
     final FloatAreaStatistics a = new FloatAreaStatistics(data, maxx, maxy);
     for (final boolean rng : rolling) {
@@ -70,7 +70,7 @@ public class FloatAreaStatisticsTest {
 
   @SeededTest
   public void canComputeNxNRegionStatistics(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final float[] data = createData(rng);
     final FloatAreaStatistics a1 = new FloatAreaStatistics(data, maxx, maxy);
     a1.setRollingSums(true);
@@ -106,7 +106,7 @@ public class FloatAreaStatisticsTest {
 
   @SeededTest
   public void canComputeNxMRegionStatistics(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final float[] data = createData(rng);
     final FloatAreaStatistics a1 = new FloatAreaStatistics(data, maxx, maxy);
     a1.setRollingSums(true);
@@ -144,7 +144,7 @@ public class FloatAreaStatisticsTest {
 
   @SeededTest
   public void canComputeRectangleRegionStatistics(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final float[] data = createData(rng);
     final FloatAreaStatistics a1 = new FloatAreaStatistics(data, maxx, maxy);
     a1.setRollingSums(true);
@@ -276,7 +276,7 @@ public class FloatAreaStatisticsTest {
 
   private void speedTest(RandomSeed seed, double density, boolean rollingIsFaster, int minN,
       int maxN) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
 
     final int k = (int) Math.round(maxx * maxy * density);
     final int[] x = RandomUtils.sample(k, maxx, rng);

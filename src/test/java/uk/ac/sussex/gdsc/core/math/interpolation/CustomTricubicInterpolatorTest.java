@@ -68,7 +68,7 @@ public class CustomTricubicInterpolatorTest {
 
   @SeededTest
   public void canConstructInterpolatingFunction(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
 
     final int x = 4;
     final int y = 5;
@@ -239,7 +239,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private void canInterpolate(RandomSeed seed, boolean isInteger) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -380,7 +380,7 @@ public class CustomTricubicInterpolatorTest {
 
   @SeededTest
   public void canInterpolateUsingPrecomputedPoints(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -630,7 +630,7 @@ public class CustomTricubicInterpolatorTest {
   }
 
   private void canInterpolateWithGradients(RandomSeed seed, boolean isInteger) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -783,7 +783,7 @@ public class CustomTricubicInterpolatorTest {
 
   private void canInterpolateWithGradientsUsingPrecomputedPoints(RandomSeed seed,
       boolean isInteger) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -901,7 +901,7 @@ public class CustomTricubicInterpolatorTest {
 
   private void canInterpolateWithGradientsUsingPrecomputedTableSinglePrecision(RandomSeed seed,
       boolean isInteger) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -1132,7 +1132,7 @@ public class CustomTricubicInterpolatorTest {
   public void floatCustomTricubicFunctionIsFasterUsingPrecomputedTable(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final int x = 6;
     final int y = 5;
     final int z = 4;
@@ -1418,7 +1418,7 @@ public class CustomTricubicInterpolatorTest {
 
   @SeededTest
   public void canInterpolateAcrossNodesForValueAndGradient1(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -1469,7 +1469,7 @@ public class CustomTricubicInterpolatorTest {
 
   @SeededTest
   public void cannotInterpolateAcrossNodesForGradient2(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final int x = 4;
     final int y = 4;
     final int z = 4;
@@ -1543,7 +1543,7 @@ public class CustomTricubicInterpolatorTest {
     // Skip this as it is for testing the binary search works
     Assumptions.assumeTrue(false);
 
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     // Bigger depth of field to capture astigmatism centre
     final int x = 10;
     final int y = 10;
@@ -1589,7 +1589,7 @@ public class CustomTricubicInterpolatorTest {
 
   @SeededTest
   public void canFindOptimum(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     // Bigger depth of field to capture astigmatism centre
     final int x = 10;
     final int y = 10;

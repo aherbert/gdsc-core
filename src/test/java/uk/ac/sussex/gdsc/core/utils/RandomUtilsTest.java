@@ -13,7 +13,7 @@ public class RandomUtilsTest {
   @SeededTest
   public void canComputeSample(RandomSeed seed) {
     final int[] set = new int[] {0, 1, 2, 5, 8, 9, 10};
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int total : set) {
       for (final int size : set) {
         canComputeSample(rng, size, total);
@@ -34,7 +34,7 @@ public class RandomUtilsTest {
 
   @SeededTest
   public void canComputeSampleFromBigData(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final int total = 100;
     for (final int size : new int[] {0, 1, 2, total / 2, total - 2, total - 1, total}) {
       canComputeSample(rng, size, total);

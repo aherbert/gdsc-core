@@ -22,7 +22,7 @@ public class MathsUtilsTest {
         MathUtils.roundUsingDecimalPlacesToBigDecimal(value, 1).toPlainString());
 
     // Random test that rounding does the same as String.format
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (int i = 0; i < 10; i++) {
       final String format = "%." + i + "f";
       for (int j = 0; j < 10; j++) {

@@ -330,7 +330,7 @@ public class OpticsManagerTest {
   public void canComputeOptics(RandomSeed seed) {
     // This does not fail but logs warnings
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
@@ -416,7 +416,7 @@ public class OpticsManagerTest {
    */
   @SeededTest
   public void canComputeFastOptics(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
@@ -498,7 +498,7 @@ public class OpticsManagerTest {
   public void canComputeOpticsXi(RandomSeed seed) {
     // This does not fail but logs warnings
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
@@ -577,7 +577,7 @@ public class OpticsManagerTest {
 
   @SeededTest
   public void canComputeOpticsXiWithNoHierarchy(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
     for (final int n : new int[] {100, 500}) {
@@ -613,7 +613,7 @@ public class OpticsManagerTest {
   public void canComputeSimilarFastOpticsToElki(RandomSeed seed) {
     // This does not fail but logs warnings
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int nLoops = (TestSettings.allow(TestComplexity.LOW)) ? 5 : 1;
     final RandIndex ri = new RandIndex();
     final TrackProgress tracker = null; // new SimpleTrackProgress();
@@ -711,7 +711,7 @@ public class OpticsManagerTest {
   public void canComputeFastOpticsFasterThanElki(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     for (final int n : new int[] {2000}) {
       final OpticsManager om = createOpticsManager(size, n, rg);
@@ -786,7 +786,7 @@ public class OpticsManagerTest {
   }
 
   private void canComputeSimilarFastOptics(RandomSeed seed, double xi, double randMin) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final RandIndex ri = new RandIndex();
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     final boolean[] both = new boolean[] {true, false};
@@ -910,7 +910,7 @@ public class OpticsManagerTest {
 
   private void canComputeOpticsWithOptions(RandomSeed seed, boolean simpleCheck,
       Option... options) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
     for (final int n : new int[] {100, 500}) {
@@ -935,7 +935,7 @@ public class OpticsManagerTest {
   }
 
   private void canComputeOpticsWithOptions(RandomSeed seed, Option[] options1, Option... options) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
     for (final int n : new int[] {100, 500}) {
@@ -1020,7 +1020,7 @@ public class OpticsManagerTest {
   }
 
   private void canComputeDbscanWithOptions(RandomSeed seed, Option... options) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
     for (final int n : new int[] {100, 500, 5000}) {
@@ -1065,7 +1065,7 @@ public class OpticsManagerTest {
   @SeededTest
   public void canPerformOpticsWithLargeData(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     for (final int n : ns) {
       final OpticsManager om = createOpticsManager(size, n, rg);
@@ -1100,7 +1100,7 @@ public class OpticsManagerTest {
 
   @SeededTest
   public void canComputeKnnDistance(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int n = 100;
     final OpticsManager om = createOpticsManager(size, n, rg);
 
@@ -1138,7 +1138,7 @@ public class OpticsManagerTest {
   @SeededTest
   public void canComputeKnnDistanceWithBigData(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final OpticsManager om = createOpticsManager(size, n, rg);
 
@@ -1151,7 +1151,7 @@ public class OpticsManagerTest {
 
   @SeededTest
   public void canComputeKnnDistanceWithSample(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final OpticsManager om = createOpticsManager(size, n, rg);
 
@@ -1178,7 +1178,7 @@ public class OpticsManagerTest {
 
   @SeededTest
   public void canRepeatOptics(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int n = ns[0];
     final OpticsManager om = createOpticsManager(size, n, rg);
 
@@ -1209,7 +1209,7 @@ public class OpticsManagerTest {
 
   @SeededTest
   public void canPerformOpticsWithTinyRadius(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int minPts = 10;
     for (final int n : ns) {
       final OpticsManager om = createOpticsManager(size, n, rg);
@@ -1223,7 +1223,7 @@ public class OpticsManagerTest {
 
   @SeededTest
   public void canPerformOpticsWith1Point(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final OpticsManager om = createOpticsManager(size, 1, rg);
 
     for (final float radius : new float[] {-1, 0, 0.01f, 1f}) {
@@ -1255,7 +1255,7 @@ public class OpticsManagerTest {
 
   @SeededTest
   public void canConvertOpticsToDbscan(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int n = ns[0];
     final OpticsManager om = createOpticsManager(size, n, rg);
 
@@ -1293,7 +1293,7 @@ public class OpticsManagerTest {
    */
   @SeededTest
   public void canComputeDbscan(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};
     for (final int n : new int[] {100, 500}) {
@@ -1329,7 +1329,7 @@ public class OpticsManagerTest {
   public void testDbscanIsFasterThanOptics(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final OpticsManager om1 = createOpticsManager(size, 5000, rg);
     final OpticsManager om2 = om1.copy(false);
 
@@ -1357,7 +1357,7 @@ public class OpticsManagerTest {
 
   @SeededTest
   public void canMatchDbscanCorePointsWithOptics(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     for (final int n : new int[] {100, 500}) {
       final OpticsManager om = createOpticsManager(size, n, rg);
       // Keep items in memory for speed during the test
@@ -1389,7 +1389,7 @@ public class OpticsManagerTest {
   public void testDbscanInnerCircularIsFasterWhenDensityIsHigh(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int molecules = 10000;
     final OpticsManager om1 = createOpticsManager(size, molecules, rg);
     final OpticsManager om2 = om1.copy(false);
@@ -1434,7 +1434,7 @@ public class OpticsManagerTest {
   public void testOpticsCircularIsFasterWhenDensityIsHigh(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int molecules = 10000;
     final OpticsManager om1 = createOpticsManager(size, molecules, rg);
     final OpticsManager om2 = om1.copy(false);
@@ -1590,7 +1590,7 @@ public class OpticsManagerTest {
 
   @SeededTest
   public void canTestMoleculeSpaceFindNeighbours(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final OpticsManager[] om = new OpticsManager[5];
     for (int i = 0; i < om.length; i++) {
       om[i] = createOpticsManager(size, 1000, rg);
@@ -1696,7 +1696,7 @@ public class OpticsManagerTest {
 
   @SeededTest
   public void canTestMoleculeSpaceFindNeighboursPregenerated(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final OpticsManager[] om = new OpticsManager[5];
     for (int i = 0; i < om.length; i++) {
       om[i] = createOpticsManager(size, 1000, rg);
@@ -1808,7 +1808,7 @@ public class OpticsManagerTest {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int molecules = 20000;
     float generatingDistanceE = 0;
     final int minPts = 20;
@@ -1884,7 +1884,7 @@ public class OpticsManagerTest {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.HIGH));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int molecules = 50000;
     float generatingDistanceE = 0;
     final int minPts = 20;
@@ -1955,7 +1955,7 @@ public class OpticsManagerTest {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.HIGH));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int molecules = 20000;
     float generatingDistanceE = 0;
     final int minPts = 20;
@@ -2026,7 +2026,7 @@ public class OpticsManagerTest {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.HIGH));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int molecules = 20000;
     float generatingDistanceE = 0;
     final int minPts = 20;
@@ -2162,7 +2162,7 @@ public class OpticsManagerTest {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.HIGH));
 
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int molecules = 5000;
     float generatingDistanceE = 0;
     final int minPts = 5;
@@ -2220,7 +2220,7 @@ public class OpticsManagerTest {
    */
   @SeededTest
   public void canComputeLoop(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final TrackProgress tracker = null; // new SimpleTrackProgress();
     final int[] minPoints =
         (TestSettings.allow(TestComplexity.LOW)) ? new int[] {5, 10} : new int[] {10};

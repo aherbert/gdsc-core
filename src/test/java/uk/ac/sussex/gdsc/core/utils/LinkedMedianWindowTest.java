@@ -134,7 +134,7 @@ public class LinkedMedianWindowTest {
 
   @SeededTest
   public void canComputeMedianForRandomDataUsingDynamicLinkedList(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final double[] data = MedianWindowTest.createRandomData(rg, dataSize);
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final int radius : radii) {
@@ -168,7 +168,7 @@ public class LinkedMedianWindowTest {
 
   @SeededTest
   public void canComputeMedianForSparseDataUsingDynamicLinkedList(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final UpdateableSupplier msg = new UpdateableSupplier();
     for (final double value : values) {
       final double[] data = MedianWindowTest.createSparseData(rng, dataSize, value);
@@ -254,7 +254,7 @@ public class LinkedMedianWindowTest {
 
   private void isFasterThanMedianWindowUsingSortedCacheDataWhenIncrementIsSmall(RandomSeed seed,
       int radius, int increment) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int iterations = 20;
     final double[][] data = new double[iterations][];
     for (int i = 0; i < iterations; i++) {

@@ -40,7 +40,7 @@ public class DensityManagerTest {
 
   @SeededTest
   public void densityWithTriangleMatchesDensity(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
 
@@ -55,7 +55,7 @@ public class DensityManagerTest {
 
   @SeededTest
   public void densityWithGridMatchesDensity(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
 
@@ -72,7 +72,7 @@ public class DensityManagerTest {
   public void densityWithGridFasterThanDensityTriangle(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
 
@@ -100,7 +100,7 @@ public class DensityManagerTest {
   public void densityWithGridFasterThanDensity(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
 
@@ -126,7 +126,7 @@ public class DensityManagerTest {
 
   @SeededTest
   public void sumWithGridMatchesSum(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
 
@@ -143,7 +143,7 @@ public class DensityManagerTest {
   public void sumWithGridFasterThanSum(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
 
@@ -169,7 +169,7 @@ public class DensityManagerTest {
 
   @SeededTest
   public void blockDensityMatchesBlockDensity2(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
 
@@ -184,7 +184,7 @@ public class DensityManagerTest {
 
   @SeededTest
   public void blockDensity2MatchesBlockDensity3(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
 
@@ -202,7 +202,7 @@ public class DensityManagerTest {
   public void blockDensityFasterThanBlockDensity2(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
 
@@ -232,7 +232,7 @@ public class DensityManagerTest {
   public void blockDensity2FasterThanBlockDensity3(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final DensityManager dm = createDensityManager(rng, size, n);
 

@@ -49,7 +49,7 @@ public class DensityCounterTest {
 
   @SeededTest
   public void countAllWithSimpleMatches(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n);
 
@@ -67,7 +67,7 @@ public class DensityCounterTest {
 
   @SeededTest
   public void countAllWithSingleThreadMatches(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n);
 
@@ -85,7 +85,7 @@ public class DensityCounterTest {
 
   @SeededTest
   public void countAllWithMultiThreadSycnMatches(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n);
 
@@ -104,7 +104,7 @@ public class DensityCounterTest {
 
   @SeededTest
   public void countAllWithMultiThreadNonSyncMatches(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n);
 
@@ -123,7 +123,7 @@ public class DensityCounterTest {
 
   @SeededTest
   public void countAllAroundMoleculesWithSimpleMatches(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
       final SimpleMolecule[] molecules2 = createMolecules(r, size, n);
@@ -142,7 +142,7 @@ public class DensityCounterTest {
 
   @SeededTest
   public void countAllAroundMoleculesWithSingleThreadMatches(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
       final SimpleMolecule[] molecules2 = createMolecules(r, size, n);
@@ -161,7 +161,7 @@ public class DensityCounterTest {
 
   @SeededTest
   public void countAllAroundMoleculesWithMultiThreadMatches(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (final int n : ns) {
       final SimpleMolecule[] molecules = createMolecules(r, size, n / 2);
       final SimpleMolecule[] molecules2 = createMolecules(r, size, n);
@@ -204,7 +204,7 @@ public class DensityCounterTest {
     // Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     // Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
 
     // The single thread mode is faster when the radius is small.
     // The multi-thread mode is faster when the radius is large (>4).
@@ -318,7 +318,7 @@ public class DensityCounterTest {
   public void countAllAroundMoleculesSpeedTest(RandomSeed seed) {
     Assumptions.assumeTrue(logger.isLoggable(Level.INFO));
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
 
     // The multi-thread mode is faster when the number of molecules is large.
 

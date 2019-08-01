@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 public class ExtendedStatisticsTest {
   @SeededTest
   public void canComputeStatistics(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     DescriptiveStatistics expected;
     ExtendedStatistics observed;
     for (int i = 0; i < 10; i++) {

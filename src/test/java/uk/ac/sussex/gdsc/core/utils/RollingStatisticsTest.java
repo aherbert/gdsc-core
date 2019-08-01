@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 public class RollingStatisticsTest {
   @SeededTest
   public void canComputeStatistics(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     DescriptiveStatistics expected;
     RollingStatistics observed;
     for (int i = 0; i < 10; i++) {

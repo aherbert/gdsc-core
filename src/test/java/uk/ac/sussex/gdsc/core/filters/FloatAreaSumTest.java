@@ -51,7 +51,7 @@ public class FloatAreaSumTest {
 
   @SeededTest
   public void canComputeGlobalStatistics(RandomSeed seed) {
-    final float[] data = createData(RngUtils.create(seed.getSeedAsLong()));
+    final float[] data = createData(RngUtils.create(seed.getSeed()));
     final Statistics s = Statistics.create(data);
     final FloatAreaSum a = new FloatAreaSum(data, maxx, maxy);
     for (final boolean rng : rolling) {
@@ -68,7 +68,7 @@ public class FloatAreaSumTest {
 
   @SeededTest
   public void canComputeNxNRegionStatistics(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final float[] data = createData(rng);
     final FloatAreaSum a1 = new FloatAreaSum(data, maxx, maxy);
     a1.setRollingSums(true);
@@ -102,7 +102,7 @@ public class FloatAreaSumTest {
 
   @SeededTest
   public void canComputeNxMRegionStatistics(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final float[] data = createData(rng);
     final FloatAreaSum a1 = new FloatAreaSum(data, maxx, maxy);
     a1.setRollingSums(true);
@@ -138,7 +138,7 @@ public class FloatAreaSumTest {
 
   @SeededTest
   public void canComputeRectangleRegionStatistics(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     final float[] data = createData(rng);
     final FloatAreaSum a1 = new FloatAreaSum(data, maxx, maxy);
     a1.setRollingSums(true);
@@ -264,7 +264,7 @@ public class FloatAreaSumTest {
 
   private void speedTest(RandomSeed seed, double density, boolean rollingIsFaster, int minN,
       int maxN) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
 
     final int k = (int) Math.round(maxx * maxy * density);
     final int[] x = RandomUtils.sample(k, maxx, rng);

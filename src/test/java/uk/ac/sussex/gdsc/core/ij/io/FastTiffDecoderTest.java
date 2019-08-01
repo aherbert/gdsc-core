@@ -15,7 +15,7 @@ public class FastTiffDecoderTest {
 
   @SeededTest
   public void canGetOrigin(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
 
     for (int i = 0; i < 5; i++) {
       final int x = rng.nextInt(100);

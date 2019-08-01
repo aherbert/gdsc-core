@@ -42,7 +42,7 @@ public class StoredDataStatisticsTest extends StatisticsTest {
   final int loops = 100;
 
   private static StoredDataStatistics createStatistics(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final StoredDataStatistics stats = new StoredDataStatistics(STATISTICS_SIZE);
     for (int i = 0; i < STATISTICS_SIZE; i++) {
       stats.add(r.nextDouble());

@@ -23,7 +23,7 @@ public class QuadraticUtilsTest {
 
   @SeededTest
   public void canGetDeterminant3x3(RandomSeed seed) {
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     final DoubleDoubleBiPredicate areClose = TestHelper.doublesAreClose(1e-6, 0);
     for (int i = 0; i < 5; i++) {
       final double[] m = new double[9];
@@ -47,7 +47,7 @@ public class QuadraticUtilsTest {
     final double c = -4;
     final double[] exp = new double[] {a, b, c};
 
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
     for (int i = 0; i < 5; i++) {
       // Avoid identical points
       final double x1 = -5 + r.nextDouble() * 10;

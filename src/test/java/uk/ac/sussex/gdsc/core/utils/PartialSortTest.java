@@ -55,7 +55,7 @@ public class PartialSortTest {
 
   @SeededTest
   public void bottomNofMIsCorrect(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int size : testN) {
       for (final int total : testM) {
         bottomCompute(rng, 100, size, total);
@@ -217,7 +217,7 @@ public class PartialSortTest {
 
   @SeededTest
   public void topNofMIsCorrect(RandomSeed seed) {
-    final UniformRandomProvider rng = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng = RngUtils.create(seed.getSeed());
     for (final int size : testN) {
       for (final int total : testM) {
         topCompute(rng, 100, size, total);

@@ -189,7 +189,7 @@ public class RandIndexTest {
 
   @SeededTest
   public void canComputeRandIndexWithSimpleData(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int size = 100;
     for (final int n1 : new int[] {1, 2, 3, 4, 5}) {
       for (final int n2 : new int[] {1, 2, 3, 4, 5}) {
@@ -201,7 +201,7 @@ public class RandIndexTest {
   @SeededTest
   public void canComputeRandIndexWithBigData(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.LOW));
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int size = 10000;
     for (final int i : new int[] {3, 5, 10}) {
       final int n1 = size / i;
@@ -255,7 +255,7 @@ public class RandIndexTest {
 
   @SeededTest
   public void adjustedRandIndexIsZeroForRandomData(RandomSeed seed) {
-    final UniformRandomProvider rg = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rg = RngUtils.create(seed.getSeed());
     final int size = 100;
     for (final int n1 : new int[] {2, 5, 10}) {
       for (final int n2 : new int[] {2, 5}) {
@@ -328,7 +328,7 @@ public class RandIndexTest {
       c1[size] = size % n1;
       c2[size] = size % n2;
     }
-    final UniformRandomProvider rand = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rand = RngUtils.create(seed.getSeed());
     PermutationSampler.shuffle(rand, c1);
 
     final long t1 = System.nanoTime();

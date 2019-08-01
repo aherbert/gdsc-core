@@ -244,7 +244,7 @@ public class CustomTricubicInterpolatingFunctionInlineTest {
   public void inlineComputeCoefficientsIsFaster(RandomSeed seed) {
     Assumptions.assumeTrue(TestSettings.allow(TestComplexity.MEDIUM));
 
-    final UniformRandomProvider r = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider r = RngUtils.create(seed.getSeed());
 
     final int N = 3000;
     final double[][] tables = new double[N][];

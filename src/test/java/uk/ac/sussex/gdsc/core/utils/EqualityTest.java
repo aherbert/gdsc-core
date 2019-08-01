@@ -334,7 +334,7 @@ public class EqualityTest {
     final DoubleEquality equality2 = new DoubleEquality(maxRelativeError, maxAbsoluteError);
 
     // Create data
-    final UniformRandomProvider rand = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rand = RngUtils.create(seed.getSeed());
     final float[] data1 = new float[MAX_ITER];
     final float[] data2 = new float[data1.length];
     final double[] data3 = new double[data1.length];

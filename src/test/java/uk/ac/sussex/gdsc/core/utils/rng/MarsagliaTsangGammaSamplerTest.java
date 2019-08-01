@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Assertions;
 public class MarsagliaTsangGammaSamplerTest {
   @SeededTest
   public void testGammaSampler(RandomSeed seed) {
-    final UniformRandomProvider rng1 = RngUtils.create(seed.getSeedAsLong());
-    final UniformRandomProvider rng2 = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng1 = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng2 = RngUtils.create(seed.getSeed());
     final double shape = 6.11;
     final double scale = 4.23;
     // Test against the source implementation.
@@ -29,8 +29,8 @@ public class MarsagliaTsangGammaSamplerTest {
 
   @SeededTest
   public void testGammaSamplerAtShapeLimit(RandomSeed seed) {
-    final UniformRandomProvider rng1 = RngUtils.create(seed.getSeedAsLong());
-    final UniformRandomProvider rng2 = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng1 = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng2 = RngUtils.create(seed.getSeed());
     final double shape = 1.0;
     final double scale = 4.23;
     // Test against the source implementation.
@@ -46,8 +46,8 @@ public class MarsagliaTsangGammaSamplerTest {
 
   @SeededTest
   public void testGammaSamplerUseProperties(RandomSeed seed) {
-    final UniformRandomProvider rng1 = RngUtils.create(seed.getSeedAsLong());
-    final UniformRandomProvider rng2 = RngUtils.create(seed.getSeedAsLong());
+    final UniformRandomProvider rng1 = RngUtils.create(seed.getSeed());
+    final UniformRandomProvider rng2 = RngUtils.create(seed.getSeed());
     final double shape = 6.11;
     final double scale = 4.23;
     // Test against the source implementation.
