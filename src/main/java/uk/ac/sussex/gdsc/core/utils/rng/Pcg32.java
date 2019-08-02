@@ -49,7 +49,7 @@ public abstract class Pcg32
   private static final long DEFAULT_INCREMENT = 1442695040888963407L;
 
   /** The state of the LCG. */
-  private long state;
+  long state;
 
   /** The increment of the LCG. */
   private long increment;
@@ -94,8 +94,21 @@ public abstract class Pcg32
 
     @Override
     int mix(long x) {
-      final int count = (int) (x >>> 61);
-      return (int) ((x ^ (x >>> 22)) >>> (22 + count));
+      return (int) ((x ^ (x >>> 22)) >>> (22 + (int) (x >>> 61)));
+    }
+
+    @Override
+    public long nextLong() {
+      // Get two values from the LCG
+      final long x = state;
+      final long y = bump(state);
+      state = bump(y);
+      // Perform mix function.
+      // For a 32-bit output the x bits should be shifted down (22 + (int) (x >>> 61)).
+      // Leave in the upper bits by shift up 32 - (22 + (int) (x >>> 61))
+      final long upper = ((x ^ (x >>> 22)) << (10 - (int) (x >>> 61)));
+      final long lower = ((y ^ (y >>> 22)) >>> (22 + (int) (y >>> 61)));
+      return (upper & 0xffffffff00000000L) | (lower & 0xffffffffL);
     }
 
     @Override
@@ -149,8 +162,7 @@ public abstract class Pcg32
 
     @Override
     int mix(long x) {
-      final int count = (int) (x >>> 59);
-      return Integer.rotateRight((int) ((x ^ (x >>> 18)) >>> 27), count);
+      return Integer.rotateRight((int) ((x ^ (x >>> 18)) >>> 27), (int) (x >>> 59));
     }
 
     @Override
@@ -260,7 +272,7 @@ public abstract class Pcg32
    * @param x current state
    * @return next state
    */
-  private long bump(long x) {
+  final long bump(long x) {
     return x * MULTIPLIER + increment;
   }
 
@@ -432,9 +444,8 @@ public abstract class Pcg32
   public Pcg32 split() {
     // Note: In nextInt() the old state is unused so bump after copying.
     final long s0 = state;
-    state = bump(state);
-    final long s1 = state;
-    state = bump(state);
+    final long s1 = bump(state);
+    state = bump(s1);
     // Two different mix functions
     return newInstance(Mixers.stafford1(s0), Mixers.stafford13(s1));
   }
