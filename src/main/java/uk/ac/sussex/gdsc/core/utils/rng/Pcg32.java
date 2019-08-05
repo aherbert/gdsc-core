@@ -356,17 +356,17 @@ public abstract class Pcg32
     }
     // Lemire (2019): Fast Random Integer Generation in an Interval
     // https://arxiv.org/abs/1805.10941
-    long m = (nextInt() & 0xffffffffL) * n;
-    long l = m & 0xffffffffL;
-    if (l < n) {
+    long mult = (nextInt() & 0xffffffffL) * n;
+    long left = mult & 0xffffffffL;
+    if (left < n) {
       // 2^32 % n
       final long t = POW_32 % n;
-      while (l < t) {
-        m = (nextInt() & 0xffffffffL) * n;
-        l = m & 0xffffffffL;
+      while (left < t) {
+        mult = (nextInt() & 0xffffffffL) * n;
+        left = mult & 0xffffffffL;
       }
     }
-    return (int) (m >>> 32);
+    return (int) (mult >>> 32);
   }
 
   @Override
