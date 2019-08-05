@@ -3,6 +3,7 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 import uk.ac.sussex.gdsc.test.junit5.RandomSeed;
 import uk.ac.sussex.gdsc.test.junit5.SeededTest;
 
+import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.apache.commons.rng.RandomProviderState;
 import org.apache.commons.rng.core.source64.SplitMix64;
 import org.apache.commons.rng.core.util.NumberFactory;
@@ -55,18 +56,40 @@ public class SplitMixTest {
     }
   }
 
-  @SeededTest
-  public void testNextIntInRange(RandomSeed randomSeed) {
-    final long seed = randomSeed.getSeedAsLong();
-    final SplittableRandom sr = new SplittableRandom(seed);
+  @Test
+  public void testNextIntInRange() {
+    // This test uses a fixed seed to avoid flaky tests. The nextInt method is different from
+    // JDK SplittableRandom so do a statistical test.
+    final long seed = -143514987121378964L;
     final SplitMix sm = SplitMix.new64(seed);
     // A power of 2 and the worst case scenario for the rejection algorithm.
     // Rejection should occur almost 50% of the time so the test should hit all paths.
-    for (final int range : new int[] {256, (1 << 30) + 1}) {
-      for (int i = 0; i < 10; i++) {
-        Assertions.assertEquals(sr.nextInt(range), sm.nextInt(range));
-      }
+    assertNextIntInRange(sm, 16 * 16, 16);
+    assertNextIntInRange(sm, 17 * 17, 17);
+    assertNextIntInRange(sm, (1 << 30) + 16, 16);
+  }
+
+  /**
+   * Assert the nextInt(int) method is uniform. The bins must exactly divide into the limit.
+   *
+   * @param rng the rng
+   * @param limit the limit
+   * @param bins the bins
+   */
+  private static void assertNextIntInRange(SplitMix rng, int limit, int bins) {
+    Assertions.assertEquals(0, limit % bins, "Invalid test: limit/bins must be a whole number");
+
+    final long[] observed = new long[bins];
+    final int divisor = limit / bins;
+    final int samples = 10000;
+    for (int i = 0; i < 10000; i++) {
+      observed[rng.nextInt(limit) / divisor]++;
     }
+    final double[] expected = new double[bins];
+    Arrays.fill(expected, (double) samples / bins);
+    final ChiSquareTest test = new ChiSquareTest();
+    final double pvalue = test.chiSquareTest(expected, observed);
+    Assertions.assertFalse(pvalue < 0.01, "P-value = " + pvalue);
   }
 
   @SeededTest

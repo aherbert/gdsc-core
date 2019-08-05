@@ -51,6 +51,9 @@ public abstract class SplitMix implements RestorableUniformRandomProvider {
    */
   private static final long GOLDEN_RATIO = 0x9e3779b97f4a7c15L;
 
+  /** 2^32. */
+  private static final long POW_32 = 1L << 32;
+
   /** The state. */
   long state;
 
@@ -255,19 +258,19 @@ public abstract class SplitMix implements RestorableUniformRandomProvider {
     if (n <= 0) {
       throw new IllegalArgumentException("Not positive: " + n);
     }
-    final int nm1 = n - 1;
-    if ((n & nm1) == 0) {
-      // Power of 2
-      return nextInt() & nm1;
+    // Lemire (2019): Fast Random Integer Generation in an Interval
+    // https://arxiv.org/abs/1805.10941
+    long m = (nextInt() & 0xffffffffL) * n;
+    long l = m & 0xffffffffL;
+    if (l < n) {
+      // 2^32 % n
+      final long t = POW_32 % n;
+      while (l < t) {
+        m = (nextInt() & 0xffffffffL) * n;
+        l = m & 0xffffffffL;
+      }
     }
-    int bits;
-    int val;
-    do {
-      bits = nextInt() >>> 1;
-      val = bits % n;
-    } while (bits - val + nm1 < 0);
-
-    return val;
+    return (int) (m >>> 32);
   }
 
   @Override

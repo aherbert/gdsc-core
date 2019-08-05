@@ -274,7 +274,7 @@ public class Pcg32Test {
   @ParameterizedTest(name = "{index}: {0}")
   @ArgumentsSource(PcgFactoryParams.class)
   public void testNextIntInRange(PcgFactory constructor) {
-    final long seed = -78914521849463L;
+    final long seed = -7891452149463L;
     final Pcg32 rng = constructor.create(seed);
     // A power of 2 and the worst case scenario for the rejection algorithm.
     // Rejection should occur almost 50% of the time so the test should hit all paths.
