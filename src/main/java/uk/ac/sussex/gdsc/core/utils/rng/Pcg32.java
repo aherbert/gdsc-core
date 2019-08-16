@@ -110,7 +110,7 @@ public abstract class Pcg32
     public long nextLong() {
       // Get two values from the LCG
       final long x = state;
-      final long y = bump(state);
+      final long y = bump(x);
       state = bump(y);
       // Perform mix function.
       // For a 32-bit output the x bits should be shifted down (22 + (int) (x >>> 61)).
@@ -125,7 +125,7 @@ public abstract class Pcg32
     public double nextDouble() {
         // Get two values from the LCG
         final long x = state;
-        final long y = bump(state);
+        final long y = bump(x);
         state = bump(y);
         // Perform mix function.
         // For a 32-bit output the x bits should be shifted down (22 + (int) (x >>> 61)).
