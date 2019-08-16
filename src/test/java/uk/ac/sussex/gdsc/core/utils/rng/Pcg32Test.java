@@ -153,7 +153,7 @@ public class Pcg32Test {
     final Pcg32 rng1 = constructor.create(seed);
     final Pcg32 rng2 = constructor.create(seed);
     for (int i = 0; i < 200; i++) {
-      Assertions.assertEquals((rng1.nextLong() >>> 11) * 0x1.0p-53, rng2.nextDouble());
+      Assertions.assertEquals(NumberUtils.makeDouble(rng1.nextInt(), rng1.nextInt()), rng2.nextDouble());
     }
   }
 

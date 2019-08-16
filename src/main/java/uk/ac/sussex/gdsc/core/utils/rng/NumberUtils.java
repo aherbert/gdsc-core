@@ -464,4 +464,19 @@ public final class NumberUtils {
     }
     return state * currM + currC;
   }
+
+  /**
+   * Creates a {@code double} from two {@code int} values.
+   *
+   * @param v Number (high order bits).
+   * @param w Number (low order bits).
+   * @return a {@code double} value in the interval {@code [0, 1]}.
+   */
+  public static double makeDouble(int v, int w) {
+    // Require the least significant 53-bits from a long.
+    // Join the most significant 26 from v with 27 from w.
+    final long high = ((long) (v >>> 6)) << 27;
+    final int low = w >>> 5;
+    return (high | low) * 0x1.0p-53d;
+  }
 }
