@@ -30,7 +30,6 @@ package uk.ac.sussex.gdsc.core.utils.rng;
 
 import org.apache.commons.rng.RandomProviderState;
 import org.apache.commons.rng.RestorableUniformRandomProvider;
-import org.apache.commons.rng.core.util.NumberFactory;
 
 /**
  * Implement a Permuted Congruential Generator (PCG) using a 64-bit Linear Congruential Generator
@@ -68,10 +67,10 @@ public abstract class Pcg32
    * @since 2.0
    */
   private static final class PcgXshRs32 extends Pcg32 {
-    /** Upper mask for top 26 bits shifted by 27 bits. */
-    private static final long MASK1 = ((long) (0xffffffff >>> 6)) << 27;
-    /** Lower mask shifted by 5 for 27 bits. */
-    private static final long MASK2 = 0xffffffffL >>> 5;
+    /** Mask for the lower 26 bits of a long, left-shifted by 27 bits. */
+    private static final long MASK1 = 0x1ffffff8000000L;
+    /** Mask for the lower 27 bits of a long. */
+    private static final long MASK2 = 0x7ffffffL;
 
     /**
      * Create a new instance with the default increment.
@@ -123,18 +122,18 @@ public abstract class Pcg32
     /** {@inheritDoc} */
     @Override
     public double nextDouble() {
-        // Get two values from the LCG
-        final long x = state;
-        final long y = bump(x);
-        state = bump(y);
-        // Perform mix function.
-        // For a 32-bit output the x bits should be shifted down (22 + (int) (x >>> 61)).
-        // To match nextDouble requires 26-bits from int 1 and 27 bits from int 2.
-        // Int 1 is stored in the upper 32-bits as per nextLong() but shifted down 11 and
-        // then masked to keep the upper 26-bits. Discard an extra 5 from int 2.
-        final long upper = (x ^ (x >>> 22)) >>> (1 + (int) (x >>> 61));
-        final long lower = (y ^ (y >>> 22)) >>> (27 + (int) (y >>> 61));
-        return ((upper & MASK1) | (lower & MASK2)) * 0x1.0p-53;
+      // Get two values from the LCG
+      final long x = state;
+      final long y = bump(x);
+      state = bump(y);
+      // Perform mix function.
+      // For a 32-bit output the x bits should be shifted down (22 + (int) (x >>> 61)).
+      // To match nextDouble requires 26-bits from int 1 and 27 bits from int 2.
+      // Int 1 is stored in the upper 32-bits as per nextLong() but shifted down 11 and
+      // then masked to keep the upper 26-bits. Discard an extra 5 from int 2.
+      final long upper = (x ^ (x >>> 22)) >>> (1 + (int) (x >>> 61));
+      final long lower = (y ^ (y >>> 22)) >>> (27 + (int) (y >>> 61));
+      return ((upper & MASK1) | (lower & MASK2)) * 0x1.0p-53;
     }
 
     @Override
@@ -412,7 +411,8 @@ public abstract class Pcg32
     do {
       bits = nextLong() >>> 1;
       val = bits % n;
-    } while (bits - val + nm1 < 0);
+    }
+    while (bits - val + nm1 < 0);
 
     return val;
   }
