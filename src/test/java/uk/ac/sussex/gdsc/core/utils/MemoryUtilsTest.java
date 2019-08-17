@@ -32,7 +32,7 @@ public class MemoryUtilsTest {
     // Allow a margin for error
     final double error = DoubleEquality.relativeError(size, expected);
     Logger.getLogger(getClass().getName()).log(TestLogUtils.getResultRecord(error < 0.2,
-        "Memory expected=%d : measured=%d : error=%f", expected, size, error));
+        "Memory expected=%s : measured=%d : error=%f", expected, size, error));
     // This is flaky so do not assert the test
     // Assertions.assertEquals(expected, size, expected * 0.1);
   }
