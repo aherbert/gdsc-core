@@ -49,7 +49,7 @@ public class MatchResult {
   private final double recall;
   /** The jaccard. */
   private final double jaccard;
-  /** The The root mean squared distance between true positives. */
+  /** The root mean squared distance between true positives. */
   private final double rmsd;
 
   /**
