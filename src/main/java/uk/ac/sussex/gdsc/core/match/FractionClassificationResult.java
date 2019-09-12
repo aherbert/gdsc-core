@@ -28,14 +28,11 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
+
 /**
- * Class to store the result of a binary scoring analysis when true and false positive and negatives
- * are available. This class allows fractional counts.
- *
- * <p>Can calculate the F-score statistic with a given beta weighting between the precision and
- * recall.
- *
- * @see <a href="http://en.wikipedia.org/wiki/Precision_and_recall#F-measure">F-Measure</a>
+ * Class to store the result of a binary (two-class) classification analysis. This class allows
+ * fractional counts.
  */
 public class FractionClassificationResult {
   /** The true positives. */
@@ -91,37 +88,9 @@ public class FractionClassificationResult {
     this.numberOfPositives = positives;
     this.numberOfNegatives = negatives;
 
-    precision = divide(truePositives, truePositives + falsePositives);
-    recall = divide(truePositives, truePositives + falseNegatives);
-    jaccard = divide(truePositives, truePositives + falsePositives + falseNegatives);
-  }
-
-  /**
-   * Divide.
-   *
-   * @param numerator the numerator
-   * @param denominator the denominator
-   * @return the double
-   */
-  private static double divide(final double numerator, final double denominator) {
-    if (denominator == 0) {
-      return 0;
-    }
-    return numerator / denominator;
-  }
-
-  /**
-   * Return the F-Score statistic, a weighted combination of the precision and recall.
-   *
-   * @param precision the precision
-   * @param recall the recall
-   * @param beta The weight
-   * @return The F-Score
-   */
-  public static double calculateFScore(double precision, double recall, double beta) {
-    final double b2 = beta * beta;
-    final double f = ((1.0 + b2) * precision * recall) / (b2 * precision + recall);
-    return (Double.isNaN(f) ? 0 : f);
+    precision = MathUtils.div0(truePositives, truePositives + falsePositives);
+    recall = MathUtils.div0(truePositives, truePositives + falseNegatives);
+    jaccard = MathUtils.div0(truePositives, truePositives + falsePositives + falseNegatives);
   }
 
   /**
@@ -131,7 +100,7 @@ public class FractionClassificationResult {
    * @return The F-Score
    */
   public double getFScore(double beta) {
-    return calculateFScore(precision, recall, beta);
+    return MatchScores.calculateFBetaScore(getPrecision(), getRecall(), beta);
   }
 
   /**
@@ -140,8 +109,7 @@ public class FractionClassificationResult {
    * @return The F1-Score
    */
   public double getF1Score() {
-    final double f = (2 * precision * recall) / (precision + recall);
-    return (Double.isNaN(f) ? 0 : f);
+    return MatchScores.calculateF1Score(getPrecision(), getRecall());
   }
 
   /**
@@ -255,7 +223,7 @@ public class FractionClassificationResult {
    * @return The true negative rate (specificity) = trueNegatives / (falsePositives + trueNegatives)
    */
   public double getTrueNegativeRate() {
-    return divide(trueNegatives, falsePositives + trueNegatives);
+    return MathUtils.div0(trueNegatives, falsePositives + trueNegatives);
   }
 
   /**
@@ -274,7 +242,7 @@ public class FractionClassificationResult {
    * @return The negative predictive value = trueNegatives / (trueNegatives + falseNegatives)
    */
   public double getNegativePredictiveValue() {
-    return divide(trueNegatives, trueNegatives + falseNegatives);
+    return MathUtils.div0(trueNegatives, trueNegatives + falseNegatives);
   }
 
   /**
@@ -283,7 +251,7 @@ public class FractionClassificationResult {
    * @return The false positive rate (fall-out) = falsePositives / (falsePositives + trueNegatives)
    */
   public double getFalsePositiveRate() {
-    return divide(falsePositives, falsePositives + trueNegatives);
+    return MathUtils.div0(falsePositives, falsePositives + trueNegatives);
   }
 
   /**
@@ -292,7 +260,7 @@ public class FractionClassificationResult {
    * @return The false negative rate = falseNegatives / (falseNegatives + truePositives)
    */
   public double getFalseNegativeRate() {
-    return divide(falseNegatives, falseNegatives + truePositives);
+    return MathUtils.div0(falseNegatives, falseNegatives + truePositives);
   }
 
   /**
@@ -302,7 +270,7 @@ public class FractionClassificationResult {
    *         falsePositives)
    */
   public double getFalseDiscoveryRate() {
-    return 1 - precision; // divide(falsePositives, truePositives + falsePositives)
+    return MathUtils.div0(falsePositives, truePositives + falsePositives);
   }
 
   /**
@@ -312,7 +280,7 @@ public class FractionClassificationResult {
    *         trueNegatives + falseNegatives)
    */
   public double getAccuracy() {
-    return divide(truePositives + trueNegatives,
+    return MathUtils.div0(truePositives + trueNegatives,
         truePositives + falsePositives + trueNegatives + falseNegatives);
   }
 
@@ -335,7 +303,7 @@ public class FractionClassificationResult {
     if (distance != 0) {
       mcc = (truePositives * trueNegatives - falsePositives * falseNegatives) / Math.sqrt(distance);
     }
-    return Math.max(-1, Math.min(1, mcc));
+    return MathUtils.clip(-1, 1, mcc);
   }
 
   /**
