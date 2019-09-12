@@ -862,16 +862,16 @@ public final class MatchCalculator {
     return new MatchResult(tp, fp, fn, rmsd);
   }
 
-  private static Collection<Coordinate> asList(Coordinate[] points) {
-    if (points != null) {
-      return Arrays.asList(points);
-    }
-    return new ArrayList<>(0);
-  }
-
-  private static Collection<Pulse> asList(Pulse[] points) {
-    if (points != null) {
-      return Arrays.asList(points);
+  /**
+   * Creates as Collection view of an array (null-safe).
+   *
+   * @param <T> the generic type
+   * @param array the array (can be null)
+   * @return the collection
+   */
+  private static <T> Collection<T> asList(T[] array) {
+    if (array != null) {
+      return Arrays.asList(array);
     }
     return new ArrayList<>(0);
   }
