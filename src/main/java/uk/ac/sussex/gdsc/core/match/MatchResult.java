@@ -40,20 +40,15 @@ package uk.ac.sussex.gdsc.core.match;
  * </ul>
  *
  * <p>This is a specialisation of a general intersection between sets as it stores a mean distance
- * score between matched items obtained during distance matching.
+ * score between matched items obtained during distance matching. The metrics precision, recall
+ * and Jaccard are precomputed.
  */
 //@formatter:on
-public class MatchResult {
+public class MatchResult extends IntersectionResult {
   // TODO - There is a lot of duplicate code in
   // MatchResult, ClassificationResult and FractionClassificationResult
   // Determine what code is needed and remove redundant code.
 
-  /** The true positives. */
-  private final int tp;
-  /** The false positives. */
-  private final int fp;
-  /** The false negatives. */
-  private final int fn;
   /** The precision. */
   private final double precision;
   /** The recall. */
@@ -72,9 +67,7 @@ public class MatchResult {
    * @param rmsd The root mean squared distance between true positives
    */
   public MatchResult(int tp, int fp, int fn, double rmsd) {
-    this.tp = tp;
-    this.fp = fp;
-    this.fn = fn;
+    super(tp, fp, fn);
     this.rmsd = rmsd;
 
     precision = MatchScores.calculatePrecision(tp, fp);
@@ -99,51 +92,6 @@ public class MatchResult {
    */
   public double getF1Score() {
     return MatchScores.calculateF1Score(getPrecision(), getRecall());
-  }
-
-  /**
-   * Gets the number of predicted points.
-   *
-   * @return the number of predicted points
-   */
-  public int getNumberPredicted() {
-    return tp + fp;
-  }
-
-  /**
-   * Gets the number of actual points.
-   *
-   * @return the number of actual points.
-   */
-  public int getNumberActual() {
-    return tp + fn;
-  }
-
-  /**
-   * Gets the true positives.
-   *
-   * @return the true positives
-   */
-  public int getTruePositives() {
-    return tp;
-  }
-
-  /**
-   * Gets the false positives.
-   *
-   * @return the false positives
-   */
-  public int getFalsePositives() {
-    return fp;
-  }
-
-  /**
-   * Gets the false negatives.
-   *
-   * @return the false negatives
-   */
-  public int getFalseNegatives() {
-    return fn;
   }
 
   /**
