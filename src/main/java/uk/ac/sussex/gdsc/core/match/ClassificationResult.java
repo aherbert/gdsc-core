@@ -28,14 +28,10 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
+import uk.ac.sussex.gdsc.core.utils.MathUtils;
+
 /**
- * Class to store the result of a binary scoring analysis when true and false positive and negatives
- * are available.
- *
- * <p>Can calculate the F-score statistic with a given beta weighting between the precision and
- * recall.
- *
- * @see "http://en.wikipedia.org/wiki/Precision_and_recall#F-measure"
+ * Class to store the result of a binary (two-class) classification analysis.
  */
 public class ClassificationResult {
   /** The true positives. */
@@ -68,37 +64,9 @@ public class ClassificationResult {
     this.trueNegatives = trueNegatives;
     this.falseNegatives = falseNegatives;
 
-    precision = divide(truePositives, truePositives + falsePositives);
-    recall = divide(truePositives, truePositives + falseNegatives);
-    jaccard = divide(truePositives, truePositives + falsePositives + falseNegatives);
-  }
-
-  /**
-   * Divide.
-   *
-   * @param numerator the numerator
-   * @param denominator the denominator
-   * @return the double
-   */
-  private static double divide(final double numerator, final int denominator) {
-    if (denominator == 0) {
-      return 0;
-    }
-    return numerator / denominator;
-  }
-
-  /**
-   * Return the F-Score statistic, a weighted combination of the precision and recall.
-   *
-   * @param precision the precision
-   * @param recall the recall
-   * @param beta The weight
-   * @return The F-Score
-   */
-  public static double calculateFScore(double precision, double recall, double beta) {
-    final double b2 = beta * beta;
-    final double f = ((1.0 + b2) * precision * recall) / (b2 * precision + recall);
-    return (Double.isNaN(f) ? 0 : f);
+    precision = MatchScores.calculatePrecision(truePositives, falsePositives);
+    recall = MatchScores.calculateRecall(truePositives, falseNegatives);
+    jaccard = MatchScores.calculateJaccard(truePositives, falsePositives, falseNegatives);
   }
 
   /**
@@ -108,7 +76,7 @@ public class ClassificationResult {
    * @return The F-Score
    */
   public double getFScore(double beta) {
-    return calculateFScore(precision, recall, beta);
+    return MatchScores.calculateFBetaScore(getPrecision(), getRecall(), beta);
   }
 
   /**
@@ -117,8 +85,7 @@ public class ClassificationResult {
    * @return The F1-Score
    */
   public double getF1Score() {
-    final double f = (2 * precision * recall) / (precision + recall);
-    return (Double.isNaN(f) ? 0 : f);
+    return MatchScores.calculateF1Score(getPrecision(), getRecall());
   }
 
   /**
@@ -230,7 +197,7 @@ public class ClassificationResult {
    * @return The true negative rate (specificity) = trueNegatives / (falsePositives + trueNegatives)
    */
   public double getTrueNegativeRate() {
-    return divide(trueNegatives, falsePositives + trueNegatives);
+    return MathUtils.div0(trueNegatives, falsePositives + trueNegatives);
   }
 
   /**
@@ -249,7 +216,7 @@ public class ClassificationResult {
    * @return The negative predictive value = trueNegatives / (trueNegatives + falseNegatives)
    */
   public double getNegativePredictiveValue() {
-    return divide(trueNegatives, trueNegatives + falseNegatives);
+    return MathUtils.div0(trueNegatives, trueNegatives + falseNegatives);
   }
 
   /**
@@ -258,7 +225,7 @@ public class ClassificationResult {
    * @return The false positive rate (fall-out) = falsePositives / (falsePositives + trueNegatives)
    */
   public double getFalsePositiveRate() {
-    return divide(falsePositives, falsePositives + trueNegatives);
+    return MathUtils.div0(falsePositives, falsePositives + trueNegatives);
   }
 
   /**
@@ -267,7 +234,7 @@ public class ClassificationResult {
    * @return The false negative rate = falseNegatives / (falseNegatives + truePositives)
    */
   public double getFalseNegativeRate() {
-    return divide(falseNegatives, falseNegatives + truePositives);
+    return MathUtils.div0(falseNegatives, falseNegatives + truePositives);
   }
 
   /**
@@ -277,7 +244,7 @@ public class ClassificationResult {
    *         falsePositives)
    */
   public double getFalseDiscoveryRate() {
-    return 1 - precision; // divide(falsePositives, truePositives + falsePositives)
+    return MathUtils.div0(falsePositives, truePositives + falsePositives);
   }
 
   /**
@@ -287,8 +254,8 @@ public class ClassificationResult {
    *         trueNegatives + falseNegatives)
    */
   public double getAccuracy() {
-    return divide((double) truePositives + trueNegatives,
-        truePositives + falsePositives + trueNegatives + falseNegatives);
+    return MathUtils.div0((long) truePositives + trueNegatives,
+        (long) truePositives + falsePositives + trueNegatives + falseNegatives);
   }
 
   /**
@@ -311,7 +278,7 @@ public class ClassificationResult {
     if (distance != 0) {
       mcc = (truePositives * trueNegatives - falsePositives * falseNegatives) / Math.sqrt(distance);
     }
-    return Math.max(-1, Math.min(1, mcc));
+    return MathUtils.clip(-1, 1, mcc);
   }
 
   /**
