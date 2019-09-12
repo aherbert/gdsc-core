@@ -1221,6 +1221,7 @@ public final class SimpleArrayUtils {
   /**
    * Swap the value of the two indices.
    *
+   * @param <T> the array type
    * @param data the data
    * @param index1 the first index
    * @param index2 the second index
