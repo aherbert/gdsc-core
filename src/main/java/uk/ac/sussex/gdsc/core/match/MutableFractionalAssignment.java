@@ -50,17 +50,6 @@ public class MutableFractionalAssignment extends MutableAssignment implements Fr
     this.score = score;
   }
 
-  /**
-   * Instantiates a new fractional assignment. The score for a match is 1.
-   *
-   * @param targetId the target id
-   * @param predictedId the predicted id
-   * @param distance the distance
-   */
-  public MutableFractionalAssignment(int targetId, int predictedId, double distance) {
-    this(targetId, predictedId, distance, 1);
-  }
-
   @Override
   public double getScore() {
     return score;
