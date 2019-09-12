@@ -44,6 +44,8 @@ import java.util.stream.IntStream;
  * @see <a href="https://en.wikipedia.org/wiki/Bipartite_graph">Bipartite graph</a>
  * @see <a href="https://en.wikipedia.org/wiki/Hopcroft%E2%80%93Karp_algorithm">Hopcroft–Karp
  *      algorithm</a>
+ *
+ * @since 2.0
  */
 public class HopcroftKarpMatching {
   /** The special null vertex. */
