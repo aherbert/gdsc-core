@@ -81,10 +81,11 @@ public final class RandomUtils {
   /**
    * Perform a Fisher-Yates shuffle on the data.
    *
+   * @param <T> the element type
    * @param data the data
    * @param rng the random generator
    */
-  public static void shuffle(Object[] data, UniformRandomProvider rng) {
+  public static <T> void shuffle(T[] data, UniformRandomProvider rng) {
     for (int i = data.length; i > 1; i--) {
       SimpleArrayUtils.swap(data, i - 1, rng.nextInt(i));
     }
