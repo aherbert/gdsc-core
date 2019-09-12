@@ -28,15 +28,26 @@
 
 package uk.ac.sussex.gdsc.core.match;
 
+// @formatter:off
 /**
- * Class to store the result of a binary scoring analysis.
+ * Class to store the result of a binary scoring analysis between two sets A and B. Requires the
+ * size of the intersect between sets and the size of the unmatched regions to be known.
  *
- * <p>Can calculate the F-score statistic with a given beta weighting between the precision and
- * recall.
+ * <ul>
+ * <li>True Positives (|A| intersect |B|)
+ * <li>False Positives (|A| - TP)
+ * <li>False Negatives (|B| - TP)
+ * </ul>
  *
- * @see "http://en.wikipedia.org/wiki/Precision_and_recall#F-measure"
+ * <p>This is a specialisation of a general intersection between sets as it stores a mean distance
+ * score between matched items obtained during distance matching.
  */
+//@formatter:on
 public class MatchResult {
+  // TODO - There is a lot of duplicate code in
+  // MatchResult, ClassificationResult and FractionClassificationResult
+  // Determine what code is needed and remove redundant code.
+
   /** The true positives. */
   private final int tp;
   /** The false positives. */
@@ -66,30 +77,9 @@ public class MatchResult {
     this.fn = fn;
     this.rmsd = rmsd;
 
-    precision = divide(tp, tp + fp);
-    recall = divide(tp, tp + fn);
-    jaccard = divide(tp, tp + fp + fn);
-  }
-
-  private static double divide(final double numerator, final int denominator) {
-    if (denominator == 0) {
-      return 0;
-    }
-    return numerator / denominator;
-  }
-
-  /**
-   * Return the F-Score statistic, a weighted combination of the precision and recall.
-   *
-   * @param precision the precision
-   * @param recall the recall
-   * @param beta The weight
-   * @return The F-Score
-   */
-  public static double calculateFScore(double precision, double recall, double beta) {
-    final double b2 = beta * beta;
-    final double f = ((1.0 + b2) * precision * recall) / (b2 * precision + recall);
-    return (Double.isNaN(f) ? 0 : f);
+    precision = MatchScores.calculatePrecision(tp, fp);
+    recall = MatchScores.calculateRecall(tp, fn);
+    jaccard = MatchScores.calculateJaccard(tp, fp, fn);
   }
 
   /**
@@ -99,7 +89,7 @@ public class MatchResult {
    * @return The F-Score
    */
   public double getFScore(double beta) {
-    return calculateFScore(precision, recall, beta);
+    return MatchScores.calculateFBetaScore(getPrecision(), getRecall(), beta);
   }
 
   /**
@@ -108,8 +98,7 @@ public class MatchResult {
    * @return The F1-Score
    */
   public double getF1Score() {
-    final double f = (2 * precision * recall) / (precision + recall);
-    return (Double.isNaN(f) ? 0 : f);
+    return MatchScores.calculateF1Score(getPrecision(), getRecall());
   }
 
   /**
@@ -176,7 +165,7 @@ public class MatchResult {
   }
 
   /**
-   * Gets the jaccard.
+   * Gets the Jaccard.
    *
    * @return the Jaccard index (defined as the size of the intersection divided by the size of the
    *         union of the sample sets)
