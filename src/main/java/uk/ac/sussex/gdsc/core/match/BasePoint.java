@@ -137,12 +137,12 @@ public class BasePoint implements Coordinate {
 
   @Override
   public double distanceSquared(float x, float y, float z) {
-    return (this.x - x) * (this.x - x) + (this.y - y) * (this.y - y) + (this.z - z) * (this.z - z);
+    return pow2(this.x - x) + pow2(this.y - y) + pow2(this.z - z);
   }
 
   @Override
   public double distanceSquared(float x, float y) {
-    return (this.x - x) * (this.x - x) + (this.y - y) * (this.y - y);
+    return pow2(this.x - x) + pow2(this.y - y);
   }
 
   @Override
@@ -163,6 +163,16 @@ public class BasePoint implements Coordinate {
   @Override
   public double distanceXyzSquared(Coordinate other) {
     return distanceSquared(other.getX(), other.getY(), other.getZ());
+  }
+
+  /**
+   * Compute value<sup>2</sup>.
+   *
+   * @param value the value
+   * @return the value squared
+   */
+  private static double pow2(double value) {
+    return value * value;
   }
 
   /**
