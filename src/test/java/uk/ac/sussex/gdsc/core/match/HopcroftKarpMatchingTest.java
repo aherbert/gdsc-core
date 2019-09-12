@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Test for {@link RandIndex}.
+ * Test for {@link HopcroftKarpMatching}.
  */
 @SuppressWarnings({"javadoc"})
 public class HopcroftKarpMatchingTest {
