@@ -46,22 +46,23 @@ public class IntersectionResult {
   private final int intersection;
 
   /** Size A minus intersection. */
-  private final int aMinusIntersection;
+  private final int sizeAMinusIntersection;
 
   /** Size B minus intersection. */
-  private final int bMinusIntersection;
+  private final int sizeBMinusIntersection;
 
   /**
    * Create a new instance.
    *
    * @param intersection The size of the intersection (|A &#8745; B|)
-   * @param aMinusIntersection The size of A excluding the intersection (|A| - |A &#8745; B|)
-   * @param bMinusIntersection The size of B excluding the intersection (|B| - |A &#8745; B|)
+   * @param sizeAMinusIntersection The size of A excluding the intersection (|A| - |A &#8745; B|)
+   * @param sizeBMinusIntersection The size of B excluding the intersection (|B| - |A &#8745; B|)
    */
-  public IntersectionResult(int intersection, int aMinusIntersection, int bMinusIntersection) {
+  public IntersectionResult(int intersection, int sizeAMinusIntersection,
+      int sizeBMinusIntersection) {
     this.intersection = intersection;
-    this.aMinusIntersection = aMinusIntersection;
-    this.bMinusIntersection = bMinusIntersection;
+    this.sizeAMinusIntersection = sizeAMinusIntersection;
+    this.sizeBMinusIntersection = sizeBMinusIntersection;
   }
 
   /**
@@ -70,7 +71,7 @@ public class IntersectionResult {
    * @return the size |A|
    */
   public int getSizeA() {
-    return intersection + aMinusIntersection;
+    return intersection + sizeAMinusIntersection;
   }
 
   /**
@@ -79,12 +80,12 @@ public class IntersectionResult {
    * @return the size |B|
    */
   public int getSizeB() {
-    return intersection + bMinusIntersection;
+    return intersection + sizeBMinusIntersection;
   }
 
   /**
    * Gets the intersection (|A &#8745; B|).
-   * 
+   *
    * @return the intersection
    */
   public int getIntersection() {
@@ -97,7 +98,7 @@ public class IntersectionResult {
    * @return the size A minus intersection
    */
   public int getSizeAMinusIntersection() {
-    return aMinusIntersection;
+    return sizeAMinusIntersection;
   }
 
   /**
@@ -106,6 +107,6 @@ public class IntersectionResult {
    * @return the size B minus intersection
    */
   public int getSizeBMinusIntersection() {
-    return bMinusIntersection;
+    return sizeBMinusIntersection;
   }
 }
