@@ -42,8 +42,8 @@ public class ImmutableFractionalAssignment extends ImmutableAssignment
    *
    * @param targetId the target id
    * @param predictedId the predicted id
-   * @param distance the distance (zero is perfect match)
-   * @param score The true positive score (must be 0-1)
+   * @param distance the distance
+   * @param score the score
    */
   public ImmutableFractionalAssignment(int targetId, int predictedId, double distance,
       double score) {

@@ -29,17 +29,11 @@
 package uk.ac.sussex.gdsc.core.match;
 
 /**
- * Stores an assignment between two identified points and the distance between them.
+ * Stores an assignment between two identified points, the distance between them and a score.
  */
 public interface FractionalAssignment extends Assignment {
   /**
-   * The true-positive score (TP) (must be 0-1). The remaining score is assumed to be false
-   * positive.
-   *
-   * <p>To use this for classic binary scoring set the score to 1 for all assignments. .
-   *
-   * <p>A score less than 1 allows partial matches to be computed. This is similar to computing
-   * scoring at multiple distance thresholds at the same time.
+   * Get the score.
    *
    * @return the score
    */

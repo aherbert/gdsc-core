@@ -44,7 +44,7 @@ public class MutableAssignment implements Assignment {
    *
    * @param targetId the target id
    * @param predictedId the predicted id
-   * @param distance the distance (zero is perfect match)
+   * @param distance the distance
    */
   public MutableAssignment(int targetId, int predictedId, double distance) {
     this.targetId = targetId;
